@@ -590,7 +590,7 @@ static int fman_probe(struct udevice *dev)
 
 	priv->reg = (struct ccsr_fman *)(uintptr_t)dev_read_addr(dev);
 
-	if (dev_read_u32(dev, "cell-index", &priv->fman_id)) {
+	if (dev_reg_read(dev, "cell-index", &priv->fman_id)) {
 		printf("FMan node property cell-index missing\n");
 		return -EINVAL;
 	}

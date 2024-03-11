@@ -12,6 +12,18 @@ config MT8512
 choice
 	prompt "MediaTek board select"
 
+config TARGET_SPL_MT6735
+	bool "SPL for MediaTek MT6735 SoC"
+	select ARM64
+	select SPL
+	help
+	  The MediaTek MT6735 is a ARM-based SoC with a quad-core Cortex-A53
+	  including NEON and GPU, Mali-T720p graphics, crypto engine,
+	  built-in Wi-Fi / Bluetooth combo chip, JPEG decoder,
+	  video interfaces supporting MIPI, and video codec support.
+	  Peripherals include USB2.0 and OTG, I2S, PCM, UART, SPI, I2C, IR TX/RX, and PWM.
+	  This option is used for SPL build of MT6735.
+
 config TARGET_MT7622
 	bool "MediaTek MT7622 SoC"
 	select ARM64
@@ -156,6 +168,7 @@ config MTK_BROM_HEADER_INFO
 	default "media=nor" if TARGET_MT8518 || TARGET_MT8512 || TARGET_MT7629 || TARGET_MT7622
 	default "media=emmc" if TARGET_MT8516 || TARGET_MT8365 || TARGET_MT8183
 	default "media=snand;nandinfo=2k+64" if TARGET_MT7981 || TARGET_MT7986 || TARGET_MT7988
+	default "media=sdmmc;arm64=1" if TARGET_SPL_MT6735
 	default "lk=1" if TARGET_MT7623
 
 endif

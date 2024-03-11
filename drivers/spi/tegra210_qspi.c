@@ -112,9 +112,9 @@ static int tegra210_qspi_of_to_plat(struct udevice *bus)
 	}
 
 	/* Use 500KHz as a suitable default */
-	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+	plat->frequency = dev_reg_read_default(bus, "spi-max-frequency",
 					       500000);
-	plat->deactivate_delay_us = dev_read_u32_default(bus,
+	plat->deactivate_delay_us = dev_reg_read_default(bus,
 							 "spi-deactivate-delay",
 							 0);
 	debug("%s: base=%#08lx, periph_id=%d, max-frequency=%d, deactivate_delay=%d\n",

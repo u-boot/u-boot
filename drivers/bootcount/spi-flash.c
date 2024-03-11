@@ -100,7 +100,7 @@ static int bootcount_spi_flash_probe(struct udevice *dev)
 	}
 
 	priv->spi_flash = spi_flash;
-	priv->offset = dev_read_u32_default(dev, "offset", 0);
+	priv->offset = dev_reg_read_default(dev, "offset", 0);
 
 	return 0;
 }

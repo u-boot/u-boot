@@ -674,17 +674,17 @@ static int mxsmmc_of_to_plat(struct udevice *bus)
 
 	plat->base = dev_read_addr(bus);
 	plat->buswidth =
-		dev_read_u32_default(bus, "bus-width", 1);
+		dev_reg_read_default(bus, "bus-width", 1);
 	plat->non_removable = dev_read_bool(bus, "non-removable");
 
-	ret = dev_read_u32_array(bus, "dmas", prop, ARRAY_SIZE(prop));
+	ret = dev_reg_read_array(bus, "dmas", prop, ARRAY_SIZE(prop));
 	if (ret) {
 		printf("%s: Reading 'dmas' property failed!\n", __func__);
 		return ret;
 	}
 	plat->dma_id = prop[1];
 
-	ret = dev_read_u32_array(bus, "clocks", prop, ARRAY_SIZE(prop));
+	ret = dev_reg_read_array(bus, "clocks", prop, ARRAY_SIZE(prop));
 	if (ret) {
 		printf("%s: Reading 'clocks' property failed!\n", __func__);
 		return ret;

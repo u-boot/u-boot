@@ -117,8 +117,8 @@ static int led_pwm_of_to_plat(struct udevice *dev)
 	priv->period = args.args[1];
 	priv->active_low = dev_read_bool(dev, "active-low");
 
-	def_brightness = dev_read_u32_default(dev, "u-boot,default-brightness", 0);
-	max_brightness = dev_read_u32_default(dev, "max-brightness", 255);
+	def_brightness = dev_reg_read_default(dev, "u-boot,default-brightness", 0);
+	max_brightness = dev_reg_read_default(dev, "max-brightness", 255);
 	priv->enabled =  !!def_brightness;
 
 	/*

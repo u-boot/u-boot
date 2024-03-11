@@ -90,7 +90,7 @@ static int ca_gpio_probe(struct udevice *dev)
 	if (!priv->base)
 		return -EINVAL;
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", 32);
+	uc_priv->gpio_count = dev_reg_read_default(dev, "ngpios", 32);
 	uc_priv->bank_name = dev->name;
 
 	debug("Done Cortina GPIO init\n");

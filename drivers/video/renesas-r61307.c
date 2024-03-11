@@ -261,7 +261,7 @@ static int renesas_r61307_of_to_plat(struct udevice *dev)
 
 	priv->dig_cont_adj = dev_read_bool(dev, "renesas,contrast");
 	priv->inversion = dev_read_bool(dev, "renesas,inversion");
-	priv->gamma = dev_read_u32_default(dev, "renesas,gamma", 0);
+	priv->gamma = dev_reg_read_default(dev, "renesas,gamma", 0);
 
 	return 0;
 }

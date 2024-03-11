@@ -561,7 +561,7 @@ static int ftgmac100_of_to_plat(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+	pdata->max_speed = dev_reg_read_default(dev, "max-speed", 0);
 
 	if (dev_get_driver_data(dev) == FTGMAC100_MODEL_ASPEED) {
 		priv->rxdes0_edorr_mask = BIT(30);

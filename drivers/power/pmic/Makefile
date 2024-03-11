@@ -21,6 +21,7 @@ obj-$(CONFIG_PMIC_ACT8846) += act8846.o
 obj-$(CONFIG_PMIC_AS3722) += as3722.o as3722_gpio.o
 obj-$(CONFIG_$(SPL_)PMIC_AXP) += axp.o
 obj-$(CONFIG_PMIC_MAX8997) += max8997.o
+obj-$(CONFIG_PMIC_MT6328) += pmic_mt6328.o mt6328-keys.o
 obj-$(CONFIG_PMIC_QCOM) += pmic_qcom.o
 obj-$(CONFIG_$(SPL_TPL_)PMIC_RK8XX) += rk8xx.o
 obj-$(CONFIG_$(SPL_)PMIC_RN5T567) += rn5t567.o

@@ -151,28 +151,28 @@ static int nexell_dwmmc_of_to_plat(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+	host->buswidth = dev_reg_read_default(dev, "bus-width", 4);
 	host->get_mmc_clk = nx_dw_mmc_get_clk;
 	host->clksel = nx_dw_mmc_clksel;
 	host->priv = dev;
 
-	val = dev_read_u32_default(dev, "index", -1);
+	val = dev_reg_read_default(dev, "index", -1);
 	if (val < 0 || val > 2) {
 		debug("  'index' missing/invalid!\n");
 		return -EINVAL;
 	}
 	host->dev_index = val;
 
-	priv->fifo_size = dev_read_u32_default(dev, "fifo-size", 0x20);
+	priv->fifo_size = dev_reg_read_default(dev, "fifo-size", 0x20);
 	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
-	priv->frequency = dev_read_u32_default(dev, "frequency", 50000000);
-	priv->max_freq = dev_read_u32_default(dev, "max-frequency", 50000000);
+	priv->frequency = dev_reg_read_default(dev, "frequency", 50000000);
+	priv->max_freq = dev_reg_read_default(dev, "max-frequency", 50000000);
 	priv->min_freq = 400000;  /* 400 kHz */
-	priv->d_delay = dev_read_u32_default(dev, "drive_dly", 0);
-	priv->d_shift = dev_read_u32_default(dev, "drive_shift", 3);
-	priv->s_delay = dev_read_u32_default(dev, "sample_dly", 0);
-	priv->s_shift = dev_read_u32_default(dev, "sample_shift", 2);
-	priv->mmcboost = dev_read_u32_default(dev, "mmcboost", 0);
+	priv->d_delay = dev_reg_read_default(dev, "drive_dly", 0);
+	priv->d_shift = dev_reg_read_default(dev, "drive_shift", 3);
+	priv->s_delay = dev_reg_read_default(dev, "sample_dly", 0);
+	priv->s_shift = dev_reg_read_default(dev, "sample_shift", 2);
+	priv->mmcboost = dev_reg_read_default(dev, "mmcboost", 0);
 
 	debug("  index==%d, name==%s, ioaddr==0x%08x\n",
 	      host->dev_index, host->name, (u32)host->ioaddr);

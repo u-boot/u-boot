@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+#ifndef MT6735_PWRAP_HAL
+#define MT6735_PWRAP_HAL
+
+#define PWRAP_MUX_SEL                             0x0
+#define PWRAP_WRAP_EN                             0x4
+#define PWRAP_DIO_EN                              0x8
+#define PWRAP_SIDLY                               0xC
+#define PWRAP_RDDMY                               0x10
+#define PWRAP_SI_CK_CON                           0x14
+#define PWRAP_CSHEXT_WRITE                        0x18
+#define PWRAP_CSHEXT_READ                         0x1C
+#define PWRAP_CSLEXT_START                        0x20
+#define PWRAP_CSLEXT_END                          0x24
+#define PWRAP_STAUPD_PRD                          0x28
+#define PWRAP_STAUPD_GRPEN                        0x2C
+#define PWRAP_EINT_STA0_ADR                       0x30
+#define PWRAP_EINT_STA1_ADR                       0x34
+#define PWRAP_EINT_STA                            0x38
+#define PWRAP_EINT_CLR                            0x3C
+#define PWRAP_STAUPD_MAN_TRIG                     0x40
+#define PWRAP_STAUPD_STA                          0x44
+#define PWRAP_WRAP_STA                            0x48
+#define PWRAP_HARB_INIT                           0x4C
+#define PWRAP_HARB_HPRIO                          0x50
+#define PWRAP_HIPRIO_ARB_EN                       0x54
+#define PWRAP_HARB_STA0                           0x58
+#define PWRAP_HARB_STA1                           0x5C
+#define PWRAP_MAN_EN                              0x60
+#define PWRAP_MAN_CMD                             0x64
+#define PWRAP_MAN_RDATA                           0x68
+#define PWRAP_MAN_VLDCLR                          0x6C
+#define PWRAP_WACS0_EN                            0x70
+#define PWRAP_INIT_DONE0                          0x74
+#define PWRAP_WACS0_CMD                           0x78
+#define PWRAP_WACS0_RDATA                         0x7C
+#define PWRAP_WACS0_VLDCLR                        0x80
+#define PWRAP_WACS1_EN                            0x84
+#define PWRAP_INIT_DONE1                          0x88
+#define PWRAP_WACS1_CMD                           0x8C
+#define PWRAP_WACS1_RDATA                         0x90
+#define PWRAP_WACS1_VLDCLR                        0x94
+#define PWRAP_WACS2_EN                            0x98
+#define PWRAP_INIT_DONE2                          0x9C
+#define PWRAP_WACS2_CMD                           0xA0
+#define PWRAP_WACS2_RDATA                         0xA4
+#define PWRAP_WACS2_VLDCLR                        0xA8
+#define PWRAP_INT_EN                              0xAC
+#define PWRAP_INT_FLG_RAW                         0xB0
+#define PWRAP_INT_FLG                             0xB4
+#define PWRAP_INT_CLR                             0xB8
+#define PWRAP_SIG_ADR                             0xBC
+#define PWRAP_SIG_MODE                            0xC0
+#define PWRAP_SIG_VALUE                           0xC4
+#define PWRAP_SIG_ERRVAL                          0xC8
+#define PWRAP_CRC_EN                              0xCC
+#define PWRAP_TIMER_EN                            0xD0
+#define PWRAP_TIMER_STA                           0xD4
+#define PWRAP_WDT_UNIT                            0xD8
+#define PWRAP_WDT_SRC_EN                          0xDC
+#define PWRAP_WDT_FLG                             0xE0
+#define PWRAP_DEBUG_INT_SEL                       0xE4
+#define PWRAP_DVFS_ADR0                           0xE8
+#define PWRAP_DVFS_WDATA0                         0xEC
+#define PWRAP_DVFS_ADR1                           0xF0
+#define PWRAP_DVFS_WDATA1                         0xF4
+#define PWRAP_DVFS_ADR2                           0xF8
+#define PWRAP_DVFS_WDATA2                         0xFC
+#define PWRAP_DVFS_ADR3                           0x100
+#define PWRAP_DVFS_WDATA3                         0x104
+#define PWRAP_DVFS_ADR4                           0x108
+#define PWRAP_DVFS_WDATA4                         0x10C
+#define PWRAP_DVFS_ADR5                           0x110
+#define PWRAP_DVFS_WDATA5                         0x114
+#define PWRAP_DVFS_ADR6                           0x118
+#define PWRAP_DVFS_WDATA6                         0x11C
+#define PWRAP_DVFS_ADR7                           0x120
+#define PWRAP_DVFS_WDATA7                         0x124
+#define PWRAP_DVFS_ADR8                           0x128
+#define PWRAP_DVFS_WDATA8                         0x12C
+#define PWRAP_DVFS_ADR9                           0x130
+#define PWRAP_DVFS_WDATA9                         0x134
+#define PWRAP_DVFS_ADR10                          0x138
+#define PWRAP_DVFS_WDATA10                        0x13C
+#define PWRAP_DVFS_ADR11                          0x140
+#define PWRAP_DVFS_WDATA11                        0x144
+#define PWRAP_DVFS_ADR12                          0x148
+#define PWRAP_DVFS_WDATA12                        0x14C
+#define PWRAP_DVFS_ADR13                          0x150
+#define PWRAP_DVFS_WDATA13                        0x154
+#define PWRAP_DVFS_ADR14                          0x158
+#define PWRAP_DVFS_WDATA14                        0x15C
+#define PWRAP_DVFS_ADR15                          0x160
+#define PWRAP_DVFS_WDATA15                        0x164
+#define PWRAP_SPMINF_STA                          0x168
+#define PWRAP_CIPHER_KEY_SEL                      0x16C
+#define PWRAP_CIPHER_IV_SEL                       0x170
+#define PWRAP_CIPHER_EN                           0x174
+#define PWRAP_CIPHER_RDY                          0x178
+#define PWRAP_CIPHER_MODE                         0x17C
+#define PWRAP_CIPHER_SWRST                        0x180
+#define PWRAP_DCM_EN                              0x184
+#define PWRAP_DCM_DBC_PRD                         0x188
+#define PWRAP_EXT_CK                              0x18C
+#define PWRAP_ADC_CMD_ADDR                        0x190
+#define PWRAP_PWRAP_ADC_CMD                       0x194
+#define PWRAP_ADC_RDATA_ADDR                      0x198
+#define PWRAP_GPS_STA                             0x19C
+#define PWRAP_SWRST                               0x1A0
+#define PWRAP_MD_ADC_RDATA_ADDR_LATEST            0x1A4
+#define PWRAP_MD_ADC_RDATA_ADDR_WP                0x1A8
+#define PWRAP_MD_ADC_RDATA_ADDR0                  0x1AC
+#define PWRAP_MD_ADC_RDATA_ADDR1                  0x1B0
+#define PWRAP_MD_ADC_RDATA_ADDR2                  0x1B4
+#define PWRAP_MD_ADC_RDATA_ADDR3                  0x1B8
+#define PWRAP_MD_ADC_RDATA_ADDR4                  0x1BC
+#define PWRAP_MD_ADC_RDATA_ADDR5                  0x1C0
+#define PWRAP_MD_ADC_RDATA_ADDR6                  0x1C4
+#define PWRAP_MD_ADC_RDATA_ADDR7                  0x1C8
+#define PWRAP_MD_ADC_RDATA_ADDR8                  0x1CC
+#define PWRAP_MD_ADC_RDATA_ADDR9                  0x1D0
+#define PWRAP_MD_ADC_RDATA_ADDR10                 0x1D4
+#define PWRAP_MD_ADC_RDATA_ADDR11                 0x1D8
+#define PWRAP_MD_ADC_RDATA_ADDR12                 0x1DC
+#define PWRAP_MD_ADC_RDATA_ADDR13                 0x1E0
+#define PWRAP_MD_ADC_RDATA_ADDR14                 0x1E4
+#define PWRAP_MD_ADC_RDATA_ADDR15                 0x1E8
+#define PWRAP_MD_ADC_RDATA_ADDR16                 0x1EC
+#define PWRAP_MD_ADC_RDATA_ADDR17                 0x1F0
+#define PWRAP_MD_ADC_RDATA_ADDR18                 0x1F4
+#define PWRAP_MD_ADC_RDATA_ADDR19                 0x1F8
+#define PWRAP_MD_ADC_RDATA_ADDR20                 0x1FC
+#define PWRAP_MD_ADC_RDATA_ADDR21                 0x200
+#define PWRAP_MD_ADC_RDATA_ADDR22                 0x204
+#define PWRAP_MD_ADC_RDATA_ADDR23                 0x208
+#define PWRAP_MD_ADC_RDATA_ADDR24                 0x20C
+#define PWRAP_MD_ADC_RDATA_ADDR25                 0x210
+#define PWRAP_MD_ADC_RDATA_ADDR26                 0x214
+#define PWRAP_MD_ADC_RDATA_ADDR27                 0x218
+#define PWRAP_MD_ADC_RDATA_ADDR28                 0x21C
+#define PWRAP_MD_ADC_RDATA_ADDR29                 0x220
+#define PWRAP_MD_ADC_RDATA_ADDR30                 0x224
+#define PWRAP_MD_ADC_RDATA_ADDR31                 0x228
+#define PWRAP_MD_ADC_STA0                         0x22C
+#define PWRAP_MD_ADC_STA1                         0x230
+#define PWRAP_MD_ADC_STA2                         0x234
+#define INFRA_GLOBALCON_RST0                          0x10000030
+#define INFRA_GLOBALCON_RST1                          0x10000034
+
+#define PWRAP_BASE 0x10001000
+#define PWRAP_GET_WACS_RDATA(x)        (((x) >> 0) & 0x0000ffff)
+#define PWRAP_GET_WACS_ARB_FSM(x)    (((x) >> 1) & 0x00000007)
+#define PWRAP_GET_WACS_FSM(x)        (((x) >> 16) & 0x00000007)
+#define PWRAP_GET_WACS_REQ(x)        (((x) >> 19) & 0x00000001)
+#define PWRAP_STATE_SYNC_IDLE0        BIT(20)
+#define PWRAP_STATE_INIT_DONE0        BIT(21)
+#define PWRAP_STATE_INIT_DONE1        BIT(15)
+#define PWRAP_MAN_CMD_OP_OUTS        (0x8 << 8)
+#define PWRAP_MAN_CMD_OP_CSH        (0x0 << 8)
+#define PWRAP_MAN_CMD_OP_CSL        (0x1 << 8)
+#define PWRAP_DEW_READ_TEST_VAL        0x5aa5
+
+/* macro for WACS FSM */
+#define PWRAP_WACS_FSM_IDLE        0x00
+#define PWRAP_WACS_FSM_REQ        0x02
+#define PWRAP_WACS_FSM_WFDLE        0x04
+#define PWRAP_WACS_FSM_WFVLDCLR        0x06
+#define PWRAP_WACS_INIT_DONE        0x01
+#define PWRAP_WACS_WACS_SYNC_IDLE    0x01
+#define PWRAP_WACS_SYNC_BUSY        0x00
+
+#endif /* __PWRAP_REGS_H__ */

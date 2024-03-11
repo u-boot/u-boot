@@ -72,8 +72,8 @@ int board_phy_config(struct phy_device *phydev)
 		if (ofnode_valid(node)) {
 			u32 rx_delay, tx_delay;
 
-			rx_delay = ofnode_read_u32_default(node, "rx-internal-delay-ps", 2000);
-			tx_delay = ofnode_read_u32_default(node, "tx-internal-delay-ps", 2000);
+			rx_delay = ofnode_reg_read_default(node, "rx-internal-delay-ps", 2000);
+			tx_delay = ofnode_reg_read_default(node, "tx-internal-delay-ps", 2000);
 			val = phy_read(phydev, MDIO_DEVAD_NONE, 0x17);
 			val &= ~((0x7 << 12) | (0x7 << 8));
 			val |= (rx_delay / 500) << 12;

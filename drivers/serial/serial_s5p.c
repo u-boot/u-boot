@@ -226,7 +226,7 @@ static int s5p_serial_of_to_plat(struct udevice *dev)
 	if (!plat->reg)
 		return -EINVAL;
 
-	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
+	plat->reg_width = dev_reg_read_default(dev, "reg-io-width", 1);
 	plat->port_id = dev_read_u8_default(dev, "id", dev_seq(dev));
 
 	if (port_type == PORT_S5L) {

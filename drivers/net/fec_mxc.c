@@ -1152,7 +1152,7 @@ static int device_get_phy_addr(struct fec_priv *priv, struct udevice *dev)
 		return -ENOENT;
 
 	priv->phy_of_node = phandle_args.node;
-	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+	reg = ofnode_reg_read_default(phandle_args.node, "reg", 0);
 
 	return reg;
 }
@@ -1444,14 +1444,14 @@ static int fecmxc_of_to_plat(struct udevice *dev)
 	if (ret < 0)
 		return 0; /* property is optional, don't return error! */
 
-	priv->reset_delay = dev_read_u32_default(dev, "phy-reset-duration", 1);
+	priv->reset_delay = dev_reg_read_default(dev, "phy-reset-duration", 1);
 	if (priv->reset_delay > 1000) {
 		printf("FEC MXC: phy reset duration should be <= 1000ms\n");
 		/* property value wrong, use default value */
 		priv->reset_delay = 1;
 	}
 
-	priv->reset_post_delay = dev_read_u32_default(dev,
+	priv->reset_post_delay = dev_reg_read_default(dev,
 						      "phy-reset-post-delay",
 						      0);
 	if (priv->reset_post_delay > 1000) {

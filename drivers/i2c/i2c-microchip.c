@@ -454,7 +454,7 @@ static int mpfs_i2c_probe(struct udevice *dev)
 	if (!bus->base)
 		return -EINVAL;
 
-	val = dev_read_u32(dev, "clock-frequency", &bus->clk_rate);
+	val = dev_reg_read(dev, "clock-frequency", &bus->clk_rate);
 	if (val) {
 		printf("Default to 100kHz\n");
 		/* default clock rate */

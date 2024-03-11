@@ -311,7 +311,7 @@ static int fxl6408_probe(struct udevice *dev)
 	 * If configured, set initial output state and direction,
 	 * otherwise read them from the chip.
 	 */
-	if (dev_read_u32(dev, "initial_io_dir", &val32)) {
+	if (dev_reg_read(dev, "initial_io_dir", &val32)) {
 		ret = fxl6408_read(dev, REG_IO_DIR);
 		if (ret < 0) {
 			dev_err(dev, "Error reading direction register\n");
@@ -327,7 +327,7 @@ static int fxl6408_probe(struct udevice *dev)
 		}
 	}
 
-	if (dev_read_u32(dev, "initial_output", &val32)) {
+	if (dev_reg_read(dev, "initial_output", &val32)) {
 		ret = fxl6408_read(dev, REG_OUT_STATE);
 		if (ret < 0) {
 			dev_err(dev, "Error reading output register\n");

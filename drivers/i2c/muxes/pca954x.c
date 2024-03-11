@@ -121,7 +121,7 @@ static int pca954x_of_to_plat(struct udevice *dev)
 	struct pca954x_priv *priv = dev_get_priv(dev);
 	const struct chip_desc *chip = &chips[dev_get_driver_data(dev)];
 
-	priv->addr = dev_read_u32_default(dev, "reg", 0);
+	priv->addr = dev_reg_read_default(dev, "reg", 0);
 	if (!priv->addr) {
 		debug("MUX not found\n");
 		return -ENODEV;

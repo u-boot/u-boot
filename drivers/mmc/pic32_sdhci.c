@@ -43,7 +43,7 @@ static int pic32_sdhci_probe(struct udevice *dev)
 
 	host->name	= dev->name;
 	host->quirks	= SDHCI_QUIRK_NO_HISPD_BIT;
-	host->bus_width	= dev_read_u32_default(dev, "bus-width", 4);
+	host->bus_width	= dev_reg_read_default(dev, "bus-width", 4);
 	host->max_clk   = clk_rate;
 
 	host->mmc = &plat->mmc;

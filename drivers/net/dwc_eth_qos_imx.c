@@ -59,7 +59,7 @@ static int eqos_probe_resources_imx(struct udevice *dev)
 	if (ret)
 		return -EINVAL;
 
-	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+	eqos->max_speed = dev_reg_read_default(dev, "max-speed", 0);
 
 	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
 	if (ret) {

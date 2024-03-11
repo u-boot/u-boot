@@ -313,7 +313,7 @@ static int gpio_hog_of_to_plat(struct udevice *dev)
 		printf("%s: missing gpio-hog state.\n", __func__);
 		return -EINVAL;
 	}
-	ret = dev_read_u32_array(dev, "gpios", plat->val, 2);
+	ret = dev_reg_read_array(dev, "gpios", plat->val, 2);
 	if (ret) {
 		printf("%s: wrong gpios property, 2 values needed %d\n",
 		       __func__, ret);

@@ -288,7 +288,7 @@ static int imx_tmu_calibration(struct udevice *dev)
 		return 0;
 	}
 
-	ret = dev_read_u32_array(dev, "fsl,tmu-range", range, 4);
+	ret = dev_reg_read_array(dev, "fsl,tmu-range", range, 4);
 	if (ret) {
 		dev_err(dev, "TMU: missing calibration range, ret = %d.\n", ret);
 		return ret;
@@ -605,7 +605,7 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 
 	dev_dbg(dev, "args.args_count %d, id %d\n", args.args_count, pdata->id);
 
-	pdata->polling_delay = dev_read_u32_default(dev, "polling-delay",
+	pdata->polling_delay = dev_reg_read_default(dev, "polling-delay",
 						    IMX_TMU_POLLING_DELAY_MS);
 
 	trips_np = ofnode_path("/thermal-zones/cpu-thermal/trips");
@@ -616,9 +616,9 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 		if (!type)
 			continue;
 		if (!strcmp(type, "critical"))
-			pdata->critical = ofnode_read_u32_default(trips_np, "temperature", 85);
+			pdata->critical = ofnode_reg_read_default(trips_np, "temperature", 85);
 		else if (strcmp(type, "passive") == 0)
-			pdata->alert = ofnode_read_u32_default(trips_np, "temperature", 80);
+			pdata->alert = ofnode_reg_read_default(trips_np, "temperature", 80);
 		else
 			continue;
 	}

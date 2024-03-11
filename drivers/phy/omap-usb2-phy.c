@@ -237,7 +237,7 @@ int omap_usb2_phy_probe(struct udevice *dev)
 	regmap = syscon_regmap_lookup_by_phandle(dev, "syscon-phy-power");
 	if (!IS_ERR(regmap)) {
 		priv->pwr_regmap = regmap;
-		rc =  dev_read_u32_array(dev, "syscon-phy-power", tmp, 2);
+		rc =  dev_reg_read_array(dev, "syscon-phy-power", tmp, 2);
 		if (rc) {
 			printf("couldn't get power reg. offset (err %d)\n", rc);
 			return rc;

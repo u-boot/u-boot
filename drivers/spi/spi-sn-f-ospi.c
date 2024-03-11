@@ -616,7 +616,7 @@ static int f_ospi_of_to_plat(struct udevice *dev)
 	struct f_ospi *ospi = dev_get_priv(dev);
 
 	ospi->base = dev_read_addr_ptr(dev);
-	ospi->num_cs = dev_read_u32_default(dev, "num-cs", OSPI_NUM_CS);
+	ospi->num_cs = dev_reg_read_default(dev, "num-cs", OSPI_NUM_CS);
 
 	return 0;
 }

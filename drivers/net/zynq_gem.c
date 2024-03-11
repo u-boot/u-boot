@@ -783,7 +783,7 @@ static int gem_zynqmp_set_dynamic_config(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) && IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
 		if (!zynqmp_pm_is_function_supported(PM_IOCTL,
 						     IOCTL_SET_GEM_CONFIG)) {
-			ret = ofnode_read_u32_array(dev_ofnode(dev),
+			ret = ofnode_reg_read_array(dev_ofnode(dev),
 						    "power-domains",
 						    pm_info,
 						    ARRAY_SIZE(pm_info));
@@ -970,11 +970,11 @@ static int zynq_gem_of_to_plat(struct udevice *dev)
 
 		debug("phy-handle does exist %s\n", dev->name);
 		if (!(IS_ENABLED(CONFIG_DM_ETH_PHY)))
-			priv->phyaddr = ofnode_read_u32_default
+			priv->phyaddr = ofnode_reg_read_default
 					(phandle_args.node, "reg", -1);
 
 		priv->phy_of_node = phandle_args.node;
-		priv->max_speed = ofnode_read_u32_default(phandle_args.node,
+		priv->max_speed = ofnode_reg_read_default(phandle_args.node,
 							  "max-speed",
 							  SPEED_1000);
 

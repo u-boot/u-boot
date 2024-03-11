@@ -74,7 +74,7 @@ ulong timer_get_boot_us(void)
 
 		/* This timer is down-counting */
 		ticks = ~0uLL - rockchip_timer_get_curr_value(timer);
-		if (ofnode_read_u32(node, "clock-frequency", &rate)) {
+		if (ofnode_reg_read(node, "clock-frequency", &rate)) {
 			debug("%s: could not read clock-frequency\n", __func__);
 			return 0;
 		}

@@ -49,17 +49,17 @@ static int riscv_cpu_get_info(const struct udevice *dev, struct cpu_info *info)
 	}
 
 	if (!info->cpu_freq)
-		dev_read_u32(dev, "clock-frequency", (u32 *)&info->cpu_freq);
+		dev_reg_read(dev, "clock-frequency", (u32 *)&info->cpu_freq);
 
 	mmu = dev_read_string(dev, "mmu-type");
 	if (mmu)
 		info->features |= BIT(CPU_FEAT_MMU);
 
 	/* check if I cache is present */
-	ret = dev_read_u32(dev, "i-cache-size", &i_cache_size);
+	ret = dev_reg_read(dev, "i-cache-size", &i_cache_size);
 	if (ret)
 		/* if not found check if d-cache is present */
-		ret = dev_read_u32(dev, "d-cache-size", &d_cache_size);
+		ret = dev_reg_read(dev, "d-cache-size", &d_cache_size);
 
 	/* if either I or D cache is present set L1 cache feature */
 	if (!ret)
@@ -114,10 +114,10 @@ static int riscv_cpu_bind(struct udevice *dev)
 			plat->id[0] = mvendorid;
 	}
 	/* first examine the property in current cpu node */
-	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);
+	ret = dev_reg_read(dev, "timebase-frequency", &plat->timebase_freq);
 	/* if not found, then look at the parent /cpus node */
 	if (ret)
-		dev_read_u32(dev->parent, "timebase-frequency",
+		dev_reg_read(dev->parent, "timebase-frequency",
 			     &plat->timebase_freq);
 
 	/*

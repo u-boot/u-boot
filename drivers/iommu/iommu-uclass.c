@@ -38,13 +38,13 @@ static int dev_pci_iommu_enable(struct udevice *dev)
 		return -ENOMEM;
 
 	count = len / sizeof(u32);
-	ret = dev_read_u32_array(parent, "iommu-map", iommu_map, count);
+	ret = dev_reg_read_array(parent, "iommu-map", iommu_map, count);
 	if (ret < 0) {
 		free(iommu_map);
 		return 0;
 	}
 
-	iommu_map_mask = dev_read_u32_default(parent, "iommu-map-mask", ~0);
+	iommu_map_mask = dev_reg_read_default(parent, "iommu-map-mask", ~0);
 	rid = (dm_pci_get_bdf(dev) >> 8) & iommu_map_mask;
 
 	/* Loop over entries until mapping is found. */

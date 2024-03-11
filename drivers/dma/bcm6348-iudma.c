@@ -578,7 +578,7 @@ static int bcm6348_iudma_probe(struct udevice *dev)
 		return -EINVAL;
 
 	/* get number of channels */
-	priv->n_channels = dev_read_u32_default(dev, "dma-channels", 8);
+	priv->n_channels = dev_reg_read_default(dev, "dma-channels", 8);
 	if (priv->n_channels > DMA_CHAN_MAX)
 		return -EINVAL;
 

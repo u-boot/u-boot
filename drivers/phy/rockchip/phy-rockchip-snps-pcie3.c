@@ -229,7 +229,7 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 			return -EINVAL;
 		}
 
-		ret = dev_read_u32_array(dev, "data-lanes", priv->lanes,
+		ret = dev_reg_read_array(dev, "data-lanes", priv->lanes,
 					 priv->num_lanes);
 		if (ret) {
 			dev_err(dev, "failed to read data-lanes property\n");

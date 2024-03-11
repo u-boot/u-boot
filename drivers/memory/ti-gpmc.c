@@ -893,10 +893,10 @@ static void gpmc_read_settings_dt(ofnode np, struct gpmc_settings *p)
 
 	p->sync_read = ofnode_read_bool(np, "gpmc,sync-read");
 	p->sync_write = ofnode_read_bool(np, "gpmc,sync-write");
-	ofnode_read_u32(np, "gpmc,device-width", &p->device_width);
-	ofnode_read_u32(np, "gpmc,mux-add-data", &p->mux_add_data);
+	ofnode_reg_read(np, "gpmc,device-width", &p->device_width);
+	ofnode_reg_read(np, "gpmc,mux-add-data", &p->mux_add_data);
 
-	if (!ofnode_read_u32(np, "gpmc,burst-length", &p->burst_len)) {
+	if (!ofnode_reg_read(np, "gpmc,burst-length", &p->burst_len)) {
 		p->burst_wrap = ofnode_read_bool(np, "gpmc,burst-wrap");
 		p->burst_read = ofnode_read_bool(np, "gpmc,burst-read");
 		p->burst_write = ofnode_read_bool(np, "gpmc,burst-write");
@@ -905,7 +905,7 @@ static void gpmc_read_settings_dt(ofnode np, struct gpmc_settings *p)
 				__func__);
 	}
 
-	if (!ofnode_read_u32(np, "gpmc,wait-pin", &p->wait_pin)) {
+	if (!ofnode_reg_read(np, "gpmc,wait-pin", &p->wait_pin)) {
 		p->wait_on_read = ofnode_read_bool(np,
 						   "gpmc,wait-on-read");
 		p->wait_on_write = ofnode_read_bool(np,
@@ -927,54 +927,54 @@ static void gpmc_read_timings_dt(ofnode np,
 	memset(gpmc_t, 0, sizeof(*gpmc_t));
 
 	/* minimum clock period for syncronous mode */
-	ofnode_read_u32(np, "gpmc,sync-clk-ps", &gpmc_t->sync_clk);
+	ofnode_reg_read(np, "gpmc,sync-clk-ps", &gpmc_t->sync_clk);
 
 	/* chip select timtings */
-	ofnode_read_u32(np, "gpmc,cs-on-ns", &gpmc_t->cs_on);
-	ofnode_read_u32(np, "gpmc,cs-rd-off-ns", &gpmc_t->cs_rd_off);
-	ofnode_read_u32(np, "gpmc,cs-wr-off-ns", &gpmc_t->cs_wr_off);
+	ofnode_reg_read(np, "gpmc,cs-on-ns", &gpmc_t->cs_on);
+	ofnode_reg_read(np, "gpmc,cs-rd-off-ns", &gpmc_t->cs_rd_off);
+	ofnode_reg_read(np, "gpmc,cs-wr-off-ns", &gpmc_t->cs_wr_off);
 
 	/* ADV signal timings */
-	ofnode_read_u32(np, "gpmc,adv-on-ns", &gpmc_t->adv_on);
-	ofnode_read_u32(np, "gpmc,adv-rd-off-ns", &gpmc_t->adv_rd_off);
-	ofnode_read_u32(np, "gpmc,adv-wr-off-ns", &gpmc_t->adv_wr_off);
-	ofnode_read_u32(np, "gpmc,adv-aad-mux-on-ns",
+	ofnode_reg_read(np, "gpmc,adv-on-ns", &gpmc_t->adv_on);
+	ofnode_reg_read(np, "gpmc,adv-rd-off-ns", &gpmc_t->adv_rd_off);
+	ofnode_reg_read(np, "gpmc,adv-wr-off-ns", &gpmc_t->adv_wr_off);
+	ofnode_reg_read(np, "gpmc,adv-aad-mux-on-ns",
 			&gpmc_t->adv_aad_mux_on);
-	ofnode_read_u32(np, "gpmc,adv-aad-mux-rd-off-ns",
+	ofnode_reg_read(np, "gpmc,adv-aad-mux-rd-off-ns",
 			&gpmc_t->adv_aad_mux_rd_off);
-	ofnode_read_u32(np, "gpmc,adv-aad-mux-wr-off-ns",
+	ofnode_reg_read(np, "gpmc,adv-aad-mux-wr-off-ns",
 			&gpmc_t->adv_aad_mux_wr_off);
 
 	/* WE signal timings */
-	ofnode_read_u32(np, "gpmc,we-on-ns", &gpmc_t->we_on);
-	ofnode_read_u32(np, "gpmc,we-off-ns", &gpmc_t->we_off);
+	ofnode_reg_read(np, "gpmc,we-on-ns", &gpmc_t->we_on);
+	ofnode_reg_read(np, "gpmc,we-off-ns", &gpmc_t->we_off);
 
 	/* OE signal timings */
-	ofnode_read_u32(np, "gpmc,oe-on-ns", &gpmc_t->oe_on);
-	ofnode_read_u32(np, "gpmc,oe-off-ns", &gpmc_t->oe_off);
-	ofnode_read_u32(np, "gpmc,oe-aad-mux-on-ns",
+	ofnode_reg_read(np, "gpmc,oe-on-ns", &gpmc_t->oe_on);
+	ofnode_reg_read(np, "gpmc,oe-off-ns", &gpmc_t->oe_off);
+	ofnode_reg_read(np, "gpmc,oe-aad-mux-on-ns",
 			&gpmc_t->oe_aad_mux_on);
-	ofnode_read_u32(np, "gpmc,oe-aad-mux-off-ns",
+	ofnode_reg_read(np, "gpmc,oe-aad-mux-off-ns",
 			&gpmc_t->oe_aad_mux_off);
 
 	/* access and cycle timings */
-	ofnode_read_u32(np, "gpmc,page-burst-access-ns",
+	ofnode_reg_read(np, "gpmc,page-burst-access-ns",
 			&gpmc_t->page_burst_access);
-	ofnode_read_u32(np, "gpmc,access-ns", &gpmc_t->access);
-	ofnode_read_u32(np, "gpmc,rd-cycle-ns", &gpmc_t->rd_cycle);
-	ofnode_read_u32(np, "gpmc,wr-cycle-ns", &gpmc_t->wr_cycle);
-	ofnode_read_u32(np, "gpmc,bus-turnaround-ns",
+	ofnode_reg_read(np, "gpmc,access-ns", &gpmc_t->access);
+	ofnode_reg_read(np, "gpmc,rd-cycle-ns", &gpmc_t->rd_cycle);
+	ofnode_reg_read(np, "gpmc,wr-cycle-ns", &gpmc_t->wr_cycle);
+	ofnode_reg_read(np, "gpmc,bus-turnaround-ns",
 			&gpmc_t->bus_turnaround);
-	ofnode_read_u32(np, "gpmc,cycle2cycle-delay-ns",
+	ofnode_reg_read(np, "gpmc,cycle2cycle-delay-ns",
 			&gpmc_t->cycle2cycle_delay);
-	ofnode_read_u32(np, "gpmc,wait-monitoring-ns",
+	ofnode_reg_read(np, "gpmc,wait-monitoring-ns",
 			&gpmc_t->wait_monitoring);
-	ofnode_read_u32(np, "gpmc,clk-activation-ns",
+	ofnode_reg_read(np, "gpmc,clk-activation-ns",
 			&gpmc_t->clk_activation);
 
 	/* only applicable to OMAP3+ */
-	ofnode_read_u32(np, "gpmc,wr-access-ns", &gpmc_t->wr_access);
-	ofnode_read_u32(np, "gpmc,wr-data-mux-bus-ns",
+	ofnode_reg_read(np, "gpmc,wr-access-ns", &gpmc_t->wr_access);
+	ofnode_reg_read(np, "gpmc,wr-data-mux-bus-ns",
 			&gpmc_t->wr_data_mux_bus);
 
 	/* bool timing parameters */
@@ -1010,7 +1010,7 @@ static int gpmc_probe_generic_child(struct udevice *dev,
 	int ret;
 	u32 val, cs;
 
-	if (ofnode_read_u32(child, "reg", &cs) < 0) {
+	if (ofnode_reg_read(child, "reg", &cs) < 0) {
 		dev_err(dev, "can't get reg property of child %s\n",
 			ofnode_get_name(child));
 		return -ENODEV;
@@ -1057,9 +1057,9 @@ static int gpmc_probe_generic_child(struct udevice *dev,
 	/* CS must be disabled while making changes to gpmc configuration */
 	gpmc_cs_disable_mem(cs);
 
-	if (!ofnode_read_u32(child, "nand-bus-width", &val)) {
+	if (!ofnode_reg_read(child, "nand-bus-width", &val)) {
 		/* NAND specific setup */
-		ofnode_read_u32(child, "nand-bus-width", &val);
+		ofnode_reg_read(child, "nand-bus-width", &val);
 		switch (val) {
 		case 8:
 			gpmc_s.device_width = GPMC_DEVWIDTH_8BIT;
@@ -1078,7 +1078,7 @@ static int gpmc_probe_generic_child(struct udevice *dev,
 		gpmc_configure(GPMC_CONFIG_WP, 0);
 		gpmc_s.device_nand = true;
 	} else {
-		ret = ofnode_read_u32(child, "bank-width",
+		ret = ofnode_reg_read(child, "bank-width",
 				      &gpmc_s.device_width);
 		if (ret < 0 && !gpmc_s.device_width) {
 			dev_err(dev,
@@ -1138,7 +1138,7 @@ static int gpmc_parse_dt(struct udevice *dev, struct ti_gpmc *gpmc)
 	int ret;
 	u32 val;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "gpmc,num-cs",
+	ret = ofnode_reg_read(dev_ofnode(dev), "gpmc,num-cs",
 			      &val);
 	if (ret < 0) {
 		pr_err("%s: number of chip-selects not defined\n", __func__);
@@ -1155,7 +1155,7 @@ static int gpmc_parse_dt(struct udevice *dev, struct ti_gpmc *gpmc)
 	gpmc->cs_num = val;
 	gpmc_cs_num = val;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "gpmc,num-waitpins",
+	ret = ofnode_reg_read(dev_ofnode(dev), "gpmc,num-waitpins",
 			      &gpmc->nr_waitpins);
 	if (ret < 0) {
 		pr_err("%s: number of wait pins not found!\n", __func__);

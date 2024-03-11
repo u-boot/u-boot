@@ -105,7 +105,7 @@ static int pwm_regulator_of_to_plat(struct udevice *dev)
 	priv->period_ns = args.args[1];
 	priv->polarity = args.args[2];
 
-	priv->init_voltage = dev_read_u32_default(dev, "regulator-init-microvolt", -1);
+	priv->init_voltage = dev_reg_read_default(dev, "regulator-init-microvolt", -1);
 	if (priv->init_voltage < 0) {
 		printf("Cannot find regulator pwm init_voltage\n");
 		return -EINVAL;

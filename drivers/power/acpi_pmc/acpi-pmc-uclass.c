@@ -211,18 +211,18 @@ int pmc_ofdata_to_uc_plat(struct udevice *dev)
 	struct acpi_pmc_upriv *upriv = dev_get_uclass_priv(dev);
 	int ret;
 
-	ret = dev_read_u32(dev, "gpe0-dwx-mask", &upriv->gpe0_dwx_mask);
+	ret = dev_reg_read(dev, "gpe0-dwx-mask", &upriv->gpe0_dwx_mask);
 	if (ret)
 		return log_msg_ret("no gpe0-dwx-mask", ret);
-	ret = dev_read_u32(dev, "gpe0-dwx-shift-base",
+	ret = dev_reg_read(dev, "gpe0-dwx-shift-base",
 			   &upriv->gpe0_dwx_shift_base);
 	if (ret)
 		return log_msg_ret("no gpe0-dwx-shift-base", ret);
-	ret = dev_read_u32(dev, "gpe0-sts", &upriv->gpe0_sts_reg);
+	ret = dev_reg_read(dev, "gpe0-sts", &upriv->gpe0_sts_reg);
 	if (ret)
 		return log_msg_ret("no gpe0-sts", ret);
 	upriv->gpe0_sts_reg += upriv->acpi_base;
-	ret = dev_read_u32(dev, "gpe0-en", &upriv->gpe0_en_reg);
+	ret = dev_reg_read(dev, "gpe0-en", &upriv->gpe0_en_reg);
 	if (ret)
 		return log_msg_ret("no gpe0-en", ret);
 	upriv->gpe0_en_reg += upriv->acpi_base;

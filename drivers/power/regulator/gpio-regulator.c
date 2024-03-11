@@ -65,7 +65,7 @@ static int gpio_regulator_of_to_plat(struct udevice *dev)
 		count = ARRAY_SIZE(states_array);
 	}
 
-	ret = dev_read_u32_array(dev, "states", states_array, count);
+	ret = dev_reg_read_array(dev, "states", states_array, count);
 	if (ret < 0)
 		return ret;
 

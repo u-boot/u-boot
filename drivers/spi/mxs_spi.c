@@ -449,17 +449,17 @@ static int mxs_of_to_plat(struct udevice *bus)
 
 	plat->base = dev_read_addr(bus);
 	plat->frequency =
-		dev_read_u32_default(bus, "spi-max-frequency", 40000000);
-	plat->num_cs = dev_read_u32_default(bus, "num-cs", 2);
+		dev_reg_read_default(bus, "spi-max-frequency", 40000000);
+	plat->num_cs = dev_reg_read_default(bus, "num-cs", 2);
 
-	ret = dev_read_u32_array(bus, "dmas", prop, ARRAY_SIZE(prop));
+	ret = dev_reg_read_array(bus, "dmas", prop, ARRAY_SIZE(prop));
 	if (ret) {
 		printf("%s: Reading 'dmas' property failed!\n", __func__);
 		return ret;
 	}
 	plat->dma_id = prop[1];
 
-	ret = dev_read_u32_array(bus, "clocks", prop, ARRAY_SIZE(prop));
+	ret = dev_reg_read_array(bus, "clocks", prop, ARRAY_SIZE(prop));
 	if (ret) {
 		printf("%s: Reading 'clocks' property failed!\n", __func__);
 		return ret;

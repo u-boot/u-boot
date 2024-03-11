@@ -188,7 +188,7 @@ static int bcm6858_led_probe(struct udevice *dev)
 	if (!regs)
 		return -EINVAL;
 
-	pin = dev_read_u32_default(dev, "reg", LEDS_MAX);
+	pin = dev_reg_read_default(dev, "reg", LEDS_MAX);
 	if (pin >= LEDS_MAX)
 		return -EINVAL;
 
@@ -204,7 +204,7 @@ static int bcm6858_led_probe(struct udevice *dev)
 	else
 		setbits_32(regs + LED_PLED_OP_PPOL_REG, 1 << pin);
 
-	brightness = dev_read_u32_default(dev, "default-brightness",
+	brightness = dev_reg_read_default(dev, "default-brightness",
 						  LEDS_MAX_BRIGHTNESS);
 	led_set_brightness(dev, brightness);
 

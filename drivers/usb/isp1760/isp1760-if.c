@@ -49,7 +49,7 @@ static int isp1760_of_to_plat(struct udevice *dev)
 	 * Some systems wire up only 8 of 16 data lines or
 	 * 16 of the 32 data lines
 	 */
-	bus_width = ofnode_read_u32_default(dp, "bus-width", 16);
+	bus_width = ofnode_reg_read_default(dp, "bus-width", 16);
 	if (bus_width == 16)
 		devflags |= ISP1760_FLAG_BUS_WIDTH_16;
 	else if (bus_width == 8)

@@ -81,11 +81,11 @@ static int dwc3_octeon_config_power(struct udevice *dev, void __iomem *base)
 
 	if (of_find_property(node, "power", &len)) {
 		if (len == 12) {
-			dev_read_u32_array(dev, "power", gpio_pwr, 3);
+			dev_reg_read_array(dev, "power", gpio_pwr, 3);
 			power_active_low = gpio_pwr[2] & 0x01;
 			gpio = gpio_pwr[1];
 		} else if (len == 8) {
-			dev_read_u32_array(dev, "power", gpio_pwr, 2);
+			dev_reg_read_array(dev, "power", gpio_pwr, 2);
 			power_active_low = 0;
 			gpio = gpio_pwr[1];
 		} else {
@@ -157,7 +157,7 @@ static int dwc3_octeon_clocks_start(struct udevice *dev, void __iomem *base)
 	const char *ss_clock_type;
 	const char *hs_clock_type;
 
-	i = dev_read_u32(dev, "refclk-frequency", &clock_rate);
+	i = dev_reg_read(dev, "refclk-frequency", &clock_rate);
 	if (i) {
 		printf("No UCTL \"refclk-frequency\"\n");
 		return -EINVAL;

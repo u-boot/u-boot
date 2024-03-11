@@ -127,7 +127,7 @@ int exynos_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		return -EINVAL;
 
 	for (idx = 0; idx < PINCFG_TYPE_NUM; ++idx) {
-		pinvals[idx] = dev_read_u32_default(config,
+		pinvals[idx] = dev_reg_read_default(config,
 						exynos_pinctrl_props[idx], -1);
 	}
 	pinvals[PINCFG_TYPE_DAT] = -1; /* ignore GPIO data register */

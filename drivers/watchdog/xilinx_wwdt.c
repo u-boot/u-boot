@@ -176,7 +176,7 @@ static int xlnx_wwdt_of_to_plat(struct udevice *dev)
 {
 	struct xlnx_wwdt_plat *plat = dev_get_plat(dev);
 
-	plat->enable_once = dev_read_u32_default(dev, "xlnx,wdt-enable-once",
+	plat->enable_once = dev_reg_read_default(dev, "xlnx,wdt-enable-once",
 						 0);
 	dev_dbg(dev, "wdt-enable-once %d\n", plat->enable_once);
 

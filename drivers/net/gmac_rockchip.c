@@ -66,14 +66,14 @@ static int gmac_rockchip_of_to_plat(struct udevice *dev)
 		pdata->clock_input = false;
 
 	/* Check the new naming-style first... */
-	pdata->tx_delay = dev_read_u32_default(dev, "tx_delay", -ENOENT);
-	pdata->rx_delay = dev_read_u32_default(dev, "rx_delay", -ENOENT);
+	pdata->tx_delay = dev_reg_read_default(dev, "tx_delay", -ENOENT);
+	pdata->rx_delay = dev_reg_read_default(dev, "rx_delay", -ENOENT);
 
 	/* ... and fall back to the old naming style or default, if necessary */
 	if (pdata->tx_delay == -ENOENT)
-		pdata->tx_delay = dev_read_u32_default(dev, "tx-delay", 0x30);
+		pdata->tx_delay = dev_reg_read_default(dev, "tx-delay", 0x30);
 	if (pdata->rx_delay == -ENOENT)
-		pdata->rx_delay = dev_read_u32_default(dev, "rx-delay", 0x10);
+		pdata->rx_delay = dev_reg_read_default(dev, "rx-delay", 0x10);
 
 	return designware_eth_of_to_plat(dev);
 }

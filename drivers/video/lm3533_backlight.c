@@ -108,7 +108,7 @@ static int lm3533_backlight_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->def_bl_lvl = dev_read_u32_default(dev, "default-brightness-level",
+	priv->def_bl_lvl = dev_reg_read_default(dev, "default-brightness-level",
 						LM3533_BL_MAX_BRIGHTNESS);
 
 	return 0;

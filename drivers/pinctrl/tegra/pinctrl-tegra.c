@@ -23,18 +23,18 @@ static void tegra_pinctrl_set_drive(struct udevice *config, int drvcnt)
 		return;
 	}
 
-	drive_group[0].slwf = dev_read_u32_default(config, "nvidia,slew-rate-falling", 0);
-	drive_group[0].slwr = dev_read_u32_default(config, "nvidia,slew-rate-rising", 0);
-	drive_group[0].drvup = dev_read_u32_default(config, "nvidia,pull-up-strength", 0);
-	drive_group[0].drvdn = dev_read_u32_default(config, "nvidia,pull-down-strength", 0);
+	drive_group[0].slwf = dev_reg_read_default(config, "nvidia,slew-rate-falling", 0);
+	drive_group[0].slwr = dev_reg_read_default(config, "nvidia,slew-rate-rising", 0);
+	drive_group[0].drvup = dev_reg_read_default(config, "nvidia,pull-up-strength", 0);
+	drive_group[0].drvdn = dev_reg_read_default(config, "nvidia,pull-down-strength", 0);
 #ifdef TEGRA_PMX_GRPS_HAVE_LPMD
-	drive_group[0].lpmd = dev_read_u32_default(config, "nvidia,low-power-mode", 0);
+	drive_group[0].lpmd = dev_reg_read_default(config, "nvidia,low-power-mode", 0);
 #endif
 #ifdef TEGRA_PMX_GRPS_HAVE_SCHMT
-	drive_group[0].schmt = dev_read_u32_default(config, "nvidia,schmitt", 0);
+	drive_group[0].schmt = dev_reg_read_default(config, "nvidia,schmitt", 0);
 #endif
 #ifdef TEGRA_PMX_GRPS_HAVE_HSM
-	drive_group[0].hsm = dev_read_u32_default(config, "nvidia,high-speed-mode", 0);
+	drive_group[0].hsm = dev_reg_read_default(config, "nvidia,high-speed-mode", 0);
 #endif
 
 	for (i = 1; i < drvcnt; i++)
@@ -90,31 +90,31 @@ static void tegra_pinctrl_set_pin(struct udevice *config, int pincnt)
 
 	pinmux_group[0].func = i;
 
-	pinmux_group[0].pull = dev_read_u32_default(config, "nvidia,pull", 0);
-	pinmux_group[0].tristate = dev_read_u32_default(config, "nvidia,tristate", 0);
+	pinmux_group[0].pull = dev_reg_read_default(config, "nvidia,pull", 0);
+	pinmux_group[0].tristate = dev_reg_read_default(config, "nvidia,tristate", 0);
 #ifdef TEGRA_PMX_PINS_HAVE_E_INPUT
-	pinmux_group[0].io = dev_read_u32_default(config, "nvidia,enable-input", 0);
+	pinmux_group[0].io = dev_reg_read_default(config, "nvidia,enable-input", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_LOCK
-	pinmux_group[0].lock = dev_read_u32_default(config, "nvidia,lock", 0);
+	pinmux_group[0].lock = dev_reg_read_default(config, "nvidia,lock", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_OD
-	pinmux_group[0].od = dev_read_u32_default(config, "nvidia,open-drain", 0);
+	pinmux_group[0].od = dev_reg_read_default(config, "nvidia,open-drain", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_IO_RESET
-	pinmux_group[0].ioreset = dev_read_u32_default(config, "nvidia,io-reset", 0);
+	pinmux_group[0].ioreset = dev_reg_read_default(config, "nvidia,io-reset", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_RCV_SEL
-	pinmux_group[0].rcv_sel = dev_read_u32_default(config, "nvidia,rcv-sel", 0);
+	pinmux_group[0].rcv_sel = dev_reg_read_default(config, "nvidia,rcv-sel", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_E_IO_HV
-	pinmux_group[0].e_io_hv = dev_read_u32_default(config, "nvidia,io-hv", 0);
+	pinmux_group[0].e_io_hv = dev_reg_read_default(config, "nvidia,io-hv", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_SCHMT
-	pinmux_group[0].schmt = dev_read_u32_default(config, "nvidia,schmitt", 0);
+	pinmux_group[0].schmt = dev_reg_read_default(config, "nvidia,schmitt", 0);
 #endif
 #ifdef TEGRA_PMX_PINS_HAVE_HSM
-	pinmux_group[0].hsm = dev_read_u32_default(config, "nvidia,high-speed-mode", 0);
+	pinmux_group[0].hsm = dev_reg_read_default(config, "nvidia,high-speed-mode", 0);
 #endif
 
 	for (i = 1; i < pincnt; i++)

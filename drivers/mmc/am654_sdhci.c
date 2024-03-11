@@ -493,7 +493,7 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 	int i;
 
 	/* ti,otap-del-sel-legacy is mandatory */
-	ret = dev_read_u32(dev, "ti,otap-del-sel-legacy",
+	ret = dev_reg_read(dev, "ti,otap-del-sel-legacy",
 			   &plat->otap_del_sel[0]);
 	if (ret)
 		return ret;
@@ -502,7 +502,7 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 	 * value is not found
 	 */
 	for (i = MMC_HS; i <= MMC_HS_400; i++) {
-		ret = dev_read_u32(dev, td[i].otap_binding,
+		ret = dev_reg_read(dev, td[i].otap_binding,
 				   &plat->otap_del_sel[i]);
 		if (ret) {
 			dev_dbg(dev, "Couldn't find %s\n", td[i].otap_binding);
@@ -514,7 +514,7 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 		}
 
 		if (td[i].itap_binding)
-			dev_read_u32(dev, td[i].itap_binding,
+			dev_reg_read(dev, td[i].itap_binding,
 				     &plat->itap_del_sel[i]);
 	}
 
@@ -588,11 +588,11 @@ static int am654_sdhci_of_to_plat(struct udevice *dev)
 	plat->non_removable = dev_read_bool(dev, "non-removable");
 
 	if (plat->flags & DLL_PRESENT) {
-		ret = dev_read_u32(dev, "ti,trm-icp", &plat->trm_icp);
+		ret = dev_reg_read(dev, "ti,trm-icp", &plat->trm_icp);
 		if (ret)
 			return ret;
 
-		ret = dev_read_u32(dev, "ti,driver-strength-ohm",
+		ret = dev_reg_read(dev, "ti,driver-strength-ohm",
 				   &drv_strength);
 		if (ret)
 			return ret;
@@ -619,8 +619,8 @@ static int am654_sdhci_of_to_plat(struct udevice *dev)
 		}
 	}
 
-	dev_read_u32(dev, "ti,strobe-sel", &plat->strb_sel);
-	dev_read_u32(dev, "ti,clkbuf-sel", &plat->clkbuf_sel);
+	dev_reg_read(dev, "ti,strobe-sel", &plat->strb_sel);
+	dev_reg_read(dev, "ti,clkbuf-sel", &plat->clkbuf_sel);
 
 	ret = mmc_of_parse(dev, cfg);
 	if (ret)

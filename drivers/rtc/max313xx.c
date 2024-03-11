@@ -373,8 +373,8 @@ static int max313xx_trickle_charger_setup(struct udevice *dev)
 	u32 chargeable;
 	int ret;
 
-	if (dev_read_u32(dev, "trickle-resistor-ohms", &ohms) ||
-	    dev_read_u32(dev, "aux-voltage-chargeable", &chargeable))
+	if (dev_reg_read(dev, "trickle-resistor-ohms", &ohms) ||
+	    dev_reg_read(dev, "aux-voltage-chargeable", &chargeable))
 		return 0;
 
 	switch (chargeable) {

@@ -584,10 +584,10 @@ static void phy_parse_property(struct mtk_tphy *tphy,
 	if (instance->type != PHY_TYPE_USB2)
 		return;
 
-	ofnode_read_u32(node, "mediatek,eye-vrt", &instance->eye_vrt);
-	ofnode_read_u32(node, "mediatek,eye-term", &instance->eye_term);
-	ofnode_read_u32(node, "mediatek,discth", &instance->discth);
-	ofnode_read_u32(node, "mediatek,pre-emphasis", &instance->pre_emphasis);
+	ofnode_reg_read(node, "mediatek,eye-vrt", &instance->eye_vrt);
+	ofnode_reg_read(node, "mediatek,eye-term", &instance->eye_term);
+	ofnode_reg_read(node, "mediatek,discth", &instance->discth);
+	ofnode_reg_read(node, "mediatek,pre-emphasis", &instance->pre_emphasis);
 
 	dev_dbg(tphy->dev, "vrt:%d, term:%d, disc:%d, emp:%d\n",
 		instance->eye_vrt, instance->eye_term,

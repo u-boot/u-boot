@@ -99,17 +99,17 @@ static int ca_dwmmc_of_to_plat(struct udevice *dev)
 	host->name = dev->name;
 	host->dev_index = 0;
 
-	host->buswidth = dev_read_u32_default(dev, "bus-width", 1);
-	host->bus_hz = dev_read_u32_default(dev, "max-frequency", 50000000);
-	priv->ds = dev_read_u32_default(dev, "io_ds", 0x33);
+	host->buswidth = dev_reg_read_default(dev, "bus-width", 1);
+	host->bus_hz = dev_reg_read_default(dev, "max-frequency", 50000000);
+	priv->ds = dev_reg_read_default(dev, "io_ds", 0x33);
 	host->fifo_mode = dev_read_bool(dev, "fifo-mode");
 
-	dev_read_u32(dev, "sd_dll_ctrl", &tmp);
+	dev_reg_read(dev, "sd_dll_ctrl", &tmp);
 	priv->sd_dll_reg = map_sysmem((uintptr_t)tmp, sizeof(uintptr_t));
 	if (!priv->sd_dll_reg)
 		return -EINVAL;
 
-	dev_read_u32(dev, "io_drv_ctrl", &tmp);
+	dev_reg_read(dev, "io_drv_ctrl", &tmp);
 	priv->io_drv_reg = map_sysmem((uintptr_t)tmp, sizeof(uintptr_t));
 	if (!priv->io_drv_reg)
 		return -EINVAL;

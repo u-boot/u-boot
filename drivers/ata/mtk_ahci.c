@@ -70,7 +70,7 @@ static int mtk_ahci_parse_property(struct ahci_uc_priv *hpriv,
 				   SYS_CFG_SATA_MSK, SYS_CFG_SATA_EN);
 	}
 
-	ofnode_read_u32(dev_ofnode(dev), "ports-implemented",
+	ofnode_reg_read(dev_ofnode(dev), "ports-implemented",
 			&hpriv->port_map);
 	return 0;
 }

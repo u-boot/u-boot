@@ -909,12 +909,12 @@ static int fdt_decode_nand(struct udevice *dev, struct fdt_nand *config)
 
 	config->reg = dev_read_addr_ptr(dev);
 	config->enabled = dev_read_enabled(dev);
-	config->width = dev_read_u32_default(dev, "nvidia,nand-width", 8);
+	config->width = dev_reg_read_default(dev, "nvidia,nand-width", 8);
 	err = gpio_request_by_name(dev, "nvidia,wp-gpios", 0, &config->wp_gpio,
 				   GPIOD_IS_OUT);
 	if (err)
 		return err;
-	err = dev_read_u32_array(dev, "nvidia,timing", config->timing,
+	err = dev_reg_read_array(dev, "nvidia,timing", config->timing,
 				 FDT_NAND_TIMING_COUNT);
 	if (err < 0)
 		return err;

@@ -76,7 +76,7 @@ static int mmio_mux_probe(struct udevice *dev)
 	if (!mux_reg_masks)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(dev, "mux-reg-masks", mux_reg_masks,
+	ret = dev_reg_read_array(dev, "mux-reg-masks", mux_reg_masks,
 				 num_fields * 2);
 	if (ret < 0)
 		return log_msg_ret("mux-reg-masks read", ret);
@@ -85,7 +85,7 @@ static int mmio_mux_probe(struct udevice *dev)
 	if (!idle_states)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(dev, "idle-states", idle_states, num_fields);
+	ret = dev_reg_read_array(dev, "idle-states", idle_states, num_fields);
 	if (ret < 0) {
 		log_err("idle-states");
 		devm_kfree(dev, idle_states);

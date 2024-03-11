@@ -280,7 +280,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 	} else {
 		syscfg_base = (u32 *)ofnode_get_addr(args.node);
 
-		mem_remap = dev_read_u32_default(dev, "st,mem_remap", NOT_FOUND);
+		mem_remap = dev_reg_read_default(dev, "st,mem_remap", NOT_FOUND);
 		if (mem_remap != NOT_FOUND) {
 			/* set memory mapping selection */
 			clrsetbits_le32(syscfg_base, MEM_MODE_MASK, mem_remap);
@@ -288,7 +288,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 			dev_dbg(dev, "cannot find st,mem_remap property\n");
 		}
 
-		swp_fmc = dev_read_u32_default(dev, "st,swp_fmc", NOT_FOUND);
+		swp_fmc = dev_reg_read_default(dev, "st,swp_fmc", NOT_FOUND);
 		if (swp_fmc != NOT_FOUND) {
 			/* set fmc swapping selection */
 			clrsetbits_le32(syscfg_base, SWP_FMC_MASK, swp_fmc << SWP_FMC_OFFSET);
@@ -348,7 +348,7 @@ static int stm32_fmc_of_to_plat(struct udevice *dev)
 		}
 
 
-		bank_params->sdram_ref_count = ofnode_read_u32_default(bank_node,
+		bank_params->sdram_ref_count = ofnode_reg_read_default(bank_node,
 						"st,sdram-refcount", 8196);
 		bank++;
 	}

@@ -403,29 +403,29 @@ static int samsung_i2s_of_to_plat(struct udevice *dev)
 	}
 	priv->base_address = base;
 
-	if (dev_read_u32u(dev, "samsung,i2s-epll-clock-frequency",
+	if (dev_reg_readu(dev, "samsung,i2s-epll-clock-frequency",
 			  &priv->audio_pll_clk))
 		goto err;
 	debug("audio_pll_clk = %d\n", priv->audio_pll_clk);
-	if (dev_read_u32u(dev, "samsung,i2s-sampling-rate",
+	if (dev_reg_readu(dev, "samsung,i2s-sampling-rate",
 			  &priv->samplingrate))
 		goto err;
 	debug("samplingrate = %d\n", priv->samplingrate);
-	if (dev_read_u32u(dev, "samsung,i2s-bits-per-sample",
+	if (dev_reg_readu(dev, "samsung,i2s-bits-per-sample",
 			  &priv->bitspersample))
 		goto err;
 	debug("bitspersample = %d\n", priv->bitspersample);
-	if (dev_read_u32u(dev, "samsung,i2s-channels", &priv->channels))
+	if (dev_reg_readu(dev, "samsung,i2s-channels", &priv->channels))
 		goto err;
 	debug("channels = %d\n", priv->channels);
-	if (dev_read_u32u(dev, "samsung,i2s-lr-clk-framesize", &priv->rfs))
+	if (dev_reg_readu(dev, "samsung,i2s-lr-clk-framesize", &priv->rfs))
 		goto err;
 	debug("rfs = %d\n", priv->rfs);
-	if (dev_read_u32u(dev, "samsung,i2s-bit-clk-framesize", &priv->bfs))
+	if (dev_reg_readu(dev, "samsung,i2s-bit-clk-framesize", &priv->bfs))
 		goto err;
 	debug("bfs = %d\n", priv->bfs);
 
-	if (dev_read_u32u(dev, "samsung,i2s-id", &priv->id))
+	if (dev_reg_readu(dev, "samsung,i2s-id", &priv->id))
 		goto err;
 	debug("id = %d\n", priv->id);
 

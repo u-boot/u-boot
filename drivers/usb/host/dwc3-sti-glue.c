@@ -110,7 +110,7 @@ static int sti_dwc3_glue_of_to_plat(struct udevice *dev)
 	int ret;
 	u32 reg[4];
 
-	ret = ofnode_read_u32_array(dev_ofnode(dev), "reg", reg,
+	ret = ofnode_reg_read_array(dev_ofnode(dev), "reg", reg,
 				    ARRAY_SIZE(reg));
 	if (ret) {
 		pr_err("unable to find st,stih407-dwc3 reg property(%d)\n", ret);

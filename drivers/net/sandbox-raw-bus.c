@@ -25,7 +25,7 @@ static int eth_raw_bus_post_bind(struct udevice *dev)
 	if (!ni)
 		return -EINVAL;
 
-	dev_read_u32(dev, "skip-localhost", &skip_localhost);
+	dev_reg_read(dev, "skip-localhost", &skip_localhost);
 	for (i = ni; !(i->if_index == 0 && !i->if_name); i++) {
 		int local = sandbox_eth_raw_os_is_local(i->if_name);
 

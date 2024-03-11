@@ -304,12 +304,12 @@ static int malidp_probe(struct udevice *dev)
 		printf("cannot get address size for framebuffer\n");
 	}
 
-	err = ofnode_read_u32(framebuffer, "width", &value);
+	err = ofnode_reg_read(framebuffer, "width", &value);
 	if (err)
 		goto fail_timings;
 	uc_priv->xsize = (ushort)value;
 
-	err = ofnode_read_u32(framebuffer, "height", &value);
+	err = ofnode_reg_read(framebuffer, "height", &value);
 	if (err)
 		goto fail_timings;
 	uc_priv->ysize = (ushort)value;

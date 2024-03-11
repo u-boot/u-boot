@@ -181,8 +181,8 @@ static int find_verb_data(struct udevice *dev, uint id, ofnode *nodep)
 	u32 vendor_id, device_id;
 
 	ofnode_for_each_subnode(node, parent) {
-		if (ofnode_read_u32(node, "vendor-id", &vendor_id) ||
-		    ofnode_read_u32(node, "device-id", &device_id)) {
+		if (ofnode_reg_read(node, "vendor-id", &vendor_id) ||
+		    ofnode_reg_read(node, "device-id", &device_id)) {
 			log_debug("Cannot get IDs for '%s'\n",
 				  ofnode_get_name(node));
 			return -EINVAL;
@@ -435,7 +435,7 @@ static int get_hda_beep_nid(struct udevice *dev)
 	int ret;
 
 	/* If the field exists, use the beep nid set in the fdt */
-	ret = dev_read_u32(dev, "intel,beep-nid", &current_nid);
+	ret = dev_reg_read(dev, "intel,beep-nid", &current_nid);
 	if (!ret)
 		return current_nid;
 

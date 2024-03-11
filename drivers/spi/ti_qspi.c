@@ -469,7 +469,7 @@ static int ti_qspi_of_to_plat(struct udevice *bus)
 	priv->memory_map = map_physmem(mmap_addr, mmap_size, MAP_NOCACHE);
 	priv->mmap_size = mmap_size;
 
-	priv->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
+	priv->max_hz = dev_reg_read_default(bus, "spi-max-frequency", 0);
 	if (!priv->max_hz) {
 		debug("Error: Max frequency missing\n");
 		return -ENODEV;

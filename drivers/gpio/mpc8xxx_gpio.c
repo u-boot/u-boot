@@ -182,7 +182,7 @@ static int mpc8xxx_gpio_of_to_plat(struct udevice *dev)
 		data->little_endian = true;
 
 	plat->addr = dev_read_addr_size_index(dev, 0, (fdt_size_t *)&plat->size);
-	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
+	plat->ngpios = dev_reg_read_default(dev, "ngpios", 32);
 
 	return 0;
 }

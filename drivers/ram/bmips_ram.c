@@ -160,7 +160,7 @@ static int bmips_ram_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
-	dev_read_u32(dev, "force-size", &priv->force_size);
+	dev_reg_read(dev, "force-size", &priv->force_size);
 
 	priv->hw = hw;
 

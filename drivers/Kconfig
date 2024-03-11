@@ -80,6 +80,8 @@ source "drivers/net/Kconfig"
 
 source "drivers/nvme/Kconfig"
 
+source "drivers/pwrap/Kconfig"
+ 
 source "drivers/pci/Kconfig"
 
 source "drivers/pci_endpoint/Kconfig"

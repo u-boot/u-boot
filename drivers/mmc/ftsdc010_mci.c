@@ -396,12 +396,12 @@ static int ftsdc010_mmc_of_to_plat(struct udevice *dev)
 	if (CONFIG_IS_ENABLED(OF_REAL)) {
 		chip->name = dev->name;
 		chip->ioaddr = dev_read_addr_ptr(dev);
-		chip->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+		chip->buswidth = dev_reg_read_default(dev, "bus-width", 4);
 		chip->priv = dev;
-		priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+		priv->fifo_depth = dev_reg_read_default(dev, "fifo-depth", 0);
 		priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
-		if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
-			if (dev_read_u32(dev, "max-frequency", &priv->minmax[1]))
+		if (dev_reg_read_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+			if (dev_reg_read(dev, "max-frequency", &priv->minmax[1]))
 				return -EINVAL;
 
 			priv->minmax[0] = 400000;  /* 400 kHz */

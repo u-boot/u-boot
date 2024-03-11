@@ -626,7 +626,7 @@ static int ks2_bind_one_slave(struct udevice *dev, ofnode slave, ofnode *gbe_0)
 	u32 slave_no;
 	int ret;
 
-	if (ofnode_read_u32(slave, "slave-port", &slave_no))
+	if (ofnode_reg_read(slave, "slave-port", &slave_no))
 		return 0;
 
 	if (gbe_0 && slave_no == 0) {

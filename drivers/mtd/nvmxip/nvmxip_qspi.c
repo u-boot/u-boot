@@ -38,13 +38,13 @@ static int nvmxip_qspi_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32(dev, "lba_shift", &plat->lba_shift);
+	ret = dev_reg_read(dev, "lba_shift", &plat->lba_shift);
 	if (ret) {
 		log_err("[%s]: can not get lba_shift from device tree\n", dev->name);
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32(dev, "lba", (u32 *)&plat->lba);
+	ret = dev_reg_read(dev, "lba", (u32 *)&plat->lba);
 	if (ret) {
 		log_err("[%s]: can not get lba from device tree\n", dev->name);
 		return -EINVAL;

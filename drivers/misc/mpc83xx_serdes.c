@@ -125,7 +125,7 @@ static int mpc83xx_serdes_probe(struct udevice *dev)
 	priv->regs = map_sysmem(dev_read_addr(dev),
 				sizeof(struct mpc83xx_serdes_regs));
 
-	switch (dev_read_u32_default(dev, "serdes-clk", -1)) {
+	switch (dev_reg_read_default(dev, "serdes-clk", -1)) {
 	case 100:
 		priv->rfcks = SRDSCR4_RFCKS_100;
 		break;

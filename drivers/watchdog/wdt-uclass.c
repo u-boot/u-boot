@@ -249,8 +249,8 @@ static int wdt_pre_probe(struct udevice *dev)
 	struct wdt_priv *priv;
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		timeout = dev_read_u32_default(dev, "timeout-sec", timeout);
-		reset_period = dev_read_u32_default(dev, "hw_margin_ms",
+		timeout = dev_reg_read_default(dev, "timeout-sec", timeout);
+		reset_period = dev_reg_read_default(dev, "hw_margin_ms",
 						    4 * reset_period) / 4;
 		if (dev_read_bool(dev, "u-boot,noautostart"))
 			autostart = false;

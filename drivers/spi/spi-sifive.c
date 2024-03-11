@@ -434,11 +434,11 @@ static int sifive_spi_probe(struct udevice *bus)
 	if (!spi->regs)
 		return -ENODEV;
 
-	spi->fifo_depth = dev_read_u32_default(bus,
+	spi->fifo_depth = dev_reg_read_default(bus,
 					       "sifive,fifo-depth",
 					       SIFIVE_SPI_DEFAULT_DEPTH);
 
-	spi->bits_per_word = dev_read_u32_default(bus,
+	spi->bits_per_word = dev_reg_read_default(bus,
 						  "sifive,max-bits-per-word",
 						  SIFIVE_SPI_DEFAULT_BITS);
 

@@ -54,7 +54,7 @@ static int mdio_mux_i2creg_probe(struct udevice *dev)
 	int err;
 
 	/* read the register addr/mask pair */
-	err = dev_read_u32_array(dev, "mux-reg-masks", reg_mask, 2);
+	err = dev_reg_read_array(dev, "mux-reg-masks", reg_mask, 2);
 	if (err) {
 		debug("%s: error reading mux-reg-masks property\n", __func__);
 		return err;
@@ -71,7 +71,7 @@ static int mdio_mux_i2creg_probe(struct udevice *dev)
 		return err;
 	}
 
-	err = ofnode_read_u32(chip_node, "reg", &chip_addr);
+	err = ofnode_reg_read(chip_node, "reg", &chip_addr);
 	if (err) {
 		debug("%s: can't read chip address in %s\n", __func__,
 		      ofnode_get_name(chip_node));

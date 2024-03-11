@@ -74,7 +74,7 @@ static int ftgpio010_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	uc_priv->gpio_count = ofnode_read_u32_default(dev_ofnode(dev),
+	uc_priv->gpio_count = ofnode_reg_read_default(dev_ofnode(dev),
 						      "nr-gpios", 32);
 	return 0;
 }

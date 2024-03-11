@@ -2573,7 +2573,7 @@ static int cdns3_gadget_start(struct cdns3 *cdns)
 	priv_dev->dev = cdns->dev;
 	priv_dev->regs = cdns->dev_regs;
 
-	dev_read_u32(priv_dev->dev, "cdns,on-chip-buff-size",
+	dev_reg_read(priv_dev->dev, "cdns,on-chip-buff-size",
 		     &priv_dev->onchip_buffers);
 
 	if (priv_dev->onchip_buffers <=  0) {

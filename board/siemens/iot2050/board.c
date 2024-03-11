@@ -262,7 +262,7 @@ static void m2_overlay_prepare(void)
 	if (ret)
 		goto fit_error;
 
-	ret = ofnode_read_u32(node, "size", &connector_overlay_size);
+	ret = ofnode_reg_read(node, "size", &connector_overlay_size);
 	if (ret)
 		goto fit_error;
 

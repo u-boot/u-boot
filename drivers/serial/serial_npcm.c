@@ -109,7 +109,7 @@ static int npcm_serial_probe(struct udevice *dev)
 	uart = plat->reg;
 
 	if (!IS_ENABLED(CONFIG_SYS_SKIP_UART_INIT)) {
-		freq = dev_read_u32_default(dev, "clock-frequency", 24000000);
+		freq = dev_reg_read_default(dev, "clock-frequency", 24000000);
 
 		ret = clk_get_by_index(dev, 0, &clk);
 		if (ret < 0)

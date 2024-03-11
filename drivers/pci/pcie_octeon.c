@@ -120,7 +120,7 @@ static int pcie_octeon_probe(struct udevice *dev)
 	int ret = 0;
 
 	/* Get port number, lane number and memory target / attr */
-	if (ofnode_read_u32(dev_ofnode(dev), "marvell,pcie-port",
+	if (ofnode_reg_read(dev_ofnode(dev), "marvell,pcie-port",
 			    &pcie->port)) {
 		ret = -ENODEV;
 		goto err;

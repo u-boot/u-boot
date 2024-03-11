@@ -128,19 +128,19 @@ static void liteeth_setup_slots(struct liteeth *priv)
 {
 	int err;
 
-	err = ofnode_read_u32(dev_ofnode(priv->dev), "litex,rx-slots", &priv->num_rx_slots);
+	err = ofnode_reg_read(dev_ofnode(priv->dev), "litex,rx-slots", &priv->num_rx_slots);
 	if (err) {
 		dev_dbg(priv->dev, "unable to get litex,rx-slots, using 2\n");
 		priv->num_rx_slots = 2;
 	}
 
-	err = ofnode_read_u32(dev_ofnode(priv->dev), "litex,tx-slots", &priv->num_tx_slots);
+	err = ofnode_reg_read(dev_ofnode(priv->dev), "litex,tx-slots", &priv->num_tx_slots);
 	if (err) {
 		dev_dbg(priv->dev, "unable to get litex,tx-slots, using 2\n");
 		priv->num_tx_slots = 2;
 	}
 
-	err = ofnode_read_u32(dev_ofnode(priv->dev), "litex,slot-size", &priv->slot_size);
+	err = ofnode_reg_read(dev_ofnode(priv->dev), "litex,slot-size", &priv->slot_size);
 	if (err) {
 		dev_dbg(priv->dev, "unable to get litex,slot-size, using 0x800\n");
 		priv->slot_size = 0x800;

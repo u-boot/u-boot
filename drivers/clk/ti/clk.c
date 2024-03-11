@@ -83,7 +83,7 @@ int clk_ti_get_reg_addr(struct udevice *dev, int index, struct clk_ti_reg *reg)
 	int i, ret;
 	u32 val;
 
-	ret = ofnode_read_u32_index(dev_ofnode(dev), "reg", index, &val);
+	ret = ofnode_reg_read_index(dev_ofnode(dev), "reg", index, &val);
 	if (ret) {
 		dev_err(dev, "%s must have reg[%d]\n", ofnode_get_name(node),
 			index);

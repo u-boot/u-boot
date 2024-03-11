@@ -727,7 +727,7 @@ static bool pci_need_device_pre_reloc(struct udevice *bus, uint vendor,
 		return true;
 
 	for (index = 0;
-	     !dev_read_u32_index(bus, "u-boot,pci-pre-reloc", index,
+	     !dev_reg_read_index(bus, "u-boot,pci-pre-reloc", index,
 				 &vendev);
 	     index++) {
 		if (vendev == PCI_VENDEV(vendor, device))

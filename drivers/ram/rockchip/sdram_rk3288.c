@@ -981,21 +981,21 @@ static int rk3288_dmc_of_to_plat(struct udevice *dev)
 
 	/* Rk3288 supports dual-channel, set default channel num to 2 */
 	params->num_channels = 2;
-	ret = dev_read_u32_array(dev, "rockchip,pctl-timing",
+	ret = dev_reg_read_array(dev, "rockchip,pctl-timing",
 				 (u32 *)&params->pctl_timing,
 				 sizeof(params->pctl_timing) / sizeof(u32));
 	if (ret) {
 		debug("%s: Cannot read rockchip,pctl-timing\n", __func__);
 		return -EINVAL;
 	}
-	ret = dev_read_u32_array(dev, "rockchip,phy-timing",
+	ret = dev_reg_read_array(dev, "rockchip,phy-timing",
 				 (u32 *)&params->phy_timing,
 				 sizeof(params->phy_timing) / sizeof(u32));
 	if (ret) {
 		debug("%s: Cannot read rockchip,phy-timing\n", __func__);
 		return -EINVAL;
 	}
-	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
+	ret = dev_reg_read_array(dev, "rockchip,sdram-params",
 				 (u32 *)&params->base,
 				 sizeof(params->base) / sizeof(u32));
 	if (ret) {

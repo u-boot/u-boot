@@ -230,14 +230,14 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 	if (args.args_count > 2)
 		priv->polarity = args.args[2];
 
-	index = dev_read_u32_default(dev, "default-brightness-level", 255);
+	index = dev_reg_read_default(dev, "default-brightness-level", 255);
 	cell = dev_read_prop(dev, "brightness-levels", &len);
 	count = len / sizeof(u32);
 	if (cell && count > index) {
 		priv->levels = malloc(len);
 		if (!priv->levels)
 			return log_ret(-ENOMEM);
-		ret = dev_read_u32_array(dev, "brightness-levels", priv->levels,
+		ret = dev_reg_read_array(dev, "brightness-levels", priv->levels,
 					 count);
 		if (ret)
 			return log_msg_ret("levels", ret);

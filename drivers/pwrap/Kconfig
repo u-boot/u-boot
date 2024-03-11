@@ -1,0 +1,17 @@
+menu "PWRAP support"
+
+config PWRAP
+	bool "Enable PWRAP support"
+	depends on DM
+	---help---
+	  Select this to enable to support PWRAP.
+	  PWRAP (PMIC Wrapper) bus is used
+	  to connect PMIC devices on MediaTek SoCs.
+
+config MT6735_PWRAP
+	bool "Support PWRAP on MT6735"
+	depends on PWRAP
+	---help---
+	  Support PWRAP implementation found on MediaTek MT6735 SoCs.
+
+endmenu

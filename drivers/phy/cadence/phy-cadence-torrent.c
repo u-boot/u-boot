@@ -628,7 +628,7 @@ static int cdns_torrent_phy_probe(struct udevice *dev)
 			goto put_lnk_rst;
 		}
 
-		if (ofnode_read_u32(child, "reg",
+		if (ofnode_reg_read(child, "reg",
 				    &cdns_phy->phys[node].mlane)) {
 			dev_err(dev, "%s: No \"reg \" - property.\n",
 				ofnode_get_name(child));
@@ -636,7 +636,7 @@ static int cdns_torrent_phy_probe(struct udevice *dev)
 			goto put_child;
 		}
 
-		if (ofnode_read_u32(child, "cdns,phy-type", &phy_type)) {
+		if (ofnode_reg_read(child, "cdns,phy-type", &phy_type)) {
 			dev_err(dev, "%s: No \"cdns,phy-type \" - property.\n",
 				ofnode_get_name(child));
 			ret = -EINVAL;
@@ -665,7 +665,7 @@ static int cdns_torrent_phy_probe(struct udevice *dev)
 			goto put_child;
 		}
 
-		if (ofnode_read_u32(child, "cdns,num-lanes",
+		if (ofnode_reg_read(child, "cdns,num-lanes",
 				    &cdns_phy->phys[node].num_lanes)) {
 			dev_err(dev, "%s: No \"cdns,num-lanes \" - property.\n",
 				ofnode_get_name(child));
@@ -676,7 +676,7 @@ static int cdns_torrent_phy_probe(struct udevice *dev)
 		total_num_lanes += cdns_phy->phys[node].num_lanes;
 
 		/* Get SSC mode */
-		ofnode_read_u32(child, "cdns,ssc-mode",
+		ofnode_reg_read(child, "cdns,ssc-mode",
 				&cdns_phy->phys[node].ssc_mode);
 		node++;
 	}

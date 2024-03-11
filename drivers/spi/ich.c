@@ -953,7 +953,7 @@ static int ich_spi_of_to_plat(struct udevice *dev)
 	 * Use an int so that the property is present in of-platdata even
 	 * when false.
 	 */
-	plat->hwseq = dev_read_u32_default(dev, "intel,hardware-seq", 0);
+	plat->hwseq = dev_reg_read_default(dev, "intel,hardware-seq", 0);
 #else
 	plat->ich_version = ICHV_APL;
 	plat->mmio_base = plat->dtplat.early_regs[0];

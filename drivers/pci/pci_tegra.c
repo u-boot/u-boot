@@ -454,7 +454,7 @@ static int tegra_pcie_parse_port_info(ofnode node, uint *index, uint *lanes)
 	struct fdt_pci_addr addr;
 	int err;
 
-	err = ofnode_read_u32_default(node, "nvidia,num-lanes", -1);
+	err = ofnode_reg_read_default(node, "nvidia,num-lanes", -1);
 	if (err < 0) {
 		pr_err("failed to parse \"nvidia,num-lanes\" property\n");
 		return err;

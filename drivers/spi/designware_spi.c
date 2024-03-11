@@ -254,7 +254,7 @@ static int dw_spi_of_to_plat(struct udevice *bus)
 		return -EINVAL;
 
 	/* Use 500KHz as a suitable default */
-	plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+	plat->frequency = dev_reg_read_default(bus, "spi-max-frequency",
 					       500000);
 
 	if (dev_read_bool(bus, "spi-slave"))

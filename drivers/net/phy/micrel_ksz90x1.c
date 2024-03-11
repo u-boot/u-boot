@@ -132,7 +132,7 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	}
 
 	for (i = 0; i < ofcfg->grpsz; i++) {
-		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
+		val[i] = ofnode_reg_read_default(node, ofcfg->grp[i].name, ~0);
 		offset = ofcfg->grp[i].off;
 		if (val[i] == -1) {
 			/* Default register value for KSZ9021 */

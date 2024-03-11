@@ -432,7 +432,7 @@ static int bcm6348_eth_probe(struct udevice *dev)
 	/* get phy */
 	if (dev_read_phandle_with_args(dev, "phy", NULL, 0, 0, &phy))
 		return -ENOENT;
-	priv->phy_id = ofnode_read_u32_default(phy.node, "reg", -1);
+	priv->phy_id = ofnode_reg_read_default(phy.node, "reg", -1);
 
 	/* get dma channels */
 	ret = dma_get_by_name(dev, "tx", &priv->tx_dma);

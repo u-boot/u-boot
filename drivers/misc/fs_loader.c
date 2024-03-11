@@ -239,7 +239,7 @@ static int fs_loader_of_to_plat(struct udevice *dev)
 		struct device_plat *plat;
 
 		plat = dev_get_plat(dev);
-		if (!ofnode_read_u32_array(fs_loader_node,
+		if (!ofnode_reg_read_array(fs_loader_node,
 					  "phandlepart",
 					  phandlepart, 2)) {
 			plat->phandlepart.phandle = phandlepart[0];

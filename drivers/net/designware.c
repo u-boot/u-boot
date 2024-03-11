@@ -837,7 +837,7 @@ int designware_eth_of_to_plat(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+	pdata->max_speed = dev_reg_read_default(dev, "max-speed", 0);
 
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	if (dev_read_bool(dev, "snps,reset-active-low"))
@@ -846,7 +846,7 @@ int designware_eth_of_to_plat(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
 		&priv->reset_gpio, reset_flags);
 	if (ret == 0) {
-		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
+		ret = dev_reg_read_array(dev, "snps,reset-delays-us",
 					 dw_pdata->reset_delays, 3);
 	} else if (ret == -ENOENT) {
 		ret = 0;

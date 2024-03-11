@@ -562,9 +562,9 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	if (err && !device_is_on_pci_bus(dev))
 		return err;
 
-	plat->reg_offset = dev_read_u32_default(dev, "reg-offset", 0);
-	plat->reg_shift = dev_read_u32_default(dev, "reg-shift", 0);
-	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
+	plat->reg_offset = dev_reg_read_default(dev, "reg-offset", 0);
+	plat->reg_shift = dev_reg_read_default(dev, "reg-shift", 0);
+	plat->reg_width = dev_reg_read_default(dev, "reg-io-width", 1);
 
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
@@ -577,7 +577,7 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	}
 
 	if (!plat->clock)
-		plat->clock = dev_read_u32_default(dev, "clock-frequency",
+		plat->clock = dev_reg_read_default(dev, "clock-frequency",
 						   CFG_SYS_NS16550_CLK);
 	if (!plat->clock)
 		plat->clock = CFG_SYS_NS16550_CLK;

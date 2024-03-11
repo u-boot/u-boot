@@ -579,7 +579,7 @@ static int mt7628_eth_probe(struct udevice *dev)
 	}
 
 	/* WAN port will be isolated from LAN ports */
-	priv->wan_port = dev_read_u32_default(dev, "mediatek,wan-port", -1);
+	priv->wan_port = dev_reg_read_default(dev, "mediatek,wan-port", -1);
 
 	/* Put rx and tx rings into KSEG1 area (uncached) */
 	priv->tx_ring = (struct fe_tx_dma *)
@@ -607,7 +607,7 @@ static int mt7628_eth_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	poll_link_phy = dev_read_u32_default(dev, "mediatek,poll-link-phy", -1);
+	poll_link_phy = dev_reg_read_default(dev, "mediatek,poll-link-phy", -1);
 	if (poll_link_phy >= 0) {
 		if (poll_link_phy >= NUM_PHYS) {
 			pr_err("invalid phy %d for poll-link-phy\n",

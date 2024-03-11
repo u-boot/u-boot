@@ -155,12 +155,12 @@ static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
 		return PTR_ERR(tsp->sci);
 	}
 
-	tsp->proc_id = dev_read_u32_default(dev, "ti,sci-proc-id", INVALID_ID);
+	tsp->proc_id = dev_reg_read_default(dev, "ti,sci-proc-id", INVALID_ID);
 	if (tsp->proc_id == INVALID_ID) {
 		dev_err(dev, "proc id not populated\n");
 		return -ENOENT;
 	}
-	tsp->host_id = dev_read_u32_default(dev, "ti,sci-host-id", INVALID_ID);
+	tsp->host_id = dev_reg_read_default(dev, "ti,sci-host-id", INVALID_ID);
 	tsp->ops = &tsp->sci->ops.proc_ops;
 
 	return 0;

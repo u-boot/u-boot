@@ -72,18 +72,18 @@ static int button_adc_of_to_plat(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = ofnode_read_u32(dev_ofnode(dev->parent),
+	ret = ofnode_reg_read(dev_ofnode(dev->parent),
 			      "keyup-threshold-microvolt", &up_threshold);
 	if (ret)
 		return ret;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "press-threshold-microvolt",
+	ret = ofnode_reg_read(dev_ofnode(dev), "press-threshold-microvolt",
 			      &voltage);
 	if (ret)
 		return ret;
 
 	dev_for_each_subnode(node, dev->parent) {
-		ret = ofnode_read_u32(node, "press-threshold-microvolt", &t);
+		ret = ofnode_reg_read(node, "press-threshold-microvolt", &t);
 		if (ret)
 			return ret;
 

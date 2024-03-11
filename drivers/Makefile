@@ -40,6 +40,7 @@ obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_$(SPL_)NVME) += nvme/
 obj-$(CONFIG_XEN) += xen/
 obj-$(CONFIG_$(SPL_)FPGA) += fpga/
+obj-$(CONFIG_PWRAP) += pwrap/
 obj-$(CONFIG_$(SPL_)VIDEO) += video/
 
 obj-y += bus/

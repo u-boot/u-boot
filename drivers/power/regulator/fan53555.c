@@ -110,7 +110,7 @@ static int fan53555_regulator_of_to_plat(struct udevice *dev)
 	/* This is a buck regulator */
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 
-	sleep_vsel = dev_read_u32_default(dev, "fcs,suspend-voltage-selector",
+	sleep_vsel = dev_reg_read_default(dev, "fcs,suspend-voltage-selector",
 					  FAN53555_VSEL1);
 
 	/*

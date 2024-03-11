@@ -51,7 +51,7 @@ static int starfive_probe(struct udevice *dev)
 	if (!priv->base)
 		return -EINVAL;
 
-	timer_channel = dev_read_u32_default(dev, "channel", 0);
+	timer_channel = dev_reg_read_default(dev, "channel", 0);
 	priv->base = priv->base + (0x40 * timer_channel);
 
 	/* Get clock rate from channel selectecd*/
@@ -73,7 +73,7 @@ static int starfive_probe(struct udevice *dev)
 	if (dev_read_bool(dev, "single-run"))
 		writel(1, priv->base + STF_TIMER_CTL);
 	/* Set Reload value */
-	priv->timer_size = dev_read_u32_default(dev, "timer-size", -1U);
+	priv->timer_size = dev_reg_read_default(dev, "timer-size", -1U);
 	writel(priv->timer_size, priv->base + STF_TIMER_LOAD);
 	/* Enable to start timer */
 	writel(1, priv->base + STF_TIMER_ENABLE);

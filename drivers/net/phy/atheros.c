@@ -219,9 +219,9 @@ static int ar803x_of_init(struct phy_device *phydev)
 	 */
 	vddio_reg_node = ofnode_find_subnode(node, "vddio-regulator");
 	if (ofnode_valid(vddio_reg_node)) {
-		min_uV = ofnode_read_u32_default(vddio_reg_node,
+		min_uV = ofnode_reg_read_default(vddio_reg_node,
 						 "regulator-min-microvolt", 0);
-		max_uV = ofnode_read_u32_default(vddio_reg_node,
+		max_uV = ofnode_reg_read_default(vddio_reg_node,
 						 "regulator-max-microvolt", 0);
 
 		if (min_uV != max_uV) {
@@ -247,7 +247,7 @@ static int ar803x_of_init(struct phy_device *phydev)
 	 * the DSP as frequency reference, this is used for synchronous
 	 * ethernet.
 	 */
-	if (!ofnode_read_u32(node, "qca,clk-out-frequency", &freq)) {
+	if (!ofnode_reg_read(node, "qca,clk-out-frequency", &freq)) {
 		switch (freq) {
 		case 25000000:
 			sel = AR803x_CLK_25M_25MHZ_XTAL;
@@ -282,7 +282,7 @@ static int ar803x_of_init(struct phy_device *phydev)
 	}
 
 	if (phydev->drv->uid == AR8031_PHY_ID &&
-	    !ofnode_read_u32(node, "qca,clk-out-strength", &strength)) {
+	    !ofnode_reg_read(node, "qca,clk-out-strength", &strength)) {
 		switch (strength) {
 		case AR803X_STRENGTH_FULL:
 			sel = AR803x_CLK_25M_DR_FULL;

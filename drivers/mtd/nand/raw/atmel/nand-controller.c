@@ -1016,10 +1016,10 @@ static int atmel_nand_pmecc_init(struct nand_chip *chip)
 	if (nc->caps->legacy_of_bindings) {
 		u32 val;
 
-		if (!ofnode_read_u32(nc->dev->node_, "atmel,pmecc-cap", &val))
+		if (!ofnode_reg_read(nc->dev->node_, "atmel,pmecc-cap", &val))
 			chip->ecc.strength = val;
 
-		if (!ofnode_read_u32(nc->dev->node_,
+		if (!ofnode_reg_read(nc->dev->node_,
 				     "atmel,pmecc-sector-size",
 				     &val))
 			chip->ecc.size = val;
@@ -1538,7 +1538,7 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 				   GPIOD_IS_IN);
 
 	for (i = 0; i < numcs; i++) {
-		ret = ofnode_read_u32(np, "reg", &val);
+		ret = ofnode_reg_read(np, "reg", &val);
 		if (ret) {
 			dev_err(nc->dev, "Invalid reg property (err = %d)\n",
 				ret);
@@ -1558,7 +1558,7 @@ static struct atmel_nand *atmel_nand_create(struct atmel_nand_controller *nc,
 		base = ofnode_translate_address(np, &faddr);
 		nand->cs[i].io.virt = (void *)base;
 
-		if (!ofnode_read_u32(np, "atmel,rb", &val)) {
+		if (!ofnode_reg_read(np, "atmel,rb", &val)) {
 			if (val > ATMEL_NFC_MAX_RB_ID)
 				return ERR_PTR(-EINVAL);
 
@@ -1672,7 +1672,7 @@ static int atmel_nand_controller_add_nands(struct atmel_nand_controller *nc)
 
 	np = nc->dev->node_;
 
-	ret = ofnode_read_u32(np, "#address-cells", &val);
+	ret = ofnode_reg_read(np, "#address-cells", &val);
 	if (ret) {
 		dev_err(nc->dev, "missing #address-cells property\n");
 		return ret;
@@ -1680,7 +1680,7 @@ static int atmel_nand_controller_add_nands(struct atmel_nand_controller *nc)
 
 	reg_cells = val;
 
-	ret = ofnode_read_u32(np, "#size-cells", &val);
+	ret = ofnode_reg_read(np, "#size-cells", &val);
 	if (ret) {
 		dev_err(nc->dev, "missing #size-cells property\n");
 		return ret;
@@ -1977,7 +1977,7 @@ static int atmel_hsmc_nand_controller_init(struct atmel_hsmc_nand_controller *nc
 		return ret;
 	}
 
-	ret = ofnode_read_u32(args.node, "reg", &addr);
+	ret = ofnode_reg_read(args.node, "reg", &addr);
 	if (ret) {
 		dev_err(dev, "Could not read reg addr of nfc sram");
 		return ret;

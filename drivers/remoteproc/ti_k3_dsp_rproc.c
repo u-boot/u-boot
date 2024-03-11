@@ -304,7 +304,7 @@ static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
 		return PTR_ERR(tsp->sci);
 	}
 
-	ret = dev_read_u32_array(dev, "ti,sci-proc-ids", ids, 2);
+	ret = dev_reg_read_array(dev, "ti,sci-proc-ids", ids, 2);
 	if (ret) {
 		dev_err(dev, "Proc IDs not populated %d\n", ret);
 		return ret;
@@ -313,7 +313,7 @@ static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
 	tsp->ops = &tsp->sci->ops.proc_ops;
 	tsp->proc_id = ids[0];
 	tsp->host_id = ids[1];
-	tsp->dev_id = dev_read_u32_default(dev, "ti,sci-dev-id",
+	tsp->dev_id = dev_reg_read_default(dev, "ti,sci-dev-id",
 					   TI_SCI_RESOURCE_NULL);
 	if (tsp->dev_id == TI_SCI_RESOURCE_NULL) {
 		dev_err(dev, "Device ID not populated %d\n", ret);

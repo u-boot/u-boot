@@ -1,0 +1,49 @@
+
+/dts-v1/;
+
+/ {
+    description = "FIT with ATF and U-Boot Proper for MT6735";
+    #address-cells = <1>;
+
+        images {
+
+            uboot {
+                description = "U-Boot Proper";
+                data = /incbin/("u-boot.bin");
+                type = "standalone";
+                os = "U-Boot";
+                arch = "arm64";
+                compression = "none";
+                load = <0x41e00000>;
+                entry = <0x41e00000>;
+            };
+
+            atf {
+                description = "ARM Trusted Firmware";
+                type = "firmware";
+                os = "arm-trusted-firmware";
+                arch = "arm64";
+                compression = "none";
+                load = <0x43000000>;
+                entry = <0x43000000>;
+                data = /incbin/("bl31.bin");
+            };
+
+            fdt-1 {
+                description = "mt6735-test.dtb";
+                data = /incbin/("arch/arm/dts/mt6735-test.dtb");
+                type = "flat_dt";
+                compression = "none";
+            };
+        };
+
+        configurations {
+            default = "config-1";
+            config-1 {
+                description = "mt6735-test.dtb";
+                firmware = "atf";
+                loadables = "uboot";
+                fdt = "fdt-1";
+            };
+        };
+};

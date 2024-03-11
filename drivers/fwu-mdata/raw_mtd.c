@@ -204,7 +204,7 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 		const char *bank_name;
 		ofnode image;
 
-		ofnode_read_u32(bank, "id", &bank_num);
+		ofnode_reg_read(bank, "id", &bank_num);
 		bank_name = ofnode_read_string(bank, "label");
 		bank_size = flash_partition_offset(mtd_dev, bank_name, &offset);
 		if (bank_size <= 0)
@@ -224,9 +224,9 @@ static int fwu_mdata_mtd_of_to_plat(struct udevice *dev)
 			}
 
 			uuid = ofnode_read_string(image, "uuid");
-			ofnode_read_u32(image, "id", &image_num);
-			ofnode_read_u32(image, "offset", &image_offset);
-			ofnode_read_u32(image, "size", &image_size);
+			ofnode_reg_read(image, "id", &image_num);
+			ofnode_reg_read(image, "offset", &image_offset);
+			ofnode_reg_read(image, "size", &image_size);
 
 			fwu_mtd_images[off_img].start = bank_offset + image_offset;
 			fwu_mtd_images[off_img].size = image_size;

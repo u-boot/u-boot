@@ -421,7 +421,7 @@ static int udphy_parse_lane_mux_data(struct rockchip_udphy *udphy,
 		return -EINVAL;
 	}
 
-	ret = of_read_u32_array(np, "rockchip,dp-lane-mux", udphy->dp_lane_sel,
+	ret = of_reg_read_array(np, "rockchip,dp-lane-mux", udphy->dp_lane_sel,
 				num_lanes);
 	if (ret) {
 		dev_err(udphy->dev, "get dp lane mux failed\n");

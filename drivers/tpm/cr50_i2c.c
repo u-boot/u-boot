@@ -788,7 +788,7 @@ static int cr50_acpi_fill_ssdt(const struct udevice *dev, struct acpi_ctx *ctx)
 	acpigen_write_device(ctx, name);
 	acpigen_write_name_string(ctx, "_HID", hid);
 	acpigen_write_name_integer(ctx, "_UID",
-				   dev_read_u32_default(dev, "acpi,uid", 0));
+				   dev_reg_read_default(dev, "acpi,uid", 0));
 	acpigen_write_name_string(ctx, "_DDN",
 				  dev_read_string(dev, "acpi,ddn"));
 	acpigen_write_sta(ctx, acpi_device_status(dev));

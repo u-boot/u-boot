@@ -305,7 +305,7 @@ static int clk_set_default_rates(struct udevice *dev,
 	if (!rates)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(dev, "assigned-clock-rates", rates, num_rates);
+	ret = dev_reg_read_array(dev, "assigned-clock-rates", rates, num_rates);
 	if (ret)
 		goto fail;
 

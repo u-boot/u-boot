@@ -762,7 +762,7 @@ static int qup_spi_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	priv->num_cs = dev_read_u32_default(dev, "num-cs", 1);
+	priv->num_cs = dev_reg_read_default(dev, "num-cs", 1);
 
 	ret = gpio_request_list_by_name(dev, "cs-gpios", priv->cs_gpios,
 					priv->num_cs, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);

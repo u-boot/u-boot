@@ -174,7 +174,7 @@ static int mt7620_serial_of_to_plat(struct udevice *dev)
 	}
 
 	if (!plat->clock)
-		plat->clock = dev_read_u32_default(dev, "clock-frequency", 0);
+		plat->clock = dev_reg_read_default(dev, "clock-frequency", 0);
 
 	if (!plat->clock) {
 		dev_err(dev, "mt7620_serial: clock not defined\n");

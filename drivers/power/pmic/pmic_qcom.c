@@ -73,7 +73,7 @@ static int pmic_qcom_probe(struct udevice *dev)
 	 * contains two discrete values, not a single 64-bit address.
 	 * The address is the first value.
 	 */
-	ret = ofnode_read_u32_index(dev_ofnode(dev), "reg", 0, &priv->usid);
+	ret = ofnode_reg_read_index(dev_ofnode(dev), "reg", 0, &priv->usid);
 	if (ret < 0)
 		return -EINVAL;
 

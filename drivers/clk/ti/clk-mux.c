@@ -223,7 +223,7 @@ static int clk_ti_mux_of_to_plat(struct udevice *dev)
 		return err;
 	}
 
-	priv->shift = dev_read_u32_default(dev, "ti,bit-shift", 0);
+	priv->shift = dev_reg_read_default(dev, "ti,bit-shift", 0);
 	priv->latch = dev_read_s32_default(dev, "ti,latch-bit", -EINVAL);
 
 	priv->flags = CLK_SET_RATE_NO_REPARENT;

@@ -947,7 +947,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 	}
 	ddrss->ddrss_phy_cfg = reg;
 
-	ret = dev_read_u32_array(dev, "ti,ss-reg",
+	ret = dev_reg_read_array(dev, "ti,ss-reg",
 			         (u32 *)&ddrss->params.ss_reg,
 			         sizeof(ddrss->params.ss_reg) / sizeof(u32));
 	if (ret) {
@@ -955,7 +955,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-reg",
+	ret = dev_reg_read_array(dev, "ti,ctl-reg",
 				 (u32 *)&ddrss->params.ctl_reg,
 				 sizeof(ddrss->params.ctl_reg) / sizeof(u32));
 	if (ret) {
@@ -963,7 +963,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-crc",
+	ret = dev_reg_read_array(dev, "ti,ctl-crc",
 				 (u32 *)&ddrss->params.ctl_crc,
 				 sizeof(ddrss->params.ctl_crc) / sizeof(u32));
 	if (ret) {
@@ -971,7 +971,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-ecc",
+	ret = dev_reg_read_array(dev, "ti,ctl-ecc",
 				 (u32 *)&ddrss->params.ctl_ecc,
 				 sizeof(ddrss->params.ctl_ecc) / sizeof(u32));
 	if (ret) {
@@ -979,7 +979,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-map",
+	ret = dev_reg_read_array(dev, "ti,ctl-map",
 				 (u32 *)&ddrss->params.ctl_map,
 				 sizeof(ddrss->params.ctl_map) / sizeof(u32));
 	if (ret) {
@@ -987,7 +987,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-pwr",
+	ret = dev_reg_read_array(dev, "ti,ctl-pwr",
 				 (u32 *)&ddrss->params.ctl_pwr,
 				 sizeof(ddrss->params.ctl_pwr) / sizeof(u32));
 	if (ret) {
@@ -995,7 +995,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,ctl-timing",
+	ret = dev_reg_read_array(dev, "ti,ctl-timing",
 				 (u32 *)&ddrss->params.ctl_timing,
 				 sizeof(ddrss->params.ctl_timing) /
 				 sizeof(u32));
@@ -1004,7 +1004,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,phy-cfg",
+	ret = dev_reg_read_array(dev, "ti,phy-cfg",
 				 (u32 *)&ddrss->params.phy_cfg,
 				 sizeof(ddrss->params.phy_cfg) / sizeof(u32));
 	if (ret) {
@@ -1012,7 +1012,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,phy-ctl",
+	ret = dev_reg_read_array(dev, "ti,phy-ctl",
 				 (u32 *)&ddrss->params.phy_ctrl,
 				 sizeof(ddrss->params.phy_ctrl) / sizeof(u32));
 	if (ret) {
@@ -1020,7 +1020,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,phy-ioctl",
+	ret = dev_reg_read_array(dev, "ti,phy-ioctl",
 				 (u32 *)&ddrss->params.phy_ioctl,
 				 sizeof(ddrss->params.phy_ioctl) / sizeof(u32));
 	if (ret) {
@@ -1028,7 +1028,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,phy-timing",
+	ret = dev_reg_read_array(dev, "ti,phy-timing",
 				 (u32 *)&ddrss->params.phy_timing,
 				 sizeof(ddrss->params.phy_timing) /
 				 sizeof(u32));
@@ -1037,7 +1037,7 @@ static int am654_ddrss_ofdata_to_priv(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32_array(dev, "ti,phy-zq", (u32 *)&ddrss->params.phy_zq,
+	ret = dev_reg_read_array(dev, "ti,phy-zq", (u32 *)&ddrss->params.phy_zq,
 				 sizeof(ddrss->params.phy_zq) / sizeof(u32));
 	if (ret) {
 		dev_err(dev, "Cannot read ti,phy-zq params\n");

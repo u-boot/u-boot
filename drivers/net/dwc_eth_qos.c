@@ -733,7 +733,7 @@ static int eqos_get_phy_addr(struct eqos_priv *priv, struct udevice *dev)
 
 	priv->phy_of_node = phandle_args.node;
 
-	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+	reg = ofnode_reg_read_default(phandle_args.node, "reg", 0);
 
 	return reg;
 }
@@ -1510,7 +1510,7 @@ static int eqos_probe(struct udevice *dev)
 	eqos->dma_regs = (void *)(eqos->regs + EQOS_DMA_REGS_BASE);
 	eqos->tegra186_regs = (void *)(eqos->regs + EQOS_TEGRA186_REGS_BASE);
 
-	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+	eqos->max_speed = dev_reg_read_default(dev, "max-speed", 0);
 
 	ret = eqos_probe_resources_core(dev);
 	if (ret < 0) {

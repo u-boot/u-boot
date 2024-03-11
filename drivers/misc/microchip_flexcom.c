@@ -30,7 +30,7 @@ static int microchip_flexcom_of_to_plat(struct udevice *dev)
 				 sizeof(struct microchip_flexcom_regs),
 				MAP_NOCACHE);
 
-	ret = dev_read_u32(dev, "atmel,flexcom-mode", &plat->flexcom_mode);
+	ret = dev_reg_read(dev, "atmel,flexcom-mode", &plat->flexcom_mode);
 
 	if (IS_ERR_VALUE(ret)) {
 		debug("Missing atmel,flexcom-mode property\n");

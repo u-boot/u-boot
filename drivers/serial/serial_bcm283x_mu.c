@@ -176,7 +176,7 @@ static int bcm283x_mu_serial_probe(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = dev_read_u32_default(dev, "clock", 1);
+	plat->clock = dev_reg_read_default(dev, "clock", 1);
 
 	/*
 	 * TODO: Reinitialization doesn't always work for now, just skip

@@ -93,7 +93,7 @@ int bcm6838_pinctrl_probe(struct udevice *dev)
 	u32 phandle;
 	ofnode node;
 
-	err = ofnode_read_u32(dev_ofnode(dev), "regmap", &phandle);
+	err = ofnode_reg_read(dev_ofnode(dev), "regmap", &phandle);
 	if (err) {
 		dev_err(dev, "%s: unable to read regmap\n", __func__);
 		goto out;
@@ -113,7 +113,7 @@ int bcm6838_pinctrl_probe(struct udevice *dev)
 		goto out;
 	}
 
-	err = ofnode_read_u32(dev_ofnode(dev), "brcm,pins-count",
+	err = ofnode_reg_read(dev_ofnode(dev), "brcm,pins-count",
 			      &priv->pins_count);
 	if (err) {
 		dev_err(dev, "%s: unable to read brcm,pins-count\n",
@@ -121,7 +121,7 @@ int bcm6838_pinctrl_probe(struct udevice *dev)
 		goto out;
 	}
 
-	err = ofnode_read_u32(dev_ofnode(dev), "brcm,functions-count",
+	err = ofnode_reg_read(dev_ofnode(dev), "brcm,functions-count",
 			      &priv->functions_count);
 	if (err) {
 		dev_err(dev, "%s: unable to read brcm,functions-count\n",

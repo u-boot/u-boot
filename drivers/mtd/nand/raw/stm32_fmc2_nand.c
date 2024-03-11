@@ -808,7 +808,7 @@ static int stm32_fmc2_nfc_parse_child(struct stm32_fmc2_nfc *nfc, ofnode node)
 		return -EINVAL;
 	}
 
-	ret = ofnode_read_u32_array(node, "reg", cs, nand->ncs);
+	ret = ofnode_reg_read_array(node, "reg", cs, nand->ncs);
 	if (ret < 0) {
 		log_err("Could not retrieve reg property\n");
 		return -EINVAL;

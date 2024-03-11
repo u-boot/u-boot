@@ -393,7 +393,7 @@ static int abx80x_dt_trickle_cfg(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "abracon,tc-resistor", &tmp);
+	ret = ofnode_reg_read(dev_ofnode(dev), "abracon,tc-resistor", &tmp);
 	if (ret)
 		return ret;
 

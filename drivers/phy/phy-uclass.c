@@ -161,7 +161,7 @@ int generic_phy_get_by_index_nodev(ofnode node, int index, struct phy *phy)
 			args.args[i] = args.args[i - 1];
 
 		args.args_count++;
-		args.args[0] = ofnode_read_u32_default(args.node, "reg", -1);
+		args.args[0] = ofnode_reg_read_default(args.node, "reg", -1);
 	}
 
 	phy->dev = phydev;

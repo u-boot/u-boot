@@ -464,26 +464,26 @@ static int regulator_pre_probe(struct udevice *dev)
 		return -ENXIO;
 
 	/* Regulator's optional constraints */
-	uc_pdata->min_uV = dev_read_u32_default(dev, "regulator-min-microvolt",
+	uc_pdata->min_uV = dev_reg_read_default(dev, "regulator-min-microvolt",
 						-ENODATA);
-	uc_pdata->max_uV = dev_read_u32_default(dev, "regulator-max-microvolt",
+	uc_pdata->max_uV = dev_reg_read_default(dev, "regulator-max-microvolt",
 						-ENODATA);
-	uc_pdata->init_uV = dev_read_u32_default(dev, "regulator-init-microvolt",
+	uc_pdata->init_uV = dev_reg_read_default(dev, "regulator-init-microvolt",
 						 -ENODATA);
-	uc_pdata->min_uA = dev_read_u32_default(dev, "regulator-min-microamp",
+	uc_pdata->min_uA = dev_reg_read_default(dev, "regulator-min-microamp",
 						-ENODATA);
-	uc_pdata->max_uA = dev_read_u32_default(dev, "regulator-max-microamp",
+	uc_pdata->max_uA = dev_reg_read_default(dev, "regulator-max-microamp",
 						-ENODATA);
 	uc_pdata->always_on = dev_read_bool(dev, "regulator-always-on");
 	uc_pdata->boot_on = dev_read_bool(dev, "regulator-boot-on");
-	uc_pdata->ramp_delay = dev_read_u32_default(dev, "regulator-ramp-delay",
+	uc_pdata->ramp_delay = dev_reg_read_default(dev, "regulator-ramp-delay",
 						    0);
 	uc_pdata->force_off = dev_read_bool(dev, "regulator-force-boot-off");
 
 	node = dev_read_subnode(dev, "regulator-state-mem");
 	if (ofnode_valid(node)) {
 		uc_pdata->suspend_on = !ofnode_read_bool(node, "regulator-off-in-suspend");
-		if (ofnode_read_u32(node, "regulator-suspend-microvolt", &uc_pdata->suspend_uV))
+		if (ofnode_reg_read(node, "regulator-suspend-microvolt", &uc_pdata->suspend_uV))
 			uc_pdata->suspend_uV = uc_pdata->max_uV;
 	} else {
 		uc_pdata->suspend_on = true;

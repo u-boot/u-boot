@@ -1069,11 +1069,11 @@ static int netsec_of_to_plat(struct udevice *dev)
 
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					&phandle_args))
-		priv->phy_addr = ofnode_read_u32_default(phandle_args.node, "reg", 7);
+		priv->phy_addr = ofnode_reg_read_default(phandle_args.node, "reg", 7);
 	else
 		priv->phy_addr = 7;
 
-	pdata->max_speed = dev_read_u32_default(dev, "max-speed", SPEED_1000);
+	pdata->max_speed = dev_reg_read_default(dev, "max-speed", SPEED_1000);
 
 	priv->ioaddr = pdata->iobase;
 	priv->phy_mode = pdata->phy_interface;

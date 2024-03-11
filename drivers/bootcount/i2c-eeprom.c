@@ -71,7 +71,7 @@ static int bootcount_i2c_eeprom_probe(struct udevice *dev)
 	}
 
 	priv->i2c_eeprom = i2c_eeprom;
-	priv->offset = dev_read_u32_default(dev, "offset", 0);
+	priv->offset = dev_reg_read_default(dev, "offset", 0);
 
 	return 0;
 }

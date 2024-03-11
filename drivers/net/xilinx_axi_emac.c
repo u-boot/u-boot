@@ -921,7 +921,7 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 		phynode = dev_get_phy_node(dev);
 		if (ofnode_valid(phynode)) {
 			if (!(IS_ENABLED(CONFIG_DM_ETH_PHY)))
-				plat->phyaddr = ofnode_read_u32_default(phynode,
+				plat->phyaddr = ofnode_reg_read_default(phynode,
 									"reg", -1);
 			plat->phynode = phynode;
 		}
@@ -937,7 +937,7 @@ static int axi_emac_of_to_plat(struct udevice *dev)
 			ret = dev_read_phandle_with_args(dev, "pcs-handle", NULL, 0, 0,
 							 &pcs_node);
 			if (!ret) {
-				plat->pcsaddr = ofnode_read_u32_default(pcs_node.node,
+				plat->pcsaddr = ofnode_reg_read_default(pcs_node.node,
 									"reg", -1);
 			}
 		}

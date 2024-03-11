@@ -292,7 +292,7 @@ static int meson_gx_pwrc_vpu_probe(struct udevice *dev)
 	if (IS_ERR(priv->regmap_ao))
 		return PTR_ERR(priv->regmap_ao);
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "amlogic,hhi-sysctrl",
+	ret = ofnode_reg_read(dev_ofnode(dev), "amlogic,hhi-sysctrl",
 			      &hhi_phandle);
 	if (ret)
 		return ret;

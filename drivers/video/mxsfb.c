@@ -260,7 +260,7 @@ static int mxs_of_get_timings(struct udevice *dev,
 	u32 display_phandle;
 	ofnode display_node;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "display", &display_phandle);
+	ret = ofnode_reg_read(dev_ofnode(dev), "display", &display_phandle);
 	if (ret) {
 		dev_err(dev, "required display property isn't provided\n");
 		return -EINVAL;
@@ -272,7 +272,7 @@ static int mxs_of_get_timings(struct udevice *dev,
 		return -EINVAL;
 	}
 
-	ret = ofnode_read_u32(display_node, "bits-per-pixel", bpp);
+	ret = ofnode_reg_read(display_node, "bits-per-pixel", bpp);
 	if (ret) {
 		dev_err(dev,
 			"required bits-per-pixel property isn't provided\n");

@@ -751,9 +751,9 @@ int designware_i2c_of_to_plat(struct udevice *bus)
 
 	if (!priv->regs)
 		priv->regs = dev_read_addr_ptr(bus);
-	dev_read_u32(bus, "i2c-scl-rising-time-ns", &priv->scl_rise_time_ns);
-	dev_read_u32(bus, "i2c-scl-falling-time-ns", &priv->scl_fall_time_ns);
-	dev_read_u32(bus, "i2c-sda-hold-time-ns", &priv->sda_hold_time_ns);
+	dev_reg_read(bus, "i2c-scl-rising-time-ns", &priv->scl_rise_time_ns);
+	dev_reg_read(bus, "i2c-scl-falling-time-ns", &priv->scl_fall_time_ns);
+	dev_reg_read(bus, "i2c-sda-hold-time-ns", &priv->sda_hold_time_ns);
 
 	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret) {

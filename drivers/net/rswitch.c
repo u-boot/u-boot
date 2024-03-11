@@ -970,7 +970,7 @@ static int rswitch_port_probe(struct udevice *dev)
 
 	etha->enetaddr = pdata->enetaddr;
 
-	etha->index = dev_read_u32_default(dev, "reg", 0);
+	etha->index = dev_reg_read_default(dev, "reg", 0);
 	etha->addr = priv->addr + RSWITCH_ETHA_OFFSET + etha->index * RSWITCH_ETHA_SIZE;
 
 	gwca->index = 1;
@@ -1030,7 +1030,7 @@ int rswitch_ofdata_to_platdata(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 1000);
+	pdata->max_speed = dev_reg_read_default(dev, "max-speed", 1000);
 
 	return 0;
 }

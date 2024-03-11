@@ -101,7 +101,7 @@ static int keystone_usb_phy_probe(struct udevice *dev)
 	int rc;
 	struct keystone_usb_phy *keystone = dev_get_priv(dev);
 
-	rc = dev_read_u32(dev, "psc-domain", &keystone->psc_domain);
+	rc = dev_reg_read(dev, "psc-domain", &keystone->psc_domain);
 	if (rc)
 		return rc;
 

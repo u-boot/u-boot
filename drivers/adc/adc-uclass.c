@@ -388,7 +388,7 @@ static int adc_vdd_plat_set(struct udevice *dev)
 
 	/* No vdd-supply phandle. */
 	prop  = "vdd-microvolts";
-	uc_pdata->vdd_microvolts = dev_read_u32_default(dev, prop, -ENODATA);
+	uc_pdata->vdd_microvolts = dev_reg_read_default(dev, prop, -ENODATA);
 
 	return 0;
 }
@@ -412,7 +412,7 @@ static int adc_vss_plat_set(struct udevice *dev)
 
 	/* No vss-supply phandle. */
 	prop = "vss-microvolts";
-	uc_pdata->vss_microvolts = dev_read_u32_default(dev, prop, -ENODATA);
+	uc_pdata->vss_microvolts = dev_reg_read_default(dev, prop, -ENODATA);
 
 	return 0;
 }

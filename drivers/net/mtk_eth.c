@@ -1879,7 +1879,7 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		return ret;
 	}
 
-	priv->gmac_id = dev_read_u32_default(dev, "mediatek,gmac-id", 0);
+	priv->gmac_id = dev_reg_read_default(dev, "mediatek,gmac-id", 0);
 
 	/* Interface mode is required */
 	pdata->phy_interface = dev_read_phy_mode(dev);
@@ -1893,7 +1893,7 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 	subnode = ofnode_find_subnode(dev_ofnode(dev), "fixed-link");
 	if (ofnode_valid(subnode)) {
 		priv->force_mode = 1;
-		priv->speed = ofnode_read_u32_default(subnode, "speed", 0);
+		priv->speed = ofnode_reg_read_default(subnode, "speed", 0);
 		priv->duplex = ofnode_read_bool(subnode, "full-duplex");
 
 		if (priv->speed != SPEED_10 && priv->speed != SPEED_100 &&

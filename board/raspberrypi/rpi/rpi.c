@@ -448,7 +448,7 @@ static void get_board_revision(void)
 			return;
 		}
 
-		ret = ofnode_read_u32(node, "linux,revision", &revision);
+		ret = ofnode_reg_read(node, "linux,revision", &revision);
 		if (ret) {
 			printf("bcm2835: Could not find linux,revision\n");
 			return;

@@ -886,7 +886,7 @@ static int stm32_fmc2_ebi_parse_prop(struct stm32_fmc2_ebi *ebi,
 		u32 val;
 		int ret;
 
-		ret = ofnode_read_u32(node, prop->name, &val);
+		ret = ofnode_reg_read(node, prop->name, &val);
 		if (prop->mprop && ret) {
 			log_err("mandatory property %s not defined in the device tree\n",
 				prop->name);
@@ -971,7 +971,7 @@ static int stm32_fmc2_ebi_parse_dt(struct udevice *dev,
 	int ret;
 
 	dev_for_each_subnode(child, dev) {
-		ret = ofnode_read_u32(child, "reg", &bank);
+		ret = ofnode_reg_read(child, "reg", &bank);
 		if (ret) {
 			dev_err(dev, "could not retrieve reg property: %d\n", ret);
 			return ret;

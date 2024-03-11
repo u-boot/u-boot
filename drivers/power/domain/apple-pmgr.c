@@ -129,7 +129,7 @@ static int apple_pmgr_probe(struct udevice *dev)
 	if (IS_ERR(priv->regmap))
 		return PTR_ERR(priv->regmap);
 
-	ret = dev_read_u32(dev, "reg", &priv->offset);
+	ret = dev_reg_read(dev, "reg", &priv->offset);
 	if (ret < 0)
 		return ret;
 

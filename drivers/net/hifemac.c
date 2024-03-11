@@ -363,14 +363,14 @@ int hisi_femac_of_to_plat(struct udevice *dev)
 	if (IS_ERR(priv->phy_rst))
 		return log_msg_ret("Failed to get PHY reset", PTR_ERR(priv->phy_rst));
 
-	ret = dev_read_u32_array(dev,
+	ret = dev_reg_read_array(dev,
 				 PHY_RESET_DELAYS_PROPERTY,
 				 priv->phy_reset_delays,
 				 DELAYS_NUM);
 	if (ret < 0)
 		return log_msg_ret("Failed to get PHY reset delays", ret);
 
-	priv->mac_reset_delay = dev_read_u32_default(dev,
+	priv->mac_reset_delay = dev_reg_read_default(dev,
 						     MAC_RESET_DELAY_PROPERTY,
 						     MAC_RESET_ASSERT_PERIOD);
 

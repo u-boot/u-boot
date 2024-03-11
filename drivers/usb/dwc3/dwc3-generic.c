@@ -355,7 +355,7 @@ enum dwc3_omap_utmi_mode {
 	if (device_is_compatible(dev, "ti,am437x-dwc3"))
 		utmi_status_offset += USBOTGSS_UTMI_OTG_OFFSET;
 
-	utmi_mode = dev_read_u32_default(dev, "utmi-mode",
+	utmi_mode = dev_reg_read_default(dev, "utmi-mode",
 					 DWC3_OMAP_UTMI_MODE_UNKNOWN);
 	if (utmi_mode != DWC3_OMAP_UTMI_MODE_HW) {
 		debug("%s: OTG is not supported. defaulting to PERIPHERAL\n",

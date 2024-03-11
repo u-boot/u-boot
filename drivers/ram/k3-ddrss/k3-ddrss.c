@@ -377,7 +377,7 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 
 	/* Reading instance number for multi ddr subystems */
 	if (ddrss_data->flags & MULTI_DDR_SUBSYSTEM) {
-		ret = dev_read_u32(dev, "instance", &ddrss->instance);
+		ret = dev_reg_read(dev, "instance", &ddrss->instance);
 		if (ret) {
 			dev_err(dev, "missing instance property");
 			return -EINVAL;
@@ -386,22 +386,22 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 		ddrss->instance = 0;
 	}
 
-	ret = dev_read_u32(dev, "ti,ddr-freq0", &ddrss->ddr_freq0);
+	ret = dev_reg_read(dev, "ti,ddr-freq0", &ddrss->ddr_freq0);
 	if (ret) {
 		ddrss->ddr_freq0 = clk_get_rate(&ddrss->osc_clk);
 		dev_dbg(dev,
 			"ddr freq0 not populated, using bypass frequency.\n");
 	}
 
-	ret = dev_read_u32(dev, "ti,ddr-freq1", &ddrss->ddr_freq1);
+	ret = dev_reg_read(dev, "ti,ddr-freq1", &ddrss->ddr_freq1);
 	if (ret)
 		dev_err(dev, "ddr freq1 not populated %d\n", ret);
 
-	ret = dev_read_u32(dev, "ti,ddr-freq2", &ddrss->ddr_freq2);
+	ret = dev_reg_read(dev, "ti,ddr-freq2", &ddrss->ddr_freq2);
 	if (ret)
 		dev_err(dev, "ddr freq2 not populated %d\n", ret);
 
-	ret = dev_read_u32(dev, "ti,ddr-fhs-cnt", &ddrss->ddr_fhs_cnt);
+	ret = dev_reg_read(dev, "ti,ddr-fhs-cnt", &ddrss->ddr_fhs_cnt);
 	if (ret)
 		dev_err(dev, "ddr fhs cnt not populated %d\n", ret);
 
@@ -463,7 +463,7 @@ void populate_data_array_from_dt(struct k3_ddrss_desc *ddrss,
 {
 	int ret, i;
 
-	ret = dev_read_u32_array(ddrss->dev, "ti,ctl-data",
+	ret = dev_reg_read_array(ddrss->dev, "ti,ctl-data",
 				 (u32 *)reginit_data->ctl_regs,
 				 LPDDR4_INTR_CTL_REG_COUNT);
 	if (ret)
@@ -472,7 +472,7 @@ void populate_data_array_from_dt(struct k3_ddrss_desc *ddrss,
 	for (i = 0; i < LPDDR4_INTR_CTL_REG_COUNT; i++)
 		reginit_data->ctl_regs_offs[i] = i;
 
-	ret = dev_read_u32_array(ddrss->dev, "ti,pi-data",
+	ret = dev_reg_read_array(ddrss->dev, "ti,pi-data",
 				 (u32 *)reginit_data->pi_regs,
 				 LPDDR4_INTR_PHY_INDEP_REG_COUNT);
 	if (ret)
@@ -481,7 +481,7 @@ void populate_data_array_from_dt(struct k3_ddrss_desc *ddrss,
 	for (i = 0; i < LPDDR4_INTR_PHY_INDEP_REG_COUNT; i++)
 		reginit_data->pi_regs_offs[i] = i;
 
-	ret = dev_read_u32_array(ddrss->dev, "ti,phy-data",
+	ret = dev_reg_read_array(ddrss->dev, "ti,phy-data",
 				 (u32 *)reginit_data->phy_regs,
 				 LPDDR4_INTR_PHY_REG_COUNT);
 	if (ret)
@@ -748,35 +748,35 @@ static int k3_msmc_probe(struct udevice *dev)
 	int ret = 0;
 
 	/* Read the granular size from DT */
-	ret = dev_read_u32(dev, "intrlv-gran", &msmc->gran);
+	ret = dev_reg_read(dev, "intrlv-gran", &msmc->gran);
 	if (ret) {
 		dev_err(dev, "missing intrlv-gran property");
 		return -EINVAL;
 	}
 
 	/* Read the interleave region from DT */
-	ret = dev_read_u32(dev, "intrlv-size", &msmc->size);
+	ret = dev_reg_read(dev, "intrlv-size", &msmc->size);
 	if (ret) {
 		dev_err(dev, "missing intrlv-size property");
 		return -EINVAL;
 	}
 
 	/* Read ECC enable config */
-	ret = dev_read_u32(dev, "ecc-enable", &msmc->enable);
+	ret = dev_reg_read(dev, "ecc-enable", &msmc->enable);
 	if (ret) {
 		dev_err(dev, "missing ecc-enable property");
 		return -EINVAL;
 	}
 
 	/* Read EMIF configuration */
-	ret = dev_read_u32(dev, "emif-config", &msmc->config);
+	ret = dev_reg_read(dev, "emif-config", &msmc->config);
 	if (ret) {
 		dev_err(dev, "missing emif-config property");
 		return -EINVAL;
 	}
 
 	/* Read EMIF active */
-	ret = dev_read_u32(dev, "emif-active", &msmc->active);
+	ret = dev_reg_read(dev, "emif-active", &msmc->active);
 	if (ret) {
 		dev_err(dev, "missing emif-active property");
 		return -EINVAL;

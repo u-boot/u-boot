@@ -364,7 +364,7 @@ static int bcmbca_hsspi_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	priv->num_cs = dev_read_u32_default(dev, "num-cs", 8);
+	priv->num_cs = dev_reg_read_default(dev, "num-cs", 8);
 
 	/* enable clock */
 	ret = clk_get_by_name(dev, "hsspi", &clk);

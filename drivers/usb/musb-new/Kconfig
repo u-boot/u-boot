@@ -49,6 +49,15 @@ config USB_MUSB_AM35X
 config USB_MUSB_DSPS
 	bool "TI DSPS platforms"
 
+config USB_MUSB_MT6735
+	bool "Enable Mediatek MT6735 DRC USB controller"
+	depends on ARCH_MEDIATEK
+	help
+	  Say y to enable Mediatek MT6735 USB DRC controller support
+	  if it is available on your Mediatek MUSB IP based platform.
+	  DMA controllers are ignored. This driver follow musb-new
+	  driver and usb gadget framework.
+
 config USB_MUSB_MT85XX
 	bool "Enable Mediatek MT85XX DRC USB controller"
 	depends on ARCH_MEDIATEK

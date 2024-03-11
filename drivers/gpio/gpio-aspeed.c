@@ -275,7 +275,7 @@ static int aspeed_gpio_probe(struct udevice *dev)
 	struct aspeed_gpio_priv *priv = dev_get_priv(dev);
 
 	uc_priv->bank_name = dev->name;
-	ofnode_read_u32(dev_ofnode(dev), "ngpios", &uc_priv->gpio_count);
+	ofnode_reg_read(dev_ofnode(dev), "ngpios", &uc_priv->gpio_count);
 	priv->regs = devfdt_get_addr_ptr(dev);
 
 	return 0;

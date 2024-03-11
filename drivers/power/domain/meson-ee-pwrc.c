@@ -437,7 +437,7 @@ static int meson_ee_pwrc_probe(struct udevice *dev)
 	if (IS_ERR(priv->regmap_hhi))
 		return PTR_ERR(priv->regmap_hhi);
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "amlogic,ao-sysctrl",
+	ret = ofnode_reg_read(dev_ofnode(dev), "amlogic,ao-sysctrl",
 			      &ao_phandle);
 	if (ret)
 		return ret;

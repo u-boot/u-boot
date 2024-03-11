@@ -1722,14 +1722,14 @@ static int msdc_of_to_plat(struct udevice *dev)
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->gpio_cd, GPIOD_IS_IN);
 #endif
 
-	host->hs400_ds_delay = dev_read_u32_default(dev, "hs400-ds-delay", 0);
+	host->hs400_ds_delay = dev_reg_read_default(dev, "hs400-ds-delay", 0);
 	host->hs200_cmd_int_delay =
-			dev_read_u32_default(dev, "cmd_int_delay", 0);
+			dev_reg_read_default(dev, "cmd_int_delay", 0);
 	host->hs200_write_int_delay =
-			dev_read_u32_default(dev, "write_int_delay", 0);
-	host->latch_ck = dev_read_u32_default(dev, "latch-ck", 0);
-	host->r_smpl = dev_read_u32_default(dev, "r_smpl", 0);
-	host->builtin_cd = dev_read_u32_default(dev, "builtin-cd", 0);
+			dev_reg_read_default(dev, "write_int_delay", 0);
+	host->latch_ck = dev_reg_read_default(dev, "latch-ck", 0);
+	host->r_smpl = dev_reg_read_default(dev, "r_smpl", 0);
+	host->builtin_cd = dev_reg_read_default(dev, "builtin-cd", 0);
 	host->cd_active_high = dev_read_bool(dev, "cd-active-high");
 
 	return 0;
@@ -1765,6 +1765,16 @@ static const struct dm_mmc_ops msdc_ops = {
 	.execute_tuning = msdc_execute_tuning,
 #endif
 	.wait_dat0 = msdc_ops_wait_dat0,
+};
+
+static const struct msdc_compatible mt6735_compat = {
+    .clk_div_bits = 12,
+    .pad_tune0 = true,
+    .async_fifo = true,
+    .data_tune = true,
+    .busy_check = false,
+    .stop_clk_fix = false,
+    .enhance_rx = false,
 };
 
 static const struct msdc_compatible mt7620_compat = {
@@ -1857,6 +1867,7 @@ static const struct msdc_compatible mt8183_compat = {
 };
 
 static const struct udevice_id msdc_ids[] = {
+    { .compatible = "mediatek,mt6735-mmc", .data = (ulong)&mt6735_compat },
 	{ .compatible = "mediatek,mt7620-mmc", .data = (ulong)&mt7620_compat },
 	{ .compatible = "mediatek,mt7621-mmc", .data = (ulong)&mt7621_compat },
 	{ .compatible = "mediatek,mt7622-mmc", .data = (ulong)&mt7622_compat },

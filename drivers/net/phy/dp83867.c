@@ -161,7 +161,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 		return 0;
 
 	/* Optional configuration */
-	ret = ofnode_read_u32(node, "ti,clk-output-sel",
+	ret = ofnode_reg_read(node, "ti,clk-output-sel",
 			      &dp83867->clk_output_sel);
 	/* If not set, keep default */
 	if (!ret) {
@@ -207,7 +207,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 	/* RX delay *must* be specified if internal delay of RX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
-		ret = ofnode_read_u32(node, "ti,rx-internal-delay",
+		ret = ofnode_reg_read(node, "ti,rx-internal-delay",
 				      &dp83867->rx_id_delay);
 		if (ret) {
 			pr_debug("ti,rx-internal-delay must be specified\n");
@@ -223,7 +223,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 	/* TX delay *must* be specified if internal delay of RX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
-		ret = ofnode_read_u32(node, "ti,tx-internal-delay",
+		ret = ofnode_reg_read(node, "ti,tx-internal-delay",
 				      &dp83867->tx_id_delay);
 		if (ret) {
 			debug("ti,tx-internal-delay must be specified\n");
@@ -236,7 +236,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 		}
 	}
 
-	dp83867->fifo_depth = ofnode_read_u32_default(node, "ti,fifo-depth",
+	dp83867->fifo_depth = ofnode_reg_read_default(node, "ti,fifo-depth",
 						      DEFAULT_FIFO_DEPTH);
 	if (ofnode_read_bool(node, "enet-phy-lane-swap"))
 		dp83867->port_mirroring = DP83867_PORT_MIRRORING_EN;

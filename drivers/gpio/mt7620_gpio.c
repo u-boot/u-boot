@@ -114,13 +114,13 @@ static int mt7620_gpio_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32(dev, "mediatek,gpio-num", &priv->count);
+	ret = dev_reg_read(dev, "mediatek,gpio-num", &priv->count);
 	if (ret) {
 		dev_err(dev, "mt7620_gpio: failed to get GPIO count\n");
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32_array(dev, "mediatek,register-map", priv->regs,
+	ret = dev_reg_read_array(dev, "mediatek,register-map", priv->regs,
 				 __GPIO_REG_MAX);
 	if (ret) {
 		dev_err(dev, "mt7620_gpio: unable to get register map\n");

@@ -88,7 +88,7 @@ static int sandbox_store_probe(struct udevice *dev)
 	u32 reg[2];
 	int ret;
 
-	ret = dev_read_u32_array(dev, "reg", reg, ARRAY_SIZE(reg));
+	ret = dev_reg_read_array(dev, "reg", reg, ARRAY_SIZE(reg));
 	if (ret) {
 		debug("%s: Could not read 'reg' property\n", dev->name);
 		return -EINVAL;

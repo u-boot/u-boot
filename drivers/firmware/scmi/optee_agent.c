@@ -304,7 +304,7 @@ static int setup_channel(struct udevice *dev, struct scmi_optee_channel *chan)
 {
 	int ret;
 
-	if (dev_read_u32(dev, "linaro,optee-channel-id", &chan->channel_id)) {
+	if (dev_reg_read(dev, "linaro,optee-channel-id", &chan->channel_id)) {
 		dev_err(dev, "Missing property linaro,optee-channel-id\n");
 		return -EINVAL;
 	}
@@ -332,7 +332,7 @@ static int scmi_optee_get_channel(struct udevice *dev,
 	u32 channel_id;
 	int ret;
 
-	if (dev_read_u32(protocol, "linaro,optee-channel-id", &channel_id)) {
+	if (dev_reg_read(protocol, "linaro,optee-channel-id", &channel_id)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 

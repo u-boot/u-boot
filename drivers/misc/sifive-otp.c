@@ -247,7 +247,7 @@ static int sifive_otp_of_to_plat(struct udevice *dev)
 
 	plat->regs = dev_read_addr_ptr(dev);
 
-	ret = dev_read_u32(dev, "fuse-count", &plat->total_fuses);
+	ret = dev_reg_read(dev, "fuse-count", &plat->total_fuses);
 	if (ret < 0) {
 		pr_err("\"fuse-count\" not found\n");
 		return ret;

@@ -59,9 +59,9 @@ int syscon_reset_probe(struct udevice *dev)
 	if (IS_ERR(priv->regmap))
 		return -ENODEV;
 
-	priv->offset = dev_read_u32_default(dev, "offset", 0);
-	priv->mask = dev_read_u32_default(dev, "mask", 0);
-	priv->assert_high = dev_read_u32_default(dev, "assert-high", true);
+	priv->offset = dev_reg_read_default(dev, "offset", 0);
+	priv->mask = dev_reg_read_default(dev, "mask", 0);
+	priv->assert_high = dev_reg_read_default(dev, "assert-high", true);
 
 	return 0;
 }

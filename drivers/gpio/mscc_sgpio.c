@@ -211,8 +211,8 @@ static int mscc_sgpio_probe(struct udevice *dev)
 	}
 
 	priv->props = (const struct mscc_sgpio_props *)dev_get_driver_data(dev);
-	priv->ports = dev_read_u32_default(dev, "mscc,sgpio-ports", 0xFFFFFFFF);
-	priv->clock = dev_read_u32_default(dev, "mscc,sgpio-frequency",
+	priv->ports = dev_reg_read_default(dev, "mscc,sgpio-ports", 0xFFFFFFFF);
+	priv->clock = dev_reg_read_default(dev, "mscc,sgpio-frequency",
 					   12500000);
 	if (priv->clock <= 0 || priv->clock > div_clock) {
 		dev_err(dev, "Invalid frequency %d\n", priv->clock);
@@ -220,7 +220,7 @@ static int mscc_sgpio_probe(struct udevice *dev)
 	}
 
 	uc_priv->gpio_count = mscc_sgpio_get_count(dev);
-	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios",
+	uc_priv->gpio_count = dev_reg_read_default(dev, "ngpios",
 						   uc_priv->gpio_count);
 	if (uc_priv->gpio_count < 1 || uc_priv->gpio_count >
 	    (4 * MSCC_SGPIOS_PER_BANK)) {

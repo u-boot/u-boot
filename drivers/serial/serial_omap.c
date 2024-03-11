@@ -113,7 +113,7 @@ static int omap_serial_of_to_plat(struct udevice *dev)
 
 	plat->base = (unsigned long)map_physmem(addr, 0, MAP_NOCACHE);
 
-	plat->reg_offset = dev_read_u32_default(dev, "reg-offset", 0);
+	plat->reg_offset = dev_reg_read_default(dev, "reg-offset", 0);
 	plat->reg_shift = 2;
 
 	err = clk_get_by_index(dev, 0, &clk);
@@ -127,7 +127,7 @@ static int omap_serial_of_to_plat(struct udevice *dev)
 	}
 
 	if (!plat->clock)
-		plat->clock = dev_read_u32_default(dev, "clock-frequency",
+		plat->clock = dev_reg_read_default(dev, "clock-frequency",
 						   CFG_SYS_NS16550_CLK);
 	if (!plat->clock) {
 		debug("omap serial clock not defined\n");

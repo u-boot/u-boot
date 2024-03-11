@@ -201,7 +201,7 @@ static int npcm_pspi_probe(struct udevice *bus)
 		return ret;
 
 	priv->base = dev_read_addr_ptr(bus);
-	priv->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 1000000);
+	priv->max_hz = dev_reg_read_default(bus, "spi-max-frequency", 1000000);
 	gpio_request_by_name_nodev(offset_to_ofnode(node), "cs-gpios", 0,
 				   &priv->cs_gpio, GPIOD_IS_OUT| GPIOD_ACTIVE_LOW);
 

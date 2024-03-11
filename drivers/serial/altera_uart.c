@@ -90,7 +90,7 @@ static int altera_uart_of_to_plat(struct udevice *dev)
 	plat->regs = map_physmem(dev_read_addr(dev),
 				 sizeof(struct altera_uart_regs),
 				 MAP_NOCACHE);
-	plat->uartclk = dev_read_u32_default(dev, "clock-frequency", 0);
+	plat->uartclk = dev_reg_read_default(dev, "clock-frequency", 0);
 
 	return 0;
 }

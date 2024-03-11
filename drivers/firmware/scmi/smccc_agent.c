@@ -66,7 +66,7 @@ static int setup_channel(struct udevice *dev, struct scmi_smccc_channel *chan)
 	u32 func_id;
 	int ret;
 
-	if (dev_read_u32(dev, "arm,smc-id", &func_id)) {
+	if (dev_reg_read(dev, "arm,smc-id", &func_id)) {
 		dev_err(dev, "Missing property func-id\n");
 		return -EINVAL;
 	}
@@ -89,7 +89,7 @@ static int scmi_smccc_get_channel(struct udevice *dev,
 	u32 func_id;
 	int ret;
 
-	if (dev_read_u32(protocol, "arm,smc-id", &func_id)) {
+	if (dev_reg_read(protocol, "arm,smc-id", &func_id)) {
 		/* Uses agent base channel */
 		*channel = container_of(base_chan, struct scmi_channel, ref);
 

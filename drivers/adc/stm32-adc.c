@@ -269,7 +269,7 @@ static int stm32_adc_legacy_chan_init(struct udevice *dev, unsigned int num_chan
 	u32 chans[STM32_ADC_CH_MAX];
 	int i, ret;
 
-	ret = dev_read_u32_array(dev, "st,adc-channels", chans, num_channels);
+	ret = dev_reg_read_array(dev, "st,adc-channels", chans, num_channels);
 	if (ret < 0) {
 		dev_err(dev, "can't read st,adc-channels: %d\n", ret);
 		return ret;
@@ -294,7 +294,7 @@ static int stm32_adc_generic_chan_init(struct udevice *dev, unsigned int num_cha
 	int val, ret;
 
 	ofnode_for_each_subnode(child, dev_ofnode(dev)) {
-		ret = ofnode_read_u32(child, "reg", &val);
+		ret = ofnode_reg_read(child, "reg", &val);
 		if (ret) {
 			dev_err(dev, "Missing channel index %d\n", ret);
 			return ret;
@@ -360,7 +360,7 @@ static int stm32_adc_probe(struct udevice *dev)
 	struct stm32_adc *adc = dev_get_priv(dev);
 	int offset, ret;
 
-	offset = dev_read_u32_default(dev, "reg", -ENODATA);
+	offset = dev_reg_read_default(dev, "reg", -ENODATA);
 	if (offset < 0) {
 		dev_err(dev, "Can't read reg property\n");
 		return offset;

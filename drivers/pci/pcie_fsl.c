@@ -623,7 +623,7 @@ static int fsl_pcie_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32(dev, "law_trgt_if", &pcie->law_trgt_if);
+	ret = dev_reg_read(dev, "law_trgt_if", &pcie->law_trgt_if);
 	if (ret < 0) {
 		pr_err("\"law_trgt_if\" not found\n");
 		return ret;

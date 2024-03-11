@@ -207,12 +207,12 @@ static int rockchip_spi_of_to_plat(struct udevice *bus)
 			return ret;
 		}
 
-		plat->frequency = dev_read_u32_default(bus, "spi-max-frequency",
+		plat->frequency = dev_reg_read_default(bus, "spi-max-frequency",
 						       50000000);
 		plat->deactivate_delay_us =
-			dev_read_u32_default(bus, "spi-deactivate-delay", 0);
+			dev_reg_read_default(bus, "spi-deactivate-delay", 0);
 		plat->activate_delay_us =
-			dev_read_u32_default(bus, "spi-activate-delay", 0);
+			dev_reg_read_default(bus, "spi-activate-delay", 0);
 
 		debug("%s: base=%x, max-frequency=%d, deactivate_delay=%d\n",
 		      __func__, (uint)plat->base, plat->frequency,

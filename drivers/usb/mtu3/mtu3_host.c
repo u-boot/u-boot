@@ -114,7 +114,7 @@ int ssusb_host_init(struct ssusb_mtk *ssusb)
 	u3h->ippc_base = ssusb->ippc_base;
 
 	/* optional property, ignore the error */
-	dev_read_u32(dev, "mediatek,u3p-dis-msk", &u3h->u3p_dis_msk);
+	dev_reg_read(dev, "mediatek,u3p-dis-msk", &u3h->u3p_dis_msk);
 
 	host_ports_num_get(u3h);
 	ret = ssusb_host_enable(u3h);

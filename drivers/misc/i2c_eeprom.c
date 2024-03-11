@@ -115,13 +115,13 @@ static int i2c_eeprom_std_of_to_plat(struct udevice *dev)
 	u32 pagesize;
 	u32 size;
 
-	if (dev_read_u32(dev, "pagesize", &pagesize) == 0)
+	if (dev_reg_read(dev, "pagesize", &pagesize) == 0)
 		priv->pagesize = pagesize;
 	else
 		/* 6 bit -> page size of up to 2^63 (should be sufficient) */
 		priv->pagesize = data->pagesize;
 
-	if (dev_read_u32(dev, "size", &size) == 0)
+	if (dev_reg_read(dev, "size", &size) == 0)
 		priv->size = size;
 	else
 		priv->size = data->size;
@@ -319,7 +319,7 @@ static int i2c_eeprom_partition_of_to_plat(struct udevice *dev)
 	u32 reg[2];
 	int ret;
 
-	ret = dev_read_u32_array(dev, "reg", reg, 2);
+	ret = dev_reg_read_array(dev, "reg", reg, 2);
 	if (ret)
 		return ret;
 

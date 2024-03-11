@@ -124,7 +124,7 @@ struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
 					   name, &syscon);
 	if (err) {
 		/* found node with "syscon" compatible, not bounded to SYSCON */
-		err = ofnode_read_u32(dev_ofnode(dev), name, &phandle);
+		err = ofnode_reg_read(dev_ofnode(dev), name, &phandle);
 		if (err)
 			return ERR_PTR(err);
 

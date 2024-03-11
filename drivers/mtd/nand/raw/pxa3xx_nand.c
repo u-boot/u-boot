@@ -1758,7 +1758,7 @@ static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *in
 
 	info->mmio_base = dev_read_addr_ptr(dev);
 
-	pdata->num_cs = dev_read_u32_default(dev, "num-cs", 1);
+	pdata->num_cs = dev_reg_read_default(dev, "num-cs", 1);
 	if (pdata->num_cs != 1) {
 		pr_err("pxa3xx driver supports single CS only\n");
 		return -EINVAL;
@@ -1776,10 +1776,10 @@ static int pxa3xx_nand_probe_dt(struct udevice *dev, struct pxa3xx_nand_info *in
 	 * to the detected flash type.
 	 */
 	/* ECC strength */
-	pdata->ecc_strength = dev_read_u32_default(dev, "nand-ecc-strength", 0);
+	pdata->ecc_strength = dev_reg_read_default(dev, "nand-ecc-strength", 0);
 
 	/* ECC step size */
-	pdata->ecc_step_size = dev_read_u32_default(dev, "nand-ecc-step-size",
+	pdata->ecc_step_size = dev_reg_read_default(dev, "nand-ecc-step-size",
 			0);
 
 	info->pdata = pdata;

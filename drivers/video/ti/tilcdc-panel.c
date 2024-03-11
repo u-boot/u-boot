@@ -117,16 +117,16 @@ static int tilcdc_panel_of_to_plat(struct udevice *dev)
 		return -ENXIO;
 	}
 
-	err |= ofnode_read_u32(node, "ac-bias", &priv->info.ac_bias);
-	err |= ofnode_read_u32(node, "ac-bias-intrpt",
+	err |= ofnode_reg_read(node, "ac-bias", &priv->info.ac_bias);
+	err |= ofnode_reg_read(node, "ac-bias-intrpt",
 			       &priv->info.ac_bias_intrpt);
-	err |= ofnode_read_u32(node, "dma-burst-sz", &priv->info.dma_burst_sz);
-	err |= ofnode_read_u32(node, "bpp", &priv->info.bpp);
-	err |= ofnode_read_u32(node, "fdd", &priv->info.fdd);
-	err |= ofnode_read_u32(node, "sync-edge", &priv->info.sync_edge);
-	err |= ofnode_read_u32(node, "sync-ctrl", &priv->info.sync_ctrl);
-	err |= ofnode_read_u32(node, "raster-order", &priv->info.raster_order);
-	err |= ofnode_read_u32(node, "fifo-th", &priv->info.fifo_th);
+	err |= ofnode_reg_read(node, "dma-burst-sz", &priv->info.dma_burst_sz);
+	err |= ofnode_reg_read(node, "bpp", &priv->info.bpp);
+	err |= ofnode_reg_read(node, "fdd", &priv->info.fdd);
+	err |= ofnode_reg_read(node, "sync-edge", &priv->info.sync_edge);
+	err |= ofnode_reg_read(node, "sync-ctrl", &priv->info.sync_ctrl);
+	err |= ofnode_reg_read(node, "raster-order", &priv->info.raster_order);
+	err |= ofnode_reg_read(node, "fifo-th", &priv->info.fifo_th);
 	if (err) {
 		dev_err(dev, "failed to get panel info\n");
 		return err;

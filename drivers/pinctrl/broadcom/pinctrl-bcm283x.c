@@ -67,7 +67,7 @@ int bcm283x_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	int i, len, pin_count = 0;
 
 	if (!dev_read_prop(config, "brcm,pins", &len) || !len ||
-	    len & 0x3 || dev_read_u32_array(config, "brcm,pins", pin_arr,
+	    len & 0x3 || dev_reg_read_array(config, "brcm,pins", pin_arr,
 						  len / sizeof(u32))) {
 		debug("Failed reading pins array for pinconfig %s (%d)\n",
 		      config->name, len);
@@ -76,7 +76,7 @@ int bcm283x_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 	pin_count = len / sizeof(u32);
 
-	function = dev_read_u32_default(config, "brcm,function", -1);
+	function = dev_reg_read_default(config, "brcm,function", -1);
 	if (function < 0) {
 		debug("Failed reading function for pinconfig %s (%d)\n",
 		      config->name, function);

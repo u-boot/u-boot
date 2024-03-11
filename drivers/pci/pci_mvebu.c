@@ -626,18 +626,18 @@ static int mvebu_pcie_port_parse_dt(ofnode node, ofnode parent, struct mvebu_pci
 	int len;
 
 	/* Get port number, lane number and memory target / attr */
-	if (ofnode_read_u32(node, "marvell,pcie-port",
+	if (ofnode_reg_read(node, "marvell,pcie-port",
 			    &pcie->port)) {
 		ret = -ENODEV;
 		goto err;
 	}
 
-	if (ofnode_read_u32(node, "marvell,pcie-lane", &pcie->lane))
+	if (ofnode_reg_read(node, "marvell,pcie-lane", &pcie->lane))
 		pcie->lane = 0;
 
 	sprintf(pcie->name, "pcie%d.%d", pcie->port, pcie->lane);
 
-	if (!ofnode_read_u32(node, "num-lanes", &num_lanes) && num_lanes == 4)
+	if (!ofnode_reg_read(node, "num-lanes", &num_lanes) && num_lanes == 4)
 		pcie->is_x4 = true;
 
 	/* devfn is in bits [15:8], see PCI_DEV usage */

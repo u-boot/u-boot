@@ -34,13 +34,13 @@ static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 	if (!ofnode_valid(node))
 		return -EINVAL;
 
-	phydev->addr = ofnode_read_u32_default(node, "reg", -1);
+	phydev->addr = ofnode_reg_read_default(node, "reg", -1);
 	ret = ofnode_parse_phandle_with_args(node, "phy-handle",
 					     NULL, 0, 0, &phandle);
 	if (ret)
 		return ret;
 
-	ext_phyaddr = ofnode_read_u32_default(phandle.node, "reg", -1);
+	ext_phyaddr = ofnode_reg_read_default(phandle.node, "reg", -1);
 	ext_phydev = phy_find_by_mask(phydev->bus,
 				      1 << ext_phyaddr);
 	if (!ext_phydev) {

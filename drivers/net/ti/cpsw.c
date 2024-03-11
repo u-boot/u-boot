@@ -1114,7 +1114,7 @@ static void cpsw_eth_of_parse_slave(struct cpsw_platform_data *data,
 		if (ret)
 			printf("error: phy addr not found in dt\n");
 	} else {
-		ret = ofnode_read_u32_array(subnode, "phy_id", phy_id, 2);
+		ret = ofnode_reg_read_array(subnode, "phy_id", phy_id, 2);
 		if (ret)
 			printf("error: phy_id read failed\n");
 	}
@@ -1170,13 +1170,13 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32(dev, "bd_ram_size", &data->bd_ram_ofs);
+	ret = dev_reg_read(dev, "bd_ram_size", &data->bd_ram_ofs);
 	if (ret) {
 		printf("error: bd_ram_size not found in dt\n");
 		return ret;
 	}
 
-	ret = dev_read_u32(dev, "mac_control", &data->mac_control);
+	ret = dev_reg_read(dev, "mac_control", &data->mac_control);
 	if (ret) {
 		printf("error: ale_entries not found in dt\n");
 		return ret;
@@ -1191,7 +1191,7 @@ static int cpsw_eth_of_to_plat(struct udevice *dev)
 		free(mode_gpios);
 	}
 
-	data->active_slave = dev_read_u32_default(dev, "active_slave", 0);
+	data->active_slave = dev_reg_read_default(dev, "active_slave", 0);
 
 	ofnode_for_each_subnode(subnode, dev_ofnode(dev)) {
 		const char *name;

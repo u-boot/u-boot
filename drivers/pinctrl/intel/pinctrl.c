@@ -565,7 +565,7 @@ int pinctrl_read_pads(struct udevice *dev, ofnode node, const char *prop,
 	if (!pads)
 		return -ENOMEM;
 	size /= sizeof(fdt32_t);
-	ret = ofnode_read_u32_array(node, prop, pads, size);
+	ret = ofnode_reg_read_array(node, prop, pads, size);
 	if (ret) {
 		free(pads);
 		return ret;

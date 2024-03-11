@@ -66,9 +66,9 @@ static int poweroff_gpio_probe(struct udevice *dev)
 	int flags;
 
 	flags = dev_read_bool(dev, "input") ? GPIOD_IS_IN : GPIOD_IS_OUT;
-	priv->active_delay_ms = dev_read_u32_default(dev, "active-delay-ms", 100);
-	priv->inactive_delay_ms = dev_read_u32_default(dev, "inactive-delay-ms", 100);
-	priv->timeout_ms = dev_read_u32_default(dev, "timeout-ms", 3000);
+	priv->active_delay_ms = dev_reg_read_default(dev, "active-delay-ms", 100);
+	priv->inactive_delay_ms = dev_reg_read_default(dev, "inactive-delay-ms", 100);
+	priv->timeout_ms = dev_reg_read_default(dev, "timeout-ms", 3000);
 
 	return gpio_request_by_name(dev, "gpios", 0, &priv->gpio, flags);
 }

@@ -516,9 +516,9 @@ static int ocores_i2c_probe(struct udevice *dev)
 
 	bus->base = dev_read_addr_ptr(dev);
 
-	if (dev_read_u32(dev, "reg-shift", &bus->reg_shift)) {
+	if (dev_reg_read(dev, "reg-shift", &bus->reg_shift)) {
 		/* no 'reg-shift', check for deprecated 'regstep' */
-		ret = dev_read_u32(dev, "regstep", &val);
+		ret = dev_reg_read(dev, "regstep", &val);
 		if (ret) {
 			dev_err(dev,
 				"missing both reg-shift and regstep property: %d\n", ret);
@@ -530,7 +530,7 @@ static int ocores_i2c_probe(struct udevice *dev)
 		}
 	}
 
-	if (dev_read_u32(dev, "clock-frequency", &val)) {
+	if (dev_reg_read(dev, "clock-frequency", &val)) {
 		bus->bus_clk_khz = 100;
 		clock_frequency_present = FALSE;
 	} else {
@@ -544,7 +544,7 @@ static int ocores_i2c_probe(struct udevice *dev)
 		return ret;
 
 	if (bus->ip_clk_khz == 0) {
-		if (dev_read_u32(dev, "opencores,ip-clock-frequency", &val)) {
+		if (dev_reg_read(dev, "opencores,ip-clock-frequency", &val)) {
 			if (!clock_frequency_present) {
 				dev_err(dev,
 					"Missing required parameter 'opencores,ip-clock-frequency'\n");
@@ -562,7 +562,7 @@ static int ocores_i2c_probe(struct udevice *dev)
 		}
 	}
 
-	bus->reg_io_width = dev_read_u32_default(dev, "reg-io-width", 1);
+	bus->reg_io_width = dev_reg_read_default(dev, "reg-io-width", 1);
 
 	if (dev_get_driver_data(dev) == TYPE_GRLIB) {
 		debug("GRLIB variant of i2c-ocores\n");

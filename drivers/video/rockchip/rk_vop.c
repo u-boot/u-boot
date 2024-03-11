@@ -260,14 +260,14 @@ static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 	debug("%s(%s, 0x%lx, %s)\n", __func__,
 	      dev_read_name(dev), fbbase, ofnode_get_name(ep_node));
 
-	ret = ofnode_read_u32(ep_node, "remote-endpoint", &remote_phandle);
+	ret = ofnode_reg_read(ep_node, "remote-endpoint", &remote_phandle);
 	if (ret)
 		return ret;
 
 	remote = ofnode_get_by_phandle(remote_phandle);
 	if (!ofnode_valid(remote))
 		return -EINVAL;
-	remote_vop_id = ofnode_read_u32_default(remote, "reg", -1);
+	remote_vop_id = ofnode_reg_read_default(remote, "reg", -1);
 	debug("remote vop_id=%d\n", remote_vop_id);
 
 	/*

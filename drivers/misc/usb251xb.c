@@ -359,7 +359,7 @@ static void usb251xb_get_ports_field(struct udevice *dev,
 	int ret;
 
 	for (i = 0; i < port_cnt; i++) {
-		ret = dev_read_u32_index(dev, prop_name, i, &port);
+		ret = dev_reg_read_index(dev, prop_name, i, &port);
 		if (ret)
 			continue;
 		if (port >= ds_only ? 1 : 0 && port <= port_cnt)
@@ -446,7 +446,7 @@ static int usb251xb_of_to_plat(struct udevice *dev)
 	if (dev_read_bool(dev, "dynamic-power-switching"))
 		hub->conf_data2 |= BIT(7);
 
-	if (!dev_read_u32(dev, "oc-delay-us", &property_u32)) {
+	if (!dev_reg_read(dev, "oc-delay-us", &property_u32)) {
 		if (property_u32 == 100) {
 			/* 100 us*/
 			hub->conf_data2 &= ~BIT(5);
@@ -492,25 +492,25 @@ static int usb251xb_of_to_plat(struct udevice *dev)
 				 true, &hub->port_disable_bp);
 
 	hub->max_power_sp = USB251XB_DEF_MAX_POWER_SELF;
-	if (!dev_read_u32(dev, "sp-max-total-current-microamp", &property_u32))
+	if (!dev_reg_read(dev, "sp-max-total-current-microamp", &property_u32))
 		hub->max_power_sp = min_t(u8, property_u32 / 2000, 50);
 
 	hub->max_power_bp = USB251XB_DEF_MAX_POWER_BUS;
-	if (!dev_read_u32(dev, "bp-max-total-current-microamp", &property_u32))
+	if (!dev_reg_read(dev, "bp-max-total-current-microamp", &property_u32))
 		hub->max_power_bp = min_t(u8, property_u32 / 2000, 255);
 
 	hub->max_current_sp = USB251XB_DEF_MAX_CURRENT_SELF;
-	if (!dev_read_u32(dev, "sp-max-removable-current-microamp",
+	if (!dev_reg_read(dev, "sp-max-removable-current-microamp",
 			  &property_u32))
 		hub->max_current_sp = min_t(u8, property_u32 / 2000, 50);
 
 	hub->max_current_bp = USB251XB_DEF_MAX_CURRENT_BUS;
-	if (!dev_read_u32(dev, "bp-max-removable-current-microamp",
+	if (!dev_reg_read(dev, "bp-max-removable-current-microamp",
 			  &property_u32))
 		hub->max_current_bp = min_t(u8, property_u32 / 2000, 255);
 
 	hub->power_on_time = USB251XB_DEF_POWER_ON_TIME;
-	if (!dev_read_u32(dev, "power-on-time-ms", &property_u32))
+	if (!dev_reg_read(dev, "power-on-time-ms", &property_u32))
 		hub->power_on_time = min_t(u8, property_u32 / 2, 255);
 
 	hub->lang_id = dev_read_u16_default(dev, "language-id",

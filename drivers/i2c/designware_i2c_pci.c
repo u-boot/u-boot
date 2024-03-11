@@ -42,7 +42,7 @@ static int designware_i2c_pci_of_to_plat(struct udevice *dev)
 		u32 base;
 		int ret;
 
-		ret = dev_read_u32(dev, "early-regs", &base);
+		ret = dev_reg_read(dev, "early-regs", &base);
 		if (ret)
 			return log_msg_ret("early-regs", ret);
 
@@ -158,7 +158,7 @@ static int dw_i2c_acpi_fill_ssdt(const struct udevice *dev,
 	if (ret)
 		return log_msg_ret("path", ret);
 
-	speed = dev_read_u32_default(dev, "clock-frequency", 100000);
+	speed = dev_reg_read_default(dev, "clock-frequency", 100000);
 	acpigen_write_scope(ctx, path);
 	ret = dw_i2c_gen_speed_config(dev, speed, &config);
 	if (ret)

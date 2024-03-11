@@ -1272,14 +1272,14 @@ static int stm32mp1_get_opp(u32 cpu_type, ofnode subnode,
 	*freq_khz = 0;
 	*voltage_mv = 0;
 
-	opp_hw = ofnode_read_u32_default(subnode, "opp-supported-hw", 0);
+	opp_hw = ofnode_reg_read_default(subnode, "opp-supported-hw", 0);
 	if (opp_hw)
 		if (!stm32mp1_supports_opp(opp_hw, cpu_type))
 			return -FDT_ERR_BADVALUE;
 
 	read_freq_64 = ofnode_read_u64_default(subnode, "opp-hz", 0) /
 		       1000ULL;
-	read_voltage_32 = ofnode_read_u32_default(subnode, "opp-microvolt", 0) /
+	read_voltage_32 = ofnode_reg_read_default(subnode, "opp-microvolt", 0) /
 			  1000U;
 
 	if (!read_voltage_32 || !read_freq_64)
@@ -1735,7 +1735,7 @@ static  __maybe_unused int pll_set_rate(struct udevice *dev,
 	if (!ofnode_valid(plloff))
 		return -FDT_ERR_NOTFOUND;
 
-	ret = ofnode_read_u32_array(plloff, "cfg",
+	ret = ofnode_reg_read_array(plloff, "cfg",
 				    pllcfg, PLLCFG_NB);
 	if (ret < 0)
 		return -FDT_ERR_NOTFOUND;
@@ -1913,13 +1913,13 @@ static int stm32mp1_clktree(struct udevice *dev)
 	const u32 *pkcs_cell;
 
 	/* check mandatory field */
-	ret = dev_read_u32_array(dev, "st,clksrc", clksrc, CLKSRC_NB);
+	ret = dev_reg_read_array(dev, "st,clksrc", clksrc, CLKSRC_NB);
 	if (ret < 0) {
 		dev_dbg(dev, "field st,clksrc invalid: error %d\n", ret);
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	ret = dev_read_u32_array(dev, "st,clkdiv", clkdiv, CLKDIV_NB);
+	ret = dev_reg_read_array(dev, "st,clkdiv", clkdiv, CLKDIV_NB);
 	if (ret < 0) {
 		dev_dbg(dev, "field st,clkdiv invalid: error %d\n", ret);
 		return -FDT_ERR_NOTFOUND;
@@ -1936,15 +1936,15 @@ static int stm32mp1_clktree(struct udevice *dev)
 		pllcsg_set[i] = false;
 		if (pllcfg_valid[i]) {
 			dev_dbg(dev, "DT for PLL %d @ %s\n", i, name);
-			ret = ofnode_read_u32_array(node, "cfg",
+			ret = ofnode_reg_read_array(node, "cfg",
 						    pllcfg[i], PLLCFG_NB);
 			if (ret < 0) {
 				dev_dbg(dev, "field cfg invalid: error %d\n", ret);
 				return -FDT_ERR_NOTFOUND;
 			}
-			pllfracv[i] = ofnode_read_u32_default(node, "frac", 0);
+			pllfracv[i] = ofnode_reg_read_default(node, "frac", 0);
 
-			ret = ofnode_read_u32_array(node, "csg", pllcsg[i],
+			ret = ofnode_reg_read_array(node, "csg", pllcsg[i],
 						    PLLCSG_NB);
 			if (!ret) {
 				pllcsg_set[i] = true;
@@ -1988,7 +1988,7 @@ static int stm32mp1_clktree(struct udevice *dev)
 		bypass = dev_read_bool(dev, "st,bypass");
 		digbyp = dev_read_bool(dev, "st,digbypass");
 		lse_css = dev_read_bool(dev, "st,css");
-		lsedrv = dev_read_u32_default(dev, "st,drive",
+		lsedrv = dev_reg_read_default(dev, "st,drive",
 					      LSEDRV_MEDIUM_HIGH);
 
 		stm32mp1_lse_enable(rcc, bypass, digbyp, lsedrv);

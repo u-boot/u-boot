@@ -1055,27 +1055,27 @@ static int ca_ni_of_to_plat(struct udevice *dev)
 	printf("CA NI %s: priv->ni_hv_base_addr for index 2 is 0x%p\n",
 	       __func__, priv->ni_hv_base_addr);
 
-	priv->valid_port_map = dev_read_u32_default(dev, "valid-port-map", 1);
-	priv->valid_port_num = dev_read_u32_default(dev, "valid-port-num", 1);
+	priv->valid_port_map = dev_reg_read_default(dev, "valid-port-map", 1);
+	priv->valid_port_num = dev_reg_read_default(dev, "valid-port-num", 1);
 
 	for (i = 0; i < priv->valid_port_num; i++) {
-		ret = dev_read_u32_index(dev, "valid-ports", i * 2,
+		ret = dev_reg_read_index(dev, "valid-ports", i * 2,
 					 &priv->port_map[i].phy_addr);
-		ret = dev_read_u32_index(dev, "valid-ports", (i * 2) + 1,
+		ret = dev_reg_read_index(dev, "valid-ports", (i * 2) + 1,
 					 &priv->port_map[i].port);
 	}
 
-	priv->gphy_num = dev_read_u32_default(dev, "inter-gphy-num", 1);
+	priv->gphy_num = dev_reg_read_default(dev, "inter-gphy-num", 1);
 	for (i = 0; i < priv->gphy_num; i++) {
-		ret = dev_read_u32_index(dev, "inter-gphy-val", i * 2,
+		ret = dev_reg_read_index(dev, "inter-gphy-val", i * 2,
 					 &priv->gphy_values[i].reg_off);
-		ret = dev_read_u32_index(dev, "inter-gphy-val", (i * 2) + 1,
+		ret = dev_reg_read_index(dev, "inter-gphy-val", (i * 2) + 1,
 					 &priv->gphy_values[i].value);
 	}
 
-	priv->active_port = dev_read_u32_default(dev, "def-active-port", 1);
-	priv->init_rgmii = dev_read_u32_default(dev, "init-rgmii", 1);
-	priv->ni_xram_base = dev_read_u32_default(dev, "ni-xram-base", 1);
+	priv->active_port = dev_reg_read_default(dev, "def-active-port", 1);
+	priv->init_rgmii = dev_reg_read_default(dev, "init-rgmii", 1);
+	priv->ni_xram_base = dev_reg_read_default(dev, "ni-xram-base", 1);
 	return 0;
 }
 

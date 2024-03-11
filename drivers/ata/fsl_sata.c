@@ -844,9 +844,9 @@ static int fsl_ata_of_to_plat(struct udevice *dev)
 {
 	struct fsl_ata_priv *priv = dev_get_priv(dev);
 
-	priv->number = dev_read_u32_default(dev, "sata-number", -1);
-	priv->flag = dev_read_u32_default(dev, "sata-fpdma", -1);
-	priv->offset = dev_read_u32_default(dev, "sata-offset", -1);
+	priv->number = dev_reg_read_default(dev, "sata-number", -1);
+	priv->flag = dev_reg_read_default(dev, "sata-fpdma", -1);
+	priv->offset = dev_reg_read_default(dev, "sata-offset", -1);
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)

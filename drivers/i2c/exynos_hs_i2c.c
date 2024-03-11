@@ -531,7 +531,7 @@ static int s3c_i2c_of_to_plat(struct udevice *dev)
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);
 
 	i2c_bus->clock_frequency =
-		dev_read_u32_default(dev, "clock-frequency",
+		dev_reg_read_default(dev, "clock-frequency",
 				     I2C_SPEED_STANDARD_RATE);
 	i2c_bus->node = node;
 	i2c_bus->bus_num = dev_seq(dev);

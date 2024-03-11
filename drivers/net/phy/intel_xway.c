@@ -16,8 +16,8 @@ static int xway_config(struct phy_device *phydev)
 	if (ofnode_valid(node)) {
 		u32 rx_delay, tx_delay;
 
-		rx_delay = ofnode_read_u32_default(node, "rx-internal-delay-ps", 2000);
-		tx_delay = ofnode_read_u32_default(node, "tx-internal-delay-ps", 2000);
+		rx_delay = ofnode_reg_read_default(node, "rx-internal-delay-ps", 2000);
+		tx_delay = ofnode_reg_read_default(node, "tx-internal-delay-ps", 2000);
 		val |= FIELD_PREP(XWAY_MDIO_MIICTRL_TXSKEW_MASK, rx_delay / 500);
 		val |= FIELD_PREP(XWAY_MDIO_MIICTRL_RXSKEW_MASK, tx_delay / 500);
 		phy_modify(phydev, MDIO_DEVAD_NONE, XWAY_MDIO_MIICTRL,

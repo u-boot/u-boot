@@ -856,7 +856,7 @@ static int caam_jr_probe(struct udevice *dev)
 		if (!ofnode_is_enabled(node))
 			continue;
 
-		jr_node = ofnode_read_u32_default(node, "reg", -1);
+		jr_node = ofnode_reg_read_default(node, "reg", -1);
 		if (jr_node > 0) {
 			caam->regs = (struct jr_regs *)((ulong)caam->sec + jr_node);
 			while (!(jr_node & 0x0F))

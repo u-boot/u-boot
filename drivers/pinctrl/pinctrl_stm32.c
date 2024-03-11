@@ -343,7 +343,7 @@ static int prep_gpio_ctl(struct stm32_gpio_ctl *gpio_ctl, u32 gpio_fn,
 		break;
 	}
 
-	gpio_ctl->speed = ofnode_read_u32_default(node, "slew-rate", 0);
+	gpio_ctl->speed = ofnode_reg_read_default(node, "slew-rate", 0);
 
 	if (ofnode_read_bool(node, "drive-open-drain"))
 		gpio_ctl->otype = STM32_GPIO_OTYPE_OD;
@@ -386,7 +386,7 @@ static int stm32_pinctrl_config(ofnode node)
 		log_debug("No of pinmux entries= %d\n", len);
 		if (len > MAX_PINS_ONE_IP)
 			return -EINVAL;
-		rv = ofnode_read_u32_array(subnode, "pinmux", pin_mux, len);
+		rv = ofnode_reg_read_array(subnode, "pinmux", pin_mux, len);
 		if (rv < 0)
 			return rv;
 		for (i = 0; i < len; i++) {

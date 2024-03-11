@@ -530,10 +530,10 @@ static int eqos_probe_resources_qcom(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	eqos->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+	eqos->max_speed = dev_reg_read_default(dev, "max-speed", 0);
 
-	eqos->tx_fifo_sz = dev_read_u32_default(dev, "tx-fifo-depth", 0);
-	eqos->rx_fifo_sz = dev_read_u32_default(dev, "rx-fifo-depth", 0);
+	eqos->tx_fifo_sz = dev_reg_read_default(dev, "tx-fifo-depth", 0);
+	eqos->rx_fifo_sz = dev_reg_read_default(dev, "rx-fifo-depth", 0);
 
 	ret = reset_get_by_name(dev, "emac", &eqos->reset_ctl);
 	if (ret) {
@@ -547,7 +547,7 @@ static int eqos_probe_resources_qcom(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "snps,reset-gpio", 0,
 				   &eqos->phy_reset_gpio, reset_flags);
 	if (ret == 0) {
-		ret = dev_read_u32_array(dev, "snps,reset-delays-us",
+		ret = dev_reg_read_array(dev, "snps,reset-delays-us",
 					 eqos->reset_delays, 3);
 	} else if (ret == -ENOENT) {
 		ret = 0;

@@ -2134,7 +2134,7 @@ static int rk3588_scmi_spl_glue_bind(struct udevice *dev)
 		if (!ofnode_is_enabled(node))
 			continue;
 
-		if (ofnode_read_u32(node, "reg", &protocol_id))
+		if (ofnode_reg_read(node, "reg", &protocol_id))
 			continue;
 
 		if (protocol_id != SCMI_PROTOCOL_ID_CLOCK)

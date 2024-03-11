@@ -84,7 +84,7 @@ static int da7219_acpi_fill_ssdt(const struct udevice *dev,
 	acpi_dp_ofnode_copy_int(node, aad, "dlg,c-mic-btn-thr");
 	acpi_dp_ofnode_copy_int(node, aad, "dlg,btn-avg");
 	acpi_dp_ofnode_copy_int(node, aad, "dlg,adc-1bit-rpt");
-	if (!ofnode_read_u32(node, "dlg,micbias-pulse-lvl", &val)) {
+	if (!ofnode_reg_read(node, "dlg,micbias-pulse-lvl", &val)) {
 		acpi_dp_ofnode_copy_int(node, aad, "dlg,micbias-pulse-lvl");
 		acpi_dp_ofnode_copy_int(node, aad, "dlg,micbias-pulse-time");
 	}
@@ -158,7 +158,7 @@ static int da7219_acpi_setup_nhlt(const struct udevice *dev,
 	u32 hwlink;
 	int ret;
 
-	if (dev_read_u32(dev, "acpi,audio-link", &hwlink))
+	if (dev_reg_read(dev, "acpi,audio-link", &hwlink))
 		return log_msg_ret("link", -EINVAL);
 
 	/* Virtual bus id of SSP links are the hardware port ids proper. */

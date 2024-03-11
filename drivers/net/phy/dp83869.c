@@ -192,7 +192,7 @@ static int dp83869_of_init(struct phy_device *phydev)
 	dp83869->io_impedance = -EINVAL;
 
 	/* Optional configuration, set to default if required */
-	dp83869->clk_output_sel = ofnode_read_u32_default(node, "ti,clk-output-sel",
+	dp83869->clk_output_sel = ofnode_reg_read_default(node, "ti,clk-output-sel",
 							  DP83869_CLK_O_SEL_CHN_A_RCLK);
 
 	if (dp83869->clk_output_sel > DP83869_CLK_O_SEL_REF_CLK &&
@@ -244,7 +244,7 @@ static int dp83869_of_init(struct phy_device *phydev)
 	/* RX delay *must* be specified if internal delay of RX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
-		dp83869->rx_int_delay = ofnode_read_u32_default(node,
+		dp83869->rx_int_delay = ofnode_reg_read_default(node,
 			"rx-internal-delay-ps", DP83869_CLK_DELAY_DEFAULT);
 		if (dp83869->rx_int_delay > DP83869_CLK_DELAY_MAX ||
 		    dp83869->rx_int_delay < DP83869_CLK_DELAY_MIN ||
@@ -262,7 +262,7 @@ static int dp83869_of_init(struct phy_device *phydev)
 	/* TX delay *must* be specified if internal delay of TX is used. */
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
-		dp83869->tx_int_delay = ofnode_read_u32_default(node,
+		dp83869->tx_int_delay = ofnode_reg_read_default(node,
 			"tx-internal-delay-ps", DP83869_CLK_DELAY_DEFAULT);
 		if (dp83869->tx_int_delay > DP83869_CLK_DELAY_MAX ||
 		    dp83869->tx_int_delay < DP83869_CLK_DELAY_MIN ||

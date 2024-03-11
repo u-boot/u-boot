@@ -180,9 +180,9 @@ static int gsc_thermal_get_temp(struct udevice *dev)
 	u8 buf[2];
 
 	ofnode_for_each_subnode(node, dev_read_subnode(dev, "adc")) {
-		if (ofnode_read_u32(node, "reg", &reg))
+		if (ofnode_reg_read(node, "reg", &reg))
 			reg = -1;
-		if (ofnode_read_u32(node, "gw,mode", &mode))
+		if (ofnode_reg_read(node, "gw,mode", &mode))
 			mode = -1;
 		label = ofnode_read_string(node, "label");
 
@@ -287,9 +287,9 @@ static int gsc_hwmon(struct udevice *dev)
 
 	/* iterate over hwmon nodes */
 	ofnode_for_each_subnode(node, dev_read_subnode(dev, "adc")) {
-		if (ofnode_read_u32(node, "reg", &reg))
+		if (ofnode_reg_read(node, "reg", &reg))
 			reg = -1;
-		if (ofnode_read_u32(node, "gw,mode", &mode))
+		if (ofnode_reg_read(node, "gw,mode", &mode))
 			mode = -1;
 		label = ofnode_read_string(node, "label");
 		if ((reg == -1) || (mode == -1) || !label)
@@ -318,8 +318,8 @@ static int gsc_hwmon(struct udevice *dev)
 			val /= 1 << 12;
 
 			/* apply pre-scaler voltage divider */
-			if (!ofnode_read_u32_index(node, "gw,voltage-divider-ohms", 0, &r[0]) &&
-			    !ofnode_read_u32_index(node, "gw,voltage-divider-ohms", 1, &r[1]) &&
+			if (!ofnode_reg_read_index(node, "gw,voltage-divider-ohms", 0, &r[0]) &&
+			    !ofnode_reg_read_index(node, "gw,voltage-divider-ohms", 1, &r[1]) &&
 			    r[0] && r[1]) {
 				val *= (r[0] + r[1]);
 				val /= r[1];

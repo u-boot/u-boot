@@ -386,7 +386,7 @@ static int eqos_probe_resources_rk(struct udevice *dev)
 	if (dev_read_bool(dev, "snps,reset-active-low"))
 		reset_flags |= GPIOD_ACTIVE_LOW;
 
-	dev_read_u32_array(dev, "snps,reset-delays-us", eqos->reset_delays, 3);
+	dev_reg_read_array(dev, "snps,reset-delays-us", eqos->reset_delays, 3);
 
 	gpio_request_by_name(dev, "snps,reset-gpio", 0,
 			     &eqos->phy_reset_gpio, reset_flags);
@@ -463,8 +463,8 @@ static int eqos_start_clks_rk(struct udevice *dev)
 	if (data->ops->set_clock_selection)
 		data->ops->set_clock_selection(dev, true);
 
-	tx_delay = dev_read_u32_default(dev, "tx_delay", 0x30);
-	rx_delay = dev_read_u32_default(dev, "rx_delay", 0x10);
+	tx_delay = dev_reg_read_default(dev, "tx_delay", 0x30);
+	rx_delay = dev_reg_read_default(dev, "rx_delay", 0x10);
 
 	switch (pdata->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII:

@@ -436,17 +436,17 @@ int ofnode_read_u16(ofnode node, const char *propname, u16 *outp);
 u16 ofnode_read_u16_default(ofnode node, const char *propname, u16 def);
 
 /**
- * ofnode_read_u32() - Read a 32-bit integer from a property
+ * ofnode_reg_read() - Read a 32-bit integer from a property
  *
  * @node:	valid node reference to read property from
  * @propname:	name of the property to read from
  * @outp:	place to put value (if found)
  * Return: 0 if OK, -ve on error
  */
-int ofnode_read_u32(ofnode node, const char *propname, u32 *outp);
+int ofnode_reg_read(ofnode node, const char *propname, u32 *outp);
 
 /**
- * ofnode_read_u32_index() - Read a 32-bit integer from a multi-value property
+ * ofnode_reg_read_index() - Read a 32-bit integer from a multi-value property
  *
  * @node:	valid node reference to read property from
  * @propname:	name of the property to read from
@@ -454,7 +454,7 @@ int ofnode_read_u32(ofnode node, const char *propname, u32 *outp);
  * @outp:	place to put value (if found)
  * Return: 0 if OK, -ve on error
  */
-int ofnode_read_u32_index(ofnode node, const char *propname, int index,
+int ofnode_reg_read_index(ofnode node, const char *propname, int index,
 			  u32 *outp);
 
 /**
@@ -480,21 +480,21 @@ int ofnode_read_u64_index(ofnode node, const char *propname, int index,
 static inline int ofnode_read_s32(ofnode node, const char *propname,
 				  s32 *outp)
 {
-	return ofnode_read_u32(node, propname, (u32 *)outp);
+	return ofnode_reg_read(node, propname, (u32 *)outp);
 }
 
 /**
- * ofnode_read_u32_default() - Read a 32-bit integer from a property
+ * ofnode_reg_read_default() - Read a 32-bit integer from a property
  *
  * @node:	valid node reference to read property from
  * @propname:	name of the property to read from
  * @def:	default value to return if the property has no value
  * Return: property value, or @def if not found
  */
-u32 ofnode_read_u32_default(ofnode node, const char *propname, u32 def);
+u32 ofnode_reg_read_default(ofnode node, const char *propname, u32 def);
 
 /**
- * ofnode_read_u32_index_default() - Read a 32-bit integer from a multi-value
+ * ofnode_reg_read_index_default() - Read a 32-bit integer from a multi-value
  *                                   property
  *
  * @node:	valid node reference to read property from
@@ -503,7 +503,7 @@ u32 ofnode_read_u32_default(ofnode node, const char *propname, u32 def);
  * @def:	default value to return if the property has no value
  * Return: property value, or @def if not found
  */
-u32 ofnode_read_u32_index_default(ofnode node, const char *propname, int index,
+u32 ofnode_reg_read_index_default(ofnode node, const char *propname, int index,
 				  u32 def);
 
 /**
@@ -557,7 +557,7 @@ const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep);
 const char *ofnode_read_string(ofnode node, const char *propname);
 
 /**
- * ofnode_read_u32_array() - Find and read an array of 32 bit integers
+ * ofnode_reg_read_array() - Find and read an array of 32 bit integers
  *
  * @node:	valid node reference to read property from
  * @propname:	name of the property to read
@@ -572,7 +572,7 @@ const char *ofnode_read_string(ofnode node, const char *propname);
  *
  * The out_values is modified only if a valid u32 value can be decoded.
  */
-int ofnode_read_u32_array(ofnode node, const char *propname,
+int ofnode_reg_read_array(ofnode node, const char *propname,
 			  u32 *out_values, size_t sz);
 
 /**
@@ -1464,14 +1464,14 @@ int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 int ofnode_write_string(ofnode node, const char *propname, const char *value);
 
 /**
- * ofnode_write_u32() - Set an integer property of an ofnode
+ * ofnode_write() - Set an integer property of an ofnode
  *
  * @node:	The node for whose string property should be set
  * @propname:	The name of the string property to set
  * @value:	The new value of the 32-bit integer property
  * Return: 0 if successful, -ve on error
  */
-int ofnode_write_u32(ofnode node, const char *propname, u32 value);
+int ofnode_write(ofnode node, const char *propname, u32 value);
 
 /**
  * ofnode_write_u64() - Set an integer property of an ofnode

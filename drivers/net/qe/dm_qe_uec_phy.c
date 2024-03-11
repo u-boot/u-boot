@@ -128,9 +128,9 @@ static int qe_uec_mdio_probe(struct udevice *dev)
 
 		/* check if priv->base in start end */
 		if (base > addr && base < (addr + size)) {
-			ret = ofnode_read_u32(node, "cell-index", &num);
+			ret = ofnode_reg_read(node, "cell-index", &num);
 			if (ret)
-				ret = ofnode_read_u32(node, "device-id",
+				ret = ofnode_reg_read(node, "device-id",
 						      &num);
 			break;
 		}

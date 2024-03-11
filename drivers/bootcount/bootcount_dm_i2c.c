@@ -69,7 +69,7 @@ static int bootcount_i2c_probe(struct udevice *dev)
 	struct bootcount_i2c_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = dev_read_u32(dev, "offset", &priv->offset);
+	ret = dev_reg_read(dev, "offset", &priv->offset);
 	if (ret)
 		goto exit;
 

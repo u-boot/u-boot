@@ -84,11 +84,11 @@ static int hsdk_creg_gpio_probe(struct udevice *dev)
 	const u8 *defaults;
 
 	hcg->regs = dev_read_addr_ptr(dev);
-	gpio_count = dev_read_u32_default(dev, "gpio-count", 1);
-	shift = dev_read_u32_default(dev, "gpio-first-shift", 0);
-	bit_per_gpio = dev_read_u32_default(dev, "gpio-bit-per-line", 1);
-	activate = dev_read_u32_default(dev, "gpio-activate-val", 1);
-	deactivate = dev_read_u32_default(dev, "gpio-deactivate-val", 0);
+	gpio_count = dev_reg_read_default(dev, "gpio-count", 1);
+	shift = dev_reg_read_default(dev, "gpio-first-shift", 0);
+	bit_per_gpio = dev_reg_read_default(dev, "gpio-bit-per-line", 1);
+	activate = dev_reg_read_default(dev, "gpio-activate-val", 1);
+	deactivate = dev_reg_read_default(dev, "gpio-deactivate-val", 0);
 	defaults = dev_read_u8_array_ptr(dev, "gpio-default-val", gpio_count);
 
 	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");

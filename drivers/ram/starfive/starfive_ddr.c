@@ -86,7 +86,7 @@ static int starfive_ddr_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->phyreg = (void __iomem *)addr;
-	ret = dev_read_u32(dev, "clock-frequency", &priv->fre);
+	ret = dev_reg_read(dev, "clock-frequency", &priv->fre);
 	if (ret)
 		return ret;
 

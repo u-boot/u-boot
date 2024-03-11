@@ -88,7 +88,7 @@ static int smcwd_probe(struct udevice *dev)
 	struct arm_smccc_res res;
 	int err;
 
-	priv->smc_id = dev_read_u32_default(dev, "arm,smc-id", 0x82003D06);
+	priv->smc_id = dev_reg_read_default(dev, "arm,smc-id", 0x82003D06);
 
 	err = smcwd_call(dev, SMCWD_INIT, 0, &res);
 	if (err < 0) {

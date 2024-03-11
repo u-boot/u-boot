@@ -332,7 +332,7 @@ static int sandbox_gpio_of_to_plat(struct udevice *dev)
 		struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 		uc_priv->gpio_count =
-			dev_read_u32_default(dev, "sandbox,gpio-count", 0);
+			dev_reg_read_default(dev, "sandbox,gpio-count", 0);
 		uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 	}
 

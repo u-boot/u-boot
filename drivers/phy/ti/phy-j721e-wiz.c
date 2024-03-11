@@ -1151,14 +1151,14 @@ static int wiz_get_lane_phy_types(struct udevice *dev, struct wiz *wiz)
 		u32 reg, num_lanes = 1, phy_type = PHY_NONE;
 		int ret, i;
 
-		ret = ofnode_read_u32(child, "reg", &reg);
+		ret = ofnode_reg_read(child, "reg", &reg);
 		if (ret) {
 			dev_err(dev, "%s: Reading \"reg\" from failed: %d\n",
 				__func__, ret);
 			return ret;
 		}
-		ofnode_read_u32(child, "cdns,num-lanes", &num_lanes);
-		ofnode_read_u32(child, "cdns,phy-type", &phy_type);
+		ofnode_reg_read(child, "cdns,num-lanes", &num_lanes);
+		ofnode_reg_read(child, "cdns,phy-type", &phy_type);
 
 		dev_dbg(dev, "%s: Lanes %u-%u have phy-type %u\n", __func__,
 			reg, reg + num_lanes - 1, phy_type);
@@ -1194,7 +1194,7 @@ static int j721e_wiz_probe(struct udevice *dev)
 		dev_err(dev, "Failed to get memory resource\n");
 		return rc;
 	}
-	rc = dev_read_u32(dev, "num-lanes", &num_lanes);
+	rc = dev_reg_read(dev, "num-lanes", &num_lanes);
 	if (rc) {
 		dev_err(dev, "Failed to read num-lanes property\n");
 		goto err_addr_to_resource;

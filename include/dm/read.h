@@ -73,28 +73,28 @@ u16 dev_read_u16_default(const struct udevice *dev, const char *propname,
 			 u16 def);
 
 /**
- * dev_read_u32() - read a 32-bit integer from a device's DT property
+ * dev_reg_read() - read a 32-bit integer from a device's DT property
  *
  * @dev:	device to read DT property from
  * @propname:	name of the property to read from
  * @outp:	place to put value (if found)
  * Return: 0 if OK, -ve on error
  */
-int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp);
+int dev_reg_read(const struct udevice *dev, const char *propname, u32 *outp);
 
 /**
- * dev_read_u32_default() - read a 32-bit integer from a device's DT property
+ * dev_reg_read_default() - read a 32-bit integer from a device's DT property
  *
  * @dev:	device to read DT property from
  * @propname:	name of the property to read from
  * @def:	default value to return if the property has no value
  * Return: property value, or @def if not found
  */
-int dev_read_u32_default(const struct udevice *dev, const char *propname,
+int dev_reg_read_default(const struct udevice *dev, const char *propname,
 			 int def);
 
 /**
- * dev_read_u32_index() - read an indexed 32-bit integer from a device's DT
+ * dev_reg_read_index() - read an indexed 32-bit integer from a device's DT
  *                        property
  *
  * @dev:	device to read DT property from
@@ -103,11 +103,11 @@ int dev_read_u32_default(const struct udevice *dev, const char *propname,
  * @outp:	place to put value (if found)
  * Return: 0 if OK, -ve on error
  */
-int dev_read_u32_index(struct udevice *dev, const char *propname, int index,
+int dev_reg_read_index(struct udevice *dev, const char *propname, int index,
 		       u32 *outp);
 
 /**
- * dev_read_u32_index_default() - read an indexed 32-bit integer from a device's
+ * dev_reg_read_index_default() - read an indexed 32-bit integer from a device's
  *                                DT property
  *
  * @dev:	device to read DT property from
@@ -116,7 +116,7 @@ int dev_read_u32_index(struct udevice *dev, const char *propname, int index,
  * @def:	default value to return if the property has no value
  * Return: property value, or @def if not found
  */
-u32 dev_read_u32_index_default(struct udevice *dev, const char *propname,
+u32 dev_reg_read_index_default(struct udevice *dev, const char *propname,
 			       int index, u32 def);
 
 /**
@@ -141,7 +141,7 @@ int dev_read_s32_default(const struct udevice *dev, const char *propname,
 			 int def);
 
 /**
- * dev_read_u32u() - read a 32-bit integer from a device's DT property
+ * dev_reg_readu() - read a 32-bit integer from a device's DT property
  *
  * This version uses a standard uint type.
  *
@@ -150,7 +150,7 @@ int dev_read_s32_default(const struct udevice *dev, const char *propname,
  * @outp:	place to put value (if found)
  * Return: 0 if OK, -ve on error
  */
-int dev_read_u32u(const struct udevice *dev, const char *propname, uint *outp);
+int dev_reg_readu(const struct udevice *dev, const char *propname, uint *outp);
 
 /**
  * dev_read_u64() - read a 64-bit integer from a device's DT property
@@ -644,7 +644,7 @@ const void *dev_read_prop_by_prop(struct ofprop *prop,
 int dev_read_alias_seq(const struct udevice *dev, int *devnump);
 
 /**
- * dev_read_u32_array() - Find and read an array of 32 bit integers
+ * dev_reg_read_array() - Find and read an array of 32 bit integers
  *
  * Search for a property in a device node and read 32-bit value(s) from
  * it.
@@ -659,7 +659,7 @@ int dev_read_alias_seq(const struct udevice *dev, int *devnump);
  * property does not have a value, and -EOVERFLOW if the property data isn't
  * large enough.
  */
-int dev_read_u32_array(const struct udevice *dev, const char *propname,
+int dev_reg_read_array(const struct udevice *dev, const char *propname,
 		       u32 *out_values, size_t sz);
 
 /**
@@ -889,29 +889,29 @@ static inline int dev_read_u16_default(const struct udevice *dev,
 	return ofnode_read_u16_default(dev_ofnode(dev), propname, def);
 }
 
-static inline int dev_read_u32(const struct udevice *dev,
+static inline int dev_reg_read(const struct udevice *dev,
 			       const char *propname, u32 *outp)
 {
-	return ofnode_read_u32(dev_ofnode(dev), propname, outp);
+	return ofnode_reg_read(dev_ofnode(dev), propname, outp);
 }
 
-static inline int dev_read_u32_default(const struct udevice *dev,
+static inline int dev_reg_read_default(const struct udevice *dev,
 				       const char *propname, int def)
 {
-	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
+	return ofnode_reg_read_default(dev_ofnode(dev), propname, def);
 }
 
-static inline int dev_read_u32_index(struct udevice *dev,
+static inline int dev_reg_read_index(struct udevice *dev,
 				     const char *propname, int index, u32 *outp)
 {
-	return ofnode_read_u32_index(dev_ofnode(dev), propname, index, outp);
+	return ofnode_reg_read_index(dev_ofnode(dev), propname, index, outp);
 }
 
-static inline u32 dev_read_u32_index_default(struct udevice *dev,
+static inline u32 dev_reg_read_index_default(struct udevice *dev,
 					     const char *propname, int index,
 					     u32 def)
 {
-	return ofnode_read_u32_index_default(dev_ofnode(dev), propname, index,
+	return ofnode_reg_read_index_default(dev_ofnode(dev), propname, index,
 					     def);
 }
 
@@ -927,13 +927,13 @@ static inline int dev_read_s32_default(const struct udevice *dev,
 	return ofnode_read_s32_default(dev_ofnode(dev), propname, def);
 }
 
-static inline int dev_read_u32u(const struct udevice *dev,
+static inline int dev_reg_readu(const struct udevice *dev,
 				const char *propname, uint *outp)
 {
 	u32 val;
 	int ret;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), propname, &val);
+	ret = ofnode_reg_read(dev_ofnode(dev), propname, &val);
 	if (ret)
 		return ret;
 	*outp = val;
@@ -1176,11 +1176,11 @@ static inline int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 #endif
 }
 
-static inline int dev_read_u32_array(const struct udevice *dev,
+static inline int dev_reg_read_array(const struct udevice *dev,
 				     const char *propname, u32 *out_values,
 				     size_t sz)
 {
-	return ofnode_read_u32_array(dev_ofnode(dev), propname, out_values, sz);
+	return ofnode_reg_read_array(dev_ofnode(dev), propname, out_values, sz);
 }
 
 static inline ofnode dev_read_first_subnode(const struct udevice *dev)

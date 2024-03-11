@@ -500,7 +500,7 @@ static int cdns_i2c_of_to_plat(struct udevice *dev)
 	}
 
 	/* Update FIFO depth based on device tree entry */
-	i2c_bus->fifo_depth = dev_read_u32_default(dev, "fifo-depth",
+	i2c_bus->fifo_depth = dev_reg_read_default(dev, "fifo-depth",
 						   CDNS_I2C_FIFO_DEPTH_DEFAULT);
 
 	return 0;

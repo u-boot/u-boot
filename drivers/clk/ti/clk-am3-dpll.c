@@ -362,15 +362,15 @@ static int clk_ti_am3_dpll_of_to_plat(struct udevice *dev)
 		return err;
 	}
 
-	if (dev_read_u32(dev, "ti,ssc-modfreq-hz", &priv->ssc_modfreq))
+	if (dev_reg_read(dev, "ti,ssc-modfreq-hz", &priv->ssc_modfreq))
 		priv->ssc_modfreq = 0;
 
-	if (dev_read_u32(dev, "ti,ssc-deltam", &priv->ssc_deltam))
+	if (dev_reg_read(dev, "ti,ssc-deltam", &priv->ssc_deltam))
 		priv->ssc_deltam = 0;
 
 	priv->ssc_downspread = dev_read_bool(dev, "ti,ssc-downspread");
 
-	if (dev_read_u32(dev, "ti,min-div", &min_div) || min_div == 0 ||
+	if (dev_reg_read(dev, "ti,min-div", &min_div) || min_div == 0 ||
 	    min_div > 128)
 		priv->min_div = 1;
 	else

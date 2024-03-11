@@ -380,7 +380,7 @@ static int bcm63xx_spi_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->regs = regs;
-	priv->num_cs = dev_read_u32_default(dev, "num-cs", 8);
+	priv->num_cs = dev_reg_read_default(dev, "num-cs", 8);
 
 	/* enable clock */
 	ret = clk_get_by_index(dev, 0, &clk);

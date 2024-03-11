@@ -115,7 +115,7 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config,
 			}
 			break;
 		case PIN_CONFIG_DRIVE_STRENGTH:
-			dev_read_u32(config, params->property, &val);
+			dev_reg_read(config, params->property, &val);
 			conf &= (~ATMEL_PIO_DRVSTR_MASK);
 			conf |= (val << ATMEL_PIO_DRVSTR_OFFSET)
 				& ATMEL_PIO_DRVSTR_MASK;
@@ -124,7 +124,7 @@ static u32 atmel_pinctrl_get_pinconf(struct udevice *config,
 			if (!plat->slew_rate_support)
 				break;
 
-			dev_read_u32(config, params->property, &val);
+			dev_reg_read(config, params->property, &val);
 			/* And disable it if requested. */
 			if (val == 0)
 				conf &= ~ATMEL_PIO_SR;

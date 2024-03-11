@@ -85,7 +85,7 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 	 * If fifo-depth is unset don't set fifoth_val - we will try to
 	 * auto detect it.
 	 */
-	ret = dev_read_u32(dev, "fifo-depth", &fifo_depth);
+	ret = dev_reg_read(dev, "fifo-depth", &fifo_depth);
 	if (!ret) {
 		if (fifo_depth < FIFO_MIN || fifo_depth > FIFO_MAX)
 			return -EINVAL;
@@ -95,7 +95,7 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 				   TX_WMARK(fifo_depth / 2);
 	}
 
-	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+	host->buswidth = dev_reg_read_default(dev, "bus-width", 4);
 	if (host->buswidth != 1 && host->buswidth != 4 && host->buswidth != 8)
 		return -EINVAL;
 
@@ -103,7 +103,7 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 	 * If max-frequency is unset don't set priv->f_max - we will use
 	 * host->bus_hz in probe() instead.
 	 */
-	ret = dev_read_u32(dev, "max-frequency", &priv->f_max);
+	ret = dev_reg_read(dev, "max-frequency", &priv->f_max);
 	if (!ret && priv->f_max < CLOCK_MIN)
 		return -EINVAL;
 

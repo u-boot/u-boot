@@ -681,7 +681,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 
 	cfg->name = dev->name;
 
-	bus_width = dev_read_u32_default(dev, "bus-width", 1);
+	bus_width = dev_reg_read_default(dev, "bus-width", 1);
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	cfg->host_caps = 0;
@@ -698,7 +698,7 @@ static int tegra_mmc_probe(struct udevice *dev)
 	 *  (actually 52MHz)
 	 */
 	cfg->f_min = 375000;
-	cfg->f_max = dev_read_u32_default(dev, "max-frequency", 48000000);
+	cfg->f_max = dev_reg_read_default(dev, "max-frequency", 48000000);
 
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
@@ -736,11 +736,11 @@ static int tegra_mmc_probe(struct udevice *dev)
 	if (dm_gpio_is_valid(&priv->pwr_gpio))
 		dm_gpio_set_value(&priv->pwr_gpio, 1);
 
-	ret = dev_read_u32(dev, "nvidia,default-tap", &priv->tap_value);
+	ret = dev_reg_read(dev, "nvidia,default-tap", &priv->tap_value);
 	if (ret)
 		priv->tap_value = ret;
 
-	ret = dev_read_u32(dev, "nvidia,default-trim", &priv->trim_value);
+	ret = dev_reg_read(dev, "nvidia,default-trim", &priv->trim_value);
 	if (ret)
 		priv->trim_value = ret;
 

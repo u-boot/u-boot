@@ -665,7 +665,7 @@ static fdt_addr_t ipu_parse_mem_nodes(struct udevice *dev, char *name,
 	u32 sp;
 	ofnode mem_node;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), name, &sp);
+	ret = ofnode_reg_read(dev_ofnode(dev), name, &sp);
 	if (ret) {
 		dev_err(dev, "memory-region node fetch failed %d\n", ret);
 		return ret;

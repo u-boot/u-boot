@@ -325,11 +325,11 @@ static int rcar_i2c_probe(struct udevice *dev)
 	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
-	priv->rise_ns = dev_read_u32_default(dev,
+	priv->rise_ns = dev_reg_read_default(dev,
 					     "i2c-scl-rising-time-ns", 200);
-	priv->fall_ns = dev_read_u32_default(dev,
+	priv->fall_ns = dev_reg_read_default(dev,
 					     "i2c-scl-falling-time-ns", 35);
-	priv->intdelay = dev_read_u32_default(dev,
+	priv->intdelay = dev_reg_read_default(dev,
 					      "i2c-scl-internal-delay-ns", 5);
 	priv->type = dev_get_driver_data(dev);
 

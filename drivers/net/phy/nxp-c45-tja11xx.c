@@ -151,7 +151,7 @@ static int nxp_c45_get_delays(struct phy_device *phydev)
 
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
-		ret = dev_read_u32(phydev->dev, "tx-internal-delay-ps",
+		ret = dev_reg_read(phydev->dev, "tx-internal-delay-ps",
 				   &priv->tx_delay);
 		if (ret)
 			priv->tx_delay = DEFAULT_ID_PS;
@@ -166,7 +166,7 @@ static int nxp_c45_get_delays(struct phy_device *phydev)
 
 	if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID ||
 	    phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID) {
-		ret = dev_read_u32(phydev->dev, "rx-internal-delay-ps",
+		ret = dev_reg_read(phydev->dev, "rx-internal-delay-ps",
 				   &priv->rx_delay);
 		if (ret)
 			priv->rx_delay = DEFAULT_ID_PS;

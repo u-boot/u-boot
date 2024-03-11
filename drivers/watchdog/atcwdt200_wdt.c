@@ -177,17 +177,17 @@ static int atcwdt_wdt_probe(struct udevice *dev)
 	if (!priv->base)
 		return -EFAULT;
 
-	priv->wdt_clk_src = dev_read_u32_default(dev, "clock-source", NODE_NOT_FOUND);
+	priv->wdt_clk_src = dev_reg_read_default(dev, "clock-source", NODE_NOT_FOUND);
 	if (priv->wdt_clk_src == NODE_NOT_FOUND || priv->wdt_clk_src > 1)
 		priv->wdt_clk_src = CLK_PCLK;
 
-	timer_16bit = dev_read_u32_default(dev, "16bit_timer", NODE_NOT_FOUND);
+	timer_16bit = dev_reg_read_default(dev, "16bit_timer", NODE_NOT_FOUND);
 	if (timer_16bit == 1 || timer_16bit == NODE_NOT_FOUND)
 		priv->max_clk = INT_CLK_MAX_16B;
 	else
 		priv->max_clk = INT_CLK_MAX_32B;
 
-	priv->clk_freq = dev_read_u32_default(dev, "clock-frequency", NODE_NOT_FOUND);
+	priv->clk_freq = dev_reg_read_default(dev, "clock-frequency", NODE_NOT_FOUND);
 	if (priv->clk_freq == NODE_NOT_FOUND) {
 		printf("atcwdt200: Please provide a valid \"clock-frequency\" in DTB\n");
 		return -EINVAL;

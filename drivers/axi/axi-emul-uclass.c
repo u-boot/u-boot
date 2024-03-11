@@ -44,7 +44,7 @@ int axi_sandbox_get_emul(struct udevice *bus, ulong address,
 	     device_find_next_child(&dev)) {
 		int ret;
 
-		ret = dev_read_u32_array(dev, "reg", reg, ARRAY_SIZE(reg));
+		ret = dev_reg_read_array(dev, "reg", reg, ARRAY_SIZE(reg));
 		if (ret) {
 			debug("%s: Could not read 'reg' property of %s\n",
 			      bus->name, dev->name);

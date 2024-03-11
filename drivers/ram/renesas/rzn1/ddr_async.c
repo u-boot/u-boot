@@ -323,19 +323,19 @@ static int cadence_ddr_probe(struct udevice *dev)
 
 	/* There may be multiple DDR configurations to try */
 	dev_for_each_subnode(subnode, dev) {
-		ret = ofnode_read_u32(subnode, "size", &priv->ddr_size);
+		ret = ofnode_reg_read(subnode, "size", &priv->ddr_size);
 		if (ret) {
 			dev_err(dev, "No size for Cadence DDR\n");
 			continue;
 		}
 
-		ret = ofnode_read_u32_array(subnode, "cadence,ctl-000", priv->reg0, 88);
+		ret = ofnode_reg_read_array(subnode, "cadence,ctl-000", priv->reg0, 88);
 		if (ret) {
 			dev_err(dev, "No cadence,ctl-000\n");
 			continue;
 		}
 
-		ret = ofnode_read_u32_array(subnode, "cadence,ctl-350", priv->reg350, 25);
+		ret = ofnode_reg_read_array(subnode, "cadence,ctl-350", priv->reg350, 25);
 		if (ret) {
 			dev_err(dev, "No cadence,ctl-350\n");
 			continue;

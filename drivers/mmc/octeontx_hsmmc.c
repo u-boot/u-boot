@@ -3577,7 +3577,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		      slot->hs400_tap_adj);
 	}
 
-	err = ofnode_read_u32_array(dev_ofnode(dev), "voltage-ranges",
+	err = ofnode_reg_read_array(dev_ofnode(dev), "voltage-ranges",
 				    voltages, 2);
 	if (err) {
 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
@@ -3614,7 +3614,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 		slot->is_3_3v = true;
 	}
 
-	bus_width = ofnode_read_u32_default(node, "bus-width", 1);
+	bus_width = ofnode_reg_read_default(node, "bus-width", 1);
 	/* Note fall-through */
 	switch (bus_width) {
 	case 8:
@@ -3663,25 +3663,25 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 					MMC_MODE_HS200 |
 					MMC_MODE_DDR_52MHz;
 			slot->cmd_out_hs200_delay =
-				ofnode_read_u32_default(node,
+				ofnode_reg_read_default(node,
 					"marvell,cmd-out-hs200-dly",
 					MMC_DEFAULT_HS200_CMD_OUT_DLY);
 			debug("%s(%s): HS200 cmd out delay: %d\n",
 			      __func__, dev->name, slot->cmd_out_hs200_delay);
 			slot->data_out_hs200_delay =
-				ofnode_read_u32_default(node,
+				ofnode_reg_read_default(node,
 					"marvell,data-out-hs200-dly",
 					MMC_DEFAULT_HS200_DATA_OUT_DLY);
 			debug("%s(%s): HS200 data out delay: %d\n",
 			      __func__, dev->name, slot->data_out_hs200_delay);
 			slot->cmd_out_hs400_delay =
-				ofnode_read_u32_default(node,
+				ofnode_reg_read_default(node,
 					"marvell,cmd-out-hs400-dly",
 					MMC_DEFAULT_HS400_CMD_OUT_DLY);
 			debug("%s(%s): HS400 cmd out delay: %d\n",
 			      __func__, dev->name, slot->cmd_out_hs400_delay);
 			slot->data_out_hs400_delay =
-				ofnode_read_u32_default(node,
+				ofnode_reg_read_default(node,
 					"marvell,data-out-hs400-dly",
 					MMC_DEFAULT_HS400_DATA_OUT_DLY);
 			debug("%s(%s): HS400 data out delay: %d\n",
@@ -3691,9 +3691,9 @@ static int octeontx_mmc_get_config(struct udevice *dev)
 
 	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
 	slot->non_removable = ofnode_read_bool(node, "non-removable");
-	slot->cmd_clk_skew = ofnode_read_u32_default(node,
+	slot->cmd_clk_skew = ofnode_reg_read_default(node,
 						     "cavium,cmd-clk-skew", 0);
-	slot->dat_clk_skew = ofnode_read_u32_default(node,
+	slot->dat_clk_skew = ofnode_reg_read_default(node,
 						     "cavium,dat-clk-skew", 0);
 	debug("%s(%s): host caps: 0x%x\n", __func__,
 	      dev->name, slot->cfg.host_caps);
@@ -3849,7 +3849,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
 		host->is_emul = true;
 #endif
 	host->dma_wait_delay =
-		ofnode_read_u32_default(dev_ofnode(dev),
+		ofnode_reg_read_default(dev_ofnode(dev),
 					"marvell,dma-wait-delay", 1);
 	/* Force reset of eMMC */
 	writeq(0, host->base_addr + MIO_EMM_CFG());
@@ -3925,7 +3925,7 @@ static int octeontx_mmc_host_child_pre_probe(struct udevice *dev)
 	int err;
 
 	debug("%s(%s) Pre-Probe\n", __func__, dev->name);
-	if (ofnode_read_u32(node, "reg", &bus_id)) {
+	if (ofnode_reg_read(node, "reg", &bus_id)) {
 		pr_err("%s(%s): Error: \"reg\" not found in device tree\n",
 		       __func__, dev->name);
 		return -1;

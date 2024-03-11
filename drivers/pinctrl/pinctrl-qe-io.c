@@ -130,7 +130,7 @@ static int qe_io_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = (qepio83xx_t *)addr;
-	if (dev_read_u32(dev, "num-ports", &plat->num_io_ports))
+	if (dev_reg_read(dev, "num-ports", &plat->num_io_ports))
 		return -EINVAL;
 
 	return 0;
@@ -178,7 +178,7 @@ int par_io_of_config(struct udevice *dev)
 	ofnode pio;
 	int err;
 
-	err = ofnode_read_u32(dev_ofnode(dev), "pio-handle", &phandle);
+	err = ofnode_reg_read(dev_ofnode(dev), "pio-handle", &phandle);
 	if (err) {
 		dev_err(dev, "%s: pio-handle not available\n", __func__);
 		return err;

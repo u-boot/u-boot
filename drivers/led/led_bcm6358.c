@@ -127,7 +127,7 @@ static int bcm6358_led_probe(struct udevice *dev)
 
 		if (dev_read_bool(dev, "brcm,clk-dat-low"))
 			set_bits |= LED_CTRL_POL_MASK;
-		clk_div = dev_read_u32_default(dev, "brcm,clk-div",
+		clk_div = dev_reg_read_default(dev, "brcm,clk-div",
 					       LED_CTRL_CLK_1);
 		switch (clk_div) {
 		case 8:
@@ -156,7 +156,7 @@ static int bcm6358_led_probe(struct udevice *dev)
 		if (!priv->regs)
 			return -EINVAL;
 
-		pin = dev_read_u32_default(dev, "reg", LEDS_MAX);
+		pin = dev_reg_read_default(dev, "reg", LEDS_MAX);
 		if (pin >= LEDS_MAX)
 			return -EINVAL;
 

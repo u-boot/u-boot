@@ -84,7 +84,7 @@ static int max98357a_acpi_fill_ssdt(const struct udevice *dev,
 			 priv->sdmode_gpio.flags & GPIOD_ACTIVE_LOW ?
 			 ACPI_GPIO_ACTIVE_LOW : ACPI_GPIO_ACTIVE_HIGH);
 	acpi_dp_add_integer(dp, "sdmode-delay",
-			    dev_read_u32_default(dev, "sdmode-delay", 0));
+			    dev_reg_read_default(dev, "sdmode-delay", 0));
 	acpi_dp_write(ctx, dp);
 
 	acpigen_pop_len(ctx); /* Device */
@@ -124,7 +124,7 @@ static int max98357a_acpi_setup_nhlt(const struct udevice *dev,
 	u32 hwlink;
 	int ret;
 
-	if (dev_read_u32(dev, "acpi,audio-link", &hwlink))
+	if (dev_reg_read(dev, "acpi,audio-link", &hwlink))
 		return log_msg_ret("link", -EINVAL);
 
 	/* Virtual bus id of SSP links are the hardware port ids proper. */

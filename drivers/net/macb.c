@@ -1208,7 +1208,7 @@ static int macb_eth_probe(struct udevice *dev)
 	/* Read phyaddr from DT */
 	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 					&phandle_args))
-		macb->phy_addr = ofnode_read_u32_default(phandle_args.node,
+		macb->phy_addr = ofnode_reg_read_default(phandle_args.node,
 							 "reg", -1);
 
 	macb->regs = (void *)(uintptr_t)pdata->iobase;

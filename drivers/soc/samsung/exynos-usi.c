@@ -173,7 +173,7 @@ static int exynos_usi_of_to_plat(struct udevice *dev)
 			return -ENODEV;
 	}
 
-	ret = ofnode_read_u32(node, "samsung,mode", &mode);
+	ret = ofnode_reg_read(node, "samsung,mode", &mode);
 	if (ret)
 		return ret;
 	if (mode < usi->data->min_mode || mode > usi->data->max_mode)
@@ -184,7 +184,7 @@ static int exynos_usi_of_to_plat(struct udevice *dev)
 	if (IS_ERR(usi->sysreg))
 		return PTR_ERR(usi->sysreg);
 
-	ret = ofnode_read_u32_index(node, "samsung,sysreg", 1, &usi->sw_conf);
+	ret = ofnode_reg_read_index(node, "samsung,sysreg", 1, &usi->sw_conf);
 	if (ret)
 		return ret;
 

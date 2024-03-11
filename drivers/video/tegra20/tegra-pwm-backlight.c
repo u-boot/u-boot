@@ -118,19 +118,19 @@ static int tegra_pwm_backlight_probe(struct udevice *dev)
 	}
 
 	priv->pwm_source =
-		dev_read_u32_default(dev, "nvidia,pwm-source",
+		dev_reg_read_default(dev, "nvidia,pwm-source",
 				     TEGRA_PWM_PM0);
 	priv->period =
-		dev_read_u32_default(dev, "nvidia,period",
+		dev_reg_read_default(dev, "nvidia,period",
 				     TEGRA_PWM_BL_PERIOD);
 	priv->clk_div =
-		dev_read_u32_default(dev, "nvidia,clock-div",
+		dev_reg_read_default(dev, "nvidia,clock-div",
 				     TEGRA_PWM_BL_CLK_DIV);
 	priv->clk_select =
-		dev_read_u32_default(dev, "nvidia,clock-select",
+		dev_reg_read_default(dev, "nvidia,clock-select",
 				     TEGRA_PWM_BL_CLK_SELECT);
 	priv->dft_brightness =
-		dev_read_u32_default(dev, "nvidia,default-brightness",
+		dev_reg_read_default(dev, "nvidia,default-brightness",
 				     TEGRA_PWM_BL_MAX_BRIGHTNESS);
 
 	return 0;

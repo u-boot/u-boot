@@ -152,23 +152,23 @@ static int octeon_mdio_probe(struct udevice *dev)
 	debug("%s: bus: %d\n", __func__, bus);
 
 	drv_ctl.u64 = csr_rd(CVMX_SMI_DRV_CTL);
-	drv_ctl.s.pctl = dev_read_u32_default(dev, "cavium,pctl-drive-strength",
+	drv_ctl.s.pctl = dev_reg_read_default(dev, "cavium,pctl-drive-strength",
 					      drv_ctl.s.pctl);
-	drv_ctl.s.nctl = dev_read_u32_default(dev, "cavium,nctl-drive-strength",
+	drv_ctl.s.nctl = dev_reg_read_default(dev, "cavium,nctl-drive-strength",
 					      drv_ctl.s.nctl);
 	debug("%s: Set MDIO PCTL drive strength to 0x%x and NCTL drive strength to 0x%x\n",
 	      __func__, drv_ctl.s.pctl, drv_ctl.s.nctl);
 	csr_wr(CVMX_SMI_DRV_CTL, drv_ctl.u64);
 
 	/* Set the bus speed, default is 2.5MHz */
-	p->speed = dev_read_u32_default(dev, "cavium,max-speed",
+	p->speed = dev_reg_read_default(dev, "cavium,max-speed",
 					DEFAULT_MDIO_SPEED);
 	sclock = gd->bus_clk;
 	smi_clk.u64 = csr_rd(CVMX_SMIX_CLK(bus & 3));
 	smi_clk.s.phase = sclock / (p->speed * 2);
 
 	/* Allow sample delay to be specified */
-	sample_dly = dev_read_u32_default(dev, "cavium,sample-delay", 0);
+	sample_dly = dev_reg_read_default(dev, "cavium,sample-delay", 0);
 	/* Only change the sample delay if it is set, otherwise use
 	 * the default value of 2.
 	 */

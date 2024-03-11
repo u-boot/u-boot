@@ -1729,14 +1729,14 @@ static int udma_probe(struct udevice *dev)
 			  (ti_sci_get_handle_from_sysfw(tisci_dev));
 
 	tisci_rm->tisci_dev_id = -1;
-	ret = dev_read_u32(dev, "ti,sci-dev-id", &tisci_rm->tisci_dev_id);
+	ret = dev_reg_read(dev, "ti,sci-dev-id", &tisci_rm->tisci_dev_id);
 	if (ret) {
 		dev_err(dev, "ti,sci-dev-id read failure %d\n", ret);
 		return ret;
 	}
 
 	tisci_rm->tisci_navss_dev_id = -1;
-	ret = ofnode_read_u32(navss_ofnode, "ti,sci-dev-id",
+	ret = ofnode_reg_read(navss_ofnode, "ti,sci-dev-id",
 			      &tisci_rm->tisci_navss_dev_id);
 	if (ret) {
 		dev_err(dev, "navss sci-dev-id read failure %d\n", ret);

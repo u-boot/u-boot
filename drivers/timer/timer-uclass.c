@@ -72,7 +72,7 @@ static int timer_pre_probe(struct udevice *dev)
 			}
 		}
 
-		uc_priv->clock_rate = dev_read_u32_default(dev, "clock-frequency", 0);
+		uc_priv->clock_rate = dev_reg_read_default(dev, "clock-frequency", 0);
 	}
 
 	return 0;

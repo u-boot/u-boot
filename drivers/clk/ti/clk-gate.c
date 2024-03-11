@@ -66,7 +66,7 @@ static int clk_ti_gate_of_to_plat(struct udevice *dev)
 		return err;
 	}
 
-	priv->enable_bit = dev_read_u32_default(dev, "ti,bit-shift", 0);
+	priv->enable_bit = dev_reg_read_default(dev, "ti,bit-shift", 0);
 	if (dev_read_bool(dev, "ti,set-rate-parent"))
 		priv->flags |= CLK_SET_RATE_PARENT;
 

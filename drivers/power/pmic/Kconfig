@@ -92,6 +92,13 @@ config SPL_DM_PMIC_DA9063
 	  This config enables implementation of driver-model pmic uclass features
 	  for PMIC DA9063. The driver implements read/write operations.
 
+config PMIC_MT6328
+	bool "Enable Driver Model for the MediaTek MT6328 PMIC"
+	depends on DM_PMIC
+	help
+	  This config enables implementation of pmic uclass features
+	  for PMIC MT6328. Presently, only regulator is supported.
+
 config PMIC_AS3722
 	bool "Enable support for the Austria Micro Systems (AMS) AS7322 PMIC"
 	help

@@ -19,14 +19,14 @@ static void l2c310_of_parse_and_init(struct udevice *dev)
 	clrbits_le32(&regs->pl310_ctrl, L2X0_CTRL_EN);
 
 	saved_reg = readl(&regs->pl310_aux_ctrl);
-	if (!dev_read_u32(dev, "prefetch-data", &prefetch)) {
+	if (!dev_reg_read(dev, "prefetch-data", &prefetch)) {
 		if (prefetch)
 			saved_reg |= L310_AUX_CTRL_DATA_PREFETCH_MASK;
 		else
 			saved_reg &= ~L310_AUX_CTRL_DATA_PREFETCH_MASK;
 	}
 
-	if (!dev_read_u32(dev, "prefetch-instr", &prefetch)) {
+	if (!dev_reg_read(dev, "prefetch-instr", &prefetch)) {
 		if (prefetch)
 			saved_reg |= L310_AUX_CTRL_INST_PREFETCH_MASK;
 		else
@@ -39,14 +39,14 @@ static void l2c310_of_parse_and_init(struct udevice *dev)
 	writel(saved_reg, &regs->pl310_aux_ctrl);
 
 	saved_reg = readl(&regs->pl310_tag_latency_ctrl);
-	if (!dev_read_u32_array(dev, "arm,tag-latency", tag, 3))
+	if (!dev_reg_read_array(dev, "arm,tag-latency", tag, 3))
 		saved_reg |= L310_LATENCY_CTRL_RD(tag[0] - 1) |
 			     L310_LATENCY_CTRL_WR(tag[1] - 1) |
 			     L310_LATENCY_CTRL_SETUP(tag[2] - 1);
 	writel(saved_reg, &regs->pl310_tag_latency_ctrl);
 
 	saved_reg = readl(&regs->pl310_data_latency_ctrl);
-	if (!dev_read_u32_array(dev, "arm,data-latency", tag, 3))
+	if (!dev_reg_read_array(dev, "arm,data-latency", tag, 3))
 		saved_reg |= L310_LATENCY_CTRL_RD(tag[0] - 1) |
 			     L310_LATENCY_CTRL_WR(tag[1] - 1) |
 			     L310_LATENCY_CTRL_SETUP(tag[2] - 1);

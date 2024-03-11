@@ -194,7 +194,7 @@ static int spi_post_probe(struct udevice *bus)
 	if (CONFIG_IS_ENABLED(OF_REAL)) {
 		struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
 
-		spi->max_hz = dev_read_u32_default(bus, "spi-max-frequency", 0);
+		spi->max_hz = dev_reg_read_default(bus, "spi-max-frequency", 0);
 	}
 
 	return 0;
@@ -510,8 +510,8 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 	int mode = 0;
 	int value;
 
-	plat->cs = dev_read_u32_default(dev, "reg", -1);
-	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency",
+	plat->cs = dev_reg_read_default(dev, "reg", -1);
+	plat->max_hz = dev_reg_read_default(dev, "spi-max-frequency",
 					    SPI_DEFAULT_SPEED_HZ);
 	if (dev_read_bool(dev, "spi-cpol"))
 		mode |= SPI_CPOL;
@@ -525,7 +525,7 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 		mode |= SPI_PREAMBLE;
 
 	/* Device DUAL/QUAD mode */
-	value = dev_read_u32_default(dev, "spi-tx-bus-width", 1);
+	value = dev_reg_read_default(dev, "spi-tx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;
@@ -543,7 +543,7 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 		break;
 	}
 
-	value = dev_read_u32_default(dev, "spi-rx-bus-width", 1);
+	value = dev_reg_read_default(dev, "spi-rx-bus-width", 1);
 	switch (value) {
 	case 1:
 		break;

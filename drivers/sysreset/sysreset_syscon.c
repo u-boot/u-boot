@@ -52,14 +52,14 @@ static int syscon_reboot_probe(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	err = dev_read_u32(dev, "offset", &priv->offset);
+	err = dev_reg_read(dev, "offset", &priv->offset);
 	if (err) {
 		pr_err("unable to find offset\n");
 		return -ENOENT;
 	}
 
-	mask_err = dev_read_u32(dev, "mask", &priv->mask);
-	value_err = dev_read_u32(dev, "value", &priv->value);
+	mask_err = dev_reg_read(dev, "mask", &priv->mask);
+	value_err = dev_reg_read(dev, "value", &priv->value);
 	if (mask_err && value_err) {
 		pr_err("unable to find mask and value\n");
 		return -EINVAL;

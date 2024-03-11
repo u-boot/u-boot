@@ -187,48 +187,48 @@ static int anatop_regulator_probe(struct udevice *dev)
 			return ret;
 	}
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-reg-offset",
 			   &anatop_reg->control_reg);
 	if (ret)
 		return log_msg_ret("anatop-reg-offset", ret);
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-vol-bit-width",
 			   &anatop_reg->vol_bit_width);
 	if (ret)
 		return log_msg_ret("anatop-vol-bit-width", ret);
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-vol-bit-shift",
 			   &anatop_reg->vol_bit_shift);
 	if (ret)
 		return log_msg_ret("anatop-vol-bit-shift", ret);
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-min-bit-val",
 			   &anatop_reg->min_bit_val);
 	if (ret)
 		return log_msg_ret("anatop-min-bit-val", ret);
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-min-voltage",
 			   &anatop_reg->min_voltage);
 	if (ret)
 		return log_msg_ret("anatop-min-voltage", ret);
 
-	ret = dev_read_u32(dev,
+	ret = dev_reg_read(dev,
 			   "anatop-max-voltage",
 			   &anatop_reg->max_voltage);
 	if (ret)
 		return log_msg_ret("anatop-max-voltage", ret);
 
 	/* read LDO ramp up setting, only for core reg */
-	dev_read_u32(dev, "anatop-delay-reg-offset",
+	dev_reg_read(dev, "anatop-delay-reg-offset",
 		     &anatop_reg->delay_reg);
-	dev_read_u32(dev, "anatop-delay-bit-width",
+	dev_reg_read(dev, "anatop-delay-bit-width",
 		     &anatop_reg->delay_bit_width);
-	dev_read_u32(dev, "anatop-delay-bit-shift",
+	dev_reg_read(dev, "anatop-delay-bit-shift",
 		     &anatop_reg->delay_bit_shift);
 
 	syscon = dev_get_parent(dev);

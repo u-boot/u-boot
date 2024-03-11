@@ -299,7 +299,7 @@ int of_read_u8(const struct device_node *np, const char *propname, u8 *outp);
 int of_read_u16(const struct device_node *np, const char *propname, u16 *outp);
 
 /**
- * of_read_u32() - Find and read a 32-bit integer from a property
+ * of_reg_read() - Find and read a 32-bit integer from a property
  *
  * Search for a property in a device node and read a 32-bit value from
  * it.
@@ -312,10 +312,10 @@ int of_read_u16(const struct device_node *np, const char *propname, u16 *outp);
  * -ENODATA if property does not have a value, and -EOVERFLOW if the
  * property data isn't large enough.
  */
-int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
+int of_reg_read(const struct device_node *np, const char *propname, u32 *outp);
 
 /**
- * of_read_u32_index() - Find and read a 32-bit value from a multi-value
+ * of_reg_read_index() - Find and read a 32-bit value from a multi-value
  *                       property
  *
  * Search for a property in a device node and read a 32-bit value from
@@ -330,7 +330,7 @@ int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
  *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if the
  *   property data isn't large enough.
  */
-int of_read_u32_index(const struct device_node *np, const char *propname,
+int of_reg_read_index(const struct device_node *np, const char *propname,
 		      int index, u32 *outp);
 
 /**
@@ -369,7 +369,7 @@ int of_read_u64_index(const struct device_node *np, const char *propname,
 int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
 
 /**
- * of_read_u32_array() - Find and read an array of 32 bit integers
+ * of_reg_read_array() - Find and read an array of 32 bit integers
  *
  * Search for a property in a device node and read 32-bit value(s) from
  * it.
@@ -382,7 +382,7 @@ int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
  *   0 on success, -EINVAL if the property does not exist, or -EOVERFLOW if
  *   longer than sz.
  */
-int of_read_u32_array(const struct device_node *np, const char *propname,
+int of_reg_read_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz);
 
 /**

@@ -870,7 +870,7 @@ static int rkmtd_attach_mtd(struct udevice *dev)
 
 	chip = mtd_to_nand(mtd);
 
-	ret = ofnode_read_u32(chip->flash_node, "rockchip,boot-blks", &tmp);
+	ret = ofnode_reg_read(chip->flash_node, "rockchip,boot-blks", &tmp);
 	plat->boot_blks = ret ? 0 : tmp;
 	plat->mtd = mtd;
 

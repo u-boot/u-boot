@@ -222,7 +222,7 @@ static int rk3399_emmc_get_phy(struct udevice *dev)
 	void *grf_base;
 	u32 grf_phy_offset, phandle;
 
-	phandle = dev_read_u32_default(dev, "phys", 0);
+	phandle = dev_reg_read_default(dev, "phys", 0);
 	phy_node = ofnode_get_by_phandle(phandle);
 	if (!ofnode_valid(phy_node)) {
 		debug("Not found emmc phy device\n");
@@ -234,7 +234,7 @@ static int rk3399_emmc_get_phy(struct udevice *dev)
 		printf("%s Get syscon grf failed", __func__);
 		return -ENODEV;
 	}
-	grf_phy_offset = ofnode_read_u32_default(phy_node, "reg", 0);
+	grf_phy_offset = ofnode_reg_read_default(phy_node, "reg", 0);
 
 	priv->phy = (struct rockchip_emmc_phy *)(grf_base + grf_phy_offset);
 

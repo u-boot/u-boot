@@ -630,11 +630,11 @@ static int mtk_spim_get_attr(struct mtk_spim_priv *priv, struct udevice *dev)
 	priv->hw_cap.ipm_design = dev_read_bool(dev, "ipm_design");
 	priv->hw_cap.support_quad = dev_read_bool(dev, "support_quad");
 
-	ret = dev_read_u32(dev, "tick_dly", &priv->tick_dly);
+	ret = dev_reg_read(dev, "tick_dly", &priv->tick_dly);
 	if (ret < 0)
 		dev_err(priv->dev, "tick dly not set.\n");
 
-	ret = dev_read_u32(dev, "sample_sel", &priv->sample_sel);
+	ret = dev_reg_read(dev, "sample_sel", &priv->sample_sel);
 	if (ret < 0)
 		dev_err(priv->dev, "sample sel not set.\n");
 

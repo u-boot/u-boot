@@ -27,7 +27,7 @@ static int npcm_sdhci_probe(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->max_clk = dev_read_u32_default(dev, "clock-frequency", 0);
+	host->max_clk = dev_reg_read_default(dev, "clock-frequency", 0);
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (!ret && host->max_clk) {
@@ -38,13 +38,13 @@ static int npcm_sdhci_probe(struct udevice *dev)
 
 	if (CONFIG_IS_ENABLED(DM_REGULATOR)) {
 		device_get_supply_regulator(dev, "vqmmc-supply", &vqmmc_supply);
-		vqmmc_uv = dev_read_u32_default(dev, "vqmmc-microvolt", 0);
+		vqmmc_uv = dev_reg_read_default(dev, "vqmmc-microvolt", 0);
 		/* Set IO voltage */
 		if (vqmmc_supply && vqmmc_uv)
 			regulator_set_value(vqmmc_supply, vqmmc_uv);
 	}
 
-	host->index = dev_read_u32_default(dev, "index", 0);
+	host->index = dev_reg_read_default(dev, "index", 0);
 	ret = mmc_of_parse(dev, &plat->cfg);
 	if (ret)
 		return ret;

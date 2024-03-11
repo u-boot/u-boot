@@ -313,7 +313,7 @@ static int rzn1_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		bias = PIN_CONFIG_BIAS_PULL_DOWN;
 
 	/* Drive strength, common to all pins in group */
-	u32 strength = dev_read_u32_default(config, "drive-strength", 8);
+	u32 strength = dev_reg_read_default(config, "drive-strength", 8);
 
 	/* Number of pins */
 	ret = dev_read_size(config, "pinmux");
@@ -323,7 +323,7 @@ static int rzn1_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	size = ret / sizeof(val);
 
 	for (int i = 0; i < size; i++) {
-		ret = dev_read_u32_index(config, "pinmux", i, &val);
+		ret = dev_reg_read_index(config, "pinmux", i, &val);
 		if (ret)
 			return ret;
 		unsigned int pin = val & 0xff;

@@ -440,7 +440,7 @@ static int rpc_spi_of_to_plat(struct udevice *bus)
 	}
 #endif
 
-	plat->freq = dev_read_u32_default(bus, "spi-max-freq", 50000000);
+	plat->freq = dev_reg_read_default(bus, "spi-max-freq", 50000000);
 
 	return 0;
 }

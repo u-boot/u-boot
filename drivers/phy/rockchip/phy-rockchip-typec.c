@@ -678,7 +678,7 @@ static int rockchip_tcphy_probe(struct udevice *dev)
 	if (!priv->reg_base)
 		return -EINVAL;
 
-	ret = dev_read_u32_index(dev, "reg", 1, &reg);
+	ret = dev_reg_read_index(dev, "reg", 1, &reg);
 	if (ret) {
 		dev_err(dev, "failed to read reg property (ret = %d)\n", ret);
 		return ret;

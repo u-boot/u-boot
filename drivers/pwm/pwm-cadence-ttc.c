@@ -220,7 +220,7 @@ static int cadence_ttc_pwm_of_to_plat(struct udevice *dev)
 
 	plat->regs = dev_read_addr_ptr(dev);
 
-	plat->timer_width = dev_read_u32_default(dev, "timer-width", 16);
+	plat->timer_width = dev_reg_read_default(dev, "timer-width", 16);
 
 	return 0;
 }

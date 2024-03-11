@@ -428,7 +428,7 @@ int bmips_cpu_bind(struct udevice *dev)
 {
 	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
-	plat->cpu_id = dev_read_u32_default(dev, "reg", -1);
+	plat->cpu_id = dev_reg_read_default(dev, "reg", -1);
 	plat->device_id = read_c0_prid();
 
 	return 0;

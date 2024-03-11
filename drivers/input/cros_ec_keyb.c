@@ -185,8 +185,8 @@ static int cros_ec_keyb_decode_fdt(struct udevice *dev,
 	 * Get keyboard rows and columns - at present we are limited to
 	 * 8 columns by the protocol (one byte per row scan)
 	 */
-	config->key_rows = dev_read_u32_default(dev, "keypad,num-rows", 0);
-	config->key_cols = dev_read_u32_default(dev, "keypad,num-columns", 0);
+	config->key_rows = dev_reg_read_default(dev, "keypad,num-rows", 0);
+	config->key_cols = dev_reg_read_default(dev, "keypad,num-columns", 0);
 	if (!config->key_rows || !config->key_cols ||
 			config->key_rows * config->key_cols / 8
 				> CROS_EC_KEYSCAN_COLS) {

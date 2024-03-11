@@ -585,10 +585,10 @@ static int fsl_i2c_of_to_plat(struct udevice *bus)
 	if (!dev->base)
 		return -ENOMEM;
 
-	dev->index = dev_read_u32_default(bus, "cell-index", -1);
-	dev->slaveadd = dev_read_u32_default(bus, "u-boot,i2c-slave-addr",
+	dev->index = dev_reg_read_default(bus, "cell-index", -1);
+	dev->slaveadd = dev_reg_read_default(bus, "u-boot,i2c-slave-addr",
 					     0x7f);
-	dev->speed = dev_read_u32_default(bus, "clock-frequency",
+	dev->speed = dev_reg_read_default(bus, "clock-frequency",
 					  I2C_SPEED_FAST_RATE);
 
 	if (!clk_get_by_index(bus, 0, &clock))

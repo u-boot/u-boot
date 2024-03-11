@@ -67,10 +67,10 @@ static int cpu_sandbox_bind(struct udevice *dev)
 	struct cpu_plat *plat = dev_get_parent_plat(dev);
 
 	/* first examine the property in current cpu node */
-	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);
+	ret = dev_reg_read(dev, "timebase-frequency", &plat->timebase_freq);
 	/* if not found, then look at the parent /cpus node */
 	if (ret)
-		ret = dev_read_u32(dev->parent, "timebase-frequency",
+		ret = dev_reg_read(dev->parent, "timebase-frequency",
 				   &plat->timebase_freq);
 
 	return ret;

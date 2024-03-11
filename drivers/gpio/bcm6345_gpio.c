@@ -98,7 +98,7 @@ static int bcm6345_gpio_probe(struct udevice *dev)
 	if (!priv->reg_data)
 		return -EINVAL;
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", 32);
+	uc_priv->gpio_count = dev_reg_read_default(dev, "ngpios", 32);
 	uc_priv->bank_name = dev->name;
 
 	return 0;

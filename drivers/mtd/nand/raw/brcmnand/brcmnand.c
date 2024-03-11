@@ -2284,11 +2284,11 @@ static int brcmnand_setup_dev(struct brcmnand_host *host)
 	memset(cfg, 0, sizeof(*cfg));
 
 #ifndef __UBOOT__
-	ret = of_property_read_u32(nand_get_flash_node(chip),
+	ret = of_property_reg_read(nand_get_flash_node(chip),
 				   "brcm,nand-oob-sector-size",
 				   &oob_sector);
 #else
-	ret = ofnode_read_u32(nand_get_flash_node(chip),
+	ret = ofnode_reg_read(nand_get_flash_node(chip),
 			      "brcm,nand-oob-sector-size",
 			      &oob_sector);
 #endif /* __UBOOT__ */
@@ -2415,7 +2415,7 @@ static int brcmnand_init_cs(struct brcmnand_host *host, ofnode dn)
 	u16 cfg_offs;
 
 #ifndef __UBOOT__
-	ret = of_property_read_u32(dn, "reg", &host->cs);
+	ret = of_property_reg_read(dn, "reg", &host->cs);
 #else
 	ret = ofnode_read_s32(dn, "reg", &host->cs);
 #endif
@@ -2686,7 +2686,7 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 
 	/* Is parameter page in big endian ? */
 	ctrl->parameter_page_big_endian =
-	    dev_read_u32_default(dev, "parameter-page-big-endian", 1);
+	    dev_reg_read_default(dev, "parameter-page-big-endian", 1);
 
 	/* NAND register range */
 #ifndef __UBOOT__
@@ -2798,7 +2798,7 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 	brcmnand_rmw_reg(ctrl, BRCMNAND_CS_XOR, 0xff, 0, 0);
 
 	/* Read the write-protect configuration in the device tree */
-	wp_on = dev_read_u32_default(dev, "write-protect", wp_on);
+	wp_on = dev_reg_read_default(dev, "write-protect", wp_on);
 
 	if (ctrl->features & BRCMNAND_HAS_WP) {
 		/* Permanently disable write protection */

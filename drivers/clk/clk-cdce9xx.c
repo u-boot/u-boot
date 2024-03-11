@@ -117,7 +117,7 @@ static int cdce9xx_clk_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &clk);
 	data->xtal_rate = clk_get_rate(&clk);
 
-	val = dev_read_u32_default(dev, "xtal-load-pf", -1);
+	val = dev_reg_read_default(dev, "xtal-load-pf", -1);
 	if (val >= 0)
 		cdce9xx_reg_write(dev, CDCE9XX_REG_XCSEL, val << 3);
 

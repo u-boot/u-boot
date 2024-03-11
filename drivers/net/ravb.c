@@ -396,7 +396,7 @@ static int ravb_dmac_init(struct udevice *dev)
 	    (renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77995))
 		return 0;
 
-	if (!dev_read_u32(dev, "rx-internal-delay-ps", &delay)) {
+	if (!dev_reg_read(dev, "rx-internal-delay-ps", &delay)) {
 		/* Valid values are 0 and 1800, according to DT bindings */
 		if (delay) {
 			mode |= APSR_RDM;
@@ -404,7 +404,7 @@ static int ravb_dmac_init(struct udevice *dev)
 		}
 	}
 
-	if (!dev_read_u32(dev, "tx-internal-delay-ps", &delay)) {
+	if (!dev_reg_read(dev, "tx-internal-delay-ps", &delay)) {
 		/* Valid values are 0 and 2000, according to DT bindings */
 		if (delay) {
 			mode |= APSR_TDM;

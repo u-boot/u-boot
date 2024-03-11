@@ -918,15 +918,15 @@ static int stm32_of_to_plat(struct udevice *dev)
 	if (!data)
 		return -EINVAL;
 
-	i2c_priv->setup.rise_time = dev_read_u32_default(dev,
+	i2c_priv->setup.rise_time = dev_reg_read_default(dev,
 							 "i2c-scl-rising-time-ns",
 							 STM32_I2C_RISE_TIME_DEFAULT);
 
-	i2c_priv->setup.fall_time = dev_read_u32_default(dev,
+	i2c_priv->setup.fall_time = dev_reg_read_default(dev,
 							 "i2c-scl-falling-time-ns",
 							 STM32_I2C_FALL_TIME_DEFAULT);
 
-	i2c_priv->dnf_dt = dev_read_u32_default(dev, "i2c-digital-filter-width-ns", 0);
+	i2c_priv->dnf_dt = dev_reg_read_default(dev, "i2c-digital-filter-width-ns", 0);
 	if (!dev_read_bool(dev, "i2c-digital-filter"))
 		i2c_priv->dnf_dt = 0;
 
@@ -938,7 +938,7 @@ static int stm32_of_to_plat(struct udevice *dev)
 	if (!IS_ERR(i2c_priv->regmap)) {
 		u32 fmp[3];
 
-		ret = dev_read_u32_array(dev, "st,syscfg-fmp", fmp, 3);
+		ret = dev_reg_read_array(dev, "st,syscfg-fmp", fmp, 3);
 		if (ret)
 			return ret;
 

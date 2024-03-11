@@ -98,7 +98,7 @@ static int xlnx_wdt_of_to_plat(struct udevice *dev)
 	if (!plat->regs)
 		return -EINVAL;
 
-	plat->enable_once = dev_read_u32_default(dev, "xlnx,wdt-enable-once",
+	plat->enable_once = dev_reg_read_default(dev, "xlnx,wdt-enable-once",
 						 0);
 
 	debug("%s: wdt-enable-once %d\n", __func__, plat->enable_once);

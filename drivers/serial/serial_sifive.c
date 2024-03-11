@@ -112,7 +112,7 @@ static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (IS_ERR_VALUE(ret)) {
 		debug("SiFive UART failed to get clock\n");
-		ret = dev_read_u32(dev, "clock-frequency", &clock);
+		ret = dev_reg_read(dev, "clock-frequency", &clock);
 		if (IS_ERR_VALUE(ret)) {
 			debug("SiFive UART clock not defined\n");
 			return 0;

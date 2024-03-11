@@ -34,47 +34,47 @@ u16 dev_read_u16_default(const struct udevice *dev, const char *propname,
 	return ofnode_read_u16_default(dev_ofnode(dev), propname, def);
 }
 
-int dev_read_u32(const struct udevice *dev, const char *propname, u32 *outp)
+int dev_reg_read(const struct udevice *dev, const char *propname, u32 *outp)
 {
-	return ofnode_read_u32(dev_ofnode(dev), propname, outp);
+	return ofnode_reg_read(dev_ofnode(dev), propname, outp);
 }
 
-int dev_read_u32_default(const struct udevice *dev, const char *propname,
+int dev_reg_read_default(const struct udevice *dev, const char *propname,
 			 int def)
 {
-	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
+	return ofnode_reg_read_default(dev_ofnode(dev), propname, def);
 }
 
-int dev_read_u32_index(struct udevice *dev, const char *propname, int index,
+int dev_reg_read_index(struct udevice *dev, const char *propname, int index,
 		       u32 *outp)
 {
-	return ofnode_read_u32_index(dev_ofnode(dev), propname, index, outp);
+	return ofnode_reg_read_index(dev_ofnode(dev), propname, index, outp);
 }
 
-u32 dev_read_u32_index_default(struct udevice *dev, const char *propname,
+u32 dev_reg_read_index_default(struct udevice *dev, const char *propname,
 			       int index, u32 def)
 {
-	return ofnode_read_u32_index_default(dev_ofnode(dev), propname, index,
+	return ofnode_reg_read_index_default(dev_ofnode(dev), propname, index,
 					     def);
 }
 
 int dev_read_s32(const struct udevice *dev, const char *propname, s32 *outp)
 {
-	return ofnode_read_u32(dev_ofnode(dev), propname, (u32 *)outp);
+	return ofnode_reg_read(dev_ofnode(dev), propname, (u32 *)outp);
 }
 
 int dev_read_s32_default(const struct udevice *dev, const char *propname,
 			 int def)
 {
-	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
+	return ofnode_reg_read_default(dev_ofnode(dev), propname, def);
 }
 
-int dev_read_u32u(const struct udevice *dev, const char *propname, uint *outp)
+int dev_reg_readu(const struct udevice *dev, const char *propname, uint *outp)
 {
 	u32 val;
 	int ret;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), propname, &val);
+	ret = ofnode_reg_read(dev_ofnode(dev), propname, &val);
 	if (ret)
 		return ret;
 	*outp = val;
@@ -367,10 +367,10 @@ int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 	return ret;
 }
 
-int dev_read_u32_array(const struct udevice *dev, const char *propname,
+int dev_reg_read_array(const struct udevice *dev, const char *propname,
 		       u32 *out_values, size_t sz)
 {
-	return ofnode_read_u32_array(dev_ofnode(dev), propname, out_values, sz);
+	return ofnode_reg_read_array(dev_ofnode(dev), propname, out_values, sz);
 }
 
 const uint8_t *dev_read_u8_array_ptr(const struct udevice *dev,

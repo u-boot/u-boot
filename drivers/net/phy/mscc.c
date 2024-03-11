@@ -1233,7 +1233,7 @@ static int vsc8531_vsc8541_clkout_config(struct phy_device *phydev)
 	retval = dev_read_phandle_with_args(phydev->dev, "phy-handle", NULL,
 					    0, 0, &phandle_args);
 	if (!retval)
-		clkout_rate = ofnode_read_u32_default(phandle_args.node,
+		clkout_rate = ofnode_reg_read_default(phandle_args.node,
 						"vsc8531,clk-out-frequency", 0);
 
 	switch (clkout_rate) {

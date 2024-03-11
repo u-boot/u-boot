@@ -87,7 +87,7 @@ static u32 adin_get_reg_value(struct phy_device *phydev,
 		return -EINVAL;
 	}
 
-	if (ofnode_read_u32(node, prop_name, &val)) {
+	if (ofnode_reg_read(node, prop_name, &val)) {
 		printf("%s: failed to find %s, using default %d\n",
 		       __func__, prop_name, dflt);
 		return dflt;

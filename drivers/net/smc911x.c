@@ -462,7 +462,7 @@ static int smc911x_of_to_plat(struct udevice *dev)
 	pdata->iobase = dev_read_addr(dev);
 	priv->iobase = pdata->iobase;
 
-	ret = dev_read_u32(dev, "reg-io-width", &io_width);
+	ret = dev_reg_read(dev, "reg-io-width", &io_width);
 	if (!ret)
 		priv->use_32_bit_io = (io_width == 4);
 	else

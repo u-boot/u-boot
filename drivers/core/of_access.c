@@ -524,12 +524,12 @@ int of_read_u16(const struct device_node *np, const char *propname, u16 *outp)
 	return 0;
 }
 
-int of_read_u32(const struct device_node *np, const char *propname, u32 *outp)
+int of_reg_read(const struct device_node *np, const char *propname, u32 *outp)
 {
-	return of_read_u32_index(np, propname, 0, outp);
+	return of_reg_read_index(np, propname, 0, outp);
 }
 
-int of_read_u32_array(const struct device_node *np, const char *propname,
+int of_reg_read_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz)
 {
 	const __be32 *val;
@@ -548,7 +548,7 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 	return 0;
 }
 
-int of_read_u32_index(const struct device_node *np, const char *propname,
+int of_reg_read_index(const struct device_node *np, const char *propname,
 		      int index, u32 *outp)
 {
 	const __be32 *val;
@@ -715,7 +715,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 			}
 
 			if (cells_name) {
-				if (of_read_u32(node, cells_name, &count)) {
+				if (of_reg_read(node, cells_name, &count)) {
 					debug("%s: could not get %s for %s\n",
 					      np->full_name, cells_name,
 					      node->full_name);

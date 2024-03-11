@@ -553,7 +553,7 @@ static int rk3328_dmc_of_to_plat(struct udevice *dev)
 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 	int ret;
 
-	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
+	ret = dev_reg_read_array(dev, "rockchip,sdram-params",
 				 (u32 *)&plat->sdram_params,
 				 sizeof(plat->sdram_params) / sizeof(u32));
 	if (ret) {

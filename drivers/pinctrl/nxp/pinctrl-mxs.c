@@ -29,15 +29,15 @@ static unsigned long mxs_dt_node_to_map(struct udevice *conf)
 	int ret;
 	u32 val;
 
-	ret = dev_read_u32(conf, "fsl,drive-strength", &val);
+	ret = dev_reg_read(conf, "fsl,drive-strength", &val);
 	if (!ret)
 		config = val | MA_PRESENT;
 
-	ret = dev_read_u32(conf, "fsl,voltage", &val);
+	ret = dev_reg_read(conf, "fsl,voltage", &val);
 	if (!ret)
 		config |= val << VOL_SHIFT | VOL_PRESENT;
 
-	ret = dev_read_u32(conf, "fsl,pull-up", &val);
+	ret = dev_reg_read(conf, "fsl,pull-up", &val);
 	if (!ret)
 		config |= val << PULL_SHIFT | PULL_PRESENT;
 
@@ -85,7 +85,7 @@ static int mxs_pinctrl_set_state(struct udevice *dev, struct udevice *conf)
 	if (!pin_data)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(conf, "fsl,pinmux-ids", pin_data, npins);
+	ret = dev_reg_read_array(conf, "fsl,pinmux-ids", pin_data, npins);
 	if (ret) {
 		dev_err(dev, "Error reading pin data.\n");
 		devm_kfree(dev, pin_data);

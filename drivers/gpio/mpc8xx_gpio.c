@@ -259,12 +259,12 @@ static int mpc8xx_gpio_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	u32 reg[2];
 
-	dev_read_u32_array(dev, "reg", reg, 2);
+	dev_reg_read_array(dev, "reg", reg, 2);
 	addr = dev_translate_address(dev, reg);
 
 	plat->addr = addr;
 	plat->size = reg[1];
-	plat->ngpios = dev_read_u32_default(dev, "ngpios", 32);
+	plat->ngpios = dev_reg_read_default(dev, "ngpios", 32);
 
 	return 0;
 }

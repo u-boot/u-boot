@@ -809,7 +809,7 @@ static struct phy_device *phy_connect_gmii2rgmii(struct mii_dev *bus,
 		if (ofnode_valid(node)) {
 			int gmiirgmii_phyaddr;
 
-			gmiirgmii_phyaddr = ofnode_read_u32_default(node, "reg", 0);
+			gmiirgmii_phyaddr = ofnode_reg_read_default(node, "reg", 0);
 			phydev = phy_device_create(bus, gmiirgmii_phyaddr,
 						   PHY_GMII2RGMII_ID, false);
 			if (phydev)

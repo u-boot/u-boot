@@ -677,7 +677,7 @@ int tsec_probe(struct udevice *dev)
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
 	if (ret == 0) {
-		ofnode_read_u32(phandle_args.node, "reg", &tbiaddr);
+		ofnode_reg_read(phandle_args.node, "reg", &tbiaddr);
 
 		parent = ofnode_get_parent(phandle_args.node);
 		if (!ofnode_valid(parent)) {
@@ -704,7 +704,7 @@ int tsec_probe(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 
 	/* Check for speed limit, default is 1000Mbps */
-	max_speed = dev_read_u32_default(dev, "max-speed", 1000);
+	max_speed = dev_reg_read_default(dev, "max-speed", 1000);
 
 	/* Initialize flags */
 	if (max_speed == 1000)

@@ -427,7 +427,7 @@ int i2c_get_chip_by_phandle(const struct udevice *parent, const char *prop_name,
 		goto err_exit;
 	}
 
-	ret = dev_read_u32(parent, prop_name, &phandle);
+	ret = dev_reg_read(parent, prop_name, &phandle);
 	if (ret)
 		goto err_exit;
 
@@ -707,10 +707,10 @@ int i2c_chip_of_to_plat(struct udevice *dev, struct dm_i2c_chip *chip)
 {
 	int addr;
 
-	chip->offset_len = dev_read_u32_default(dev, "u-boot,i2c-offset-len",
+	chip->offset_len = dev_reg_read_default(dev, "u-boot,i2c-offset-len",
 						1);
 	chip->flags = 0;
-	addr = dev_read_u32_default(dev, "reg", -1);
+	addr = dev_reg_read_default(dev, "reg", -1);
 	if (addr == -1) {
 		debug("%s: I2C Node '%s' has no 'reg' property %s\n", __func__,
 		      dev_read_name(dev), dev->name);
@@ -732,7 +732,7 @@ static int i2c_pre_probe(struct udevice *dev)
 
 	i2c->max_transaction_bytes = 0;
 	dev_for_each_subnode(node, dev) {
-		ret = ofnode_read_u32(node,
+		ret = ofnode_reg_read(node,
 				      "u-boot,i2c-transaction-bytes",
 				      &max);
 		if (!ret && max > i2c->max_transaction_bytes)
@@ -750,7 +750,7 @@ static int i2c_post_probe(struct udevice *dev)
 #if CONFIG_IS_ENABLED(OF_REAL)
 	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
 
-	i2c->speed_hz = dev_read_u32_default(dev, "clock-frequency",
+	i2c->speed_hz = dev_reg_read_default(dev, "clock-frequency",
 					     I2C_SPEED_STANDARD_RATE);
 
 	return dm_i2c_set_bus_speed(dev, i2c->speed_hz);

@@ -622,7 +622,7 @@ static int brcm_pcie_of_to_plat(struct udevice *dev)
 
 	pcie->ssc = ofnode_read_bool(dn, "brcm,enable-ssc");
 
-	ret = ofnode_read_u32(dn, "max-link-speed", &max_link_speed);
+	ret = ofnode_reg_read(dn, "max-link-speed", &max_link_speed);
 	if (ret < 0 || max_link_speed > 4)
 		pcie->gen = 0;
 	else

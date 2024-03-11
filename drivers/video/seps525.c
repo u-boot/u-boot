@@ -263,7 +263,7 @@ static int seps525_probe(struct udevice *dev)
 	u32 buswidth;
 	int ret;
 
-	buswidth = dev_read_u32_default(dev, "buswidth", 0);
+	buswidth = dev_reg_read_default(dev, "buswidth", 0);
 	if (buswidth != 8) {
 		dev_err(dev, "Only 8bit buswidth is supported now");
 		return -EINVAL;

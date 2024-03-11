@@ -537,7 +537,7 @@ static ofnode usb_get_ofnode(struct udevice *hub, int port)
 		return dev_ofnode(hub);
 
 	ofnode_for_each_subnode(node, dev_ofnode(hub)) {
-		if (ofnode_read_u32(node, "reg", &reg))
+		if (ofnode_reg_read(node, "reg", &reg))
 			continue;
 
 		if (reg == port)
@@ -785,12 +785,12 @@ static int usb_child_post_bind(struct udevice *dev)
 		return 0;
 
 	/* We only support matching a few things */
-	val = dev_read_u32_default(dev, "usb,device-class", -1);
+	val = dev_reg_read_default(dev, "usb,device-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_DEV_CLASS;
 		plat->id.bDeviceClass = val;
 	}
-	val = dev_read_u32_default(dev, "usb,interface-class", -1);
+	val = dev_reg_read_default(dev, "usb,interface-class", -1);
 	if (val != -1) {
 		plat->id.match_flags |= USB_DEVICE_ID_MATCH_INT_CLASS;
 		plat->id.bInterfaceClass = val;

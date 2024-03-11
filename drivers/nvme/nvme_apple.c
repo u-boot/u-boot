@@ -210,7 +210,7 @@ static int apple_nvme_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	ret = dev_read_u32(dev, "apple,sart", &phandle);
+	ret = dev_reg_read(dev, "apple,sart", &phandle);
 	if (ret < 0)
 		return ret;
 

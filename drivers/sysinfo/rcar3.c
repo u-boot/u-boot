@@ -169,7 +169,7 @@ static int sysinfo_rcar_probe(struct udevice *dev)
 	u32 offset;
 	int ret;
 
-	offset = dev_read_u32_default(dev, "offset", 0x70);
+	offset = dev_reg_read_default(dev, "offset", 0x70);
 
 	ret = dev_read_phandle_with_args(dev, "i2c-eeprom", NULL,
 					 0, 0, &phandle_args);

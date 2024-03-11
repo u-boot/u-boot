@@ -182,7 +182,7 @@ static int bcm6753_led_probe(struct udevice *dev)
 	if (!regs)
 		return -EINVAL;
 
-	pin = dev_read_u32_default(dev, "reg", LEDS_MAX);
+	pin = dev_reg_read_default(dev, "reg", LEDS_MAX);
 	if (pin >= LEDS_MAX)
 		return -EINVAL;
 

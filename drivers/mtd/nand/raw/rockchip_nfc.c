@@ -906,7 +906,7 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 	rknand->nsels = nsels;
 	rknand->timing = nfc->cur_timing;
 
-	ret = ofnode_read_u32_array(node, "reg", cs, nsels);
+	ret = ofnode_reg_read_array(node, "reg", cs, nsels);
 	if (ret < 0) {
 		dev_err(dev, "Could not retrieve reg property\n");
 		return -EINVAL;
@@ -930,10 +930,10 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 	ecc = &chip->ecc;
 	ecc->mode = NAND_ECC_HW_SYNDROME;
 
-	ret = ofnode_read_u32(node, "nand-ecc-strength", &tmp);
+	ret = ofnode_reg_read(node, "nand-ecc-strength", &tmp);
 	ecc->strength = ret ? 0 : tmp;
 
-	ret = ofnode_read_u32(node, "nand-ecc-step-size", &tmp);
+	ret = ofnode_reg_read(node, "nand-ecc-step-size", &tmp);
 	ecc->size = ret ? 0 : tmp;
 
 	mtd = nand_to_mtd(chip);
@@ -969,10 +969,10 @@ static int rk_nfc_nand_chip_init(ofnode node, struct rk_nfc *nfc, int devnum)
 		return ret;
 	}
 
-	ret = ofnode_read_u32(node, "rockchip,boot-blks", &tmp);
+	ret = ofnode_reg_read(node, "rockchip,boot-blks", &tmp);
 	rknand->boot_blks = ret ? 0 : tmp;
 
-	ret = ofnode_read_u32(node, "rockchip,boot-ecc-strength", &tmp);
+	ret = ofnode_reg_read(node, "rockchip,boot-ecc-strength", &tmp);
 	rknand->boot_ecc = ret ? ecc->strength : tmp;
 
 	rknand->metadata_size = NFC_SYS_DATA_SIZE * ecc->steps;

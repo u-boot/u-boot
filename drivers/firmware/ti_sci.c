@@ -2750,7 +2750,7 @@ const struct ti_sci_handle *ti_sci_get_by_phandle(struct udevice *dev,
 	u32 phandle, err;
 	ofnode node;
 
-	err = ofnode_read_u32(dev_ofnode(dev), property, &phandle);
+	err = ofnode_reg_read(dev_ofnode(dev), property, &phandle);
 	if (err)
 		return ERR_PTR(err);
 
@@ -2802,7 +2802,7 @@ static int ti_sci_of_to_info(struct udevice *dev, struct ti_sci_info *info)
 			__func__, ret);
 	}
 
-	info->host_id = dev_read_u32_default(dev, "ti,host-id",
+	info->host_id = dev_reg_read_default(dev, "ti,host-id",
 					     info->desc->default_host_id);
 
 	info->is_secure = dev_read_bool(dev, "ti,secure-host");
@@ -2975,7 +2975,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 	if (!res->desc)
 		return ERR_PTR(-ENOMEM);
 
-	ret = dev_read_u32_array(dev, of_prop, temp, res->sets);
+	ret = dev_reg_read_array(dev, of_prop, temp, res->sets);
 	if (ret)
 		return ERR_PTR(-EINVAL);
 

@@ -152,12 +152,12 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	/* Read base address of the USB IP block */
-	ret = ofnode_read_u32(np, "reg", &port->usb_regs);
+	ret = ofnode_reg_read(np, "reg", &port->usb_regs);
 	if (ret)
 		return ret;
 
 	/* Read base address of the USB PHY IP block */
-	ret = ofnode_read_u32(np, "fsl,usbphy", &phandle);
+	ret = ofnode_reg_read(np, "fsl,usbphy", &phandle);
 	if (ret)
 		return ret;
 
@@ -165,18 +165,18 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	if (!ofnode_valid(phy_node))
 		return -ENODEV;
 
-	ret = ofnode_read_u32(phy_node, "reg", &phy_reg);
+	ret = ofnode_reg_read(phy_node, "reg", &phy_reg);
 	if (ret)
 		return ret;
 
 	port->phy_regs = (struct mxs_usbphy_regs *)phy_reg;
 
 	/* Read base address of the CLK IP block and proper ID */
-	ret = ofnode_read_u32_index(phy_node, "clocks", 0, &phandle);
+	ret = ofnode_reg_read_index(phy_node, "clocks", 0, &phandle);
 	if (ret)
 		return ret;
 
-	ret = ofnode_read_u32_index(phy_node, "clocks", 1, &clk_id);
+	ret = ofnode_reg_read_index(phy_node, "clocks", 1, &clk_id);
 	if (ret)
 		return ret;
 
@@ -184,7 +184,7 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	if (!ofnode_valid(clk_node))
 		return -ENODEV;
 
-	ret = ofnode_read_u32(clk_node, "reg", &clk_reg);
+	ret = ofnode_reg_read(clk_node, "reg", &clk_reg);
 	if (ret)
 		return ret;
 

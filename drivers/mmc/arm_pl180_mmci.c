@@ -463,7 +463,7 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 	cfg->f_max = MMC_CLOCK_MAX;
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	periphid = dev_read_u32_default(dev, "arm,primecell-periphid", 0);
+	periphid = dev_reg_read_default(dev, "arm,primecell-periphid", 0);
 	switch (periphid) {
 	case STM32_MMCI_ID: /* stm32 variant */
 		host->version2 = false;

@@ -120,8 +120,8 @@ static int stm32mp1_ddr_setup(struct udevice *dev)
 		PHY_PARAM(timing)
 	};
 
-	config.info.speed = ofnode_read_u32_default(node, "st,mem-speed", 0);
-	config.info.size = ofnode_read_u32_default(node, "st,mem-size", 0);
+	config.info.speed = ofnode_reg_read_default(node, "st,mem-speed", 0);
+	config.info.size = ofnode_reg_read_default(node, "st,mem-size", 0);
 	config.info.name = ofnode_read_string(node, "st,mem-name");
 	if (!config.info.name) {
 		dev_dbg(dev, "no st,mem-name\n");
@@ -131,7 +131,7 @@ static int stm32mp1_ddr_setup(struct udevice *dev)
 		printf("RAM: %s\n", config.info.name);
 
 	for (idx = 0; idx < ARRAY_SIZE(param); idx++) {
-		ret = ofnode_read_u32_array(node, param[idx].name,
+		ret = ofnode_reg_read_array(node, param[idx].name,
 					 (void *)((u32)&config +
 						  param[idx].offset),
 					 param[idx].size);

@@ -296,7 +296,7 @@ static int socfpga_a10_clk_probe(struct udevice *dev)
 		if (!pplat)
 			return -EINVAL;
 
-		plat->ctl_reg = dev_read_u32_default(dev, "reg", 0x0);
+		plat->ctl_reg = dev_reg_read_default(dev, "reg", 0x0);
 		plat->regs = pplat->regs;
 	}
 
@@ -328,16 +328,16 @@ static int socfpga_a10_of_to_plat(struct udevice *dev)
 
 	plat->type = SOCFPGA_A10_CLK_UNKNOWN_CLK;
 
-	plat->fix_div = dev_read_u32_default(dev, "fixed-divider", 1);
+	plat->fix_div = dev_reg_read_default(dev, "fixed-divider", 1);
 
-	ret = dev_read_u32_array(dev, "div-reg", divreg, ARRAY_SIZE(divreg));
+	ret = dev_reg_read_array(dev, "div-reg", divreg, ARRAY_SIZE(divreg));
 	if (!ret) {
 		plat->div_reg = divreg[0];
 		plat->div_len = divreg[2];
 		plat->div_off = divreg[1];
 	}
 
-	ret = dev_read_u32_array(dev, "clk-gate", gatereg, ARRAY_SIZE(gatereg));
+	ret = dev_reg_read_array(dev, "clk-gate", gatereg, ARRAY_SIZE(gatereg));
 	if (!ret) {
 		plat->gate_reg = gatereg[0];
 		plat->gate_bit = gatereg[1];

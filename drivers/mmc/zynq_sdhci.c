@@ -904,7 +904,7 @@ static void arasan_dt_read_clk_phase(struct udevice *dev, unsigned char timing,
 	 * Read Tap Delay values from DT, if the DT does not contain the
 	 * Tap Values then use the pre-defined values
 	 */
-	if (dev_read_u32_array(dev, prop, &clk_phase[0], 2)) {
+	if (dev_reg_read_array(dev, prop, &clk_phase[0], 2)) {
 		dev_dbg(dev, "Using predefined clock phase for %s = %d %d\n",
 			prop, clk_data->clk_phase_in[timing],
 			clk_data->clk_phase_out[timing]);
@@ -1066,7 +1066,7 @@ static int sdhci_zynqmp_set_dynamic_config(struct arasan_sdhci_priv *priv,
 	}
 
 	ret = zynqmp_pm_set_sd_config(priv->node_id, SD_CONFIG_8BIT,
-				      (dev_read_u32_default(dev, "bus-width", 1) == 8));
+				      (dev_reg_read_default(dev, "bus-width", 1) == 8));
 	if (ret) {
 		dev_err(dev, "SD_CONFIG_8BIT failed\n");
 		return ret;
@@ -1203,11 +1203,11 @@ static int arasan_sdhci_of_to_plat(struct udevice *dev)
 	if (!priv->host->ioaddr)
 		return -EINVAL;
 
-	priv->bank = dev_read_u32_default(dev, "xlnx,mio-bank", 0);
+	priv->bank = dev_reg_read_default(dev, "xlnx,mio-bank", 0);
 	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
 
 	priv->node_id = 0;
-	if (!dev_read_u32_array(dev, "power-domains", pm_info, ARRAY_SIZE(pm_info)))
+	if (!dev_reg_read_array(dev, "power-domains", pm_info, ARRAY_SIZE(pm_info)))
 		priv->node_id = pm_info[1];
 
 	return 0;

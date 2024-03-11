@@ -51,8 +51,8 @@ static int clk_fixed_factor_of_to_plat(struct udevice *dev)
 		if (err)
 			return err;
 
-		ff->div = dev_read_u32_default(dev, "clock-div", 1);
-		ff->mult = dev_read_u32_default(dev, "clock-mult", 1);
+		ff->div = dev_reg_read_default(dev, "clock-div", 1);
+		ff->mult = dev_reg_read_default(dev, "clock-mult", 1);
 	}
 
 	return 0;

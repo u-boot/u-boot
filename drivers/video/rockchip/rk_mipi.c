@@ -123,7 +123,7 @@ int rk_mipi_dsi_enable(struct udevice *dev,
 	timing_node = ofnode_find_subnode(dev_ofnode(dev), "display-timings");
 	node = ofnode_first_subnode(timing_node);
 
-	val = ofnode_read_u32_default(node, "bits-per-pixel", -1);
+	val = ofnode_reg_read_default(node, "bits-per-pixel", -1);
 	switch (val) {
 	case 16:
 		rk_mipi_dsi_write(regs, DPI_COLOR_CODING, DPI_16BIT_CFG_1);

@@ -119,7 +119,7 @@ static int starfive_pcie_get_syscon(struct udevice *dev)
 	}
 
 	/* get syscon register offset */
-	ret = dev_read_u32_array(dev, "starfive,stg-syscon",
+	ret = dev_reg_read_array(dev, "starfive,stg-syscon",
 				 cells, ARRAY_SIZE(cells));
 	if (ret) {
 		dev_err(dev, "Get syscon register err %d\n", ret);

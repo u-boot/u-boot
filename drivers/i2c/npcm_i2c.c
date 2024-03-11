@@ -573,7 +573,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 
 	bus->num = dev->seq_;
 	bus->reg = dev_read_addr_ptr(dev);
-	bus->freq = dev_read_u32_default(dev, "clock-frequency", 100000);
+	bus->freq = dev_reg_read_default(dev, "clock-frequency", 100000);
 	bus->started = false;
 	reg = bus->reg;
 

@@ -68,7 +68,7 @@ static int dra7_reset_probe(struct udevice *dev)
 
 	priv->rstctrl = dev_read_addr(dev);
 	priv->rstst = priv->rstctrl + 0x4;
-	priv->nreset = dev_read_u32_default(dev, "ti,nresets", 1);
+	priv->nreset = dev_reg_read_default(dev, "ti,nresets", 1);
 
 	dev_info(dev, "dra7-reset successfully probed %s\n", dev->name);
 

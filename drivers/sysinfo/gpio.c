@@ -58,7 +58,7 @@ static int sysinfo_gpio_get_str(struct udevice *dev, int id, size_t size, char *
 		u32 revision;
 
 		for (i = 0; ; i++) {
-			ret = dev_read_u32_index(dev, "revisions", i,
+			ret = dev_reg_read_index(dev, "revisions", i,
 						 &revision);
 			if (ret) {
 				if (ret != -EOVERFLOW)

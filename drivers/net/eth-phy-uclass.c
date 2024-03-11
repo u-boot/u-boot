@@ -120,7 +120,7 @@ int eth_phy_get_addr(struct udevice *dev)
 		return -ENODEV;
 	}
 
-	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+	reg = ofnode_reg_read_default(phandle_args.node, "reg", 0);
 
 	return reg;
 }
@@ -141,15 +141,15 @@ static int eth_phy_of_to_plat(struct udevice *dev)
 	if (ret && ret != -ENOENT)
 		return ret;
 
-	uc_priv->reset_assert_delay = dev_read_u32_default(dev, "reset-assert-us", 0);
-	uc_priv->reset_deassert_delay = dev_read_u32_default(dev, "reset-deassert-us", 0);
+	uc_priv->reset_assert_delay = dev_reg_read_default(dev, "reset-assert-us", 0);
+	uc_priv->reset_deassert_delay = dev_reg_read_default(dev, "reset-deassert-us", 0);
 
 	/* These are used by some DTs, try these as a fallback. */
 	if (!uc_priv->reset_assert_delay && !uc_priv->reset_deassert_delay) {
 		uc_priv->reset_assert_delay =
-			dev_read_u32_default(dev, "reset-delay-us", 0);
+			dev_reg_read_default(dev, "reset-delay-us", 0);
 		uc_priv->reset_deassert_delay =
-			dev_read_u32_default(dev, "reset-post-delay-us", 0);
+			dev_reg_read_default(dev, "reset-post-delay-us", 0);
 	}
 
 	return 0;

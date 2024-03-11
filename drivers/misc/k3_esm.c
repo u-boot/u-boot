@@ -97,7 +97,7 @@ static int k3_esm_probe(struct udevice *dev)
 	if (!pins)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(dev, "ti,esm-pins", pins, num_pins);
+	ret = dev_reg_read_array(dev, "ti,esm-pins", pins, num_pins);
 	if (ret < 0) {
 		dev_err(dev, "failed to read ti,esm-pins property: %d\n",
 			ret);

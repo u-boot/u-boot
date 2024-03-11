@@ -561,10 +561,10 @@ static int riic_probe(struct udevice *dev)
 
 	priv->base = dev_read_addr_ptr(dev);
 
-	ret = dev_read_u32(dev, "i2c-scl-rising-time-ns", &priv->scl_rise_ns);
+	ret = dev_reg_read(dev, "i2c-scl-rising-time-ns", &priv->scl_rise_ns);
 	if (ret)
 		priv->flags |= RIIC_FLAG_DEFAULT_SCL_RISE_TIME;
-	ret = dev_read_u32(dev, "i2c-scl-falling-time-ns", &priv->scl_fall_ns);
+	ret = dev_reg_read(dev, "i2c-scl-falling-time-ns", &priv->scl_fall_ns);
 	if (ret)
 		priv->flags |= RIIC_FLAG_DEFAULT_SCL_FALL_TIME;
 

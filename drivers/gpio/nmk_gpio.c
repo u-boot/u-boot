@@ -94,7 +94,7 @@ static int nmk_gpio_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
-	ret = dev_read_u32(dev, "gpio-bank", &bank);
+	ret = dev_reg_read(dev, "gpio-bank", &bank);
 	if (ret < 0) {
 		printf("nmk_gpio(%s): Failed to read gpio-bank\n", dev->name);
 		return ret;

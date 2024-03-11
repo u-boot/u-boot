@@ -651,7 +651,7 @@ static int npcm750_eth_probe(struct udevice *dev)
 	int ret;
 
 	memset(priv, 0, sizeof(struct npcm750_eth_dev));
-	ret = dev_read_u32(dev, "id", &priv->idx);
+	ret = dev_reg_read(dev, "id", &priv->idx);
 	if (ret) {
 		printf("failed to get id\n");
 		return -EINVAL;

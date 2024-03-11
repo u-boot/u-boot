@@ -154,7 +154,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 
 	out_be32(&im->ddr.csbnds[cs].csbnds, (msize - 1) >> 24);
 
-	auto_precharge = ofnode_read_u32_default(node, "auto_precharge", 0);
+	auto_precharge = ofnode_reg_read_default(node, "auto_precharge", 0);
 	switch (auto_precharge) {
 	case AUTO_PRECHARGE_ENABLE:
 	case AUTO_PRECHARGE_DISABLE:
@@ -165,7 +165,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		return -EINVAL;
 	}
 
-	odt_rd_cfg = ofnode_read_u32_default(node, "odt_rd_cfg", 0);
+	odt_rd_cfg = ofnode_reg_read_default(node, "odt_rd_cfg", 0);
 	switch (odt_rd_cfg) {
 	case ODT_RD_ONLY_OTHER_DIMM:
 		if (!IS_ENABLED(CONFIG_ARCH_MPC8360) &&
@@ -196,7 +196,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		return -EINVAL;
 	}
 
-	odt_wr_cfg = ofnode_read_u32_default(node, "odt_wr_cfg", 0);
+	odt_wr_cfg = ofnode_reg_read_default(node, "odt_wr_cfg", 0);
 	switch (odt_wr_cfg) {
 	case ODT_WR_ONLY_OTHER_DIMM:
 		if (!IS_ENABLED(CONFIG_ARCH_MPC8360) &&
@@ -227,7 +227,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		return -EINVAL;
 	}
 
-	bank_bits = ofnode_read_u32_default(node, "bank_bits", 0);
+	bank_bits = ofnode_reg_read_default(node, "bank_bits", 0);
 	switch (bank_bits) {
 	case 2:
 		bank_bits_mask = BANK_BITS_2;
@@ -241,7 +241,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		return -EINVAL;
 	}
 
-	row_bits = ofnode_read_u32_default(node, "row_bits", 0);
+	row_bits = ofnode_reg_read_default(node, "row_bits", 0);
 	switch (row_bits) {
 	case 12:
 		row_bits_mask = ROW_BITS_12;
@@ -258,7 +258,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		return -EINVAL;
 	}
 
-	col_bits = ofnode_read_u32_default(node, "col_bits", 0);
+	col_bits = ofnode_reg_read_default(node, "col_bits", 0);
 	switch (col_bits) {
 	case 8:
 		col_bits_mask = COL_BITS_8;
@@ -361,14 +361,14 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	out_be32(&im->ddr.cs_config[0], 0);
 	out_be32(&im->ddr.cs_config[1], 0);
 
-	dso = dev_read_u32_default(dev, "driver_software_override", 0);
+	dso = dev_reg_read_default(dev, "driver_software_override", 0);
 	if (dso > 1) {
 		debug("%s: driver_software_override value %d invalid.\n",
 		      dev->name, dso);
 		return -EINVAL;
 	}
 
-	pz_override = dev_read_u32_default(dev, "p_impedance_override", 0);
+	pz_override = dev_reg_read_default(dev, "p_impedance_override", 0);
 
 	switch (pz_override) {
 	case DSO_P_IMPEDANCE_HIGHEST_Z:
@@ -383,7 +383,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	nz_override = dev_read_u32_default(dev, "n_impedance_override", 0);
+	nz_override = dev_reg_read_default(dev, "n_impedance_override", 0);
 
 	switch (nz_override) {
 	case DSO_N_IMPEDANCE_HIGHEST_Z:
@@ -398,28 +398,28 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	odt_term = dev_read_u32_default(dev, "odt_termination_value", 0);
+	odt_term = dev_reg_read_default(dev, "odt_termination_value", 0);
 	if (odt_term > 1) {
 		debug("%s: odt_termination_value value %d invalid.\n",
 		      dev->name, odt_term);
 		return -EINVAL;
 	}
 
-	ddr_type = dev_read_u32_default(dev, "ddr_type", 0);
+	ddr_type = dev_reg_read_default(dev, "ddr_type", 0);
 	if (ddr_type > 1) {
 		debug("%s: ddr_type value %d invalid.\n",
 		      dev->name, ddr_type);
 		return -EINVAL;
 	}
 
-	mvref_sel = dev_read_u32_default(dev, "mvref_sel", 0);
+	mvref_sel = dev_reg_read_default(dev, "mvref_sel", 0);
 	if (mvref_sel > 1) {
 		debug("%s: mvref_sel value %d invalid.\n",
 		      dev->name, mvref_sel);
 		return -EINVAL;
 	}
 
-	m_odr = dev_read_u32_default(dev, "m_odr", 0);
+	m_odr = dev_reg_read_default(dev, "m_odr", 0);
 	if (mvref_sel > 1) {
 		debug("%s: m_odr value %d invalid.\n",
 		      dev->name, m_odr);
@@ -442,7 +442,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		u32 cs, addr, size;
 
 		/* CS, map address, size -> three values */
-		ofnode_read_u32_array(subnode, "reg", val, 3);
+		ofnode_reg_read_array(subnode, "reg", val, 3);
 
 		cs = val[0];
 		addr = val[1];
@@ -472,7 +472,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	 *			     configuration
 	 */
 
-	clock_adjust = dev_read_u32_default(dev, "clock_adjust", 0);
+	clock_adjust = dev_reg_read_default(dev, "clock_adjust", 0);
 	switch (clock_adjust) {
 	case CLOCK_ADJUST_025:
 	case CLOCK_ADJUST_05:
@@ -488,7 +488,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	/* Configure the DDR SDRAM Clock Control register */
 	out_be32(&im->ddr.sdram_clk_cntl, clock_adjust);
 
-	ext_refresh_rec = dev_read_u32_default(dev, "ext_refresh_rec", 0);
+	ext_refresh_rec = dev_reg_read_default(dev, "ext_refresh_rec", 0);
 	switch (ext_refresh_rec) {
 	case 0:
 		ext_refresh_rec_mask = 0 << TIMING_CFG3_EXT_REFREC_SHIFT;
@@ -523,28 +523,28 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	/* Configure the DDR SDRAM Timing Configuration 3 register */
 	out_be32(&im->ddr.timing_cfg_3, ext_refresh_rec_mask);
 
-	read_to_write = dev_read_u32_default(dev, "read_to_write", 0);
+	read_to_write = dev_reg_read_default(dev, "read_to_write", 0);
 	if (read_to_write > 3) {
 		debug("%s: read_to_write value %d invalid.\n",
 		      dev->name, read_to_write);
 		return -EINVAL;
 	}
 
-	write_to_read = dev_read_u32_default(dev, "write_to_read", 0);
+	write_to_read = dev_reg_read_default(dev, "write_to_read", 0);
 	if (write_to_read > 3) {
 		debug("%s: write_to_read value %d invalid.\n",
 		      dev->name, write_to_read);
 		return -EINVAL;
 	}
 
-	read_to_read = dev_read_u32_default(dev, "read_to_read", 0);
+	read_to_read = dev_reg_read_default(dev, "read_to_read", 0);
 	if (read_to_read > 3) {
 		debug("%s: read_to_read value %d invalid.\n",
 		      dev->name, read_to_read);
 		return -EINVAL;
 	}
 
-	write_to_write = dev_read_u32_default(dev, "write_to_write", 0);
+	write_to_write = dev_reg_read_default(dev, "write_to_write", 0);
 	if (write_to_write > 3) {
 		debug("%s: write_to_write value %d invalid.\n",
 		      dev->name, write_to_write);
@@ -552,7 +552,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	active_powerdown_exit =
-		dev_read_u32_default(dev, "active_powerdown_exit", 0);
+		dev_reg_read_default(dev, "active_powerdown_exit", 0);
 	if (active_powerdown_exit > 7) {
 		debug("%s: active_powerdown_exit value %d invalid.\n",
 		      dev->name, active_powerdown_exit);
@@ -560,21 +560,21 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	precharge_powerdown_exit =
-		dev_read_u32_default(dev, "precharge_powerdown_exit", 0);
+		dev_reg_read_default(dev, "precharge_powerdown_exit", 0);
 	if (precharge_powerdown_exit > 7) {
 		debug("%s: precharge_powerdown_exit value %d invalid.\n",
 		      dev->name, precharge_powerdown_exit);
 		return -EINVAL;
 	}
 
-	odt_powerdown_exit = dev_read_u32_default(dev, "odt_powerdown_exit", 0);
+	odt_powerdown_exit = dev_reg_read_default(dev, "odt_powerdown_exit", 0);
 	if (odt_powerdown_exit > 15) {
 		debug("%s: odt_powerdown_exit value %d invalid.\n",
 		      dev->name, odt_powerdown_exit);
 		return -EINVAL;
 	}
 
-	mode_reg_set_cycle = dev_read_u32_default(dev, "mode_reg_set_cycle", 0);
+	mode_reg_set_cycle = dev_reg_read_default(dev, "mode_reg_set_cycle", 0);
 	if (mode_reg_set_cycle > 15) {
 		debug("%s: mode_reg_set_cycle value %d invalid.\n",
 		      dev->name, mode_reg_set_cycle);
@@ -593,7 +593,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	out_be32(&im->ddr.timing_cfg_0, timing_cfg_0);
 
 	precharge_to_activate =
-		dev_read_u32_default(dev, "precharge_to_activate", 0);
+		dev_reg_read_default(dev, "precharge_to_activate", 0);
 	if (precharge_to_activate > 7 || precharge_to_activate == 0) {
 		debug("%s: precharge_to_activate value %d invalid.\n",
 		      dev->name, precharge_to_activate);
@@ -601,7 +601,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	activate_to_precharge =
-		dev_read_u32_default(dev, "activate_to_precharge", 0);
+		dev_reg_read_default(dev, "activate_to_precharge", 0);
 	if (activate_to_precharge > 19) {
 		debug("%s: activate_to_precharge value %d invalid.\n",
 		      dev->name, activate_to_precharge);
@@ -609,14 +609,14 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	activate_to_readwrite =
-		dev_read_u32_default(dev, "activate_to_readwrite", 0);
+		dev_reg_read_default(dev, "activate_to_readwrite", 0);
 	if (activate_to_readwrite > 7 || activate_to_readwrite == 0) {
 		debug("%s: activate_to_readwrite value %d invalid.\n",
 		      dev->name, activate_to_readwrite);
 		return -EINVAL;
 	}
 
-	mcas_latency = dev_read_u32_default(dev, "mcas_latency", 0);
+	mcas_latency = dev_reg_read_default(dev, "mcas_latency", 0);
 	switch (mcas_latency) {
 	case CASLAT_20:
 	case CASLAT_25:
@@ -644,7 +644,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	refresh_recovery = dev_read_u32_default(dev, "refresh_recovery", 0);
+	refresh_recovery = dev_reg_read_default(dev, "refresh_recovery", 0);
 	if (refresh_recovery > 23 || refresh_recovery < 8) {
 		debug("%s: refresh_recovery value %d invalid.\n",
 		      dev->name, refresh_recovery);
@@ -652,7 +652,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	last_data_to_precharge =
-		dev_read_u32_default(dev, "last_data_to_precharge", 0);
+		dev_reg_read_default(dev, "last_data_to_precharge", 0);
 	if (last_data_to_precharge > 7 || last_data_to_precharge == 0) {
 		debug("%s: last_data_to_precharge value %d invalid.\n",
 		      dev->name, last_data_to_precharge);
@@ -660,7 +660,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	activate_to_activate =
-		dev_read_u32_default(dev, "activate_to_activate", 0);
+		dev_reg_read_default(dev, "activate_to_activate", 0);
 	if (activate_to_activate > 7 || activate_to_activate == 0) {
 		debug("%s: activate_to_activate value %d invalid.\n",
 		      dev->name, activate_to_activate);
@@ -668,7 +668,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	last_write_data_to_read =
-		dev_read_u32_default(dev, "last_write_data_to_read", 0);
+		dev_reg_read_default(dev, "last_write_data_to_read", 0);
 	if (last_write_data_to_read > 7 || last_write_data_to_read == 0) {
 		debug("%s: last_write_data_to_read value %d invalid.\n",
 		      dev->name, last_write_data_to_read);
@@ -689,7 +689,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	/* Configure the DDR SDRAM Timing Configuration 1 register */
 	out_be32(&im->ddr.timing_cfg_1, timing_cfg_1);
 
-	additive_latency = dev_read_u32_default(dev, "additive_latency", 0);
+	additive_latency = dev_reg_read_default(dev, "additive_latency", 0);
 	if (additive_latency > 5) {
 		debug("%s: additive_latency value %d invalid.\n",
 		      dev->name, additive_latency);
@@ -697,7 +697,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	mcas_to_preamble_override =
-		dev_read_u32_default(dev, "mcas_to_preamble_override", 0);
+		dev_reg_read_default(dev, "mcas_to_preamble_override", 0);
 	switch (mcas_to_preamble_override) {
 	case READ_LAT_PLUS_1:
 	case READ_LAT:
@@ -726,14 +726,14 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	write_latency = dev_read_u32_default(dev, "write_latency", 0);
+	write_latency = dev_reg_read_default(dev, "write_latency", 0);
 	if (write_latency > 7 || write_latency == 0) {
 		debug("%s: write_latency value %d invalid.\n",
 		      dev->name, write_latency);
 		return -EINVAL;
 	}
 
-	read_to_precharge = dev_read_u32_default(dev, "read_to_precharge", 0);
+	read_to_precharge = dev_reg_read_default(dev, "read_to_precharge", 0);
 	if (read_to_precharge > 4 || read_to_precharge == 0) {
 		debug("%s: read_to_precharge value %d invalid.\n",
 		      dev->name, read_to_precharge);
@@ -741,7 +741,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	write_cmd_to_write_data =
-		dev_read_u32_default(dev, "write_cmd_to_write_data", 0);
+		dev_reg_read_default(dev, "write_cmd_to_write_data", 0);
 	switch (write_cmd_to_write_data) {
 	case CLOCK_DELAY_0:
 	case CLOCK_DELAY_1_4:
@@ -758,7 +758,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	minimum_cke_pulse_width =
-		dev_read_u32_default(dev, "minimum_cke_pulse_width", 0);
+		dev_reg_read_default(dev, "minimum_cke_pulse_width", 0);
 	if (minimum_cke_pulse_width > 4 || minimum_cke_pulse_width == 0) {
 		debug("%s: minimum_cke_pulse_width value %d invalid.\n",
 		      dev->name, minimum_cke_pulse_width);
@@ -766,7 +766,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	four_activates_window =
-		dev_read_u32_default(dev, "four_activates_window", 0);
+		dev_reg_read_default(dev, "four_activates_window", 0);
 	if (four_activates_window > 20 || four_activates_window == 0) {
 		debug("%s: four_activates_window value %d invalid.\n",
 		      dev->name, four_activates_window);
@@ -783,7 +783,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 
 	out_be32(&im->ddr.timing_cfg_2, timing_cfg_2);
 
-	self_refresh = dev_read_u32_default(dev, "self_refresh", 0);
+	self_refresh = dev_reg_read_default(dev, "self_refresh", 0);
 	switch (self_refresh) {
 	case SREN_DISABLE:
 	case SREN_ENABLE:
@@ -794,7 +794,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ecc = dev_read_u32_default(dev, "ecc", 0);
+	ecc = dev_reg_read_default(dev, "ecc", 0);
 	switch (ecc) {
 	case ECC_DISABLE:
 	case ECC_ENABLE:
@@ -804,7 +804,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	registered_dram = dev_read_u32_default(dev, "registered_dram", 0);
+	registered_dram = dev_reg_read_default(dev, "registered_dram", 0);
 	switch (registered_dram) {
 	case RD_DISABLE:
 	case RD_ENABLE:
@@ -815,7 +815,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	sdram_type = dev_read_u32_default(dev, "sdram_type", 0);
+	sdram_type = dev_reg_read_default(dev, "sdram_type", 0);
 	switch (sdram_type) {
 	case TYPE_DDR1:
 	case TYPE_DDR2:
@@ -827,7 +827,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	dynamic_power_management =
-		dev_read_u32_default(dev, "dynamic_power_management", 0);
+		dev_reg_read_default(dev, "dynamic_power_management", 0);
 	switch (dynamic_power_management) {
 	case DYN_PWR_DISABLE:
 	case DYN_PWR_ENABLE:
@@ -838,7 +838,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	databus_width = dev_read_u32_default(dev, "databus_width", 0);
+	databus_width = dev_reg_read_default(dev, "databus_width", 0);
 	switch (databus_width) {
 	case DATA_BUS_WIDTH_16:
 	case DATA_BUS_WIDTH_32:
@@ -849,7 +849,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	nc_auto_precharge = dev_read_u32_default(dev, "nc_auto_precharge", 0);
+	nc_auto_precharge = dev_reg_read_default(dev, "nc_auto_precharge", 0);
 	switch (nc_auto_precharge) {
 	case NCAP_DISABLE:
 	case NCAP_ENABLE:
@@ -860,7 +860,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	timing_2t = dev_read_u32_default(dev, "timing_2t", 0);
+	timing_2t = dev_reg_read_default(dev, "timing_2t", 0);
 	switch (timing_2t) {
 	case TIMING_1T:
 	case TIMING_2T:
@@ -872,7 +872,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	bank_interleaving_ctrl =
-		dev_read_u32_default(dev, "bank_interleaving_ctrl", 0);
+		dev_reg_read_default(dev, "bank_interleaving_ctrl", 0);
 	switch (bank_interleaving_ctrl) {
 	case INTERLEAVE_NONE:
 	case INTERLEAVE_1_AND_2:
@@ -883,7 +883,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	precharge_bit_8 = dev_read_u32_default(dev, "precharge_bit_8", 0);
+	precharge_bit_8 = dev_reg_read_default(dev, "precharge_bit_8", 0);
 	switch (precharge_bit_8) {
 	case PRECHARGE_MA_10:
 	case PRECHARGE_MA_8:
@@ -894,7 +894,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	half_strength = dev_read_u32_default(dev, "half_strength", 0);
+	half_strength = dev_reg_read_default(dev, "half_strength", 0);
 	switch (half_strength) {
 	case STRENGTH_FULL:
 	case STRENGTH_HALF:
@@ -906,7 +906,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 	}
 
 	bypass_initialization =
-		dev_read_u32_default(dev, "bypass_initialization", 0);
+		dev_reg_read_default(dev, "bypass_initialization", 0);
 	switch (bypass_initialization) {
 	case INITIALIZATION_DONT_BYPASS:
 	case INITIALIZATION_BYPASS:
@@ -932,7 +932,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 
 	out_be32(&im->ddr.sdram_cfg, sdram_cfg);
 
-	force_self_refresh = dev_read_u32_default(dev, "force_self_refresh", 0);
+	force_self_refresh = dev_reg_read_default(dev, "force_self_refresh", 0);
 	switch (force_self_refresh) {
 	case MODE_NORMAL:
 	case MODE_REFRESH:
@@ -943,7 +943,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	dll_reset = dev_read_u32_default(dev, "dll_reset", 0);
+	dll_reset = dev_reg_read_default(dev, "dll_reset", 0);
 	switch (dll_reset) {
 	case DLL_RESET_ENABLE:
 	case DLL_RESET_DISABLE:
@@ -954,7 +954,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	dqs_config = dev_read_u32_default(dev, "dqs_config", 0);
+	dqs_config = dev_reg_read_default(dev, "dqs_config", 0);
 	switch (dqs_config) {
 	case DQS_TRUE:
 		break;
@@ -964,7 +964,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	odt_config = dev_read_u32_default(dev, "odt_config", 0);
+	odt_config = dev_reg_read_default(dev, "odt_config", 0);
 	switch (odt_config) {
 	case ODT_ASSERT_NEVER:
 	case ODT_ASSERT_WRITES:
@@ -977,7 +977,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	posted_refreshes = dev_read_u32_default(dev, "posted_refreshes", 0);
+	posted_refreshes = dev_reg_read_default(dev, "posted_refreshes", 0);
 	if (posted_refreshes > 8 || posted_refreshes == 0) {
 		debug("%s: posted_refreshes value %d invalid.\n",
 		      dev->name, posted_refreshes);
@@ -992,14 +992,14 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 
 	out_be32(&im->ddr.sdram_cfg2, sdram_cfg2);
 
-	sdmode = dev_read_u32_default(dev, "sdmode", 0);
+	sdmode = dev_reg_read_default(dev, "sdmode", 0);
 	if (sdmode > 0xFFFF) {
 		debug("%s: sdmode value %d invalid.\n",
 		      dev->name, sdmode);
 		return -EINVAL;
 	}
 
-	esdmode = dev_read_u32_default(dev, "esdmode", 0);
+	esdmode = dev_reg_read_default(dev, "esdmode", 0);
 	if (esdmode > 0xFFFF) {
 		debug("%s: esdmode value %d invalid.\n", dev->name, esdmode);
 		return -EINVAL;
@@ -1010,13 +1010,13 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 
 	out_be32(&im->ddr.sdram_mode, sdram_mode);
 
-	esdmode2 = dev_read_u32_default(dev, "esdmode2", 0);
+	esdmode2 = dev_reg_read_default(dev, "esdmode2", 0);
 	if (esdmode2 > 0xFFFF) {
 		debug("%s: esdmode2 value %d invalid.\n", dev->name, esdmode2);
 		return -EINVAL;
 	}
 
-	esdmode3 = dev_read_u32_default(dev, "esdmode3", 0);
+	esdmode3 = dev_reg_read_default(dev, "esdmode3", 0);
 	if (esdmode3 > 0xFFFF) {
 		debug("%s: esdmode3 value %d invalid.\n", dev->name, esdmode3);
 		return -EINVAL;
@@ -1027,14 +1027,14 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 
 	out_be32(&im->ddr.sdram_mode2, sdram_mode2);
 
-	refresh_interval = dev_read_u32_default(dev, "refresh_interval", 0);
+	refresh_interval = dev_reg_read_default(dev, "refresh_interval", 0);
 	if (refresh_interval > 0xFFFF) {
 		debug("%s: refresh_interval value %d invalid.\n",
 		      dev->name, refresh_interval);
 		return -EINVAL;
 	}
 
-	precharge_interval = dev_read_u32_default(dev, "precharge_interval", 0);
+	precharge_interval = dev_reg_read_default(dev, "precharge_interval", 0);
 	if (precharge_interval > 0x3FFF) {
 		debug("%s: precharge_interval value %d invalid.\n",
 		      dev->name, precharge_interval);
@@ -1056,7 +1056,7 @@ static int mpc83xx_sdram_probe(struct udevice *dev)
 		u32 addr, size;
 
 		/* CS, map address, size -> three values */
-		ofnode_read_u32_array(subnode, "reg", val, 3);
+		ofnode_reg_read_array(subnode, "reg", val, 3);
 
 		addr = val[1];
 		size = val[2];

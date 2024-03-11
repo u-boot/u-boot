@@ -442,7 +442,7 @@ static void stm32_usbphyc_tuning(struct udevice *dev, ofnode node, u32 index)
 	/* Backup OTP compensation code */
 	otpcomp = FIELD_GET(OTPCOMP, readl(usbphyc->base + reg));
 
-	ret = ofnode_read_u32(node, "st,current-boost-microamp", &val);
+	ret = ofnode_reg_read(node, "st,current-boost-microamp", &val);
 	if (!ret && (val == BOOST_1000_UA || val == BOOST_2000_UA)) {
 		val = (val == BOOST_2000_UA) ? 1 : 0;
 		tune |= INCURREN | FIELD_PREP(INCURRINT, val);
@@ -456,7 +456,7 @@ static void stm32_usbphyc_tuning(struct udevice *dev, ofnode node, u32 index)
 	if (ofnode_read_bool(node, "st,decrease-hs-slew-rate"))
 		tune |= HSDRVSLEW;
 
-	ret = ofnode_read_u32(node, "st,tune-hs-dc-level", &val);
+	ret = ofnode_reg_read(node, "st,tune-hs-dc-level", &val);
 	if (!ret && val < DC_MAX) {
 		if (val == DC_MINUS_5_TO_7_MV) {
 			tune |= HSDRVDCCUR;
@@ -474,19 +474,19 @@ static void stm32_usbphyc_tuning(struct udevice *dev, ofnode node, u32 index)
 	if (ofnode_read_bool(node, "st,enable-hs-rftime-reduction"))
 		tune |= HSDRVRFRED;
 
-	ret = ofnode_read_u32(node, "st,trim-hs-current", &val);
+	ret = ofnode_reg_read(node, "st,trim-hs-current", &val);
 	if (!ret && val < CUR_MAX)
 		tune |= FIELD_PREP(HSDRVCHKITRM, val);
 	else if (ret != -EINVAL)
 		dev_warn(dev, "phy%d: invalid st,trim-hs-current value\n", index);
 
-	ret = ofnode_read_u32(node, "st,trim-hs-impedance", &val);
+	ret = ofnode_reg_read(node, "st,trim-hs-impedance", &val);
 	if (!ret && val < IMP_MAX)
 		tune |= FIELD_PREP(HSDRVCHKZTRM, val);
 	else if (ret != -EINVAL)
 		dev_warn(dev, "phy%d: invalid trim-hs-impedance value\n", index);
 
-	ret = ofnode_read_u32(node, "st,tune-squelch-level", &val);
+	ret = ofnode_reg_read(node, "st,tune-squelch-level", &val);
 	if (!ret && val < SQLCH_MAX)
 		tune |= FIELD_PREP(SQLCHCTL, val);
 	else if (ret != -EINVAL)
@@ -495,7 +495,7 @@ static void stm32_usbphyc_tuning(struct udevice *dev, ofnode node, u32 index)
 	if (ofnode_read_bool(node, "st,enable-hs-rx-gain-eq"))
 		tune |= HDRXGNEQEN;
 
-	ret = ofnode_read_u32(node, "st,tune-hs-rx-offset", &val);
+	ret = ofnode_reg_read(node, "st,tune-hs-rx-offset", &val);
 	if (!ret && val < RX_OFFSET_MAX)
 		tune |= FIELD_PREP(HSRXOFF, val);
 	else if (ret != -EINVAL)
@@ -582,7 +582,7 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 		fdt_addr_t phy_id;
 		struct stm32_usbphyc_phy *usbphyc_phy;
 
-		phy_id = ofnode_read_u32_default(node, "reg", FDT_ADDR_T_NONE);
+		phy_id = ofnode_reg_read_default(node, "reg", FDT_ADDR_T_NONE);
 		if (phy_id >= MAX_PHYS) {
 			dev_err(dev, "invalid reg value %llx for %s\n",
 				(fdt64_t)phy_id, ofnode_get_name(node));

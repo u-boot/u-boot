@@ -626,13 +626,13 @@ static int cdns_sierra_get_optional(struct cdns_sierra_inst *inst,
 {
 	u32 phy_type;
 
-	if (ofnode_read_u32(child, "reg", &inst->mlane))
+	if (ofnode_reg_read(child, "reg", &inst->mlane))
 		return -EINVAL;
 
-	if (ofnode_read_u32(child, "cdns,num-lanes", &inst->num_lanes))
+	if (ofnode_reg_read(child, "cdns,num-lanes", &inst->num_lanes))
 		return -EINVAL;
 
-	if (ofnode_read_u32(child, "cdns,phy-type", &phy_type))
+	if (ofnode_reg_read(child, "cdns,phy-type", &phy_type))
 		return -EINVAL;
 
 	switch (phy_type) {
@@ -650,7 +650,7 @@ static int cdns_sierra_get_optional(struct cdns_sierra_inst *inst,
 	}
 
 	inst->ssc_mode = EXTERNAL_SSC;
-	ofnode_read_u32(child, "cdns,ssc-mode", &inst->ssc_mode);
+	ofnode_reg_read(child, "cdns,ssc-mode", &inst->ssc_mode);
 
 	return 0;
 }

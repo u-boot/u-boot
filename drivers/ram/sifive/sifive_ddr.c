@@ -240,7 +240,7 @@ static int sifive_ddr_setup(struct udevice *dev)
 	int ret, i;
 	u32 physet;
 
-	ret = dev_read_u32_array(dev, "sifive,ddr-params",
+	ret = dev_reg_read_array(dev, "sifive,ddr-params",
 				 (u32 *)&plat->ddr_params,
 				 sizeof(plat->ddr_params) / sizeof(u32));
 	if (ret) {
@@ -351,7 +351,7 @@ static int sifive_ddr_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dev_read_u32(dev, "clock-frequency", &clock);
+	ret = dev_reg_read(dev, "clock-frequency", &clock);
 	if (ret) {
 		debug("clock-frequency not found in dt %d\n", ret);
 		return ret;

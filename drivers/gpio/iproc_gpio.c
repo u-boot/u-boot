@@ -231,7 +231,7 @@ static int iproc_gpio_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32(dev, "ngpios", &plat->ngpios);
+	ret = dev_reg_read(dev, "ngpios", &plat->ngpios);
 	if (ret < 0) {
 		dev_err(dev, "%s: Failed to get ngpios\n", __func__);
 		return ret;

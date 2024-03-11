@@ -362,7 +362,7 @@ int pl01x_serial_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	plat->clock = dev_read_u32_default(dev, "clock", CFG_PL011_CLOCK);
+	plat->clock = dev_reg_read_default(dev, "clock", CFG_PL011_CLOCK);
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (!ret) {
 		ret = clk_enable(&clk);

@@ -118,10 +118,10 @@ static int sandbox_sdl_bind(struct udevice *dev)
 	enum video_log2_bpp l2bpp;
 	int ret = 0;
 
-	plat->xres = dev_read_u32_default(dev, "xres", LCD_MAX_WIDTH);
-	plat->yres = dev_read_u32_default(dev, "yres", LCD_MAX_HEIGHT);
-	l2bpp = dev_read_u32_default(dev, "log2-depth", VIDEO_BPP16);
-	plat->rot = dev_read_u32_default(dev, "rotate", 0);
+	plat->xres = dev_reg_read_default(dev, "xres", LCD_MAX_WIDTH);
+	plat->yres = dev_reg_read_default(dev, "yres", LCD_MAX_HEIGHT);
+	l2bpp = dev_reg_read_default(dev, "log2-depth", VIDEO_BPP16);
+	plat->rot = dev_reg_read_default(dev, "rotate", 0);
 
 	set_bpp(dev, l2bpp);
 

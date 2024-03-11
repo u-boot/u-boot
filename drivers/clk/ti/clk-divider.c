@@ -295,7 +295,7 @@ static int clk_ti_divider_of_to_plat(struct udevice *dev)
 		return err;
 	}
 
-	priv->shift = dev_read_u32_default(dev, "ti,bit-shift", 0);
+	priv->shift = dev_reg_read_default(dev, "ti,bit-shift", 0);
 	priv->latch = dev_read_s32_default(dev, "ti,latch-bit", -EINVAL);
 	if (dev_read_bool(dev, "ti,index-starts-at-one"))
 		priv->div_flags |= CLK_DIVIDER_ONE_BASED;
@@ -311,7 +311,7 @@ static int clk_ti_divider_of_to_plat(struct udevice *dev)
 
 		/* Determine required size for divider table */
 		for (i = 0, valid_div = 0; i < div_num; i++) {
-			dev_read_u32_index(dev, "ti,dividers", i, &val);
+			dev_reg_read_index(dev, "ti,dividers", i, &val);
 			if (val)
 				valid_div++;
 		}
@@ -326,7 +326,7 @@ static int clk_ti_divider_of_to_plat(struct udevice *dev)
 			return -ENOMEM;
 
 		for (i = 0, valid_div = 0; i < div_num; i++) {
-			dev_read_u32_index(dev, "ti,dividers", i, &val);
+			dev_reg_read_index(dev, "ti,dividers", i, &val);
 			if (!val)
 				continue;
 
@@ -343,8 +343,8 @@ static int clk_ti_divider_of_to_plat(struct udevice *dev)
 		max_val = max_div;
 	} else {
 		/* Divider table not provided, determine min/max divs */
-		min_div = dev_read_u32_default(dev, "ti,min-div", 1);
-		if (dev_read_u32(dev, "ti,max-div", &max_div)) {
+		min_div = dev_reg_read_default(dev, "ti,min-div", 1);
+		if (dev_reg_read(dev, "ti,max-div", &max_div)) {
 			dev_err(dev, "missing 'max-div' property\n");
 			return -EFAULT;
 		}

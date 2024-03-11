@@ -579,7 +579,7 @@ static int single_of_to_plat(struct udevice *dev)
 	struct single_pdata *pdata = dev_get_plat(dev);
 	int ret;
 
-	ret = dev_read_u32(dev, "pinctrl-single,register-width", &pdata->width);
+	ret = dev_reg_read(dev, "pinctrl-single,register-width", &pdata->width);
 	if (ret) {
 		dev_err(dev, "missing register width\n");
 		return ret;
@@ -604,7 +604,7 @@ static int single_of_to_plat(struct udevice *dev)
 	pdata->offset = size - pdata->width / BITS_PER_BYTE;
 	pdata->base = addr;
 
-	ret = dev_read_u32(dev, "pinctrl-single,function-mask", &pdata->mask);
+	ret = dev_reg_read(dev, "pinctrl-single,function-mask", &pdata->mask);
 	if (ret) {
 		pdata->mask = 0;
 		dev_warn(dev, "missing function register mask\n");
@@ -615,7 +615,7 @@ static int single_of_to_plat(struct udevice *dev)
 	/* If no pinctrl-cells is present, default to old style of 2 cells with
 	 * bits per mux and 1 cell otherwise.
 	 */
-	ret = dev_read_u32(dev, "#pinctrl-cells", &pdata->args_count);
+	ret = dev_reg_read(dev, "#pinctrl-cells", &pdata->args_count);
 	if (ret)
 		pdata->args_count = pdata->bits_per_mux ? 2 : 1;
 

@@ -1638,7 +1638,7 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 	chip->selected = -1;
 
 	for (i = 0; i < nsels; i++) {
-		ret = ofnode_read_u32_index(np, "reg", i, &tmp);
+		ret = ofnode_reg_read_index(np, "reg", i, &tmp);
 		if (ret) {
 			dev_err(dev, "could not retrieve reg property: %d\n",
 				ret);
@@ -1658,7 +1658,7 @@ static int sunxi_nand_chip_init(struct udevice *dev, struct sunxi_nfc *nfc,
 
 		chip->sels[i].cs = tmp;
 
-		if (!ofnode_read_u32_index(np, "allwinner,rb", i, &tmp) &&
+		if (!ofnode_reg_read_index(np, "allwinner,rb", i, &tmp) &&
 		    tmp < 2) {
 			chip->sels[i].rb.type = RB_NATIVE;
 			chip->sels[i].rb.info.nativeid = tmp;

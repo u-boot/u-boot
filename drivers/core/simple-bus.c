@@ -45,7 +45,7 @@ static int simple_bus_post_bind(struct udevice *dev)
 	} else {
 		u32 cell[3];
 
-		ret = dev_read_u32_array(dev, "ranges", cell,
+		ret = dev_reg_read_array(dev, "ranges", cell,
 					 ARRAY_SIZE(cell));
 		if (!ret) {
 			plat->base = cell[0];

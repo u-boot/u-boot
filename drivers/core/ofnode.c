@@ -371,20 +371,20 @@ u16 ofnode_read_u16_default(ofnode node, const char *propname, u16 def)
 	return def;
 }
 
-int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
+int ofnode_reg_read(ofnode node, const char *propname, u32 *outp)
 {
-	return ofnode_read_u32_index(node, propname, 0, outp);
+	return ofnode_reg_read_index(node, propname, 0, outp);
 }
 
-u32 ofnode_read_u32_default(ofnode node, const char *propname, u32 def)
+u32 ofnode_reg_read_default(ofnode node, const char *propname, u32 def)
 {
 	assert(ofnode_valid(node));
-	ofnode_read_u32_index(node, propname, 0, &def);
+	ofnode_reg_read_index(node, propname, 0, &def);
 
 	return def;
 }
 
-int ofnode_read_u32_index(ofnode node, const char *propname, int index,
+int ofnode_reg_read_index(ofnode node, const char *propname, int index,
 			  u32 *outp)
 {
 	const fdt32_t *cell;
@@ -394,7 +394,7 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 	debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node))
-		return of_read_u32_index(ofnode_to_np(node), propname, index,
+		return of_reg_read_index(ofnode_to_np(node), propname, index,
 					 outp);
 
 	cell = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node),
@@ -445,11 +445,11 @@ int ofnode_read_u64_index(ofnode node, const char *propname, int index,
 	return 0;
 }
 
-u32 ofnode_read_u32_index_default(ofnode node, const char *propname, int index,
+u32 ofnode_reg_read_index_default(ofnode node, const char *propname, int index,
 				  u32 def)
 {
 	assert(ofnode_valid(node));
-	ofnode_read_u32_index(node, propname, index, &def);
+	ofnode_reg_read_index(node, propname, index, &def);
 
 	return def;
 }
@@ -457,7 +457,7 @@ u32 ofnode_read_u32_index_default(ofnode node, const char *propname, int index,
 int ofnode_read_s32_default(ofnode node, const char *propname, s32 def)
 {
 	assert(ofnode_valid(node));
-	ofnode_read_u32(node, propname, (u32 *)&def);
+	ofnode_reg_read(node, propname, (u32 *)&def);
 
 	return def;
 }
@@ -594,14 +594,14 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 	return subnode;
 }
 
-int ofnode_read_u32_array(ofnode node, const char *propname,
+int ofnode_reg_read_array(ofnode node, const char *propname,
 			  u32 *out_values, size_t sz)
 {
 	assert(ofnode_valid(node));
 	debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node)) {
-		return of_read_u32_array(ofnode_to_np(node), propname,
+		return of_reg_read_array(ofnode_to_np(node), propname,
 					 out_values, sz);
 	} else {
 		int ret;
@@ -1060,11 +1060,11 @@ static int decode_timing_property(ofnode node, const char *name,
 	}
 
 	if (length == sizeof(u32)) {
-		result->typ = ofnode_read_u32_default(node, name, 0);
+		result->typ = ofnode_reg_read_default(node, name, 0);
 		result->min = result->typ;
 		result->max = result->typ;
 	} else {
-		ret = ofnode_read_u32_array(node, name, &result->min, 3);
+		ret = ofnode_reg_read_array(node, name, &result->min, 3);
 	}
 
 	return ret;
@@ -1104,22 +1104,22 @@ int ofnode_decode_display_timing(ofnode parent, int index,
 	ret |= decode_timing_property(node, "clock-frequency", &dt->pixelclock);
 
 	dt->flags = 0;
-	val = ofnode_read_u32_default(node, "vsync-active", -1);
+	val = ofnode_reg_read_default(node, "vsync-active", -1);
 	if (val != -1) {
 		dt->flags |= val ? DISPLAY_FLAGS_VSYNC_HIGH :
 				DISPLAY_FLAGS_VSYNC_LOW;
 	}
-	val = ofnode_read_u32_default(node, "hsync-active", -1);
+	val = ofnode_reg_read_default(node, "hsync-active", -1);
 	if (val != -1) {
 		dt->flags |= val ? DISPLAY_FLAGS_HSYNC_HIGH :
 				DISPLAY_FLAGS_HSYNC_LOW;
 	}
-	val = ofnode_read_u32_default(node, "de-active", -1);
+	val = ofnode_reg_read_default(node, "de-active", -1);
 	if (val != -1) {
 		dt->flags |= val ? DISPLAY_FLAGS_DE_HIGH :
 				DISPLAY_FLAGS_DE_LOW;
 	}
-	val = ofnode_read_u32_default(node, "pixelclk-active", -1);
+	val = ofnode_reg_read_default(node, "pixelclk-active", -1);
 	if (val != -1) {
 		dt->flags |= val ? DISPLAY_FLAGS_PIXDATA_POSEDGE :
 				DISPLAY_FLAGS_PIXDATA_NEGEDGE;
@@ -1156,19 +1156,19 @@ int ofnode_decode_panel_timing(ofnode parent,
 	ret |= decode_timing_property(timings, "vsync-len", &dt->vsync_len);
 	ret |= decode_timing_property(timings, "clock-frequency", &dt->pixelclock);
 	dt->flags = 0;
-	if (!ofnode_read_u32(timings, "vsync-active", &val)) {
+	if (!ofnode_reg_read(timings, "vsync-active", &val)) {
 		dt->flags |= val ? DISPLAY_FLAGS_VSYNC_HIGH :
 		    DISPLAY_FLAGS_VSYNC_LOW;
 	}
-	if (!ofnode_read_u32(timings, "hsync-active", &val)) {
+	if (!ofnode_reg_read(timings, "hsync-active", &val)) {
 		dt->flags |= val ? DISPLAY_FLAGS_HSYNC_HIGH :
 		    DISPLAY_FLAGS_HSYNC_LOW;
 	}
-	if (!ofnode_read_u32(timings, "de-active", &val)) {
+	if (!ofnode_reg_read(timings, "de-active", &val)) {
 		dt->flags |= val ? DISPLAY_FLAGS_DE_HIGH :
 		    DISPLAY_FLAGS_DE_LOW;
 	}
-	if (!ofnode_read_u32(timings, "pixelclk-active", &val)) {
+	if (!ofnode_reg_read(timings, "pixelclk-active", &val)) {
 		dt->flags |= val ? DISPLAY_FLAGS_PIXDATA_POSEDGE :
 		DISPLAY_FLAGS_PIXDATA_NEGEDGE;
 	}
@@ -1637,7 +1637,7 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value)
 				 false);
 }
 
-int ofnode_write_u32(ofnode node, const char *propname, u32 value)
+int ofnode_write(ofnode node, const char *propname, u32 value)
 {
 	fdt32_t *val;
 
@@ -1720,7 +1720,7 @@ int ofnode_conf_read_int(const char *prop_name, int default_val)
 	if (!ofnode_valid(node))
 		return default_val;
 
-	return ofnode_read_u32_default(node, prop_name, default_val);
+	return ofnode_reg_read_default(node, prop_name, default_val);
 }
 
 const char *ofnode_conf_read_str(const char *prop_name)

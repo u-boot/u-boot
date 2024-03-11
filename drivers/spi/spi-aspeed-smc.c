@@ -891,7 +891,7 @@ static int aspeed_spi_read_fixed_decoded_ranges(struct udevice *bus)
 		return -EINVAL;
 	}
 
-	ret = dev_read_u32_array(bus, range_prop, (u32 *)ranges, count * 3);
+	ret = dev_reg_read_array(bus, range_prop, (u32 *)ranges, count * 3);
 	if (ret)
 		return ret;
 
@@ -1137,7 +1137,7 @@ static int apseed_spi_of_to_plat(struct udevice *bus)
 		return -EINVAL;
 	}
 
-	plat->max_cs = dev_read_u32_default(bus, "num-cs", ASPEED_SPI_MAX_CS);
+	plat->max_cs = dev_reg_read_default(bus, "num-cs", ASPEED_SPI_MAX_CS);
 	if (plat->max_cs > ASPEED_SPI_MAX_CS)
 		return -EINVAL;
 

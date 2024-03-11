@@ -1041,7 +1041,7 @@ static int omap_i2c_of_to_plat(struct udevice *bus)
 	struct omap_i2c_plat *plat = dev_get_plat(bus);
 
 	plat->base = dev_read_addr(bus);
-	plat->speed = dev_read_u32_default(bus, "clock-frequency",
+	plat->speed = dev_reg_read_default(bus, "clock-frequency",
 					   I2C_SPEED_STANDARD_RATE);
 	plat->ip_rev = dev_get_driver_data(bus);
 

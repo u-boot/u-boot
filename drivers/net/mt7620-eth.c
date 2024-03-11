@@ -1069,7 +1069,7 @@ static int mt7620_eth_parse_gsw_port(struct mt7620_eth_priv *priv, u32 idx,
 		priv->port_cfg[idx].force_mode = 1;
 		priv->port_cfg[idx].duplex = ofnode_read_bool(subnode,
 							      "full-duplex");
-		speed = ofnode_read_u32_default(subnode, "speed", 0);
+		speed = ofnode_reg_read_default(subnode, "speed", 0);
 		switch (speed) {
 		case SPEED_10:
 			priv->port_cfg[idx].speed = FORCE_SPEED_10;
@@ -1100,7 +1100,7 @@ static int mt7620_eth_parse_gsw_port(struct mt7620_eth_priv *priv, u32 idx,
 		}
 	}
 
-	ret = ofnode_read_u32(node, "phy-addr", &phy_addr);
+	ret = ofnode_reg_read(node, "phy-addr", &phy_addr);
 	if (!ret) {
 		if (phy_addr > 31 || (idx == 0 && phy_addr < 3) ||
 		    (idx == 1 && phy_addr < 4)) {

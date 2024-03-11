@@ -270,21 +270,21 @@ static int xilinx_gpio_of_to_plat(struct udevice *dev)
 
 	plat->regs = dev_read_addr_ptr(dev);
 
-	plat->bank_max[0] = dev_read_u32_default(dev, "xlnx,gpio-width", 0);
-	plat->bank_input[0] = dev_read_u32_default(dev, "xlnx,all-inputs", 0);
-	plat->bank_output[0] = dev_read_u32_default(dev, "xlnx,all-outputs", 0);
-	plat->dout_default[0] = dev_read_u32_default(dev, "xlnx,dout-default",
+	plat->bank_max[0] = dev_reg_read_default(dev, "xlnx,gpio-width", 0);
+	plat->bank_input[0] = dev_reg_read_default(dev, "xlnx,all-inputs", 0);
+	plat->bank_output[0] = dev_reg_read_default(dev, "xlnx,all-outputs", 0);
+	plat->dout_default[0] = dev_reg_read_default(dev, "xlnx,dout-default",
 						     0);
 
-	is_dual = dev_read_u32_default(dev, "xlnx,is-dual", 0);
+	is_dual = dev_reg_read_default(dev, "xlnx,is-dual", 0);
 	if (is_dual) {
-		plat->bank_max[1] = dev_read_u32_default(dev,
+		plat->bank_max[1] = dev_reg_read_default(dev,
 							 "xlnx,gpio2-width", 0);
-		plat->bank_input[1] = dev_read_u32_default(dev,
+		plat->bank_input[1] = dev_reg_read_default(dev,
 						"xlnx,all-inputs-2", 0);
-		plat->bank_output[1] = dev_read_u32_default(dev,
+		plat->bank_output[1] = dev_reg_read_default(dev,
 						"xlnx,all-outputs-2", 0);
-		plat->dout_default[1] = dev_read_u32_default(dev,
+		plat->dout_default[1] = dev_reg_read_default(dev,
 						"xlnx,dout-default-2", 0);
 	}
 

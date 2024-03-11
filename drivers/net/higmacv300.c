@@ -575,7 +575,7 @@ static int higmac_of_to_plat(struct udevice *dev)
 		debug("failed to find phy node\n");
 		return -ENODEV;
 	}
-	priv->phyaddr = ofnode_read_u32_default(phy_node, "reg", 0);
+	priv->phyaddr = ofnode_reg_read_default(phy_node, "reg", 0);
 
 	return reset_get_by_name(dev, "phy", &priv->rst_phy);
 }

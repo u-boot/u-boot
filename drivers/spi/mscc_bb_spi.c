@@ -220,7 +220,7 @@ static int mscc_bb_spi_probe(struct udevice *bus)
 	priv->regs = dev_read_addr_ptr(bus);
 
 	priv->deactivate_delay_us =
-		dev_read_u32_default(bus, "spi-deactivate-delay", 0);
+		dev_reg_read_default(bus, "spi-deactivate-delay", 0);
 
 	priv->cs_active = false;
 

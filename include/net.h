@@ -733,7 +733,7 @@ static inline struct in_addr net_read_ip(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline u32 net_read_u32(void *from)
+static inline u32 net_reg_read(void *from)
 {
 	u32 l;
 

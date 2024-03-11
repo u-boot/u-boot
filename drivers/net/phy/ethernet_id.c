@@ -45,9 +45,9 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 		ret = gpio_request_by_name_nodev(node, "reset-gpios", 0, &gpio,
 						 GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
 		if (!ret) {
-			assert = ofnode_read_u32_default(node,
+			assert = ofnode_reg_read_default(node,
 							 "reset-assert-us", 0);
-			deassert = ofnode_read_u32_default(node,
+			deassert = ofnode_reg_read_default(node,
 							   "reset-deassert-us",
 							   0);
 			ret = dm_gpio_set_value(&gpio, 1);
@@ -72,7 +72,7 @@ struct phy_device *phy_connect_phy_id(struct mii_dev *bus, struct udevice *dev,
 	}
 
 	if (phyaddr == -1)
-		phyaddr = ofnode_read_u32_default(phandle_args.node, "reg", -1);
+		phyaddr = ofnode_reg_read_default(phandle_args.node, "reg", -1);
 
 	id =  vendor << 16 | device;
 	phydev = phy_device_create(bus, phyaddr, id, false);

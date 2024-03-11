@@ -262,11 +262,11 @@ static int am65_cpsw_gmii_sel_k3(struct am65_cpsw_priv *priv,
 	ofnode node;
 	int ret;
 
-	ret = ofnode_read_u32(dev_ofnode(dev), "phys", &phandle);
+	ret = ofnode_reg_read(dev_ofnode(dev), "phys", &phandle);
 	if (ret)
 		return ret;
 
-	ret = ofnode_read_u32_index(dev_ofnode(dev), "phys", 1, &offset);
+	ret = ofnode_reg_read_index(dev_ofnode(dev), "phys", 1, &offset);
 	if (ret)
 		return ret;
 
@@ -584,7 +584,7 @@ static int am65_cpsw_am654_get_efuse_macid(struct udevice *dev,
 		return PTR_ERR(syscon);
 	}
 
-	ret = dev_read_u32_index(dev, "ti,syscon-efuse", 1, &offset);
+	ret = dev_reg_read_index(dev, "ti,syscon-efuse", 1, &offset);
 	if (ret)
 		return ret;
 
@@ -758,7 +758,7 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 	struct ofnode_phandle_args out_args;
 	int ret = 0;
 
-	dev_read_u32(dev, "reg", &priv->port_id);
+	dev_reg_read(dev, "reg", &priv->port_id);
 
 	pdata->phy_interface = dev_read_phy_mode(dev);
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA) {
@@ -766,7 +766,7 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	dev_read_u32(dev, "max-speed", (u32 *)&pdata->max_speed);
+	dev_reg_read(dev, "max-speed", (u32 *)&pdata->max_speed);
 	if (pdata->max_speed)
 		dev_err(dev, "Port %u speed froced to %uMbit\n",
 			priv->port_id, pdata->max_speed);
@@ -783,7 +783,7 @@ static int am65_cpsw_ofdata_parse_phy(struct udevice *dev)
 
 	priv->phy_node = out_args.node;
 	if (priv->has_phy) {
-		ret = ofnode_read_u32(priv->phy_node, "reg", &priv->phy_addr);
+		ret = ofnode_reg_read(priv->phy_node, "reg", &priv->phy_addr);
 		if (ret) {
 			dev_err(dev, "failed to get phy_addr port %u (%d)\n",
 				priv->port_id, ret);
@@ -872,9 +872,9 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 			goto out;
 		}
 
-		cpsw_common->reset_delay_us = ofnode_read_u32_default(mdio_np, "reset-delay-us",
+		cpsw_common->reset_delay_us = ofnode_reg_read_default(mdio_np, "reset-delay-us",
 								      DEFAULT_GPIO_RESET_DELAY);
-		cpsw_common->reset_post_delay_us = ofnode_read_u32_default(mdio_np,
+		cpsw_common->reset_post_delay_us = ofnode_reg_read_default(mdio_np,
 									   "reset-post-delay-us",
 									   0);
 		ret = gpio_request_by_name_nodev(mdio_np, "reset-gpios", 0,
@@ -897,7 +897,7 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 
 		disabled = !ofnode_is_enabled(node);
 
-		ret = ofnode_read_u32(node, "reg", &port_id);
+		ret = ofnode_reg_read(node, "reg", &port_id);
 		if (ret) {
 			dev_err(dev, "%s: failed to get port_id (%d)\n",
 				node_name, ret);
@@ -937,7 +937,7 @@ static int am65_cpsw_probe_nuss(struct udevice *dev)
 	}
 
 	cpsw_common->bus_freq =
-			dev_read_u32_default(dev, "bus_freq",
+			dev_reg_read_default(dev, "bus_freq",
 					     AM65_CPSW_MDIO_BUS_FREQ_DEF);
 
 	dev_info(dev, "K3 CPSW: nuss_ver: 0x%08X cpsw_ver: 0x%08X ale_ver: 0x%08X Ports:%u mdio_freq:%u\n",

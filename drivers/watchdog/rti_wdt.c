@@ -63,7 +63,7 @@ static int rti_wdt_load_fw(struct udevice *dev)
 	ret = ofnode_read_u64(node, "load", &rti_wdt_fw);
 	if (ret)
 		goto fit_error;
-	ret = ofnode_read_u32(node, "size", &rti_wdt_fw_size);
+	ret = ofnode_reg_read(node, "size", &rti_wdt_fw_size);
 	if (ret)
 		goto fit_error;
 
@@ -71,7 +71,7 @@ static int rti_wdt_load_fw(struct udevice *dev)
 	if (!ofnode_valid(node))
 		goto dt_error;
 
-	ret = ofnode_read_u32(node, "ti,cluster-mode", &cluster_mode);
+	ret = ofnode_reg_read(node, "ti,cluster-mode", &cluster_mode);
 	if (ret)
 		cluster_mode = 1;
 

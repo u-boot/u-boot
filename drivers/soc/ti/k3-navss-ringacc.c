@@ -930,7 +930,7 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 	struct udevice *tisci_dev = NULL;
 	int ret;
 
-	ringacc->num_rings = dev_read_u32_default(dev, "ti,num-rings", 0);
+	ringacc->num_rings = dev_reg_read_default(dev, "ti,num-rings", 0);
 	if (!ringacc->num_rings) {
 		dev_err(dev, "ti,num-rings read failure %d\n", ret);
 		return -EINVAL;
@@ -949,14 +949,14 @@ static int k3_nav_ringacc_probe_dt(struct k3_nav_ringacc *ringacc)
 	ringacc->tisci = (struct ti_sci_handle *)
 			 (ti_sci_get_handle_from_sysfw(tisci_dev));
 
-	ret = dev_read_u32_default(devp, "ti,sci", 0);
+	ret = dev_reg_read_default(devp, "ti,sci", 0);
 	if (!ret) {
 		dev_err(dev, "TISCI RA RM disabled\n");
 		ringacc->tisci = NULL;
 		return ret;
 	}
 
-	ret = dev_read_u32(devp, "ti,sci-dev-id", &ringacc->tisci_dev_id);
+	ret = dev_reg_read(devp, "ti,sci-dev-id", &ringacc->tisci_dev_id);
 	if (ret) {
 		dev_err(dev, "ti,sci-dev-id read failure %d\n", ret);
 		ringacc->tisci = NULL;

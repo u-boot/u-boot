@@ -995,8 +995,8 @@ static int dwc2_udc_otg_of_to_plat(struct udevice *dev)
 
 	plat->regs_otg = dev_read_addr(dev);
 
-	plat->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
-	plat->np_tx_fifo_sz = dev_read_u32_default(dev, "g-np-tx-fifo-size", 0);
+	plat->rx_fifo_sz = dev_reg_read_default(dev, "g-rx-fifo-size", 0);
+	plat->np_tx_fifo_sz = dev_reg_read_default(dev, "g-np-tx-fifo-size", 0);
 
 	ret = dev_read_size(dev, "g-tx-fifo-size");
 	if (ret > 0)
@@ -1004,7 +1004,7 @@ static int dwc2_udc_otg_of_to_plat(struct udevice *dev)
 	if (plat->tx_fifo_sz_nb > DWC2_MAX_HW_ENDPOINTS)
 		plat->tx_fifo_sz_nb = DWC2_MAX_HW_ENDPOINTS;
 	if (plat->tx_fifo_sz_nb) {
-		ret = dev_read_u32_array(dev, "g-tx-fifo-size",
+		ret = dev_reg_read_array(dev, "g-tx-fifo-size",
 					 plat->tx_fifo_sz_array,
 					 plat->tx_fifo_sz_nb);
 		if (ret)

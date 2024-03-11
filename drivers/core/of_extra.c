@@ -16,12 +16,12 @@ int ofnode_read_fmap_entry(ofnode node, struct fmap_entry *entry)
 	const char *prop;
 	ofnode subnode;
 
-	if (ofnode_read_u32(node, "image-pos", &entry->offset)) {
+	if (ofnode_reg_read(node, "image-pos", &entry->offset)) {
 		debug("Node '%s' has bad/missing 'image-pos' property\n",
 		      ofnode_get_name(node));
 		return log_msg_ret("image-pos", -ENOENT);
 	}
-	if (ofnode_read_u32(node, "size", &entry->length)) {
+	if (ofnode_reg_read(node, "size", &entry->length)) {
 		debug("Node '%s' has bad/missing 'size' property\n",
 		      ofnode_get_name(node));
 		return log_msg_ret("size", -ENOENT);

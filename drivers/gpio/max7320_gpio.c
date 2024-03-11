@@ -64,7 +64,7 @@ static int max7320_ofdata_plat(struct udevice *dev)
 {
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", 8);
+	uc_priv->gpio_count = dev_reg_read_default(dev, "ngpios", 8);
 	if (uc_priv->gpio_count > 16) {
 		printf("%s: max7320 doesn't support more than 16 gpios!",
 		       __func__);

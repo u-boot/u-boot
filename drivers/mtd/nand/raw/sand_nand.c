@@ -512,35 +512,35 @@ static int sand_nand_probe(struct udevice *dev)
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,erasesize", &erasesize);
+		ret = ofnode_reg_read(np, "sandbox,erasesize", &erasesize);
 		if (ret) {
 			dev_dbg(dev, "No sandbox,erasesize property for chip %s",
 				ofnode_get_name(np));
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,oobsize", &oobsize);
+		ret = ofnode_reg_read(np, "sandbox,oobsize", &oobsize);
 		if (ret) {
 			dev_dbg(dev, "No sandbox,oobsize property for chip %s",
 				ofnode_get_name(np));
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,pagesize", &pagesize);
+		ret = ofnode_reg_read(np, "sandbox,pagesize", &pagesize);
 		if (ret) {
 			dev_dbg(dev, "No sandbox,pagesize property for chip %s",
 				ofnode_get_name(np));
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,pages", &pages);
+		ret = ofnode_reg_read(np, "sandbox,pages", &pages);
 		if (ret) {
 			dev_dbg(dev, "No sandbox,pages property for chip %s",
 				ofnode_get_name(np));
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,err-count", &err_count);
+		ret = ofnode_reg_read(np, "sandbox,err-count", &err_count);
 		if (ret) {
 			dev_dbg(dev,
 				"No sandbox,err-count property for chip %s",
@@ -548,7 +548,7 @@ static int sand_nand_probe(struct udevice *dev)
 			goto err;
 		}
 
-		ret = ofnode_read_u32(np, "sandbox,err-step-size",
+		ret = ofnode_reg_read(np, "sandbox,err-step-size",
 				      &err_step_size);
 		if (ret) {
 			dev_dbg(dev,

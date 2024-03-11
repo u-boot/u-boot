@@ -392,9 +392,9 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	plat->regbase = devfdt_get_addr_index_ptr(bus, 0);
 	plat->ahbbase = devfdt_get_addr_size_index_ptr(bus, 1, &plat->ahbsize);
 	plat->is_decoded_cs = dev_read_bool(bus, "cdns,is-decoded-cs");
-	plat->fifo_depth = dev_read_u32_default(bus, "cdns,fifo-depth", 128);
-	plat->fifo_width = dev_read_u32_default(bus, "cdns,fifo-width", 4);
-	plat->trigger_address = dev_read_u32_default(bus,
+	plat->fifo_depth = dev_reg_read_default(bus, "cdns,fifo-depth", 128);
+	plat->fifo_width = dev_reg_read_default(bus, "cdns,fifo-width", 4);
+	plat->trigger_address = dev_reg_read_default(bus,
 						     "cdns,trigger-address",
 						     0);
 	/* Use DAC mode only when MMIO window is at least 8M wide */
@@ -411,18 +411,18 @@ static int cadence_spi_of_to_plat(struct udevice *bus)
 	}
 
 	/* Use 500 KHz as a suitable default */
-	plat->max_hz = ofnode_read_u32_default(subnode, "spi-max-frequency",
+	plat->max_hz = ofnode_reg_read_default(subnode, "spi-max-frequency",
 					       500000);
 
 	/* Read other parameters from DT */
-	plat->page_size = ofnode_read_u32_default(subnode, "page-size", 256);
-	plat->block_size = ofnode_read_u32_default(subnode, "block-size", 16);
-	plat->tshsl_ns = ofnode_read_u32_default(subnode, "cdns,tshsl-ns",
+	plat->page_size = ofnode_reg_read_default(subnode, "page-size", 256);
+	plat->block_size = ofnode_reg_read_default(subnode, "block-size", 16);
+	plat->tshsl_ns = ofnode_reg_read_default(subnode, "cdns,tshsl-ns",
 						 200);
-	plat->tsd2d_ns = ofnode_read_u32_default(subnode, "cdns,tsd2d-ns",
+	plat->tsd2d_ns = ofnode_reg_read_default(subnode, "cdns,tsd2d-ns",
 						 255);
-	plat->tchsh_ns = ofnode_read_u32_default(subnode, "cdns,tchsh-ns", 20);
-	plat->tslch_ns = ofnode_read_u32_default(subnode, "cdns,tslch-ns", 20);
+	plat->tchsh_ns = ofnode_reg_read_default(subnode, "cdns,tchsh-ns", 20);
+	plat->tslch_ns = ofnode_reg_read_default(subnode, "cdns,tslch-ns", 20);
 	/*
 	 * Read delay should be an unsigned value but we use a signed integer
 	 * so that negative values can indicate that the device tree did not

@@ -247,7 +247,7 @@ static int k3_avs_configure(struct udevice *dev, struct k3_avs_privdata *priv)
 			dev_warn(dev, "supply not found for VD%d.\n", vd->id);
 
 		sprintf(pname, "ti,default-opp-%d", vd->id);
-		ret = dev_read_u32_default(dev, pname, -1);
+		ret = dev_reg_read_default(dev, pname, -1);
 		if (ret != -1)
 			vd->opp = ret;
 	}

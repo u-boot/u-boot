@@ -17,11 +17,11 @@ static void tegra_pinctrl_set_pin(struct udevice *config)
 	int pull, tristate;
 	const char **pins;
 
-	ret = dev_read_u32(config, "nvidia,pull", &pull);
+	ret = dev_reg_read(config, "nvidia,pull", &pull);
 	if (ret)
 		pull = ret;
 
-	ret = dev_read_u32(config, "nvidia,tristate", &tristate);
+	ret = dev_reg_read(config, "nvidia,tristate", &tristate);
 	if (ret)
 		tristate = ret;
 

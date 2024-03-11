@@ -1116,7 +1116,7 @@ void dwc3_of_parse(struct dwc3 *dwc)
 	dwc->hird_threshold = hird_threshold
 		| (dwc->is_utmi_l1_suspend << 4);
 
-	dev_read_u32(dev, "snps,quirk-frame-length-adjustment", &dwc->fladj);
+	dev_reg_read(dev, "snps,quirk-frame-length-adjustment", &dwc->fladj);
 
 	/*
 	 * Handle property "snps,incr-burst-type-adjustment".
@@ -1128,7 +1128,7 @@ void dwc3_of_parse(struct dwc3 *dwc)
 	dwc->incrx_mode = INCRX_BURST_MODE;
 	dwc->incrx_size = 0;
 	for (i = 0; i < 8; i++) {
-		if (dev_read_u32_index(dev, "snps,incr-burst-type-adjustment",
+		if (dev_reg_read_index(dev, "snps,incr-burst-type-adjustment",
 				       i, &val))
 			break;
 

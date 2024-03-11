@@ -370,7 +370,7 @@ static int imxrt_semc_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 
-		ret = ofnode_read_u32(bank_node,
+		ret = ofnode_reg_read(bank_node,
 				      "fsl,memory-size",
 				      &bank_params->memory_size);
 		if (ret < 0) {
@@ -378,7 +378,7 @@ static int imxrt_semc_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 
-		ret = ofnode_read_u32(bank_node,
+		ret = ofnode_reg_read(bank_node,
 				      "fsl,base-address",
 				      &bank_params->base_address);
 		if (ret < 0) {

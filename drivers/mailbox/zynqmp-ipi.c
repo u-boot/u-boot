@@ -172,13 +172,13 @@ static int zynqmp_ipi_dest_probe(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_SPL_BUILD) || of_machine_is_compatible("xlnx,zynqmp"))
 		zynqmp->el3_supported = true;
 
-	ret = dev_read_u32(dev->parent, "xlnx,ipi-id", &zynqmp->local_id);
+	ret = dev_reg_read(dev->parent, "xlnx,ipi-id", &zynqmp->local_id);
 	if (ret) {
 		dev_err(dev, "can't get local ipi id\n");
 		return ret;
 	}
 
-	ret = ofnode_read_u32(node, "xlnx,ipi-id", &zynqmp->remote_id);
+	ret = ofnode_reg_read(node, "xlnx,ipi-id", &zynqmp->remote_id);
 	if (ret) {
 		dev_err(dev, "can't get remote ipi id\n");
 		return ret;

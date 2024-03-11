@@ -188,7 +188,7 @@ static int npcm_usb_phy_probe(struct udevice *dev)
 		dev_err(dev, "%s: unable to get syscon\n", __func__);
 		return PTR_ERR(priv->syscon);
 	}
-	priv->id = dev_read_u32_default(dev, "reg", -1);
+	priv->id = dev_reg_read_default(dev, "reg", -1);
 
 	return 0;
 }

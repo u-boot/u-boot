@@ -29,7 +29,7 @@ static int sifive_gpio_probe(struct udevice *dev)
 	 * Use the gpio count mentioned in device tree,
 	 * if not specified in dt, set NR_GPIOS as default
 	 */
-	uc_priv->gpio_count = dev_read_u32_default(dev, "ngpios", NR_GPIOS);
+	uc_priv->gpio_count = dev_reg_read_default(dev, "ngpios", NR_GPIOS);
 
 	return 0;
 }

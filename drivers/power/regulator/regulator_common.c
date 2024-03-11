@@ -38,12 +38,12 @@ int regulator_common_of_to_plat(struct udevice *dev,
 	}
 
 	/* Get optional ramp up delay */
-	plat->startup_delay_us = dev_read_u32_default(dev,
+	plat->startup_delay_us = dev_reg_read_default(dev,
 						      "startup-delay-us", 0);
-	plat->off_on_delay_us = dev_read_u32_default(dev, "off-on-delay-us", 0);
+	plat->off_on_delay_us = dev_reg_read_default(dev, "off-on-delay-us", 0);
 	if (!plat->off_on_delay_us) {
 		plat->off_on_delay_us =
-			dev_read_u32_default(dev, "u-boot,off-on-delay-us", 0);
+			dev_reg_read_default(dev, "u-boot,off-on-delay-us", 0);
 	}
 
 	return 0;

@@ -98,8 +98,8 @@ static int f_sdh30_of_to_plat(struct udevice *dev)
 
 	host->name = strdup(dev->name);
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->bus_width = dev_read_u32_default(dev, "bus-width", 4);
-	host->index = dev_read_u32_default(dev, "index", 0);
+	host->bus_width = dev_reg_read_default(dev, "bus-width", 4);
+	host->index = dev_reg_read_default(dev, "index", 0);
 
 	plat->enable_cmd_dat_delay =
 		dev_read_bool(dev, "socionext,enable-cmd-dat-delay");

@@ -443,7 +443,7 @@ int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
 	int find_phandle;
 
 	*devp = NULL;
-	find_phandle = dev_read_u32_default(parent, name, -1);
+	find_phandle = dev_reg_read_default(parent, name, -1);
 	if (find_phandle <= 0)
 		return -ENOENT;
 

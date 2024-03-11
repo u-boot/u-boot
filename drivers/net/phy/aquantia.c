@@ -350,7 +350,7 @@ static int aquantia_dts_config(struct phy_device *phydev)
 	if (!ofnode_valid(node))
 		return 0;
 
-	if (!ofnode_read_u32(node, "mdi-reversal", &prop)) {
+	if (!ofnode_reg_read(node, "mdi-reversal", &prop)) {
 		debug("mdi-reversal = %d\n", (int)prop);
 		reg =  phy_read(phydev, MDIO_MMD_PMAPMD,
 				AQUANTIA_PMA_RX_VENDOR_P1);
@@ -360,7 +360,7 @@ static int aquantia_dts_config(struct phy_device *phydev)
 		phy_write(phydev, MDIO_MMD_PMAPMD, AQUANTIA_PMA_RX_VENDOR_P1,
 			  reg);
 	}
-	if (!ofnode_read_u32(node, "smb-addr", &prop)) {
+	if (!ofnode_reg_read(node, "smb-addr", &prop)) {
 		debug("smb-addr = %x\n", (int)prop);
 		/*
 		 * there are two addresses here, normally just one bus would

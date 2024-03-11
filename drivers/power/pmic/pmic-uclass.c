@@ -135,6 +135,20 @@ int pmic_write(struct udevice *dev, uint reg, const uint8_t *buffer, int len)
 	return ops->write(dev, reg, buffer, len);
 }
 
+int pmic_read_u32(struct udevice *dev, u32 reg, u32 *val)
+{
+    const struct dm_pmic_ops *ops = dev_get_driver_ops(dev);
+
+    return ops->read_u32(dev, reg, val);
+}
+
+int pmic_write_u32(struct udevice *dev, u32 reg, u32 val)
+{
+    const struct dm_pmic_ops *ops = dev_get_driver_ops(dev);
+
+    return ops->write_u32(dev, reg, val);
+}
+
 int pmic_reg_read(struct udevice *dev, uint reg)
 {
 	struct uc_pmic_priv *priv = dev_get_uclass_priv(dev);

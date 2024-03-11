@@ -94,7 +94,7 @@ static int mdio_mux_mmioreg_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	err = dev_read_u32(dev, "mux-mask", &reg_mask);
+	err = dev_reg_read(dev, "mux-mask", &reg_mask);
 	if (err) {
 		debug("%s: error reading mux-mask property\n", __func__);
 		return err;

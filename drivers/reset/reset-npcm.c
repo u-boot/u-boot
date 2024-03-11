@@ -103,7 +103,7 @@ static int npcm_reset_bind(struct udevice *dev)
 	if (!rcr_values)
 		return -ENOMEM;
 
-	ret = dev_read_u32_array(dev, "rcr-initial-values", rcr_values,
+	ret = dev_reg_read_array(dev, "rcr-initial-values", rcr_values,
 				 num_fields * 2);
 	if (ret < 0) {
 		free(rcr_values);

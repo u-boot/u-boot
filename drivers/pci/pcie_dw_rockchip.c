@@ -456,10 +456,10 @@ static int rockchip_pcie_parse_dt(struct udevice *dev)
 		goto rockchip_pcie_parse_dt_err_phy_get_by_index;
 	}
 
-	priv->gen = dev_read_u32_default(dev, "max-link-speed",
+	priv->gen = dev_reg_read_default(dev, "max-link-speed",
 					 LINK_SPEED_GEN_3);
 
-	priv->num_lanes = dev_read_u32_default(dev, "num-lanes", 1);
+	priv->num_lanes = dev_reg_read_default(dev, "num-lanes", 1);
 
 	return 0;
 

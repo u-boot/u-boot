@@ -519,7 +519,7 @@ static int bcm6368_eth_probe(struct udevice *dev)
 	pdata->iobase = (phys_addr_t) priv->base;
 
 	/* get number of ports */
-	num_ports = dev_read_u32_default(dev, "brcm,num-ports", ETH_MAX_PORT);
+	num_ports = dev_reg_read_default(dev, "brcm,num-ports", ETH_MAX_PORT);
 	if (!num_ports || num_ports > ETH_MAX_PORT)
 		return -EINVAL;
 
@@ -589,7 +589,7 @@ static int bcm6368_eth_probe(struct udevice *dev)
 		if (!comp || memcmp(comp, ETH_PORT_STR, sizeof(ETH_PORT_STR)))
 			continue;
 
-		p = ofnode_read_u32_default(node, "reg", ETH_MAX_PORT);
+		p = ofnode_reg_read_default(node, "reg", ETH_MAX_PORT);
 		if (p >= num_ports)
 			return -EINVAL;
 
@@ -600,7 +600,7 @@ static int bcm6368_eth_probe(struct udevice *dev)
 			return -EINVAL;
 		}
 
-		phy_id = ofnode_read_u32_default(node, "brcm,phy-id", -1);
+		phy_id = ofnode_reg_read_default(node, "brcm,phy-id", -1);
 
 		priv->used_ports[p].used = true;
 		priv->used_ports[p].name = label;
@@ -610,7 +610,7 @@ static int bcm6368_eth_probe(struct udevice *dev)
 			priv->used_ports[p].force_duplex_full = true;
 		if (ofnode_read_bool(node, "bypass-link"))
 			priv->used_ports[p].bypass_link = true;
-		speed = ofnode_read_u32_default(node, "speed", 0);
+		speed = ofnode_reg_read_default(node, "speed", 0);
 		if (speed)
 			priv->used_ports[p].force_speed = speed;
 	}

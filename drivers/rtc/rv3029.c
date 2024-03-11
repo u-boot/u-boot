@@ -442,7 +442,7 @@ static void rv3029_trickle_config(struct udevice *dev)
 	u8 trickle_set_bits = 0;
 
 	/* Configure the trickle charger. */
-	err = dev_read_u32(dev, "trickle-resistor-ohms", &ohms);
+	err = dev_reg_read(dev, "trickle-resistor-ohms", &ohms);
 
 	if (!err) {
 		/* Find trickle-charger config */

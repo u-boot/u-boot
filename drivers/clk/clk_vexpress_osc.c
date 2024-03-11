@@ -76,13 +76,13 @@ static int vexpress_osc_clk_probe(struct udevice *dev)
 	u32 values[2];
 	int err;
 
-	err = dev_read_u32_array(dev, "freq-range", values, 2);
+	err = dev_reg_read_array(dev, "freq-range", values, 2);
 	if (err)
 		return err;
 	priv->rate_min = values[0];
 	priv->rate_max = values[1];
 
-	err = dev_read_u32_array(dev, "arm,vexpress-sysreg,func", values, 2);
+	err = dev_reg_read_array(dev, "arm,vexpress-sysreg,func", values, 2);
 	if (err)
 		return err;
 

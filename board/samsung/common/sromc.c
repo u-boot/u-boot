@@ -42,7 +42,7 @@ static int exyno5_sromc_probe(struct udevice *dev)
 		log_debug("Unsupported bus width %d\n", width);
 		return log_msg_ret("width", -EINVAL);
 	}
-	ret = dev_read_u32_array(dev, "srom-timing", timing,
+	ret = dev_reg_read_array(dev, "srom-timing", timing,
 				 FDT_SROM_TIMING_COUNT);
 	if (ret)
 		return log_msg_ret("sromc", -EINVAL);

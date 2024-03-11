@@ -234,8 +234,8 @@ static int xhci_mtk_ofdata_get(struct mtk_xhci *mtk)
 		debug("can't get vbus regulator %d!\n", ret);
 
 	/* optional properties to disable ports, ignore the error */
-	dev_read_u32(dev, "mediatek,u3p-dis-msk", &mtk->u3p_dis_msk);
-	dev_read_u32(dev, "mediatek,u2p-dis-msk", &mtk->u2p_dis_msk);
+	dev_reg_read(dev, "mediatek,u3p-dis-msk", &mtk->u3p_dis_msk);
+	dev_reg_read(dev, "mediatek,u2p-dis-msk", &mtk->u2p_dis_msk);
 	dev_info(dev, "ports disabled mask: u3p-0x%x, u2p-0x%x\n",
 		 mtk->u3p_dis_msk, mtk->u2p_dis_msk);
 

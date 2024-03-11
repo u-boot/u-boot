@@ -56,7 +56,7 @@ static int npcm_host_intf_bind(struct udevice *dev)
 		return PTR_ERR(syscon);
 	}
 
-	ioaddr  = dev_read_u32_default(dev, "ioaddr", 0);
+	ioaddr  = dev_reg_read_default(dev, "ioaddr", 0);
 	if (ioaddr)
 		regmap_write(syscon, HIFCR, ioaddr);
 
@@ -69,7 +69,7 @@ static int npcm_host_intf_bind(struct udevice *dev)
 		if (!base)
 			return -EINVAL;
 
-		ret = dev_read_u32(dev, "channel-support", &ch_supp);
+		ret = dev_reg_read(dev, "channel-support", &ch_supp);
 		if (ret)
 			return ret;
 

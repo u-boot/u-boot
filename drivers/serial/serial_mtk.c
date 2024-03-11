@@ -237,7 +237,7 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 
 	err = clk_get_by_index(dev, 0, &priv->clk);
 	if (err) {
-		err = dev_read_u32(dev, "clock-frequency", &priv->fixed_clk_rate);
+		err = dev_reg_read(dev, "clock-frequency", &priv->fixed_clk_rate);
 		if (err) {
 			dev_err(dev, "baud clock not defined\n");
 			return -EINVAL;

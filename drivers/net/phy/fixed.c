@@ -35,12 +35,12 @@ static int fixedphy_config(struct phy_device *phydev)
 		return -EINVAL;
 
 	/* check for mandatory properties within fixed-link node */
-	val = ofnode_read_u32_default(node, "speed", 0);
+	val = ofnode_reg_read_default(node, "speed", 0);
 
 	if (!val) {
 		/* try old binding */
 		old_binding = true;
-		if (ofnode_read_u32_array(node, "fixed-link", old_val,
+		if (ofnode_reg_read_array(node, "fixed-link", old_val,
 					  ARRAY_SIZE(old_val))) {
 			printf("ERROR: no/invalid <fixed-link> property!\n");
 			return -ENOENT;

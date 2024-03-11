@@ -139,20 +139,20 @@ static int ca_led_of_to_plat(struct udevice *dev)
 		struct cortina_led_plat *plt = dev_get_plat(dev);
 
 		plt->rate1 =
-			dev_read_u32_default(dev, "Cortina,blink-rate1", 256);
+			dev_reg_read_default(dev, "Cortina,blink-rate1", 256);
 		plt->rate2 =
-			dev_read_u32_default(dev, "Cortina,blink-rate2", 512);
+			dev_reg_read_default(dev, "Cortina,blink-rate2", 512);
 		plt->ctrl_regs = dev_remap_addr(dev);
 	} else {
 		struct cortina_led_cfg *priv = dev_get_priv(dev);
 
 		priv->regs = dev_remap_addr(dev_get_parent(dev));
-		priv->pin = dev_read_u32_default(dev, "pin", LED_MAX_COUNT);
-		priv->blink_sel = dev_read_u32_default(dev, "blink-sel", 0);
-		priv->off_event = dev_read_u32_default(dev, "off-event", 0);
-		priv->blink_event = dev_read_u32_default(dev, "blink-event", 0);
-		priv->on_event = dev_read_u32_default(dev, "on-event", 0);
-		priv->port = dev_read_u32_default(dev, "port", 0);
+		priv->pin = dev_reg_read_default(dev, "pin", LED_MAX_COUNT);
+		priv->blink_sel = dev_reg_read_default(dev, "blink-sel", 0);
+		priv->off_event = dev_reg_read_default(dev, "off-event", 0);
+		priv->blink_event = dev_reg_read_default(dev, "blink-event", 0);
+		priv->on_event = dev_reg_read_default(dev, "on-event", 0);
+		priv->port = dev_reg_read_default(dev, "port", 0);
 
 		if (dev_read_bool(dev, "active-low"))
 			priv->active_low = true;

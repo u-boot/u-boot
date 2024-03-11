@@ -129,7 +129,7 @@ static int zynqmp_rtc_probe(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->calibval = dev_read_u32_default(dev, "calibration",
+	priv->calibval = dev_reg_read_default(dev, "calibration",
 					      RTC_CALIB_DEF);
 
 	ret = zynqmp_rtc_init(dev);

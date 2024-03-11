@@ -68,7 +68,7 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
+	host->buswidth = dev_reg_read_default(dev, "bus-width", 4);
 	host->get_mmc_clk = rockchip_dwmmc_get_mmc_clk;
 	host->priv = dev;
 
@@ -78,7 +78,7 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 	else
 		host->dev_index = 1;
 
-	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
+	priv->fifo_depth = dev_reg_read_default(dev, "fifo-depth", 0);
 
 	if (priv->fifo_depth < 0)
 		return -EINVAL;
@@ -93,8 +93,8 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 	 * 'clock-freq-min-max' is deprecated
 	 * (see https://github.com/torvalds/linux/commit/b023030f10573de738bbe8df63d43acab64c9f7b)
 	 */
-	if (dev_read_u32_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
-		int val = dev_read_u32_default(dev, "max-frequency", -EINVAL);
+	if (dev_reg_read_array(dev, "clock-freq-min-max", priv->minmax, 2)) {
+		int val = dev_reg_read_default(dev, "max-frequency", -EINVAL);
 
 		if (val < 0)
 			return val;

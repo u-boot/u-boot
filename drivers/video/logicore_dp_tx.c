@@ -2273,7 +2273,7 @@ static int logicore_dp_tx_probe(struct udevice *dev)
 	dp_tx->max_link_rate = DPCD_MAX_LINK_RATE_540GBPS;
 	dp_tx->max_lane_count = DPCD_MAX_LANE_COUNT_4;
 
-	dp_tx->base = dev_read_u32_default(dev, "reg", -1);
+	dp_tx->base = dev_reg_read_default(dev, "reg", -1);
 
 	return 0;
 }

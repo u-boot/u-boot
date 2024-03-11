@@ -260,7 +260,7 @@ static int apple_pcie_setup_port(struct apple_pcie_priv *pcie, ofnode np)
 	if (!port)
 		return -ENOMEM;
 
-	ret = ofnode_read_u32_index(np, "reg", 0, &idx);
+	ret = ofnode_reg_read_index(np, "reg", 0, &idx);
 	if (ret)
 		return ret;
 

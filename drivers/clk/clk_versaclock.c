@@ -678,7 +678,7 @@ static int vc5_update_mode(ofnode np_output,
 {
 	u32 value;
 
-	if (!ofnode_read_u32(np_output, "idt,mode", &value)) {
+	if (!ofnode_reg_read(np_output, "idt,mode", &value)) {
 		clk_out->clk_output_cfg0_mask |= VC5_CLK_OUTPUT_CFG0_CFG_MASK;
 		switch (value) {
 		case VC5_CLK_OUTPUT_CFG0_CFG_LVPECL:
@@ -703,7 +703,7 @@ static int vc5_update_power(ofnode np_output, struct vc5_out_data *clk_out)
 {
 	u32 value;
 
-	if (!ofnode_read_u32(np_output, "idt,voltage-microvolt", &value)) {
+	if (!ofnode_reg_read(np_output, "idt,voltage-microvolt", &value)) {
 		clk_out->clk_output_cfg0_mask |= VC5_CLK_OUTPUT_CFG0_PWR_MASK;
 		switch (value) {
 		case 1800000:
@@ -763,7 +763,7 @@ static int vc5_update_cap_load(ofnode node, struct vc5_driver_data *vc5)
 	u32 value;
 	int mapped_value;
 
-	if (!ofnode_read_u32(node, "idt,xtal-load-femtofarads", &value)) {
+	if (!ofnode_reg_read(node, "idt,xtal-load-femtofarads", &value)) {
 		mapped_value = vc5_map_cap_value(value);
 
 		if (mapped_value < 0)
@@ -785,7 +785,7 @@ static int vc5_update_slew(ofnode np_output, struct vc5_out_data *clk_out)
 {
 	u32 value;
 
-	if (!ofnode_read_u32(np_output, "idt,slew-percent", &value)) {
+	if (!ofnode_reg_read(np_output, "idt,slew-percent", &value)) {
 		clk_out->clk_output_cfg0_mask |= VC5_CLK_OUTPUT_CFG0_SLEW_MASK;
 
 		switch (value) {

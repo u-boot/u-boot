@@ -997,9 +997,9 @@ static int qe_uec_set_uec_info(struct udevice *dev)
 
 	uf_info = &uec_info->uf_info;
 
-	ret = dev_read_u32(dev, "cell-index", &val);
+	ret = dev_reg_read(dev, "cell-index", &val);
 	if (ret) {
-		ret = dev_read_u32(dev, "device-id", &val);
+		ret = dev_reg_read(dev, "device-id", &val);
 		if (ret) {
 			pr_err("no cell-index nor device-id found!");
 			goto out;
@@ -1022,7 +1022,7 @@ static int qe_uec_set_uec_info(struct udevice *dev)
 			goto out;
 		}
 	} else {
-		ret = dev_read_u32(dev, "rx-clock", &val);
+		ret = dev_reg_read(dev, "rx-clock", &val);
 		if (ret) {
 			/*
 			 * If both rx-clock-name and rx-clock are missing,
@@ -1049,7 +1049,7 @@ static int qe_uec_set_uec_info(struct udevice *dev)
 			goto out;
 		}
 	} else {
-		ret = dev_read_u32(dev, "tx-clock", &val);
+		ret = dev_reg_read(dev, "tx-clock", &val);
 		if (ret) {
 			pr_err("missing tx-clock-name property\n");
 			goto out;

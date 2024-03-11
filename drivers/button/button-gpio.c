@@ -55,7 +55,7 @@ static int button_gpio_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = dev_read_u32(dev, "linux,code", &priv->linux_code);
+	ret = dev_reg_read(dev, "linux,code", &priv->linux_code);
 
 	return ret;
 }

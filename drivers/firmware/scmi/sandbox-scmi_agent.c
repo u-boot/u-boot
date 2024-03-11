@@ -1076,7 +1076,7 @@ static int sandbox_scmi_of_get_channel(struct udevice *dev,
 	struct sandbox_channel *chan;
 	u32 channel_id;
 
-	if (dev_read_u32(protocol, "linaro,sandbox-channel-id", &channel_id)) {
+	if (dev_reg_read(protocol, "linaro,sandbox-channel-id", &channel_id)) {
 		/* Uses agent channel */
 		*channel = container_of(agent_chan, struct scmi_channel, ref);
 

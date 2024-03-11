@@ -54,17 +54,17 @@ static void microblaze_set_cpuinfo_static(struct udevice *dev,
 	const char *hw_ver = CONFIG_XILINX_MICROBLAZE0_HW_VER;
 	const char *fpga_family = CONFIG_XILINX_MICROBLAZE0_FPGA_FAMILY;
 
-	ci->icache_size = dev_read_u32_default(dev, "i-cache-size", 0);
-	ci->icache_line_length = dev_read_u32_default(dev,
+	ci->icache_size = dev_reg_read_default(dev, "i-cache-size", 0);
+	ci->icache_line_length = dev_reg_read_default(dev,
 						"i-cache-line-size", 0);
 
-	ci->dcache_size = dev_read_u32_default(dev, "d-cache-size", 0);
-	ci->dcache_line_length = dev_read_u32_default(dev,
+	ci->dcache_size = dev_reg_read_default(dev, "d-cache-size", 0);
+	ci->dcache_line_length = dev_reg_read_default(dev,
 						"d-cache-line-size", 0);
 
-	ci->cpu_freq = dev_read_u32_default(dev, "clock-frequency", 0);
-	ci->addr_size = dev_read_u32_default(dev, "xlnx,addr-size", 32);
-	ci->use_mmu = dev_read_u32_default(dev, "xlnx,use-mmu", 0);
+	ci->cpu_freq = dev_reg_read_default(dev, "clock-frequency", 0);
+	ci->addr_size = dev_reg_read_default(dev, "xlnx,addr-size", 32);
+	ci->use_mmu = dev_reg_read_default(dev, "xlnx,use-mmu", 0);
 
 	ci->ver_code = microblaze_lookup_cpu_version_code(hw_ver);
 	ci->fpga_code = microblaze_lookup_fpga_family_code(fpga_family);

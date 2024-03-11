@@ -128,12 +128,12 @@ static int v5l2_of_to_plat(struct udevice *dev)
 	plat->dram_ctl[0] = -EINVAL;
 
 	/* Instruction and data fetch prefetch depth */
-	dev_read_u32(dev, "andes,inst-prefetch", &plat->iprefetch);
-	dev_read_u32(dev, "andes,data-prefetch", &plat->dprefetch);
+	dev_reg_read(dev, "andes,inst-prefetch", &plat->iprefetch);
+	dev_reg_read(dev, "andes,data-prefetch", &plat->dprefetch);
 
 	/* Set tag RAM and data RAM setup and output cycle */
-	dev_read_u32_array(dev, "andes,tag-ram-ctl", plat->tram_ctl, 2);
-	dev_read_u32_array(dev, "andes,data-ram-ctl", plat->dram_ctl, 2);
+	dev_reg_read_array(dev, "andes,tag-ram-ctl", plat->tram_ctl, 2);
+	dev_reg_read_array(dev, "andes,data-ram-ctl", plat->dram_ctl, 2);
 
 	return 0;
 }

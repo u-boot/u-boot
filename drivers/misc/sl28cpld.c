@@ -79,7 +79,7 @@ static int sl28cpld_child_post_bind(struct udevice *dev)
 	if (!dev_has_ofnode(dev))
 		return 0;
 
-	offset = dev_read_u32_default(dev, "reg", -1);
+	offset = dev_reg_read_default(dev, "reg", -1);
 	if (offset == -1)
 		return -EINVAL;
 

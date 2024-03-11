@@ -188,7 +188,7 @@ static int p2sb_child_post_bind(struct udevice *dev)
 		int ret;
 		u32 pid;
 
-		ret = dev_read_u32(dev, "intel,p2sb-port-id", &pid);
+		ret = dev_reg_read(dev, "intel,p2sb-port-id", &pid);
 		if (ret)
 			return ret;
 		pplat->pid = pid;

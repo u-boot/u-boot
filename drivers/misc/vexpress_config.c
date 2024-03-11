@@ -110,7 +110,7 @@ static int vexpress_config_probe(struct udevice *dev)
 
 	priv->addr = ofnode_get_addr(args.node);
 
-	return dev_read_u32(dev, "arm,vexpress,site", &priv->site);
+	return dev_reg_read(dev, "arm,vexpress,site", &priv->site);
 }
 
 static const struct udevice_id vexpress_config_ids[] = {

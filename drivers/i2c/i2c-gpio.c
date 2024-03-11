@@ -351,7 +351,7 @@ static int i2c_gpio_of_to_plat(struct udevice *dev)
 	if (ret < 0)
 		goto error;
 
-	bus->udelay = dev_read_u32_default(dev, "i2c-gpio,delay-us",
+	bus->udelay = dev_reg_read_default(dev, "i2c-gpio,delay-us",
 					   DEFAULT_UDELAY);
 
 	bus->get_sda = i2c_gpio_sda_get;
