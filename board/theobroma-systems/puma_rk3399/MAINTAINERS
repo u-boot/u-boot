@@ -5,7 +5,7 @@ S:	Maintained
 F:	board/theobroma-systems/puma_rk3399
 F:	board/theobroma-systems/common
 F:	include/configs/puma_rk3399.h
-F:	arch/arm/dts/rk3399-puma.dts
+F:	arch/arm/dts/rk3399-puma*
 F:	configs/puma-rk3399_defconfig
 W:	https://www.theobroma-systems.com/rk3399-q7/tech-specs
 T:	git git://git.theobroma-systems.com/puma-u-boot.git
