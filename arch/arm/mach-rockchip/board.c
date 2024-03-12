@@ -34,7 +34,7 @@
 #include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
 
-#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && IS_ENABLED(CONFIG_EFI_PARTITION)
 
 #define DFU_ALT_BUF_LEN			SZ_1K
 
@@ -185,16 +185,16 @@ static void gpt_capsule_update_setup(void)
 
 __weak int rk_board_late_init(void)
 {
-#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
-	gpt_capsule_update_setup();
-#endif
-
 	return 0;
 }
 
 int board_late_init(void)
 {
 	setup_boot_mode();
+
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && IS_ENABLED(CONFIG_EFI_PARTITION)
+	gpt_capsule_update_setup();
+#endif
 
 	return rk_board_late_init();
 }
