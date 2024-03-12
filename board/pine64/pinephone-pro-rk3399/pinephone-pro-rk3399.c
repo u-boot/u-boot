@@ -11,32 +11,10 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
-#include <power/regulator.h>
 
 #define GRF_IO_VSEL_BT565_GPIO2AB 1
 #define GRF_IO_VSEL_AUDIO_GPIO3D4A 2
 #define PMUGRF_CON0_VSEL_SHIFT 8
-
-#ifndef CONFIG_SPL_BUILD
-int board_early_init_f(void)
-{
-	struct udevice *regulator;
-	int ret;
-
-	ret = regulator_get_by_platname("vcc5v0_usb", &regulator);
-	if (ret) {
-		pr_debug("%s vcc5v0_usb init fail! ret %d\n", __func__, ret);
-		goto out;
-	}
-
-	ret = regulator_set_enable(regulator, true);
-	if (ret)
-		pr_debug("%s vcc5v0-host-en-gpio set fail! ret %d\n", __func__, ret);
-
-out:
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_MISC_INIT_R
 static void setup_iodomain(void)

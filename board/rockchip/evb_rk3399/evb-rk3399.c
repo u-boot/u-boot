@@ -10,7 +10,6 @@
 #include <log.h>
 #include <asm/arch-rockchip/periph.h>
 #include <linux/kernel.h>
-#include <power/regulator.h>
 
 #define ROCKPI4_UPDATABLE_IMAGES	2
 
@@ -25,25 +24,6 @@ struct efi_capsule_update_info update_info = {
 #endif
 
 #ifndef CONFIG_SPL_BUILD
-int board_early_init_f(void)
-{
-	struct udevice *regulator;
-	int ret;
-
-	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
-	if (ret) {
-		debug("%s vcc5v0_host init fail! ret %d\n", __func__, ret);
-		goto out;
-	}
-
-	ret = regulator_set_enable(regulator, true);
-	if (ret)
-		debug("%s vcc5v0-host-en set fail! ret %d\n", __func__, ret);
-
-out:
-	return 0;
-}
-
 #if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
 static bool board_is_rockpi_4b(void)
 {
