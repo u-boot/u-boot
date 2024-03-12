@@ -11,7 +11,6 @@
 #include "log.h"
 
 #ifndef __ASSEMBLY__
-#include <asm/types.h>
 enum endianness {
 	LITTLE_ENDIAN = 0,
 	BIG_ENDIAN,
