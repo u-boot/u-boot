@@ -128,6 +128,9 @@ static int dh_stm32_setup_ethaddr(void)
 	if (dh_mac_is_in_env("ethaddr"))
 		return 0;
 
+	if (dh_get_mac_is_enabled("ethernet0"))
+		return 0;
+
 	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
 		return eth_env_set_enetaddr("ethaddr", enetaddr);
 
@@ -139,6 +142,9 @@ static int dh_stm32_setup_eth1addr(void)
 	unsigned char enetaddr[6];
 
 	if (dh_mac_is_in_env("eth1addr"))
+		return 0;
+
+	if (dh_get_mac_is_enabled("ethernet1"))
 		return 0;
 
 	if (dh_stm32_mac_is_in_ks8851())

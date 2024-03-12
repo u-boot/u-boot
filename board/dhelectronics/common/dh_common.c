@@ -18,6 +18,19 @@ bool dh_mac_is_in_env(const char *env)
 	return eth_env_get_enetaddr(env, enetaddr);
 }
 
+int dh_get_mac_is_enabled(const char *alias)
+{
+	ofnode node = ofnode_path(alias);
+
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	if (!ofnode_is_enabled(node))
+		return -ENODEV;
+
+	return 0;
+}
+
 int dh_get_mac_from_eeprom(unsigned char *enetaddr, const char *alias)
 {
 	struct udevice *dev;
@@ -55,6 +68,9 @@ __weak int dh_setup_mac_address(void)
 	unsigned char enetaddr[6];
 
 	if (dh_mac_is_in_env("ethaddr"))
+		return 0;
+
+	if (dh_get_mac_is_enabled("ethernet0"))
 		return 0;
 
 	if (!dh_get_mac_from_eeprom(enetaddr, "eeprom0"))
