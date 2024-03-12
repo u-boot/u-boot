@@ -221,7 +221,7 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 #if ANDROID_AB_BACKUP_OFFSET
 		crc32_le = ab_control_compute_crc(backup_abc);
 		if (backup_abc->crc32_le != crc32_le) {
-			log_err("ANDROID: Invalid backup CRC-32 ")
+			log_err("ANDROID: Invalid backup CRC-32 ");
 			log_err("expected %.8x, found %.8x),",
 				crc32_le, backup_abc->crc32_le);
 #endif
