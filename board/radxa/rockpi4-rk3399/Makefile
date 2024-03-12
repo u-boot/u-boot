@@ -4,4 +4,4 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= evb-rk3399.o
+obj-y	+= rockpi4-rk3399.o

@@ -3,13 +3,8 @@
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
-#include <init.h>
-#include <log.h>
-#include <asm/arch-rockchip/periph.h>
-#include <linux/kernel.h>
 
 #define ROCKPI4_UPDATABLE_IMAGES	2
 
@@ -24,17 +19,15 @@ struct efi_capsule_update_info update_info = {
 #endif
 
 #ifndef CONFIG_SPL_BUILD
-#if defined(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && defined(CONFIG_EFI_PARTITION)
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && IS_ENABLED(CONFIG_EFI_PARTITION)
 static bool board_is_rockpi_4b(void)
 {
-	return CONFIG_IS_ENABLED(TARGET_EVB_RK3399) &&
-		of_machine_is_compatible("radxa,rockpi4b");
+	return of_machine_is_compatible("radxa,rockpi4b");
 }
 
 static bool board_is_rockpi_4c(void)
 {
-	return CONFIG_IS_ENABLED(TARGET_EVB_RK3399) &&
-		of_machine_is_compatible("radxa,rockpi4c");
+	return of_machine_is_compatible("radxa,rockpi4c");
 }
 
 void rockchip_capsule_update_board_setup(void)
