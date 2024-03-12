@@ -77,7 +77,7 @@
 			       0x0 0x100b2000 0x0 0x2000
 			       0x0 0x100b8000 0x0 0x1000>;
 			clocks = <&prci FU740_PRCI_CLK_DDRPLL>;
-			clock-frequency = <933333324>;
+			clock-frequency = <800000004>;
 			bootph-pre-ram;
 		};
 	};

@@ -49,14 +49,24 @@ static inline bool supports_extension(char ext)
 	}
 	if (!cpu_get_desc(dev, desc, sizeof(desc))) {
 		/*
-		 * skip the first 4 characters (rv32|rv64) and
-		 * check until underscore
+		 * skip the first 4 characters (rv32|rv64)
 		 */
 		for (i = 4; i < sizeof(desc); i++) {
-			if (desc[i] == '_' || desc[i] == '\0')
-				break;
-			if (desc[i] == ext)
-				return true;
+			switch (desc[i]) {
+			case 's':
+			case 'x':
+			case 'z':
+			case '_':
+			case '\0':
+				/*
+				 * Any of these characters mean the single
+				 * letter extensions have all been consumed.
+				 */
+				return false;
+			default:
+				if (desc[i] == ext)
+					return true;
+			}
 		}
 	}
 
