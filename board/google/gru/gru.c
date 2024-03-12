@@ -3,18 +3,9 @@
  * Copyright 2018 Google
  */
 
-#include <common.h>
 #include <dm.h>
 #include <init.h>
-#include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/grf_rk3399.h>
-#include <asm/arch-rockchip/hardware.h>
-
-#define GRF_IO_VSEL_BT656_SHIFT 0
-#define GRF_IO_VSEL_AUDIO_SHIFT 1
-#define PMUGRF_CON0_VSEL_SHIFT 8
-#define PMUGRF_CON0_VOL_SHIFT 9
 
 #ifdef CONFIG_SPL_BUILD
 /* provided to defeat compiler optimisation in board_init_f() */
@@ -63,29 +54,3 @@ int board_early_init_r(void)
 	return 0;
 }
 #endif
-
-static void setup_iodomain(void)
-{
-	struct rk3399_grf_regs *grf =
-	   syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	struct rk3399_pmugrf_regs *pmugrf =
-	   syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
-
-	/* BT656 and audio is in 1.8v domain */
-	rk_setreg(&grf->io_vsel, (1 << GRF_IO_VSEL_BT656_SHIFT |
-				  1 << GRF_IO_VSEL_AUDIO_SHIFT));
-
-	/*
-	 * Set GPIO1 1.8v/3.0v source select to PMU1830_VOL
-	 * and explicitly configure that PMU1830_VOL to be 1.8V
-	 */
-	rk_setreg(&pmugrf->soc_con0, (1 << PMUGRF_CON0_VSEL_SHIFT |
-				      1 << PMUGRF_CON0_VOL_SHIFT));
-}
-
-int rockchip_early_misc_init_r(void)
-{
-	setup_iodomain();
-
-	return 0;
-}
