@@ -100,10 +100,16 @@ static const struct soc_attr ti_k3_soc_pd_data[] = {
 		.data = &am62ax_pd_platdata,
 	},
 #endif
-#ifdef CONFIG_SOC_K3_J784S4
+#if IS_ENABLED(CONFIG_SOC_K3_J784S4)
 	{
 		.family = "J784S4",
 		.data = &j784s4_pd_platdata,
+	},
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_AM62P5)
+	{
+		.family = "AM62PX",
+		.data = &am62px_pd_platdata,
 	},
 #endif
 	{ /* sentinel */ }
