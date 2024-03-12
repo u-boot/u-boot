@@ -1,5 +1,6 @@
 ROCKPRO64
 M:	Jagan Teki <jagan@amarulasolutions.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	board/pine64/rockpro64_rk3399
 F:	include/configs/rockpro64_rk3399.h
