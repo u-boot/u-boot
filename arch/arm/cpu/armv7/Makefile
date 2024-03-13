@@ -37,7 +37,6 @@ obj-$(if $(filter bcm281xx,$(SOC)),y) += bcm281xx/
 obj-$(if $(filter bcmcygnus,$(SOC)),y) += bcmcygnus/
 obj-$(if $(filter bcmnsp,$(SOC)),y) += bcmnsp/
 obj-$(if $(filter ls102xa,$(SOC)),y) += ls102xa/
-obj-$(if $(filter stv0991,$(SOC)),y) += stv0991/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_VF610) += vf610/
 obj-$(CONFIG_ARCH_S5P4418) += s5p4418/

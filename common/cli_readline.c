@@ -86,6 +86,9 @@ static int hist_add_idx;
 static int hist_cur = -1;
 static unsigned hist_num;
 
+#ifndef CONFIG_CMD_HISTORY_USE_CALLOC
+static char hist_data[HIST_MAX][HIST_SIZE + 1];
+#endif
 static char *hist_list[HIST_MAX];
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
@@ -100,20 +103,26 @@ static void getcmd_putchars(int count, int ch)
 
 static int hist_init(void)
 {
-	unsigned char *hist;
 	int i;
+
+#ifndef CONFIG_CMD_HISTORY_USE_CALLOC
+	for (i = 0; i < HIST_MAX; i++) {
+		hist_list[i] = hist_data[i];
+		hist_list[i][0] = '\0';
+	}
+#else
+	unsigned char *hist = calloc(HIST_MAX, HIST_SIZE + 1);
+	if (!hist)
+		panic("%s: calloc: out of memory!\n", __func__);
+
+	for (i = 0; i < HIST_MAX; i++)
+		hist_list[i] = hist + (i * (HIST_SIZE + 1));
+#endif
 
 	hist_max = 0;
 	hist_add_idx = 0;
 	hist_cur = -1;
 	hist_num = 0;
-
-	hist = calloc(HIST_MAX, HIST_SIZE + 1);
-	if (!hist)
-		return -ENOMEM;
-
-	for (i = 0; i < HIST_MAX; i++)
-		hist_list[i] = hist + (i * (HIST_SIZE + 1));
 
 	return 0;
 }
@@ -643,10 +652,15 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	static int initted;
 
 	/*
-	 * History uses a global array which is not
-	 * writable until after relocation to RAM.
-	 * Revert to non-history version if still
-	 * running from flash.
+	 * Say N to CMD_HISTORY_USE_CALLOC will skip runtime
+	 * allocation for the history buffer and directly
+	 * use an uninitialized static array as the buffer.
+	 * Doing this might have better performance and not
+	 * increase the binary file's size, as it only marks
+	 * the size. However, the array is only writable after
+	 * relocation to RAM. If u-boot is running from ROM
+	 * all the time, consider say Y to CMD_HISTORY_USE_CALLOC
+	 * or disable CMD_HISTORY.
 	 */
 	if (IS_ENABLED(CONFIG_CMDLINE_EDITING) && (gd->flags & GD_FLG_RELOC)) {
 		if (!initted) {

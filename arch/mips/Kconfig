@@ -473,12 +473,6 @@ config MIPS_TUNE_74KC
 config MIPS_TUNE_OCTEON3
 	bool
 
-config 32BIT
-	bool
-
-config 64BIT
-	bool
-
 config SWAP_IO_SPACE
 	bool
 

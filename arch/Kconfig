@@ -20,6 +20,12 @@ config SYS_CACHE_SHIFT_6
 config SYS_CACHE_SHIFT_7
 	bool
 
+config 32BIT
+	bool
+
+config 64BIT
+	bool
+
 config SYS_CACHELINE_SIZE
 	int
 	default 128 if SYS_CACHE_SHIFT_7

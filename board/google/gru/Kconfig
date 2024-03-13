@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "gru"
 
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-
 endif
 
 if TARGET_CHROMEBOOK_KEVIN
@@ -24,8 +21,5 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "gru"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
 
 endif

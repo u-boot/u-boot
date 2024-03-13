@@ -49,18 +49,6 @@
 	};
 };
 
-&main_esm {
-	bootph-pre-ram;
-};
-
-&cbass_mcu {
-	bootph-pre-ram;
-};
-
-&mcu_esm {
-	bootph-pre-ram;
-};
-
 &dmsc {
 	mboxes= <&secure_proxy_main 0>,
 		<&secure_proxy_main 1>,

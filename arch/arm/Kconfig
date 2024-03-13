@@ -6,6 +6,7 @@ config SYS_ARCH
 
 config ARM64
 	bool
+	select 64BIT
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 	imply SPL_SEPARATE_BSS
@@ -630,20 +631,6 @@ config ARCH_ORION5X
 	select GPIO_EXTRA_HEADER
 	select SPL_SEPARATE_BSS if SPL
 	select TIMER
-
-config TARGET_STV0991
-	bool "Support stv0991"
-	select CPU_V7A
-	select DM
-	select DM_SERIAL
-	select DM_SPI
-	select DM_SPI_FLASH
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-	select MTD
-	select SPI
-	select SPI_FLASH
-	imply CMD_DM
 
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
@@ -2358,7 +2345,6 @@ source "board/samsung/common/Kconfig"
 source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
-source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"

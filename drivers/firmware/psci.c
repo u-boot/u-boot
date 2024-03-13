@@ -135,8 +135,11 @@ static int bind_smccc_features(struct udevice *dev, int psci_method)
 	    PSCI_VERSION_MAJOR(psci_0_2_get_version()) == 0)
 		return 0;
 
-	if (request_psci_features(ARM_SMCCC_ARCH_FEATURES) ==
+	if (request_psci_features(ARM_SMCCC_VERSION) ==
 	    PSCI_RET_NOT_SUPPORTED)
+		return 0;
+
+	if (invoke_psci_fn(ARM_SMCCC_VERSION, 0, 0, 0) < ARM_SMCCC_VERSION_1_1)
 		return 0;
 
 	if (psci_method == PSCI_METHOD_HVC)
