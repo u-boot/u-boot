@@ -35,6 +35,7 @@ K3 Based SoCs
    ../beagle/am62x_beagleplay
    ../phytec/phycore-am62x
    ../toradex/verdin-am62
+   am62px_sk
    am64x_evm
    am65x_evm
    j7200_evm

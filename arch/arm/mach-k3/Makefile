@@ -22,5 +22,6 @@ obj-$(CONFIG_SOC_K3_AM642) += am642_init.o
 obj-$(CONFIG_SOC_K3_AM625) += am625_init.o
 obj-$(CONFIG_SOC_K3_AM62A7) += am62a7_init.o
 obj-$(CONFIG_SOC_K3_J784S4) += j784s4_init.o
+obj-$(CONFIG_SOC_K3_AM62P5) += am62p5_init.o
 endif
 obj-y += common.o security.o
