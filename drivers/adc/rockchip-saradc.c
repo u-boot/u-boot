@@ -23,13 +23,16 @@
 
 #define SARADC_TIMEOUT			(100 * 1000)
 
-struct rockchip_saradc_regs {
+struct rockchip_saradc_regs_v1 {
 	unsigned int data;
 	unsigned int stas;
 	unsigned int ctrl;
 	unsigned int dly_pu_soc;
 };
 
+union rockchip_saradc_regs {
+	struct rockchip_saradc_regs_v1	*v1;
+};
 struct rockchip_saradc_data {
 	int				num_bits;
 	int				num_channels;
@@ -37,7 +40,7 @@ struct rockchip_saradc_data {
 };
 
 struct rockchip_saradc_priv {
-	struct rockchip_saradc_regs		*regs;
+	union rockchip_saradc_regs		regs;
 	int					active_channel;
 	const struct rockchip_saradc_data	*data;
 };
@@ -53,16 +56,16 @@ int rockchip_saradc_channel_data(struct udevice *dev, int channel,
 		return -EINVAL;
 	}
 
-	if ((readl(&priv->regs->ctrl) & SARADC_CTRL_IRQ_STATUS) !=
+	if ((readl(&priv->regs.v1->ctrl) & SARADC_CTRL_IRQ_STATUS) !=
 	    SARADC_CTRL_IRQ_STATUS)
 		return -EBUSY;
 
 	/* Read value */
-	*data = readl(&priv->regs->data);
+	*data = readl(&priv->regs.v1->data);
 	*data &= uc_pdata->data_mask;
 
 	/* Power down adc */
-	writel(0, &priv->regs->ctrl);
+	writel(0, &priv->regs.v1->ctrl);
 
 	return 0;
 }
@@ -77,11 +80,11 @@ int rockchip_saradc_start_channel(struct udevice *dev, int channel)
 	}
 
 	/* 8 clock periods as delay between power up and start cmd */
-	writel(8, &priv->regs->dly_pu_soc);
+	writel(8, &priv->regs.v1->dly_pu_soc);
 
 	/* Select the channel to be used and trigger conversion */
 	writel(SARADC_CTRL_POWER_CTRL | (channel & SARADC_CTRL_CHN_MASK) |
-	       SARADC_CTRL_IRQ_ENABLE, &priv->regs->ctrl);
+	       SARADC_CTRL_IRQ_ENABLE, &priv->regs.v1->ctrl);
 
 	priv->active_channel = channel;
 
@@ -93,7 +96,7 @@ int rockchip_saradc_stop(struct udevice *dev)
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
 
 	/* Power down adc */
-	writel(0, &priv->regs->ctrl);
+	writel(0, &priv->regs.v1->ctrl);
 
 	priv->active_channel = -1;
 
@@ -146,8 +149,8 @@ int rockchip_saradc_of_to_plat(struct udevice *dev)
 	struct rockchip_saradc_data *data;
 
 	data = (struct rockchip_saradc_data *)dev_get_driver_data(dev);
-	priv->regs = dev_read_addr_ptr(dev);
-	if (!priv->regs) {
+	priv->regs.v1 = dev_read_addr_ptr(dev);
+	if (!priv->regs.v1) {
 		pr_err("Dev: %s - can't get address!", dev->name);
 		return -EINVAL;
 	}
