@@ -70,7 +70,7 @@ int load_firmware(char *name_fw, char *name_loadaddr, u32 *loadaddr)
 	char *name = NULL;
 	int size = 0;
 
-	if (!IS_ENABLED(CONFIG_FS_LOADER))
+	if (!CONFIG_IS_ENABLED(FS_LOADER))
 		return 0;
 
 	*loadaddr = 0;
