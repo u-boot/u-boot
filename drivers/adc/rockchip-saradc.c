@@ -39,6 +39,7 @@ struct rockchip_saradc_data {
 	unsigned long			clk_rate;
 	int (*channel_data)(struct udevice *dev, int channel, unsigned int *data);
 	int (*start_channel)(struct udevice *dev, int channel);
+	int (*stop)(struct udevice *dev);
 };
 
 struct rockchip_saradc_priv {
@@ -124,12 +125,28 @@ int rockchip_saradc_start_channel(struct udevice *dev, int channel)
 	return 0;
 }
 
-int rockchip_saradc_stop(struct udevice *dev)
+int rockchip_saradc_stop_v1(struct udevice *dev)
 {
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
 
 	/* Power down adc */
 	writel(0, &priv->regs.v1->ctrl);
+
+	return 0;
+}
+
+int rockchip_saradc_stop(struct udevice *dev)
+{
+	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
+
+	if (priv->data->stop) {
+		int ret = priv->data->stop(dev);
+
+		if (ret) {
+			pr_err("Error stopping channel, %d!", ret);
+			return ret;
+		}
+	}
 
 	priv->active_channel = -1;
 
@@ -209,6 +226,7 @@ static const struct rockchip_saradc_data saradc_data = {
 	.clk_rate = 1000000,
 	.channel_data = rockchip_saradc_channel_data_v1,
 	.start_channel = rockchip_saradc_start_channel_v1,
+	.stop = rockchip_saradc_stop_v1,
 };
 
 static const struct rockchip_saradc_data rk3066_tsadc_data = {
@@ -217,6 +235,7 @@ static const struct rockchip_saradc_data rk3066_tsadc_data = {
 	.clk_rate = 50000,
 	.channel_data = rockchip_saradc_channel_data_v1,
 	.start_channel = rockchip_saradc_start_channel_v1,
+	.stop = rockchip_saradc_stop_v1,
 };
 
 static const struct rockchip_saradc_data rk3399_saradc_data = {
@@ -225,6 +244,7 @@ static const struct rockchip_saradc_data rk3399_saradc_data = {
 	.clk_rate = 1000000,
 	.channel_data = rockchip_saradc_channel_data_v1,
 	.start_channel = rockchip_saradc_start_channel_v1,
+	.stop = rockchip_saradc_stop_v1,
 };
 
 static const struct udevice_id rockchip_saradc_ids[] = {
