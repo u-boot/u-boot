@@ -29,7 +29,7 @@
  *   -ENOSYS, if the device matching the node can not be mapped onto a
  *            SPL boot device (e.g. the third MMC device)
  *   -1, for unspecified failures
- *   a positive integer (from the BOOT_DEVICE_... family) on succes.
+ *   a positive integer (from the BOOT_DEVICE_... family) on success.
  */
 
 static int spl_node_to_boot_device(int node)
