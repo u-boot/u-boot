@@ -13,6 +13,7 @@ config ADC
 
 config ADC_EXYNOS
 	bool "Enable Exynos 54xx ADC driver"
+	depends on ADC
 	help
 	  This enables basic driver for Exynos ADC compatible with Exynos54xx.
 	  It provides:
@@ -22,6 +23,7 @@ config ADC_EXYNOS
 
 config ADC_SANDBOX
 	bool "Enable Sandbox ADC test driver"
+	depends on ADC
 	help
 	  This enables driver for Sandbox ADC device emulation.
 	  It provides:
@@ -31,6 +33,7 @@ config ADC_SANDBOX
 
 config SARADC_MESON
 	bool "Enable Amlogic Meson SARADC driver"
+	depends on ADC
 	imply REGMAP
 	help
 	  This enables driver for Amlogic Meson SARADC.
@@ -41,6 +44,7 @@ config SARADC_MESON
 
 config SARADC_ROCKCHIP
 	bool "Enable Rockchip SARADC driver"
+	depends on ADC
 	help
 	  This enables driver for Rockchip SARADC.
 	  It provides:
