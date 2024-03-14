@@ -350,7 +350,7 @@ edit
 exists
     CONFIG_CMD_ENV_EXISTS
 
-flsgs
+flags
     CONFIG_CMD_ENV_FLAGS
 
 erase
