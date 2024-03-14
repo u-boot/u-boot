@@ -37,6 +37,7 @@ struct rockchip_saradc_data {
 	int				num_bits;
 	int				num_channels;
 	unsigned long			clk_rate;
+	int (*channel_data)(struct udevice *dev, int channel, unsigned int *data);
 };
 
 struct rockchip_saradc_priv {
@@ -45,16 +46,10 @@ struct rockchip_saradc_priv {
 	const struct rockchip_saradc_data	*data;
 };
 
-int rockchip_saradc_channel_data(struct udevice *dev, int channel,
-				 unsigned int *data)
+int rockchip_saradc_channel_data_v1(struct udevice *dev, int channel,
+				    unsigned int *data)
 {
 	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
-	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
-
-	if (channel != priv->active_channel) {
-		pr_err("Requested channel is not active!");
-		return -EINVAL;
-	}
 
 	if ((readl(&priv->regs.v1->ctrl) & SARADC_CTRL_IRQ_STATUS) !=
 	    SARADC_CTRL_IRQ_STATUS)
@@ -62,10 +57,33 @@ int rockchip_saradc_channel_data(struct udevice *dev, int channel,
 
 	/* Read value */
 	*data = readl(&priv->regs.v1->data);
-	*data &= uc_pdata->data_mask;
 
 	/* Power down adc */
 	writel(0, &priv->regs.v1->ctrl);
+
+	return 0;
+}
+
+int rockchip_saradc_channel_data(struct udevice *dev, int channel,
+				 unsigned int *data)
+{
+	struct rockchip_saradc_priv *priv = dev_get_priv(dev);
+	struct adc_uclass_plat *uc_pdata = dev_get_uclass_plat(dev);
+	int ret;
+
+	if (channel != priv->active_channel) {
+		pr_err("Requested channel is not active!");
+		return -EINVAL;
+	}
+
+	ret = priv->data->channel_data(dev, channel, data);
+	if (ret) {
+		if (ret != -EBUSY)
+			pr_err("Error reading channel data, %d!", ret);
+		return ret;
+	}
+
+	*data &= uc_pdata->data_mask;
 
 	return 0;
 }
@@ -174,18 +192,21 @@ static const struct rockchip_saradc_data saradc_data = {
 	.num_bits = 10,
 	.num_channels = 3,
 	.clk_rate = 1000000,
+	.channel_data = rockchip_saradc_channel_data_v1,
 };
 
 static const struct rockchip_saradc_data rk3066_tsadc_data = {
 	.num_bits = 12,
 	.num_channels = 2,
 	.clk_rate = 50000,
+	.channel_data = rockchip_saradc_channel_data_v1,
 };
 
 static const struct rockchip_saradc_data rk3399_saradc_data = {
 	.num_bits = 10,
 	.num_channels = 6,
 	.clk_rate = 1000000,
+	.channel_data = rockchip_saradc_channel_data_v1,
 };
 
 static const struct udevice_id rockchip_saradc_ids[] = {
