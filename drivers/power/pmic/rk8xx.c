@@ -9,8 +9,10 @@
 #include <dm/lists.h>
 #include <errno.h>
 #include <log.h>
+#include <linux/bitfield.h>
 #include <power/rk8xx_pmic.h>
 #include <power/pmic.h>
+#include <spi.h>
 #include <sysreset.h>
 
 static int rk8xx_sysreset_request(struct udevice *dev, enum sysreset_t type)
@@ -30,6 +32,10 @@ static int rk8xx_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	case RK809_ID:
 	case RK817_ID:
 		pmic_clrsetbits(dev->parent, RK817_REG_SYS_CFG3, 0,
+				BIT(0));
+		break;
+	case RK806_ID:
+		pmic_clrsetbits(dev->parent, RK806_REG_SYS_CFG3, 0,
 				BIT(0));
 		break;
 	default:
@@ -83,6 +89,11 @@ void rk8xx_off_for_plugin(struct udevice *dev)
 	}
 }
 
+static struct reg_data rk806_init_reg[] = {
+	/* RST_FUN */
+	{ RK806_REG_SYS_CFG3, GENMASK(7, 6), BIT(7)},
+};
+
 static struct reg_data rk817_init_reg[] = {
 /* enable the under-voltage protection,
  * the under-voltage protection will shutdown the LDO3 and reset the PMIC
@@ -92,7 +103,10 @@ static struct reg_data rk817_init_reg[] = {
 
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "DCDC_REG", .driver = "rk8xx_buck"},
+	{ .prefix = "dcdc-reg", .driver = "rk8xx_buck"},
 	{ .prefix = "LDO_REG", .driver = "rk8xx_ldo"},
+	{ .prefix = "nldo-reg", .driver = "rk8xx_nldo"},
+	{ .prefix = "pldo-reg", .driver = "rk8xx_pldo"},
 	{ .prefix = "SWITCH_REG", .driver = "rk8xx_switch"},
 	{ },
 };
@@ -102,10 +116,50 @@ static int rk8xx_reg_count(struct udevice *dev)
 	return RK808_NUM_OF_REGS;
 }
 
+#if CONFIG_IS_ENABLED(SPI) && CONFIG_IS_ENABLED(DM_SPI)
+struct rk806_cmd {
+	uint8_t	len: 4; /* Payload size in bytes - 1 */
+	uint8_t	reserved: 2;
+	uint8_t	crc_en: 1;
+	uint8_t	op: 1; /* READ=0; WRITE=1; */
+	uint8_t	reg_l;
+#define REG_L_MASK	GENMASK(7, 0)
+	uint8_t	reg_h;
+#define REG_H_MASK	GENMASK(15, 8)
+};
+#endif
+
 static int rk8xx_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	int ret;
+
+#if CONFIG_IS_ENABLED(SPI) && CONFIG_IS_ENABLED(DM_SPI)
+	if (device_get_uclass_id(dev->parent) == UCLASS_SPI) {
+		struct spi_slave *spi = dev_get_parent_priv(dev);
+		struct rk806_cmd cmd = {
+			.op = 1,
+			.len = len - 1,
+			.reg_l = FIELD_GET(REG_L_MASK, reg),
+			.reg_h = FIELD_GET(REG_H_MASK, reg),
+		};
+
+		ret = dm_spi_claim_bus(dev);
+		if (ret) {
+			debug("Couldn't claim bus for device: %p!\n", dev);
+			return ret;
+		}
+
+		ret = spi_write_then_read(spi, (u8 *)&cmd, sizeof(cmd), buff, NULL, len);
+		if (ret)
+			debug("write error to device: %p register: %#x!\n",
+			      dev, reg);
+
+		dm_spi_release_bus(dev);
+
+		return ret;
+	}
+#endif
 
 	ret = dm_i2c_write(dev, reg, buff, len);
 	if (ret) {
@@ -119,6 +173,33 @@ static int rk8xx_write(struct udevice *dev, uint reg, const uint8_t *buff,
 static int rk8xx_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	int ret;
+
+#if CONFIG_IS_ENABLED(SPI) && CONFIG_IS_ENABLED(DM_SPI)
+	if (device_get_uclass_id(dev->parent) == UCLASS_SPI) {
+		struct spi_slave *spi = dev_get_parent_priv(dev);
+		struct rk806_cmd cmd = {
+			.op = 0,
+			.len = len - 1,
+			.reg_l = FIELD_GET(REG_L_MASK, reg),
+			.reg_h = FIELD_GET(REG_H_MASK, reg),
+		};
+
+		ret = dm_spi_claim_bus(dev);
+		if (ret) {
+			debug("Couldn't claim bus for device: %p!\n", dev);
+			return ret;
+		}
+
+		ret = spi_write_then_read(spi, (u8 *)&cmd, sizeof(cmd), NULL, buff, len);
+		if (ret)
+			debug("read error to device: %p register: %#x!\n",
+			      dev, reg);
+
+		dm_spi_release_bus(dev);
+
+		return ret;
+	}
+#endif
 
 	ret = dm_i2c_read(dev, reg, buff, len);
 	if (ret) {
@@ -181,6 +262,9 @@ static int rk8xx_probe(struct udevice *dev)
 	    device_is_compatible(dev, "rockchip,rk809")) {
 		id_msb = RK817_ID_MSB;
 		id_lsb = RK817_ID_LSB;
+	} else if (device_is_compatible(dev, "rockchip,rk806")) {
+		id_msb = RK806_ID_MSB;
+		id_lsb = RK806_ID_LSB;
 	} else {
 		id_msb = ID_MSB;
 		id_lsb = ID_LSB;
@@ -220,6 +304,12 @@ static int rk8xx_probe(struct udevice *dev)
 		pmic_reg_write(dev, RK817_POWER_EN_SAVE0, value);
 		value = (power_en2 & 0x0f) | ((power_en3 & 0x0f) << 4);
 		pmic_reg_write(dev, RK817_POWER_EN_SAVE1, value);
+		break;
+	case RK806_ID:
+		on_source = RK806_ON_SOURCE;
+		off_source = RK806_OFF_SOURCE;
+		init_data = rk806_init_reg;
+		init_data_num = ARRAY_SIZE(rk806_init_reg);
 		break;
 	default:
 		printf("Unknown PMIC: RK%x!!\n", priv->variant);
@@ -263,6 +353,7 @@ static struct dm_pmic_ops rk8xx_ops = {
 
 static const struct udevice_id rk8xx_ids[] = {
 	{ .compatible = "rockchip,rk805" },
+	{ .compatible = "rockchip,rk806" },
 	{ .compatible = "rockchip,rk808" },
 	{ .compatible = "rockchip,rk809" },
 	{ .compatible = "rockchip,rk816" },

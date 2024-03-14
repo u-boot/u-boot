@@ -25,6 +25,19 @@
 #define NA			0xff
 
 /* Field Definitions */
+#define RK806_BUCK_CONFIG(n)	(0x10 + (n) - 1)
+#define RK806_BUCK_ON_VSEL(n)	(0x1a + (n) - 1)
+#define RK806_BUCK_SLP_VSEL(n)	(0x24 + (n) - 1)
+#define RK806_BUCK_VSEL_MASK	0xff
+
+#define RK806_NLDO_ON_VSEL(n)	(0x43 + (n) - 1)
+#define RK806_NLDO_SLP_VSEL(n)	(0x48 + (n) - 1)
+#define RK806_NLDO_VSEL_MASK	0xff
+
+#define RK806_PLDO_ON_VSEL(n)	(0x4e + (n) - 1)
+#define RK806_PLDO_SLP_VSEL(n)	(0x54 + (n) - 1)
+#define RK806_PLDO_VSEL_MASK	0xff
+
 #define RK808_BUCK_VSEL_MASK	0x3f
 #define RK808_BUCK4_VSEL_MASK	0xf
 #define RK808_LDO_VSEL_MASK	0x1f
@@ -91,6 +104,49 @@ struct rk8xx_reg_info {
 	u8 max_sel;
 };
 
+static const struct rk8xx_reg_info rk806_buck[] = {
+	/* buck 1 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(1), RK806_BUCK_SLP_VSEL(1), RK806_BUCK_CONFIG(1), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(1), RK806_BUCK_SLP_VSEL(1), RK806_BUCK_CONFIG(1), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(1), RK806_BUCK_SLP_VSEL(1), RK806_BUCK_CONFIG(1), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 2 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(2), RK806_BUCK_SLP_VSEL(2), RK806_BUCK_CONFIG(2), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(2), RK806_BUCK_SLP_VSEL(2), RK806_BUCK_CONFIG(2), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(2), RK806_BUCK_SLP_VSEL(2), RK806_BUCK_CONFIG(2), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 3 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(3), RK806_BUCK_SLP_VSEL(3), RK806_BUCK_CONFIG(3), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(3), RK806_BUCK_SLP_VSEL(3), RK806_BUCK_CONFIG(3), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(3), RK806_BUCK_SLP_VSEL(3), RK806_BUCK_CONFIG(3), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 4 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(4), RK806_BUCK_SLP_VSEL(4), RK806_BUCK_CONFIG(4), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(4), RK806_BUCK_SLP_VSEL(4), RK806_BUCK_CONFIG(4), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(4), RK806_BUCK_SLP_VSEL(4), RK806_BUCK_CONFIG(4), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 5 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(5), RK806_BUCK_SLP_VSEL(5), RK806_BUCK_CONFIG(5), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(5), RK806_BUCK_SLP_VSEL(5), RK806_BUCK_CONFIG(5), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(5), RK806_BUCK_SLP_VSEL(5), RK806_BUCK_CONFIG(5), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 6 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(6), RK806_BUCK_SLP_VSEL(6), RK806_BUCK_CONFIG(6), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(6), RK806_BUCK_SLP_VSEL(6), RK806_BUCK_CONFIG(6), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(6), RK806_BUCK_SLP_VSEL(6), RK806_BUCK_CONFIG(6), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 7 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(7), RK806_BUCK_SLP_VSEL(7), RK806_BUCK_CONFIG(7), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(7), RK806_BUCK_SLP_VSEL(7), RK806_BUCK_CONFIG(7), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(7), RK806_BUCK_SLP_VSEL(7), RK806_BUCK_CONFIG(7), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 8 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(8), RK806_BUCK_SLP_VSEL(8), RK806_BUCK_CONFIG(8), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(8), RK806_BUCK_SLP_VSEL(8), RK806_BUCK_CONFIG(8), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(8), RK806_BUCK_SLP_VSEL(8), RK806_BUCK_CONFIG(8), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 9 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(9), RK806_BUCK_SLP_VSEL(9), RK806_BUCK_CONFIG(9), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(9), RK806_BUCK_SLP_VSEL(9), RK806_BUCK_CONFIG(9), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(9), RK806_BUCK_SLP_VSEL(9), RK806_BUCK_CONFIG(9), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+	/* buck 10 */
+	{  500000,   6250, RK806_BUCK_ON_VSEL(10), RK806_BUCK_SLP_VSEL(10), RK806_BUCK_CONFIG(10), RK806_BUCK_VSEL_MASK, 0x00, 0x9f },
+	{ 1500000,  25000, RK806_BUCK_ON_VSEL(10), RK806_BUCK_SLP_VSEL(10), RK806_BUCK_CONFIG(10), RK806_BUCK_VSEL_MASK, 0xa0, 0xeb },
+	{ 3400000,	0, RK806_BUCK_ON_VSEL(10), RK806_BUCK_SLP_VSEL(10), RK806_BUCK_CONFIG(10), RK806_BUCK_VSEL_MASK, 0xec, 0xff },
+};
+
 static const struct rk8xx_reg_info rk808_buck[] = {
 	{  712500,  12500, REG_BUCK1_ON_VSEL, REG_BUCK1_SLP_VSEL, REG_BUCK1_CONFIG,  RK808_BUCK_VSEL_MASK, 0x00, 0x3f },
 	{  712500,  12500, REG_BUCK2_ON_VSEL, REG_BUCK2_SLP_VSEL, REG_BUCK2_CONFIG,  RK808_BUCK_VSEL_MASK, 0x00, 0x3f },
@@ -148,6 +204,45 @@ static const struct rk8xx_reg_info rk818_buck[] = {
 };
 
 #ifdef ENABLE_DRIVER
+static const struct rk8xx_reg_info rk806_nldo[] = {
+	/* nldo 1 */
+	{  500000, 12500, RK806_NLDO_ON_VSEL(1), RK806_NLDO_SLP_VSEL(1), NA, RK806_NLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_NLDO_ON_VSEL(1), RK806_NLDO_SLP_VSEL(1), NA, RK806_NLDO_VSEL_MASK, 0xe8, 0xff},
+	/* nldo 2 */
+	{  500000, 12500, RK806_NLDO_ON_VSEL(2), RK806_NLDO_SLP_VSEL(2), NA, RK806_NLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_NLDO_ON_VSEL(2), RK806_NLDO_SLP_VSEL(2), NA, RK806_NLDO_VSEL_MASK, 0xe8, 0xff},
+	/* nldo 3 */
+	{  500000, 12500, RK806_NLDO_ON_VSEL(3), RK806_NLDO_SLP_VSEL(3), NA, RK806_NLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_NLDO_ON_VSEL(3), RK806_NLDO_SLP_VSEL(3), NA, RK806_NLDO_VSEL_MASK, 0xe8, 0xff},
+	/* nldo 4 */
+	{  500000, 12500, RK806_NLDO_ON_VSEL(4), RK806_NLDO_SLP_VSEL(4), NA, RK806_NLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_NLDO_ON_VSEL(4), RK806_NLDO_SLP_VSEL(4), NA, RK806_NLDO_VSEL_MASK, 0xe8, 0xff},
+	/* nldo 5 */
+	{  500000, 12500, RK806_NLDO_ON_VSEL(5), RK806_NLDO_SLP_VSEL(5), NA, RK806_NLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_NLDO_ON_VSEL(5), RK806_NLDO_SLP_VSEL(5), NA, RK806_NLDO_VSEL_MASK, 0xe8, 0xff},
+};
+
+static const struct rk8xx_reg_info rk806_pldo[] = {
+	/* pldo 1 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(1), RK806_PLDO_SLP_VSEL(1), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(1), RK806_PLDO_SLP_VSEL(1), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+	/* pldo 2 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(2), RK806_PLDO_SLP_VSEL(2), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(2), RK806_PLDO_SLP_VSEL(2), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+	/* pldo 3 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(3), RK806_PLDO_SLP_VSEL(3), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(3), RK806_PLDO_SLP_VSEL(3), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+	/* pldo 4 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(4), RK806_PLDO_SLP_VSEL(4), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(4), RK806_PLDO_SLP_VSEL(4), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+	/* pldo 5 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(5), RK806_PLDO_SLP_VSEL(5), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(5), RK806_PLDO_SLP_VSEL(5), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+	/* pldo 6 */
+	{  500000, 12500, RK806_PLDO_ON_VSEL(6), RK806_PLDO_SLP_VSEL(6), NA, RK806_PLDO_VSEL_MASK, 0x00, 0xe7},
+	{ 3400000,     0, RK806_PLDO_ON_VSEL(6), RK806_PLDO_SLP_VSEL(6), NA, RK806_PLDO_VSEL_MASK, 0xe8, 0xff},
+};
+
 static const struct rk8xx_reg_info rk808_ldo[] = {
 	{ 1800000, 100000, REG_LDO1_ON_VSEL, REG_LDO1_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
 	{ 1800000, 100000, REG_LDO2_ON_VSEL, REG_LDO2_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
@@ -230,7 +325,12 @@ static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
 		default:
 			return &rk816_buck[num + 4];
 		}
-
+	case RK806_ID:
+		if (uvolt < 1500000)
+			return &rk806_buck[num * 3 + 0];
+		else if (uvolt < 3400000)
+			return &rk806_buck[num * 3 + 1];
+		return &rk806_buck[num * 3 + 2];
 	case RK809_ID:
 	case RK817_ID:
 		switch (num) {
@@ -314,7 +414,11 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 			value = ((0 << buck) | (1 << (buck + 4)));
 		ret = pmic_reg_write(pmic, en_reg, value);
 		break;
-
+	case RK806_ID:
+		value = RK806_POWER_EN_CLRSETBITS(buck % 4, enable);
+		en_reg = RK806_POWER_EN((buck + 1) / 4);
+		ret = pmic_reg_write(pmic, en_reg, value);
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -389,6 +493,10 @@ static int _buck_get_enable(struct udevice *pmic, int buck)
 			ret = pmic_reg_read(pmic, RK816_REG_DCDC_EN1);
 		}
 		break;
+	case RK806_ID:
+		mask = BIT(buck % 4);
+		ret = pmic_reg_read(pmic, RK806_POWER_EN((buck + 1) / 4));
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -428,6 +536,20 @@ static int _buck_set_suspend_enable(struct udevice *pmic, int buck, bool enable)
 		ret = pmic_clrsetbits(pmic, RK816_REG_DCDC_SLP_EN, mask,
 				      enable ? mask : 0);
 		break;
+	case RK806_ID:
+		{
+			u8 reg;
+
+			if (buck + 1 >= 9) {
+				reg = RK806_POWER_SLP_EN1;
+				mask = BIT(buck + 1 - 3);
+			} else {
+				reg = RK806_POWER_SLP_EN0;
+				mask = BIT(buck + 1);
+			}
+			ret = pmic_clrsetbits(pmic, reg, mask, enable ? mask : 0);
+		}
+		break;
 	case RK808_ID:
 	case RK818_ID:
 		mask = 1 << buck;
@@ -464,6 +586,21 @@ static int _buck_get_suspend_enable(struct udevice *pmic, int buck)
 		if (val < 0)
 			return val;
 		ret = val & mask ? 1 : 0;
+		break;
+	case RK806_ID:
+		{
+			u8 reg;
+
+			if (buck + 1 >= 9) {
+				reg = RK806_POWER_SLP_EN1;
+				mask = BIT(buck + 1 - 3);
+			} else {
+				reg = RK806_POWER_SLP_EN0;
+				mask = BIT(buck + 1);
+			}
+			val = pmic_reg_read(pmic, reg);
+		}
+		ret = (val & mask) ? 1 : 0;
 		break;
 	case RK808_ID:
 	case RK818_ID:
@@ -514,6 +651,34 @@ static const struct rk8xx_reg_info *get_ldo_reg(struct udevice *pmic,
 	}
 }
 
+static const struct rk8xx_reg_info *get_nldo_reg(struct udevice *pmic,
+						 int num, int uvolt)
+{
+	const struct rk8xx_priv *priv = dev_get_priv(pmic);
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (uvolt < 3400000)
+			return &rk806_nldo[num * 2 + 0];
+		return &rk806_nldo[num * 2 + 1];
+	}
+}
+
+static const struct rk8xx_reg_info *get_pldo_reg(struct udevice *pmic,
+						 int num, int uvolt)
+{
+	const struct rk8xx_priv *priv = dev_get_priv(pmic);
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (uvolt < 3400000)
+			return &rk806_pldo[num * 2 + 0];
+		return &rk806_pldo[num * 2 + 1];
+	}
+}
+
 static int _ldo_get_enable(struct udevice *pmic, int ldo)
 {
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
@@ -559,6 +724,63 @@ static int _ldo_get_enable(struct udevice *pmic, int ldo)
 		return ret;
 
 	return ret & mask ? true : false;
+}
+
+static int _nldo_get_enable(struct udevice *pmic, int nldo)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint mask = 0;
+	int ret = 0;
+	u8 en_reg = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (nldo + 1 >= 5) {
+			mask = BIT(2);
+			en_reg = RK806_POWER_EN(5);
+		} else {
+			mask = BIT(nldo);
+			en_reg = RK806_POWER_EN(3);
+		}
+		ret = pmic_reg_read(pmic, en_reg);
+		break;
+	}
+
+	if (ret < 0)
+		return ret;
+
+	return (ret & mask) ? 1 : 0;
+}
+
+static int _pldo_get_enable(struct udevice *pmic, int pldo)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint mask = 0;
+	int ret = 0;
+	u8 en_reg = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (pldo + 1 <= 3) {
+			mask = BIT(pldo + 1);
+			en_reg = RK806_POWER_EN(4);
+		} else if (pldo + 1 == 6) {
+			mask = BIT(0);
+			en_reg = RK806_POWER_EN(4);
+		} else {
+			mask = BIT((pldo + 1) % 4);
+			en_reg = RK806_POWER_EN(5);
+		}
+		ret = pmic_reg_read(pmic, en_reg);
+		break;
+	}
+
+	if (ret < 0)
+		return ret;
+
+	return (ret & mask) ? 1 : 0;
 }
 
 static int _ldo_set_enable(struct udevice *pmic, int ldo, bool enable)
@@ -616,6 +838,62 @@ static int _ldo_set_enable(struct udevice *pmic, int ldo, bool enable)
 	return ret;
 }
 
+static int _nldo_set_enable(struct udevice *pmic, int nldo, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint value, en_reg;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (nldo + 1 >= 5) {
+			value = RK806_POWER_EN_CLRSETBITS(2, enable);
+			en_reg = RK806_POWER_EN(5);
+		} else {
+			value = RK806_POWER_EN_CLRSETBITS(nldo, enable);
+			en_reg = RK806_POWER_EN(3);
+		}
+		ret = pmic_reg_write(pmic, en_reg, value);
+		break;
+	}
+
+	if (enable)
+		udelay(500);
+
+	return ret;
+}
+
+static int _pldo_set_enable(struct udevice *pmic, int pldo, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint value, en_reg;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		/* PLDO */
+		if (pldo + 1 <= 3) {
+			value = RK806_POWER_EN_CLRSETBITS(pldo + 1, enable);
+			en_reg = RK806_POWER_EN(4);
+		} else if (pldo + 1 == 6) {
+			value = RK806_POWER_EN_CLRSETBITS(0, enable);
+			en_reg = RK806_POWER_EN(4);
+		} else {
+			value = RK806_POWER_EN_CLRSETBITS((pldo + 1) % 4, enable);
+			en_reg = RK806_POWER_EN(5);
+		}
+		ret = pmic_reg_write(pmic, en_reg, value);
+		break;
+	}
+
+	if (enable)
+		udelay(500);
+
+	return ret;
+}
+
 static int _ldo_set_suspend_enable(struct udevice *pmic, int ldo, bool enable)
 {
 	struct rk8xx_priv *priv = dev_get_priv(pmic);
@@ -646,6 +924,43 @@ static int _ldo_set_suspend_enable(struct udevice *pmic, int ldo, bool enable)
 			ret = pmic_clrsetbits(pmic, RK817_POWER_SLP_EN(1), mask,
 					      enable ? mask : 0);
 		}
+		break;
+	}
+
+	return ret;
+}
+
+static int _nldo_set_suspend_enable(struct udevice *pmic, int nldo, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint mask;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		mask = BIT(nldo);
+		ret = pmic_clrsetbits(pmic, RK806_POWER_SLP_EN1, mask, enable ? mask : 0);
+		break;
+	}
+
+	return ret;
+}
+
+static int _pldo_set_suspend_enable(struct udevice *pmic, int pldo, bool enable)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	uint mask;
+	int ret = 0;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (pldo + 1 >= 6)
+			mask = BIT(0);
+		else
+			mask = BIT(pldo + 1);
+		ret = pmic_clrsetbits(pmic, RK806_POWER_SLP_EN2, mask, enable ? mask : 0);
 		break;
 	}
 
@@ -690,6 +1005,45 @@ static int _ldo_get_suspend_enable(struct udevice *pmic, int ldo)
 				return val;
 			ret = val & mask ? 1 : 0;
 		}
+		break;
+	}
+
+	return ret;
+}
+
+static int _nldo_get_suspend_enable(struct udevice *pmic, int nldo)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	int val, ret = 0;
+	uint mask;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		mask = BIT(nldo);
+		val = pmic_reg_read(pmic, RK806_POWER_SLP_EN1);
+		ret = (val & mask) ? 1 : 0;
+		break;
+	}
+
+	return ret;
+}
+
+static int _pldo_get_suspend_enable(struct udevice *pmic, int pldo)
+{
+	struct rk8xx_priv *priv = dev_get_priv(pmic);
+	int val, ret = 0;
+	uint mask;
+
+	switch (priv->variant) {
+	case RK806_ID:
+	default:
+		if (pldo + 1 >= 6)
+			mask = BIT(0);
+		else
+			mask = BIT(pldo + 1);
+		val = pmic_reg_read(pmic, RK806_POWER_SLP_EN2);
+		ret = (val & mask) ? 1 : 0;
 		break;
 	}
 
@@ -803,6 +1157,22 @@ static int ldo_get_value(struct udevice *dev)
 	return _ldo_get_value(dev, info);
 }
 
+static int nldo_get_value(struct udevice *dev)
+{
+	int nldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_nldo_reg(dev->parent, nldo, 0);
+
+	return _ldo_get_value(dev, info);
+}
+
+static int pldo_get_value(struct udevice *dev)
+{
+	int pldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_pldo_reg(dev->parent, pldo, 0);
+
+	return _ldo_get_value(dev, info);
+}
+
 static int _ldo_set_value(struct udevice *dev, const struct rk8xx_reg_info *info, int uvolt)
 {
 	int mask = info->vsel_mask;
@@ -826,6 +1196,22 @@ static int ldo_set_value(struct udevice *dev, int uvolt)
 {
 	int ldo = dev->driver_data - 1;
 	const struct rk8xx_reg_info *info = get_ldo_reg(dev->parent, ldo, uvolt);
+
+	return _ldo_set_value(dev, info, uvolt);
+}
+
+static int nldo_set_value(struct udevice *dev, int uvolt)
+{
+	int nldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_nldo_reg(dev->parent, nldo, uvolt);
+
+	return _ldo_set_value(dev, info, uvolt);
+}
+
+static int pldo_set_value(struct udevice *dev, int uvolt)
+{
+	int pldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_pldo_reg(dev->parent, pldo, uvolt);
 
 	return _ldo_set_value(dev, info, uvolt);
 }
@@ -857,6 +1243,22 @@ static int ldo_set_suspend_value(struct udevice *dev, int uvolt)
 	return _ldo_set_suspend_value(dev->parent, info, uvolt);
 }
 
+static int nldo_set_suspend_value(struct udevice *dev, int uvolt)
+{
+	int nldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_nldo_reg(dev->parent, nldo, uvolt);
+
+	return _ldo_set_suspend_value(dev->parent, info, uvolt);
+}
+
+static int pldo_set_suspend_value(struct udevice *dev, int uvolt)
+{
+	int pldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_pldo_reg(dev->parent, pldo, uvolt);
+
+	return _ldo_set_suspend_value(dev->parent, info, uvolt);
+}
+
 static int _ldo_get_suspend_value(struct udevice *dev, const struct rk8xx_reg_info *info)
 {
 	int mask = info->vsel_mask;
@@ -882,11 +1284,41 @@ static int ldo_get_suspend_value(struct udevice *dev)
 	return _ldo_get_suspend_value(dev->parent, info);
 }
 
+static int nldo_get_suspend_value(struct udevice *dev)
+{
+	int nldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_nldo_reg(dev->parent, nldo, 0);
+
+	return _ldo_get_suspend_value(dev->parent, info);
+}
+
+static int pldo_get_suspend_value(struct udevice *dev)
+{
+	int pldo = dev->driver_data - 1;
+	const struct rk8xx_reg_info *info = get_pldo_reg(dev->parent, pldo, 0);
+
+	return _ldo_get_suspend_value(dev->parent, info);
+}
+
 static int ldo_set_enable(struct udevice *dev, bool enable)
 {
 	int ldo = dev->driver_data - 1;
 
 	return _ldo_set_enable(dev->parent, ldo, enable);
+}
+
+static int nldo_set_enable(struct udevice *dev, bool enable)
+{
+	int nldo = dev->driver_data - 1;
+
+	return _nldo_set_enable(dev->parent, nldo, enable);
+}
+
+static int pldo_set_enable(struct udevice *dev, bool enable)
+{
+	int pldo = dev->driver_data - 1;
+
+	return _pldo_set_enable(dev->parent, pldo, enable);
 }
 
 static int ldo_set_suspend_enable(struct udevice *dev, bool enable)
@@ -896,6 +1328,20 @@ static int ldo_set_suspend_enable(struct udevice *dev, bool enable)
 	return _ldo_set_suspend_enable(dev->parent, ldo, enable);
 }
 
+static int nldo_set_suspend_enable(struct udevice *dev, bool enable)
+{
+	int nldo = dev->driver_data - 1;
+
+	return _nldo_set_suspend_enable(dev->parent, nldo, enable);
+}
+
+static int pldo_set_suspend_enable(struct udevice *dev, bool enable)
+{
+	int pldo = dev->driver_data - 1;
+
+	return _pldo_set_suspend_enable(dev->parent, pldo, enable);
+}
+
 static int ldo_get_suspend_enable(struct udevice *dev)
 {
 	int ldo = dev->driver_data - 1;
@@ -903,11 +1349,39 @@ static int ldo_get_suspend_enable(struct udevice *dev)
 	return _ldo_get_suspend_enable(dev->parent, ldo);
 }
 
+static int nldo_get_suspend_enable(struct udevice *dev)
+{
+	int nldo = dev->driver_data - 1;
+
+	return _nldo_get_suspend_enable(dev->parent, nldo);
+}
+
+static int pldo_get_suspend_enable(struct udevice *dev)
+{
+	int pldo = dev->driver_data - 1;
+
+	return _pldo_get_suspend_enable(dev->parent, pldo);
+}
+
 static int ldo_get_enable(struct udevice *dev)
 {
 	int ldo = dev->driver_data - 1;
 
 	return _ldo_get_enable(dev->parent, ldo);
+}
+
+static int nldo_get_enable(struct udevice *dev)
+{
+	int nldo = dev->driver_data - 1;
+
+	return _nldo_get_enable(dev->parent, nldo);
+}
+
+static int pldo_get_enable(struct udevice *dev)
+{
+	int pldo = dev->driver_data - 1;
+
+	return _pldo_get_enable(dev->parent, pldo);
 }
 
 static int switch_set_enable(struct udevice *dev, bool enable)
@@ -1133,6 +1607,28 @@ static const struct dm_regulator_ops rk8xx_ldo_ops = {
 	.get_suspend_enable = ldo_get_suspend_enable,
 };
 
+static const struct dm_regulator_ops rk8xx_nldo_ops = {
+	.get_value  = nldo_get_value,
+	.set_value  = nldo_set_value,
+	.set_suspend_value = nldo_set_suspend_value,
+	.get_suspend_value = nldo_get_suspend_value,
+	.get_enable = nldo_get_enable,
+	.set_enable = nldo_set_enable,
+	.set_suspend_enable = nldo_set_suspend_enable,
+	.get_suspend_enable = nldo_get_suspend_enable,
+};
+
+static const struct dm_regulator_ops rk8xx_pldo_ops = {
+	.get_value  = pldo_get_value,
+	.set_value  = pldo_set_value,
+	.set_suspend_value = pldo_set_suspend_value,
+	.get_suspend_value = pldo_get_suspend_value,
+	.get_enable = pldo_get_enable,
+	.set_enable = pldo_set_enable,
+	.set_suspend_enable = pldo_set_suspend_enable,
+	.get_suspend_enable = pldo_get_suspend_enable,
+};
+
 static const struct dm_regulator_ops rk8xx_switch_ops = {
 	.get_value  = switch_get_value,
 	.set_value  = switch_set_value,
@@ -1155,6 +1651,20 @@ U_BOOT_DRIVER(rk8xx_ldo) = {
 	.name = "rk8xx_ldo",
 	.id = UCLASS_REGULATOR,
 	.ops = &rk8xx_ldo_ops,
+	.probe = rk8xx_ldo_probe,
+};
+
+U_BOOT_DRIVER(rk8xx_nldo) = {
+	.name = "rk8xx_nldo",
+	.id = UCLASS_REGULATOR,
+	.ops = &rk8xx_nldo_ops,
+	.probe = rk8xx_ldo_probe,
+};
+
+U_BOOT_DRIVER(rk8xx_pldo) = {
+	.name = "rk8xx_pldo",
+	.id = UCLASS_REGULATOR,
+	.ops = &rk8xx_pldo_ops,
 	.probe = rk8xx_ldo_probe,
 };
 

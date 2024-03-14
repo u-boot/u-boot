@@ -183,7 +183,18 @@ enum {
 };
 
 enum {
+	RK806_POWER_SLP_EN0 = 0x06,
+	RK806_POWER_SLP_EN1,
+	RK806_POWER_SLP_EN2,
+	RK806_REG_SYS_CFG3 = 0x72,
+	RK806_WDT_REG,
+	RK806_ON_SOURCE,
+	RK806_OFF_SOURCE
+};
+
+enum {
 	RK805_ID = 0x8050,
+	RK806_ID = 0x8060,
 	RK808_ID = 0x0000,
 	RK809_ID = 0x8090,
 	RK816_ID = 0x8160,
@@ -201,6 +212,14 @@ enum {
 #define RK817_POWER_EN_SAVE0	0x99
 #define RK817_POWER_EN_SAVE1	0xa4
 
+#define RK806_POWER_EN(x)			(0x00 + (x))
+/* POWER_ENx register lower 4 bits are write-protected unless the associated top bit is set */
+#define RK806_POWER_EN_CLRSETBITS(bit, val)	(((val) << (bit)) | (1 << ((bit) + 4)))
+
+#define RK806_POWER_SLP_EN(x)			(0x06 + (x))
+
+#define RK806_ID_MSB	0x5a
+#define RK806_ID_LSB	0x5b
 #define RK817_ID_MSB	0xed
 #define RK817_ID_LSB	0xee
 #define RK8XX_ID_MSK	0xfff0
