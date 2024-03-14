@@ -148,8 +148,8 @@ void board_boot_order(u32 *spl_boot_list)
 		/* Try to map this back onto SPL boot devices */
 		boot_device = spl_node_to_boot_device(node);
 		if (boot_device < 0) {
-			debug("%s: could not map node @%x to a boot-device\n",
-			      __func__, node);
+			debug("%s: could not map node %s to a boot-device\n",
+			      __func__, conf);
 			continue;
 		}
 
