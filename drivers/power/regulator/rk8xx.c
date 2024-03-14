@@ -901,7 +901,7 @@ static int switch_set_enable(struct udevice *dev, bool enable)
 	case RK809_ID:
 		mask = (1 << (sw + 2)) | (1 << (sw + 6));
 		ret = pmic_clrsetbits(dev->parent, RK817_POWER_EN(3), mask,
-				      enable ? mask : 0);
+				      enable ? mask : (1 << (sw + 6)));
 		break;
 	case RK818_ID:
 		mask = 1 << 6;
