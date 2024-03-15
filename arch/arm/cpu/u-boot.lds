@@ -35,9 +35,9 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
+	__image_copy_start = ADDR(.text);
 	.text :
 	{
-		*(.__image_copy_start)
 		*(.vectors)
 		CPUDIR/start.o (.text*)
 	}
@@ -154,11 +154,7 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-
-	.image_copy_end :
-	{
-		*(.__image_copy_end)
-	}
+	__image_copy_end = .;
 
 	.rel.dyn ALIGN(4) : {
 		__rel_dyn_start = .;
