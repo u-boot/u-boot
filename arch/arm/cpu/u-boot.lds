@@ -207,23 +207,15 @@ SECTIONS
 	}
 
 /*
- * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
- * __bss_base and __bss_limit are for linker only (overlay ordering)
+ * These sections occupy the same memory, but their lifetimes do
+ * not overlap: U-Boot initializes .bss only after applying dynamic
+ * relocations and therefore after it doesn't need .rel.dyn any more.
  */
-
-	.bss_start __rel_dyn_start (OVERLAY) : {
-		KEEP(*(.__bss_start));
-		__bss_base = .;
-	}
-
-	.bss __bss_base (OVERLAY) : {
+	.bss ADDR(.rel.dyn) (OVERLAY): {
+		__bss_start = .;
 		*(.bss*)
-		 . = ALIGN(4);
-		 __bss_limit = .;
-	}
-
-	.bss_end __bss_limit (OVERLAY) : {
-		KEEP(*(.__bss_end));
+		. = ALIGN(4);
+		__bss_end = .;
 	}
 
 	.dynsym _image_binary_end : { *(.dynsym) }
