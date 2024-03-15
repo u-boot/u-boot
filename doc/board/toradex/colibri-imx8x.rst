@@ -20,26 +20,35 @@ Quick Start
 Get and Build the ARM Trusted Firmware
 --------------------------------------
 
+Download the imx-atf repository:
+
 .. code-block:: bash
 
-    $ git clone -b toradex_imx_5.4.70_2.3.0 http://git.toradex.com/cgit/imx-atf.git/
+    $ git clone -b lf_v2.6 https://github.com/nxp-imx/imx-atf.git
+
+Compile it with an aarch64 toolchain:
+
+.. code-block:: bash
+
     $ make PLAT=imx8qx bl31 -C imx-atf
 
 Get scfw_tcm.bin and ahab-container.img
 ---------------------------------------
 
+Download imx-seco firmware and extract it:
+
 .. code-block:: bash
 
-    $ wget https://github.com/toradex/i.MX-System-Controller-Firmware/raw/master/src/scfw_export_mx8qx_b0/build_mx8qx_b0/mx8qx-colibri-scfw-tcm.bin
-    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/imx-seco-3.8.1.bin
-    $ sh imx-seco-3.8.1.bin --auto-accept
+    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/imx-seco-5.8.7.bin
+    $ sh imx-seco-5.8.7.bin --auto-accept
 
 Copy the following firmware to the U-Boot folder:
 
 .. code-block:: bash
 
-    $ cp imx-atf/build/imx8qx/release/bl31.bin .
-    $ cp imx-seco-3.8.1/firmware/seco/mx8qxc0-ahab-container.img mx8qx-ahab-container.img
+    $ wget https://github.com/toradex/i.MX-System-Controller-Firmware/raw/master/src/scfw_export_mx8qx_b0/build_mx8qx_b0/mx8qx-colibri-scfw-tcm.bin
+    $ cp ../imx-atf/build/imx8qx/release/bl31.bin .
+    $ cp ../imx-seco-5.8.7/firmware/seco/mx8qxc0-ahab-container.img mx8qx-ahab-container.img
 
 Build U-Boot
 ------------
@@ -54,7 +63,7 @@ Load the U-Boot Binary Using UUU
 
 Get the latest version of the universal update utility (uuu) aka ``mfgtools 3.0``:
 
-https://community.nxp.com/external-link.jspa?url=https%3A%2F%2Fgithub.com%2FNXPmicro%2Fmfgtools%2Freleases
+https://github.com/nxp-imx/mfgtools/releases
 
 Put the module into USB recovery aka serial downloader mode, connect the USB
 device to your host and execute ``uuu``:
