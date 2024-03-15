@@ -115,7 +115,7 @@ SECTIONS
 		KEEP(*(SORT(__u_boot_list*)));
 	}
 
-	.efi_runtime_rel ALIGN(8) : {
+	.efi_runtime_rel : {
                 __efi_runtime_rel_start = .;
 		*(.rel*.efi_runtime)
 		*(.rel*.efi_runtime.*)
@@ -125,7 +125,7 @@ SECTIONS
 	. = ALIGN(8);
 	__image_copy_end = .;
 
-	.rela.dyn ALIGN(8) : {
+	.rela.dyn : {
 		__rel_dyn_start = .;
 		*(.rela*)
 		__rel_dyn_end = .;
@@ -133,7 +133,10 @@ SECTIONS
 
 	_end = .;
 
-	.bss ALIGN(8): {
+	/*
+	 * arch/arm/lib/crt0_64.S assumes __bss_start - __bss_end % 8 == 0
+	 */
+	.bss ALIGN(8) : {
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(8);

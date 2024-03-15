@@ -43,7 +43,7 @@ SECTIONS
 	}
 
 	/* This needs to come before *(.text*) */
-	.efi_runtime ALIGN(4) : {
+	.efi_runtime : {
 		__efi_runtime_start = .;
 		*(.text.efi_runtime*)
 		*(.rodata.efi_runtime*)
@@ -146,7 +146,7 @@ SECTIONS
 		KEEP(*(SORT(__u_boot_list*)));
 	}
 
-	.efi_runtime_rel ALIGN(4) : {
+	.efi_runtime_rel : {
 		__efi_runtime_rel_start = .;
 		*(.rel*.efi_runtime)
 		*(.rel*.efi_runtime.*)
@@ -156,6 +156,10 @@ SECTIONS
 	. = ALIGN(4);
 	__image_copy_end = .;
 
+	/*
+	 * if CONFIG_USE_ARCH_MEMSET is not selected __bss_end - __bss_start
+	 * needs to be a multiple of 4 and we overlay .bss with .rel.dyn
+	 */
 	.rel.dyn ALIGN(4) : {
 		__rel_dyn_start = .;
 		*(.rel*)
