@@ -5,7 +5,6 @@
 #include <common.h>
 #include <init.h>
 #include <malloc.h>
-#include <asm/io.h>
 #include <asm/arch/grf_rk3308.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>

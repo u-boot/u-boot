@@ -4,8 +4,10 @@ S:      Maintained
 F:      board/vamrs/rock960_rk3399/
 F:      include/configs/rock960_rk3399.h
 F:      configs/rock960-rk3399_defconfig
+F:      arch/arm/dts/rk3399-rock960*
 
 FICUS EE
 M:      Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:      Maintained
 F:	configs/ficus-rk3399_defconfig
+F:	arch/arm/dts/rk3399-ficus*

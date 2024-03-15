@@ -265,7 +265,7 @@ config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
 	default 0x400 if M68K || PPC || ROCKCHIP_PX30 || ROCKCHIP_RK3036 || \
-			 ROCKCHIP_RK3308 || ROCKCHIP_RV1108
+			 ROCKCHIP_RV1108
 	default 0x600 if ARCH_ZYNQMP_R5 || ARCH_ZYNQMP
 	default 0x800 if ARCH_ZYNQ || ROCKCHIP_RK3128 || ROCKCHIP_RK3188 || \
 			 ROCKCHIP_RK322X || X86

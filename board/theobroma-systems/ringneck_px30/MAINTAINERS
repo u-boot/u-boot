@@ -4,7 +4,8 @@ M:	Klaus Goger <klaus.goger@theobroma-systems.com>
 S:	Maintained
 F:	board/theobroma-systems/ringneck_px30
 F:	board/theobroma-systems/common
+F:	doc/board/theobroma-systems/
 F:	include/configs/ringneck_px30.h
 F:	arch/arm/dts/px30-ringneck*
 F:	configs/ringneck-px30_defconfig
-W:	https://www.theobroma-systems.com/px30-uq7#tech-spec
+W:	https://theobroma-systems.com/product/ringneck-som-px30-uq7/

@@ -17,11 +17,11 @@
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3188.h>
 #include <asm/arch-rockchip/ddr_rk3188.h>
 #include <asm/arch-rockchip/grf_rk3188.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/pmu_rk3188.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <asm/arch-rockchip/sdram_rk3288.h>

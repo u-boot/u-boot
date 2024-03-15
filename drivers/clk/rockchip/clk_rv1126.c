@@ -16,7 +16,6 @@
 #include <asm/arch-rockchip/grf_rv1126.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <dm/device-internal.h>
-#include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rockchip,rv1126-cru.h>
 

@@ -5,7 +5,6 @@
 #ifndef __CONFIG_RV1108_COMMON_H
 #define __CONFIG_RV1108_COMMON_H
 
-#include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
 #define CFG_IRAM_BASE		0x10080000

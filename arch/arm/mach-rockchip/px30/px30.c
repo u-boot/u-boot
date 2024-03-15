@@ -9,7 +9,6 @@
 #include <init.h>
 #include <spl.h>
 #include <asm/armv8/mmu.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_px30.h>
 #include <asm/arch-rockchip/hardware.h>

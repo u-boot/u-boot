@@ -17,7 +17,6 @@
 #include <ram.h>
 #include <regmap.h>
 #include <syscon.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3066.h>
 #include <asm/arch-rockchip/ddr_rk3188.h>

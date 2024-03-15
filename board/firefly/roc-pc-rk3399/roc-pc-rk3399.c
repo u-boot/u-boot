@@ -9,32 +9,12 @@
 #include <log.h>
 #include <spl_gpio.h>
 #include <asm/io.h>
-#include <power/regulator.h>
 
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 
-#ifndef CONFIG_SPL_BUILD
-int board_early_init_f(void)
-{
-	struct udevice *regulator;
-	int ret;
-
-	ret = regulator_get_by_platname("vcc5v0_host", &regulator);
-	if (ret) {
-		debug("%s vcc5v0_host init fail! ret %d\n", __func__, ret);
-		goto out;
-	}
-
-	ret = regulator_set_enable(regulator, true);
-	if (ret)
-		debug("%s vcc5v0-host-en set fail! ret %d\n", __func__, ret);
-out:
-	return 0;
-}
-
-#else
+#ifdef CONFIG_SPL_BUILD
 
 #define PMUGRF_BASE	0xff320000
 #define GPIO0_BASE	0xff720000

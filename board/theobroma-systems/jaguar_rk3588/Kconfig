@@ -1,0 +1,16 @@
+if TARGET_JAGUAR_RK3588
+
+config SYS_BOARD
+	default "jaguar_rk3588"
+
+config SYS_VENDOR
+	default "theobroma-systems"
+
+config SYS_CONFIG_NAME
+	default "jaguar_rk3588"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select ENV_IS_NOWHERE
+
+endif

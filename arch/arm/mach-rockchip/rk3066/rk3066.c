@@ -4,9 +4,9 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk3066.h>
+#include <asm/arch-rockchip/hardware.h>
 
 #define GRF_BASE	0x20008000
 

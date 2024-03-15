@@ -14,6 +14,7 @@
 	compatible = "friendlyarm,nanopi-r2s", "rockchip,rk3328";
 
 	aliases {
+		ethernet0 = &gmac2io;
 		ethernet1 = &rtl8153;
 		mmc0 = &sdmmc;
 	};
@@ -34,7 +35,7 @@
 		pinctrl-0 = <&reset_button_pin>;
 		pinctrl-names = "default";
 
-		reset {
+		key-reset {
 			label = "reset";
 			gpios = <&gpio0 RK_PA0 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;

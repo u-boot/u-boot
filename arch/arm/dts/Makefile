@@ -174,6 +174,8 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-anbernic-rgxx3.dtb \
+	rk3566-pinetab2-v0.1.dtb \
+	rk3566-pinetab2-v2.0.dtb \
 	rk3566-quartz64-a.dtb \
 	rk3566-quartz64-b.dtb \
 	rk3566-radxa-cm3-io.dtb \
@@ -191,16 +193,20 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3568-rock-3a.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \
+	rk3588s-coolpi-4b.dts \
+	rk3588-coolpi-cm5-evb.dts \
 	rk3588-edgeble-neu6a-io.dtb \
 	rk3588-edgeble-neu6b-io.dtb \
 	rk3588-evb1-v10.dtb \
+	rk3588-generic.dtb \
+	rk3588-jaguar.dtb \
 	rk3588-nanopc-t6.dtb \
 	rk3588s-orangepi-5.dtb \
 	rk3588-orangepi-5-plus.dtb \
 	rk3588-quartzpro64.dtb \
-	rk3588-turing-rk1.dtb \
 	rk3588s-rock-5a.dtb \
-	rk3588-rock-5b.dtb
+	rk3588-rock-5b.dtb \
+	rk3588-turing-rk1.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
