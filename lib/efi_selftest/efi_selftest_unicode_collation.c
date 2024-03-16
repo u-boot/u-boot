@@ -220,6 +220,18 @@ static int test_str_to_fat(void)
 		return EFI_ST_FAILURE;
 	}
 
+	/*
+	 * Test unicode code points which map to CP 437 0x01 - 0x1f are
+	 * converted to '_'.
+	 */
+	boottime->set_mem(fat, 16, 0);
+	ret = unicode_collation_protocol->str_to_fat(unicode_collation_protocol,
+		u"\u263a\u2666\u2022\u25d8\u2642\u2194\u00b6\u203c", 8, fat);
+	if (!ret || efi_st_strcmp_16_8(u"________", fat)) {
+		efi_st_error("str_to_fat returned %u, \"%s\"\n", ret, fat);
+		return EFI_ST_FAILURE;
+	}
+
 	return EFI_ST_SUCCESS;
 }
 
