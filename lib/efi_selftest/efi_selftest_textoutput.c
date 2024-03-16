@@ -46,6 +46,20 @@ static int execute(void)
 		u"U+03C2 \u03C2 - Greek small letter final sigma\n"
 		u"U+1F19 \u1F19 - Greek capital letter epsilon with dasia\n";
 
+	const u16 boxes[] =
+		u"This should render as four boxes with text\n"
+		u"\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502"
+		u" left top    \u2502 right top     \u2502\n\u251c\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 "
+		u"left bottom \u2502 right bottom  \u2502\n\u2514\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2518\n";
+
 	/* SetAttribute */
 	efi_st_printf("\nColor palette\n");
 	for (foreground = 0; foreground < 0x10; ++foreground) {
@@ -137,6 +151,12 @@ static int execute(void)
 	ret = con_out->output_string(con_out, text);
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("OutputString failed for international chars\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("\n");
+	ret = con_out->output_string(con_out, boxes);
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("OutputString failed for box drawing chars\n");
 		return EFI_ST_FAILURE;
 	}
 	efi_st_printf("\n");
