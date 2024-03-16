@@ -60,6 +60,13 @@ static int execute(void)
 		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
 		u"\u2500\u2500\u2500\u2500\u2518\n";
 
+	const u16 shapes[] =
+		u"Geometric shapes as described\n"
+		u"U+25B2 \u25B2 - Black up-pointing triangle\n"
+		u"U+25BA \u25BA - Black right-pointing pointer\n"
+		u"U+25BC \u25BC - Black down-pointing triangle\n"
+		u"U+25C4 \u25C4 - Black left-pointing pointer\n";
+
 	/* SetAttribute */
 	efi_st_printf("\nColor palette\n");
 	for (foreground = 0; foreground < 0x10; ++foreground) {
@@ -157,6 +164,12 @@ static int execute(void)
 	ret = con_out->output_string(con_out, boxes);
 	if (ret != EFI_ST_SUCCESS) {
 		efi_st_error("OutputString failed for box drawing chars\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("\n");
+	ret = con_out->output_string(con_out, shapes);
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("OutputString failed for geometric shapes\n");
 		return EFI_ST_FAILURE;
 	}
 	efi_st_printf("\n");
