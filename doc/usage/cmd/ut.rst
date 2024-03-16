@@ -6,8 +6,8 @@
 ut command
 ==========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

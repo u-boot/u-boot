@@ -6,8 +6,8 @@
 trace command
 =============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

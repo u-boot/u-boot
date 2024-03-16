@@ -6,8 +6,8 @@
 acpi command
 ============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

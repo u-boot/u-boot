@@ -6,8 +6,8 @@
 part command
 ============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

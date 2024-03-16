@@ -6,8 +6,8 @@
 bootflow command
 ================
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 
