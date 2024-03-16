@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
-// (C) 2022 Pali Rohár <pali@kernel.org>
+/*
+ * Copyright (C) 2022 Pali Rohár <pali@kernel.org>
+ * Copyright (C) 2024 Marek Behún <kabel@kernel.org>
+ */
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <i2c.h>
+#include <sysreset.h>
 #include <asm/byteorder.h>
 #include <asm/gpio.h>
 #include <linux/log2.h>
@@ -13,9 +18,9 @@ struct turris_omnia_mcu_info {
 	u16 features;
 };
 
-static int turris_omnia_mcu_get_function(struct udevice *dev, uint offset)
+static int omnia_gpio_get_function(struct udevice *dev, uint offset)
 {
-	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
+	struct turris_omnia_mcu_info *info = dev_get_priv(dev->parent);
 
 	switch (offset) {
 	/* bank 0 */
@@ -49,9 +54,9 @@ static int turris_omnia_mcu_get_function(struct udevice *dev, uint offset)
 	}
 }
 
-static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
+static int omnia_gpio_get_value(struct udevice *dev, uint offset)
 {
-	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
+	struct turris_omnia_mcu_info *info = dev_get_priv(dev->parent);
 	u32 val32;
 	u16 val16;
 	int ret;
@@ -59,8 +64,8 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 	switch (offset) {
 	/* bank 0 */
 	case 0 ... 15:
-		ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, (void *)&val16,
-				  sizeof(val16));
+		ret = dm_i2c_read(dev->parent, CMD_GET_STATUS_WORD,
+				  (void *)&val16, sizeof(val16));
 		if (ret)
 			return ret;
 
@@ -71,8 +76,8 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 		if (!(info->features & FEAT_EXT_CMDS))
 			return -EINVAL;
 
-		ret = dm_i2c_read(dev, CMD_GET_EXT_STATUS_DWORD, (void *)&val32,
-				  sizeof(val32));
+		ret = dm_i2c_read(dev->parent, CMD_GET_EXT_STATUS_DWORD,
+				  (void *)&val32, sizeof(val32));
 		if (ret)
 			return ret;
 
@@ -85,7 +90,7 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
 
-		ret = dm_i2c_read(dev, CMD_GET_EXT_CONTROL_STATUS,
+		ret = dm_i2c_read(dev->parent, CMD_GET_EXT_CONTROL_STATUS,
 				  (void *)&val16, sizeof(val16));
 		if (ret)
 			return ret;
@@ -97,9 +102,9 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 	}
 }
 
-static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int value)
+static int omnia_gpio_set_value(struct udevice *dev, uint offset, int value)
 {
-	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
+	struct turris_omnia_mcu_info *info = dev_get_priv(dev->parent);
 	u16 valmask16[2];
 	u8 valmask8[2];
 
@@ -125,7 +130,7 @@ static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int valu
 
 		valmask8[0] = value ? valmask8[1] : 0;
 
-		return dm_i2c_write(dev, CMD_GENERAL_CONTROL, valmask8,
+		return dm_i2c_write(dev->parent, CMD_GENERAL_CONTROL, valmask8,
 				    sizeof(valmask8));
 
 	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
@@ -138,19 +143,19 @@ static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int valu
 		valmask16[1] = cpu_to_le16(BIT(offset - 16 - 32));
 		valmask16[0] = value ? valmask16[1] : 0;
 
-		return dm_i2c_write(dev, CMD_EXT_CONTROL, (void *)valmask16,
-				    sizeof(valmask16));
+		return dm_i2c_write(dev->parent, CMD_EXT_CONTROL,
+				    (void *)valmask16, sizeof(valmask16));
 
 	default:
 		return -EINVAL;
 	}
 }
 
-static int turris_omnia_mcu_direction_input(struct udevice *dev, uint offset)
+static int omnia_gpio_direction_input(struct udevice *dev, uint offset)
 {
 	int ret;
 
-	ret = turris_omnia_mcu_get_function(dev, offset);
+	ret = omnia_gpio_get_function(dev, offset);
 	if (ret < 0)
 		return ret;
 	else if (ret != GPIOF_INPUT)
@@ -159,20 +164,20 @@ static int turris_omnia_mcu_direction_input(struct udevice *dev, uint offset)
 	return 0;
 }
 
-static int turris_omnia_mcu_direction_output(struct udevice *dev, uint offset, int value)
+static int omnia_gpio_direction_output(struct udevice *dev, uint offset, int value)
 {
 	int ret;
 
-	ret = turris_omnia_mcu_get_function(dev, offset);
+	ret = omnia_gpio_get_function(dev, offset);
 	if (ret < 0)
 		return ret;
 	else if (ret != GPIOF_OUTPUT)
 		return -EOPNOTSUPP;
 
-	return turris_omnia_mcu_set_value(dev, offset, value);
+	return omnia_gpio_set_value(dev, offset, value);
 }
 
-static int turris_omnia_mcu_xlate(struct udevice *dev, struct gpio_desc *desc,
+static int omnia_gpio_xlate(struct udevice *dev, struct gpio_desc *desc,
 				  struct ofnode_phandle_args *args)
 {
 	uint bank, gpio, flags, offset;
@@ -205,7 +210,7 @@ static int turris_omnia_mcu_xlate(struct udevice *dev, struct gpio_desc *desc,
 		return -EINVAL;
 	}
 
-	ret = turris_omnia_mcu_get_function(dev, offset);
+	ret = omnia_gpio_get_function(dev, offset);
 	if (ret < 0)
 		return ret;
 
@@ -215,19 +220,79 @@ static int turris_omnia_mcu_xlate(struct udevice *dev, struct gpio_desc *desc,
 	return 0;
 }
 
-static const struct dm_gpio_ops turris_omnia_mcu_ops = {
-	.direction_input	= turris_omnia_mcu_direction_input,
-	.direction_output	= turris_omnia_mcu_direction_output,
-	.get_value		= turris_omnia_mcu_get_value,
-	.set_value		= turris_omnia_mcu_set_value,
-	.get_function		= turris_omnia_mcu_get_function,
-	.xlate			= turris_omnia_mcu_xlate,
+static const struct dm_gpio_ops omnia_gpio_ops = {
+	.direction_input	= omnia_gpio_direction_input,
+	.direction_output	= omnia_gpio_direction_output,
+	.get_value		= omnia_gpio_get_value,
+	.set_value		= omnia_gpio_set_value,
+	.get_function		= omnia_gpio_get_function,
+	.xlate			= omnia_gpio_xlate,
 };
+
+static int omnia_gpio_probe(struct udevice *dev)
+{
+	struct turris_omnia_mcu_info *info = dev_get_priv(dev->parent);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	uc_priv->bank_name = "mcu_";
+
+	if ((info->features & FEAT_EXT_CMDS) && (info->features & FEAT_PERIPH_MCU))
+		uc_priv->gpio_count = 16 + 32 + 16;
+	else if (info->features & FEAT_EXT_CMDS)
+		uc_priv->gpio_count = 16 + 32;
+	else
+		uc_priv->gpio_count = 16;
+
+	return 0;
+}
+
+U_BOOT_DRIVER(turris_omnia_mcu_gpio) = {
+	.name		= "turris-omnia-mcu-gpio",
+	.id		= UCLASS_GPIO,
+	.ops		= &omnia_gpio_ops,
+	.probe		= omnia_gpio_probe,
+};
+
+static int omnia_sysreset_request(struct udevice *dev, enum sysreset_t type)
+{
+	struct {
+		u16 magic;
+		u16 arg;
+		u32 csum;
+	} __packed args;
+
+	if (type != SYSRESET_POWER_OFF)
+		return -EPROTONOSUPPORT;
+
+	args.magic = CMD_POWER_OFF_MAGIC;
+	args.arg = CMD_POWER_OFF_POWERON_BUTTON;
+	args.csum = 0xba3b7212;
+
+	return dm_i2c_write(dev->parent, CMD_POWER_OFF, (void *)&args,
+			    sizeof(args));
+}
+
+static const struct sysreset_ops omnia_sysreset_ops = {
+	.request	= omnia_sysreset_request,
+};
+
+U_BOOT_DRIVER(turris_omnia_mcu_sysreset) = {
+	.name		= "turris-omnia-mcu-sysreset",
+	.id		= UCLASS_SYSRESET,
+	.ops		= &omnia_sysreset_ops,
+};
+
+static int turris_omnia_mcu_bind(struct udevice *dev)
+{
+	/* bind MCU GPIOs as a child device */
+	return device_bind_driver_to_node(dev, "turris-omnia-mcu-gpio",
+					  "turris-omnia-mcu-gpio",
+					  dev_ofnode(dev), NULL);
+}
 
 static int turris_omnia_mcu_probe(struct udevice *dev)
 {
-	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct turris_omnia_mcu_info *info = dev_get_priv(dev);
 	u16 val;
 	int ret;
 
@@ -249,14 +314,15 @@ static int turris_omnia_mcu_probe(struct udevice *dev)
 		info->features = le16_to_cpu(val);
 	}
 
-	uc_priv->bank_name = "mcu_";
-
-	if ((info->features & FEAT_EXT_CMDS) && (info->features & FEAT_PERIPH_MCU))
-		uc_priv->gpio_count = 16 + 32 + 16;
-	else if (info->features & FEAT_EXT_CMDS)
-		uc_priv->gpio_count = 16 + 32;
-	else
-		uc_priv->gpio_count = 16;
+	/* bind sysreset if poweroff is supported */
+	if (info->features & FEAT_POWEROFF_WAKEUP) {
+		ret = device_bind_driver_to_node(dev,
+						 "turris-omnia-mcu-sysreset",
+						 "turris-omnia-mcu-sysreset",
+						 dev_ofnode(dev), NULL);
+		if (ret < 0)
+			return ret;
+	}
 
 	return 0;
 }
@@ -268,9 +334,9 @@ static const struct udevice_id turris_omnia_mcu_ids[] = {
 
 U_BOOT_DRIVER(turris_omnia_mcu) = {
 	.name		= "turris-omnia-mcu",
-	.id		= UCLASS_GPIO,
-	.ops		= &turris_omnia_mcu_ops,
+	.id		= UCLASS_MISC,
+	.bind		= turris_omnia_mcu_bind,
 	.probe		= turris_omnia_mcu_probe,
-	.plat_auto	= sizeof(struct turris_omnia_mcu_info),
+	.priv_auto	= sizeof(struct turris_omnia_mcu_info),
 	.of_match	= turris_omnia_mcu_ids,
 };
