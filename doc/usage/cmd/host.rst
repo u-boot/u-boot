@@ -6,8 +6,8 @@
 host command
 ============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

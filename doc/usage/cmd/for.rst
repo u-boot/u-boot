@@ -4,8 +4,8 @@
 for command
 ===========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 
