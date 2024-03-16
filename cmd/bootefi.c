@@ -171,9 +171,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 
 		ret = efi_install_fdt(fdt);
-		if (ret == EFI_INVALID_PARAMETER)
-			return CMD_RET_USAGE;
-		else if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
 		return do_efi_selftest();
