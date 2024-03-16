@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <abuf.h>
+#include <charset.h>
 #include <command.h>
 #include <console.h>
 #include <log.h>
@@ -20,7 +21,7 @@
 #include <video_font.h>		/* Bitmap font for code page 437 */
 #include <linux/ctype.h>
 
-int vidconsole_putc_xy(struct udevice *dev, uint x, uint y, char ch)
+int vidconsole_putc_xy(struct udevice *dev, uint x, uint y, int ch)
 {
 	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
 
@@ -426,8 +427,8 @@ error:
 	priv->escape = 0;
 }
 
-/* Put that actual character on the screen (using the CP437 code page). */
-static int vidconsole_output_glyph(struct udevice *dev, char ch)
+/* Put that actual character on the screen (using the UTF-32 code points). */
+static int vidconsole_output_glyph(struct udevice *dev, int ch)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
 	int ret;
@@ -455,7 +456,7 @@ static int vidconsole_output_glyph(struct udevice *dev, char ch)
 int vidconsole_put_char(struct udevice *dev, char ch)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
-	int ret;
+	int cp, ret;
 
 	if (priv->escape) {
 		vidconsole_escape_char(dev, ch);
@@ -489,7 +490,14 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		priv->last_ch = 0;
 		break;
 	default:
-		ret = vidconsole_output_glyph(dev, ch);
+		if (CONFIG_IS_ENABLED(CHARSET)) {
+			cp = utf8_to_utf32_stream(ch, priv->utf8_buf);
+			if (cp == 0)
+				return 0;
+		} else {
+			cp = ch;
+		}
+		ret = vidconsole_output_glyph(dev, cp);
 		if (ret < 0)
 			return ret;
 		break;
