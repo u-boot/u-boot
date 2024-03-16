@@ -4,6 +4,7 @@
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
+#include <asm/byteorder.h>
 #include <asm/gpio.h>
 #include <linux/log2.h>
 
@@ -103,27 +104,31 @@ static int turris_omnia_mcu_get_function(struct udevice *dev, uint offset)
 static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 {
 	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
-	u8 val16[2];
-	u8 val32[4];
+	u32 val32;
+	u16 val16;
 	int ret;
 
 	switch (offset) {
 	/* bank 0 */
 	case 0 ... 15:
-		ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, val16, 2);
+		ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, (void *)&val16,
+				  sizeof(val16));
 		if (ret)
 			return ret;
-		return ((((u16)val16[1] << 8) | val16[0]) >> offset) & 0x1;
+
+		return !!(le16_to_cpu(val16) & BIT(offset));
 
 	/* bank 1 - supported only when FEAT_EXT_CMDS is set */
 	case (16 + 0) ... (16 + 31):
 		if (!(info->features & FEAT_EXT_CMDS))
 			return -EINVAL;
-		ret = dm_i2c_read(dev, CMD_GET_EXT_STATUS_DWORD, val32, 4);
+
+		ret = dm_i2c_read(dev, CMD_GET_EXT_STATUS_DWORD, (void *)&val32,
+				  sizeof(val32));
 		if (ret)
 			return ret;
-		return ((((u32)val32[3] << 24) | ((u32)val32[2] << 16) |
-			 ((u32)val32[1] << 8) | val32[0]) >> (offset - 16)) & 0x1;
+
+		return !!(le32_to_cpu(val32) & BIT(offset - 16));
 
 	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
@@ -131,10 +136,13 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 			return -EINVAL;
 		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
-		ret = dm_i2c_read(dev, CMD_GET_EXT_CONTROL_STATUS, val16, 2);
+
+		ret = dm_i2c_read(dev, CMD_GET_EXT_CONTROL_STATUS,
+				  (void *)&val16, sizeof(val16));
 		if (ret)
 			return ret;
-		return ((((u16)val16[1] << 8) | val16[0]) >> (offset - 16 - 32)) & 0x1;
+
+		return !!(le16_to_cpu(val16) & BIT(offset - 16 - 32));
 
 	default:
 		return -EINVAL;
@@ -144,30 +152,33 @@ static int turris_omnia_mcu_get_value(struct udevice *dev, uint offset)
 static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int value)
 {
 	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
-	u8 val16[2];
-	u8 val32[4];
+	u16 valmask16[2];
+	u8 valmask8[2];
 
 	switch (offset) {
 	/* bank 0 */
 	case 0 ... 15:
 		switch (offset) {
 		case ilog2(STS_USB30_PWRON):
-			val16[1] = CTL_USB30_PWRON;
+			valmask8[1] = CTL_USB30_PWRON;
 			break;
 		case ilog2(STS_USB31_PWRON):
-			val16[1] = CTL_USB31_PWRON;
+			valmask8[1] = CTL_USB31_PWRON;
 			break;
 		case ilog2(STS_ENABLE_4V5):
-			val16[1] = CTL_ENABLE_4V5;
+			valmask8[1] = CTL_ENABLE_4V5;
 			break;
 		case ilog2(STS_BUTTON_MODE):
-			val16[1] = CTL_BUTTON_MODE;
+			valmask8[1] = CTL_BUTTON_MODE;
 			break;
 		default:
 			return -EINVAL;
 		}
-		val16[0] = value ? val16[1] : 0;
-		return dm_i2c_write(dev, CMD_GENERAL_CONTROL, val16, sizeof(val16));
+
+		valmask8[0] = value ? valmask8[1] : 0;
+
+		return dm_i2c_write(dev, CMD_GENERAL_CONTROL, valmask8,
+				    sizeof(valmask8));
 
 	/* bank 2 - supported only when FEAT_EXT_CMDS and FEAT_PERIPH_MCU is set */
 	case (16 + 32 + 0) ... (16 + 32 + 15):
@@ -175,11 +186,12 @@ static int turris_omnia_mcu_set_value(struct udevice *dev, uint offset, int valu
 			return -EINVAL;
 		if (!(info->features & FEAT_PERIPH_MCU))
 			return -EINVAL;
-		val32[3] = BIT(offset - 16 - 32) >> 8;
-		val32[2] = BIT(offset - 16 - 32) & 0xff;
-		val32[1] = value ? val32[3] : 0;
-		val32[0] = value ? val32[2] : 0;
-		return dm_i2c_write(dev, CMD_EXT_CONTROL, val32, sizeof(val32));
+
+		valmask16[1] = cpu_to_le16(BIT(offset - 16 - 32));
+		valmask16[0] = value ? valmask16[1] : 0;
+
+		return dm_i2c_write(dev, CMD_EXT_CONTROL, (void *)valmask16,
+				    sizeof(valmask16));
 
 	default:
 		return -EINVAL;
@@ -268,25 +280,25 @@ static int turris_omnia_mcu_probe(struct udevice *dev)
 {
 	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	u16 status;
-	u8 val[2];
+	u16 val;
 	int ret;
 
-	ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, val, 2);
-	if (ret) {
-		printf("Error: turris_omnia_mcu CMD_GET_STATUS_WORD failed: %d\n", ret);
+	ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, (void *)&val, sizeof(val));
+	if (ret < 0) {
+		printf("Error: turris_omnia_mcu CMD_GET_STATUS_WORD failed: %d\n",
+		       ret);
 		return ret;
 	}
 
-	status = ((u16)val[1] << 8) | val[0];
-
-	if (status & STS_FEATURES_SUPPORTED) {
-		ret = dm_i2c_read(dev, CMD_GET_FEATURES, val, 2);
-		if (ret) {
-			printf("Error: turris_omnia_mcu CMD_GET_FEATURES failed: %d\n", ret);
+	if (le16_to_cpu(val) & STS_FEATURES_SUPPORTED) {
+		ret = dm_i2c_read(dev, CMD_GET_FEATURES, (void *)&val,
+				  sizeof(val));
+		if (ret < 0) {
+			printf("Error: turris_omnia_mcu CMD_GET_FEATURES failed: %d\n",
+			       ret);
 			return ret;
 		}
-		info->features = ((u16)val[1] << 8) | val[0];
+		info->features = le16_to_cpu(val);
 	}
 
 	uc_priv->bank_name = "mcu_";
