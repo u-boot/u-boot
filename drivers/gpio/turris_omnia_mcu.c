@@ -7,59 +7,7 @@
 #include <asm/byteorder.h>
 #include <asm/gpio.h>
 #include <linux/log2.h>
-
-enum commands_e {
-	CMD_GET_STATUS_WORD                 = 0x01,
-	CMD_GENERAL_CONTROL                 = 0x02,
-
-	/* available if STS_FEATURES_SUPPORTED bit set in status word */
-	CMD_GET_FEATURES                    = 0x10,
-
-	/* available if FEAT_EXT_CMDS bit is set in features */
-	CMD_GET_EXT_STATUS_DWORD            = 0x11,
-
-	/* available if FEAT_EXT_CMDS and FEAT_PERIPH_MCU bits are set in featurs */
-	CMD_EXT_CONTROL                     = 0x12,
-	CMD_GET_EXT_CONTROL_STATUS          = 0x13,
-};
-
-/* CMD_GET_STATUS_WORD */
-enum sts_word_e {
-	STS_MCU_TYPE_MASK                = GENMASK(1, 0),
-	STS_MCU_TYPE_STM32               = 0,
-	STS_MCU_TYPE_GD32                = 1,
-	STS_MCU_TYPE_MKL                 = 2,
-	STS_FEATURES_SUPPORTED           = BIT(2),
-	STS_USER_REGULATOR_NOT_SUPPORTED = BIT(3),
-	STS_CARD_DET                     = BIT(4),
-	STS_MSATA_IND                    = BIT(5),
-	STS_USB30_OVC                    = BIT(6),
-	STS_USB31_OVC                    = BIT(7),
-	STS_USB30_PWRON                  = BIT(8),
-	STS_USB31_PWRON                  = BIT(9),
-	STS_ENABLE_4V5                   = BIT(10),
-	STS_BUTTON_MODE                  = BIT(11),
-	STS_BUTTON_PRESSED               = BIT(12),
-	STS_BUTTON_COUNTER_MASK          = GENMASK(15, 13)
-};
-
-/* CMD_GENERAL_CONTROL */
-enum ctl_byte_e {
-	CTL_LIGHT_RST   = BIT(0),
-	CTL_HARD_RST    = BIT(1),
-	/*CTL_RESERVED    = BIT(2),*/
-	CTL_USB30_PWRON = BIT(3),
-	CTL_USB31_PWRON = BIT(4),
-	CTL_ENABLE_4V5  = BIT(5),
-	CTL_BUTTON_MODE = BIT(6),
-	CTL_BOOTLOADER  = BIT(7)
-};
-
-/* CMD_GET_FEATURES */
-enum features_e {
-	FEAT_PERIPH_MCU         = BIT(0),
-	FEAT_EXT_CMDS           = BIT(1),
-};
+#include <turris-omnia-mcu-interface.h>
 
 struct turris_omnia_mcu_info {
 	u16 features;
