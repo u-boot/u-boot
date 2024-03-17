@@ -2257,6 +2257,16 @@ error:
 
 	return -ENOTSUPP;
 }
+#else
+static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
+{
+	return 0;
+};
+
+static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
+{
+	return 0;
+};
 #endif
 
 #if CONFIG_IS_ENABLED(MMC_TINY)
@@ -3019,12 +3029,14 @@ int mmc_init(struct mmc *mmc)
 	return err;
 }
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 int mmc_deinit(struct mmc *mmc)
 {
 	u32 caps_filtered;
+
+	if (!CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) &&
+	    !CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) &&
+	    !CONFIG_IS_ENABLED(MMC_HS400_SUPPORT))
+		return 0;
 
 	if (!mmc->has_init)
 		return 0;
@@ -3043,7 +3055,6 @@ int mmc_deinit(struct mmc *mmc)
 		return mmc_select_mode_and_width(mmc, caps_filtered);
 	}
 }
-#endif
 
 int mmc_set_dsr(struct mmc *mmc, u16 val)
 {
