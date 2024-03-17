@@ -45,7 +45,6 @@ struct dwc3_device {
 int dwc3_uboot_init(struct dwc3_device *dev);
 void dwc3_uboot_exit(int index);
 int dwc3_uboot_interrupt_status(struct udevice *dev);
-void dwc3_uboot_handle_interrupt(struct udevice *dev);
 
 struct phy;
 #if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
