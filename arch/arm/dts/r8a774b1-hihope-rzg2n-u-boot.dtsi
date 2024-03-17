@@ -5,7 +5,6 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
-#include "r8a774b1-hihope-rzg2n-ex.dts"
 #include "r8a774b1-u-boot.dtsi"
 
 &gpio3 {

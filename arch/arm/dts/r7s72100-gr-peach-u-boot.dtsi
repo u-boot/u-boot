@@ -5,7 +5,6 @@
  * Copyright (C) 2019 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r7s72100-gr-peach.dts"
 
 / {
 	aliases {

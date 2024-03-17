@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source extras for U-Boot for the Stout board
+ * Device Tree Source extras for U-Boot for the Koelsch board
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r8a7790-stout.dts"
-#include "r8a7790-u-boot.dtsi"
+#include "r8a7791-u-boot.dtsi"
 
-&scifa0 {
+&scif0 {
 	bootph-all;
 };
 

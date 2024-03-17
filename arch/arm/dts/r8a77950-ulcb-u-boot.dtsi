@@ -1,14 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Device Tree Source extras for U-Boot for the M3N Salvator-XS board
+ * Device Tree Source extras for U-Boot for the ULCB board
  *
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r8a77965-salvator-x.dts"
-#include "r8a77965-u-boot.dtsi"
+#include "r8a77950-u-boot.dtsi"
 
 / {
+	cpld {
+		compatible = "renesas,ulcb-cpld";
+		status = "okay";
+		gpio-sck = <&gpio6 8 0>;
+		gpio-mosi = <&gpio6 7 0>;
+		gpio-miso = <&gpio6 10 0>;
+		gpio-sstbz = <&gpio2 3 0>;
+	};
+
 	sysinfo {
 		compatible = "renesas,rcar-sysinfo";
 		i2c-eeprom = <&sysinfo_eeprom>;
@@ -20,6 +28,9 @@
 	bootph-all;
 
 	sysinfo_eeprom: eeprom@50 {
+		compatible = "rohm,br24t01", "atmel,24c01";
+		reg = <0x50>;
+		pagesize = <8>;
 		bootph-all;
 		status = "okay";
 	};
@@ -35,7 +46,6 @@
 	sd-uhs-sdr25;
 	sd-uhs-sdr104;
 	max-frequency = <208000000>;
-	status = "okay";
 };
 
 &sdhi2 {
@@ -43,21 +53,8 @@
 	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	max-frequency = <200000000>;
-	status = "okay";
-};
-
-&sdhi3 {
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr104;
-	max-frequency = <208000000>;
-	status = "okay";
 };
 
 &vcc_sdhi0 {
-	u-boot,off-on-delay-us = <20000>;
-};
-
-&vcc_sdhi3 {
 	u-boot,off-on-delay-us = <20000>;
 };

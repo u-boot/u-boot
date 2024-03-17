@@ -5,7 +5,6 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
-#include "r8a779g0-white-hawk.dts"
 #include "r8a779g0-u-boot.dtsi"
 
 / {
