@@ -27,5 +27,4 @@ struct dwc3_omap_device {
 
 int dwc3_omap_uboot_init(struct dwc3_omap_device *dev);
 void dwc3_omap_uboot_exit(int index);
-int dwc3_omap_uboot_interrupt_status(struct udevice *dev);
 #endif /* __DWC3_OMAP_UBOOT_H_ */
