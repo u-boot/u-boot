@@ -248,4 +248,9 @@ u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
 	return PHYTEC_EEPROM_INVAL;
 }
 
+u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
+{
+	return PHYTEC_EEPROM_INVAL;
+}
+
 #endif /* IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION) */

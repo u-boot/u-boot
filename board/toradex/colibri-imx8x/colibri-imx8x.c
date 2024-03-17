@@ -46,7 +46,7 @@ static int is_imx8dx(void)
 	u32 val = 0;
 	int sc_err = sc_misc_otp_fuse_read(-1, 6, &val);
 
-	if (sc_err) {
+	if (!sc_err) {
 		/* DX has two A35 cores disabled */
 		return (val & 0xf) != 0x0;
 	}

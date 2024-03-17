@@ -933,19 +933,28 @@ int disable_vpu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mq[] = {
 		"/vpu@38300000",
-		"/soc@0/vpu@38300000"
+		"/soc@0/vpu@38300000",
+		"/soc@0/video-codec@38300000",
+		"/soc@0/video-codec@38310000",
+		"/soc@0/blk-ctrl@38320000",
 	};
 
 	static const char * const nodes_path_8mm[] = {
 		"/vpu_g1@38300000",
 		"/vpu_g2@38310000",
-		"/vpu_h1@38320000"
+		"/vpu_h1@38320000",
+		"/soc@0/video-codec@38300000",
+		"/soc@0/video-codec@38310000",
+		"/soc@0/blk-ctrl@38330000",
 	};
 
 	static const char * const nodes_path_8mp[] = {
 		"/vpu_g1@38300000",
 		"/vpu_g2@38310000",
-		"/vpu_vc8000e@38320000"
+		"/vpu_vc8000e@38320000",
+		"/soc@0/video-codec@38300000",
+		"/soc@0/video-codec@38310000",
+		"/soc@0/blk-ctrl@38330000",
 	};
 
 	if (is_imx8mq())
@@ -1100,7 +1109,8 @@ int disable_gpu_nodes(void *blob)
 int disable_npu_nodes(void *blob)
 {
 	static const char * const nodes_path_8mp[] = {
-		"/vipsi@38500000"
+		"/vipsi@38500000",
+		"/soc@0/npu@38500000",
 	};
 
 	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
