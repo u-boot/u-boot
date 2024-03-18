@@ -17,7 +17,7 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	u8 buf[64];
 	int devnum;
 	struct udevice *dev;
-	int ret = CMD_RET_SUCCESS;
+	int ret = CMD_RET_SUCCESS, err;
 
 	switch (argc) {
 	case 1:
@@ -46,8 +46,9 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	n = min(n, sizeof(buf));
 
-	if (dm_rng_read(dev, buf, n)) {
-		printf("Reading RNG failed\n");
+	err = dm_rng_read(dev, buf, n);
+	if (err) {
+		puts(err == -EINTR ? "Abort\n" : "Reading RNG failed\n");
 		ret = CMD_RET_FAILURE;
 	} else {
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, n);
