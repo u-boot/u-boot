@@ -184,6 +184,15 @@ struct fixed_link {
 int phy_reset(struct phy_device *phydev);
 
 /**
+ * phy_gpio_reset() - Resets the specified PHY using GPIO reset
+ * Toggles the optional PHY reset GPIO
+ *
+ * @dev:	PHY udevice to reset
+ * @return: 0 if OK, -ve on error
+ */
+int phy_gpio_reset(struct udevice *dev);
+
+/**
  * phy_find_by_mask() - Searches for a PHY on the specified MDIO bus
  * The function checks the PHY addresses flagged in phy_mask and returns a
  * phy_device pointer if it detects a PHY.
