@@ -1082,15 +1082,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-phg.dtb \
 	imx8mm-phyboard-polis-rdk.dtb \
 	imx8mm-phygate-tauri-l.dtb \
-	imx8mm-venice.dtb \
-	imx8mm-venice-gw71xx-0x.dtb \
-	imx8mm-venice-gw72xx-0x.dtb \
-	imx8mm-venice-gw73xx-0x.dtb \
-	imx8mm-venice-gw7901.dtb \
-	imx8mm-venice-gw7902.dtb \
-	imx8mm-venice-gw7903.dtb \
-	imx8mm-venice-gw7904.dtb \
-	imx8mm-venice-gw7905-0x.dtb \
 	imx8mm-verdin-wifi-dev.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
@@ -1098,8 +1089,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mq-cm.dtb \
 	imx8mn-evk.dtb \
 	imx8mn-var-som-symphony.dtb \
-	imx8mn-venice.dtb \
-	imx8mn-venice-gw7902.dtb \
 	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
@@ -1119,12 +1108,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-msc-sm2s.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
-	imx8mp-venice.dtb \
-	imx8mp-venice-gw71xx-2x.dtb \
-	imx8mp-venice-gw72xx-2x.dtb \
-	imx8mp-venice-gw73xx-2x.dtb \
-	imx8mp-venice-gw74xx.dtb \
-	imx8mp-venice-gw7905-2x.dtb \
 	imx8mp-verdin-wifi-dev.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb \
