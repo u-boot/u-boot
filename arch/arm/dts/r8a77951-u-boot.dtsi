@@ -30,7 +30,6 @@
 /delete-node/ &can1;
 /delete-node/ &canfd;
 /delete-node/ &csi20;
-/delete-node/ &csi21;
 /delete-node/ &csi40;
 /delete-node/ &csi41;
 /delete-node/ &drif00;
@@ -44,16 +43,13 @@
 /delete-node/ &du;
 /delete-node/ &fcpf0;
 /delete-node/ &fcpf1;
-/delete-node/ &fcpf2;
 /delete-node/ &fcpvb0;
 /delete-node/ &fcpvb1;
 /delete-node/ &fcpvd0;
 /delete-node/ &fcpvd1;
 /delete-node/ &fcpvd2;
-/delete-node/ &fcpvd3;
 /delete-node/ &fcpvi0;
 /delete-node/ &fcpvi1;
-/delete-node/ &fcpvi2;
 /delete-node/ &hdmi0;
 /delete-node/ &hdmi1;
 /delete-node/ &lvds0;
@@ -72,10 +68,8 @@
 /delete-node/ &vspd0;
 /delete-node/ &vspd1;
 /delete-node/ &vspd2;
-/delete-node/ &vspd3;
 /delete-node/ &vspi0;
 /delete-node/ &vspi1;
-/delete-node/ &vspi2;
 
 / {
 	/delete-node/ cvbs-in;

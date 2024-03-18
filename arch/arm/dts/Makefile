@@ -1073,8 +1073,8 @@ dtb-$(CONFIG_RCAR_GEN3) += \
 	r8a774b1-hihope-rzg2n.dtb \
 	r8a774c0-ek874.dtb \
 	r8a774e1-hihope-rzg2h.dtb \
-	r8a77950-ulcb.dtb \
-	r8a77950-salvator-x.dtb \
+	r8a77951-ulcb.dtb \
+	r8a77951-salvator-x.dtb \
 	r8a77960-ulcb.dtb \
 	r8a77960-salvator-x.dtb \
 	r8a77965-ulcb.dtb \

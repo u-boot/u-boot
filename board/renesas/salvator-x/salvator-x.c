@@ -79,7 +79,7 @@ int board_fit_config_name_match(const char *name)
 	u32 cpu_type = renesas_get_cpu_type();
 
 	if ((cpu_type == RENESAS_CPU_TYPE_R8A7795) &&
-	    !strcmp(name, "r8a77950-salvator-x"))
+	    !strcmp(name, "r8a77951-salvator-x"))
 		return 0;
 
 	if ((cpu_type == RENESAS_CPU_TYPE_R8A7796) &&
