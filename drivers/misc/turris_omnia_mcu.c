@@ -5,14 +5,19 @@
  */
 
 #include <common.h>
+#include <console.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <i2c.h>
+#include <rng.h>
 #include <sysreset.h>
 #include <asm/byteorder.h>
 #include <asm/gpio.h>
+#include <linux/delay.h>
 #include <linux/log2.h>
 #include <turris-omnia-mcu-interface.h>
+
+#define CMD_TRNG_MAX_ENTROPY_LEN	64
 
 struct turris_omnia_mcu_info {
 	u16 features;
@@ -282,6 +287,49 @@ U_BOOT_DRIVER(turris_omnia_mcu_sysreset) = {
 	.ops		= &omnia_sysreset_ops,
 };
 
+static int omnia_rng_read(struct udevice *dev, void *data, size_t count)
+{
+	u8 buf[1 + CMD_TRNG_MAX_ENTROPY_LEN];
+	size_t len;
+	int ret;
+
+	while (count) {
+		ret = dm_i2c_read(dev->parent, CMD_TRNG_COLLECT_ENTROPY, buf,
+				  sizeof(buf));
+		if (ret)
+			return ret;
+
+		len = min_t(size_t, buf[0],
+			    min_t(size_t, CMD_TRNG_MAX_ENTROPY_LEN, count));
+
+		if (!len) {
+			/* wait 500ms (fail if interrupted), then try again */
+			for (int i = 0; i < 5; ++i) {
+				mdelay(100);
+				if (ctrlc())
+					return -EINTR;
+			}
+			continue;
+		}
+
+		memcpy(data, &buf[1], len);
+		data += len;
+		count -= len;
+	}
+
+	return 0;
+}
+
+static const struct dm_rng_ops omnia_rng_ops = {
+	.read		= omnia_rng_read,
+};
+
+U_BOOT_DRIVER(turris_omnia_mcu_trng) = {
+	.name		= "turris-omnia-mcu-trng",
+	.id		= UCLASS_RNG,
+	.ops		= &omnia_rng_ops,
+};
+
 static int turris_omnia_mcu_bind(struct udevice *dev)
 {
 	/* bind MCU GPIOs as a child device */
@@ -319,6 +367,15 @@ static int turris_omnia_mcu_probe(struct udevice *dev)
 		ret = device_bind_driver_to_node(dev,
 						 "turris-omnia-mcu-sysreset",
 						 "turris-omnia-mcu-sysreset",
+						 dev_ofnode(dev), NULL);
+		if (ret < 0)
+			return ret;
+	}
+
+	/* bind rng if trng is supported */
+	if (info->features & FEAT_TRNG) {
+		ret = device_bind_driver_to_node(dev, "turris-omnia-mcu-trng",
+						 "turris-omnia-mcu-trng",
 						 dev_ofnode(dev), NULL);
 		if (ret < 0)
 			return ret;

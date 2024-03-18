@@ -509,6 +509,7 @@ config TURRIS_OMNIA_MCU
 	bool "Enable Turris Omnia MCU driver"
 	depends on DM_I2C
 	depends on DM_GPIO
+	depends on DM_RNG
 	depends on SYSRESET
 	default y if TARGET_TURRIS_OMNIA
 	help
