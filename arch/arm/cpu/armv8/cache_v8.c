@@ -326,6 +326,8 @@ static void map_range(u64 virt, u64 phys, u64 size, int level,
 		/* Going one level down */
 		if (pte_type(&table[i]) == PTE_TYPE_FAULT)
 			set_pte_table(&table[i], create_table());
+		else if (pte_type(&table[i]) != PTE_TYPE_TABLE)
+			split_block(&table[i], level);
 
 		next_table = (u64 *)(table[i] & GENMASK_ULL(47, PAGE_SHIFT));
 		next_size = min(map_size - (virt & (map_size - 1)), size);
