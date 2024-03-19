@@ -356,6 +356,8 @@
 
 &uart0 {
 	status = "okay";
+	rts-gpios = <&gpio 72 GPIO_ACTIVE_HIGH>;
+	linux,rs485-enabled-at-boot-time;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart0_default>;
 	assigned-clock-rates = <100000000>;
