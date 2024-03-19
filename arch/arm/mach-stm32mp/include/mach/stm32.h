@@ -212,6 +212,7 @@ enum forced_boot_mode {
 #ifdef CONFIG_STM32MP25X
 #define BSEC_OTP_SERIAL	5
 #define BSEC_OTP_RPN	9
+#define BSEC_OTP_REVID	102
 #define BSEC_OTP_PKG	122
 #define BSEC_OTP_BOARD	246
 #define BSEC_OTP_MAC	247

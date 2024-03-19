@@ -58,6 +58,7 @@ u32 get_cpu_type(void);
 /* return CPU_DEV constants */
 u32 get_cpu_dev(void);
 
+/* Silicon revision = REV_ID[15:0] of Device Version */
 #define CPU_REV1	0x1000
 #define CPU_REV1_1	0x1001
 #define CPU_REV1_2	0x1003
@@ -65,7 +66,15 @@ u32 get_cpu_dev(void);
 #define CPU_REV2_1	0x2001
 #define CPU_REV2_2	0x2003
 
-/* return Silicon revision = REV_ID[15:0] of Device Version */
+/* OTP revision ID = 6 bits : 3 for Major / 3 for Minor */
+#define OTP_REVID_1	0b001000
+#define OTP_REVID_1_1	0b001001
+#define OTP_REVID_1_2	0b001010
+#define OTP_REVID_2	0b010000
+#define OTP_REVID_2_1	0b010001
+#define OTP_REVID_2_2	0b010010
+
+/* return SoC revision = Silicon revision (STM32MP1) or OTP revision ID (STM32MP2)*/
 u32 get_cpu_rev(void);
 
 /* Get Package options from OTP */
