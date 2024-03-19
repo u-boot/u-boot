@@ -81,6 +81,7 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 					break;
 				switch (impl_id) {
 				case 1: /* OpenSBI */
+				case 8: /* PolarFire Hart Software Services */
 					printf("%ld.%ld",
 					       vers >> 16, vers & 0xffff);
 					break;
@@ -99,7 +100,7 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
 			}
 		}
 		if (i == ARRAY_SIZE(implementations))
-			printf("Unknown implementation ID %ld", ret);
+			printf("\nUnknown implementation ID 0x%x", impl_id);
 	}
 	printf("\nMachine:\n");
 	ret = sbi_get_mvendorid(&mvendorid);

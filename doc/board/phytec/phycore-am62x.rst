@@ -92,9 +92,9 @@ Assuming the uSD card is `/dev/mmcblk0`:
 To boot from a micro SD card on a HSFS device simply copy the following
 artifacts to the FAT partition:
 
-* tiboot3.bin from R5 build as tiboot3.bin
-* tispl.bin_unsigned from Cortex-A build as tispl.bin
-* u-boot.img_unsigned from Cortex-A build as u-boot.img
+* tiboot3.bin from R5 build
+* tispl.bin from Cortex-A build
+* u-boot.img from Cortex-A build
 
 Boot
 ----

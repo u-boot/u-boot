@@ -456,11 +456,11 @@ efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	/* Create memory reservations as indicated by the device tree */
-	efi_carve_out_dt_rsv(fdt);
-
-	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE))
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)) {
+		/* Create memory reservations as indicated by the device tree */
+		efi_carve_out_dt_rsv(fdt);
 		return EFI_SUCCESS;
+	}
 
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
@@ -473,6 +473,9 @@ efi_status_t efi_install_fdt(void *fdt)
 		log_err("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
+
+	/* Create memory reservations as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
 
 	efi_try_purge_kaslr_seed(fdt);
 
