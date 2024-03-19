@@ -131,3 +131,99 @@ static int dm_test_button_keys_adc(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_button_keys_adc, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+
+/* Test of the button uclass using the button_gpio driver */
+static int dm_test_button_cmd(struct unit_test_state *uts)
+{
+	struct udevice *btn1_dev, *btn2_dev, *gpio;
+	const char *envstr;
+
+#define BTN1_GPIO 3
+#define BTN2_GPIO 4
+#define BTN1_PASS_VAR "test_button_cmds_0"
+#define BTN2_PASS_VAR "test_button_cmds_1"
+
+	/*
+	 * Buttons 1 and 2 are connected to gpio_a gpios 3 and 4 respectively.
+	 * set the GPIOs to known values and then check that the appropriate
+	 * commands are run when invoking process_button_cmds().
+	 */
+	ut_assertok(uclass_get_device(UCLASS_BUTTON, 1, &btn1_dev));
+	ut_assertok(uclass_get_device(UCLASS_BUTTON, 2, &btn2_dev));
+	ut_assertok(uclass_get_device(UCLASS_GPIO, 1, &gpio));
+
+	/*
+	 * Map a command to button 1 and check that it process_button_cmds()
+	 * runs it if called with button 1 pressed.
+	 */
+	ut_assertok(env_set("button_cmd_0_name", "button1"));
+	ut_assertok(env_set("button_cmd_0", "env set " BTN1_PASS_VAR " PASS"));
+	ut_assertok(sandbox_gpio_set_value(gpio, BTN1_GPIO, 1));
+	/* Sanity check that the button is actually pressed */
+	ut_asserteq(BUTTON_ON, button_get_state(btn1_dev));
+	process_button_cmds();
+	ut_assertnonnull((envstr = env_get(BTN1_PASS_VAR)));
+	ut_asserteq_str(envstr, "PASS");
+
+	/* Clear result */
+	ut_assertok(env_set(BTN1_PASS_VAR, NULL));
+
+	/*
+	 * Map a command for button 2, press it, check that only the command
+	 * for button 1 runs because it comes first and is also pressed.
+	 */
+	ut_assertok(env_set("button_cmd_1_name", "button2"));
+	ut_assertok(env_set("button_cmd_1", "env set " BTN2_PASS_VAR " PASS"));
+	ut_assertok(sandbox_gpio_set_value(gpio, BTN2_GPIO, 1));
+	ut_asserteq(BUTTON_ON, button_get_state(btn2_dev));
+	process_button_cmds();
+	/* Check that button 1 triggered again */
+	ut_assertnonnull((envstr = env_get(BTN1_PASS_VAR)));
+	ut_asserteq_str(envstr, "PASS");
+	/* And button 2 didn't */
+	ut_assertnull(env_get(BTN2_PASS_VAR));
+
+	/* Clear result */
+	ut_assertok(env_set(BTN1_PASS_VAR, NULL));
+
+	/*
+	 * Release button 1 and check that the command for button 2 is run
+	 */
+	ut_assertok(sandbox_gpio_set_value(gpio, BTN1_GPIO, 0));
+	process_button_cmds();
+	ut_assertnull(env_get(BTN1_PASS_VAR));
+	/* Check that the command for button 2 ran */
+	ut_assertnonnull((envstr = env_get(BTN2_PASS_VAR)));
+	ut_asserteq_str(envstr, "PASS");
+
+	/* Clear result */
+	ut_assertok(env_set(BTN2_PASS_VAR, NULL));
+
+	/*
+	 * Unset "button_cmd_0_name" and check that no commands run even
+	 * with both buttons pressed.
+	 */
+	ut_assertok(env_set("button_cmd_0_name", NULL));
+	/* Press button 1 (button 2 is already pressed )*/
+	ut_assertok(sandbox_gpio_set_value(gpio, BTN1_GPIO, 1));
+	ut_asserteq(BUTTON_ON, button_get_state(btn1_dev));
+	process_button_cmds();
+	ut_assertnull(env_get(BTN1_PASS_VAR));
+	ut_assertnull(env_get(BTN2_PASS_VAR));
+
+	/*
+	 * Check that no command is run if the button name is wrong.
+	 */
+	ut_assertok(env_set("button_cmd_0_name", "invalid_button"));
+	process_button_cmds();
+	ut_assertnull(env_get(BTN1_PASS_VAR));
+	ut_assertnull(env_get(BTN2_PASS_VAR));
+
+#undef BTN1_PASS_VAR
+#undef BTN2_PASS_VAR
+#undef BTN1_GPIO
+#undef BTN2_GPIO
+
+	return 0;
+}
+DM_TEST(dm_test_button_cmd, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
