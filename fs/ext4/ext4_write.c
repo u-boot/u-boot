@@ -847,6 +847,7 @@ int ext4fs_write(const char *fname, const char *buffer,
 {
 	int ret = 0;
 	struct ext2_inode *file_inode = NULL;
+	struct ext2_inode *existing_file_inode = NULL;
 	unsigned char *inode_buffer = NULL;
 	int parent_inodeno;
 	int inodeno;
@@ -900,6 +901,15 @@ int ext4fs_write(const char *fname, const char *buffer,
 	/* check if the filename is already present in root */
 	existing_file_inodeno = ext4fs_filename_unlink(filename);
 	if (existing_file_inodeno != -1) {
+		existing_file_inode = (struct ext2_inode *)zalloc(fs->inodesz);
+		if (!existing_file_inode)
+			goto fail;
+		ret = ext4fs_iget(existing_file_inodeno, existing_file_inode);
+		if (ret) {
+			free(existing_file_inode);
+			goto fail;
+		}
+
 		ret = ext4fs_delete_file(existing_file_inodeno);
 		fs->first_pass_bbmap = 0;
 		fs->curr_blkno = 0;
@@ -948,9 +958,15 @@ int ext4fs_write(const char *fname, const char *buffer,
 			sizebytes = 0;
 		}
 	} else {
-		file_inode->mode = cpu_to_le16(S_IFREG | S_IRWXU | S_IRGRP |
-					       S_IROTH | S_IXGRP | S_IXOTH);
+		if (existing_file_inode) {
+			file_inode->mode = existing_file_inode->mode;
+		} else {
+			file_inode->mode = cpu_to_le16(S_IFREG | S_IRWXU | S_IRGRP |
+						       S_IROTH | S_IXGRP | S_IXOTH);
+		}
 	}
+	if (existing_file_inode)
+		free(existing_file_inode);
 	/* ToDo: Update correct time */
 	file_inode->mtime = cpu_to_le32(timestamp);
 	file_inode->atime = cpu_to_le32(timestamp);
