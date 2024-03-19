@@ -90,6 +90,14 @@ config TARGET_SOCFPGA_ARRIA10
 	imply FPGA_SOCFPGA
 	imply SPL_USE_TINY_PRINTF
 
+config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
+	bool "Always reprogram Arria 10 FPGA"
+	depends on TARGET_SOCFPGA_ARRIA10
+	help
+	  Arria 10 FPGA is only programmed during the cold boot.
+	  This option forces the FPGA to be reprogrammed every reboot,
+	  allowing to change the bitstream and apply it with warm reboot.
+
 config TARGET_SOCFPGA_CYCLONE5
 	bool
 	select TARGET_SOCFPGA_GEN5
