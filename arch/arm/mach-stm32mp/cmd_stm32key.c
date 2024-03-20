@@ -618,3 +618,25 @@ U_BOOT_CMD_WITH_SUBCMDS(stm32key, "Manage key on STM32", stm32key_help_text,
 	U_BOOT_SUBCMD_MKENT(read, 2, 0, do_stm32key_read),
 	U_BOOT_SUBCMD_MKENT(fuse, 3, 0, do_stm32key_fuse),
 	U_BOOT_SUBCMD_MKENT(close, 2, 0, do_stm32key_close));
+
+/*
+ * Check the "closed" state in product life cycle, when product secrets have
+ * been provisioned into the device, by SSP tools for example.
+ * On closed devices, authentication is mandatory.
+ */
+bool stm32mp_is_closed(void)
+{
+	struct udevice *dev;
+	bool closed;
+	int ret;
+
+	ret = get_misc_dev(&dev);
+	if (ret)
+		return false;
+
+	ret = read_close_status(dev, false, &closed);
+	if (ret)
+		return false;
+
+	return closed;
+}

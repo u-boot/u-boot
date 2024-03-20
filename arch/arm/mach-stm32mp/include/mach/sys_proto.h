@@ -120,3 +120,10 @@ u32 get_otp(int index, int shift, int mask);
 
 uintptr_t get_stm32mp_rom_api_table(void);
 uintptr_t get_stm32mp_bl2_dtb(void);
+
+/* helper function: check "closed" state in product "Life Cycle" */
+#ifdef CONFIG_CMD_STM32KEY
+bool stm32mp_is_closed(void);
+#else
+static inline bool stm32mp_is_closed(void) { return false; }
+#endif
