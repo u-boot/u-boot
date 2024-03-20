@@ -655,7 +655,7 @@ dmu_read(dnode_end_t *dn, uint64_t blkid, void **buf,
 											dn->endian)
 				<< SPA_MINBLOCKSHIFT;
 			*buf = malloc(size);
-			if (*buf) {
+			if (!*buf) {
 				err = ZFS_ERR_OUT_OF_MEMORY;
 				break;
 			}
