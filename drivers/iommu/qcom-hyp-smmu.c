@@ -319,7 +319,7 @@ static int qcom_smmu_connect(struct udevice *dev)
 }
 
 #ifdef DEBUG
-static inline void dump_boot_mappings(struct arm_smmu_priv *priv)
+static inline void dump_boot_mappings(struct qcom_smmu_priv *priv)
 {
 	u32 val;
 	int i;
