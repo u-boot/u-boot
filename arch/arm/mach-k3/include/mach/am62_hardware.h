@@ -122,6 +122,21 @@ static inline int k3_get_max_temp(void)
 	}
 }
 
+static inline int k3_get_a53_max_frequency(void)
+{
+	switch (k3_get_speed_grade()) {
+	case 'K':
+		return 800000000;
+	case 'S':
+		return 1000000000;
+	case 'T':
+		return 1250000000;
+	case 'G':
+	default:
+		return 300000000;
+	}
+}
+
 static inline int k3_has_pru(void)
 {
 	u32 full_devid = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
