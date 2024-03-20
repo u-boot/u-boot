@@ -216,14 +216,6 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb \
 	meson-axg-s400.dtb \
 	meson-axg-jethome-jethub-j100.dtb \
-	meson-gxbb-kii-pro.dtb \
-	meson-gxbb-nanopi-k2.dtb \
-	meson-gxbb-odroidc2.dtb \
-	meson-gxbb-nanopi-k2.dtb \
-	meson-gxbb-p200.dtb \
-	meson-gxbb-p201.dtb \
-	meson-gxbb-wetek-hub.dtb \
-	meson-gxbb-wetek-play2.dtb \
 	meson-gxl-s805x-libretech-ac.dtb \
 	meson-gxl-s905d-libretech-pc.dtb \
 	meson-gxl-s905w-jethome-jethub-j80.dtb \
