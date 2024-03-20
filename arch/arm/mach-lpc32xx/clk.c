@@ -15,9 +15,9 @@ static struct clk_pm_regs *clk = (struct clk_pm_regs *)CLK_PM_BASE;
 unsigned int get_sys_clk_rate(void)
 {
 	if (readl(&clk->sysclk_ctrl) & CLK_SYSCLK_PLL397)
-		return RTC_CLK_FREQUENCY * 397;
+		return LPC32XX_RTC_CLK_FREQUENCY * 397;
 	else
-		return OSC_CLK_FREQUENCY;
+		return CONFIG_LPC32XX_OSC_CLK_FREQUENCY;
 }
 
 unsigned int get_hclk_pll_rate(void)
@@ -134,5 +134,9 @@ unsigned int get_sdram_clk_rate(void)
 
 int get_serial_clock(void)
 {
+#if IS_ENABLED(CONFIG_LPC32XX_UART_HCLK_CLK)
+	return get_hclk_clk_rate();
+#else
 	return get_periph_clk_rate();
+#endif
 }

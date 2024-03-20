@@ -8,8 +8,7 @@
 
 #include <asm/types.h>
 
-#define OSC_CLK_FREQUENCY	13000000
-#define RTC_CLK_FREQUENCY	32768
+#define LPC32XX_RTC_CLK_FREQUENCY	32768
 
 /* Clocking and Power Control Registers */
 struct clk_pm_regs {

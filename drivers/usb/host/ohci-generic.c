@@ -28,7 +28,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	int err, ret;
 
 	ret = clk_get_bulk(dev, &priv->clocks);
-	if (ret && ret != -ENOENT) {
+	if (ret && !((ret == -ENOENT) || (ret == -ENOSYS))) {
 		dev_err(dev, "Failed to get clocks (ret=%d)\n", ret);
 		return ret;
 	}
@@ -40,7 +40,7 @@ static int ohci_usb_probe(struct udevice *dev)
 	}
 
 	err = reset_get_bulk(dev, &priv->resets);
-	if (err && err != -ENOENT) {
+	if (err && !((err == -ENOENT) || (err == -ENOTSUPP))) {
 		dev_err(dev, "failed to get resets (err=%d)\n", err);
 		goto clk_err;
 	}
@@ -72,7 +72,7 @@ reset_err:
 		dev_err(dev, "failed to release resets (ret=%d)\n", ret);
 clk_err:
 	ret = clk_release_bulk(&priv->clocks);
-	if (ret)
+	if (ret && (ret != -ENOSYS))
 		dev_err(dev, "failed to release clocks (ret=%d)\n", ret);
 
 	return err;
@@ -95,7 +95,11 @@ static int ohci_usb_remove(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	return clk_release_bulk(&priv->clocks);
+	ret = clk_release_bulk(&priv->clocks);
+	if (ret && (ret != -ENOSYS))
+		return ret;
+
+	return 0;
 }
 
 static const struct udevice_id ohci_usb_ids[] = {

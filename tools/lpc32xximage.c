@@ -86,7 +86,8 @@ static int lpc32xximage_verify_header(unsigned char *ptr, int image_size,
 		(struct nand_page_0_boot_header *)ptr;
 
 	/* turn image size from bytes to NAND pages, page 0 included */
-	int image_size_in_pages = ((image_size - 1)
+	int image_size_in_pages = ((image_size
+				  + LPC32XX_BOOT_NAND_PAGESIZE - 1)
 				  / LPC32XX_BOOT_NAND_PAGESIZE);
 
 	if (hdr->data[0] != (0xff & LPC32XX_BOOT_ICR))

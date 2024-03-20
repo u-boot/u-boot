@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * Copyright 2023 Timesys
+ * Author: Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>
+ */
+
+#include <config.h>
+
+&ohci {
+	compatible = "generic-ohci";
+};
+
+#ifdef CONFIG_SPL
+/ {
+	binman: binman {
+		multiple-images;
+
+		/* SPL U-boot format for SPI NOR flash */
+		lpc32xx-spl-spi {
+			filename = "lpc32xx-spl-spi.bin";
+			pad-byte = <0xff>;
+			int32 {
+				value = <0x13579BDF>;
+			};
+			file_size {
+				filename = "spl/u-boot-spl.bin";
+			};
+			blob {
+				filename = "spl/u-boot-spl.bin";
+			};
+		};
+
+		/* Full U-boot format for SPI NOR flash */
+		lpc32xx-full-spi {
+			filename = "lpc32xx-full-spi.bin";
+			pad-byte = <0xff>;
+			int32 {
+				value = <0x13579BDF>;
+			};
+			file_size {
+				filename = "spl/u-boot-spl.bin";
+			};
+			blob@0 {
+				filename = "spl/u-boot-spl.bin";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@1 {
+				filename = "u-boot.img";
+			};
+		};
+
+		/* U-boot format for external, 32bit wide, static memory */
+		lpc32xx-full-emc-32b {
+			filename = "lpc32xx-full-emc-32b.bin";
+			pad-byte = <0xff>;
+			int32 {
+				value = <0x13579BD2>;
+			};
+			blob@0 {
+				filename = "spl/u-boot-spl.bin";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@1 {
+				filename = "u-boot.img";
+			};
+		};
+
+		/* U-boot format for external, 16bit wide, static memory */
+		lpc32xx-full-emc-16b {
+			filename = "lpc32xx-full-emc-16b.bin";
+			pad-byte = <0xff>;
+			int32 {
+				value = <0x13579BD1>;
+			};
+			blob@0 {
+				filename = "spl/u-boot-spl.bin";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@1 {
+				filename = "u-boot.img";
+			};
+		};
+
+		/* U-boot format for external, 8bit wide, static memory */
+		lpc32xx-full-emc-8b {
+			filename = "lpc32xx-full-emc-8b.bin";
+			pad-byte = <0xff>;
+			int32 {
+				value = <0x13579BD0>;
+			};
+			blob@0 {
+				filename = "spl/u-boot-spl.bin";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@1 {
+				filename = "u-boot.img";
+			};
+		};
+
+		/* SPL U-boot format for NAND flash */
+		lpc32xx-spl {
+			filename = "lpc32xx-spl.img";
+			mkimage {
+				args = "-T lpc32xximage -a 0x0";
+				blob {
+					filename = "spl/u-boot-spl.bin";
+				};
+			};
+		};
+
+		/* Full U-boot format for NAND flash */
+		/* CONFIG_SPL_PAD_TO should be set to NAND block size */
+		lpc32xx-full {
+			filename = "lpc32xx-full.bin";
+			pad-byte = <0xff>;
+			blob@0 {
+				filename = "lpc32xx-spl.img";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@1 {
+				filename = "lpc32xx-spl.img";
+				size = <CONFIG_SPL_PAD_TO>;
+			};
+			blob@2 {
+				filename = "u-boot.img";
+			};
+		};
+
+	};
+};
+#endif

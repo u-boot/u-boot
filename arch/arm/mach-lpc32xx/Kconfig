@@ -17,6 +17,29 @@ config TARGET_EA_LPC3250DEVKITV2
 
 endchoice
 
+choice
+	prompt "LPC32xx clock source for standard UARTs"
+	help
+		Select clock source for standard UART baudrate divider.
+
+config LPC32XX_UART_PERIPH_CLK
+	bool "PERIPH as clock source"
+	help
+		Slower than HCLK, less resolution, lower power consumption.
+
+config LPC32XX_UART_HCLK_CLK
+	bool "HCLK as clock source"
+	help
+		Faster than PERIPH, better resolution, higher power consumption.
+
+endchoice
+
+config LPC32XX_OSC_CLK_FREQUENCY
+	int "LPC32xx external XTAL OSC or clock source frequency"
+	default 13000000
+	help
+		LPC32xx external XTAL OSC or clock source frequency.
+
 source "board/timll/devkit3250/Kconfig"
 source "board/work-microwave/work_92105/Kconfig"
 source "board/ea/ea-lpc3250devkitv2/Kconfig"
