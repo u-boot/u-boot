@@ -29,9 +29,15 @@ static const char *const imx8mq_a53_sels[] = {"clock-osc-25m", "arm_pll_out", "s
 					      "sys_pll2_1000m", "sys_pll1_800m", "sys_pll1_400m",
 					      "audio_pll1_out", "sys_pll3_out", };
 
+static const char *const imx8mq_noc_sels[] = {"clock-osc-25m", "sys_pll1_800m", "sys3_pll_out", "sys_pll2_1000m", "sys_pll2_500m",
+					      "audio_pll1_out", "video_pll1_out", "audio_pll2_out", };
+
 static const char *const imx8mq_ahb_sels[] = {"clock-osc-25m", "sys_pll1_133m", "sys_pll1_800m",
 					      "sys_pll1_400m", "sys_pll2_125m", "sys_pll3_out",
 					      "audio_pll1_out", "video_pll1_out", };
+
+static const char *const imx8mq_audio_ahb_sels[] = {"clock-osc-25m", "sys2_pll_500m", "sys1_pll_800m", "sys2_pll_1000m",
+						    "sys2_pll_166m", "sys3_pll_out", "audio_pll1_out", "video_pll1_out", };
 
 static const char *const imx8mq_dram_alt_sels[] = {"osc_25m", "sys_pll1_800m", "sys_pll1_100m",
 						   "sys_pll2_500m", "sys_pll2_250m",
@@ -132,6 +138,26 @@ static const char *const imx8mq_ecspi2_sels[] = {"clock-osc-25m", "sys_pll2_200m
 static const char *const imx8mq_ecspi3_sels[] = {"clock-osc-25m", "sys_pll2_200m", "sys_pll1_40m",
 						 "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						 "sys_pll2_250m", "audio_pll2_out", };
+
+static const char *const imx8mq_pcie1_ctrl_sels[] = {"clock-osc-25m", "sys_pll2_250m", "sys_pll2_200m", "sys_pll1_266m",
+						     "sys_pll1_800m", "sys_pll2_500m", "sys_pll2_333m", "sys3_pll_out", };
+
+static const char *const imx8mq_pcie1_phy_sels[] = {"clock-osc-25m", "sys_pll2_100m", "sys_pll2_500m", "clk_ext1", "clk_ext2",
+						    "clk_ext3", "clk_ext4", };
+
+static const char *const imx8mq_pcie1_aux_sels[] = {"clock-osc-25m", "sys_pll2_200m", "sys_pll2_50m", "sys3_pll_out",
+						    "sys_pll2_100m", "sys_pll1_80m", "sys_pll1_160m", "sys_pll1_200m", };
+
+static const char *const imx8mq_pcie2_ctrl_sels[] = {"clock-osc-25m", "sys_pll2_250m", "sys_pll2_200m", "sys_pll1_266m",
+						     "sys_pll1_800m", "sys_pll2_500m", "sys_pll2_333m", "sys3_pll_out", };
+
+static const char *const imx8mq_pcie2_phy_sels[] = {"clock-osc-25m", "sys_pll2_100m", "sys_pll2_500m", "clk_ext1",
+						    "clk_ext2", "clk_ext3", "clk_ext4", "sys_pll1_400m", };
+
+static const char *const imx8mq_pcie2_aux_sels[] = {"clock-osc-25m", "sys_pll2_200m", "sys_pll2_50m", "sys3_pll_out",
+						    "sys_pll2_100m", "sys_pll1_80m", "sys_pll1_160m", "sys_pll1_200m", };
+
+static const char * const imx8mq_lcdif_pixel_sels[] = {"clock-osc-25m", "video_pll1_out", "audio_pll2_out", "audio_pll1_out", "sys_pll1_800m", "sys_pll2_1000m", "sys3_pll_out", "clk_ext4", };
 
 static const char *const imx8mq_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
 
@@ -361,9 +387,15 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx_clk_mux2("arm_a53_src", base + 0x9880, 24, 1,
 			    imx8mq_a53_core_sels, ARRAY_SIZE(imx8mq_a53_core_sels)));
 
+	clk_dm(IMX8MQ_CLK_NOC,
+	       imx8m_clk_composite_critical("noc", imx8mq_noc_sels,
+					    base + 0x8d00));
 	clk_dm(IMX8MQ_CLK_AHB,
 	       imx8m_clk_composite_critical("ahb", imx8mq_ahb_sels,
 					    base + 0x9000));
+	clk_dm(IMX8MQ_CLK_AUDIO_AHB,
+	       imx8m_clk_composite_critical("audio_ahb", imx8mq_audio_ahb_sels,
+					    base + 0x9100));
 	clk_dm(IMX8MQ_CLK_IPG_ROOT,
 	       imx_clk_divider2("ipg_root", "ahb", base + 0x9080, 0, 1));
 
@@ -484,6 +516,34 @@ static int imx8mq_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MQ_CLK_DRAM_ALT_ROOT,
 	       imx_clk_fixed_factor("dram_alt_root", "dram_alt", 1, 4));
+
+	clk_dm(IMX8MQ_CLK_PCIE1_CTRL,
+	       imx8m_clk_composite("pcie1_ctrl", imx8mq_pcie1_ctrl_sels,
+				   base + 0xa300));
+	clk_dm(IMX8MQ_CLK_PCIE1_PHY,
+	       imx8m_clk_composite("pcie1_phy", imx8mq_pcie1_phy_sels,
+				   base + 0xa380));
+	clk_dm(IMX8MQ_CLK_PCIE1_AUX,
+	       imx8m_clk_composite("pcie1_aux", imx8mq_pcie1_aux_sels,
+				   base + 0xa400));
+	clk_dm(IMX8MQ_CLK_PCIE1_ROOT,
+	       imx_clk_gate4("pcie1_root_clk", "pcie1_ctrl", base + 0x4250, 0));
+
+	clk_dm(IMX8MQ_CLK_PCIE2_CTRL,
+	       imx8m_clk_composite("pcie2_ctrl", imx8mq_pcie2_ctrl_sels,
+				   base + 0xc000));
+	clk_dm(IMX8MQ_CLK_PCIE2_PHY,
+	       imx8m_clk_composite("pcie2_phy", imx8mq_pcie2_phy_sels,
+				   base + 0xc080));
+	clk_dm(IMX8MQ_CLK_PCIE2_AUX,
+	       imx8m_clk_composite("pcie2_aux", imx8mq_pcie2_aux_sels,
+				   base + 0xc100));
+	clk_dm(IMX8MQ_CLK_PCIE2_ROOT,
+	       imx_clk_gate4("pcie2_root_clk", "pcie2_ctrl", base + 0x4640, 0));
+
+	clk_dm(IMX8MQ_CLK_LCDIF_PIXEL,
+	       imx8m_clk_composite("lcdif_pixel", imx8mq_lcdif_pixel_sels,
+				   base + 0xa500));
 
 	return 0;
 }

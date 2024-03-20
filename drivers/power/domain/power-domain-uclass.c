@@ -138,10 +138,15 @@ static int dev_power_domain_ctrl(struct udevice *dev, bool on)
 		ret = power_domain_get_by_index(dev, &pd, i);
 		if (ret)
 			return ret;
-		if (on)
-			ret = power_domain_on(&pd);
-		else
+		if (on) {
+			ret = dev_power_domain_on(pd.dev);
+			if (!ret)
+				ret = power_domain_on(&pd);
+		} else {
 			ret = power_domain_off(&pd);
+			if (!ret)
+				ret = dev_power_domain_off(pd.dev);
+		}
 	}
 
 	/*

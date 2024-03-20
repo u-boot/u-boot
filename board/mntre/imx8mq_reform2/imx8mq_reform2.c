@@ -26,6 +26,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
+#include <fdt_simplefb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -166,6 +167,17 @@ int board_late_init(void)
 	env_set("board_name", "Reform2");
 	env_set("board_rev", "iMX8MQ");
 #endif
+
+	return 0;
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	int node;
+
+	node = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
+	if (node < 0)
+		fdt_simplefb_add_node(blob);
 
 	return 0;
 }

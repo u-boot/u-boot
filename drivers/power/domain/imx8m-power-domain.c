@@ -142,7 +142,6 @@ struct imx8m_power_domain_plat {
 	struct clk_bulk clk;
 	void __iomem *base;
 	int resource_id;
-	int has_pd;
 };
 
 #if defined(CONFIG_IMX8MM) || defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MQ)
@@ -437,9 +436,6 @@ static int imx8m_power_domain_off(struct power_domain *power_domain)
 	if (pdata->clk.count)
 		clk_disable_bulk(&pdata->clk);
 
-	if (pdata->has_pd)
-		power_domain_off(&pdata->pd);
-
 	return 0;
 
 out_clk_disable:
@@ -520,9 +516,6 @@ static int imx8m_power_domain_of_to_plat(struct udevice *dev)
 	pdata->domain = &domain_data->domains[pdata->resource_id];
 	pdata->regs = domain_data->pgc_regs;
 	pdata->base = dev_read_addr_ptr(dev->parent);
-
-	if (!power_domain_get(dev, &pdata->pd))
-		pdata->has_pd = 1;
 
 	return 0;
 }

@@ -1541,6 +1541,8 @@
 			                         <&clk IMX8MQ_SYS1_PLL_80M>;
 			assigned-clock-rates = <250000000>, <100000000>,
 			                       <10000000>;
+			anatop = <&anatop>;
+			gpr = <&iomuxc_gpr>;
 			status = "disabled";
 		};
 
@@ -1578,6 +1580,8 @@
 			                         <&clk IMX8MQ_SYS1_PLL_80M>;
 			assigned-clock-rates = <250000000>, <100000000>,
 			                       <10000000>;
+			anatop = <&anatop>;
+			gpr = <&iomuxc_gpr>;
 			status = "disabled";
 		};
 
