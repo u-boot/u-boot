@@ -92,8 +92,16 @@ ENTRY(gic_init_secure_percpu)
 	add	x9, x9, #(2 << 16)
 	b	1b
 
+2:
+#if defined(CONFIG_GICV3_SUPPORT_GIC600)
+        mov     w10, #0x0               /* Power on redistributor */
+        str     w10, [x9, GICR_PWRR]
+5:      ldr     w10, [x9, GICR_PWRR]    /* Wait until the power on state is reflected */
+        tbnz    w10, #1, 5b             /* If RDPD == 0 then powered on */
+#endif
+
 	/* x9: ReDistributor Base Address of Current CPU */
-2:	mov	w10, #~0x2
+	mov	w10, #~0x2
 	ldr	w11, [x9, GICR_WAKER]
 	and	w11, w11, w10		/* Clear ProcessorSleep */
 	str	w11, [x9, GICR_WAKER]

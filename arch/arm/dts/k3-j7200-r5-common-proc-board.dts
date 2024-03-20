@@ -52,7 +52,7 @@
 };
 
 &mcu_timer0 {
-	clock-frequency = <25000000>;
+	clock-frequency = <250000000>;
 	bootph-pre-ram;
 };
 
@@ -82,4 +82,17 @@
 
 &wkup_vtm0 {
 	bootph-pre-ram;
+};
+
+&ospi0 {
+    reg = <0x0 0x47040000 0x0 0x100>,
+          <0x0 0x50000000 0x0 0x8000000>;
+};
+
+&mcu_ringacc {
+    ti,sci = <&dm_tifs>;
+};
+
+&mcu_udmap {
+    ti,sci = <&dm_tifs>;
 };
