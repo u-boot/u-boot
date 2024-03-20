@@ -17,7 +17,7 @@
 
 int misc_init_r(void)
 {
-	u8 mac_addr[ARP_HLEN];
+	u8 mac_addr[ARP_HLEN + 1];
 	char serial[SM_SERIAL_SIZE];
 	u32 sid;
 
@@ -34,6 +34,7 @@ int misc_init_r(void)
 		mac_addr[3] = (sid >> 16) & 0xff;
 		mac_addr[4] = (sid >>  8) & 0xff;
 		mac_addr[5] = (sid >>  0) & 0xff;
+		mac_addr[ARP_HLEN] = '\0';
 
 		eth_env_set_enetaddr("ethaddr", mac_addr);
 	}

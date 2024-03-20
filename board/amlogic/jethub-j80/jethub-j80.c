@@ -27,9 +27,9 @@
 
 int misc_init_r(void)
 {
-	u8 mac_addr[EFUSE_MAC_SIZE];
-	char serial[EFUSE_SN_SIZE];
-	char usid[EFUSE_USID_SIZE];
+	u8 mac_addr[EFUSE_MAC_SIZE + 1];
+	char serial[EFUSE_SN_SIZE + 1];
+	char usid[EFUSE_USID_SIZE + 1];
 	ssize_t len;
 	unsigned int adcval;
 	int ret;
@@ -37,6 +37,7 @@ int misc_init_r(void)
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
 					  mac_addr, EFUSE_MAC_SIZE);
+		mac_addr[len] = '\0';
 		if (len == EFUSE_MAC_SIZE && is_valid_ethaddr(mac_addr))
 			eth_env_set_enetaddr("ethaddr", mac_addr);
 		else
@@ -46,6 +47,7 @@ int misc_init_r(void)
 	if (!env_get("serial")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
 					  EFUSE_SN_SIZE);
+		serial[len] = '\0';
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial", serial);
 	}
@@ -53,6 +55,7 @@ int misc_init_r(void)
 	if (!env_get("usid")) {
 		len = meson_sm_read_efuse(EFUSE_USID_OFFSET, usid,
 					  EFUSE_USID_SIZE);
+		usid[len] = '\0';
 		if (len == EFUSE_USID_SIZE)
 			env_set("usid", usid);
 	}
