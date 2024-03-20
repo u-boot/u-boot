@@ -430,7 +430,7 @@ int ext4fs_check_journal_state(int recovery_flag)
 			printf("Recovery required\n");
 	} else {
 		if (recovery_flag == RECOVER)
-			printf("File System is consistent\n");
+			log_debug("File System is consistent\n");
 		goto end;
 	}
 
