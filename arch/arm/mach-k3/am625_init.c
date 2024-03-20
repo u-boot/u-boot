@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <dm/ofnode.h>
 
 #define RTC_BASE_ADDRESS		0x2b1f0000
 #define REG_K3RTC_S_CNT_LSW		(RTC_BASE_ADDRESS + 0x18)
@@ -23,6 +24,9 @@
 /* Magic values for lock/unlock */
 #define K3RTC_KICK0_UNLOCK_VALUE	0x83e70b13
 #define K3RTC_KICK1_UNLOCK_VALUE	0x95a4f1e0
+
+/* TISCI DEV ID for A53 Clock */
+#define AM62X_DEV_A53SS0_CORE_0_DEV_ID 135
 
 /*
  * This uninitialized global variable would normal end up in the .bss section,
@@ -111,6 +115,62 @@ static __maybe_unused void rtc_erratumi2327_init(void)
 	writel(K3RTC_KICK0_UNLOCK_VALUE, REG_K3RTC_KICK0);
 	writel(K3RTC_KICK1_UNLOCK_VALUE, REG_K3RTC_KICK1);
 }
+
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static int get_a53_cpu_clock_index(ofnode node)
+{
+	int count, i;
+	struct ofnode_phandle_args *args;
+	ofnode clknode;
+
+	clknode = ofnode_path("/bus@f0000/system-controller@44043000/clock-controller");
+	if (!ofnode_valid(clknode))
+		return -1;
+
+	count = ofnode_count_phandle_with_args(node,  "assigned-clocks", "#clock-cells", 0);
+
+	for (i  = 0; i < count; i++) {
+		if (!ofnode_parse_phandle_with_args(node, "assigned-clocks",
+						    "#clock-cells", 0, i, args)) {
+			if (ofnode_equal(clknode, args->node) &&
+			    args->args[0] == AM62X_DEV_A53SS0_CORE_0_DEV_ID)
+				return i;
+		}
+	}
+
+	return -1;
+}
+
+static void fixup_a53_cpu_freq_by_speed_grade(void)
+{
+	int index, size;
+	u32 *rates;
+	ofnode node;
+
+	node =  ofnode_path("/a53@0");
+	if (!ofnode_valid(node))
+		return;
+
+	rates = fdt_getprop_w(ofnode_to_fdt(node), ofnode_to_offset(node),
+			      "assigned-clock-rates", &size);
+
+	index = get_a53_cpu_clock_index(node);
+
+	if (!rates || index < 0 || index >= (size / sizeof(u32))) {
+		printf("Wrong A53 assigned-clocks configuration\n");
+		return;
+	}
+
+	rates[index] = cpu_to_fdt32(k3_get_a53_max_frequency());
+
+	printf("Changed A53 CPU frequency to %dHz (%c grade) in DT\n",
+	       k3_get_a53_max_frequency(), k3_get_speed_grade());
+}
+#else
+static void fixup_a53_cpu_freq_by_speed_grade(void)
+{
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -210,6 +270,8 @@ void board_init_f(ulong dummy)
 			panic("DRAM init failed: %d\n", ret);
 	}
 	spl_enable_cache();
+
+	fixup_a53_cpu_freq_by_speed_grade();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
