@@ -162,7 +162,7 @@ Find the name of the block device file first, it is one of the
 from the SD card device.
 To install onto the user data partition::
 
-    $ sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/dev/mmcblkX bs=1k seek=8
+    $ sudo dd if=u-boot-sunxi-with-spl.bin of=/dev/mmcblkX bs=1k seek=8
 
 Similar to SD cards, the BROM in newer SoCs (H3 and above) also checks
 sector 256 of an eMMC, so you can use "``seek=128``" as well. Having a GPT
