@@ -8,6 +8,7 @@
 
 #include <blk.h>
 #include <efi.h>
+#include <fwu_mdata.h>
 #include <mtd.h>
 #include <uuid.h>
 
@@ -33,6 +34,23 @@ struct fwu_mdata_mtd_priv {
 	u32 pri_offset;
 	u32 sec_offset;
 	struct fwu_mtd_image_info *fwu_mtd_images;
+};
+
+struct fwu_data {
+	uint32_t crc32;
+	uint32_t version;
+	uint32_t active_index;
+	uint32_t previous_active_index;
+	uint32_t metadata_size;
+	uint32_t boot_index;
+	uint32_t num_banks;
+	uint32_t num_images;
+	uint8_t  bank_state[4];
+	bool     trial_state;
+
+	struct fwu_mdata *fwu_mdata;
+
+	struct fwu_image_entry fwu_images[CONFIG_FWU_NUM_IMAGES_PER_BANK];
 };
 
 struct fwu_mdata_ops {
