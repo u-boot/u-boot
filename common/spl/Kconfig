@@ -272,6 +272,13 @@ config SPL_TEXT_BASE
 	help
 	  The address in memory that SPL will be running from.
 
+config SPL_ARCH_INIT
+	bool "Call arch-specific initialization in SPL"
+	help
+	  If this option is enabled, U-Boot will call the function
+	  spl_arch_init() from board_init_r(). This function should be
+	  provided by the architecture.
+
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
 	help
