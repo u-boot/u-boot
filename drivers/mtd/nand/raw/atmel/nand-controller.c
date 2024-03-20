@@ -1429,8 +1429,6 @@ static int atmel_nand_setup_data_interface(struct mtd_info *mtd, int csline,
 	return nc->caps->ops->setup_data_interface(nand, csline, conf);
 }
 
-#define NAND_KEEP_TIMINGS       0x00800000
-
 static void atmel_nand_init(struct atmel_nand_controller *nc,
 			    struct atmel_nand *nand)
 {
