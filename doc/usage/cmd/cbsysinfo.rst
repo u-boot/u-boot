@@ -3,8 +3,8 @@
 cbsysinfo
 =========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

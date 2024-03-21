@@ -6,8 +6,8 @@
 panic command
 =============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

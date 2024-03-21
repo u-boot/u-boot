@@ -6,8 +6,8 @@
 cedit command
 =============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 
