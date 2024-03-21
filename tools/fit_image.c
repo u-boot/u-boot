@@ -137,7 +137,7 @@ static int fdt_property_file(struct image_tool_params *params,
 	int ret;
 	int fd;
 
-	fd = open(fname, O_RDWR | O_BINARY);
+	fd = open(fname, O_RDONLY | O_BINARY);
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			params->cmdname, fname, strerror(errno));
