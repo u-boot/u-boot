@@ -72,7 +72,7 @@ static int goldfish_rtc_set(struct udevice *dev, const struct rtc_time *time)
 	return 0;
 }
 
-int goldfish_rtc_probe(struct udevice *dev)
+static int goldfish_rtc_probe(struct udevice *dev)
 {
 	struct goldfish_rtc *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
