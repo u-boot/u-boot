@@ -36,10 +36,10 @@ What is a Flattened Devicetree?
 -------------------------------
 
 An fdt can be specified in source format as a text file. To read about
-the fdt syntax, take a look at the specification (dtspec_).
+the fdt syntax, take a look at `the devicetree specification`_.
 
-There is also a mailing list (dtlist_) for the compiler and associated
-tools.
+There is also a `devicetree compiler mailing list`_ for the compiler and
+associated tools.
 
 In case you are wondering, OF stands for Open Firmware. This follows the
 convention used in Linux.
@@ -89,7 +89,7 @@ Failing that, you could write one from scratch yourself!
 Resyncing with devicetree-rebasing
 ----------------------------------
 
-The devicetee-rebasing repository (dtrepo_) maintains a fork cum mirror copy of
+The `devicetree-rebasing repository`_ maintains a fork cum mirror copy of
 devicetree files along with the bindings synced at every Linux kernel major
 release or intermediate release candidates. The U-Boot maintainers regularly
 sync the `dts/upstream/` subtree from the devicetree-rebasing repo whenever
@@ -118,7 +118,7 @@ as `arch/<arch>/dts/<name>.dts`. To select that add `# CONFIG_OF_UPSTREAM is not
 set` and set `DEFAULT_DEVICE_TREE=<name>` when prompted by Kconfig.
 
 This should include your CPU or SoC's devicetree file. On top of that any U-Boot
-specific tweaks (see: dttweaks_) can be made for your board.
+specific tweaks (see: :ref:`dttweaks`) can be made for your board.
 
 If `OF_EMBED` is selected by Kconfig, then it will be picked up and built into
 the U-Boot image (including u-boot.bin). This is suitable for debugging
@@ -243,7 +243,7 @@ Dependencies
 
 The DT schema project must be installed in order to validate the DT schema
 binding documents and validate DTS files using the DT schema. For installation
-instructions, refer to the DT schema project page (dtschema_).
+instructions, refer to the `DT schema project page`_.
 
 Several executables (dt-doc-validate, dt-mk-schema, dt-validate) will be
 installed. Ensure they are in your PATH (~/.local/bin by default).
@@ -333,10 +333,10 @@ used it before Linux (e.g. snow). The two projects developed in parallel
 and there are still some differences in the bindings for certain boards.
 While there has been discussion of having a separate repository for devicetree
 files, in practice the Linux kernel Git repository has become the place where
-these are stored, with U-Boot taking copies via devicetree-rebasing repo
-(see: dtrepo_) and adding tweaks with u-boot.dtsi files.
+these are stored, with U-Boot taking copies via
+`devicetree-rebasing repository`_ and adding tweaks with u-boot.dtsi files.
 
-.. _dtspec: https://www.devicetree.org/specifications/
-.. _dtlist: https://www.spinics.net/lists/devicetree-compiler/
-.. _dtrepo: https://git.kernel.org/pub/scm/linux/kernel/git/devicetree/devicetree-rebasing.git
-.. _dtschema: https://github.com/devicetree-org/dt-schema/tree/main
+.. _the devicetree specification: https://www.devicetree.org/specifications/
+.. _devicetree compiler mailing list: https://www.spinics.net/lists/devicetree-compiler/
+.. _devicetree-rebasing repository: https://git.kernel.org/pub/scm/linux/kernel/git/devicetree/devicetree-rebasing.git
+.. _DT schema project page: https://github.com/devicetree-org/dt-schema/tree/main

@@ -31,6 +31,42 @@ static int execute(void)
 		0xD804, 0xDC22,
 		0};
 
+	const u16 text[] =
+		u"This should render international characters as described\n"
+		u"U+00D6 \u00D6 - Latin capital letter O with diaresis\n"
+		u"U+00DF \u00DF - Latin small letter sharp s\n"
+		u"U+00E5 \u00E5 - Latin small letter a with ring above\n"
+		u"U+00E9 \u00E9 - Latin small letter e with acute\n"
+		u"U+00F1 \u00F1 - Latin small letter n with tilde\n"
+		u"U+00F6 \u00F6 - Latin small letter o with diaresis\n"
+		u"The following characters will render as '?' with bitmap fonts\n"
+		u"U+00F8 \u00F8 - Latin small letter o with stroke\n"
+		u"U+03AC \u03AC - Greek small letter alpha with tonus\n"
+		u"U+03BB \u03BB - Greek small letter lambda\n"
+		u"U+03C2 \u03C2 - Greek small letter final sigma\n"
+		u"U+1F19 \u1F19 - Greek capital letter epsilon with dasia\n";
+
+	const u16 boxes[] =
+		u"This should render as four boxes with text\n"
+		u"\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502"
+		u" left top    \u2502 right top     \u2502\n\u251c\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2524\n\u2502 "
+		u"left bottom \u2502 right bottom  \u2502\n\u2514\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534"
+		u"\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+		u"\u2500\u2500\u2500\u2500\u2518\n";
+
+	const u16 shapes[] =
+		u"Geometric shapes as described\n"
+		u"U+25B2 \u25B2 - Black up-pointing triangle\n"
+		u"U+25BA \u25BA - Black right-pointing pointer\n"
+		u"U+25BC \u25BC - Black down-pointing triangle\n"
+		u"U+25C4 \u25C4 - Black left-pointing pointer\n";
+
 	/* SetAttribute */
 	efi_st_printf("\nColor palette\n");
 	for (foreground = 0; foreground < 0x10; ++foreground) {
@@ -116,6 +152,24 @@ static int execute(void)
 		efi_st_todo("Unicode output not fully supported\n");
 	} else if (con_out->mode->cursor_column != 2) {
 		efi_st_printf("Unicode not handled properly\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("\n");
+	ret = con_out->output_string(con_out, text);
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("OutputString failed for international chars\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("\n");
+	ret = con_out->output_string(con_out, boxes);
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("OutputString failed for box drawing chars\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_st_printf("\n");
+	ret = con_out->output_string(con_out, shapes);
+	if (ret != EFI_ST_SUCCESS) {
+		efi_st_error("OutputString failed for geometric shapes\n");
 		return EFI_ST_FAILURE;
 	}
 	efi_st_printf("\n");

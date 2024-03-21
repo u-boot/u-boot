@@ -6,8 +6,8 @@
 fdt command
 ===========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

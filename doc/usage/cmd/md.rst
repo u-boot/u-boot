@@ -6,8 +6,8 @@
 md command
 ==========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

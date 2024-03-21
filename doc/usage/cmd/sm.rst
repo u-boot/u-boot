@@ -6,8 +6,8 @@
 sm command
 ==========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

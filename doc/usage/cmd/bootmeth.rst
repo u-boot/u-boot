@@ -6,8 +6,8 @@
 bootmeth command
 ================
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

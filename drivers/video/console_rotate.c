@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <charset.h>
 #include <dm.h>
 #include <video.h>
 #include <video_console.h>
@@ -67,7 +68,7 @@ static int console_move_rows_1(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
+static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, int cp)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
@@ -77,8 +78,9 @@ static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 	int pbytes = VNBYTES(vid_priv->bpix);
 	int x, linenum, ret;
 	void *start, *line;
+	u8 ch = console_utf_to_cp437(cp);
 	uchar *pfont = fontdata->video_fontdata +
-			(u8)ch * fontdata->char_pixel_bytes;
+			ch * fontdata->char_pixel_bytes;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
@@ -145,7 +147,7 @@ static int console_move_rows_2(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
+static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, int cp)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
@@ -155,8 +157,9 @@ static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 	int pbytes = VNBYTES(vid_priv->bpix);
 	int linenum, x, ret;
 	void *start, *line;
+	u8 ch = console_utf_to_cp437(cp);
 	uchar *pfont = fontdata->video_fontdata +
-			(u8)ch * fontdata->char_pixel_bytes;
+			ch * fontdata->char_pixel_bytes;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
@@ -227,7 +230,7 @@ static int console_move_rows_3(struct udevice *dev, uint rowdst, uint rowsrc,
 	return 0;
 }
 
-static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
+static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, int cp)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
@@ -237,8 +240,9 @@ static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
 	int pbytes = VNBYTES(vid_priv->bpix);
 	int linenum, x, ret;
 	void *start, *line;
+	u8 ch = console_utf_to_cp437(cp);
 	uchar *pfont = fontdata->video_fontdata +
-			(u8)ch * fontdata->char_pixel_bytes;
+			ch * fontdata->char_pixel_bytes;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;
