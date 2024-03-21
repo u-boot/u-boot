@@ -14,7 +14,7 @@
 #include <linux/bitops.h>
 #include <linux/delay.h>
 
-struct imx7_reset_priv {
+struct imx_reset_priv {
 	void __iomem *base;
 	struct reset_ops ops;
 };
@@ -64,9 +64,9 @@ static const struct imx7_src_signal imx7_src_signals[IMX7_RESET_NUM] = {
 	[IMX7_RESET_DDRC_CORE_RST]	= { SRC_DDRC_RCR, BIT(1) },
 };
 
-static int imx7_reset_deassert_imx7(struct reset_ctl *rst)
+static int imx7_reset_deassert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	const struct imx7_src_signal *sig = imx7_src_signals;
 	u32 val;
 
@@ -95,9 +95,9 @@ static int imx7_reset_deassert_imx7(struct reset_ctl *rst)
 	return 0;
 }
 
-static int imx7_reset_assert_imx7(struct reset_ctl *rst)
+static int imx7_reset_assert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	const struct imx7_src_signal *sig = imx7_src_signals;
 	u32 val;
 
@@ -185,9 +185,9 @@ static const struct imx7_src_signal imx8mq_src_signals[IMX8MQ_RESET_NUM] = {
 	[IMX8MQ_RESET_DDRC2_PRST]		= { SRC_DDRC2_RCR, BIT(2) },
 };
 
-static int imx7_reset_deassert_imx8mq(struct reset_ctl *rst)
+static int imx8mq_reset_deassert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	const struct imx7_src_signal *sig = imx8mq_src_signals;
 	u32 val;
 
@@ -223,9 +223,9 @@ static int imx7_reset_deassert_imx8mq(struct reset_ctl *rst)
 	return 0;
 }
 
-static int imx7_reset_assert_imx8mq(struct reset_ctl *rst)
+static int imx8mq_reset_assert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	const struct imx7_src_signal *sig = imx8mq_src_signals;
 	u32 val;
 
@@ -252,21 +252,21 @@ static int imx7_reset_assert_imx8mq(struct reset_ctl *rst)
 	return 0;
 }
 
-static int imx7_reset_assert(struct reset_ctl *rst)
+static int imx_reset_assert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	return priv->ops.rst_assert(rst);
 }
 
-static int imx7_reset_deassert(struct reset_ctl *rst)
+static int imx_reset_deassert(struct reset_ctl *rst)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(rst->dev);
+	struct imx_reset_priv *priv = dev_get_priv(rst->dev);
 	return priv->ops.rst_deassert(rst);
 }
 
 static const struct reset_ops imx7_reset_reset_ops = {
-	.rst_assert = imx7_reset_assert,
-	.rst_deassert = imx7_reset_deassert,
+	.rst_assert = imx_reset_assert,
+	.rst_deassert = imx_reset_deassert,
 };
 
 static const struct udevice_id imx7_reset_ids[] = {
@@ -277,18 +277,18 @@ static const struct udevice_id imx7_reset_ids[] = {
 
 static int imx7_reset_probe(struct udevice *dev)
 {
-	struct imx7_reset_priv *priv = dev_get_priv(dev);
+	struct imx_reset_priv *priv = dev_get_priv(dev);
 
 	priv->base = dev_remap_addr(dev);
 	if (!priv->base)
 		return -ENOMEM;
 
 	if (device_is_compatible(dev, "fsl,imx8mq-src")) {
-		priv->ops.rst_assert = imx7_reset_assert_imx8mq;
-		priv->ops.rst_deassert = imx7_reset_deassert_imx8mq;
+		priv->ops.rst_assert = imx8mq_reset_assert;
+		priv->ops.rst_deassert = imx8mq_reset_deassert;
 	} else if (device_is_compatible(dev, "fsl,imx7d-src")) {
-		priv->ops.rst_assert = imx7_reset_assert_imx7;
-		priv->ops.rst_deassert = imx7_reset_deassert_imx7;
+		priv->ops.rst_assert = imx7_reset_assert;
+		priv->ops.rst_deassert = imx7_reset_deassert;
 	}
 
 	return 0;
@@ -300,5 +300,5 @@ U_BOOT_DRIVER(imx7_reset) = {
 	.of_match = imx7_reset_ids,
 	.ops = &imx7_reset_reset_ops,
 	.probe = imx7_reset_probe,
-	.priv_auto	= sizeof(struct imx7_reset_priv),
+	.priv_auto = sizeof(struct imx_reset_priv),
 };
