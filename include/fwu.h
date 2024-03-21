@@ -79,8 +79,17 @@ struct fwu_mdata_ops {
 			   bool primary, uint32_t size);
 };
 
-#define FWU_MDATA_VERSION	0x1
 #define FWU_IMAGE_ACCEPTED	0x1
+
+#define FWU_BANK_INVALID	(uint8_t)0xFF
+#define FWU_BANK_VALID		(uint8_t)0xFE
+#define FWU_BANK_ACCEPTED	(uint8_t)0xFC
+
+enum {
+	PRIMARY_PART = 1,
+	SECONDARY_PART,
+	BOTH_PARTS,
+};
 
 /*
 * GUID value defined in the FWU specification for identification
@@ -312,6 +321,44 @@ int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
  * Return: 0 if OK, -ve on error
  */
 int fwu_mtd_get_alt_num(efi_guid_t *image_guid, u8 *alt_num, const char *mtd_dev);
+
+/**
+ * fwu_mdata_copies_allocate() - Allocate memory for metadata
+ * @mdata_size: Size of the metadata structure
+ *
+ * Allocate memory for storing both the copies of the FWU metadata. The
+ * copies are then used as a cache for storing FWU metadata contents.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_mdata_copies_allocate(u32 mdata_size);
+
+/**
+ * fwu_get_dev() - Return the FWU metadata device
+ *
+ * Return the pointer to the FWU metadata device.
+ *
+ * Return: Pointer to the FWU metadata dev
+ */
+struct udevice *fwu_get_dev(void);
+
+/**
+ * fwu_get_data() - Return the version agnostic FWU structure
+ *
+ * Return the pointer to the version agnostic FWU structure.
+ *
+ * Return: Pointer to the FWU data structure
+ */
+struct fwu_data *fwu_get_data(void);
+
+/**
+ * fwu_sync_mdata() - Update given meta-data partition(s) with the copy provided
+ * @data: FWU Data structure
+ * @part: Bitmask of FWU metadata partitions to be written to
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_sync_mdata(struct fwu_mdata *mdata, int part);
 
 /**
  * fwu_populate_mdata_image_info() - Populate the image information
