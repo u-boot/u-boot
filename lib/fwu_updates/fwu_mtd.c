@@ -136,7 +136,7 @@ static int gen_image_alt_info(char *buf, size_t len,
 
 		/* Query a partition by image UUID */
 		bank = &img->img_bank_info[i];
-		uuid_bin_to_str(bank->image_uuid.b, uuidbuf, UUID_STR_FORMAT_STD);
+		uuid_bin_to_str(bank->image_guid.b, uuidbuf, UUID_STR_FORMAT_STD);
 
 		mtd_img_info = mtd_img_by_uuid(uuidbuf);
 		if (!mtd_img_info) {
@@ -163,17 +163,13 @@ static int gen_image_alt_info(char *buf, size_t len,
 
 int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd)
 {
-	struct fwu_mdata mdata;
 	int i, l, ret;
-
-	ret = fwu_get_mdata(&mdata);
-	if (ret < 0) {
-		log_err("Failed to get the FWU mdata.\n");
-		return ret;
-	}
+	struct fwu_data *data = fwu_get_data();
+	struct fwu_image_entry *img_entry;
 
 	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
-		ret = gen_image_alt_info(buf, len, &mdata.img_entry[i], mtd);
+		img_entry = &data->fwu_images[i];
+		ret = gen_image_alt_info(buf, len, img_entry, mtd);
 		if (ret)
 			break;
 
