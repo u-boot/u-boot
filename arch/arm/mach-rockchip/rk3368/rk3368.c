@@ -55,6 +55,7 @@ struct mm_region *mem_map = rk3368_mem_map;
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff0f0000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff120000/flash@0",
 	[BROM_BOOTSOURCE_SD] = "/mmc@ff0c0000",
 };
 
