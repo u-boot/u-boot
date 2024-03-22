@@ -259,7 +259,7 @@ fwu_make_mdata(size_t images, size_t banks, char *uuids[], char *output)
 		goto done_make;
 	}
 
-	ret = fwrite(mobj->mdata, mobj->size, 1, file);
+	ret = fwrite(mobj->mdata, 1, mobj->size, file);
 	if (ret != mobj->size)
 		ret = -errno;
 	else
