@@ -46,6 +46,8 @@ The feature can be enabled by specifying the following configs::
     CONFIG_FWU_NUM_BANKS=<val>
     CONFIG_FWU_NUM_IMAGES_PER_BANK=<val>
 
+    CONFIG_FWU_MDATA_V1=y or CONFIG_FWU_MDATA_V2=y
+
 in the .config file
 
 By enabling the CONFIG_CMD_FWU_METADATA config option, the
@@ -57,6 +59,14 @@ capsule-on-disk update functionality. The second group of configs
 enable the FWU Multi Bank Update functionality. Please refer to the
 section :ref:`uefi_capsule_update_ref` for more details on generation
 of the UEFI capsule.
+
+FWU Metadata
+------------
+
+U-Boot supports both versions(1 and 2) of the FWU metadata defined in
+the two revisions of the specification. Support can be enabled for
+either of the two versions through a config flag. The mkfwumdata tool
+can generate metadata for both the supported versions.
 
 Setting up the device for GPT partitioned storage
 -------------------------------------------------
@@ -94,12 +104,12 @@ of. Each GPT partition entry in the GPT header has two GUIDs::
 * UniquePartitionGUID
 
 The PartitionTypeGUID value should correspond to the
-``image_type_uuid`` field of the FWU metadata. This field is used to
+``image_type_guid`` field of the FWU metadata. This field is used to
 identify a given type of updatable firmware image, e.g. U-Boot,
 OP-TEE, FIP etc. This GUID should also be used for specifying the
 `--guid` parameter when generating the capsule.
 
-The UniquePartitionGUID value should correspond to the ``image_uuid``
+The UniquePartitionGUID value should correspond to the ``image_guid``
 field in the FWU metadata. This GUID is used to identify images of a
 given image type in different banks.
 
@@ -108,8 +118,8 @@ metadata partitions. This would be the PartitionTypeGUID for the
 metadata partitions. Similarly, the UEFI specification defines the ESP
 GUID to be be used.
 
-When generating the metadata, the ``image_type_uuid`` and the
-``image_uuid`` values should match the *PartitionTypeGUID* and the
+When generating the metadata, the ``image_type_guid`` and the
+``image_guid`` values should match the *PartitionTypeGUID* and the
 *UniquePartitionGUID* values respectively.
 
 Performing the Update
@@ -181,5 +191,5 @@ empty capsule would be::
 Links
 -----
 
-* [1] https://developer.arm.com/documentation/den0118/a/ - FWU Specification
+* [1] https://developer.arm.com/documentation/den0118/ - FWU Specification
 * [2] https://git.codelinaro.org/linaro/dependable-boot/mbfw/uploads/6f7ddfe3be24e18d4319e108a758d02e/mbfw.pdf - Dependable Boot Specification
