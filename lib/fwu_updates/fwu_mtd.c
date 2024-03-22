@@ -15,16 +15,21 @@
 
 #include <dm/ofnode.h>
 
-struct fwu_mtd_image_info
-fwu_mtd_images[CONFIG_FWU_NUM_BANKS * CONFIG_FWU_NUM_IMAGES_PER_BANK];
-
 static struct fwu_mtd_image_info *mtd_img_by_uuid(const char *uuidbuf)
 {
-	int num_images = ARRAY_SIZE(fwu_mtd_images);
+	int num_images;
+	struct fwu_mdata_mtd_priv *mtd_priv = dev_get_priv(fwu_get_dev());
+	struct fwu_mtd_image_info *image_info = mtd_priv->fwu_mtd_images;
+
+	if (!image_info)
+		return NULL;
+
+	num_images = CONFIG_FWU_NUM_BANKS *
+		CONFIG_FWU_NUM_IMAGES_PER_BANK;
 
 	for (int i = 0; i < num_images; i++)
-		if (!strcmp(uuidbuf, fwu_mtd_images[i].uuidbuf))
-			return &fwu_mtd_images[i];
+		if (!strcmp(uuidbuf, image_info[i].uuidbuf))
+			return &image_info[i];
 
 	return NULL;
 }
