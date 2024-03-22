@@ -12,6 +12,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <generated/autoconf.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <u-boot/crc.h>
 #include <uuid/uuid.h>
 
@@ -36,9 +38,7 @@ typedef uint64_t u64;
 
 #include <fwu_mdata.h>
 
-/* TODO: Endianness conversion may be required for some arch. */
-
-static const char *opts_short = "b:i:a:p:v:gh";
+static const char *opts_short = "b:i:a:p:v:V:gh";
 
 static struct option options[] = {
 	{"banks", required_argument, NULL, 'b'},
@@ -47,6 +47,7 @@ static struct option options[] = {
 	{"active-bank", required_argument, NULL, 'a'},
 	{"previous-bank", required_argument, NULL, 'p'},
 	{"version", required_argument, NULL, 'v'},
+	{"vendor-file", required_argument, NULL, 'V'},
 	{"help", no_argument, NULL, 'h'},
 	{NULL, 0, NULL, 0},
 };
@@ -61,6 +62,7 @@ static void print_usage(void)
 		"\t-a, --active-bank  <num>    Active bank (default=0)\n"
 		"\t-p, --previous-bank  <num>  Previous active bank (default=active_bank - 1)\n"
 		"\t-g, --guid                  Use GUID instead of UUID\n"
+		"\t-V, --vendor-file           Vendor data file to append to the metadata\n"
 		"\t-h, --help                  print a help message\n"
 		);
 	fprintf(stderr, "  UUIDs list syntax:\n"
@@ -80,6 +82,8 @@ struct fwu_mdata_object {
 	size_t banks;
 	size_t size;
 	u8 version;
+	size_t vsize;
+	void *vbuf;
 	struct fwu_mdata *mdata;
 };
 
@@ -98,7 +102,7 @@ static bool supported_mdata_version(unsigned long version)
 }
 
 static struct fwu_mdata_object *fwu_alloc_mdata(size_t images, size_t banks,
-						u8 version)
+						u8 version, size_t vendor_size)
 {
 	struct fwu_mdata_object *mobj;
 
@@ -115,6 +119,9 @@ static struct fwu_mdata_object *fwu_alloc_mdata(size_t images, size_t banks,
 			sizeof(struct fwu_fw_store_desc) +
 			(sizeof(struct fwu_image_entry) +
 			 sizeof(struct fwu_image_bank_info) * banks) * images;
+
+		mobj->size += vendor_size;
+		mobj->vsize = vendor_size;
 	}
 
 	mobj->images = images;
@@ -122,12 +129,21 @@ static struct fwu_mdata_object *fwu_alloc_mdata(size_t images, size_t banks,
 	mobj->version = version;
 
 	mobj->mdata = calloc(1, mobj->size);
-	if (!mobj->mdata) {
-		free(mobj);
-		return NULL;
+	if (!mobj->mdata)
+		goto alloc_err;
+
+	if (vendor_size) {
+		mobj->vbuf = calloc(1, mobj->vsize);
+		if (!mobj->vbuf)
+			goto alloc_err;
 	}
 
 	return mobj;
+
+alloc_err:
+	free(mobj->mdata);
+	free(mobj);
+	return NULL;
 }
 
 static struct fwu_image_entry *
@@ -297,6 +313,7 @@ static void fwu_fill_version_specific_mdata(struct fwu_mdata_object *mobj)
 static int fwu_parse_fill_uuids(struct fwu_mdata_object *mobj, char *uuids[])
 {
 	struct fwu_mdata *mdata = mobj->mdata;
+	char *vdata;
 	int i, ret;
 
 	mdata->version = mobj->version;
@@ -311,23 +328,64 @@ static int fwu_parse_fill_uuids(struct fwu_mdata_object *mobj, char *uuids[])
 			return ret;
 	}
 
+	if (mobj->vsize) {
+		vdata = (char *)mobj->mdata + (mobj->size - mobj->vsize);
+		memcpy(vdata, mobj->vbuf, mobj->vsize);
+	}
+
 	mdata->crc32 = crc32(0, (const unsigned char *)&mdata->version,
 			     mobj->size - sizeof(uint32_t));
 
 	return 0;
 }
 
-static int
-fwu_make_mdata(size_t images, size_t banks, u8 version, char *uuids[],
-	       char *output)
+static int fwu_read_vendor_data(struct fwu_mdata_object *mobj,
+				const char *vendor_file)
 {
-	struct fwu_mdata_object *mobj;
-	FILE *file;
-	int ret;
+	int ret = 0;
+	FILE *vfile = NULL;
 
-	mobj = fwu_alloc_mdata(images, banks, version);
+	vfile = fopen(vendor_file, "r");
+	if (!vfile) {
+		ret = -1;
+		goto out;
+	}
+
+	if (fread(mobj->vbuf, 1, mobj->vsize, vfile) != mobj->vsize)
+		ret = -1;
+
+out:
+	fclose(vfile);
+	return ret;
+}
+
+static int fwu_make_mdata(size_t images, size_t banks, u8 version,
+			  const char *vendor_file, char *uuids[],
+			  char *output)
+{
+	int ret;
+	FILE *file;
+	struct stat sbuf;
+	size_t vendor_size = 0;
+	struct fwu_mdata_object *mobj;
+
+	if (vendor_file) {
+		ret = stat(vendor_file, &sbuf);
+		if (ret)
+			return -errno;
+
+		vendor_size = sbuf.st_size;
+	}
+
+	mobj = fwu_alloc_mdata(images, banks, version, vendor_size);
 	if (!mobj)
 		return -ENOMEM;
+
+	if (vendor_file) {
+		ret = fwu_read_vendor_data(mobj, vendor_file);
+		if (ret)
+			goto done_make;
+	}
 
 	ret = fwu_parse_fill_uuids(mobj, uuids);
 	if (ret < 0)
@@ -349,6 +407,7 @@ fwu_make_mdata(size_t images, size_t banks, u8 version, char *uuids[],
 
 done_make:
 	free(mobj->mdata);
+	free(mobj->vbuf);
 	free(mobj);
 
 	return ret;
@@ -358,11 +417,13 @@ int main(int argc, char *argv[])
 {
 	unsigned long banks = 0, images = 0, version = 0;
 	int c, ret;
+	const char *vendor_file;
 
 	/* Explicitly initialize defaults */
 	active_bank = 0;
 	__use_guid = false;
 	previous_bank = INT_MAX;
+	vendor_file = NULL;
 
 	do {
 		c = getopt_long(argc, argv, opts_short, options, NULL);
@@ -388,6 +449,9 @@ int main(int argc, char *argv[])
 		case 'v':
 			version = strtoul(optarg, NULL, 0);
 			break;
+		case 'V':
+			vendor_file = optarg;
+			break;
 		}
 	} while (c != -1);
 
@@ -399,6 +463,11 @@ int main(int argc, char *argv[])
 	if (!version || !supported_mdata_version(version)) {
 		fprintf(stderr, "Error: Version value can only be either 1 or 2, not %ld.\n",
 			version);
+		return -EINVAL;
+	}
+
+	if (version == 1 && vendor_file) {
+		fprintf(stderr, "Error: Vendor Data can only be appended in version 2 of FWU Metadata.\n");
 		return -EINVAL;
 	}
 
@@ -414,8 +483,8 @@ int main(int argc, char *argv[])
 		previous_bank = active_bank > 0 ? active_bank - 1 : banks - 1;
 	}
 
-	ret = fwu_make_mdata(images, banks, (u8)version, argv + optind,
-			     argv[argc - 1]);
+	ret = fwu_make_mdata(images, banks, (u8)version, vendor_file,
+			     argv + optind, argv[argc - 1]);
 	if (ret < 0)
 		fprintf(stderr, "Error: Failed to parse and write image: %s\n",
 			strerror(-ret));
