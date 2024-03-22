@@ -313,4 +313,61 @@ int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd);
  */
 int fwu_mtd_get_alt_num(efi_guid_t *image_guid, u8 *alt_num, const char *mtd_dev);
 
+/**
+ * fwu_populate_mdata_image_info() - Populate the image information
+ * of the metadata
+ * @data: Version agnostic FWU metadata information
+ *
+ * Populate the image information in the FWU metadata by copying it
+ * from the version agnostic structure. This is done before the
+ * metadata gets written to the storage media.
+ *
+ * Return: None
+ */
+void fwu_populate_mdata_image_info(struct fwu_data *data);
+
+/**
+ * fwu_get_mdata_size() - Get the FWU metadata size
+ * @mdata_size: Size of the metadata structure
+ *
+ * Get the size of the FWU metadata from the structure. This is later used
+ * to allocate memory for the structure.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_get_mdata_size(uint32_t *mdata_size);
+
+/**
+ * fwu_state_machine_updates() - Update FWU state of the platform
+ * @trial_state: Is platform transitioning into Trial State
+ * @update_index: Bank number to which images have been updated
+ *
+ * On successful completion of updates, transition the platform to
+ * either Trial State or Regular State.
+ *
+ * To transition the platform to Trial State, start the
+ * TrialStateCtr counter, followed by setting the value of bank_state
+ * field of the metadata to Valid state(applicable only in version 2
+ * of metadata).
+ *
+ * In case, the platform is to transition directly to Regular State,
+ * update the bank_state field of the metadata to Accepted
+ * state(applicable only in version 2 of metadata).
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_state_machine_updates(bool trial_state, uint32_t update_index);
+
+/**
+ * fwu_init() - FWU specific initialisations
+ *
+ * Carry out some FWU specific initialisations including allocation
+ * of memory for the metadata copies, and reading the FWU metadata
+ * copies into the allocated memory. The metadata fields are then
+ * copied into a version agnostic structure.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int fwu_init(void);
+
 #endif /* _FWU_H_ */
