@@ -7,9 +7,15 @@
 #define _RSA_CHECKSUM_H
 
 #include <errno.h>
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+#include <mbedtls/sha1.h>
+#include <mbedtls/sha256.h>
+#include <mbedtls/sha512.h>
+#else
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
+#endif
 
 struct image_region;
 

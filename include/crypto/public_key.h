@@ -12,6 +12,12 @@
 
 #ifdef __UBOOT__
 #include <linux/types.h>
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509)
+#include <external/mbedtls/library/common.h>
+#include <external/mbedtls/include/mbedtls/pk.h>
+#include <external/mbedtls/include/mbedtls/x509_crt.h>
+#include <external/mbedtls/include/mbedtls/md.h>
+#endif
 #else
 #include <linux/keyctl.h>
 #endif

@@ -1651,14 +1651,21 @@ class Builder:
                'clone' to set up a git clone
                'worktree' to set up a git worktree
         """
+        print(f"================== enter _prepare_thread\n")
+
         thread_dir = self.get_thread_dir(thread_num)
         builderthread.mkdir(thread_dir)
         git_dir = os.path.join(thread_dir, '.git')
+
+        print(f"================== {self.git_dir}\n")
+        print(f"================== {thread_dir}\n")
 
         # Create a worktree or a git repo clone for this thread if it
         # doesn't already exist
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
+            print(f"================== {src_dir}\n")
+
             if os.path.isdir(git_dir):
                 # This is a clone of the src_dir repo, we can keep using
                 # it but need to fetch from src_dir.
@@ -1681,12 +1688,19 @@ class Builder:
                 gitutil.add_worktree(src_dir, thread_dir)
                 terminal.print_clear()
             elif setup_git == 'clone' or setup_git == True:
+                print(f"================== Cloning repo for thread\n")
+                print(f"================== {src_dir}\n")
+                print(f"================== {thread_dir}\n")
+
                 tprint('\rCloning repo for thread %d' % thread_num,
                       newline=False)
                 gitutil.clone(src_dir, thread_dir)
                 terminal.print_clear()
             else:
                 raise ValueError("Can't setup git repo with %s." % setup_git)
+
+        print(f"================== exit _prepare_thread\n")
+
 
     def _prepare_working_space(self, max_threads, setup_git):
         """Prepare the working directory for use.
@@ -1700,7 +1714,14 @@ class Builder:
                 work
             setup_git: True to set up a git worktree or a git clone
         """
+        print(f"================== enter _prepare_working_space\n")
+        print(f"setup_git: {setup_git}")
+
         builderthread.mkdir(self._working_dir)
+
+        print(f"================== {self._working_dir}\n")
+
+
         if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
             if gitutil.check_worktree_is_available(src_dir):
@@ -1771,6 +1792,7 @@ class Builder:
                 - number of boards that issued warnings
                 - list of thread exceptions raised
         """
+        print(f"================== enter build_boards")
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
         self._verbose = verbose
@@ -1782,6 +1804,9 @@ class Builder:
         self._prepare_output_space()
         if not self._ide:
             tprint('\rStarting build...', newline=False)
+
+        print(f"================== Starting build...")
+
         self._start_time = datetime.now()
         self.setup_build(board_selected, commits)
         self.process_result(None)
@@ -1830,4 +1855,5 @@ class Builder:
                 tprint('Failed: %d thread exceptions' % len(self.thread_exceptions),
                     colour=self.col.RED)
 
+        print(f"================== exit build_boards")
         return (self.fail, self.warned, self.thread_exceptions)

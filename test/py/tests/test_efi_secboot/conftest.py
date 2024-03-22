@@ -113,7 +113,7 @@ def efi_boot_env(request, u_boot_config):
                    % (mnt_point, EFITOOLS_PATH),
                    shell=True)
 
-        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(
+        check_call('sudo virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(
             mnt_point, image_path), shell=True)
         check_call('rm -rf {}'.format(mnt_point), shell=True)
 
@@ -232,7 +232,7 @@ def efi_boot_env_intca(request, u_boot_config):
         check_call('cd %s; cat TestSub.crt TestRoot.crt > TestSubRoot.crt; %ssbsign --key TestCert.key --cert TestCert.crt --addcert TestSubRoot.crt --out helloworld.efi.signed_abc helloworld.efi'
                    % (mnt_point, SBSIGN_PATH), shell=True)
 
-        check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(mnt_point, image_path), shell=True)
+        check_call('sudo virt-make-fs --partition=gpt --size=+1M --type=vfat {} {}'.format(mnt_point, image_path), shell=True)
         check_call('rm -rf {}'.format(mnt_point), shell=True)
 
     except CalledProcessError as e:

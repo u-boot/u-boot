@@ -718,6 +718,8 @@ class Boards:
                     value: string value of the key
                 list of str: List of warnings recorded
         """
+        print(f"===================== enter scan_defconfigs")
+
         all_defconfigs = []
         for (dirpath, _, filenames) in os.walk(config_dir):
             for filename in fnmatch.filter(filenames, '*_defconfig'):
@@ -844,9 +846,15 @@ class Boards:
                     value: string value of the key
                 list of str: Warnings that came up
         """
+        print(f"===================== enter build_board_list")
+
         params_list, warnings = self.scan_defconfigs(config_dir, srcdir, jobs,
                                                      warn_targets)
+
         m_warnings = self.insert_maintainers_info(srcdir, params_list)
+
+        print(f"===================== exit build_board_list")
+
         return params_list, warnings + m_warnings
 
     def ensure_board_list(self, output, jobs=1, force=False, quiet=False):
@@ -864,6 +872,8 @@ class Boards:
         Returns:
             bool: True if all is well, False if there were warnings
         """
+        print(f"===================== enter ensure_board_list")
+
         if not force:
             if not quiet:
                 tprint('\rChecking for Kconfig changes...', newline=False)
@@ -875,9 +885,20 @@ class Boards:
                 return True
         if not quiet:
             tprint('\rGenerating board list...', newline=False)
+
+        print(f"===================== ensure_board_list 1")
+
         params_list, warnings = self.build_board_list(CONFIG_DIR, '.', jobs)
+
+
+        print(f"===================== ensure_board_list 2")
+
         print_clear()
         for warn in warnings:
             print(warn, file=sys.stderr)
+
         self.format_and_output(params_list, output)
+
+        print(f"===================== exit ensure_board_list")
+
         return not warnings

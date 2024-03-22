@@ -8,8 +8,11 @@
 DECLARE_GLOBAL_DATA_PTR;
 #include <image.h>
 #include <mapmem.h>
-
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+#include <mbedtls/sha256.h>
+#else
 #include <u-boot/sha256.h>
+#endif
 
 /*
  * Offset of the image
@@ -240,8 +243,13 @@ static int image_pre_load_sig_check_img_sig_sha256(struct image_sig_info *info, 
 		goto out_sig_header;
 	}
 
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+	sha256_csum_wd_mb(header + offset_img_sig, info->sig_size,
+			  sha256_img_sig, CHUNKSZ_SHA256);
+#else
 	sha256_csum_wd(header + offset_img_sig, info->sig_size,
 		       sha256_img_sig, CHUNKSZ_SHA256);
+#endif
 
 	ret = memcmp(sig_header->sha256_img_sig, sha256_img_sig, SHA256_SUM_LEN);
 	if (ret) {

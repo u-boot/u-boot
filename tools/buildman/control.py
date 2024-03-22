@@ -386,6 +386,8 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, full_check,
             int: Operation completed and buildman should exit with exit code
             Boards: Boards object to use
     """
+    print(f"===================== enter get_boards_obj")
+
     brds = boards.Boards()
     nr_cpus = threads or multiprocessing.cpu_count()
     if maintainer_check or full_check:
@@ -396,18 +398,26 @@ def get_boards_obj(output_dir, regen_board_list, maintainer_check, full_check,
                 print(warn, file=sys.stderr)
             return 2
         return 0
+    print(f"===================== get_boards_obj 1")
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     board_file = os.path.join(output_dir, 'boards.cfg')
     if regen_board_list and regen_board_list != '-':
         board_file = regen_board_list
+    print(f"===================== get_boards_obj 2")
 
     okay = brds.ensure_board_list(board_file, nr_cpus, force=regen_board_list,
                                   quiet=not verbose)
     if regen_board_list:
         return 0 if okay else 2
+
+    print(f"===================== get_boards_obj 3")
+
     brds.read_boards(board_file)
+
+    print(f"===================== exit get_boards_obj")
+
     return brds
 
 
@@ -433,10 +443,14 @@ def determine_boards(brds, args, col, opt_boards, exclude_list):
                     the value would be a list of board names.
             board_warnings: List of warnings obtained from board selected
     """
+    print(f"===================== enter determine_boards\n")
+
     exclude = []
     if exclude_list:
         for arg in exclude_list:
             exclude += arg.split(',')
+
+    print(f"===================== opt_boards: {opt_boards}\n")
 
     if opt_boards:
         requested_boards = []
@@ -444,9 +458,17 @@ def determine_boards(brds, args, col, opt_boards, exclude_list):
             requested_boards += brd.split(',')
     else:
         requested_boards = None
+
+    print(f"===================== requested_boards: {requested_boards}\n")
+
+
+
     why_selected, board_warnings = brds.select_boards(args, exclude,
                                                       requested_boards)
     selected = brds.get_selected()
+
+    print(f"===================== selected: {selected}\n")
+
     if not selected:
         sys.exit(col.build(col.RED, 'No matching boards found'))
     return selected, why_selected, board_warnings
@@ -525,6 +547,7 @@ def run_builder(builder, commits, board_selected, args):
     Returns:
         int: Return code for buildman
     """
+    print(f"================== enter run_builder")
     gnu_make = command.output(os.path.join(args.git,
             'scripts/show-gnu-make'), raise_on_error=False).rstrip()
     if not gnu_make:
@@ -551,6 +574,7 @@ def run_builder(builder, commits, board_selected, args):
             return 100
         if warned and not args.ignore_warnings:
             return 101
+    print(f"================== exit run_builder")
     return 0
 
 
@@ -599,6 +623,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             raise an exception instead of reporting their result. This simulates
             a failure in the code somewhere
     """
+    print(f"===================== enter do_buildman")
+
     # Used so testing can obtain the builder: pylint: disable=W0603
     global TEST_BUILDER
 
@@ -606,6 +632,7 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     col = terminal.Color()
 
     git_dir = os.path.join(args.git, '.git')
+    print(f"Git directory: {git_dir}")
 
     toolchains = get_toolchains(toolchains, col, args.override_toolchain,
                                 args.fetch_arch, args.list_tool_chains,
@@ -616,6 +643,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     output_dir = setup_output_dir(
         args.output_dir, args.work_in_output, args.branch,
         args.no_subdirs, col, clean_dir)
+
+    print(f"===================== brds: {brds}")
 
     # Work out what subset of the boards we are building
     if not brds:

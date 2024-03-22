@@ -19,9 +19,6 @@
 #include <tpm-v2.h>
 #include <tpm_api.h>
 #include <u-boot/hash-checksum.h>
-#include <u-boot/sha1.h>
-#include <u-boot/sha256.h>
-#include <u-boot/sha512.h>
 #include <linux/unaligned/be_byteshift.h>
 #include <linux/unaligned/le_byteshift.h>
 #include <linux/unaligned/generic.h>
@@ -1324,12 +1321,21 @@ efi_status_t efi_tcg2_measure_dtb(void *dtb)
 
 	/* Measure populated areas of the DTB */
 	header = dtb;
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
+	sha256_starts_mb(&hash_ctx);
+	sha256_update_mb(&hash_ctx, (u8 *)header, sizeof(struct fdt_header));
+	sha256_update_mb(&hash_ctx, (u8 *)dtb + fdt_off_dt_struct(dtb), fdt_size_dt_strings(dtb));
+	sha256_update_mb(&hash_ctx, (u8 *)dtb + fdt_off_dt_strings(dtb), fdt_size_dt_struct(dtb));
+	sha256_update_mb(&hash_ctx, (u8 *)dtb + fdt_off_mem_rsvmap(dtb), rsvmap_size);
+	sha256_finish_mb(&hash_ctx, blob->data + blob->blob_description_size);
+#else
 	sha256_starts(&hash_ctx);
 	sha256_update(&hash_ctx, (u8 *)header, sizeof(struct fdt_header));
 	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_dt_struct(dtb), fdt_size_dt_strings(dtb));
 	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_dt_strings(dtb), fdt_size_dt_struct(dtb));
 	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_mem_rsvmap(dtb), rsvmap_size);
 	sha256_finish(&hash_ctx, blob->data + blob->blob_description_size);
+#endif
 
 	ret = measure_event(dev, 0, EV_POST_CODE, event_size, (u8 *)blob);
 
