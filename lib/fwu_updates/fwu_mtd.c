@@ -107,7 +107,7 @@ __weak int fwu_plat_get_alt_num(struct udevice *dev, efi_guid_t *image_id,
 	return fwu_mtd_get_alt_num(image_id, alt_num, "nor1");
 }
 
-static int gen_image_alt_info(char *buf, size_t len, int sidx,
+static int gen_image_alt_info(char *buf, size_t len,
 			      struct fwu_image_entry *img, struct mtd_info *mtd)
 {
 	char *p = buf, *end = buf + len;
@@ -168,8 +168,7 @@ int fwu_gen_alt_info_from_mtd(char *buf, size_t len, struct mtd_info *mtd)
 	}
 
 	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
-		ret = gen_image_alt_info(buf, len, i * CONFIG_FWU_NUM_BANKS,
-					 &mdata.img_entry[i], mtd);
+		ret = gen_image_alt_info(buf, len, &mdata.img_entry[i], mtd);
 		if (ret)
 			break;
 
