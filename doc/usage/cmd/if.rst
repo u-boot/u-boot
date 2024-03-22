@@ -33,11 +33,11 @@ test statement
     $? becomes 0 (true) the statements after the **then** statement will
     be executed. Otherwise the statements after the **else** statement.
 
-Example
--------
+Examples
+--------
 
 The examples shows how the value of a numeric variable can be tested with
-**itest**.
+the :doc:`itest <itest>` command.
 
 ::
 
