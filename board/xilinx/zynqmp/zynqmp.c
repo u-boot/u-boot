@@ -588,6 +588,7 @@ int mmc_get_env_dev(void)
 	return bootseq;
 }
 
+#if defined(CONFIG_ENV_IS_NOWHERE)
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	u32 bootmode = zynqmp_get_bootmode();
@@ -621,6 +622,7 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_NOWHERE;
 	}
 }
+#endif
 
 #if defined(CONFIG_SET_DFU_ALT_INFO)
 

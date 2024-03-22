@@ -372,6 +372,7 @@ void reset_cpu(void)
 {
 }
 
+#if defined(CONFIG_ENV_IS_NOWHERE)
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	u8 bootmode = versal_net_get_bootmode();
@@ -401,3 +402,4 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_NOWHERE;
 	}
 }
+#endif
