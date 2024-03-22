@@ -663,8 +663,11 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
 			       bootseq);
 #if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
-		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ";%s fat %d 1",
-			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
+		if (strlen(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME))
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					";%s fat %d 1",
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+					bootseq);
 #endif
 		break;
 	case QSPI_MODE_24BIT:
@@ -673,10 +676,12 @@ void set_dfu_alt_info(char *interface, char *devstr)
 			       "sf 0:0=boot.bin raw %x 0x1500000",
 			       multiboot * SZ_32K);
 #if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME) && defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
-		len += snprintf(buf + len, DFU_ALT_BUF_LEN,
-			       ";%s raw 0x%x 0x500000",
-			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
-			       multiboot * SZ_32K + CONFIG_SYS_SPI_U_BOOT_OFFS);
+		if (strlen(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME))
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					";%s raw 0x%x 0x500000",
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+					multiboot * SZ_32K +
+					CONFIG_SYS_SPI_U_BOOT_OFFS);
 #endif
 		break;
 	default:
