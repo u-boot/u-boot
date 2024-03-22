@@ -1149,6 +1149,14 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
 F:	drivers/watchdog/sbsa_gwdt.c
 
+FWU Multi Bank Update
+M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	lib/fwu_updates/*
+F:	drivers/fwu-mdata/*
+F:	tools/mkfwumdata.c
+
 GATEWORKS_SC
 M:	Tim Harvey <tharvey@gateworks.com>
 S:	Maintained
