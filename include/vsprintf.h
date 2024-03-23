@@ -368,4 +368,11 @@ int vsscanf(const char *inp, char const *fmt0, va_list ap);
  */
 int sscanf(const char *buf, const char *fmt, ...);
 
+/**
+ * hextobarray - Convert a hex-string to a byte array
+ * @cp:		hex string to convert
+ * Return: a pointer to a byte array, -ENOMEM on error
+ */
+uchar *hextobarray(const char *cp);
+
 #endif

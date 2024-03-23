@@ -17,26 +17,16 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <linux/sizes.h>
+#include <linux/err.h>
 #include "printf.h"
 
 #define MAX_STR_LEN 128
 
-/**
- * struct expr_arg: Holds an argument to an expression
- *
- * @ival: Integer value (if width is not CMD_DATA_SIZE_STR)
- * @sval: String value (if width is CMD_DATA_SIZE_STR)
- */
-struct expr_arg {
-	union {
-		ulong ival;
-		char *sval;
-	};
-};
-
-static int get_arg(char *s, int w, struct expr_arg *argp)
+int setexpr_get_arg(char *s, int w, struct expr_arg *argp)
 {
 	struct expr_arg arg;
+	uchar *bmap;
+	ulong val;
 
 	/*
 	 * If the parameter starts with a '*' then assume it is a pointer to
@@ -45,7 +35,6 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 	if (s[0] == '*') {
 		ulong *p;
 		ulong addr;
-		ulong val;
 		int len;
 		char *str;
 
@@ -84,17 +73,38 @@ static int get_arg(char *s, int w, struct expr_arg *argp)
 			unmap_sysmem(p);
 			arg.ival = val;
 			break;
-		default:
+#if BITS_PER_LONG == 64
+		case 8:
 			p = map_sysmem(addr, sizeof(ulong));
 			val = *p;
 			unmap_sysmem(p);
 			arg.ival = val;
 			break;
+#endif
+		default:
+			p = map_sysmem(addr, w);
+			bmap = malloc(w);
+			if (!bmap) {
+				printf("Out of memory\n");
+				return -ENOMEM;
+			}
+			memcpy(bmap, p, w);
+			arg.bmap = bmap;
+			unmap_sysmem(p);
 		}
 	} else {
 		if (w == CMD_DATA_SIZE_STR)
 			return -EINVAL;
-		arg.ival = hextoul(s, NULL);
+		if (w > sizeof(ulong)) {
+			bmap = hextobarray(s);
+			if (IS_ERR(bmap)) {
+				printf("Out of memory\n");
+				return -ENOMEM;
+			}
+			arg.bmap = bmap;
+		} else {
+			arg.ival = hextoul(s, NULL);
+		}
 	}
 	*argp = arg;
 
@@ -388,7 +398,7 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	w = cmd_get_data_size(argv[0], 4);
 
-	if (get_arg(argv[2], w, &aval))
+	if (setexpr_get_arg(argv[2], w, &aval))
 		return CMD_RET_FAILURE;
 
 	/* format string assignment: "setexpr name fmt %d value" */
@@ -441,7 +451,7 @@ static int do_setexpr(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (strlen(argv[3]) != 1)
 		return CMD_RET_USAGE;
 
-	if (get_arg(argv[4], w, &bval)) {
+	if (setexpr_get_arg(argv[4], w, &bval)) {
 		if (w == CMD_DATA_SIZE_STR)
 			free(aval.sval);
 		return CMD_RET_FAILURE;

@@ -169,6 +169,10 @@ static inline unsigned long hweight_long(unsigned long w)
 # define fls generic_fls
 #endif
 
+#ifndef PLATFORM_FFZ
+# define ffz(x)  __ffs(~(x))
+#endif
+
 static inline unsigned fls_long(unsigned long l)
 {
 	if (sizeof(l) == 4)
