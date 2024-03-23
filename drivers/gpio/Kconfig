@@ -662,13 +662,6 @@ config SLG7XL45106_I2C_GPO
 	   8-bit gpo expander, all gpo lines are controlled by writing
 	   value into data register.
 
-config TURRIS_OMNIA_MCU
-	bool "Turris Omnia MCU GPIO driver"
-	depends on DM_GPIO
-	default y if TARGET_TURRIS_OMNIA
-	help
-	   Support for GPIOs on MCU connected to Turris Omnia via i2c.
-
 config FTGPIO010
 	bool "Faraday Technology FTGPIO010 driver"
 	depends on DM_GPIO
