@@ -14,6 +14,9 @@
 #include <dm/of_extra.h>
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
+#include <linux/delay.h>
+
+#define DEFAULT_GPIO_RESET_DELAY	10	/* in microseconds */
 
 void dm_mdio_probe_devices(void)
 {
@@ -80,6 +83,16 @@ int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg,
 int dm_mdio_reset(struct udevice *mdio_dev)
 {
 	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
+	struct mii_dev *mii_bus = pdata->mii_bus;
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&mii_bus->reset_gpiod)) {
+		dm_gpio_set_value(&mii_bus->reset_gpiod, 1);
+		udelay(mii_bus->reset_delay_us);
+		dm_gpio_set_value(&mii_bus->reset_gpiod, 0);
+		if (mii_bus->reset_post_delay_us > 0)
+			udelay(mii_bus->reset_post_delay_us);
+	}
 
 	if (!ops->reset)
 		return 0;
@@ -111,13 +124,35 @@ static int mdio_reset(struct mii_dev *mii_bus)
 static int dm_mdio_post_probe(struct udevice *dev)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
+	struct mii_dev *mii_bus;
+	int ret;
 
-	pdata->mii_bus = mdio_alloc();
+	mii_bus = mdio_alloc();
+	if (!mii_bus) {
+		dev_err(dev, "couldn't allocate mii_bus\n");
+		return -ENOMEM;
+	}
+	pdata->mii_bus = mii_bus;
 	pdata->mii_bus->read = mdio_read;
 	pdata->mii_bus->write = mdio_write;
 	pdata->mii_bus->reset = mdio_reset;
 	pdata->mii_bus->priv = dev;
 	strlcpy(pdata->mii_bus->name, dev->name, MDIO_NAME_LEN);
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		/* Get bus level PHY reset GPIO details */
+		mii_bus->reset_delay_us = dev_read_u32_default(dev, "reset-delay-us",
+							       DEFAULT_GPIO_RESET_DELAY);
+		mii_bus->reset_post_delay_us = dev_read_u32_default(dev,
+								    "reset-post-delay-us",
+								    0);
+		ret = gpio_request_by_name(dev, "reset-gpios", 0, &mii_bus->reset_gpiod,
+					   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "couldn't get reset-gpios: %d\n", ret);
+			return ret;
+		}
+	}
 
 	return mdio_register(pdata->mii_bus);
 }
