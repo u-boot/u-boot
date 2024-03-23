@@ -695,7 +695,7 @@ static int fwu_boottime_checks(void)
 
 	/* Don't have boot time checks on sandbox */
 	if (IS_ENABLED(CONFIG_SANDBOX)) {
-		boottime_check = 1;
+		boottime_check = 0;
 		return 0;
 	}
 
