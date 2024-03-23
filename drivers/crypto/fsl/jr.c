@@ -673,6 +673,19 @@ static int rng_init(uint8_t sec_idx, ccsr_sec_t *sec)
 	return ret;
 }
 
+static __maybe_unused void jr_setown_non_trusted(ccsr_sec_t *sec)
+{
+	uint32_t jrown_ns;
+	int i;
+
+	/* Set ownership of job rings to non-TrustZone mode */
+	for (i = 0; i < ARRAY_SIZE(sec->jrliodnr); i++) {
+		jrown_ns = sec_in32(&sec->jrliodnr[i].ms);
+		jrown_ns |= JROWN_NS | JRMID_NS;
+		sec_out32(&sec->jrliodnr[i].ms, jrown_ns);
+	}
+}
+
 int sec_init_idx(uint8_t sec_idx)
 {
 	int ret = 0;
@@ -761,6 +774,8 @@ int sec_init_idx(uint8_t sec_idx)
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 init:
 #endif
+	// jr_setown_non_trusted(sec);
+
 	ret = jr_init(sec_idx, caam);
 	if (ret < 0) {
 		printf("SEC%u:  initialization failed\n", sec_idx);
