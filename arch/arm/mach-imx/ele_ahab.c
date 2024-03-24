@@ -625,6 +625,29 @@ static int do_ahab_return_lifecycle(struct cmd_tbl *cmdtp, int flag, int argc, c
 	return CMD_RET_SUCCESS;
 }
 
+static int do_ahab_commit(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	u32 index;
+	u32 resp;
+	u32 info_type;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	index = simple_strtoul(argv[1], NULL, 16);
+	printf("Commit index is 0x%x\n", index);
+
+	if (ele_commit(index, &resp, &info_type)) {
+		printf("Error in AHAB commit\n");
+		return -EIO;
+	}
+
+	printf("Ahab commit succeeded. Information type is 0x%x\n", info_type);
+
+	return 0;
+}
+
 U_BOOT_CMD(auth_cntr, CONFIG_SYS_MAXARGS, 1, do_authenticate,
 	   "autenticate OS container via AHAB",
 	   "addr\n"
@@ -656,4 +679,10 @@ U_BOOT_CMD(ahab_return_lifecycle, CONFIG_SYS_MAXARGS, 1, do_ahab_return_lifecycl
 	   "Return lifecycle to OEM field return via signed message block",
 	   "addr\n"
 	   "addr - Return lifecycle message block signed by OEM SRK\n"
+);
+
+U_BOOT_CMD(ahab_commit, CONFIG_SYS_MAXARGS, 1, do_ahab_commit,
+	   "commit into the fuses any new SRK revocation and FW version information\n"
+	   "that have been found into the NXP (ELE FW) and OEM containers",
+	   ""
 );

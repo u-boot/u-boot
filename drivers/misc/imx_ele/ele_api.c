@@ -528,6 +528,38 @@ int ele_start_rng(void)
 	return ret;
 }
 
+int ele_commit(u16 fuse_id, u32 *response, u32 *info_type)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
+	int ret = 0;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 2;
+	msg.command = ELE_COMMIT_REQ;
+	msg.data[0] = fuse_id;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, fuse_id 0x%x, response 0x%x\n",
+		       __func__, ret, fuse_id, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	if (info_type)
+		*info_type = msg.data[1];
+
+	return ret;
+}
+
 int ele_write_secure_fuse(ulong signed_msg_blk, u32 *response)
 {
 	struct udevice *dev = gd->arch.ele_dev;

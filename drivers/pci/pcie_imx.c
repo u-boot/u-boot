@@ -7,6 +7,14 @@
  * Based on upstream Linux kernel driver:
  * pci-imx6.c:		Sean Cross <xobs@kosagi.com>
  * pcie-designware.c:	Jingoo Han <jg1.han@samsung.com>
+ *
+ * This is a legacy PCIe iMX driver kept to support older iMX6 SoCs. It is
+ * rather tied to quite old port of pcie-designware driver from Linux which
+ * suffices only iMX6 specific needs. But now we have modern PCIe iMX driver
+ * (drivers/pci/pcie_dw_imx.c) utilizing all the common DWC specific bits from
+ * (drivers/pci/pcie_dw_common.*). So you are encouraged to add any further iMX
+ * SoC support there or even better if you posses older iMX6 SoCs then switch
+ * those too in order to have a single modern PCIe iMX driver.
  */
 
 #include <common.h>
