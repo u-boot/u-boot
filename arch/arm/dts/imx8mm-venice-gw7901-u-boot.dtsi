@@ -43,6 +43,20 @@
 };
 
 &gpio4 {
+	dig1ctl {
+		gpio-hog;
+		output-low;
+		gpios = <4 GPIO_ACTIVE_HIGH>;
+		line-name = "dig1_ctl";
+	};
+
+	dig2ctl {
+		gpio-hog;
+		output-low;
+		gpios = <5 GPIO_ACTIVE_HIGH>;
+		line-name = "dig2_ctl";
+	};
+
 	uart3_rs232 {
 		gpio-hog;
 		output-high;
