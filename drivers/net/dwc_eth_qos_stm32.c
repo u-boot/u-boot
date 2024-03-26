@@ -140,6 +140,8 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 	const bool is_mp13 = device_is_compatible(dev, "st,stm32mp13-dwmac");
 	/* Gigabit Ethernet 125MHz clock selection. */
 	const bool eth_clk_sel = dev_read_bool(dev, "st,eth-clk-sel");
+	/* Ethernet clock source is RCC. */
+	const bool ext_phyclk = dev_read_bool(dev, "st,ext-phyclk");
 	struct regmap *regmap;
 	u32 regmap_mask;
 	u32 value;
@@ -156,6 +158,12 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		dev_dbg(dev, "PHY_INTERFACE_MODE_MII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
+		/*
+		 * STM32MP15xx supports both MII and GMII, STM32MP13xx MII only.
+		 * SYSCFG_PMCSETR ETH_SELMII is present only on STM32MP15xx and
+		 * acts as a selector between 0:GMII and 1:MII. As STM32MP13xx
+		 * supports only MII, ETH_SELMII is not present.
+		 */
 		if (!is_mp13)	/* Select MII mode on STM32MP15xx */
 			value |= SYSCFG_PMCSETR_ETH_SELMII;
 		break;
@@ -163,14 +171,25 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		dev_dbg(dev, "PHY_INTERFACE_MODE_GMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
-		if (eth_clk_sel)
+		/*
+		 * If eth_clk_sel is set, use internal ETH_CLKx clock from RCC,
+		 * otherwise use external clock from IO pin (requires matching
+		 * GPIO block AF setting of that pin).
+		 */
+		if (eth_clk_sel || ext_phyclk)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
 		dev_dbg(dev, "PHY_INTERFACE_MODE_RMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RMII);
-		if (eth_ref_clk_sel)
+		/*
+		 * If eth_ref_clk_sel is set, use internal clock from RCC,
+		 * otherwise use external clock from ETHn_RX_CLK/ETHn_REF_CLK
+		 * IO pin (requires matching GPIO block AF setting of that
+		 * pin).
+		 */
+		if (eth_ref_clk_sel || ext_phyclk)
 			value |= SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
@@ -180,7 +199,12 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		dev_dbg(dev, "PHY_INTERFACE_MODE_RGMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RGMII);
-		if (eth_clk_sel)
+		/*
+		 * If eth_clk_sel is set, use internal ETH_CLKx clock from RCC,
+		 * otherwise use external clock from ETHx_CLK125 pin (requires
+		 * matching GPIO block AF setting of that pin).
+		 */
+		if (eth_clk_sel || ext_phyclk)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	default:
