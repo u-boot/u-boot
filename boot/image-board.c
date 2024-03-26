@@ -129,10 +129,8 @@ phys_size_t env_get_bootm_size(void)
 	phys_addr_t start;
 	char *s = env_get("bootm_size");
 
-	if (s) {
-		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
-		return tmp;
-	}
+	if (s)
+		return simple_strtoull(s, NULL, 16);
 
 	start = gd->ram_base;
 	size = gd->ram_size;
@@ -142,7 +140,7 @@ phys_size_t env_get_bootm_size(void)
 
 	s = env_get("bootm_low");
 	if (s)
-		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
+		tmp = simple_strtoull(s, NULL, 16);
 	else
 		tmp = start;
 
