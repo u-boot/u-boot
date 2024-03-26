@@ -1617,6 +1617,11 @@ zfs_nvlist_lookup_nvlist(char *nvlist, char *name)
 							  &size, 0);
 	if (!found)
 		return 0;
+
+	/* Allocate 12 bytes in addition to the nvlist size: One uint32 before the
+	 * nvlist to hold the encoding method, and two zero uint32's after the
+	 * nvlist as the NULL terminator.
+	 */
 	ret = calloc(1, size + 3 * sizeof(uint32_t));
 	if (!ret)
 		return 0;
