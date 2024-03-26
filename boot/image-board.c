@@ -107,14 +107,12 @@ static int on_loadaddr(const char *name, const char *value, enum env_op op,
 }
 U_BOOT_ENV_CALLBACK(loadaddr, on_loadaddr);
 
-ulong env_get_bootm_low(void)
+phys_addr_t env_get_bootm_low(void)
 {
 	char *s = env_get("bootm_low");
 
-	if (s) {
-		ulong tmp = hextoul(s, NULL);
-		return tmp;
-	}
+	if (s)
+		return simple_strtoull(s, NULL, 16);
 
 #if defined(CFG_SYS_SDRAM_BASE)
 	return CFG_SYS_SDRAM_BASE;
@@ -538,7 +536,7 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		      ulong *initrd_start, ulong *initrd_end)
 {
 	char	*s;
-	ulong	initrd_high;
+	phys_addr_t initrd_high;
 	int	initrd_copy_to_ram = 1;
 
 	s = env_get("initrd_high");
@@ -553,8 +551,8 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		initrd_high = env_get_bootm_mapsize() + env_get_bootm_low();
 	}
 
-	debug("## initrd_high = 0x%08lx, copy_to_ram = %d\n",
-	      initrd_high, initrd_copy_to_ram);
+	debug("## initrd_high = 0x%llx, copy_to_ram = %d\n",
+	      (u64)initrd_high, initrd_copy_to_ram);
 
 	if (rd_data) {
 		if (!initrd_copy_to_ram) {	/* zero-copy ramdisk support */

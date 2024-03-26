@@ -160,9 +160,10 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = NULL;
-	u64	start, size, usable;
+	phys_addr_t start, size, usable;
 	char	*fdt_high;
-	ulong	mapsize, low;
+	phys_addr_t low;
+	phys_size_t mapsize;
 	ulong	of_len = 0;
 	int	bank;
 	int	err;
@@ -217,7 +218,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			if (start + size < low)
 				continue;
 
-			usable = min(start + size, (u64)(low + mapsize));
+			usable = min(start + size, low + mapsize);
 
 			/*
 			 * At least part of this DRAM bank is usable, try
@@ -233,7 +234,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			 * Reduce the mapping size in the next bank
 			 * by the size of attempt in current bank.
 			 */
-			mapsize -= usable - max(start, (u64)low);
+			mapsize -= usable - max(start, low);
 			if (!mapsize)
 				break;
 		}
