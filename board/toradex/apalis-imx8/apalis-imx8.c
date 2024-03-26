@@ -133,7 +133,7 @@ void board_mem_get_layout(u64 *phys_sdram_1_start,
 	struct tdx_user_fuses tdxramfuses;
 	int scierr = sc_misc_otp_fuse_read(-1, 6, &val);
 
-	if (scierr) {
+	if (!scierr) {
 		/* QP has one A72 core disabled */
 		is_quadplus = ((val >> 4) & 0x3) != 0x0;
 	}

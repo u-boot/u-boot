@@ -20,36 +20,36 @@ Quick Start
 Get and Build the ARM Trusted Firmware
 --------------------------------------
 
+Download the imx-atf repository:
+
 .. code-block:: bash
 
-    $ git clone -b imx_4.14.78_1.0.0_ga https://github.com/nxp-imx/imx-atf
+    $ git clone -b lf_v2.6 https://github.com/nxp-imx/imx-atf.git
+
+Compile it with an aarch64 toolchain:
+
+.. code-block:: bash
+
     $ cd imx-atf/
     $ make PLAT=imx8qm bl31
 
 Get scfw_tcm.bin and ahab-container.img
 ---------------------------------------
 
+Download imx-seco firmware and extract it:
+
 .. code-block:: bash
 
-    $ wget https://github.com/toradex/meta-fsl-bsp-release/blob/toradex-sumo-4.14.78-1.0.0_ga-bringup/imx/meta-bsp/recipes-
-      bsp/imx-sc-firmware/files/mx8qm-apalis-scfw-tcm.bin?raw=true
-    $ mv mx8qm-apalis-scfw-tcm.bin\?raw\=true mx8qm-apalis-scfw-tcm.bin
-    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.0.bin
-    $ chmod +x firmware-imx-8.0.bin
-    $ ./firmware-imx-8.0.bin
+    $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/imx-seco-5.8.7.bin
+    $ sh imx-seco-5.8.7.bin --auto-accept
 
 Copy the following binaries to the U-Boot folder:
 
 .. code-block:: bash
 
-    $ cp imx-atf/build/imx8qm/release/bl31.bin .
-    $ cp u-boot/u-boot.bin .
-
-Copy the following firmware to the U-Boot folder:
-
-.. code-block:: bash
-
-    $ cp firmware-imx-8.0/firmware/seco/ahab-container.img .
+    $ wget https://github.com/toradex/i.MX-System-Controller-Firmware/raw/master/src/scfw_export_mx8qm_b0/build_mx8qm_b0/mx8qm-apalis-scfw-tcm.bin
+    $ cp ../imx-atf/build/imx8qm/release/bl31.bin .
+    $ cp ../imx-seco-5.8.7/firmware/seco/mx8qmb0-ahab-container.img mx8qm-ahab-container.img
 
 Build U-Boot
 ------------
@@ -64,7 +64,7 @@ Load the U-Boot Binary Using UUU
 
 Get the latest version of the universal update utility (uuu) aka ``mfgtools 3.0``:
 
-https://community.nxp.com/external-link.jspa?url=https%3A%2F%2Fgithub.com%2FNXPmicro%2Fmfgtools%2Freleases
+https://github.com/nxp-imx/mfgtools/releases
 
 Put the module into USB recovery aka serial downloader mode, connect the USB
 device to your host and execute ``uuu``:

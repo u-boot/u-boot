@@ -144,7 +144,7 @@ patman.py.  For reference, the useful ones (at the moment) shown below
     process_tags: False
     verbose: True
     smtp_server: /path/to/sendmail
-    patchwork_server: https://patchwork.ozlabs.org
+    patchwork_url: https://patchwork.ozlabs.org
 
 If you want to adjust settings (or aliases) that affect just a single
 project you can add a section that looks like [project_settings] or
@@ -248,9 +248,9 @@ Series-links: [id | version:id]...
 
 Series-patchwork-url: url
     This allows specifying the Patchwork URL for a branch. This overrides
-    both the setting files and the command-line argument. The URL should
-    include the protocol and web site, with no trailing slash, for example
-    'https://patchwork.ozlabs.org/project'
+    both the setting files ("patchwork_url") and the command-line argument.
+    The URL should include the protocol and web site, with no trailing slash,
+    for example 'https://patchwork.ozlabs.org/project'
 
 Cover-letter:
     Sets the cover letter contents for the series. The first line
