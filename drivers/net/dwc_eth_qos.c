@@ -1506,6 +1506,10 @@ static const struct udevice_id eqos_ids[] = {
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_STM32)
 	{
+		.compatible = "st,stm32mp13-dwmac",
+		.data = (ulong)&eqos_stm32mp13_config
+	},
+	{
 		.compatible = "st,stm32mp1-dwmac",
 		.data = (ulong)&eqos_stm32mp15_config
 	},
