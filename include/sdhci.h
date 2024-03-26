@@ -11,6 +11,7 @@
 
 #include <linux/bitops.h>
 #include <linux/types.h>
+#include <linux/kernel.h>
 #include <asm/io.h>
 #include <mmc.h>
 #include <asm/gpio.h>
@@ -304,8 +305,8 @@ struct sdhci_ops {
 #else
 #define ADMA_DESC_LEN	8
 #endif
-#define ADMA_TABLE_NO_ENTRIES (CONFIG_SYS_MMC_MAX_BLK_COUNT * \
-			       MMC_MAX_BLOCK_LEN) / ADMA_MAX_LEN
+#define ADMA_TABLE_NO_ENTRIES DIV_ROUND_UP(CONFIG_SYS_MMC_MAX_BLK_COUNT * \
+			      MMC_MAX_BLOCK_LEN, ADMA_MAX_LEN)
 
 #define ADMA_TABLE_SZ (ADMA_TABLE_NO_ENTRIES * ADMA_DESC_LEN)
 
