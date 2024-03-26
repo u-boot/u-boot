@@ -1361,6 +1361,13 @@ config CMD_MTD
 	help
 	  MTD commands support.
 
+config CMD_MTD_OTP
+	bool "mtd otp"
+	depends on CMD_MTD
+	select HEXDUMP
+	help
+	  MTD commands for OTP access.
+
 config CMD_MUX
 	bool "mux"
 	depends on MULTIPLEXER
