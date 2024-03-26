@@ -248,7 +248,7 @@ class Entry_ti_board_config(Entry_section):
 
             yaml_config = config.YamlLintConfig("extends: default")
             for p in yamllint.linter.run(open(self._config_file, "r"), yaml_config):
-                self.Raise(f"Yamllint error: {p.line}: {p.rule}")
+                self.Raise(f"Yamllint error: Line {p.line} in {self._config_file}: {p.rule}")
             try:
                 validate(self.file_yaml, self.schema_yaml)
             except Exception as e:
