@@ -149,13 +149,10 @@ phys_size_t env_get_bootm_size(void)
 
 phys_size_t env_get_bootm_mapsize(void)
 {
-	phys_size_t tmp;
 	char *s = env_get("bootm_mapsize");
 
-	if (s) {
-		tmp = (phys_size_t)simple_strtoull(s, NULL, 16);
-		return tmp;
-	}
+	if (s)
+		return simple_strtoull(s, NULL, 16);
 
 #if defined(CFG_SYS_BOOTMAPSZ)
 	return CFG_SYS_BOOTMAPSZ;
