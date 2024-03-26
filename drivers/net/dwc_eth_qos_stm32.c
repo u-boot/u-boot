@@ -128,16 +128,12 @@ static int eqos_stop_clks_stm32(struct udevice *dev)
 static int eqos_probe_syscfg_stm32(struct udevice *dev,
 				   phy_interface_t interface_type)
 {
-	bool eth_ref_clk_sel_reg = false;
-	bool eth_clk_sel_reg = false;
+	/* Ethernet 50MHz RMII clock selection. */
+	const bool eth_ref_clk_sel = dev_read_bool(dev, "st,eth-ref-clk-sel");
+	/* Gigabit Ethernet 125MHz clock selection. */
+	const bool eth_clk_sel = dev_read_bool(dev, "st,eth-clk-sel");
 	u8 *syscfg;
 	u32 value;
-
-	/* Gigabit Ethernet 125MHz clock selection. */
-	eth_clk_sel_reg = dev_read_bool(dev, "st,eth-clk-sel");
-
-	/* Ethernet 50Mhz RMII clock selection */
-	eth_ref_clk_sel_reg = dev_read_bool(dev, "st,eth-ref-clk-sel");
 
 	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
 	if (!syscfg)
@@ -154,14 +150,14 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		dev_dbg(dev, "PHY_INTERFACE_MODE_GMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
-		if (eth_clk_sel_reg)
+		if (eth_clk_sel)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
 		dev_dbg(dev, "PHY_INTERFACE_MODE_RMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RMII);
-		if (eth_ref_clk_sel_reg)
+		if (eth_ref_clk_sel)
 			value |= SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
@@ -171,7 +167,7 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		dev_dbg(dev, "PHY_INTERFACE_MODE_RGMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RGMII);
-		if (eth_clk_sel_reg)
+		if (eth_clk_sel)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	default:
