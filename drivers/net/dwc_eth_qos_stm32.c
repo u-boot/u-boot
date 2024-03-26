@@ -23,6 +23,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <phy.h>
+#include <regmap.h>
 #include <reset.h>
 #include <syscon.h>
 #include <wait_bit.h>
@@ -33,11 +34,16 @@
 
 /* SYSCFG registers */
 #define SYSCFG_PMCSETR		0x04
-#define SYSCFG_PMCCLRR		0x44
+#define SYSCFG_PMCCLRR_MP13	0x08
+#define SYSCFG_PMCCLRR_MP15	0x44
+
+#define SYSCFG_PMCSETR_ETH1_MASK	GENMASK(23, 16)
+#define SYSCFG_PMCSETR_ETH2_MASK	GENMASK(31, 24)
 
 #define SYSCFG_PMCSETR_ETH_CLK_SEL	BIT(16)
 #define SYSCFG_PMCSETR_ETH_REF_CLK_SEL	BIT(17)
 
+/* STM32MP15xx specific bit */
 #define SYSCFG_PMCSETR_ETH_SELMII	BIT(20)
 
 #define SYSCFG_PMCSETR_ETH_SEL_MASK	GENMASK(23, 21)
@@ -130,23 +136,30 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 {
 	/* Ethernet 50MHz RMII clock selection. */
 	const bool eth_ref_clk_sel = dev_read_bool(dev, "st,eth-ref-clk-sel");
+	/* SoC is STM32MP13xx with two ethernet MACs */
+	const bool is_mp13 = device_is_compatible(dev, "st,stm32mp13-dwmac");
 	/* Gigabit Ethernet 125MHz clock selection. */
 	const bool eth_clk_sel = dev_read_bool(dev, "st,eth-clk-sel");
-	u8 *syscfg;
+	struct regmap *regmap;
+	u32 regmap_mask;
 	u32 value;
 
-	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
-	if (!syscfg)
-		return -ENODEV;
+	regmap = syscon_regmap_lookup_by_phandle(dev, "st,syscon");
+	if (IS_ERR(regmap))
+		return PTR_ERR(regmap);
+
+	regmap_mask = dev_read_u32_index_default(dev, "st,syscon", 2,
+						 SYSCFG_PMCSETR_ETH1_MASK);
 
 	switch (interface_type) {
 	case PHY_INTERFACE_MODE_MII:
 		dev_dbg(dev, "PHY_INTERFACE_MODE_MII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
-		value |= SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
+		if (!is_mp13)	/* Select MII mode on STM32MP15xx */
+			value |= SYSCFG_PMCSETR_ETH_SELMII;
 		break;
-	case PHY_INTERFACE_MODE_GMII:
+	case PHY_INTERFACE_MODE_GMII:	/* STM32MP15xx only */
 		dev_dbg(dev, "PHY_INTERFACE_MODE_GMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
@@ -177,13 +190,15 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 		return -EINVAL;
 	}
 
-	/* clear and set ETH configuration bits */
-	writel(SYSCFG_PMCSETR_ETH_SEL_MASK | SYSCFG_PMCSETR_ETH_SELMII |
-	       SYSCFG_PMCSETR_ETH_REF_CLK_SEL | SYSCFG_PMCSETR_ETH_CLK_SEL,
-	       syscfg + SYSCFG_PMCCLRR);
-	writel(value, syscfg + SYSCFG_PMCSETR);
+	/* Shift value at correct ethernet MAC offset in SYSCFG_PMCSETR */
+	value <<= ffs(regmap_mask) - ffs(SYSCFG_PMCSETR_ETH1_MASK);
 
-	return 0;
+	/* Update PMCCLRR (clear register) */
+	regmap_write(regmap, is_mp13 ?
+			     SYSCFG_PMCCLRR_MP13 : SYSCFG_PMCCLRR_MP15,
+			     regmap_mask);
+
+	return regmap_update_bits(regmap, SYSCFG_PMCSETR, regmap_mask, value);
 }
 
 static int eqos_probe_resources_stm32(struct udevice *dev)
