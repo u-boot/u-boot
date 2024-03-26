@@ -66,7 +66,7 @@ void __noreturn spl_invoke_opensbi(struct spl_image_info *spl_image)
 	 * Moving DTB in front of the kernel can avoid the error.
 	 */
 #if CONFIG_IS_ENABLED(LOAD_FIT_OPENSBI_OS_BOOT) && \
-    CONFIG_IS_ENABLED(PAYLOAD_ARGS_ADDR)
+    CONFIG_VAL(PAYLOAD_ARGS_ADDR)
 	memcpy((void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR, spl_image->fdt_addr,
 	       fdt_totalsize(spl_image->fdt_addr));
 	spl_image->fdt_addr = map_sysmem(CONFIG_SPL_PAYLOAD_ARGS_ADDR, 0);
