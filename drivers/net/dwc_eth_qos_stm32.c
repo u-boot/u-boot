@@ -46,20 +46,21 @@
 
 static ulong eqos_get_tick_clk_rate_stm32(struct udevice *dev)
 {
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
+	struct eqos_priv __maybe_unused *eqos = dev_get_priv(dev);
+
+	if (!CONFIG_IS_ENABLED(CLK))
+		return 0;
 
 	return clk_get_rate(&eqos->clk_master_bus);
-#else
-	return 0;
-#endif
 }
 
 static int eqos_start_clks_stm32(struct udevice *dev)
 {
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
+	struct eqos_priv __maybe_unused *eqos = dev_get_priv(dev);
 	int ret;
+
+	if (!CONFIG_IS_ENABLED(CLK))
+		return 0;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -89,12 +90,10 @@ static int eqos_start_clks_stm32(struct udevice *dev)
 		}
 		eqos->clk_ck_enabled = true;
 	}
-#endif
 
 	debug("%s: OK\n", __func__);
 	return 0;
 
-#ifdef CONFIG_CLK
 err_disable_clk_tx:
 	clk_disable(&eqos->clk_tx);
 err_disable_clk_rx:
@@ -104,20 +103,20 @@ err_disable_clk_master_bus:
 err:
 	debug("%s: FAILED: %d\n", __func__, ret);
 	return ret;
-#endif
 }
 
 static int eqos_stop_clks_stm32(struct udevice *dev)
 {
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
+	struct eqos_priv __maybe_unused *eqos = dev_get_priv(dev);
+
+	if (!CONFIG_IS_ENABLED(CLK))
+		return 0;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
 	clk_disable(&eqos->clk_tx);
 	clk_disable(&eqos->clk_rx);
 	clk_disable(&eqos->clk_master_bus);
-#endif
 
 	debug("%s: OK\n", __func__);
 	return 0;
