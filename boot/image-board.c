@@ -125,8 +125,8 @@ phys_addr_t env_get_bootm_low(void)
 
 phys_size_t env_get_bootm_size(void)
 {
-	phys_size_t tmp, size;
-	phys_addr_t start;
+	phys_addr_t start, low;
+	phys_size_t size;
 	char *s = env_get("bootm_size");
 
 	if (s)
@@ -140,11 +140,11 @@ phys_size_t env_get_bootm_size(void)
 
 	s = env_get("bootm_low");
 	if (s)
-		tmp = simple_strtoull(s, NULL, 16);
+		low = simple_strtoull(s, NULL, 16);
 	else
-		tmp = start;
+		low = start;
 
-	return size - (tmp - start);
+	return size - (low - start);
 }
 
 phys_size_t env_get_bootm_mapsize(void)
