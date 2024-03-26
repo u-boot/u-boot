@@ -504,6 +504,24 @@ config SPL_MMC_SDHCI_ADMA
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
 
+config MMC_SDHCI_ADMA_FORCE_32BIT
+	bool "Force 32 bit mode for ADMA on 64 bit platforms"
+	help
+	  This forces SDHCI ADMA to be built for 32 bit descriptors, even
+	  on a 64 bit platform where they would otherwise be assumed to
+	  be 64 bits. This is necessary for certain hardware platforms
+	  that are 64-bit but include only 32-bit support within the selected
+	  SD host controller IP.
+
+config MMC_SDHCI_ADMA_64BIT
+	bool "Use SHDCI ADMA with 64 bit descriptors"
+	depends on !MMC_SDHCI_ADMA_FORCE_32BIT
+	default y if DMA_ADDR_T_64BIT
+	help
+	  This selects 64 bit descriptors for SDHCI ADMA. It is enabled by
+	  default on 64 bit systems, but can be disabled if one of these
+	  systems includes 32-bit ADMA.
+
 config FIXED_SDHCI_ALIGNED_BUFFER
 	hex "SDRAM address for fixed buffer"
 	depends on SPL && MVEBU_SPL_BOOT_DEVICE_MMC

@@ -23,7 +23,7 @@ void sdhci_adma_write_desc(struct sdhci_host *host, void **next_desc,
 	desc->len = len & 0xffff;
 	desc->reserved = 0;
 	desc->addr_lo = lower_32_bits(addr);
-#ifdef CONFIG_DMA_ADDR_T_64BIT
+#ifdef CONFIG_MMC_SDHCI_ADMA_64BIT
 	desc->addr_hi = upper_32_bits(addr);
 #endif
 
