@@ -283,6 +283,7 @@ emailAddress           = {req_dist_name_dict['emailAddress']}
 basicConstraints = CA:true
 1.3.6.1.4.1.294.1.3=ASN1:SEQUENCE:swrv
 1.3.6.1.4.1.294.1.9=ASN1:SEQUENCE:ext_boot_info
+1.3.6.1.4.1.294.1.8=ASN1:SEQUENCE:debug
 
 [swrv]
 swrv=INTEGER:{sw_rev}
@@ -322,6 +323,12 @@ destAddr = FORMAT:HEX,OCT:{load_addr_sysfw_data:08x}
 compSize = INTEGER:{imagesize_sysfw_data}
 shaType  = OID:{sha_type}
 shaValue = FORMAT:HEX,OCT:{hashval_sysfw_data}
+
+[ debug ]
+debugUID = FORMAT:HEX,OCT:0000000000000000000000000000000000000000000000000000000000000000
+debugType = INTEGER:4
+coreDbgEn = INTEGER:0
+coreDbgSecEn = INTEGER:0
 
 {sysfw_inner_cert_ext_boot_block}
 
