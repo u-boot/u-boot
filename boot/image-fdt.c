@@ -218,12 +218,12 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			if (start + size < low)
 				continue;
 
-			usable = min(start + size, low + mapsize);
-
 			/*
 			 * At least part of this DRAM bank is usable, try
-			 * using it for LMB allocation.
+			 * using the DRAM bank up to 'usable' address limit
+			 * for LMB allocation.
 			 */
+			usable = min(start + size, low + mapsize);
 			addr = lmb_alloc_base(lmb, of_len, 0x1000, usable);
 			of_start = map_sysmem(addr, of_len);
 			/* Allocation succeeded, use this block. */
