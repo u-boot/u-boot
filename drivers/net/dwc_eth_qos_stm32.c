@@ -63,36 +63,36 @@ static int eqos_start_clks_stm32(struct udevice *dev)
 	if (!CONFIG_IS_ENABLED(CLK))
 		return 0;
 
-	debug("%s(dev=%p):\n", __func__, dev);
+	dev_dbg(dev, "%s:\n", __func__);
 
 	ret = clk_enable(&eqos->clk_master_bus);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_master_bus) failed: %d", ret);
+		dev_err(dev, "clk_enable(clk_master_bus) failed: %d\n", ret);
 		goto err;
 	}
 
 	ret = clk_enable(&eqos->clk_rx);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_rx) failed: %d", ret);
+		dev_err(dev, "clk_enable(clk_rx) failed: %d\n", ret);
 		goto err_disable_clk_master_bus;
 	}
 
 	ret = clk_enable(&eqos->clk_tx);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_tx) failed: %d", ret);
+		dev_err(dev, "clk_enable(clk_tx) failed: %d\n", ret);
 		goto err_disable_clk_rx;
 	}
 
 	if (clk_valid(&eqos->clk_ck) && !eqos->clk_ck_enabled) {
 		ret = clk_enable(&eqos->clk_ck);
 		if (ret < 0) {
-			pr_err("clk_enable(clk_ck) failed: %d", ret);
+			dev_err(dev, "clk_enable(clk_ck) failed: %d\n", ret);
 			goto err_disable_clk_tx;
 		}
 		eqos->clk_ck_enabled = true;
 	}
 
-	debug("%s: OK\n", __func__);
+	dev_dbg(dev, "%s: OK\n", __func__);
 	return 0;
 
 err_disable_clk_tx:
@@ -102,7 +102,8 @@ err_disable_clk_rx:
 err_disable_clk_master_bus:
 	clk_disable(&eqos->clk_master_bus);
 err:
-	debug("%s: FAILED: %d\n", __func__, ret);
+	dev_dbg(dev, "%s: FAILED: %d\n", __func__, ret);
+
 	return ret;
 }
 
@@ -113,13 +114,14 @@ static int eqos_stop_clks_stm32(struct udevice *dev)
 	if (!CONFIG_IS_ENABLED(CLK))
 		return 0;
 
-	debug("%s(dev=%p):\n", __func__, dev);
+	dev_dbg(dev, "%s:\n", __func__);
 
 	clk_disable(&eqos->clk_tx);
 	clk_disable(&eqos->clk_rx);
 	clk_disable(&eqos->clk_master_bus);
 
-	debug("%s: OK\n", __func__);
+	dev_dbg(dev, "%s: OK\n", __func__);
+
 	return 0;
 }
 
@@ -143,20 +145,20 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 
 	switch (interface_type) {
 	case PHY_INTERFACE_MODE_MII:
-		log_debug("PHY_INTERFACE_MODE_MII\n");
+		dev_dbg(dev, "PHY_INTERFACE_MODE_MII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
 		value |= SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_GMII:
-		log_debug("PHY_INTERFACE_MODE_GMII\n");
+		dev_dbg(dev, "PHY_INTERFACE_MODE_GMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_GMII_MII);
 		if (eth_clk_sel_reg)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	case PHY_INTERFACE_MODE_RMII:
-		log_debug("PHY_INTERFACE_MODE_RMII\n");
+		dev_dbg(dev, "PHY_INTERFACE_MODE_RMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RMII);
 		if (eth_ref_clk_sel_reg)
@@ -166,15 +168,15 @@ static int eqos_probe_syscfg_stm32(struct udevice *dev,
 	case PHY_INTERFACE_MODE_RGMII_ID:
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII_TXID:
-		log_debug("PHY_INTERFACE_MODE_RGMII\n");
+		dev_dbg(dev, "PHY_INTERFACE_MODE_RGMII\n");
 		value = FIELD_PREP(SYSCFG_PMCSETR_ETH_SEL_MASK,
 				   SYSCFG_PMCSETR_ETH_SEL_RGMII);
 		if (eth_clk_sel_reg)
 			value |= SYSCFG_PMCSETR_ETH_CLK_SEL;
 		break;
 	default:
-		log_debug("Do not manage %d interface\n",
-			  interface_type);
+		dev_dbg(dev, "Do not manage %d interface\n",
+			interface_type);
 		/* Do not manage others interfaces */
 		return -EINVAL;
 	}
@@ -194,12 +196,12 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	phy_interface_t interface;
 	int ret;
 
-	debug("%s(dev=%p):\n", __func__, dev);
+	dev_dbg(dev, "%s:\n", __func__);
 
 	interface = eqos->config->interface(dev);
 
 	if (interface == PHY_INTERFACE_MODE_NA) {
-		pr_err("Invalid PHY interface\n");
+		dev_err(dev, "Invalid PHY interface\n");
 		return -EINVAL;
 	}
 
@@ -209,39 +211,41 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 
 	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
 	if (ret) {
-		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
+		dev_err(dev, "clk_get_by_name(master_bus) failed: %d\n", ret);
 		goto err_probe;
 	}
 
 	ret = clk_get_by_name(dev, "mac-clk-rx", &eqos->clk_rx);
 	if (ret) {
-		pr_err("clk_get_by_name(rx) failed: %d", ret);
+		dev_err(dev, "clk_get_by_name(rx) failed: %d\n", ret);
 		goto err_probe;
 	}
 
 	ret = clk_get_by_name(dev, "mac-clk-tx", &eqos->clk_tx);
 	if (ret) {
-		pr_err("clk_get_by_name(tx) failed: %d", ret);
+		dev_err(dev, "clk_get_by_name(tx) failed: %d\n", ret);
 		goto err_probe;
 	}
 
 	/*  Get ETH_CLK clocks (optional) */
 	ret = clk_get_by_name(dev, "eth-ck", &eqos->clk_ck);
 	if (ret)
-		pr_warn("No phy clock provided %d", ret);
+		dev_warn(dev, "No phy clock provided %d\n", ret);
 
-	debug("%s: OK\n", __func__);
+	dev_dbg(dev, "%s: OK\n", __func__);
+
 	return 0;
 
 err_probe:
 
-	debug("%s: returns %d\n", __func__, ret);
+	dev_dbg(dev, "%s: returns %d\n", __func__, ret);
+
 	return ret;
 }
 
 static int eqos_remove_resources_stm32(struct udevice *dev)
 {
-	debug("%s(dev=%p):\n", __func__, dev);
+	dev_dbg(dev, "%s:\n", __func__);
 
 	return 0;
 }
