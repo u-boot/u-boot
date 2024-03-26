@@ -24,10 +24,25 @@
 #include <netdev.h>
 #include <phy.h>
 #include <reset.h>
+#include <syscon.h>
 #include <wait_bit.h>
 #include <linux/delay.h>
 
 #include "dwc_eth_qos.h"
+
+/* SYSCFG registers */
+#define SYSCFG_PMCSETR		0x04
+#define SYSCFG_PMCCLRR		0x44
+
+#define SYSCFG_PMCSETR_ETH_CLK_SEL	BIT(16)
+#define SYSCFG_PMCSETR_ETH_REF_CLK_SEL	BIT(17)
+
+#define SYSCFG_PMCSETR_ETH_SELMII	BIT(20)
+
+#define SYSCFG_PMCSETR_ETH_SEL_MASK	GENMASK(23, 21)
+#define SYSCFG_PMCSETR_ETH_SEL_GMII_MII	0
+#define SYSCFG_PMCSETR_ETH_SEL_RGMII	BIT(21)
+#define SYSCFG_PMCSETR_ETH_SEL_RMII	BIT(23)
 
 static ulong eqos_get_tick_clk_rate_stm32(struct udevice *dev)
 {
@@ -108,11 +123,78 @@ static int eqos_stop_clks_stm32(struct udevice *dev)
 	return 0;
 }
 
+static int eqos_probe_syscfg_stm32(struct udevice *dev,
+				   phy_interface_t interface_type)
+{
+	bool eth_ref_clk_sel_reg = false;
+	bool eth_clk_sel_reg = false;
+	u8 *syscfg;
+	u32 value;
+
+	/* Gigabit Ethernet 125MHz clock selection. */
+	eth_clk_sel_reg = dev_read_bool(dev, "st,eth-clk-sel");
+
+	/* Ethernet 50Mhz RMII clock selection */
+	eth_ref_clk_sel_reg = dev_read_bool(dev, "st,eth-ref-clk-sel");
+
+	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
+	if (!syscfg)
+		return -ENODEV;
+
+	switch (interface_type) {
+	case PHY_INTERFACE_MODE_MII:
+		value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII |
+			SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
+		log_debug("PHY_INTERFACE_MODE_MII\n");
+		break;
+	case PHY_INTERFACE_MODE_GMII:
+		if (eth_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII |
+				SYSCFG_PMCSETR_ETH_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII;
+		log_debug("PHY_INTERFACE_MODE_GMII\n");
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		if (eth_ref_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_RMII |
+				SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_RMII;
+		log_debug("PHY_INTERFACE_MODE_RMII\n");
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		if (eth_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_RGMII |
+				SYSCFG_PMCSETR_ETH_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_RGMII;
+		log_debug("PHY_INTERFACE_MODE_RGMII\n");
+		break;
+	default:
+		log_debug("Do not manage %d interface\n",
+			  interface_type);
+		/* Do not manage others interfaces */
+		return -EINVAL;
+	}
+
+	/* clear and set ETH configuration bits */
+	writel(SYSCFG_PMCSETR_ETH_SEL_MASK | SYSCFG_PMCSETR_ETH_SELMII |
+	       SYSCFG_PMCSETR_ETH_REF_CLK_SEL | SYSCFG_PMCSETR_ETH_CLK_SEL,
+	       syscfg + SYSCFG_PMCCLRR);
+	writel(value, syscfg + SYSCFG_PMCSETR);
+
+	return 0;
+}
+
 static int eqos_probe_resources_stm32(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
-	int ret;
 	phy_interface_t interface;
+	int ret;
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
@@ -123,7 +205,7 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	ret = board_interface_eth_init(dev, interface);
+	ret = eqos_probe_syscfg_stm32(dev, interface);
 	if (ret)
 		return -EINVAL;
 
