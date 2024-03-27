@@ -31,8 +31,8 @@ void board_init_f(ulong dummy)
 	arch_cpu_init();
 }
 
-#ifdef CONFIG_SPL_BOARD_INIT
-void spl_board_init(void)
+#ifdef CONFIG_SPL_SOC_INIT
+void spl_soc_init(void)
 {
 	preloader_console_init();
 #if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA)

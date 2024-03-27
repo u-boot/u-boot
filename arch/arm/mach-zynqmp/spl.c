@@ -56,8 +56,8 @@ static void ps_mode_reset(ulong mode)
 # define MODE_RESET	PS_MODE1
 #endif
 
-#ifdef CONFIG_SPL_BOARD_INIT
-void spl_board_init(void)
+#ifdef CONFIG_SPL_SOC_INIT
+void spl_soc_init(void)
 {
 	preloader_console_init();
 	ps_mode_reset(MODE_RESET);
