@@ -765,11 +765,6 @@ int ext4fs_get_parent_inode_num(const char *dirname, char *dname, int flags)
 	struct ext2_inode *first_inode = NULL;
 	struct ext2_inode temp_inode;
 
-	if (*dirname != '/') {
-		printf("Please supply Absolute path\n");
-		return -1;
-	}
-
 	/* TODO: input validation make equivalent to linux */
 	depth_dirname = zalloc(strlen(dirname) + 1);
 	if (!depth_dirname)
