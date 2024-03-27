@@ -64,6 +64,9 @@ fit-dtb.blob*
 /tpl/
 /defconfig
 /generated_defconfig
+/Test*
+/capsule.*.efi-capsule
+/capsule*.map
 
 #
 # Generated include files
