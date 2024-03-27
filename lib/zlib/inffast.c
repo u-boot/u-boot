@@ -80,7 +80,7 @@ void inflate_fast(z_streamp strm, unsigned start)
 #endif
     unsigned wsize;             /* window size or zero if not using window */
     unsigned whave;             /* valid bytes in the window */
-    unsigned write;             /* window write index */
+    unsigned wnext;             /* window write index */
     unsigned char FAR *window;  /* allocated sliding window, if wsize != 0 */
     unsigned long hold;         /* local strm->hold */
     unsigned bits;              /* local strm->bits */
@@ -115,7 +115,7 @@ void inflate_fast(z_streamp strm, unsigned start)
 #endif
     wsize = state->wsize;
     whave = state->whave;
-    write = state->write;
+    wnext = state->wnext;
     window = state->window;
     hold = state->hold;
     bits = state->bits;
@@ -201,7 +201,7 @@ void inflate_fast(z_streamp strm, unsigned start)
                         break;
                     }
                     from = window - OFF;
-                    if (write == 0) {           /* very common case */
+                    if (wnext == 0) {           /* very common case */
                         from += wsize - op;
                         if (op < len) {         /* some from window */
                             len -= op;
@@ -211,17 +211,17 @@ void inflate_fast(z_streamp strm, unsigned start)
                             from = out - dist;  /* rest from output */
                         }
                     }
-                    else if (write < op) {      /* wrap around window */
-                        from += wsize + write - op;
-                        op -= write;
+                    else if (wnext < op) {      /* wrap around window */
+                        from += wsize + wnext - op;
+                        op -= wnext;
                         if (op < len) {         /* some from end of window */
                             len -= op;
                             do {
                                 PUP(out) = PUP(from);
                             } while (--op);
                             from = window - OFF;
-                            if (write < len) {  /* some from start of window */
-                                op = write;
+                            if (wnext < len) {  /* some from start of window */
+                                op = wnext;
                                 len -= op;
                                 do {
                                     PUP(out) = PUP(from);
@@ -231,7 +231,7 @@ void inflate_fast(z_streamp strm, unsigned start)
                         }
                     }
                     else {                      /* contiguous in window */
-                        from += write - op;
+                        from += wnext - op;
                         if (op < len) {         /* some from window */
                             len -= op;
                             do {
@@ -343,7 +343,7 @@ void inflate_fast(z_streamp strm, unsigned start)
    inflate_fast() speedups that turned out slower (on a PowerPC G3 750CXe):
    - Using bit fields for code structure
    - Different op definition to avoid & for extra bits (do & for table bits)
-   - Three separate decoding do-loops for direct, window, and write == 0
+   - Three separate decoding do-loops for direct, window, and wnext == 0
    - Special case for distance > 1 copies to do overlapped load and store copy
    - Explicit branch predictions (based on measured branch probabilities)
    - Deferring match copy and interspersed it with decoding subsequent codes
