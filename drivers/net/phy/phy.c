@@ -18,6 +18,8 @@
 #include <phy.h>
 #include <errno.h>
 #include <asm/global_data.h>
+#include <asm-generic/gpio.h>
+#include <dm/device_compat.h>
 #include <dm/of_extra.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
@@ -566,7 +568,8 @@ struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 		return NULL;
 	}
 
-	if (addr >= 0 && addr < PHY_MAX_ADDR && phy_id != PHY_FIXED_ID)
+	if (addr >= 0 && addr < PHY_MAX_ADDR && phy_id != PHY_FIXED_ID &&
+	    phy_id != PHY_NCSI_ID)
 		bus->phymap[addr] = dev;
 
 	return dev;
@@ -642,12 +645,12 @@ static struct phy_device *search_for_existing_phy(struct mii_dev *bus,
 {
 	/* If we have one, return the existing device, with new interface */
 	while (phy_mask) {
-		int addr = ffs(phy_mask) - 1;
+		unsigned int addr = ffs(phy_mask) - 1;
 
 		if (bus->phymap[addr])
 			return bus->phymap[addr];
 
-		phy_mask &= ~(1 << addr);
+		phy_mask &= ~(1U << addr);
 	}
 	return NULL;
 }
@@ -767,6 +770,59 @@ int miiphy_reset(const char *devname, unsigned char addr)
 
 	return phy_reset(phydev);
 }
+
+#if CONFIG_IS_ENABLED(DM_GPIO) && CONFIG_IS_ENABLED(OF_REAL) && \
+    !IS_ENABLED(CONFIG_DM_ETH_PHY)
+int phy_gpio_reset(struct udevice *dev)
+{
+	struct ofnode_phandle_args phandle_args;
+	struct gpio_desc gpio;
+	u32 assert, deassert;
+	ofnode node;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					 &phandle_args);
+	/* No PHY handle is OK */
+	if (ret)
+		return 0;
+
+	node = phandle_args.node;
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	ret = gpio_request_by_name_nodev(node, "reset-gpios", 0, &gpio,
+					 GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
+	/* No PHY reset GPIO is OK */
+	if (ret)
+		return 0;
+
+	assert = ofnode_read_u32_default(node, "reset-assert-us", 20000);
+	deassert = ofnode_read_u32_default(node, "reset-deassert-us", 1000);
+	ret = dm_gpio_set_value(&gpio, 1);
+	if (ret) {
+		dev_err(dev, "Failed assert gpio, err: %d\n", ret);
+		return ret;
+	}
+
+	udelay(assert);
+
+	ret = dm_gpio_set_value(&gpio, 0);
+	if (ret) {
+		dev_err(dev, "Failed deassert gpio, err: %d\n", ret);
+		return ret;
+	}
+
+	udelay(deassert);
+
+	return 0;
+}
+#else
+int phy_gpio_reset(struct udevice *dev)
+{
+	return 0;
+}
+#endif
 
 struct phy_device *phy_find_by_mask(struct mii_dev *bus, uint phy_mask)
 {
