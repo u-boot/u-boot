@@ -1085,9 +1085,7 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-verdin-wifi-dev.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
-	imx8mn-ddr4-evk.dtb \
 	imx8mq-cm.dtb \
-	imx8mn-evk.dtb \
 	imx8mn-var-som-symphony.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
