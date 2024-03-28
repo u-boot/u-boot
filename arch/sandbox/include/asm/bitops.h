@@ -138,6 +138,7 @@ static inline unsigned long ffz(unsigned long word)
 		k -= 1;
 	return k;
 }
+#define PLATFORM_FFZ
 
 /*
  * hweightN: returns the hamming weight (i.e. the number

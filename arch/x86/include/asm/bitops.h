@@ -350,6 +350,7 @@ static __inline__ unsigned long ffz(unsigned long word)
 		:"r" (~word));
 	return word;
 }
+#define PLATFORM_FFZ
 
 #ifdef __KERNEL__
 

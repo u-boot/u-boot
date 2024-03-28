@@ -160,6 +160,7 @@ static __inline__ int ffz(unsigned int x)
 		return 32;
 	return __ilog2(x & -x);
 }
+#define PLATFORM_FFZ
 
 /*
  * fls: find last (most-significant) bit set.

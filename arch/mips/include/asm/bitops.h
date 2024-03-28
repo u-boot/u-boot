@@ -710,6 +710,7 @@ static __inline__ unsigned long ffz(unsigned long word)
 
 	return __res;
 }
+#define PLATFORM_FFZ
 
 #ifdef __KERNEL__
 
