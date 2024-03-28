@@ -717,8 +717,11 @@ int part_get_info_by_name(struct blk_desc *desc, const char *name,
 	for (i = 1; i < part_drv->max_entries; i++) {
 		ret = part_drv->get_info(desc, i, info);
 		if (ret != 0) {
-			/* no more entries in table */
-			break;
+			/*
+			 * Partition with this index can't be obtained, but
+			 * further partitions might be, so keep checking.
+			 */
+			continue;
 		}
 		if (strcmp(name, (const char *)info->name) == 0) {
 			/* matched */
