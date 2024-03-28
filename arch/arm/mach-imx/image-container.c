@@ -262,7 +262,7 @@ static int get_imageset_end(void *dev, int dev_type)
 }
 
 #ifdef CONFIG_SPL_SPI_LOAD
-unsigned long spl_spi_get_uboot_offs(struct spi_flash *flash)
+unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
 {
 	int end;
 
