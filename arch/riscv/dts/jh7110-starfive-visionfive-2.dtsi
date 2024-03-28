@@ -298,7 +298,7 @@
 	pinctrl-0 = <&mmc1_pins>;
 	no-sdio;
 	no-mmc;
-	broken-cd;
+	cd-gpios = <&sysgpio 41 GPIO_ACTIVE_LOW>;
 	cap-sd-highspeed;
 	post-power-on-delay-ms = <200>;
 	status = "okay";
