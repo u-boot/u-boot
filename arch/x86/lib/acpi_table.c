@@ -253,7 +253,7 @@ static int acpi_write_tpm2(struct acpi_ctx *ctx,
 
 	/* Fill out header fields. */
 	acpi_fill_header(header, "TPM2");
-	memcpy(header->aslc_id, ASLC_ID, 4);
+	memcpy(header->creator_id, ASLC_ID, 4);
 
 	header->length = sizeof(struct acpi_tpm2);
 	header->revision = acpi_get_table_revision(ACPITAB_TPM2);
@@ -479,7 +479,7 @@ static int acpi_create_hpet(struct acpi_hpet *hpet)
 	/* Fill out header fields. */
 	acpi_fill_header(header, "HPET");
 
-	header->aslc_revision = ASL_REVISION;
+	header->creator_revision = ASL_REVISION;
 	header->length = sizeof(struct acpi_hpet);
 	header->revision = acpi_get_table_revision(ACPITAB_HPET);
 
@@ -569,8 +569,8 @@ void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	header->revision = 4;
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
-	memcpy(header->aslc_id, ASLC_ID, 4);
-	header->aslc_revision = 1;
+	memcpy(header->creator_id, ASLC_ID, 4);
+	header->creator_revision = 1;
 
 	fadt->x_firmware_ctrl = map_to_sysmem(facs);
 	fadt->x_dsdt = map_to_sysmem(dsdt);

@@ -55,6 +55,7 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	board/emulation/configs/acpi.config
 F:	cmd/acpi.c
+F:	include/acpi/
 F:	lib/acpi/
 
 ANDROID AB

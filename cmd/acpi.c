@@ -32,7 +32,7 @@ static void dump_hdr(struct acpi_table_header *hdr)
 	if (has_hdr) {
 		printf("  v%02d %.6s %.8s %x %.4s %x\n", hdr->revision,
 		       hdr->oem_id, hdr->oem_table_id, hdr->oem_revision,
-		       hdr->aslc_id, hdr->aslc_revision);
+		       hdr->creator_id, hdr->creator_revision);
 	} else {
 		printf("\n");
 	}
