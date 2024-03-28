@@ -402,6 +402,7 @@ static inline void imx_tmu_mx8mp_init(struct udevice *dev) { }
 #endif
 
 static inline void imx_tmu_mx93_init(struct udevice *dev) { }
+static inline void imx_tmu_mx8mq_init(struct udevice *dev) { }
 
 static void imx_tmu_arch_init(struct udevice *dev)
 {
@@ -411,6 +412,8 @@ static void imx_tmu_arch_init(struct udevice *dev)
 		imx_tmu_mx8mp_init(dev);
 	else if (is_imx93())
 		imx_tmu_mx93_init(dev);
+	else if (is_imx8mq())
+		imx_tmu_mx8mq_init(dev);
 	else
 		dev_err(dev, "Unsupported SoC, TMU calibration not loaded!\n");
 }
