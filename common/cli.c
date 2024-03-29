@@ -11,6 +11,7 @@
 #define pr_fmt(fmt) "cli: %s: " fmt, __func__
 
 #include <common.h>
+#include <ansi.h>
 #include <bootstage.h>
 #include <cli.h>
 #include <cli_hush.h>
@@ -336,4 +337,7 @@ void cli_init(void)
 #if defined(CONFIG_HUSH_INIT_VAR)
 	hush_init_var();
 #endif
+
+	if (CONFIG_IS_ENABLED(VIDEO_ANSI))
+		printf(ANSI_CURSOR_SHOW "\n");
 }
