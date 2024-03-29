@@ -231,6 +231,17 @@ const iomux_cfg_t iomux_setup[] = {
 	/* TIVA boot control */
 	MX28_PAD_GPMI_RDY3__GPIO_0_23 | MUX_CONFIG_BOOT, /* TIVA0 */
 	MX28_PAD_GPMI_WRN__GPIO_0_25 | MUX_CONFIG_BOOT, /* TIVA1 */
+
+	/* HW revision ID Base Board */
+	MX28_PAD_LCD_D12__GPIO_1_12,
+	MX28_PAD_LCD_D13__GPIO_1_13,
+	MX28_PAD_LCD_D14__GPIO_1_14,
+
+	/* HW revision ID (SoM) */
+	MX28_PAD_LCD_D15__GPIO_1_15,
+	MX28_PAD_LCD_D16__GPIO_1_16,
+	MX28_PAD_LCD_D17__GPIO_1_17,
+	MX28_PAD_LCD_D18__GPIO_1_18,
 };
 
 u32 mxs_dram_vals[] = {
