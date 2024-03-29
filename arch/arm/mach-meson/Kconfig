@@ -53,6 +53,7 @@ config MESON_AXG
 config MESON_G12A
 	bool "G12A"
 	select MESON64_COMMON
+	imply OF_UPSTREAM
 	help
 	  Select this if your SoC is an S905X/D2
 
