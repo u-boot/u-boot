@@ -219,27 +219,8 @@ dtb-$(CONFIG_ARCH_S5P4418) += \
 	s5p4418-nanopi2.dtb
 
 dtb-$(CONFIG_ARCH_MESON) += \
-	meson-a1-ad401.dtb \
-	meson-g12a-radxa-zero.dtb \
-	meson-g12a-sei510.dtb \
-	meson-g12a-u200.dtb \
-	meson-g12b-a311d-bananapi-m2s.dtb \
-	meson-g12b-a311d-khadas-vim3.dtb \
-	meson-g12b-bananapi-cm4-cm4io.dtb \
-	meson-g12b-gsking-x.dtb \
-	meson-g12b-gtking.dtb \
-	meson-g12b-gtking-pro.dtb \
-	meson-g12b-odroid-go-ultra.dtb \
-	meson-g12b-odroid-n2.dtb \
-	meson-g12b-odroid-n2l.dtb \
-	meson-g12b-odroid-n2-plus.dtb \
-	meson-g12b-radxa-zero2.dtb \
-	meson-sm1-bananapi-m2-pro.dtb \
-	meson-sm1-bananapi-m5.dtb \
-	meson-sm1-khadas-vim3l.dtb \
-	meson-sm1-odroid-c4.dtb \
-	meson-sm1-odroid-hc4.dtb \
-	meson-sm1-sei610.dtb
+	meson-a1-ad401.dtb
+
 dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
