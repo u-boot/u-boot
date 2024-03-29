@@ -220,19 +220,6 @@ dtb-$(CONFIG_ARCH_S5P4418) += \
 
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb \
-	meson-axg-s400.dtb \
-	meson-axg-jethome-jethub-j100.dtb \
-	meson-gxl-s805x-libretech-ac.dtb \
-	meson-gxl-s905d-libretech-pc.dtb \
-	meson-gxl-s905w-jethome-jethub-j80.dtb \
-	meson-gxl-s905x-khadas-vim.dtb \
-	meson-gxl-s905x-libretech-cc.dtb \
-	meson-gxl-s905x-libretech-cc-v2.dtb \
-	meson-gxl-s905x-p212.dtb \
-	meson-gxm-gt1-ultimate.dtb \
-	meson-gxm-khadas-vim2.dtb \
-	meson-gxm-s912-libretech-pc.dtb \
-	meson-gxm-wetek-core2.dtb \
 	meson-g12a-radxa-zero.dtb \
 	meson-g12a-sei510.dtb \
 	meson-g12a-u200.dtb \
