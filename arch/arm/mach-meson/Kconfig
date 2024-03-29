@@ -32,18 +32,21 @@ config MESON_GXBB
 config MESON_GXL
 	bool "GXL"
 	select MESON_GX
+	imply OF_UPSTREAM
 	help
 	  Select this if your SoC is an S905X/D or S805X
 
 config MESON_GXM
 	bool "GXM"
 	select MESON_GX
+	imply OF_UPSTREAM
 	help
 	  Select this if your SoC is an S912
 
 config MESON_AXG
 	bool "AXG"
 	select MESON64_COMMON
+	imply OF_UPSTREAM
 	help
 	  Select this if your SoC is an A113X/D
 
