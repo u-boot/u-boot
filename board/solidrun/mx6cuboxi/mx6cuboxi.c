@@ -336,20 +336,17 @@ static enum board_type board_type(void)
 	 * HB             1     1    x
 	 */
 
-	gpio_direction_input(IMX_GPIO_NR(2, 8));
-	val3 = gpio_get_value(IMX_GPIO_NR(2, 8));
+	val3 = !!dm_gpio_get_value(&board_detect_desc[0]);
 
 	if (val3 == 0)
 		return HUMMINGBOARD2;
 
-	gpio_direction_input(IMX_GPIO_NR(3, 4));
-	val2 = gpio_get_value(IMX_GPIO_NR(3, 4));
+	val2 = !!dm_gpio_get_value(&board_detect_desc[1]);
 
 	if (val2 == 0)
 		return HUMMINGBOARD;
 
-	gpio_direction_input(IMX_GPIO_NR(4, 9));
-	val1 = gpio_get_value(IMX_GPIO_NR(4, 9));
+	val1 = !!dm_gpio_get_value(&board_detect_desc[2]);
 
 	if (val1 == 0) {
 		return CUBOXI;
@@ -363,8 +360,8 @@ static bool is_rev_15_som(void)
 	int val1, val2;
 	SETUP_IOMUX_PADS(som_rev_detect);
 
-	val1 = gpio_get_value(IMX_GPIO_NR(6, 0));
-	val2 = gpio_get_value(IMX_GPIO_NR(6, 4));
+	val1 = !!dm_gpio_get_value(&board_detect_desc[3]);
+	val2 = !!dm_gpio_get_value(&board_detect_desc[4]);
 
 	if (val1 == 1 && val2 == 0)
 		return true;
