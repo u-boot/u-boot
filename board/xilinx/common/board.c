@@ -12,6 +12,7 @@
 #include <env.h>
 #include <image.h>
 #include <init.h>
+#include <jffs2/load_kernel.h>
 #include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -20,6 +21,7 @@
 #include <i2c.h>
 #include <linux/sizes.h>
 #include <malloc.h>
+#include <mtd_node.h>
 #include "board.h"
 #include <dm.h>
 #include <i2c_eeprom.h>
@@ -700,6 +702,13 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	struct udevice *dev;
 	u8 buf[MAX_RAND_SIZE];
 	int nodeoffset, ret;
+
+	static const struct node_info nodes[] = {
+		{ "arm,pl353-nand-r2p1", MTD_DEV_TYPE_NAND, },
+	};
+
+	if (IS_ENABLED(CONFIG_FDT_FIXUP_PARTITIONS) && IS_ENABLED(CONFIG_NAND_ZYNQ))
+		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
 
 	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
 		debug("No RNG device\n");
