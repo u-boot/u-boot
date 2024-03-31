@@ -273,5 +273,16 @@ static void mcheck_initialize(mcheck_abortfunc_t new_func, char pedantic_flag)
 	mcheck_pedantic_flag = pedantic_flag;
 }
 
+void mcheck_on_ramrelocation(size_t offset)
+{
+	char *p;
+	int i;
+	// Simple, but inaccurate strategy: drop the pre-reloc heap
+	for (i = 0; i < REGISTRY_SZ; ++i)
+		if ((p = mcheck_registry[i]) != NULL ) {
+			printf("mcheck, WRN: forgetting %p chunk\n", p);
+			mcheck_registry[i] = 0;
+		}
+}
 #endif
 #endif
