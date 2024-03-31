@@ -2233,6 +2233,7 @@ void cfree(mem) Void_t *mem;
 
 Void_t *mALLOc(size_t bytes)
 {
+	mcheck_pedantic_prehook();
 	size_t fullsz = mcheck_alloc_prehook(bytes);
 	void *p = mALLOc_impl(fullsz);
 
@@ -2245,6 +2246,7 @@ void fREe(Void_t *mem) { fREe_impl(mcheck_free_prehook(mem)); }
 
 Void_t *rEALLOc(Void_t *oldmem, size_t bytes)
 {
+	mcheck_pedantic_prehook();
 	if (bytes == 0) {
 		if (oldmem)
 			fREe(oldmem);
@@ -2265,6 +2267,7 @@ Void_t *rEALLOc(Void_t *oldmem, size_t bytes)
 
 Void_t *mEMALIGn(size_t alignment, size_t bytes)
 {
+	mcheck_pedantic_prehook();
 	size_t fullsz = mcheck_memalign_prehook(alignment, bytes);
 	void *p = mEMALIGn_impl(alignment, fullsz);
 
@@ -2277,6 +2280,7 @@ Void_t *mEMALIGn(size_t alignment, size_t bytes)
 
 Void_t *cALLOc(size_t n, size_t elem_size)
 {
+	mcheck_pedantic_prehook();
 	// NB: here is no overflow check.
 	size_t fullsz = mcheck_alloc_prehook(n * elem_size);
 	void *p = cALLOc_impl(1, fullsz);
@@ -2287,11 +2291,19 @@ Void_t *cALLOc(size_t n, size_t elem_size)
 }
 
 // mcheck API {
+int mcheck_pedantic(mcheck_abortfunc_t f)
+{
+	mcheck_initialize(f, 1);
+	return 0;
+}
+
 int mcheck(mcheck_abortfunc_t f)
 {
 	mcheck_initialize(f, 0);
 	return 0;
 }
+
+void mcheck_check_all(void) { mcheck_pedantic_check(); }
 
 enum mcheck_status mprobe(void *__ptr) { return mcheck_mprobe(__ptr); }
 // mcheck API }

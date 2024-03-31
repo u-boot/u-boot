@@ -34,6 +34,15 @@ typedef void (*mcheck_abortfunc_t)(enum mcheck_status);
 int mcheck(mcheck_abortfunc_t func);
 
 /*
+ * Similar to `mcheck' but performs checks for all block whenever one of
+ * the memory handling functions is called.  This can be very slow.
+ */
+int mcheck_pedantic(mcheck_abortfunc_t f);
+
+/* Force check of all blocks now.  */
+void mcheck_check_all(void);
+
+/*
  * Check for aberrations in a particular malloc'd block. These are the
  * same checks that `mcheck' does, when you free or reallocate a block.
  */

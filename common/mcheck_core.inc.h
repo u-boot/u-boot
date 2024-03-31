@@ -30,6 +30,8 @@
  * Unlike glibc-clients, U-Boot has limited malloc-usage, and only one thread.
  * So it's better to make the protection heavier.
  * Thus overflow canary here is greater, than glibc's one. Underflow canary is bigger too.
+ * U-Boot also allows to use fixed-size heap-registry, instead of double-linked list in glibc.
+ *
  * Heavy canary allows to catch not only memset(..)-errors,
  * but overflow/underflow of struct-array access:
  *	{
@@ -61,7 +63,13 @@
 #define FREEFLOOD	((char)0xf5)
 #define PADDINGFLOOD	((char)0x58)
 
+// my normal run demands 4427-6449 chunks:
+#define REGISTRY_SZ	6608
 #define CANARY_DEPTH	2
+
+// avoid problems with BSS at early stage:
+static char mcheck_pedantic_flag __section(".data") = 0;
+static void *mcheck_registry[REGISTRY_SZ] __section(".data") = {0};
 
 typedef unsigned long long mcheck_elem;
 typedef struct {
@@ -159,6 +167,12 @@ static void *mcheck_free_helper(void *ptr, int clean_content)
 	if (clean_content)
 		mcheck_flood(ptr, FREEFLOOD, mcheck_allign_customer_size(hdr->size));
 
+	for (i = 0; i < REGISTRY_SZ; ++i)
+		if (mcheck_registry[i] == hdr) {
+			mcheck_registry[i] = 0;
+			break;
+		}
+
 	return (char *)hdr - hdr->aln_skip;
 }
 
@@ -197,6 +211,17 @@ static void *mcheck_allocated_helper(void *altoghether_ptr, size_t customer_sz,
 
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		tail->elems[i] = MAGICTAIL;
+
+	for (i = 0; i < REGISTRY_SZ; ++i)
+		if (!mcheck_registry[i]) {
+			mcheck_registry[i] = hdr;
+			return payload; // normal end
+		}
+
+	static char *overflow_msg = "\n\n\nERROR: mcheck registry overflow, pedantic check would be incomplete!!\n\n\n\n";
+
+	printf("%s", overflow_msg);
+	overflow_msg = "(mcheck registry full)";
 	return payload;
 }
 
@@ -227,9 +252,25 @@ static enum mcheck_status mcheck_mprobe(void *ptr)
 	return mcheck_checkhdr(hdr);
 }
 
+static void mcheck_pedantic_check(void)
+{
+	int i;
+
+	for (i = 0; i < REGISTRY_SZ; ++i)
+		if (mcheck_registry[i])
+			mcheck_checkhdr(mcheck_registry[i]);
+}
+
+static void mcheck_pedantic_prehook(void)
+{
+	if (mcheck_pedantic_flag)
+		mcheck_pedantic_check();
+}
+
 static void mcheck_initialize(mcheck_abortfunc_t new_func, char pedantic_flag)
 {
 	mcheck_abortfunc = (new_func) ? new_func : &mcheck_default_abort;
+	mcheck_pedantic_flag = pedantic_flag;
 }
 
 #endif
