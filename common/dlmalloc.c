@@ -2265,7 +2265,12 @@ Void_t *rEALLOc(Void_t *oldmem, size_t bytes)
 
 Void_t *mEMALIGn(size_t alignment, size_t bytes)
 {
-	return NULL;
+	size_t fullsz = mcheck_memalign_prehook(alignment, bytes);
+	void *p = mEMALIGn_impl(alignment, fullsz);
+
+	if (!p)
+		return p;
+	return mcheck_memalign_posthook(alignment, p, bytes);
 }
 
 // pvALLOc, vALLOc - redirect to mEMALIGn, defined here, so they need no wrapping.

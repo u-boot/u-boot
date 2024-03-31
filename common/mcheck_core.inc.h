@@ -69,6 +69,7 @@ typedef struct {
 } mcheck_canary;
 struct mcheck_hdr {
 	size_t size; /* Exact size requested by user.  */
+	size_t aln_skip; /* Ignored bytes, before the mcheck_hdr, to fulfill alignment */
 	mcheck_canary canary; /* Magic number to check header integrity.  */
 };
 
@@ -104,6 +105,7 @@ static inline size_t allign_size_up(size_t sz, size_t grain)
 }
 
 #define mcheck_allign_customer_size(SZ) allign_size_up(SZ, sizeof(mcheck_elem))
+#define mcheck_evaluate_memalign_prefix_size(ALIGN) allign_size_up(sizeof(struct mcheck_hdr), ALIGN)
 
 static enum mcheck_status mcheck_OnNok(enum mcheck_status status)
 {
@@ -156,7 +158,8 @@ static void *mcheck_free_helper(void *ptr, int clean_content)
 
 	if (clean_content)
 		mcheck_flood(ptr, FREEFLOOD, mcheck_allign_customer_size(hdr->size));
-	return hdr;
+
+	return (char *)hdr - hdr->aln_skip;
 }
 
 static void *mcheck_free_prehook(void *ptr) { return mcheck_free_helper(ptr, CLEAN_CONTENT); }
@@ -171,10 +174,13 @@ static size_t mcheck_alloc_prehook(size_t sz)
 static void *mcheck_allocated_helper(void *altoghether_ptr, size_t customer_sz,
 				     size_t alignment, int clean_content)
 {
-	struct mcheck_hdr *hdr = (struct mcheck_hdr *)altoghether_ptr;
+	const size_t slop = alignment ?
+		mcheck_evaluate_memalign_prefix_size(alignment) - sizeof(struct mcheck_hdr) : 0;
+	struct mcheck_hdr *hdr = (struct mcheck_hdr *)((char *)altoghether_ptr + slop);
 	int i;
 
 	hdr->size = customer_sz;
+	hdr->aln_skip = slop;
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		hdr->canary.elems[i] = MAGICWORD;
 
@@ -202,6 +208,16 @@ static void *mcheck_alloc_posthook(void *altoghether_ptr, size_t customer_sz)
 static void *mcheck_alloc_noclean_posthook(void *altoghether_ptr, size_t customer_sz)
 {
 	return mcheck_allocated_helper(altoghether_ptr, customer_sz, ANY_ALIGNMENT, KEEP_CONTENT);
+}
+
+static size_t mcheck_memalign_prehook(size_t alig, size_t sz)
+{
+	return mcheck_evaluate_memalign_prefix_size(alig) + sz + sizeof(mcheck_canary);
+}
+
+static void *mcheck_memalign_posthook(size_t alignment, void *altoghether_ptr, size_t customer_sz)
+{
+	return mcheck_allocated_helper(altoghether_ptr, customer_sz, alignment, CLEAN_CONTENT);
 }
 
 static enum mcheck_status mcheck_mprobe(void *ptr)
