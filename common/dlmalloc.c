@@ -2225,6 +2225,73 @@ void cfree(mem) Void_t *mem;
 #endif
 
 
+#ifdef MCHECK_HEAP_PROTECTION
+ #include "mcheck_core.inc.h"
+ #if !__STD_C
+  #error "must have __STD_C"
+ #endif
+
+Void_t *mALLOc(size_t bytes)
+{
+	size_t fullsz = mcheck_alloc_prehook(bytes);
+	void *p = mALLOc_impl(fullsz);
+
+	if (!p)
+		return p;
+	return mcheck_alloc_posthook(p, bytes);
+}
+
+void fREe(Void_t *mem) { fREe_impl(mcheck_free_prehook(mem)); }
+
+Void_t *rEALLOc(Void_t *oldmem, size_t bytes)
+{
+	if (bytes == 0) {
+		if (oldmem)
+			fREe(oldmem);
+		return NULL;
+	}
+
+	if (oldmem == NULL)
+		return mALLOc(bytes);
+
+	void *p = mcheck_reallocfree_prehook(oldmem);
+	size_t newsz = mcheck_alloc_prehook(bytes);
+
+	p = rEALLOc_impl(p, newsz);
+	if (!p)
+		return p;
+	return mcheck_alloc_noclean_posthook(p, bytes);
+}
+
+Void_t *mEMALIGn(size_t alignment, size_t bytes)
+{
+	return NULL;
+}
+
+// pvALLOc, vALLOc - redirect to mEMALIGn, defined here, so they need no wrapping.
+
+Void_t *cALLOc(size_t n, size_t elem_size)
+{
+	// NB: here is no overflow check.
+	size_t fullsz = mcheck_alloc_prehook(n * elem_size);
+	void *p = cALLOc_impl(1, fullsz);
+
+	if (!p)
+		return p;
+	return mcheck_alloc_noclean_posthook(p, n * elem_size);
+}
+
+// mcheck API {
+int mcheck(mcheck_abortfunc_t f)
+{
+	mcheck_initialize(f, 0);
+	return 0;
+}
+
+enum mcheck_status mprobe(void *__ptr) { return mcheck_mprobe(__ptr); }
+// mcheck API }
+#endif
+
 
 /*
 
