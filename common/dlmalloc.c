@@ -32,6 +32,17 @@ void malloc_stats();
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef MCHECK_HEAP_PROTECTION
+ #define STATIC_IF_MCHECK static
+#else
+ #define STATIC_IF_MCHECK
+ #define mALLOc_impl mALLOc
+ #define fREe_impl fREe
+ #define rEALLOc_impl rEALLOc
+ #define mEMALIGn_impl mEMALIGn
+ #define cALLOc_impl cALLOc
+#endif
+
 /*
   Emulation of sbrk for WIN32
   All code within the ifdef WIN32 is untested by me.
@@ -1270,10 +1281,11 @@ static void malloc_extend_top(nb) INTERNAL_SIZE_T nb;
 
 */
 
+STATIC_IF_MCHECK
 #if __STD_C
-Void_t* mALLOc(size_t bytes)
+Void_t* mALLOc_impl(size_t bytes)
 #else
-Void_t* mALLOc(bytes) size_t bytes;
+Void_t* mALLOc_impl(bytes) size_t bytes;
 #endif
 {
   mchunkptr victim;                  /* inspected/selected chunk */
@@ -1555,10 +1567,11 @@ Void_t* mALLOc(bytes) size_t bytes;
 */
 
 
+STATIC_IF_MCHECK
 #if __STD_C
-void fREe(Void_t* mem)
+void fREe_impl(Void_t* mem)
 #else
-void fREe(mem) Void_t* mem;
+void fREe_impl(mem) Void_t* mem;
 #endif
 {
   mchunkptr p;         /* chunk corresponding to mem */
@@ -1696,10 +1709,11 @@ void fREe(mem) Void_t* mem;
 */
 
 
+STATIC_IF_MCHECK
 #if __STD_C
-Void_t* rEALLOc(Void_t* oldmem, size_t bytes)
+Void_t* rEALLOc_impl(Void_t* oldmem, size_t bytes)
 #else
-Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
+Void_t* rEALLOc_impl(oldmem, bytes) Void_t* oldmem; size_t bytes;
 #endif
 {
   INTERNAL_SIZE_T    nb;      /* padded request size */
@@ -1725,7 +1739,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 
 #ifdef REALLOC_ZERO_BYTES_FREES
   if (!bytes) {
-	fREe(oldmem);
+	fREe_impl(oldmem);
 	return NULL;
   }
 #endif
@@ -1733,7 +1747,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
   if ((long)bytes < 0) return NULL;
 
   /* realloc of null is supposed to be same as malloc */
-  if (oldmem == NULL) return mALLOc(bytes);
+  if (oldmem == NULL) return mALLOc_impl(bytes);
 
 #if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
@@ -1758,7 +1772,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     /* Note the extra SIZE_SZ overhead. */
     if(oldsize - SIZE_SZ >= nb) return oldmem; /* do nothing */
     /* Must alloc, copy, free. */
-    newmem = mALLOc(bytes);
+    newmem = mALLOc_impl(bytes);
     if (!newmem)
 	return NULL; /* propagate failure */
     MALLOC_COPY(newmem, oldmem, oldsize - 2*SIZE_SZ);
@@ -1869,7 +1883,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 
     /* Must allocate */
 
-    newmem = mALLOc (bytes);
+    newmem = mALLOc_impl (bytes);
 
     if (newmem == NULL)  /* propagate failure */
       return NULL;
@@ -1886,7 +1900,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 
     /* Otherwise copy, free, and exit */
     MALLOC_COPY(newmem, oldmem, oldsize - SIZE_SZ);
-    fREe(oldmem);
+    fREe_impl(oldmem);
     return newmem;
   } else {
     VALGRIND_RESIZEINPLACE_BLOCK(oldmem, 0, bytes, SIZE_SZ);
@@ -1905,7 +1919,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
     set_inuse_bit_at_offset(remainder, remainder_size);
     VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(remainder), remainder_size, SIZE_SZ,
 			      false);
-    fREe(chunk2mem(remainder)); /* let free() deal with it */
+    fREe_impl(chunk2mem(remainder)); /* let free() deal with it */
   }
   else
   {
@@ -1939,10 +1953,11 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 */
 
 
+STATIC_IF_MCHECK
 #if __STD_C
-Void_t* mEMALIGn(size_t alignment, size_t bytes)
+Void_t* mEMALIGn_impl(size_t alignment, size_t bytes)
 #else
-Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
+Void_t* mEMALIGn_impl(alignment, bytes) size_t alignment; size_t bytes;
 #endif
 {
   INTERNAL_SIZE_T    nb;      /* padded  request size */
@@ -1965,7 +1980,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
   /* If need less alignment than we give anyway, just relay to malloc */
 
-  if (alignment <= MALLOC_ALIGNMENT) return mALLOc(bytes);
+  if (alignment <= MALLOC_ALIGNMENT) return mALLOc_impl(bytes);
 
   /* Otherwise, ensure that it is at least a minimum chunk size */
 
@@ -1974,7 +1989,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
   /* Call malloc with worst case padding to hit alignment. */
 
   nb = request2size(bytes);
-  m  = (char*)(mALLOc(nb + alignment + MINSIZE));
+  m  = (char*)(mALLOc_impl(nb + alignment + MINSIZE));
 
   /*
   * The attempt to over-allocate (with a size large enough to guarantee the
@@ -1990,7 +2005,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
      * Use bytes not nb, since mALLOc internally calls request2size too, and
      * each call increases the size to allocate, to account for the header.
      */
-    m  = (char*)(mALLOc(bytes));
+    m  = (char*)(mALLOc_impl(bytes));
     /* Aligned -> return it */
     if ((((unsigned long)(m)) % alignment) == 0)
       return m;
@@ -1998,10 +2013,10 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
      * Otherwise, try again, requesting enough extra space to be able to
      * acquire alignment.
      */
-    fREe(m);
+    fREe_impl(m);
     /* Add in extra bytes to match misalignment of unexpanded allocation */
     extra = alignment - (((unsigned long)(m)) % alignment);
-    m  = (char*)(mALLOc(bytes + extra));
+    m  = (char*)(mALLOc_impl(bytes + extra));
     /*
      * m might not be the same as before. Validate that the previous value of
      * extra still works for the current value of m.
@@ -2010,7 +2025,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     if (m) {
       extra2 = alignment - (((unsigned long)(m)) % alignment);
       if (extra2 > extra) {
-        fREe(m);
+        fREe_impl(m);
         m = NULL;
       }
     }
@@ -2060,7 +2075,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     set_head(newp, newsize | PREV_INUSE);
     set_inuse_bit_at_offset(newp, newsize);
     set_head_size(p, leadsize);
-    fREe(chunk2mem(p));
+    fREe_impl(chunk2mem(p));
     p = newp;
     VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(p), bytes, SIZE_SZ, false);
 
@@ -2078,7 +2093,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
     set_head_size(p, nb);
     VALGRIND_MALLOCLIKE_BLOCK(chunk2mem(remainder), remainder_size, SIZE_SZ,
 			      false);
-    fREe(chunk2mem(remainder));
+    fREe_impl(chunk2mem(remainder));
   }
 
   check_inuse_chunk(p);
@@ -2126,10 +2141,11 @@ Void_t* pvALLOc(bytes) size_t bytes;
 
 */
 
+STATIC_IF_MCHECK
 #if __STD_C
-Void_t* cALLOc(size_t n, size_t elem_size)
+Void_t* cALLOc_impl(size_t n, size_t elem_size)
 #else
-Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
+Void_t* cALLOc_impl(n, elem_size) size_t n; size_t elem_size;
 #endif
 {
   mchunkptr p;
@@ -2145,7 +2161,7 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
   INTERNAL_SIZE_T oldtopsize = chunksize(top);
 #endif
 #endif
-  Void_t* mem = mALLOc (sz);
+  Void_t* mem = mALLOc_impl (sz);
 
   if ((long)n < 0) return NULL;
 
