@@ -655,7 +655,7 @@ config SYS_RELOC_GD_ENV_ADDR
 
 config SYS_MMC_ENV_DEV
 	int "mmc device number"
-	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || \
+	depends on ENV_IS_IN_MMC || ENV_IS_IN_FAT || ENV_IS_IN_EXT4 || \
 		CMD_MVEBU_BUBT || FMAN_ENET || QE || PHY_CORTINA
 	default 0
 	help
