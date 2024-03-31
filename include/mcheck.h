@@ -29,7 +29,7 @@ enum mcheck_status {
 	MCHECK_TAIL                   /* Memory after the block was clobbered.  */
 };
 
-typedef void (*mcheck_abortfunc_t)(enum mcheck_status);
+typedef void (*mcheck_abortfunc_t)(enum mcheck_status, const void *p);
 
 int mcheck(mcheck_abortfunc_t func);
 

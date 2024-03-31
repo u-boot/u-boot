@@ -90,7 +90,7 @@ struct mcheck_hdr {
 	mcheck_canary canary; /* Magic number to check header integrity.  */
 };
 
-static void mcheck_default_abort(enum mcheck_status status)
+static void mcheck_default_abort(enum mcheck_status status, const void *p)
 {
 	const char *msg;
 
@@ -111,7 +111,7 @@ static void mcheck_default_abort(enum mcheck_status status)
 		msg = "bogus mcheck_status, library is buggy\n";
 		break;
 	}
-	printf("\n\nmcheck: %s!!! [%zu]\n\n", msg, mcheck_chunk_count_max);
+	printf("\n\nmcheck: %p:%s!!! [%zu]\n\n", p, msg, mcheck_chunk_count_max);
 }
 
 static mcheck_abortfunc_t mcheck_abortfunc = &mcheck_default_abort;
@@ -124,9 +124,9 @@ static inline size_t allign_size_up(size_t sz, size_t grain)
 #define mcheck_allign_customer_size(SZ) allign_size_up(SZ, sizeof(mcheck_elem))
 #define mcheck_evaluate_memalign_prefix_size(ALIGN) allign_size_up(sizeof(struct mcheck_hdr), ALIGN)
 
-static enum mcheck_status mcheck_OnNok(enum mcheck_status status)
+static enum mcheck_status mcheck_OnNok(enum mcheck_status status, const void *p)
 {
-	(*mcheck_abortfunc)(status);
+	(*mcheck_abortfunc)(status, p);
 	return status;
 }
 
@@ -136,11 +136,11 @@ static enum mcheck_status mcheck_checkhdr(const struct mcheck_hdr *hdr)
 
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		if (hdr->canary.elems[i] == MAGICFREE)
-			return mcheck_OnNok(MCHECK_FREE);
+			return mcheck_OnNok(MCHECK_FREE, hdr + 1);
 
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		if (hdr->canary.elems[i] != MAGICWORD)
-			return mcheck_OnNok(MCHECK_HEAD);
+			return mcheck_OnNok(MCHECK_HEAD, hdr + 1);
 
 	const size_t payload_size = hdr->size;
 	const size_t payload_size_aligned = mcheck_allign_customer_size(payload_size);
@@ -150,13 +150,13 @@ static enum mcheck_status mcheck_checkhdr(const struct mcheck_hdr *hdr)
 
 	for (i = 0; i < padd_size; ++i)
 		if (payload[payload_size + i] != PADDINGFLOOD)
-			return mcheck_OnNok(MCHECK_TAIL);
+			return mcheck_OnNok(MCHECK_TAIL, hdr + 1);
 
 	const mcheck_canary *tail = (const mcheck_canary *)&payload[payload_size_aligned];
 
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		if (tail->elems[i] != MAGICTAIL)
-			return mcheck_OnNok(MCHECK_TAIL);
+			return mcheck_OnNok(MCHECK_TAIL, hdr + 1);
 	return MCHECK_OK;
 }
 
