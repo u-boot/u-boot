@@ -62,6 +62,12 @@ config SYS_FSL_SEC_LE
 
 if FSL_CAAM
 
+config FSL_CAAM_JR_NTZ_ACCESS
+	bool "Give CAAM Job Ring access to non-secure world"
+	help
+	  It is needed when OP-TEE is not used and Freescale CAAM Job Ring linux
+	  driver is used.
+
 config FSL_CAAM_RNG
 	bool "Enable Random Number Generator support"
 	depends on DM_RNG

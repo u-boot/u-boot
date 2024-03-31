@@ -93,15 +93,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_DM_GPIO)
-static void board_gpio_init(void)
-{
-	/* TODO */
-}
-#else
-static inline void board_gpio_init(void) {}
-#endif
-
 #if IS_ENABLED(CONFIG_FEC_MXC)
 #include <miiphy.h>
 
@@ -128,8 +119,6 @@ static void select_dt_from_module_version(void)
 
 int board_init(void)
 {
-	board_gpio_init();
-
 	if (IS_ENABLED(CONFIG_IMX_SNVS_SEC_SC_AUTO)) {
 		int ret = snvs_security_sc_init();
 
@@ -138,14 +127,6 @@ int board_init(void)
 	}
 
 	return 0;
-}
-
-/*
- * Board specific reset that is system reset.
- */
-void reset_cpu(void)
-{
-	/* TODO */
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

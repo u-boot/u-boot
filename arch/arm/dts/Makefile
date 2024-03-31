@@ -1074,7 +1074,6 @@ dtb-$(CONFIG_ARCH_IMX8ULP) += \
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-data-modul-edm-sbc.dtb \
-	imx8mm-evk.dtb \
 	imx8mm-icore-mx8mm-ctouch2.dtb \
 	imx8mm-icore-mx8mm-edimm2.2.dtb \
 	imx8mm-kontron-bl.dtb \
@@ -1086,11 +1085,8 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-verdin-wifi-dev.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
-	imx8mn-ddr4-evk.dtb \
 	imx8mq-cm.dtb \
-	imx8mn-evk.dtb \
 	imx8mn-var-som-symphony.dtb \
-	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
 	imx8mq-mnt-reform2.dtb \
@@ -1105,7 +1101,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-dhcom-pdk3.dtb \
 	imx8mp-dhcom-pdk3-overlay-rev100.dtbo \
-	imx8mp-evk.dtb \
 	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-msc-sm2s.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
