@@ -48,6 +48,13 @@
  * rather in compile-time, by MCHECK_HEAP_PROTECTION macro. That guarantees that
  * we haven't missed first malloc.
  */
+
+/*
+ * Testing
+ *  This library had been successfully tested for U-Boot @ ARM SoC chip / 64bits.
+ *  Proven for both default and pedantic mode: confirms U-Boot to be clean, and catches
+ *  intentional/testing corruptions. Working with malloc_trim is not tested.
+ */
 #ifndef _MCHECKCORE_INC_H
 #define _MCHECKCORE_INC_H      1
 #include "mcheck.h"
@@ -70,6 +77,8 @@
 // avoid problems with BSS at early stage:
 static char mcheck_pedantic_flag __section(".data") = 0;
 static void *mcheck_registry[REGISTRY_SZ] __section(".data") = {0};
+static size_t mcheck_chunk_count __section(".data") = 0;
+static size_t mcheck_chunk_count_max __section(".data") = 0;
 
 typedef unsigned long long mcheck_elem;
 typedef struct {
@@ -102,7 +111,7 @@ static void mcheck_default_abort(enum mcheck_status status)
 		msg = "bogus mcheck_status, library is buggy\n";
 		break;
 	}
-	printf("\n\nmcheck: %s!!!\n\n", msg);
+	printf("\n\nmcheck: %s!!! [%zu]\n\n", msg, mcheck_chunk_count_max);
 }
 
 static mcheck_abortfunc_t mcheck_abortfunc = &mcheck_default_abort;
@@ -173,6 +182,7 @@ static void *mcheck_free_helper(void *ptr, int clean_content)
 			break;
 		}
 
+	--mcheck_chunk_count;
 	return (char *)hdr - hdr->aln_skip;
 }
 
@@ -211,6 +221,10 @@ static void *mcheck_allocated_helper(void *altoghether_ptr, size_t customer_sz,
 
 	for (i = 0; i < CANARY_DEPTH; ++i)
 		tail->elems[i] = MAGICTAIL;
+
+	++mcheck_chunk_count;
+	if (mcheck_chunk_count > mcheck_chunk_count_max)
+		mcheck_chunk_count_max = mcheck_chunk_count;
 
 	for (i = 0; i < REGISTRY_SZ; ++i)
 		if (!mcheck_registry[i]) {
@@ -283,6 +297,8 @@ void mcheck_on_ramrelocation(size_t offset)
 			printf("mcheck, WRN: forgetting %p chunk\n", p);
 			mcheck_registry[i] = 0;
 		}
+
+	mcheck_chunk_count = 0;
 }
 #endif
 #endif
