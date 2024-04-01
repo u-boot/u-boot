@@ -8,6 +8,6 @@
 
 #include <event.h>
 
-int imx9_probe_mu(void *ctx, struct event *event);
+int imx9_probe_mu(void);
 
 #endif
