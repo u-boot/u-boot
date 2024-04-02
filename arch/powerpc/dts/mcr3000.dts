@@ -33,6 +33,12 @@
 			#size-cells = <0>;
 			cell-index = <0>;
 			compatible = "fsl,mpc8xx-spi";
+			gpios = <&csspi 2 0>;
+
+			temp@0 {
+				reg = <0>;
+				compatible = "ti,lm74";
+			};
 		};
 	};
 
