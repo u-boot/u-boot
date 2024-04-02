@@ -41,4 +41,10 @@ config TI_DRA7_THERMAL
 	 Enable thermal support for for the Texas Instruments DRA752 SoC family.
 	 The driver supports reading CPU temperature.
 
+config TI_LM74_THERMAL
+        bool "Temperature sensor driver for TI LM74 chip"
+        help
+	 Enable thermal support for the Texas Instruments LM74 chip.
+	 The driver supports reading CPU temperature.
+
 endif # if DM_THERMAL
