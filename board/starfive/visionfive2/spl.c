@@ -4,7 +4,6 @@
  * Author: Yanhong Wang<yanhong.wang@starfivetech.com>
  */
 
-#include <common.h>
 #include <asm/arch/eeprom.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/regs.h>
