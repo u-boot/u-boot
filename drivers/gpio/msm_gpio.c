@@ -39,6 +39,10 @@ static int msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
+
 	/* Disable OE bit */
 	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(dev, gpio),
 			GPIO_OE_MASK, GPIO_OE_DISABLE);
@@ -49,6 +53,10 @@ static int msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 static int msm_gpio_set_value(struct udevice *dev, unsigned int gpio, int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
 
 	value = !!value;
 	/* set value */
@@ -61,6 +69,10 @@ static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 				     int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
 
 	value = !!value;
 	/* set value */
@@ -76,12 +88,20 @@ static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
+
 	return !!(readl(priv->base + GPIO_IN_OUT_REG(dev, gpio)) >> GPIO_IN);
 }
 
 static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
 
 	if (readl(priv->base + GPIO_CONFIG_REG(dev, gpio)) & GPIO_OE_ENABLE)
 		return GPIOF_OUTPUT;

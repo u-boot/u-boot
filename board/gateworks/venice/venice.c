@@ -25,12 +25,13 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-int board_fit_config_name_match(const char *name)
+int board_fit_config_name_match(const char *path)
 {
-	int i  = 0;
-	const char *dtb;
+	const char *name = path + strlen("freescale/");
 	static char init;
+	const char *dtb;
 	char buf[32];
+	int i  = 0;
 
 	do {
 		dtb = eeprom_get_dtb_name(i++, buf, sizeof(buf));

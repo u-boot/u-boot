@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0
+
+/ {
+	chosen {
+		stdout-path = "serial0:921600n8";
+	};
+};
+
+&tlmm {
+	muic-i2c-n {
+		pins = "gpio33", "gpio34";
+		drive-strength = <0x2>;
+		function = "gpio";
+		bias-disable;
+	};
+};

@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_CPU
 	default "generic"
 
-config SYS_CONFIG_NAME
-	default "xilinx_mbv"
-
 config TEXT_BASE
 	default 0x80000000 if !RISCV_SMODE
 	default 0x80400000 if RISCV_SMODE && ARCH_RV32I

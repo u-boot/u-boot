@@ -4,6 +4,18 @@ choice
 	prompt "Texas Instruments' K3 based SoC select"
 	optional
 
+config SOC_K3_AM625
+	bool "TI's K3 based AM625 SoC Family Support"
+
+config SOC_K3_AM62A7
+	bool "TI's K3 based AM62A7 SoC Family Support"
+
+config SOC_K3_AM62P5
+	bool "TI's K3 based AM62P5 SoC Family Support"
+
+config SOC_K3_AM642
+	bool "TI's K3 based AM642 SoC Family Support"
+
 config SOC_K3_AM654
 	bool "TI's K3 based AM654 SoC Family Support"
 
@@ -13,14 +25,8 @@ config SOC_K3_J721E
 config SOC_K3_J721S2
 	bool "TI's K3 based J721S2 SoC Family Support"
 
-config SOC_K3_AM642
-	bool "TI's K3 based AM642 SoC Family Support"
-
-config SOC_K3_AM625
-	bool "TI's K3 based AM625 SoC Family Support"
-
-config SOC_K3_AM62A7
-	bool "TI's K3 based AM62A7 SoC Family Support"
+config SOC_K3_J784S4
+	bool "TI's K3 based J784S4 SoC Family Support"
 
 endchoice
 
@@ -35,7 +41,7 @@ config SYS_SOC
 config SYS_K3_NON_SECURE_MSRAM_SIZE
 	hex
 	default 0x80000 if SOC_K3_AM654
-	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2
+	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x1c0000 if SOC_K3_AM642
 	default 0x3c000 if SOC_K3_AM625 || SOC_K3_AM62A7
 	help
@@ -47,7 +53,7 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	hex
 	default 0x58000 if SOC_K3_AM654
-	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2
+	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x180000 if SOC_K3_AM642
 	default 0x38000 if SOC_K3_AM625 || SOC_K3_AM62A7
 	help
@@ -57,15 +63,14 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
 	default 0x40280000 if SOC_K3_AM654
-	default 0x41cff9fc if SOC_K3_J721S2
-	default 0x41cff9fc if SOC_K3_J721E
+	default 0x41cff9fc if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
 config SYS_K3_MCU_SCRATCHPAD_SIZE
 	hex
 	default 0x200 if SOC_K3_AM654
-	default 0x200 if SOC_K3_J721E || SOC_K3_J721S2
+	default 0x200 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
 	help
 	  Describes the size of MCU Scratchpad RAM.
 
@@ -73,11 +78,12 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
 	default 0x41c7fbfc if SOC_K3_AM654
 	default 0x41cffbfc if SOC_K3_J721E
-	default 0x41cfdbfc if SOC_K3_J721S2
+	default 0x41cfdbfc if SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x701bebfc if SOC_K3_AM642
 	default 0x43c3f290 if SOC_K3_AM625
 	default 0x43c3f290 if SOC_K3_AM62A7 && CPU_V7R
 	default 0x7000f290 if SOC_K3_AM62A7 && ARM64
+	default 0x43c4f290 if SOC_K3_AM62P5
 	help
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
@@ -114,23 +120,24 @@ config K3_EARLY_CONS_IDX
 	  Use this option to set the index of the serial device to be used
 	  for the early console during SPL execution.
 
-config SYS_K3_SPL_ATF
-	bool "Start Cortex-A from SPL"
-	depends on CPU_V7R
-	help
-	  Enabling this will try to start Cortex-A (typically with ATF)
-	  after SPL from R5.
-
 config K3_ATF_LOAD_ADDR
 	hex "Load address of ATF image"
+	default 0x80000000 if (SOC_K3_AM625 || SOC_K3_AM62A7 || SOC_K3_AM62P5)
 	default 0x70000000
 	help
-	  The load address for the ATF image. This value defaults to 0x70000000
+	  The load address for the ATF image. This value is used to build the
+	  FIT image header that places ATF in memory where it will run.
+
+config K3_OPTEE_LOAD_ADDR
+	hex "Load address of OPTEE image"
+	default 0x9e800000
+	help
+	  The load address for the OPTEE image. This value defaults to 0x9e800000
 	  if not provided in the board defconfig file.
 
 config K3_DM_FW
 	bool "Separate DM firmware image"
-	depends on CPU_V7R && (SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_AM625 || SOC_K3_AM62A7) && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
+	depends on CPU_V7R && !SOC_K3_AM642 && !SOC_K3_AM654 && !CLK_TI_SCI && !TI_SCI_POWER_DOMAIN
 	default y
 	help
 	  Enabling this will indicate that the system has separate DM
@@ -153,7 +160,9 @@ source "arch/arm/mach-k3/am65x/Kconfig"
 source "arch/arm/mach-k3/am64x/Kconfig"
 source "arch/arm/mach-k3/am62x/Kconfig"
 source "arch/arm/mach-k3/am62ax/Kconfig"
+source "arch/arm/mach-k3/am62px/Kconfig"
 source "arch/arm/mach-k3/j721e/Kconfig"
 source "arch/arm/mach-k3/j721s2/Kconfig"
+source "arch/arm/mach-k3/j784s4/Kconfig"
 
 endif

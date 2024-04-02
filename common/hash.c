@@ -321,7 +321,8 @@ static struct hash_algo hash_algo[] = {
 /* Try to minimize code size for boards that don't want much hashing */
 #if CONFIG_IS_ENABLED(SHA256) || IS_ENABLED(CONFIG_CMD_SHA1SUM) || \
 	CONFIG_IS_ENABLED(CRC32_VERIFY) || IS_ENABLED(CONFIG_CMD_HASH) || \
-	CONFIG_IS_ENABLED(SHA384) || CONFIG_IS_ENABLED(SHA512)
+	CONFIG_IS_ENABLED(SHA384) || CONFIG_IS_ENABLED(SHA512) || \
+	IS_ENABLED(CONFIG_CMD_MD5SUM)
 #define multi_hash()	1
 #else
 #define multi_hash()	0
@@ -404,7 +405,8 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
 }
 
 #if !defined(CONFIG_SPL_BUILD) && (defined(CONFIG_CMD_HASH) || \
-	defined(CONFIG_CMD_SHA1SUM) || defined(CONFIG_CMD_CRC32))
+	defined(CONFIG_CMD_SHA1SUM) || defined(CONFIG_CMD_CRC32)) || \
+	defined(CONFIG_CMD_MD5SUM)
 /**
  * store_result: Store the resulting sum to an address or variable
  *
@@ -565,7 +567,7 @@ int hash_command(const char *algo_name, int flags, struct cmd_tbl *cmdtp,
 
 		/* Try to avoid code bloat when verify is not needed */
 #if defined(CONFIG_CRC32_VERIFY) || defined(CONFIG_SHA1SUM_VERIFY) || \
-	defined(CONFIG_HASH_VERIFY)
+	defined(CONFIG_MD5SUM_VERIFY) || defined(CONFIG_HASH_VERIFY)
 		if (flags & HASH_FLAG_VERIFY) {
 #else
 		if (0) {

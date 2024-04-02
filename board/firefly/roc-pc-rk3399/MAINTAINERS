@@ -6,3 +6,4 @@ F:	board/firefly/roc-pc-rk3399
 F:	include/configs/roc-pc-rk3399.h
 F:	configs/roc-pc-rk3399_defconfig
 F:	configs/roc-pc-mezzanine-rk3399_defconfig
+F:	arch/arm/dts/rk3399-roc-pc*

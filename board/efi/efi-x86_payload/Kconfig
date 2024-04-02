@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "efi"
 
-config SYS_CONFIG_NAME
-	default "efi-x86_payload"
-
 config TEXT_BASE
 	default 0x00200000
 

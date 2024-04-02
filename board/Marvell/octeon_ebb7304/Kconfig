@@ -9,7 +9,6 @@ config SYS_VENDOR
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "octeon_ebb7304"
 
 config DEFAULT_DEVICE_TREE

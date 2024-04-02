@@ -19,6 +19,22 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct udevice *dev;
 	int ret = CMD_RET_SUCCESS;
 
+	if (argc == 2 && !strcmp(argv[1], "list")) {
+		int idx = 0;
+
+		uclass_foreach_dev_probe(UCLASS_RNG, dev) {
+			idx++;
+			printf("RNG #%d - %s\n", dev->seq_, dev->name);
+		}
+
+		if (!idx) {
+			log_err("No RNG device\n");
+			return CMD_RET_FAILURE;
+		}
+
+		return CMD_RET_SUCCESS;
+	}
+
 	switch (argc) {
 	case 1:
 		devnum = 0;
@@ -56,12 +72,9 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return ret;
 }
 
-U_BOOT_LONGHELP(rng,
-	"[dev [n]]\n"
-	"  - print n random bytes(max 64) read from dev\n");
-
 U_BOOT_CMD(
 	rng, 3, 0, do_rng,
 	"print bytes from the hardware random number generator",
-	rng_help_text
+	"list         - list all the probed rng devices\n"
+	"rng [dev] [n]    - print n random bytes(max 64) read from dev\n"
 );

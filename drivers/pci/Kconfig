@@ -413,4 +413,15 @@ config PCIE_STARFIVE_JH7110
 	  Say Y here if you want to enable PLDA XpressRich PCIe controller
 	  support on StarFive JH7110 SoC.
 
+config PCIE_DW_IMX
+	bool "i.MX DW PCIe controller support"
+	depends on ARCH_IMX8M
+	select PCIE_DW_COMMON
+	select DM_REGULATOR
+	select REGMAP
+	select SYSCON
+	help
+	  Say Y here if you want to enable DW PCIe controller support on
+	  iMX SoCs.
+
 endif

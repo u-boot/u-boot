@@ -256,6 +256,9 @@ config MCP230XX_GPIO
 	   - MCP23008
 	   - MCP23017
 	   - MCP23018
+	   - MCP23S08
+	   - MCP23S17
+	   - MCP23S18
 
 config MSCC_SGPIO
 	bool "Microsemi Serial GPIO driver"

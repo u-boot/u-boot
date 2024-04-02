@@ -286,11 +286,11 @@ static void ncsi_rsp_gc(struct ncsi_rsp_pkt *pkt)
 	}
 
 	c = &ncsi_priv->packages[np].channels[nc];
-	c->cap_generic = ntohl(gc->cap) & NCSI_CAP_GENERIC_MASK;
-	c->cap_bc = ntohl(gc->bc_cap) & NCSI_CAP_BC_MASK;
-	c->cap_mc = ntohl(gc->mc_cap) & NCSI_CAP_MC_MASK;
-	c->cap_aen = ntohl(gc->aen_cap) & NCSI_CAP_AEN_MASK;
-	c->cap_vlan = ntohl(gc->vlan_mode) & NCSI_CAP_VLAN_MASK;
+	c->cap_generic = get_unaligned_be32(&gc->cap) & NCSI_CAP_GENERIC_MASK;
+	c->cap_bc = get_unaligned_be32(&gc->bc_cap) & NCSI_CAP_BC_MASK;
+	c->cap_mc = get_unaligned_be32(&gc->mc_cap) & NCSI_CAP_MC_MASK;
+	c->cap_aen = get_unaligned_be32(&gc->aen_cap) & NCSI_CAP_AEN_MASK;
+	c->cap_vlan = gc->vlan_mode & NCSI_CAP_VLAN_MASK;
 
 	/* End of probe for this channel */
 }
@@ -551,7 +551,7 @@ static int ncsi_send_command(unsigned int np, unsigned int nc, unsigned int cmd,
 	checksum = ncsi_calculate_checksum((unsigned char *)hdr,
 					   sizeof(*hdr) + len);
 	pchecksum = (__be32 *)((void *)(hdr + 1) + len);
-	put_unaligned_be32(htonl(checksum), pchecksum);
+	put_unaligned_be32(checksum, pchecksum);
 
 	if (wait) {
 		net_set_timeout_handler(1000UL, ncsi_timeout_handler);
@@ -619,9 +619,12 @@ static void ncsi_handle_aen(struct ip_udp_hdr *ip, unsigned int len)
 
 	/* Link or configuration lost - just redo the discovery process */
 	ncsi_priv->state = NCSI_PROBE_PACKAGE_SP;
-	for (i = 0; i < ncsi_priv->n_packages; i++)
+	for (i = 0; i < ncsi_priv->n_packages; i++) {
 		free(ncsi_priv->packages[i].channels);
+		ncsi_priv->packages[i].channels = NULL;
+	}
 	free(ncsi_priv->packages);
+	ncsi_priv->packages = NULL;
 	ncsi_priv->n_packages = 0;
 
 	ncsi_priv->current_package = NCSI_PACKAGE_MAX;

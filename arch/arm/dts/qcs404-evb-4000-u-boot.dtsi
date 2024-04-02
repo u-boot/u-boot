@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include <dt-bindings/gpio/gpio.h>
+
+/delete-node/ &usb3_vbus_reg;
+/delete-node/ &usb_vbus_boost_pin;
+
+/ {
+	/* U-Boot uses different bindings for GPIO regulators, this
+	 * one is required for USB
+	 */
+	usb3_vbus_reg: usb3_vbus_reg {
+		compatible = "regulator-gpio";
+		regulator-name = "usb3_vbus_reg";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-gpios = <&pms405_gpios 3 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		states = <0 0>, <5000000 1>;
+	};
+};
+
+&blsp1_uart2 {
+	/* This defines the bit clock divider which defines the baud rate.
+	 * 0xFF is a divider of 16 for both the RX and TX lines. The QCS404
+	 * clock driver in U-Boot hardcodes a 1843200Hz frequency for the
+	 * UART core clock, and 1843200 / 16 = 115200.
+	 */
+	bit-rate = <0xFF>;
+};
+
+&gcc {
+	/* The clock framework in U-Boot "sort of" has the idea of linking an
+	 * individual clock to a device via uclass_priv. However the qcom clock
+	 * driver instead associates many clocks with a single device. This is
+	 * usually fine but it seems that assigned-clocks wreak havoc on this
+	 * and we wind up having a reference to the XO clock which is associated
+	 * with the qcom_clk device...
+	 * For now we'll just remove these properties, no other board has these.
+	 */
+	/delete-property/ assigned-clock-rates;
+	/delete-property/ assigned-clocks;
+};
+
+&usb3_dwc3 {
+	/* Make sure the VBUS supply is switched on */
+	vbus-supply = <&usb3_vbus_reg>;
+};

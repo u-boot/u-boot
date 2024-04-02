@@ -13,7 +13,6 @@
 #include <phy.h>
 #include <syscon.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>

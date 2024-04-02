@@ -7,9 +7,11 @@
 
 #include <common.h>
 #include <asm/arch/clock_manager.h>
+#include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/secure_vab.h>
+#include <asm/arch/smc_api.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -22,6 +24,8 @@
 #include <usb/dwc2_udc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define DEFAULT_JTAG_USERCODE 0xFFFFFFFF
 
 void s_init(void) {
 #ifndef CONFIG_ARM64
@@ -92,13 +96,50 @@ int g_dnl_board_usb_cable_connected(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-__weak int board_fit_config_name_match(const char *name)
+u8 socfpga_get_board_id(void)
 {
-	/* Just empty function now - can't decide what to choose */
-	debug("%s: %s\n", __func__, name);
+	u8 board_id = 0;
+	u32 jtag_usercode;
+	int err;
 
-	return 0;
+#if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)
+	err = smc_get_usercode(&jtag_usercode);
+#else
+	u32 resp_len = 1;
+
+	err = mbox_send_cmd(MBOX_ID_UBOOT, MBOX_GET_USERCODE, MBOX_CMD_DIRECT, 0,
+			    NULL, 0, &resp_len, &jtag_usercode);
+#endif
+
+	if (err) {
+		puts("Fail to read JTAG Usercode. Default Board ID to 0\n");
+		return board_id;
+	}
+
+	debug("Valid JTAG Usercode: %u\n", jtag_usercode);
+
+	if (jtag_usercode == DEFAULT_JTAG_USERCODE) {
+		debug("JTAG Usercode is not set. Default Board ID to 0\n");
+	} else if (jtag_usercode >= 0 && jtag_usercode <= 255) {
+		board_id = jtag_usercode;
+		debug("Valid JTAG Usercode. Set Board ID to %u\n", board_id);
+	} else {
+		puts("Board ID is not in range 0 to 255\n");
+	}
+
+	return board_id;
+}
+
+#if IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_SOC64)
+int board_fit_config_name_match(const char *name)
+{
+	char board_name[10];
+
+	sprintf(board_name, "board_%u", socfpga_get_board_id());
+
+	debug("Board name: %s\n", board_name);
+
+	return strcmp(name, board_name);
 }
 #endif
 
@@ -116,6 +157,8 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 #if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
 void board_prep_linux(struct bootm_headers *images)
 {
+	bool use_fit = false;
+
 	if (!images->fit_uname_cfg) {
 		if (IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH) &&
 		    !IS_ENABLED(CONFIG_SOCFPGA_SECURE_VAB_AUTH_ALLOW_NON_FIT_IMAGE)) {
@@ -127,12 +170,13 @@ void board_prep_linux(struct bootm_headers *images)
 			hang();
 		}
 	} else {
+		use_fit = true;
 		/* Update fdt_addr in enviroment variable */
 		env_set_hex("fdt_addr", (ulong)images->ft_addr);
 		debug("images->ft_addr = 0x%08lx\n", (ulong)images->ft_addr);
 	}
 
-	if (IS_ENABLED(CONFIG_CADENCE_QSPI)) {
+	if (use_fit && IS_ENABLED(CONFIG_CADENCE_QSPI)) {
 		if (env_get("linux_qspi_enable"))
 			run_command(env_get("linux_qspi_enable"), 0);
 	}

@@ -21,6 +21,7 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <malloc.h>
+#include <power/regulator.h>
 #include <usb.h>
 #include "core.h"
 #include "gadget.h"
@@ -47,6 +48,7 @@ struct dwc3_generic_priv {
 struct dwc3_generic_host_priv {
 	struct xhci_ctrl xhci_ctrl;
 	struct dwc3_generic_priv gen_priv;
+	struct udevice *vbus_supply;
 };
 
 static int dwc3_generic_probe(struct udevice *dev,
@@ -240,11 +242,24 @@ static int dwc3_generic_host_probe(struct udevice *dev)
 	if (rc)
 		return rc;
 
+	rc = device_get_supply_regulator(dev, "vbus-supply", &priv->vbus_supply);
+	if (rc)
+		debug("%s: No vbus regulator found: %d\n", dev->name, rc);
+
+	/* Only returns an error if regulator is valid and failed to enable due to a driver issue */
+	rc = regulator_set_enable_if_allowed(priv->vbus_supply, true);
+	if (rc)
+		return rc;
+
 	hccr = (struct xhci_hccr *)priv->gen_priv.base;
 	hcor = (struct xhci_hcor *)(priv->gen_priv.base +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
-	return xhci_register(dev, hccr, hcor);
+	rc = xhci_register(dev, hccr, hcor);
+	if (rc)
+		regulator_set_enable_if_allowed(priv->vbus_supply, false);
+
+	return rc;
 }
 
 static int dwc3_generic_host_remove(struct udevice *dev)
@@ -252,9 +267,12 @@ static int dwc3_generic_host_remove(struct udevice *dev)
 	struct dwc3_generic_host_priv *priv = dev_get_priv(dev);
 	int rc;
 
-	rc = xhci_deregister(dev);
+	/* This function always returns 0 */
+	xhci_deregister(dev);
+
+	rc = regulator_set_enable_if_allowed(priv->vbus_supply, false);
 	if (rc)
-		return rc;
+		debug("%s: Failed to disable vbus regulator: %d\n", dev->name, rc);
 
 	return dwc3_generic_remove(dev, &priv->gen_priv);
 }

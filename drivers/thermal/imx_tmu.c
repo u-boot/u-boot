@@ -402,6 +402,7 @@ static inline void imx_tmu_mx8mp_init(struct udevice *dev) { }
 #endif
 
 static inline void imx_tmu_mx93_init(struct udevice *dev) { }
+static inline void imx_tmu_mx8mq_init(struct udevice *dev) { }
 
 static void imx_tmu_arch_init(struct udevice *dev)
 {
@@ -411,6 +412,8 @@ static void imx_tmu_arch_init(struct udevice *dev)
 		imx_tmu_mx8mp_init(dev);
 	else if (is_imx93())
 		imx_tmu_mx93_init(dev);
+	else if (is_imx8mq())
+		imx_tmu_mx8mq_init(dev);
 	else
 		dev_err(dev, "Unsupported SoC, TMU calibration not loaded!\n");
 }
@@ -570,12 +573,14 @@ static int imx_tmu_parse_fdt(struct udevice *dev)
 {
 	struct imx_tmu_plat *pdata = dev_get_plat(dev), *p_parent_data;
 	struct ofnode_phandle_args args;
-	ofnode trips_np;
+	ofnode trips_np, cpu_thermal_np;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
 
-	pdata->polling_delay = IMX_TMU_POLLING_DELAY_MS;
+	cpu_thermal_np = ofnode_path("/thermal-zones/cpu-thermal");
+	pdata->polling_delay = ofnode_read_u32_default(cpu_thermal_np, "polling-delay",
+						       IMX_TMU_POLLING_DELAY_MS);
 
 	if (pdata->zone_node) {
 		pdata->regs = (union tmu_regs *)dev_read_addr_ptr(dev);

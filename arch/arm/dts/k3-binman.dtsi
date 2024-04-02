@@ -286,13 +286,14 @@
 					arch = "arm64";
 					compression = "none";
 					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
+					load = <CONFIG_K3_OPTEE_LOAD_ADDR>;
+					entry = <CONFIG_K3_OPTEE_LOAD_ADDR>;
 					ti-secure {
 						content = <&tee>;
 						keyfile = "custMpk.pem";
 					};
 					tee: tee-os {
+						optional;
 					};
 				};
 
@@ -356,10 +357,11 @@
 					arch = "arm64";
 					compression = "none";
 					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
+					load = <CONFIG_K3_OPTEE_LOAD_ADDR>;
+					entry = <CONFIG_K3_OPTEE_LOAD_ADDR>;
 					tee-os {
 						filename = "tee-raw.bin";
+						optional;
 					};
 				};
 

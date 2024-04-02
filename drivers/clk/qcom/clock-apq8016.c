@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <dt-bindings/clock/qcom,gcc-msm8916.h>
 
 #include "clock-qcom.h"
 
@@ -102,20 +103,20 @@ static const struct bcr_regs uart2_regs = {
 };
 
 /* UART: 115200 */
-static int clk_init_uart(struct msm_clk_priv *priv)
+int apq8016_clk_init_uart(phys_addr_t base)
 {
 	/* Enable AHB clock */
-	clk_enable_vote_clk(priv->base, &gcc_blsp1_ahb_clk);
+	clk_enable_vote_clk(base, &gcc_blsp1_ahb_clk);
 
 	/* 7372800 uart block clock @ GPLL0 */
-	clk_rcg_set_rate_mnd(priv->base, &uart2_regs, 1, 144, 15625,
+	clk_rcg_set_rate_mnd(base, &uart2_regs, 1, 144, 15625,
 			     CFG_CLK_SRC_GPLL0, 16);
 
 	/* Vote for gpll0 clock */
-	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
+	clk_enable_gpll0(base, &gpll0_vote_clk);
 
 	/* Enable core clk */
-	clk_enable_cbc(priv->base + BLSP1_UART2_APPS_CBCR);
+	clk_enable_cbc(base + BLSP1_UART2_APPS_CBCR);
 
 	return 0;
 }
@@ -125,14 +126,14 @@ static ulong apq8016_clk_set_rate(struct clk *clk, ulong rate)
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
 	switch (clk->id) {
-	case 0: /* SDC1 */
+	case GCC_SDCC1_APPS_CLK: /* SDC1 */
 		return clk_init_sdc(priv, 0, rate);
 		break;
-	case 1: /* SDC2 */
+	case GCC_SDCC2_APPS_CLK: /* SDC2 */
 		return clk_init_sdc(priv, 1, rate);
 		break;
-	case 4: /* UART2 */
-		return clk_init_uart(priv);
+	case GCC_BLSP1_UART2_APPS_CLK: /* UART2 */
+		return apq8016_clk_init_uart(priv->base);
 		break;
 	default:
 		return 0;
@@ -145,7 +146,7 @@ static struct msm_clk_data apq8016_clk_data = {
 
 static const struct udevice_id gcc_apq8016_of_match[] = {
 	{
-		.compatible = "qcom,gcc-apq8016",
+		.compatible = "qcom,gcc-msm8916",
 		.data = (ulong)&apq8016_clk_data,
 	},
 	{ }

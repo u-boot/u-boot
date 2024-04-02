@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
+#include <eth_phy.h>
 #include <log.h>
 #include <malloc.h>
 #include <miiphy.h>
@@ -14,6 +16,9 @@
 #include <dm/of_extra.h>
 #include <dm/uclass-internal.h>
 #include <linux/compat.h>
+#include <linux/delay.h>
+
+#define DEFAULT_GPIO_RESET_DELAY	10	/* in microseconds */
 
 void dm_mdio_probe_devices(void)
 {
@@ -80,6 +85,16 @@ int dm_mdio_write(struct udevice *mdio_dev, int addr, int devad, int reg,
 int dm_mdio_reset(struct udevice *mdio_dev)
 {
 	struct mdio_ops *ops = mdio_get_ops(mdio_dev);
+	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(mdio_dev);
+	struct mii_dev *mii_bus = pdata->mii_bus;
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&mii_bus->reset_gpiod)) {
+		dm_gpio_set_value(&mii_bus->reset_gpiod, 1);
+		udelay(mii_bus->reset_delay_us);
+		dm_gpio_set_value(&mii_bus->reset_gpiod, 0);
+		if (mii_bus->reset_post_delay_us > 0)
+			udelay(mii_bus->reset_post_delay_us);
+	}
 
 	if (!ops->reset)
 		return 0;
@@ -108,16 +123,77 @@ static int mdio_reset(struct mii_dev *mii_bus)
 	return dm_mdio_reset(mii_bus->priv);
 }
 
+static int mdio_bind_phy_nodes(struct udevice *mdio_dev)
+{
+	ofnode mdio_node, phy_node;
+	struct udevice *phy_dev;
+	const char *node_name;
+	int ret;
+
+	mdio_node = dev_ofnode(mdio_dev);
+	if (!ofnode_valid(mdio_node)) {
+		dev_dbg(mdio_dev, "invalid ofnode for mdio_dev\n");
+		return -ENXIO;
+	}
+
+	ofnode_for_each_subnode(phy_node, mdio_node) {
+		node_name = ofnode_get_name(phy_node);
+		dev_dbg(mdio_dev, "* Found child node: '%s'\n", node_name);
+		ret = device_bind_driver_to_node(mdio_dev,
+						 "eth_phy_generic_drv",
+						 node_name, phy_node, &phy_dev);
+		if (ret) {
+			dev_dbg(mdio_dev, "  - Eth phy binding error: %d\n", ret);
+			continue;
+		}
+
+		dev_dbg(mdio_dev, "  - bound phy device: '%s'\n", node_name);
+		ret = device_probe(phy_dev);
+		if (ret) {
+			dev_dbg(mdio_dev, "Device '%s' probe failed\n", phy_dev->name);
+			device_unbind(phy_dev);
+			continue;
+		}
+	}
+
+	return 0;
+}
+
 static int dm_mdio_post_probe(struct udevice *dev)
 {
 	struct mdio_perdev_priv *pdata = dev_get_uclass_priv(dev);
+	struct mii_dev *mii_bus;
+	int ret;
 
-	pdata->mii_bus = mdio_alloc();
+	mii_bus = mdio_alloc();
+	if (!mii_bus) {
+		dev_err(dev, "couldn't allocate mii_bus\n");
+		return -ENOMEM;
+	}
+	pdata->mii_bus = mii_bus;
 	pdata->mii_bus->read = mdio_read;
 	pdata->mii_bus->write = mdio_write;
 	pdata->mii_bus->reset = mdio_reset;
 	pdata->mii_bus->priv = dev;
 	strlcpy(pdata->mii_bus->name, dev->name, MDIO_NAME_LEN);
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		/* Get bus level PHY reset GPIO details */
+		mii_bus->reset_delay_us = dev_read_u32_default(dev, "reset-delay-us",
+							       DEFAULT_GPIO_RESET_DELAY);
+		mii_bus->reset_post_delay_us = dev_read_u32_default(dev,
+								    "reset-post-delay-us",
+								    0);
+		ret = gpio_request_by_name(dev, "reset-gpios", 0, &mii_bus->reset_gpiod,
+					   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "couldn't get reset-gpios: %d\n", ret);
+			return ret;
+		}
+	}
+
+	if (CONFIG_IS_ENABLED(DM_ETH_PHY))
+		mdio_bind_phy_nodes(dev);
 
 	return mdio_register(pdata->mii_bus);
 }

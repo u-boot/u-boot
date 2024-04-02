@@ -1,0 +1,8 @@
+TOYBRICK-RK3588
+M:	Elon Zhang <zhangzj@rock-chips.com>
+S:	Maintained
+F:	board/rockchip/toybrick_rk3588
+F:	include/configs/toybrick_rk3588.h
+F:	configs/toybrick-rk3588_defconfig
+F:	arch/arm/dts/rk3588-toybrick-x0.dts
+F:	arch/arm/dts/rk3588-toybrick-x0-u-boot.dtsi

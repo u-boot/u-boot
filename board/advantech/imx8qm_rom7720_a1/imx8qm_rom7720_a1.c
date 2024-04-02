@@ -112,14 +112,6 @@ int board_init(void)
 	return 0;
 }
 
-/*
- * Board specific reset that is system reset.
- */
-void reset_cpu(void)
-{
-	/* TODO */
-}
-
 int board_mmc_get_env_dev(int devno)
 {
 	return devno;

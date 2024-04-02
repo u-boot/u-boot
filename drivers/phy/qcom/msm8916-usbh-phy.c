@@ -74,7 +74,7 @@ static int msm_phy_probe(struct udevice *dev)
 {
 	struct msm_phy_priv *priv = dev_get_priv(dev);
 
-	priv->regs = dev_remap_addr(dev);
+	priv->regs = dev_remap_addr(dev_get_parent(dev));
 	if (!priv->regs)
 		return -EINVAL;
 
@@ -96,7 +96,7 @@ static struct phy_ops msm_phy_ops = {
 };
 
 static const struct udevice_id msm_phy_ids[] = {
-	{ .compatible = "qcom,apq8016-usbphy" },
+	{ .compatible = "qcom,usb-hs-phy-msm8916" },
 	{ }
 };
 

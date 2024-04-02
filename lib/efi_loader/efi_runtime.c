@@ -15,6 +15,7 @@
 #include <rtc.h>
 #include <asm/global_data.h>
 #include <u-boot/crc.h>
+#include <asm/sections.h>
 
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;

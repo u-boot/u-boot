@@ -23,7 +23,7 @@ int acpi_write_ssdt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	acpi_fill_header(ssdt, "SSDT");
 	ssdt->revision = acpi_get_table_revision(ACPITAB_SSDT);
-	ssdt->aslc_revision = 1;
+	ssdt->creator_revision = 1;
 	ssdt->length = sizeof(struct acpi_table_header);
 
 	acpi_inc(ctx, sizeof(struct acpi_table_header));

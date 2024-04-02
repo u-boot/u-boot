@@ -4,29 +4,11 @@
  */
 
 #include <asm/gpio.h>
-#include <asm/arch-rockchip/misc.h>
 #include <linux/delay.h>
 #include "../common/common.h"
 
-int misc_init_r(void)
+int rockchip_early_misc_init_r(void)
 {
-	const u32 cpuid_offset = 0x7;
-	const u32 cpuid_length = 0x10;
-	u8 cpuid[cpuid_length];
-	int ret;
-
-	ret = rockchip_cpuid_from_efuse(cpuid_offset, cpuid_length, cpuid);
-	if (ret)
-		return ret;
-
-	ret = rockchip_cpuid_set(cpuid, cpuid_length);
-	if (ret)
-		return ret;
-
-	ret = rockchip_setup_macaddr();
-	if (ret)
-		return ret;
-
 	setup_boottargets();
 
 	return 0;

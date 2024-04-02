@@ -262,7 +262,7 @@ static int console_truetype_move_rows(struct udevice *dev, uint rowdst,
 }
 
 static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
-				    char ch)
+				    int cp)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
@@ -281,7 +281,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	int row, ret;
 
 	/* First get some basic metrics about this character */
-	stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+	stbtt_GetCodepointHMetrics(font, cp, &advance, &lsb);
 
 	/*
 	 * First out our current X position in fractional pixels. If we wrote
@@ -290,7 +290,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	xpos = frac(VID_TO_PIXEL((double)x));
 	if (vc_priv->last_ch) {
 		xpos += met->scale * stbtt_GetCodepointKernAdvance(font,
-							vc_priv->last_ch, ch);
+							vc_priv->last_ch, cp);
 	}
 
 	/*
@@ -320,7 +320,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	 * return NULL;
 	 */
 	data = stbtt_GetCodepointBitmapSubpixel(font, met->scale, met->scale,
-						x_shift, 0, ch, &width, &height,
+						x_shift, 0, cp, &width, &height,
 						&xoff, &yoff);
 	if (!data)
 		return width_frac;

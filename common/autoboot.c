@@ -167,6 +167,9 @@ static int passwd_abort_sha256(uint64_t etime)
 		sha_env_str = AUTOBOOT_STOP_STR_SHA256;
 
 	presskey = malloc_cache_aligned(DELAY_STOP_STR_MAX_LENGTH);
+	if (!presskey)
+		return -ENOMEM;
+
 	c = strstr(sha_env_str, ":");
 	if (c && (c - sha_env_str < DELAY_STOP_STR_MAX_LENGTH)) {
 		/* preload presskey with salt */

@@ -133,6 +133,8 @@ struct bootflow {
  * this uclass (used with things like "mmc")
  * @BOOTFLOWIF_SINGLE_MEDIA: (internal) Scan one media device in the uclass (used
  * with things like "mmc1")
+ * @BOOTFLOWIF_SINGLE_PARTITION: (internal) Scan one partition in media device
+ * (used with things like "mmc1:3")
  */
 enum bootflow_iter_flags_t {
 	BOOTFLOWIF_FIXED		= 1 << 0,
@@ -148,6 +150,7 @@ enum bootflow_iter_flags_t {
 	BOOTFLOWIF_SKIP_GLOBAL		= 1 << 17,
 	BOOTFLOWIF_SINGLE_UCLASS	= 1 << 18,
 	BOOTFLOWIF_SINGLE_MEDIA		= 1 << 19,
+	BOOTFLOWIF_SINGLE_PARTITION	= 1 << 20,
 };
 
 /**

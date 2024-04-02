@@ -318,7 +318,8 @@ int dm_mux_init(void)
 		return ret;
 	}
 	uclass_foreach_dev(dev, uc) {
-		if (dev_read_bool(dev, "u-boot,mux-autoprobe")) {
+		if (dev_read_bool(dev, "u-boot,mux-autoprobe") ||
+		    dev_read_bool(dev, "idle-states")) {
 			ret = device_probe(dev);
 			if (ret)
 				log_debug("unable to probe device %s\n",

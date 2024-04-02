@@ -15,7 +15,7 @@
 /**
  * codepage_437 - Unicode to codepage 437 translation table
  */
-const u16 codepage_437[128] = CP437;
+const u16 codepage_437[160] = CP437;
 
 static struct capitalization_table capitalization_table[] =
 #ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
@@ -516,9 +516,12 @@ int utf_to_cp(s32 *c, const u16 *codepage)
 		int j;
 
 		/* Look up codepage translation */
-		for (j = 0; j < 0x80; ++j) {
+		for (j = 0; j < 0xA0; ++j) {
 			if (*c == codepage[j]) {
-				*c = j + 0x80;
+				if (j < 0x20)
+					*c = j;
+				else
+					*c = j + 0x60;
 				return 0;
 			}
 		}

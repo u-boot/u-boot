@@ -4,7 +4,6 @@
  */
 #include <common.h>
 #include <init.h>
-#include <asm/io.h>
 #include <asm/types.h>
 #include <asm/arch-rockchip/cru_rk3036.h>
 #include <asm/arch-rockchip/grf_rk3036.h>

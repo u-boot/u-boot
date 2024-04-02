@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "baytrail"
 
-config SYS_CONFIG_NAME
-	default "minnowmax"
-
 config TEXT_BASE
 	default 0xfff00000
 

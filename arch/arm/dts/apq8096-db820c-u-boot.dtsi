@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2024, Linaro Ltd.
+ */
+
+/ {
+	/* Ensure that the fdtfile variable is generated properly */
+	compatible = "qcom,apq8096-db820c", "qcom,apq8096";
+};
+
+&sdhc2 {
+	status = "okay";
+	clock-frequency = <100000000>;
+};

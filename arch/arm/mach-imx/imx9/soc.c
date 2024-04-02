@@ -262,7 +262,7 @@ static struct mm_region imx93_mem_map[] = {
 		/* Flexible Serial Peripheral Interface */
 		.virt = 0x28000000UL,
 		.phys = 0x28000000UL,
-		.size = 0x30000000UL,
+		.size = 0x08000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN

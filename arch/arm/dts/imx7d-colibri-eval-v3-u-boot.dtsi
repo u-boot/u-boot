@@ -51,3 +51,7 @@
 		};
 	};
 };
+
+&wdog1 {
+	bootph-pre-ram;
+};

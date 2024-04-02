@@ -8,7 +8,6 @@
 
 #include "rockchip-common.h"
 
-#include <asm/arch-rockchip/hardware.h>
 #include <linux/sizes.h>
 
 #define CFG_SYS_SDRAM_BASE		0

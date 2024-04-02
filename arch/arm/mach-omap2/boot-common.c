@@ -190,7 +190,7 @@ int load_firmware(char *name_fw, u32 *loadaddr)
 	struct udevice *fsdev;
 	int size = 0;
 
-	if (!IS_ENABLED(CONFIG_FS_LOADER))
+	if (!CONFIG_IS_ENABLED(FS_LOADER))
 		return 0;
 
 	if (!*loadaddr)

@@ -208,11 +208,14 @@ int ext4fs_ls(const char *dirname)
 
 int ext4fs_exists(const char *filename)
 {
-	loff_t file_len;
-	int ret;
+	struct ext2fs_node *dirnode = NULL;
+	int filetype;
 
-	ret = ext4fs_open(filename, &file_len);
-	return ret == 0;
+	if (!filename)
+		return 0;
+
+	return ext4fs_find_file1(filename, &ext4fs_root->diropen, &dirnode,
+				 &filetype);
 }
 
 int ext4fs_size(const char *filename, loff_t *size)

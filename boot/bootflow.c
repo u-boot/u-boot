@@ -217,6 +217,9 @@ static int iter_incr(struct bootflow_iter *iter)
 		}
 	}
 
+	if (iter->flags & BOOTFLOWIF_SINGLE_PARTITION)
+		return BF_NO_MORE_DEVICES;
+
 	/* No more bootmeths; start at the first one, and... */
 	iter->cur_method = 0;
 	iter->method = iter->method_order[iter->cur_method];

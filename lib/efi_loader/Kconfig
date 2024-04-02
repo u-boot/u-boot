@@ -366,7 +366,7 @@ config EFI_HAVE_RUNTIME_RESET
 	bool
 	default y
 	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || \
-		   SANDBOX || SYSRESET_X86
+		   SANDBOX || SYSRESET_SBI || SYSRESET_X86
 
 config EFI_GRUB_ARM32_WORKAROUND
 	bool "Workaround for GRUB on 32bit ARM"

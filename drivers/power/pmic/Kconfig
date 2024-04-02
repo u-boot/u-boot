@@ -250,7 +250,7 @@ config PMIC_RK8XX
 	This driver implements register read/write operations.
 
 config SPL_PMIC_RK8XX
-	bool "Enable support for Rockchip PMIC RK8XX"
+	bool "Enable support for Rockchip PMIC RK8XX in SPL"
 	depends on SPL_DM_PMIC
 	---help---
 	The Rockchip RK808 PMIC provides four buck DC-DC convertors, 8 LDOs,

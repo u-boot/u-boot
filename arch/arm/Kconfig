@@ -6,6 +6,7 @@ config SYS_ARCH
 
 config ARM64
 	bool
+	select 64BIT
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 	imply SPL_SEPARATE_BSS
@@ -28,6 +29,7 @@ config COUNTER_FREQUENCY
 			ROCKCHIP_RK3288 || ROCKCHIP_RK322X || ROCKCHIP_RK3036
 	default 25000000 if ARCH_LX2160A || ARCH_LX2162A || ARCH_LS1088A
 	default 100000000 if ARCH_ZYNQMP
+	default 200000000 if ARCH_SOCFPGA && ARM64 && TARGET_SOCFPGA_AGILEX5
 	default 0
 	help
 	  For platforms with ARMv8-A and ARMv7-A which features a system
@@ -121,6 +123,15 @@ config GIC_V3_ITS
 	  LPI configuration table can be used by u-boot or Linux.
 	  ARM GICV3 has limitation, once the LPI table is enabled, LPI
 	  configuration table can not be re-programmed, unless GICV3 reset.
+
+config GICV3_SUPPORT_GIC600
+	bool "ARM GICV3 GIC600 SUPPORT"
+	help
+	  ARM GIC-600 IP complies with ARM GICv3 architecture, but among others,
+	  implements a power control register in the Redistributor frame.This
+	  register must be programmed to mark the frame as powered on, before
+	  accessing other registers in the frame. Rest of initialization sequence
+	  remains the same.
 
 config STATIC_RELA
 	bool
@@ -631,20 +642,6 @@ config ARCH_ORION5X
 	select SPL_SEPARATE_BSS if SPL
 	select TIMER
 
-config TARGET_STV0991
-	bool "Support stv0991"
-	select CPU_V7A
-	select DM
-	select DM_SERIAL
-	select DM_SPI
-	select DM_SPI_FLASH
-	select GPIO_EXTRA_HEADER
-	select PL01X_SERIAL
-	select MTD
-	select SPI
-	select SPI_FLASH
-	imply CMD_DM
-
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
 	select DM
@@ -698,15 +695,6 @@ config TARGET_BCMNS
 	  Support for Broadcom Northstar SoCs. NS is a dual-core 32-bit
 	  ARMv7 Cortex-A9 SoC family including BCM4708, BCM47094,
 	  BCM5301x etc.
-
-config TARGET_BCMNS2
-	bool "Support Broadcom Northstar2"
-	select ARM64
-	select GPIO_EXTRA_HEADER
-	help
-	  Support for Broadcom Northstar 2 SoCs.  NS2 is a quad-core 64-bit
-	  ARMv8 Cortex-A57 processors targeting a broad range of networking
-	  applications.
 
 config TARGET_BCMNS3
 	bool "Support Broadcom NS3"
@@ -1096,6 +1084,10 @@ config ARCH_SNAPDRAGON
 	select OF_SEPARATE
 	select SMEM
 	select SPMI
+	select BOARD_LATE_INIT
+	select OF_BOARD
+	select SAVE_PREV_BL_FDT_ADDR
+	select LINUX_KERNEL_IMAGE_HEADER
 	imply CMD_DM
 
 config ARCH_SOCFPGA
@@ -1116,6 +1108,8 @@ config ARCH_SOCFPGA
 	select SPL_LIBGENERIC_SUPPORT
 	select SPL_OF_CONTROL
 	select SPL_SEPARATE_BSS if TARGET_SOCFPGA_SOC64
+	select SPL_DRIVERS_MISC if TARGET_SOCFPGA_SOC64
+	select SPL_SOCFPGA_DT_REG if TARGET_SOCFPGA_SOC64
 	select SPL_SERIAL
 	select SPL_SYSRESET
 	select SPL_WATCHDOG
@@ -1124,7 +1118,8 @@ config ARCH_SOCFPGA
 	select SYS_THUMB_BUILD if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select SYSRESET
 	select SYSRESET_SOCFPGA if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
-	select SYSRESET_SOCFPGA_SOC64 if TARGET_SOCFPGA_SOC64
+	select SYSRESET_SOCFPGA_SOC64 if !TARGET_SOCFPGA_AGILEX5 && \
+	  TARGET_SOCFPGA_SOC64
 	imply CMD_DM
 	imply CMD_MTDPARTS
 	imply CRC32_VERIFY
@@ -2363,7 +2358,6 @@ source "board/samsung/common/Kconfig"
 source "board/siemens/common/Kconfig"
 source "board/seeed/npi_imx6ull/Kconfig"
 source "board/socionext/developerbox/Kconfig"
-source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/traverse/ten64/Kconfig"
 source "board/variscite/dart_6ul/Kconfig"

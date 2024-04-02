@@ -128,6 +128,8 @@ struct macb_device {
 	unsigned long		dummy_desc_dma;
 
 	const struct device	*dev;
+	unsigned int    	duplex;
+	unsigned int    	speed;
 	unsigned short		phy_addr;
 	struct mii_dev		*bus;
 #ifdef CONFIG_PHYLIB
@@ -176,6 +178,12 @@ static int gem_is_gigabit_capable(struct macb_device *macb)
 	 * configured to support only 10/100.
 	 */
 	return macb_is_gem(macb) && !cpu_is_sama5d2() && !cpu_is_sama5d4();
+}
+
+/* Is the port a fixed link */
+static int macb_port_is_fixed_link(struct macb_device *macb)
+{
+	return macb->phy_addr > PHY_MAX_ADDR;
 }
 
 static void macb_mdio_write(struct macb_device *macb, u8 phy_adr, u8 reg,
@@ -666,97 +674,109 @@ static int macb_phy_init(struct udevice *dev, const char *name)
 	int i;
 
 	arch_get_mdio_control(name);
-	/* Auto-detect phy_addr */
-	ret = macb_phy_find(macb, name);
-	if (ret)
-		return ret;
+	/* If port is not fixed -> setup PHY */
+	if (!macb_port_is_fixed_link(macb)) {
+		/* Auto-detect phy_addr */
+		ret = macb_phy_find(macb, name);
+		if (ret)
+			return ret;
 
-	/* Check if the PHY is up to snuff... */
-	phy_id = macb_mdio_read(macb, macb->phy_addr, MII_PHYSID1);
-	if (phy_id == 0xffff) {
-		printf("%s: No PHY present\n", name);
-		return -ENODEV;
-	}
+		/* Check if the PHY is up to snuff... */
+		phy_id = macb_mdio_read(macb, macb->phy_addr, MII_PHYSID1);
+		if (phy_id == 0xffff) {
+			printf("%s: No PHY present\n", name);
+			return -ENODEV;
+		}
 
 #ifdef CONFIG_PHYLIB
-	macb->phydev = phy_connect(macb->bus, macb->phy_addr, dev,
-			     macb->phy_interface);
-	if (!macb->phydev) {
-		printf("phy_connect failed\n");
-		return -ENODEV;
-	}
+		macb->phydev = phy_connect(macb->bus, macb->phy_addr, dev,
+				     macb->phy_interface);
+		if (!macb->phydev) {
+			printf("phy_connect failed\n");
+			return -ENODEV;
+		}
 
-	phy_config(macb->phydev);
+		phy_config(macb->phydev);
 #endif
 
-	status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
-	if (!(status & BMSR_LSTATUS)) {
-		/* Try to re-negotiate if we don't have link already. */
-		macb_phy_reset(macb, name);
+		status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
+		if (!(status & BMSR_LSTATUS)) {
+			/* Try to re-negotiate if we don't have link already. */
+			macb_phy_reset(macb, name);
 
-		for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
-			status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
-			if (status & BMSR_LSTATUS) {
-				/*
-				 * Delay a bit after the link is established,
-				 * so that the next xfer does not fail
-				 */
-				mdelay(10);
-				break;
+			for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
+				status = macb_mdio_read(macb, macb->phy_addr, MII_BMSR);
+				if (status & BMSR_LSTATUS) {
+					/*
+					 * Delay a bit after the link is established,
+					 * so that the next xfer does not fail
+					 */
+					mdelay(10);
+					break;
+				}
+				udelay(100);
 			}
-			udelay(100);
 		}
-	}
 
-	if (!(status & BMSR_LSTATUS)) {
-		printf("%s: link down (status: 0x%04x)\n",
-		       name, status);
-		return -ENETDOWN;
-	}
-
-	/* First check for GMAC and that it is GiB capable */
-	if (gem_is_gigabit_capable(macb)) {
-		lpa = macb_mdio_read(macb, macb->phy_addr, MII_STAT1000);
-
-		if (lpa & (LPA_1000FULL | LPA_1000HALF | LPA_1000XFULL |
-					LPA_1000XHALF)) {
-			duplex = ((lpa & (LPA_1000FULL | LPA_1000XFULL)) ?
-					1 : 0);
-
-			printf("%s: link up, 1000Mbps %s-duplex (lpa: 0x%04x)\n",
-			       name,
-			       duplex ? "full" : "half",
-			       lpa);
-
-			ncfgr = macb_readl(macb, NCFGR);
-			ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
-			ncfgr |= GEM_BIT(GBE);
-
-			if (duplex)
-				ncfgr |= MACB_BIT(FD);
-
-			macb_writel(macb, NCFGR, ncfgr);
-
-			ret = macb_linkspd_cb(dev, _1000BASET);
-			if (ret)
-				return ret;
-
-			return 0;
+		if (!(status & BMSR_LSTATUS)) {
+			printf("%s: link down (status: 0x%04x)\n",
+			       name, status);
+			return -ENETDOWN;
 		}
-	}
 
-	/* fall back for EMAC checking */
-	adv = macb_mdio_read(macb, macb->phy_addr, MII_ADVERTISE);
-	lpa = macb_mdio_read(macb, macb->phy_addr, MII_LPA);
-	media = mii_nway_result(lpa & adv);
-	speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
-		 ? 1 : 0);
-	duplex = (media & ADVERTISE_FULL) ? 1 : 0;
-	printf("%s: link up, %sMbps %s-duplex (lpa: 0x%04x)\n",
-	       name,
-	       speed ? "100" : "10",
-	       duplex ? "full" : "half",
-	       lpa);
+		/* First check for GMAC and that it is GiB capable */
+		if (gem_is_gigabit_capable(macb)) {
+			lpa = macb_mdio_read(macb, macb->phy_addr, MII_STAT1000);
+
+			if (lpa & (LPA_1000FULL | LPA_1000HALF | LPA_1000XFULL |
+						LPA_1000XHALF)) {
+				duplex = ((lpa & (LPA_1000FULL | LPA_1000XFULL)) ?
+						1 : 0);
+
+				printf("%s: link up, 1000Mbps %s-duplex (lpa: 0x%04x)\n",
+					name,
+					duplex ? "full" : "half",
+					lpa);
+
+				ncfgr = macb_readl(macb, NCFGR);
+				ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+				ncfgr |= GEM_BIT(GBE);
+
+				if (duplex)
+					ncfgr |= MACB_BIT(FD);
+
+				macb_writel(macb, NCFGR, ncfgr);
+
+				ret = macb_linkspd_cb(dev, _1000BASET);
+				if (ret)
+					return ret;
+
+				return 0;
+			}
+		}
+
+		/* fall back for EMAC checking */
+		adv = macb_mdio_read(macb, macb->phy_addr, MII_ADVERTISE);
+		lpa = macb_mdio_read(macb, macb->phy_addr, MII_LPA);
+		media = mii_nway_result(lpa & adv);
+		speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
+			? 1 : 0);
+		duplex = (media & ADVERTISE_FULL) ? 1 : 0;
+		printf("%s: link up, %sMbps %s-duplex (lpa: 0x%04x)\n",
+			name,
+			speed ? "100" : "10",
+			duplex ? "full" : "half",
+			lpa);
+	} else {
+		/* if macb port is a fixed link */
+		/* TODO : manage gigabit capable processors */
+		speed = macb->speed;
+		duplex = macb->duplex;
+		printf("%s: link up, %sMbps %s-duplex\n",
+			name,
+			speed ? "100" : "10",
+			duplex ? "full" : "half");
+	}
 
 	ncfgr = macb_readl(macb, NCFGR);
 	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
@@ -1276,6 +1296,28 @@ int __weak macb_late_eth_of_to_plat(struct udevice *dev)
 static int macb_eth_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct macb_device *macb = dev_get_priv(dev);
+	void *blob = (void *)gd->fdt_blob;
+	int node = dev_of_offset(dev);
+	int fl_node, speed_fdt;
+
+	/* fetch 'fixed-link' property */
+	fl_node = fdt_subnode_offset(blob, node, "fixed-link");
+	if (fl_node >= 0) {
+		/* set phy_addr to invalid value for fixed link */
+		macb->phy_addr = PHY_MAX_ADDR + 1;
+		macb->duplex = fdtdec_get_bool(blob, fl_node, "full-duplex");
+		speed_fdt = fdtdec_get_int(blob, fl_node, "speed", 0);
+		if (speed_fdt == 100) {
+			macb->speed = 1;
+		} else if (speed_fdt == 10) {
+			macb->speed = 0;
+		} else {
+			printf("%s: The given speed %d of ethernet in the DT is not supported\n",
+					__func__, speed_fdt);
+			return -EINVAL;
+		}
+	}
 
 	pdata->iobase = (uintptr_t)dev_remap_addr(dev);
 	if (!pdata->iobase)

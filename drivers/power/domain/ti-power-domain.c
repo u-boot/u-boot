@@ -81,22 +81,35 @@ static const struct soc_attr ti_k3_soc_pd_data[] = {
 		.family = "J7200",
 		.data = &j7200_pd_platdata,
 	},
-#elif CONFIG_SOC_K3_J721S2
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_J721S2)
 	{
 		.family = "J721S2",
 		.data = &j721s2_pd_platdata,
 	},
 #endif
-#ifdef CONFIG_SOC_K3_AM625
+#if IS_ENABLED(CONFIG_SOC_K3_AM625)
 	{
 		.family = "AM62X",
 		.data = &am62x_pd_platdata,
 	},
 #endif
-#ifdef CONFIG_SOC_K3_AM62A7
+#if IS_ENABLED(CONFIG_SOC_K3_AM62A7)
 	{
 		.family = "AM62AX",
 		.data = &am62ax_pd_platdata,
+	},
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_J784S4)
+	{
+		.family = "J784S4",
+		.data = &j784s4_pd_platdata,
+	},
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_AM62P5)
+	{
+		.family = "AM62PX",
+		.data = &am62px_pd_platdata,
 	},
 #endif
 	{ /* sentinel */ }

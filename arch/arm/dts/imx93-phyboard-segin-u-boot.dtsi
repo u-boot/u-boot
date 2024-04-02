@@ -121,6 +121,21 @@
 	bootph-some-ram;
 };
 
+/*
+ * Remove once USB support is added to imx93-phyboard-segin.dts upstream.
+ */
+&usbotg1 {
+	disable-over-current;
+	dr_mode = "otg";
+	status = "okay";
+};
+
+&usbotg2 {
+	disable-over-current;
+	dr_mode = "host";
+	status = "okay";
+};
+
 &usdhc1 {
 	bootph-pre-ram;
 	bootph-some-ram;

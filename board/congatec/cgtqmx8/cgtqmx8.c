@@ -371,13 +371,6 @@ void detail_board_ddr_info(void)
 	puts("\nDDR    ");
 }
 
-/*
- * Board specific reset that is system reset.
- */
-void reset_cpu(void)
-{
-	/* TODO */
-}
 
 #ifdef CONFIG_OF_BOARD_SETUP
 int ft_board_setup(void *blob, struct bd_info *bd)

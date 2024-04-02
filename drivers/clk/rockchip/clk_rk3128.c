@@ -10,7 +10,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <syscon.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3128.h>
 #include <asm/arch-rockchip/hardware.h>

@@ -49,7 +49,6 @@ config SYS_BOARD
 	default "mt7628" if BOARD_MT7628_RFB
 
 config SYS_CONFIG_NAME
-	string "Board configuration name"
 	default "mt7628" if BOARD_MT7628_RFB
 
 source "board/gardena/smart-gateway-mt7688/Kconfig"

@@ -8,5 +8,7 @@
 
 int fdt_fixup_msmc_ram_k3(void *blob);
 int fdt_del_node_path(void *blob, const char *path);
+int fdt_fixup_reserved(void *blob, const char *name,
+		       unsigned int new_address, unsigned int new_size);
 
 #endif /* _COMMON_FDT_H */

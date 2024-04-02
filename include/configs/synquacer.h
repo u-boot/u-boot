@@ -21,6 +21,7 @@
 /*
  * Boot info
  */
+#define SCB_PLAT_METADATA_OFFSET	(0x510000)
 
 /*
  * Hardware drivers support

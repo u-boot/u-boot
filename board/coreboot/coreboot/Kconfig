@@ -29,10 +29,3 @@ config SYS_CAR_SIZE
 	  This option specifies the board specific Cache-As-RAM (CAR) size.
 
 endif  # CONFIG_VENDOR_COREBOOT
-
-if TARGET_COREBOOT
-
-config SYS_CONFIG_NAME
-	default "coreboot"
-
-endif

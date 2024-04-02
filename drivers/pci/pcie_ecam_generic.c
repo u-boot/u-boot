@@ -10,7 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <pci.h>
-#include <asm/global_data.h>
+#include <linux/ioport.h>
 #include <linux/printk.h>
 
 #include <asm/io.h>
@@ -133,18 +133,17 @@ static int pci_generic_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
 static int pci_generic_ecam_of_to_plat(struct udevice *dev)
 {
 	struct generic_ecam_pcie *pcie = dev_get_priv(dev);
-	struct fdt_resource reg_res;
-	DECLARE_GLOBAL_DATA_PTR;
+	ofnode node = dev_ofnode(dev);
+	struct resource reg_res;
 	int err;
 
-	err = fdt_get_resource(gd->fdt_blob, dev_of_offset(dev), "reg",
-			       0, &reg_res);
+	err = ofnode_read_resource(node, 0, &reg_res);
 	if (err < 0) {
 		pr_err("\"reg\" resource not found\n");
 		return err;
 	}
 
-	pcie->size = fdt_resource_size(&reg_res);
+	pcie->size = resource_size(&reg_res);
 	pcie->cfg_base = map_physmem(reg_res.start, pcie->size, MAP_NOCACHE);
 
 	return 0;

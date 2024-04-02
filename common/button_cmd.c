@@ -33,7 +33,7 @@ struct button_cmd {
 static int get_button_cmd(int n, struct button_cmd *cmd)
 {
 	const char *cmd_str;
-	struct udevice *btn;
+	struct udevice *btn = NULL;
 	char buf[24];
 
 	snprintf(buf, sizeof(buf), "button_cmd_%d_name", n);

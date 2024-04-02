@@ -55,6 +55,7 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	board/emulation/configs/acpi.config
 F:	cmd/acpi.c
+F:	include/acpi/
 F:	lib/acpi/
 
 ANDROID AB
@@ -603,18 +604,22 @@ M:	Caleb Connolly <caleb.connolly@linaro.org>
 M:	Neil Armstrong <neil.armstrong@linaro.org>
 R:	Sumit Garg <sumit.garg@linaro.org>
 S:	Maintained
-F:	arch/arm/mach-snapdragon/
-F:	drivers/button/button-qcom-pmic.c
-F:	drivers/clk/qcom/
+F:	arch/arm/dts/msm8*.dtsi
+F:	arch/arm/dts/pm8???.dtsi
+F:	arch/arm/dts/pms405.dtsi
+F:	arch/arm/dts/sdm845.dtsi
+F:	drivers/*/*/pm8???-*
 F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
 F:	drivers/phy/msm8916-usbh-phy.c
-F:	drivers/pinctrl/qcom/
 F:	drivers/serial/serial_msm.c
 F:	drivers/serial/serial_msm_geni.c
 F:	drivers/smem/msm_smem.c
 F:	drivers/spmi/spmi-msm.c
 F:	drivers/usb/host/ehci-msm.c
+N:	qcom
+N:	snapdragon
+N:	qualcomm
 
 ARM STI
 M:	Patrice Chotard <patrice.chotard@foss.st.com>
@@ -678,13 +683,6 @@ F:	tools/logos/st.bmp
 F:	tools/stm32image.c
 N:	stm
 N:	stm32
-
-
-ARM STM STV0991
-M:	Vikas Manocha <vikas.manocha@st.com>
-S:	Maintained
-F:	arch/arm/cpu/armv7/stv0991/
-F:	arch/arm/include/asm/arch-stv0991/
 
 ARM SUNXI
 M:	Jagan Teki <jagan@amarulasolutions.com>
@@ -988,6 +986,11 @@ S:	Maintained
 F:	cmd/cyclic.c
 F:	common/cyclic.c
 F:	include/cyclic.h
+
+DEVICETREE REBASING SUBTREE
+M:	Sumit Garg <sumit.garg@linaro.org>
+S:	Maintained
+F:	dts/upstream/
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>
@@ -1368,6 +1371,12 @@ PATMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/patman/
+
+PCIe DWC IMX
+M:	Sumit Garg <sumit.garg@linaro.org>
+S:	Maintained
+F:	drivers/pci/pcie_dw_imx.c
+F:	drivers/phy/phy-imx8m-pcie.c
 
 PCI Endpoint
 M:	Ramon Fried <rfried.dev@gmail.com>

@@ -35,14 +35,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "zynqmp"
 
-config SYS_CONFIG_NAME
-	string "Board configuration name"
-	default "xilinx_zynqmp"
-	help
-	  This option contains information about board configuration name.
-	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
-	  will be used for board configuration.
-
 config SYS_MEM_RSVD_FOR_MMU
 	bool "Reserve memory for MMU Table"
 	help

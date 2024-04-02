@@ -16,7 +16,7 @@
 /*
  * codepage_437 - Unicode to codepage 437 translation table
  */
-extern const u16 codepage_437[128];
+extern const u16 codepage_437[160];
 
 /**
  * console_read_unicode() - read Unicode code point from console

@@ -689,4 +689,11 @@ config SL28CPLD
 	  the base driver which provides common access methods for the
 	  sub-drivers.
 
+config SPL_SOCFPGA_DT_REG
+	bool "Enable register setting from device tree in SPL"
+	depends on SPL
+	help
+	  Enable register setting from device tree. This also
+	  provides user a clean interface and all register settings are
+	  centralized in one place, device tree.
 endmenu

@@ -2,7 +2,7 @@
 # This Dockerfile is used to build an image containing basic stuff to be used
 # to build U-Boot and run our test suites.
 
-FROM ubuntu:jammy-20240125
+FROM ubuntu:jammy-20240227
 MAINTAINER Tom Rini <trini@konsulko.com>
 LABEL Description=" This image is for building U-Boot inside a container"
 
@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Add LLVM repository
 RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Manually install the kernel.org "Crosstool" based toolchains for gcc-13.2.0
 RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/13.2.0/x86_64-gcc-13.2.0-nolibc-aarch64-linux.tar.xz | tar -C /opt -xJ
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
 	bison \
 	build-essential \
 	cgpt \
-	clang-16 \
+	clang-17 \
 	coreutils \
 	cpio \
 	curl \
@@ -116,6 +116,7 @@ RUN apt-get update && apt-get install -y \
 	virtualenv \
 	vboot-kernel-utils \
 	vboot-utils \
+	xilinx-bootgen \
 	xxd \
 	zip \
 	&& rm -rf /var/lib/apt/lists/*
@@ -184,9 +185,20 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 	git config user.email u-boot@denx.de && \
 	git format-patch 0c7ffc977195~..0c7ffc977195 && \
 	git am 0001-hw-net-cadence_gem-Fix-MDIO_OP_xxx-values.patch && \
+	git cherry-pick d3c79c3974 && \
 	./configure --prefix=/opt/qemu --target-list="aarch64-softmmu,arm-softmmu,i386-softmmu,m68k-softmmu,mips-softmmu,mips64-softmmu,mips64el-softmmu,mipsel-softmmu,ppc-softmmu,riscv32-softmmu,riscv64-softmmu,sh4-softmmu,x86_64-softmmu,xtensa-softmmu" && \
 	make -j$(nproc) all install && \
 	rm -rf /tmp/qemu
+
+# Build fiptool
+RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/tf-a && \
+	cd /tmp/tf-a/ && \
+	git checkout v2.10.0 && \
+	cd tools/fiptool && \
+	make && \
+	mkdir -p /usr/local/bin && \
+	cp fiptool /usr/local/bin && \
+	rm -rf /tmp/tf-a
 
 # Build genimage (required by some targets to generate disk images)
 RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \

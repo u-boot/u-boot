@@ -74,6 +74,9 @@ int bootstd_test_check_mmc_hunter(struct unit_test_state *uts)
 	struct bootstd_priv *std;
 	uint seq;
 
+	if (!IS_ENABLED(CONFIG_MMC))
+		return 0;
+
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
 

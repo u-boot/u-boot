@@ -51,3 +51,9 @@ config K3_SYSFW_IMAGE_SPI_OFFS
 	help
 	  Offset of the combined System Firmware and configuration image tree
 	  blob to be loaded when booting from a SPI flash memory.
+
+config SYS_K3_SPL_ATF
+	bool "Start Cortex-A from SPL"
+	help
+	  Enabling this will try to start Cortex-A (typically with ATF)
+	  after SPL from R5.

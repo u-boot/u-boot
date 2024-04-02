@@ -9,7 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "evb_rk3328"
 
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-
 endif

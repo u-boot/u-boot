@@ -174,6 +174,8 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 
 dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-anbernic-rgxx3.dtb \
+	rk3566-pinetab2-v0.1.dtb \
+	rk3566-pinetab2-v2.0.dtb \
 	rk3566-quartz64-a.dtb \
 	rk3566-quartz64-b.dtb \
 	rk3566-radxa-cm3-io.dtb \
@@ -191,16 +193,20 @@ dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3568-rock-3a.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \
+	rk3588s-coolpi-4b.dts \
+	rk3588-coolpi-cm5-evb.dts \
 	rk3588-edgeble-neu6a-io.dtb \
 	rk3588-edgeble-neu6b-io.dtb \
 	rk3588-evb1-v10.dtb \
+	rk3588-generic.dtb \
+	rk3588-jaguar.dtb \
 	rk3588-nanopc-t6.dtb \
 	rk3588s-orangepi-5.dtb \
 	rk3588-orangepi-5-plus.dtb \
 	rk3588-quartzpro64.dtb \
-	rk3588-turing-rk1.dtb \
 	rk3588s-rock-5a.dtb \
-	rk3588-rock-5b.dtb
+	rk3588-rock-5b.dtb \
+	rk3588-turing-rk1.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
@@ -216,14 +222,6 @@ dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb \
 	meson-axg-s400.dtb \
 	meson-axg-jethome-jethub-j100.dtb \
-	meson-gxbb-kii-pro.dtb \
-	meson-gxbb-nanopi-k2.dtb \
-	meson-gxbb-odroidc2.dtb \
-	meson-gxbb-nanopi-k2.dtb \
-	meson-gxbb-p200.dtb \
-	meson-gxbb-p201.dtb \
-	meson-gxbb-wetek-hub.dtb \
-	meson-gxbb-wetek-play2.dtb \
 	meson-gxl-s805x-libretech-ac.dtb \
 	meson-gxl-s905d-libretech-pc.dtb \
 	meson-gxl-s905w-jethome-jethub-j80.dtb \
@@ -548,6 +546,7 @@ dtb-$(CONFIG_TARGET_THUNDERX_88XX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
 	socfpga_agilex_socdk.dtb			\
+	socfpga_agilex5_socdk.dtb			\
 	socfpga_arria5_secu1.dtb			\
 	socfpga_arria5_socdk.dtb			\
 	socfpga_arria10_chameleonv3_270_2.dtb		\
@@ -577,7 +576,6 @@ dtb-$(CONFIG_TARGET_AM57XX_EVM) += am57xx-beagle-x15.dtb \
 	am574x-idk.dtb \
 	am572x-idk.dtb	\
 	am571x-idk.dtb
-dtb-$(CONFIG_TARGET_STV0991) += stv0991.dtb
 
 dtb-$(CONFIG_ARCH_LS1021A) += ls1021a-qds-duart.dtb \
 	ls1021a-qds-lpuart.dtb \
@@ -632,10 +630,11 @@ dtb-$(CONFIG_TARGET_SL28) += fsl-ls1028a-kontron-sl28.dtb \
 
 dtb-$(CONFIG_TARGET_TEN64) += fsl-ls1088a-ten64.dtb
 
-dtb-$(CONFIG_TARGET_DRAGONBOARD410C) += dragonboard410c.dtb
-dtb-$(CONFIG_TARGET_DRAGONBOARD820C) += dragonboard820c.dtb
-dtb-$(CONFIG_TARGET_STARQLTECHN) += starqltechn.dtb
-dtb-$(CONFIG_TARGET_QCS404EVB) += qcs404-evb.dtb
+dtb-$(CONFIG_ARCH_SNAPDRAGON) += apq8016-sbc.dtb \
+	apq8096-db820c.dtb \
+	sdm845-db845c.dtb \
+	sdm845-samsung-starqltechn.dtb \
+	qcs404-evb-4000.dtb
 
 dtb-$(CONFIG_TARGET_STEMMY) += ste-ux500-samsung-stemmy.dtb
 
@@ -1075,7 +1074,6 @@ dtb-$(CONFIG_ARCH_IMX8ULP) += \
 
 dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-data-modul-edm-sbc.dtb \
-	imx8mm-evk.dtb \
 	imx8mm-icore-mx8mm-ctouch2.dtb \
 	imx8mm-icore-mx8mm-edimm2.2.dtb \
 	imx8mm-kontron-bl.dtb \
@@ -1084,25 +1082,11 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-phg.dtb \
 	imx8mm-phyboard-polis-rdk.dtb \
 	imx8mm-phygate-tauri-l.dtb \
-	imx8mm-venice.dtb \
-	imx8mm-venice-gw71xx-0x.dtb \
-	imx8mm-venice-gw72xx-0x.dtb \
-	imx8mm-venice-gw73xx-0x.dtb \
-	imx8mm-venice-gw7901.dtb \
-	imx8mm-venice-gw7902.dtb \
-	imx8mm-venice-gw7903.dtb \
-	imx8mm-venice-gw7904.dtb \
-	imx8mm-venice-gw7905-0x.dtb \
 	imx8mm-verdin-wifi-dev.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
-	imx8mn-ddr4-evk.dtb \
 	imx8mq-cm.dtb \
-	imx8mn-evk.dtb \
 	imx8mn-var-som-symphony.dtb \
-	imx8mn-venice.dtb \
-	imx8mn-venice-gw7902.dtb \
-	imx8mq-evk.dtb \
 	imx8mm-beacon-kit.dtb \
 	imx8mn-beacon-kit.dtb \
 	imx8mq-mnt-reform2.dtb \
@@ -1117,16 +1101,9 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-dhcom-pdk2.dtb \
 	imx8mp-dhcom-pdk3.dtb \
 	imx8mp-dhcom-pdk3-overlay-rev100.dtbo \
-	imx8mp-evk.dtb \
 	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-msc-sm2s.dtb \
 	imx8mp-phyboard-pollux-rdk.dtb \
-	imx8mp-venice.dtb \
-	imx8mp-venice-gw71xx-2x.dtb \
-	imx8mp-venice-gw72xx-2x.dtb \
-	imx8mp-venice-gw73xx-2x.dtb \
-	imx8mp-venice-gw74xx.dtb \
-	imx8mp-venice-gw7905-2x.dtb \
 	imx8mp-verdin-wifi-dev.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb \
@@ -1267,6 +1244,9 @@ dtb-$(CONFIG_TARGET_OMAP4_SDP4430) += \
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
 	at91-sama7g5ek.dtb
 
+dtb-$(CONFIG_TARGET_SAMA7G54_CURIOSITY) += \
+	at91-sama7g54_curiosity.dtb
+
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb
 
@@ -1366,7 +1346,9 @@ dtb-$(CONFIG_BCM6878) += \
 	bcm96878.dtb
 
 dtb-$(CONFIG_ASPEED_AST2500) += ast2500-evb.dtb
-dtb-$(CONFIG_ASPEED_AST2600) += ast2600-evb.dtb
+dtb-$(CONFIG_ASPEED_AST2600) += \
+	ast2600-evb.dtb \
+	ast2600-x4tf.dtb
 
 dtb-$(CONFIG_ARCH_STI) += stih410-b2260.dtb
 
@@ -1421,10 +1403,14 @@ dtb-$(CONFIG_SOC_K3_J721S2) += k3-am68-sk-base-board.dtb\
 			       k3-am68-sk-r5-base-board.dtb\
 			       k3-j721s2-common-proc-board.dtb\
 			       k3-j721s2-r5-common-proc-board.dtb
-dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-evm.dtb \
-			      k3-am642-r5-evm.dtb \
-			      k3-am642-sk.dtb \
-			      k3-am642-r5-sk.dtb
+
+dtb-$(CONFIG_SOC_K3_J784S4) += k3-am69-r5-sk.dtb \
+			       k3-j784s4-r5-evm.dtb
+
+dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-r5-evm.dtb \
+			      k3-am642-r5-sk.dtb \
+			      k3-am642-phyboard-electra-rdk.dtb \
+			      k3-am642-r5-phycore-som-2gb.dtb
 
 dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
 			      k3-am625-r5-sk.dtb \
@@ -1437,6 +1423,8 @@ dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
 
 dtb-$(CONFIG_SOC_K3_AM62A7) += k3-am62a7-sk.dtb \
 			      k3-am62a7-r5-sk.dtb
+
+dtb-$(CONFIG_SOC_K3_AM62P5) += k3-am62p5-r5-sk.dtb
 
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7622-rfb.dtb \

@@ -24,8 +24,9 @@
 #define BOOT_DEVICE_UFS			0x13
 #define BOOT_DEVIE_GPMC			0x14
 #define BOOT_DEVICE_PCIE		0x15
-#define BOOT_DEVICE_MMC2_2		0x16
-#define BOOT_DEVICE_RAM			0x17
+#define BOOT_DEVICE_XSPI 		0x16
+#define BOOT_DEVICE_RAM 		0x17
+#define BOOT_DEVICE_MMC2_2 		0xFF /* Invalid value */
 
 /* Backup boot modes with MCU Only = 0 */
 #define BACKUP_BOOT_DEVICE_RAM		0x0

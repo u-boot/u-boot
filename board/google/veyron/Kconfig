@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "veyron"
 
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-
 endif
 
 if TARGET_CHROMEBIT_MICKEY
@@ -24,9 +21,6 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "veyron"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
 
 endif
 
@@ -41,9 +35,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "veyron"
 
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-
 endif
 
 if TARGET_CHROMEBOOK_SPEEDY
@@ -56,8 +47,5 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "veyron"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
 
 endif

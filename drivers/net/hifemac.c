@@ -15,6 +15,9 @@
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
+#include <dm/lists.h>
+#include <linux/bitfield.h>
+#include <linux/ethtool.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
 
@@ -122,6 +125,57 @@ struct hisi_femac_priv {
 	struct phy_device *phy;
 
 	u32 link_status;
+};
+
+struct hisi_femac_stat_entry {
+	const char *name;
+	u32 offset;
+	u32 mask;
+};
+
+/* please refer to the datasheet for the description of these entries */
+static const struct hisi_femac_stat_entry hisi_femac_stats_table[] = {
+	{ "rxsof_cnt",		0x584,	GENMASK(31, 28) },
+	{ "rxeof_cnt",		0x584,	GENMASK(27, 24) },
+	{ "rxcrcok_cnt",	0x584,	GENMASK(23, 20) },
+	{ "rxcrcbad_cnt",	0x584,	GENMASK(19, 16) },
+	{ "txsof_cnt",		0x584,	GENMASK(15, 12) },
+	{ "txeof_cnt",		0x584,	GENMASK(11, 8) },
+	{ "txcrcok_cnt",	0x584,	GENMASK(7, 4) },
+	{ "txcrcbad_cnt",	0x584,	GENMASK(3, 0) },
+	{ "pkts_cpu",		0x5a0,	GENMASK(15, 0) },
+	{ "addr_cpu",		0x5a4,	GENMASK(15, 0) },
+	{ "pkts_port",		0x5a8,	GENMASK(15, 0) },
+	{ "pkts_cpu2tx",	0x5ac,	GENMASK(15, 0) },
+	{ "rxdvrise",		0x600,	GENMASK(31, 0) },
+	{ "ifinoctets",		0x604,	GENMASK(31, 0) },
+	{ "octets_rx",		0x608,	GENMASK(31, 0) },
+	{ "local_mac_match",	0x60c,	GENMASK(31, 0) },
+	{ "pkts",		0x610,	GENMASK(31, 0) },
+	{ "broadcastpkts",	0x614,	GENMASK(31, 0) },
+	{ "multicastpkts",	0x618,	GENMASK(31, 0) },
+	{ "ifinucastpkts",	0x61c,	GENMASK(31, 0) },
+	{ "ifinerrors",		0x620,	GENMASK(31, 0) },
+	{ "crcerr",		0x624,	GENMASK(31, 0) },
+	{ "abnormalsizepkts",	0x628,	GENMASK(31, 0) },
+	{ "dot3alignmenterr",	0x62c,	GENMASK(31, 0) },
+	{ "dot3pause",		0x630,	GENMASK(31, 0) },
+	{ "dropevents",		0x634,	GENMASK(31, 0) },
+	{ "flux_frame_cnt",	0x638,	GENMASK(31, 0) },
+	{ "flux_drop_cnt",	0x63c,	GENMASK(31, 0) },
+	{ "mac_not2cpu_pkts",	0x64c,	GENMASK(31, 0) },
+	{ "pkts_tx",		0x780,	GENMASK(31, 0) },
+	{ "broadcastpkts_tx",	0x784,	GENMASK(31, 0) },
+	{ "multicastpkts_tx",	0x788,	GENMASK(31, 0) },
+	{ "ifoutucastpkts_tx",	0x78c,	GENMASK(31, 0) },
+	{ "octets_tx",		0x790,	GENMASK(31, 0) },
+	{ "dot3pause",		0x794,	GENMASK(31, 0) },
+	{ "retry_times_tx",	0x798,	GENMASK(31, 0) },
+	{ "collisions",		0x79c,	GENMASK(31, 0) },
+	{ "dot3latecol",	0x7a0,	GENMASK(31, 0) },
+	{ "dot3colok",		0x7a4,	GENMASK(31, 0) },
+	{ "dot3excessivecol",	0x7a8,	GENMASK(31, 0) },
+	{ "dot3colcnt",		0x7ac,	GENMASK(31, 0) },
 };
 
 static void hisi_femac_irq_enable(struct hisi_femac_priv *priv, int irqs)
@@ -245,8 +299,10 @@ static int hisi_femac_start(struct udevice *dev)
 	hisi_femac_rx_refill(priv);
 
 	ret = phy_startup(priv->phy);
-	if (ret)
-		return log_msg_ret("Failed to startup phy", ret);
+	if (ret) {
+		dev_err(dev, "Failed to startup phy: %d\n", ret);
+		return log_msg_ret("phy", ret);
+	}
 
 	if (!priv->phy->link) {
 		debug("%s: link down\n", __func__);
@@ -281,8 +337,10 @@ static int hisi_femac_send(struct udevice *dev, void *packet, int length)
 
 	// wait until FIFO is empty
 	ret = wait_for_bit_le32(priv->glb_base + GLB_IRQ_RAW, IRQ_INT_TX_PER_PACKET, true, 50, false);
-	if (ret == -ETIMEDOUT)
-		return log_msg_ret("FIFO timeout", ret);
+	if (ret == -ETIMEDOUT) {
+		dev_err(dev, "FIFO timeout\n");
+		return log_msg_ret("net", ret);
+	}
 
 	return 0;
 }
@@ -329,10 +387,43 @@ static void hisi_femac_stop(struct udevice *dev)
 	writel(SOFT_RESET_ALL, priv->glb_base + GLB_SOFT_RESET);
 }
 
-int hisi_femac_of_to_plat(struct udevice *dev)
+static int hisi_femac_get_sset_count(struct udevice *dev)
+{
+	return ARRAY_SIZE(hisi_femac_stats_table);
+}
+
+static void hisi_femac_get_strings(struct udevice *dev, u8 *data)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(hisi_femac_stats_table); i++)
+		strcpy(data + i * ETH_GSTRING_LEN, hisi_femac_stats_table[i].name);
+}
+
+/* Non-constant mask variant of FIELD_GET/FIELD_PREP */
+#define field_get(_mask, _reg) (((_reg) & (_mask)) >> (ffs(_mask) - 1))
+
+static void hisi_femac_get_stats(struct udevice *dev, u64 *data)
+{
+	int i;
+	u32 mask, reg;
+	struct hisi_femac_priv *priv = dev_get_priv(dev);
+	void __iomem *port_base = priv->port_base;
+
+	for (i = 0; i < ARRAY_SIZE(hisi_femac_stats_table); i++) {
+		mask = hisi_femac_stats_table[i].mask;
+		reg = readl(port_base + hisi_femac_stats_table[i].offset);
+
+		data[i] = field_get(mask, reg);
+	}
+}
+
+static int hisi_femac_of_to_plat(struct udevice *dev)
 {
 	int ret, i;
 	struct hisi_femac_priv *priv = dev_get_priv(dev);
+	ofnode mdio_node;
+	bool mdio_registered = false;
 	static const char * const clk_strs[] = {
 		[CLK_MAC] = "mac",
 		[CLK_BUS] = "bus",
@@ -340,39 +431,74 @@ int hisi_femac_of_to_plat(struct udevice *dev)
 	};
 
 	priv->port_base = dev_remap_addr_name(dev, "port");
-	if (IS_ERR(priv->port_base))
-		return log_msg_ret("Failed to remap port address space", PTR_ERR(priv->port_base));
+	if (!priv->port_base) {
+		dev_err(dev, "Failed to remap port address space\n");
+		return log_msg_ret("net", -EINVAL);
+	}
 
 	priv->glb_base = dev_remap_addr_name(dev, "glb");
-	if (IS_ERR(priv->glb_base))
-		return log_msg_ret("Failed to remap global address space", PTR_ERR(priv->glb_base));
+	if (IS_ERR(priv->glb_base)) {
+		dev_err(dev, "Failed to remap global address space\n");
+		return log_msg_ret("net", -EINVAL);
+	}
 
 	for (i = 0; i < ARRAY_SIZE(clk_strs); i++) {
 		priv->clks[i] = devm_clk_get(dev, clk_strs[i]);
 		if (IS_ERR(priv->clks[i])) {
 			dev_err(dev, "Error getting clock %s\n", clk_strs[i]);
-			return log_msg_ret("Failed to get clocks", PTR_ERR(priv->clks[i]));
+			return log_msg_ret("clk", PTR_ERR(priv->clks[i]));
 		}
 	}
 
 	priv->mac_rst = devm_reset_control_get(dev, "mac");
-	if (IS_ERR(priv->mac_rst))
-		return log_msg_ret("Failed to get MAC reset", PTR_ERR(priv->mac_rst));
+	if (IS_ERR(priv->mac_rst)) {
+		dev_err(dev, "Failed to get MAC reset %ld\n", PTR_ERR(priv->mac_rst));
+		return log_msg_ret("rst", PTR_ERR(priv->mac_rst));
+	}
 
 	priv->phy_rst = devm_reset_control_get(dev, "phy");
-	if (IS_ERR(priv->phy_rst))
-		return log_msg_ret("Failed to get PHY reset", PTR_ERR(priv->phy_rst));
+	if (IS_ERR(priv->phy_rst)) {
+		dev_err(dev, "Failed to get PHY reset %ld\n", PTR_ERR(priv->phy_rst));
+		return log_msg_ret("rst", PTR_ERR(priv->phy_rst));
+	}
 
 	ret = dev_read_u32_array(dev,
 				 PHY_RESET_DELAYS_PROPERTY,
 				 priv->phy_reset_delays,
 				 DELAYS_NUM);
-	if (ret < 0)
-		return log_msg_ret("Failed to get PHY reset delays", ret);
+	if (ret < 0) {
+		dev_err(dev, "Failed to get PHY reset delays %d\n", ret);
+		return log_msg_ret("rst", ret);
+	}
 
 	priv->mac_reset_delay = dev_read_u32_default(dev,
 						     MAC_RESET_DELAY_PROPERTY,
 						     MAC_RESET_ASSERT_PERIOD);
+
+	/* Create MDIO bus */
+	ofnode_for_each_subnode(mdio_node, dev_ofnode(dev)) {
+		const char *subnode_name = ofnode_get_name(mdio_node);
+		struct udevice *mdiodev;
+
+		// Skip subnodes not starting with "mdio"
+		if (strncmp(subnode_name, "mdio", 4))
+			continue;
+
+		ret = device_bind_driver_to_node(dev, "hisi-femac-mdio",
+						 subnode_name, mdio_node, &mdiodev);
+		if (ret) {
+			dev_err(dev, "Failed to register MDIO bus device %d\n", ret);
+			return log_msg_ret("net", ret);
+		}
+
+		mdio_registered = true;
+		break;
+	}
+
+	if (!mdio_registered) {
+		dev_err(dev, "No MDIO subnode is found!\n");
+		return log_msg_ret("mdio", -ENODATA);
+	}
 
 	return 0;
 }
@@ -385,37 +511,49 @@ static int hisi_femac_phy_reset(struct hisi_femac_priv *priv)
 
 	// Disable MAC clk before phy reset
 	ret = clk_disable(priv->clks[CLK_MAC]);
-	if (ret < 0)
-		return log_msg_ret("Failed to disable MAC clock", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to disable MAC clock %d\n", __func__, ret);
+		return log_msg_ret("clk", ret);
+	}
 	ret = clk_disable(priv->clks[CLK_BUS]);
-	if (ret < 0)
-		return log_msg_ret("Failed to disable bus clock", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to disable bus clock %d\n", __func__, ret);
+		return log_msg_ret("clk", ret);
+	}
 
 	udelay(delays[PRE_DELAY]);
 
 	ret = reset_assert(rst);
-	if (ret < 0)
-		return log_msg_ret("Failed to assert reset", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to assert reset %d\n", __func__, ret);
+		return log_msg_ret("rst", ret);
+	}
 
 	udelay(delays[PULSE]);
 
 	ret = reset_deassert(rst);
-	if (ret < 0)
-		return log_msg_ret("Failed to deassert reset", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to deassert reset %d\n", __func__, ret);
+		return log_msg_ret("rst", ret);
+	}
 
 	udelay(delays[POST_DELAY]);
 
 	ret = clk_enable(priv->clks[CLK_MAC]);
-	if (ret < 0)
-		return log_msg_ret("Failed to enable MAC clock", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to enable MAC clock %d\n", __func__, ret);
+		return log_msg_ret("clk", ret);
+	}
 	ret = clk_enable(priv->clks[CLK_BUS]);
-	if (ret < 0)
-		return log_msg_ret("Failed to enable MAC bus clock", ret);
+	if (ret < 0) {
+		pr_err("%s: Failed to enable MAC bus clock %d\n", __func__, ret);
+		return log_msg_ret("clk", ret);
+	}
 
 	return 0;
 }
 
-int hisi_femac_probe(struct udevice *dev)
+static int hisi_femac_probe(struct udevice *dev)
 {
 	struct hisi_femac_priv *priv = dev_get_priv(dev);
 	int ret, i;
@@ -423,30 +561,40 @@ int hisi_femac_probe(struct udevice *dev)
 	// Enable clocks
 	for (i = 0; i < CLK_NUM; i++) {
 		ret = clk_prepare_enable(priv->clks[i]);
-		if (ret < 0)
-			return log_msg_ret("Failed to enable clks", ret);
+		if (ret < 0) {
+			dev_err(dev, "Failed to enable clk %d: %d\n", i, ret);
+			return log_msg_ret("clk", ret);
+		}
 	}
 
 	// Reset MAC
 	ret = reset_assert(priv->mac_rst);
-	if (ret < 0)
-		return log_msg_ret("Failed to assert MAC reset", ret);
+	if (ret < 0) {
+		dev_err(dev, "Failed to assert MAC reset: %d\n", ret);
+		return log_msg_ret("net", ret);
+	}
 
 	udelay(priv->mac_reset_delay);
 
 	ret = reset_deassert(priv->mac_rst);
-	if (ret < 0)
-		return log_msg_ret("Failed to deassert MAC reset", ret);
+	if (ret < 0) {
+		dev_err(dev, "Failed to deassert MAC reset: %d\n", ret);
+		return log_msg_ret("net", ret);
+	}
 
 	// Reset PHY
 	ret = hisi_femac_phy_reset(priv);
-	if (ret < 0)
-		return log_msg_ret("Failed to reset phy", ret);
+	if (ret < 0) {
+		dev_err(dev, "Failed to reset PHY: %d\n", ret);
+		return log_msg_ret("net", ret);
+	}
 
 	// Connect to PHY
 	priv->phy = dm_eth_phy_connect(dev);
-	if (!priv->phy)
-		return log_msg_ret("Failed to connect to phy", -EINVAL);
+	if (!priv->phy) {
+		dev_err(dev, "Failed to connect to phy\n");
+		return log_msg_ret("phy", -EINVAL);
+	}
 
 	hisi_femac_port_init(priv);
 	return 0;
@@ -459,6 +607,9 @@ static const struct eth_ops hisi_femac_ops = {
 	.free_pkt	= hisi_femac_free_pkt,
 	.stop		= hisi_femac_stop,
 	.write_hwaddr	= hisi_femac_set_hw_mac_addr,
+	.get_sset_count	= hisi_femac_get_sset_count,
+	.get_strings	= hisi_femac_get_strings,
+	.get_stats	= hisi_femac_get_stats,
 };
 
 static const struct udevice_id hisi_femac_ids[] = {

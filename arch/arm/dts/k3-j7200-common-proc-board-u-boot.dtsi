@@ -195,6 +195,10 @@
 
 &ospi0 {
 	bootph-all;
+
+	flash@0 {
+		bootph-all;
+	};
 };
 
 &serdes_ln_ctrl {
