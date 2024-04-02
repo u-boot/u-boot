@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <fdt_support.h>
 #include <env.h>
+#include <log.h>
 #include <asm/arch/eeprom.h>
 #include <asm/io.h>
 #include <asm/sections.h>
@@ -17,6 +18,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 #define JH7110_L2_PREFETCHER_BASE_ADDR		0x2030000
 #define JH7110_L2_PREFETCHER_HART_OFFSET	0x2000
+#define FDTFILE_MILK_V_MARS \
+	"starfive/jh7110-milkv-mars.dtb"
 #define FDTFILE_VISIONFIVE2_1_2A \
 	"starfive/jh7110-starfive-visionfive-2-v1.2a.dtb"
 #define FDTFILE_VISIONFIVE2_1_3B \
@@ -48,24 +51,38 @@ static void set_fdtfile(void)
 {
 	u8 version;
 	const char *fdtfile;
+	const char *product_id;
 
 	fdtfile = env_get("fdtfile");
 	if (fdtfile)
 		return;
 
-	version = get_pcb_revision_from_eeprom();
-	switch (version) {
-	case 'a':
-	case 'A':
-		fdtfile = FDTFILE_VISIONFIVE2_1_2A;
-	        break;
+	product_id = get_product_id_from_eeprom();
+	if (!product_id) {
+		log_err("Can't read EEPROM\n");
+		return;
+	}
+	if (!strncmp(product_id, "MARS", 4)) {
+		fdtfile = FDTFILE_MILK_V_MARS;
+	} else if (!strncmp(product_id, "VF7110", 6)) {
+		version = get_pcb_revision_from_eeprom();
 
-	case 'b':
-	case 'B':
-	default:
-		fdtfile = FDTFILE_VISIONFIVE2_1_3B;
-	        break;
-	};
+		switch (version) {
+		case 'a':
+		case 'A':
+			fdtfile = FDTFILE_VISIONFIVE2_1_2A;
+			break;
+
+		case 'b':
+		case 'B':
+		default:
+			fdtfile = FDTFILE_VISIONFIVE2_1_3B;
+			break;
+		}
+	} else {
+		log_err("Unknown product\n");
+		return;
+	}
 
 	env_set("fdtfile", fdtfile);
 }
