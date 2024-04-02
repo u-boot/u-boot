@@ -41,13 +41,6 @@
 	clock-frequency = <25000000>;
 };
 
-&dmsc {
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
-};
-
 &sd_pins_default {
 	/* Force to use SDCD card detect pin */
 	pinctrl-single,pins = <

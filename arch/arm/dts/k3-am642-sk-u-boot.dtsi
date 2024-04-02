@@ -15,13 +15,6 @@
 	clock-frequency = <200000000>;
 };
 
-&dmsc {
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
-};
-
 &sdhci0 {
 	status = "disabled";
 };

@@ -23,13 +23,6 @@
 	bootph-all;
 };
 
-&dmsc {
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
-};
-
 &sdhci0 {
 	bootph-all;
 };

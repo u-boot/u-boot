@@ -23,13 +23,6 @@
 	bootph-pre-ram;
 };
 
-&sms {
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
-	};
-};
-
 #ifdef CONFIG_TARGET_J784S4_A72_EVM
 
 #define SPL_AM69_SK_DTB "spl/dts/ti/k3-am69-sk.dtb"

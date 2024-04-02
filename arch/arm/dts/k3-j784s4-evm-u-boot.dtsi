@@ -22,10 +22,3 @@
 		    "tchanrt", "rflow";
 	bootph-pre-ram;
 };
-
-&sms {
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-pre-ram;
-	};
-};
