@@ -60,15 +60,9 @@ static struct sysreset_ops ti_sci_sysreset_ops = {
 	.request = ti_sci_sysreset_request,
 };
 
-static const struct udevice_id ti_sci_sysreset_of_match[] = {
-	{ .compatible = "ti,sci-sysreset", },
-	{ /* sentinel */ },
-};
-
 U_BOOT_DRIVER(ti_sci_sysreset) = {
 	.name = "ti-sci-sysreset",
 	.id = UCLASS_SYSRESET,
-	.of_match = ti_sci_sysreset_of_match,
 	.probe = ti_sci_sysreset_probe,
 	.priv_auto	= sizeof(struct ti_sci_sysreset_data),
 	.ops = &ti_sci_sysreset_ops,

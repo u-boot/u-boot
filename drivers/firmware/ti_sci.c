@@ -16,6 +16,7 @@
 #include <dm/device.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
+#include <dm/lists.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/err.h>
@@ -2839,6 +2840,12 @@ static int ti_sci_probe(struct udevice *dev)
 	ti_sci_setup_ops(info);
 
 	INIT_LIST_HEAD(&info->dev_list);
+
+	if (IS_ENABLED(CONFIG_SYSRESET_TI_SCI)) {
+		ret = device_bind_driver(dev, "ti-sci-sysreset", "sysreset", NULL);
+		if (ret)
+			dev_warn(dev, "cannot bind SYSRESET (ret = %d)\n", ret);
+	}
 
 	return 0;
 }
