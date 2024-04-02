@@ -49,6 +49,10 @@ static void set_fdtfile(void)
 	u8 version;
 	const char *fdtfile;
 
+	fdtfile = env_get("fdtfile");
+	if (fdtfile)
+		return;
+
 	version = get_pcb_revision_from_eeprom();
 	switch (version) {
 	case 'a':
