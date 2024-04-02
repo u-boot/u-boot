@@ -405,6 +405,14 @@ static void set_product_id(char *string)
 	update_crc();
 }
 
+const char *get_product_id_from_eeprom(void)
+{
+	if (read_eeprom())
+		return NULL;
+
+	return pbuf.eeprom.atom1.data.pstr;
+}
+
 int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *cmd;
