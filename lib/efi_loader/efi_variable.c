@@ -282,11 +282,21 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		}
 		time = var->time;
 	} else {
-		if (delete || append)
-			/*
-			 * Trying to delete or to update a non-existent
-			 * variable.
-			 */
+		/*
+		 * UEFI specification does not clearly describe the expected
+		 * behavior of append write with data size 0, we follow
+		 * the EDK II reference implementation.
+		 */
+		if (append && !data_size)
+			return EFI_SUCCESS;
+
+		/*
+		 * EFI_VARIABLE_APPEND_WRITE to non-existent variable is accepted
+		 * and new variable is created in EDK II reference implementation.
+		 * We follow it and only check the deletion here.
+		 */
+		if (delete)
+			/* Trying to delete a non-existent variable. */
 			return EFI_NOT_FOUND;
 	}
 
@@ -329,7 +339,11 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		/* EFI_NOT_FOUND has been handled before */
 		attributes = var->attr;
 		ret = EFI_SUCCESS;
-	} else if (append) {
+	} else if (append && var) {
+		/*
+		 * data is appended if EFI_VARIABLE_APPEND_WRITE is set and
+		 * variable exists.
+		 */
 		u16 *old_data = var->name;
 
 		for (; *old_data; ++old_data)
