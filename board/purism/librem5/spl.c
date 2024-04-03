@@ -418,12 +418,6 @@ out:
 	return rv;
 }
 
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
-}
-
 static void dwc3_nxp_usb_phy_init(struct dwc3_device *dwc3)
 {
 	u32 RegData;

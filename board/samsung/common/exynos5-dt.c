@@ -122,12 +122,6 @@ static struct dwc3_device dwc3_device_data = {
 	.index = 0,
 };
 
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
-}
-
 int board_usb_init(int index, enum usb_init_type init)
 {
 	struct exynos_usb3_phy *phy = (struct exynos_usb3_phy *)

@@ -983,17 +983,31 @@ void dwc3_uboot_exit(int index)
 	}
 }
 
+MODULE_ALIAS("platform:dwc3");
+MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
+MODULE_LICENSE("GPL v2");
+MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
+
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
+__weak int dwc3_uboot_interrupt_status(struct udevice *dev)
+{
+	return 1;
+}
+
 /**
- * dwc3_uboot_handle_interrupt - handle dwc3 core interrupt
+ * dm_usb_gadget_handle_interrupts - handle dwc3 core interrupt
  * @dev: device of this controller
  *
  * Invokes dwc3 gadget interrupts.
  *
  * Generally called from board file.
  */
-void dwc3_uboot_handle_interrupt(struct udevice *dev)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	struct dwc3 *dwc = NULL;
+
+	if (!dwc3_uboot_interrupt_status(dev))
+		return 0;
 
 	list_for_each_entry(dwc, &dwc3_list, list) {
 		if (dwc->dev != dev)
@@ -1002,12 +1016,10 @@ void dwc3_uboot_handle_interrupt(struct udevice *dev)
 		dwc3_gadget_uboot_handle_interrupt(dwc);
 		break;
 	}
-}
 
-MODULE_ALIAS("platform:dwc3");
-MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
-MODULE_LICENSE("GPL v2");
-MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
+	return 0;
+}
+#endif
 
 #if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
 int dwc3_setup_phy(struct udevice *dev, struct phy_bulk *phys)
