@@ -360,10 +360,11 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		ret = efi_var_mem_ins(variable_name, vendor, attributes,
 				      data_size, data, 0, NULL, time);
 	}
-	efi_var_mem_del(var);
 
 	if (ret != EFI_SUCCESS)
 		return ret;
+
+	efi_var_mem_del(var);
 
 	if (var_type == EFI_AUTH_VAR_PK)
 		ret = efi_init_secure_state();
