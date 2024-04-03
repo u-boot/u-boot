@@ -235,8 +235,12 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	if (data_size && !data)
 		return EFI_INVALID_PARAMETER;
 
-	/* EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated */
-	if (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS)
+	/*
+	 * EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated.
+	 * We don't support EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS.
+	 */
+	if (attributes & (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS | \
+			  EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS))
 		return EFI_UNSUPPORTED;
 
 	/* Make sure if runtime bit is set, boot service bit is set also */
