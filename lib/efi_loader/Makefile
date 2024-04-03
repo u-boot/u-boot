@@ -6,8 +6,7 @@
 # This file only gets included with CONFIG_EFI_LOADER set, so all
 # object inclusion implicitly depends on it
 
-asflags-y += -DHOST_ARCH="$(HOST_ARCH)" -I.
-ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+asflags-y += -I.
 
 CFLAGS_efi_boottime.o += \
   -DFW_VERSION="0x$(VERSION)" \
