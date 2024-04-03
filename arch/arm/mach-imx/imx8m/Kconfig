@@ -262,12 +262,14 @@ config TARGET_VERDIN_IMX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_VERDIN_IMX8MP
 	bool "Support Toradex Verdin iMX8M Plus module"
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_BEACON
 	bool "imx8mm Beacon Embedded devkit"
