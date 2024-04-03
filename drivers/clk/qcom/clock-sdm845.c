@@ -19,13 +19,7 @@
 
 #include "clock-qcom.h"
 
-#define SE9_AHB_CBCR		0x25004
-#define SE9_UART_APPS_CBCR	0x29004
 #define SE9_UART_APPS_CMD_RCGR	0x18148
-#define SE9_UART_APPS_CFG_RCGR	0x1814C
-#define SE9_UART_APPS_M		0x18150
-#define SE9_UART_APPS_N		0x18154
-#define SE9_UART_APPS_D		0x18158
 
 static const struct freq_tbl ftbl_gcc_qupv3_wrap0_s0_clk_src[] = {
 	F(7372800, CFG_CLK_SRC_GPLL0_EVEN, 1, 384, 15625),
@@ -46,14 +40,6 @@ static const struct freq_tbl ftbl_gcc_qupv3_wrap0_s0_clk_src[] = {
 	{ }
 };
 
-static const struct bcr_regs uart2_regs = {
-	.cfg_rcgr = SE9_UART_APPS_CFG_RCGR,
-	.cmd_rcgr = SE9_UART_APPS_CMD_RCGR,
-	.M = SE9_UART_APPS_M,
-	.N = SE9_UART_APPS_N,
-	.D = SE9_UART_APPS_D,
-};
-
 static ulong sdm845_clk_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -62,7 +48,7 @@ static ulong sdm845_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case GCC_QUPV3_WRAP1_S1_CLK: /* UART9 */
 		freq = qcom_find_freq(ftbl_gcc_qupv3_wrap0_s0_clk_src, rate);
-		clk_rcg_set_rate_mnd(priv->base, &uart2_regs,
+		clk_rcg_set_rate_mnd(priv->base, SE9_UART_APPS_CMD_RCGR,
 				     freq->pre_div, freq->m, freq->n, freq->src, 16);
 		return freq->freq;
 	default:

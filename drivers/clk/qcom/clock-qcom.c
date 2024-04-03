@@ -104,7 +104,7 @@ void clk_bcr_update(phys_addr_t apps_cmd_rcgr)
  * root set rate for clocks with half integer and MND divider
  * div should be pre-calculated ((div * 2) - 1)
  */
-void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
+void clk_rcg_set_rate_mnd(phys_addr_t base, uint32_t cmd_rcgr,
 			  int div, int m, int n, int source, u8 mnd_width)
 {
 	u32 cfg;
@@ -120,12 +120,12 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 	debug("m %#x n %#x d %#x div %#x mask %#x\n", m_val, n_val, d_val, div, mask);
 
 	/* Program MND values */
-	writel(m_val & mask, base + regs->M);
-	writel(n_val & mask, base + regs->N);
-	writel(d_val & mask, base + regs->D);
+	writel(m_val & mask, base + cmd_rcgr + RCG_M_REG);
+	writel(n_val & mask, base + cmd_rcgr + RCG_N_REG);
+	writel(d_val & mask, base + cmd_rcgr + RCG_D_REG);
 
 	/* setup src select and divider */
-	cfg  = readl(base + regs->cfg_rcgr);
+	cfg  = readl(base + cmd_rcgr + RCG_CFG_REG);
 	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK |
 		 CFG_SRC_DIV_MASK);
 	cfg |= source & CFG_SRC_SEL_MASK; /* Select clock source */
@@ -136,20 +136,20 @@ void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
 	if (n && n != m)
 		cfg |= CFG_MODE_DUAL_EDGE;
 
-	writel(cfg, base + regs->cfg_rcgr); /* Write new clock configuration */
+	writel(cfg, base + cmd_rcgr + RCG_CFG_REG); /* Write new clock configuration */
 
 	/* Inform h/w to start using the new config. */
-	clk_bcr_update(base + regs->cmd_rcgr);
+	clk_bcr_update(base + cmd_rcgr);
 }
 
 /* root set rate for clocks with half integer and mnd_width=0 */
-void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
+void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 		      int source)
 {
 	u32 cfg;
 
 	/* setup src select and divider */
-	cfg  = readl(base + regs->cfg_rcgr);
+	cfg  = readl(base + cmd_rcgr + RCG_CFG_REG);
 	cfg &= ~(CFG_SRC_SEL_MASK | CFG_MODE_MASK | CFG_HW_CLK_CTRL_MASK);
 	cfg |= source & CFG_CLK_SRC_MASK; /* Select clock source */
 
@@ -160,10 +160,10 @@ void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
 	if (div)
 		cfg |= (2 * div - 1) & CFG_SRC_DIV_MASK;
 
-	writel(cfg, base + regs->cfg_rcgr); /* Write new clock configuration */
+	writel(cfg, base + cmd_rcgr + RCG_CFG_REG); /* Write new clock configuration */
 
 	/* Inform h/w to start using the new config. */
-	clk_bcr_update(base + regs->cmd_rcgr);
+	clk_bcr_update(base + cmd_rcgr);
 }
 
 const struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, uint rate)

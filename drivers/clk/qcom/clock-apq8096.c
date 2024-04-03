@@ -26,30 +26,14 @@
 #define SDCC2_APPS_CBCR			(0x14004) /* branch control */
 #define SDCC2_AHB_CBCR			(0x14008)
 #define SDCC2_CMD_RCGR			(0x14010)
-#define SDCC2_CFG_RCGR			(0x14014)
-#define SDCC2_M				(0x14018)
-#define SDCC2_N				(0x1401C)
-#define SDCC2_D				(0x14020)
 
 #define BLSP2_AHB_CBCR			(0x25004)
 #define BLSP2_UART2_APPS_CBCR		(0x29004)
 #define BLSP2_UART2_APPS_CMD_RCGR	(0x2900C)
-#define BLSP2_UART2_APPS_CFG_RCGR	(0x29010)
-#define BLSP2_UART2_APPS_M		(0x29014)
-#define BLSP2_UART2_APPS_N		(0x29018)
-#define BLSP2_UART2_APPS_D		(0x2901C)
 
 /* GPLL0 clock control registers */
 #define GPLL0_STATUS_ACTIVE		BIT(30)
 #define APCS_GPLL_ENA_VOTE_GPLL0	BIT(0)
-
-static const struct bcr_regs sdc_regs = {
-	.cfg_rcgr = SDCC2_CFG_RCGR,
-	.cmd_rcgr = SDCC2_CMD_RCGR,
-	.M = SDCC2_M,
-	.N = SDCC2_N,
-	.D = SDCC2_D,
-};
 
 static const struct pll_vote_clk gpll0_vote_clk = {
 	.status = GPLL0_STATUS,
@@ -69,7 +53,7 @@ static int clk_init_sdc(struct msm_clk_priv *priv, uint rate)
 	int div = 5;
 
 	clk_enable_cbc(priv->base + SDCC2_AHB_CBCR);
-	clk_rcg_set_rate_mnd(priv->base, &sdc_regs, div, 0, 0,
+	clk_rcg_set_rate_mnd(priv->base, SDCC2_CMD_RCGR, div, 0, 0,
 			     CFG_CLK_SRC_GPLL0, 8);
 	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 	clk_enable_cbc(priv->base + SDCC2_APPS_CBCR);
@@ -77,21 +61,13 @@ static int clk_init_sdc(struct msm_clk_priv *priv, uint rate)
 	return rate;
 }
 
-static const struct bcr_regs uart2_regs = {
-	.cfg_rcgr = BLSP2_UART2_APPS_CFG_RCGR,
-	.cmd_rcgr = BLSP2_UART2_APPS_CMD_RCGR,
-	.M = BLSP2_UART2_APPS_M,
-	.N = BLSP2_UART2_APPS_N,
-	.D = BLSP2_UART2_APPS_D,
-};
-
 static int clk_init_uart(struct msm_clk_priv *priv)
 {
 	/* Enable AHB clock */
 	clk_enable_vote_clk(priv->base, &gcc_blsp2_ahb_clk);
 
 	/* 7372800 uart block clock @ GPLL0 */
-	clk_rcg_set_rate_mnd(priv->base, &uart2_regs, 1, 192, 15625,
+	clk_rcg_set_rate_mnd(priv->base, BLSP2_UART2_APPS_CMD_RCGR, 1, 192, 15625,
 			     CFG_CLK_SRC_GPLL0, 16);
 
 	/* Vote for gpll0 clock */
