@@ -107,4 +107,5 @@ struct rom_extended_boot_data {
 	u32 num_components;
 };
 
+u32 get_boot_device(void);
 #endif /* _ASM_ARCH_HARDWARE_H_ */
