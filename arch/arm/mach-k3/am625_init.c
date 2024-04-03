@@ -236,6 +236,14 @@ void board_init_f(ulong dummy)
 	}
 
 	/*
+	 * Relocate boot information to OCRAM (after TIFS has opend this
+	 * region for us) so the next bootloader stages can keep access to
+	 * primary vs backup bootmodes.
+	 */
+	if (IS_ENABLED(CONFIG_CPU_V7R))
+		writel(bootindex, K3_BOOT_PARAM_TABLE_INDEX_OCRAM);
+
+	/*
 	 * Force probe of clk_k3 driver here to ensure basic default clock
 	 * configuration is always done.
 	 */
