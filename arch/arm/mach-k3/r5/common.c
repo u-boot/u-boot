@@ -24,6 +24,9 @@ enum {
 	IMAGE_ID_OPTEE,
 	IMAGE_ID_SPL,
 	IMAGE_ID_DM_FW,
+	IMAGE_ID_TIFSSTUB_HS,
+	IMAGE_ID_TIFSSTUB_FS,
+	IMAGE_ID_T,
 	IMAGE_AMT,
 };
 
@@ -33,6 +36,9 @@ static const char *image_os_match[IMAGE_AMT] = {
 	"tee",
 	"U-Boot",
 	"DM",
+	"tifsstub-hs",
+	"tifsstub-fs",
+	"tifsstub-gp",
 };
 #endif
 
@@ -314,6 +320,24 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 			break;
 		}
 	}
+
+	if (i < IMAGE_AMT && i > IMAGE_ID_DM_FW) {
+		int device_type = get_device_type();
+
+		if ((device_type == K3_DEVICE_TYPE_HS_SE &&
+		     strcmp(os, "tifsstub-hs")) ||
+		   (device_type == K3_DEVICE_TYPE_HS_FS &&
+		     strcmp(os, "tifsstub-fs")) ||
+		   (device_type == K3_DEVICE_TYPE_GP &&
+		     strcmp(os, "tifsstub-gp"))) {
+			*p_size = 0;
+		} else {
+			debug("tifsstub-type: %s\n", os);
+		}
+
+		return;
+	}
+
 	/*
 	 * Only DM and the DTBs are being authenticated here,
 	 * rest will be authenticated when A72 cluster is up
