@@ -187,13 +187,12 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 		   bool dec_tries)
 {
 	struct bootloader_control *abc = NULL;
+	struct bootloader_control *backup_abc = NULL;
 	u32 crc32_le;
 	int slot, i, ret;
 	bool store_needed = false;
+	bool valid_backup = false;
 	char slot_suffix[4];
-#if ANDROID_AB_BACKUP_OFFSET
-	struct bootloader_control *backup_abc = NULL;
-#endif
 
 	ret = ab_control_create_from_disk(dev_desc, part_info, &abc, 0);
 	if (ret < 0) {
@@ -205,53 +204,49 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 		return ret;
 	}
 
-#if ANDROID_AB_BACKUP_OFFSET
-	ret = ab_control_create_from_disk(dev_desc, part_info, &backup_abc,
-					  ANDROID_AB_BACKUP_OFFSET);
-	if (ret < 0) {
-		free(abc);
-		return ret;
+	if (CONFIG_ANDROID_AB_BACKUP_OFFSET) {
+		ret = ab_control_create_from_disk(dev_desc, part_info, &backup_abc,
+						  CONFIG_ANDROID_AB_BACKUP_OFFSET);
+		if (ret < 0) {
+			free(abc);
+			return ret;
+		}
 	}
-#endif
 
 	crc32_le = ab_control_compute_crc(abc);
 	if (abc->crc32_le != crc32_le) {
 		log_err("ANDROID: Invalid CRC-32 (expected %.8x, found %.8x),",
 			crc32_le, abc->crc32_le);
-#if ANDROID_AB_BACKUP_OFFSET
-		crc32_le = ab_control_compute_crc(backup_abc);
-		if (backup_abc->crc32_le != crc32_le) {
-			log_err("ANDROID: Invalid backup CRC-32 ")
-			log_err("expected %.8x, found %.8x),",
-				crc32_le, backup_abc->crc32_le);
-#endif
+		if (CONFIG_ANDROID_AB_BACKUP_OFFSET) {
+			crc32_le = ab_control_compute_crc(backup_abc);
+			if (backup_abc->crc32_le != crc32_le) {
+				log_err(" ANDROID: Invalid backup CRC-32 ");
+				log_err("(expected %.8x, found %.8x),",
+					crc32_le, backup_abc->crc32_le);
+			} else {
+				valid_backup = true;
+				log_info(" copying A/B metadata from backup.\n");
+				memcpy(abc, backup_abc, sizeof(*abc));
+			}
+		}
 
-			log_err("re-initializing A/B metadata.\n");
-
+		if (!valid_backup) {
+			log_err(" re-initializing A/B metadata.\n");
 			ret = ab_control_default(abc);
 			if (ret < 0) {
-#if ANDROID_AB_BACKUP_OFFSET
-				free(backup_abc);
-#endif
+				if (CONFIG_ANDROID_AB_BACKUP_OFFSET)
+					free(backup_abc);
 				free(abc);
 				return -ENODATA;
 			}
-#if ANDROID_AB_BACKUP_OFFSET
-		} else {
-			/*
-			 * Backup is valid. Copy it to the primary
-			 */
-			memcpy(abc, backup_abc, sizeof(*abc));
 		}
-#endif
 		store_needed = true;
 	}
 
 	if (abc->magic != BOOT_CTRL_MAGIC) {
 		log_err("ANDROID: Unknown A/B metadata: %.8x\n", abc->magic);
-#if ANDROID_AB_BACKUP_OFFSET
-		free(backup_abc);
-#endif
+		if (CONFIG_ANDROID_AB_BACKUP_OFFSET)
+			free(backup_abc);
 		free(abc);
 		return -ENODATA;
 	}
@@ -259,9 +254,8 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 	if (abc->version > BOOT_CTRL_VERSION) {
 		log_err("ANDROID: Unsupported A/B metadata version: %.8x\n",
 			abc->version);
-#if ANDROID_AB_BACKUP_OFFSET
-		free(backup_abc);
-#endif
+		if (CONFIG_ANDROID_AB_BACKUP_OFFSET)
+			free(backup_abc);
 		free(abc);
 		return -ENODATA;
 	}
@@ -338,30 +332,29 @@ int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
 		abc->crc32_le = ab_control_compute_crc(abc);
 		ret = ab_control_store(dev_desc, part_info, abc, 0);
 		if (ret < 0) {
-#if ANDROID_AB_BACKUP_OFFSET
-			free(backup_abc);
-#endif
+			if (CONFIG_ANDROID_AB_BACKUP_OFFSET)
+				free(backup_abc);
 			free(abc);
 			return ret;
 		}
 	}
 
-#if ANDROID_AB_BACKUP_OFFSET
-	/*
-	 * If the backup doesn't match the primary, write the primary
-	 * to the backup offset
-	 */
-	if (memcmp(backup_abc, abc, sizeof(*abc)) != 0) {
-		ret = ab_control_store(dev_desc, part_info, abc,
-				       ANDROID_AB_BACKUP_OFFSET);
-		if (ret < 0) {
-			free(backup_abc);
-			free(abc);
-			return ret;
+	if (CONFIG_ANDROID_AB_BACKUP_OFFSET) {
+		/*
+		 * If the backup doesn't match the primary, write the primary
+		 * to the backup offset
+		 */
+		if (memcmp(backup_abc, abc, sizeof(*abc)) != 0) {
+			ret = ab_control_store(dev_desc, part_info, abc,
+					       CONFIG_ANDROID_AB_BACKUP_OFFSET);
+			if (ret < 0) {
+				free(backup_abc);
+				free(abc);
+				return ret;
+			}
 		}
+		free(backup_abc);
 	}
-	free(backup_abc);
-#endif
 
 	free(abc);
 
