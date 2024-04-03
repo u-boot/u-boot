@@ -276,8 +276,8 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		/* attributes won't be changed */
 		if (!delete &&
 		    ((ro_check && var->attr != attributes) ||
-		     (!ro_check && ((var->attr & ~(u32)EFI_VARIABLE_READ_ONLY)
-				    != (attributes & ~(u32)EFI_VARIABLE_READ_ONLY))))) {
+		     (!ro_check && ((var->attr & ~EFI_VARIABLE_READ_ONLY)
+				    != (attributes & ~EFI_VARIABLE_READ_ONLY))))) {
 			return EFI_INVALID_PARAMETER;
 		}
 		time = var->time;

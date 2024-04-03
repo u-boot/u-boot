@@ -8,7 +8,7 @@
 
 #include <linux/bitops.h>
 
-#define EFI_VARIABLE_READ_ONLY BIT(31)
+#define EFI_VARIABLE_READ_ONLY 0x80000000
 
 enum efi_auth_var_type {
 	EFI_AUTH_VAR_NONE = 0,
