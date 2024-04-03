@@ -259,7 +259,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	/* check if a variable exists */
 	var = efi_var_mem_find(vendor, variable_name, NULL);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
-	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
+	attributes &= ~EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
 
 	/* check attributes */
@@ -398,7 +398,7 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 	    EFI_VARIABLE_RUNTIME_ACCESS)
 		return EFI_INVALID_PARAMETER;
 
-	if (attributes & ~(u32)EFI_VARIABLE_MASK)
+	if (attributes & ~EFI_VARIABLE_MASK)
 		return EFI_INVALID_PARAMETER;
 
 	*maximum_variable_storage_size = EFI_VAR_BUF_SIZE -
