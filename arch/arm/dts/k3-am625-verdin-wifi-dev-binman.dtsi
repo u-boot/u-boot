@@ -140,7 +140,7 @@
 
 #ifdef CONFIG_TARGET_VERDIN_AM62_A53
 
-#define SPL_VERDIN_AM62_DTB "spl/dts/k3-am625-verdin-wifi-dev.dtb"
+#define SPL_VERDIN_AM62_DTB "spl/dts/ti/k3-am625-verdin-wifi-dev.dtb"
 #define VERDIN_AM62_DTB "u-boot.dtb"
 
 &binman {
