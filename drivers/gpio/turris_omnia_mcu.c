@@ -10,7 +10,7 @@
 #include <linux/log2.h>
 
 struct turris_omnia_mcu_info {
-	u16 features;
+	u32 features;
 };
 
 static int turris_omnia_mcu_get_function(struct udevice *dev, uint offset)
@@ -228,25 +228,37 @@ static int turris_omnia_mcu_probe(struct udevice *dev)
 {
 	struct turris_omnia_mcu_info *info = dev_get_plat(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-	u16 val;
+	u32 dword;
+	u16 word;
 	int ret;
 
-	ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, (void *)&val, sizeof(val));
+	ret = dm_i2c_read(dev, CMD_GET_STATUS_WORD, (void *)&word, sizeof(word));
 	if (ret < 0) {
 		printf("Error: turris_omnia_mcu CMD_GET_STATUS_WORD failed: %d\n",
 		       ret);
 		return ret;
 	}
 
-	if (le16_to_cpu(val) & STS_FEATURES_SUPPORTED) {
-		ret = dm_i2c_read(dev, CMD_GET_FEATURES, (void *)&val,
-				  sizeof(val));
+	if (le16_to_cpu(word) & STS_FEATURES_SUPPORTED) {
+		/* try read 32-bit features */
+		ret = dm_i2c_read(dev, CMD_GET_FEATURES, (void *)&dword,
+				  sizeof(dword));
 		if (ret < 0) {
-			printf("Error: turris_omnia_mcu CMD_GET_FEATURES failed: %d\n",
-			       ret);
-			return ret;
+			/* try read 16-bit features */
+			ret = dm_i2c_read(dev, CMD_GET_FEATURES, (void *)&word,
+					  sizeof(word));
+			if (ret < 0) {
+				printf("Error: turris_omnia_mcu CMD_GET_FEATURES failed: %d\n",
+				       ret);
+				return ret;
+			}
+
+			info->features = le16_to_cpu(word);
+		} else {
+			info->features = le32_to_cpu(dword);
+			if (info->features & FEAT_FROM_BIT_16_INVALID)
+				info->features &= GENMASK(15, 0);
 		}
-		info->features = le16_to_cpu(val);
 	}
 
 	uc_priv->bank_name = "mcu_";
