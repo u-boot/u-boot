@@ -11,6 +11,7 @@
 #include <atsha204a-i2c.h>
 
 #include "turris_atsha_otp.h"
+#include "turris_common.h"
 
 #define TURRIS_ATSHA_OTP_VERSION	0
 #define TURRIS_ATSHA_OTP_SERIAL		1
@@ -30,26 +31,6 @@ static struct udevice *get_atsha204a_dev(void)
 	}
 
 	return dev;
-}
-
-static void increment_mac(u8 *mac)
-{
-	int i;
-
-	for (i = 5; i >= 3; i--) {
-		mac[i] += 1;
-		if (mac[i])
-			break;
-	}
-}
-
-static void set_mac_if_invalid(int i, u8 *mac)
-{
-	u8 oldmac[6];
-
-	if (is_valid_ethaddr(mac) &&
-	    !eth_env_get_enetaddr_by_index("eth", i, oldmac))
-		eth_env_set_enetaddr_by_index("eth", i, mac);
 }
 
 int turris_atsha_otp_init_mac_addresses(int first_idx)
@@ -84,11 +65,7 @@ int turris_atsha_otp_init_mac_addresses(int first_idx)
 	mac[4] = mac1[2];
 	mac[5] = mac1[3];
 
-	set_mac_if_invalid((first_idx + 0) % 3, mac);
-	increment_mac(mac);
-	set_mac_if_invalid((first_idx + 1) % 3, mac);
-	increment_mac(mac);
-	set_mac_if_invalid((first_idx + 2) % 3, mac);
+	turris_init_mac_addresses(first_idx, mac);
 
 	return 0;
 }
