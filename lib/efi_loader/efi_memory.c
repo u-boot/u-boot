@@ -933,8 +933,8 @@ static void add_u_boot_and_runtime(void)
 	 * Add Runtime Services. We mark surrounding boottime code as runtime as
 	 * well to fulfill the runtime alignment constraints but avoid padding.
 	 */
-	runtime_start = (ulong)&__efi_runtime_start & ~runtime_mask;
-	runtime_end = (ulong)&__efi_runtime_stop;
+	runtime_start = (uintptr_t)__efi_runtime_start & ~runtime_mask;
+	runtime_end = (uintptr_t)__efi_runtime_stop;
 	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map_pg(runtime_start, runtime_pages,
