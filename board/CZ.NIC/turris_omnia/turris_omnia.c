@@ -133,6 +133,59 @@ static int omnia_mcu_write(u8 cmd, const void *buf, int len)
 	return dm_i2c_write(chip, cmd, buf, len);
 }
 
+static int omnia_mcu_get_sts_and_features(u16 *psts, u32 *pfeatures)
+{
+	u16 sts, feat16;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &sts, sizeof(sts));
+	if (ret)
+		return ret;
+
+	if (psts)
+		*psts = sts;
+
+	if (!pfeatures)
+		return 0;
+
+	if (sts & STS_FEATURES_SUPPORTED) {
+		/* try read 32-bit features */
+		ret = omnia_mcu_read(CMD_GET_FEATURES, pfeatures,
+				     sizeof(*pfeatures));
+		if (ret) {
+			/* try read 16-bit features */
+			ret = omnia_mcu_read(CMD_GET_FEATURES, &feat16,
+					     sizeof(&feat16));
+			if (ret)
+				return ret;
+
+			*pfeatures = feat16;
+		} else {
+			if (*pfeatures & FEAT_FROM_BIT_16_INVALID)
+				*pfeatures &= GENMASK(15, 0);
+		}
+	} else {
+		*pfeatures = 0;
+	}
+
+	return 0;
+}
+
+static int omnia_mcu_get_sts(u16 *sts)
+{
+	return omnia_mcu_get_sts_and_features(sts, NULL);
+}
+
+static bool omnia_mcu_has_feature(u32 feature)
+{
+	u32 features;
+
+	if (omnia_mcu_get_sts_and_features(NULL, &features))
+		return false;
+
+	return feature & features;
+}
+
 static void enable_a385_watchdog(unsigned int timeout_minutes)
 {
 	struct sar_freq_modes sar_freq;
@@ -194,7 +247,7 @@ static bool disable_mcu_watchdog(void)
 static bool omnia_detect_sata(const char *msata_slot)
 {
 	int ret;
-	u16 stsword;
+	u16 sts;
 
 	puts("MiniPCIe/mSATA card detection... ");
 
@@ -210,24 +263,24 @@ static bool omnia_detect_sata(const char *msata_slot)
 		}
 	}
 
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	ret = omnia_mcu_get_sts(&sts);
 	if (ret) {
 		printf("omnia_mcu_read failed: %i, defaulting to MiniPCIe card\n",
 		       ret);
 		return false;
 	}
 
-	if (!(stsword & STS_CARD_DET)) {
+	if (!(sts & STS_CARD_DET)) {
 		puts("none\n");
 		return false;
 	}
 
-	if (stsword & STS_MSATA_IND)
+	if (sts & STS_MSATA_IND)
 		puts("mSATA\n");
 	else
 		puts("MiniPCIe\n");
 
-	return stsword & STS_MSATA_IND;
+	return sts & STS_MSATA_IND;
 }
 
 static bool omnia_detect_wwan_usb3(const char *wwan_slot)
@@ -355,14 +408,14 @@ static int omnia_get_ram_size_gb(void)
 static const char * const omnia_get_mcu_type(void)
 {
 	static char result[] = "xxxxxxx (with peripheral resets)";
-	u16 stsword, features;
+	u16 sts;
 	int ret;
 
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	ret = omnia_mcu_get_sts(&sts);
 	if (ret)
 		return "unknown";
 
-	switch (stsword & STS_MCU_TYPE_MASK) {
+	switch (sts & STS_MCU_TYPE_MASK) {
 	case STS_MCU_TYPE_STM32:
 		strcpy(result, "STM32");
 		break;
@@ -377,11 +430,8 @@ static const char * const omnia_get_mcu_type(void)
 		break;
 	}
 
-	if (stsword & STS_FEATURES_SUPPORTED) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &features, sizeof(features));
-		if (ret == 0 && (features & FEAT_PERIPH_MCU))
-			strcat(result, " (with peripheral resets)");
-	}
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU))
+		strcat(result, " (with peripheral resets)");
 
 	return result;
 }
@@ -660,9 +710,6 @@ int board_early_init_f(void)
 
 void spl_board_init(void)
 {
-	u16 val;
-	int ret;
-
 	/*
 	 * If booting from UART, disable MCU watchdog in SPL, since uploading
 	 * U-Boot proper can take too much time and trigger it. Instead enable
@@ -679,12 +726,8 @@ void spl_board_init(void)
 	 * resets then LAN eth switch is initialized automatically by bootstrap
 	 * pins when A385 is released from the reset.
 	 */
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
-	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
-		if (ret == 0 && (val & FEAT_PERIPH_MCU))
-			initialize_switch();
-	}
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU))
+		initialize_switch();
 }
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP) || IS_ENABLED(CONFIG_OF_BOARD_SETUP)
@@ -884,16 +927,9 @@ static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
-	u16 val;
-	int ret;
-
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
-	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
-		if (ret == 0 && (val & FEAT_PERIPH_MCU)) {
-			fixup_mcu_gpio_in_pcie_nodes(blob);
-			fixup_mcu_gpio_in_eth_wan_node(blob);
-		}
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU)) {
+		fixup_mcu_gpio_in_pcie_nodes(blob);
+		fixup_mcu_gpio_in_eth_wan_node(blob);
 	}
 
 	fixup_msata_port_nodes(blob);
