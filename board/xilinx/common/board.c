@@ -105,10 +105,14 @@ static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
 	for (i = 0; i < size; i++) {
 		byte = eeprom[i];
 
-		/* Remove all non printable chars but ignore MAC address */
-		if ((i < offsetof(struct xilinx_legacy_format, eth_mac) ||
-		     i >= offsetof(struct xilinx_legacy_format, unused1)) &&
-		     (byte < '!' || byte > '~')) {
+		/* Ignore MAC address */
+		if (i >= offsetof(struct xilinx_legacy_format, eth_mac) &&
+		    i < offsetof(struct xilinx_legacy_format, unused1)) {
+			continue;
+		}
+
+		/* Remove all non printable chars */
+		if (byte < '!' || byte > '~') {
 			eeprom[i] = 0;
 			continue;
 		}
