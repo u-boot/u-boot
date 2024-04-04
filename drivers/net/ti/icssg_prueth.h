@@ -80,4 +80,9 @@ void icssg_config_ipg(struct prueth_priv *priv, int speed, int mii);
 int icssg_config(struct prueth_priv *priv);
 int emac_set_port_state(struct prueth_priv *priv, enum icssg_port_state_cmd cmd);
 
+/* Buffer queue helpers */
+int icssg_queue_pop(struct prueth *prueth, u8 queue);
+void icssg_queue_push(struct prueth *prueth, int queue, u16 addr);
+u32 icssg_queue_level(struct prueth *prueth, int queue);
+
 #endif /* __NET_TI_ICSSG_PRUETH_H */
