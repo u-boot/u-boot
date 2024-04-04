@@ -253,6 +253,24 @@ static int omnia_mcu_board_info(char *serial, u8 *mac, char *version)
 	return 0;
 }
 
+static int omnia_mcu_get_board_public_key(char pub_key[static 67])
+{
+	u8 reply[34];
+	int ret;
+
+	ret = omnia_mcu_read(CMD_CRYPTO_GET_PUBLIC_KEY, reply, sizeof(reply));
+	if (ret)
+		return ret;
+
+	if (reply[0] != 33)
+		return -EBADMSG;
+
+	bin2hex(pub_key, &reply[1], 33);
+	pub_key[66] = '\0';
+
+	return 0;
+}
+
 static void enable_a385_watchdog(unsigned int timeout_minutes)
 {
 	struct sar_freq_modes sar_freq;
@@ -1032,7 +1050,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	char serial[17], version[4];
+	char serial[17], version[4], pub_key[67];
 	bool has_version;
 	int err;
 
@@ -1050,6 +1068,11 @@ int checkboard(void)
 
 	printf("  Board version: %s\n", has_version ? version : "unknown");
 	printf("  Serial Number: %s\n", !err ? serial : "unknown");
+
+	if (omnia_mcu_has_feature(FEAT_CRYPTO)) {
+		err = omnia_mcu_get_board_public_key(pub_key);
+		printf("  ECDSA Public Key: %s\n", !err ? pub_key : "unknown");
+	}
 
 	return 0;
 }
