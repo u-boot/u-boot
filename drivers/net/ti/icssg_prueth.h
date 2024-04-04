@@ -62,6 +62,9 @@ struct prueth {
 	bool			mdio_manual_mode;
 	int			speed;
 	int			duplex;
+	u8			pru_core_id;
+	u8			rtu_core_id;
+	u8			txpru_core_id;
 };
 
 struct prueth_priv {

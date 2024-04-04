@@ -270,6 +270,17 @@ int misc_init_r(void)
 			printf("Failed to probe am65_cpsw_nuss driver\n");
 	}
 
+	if (IS_ENABLED(CONFIG_TI_ICSSG_PRUETH)) {
+		struct udevice *dev;
+		int ret;
+
+		ret = uclass_get_device_by_driver(UCLASS_MISC,
+						  DM_DRIVER_GET(prueth),
+						  &dev);
+		if (ret)
+			printf("Failed to probe prueth driver\n");
+	}
+
 	/* Default FIT boot on HS-SE devices */
 	if (get_device_type() == K3_DEVICE_TYPE_HS_SE)
 		env_set("boot_fit", "1");
