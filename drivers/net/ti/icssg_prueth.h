@@ -65,6 +65,7 @@ struct prueth {
 	u8			pru_core_id;
 	u8			rtu_core_id;
 	u8			txpru_core_id;
+	u8			icssg_hwcmdseq;
 };
 
 struct prueth_priv {
@@ -87,5 +88,10 @@ int emac_set_port_state(struct prueth_priv *priv, enum icssg_port_state_cmd cmd)
 int icssg_queue_pop(struct prueth *prueth, u8 queue);
 void icssg_queue_push(struct prueth *prueth, int queue, u16 addr);
 u32 icssg_queue_level(struct prueth *prueth, int queue);
+
+/* FDB helpers */
+int icssg_send_fdb_msg(struct prueth_priv *priv, struct mgmt_cmd *cmd,
+		       struct mgmt_cmd_rsp *rsp);
+int emac_fdb_flow_id_updated(struct prueth_priv *priv);
 
 #endif /* __NET_TI_ICSSG_PRUETH_H */
