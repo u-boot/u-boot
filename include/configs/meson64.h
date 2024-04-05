@@ -120,6 +120,12 @@
 
 #include <config_distro_bootcmd.h>
 
+#ifdef CONFIG_OF_UPSTREAM
+#define FDTFILE_NAME		CONFIG_DEFAULT_DEVICE_TREE ".dtb"
+#else
+#define FDTFILE_NAME		"amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb"
+#endif
+
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
 	"stdin=" STDIN_CFG "\0" \
@@ -133,7 +139,7 @@
 	"pxefile_addr_r=" PXEFILE_ADDR_R "\0" \
 	"fdtoverlay_addr_r=" FDTOVERLAY_ADDR_R "\0" \
 	"ramdisk_addr_r=" RAMDISK_ADDR_R "\0" \
-	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+	"fdtfile=" FDTFILE_NAME "\0" \
 	"dfu_alt_info=fitimage ram " KERNEL_ADDR_R " 0x4000000 \0" \
 	BOOTENV
 #endif
