@@ -78,6 +78,16 @@ struct msm_spmi_priv {
 	u32 arb_ver;
 };
 
+static u32 pmic_arb_fmt_cmd_v1(u8 opc, u8 sid, u8 pid, u8 off)
+{
+	return (opc << 27) | (sid << 20) | (pid << 12) | (off << 4) | 1;
+}
+
+static u32 pmic_arb_fmt_cmd_v2(u8 opc, u8 off)
+{
+	return (opc << 27) | (off << 4) | 1;
+}
+
 static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 			  uint8_t val)
 {
@@ -93,23 +103,34 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 
 	channel = priv->channel_map[usid][pid];
 
-	if (priv->arb_ver == V5)
-		ch_offset = SPMI_V5_RW_CH_OFFSET(channel);
-	else
+	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
+
+	switch (priv->arb_ver) {
+	case V1:
 		ch_offset = SPMI_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v1(SPMI_CMD_EXT_REG_WRITE_LONG,
+					  usid, pid, off);
+		break;
+
+	case V2:
+		ch_offset = SPMI_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
+		break;
+
+	case V5:
+		ch_offset = SPMI_V5_RW_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
+		break;
+	}
 
 	/* Disable IRQ mode for the current channel*/
 	writel(0x0, priv->spmi_chnls + ch_offset + SPMI_REG_CONFIG);
 
 	/* Write single byte */
 	writel(val, priv->spmi_chnls + ch_offset + SPMI_REG_WDATA);
-
-	/* Prepare write command */
-	reg |= SPMI_CMD_EXT_REG_WRITE_LONG << SPMI_CMD_OPCODE_SHIFT;
-	reg |= (usid << SPMI_CMD_SLAVE_ID_SHIFT);
-	reg |= (pid << SPMI_CMD_ADDR_SHIFT);
-	reg |= (off << SPMI_CMD_ADDR_OFFSET_SHIFT);
-	reg |= 1; /* byte count */
 
 	/* Send write command */
 	writel(reg, priv->spmi_chnls + ch_offset + SPMI_REG_CMD0);
@@ -143,20 +164,34 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 
 	channel = priv->channel_map[usid][pid];
 
-	if (priv->arb_ver == V5)
-		ch_offset = SPMI_V5_OBS_CH_OFFSET(channel);
-	else
+	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
+
+	switch (priv->arb_ver) {
+	case V1:
 		ch_offset = SPMI_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v1(SPMI_CMD_EXT_REG_READ_LONG,
+					  usid, pid, off);
+		break;
+
+	case V2:
+		ch_offset = SPMI_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_READ_LONG, off);
+		break;
+
+	case V5:
+		ch_offset = SPMI_V5_OBS_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_READ_LONG, off);
+		break;
+	}
 
 	/* Disable IRQ mode for the current channel*/
 	writel(0x0, priv->spmi_obs + ch_offset + SPMI_REG_CONFIG);
-
-	/* Prepare read command */
-	reg |= SPMI_CMD_EXT_REG_READ_LONG << SPMI_CMD_OPCODE_SHIFT;
-	reg |= (usid << SPMI_CMD_SLAVE_ID_SHIFT);
-	reg |= (pid << SPMI_CMD_ADDR_SHIFT);
-	reg |= (off << SPMI_CMD_ADDR_OFFSET_SHIFT);
-	reg |= 1; /* byte count */
 
 	/* Request read */
 	writel(reg, priv->spmi_obs + ch_offset + SPMI_REG_CMD0);
