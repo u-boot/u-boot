@@ -277,6 +277,7 @@ config TARGET_IMX8MM_BEACON
 	select FSL_CAAM
 	select ARCH_MISC_INIT
 	select SPL_CRYPTO if SPL
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MN_BEACON
 	bool "imx8mn Beacon Embedded devkit"
