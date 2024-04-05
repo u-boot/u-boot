@@ -52,6 +52,7 @@ void lowlevel_init(void)
 	 */
 }
 
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_ARMADA_32BIT_SYSCON_SYSRESET)
 void reset_cpu(void)
 {
 	struct mvebu_system_registers *reg =
@@ -62,6 +63,7 @@ void reset_cpu(void)
 	while (1)
 		;
 }
+#endif
 
 u32 get_boot_device(void)
 {

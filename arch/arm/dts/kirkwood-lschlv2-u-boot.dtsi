@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-&eth0 {
-	status = "disabled";
+/ {
+	aliases {
+		spi0 = &spi0;
+	};
 };
 
 &hdd_power {

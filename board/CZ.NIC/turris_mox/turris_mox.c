@@ -565,12 +565,9 @@ static void handle_reset_button(void)
 int checkboard(void)
 {
 	int i, ret, board_version, ram_size, is_sd;
-	const char *pub_key, *model;
+	const char *pub_key;
 	const u8 *topology;
 	u64 serial_number;
-
-	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Model: %s\n", model);
 
 	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
 				     &ram_size, NULL);

@@ -18,18 +18,22 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
+#include <asm/unaligned.h>
 #include <dm/uclass.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <fdt_support.h>
 #include <hexdump.h>
 #include <time.h>
+#include <turris-omnia-mcu-interface.h>
 #include <linux/bitops.h>
+#include <linux/bitrev.h>
 #include <linux/delay.h>
 #include <u-boot/crc.h>
 
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
 #include "../turris_atsha_otp.h"
+#include "../turris_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,46 +62,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define A385_WD_RSTOUT_UNMASK		MVEBU_REGISTER(0x20704)
 #define   A385_WD_RSTOUT_UNMASK_GLOBAL	BIT(8)
-
-enum mcu_commands {
-	CMD_GET_STATUS_WORD	= 0x01,
-	CMD_GET_RESET		= 0x09,
-	CMD_GET_FW_VERSION_APP	= 0x0a,
-	CMD_WATCHDOG_STATE	= 0x0b,
-	CMD_GET_FW_VERSION_BOOT	= 0x0e,
-
-	/* available if STS_FEATURES_SUPPORTED bit set in status word */
-	CMD_GET_FEATURES	= 0x10,
-
-	/* available if EXT_CMD bit set in features */
-	CMD_EXT_CONTROL		= 0x12,
-};
-
-enum status_word_bits {
-	STS_MCU_TYPE_MASK	= GENMASK(1, 0),
-	STS_MCU_TYPE_STM32	= 0,
-	STS_MCU_TYPE_GD32	= 1,
-	STS_MCU_TYPE_MKL	= 2,
-	STS_MCU_TYPE_UNKN	= 3,
-	STS_FEATURES_SUPPORTED	= BIT(2),
-	CARD_DET_STSBIT		= 0x0010,
-	MSATA_IND_STSBIT	= 0x0020,
-};
-
-/* CMD_GET_FEATURES */
-enum features_e {
-	FEAT_PERIPH_MCU		= BIT(0),
-	FEAT_EXT_CMDS		= BIT(1),
-};
-
-/* CMD_EXT_CONTROL */
-enum ext_ctl_e {
-	EXT_CTL_nRES_LAN	= BIT(1),
-	EXT_CTL_nRES_PHY	= BIT(2),
-	EXT_CTL_nPERST0		= BIT(3),
-	EXT_CTL_nPERST1		= BIT(4),
-	EXT_CTL_nPERST2		= BIT(5),
-};
 
 /*
  * Those values and defines are taken from the Marvell U-Boot version
@@ -172,6 +136,141 @@ static int omnia_mcu_write(u8 cmd, const void *buf, int len)
 	return dm_i2c_write(chip, cmd, buf, len);
 }
 
+static int omnia_mcu_get_sts_and_features(u16 *psts, u32 *pfeatures)
+{
+	u16 sts, feat16;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &sts, sizeof(sts));
+	if (ret)
+		return ret;
+
+	if (psts)
+		*psts = sts;
+
+	if (!pfeatures)
+		return 0;
+
+	if (sts & STS_FEATURES_SUPPORTED) {
+		/* try read 32-bit features */
+		ret = omnia_mcu_read(CMD_GET_FEATURES, pfeatures,
+				     sizeof(*pfeatures));
+		if (ret) {
+			/* try read 16-bit features */
+			ret = omnia_mcu_read(CMD_GET_FEATURES, &feat16,
+					     sizeof(&feat16));
+			if (ret)
+				return ret;
+
+			*pfeatures = feat16;
+		} else {
+			if (*pfeatures & FEAT_FROM_BIT_16_INVALID)
+				*pfeatures &= GENMASK(15, 0);
+		}
+	} else {
+		*pfeatures = 0;
+	}
+
+	return 0;
+}
+
+static int omnia_mcu_get_sts(u16 *sts)
+{
+	return omnia_mcu_get_sts_and_features(sts, NULL);
+}
+
+static bool omnia_mcu_has_feature(u32 feature)
+{
+	u32 features;
+
+	if (omnia_mcu_get_sts_and_features(NULL, &features))
+		return false;
+
+	return feature & features;
+}
+
+static u32 omnia_mcu_crc32(const void *p, size_t len)
+{
+	u32 val, crc = 0;
+
+	compiletime_assert(!(len % 4), "length has to be a multiple of 4");
+
+	while (len) {
+		val = bitrev32(get_unaligned_le32(p));
+		crc = crc32(crc, (void *)&val, 4);
+		p += 4;
+		len -= 4;
+	}
+
+	return ~bitrev32(crc);
+}
+
+/* Can only be called after relocation, since it needs cleared BSS */
+static int omnia_mcu_board_info(char *serial, u8 *mac, char *version)
+{
+	static u8 reply[17];
+	static bool cached;
+
+	if (!cached) {
+		u8 csum;
+		int ret;
+
+		ret = omnia_mcu_read(CMD_BOARD_INFO_GET, reply, sizeof(reply));
+		if (ret)
+			return ret;
+
+		if (reply[0] != 16)
+			return -EBADMSG;
+
+		csum = reply[16];
+		reply[16] = 0;
+
+		if ((omnia_mcu_crc32(&reply[1], 16) & 0xff) != csum)
+			return -EBADMSG;
+
+		cached = true;
+	}
+
+	if (serial) {
+		const char *serial_env;
+
+		serial_env = env_get("serial#");
+		if (serial_env && strlen(serial_env) == 16) {
+			strcpy(serial, serial_env);
+		} else {
+			sprintf(serial, "%016llX",
+				get_unaligned_le64(&reply[1]));
+			env_set("serial#", serial);
+		}
+	}
+
+	if (mac)
+		memcpy(mac, &reply[9], ETH_ALEN);
+
+	if (version)
+		sprintf(version, "%u", reply[15]);
+
+	return 0;
+}
+
+static int omnia_mcu_get_board_public_key(char pub_key[static 67])
+{
+	u8 reply[34];
+	int ret;
+
+	ret = omnia_mcu_read(CMD_CRYPTO_GET_PUBLIC_KEY, reply, sizeof(reply));
+	if (ret)
+		return ret;
+
+	if (reply[0] != 33)
+		return -EBADMSG;
+
+	bin2hex(pub_key, &reply[1], 33);
+	pub_key[66] = '\0';
+
+	return 0;
+}
+
 static void enable_a385_watchdog(unsigned int timeout_minutes)
 {
 	struct sar_freq_modes sar_freq;
@@ -219,7 +318,7 @@ static bool disable_mcu_watchdog(void)
 
 	puts("Disabling MCU watchdog... ");
 
-	ret = omnia_mcu_write(CMD_WATCHDOG_STATE, "\x00", 1);
+	ret = omnia_mcu_write(CMD_SET_WATCHDOG_STATE, "\x00", 1);
 	if (ret) {
 		printf("omnia_mcu_write failed: %i\n", ret);
 		return false;
@@ -233,7 +332,7 @@ static bool disable_mcu_watchdog(void)
 static bool omnia_detect_sata(const char *msata_slot)
 {
 	int ret;
-	u16 stsword;
+	u16 sts;
 
 	puts("MiniPCIe/mSATA card detection... ");
 
@@ -249,24 +348,24 @@ static bool omnia_detect_sata(const char *msata_slot)
 		}
 	}
 
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	ret = omnia_mcu_get_sts(&sts);
 	if (ret) {
 		printf("omnia_mcu_read failed: %i, defaulting to MiniPCIe card\n",
 		       ret);
 		return false;
 	}
 
-	if (!(stsword & CARD_DET_STSBIT)) {
+	if (!(sts & STS_CARD_DET)) {
 		puts("none\n");
 		return false;
 	}
 
-	if (stsword & MSATA_IND_STSBIT)
+	if (sts & STS_MSATA_IND)
 		puts("mSATA\n");
 	else
 		puts("MiniPCIe\n");
 
-	return stsword & MSATA_IND_STSBIT ? true : false;
+	return sts & STS_MSATA_IND;
 }
 
 static bool omnia_detect_wwan_usb3(const char *wwan_slot)
@@ -393,32 +492,33 @@ static int omnia_get_ram_size_gb(void)
 
 static const char * const omnia_get_mcu_type(void)
 {
-	static const char * const mcu_types[] = {
-		[STS_MCU_TYPE_STM32] = "STM32",
-		[STS_MCU_TYPE_GD32]  = "GD32",
-		[STS_MCU_TYPE_MKL]   = "MKL",
-		[STS_MCU_TYPE_UNKN]  = "unknown",
-	};
-	static const char * const mcu_types_with_perip_resets[] = {
-		[STS_MCU_TYPE_STM32] = "STM32 (with peripheral resets)",
-		[STS_MCU_TYPE_GD32]  = "GD32 (with peripheral resets)",
-		[STS_MCU_TYPE_MKL]   = "MKL (with peripheral resets)",
-		[STS_MCU_TYPE_UNKN]  = "unknown (with peripheral resets)",
-	};
-	u16 stsword, features;
+	static char result[] = "xxxxxxx (with peripheral resets)";
+	u16 sts;
 	int ret;
 
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	ret = omnia_mcu_get_sts(&sts);
 	if (ret)
 		return "unknown";
 
-	if (stsword & STS_FEATURES_SUPPORTED) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &features, sizeof(features));
-		if (ret == 0 && (features & FEAT_PERIPH_MCU))
-			return mcu_types_with_perip_resets[stsword & STS_MCU_TYPE_MASK];
+	switch (sts & STS_MCU_TYPE_MASK) {
+	case STS_MCU_TYPE_STM32:
+		strcpy(result, "STM32");
+		break;
+	case STS_MCU_TYPE_GD32:
+		strcpy(result, "GD32");
+		break;
+	case STS_MCU_TYPE_MKL:
+		strcpy(result, "MKL");
+		break;
+	default:
+		strcpy(result, "unknown");
+		break;
 	}
 
-	return mcu_types[stsword & STS_MCU_TYPE_MASK];
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU))
+		strcat(result, " (with peripheral resets)");
+
+	return result;
 }
 
 static const char * const omnia_get_mcu_version(void)
@@ -695,9 +795,6 @@ int board_early_init_f(void)
 
 void spl_board_init(void)
 {
-	u16 val;
-	int ret;
-
 	/*
 	 * If booting from UART, disable MCU watchdog in SPL, since uploading
 	 * U-Boot proper can take too much time and trigger it. Instead enable
@@ -714,12 +811,8 @@ void spl_board_init(void)
 	 * resets then LAN eth switch is initialized automatically by bootstrap
 	 * pins when A385 is released from the reset.
 	 */
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
-	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
-		if (ret == 0 && (val & FEAT_PERIPH_MCU))
-			initialize_switch();
-	}
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU))
+		initialize_switch();
 }
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP) || IS_ENABLED(CONFIG_OF_BOARD_SETUP)
@@ -914,25 +1007,39 @@ static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
 	return 0;
 }
 
+static void fixup_atsha_node(void *blob)
+{
+	int node;
+
+	if (!omnia_mcu_has_feature(FEAT_CRYPTO))
+		return;
+
+	node = fdt_node_offset_by_compatible(blob, -1, "atmel,atsha204a");
+	if (node < 0) {
+		printf("Cannot find ATSHA204A node!\n");
+		return;
+	}
+
+	if (fdt_status_disabled(blob, node) < 0)
+		printf("Cannot disable ATSHA204A node!\n");
+	else
+		debug("Disabled ATSHA204A node\n");
+}
+
 #endif
 
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 int board_fix_fdt(void *blob)
 {
-	u16 val;
-	int ret;
-
-	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &val, sizeof(val));
-	if (ret == 0 && (val & STS_FEATURES_SUPPORTED)) {
-		ret = omnia_mcu_read(CMD_GET_FEATURES, &val, sizeof(val));
-		if (ret == 0 && (val & FEAT_PERIPH_MCU)) {
-			fixup_mcu_gpio_in_pcie_nodes(blob);
-			fixup_mcu_gpio_in_eth_wan_node(blob);
-		}
+	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU)) {
+		fixup_mcu_gpio_in_pcie_nodes(blob);
+		fixup_mcu_gpio_in_eth_wan_node(blob);
 	}
 
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);
+
+	fixup_atsha_node(blob);
 
 	return 0;
 }
@@ -964,23 +1071,46 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	char serial[17];
+	char serial[17], version[4], pub_key[67];
+	bool has_version;
 	int err;
 
-	err = turris_atsha_otp_get_serial_number(serial);
-	printf("Model: Turris Omnia\n");
 	printf("  MCU type: %s\n", omnia_get_mcu_type());
 	printf("  MCU version: %s\n", omnia_get_mcu_version());
 	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
+
+	if (omnia_mcu_has_feature(FEAT_BOARD_INFO)) {
+		err = omnia_mcu_board_info(serial, NULL, version);
+		has_version = !err;
+	} else {
+		err = turris_atsha_otp_get_serial_number(serial);
+		has_version = false;
+	}
+
+	printf("  Board version: %s\n", has_version ? version : "unknown");
 	printf("  Serial Number: %s\n", !err ? serial : "unknown");
+
+	if (omnia_mcu_has_feature(FEAT_CRYPTO)) {
+		err = omnia_mcu_get_board_public_key(pub_key);
+		printf("  ECDSA Public Key: %s\n", !err ? pub_key : "unknown");
+	}
 
 	return 0;
 }
 
 int misc_init_r(void)
 {
-	turris_atsha_otp_init_mac_addresses(1);
-	turris_atsha_otp_init_serial_number();
+	if (omnia_mcu_has_feature(FEAT_BOARD_INFO)) {
+		char serial[17];
+		u8 first_mac[6];
+
+		if (!omnia_mcu_board_info(serial, first_mac, NULL))
+			turris_init_mac_addresses(1, first_mac);
+	} else {
+		turris_atsha_otp_init_mac_addresses(1);
+		turris_atsha_otp_init_serial_number();
+	}
+
 	return 0;
 }
 
@@ -1101,6 +1231,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	fixup_spi_nor_partitions(blob);
 	fixup_msata_port_nodes(blob);
 	fixup_wwan_port_nodes(blob);
+
+	fixup_atsha_node(blob);
 
 	return 0;
 }

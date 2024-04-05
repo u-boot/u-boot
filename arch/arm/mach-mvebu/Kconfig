@@ -18,6 +18,8 @@ config ARMADA_32BIT
 	select TOOLS_KWBIMAGE if SPL
 	select SPL_SYS_NO_VECTOR_TABLE if SPL
 	select ARCH_VERY_EARLY_INIT
+	select ARMADA_32BIT_SYSCON_RESET if DM_RESET && PCI_MVEBU
+	select ARMADA_32BIT_SYSCON_SYSRESET if SYSRESET
 
 # ARMv7 SoCs...
 config ARMADA_375
@@ -455,6 +457,29 @@ config SF_DEFAULT_MODE
 	hex "Default mode for SPI flash"
 	default 0x0
 	depends on MVEBU_SPL_BOOT_DEVICE_SPI
+
+config ARMADA_32BIT_SYSCON
+	bool
+	depends on ARMADA_32BIT
+	select REGMAP
+	select SYSCON
+
+config ARMADA_32BIT_SYSCON_RESET
+	bool "Support Armada XP/375/38x/39x reset controller"
+	depends on ARMADA_32BIT
+	depends on DM_RESET
+	select ARMADA_32BIT_SYSCON
+	help
+	  Build support for Armada XP/375/38x/39x reset controller. This is
+	  needed for PCIe support.
+
+config ARMADA_32BIT_SYSCON_SYSRESET
+	bool "Support Armada XP/375/38x/39x sysreset via driver model"
+	depends on ARMADA_32BIT
+	depends on SYSRESET
+	select ARMADA_32BIT_SYSCON
+	help
+	  Build support for Armada XP/375/38x/39x system reset via driver model.
 
 source "board/solidrun/clearfog/Kconfig"
 source "board/kobol/helios4/Kconfig"

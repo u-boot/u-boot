@@ -47,33 +47,7 @@ dtb-$(CONFIG_ARCH_DAVINCI) += \
 
 dtb-$(CONFIG_ARCH_KIRKWOOD) += \
 	kirkwood-atl-sbx81lifkw.dtb \
-	kirkwood-atl-sbx81lifxcat.dtb \
-	kirkwood-blackarmor-nas220.dtb \
-	kirkwood-d2net.dtb \
-	kirkwood-dns325.dtb \
-	kirkwood-dockstar.dtb \
-	kirkwood-dreamplug.dtb \
-	kirkwood-ds109.dtb \
-	kirkwood-goflexnet.dtb \
-	kirkwood-guruplug-server-plus.dtb \
-	kirkwood-ib62x0.dtb \
-	kirkwood-iconnect.dtb \
-	kirkwood-is2.dtb \
-	kirkwood-lsxhl.dtb \
-	kirkwood-lschlv2.dtb \
-	kirkwood-net2big.dtb \
-	kirkwood-ns2.dtb \
-	kirkwood-ns2lite.dtb \
-	kirkwood-ns2max.dtb \
-	kirkwood-ns2mini.dtb \
-	kirkwood-nsa310s.dtb \
-	kirkwood-nsa325.dtb \
-	kirkwood-openrd-base.dtb \
-	kirkwood-openrd-client.dtb \
-	kirkwood-openrd-ultimate.dtb \
-	kirkwood-pogo_e02.dtb \
-	kirkwood-pogoplug-series-4.dtb \
-	kirkwood-sheevaplug.dtb
+	kirkwood-atl-sbx81lifxcat.dtb
 
 dtb-$(CONFIG_MACH_S900) += \
 	bubblegum_96.dtb
