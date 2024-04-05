@@ -23,11 +23,7 @@
 #define APCS_CLOCK_BRANCH_ENA_VOTE (0x45004)
 
 #define SDCC_BCR(n)			((n * 0x1000) + 0x41000)
-#define SDCC_CMD_RCGR(n)		((n * 0x1000) + 0x41004)
-#define SDCC_CFG_RCGR(n)		((n * 0x1000) + 0x41008)
-#define SDCC_M(n)			((n * 0x1000) + 0x4100C)
-#define SDCC_N(n)			((n * 0x1000) + 0x41010)
-#define SDCC_D(n)			((n * 0x1000) + 0x41014)
+#define SDCC_CMD_RCGR(n)		(((n + 1) * 0x1000) + 0x41004)
 #define SDCC_APPS_CBCR(n)		((n * 0x1000) + 0x41018)
 #define SDCC_AHB_CBCR(n)		((n * 0x1000) + 0x4101C)
 
@@ -38,30 +34,9 @@
 #define BLSP1_UART2_BCR			(0x3028)
 #define BLSP1_UART2_APPS_CBCR		(0x302C)
 #define BLSP1_UART2_APPS_CMD_RCGR	(0x3034)
-#define BLSP1_UART2_APPS_CFG_RCGR	(0x3038)
-#define BLSP1_UART2_APPS_M		(0x303C)
-#define BLSP1_UART2_APPS_N		(0x3040)
-#define BLSP1_UART2_APPS_D		(0x3044)
 
 /* GPLL0 clock control registers */
 #define GPLL0_STATUS_ACTIVE BIT(17)
-
-static const struct bcr_regs sdc_regs[] = {
-	{
-	.cfg_rcgr = SDCC_CFG_RCGR(1),
-	.cmd_rcgr = SDCC_CMD_RCGR(1),
-	.M = SDCC_M(1),
-	.N = SDCC_N(1),
-	.D = SDCC_D(1),
-	},
-	{
-	.cfg_rcgr = SDCC_CFG_RCGR(2),
-	.cmd_rcgr = SDCC_CMD_RCGR(2),
-	.M = SDCC_M(2),
-	.N = SDCC_N(2),
-	.D = SDCC_D(2),
-	}
-};
 
 static struct pll_vote_clk gpll0_vote_clk = {
 	.status = GPLL0_STATUS,
@@ -86,21 +61,13 @@ static int clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 
 	clk_enable_cbc(priv->base + SDCC_AHB_CBCR(slot));
 	/* 800Mhz/div, gpll0 */
-	clk_rcg_set_rate_mnd(priv->base, &sdc_regs[slot], div, 0, 0,
+	clk_rcg_set_rate_mnd(priv->base, SDCC_CMD_RCGR(slot), div, 0, 0,
 			     CFG_CLK_SRC_GPLL0, 8);
 	clk_enable_gpll0(priv->base, &gpll0_vote_clk);
 	clk_enable_cbc(priv->base + SDCC_APPS_CBCR(slot));
 
 	return rate;
 }
-
-static const struct bcr_regs uart2_regs = {
-	.cfg_rcgr = BLSP1_UART2_APPS_CFG_RCGR,
-	.cmd_rcgr = BLSP1_UART2_APPS_CMD_RCGR,
-	.M = BLSP1_UART2_APPS_M,
-	.N = BLSP1_UART2_APPS_N,
-	.D = BLSP1_UART2_APPS_D,
-};
 
 /* UART: 115200 */
 int apq8016_clk_init_uart(phys_addr_t base)
@@ -109,7 +76,7 @@ int apq8016_clk_init_uart(phys_addr_t base)
 	clk_enable_vote_clk(base, &gcc_blsp1_ahb_clk);
 
 	/* 7372800 uart block clock @ GPLL0 */
-	clk_rcg_set_rate_mnd(base, &uart2_regs, 1, 144, 15625,
+	clk_rcg_set_rate_mnd(base, BLSP1_UART2_APPS_CMD_RCGR, 1, 144, 15625,
 			     CFG_CLK_SRC_GPLL0, 16);
 
 	/* Vote for gpll0 clock */

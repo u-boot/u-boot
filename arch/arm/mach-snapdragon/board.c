@@ -16,6 +16,7 @@
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
 #include <dm/read.h>
+#include <power/regulator.h>
 #include <env.h>
 #include <init.h>
 #include <linux/arm-smccc.h>
@@ -24,8 +25,11 @@
 #include <linux/sizes.h>
 #include <lmb.h>
 #include <malloc.h>
+#include <fdt_support.h>
 #include <usb.h>
 #include <sort.h>
+
+#include "qcom-priv.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -93,7 +97,9 @@ void *board_fdt_blob_setup(int *err)
 	 * try and use the FDT built into U-Boot if there is one...
 	 * This avoids having a hard dependency on the previous stage bootloader
 	 */
-	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K))) {
+
+	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K) ||
+					       fdt_check_header((void *)fdt))) {
 		debug("%s: Using built in FDT, bootloader gave us %#llx\n", __func__, fdt);
 		return (void *)gd->fdt_blob;
 	}
@@ -156,7 +162,9 @@ void __weak qcom_board_init(void)
 
 int board_init(void)
 {
+	regulators_enable_boot_on(false);
 	show_psci_version();
+	qcom_of_fixup_nodes();
 	qcom_board_init();
 	return 0;
 }
