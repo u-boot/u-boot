@@ -12,4 +12,42 @@ menuconfig NET_LWIP
 	  depend on CONFIG_NET (such as cmd/net.c enabled via CONFIG_CMD_NET).
 	  Therefore the two symbols CONFIG_NET and CONFIG_NET_LWIP are mutually
 	  exclusive.
-	  NOTE: This is currently a placeholder.
+	  NOTE: This currently only builds the lwIP library but does not add
+	  any functionality to U-Boot.
+
+if NET_LWIP
+
+config LWIP_DEBUG
+	bool "Enable debug traces in the lwIP library"
+
+config LWIP_ASSERT
+	bool "Enable assertions in the lwIP library"
+
+config PROT_DHCP_LWIP
+	bool "DHCP support in lwIP"
+	depends on PROT_UDP_LWIP
+	help
+	  Enable support for the DHCP protocol in lwIP.
+
+config PROT_DNS_LWIP
+	bool "DNS support in lwIP"
+	depends on PROT_UDP_LWIP
+	help
+	  Enable support for the DNS protocol in lwIP.
+
+config PROT_RAW_LWIP
+	bool "Raw IP API in lwIP"
+	help
+	  Enable support for the raw IP API in lwIP.
+
+config PROT_TCP_LWIP
+	bool "TCP support in lwIP"
+	help
+	  Enable support for the Transmission Control Protocol in lwIP.
+
+config PROT_UDP_LWIP
+	bool "UDP support in lwIP"
+	help
+	  Enable support for the User Datagram Protocol in lwIP.
+
+endif
