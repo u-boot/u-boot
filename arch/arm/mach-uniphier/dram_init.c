@@ -265,14 +265,15 @@ int dram_init(void)
 	if (uniphier_get_soc_id() == UNIPHIER_LD20_ID)
 		gd->ram_size -= 64;
 
+	/* map all the DRAM regions */
+	uniphier_mem_map_init(gd->ram_base, prev_top - gd->ram_base);
+
 	return 0;
 }
 
 int dram_init_banksize(void)
 {
 	struct uniphier_dram_map dram_map[3] = {};
-	unsigned long base, top;
-	bool valid_bank_found = false;
 	int ret, i;
 
 	ret = uniphier_dram_map_get(dram_map);
@@ -287,18 +288,7 @@ int dram_init_banksize(void)
 
 		if (!dram_map[i].size)
 			continue;
-
-		if (!valid_bank_found)
-			base = dram_map[i].base;
-		top = dram_map[i].base + dram_map[i].size;
-		valid_bank_found = true;
 	}
-
-	if (!valid_bank_found)
-		return -EINVAL;
-
-	/* map all the DRAM regions */
-	uniphier_mem_map_init(base, top - base);
 
 	return 0;
 }
