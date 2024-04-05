@@ -1,0 +1,15 @@
+#
+# Network configuration (with lwIP stack)
+#
+
+menuconfig NET_LWIP
+	bool "Networking support (lwIP stack) -- EXPERIMENTAL"
+	help
+	  Include networking support based on the lwIP (lightweight IP)
+	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
+	  the default U-Boot network stack and applications located in net/
+	  and enabled via CONFIG_NET as well as other pieces of code that
+	  depend on CONFIG_NET (such as cmd/net.c enabled via CONFIG_CMD_NET).
+	  Therefore the two symbols CONFIG_NET and CONFIG_NET_LWIP are mutually
+	  exclusive.
+	  NOTE: This is currently a placeholder.

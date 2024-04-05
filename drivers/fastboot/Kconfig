@@ -27,7 +27,7 @@ config USB_FUNCTION_FASTBOOT
 	  This enables the USB part of the fastboot gadget.
 
 config UDP_FUNCTION_FASTBOOT
-	depends on NET
+	depends on NET || NET_LWIP
 	select FASTBOOT
 	bool "Enable fastboot protocol over UDP"
 	help
@@ -41,7 +41,7 @@ config UDP_FUNCTION_FASTBOOT_PORT
 	  The fastboot protocol requires a UDP port number.
 
 config TCP_FUNCTION_FASTBOOT
-	depends on NET
+	depends on NET || NET_LWIP
 	select FASTBOOT
 	bool "Enable fastboot protocol over TCP"
 	help
