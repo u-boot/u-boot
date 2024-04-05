@@ -92,6 +92,9 @@ int dh_setup_mac_address(void)
 	if (dh_mac_is_in_env("ethaddr"))
 		return 0;
 
+	if (dh_get_mac_is_enabled("ethernet0"))
+		return 0;
+
 	if (!dh_imx_get_mac_from_fuse(enetaddr))
 		goto out;
 

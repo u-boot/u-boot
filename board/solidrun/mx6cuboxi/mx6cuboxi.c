@@ -378,37 +378,6 @@ static bool has_emmc(void)
 	return (mmc_get_op_cond(mmc, true) < 0) ? 0 : 1;
 }
 
-/* Override the default implementation, DT model is not accurate */
-int checkboard(void)
-{
-	request_detect_gpios();
-
-	switch (board_type()) {
-	case CUBOXI:
-		puts("Board: MX6 Cubox-i");
-		break;
-	case HUMMINGBOARD:
-		puts("Board: MX6 HummingBoard");
-		break;
-	case HUMMINGBOARD2:
-		puts("Board: MX6 HummingBoard2");
-		break;
-	case UNKNOWN:
-	default:
-		puts("Board: Unknown\n");
-		goto out;
-	}
-
-	if (is_rev_15_som())
-		puts(" (som rev 1.5)\n");
-	else
-		puts("\n");
-
-	free_detect_gpios();
-out:
-	return 0;
-}
-
 static int find_ethernet_phy(void)
 {
 	struct mii_dev *bus = NULL;
@@ -502,12 +471,15 @@ int board_late_init(void)
 	switch (board_type()) {
 	case CUBOXI:
 		env_set("board_name", "CUBOXI");
+		puts("Board: MX6 Cubox-i");
 		break;
 	case HUMMINGBOARD:
 		env_set("board_name", "HUMMINGBOARD");
+		puts("Board: MX6 HummingBoard");
 		break;
 	case HUMMINGBOARD2:
 		env_set("board_name", "HUMMINGBOARD2");
+		puts("Board: MX6 HummingBoard2");
 		break;
 	case UNKNOWN:
 	default:
@@ -519,8 +491,12 @@ int board_late_init(void)
 	else
 		env_set("board_rev", "MX6DL");
 
-	if (is_rev_15_som())
+	if (is_rev_15_som()) {
 		env_set("som_rev", "V15");
+		puts(" (som rev 1.5)\n");
+	} else {
+		puts("\n");
+	}
 
 	if (has_emmc())
 		env_set("has_emmc", "yes");
