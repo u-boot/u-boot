@@ -48,6 +48,13 @@ config PINCTRL_QCOM_SM8550
 	  Say Y here to enable support for pinctrl on the Snapdragon SM8550 SoC,
 	  as well as the associated GPIO driver.
 
+config PINCTRL_QCOM_SM8650
+	bool "Qualcomm SM8650 GCC"
+	select PINCTRL_QCOM
+	help
+	  Say Y here to enable support for pinctrl on the Snapdragon SM8650 SoC,
+	  as well as the associated GPIO driver.
+
 endmenu
 
 endif
