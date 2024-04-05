@@ -1217,7 +1217,7 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	u32 idx, idx_mask = eqos->desc_per_cacheline - 1;
 	uchar *packet_expected;
-	struct eqos_desc *rx_desc;
+	struct eqos_desc *rx_desc = NULL;
 
 	debug("%s(packet=%p, length=%d)\n", __func__, packet, length);
 
