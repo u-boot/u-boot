@@ -382,6 +382,7 @@ config BOOT_DEFAULTS_CMDS
 	select CMD_PING if CMD_NET
 	select CMD_PXE if CMD_NET
 	select CMD_DHCP_LWIP if CMD_NET_LWIP
+	select CMD_PING_LWIP if CMD_NET_LWIP
 	select CMD_BOOTI if ARM64
 	select CMD_BOOTZ if ARM && !ARM64
 	imply CMD_MII if NET
