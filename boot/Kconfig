@@ -502,6 +502,7 @@ config BOOTMETH_ANDROID
 	select ANDROID_BOOT_IMAGE
 	select CMD_BCB
 	select CMD_FASTBOOT
+	select FASTBOOT
 	select PARTITION_TYPE_GUID
 	select PARTITION_UUIDS
 	help
