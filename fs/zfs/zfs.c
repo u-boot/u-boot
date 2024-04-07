@@ -1559,6 +1559,10 @@ nvlist_find_value(char *nvlist, char *name, int valtype, char **val,
 	return 0;
 }
 
+int is_word_aligned_ptr(void *ptr) {
+	return ((uintptr_t)ptr & (sizeof(void *) - 1)) == 0;
+}
+
 int
 zfs_nvlist_lookup_uint64(char *nvlist, char *name, uint64_t *out)
 {
@@ -1572,6 +1576,20 @@ zfs_nvlist_lookup_uint64(char *nvlist, char *name, uint64_t *out)
 	if (size < sizeof(uint64_t)) {
 		printf("invalid uint64\n");
 		return ZFS_ERR_BAD_FS;
+	}
+
+	/* On arm64, calling be64_to_cpu() on a value stored at a memory address
+	 * that's not 8-byte aligned causes the CPU to reset. Avoid that by copying the
+	 * value somewhere else if needed.
+	 */
+	if (!is_word_aligned_ptr((void *)nvpair)) {
+		uint64_t *alignedptr = malloc(sizeof(uint64_t));
+		if (!alignedptr)
+			return 0;
+		memcpy(alignedptr, nvpair, sizeof(uint64_t));
+		*out = be64_to_cpu(*alignedptr);
+		free(alignedptr);
+		return 1;
 	}
 
 	*out = be64_to_cpu(*(uint64_t *) nvpair);
