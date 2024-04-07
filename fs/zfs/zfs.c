@@ -2135,7 +2135,7 @@ zfs_read(zfs_file_t file, char *buf, uint64_t len)
 		 * Find requested blkid and the offset within that block.
 		 */
 		uint64_t blkid = file->offset + red;
-		blkid = do_div(blkid, blksz);
+		uint64_t blkoff = do_div(blkid, blksz);
 		free(data->file_buf);
 		data->file_buf = 0;
 
@@ -2150,8 +2150,7 @@ zfs_read(zfs_file_t file, char *buf, uint64_t len)
 
 		movesize = min(length, data->file_end - (int)file->offset - red);
 
-		memmove(buf, data->file_buf + file->offset + red
-				- data->file_start, movesize);
+		memmove(buf, data->file_buf + blkoff, movesize);
 		buf += movesize;
 		length -= movesize;
 		red += movesize;
