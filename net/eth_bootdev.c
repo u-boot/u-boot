@@ -85,7 +85,7 @@ static int eth_bootdev_hunt(struct bootdev_hunter *info, bool show)
 	 * enumerated already. If something like 'bootflow scan dhcp' is used
 	 * then the user will need to run 'usb start' first.
 	 */
-	if (IS_ENABLED(CONFIG_CMD_DHCP)) {
+	if (IS_ENABLED(CONFIG_CMD_DHCP) || IS_ENABLED(CONFIG_CMD_DHCP_LWIP)) {
 		ret = dhcp_run(0, NULL, false);
 		if (ret)
 			return -EINVAL;

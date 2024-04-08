@@ -4,6 +4,7 @@
 
 menuconfig NET_LWIP
 	bool "Networking support (lwIP stack) -- EXPERIMENTAL"
+	imply NETDEVICES
 	help
 	  Include networking support based on the lwIP (lightweight IP)
 	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
@@ -12,8 +13,6 @@ menuconfig NET_LWIP
 	  depend on CONFIG_NET (such as cmd/net.c enabled via CONFIG_CMD_NET).
 	  Therefore the two symbols CONFIG_NET and CONFIG_NET_LWIP are mutually
 	  exclusive.
-	  NOTE: This currently only builds the lwIP library but does not add
-	  any functionality to U-Boot.
 
 if NET_LWIP
 
@@ -49,5 +48,14 @@ config PROT_UDP_LWIP
 	bool "UDP support in lwIP"
 	help
 	  Enable support for the User Datagram Protocol in lwIP.
+
+config BOOTDEV_ETH
+        bool "Enable bootdev for ethernet"
+        depends on BOOTSTD
+        default y
+        help
+          Provide a bootdev for ethernet so that is it possible to boot
+          an operating system over the network, using the PXE (Preboot
+          Execution Environment) protocol.
 
 endif
