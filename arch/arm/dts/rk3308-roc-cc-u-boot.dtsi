@@ -4,14 +4,19 @@
  */
 #include "rk3308-u-boot.dtsi"
 
-/ {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &emmc;
-	};
+&gpio4 {
+	bootph-pre-ram;
 };
 
 &uart2 {
 	bootph-all;
 	clock-frequency = <24000000>;
-	status = "okay";
+};
+
+&uart2m0_xfer {
+	bootph-all;
+};
+
+&vcc_sd {
+	bootph-pre-ram;
 };
