@@ -352,6 +352,11 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 
+#ifdef CONFIG_ARCH_NPCM8XX
+	/* Pass all Multicast Frames */
+	setbits_le32(&mac_p->framefilt, BIT(4));
+
+#endif
 	return 0;
 }
 
