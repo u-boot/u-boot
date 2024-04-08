@@ -118,6 +118,9 @@ extern int		net_restart_wrap;	/* Tried all network devices */
 extern uchar               *net_rx_packets[PKTBUFSRX]; /* Receive packets */
 extern const u8		net_bcast_ethaddr[ARP_HLEN];	/* Ethernet broadcast address */
 extern char	net_boot_file_name[1024];/* Boot File name */
+extern struct in_addr	net_ip;		/* Our    IP addr (0 = unknown) */
+/* Indicates whether the pxe path prefix / config file was specified in dhcp option */
+extern char *pxelinux_configfile;
 
 /**
  * compute_ip_checksum() - Compute IP checksum
