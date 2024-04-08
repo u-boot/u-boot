@@ -345,7 +345,7 @@
 	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
 #endif
 
-#if defined(CONFIG_CMD_DHCP)
+#if defined(CONFIG_CMD_DHCP) || defined(CONFIG_CMD_DHCP_LWIP)
 #if defined(CONFIG_EFI_LOADER)
 /* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
 #if defined(CONFIG_ARM64) || defined(__aarch64__)

@@ -70,7 +70,8 @@ static bool bootmeth_uses_network(struct bootflow *bflow)
 {
 	const struct udevice *media = dev_get_parent(bflow->dev);
 
-	return IS_ENABLED(CONFIG_CMD_DHCP) &&
+	return (IS_ENABLED(CONFIG_CMD_DHCP) ||
+		IS_ENABLED(CONFIG_CMD_DHCP_LWIP)) &&
 	    device_get_uclass_id(media) == UCLASS_ETH;
 }
 
