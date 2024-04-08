@@ -15,6 +15,12 @@
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
 	};
 
+	dmc: dmc@ff010000 {
+		compatible = "rockchip,rk3308-dmc";
+		reg = <0x0 0xff010000 0x0 0x10000>;
+		bootph-all;
+	};
+
 	otp: nvmem@ff210000 {
 		compatible = "rockchip,rk3308-otp";
 		reg = <0x0 0xff210000 0x0 0x4000>;
@@ -38,10 +44,6 @@
 };
 
 &cru {
-	bootph-all;
-};
-
-&dmc {
 	bootph-all;
 };
 
@@ -134,4 +136,8 @@
 &sdmmc_det {
 	bootph-pre-ram;
 	bootph-some-ram;
+};
+
+&xin24m {
+	bootph-all;
 };

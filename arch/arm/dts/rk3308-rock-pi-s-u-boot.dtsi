@@ -31,3 +31,7 @@
 &uart0_xfer {
 	bootph-all;
 };
+
+&vdd_core {
+	regulator-init-microvolt = <1015000>;
+};
