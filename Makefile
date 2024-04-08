@@ -860,6 +860,7 @@ libs-y += env/
 libs-y += lib/
 libs-y += fs/
 libs-$(CONFIG_NET) += net/
+libs-$(CONFIG_NET_LWIP) += net-lwip/
 libs-y += disk/
 libs-y += drivers/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
