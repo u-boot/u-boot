@@ -1085,6 +1085,8 @@ static ulong rk3308_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_RTC32K:
 		ret = rk3308_rtc32k_set_clk(priv, clk->id, rate);
 		break;
+	case USB480M:
+		return 0;
 	default:
 		return -ENOENT;
 	}
@@ -1117,6 +1119,8 @@ static int __maybe_unused rk3308_clk_set_parent(struct clk *clk, struct clk *par
 	switch (clk->id) {
 	case SCLK_MAC:
 		return rk3308_mac_set_parent(clk, parent);
+	case USB480M:
+		return 0;
 	default:
 		break;
 	}
