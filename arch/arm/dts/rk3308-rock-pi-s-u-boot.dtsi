@@ -15,6 +15,10 @@
 	bootph-some-ram;
 };
 
+&u2phy_otg {
+	/delete-property/ phy-supply;
+};
+
 &uart0 {
 	bootph-all;
 	clock-frequency = <24000000>;
@@ -30,6 +34,10 @@
 
 &uart0_xfer {
 	bootph-all;
+};
+
+&vcc5v0_otg {
+	/delete-property/ regulator-always-on;
 };
 
 &vdd_core {
