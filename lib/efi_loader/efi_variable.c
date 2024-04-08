@@ -235,8 +235,12 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	if (data_size && !data)
 		return EFI_INVALID_PARAMETER;
 
-	/* EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated */
-	if (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS)
+	/*
+	 * EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated.
+	 * We don't support EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS.
+	 */
+	if (attributes & (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS | \
+			  EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS))
 		return EFI_UNSUPPORTED;
 
 	/* Make sure if runtime bit is set, boot service bit is set also */
@@ -259,7 +263,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	/* check if a variable exists */
 	var = efi_var_mem_find(vendor, variable_name, NULL);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
-	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
+	attributes &= ~EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
 
 	/* check attributes */
@@ -276,17 +280,27 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		/* attributes won't be changed */
 		if (!delete &&
 		    ((ro_check && var->attr != attributes) ||
-		     (!ro_check && ((var->attr & ~(u32)EFI_VARIABLE_READ_ONLY)
-				    != (attributes & ~(u32)EFI_VARIABLE_READ_ONLY))))) {
+		     (!ro_check && ((var->attr & ~EFI_VARIABLE_READ_ONLY)
+				    != (attributes & ~EFI_VARIABLE_READ_ONLY))))) {
 			return EFI_INVALID_PARAMETER;
 		}
 		time = var->time;
 	} else {
-		if (delete || append)
-			/*
-			 * Trying to delete or to update a non-existent
-			 * variable.
-			 */
+		/*
+		 * UEFI specification does not clearly describe the expected
+		 * behavior of append write with data size 0, we follow
+		 * the EDK II reference implementation.
+		 */
+		if (append && !data_size)
+			return EFI_SUCCESS;
+
+		/*
+		 * EFI_VARIABLE_APPEND_WRITE to non-existent variable is accepted
+		 * and new variable is created in EDK II reference implementation.
+		 * We follow it and only check the deletion here.
+		 */
+		if (delete)
+			/* Trying to delete a non-existent variable. */
 			return EFI_NOT_FOUND;
 	}
 
@@ -329,7 +343,11 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		/* EFI_NOT_FOUND has been handled before */
 		attributes = var->attr;
 		ret = EFI_SUCCESS;
-	} else if (append) {
+	} else if (append && var) {
+		/*
+		 * data is appended if EFI_VARIABLE_APPEND_WRITE is set and
+		 * variable exists.
+		 */
 		u16 *old_data = var->name;
 
 		for (; *old_data; ++old_data)
@@ -342,10 +360,11 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		ret = efi_var_mem_ins(variable_name, vendor, attributes,
 				      data_size, data, 0, NULL, time);
 	}
-	efi_var_mem_del(var);
 
 	if (ret != EFI_SUCCESS)
 		return ret;
+
+	efi_var_mem_del(var);
 
 	if (var_type == EFI_AUTH_VAR_PK)
 		ret = efi_init_secure_state();
@@ -384,7 +403,7 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 	    EFI_VARIABLE_RUNTIME_ACCESS)
 		return EFI_INVALID_PARAMETER;
 
-	if (attributes & ~(u32)EFI_VARIABLE_MASK)
+	if (attributes & ~EFI_VARIABLE_MASK)
 		return EFI_INVALID_PARAMETER;
 
 	*maximum_variable_storage_size = EFI_VAR_BUF_SIZE -

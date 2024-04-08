@@ -131,13 +131,57 @@ static int execute(void)
 			    (unsigned int)len);
 	if (memcmp(data, v, len))
 		efi_st_todo("GetVariable returned wrong value\n");
-	/* Append variable 2 */
+
+	/* Append variable 2, write to non-existent variable with datasize=0 */
+	ret = runtime->set_variable(u"efi_none", &guid_vendor1,
+				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
+				    EFI_VARIABLE_APPEND_WRITE,
+				    0, v);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error(
+			"SetVariable(APPEND_WRITE) with size 0 to non-existent variable returns wrong code\n");
+		return EFI_ST_FAILURE;
+	}
+	len = EFI_ST_MAX_DATA_SIZE;
+	ret = runtime->get_variable(u"efi_none", &guid_vendor1,
+				    &attr, &len, data);
+	if (ret != EFI_NOT_FOUND) {
+		efi_st_error("Variable must not be created\n");
+		return EFI_ST_FAILURE;
+	}
+	/* Append variable 2, write to non-existent variable with valid data size*/
 	ret = runtime->set_variable(u"efi_none", &guid_vendor1,
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				    EFI_VARIABLE_APPEND_WRITE,
 				    15, v);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("SetVariable(APPEND_WRITE) with valid size and data to non-existent variable must be succcessful\n");
+		return EFI_ST_FAILURE;
+	}
+	len = EFI_ST_MAX_DATA_SIZE;
+	ret = runtime->get_variable(u"efi_none", &guid_vendor1,
+				    &attr, &len, data);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("GetVariable failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (len != 15)
+		efi_st_todo("GetVariable returned wrong length %u\n",
+			    (unsigned int)len);
+	if (memcmp(data, v, len))
+		efi_st_todo("GetVariable returned wrong value\n");
+	/* Delete variable efi_none */
+	ret = runtime->set_variable(u"efi_none", &guid_vendor1,
+				    0, 0, NULL);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("SetVariable failed\n");
+		return EFI_ST_FAILURE;
+	}
+	len = EFI_ST_MAX_DATA_SIZE;
+	ret = runtime->get_variable(u"efi_none", &guid_vendor1,
+				    &attr, &len, data);
 	if (ret != EFI_NOT_FOUND) {
-		efi_st_error("SetVariable(APPEND_WRITE) with size 0 to non-existent variable returns wrong code\n");
+		efi_st_error("Variable was not deleted\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Enumerate variables */

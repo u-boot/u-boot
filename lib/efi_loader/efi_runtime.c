@@ -669,14 +669,14 @@ static __efi_runtime void efi_relocate_runtime_table(ulong offset)
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 {
 #ifdef IS_RELA
-	struct elf_rela *rel = (void*)&__efi_runtime_rel_start;
+	struct elf_rela *rel = (void *)__efi_runtime_rel_start;
 #else
-	struct elf_rel *rel = (void*)&__efi_runtime_rel_start;
+	struct elf_rel *rel = (void *)__efi_runtime_rel_start;
 	static ulong lastoff = CONFIG_TEXT_BASE;
 #endif
 
 	debug("%s: Relocating to offset=%lx\n", __func__, offset);
-	for (; (ulong)rel < (ulong)&__efi_runtime_rel_stop; rel++) {
+	for (; (uintptr_t)rel < (uintptr_t)__efi_runtime_rel_stop; rel++) {
 		ulong base = CONFIG_TEXT_BASE;
 		ulong *p;
 		ulong newaddr;

@@ -99,7 +99,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 		  data_size, data);
 
 	/* Make sure that the EFI_VARIABLE_READ_ONLY flag is not set */
-	if (attributes & ~(u32)EFI_VARIABLE_MASK)
+	if (attributes & ~EFI_VARIABLE_MASK)
 		ret = EFI_INVALID_PARAMETER;
 	else
 		ret = efi_set_variable_int(variable_name, vendor, attributes,

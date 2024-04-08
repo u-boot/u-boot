@@ -14,6 +14,7 @@
 #include <bootmeth.h>
 #include <command.h>
 #include <dm.h>
+#include <efi_default_filename.h>
 #include <efi_loader.h>
 #include <fs.h>
 #include <malloc.h>
@@ -23,43 +24,7 @@
 #include <pxe_utils.h>
 #include <linux/sizes.h>
 
-#define EFI_DIRNAME	"efi/boot/"
-
-/**
- * get_efi_leafname() - Get the leaf name for the EFI file we expect
- *
- * @str: Place to put leaf name for this architecture, e.g. "bootaa64.efi".
- *	Must have at least 16 bytes of space
- * @max_len: Length of @str, must be >=16
- */
-static int get_efi_leafname(char *str, int max_len)
-{
-	const char *base;
-
-	if (max_len < 16)
-		return log_msg_ret("spc", -ENOSPC);
-	if (IS_ENABLED(CONFIG_ARM64))
-		base = "bootaa64";
-	else if (IS_ENABLED(CONFIG_ARM))
-		base = "bootarm";
-	else if (IS_ENABLED(CONFIG_X86_RUN_32BIT))
-		base = "bootia32";
-	else if (IS_ENABLED(CONFIG_X86_RUN_64BIT))
-		base = "bootx64";
-	else if (IS_ENABLED(CONFIG_ARCH_RV32I))
-		base = "bootriscv32";
-	else if (IS_ENABLED(CONFIG_ARCH_RV64I))
-		base = "bootriscv64";
-	else if (IS_ENABLED(CONFIG_SANDBOX))
-		base = "bootsbox";
-	else
-		return -EINVAL;
-
-	strcpy(str, base);
-	strcat(str, ".efi");
-
-	return 0;
-}
+#define EFI_DIRNAME	"/EFI/BOOT/"
 
 static int get_efi_pxe_arch(void)
 {
@@ -259,10 +224,7 @@ static int distro_efi_try_bootflow_files(struct udevice *dev,
 		return -ENOENT;
 
 	strcpy(fname, EFI_DIRNAME);
-	ret = get_efi_leafname(fname + strlen(fname),
-			       sizeof(fname) - strlen(fname));
-	if (ret)
-		return log_msg_ret("leaf", ret);
+	strcat(fname, BOOTEFI_NAME);
 
 	if (bflow->blk)
 		 desc = dev_get_uclass_plat(bflow->blk);
@@ -489,7 +451,7 @@ static const struct udevice_id distro_efi_bootmeth_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(bootmeth_efi) = {
+U_BOOT_DRIVER(bootmeth_4efi) = {
 	.name		= "bootmeth_efi",
 	.id		= UCLASS_BOOTMETH,
 	.of_match	= distro_efi_bootmeth_ids,
