@@ -23,6 +23,8 @@
 #include <image.h>
 #include <u-boot/crc.h>
 
+#define COPYFILE_BUFSIZE (64 * 1024)
+
 void fit_print_header(const void *fit, struct image_tool_params *params)
 {
 	fit_print_contents(fit);
@@ -145,14 +147,14 @@ int copyfile(const char *src, const char *dst)
 		goto out;
 	}
 
-	buf = calloc(1, 512);
+	buf = calloc(1, COPYFILE_BUFSIZE);
 	if (!buf) {
 		printf("Can't allocate buffer to copy file\n");
 		goto out;
 	}
 
 	while (1) {
-		size = read(fd_src, buf, 512);
+		size = read(fd_src, buf, COPYFILE_BUFSIZE);
 		if (size < 0) {
 			printf("Can't read file %s\n", src);
 			goto out;
