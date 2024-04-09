@@ -8,6 +8,7 @@
 #include <common.h>
 #include <adc.h>
 #include <bootm.h>
+#include <button.h>
 #include <clk.h>
 #include <config.h>
 #include <dm.h>
@@ -38,6 +39,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <dm/device-internal.h>
 #include <dm/ofnode.h>
 #include <jffs2/load_kernel.h>
 #include <linux/bitops.h>
@@ -138,45 +140,55 @@ int checkboard(void)
 
 static void board_key_check(void)
 {
-	ofnode node;
-	struct gpio_desc gpio;
+	struct udevice *button1 = NULL, *button2 = NULL;
 	enum forced_boot_mode boot_mode = BOOT_NORMAL;
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_BUTTON))
+		return;
 
 	if (!IS_ENABLED(CONFIG_FASTBOOT) && !IS_ENABLED(CONFIG_CMD_STM32PROG))
 		return;
 
-	node = ofnode_path("/config");
-	if (!ofnode_valid(node)) {
-		log_debug("no /config node?\n");
-		return;
-	}
-	if (IS_ENABLED(CONFIG_FASTBOOT)) {
-		if (gpio_request_by_name_nodev(node, "st,fastboot-gpios", 0,
-					       &gpio, GPIOD_IS_IN)) {
-			log_debug("could not find a /config/st,fastboot-gpios\n");
-		} else {
-			udelay(20);
-			if (dm_gpio_get_value(&gpio)) {
-				log_notice("Fastboot key pressed, ");
-				boot_mode = BOOT_FASTBOOT;
-			}
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG))
+		button_get_by_label("User-1", &button1);
 
-			dm_gpio_free(NULL, &gpio);
+	if (IS_ENABLED(CONFIG_FASTBOOT))
+		button_get_by_label("User-2", &button2);
+
+	if (!button1 && !button2)
+		return;
+
+	if (button2) {
+		if (button_get_state(button2) == BUTTON_ON) {
+			log_notice("Fastboot key pressed, ");
+			boot_mode = BOOT_FASTBOOT;
 		}
+		/*
+		 * On some boards, same gpio is shared betwwen gpio-keys and
+		 * leds, remove the button device to free the gpio for led
+		 * usage
+		 */
+		ret = device_remove(button2, DM_REMOVE_NORMAL);
+		if (ret)
+			log_err("Can't remove button2 (%d)\n", ret);
 	}
-	if (IS_ENABLED(CONFIG_CMD_STM32PROG)) {
-		if (gpio_request_by_name_nodev(node, "st,stm32prog-gpios", 0,
-					       &gpio, GPIOD_IS_IN)) {
-			log_debug("could not find a /config/st,stm32prog-gpios\n");
-		} else {
-			udelay(20);
-			if (dm_gpio_get_value(&gpio)) {
-				log_notice("STM32Programmer key pressed, ");
-				boot_mode = BOOT_STM32PROG;
-			}
-			dm_gpio_free(NULL, &gpio);
+
+	if (button1) {
+		if (button_get_state(button1) == BUTTON_ON) {
+			log_notice("STM32Programmer key pressed, ");
+			boot_mode = BOOT_STM32PROG;
 		}
+		/*
+		 * On some boards, same gpio is shared betwwen gpio-keys and
+		 * leds, remove the button device to free the gpio for led
+		 * usage
+		 */
+		ret = device_remove(button1, DM_REMOVE_NORMAL);
+		if (ret)
+			log_err("Can't remove button1 (%d)\n", ret);
 	}
+
 	if (boot_mode != BOOT_NORMAL) {
 		log_notice("entering download mode...\n");
 		clrsetbits_le32(TAMP_BOOT_CONTEXT,
