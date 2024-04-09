@@ -173,6 +173,8 @@ static int msm_sdc_probe(struct udevice *dev)
 
 	core_minor = core_version & SDCC_VERSION_MINOR_MASK;
 
+	log_debug("SDCC version %d.%d\n", core_major, core_minor);
+
 	/*
 	 * Support for some capabilities is not advertised by newer
 	 * controller versions and must be explicitly enabled.
