@@ -206,7 +206,7 @@ static int msm_sdc_remove(struct udevice *dev)
 	var_info = (void *)dev_get_driver_data(dev);
 
 	/* Disable host-controller mode */
-	if (!var_info->mci_removed)
+	if (!var_info->mci_removed && priv->base)
 		writel(0, priv->base + SDCC_MCI_HC_MODE);
 
 	clk_release_bulk(&priv->clks);
@@ -216,20 +216,30 @@ static int msm_sdc_remove(struct udevice *dev)
 
 static int msm_of_to_plat(struct udevice *dev)
 {
-	struct udevice *parent = dev->parent;
 	struct msm_sdhc *priv = dev_get_priv(dev);
+	const struct msm_sdhc_variant_info *var_info;
 	struct sdhci_host *host = &priv->host;
-	int node = dev_of_offset(dev);
+	int ret;
+
+	var_info = (void*)dev_get_driver_data(dev);
 
 	host->name = strdup(dev->name);
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->bus_width = fdtdec_get_int(gd->fdt_blob, node, "bus-width", 4);
-	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
-	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-			dev_of_offset(parent), node, "reg", 1, NULL, false);
-	if (priv->base == (void *)FDT_ADDR_T_NONE ||
-	    host->ioaddr == (void *)FDT_ADDR_T_NONE)
+	ret = dev_read_u32(dev, "bus-width", &host->bus_width);
+	if (ret)
+		host->bus_width = 4;
+	ret = dev_read_u32(dev, "index", &host->index);
+	if (ret)
+		host->index = 0;
+	priv->base = dev_read_addr_index_ptr(dev, 1);
+
+	if (!host->ioaddr)
 		return -EINVAL;
+
+	if (!var_info->mci_removed && !priv->base) {
+		printf("msm_sdhci: MCI base address not found\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
