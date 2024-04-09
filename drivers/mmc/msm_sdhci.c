@@ -62,7 +62,7 @@ static int msm_sdc_clk_init(struct udevice *dev)
 
 	ret = ofnode_read_u32(node, "clock-frequency", (uint *)(&clk_rate));
 	if (ret)
-		clk_rate = 400000;
+		clk_rate = 201500000;
 
 	ret = clk_get_bulk(dev, &prv->clks);
 	if (ret) {
