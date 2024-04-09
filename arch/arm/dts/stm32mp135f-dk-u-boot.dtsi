@@ -30,10 +30,13 @@
 	};
 
 	leds {
+		led-blue {
+			/delete-property/default-state;
+		};
+
 		led-red {
 			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-			default-state = "off";
 		};
 	};
 };
