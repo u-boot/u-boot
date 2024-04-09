@@ -35,7 +35,6 @@
 		};
 
 		led-red {
-			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		};
 	};
