@@ -603,7 +603,9 @@ ARM SNAPDRAGON
 M:	Caleb Connolly <caleb.connolly@linaro.org>
 M:	Neil Armstrong <neil.armstrong@linaro.org>
 R:	Sumit Garg <sumit.garg@linaro.org>
+L:	u-boot-qcom@groups.io
 S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-snapdragon.git
 F:	arch/arm/dts/msm8*.dtsi
 F:	arch/arm/dts/pm8???.dtsi
 F:	arch/arm/dts/pms405.dtsi
