@@ -41,7 +41,7 @@ efi_status_t efi_acpi_register(void)
 	}
 
 	addr = gd_acpi_start();
-	printf("EFI using ACPI tables at %lx\n", addr);
+	log_debug("EFI using ACPI tables at %lx\n", addr);
 
 	/* And expose them to our EFI payload */
 	return efi_install_configuration_table(&acpi_guid,
