@@ -66,7 +66,18 @@ static const char *sdm845_get_function_name(struct udevice *dev,
 static const char *sdm845_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
-	snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+	static const char *special_pins_names[] = {
+		"ufs_reset",
+		"sdc2_clk",
+		"sdc2_cmd",
+		"sdc2_data",
+	};
+
+	if (selector >= 150 && selector <= 154)
+		snprintf(pin_name, MAX_PIN_NAME_LEN, special_pins_names[selector - 150]);
+	else
+		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+
 	return pin_name;
 }
 
