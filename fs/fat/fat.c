@@ -1254,7 +1254,7 @@ out:
 static void __maybe_unused fat2rtc(u16 date, u16 time, struct rtc_time *tm)
 {
 	tm->tm_mday = date & 0x1f;
-	tm->tm_mon = (date & 0x1e0) >> 4;
+	tm->tm_mon = (date & 0x1e0) >> 5;
 	tm->tm_year = (date >> 9) + 1980;
 
 	tm->tm_sec = (time & 0x1f) << 1;
