@@ -48,6 +48,10 @@ endif
 ARCH_FLAGS = -march=$(RISCV_MARCH) -mabi=$(ABI) \
 	     -mcmodel=$(CMODEL)
 
+ifeq ($(CONFIG_$(SPL_)FRAMEPOINTER),y)
+	ARCH_FLAGS += -fno-omit-frame-pointer
+endif
+
 PLATFORM_CPPFLAGS	+= $(ARCH_FLAGS)
 CFLAGS_EFI		+= $(ARCH_FLAGS)
 
