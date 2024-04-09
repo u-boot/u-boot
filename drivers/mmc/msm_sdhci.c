@@ -33,9 +33,6 @@
 #define SDCC_MCI_STATUS2_MCI_ACT 0x1
 #define SDCC_MCI_HC_MODE 0x78
 
-/* Non standard (?) SDHCI register */
-#define SDHCI_VENDOR_SPEC_CAPABILITIES0  0x11c
-
 struct msm_sdhc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -49,6 +46,8 @@ struct msm_sdhc {
 
 struct msm_sdhc_variant_info {
 	bool mci_removed;
+
+	u32 core_vendor_spec_capabilities0;
 };
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -181,7 +180,7 @@ static int msm_sdc_probe(struct udevice *dev)
 	if (core_major >= 1 && core_minor != 0x11 && core_minor != 0x12) {
 		caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
 		caps |= SDHCI_CAN_VDD_300 | SDHCI_CAN_DO_8BIT;
-		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
+		writel(caps, host->ioaddr + var_info->core_vendor_spec_capabilities0);
 	}
 
 	ret = mmc_of_parse(dev, &plat->cfg);
@@ -244,10 +243,14 @@ static int msm_sdc_bind(struct udevice *dev)
 
 static const struct msm_sdhc_variant_info msm_sdhc_mci_var = {
 	.mci_removed = false,
+
+	.core_vendor_spec_capabilities0 = 0x21c,
 };
 
 static const struct msm_sdhc_variant_info msm_sdhc_v5_var = {
 	.mci_removed = true,
+
+	.core_vendor_spec_capabilities0 = 0x11c,
 };
 
 static const struct udevice_id msm_mmc_ids[] = {
