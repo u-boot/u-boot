@@ -29,13 +29,15 @@
 #define CPM_SPI_BASE_RX	CPM_SPI_BASE
 #define CPM_SPI_BASE_TX	(CPM_SPI_BASE + sizeof(cbd_t))
 
-#define MAX_BUFFER	0x104
+#define MAX_BUFFER	0x8000 /* Max possible is 0xffff. We want power of 2 */
 
 struct mpc8xx_priv {
 	spi_t __iomem *spi;
 	struct gpio_desc gpios[16];
 	int max_cs;
 };
+
+static char dummy_buffer[MAX_BUFFER];
 
 static int mpc8xx_spi_set_mode(struct udevice *dev, uint mod)
 {
@@ -154,6 +156,8 @@ static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int tm;
 	size_t count = (bitlen + 7) / 8;
 
+	if (!din && !dout)
+		return -EINVAL;
 	if (count > MAX_BUFFER)
 		return -EINVAL;
 
@@ -165,12 +169,12 @@ static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		mpc8xx_spi_cs_activate(dev);
 
 	/* Setting tx bd status and data length */
-	out_be32(&tbdf->cbd_bufaddr, (ulong)dout);
+	out_be32(&tbdf->cbd_bufaddr, dout ? (ulong)dout : (ulong)dummy_buffer);
 	out_be16(&tbdf->cbd_sc, BD_SC_READY | BD_SC_LAST | BD_SC_WRAP);
 	out_be16(&tbdf->cbd_datlen, count);
 
 	/* Setting rx bd status and data length */
-	out_be32(&rbdf->cbd_bufaddr, (ulong)din);
+	out_be32(&rbdf->cbd_bufaddr, din ? (ulong)din : (ulong)dummy_buffer);
 	out_be16(&rbdf->cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
 	out_be16(&rbdf->cbd_datlen, 0);	 /* rx length has no significance */
 
