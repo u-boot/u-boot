@@ -18,6 +18,7 @@
 #include <rand.h>
 #include <asm/byteorder.h>
 #include <asm/cache.h>
+#include <dm/uclass.h>
 #include <linux/ctype.h>
 #include <linux/math64.h>
 #include "fat.c"
@@ -1152,6 +1153,41 @@ getit:
 }
 
 /**
+ * dentry_set_time() - set change time
+ *
+ * @dentptr:	directory entry
+ */
+static void dentry_set_time(dir_entry *dentptr)
+{
+	if (CONFIG_IS_ENABLED(DM_RTC)) {
+		struct udevice *dev;
+		struct rtc_time tm;
+		u16 date;
+		u16 time;
+
+		uclass_first_device(UCLASS_RTC, &dev);
+		if (!dev)
+			goto err;
+		if (dm_rtc_get(dev, &tm))
+			goto err;
+		if (tm.tm_year < 1980 || tm.tm_year > 2107)
+			goto err;
+		date = (tm.tm_mday & 0x1f) |
+		       ((tm.tm_mon & 0xf) << 5) |
+		       ((tm.tm_year - 1980) << 9);
+		time = (tm.tm_sec > 1) |
+		       ((tm.tm_min & 0x3f) << 5) |
+		(tm.tm_hour << 11);
+		dentptr->date = date;
+		dentptr->time = time;
+		return;
+	}
+err:
+	dentptr->date = 0x2821; /* 2000-01-01 */
+	dentptr->time = 0;
+}
+
+/**
  * fill_dentry() - fill directory entry with shortname
  *
  * @mydata:		private filesystem parameters
@@ -1170,6 +1206,12 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 	dentptr->size = cpu_to_le32(size);
 
 	dentptr->attr = attr;
+
+	/* Set change date */
+	dentry_set_time(dentptr);
+	/* Set creation date */
+	dentptr->cdate = dentptr->date;
+	dentptr->ctime = dentptr->time;
 
 	memcpy(&dentptr->nameext, shortname, SHORT_NAME_SIZE);
 }
@@ -1376,6 +1418,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 
 		/* Update file size in a directory entry */
 		retdent->size = cpu_to_le32(pos + size);
+		/* Update change date */
+		dentry_set_time(retdent);
 	} else {
 		/* Create a new file */
 		char shortname[SHORT_NAME_SIZE];
