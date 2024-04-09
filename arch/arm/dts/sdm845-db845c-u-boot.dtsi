@@ -7,3 +7,10 @@
 &pcie0_3p3v_dual {
 	regulator-always-on;
 };
+
+&sdhc_2 {
+	/* Remove the unsupported rpmhcc xo clock reference */
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+};
