@@ -109,7 +109,7 @@ int os_open(const char *pathname, int os_flags)
 	 */
 	flags |= O_CLOEXEC;
 
-	return open(pathname, flags, 0777);
+	return open(pathname, flags, 0644);
 }
 
 int os_close(int fd)
@@ -746,7 +746,7 @@ int os_write_ram_buf(const char *fname)
 	struct sandbox_state *state = state_get_current();
 	int fd, ret;
 
-	fd = open(fname, O_CREAT | O_WRONLY, 0777);
+	fd = open(fname, O_CREAT | O_WRONLY, 0644);
 	if (fd < 0)
 		return -ENOENT;
 	ret = write(fd, state->ram_buf, state->ram_size);
@@ -791,7 +791,7 @@ static int make_exec(char *fname, const void *data, int size)
 	if (write(fd, data, size) < 0)
 		return -EIO;
 	close(fd);
-	if (chmod(fname, 0777))
+	if (chmod(fname, 0755))
 		return -ENOEXEC;
 
 	return 0;
