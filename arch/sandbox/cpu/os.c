@@ -188,7 +188,7 @@ int os_read_file(const char *fname, void **bufp, int *sizep)
 	fd = os_open(fname, OS_O_RDONLY);
 	if (fd < 0) {
 		printf("Cannot open file '%s'\n", fname);
-		goto err;
+		return -EIO;
 	}
 	size = os_filesize(fd);
 	if (size < 0) {
