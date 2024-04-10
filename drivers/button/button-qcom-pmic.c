@@ -36,6 +36,8 @@ struct qcom_pmic_btn_priv {
 #define PON_INT_RT_STS                        0x10
 #define  PON_KPDPWR_N_SET		0
 #define  PON_RESIN_N_SET		1
+#define  PON_GEN3_RESIN_N_SET		6
+#define  PON_GEN3_KPDPWR_N_SET		7
 
 static enum button_state_t qcom_pwrkey_get_state(struct udevice *dev)
 {
@@ -66,6 +68,18 @@ static const struct qcom_pmic_btn_data qcom_pmic_btn_data_table[] = {
 	{
 		.compatible = "qcom,pm8941-resin",
 		.status_bit = PON_RESIN_N_SET,
+		.code = KEY_DOWN,
+		.label = "vol_down",
+	},
+	{
+		.compatible = "qcom,pmk8350-pwrkey",
+		.status_bit = PON_GEN3_KPDPWR_N_SET,
+		.code = KEY_ENTER,
+		.label = "pwrkey",
+	},
+	{
+		.compatible = "qcom,pmk8350-resin",
+		.status_bit = PON_GEN3_RESIN_N_SET,
 		.code = KEY_DOWN,
 		.label = "vol_down",
 	},
@@ -179,6 +193,7 @@ static const struct udevice_id qcom_pwrkey_ids[] = {
 	{ .compatible = "qcom,pm8916-pon" },
 	{ .compatible = "qcom,pm8941-pon" },
 	{ .compatible = "qcom,pm8998-pon" },
+	{ .compatible = "qcom,pmk8350-pon" },
 	{ }
 };
 
