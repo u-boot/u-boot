@@ -6,7 +6,7 @@
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
  */
-extern void *fastboot_buf_addr;
+extern ulong fastboot_buf_addr;
 
 /**
  * fastboot_buf_size - size of the fastboot download buffer

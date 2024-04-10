@@ -12,6 +12,6 @@ obj-y += reset.o
 obj-y += ints_low.o
 obj-y += init_helpers.o
 
-obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_BOOTM) += bootm.o
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _millicodethunk.o libgcc2.o

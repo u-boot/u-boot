@@ -34,7 +34,7 @@ obj-y	+= ticks.o
 endif
 obj-y	+= reloc.o
 
-obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-$(CONFIG_BOOTM) += bootm.o
 obj-y	+= cache.o
 obj-y	+= extable.o
 obj-y	+= interrupts.o

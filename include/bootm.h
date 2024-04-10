@@ -317,7 +317,7 @@ void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
  * bootm_boot_start() - Boot an image at the given address
  *
  * @addr: Image address
- * @cmdline: Command line to set
+ * @cmdline: Command line to set, NULL for default
  */
 int bootm_boot_start(ulong addr, const char *cmdline);
 

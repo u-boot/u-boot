@@ -12,10 +12,10 @@ CONFIG_FIT_SIGNATURE=y
 # CONFIG_BOOTSTD_FULL is not set
 # CONFIG_BOOTMETH_CROS is not set
 # CONFIG_BOOTMETH_VBE is not set
+# CONFIG_BOOTM is not set
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="run distro_bootcmd"
 # CONFIG_CMD_BOOTD is not set
-# CONFIG_CMD_BOOTM is not set
 # CONFIG_CMD_BOOTI is not set
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_EXTENSION is not set

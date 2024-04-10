@@ -134,7 +134,7 @@ The output will be something like this::
 
    U-Boot SPL 2023.07 (Jul 23 2023 - 08:00:12 -0600)
    Trying to boot from SPI
-   Jumping to 64-bit U-Boot: Note many features are missing
+   Jumping to 64-bit U-Boot
 
 
    U-Boot 2023.07 (Jul 23 2023 - 08:00:12 -0600)
