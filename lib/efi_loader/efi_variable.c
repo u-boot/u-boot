@@ -163,6 +163,7 @@ static efi_status_t efi_variable_authenticate(const u16 *variable,
 		break;
 	default:
 		/* TODO: support private authenticated variables */
+		ret = EFI_UNSUPPORTED;
 		goto err;
 	}
 
