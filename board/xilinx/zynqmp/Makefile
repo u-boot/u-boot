@@ -40,10 +40,6 @@ $(obj)/pm_cfg_obj.o: $(shell cd $(srctree); readlink -f $(CONFIG_ZYNQMP_SPL_PM_C
 endif
 endif
 
-ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_CMD_ZYNQMP) += cmds.o
-endif
-
 # Suppress "warning: function declaration isn't a prototype"
 CFLAGS_REMOVE_psu_init_gpl.o := -Wstrict-prototypes
 
