@@ -19,6 +19,13 @@
 #define REG_TYPE		0x4
 #define REG_SUBTYPE		0x5
 
+struct qcom_pmic_btn_data {
+	char *compatible;
+	unsigned int status_bit;
+	int code;
+	char *label;
+};
+
 struct qcom_pmic_btn_priv {
 	u32 base;
 	u32 status_bit;
@@ -27,11 +34,8 @@ struct qcom_pmic_btn_priv {
 };
 
 #define PON_INT_RT_STS                        0x10
-#define KPDPWR_ON_INT_BIT                     0
-#define RESIN_ON_INT_BIT                      1
-
-#define NODE_IS_PWRKEY(node) (!strncmp(ofnode_get_name(node), "pwrkey", strlen("pwrkey")))
-#define NODE_IS_RESIN(node) (!strncmp(ofnode_get_name(node), "resin", strlen("resin")))
+#define  PON_KPDPWR_N_SET		0
+#define  PON_RESIN_N_SET		1
 
 static enum button_state_t qcom_pwrkey_get_state(struct udevice *dev)
 {
@@ -52,10 +56,39 @@ static int qcom_pwrkey_get_code(struct udevice *dev)
 	return priv->code;
 }
 
+static const struct qcom_pmic_btn_data qcom_pmic_btn_data_table[] = {
+	{
+		.compatible = "qcom,pm8941-pwrkey",
+		.status_bit = PON_KPDPWR_N_SET,
+		.code = KEY_ENTER,
+		.label = "pwrkey",
+	},
+	{
+		.compatible = "qcom,pm8941-resin",
+		.status_bit = PON_RESIN_N_SET,
+		.code = KEY_DOWN,
+		.label = "vol_down",
+	},
+};
+
+static const struct qcom_pmic_btn_data *button_qcom_pmic_match(ofnode node)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(qcom_pmic_btn_data_table); ++i) {
+		if (ofnode_device_is_compatible(node,
+						qcom_pmic_btn_data_table[i].compatible))
+			return &qcom_pmic_btn_data_table[i];
+	}
+
+	return NULL;
+}
+
 static int qcom_pwrkey_probe(struct udevice *dev)
 {
 	struct button_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	struct qcom_pmic_btn_priv *priv = dev_get_priv(dev);
+	const struct qcom_pmic_btn_data *btn_data;
 	ofnode node = dev_ofnode(dev);
 	int ret;
 	u64 base;
@@ -63,6 +96,14 @@ static int qcom_pwrkey_probe(struct udevice *dev)
 	/* Ignore the top-level pon node */
 	if (!uc_plat->label)
 		return 0;
+
+	/* Get the data for the node compatible */
+	btn_data = button_qcom_pmic_match(node);
+	if (!btn_data)
+		return -EINVAL;
+
+	priv->status_bit = btn_data->status_bit;
+	priv->code = btn_data->code;
 
 	/* the pwrkey and resin nodes are children of the "pon" node, get the
 	 * PMIC device to use in pmic_reg_* calls.
@@ -87,21 +128,8 @@ static int qcom_pwrkey_probe(struct udevice *dev)
 
 	ret = pmic_reg_read(priv->pmic, priv->base + REG_SUBTYPE);
 	if (ret < 0 || (ret & 0x7) == 0) {
-		printf("%s: unexpected PMCI function subtype %d\n", dev->name, ret);
+		printf("%s: unexpected PMIC function subtype %d\n", dev->name, ret);
 		return -ENXIO;
-	}
-
-	if (NODE_IS_PWRKEY(node)) {
-		priv->status_bit = 0;
-		priv->code = KEY_ENTER;
-	} else if (NODE_IS_RESIN(node)) {
-		priv->status_bit = 1;
-		priv->code = KEY_DOWN;
-	} else {
-		/* Should not get here! */
-		printf("Invalid pon node '%s' should be 'pwrkey' or 'resin'\n",
-		       ofnode_get_name(node));
-		return -EINVAL;
 	}
 
 	return 0;
@@ -114,11 +142,19 @@ static int button_qcom_pmic_bind(struct udevice *parent)
 	int ret;
 
 	dev_for_each_subnode(node, parent) {
+		const struct qcom_pmic_btn_data *btn_data;
 		struct button_uc_plat *uc_plat;
 		const char *label;
 
 		if (!ofnode_is_enabled(node))
 			continue;
+
+		/* Get the data for the node compatible */
+		btn_data = button_qcom_pmic_match(node);
+		if (!btn_data) {
+			debug("Unknown button node '%s'\n", ofnode_get_name(node));
+			continue;
+		}
 
 		ret = device_bind_driver_to_node(parent, "qcom_pwrkey",
 						 ofnode_get_name(node),
@@ -128,15 +164,7 @@ static int button_qcom_pmic_bind(struct udevice *parent)
 			return ret;
 		}
 		uc_plat = dev_get_uclass_plat(dev);
-		if (NODE_IS_PWRKEY(node)) {
-			uc_plat->label = "pwrkey";
-		} else if (NODE_IS_RESIN(node)) {
-			uc_plat->label = "vol_down";
-		} else {
-			debug("Unknown button node '%s' should be 'pwrkey' or 'resin'\n",
-			       ofnode_get_name(node));
-			device_unbind(dev);
-		}
+		uc_plat->label = btn_data->label;
 	}
 
 	return 0;
