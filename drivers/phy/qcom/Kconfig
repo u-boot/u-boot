@@ -27,6 +27,14 @@ config PHY_QCOM_USB_SNPS_FEMTO_V2
 	  High-Speed PHY driver. This driver supports the Hi-Speed PHY which
 	  is usually paired with Synopsys DWC3 USB IPs on MSM SOCs.
 
+config PHY_QCOM_SNPS_EUSB2
+	tristate "Qualcomm Synopsys eUSB2 High-Speed PHY"
+	depends on PHY && ARCH_SNAPDRAGON
+	help
+	  Enable this to support the Qualcomm Synopsys DesignWare eUSB2
+	  High-Speed PHY driver. This driver supports the Hi-Speed PHY which
+	  is usually paired with Synopsys DWC3 USB IPs on MSM SOCs.
+
 config PHY_QCOM_USB_HS_28NM
 	tristate "Qualcomm 28nm High-Speed PHY"
 	depends on PHY && ARCH_SNAPDRAGON
