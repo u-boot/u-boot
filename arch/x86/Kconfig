@@ -1053,4 +1053,12 @@ config SPL_COREBOOT_SYSINFO
 	  display, memory and build information. It is stored in
 	  struct sysinfo_t after parsing by get_coreboot_info().
 
+config ZBOOT
+	bool "Support the zImage format"
+	default y
+	help
+	  Enable this to support booting the x86-specific zImage format. This
+	  uses a special, binary format containing information about the Linux
+	  format to boot.
+
 endmenu
