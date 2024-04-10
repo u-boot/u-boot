@@ -150,16 +150,14 @@ struct efi_tcg2_final_events_table {
  *				the variable.
  * @variable_data_length:	The size of the variable data.
  * @unicode_name:		The CHAR16 unicode name of the variable
- *				without NULL-terminator.
- * @variable_data:		The data parameter of the efi variable
- *				in the GetVariable() API.
+ *				without NULL-terminator followed by data.
  */
 struct efi_tcg2_uefi_variable_data {
 	efi_guid_t variable_name;
 	u64 unicode_name_length;
 	u64 variable_data_length;
-	u16 unicode_name[1];
-	u8 variable_data[1];
+	u16 unicode_name[];
+	// u8 variable_data[];
 };
 
 /**
