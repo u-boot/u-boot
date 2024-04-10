@@ -50,6 +50,12 @@
 			#size-cells = <1>;
 			arasan,has-mdma;
 			num-cs = <2>;
+			nand@0 {
+				reg = <0>;
+				#address-cells = <2>;
+				#size-cells = <1>;
+				nand-ecc-mode = "hw";
+			};
 		};
 	};
 };

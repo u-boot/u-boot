@@ -588,6 +588,7 @@ int mmc_get_env_dev(void)
 	return bootseq;
 }
 
+#if defined(CONFIG_ENV_IS_NOWHERE)
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	u32 bootmode = zynqmp_get_bootmode();
@@ -621,10 +622,36 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		return ENVL_NOWHERE;
 	}
 }
+#endif
 
 #if defined(CONFIG_SET_DFU_ALT_INFO)
 
 #define DFU_ALT_BUF_LEN		SZ_1K
+
+static void mtd_found_part(u32 *base, u32 *size)
+{
+	struct mtd_info *part, *mtd;
+
+	mtd_probe_devices();
+
+	mtd = get_mtd_device_nm("nor0");
+	if (!IS_ERR_OR_NULL(mtd)) {
+		list_for_each_entry(part, &mtd->partitions, node) {
+			debug("0x%012llx-0x%012llx : \"%s\"\n",
+			      part->offset, part->offset + part->size,
+			      part->name);
+
+			if (*base >= part->offset &&
+			    *base < part->offset + part->size) {
+				debug("Found my partition: %d/%s\n",
+				      part->index, part->name);
+				*base = part->offset;
+				*size = part->size;
+				break;
+			}
+		}
+	}
+}
 
 void set_dfu_alt_info(char *interface, char *devstr)
 {
@@ -661,21 +688,38 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
 			       bootseq);
 #if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
-		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ";%s fat %d 1",
-			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME, bootseq);
+		if (strlen(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME))
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					";%s fat %d 1",
+					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+					bootseq);
 #endif
 		break;
 	case QSPI_MODE_24BIT:
 	case QSPI_MODE_32BIT:
-		len += snprintf(buf + len, DFU_ALT_BUF_LEN,
-			       "sf 0:0=boot.bin raw %x 0x1500000",
-			       multiboot * SZ_32K);
-#if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME) && defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
-		len += snprintf(buf + len, DFU_ALT_BUF_LEN,
-			       ";%s raw 0x%x 0x500000",
-			       CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
-			       multiboot * SZ_32K + CONFIG_SYS_SPI_U_BOOT_OFFS);
+		{
+			u32 base = multiboot * SZ_32K;
+			u32 size = 0x1500000;
+			u32 limit = size;
+
+			mtd_found_part(&base, &limit);
+
+#if defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
+			size = limit;
+			limit = CONFIG_SYS_SPI_U_BOOT_OFFS;
 #endif
+
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"sf 0:0=boot.bin raw 0x%x 0x%x",
+					base, limit);
+#if defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME) && defined(CONFIG_SYS_SPI_U_BOOT_OFFS)
+			if (strlen(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME))
+				len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+						";%s raw 0x%x 0x%x",
+						CONFIG_SPL_FS_LOAD_PAYLOAD_NAME,
+						base + limit, size - limit);
+#endif
+		}
 		break;
 	default:
 		return;

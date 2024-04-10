@@ -12,6 +12,7 @@
 #include <env.h>
 #include <image.h>
 #include <init.h>
+#include <jffs2/load_kernel.h>
 #include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -20,6 +21,7 @@
 #include <i2c.h>
 #include <linux/sizes.h>
 #include <malloc.h>
+#include <mtd_node.h>
 #include "board.h"
 #include <dm.h>
 #include <i2c_eeprom.h>
@@ -43,7 +45,7 @@ struct efi_fw_image fw_images[] = {
 		.image_index = 1,
 	},
 #endif
-#if defined(XILINX_UBOOT_IMAGE_GUID)
+#if defined(XILINX_UBOOT_IMAGE_GUID) && defined(CONFIG_SPL_FS_LOAD_PAYLOAD_NAME)
 	{
 		.image_type_id = XILINX_UBOOT_IMAGE_GUID,
 		.fw_name = u"XILINX-UBOOT",
@@ -103,10 +105,14 @@ static void xilinx_eeprom_legacy_cleanup(char *eeprom, int size)
 	for (i = 0; i < size; i++) {
 		byte = eeprom[i];
 
-		/* Remove all non printable chars but ignore MAC address */
-		if ((i < offsetof(struct xilinx_legacy_format, eth_mac) ||
-		     i >= offsetof(struct xilinx_legacy_format, unused1)) &&
-		     (byte < '!' || byte > '~')) {
+		/* Ignore MAC address */
+		if (i >= offsetof(struct xilinx_legacy_format, eth_mac) &&
+		    i < offsetof(struct xilinx_legacy_format, unused1)) {
+			continue;
+		}
+
+		/* Remove all non printable chars */
+		if (byte < '!' || byte > '~') {
 			eeprom[i] = 0;
 			continue;
 		}
@@ -358,6 +364,14 @@ void *board_fdt_blob_setup(int *err)
 	void *fdt_blob;
 
 	*err = 0;
+
+	if (IS_ENABLED(CONFIG_TARGET_XILINX_MBV)) {
+		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
+
+		if (fdt_magic(fdt_blob) == FDT_MAGIC)
+			return fdt_blob;
+	}
+
 	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
 	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
 	    !IS_ENABLED(CONFIG_ZYNQMP_NO_DDR)) {
@@ -692,6 +706,13 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	struct udevice *dev;
 	u8 buf[MAX_RAND_SIZE];
 	int nodeoffset, ret;
+
+	static const struct node_info nodes[] = {
+		{ "arm,pl353-nand-r2p1", MTD_DEV_TYPE_NAND, },
+	};
+
+	if (IS_ENABLED(CONFIG_FDT_FIXUP_PARTITIONS) && IS_ENABLED(CONFIG_NAND_ZYNQ))
+		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
 
 	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
 		debug("No RNG device\n");

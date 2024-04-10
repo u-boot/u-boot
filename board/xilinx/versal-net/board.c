@@ -371,3 +371,35 @@ int dram_init(void)
 void reset_cpu(void)
 {
 }
+
+#if defined(CONFIG_ENV_IS_NOWHERE)
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u8 bootmode = versal_net_get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
+			return ENVL_FAT;
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
+			return ENVL_EXT4;
+		return ENVL_NOWHERE;
+	case OSPI_MODE:
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
+			return ENVL_SPI_FLASH;
+		return ENVL_NOWHERE;
+	case JTAG_MODE:
+	case SELECTMAP_MODE:
+	default:
+		return ENVL_NOWHERE;
+	}
+}
+#endif

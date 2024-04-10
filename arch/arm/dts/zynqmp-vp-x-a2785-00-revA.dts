@@ -47,7 +47,7 @@
 	gpio-keys {
 		compatible = "gpio-keys";
 		autorepeat;
-		j383 {
+		key-j383 {
 			label = "j383";
 			gpios = <&gpio 10 GPIO_ACTIVE_HIGH>;
 			linux,code = <BTN_MISC>;

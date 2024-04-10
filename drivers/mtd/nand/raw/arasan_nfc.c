@@ -1232,7 +1232,8 @@ static int arasan_probe(struct udevice *dev)
 	struct nand_config *nand = &info->config;
 	struct mtd_info *mtd;
 	ofnode child;
-	int err = -1;
+	int ret;
+	const char *str;
 
 	info->reg = dev_read_addr_ptr(dev);
 	mtd = nand_to_mtd(nand_chip);
@@ -1258,9 +1259,16 @@ static int arasan_probe(struct udevice *dev)
 	writel(0x0, &info->reg->pgm_reg);
 
 	/* first scan to find the device and get the page size */
-	if (nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL)) {
+	ret = nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
+	if (ret) {
 		printf("%s: nand_scan_ident failed\n", __func__);
-		goto fail;
+		return ret;
+	}
+
+	str = ofnode_read_string(nand_chip->flash_node, "nand-ecc-mode");
+	if (!str || strcmp(str, "hw") != 0) {
+		printf("%s ecc mode is not supported\n", str);
+		return -EINVAL;
 	}
 
 	nand_chip->ecc.mode = NAND_ECC_HW;
@@ -1282,26 +1290,26 @@ static int arasan_probe(struct udevice *dev)
 		nand_chip->ecc.bytes = 0;
 		nand_chip->ecc.layout = &ondie_nand_oob_64;
 	} else {
-		if (arasan_nand_ecc_init(mtd)) {
+		ret = arasan_nand_ecc_init(mtd);
+		if (ret) {
 			printf("%s: nand_ecc_init failed\n", __func__);
-			goto fail;
+			return ret;
 		}
 	}
 
-	if (nand_scan_tail(mtd)) {
+	ret = nand_scan_tail(mtd);
+	if (ret) {
 		printf("%s: nand_scan_tail failed\n", __func__);
-		goto fail;
+		return ret;
 	}
 
-	if (nand_register(0, mtd)) {
+	ret = nand_register(0, mtd);
+	if (ret) {
 		printf("Nand Register Fail\n");
-		goto fail;
+		return ret;
 	}
 
-	return 0;
-fail:
-	free(nand);
-	return err;
+	return ret;
 }
 
 static const struct udevice_id arasan_nand_dt_ids[] = {

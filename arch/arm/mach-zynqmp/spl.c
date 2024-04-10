@@ -9,6 +9,7 @@
 #include <image.h>
 #include <init.h>
 #include <log.h>
+#include <semihosting.h>
 #include <spl.h>
 #include <linux/delay.h>
 
@@ -66,6 +67,11 @@ void spl_board_init(void)
 }
 #endif
 
+static u32 jtag_boot_device(void)
+{
+	return semihosting_enabled() ? BOOT_DEVICE_SMH : BOOT_DEVICE_RAM;
+}
+
 void board_boot_order(u32 *spl_boot_list)
 {
 	spl_boot_list[0] = spl_boot_device();
@@ -75,7 +81,7 @@ void board_boot_order(u32 *spl_boot_list)
 	if (spl_boot_list[0] == BOOT_DEVICE_MMC2)
 		spl_boot_list[1] = BOOT_DEVICE_MMC1;
 
-	spl_boot_list[2] = BOOT_DEVICE_RAM;
+	spl_boot_list[2] = jtag_boot_device();
 }
 
 u32 spl_boot_device(void)
@@ -85,19 +91,20 @@ u32 spl_boot_device(void)
 
 #if defined(CONFIG_SPL_ZYNQMP_ALT_BOOTMODE_ENABLED)
 	/* Change default boot mode at run-time */
+	reg = CONFIG_SPL_ZYNQMP_ALT_BOOTMODE;
 	writel(CONFIG_SPL_ZYNQMP_ALT_BOOTMODE << BOOT_MODE_ALT_SHIFT,
 	       &crlapb_base->boot_mode);
-#endif
-
+#else
 	reg = readl(&crlapb_base->boot_mode);
 	if (reg >> BOOT_MODE_ALT_SHIFT)
 		reg >>= BOOT_MODE_ALT_SHIFT;
+#endif
 
 	bootmode = reg & BOOT_MODES_MASK;
 
 	switch (bootmode) {
 	case JTAG_MODE:
-		return BOOT_DEVICE_RAM;
+		return jtag_boot_device();
 #ifdef CONFIG_SPL_MMC
 	case SD_MODE1:
 	case SD1_LSHFT_MODE: /* not working on silicon v1 */
