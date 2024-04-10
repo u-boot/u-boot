@@ -35,6 +35,8 @@
 #define REG_SUBTYPE_GPIOC_8CH	0xd
 #define REG_SUBTYPE_GPIO_LV	0x10
 #define REG_SUBTYPE_GPIO_MV	0x11
+#define REG_SUBTYPE_GPIO_LV_VIN2          0x12
+#define REG_SUBTYPE_GPIO_MV_VIN3          0x13
 
 #define REG_STATUS             0x08
 #define REG_STATUS_VAL_MASK    0x1
@@ -322,9 +324,20 @@ static int qcom_gpio_probe(struct udevice *dev)
 		return log_msg_ret("bad type", -ENXIO);
 
 	val = pmic_reg_read(plat->pmic, plat->pid + REG_SUBTYPE);
-	if (val != REG_SUBTYPE_GPIO_4CH && val != REG_SUBTYPE_GPIOC_4CH &&
-	    val != REG_SUBTYPE_GPIO_LV && val != REG_SUBTYPE_GPIO_MV)
+	switch (val) {
+	case REG_SUBTYPE_GPIO_4CH:
+	case REG_SUBTYPE_GPIOC_4CH:
+		plat->lv_mv_type = false;
+		break;
+	case REG_SUBTYPE_GPIO_LV:
+	case REG_SUBTYPE_GPIO_MV:
+	case REG_SUBTYPE_GPIO_LV_VIN2:
+	case REG_SUBTYPE_GPIO_MV_VIN3:
+		plat->lv_mv_type = true;
+		break;
+	default:
 		return log_msg_ret("bad subtype", -ENXIO);
+	}
 
 	plat->lv_mv_type = val == REG_SUBTYPE_GPIO_LV ||
 			   val == REG_SUBTYPE_GPIO_MV;
@@ -351,6 +364,7 @@ static const struct udevice_id qcom_gpio_ids[] = {
 	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
 	{ .compatible = "qcom,pm8998-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
 	{ .compatible = "qcom,pms405-gpio" },
+	{ .compatible = "qcom,pm8550-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
 	{ }
 };
 
