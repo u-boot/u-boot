@@ -34,7 +34,8 @@ static int button_kbd_start(struct udevice *dev)
 {
 	struct button_kbd_priv *priv = dev_get_priv(dev);
 	int i = 0;
-	struct udevice *button_gpio_devp;
+	struct udevice *button_gpio_devp, *next_devp;
+	struct uclass *uc;
 
 	uclass_foreach_dev_probe(UCLASS_BUTTON, button_gpio_devp) {
 		struct button_uc_plat *uc_plat = dev_get_uclass_plat(button_gpio_devp);
@@ -44,6 +45,21 @@ static int button_kbd_start(struct udevice *dev)
 		debug("Found button %s #%d - %s, probing...\n",
 		      uc_plat->label, i, button_gpio_devp->name);
 		i++;
+	}
+
+	if (uclass_get(UCLASS_BUTTON, &uc))
+		return -ENOENT;
+
+	/*
+	 * Unbind any buttons that failed to probe so we don't iterate over
+	 * them when polling.
+	 */
+	uclass_foreach_dev_safe(button_gpio_devp, next_devp, uc) {
+		if (!(dev_get_flags(button_gpio_devp) & DM_FLAG_ACTIVATED)) {
+			log_warning("Button %s failed to probe\n",
+				    button_gpio_devp->name);
+			device_unbind(button_gpio_devp);
+		}
 	}
 
 	priv->button_size = i;
