@@ -946,7 +946,7 @@ static inline void image_set_name(struct legacy_img_hdr *hdr, const char *name)
 int image_check_hcrc(const struct legacy_img_hdr *hdr);
 int image_check_dcrc(const struct legacy_img_hdr *hdr);
 #ifndef USE_HOSTCC
-ulong env_get_bootm_low(void);
+phys_addr_t env_get_bootm_low(void);
 phys_size_t env_get_bootm_size(void);
 phys_size_t env_get_bootm_mapsize(void);
 #endif
