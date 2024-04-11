@@ -12,6 +12,10 @@ config FASTBOOT
 	  More information about the protocol and usecases:
 	  https://android.googlesource.com/platform/system/core/+/refs/heads/master/fastboot/
 
+	  Note that enabling CMDLINE is recommended since fastboot allows U-Boot
+	  commands to be executed on request. The CMDLINE option is required
+	  for anything other than simply booting the OS.
+
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
 	depends on USB_GADGET
