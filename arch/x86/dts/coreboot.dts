@@ -46,6 +46,16 @@
 		compatible = "coreboot-fb";
 	};
 
+	bootstd {
+		compatible = "u-boot,boot-std";
+
+		theme {
+			font-size = <30>;
+			menu-inset = <3>;
+			menuitem-gap-y = <1>;
+		};
+	};
+
 	sysinfo {
 		compatible = "coreboot,sysinfo";
 	};

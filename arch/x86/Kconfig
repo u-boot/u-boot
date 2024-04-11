@@ -723,6 +723,14 @@ config ROM_TABLE_SIZE
 	hex
 	default 0x10000
 
+config X86_HARDFP
+	bool "Support hardware floating point"
+	help
+	  U-Boot generally does not make use of floating point. Where this is
+	  needed, it can be enabled using this option. This adjusts the
+	  start-up code for 64-bit mode and changes the compiler options for
+	  64-bit to enable SSE.
+
 config HAVE_ITSS
 	bool "Enable ITSS"
 	help
