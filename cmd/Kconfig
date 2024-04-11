@@ -2832,8 +2832,8 @@ config CMD_TRACE
 	  Enables a command to control using of function tracing within
 	  U-Boot. This allows recording of call traces including timing
 	  information. The command can write data to memory for exporting
-	  for analysis (e.g. using bootchart). See doc/README.trace for full
-	  details.
+	  for analysis (e.g. using bootchart). See doc/develop/trace.rst
+	  for full details.
 
 config CMD_AVB
 	bool "avb - Android Verified Boot 2.0 operations"
