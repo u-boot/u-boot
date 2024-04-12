@@ -11,7 +11,6 @@ import os
 import os.path
 import sys
 import pytest
-from pkg_resources import load_entry_point
 
 if __name__ == '__main__':
     # argv; py.test test_directory_name user-supplied-arguments

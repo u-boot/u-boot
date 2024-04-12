@@ -346,17 +346,17 @@ static int fit_image_read_key_iv_data(const char *keydir, const char *key_iv_nam
 				      unsigned char *key_iv_data, int expected_size)
 {
 	char filename[PATH_MAX];
-	int ret = -1;
+	int ret;
 
 	ret = snprintf(filename, sizeof(filename), "%s/%s%s",
 		       keydir, key_iv_name, ".bin");
 	if (ret >= sizeof(filename)) {
-		printf("Can't format the key or IV filename when setting up the cipher: insufficient buffer space\n");
-		ret = -1;
+		fprintf(stderr, "Can't format the key or IV filename when setting up the cipher: insufficient buffer space\n");
+		return -1;
 	}
 	if (ret < 0) {
-		printf("Can't format the key or IV filename when setting up the cipher: snprintf error\n");
-		ret = -1;
+		fprintf(stderr, "Can't format the key or IV filename when setting up the cipher: snprintf error\n");
+		return -1;
 	}
 
 	ret = fit_image_read_data(filename, key_iv_data, expected_size);

@@ -17,6 +17,7 @@
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
+#include <asm/unaligned.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <exports.h>
@@ -421,13 +422,13 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 
 	for (i = 0; i < n; i++) {
 		if (address_cells == 2)
-			*(fdt64_t *)p = cpu_to_fdt64(address[i]);
+			put_unaligned_be64(address[i], p);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(address[i]);
 		p += 4 * address_cells;
 
 		if (size_cells == 2)
-			*(fdt64_t *)p = cpu_to_fdt64(size[i]);
+			put_unaligned_be64(size[i], p);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(size[i]);
 		p += 4 * size_cells;

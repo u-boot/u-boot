@@ -87,6 +87,6 @@ def test_scsi_dev(u_boot_console):
 def test_scsi_part(u_boot_console):
     test_scsi_dev(u_boot_console)
     output = u_boot_console.run_command('scsi part')
-    assert 'Partition Map for SCSI device' in output
+    assert 'Partition Map for scsi device' in output
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')
