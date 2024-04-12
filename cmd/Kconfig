@@ -2000,14 +2000,6 @@ config SYS_DISABLE_AUTOLOAD
 	  is complete.  Enable this option to disable this behavior and instead
 	  require files to be loaded over the network by subsequent commands.
 
-config CMD_WGET
-	bool "wget"
-	select PROT_TCP
-	default y if SANDBOX
-	help
-	  wget is a simple command to download kernel, or other files,
-	  from a http server over TCP.
-
 config CMD_PING6
 	bool "ping6"
 	depends on IPV6
@@ -2121,6 +2113,16 @@ config CMD_TFTPBOOT
 	default y
 	help
 	  tftpboot - load file via network using TFTP protocol
+
+config CMD_WGET
+	bool "wget"
+	default y if SANDBOX
+	select PROT_TCP if NET
+	select PROT_TCP_LWIP if NET_LWIP
+	select PROT_DNS_LWIP if NET_LWIP
+	help
+	  wget is a simple command to download kernel, or other files,
+	  from a http server over TCP.
 
 endif  # if CMD_NET
 
