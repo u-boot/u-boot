@@ -300,12 +300,17 @@ static struct msm_serial_data init_serial_data = {
 #include <debug_uart.h>
 
 /* Uncomment to turn on UART clocks when debugging U-Boot as aboot on MSM8916 */
-//int apq8016_clk_init_uart(phys_addr_t gcc_base);
+//int apq8016_clk_init_uart(phys_addr_t gcc_base, unsigned long id);
 
 static inline void _debug_uart_init(void)
 {
-	/* Uncomment to turn on UART clocks when debugging U-Boot as aboot on MSM8916 */
-	//apq8016_clk_init_uart(0x1800000);
+	/*
+	 * Uncomment to turn on UART clocks when debugging U-Boot as aboot
+	 * on MSM8916. Supported debug UART clock IDs:
+	 *   - db410c: GCC_BLSP1_UART2_APPS_CLK
+	 *   - HMIBSC: GCC_BLSP1_UART1_APPS_CLK
+	 */
+	//apq8016_clk_init_uart(0x1800000, <uart_clk_id>);
 	uart_dm_init(&init_serial_data);
 }
 
