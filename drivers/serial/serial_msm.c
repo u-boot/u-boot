@@ -63,9 +63,10 @@
 #define UARTDM_TF               0x100 /* UART Transmit FIFO register */
 #define UARTDM_RF               0x140 /* UART Receive FIFO register */
 
-#define MSM_BOOT_UART_DM_8_N_1_MODE 0x34
-#define MSM_BOOT_UART_DM_CMD_RESET_RX 0x10
-#define MSM_BOOT_UART_DM_CMD_RESET_TX 0x20
+#define MSM_BOOT_UART_DM_8_N_1_MODE	0x34
+#define MSM_BOOT_UART_DM_CMD_RESET_RX	0x10
+#define MSM_BOOT_UART_DM_CMD_RESET_TX	0x20
+#define MSM_UART_MR1_RX_RDY_CTL		BIT(7)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -220,7 +221,8 @@ static void uart_dm_init(struct msm_serial_data *priv)
 	}
 
 	writel(bitrate, priv->base + UARTDM_CSR);
-	writel(0x0, priv->base + UARTDM_MR1);
+	/* Enable RS232 flow control to support RS232 db9 connector */
+	writel(MSM_UART_MR1_RX_RDY_CTL, priv->base + UARTDM_MR1);
 	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, priv->base + UARTDM_CR);
