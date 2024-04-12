@@ -883,6 +883,14 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 			break;
 		case 28:	/* Ignore Broadcast Address Option */
 			break;
+		case 40:	/* NIS Domain name */
+			if (net_nis_domain[0] == 0) {
+				size = truncate_sz("NIS Domain Name",
+					sizeof(net_nis_domain), size);
+				memcpy(&net_nis_domain, popt + 2, size);
+				net_nis_domain[size] = 0;
+			}
+			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */
 			net_copy_ip(&net_ntp_server, (popt + 2));
