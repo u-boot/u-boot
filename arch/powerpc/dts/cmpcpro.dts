@@ -142,9 +142,9 @@
 			mode = "cpu";
 			gpios = <&qe_pio_d 3 1>;
 			clock-frequency = <0>;
-			eeprom@3 {
+			eeprom@0 {
+				reg = <0>;
 				compatible = "atmel,at25", "cs,eeprom";
-				cell-index = <1>;
 			};
 		};
 		eth0: ucc@3000 {

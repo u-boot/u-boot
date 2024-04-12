@@ -83,13 +83,13 @@
 		spi: spi@aa0 {
 			status = "okay";
 			#address-cells = <1>;
-			#size-cells = <1>;
-			cell-index = <0>;
+			#size-cells = <0>;
 			compatible = "fsl,mpc8xx-spi";
 			gpios = <&CPM1_PIO_B 21 1>; /* /EEPROM_CS ACTIVE_LOW */
 
 			eeprom@0 {
-				cell-index = <1>;
+				reg = <0>;
+				compatible = "atmel,at25", "cs,eeprom";
 			};
 		};
 	};
