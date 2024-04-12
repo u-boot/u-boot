@@ -6,6 +6,10 @@
 #include <lwip/ip4.h>
 #include <lwip/netif.h>
 
+enum proto_t {
+	TFTPGET
+};
+
 struct netif *net_lwip_new_netif(struct udevice *udev);
 struct netif *net_lwip_new_netif_noip(struct udevice *udev);
 void net_lwip_remove_netif(struct netif *netif);
