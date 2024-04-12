@@ -143,26 +143,16 @@ static void mpc8xx_spi_cs_deactivate(struct udevice *dev)
 	dm_gpio_set_value(&priv->gpios[platdata->cs], 0);
 }
 
-static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
-			    const void *dout, void *din, unsigned long flags)
+static int mpc8xx_spi_xfer_one(struct udevice *dev, size_t count,
+			       const void *dout, void *din)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
 	cbd_t __iomem *tbdf, *rbdf;
 	int tm;
-	size_t count = (bitlen + 7) / 8;
-
-	if (!din && !dout)
-		return -EINVAL;
-	if (count > MAX_BUFFER)
-		return -EINVAL;
 
 	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
 	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
-
-	/* Set CS for device */
-	if (flags & SPI_XFER_BEGIN)
-		mpc8xx_spi_cs_activate(dev);
 
 	/* Setting tx bd status and data length */
 	out_be32(&tbdf->cbd_bufaddr, dout ? (ulong)dout : (ulong)dummy_buffer);
@@ -196,13 +186,43 @@ static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	if (tm >= 1000)
-		printf("*** spi_xfer: Time out while xferring to/from SPI!\n");
+		return -ETIMEDOUT;
 
+	return 0;
+}
+
+static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			   const void *dout, void *din, unsigned long flags)
+{
+	size_t count = (bitlen + 7) / 8;
+	size_t offset = 0;
+	int ret = 0;
+
+	if (!din && !dout)
+		return -EINVAL;
+
+	/* Set CS for device */
+	if (flags & SPI_XFER_BEGIN)
+		mpc8xx_spi_cs_activate(dev);
+
+	while (count > 0 && !ret) {
+		size_t chunk = min(count, (size_t)MAX_BUFFER);
+		const void *out = dout ? dout + offset : NULL;
+		void *in = din ? din + offset : NULL;
+
+		ret = mpc8xx_spi_xfer_one(dev, chunk, out, in);
+
+		offset += chunk;
+		count -= chunk;
+	}
 	/* Clear CS for device */
 	if (flags & SPI_XFER_END)
 		mpc8xx_spi_cs_deactivate(dev);
 
-	return 0;
+	if (ret)
+		printf("*** spi_xfer: Time out while xferring to/from SPI!\n");
+
+	return ret;
 }
 
 static int mpc8xx_spi_ofdata_to_platdata(struct udevice *dev)
