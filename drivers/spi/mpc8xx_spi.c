@@ -18,6 +18,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <malloc.h>
 #include <mpc8xx.h>
 #include <spi.h>
 #include <linux/delay.h>
@@ -30,6 +31,7 @@
 #define CPM_SPI_BASE_TX	(CPM_SPI_BASE + sizeof(cbd_t))
 
 #define MAX_BUFFER	0x8000 /* Max possible is 0xffff. We want power of 2 */
+#define MIN_HWORD_XFER	64	/* Minimum size for 16 bits transfer */
 
 struct mpc8xx_priv {
 	spi_t __iomem *spi;
@@ -149,23 +151,46 @@ static int mpc8xx_spi_xfer_one(struct udevice *dev, size_t count,
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
 	cbd_t __iomem *tbdf, *rbdf;
+	void *bufout, *bufin;
+	u16 spmode_len;
 	int tm;
 
 	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
 	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
 
+	if (!(count & 1) && count >= MIN_HWORD_XFER) {
+		spmode_len = SPMODE_LEN(16);
+		if (dout) {
+			int i;
+
+			bufout = malloc(count);
+			for (i = 0; i < count; i += 2)
+				*(u16 *)(bufout + i) = swab16(*(u16 *)(dout + i));
+		} else {
+			bufout = NULL;
+		}
+		if (din)
+			bufin = malloc(count);
+		else
+			bufin = NULL;
+	} else {
+		spmode_len = SPMODE_LEN(8);
+		bufout = (void *)dout;
+		bufin = din;
+	}
+
 	/* Setting tx bd status and data length */
-	out_be32(&tbdf->cbd_bufaddr, dout ? (ulong)dout : (ulong)dummy_buffer);
+	out_be32(&tbdf->cbd_bufaddr, bufout ? (ulong)bufout : (ulong)dummy_buffer);
 	out_be16(&tbdf->cbd_sc, BD_SC_READY | BD_SC_LAST | BD_SC_WRAP);
 	out_be16(&tbdf->cbd_datlen, count);
 
 	/* Setting rx bd status and data length */
-	out_be32(&rbdf->cbd_bufaddr, din ? (ulong)din : (ulong)dummy_buffer);
+	out_be32(&rbdf->cbd_bufaddr, bufin ? (ulong)bufin : (ulong)dummy_buffer);
 	out_be16(&rbdf->cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
 	out_be16(&rbdf->cbd_datlen, 0);	 /* rx length has no significance */
 
 	clrsetbits_be16(&cp->cp_spmode, ~SPMODE_LOOP, SPMODE_REV | SPMODE_MSTR |
-			SPMODE_EN | SPMODE_LEN(8) | SPMODE_PM(0x8));
+			SPMODE_EN | spmode_len | SPMODE_PM(0x8));
 	out_8(&cp->cp_spim, 0);		/* Mask  all SPI events */
 	out_8(&cp->cp_spie, SPI_EMASK);	/* Clear all SPI events	*/
 
@@ -187,6 +212,19 @@ static int mpc8xx_spi_xfer_one(struct udevice *dev, size_t count,
 
 	if (tm >= 1000)
 		return -ETIMEDOUT;
+
+	if (!(count & 1) && count > MIN_HWORD_XFER) {
+		if (dout)
+			free(bufout);
+		if (din) {
+			int i;
+
+			bufout = malloc(count);
+			for (i = 0; i < count; i += 2)
+				*(u16 *)(din + i) = swab16(*(u16 *)(bufin + i));
+			free(bufin);
+		}
+	}
 
 	return 0;
 }
