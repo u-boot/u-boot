@@ -103,10 +103,6 @@ static int mpc8xx_spi_probe(struct udevice *dev)
 	while (in_be16(&cp->cp_cpcr) & CPM_CR_FLG)
 		;
 
-/* 5 */
-	/* Set SDMA configuration register */
-	out_be32(&immr->im_siu_conf.sc_sdcr, 0x0001);
-
 /* 6 */
 	/* Set to big endian. */
 	out_8(&spi->spi_tfcr, SMC_EB);
