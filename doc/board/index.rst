@@ -42,6 +42,7 @@ Board-specific doc
    renesas/index
    rockchip/index
    samsung/index
+   schneider/index
    sielaff/index
    siemens/index
    sifive/index

@@ -1,0 +1,6 @@
+HMIBSC BOARD
+M:	Sumit Garg <sumit.garg@linaro.org>
+S:	Maintained
+F:	board/schneider/hmibsc/
+F:	include/configs/hmibsc.h
+F:	configs/hmibsc_defconfig
