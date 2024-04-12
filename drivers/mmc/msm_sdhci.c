@@ -256,13 +256,13 @@ static int msm_sdc_bind(struct udevice *dev)
 static const struct msm_sdhc_variant_info msm_sdhc_mci_var = {
 	.mci_removed = false,
 
-	.core_vendor_spec_capabilities0 = 0x21c,
+	.core_vendor_spec_capabilities0 = 0x11c,
 };
 
 static const struct msm_sdhc_variant_info msm_sdhc_v5_var = {
 	.mci_removed = true,
 
-	.core_vendor_spec_capabilities0 = 0x11c,
+	.core_vendor_spec_capabilities0 = 0x21c,
 };
 
 static const struct udevice_id msm_mmc_ids[] = {
