@@ -28,6 +28,7 @@ const u8 net_bcast_ethaddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 char *pxelinux_configfile;
 /* Our IP addr (0 = unknown) */
 struct in_addr	net_ip;
+char net_boot_file_name[1024];
 
 static err_t linkoutput(struct netif *netif, struct pbuf *p)
 {
@@ -281,6 +282,21 @@ void net_process_received_packet(uchar *in_packet, int len)
 	if (push_packet)
 		(*push_packet)(in_packet, len);
 #endif
+}
+
+int net_loop(enum proto_t protocol)
+{
+	char *argv[1];
+
+	switch (protocol) {
+	case TFTPGET:
+		argv[0] = "tftpboot";
+		return do_tftpb(NULL, 0, 1, argv);
+	default:
+		return -EINVAL;
+	}
+
+	return -EINVAL;
 }
 
 u32_t sys_now(void)
