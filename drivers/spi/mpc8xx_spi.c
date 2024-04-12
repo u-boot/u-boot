@@ -48,6 +48,21 @@ static int mpc8xx_spi_set_mode(struct udevice *dev, uint mod)
 
 static int mpc8xx_spi_set_speed(struct udevice *dev, uint speed)
 {
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	cpm8xx_t __iomem *cp = &immr->im_cpm;
+	u8 pm = (gd->arch.brg_clk - 1) / (speed * 16);
+
+	if (pm > 16) {
+		setbits_be16(&cp->cp_spmode, SPMODE_DIV16);
+		pm /= 16;
+		if (pm > 16)
+			pm = 16;
+	} else {
+		clrbits_be16(&cp->cp_spmode, SPMODE_DIV16);
+	}
+
+	clrsetbits_be16(&cp->cp_spmode, SPMODE_PM(0xf), SPMODE_PM(pm));
+
 	return 0;
 }
 
@@ -189,8 +204,8 @@ static int mpc8xx_spi_xfer_one(struct udevice *dev, size_t count,
 	out_be16(&rbdf->cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
 	out_be16(&rbdf->cbd_datlen, 0);	 /* rx length has no significance */
 
-	clrsetbits_be16(&cp->cp_spmode, ~SPMODE_LOOP, SPMODE_REV | SPMODE_MSTR |
-			SPMODE_EN | spmode_len | SPMODE_PM(0x8));
+	clrsetbits_be16(&cp->cp_spmode, ~(SPMODE_LOOP | SPMODE_PM(0xf) | SPMODE_DIV16),
+			SPMODE_REV | SPMODE_MSTR | SPMODE_EN | spmode_len);
 	out_8(&cp->cp_spim, 0);		/* Mask  all SPI events */
 	out_8(&cp->cp_spie, SPI_EMASK);	/* Clear all SPI events	*/
 
