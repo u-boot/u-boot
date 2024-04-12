@@ -116,6 +116,11 @@ int misc_init_r(void)
 	clrbits_be16(&iop->iop_pcpar, 0x4);
 	clrbits_be16(&iop->iop_pcdir, 0x4);
 
+	/* Activate SPI */
+	clrsetbits_be32(&immr->im_cpm.cp_pbpar, 0x1, 0xe);
+	setbits_be32(&immr->im_cpm.cp_pbdir, 0xf);
+	clrbits_be32(&immr->im_cpm.cp_pbdat, 0x1);
+
 	/* if BTN_ACQ_AL is pressed then bootdelay is changed to 60 second */
 	if ((in_be16(&iop->iop_pcdat) & 0x0004) == 0)
 		env_set("bootdelay", "60");
