@@ -109,28 +109,35 @@ u32 __weak get_lpuart_clk(void)
 }
 
 #if CONFIG_IS_ENABLED(CLK)
-static int get_lpuart_clk_rate(struct udevice *dev, u32 *clk)
+static int get_lpuart_clk_rate(struct udevice *dev, u32 *clk_rate)
 {
-	struct clk per_clk;
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
+	struct clk clk;
 	ulong rate;
 	int ret;
+	char *name;
 
-	ret = clk_get_by_name(dev, "per", &per_clk);
+	if (plat->devtype == DEV_MX7ULP)
+		name = "ipg";
+	else
+		name = "per";
+
+	ret = clk_get_by_name(dev, name, &clk);
 	if (ret) {
-		dev_err(dev, "Failed to get per clk: %d\n", ret);
+		dev_err(dev, "Failed to get clk: %d\n", ret);
 		return ret;
 	}
 
-	rate = clk_get_rate(&per_clk);
+	rate = clk_get_rate(&clk);
 	if ((long)rate <= 0) {
-		dev_err(dev, "Failed to get per clk rate: %ld\n", (long)rate);
+		dev_err(dev, "Failed to get clk rate: %ld\n", (long)rate);
 		return ret;
 	}
-	*clk = rate;
+	*clk_rate = rate;
 	return 0;
 }
 #else
-static inline int get_lpuart_clk_rate(struct udevice *dev, u32 *clk)
+static inline int get_lpuart_clk_rate(struct udevice *dev, u32 *clk_rate)
 { return -ENOSYS; }
 #endif
 
@@ -479,19 +486,22 @@ static int lpuart_serial_pending(struct udevice *dev, bool input)
 static int lpuart_serial_probe(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(CLK)
+	struct lpuart_serial_plat *plat = dev_get_plat(dev);
 	struct clk per_clk;
 	struct clk ipg_clk;
 	int ret;
 
-	ret = clk_get_by_name(dev, "per", &per_clk);
-	if (!ret) {
-		ret = clk_enable(&per_clk);
-		if (ret) {
-			dev_err(dev, "Failed to enable per clk: %d\n", ret);
-			return ret;
+	if (plat->devtype != DEV_MX7ULP) {
+		ret = clk_get_by_name(dev, "per", &per_clk);
+		if (!ret) {
+			ret = clk_enable(&per_clk);
+			if (ret) {
+				dev_err(dev, "Failed to enable per clk: %d\n", ret);
+				return ret;
+			}
+		} else {
+			debug("%s: Failed to get per clk: %d\n", __func__, ret);
 		}
-	} else {
-		debug("%s: Failed to get per clk: %d\n", __func__, ret);
 	}
 
 	ret = clk_get_by_name(dev, "ipg", &ipg_clk);
