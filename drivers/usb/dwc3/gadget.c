@@ -301,6 +301,7 @@ int dwc3_send_gadget_ep_cmd(struct dwc3 *dwc, unsigned ep,
 {
 	u32			timeout = 500;
 	u32			reg;
+	int			ret = -EINVAL;
 
 	dwc3_writel(dwc->regs, DWC3_DEPCMDPAR0(ep), params->param0);
 	dwc3_writel(dwc->regs, DWC3_DEPCMDPAR1(ep), params->param1);
@@ -312,7 +313,8 @@ int dwc3_send_gadget_ep_cmd(struct dwc3 *dwc, unsigned ep,
 		if (!(reg & DWC3_DEPCMD_CMDACT)) {
 			dev_vdbg(dwc->dev, "Command Complete --> %d\n",
 					DWC3_DEPCMD_STATUS(reg));
-			return 0;
+			ret = 0;
+			break;
 		}
 
 		/*
@@ -320,11 +322,15 @@ int dwc3_send_gadget_ep_cmd(struct dwc3 *dwc, unsigned ep,
 		 * interrupt context.
 		 */
 		timeout--;
-		if (!timeout)
-			return -ETIMEDOUT;
+		if (!timeout) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 
 		udelay(1);
 	} while (1);
+
+	return ret;
 }
 
 static dma_addr_t dwc3_trb_dma_offset(struct dwc3_ep *dep,
