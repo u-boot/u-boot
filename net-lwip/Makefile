@@ -10,6 +10,7 @@ obj-$(CONFIG_CMD_DHCP_LWIP) += dhcp.o
 obj-$(CONFIG_CMD_DNS_LWIP) += dns.o
 obj-$(CONFIG_CMD_PING_LWIP) += ping.o
 obj-$(CONFIG_CMD_TFTPBOOT_LWIP) += tftp.o
+obj-$(CONFIG_CMD_WGET_LWIP) += wget.o
 
 # Disable this warning as it is triggered by:
 # sprintf(buf, index ? "foo%d" : "foo", index)
