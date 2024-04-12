@@ -2101,10 +2101,9 @@ config CMD_DHCP
 config CMD_TFTPBOOT
 	bool "tftp"
 	select PROT_UDP_LWIP
-	default n
+	default y
 	help
 	  tftpboot - load file via network using TFTP protocol
-	  Currently a placeholder (not implemented)
 
 endif
 
