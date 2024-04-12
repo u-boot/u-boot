@@ -57,3 +57,16 @@ config MDIO_TI_CPSW
 	help
 	  This driver supports the TI CPSW MDIO interface found in various
 	  TI SoCs.
+
+config TI_ICSSG_PRUETH
+	bool "TI Gigabit PRU Ethernet driver"
+	depends on ARCH_K3
+	imply DM_MDIO
+	imply MISC_INIT_R
+	imply MISC
+	imply MDIO_TI_CPSW
+	select PHYLIB
+	select FS_LOADER
+	help
+	  Support Gigabit Ethernet ports over the ICSSG PRU Subsystem
+	  This subsystem is available starting with the AM65 platform.
