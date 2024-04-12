@@ -930,6 +930,15 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		debug("%s, caps_1: 0x%x\n", __func__, caps_1);
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
+
+		/*
+		 * In case the value in Clock Multiplier is 0, then programmable
+		 * clock mode is not supported, otherwise the actual clock
+		 * multiplier is one more than the value of Clock Multiplier
+		 * in the Capabilities Register.
+		 */
+		if (host->clk_mul)
+			host->clk_mul += 1;
 	}
 
 	if (host->max_clk == 0) {
