@@ -440,6 +440,10 @@ static inline struct in_addr env_get_ip(char *var)
 
 int net_init(void);
 
+/* NET compatibility */
+enum proto_t;
+int net_loop(enum proto_t protocol);
+
 /**
  * dhcp_run() - Run DHCP on the current ethernet device
  *
