@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += cmpcpro.o nand.o ../common/common.o
+obj-y += cmpcpro.o nand.o
