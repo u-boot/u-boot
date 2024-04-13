@@ -15,6 +15,7 @@
 #include <watchdog.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <asm/sections.h>
 #include <linux/list_sort.h>
 #include <linux/sizes.h>
 
