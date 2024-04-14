@@ -19,3 +19,18 @@ config FS_EROFS_ZIP
 	help
 	  Enable fixed-sized output compression for EROFS.
 	  If you don't want to enable compression feature, say N.
+
+config FS_EROFS_ZIP_DEFLATE
+	bool "EROFS DEFLATE compressed data support"
+	depends on FS_EROFS_ZIP
+	select ZLIB
+	help
+	  Saying Y here includes support for reading EROFS file systems
+	  containing DEFLATE compressed data.  It gives better compression
+	  ratios than the default LZ4 format, while it costs more CPU
+	  overhead.
+
+	  DEFLATE support is an experimental feature for now and so most
+	  file systems will be readable without selecting this option.
+
+	  If unsure, say N.
