@@ -158,13 +158,10 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
  */
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
+	u64	start, size, usable, addr, low, mapsize;
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = NULL;
-	phys_addr_t start, size, usable;
 	char	*fdt_high;
-	phys_addr_t addr;
-	phys_addr_t low;
-	phys_size_t mapsize;
 	ulong	of_len = 0;
 	int	bank;
 	int	err;
