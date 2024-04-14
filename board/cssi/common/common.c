@@ -164,7 +164,7 @@ int checkboard_common(void)
 
 void misc_init_r_common(void)
 {
-	u8 tmp, far_id;
+	u8 tmp, far_id, addr;
 	int count = 3;
 
 	switch (in_8(ADDR_FPGA_R_BASE)) {
@@ -172,6 +172,10 @@ void misc_init_r_common(void)
 		/* if at boot alarm button is pressed, delay boot */
 		if ((in_8(ADDR_FPGA_R_BASE + 0x31) & FPGA_R_ACQ_AL_FAV) == 0)
 			env_set("bootdelay", "60");
+
+		addr = in_8(ADDR_FPGA_R_BASE + 0x43);
+		printf("Board address: 0x%2.2x (System %d Rack %d Slot %d)\n",
+		       addr, addr >> 7, (addr >> 4) & 7, addr & 15);
 
 		env_set("config", CFG_BOARD_MCR3000_2G);
 		env_set("hostname", CFG_BOARD_MCR3000_2G);

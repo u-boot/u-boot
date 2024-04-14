@@ -167,7 +167,12 @@ int misc_init_r(void)
 	setbits_be32(&immr->im_cpm.cp_pbdir, 0xf);
 	clrbits_be32(&immr->im_cpm.cp_pbdat, 0x1);
 
-	load_fpga();
+	if (!load_fpga()) {
+		u8 addr = in_be16((void *)0x1400009c);
+
+		printf("Board address: 0x%2.2x (System %d Rack %d Slot %d)\n",
+		       addr, addr >> 7, (addr >> 4) & 7, addr & 15);
+	}
 
 	/* if BTN_ACQ_AL is pressed then bootdelay is changed to 60 second */
 	if ((in_be16(&iop->iop_pcdat) & 0x0004) == 0)
