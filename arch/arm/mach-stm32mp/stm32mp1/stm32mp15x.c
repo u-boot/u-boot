@@ -322,8 +322,23 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 
 	get_cpu_string_offsets(&type, &pkg, &rev);
 
-	snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s",
-		 soc_type[type], soc_pkg[pkg], soc_rev[rev]);
+	if (bsec_dbgswenable()) {
+		snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s",
+			 soc_type[type], soc_pkg[pkg], soc_rev[rev]);
+	} else {
+		/*
+		 * SoC revision is only accessible via DBUMCU IDC register,
+		 * which requires BSEC.DENABLE DBGSWENABLE bit to be set to
+		 * make the register accessible, otherwise an access to the
+		 * register triggers bus fault. As BSEC.DBGSWENABLE is zero
+		 * in case of an OTP-CLOSED system, do NOT set DBGSWENABLE
+		 * bit as this might open a brief window for timing attacks.
+		 * Instead, report that this system is OTP-CLOSED and do not
+		 * report any SoC revision to avoid confusing users.
+		 */
+		snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s SEC/C",
+			 soc_type[type], soc_pkg[pkg]);
+	}
 }
 
 static void setup_soc_type_pkg_rev(void)
