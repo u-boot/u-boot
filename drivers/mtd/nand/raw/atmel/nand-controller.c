@@ -1267,7 +1267,7 @@ static int atmel_smc_nand_prepare_smcconf(struct atmel_nand *nand,
 		return ret;
 
 	/*
-	 * The write cycle timing is directly matching tWC, but is also
+	 * The read cycle timing is directly matching tRC, but is also
 	 * dependent on the setup and hold timings we calculated earlier,
 	 * which gives:
 	 *
@@ -1428,8 +1428,6 @@ static int atmel_nand_setup_data_interface(struct mtd_info *mtd, int csline,
 
 	return nc->caps->ops->setup_data_interface(nand, csline, conf);
 }
-
-#define NAND_KEEP_TIMINGS       0x00800000
 
 static void atmel_nand_init(struct atmel_nand_controller *nc,
 			    struct atmel_nand *nand)

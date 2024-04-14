@@ -249,6 +249,13 @@ enum nand_ecc_algo {
  */
 #define NAND_USE_BOUNCE_BUFFER	0x00100000
 
+/*
+ * Do not try to tweak the timings at runtime. This is needed when the
+ * controller initializes the timings on itself or when it relies on
+ * configuration done by the bootloader.
+ */
+#define NAND_KEEP_TIMINGS	0x00800000
+
 /* Options set by nand scan */
 /* bbt has already been read */
 #define NAND_BBT_SCANNED	0x40000000

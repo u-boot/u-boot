@@ -4118,7 +4118,7 @@ static int nand_get_bits_per_cell(u8 cellinfo)
  */
 void nand_decode_ext_id(struct nand_chip *chip)
 {
-	struct mtd_info *mtd = &chip->mtd;
+	struct mtd_info *mtd = nand_to_mtd(chip);
 	int extid;
 	/* The 3rd id byte holds MLC / multichip data */
 	chip->bits_per_cell = nand_get_bits_per_cell(chip->id.data[2]);
@@ -4185,7 +4185,7 @@ static int nand_manufacturer_init(struct nand_chip *chip)
  */
 static void nand_decode_id(struct nand_chip *chip, struct nand_flash_dev *type)
 {
-	struct mtd_info *mtd = &chip->mtd;
+	struct mtd_info *mtd = nand_to_mtd(chip);
 
 	mtd->erasesize = type->erasesize;
 	mtd->writesize = type->pagesize;
@@ -4265,7 +4265,7 @@ static const struct nand_manufacturer *nand_get_manufacturer_desc(u8 id)
 int nand_detect(struct nand_chip *chip, int *maf_id,
 		int *dev_id, struct nand_flash_dev *type)
 {
-	struct mtd_info *mtd = &chip->mtd;
+	struct mtd_info *mtd = nand_to_mtd(chip);
 	const struct nand_manufacturer *manufacturer_desc;
 	int busw, ret;
 	u8 *id_data = chip->id.data;
