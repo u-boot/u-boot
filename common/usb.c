@@ -28,6 +28,7 @@
 #include <common.h>
 #include <command.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
@@ -1084,6 +1085,54 @@ static int usb_prepare_device(struct usb_device *dev, int addr, bool do_read,
 	return 0;
 }
 
+static int usb_device_is_ignored(u16 id_vendor, u16 id_product)
+{
+	ulong vid, pid;
+	char *end;
+	const char *cur = NULL;
+
+	/* ignore list depends on env support */
+	if (!CONFIG_IS_ENABLED(ENV_SUPPORT))
+		return 0;
+
+	cur = env_get("usb_ignorelist");
+
+	/* parse "usb_ignorelist" strictly */
+	while (cur && cur[0] != '\0') {
+		vid = simple_strtoul(cur, &end, 0);
+		/*
+		 * If strtoul did not parse a single digit or the next char is
+		 * not ':' the ignore list is malformed.
+		 */
+		if (cur == end || end[0] != ':')
+			return -EINVAL;
+
+		cur = end + 1;
+		pid = simple_strtoul(cur, &end, 0);
+		/* Consider '*' as wildcard for the product ID */
+		if (cur == end && end[0] == '*') {
+			pid = U16_MAX + 1;
+			end++;
+		}
+		/*
+		 * The ignore list is malformed if no product ID / wildcard was
+		 * parsed or entries are not separated by ',' or terminated with
+		 * '\0'.
+		 */
+		if (cur == end || (end[0] != ',' && end[0] != '\0'))
+			return -EINVAL;
+
+		if (id_vendor == vid && (pid > U16_MAX || id_product == pid))
+			return -ENODEV;
+
+		if (end[0] == '\0')
+			break;
+		cur = end + 1;
+	}
+
+	return 0;
+}
+
 int usb_select_config(struct usb_device *dev)
 {
 	unsigned char *tmpbuf = NULL;
@@ -1098,6 +1147,27 @@ int usb_select_config(struct usb_device *dev)
 	le16_to_cpus(&dev->descriptor.idVendor);
 	le16_to_cpus(&dev->descriptor.idProduct);
 	le16_to_cpus(&dev->descriptor.bcdDevice);
+
+	/* ignore devices from usb_ignorelist */
+	err = usb_device_is_ignored(dev->descriptor.idVendor,
+				    dev->descriptor.idProduct);
+	if (err == -ENODEV) {
+		debug("Ignoring USB device 0x%x:0x%x\n",
+			dev->descriptor.idVendor, dev->descriptor.idProduct);
+		return err;
+	} else if (err == -EINVAL) {
+		/*
+		 * Continue on "usb_ignorelist" parsing errors. The list is
+		 * parsed for each device returning the error would result in
+		 * ignoring all USB devices.
+		 * Since the parsing error is independent of the probed device
+		 * report errors with printf instead of dev_err.
+		 */
+		printf("usb_ignorelist parse error in \"%s\"\n",
+		       env_get("usb_ignorelist"));
+	} else if (err < 0) {
+		return err;
+	}
 
 	/*
 	 * Kingston DT Ultimate 32GB USB 3.0 seems to be extremely sensitive
