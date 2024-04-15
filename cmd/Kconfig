@@ -492,7 +492,6 @@ config CMD_ELF
 
 config CMD_ELF_FDT_SETUP
 	bool "Flattened Device Tree setup in bootelf cmd"
-	default n
 	depends on CMD_ELF
 	select LIB_LIBFDT
 	select LMB
@@ -2623,7 +2622,6 @@ config CMD_CROS_EC
 config CMD_SCMI
 	bool "Enable scmi command"
 	depends on SCMI_FIRMWARE
-	default n
 	help
 	  This command provides user interfaces to several SCMI (System
 	  Control and Management Interface) protocols available on Arm

@@ -755,7 +755,6 @@ if MEASURED_BOOT
 
 	config MEASURE_IGNORE_LOG
 	bool "Ignore the existing event log"
-	default n
 	help
 	  On platforms that use an event log memory region that persists
 	  through system resets and are the first stage bootloader, then
