@@ -100,8 +100,8 @@ static ulong apq8016_clk_set_rate(struct clk *clk, ulong rate)
 		return clk_init_sdc(priv, 1, rate);
 		break;
 	case GCC_BLSP1_UART2_APPS_CLK: /* UART2 */
-		return apq8016_clk_init_uart(priv->base);
-		break;
+		apq8016_clk_init_uart(priv->base);
+		return 7372800;
 	default:
 		return 0;
 	}
