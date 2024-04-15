@@ -321,7 +321,7 @@ config DEBUG_UART_S5P
 
 config DEBUG_UART_MSM
 	bool "Qualcomm QUP UART debug"
-	depends on ARCH_SNAPDRAGON
+	depends on ARCH_SNAPDRAGON || ARCH_IPQ40XX
 	help
 	  Select this to enable a debug UART using the serial_msm driver. You
 	  will need to provide parameters to make this work. The driver will
