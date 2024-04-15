@@ -436,6 +436,7 @@ static int env_mmc_load(void)
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
 				read2_fail, H_EXTERNAL);
+	printf("Reading from %sMMC(%d)... ", gd->env_valid == ENV_REDUND ? "redundant " : "", dev);
 
 fini:
 	fini_mmc_for_env(mmc);
@@ -474,6 +475,8 @@ static int env_mmc_load(void)
 		ret = -EIO;
 		goto fini;
 	}
+
+	printf("Reading from MMC(%d)... ", dev);
 
 	ret = env_import(buf, 1, H_EXTERNAL);
 	if (!ret) {
