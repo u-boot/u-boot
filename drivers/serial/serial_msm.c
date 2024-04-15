@@ -32,6 +32,16 @@
 #define UARTDM_RXFS_BUF_MASK    0x7
 #define UARTDM_MR1				 0x00
 #define UARTDM_MR2				 0x04
+/*
+ * This is documented on page 1817 of the apq8016e technical reference manual.
+ * section 6.2.5.3.26
+ *
+ * The upper nybble contains the bit clock divider for the RX pin, the lower
+ * nybble defines the TX pin. In almost all cases these should be the same value.
+ *
+ * The baud rate is the core clock frequency divided by the fixed divider value
+ * programmed into this register (defined in calc_csr_bitrate()).
+ */
 #define UARTDM_CSR				 0xA0
 
 #define UARTDM_SR                0xA4 /* Status register */
@@ -53,7 +63,6 @@
 #define UARTDM_TF               0x100 /* UART Transmit FIFO register */
 #define UARTDM_RF               0x140 /* UART Receive FIFO register */
 
-#define UART_DM_CLK_RX_TX_BIT_RATE 0xCC
 #define MSM_BOOT_UART_DM_8_N_1_MODE 0x34
 #define MSM_BOOT_UART_DM_CMD_RESET_RX 0x10
 #define MSM_BOOT_UART_DM_CMD_RESET_TX 0x20
@@ -64,7 +73,7 @@ struct msm_serial_data {
 	phys_addr_t base;
 	unsigned chars_cnt; /* number of buffered chars */
 	uint32_t chars_buf; /* buffered chars */
-	uint32_t clk_bit_rate; /* data mover mode bit rate register value */
+	uint32_t clk_rate; /* core clock rate */
 };
 
 static int msm_serial_fetch(struct udevice *dev)
@@ -156,32 +165,61 @@ static const struct dm_serial_ops msm_serial_ops = {
 	.getc = msm_serial_getc,
 };
 
-static int msm_uart_clk_init(struct udevice *dev)
+static long msm_uart_clk_init(struct udevice *dev)
 {
-	uint clk_rate = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-					"clock-frequency", 115200);
+	struct msm_serial_data *priv = dev_get_priv(dev);
 	struct clk clk;
 	int ret;
+	long rate;
 
 	ret = clk_get_by_name(dev, "core", &clk);
 	if (ret < 0) {
 		pr_warn("%s: Failed to get clock: %d\n", __func__, ret);
-		return ret;
+		return 0;
 	}
 
-	ret = clk_set_rate(&clk, clk_rate);
-	if (ret < 0)
-		return ret;
+	rate = clk_set_rate(&clk, priv->clk_rate);
 
-	return 0;
+	return rate;
+}
+
+static int calc_csr_bitrate(struct msm_serial_data *priv)
+{
+	/* This table is from the TRE. See the definition of UARTDM_CSR */
+	unsigned int csr_div_table[] = {24576, 12288, 6144, 3072, 1536, 768, 512, 384,
+					256,   192,   128,  96,   64,   48,  32,  16};
+	int i = ARRAY_SIZE(csr_div_table) - 1;
+	/* Currently we only support one baudrate */
+	int baud = 115200;
+
+	for (; i >= 0; i--) {
+		int x = priv->clk_rate / csr_div_table[i];
+
+		if (x == baud)
+			/* Duplicate the configuration for RX
+			 * as the lower nybble only configures TX
+			 */
+			return i + (i << 4);
+	}
+
+	return -EINVAL;
 }
 
 static void uart_dm_init(struct msm_serial_data *priv)
 {
 	/* Delay initialization for a bit to let pins stabilize if necessary */
 	mdelay(5);
+	int bitrate = calc_csr_bitrate(priv);
+	if (bitrate < 0) {
+		log_warning("Couldn't calculate bit clock divider! Using default\n");
+		/* This happens to be the value used on MSM8916 for the hardcoded clockrate
+		 * in clock-apq8016. It's at least a better guess than a value we *know*
+		 * is wrong...
+		 */
+		bitrate = 0xCC;
+	}
 
-	writel(priv->clk_bit_rate, priv->base + UARTDM_CSR);
+	writel(bitrate, priv->base + UARTDM_CSR);
 	writel(0x0, priv->base + UARTDM_MR1);
 	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
 	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
@@ -192,16 +230,25 @@ static void uart_dm_init(struct msm_serial_data *priv)
 }
 static int msm_serial_probe(struct udevice *dev)
 {
-	int ret;
 	struct msm_serial_data *priv = dev_get_priv(dev);
+	long rate;
 
 	/* No need to reinitialize the UART after relocation */
 	if (gd->flags & GD_FLG_RELOC)
 		return 0;
 
-	ret = msm_uart_clk_init(dev);
-	if (ret)
-		return ret;
+	rate = msm_uart_clk_init(dev);
+	if (rate < 0)
+		return rate;
+	if (!rate) {
+		log_err("Got core clock rate of 0... Please fix your clock driver\n");
+		return -EINVAL;
+	}
+
+	/* Update the clock rate to the actual programmed rate returned by the
+	 * clock driver
+	 */
+	priv->clk_rate = rate;
 
 	uart_dm_init(priv);
 
@@ -211,13 +258,18 @@ static int msm_serial_probe(struct udevice *dev)
 static int msm_serial_of_to_plat(struct udevice *dev)
 {
 	struct msm_serial_data *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	priv->clk_bit_rate = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-							"bit-rate", UART_DM_CLK_RX_TX_BIT_RATE);
+	ret = dev_read_u32(dev, "clock-frequency", &priv->clk_rate);
+	if (ret < 0) {
+		log_debug("No clock frequency specified, using default rate\n");
+		/* Default for APQ8016 */
+		priv->clk_rate = 7372800;
+	}
 
 	return 0;
 }
@@ -242,6 +294,7 @@ U_BOOT_DRIVER(serial_msm) = {
 
 static struct msm_serial_data init_serial_data = {
 	.base = CONFIG_VAL(DEBUG_UART_BASE),
+	.clk_rate = CONFIG_VAL(DEBUG_UART_CLOCK),
 };
 
 #include <debug_uart.h>
