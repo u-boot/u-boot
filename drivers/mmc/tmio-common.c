@@ -299,7 +299,13 @@ static int tmio_sd_dma_wait_for_irq(struct udevice *dev, u32 flag,
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	long wait = 1000000 + 10 * blocks;
 
-	while (!(tmio_sd_readl(priv, TMIO_SD_DMA_INFO1) & flag)) {
+	for (;;) {
+		if (tmio_sd_readl(priv, TMIO_SD_DMA_INFO1) & flag)
+			break;
+
+		if (tmio_sd_readl(priv, TMIO_SD_INFO1) & TMIO_SD_INFO1_CMP)
+			break;
+
 		if (wait-- < 0) {
 			dev_err(dev, "timeout during DMA\n");
 			return -ETIMEDOUT;

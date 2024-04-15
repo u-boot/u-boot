@@ -42,7 +42,7 @@ static int cv1800b_execute_tuning(struct mmc *mmc, u8 opcode)
 	for (tap = 0; tap < TUNE_MAX_PHCODE; tap++) {
 		cv1800b_set_tap_delay(host, tap);
 
-		if (mmc_send_tuning(host->mmc, opcode, NULL)) {
+		if (mmc_send_tuning(host->mmc, opcode)) {
 			current_size = 0;
 		} else {
 			current_size++;

@@ -568,8 +568,8 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 	struct mmc *mmc = upriv->mmc;
 	unsigned int tap_num;
 	unsigned int taps = 0;
-	int i, ret = 0;
-	u32 caps;
+	int i, ret = 0, sret;
+	u32 caps, reg;
 
 	/* Only supported on Renesas RCar */
 	if (!(priv->caps & TMIO_SD_CAP_RCAR_UHS))
@@ -605,15 +605,15 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		caps = priv->caps;
 		priv->caps &= ~TMIO_SD_CAP_DMA_INTERNAL;
 
-		ret = mmc_send_tuning(mmc, opcode, NULL);
+		ret = mmc_send_tuning(mmc, opcode);
 
 		priv->caps = caps;
 
 		if (ret == 0)
 			taps |= BIT(i);
 
-		ret = renesas_sdhi_compare_scc_data(priv);
-		if (ret == 0)
+		reg = renesas_sdhi_compare_scc_data(priv);
+		if (reg == 0)
 			priv->smpcmp |= BIT(i);
 
 		mdelay(1);
@@ -624,9 +624,9 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 		 * eMMC.
 		 */
 		if (ret && (opcode == MMC_CMD_SEND_TUNING_BLOCK_HS200)) {
-			ret = mmc_send_stop_transmission(mmc, false);
-			if (ret < 0)
-				dev_dbg(dev, "Tuning abort fail (%d)\n", ret);
+			sret = mmc_send_stop_transmission(mmc, false);
+			if (sret < 0)
+				dev_dbg(dev, "Tuning abort fail (%d)\n", sret);
 		}
 	}
 
@@ -798,9 +798,12 @@ static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
     CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
+	struct mmc *mmc = upriv->mmc;
 
-	renesas_sdhi_check_scc_error(dev);
+	if (!mmc->tuning)
+		renesas_sdhi_check_scc_error(dev);
 
 	if (cmd->cmdidx == MMC_CMD_SEND_STATUS)
 		renesas_sdhi_adjust_hs400_mode_enable(priv);

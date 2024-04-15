@@ -390,7 +390,7 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	for (itap = 0; itap < ITAP_MAX; itap++) {
 		am654_sdhci_write_itapdly(plat, itap);
 
-		cur_val = !mmc_send_tuning(mmc, opcode, NULL);
+		cur_val = !mmc_send_tuning(mmc, opcode);
 		if (cur_val && !prev_val)
 			pass_window = itap;
 

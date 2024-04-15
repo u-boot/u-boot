@@ -20,10 +20,18 @@ config MMC_WRITE
 
 config MMC_PWRSEQ
 	bool "HW reset support for eMMC"
-	depends on PWRSEQ
+	depends on PWRSEQ && DM_GPIO
 	help
-	  Ths select Hardware reset support aka pwrseq-emmc for eMMC
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
 	  devices.
+
+config SPL_MMC_PWRSEQ
+	bool "HW reset support for eMMC in SPL"
+	depends on SPL_PWRSEQ && SPL_DM_GPIO
+	default y if MMC_PWRSEQ
+	help
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
+	  devices in SPL.
 
 config MMC_BROKEN_CD
 	bool "Poll for broken card detection case"
@@ -79,11 +87,12 @@ config MMC_SPI_CRC_ON
 
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
+	depends on DM_MMC
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell Multimedia Card
 	  Interface (PL180, PL181 and compatible) support.
 	  If you have an ARM(R) platform with a Multimedia Card slot,
-	  say Y or M here.
+	  say Y here.
 
 config MMC_QUIRKS
 	bool "Enable quirks"
@@ -599,7 +608,7 @@ config MMC_SDHCI_IPROC
 	  This selects the iProc SD/MMC controller.
 
 	  If you have a Broadcom IPROC platform with SD or MMC devices,
-	  say Y or M here.
+	  say Y here.
 
 	  If unsure, say N.
 
@@ -610,7 +619,7 @@ config MMC_SDHCI_F_SDH30
 	help
 	  This selects the Secure Digital Host Controller Interface (SDHCI)
 	  Needed by some Fujitsu/Socionext SoC for MMC / SD / SDIO support.
-	  If you have a controller with this interface, say Y or M here.
+	  If you have a controller with this interface, say Y here.
 	  If unsure, say N.
 
 config MMC_SDHCI_KONA
@@ -804,7 +813,7 @@ config STM32_SDMMC2
 	help
 	  This selects support for the SD/MMC controller on STM32H7 SoCs.
 	  If you have a board based on such a SoC and with a SD/MMC slot,
-	  say Y or M here.
+	  say Y here.
 
 config FTSDC010
 	bool "Ftsdc010 SD/MMC controller Support"
@@ -824,7 +833,7 @@ config MMC_MTK
 	depends on OF_CONTROL
 	help
 	  This selects the MediaTek(R) Secure digital and Multimedia card Interface.
-	  If you have a machine with a integrated SD/MMC card reader, say Y or M here.
+	  If you have a machine with a integrated SD/MMC card reader, say Y here.
 	  This is needed if support for any SD/SDIO/MMC devices is required.
 	  If unsure, say N.
 

@@ -124,7 +124,13 @@ static int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
 
 int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 {
-	return dm_mmc_execute_tuning(mmc->dev, opcode);
+	int ret;
+
+	mmc->tuning = true;
+	ret = dm_mmc_execute_tuning(mmc->dev, opcode);
+	mmc->tuning = false;
+
+	return ret;
 }
 #endif
 
@@ -494,10 +500,7 @@ static int mmc_blk_probe(struct udevice *dev)
 	if (ret) {
 		debug("Probing %s failed (err=%d)\n", dev->name, ret);
 
-		if (CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) ||
-		    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) ||
-		    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT))
-			mmc_deinit(mmc);
+		mmc_deinit(mmc);
 
 		return ret;
 	}
@@ -505,9 +508,6 @@ static int mmc_blk_probe(struct udevice *dev)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 static int mmc_blk_remove(struct udevice *dev)
 {
 	struct udevice *mmc_dev = dev_get_parent(dev);
@@ -516,7 +516,6 @@ static int mmc_blk_remove(struct udevice *dev)
 
 	return mmc_deinit(mmc);
 }
-#endif
 
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
@@ -532,12 +531,8 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
 	.probe		= mmc_blk_probe,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
-    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	.remove		= mmc_blk_remove,
 	.flags		= DM_FLAG_OS_PREPARE,
-#endif
 };
 #endif /* CONFIG_BLK */
 

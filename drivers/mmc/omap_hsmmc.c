@@ -666,7 +666,7 @@ static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
 	while (phase_delay <= MAX_PHASE_DELAY) {
 		omap_hsmmc_set_dll(mmc, phase_delay);
 
-		cur_match = !mmc_send_tuning(mmc, opcode, NULL);
+		cur_match = !mmc_send_tuning(mmc, opcode);
 
 		if (cur_match) {
 			if (prev_match) {
@@ -731,7 +731,7 @@ static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
 	 */
 	for (i = 3; i <= 10; i++) {
 		omap_hsmmc_set_dll(mmc, phase_delay + i);
-		if (mmc_send_tuning(mmc, opcode, NULL)) {
+		if (mmc_send_tuning(mmc, opcode)) {
 			if (temperature < 10000)
 				phase_delay += i + 6;
 			else if (temperature < 20000)
@@ -749,7 +749,7 @@ static int omap_hsmmc_execute_tuning(struct udevice *dev, uint opcode)
 
 	for (i = 2; i >= -10; i--) {
 		omap_hsmmc_set_dll(mmc, phase_delay + i);
-		if (mmc_send_tuning(mmc, opcode, NULL)) {
+		if (mmc_send_tuning(mmc, opcode)) {
 			if (temperature < 10000)
 				phase_delay += i + 12;
 			else if (temperature < 20000)

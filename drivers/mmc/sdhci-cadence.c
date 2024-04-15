@@ -224,7 +224,7 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 
 	for (i = 0; i < SDHCI_CDNS_MAX_TUNING_LOOP; i++) {
 		if (sdhci_cdns_set_tune_val(plat, i) ||
-		    mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
+		    mmc_send_tuning(mmc, opcode)) { /* bad */
 			cur_streak = 0;
 		} else { /* good */
 			cur_streak++;
