@@ -2098,6 +2098,12 @@ config CMD_DHCP_LWIP
 	help
 	  Boot image via network using DHCP/TFTP protocol
 
+config CMD_DNS_LWIP
+	bool "dns"
+	select PROT_DNS_LWIP
+	help
+	  Lookup the IP of a hostname
+
 config CMD_PING_LWIP
 	bool "ping"
 	select PROT_RAW_LWIP
