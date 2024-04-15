@@ -2026,11 +2026,6 @@ config CMD_SNTP
 	help
 	  Synchronize RTC via network
 
-config CMD_DNS
-	bool "dns"
-	help
-	  Lookup the IP of a hostname
-
 config CMD_LINK_LOCAL
 	bool "linklocal"
 	select LIB_RAND
@@ -2084,6 +2079,12 @@ config CMD_DHCP
 	select PROT_DHCP_LWIP if NET_LWIP
 	help
 	  Boot image via network using DHCP/TFTP protocol
+
+config CMD_DNS
+	bool "dns"
+	select PROT_DNS_LWIP if NET_LWIP
+	help
+	  Lookup the IP of a hostname
 
 config CMD_MII
 	bool "mii"
