@@ -98,6 +98,8 @@
 #define SPL_AM654_EVM_DTB "spl/dts/k3-am654-base-board.dtb"
 #define AM654_EVM_DTB "u-boot.dtb"
 
+#define AM654_EVM_ICSSG2_DTBO "arch/arm/dts/k3-am654-icssg2.dtbo"
+
 &binman {
 	ti-spl {
 		insert-template = <&ti_spl_template>;
@@ -124,6 +126,20 @@
 						filename = SPL_AM654_EVM_DTB;
 					};
 				};
+
+				fdt-1 {
+					description = "k3-am654-icssg2 overlay";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&spl_am65x_evm_icssg2_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					spl_am65x_evm_icssg2_dtb: blob-ext {
+						filename = AM654_EVM_ICSSG2_DTBO;
+					};
+				};
 			};
 
 			configurations {
@@ -133,7 +149,7 @@
 					description = "k3-am654-base-board";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
-					fdt = "fdt-0";
+					fdt = "fdt-0", "fdt-1";
 				};
 			};
 		};
@@ -168,6 +184,24 @@
 					};
 				};
 
+				fdt-1 {
+					description = "k3-am654-icssg2 overlay";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&am65x_evm_icssg2_dtb>;
+						keyfile = "custMpk.pem";
+
+					};
+					am65x_evm_icssg2_dtb: blob-ext {
+						filename = AM654_EVM_ICSSG2_DTBO;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+
 			};
 
 			configurations {
@@ -177,7 +211,7 @@
 					description = "k3-am654-base-board";
 					firmware = "uboot";
 					loadables = "uboot";
-					fdt = "fdt-0";
+					fdt = "fdt-0", "fdt-1";
 				};
 			};
 		};
@@ -205,6 +239,16 @@
 						filename = SPL_AM654_EVM_DTB;
 					};
 				};
+
+				fdt-1 {
+					description = "k3-am654-icssg2 overlay";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM654_EVM_ICSSG2_DTBO;
+					};
+				};
 			};
 
 			configurations {
@@ -214,7 +258,7 @@
 					description = "k3-am654-base-board";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
-					fdt = "fdt-0";
+					fdt = "fdt-0", "fdt-1";
 				};
 			};
 		};
@@ -243,6 +287,19 @@
 						algo = "crc32";
 					};
 				};
+
+				fdt-1 {
+					description = "k3-am654-icssg2";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM654_EVM_ICSSG2_DTBO;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
 			};
 
 			configurations {
@@ -252,7 +309,7 @@
 					description = "k3-am654-base-board";
 					firmware = "uboot";
 					loadables = "uboot";
-					fdt = "fdt-0";
+					fdt = "fdt-0", "fdt-1";
 				};
 			};
 		};
