@@ -59,6 +59,11 @@ config SYSRESET_CMD_POWEROFF
 
 endif
 
+config SYSRESET_CV1800B
+	bool "Enable support for Sophgo cv1800b System Reset"
+	help
+	  Enable system reset support for Sophgo cv1800b SoC.
+
 config POWEROFF_GPIO
 	bool "Enable support for GPIO poweroff driver"
 	depends on DM_GPIO
