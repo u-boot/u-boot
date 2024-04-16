@@ -129,7 +129,7 @@ if EFI_VARIABLES_PRESEED
 
 config EFI_VAR_SEED_FILE
 	string "File with initial values of non-volatile UEFI variables"
-	default ubootefi.var
+	default "ubootefi.var"
 	help
 	  File with initial values of non-volatile UEFI variables. The file must
 	  be in the same format as the storage in the EFI system partition. The
