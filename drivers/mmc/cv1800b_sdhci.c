@@ -12,6 +12,8 @@
 #define MMC_MAX_CLOCK        375000000
 #define TUNE_MAX_PHCODE      128
 
+#define PHY_TX_SRC_INVERT  BIT(8)
+
 struct cv1800b_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -19,7 +21,7 @@ struct cv1800b_sdhci_plat {
 
 static void cv1800b_set_tap_delay(struct sdhci_host *host, u16 tap)
 {
-	sdhci_writel(host, tap << 16, SDHCI_PHY_TX_RX_DLY);
+	sdhci_writel(host, PHY_TX_SRC_INVERT | tap << 16, SDHCI_PHY_TX_RX_DLY);
 }
 
 static void cv1800b_sdhci_reset(struct sdhci_host *host, u8 mask)
