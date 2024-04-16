@@ -12,7 +12,7 @@
 
 /*
  * A new Kconfig option for something that used to always be built should be
- * “default y”.
+ * "default y".
  */
 #ifdef CONFIG_FSL_USE_PCA9547_MUX
 

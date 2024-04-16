@@ -437,7 +437,7 @@ static const struct mx6_ddr3_cfg acc_mx6d_mem_ddr3_1066 = {
 	.trcd = 1313, // 13.125ns
 	.trcmin = 5063, // 50.625ns
 	.trasmin = 3750, // 37.5ns
-	.SRT = 0, // Set to 1 for temperatures above 85°C
+	.SRT = 0, // Set to 1 for temperatures above 85 deg C
 };
 
 static const struct mx6_ddr_sysinfo acc_mx6d_ddr_info = {

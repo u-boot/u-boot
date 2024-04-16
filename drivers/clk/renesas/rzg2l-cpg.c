@@ -313,9 +313,9 @@ static ulong rzg2l_sdhi_clk_set_rate(struct udevice *dev, const struct cpg_core_
 
 	/*
 	 * As per the HW manual, we should not directly switch from 533 MHz to
-	 * 400 MHz and vice versa. To change the setting from 2’b01 (533 MHz)
-	 * to 2’b10 (400 MHz) or vice versa, Switch to 2’b11 (266 MHz) first,
-	 * and then switch to the target setting (2’b01 (533 MHz) or 2’b10
+	 * 400 MHz and vice versa. To change the setting from 2'b01 (533 MHz)
+	 * to 2'b10 (400 MHz) or vice versa, Switch to 2'b11 (266 MHz) first,
+	 * and then switch to the target setting (2'b01 (533 MHz) or 2'b10
 	 * (400 MHz)).
 	 */
 	if (new_sel != SEL_SDHI_266MHz && prev_sel != SEL_SDHI_266MHz) {

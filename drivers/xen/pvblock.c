@@ -79,7 +79,7 @@ struct blkfront_plat {
 };
 
 /**
- * struct blkfront_aiocb - AIO сontrol block
+ * struct blkfront_aiocb - AIO control block
  * @aio_dev: Blockfront device
  * @aio_buf: Memory buffer, which must be sector-aligned for
  *	     @aio_dev sector

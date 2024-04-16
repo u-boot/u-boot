@@ -110,8 +110,8 @@ enum cvmx_pki_wqe_vlan { CVMX_PKI_USE_FIRST_VLAN = 0, CVMX_PKI_USE_SECOND_VLAN }
  * Controls how the PKI statistics counters are handled
  * The PKI_STAT*_X registers can be indexed either by port kind (pkind), or
  * final style. (Does not apply to the PKI_STAT_INB* registers.)
- *    0 = X represents the packet’s pkind
- *    1 = X represents the low 6-bits of packet’s final style
+ *    0 = X represents the packet's pkind
+ *    1 = X represents the low 6-bits of packet's final style
  */
 enum cvmx_pki_stats_mode { CVMX_PKI_STAT_MODE_PKIND, CVMX_PKI_STAT_MODE_STYLE };
 
@@ -880,7 +880,7 @@ int cvmx_pki_get_pkind_style(int node, int pkind);
  *    buffer separate from the work queue entry. Words following the
  *    WQE in the same cache line will be zeroed, other lines in the
  *    buffer will not be modified and will retain stale data (from the
- *    buffer’s previous use). This setting may decrease the peak PKI
+ *    buffer's previous use). This setting may decrease the peak PKI
  *    performance by up to half on small packets.
  */
 void cvmx_pki_set_wqe_mode(int node, u64 style, bool pkt_outside_wqe);

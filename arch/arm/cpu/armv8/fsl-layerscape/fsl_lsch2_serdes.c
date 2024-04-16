@@ -258,7 +258,7 @@ int setup_serdes_volt(u32 svdd)
 	/* Wait for SVDD to stabilize */
 	udelay(100);
 
-	/* For each PLL that’s not disabled via RCW */
+	/* For each PLL that's not disabled via RCW */
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	cfg_tmp = (cfg_rcw5 >> 22) & 0x3;
 	for (i = 0; i < 2 && !(cfg_tmp & (0x1 << (1 - i))); i++) {

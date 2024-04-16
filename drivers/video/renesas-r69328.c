@@ -19,7 +19,7 @@
 #include <power/regulator.h>
 
 /*
- * The datasheet is not publicly available, all values are
+ * The datasheet is not publicly available, all values are
  * taken from the downstream. If you have access to datasheets,
  * corrections are welcome.
  */
