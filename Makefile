@@ -717,7 +717,7 @@ KBUILD_CFLAGS	+= -O2
 endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUG
-KBUILD_CFLAGS	+= -Og -Wno-maybe-uninitialized
+KBUILD_CFLAGS	+= -Og
 # Avoid false positives -Wmaybe-uninitialized
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78394
 KBUILD_CFLAGS	+= -Wno-maybe-uninitialized
