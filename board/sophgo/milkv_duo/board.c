@@ -3,7 +3,11 @@
  * Copyright (c) 2024, Kongyang Liu <seashell11234455@gmail.com>
  */
 
+ #include <dm/lists.h>
+
 int board_init(void)
 {
+	if (IS_ENABLED(CONFIG_SYSRESET_CV1800B))
+		device_bind_driver(gd->dm_root, "cv1800b_sysreset", "sysreset", NULL);
 	return 0;
 }
