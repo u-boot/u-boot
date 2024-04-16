@@ -64,7 +64,7 @@ config SYS_MALLOC_F_LEN
 config TEXT_BASE
 	default 0x600000
 
-source board/edgeble/neural-compute-module-2/Kconfig
-source board/itead/sonoff-ihost/Kconfig
+source "board/edgeble/neural-compute-module-2/Kconfig"
+source "board/itead/sonoff-ihost/Kconfig"
 
 endif

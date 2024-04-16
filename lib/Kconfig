@@ -416,7 +416,7 @@ config TRACE_EARLY_ADDR
 config CIRCBUF
 	bool "Enable circular buffer support"
 
-source lib/dhry/Kconfig
+source "lib/dhry/Kconfig"
 
 menu "Security support"
 
@@ -429,10 +429,10 @@ config AES
 	  supported by the algorithm but only a 128-bit key is supported at
 	  present.
 
-source lib/ecdsa/Kconfig
-source lib/rsa/Kconfig
-source lib/crypto/Kconfig
-source lib/crypt/Kconfig
+source "lib/ecdsa/Kconfig"
+source "lib/rsa/Kconfig"
+source "lib/crypto/Kconfig"
+source "lib/crypt/Kconfig"
 
 config TPM
 	bool "Trusted Platform Module (TPM) Support"
@@ -1081,9 +1081,9 @@ config SMBIOS_PARSER
 	help
 	  A simple parser for SMBIOS data.
 
-source lib/efi/Kconfig
-source lib/efi_loader/Kconfig
-source lib/optee/Kconfig
+source "lib/efi/Kconfig"
+source "lib/efi_loader/Kconfig"
+source "lib/optee/Kconfig"
 
 config TEST_FDTDEC
 	bool "enable fdtdec test"
@@ -1148,4 +1148,4 @@ config PHANDLE_CHECK_SEQ
 
 endmenu
 
-source lib/fwu_updates/Kconfig
+source "lib/fwu_updates/Kconfig"
