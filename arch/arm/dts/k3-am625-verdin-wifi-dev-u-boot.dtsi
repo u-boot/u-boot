@@ -91,6 +91,14 @@
 
 &main_gpio0 {
 	bootph-all;
+
+	ctrl-sleep-moci-hog {
+		bootph-all;
+		gpio-hog;
+		gpios = <31 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
+		output-high;
+	};
 };
 
 /* On-module I2C - PMIC_I2C */
@@ -163,10 +171,6 @@
 
 &sdhci2 {
 	status = "disabled";
-};
-
-&verdin_ctrl_sleep_moci {
-	bootph-all;
 };
 
 /* Verdin UART_2 */
