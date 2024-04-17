@@ -96,12 +96,12 @@ sync the `dts/upstream/` subtree from the devicetree-rebasing repo whenever
 the next branch opens (refer: :doc:`../release_cycle`) with the latest mainline
 Linux kernel release. To sync the `dts/upstream/` subtree, run::
 
-    ./dts/update-dts-subtree.sh pull <devicetree-rebasing-release-tag>
+    ./tools/update-subtree.sh pull dts <devicetree-rebasing-release-tag>
 
 If required it is also possible to cherry-pick fixes from the
 devicetree-rebasing repository prior to next sync, usage::
 
-    ./dts/update-dts-subtree.sh pick <devicetree-rebasing-commit-id>
+    ./tools/update-subtree.sh pick dts <devicetree-rebasing-commit-id>
 
 
 Configuration
@@ -116,8 +116,8 @@ However, if `dts/upstream/` hasn't yet received devicetree source file for your
 newly added board support then one option is that you can add the corresponding
 devicetree source file as `arch/<arch>/dts/<name>.dts`. To select that add `#
 CONFIG_OF_UPSTREAM is not set` and set `DEFAULT_DEVICE_TREE=<name>` when
-prompted by Kconfig. Another option is that you can use use the "pick" option of
-`dts/update-dts-subtree.sh` mentioned above to bring in the commits that you
+prompted by Kconfig. Another option is that you can use the "pick" option of
+`tools/update-subtree.sh` mentioned above to bring in the commits that you
 need.
 
 This should include your CPU or SoC's devicetree file. On top of that any U-Boot
