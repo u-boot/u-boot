@@ -29,6 +29,8 @@ static struct sbi_imp implementations[] = {
 	{ 6, "Coffer" },
 	{ 7, "Xen Project" },
 	{ 8, "PolarFire Hart Software Services" },
+	{ 9, "coreboot" },
+	{ 10, "oreboot" },
 };
 
 static struct sbi_ext extensions[] = {
