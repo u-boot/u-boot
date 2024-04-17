@@ -60,6 +60,11 @@
 
 	ctrl-sleep-moci-hog {
 		bootph-pre-ram;
+		gpio-hog;
+		output-high;
+		gpios = <1 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
+
 	};
 };
 
