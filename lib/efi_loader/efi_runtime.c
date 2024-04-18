@@ -127,6 +127,10 @@ efi_status_t efi_init_runtime_supported(void)
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
+	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE))
+		rt_table->runtime_services_supported |=
+			EFI_RT_SUPPORTED_SET_VARIABLE;
+
 	/*
 	 * This value must be synced with efi_runtime_detach_list
 	 * as well as efi_runtime_services.

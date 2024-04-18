@@ -62,9 +62,17 @@ static int execute(void)
 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 				    EFI_VARIABLE_RUNTIME_ACCESS,
 				    3, v + 4);
-	if (ret != EFI_UNSUPPORTED) {
-		efi_st_error("SetVariable failed\n");
-		return EFI_ST_FAILURE;
+	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE)) {
+		/* At runtime only non-volatile variables may be set. */
+		if (ret != EFI_INVALID_PARAMETER) {
+			efi_st_error("SetVariable failed\n");
+			return EFI_ST_FAILURE;
+		}
+	} else {
+		if (ret != EFI_UNSUPPORTED) {
+			efi_st_error("SetVariable failed\n");
+			return EFI_ST_FAILURE;
+		}
 	}
 	len = EFI_ST_MAX_DATA_SIZE;
 	ret = runtime->get_variable(u"PlatformLangCodes", &guid_vendor0,
