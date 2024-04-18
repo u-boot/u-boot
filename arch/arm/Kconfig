@@ -762,10 +762,8 @@ config ARCH_IPQ40XX
 	select DM_SERIAL
 	select DM_RESET
 	select GPIO_EXTRA_HEADER
-	select MSM_SMEM
 	select PINCTRL
 	select CLK
-	select SMEM
 	select OF_CONTROL
 	select CLK_QCOM_IPQ4019
 	select PINCTRL_QCOM_IPQ4019
