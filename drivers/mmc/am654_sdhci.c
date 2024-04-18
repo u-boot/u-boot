@@ -289,12 +289,14 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
 
-	if (mode > UHS_SDR25 && speed >= CLOCK_TOO_SLOW_HZ) {
+	if ((mode > UHS_SDR25 || mode == MMC_DDR_52) && speed >= CLOCK_TOO_SLOW_HZ) {
 		ret = am654_sdhci_setup_dll(plat, speed);
 		if (ret)
 			return ret;
 
 		plat->dll_enable = true;
+		am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode],
+					  plat->itap_del_ena[mode]);
 	} else {
 		am654_sdhci_setup_delay_chain(plat, mode);
 		plat->dll_enable = false;
