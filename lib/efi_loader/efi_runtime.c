@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <elf.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <log.h>
 #include <malloc.h>
 #include <rtc.h>
@@ -110,6 +111,7 @@ static __efi_runtime_data efi_uintn_t efi_descriptor_size;
  */
 efi_status_t efi_init_runtime_supported(void)
 {
+	const efi_guid_t efi_guid_efi_rt_var_file = U_BOOT_EFI_RT_VAR_FILE_GUID;
 	efi_status_t ret;
 	struct efi_rt_properties_table *rt_table;
 
@@ -127,9 +129,20 @@ efi_status_t efi_init_runtime_supported(void)
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
-	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE))
-		rt_table->runtime_services_supported |=
-			EFI_RT_SUPPORTED_SET_VARIABLE;
+	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE)) {
+		ret = efi_set_variable_int(u"RTStorageVolatile",
+					   &efi_guid_efi_rt_var_file,
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS |
+					   EFI_VARIABLE_READ_ONLY,
+					   sizeof(EFI_VAR_FILE_NAME),
+					   EFI_VAR_FILE_NAME, false);
+		if (ret != EFI_SUCCESS) {
+			log_err("Failed to set RTStorageVolatile\n");
+			return ret;
+		}
+		rt_table->runtime_services_supported |= EFI_RT_SUPPORTED_SET_VARIABLE;
+	}
 
 	/*
 	 * This value must be synced with efi_runtime_detach_list
