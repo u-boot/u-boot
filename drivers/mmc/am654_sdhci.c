@@ -85,6 +85,8 @@
 #define AM654_SDHCI_MIN_FREQ	400000
 #define CLOCK_TOO_SLOW_HZ	50000000
 
+#define ENABLE	0x1
+
 struct am654_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -92,6 +94,7 @@ struct am654_sdhci_plat {
 	bool non_removable;
 	u32 otap_del_sel[MMC_MODES_END];
 	u32 itap_del_sel[MMC_MODES_END];
+	u32 itap_del_ena[MMC_MODES_END];
 	u32 trm_icp;
 	u32 drv_strength;
 	u32 strb_sel;
@@ -223,8 +226,10 @@ static int am654_sdhci_setup_dll(struct am654_sdhci_plat *plat,
 }
 
 static void am654_sdhci_write_itapdly(struct am654_sdhci_plat *plat,
-				      u32 itapdly)
+				      u32 itapdly, u32 enable)
 {
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPDLYENA_MASK,
+			   enable << ITAPDLYENA_SHIFT);
 	/* Set ITAPCHGWIN before writing to ITAPDLY */
 	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK,
 			   1 << ITAPCHGWIN_SHIFT);
@@ -242,7 +247,8 @@ static void am654_sdhci_setup_delay_chain(struct am654_sdhci_plat *plat,
 	mask = SELDLYTXCLK_MASK | SELDLYRXCLK_MASK;
 	regmap_update_bits(plat->base, PHY_CTRL5, mask, val);
 
-	am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode]);
+	am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode],
+				  plat->itap_del_ena[mode]);
 }
 
 static int am654_sdhci_set_ios_post(struct sdhci_host *host)
@@ -443,6 +449,7 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	struct udevice *dev = mmc->dev;
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	struct window fail_window[ITAPDLY_LENGTH];
+	int mode = mmc->selected_mode;
 	u8 curr_pass, itap;
 	u8 fail_index = 0;
 	u8 prev_pass = 1;
@@ -450,11 +457,10 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	memset(fail_window, 0, sizeof(fail_window));
 
 	/* Enable ITAPDLY */
-	regmap_update_bits(plat->base, PHY_CTRL4, ITAPDLYENA_MASK,
-			   1 << ITAPDLYENA_SHIFT);
+	plat->itap_del_ena[mode] = ENABLE;
 
 	for (itap = 0; itap < ITAPDLY_LENGTH; itap++) {
-		am654_sdhci_write_itapdly(plat, itap);
+		am654_sdhci_write_itapdly(plat, itap, plat->itap_del_ena[mode]);
 
 		curr_pass = !mmc_send_tuning(mmc, opcode);
 
@@ -478,7 +484,7 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	itap = am654_sdhci_calculate_itap(dev, fail_window, fail_index,
 					  plat->dll_enable);
 
-	am654_sdhci_write_itapdly(plat, itap);
+	am654_sdhci_write_itapdly(plat, itap, plat->itap_del_ena[mode]);
 
 	return 0;
 }
@@ -515,6 +521,7 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
 	int mode = host->mmc->selected_mode;
 	u32 otap_del_sel;
+	u32 itap_del_ena;
 	u32 itap_del_sel;
 	u32 mask, val;
 
@@ -524,10 +531,11 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 	val = (1 << OTAPDLYENA_SHIFT) |
 	      (otap_del_sel << OTAPDLYSEL_SHIFT);
 
+	itap_del_ena = plat->itap_del_ena[mode];
 	itap_del_sel = plat->itap_del_sel[mode];
 
 	mask |= ITAPDLYENA_MASK | ITAPDLYSEL_MASK;
-	val |= (1 << ITAPDLYENA_SHIFT) |
+	val |= (itap_del_ena << ITAPDLYENA_SHIFT) |
 	       (itap_del_sel << ITAPDLYSEL_SHIFT);
 
 	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK,
@@ -599,9 +607,13 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 			cfg->host_caps &= ~td[i].capability;
 		}
 
-		if (td[i].itap_binding)
-			dev_read_u32(dev, td[i].itap_binding,
-				     &plat->itap_del_sel[i]);
+		if (td[i].itap_binding) {
+			ret = dev_read_u32(dev, td[i].itap_binding,
+					   &plat->itap_del_sel[i]);
+
+			if (!ret)
+				plat->itap_del_ena[i] = ENABLE;
+		}
 	}
 
 	return 0;
