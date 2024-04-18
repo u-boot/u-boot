@@ -54,6 +54,7 @@
 		};
 	};
 
+#if !defined(CONFIG_EFI_USE_CAPSULE_CFG_FILE)
 	capsule1 {
 		filename = "Test04";
 		efi-capsule {
@@ -165,4 +166,5 @@
 			};
 		};
 	};
+#endif /* CONFIG_EFI_USE_CAPSULE_CFG_FILE */
 };
