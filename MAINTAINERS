@@ -606,10 +606,6 @@ R:	Sumit Garg <sumit.garg@linaro.org>
 L:	u-boot-qcom@groups.io
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-snapdragon.git
-F:	arch/arm/dts/msm8*.dtsi
-F:	arch/arm/dts/pm8???.dtsi
-F:	arch/arm/dts/pms405.dtsi
-F:	arch/arm/dts/sdm845.dtsi
 F:	drivers/*/*/pm8???-*
 F:	drivers/gpio/msm_gpio.c
 F:	drivers/mmc/msm_sdhci.c
