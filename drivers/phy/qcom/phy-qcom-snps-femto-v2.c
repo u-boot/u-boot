@@ -6,8 +6,6 @@
  * Based on Linux driver
  */
 
-#include <clk.h>
-#include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -17,7 +15,6 @@
 
 #include <asm/io.h>
 #include <linux/bitops.h>
-#include <linux/clk-provider.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>
 
@@ -62,7 +59,6 @@
 
 struct qcom_snps_hsphy {
 	void __iomem *base;
-	struct clk_bulk clks;
 	struct reset_ctl_bulk resets;
 };
 
@@ -143,8 +139,6 @@ static int qcom_snps_hsphy_power_on(struct phy *phy)
 	struct qcom_snps_hsphy *priv = dev_get_priv(phy->dev);
 	int ret;
 
-	clk_enable_bulk(&priv->clks);
-
 	ret = reset_deassert_bulk(&priv->resets);
 	if (ret)
 		return ret;
@@ -161,7 +155,6 @@ static int qcom_snps_hsphy_power_off(struct phy *phy)
 	struct qcom_snps_hsphy *priv = dev_get_priv(phy->dev);
 
 	reset_assert_bulk(&priv->resets);
-	clk_disable_bulk(&priv->clks);
 
 	return 0;
 }
@@ -175,19 +168,12 @@ static int qcom_snps_hsphy_phy_probe(struct udevice *dev)
 	if (IS_ERR(priv->base))
 		return PTR_ERR(priv->base);
 
-	ret = clk_get_bulk(dev, &priv->clks);
-	if (ret < 0 && ret != -ENOENT) {
-		printf("%s: Failed to get clocks %d\n", __func__, ret);
-		return ret;
-	}
-
 	ret = reset_get_bulk(dev, &priv->resets);
 	if (ret < 0) {
 		printf("failed to get resets, ret = %d\n", ret);
 		return ret;
 	}
 
-	clk_enable_bulk(&priv->clks);
 	reset_deassert_bulk(&priv->resets);
 
 	return 0;
