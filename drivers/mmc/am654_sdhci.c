@@ -513,12 +513,27 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
-	u32 otap_del_sel, mask, val;
+	int mode = host->mmc->selected_mode;
+	u32 otap_del_sel;
+	u32 itap_del_sel;
+	u32 mask, val;
 
-	otap_del_sel = plat->otap_del_sel[host->mmc->selected_mode];
+	otap_del_sel = plat->otap_del_sel[mode];
+
 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
-	val = (1 << OTAPDLYENA_SHIFT) | (otap_del_sel << OTAPDLYSEL_SHIFT);
+	val = (1 << OTAPDLYENA_SHIFT) |
+	      (otap_del_sel << OTAPDLYSEL_SHIFT);
+
+	itap_del_sel = plat->itap_del_sel[mode];
+
+	mask |= ITAPDLYENA_MASK | ITAPDLYSEL_MASK;
+	val |= (1 << ITAPDLYENA_SHIFT) |
+	       (itap_del_sel << ITAPDLYSEL_SHIFT);
+
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK,
+			   1 << ITAPCHGWIN_SHIFT);
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK, 0);
 
 	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
 			   plat->clkbuf_sel);
@@ -572,7 +587,7 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 	 * Remove the corresponding capability if an otap-del-sel
 	 * value is not found
 	 */
-	for (i = MMC_HS; i <= MMC_HS_400; i++) {
+	for (i = MMC_LEGACY; i <= MMC_HS_400; i++) {
 		ret = dev_read_u32(dev, td[i].otap_binding,
 				   &plat->otap_del_sel[i]);
 		if (ret) {
