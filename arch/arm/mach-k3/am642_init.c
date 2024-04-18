@@ -226,7 +226,7 @@ void board_init_f(ulong dummy)
 	 * The warm reset realigns internal clocks and prevents the lockup from
 	 * happening.
 	 */
-	ret = uclass_first_device_err(UCLASS_SYSRESET, &dev);
+	ret = uclass_get_device_by_driver(UCLASS_FIRMWARE, DM_DRIVER_GET(ti_sci), &dev);
 	if (ret)
 		printf("\n%s:uclass device error [%d]\n",__func__,ret);
 
