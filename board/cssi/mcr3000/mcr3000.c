@@ -13,11 +13,14 @@
 #include <mpc8xx.h>
 #include <fdt_support.h>
 #include <serial.h>
+#include <spi.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/uclass.h>
 #include <wdt.h>
 #include <linux/delay.h>
+
+#include "fpga_code.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,6 +110,49 @@ int dram_init(void)
 	return 0;
 }
 
+static int load_fpga(void)
+{
+	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	struct udevice *master;
+	struct spi_slave *slave;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_SPI, 0, &master);
+	if (ret)
+		return ret;
+
+	ret = _spi_get_bus_and_cs(0, 1, 10000000, 0, "spi_generic_drv",
+				  "generic_0:0", &master, &slave);
+	if (ret)
+		return ret;
+
+	ret = spi_claim_bus(slave);
+
+	printf("FPGA Init ... ");
+
+	clrbits_be32(&immr->im_cpm.cp_pbdat, 0x20000);
+	while ((in_be32(&immr->im_cpm.cp_pbdat) & 0x8000))
+		;
+	setbits_be32(&immr->im_cpm.cp_pbdat, 0x20000);
+	while (!(in_be32(&immr->im_cpm.cp_pbdat) & 0x8000))
+		;
+
+	printf("Loading ... ");
+
+	ret = spi_xfer(slave, sizeof(fpga_code) * BITS_PER_BYTE, fpga_code, NULL, 0);
+
+	spi_release_bus(slave);
+
+	if ((in_be32(&immr->im_cpm.cp_pbdat) & 0x4000)) {
+		printf("Done\n");
+	} else {
+		printf("FAILED\n");
+		ret = -EINVAL;
+	}
+
+	return ret;
+}
+
 int misc_init_r(void)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
@@ -115,6 +161,18 @@ int misc_init_r(void)
 	/* Set port C13 as GPIO (BTN_ACQ_AL) */
 	clrbits_be16(&iop->iop_pcpar, 0x4);
 	clrbits_be16(&iop->iop_pcdir, 0x4);
+
+	/* Activate SPI */
+	clrsetbits_be32(&immr->im_cpm.cp_pbpar, 0x1, 0xe);
+	setbits_be32(&immr->im_cpm.cp_pbdir, 0xf);
+	clrbits_be32(&immr->im_cpm.cp_pbdat, 0x1);
+
+	if (!load_fpga()) {
+		u8 addr = in_be16((void *)0x1400009c);
+
+		printf("Board address: 0x%2.2x (System %d Rack %d Slot %d)\n",
+		       addr, addr >> 7, (addr >> 4) & 7, addr & 15);
+	}
 
 	/* if BTN_ACQ_AL is pressed then bootdelay is changed to 60 second */
 	if ((in_be16(&iop->iop_pcdat) & 0x0004) == 0)

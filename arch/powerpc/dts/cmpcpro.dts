@@ -140,11 +140,21 @@
 			compatible = "fsl,mpc832x-spi";
 			reg = <0x4c0 0x40>;
 			mode = "cpu";
-			gpios = <&qe_pio_d 3 1>;
+			gpios = <&qe_pio_d 3 1
+				 &qe_pio_c 5 1		/* TEMP mother board */
+				 &qe_pio_c 3 1>;	/* TEMP CPU board */
 			clock-frequency = <0>;
-			eeprom@3 {
+			eeprom@0 {
+				reg = <0>;
 				compatible = "atmel,at25", "cs,eeprom";
-				cell-index = <1>;
+			};
+			temp@1 {
+				reg = <1>;
+				compatible = "ti,lm74";
+			};
+			temp@2 {
+				reg = <2>;
+				compatible = "ti,lm74";
 			};
 		};
 		eth0: ucc@3000 {

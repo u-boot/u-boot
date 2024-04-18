@@ -262,7 +262,7 @@ config MESON_SPIFC_A1
 
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
-	depends on MPC8xx
+	depends on MPC8xx && DM_GPIO
 	help
 	  Enable support for SPI on MPC8XX
 

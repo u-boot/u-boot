@@ -26,6 +26,47 @@
 			timeout-sec = <2>;
 			hw_margin_ms = <1000>;
 		};
+
+		spi: spi@aa0 {
+			status = "okay";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			cell-index = <0>;
+			compatible = "fsl,mpc8xx-spi";
+			gpios = <&csspi 2 0
+				 &csspi 0 0>;
+
+			temp@0 {
+				reg = <0>;
+				compatible = "ti,lm74";
+			};
+			fpga@1 {
+				reg = <1>;
+			};
+		};
+	};
+
+	localbus@ff000100 {
+		compatible = "s3k,mcr3000-localbus", "fsl,pq1-localbus", "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <1>;
+		reg = <0xff000100 0x40>;		// ORx and BRx register
+
+		ranges = <0 0 0x04000000 0x04000000 // BOOT
+			  1 0 0x00000000 0x04000000 // SDRAM
+			  2 0 0x08000000 0x04000000 // RAMDP
+			  3 0 0x0C000000 0x04000000 // NAND
+			  4 0 0x10000000 0x04000000 // Periphs
+			  5 0 0x14000000 0x04000000 // FPGA
+			  6 0 0x18000000 0x04000000 // mezzanine
+			  7 0 0x1c000000 0x04000000>; // DSP
+
+		csspi: gpio-controller@2 {
+			#gpio-cells = <2>;
+			compatible = "s3k,mcr3000-cpld-csspi";
+			reg = <4 0x802 2>;
+			gpio-controller;
+		};
 	};
 
 	SERIAL: smc@0 {
