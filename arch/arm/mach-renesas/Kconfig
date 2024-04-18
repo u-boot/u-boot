@@ -14,6 +14,7 @@ config RCAR_64
 	imply CMD_GPT
 	imply CMD_MMC_SWRITE if MMC
 	imply CMD_UUID
+	imply OF_UPSTREAM
 	imply SUPPORT_EMMC_RPMB if MMC
 
 choice

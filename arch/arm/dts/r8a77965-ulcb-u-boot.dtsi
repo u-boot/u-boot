@@ -5,8 +5,7 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include "r8a77950-ulcb.dts"
-#include "r8a77950-u-boot.dtsi"
+#include "r8a77965-u-boot.dtsi"
 
 / {
 	cpld {
@@ -47,6 +46,7 @@
 	sd-uhs-sdr25;
 	sd-uhs-sdr104;
 	max-frequency = <208000000>;
+	status = "okay";
 };
 
 &sdhi2 {
@@ -54,6 +54,7 @@
 	mmc-hs200-1_8v;
 	mmc-hs400-1_8v;
 	max-frequency = <200000000>;
+	status = "okay";
 };
 
 &vcc_sdhi0 {
