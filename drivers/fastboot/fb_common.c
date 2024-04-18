@@ -11,7 +11,6 @@
  */
 
 #include <bcb.h>
-#include <bootm.h>
 #include <common.h>
 #include <command.h>
 #include <env.h>
@@ -21,7 +20,7 @@
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer
  */
-ulong fastboot_buf_addr;
+void *fastboot_buf_addr;
 
 /**
  * fastboot_buf_size - size of the fastboot download buffer
@@ -143,19 +142,22 @@ void (*fastboot_get_progress_callback(void))(const char *)
  */
 void fastboot_boot(void)
 {
-	char *s = NULL;
+	char *s;
 
-	if (IS_ENABLED(CONFIG_CMDLINE)) {
-		s = env_get("fastboot_bootcmd");
-		if (s)
-			run_command(s, CMD_FLAG_ENV);
-	}
+	s = env_get("fastboot_bootcmd");
+	if (s) {
+		run_command(s, CMD_FLAG_ENV);
+	} else if (IS_ENABLED(CONFIG_CMD_BOOTM)) {
+		static char boot_addr_start[20];
+		static char *const bootm_args[] = {
+			"bootm", boot_addr_start, NULL
+		};
 
-	if (!s && IS_ENABLED(CONFIG_BOOTM)) {
-		int ret;
+		snprintf(boot_addr_start, sizeof(boot_addr_start) - 1,
+			 "0x%p", fastboot_buf_addr);
+		printf("Booting kernel at %s...\n\n\n", boot_addr_start);
 
-		printf("Booting kernel at %lx...\n\n\n", fastboot_buf_addr);
-		ret = bootm_boot_start(fastboot_buf_addr, NULL);
+		do_bootm(NULL, 0, 2, bootm_args);
 
 		/*
 		 * This only happens if image is somehow faulty so we start
@@ -212,9 +214,16 @@ void fastboot_set_progress_callback(void (*progress)(const char *msg))
 	fastboot_progress_callback = progress;
 }
 
-void fastboot_init(ulong buf_addr, u32 buf_size)
+/*
+ * fastboot_init() - initialise new fastboot protocol session
+ *
+ * @buf_addr: Pointer to download buffer, or NULL for default
+ * @buf_size: Size of download buffer, or zero for default
+ */
+void fastboot_init(void *buf_addr, u32 buf_size)
 {
-	fastboot_buf_addr = buf_addr ? buf_addr : CONFIG_FASTBOOT_BUF_ADDR;
+	fastboot_buf_addr = buf_addr ? buf_addr :
+				       (void *)CONFIG_FASTBOOT_BUF_ADDR;
 	fastboot_buf_size = buf_size ? buf_size : CONFIG_FASTBOOT_BUF_SIZE;
 	fastboot_set_progress_callback(NULL);
 }

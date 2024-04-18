@@ -2,6 +2,39 @@ menu "Boot options"
 
 menu "Boot images"
 
+config ANDROID_BOOT_IMAGE
+	bool "Android Boot Images"
+	default y if FASTBOOT
+	help
+	  This enables support for booting images which use the Android
+	  image format header.
+
+config TIMESTAMP
+	bool "Show image date and time when displaying image information"
+	default y if CMD_DATE
+	help
+	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
+	  an image is printed by image commands like bootm or iminfo. This
+	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
+	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
+	  loaded that does not, the message 'Wrong FIT format: no timestamp'
+	  is shown.
+
+config BUTTON_CMD
+	bool "Support for running a command if a button is held during boot"
+	depends on CMDLINE
+	depends on BUTTON
+	help
+	  For many embedded devices it's useful to enter a special flashing mode
+	  such as fastboot mode when a button is held during boot. This option
+	  allows arbitrary commands to be assigned to specific buttons. These will
+	  be run after "preboot" if the button is held. Configuration is done via
+	  the environment variables "button_cmd_N_name" and "button_cmd_N" where n is
+	  the button number (starting from 0). e.g:
+
+	    "button_cmd_0_name=vol_down"
+	    "button_cmd_0=fastboot usb 0"
+
 menuconfig FIT
 	bool "Flattened Image Tree (FIT)"
 	select HASH
@@ -688,100 +721,6 @@ config BOOTMETH_SCRIPT
 
 endif # BOOTSTD
 
-config BOOTM
-	bool "Support booting an application image from memory"
-	default y
-	help
-	  This is the main boot implementation in U-Boot, supporting a wide
-	  variety of features including FIT and legacy-image boot, kernel and
-	  FDT selection, setting up of the command line for the OS and many
-	  other features.
-
-	  This option should normally be enabled. It is used to implement the
-	  'bootm' command.
-
-config BOOTM_LINUX
-	bool "Support booting Linux OS images"
-	depends on BOOTM || CMD_BOOTZ || CMD_BOOTI
-	default y
-	help
-	  Support booting the Linux kernel directly via a command such as bootm
-	  or booti or bootz.
-
-config BOOTM_NETBSD
-	bool "Support booting NetBSD (non-EFI) loader images"
-	depends on BOOTM
-	default y
-	help
-	  Support booting NetBSD via the bootm command.
-
-config BOOTM_OPENRTOS
-	bool "Support booting OPENRTOS / FreeRTOS images"
-	depends on BOOTM
-	help
-	  Support booting OPENRTOS / FreeRTOS via the bootm command.
-
-config BOOTM_OSE
-	bool "Support booting Enea OSE images"
-	depends on (ARM && (ARM64 || CPU_V7A || CPU_V7R) || SANDBOX || PPC || X86)
-	depends on BOOTM
-	help
-	  Support booting Enea OSE images via the bootm command.
-
-config BOOTM_PLAN9
-	bool "Support booting Plan9 OS images"
-	depends on BOOTM
-	default y
-	help
-	  Support booting Plan9 images via the bootm command.
-
-config BOOTM_RTEMS
-	bool "Support booting RTEMS OS images"
-	depends on BOOTM
-	default y
-	help
-	  Support booting RTEMS images via the bootm command.
-
-config BOOTM_VXWORKS
-	bool "Support booting VxWorks OS images"
-	depends on BOOTM
-	default y
-	help
-	  Support booting VxWorks images via the bootm command.
-
-config ANDROID_BOOT_IMAGE
-	bool "Android Boot Images"
-	default y if FASTBOOT
-	help
-	  This enables support for booting images which use the Android
-	  image format header.
-
-config TIMESTAMP
-	bool "Show image date and time when displaying image information"
-	default y if CMD_DATE
-	help
-	  When CONFIG_TIMESTAMP is selected, the timestamp (date and time) of
-	  an image is printed by image commands like bootm or iminfo. This
-	  is shown as 'Timestamp: xxx' and 'Created: xxx'. If this option is
-	  enabled, then U-Boot requires FITs to have a timestamp. If a FIT is
-	  loaded that does not, the message 'Wrong FIT format: no timestamp'
-	  is shown.
-
-config BUTTON_CMD
-	bool "Support for running a command if a button is held during boot"
-	depends on CMDLINE
-	depends on BUTTON
-	help
-	  For many embedded devices it's useful to enter a special flashing mode
-	  such as fastboot mode when a button is held during boot. This option
-	  allows arbitrary commands to be assigned to specific buttons. These will
-	  be run after "preboot" if the button is held. Configuration is done via
-	  the environment variables "button_cmd_N_name" and "button_cmd_N" where n is
-	  the button number (starting from 0). e.g:
-
-	    "button_cmd_0_name=vol_down"
-	    "button_cmd_0=fastboot usb 0"
-
 config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
 	default y if !FIT_SIGNATURE && !TI_SECURE_DEVICE
@@ -826,7 +765,7 @@ endif # MEASURED_BOOT
 
 config SYS_BOOTM_LEN
 	hex "Maximum size of a decompresed OS image"
-	depends on BOOTM || CMD_BOOTI || CMD_BOOTZ || \
+	depends on CMD_BOOTM || CMD_BOOTI || CMD_BOOTZ || \
 		LEGACY_IMAGE_FORMAT || SPL_LEGACY_IMAGE_FORMAT
 	default 0x4000000 if PPC || ARM64
 	default 0x1000000 if X86 || ARCH_MX6 || ARCH_MX7
