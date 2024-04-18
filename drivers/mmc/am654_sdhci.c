@@ -295,6 +295,11 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 			return ret;
 
 		plat->dll_enable = true;
+		if (mode == MMC_HS_400) {
+			plat->itap_del_ena[mode] = ENABLE;
+			plat->itap_del_sel[mode] = plat->itap_del_sel[mode - 1];
+		}
+
 		am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode],
 					  plat->itap_del_ena[mode]);
 	} else {
@@ -485,6 +490,9 @@ static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	itap = am654_sdhci_calculate_itap(dev, fail_window, fail_index,
 					  plat->dll_enable);
+
+	/* Save ITAPDLY */
+	plat->itap_del_sel[mode] = itap;
 
 	am654_sdhci_write_itapdly(plat, itap, plat->itap_del_ena[mode]);
 
