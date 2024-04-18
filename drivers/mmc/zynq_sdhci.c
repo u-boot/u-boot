@@ -865,7 +865,8 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		ret = sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
 		if (ret)
 			return ret;
-	} else if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	} else if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
+		    IS_ENABLED(CONFIG_ARCH_VERSAL_NET)) &&
 		   device_is_compatible(dev, "xlnx,versal-8.9a")) {
 		ret = sdhci_versal_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
@@ -941,7 +942,8 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
+	     IS_ENABLED(CONFIG_ARCH_VERSAL_NET)) &&
 	    device_is_compatible(dev, "xlnx,versal-8.9a")) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_iclk_phases[i];
