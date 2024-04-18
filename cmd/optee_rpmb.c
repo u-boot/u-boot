@@ -87,8 +87,10 @@ static int read_persistent_value(const char *name,
 
 	rc = tee_shm_alloc(tee, name_size,
 			   TEE_SHM_ALLOC, &shm_name);
-	if (rc)
-		return -ENOMEM;
+	if (rc) {
+		rc = -ENOMEM;
+		goto close_session;
+	}
 
 	rc = tee_shm_alloc(tee, buffer_size,
 			   TEE_SHM_ALLOC, &shm_buf);
@@ -125,6 +127,9 @@ out:
 	tee_shm_free(shm_buf);
 free_name:
 	tee_shm_free(shm_name);
+close_session:
+	tee_close_session(tee, session);
+	tee = NULL;
 
 	return rc;
 }
@@ -139,17 +144,20 @@ static int write_persistent_value(const char *name,
 	struct tee_param param[2];
 	size_t name_size = strlen(name) + 1;
 
+	if (!value_size)
+		return -EINVAL;
+
 	if (!tee) {
 		if (avb_ta_open_session())
 			return -ENODEV;
 	}
-	if (!value_size)
-		return -EINVAL;
 
 	rc = tee_shm_alloc(tee, name_size,
 			   TEE_SHM_ALLOC, &shm_name);
-	if (rc)
-		return -ENOMEM;
+	if (rc) {
+		rc = -ENOMEM;
+		goto close_session;
+	}
 
 	rc = tee_shm_alloc(tee, value_size,
 			   TEE_SHM_ALLOC, &shm_buf);
@@ -178,6 +186,9 @@ out:
 	tee_shm_free(shm_buf);
 free_name:
 	tee_shm_free(shm_name);
+close_session:
+	tee_close_session(tee, session);
+	tee = NULL;
 
 	return rc;
 }
