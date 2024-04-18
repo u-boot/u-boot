@@ -419,7 +419,7 @@ void *efi_get_var(const u16 *name, const efi_guid_t *vendor, efi_uintn_t *size)
 }
 
 /**
- * efi_var_collect() - Copy EFI variables mstching attributes mask
+ * efi_var_collect() - Copy EFI variables matching attributes mask
  *
  * @bufp:	buffer containing variable collection
  * @lenp:	buffer length
