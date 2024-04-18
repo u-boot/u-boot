@@ -17,7 +17,7 @@
 #include "imx6dl.dtsi"
 #include "imx6qdl-u-boot.dtsi"
 #include <dt-bindings/pwm/pwm.h>
-#include <include/dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "PPT50";
