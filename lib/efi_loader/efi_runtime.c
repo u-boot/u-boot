@@ -130,6 +130,8 @@ efi_status_t efi_init_runtime_supported(void)
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
 	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE)) {
+		u8 s = 0;
+
 		ret = efi_set_variable_int(u"RTStorageVolatile",
 					   &efi_guid_efi_rt_var_file,
 					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
@@ -139,6 +141,29 @@ efi_status_t efi_init_runtime_supported(void)
 					   EFI_VAR_FILE_NAME, false);
 		if (ret != EFI_SUCCESS) {
 			log_err("Failed to set RTStorageVolatile\n");
+			return ret;
+		}
+		/*
+		 * This variable needs to be visible so users can read it,
+		 * but the real contents are going to be filled during
+		 * GetVariable
+		 */
+		ret = efi_set_variable_int(u"VarToFile",
+					   &efi_guid_efi_rt_var_file,
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS |
+					   EFI_VARIABLE_READ_ONLY,
+					   sizeof(s),
+					   &s, false);
+		if (ret != EFI_SUCCESS) {
+			log_err("Failed to set VarToFile\n");
+			efi_set_variable_int(u"RTStorageVolatile",
+					     &efi_guid_efi_rt_var_file,
+					     EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					     EFI_VARIABLE_RUNTIME_ACCESS |
+					     EFI_VARIABLE_READ_ONLY,
+					     0, NULL, false);
+
 			return ret;
 		}
 		rt_table->runtime_services_supported |= EFI_RT_SUPPORTED_SET_VARIABLE;

@@ -61,6 +61,23 @@ efi_var_mem_compare(struct efi_var_entry *var, const efi_guid_t *guid,
 	return match;
 }
 
+/**
+ * efi_var_entry_len() - Get the entry len including headers & name
+ *
+ * @var:	pointer to variable start
+ *
+ * Return:	8-byte aligned variable entry length
+ */
+
+u32 __efi_runtime efi_var_entry_len(struct efi_var_entry *var)
+{
+	if (!var)
+		return 0;
+
+	return ALIGN((sizeof(u16) * (u16_strlen(var->name) + 1)) +
+		     var->length + sizeof(*var), 8);
+}
+
 struct efi_var_entry __efi_runtime
 *efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
 		  struct efi_var_entry **next)
@@ -185,53 +202,6 @@ u64 __efi_runtime efi_var_mem_free(void)
 }
 
 /**
- * efi_var_mem_bs_del() - delete boot service only variables
- */
-static void efi_var_mem_bs_del(void)
-{
-	struct efi_var_entry *var = efi_var_buf->var;
-
-	for (;;) {
-		struct efi_var_entry *last;
-
-		last = (struct efi_var_entry *)
-		       ((uintptr_t)efi_var_buf + efi_var_buf->length);
-		if (var >= last)
-			break;
-		if (var->attr & EFI_VARIABLE_RUNTIME_ACCESS) {
-			u16 *data;
-
-			/* skip variable */
-			for (data = var->name; *data; ++data)
-				;
-			++data;
-			var = (struct efi_var_entry *)
-			      ALIGN((uintptr_t)data + var->length, 8);
-		} else {
-			/* delete variable */
-			efi_var_mem_del(var);
-		}
-	}
-}
-
-/**
- * efi_var_mem_notify_exit_boot_services() - ExitBootService callback
- *
- * @event:	callback event
- * @context:	callback context
- */
-static void EFIAPI
-efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
-{
-	EFI_ENTRY("%p, %p", event, context);
-
-	/* Delete boot service only variables */
-	efi_var_mem_bs_del();
-
-	EFI_EXIT(EFI_SUCCESS);
-}
-
-/**
  * efi_var_mem_notify_exit_boot_services() - SetVirtualMemoryMap callback
  *
  * @event:	callback event
@@ -261,11 +231,7 @@ efi_status_t efi_var_mem_init(void)
 	efi_var_buf->magic = EFI_VAR_FILE_MAGIC;
 	efi_var_buf->length = (uintptr_t)efi_var_buf->var -
 			      (uintptr_t)efi_var_buf;
-	/* crc32 for 0 bytes = 0 */
 
-	ret = efi_create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_CALLBACK,
-			       efi_var_mem_notify_exit_boot_services, NULL,
-			       NULL, &event);
 	if (ret != EFI_SUCCESS)
 		return ret;
 	ret = efi_create_event(EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE, TPL_CALLBACK,
@@ -276,10 +242,71 @@ efi_status_t efi_var_mem_init(void)
 	return ret;
 }
 
+/**
+ * efi_var_collect_mem() - Copy EFI variables matching attributes mask from
+ *                         efi_var_buf
+ *
+ * @buf:	buffer containing variable collection
+ * @lenp:	buffer length
+ * @mask:	mask of matched attributes
+ *
+ * Return:	Status code
+ */
+efi_status_t __efi_runtime
+efi_var_collect_mem(struct efi_var_file *buf, efi_uintn_t *lenp, u32 mask)
+{
+	static struct efi_var_file __efi_runtime_data hdr = {
+		.magic = EFI_VAR_FILE_MAGIC,
+	};
+	struct efi_var_entry *last, *var, *var_to;
+
+	hdr.length = sizeof(struct efi_var_file);
+
+	var = efi_var_buf->var;
+	last = (struct efi_var_entry *)
+	       ((uintptr_t)efi_var_buf + efi_var_buf->length);
+	if (buf)
+		var_to = buf->var;
+
+	while (var < last) {
+		u32 len = efi_var_entry_len(var);
+
+		if ((var->attr & mask) != mask) {
+			var = (void *)((uintptr_t)var + len);
+			continue;
+		}
+
+		hdr.length += len;
+
+		if (buf && hdr.length <= *lenp) {
+			efi_memcpy_runtime(var_to, var, len);
+			var_to = (void *)var_to + len;
+		}
+		var = (void *)var + len;
+	}
+
+	if (!buf && hdr.length <= *lenp) {
+		*lenp = hdr.length;
+		return EFI_INVALID_PARAMETER;
+	}
+
+	if (!buf || hdr.length > *lenp) {
+		*lenp = hdr.length;
+		return EFI_BUFFER_TOO_SMALL;
+	}
+	hdr.crc32 = crc32(0, (u8 *)buf->var,
+			  hdr.length - sizeof(struct efi_var_file));
+
+	efi_memcpy_runtime(buf, &hdr, sizeof(hdr));
+	*lenp = hdr.length;
+
+	return EFI_SUCCESS;
+}
+
 efi_status_t __efi_runtime
 efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
 		     u32 *attributes, efi_uintn_t *data_size, void *data,
-		     u64 *timep)
+		     u64 *timep, u32 mask)
 {
 	efi_uintn_t old_size;
 	struct efi_var_entry *var;
@@ -291,10 +318,21 @@ efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
 	if (!var)
 		return EFI_NOT_FOUND;
 
+	/*
+	 * This function is used at runtime to dump EFI variables.
+	 * The memory backend we keep around has BS-only variables as
+	 * well. At runtime we filter them here
+	 */
+	if (mask && !((var->attr & mask) == mask))
+		return EFI_NOT_FOUND;
+
 	if (attributes)
 		*attributes = var->attr;
 	if (timep)
 		*timep = var->time;
+
+	if (!u16_strcmp(variable_name, u"VarToFile"))
+		return efi_var_collect_mem(data, data_size, EFI_VARIABLE_NON_VOLATILE);
 
 	old_size = *data_size;
 	*data_size = var->length;
@@ -315,7 +353,8 @@ efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
 
 efi_status_t __efi_runtime
 efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size,
-			       u16 *variable_name, efi_guid_t *vendor)
+			       u16 *variable_name, efi_guid_t *vendor,
+			       u32 mask)
 {
 	struct efi_var_entry *var;
 	efi_uintn_t len, old_size;
@@ -324,6 +363,7 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size,
 	if (!variable_name_size || !variable_name || !vendor)
 		return EFI_INVALID_PARAMETER;
 
+skip:
 	len = *variable_name_size >> 1;
 	if (u16_strnlen(variable_name, len) == len)
 		return EFI_INVALID_PARAMETER;
@@ -346,6 +386,11 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size,
 
 	efi_memcpy_runtime(variable_name, var->name, *variable_name_size);
 	efi_memcpy_runtime(vendor, &var->guid, sizeof(efi_guid_t));
+
+	if (mask && !((var->attr & mask) == mask)) {
+		*variable_name_size = old_size;
+		goto skip;
+	}
 
 	return EFI_SUCCESS;
 }

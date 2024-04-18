@@ -209,14 +209,16 @@ efi_get_variable_int(const u16 *variable_name, const efi_guid_t *vendor,
 		     u32 *attributes, efi_uintn_t *data_size, void *data,
 		     u64 *timep)
 {
-	return efi_get_variable_mem(variable_name, vendor, attributes, data_size, data, timep);
+	return efi_get_variable_mem(variable_name, vendor, attributes, data_size,
+				    data, timep, 0);
 }
 
 efi_status_t __efi_runtime
 efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 			       u16 *variable_name, efi_guid_t *vendor)
 {
-	return efi_get_next_variable_name_mem(variable_name_size, variable_name, vendor);
+	return efi_get_next_variable_name_mem(variable_name_size, variable_name,
+					      vendor, 0);
 }
 
 /**
