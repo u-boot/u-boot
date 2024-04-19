@@ -81,7 +81,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-evb.dtb \
 	rk3288-firefly.dtb \
 	rk3288-miqi.dtb \
-	rk3288-phycore-rdk.dtb \
 	rk3288-popmetal.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-rock-pi-n8.dtb \
