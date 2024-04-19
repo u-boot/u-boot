@@ -17,6 +17,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "phycore_am64x"
 
+source "board/phytec/common/Kconfig"
+
 endif
 
 if TARGET_PHYCORE_AM64X_R5
@@ -29,5 +31,7 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
        default "phycore_am64x"
+
+source "board/phytec/common/Kconfig"
 
 endif
