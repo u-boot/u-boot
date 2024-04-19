@@ -17,6 +17,7 @@ config CMD_STM32PROG
 config CMD_STM32PROG_USB
 	bool "support stm32prog over USB"
 	depends on CMD_STM32PROG
+	depends on USB_GADGET_DOWNLOAD
 	default y
 	help
 		activate the command "stm32prog usb" for STM32MP soc family

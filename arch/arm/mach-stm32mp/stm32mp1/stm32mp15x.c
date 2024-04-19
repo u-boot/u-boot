@@ -14,6 +14,7 @@
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <linux/bitfield.h>
 
 /* RCC register */
 #define RCC_TZCR		(STM32_RCC_BASE + 0x00)
@@ -41,6 +42,9 @@
 #define TZC_REGION_ID_ACCESS0	(STM32_TZC_BASE + 0x114)
 
 #define TAMP_CR1		(STM32_TAMP_BASE + 0x00)
+#define TAMP_SMCR		(STM32_TAMP_BASE + 0x20)
+#define TAMP_SMCR_BKPRWDPROT	GENMASK(7, 0)
+#define TAMP_SMCR_BKPWDPROT	GENMASK(23, 16)
 
 #define PWR_CR1			(STM32_PWR_BASE + 0x00)
 #define PWR_MCUCR		(STM32_PWR_BASE + 0x14)
@@ -135,6 +139,18 @@ static void security_init(void)
 	 * Bit 16 ITAMP1E: RTC power domain supply monitoring
 	 */
 	writel(0x0, TAMP_CR1);
+
+	/*
+	 * TAMP: Configure non-zero secure protection settings. This is
+	 * checked by BootROM function 35ac on OTP-CLOSED device during
+	 * CPU core 1 release from endless loop. If secure protection
+	 * fields are zero, the core 1 is not released from endless
+	 * loop on second SGI0.
+	 */
+	clrsetbits_le32(TAMP_SMCR,
+			TAMP_SMCR_BKPRWDPROT | TAMP_SMCR_BKPWDPROT,
+			FIELD_PREP(TAMP_SMCR_BKPRWDPROT, 0x20) |
+			FIELD_PREP(TAMP_SMCR_BKPWDPROT, 0x20));
 
 	/* GPIOZ: deactivate the security */
 	writel(BIT(0), RCC_MP_AHB5ENSETR);
@@ -322,8 +338,23 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 
 	get_cpu_string_offsets(&type, &pkg, &rev);
 
-	snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s",
-		 soc_type[type], soc_pkg[pkg], soc_rev[rev]);
+	if (bsec_dbgswenable()) {
+		snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s Rev.%s",
+			 soc_type[type], soc_pkg[pkg], soc_rev[rev]);
+	} else {
+		/*
+		 * SoC revision is only accessible via DBUMCU IDC register,
+		 * which requires BSEC.DENABLE DBGSWENABLE bit to be set to
+		 * make the register accessible, otherwise an access to the
+		 * register triggers bus fault. As BSEC.DBGSWENABLE is zero
+		 * in case of an OTP-CLOSED system, do NOT set DBGSWENABLE
+		 * bit as this might open a brief window for timing attacks.
+		 * Instead, report that this system is OTP-CLOSED and do not
+		 * report any SoC revision to avoid confusing users.
+		 */
+		snprintf(name, SOC_NAME_SIZE, "STM32MP%s%s SEC/C",
+			 soc_type[type], soc_pkg[pkg]);
+	}
 }
 
 static void setup_soc_type_pkg_rev(void)

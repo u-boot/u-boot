@@ -220,9 +220,9 @@ static void stm32_sdmmc2_start_data(struct udevice *dev,
 
 	if (data->flags & MMC_DATA_READ) {
 		data_ctrl |= SDMMC_DCTRL_DTDIR;
-		idmabase0 = (u32)data->dest;
+		idmabase0 = (u32)(long)data->dest;
 	} else {
-		idmabase0 = (u32)data->src;
+		idmabase0 = (u32)(long)data->src;
 	}
 
 	/* Set the SDMMC DataLength value */
@@ -463,8 +463,8 @@ retry_cmd:
 
 	stm32_sdmmc2_start_cmd(dev, cmd, cmdat, &ctx);
 
-	dev_dbg(dev, "send cmd %d data: 0x%x @ 0x%x\n",
-		cmd->cmdidx, data ? ctx.data_length : 0, (unsigned int)data);
+	dev_dbg(dev, "send cmd %d data: 0x%x @ 0x%p\n",
+		cmd->cmdidx, data ? ctx.data_length : 0, data);
 
 	ret = stm32_sdmmc2_end_cmd(dev, cmd, &ctx);
 
@@ -789,6 +789,7 @@ static int stm32_sdmmc2_bind(struct udevice *dev)
 
 static const struct udevice_id stm32_sdmmc2_ids[] = {
 	{ .compatible = "st,stm32-sdmmc2" },
+	{ .compatible = "st,stm32mp25-sdmmc2" },
 	{ }
 };
 
