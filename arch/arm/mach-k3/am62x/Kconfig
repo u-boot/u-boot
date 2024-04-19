@@ -31,6 +31,7 @@ config TARGET_PHYCORE_AM62X_A53
 	select ARM64
 	select BINMAN
 	select OF_SYSTEM_SETUP
+	imply OF_UPSTREAM
 
 config TARGET_PHYCORE_AM62X_R5
 	bool "PHYTEC phyCORE-AM62x running on R5"
