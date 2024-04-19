@@ -540,7 +540,8 @@ complicated as possible''')
             with open('.patman', 'w', buffering=1) as f:
                 f.write('[settings]\n'
                         'get_maintainer_script: dummy-script.sh\n'
-                        'check_patch: False\n')
+                        'check_patch: False\n'
+                        'add_maintainers: True\n')
             with open('dummy-script.sh', 'w', buffering=1) as f:
                 f.write('#!/usr/bin/env python\n'
                         'print("hello@there.com")\n')
