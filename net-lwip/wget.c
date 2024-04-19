@@ -166,3 +166,19 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 
 	return CMD_RET_FAILURE;
 }
+
+#if defined(CONFIG_EFI_HTTP_BOOT)
+int wget_with_dns(ulong dst_addr, char *uri)
+{
+	char addr_str[11];
+	struct cmd_tbl cmdtp = {};
+	char *argv[] = { "wget", addr_str, uri };
+
+	snprintf(addr_str, sizeof(addr_str), "0x%lx", dst_addr);
+
+	if (do_wget(&cmdtp, 0, ARRAY_SIZE(argv), argv) == CMD_RET_SUCCESS)
+		return 0;
+
+	return -1;
+}
+#endif
