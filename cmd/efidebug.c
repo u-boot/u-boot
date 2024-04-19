@@ -1404,8 +1404,6 @@ static __maybe_unused int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 	if (ret && exit_data)
 		efi_free_pool(exit_data);
 
-	efi_restore_gd();
-
 	free(load_options);
 	return CMD_RET_SUCCESS;
 }
