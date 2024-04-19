@@ -10,18 +10,18 @@
 
 #define MD5_SUM_LEN	16
 
-struct MD5Context {
+typedef struct MD5Context {
 	__u32 buf[4];
 	__u32 bits[2];
 	union {
 		unsigned char in[64];
 		__u32 in32[16];
 	};
-};
+} MD5Context;
 
-void MD5Init(struct MD5Context *ctx);
-void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len);
-void MD5Final(unsigned char digest[16], struct MD5Context *ctx);
+void MD5Init(MD5Context *ctx);
+void MD5Update(MD5Context *ctx, unsigned char const *buf, unsigned int len);
+void MD5Final(unsigned char digest[16], MD5Context *ctx);
 
 /*
  * Calculate and store in 'output' the MD5 digest of 'len' bytes at
