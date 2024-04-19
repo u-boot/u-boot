@@ -35,6 +35,7 @@ config TARGET_PHYCORE_AM64X_A53
 	select BINMAN
 	imply BOARD
 	imply SPL_BOARD
+	imply OF_UPSTREAM
 
 config TARGET_PHYCORE_AM64X_R5
 	bool "PHYTEC phyCORE-AM64x running on R5"

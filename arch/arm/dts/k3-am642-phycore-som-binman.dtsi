@@ -121,7 +121,7 @@
 #endif
 
 #ifdef CONFIG_TARGET_PHYCORE_AM64X_A53
-#define SPL_AM642_PHYBOARD_ELECTRA_DTB "spl/dts/k3-am642-phyboard-electra-rdk.dtb"
+#define SPL_AM642_PHYBOARD_ELECTRA_DTB "spl/dts/ti/k3-am642-phyboard-electra-rdk.dtb"
 #define AM642_PHYBOARD_ELECTRA_DTB "u-boot.dtb"
 
 &binman {
@@ -288,10 +288,6 @@
 #endif
 
 #ifdef CONFIG_TARGET_PHYCORE_AM64X_A53
-
-#define SPL_AM642_PHYBOARD_ELECTRA_DTB "spl/dts/k3-am642-phyboard-electra-rdk.dtb"
-
-#define AM642_PHYBOARD_ELECTRA_DTB "u-boot.dtb"
 
 &binman {
 	ti-spl {
