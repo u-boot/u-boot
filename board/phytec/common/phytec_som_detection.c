@@ -128,7 +128,7 @@ void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
-	if (data->payload.api_rev < PHYTEC_API_REV2)
+	if (!data->valid || data->payload.api_rev < PHYTEC_API_REV2)
 		return;
 
 	api2 = &data->payload.data.data_api2;
@@ -190,6 +190,9 @@ char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
+	if (!data->valid)
+		return NULL;
+
 	if (data->payload.api_rev < PHYTEC_API_REV2)
 		opt = data->payload.data.data_api0.opt;
 	else
@@ -205,7 +208,7 @@ u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
-	if (data->payload.api_rev < PHYTEC_API_REV2)
+	if (!data->valid || data->payload.api_rev < PHYTEC_API_REV2)
 		return PHYTEC_EEPROM_INVAL;
 
 	api2 = &data->payload.data.data_api2;
@@ -217,7 +220,8 @@ u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
 {
 	if (!data)
 		data = &eeprom_data;
-	if (data->payload.api_rev < PHYTEC_API_REV2)
+
+	if (!data->valid || data->payload.api_rev < PHYTEC_API_REV2)
 		return PHYTEC_EEPROM_INVAL;
 
 	return data->payload.data.data_api2.som_type;
