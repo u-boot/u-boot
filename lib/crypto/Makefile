@@ -11,6 +11,7 @@ ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 obj-$(CONFIG_$(SPL_)ASYMMETRIC_PUBLIC_KEY_SUBTYPE) += public_key.o
 endif
 
+ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 #
 # RSA public key parser
 #
@@ -27,6 +28,7 @@ endif
 $(obj)/rsa_helper.o: $(obj)/rsapubkey.asn1.h
 ifdef CONFIG_SPL_BUILD
 CFLAGS_rsa_helper.o += -I$(obj)
+endif
 endif
 
 ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
