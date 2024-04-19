@@ -51,17 +51,17 @@ static void hash_finish_crc32(void *ctx, void *obuf)
 /* MD5 */
 static void hash_init_md5(void *ctx)
 {
-	MD5Init((struct MD5Context *)ctx);
+	MD5Init((MD5Context *)ctx);
 }
 
 static void hash_update_md5(void *ctx, const void *ibuf, uint32_t ilen)
 {
-	MD5Update((struct MD5Context *)ctx, ibuf, ilen);
+	MD5Update((MD5Context *)ctx, ibuf, ilen);
 }
 
 static void hash_finish_md5(void *ctx, void *obuf)
 {
-	MD5Final(obuf, (struct MD5Context *)ctx);
+	MD5Final(obuf, (MD5Context *)ctx);
 }
 
 /* SHA1 */
@@ -159,7 +159,7 @@ static struct sw_hash_impl sw_hash_impl[HASH_ALGO_NUM] = {
 		.init = hash_init_md5,
 		.update = hash_update_md5,
 		.finish = hash_finish_md5,
-		.ctx_alloc_sz = sizeof(struct MD5Context),
+		.ctx_alloc_sz = sizeof(MD5Context),
 	},
 
 	[HASH_ALGO_SHA1] = {
