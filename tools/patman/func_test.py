@@ -211,6 +211,7 @@ class TestFunctional(unittest.TestCase):
             'u-boot': ['u-boot@lists.denx.de'],
             'simon': [self.leb],
             'fred': [self.fred],
+            'joe': [self.joe],
         }
 
         text = self._get_text('test01.txt')
@@ -259,6 +260,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Postfix:\t  some-branch', next(lines))
         self.assertEqual('Cover: 4 lines', next(lines))
         self.assertEqual('      Cc:  %s' % self.fred, next(lines))
+        self.assertEqual('      Cc:  %s' % self.joe, next(lines))
         self.assertEqual('      Cc:  %s' % self.leb,
                          next(lines))
         self.assertEqual('      Cc:  %s' % mel, next(lines))
@@ -272,7 +274,8 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(('%s %s\0%s' % (args[0], rick, stefan)), cc_lines[0])
         self.assertEqual(
-            '%s %s\0%s\0%s\0%s' % (args[1], self.fred, self.leb, rick, stefan),
+            '%s %s\0%s\0%s\0%s\0%s' % (args[1], self.fred, self.joe, self.leb,
+                                       rick, stefan),
             cc_lines[1])
 
         expected = '''

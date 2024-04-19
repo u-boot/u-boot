@@ -350,7 +350,7 @@ Cover-changes: n
         - This line will only appear in the cover letter
         <blank line>
 
-Patch-cc: Their Name <email>
+Patch-cc / Commit-cc: Their Name <email>
     This copies a single patch to another email address. Note that the
     Cc: used by git send-email is ignored by patman, but will be
     interpreted by git send-email if you use it.

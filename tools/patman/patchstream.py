@@ -475,6 +475,8 @@ class PatchStream:
             elif name == 'changes':
                 self.in_change = 'Commit'
                 self.change_version = self._parse_version(value, line)
+            elif name == 'cc':
+                self.commit.add_cc(value.split(','))
             else:
                 self._add_warn('Line %d: Ignoring Commit-%s' %
                                (self.linenum, name))
