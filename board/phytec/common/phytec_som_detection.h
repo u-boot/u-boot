@@ -76,4 +76,9 @@ char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data);
 
+#if IS_ENABLED(CONFIG_CMD_EXTENSION)
+struct extension *phytec_add_extension(const char *name, const char *overlay,
+				       const char *other);
+#endif /* IS_ENABLED(CONFIG_CMD_EXTENSION) */
+
 #endif /* _PHYTEC_SOM_DETECTION_H */

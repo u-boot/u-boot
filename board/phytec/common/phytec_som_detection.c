@@ -9,6 +9,8 @@
 #include <dm/uclass.h>
 #include <i2c.h>
 #include <u-boot/crc.h>
+#include <malloc.h>
+#include <extension_board.h>
 
 #include "phytec_som_detection.h"
 
@@ -213,6 +215,28 @@ u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
 	return data->data.data_api2.som_type;
 }
 
+#if IS_ENABLED(CONFIG_CMD_EXTENSION)
+struct extension *phytec_add_extension(const char *name, const char *overlay,
+				       const char *other)
+{
+	struct extension *extension;
+
+	if (strlen(overlay) > sizeof(extension->overlay)) {
+		pr_err("Overlay name %s is longer than %lu.\n", overlay,
+		       sizeof(extension->overlay));
+		return NULL;
+	}
+
+	extension = calloc(1, sizeof(struct extension));
+	snprintf(extension->name, sizeof(extension->name), name);
+	snprintf(extension->overlay, sizeof(extension->overlay), overlay);
+	snprintf(extension->other, sizeof(extension->other), other);
+	snprintf(extension->owner, sizeof(extension->owner), "PHYTEC");
+
+	return extension;
+}
+#endif /* IS_ENABLED(CONFIG_CMD_EXTENSION) */
+
 #else
 
 inline int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
@@ -252,5 +276,14 @@ u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
 }
+
+#if IS_ENABLED(CONFIG_CMD_EXTENSION)
+inline struct extension *phytec_add_extension(const char *name,
+					      const char *overlay,
+					      const char *other)
+{
+	return NULL;
+}
+#endif /* IS_ENABLED(CONFIG_CMD_EXTENSION) */
 
 #endif /* IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION) */
