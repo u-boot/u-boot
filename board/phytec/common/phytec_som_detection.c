@@ -54,6 +54,7 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	int ret, i;
 	unsigned int crc;
 	int *ptr;
+	const unsigned int payload_size = sizeof(struct phytec_eeprom_payload);
 
 	if (!data)
 		data = &eeprom_data;
@@ -64,14 +65,13 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	ret = i2c_get_chip_for_busnum(bus_num, addr, 2, &dev);
 	if (ret) {
 		pr_err("%s: i2c EEPROM not found: %i.\n", __func__, ret);
-		return ret;
+		goto err;
 	}
 
-	ret = dm_i2c_read(dev, 0, (uint8_t *)data,
-			  sizeof(struct phytec_eeprom_data));
+	ret = dm_i2c_read(dev, 0, (uint8_t *)data, payload_size);
 	if (ret) {
-		pr_err("%s: Unable to read EEPROM data\n", __func__);
-		return ret;
+		pr_err("%s: Unable to read EEPROM data: %i\n", __func__, ret);
+		goto err;
 	}
 #else
 	i2c_set_bus_num(bus_num);
@@ -79,36 +79,44 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 		       sizeof(struct phytec_eeprom_data));
 #endif
 
-	if (data->api_rev == 0xff) {
+	if (data->payload.api_rev == 0xff) {
 		pr_err("%s: EEPROM is not flashed. Prototype?\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err;
 	}
 
 	ptr = (int *)data;
-	for (i = 0; i < sizeof(struct phytec_eeprom_data); i++)
+	for (i = 0; i < payload_size; ++i)
 		if (ptr[i] != 0x0)
 			break;
 
-	if (i == sizeof(struct phytec_eeprom_data)) {
+	if (i == payload_size) {
 		pr_err("%s: EEPROM data is all zero. Erased?\n", __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err;
 	}
 
 	/* We are done here for early revisions */
-	if (data->api_rev <= PHYTEC_API_REV1)
+	if (data->payload.api_rev <= PHYTEC_API_REV1) {
+		data->valid = true;
 		return 0;
+	}
 
-	crc = crc8(0, (const unsigned char *)data,
-		   sizeof(struct phytec_eeprom_data));
+	crc = crc8(0, (const unsigned char *)&data->payload, payload_size);
 	debug("%s: crc: %x\n", __func__, crc);
 
 	if (crc) {
-		pr_err("%s: CRC mismatch. EEPROM data is not usable\n",
+		pr_err("%s: CRC mismatch. EEPROM data is not usable.\n",
 		       __func__);
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err;
 	}
 
+	data->valid = true;
 	return 0;
+err:
+	data->valid = false;
+	return ret;
 }
 
 void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
@@ -120,10 +128,10 @@ void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
-	if (data->api_rev < PHYTEC_API_REV2)
+	if (data->payload.api_rev < PHYTEC_API_REV2)
 		return;
 
-	api2 = &data->data.data_api2;
+	api2 = &data->payload.data.data_api2;
 
 	/* Calculate PCB subrevision */
 	pcb_sub_rev = api2->pcb_sub_opt_rev & 0x0f;
@@ -182,10 +190,10 @@ char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
-	if (data->api_rev < PHYTEC_API_REV2)
-		opt = data->data.data_api0.opt;
+	if (data->payload.api_rev < PHYTEC_API_REV2)
+		opt = data->payload.data.data_api0.opt;
 	else
-		opt = data->data.data_api2.opt;
+		opt = data->payload.data.data_api2.opt;
 
 	return opt;
 }
@@ -197,10 +205,10 @@ u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
 	if (!data)
 		data = &eeprom_data;
 
-	if (data->api_rev < PHYTEC_API_REV2)
+	if (data->payload.api_rev < PHYTEC_API_REV2)
 		return PHYTEC_EEPROM_INVAL;
 
-	api2 = &data->data.data_api2;
+	api2 = &data->payload.data.data_api2;
 
 	return api2->pcb_rev;
 }
@@ -209,10 +217,10 @@ u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
 {
 	if (!data)
 		data = &eeprom_data;
-	if (data->api_rev < PHYTEC_API_REV2)
+	if (data->payload.api_rev < PHYTEC_API_REV2)
 		return PHYTEC_EEPROM_INVAL;
 
-	return data->data.data_api2.som_type;
+	return data->payload.data.data_api2.som_type;
 }
 
 #if IS_ENABLED(CONFIG_CMD_EXTENSION)
