@@ -55,7 +55,7 @@ In the example the following steps are executed:
 Configuration
 -------------
 
-The command is only available if CONFIG_CMD_WGET=y.
+The command is only available if CONFIG_CMD_WGET{_LWIP}=y.
 
 TCP Selective Acknowledgments can be enabled via CONFIG_PROT_TCP_SACK=y.
 This will improve the download speed.

@@ -143,8 +143,8 @@ As with built-in networking, you will also want to enable some network
 commands, for example:
 
 CONFIG_CMD_NET=y
-CONFIG_CMD_PING=y
-CONFIG_CMD_DHCP=y
+CONFIG_CMD_PING{_LWIP}=y
+CONFIG_CMD_DHCP{_LWIP}=y
 
 and some bootp options, which tell your board to obtain its subnet,
 gateway IP, host name and boot path from the bootp/dhcp server. These
