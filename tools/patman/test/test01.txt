@@ -51,6 +51,7 @@ Date:   Sat Apr 15 15:39:08 2017 -0600
     Patch-cc: fred
     Commit-cc: joe
     Series-process-log: sort, uniq
+    Commit-added-in: 4
     Series-changes: 4
     - Some changes
     - Multi

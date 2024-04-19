@@ -293,6 +293,7 @@ Changes in v4:
   change
 - Some changes
 - Some notes for the cover letter
+- fdt: Correct cast for sandbox in fdtdec_setup_mem_size_base()
 
 Simon Glass (2):
   pci: Correct cast for sandbox
@@ -342,6 +343,7 @@ Changes in v4:
 - Multi
   line
   change
+- New
 - Some changes
 
 Changes in v2:

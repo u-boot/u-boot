@@ -350,6 +350,19 @@ Cover-changes: n
         - This line will only appear in the cover letter
         <blank line>
 
+Commit-added-in: n
+    Add a change noting the version this commit was added in. This is
+    equivalent to::
+
+        Commit-changes: n
+        - New
+
+        Cover-changes: n
+        - <commit subject>
+
+    It is a convenient shorthand for suppressing the '(no changes in vN)'
+    message.
+
 Patch-cc / Commit-cc: Their Name <email>
     This copies a single patch to another email address. Note that the
     Cc: used by git send-email is ignored by patman, but will be
