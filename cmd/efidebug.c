@@ -1397,6 +1397,8 @@ static __maybe_unused int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 
 	ret = efi_bootmgr_load(&image, &load_options);
 	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_SUCCESS;
 
 	/* We call efi_start_image() even if error for test purpose. */
 	ret = EFI_CALL(efi_start_image(image, &exit_data_size, &exit_data));
