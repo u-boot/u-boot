@@ -46,6 +46,19 @@
 	no-sdio;
 };
 
+&spif {
+	status = "okay";
+
+	spiflash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <75000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		m25p,fast-read;
+	};
+};
+
 &uart0 {
 	status = "okay";
 };
