@@ -29,6 +29,11 @@
 	};
 };
 
+&ethernet0 {
+	status = "okay";
+	phy-mode = "rmii";
+};
+
 &osc {
 	clock-frequency = <25000000>;
 };
