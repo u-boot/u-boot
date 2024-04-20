@@ -209,27 +209,32 @@ efi_get_variable_int(const u16 *variable_name, const efi_guid_t *vendor,
 		     u32 *attributes, efi_uintn_t *data_size, void *data,
 		     u64 *timep)
 {
-	return efi_get_variable_mem(variable_name, vendor, attributes, data_size, data, timep);
+	return efi_get_variable_mem(variable_name, vendor, attributes, data_size,
+				    data, timep, 0);
 }
 
 efi_status_t __efi_runtime
 efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 			       u16 *variable_name, efi_guid_t *vendor)
 {
-	return efi_get_next_variable_name_mem(variable_name_size, variable_name, vendor);
+	return efi_get_next_variable_name_mem(variable_name_size, variable_name,
+					      vendor, 0);
 }
 
-efi_status_t efi_set_variable_int(const u16 *variable_name,
-				  const efi_guid_t *vendor,
-				  u32 attributes, efi_uintn_t data_size,
-				  const void *data, bool ro_check)
+/**
+ * setvariable_allowed() - checks defined by the UEFI spec for setvariable
+ *
+ * @variable_name:	name of the variable
+ * @vendor:		vendor GUID
+ * @attributes:		attributes of the variable
+ * @data_size:		size of the buffer with the variable value
+ * @data:		buffer with the variable value
+ * Return:		status code
+ */
+static efi_status_t __efi_runtime
+setvariable_allowed(const u16 *variable_name, const efi_guid_t *vendor,
+		    u32 attributes, efi_uintn_t data_size, const void *data)
 {
-	struct efi_var_entry *var;
-	efi_uintn_t ret;
-	bool append, delete;
-	u64 time = 0;
-	enum efi_auth_var_type var_type;
-
 	if (!variable_name || !*variable_name || !vendor)
 		return EFI_INVALID_PARAMETER;
 
@@ -260,6 +265,25 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	     !(attributes & EFI_VARIABLE_RUNTIME_ACCESS) ||
 	     !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS)))
 		return EFI_INVALID_PARAMETER;
+
+	return EFI_SUCCESS;
+}
+
+efi_status_t efi_set_variable_int(const u16 *variable_name,
+				  const efi_guid_t *vendor,
+				  u32 attributes, efi_uintn_t data_size,
+				  const void *data, bool ro_check)
+{
+	struct efi_var_entry *var;
+	efi_uintn_t ret;
+	bool append, delete;
+	u64 time = 0;
+	enum efi_auth_var_type var_type;
+
+	ret = setvariable_allowed(variable_name, vendor, attributes, data_size,
+				  data);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	/* check if a variable exists */
 	var = efi_var_mem_find(vendor, variable_name, NULL);
@@ -454,7 +478,79 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 			 u32 attributes, efi_uintn_t data_size,
 			 const void *data)
 {
-	return EFI_UNSUPPORTED;
+	struct efi_var_entry *var;
+	efi_uintn_t ret;
+	bool append, delete;
+	u64 time = 0;
+
+	if (!IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE))
+		return EFI_UNSUPPORTED;
+
+	/*
+	 * Authenticated variables are not supported. The EFI spec
+	 * in §32.3.6 requires keys to be stored in non-volatile storage which
+	 * is tamper and delete resistant.
+	 * The rest of the checks are in setvariable_allowed()
+	 */
+	if (attributes & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)
+		return EFI_INVALID_PARAMETER;
+
+	ret = setvariable_allowed(variable_name, vendor, attributes, data_size,
+				  data);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/* check if a variable exists */
+	var = efi_var_mem_find(vendor, variable_name, NULL);
+	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
+	attributes &= ~EFI_VARIABLE_APPEND_WRITE;
+	delete = !append && (!data_size || !attributes);
+
+	/* BS only variables are hidden deny writing them */
+	if (!delete && !(attributes & EFI_VARIABLE_RUNTIME_ACCESS))
+		return EFI_INVALID_PARAMETER;
+
+	if (var) {
+		if (var->attr & EFI_VARIABLE_READ_ONLY ||
+		    !(var->attr & EFI_VARIABLE_NON_VOLATILE))
+			return EFI_WRITE_PROTECTED;
+
+		/* attributes won't be changed */
+		if (!delete && (((var->attr & ~EFI_VARIABLE_READ_ONLY) !=
+		    (attributes & ~EFI_VARIABLE_READ_ONLY))))
+			return EFI_INVALID_PARAMETER;
+		time = var->time;
+	} else {
+		if (!(attributes & EFI_VARIABLE_NON_VOLATILE))
+			return EFI_INVALID_PARAMETER;
+		if (append && !data_size)
+			return EFI_SUCCESS;
+		if (delete)
+			return EFI_NOT_FOUND;
+	}
+
+	if (delete) {
+		/* EFI_NOT_FOUND has been handled before */
+		attributes = var->attr;
+		ret = EFI_SUCCESS;
+	} else if (append && var) {
+		u16 *old_data = (void *)((uintptr_t)var->name +
+			sizeof(u16) * (u16_strlen(var->name) + 1));
+
+		ret = efi_var_mem_ins(variable_name, vendor, attributes,
+				      var->length, old_data, data_size, data,
+				      time);
+	} else {
+		ret = efi_var_mem_ins(variable_name, vendor, attributes,
+				      data_size, data, 0, NULL, time);
+	}
+
+	if (ret != EFI_SUCCESS)
+		return ret;
+	/* We are always inserting new variables, get rid of the old copy */
+	efi_var_mem_del(var);
+
+	return EFI_SUCCESS;
 }
 
 /**

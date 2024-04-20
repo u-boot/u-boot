@@ -16,18 +16,18 @@ Synopsis
 	env default [-f] (-a | var [...])
 	env delete [-f] var [...]
 	env edit name
+	env erase
 	env exists name
 	env export [-t | -b | -c] [-s size] addr [var ...]
 	env flags
 	env grep [-e] [-n | -v | -b] string [...]
 	env import [-d] [-t [-r] | -b | -c] addr [size] [var ...]
 	env info [-d] [-p] [-q]
+	env load
 	env print [-a | name ...]
 	env print -e [-guid guid] [-n] [name ...]
 	env run var [...]
 	env save
-	env erase
-	env load
 	env select [target]
 	env set [-f] name [value]
 	env set -e [-nv][-bs][-rt][-at][-a][-i addr:size][-v] name [value]
@@ -40,11 +40,12 @@ the UEFI variables.
 
 The next commands are kept as alias and for compatibility:
 
++ :doc:`askenv <askenv>` = *env ask*
 + *editenv* = *env edit*
 + *grepenv* = *env grep*
-+ *setenv* = *env set*
-+ *askenv* = *env ask*
++ :doc:`printenv <printenv>` = *env print*
 + *run* = *env run*
++ *setenv* = *env set*
 
 Ask
 ~~~
@@ -102,6 +103,11 @@ The *env edit* command edits an environment variable.
 
     name
         name of the variable.
+
+Erase
+~~~~~
+
+The *env erase* command erases the U-Boot environment.
 
 Exists
 ~~~~~~
@@ -204,6 +210,11 @@ environment information.
         quiet output,  use only for command result, by example with
         'test' command.
 
+Load
+~~~~
+
+The *env load* command loads the U-Boot environment from persistent storage.
+
 Print
 ~~~~~
 
@@ -234,16 +245,6 @@ Save
 ~~~~
 
 The *env save* command saves the U-Boot environment in persistent storage.
-
-Erase
-~~~~~
-
-The *env erase* command erases the U-Boot environment.
-
-Load
-~~~~
-
-The *env load* command loads the U-Boot environment from persistent storage.
 
 Select
 ~~~~~~
@@ -350,14 +351,14 @@ edit
 exists
     CONFIG_CMD_ENV_EXISTS
 
-flags
-    CONFIG_CMD_ENV_FLAGS
-
 erase
     CONFIG_CMD_ERASEENV
 
 export
     CONFIG_CMD_EXPORTENV
+
+flags
+    CONFIG_CMD_ENV_FLAGS
 
 grep
     CONFIG_CMD_GREPENV, CONFIG_REGEX for '-e' option

@@ -1419,7 +1419,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	}
 
 	bo->initrd_info.current_path = calloc(1, EFICONFIG_FILE_PATH_BUF_SIZE);
-	if (!bo->file_info.current_path) {
+	if (!bo->initrd_info.current_path) {
 		ret =  EFI_OUT_OF_RESOURCES;
 		goto out;
 	}

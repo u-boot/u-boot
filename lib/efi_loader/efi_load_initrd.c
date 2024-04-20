@@ -184,41 +184,6 @@ out:
 }
 
 /**
- * efi_initrd_register() - create handle for loading initial RAM disk
- *
- * This function creates a new handle and installs a Linux specific vendor
- * device path and an EFI_LOAD_FILE2_PROTOCOL. Linux uses the device path
- * to identify the handle and then calls the LoadFile service of the
- * EFI_LOAD_FILE2_PROTOCOL to read the initial RAM disk.
- *
- * Return:	status code
- */
-efi_status_t efi_initrd_register(void)
-{
-	efi_status_t ret;
-
-	/*
-	 * Allow the user to continue if Boot#### file path is not set for
-	 * an initrd
-	 */
-	ret = check_initrd();
-	if (ret == EFI_INVALID_PARAMETER)
-		return EFI_SUCCESS;
-	if (ret != EFI_SUCCESS)
-		return ret;
-
-	ret = efi_install_multiple_protocol_interfaces(&efi_initrd_handle,
-						       /* initramfs */
-						       &efi_guid_device_path, &dp_lf2_handle,
-						       /* LOAD_FILE2 */
-						       &efi_guid_load_file2_protocol,
-						       &efi_lf2_protocol,
-						       NULL);
-
-	return ret;
-}
-
-/**
  * efi_initrd_deregister() - delete the handle for loading initial RAM disk
  *
  * This will delete the handle containing the Linux specific vendor device
@@ -242,6 +207,69 @@ efi_status_t efi_initrd_deregister(void)
 							 &efi_lf2_protocol,
 							 NULL);
 	efi_initrd_handle = NULL;
+
+	return ret;
+}
+
+/**
+ * efi_initrd_return_notify() - return to efibootmgr callback
+ *
+ * @event:	the event for which this notification function is registered
+ * @context:	event context
+ */
+static void EFIAPI efi_initrd_return_notify(struct efi_event *event,
+						  void *context)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p", event, context);
+	ret = efi_initrd_deregister();
+	EFI_EXIT(ret);
+}
+
+/**
+ * efi_initrd_register() - create handle for loading initial RAM disk
+ *
+ * This function creates a new handle and installs a Linux specific vendor
+ * device path and an EFI_LOAD_FILE2_PROTOCOL. Linux uses the device path
+ * to identify the handle and then calls the LoadFile service of the
+ * EFI_LOAD_FILE2_PROTOCOL to read the initial RAM disk.
+ *
+ * Return:	status code
+ */
+efi_status_t efi_initrd_register(void)
+{
+	efi_status_t ret;
+	struct efi_event *event;
+
+	/*
+	 * Allow the user to continue if Boot#### file path is not set for
+	 * an initrd
+	 */
+	ret = check_initrd();
+	if (ret == EFI_INVALID_PARAMETER)
+		return EFI_SUCCESS;
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	ret = efi_install_multiple_protocol_interfaces(&efi_initrd_handle,
+						       /* initramfs */
+						       &efi_guid_device_path, &dp_lf2_handle,
+						       /* LOAD_FILE2 */
+						       &efi_guid_load_file2_protocol,
+						       &efi_lf2_protocol,
+						       NULL);
+	if (ret != EFI_SUCCESS) {
+		log_err("installing EFI_LOAD_FILE2_PROTOCOL failed\n");
+		return ret;
+	}
+
+	ret = efi_create_event(EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+			       efi_initrd_return_notify, NULL,
+			       &efi_guid_event_group_return_to_efibootmgr,
+			       &event);
+	if (ret != EFI_SUCCESS)
+		log_err("Creating event failed\n");
 
 	return ret;
 }

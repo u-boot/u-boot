@@ -159,6 +159,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 #define EFICONFIG_AUTO_GENERATED_ENTRY_GUID \
 	EFI_GUID(0x8108ac4e, 0x9f11, 0x4d59, \
 		 0x85, 0x0e, 0xe2, 0x1a, 0x52, 0x2c, 0x59, 0xb2)
+#define U_BOOT_EFI_RT_VAR_FILE_GUID \
+	EFI_GUID(0xb2ac5fc9, 0x92b7, 0x4acd, \
+		 0xae, 0xac, 0x11, 0xe8, 0x18, 0xc3, 0x13, 0x0c)
+
 
 /* Use internal device tree when starting UEFI application */
 #define EFI_FDT_USE_INTERNAL NULL
