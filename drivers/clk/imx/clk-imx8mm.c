@@ -66,6 +66,17 @@ static const char *imx8mm_i2c3_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_
 static const char *imx8mm_i2c4_sels[] = {"clock-osc-24m", "sys_pll1_160m", "sys_pll2_50m", "sys_pll3_out", "audio_pll1_out",
 					 "video_pll1_out", "audio_pll2_out", "sys_pll1_133m", };
 
+#if CONFIG_IS_ENABLED(PCIE_DW_IMX)
+static const char *imx8mm_pcie1_ctrl_sels[] = {"clock-osc-24m", "sys_pll2_250m", "sys_pll2_200m", "sys_pll1_266m",
+					       "sys_pll1_800m", "sys_pll2_500m", "sys_pll2_333m", "sys_pll3_out", };
+
+static const char *imx8mm_pcie1_phy_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll2_500m", "clk_ext1", "clk_ext2",
+					      "clk_ext3", "clk_ext4", "sys_pll1_400m", };
+
+static const char *imx8mm_pcie1_aux_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll2_50m", "sys_pll3_out",
+					      "sys_pll2_100m", "sys_pll1_80m", "sys_pll1_160m", "sys_pll1_200m", };
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 static const char *imx8mm_pwm1_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m", "sys_pll1_40m",
 					 "sys_pll3_out", "clk_ext1", "sys_pll1_80m", "video_pll1_out", };
@@ -256,6 +267,17 @@ static int imx8mm_clk_probe(struct udevice *dev)
 		imx8m_clk_composite("usb_bus", imx8mm_usb_bus_sels, base + 0x8b80));
 
 	/* IP */
+#if CONFIG_IS_ENABLED(PCIE_DW_IMX)
+	clk_dm(IMX8MM_CLK_PCIE1_CTRL,
+	       imx8m_clk_composite("pcie1_ctrl", imx8mm_pcie1_ctrl_sels,
+				   base + 0xa300));
+	clk_dm(IMX8MM_CLK_PCIE1_PHY,
+	       imx8m_clk_composite("pcie1_phy", imx8mm_pcie1_phy_sels,
+				   base + 0xa380));
+	clk_dm(IMX8MM_CLK_PCIE1_AUX,
+	       imx8m_clk_composite("pcie1_aux", imx8mm_pcie1_aux_sels,
+				   base + 0xa400));
+#endif
 	clk_dm(IMX8MM_CLK_USDHC1,
 	       imx8m_clk_composite("usdhc1", imx8mm_usdhc1_sels,
 				   base + 0xac00));
@@ -337,6 +359,11 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
 	clk_dm(IMX8MM_CLK_PWM4_ROOT,
 	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
+#endif
+
+#if CONFIG_IS_ENABLED(PCIE_DW_IMX)
+	clk_dm(IMX8MM_CLK_PCIE1_ROOT,
+	       imx_clk_gate4("pcie1_root_clk", "pcie1_ctrl", base + 0x4250, 0));
 #endif
 
 #if CONFIG_IS_ENABLED(DM_SPI)

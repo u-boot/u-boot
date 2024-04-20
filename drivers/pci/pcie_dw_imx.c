@@ -56,6 +56,18 @@ struct pcie_dw_imx {
 	struct udevice			*vpcie;
 };
 
+struct pcie_chip_info {
+	const char *gpr;
+};
+
+static const struct pcie_chip_info imx8mm_chip_info = {
+	.gpr = "fsl,imx8mm-iomuxc-gpr",
+};
+
+static const struct pcie_chip_info imx8mp_chip_info = {
+	.gpr = "fsl,imx8mp-iomuxc-gpr",
+};
+
 static void pcie_dw_configure(struct pcie_dw_imx *priv, u32 cap_speed)
 {
 	dw_pcie_dbi_write_enable(&priv->dw, true);
@@ -242,6 +254,7 @@ static int pcie_dw_imx_remove(struct udevice *dev)
 
 static int pcie_dw_imx_of_to_plat(struct udevice *dev)
 {
+	struct pcie_chip_info *info = (void *)dev_get_driver_data(dev);
 	struct pcie_dw_imx *priv = dev_get_priv(dev);
 	ofnode gpr;
 	int ret;
@@ -287,7 +300,7 @@ static int pcie_dw_imx_of_to_plat(struct udevice *dev)
 		goto err_phy;
 	}
 
-	gpr = ofnode_by_compatible(ofnode_null(), "fsl,imx8mp-iomuxc-gpr");
+	gpr = ofnode_by_compatible(ofnode_null(), info->gpr);
 	if (ofnode_equal(gpr, ofnode_null())) {
 		dev_err(dev, "unable to find GPR node\n");
 		ret = -ENODEV;
@@ -322,7 +335,8 @@ static const struct dm_pci_ops pcie_dw_imx_ops = {
 };
 
 static const struct udevice_id pcie_dw_imx_ids[] = {
-	{ .compatible = "fsl,imx8mp-pcie" },
+	{ .compatible = "fsl,imx8mm-pcie", .data = (ulong)&imx8mm_chip_info, },
+	{ .compatible = "fsl,imx8mp-pcie", .data = (ulong)&imx8mp_chip_info, },
 	{ }
 };
 

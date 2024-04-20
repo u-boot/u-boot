@@ -48,8 +48,8 @@
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rw rootfstype=ubifs " \
 		"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; " \
-		"setenv bootargs ${defargs} ${ubiargs} " \
-		"${setupargs} ${vidargs} ${tdxargs}; echo Booting from NAND...; " \
+		"setenv bootargs ${ubiargs} " \
+		"${setupargs} ${tdxargs}; echo Booting from NAND...; " \
 		"ubi part ubi &&" \
 		"ubi read ${kernel_addr_r} kernel && " \
 		"ubi read ${fdt_addr_r} dtb && " \
@@ -86,11 +86,7 @@
 	UBOOT_UPDATE \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
-	"defargs=user_debug=30\0" \
 	"fdt_board=eval-v3\0" \
-	"fdt_fixup=;\0" \
-	"ip_dyn=yes\0" \
-	"kernel_file=zImage\0" \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"${board}/flash_eth.img && source ${loadaddr}\0" \
@@ -99,7 +95,7 @@
 		"${board}/flash_blk.img && source ${loadaddr}\0" \
 	"setup=setenv setupargs " \
 		"console=tty1 console=${console}" \
-		",${baudrate}n8 ${memargs} ${mtdparts} consoleblank=0\0" \
+		",${baudrate}n8 ${memargs} ${mtdparts}\0" \
 	"setupdate=run setsdupdate || run setusbupdate || run setethupdate\0" \
 	"setusbupdate=usb start && setenv interface usb && " \
 		"fatload ${interface} 0:1 ${loadaddr} " \
