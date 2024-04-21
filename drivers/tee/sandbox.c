@@ -174,7 +174,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 	uint slot;
 	u64 val;
 	char *value;
-	u32 value_sz;
+	u32 value_sz, tmp_sz;
 
 	switch (func) {
 	case TA_AVB_CMD_READ_ROLLBACK_INDEX:
@@ -267,8 +267,12 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 		if (!ep)
 			return TEE_ERROR_ITEM_NOT_FOUND;
 
-		value_sz = strlen(ep->data) + 1;
-		memcpy(value, ep->data, value_sz);
+		tmp_sz = strlen(ep->data) + 1;
+		if (value_sz < tmp_sz)
+			return TEE_ERROR_SHORT_BUFFER;
+
+		memcpy(value, ep->data, tmp_sz);
+		params[1].u.memref.size = tmp_sz;
 
 		return TEE_SUCCESS;
 	case TA_AVB_CMD_WRITE_PERSIST_VALUE:
