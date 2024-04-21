@@ -131,7 +131,7 @@
 };
 
 &vop {
-	bootph-all;
+	bootph-some-ram;
 };
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
