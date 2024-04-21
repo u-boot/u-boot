@@ -191,19 +191,16 @@ config ROCKCHIP_RK3328
 	select SUPPORT_TPL
 	select TPL
 	select TPL_NEEDS_SEPARATE_STACK if TPL
+	imply MISC
+	imply MISC_INIT_R
 	imply PRE_CONSOLE_BUFFER
 	imply ROCKCHIP_COMMON_BOARD
+	imply ROCKCHIP_EFUSE
 	imply ROCKCHIP_SDRAM_COMMON
 	imply SPL_ROCKCHIP_COMMON_BOARD
+	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL
 	imply TPL_SERIAL
-	imply SPL_SEPARATE_BSS
-	select ENABLE_ARM_SOC_BOOT0_HOOK
-	select DEBUG_UART_BOARD_INIT
-	select SYS_NS16550
-	imply MISC
-	imply ROCKCHIP_EFUSE
-	imply MISC_INIT_R
 	help
 	  The Rockchip RK3328 is a ARM-based SoC with a quad-core Cortex-A53.
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
