@@ -89,7 +89,6 @@ int rk_hdmi_of_to_plat(struct udevice *dev)
 	/* hdmi->i2c_clk_{high,low} are set up by the SoC driver */
 
 	hdmi->reg_io_width = 4;
-	hdmi->phy_set = dw_hdmi_phy_cfg;
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
@@ -111,14 +110,12 @@ int rk_hdmi_probe(struct udevice *dev)
 	struct dw_hdmi *hdmi = &priv->hdmi;
 	int ret;
 
-	ret = dw_hdmi_phy_wait_for_hpd(hdmi);
-	if (ret < 0) {
-		debug("hdmi can not get hpd signal\n");
-		return -1;
-	}
-
 	dw_hdmi_init(hdmi);
 	dw_hdmi_phy_init(hdmi);
+
+	ret = dw_hdmi_detect_hpd(hdmi);
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }

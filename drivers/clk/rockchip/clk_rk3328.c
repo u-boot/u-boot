@@ -178,6 +178,10 @@ enum {
 	CLK_I2C3_DIV_CON_SHIFT		= 8,
 	CLK_I2C2_PLL_SEL_SHIFT		= 7,
 	CLK_I2C2_DIV_CON_SHIFT		= 0,
+
+	/* CLKSEL_CON40 */
+	CLK_HDMIPHY_DIV_CON_SHIFT	= 3,
+	CLK_HDMIPHY_DIV_CON_MASK	= 0x7 << CLK_HDMIPHY_DIV_CON_SHIFT,
 };
 
 #define VCO_MAX_KHZ	(3200 * (MHz / KHz))
@@ -580,6 +584,96 @@ static ulong rk3328_spi_set_clk(struct rk3328_cru *cru, uint hz)
 	return rk3328_spi_get_clk(cru);
 }
 
+#ifndef CONFIG_SPL_BUILD
+static ulong rk3328_vop_get_clk(struct rk3328_clk_priv *priv, ulong clk_id)
+{
+	struct rk3328_cru *cru = priv->cru;
+	u32 div, con, parent;
+
+	switch (clk_id) {
+	case ACLK_VOP_PRE:
+		con = readl(&cru->clksel_con[39]);
+		div = (con & ACLK_VOP_DIV_CON_MASK) >> ACLK_VOP_DIV_CON_SHIFT;
+		parent = GPLL_HZ;
+		break;
+	case ACLK_VIO_PRE:
+		con = readl(&cru->clksel_con[37]);
+		div = (con & ACLK_VIO_DIV_CON_MASK) >> ACLK_VIO_DIV_CON_SHIFT;
+		parent = GPLL_HZ;
+		break;
+	case DCLK_LCDC:
+		con = readl(&cru->clksel_con[40]);
+		div = (con & DCLK_LCDC_DIV_CON_MASK) >> DCLK_LCDC_DIV_CON_SHIFT;
+		parent = GPLL_HZ;
+		break;
+	default:
+		printf("%s: Unsupported vop get clk#%ld\n", __func__, clk_id);
+		return -ENOENT;
+	}
+
+	return DIV_TO_RATE(parent, div);
+}
+
+static ulong rk3328_vop_set_clk(struct rk3328_clk_priv *priv,
+				ulong clk_id, uint hz)
+{
+	struct rk3328_cru *cru = priv->cru;
+	int src_clk_div;
+	u32 con, parent;
+
+	src_clk_div = DIV_ROUND_UP(GPLL_HZ, hz);
+	assert(src_clk_div - 1 < 31);
+
+	switch (clk_id) {
+	case ACLK_VOP_PRE:
+		rk_clrsetreg(&cru->clksel_con[39],
+			     ACLK_VOP_PLL_SEL_MASK | ACLK_VOP_DIV_CON_MASK,
+			     ACLK_VOP_PLL_SEL_CPLL << ACLK_VOP_PLL_SEL_SHIFT |
+			     (src_clk_div - 1) << ACLK_VOP_DIV_CON_SHIFT);
+		break;
+	case ACLK_VIO_PRE:
+		rk_clrsetreg(&cru->clksel_con[37],
+			     ACLK_VIO_PLL_SEL_MASK | ACLK_VIO_DIV_CON_MASK,
+			     ACLK_VIO_PLL_SEL_CPLL << ACLK_VIO_PLL_SEL_SHIFT |
+			     (src_clk_div - 1) << ACLK_VIO_DIV_CON_SHIFT);
+		break;
+	case DCLK_LCDC:
+		con = readl(&cru->clksel_con[40]);
+		con = (con & DCLK_LCDC_SEL_MASK) >> DCLK_LCDC_SEL_SHIFT;
+		if (con) {
+			parent = readl(&cru->clksel_con[40]);
+			parent = (parent & DCLK_LCDC_PLL_SEL_MASK) >>
+				 DCLK_LCDC_PLL_SEL_SHIFT;
+			if (parent)
+				src_clk_div = DIV_ROUND_UP(GPLL_HZ, hz);
+			else
+				src_clk_div = DIV_ROUND_UP(GPLL_HZ, hz);
+
+			rk_clrsetreg(&cru->clksel_con[40],
+				     DCLK_LCDC_DIV_CON_MASK,
+				     (src_clk_div - 1) <<
+				     DCLK_LCDC_DIV_CON_SHIFT);
+		}
+		break;
+	default:
+		printf("%s: Unable to set vop clk#%ld\n", __func__, clk_id);
+		return -EINVAL;
+	}
+
+	return rk3328_vop_get_clk(priv, clk_id);
+}
+#endif
+
+static ulong rk3328_hdmiphy_get_clk(struct rk3328_cru *cru)
+{
+	u32 div, con;
+
+	con = readl(&cru->clksel_con[40]);
+	div = (con & CLK_HDMIPHY_DIV_CON_MASK) >> CLK_HDMIPHY_DIV_CON_SHIFT;
+
+	return DIV_TO_RATE(GPLL_HZ, div);
+}
+
 static ulong rk3328_clk_get_rate(struct clk *clk)
 {
 	struct rk3328_clk_priv *priv = dev_get_priv(clk->dev);
@@ -608,6 +702,9 @@ static ulong rk3328_clk_get_rate(struct clk *clk)
 		break;
 	case SCLK_SPI:
 		rate = rk3328_spi_get_clk(priv->cru);
+		break;
+	case PCLK_HDMIPHY:
+		rate = rk3328_hdmiphy_get_clk(priv->cru);
 		break;
 	default:
 		return -ENOENT;
@@ -648,7 +745,13 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SPI:
 		ret = rk3328_spi_set_clk(priv->cru, rate);
 		break;
+#ifndef CONFIG_SPL_BUILD
 	case DCLK_LCDC:
+	case ACLK_VOP_PRE:
+	case ACLK_VIO_PRE:
+		rate = rk3328_vop_set_clk(priv, clk->id, rate);
+		break;
+#endif
 	case SCLK_PDM:
 	case SCLK_RTC32K:
 	case SCLK_UART0:
@@ -663,11 +766,9 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 	case ACLK_PERI_PRE:
 	case HCLK_PERI:
 	case PCLK_PERI:
-	case ACLK_VIO_PRE:
 	case HCLK_VIO_PRE:
 	case ACLK_RGA_PRE:
 	case SCLK_RGA:
-	case ACLK_VOP_PRE:
 	case ACLK_RKVDEC_PRE:
 	case ACLK_RKVENC:
 	case ACLK_VPU_PRE:

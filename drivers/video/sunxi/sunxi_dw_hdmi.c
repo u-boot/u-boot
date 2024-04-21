@@ -358,16 +358,18 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 
 	sunxi_dw_hdmi_phy_init(&priv->hdmi);
 
-	ret = dw_hdmi_phy_wait_for_hpd(&priv->hdmi);
-	if (ret < 0) {
-		debug("hdmi can not get hpd signal\n");
-		return -1;
-	}
+	ret = dw_hdmi_detect_hpd(&priv->hdmi);
+	if (ret < 0)
+		return ret;
 
 	dw_hdmi_init(&priv->hdmi);
 
 	return 0;
 }
+
+static const struct dw_hdmi_phy_ops dw_hdmi_sunxi_phy_ops = {
+	.phy_set = sunxi_dw_hdmi_phy_cfg,
+};
 
 static int sunxi_dw_hdmi_of_to_plat(struct udevice *dev)
 {
@@ -379,7 +381,7 @@ static int sunxi_dw_hdmi_of_to_plat(struct udevice *dev)
 	hdmi->i2c_clk_high = 0xd8;
 	hdmi->i2c_clk_low = 0xfe;
 	hdmi->reg_io_width = 1;
-	hdmi->phy_set = sunxi_dw_hdmi_phy_cfg;
+	hdmi->ops = &dw_hdmi_sunxi_phy_ops;
 
 	ret = reset_get_bulk(dev, &priv->resets);
 	if (ret)

@@ -6,6 +6,8 @@
 #ifndef __RK_HDMI_H__
 #define __RK_HDMI_H__
 
+#include <generic-phy.h>
+
 struct rkhdmi_driverdata {
 	/* configuration */
 	u8 i2c_clk_high;
@@ -19,6 +21,7 @@ struct rkhdmi_driverdata {
 
 struct rk_hdmi_priv {
 	struct dw_hdmi hdmi;
+	struct phy phy;
 	void *grf;
 };
 

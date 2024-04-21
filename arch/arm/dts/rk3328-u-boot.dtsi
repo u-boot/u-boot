@@ -130,6 +130,10 @@
 	bootph-all;
 };
 
+&vop {
+	bootph-all;
+};
+
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
 	simple-bin-spi {

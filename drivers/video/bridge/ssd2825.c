@@ -349,39 +349,6 @@ static int ssd2825_bridge_enable_panel(struct udevice *dev)
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct display_timing *dt = &priv->timing;
-	int ret;
-
-	ret = clk_prepare_enable(priv->tx_clk);
-	if (ret) {
-		log_err("error enabling tx_clk (%d)\n", ret);
-		return ret;
-	}
-
-	ret = dm_gpio_set_value(&priv->power_gpio, 1);
-	if (ret) {
-		log_err("error changing power-gpios (%d)\n", ret);
-		return ret;
-	}
-	mdelay(10);
-
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
-	if (ret) {
-		log_err("error changing reset-gpios (%d)\n", ret);
-		return ret;
-	}
-	mdelay(10);
-
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
-	if (ret) {
-		log_err("error changing reset-gpios (%d)\n", ret);
-		return ret;
-	}
-	mdelay(10);
-
-	/* Perform panel HW setup */
-	ret = panel_enable_backlight(priv->panel);
-	if (ret)
-		return ret;
 
 	/* Perform SW reset */
 	ssd2825_write_register(dev, SSD2825_OPERATION_CTRL_REG, 0x0100);
@@ -417,17 +384,15 @@ static int ssd2825_bridge_enable_panel(struct udevice *dev)
 			       SSD2825_CONF_REG_ECD | SSD2825_CONF_REG_EOT);
 	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
 
-	/* Set up SW panel configuration */
-	ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
-	if (ret)
-		return ret;
-
-	return 0;
+	/* Perform panel setup */
+	return panel_enable_backlight(priv->panel);
 }
 
 static int ssd2825_bridge_set_panel(struct udevice *dev, int percent)
 {
-	return 0;
+	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
+
+	return panel_set_backlight(priv->panel, percent);
 }
 
 static int ssd2825_bridge_panel_timings(struct udevice *dev,
@@ -436,6 +401,45 @@ static int ssd2825_bridge_panel_timings(struct udevice *dev,
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 
 	memcpy(timing, &priv->timing, sizeof(*timing));
+
+	return 0;
+}
+
+static int ssd2825_bridge_hw_init(struct udevice *dev)
+{
+	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = clk_prepare_enable(priv->tx_clk);
+	if (ret) {
+		log_debug("%s: error enabling tx_clk (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	ret = dm_gpio_set_value(&priv->power_gpio, 1);
+	if (ret) {
+		log_debug("%s: error changing power-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+	mdelay(10);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	if (ret) {
+		log_debug("%s: error changing reset-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+	mdelay(10);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	if (ret) {
+		log_debug("%s: error changing reset-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+	mdelay(10);
 
 	return 0;
 }
@@ -496,7 +500,7 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 		return PTR_ERR(priv->tx_clk);
 	}
 
-	return 0;
+	return ssd2825_bridge_hw_init(dev);
 }
 
 static const struct panel_ops ssd2825_bridge_ops = {

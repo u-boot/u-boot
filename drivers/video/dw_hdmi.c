@@ -78,10 +78,10 @@ static void dw_hdmi_write(struct dw_hdmi *hdmi, u8 val, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
-		writeb(val, hdmi->ioaddr + offset);
+		writeb(val, (void *)(hdmi->ioaddr + offset));
 		break;
 	case 4:
-		writel(val, hdmi->ioaddr + (offset << 2));
+		writel(val, (void *)(hdmi->ioaddr + (offset << 2)));
 		break;
 	default:
 		debug("reg_io_width has unsupported width!\n");
@@ -93,9 +93,9 @@ static u8 dw_hdmi_read(struct dw_hdmi *hdmi, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
-		return readb(hdmi->ioaddr + offset);
+		return readb((void *)(hdmi->ioaddr + offset));
 	case 4:
-		return readl(hdmi->ioaddr + (offset << 2));
+		return readl((void *)(hdmi->ioaddr + (offset << 2)));
 	default:
 		debug("reg_io_width has unsupported width!\n");
 		break;
@@ -936,6 +936,22 @@ int dw_hdmi_phy_wait_for_hpd(struct dw_hdmi *hdmi)
 	return -1;
 }
 
+int dw_hdmi_detect_hpd(struct dw_hdmi *hdmi)
+{
+	int ret;
+
+	ret = dw_hdmi_phy_wait_for_hpd(hdmi);
+	if (ret < 0) {
+		debug("hdmi can not get hpd signal\n");
+		return -ENODEV;
+	}
+
+	if (hdmi->ops && hdmi->ops->read_hpd)
+		hdmi->ops->read_hpd(hdmi, true);
+
+	return 0;
+}
+
 void dw_hdmi_phy_init(struct dw_hdmi *hdmi)
 {
 	/* enable phy i2cm done irq */
@@ -988,7 +1004,7 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 
 	hdmi_av_composer(hdmi, edid);
 
-	ret = hdmi->phy_set(hdmi, edid->pixelclock.typ);
+	ret = hdmi->ops->phy_set(hdmi, edid->pixelclock.typ);
 	if (ret)
 		return ret;
 
@@ -1009,9 +1025,17 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 	return 0;
 }
 
+static const struct dw_hdmi_phy_ops dw_hdmi_synopsys_phy_ops = {
+	.phy_set = dw_hdmi_phy_cfg,
+};
+
 void dw_hdmi_init(struct dw_hdmi *hdmi)
 {
 	uint ih_mute;
+
+	/* hook Synopsys PHYs ops */
+	if (!hdmi->ops)
+		hdmi->ops = &dw_hdmi_synopsys_phy_ops;
 
 	/*
 	 * boot up defaults are:
@@ -1037,4 +1061,7 @@ void dw_hdmi_init(struct dw_hdmi *hdmi)
 
 	/* enable i2c client nack % arbitration error irq */
 	hdmi_write(hdmi, ~0x44, HDMI_I2CM_CTLINT);
+
+	if (hdmi->ops && hdmi->ops->setup_hpd)
+		hdmi->ops->setup_hpd(hdmi);
 }

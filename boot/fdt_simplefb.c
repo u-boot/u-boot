@@ -12,6 +12,8 @@
 #include <asm/global_data.h>
 #include <linux/libfdt.h>
 #include <video.h>
+#include <spl.h>
+#include <bloblist.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -26,15 +28,29 @@ static int fdt_simplefb_configure_node(void *blob, int off)
 	struct udevice *dev;
 	int ret;
 
-	ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
-	if (ret)
-		return ret;
-	uc_priv = dev_get_uclass_priv(dev);
-	plat = dev_get_uclass_plat(dev);
-	xsize = uc_priv->xsize;
-	ysize = uc_priv->ysize;
-	bpix = uc_priv->bpix;
-	fb_base = plat->base;
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL) {
+		struct video_handoff *ho;
+
+		ho = bloblist_find(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho));
+		if (!ho)
+			return log_msg_ret("Missing video bloblist", -ENOENT);
+
+		xsize = ho->xsize;
+		ysize = ho->ysize;
+		bpix = ho->bpix;
+		fb_base = ho->fb;
+	} else {
+		ret = uclass_first_device_err(UCLASS_VIDEO, &dev);
+		if (ret)
+			return ret;
+		uc_priv = dev_get_uclass_priv(dev);
+		plat = dev_get_uclass_plat(dev);
+		xsize = uc_priv->xsize;
+		ysize = uc_priv->ysize;
+		bpix = uc_priv->bpix;
+		fb_base = plat->base;
+	}
+
 	switch (bpix) {
 	case 4: /* VIDEO_BPP16 */
 		name = "r5g6b5";
@@ -91,7 +107,6 @@ static int fdt_simplefb_enable_existing_node(void *blob)
 #if IS_ENABLED(CONFIG_VIDEO)
 int fdt_simplefb_enable_and_mem_rsv(void *blob)
 {
-	struct fdt_memory mem;
 	int ret;
 
 	/* nothing to do when video is not active */
@@ -102,15 +117,6 @@ int fdt_simplefb_enable_and_mem_rsv(void *blob)
 	if (ret)
 		return ret;
 
-	/* nothing to do when the frame buffer is not defined */
-	if (gd->video_bottom == gd->video_top)
-		return 0;
-
-	/* reserved with no-map tag the video buffer */
-	mem.start = gd->video_bottom;
-	mem.end = gd->video_top - 1;
-
-	return fdtdec_add_reserved_memory(blob, "framebuffer", &mem, NULL, 0, NULL,
-					  FDTDEC_RESERVED_MEMORY_NO_MAP);
+	return fdt_add_fb_mem_rsv(blob);
 }
 #endif

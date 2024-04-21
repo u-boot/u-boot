@@ -7,6 +7,16 @@ config VIDEO_BRIDGE
 	  requires LVDS, an eDP->LVDS bridge chip can be used to provide the
 	  necessary conversion. This option enables support for these devices.
 
+config VIDEO_BRIDGE_PARADE_DP501
+	bool "Support Parade DP501 DP & DVI/HDMI dual mode transmitter"
+	depends on PANEL && DM_GPIO
+	select DM_I2C
+	help
+	  The Parade DP501 is a DP & DVI/HDMI dual-mode transmitter. It
+	  enables an RGB/Parallel SOC output to be converted, packed and
+	  serialized into either DP or TMDS output device. Only DisplayPort
+	  functionality of this transmitter has been implemented and tested.
+
 config VIDEO_BRIDGE_PARADE_PS862X
 	bool "Support Parade PS862X DP->LVDS bridge"
 	depends on VIDEO_BRIDGE
@@ -40,3 +50,12 @@ config VIDEO_BRIDGE_SOLOMON_SSD2825
 	select VIDEO_MIPI_DSI
 	help
 	  Solomon SSD2824 SPI RGB-DSI bridge driver wrapped into panel uClass.
+
+config VIDEO_BRIDGE_TOSHIBA_TC358768
+	bool "Support Toshiba TC358768 MIPI DSI bridge"
+	depends on PANEL && DM_GPIO
+	select VIDEO_MIPI_DSI
+	select DM_I2C
+	help
+	  Toshiba TC358768AXBG/TC358778XBG DSI bridge chip driver.
+	  Found in Asus Transformer Infinity TF700T.

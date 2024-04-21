@@ -522,6 +522,14 @@ config VIDEO_LCD_ORISETECH_OTM8009A
 	Say Y here if you want to enable support for Orise Technology
 	otm8009a 480x800 dsi 2dl panel.
 
+config VIDEO_LCD_LG_LD070WX3
+	bool "LD070WX3 DSI LCD panel support"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for LG LD070WX3
+	  800x1280 DSI video mode panel.
+
 config VIDEO_LCD_RAYDIUM_RM68200
 	bool "RM68200 DSI LCD panel support"
 	select VIDEO_MIPI_DSI
@@ -546,6 +554,15 @@ config VIDEO_LCD_RENESAS_R69328
 	  Say Y here if you want to enable support for JDI dx12d100vm0eaa
 	  IPS-LCD module with Renesas R69328 IC. The panel has a 720x1280
 	  resolution and uses 24 bit RGB per pixel.
+
+config VIDEO_LCD_SAMSUNG_LTL106HL02
+	tristate "Samsung LTL106HL02 1920x1080 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for Samsung LTL106HL02
+	  LCD module found in Microsoft Surface 2. The panel has a FullHD
+	  resolution (1920x1080).
 
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
