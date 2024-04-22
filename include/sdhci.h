@@ -291,6 +291,11 @@ struct sdhci_ops {
 	 * Return: 0 if successful, -ve on error
 	 */
 	int	(*set_enhanced_strobe)(struct sdhci_host *host);
+
+#ifdef CONFIG_MMC_SDHCI_ADMA_HELPERS
+	void	(*adma_write_desc)(struct sdhci_host *host, void **desc,
+				   dma_addr_t addr, int len, bool end);
+#endif
 };
 
 #define ADMA_MAX_LEN	65532
@@ -526,8 +531,11 @@ extern const struct dm_mmc_ops sdhci_ops;
 #else
 #endif
 
+void sdhci_adma_write_desc(struct sdhci_host *host, void **next_desc,
+			   dma_addr_t addr, int len, bool end);
 struct sdhci_adma_desc *sdhci_adma_init(void);
-void sdhci_prepare_adma_table(struct sdhci_adma_desc *table,
-			      struct mmc_data *data, dma_addr_t addr);
+void sdhci_prepare_adma_table(struct sdhci_host *host,
+			      struct sdhci_adma_desc *table,
+			      struct mmc_data *data, dma_addr_t start_addr);
 
 #endif /* __SDHCI_HW_H */
