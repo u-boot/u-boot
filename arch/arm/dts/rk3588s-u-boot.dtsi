@@ -41,6 +41,17 @@
 		status = "disabled";
 	};
 
+	vo0_grf: syscon@fd5a6000 {
+		compatible = "rockchip,rk3588-vo-grf", "syscon";
+		reg = <0x0 0xfd5a6000 0x0 0x2000>;
+		clocks = <&cru PCLK_VO0GRF>;
+	};
+
+	usb_grf: syscon@fd5ac000 {
+		compatible = "rockchip,rk3588-usb-grf", "syscon";
+		reg = <0x0 0xfd5ac000 0x0 0x4000>;
+	};
+
 	usbdpphy0_grf: syscon@fd5c8000 {
 		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
 		reg = <0x0 0xfd5c8000 0x0 0x4000>;
@@ -70,22 +81,6 @@
 				status = "disabled";
 			};
 		};
-	};
-
-	vo0_grf: syscon@fd5a6000 {
-		compatible = "rockchip,rk3588-vo-grf", "syscon";
-		reg = <0x0 0xfd5a6000 0x0 0x2000>;
-		clocks = <&cru PCLK_VO0GRF>;
-	};
-
-	usb_grf: syscon@fd5ac000 {
-		compatible = "rockchip,rk3588-usb-grf", "syscon";
-		reg = <0x0 0xfd5ac000 0x0 0x4000>;
-	};
-
-	usbdpphy0_grf: syscon@fd5c8000 {
-		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
-		reg = <0x0 0xfd5c8000 0x0 0x4000>;
 	};
 
 	rng: rng@fe378000 {
@@ -125,6 +120,21 @@
 	};
 };
 
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x8000>;
+		};
+	};
+};
+#endif
+
+&cru {
+	bootph-pre-ram;
+};
+
 &emmc_bus8 {
 	bootph-all;
 };
@@ -145,15 +155,11 @@
 	bootph-all;
 };
 
-&pinctrl {
-	bootph-all;
+&ioc {
+	bootph-pre-ram;
 };
 
 &pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
 	bootph-all;
 };
 
@@ -161,16 +167,12 @@
 	bootph-all;
 };
 
-&xin24m {
+&pcfg_pull_up_drv_level_2 {
 	bootph-all;
 };
 
-&cru {
-	bootph-pre-ram;
-};
-
-&sys_grf {
-	bootph-pre-ram;
+&pinctrl {
+	bootph-all;
 };
 
 &pmu1grf {
@@ -185,13 +187,13 @@
 	bootph-pre-ram;
 };
 
-&sdmmc {
+&sdhci {
 	bootph-pre-ram;
 	bootph-some-ram;
 	u-boot,spl-fifo-mode;
 };
 
-&sdhci {
+&sdmmc {
 	bootph-pre-ram;
 	bootph-some-ram;
 	u-boot,spl-fifo-mode;
@@ -213,6 +215,10 @@
 	bootph-all;
 };
 
+&sys_grf {
+	bootph-pre-ram;
+};
+
 &uart2 {
 	bootph-pre-ram;
 	clock-frequency = <24000000>;
@@ -222,17 +228,6 @@
 	bootph-all;
 };
 
-&ioc {
-	bootph-pre-ram;
+&xin24m {
+	bootph-all;
 };
-
-#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
-&binman {
-	simple-bin-spi {
-		mkimage {
-			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
-			offset = <0x8000>;
-		};
-	};
-};
-#endif

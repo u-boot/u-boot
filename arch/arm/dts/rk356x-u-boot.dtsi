@@ -38,43 +38,18 @@
 	};
 };
 
-&xin24m {
-	bootph-all;
+#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
+&binman {
+	simple-bin-spi {
+		mkimage {
+			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
+			offset = <0x8000>;
+		};
+	};
 };
+#endif
 
 &cru {
-	bootph-all;
-};
-
-&pmucru {
-	bootph-all;
-};
-
-&grf {
-	bootph-all;
-};
-
-&pmugrf {
-	bootph-all;
-};
-
-&pinctrl {
-	bootph-all;
-};
-
-&pcfg_pull_none_smt {
-	bootph-all;
-};
-
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
-	bootph-all;
-};
-
-&pcfg_pull_up {
 	bootph-all;
 };
 
@@ -102,8 +77,49 @@
 	bootph-all;
 };
 
+&grf {
+	bootph-all;
+};
+
 &i2c0_xfer {
 	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_none_smt {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-all;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&pmucru {
+	bootph-all;
+};
+
+&pmugrf {
+	bootph-all;
+};
+
+&sdhci {
+	bootph-pre-ram;
+	max-frequency = <200000000>;
+};
+
+&sdmmc0 {
+	bootph-pre-ram;
 };
 
 &sdmmc0_bus4 {
@@ -126,31 +142,15 @@
 	bootph-all;
 };
 
-&uart2m0_xfer {
-	bootph-all;
-};
-
-&sdhci {
-	bootph-pre-ram;
-	max-frequency = <200000000>;
-};
-
-&sdmmc0 {
-	bootph-pre-ram;
-};
-
 &uart2 {
 	bootph-pre-ram;
 	clock-frequency = <24000000>;
 };
 
-#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
-&binman {
-	simple-bin-spi {
-		mkimage {
-			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
-			offset = <0x8000>;
-		};
-	};
+&uart2m0_xfer {
+	bootph-all;
 };
-#endif
+
+&xin24m {
+	bootph-all;
+};
