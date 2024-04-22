@@ -36,7 +36,7 @@ static const char *ipq4019_get_function_name(struct udevice *dev,
 static const char *ipq4019_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
-	snprintf(pin_name, MAX_PIN_NAME_LEN, "GPIO_%u", selector);
+	snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
 	return pin_name;
 }
 
