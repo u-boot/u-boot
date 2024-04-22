@@ -12,7 +12,7 @@
 
 	aliases {
 		mmc0 = &sdhci;
-		mmc1 = &sdmmc;
+		mmc1 = &sdmmc0;
 	};
 
 	chosen {
@@ -28,7 +28,7 @@
 	no-sdio;
 	non-removable;
 	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd>;
+	pinctrl-0 = <&emmc_bus8 &emmc_clk &emmc_cmd &emmc_datastrobe>;
 	status = "okay";
 };
 
@@ -39,7 +39,7 @@
 	no-mmc;
 	no-sdio;
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc0_bus4 &sdmmc0_clk &sdmmc0_cmd>;
+	pinctrl-0 = <&sdmmc0_bus4 &sdmmc0_clk &sdmmc0_cmd &sdmmc0_det>;
 	status = "okay";
 };
 
