@@ -741,7 +741,8 @@ config CMD_BINOP
 
 config CMD_BLOBLIST
 	bool "bloblist"
-	default y if BLOBLIST
+	depends on BLOBLIST
+	default y
 	help
 	  Show information about the bloblist, a collection of binary blobs
 	  held in memory that persist between SPL and U-Boot. In the case of
