@@ -226,7 +226,7 @@ in UEFI variables.
     \-a
         all U-Boot environment, when 'name' is absent.
     \-e
-        print UEFI variables, all by default when 'name'.
+        print UEFI variables, all by default if 'name' is not provided.
     \-guid guid
         print only the UEFI variables matching this GUID (any by default)
         with guid format = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
@@ -372,6 +372,10 @@ info
 load
     CONFIG_CMD_NVEDIT_LOAD
 
+print
+    CONFIG_CMD_NVEDIT_EFI for UEFI variables support ('-e' option),
+    additionally CONFIG_HEXDUMP to display content of UEFI variables
+
 run
     CONFIG_CMD_RUN
 
@@ -381,5 +385,5 @@ save
 select
     CONFIG_CMD_NVEDIT_SELECT
 
-set, print
-    CONFIG_CMD_NVEDIT_EFI for '-e' option
+set
+    CONFIG_CMD_NVEDIT_EFI for UEFI variables support ('-e' option)
