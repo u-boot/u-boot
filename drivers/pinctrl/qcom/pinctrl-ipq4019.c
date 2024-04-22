@@ -68,4 +68,5 @@ U_BOOT_DRIVER(pinctrl_ipq4019) = {
 	.of_match	= msm_pinctrl_ids,
 	.ops		= &msm_pinctrl_ops,
 	.bind		= msm_pinctrl_bind,
+	.flags		= DM_FLAG_PRE_RELOC,
 };
