@@ -16,6 +16,25 @@
 #include <power/regulator.h>
 #include <power/tps65941.h>
 
+/* Single Phase Buck IDs */
+#define TPS65941_BUCK_ID_1        1
+#define TPS65941_BUCK_ID_2        2
+#define TPS65941_BUCK_ID_3        3
+#define TPS65941_BUCK_ID_4        4
+#define TPS65941_BUCK_ID_5        5
+
+/* Multi Phase Buck IDs */
+#define TPS65941_BUCK_ID_12      12
+#define TPS65941_BUCK_ID_34      34
+#define TPS65941_BUCK_ID_123    123
+#define TPS65941_BUCK_ID_1234  1234
+
+/* LDO IDs */
+#define TPS65941_LDO_ID_1         1
+#define TPS65941_LDO_ID_2         2
+#define TPS65941_LDO_ID_3         3
+#define TPS65941_LDO_ID_4         4
+
 static const char tps65941_buck_ctrl[TPS65941_BUCK_NUM] = {0x4, 0x6, 0x8, 0xA,
 								0xC};
 static const char tps65941_buck_vout[TPS65941_BUCK_NUM] = {0xE, 0x10, 0x12,
@@ -270,10 +289,15 @@ static int tps65941_ldo_probe(struct udevice *dev)
 	uc_pdata->type = REGULATOR_TYPE_LDO;
 
 	idx = dev->driver_data;
-	if (idx == 1 || idx == 2 || idx == 3 || idx == 4) {
+	switch (idx) {
+	case TPS65941_LDO_ID_1:
+	case TPS65941_LDO_ID_2:
+	case TPS65941_LDO_ID_3:
+	case TPS65941_LDO_ID_4:
 		debug("Single phase regulator\n");
-	} else {
-		printf("Wrong ID for regulator\n");
+		break;
+	default:
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
@@ -292,18 +316,24 @@ static int tps65941_buck_probe(struct udevice *dev)
 	uc_pdata->type = REGULATOR_TYPE_BUCK;
 
 	idx = dev->driver_data;
-	if (idx == 1 || idx == 2 || idx == 3 || idx == 4 || idx == 5) {
+	switch (idx) {
+	case TPS65941_BUCK_ID_1:
+	case TPS65941_BUCK_ID_2:
+	case TPS65941_BUCK_ID_3:
+	case TPS65941_BUCK_ID_4:
+	case TPS65941_BUCK_ID_5:
 		debug("Single phase regulator\n");
-	} else if (idx == 12) {
+		break;
+	case TPS65941_BUCK_ID_12:
+	case TPS65941_BUCK_ID_123:
+	case TPS65941_BUCK_ID_1234:
 		idx = 1;
-	} else if (idx == 34) {
+		break;
+	case TPS65941_BUCK_ID_34:
 		idx = 3;
-	} else if (idx == 123) {
-		idx = 1;
-	} else if (idx == 1234) {
-		idx = 1;
-	} else {
-		printf("Wrong ID for regulator\n");
+		break;
+	default:
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
