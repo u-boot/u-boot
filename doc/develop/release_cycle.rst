@@ -19,6 +19,9 @@ Cycle as follows:
 * After the merge window closes, no new features may be added to allow for a
   release candidate phase which is intended to fix bugs and regressions.
 
+* To help with late pull requests, the **next** branch will open when the
+  second release candidate is published.
+
 *Note:* While we try to adhere to the release schedule, we will
 not hesitate and take the liberty to delay a release if there are
 good reasons, for example if there are known bugs or other technical
