@@ -2417,6 +2417,8 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 	case BCLK_EMMC:
 		rate = rk3568_emmc_get_bclk(priv);
 		break;
+	case CLK_USB3OTG0_REF:
+	case CLK_USB3OTG1_REF:
 	case TCLK_EMMC:
 		rate = OSC_HZ;
 		break;
@@ -2596,6 +2598,8 @@ static ulong rk3568_clk_set_rate(struct clk *clk, ulong rate)
 	case BCLK_EMMC:
 		ret = rk3568_emmc_set_bclk(priv, rate);
 		break;
+	case CLK_USB3OTG0_REF:
+	case CLK_USB3OTG1_REF:
 	case TCLK_EMMC:
 		ret = OSC_HZ;
 		break;
