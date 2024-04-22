@@ -43,7 +43,6 @@ void clock_init_safe(void)
 	setbits_le32(&ccm->pll6_cfg, 0x1 << CCM_PLL6_CTRL_SATA_EN_SHIFT);
 #endif
 }
-#endif
 
 void clock_init_uart(void)
 {
@@ -77,7 +76,6 @@ int clock_twi_onoff(int port, int state)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
 #define PLL1_CFG(N, K, M, P)	( 1 << CCM_PLL1_CFG_ENABLE_SHIFT | \
 				  0 << CCM_PLL1_CFG_VCO_RST_SHIFT |  \
 				  8 << CCM_PLL1_CFG_VCO_BIAS_SHIFT | \
@@ -177,8 +175,9 @@ void clock_set_pll1(unsigned int hz)
 	       &ccm->cpu_ahb_apb0_cfg);
 	sdelay(20);
 }
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
+/* video, DRAM, PLL_PERIPH clocks */
 void clock_set_pll3(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
