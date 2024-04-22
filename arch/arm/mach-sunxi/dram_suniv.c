@@ -55,7 +55,7 @@ struct dram_para {
 
 struct dram_para suniv_dram_para = {
 	.size = 32,
-	.clk = 156,
+	.clk = CONFIG_DRAM_CLK,
 	.access_mode = 1,
 	.cs_num = 1,
 	.ddr8_remap = 0,
