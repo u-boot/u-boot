@@ -54,34 +54,36 @@
 };
 
 &emmc_bus8 {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_clk {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_cmd {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_datastrobe {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_rstnout {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &fspi_pins {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &grf {
-	bootph-all;
-};
-
-&i2c0_xfer {
 	bootph-all;
 };
 
@@ -90,7 +92,8 @@
 };
 
 &pcfg_pull_none_smt {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pcfg_pull_up {
@@ -98,7 +101,8 @@
 };
 
 &pcfg_pull_up_drv_level_2 {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl {
@@ -115,35 +119,46 @@
 
 &sdhci {
 	bootph-pre-ram;
+	bootph-some-ram;
 	max-frequency = <200000000>;
 };
 
 &sdmmc0 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_bus4 {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_clk {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_cmd {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_det {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_pwren {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc {
+	u-boot,spl-sfc-no-dma;
 };
 
 &uart2 {
-	bootph-pre-ram;
+	bootph-all;
 	clock-frequency = <24000000>;
 };
 

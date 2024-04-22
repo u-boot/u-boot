@@ -3,7 +3,8 @@
 #include "rk356x-u-boot.dtsi"
 
 &fspi_dual_io_pins {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdhci {
@@ -15,10 +16,8 @@
 };
 
 &sfc {
-	bootph-pre-ram;
-	u-boot,spl-sfc-no-dma;
-
 	flash@0 {
 		bootph-pre-ram;
+		bootph-some-ram;
 	};
 };
