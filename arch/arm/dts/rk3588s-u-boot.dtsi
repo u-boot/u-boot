@@ -91,7 +91,6 @@
 	rng: rng@fe378000 {
 		compatible = "rockchip,trngv1";
 		reg = <0x0 0xfe378000 0x0 0x200>;
-		status = "disabled";
 	};
 
 	usbdp_phy0: phy@fed80000 {
