@@ -66,7 +66,7 @@ config TARGET_NANOPCT6_RK3588
 	                HDMI2.0, and HDMI1.4
 	  2x 4-lane MIPI-DSI, compatible with MIPI DPHY 2.0 or CPHY 1.1
 	  USB-A: USB 3.0, Type A
-	  USB-C: Full function USB Type‑C port, DP display up to 4Kp60, USB 3.0
+	  USB-C: Full function USB Type-C port, DP display up to 4Kp60, USB 3.0
 	  40-pin 2.54mm header connector: up to 2x SPIs, 6x UARTs, 1x I2Cs,
 	                                  8x PWMs, 2x I2Ss, 28x GPIOs
 	  Debug UART: 3 Pin 2.54mm header, 3V level, 1500000bps
@@ -117,7 +117,7 @@ config TARGET_ROCK5A_RK3588
 	  Mali G610MC4 GPU
 	  MIPI CSI 2 multiple lanes connector
 	  4-lane MIPI DSI connector
-	  Audio – 3.5mm earphone jack
+	  Audio - 3.5mm earphone jack
 	  eMMC module connector
 	  uSD slot (up to 128GB)
 	  2x USB 2.0, 2x USB 3.0
@@ -197,7 +197,7 @@ config TARGET_TOYBRICK_RK3588
 	  4x ARM Cortex-A76, 4x ARM Cortex-A55
 	  8/16GB Memory LPDDR4x
 	  Mali G610MC4 GPU
-	  2× MIPI-CSI0 Connector
+	  2x MIPI-CSI0 Connector
 	  1x 2Lanes PCIe3.0 Connector
 	  1x SATA3.0 Connector
 	  32GB eMMC Module
@@ -221,14 +221,14 @@ config ROCKCHIP_COMMON_STACK_ADDR
 config TEXT_BASE
 	default 0x00a00000
 
-source board/edgeble/neural-compute-module-6/Kconfig
-source board/friendlyelec/nanopc-t6-rk3588/Kconfig
-source board/pine64/quartzpro64-rk3588/Kconfig
-source board/turing/turing-rk1-rk3588/Kconfig
-source board/radxa/rock5a-rk3588s/Kconfig
-source board/radxa/rock5b-rk3588/Kconfig
-source board/rockchip/evb_rk3588/Kconfig
-source board/rockchip/toybrick_rk3588/Kconfig
-source board/theobroma-systems/jaguar_rk3588/Kconfig
+source "board/edgeble/neural-compute-module-6/Kconfig"
+source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
+source "board/pine64/quartzpro64-rk3588/Kconfig"
+source "board/turing/turing-rk1-rk3588/Kconfig"
+source "board/radxa/rock5a-rk3588s/Kconfig"
+source "board/radxa/rock5b-rk3588/Kconfig"
+source "board/rockchip/evb_rk3588/Kconfig"
+source "board/rockchip/toybrick_rk3588/Kconfig"
+source "board/theobroma-systems/jaguar_rk3588/Kconfig"
 
 endif

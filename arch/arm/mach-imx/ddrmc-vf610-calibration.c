@@ -45,7 +45,7 @@
  *                             based on trace length differences from their
  *                             layout.
  *                             Mismatches up to 25% or tCK (clock period) are
- *                             allowed, so the value in the filed doesn’t have
+ *                             allowed, so the value in the filed doesn't have
  *                             to be very accurate.
  *
  * - 0x2 (b'10) - RDLVL_DL_0/1 - refers to adjusting the DQS strobe in relation
@@ -184,14 +184,14 @@ static int ddrmc_cal_dqs_to_dq(struct ddrmr_regs *ddrmr)
 	debug("RDLVL: PHY_RDLVL_EDGE:\t 0x%x\n",
 	      (tmp >> DDRMC_CR101_PHY_RDLVL_EDGE_OFF) & 0x1); //set 0
 
-	/* Program Leveling mode - CR93[SW_LVL_MODE] to ’b10 */
+	/* Program Leveling mode - CR93[SW_LVL_MODE] to 'b10 */
 	clrsetbits_le32(&ddrmr->cr[93], DDRMC_CR93_SW_LVL_MODE(0x3),
 			DDRMC_CR93_SW_LVL_MODE(0x2));
 	tmp = readl(&ddrmr->cr[93]);
 	debug("RDLVL: SW_LVL_MODE:\t 0x%x\n",
 	      (tmp >> DDRMC_CR93_SW_LVL_MODE_OFF) & 0x3);
 
-	/* Start procedure - CR93[SWLVL_START] to ’b1 */
+	/* Start procedure - CR93[SWLVL_START] to 'b1 */
 	sw_leveling_start;
 
 	/* Poll CR94[SWLVL_OP_DONE] */
@@ -211,7 +211,7 @@ static int ddrmc_cal_dqs_to_dq(struct ddrmr_regs *ddrmr)
 				0xFFFF << DDRMC_CR105_RDLVL_DL_0_OFF,
 				i << DDRMC_CR105_RDLVL_DL_0_OFF);
 
-		/* Load values CR93[SWLVL_LOAD] to ’b1 */
+		/* Load values CR93[SWLVL_LOAD] to 'b1 */
 		sw_leveling_load_value;
 
 		/* Poll CR94[SWLVL_OP_DONE] */
@@ -263,7 +263,7 @@ static int ddrmc_cal_dqs_to_dq(struct ddrmr_regs *ddrmr)
 				0xFFFF << DDRMC_CR110_RDLVL_DL_1_OFF,
 				i << DDRMC_CR110_RDLVL_DL_1_OFF);
 
-		/* Load values CR93[SWLVL_LOAD] to ’b1 */
+		/* Load values CR93[SWLVL_LOAD] to 'b1 */
 		sw_leveling_load_value;
 
 		/* Poll CR94[SWLVL_OP_DONE] */
@@ -317,7 +317,7 @@ static int ddrmc_cal_dqs_to_dq(struct ddrmr_regs *ddrmr)
 	sw_leveling_load_value;
 	sw_leveling_op_done;
 
-	/* Exit procedure - CR94[SWLVL_EXIT] to ’b1 */
+	/* Exit procedure - CR94[SWLVL_EXIT] to 'b1 */
 	sw_leveling_exit;
 
 	/* Poll CR94[SWLVL_OP_DONE] */

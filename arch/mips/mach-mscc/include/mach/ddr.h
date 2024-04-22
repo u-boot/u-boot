@@ -225,7 +225,7 @@
 #define VC3_MPAR_FAW VC3_MPAR_tFAW
 #define VC3_MPAR_BL 4
 #define MSCC_MEMPARM_MR0 ((VC3_MPAR_RL - 4) << 4) | ((VC3_MPAR_tWR - 4) << 9)
-/* ODT_RTT: “0x0040” for 120ohm, and “0x0004” for 60ohm. */
+/* ODT_RTT: "0x0040" for 120ohm, and "0x0004" for 60ohm. */
 #define MSCC_MEMPARM_MR1 0x0040
 #define MSCC_MEMPARM_MR2 ((VC3_MPAR_WL - 5) << 3)
 #define MSCC_MEMPARM_MR3 0

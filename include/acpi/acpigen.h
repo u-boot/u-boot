@@ -121,7 +121,7 @@ struct acpi_cstate {
  *
  * @percent: Percent of the core CPU operating frequency that will be
  *	available when this throttling state is invoked
- * @power: Throttling state’s maximum power dissipation (mw)
+ * @power: Throttling state's maximum power dissipation (mw)
  * @latency: Worst-case latency (uS) that the CPU is unavailable during a
  *	transition from any throttling state to this throttling state
  * @control: Value to be written to the Processor Control Register
@@ -920,7 +920,7 @@ void acpigen_write_pss_package(struct acpi_ctx *ctx, uint corefreq, uint power,
  * @ctx: ACPI context pointer
  * @domain: Dependency domain number to which this P state entry belongs
  * @numprocs: Number of processors belonging to the domain for this logical
- *	processor’s P-states
+ *	processor's P-states
  * @coordtype: Coordination type
  */
 void acpigen_write_psd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,
@@ -972,7 +972,7 @@ void acpigen_write_tss_package(struct acpi_ctx *ctx,
  * @ctx: ACPI context pointer
  * @domain: dependency domain number to which this T state entry belongs
  * @numprocs: Number of processors belonging to the domain for this logical
- *	processor’s T-states
+ *	processor's T-states
  * @coordtype: Coordination type
  */
 void acpigen_write_tsd_package(struct acpi_ctx *ctx, uint domain, uint numprocs,

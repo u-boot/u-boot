@@ -156,14 +156,14 @@ int setup_gpr_fec(void)
 	 *	0: internal clock
 	 *	1: external clock --->  your choice for RMII
 	 *
-	 * CLKDIV_SEL: it controls a div by 2 on the internal clock path à
-	 *	it should be don’t care when using external clock
+	 * CLKDIV_SEL: it controls a div by 2 on the internal clock path a
+	 *	it should be don't care when using external clock
 	 *	0: non-divided clock
 	 *	1: clock divided by 2
 	 * 50_DISABLE or 125_DISABLE:
-	 *	it’s used to disable the clock tree going outside the chip
+	 *	it's used to disable the clock tree going outside the chip
 	 *	when reference clock is generated internally.
-	 *	It should be don’t care when reference clock is provided
+	 *	It should be don't care when reference clock is provided
 	 *	externally.
 	 *	0: clock is enabled
 	 *	1: clock is disabled

@@ -9,7 +9,7 @@
  * - "Commercial Product Name" (CPN): type of product board (DKX, EVX)
  *   associated to the board ID "MBxxxx"
  * - "Finished Good" or "Finish Good" (FG):
- *   effective content of the product without chip STM32MP1xx (LCD, Wifi,…)
+ *   effective content of the product without chip STM32MP1xx (LCD, Wifi,...)
  * - BOM: cost variant for same FG (for example, several provider of the same
  *   component)
  *

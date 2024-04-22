@@ -171,7 +171,7 @@ int board_mmc_init(struct bd_info *bis)
 	 * (U-Boot device node)    (Physical Port)
 	 * mmc0 (onboard eMMC)     USDHC1
 	 * mmc1 (external SD card) USDHC2
-	 * mmc2 (onboard µSD)      USDHC3
+	 * mmc2 (onboard uSD)      USDHC3
 	 */
 	for (i = 0; i < CFG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
@@ -196,7 +196,7 @@ int board_mmc_init(struct bd_info *bis)
 			gpio_direction_input(USDHC1_CD_GPIO);
 			break;
 		case 2:
-		  /* onboard µSD */
+		  /* onboard uSD */
 			if (!imx8_power_domain_lookup_name("conn_sdhc2", &pd))
 				power_domain_on(&pd);
 

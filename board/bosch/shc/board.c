@@ -115,7 +115,7 @@ static void __maybe_unused force_modules_running(void)
 	gpio_direction_output(WIFI_REGEN_GPIO, 1);
 	/*
 	 * Wait for Wi-Fi power regulator to reach a stable voltage
-	 * (soft-start time, max. 350 µs)
+	 * (soft-start time, max. 350 us)
 	 */
 	__udelay(350);
 

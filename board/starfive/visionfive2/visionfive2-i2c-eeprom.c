@@ -503,7 +503,7 @@ int mac_read_from_eeprom(void)
 	 * "<product>-<date>-<DDR&eMMC>-<serial_number>"
 	 * <date>: 4Byte, should be the output of `date +%y%W`
 	 * <DDR&eMMC>: 8Byte, "D008" means 8GB, "D01T" means 1TB;
-	 *     "E000" means no eMMC，"E032" means 32GB, "E01T" means 1TB.
+	 *     "E000" means no eMMC, "E032" means 32GB, "E01T" means 1TB.
 	 * <serial_number>: 8Byte, the Unique Identifier of board in hex.
 	 */
 	if (!env_get("serial#"))
@@ -533,7 +533,7 @@ u8 get_pcb_revision_from_eeprom(void)
  * get_ddr_size_from_eeprom - get the DDR size
  * pstr:  VF7110A1-2228-D008E000-00000001
  * VF7110A1/VF7110B1 : VisionFive JH7110A /VisionFive JH7110B
- * D008:　8GB LPDDR4
+ * D008: 8GB LPDDR4
  * E000: No emmc device, ECxx: include emmc device, xx: Capacity size[GB]
  * return: the field of 'D008E000'
  */

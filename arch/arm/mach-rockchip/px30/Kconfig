@@ -36,9 +36,9 @@ config TARGET_PX30_CORE
             10.1" OF for creating complete PX30.Core C.TOUCH 2.0 10.1" Open Frame.
 
 config TARGET_RINGNECK_PX30
-	bool "Theobroma Systems PX30-µQ7 (Ringneck)"
+	bool "Theobroma Systems PX30-uQ7 (Ringneck)"
 	help
-	  The PX30-uQ7 (Ringneck) SoM is a µQseven-compatible (40mmx70mm,
+	  The PX30-uQ7 (Ringneck) SoM is a uQseven-compatible (40mmx70mm,
           MXM-230 connector) system-on-module from Theobroma Systems[1],
 	  featuring the Rockchip PX30.
 

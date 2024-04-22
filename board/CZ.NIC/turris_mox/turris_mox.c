@@ -395,7 +395,7 @@ static void load_spi_dtb(void)
 		return;
 
 	/*
-	 * SPI NOR "dtb" partition offset & size hardcoded for now because the
+	 * SPI NOR "dtb" partition offset & size hardcoded for now because the
 	 * mtd subsystem does not offer finding the partition yet and we do not
 	 * want to reimplement OF partition parser here.
 	 */

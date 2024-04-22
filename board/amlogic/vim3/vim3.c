@@ -89,7 +89,7 @@ int meson_ft_board_setup(void *blob, struct bd_info *bd)
 
 	/*
 	 * If in PCIe mode, alter DT
-	 * 0：Enable USB3.0，Disable PCIE, 1：Disable USB3.0, Enable PCIE
+	 * 0: Enable USB3.0, Disable PCIE, 1: Disable USB3.0, Enable PCIE
 	 */
 	if (ret > 0) {
 		static char data[32] __aligned(4);

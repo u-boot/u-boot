@@ -125,9 +125,9 @@ static int lp5562_led_reg_update(struct udevice *dev, int regnum,
 
 	/*
 	 * Data sheet says "Delay between consecutive I2C writes to
-	 * ENABLE register (00h) need to be longer than 488 μs
+	 * ENABLE register (00h) need to be longer than 488 us
 	 * (typical)." and "Delay between consecutive I2C writes to
-	 * OP_MODE register need to be longer than 153 μs (typ)."
+	 * OP_MODE register need to be longer than 153 us (typ)."
 	 *
 	 * The linux driver does usleep_range(500, 600) and
 	 * usleep_range(200, 300), respectively.

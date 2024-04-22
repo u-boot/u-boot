@@ -246,7 +246,7 @@ config SPI_FLASH_USE_4K_SECTORS
 	  to erasing whole blocks (32/64 KiB).
 	  Changing a small part of the flash's contents is usually faster with
 	  small sectors. On the other hand erasing should be faster when using
-	  64 KiB block instead of 16 × 4 KiB sectors.
+	  64 KiB block instead of 16 x 4 KiB sectors.
 
 	  Please note that some tools/drivers/filesystems may not work with
 	  4096 B erase size (e.g. UBIFS requires 15 KiB as a minimum).
