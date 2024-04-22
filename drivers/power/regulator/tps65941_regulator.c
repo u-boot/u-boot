@@ -35,6 +35,17 @@
 #define TPS65941_LDO_ID_3         3
 #define TPS65941_LDO_ID_4         4
 
+#define TPS65941_BUCK_CONV_OPS_IDX  0
+#define TPS65941_LDO_CONV_OPS_IDX   0
+
+struct tps65941_reg_conv_ops {
+	int volt_mask;
+	int (*volt2val)(int idx, int uV);
+	int (*val2volt)(int idx, int volt);
+	int slew_mask;
+	int (*lookup_slew)(int id);
+};
+
 static const char tps65941_buck_ctrl[TPS65941_BUCK_NUM] = {0x4, 0x6, 0x8, 0xA,
 								0xC};
 static const char tps65941_buck_vout[TPS65941_BUCK_NUM] = {0xE, 0x10, 0x12,
@@ -79,7 +90,7 @@ static int tps65941_buck_enable(struct udevice *dev, int op, bool *enable)
 	return 0;
 }
 
-static int tps65941_buck_volt2val(int uV)
+static int tps65941_buck_volt2val(__maybe_unused int idx, int uV)
 {
 	if (uV > TPS65941_BUCK_VOLT_MAX)
 		return -EINVAL;
@@ -95,7 +106,7 @@ static int tps65941_buck_volt2val(int uV)
 		return -EINVAL;
 }
 
-static int tps65941_buck_val2volt(int val)
+static int tps65941_buck_val2volt(__maybe_unused int idx, int val)
 {
 	if (val > TPS65941_BUCK_VOLT_MAX_HEX)
 		return -EINVAL;
@@ -135,12 +146,25 @@ int tps65941_lookup_slew(int id)
 	}
 }
 
+static const struct tps65941_reg_conv_ops buck_conv_ops[] = {
+	[TPS65941_BUCK_CONV_OPS_IDX] = {
+		.volt_mask = TPS65941_BUCK_VOLT_MASK,
+		.volt2val = tps65941_buck_volt2val,
+		.val2volt = tps65941_buck_val2volt,
+		.slew_mask = TP65941_BUCK_CONF_SLEW_MASK,
+		.lookup_slew = tps65941_lookup_slew,
+	},
+};
+
 static int tps65941_buck_val(struct udevice *dev, int op, int *uV)
 {
 	unsigned int hex, adr;
-	int ret, delta, uwait, slew;
+	int ret, delta, uwait, slew, idx;
 	struct dm_regulator_uclass_plat *uc_pdata;
+	const struct tps65941_reg_conv_ops *conv_ops;
 
+	idx = dev->driver_data;
+	conv_ops = &buck_conv_ops[TPS65941_BUCK_CONV_OPS_IDX];
 	uc_pdata = dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET)
@@ -152,8 +176,8 @@ static int tps65941_buck_val(struct udevice *dev, int op, int *uV)
 	if (ret < 0)
 		return ret;
 
-	ret &= TPS65941_BUCK_VOLT_MASK;
-	ret = tps65941_buck_val2volt(ret);
+	ret &= conv_ops->volt_mask;
+	ret = conv_ops->val2volt(idx, ret);
 	if (ret < 0)
 		return ret;
 
@@ -175,14 +199,14 @@ static int tps65941_buck_val(struct udevice *dev, int op, int *uV)
 	if (slew < 0)
 		return ret;
 
-	slew &= TP65941_BUCK_CONF_SLEW_MASK;
-	slew = tps65941_lookup_slew(slew);
+	slew &= conv_ops->slew_mask;
+	slew = conv_ops->lookup_slew(slew);
 	if (slew <= 0)
 		return ret;
 
 	uwait = delta / slew;
 
-	hex = tps65941_buck_volt2val(*uV);
+	hex = conv_ops->volt2val(idx, *uV);
 	if (hex < 0)
 		return hex;
 
@@ -231,7 +255,7 @@ static int tps65941_ldo_enable(struct udevice *dev, int op, bool *enable)
 	return 0;
 }
 
-static int tps65941_ldo_val2volt(int val)
+static int tps65941_ldo_val2volt(__maybe_unused int idx, int val)
 {
 	if (val > TPS65941_LDO_VOLT_MAX_HEX || val < TPS65941_LDO_VOLT_MIN_HEX)
 		return -EINVAL;
@@ -241,12 +265,23 @@ static int tps65941_ldo_val2volt(int val)
 		return -EINVAL;
 }
 
+static const struct tps65941_reg_conv_ops ldo_conv_ops[] = {
+	[TPS65941_LDO_CONV_OPS_IDX] = {
+		.volt_mask = TPS65941_LDO_VOLT_MASK,
+		.volt2val = tps65941_buck_volt2val,
+		.val2volt = tps65941_ldo_val2volt,
+	},
+};
+
 static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 {
 	unsigned int hex, adr;
-	int ret;
+	int ret, idx;
 	struct dm_regulator_uclass_plat *uc_pdata;
+	const struct tps65941_reg_conv_ops *conv_ops;
 
+	idx = dev->driver_data;
+	conv_ops = &ldo_conv_ops[TPS65941_LDO_CONV_OPS_IDX];
 	uc_pdata = dev_get_uclass_plat(dev);
 
 	if (op == PMIC_OP_GET)
@@ -258,8 +293,8 @@ static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 	if (ret < 0)
 		return ret;
 
-	ret &= TPS65941_LDO_VOLT_MASK;
-	ret = tps65941_ldo_val2volt(ret);
+	ret &= conv_ops->volt_mask;
+	ret = conv_ops->val2volt(idx, ret);
 	if (ret < 0)
 		return ret;
 
@@ -268,7 +303,7 @@ static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 		return 0;
 	}
 
-	hex = tps65941_buck_volt2val(*uV);
+	hex = conv_ops->volt2val(idx, *uV);
 	if (hex < 0)
 		return hex;
 
