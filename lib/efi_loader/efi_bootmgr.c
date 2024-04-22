@@ -1209,13 +1209,19 @@ efi_status_t efi_bootmgr_run(void *fdt)
 		return CMD_RET_FAILURE;
 	}
 
-	ret = efi_install_fdt(fdt);
-	if (ret != EFI_SUCCESS)
-		return ret;
-
 	ret = efi_bootmgr_load(&handle, &load_options);
 	if (ret != EFI_SUCCESS) {
 		log_notice("EFI boot manager: Cannot load any image\n");
+		return ret;
+	}
+
+	ret = efi_install_fdt(fdt);
+	if (ret != EFI_SUCCESS) {
+		if (EFI_CALL(efi_unload_image(handle)) == EFI_SUCCESS)
+			free(load_options);
+		else
+			log_err("Unloading image failed\n");
+
 		return ret;
 	}
 
