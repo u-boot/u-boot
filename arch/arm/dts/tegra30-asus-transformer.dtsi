@@ -99,8 +99,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
-				nvidia,io-reset = <0>;
+				nvidia,lock = <1>;
+				nvidia,io-reset = <1>;
 			};
 
 			/* SDMMC3 pinmux */
@@ -189,7 +189,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
+				nvidia,lock = <1>;
 			};
 
 			gen2_i2c {
@@ -200,7 +200,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
+				nvidia,lock = <1>;
 			};
 
 			cam_i2c {
@@ -211,7 +211,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
+				nvidia,lock = <1>;
 			};
 
 			ddc_i2c {
@@ -221,7 +221,7 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
+				nvidia,lock = <1>;
 			};
 
 			pwr_i2c {
@@ -232,7 +232,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
+				nvidia,lock = <1>;
 			};
 
 			hotplug_i2c {
@@ -647,8 +647,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
-				nvidia,io-reset = <0>;
+				nvidia,lock = <1>;
+				nvidia,io-reset = <1>;
 			};
 
 			/* GPIO keys pinmux */
@@ -741,8 +741,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <0>;
-				nvidia,io-reset = <0>;
+				nvidia,lock = <1>;
+				nvidia,io-reset = <1>;
 			};
 
 			vi_d10_pt2 {
@@ -879,8 +879,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_DISABLE>;
-				nvidia,lock = <0>;
-				nvidia,io-reset = <0>;
+				nvidia,lock = <1>;
+				nvidia,io-reset = <1>;
 			};
 
 			vi_mclk_pt1 {
@@ -1148,6 +1148,16 @@
 		#clock-cells = <0>;
 		clock-frequency = <32768>;
 		clock-output-names = "pmic-oscillator";
+	};
+
+	extcon-keys {
+		compatible = "gpio-keys";
+
+		switch-dock-hall-sensor {
+			label = "Lid sensor";
+			gpios = <&gpio TEGRA_GPIO(S, 6) GPIO_ACTIVE_LOW>;
+			linux,code = <SW_LID>;
+		};
 	};
 
 	gpio-keys {

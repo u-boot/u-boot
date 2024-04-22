@@ -7,7 +7,18 @@
 	model = "ASUS Transformer Infinity TF700T";
 	compatible = "asus,tf700t", "nvidia,tegra30";
 
-	/delete-node/ host1x@50000000;
+	host1x@50000000 {
+		dc@54200000 {
+			clocks = <&tegra_car TEGRA30_CLK_DISP1>,
+				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
+
+			rgb {
+				status = "okay";
+
+				nvidia,panel = <&tc358768>;
+			};
+		};
+	};
 
 	pinmux@70000868 {
 		state_default: pinmux {
@@ -62,5 +73,92 @@
 		};
 	};
 
-	/delete-node/ panel;
+	tc358768_refclk: clock-tc358768 {
+		compatible = "fixed-clock";
+		clock-frequency = <23100000>;
+		clock-accuracy = <100>;
+		#clock-cells = <0>;
+	};
+
+	tc358768_osc: clock-tc358768-osc-gate {
+		compatible = "gpio-gate-clock";
+		enable-gpios = <&gpio TEGRA_GPIO(D, 2) GPIO_ACTIVE_HIGH>;
+		clocks = <&tc358768_refclk>;
+		#clock-cells = <0>;
+	};
+
+	i2c-mux {
+		compatible = "i2c-mux-gpio";
+
+		mux-gpios = <&gpio TEGRA_GPIO(X, 0) GPIO_ACTIVE_HIGH>;
+		i2c-parent = <&gen1_i2c>;
+		idle-state = <0x0>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			tc358768: dsi@7 {
+				compatible = "toshiba,tc358768";
+				reg = <0x7>;
+
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				clocks = <&tc358768_osc>;
+				clock-names = "refclk";
+
+				reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
+
+				vddc-supply = <&vdd_1v2_mipi>;
+				vddio-supply = <&vdd_1v8_vio>;
+				vddmipi-supply = <&vdd_1v2_mipi>;
+
+				panel = <&panel>;
+			};
+		};
+	};
+
+	panel: panel {
+		compatible = "panasonic,vvx10f004b00";
+
+		power-supply = <&vdd_pnl_reg>;
+		backlight = <&backlight>;
+
+		/delete-property/ enable-gpios;
+
+		display-timings {
+			timing@0 {
+				/* 1920x1200@60Hz */
+				clock-frequency = <154000000>;
+
+				hactive = <1920>;
+				hfront-porch = <48>;
+				hback-porch = <80>;
+				hsync-len = <32>;
+				hsync-active = <1>;
+
+				vactive = <1200>;
+				vfront-porch = <3>;
+				vback-porch = <26>;
+				vsync-len = <6>;
+				vsync-active = <1>;
+			};
+		};
+	};
+
+	vdd_1v2_mipi: regulator-mipi {
+		compatible = "regulator-fixed";
+		regulator-name = "tc358768_1v2_vdd";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		regulator-enable-ramp-delay = <10000>;
+		regulator-boot-on;
+		gpio = <&gpio TEGRA_GPIO(BB, 3) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
 };

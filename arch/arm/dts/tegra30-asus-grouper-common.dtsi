@@ -829,6 +829,12 @@
 			gpios = <&gpio TEGRA_GPIO(Q, 3) GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_DOWN>;
 		};
+
+		switch-hall-sensor {
+			label = "Lid";
+			gpios = <&gpio TEGRA_GPIO(S, 6) GPIO_ACTIVE_LOW>;
+			linux,code = <SW_LID>;
+		};
 	};
 
 	panel: panel {

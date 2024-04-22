@@ -219,6 +219,10 @@ config TEGRA_ENABLE_UARTC
 config TEGRA_ENABLE_UARTD
 	bool "Use UARTD"
 
+config TEGRA_ENABLE_UARTE
+	bool "Use UARTE"
+	depends on TEGRA20 || TEGRA30
+
 endchoice
 
 config TEGRA_GPU
