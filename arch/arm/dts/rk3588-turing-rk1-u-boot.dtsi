@@ -12,6 +12,10 @@
 };
 
 &uart9 {
-	bootph-pre-ram;
+	bootph-all;
 	clock-frequency = <24000000>;
+};
+
+&uart9m0_xfer {
+	bootph-all;
 };

@@ -132,31 +132,40 @@
 #endif
 
 &cru {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &emmc_bus8 {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_clk {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_cmd {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_data_strobe {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_rstnout {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &ioc {
-	bootph-pre-ram;
+	bootph-all;
+};
+
+&pcfg_pull_down {
+	bootph-all;
 };
 
 &pcfg_pull_none {
@@ -168,6 +177,11 @@
 };
 
 &pcfg_pull_up_drv_level_2 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&php_grf {
 	bootph-all;
 };
 
@@ -181,10 +195,12 @@
 
 &scmi {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &scmi_clk {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdhci {
@@ -200,27 +216,35 @@
 };
 
 &sdmmc_bus4 {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc_clk {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc_cmd {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc_det {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc {
+	u-boot,spl-sfc-no-dma;
 };
 
 &sys_grf {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &uart2 {
-	bootph-pre-ram;
+	bootph-all;
 	clock-frequency = <24000000>;
 };
 
