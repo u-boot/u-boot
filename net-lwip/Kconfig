@@ -6,6 +6,7 @@ menuconfig NET_LWIP
 	bool "Networking support (lwIP stack) -- EXPERIMENTAL"
 	default y
 	imply NETDEVICES
+	select NET_COMPAT
 	help
 	  Include networking support based on the lwIP (lightweight IP)
 	  TCP/IP stack (https://nongnu.org/lwip). This is a replacement for
@@ -16,6 +17,9 @@ menuconfig NET_LWIP
 	  exclusive.
 
 if NET_LWIP
+
+config NET_COMPAT
+	bool "Compatibility layer for code that still uses <net.h>"
 
 config LWIP_DEBUG
 	bool "Enable debug traces in the lwIP library"

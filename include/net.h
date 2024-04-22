@@ -532,7 +532,7 @@ extern char *net_dns_resolve;		/* The host to resolve  */
 extern char *net_dns_env_var;		/* the env var to put the ip into */
 #endif
 
-#if defined(CONFIG_CMD_PING)
+#if defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_PING_LWIP)
 extern struct in_addr net_ping_ip;	/* the ip address to ping */
 #endif
 

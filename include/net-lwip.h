@@ -115,6 +115,22 @@ struct ethernet_hdr {
 /* Ethernet header size */
 #define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
 
+/*
+ *	Virtual LAN Ethernet header
+ */
+struct vlan_ethernet_hdr {
+	u8		vet_dest[ARP_HLEN];	/* Destination node	*/
+	u8		vet_src[ARP_HLEN];	/* Source node		*/
+	u16		vet_vlan_type;		/* PROT_VLAN		*/
+	u16		vet_tag;		/* TAG of VLAN		*/
+	u16		vet_type;		/* protocol type	*/
+} __attribute__((packed));
+
+/* VLAN Ethernet header size */
+#define VLAN_ETHER_HDR_SIZE	(sizeof(struct vlan_ethernet_hdr))
+
+#define PROT_VLAN	0x8100		/* IEEE 802.1q protocol		*/
+
 /**
  * string_to_enetaddr() - Parse a MAC address
  *

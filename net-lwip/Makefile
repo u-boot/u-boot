@@ -5,12 +5,14 @@ obj-$(CONFIG_DM_MDIO)  += ../net/mdio-uclass.o
 obj-$(CONFIG_DM_MDIO_MUX) += ../net/mdio-mux-uclass.o
 obj-$(CONFIG_$(SPL_)DM_ETH) += ../net/eth_common.o
 obj-$(CONFIG_$(SPL_)DM_ETH) += ../net/eth-uclass.o
+obj-$(CONFIG_DM_DSA)   += ../net/dsa-uclass.o
 obj-$(CONFIG_$(SPL_)DM_ETH) += net-lwip.o
 obj-$(CONFIG_CMD_DHCP_LWIP) += dhcp.o
 obj-$(CONFIG_CMD_DNS_LWIP) += dns.o
 obj-$(CONFIG_CMD_PING_LWIP) += ping.o
 obj-$(CONFIG_CMD_TFTPBOOT_LWIP) += tftp.o
 obj-$(CONFIG_CMD_WGET_LWIP) += wget.o
+obj-$(CONFIG_NET_COMPAT) += compat.o
 
 # Disable this warning as it is triggered by:
 # sprintf(buf, index ? "foo%d" : "foo", index)
