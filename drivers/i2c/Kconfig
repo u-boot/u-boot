@@ -638,6 +638,16 @@ config SYS_I2C_QUP
 	  Technical Reference Manual, chapter "6.1 Qualcomm Universal
 	  Peripherals Engine (QUP)".
 
+config SYS_I2C_GENI
+	bool "Qualcomm Generic Interface (GENI) I2C controller"
+	depends on ARCH_SNAPDRAGON
+	help
+	  Support for the Qualcomm Generic Interface (GENI) I2C interface.
+	  The Generic Interface (GENI) is a firmware based Qualcomm Universal
+	  Peripherals (QUP) Serial Engine (SE) Wrapper which can support multiple
+	  bus protocols depending on the firmware type loaded at early boot time
+	  based on system configuration.
+
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
 	depends on (ARCH_EXYNOS4 || ARCH_EXYNOS5) && DM_I2C
