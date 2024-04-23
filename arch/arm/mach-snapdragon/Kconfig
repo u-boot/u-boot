@@ -4,7 +4,12 @@ config SYS_SOC
 	default "snapdragon"
 
 config SYS_VENDOR
+	string "Snapdragon board vendor"
 	default "qualcomm"
+	help
+	  Allows to specify vendor for the Snapdragon SoCs based boards.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD>
+	  will be used as the custom board directory.
 
 config SYS_MALLOC_F_LEN
 	default 0x2000
@@ -19,12 +24,11 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default 0x80000000
 
 config SYS_BOARD
-	string "Qualcomm custom board"
+	string "Snapdragon SoCs based board"
 	help
-	  The Dragonboard 410c and 820c have additional board init
-	  code that isn't shared with other Qualcomm boards.
-	  Based on this option board/qualcomm/<CONFIG_SYS_BOARD> will
-	  be used.
+	  Allows to specify the Snapdragon SoCs based board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD>
+	  will be used as the custom board directory.
 
 config SYS_CONFIG_NAME
 	string "Board configuration name"

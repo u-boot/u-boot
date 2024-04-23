@@ -31,7 +31,8 @@
 #define BLSP1_AHB_CBCR			0x1008
 
 /* Uart clock control registers */
-#define BLSP1_UART2_BCR			(0x3028)
+#define BLSP1_UART1_APPS_CBCR		(0x203C)
+#define BLSP1_UART1_APPS_CMD_RCGR	(0x2044)
 #define BLSP1_UART2_APPS_CBCR		(0x302C)
 #define BLSP1_UART2_APPS_CMD_RCGR	(0x3034)
 
@@ -52,7 +53,7 @@ static struct vote_clk gcc_blsp1_ahb_clk = {
 };
 
 /* SDHCI */
-static int clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
+static int apq8016_clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 {
 	int div = 15; /* 100MHz default */
 
@@ -70,20 +71,35 @@ static int clk_init_sdc(struct msm_clk_priv *priv, int slot, uint rate)
 }
 
 /* UART: 115200 */
-int apq8016_clk_init_uart(phys_addr_t base)
+int apq8016_clk_init_uart(phys_addr_t base, unsigned long id)
 {
+	u32 cmd_rcgr, apps_cbcr;
+
+	switch (id) {
+	case GCC_BLSP1_UART1_APPS_CLK:
+		cmd_rcgr = BLSP1_UART1_APPS_CMD_RCGR;
+		apps_cbcr = BLSP1_UART1_APPS_CBCR;
+		break;
+	case GCC_BLSP1_UART2_APPS_CLK:
+		cmd_rcgr = BLSP1_UART2_APPS_CMD_RCGR;
+		apps_cbcr = BLSP1_UART2_APPS_CBCR;
+		break;
+	default:
+		return 0;
+	}
+
 	/* Enable AHB clock */
 	clk_enable_vote_clk(base, &gcc_blsp1_ahb_clk);
 
 	/* 7372800 uart block clock @ GPLL0 */
-	clk_rcg_set_rate_mnd(base, BLSP1_UART2_APPS_CMD_RCGR, 1, 144, 15625,
-			     CFG_CLK_SRC_GPLL0, 16);
+	clk_rcg_set_rate_mnd(base, cmd_rcgr, 1, 144, 15625, CFG_CLK_SRC_GPLL0,
+			     16);
 
 	/* Vote for gpll0 clock */
 	clk_enable_gpll0(base, &gpll0_vote_clk);
 
 	/* Enable core clk */
-	clk_enable_cbc(base + BLSP1_UART2_APPS_CBCR);
+	clk_enable_cbc(base + apps_cbcr);
 
 	return 0;
 }
@@ -94,14 +110,13 @@ static ulong apq8016_clk_set_rate(struct clk *clk, ulong rate)
 
 	switch (clk->id) {
 	case GCC_SDCC1_APPS_CLK: /* SDC1 */
-		return clk_init_sdc(priv, 0, rate);
-		break;
+		return apq8016_clk_init_sdc(priv, 0, rate);
 	case GCC_SDCC2_APPS_CLK: /* SDC2 */
-		return clk_init_sdc(priv, 1, rate);
-		break;
+		return apq8016_clk_init_sdc(priv, 1, rate);
+	case GCC_BLSP1_UART1_APPS_CLK: /* UART1 */
 	case GCC_BLSP1_UART2_APPS_CLK: /* UART2 */
-		return apq8016_clk_init_uart(priv->base);
-		break;
+		apq8016_clk_init_uart(priv->base, clk->id);
+		return 7372800;
 	default:
 		return 0;
 	}

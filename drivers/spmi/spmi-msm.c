@@ -23,13 +23,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMIC_ARB_VERSION_V2_MIN 0x20010000
 #define PMIC_ARB_VERSION_V3_MIN 0x30000000
 #define PMIC_ARB_VERSION_V5_MIN 0x50000000
+#define PMIC_ARB_VERSION_V7_MIN	0x70000000
 
 #define APID_MAP_OFFSET_V1_V2_V3 (0x800)
 #define APID_MAP_OFFSET_V5 (0x900)
+#define APID_MAP_OFFSET_V7 (0x2000)
 #define ARB_CHANNEL_OFFSET(n) (0x4 * (n))
 #define SPMI_CH_OFFSET(chnl) ((chnl) * 0x8000)
 #define SPMI_V5_OBS_CH_OFFSET(chnl) ((chnl) * 0x80)
+#define SPMI_V7_OBS_CH_OFFSET(chnl) ((chnl) * 0x20)
 #define SPMI_V5_RW_CH_OFFSET(chnl) ((chnl) * 0x10000)
+#define SPMI_V7_RW_CH_OFFSET(chnl) ((chnl) * 0x1000)
+
+#define SPMI_OWNERSHIP_PERIPH2OWNER(x)	((x) & 0x7)
 
 #define SPMI_REG_CMD0 0x0
 #define SPMI_REG_CONFIG 0x4
@@ -49,14 +55,20 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPMI_STATUS_DONE 0x1
 
 #define SPMI_MAX_CHANNELS 128
+#define SPMI_MAX_CHANNELS_V5	512
+#define SPMI_MAX_CHANNELS_V7	1024
 #define SPMI_MAX_SLAVES 16
 #define SPMI_MAX_PERIPH 256
+
+#define SPMI_CHANNEL_READ_ONLY	BIT(31)
+#define SPMI_CHANNEL_MASK	0xffff
 
 enum arb_ver {
 	V1 = 1,
 	V2,
 	V3,
-	V5 = 5
+	V5 = 5,
+	V7 = 7
 };
 
 /*
@@ -72,11 +84,24 @@ struct msm_spmi_priv {
 	phys_addr_t arb_chnl;  /* ARB channel mapping base */
 	phys_addr_t spmi_chnls; /* SPMI channels */
 	phys_addr_t spmi_obs;  /* SPMI observer */
+	phys_addr_t spmi_cnfg;  /* SPMI config */
+	u32 owner;	/* Current owner */
+	unsigned int max_channels; /* Max channels */
 	/* SPMI channel map */
-	uint8_t channel_map[SPMI_MAX_SLAVES][SPMI_MAX_PERIPH];
+	uint32_t channel_map[SPMI_MAX_SLAVES][SPMI_MAX_PERIPH];
 	/* SPMI bus arbiter version */
 	u32 arb_ver;
 };
+
+static u32 pmic_arb_fmt_cmd_v1(u8 opc, u8 sid, u8 pid, u8 off)
+{
+	return (opc << 27) | (sid << 20) | (pid << 12) | (off << 4) | 1;
+}
+
+static u32 pmic_arb_fmt_cmd_v2(u8 opc, u8 off)
+{
+	return (opc << 27) | (off << 4) | 1;
+}
 
 static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 			  uint8_t val)
@@ -90,35 +115,53 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
+	if (priv->channel_map[usid][pid] & SPMI_CHANNEL_READ_ONLY)
+		return -EPERM;
 
-	channel = priv->channel_map[usid][pid];
+	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
-	/* Disable IRQ mode for the current channel*/
-	writel(0x0,
-	       priv->spmi_chnls + SPMI_CH_OFFSET(channel) + SPMI_REG_CONFIG);
+	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
 
-	/* Write single byte */
-	writel(val, priv->spmi_chnls + SPMI_CH_OFFSET(channel) + SPMI_REG_WDATA);
-
-	/* Prepare write command */
-	reg |= SPMI_CMD_EXT_REG_WRITE_LONG << SPMI_CMD_OPCODE_SHIFT;
-	reg |= (usid << SPMI_CMD_SLAVE_ID_SHIFT);
-	reg |= (pid << SPMI_CMD_ADDR_SHIFT);
-	reg |= (off << SPMI_CMD_ADDR_OFFSET_SHIFT);
-	reg |= 1; /* byte count */
-
-	if (priv->arb_ver == V5)
-		ch_offset = SPMI_V5_RW_CH_OFFSET(channel);
-	else
+	switch (priv->arb_ver) {
+	case V1:
 		ch_offset = SPMI_CH_OFFSET(channel);
 
+		reg = pmic_arb_fmt_cmd_v1(SPMI_CMD_EXT_REG_WRITE_LONG,
+					  usid, pid, off);
+		break;
+
+	case V2:
+		ch_offset = SPMI_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
+		break;
+
+	case V5:
+		ch_offset = SPMI_V5_RW_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
+		break;
+
+	case V7:
+		ch_offset = SPMI_V7_RW_CH_OFFSET(channel);
+
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
+		break;
+	}
+
+	/* Disable IRQ mode for the current channel*/
+	writel(0x0, priv->spmi_chnls + ch_offset + SPMI_REG_CONFIG);
+
+	/* Write single byte */
+	writel(val, priv->spmi_chnls + ch_offset + SPMI_REG_WDATA);
+
 	/* Send write command */
-	writel(reg, priv->spmi_chnls + SPMI_CH_OFFSET(channel) + SPMI_REG_CMD0);
+	writel(reg, priv->spmi_chnls + ch_offset + SPMI_REG_CMD0);
 
 	/* Wait till CMD DONE status */
 	reg = 0;
 	while (!reg) {
-		reg = readl(priv->spmi_chnls + SPMI_CH_OFFSET(channel) +
+		reg = readl(priv->spmi_chnls + ch_offset +
 			    SPMI_REG_STATUS);
 	}
 
@@ -142,22 +185,43 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
 
-	channel = priv->channel_map[usid][pid];
+	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
-	if (priv->arb_ver == V5)
-		ch_offset = SPMI_V5_OBS_CH_OFFSET(channel);
-	else
+	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
+
+	switch (priv->arb_ver) {
+	case V1:
 		ch_offset = SPMI_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v1(SPMI_CMD_EXT_REG_READ_LONG,
+					  usid, pid, off);
+		break;
+
+	case V2:
+		ch_offset = SPMI_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_READ_LONG, off);
+		break;
+
+	case V5:
+		ch_offset = SPMI_V5_OBS_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_READ_LONG, off);
+		break;
+
+	case V7:
+		ch_offset = SPMI_V7_OBS_CH_OFFSET(channel);
+
+		/* Prepare read command */
+		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_READ_LONG, off);
+		break;
+	}
 
 	/* Disable IRQ mode for the current channel*/
 	writel(0x0, priv->spmi_obs + ch_offset + SPMI_REG_CONFIG);
-
-	/* Prepare read command */
-	reg |= SPMI_CMD_EXT_REG_READ_LONG << SPMI_CMD_OPCODE_SHIFT;
-	reg |= (usid << SPMI_CMD_SLAVE_ID_SHIFT);
-	reg |= (pid << SPMI_CMD_ADDR_SHIFT);
-	reg |= (off << SPMI_CMD_ADDR_OFFSET_SHIFT);
-	reg |= 1; /* byte count */
 
 	/* Request read */
 	writel(reg, priv->spmi_obs + ch_offset + SPMI_REG_CMD0);
@@ -193,18 +257,29 @@ static int msm_spmi_probe(struct udevice *dev)
 	core_addr = dev_read_addr_name(dev, "core");
 	priv->spmi_chnls = dev_read_addr_name(dev, "chnls");
 	priv->spmi_obs = dev_read_addr_name(dev, "obsrvr");
+	dev_read_u32(dev, "qcom,ee", &priv->owner);
 
 	hw_ver = readl(core_addr + PMIC_ARB_VERSION);
 
 	if (hw_ver < PMIC_ARB_VERSION_V3_MIN) {
 		priv->arb_ver = V2;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V1_V2_V3;
+		priv->max_channels = SPMI_MAX_CHANNELS;
 	} else if (hw_ver < PMIC_ARB_VERSION_V5_MIN) {
 		priv->arb_ver = V3;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V1_V2_V3;
-	} else {
+		priv->max_channels = SPMI_MAX_CHANNELS;
+	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
+		priv->max_channels = SPMI_MAX_CHANNELS;
+		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
+	} else {
+		/* TOFIX: handle second bus */
+		priv->arb_ver = V7;
+		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V7;
+		priv->max_channels = SPMI_MAX_CHANNELS_V7;
+		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	}
 
 	dev_dbg(dev, "PMIC Arb Version-%d (%#x)\n", hw_ver >> 28, hw_ver);
@@ -218,12 +293,21 @@ static int msm_spmi_probe(struct udevice *dev)
 	dev_dbg(dev, "priv->spmi_chnls address (%#08llx)\n", priv->spmi_chnls);
 	dev_dbg(dev, "priv->spmi_obs address (%#08llx)\n", priv->spmi_obs);
 	/* Scan peripherals connected to each SPMI channel */
-	for (i = 0; i < SPMI_MAX_PERIPH; i++) {
+	for (i = 0; i < priv->max_channels; i++) {
 		uint32_t periph = readl(priv->arb_chnl + ARB_CHANNEL_OFFSET(i));
 		uint8_t slave_id = (periph & 0xf0000) >> 16;
 		uint8_t pid = (periph & 0xff00) >> 8;
 
 		priv->channel_map[slave_id][pid] = i;
+
+		/* Mark channels read-only when from different owner */
+		if (priv->arb_ver == V5 || priv->arb_ver == V7) {
+			uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
+			uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
+
+			if (owner != priv->owner)
+				priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+		}
 	}
 	return 0;
 }

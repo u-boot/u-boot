@@ -29,15 +29,24 @@ struct msm_pinctrl_priv {
 #define GPIO_CONFIG_REG(priv, x) \
 	(qcom_pin_offset((priv)->data->pin_data.pin_offsets, x))
 
-#define TLMM_GPIO_PULL_MASK GENMASK(1, 0)
-#define TLMM_FUNC_SEL_MASK GENMASK(5, 2)
-#define TLMM_DRV_STRENGTH_MASK GENMASK(8, 6)
-#define TLMM_GPIO_DISABLE BIT(9)
+#define GPIO_IN_OUT_REG(priv, x) \
+	(GPIO_CONFIG_REG(priv, x) + 0x4)
+
+#define TLMM_GPIO_PULL_MASK	GENMASK(1, 0)
+#define TLMM_FUNC_SEL_MASK	GENMASK(5, 2)
+#define TLMM_DRV_STRENGTH_MASK	GENMASK(8, 6)
+#define TLMM_GPIO_OUTPUT_MASK	BIT(1)
+#define TLMM_GPIO_OE_MASK	BIT(9)
+
+/* GPIO register shifts. */
+#define GPIO_OUT_SHIFT		1
 
 static const struct pinconf_param msm_conf_params[] = {
 	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 2 },
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 3 },
+	{ "output-high", PIN_CONFIG_OUTPUT, 1, },
+	{ "output-low", PIN_CONFIG_OUTPUT, 0, },
 };
 
 static int msm_get_functions_count(struct udevice *dev)
@@ -90,7 +99,7 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 		return 0;
 
 	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
-			TLMM_FUNC_SEL_MASK | TLMM_GPIO_DISABLE, func << 2);
+			TLMM_FUNC_SEL_MASK | TLMM_GPIO_OE_MASK, func << 2);
 	return 0;
 }
 
@@ -116,6 +125,12 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	case PIN_CONFIG_BIAS_PULL_UP:
 		clrsetbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
 				TLMM_GPIO_PULL_MASK, argument);
+		break;
+	case PIN_CONFIG_OUTPUT:
+		writel(argument << GPIO_OUT_SHIFT,
+		       priv->base + GPIO_IN_OUT_REG(priv, pin_selector));
+		setbits_le32(priv->base + GPIO_CONFIG_REG(priv, pin_selector),
+			     TLMM_GPIO_OE_MASK);
 		break;
 	default:
 		return 0;

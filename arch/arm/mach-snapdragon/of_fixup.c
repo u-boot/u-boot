@@ -17,6 +17,8 @@
  *   Author: Caleb Connolly <caleb.connolly@linaro.org>
  */
 
+#define pr_fmt(fmt) "of_fixup: " fmt
+
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dm/of_access.h>
 #include <dm/of.h>
@@ -152,4 +154,22 @@ void qcom_of_fixup_nodes(void)
 {
 	time_call(fixup_usb_nodes);
 	time_call(fixup_power_domains);
+}
+
+int ft_board_setup(void *blob, struct bd_info __maybe_unused *bd)
+{
+	struct fdt_header *fdt = blob;
+	int node;
+
+	/* We only want to do this fix-up for the RB1 board, quick return for all others */
+	if (!fdt_node_check_compatible(fdt, 0, "qcom,qrb4210-rb2"))
+		return 0;
+
+	fdt_for_each_node_by_compatible(node, blob, 0, "snps,dwc3") {
+		log_debug("%s: Setting 'dr_mode' to OTG\n", fdt_get_name(blob, node, NULL));
+		fdt_setprop_string(fdt, node, "dr_mode", "otg");
+		break;
+	}
+
+	return 0;
 }
