@@ -997,8 +997,8 @@ static int mmc_set_card_speed(struct mmc *mmc, enum bus_mode mode,
 	 * Extended CSD. Reconfigure the controller to run at HS mode.
 	 */
 	if (hsdowngrade) {
-		mmc_select_mode(mmc, MMC_HS);
-		mmc_set_clock(mmc, mmc_mode2freq(mmc, MMC_HS), false);
+		mmc_select_mode(mmc, MMC_HS_52);
+		mmc_set_clock(mmc, mmc_mode2freq(mmc, MMC_HS_52), false);
 	}
 #endif
 
@@ -2077,7 +2077,7 @@ static int mmc_select_hs400(struct mmc *mmc)
 	}
 
 	/* Set back to HS */
-	mmc_set_card_speed(mmc, MMC_HS, true);
+	mmc_set_card_speed(mmc, MMC_HS_52, true);
 
 	err = mmc_hs400_prepare_ddr(mmc);
 	if (err)
