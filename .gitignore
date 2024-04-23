@@ -72,6 +72,7 @@ fit-dtb.blob*
 /Test*
 /capsule.*.efi-capsule
 /capsule*.map
+/keep-syms-lto.*
 
 #
 # Generated include files
