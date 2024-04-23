@@ -21,7 +21,6 @@ int board_init(void)
 
 int dram_init(void)
 {
-	char value[32];
 	struct npcm_gcr *gcr = (struct npcm_gcr *)NPCM_GCR_BA;
 
 	int ramsize = (readl(&gcr->intcr3) >> 8) & 0x7;
@@ -47,17 +46,31 @@ int dram_init(void)
 	break;
 	}
 
-	if (gd->ram_size > 0) {
-                sprintf(value, "%ldM", (gd->ram_size / 0x100000));
-                env_set("mem", value);
-        }
-
 	return 0;
 }
 
 int last_stage_init(void)
 {
-	board_set_console();
+
+	char value[32];
+	struct udevice *dev = gd->cur_serial_dev;
+
+	if (gd->ram_size > 0) {
+		sprintf(value, "%ldM", (gd->ram_size / 0x100000));
+		env_set("mem", value);
+	}
+
+	if (dev && (dev->seq_ >= 0)) {
+		void *addr;
+		addr = dev_read_addr_ptr(dev);
+		if (addr) {
+			sprintf(value, "uart8250,mmio32,0x%x", (u32)addr);
+			env_set("earlycon", value);
+		}
+		sprintf(value, "ttyS%d,115200n8", dev->seq_);
+		env_set("console", value);
+		board_set_console();
+	}
 
 	return 0;
 }
