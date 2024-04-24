@@ -21,6 +21,10 @@ hash_mbedtls-$(CONFIG_$(SPL_)SHA1) += sha1.o
 hash_mbedtls-$(CONFIG_$(SPL_)SHA256) += sha256.o
 hash_mbedtls-$(CONFIG_$(SPL_)SHA512) += sha512.o
 
+# x509 libraries
+obj-$(CONFIG_MBEDTLS_LIB_X509) += x509_mbedtls.o
+x509_mbedtls-$(CONFIG_$(SPL_)ASYMMETRIC_PUBLIC_KEY_SUBTYPE) += public_key.o
+
 obj-$(CONFIG_MBEDTLS_LIB_CRYPTO) += mbedtls_lib_crypto.o
 mbedtls_lib_crypto-y := \
 	$(MBEDTLS_LIB_DIR)/aes.o \
