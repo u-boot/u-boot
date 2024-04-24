@@ -98,10 +98,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
 
-dtb-$(CONFIG_ROCKCHIP_RV1108) += \
-	rv1108-elgin-r1.dtb \
-	rv1108-evb.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RV1126) += \
 	rv1126-edgeble-neu2-io.dtb
 
