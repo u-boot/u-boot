@@ -120,6 +120,7 @@ config LEGACY_CRYPTO_CERT
 	select ASYMMETRIC_PUBLIC_KEY_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	select X509_CERTIFICATE_PARSER_LEGACY if X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER_LEGACY if PKCS7_MESSAGE_PARSER
 	select SPL_ASYMMETRIC_PUBLIC_KEY_LEGACY if \
 		SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	help
@@ -140,6 +141,14 @@ config X509_CERTIFICATE_PARSER_LEGACY
 	select ASN1_DECODER_LEGACY
 	help
 	  This option chooses legacy certificate library for X509 certificate
+	  parser.
+
+config PKCS7_MESSAGE_PARSER_LEGACY
+	bool "PKCS#7 message parser with legacy certificate library"
+	depends on X509_CERTIFICATE_PARSER_LEGACY
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for PKCS7 message
 	  parser.
 
 if SPL
@@ -284,6 +293,7 @@ config MBEDTLS_LIB_X509
 	select ASYMMETRIC_PUBLIC_KEY_MBEDTLS if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	select X509_CERTIFICATE_PARSER_MBEDTLS if X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER_MBEDTLS if PKCS7_MESSAGE_PARSER
 	select SPL_ASYMMETRIC_PUBLIC_KEY_MBEDTLS if \
 		SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	help
@@ -304,6 +314,14 @@ config X509_CERTIFICATE_PARSER_MBEDTLS
 	select ASN1_DECODER_MBEDTLS
 	help
 	  This option chooses MbedTLS certificate library for X509 certificate
+	  parser.
+
+config PKCS7_MESSAGE_PARSER_MBEDTLS
+	bool "PKCS#7 message parser with MbedTLS certificate library"
+	depends on X509_CERTIFICATE_PARSER_MBEDTLS
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for PKCS7 message
 	  parser.
 
 if SPL
