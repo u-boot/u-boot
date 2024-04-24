@@ -7,6 +7,6 @@
 #ifndef _SPL_STARFIVE_H
 #define _SPL_STARFIVE_H
 
-int spl_soc_init(void);
+int spl_dram_init(void);
 
 #endif /* _SPL_STARFIVE_H */
