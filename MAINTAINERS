@@ -334,7 +334,6 @@ F:	drivers/spi/gxp_spi.c
 
 ARM IPQ40XX
 M:	Robert Marko <robert.marko@sartura.hr>
-M:	Luka Kovacic <luka.kovacic@sartura.hr>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 F:	arch/arm/mach-ipq40xx/
