@@ -122,12 +122,14 @@ endif # LEGACY_CRYPTO_BASIC
 
 config LEGACY_CRYPTO_CERT
 	bool "legacy certificate libraries"
+	select ASN1_DECODER_LEGACY if ASN1_DECODER
 	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	select RSA_PUBLIC_KEY_PARSER_LEGACY if RSA_PUBLIC_KEY_PARSER
 	select X509_CERTIFICATE_PARSER_LEGACY if X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER_LEGACY if PKCS7_MESSAGE_PARSER
 	select MSCODE_PARSER_LEGACY if MSCODE_PARSER
+	select SPL_ASN1_DECODER_LEGACY if ASN1_DECODER && SPL
 	select SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	select SPL_RSA_PUBLIC_KEY_PARSER_LEGACY if RSA_PUBLIC_KEY_PARSER && SPL
@@ -135,6 +137,12 @@ config LEGACY_CRYPTO_CERT
 	  Enable legacy certificate libraries.
 
 if LEGACY_CRYPTO_CERT
+
+config ASN1_DECODER_LEGACY
+	bool "ASN1 decoder with legacy certificate library"
+	depends on LEGACY_CRYPTO_CERT && ASN1_DECODER
+	help
+	  This option chooses legacy certificate library for ASN1 decoder.
 
 config ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY
 	bool "Asymmetric public key crypto with legacy certificate library"
@@ -176,6 +184,13 @@ config MSCODE_PARSER_LEGACY
 	  parser.
 
 if SPL
+
+config SPL_ASN1_DECODER_LEGACY
+	bool "ASN1 decoder with legacy certificate library in SPL"
+	depends on LEGACY_CRYPTO_CERT && SPL_ASN1_DECODER
+	help
+	  This option chooses legacy certificate library for ASN1 decoder in
+	  SPL.
 
 config SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY
 	bool "Asymmetric public key crypto with legacy certificate library in SPL"
@@ -303,12 +318,14 @@ endif # MBEDTLS_LIB_CRYPTO
 
 config MBEDTLS_LIB_X509
 	bool "MbedTLS certificate libraries"
+	select ASN1_DECODER_MBEDTLS if ASN1_DECODER
 	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
 	select RSA_PUBLIC_KEY_PARSER_MBEDTLS if RSA_PUBLIC_KEY_PARSER
 	select X509_CERTIFICATE_PARSER_MBEDTLS if X509_CERTIFICATE_PARSER
 	select PKCS7_MESSAGE_PARSER_MBEDTLS if PKCS7_MESSAGE_PARSER
 	select MSCODE_PARSER_MBEDTLS if MSCODE_PARSER
+	select SPL_ASN1_DECODER_MBEDTLS if ASN1_DECODER && SPL
 	select SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	select SPL_RSA_PUBLIC_KEY_PARSER_MBEDTLS if RSA_PUBLIC_KEY_PARSER && SPL
@@ -316,6 +333,11 @@ config MBEDTLS_LIB_X509
 	  Enable MbedTLS certificate libraries.
 
 if MBEDTLS_LIB_X509
+
+config ASN1_DECODER_MBEDTLS
+	bool "ASN1 decoder with MbedTLS certificate library"
+	help
+	  This option chooses MbedTLS certificate library for ASN1 decoder.
 
 config ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS
 	bool "Asymmetric public key crypto with MbedTLS certificate library"
@@ -355,6 +377,12 @@ config MSCODE_PARSER_MBEDTLS
 	  parser.
 
 if SPL
+
+config SPL_ASN1_DECODER_MBEDTLS
+	bool "ASN1 decoder with MbedTLS certificate library in SPL"
+	help
+	  This option chooses MbedTLS certificate library for ASN1 decoder in
+	  SPL.
 
 config SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS
 	bool "Asymmetric public key crypto with MbedTLS certificate library in SPL"
