@@ -82,7 +82,9 @@ obj-$(CONFIG_$(SPL_)SHA512) += sha512.o
 endif
 
 obj-$(CONFIG_CRYPT_PW) += crypt/
+ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 obj-$(CONFIG_$(SPL_)ASN1_DECODER) += asn1_decoder.o
+endif
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
