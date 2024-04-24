@@ -337,8 +337,7 @@ M:	Robert Marko <robert.marko@sartura.hr>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 S:	Maintained
 F:	arch/arm/mach-ipq40xx/
-F:	include/dt-bindings/clock/qcom,ipq4019-gcc.h
-F:	include/dt-bindings/reset/qcom,ipq4019-reset.h
+F:	include/dt-bindings/clock/qcom,gcc-ipq4019.h
 F:	drivers/reset/reset-ipq4019.c
 F:	drivers/phy/phy-qcom-ipq4019-usb.c
 F:	drivers/spi/spi-qup.c
