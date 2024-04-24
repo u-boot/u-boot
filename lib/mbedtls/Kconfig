@@ -124,6 +124,7 @@ config LEGACY_CRYPTO_CERT
 	bool "legacy certificate libraries"
 	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select X509_CERTIFICATE_PARSER_LEGACY if X509_CERTIFICATE_PARSER
 	select SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	help
@@ -137,6 +138,14 @@ config ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY
 	help
 	  This option chooses legacy certificate library for asymmetric public
 	  key crypto algorithm.
+
+config X509_CERTIFICATE_PARSER_LEGACY
+	bool "X.509 certificate parser with legacy certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE_LEGACY
+	select ASN1_DECODER_LEGACY
+	help
+	  This option chooses legacy certificate library for X509 certificate
+	  parser.
 
 if SPL
 
@@ -260,6 +269,7 @@ config MBEDTLS_LIB_X509
 	bool "MbedTLS certificate libraries"
 	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select X509_CERTIFICATE_PARSER_MBEDTLS if X509_CERTIFICATE_PARSER
 	select SPL_ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE && SPL
 	help
@@ -272,6 +282,14 @@ config ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS
 	help
 	  This option chooses MbedTLS certificate library for asymmetric public
 	  key crypto algorithm.
+
+config X509_CERTIFICATE_PARSER_MBEDTLS
+	bool "X.509 certificate parser with MbedTLS certificate library"
+	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE_MBEDTLS
+	select ASN1_DECODER_MBEDTLS
+	help
+	  This option chooses MbedTLS certificate library for X509 certificate
+	  parser.
 
 if SPL
 
