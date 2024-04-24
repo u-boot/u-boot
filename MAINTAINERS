@@ -343,6 +343,7 @@ F:	drivers/phy/phy-qcom-ipq4019-usb.c
 F:	drivers/spi/spi-qup.c
 F:	drivers/net/mdio-ipq4019.c
 F:	drivers/rng/msm_rng.c
+F:	drivers/pinctrl/qcom/pinctrl-ipq4019.c
 
 ARM LAYERSCAPE SFP
 M:	Sean Anderson <sean.anderson@seco.com>
