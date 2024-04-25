@@ -610,6 +610,7 @@ S:	Supported
 T:	git https://github.com/analogdevicesinc/lnxdsp-u-boot
 F:	arch/arm/include/asm/arch-adi/
 F:	arch/arm/mach-sc5xx/
+F:	drivers/clk/adi/
 F:	include/env/adi/
 
 ARM SNAPDRAGON
