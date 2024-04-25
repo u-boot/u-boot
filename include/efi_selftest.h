@@ -148,6 +148,17 @@ void *efi_st_get_config_table(const efi_guid_t *guid);
 u16 efi_st_get_key(void);
 
 /**
+ * efi_st_query_variable_common - Common variable tests for boottime/runtime
+ *
+ * @runtime:	Pointer to services table
+ * @attributes: Attributes used
+ *
+ * Return:	EFI_ST_SUCCESS/FAILURE
+ */
+int efi_st_query_variable_common(struct efi_runtime_services *runtime,
+				 u32 attributes);
+
+/**
  * struct efi_unit_test - EFI unit test
  *
  * The &struct efi_unit_test structure provides a interface to an EFI unit test.
