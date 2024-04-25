@@ -69,7 +69,7 @@ config FSL_CAAM_JR_NTZ_ACCESS
 	  driver is used.
 
 config FSL_CAAM_RNG
-	bool "Enable Random Number Generator support"
+	bool "Enable CAAM Random Number Generator support"
 	depends on DM_RNG
 	default y
 	help
@@ -88,7 +88,7 @@ config SPL_FSL_CAAM_RNG
 endif
 
 config FSL_DCP_RNG
-	bool "Enable Random Number Generator support"
+	bool "Enable DCP Random Number Generator support"
 	depends on DM_RNG
 	help
 	  Enable support for the hardware based random number generator
