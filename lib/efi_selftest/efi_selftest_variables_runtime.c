@@ -60,9 +60,17 @@ static int execute(void)
 	ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS,
 					   &max_storage, &rem_storage,
 					   &max_size);
-	if (ret != EFI_UNSUPPORTED) {
-		efi_st_error("QueryVariableInfo failed\n");
-		return EFI_ST_FAILURE;
+
+	if (IS_ENABLED(CONFIG_EFI_VARIABLE_FILE_STORE)) {
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("QueryVariableInfo failed\n");
+			return EFI_ST_FAILURE;
+		}
+	} else {
+		if (ret != EFI_UNSUPPORTED) {
+			efi_st_error("QueryVariableInfo failed\n");
+			return EFI_ST_FAILURE;
+		}
 	}
 
 	ret = runtime->set_variable(u"efi_st_var0", &guid_vendor0,

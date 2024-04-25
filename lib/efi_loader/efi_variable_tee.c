@@ -873,6 +873,11 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
 	efi_status_t ret;
 	u8 *comm_buf;
 
+	if (!max_variable_storage_size ||
+	    !remain_variable_storage_size ||
+	    !max_variable_size || !attributes)
+		return EFI_INVALID_PARAMETER;
+
 	payload_size = sizeof(*mm_query_info);
 	comm_buf = setup_mm_hdr((void **)&mm_query_info, payload_size,
 				SMM_VARIABLE_FUNCTION_QUERY_VARIABLE_INFO,

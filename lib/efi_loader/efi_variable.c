@@ -406,12 +406,15 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	return EFI_SUCCESS;
 }
 
-efi_status_t efi_query_variable_info_int(u32 attributes,
-					 u64 *maximum_variable_storage_size,
-					 u64 *remaining_variable_storage_size,
-					 u64 *maximum_variable_size)
+efi_status_t __efi_runtime
+efi_query_variable_info_int(u32 attributes,
+			    u64 *maximum_variable_storage_size,
+			    u64 *remaining_variable_storage_size,
+			    u64 *maximum_variable_size)
 {
-	if (attributes == 0)
+	if (!maximum_variable_storage_size ||
+	    !remaining_variable_storage_size ||
+	    !maximum_variable_size || !attributes)
 		return EFI_INVALID_PARAMETER;
 
 	/* EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated */
@@ -460,7 +463,17 @@ static efi_status_t __efi_runtime EFIAPI efi_query_variable_info_runtime(
 			u64 *remaining_variable_storage_size,
 			u64 *maximum_variable_size)
 {
-	return EFI_UNSUPPORTED;
+	if (!(attributes & EFI_VARIABLE_RUNTIME_ACCESS))
+		return EFI_INVALID_PARAMETER;
+	if ((attributes & (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
+			   EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS |
+			   EFI_VARIABLE_ENHANCED_AUTHENTICATED_ACCESS)))
+		return EFI_UNSUPPORTED;
+
+	return efi_query_variable_info_int(attributes,
+					   maximum_variable_storage_size,
+					   remaining_variable_storage_size,
+					   maximum_variable_size);
 }
 
 /**
