@@ -136,7 +136,7 @@
 };
 
 &binman {
-	itb {
+	section {
 		fit {
 			images {
 				fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast {

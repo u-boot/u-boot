@@ -5,7 +5,6 @@
 
 / {
 	binman: binman {
-		multiple-images;
 	};
 
 };
@@ -35,65 +34,58 @@
 };
 
 &binman {
-	u-boot-spl-ddr {
-		align = <4>;
-		align-size = <4>;
-		filename = "u-boot-spl-ddr.bin";
-		pad-byte = <0xff>;
+	filename = "flash.bin";
+	section {
+		pad-byte = <0x00>;
 
-		u-boot-spl {
-			align-end = <4>;
-			filename = "u-boot-spl.bin";
-		};
+		nxp-imx8mimage {
+			filename = "u-boot-spl-mkimage.bin";
+			nxp,boot-from = "sd";
+			nxp,rom-version = <1>;
+			nxp,loader-address = <CONFIG_SPL_TEXT_BASE>;
+			args;	/* Needed by mkimage etype superclass */
 
-		ddr-1d-imem-fw {
-			filename = "lpddr4_pmu_train_1d_imem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-1d-dmem-fw {
-			filename = "lpddr4_pmu_train_1d_dmem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-2d-imem-fw {
-			filename = "lpddr4_pmu_train_2d_imem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-2d-dmem-fw {
-			filename = "lpddr4_pmu_train_2d_dmem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-	};
-
-	signed-hdmi {
-		filename = "signed_hdmi.bin";
-
-		signed-hdmi-imx8m {
-			filename = "signed_hdmi_imx8m.bin";
-			type = "blob-ext";
-		};
-	};
-
-	spl {
-		filename = "spl.bin";
-
-		mkimage {
-			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x7e1000";
-
-			blob {
+			section {
+				align = <4>;
+				align-size = <4>;
 				filename = "u-boot-spl-ddr.bin";
+				pad-byte = <0xff>;
+
+				u-boot-spl {
+					align-end = <4>;
+					filename = "u-boot-spl.bin";
+				};
+
+				ddr-1d-imem-fw {
+					filename = "lpddr4_pmu_train_1d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-1d-dmem-fw {
+					filename = "lpddr4_pmu_train_1d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-imem-fw {
+					filename = "lpddr4_pmu_train_2d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-dmem-fw {
+					filename = "lpddr4_pmu_train_2d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				signed-hdmi-imx8m {
+					filename = "signed_hdmi_imx8m.bin";
+					type = "blob-ext";
+				};
 			};
 		};
-	};
-
-	itb {
-		filename = "u-boot.itb";
 
 		fit {
 			description = "Configuration to load ATF before U-Boot";
@@ -156,23 +148,6 @@
 #endif
 				};
 			};
-		};
-	};
-
-	imx-boot {
-		filename = "flash.bin";
-		pad-byte = <0x00>;
-
-		spl {
-			filename = "spl.bin";
-			offset = <0x0>;
-			type = "blob-ext";
-		};
-
-		binman_uboot: uboot {
-			filename = "u-boot.itb";
-			offset = <0x57c00>;
-			type = "blob-ext";
 		};
 	};
 };

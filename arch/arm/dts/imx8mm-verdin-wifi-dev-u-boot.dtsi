@@ -35,8 +35,12 @@
 	bootph-pre-ram;
 };
 
-&binman_uboot {
-	offset = <0x5fc00>;
+&binman {
+	section {
+		fit {
+			offset = <0x5fc00>;
+		};
+	};
 };
 
 &gpio1 {
