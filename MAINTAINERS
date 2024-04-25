@@ -599,6 +599,19 @@ R:	Marc Murphy <marc.murphy@sancloud.com>
 S:	Supported
 F:	arch/arm/dts/am335x-sancloud*
 
+ARM SC5XX
+M:	Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+M:	Greg Malysa <greg.malysa@timesys.com>
+M:	Ian Roberts <ian.roberts@timesys.com>
+M:	Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+M:	Utsav Agarwal <utsav.agarwal@analog.com>
+M:	Arturs Artamonovs <arturs.artamonovs@analog.com>
+S:	Supported
+T:	git https://github.com/analogdevicesinc/lnxdsp-u-boot
+F:	arch/arm/include/asm/arch-adi/
+F:	arch/arm/mach-sc5xx/
+F:	include/env/adi/
+
 ARM SNAPDRAGON
 M:	Caleb Connolly <caleb.connolly@linaro.org>
 M:	Neil Armstrong <neil.armstrong@linaro.org>

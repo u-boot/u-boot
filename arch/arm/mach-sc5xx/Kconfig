@@ -1,0 +1,475 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# (C) Copyright 2022 - Analog Devices, Inc.
+#
+# Written and/or maintained by Timesys Corporation
+#
+# Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+# Contact: Greg Malysa <greg.malysa@timesys.com>
+#
+
+# All 32-bit platforms require SYS_ARM_CACHE_WRITETHROUGH
+# But it is ignored if selected here, so it must be in the defconfig
+
+if ARCH_SC5XX
+
+config SC57X
+	bool
+	select SUPPORT_SPL
+	select CPU_V7A
+	select PANIC_HANG
+	select COMMON_CLK_ADI_SC57X
+	select TIMER
+	select ADI_SC5XX_TIMER
+
+config SC58X
+	bool
+	select SUPPORT_SPL
+	select CPU_V7A
+	select PANIC_HANG
+	select COMMON_CLK_ADI_SC58X
+	select TIMER
+	select ADI_SC5XX_TIMER
+
+config SC59X
+	bool
+	select SUPPORT_SPL
+	select CPU_V7A
+	select PANIC_HANG
+	select COMMON_CLK_ADI_SC594
+	select TIMER
+	select ADI_SC5XX_TIMER
+	select NOP_PHY
+
+config SC59X_64
+	bool
+	select SUPPORT_SPL
+	select PANIC_HANG
+	select MMC_SDHCI_ADMA_FORCE_32BIT
+	select ARM64
+	select DM
+	select DM_SERIAL
+	select COMMON_CLK_ADI_SC598
+	select GICV3
+	select GIC_600_CLEAR_RDPD
+	select NOP_PHY
+
+config SC_BOOT_MODE
+	int "SC5XX boot mode select"
+	default 1
+	range 0 7
+	help
+	  Mode 0: do nothing, just idle
+	  Mode 1: boot ldr out of serial flash
+	  Mode 7: boot ldr over uart
+
+config SC_BOOT_SPI_BUS
+	int "sc5xx spi boot bus"
+	default 2
+	range 0 4
+	help
+	  This is the SPI peripheral number to use for booting, X in the
+	  expression `sf probe X:Y`
+
+config SC_BOOT_SPI_SSEL
+	int "sc5xx spi boot chipselect"
+	default 1
+	range 0 6
+	help
+	  This is the SPI chip select number to use for booting, Y in the
+	  expression `sf probe X:Y`
+
+config SC_BOOT_OSPI_BUS
+	int "sc5xx ospi boot bus"
+	default 0
+	help
+	  This is the OSPI peripheral number to use for booting, X in the
+	  expression `sf probe X:Y`
+
+config SC_BOOT_OSPI_SSEL
+	int "sc5xx ospi boot chipselect"
+	default 0
+	help
+	  This is the OSPI chip select number to use for booting, Y in the
+	  expression `sf probe X:Y`
+
+config SYS_FLASH_BASE
+	hex
+	default 0x60000000
+
+config UART_CONSOLE
+	int
+	default 0
+
+config UART4_SERIAL
+	bool
+	depends on DM_SERIAL
+	default y
+
+config WDT_ADI
+	bool
+	default y
+
+config WATCHDOG_TIMEOUT_MSECS
+	int
+	default 30000
+
+config DW_PORTS
+	int
+	default 1
+
+config ADI_BUG_EZKHW21
+	bool "SC584 EZKIT phy bug workaround"
+	depends on SC58X
+	help
+	  This workaround affects the SC584 EZKIT and addresses bug EZKHW21.
+	  It disables gigabit ethernet mode and limits the board to 100 Mbps
+
+config ADI_CARRIER_SOMCRR_EZKIT
+	bool "Support the EV-SOMCRR-EZKIT"
+	depends on (SC59X || SC59X_64)
+	help
+	  Say y to include support for the EV-SOMCRR-EZKIT carrier board,
+	  which is compatible with the SC594 and SC598 SOMs. The EZKIT is
+	  mutually incompatible with the EZLITE.
+
+config ADI_CARRIER_SOMCRR_EZLITE
+	bool "Support the EV-SOMCRR-EZLITE"
+	depends on (SC59X || SC59X_64)
+	help
+	  Say y to include support for the EV-SOMCRR-EZLITE carrier board,
+	  which is compatible with the SC594 and SC598 SOMs. The EZLITE is
+	  mutually incompatible with the EZKIT.
+
+config ADI_SPL_FORCE_BMODE
+	int "Force the SPL to use this BMODE device during next boot stage"
+	default 0
+	range 0 9
+	depends on SPL
+	help
+	  Force the SPL to use this BMODE device during next boot stage.
+	  For example, if booting via QSPI, we can force the second stage
+	  Of the boot process to use other peripherals via:
+	  1 = QSPI -> QSPI
+	  5 = QSPI -> OSPI
+	  6 = QSPI -> eMMC
+
+config ADI_USE_DMC0
+	bool "Configure DMC0"
+	default y
+	help
+	  During hardware initialization, channel 0 of the DMC will be
+	  initialized. Select this if you have DMC0 connected to external
+	  DDR memory. This is expected to be true for every board using
+	  an SC5xx SoC.
+
+config ADI_USE_DMC1
+	bool "Configure DMC1"
+	help
+	  During hardware initialization, channel 1 of the DMC will be
+	  initialized. Not all processors have a DMC1. Select this if your
+	  SoC has DMC1 and you have it connected to external DDR memory.
+
+config ADI_USE_DDR2
+	bool "Configure DMC for DDR2 mode"
+	help
+	  Configure the DMC in DDR2 mode. The default is DDR3 and not all
+	  parts may actually support DDR2. Please consult the manual for
+	  the SoC that you are using to determine if DDR2 mode is supported.
+	  This also requires that DDR2 memory is present on the board or it
+	  will probably cause strange failure.
+
+menu "Clock configuration"
+
+config CGU0_DF_DIV
+	int "CGU0_DF_DIV"
+	range 0 1
+	help
+	  Select 0 to pass CLKIN to PLL
+	  Select 1 to pass CLKIN/2 to PLL
+
+config CGU0_VCO_MULT
+	int "CGU0_VCO_MULT"
+	range 0 127
+	help
+	  VCO_MULT controls the MSEL (multiplier) bits in PLL_CTL
+	  A value of 0 means 128
+
+config CGU0_CCLK_DIV
+	int "CGU0_CCLK_DIV"
+	range 0 31
+	help
+	  CCLK_DIV controls the core clock divider
+	  A value of 0 means 32
+	  CCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / CCLK_DIV
+
+config CGU0_SCLK_DIV
+	int "CGU0_SCLK_DIV"
+	range 0 31
+	help
+	  SCLK_DIV controls the system clock divider
+	  A value of 0 means 32
+	  SCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / SYSCLK_DIV
+
+config CGU0_SCLK0_DIV
+	int "CGU0_SCLK0_DIV"
+	range 0 7
+	help
+	  A value of 0 means 8
+	  SCLK0 = SCLK / SCLK0_DIV
+
+config CGU0_SCLK1_DIV
+	int "CGU0_SCLK1_DIV"
+	depends on (SC57X || SC58X)
+	range 0 7
+	help
+	  A value of 0 means 8
+	  SCLK1 = SCLK / SCLK1_DIV
+
+config CGU0_DCLK_DIV
+	int "CGU0_DCLK_DIV"
+	range 0 31
+	help
+	  DCLK_DIV controls the DDR clock divider
+	  A value of 0 means 32
+	  DCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / DCLK_DIV
+
+config CGU0_OCLK_DIV
+	int "CGU0_OCLK_DIV"
+	range 0 127
+	help
+	  OCLK_DIV controls the output clock divider
+	  A value of 0 means 128
+	  OCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / OCLK_DIV
+
+config CGU0_DIV_S1SELEX
+	int "CGU0_DIV_S1SELEX"
+	depends on !SC57X && !SC58X
+	range 0 255
+	help
+	  CGU0 SCLK1 Extended divisor register.
+	  A value of 0 means 256.
+	  SCLK1 = ((CLKIN / (1 + DF)) * VCO_MULT) / DIV_S1SELEX
+
+config CGU0_CLKOUTSEL
+	int "CGU0_CLKOUTSEL"
+	default 0
+	range 0 31
+	help
+	  Select signal driven through CLKOUT pin multiplexer.
+	  This value varies on each SOC. Refer to
+	  CGU_CLKOUTSEL.CLKOUTSEL in the Hardware Reference Manual
+	  for values applicable to each SOC.
+	  Commonly, values 0 and 1 select CLKIN0 or CLKIN1 respectively.
+
+config CGU1_PLL3_DDRCLK
+	bool "DDRCLK From 3rd PLL"
+	depends on SC59X_64
+	help
+	  3rd PLL output is connected to DMC block when set.
+	  When cleared, DDR clock is CLKO3 output of CDU.
+
+config CGU1_PLL3_VCO_MSEL
+	int "CGU0_PLL3_VCO_MSEL"
+	depends on CGU1_PLL3_DDRCLK
+	range 1 128
+	help
+	  PLL multiplier value for the 3rd PLL.
+	  DCLK = (CLKIN * PLL3_VCO_MSEL) / PLL3_DCLK_DIV
+
+config CGU1_PLL3_DCLK_DIV
+	int "CGU0_PLL3_DCLK_DIV"
+	depends on CGU1_PLL3_DDRCLK
+	range 1 32
+	help
+	  PLL divider value for the 3rd PLL.
+	  DCLK = (CLKIN * PLL3_VCO_MSEL) / PLL3_DCLK_DIV
+
+config CGU1_DF_DIV
+	int "CGU1_DF_DIV"
+	range 0 1
+	help
+	  Select 0 to pass CLKIN to PLL
+	  Select 1 to pass CLKIN/2 to PLL
+
+config CGU1_VCO_MULT
+	int "CGU1_VCO_MULT"
+	range 0 127
+	help
+	  VCO_MULT controls the MSEL (multiplier) bits in PLL_CTL
+	  A value of 0 means 128
+
+config CGU1_CCLK_DIV
+	int "CGU1_CCLK_DIV"
+	range 0 31
+	help
+	  CCLK_DIV controls the core clock divider
+	  A value of 0 means 32
+	  CCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / CCLK_DIV
+
+config CGU1_SCLK_DIV
+	int "CGU1_SCLK_DIV"
+	range 0 31
+	help
+	  SCLK_DIV controls the system clock divider
+	  A value of 0 means 32
+	  SCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / SYSCLK_DIV
+
+config CGU1_SCLK0_DIV
+	int "CGU1_SCLK0_DIV"
+	depends on (SC57X || SC58X || SC59X)
+	range 0 7
+	help
+	  A value of 0 means 8
+	  SCLK0 = SCLK / SCLK0_DIV
+
+config CGU1_SCLK1_DIV
+	int "CGU1_SCLK1_DIV"
+	depends on (SC57X || SC58X)
+	range 0 7
+	help
+	  A value of 0 means 8
+	  SCLK1 = SCLK / SCLK1_DIV
+
+config CGU1_DCLK_DIV
+	int "CGU1_DCLK_DIV"
+	range 0 31
+	help
+	  DCLK_DIV controls the DDR clock divider
+	  A value of 0 means 32
+	  DCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / DCLK_DIV
+
+config CGU1_OCLK_DIV
+	int "CGU1_OCLK_DIV"
+	range 0 127
+	help
+	  OCLK_DIV controls the output clock divider
+	  A value of 0 means 128
+	  OCLK = ((CLKIN / (1 + DF)) * VCO_MULT) / OCLK_DIV
+
+config CGU1_DIV_S0SELEX
+	int "CGU1_DIV_S0SELEX"
+	depends on !SC57X && !SC58X && !SC59X
+	range 0 255
+	help
+	  CGU1 SCLK0 Extended divisor register.
+	  A value of 0 means 256.
+	  SCLK0 = ((CLKIN / (1 + DF)) * VCO_MULT) / DIV_S0SELEX
+
+config CGU1_DIV_S1SELEX
+	int "CGU1_DIV_S1SELEX"
+	depends on !SC57X && !SC58X
+	range 0 255
+	help
+	  CGU1 SCLK1 Extended divisor register.
+	  A value of 0 means 256.
+	  SCLK1 = ((CLKIN / (1 + DF)) * VCO_MULT) / DIV_S1SELEX
+
+config CDU0_CGU1_CLKIN
+	int "CDU0 CGU1 CLKINn Select"
+	default 0
+	range 0 1
+	help
+	  Selects source clock for CGU1.
+	  0 for CLKIN0
+	  1 for CLKIN1
+
+config CDU0_CLKO0
+	int "CDU0_CLKO0"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO1
+	int "CDU0_CLKO1"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO2
+	int "CDU0_CLKO2"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO3
+	int "CDU0_CLKO3"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO4
+	int "CDU0_CLKO4"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO5
+	int "CDU0_CLKO5"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO6
+	int "CDU0_CLKO6"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO7
+	int "CDU0_CLKO7"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO8
+	int "CDU0_CLKO8"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO9
+	int "CDU0_CLKO9"
+	range 1 7
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO10
+	int "CDU0_CLKO10"
+	range 1 7
+	depends on (SC59X || SC59X_64)
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO12
+	int "CDU0_CLKO12"
+	range 1 7
+	depends on (SC59X || SC59X_64)
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO13
+	int "CDU0_CLKO13"
+	range 1 7
+	depends on SC59X_64
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+config CDU0_CLKO14
+	int "CDU0_CLKO14"
+	range 1 7
+	depends on SC59X_64
+	help
+	  Clock source select. Refer to SOC Hardware Reference Manual
+
+endmenu
+
+config ADI_GPIO
+	bool
+	default y
+
+config PINCTRL_ADI
+	bool
+	default y
+
+endif
