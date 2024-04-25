@@ -23,6 +23,9 @@ int efi_st_query_variable_common(struct efi_runtime_services *runtime,
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
+	} else if (!max_storage || !rem_storage || !max_size) {
+		efi_st_error("QueryVariableInfo: wrong info\n");
+		return EFI_ST_FAILURE;
 	}
 
 	ret = runtime->query_variable_info(EFI_VARIABLE_RUNTIME_ACCESS,

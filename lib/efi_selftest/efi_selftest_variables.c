@@ -51,15 +51,12 @@ static int execute(void)
 	u16 varname[EFI_ST_MAX_VARNAME_SIZE];
 	int flag;
 	efi_guid_t guid;
-	u64 max_storage, rem_storage, max_size;
+	int test_ret;
 
-	ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS,
-					   &max_storage, &rem_storage,
-					   &max_size);
-	if (ret != EFI_SUCCESS) {
-		efi_st_todo("QueryVariableInfo failed\n");
-	} else if (!max_storage || !rem_storage || !max_size) {
-		efi_st_error("QueryVariableInfo: wrong info\n");
+	test_ret = efi_st_query_variable_common(runtime,
+						EFI_VARIABLE_BOOTSERVICE_ACCESS);
+	if (test_ret != EFI_ST_SUCCESS) {
+		efi_st_error("QueryVariableInfo failed\n");
 		return EFI_ST_FAILURE;
 	}
 	/* Set variable 0 */
