@@ -592,6 +592,9 @@ config ROCKCHIP_COMMON_STACK_ADDR
 	imply TPL_SYS_MALLOC_F if TPL
 	imply TPL_SYS_MALLOC_SIMPLE if TPL
 
+config NR_DRAM_BANKS
+	default 10 if ROCKCHIP_EXTERNAL_TPL
+
 source "arch/arm/mach-rockchip/px30/Kconfig"
 source "arch/arm/mach-rockchip/rk3036/Kconfig"
 source "arch/arm/mach-rockchip/rk3066/Kconfig"
