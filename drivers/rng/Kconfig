@@ -6,6 +6,13 @@ config DM_RNG
 	  This interface is used to initialise the rng device and to
 	  read the random seed from the device.
 
+config SPL_DM_RNG
+	bool "Driver support for Random Number Generator devices in SPL"
+	depends on SPL_DM
+	help
+	  This option is an SPL-variant of the DM_RNG option.
+	  See the help of DM_RNG for details.
+
 if DM_RNG
 
 config RNG_MESON

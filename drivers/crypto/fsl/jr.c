@@ -787,7 +787,7 @@ init:
 	}
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 	if (ofnode_valid(scu_node)) {
-		if (IS_ENABLED(CONFIG_DM_RNG)) {
+		if (CONFIG_IS_ENABLED(DM_RNG)) {
 			ret = device_bind_driver(NULL, "caam-rng", "caam-rng", NULL);
 			if (ret)
 				printf("Couldn't bind rng driver (%d)\n", ret);
@@ -810,7 +810,7 @@ init:
 			return -1;
 		}
 
-		if (IS_ENABLED(CONFIG_DM_RNG)) {
+		if (CONFIG_IS_ENABLED(DM_RNG)) {
 			ret = device_bind_driver(NULL, "caam-rng", "caam-rng",
 						 NULL);
 			if (ret)
