@@ -78,6 +78,13 @@ config FSL_CAAM_RNG
 	  using the prediction resistance flag which means the DRGB is
 	  reseeded from the TRNG every time random data is generated.
 
+config SPL_FSL_CAAM_RNG
+	bool "Enable CAAM Random Number Generator support in SPL"
+	depends on SPL_DM_RNG
+	help
+	  This option is an SPL-variant of the FSL_CAAM_RNG option.
+	  See the help of FSL_CAAM_RNG for details.
+
 endif
 
 config FSL_DCP_RNG
