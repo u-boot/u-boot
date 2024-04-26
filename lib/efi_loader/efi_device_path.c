@@ -1133,17 +1133,18 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 }
 
 /**
- * efi_dp_from_lo() - Get the instance of a VenMedia node in a
- *                    multi-instance device path that matches
- *                    a specific GUID. This kind of device paths
- *                    is found in Boot#### options describing an
- *                    initrd location
+ * efi_dp_from_lo() - get device-path from load option
  *
- * @lo:		EFI_LOAD_OPTION containing a valid device path
- * @guid:	guid to search for
+ * The load options in U-Boot may contain multiple concatenated device-paths.
+ * The first device-path indicates the EFI binary to execute. Subsequent
+ * device-paths start with a VenMedia node where the GUID identifies the
+ * function (initrd or fdt).
+ *
+ * @lo:		EFI load option containing a valid device path
+ * @guid:	GUID identifying device-path or NULL for the EFI binary
  *
  * Return:
- * device path including the VenMedia node or NULL.
+ * device path excluding the matched VenMedia node or NULL.
  * Caller must free the returned value.
  */
 struct
@@ -1153,6 +1154,9 @@ efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 	struct efi_device_path *fp = lo->file_path;
 	struct efi_device_path_vendor *vendor;
 	int lo_len = lo->file_path_length;
+
+	if (!guid)
+		return efi_dp_dup(fp);
 
 	for (; lo_len >=  sizeof(struct efi_device_path);
 	     lo_len -= fp->length, fp = (void *)fp + fp->length) {
