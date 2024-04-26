@@ -1185,4 +1185,18 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
  */
 void efi_add_known_memory(void);
 
+/**
+ * efi_load_option_dp_join() - join device-paths for load option
+ *
+ * @dp:		in: binary device-path, out: joined device-path
+ * @dp_size:	size of joined device-path
+ * @initrd_dp:	initrd device-path or NULL
+ * @fdt_dp:	device-tree device-path or NULL
+ * Return:	status_code
+ */
+efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
+				     size_t *dp_size,
+				     struct efi_device_path *initrd_dp,
+				     struct efi_device_path *fdt_dp);
+
 #endif /* _EFI_LOADER_H */
