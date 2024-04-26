@@ -41,6 +41,17 @@
 		status = "disabled";
 	};
 
+	vo0_grf: syscon@fd5a6000 {
+		compatible = "rockchip,rk3588-vo-grf", "syscon";
+		reg = <0x0 0xfd5a6000 0x0 0x2000>;
+		clocks = <&cru PCLK_VO0GRF>;
+	};
+
+	usb_grf: syscon@fd5ac000 {
+		compatible = "rockchip,rk3588-usb-grf", "syscon";
+		reg = <0x0 0xfd5ac000 0x0 0x4000>;
+	};
+
 	usbdpphy0_grf: syscon@fd5c8000 {
 		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
 		reg = <0x0 0xfd5c8000 0x0 0x4000>;
@@ -72,26 +83,9 @@
 		};
 	};
 
-	vo0_grf: syscon@fd5a6000 {
-		compatible = "rockchip,rk3588-vo-grf", "syscon";
-		reg = <0x0 0xfd5a6000 0x0 0x2000>;
-		clocks = <&cru PCLK_VO0GRF>;
-	};
-
-	usb_grf: syscon@fd5ac000 {
-		compatible = "rockchip,rk3588-usb-grf", "syscon";
-		reg = <0x0 0xfd5ac000 0x0 0x4000>;
-	};
-
-	usbdpphy0_grf: syscon@fd5c8000 {
-		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
-		reg = <0x0 0xfd5c8000 0x0 0x4000>;
-	};
-
 	rng: rng@fe378000 {
 		compatible = "rockchip,trngv1";
 		reg = <0x0 0xfe378000 0x0 0x200>;
-		status = "disabled";
 	};
 
 	usbdp_phy0: phy@fed80000 {
@@ -126,107 +120,6 @@
 	};
 };
 
-&emmc_bus8 {
-	bootph-all;
-};
-
-&emmc_clk {
-	bootph-all;
-};
-
-&emmc_cmd {
-	bootph-all;
-};
-
-&emmc_data_strobe {
-	bootph-all;
-};
-
-&emmc_rstnout {
-	bootph-all;
-};
-
-&pinctrl {
-	bootph-all;
-};
-
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
-	bootph-all;
-};
-
-&pcfg_pull_up {
-	bootph-all;
-};
-
-&xin24m {
-	bootph-all;
-};
-
-&cru {
-	bootph-pre-ram;
-};
-
-&sys_grf {
-	bootph-pre-ram;
-};
-
-&pmu1grf {
-	bootph-all;
-};
-
-&scmi {
-	bootph-pre-ram;
-};
-
-&scmi_clk {
-	bootph-pre-ram;
-};
-
-&sdmmc {
-	bootph-pre-ram;
-	bootph-some-ram;
-	u-boot,spl-fifo-mode;
-};
-
-&sdhci {
-	bootph-pre-ram;
-	bootph-some-ram;
-	u-boot,spl-fifo-mode;
-};
-
-&sdmmc_bus4 {
-	bootph-all;
-};
-
-&sdmmc_clk {
-	bootph-all;
-};
-
-&sdmmc_cmd {
-	bootph-all;
-};
-
-&sdmmc_det {
-	bootph-all;
-};
-
-&uart2 {
-	bootph-pre-ram;
-	clock-frequency = <24000000>;
-};
-
-&uart2m0_xfer {
-	bootph-all;
-};
-
-&ioc {
-	bootph-pre-ram;
-};
-
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
 	simple-bin-spi {
@@ -237,3 +130,128 @@
 	};
 };
 #endif
+
+&cru {
+	bootph-all;
+};
+
+&emmc_bus8 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_data_strobe {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_rstnout {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&ioc {
+	bootph-all;
+};
+
+&pcfg_pull_down {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&php_grf {
+	bootph-all;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&pmu1grf {
+	bootph-all;
+};
+
+&scmi {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&scmi_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdhci {
+	bootph-pre-ram;
+	bootph-some-ram;
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+	u-boot,spl-fifo-mode;
+};
+
+&sdmmc_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_det {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc {
+	u-boot,spl-sfc-no-dma;
+};
+
+&sys_grf {
+	bootph-all;
+};
+
+&uart2 {
+	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart2m0_xfer {
+	bootph-all;
+};
+
+&xin24m {
+	bootph-all;
+};

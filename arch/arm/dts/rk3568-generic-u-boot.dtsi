@@ -1,3 +1,10 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 
 #include "rk356x-u-boot.dtsi"
+
+&sfc {
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+};

@@ -28,6 +28,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ff0f0000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff130000/flash@0",
 	[BROM_BOOTSOURCE_SD] = "/mmc@ff0c0000",
 };
 

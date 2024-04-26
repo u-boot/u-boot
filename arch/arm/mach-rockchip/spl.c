@@ -32,18 +32,26 @@ __weak const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 
 const char *board_spl_was_booted_from(void)
 {
-	u32  bootdevice_brom_id = readl(BROM_BOOTSOURCE_ID_ADDR);
+	static u32 brom_bootsource_id_cache = BROM_BOOTSOURCE_UNKNOWN;
+	u32 bootdevice_brom_id;
 	const char *bootdevice_ofpath = NULL;
+
+	if (brom_bootsource_id_cache != BROM_BOOTSOURCE_UNKNOWN)
+		bootdevice_brom_id = brom_bootsource_id_cache;
+	else
+		bootdevice_brom_id = readl(BROM_BOOTSOURCE_ID_ADDR);
 
 	if (bootdevice_brom_id < ARRAY_SIZE(boot_devices))
 		bootdevice_ofpath = boot_devices[bootdevice_brom_id];
 
-	if (bootdevice_ofpath)
+	if (bootdevice_ofpath) {
+		brom_bootsource_id_cache = bootdevice_brom_id;
 		debug("%s: brom_bootdevice_id %x maps to '%s'\n",
 		      __func__, bootdevice_brom_id, bootdevice_ofpath);
-	else
+	} else {
 		debug("%s: failed to resolve brom_bootdevice_id %x\n",
 		      __func__, bootdevice_brom_id);
+	}
 
 	return bootdevice_ofpath;
 }

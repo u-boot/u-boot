@@ -6,12 +6,6 @@
 	chosen {
 		u-boot,spl-boot-order = "same-as-spl", &sdmmc1, &sdmmc0;
 	};
-
-	rng: rng@fe388000 {
-		compatible = "rockchip,cryptov2-rng";
-		reg = <0x0 0xfe388000 0x0 0x2000>;
-		status = "okay";
-	};
 };
 
 &dsi_dphy0 {

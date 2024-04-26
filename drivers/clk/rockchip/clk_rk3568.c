@@ -1527,28 +1527,20 @@ static ulong rk3568_sfc_set_clk(struct rk3568_clk_priv *priv, ulong rate)
 	struct rk3568_cru *cru = priv->cru;
 	int src_clk;
 
-	switch (rate) {
-	case OSC_HZ:
-		src_clk = SCLK_SFC_SEL_24M;
-		break;
-	case 50 * MHz:
-		src_clk = SCLK_SFC_SEL_50M;
-		break;
-	case 75 * MHz:
-		src_clk = SCLK_SFC_SEL_75M;
-		break;
-	case 100 * MHz:
-		src_clk = SCLK_SFC_SEL_100M;
-		break;
-	case 125 * MHz:
-		src_clk = SCLK_SFC_SEL_125M;
-		break;
-	case 150 * MHz:
+	if (rate >= 150 * MHz)
 		src_clk = SCLK_SFC_SEL_150M;
-		break;
-	default:
+	else if (rate >= 125 * MHz)
+		src_clk = SCLK_SFC_SEL_125M;
+	else if (rate >= 100 * MHz)
+		src_clk = SCLK_SFC_SEL_100M;
+	else if (rate >= 75 * MHz)
+		src_clk = SCLK_SFC_SEL_75M;
+	else if (rate >= 50 * MHz)
+		src_clk = SCLK_SFC_SEL_50M;
+	else if (rate >= OSC_HZ)
+		src_clk = SCLK_SFC_SEL_24M;
+	else
 		return -ENOENT;
-	}
 
 	rk_clrsetreg(&cru->clksel_con[28],
 		     SCLK_SFC_SEL_MASK,
@@ -2417,6 +2409,8 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 	case BCLK_EMMC:
 		rate = rk3568_emmc_get_bclk(priv);
 		break;
+	case CLK_USB3OTG0_REF:
+	case CLK_USB3OTG1_REF:
 	case TCLK_EMMC:
 		rate = OSC_HZ;
 		break;
@@ -2596,6 +2590,8 @@ static ulong rk3568_clk_set_rate(struct clk *clk, ulong rate)
 	case BCLK_EMMC:
 		ret = rk3568_emmc_set_bclk(priv, rate);
 		break;
+	case CLK_USB3OTG0_REF:
+	case CLK_USB3OTG1_REF:
 	case TCLK_EMMC:
 		ret = OSC_HZ;
 		break;

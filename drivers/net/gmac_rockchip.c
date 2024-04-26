@@ -19,7 +19,7 @@
 #include <asm/arch-rockchip/grf_px30.h>
 #include <asm/arch-rockchip/grf_rk322x.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
-#include <asm/arch-rk3308/grf_rk3308.h>
+#include <asm/arch-rockchip/grf_rk3308.h>
 #include <asm/arch-rockchip/grf_rk3328.h>
 #include <asm/arch-rockchip/grf_rk3368.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
@@ -739,7 +739,7 @@ static const struct udevice_id rockchip_gmac_ids[] = {
 	  .data = (ulong)&rk3228_gmac_ops },
 	{ .compatible = "rockchip,rk3288-gmac",
 	  .data = (ulong)&rk3288_gmac_ops },
-	{ .compatible = "rockchip,rk3308-mac",
+	{ .compatible = "rockchip,rk3308-gmac",
 	  .data = (ulong)&rk3308_gmac_ops },
 	{ .compatible = "rockchip,rk3328-gmac",
 	  .data = (ulong)&rk3328_gmac_ops },

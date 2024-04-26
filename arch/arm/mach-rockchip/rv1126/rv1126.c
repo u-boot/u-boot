@@ -15,6 +15,7 @@
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "/mmc@ffc50000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ffc90000/flash@0",
 	[BROM_BOOTSOURCE_SD] = "/mmc@ffc60000",
 };
 

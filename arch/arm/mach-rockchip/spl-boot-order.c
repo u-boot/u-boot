@@ -29,7 +29,7 @@
  *   -ENOSYS, if the device matching the node can not be mapped onto a
  *            SPL boot device (e.g. the third MMC device)
  *   -1, for unspecified failures
- *   a positive integer (from the BOOT_DEVICE_... family) on succes.
+ *   a positive integer (from the BOOT_DEVICE_... family) on success.
  */
 
 static int spl_node_to_boot_device(int node)
@@ -148,8 +148,8 @@ void board_boot_order(u32 *spl_boot_list)
 		/* Try to map this back onto SPL boot devices */
 		boot_device = spl_node_to_boot_device(node);
 		if (boot_device < 0) {
-			debug("%s: could not map node @%x to a boot-device\n",
-			      __func__, node);
+			debug("%s: could not map node %s to a boot-device\n",
+			      __func__, conf);
 			continue;
 		}
 

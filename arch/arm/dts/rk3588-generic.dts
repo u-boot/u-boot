@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Minimal generic DT for RK3588S/RK3588 with eMMC and SD-card enabled
+ * Minimal generic DT for RK3588S/RK3588 with eMMC, SD-card and USB OTG enabled
  */
 
 /dts-v1/;
@@ -40,5 +40,6 @@
 };
 
 &uart2 {
+	pinctrl-0 = <&uart2m0_xfer>;
 	status = "okay";
 };

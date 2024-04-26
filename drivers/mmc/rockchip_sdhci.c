@@ -391,6 +391,8 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct mmc *mmc = host->mmc;
+	struct rockchip_sdhc_plat *plat = dev_get_plat(mmc->dev);
+	struct mmc_config *cfg = &plat->cfg;
 	u32 reg;
 
 	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
@@ -436,6 +438,20 @@ static int rk3568_sdhci_set_ios_post(struct sdhci_host *host)
 		reg &= ~DWCMSHC_ENHANCED_STROBE;
 
 	sdhci_writew(host, reg, DWCMSHC_EMMC_EMMC_CTRL);
+
+	/*
+	 * Reading more than 4 blocks with a single CMD18 command in PIO mode
+	 * triggers Data End Bit Error using a slower mode than HS200. Limit to
+	 * reading max 4 blocks in one command when using PIO mode.
+	 */
+	if (!(host->flags & USE_DMA)) {
+		if (mmc->selected_mode == MMC_HS_200 ||
+		    mmc->selected_mode == MMC_HS_400 ||
+		    mmc->selected_mode == MMC_HS_400_ES)
+			cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+		else
+			cfg->b_max = 4;
+	}
 
 	return 0;
 }
@@ -597,16 +613,6 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
 	    dev_read_bool(dev, "u-boot,spl-fifo-mode"))
 		host->flags &= ~USE_DMA;
-
-	/*
-	 * Reading more than 4 blocks with a single CMD18 command in PIO mode
-	 * triggers Data End Bit Error on RK3568 and RK3588. Limit to reading
-	 * max 4 blocks in one command when using PIO mode.
-	 */
-	if (!(host->flags & USE_DMA) &&
-	    (device_is_compatible(dev, "rockchip,rk3568-dwcmshc") ||
-	     device_is_compatible(dev, "rockchip,rk3588-dwcmshc")))
-		cfg->b_max = 4;
 
 	return sdhci_probe(dev);
 }

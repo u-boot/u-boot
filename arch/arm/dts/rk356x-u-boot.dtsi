@@ -21,6 +21,11 @@
 		bootph-all;
 	};
 
+	rng: rng@fe388000 {
+		compatible = "rockchip,cryptov2-rng";
+		reg = <0x0 0xfe388000 0x0 0x2000>;
+	};
+
 	otp: nvmem@fe38c000 {
 		compatible = "rockchip,rk3568-otp";
 		reg = <0x0 0xfe38c000 0x0 0x4000>;
@@ -33,112 +38,6 @@
 	};
 };
 
-&xin24m {
-	bootph-all;
-};
-
-&cru {
-	bootph-all;
-};
-
-&pmucru {
-	bootph-all;
-};
-
-&grf {
-	bootph-all;
-};
-
-&pmugrf {
-	bootph-all;
-};
-
-&pinctrl {
-	bootph-all;
-};
-
-&pcfg_pull_none_smt {
-	bootph-all;
-};
-
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_level_2 {
-	bootph-all;
-};
-
-&pcfg_pull_up {
-	bootph-all;
-};
-
-&emmc_bus8 {
-	bootph-all;
-};
-
-&emmc_clk {
-	bootph-all;
-};
-
-&emmc_cmd {
-	bootph-all;
-};
-
-&emmc_datastrobe {
-	bootph-all;
-};
-
-&emmc_rstnout {
-	bootph-all;
-};
-
-&fspi_pins {
-	bootph-all;
-};
-
-&i2c0_xfer {
-	bootph-all;
-};
-
-&sdmmc0_bus4 {
-	bootph-all;
-};
-
-&sdmmc0_clk {
-	bootph-all;
-};
-
-&sdmmc0_cmd {
-	bootph-all;
-};
-
-&sdmmc0_det {
-	bootph-all;
-};
-
-&sdmmc0_pwren {
-	bootph-all;
-};
-
-&uart2m0_xfer {
-	bootph-all;
-};
-
-&sdhci {
-	bootph-pre-ram;
-	max-frequency = <200000000>;
-};
-
-&sdmmc0 {
-	bootph-pre-ram;
-};
-
-&uart2 {
-	bootph-pre-ram;
-	clock-frequency = <24000000>;
-};
-
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
 	simple-bin-spi {
@@ -149,3 +48,124 @@
 	};
 };
 #endif
+
+&cru {
+	bootph-all;
+};
+
+&emmc_bus8 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_datastrobe {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_rstnout {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&fspi_pins {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&grf {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_none_smt {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_level_2 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pinctrl {
+	bootph-all;
+};
+
+&pmucru {
+	bootph-all;
+};
+
+&pmugrf {
+	bootph-all;
+};
+
+&sdhci {
+	bootph-pre-ram;
+	bootph-some-ram;
+	max-frequency = <200000000>;
+};
+
+&sdmmc0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_det {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc0_pwren {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sfc {
+	u-boot,spl-sfc-no-dma;
+};
+
+&uart2 {
+	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart2m0_xfer {
+	bootph-all;
+};
+
+&xin24m {
+	bootph-all;
+};

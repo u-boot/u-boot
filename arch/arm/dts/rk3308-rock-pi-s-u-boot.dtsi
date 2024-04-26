@@ -4,39 +4,42 @@
  */
 #include "rk3308-u-boot.dtsi"
 
-/ {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &emmc, &sdmmc;
-	};
+&emmc {
+	cap-sd-highspeed;
+	pinctrl-names = "default";
+	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus4>;
+};
+
+&emmc_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&u2phy_otg {
+	/delete-property/ phy-supply;
 };
 
 &uart0 {
 	bootph-all;
-};
-
-&pinctrl {
-	bootph-some-ram;
-
-	uart0 {
-		bootph-some-ram;
-	};
-	rtc {
-		bootph-some-ram;
-	};
-};
-
-&uart0_xfer {
-	bootph-some-ram;
+	clock-frequency = <24000000>;
 };
 
 &uart0_cts {
-	bootph-some-ram;
+	bootph-all;
 };
 
 &uart0_rts {
-	bootph-some-ram;
+	bootph-all;
 };
 
-&rtc_32k {
-	bootph-some-ram;
+&uart0_xfer {
+	bootph-all;
+};
+
+&vcc5v0_otg {
+	/delete-property/ regulator-always-on;
+};
+
+&vdd_core {
+	regulator-init-microvolt = <1015000>;
 };
