@@ -71,3 +71,47 @@ int efi_get_distro_fdt_name(char *fname, int size, int seq)
 
 	return 0;
 }
+
+/**
+ * efi_load_distro_fdt() - load distro device-tree
+ *
+ * @fdt:	on return device-tree, must be freed via efi_free_pages()
+ * @fdt_size:	buffer size
+ */
+void efi_load_distro_fdt(void **fdt, efi_uintn_t *fdt_size)
+{
+	struct efi_device_path *rem, *dp;
+	efi_status_t  ret;
+	efi_handle_t device;
+
+	*fdt = NULL;
+
+	dp = efi_get_dp_from_boot(NULL);
+	if (!dp)
+		return;
+	device = efi_dp_find_obj(dp, NULL, &rem);
+	ret = efi_search_protocol(device, &efi_simple_file_system_protocol_guid,
+				  NULL);
+	if (ret != EFI_SUCCESS)
+		goto err;
+	memcpy(rem, &END, sizeof(END));
+
+	/* try the various available names */
+	for (int seq = 0; ; ++seq) {
+		struct efi_device_path *file;
+		char buf[255];
+
+		if (efi_get_distro_fdt_name(buf, sizeof(buf), seq))
+			break;
+		file = efi_dp_from_file(dp, buf);
+		if (!file)
+			break;
+		ret = efi_load_image_from_path(true, file, fdt, fdt_size);
+		efi_free_pool(file);
+		if (ret == EFI_SUCCESS)
+			break;
+	}
+
+err:
+	efi_free_pool(dp);
+}
