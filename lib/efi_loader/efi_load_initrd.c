@@ -63,7 +63,7 @@ static efi_status_t get_initrd_fp(struct efi_device_path **initrd_fp)
 	 * We can then use this specific return value and not install the
 	 * protocol, while allowing the boot to continue
 	 */
-	dp = efi_get_dp_from_boot(efi_lf2_initrd_guid);
+	dp = efi_get_dp_from_boot(&efi_lf2_initrd_guid);
 	if (!dp)
 		return EFI_INVALID_PARAMETER;
 
