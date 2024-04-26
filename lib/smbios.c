@@ -573,8 +573,14 @@ ulong write_smbios_table(ulong addr)
 	ctx.node = ofnode_null();
 	if (IS_ENABLED(CONFIG_OF_CONTROL) && CONFIG_IS_ENABLED(SYSINFO)) {
 		uclass_first_device(UCLASS_SYSINFO, &ctx.dev);
-		if (ctx.dev)
+		if (ctx.dev) {
+			int ret;
+
 			parent_node = dev_read_subnode(ctx.dev, "smbios");
+			ret = sysinfo_detect(ctx.dev);
+			if (ret)
+				return ret;
+		}
 	} else {
 		ctx.dev = NULL;
 	}
