@@ -361,7 +361,7 @@ static int am65_cpsw_start(struct udevice *dev)
 					  UDMA_RX_BUF_SIZE);
 		if (ret) {
 			dev_err(dev, "RX dma add buf failed %d\n", ret);
-			goto err_free_tx;
+			goto err_free_rx;
 		}
 	}
 
