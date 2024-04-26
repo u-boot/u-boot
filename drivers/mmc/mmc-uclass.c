@@ -257,11 +257,14 @@ int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 	if (dev_read_bool(dev, "mmc-hs200-1_2v"))
 		cfg->host_caps |= MMC_CAP(MMC_HS_200);
 	if (dev_read_bool(dev, "mmc-hs400-1_8v"))
-		cfg->host_caps |= MMC_CAP(MMC_HS_400);
+		cfg->host_caps |= MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_200);
 	if (dev_read_bool(dev, "mmc-hs400-1_2v"))
-		cfg->host_caps |= MMC_CAP(MMC_HS_400);
+		cfg->host_caps |= MMC_CAP(MMC_HS_400) | MMC_CAP(MMC_HS_200);
 	if (dev_read_bool(dev, "mmc-hs400-enhanced-strobe"))
 		cfg->host_caps |= MMC_CAP(MMC_HS_400_ES);
+	if (dev_read_bool(dev, "no-mmc-hs400"))
+		cfg->host_caps &= ~(MMC_CAP(MMC_HS_400) |
+				    MMC_CAP(MMC_HS_400_ES));
 
 	if (dev_read_bool(dev, "non-removable")) {
 		cfg->host_caps |= MMC_CAP_NONREMOVABLE;

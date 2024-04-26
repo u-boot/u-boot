@@ -252,7 +252,7 @@ static void esdhc_setup_dma(struct fsl_esdhc_priv *priv, struct mmc_data *data)
 	    priv->adma_desc_table) {
 		debug("Using ADMA2\n");
 		/* prefer ADMA2 if it is available */
-		sdhci_prepare_adma_table(priv->adma_desc_table, data,
+		sdhci_prepare_adma_table(NULL, priv->adma_desc_table, data,
 					 priv->dma_addr);
 
 		adma_addr = virt_to_phys(priv->adma_desc_table);

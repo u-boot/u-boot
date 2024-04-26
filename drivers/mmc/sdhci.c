@@ -111,7 +111,7 @@ static void sdhci_prepare_dma(struct sdhci_host *host, struct mmc_data *data,
 	}
 #if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
 	else if (host->flags & (USE_ADMA | USE_ADMA64)) {
-		sdhci_prepare_adma_table(host->adma_desc_table, data,
+		sdhci_prepare_adma_table(host, host->adma_desc_table, data,
 					 host->start_addr);
 
 		sdhci_writel(host, lower_32_bits(host->adma_addr),
@@ -897,14 +897,15 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		       __func__);
 		return -EINVAL;
 	}
-	host->adma_desc_table = sdhci_adma_init();
-	host->adma_addr = (dma_addr_t)host->adma_desc_table;
+	if (!host->adma_desc_table) {
+		host->adma_desc_table = sdhci_adma_init();
+		host->adma_addr = virt_to_phys(host->adma_desc_table);
+	}
 
-#ifdef CONFIG_DMA_ADDR_T_64BIT
-	host->flags |= USE_ADMA64;
-#else
-	host->flags |= USE_ADMA;
-#endif
+	if (IS_ENABLED(CONFIG_MMC_SDHCI_ADMA_64BIT))
+		host->flags |= USE_ADMA64;
+	else
+		host->flags |= USE_ADMA;
 #endif
 	if (host->quirks & SDHCI_QUIRK_REG32_RW)
 		host->version =
@@ -929,6 +930,15 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		debug("%s, caps_1: 0x%x\n", __func__, caps_1);
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
+
+		/*
+		 * In case the value in Clock Multiplier is 0, then programmable
+		 * clock mode is not supported, otherwise the actual clock
+		 * multiplier is one more than the value of Clock Multiplier
+		 * in the Capabilities Register.
+		 */
+		if (host->clk_mul)
+			host->clk_mul += 1;
 	}
 
 	if (host->max_clk == 0) {

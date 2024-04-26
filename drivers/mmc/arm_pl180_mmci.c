@@ -229,6 +229,7 @@ static int do_data_transfer(struct mmc *dev,
 	u32 blksz = 0;
 	u32 data_ctrl = 0;
 	u32 data_len = (u32) (data->blocks * data->blocksize);
+	assert(data_len < U16_MAX); /* should be ensured by arm_pl180_get_b_max */
 
 	if (!host->version2) {
 		blksz = (ffs(data->blocksize) - 1);
@@ -356,6 +357,14 @@ static int  host_set_ios(struct mmc *dev)
 	return 0;
 }
 
+static int arm_pl180_get_b_max(struct udevice *dev, void *dst, lbaint_t blkcnt)
+{
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct mmc *mmc = upriv->mmc;
+
+	return U16_MAX / mmc->read_bl_len;
+}
+
 static void arm_pl180_mmc_init(struct pl180_mmc_host *host)
 {
 	u32 sdi_u32;
@@ -470,6 +479,7 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 	.send_cmd = dm_host_request,
 	.set_ios = dm_host_set_ios,
 	.get_cd = dm_mmc_getcd,
+	.get_b_max = arm_pl180_get_b_max,
 };
 
 static int arm_pl180_mmc_of_to_plat(struct udevice *dev)
