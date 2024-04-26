@@ -1996,7 +1996,6 @@ error:
  * @size:		size of the loaded image
  * Return:		status code
  */
-static
 efi_status_t efi_load_image_from_path(bool boot_policy,
 				      struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
