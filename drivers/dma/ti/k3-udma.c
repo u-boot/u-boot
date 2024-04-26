@@ -2677,6 +2677,9 @@ int udma_prepare_rcv_buf(struct dma *dma, void *dst, size_t size)
 	cppi5_hdesc_set_pktlen(desc_rx, size);
 	cppi5_hdesc_attach_buf(desc_rx, dma_dst, size, dma_dst, size);
 
+	invalidate_dcache_range((unsigned long)dma_dst,
+				(unsigned long)(dma_dst + size));
+
 	flush_dcache_range((unsigned long)desc_rx,
 			   ALIGN((unsigned long)desc_rx + uc->config.hdesc_size,
 				 ARCH_DMA_MINALIGN));
