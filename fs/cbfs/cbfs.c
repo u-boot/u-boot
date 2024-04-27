@@ -3,10 +3,10 @@
  * Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  */
 
-#include <common.h>
 #include <cbfs.h>
 #include <log.h>
 #include <malloc.h>
+#include <linux/errno.h>
 #include <asm/byteorder.h>
 
 /* Offset of master header from the start of a coreboot ROM */

@@ -29,7 +29,6 @@
 #include <linux/writeback.h>
 #else
 
-#include <common.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/bitops.h>

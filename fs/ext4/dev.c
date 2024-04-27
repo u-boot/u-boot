@@ -22,7 +22,6 @@
  *		fs/ext2/dev.c file in uboot.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <config.h>
 #include <fs_internal.h>

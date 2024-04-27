@@ -24,7 +24,7 @@
  * The actual compression is based on zlib, see the other files.
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/stat.h>
