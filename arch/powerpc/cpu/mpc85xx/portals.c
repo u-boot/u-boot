@@ -3,7 +3,6 @@
  * Copyright 2008-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 

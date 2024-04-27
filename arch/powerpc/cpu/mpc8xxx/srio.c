@@ -3,8 +3,7 @@
  * Copyright 2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
-#include <config.h>
+#include <asm/u-boot.h>
 #include <log.h>
 #include <time.h>
 #include <asm/fsl_law.h>

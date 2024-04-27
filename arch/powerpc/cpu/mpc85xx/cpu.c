@@ -9,7 +9,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <cpu_func.h>
 #include <clock_legacy.h>
 #include <display_options.h>

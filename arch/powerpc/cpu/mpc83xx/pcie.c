@@ -7,7 +7,7 @@
  *          Anton Vorontsov <avorontsov@ru.mvista.com>
  */
 
-#include <common.h>
+#include <asm/u-boot.h>
 #include <clock_legacy.h>
 #include <pci.h>
 #include <mpc83xx.h>

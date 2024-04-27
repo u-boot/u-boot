@@ -8,7 +8,7 @@
 
 #ifndef CONFIG_CLK_MPC83XX
 
-#include <common.h>
+#include <asm/u-boot.h>
 #include <clock_legacy.h>
 #include <mpc83xx.h>
 #include <command.h>

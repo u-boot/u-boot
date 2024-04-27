@@ -6,7 +6,7 @@
  * Copyright 2004 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <asm/u-boot.h>
 #include <command.h>
 #include <irq_func.h>
 #include <mpc83xx.h>

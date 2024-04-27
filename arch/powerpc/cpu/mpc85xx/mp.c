@@ -3,7 +3,7 @@
  * Copyright 2008-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <log.h>

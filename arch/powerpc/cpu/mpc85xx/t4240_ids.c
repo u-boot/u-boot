@@ -3,7 +3,7 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <asm/u-boot.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 

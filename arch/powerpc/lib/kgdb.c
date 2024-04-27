@@ -1,4 +1,3 @@
-#include <common.h>
 #include <command.h>
 #include <kgdb.h>
 #include <asm/ptrace.h>

@@ -10,7 +10,6 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  */
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/mp.h>
