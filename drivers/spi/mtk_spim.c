@@ -18,7 +18,6 @@
 #include <dm/devres.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
-#include <linux/completion.h>
 #include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
