@@ -5,7 +5,6 @@
  * Copyright 2022 Google LLC
  */
 
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <video_console.h>

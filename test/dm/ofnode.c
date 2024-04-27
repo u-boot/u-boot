@@ -16,7 +16,6 @@
  * behaviour of each ofnode function, since that is done by the normal ones.
  */
 
-#include <common.h>
 #include <abuf.h>
 #include <dm.h>
 #include <log.h>

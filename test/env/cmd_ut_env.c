@@ -4,7 +4,6 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
-#include <common.h>
 #include <command.h>
 #include <test/env.h>
 #include <test/suites.h>

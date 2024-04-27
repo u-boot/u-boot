@@ -6,7 +6,6 @@
  *  Author: AKASHI Takahiro
  */
 
-#include <common.h>
 #include <dm/tag.h>
 #include <dm/test.h> /* DM_TEST() */
 #include <test/test.h> /* struct unit_test_state */

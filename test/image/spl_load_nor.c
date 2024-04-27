@@ -3,7 +3,6 @@
  * Copyright (C) 2023 Sean Anderson <seanga2@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <spl.h>
 #include <asm/io.h>
