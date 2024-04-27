@@ -3,7 +3,6 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/fsp/fsp_support.h>
 #include <asm/global_data.h>

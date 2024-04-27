@@ -9,6 +9,7 @@
 #define _COREBOOT_SYSINFO_H
 
 #include <asm/coreboot_tables.h>
+#include <linux/types.h>
 
 /* Maximum number of memory range definitions */
 #define SYSINFO_MAX_MEM_RANGES	32

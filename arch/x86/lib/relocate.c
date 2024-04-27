@@ -14,7 +14,6 @@
  * Marius Groeger <mgroeger@sysgo.de>
  */
 
-#include <common.h>
 #include <log.h>
 #include <relocate.h>
 #include <asm/global_data.h>

@@ -3,10 +3,10 @@
  * Copyright (c) 2015 Google, Inc
  */
 
-#include <common.h>
 #include <efi.h>
 #include <init.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/u-boot-x86.h>
 
 DECLARE_GLOBAL_DATA_PTR;

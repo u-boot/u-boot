@@ -34,6 +34,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/types.h>
+
 /**
  * msg_port_setup - set up the message port control register
  *

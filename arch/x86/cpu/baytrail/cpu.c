@@ -5,7 +5,6 @@
  * Based on code from coreboot
  */
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <event.h>

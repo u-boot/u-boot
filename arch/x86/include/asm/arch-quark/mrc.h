@@ -10,6 +10,8 @@
 #ifndef _MRC_H_
 #define _MRC_H_
 
+#include <linux/types.h>
+
 #define MRC_VERSION	0x0111
 
 /* architectural definitions */

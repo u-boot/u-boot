@@ -3,7 +3,6 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <fdtdec.h>
@@ -18,6 +17,7 @@
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
+#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

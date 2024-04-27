@@ -6,7 +6,6 @@
  * Microcode update for Intel PIII and later CPUs
  */
 
-#include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>

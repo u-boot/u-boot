@@ -5,10 +5,10 @@
  * Modified from the coreboot version
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <asm/arch/timestamp.h>
 #include <asm/cb_sysinfo.h>
+#include <asm/u-boot-x86.h>
 #include <linux/compiler.h>
 
 static struct timestamp_table *ts_table  __section(".data");

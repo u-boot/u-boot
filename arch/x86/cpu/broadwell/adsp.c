@@ -9,7 +9,6 @@
 
 #define LOG_CATEGORY UCLASS_SYSCON
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <pci.h>

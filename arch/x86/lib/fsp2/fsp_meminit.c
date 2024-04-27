@@ -6,7 +6,6 @@
  * Mostly taken from coreboot fsp2_0/memory_init.c
  */
 
-#include <common.h>
 #include <binman.h>
 #include <bootstage.h>
 #include <dm.h>

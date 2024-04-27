@@ -3,7 +3,6 @@
  * Copyright (c) 2018 Emlid Limited
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <dm/pinctrl.h>

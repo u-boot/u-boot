@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY LOGC_BOOT
 
-#include <common.h>
 #include <binman_sym.h>
 #include <bootstage.h>
 #include <dm.h>
