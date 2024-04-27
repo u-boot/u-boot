@@ -4,11 +4,11 @@
  *
  */
 
-#include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <part.h>
 #include <blk.h>
+#include <time.h>
 #include <vsprintf.h>
 
 #define BUFSIZE (1 * 1024 * 1024)

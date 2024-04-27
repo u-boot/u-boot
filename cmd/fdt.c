@@ -7,7 +7,6 @@
  *   Matthew McClintock <msm@freescale.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <image.h>

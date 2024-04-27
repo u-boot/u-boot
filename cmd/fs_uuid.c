@@ -5,7 +5,6 @@
  * Copyright (C) 2014, Bachmann electronic GmbH
  */
 
-#include <common.h>
 #include <command.h>
 #include <fs.h>
 

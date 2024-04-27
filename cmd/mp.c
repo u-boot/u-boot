@@ -3,9 +3,9 @@
  * Copyright 2008-2009 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
+#include <vsprintf.h>
 
 static int cpu_status_all(void)
 {

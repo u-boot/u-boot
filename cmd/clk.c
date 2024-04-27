@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2013 Xilinx, Inc.
  */
-#include <common.h>
 #include <command.h>
 #include <clk.h>
 #if defined(CONFIG_DM) && defined(CONFIG_CLK)

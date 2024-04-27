@@ -8,7 +8,6 @@
  * Copyright (C) 2023 Johan Jonker <jbx6244@gmail.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <dm.h>

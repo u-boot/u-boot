@@ -3,7 +3,6 @@
  * 2017 by Marek Behún <kabel@kernel.org>
  */
 
-#include <common.h>
 #include <command.h>
 #include <btrfs.h>
 #include <fs.h>

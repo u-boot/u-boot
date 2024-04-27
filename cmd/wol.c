@@ -7,9 +7,9 @@
 /*
  * Wake-on-LAN support
  */
-#include <common.h>
 #include <command.h>
 #include <net.h>
+#include <vsprintf.h>
 
 #if defined(CONFIG_CMD_WOL)
 void wol_set_timeout(ulong);

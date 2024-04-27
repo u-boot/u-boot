@@ -70,7 +70,6 @@
 /*
  * JFFS2/CRAMFS support
  */
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #if defined(CONFIG_CMD_FLASH)

@@ -7,7 +7,6 @@
 /*
  * Boot support
  */
-#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <env.h>

@@ -4,7 +4,6 @@
  * Author: Harald Welte <laforge@openmoko.org>
  */
 
-#include <common.h>
 #include <command.h>
 #include <gzip.h>
 #include <malloc.h>

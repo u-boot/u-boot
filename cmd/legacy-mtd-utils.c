@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <common.h>
 #include <jffs2/jffs2.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>

@@ -7,7 +7,6 @@
 /*
  * Serial up- and download support
  */
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <cpu_func.h>
