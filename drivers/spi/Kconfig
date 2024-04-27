@@ -417,6 +417,7 @@ config RENESAS_RPC_SPI
 
 config ROCKCHIP_SFC
 	bool "Rockchip SFC Driver"
+	select BOUNCE_BUFFER
 	help
 	  Enable the Rockchip SFC Driver for SPI NOR flash. This device is
 	  a limited purpose SPI controller for driving NOR flash on certain
