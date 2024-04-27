@@ -7,7 +7,6 @@
  * Copyright (C) 2011
  * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
  */
-#include <common.h>
 #include <config.h>
 #include <image.h>
 #include <log.h>

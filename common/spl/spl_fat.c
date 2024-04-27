@@ -8,7 +8,6 @@
  * FAT Image Functions copied from spl_mmc.c
  */
 
-#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <spl.h>

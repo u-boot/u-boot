@@ -8,7 +8,6 @@
  * Derived work from spl_mmc.c
  */
 
-#include <common.h>
 #include <log.h>
 #include <spl.h>
 #include <asm/u-boot.h>

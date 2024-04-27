@@ -8,7 +8,6 @@
  * Derived work from spl_usb.c
  */
 
-#include <common.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <sata.h>

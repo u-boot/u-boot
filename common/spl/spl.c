@@ -6,7 +6,7 @@
  * Aneesh V <aneesh@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <bloblist.h>
 #include <binman_sym.h>
 #include <bootstage.h>

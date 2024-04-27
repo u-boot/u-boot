@@ -9,13 +9,13 @@
 
 #define LOG_CATEGORY	LOGC_EVENT
 
-#include <common.h>
 #include <event.h>
 #include <event_internal.h>
 #include <log.h>
 #include <linker_lists.h>
 #include <malloc.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 #include <linux/list.h>
 #include <relocate.h>
 
