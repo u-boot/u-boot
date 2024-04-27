@@ -4,7 +4,6 @@
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
