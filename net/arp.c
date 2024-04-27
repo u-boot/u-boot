@@ -9,10 +9,10 @@
  *	Copyright 2000-2002 Wolfgang Denk, wd@denx.de
  */
 
-#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <net.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
 
 #include "arp.h"
