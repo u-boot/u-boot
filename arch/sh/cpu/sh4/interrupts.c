@@ -4,7 +4,6 @@
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  */
 
-#include <common.h>
 #include <irq_func.h>
 
 int interrupt_init(void)
