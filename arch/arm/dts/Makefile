@@ -958,41 +958,7 @@ dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
 
-dtb-$(CONFIG_RCAR_GEN2) += \
-	r8a7790-lager.dtb \
-	r8a7790-stout.dtb \
-	r8a7791-koelsch.dtb \
-	r8a7791-porter.dtb \
-	r8a7792-blanche.dtb \
-	r8a7793-gose.dtb \
-	r8a7794-alt.dtb \
-	r8a7794-silk.dtb
-
-dtb-$(CONFIG_RCAR_GEN3) += \
-	r8a774a1-beacon-rzg2m-kit.dtb \
-	r8a774b1-beacon-rzg2n-kit.dtb \
-	r8a774e1-beacon-rzg2h-kit.dtb \
-	r8a774a1-hihope-rzg2m.dtb \
-	r8a774b1-hihope-rzg2n.dtb \
-	r8a774c0-ek874.dtb \
-	r8a774e1-hihope-rzg2h.dtb \
-	r8a77951-ulcb.dtb \
-	r8a77951-salvator-x.dtb \
-	r8a77960-ulcb.dtb \
-	r8a77960-salvator-x.dtb \
-	r8a77965-ulcb.dtb \
-	r8a77965-salvator-x.dtb \
-	r8a77970-eagle.dtb \
-	r8a77970-v3msk.dtb \
-	r8a77980-condor.dtb \
-	r8a77980-v3hsk.dtb \
-	r8a77990-ebisu.dtb \
-	r8a77995-draak.dtb
-
 dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779a0-falcon.dtb \
-	r8a779f0-spider.dtb \
-	r8a779g0-white-hawk.dtb \
 	r8a779h0-gray-hawk.dtb
 
 dtb-$(CONFIG_TARGET_RZG2L) += \
