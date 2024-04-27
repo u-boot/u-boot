@@ -4,8 +4,8 @@
  * Scott McNutt <smcnutt@psyent.com>
  */
 
-#include <common.h>
 #include <hang.h>
+#include <stdio.h>
 #include <asm/ptrace.h>
 
 void trap_handler (struct pt_regs *regs)
