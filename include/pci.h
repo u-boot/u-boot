@@ -520,6 +520,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/types.h>
 #include <dm/pci.h>
 
 #ifdef CONFIG_SYS_PCI_64BIT
