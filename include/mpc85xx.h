@@ -6,6 +6,7 @@
 #ifndef	__MPC85xx_H__
 #define __MPC85xx_H__
 
+#include <config.h>
 #if defined(CONFIG_E500)
 #include <e500.h>
 #endif
