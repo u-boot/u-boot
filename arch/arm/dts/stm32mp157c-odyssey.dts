@@ -75,6 +75,7 @@
 	phy-mode = "rgmii-id";
 	max-speed = <1000>;
 	phy-handle = <&phy0>;
+	phy-reset-gpios = <&gpiog 0 GPIO_ACTIVE_LOW>;
 	st,ext-phyclk;
 
 	mdio0 {
