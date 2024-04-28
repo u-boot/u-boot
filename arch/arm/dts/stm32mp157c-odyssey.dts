@@ -75,6 +75,7 @@
 	phy-mode = "rgmii-id";
 	max-speed = <1000>;
 	phy-handle = <&phy0>;
+	st,ext-phyclk;
 
 	mdio0 {
 		#address-cells = <1>;
