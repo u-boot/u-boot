@@ -266,6 +266,12 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 	if (ret)
 		dev_warn(dev, "No phy clock provided %d\n", ret);
 
+	/* Get reset gpio pin (optional) */
+	ret = gpio_request_by_name(dev, "phy-reset-gpios", 0,
+				   &eqos->phy_reset_gpio, GPIOD_IS_OUT);
+	if (ret)
+		pr_warn("No phy reset gpio provided: %d\n", ret);
+
 	dev_dbg(dev, "%s: OK\n", __func__);
 
 	return 0;
@@ -275,6 +281,21 @@ err_probe:
 	dev_dbg(dev, "%s: returns %d\n", __func__, ret);
 
 	return ret;
+}
+
+static int eqos_start_resets_stm32(struct udevice *dev)
+{
+	struct eqos_priv *eqos = dev_get_priv(dev);
+
+	debug("%s(dev=%p):\n", __func__, dev);
+
+	if (dm_gpio_is_valid(&eqos->phy_reset_gpio)) {
+		dm_gpio_set_value(&eqos->phy_reset_gpio, 1);
+		udelay(2);
+		dm_gpio_set_value(&eqos->phy_reset_gpio, 0);
+	}
+
+	return 0;
 }
 
 static int eqos_remove_resources_stm32(struct udevice *dev)
@@ -292,7 +313,7 @@ static struct eqos_ops eqos_stm32_ops = {
 	.eqos_probe_resources = eqos_probe_resources_stm32,
 	.eqos_remove_resources = eqos_remove_resources_stm32,
 	.eqos_stop_resets = eqos_null_ops,
-	.eqos_start_resets = eqos_null_ops,
+	.eqos_start_resets = eqos_start_resets_stm32,
 	.eqos_stop_clks = eqos_stop_clks_stm32,
 	.eqos_start_clks = eqos_start_clks_stm32,
 	.eqos_calibrate_pads = eqos_null_ops,
