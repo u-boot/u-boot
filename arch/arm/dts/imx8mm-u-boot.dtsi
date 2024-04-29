@@ -5,7 +5,6 @@
 
 / {
 	binman: binman {
-		multiple-images;
 	};
 
 #ifdef CONFIG_OPTEE
@@ -43,56 +42,61 @@
 };
 
 &binman {
-	u-boot-spl-ddr {
-		align = <4>;
-		align-size = <4>;
-		filename = "u-boot-spl-ddr.bin";
-		pad-byte = <0xff>;
+	filename = "flash.bin";
+	section {
+		pad-byte = <0x00>;
 
-		u-boot-spl {
-			align-end = <4>;
-			filename = "u-boot-spl.bin";
-		};
-
-		ddr-1d-imem-fw {
-			filename = "lpddr4_pmu_train_1d_imem.bin";
-			align-end = <4>;
+#ifdef CONFIG_FSPI_CONF_HEADER
+		fspi_conf_block {
+			filename = CONFIG_FSPI_CONF_FILE;
 			type = "blob-ext";
+			size = <0x1000>;
 		};
+#endif
 
-		ddr-1d-dmem-fw {
-			filename = "lpddr4_pmu_train_1d_dmem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
+		nxp-imx8mimage {
+			filename = "u-boot-spl-mkimage.bin";
+			nxp,boot-from = "sd";
+			nxp,rom-version = <1>;
+			nxp,loader-address = <CONFIG_SPL_TEXT_BASE>;
+			args;	/* Needed by mkimage etype superclass */
 
-		ddr-2d-imem-fw {
-			filename = "lpddr4_pmu_train_2d_imem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-
-		ddr-2d-dmem-fw {
-			filename = "lpddr4_pmu_train_2d_dmem.bin";
-			align-end = <4>;
-			type = "blob-ext";
-		};
-	};
-
-	spl {
-		filename = "spl.bin";
-
-		mkimage {
-			args = "-n spl/u-boot-spl.cfgout -T imx8mimage -e 0x7e1000";
-
-			blob {
+			section {
+				align = <4>;
+				align-size = <4>;
 				filename = "u-boot-spl-ddr.bin";
+				pad-byte = <0xff>;
+
+				u-boot-spl {
+					align-end = <4>;
+					filename = "u-boot-spl.bin";
+				};
+
+				ddr-1d-imem-fw {
+					filename = "lpddr4_pmu_train_1d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-1d-dmem-fw {
+					filename = "lpddr4_pmu_train_1d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-imem-fw {
+					filename = "lpddr4_pmu_train_2d_imem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
+
+				ddr-2d-dmem-fw {
+					filename = "lpddr4_pmu_train_2d_dmem.bin";
+					align-end = <4>;
+					type = "blob-ext";
+				};
 			};
 		};
-	};
-
-	itb {
-		filename = "u-boot.itb";
 
 		fit {
 			description = "Configuration to load ATF before U-Boot";
@@ -101,6 +105,11 @@
 #endif
 			fit,fdt-list = "of-list";
 			#address-cells = <1>;
+#ifdef CONFIG_FSPI_CONF_HEADER
+			offset = <0x58C00>;
+#else
+			offset = <0x57c00>;
+#endif
 
 			images {
 				uboot {
@@ -165,43 +174,6 @@
 				};
 			};
 		};
-	};
-
-	imx-boot {
-		filename = "flash.bin";
-		pad-byte = <0x00>;
-
-#ifdef CONFIG_FSPI_CONF_HEADER
-		fspi_conf_block {
-			filename = CONFIG_FSPI_CONF_FILE;
-			type = "blob-ext";
-			size = <0x1000>;
-		};
-
-		spl {
-			filename = "spl.bin";
-			offset = <0x1000>;
-			type = "blob-ext";
-		};
-
-		binman_uboot: uboot {
-			filename = "u-boot.itb";
-			offset = <0x58C00>;
-			type = "blob-ext";
-		};
-#else
-		spl {
-			filename = "spl.bin";
-			offset = <0x0>;
-			type = "blob-ext";
-		};
-
-		binman_uboot: uboot {
-			filename = "u-boot.itb";
-			offset = <0x57c00>;
-			type = "blob-ext";
-		};
-#endif
 	};
 };
 
