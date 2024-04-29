@@ -140,7 +140,7 @@
 #endif /* CONFIG_TARGET_PHYCORE_AM62X_R5 */
 
 #ifdef CONFIG_TARGET_PHYCORE_AM62X_A53
-#define SPL_AM625_PHYBOARD_LYRA_DTB "spl/dts/k3-am625-phyboard-lyra-rdk.dtb"
+#define SPL_AM625_PHYBOARD_LYRA_DTB "spl/dts/ti/k3-am625-phyboard-lyra-rdk.dtb"
 #define AM625_PHYBOARD_LYRA_DTB "u-boot.dtb"
 
 &binman {

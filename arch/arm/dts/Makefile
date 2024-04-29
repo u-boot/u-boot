@@ -81,7 +81,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-evb.dtb \
 	rk3288-firefly.dtb \
 	rk3288-miqi.dtb \
-	rk3288-phycore-rdk.dtb \
 	rk3288-popmetal.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-rock-pi-n8.dtb \
@@ -1342,7 +1341,6 @@ dtb-$(CONFIG_SOC_K3_J784S4) += k3-am69-r5-sk.dtb \
 
 dtb-$(CONFIG_SOC_K3_AM642) += k3-am642-r5-evm.dtb \
 			      k3-am642-r5-sk.dtb \
-			      k3-am642-phyboard-electra-rdk.dtb \
 			      k3-am642-r5-phycore-som-2gb.dtb
 
 dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
@@ -1350,7 +1348,6 @@ dtb-$(CONFIG_SOC_K3_AM625) += k3-am625-sk.dtb \
 			      k3-am625-beagleplay.dtb \
 			      k3-am625-r5-beagleplay.dtb \
 			      k3-am625-verdin-r5.dtb \
-			      k3-am625-phyboard-lyra-rdk.dtb \
 			      k3-am625-r5-phycore-som-2gb.dtb
 
 dtb-$(CONFIG_SOC_K3_AM62A7) += k3-am62a7-sk.dtb \
