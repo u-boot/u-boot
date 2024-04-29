@@ -55,7 +55,7 @@ struct phytec_api2_data {
 	u8 crc8;		/* checksum */
 } __packed;
 
-struct phytec_eeprom_data {
+struct phytec_eeprom_payload {
 	u8 api_rev;
 	union {
 		struct phytec_api0_data data_api0;
@@ -63,17 +63,27 @@ struct phytec_eeprom_data {
 	} data;
 } __packed;
 
+struct phytec_eeprom_data {
+	struct phytec_eeprom_payload payload;
+	bool valid;
+};
+
 int phytec_eeprom_data_setup_fallback(struct phytec_eeprom_data *data,
 				      int bus_num, int addr,
 				      int addr_fallback);
 int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
 			     int bus_num, int addr);
-int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
-			    int bus_num, int addr);
+int phytec_eeprom_data_init(struct phytec_eeprom_data *data, int bus_num,
+			    int addr);
 void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data);
 
 char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data);
+
+#if IS_ENABLED(CONFIG_CMD_EXTENSION)
+struct extension *phytec_add_extension(const char *name, const char *overlay,
+				       const char *other);
+#endif /* IS_ENABLED(CONFIG_CMD_EXTENSION) */
 
 #endif /* _PHYTEC_SOM_DETECTION_H */
