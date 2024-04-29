@@ -59,6 +59,7 @@ static int dm_test_dsa_probe(struct unit_test_state *uts)
 
 DM_TEST(dm_test_dsa_probe, UT_TESTF_SCAN_FDT);
 
+#if !defined(CONFIG_NET_LWIP)
 /* This test sends ping requests with the local address through each DSA port
  * via the sandbox DSA master Eth.
  */
@@ -80,3 +81,4 @@ static int dm_test_dsa(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_dsa, UT_TESTF_SCAN_FDT);
+#endif /* !defined(CONFIG_NET_LWIP) */
