@@ -85,6 +85,8 @@
 #define AM654_SDHCI_MIN_FREQ	400000
 #define CLOCK_TOO_SLOW_HZ	50000000
 
+#define ENABLE	0x1
+
 struct am654_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -92,11 +94,13 @@ struct am654_sdhci_plat {
 	bool non_removable;
 	u32 otap_del_sel[MMC_MODES_END];
 	u32 itap_del_sel[MMC_MODES_END];
+	u32 itap_del_ena[MMC_MODES_END];
 	u32 trm_icp;
 	u32 drv_strength;
 	u32 strb_sel;
 	u32 clkbuf_sel;
 	u32 flags;
+	bool dll_enable;
 #define DLL_PRESENT	BIT(0)
 #define IOMUX_PRESENT	BIT(1)
 #define FREQSEL_2_BIT	BIT(2)
@@ -108,6 +112,12 @@ struct timing_data {
 	const char *otap_binding;
 	const char *itap_binding;
 	u32 capability;
+};
+
+struct window {
+	u8 start;
+	u8 end;
+	u8 length;
 };
 
 static const struct timing_data td[] = {
@@ -216,8 +226,10 @@ static int am654_sdhci_setup_dll(struct am654_sdhci_plat *plat,
 }
 
 static void am654_sdhci_write_itapdly(struct am654_sdhci_plat *plat,
-				      u32 itapdly)
+				      u32 itapdly, u32 enable)
 {
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPDLYENA_MASK,
+			   enable << ITAPDLYENA_SHIFT);
 	/* Set ITAPCHGWIN before writing to ITAPDLY */
 	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK,
 			   1 << ITAPCHGWIN_SHIFT);
@@ -235,7 +247,8 @@ static void am654_sdhci_setup_delay_chain(struct am654_sdhci_plat *plat,
 	mask = SELDLYTXCLK_MASK | SELDLYRXCLK_MASK;
 	regmap_update_bits(plat->base, PHY_CTRL5, mask, val);
 
-	am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode]);
+	am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode],
+				  plat->itap_del_ena[mode]);
 }
 
 static int am654_sdhci_set_ios_post(struct sdhci_host *host)
@@ -276,12 +289,22 @@ static int am654_sdhci_set_ios_post(struct sdhci_host *host)
 
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
 
-	if (mode > UHS_SDR25 && speed >= CLOCK_TOO_SLOW_HZ) {
+	if ((mode > UHS_SDR25 || mode == MMC_DDR_52) && speed >= CLOCK_TOO_SLOW_HZ) {
 		ret = am654_sdhci_setup_dll(plat, speed);
 		if (ret)
 			return ret;
+
+		plat->dll_enable = true;
+		if (mode == MMC_HS_400) {
+			plat->itap_del_ena[mode] = ENABLE;
+			plat->itap_del_sel[mode] = plat->itap_del_sel[mode - 1];
+		}
+
+		am654_sdhci_write_itapdly(plat, plat->itap_del_sel[mode],
+					  plat->itap_del_ena[mode]);
 	} else {
 		am654_sdhci_setup_delay_chain(plat, mode);
+		plat->dll_enable = false;
 	}
 
 	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
@@ -375,39 +398,103 @@ static void am654_sdhci_write_b(struct sdhci_host *host, u8 val, int reg)
 	writeb(val, host->ioaddr + reg);
 }
 #ifdef MMC_SUPPORTS_TUNING
-#define ITAP_MAX	32
+#define ITAPDLY_LENGTH 32
+#define ITAPDLY_LAST_INDEX (ITAPDLY_LENGTH - 1)
+
+static u32 am654_sdhci_calculate_itap(struct udevice *dev, struct window
+			  *fail_window, u8 num_fails, bool circular_buffer)
+{
+	u8 itap = 0, start_fail = 0, end_fail = 0, pass_length = 0;
+	u8 first_fail_start = 0, last_fail_end = 0;
+	struct window pass_window = {0, 0, 0};
+	int prev_fail_end = -1;
+	u8 i;
+
+	if (!num_fails)
+		return ITAPDLY_LAST_INDEX >> 1;
+
+	if (fail_window->length == ITAPDLY_LENGTH) {
+		dev_err(dev, "No passing ITAPDLY, return 0\n");
+		return 0;
+	}
+
+	first_fail_start = fail_window->start;
+	last_fail_end = fail_window[num_fails - 1].end;
+
+	for (i = 0; i < num_fails; i++) {
+		start_fail = fail_window[i].start;
+		end_fail = fail_window[i].end;
+		pass_length = start_fail - (prev_fail_end + 1);
+
+		if (pass_length > pass_window.length) {
+			pass_window.start = prev_fail_end + 1;
+			pass_window.length = pass_length;
+		}
+		prev_fail_end = end_fail;
+	}
+
+	if (!circular_buffer)
+		pass_length = ITAPDLY_LAST_INDEX - last_fail_end;
+	else
+		pass_length = ITAPDLY_LAST_INDEX - last_fail_end + first_fail_start;
+
+	if (pass_length > pass_window.length) {
+		pass_window.start = last_fail_end + 1;
+		pass_window.length = pass_length;
+	}
+
+	if (!circular_buffer)
+		itap = pass_window.start + (pass_window.length >> 1);
+	else
+		itap = (pass_window.start + (pass_window.length >> 1)) % ITAPDLY_LENGTH;
+
+	return (itap > ITAPDLY_LAST_INDEX) ? ITAPDLY_LAST_INDEX >> 1 : itap;
+}
+
 static int am654_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 {
 	struct udevice *dev = mmc->dev;
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
-	int cur_val, prev_val = 1, fail_len = 0, pass_window = 0, pass_len;
-	u32 itap;
+	struct window fail_window[ITAPDLY_LENGTH];
+	int mode = mmc->selected_mode;
+	u8 curr_pass, itap;
+	u8 fail_index = 0;
+	u8 prev_pass = 1;
+
+	memset(fail_window, 0, sizeof(fail_window));
 
 	/* Enable ITAPDLY */
-	regmap_update_bits(plat->base, PHY_CTRL4, ITAPDLYENA_MASK,
-			   1 << ITAPDLYENA_SHIFT);
+	plat->itap_del_ena[mode] = ENABLE;
 
-	for (itap = 0; itap < ITAP_MAX; itap++) {
-		am654_sdhci_write_itapdly(plat, itap);
+	for (itap = 0; itap < ITAPDLY_LENGTH; itap++) {
+		am654_sdhci_write_itapdly(plat, itap, plat->itap_del_ena[mode]);
 
-		cur_val = !mmc_send_tuning(mmc, opcode);
-		if (cur_val && !prev_val)
-			pass_window = itap;
+		curr_pass = !mmc_send_tuning(mmc, opcode);
 
-		if (!cur_val)
-			fail_len++;
+		if (!curr_pass && prev_pass)
+			fail_window[fail_index].start = itap;
 
-		prev_val = cur_val;
+		if (!curr_pass) {
+			fail_window[fail_index].end = itap;
+			fail_window[fail_index].length++;
+		}
+
+		if (curr_pass && !prev_pass)
+			fail_index++;
+
+		prev_pass = curr_pass;
 	}
-	/*
-	 * Having determined the length of the failing window and start of
-	 * the passing window calculate the length of the passing window and
-	 * set the final value halfway through it considering the range as a
-	 * circular buffer
-	 */
-	pass_len = ITAP_MAX - fail_len;
-	itap = (pass_window + (pass_len >> 1)) % ITAP_MAX;
-	am654_sdhci_write_itapdly(plat, itap);
+
+	if (fail_window[fail_index].length != 0)
+		fail_index++;
+
+	itap = am654_sdhci_calculate_itap(dev, fail_window, fail_index,
+					  plat->dll_enable);
+
+	/* Save ITAPDLY */
+	plat->itap_del_sel[mode] = itap;
+
+	am654_sdhci_write_itapdly(plat, itap, plat->itap_del_ena[mode]);
 
 	return 0;
 }
@@ -442,12 +529,29 @@ static int j721e_4bit_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct udevice *dev = host->mmc->dev;
 	struct am654_sdhci_plat *plat = dev_get_plat(dev);
-	u32 otap_del_sel, mask, val;
+	int mode = host->mmc->selected_mode;
+	u32 otap_del_sel;
+	u32 itap_del_ena;
+	u32 itap_del_sel;
+	u32 mask, val;
 
-	otap_del_sel = plat->otap_del_sel[host->mmc->selected_mode];
+	otap_del_sel = plat->otap_del_sel[mode];
+
 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
-	val = (1 << OTAPDLYENA_SHIFT) | (otap_del_sel << OTAPDLYSEL_SHIFT);
+	val = (1 << OTAPDLYENA_SHIFT) |
+	      (otap_del_sel << OTAPDLYSEL_SHIFT);
+
+	itap_del_ena = plat->itap_del_ena[mode];
+	itap_del_sel = plat->itap_del_sel[mode];
+
+	mask |= ITAPDLYENA_MASK | ITAPDLYSEL_MASK;
+	val |= (itap_del_ena << ITAPDLYENA_SHIFT) |
+	       (itap_del_sel << ITAPDLYSEL_SHIFT);
+
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK,
+			   1 << ITAPCHGWIN_SHIFT);
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, val);
+	regmap_update_bits(plat->base, PHY_CTRL4, ITAPCHGWIN_MASK, 0);
 
 	regmap_update_bits(plat->base, PHY_CTRL5, CLKBUFSEL_MASK,
 			   plat->clkbuf_sel);
@@ -501,7 +605,7 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 	 * Remove the corresponding capability if an otap-del-sel
 	 * value is not found
 	 */
-	for (i = MMC_HS; i <= MMC_HS_400; i++) {
+	for (i = MMC_LEGACY; i <= MMC_HS_400; i++) {
 		ret = dev_read_u32(dev, td[i].otap_binding,
 				   &plat->otap_del_sel[i]);
 		if (ret) {
@@ -513,9 +617,13 @@ static int sdhci_am654_get_otap_delay(struct udevice *dev,
 			cfg->host_caps &= ~td[i].capability;
 		}
 
-		if (td[i].itap_binding)
-			dev_read_u32(dev, td[i].itap_binding,
-				     &plat->itap_del_sel[i]);
+		if (td[i].itap_binding) {
+			ret = dev_read_u32(dev, td[i].itap_binding,
+					   &plat->itap_del_sel[i]);
+
+			if (!ret)
+				plat->itap_del_ena[i] = ENABLE;
+		}
 	}
 
 	return 0;
