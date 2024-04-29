@@ -314,7 +314,7 @@ static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
 				      PKTALIGN));
 }
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_NET_LWIP)
 
 static struct macb_dma_desc_64 *macb_64b_desc(struct macb_dma_desc *desc)
 {
