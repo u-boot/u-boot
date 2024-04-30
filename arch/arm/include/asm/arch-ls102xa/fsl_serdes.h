@@ -6,6 +6,8 @@
 #ifndef __FSL_SERDES_H
 #define __FSL_SERDES_H
 
+#include <linux/types.h>
+
 enum srds_prtcl {
 	/*
 	 * Nobody will check whether the device 'NONE' has been configured,
