@@ -19,7 +19,8 @@
 };
 
 &spiflash {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &vdd_log {

@@ -33,8 +33,9 @@
 };
 
 &spi1 {
-	spi_flash: flash@0 {
-		bootph-all;
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
 	};
 };
 

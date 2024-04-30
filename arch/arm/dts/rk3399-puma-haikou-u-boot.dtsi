@@ -88,27 +88,8 @@
 };
 
 &norflash {
-	bootph-all;
-};
-
-&pcfg_pull_none {
-	bootph-all;
-};
-
-&pcfg_pull_up {
-	bootph-all;
-};
-
-&sdmmc_bus4 {
-	bootph-all;
-};
-
-&sdmmc_clk {
-	bootph-all;
-};
-
-&sdmmc_cmd {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &uart0 {
