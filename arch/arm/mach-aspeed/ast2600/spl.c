@@ -2,7 +2,6 @@
 /*
  * Copyright (c) Aspeed Technology Inc.
  */
-#include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <spl.h>
