@@ -3,7 +3,6 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include "emc.h"
 #include <asm/io.h>
