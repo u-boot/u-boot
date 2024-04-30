@@ -12,12 +12,10 @@
 
 &sdhci {
 	max-frequency = <25000000>;
-	bootph-all;
 };
 
 &sdmmc {
 	max-frequency = <20000000>;
-	bootph-all;
 };
 
 &spiflash {
