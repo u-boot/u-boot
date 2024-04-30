@@ -4,7 +4,6 @@
  * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <syscon.h>

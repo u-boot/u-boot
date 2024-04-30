@@ -3,7 +3,6 @@
  * Copyright (c) 2018 Fuzhou Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <dm.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>

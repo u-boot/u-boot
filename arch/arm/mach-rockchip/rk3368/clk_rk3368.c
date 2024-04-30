@@ -4,7 +4,6 @@
  * Author: Andy Yan <andy.yan@rock-chips.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>

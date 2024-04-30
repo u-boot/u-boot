@@ -3,7 +3,6 @@
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <log.h>
