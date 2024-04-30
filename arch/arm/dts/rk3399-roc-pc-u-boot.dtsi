@@ -38,12 +38,11 @@
 	};
 };
 
-&vdd_log {
-	regulator-min-microvolt = <430000>;
-	regulator-init-microvolt = <950000>;
+&vcc5v0_host {
+	regulator-always-on;
 };
 
-&vcc5v0_host {
+&vcc_sdio {
 	regulator-always-on;
 };
 
@@ -51,6 +50,7 @@
 	regulator-always-on;
 };
 
-&vcc_sdio {
-	regulator-always-on;
+&vdd_log {
+	regulator-min-microvolt = <430000>;
+	regulator-init-microvolt = <950000>;
 };

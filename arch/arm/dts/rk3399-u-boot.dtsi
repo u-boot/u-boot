@@ -18,19 +18,25 @@
 		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 
-	cic: syscon@ff620000 {
+	pmusgrf: syscon@ff330000 {
+		compatible = "rockchip,rk3399-pmusgrf", "syscon";
+		reg = <0x0 0xff330000 0x0 0xe3d4>;
 		bootph-all;
+	};
+
+	cic: syscon@ff620000 {
 		compatible = "rockchip,rk3399-cic", "syscon";
 		reg = <0x0 0xff620000 0x0 0x100>;
+		bootph-all;
 	};
 
 	dfi: dfi@ff630000 {
-		bootph-all;
 		reg = <0x00 0xff630000 0x00 0x4000>;
 		compatible = "rockchip,rk3399-dfi";
 		rockchip,pmu = <&pmugrf>;
 		clocks = <&cru PCLK_DDR_MON>;
 		clock-names = "pclk_ddr_mon";
+		bootph-all;
 	};
 
 	rng: rng@ff8b8000 {
@@ -39,12 +45,7 @@
 	};
 
 	dmc: dmc {
-		bootph-all;
 		compatible = "rockchip,rk3399-dmc";
-		devfreq-events = <&dfi>;
-		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru SCLK_DDRCLK>;
-		clock-names = "dmc_clk";
 		reg = <0x0 0xffa80000 0x0 0x0800
 		       0x0 0xffa80800 0x0 0x1800
 		       0x0 0xffa82000 0x0 0x2000
@@ -53,14 +54,12 @@
 		       0x0 0xffa88800 0x0 0x1800
 		       0x0 0xffa8a000 0x0 0x2000
 		       0x0 0xffa8c000 0x0 0x1000>;
-	};
-
-	pmusgrf: syscon@ff330000 {
+		devfreq-events = <&dfi>;
+		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&cru SCLK_DDRCLK>;
+		clock-names = "dmc_clk";
 		bootph-all;
-		compatible = "rockchip,rk3399-pmusgrf", "syscon";
-		reg = <0x0 0xff330000 0x0 0xe3d4>;
 	};
-
 };
 
 #if defined(CONFIG_ROCKCHIP_SPI_IMAGE) && defined(CONFIG_HAS_ROM)
@@ -108,21 +107,19 @@
 	bootph-all;
 };
 
-&pmugrf {
-	bootph-all;
-};
-
-&pmu {
-	bootph-all;
-};
-
 &pmucru {
 	bootph-all;
 };
 
-&sdhci {
-	max-frequency = <200000000>;
+&pmugrf {
 	bootph-all;
+};
+
+&sdhci {
+	bootph-all;
+	max-frequency = <200000000>;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
