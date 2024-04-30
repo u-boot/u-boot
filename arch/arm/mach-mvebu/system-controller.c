@@ -4,7 +4,6 @@
  * Copyright (C) 2024 Marek Behún <kabel@kernel.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <regmap.h>

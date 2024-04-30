@@ -3,10 +3,11 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/ptrace.h>
 #include <asm/system.h>
 #include <linux/sizes.h>
