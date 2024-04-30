@@ -16,6 +16,7 @@
 #include <linux/time.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#include <u-boot/zlib.h>
 #include "zfs_common.h"
 #include "div64.h"
 
@@ -182,7 +183,8 @@ static int
 zlib_decompress(void *s, void *d,
 				uint32_t slen, uint32_t dlen)
 {
-	if (zlib_decompress(s, d, slen, dlen) < 0)
+	uLongf z_dest_len = dlen;
+	if (uncompress(d, &z_dest_len, s, slen) != Z_OK)
 		return ZFS_ERR_BAD_FS;
 	return ZFS_ERR_NONE;
 }
