@@ -3,7 +3,6 @@
  * Copyright (C) 2011-2015 by Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>
