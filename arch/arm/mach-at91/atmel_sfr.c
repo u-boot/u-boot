@@ -4,7 +4,7 @@
  *		      Wenyou Yang <wenyou.yang@atmel.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <asm/arch/at91_sfr.h>

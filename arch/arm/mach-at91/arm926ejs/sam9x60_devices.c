@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Microchip Technology Inc. and its subsidiaries
  */
 
-#include <common.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
