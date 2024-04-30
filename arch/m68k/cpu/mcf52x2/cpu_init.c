@@ -28,6 +28,9 @@
 #include <net.h>
 #include <asm/fec.h>
 #endif
+#if defined(CONFIG_CMD_NET_LWIP)
+#include <asm/fec.h>
+#endif
 
 #ifndef CONFIG_M5272
 /* Only 5272 Flexbus chipselect is different from the rest */
@@ -157,7 +160,7 @@ void uart_port_conf(int port)
 	}
 }
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_NET_LWIP)
 int fecpin_setclear(fec_info_t *info, int setclear)
 {
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;

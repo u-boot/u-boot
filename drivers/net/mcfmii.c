@@ -17,7 +17,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) || defined(CONFIG_CMD_NET_LWIP)
 #undef MII_DEBUG
 #undef ET_DEBUG
 
