@@ -4,8 +4,8 @@
  *
  */
 
+#include <mach/base_addr_soc64.h>
 #include <asm/io.h>
-#include <common.h>
 #include <asm/arch/firewall.h>
 #include <asm/arch/system_manager.h>
 

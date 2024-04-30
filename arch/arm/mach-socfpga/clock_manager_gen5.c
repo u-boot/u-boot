@@ -3,7 +3,6 @@
  *  Copyright (C) 2013-2017 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
 #include <time.h>
 #include <asm/io.h>
 #include <dm.h>

@@ -11,7 +11,6 @@
 #include <asm/io.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
-#include <common.h>
 #include <debug_uart.h>
 #include <image.h>
 #include <spl.h>

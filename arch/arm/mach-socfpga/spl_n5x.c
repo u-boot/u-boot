@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/firewall.h>
 #include <asm/arch/mailbox_s10.h>

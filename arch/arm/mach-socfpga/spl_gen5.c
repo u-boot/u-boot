@@ -3,7 +3,6 @@
  *  Copyright (C) 2012 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

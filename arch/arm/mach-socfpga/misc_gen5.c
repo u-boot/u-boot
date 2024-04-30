@@ -3,7 +3,7 @@
  *  Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/global_data.h>

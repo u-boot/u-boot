@@ -6,6 +6,8 @@
 #ifndef _CLOCK_MANAGER_H_
 #define _CLOCK_MANAGER_H_
 
+#include <linux/types.h>
+
 phys_addr_t socfpga_get_clkmgr_addr(void);
 
 #ifndef __ASSEMBLY__
