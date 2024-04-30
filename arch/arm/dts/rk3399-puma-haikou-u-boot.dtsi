@@ -110,3 +110,7 @@
 &sdmmc_cmd {
 	bootph-all;
 };
+
+&uart0 {
+	bootph-all;
+};

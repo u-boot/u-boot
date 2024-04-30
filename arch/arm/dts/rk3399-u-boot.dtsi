@@ -134,10 +134,6 @@
 	bootph-all;
 };
 
-&uart0 {
-	bootph-all;
-};
-
 &uart2 {
 	bootph-all;
 };
