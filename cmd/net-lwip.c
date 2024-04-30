@@ -141,3 +141,10 @@ U_BOOT_CMD(
 	"list - list available devices\n"
 	"stats <device> - dump statistics for specified device\n"
 );
+
+#if defined(CONFIG_CMD_PXE_LWIP)
+int pxe_get(ulong pxefile_addr_r, char **bootdirp, ulong *sizep, bool use_ipv6)
+{
+	return -1;
+}
+#endif

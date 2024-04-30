@@ -2110,6 +2110,12 @@ config CMD_PING_LWIP
 	help
 	  Send ICMP ECHO_REQUEST to network host
 
+config CMD_PXE_LWIP
+	bool "pxe"
+	select PXE_UTILS
+	help
+	  Boot image via network using PXE protocol
+
 config CMD_TFTPBOOT_LWIP
 	bool "tftp"
 	select PROT_UDP_LWIP

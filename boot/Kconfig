@@ -383,6 +383,7 @@ config BOOT_DEFAULTS_CMDS
 	select CMD_PXE if CMD_NET
 	select CMD_DHCP_LWIP if CMD_NET_LWIP
 	select CMD_PING_LWIP if CMD_NET_LWIP
+	select CMD_PXE_LWIP if CMD_NET_LWIP
 	select CMD_BOOTI if ARM64
 	select CMD_BOOTZ if ARM && !ARM64
 	imply CMD_MII if NET
@@ -527,7 +528,7 @@ config BOOTMETH_EXTLINUX
 
 config BOOTMETH_EXTLINUX_PXE
 	bool "Bootdev support for extlinux boot over network"
-	depends on CMD_PXE && CMD_NET && DM_ETH
+	depends on (CMD_PXE || CMD_PXE_LWIP) && (CMD_NET || CMD_NET_LWIP) && DM_ETH
 	default y
 	help
 	  Enables support for extlinux boot using bootdevs. This makes the
@@ -586,7 +587,7 @@ config BOOTMETH_DISTRO
 	bool  # Options needed to boot any distro
 	select BOOTMETH_SCRIPT if CMDLINE # E.g. Armbian uses scripts
 	select BOOTMETH_EXTLINUX  # E.g. Debian uses these
-	select BOOTMETH_EXTLINUX_PXE if CMD_PXE && CMD_NET && DM_ETH
+	select BOOTMETH_EXTLINUX_PXE if (CMD_PXE || CMD_PXE_LWIP) && (CMD_NET || CMD_NET_LWIP) && DM_ETH
 	select BOOTMETH_EFILOADER if EFI_BINARY_EXEC # E.g. Ubuntu uses this
 
 config SPL_BOOTMETH_VBE
