@@ -399,10 +399,12 @@ static void pru_set_id(struct pru_privdata *priv, struct udevice *dev)
 {
 	u32 mask2 = 0x38000;
 
-	if (device_is_compatible(dev, "ti,am654-rtu"))
+	if (device_is_compatible(dev, "ti,am654-rtu") ||
+	    device_is_compatible(dev, "ti,am642-rtu"))
 		mask2 = 0x6000;
 
-	if (device_is_compatible(dev, "ti,am654-tx-pru"))
+	if (device_is_compatible(dev, "ti,am654-tx-pru") ||
+	    device_is_compatible(dev, "ti,am642-tx-pru"))
 		mask2 = 0xc000;
 
 	if ((priv->pru_iram & mask2) == mask2)
@@ -448,6 +450,9 @@ static const struct udevice_id pru_ids[] = {
 	{ .compatible = "ti,am654-pru"},
 	{ .compatible = "ti,am654-rtu"},
 	{ .compatible = "ti,am654-tx-pru" },
+	{ .compatible = "ti,am642-pru"},
+	{ .compatible = "ti,am642-rtu"},
+	{ .compatible = "ti,am642-tx-pru" },
 	{}
 };
 
