@@ -7,10 +7,6 @@
 #include "rk3399-sdram-lpddr4-100.dtsi"
 
 / {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &spi_flash, &sdhci, &sdmmc;
-	};
-
 	vcc_hub_en: vcc_hub_en-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;

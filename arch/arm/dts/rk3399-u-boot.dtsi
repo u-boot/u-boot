@@ -14,6 +14,10 @@
 		spi1 = &spi1;
 	};
 
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
+	};
+
 	cic: syscon@ff620000 {
 		bootph-all;
 		compatible = "rockchip,rk3399-cic", "syscon";
