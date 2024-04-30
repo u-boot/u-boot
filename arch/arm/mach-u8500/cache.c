@@ -3,7 +3,7 @@
  * Copyright (C) 2019 Stephan Gerhold <stephan@gerhold.net>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <asm/armv7.h>
 #include <asm/cache.h>
