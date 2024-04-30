@@ -333,6 +333,12 @@ vdev_uberblock_compare(uberblock_t *ub1, uberblock_t *ub2)
 	return 0;
 }
 
+static inline int
+is_supported_spa_version(uint64_t version) {
+	return version == FEATURES_SUPPORTED_SPA_VERSION ||
+		(version > 0 && version <= SPA_VERSION);
+}
+
 /*
  * Three pieces of information are needed to verify an uberblock: the magic
  * number, the version number, and the checksum.
@@ -354,14 +360,12 @@ uberblock_verify(uberblock_t *uber, int offset, struct zfs_data *data)
 		return ZFS_ERR_BAD_FS;
 	}
 
-	if (zfs_to_cpu64(uber->ub_magic, LITTLE_ENDIAN) == UBERBLOCK_MAGIC
-		&& zfs_to_cpu64(uber->ub_version, LITTLE_ENDIAN) > 0
-		&& zfs_to_cpu64(uber->ub_version, LITTLE_ENDIAN) <= SPA_VERSION)
+	if (zfs_to_cpu64(uber->ub_magic, LITTLE_ENDIAN) == UBERBLOCK_MAGIC &&
+		is_supported_spa_version(zfs_to_cpu64(uber->ub_version, LITTLE_ENDIAN)))
 		endian = LITTLE_ENDIAN;
 
-	if (zfs_to_cpu64(uber->ub_magic, BIG_ENDIAN) == UBERBLOCK_MAGIC
-		&& zfs_to_cpu64(uber->ub_version, BIG_ENDIAN) > 0
-		&& zfs_to_cpu64(uber->ub_version, BIG_ENDIAN) <= SPA_VERSION)
+	if (zfs_to_cpu64(uber->ub_magic, BIG_ENDIAN) == UBERBLOCK_MAGIC &&
+		is_supported_spa_version(zfs_to_cpu64(uber->ub_version, BIG_ENDIAN)))
 		endian = BIG_ENDIAN;
 
 	if (endian == UNKNOWN_ENDIAN) {
@@ -1787,7 +1791,7 @@ check_pool_label(struct zfs_data *data)
 		return ZFS_ERR_BAD_FS;
 	}
 
-	if (version > SPA_VERSION) {
+	if (!is_supported_spa_version(version)) {
 		free(nvlist);
 		printf("SPA version too new %llu > %llu\n",
 			   (unsigned long long) version,
