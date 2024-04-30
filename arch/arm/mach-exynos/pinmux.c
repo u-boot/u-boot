@@ -4,7 +4,6 @@
  * Abhilash Kesavan <a.kesavan@samsung.com>
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/gpio.h>
