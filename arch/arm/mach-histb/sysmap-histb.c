@@ -5,7 +5,6 @@
  * (C) Copyright 2023 Yang Xiwen <forbidden405@outlook.com>
  */
 
-#include <common.h>
 #include <asm/armv8/mmu.h>
 
 static struct mm_region histb_mem_map[] = {
