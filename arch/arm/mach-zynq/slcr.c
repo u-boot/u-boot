@@ -3,7 +3,6 @@
  * Copyright (c) 2013 - 2017 Xilinx Inc.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <asm/arch/hardware.h>
