@@ -3,7 +3,6 @@
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
-#include <common.h>
 #include <config.h>
 #include <hang.h>
 #include <init.h>

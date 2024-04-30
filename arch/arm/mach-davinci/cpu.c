@@ -4,11 +4,12 @@
  * Copyright (C) 2009 David Brownell
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <asm/arch/hardware.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
