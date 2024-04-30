@@ -3,7 +3,6 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <dfu.h>
 #include <g_dnl.h>
 #include <usb.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <log.h>
