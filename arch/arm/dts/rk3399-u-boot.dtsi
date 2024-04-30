@@ -136,6 +136,12 @@
 
 &uart2 {
 	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart2c_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
 &vopb {

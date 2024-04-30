@@ -113,4 +113,20 @@
 
 &uart0 {
 	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart0_cts {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&uart0_rts {
+	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&uart0_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
