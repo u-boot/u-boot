@@ -10,6 +10,10 @@
 	rockchip,panel = <&edp_panel>;
 };
 
+&gpio0 {
+	bootph-pre-ram;
+};
+
 &sdhci {
 	max-frequency = <25000000>;
 };
@@ -18,9 +22,17 @@
 	max-frequency = <20000000>;
 };
 
+&sdmmc0_pwr_h_pin {
+	bootph-pre-ram;
+};
+
 &spiflash {
 	bootph-pre-ram;
 	bootph-some-ram;
+};
+
+&vcc3v0_sd {
+	bootph-pre-ram;
 };
 
 &vdd_log {

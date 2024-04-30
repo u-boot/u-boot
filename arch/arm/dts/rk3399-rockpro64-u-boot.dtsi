@@ -28,9 +28,17 @@
         };
 };
 
+&gpio0 {
+	bootph-pre-ram;
+};
+
 &sdhci {
 	cap-mmc-highspeed;
 	mmc-ddr-1_8v;
+};
+
+&sdmmc0_pwr_h {
+	bootph-pre-ram;
 };
 
 &spi1 {
@@ -38,6 +46,10 @@
 		bootph-pre-ram;
 		bootph-some-ram;
 	};
+};
+
+&vcc3v0_sd {
+	bootph-pre-ram;
 };
 
 &vdd_center {

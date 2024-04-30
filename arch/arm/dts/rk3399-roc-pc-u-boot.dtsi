@@ -32,11 +32,23 @@
 	vin-supply = <&vcc_vbus_typec0>;
 };
 
+&gpio4 {
+	bootph-pre-ram;
+};
+
 &spi1 {
 	flash@0 {
 		bootph-pre-ram;
 		bootph-some-ram;
 	};
+};
+
+&vcc3v0_sd {
+	bootph-pre-ram;
+};
+
+&vcc3v0_sd_en {
+	bootph-pre-ram;
 };
 
 &vcc5v0_host {
