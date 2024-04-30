@@ -3,7 +3,6 @@
  * Copyright 2022 NXP
  */
 
-#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <imx_container.h>
@@ -15,6 +14,7 @@
 #include <console.h>
 #include <cpu_func.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

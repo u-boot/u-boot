@@ -3,8 +3,8 @@
  * Copyright 2022 NXP
  */
 
-#include <common.h>
 #include <log.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <asm/arch/imx-regs.h>

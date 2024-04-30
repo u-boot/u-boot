@@ -2,8 +2,8 @@
 /*
  * Copyright (C) 2012 Boundary Devices Inc.
  */
-#include <common.h>
 #include <malloc.h>
+#include <time.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
 #include <linux/delay.h>

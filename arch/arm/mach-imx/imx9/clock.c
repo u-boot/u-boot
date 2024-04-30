@@ -5,7 +5,6 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

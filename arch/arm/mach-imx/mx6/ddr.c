@@ -4,7 +4,6 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
-#include <common.h>
 #include <hang.h>
 #include <log.h>
 #include <linux/delay.h>

@@ -3,7 +3,6 @@
  * Copyright 2019 NXP
  */
 
-#include <common.h>
 #include <log.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/arch/sys_proto.h>

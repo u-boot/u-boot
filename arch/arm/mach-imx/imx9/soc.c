@@ -5,7 +5,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <log.h>

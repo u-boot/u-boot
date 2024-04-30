@@ -3,7 +3,6 @@
  * Copyright 2020 NXP
  */
 
-#include <common.h>
 #include <command.h>
 #include <div64.h>
 #include <asm/arch/imx-regs.h>

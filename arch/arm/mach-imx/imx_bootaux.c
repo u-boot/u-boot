@@ -3,15 +3,18 @@
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <log.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <command.h>
 #include <elf.h>
 #include <imx_sip.h>
+#include <vsprintf.h>
 #include <linux/arm-smccc.h>
 #include <linux/compiler.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 #include <cpu_func.h>
 
 #ifndef CONFIG_IMX8
