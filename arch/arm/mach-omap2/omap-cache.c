@@ -11,11 +11,12 @@
  *	Steve Sakoman	<steve@sakoman.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <linux/string.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

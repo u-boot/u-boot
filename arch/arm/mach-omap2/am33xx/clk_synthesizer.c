@@ -7,8 +7,7 @@
  * Copyright (C) 2016, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-
-#include <common.h>
+#include <stdio.h>
 #include <asm/arch/clk_synthesizer.h>
 #include <i2c.h>
 
