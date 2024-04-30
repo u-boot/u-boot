@@ -9,7 +9,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
 #include <asm/arch/dram.h>
 #include <asm/arch/cpu.h>
 
