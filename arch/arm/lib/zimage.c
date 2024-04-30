@@ -6,7 +6,6 @@
  * bootz code:
  * Copyright (C) 2012 Marek Vasut <marek.vasut@gmail.com>
  */
-#include <common.h>
 #include <image.h>
 
 #define	LINUX_ARM_ZIMAGE_MAGIC	0x016f2818

@@ -4,10 +4,10 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/system.h>
 #include <asm/cache.h>
 #include <linux/compiler.h>

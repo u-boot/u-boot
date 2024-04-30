@@ -6,9 +6,10 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/mach-types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
