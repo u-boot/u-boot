@@ -1,6 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Copyright (c) 2016 Rockchip Electronics Co. Ltd.
+ * Author: Xing Zheng <zhengxing@rock-chips.com>
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3399_H
@@ -121,16 +122,17 @@
 #define SCLK_DPHY_RX0_CFG		165
 #define SCLK_RMII_SRC			166
 #define SCLK_PCIEPHY_REF100M		167
-#define SCLK_USBPHY0_480M_SRC		168
-#define SCLK_USBPHY1_480M_SRC		169
-#define SCLK_DDRCLK			170
-#define SCLK_TESTOUT2			171
+#define SCLK_DDRC			168
+#define SCLK_TESTCLKOUT1		169
+#define SCLK_TESTCLKOUT2		170
 
 #define DCLK_VOP0			180
 #define DCLK_VOP1			181
 #define DCLK_VOP0_DIV			182
 #define DCLK_VOP1_DIV			183
 #define DCLK_M0_PERILP			184
+#define DCLK_VOP0_FRAC			185
+#define DCLK_VOP1_FRAC			186
 
 #define FCLK_CM0S			190
 
@@ -545,8 +547,8 @@
 #define SRST_H_PERILP0			171
 #define SRST_H_PERILP0_NOC		172
 #define SRST_ROM			173
-#define SRST_CRYPTO_S			174
-#define SRST_CRYPTO_M			175
+#define SRST_CRYPTO0_S			174
+#define SRST_CRYPTO0_M			175
 
 /* cru_softrst_con11 */
 #define SRST_P_DCF			176
@@ -554,7 +556,7 @@
 #define SRST_CM0S			178
 #define SRST_CM0S_DBG			179
 #define SRST_CM0S_PO			180
-#define SRST_CRYPTO			181
+#define SRST_CRYPTO0			181
 #define SRST_P_PERILP1_SGRF		182
 #define SRST_P_PERILP1_GRF		183
 #define SRST_CRYPTO1_S			184
@@ -592,13 +594,13 @@
 #define SRST_P_SPI0			214
 #define SRST_P_SPI1			215
 #define SRST_P_SPI2			216
-#define SRST_P_SPI4			217
-#define SRST_P_SPI5			218
+#define SRST_P_SPI3			217
+#define SRST_P_SPI4			218
 #define SRST_SPI0			219
 #define SRST_SPI1			220
 #define SRST_SPI2			221
-#define SRST_SPI4			222
-#define SRST_SPI5			223
+#define SRST_SPI3			222
+#define SRST_SPI4			223
 
 /* cru_softrst_con14 */
 #define SRST_I2S0_8CH			224
@@ -720,8 +722,8 @@
 #define SRST_H_CM0S_NOC			3
 #define SRST_DBG_CM0S			4
 #define SRST_PO_CM0S			5
-#define SRST_P_SPI3			6
-#define SRST_SPI3			7
+#define SRST_P_SPI6			6
+#define SRST_SPI6			7
 #define SRST_P_TIMER_0_1		8
 #define SRST_P_TIMER_0			9
 #define SRST_P_TIMER_1			10

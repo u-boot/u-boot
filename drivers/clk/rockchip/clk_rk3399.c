@@ -1049,7 +1049,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 		 * return 0 to satisfy clk_set_defaults during device probe.
 		 */
 		return 0;
-	case SCLK_DDRCLK:
+	case SCLK_DDRC:
 		ret = rk3399_ddr_set_clk(priv->cru, rate);
 		break;
 	case PCLK_EFUSE1024NS:
