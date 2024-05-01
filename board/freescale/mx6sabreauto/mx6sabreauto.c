@@ -5,7 +5,6 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
-#include <common.h>
 #include <image.h>
 #include <init.h>
 #include <net.h>

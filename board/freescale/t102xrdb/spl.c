@@ -2,7 +2,7 @@
 /* Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <console.h>
 #include <env_internal.h>

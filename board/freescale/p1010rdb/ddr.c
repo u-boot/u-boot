@@ -3,7 +3,6 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <vsprintf.h>
 #include <asm/global_data.h>
 #include <asm/mmu.h>

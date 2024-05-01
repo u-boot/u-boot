@@ -4,7 +4,7 @@
  * Copyright 2022 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <env.h>
 #include <init.h>

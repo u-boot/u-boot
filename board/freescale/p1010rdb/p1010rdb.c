@@ -4,7 +4,7 @@
  * Copyright 2020 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <image.h>
 #include <init.h>

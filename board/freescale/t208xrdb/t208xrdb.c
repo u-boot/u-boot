@@ -4,7 +4,7 @@
  * Copyright 2021-2023 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <env.h>
 #include <fdt_support.h>

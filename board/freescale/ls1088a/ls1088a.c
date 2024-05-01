@@ -2,7 +2,7 @@
 /*
  * Copyright 2017-2022 NXP
  */
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <display_options.h>
 #include <env.h>

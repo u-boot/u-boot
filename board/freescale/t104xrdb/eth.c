@@ -3,7 +3,7 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>
