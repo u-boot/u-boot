@@ -8,7 +8,6 @@
  * and updates by Jagan Teki <jagan@amarulasolutions.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <miiphy.h>
