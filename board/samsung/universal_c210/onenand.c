@@ -4,7 +4,7 @@
  * Kyungmin Park <kyungmin.park@samsung.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 #include <linux/mtd/samsung_onenand.h>

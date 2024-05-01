@@ -5,7 +5,6 @@
  *  Kyungmin Park <kyungmin.park@samsung.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/global_data.h>

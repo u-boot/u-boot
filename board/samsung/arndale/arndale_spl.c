@@ -3,7 +3,6 @@
  * Copyright (c) 2012 The Chromium OS Authors.
  */
 
-#include <common.h>
 #include <asm/arch/spl.h>
 
 #define SIGNATURE	0xdeadbeef

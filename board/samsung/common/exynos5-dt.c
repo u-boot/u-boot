@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Samsung Electronics
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dwc3-uboot.h>
 #include <env.h>
