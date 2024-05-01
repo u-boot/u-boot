@@ -9,7 +9,6 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <miiphy.h>
