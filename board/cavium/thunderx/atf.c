@@ -3,8 +3,9 @@
  * (C) Copyright 2014, Cavium Inc.
 **/
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
+#include <vsprintf.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
