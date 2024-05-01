@@ -4,7 +4,7 @@
  * Copyright (C) 2017, Grinn - http://grinn-global.com/
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/chilisom.h>
