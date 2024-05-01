@@ -3,7 +3,6 @@
  * Copyright (C) 2016-2018 Toradex AG
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>
