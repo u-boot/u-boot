@@ -4,3 +4,10 @@
  */
 
 #include "rk3399-rock-pi-4-u-boot.dtsi"
+
+&spi1 {
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+};

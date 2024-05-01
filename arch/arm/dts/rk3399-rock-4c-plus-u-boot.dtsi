@@ -13,3 +13,15 @@
 	bootph-pre-ram;
 	bootph-some-ram;
 };
+
+&spi1 {
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		bootph-pre-ram;
+		bootph-some-ram;
+		spi-max-frequency = <10000000>;
+	};
+};
