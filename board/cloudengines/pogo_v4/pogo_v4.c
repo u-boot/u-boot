@@ -11,7 +11,6 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  */
 
-#include <common.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
