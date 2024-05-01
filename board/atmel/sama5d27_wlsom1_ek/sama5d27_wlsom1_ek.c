@@ -5,7 +5,7 @@
  * Author: Nicolas Ferre <nicolas.ferre@microcihp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <debug_uart.h>
 #include <init.h>
 #include <asm/global_data.h>

@@ -5,7 +5,6 @@
  * Author: Durai Manickam KR <durai.manickamkr@microchip.com>
  */
 
-#include <common.h>
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <init.h>
