@@ -3,7 +3,6 @@
  * Copyright (c) 2018 Microsemi Coprporation
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <spi.h>
 #include <linux/bitops.h>
