@@ -8,7 +8,6 @@
  * Marvell Semiconductor <www.marvell.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>
