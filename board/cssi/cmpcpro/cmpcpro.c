@@ -7,7 +7,6 @@
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
-#include <eeprom.h>
 #include <fdt_support.h>
 #include <hang.h>
 #include <ioports.h>

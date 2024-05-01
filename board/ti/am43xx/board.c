@@ -8,7 +8,6 @@
  */
 
 #include <common.h>
-#include <eeprom.h>
 #include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <env.h>

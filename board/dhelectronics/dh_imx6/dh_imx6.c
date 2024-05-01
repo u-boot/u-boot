@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <eeprom.h>
 #include <image.h>
 #include <init.h>
 #include <net.h>

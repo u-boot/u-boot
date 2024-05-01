@@ -6,7 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 #include <common.h>
-#include <eeprom.h>
 #include <env.h>
 #include <hang.h>
 #include <image.h>
