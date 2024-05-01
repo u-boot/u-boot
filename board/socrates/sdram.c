@@ -4,7 +4,7 @@
  * Sergei Poselenov, Emcraft Systems, sposelenov@emcraft.com.
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
