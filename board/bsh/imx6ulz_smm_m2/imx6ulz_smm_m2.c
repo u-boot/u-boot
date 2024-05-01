@@ -14,7 +14,6 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
-#include <common.h>
 #include <env.h>
 #include <linux/sizes.h>
 
