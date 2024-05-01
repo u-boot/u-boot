@@ -3,7 +3,6 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
-#include <asm/u-boot.h>
 #include <log.h>
 #include <asm/fsl_serdes.h>
 #include <asm/immap_85xx.h>

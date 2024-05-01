@@ -3,7 +3,6 @@
  * Copyright 2012-2016 Freescale Semiconductor, Inc.
  */
 
-#include <asm/u-boot.h>
 #include <log.h>
 #include <asm/fsl_pamu.h>
 #include <asm/global_data.h>

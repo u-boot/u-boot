@@ -12,7 +12,6 @@
 #include <spl_load.h>
 #include <linux/compiler.h>
 #include <errno.h>
-#include <asm/u-boot.h>
 #include <errno.h>
 #include <mmc.h>
 #include <image.h>

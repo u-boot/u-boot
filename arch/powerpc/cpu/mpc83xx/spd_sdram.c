@@ -12,7 +12,6 @@
 
 #ifndef CONFIG_MPC83XX_SDRAM
 
-#include <asm/u-boot.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <time.h>

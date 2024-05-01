@@ -3,7 +3,6 @@
  * Copyright 2009 Freescale Semiconductor, Inc.
  */
 
-#include <asm/u-boot.h>
 #include <asm/processor.h>
 #include <asm/global_data.h>
 #include <fsl_ifc.h>

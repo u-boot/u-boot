@@ -4,7 +4,6 @@
 #include <part.h>
 #include <spl.h>
 #include <spl_load.h>
-#include <asm/u-boot.h>
 #include <ext4fs.h>
 #include <errno.h>
 #include <image.h>

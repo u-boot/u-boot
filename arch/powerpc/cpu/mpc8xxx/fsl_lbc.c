@@ -3,7 +3,6 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <asm/u-boot.h>
 #include <hang.h>
 #include <init.h>
 #include <asm/fsl_lbc.h>

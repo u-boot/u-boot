@@ -10,7 +10,6 @@
 
 #include <log.h>
 #include <spl.h>
-#include <asm/u-boot.h>
 #include <errno.h>
 #include <usb.h>
 #include <fat.h>

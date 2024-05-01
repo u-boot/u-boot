@@ -17,7 +17,6 @@
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
-#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

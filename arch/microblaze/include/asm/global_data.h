@@ -9,6 +9,7 @@
 #define __ASM_GBL_DATA_H
 
 #include <asm/cpuinfo.h>
+#include <asm/u-boot.h>
 
 /* Architecture-specific global data */
 struct arch_global_data {

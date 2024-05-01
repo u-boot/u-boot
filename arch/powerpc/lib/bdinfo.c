@@ -8,7 +8,6 @@
 
 #include <init.h>
 #include <asm/global_data.h>
-#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -4,6 +4,7 @@
  */
 
 #include <config.h>
+#include <linux/kernel.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 
