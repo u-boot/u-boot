@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>
