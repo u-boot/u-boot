@@ -14,7 +14,6 @@
  * Marvell Semiconductor <www.marvell.com>
  */
 
-#include <common.h>
 #include <asm/arch/soc.h>
 #include <asm/arch/mpp.h>
 #include <netdev.h>
