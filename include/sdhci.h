@@ -301,7 +301,7 @@ struct sdhci_ops {
 
 #define ADMA_MAX_LEN	65532
 #ifdef CONFIG_MMC_SDHCI_ADMA_64BIT
-#define ADMA_DESC_LEN	16
+#define ADMA_DESC_LEN	12
 #else
 #define ADMA_DESC_LEN	8
 #endif
