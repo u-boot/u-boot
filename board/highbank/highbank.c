@@ -3,7 +3,6 @@
  * Copyright 2010-2011 Calxeda, Inc.
  */
 
-#include <common.h>
 #include <ahci.h>
 #include <cpu_func.h>
 #include <env.h>
