@@ -13,7 +13,6 @@
 #include <asm/global_data.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
