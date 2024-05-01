@@ -21,6 +21,7 @@
 #define __VIRTIO_H__
 
 #include <virtio_types.h>
+#include <dm/device.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
 #include <linux/typecheck.h>
