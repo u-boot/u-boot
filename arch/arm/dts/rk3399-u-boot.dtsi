@@ -6,7 +6,6 @@
 
 / {
 	aliases {
-		ethernet0 = &gmac;
 		mmc0 = &sdhci;
 		mmc1 = &sdmmc;
 		pci0 = &pcie0;
