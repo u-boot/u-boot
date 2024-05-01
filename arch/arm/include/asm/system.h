@@ -154,6 +154,13 @@ enum dcache_option {
 	"wfi" : : : "memory");		\
 	})
 
+#define wfe()				\
+	({asm volatile(			\
+	"wfe" : : : "memory");		\
+	})
+
+#define sev() asm volatile("sev")
+
 static inline unsigned int current_el(void)
 {
 	unsigned long el;
@@ -369,6 +376,8 @@ void switch_to_hypervisor_ret(void);
 
 #ifdef __ARM_ARCH_7A__
 #define wfi() __asm__ __volatile__ ("wfi" : : : "memory")
+#define wfe() __asm__ __volatile__ ("wfe" : : : "memory")
+#define sev() __asm__ __volatile__ ("sev")
 #else
 #define wfi()
 #endif

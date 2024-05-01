@@ -36,25 +36,6 @@ struct exynos5_sysreg {
 
 #define USB20_PHY_CFG_HOST_LINK_EN	(1 << 0)
 
-/*
- * This instruction causes an event to be signaled to all cores
- * within a multiprocessor system. If SEV is implemented,
- * WFE must also be implemented.
- */
-#define sev() __asm__ __volatile__ ("sev\n\t" : : );
-/*
- * If the Event Register is not set, WFE suspends execution until
- * one of the following events occurs:
- * - an IRQ interrupt, unless masked by the CPSR I-bit
- * - an FIQ interrupt, unless masked by the CPSR F-bit
- * - an Imprecise Data abort, unless masked by the CPSR A-bit
- * - a Debug Entry request, if Debug is enabled
- * - an Event signaled by another processor using the SEV instruction.
- * If the Event Register is set, WFE clears it and returns immediately.
- * If WFE is implemented, SEV must also be implemented.
- */
-#define wfe() __asm__ __volatile__ ("wfe\n\t" : : );
-
 /* Move 0xd3 value to CPSR register to enable SVC mode */
 #define svc32_mode_en() __asm__ __volatile__				\
 			("@ I&F disable, Mode: 0x13 - SVC\n\t"		\
