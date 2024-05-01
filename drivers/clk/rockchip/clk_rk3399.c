@@ -971,6 +971,7 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case ACLK_HDCP:
 	case ACLK_GIC_PRE:
 	case PCLK_DDR:
+	case ACLK_VDU:
 		break;
 	case PCLK_ALIVE:
 	case PCLK_WDT:
@@ -1061,6 +1062,7 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case ACLK_HDCP:
 	case ACLK_GIC_PRE:
 	case PCLK_DDR:
+	case ACLK_VDU:
 		return 0;
 	default:
 		log_debug("Unknown clock %lu\n", clk->id);
