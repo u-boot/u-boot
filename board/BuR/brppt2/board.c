@@ -6,7 +6,6 @@
  * B&R Industrial Automation GmbH - http://www.br-automation.com/
  *
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
