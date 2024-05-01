@@ -4,7 +4,6 @@
  * Author: Sam Shih <sam.shih@mediatek.com>
  */
 
-#include <common.h>
 #include <config.h>
 #include <env.h>
 #include <init.h>
