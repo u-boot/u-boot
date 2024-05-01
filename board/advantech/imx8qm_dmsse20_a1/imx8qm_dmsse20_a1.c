@@ -4,7 +4,6 @@
  * Copyright 2019-2023 Kococonnector GmbH
  */
 
-#include <common.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 #include <asm/io.h>
