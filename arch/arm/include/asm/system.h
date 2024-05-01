@@ -69,8 +69,10 @@
 /*
  * CNTHCTL_EL2 bits definitions
  */
-#define CNTHCTL_EL2_EL1PCEN_EN	(1 << 1)  /* Physical timer regs accessible   */
-#define CNTHCTL_EL2_EL1PCTEN_EN	(1 << 0)  /* Physical counter accessible      */
+#define CNTHCTL_EL2_EVNT_EN	BIT(2)	     /* Enable the event stream       */
+#define CNTHCTL_EL2_EVNT_I(val)	((val) << 4) /* Event stream trigger bits     */
+#define CNTHCTL_EL2_EL1PCEN_EN	(1 << 1)     /* Physical timer regs accessible */
+#define CNTHCTL_EL2_EL1PCTEN_EN	(1 << 0)     /* Physical counter accessible   */
 
 /*
  * HCR_EL2 bits definitions
