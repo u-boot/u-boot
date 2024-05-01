@@ -12,7 +12,7 @@
 };
 
 &sdio_vcc_pin {
-	bootph-all;
+	bootph-pre-ram;
 };
 
 &usb20_otg {
