@@ -4,7 +4,6 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
-#include <common.h>
 #include <command.h>
 #include <init.h>
 #include <asm/processor.h>
