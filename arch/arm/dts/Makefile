@@ -41,7 +41,6 @@ dtb-$(CONFIG_ARCH_APPLE) += \
 	t8103-j457.dtb
 
 dtb-$(CONFIG_ARCH_DAVINCI) += \
-	da850-evm.dtb \
 	da850-lcdk.dtb \
 	da850-lego-ev3.dtb
 
