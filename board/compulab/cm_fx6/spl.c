@@ -7,7 +7,6 @@
  * Author: Nikita Kiryanov <nikita@compulab.co.il>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <hang.h>
 #include <init.h>
