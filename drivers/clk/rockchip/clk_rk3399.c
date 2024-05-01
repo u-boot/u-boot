@@ -976,7 +976,9 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case SCLK_UART1:
 	case SCLK_UART2:
 	case SCLK_UART3:
-		return 24000000;
+	case SCLK_USB3OTG0_REF:
+	case SCLK_USB3OTG1_REF:
+		return OSC_HZ;
 	case PCLK_HDMI_CTRL:
 		break;
 	case DCLK_VOP0:
