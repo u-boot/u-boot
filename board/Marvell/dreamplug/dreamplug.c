@@ -8,7 +8,6 @@
  * Written-by: Siddarth Gore <gores@marvell.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
