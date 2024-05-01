@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2017-2020 Hitachi Power Grids
  */
-#include <common.h>
 #include <i2c.h>
 #include <asm/gpio.h>
 
