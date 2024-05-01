@@ -926,6 +926,26 @@ static ulong rk3399_saradc_set_clk(struct rockchip_cru *cru, uint hz)
 	return rk3399_saradc_get_clk(cru);
 }
 
+static ulong rk3399_pciephy_get_clk(struct rockchip_cru *cru)
+{
+	if (readl(&cru->clksel_con[18]) & BIT(10))
+		return 100 * MHz;
+	else
+		return OSC_HZ;
+}
+
+static ulong rk3399_pciephy_set_clk(struct rockchip_cru *cru, uint hz)
+{
+	if (hz == 100 * MHz)
+		rk_setreg(&cru->clksel_con[18], BIT(10));
+	else if (hz == OSC_HZ)
+		rk_clrreg(&cru->clksel_con[18], BIT(10));
+	else
+		return -EINVAL;
+
+	return rk3399_pciephy_get_clk(cru);
+}
+
 static ulong rk3399_clk_get_rate(struct clk *clk)
 {
 	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
@@ -966,6 +986,9 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 		break;
 	case SCLK_SARADC:
 		rate = rk3399_saradc_get_clk(priv->cru);
+		break;
+	case SCLK_PCIEPHY_REF:
+		rate = rk3399_pciephy_get_clk(priv->cru);
 		break;
 	case ACLK_VIO:
 	case ACLK_HDCP:
@@ -1058,6 +1081,9 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SARADC:
 		ret = rk3399_saradc_set_clk(priv->cru, rate);
 		break;
+	case SCLK_PCIEPHY_REF:
+		ret = rk3399_pciephy_set_clk(priv->cru, rate);
+		break;
 	case ACLK_VIO:
 	case ACLK_HDCP:
 	case ACLK_GIC_PRE:
@@ -1108,12 +1134,39 @@ static int __maybe_unused rk3399_gmac_set_parent(struct clk *clk,
 	return -EINVAL;
 }
 
+static int __maybe_unused rk3399_pciephy_set_parent(struct clk *clk,
+						    struct clk *parent)
+{
+	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
+	const char *clock_output_name;
+	int ret;
+
+	if (parent->dev == clk->dev && parent->id == SCLK_PCIEPHY_REF100M) {
+		rk_setreg(&priv->cru->clksel_con[18], BIT(10));
+		return 0;
+	}
+
+	ret = dev_read_string_index(parent->dev, "clock-output-names",
+				    parent->id, &clock_output_name);
+	if (ret < 0)
+		return -ENODATA;
+
+	if (!strcmp(clock_output_name, "xin24m")) {
+		rk_clrreg(&priv->cru->clksel_con[18], BIT(10));
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
 static int __maybe_unused rk3399_clk_set_parent(struct clk *clk,
 						struct clk *parent)
 {
 	switch (clk->id) {
 	case SCLK_RMII_SRC:
 		return rk3399_gmac_set_parent(clk, parent);
+	case SCLK_PCIEPHY_REF:
+		return rk3399_pciephy_set_parent(clk, parent);
 	}
 
 	debug("%s: unsupported clk %ld\n", __func__, clk->id);
@@ -1204,7 +1257,8 @@ static int rk3399_clk_enable(struct clk *clk)
 		rk_clrreg(&priv->cru->clkgate_con[13], BIT(7));
 		break;
 	case SCLK_PCIEPHY_REF:
-		rk_clrreg(&priv->cru->clksel_con[18], BIT(10));
+		if (readl(&priv->cru->clksel_con[18]) & BIT(10))
+			rk_clrreg(&priv->cru->clkgate_con[12], BIT(6));
 		break;
 	default:
 		debug("%s: unsupported clk %ld\n", __func__, clk->id);
@@ -1298,7 +1352,8 @@ static int rk3399_clk_disable(struct clk *clk)
 		rk_setreg(&priv->cru->clkgate_con[13], BIT(7));
 		break;
 	case SCLK_PCIEPHY_REF:
-		rk_clrreg(&priv->cru->clksel_con[18], BIT(10));
+		if (readl(&priv->cru->clksel_con[18]) & BIT(10))
+			rk_setreg(&priv->cru->clkgate_con[12], BIT(6));
 		break;
 	default:
 		debug("%s: unsupported clk %ld\n", __func__, clk->id);
