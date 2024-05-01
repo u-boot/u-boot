@@ -20,3 +20,7 @@
 &vcc3v0_sd {
 	bootph-pre-ram;
 };
+
+&vcc_sdio {
+	regulator-init-microvolt = <3000000>;
+};
