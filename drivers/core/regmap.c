@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY	LOGC_DM
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
