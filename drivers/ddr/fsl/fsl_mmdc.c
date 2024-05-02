@@ -7,7 +7,7 @@
  * Generic driver for Freescale MMDC(Multi Mode DDR Controller).
  */
 
-#include <common.h>
+#include <config.h>
 #include <fsl_mmdc.h>
 #include <asm/io.h>
 #include <linux/delay.h>

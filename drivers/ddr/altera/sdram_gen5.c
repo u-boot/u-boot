@@ -2,7 +2,6 @@
 /*
  * Copyright Altera Corporation (C) 2014-2015
  */
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <div64.h>
