@@ -13,7 +13,7 @@
  * based on ds1337.c
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <dm.h>
 #include <log.h>
