@@ -31,7 +31,6 @@
  * No port multiplier support
  */
 
-#include <common.h>
 #include <ahci.h>
 #include <blk.h>
 #include <bootdev.h>
@@ -46,6 +45,7 @@
 #include <libata.h>
 #include <malloc.h>
 #include <sata.h>
+#include <time.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
