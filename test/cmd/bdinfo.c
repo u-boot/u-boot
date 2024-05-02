@@ -176,7 +176,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assertok(test_num_l(uts, "reloc off", gd->reloc_off));
 	ut_assert_nextline("%-12s= %u-bit", "Build", (uint)sizeof(void *) * 8);
 
-	if (IS_ENABLED(CONFIG_CMD_NET))
+	if (IS_ENABLED(CONFIG_CMD_NET) || IS_ENABLED(CONFIG_CMD_NET_LWIP))
 		ut_assertok(test_eth(uts));
 
 	/*
@@ -293,7 +293,7 @@ static int bdinfo_test_eth(struct unit_test_state *uts)
 	ut_assertok(run_commandf("bdinfo -e"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));
-	else if (IS_ENABLED(CONFIG_CMD_NET))
+	else if (IS_ENABLED(CONFIG_CMD_NET) || IS_ENABLED(CONFIG_CMD_NET_LWIP))
 		ut_assertok(test_eth(uts));
 	ut_assertok(ut_check_console_end(uts));
 
