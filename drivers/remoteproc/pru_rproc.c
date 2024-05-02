@@ -6,7 +6,6 @@
  *	Keerthy <j-keerthy@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <elf.h>
 #include <dm/of_access.h>
