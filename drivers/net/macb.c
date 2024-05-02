@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2005-2006 Atmel Corporation
  */
-#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

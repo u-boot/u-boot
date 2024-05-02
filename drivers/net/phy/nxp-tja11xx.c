@@ -6,7 +6,6 @@
  * Copyright (C) 2018 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/iopoll.h>

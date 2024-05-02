@@ -3,7 +3,6 @@
  * Copyright (c) 2019 Microsemi Corporation
  */
 
-#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <malloc.h>

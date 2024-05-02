@@ -5,7 +5,6 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
-#include <common.h>
 #include <phy.h>
 
 /* NatSemi DP83630 */
