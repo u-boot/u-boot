@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_I2C_EEPROM
 
-#include <common.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/kernel.h>

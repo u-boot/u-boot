@@ -6,7 +6,6 @@
  * Author: Alex Smith <alex.smith@imgtec.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <errno.h>
