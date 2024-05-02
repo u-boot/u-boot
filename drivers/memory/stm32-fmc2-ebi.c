@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_NOP
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <reset.h>
