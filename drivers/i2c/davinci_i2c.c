@@ -11,7 +11,7 @@
  * Please see doc/driver-model/i2c-howto.rst for instructions.
  */
 
-#include <common.h>
+#include <config.h>
 #include <i2c.h>
 #include <dm.h>
 #include <log.h>

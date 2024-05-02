@@ -9,7 +9,6 @@
 
 #include <init.h>
 #include <env.h>
-#include <common.h>
 #include <log.h>
 #include <dm/device_compat.h>
 #include <linux/delay.h>
