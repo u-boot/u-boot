@@ -10,6 +10,6 @@
 
 set -e
 
-echo '#include <common.h>'
+echo '#include <linux/compiler.h>'
 $@ 2>/dev/null | grep -oe '_u_boot_list_2_[a-zA-Z0-9_]*_2_[a-zA-Z0-9_]*' | \
 	sort -u | sed -e 's/^\(.*\)/extern char \1[];\n__ADDRESSABLE(\1);/'

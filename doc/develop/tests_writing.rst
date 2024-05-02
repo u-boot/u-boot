@@ -281,7 +281,6 @@ new one of those, you should add a new suite.
 Create a new file in test/ or a subdirectory and define a macro to register the
 suite. For example::
 
-   #include <common.h>
    #include <console.h>
    #include <mapmem.h>
    #include <dm/test.h>
