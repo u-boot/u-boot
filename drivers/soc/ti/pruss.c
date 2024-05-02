@@ -5,7 +5,6 @@
  * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/of_access.h>
 #include <errno.h>

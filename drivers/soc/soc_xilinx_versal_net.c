@@ -5,7 +5,6 @@
  * Copyright (C) 2022, Advanced Micro Devices, Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <soc.h>
 #include <zynqmp_firmware.h>
