@@ -7,7 +7,6 @@
  *	   Honghui Zhang <honghui.zhang@mediatek.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>
