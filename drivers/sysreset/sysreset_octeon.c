@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <sysreset.h>

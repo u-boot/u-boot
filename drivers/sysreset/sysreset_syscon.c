@@ -7,7 +7,6 @@
  *	Author: Feng Kan <fkan@apm.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <regmap.h>
