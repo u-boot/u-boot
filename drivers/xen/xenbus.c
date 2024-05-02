@@ -15,7 +15,6 @@
  * [1] - http://xenbits.xen.org/gitweb/?p=mini-os.git;a=summary
  */
 
-#include <common.h>
 #include <log.h>
 
 #include <asm/armv8/mmu.h>

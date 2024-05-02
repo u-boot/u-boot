@@ -14,7 +14,6 @@
  *
  * [1] - http://xenbits.xen.org/gitweb/?p=mini-os.git;a=summary
  */
-#include <common.h>
 #include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <log.h>
