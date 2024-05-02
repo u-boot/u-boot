@@ -4,7 +4,6 @@
  * Copyright (C) 2021 Pali Rohár <pali@kernel.org>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <serial.h>
