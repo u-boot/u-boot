@@ -29,6 +29,8 @@ static struct sbi_imp implementations[] = {
 	{ 6, "Coffer" },
 	{ 7, "Xen Project" },
 	{ 8, "PolarFire Hart Software Services" },
+	{ 9, "coreboot" },
+	{ 10, "oreboot" },
 };
 
 static struct sbi_ext extensions[] = {
@@ -54,6 +56,7 @@ static struct sbi_ext extensions[] = {
 	{ SBI_EXT_NACL,			      "Nested Acceleration Extension" },
 	{ SBI_EXT_STA,			      "Steal-time Accounting Extension" },
 	{ SBI_EXT_DBTR,			      "Debug Trigger Extension" },
+	{ SBI_EXT_SSE,			      "Supervisor Software Events" },
 };
 
 static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,

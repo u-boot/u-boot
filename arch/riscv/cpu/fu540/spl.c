@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <log.h>
 
-int spl_soc_init(void)
+int spl_dram_init(void)
 {
 	int ret;
 	struct udevice *dev;

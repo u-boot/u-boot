@@ -285,9 +285,9 @@ int spl_board_init_f(void)
 
 	jh7110_jtag_init();
 
-	ret = spl_soc_init();
+	ret = spl_dram_init();
 	if (ret) {
-		debug("JH7110 SPL init failed: %d\n", ret);
+		debug("JH7110 DRAM init failed: %d\n", ret);
 		return ret;
 	}
 

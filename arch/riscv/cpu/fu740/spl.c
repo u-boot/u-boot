@@ -10,7 +10,7 @@
 
 #define CSR_U74_FEATURE_DISABLE	0x7c1
 
-int spl_soc_init(void)
+int spl_dram_init(void)
 {
 	int ret;
 	struct udevice *dev;

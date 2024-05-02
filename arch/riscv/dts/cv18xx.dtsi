@@ -52,6 +52,27 @@
 		#clock-cells = <0>;
 	};
 
+	eth_csrclk: eth-csrclk {
+		compatible = "fixed-clock";
+		clock-frequency = <250000000>;
+		clock-output-names = "eth_csrclk";
+		#clock-cells = <0x0>;
+	};
+
+	eth_ptpclk: eth-ptpclk {
+		compatible = "fixed-clock";
+		clock-frequency = <50000000>;
+		clock-output-names = "eth_ptpclk";
+		#clock-cells = <0x0>;
+	};
+
+	spif_clk: spi-flash-clock {
+		compatible = "fixed-clock";
+		clock-frequency = <300000000>;
+		clock-output-names = "spif_clk";
+		#clock-cells = <0>;
+	};
+
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
@@ -138,6 +159,15 @@
 			};
 		};
 
+		ethernet0: ethernet@4070000 {
+			compatible = "sophgo,cv1800b-dwmac";
+			reg = <0x04070000 0x10000>;
+			interrupts = <31 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&eth_csrclk>, <&eth_ptpclk>;
+			clock-names = "stmmaceth", "ptp_ref";
+			status = "disabled";
+		};
+
 		uart0: serial@4140000 {
 			compatible = "snps,dw-apb-uart";
 			reg = <0x04140000 0x100>;
@@ -194,6 +224,16 @@
 			interrupts = <36 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&sdhci_clk>;
 			clock-names = "core";
+			status = "disabled";
+		};
+
+		spif: spi-nor@10000000 {
+			compatible = "sophgo,cv1800b-spif";
+			reg = <0x10000000 0x10000000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&spif_clk>;
+			interrupts = <95 IRQ_TYPE_LEVEL_HIGH>;
 			status = "disabled";
 		};
 
