@@ -8,7 +8,6 @@
 
 #include <log.h>
 #include <asm/io.h>
-#include <common.h>
 #include <dm.h>
 #include <linux/bitops.h>
 #include <linux/iopoll.h>
