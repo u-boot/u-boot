@@ -4,7 +4,6 @@
  *  Jaehoon Chung <jh80.chung@samsung.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <linux/printk.h>

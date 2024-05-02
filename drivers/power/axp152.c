@@ -3,8 +3,8 @@
  * (C) Copyright 2012
  * Henrik Nordstrom <henrik@henriknordstrom.net>
  */
-#include <common.h>
 #include <command.h>
+#include <linux/errno.h>
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
 
