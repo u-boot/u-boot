@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_NVME
 
-#include <common.h>
 #include <bootdev.h>
 #include <dm.h>
 #include <init.h>
