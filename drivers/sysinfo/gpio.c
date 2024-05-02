@@ -3,7 +3,6 @@
  * Copyright (C) 2021 Sean Anderson <sean.anderson@seco.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <sysinfo.h>
