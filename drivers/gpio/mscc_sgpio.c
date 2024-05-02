@@ -7,7 +7,6 @@
  * Copyright (c) 2018 Microsemi Corporation
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/gpio.h>

@@ -4,7 +4,6 @@
  * (based on tegra_gpio.c)
  */
 
-#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <errno.h>
