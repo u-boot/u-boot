@@ -5,7 +5,6 @@
  * Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
  */
 
-#include <common.h>
 #include <backlight.h>
 #include <clk.h>
 #include <display.h>

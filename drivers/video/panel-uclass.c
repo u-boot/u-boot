@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_PANEL
 
-#include <common.h>
 #include <dm.h>
 #include <panel.h>
 

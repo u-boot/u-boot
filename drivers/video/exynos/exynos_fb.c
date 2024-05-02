@@ -7,7 +7,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <display.h>
 #include <div64.h>
 #include <dm.h>

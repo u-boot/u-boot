@@ -7,7 +7,6 @@
  * This otm8009a panel driver is inspired from the Linux Kernel driver
  * drivers/gpu/drm/panel/panel-orisetech-otm8009a.c.
  */
-#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <mipi_dsi.h>
