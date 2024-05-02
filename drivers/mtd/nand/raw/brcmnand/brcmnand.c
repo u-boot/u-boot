@@ -12,7 +12,6 @@
  * GNU General Public License for more details.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <memalign.h>
 #include <nand.h>

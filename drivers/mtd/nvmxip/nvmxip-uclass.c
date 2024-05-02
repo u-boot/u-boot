@@ -6,7 +6,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #if CONFIG_IS_ENABLED(SANDBOX64)

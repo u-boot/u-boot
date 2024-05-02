@@ -16,7 +16,7 @@
 /* The DEBUG define must be before common to enable debugging */
 /* #define DEBUG	*/
 
-#include <common.h>
+#include <config.h>
 #include <console.h>
 #include <dm.h>
 #include <env.h>
@@ -26,6 +26,7 @@
 #include <init.h>
 #include <irq_func.h>
 #include <log.h>
+#include <time.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>
 #include <asm/io.h>

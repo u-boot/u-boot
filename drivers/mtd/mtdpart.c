@@ -19,7 +19,6 @@
 #include <linux/kmod.h>
 #endif
 
-#include <common.h>
 #include <malloc.h>
 #include <linux/bug.h>
 #include <linux/errno.h>

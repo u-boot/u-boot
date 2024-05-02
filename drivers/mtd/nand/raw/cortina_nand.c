@@ -3,7 +3,6 @@
  * Copyright (c) 2020, Cortina Access Inc..
  */
 
-#include <common.h>
 #include <linux/delay.h>
 #include <linux/bitops.h>
 #include <linux/sizes.h>

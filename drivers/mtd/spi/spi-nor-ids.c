@@ -6,7 +6,6 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <spi.h>
 #include <spi_flash.h>
 

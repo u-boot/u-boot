@@ -5,7 +5,7 @@
  * Copyright 2009 Ilya Yanok, <yanok@emcraft.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <log.h>
 #include <nand.h>
 #include <linux/delay.h>

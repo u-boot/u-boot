@@ -6,7 +6,7 @@
  * Authors: Dipen Dudhat <Dipen.Dudhat@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <malloc.h>
 #include <nand.h>

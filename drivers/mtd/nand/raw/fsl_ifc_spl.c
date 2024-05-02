@@ -6,7 +6,7 @@
  * Author: Dipen Dudhat <dipen.dudhat@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <fsl_ifc.h>
