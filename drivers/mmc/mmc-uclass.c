@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY UCLASS_MMC
 
-#include <common.h>
 #include <bootdev.h>
 #include <log.h>
 #include <mmc.h>

@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <dm.h>
@@ -17,6 +16,7 @@
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
+#include <time.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
@@ -24,6 +24,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 #include <div64.h>
 #include "mmc_private.h"
 

@@ -4,7 +4,6 @@
  *		      Wenyou.Yang <wenyou.yang@atmel.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>
