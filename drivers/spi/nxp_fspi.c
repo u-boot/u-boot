@@ -33,7 +33,6 @@
  *     Frieder Schrempf <frieder.schrempf@kontron.de>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

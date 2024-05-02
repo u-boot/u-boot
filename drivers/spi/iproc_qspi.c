@@ -3,7 +3,6 @@
  * Copyright 2020-2021 Broadcom
  */
 
-#include <common.h>
 #include <dm.h>
 #include <spi.h>
 #include <spi-mem.h>
