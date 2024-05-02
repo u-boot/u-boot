@@ -3,7 +3,6 @@
  * Copyright (c) 2022 Nuvoton Technology Corp.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <timer.h>

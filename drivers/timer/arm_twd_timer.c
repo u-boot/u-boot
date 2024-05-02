@@ -27,7 +27,6 @@
  * Alex Zuepke <azu@sysgo.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <timer.h>

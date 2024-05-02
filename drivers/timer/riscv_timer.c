@@ -10,7 +10,7 @@
  * This driver provides generic timer support for S-mode U-Boot.
  */
 
-#include <common.h>
+#include <config.h>
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>
