@@ -17,7 +17,7 @@
 #define CFG_SYS_FSL_USDHC_NUM        2
 #endif
 
-#ifdef CONFIG_CMD_NET
+#if defined(CONFIG_CMD_NET) || defined (CONFIG_CMD_NET_LWIP)
 #define CFG_FEC_ENET_DEV		0
 #endif
 
