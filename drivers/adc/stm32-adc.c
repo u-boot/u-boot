@@ -6,7 +6,6 @@
  * Originally based on the Linux kernel v4.18 drivers/iio/adc/stm32-adc.c.
  */
 
-#include <common.h>
 #include <adc.h>
 #include <dm.h>
 #include <asm/io.h>
