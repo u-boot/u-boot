@@ -5,7 +5,6 @@
  * USB Low level initialization(Specific to zynq)
  */
 
-#include <common.h>
 #include <dm.h>
 #include <usb.h>
 #include <asm/arch/hardware.h>

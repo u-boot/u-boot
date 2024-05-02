@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_USB_EMUL
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <usb.h>

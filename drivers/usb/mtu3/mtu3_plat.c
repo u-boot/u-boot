@@ -5,7 +5,6 @@
  * Author: Chunfeng Yun <chunfeng.yun@mediatek.com>
  */
 
-#include <common.h>
 #include <dm/lists.h>
 #include <linux/iopoll.h>
 

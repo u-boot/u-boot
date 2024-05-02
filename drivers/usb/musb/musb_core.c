@@ -8,7 +8,6 @@
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */
 
-#include <common.h>
 #include <linux/bitops.h>
 
 #include "musb_core.h"

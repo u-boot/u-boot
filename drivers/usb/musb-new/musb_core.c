@@ -79,7 +79,6 @@
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #else
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <usb.h>

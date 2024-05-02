@@ -6,7 +6,6 @@
  * on behalf of DENX Software Engineering GmbH
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <errno.h>
