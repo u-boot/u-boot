@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_PHY
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

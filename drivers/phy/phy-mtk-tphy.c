@@ -5,7 +5,6 @@
  *	   Ryder Lee <ryder.lee@mediatek.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

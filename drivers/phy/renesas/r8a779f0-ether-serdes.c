@@ -7,7 +7,6 @@
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <clk.h>
-#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <dm/device_compat.h>

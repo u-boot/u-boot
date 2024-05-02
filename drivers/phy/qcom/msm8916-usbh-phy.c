@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Ramon Fried <ramon.fried@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <linux/bitops.h>
