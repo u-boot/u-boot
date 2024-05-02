@@ -8,7 +8,6 @@
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <common.h>
 #include <clk.h>
 #include <dm/device.h>
 #include <dm/fdtaddr.h>

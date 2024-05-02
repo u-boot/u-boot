@@ -6,7 +6,6 @@
  * Author(s):	Shreenidhi Shedi <yesshedi@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <wdt.h>

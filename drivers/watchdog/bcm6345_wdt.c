@@ -7,7 +7,6 @@
  *	Copyright (C) 2008 Florian Fainelli <florian@openwrt.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <wdt.h>
