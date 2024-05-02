@@ -3,7 +3,6 @@
  * (C) Copyright 2016 Google, Inc
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>

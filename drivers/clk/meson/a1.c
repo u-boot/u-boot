@@ -4,7 +4,6 @@
  * Author: Igor Prusov <ivprusov@salutedevices.com>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <regmap.h>

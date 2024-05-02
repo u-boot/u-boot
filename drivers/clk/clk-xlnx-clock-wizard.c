@@ -7,7 +7,6 @@
  * Author: Zhengxun Li <zhengxunli@mxic.com.tw>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <div64.h>

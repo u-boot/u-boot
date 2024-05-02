@@ -3,7 +3,6 @@
  * Copyright 2021 NXP.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

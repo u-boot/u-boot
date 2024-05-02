@@ -3,7 +3,6 @@
  * Copyright (C) 2021 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

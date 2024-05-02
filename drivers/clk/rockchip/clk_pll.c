@@ -2,7 +2,6 @@
 /*
  * (C) Copyright 2018-2019 Rockchip Electronics Co., Ltd
  */
- #include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
 #include <dm.h>

@@ -8,7 +8,6 @@
  *   Gregory CLEMENT <gregory.clement@free-electrons.com>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <clk-uclass.h>
 #include <clk.h>

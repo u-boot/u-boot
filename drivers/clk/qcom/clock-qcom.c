@@ -12,7 +12,6 @@
  * Based on Little Kernel driver, simplified
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device-internal.h>

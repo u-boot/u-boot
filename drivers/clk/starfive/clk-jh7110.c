@@ -6,7 +6,6 @@
  *		Xingyu Wu <xingyu.wu@starfivetech.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

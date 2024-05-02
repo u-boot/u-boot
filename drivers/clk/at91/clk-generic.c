@@ -8,7 +8,6 @@
  *
  * Based on drivers/clk/at91/clk-generated.c from Linux.
  */
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/io.h>
