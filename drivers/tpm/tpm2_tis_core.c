@@ -5,8 +5,8 @@
  * Based on the Linux TIS core interface and U-Boot original SPI TPM driver
  */
 
-#include <common.h>
 #include <dm.h>
+#include <time.h>
 #include <tpm-v2.h>
 #include <linux/delay.h>
 #include <linux/unaligned/be_byteshift.h>

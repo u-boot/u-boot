@@ -7,12 +7,12 @@
 
 #define LOG_CATEGORY UCLASS_TPM
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <irq.h>
 #include <log.h>
 #include <spl.h>
+#include <time.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
 #include <acpi/acpigen.h>
