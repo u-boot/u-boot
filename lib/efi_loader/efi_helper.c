@@ -72,7 +72,7 @@ out:
  *
  * Return:	device path or NULL. Caller must free the returned value
  */
-struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid)
 {
 	struct efi_load_option lo;
 	void *var_value;
@@ -92,7 +92,7 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
 	if (ret != EFI_SUCCESS)
 		goto err;
 
-	return efi_dp_from_lo(&lo, &guid);
+	return efi_dp_from_lo(&lo, guid);
 
 err:
 	free(var_value);
@@ -543,8 +543,6 @@ efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 			efi_free_pool(exit_data);
 		}
 	}
-
-	efi_restore_gd();
 
 out:
 	free(load_options);

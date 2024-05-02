@@ -55,14 +55,25 @@ static int execute(void)
 	u16 varname[EFI_ST_MAX_VARNAME_SIZE];
 	efi_guid_t guid;
 	u64 max_storage, rem_storage, max_size;
+	int test_ret;
 
 	memset(v2, 0x1, sizeof(v2));
-	ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS,
+
+	if (IS_ENABLED(CONFIG_EFI_VARIABLE_FILE_STORE)) {
+		test_ret = efi_st_query_variable_common(runtime, EFI_VARIABLE_BOOTSERVICE_ACCESS |
+								 EFI_VARIABLE_RUNTIME_ACCESS);
+		if (test_ret != EFI_ST_SUCCESS) {
+			efi_st_error("QueryVariableInfo failed\n");
+			return EFI_ST_FAILURE;
+		}
+	} else {
+		ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS,
 					   &max_storage, &rem_storage,
 					   &max_size);
-	if (ret != EFI_UNSUPPORTED) {
-		efi_st_error("QueryVariableInfo failed\n");
-		return EFI_ST_FAILURE;
+		if (ret != EFI_UNSUPPORTED) {
+			efi_st_error("QueryVariableInfo failed\n");
+			return EFI_ST_FAILURE;
+		}
 	}
 
 	ret = runtime->set_variable(u"efi_st_var0", &guid_vendor0,

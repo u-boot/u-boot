@@ -232,8 +232,6 @@ efi_status_t efi_var_mem_init(void)
 	efi_var_buf->length = (uintptr_t)efi_var_buf->var -
 			      (uintptr_t)efi_var_buf;
 
-	if (ret != EFI_SUCCESS)
-		return ret;
 	ret = efi_create_event(EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE, TPL_CALLBACK,
 			       efi_var_mem_notify_virtual_address_map, NULL,
 			       NULL, &event);

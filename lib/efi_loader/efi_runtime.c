@@ -129,6 +129,10 @@ efi_status_t efi_init_runtime_supported(void)
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
 
+	if (IS_ENABLED(CONFIG_EFI_VARIABLE_FILE_STORE))
+		rt_table->runtime_services_supported |=
+			EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO;
+
 	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE)) {
 		u8 s = 0;
 

@@ -613,9 +613,12 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 	void *load_option;
 	efi_uintn_t size;
 	efi_status_t ret;
+	u32 attributes;
+
+	*handle = NULL;
+	*load_options = NULL;
 
 	efi_create_indexed_name(varname, sizeof(varname), "Boot", n);
-
 	load_option = efi_get_var(varname, &efi_global_variable_guid, &size);
 	if (!load_option)
 		return EFI_LOAD_ERROR;
@@ -626,55 +629,54 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		goto error;
 	}
 
-	if (lo.attributes & LOAD_OPTION_ACTIVE) {
-		u32 attributes;
-
-		log_debug("trying to load \"%ls\" from %pD\n", lo.label,
-			  lo.file_path);
-
-		if (EFI_DP_TYPE(lo.file_path, MEDIA_DEVICE, FILE_PATH)) {
-			/* file_path doesn't contain a device path */
-			ret = try_load_from_short_path(lo.file_path, handle);
-		} else if (EFI_DP_TYPE(lo.file_path, MESSAGING_DEVICE, MSG_URI)) {
-			if (IS_ENABLED(CONFIG_EFI_HTTP_BOOT))
-				ret = try_load_from_uri_path(
-					(struct efi_device_path_uri *)lo.file_path,
-					lo.label, handle);
-			else
-				ret = EFI_LOAD_ERROR;
-		} else {
-			ret = try_load_from_media(lo.file_path, handle);
-		}
-		if (ret != EFI_SUCCESS) {
-			log_warning("Loading %ls '%ls' failed\n",
-				    varname, lo.label);
-			goto error;
-		}
-
-		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-			     EFI_VARIABLE_RUNTIME_ACCESS;
-		ret = efi_set_variable_int(u"BootCurrent",
-					   &efi_global_variable_guid,
-					   attributes, sizeof(n), &n, false);
-		if (ret != EFI_SUCCESS)
-			goto unload;
-		/* try to register load file2 for initrd's */
-		if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
-			ret = efi_initrd_register();
-			if (ret != EFI_SUCCESS)
-				goto unload;
-		}
-
-		log_info("Booting: %ls\n", lo.label);
-	} else {
+	if (!(lo.attributes & LOAD_OPTION_ACTIVE)) {
 		ret = EFI_LOAD_ERROR;
+		goto error;
 	}
 
-	/* Set load options */
+	log_debug("trying to load \"%ls\" from %pD\n", lo.label, lo.file_path);
+
+	if (EFI_DP_TYPE(lo.file_path, MEDIA_DEVICE, FILE_PATH)) {
+		/* file_path doesn't contain a device path */
+		ret = try_load_from_short_path(lo.file_path, handle);
+	} else if (EFI_DP_TYPE(lo.file_path, MESSAGING_DEVICE, MSG_URI)) {
+		if (IS_ENABLED(CONFIG_EFI_HTTP_BOOT))
+			ret = try_load_from_uri_path(
+				(struct efi_device_path_uri *)lo.file_path,
+				lo.label, handle);
+		else
+			ret = EFI_LOAD_ERROR;
+	} else {
+		ret = try_load_from_media(lo.file_path, handle);
+	}
+	if (ret != EFI_SUCCESS) {
+		log_warning("Loading %ls '%ls' failed\n",
+			    varname, lo.label);
+		goto error;
+	}
+
+	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+		     EFI_VARIABLE_RUNTIME_ACCESS;
+	ret = efi_set_variable_int(u"BootCurrent", &efi_global_variable_guid,
+				   attributes, sizeof(n), &n, false);
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	/* try to register load file2 for initrd's */
+	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
+		ret = efi_initrd_register();
+		if (ret != EFI_SUCCESS)
+			goto error;
+	}
+
+	log_info("Booting: %ls\n", lo.label);
+
+	/* Ignore the optional data in auto-generated boot options */
 	if (size >= sizeof(efi_guid_t) &&
 	    !guidcmp(lo.optional_data, &efi_guid_bootmenu_auto_generated))
 		size = 0;
 
+	/* Set optional data in loaded file protocol */
 	if (size) {
 		*load_options = malloc(size);
 		if (!*load_options) {
@@ -683,18 +685,15 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 		}
 		memcpy(*load_options, lo.optional_data, size);
 		ret = efi_set_load_options(*handle, size, *load_options);
-	} else {
-		*load_options = NULL;
+		if (ret != EFI_SUCCESS)
+			free(load_options);
 	}
 
 error:
-	free(load_option);
-
-	return ret;
-
-unload:
-	if (EFI_CALL(efi_unload_image(*handle)) != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS && *handle &&
+	    EFI_CALL(efi_unload_image(*handle)) != EFI_SUCCESS)
 		log_err("Unloading image failed\n");
+
 	free(load_option);
 
 	return ret;
@@ -1210,13 +1209,19 @@ efi_status_t efi_bootmgr_run(void *fdt)
 		return CMD_RET_FAILURE;
 	}
 
-	ret = efi_install_fdt(fdt);
-	if (ret != EFI_SUCCESS)
-		return ret;
-
 	ret = efi_bootmgr_load(&handle, &load_options);
 	if (ret != EFI_SUCCESS) {
 		log_notice("EFI boot manager: Cannot load any image\n");
+		return ret;
+	}
+
+	ret = efi_install_fdt(fdt);
+	if (ret != EFI_SUCCESS) {
+		if (EFI_CALL(efi_unload_image(handle)) == EFI_SUCCESS)
+			free(load_options);
+		else
+			log_err("Unloading image failed\n");
+
 		return ret;
 	}
 

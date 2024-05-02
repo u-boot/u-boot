@@ -107,7 +107,6 @@ static int do_efi_selftest(void)
 
 	/* Execute the test */
 	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
-	efi_restore_gd();
 	free(loaded_image_info->load_options);
 	efi_free_pool(test_device_path);
 	efi_free_pool(test_image_path);

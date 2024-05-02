@@ -743,7 +743,7 @@ efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
 efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
 
 /* get a device path from a Boot#### option */
-struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid);
 
 /* get len, string (used in u-boot crypto from a guid */
 const char *guid_to_sha_str(const efi_guid_t *guid);

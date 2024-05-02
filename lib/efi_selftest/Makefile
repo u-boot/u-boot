@@ -45,6 +45,7 @@ efi_selftest_textinputex.o \
 efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
 efi_selftest_util.o \
+efi_selftest_variables_common.o \
 efi_selftest_variables.o \
 efi_selftest_variables_runtime.o \
 efi_selftest_watchdog.o

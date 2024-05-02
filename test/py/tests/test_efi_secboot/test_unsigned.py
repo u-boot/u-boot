@@ -42,7 +42,7 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
             assert 'Hello, world!' not in ''.join(output)
 
     def test_efi_unsigned_image_auth2(self, u_boot_console, efi_boot_env):
@@ -95,7 +95,7 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
             assert 'Hello, world!' not in ''.join(output)
 
         with u_boot_console.log.section('Test Case 3b'):
@@ -113,5 +113,5 @@ class TestEfiUnsignedImage(object):
             output = u_boot_console.run_command_list([
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
             assert 'Hello, world!' not in ''.join(output)
