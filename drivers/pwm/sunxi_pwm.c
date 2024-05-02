@@ -3,7 +3,6 @@
  * Copyright (c) 2017-2018 Vasily Khoruzhick <anarsoul@gmail.com>
  */
 
-#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <log.h>
