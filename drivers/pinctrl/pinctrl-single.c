@@ -4,7 +4,6 @@
  * Copyright (C) 2021 Dario Binacchi <dariobin@libero.it>
  */
 
-#include <common.h>
 #include <mapmem.h>
 #include <dm.h>
 #include <dm/device_compat.h>

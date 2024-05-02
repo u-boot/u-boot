@@ -5,7 +5,6 @@
  * Bongyu, KOO <freestyle@nexell.co.kr>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/global_data.h>

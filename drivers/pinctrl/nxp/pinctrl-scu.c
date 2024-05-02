@@ -3,7 +3,6 @@
  * Copyright 2018-2019 NXP
  */
 
-#include <common.h>
 #include <errno.h>
 #include <linux/bitops.h>
 #include <asm/io.h>

@@ -5,7 +5,6 @@
 
 /* Tegra20 pin multiplexing functions */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/pinmux.h>
 

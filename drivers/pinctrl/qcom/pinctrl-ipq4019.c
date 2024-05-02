@@ -7,7 +7,6 @@
  * Author: Robert Marko <robert.marko@sartura.hr>
  */
 
-#include <common.h>
 #include <dm.h>
 
 #include "pinctrl-qcom.h"
