@@ -34,36 +34,66 @@ static void pkcs7_free_sinfo_mbedtls_ctx(struct pkcs7_sinfo_mbedtls_ctx *ctx)
  * TODO: Shall we consider to integrate decoding of authenticate attribute into
  *	 MbedTLS library?
  *
- * Structure of the data:
+ * There are two kinds of structure for the Authenticate Attributes being used
+ * in U-Boot.
+ *
+ * Type 1 - contains in a PE/COFF EFI image:
  *
  * [C.P.0] {
+ *   U.P.SEQUENCE {
+ *     U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.3 (OID_contentType)
+ *     U.P.SET {
+ *        U.P.OBJECTIDENTIFIER 1.3.6.1.4.1.311.2.1.4 (OID_msIndirectData)
+ *     }
+ *  }
+ *  U.P.SEQUENCE {
+ *     U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.5 (OID_signingTime)
+ *     U.P.SET {
+ *        U.P.UTCTime '<siging_time>'
+ *     }
+ *  }
+ *  U.P.SEQUENCE {
+ *     U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.4 (OID_messageDigest)
+ *     U.P.SET {
+ *        U.P.OCTETSTRING <digest>
+ *     }
+ *  }
  *    U.P.SEQUENCE {
- *       U.P.OBJECTIDENTIFIER <contentType_OID>
- *       U.P.SET {
- *          U.P.OBJECTIDENTIFIER <msIndirectData_OID>
- *       }
- *    }
- *    U.P.SEQUENCE {
- *       U.P.OBJECTIDENTIFIER <signingTime_OID>
- *       U.P.SET {
- *          U.P.UTCTime <signingTime>
- *       }
- *    }
- *    U.P.SEQUENCE {
- *       U.P.OBJECTIDENTIFIER <messageDigest_OID>
- *       U.P.SET {
- *          U.P.OCTETSTRING <messageDigest>
- *       }
- *    }
- *    U.P.SEQUENCE {
- *       U.P.OBJECTIDENTIFIER <S/MIME capabilities_OID>
+ *        U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.15 (OID_smimeCapabilites)
  *       U.P.SET {
  *          U.P.SEQUENCE {
- *             [...]
+ *             <...>
  *          }
  *       }
  *    }
  * }
+ *
+ * Type 2 - contains in an EFI Capsule:
+ *
+ * [C.P.0] {
+ *   U.P.SEQUENCE {
+ *      U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.3 (OID_contentType)
+ *      U.P.SET {
+ *         U.P.OBJECTIDENTIFIER 1.2.840.113549.1.7.1 (OID_data)
+ *      }
+ *   }
+ *   U.P.SEQUENCE {
+ *      U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.5 (OID_signingTime)
+ *      U.P.SET {
+ *         U.P.UTCTime '<siging_time>'
+ *      }
+ *   }
+ *   U.P.SEQUENCE {
+ *      U.P.OBJECTIDENTIFIER 1.2.840.113549.1.9.4 (OID_messageDigest)
+ *      U.P.SET {
+ *         U.P.OCTETSTRING <digest>
+ *      }
+ *  }
+ *}
+ *
+ * Note:
+ * They have different Content Type (OID_msIndirectData or OID_data).
+ * OID_smimeCapabilites only exists in a PE/COFF EFI image.
  */
 static int authattrs_parse(struct pkcs7_message *msg, void *aa, size_t aa_len,
 			   struct pkcs7_signed_info *sinfo)
@@ -103,7 +133,16 @@ static int authattrs_parse(struct pkcs7_message *msg, void *aa, size_t aa_len,
 			if (ret)
 				return ret;
 
+			/*
+			* We should only support 1.2.840.113549.1.7.1 (OID_data)
+			* for PKCS7 DATA that is used in EFI Capsule and
+			* 1.3.6.1.4.1.311.2.1.4 (OID_msIndirectData) for
+			* MicroSoft Authentication Code that is used in EFI
+			* Secure Boot.
+			*/
 			if (MBEDTLS_OID_CMP_RAW(MBEDTLS_OID_MICROSOFT_INDIRECTDATA,
+						inner_p, len) &&
+			    MBEDTLS_OID_CMP_RAW(MBEDTLS_OID_PKCS7_DATA,
 						inner_p, len))
 				return -EINVAL;
 
