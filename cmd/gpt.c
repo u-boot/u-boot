@@ -643,6 +643,10 @@ static int gpt_default(struct blk_desc *blk_dev_desc, const char *str_part)
 	free(str_disk_guid);
 	free(partitions);
 
+	/* initialize partition table */
+	if (blk_enabled())
+		part_init(blk_dev_desc);
+
 	return ret;
 }
 

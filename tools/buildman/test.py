@@ -195,7 +195,7 @@ class TestBuild(unittest.TestCase):
         Args:
             echo_lines: True to echo lines to the terminal to aid test
                 development
-            kwdisplay_args: Dict of arguemnts to pass to
+            kwdisplay_args: Dict of arguments to pass to
                 Builder.SetDisplayOptions()
 
         Returns:

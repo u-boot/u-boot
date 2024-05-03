@@ -316,7 +316,7 @@ static inline const char *event_spy_id(struct evspy_info *spy)
 	__used ll_entry_declare(struct evspy_info, _type ## _3_ ## _func, \
 		evspy_info) = _ESPY_REC(_type, _func)
 
-/* Simple spy with no function arguemnts */
+/* Simple spy with no function arguments */
 #define EVENT_SPY_SIMPLE(_type, _func) \
 	__used ll_entry_declare(struct evspy_info_simple, \
 		_type ## _3_ ## _func, \
