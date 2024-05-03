@@ -444,7 +444,7 @@ ulong clk_get_rate(struct clk *clk);
 struct clk *clk_get_parent(struct clk *clk);
 
 /**
- * clk_get_parent_rate() - Get parent of current clock rate.
+ * clk_get_parent_rate() - Get rate of current clock's parent.
  * @clk:	A clock struct that was previously successfully requested by
  *		clk_request/get_by_*().
  *
