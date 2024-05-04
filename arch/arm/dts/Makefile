@@ -98,23 +98,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
 
-dtb-$(CONFIG_ROCKCHIP_RK3588) += \
-	rk3588s-coolpi-4b.dtb \
-	rk3588-coolpi-cm5-evb.dtb \
-	rk3588-edgeble-neu6a-io.dtb \
-	rk3588-edgeble-neu6b-io.dtb \
-	rk3588-evb1-v10.dtb \
-	rk3588-generic.dtb \
-	rk3588-jaguar.dtb \
-	rk3588-nanopc-t6.dtb \
-	rk3588s-orangepi-5.dtb \
-	rk3588-orangepi-5-plus.dtb \
-	rk3588-quartzpro64.dtb \
-	rk3588s-rock-5a.dtb \
-	rk3588-rock-5b.dtb \
-	rk3588-toybrick-x0.dtb \
-	rk3588-turing-rk1.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RV1108) += \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb
