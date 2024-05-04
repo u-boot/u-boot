@@ -98,37 +98,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
 
-dtb-$(CONFIG_ROCKCHIP_RK3399) += \
-	rk3399-evb.dtb \
-	rk3399-eaidk-610.dtb \
-	rk3399-ficus.dtb \
-	rk3399-firefly.dtb \
-	rk3399-gru-bob.dtb \
-	rk3399-gru-kevin.dtb \
-	rk3399-khadas-edge.dtb \
-	rk3399-khadas-edge-captain.dtb \
-	rk3399-khadas-edge-v.dtb \
-	rk3399-leez-p710.dtb \
-	rk3399-nanopc-t4.dtb \
-	rk3399-nanopi-m4.dtb \
-	rk3399-nanopi-m4-2gb.dtb \
-	rk3399-nanopi-m4b.dtb \
-	rk3399-nanopi-neo4.dtb \
-	rk3399-nanopi-r4s.dtb \
-	rk3399-orangepi.dtb \
-	rk3399-pinebook-pro.dtb \
-	rk3399-pinephone-pro.dtb \
-	rk3399-puma-haikou.dtb \
-	rk3399-roc-pc.dtb \
-	rk3399-roc-pc-mezzanine.dtb \
-	rk3399-rock-4c-plus.dtb \
-	rk3399-rock-4se.dtb \
-	rk3399-rock-pi-4a.dtb \
-	rk3399-rock-pi-4c.dtb \
-	rk3399-rock960.dtb \
-	rk3399-rockpro64.dtb \
-	rk3399pro-rock-pi-n10.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3568) += \
 	rk3566-anbernic-rgxx3.dtb \
 	rk3566-pinetab2-v0.1.dtb \
