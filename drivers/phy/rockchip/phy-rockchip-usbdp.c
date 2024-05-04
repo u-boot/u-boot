@@ -616,30 +616,6 @@ static const struct phy_ops rockchip_u3phy_ops = {
 	.exit		= rockchip_u3phy_exit,
 };
 
-int rockchip_u3phy_uboot_init(void)
-{
-	struct udevice *udev;
-	struct rockchip_udphy *udphy;
-	int ret;
-
-	ret = uclass_get_device_by_driver(UCLASS_PHY,
-					  DM_DRIVER_GET(rockchip_udphy_u3_port),
-					  &udev);
-	if (ret) {
-		pr_err("%s: get u3-port failed: %d\n", __func__, ret);
-		return ret;
-	}
-
-	/* DP only or high-speed, disable U3 port */
-	udphy = dev_get_priv(udev->parent);
-	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs) {
-		udphy_u3_port_disable(udphy, true);
-		return 0;
-	}
-
-	return udphy_power_on(udphy, UDPHY_MODE_USB);
-}
-
 static int rockchip_udphy_probe(struct udevice *dev)
 {
 	struct rockchip_udphy *udphy = dev_get_priv(dev);
