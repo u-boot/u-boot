@@ -98,26 +98,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
 
-dtb-$(CONFIG_ROCKCHIP_RK3568) += \
-	rk3566-anbernic-rgxx3.dtb \
-	rk3566-pinetab2-v0.1.dtb \
-	rk3566-pinetab2-v2.0.dtb \
-	rk3566-quartz64-a.dtb \
-	rk3566-quartz64-b.dtb \
-	rk3566-radxa-cm3-io.dtb \
-	rk3566-soquartz-blade.dtb \
-	rk3566-soquartz-cm4.dtb \
-	rk3566-soquartz-model-a.dtb \
-	rk3568-bpi-r2-pro.dtb \
-	rk3568-evb.dtb \
-	rk3568-generic.dtb \
-	rk3568-lubancat-2.dtb \
-	rk3568-nanopi-r5c.dtb \
-	rk3568-nanopi-r5s.dtb \
-	rk3568-odroid-m1.dtb \
-	rk3568-radxa-e25.dtb \
-	rk3568-rock-3a.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3588) += \
 	rk3588s-coolpi-4b.dtb \
 	rk3588-coolpi-cm5-evb.dtb \
