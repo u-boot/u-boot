@@ -74,6 +74,8 @@ struct udphy_grf_cfg {
 struct rockchip_udphy;
 
 struct rockchip_udphy_cfg {
+	unsigned int num_phys;
+	unsigned int phy_ids[2];
 	/* resets to be requested */
 	const char * const *rst_list;
 	int num_rsts;
@@ -640,17 +642,25 @@ int rockchip_u3phy_uboot_init(void)
 
 static int rockchip_udphy_probe(struct udevice *dev)
 {
-	const struct device_node *np = ofnode_to_np(dev_ofnode(dev));
 	struct rockchip_udphy *udphy = dev_get_priv(dev);
 	const struct rockchip_udphy_cfg *phy_cfgs;
+	unsigned int reg;
 	int id, ret;
 
 	udphy->dev = dev;
 
-	id = of_alias_get_id(np, "usbdp");
-	if (id < 0)
-		id = 0;
-	udphy->id = id;
+	ret = ofnode_read_u32_index(dev_ofnode(dev), "reg", 0, &reg);
+	if (ret) {
+		dev_err(dev, "failed to read reg[0] property\n");
+		return ret;
+	}
+	if (reg == 0 && dev_read_addr_cells(dev) == 2) {
+		ret = ofnode_read_u32_index(dev_ofnode(dev), "reg", 1, &reg);
+		if (ret) {
+			dev_err(dev, "failed to read reg[1] property\n");
+			return ret;
+		}
+	}
 
 	phy_cfgs = (const struct rockchip_udphy_cfg *)dev_get_driver_data(dev);
 	if (!phy_cfgs) {
@@ -658,6 +668,20 @@ static int rockchip_udphy_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 	udphy->cfgs = phy_cfgs;
+
+	/* find the phy-id from the io address */
+	udphy->id = -ENODEV;
+	for (id = 0; id < udphy->cfgs->num_phys; id++) {
+		if (reg == udphy->cfgs->phy_ids[id]) {
+			udphy->id = id;
+			break;
+		}
+	}
+
+	if (udphy->id < 0) {
+		dev_err(dev, "no matching device found\n");
+		return -ENODEV;
+	}
 
 	ret = regmap_init_mem(dev_ofnode(dev), &udphy->pma_regmap);
 	if (ret)
@@ -838,6 +862,11 @@ static const char * const rk3588_udphy_rst_l[] = {
 };
 
 static const struct rockchip_udphy_cfg rk3588_udphy_cfgs = {
+	.num_phys = 2,
+	.phy_ids = {
+		0xfed80000,
+		0xfed90000,
+	},
 	.num_rsts = ARRAY_SIZE(rk3588_udphy_rst_l),
 	.rst_list = rk3588_udphy_rst_l,
 	.grfcfg	= {
