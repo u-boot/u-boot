@@ -21,7 +21,7 @@
 #include <reset.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
-
+#include <dt-bindings/phy/phy.h>
 #include <linux/usb/phy-rockchip-usbdp.h>
 
 #define BIT_WRITEABLE_SHIFT	16
@@ -585,10 +585,21 @@ static int udphy_power_off(struct rockchip_udphy *udphy, u8 mode)
 	return 0;
 }
 
+static int rockchip_u3phy_of_xlate(struct phy *phy,
+				   struct ofnode_phandle_args *args)
+{
+	if (args->args_count == 0)
+		return -EINVAL;
+
+	if (args->args[0] != PHY_TYPE_USB3)
+		return -EINVAL;
+
+	return 0;
+}
+
 static int rockchip_u3phy_init(struct phy *phy)
 {
-	struct udevice *parent = phy->dev->parent;
-	struct rockchip_udphy *udphy = dev_get_priv(parent);
+	struct rockchip_udphy *udphy = dev_get_priv(phy->dev);
 
 	/* DP only or high-speed, disable U3 port */
 	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs) {
@@ -601,8 +612,7 @@ static int rockchip_u3phy_init(struct phy *phy)
 
 static int rockchip_u3phy_exit(struct phy *phy)
 {
-	struct udevice *parent = phy->dev->parent;
-	struct rockchip_udphy *udphy = dev_get_priv(parent);
+	struct rockchip_udphy *udphy = dev_get_priv(phy->dev);
 
 	/* DP only or high-speed */
 	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs)
@@ -612,6 +622,7 @@ static int rockchip_u3phy_exit(struct phy *phy)
 }
 
 static const struct phy_ops rockchip_u3phy_ops = {
+	.of_xlate	= rockchip_u3phy_of_xlate,
 	.init		= rockchip_u3phy_init,
 	.exit		= rockchip_u3phy_exit,
 };
@@ -667,40 +678,6 @@ static int rockchip_udphy_probe(struct udevice *dev)
 	ret = udphy_parse_dt(udphy, dev);
 	if (ret)
 		return ret;
-
-	return 0;
-}
-
-static int rockchip_udphy_bind(struct udevice *parent)
-{
-	struct udevice *child;
-	ofnode subnode;
-	const char *node_name;
-	int ret;
-
-	dev_for_each_subnode(subnode, parent) {
-		if (!ofnode_valid(subnode)) {
-			printf("%s: no subnode for %s", __func__, parent->name);
-			return -ENXIO;
-		}
-
-		node_name = ofnode_get_name(subnode);
-		debug("%s: subnode %s\n", __func__, node_name);
-
-		/* if there is no match, continue */
-		if (strcasecmp(node_name, "usb3-port"))
-			continue;
-
-		/* node name is usb3-port */
-		ret = device_bind_driver_to_node(parent,
-						 "rockchip_udphy_u3_port",
-						 node_name, subnode, &child);
-		if (ret) {
-			printf("%s: '%s' cannot bind its driver\n",
-			       __func__, node_name);
-			return ret;
-		}
-	}
 
 	return 0;
 }
@@ -869,17 +846,11 @@ static const struct udevice_id rockchip_udphy_dt_match[] = {
 	{ /* sentinel */ }
 };
 
-U_BOOT_DRIVER(rockchip_udphy_u3_port) = {
-	.name		= "rockchip_udphy_u3_port",
-	.id		= UCLASS_PHY,
-	.ops		= &rockchip_u3phy_ops,
-};
-
 U_BOOT_DRIVER(rockchip_udphy) = {
 	.name		= "rockchip_udphy",
 	.id		= UCLASS_PHY,
 	.of_match	= rockchip_udphy_dt_match,
 	.probe		= rockchip_udphy_probe,
-	.bind		= rockchip_udphy_bind,
+	.ops		= &rockchip_u3phy_ops,
 	.priv_auto	= sizeof(struct rockchip_udphy),
 };
