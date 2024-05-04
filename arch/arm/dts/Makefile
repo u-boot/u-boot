@@ -92,11 +92,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-veyron-speedy.dtb \
 	rk3288-vyasa.dtb
 
-dtb-$(CONFIG_ROCKCHIP_RK3308) += \
-	rk3308-evb.dtb \
-	rk3308-roc-cc.dtb \
-	rk3308-rock-pi-s.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3328) += \
 	rk3328-evb.dtb \
 	rk3328-nanopi-r2c.dtb \
