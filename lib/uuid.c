@@ -378,7 +378,7 @@ void gen_rand_uuid(unsigned char *uuid_bin)
 	struct udevice *devp;
 	u32 randv = 0;
 
-	if (IS_ENABLED(CONFIG_DM_RNG)) {
+	if (CONFIG_IS_ENABLED(DM_RNG)) {
 		ret = uclass_get_device(UCLASS_RNG, 0, &devp);
 		if (!ret) {
 			ret = dm_rng_read(devp, &randv, sizeof(randv));
