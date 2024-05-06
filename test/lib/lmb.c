@@ -76,8 +76,6 @@ static int test_multi_alloc(struct unit_test_state *uts, const phys_addr_t ram,
 	ut_assert(alloc_64k_addr >= ram + 8);
 	ut_assert(alloc_64k_end <= ram_end - 8);
 
-	lmb_init(&lmb);
-
 	if (ram0_size) {
 		ret = lmb_add(&lmb, ram0, ram0_size);
 		ut_asserteq(ret, 0);
@@ -237,8 +235,6 @@ static int test_bigblock(struct unit_test_state *uts, const phys_addr_t ram)
 	/* check for overflow */
 	ut_assert(ram_end == 0 || ram_end > ram);
 
-	lmb_init(&lmb);
-
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
 
@@ -303,8 +299,6 @@ static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram,
 
 	/* check for overflow */
 	ut_assert(ram_end == 0 || ram_end > ram);
-
-	lmb_init(&lmb);
 
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
@@ -390,8 +384,6 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 	long ret;
 	phys_addr_t a, b;
 
-	lmb_init(&lmb);
-
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
 
@@ -428,8 +420,6 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 	const phys_size_t ram_size = 0x20000000;
 	struct lmb lmb;
 	long ret;
-
-	lmb_init(&lmb);
 
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
@@ -486,8 +476,6 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 
 	/* check for overflow */
 	ut_assert(ram_end == 0 || ram_end > ram);
-
-	lmb_init(&lmb);
 
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
@@ -614,8 +602,6 @@ static int test_get_unreserved_size(struct unit_test_state *uts,
 	/* check for overflow */
 	ut_assert(ram_end == 0 || ram_end > ram);
 
-	lmb_init(&lmb);
-
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
 
@@ -684,8 +670,6 @@ static int lib_test_lmb_max_regions(struct unit_test_state *uts)
 	struct lmb lmb;
 	int ret, i;
 
-	lmb_init(&lmb);
-
 	ut_asserteq(lmb.memory.cnt, 0);
 	ut_asserteq(lmb.memory.max, CONFIG_LMB_MAX_REGIONS);
 	ut_asserteq(lmb.reserved.cnt, 0);
@@ -744,8 +728,6 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 	const phys_size_t ram_size = 0x20000000;
 	struct lmb lmb;
 	long ret;
-
-	lmb_init(&lmb);
 
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
