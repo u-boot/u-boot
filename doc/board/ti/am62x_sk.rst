@@ -109,6 +109,20 @@ Set the variables corresponding to this platform:
     :start-after: .. k3_rst_include_start_build_steps_spl_r5
     :end-before: .. k3_rst_include_end_build_steps_spl_r5
 
+* 3.1.1 Alternative build of R5 for DFU boot:
+
+As the SPL size can get too big when building with support for booting both
+from local storage *and* DFU an extra config fragment should be used to enable
+DFU support (and disable storage support)
+
+.. prompt:: bash $
+
+  export UBOOT_CFG_CORTEXR="${UBOOT_CFG_CORTEXR} am62x_r5_usbdfu.config"
+
+.. include::  ../ti/k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_spl_r5
+    :end-before: .. k3_rst_include_end_build_steps_spl_r5
+
 * 3.2 A53:
 
 .. include::  ../ti/k3.rst
@@ -250,6 +264,29 @@ https://www.ti.com/lit/pdf/spruiv7 under the `Boot Mode Pins` section.
      - 11001010
 
 For SW2 and SW1, the switch state in the "ON" position = 1.
+
+DFU based boot
+--------------
+
+To boot the board over DFU, set the switches to DFU mode and connect to the
+USB type C DRD port on the board. After power-on the build artifacts needs to be
+uploaded one by one with a tool like dfu-util.
+
+.. am62x_evm_rst_include_start_dfu_boot
+
+The initial ROM will have a DFU alt named `bootloader` for the initial R5 spl
+upload. The next stages as exposed by U-Boot have target alts matching the name
+of the artifacts, for these a USB reset has to be done after each upload.
+
+When using dfu-util the following commands can be used to boot to a U-Boot shell:
+
+.. prompt:: bash $
+
+  dfu-util -a bootloader -D tiboot3.bin
+  dfu-util -R -a tispl -D tispl.bin
+  dfu-util -R -a u-boot.img -D u-boot.img
+
+.. am62x_evm_rst_include_end_dfu_boot
 
 Debugging U-Boot
 ----------------
