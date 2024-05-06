@@ -7,7 +7,9 @@
  * Based on Linux driver
  */
 
+#include <clk.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <errno.h>
 #include <usb.h>
@@ -24,6 +26,8 @@ struct msm_ehci_priv {
 	struct usb_ehci *ehci; /* Start of IP core*/
 	struct ulpi_viewport ulpi_vp; /* ULPI Viewport */
 	struct phy phy;
+	struct clk iface_clk;
+	struct clk core_clk;
 };
 
 static int msm_init_after_reset(struct ehci_ctrl *dev)
@@ -52,20 +56,46 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hcor *hcor;
 	int ret;
 
+	ret = clk_get_by_name(dev, "core", &p->core_clk);
+	if (ret) {
+		dev_err(dev, "Failed to get core clock: %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_get_by_name(dev, "iface", &p->iface_clk);
+	if (ret) {
+		dev_err(dev, "Failed to get iface clock: %d\n", ret);
+		return ret;
+	}
+
+	ret = clk_prepare_enable(&p->core_clk);
+	if (ret)
+		return ret;
+
+	ret = clk_prepare_enable(&p->iface_clk);
+	if (ret)
+		goto cleanup_core;
+
 	hccr = (struct ehci_hccr *)((phys_addr_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((phys_addr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
 	ret = generic_setup_phy(dev, &p->phy, 0);
 	if (ret)
-		return ret;
+		goto cleanup_iface;
 
 	ret = board_usb_init(0, plat->init_type);
 	if (ret < 0)
-		return ret;
+		goto cleanup_iface;
 
 	return ehci_register(dev, hccr, hcor, &msm_ehci_ops, 0,
 			     plat->init_type);
+
+cleanup_iface:
+	clk_disable_unprepare(&p->iface_clk);
+cleanup_core:
+	clk_disable_unprepare(&p->core_clk);
+	return ret;
 }
 
 static int ehci_usb_remove(struct udevice *dev)
@@ -80,6 +110,9 @@ static int ehci_usb_remove(struct udevice *dev)
 
 	/* Stop controller. */
 	clrbits_le32(&ehci->usbcmd, CMD_RUN);
+
+	clk_disable_unprepare(&p->iface_clk);
+	clk_disable_unprepare(&p->core_clk);
 
 	ret = generic_shutdown_phy(&p->phy);
 	if (ret)
