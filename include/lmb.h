@@ -49,8 +49,7 @@ struct lmb_property {
  *         => CONFIG_LMB_MEMORY_REGIONS: struct lmb.memory_regions
  *         => CONFIG_LMB_RESERVED_REGIONS: struct lmb.reserved_regions
  *         lmb_region.region is only a pointer to the correct buffer,
- *         initialized in lmb_init(). This configuration is useful to manage
- *         more reserved memory regions with CONFIG_LMB_RESERVED_REGIONS.
+ *         initialized with these values.
  */
 
 /**
@@ -73,26 +72,18 @@ struct lmb_region {
 /**
  * struct lmb - Logical memory block handle.
  *
- * Clients provide storage for Logical memory block (lmb) handles.
- * The content of the structure is managed by the lmb library.
- * A lmb struct is  initialized by lmb_init() functions.
- * The lmb struct is passed to all other lmb APIs.
+ * The Logical Memory Block structure which is used to keep track
+ * of available memory which can be used for stuff like loading
+ * images(kernel, initrd, fdt).
  *
  * @memory: Description of memory regions.
  * @reserved: Description of reserved regions.
- * @memory_regions: Array of the memory regions (statically allocated)
- * @reserved_regions: Array of the reserved regions (statically allocated)
  */
 struct lmb {
 	struct lmb_region memory;
 	struct lmb_region reserved;
-#if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
-	struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
-	struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
-#endif
 };
 
-void lmb_init(struct lmb *lmb);
 void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob);
 void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
 				phys_size_t size, void *fdt_blob);
