@@ -214,7 +214,6 @@ static int apple_dart_probe(struct udevice *dev)
 	priv->dvabase = DART_PAGE_SIZE;
 	priv->dvaend = SZ_4G - DART_PAGE_SIZE;
 
-	lmb_init(&priv->lmb);
 	lmb_add(&priv->lmb, priv->dvabase, priv->dvaend - priv->dvabase);
 
 	/* Disable translations. */
