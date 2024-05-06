@@ -56,6 +56,7 @@ config NET_RANDOM_ETHADDR
 
 config NETCONSOLE
 	bool "NetConsole support"
+	depends on !NET_LWIP
 	help
 	  Support the 'nc' input/output device for networked console.
 	  See doc/usage/netconsole.rst for details.
