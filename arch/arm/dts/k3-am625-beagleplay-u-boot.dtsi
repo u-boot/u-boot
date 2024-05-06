@@ -54,6 +54,15 @@
 	>;
 };
 
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-all;
+};
+
 #ifdef CONFIG_TARGET_AM625_A53_BEAGLEPLAY
 
 #define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
