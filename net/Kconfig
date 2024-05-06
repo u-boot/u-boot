@@ -7,7 +7,7 @@ menuconfig NET
 	imply NETDEVICES
 	depends on !NET_LWIP
 
-if NET
+if NET || SPL_NET
 
 config ARP_TIMEOUT
 	int "Milliseconds before trying ARP again"
