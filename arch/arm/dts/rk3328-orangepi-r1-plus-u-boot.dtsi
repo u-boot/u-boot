@@ -8,9 +8,6 @@
 #include "rk3328-sdram-ddr4-666.dtsi"
 
 &spi0 {
-	bootph-pre-ram;
-	bootph-some-ram;
-
 	flash@0 {
 		bootph-pre-ram;
 		bootph-some-ram;
@@ -19,18 +16,22 @@
 
 &spi0m2_clk {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &spi0m2_cs0 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &spi0m2_rx {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &spi0m2_tx {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &usb20_otg {

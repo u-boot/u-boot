@@ -17,7 +17,6 @@
 	};
 
 	dmc: dmc {
-		bootph-all;
 		compatible = "rockchip,rk3328-dmc";
 		reg = <0x0 0xff400000 0x0 0x1000
 		       0x0 0xff780000 0x0 0x3000
@@ -25,6 +24,7 @@
 		       0x0 0xff440000 0x0 0x1000
 		       0x0 0xff720000 0x0 0x1000
 		       0x0 0xff798000 0x0 0x1000>;
+		bootph-all;
 	};
 };
 
@@ -42,14 +42,17 @@
 
 &emmc_bus8 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_clk {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_cmd {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &gpio0 {
@@ -66,10 +69,12 @@
 
 &pcfg_pull_none_8ma {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pcfg_pull_none_12ma {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pcfg_pull_up {
@@ -78,19 +83,21 @@
 
 &pcfg_pull_up_4ma {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pcfg_pull_up_8ma {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pcfg_pull_up_12ma {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &pinctrl {
-	bootph-pre-ram;
-	bootph-some-ram;
+	bootph-all;
 };
 
 &sdmmc {
@@ -103,18 +110,22 @@
 
 &sdmmc0_bus4 {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_clk {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_cmd {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0_dectn {
 	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &sdmmc0m1_pin {
@@ -127,7 +138,8 @@
 };
 
 &uart2m1_xfer {
-	bootph-all;
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
 &vop {

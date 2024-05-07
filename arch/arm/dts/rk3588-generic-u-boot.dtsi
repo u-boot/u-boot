@@ -14,10 +14,6 @@
 	status = "okay";
 };
 
-&usbdp_phy0_u3 {
-	status = "okay";
-};
-
 &usb_host0_xhci {
 	dr_mode = "peripheral";
 	maximum-speed = "high-speed";

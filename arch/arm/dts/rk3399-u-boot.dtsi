@@ -2,8 +2,6 @@
 /*
  * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
  */
-#define USB_CLASS_HUB			9
-
 #include "rockchip-u-boot.dtsi"
 
 / {
@@ -14,50 +12,21 @@
 		spi1 = &spi1;
 	};
 
-	cic: syscon@ff620000 {
-		bootph-all;
-		compatible = "rockchip,rk3399-cic", "syscon";
-		reg = <0x0 0xff620000 0x0 0x100>;
-	};
-
-	dfi: dfi@ff630000 {
-		bootph-all;
-		reg = <0x00 0xff630000 0x00 0x4000>;
-		compatible = "rockchip,rk3399-dfi";
-		rockchip,pmu = <&pmugrf>;
-		clocks = <&cru PCLK_DDR_MON>;
-		clock-names = "pclk_ddr_mon";
-	};
-
-	rng: rng@ff8b8000 {
-		compatible = "rockchip,rk3399-crypto";
-		reg = <0x0 0xff8b8000 0x0 0x1000>;
-		status = "okay";
-	};
-
-	dmc: dmc {
-		bootph-all;
-		compatible = "rockchip,rk3399-dmc";
-		devfreq-events = <&dfi>;
-		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH 0>;
-		clocks = <&cru SCLK_DDRCLK>;
-		clock-names = "dmc_clk";
-		reg = <0x0 0xffa80000 0x0 0x0800
-		       0x0 0xffa80800 0x0 0x1800
-		       0x0 0xffa82000 0x0 0x2000
-		       0x0 0xffa84000 0x0 0x1000
-		       0x0 0xffa88000 0x0 0x0800
-		       0x0 0xffa88800 0x0 0x1800
-		       0x0 0xffa8a000 0x0 0x2000
-		       0x0 0xffa8c000 0x0 0x1000>;
+	chosen {
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 
 	pmusgrf: syscon@ff330000 {
-		bootph-all;
 		compatible = "rockchip,rk3399-pmusgrf", "syscon";
 		reg = <0x0 0xff330000 0x0 0xe3d4>;
+		bootph-all;
 	};
 
+	cic: syscon@ff620000 {
+		compatible = "rockchip,rk3399-cic", "syscon";
+		reg = <0x0 0xff620000 0x0 0x100>;
+		bootph-all;
+	};
 };
 
 #if defined(CONFIG_ROCKCHIP_SPI_IMAGE) && defined(CONFIG_HAS_ROM)
@@ -89,11 +58,37 @@
 	bootph-all;
 };
 
-&emmc_phy {
+&dfi {
 	bootph-all;
 };
 
+&dmc {
+	reg = <0x0 0xffa80000 0x0 0x0800
+	       0x0 0xffa80800 0x0 0x1800
+	       0x0 0xffa82000 0x0 0x2000
+	       0x0 0xffa84000 0x0 0x1000
+	       0x0 0xffa88000 0x0 0x0800
+	       0x0 0xffa88800 0x0 0x1800
+	       0x0 0xffa8a000 0x0 0x2000
+	       0x0 0xffa8c000 0x0 0x1000>;
+	bootph-all;
+	status = "okay";
+};
+
+&emmc_phy {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
 &grf {
+	bootph-all;
+};
+
+&pcfg_pull_none {
+	bootph-all;
+};
+
+&pcfg_pull_up {
 	bootph-all;
 };
 
@@ -105,47 +100,89 @@
 	bootph-all;
 };
 
-&pmugrf {
-	bootph-all;
-};
-
-&pmu {
-	bootph-all;
-};
-
 &pmucru {
 	bootph-all;
 };
 
-&sdhci {
-	max-frequency = <200000000>;
+&pmugrf {
 	bootph-all;
-	u-boot,spl-fifo-mode;
 };
 
-&sdmmc {
-	bootph-all;
+&sdhci {
+	bootph-pre-ram;
+	bootph-some-ram;
+	max-frequency = <200000000>;
 
 	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
 	u-boot,spl-fifo-mode;
 };
 
-&spi1 {
-	bootph-all;
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
 };
 
-&uart0 {
-	bootph-all;
+&sdmmc_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi1_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi1_cs0 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi1_rx {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi1_tx {
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &uart2 {
 	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart2c_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
 &vopb {
-	bootph-all;
+	bootph-some-ram;
 };
 
 &vopl {
+	bootph-some-ram;
+};
+
+&xin24m {
 	bootph-all;
 };

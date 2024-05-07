@@ -54,12 +54,38 @@
 	enable-gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
 };
 
+&sdhci {
+	/delete-property/ bootph-pre-ram;
+};
+
+&sdmmc {
+	/delete-property/ bootph-pre-ram;
+};
+
+&sdmmc_bus4 {
+	/delete-property/ bootph-pre-ram;
+};
+
+&sdmmc_cd {
+	/delete-property/ bootph-pre-ram;
+};
+
+&sdmmc_clk {
+	/delete-property/ bootph-pre-ram;
+};
+
+&sdmmc_cmd {
+	/delete-property/ bootph-pre-ram;
+};
+
+&spi1 {
+	spi_flash: flash@0 {
+		bootph-all;
+	};
+};
+
 &spi5 {
 	spi-activate-delay = <100>;
 	spi-max-frequency = <3000000>;
 	spi-deactivate-delay = <200>;
-};
-
-&spi_flash {
-	bootph-all;
 };

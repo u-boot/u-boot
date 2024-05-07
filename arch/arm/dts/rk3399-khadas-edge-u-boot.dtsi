@@ -6,10 +6,9 @@
 #include "rk3399-u-boot.dtsi"
 #include "rk3399-sdram-lpddr4-100.dtsi"
 
-/ {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
-	};
+&spiflash {
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &vdd_log {
