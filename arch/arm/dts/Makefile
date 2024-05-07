@@ -41,7 +41,6 @@ dtb-$(CONFIG_ARCH_APPLE) += \
 	t8103-j457.dtb
 
 dtb-$(CONFIG_ARCH_DAVINCI) += \
-	da850-evm.dtb \
 	da850-lcdk.dtb \
 	da850-lego-ev3.dtb
 
@@ -395,7 +394,6 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am437x-idk-evm.dtb \
 	am4372-generic.dtb \
 	am437x-cm-t43.dtb
-dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
 dtb-$(CONFIG_TARGET_THUNDERX_88XX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
@@ -1054,12 +1052,6 @@ dtb-$(CONFIG_TARGET_GARDENA_SMART_GATEWAY_AT91SAM) += \
 dtb-$(CONFIG_TARGET_ETHERNUT5) += ethernut5.dtb
 
 dtb-$(CONFIG_TARGET_USB_A9263) += usb_a9263.dtb
-
-dtb-$(CONFIG_TARGET_OMAP3_LOGIC) += \
-	logicpd-som-lv-35xx-devkit.dtb \
-	logicpd-som-lv-37xx-devkit.dtb \
-	logicpd-torpedo-35xx-devkit.dtb \
-	logicpd-torpedo-37xx-devkit.dtb
 
 dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
 	omap3-evm-37xx.dtb \

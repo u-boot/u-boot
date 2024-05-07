@@ -10,6 +10,8 @@
 	aliases {
 		/delete-property/ serial1;
 		/delete-property/ serial2;
+		/delete-property/ mmc1;
+		/delete-property/ mmc2;
 	};
 
 	ethernet@08000000 {
