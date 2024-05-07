@@ -1,0 +1,3 @@
+#include <configs/qemu_arm64_defconfig>
+CONFIG_NET_LWIP=y
+# CONFIG_DFU_TFTP is not set
