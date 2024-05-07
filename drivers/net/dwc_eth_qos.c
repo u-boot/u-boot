@@ -50,6 +50,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/sys_proto.h>
 #endif
+#include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
 
@@ -146,6 +147,25 @@ static int eqos_mdio_wait_idle(struct eqos_priv *eqos)
 				 1000000, true);
 }
 
+/* Bitmask common for mdio_read and mdio_write */
+#define EQOS_MDIO_BITFIELD(pa, rda, cr) \
+	FIELD_PREP(EQOS_MAC_MDIO_ADDRESS_PA_MASK, pa)   | \
+	FIELD_PREP(EQOS_MAC_MDIO_ADDRESS_RDA_MASK, rda) | \
+	FIELD_PREP(EQOS_MAC_MDIO_ADDRESS_CR_MASK, cr)   | \
+	EQOS_MAC_MDIO_ADDRESS_GB
+
+static u32 eqos_mdio_bitfield(struct eqos_priv *eqos, int addr, int devad, int reg)
+{
+	int cr = eqos->config->config_mac_mdio;
+	bool c22 = devad == MDIO_DEVAD_NONE ? true : false;
+
+	if (c22)
+		return EQOS_MDIO_BITFIELD(addr, reg, cr);
+	else
+		return EQOS_MDIO_BITFIELD(addr, devad, cr) |
+		       EQOS_MAC_MDIO_ADDRESS_C45E;
+}
+
 static int eqos_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 			  int mdio_reg)
 {
@@ -163,15 +183,17 @@ static int eqos_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 	}
 
 	val = readl(&eqos->mac_regs->mdio_address);
-	val &= EQOS_MAC_MDIO_ADDRESS_SKAP |
-		EQOS_MAC_MDIO_ADDRESS_C45E;
-	val |= (mdio_addr << EQOS_MAC_MDIO_ADDRESS_PA_SHIFT) |
-		(mdio_reg << EQOS_MAC_MDIO_ADDRESS_RDA_SHIFT) |
-		(eqos->config->config_mac_mdio <<
-		 EQOS_MAC_MDIO_ADDRESS_CR_SHIFT) |
-		(EQOS_MAC_MDIO_ADDRESS_GOC_READ <<
-		 EQOS_MAC_MDIO_ADDRESS_GOC_SHIFT) |
-		EQOS_MAC_MDIO_ADDRESS_GB;
+	val &= EQOS_MAC_MDIO_ADDRESS_SKAP;
+
+	val |= eqos_mdio_bitfield(eqos, mdio_addr, mdio_devad, mdio_reg) |
+	       FIELD_PREP(EQOS_MAC_MDIO_ADDRESS_GOC_MASK,
+			  EQOS_MAC_MDIO_ADDRESS_GOC_READ);
+
+	if (val & EQOS_MAC_MDIO_ADDRESS_C45E) {
+		writel(FIELD_PREP(EQOS_MAC_MDIO_DATA_RA_MASK, mdio_reg),
+		       &eqos->mac_regs->mdio_data);
+	}
+
 	writel(val, &eqos->mac_regs->mdio_address);
 
 	udelay(eqos->config->mdio_wait);
@@ -194,7 +216,8 @@ static int eqos_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 			   int mdio_reg, u16 mdio_val)
 {
 	struct eqos_priv *eqos = bus->priv;
-	u32 val;
+	u32 v_addr;
+	u32 v_data;
 	int ret;
 
 	debug("%s(dev=%p, addr=%x, reg=%d, val=%x):\n", __func__, eqos->dev,
@@ -206,20 +229,19 @@ static int eqos_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 		return ret;
 	}
 
-	writel(mdio_val, &eqos->mac_regs->mdio_data);
+	v_addr = readl(&eqos->mac_regs->mdio_address);
+	v_addr &= EQOS_MAC_MDIO_ADDRESS_SKAP;
 
-	val = readl(&eqos->mac_regs->mdio_address);
-	val &= EQOS_MAC_MDIO_ADDRESS_SKAP |
-		EQOS_MAC_MDIO_ADDRESS_C45E;
-	val |= (mdio_addr << EQOS_MAC_MDIO_ADDRESS_PA_SHIFT) |
-		(mdio_reg << EQOS_MAC_MDIO_ADDRESS_RDA_SHIFT) |
-		(eqos->config->config_mac_mdio <<
-		 EQOS_MAC_MDIO_ADDRESS_CR_SHIFT) |
-		(EQOS_MAC_MDIO_ADDRESS_GOC_WRITE <<
-		 EQOS_MAC_MDIO_ADDRESS_GOC_SHIFT) |
-		EQOS_MAC_MDIO_ADDRESS_GB;
-	writel(val, &eqos->mac_regs->mdio_address);
+	v_addr |= eqos_mdio_bitfield(eqos, mdio_addr, mdio_devad, mdio_reg) |
+	       FIELD_PREP(EQOS_MAC_MDIO_ADDRESS_GOC_MASK,
+			  EQOS_MAC_MDIO_ADDRESS_GOC_WRITE);
 
+	v_data = mdio_val;
+	if (v_addr & EQOS_MAC_MDIO_ADDRESS_C45E)
+		v_data |= FIELD_PREP(EQOS_MAC_MDIO_DATA_RA_MASK, mdio_reg);
+
+	writel(v_data, &eqos->mac_regs->mdio_data);
+	writel(v_addr, &eqos->mac_regs->mdio_address);
 	udelay(eqos->config->mdio_wait);
 
 	ret = eqos_mdio_wait_idle(eqos);
