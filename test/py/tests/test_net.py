@@ -127,6 +127,10 @@ def test_net_dhcp(u_boot_console):
     global net_set_up
     net_set_up = True
 
+@pytest.mark.buildconfigspec('cmd_dhcp_lwip')
+def test_net_dhcp_lwip(u_boot_console):
+    test_net_dhcp(u_boot_console)
+
 @pytest.mark.buildconfigspec('cmd_dhcp')
 @pytest.mark.buildconfigspec('cmd_mii')
 def test_net_dhcp_abort(u_boot_console):
@@ -230,6 +234,10 @@ def test_net_ping(u_boot_console):
     output = u_boot_console.run_command('ping $serverip')
     assert 'is alive' in output
 
+@pytest.mark.buildconfigspec('cmd_ping_lwip')
+def test_net_ping_lwip(u_boot_console):
+    test_net_ping(u_boot_console)
+
 @pytest.mark.buildconfigspec('IPV6_ROUTER_DISCOVERY')
 def test_net_network_discovery(u_boot_console):
     """Test the network discovery feature of IPv6.
@@ -255,7 +263,7 @@ def test_net_network_discovery(u_boot_console):
     assert '0000:0000:0000:0000:0000:0000:0000:0000' not in output
 
 @pytest.mark.buildconfigspec('cmd_net')
-def test_net_tftpboot(u_boot_console):
+def test_net_tftpboot(u_boot_console, lwip = False):
     """Test the tftpboot command.
 
     A file is downloaded from the TFTP server, its size and optionally its
@@ -279,10 +287,11 @@ def test_net_tftpboot(u_boot_console):
         output = u_boot_console.run_command('tftpboot %s' % (fn))
     else:
         output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
-    expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
-    if sz:
-        expected_text += '%d' % sz
+    if lwip:
+        expected_text = f'{sz} bytes transferred'
+    else:
+        expected_text = f'Bytes transferred = {sz}'
     assert expected_text in output
 
     expected_crc = f.get('crc32', None)
@@ -294,6 +303,10 @@ def test_net_tftpboot(u_boot_console):
 
     output = u_boot_console.run_command('crc32 $fileaddr $filesize')
     assert expected_crc in output
+
+@pytest.mark.buildconfigspec("cmd_net_lwip")
+def test_net_tftpboot_lwip(u_boot_console):
+    test_net_tftpboot(u_boot_console, True)
 
 @pytest.mark.buildconfigspec('cmd_nfs')
 def test_net_nfs(u_boot_console):
