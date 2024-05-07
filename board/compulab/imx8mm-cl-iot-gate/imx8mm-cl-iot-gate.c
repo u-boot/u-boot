@@ -4,7 +4,6 @@
  * Copyright 2020 Linaro
  */
 
-#include <common.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env.h>

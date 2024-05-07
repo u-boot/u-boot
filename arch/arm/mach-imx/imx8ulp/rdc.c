@@ -3,7 +3,8 @@
  * Copyright 2021 NXP
  */
 
-#include <common.h>
+#include <config.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <asm/arch/imx-regs.h>

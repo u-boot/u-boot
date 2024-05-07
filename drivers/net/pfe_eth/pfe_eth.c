@@ -4,7 +4,7 @@
  * Copyright 2017 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

@@ -1,6 +1,8 @@
 #ifndef _SHA512_H
 #define _SHA512_H
 
+#include <linux/types.h>
+
 #define SHA384_SUM_LEN          48
 #define SHA384_DER_LEN          19
 #define SHA512_SUM_LEN          64

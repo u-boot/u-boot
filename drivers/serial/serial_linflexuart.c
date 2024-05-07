@@ -3,7 +3,6 @@
  * (C) Copyright 2013-2016 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>

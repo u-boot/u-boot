@@ -6,7 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_FPGA
 
-#include <common.h>		/* core U-Boot definitions */
+#include <config.h>		/* core U-Boot definitions */
 #include <log.h>
 #include <spartan2.h>		/* Spartan-II device family */
 

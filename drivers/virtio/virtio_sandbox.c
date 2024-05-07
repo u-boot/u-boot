@@ -5,7 +5,6 @@
  * VirtIO Sandbox transport driver, for testing purpose only
  */
 
-#include <common.h>
 #include <dm.h>
 #include <virtio_types.h>
 #include <virtio.h>

@@ -4,7 +4,6 @@
  * Copyright (C) 2022 Arm Ltd.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <init.h>

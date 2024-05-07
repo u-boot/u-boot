@@ -6,7 +6,7 @@
  * Copyright (C) 2015-2016 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/arch/clock.h>

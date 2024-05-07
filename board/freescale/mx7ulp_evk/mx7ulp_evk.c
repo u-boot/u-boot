@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <asm/global_data.h>

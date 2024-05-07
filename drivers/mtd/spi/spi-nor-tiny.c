@@ -9,7 +9,6 @@
  * Synced from Linux v4.19
  */
 
-#include <common.h>
 #include <log.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>

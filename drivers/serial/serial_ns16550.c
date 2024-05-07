@@ -4,7 +4,7 @@
  * Rob Taylor, Flying Pig Systems. robt@flyingpig.com.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <ns16550.h>
 #include <serial.h>

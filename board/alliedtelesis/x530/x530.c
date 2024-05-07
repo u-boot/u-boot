@@ -3,7 +3,7 @@
  * Copyright (C) 2017 Allied Telesis Labs
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>

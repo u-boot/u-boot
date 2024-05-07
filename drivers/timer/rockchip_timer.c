@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <init.h>

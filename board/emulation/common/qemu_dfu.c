@@ -3,7 +3,6 @@
  * Copyright (c) 2020 Linaro Limited
  */
 
-#include <common.h>
 #include <dfu.h>
 #include <env.h>
 #include <memalign.h>

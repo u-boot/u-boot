@@ -7,7 +7,6 @@
 
 /* Simple DHCP6 network layer implementation. */
 
-#include <common.h>
 #include <net6.h>
 #include <malloc.h>
 #include <linux/delay.h>

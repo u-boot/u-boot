@@ -5,7 +5,6 @@
  * ROHM BD71837 regulator driver
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <linux/bitops.h>

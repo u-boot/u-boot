@@ -6,7 +6,6 @@
  * Peter, Software Engineering, <superpeter.cai@gmail.com>.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

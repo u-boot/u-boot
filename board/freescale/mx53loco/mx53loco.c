@@ -4,7 +4,7 @@
  * Jason Liu <r64343@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <log.h>
 #include <asm/global_data.h>

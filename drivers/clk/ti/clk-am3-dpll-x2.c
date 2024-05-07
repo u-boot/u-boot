@@ -7,7 +7,6 @@
  * Loosely based on Linux kernel drivers/clk/ti/dpll.c
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dm/device_compat.h>

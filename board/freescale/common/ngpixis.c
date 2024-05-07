@@ -29,7 +29,6 @@
  *    boot from the alternate bank.
  */
 
-#include <common.h>
 #include <command.h>
 #include <asm/io.h>
 

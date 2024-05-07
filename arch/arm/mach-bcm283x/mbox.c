@@ -3,9 +3,9 @@
  * (C) Copyright 2012 Stephen Warren
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <time.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/base.h>

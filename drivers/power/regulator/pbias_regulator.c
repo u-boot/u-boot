@@ -4,7 +4,6 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <log.h>

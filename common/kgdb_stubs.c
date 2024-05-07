@@ -7,7 +7,6 @@
  * Licensed under the GPL-2 or later.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <kgdb.h>
 #include <serial.h>

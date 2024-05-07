@@ -3,7 +3,6 @@
  * Copyright (C) 2019 Frank Wunderlich <frank-w@public-files.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <asm/io.h>
 #include <linux/delay.h>

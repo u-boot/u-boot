@@ -4,7 +4,7 @@
  * Copyright 2017-2018 NXP
  * Copyright 2019-2021 Traverse Technologies
  */
-#include <common.h>
+#include <config.h>
 #include <display_options.h>
 #include <dm/uclass.h>
 #include <env.h>

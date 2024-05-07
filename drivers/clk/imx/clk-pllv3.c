@@ -4,7 +4,6 @@
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <div64.h>
 #include <malloc.h>

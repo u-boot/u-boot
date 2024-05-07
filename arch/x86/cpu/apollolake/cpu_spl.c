@@ -5,7 +5,6 @@
  * Portions taken from coreboot
  */
 
-#include <common.h>
 #include <dm.h>
 #include <ec_commands.h>
 #include <init.h>

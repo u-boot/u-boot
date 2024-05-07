@@ -3,7 +3,7 @@
  * Copyright 2020-2021 Toradex
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

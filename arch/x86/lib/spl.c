@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
-#include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <dm.h>
@@ -29,6 +28,7 @@
 #include <asm/processor.h>
 #include <asm/qemu.h>
 #include <asm/spl.h>
+#include <asm/u-boot-x86.h>
 #include <asm-generic/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;

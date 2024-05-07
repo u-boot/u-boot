@@ -5,7 +5,6 @@
  * Copyright (C) 2013 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>

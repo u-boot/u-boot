@@ -5,7 +5,7 @@
  * Chunhe Lan <Chunhe.Lan@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <net.h>

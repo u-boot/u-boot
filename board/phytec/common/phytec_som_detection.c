@@ -4,7 +4,6 @@
  * Author: Teresa Remmet <t.remmet@phytec.de>
  */
 
-#include <common.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <i2c.h>

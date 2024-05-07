@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <bloblist.h>
 #include <command.h>
 #include <asm/global_data.h>

@@ -4,7 +4,6 @@
  * Written by Amar <amarendra.xt@samsung.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <mmc.h>
 #include "mmc_private.h"

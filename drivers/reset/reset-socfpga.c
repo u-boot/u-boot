@@ -12,7 +12,6 @@
  * Maxime Ripard <maxime.ripard@free-electrons.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

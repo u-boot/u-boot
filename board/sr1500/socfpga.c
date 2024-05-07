@@ -3,7 +3,6 @@
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/gpio.h>

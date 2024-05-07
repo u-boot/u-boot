@@ -5,10 +5,10 @@
  *
  * Support for ARM Flash Partitions
  */
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <flash.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 
 #define MAX_REGIONS 4

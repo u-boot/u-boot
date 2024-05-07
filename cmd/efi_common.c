@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <efi.h>
 #include <efi_api.h>
 #include <uuid.h>

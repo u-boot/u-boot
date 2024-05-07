@@ -3,7 +3,6 @@
  * (C) 2018 Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
 #include <dm.h>
 #include <reboot-mode/reboot-mode.h>
 #include <env.h>

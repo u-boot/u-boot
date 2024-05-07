@@ -4,7 +4,7 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <adc.h>
 #include <dm.h>
 #include <errno.h>

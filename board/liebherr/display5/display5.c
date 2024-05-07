@@ -4,7 +4,6 @@
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <init.h>

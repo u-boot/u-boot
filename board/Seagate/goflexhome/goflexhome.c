@@ -12,7 +12,6 @@
  * Marvell Semiconductor <www.marvell.com>
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <init.h>
 #include <netdev.h>

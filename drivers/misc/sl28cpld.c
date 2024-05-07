@@ -3,7 +3,6 @@
  * Copyright (c) 2021 Michael Walle <michael@walle.cc>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 

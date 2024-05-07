@@ -4,7 +4,7 @@
  *		      Wenyou Yang <wenyou.yang@microchip.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <i2c.h>

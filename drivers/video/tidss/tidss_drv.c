@@ -9,7 +9,6 @@
  * Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <log.h>

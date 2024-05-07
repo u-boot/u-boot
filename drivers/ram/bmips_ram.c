@@ -7,7 +7,6 @@
  *	Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <init.h>

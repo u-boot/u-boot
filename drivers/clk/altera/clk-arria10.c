@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <clk-uclass.h>

@@ -20,7 +20,7 @@
  * then is used by multiple filesystems.
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <cyclic.h>
 #include <malloc.h>
 #include <watchdog.h>

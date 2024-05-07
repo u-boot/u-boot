@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Sean Anderson <seanga2@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dm/test.h>

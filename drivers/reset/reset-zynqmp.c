@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_RESET
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <reset-uclass.h>

@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <asm/arch/pinmux.h>
 
 int exynos_pinmux_config(int peripheral, int flags)

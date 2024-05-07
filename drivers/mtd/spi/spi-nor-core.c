@@ -9,7 +9,6 @@
  * Synced from Linux v4.19
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <log.h>
 #include <watchdog.h>

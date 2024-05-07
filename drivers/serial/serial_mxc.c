@@ -3,7 +3,6 @@
  * (c) 2007 Sascha Hauer <s.hauer@pengutronix.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>

@@ -13,7 +13,6 @@
 #undef	VERBOSE_DEBUG
 #undef	PACKET_TRACE
 
-#include <common.h>
 #include <dm/devres.h>
 #include <linux/bug.h>
 #include <linux/err.h>

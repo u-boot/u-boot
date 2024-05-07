@@ -3,7 +3,6 @@
  * Copyright 2020 Google LLC
  */
 
-#include <common.h>
 #include <vsprintf.h>
 #include <test/suites.h>
 #include <test/test.h>

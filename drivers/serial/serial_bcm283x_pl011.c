@@ -3,7 +3,6 @@
  * Copyright (c) 2018 Alexander Graf <agraf@suse.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>

@@ -9,7 +9,6 @@
  * Based on drivers/clk/at91/sama7g5.c from Linux.
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-bindings/clk/at91.h>

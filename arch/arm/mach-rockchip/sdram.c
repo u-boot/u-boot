@@ -3,7 +3,7 @@
  * Copyright (C) 2017 Rockchip Electronics Co., Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

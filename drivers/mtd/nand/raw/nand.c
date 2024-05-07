@@ -5,7 +5,7 @@
  * Ladislav Michl <michl@2n.cz>
  */
 
-#include <common.h>
+#include <config.h>
 #include <nand.h>
 #include <errno.h>
 #include <linux/mtd/concat.h>

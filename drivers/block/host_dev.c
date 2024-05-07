@@ -9,7 +9,6 @@
 
 #define LOG_CATEGORY UCLASS_HOST
 
-#include <common.h>
 #include <blk.h>
 #include <bootdev.h>
 #include <dm.h>

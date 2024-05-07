@@ -6,7 +6,6 @@
  * Copyright (c) 2019 Microsemi Corporation
  */
 
-#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>

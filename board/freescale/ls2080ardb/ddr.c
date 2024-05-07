@@ -3,7 +3,6 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 #include <log.h>

@@ -11,11 +11,11 @@
  */
 
 #include <bcb.h>
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <fastboot.h>
 #include <net.h>
+#include <vsprintf.h>
 
 /**
  * fastboot_buf_addr - base address of the fastboot download buffer

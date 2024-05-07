@@ -4,7 +4,6 @@
  *  Peter Griffin <peter.griffin@linaro.org>
  */
 #include <asm/io.h>
-#include <common.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/max8997_muic.h>

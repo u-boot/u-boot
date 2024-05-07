@@ -6,7 +6,6 @@
  * (C) Copyright 2012
  * Ilya Yanok <ilya.yanok@gmail.com>
  */
-#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <image.h>

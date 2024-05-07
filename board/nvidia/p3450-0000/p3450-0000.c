@@ -5,7 +5,6 @@
  *
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <i2c.h>
 #include <linux/bitops.h>

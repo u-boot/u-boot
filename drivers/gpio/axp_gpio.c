@@ -5,7 +5,6 @@
  * X-Powers AXP Power Management ICs gpio driver
  */
 
-#include <common.h>
 #include <asm/arch/pmic_bus.h>
 #include <asm/gpio.h>
 #include <axp_pmic.h>

@@ -4,7 +4,6 @@
  * Copyright (C) 2017, Grinn - http://grinn-global.com/
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk_synthesizer.h>

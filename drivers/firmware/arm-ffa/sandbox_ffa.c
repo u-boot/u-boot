@@ -5,7 +5,6 @@
  * Authors:
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
-#include <common.h>
 #include <arm_ffa.h>
 #include <dm.h>
 #include <log.h>

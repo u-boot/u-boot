@@ -5,7 +5,6 @@
  * liuhao  <liuhao@phytium.com.cn>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <event.h>

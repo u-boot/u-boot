@@ -3,7 +3,6 @@
  * Copyright 2018, 2021 NXP
  */
 
-#include <common.h>
 #include <clk.h>
 #include <cpu.h>
 #include <cpu_func.h>

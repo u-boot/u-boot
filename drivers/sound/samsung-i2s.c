@@ -4,11 +4,11 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2s.h>
 #include <log.h>
 #include <sound.h>
+#include <time.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/i2s-regs.h>

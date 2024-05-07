@@ -11,11 +11,11 @@
 
 #undef DEBUG
 
-#include <common.h>
 #include <config.h>
 #include <command.h>
 #include <log.h>
 #include <ubifs_uboot.h>
+#include <vsprintf.h>
 
 static int ubifs_initialized;
 static int ubifs_mounted;

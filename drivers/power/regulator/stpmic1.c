@@ -4,7 +4,6 @@
  * Author: Christophe Kerello <christophe.kerello@st.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <linux/delay.h>

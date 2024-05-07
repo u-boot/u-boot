@@ -18,7 +18,6 @@
  * Copyright 2010 Freescale Semiconductor
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <watchdog.h>

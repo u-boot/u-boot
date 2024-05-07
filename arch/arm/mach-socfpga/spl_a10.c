@@ -3,14 +3,13 @@
  *  Copyright (C) 2012-2021 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
-#include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <image.h>
 #include <asm/arch/reset_manager.h>

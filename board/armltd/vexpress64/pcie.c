@@ -5,7 +5,6 @@
  * Author: Liviu Dudau <Liviu.Dudau@arm.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/io.h>

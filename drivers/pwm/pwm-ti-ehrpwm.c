@@ -7,7 +7,6 @@
  * Based on Linux kernel drivers/pwm/pwm-tiehrpwm.c
  */
 
-#include <common.h>
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>

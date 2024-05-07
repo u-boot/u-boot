@@ -17,7 +17,6 @@
  * Copyright 2015 Konsulko Group, Matt Porter <mporter@konsulko.com>
  */
 
-#include <common.h>
 #include <command.h>
 
 /*

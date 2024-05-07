@@ -5,7 +5,6 @@
  * Copyright (C) 2019, IBM Corporation.
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <phy.h>

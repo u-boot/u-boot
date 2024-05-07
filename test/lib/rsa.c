@@ -6,7 +6,6 @@
  * Unit test for rsa_verify() function
  */
 
-#include <common.h>
 #include <command.h>
 #include <image.h>
 #include <test/lib.h>

@@ -11,7 +11,6 @@
 
 #define LOG_CATEGORY UCLASS_NORTHBRIDGE
 
-#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <log.h>

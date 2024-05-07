@@ -7,7 +7,6 @@
  * Michal SIMEK <monstr@monstr.eu>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <timer.h>
 #include <regmap.h>

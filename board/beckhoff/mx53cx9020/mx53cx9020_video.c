@@ -7,7 +7,6 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm/arch/iomux-mx53.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/video.h>

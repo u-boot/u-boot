@@ -5,7 +5,6 @@
  */
 
 #include <command.h>
-#include <common.h>
 #include <dm.h>
 #include <fuzzing_engine.h>
 #include <test/fuzz.h>

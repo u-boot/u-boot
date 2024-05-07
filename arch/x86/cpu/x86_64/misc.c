@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <init.h>
 
 DECLARE_GLOBAL_DATA_PTR;

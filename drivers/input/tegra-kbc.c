@@ -4,7 +4,6 @@
  *  NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <input.h>
@@ -13,6 +12,7 @@
 #include <log.h>
 #include <stdio_dev.h>
 #include <tegra-kbc.h>
+#include <time.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>

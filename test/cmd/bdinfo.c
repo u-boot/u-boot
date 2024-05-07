@@ -5,7 +5,6 @@
  * Copyright 2023 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
 
-#include <common.h>
 #include <console.h>
 #include <mapmem.h>
 #include <asm/global_data.h>

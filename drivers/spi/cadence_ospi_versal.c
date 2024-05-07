@@ -6,7 +6,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <memalign.h>
 #include <wait_bit.h>
 #include <asm/io.h>

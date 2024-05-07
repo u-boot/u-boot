@@ -7,7 +7,7 @@
  */
 
 
-#include <common.h>
+#include <config.h>
 #include <bootm.h>
 #include <bootstage.h>
 #include <cpu_func.h>

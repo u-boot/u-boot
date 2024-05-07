@@ -7,9 +7,9 @@
  * IO space access commands.
  */
 
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 
 /* Display values from last command */

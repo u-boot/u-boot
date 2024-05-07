@@ -4,7 +4,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <nand.h>
 
 /*

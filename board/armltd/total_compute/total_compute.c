@@ -4,7 +4,7 @@
  * Usama Arif <usama.arif@arm.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/armv8/mmu.h>

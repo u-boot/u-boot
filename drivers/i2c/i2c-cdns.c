@@ -7,7 +7,6 @@
  * with added driver-model support and code cleanup.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <linux/bitops.h>

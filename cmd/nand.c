@@ -23,7 +23,6 @@
  * only
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <image.h>
 #include <asm/cache.h>

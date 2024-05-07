@@ -11,7 +11,6 @@
 
 #define LOG_CATEGORY UCLASS_PCI_EP
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/global_data.h>

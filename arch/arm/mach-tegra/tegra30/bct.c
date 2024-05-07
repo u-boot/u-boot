@@ -4,9 +4,9 @@
  * Copyright (c) 2022, Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
+#include <vsprintf.h>
 #include <asm/arch-tegra/crypto.h>
 #include "bct.h"
 #include "uboot_aes.h"

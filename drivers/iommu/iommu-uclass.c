@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_IOMMU
 
-#include <common.h>
 #include <dm.h>
 #include <iommu.h>
 #include <malloc.h>

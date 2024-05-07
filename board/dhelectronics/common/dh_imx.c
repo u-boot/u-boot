@@ -4,9 +4,9 @@
  * Copyright 2022 DENX Software Engineering GmbH, Philip Oberfichtner <pro@denx.de>
  */
 
+#include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <common.h>
 #include <net.h>
 #include "dh_imx.h"
 

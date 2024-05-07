@@ -4,7 +4,6 @@
  * Subodh Nijsure, SkyStream Networks, snijsure@skystream.com
  */
 
-#include <common.h>
 #include <command.h>
 #include <asm/ppc.h>
 

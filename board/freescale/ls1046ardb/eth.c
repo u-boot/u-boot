@@ -2,7 +2,7 @@
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
  */
-#include <common.h>
+#include <config.h>
 #include <fdt_support.h>
 #include <net.h>
 #include <asm/io.h>

@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_CPU
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>

@@ -6,7 +6,6 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <fdtdec.h>

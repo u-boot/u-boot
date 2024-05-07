@@ -7,7 +7,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <asm/global_data.h>
 #include "asm/m5282.h"

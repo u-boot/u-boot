@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Philippe Reynes <philippe.reynes@softathome.com>
  */
 
-#include <common.h>
 #include <net.h>
 #include <net/udp.h>
 

@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Marvell International Ltd.
  */
 
-#include <common.h>
 #include <asm/arch-armada8k/cache_llc.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

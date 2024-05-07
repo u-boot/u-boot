@@ -6,7 +6,6 @@
  * Part of this source has been derived from the Linux USB
  * project.
  */
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <env.h>
@@ -15,6 +14,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <stdio_dev.h>
+#include <time.h>
 #include <watchdog.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SANDBOX

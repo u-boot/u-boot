@@ -3,7 +3,7 @@
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/arch/fsl_serdes.h>
 
 struct serdes_config {

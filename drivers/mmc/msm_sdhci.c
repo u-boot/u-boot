@@ -7,7 +7,6 @@
  * Based on Linux driver
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

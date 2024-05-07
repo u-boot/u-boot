@@ -1,4 +1,3 @@
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <malloc.h>

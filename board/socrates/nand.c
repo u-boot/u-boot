@@ -4,7 +4,7 @@
  * Sergei Poselenov, Emcraft Systems, sposelenov@emcraft.com.
  */
 
-#include <common.h>
+#include <config.h>
 
 #if defined(CFG_SYS_NAND_BASE)
 #include <nand.h>

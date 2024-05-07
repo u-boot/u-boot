@@ -9,7 +9,6 @@
 #include <asm/armv7.h>
 #include <asm/pl310.h>
 #include <config.h>
-#include <common.h>
 
 struct pl310_regs *const pl310 = (struct pl310_regs *)CFG_SYS_PL310_BASE;
 

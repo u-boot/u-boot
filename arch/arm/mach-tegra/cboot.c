@@ -3,7 +3,6 @@
  * Copyright (c) 2016-2018, NVIDIA CORPORATION.
  */
 
-#include <common.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <fdtdec.h>

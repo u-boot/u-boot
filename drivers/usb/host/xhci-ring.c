@@ -13,7 +13,6 @@
  *	    Vikas Sajjan <vikas.sajjan@samsung.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/byteorder.h>

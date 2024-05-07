@@ -8,12 +8,10 @@
  * FAT Image Functions copied from spl_mmc.c
  */
 
-#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <spl.h>
 #include <spl_load.h>
-#include <asm/u-boot.h>
 #include <fat.h>
 #include <errno.h>
 #include <image.h>

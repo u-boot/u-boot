@@ -15,7 +15,6 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/system.h>
-#include <asm/u-boot.h>
 #include <dm/lists.h>
 #include <dm/util.h>
 #include <linux/bitops.h>

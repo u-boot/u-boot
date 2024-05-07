@@ -6,7 +6,6 @@
  * Copyright (c) 2017 Google, Inc
  */
 
-#include <common.h>
 #include <log.h>
 #include <linux/bug.h>
 #include <linux/libfdt.h>

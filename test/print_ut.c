@@ -3,7 +3,6 @@
  * Copyright (c) 2012, The Chromium Authors
  */
 
-#include <common.h>
 #include <command.h>
 #include <efi_api.h>
 #include <display_options.h>

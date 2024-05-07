@@ -4,7 +4,6 @@
  * Arthur Li <arthur.li@cortina-access.com>
  */
 
-#include <common.h>
 #include <dwmmc.h>
 #include <fdtdec.h>
 #include <asm/global_data.h>

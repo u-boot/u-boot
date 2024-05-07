@@ -7,7 +7,6 @@
 #define LOG_CATEGORY UCLASS_REMOTEPROC
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
-#include <common.h>
 #include <elf.h>
 #include <errno.h>
 #include <log.h>

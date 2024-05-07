@@ -3,7 +3,6 @@
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <fastboot.h>
 #include <init.h>

@@ -11,7 +11,6 @@
  */
 
 #include <asm/io.h>
-#include <common.h>
 #include <command.h>
 #include <fsl_sec.h>
 

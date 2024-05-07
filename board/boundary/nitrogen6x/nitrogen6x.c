@@ -4,7 +4,6 @@
  * Copyright (C) 2013, Boundary Devices <info@boundarydevices.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <init.h>

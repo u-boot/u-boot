@@ -4,7 +4,7 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <gsc.h>
 #include <hang.h>

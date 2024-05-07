@@ -6,7 +6,6 @@
  * (C) Copyright 2019 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <env_internal.h>
 #include <malloc.h>
 #include <asm/e820.h>

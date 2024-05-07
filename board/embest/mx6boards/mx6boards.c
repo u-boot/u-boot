@@ -12,7 +12,6 @@
  * Copyright (C) 2013 Jon Nettleton <jon.nettleton@gmail.com>.
  */
 
-#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/clock.h>

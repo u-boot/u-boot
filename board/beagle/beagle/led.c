@@ -3,7 +3,6 @@
  * Copyright (c) 2010 Texas Instruments, Inc.
  * Jason Kridner <jkridner@beagleboard.org>
  */
-#include <common.h>
 #include <status_led.h>
 #include <asm/arch/cpu.h>
 #include <asm/io.h>

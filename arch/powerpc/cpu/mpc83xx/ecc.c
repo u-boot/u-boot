@@ -6,7 +6,6 @@
  * based on the contribution of Marian Balakowicz <m8@semihalf.com>
  */
 
-#include <common.h>
 #include <irq_func.h>
 #include <mpc83xx.h>
 #include <command.h>

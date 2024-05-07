@@ -15,7 +15,7 @@
  * DENX Software Engineering GmbH
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <init.h>
 #include <net.h>

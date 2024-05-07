@@ -8,7 +8,6 @@
  * Loosely based on Linux kernel ti_sci_pm_domains.c...
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

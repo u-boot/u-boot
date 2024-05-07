@@ -15,7 +15,6 @@
 
 #define LOG_CATEGORY UCLASS_CROS_EC
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <i2c.h>
@@ -24,6 +23,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <spi.h>
+#include <time.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <asm/io.h>

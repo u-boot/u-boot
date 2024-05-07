@@ -6,6 +6,7 @@
 #ifndef __ARCH_FSL_LSCH2_IMMAP_H__
 #define __ARCH_FSL_LSCH2_IMMAP_H__
 
+#include <config.h>
 #include <fsl_immap.h>
 #ifndef __ASSEMBLY__
 #include <linux/bitops.h>

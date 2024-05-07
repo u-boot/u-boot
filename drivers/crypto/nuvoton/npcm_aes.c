@@ -3,13 +3,13 @@
  * Copyright (c) 2021 Nuvoton Technology Corp.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <uboot_aes.h>
 #include <asm/io.h>
 #include <asm/arch/aes.h>
 #include <asm/arch/otp.h>
 #include <malloc.h>
+#include <time.h>
 
 #define ONE_SECOND 0xC00000
 

@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY LOGC_BOARD
 
-#include <common.h>
 #include <adc.h>
 #include <bootm.h>
 #include <button.h>

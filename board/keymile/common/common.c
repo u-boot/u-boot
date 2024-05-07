@@ -7,7 +7,7 @@
  * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <ioports.h>
 #include <command.h>

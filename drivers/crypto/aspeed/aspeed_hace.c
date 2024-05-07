@@ -3,7 +3,6 @@
  * Copyright 2021 ASPEED Technology Inc.
  */
 #include <config.h>
-#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <log.h>

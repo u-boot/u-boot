@@ -7,7 +7,6 @@
  * Author: PengPeng Chen <pengpeng.chen@cortina-access.com>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <clk.h>
 #include <dm.h>

@@ -7,7 +7,6 @@
  * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-bindings/clk/at91.h>

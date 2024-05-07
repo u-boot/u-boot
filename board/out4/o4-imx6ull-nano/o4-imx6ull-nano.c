@@ -5,7 +5,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <common.h>
 #include <env.h>
 
 DECLARE_GLOBAL_DATA_PTR;

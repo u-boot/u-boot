@@ -835,7 +835,6 @@ class DtbPlatdata():
 
     def generate_uclasses(self):
         self.out('\n')
-        self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
         self.out('\n')
@@ -1059,7 +1058,6 @@ class DtbPlatdata():
         self.out('/* Allow use of U_BOOT_DRVINFO() in this file */\n')
         self.out('#define DT_PLAT_C\n')
         self.out('\n')
-        self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
         self.out('\n')
@@ -1092,7 +1090,6 @@ class DtbPlatdata():
         See the documentation in doc/driver-model/of-plat.rst for more
         information.
         """
-        self.out('#include <common.h>\n')
         self.out('#include <dm.h>\n')
         self.out('#include <dt-structs.h>\n')
         self.out('\n')

@@ -4,10 +4,11 @@
  * Köry Maincent, Bootlin, <kory.maincent@bootlin.com>
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <malloc.h>
 #include <i2c.h>
 #include <extension_board.h>
+#include <vsprintf.h>
 
 #include "cape_detect.h"
 

@@ -5,7 +5,6 @@
  * Copyright (C) 2019 SiFive, Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/arch/gpio.h>
 #include <asm/io.h>

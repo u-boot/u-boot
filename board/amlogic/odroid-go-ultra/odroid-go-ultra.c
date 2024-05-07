@@ -3,7 +3,7 @@
  * Copyright (C) 2023 Neil Armstrong <neil.armstrong@linaro.org>
  */
 
-#include <common.h>
+#include <log.h>
 #include <asm/arch/boot.h>
 #include <power/regulator.h>
 

@@ -25,7 +25,6 @@
  *
  * For each transfer (except "Interrupt") we wait for completion.
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <dm/device_compat.h>

@@ -8,7 +8,6 @@
  * author: Lukasz Majewski <l.majewski@samsung.com>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <errno.h>

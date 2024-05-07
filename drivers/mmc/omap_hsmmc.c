@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>
@@ -577,7 +576,7 @@ static uint32_t omap_hsmmc_set_capabilities(struct mmc *mmc)
 	return val;
 }
 
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static void omap_hsmmc_disable_tuning(struct mmc *mmc)
 {
 	struct hsmmc *mmc_base;
@@ -1518,7 +1517,7 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 	.get_cd		= omap_hsmmc_getcd,
 	.get_wp		= omap_hsmmc_getwp,
 #endif
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
 	.wait_dat0	= omap_hsmmc_wait_dat0,

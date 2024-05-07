@@ -4,7 +4,6 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <video_osd.h>

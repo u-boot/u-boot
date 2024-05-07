@@ -17,7 +17,6 @@
  * Right now first 1KiB is used to store only serial number.
  */
 
-#include <common.h>
 #include <dm/device.h>
 #include <dm/read.h>
 #include <linux/bitops.h>

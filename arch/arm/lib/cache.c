@@ -6,7 +6,7 @@
 
 /* for now: just dummy functions to satisfy the linker */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>

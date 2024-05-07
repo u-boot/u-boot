@@ -4,9 +4,9 @@
  *
  */
 
+#include <vsprintf.h>
 #include <asm/arch/secure_vab.h>
 #include <command.h>
-#include <common.h>
 #include <linux/ctype.h>
 
 static int do_vab(struct cmd_tbl *cmdtp, int flag, int argc,

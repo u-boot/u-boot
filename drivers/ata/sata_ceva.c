@@ -3,7 +3,6 @@
  * (C) Copyright 2015 - 2016 Xilinx, Inc.
  * Michal Simek <michal.simek@amd.com>
  */
-#include <common.h>
 #include <dm.h>
 #include <ahci.h>
 #include <generic-phy.h>

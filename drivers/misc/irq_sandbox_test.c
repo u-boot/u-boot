@@ -5,7 +5,6 @@
  * Copyright 2021 Google LLC
  */
 
-#include <common.h>
 #include <dm.h>
 #include <irq.h>
 #include <asm/irq.h>

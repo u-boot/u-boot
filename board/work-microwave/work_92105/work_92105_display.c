@@ -10,7 +10,6 @@
  * MAX518 I2C DACs and native LPC32xx GPO 15.
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <asm/arch/sys_proto.h>

@@ -6,7 +6,6 @@
  * Author: Igor Prusov <ivprusov@sberdevices.ru>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/gpio/meson-a1-gpio.h>

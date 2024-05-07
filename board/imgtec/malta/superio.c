@@ -6,7 +6,6 @@
  * Setup code for the FDC37M817 super I/O controller
  */
 
-#include <common.h>
 #include <asm/io.h>
 
 #define SIO_CONF_PORT		0x3f0

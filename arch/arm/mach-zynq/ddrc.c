@@ -4,7 +4,7 @@
  * Copyright (C) 2012 - 2017 Xilinx, Inc. All rights reserved.
  */
 
-#include <common.h>
+#include <linux/string.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>

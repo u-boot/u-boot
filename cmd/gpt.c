@@ -10,7 +10,6 @@
  * author: Piotr Wilczek <p.wilczek@samsung.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <env.h>
 #include <log.h>

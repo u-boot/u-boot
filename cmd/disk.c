@@ -3,7 +3,6 @@
  * (C) Copyright 2000-2011
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
-#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>

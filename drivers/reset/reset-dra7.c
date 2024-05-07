@@ -7,7 +7,6 @@
  */
 
 #include <asm/io.h>
-#include <common.h>
 #include <dm.h>
 #include <reset-uclass.h>
 #include <dm/device_compat.h>

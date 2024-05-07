@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY UCLASS_DSI_HOST
 
-#include <common.h>
 #include <dm.h>
 #include <dsi_host.h>
 

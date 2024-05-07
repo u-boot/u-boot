@@ -3,7 +3,6 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
@@ -13,6 +12,7 @@
 #include <fb_nand.h>
 #include <part.h>
 #include <stdlib.h>
+#include <vsprintf.h>
 #include <linux/printk.h>
 
 /**

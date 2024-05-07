@@ -4,7 +4,6 @@
  *  Jaehoon Chung <jh80.chung@samsung.com>
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>

@@ -7,7 +7,7 @@
  * Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>

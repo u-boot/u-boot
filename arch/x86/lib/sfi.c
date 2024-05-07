@@ -12,7 +12,6 @@
  * See https://simplefirmware.org/ for details
  */
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <asm/cpu.h>

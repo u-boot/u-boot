@@ -6,7 +6,6 @@
  * Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm/root.h>
 #include <dm/util.h>

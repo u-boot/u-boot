@@ -3,7 +3,8 @@
  * (C) Copyright 2015
  * Texas Instruments Incorporated - https://www.ti.com/
  */
-#include <common.h>
+
+#include <config.h>
 #include <dm.h>
 #include <elf.h>
 #include <errno.h>

@@ -6,7 +6,6 @@
  * Modified from coreboot src/soc/intel/gma/opregion.c
  */
 
-#include <common.h>
 #include <binman.h>
 #include <bloblist.h>
 #include <dm.h>

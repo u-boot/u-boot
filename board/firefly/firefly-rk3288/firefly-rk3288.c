@@ -3,7 +3,6 @@
  * (C) Copyright 2015 Google, Inc
  */
 
-#include <common.h>
 #include <hang.h>
 #include <led.h>
 #include <log.h>

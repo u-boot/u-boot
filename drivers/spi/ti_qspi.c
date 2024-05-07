@@ -5,7 +5,6 @@
  * Copyright (C) 2013, Texas Instruments, Incorporated
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/cache.h>

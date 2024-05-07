@@ -22,7 +22,6 @@
  * this stuff is worth it, you can buy me a beer in return.
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <log.h>

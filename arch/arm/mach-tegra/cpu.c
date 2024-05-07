@@ -3,7 +3,6 @@
  * Copyright (c) 2010-2019, NVIDIA CORPORATION.  All rights reserved.
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

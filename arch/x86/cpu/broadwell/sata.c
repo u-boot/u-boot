@@ -5,7 +5,6 @@
  * From coreboot src/soc/intel/broadwell/sata.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/global_data.h>

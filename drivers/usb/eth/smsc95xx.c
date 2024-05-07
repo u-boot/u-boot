@@ -6,7 +6,6 @@
  * Copyright (C) 2007-2008 SMSC (Steve Glendinning)
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

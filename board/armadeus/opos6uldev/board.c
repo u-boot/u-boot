@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Armadeus Systems
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>

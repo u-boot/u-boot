@@ -8,6 +8,9 @@
 #ifndef _COREBOOT_TABLES_H
 #define _COREBOOT_TABLES_H
 
+#include <linux/kernel.h>
+#include <linux/types.h>
+
 struct timestamp_entry {
 	u32	entry_id;
 	u64	entry_stamp;

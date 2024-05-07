@@ -7,7 +7,6 @@
  *
  * Copyright (C) 2004-2011 Freescale Semiconductor, Inc.
  */
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/iomux-v3.h>

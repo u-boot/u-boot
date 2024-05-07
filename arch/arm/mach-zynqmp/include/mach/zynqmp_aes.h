@@ -9,6 +9,8 @@
 #ifndef ZYNQMP_AES_H
 #define ZYNQMP_AES_H
 
+#include <linux/types.h>
+
 struct zynqmp_aes {
 	u64 srcaddr;
 	u64 ivaddr;

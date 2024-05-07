@@ -5,7 +5,6 @@
  * Author: Alexey Romanov <avromanov@salutedevices.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <sm.h>
 #include <sandbox-sm.h>

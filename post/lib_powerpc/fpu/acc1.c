@@ -7,7 +7,7 @@
  * This file is originally a part of the GCC testsuite.
  */
 
-#include <common.h>
+#include <config.h>
 
 #include <post.h>
 

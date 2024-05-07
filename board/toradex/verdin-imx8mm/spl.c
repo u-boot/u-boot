@@ -3,7 +3,6 @@
  * Copyright 2020 Toradex
  */
 
-#include <common.h>
 #include <command.h>
 #include <image.h>
 #include <init.h>

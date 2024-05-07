@@ -9,6 +9,7 @@
 
 #include <linux/types.h>
 #include <asm/regdef.h>
+#include <asm/u-boot.h>
 
 struct octeon_eeprom_mac_addr {
 	u8 mac_addr_base[6];
