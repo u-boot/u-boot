@@ -118,17 +118,6 @@ phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
 
 /**
- * lmb_is_reserved() - test if address is in reserved region
- *
- * The function checks if a reserved region comprising @addr exists.
- *
- * @lmb:	the logical memory block struct
- * @addr:	address to be tested
- * Return:	1 if reservation exists, 0 otherwise
- */
-int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr);
-
-/**
  * lmb_is_reserved_flags() - test if address is in reserved region with flag bits set
  *
  * The function checks if a reserved region comprising @addr exists which has
