@@ -249,14 +249,6 @@ void lmb_add_memory(struct bd_info *bd)
 	}
 }
 
-/* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
-				void *fdt_blob)
-{
-	lmb_add(base, size);
-	lmb_reserve_common(fdt_blob);
-}
-
 static bool lmb_region_flags_match(struct lmb_region *rgn, unsigned long r1,
 				   enum lmb_flags flags)
 {

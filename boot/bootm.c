@@ -239,18 +239,7 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(LMB)
-static void boot_start_lmb(void)
-{
-	phys_addr_t	mem_start;
-	phys_size_t	mem_size;
-
-	mem_start = env_get_bootm_low();
-	mem_size = env_get_bootm_size();
-
-	lmb_init_and_reserve_range(mem_start, mem_size, NULL);
-}
-#else
+#if !CONFIG_IS_ENABLED(LMB)
 #define lmb_reserve(base, size)
 static inline void boot_start_lmb(void) { }
 #endif
@@ -259,8 +248,6 @@ static int bootm_start(void)
 {
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
-
-	boot_start_lmb();
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_START, "bootm_start");
 	images.state = BOOTM_STATE_START;
