@@ -714,7 +714,7 @@ static int tftp_init_load_addr(void)
 #ifdef CONFIG_LMB
 	phys_size_t max_size;
 
-	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
+	lmb_add_memory(gd->bd);
 
 	max_size = lmb_get_free_size(image_load_addr);
 	if (!max_size)
