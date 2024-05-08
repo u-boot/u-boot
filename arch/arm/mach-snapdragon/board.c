@@ -282,7 +282,7 @@ int board_late_init(void)
 {
 	u32 status = 0;
 
-	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
+	lmb_add_memory(gd->bd);
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
 	status |= env_set_hex("kernel_addr_r", addr_alloc(SZ_128M));
