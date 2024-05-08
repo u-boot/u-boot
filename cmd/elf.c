@@ -89,7 +89,7 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		printf("## Setting up FDT at 0x%08lx ...\n", fdt_addr);
 		flush();
 
-		if (image_setup_libfdt(&img, (void *)fdt_addr, NULL))
+		if (image_setup_libfdt(&img, (void *)fdt_addr, 0))
 			return 1;
 	}
 #endif
