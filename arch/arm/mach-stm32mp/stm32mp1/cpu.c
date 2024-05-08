@@ -31,8 +31,6 @@
  */
 u8 early_tlb[PGTABLE_SIZE] __section(".data") __aligned(0x4000);
 
-struct lmb lmb;
-
 u32 get_bootmode(void)
 {
 	/* read bootmode from TAMP backup register */
@@ -81,7 +79,7 @@ void dram_bank_mmu_setup(int bank)
 	     i < (start >> MMU_SECTION_SHIFT) + (size >> MMU_SECTION_SHIFT);
 	     i++) {
 		option = DCACHE_DEFAULT_OPTION;
-		if (use_lmb && lmb_is_reserved_flags(&lmb, i << MMU_SECTION_SHIFT, LMB_NOMAP))
+		if (use_lmb && lmb_is_reserved_flags(i << MMU_SECTION_SHIFT, LMB_NOMAP))
 			option = 0; /* INVALID ENTRY in TLB */
 		set_section_dcache(i, option);
 	}
@@ -145,7 +143,7 @@ int mach_cpu_init(void)
 void enable_caches(void)
 {
 	/* parse device tree when data cache is still activated */
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
 
 	/* I-cache is already enabled in start.S: icache_enable() not needed */
 
