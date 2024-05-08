@@ -567,8 +567,7 @@ __weak int arch_fixup_fdt(void *blob)
 	return 0;
 }
 
-int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       struct lmb *lmb)
+int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 {
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
@@ -668,7 +667,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 	}
 
 	/* Delete the old LMB reservation */
-	if (lmb)
+	if (CONFIG_IS_ENABLED(LMB) && lmb)
 		lmb_free(map_to_sysmem(blob), fdt_totalsize(blob));
 
 	ret = fdt_shrink_to_minimum(blob, 0);
@@ -677,7 +676,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob,
 	of_size = ret;
 
 	/* Create a new LMB reservation */
-	if (lmb)
+	if (CONFIG_IS_ENABLED(LMB) && lmb)
 		lmb_reserve(map_to_sysmem(blob), of_size);
 
 #if defined(CONFIG_ARCH_KEYSTONE)
