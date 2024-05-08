@@ -248,7 +248,7 @@ static void boot_start_lmb(void)
 	mem_start = env_get_bootm_low();
 	mem_size = env_get_bootm_size();
 
-	lmb_init_and_reserve_range(mem_start, mem_size, NULL);
+	lmb_add(mem_start, mem_size);
 }
 #else
 #define lmb_reserve(base, size)
