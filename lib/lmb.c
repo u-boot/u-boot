@@ -216,7 +216,19 @@ static __maybe_unused int efi_lmb_reserve(void)
 	return 0;
 }
 
-static void lmb_reserve_common(void *fdt_blob)
+/**
+ * lmb_reserve_common() - Reserve memory region occupied by U-Boot image
+ * @fdt_blob: pointer to the FDT blob
+ *
+ * Reserve common areas of memory that are occupied by the U-Boot image.
+ * This function gets called once U-Boot has been relocated, so that any
+ * request for memory allocations would not touch memory region occupied
+ * by the U-Boot image, heap, bss etc.
+ *
+ * Return: None
+ *
+ */
+void lmb_reserve_common(void *fdt_blob)
 {
 	arch_lmb_reserve();
 	board_lmb_reserve();
