@@ -288,7 +288,6 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 	/* check if a variable exists */
 	var = efi_var_mem_find(vendor, variable_name, NULL);
 	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
-	attributes &= ~EFI_VARIABLE_APPEND_WRITE;
 	delete = !append && (!data_size || !attributes);
 
 	/* check attributes */
@@ -304,7 +303,7 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 
 		/* attributes won't be changed */
 		if (!delete &&
-		    ((ro_check && var->attr != attributes) ||
+		    ((ro_check && var->attr != (attributes & ~EFI_VARIABLE_APPEND_WRITE)) ||
 		     (!ro_check && ((var->attr & ~EFI_VARIABLE_READ_ONLY)
 				    != (attributes & ~EFI_VARIABLE_READ_ONLY))))) {
 			return EFI_INVALID_PARAMETER;
@@ -378,7 +377,8 @@ efi_status_t efi_set_variable_int(const u16 *variable_name,
 		for (; *old_data; ++old_data)
 			;
 		++old_data;
-		ret = efi_var_mem_ins(variable_name, vendor, attributes,
+		ret = efi_var_mem_ins(variable_name, vendor,
+				      attributes & ~EFI_VARIABLE_APPEND_WRITE,
 				      var->length, old_data, data_size, data,
 				      time);
 	} else {
