@@ -114,14 +114,6 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 		end = base + size - 1;
 		flags = rgn->region[i].flags;
 
-		/*
-		 * this entry includes the stack (get_sp()) on many platforms
-		 * so will different each time lmb_init_and_reserve() is called.
-		 * We could instead have the bdinfo command put its lmb region
-		 * in a known location, so we can check it directly, rather than
-		 * calling lmb_init_and_reserve() to create a new (and hopefully
-		 * identical one). But for now this seems good enough.
-		 */
 		if (!IS_ENABLED(CONFIG_SANDBOX) && i == 3) {
 			ut_assert_nextlinen(" %s[%d]\t[", name, i);
 			continue;
@@ -201,7 +193,7 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
 		struct lmb lmb;
 
-		lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
+		lmb_add_memory(gd->bd);
 		ut_assertok(lmb_test_dump_all(uts, &lmb));
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
