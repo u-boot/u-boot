@@ -22,6 +22,7 @@
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <lmb.h>
 #include <log.h>
 #include <net.h>
 #include <asm/cache.h>
@@ -555,6 +556,15 @@ static int run_main_loop(void)
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
+static int initr_lmb(void)
+{
+	lmb_reserve_common((void *)gd->fdt_blob);
+
+	return 0;
+}
+#endif
+
 /*
  * Over time we hope to remove these functions with code fragments and
  * stub functions, and instead call the relevant function directly.
@@ -568,6 +578,9 @@ static init_fnc_t init_sequence_r[] = {
 	initr_trace,
 	initr_reloc,
 	event_init,
+#if defined(CONFIG_LMB)
+	initr_lmb,
+#endif
 	/* TODO: could x86/PPC have this also perhaps? */
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	initr_caches,
