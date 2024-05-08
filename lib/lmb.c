@@ -58,17 +58,17 @@ static void lmb_dump_region(struct lmb_region *rgn, char *name)
 	}
 }
 
-void lmb_dump_all_force(struct lmb *lmb)
+void lmb_dump_all_force(void)
 {
 	printf("lmb_dump_all:\n");
 	lmb_dump_region(&lmb.memory, "memory");
 	lmb_dump_region(&lmb.reserved, "reserved");
 }
 
-void lmb_dump_all(struct lmb *lmb)
+void lmb_dump_all(void)
 {
 #ifdef DEBUG
-	lmb_dump_all_force(lmb);
+	lmb_dump_all_force();
 #endif
 }
 
@@ -149,7 +149,7 @@ static void lmb_fix_over_lap_regions(struct lmb_region *rgn, unsigned long r1,
 	lmb_remove_region(rgn, r2);
 }
 
-void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
+void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
 {
 	ulong bank_end;
 	int bank;
@@ -175,10 +175,10 @@ void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve(lmb, sp, bank_end - sp + 1);
+		lmb_reserve(sp, bank_end - sp + 1);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve(lmb, (phys_addr_t)(uintptr_t)_start, gd->mon_len);
+			lmb_reserve((phys_addr_t)(uintptr_t)_start, gd->mon_len);
 
 		break;
 	}
@@ -190,10 +190,9 @@ void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
  * Add reservations for all EFI memory areas that are not
  * EFI_CONVENTIONAL_MEMORY.
  *
- * @lmb:	lmb environment
  * Return:	0 on success, 1 on failure
  */
-static __maybe_unused int efi_lmb_reserve(struct lmb *lmb)
+static __maybe_unused int efi_lmb_reserve(void)
 {
 	struct efi_mem_desc *memmap = NULL, *map;
 	efi_uintn_t i, map_size = 0;
@@ -205,8 +204,7 @@ static __maybe_unused int efi_lmb_reserve(struct lmb *lmb)
 
 	for (i = 0, map = memmap; i < map_size / sizeof(*map); ++map, ++i) {
 		if (map->type != EFI_CONVENTIONAL_MEMORY) {
-			lmb_reserve_flags(lmb,
-					  map_to_sysmem((void *)(uintptr_t)
+			lmb_reserve_flags(map_to_sysmem((void *)(uintptr_t)
 							map->physical_start),
 					  map->num_pages * EFI_PAGE_SIZE,
 					  map->type == EFI_RESERVED_MEMORY_TYPE
@@ -218,39 +216,37 @@ static __maybe_unused int efi_lmb_reserve(struct lmb *lmb)
 	return 0;
 }
 
-static void lmb_reserve_common(struct lmb *lmb, void *fdt_blob)
+static void lmb_reserve_common(void *fdt_blob)
 {
-	arch_lmb_reserve(lmb);
-	board_lmb_reserve(lmb);
+	arch_lmb_reserve();
+	board_lmb_reserve();
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
-		boot_fdt_add_mem_rsv_regions(lmb, fdt_blob);
+		boot_fdt_add_mem_rsv_regions(fdt_blob);
 
 	if (CONFIG_IS_ENABLED(EFI_LOADER))
-		efi_lmb_reserve(lmb);
+		efi_lmb_reserve();
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
+void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob)
 {
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (bd->bi_dram[i].size) {
-			lmb_add(lmb, bd->bi_dram[i].start,
-				bd->bi_dram[i].size);
-		}
+		if (bd->bi_dram[i].size)
+			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
 	}
 
-	lmb_reserve_common(lmb, fdt_blob);
+	lmb_reserve_common(fdt_blob);
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
-				phys_size_t size, void *fdt_blob)
+void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
+				void *fdt_blob)
 {
-	lmb_add(lmb, base, size);
-	lmb_reserve_common(lmb, fdt_blob);
+	lmb_add(base, size);
+	lmb_reserve_common(fdt_blob);
 }
 
 /* This routine called with relocation disabled. */
@@ -351,14 +347,14 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base,
 }
 
 /* This routine may be called with relocation disabled. */
-long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+long lmb_add(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *_rgn = &lmb.memory;
 
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+long lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &lmb.reserved;
 	phys_addr_t rgnbegin, rgnend;
@@ -408,17 +404,16 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 				    rgn->region[i].flags);
 }
 
-long lmb_reserve_flags(struct lmb *lmb, phys_addr_t base, phys_size_t size,
-		       enum lmb_flags flags)
+long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
 	struct lmb_region *_rgn = &lmb.reserved;
 
 	return lmb_add_region_flags(_rgn, base, size, flags);
 }
 
-long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+long lmb_reserve(phys_addr_t base, phys_size_t size)
 {
-	return lmb_reserve_flags(lmb, base, size, LMB_NONE);
+	return lmb_reserve_flags(base, size, LMB_NONE);
 }
 
 static long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
@@ -441,8 +436,8 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
-static phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size,
-				    ulong align, phys_addr_t max_addr)
+static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
+				    phys_addr_t max_addr)
 {
 	long i, rgn;
 	phys_addr_t base = 0;
@@ -483,16 +478,16 @@ static phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size,
 	return 0;
 }
 
-phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align)
+phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 {
-	return lmb_alloc_base(lmb, size, align, LMB_ALLOC_ANYWHERE);
+	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
 }
 
-phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
+phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	phys_addr_t alloc;
 
-	alloc = __lmb_alloc_base(lmb, size, align, max_addr);
+	alloc = __lmb_alloc_base(size, align, max_addr);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -505,7 +500,7 @@ phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_
  * Try to allocate a specific address range: must be in defined memory but not
  * reserved
  */
-phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 {
 	long rgn;
 
@@ -520,7 +515,7 @@ phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 				      lmb.memory.region[rgn].size,
 				      base + size - 1, 1)) {
 			/* ok, reserve the memory */
-			if (lmb_reserve(lmb, base, size) >= 0)
+			if (lmb_reserve(base, size) >= 0)
 				return base;
 		}
 	}
@@ -528,7 +523,7 @@ phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 }
 
 /* Return number of bytes from a given address that are free */
-phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr)
+phys_size_t lmb_get_free_size(phys_addr_t addr)
 {
 	int i;
 	long rgn;
@@ -554,7 +549,7 @@ phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr)
 	return 0;
 }
 
-int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags)
+int lmb_is_reserved_flags(phys_addr_t addr, int flags)
 {
 	int i;
 
@@ -567,12 +562,12 @@ int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags)
 	return 0;
 }
 
-__weak void board_lmb_reserve(struct lmb *lmb)
+__weak void board_lmb_reserve(void)
 {
 	/* please define platform specific board_lmb_reserve() */
 }
 
-__weak void arch_lmb_reserve(struct lmb *lmb)
+__weak void arch_lmb_reserve(void)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }

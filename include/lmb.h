@@ -84,27 +84,25 @@ struct lmb {
 	struct lmb_region reserved;
 };
 
-void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob);
-void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
-				phys_size_t size, void *fdt_blob);
-long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);
-long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob);
+void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
+				void *fdt_blob);
+long lmb_add(phys_addr_t base, phys_size_t size);
+long lmb_reserve(phys_addr_t base, phys_size_t size);
 /**
  * lmb_reserve_flags - Reserve one region with a specific flags bitfield.
  *
- * @lmb:	the logical memory block struct
  * @base:	base address of the memory region
  * @size:	size of the memory region
  * @flags:	flags for the memory region
  * Return:	0 if OK, > 0 for coalesced region or a negative error code.
  */
-long lmb_reserve_flags(struct lmb *lmb, phys_addr_t base,
-		       phys_size_t size, enum lmb_flags flags);
-phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
-phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
-			   phys_addr_t max_addr);
-phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size);
-phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
+long lmb_reserve_flags(phys_addr_t base, phys_size_t size,
+		       enum lmb_flags flags);
+phys_addr_t lmb_alloc(phys_size_t size, ulong align);
+phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size);
+phys_size_t lmb_get_free_size(phys_addr_t addr);
 
 /**
  * lmb_is_reserved_flags() - test if address is in reserved region with flag bits set
@@ -112,21 +110,20 @@ phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
  * The function checks if a reserved region comprising @addr exists which has
  * all flag bits set which are set in @flags.
  *
- * @lmb:	the logical memory block struct
  * @addr:	address to be tested
  * @flags:	bitmap with bits to be tested
  * Return:	1 if matching reservation exists, 0 otherwise
  */
-int lmb_is_reserved_flags(struct lmb *lmb, phys_addr_t addr, int flags);
+int lmb_is_reserved_flags(phys_addr_t addr, int flags);
 
-long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size);
+long lmb_free(phys_addr_t base, phys_size_t size);
 
-void lmb_dump_all(struct lmb *lmb);
-void lmb_dump_all_force(struct lmb *lmb);
+void lmb_dump_all(void);
+void lmb_dump_all_force(void);
 
-void board_lmb_reserve(struct lmb *lmb);
-void arch_lmb_reserve(struct lmb *lmb);
-void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align);
+void board_lmb_reserve(void);
+void arch_lmb_reserve(void);
+void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
 
 #endif /* __KERNEL__ */
 
