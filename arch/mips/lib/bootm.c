@@ -247,7 +247,7 @@ static int boot_setup_fdt(struct bootm_headers *images)
 	images->initrd_start = virt_to_phys((void *)images->initrd_start);
 	images->initrd_end = virt_to_phys((void *)images->initrd_end);
 
-	return image_setup_libfdt(images, images->ft_addr, &images->lmb);
+	return image_setup_libfdt(images, images->ft_addr, 0);
 }
 
 static void boot_prep_linux(struct bootm_headers *images)
