@@ -1018,11 +1018,10 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
  *
  * @images:	Images information
  * @blob:	FDT to update
- * @lmb:	Points to logical memory block structure
+ * @lmb:	Flag indicating use of lmb for reserving FDT memory region
  * Return: 0 if ok, <0 on failure
  */
-int image_setup_libfdt(struct bootm_headers *images, void *blob,
-		       struct lmb *lmb);
+int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb);
 
 /**
  * Set up the FDT to use for booting a kernel
