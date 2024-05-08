@@ -253,14 +253,6 @@ void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob)
 	lmb_reserve_common(fdt_blob);
 }
 
-/* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
-				void *fdt_blob)
-{
-	lmb_add(base, size);
-	lmb_reserve_common(fdt_blob);
-}
-
 /* This routine called with relocation disabled. */
 static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 				 phys_size_t size, enum lmb_flags flags)
