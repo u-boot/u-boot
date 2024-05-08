@@ -37,9 +37,6 @@ struct lmb_region {
 	enum lmb_flags flags;
 };
 
-void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
-				void *fdt_blob);
-
 /**
  * lmb_add_memory() - Add memory range for LMB allocations
  *
