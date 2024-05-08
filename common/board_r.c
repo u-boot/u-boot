@@ -22,6 +22,7 @@
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <lmb.h>
 #include <log.h>
 #include <net.h>
 #include <asm/cache.h>
@@ -555,6 +556,17 @@ static int run_main_loop(void)
 	return 0;
 }
 
+#if defined(CONFIG_LMB)
+static int initr_lmb(void)
+{
+	lmb_reserve_common((void *)gd->fdt_blob);
+
+	lmb_add_memory(gd->bd);
+
+	return 0;
+}
+#endif
+
 /*
  * Over time we hope to remove these functions with code fragments and
  * stub functions, and instead call the relevant function directly.
@@ -613,6 +625,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
+#endif
+#if defined(CONFIG_LMB)
+	initr_lmb,
 #endif
 	initr_binman,
 #ifdef CONFIG_FSP_VERSION2
