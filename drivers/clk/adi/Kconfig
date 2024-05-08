@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# (C) Copyright 2022 - Analog Devices, Inc.
+#
+# Written and/or maintained by Timesys Corporation
+#
+# Contact: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+# Contact: Greg Malysa <greg.malysa@timesys.com>
+#
+
+config COMMON_CLK_ADI_SHARED
+	bool "Enable shared ADI clock framework code"
+	help
+	  Required for shared code between SoC clock drivers. Automatically
+	  selected by an appropriate SoC-specific clock driver version.
+
+config COMMON_CLK_ADI_SC598
+	bool "Clock driver for ADI SC598 SoCs"
+	select DM
+	select CLK
+	select CLK_CCF
+	select OF_CONTROL
+	select CMD_CLK
+	select SPL_DM if SPL
+	select SPL_CLK if SPL
+	select SPL_CLK_CCF if SPL
+	select SPL_OF_CONTROL if SPL
+	select COMMON_CLK_ADI_SHARED
+	depends on SC59X_64
+	help
+	  This driver supports the system clocks on Analog Devices SC598-series
+	  SoCs. It includes CGU and CDU clocks and supports gating unused clocks.
+	  Modifying PLL configuration is not supported; that must be done prior
+	  to booting the kernel. Clock dividers after the PLLs may be configured.
+
+config COMMON_CLK_ADI_SC594
+	bool "Clock driver for ADI SC594 SoCs"
+	select DM
+	select CLK
+	select CLK_CCF
+	select OF_CONTROL
+	select CMD_CLK
+	select SPL_DM if SPL
+	select SPL_CLK if SPL
+	select SPL_CLK_CCF if SPL
+	select SPL_OF_CONTROL if SPL
+	select COMMON_CLK_ADI_SHARED
+	depends on SC59X
+	help
+	  This driver supports the system clocks on Analog Devices SC594-series
+	  SoCs. It includes CGU and CDU clocks and supports gating unused clocks.
+	  Modifying PLL configuration is not supported; that must be done prior
+	  to booting the kernel. Clock dividers after the PLLs may be configured.
+
+config COMMON_CLK_ADI_SC58X
+	bool "Clock driver for ADI SC58X SoCs"
+	select DM
+	select CLK
+	select CLK_CCF
+	select OF_CONTROL
+	select CMD_CLK
+	select COMMON_CLK_ADI_SHARED
+	depends on SC58X
+	help
+	  This driver supports the system clocks on Analog Devices SC58x-series
+	  SoCs. It includes CGU and CDU clocks and supports gating unused clocks.
+	  Modifying PLL configuration is not supported; that must be done prior
+	  to booting the kernel. Clock dividers after the PLLs may be configured.
+
+config COMMON_CLK_ADI_SC57X
+	bool "Clock driver for ADI SC57X SoCs"
+	select DM
+	select CLK
+	select CLK_CCF
+	select OF_CONTROL
+	select CMD_CLK
+	select COMMON_CLK_ADI_SHARED
+	depends on SC57X
+	help
+	  This driver supports the system clocks on Analog Devices SC57x-series
+	  SoCs. It includes CGU and CDU clocks and supports gating unused clocks.
+	  Modifying PLL configuration is not supported; that must be done prior
+	  to booting the kernel. Clock dividers after the PLLs may be configured.
