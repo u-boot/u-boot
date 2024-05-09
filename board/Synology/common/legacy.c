@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <stdio.h>
 #include <vsprintf.h>
 #include <env.h>
 #include <net.h>

@@ -225,23 +225,6 @@ char *simple_xtoa(ulong num);
  * @size: The size of the buffer, including the trailing null space
  * @fmt: The format string to use
  * @...: Arguments for the format string
- * Return: the number of characters which would be
- * generated for the given input, excluding the trailing null,
- * as per ISO C99.  If the return is greater than or equal to
- * @size, the resulting string is truncated.
- *
- * See the vsprintf() documentation for format string extensions over C99.
- */
-int snprintf(char *buf, size_t size, const char *fmt, ...)
-		__attribute__ ((format (__printf__, 3, 4)));
-
-/**
- * Format a string and place it in a buffer
- *
- * @buf: The buffer to place the result into
- * @size: The size of the buffer, including the trailing null space
- * @fmt: The format string to use
- * @...: Arguments for the format string
  *
  * The return value is the number of characters written into @buf not including
  * the trailing '\0'. If @size is == 0 the function returns 0.
