@@ -846,12 +846,12 @@ UBOOTINCLUDE    := \
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
-ifeq ($(CONFIG_MBEDTLS_LIB),y)
-PLATFORM_CPPFLAGS += "-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
-			-I$(srctree)/lib/mbedtls \
-			-I$(srctree)/lib/mbedtls/port \
-			-I$(srctree)/lib/mbedtls/external/mbedtls/include
-endif
+# ifeq ($(CONFIG_MBEDTLS_LIB),y)
+# PLATFORM_CPPFLAGS += "-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
+# 			-I$(srctree)/lib/mbedtls \
+# 			-I$(srctree)/lib/mbedtls/port \
+# 			-I$(srctree)/lib/mbedtls/external/mbedtls/include
+# endif
 
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
