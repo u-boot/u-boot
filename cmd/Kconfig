@@ -1909,6 +1909,13 @@ config BOOTP_VCI_STRING
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
 
+config BOOTP_RANDOM_XID
+	bool "Send random transaction ID to BOOTP/DHCP server"
+	depends on CMD_BOOTP && (LIB_RAND || LIB_HW_RAND)
+	help
+	  Selecting this will allow for a random transaction ID to get
+	  selected for each BOOTP/DHCPv4 exchange.
+
 if CMD_DHCP6
 
 config DHCP6_PXE_CLIENTARCH

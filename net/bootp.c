@@ -834,22 +834,25 @@ void bootp_request(void)
 
 	/* Only generate a new transaction ID for each new BOOTP request */
 	if (bootp_try == 1) {
-		/*
-		 *	Bootp ID is the lower 4 bytes of our ethernet address
-		 *	plus the current time in ms.
-		 */
-		bootp_id = ((u32)net_ethaddr[2] << 24)
-			| ((u32)net_ethaddr[3] << 16)
-			| ((u32)net_ethaddr[4] << 8)
-			| (u32)net_ethaddr[5];
-		bootp_id += get_timer(0);
-		bootp_id = htonl(bootp_id);
-		bootp_add_id(bootp_id);
-		net_copy_u32(&bp->bp_id, &bootp_id);
-	} else {
-		net_copy_u32(&bp->bp_id, &bootp_id);
+		if (IS_ENABLED(CONFIG_BOOTP_RANDOM_XID)) {
+			srand(get_ticks() + rand());
+			bootp_id = rand();
+		} else {
+			/*
+			 *	Bootp ID is the lower 4 bytes of our ethernet address
+			 *	plus the current time in ms.
+			 */
+			bootp_id = ((u32)net_ethaddr[2] << 24)
+				| ((u32)net_ethaddr[3] << 16)
+				| ((u32)net_ethaddr[4] << 8)
+				| (u32)net_ethaddr[5];
+			bootp_id += get_timer(0);
+			bootp_id = htonl(bootp_id);
+		}
 	}
 
+	bootp_add_id(bootp_id);
+	net_copy_u32(&bp->bp_id, &bootp_id);
 	/*
 	 * Calculate proper packet lengths taking into account the
 	 * variable size of the options field
