@@ -8,7 +8,7 @@
 #include <command.h>
 #include <env.h>
 #include <log.h>
-#include <vsprintf.h>
+#include <stdio.h>
 
 /* Some sane limit "just in case" */
 #define MAX_BTN_CMDS 32
