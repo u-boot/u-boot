@@ -1898,6 +1898,7 @@ config BOOTP_PXE_CLIENTARCH
 
 config BOOTP_PXE_DHCP_OPTION
 	bool "Request & store 'pxe_configfile' from BOOTP/DHCP server"
+	default y
 	depends on BOOTP_PXE
 
 config BOOTP_VCI_STRING

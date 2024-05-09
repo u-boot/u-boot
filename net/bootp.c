@@ -603,7 +603,7 @@ static int dhcp_extended(u8 *e, int message_type, struct in_addr server_ip,
 	*cnt += 1;
 #endif
 	if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
-		*e++ = 209;	/* PXELINUX Config File */
+		*e++ = DHCP_OPTION_PXE_CONFIG_FILE;	/* PXELINUX Config File */
 		*cnt += 1;
 	}
 	/* no options, so back up to avoid sending an empty request list */
@@ -922,7 +922,7 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 				net_boot_file_name[size] = 0;
 			}
 			break;
-		case 209:	/* PXELINUX Config File */
+		case DHCP_OPTION_PXE_CONFIG_FILE:	/* PXELINUX Config File */
 			if (IS_ENABLED(CONFIG_BOOTP_PXE_DHCP_OPTION)) {
 				/* In case it has already been allocated when get DHCP Offer packet,
 				 * free first to avoid memory leak.
