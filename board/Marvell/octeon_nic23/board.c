@@ -357,10 +357,13 @@ int board_late_init(void)
 	board_configure_qlms();
 
 	/* Register cyclic function for PCIe FLR fixup */
-	cyclic = cyclic_register(octeon_board_restore_pf, 100,
-				 "pcie_flr_fix", NULL);
-	if (!cyclic)
+	cyclic = calloc(1, sizeof(*cyclic));
+	if (cyclic) {
+		cyclic_register(cyclic, octeon_board_restore_pf, 100,
+				"pcie_flr_fix");
+	} else {
 		printf("Registering of cyclic function failed\n");
+	}
 
 	return 0;
 }
