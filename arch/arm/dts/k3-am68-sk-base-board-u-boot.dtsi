@@ -129,3 +129,26 @@
 	dr_mode = "peripheral";
 	bootph-all;
 };
+
+#ifdef CONFIG_TARGET_J721S2_A72_EVM
+
+#define SPL_AM68_SK_DTB "spl/dts/k3-am68-sk-base-board.dtb"
+#define AM68_SK_DTB "u-boot.dtb"
+
+&spl_j721s2_evm_dtb {
+	filename = SPL_AM68_SK_DTB;
+};
+
+&j721s2_evm_dtb {
+	filename = AM68_SK_DTB;
+};
+
+&spl_j721s2_evm_dtb_unsigned {
+	filename = SPL_AM68_SK_DTB;
+};
+
+&j721s2_evm_dtb_unsigned {
+	filename = AM68_SK_DTB;
+};
+
+#endif
