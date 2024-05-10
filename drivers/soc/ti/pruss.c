@@ -204,6 +204,7 @@ static int pruss_probe(struct udevice *dev)
 
 static const struct udevice_id pruss_ids[] = {
 	{ .compatible = "ti,am654-icssg"},
+	{ .compatible = "ti,am642-icssg"},
 	{}
 };
 
