@@ -371,7 +371,7 @@ static int env_mmc_save(void)
 	ret = 0;
 
 	if (IS_ENABLED(CONFIG_ENV_REDUNDANT))
-		gd->env_valid = gd->env_valid == ENV_REDUND ? ENV_VALID : ENV_REDUND;
+		gd->env_valid = gd->env_valid == ENV_VALID ? ENV_REDUND : ENV_VALID;
 
 fini:
 	fini_mmc_for_env(mmc);
