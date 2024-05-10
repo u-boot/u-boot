@@ -10,7 +10,6 @@
 #define __CONFIG_J721S2_EVM_H
 
 #include <linux/sizes.h>
-#include <config_distro_bootcmd.h>
 
 /* SPL Loader Configuration */
 #if defined(CONFIG_TARGET_J721S2_A72_EVM)
