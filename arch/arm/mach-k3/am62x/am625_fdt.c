@@ -4,8 +4,9 @@
  */
 
 #include <asm/hardware.h>
-#include "common_fdt.h"
 #include <fdt_support.h>
+
+#include "../common_fdt.h"
 
 static void fdt_fixup_cores_nodes_am625(void *blob, int core_nr)
 {

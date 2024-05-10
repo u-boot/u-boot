@@ -12,8 +12,6 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
-#include "sysfw-loader.h"
-#include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
@@ -21,6 +19,9 @@
 #include <log.h>
 #include <mmc.h>
 #include <stdlib.h>
+
+#include "../sysfw-loader.h"
+#include "../common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

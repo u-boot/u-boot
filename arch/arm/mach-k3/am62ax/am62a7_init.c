@@ -8,11 +8,12 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include "sysfw-loader.h"
-#include "common.h"
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+
+#include "../sysfw-loader.h"
+#include "../common.h"
 
 struct fwl_data cbass_main_fwls[] = {
        { "FSS_DAT_REG3", 7, 8 },

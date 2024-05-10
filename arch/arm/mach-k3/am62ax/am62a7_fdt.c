@@ -4,8 +4,9 @@
  */
 
 #include <asm/hardware.h>
-#include "common_fdt.h"
 #include <fdt_support.h>
+
+#include "../common_fdt.h"
 
 int ft_system_setup(void *blob, struct bd_info *bd)
 {

@@ -11,8 +11,6 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include "sysfw-loader.h"
-#include "common.h"
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -20,6 +18,9 @@
 #include <mmc.h>
 #include <dm/root.h>
 #include <command.h>
+
+#include "../sysfw-loader.h"
+#include "../common.h"
 
 #define CTRLMMR_MCU_RST_CTRL			0x04518170
 
