@@ -172,7 +172,7 @@ static int rockchip_verify_mux(struct rockchip_pin_bank *bank,
 	}
 
 	if (bank->iomux[iomux_num].type & IOMUX_GPIO_ONLY) {
-		if (mux != IOMUX_GPIO_ONLY) {
+		if (mux != RK_FUNC_GPIO) {
 			debug("pin %d only supports a gpio mux\n", pin);
 			return -ENOTSUPP;
 		}
