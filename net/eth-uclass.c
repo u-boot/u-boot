@@ -461,6 +461,8 @@ int eth_rx(void)
 			eth_get_ops(current)->free_pkt(current, packet, ret);
 		if (ret <= 0)
 			break;
+		if (!eth_is_active(current))
+			break;
 	}
 	if (ret == -EAGAIN)
 		ret = 0;
