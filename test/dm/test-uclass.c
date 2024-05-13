@@ -6,7 +6,6 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <dm.h>

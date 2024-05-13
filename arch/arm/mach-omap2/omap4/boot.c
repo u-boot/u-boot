@@ -5,7 +5,6 @@
  * Copyright (C) 2015 Paul Kocialkowski <contact@paulk.fr>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
 #include <asm/arch/sys_proto.h>

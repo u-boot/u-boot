@@ -11,8 +11,8 @@
 /*
  * Get Timer overflows after 2^32 / CONFIG_SYS_HZ (32Khz) = 131072 sec
  */
-#include <common.h>
 #include <command.h>
+#include <time.h>
 
 static int do_gettime(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])

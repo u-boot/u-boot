@@ -11,7 +11,6 @@
 
 #define pr_fmt(fmt) "tegra-pcie: " fmt
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

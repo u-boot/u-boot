@@ -5,7 +5,6 @@
  * (C) Copyright 2015 Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/cpu.h>

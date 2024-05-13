@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Compulab, Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <hang.h>
 #include <init.h>
 #include <spl.h>

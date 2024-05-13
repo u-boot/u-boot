@@ -28,7 +28,6 @@
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <watchdog.h>

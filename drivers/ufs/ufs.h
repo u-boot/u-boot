@@ -2,6 +2,7 @@
 #ifndef __UFS_H
 #define __UFS_H
 
+#include <linux/types.h>
 #include "unipro.h"
 
 struct udevice;

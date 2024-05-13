@@ -5,9 +5,10 @@
  * modified by Wolfgang Wegner <w.wegner@astro-kom.de> for ASTRO 5373l
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <serial.h>
+#include <time.h>
 #include <watchdog.h>
 #include <command.h>
 #include <asm/global_data.h>

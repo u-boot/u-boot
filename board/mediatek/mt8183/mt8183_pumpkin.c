@@ -4,7 +4,6 @@
  * Author: Fabien Parent <fparent@baylibre.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <net.h>
 

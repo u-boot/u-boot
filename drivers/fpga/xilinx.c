@@ -11,13 +11,13 @@
  *  Xilinx FPGA support
  */
 
-#include <common.h>
 #include <fpga.h>
 #include <log.h>
 #include <virtex2.h>
 #include <spartan2.h>
 #include <spartan3.h>
 #include <zynqpl.h>
+#include <linux/string.h>
 
 /* Local Static Functions */
 static int xilinx_validate(xilinx_desc *desc, char *fn);

@@ -7,11 +7,11 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
 #include <pci.h>
+#include <time.h>
 #include <asm/io.h>
 
 /* PCI Configuration Space (D31:F3): SMBus */

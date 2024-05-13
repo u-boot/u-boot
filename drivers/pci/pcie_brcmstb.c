@@ -12,7 +12,6 @@
  * Copyright (C) 2020 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <dm/ofnode.h>

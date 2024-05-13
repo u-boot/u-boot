@@ -6,6 +6,8 @@
 #ifndef __EARLY_CMOS_H
 #define __EARLY_CMOS_H
 
+#include <linux/types.h>
+
 /* CMOS actually resides in the RTC SRAM */
 #define CMOS_IO_PORT	0x70
 

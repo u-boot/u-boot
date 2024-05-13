@@ -4,7 +4,6 @@
  *  NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/arch/tegra.h>

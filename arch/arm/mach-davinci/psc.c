@@ -7,7 +7,6 @@
  * Copyright (C) 2004 Texas Instruments.
  */
 
-#include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 

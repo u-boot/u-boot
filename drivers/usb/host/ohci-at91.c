@@ -4,7 +4,6 @@
  * DENX Software Engineering <mk@denx.de>
  */
 
-#include <common.h>
 #include <asm/arch/clk.h>
 
 int usb_cpu_init(void)

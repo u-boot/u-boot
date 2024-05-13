@@ -6,7 +6,6 @@
 
 #include <asm/arch/clock.h>
 #include <asm/io.h>
-#include <common.h>
 #include <config.h>
 #include <nand.h>
 #include <linux/bitops.h>

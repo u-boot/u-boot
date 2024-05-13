@@ -7,7 +7,7 @@
  * Gleb Natapov <gnatapov@mrv.com>
  */
 
-#include <common.h>
+#include <asm/ppc.h>
 #include <irq_func.h>
 #include <asm/processor.h>
 #include <watchdog.h>

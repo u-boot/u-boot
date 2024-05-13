@@ -6,7 +6,6 @@
  */
 
 #include <charset.h>
-#include <common.h>
 #include <command.h>
 #include <efi_loader.h>
 #include <efi_variable.h>

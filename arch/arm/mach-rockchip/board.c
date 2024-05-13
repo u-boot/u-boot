@@ -8,7 +8,7 @@
  * Based on puma-rk3399.c:
  *      (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  */
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <env.h>

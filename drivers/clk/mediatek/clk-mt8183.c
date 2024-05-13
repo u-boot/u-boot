@@ -8,7 +8,6 @@
  * Author: Weiyi Lu <weiyi.lu@mediatek.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt8183-clk.h>

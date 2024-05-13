@@ -9,6 +9,8 @@
 #ifndef __x86_asm_handoff_h
 #define __x86_asm_handoff_h
 
+#include <linux/types.h>
+
 /**
  * struct arch_spl_handoff - architecture-specific handoff info
  *

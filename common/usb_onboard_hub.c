@@ -7,7 +7,6 @@
  * Mostly inspired by Linux kernel v6.1 onboard_usb_hub driver
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <power/regulator.h>

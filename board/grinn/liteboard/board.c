@@ -4,7 +4,6 @@
  * Copyright (C) 2016 Grinn
  */
 
-#include <common.h>
 #include <command.h>
 #include <init.h>
 #include <asm/arch/clock.h>

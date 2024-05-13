@@ -5,7 +5,6 @@
  *
  * Allen Martin <amartin@nvidia.com>
  */
-#include <common.h>
 #include <debug_uart.h>
 #include <log.h>
 #include <spl.h>

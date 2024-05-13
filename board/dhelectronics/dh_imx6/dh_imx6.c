@@ -5,9 +5,7 @@
  * Copyright (C) 2017 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <dm.h>
-#include <eeprom.h>
 #include <image.h>
 #include <init.h>
 #include <net.h>

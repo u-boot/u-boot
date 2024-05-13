@@ -7,7 +7,6 @@
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
  */
 
-#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <spl.h>

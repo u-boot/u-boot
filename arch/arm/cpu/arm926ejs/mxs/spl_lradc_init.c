@@ -6,7 +6,6 @@
  * on behalf of DENX Software Engineering GmbH
  */
 
-#include <common.h>
 #include <config.h>
 #include <log.h>
 #include <asm/io.h>

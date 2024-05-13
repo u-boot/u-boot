@@ -4,7 +4,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <fdtdec.h>
 #include <malloc.h>

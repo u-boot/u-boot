@@ -10,7 +10,6 @@
  * Copyright (C) 2011 Google Inc.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>

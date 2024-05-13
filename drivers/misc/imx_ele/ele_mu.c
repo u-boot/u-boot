@@ -3,7 +3,6 @@
  * Copyright 2020-2022 NXP
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/lists.h>

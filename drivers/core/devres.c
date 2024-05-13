@@ -9,7 +9,6 @@
 
 #define LOG_CATEGORY LOGC_DEVRES
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <linux/compat.h>

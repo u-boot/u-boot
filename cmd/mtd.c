@@ -9,7 +9,6 @@
  */
 
 #include <command.h>
-#include <common.h>
 #include <console.h>
 #if CONFIG_IS_ENABLED(CMD_MTD_OTP)
 #include <hexdump.h>

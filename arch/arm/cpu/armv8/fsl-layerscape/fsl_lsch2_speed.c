@@ -4,7 +4,7 @@
  * Copyright 2019 NXP.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <asm/global_data.h>

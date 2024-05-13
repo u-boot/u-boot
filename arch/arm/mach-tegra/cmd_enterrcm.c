@@ -24,7 +24,6 @@
  * (C) Copyright 2004 Texas Insturments
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <irq_func.h>

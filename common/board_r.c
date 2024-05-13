@@ -9,7 +9,7 @@
  * Marius Groeger <mgroeger@sysgo.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <api.h>
 #include <bootstage.h>
 #include <cpu_func.h>

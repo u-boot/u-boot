@@ -3,7 +3,6 @@
 // Copyright (C) 2019 Texas Instruments Incorporated - https://www.ti.com/
 // Author: Vignesh Raghavendra <vigneshr@ti.com>
 
-#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <regmap.h>

@@ -7,7 +7,6 @@
  * Copyright 2021 NXP
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <linux/delay.h>

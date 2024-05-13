@@ -7,7 +7,7 @@
  *   Author: Ryan Mallon <ryan@bluewatersys.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <atmel_lcd.h>
 #include <atmel_lcdc.h>
 #include <atmel_mci.h>

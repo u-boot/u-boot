@@ -3,7 +3,6 @@
  * Copyright (C) 2021 Xilinx Inc.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dma.h>

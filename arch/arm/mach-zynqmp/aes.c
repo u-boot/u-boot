@@ -7,9 +7,8 @@
  * Christian Taedcke <christian.taedcke@weidmueller.com>
  */
 
-#include <common.h>
 #include <mach/zynqmp_aes.h>
-
+#include <linux/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <cpu_func.h>
 #include <memalign.h>

@@ -6,6 +6,8 @@
 #ifndef _ASM_ARCH_CLOCK_H
 #define _ASM_ARCH_CLOCK_H
 
+#include <linux/types.h>
+
 struct udevice;
 
 /* define pll mode */

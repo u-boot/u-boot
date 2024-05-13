@@ -5,7 +5,6 @@
  * Author: Sam Shih <sam.shih@mediatek.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <pwm.h>

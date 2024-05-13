@@ -12,7 +12,6 @@
  * unknown SCMI protocol ID.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <reset.h>

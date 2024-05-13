@@ -9,11 +9,11 @@
  */
 
 #include <command.h>
-#include <common.h>
 #include <env.h>
 #include <asm/arch/sm.h>
 #include <stdlib.h>
 #include <display_options.h>
+#include <vsprintf.h>
 
 static int do_sm_serial(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])

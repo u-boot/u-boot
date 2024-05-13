@@ -3,7 +3,6 @@
  * SDHCI ADMA2 helper functions.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <sdhci.h>
 #include <malloc.h>

@@ -11,7 +11,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <malloc.h>

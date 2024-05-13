@@ -6,7 +6,6 @@
  * Copyright (C) 2011 The Chromium Authors
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/global_data.h>

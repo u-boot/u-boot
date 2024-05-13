@@ -7,7 +7,7 @@
  */
 
 #include <asm/mmu.h>
-#include <asm/u-boot.h>
+#include <asm/ppc.h>
 
 struct fsl_e_tlb_entry tlb_table[] = {
 	/* TLB 0 - for temp stack in cache */

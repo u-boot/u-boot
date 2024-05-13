@@ -4,8 +4,8 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <status_led.h>
+#include <linux/types.h>
 
 /*
  * The purpose of this code is to signal the operational status of a

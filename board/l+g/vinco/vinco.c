@@ -9,7 +9,7 @@
  *		      Gregory CLEMENT <gregory.clement@free-electrons.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

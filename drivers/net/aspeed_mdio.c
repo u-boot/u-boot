@@ -7,7 +7,6 @@
  * This file is inspired from the Linux kernel driver drivers/net/phy/mdio-aspeed.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <miiphy.h>

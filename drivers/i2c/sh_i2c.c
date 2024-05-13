@@ -7,7 +7,6 @@
  * Please see doc/driver-model/i2c-howto.rst for instructions.
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/global_data.h>

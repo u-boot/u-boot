@@ -8,7 +8,6 @@
  * Use is subject to license terms.
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <linux/stat.h>
 #include <linux/time.h>

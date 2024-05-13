@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <binman.h>
 #include <bootstage.h>
 #include <dm.h>

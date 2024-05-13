@@ -46,7 +46,7 @@
  *   mvebu_mbus_del_window().
  */
 
-#include <common.h>
+#include <config.h>
 #include <malloc.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>

@@ -6,7 +6,7 @@
  * Aneesh V <aneesh@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <bloblist.h>
 #include <binman_sym.h>
 #include <bootstage.h>
@@ -23,7 +23,6 @@
 #include <system-constants.h>
 #include <asm/global_data.h>
 #include <asm-generic/gpio.h>
-#include <asm/u-boot.h>
 #include <nand.h>
 #include <fat.h>
 #include <u-boot/crc.h>

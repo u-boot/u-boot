@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <cli.h>
 #include <command.h>
 #include <test/lib.h>

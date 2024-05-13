@@ -4,7 +4,7 @@
  * (C) Copyright 2013 - 2018 Xilinx, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <debug_uart.h>
 #include <dfu.h>
 #include <init.h>

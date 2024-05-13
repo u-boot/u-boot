@@ -3,7 +3,6 @@
  * Copyright 2020 Compass Electronics Group, LLC
  */
 
-#include <common.h>
 #include <hang.h>
 #include <image.h>
 #include <init.h>

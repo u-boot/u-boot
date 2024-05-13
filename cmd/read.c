@@ -8,10 +8,10 @@
  * Software Foundation.
  */
 
-#include <common.h>
 #include <command.h>
 #include <mapmem.h>
 #include <part.h>
+#include <vsprintf.h>
 
 static int
 do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

@@ -8,6 +8,8 @@
 #ifndef __ACE_SHA_H
 #define __ACE_SHA_H
 
+#include  <linux/types.h>
+
 struct exynos_ace_sfr {
 	unsigned int	fc_intstat;	/* base + 0 */
 	unsigned int	fc_intenset;

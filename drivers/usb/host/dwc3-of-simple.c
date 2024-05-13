@@ -10,7 +10,6 @@
  * Author: Neil Armstrong <narmstron@baylibre.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <reset.h>
 #include <clk.h>

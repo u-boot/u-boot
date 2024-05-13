@@ -8,6 +8,8 @@
 #ifndef _API_PUBLIC_H_
 #define _API_PUBLIC_H_
 
+#include <linux/types.h>
+
 #define API_EINVAL		1	/* invalid argument(s)	*/
 #define API_ENODEV		2	/* no device		*/
 #define API_ENOMEM		3	/* no memory		*/

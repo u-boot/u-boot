@@ -3,7 +3,6 @@
  * Copyright (c) 2013 Google, Inc
  */
 
-#include <common.h>
 #include <dm/device.h>
 #include <dm/ofnode.h>
 #include <dm/read.h>

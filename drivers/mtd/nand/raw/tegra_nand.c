@@ -6,7 +6,6 @@
  * (C) Copyright 2006 DENX Software Engineering
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

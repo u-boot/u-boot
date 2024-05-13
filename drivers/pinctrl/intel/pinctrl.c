@@ -16,7 +16,6 @@
 
 #define LOG_CATEGORY UCLASS_GPIO
 
-#include <common.h>
 #include <dm.h>
 #include <irq.h>
 #include <log.h>

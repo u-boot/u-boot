@@ -244,7 +244,6 @@
 #include <hexdump.h>
 #include <log.h>
 #include <malloc.h>
-#include <common.h>
 #include <console.h>
 #include <g_dnl.h>
 #include <dm/devres.h>

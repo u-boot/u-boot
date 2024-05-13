@@ -3,7 +3,6 @@
  * Tests for read and write commands
  */
 
-#include <common.h>
 #include <dm/test.h>
 #include <mapmem.h>
 #include <part.h>

@@ -5,7 +5,6 @@
  * Based on arm926ejs/mx27/timer.c
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch-armv7/systimer.h>

@@ -7,7 +7,6 @@
  * Amlogic Meson Successive Approximation Register (SAR) A/D Converter
  */
 
-#include <common.h>
 #include <adc.h>
 #include <clk.h>
 #include <dm.h>

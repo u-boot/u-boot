@@ -9,7 +9,6 @@
  * Michal Simek <michal.simek@amd.com>
  * Stefan Agner <stefan.agner@toradex.com>
  */
-#include <common.h>
 #include <binman_sym.h>
 #include <image.h>
 #include <log.h>

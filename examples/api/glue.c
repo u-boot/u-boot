@@ -3,7 +3,6 @@
  * (C) Copyright 2007-2008 Semihalf, Rafal Jaworowski <raj@semihalf.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <linux/types.h>
 #include <api_public.h>

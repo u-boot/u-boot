@@ -15,7 +15,6 @@
  *
  */
 
-#include <common.h>
 #include <dm.h>
 #include <rtc.h>
 #include <bcd.h>

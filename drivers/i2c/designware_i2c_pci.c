@@ -5,7 +5,6 @@
  * Copyright 2019 Google Inc
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <spl.h>

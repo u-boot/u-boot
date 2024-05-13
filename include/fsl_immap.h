@@ -7,6 +7,9 @@
 
 #ifndef __FSL_IMMAP_H
 #define __FSL_IMMAP_H
+
+#include <linux/types.h>
+
 /*
  * DDR memory controller registers
  * This structure works for mpc83xx (DDR2 and DDR3), mpc85xx, mpc86xx.

@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY LOGC_BOOT
 
-#include <common.h>
 #include <bloblist.h>
 #include <bootdev.h>
 #include <bootflow.h>

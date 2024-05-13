@@ -3,7 +3,6 @@
  * Copyright 2004 Freescale Semiconductor.
  */
 
-#include <common.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include "cadmus.h"

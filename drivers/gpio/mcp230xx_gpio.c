@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY UCLASS_GPIO
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>

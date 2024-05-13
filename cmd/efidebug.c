@@ -6,7 +6,6 @@
  */
 
 #include <charset.h>
-#include <common.h>
 #include <command.h>
 #include <dm/device.h>
 #include <efi_dt_fixup.h>

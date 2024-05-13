@@ -9,7 +9,7 @@
  * numbers) are rounded to within 0.5 ulp.  PR other/14354.
  */
 
-#include <common.h>
+#include <config.h>
 
 #include <post.h>
 

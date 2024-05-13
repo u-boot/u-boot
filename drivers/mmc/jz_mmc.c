@@ -6,7 +6,6 @@
  * Author: Paul Burton <paul.burton@imgtec.com>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <asm/global_data.h>

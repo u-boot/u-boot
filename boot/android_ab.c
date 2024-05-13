@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2017 The Android Open Source Project
  */
-#include <common.h>
 #include <android_ab.h>
 #include <android_bootloader_message.h>
 #include <blk.h>

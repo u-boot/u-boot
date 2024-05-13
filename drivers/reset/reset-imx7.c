@@ -6,7 +6,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
-#include <common.h>
 #include <dm.h>
 #include <dt-bindings/reset/imx7-reset.h>
 #include <dt-bindings/reset/imx8mp-reset.h>

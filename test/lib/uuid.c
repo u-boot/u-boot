@@ -8,7 +8,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <common.h>
 #include <uuid.h>
 #include <test/lib.h>
 #include <test/test.h>

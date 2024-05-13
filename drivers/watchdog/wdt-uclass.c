@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_WDT
 
-#include <common.h>
 #include <cyclic.h>
 #include <div64.h>
 #include <dm.h>

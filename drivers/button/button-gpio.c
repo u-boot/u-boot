@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Philippe Reynes <philippe.reynes@softathome.com>
  */
 
-#include <common.h>
 #include <button.h>
 #include <dm.h>
 #include <dm/lists.h>

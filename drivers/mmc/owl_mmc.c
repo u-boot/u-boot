@@ -11,7 +11,6 @@
  * channel, and those special bits used in this driver is picked from vendor
  * source exclusively for MMC/SD.
  */
-#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

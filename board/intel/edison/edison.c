@@ -2,7 +2,6 @@
 /*
  * Copyright (c) 2017 Intel Corporation
  */
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <mmc.h>

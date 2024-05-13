@@ -6,7 +6,7 @@
  * Author: Hou Zhiqiang <Minder.Hou@gmail.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <log.h>
 #include <asm/arch/fsl_serdes.h>
 #include <pci.h>

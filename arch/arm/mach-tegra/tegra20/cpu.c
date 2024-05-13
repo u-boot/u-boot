@@ -3,7 +3,6 @@
  * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/pmc.h>

@@ -8,7 +8,7 @@
  * Copyright (C) 2018 Robert Bosch Power Tools GmbH
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <env_internal.h>
 #include <errno.h>

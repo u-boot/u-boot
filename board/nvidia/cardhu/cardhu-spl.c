@@ -7,7 +7,6 @@
  *  Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <common.h>
 #include <asm/arch-tegra/tegra_i2c.h>
 #include <linux/delay.h>
 

@@ -6,7 +6,6 @@
  * Author: Mark Lee <mark-mc.lee@mediatek.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>

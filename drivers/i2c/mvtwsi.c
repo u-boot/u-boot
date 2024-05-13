@@ -7,7 +7,7 @@
  * Copyright (c) 2010 Albert Aribaud.
  */
 
-#include <common.h>
+#include <config.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/global_data.h>

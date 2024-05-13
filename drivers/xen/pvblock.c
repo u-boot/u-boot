@@ -7,7 +7,6 @@
 #define LOG_CATEGORY UCLASS_PVBLOCK
 
 #include <blk.h>
-#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <malloc.h>

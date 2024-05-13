@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <linux/arm-smccc.h>
 #include <scsi.h>
-#include <asm/u-boot.h>
 #include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;

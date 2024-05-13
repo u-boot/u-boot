@@ -12,7 +12,6 @@
  * slb9635), so this driver provides access to locality 0 only.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <mapmem.h>

@@ -4,7 +4,6 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <mux.h>
 #include <regmap.h>

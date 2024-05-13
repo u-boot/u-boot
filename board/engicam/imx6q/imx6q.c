@@ -5,7 +5,6 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
-#include <common.h>
 
 #include <asm/io.h>
 #include <asm/gpio.h>

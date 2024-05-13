@@ -13,7 +13,7 @@
  */
 
 #include <asm/io.h>
-#include <common.h>
+#include <config.h>
 #ifdef CONFIG_RAM
   #include <dm.h>
   #include <ram.h>

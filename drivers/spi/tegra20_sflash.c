@@ -5,7 +5,6 @@
  * With more help from omap3_spi SPI driver
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

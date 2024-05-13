@@ -5,7 +5,6 @@
  */
 
 #include <command.h>
-#include <common.h>
 #include <gsc.h>
 #include <hexdump.h>
 #include <i2c.h>

@@ -3,7 +3,6 @@
  * Copyright (c) 2020 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <phys2bus.h>

@@ -3,7 +3,6 @@
  * Copyright 2006 Freescale Semiconductor.
  */
 
-#include <common.h>
 #include <pci.h>
 
 /* Config the VIA chip */

@@ -3,7 +3,6 @@
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <vesa.h>

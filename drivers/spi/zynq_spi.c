@@ -6,7 +6,6 @@
  * Xilinx Zynq PS SPI controller driver (master mode only)
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <log.h>

@@ -5,7 +5,7 @@
  * (C) Copyright 2016 Cadence Design Systems Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <errno.h>
 #include <sysreset.h>

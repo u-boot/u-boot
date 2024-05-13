@@ -19,7 +19,6 @@
  * The quirk devices support hasn't been given yet.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device_compat.h>

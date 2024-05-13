@@ -8,7 +8,6 @@
  * Date & Time support for the MC146818 (PIXX4) RTC
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <rtc.h>

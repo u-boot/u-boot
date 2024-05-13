@@ -3,7 +3,6 @@
  * Copyright 2019 Google LLC
  */
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <log.h>

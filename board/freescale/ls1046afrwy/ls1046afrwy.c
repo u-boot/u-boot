@@ -3,7 +3,7 @@
  * Copyright 2019, 2021 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <init.h>

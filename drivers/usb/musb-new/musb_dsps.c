@@ -31,7 +31,6 @@
 
 #include <plat/usb.h>
 #else
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <asm/omap_musb.h>

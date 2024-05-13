@@ -6,7 +6,6 @@
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include "clk_owl.h"
 #include <asm/io.h>

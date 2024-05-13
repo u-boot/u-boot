@@ -10,7 +10,6 @@
  * Copyright 2010 eXMeritus, A Boeing Company
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <mapmem.h>

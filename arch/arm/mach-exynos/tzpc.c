@@ -5,7 +5,7 @@
  * Copyright (C) 2012 Samsung Electronics
  */
 
-#include <common.h>
+#include <mach/cpu.h>
 #include <asm/arch/tzpc.h>
 #include <asm/io.h>
 

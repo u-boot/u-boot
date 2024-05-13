@@ -6,7 +6,6 @@
  *                      Remy Bohmer <linux@bohmer.net>
  */
 
-#include <common.h>
 #include <linux/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>

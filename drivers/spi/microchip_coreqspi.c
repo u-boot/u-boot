@@ -5,7 +5,6 @@
  * Naga Sureshkumar Relli <nagasuresh.relli@microchip.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

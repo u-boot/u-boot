@@ -3,7 +3,6 @@
  * Copyright (c) 2015 Google, Inc
  */
 
-#include <common.h>
 #include <bmp_layout.h>
 #include <dm.h>
 #include <log.h>

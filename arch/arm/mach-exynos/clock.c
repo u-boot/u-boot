@@ -4,9 +4,10 @@
  * Minkyu Kang <mk7.kang@samsung.com>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <log.h>
+#include <time.h>
+#include <mach/cpu.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>

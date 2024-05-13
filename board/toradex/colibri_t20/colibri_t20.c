@@ -3,7 +3,6 @@
  *  Copyright (C) 2012 Lucas Stach
  */
 
-#include <common.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>

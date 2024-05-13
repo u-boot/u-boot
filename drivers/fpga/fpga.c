@@ -5,7 +5,6 @@
  */
 
 /* Generic FPGA support */
-#include <common.h>             /* core U-Boot definitions */
 #include <init.h>
 #include <log.h>
 #include <xilinx.h>             /* xilinx specific definitions */

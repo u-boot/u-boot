@@ -3,7 +3,6 @@
  * Copyright 2020 Compass Electronics Group, LLC
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 

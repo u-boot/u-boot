@@ -5,7 +5,6 @@
  * (C) Copyright 2012, Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

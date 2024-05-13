@@ -4,8 +4,8 @@
  * Copyright 2018-2022 NXP
  */
 
-#include <common.h>
 #include <command.h>
+#include <vsprintf.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 #include <asm/io.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2022 Ventana Micro Systems Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Theobroma Systems Design und Consulting GmH
  */
 
-#include <common.h>
 #include <spl.h>
 
 __weak int board_return_to_bootrom(struct spl_image_info *spl_image,

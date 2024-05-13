@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <image.h>
 #include <imx_container.h>
 #include <log.h>

@@ -8,7 +8,6 @@
  * Based on Linux kernel clk-cdce925.c.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>

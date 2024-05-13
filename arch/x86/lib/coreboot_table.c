@@ -3,7 +3,6 @@
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <net.h>
 #include <vesa.h>

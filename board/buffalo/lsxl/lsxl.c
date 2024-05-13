@@ -7,7 +7,6 @@
  *   Marvell Semiconductor <www.marvell.com>
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <button.h>
 #include <command.h>

@@ -11,7 +11,6 @@
  */
 
 #define LOG_CATEGORY UCLASS_SPI
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

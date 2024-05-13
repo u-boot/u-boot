@@ -4,7 +4,7 @@
  */
 
 #include <altera.h>
-#include <common.h>
+#include <config.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <init.h>

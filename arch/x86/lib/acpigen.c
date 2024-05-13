@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Google LLC
  */
 
-#include <common.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpigen.h>

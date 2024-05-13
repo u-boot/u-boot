@@ -7,7 +7,7 @@
  *   Marvell/db-88f6820-gp by Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <i2c.h>
 #include <init.h>

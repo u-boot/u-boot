@@ -3,7 +3,7 @@
  * Copyright (C) 2018 MediaTek Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <mmc.h>
 #include <asm/global_data.h>
 

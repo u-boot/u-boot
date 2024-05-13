@@ -3,7 +3,6 @@
  * Copyright (c) 2017 Google, Inc
  */
 
-#include <common.h>
 #include <hang.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/boot_mode.h>

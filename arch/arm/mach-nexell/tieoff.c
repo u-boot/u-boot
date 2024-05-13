@@ -4,7 +4,6 @@
  * Youngbok, Park <park@nexell.co.kr>
  */
 
-#include <common.h>
 #include <asm/arch/nexell.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/reset.h>

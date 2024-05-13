@@ -5,7 +5,6 @@
  * Copyright 2022 Google LLC
  */
 
-#include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>

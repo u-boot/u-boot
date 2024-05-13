@@ -8,7 +8,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <common.h>
 #include <string.h>
 #include <asm/sandbox_arm_ffa.h>
 #include <dm/test.h>

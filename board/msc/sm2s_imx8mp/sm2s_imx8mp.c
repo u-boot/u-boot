@@ -7,7 +7,6 @@
  * Copyright 2021 Collabora Ltd.
  */
 
-#include <common.h>
 #include <errno.h>
 #include <miiphy.h>
 #include <netdev.h>

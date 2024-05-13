@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY	UCLASS_SYSINFO
 
-#include <common.h>
 #include <bloblist.h>
 #include <command.h>
 #include <cros_ec.h>

@@ -23,6 +23,8 @@
  * MA 02111-1307 USA
  */
 
+#include <linux/types.h>
+#include <mach/cpu.h>
 #include <asm/arch/system.h>
 
 #define DMC_OFFSET	0x10000

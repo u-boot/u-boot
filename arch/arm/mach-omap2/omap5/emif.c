@@ -8,7 +8,6 @@
  * Aneesh V <aneesh@ti.com> for OMAP4
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/emif.h>
 #include <asm/arch/sys_proto.h>

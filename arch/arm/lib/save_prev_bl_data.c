@@ -10,7 +10,6 @@
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <fdt.h>
-#include <common.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>

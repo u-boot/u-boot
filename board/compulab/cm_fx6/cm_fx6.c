@@ -7,7 +7,7 @@
  * Author: Nikita Kiryanov <nikita@compulab.co.il>
  */
 
-#include <common.h>
+#include <config.h>
 #include <ahci.h>
 #include <dm.h>
 #include <dwc_ahsata.h>

@@ -3,7 +3,7 @@
  * Copyright 2015 Freescale Semiconductor
  * Copyright 2021 NXP
  */
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <display_options.h>
 #include <env.h>

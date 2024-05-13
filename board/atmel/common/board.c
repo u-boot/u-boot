@@ -4,7 +4,6 @@
  *		      Wenyou Yang <wenyou.yang@microchip.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <w1.h>

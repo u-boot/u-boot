@@ -7,8 +7,9 @@
 
 #define LOG_CATEGORY UCLASS_FPGA
 
-#include <common.h>		/* core U-Boot definitions */
+#include <config.h>		/* core U-Boot definitions */
 #include <log.h>
+#include <time.h>
 #include <altera.h>
 #include <ACEX1K.h>		/* ACEX device family */
 #include <linux/delay.h>

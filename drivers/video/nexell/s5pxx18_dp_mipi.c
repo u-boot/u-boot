@@ -6,7 +6,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <errno.h>
 
 #include <asm/arch/nexell.h>

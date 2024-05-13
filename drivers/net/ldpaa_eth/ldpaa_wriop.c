@@ -3,7 +3,6 @@
  * Copyright (C) 2015 Freescale Semiconductor
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <malloc.h>

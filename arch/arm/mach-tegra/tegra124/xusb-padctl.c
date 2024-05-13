@@ -5,9 +5,9 @@
 
 #define pr_fmt(fmt) "tegra-xusb-padctl: " fmt
 
-#include <common.h>
 #include <errno.h>
 #include <log.h>
+#include <time.h>
 #include <dm/of_access.h>
 #include <dm/ofnode.h>
 #include <linux/delay.h>

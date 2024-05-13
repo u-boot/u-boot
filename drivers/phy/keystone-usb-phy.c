@@ -4,7 +4,6 @@
  * Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <dm/device.h>

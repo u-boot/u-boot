@@ -13,11 +13,11 @@
  * http://developer.apple.com/techpubs/mac/Devices/Devices-126.html#MARKER-14-92
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <ide.h>
 #include <memalign.h>
+#include <vsprintf.h>
 #include <asm/unaligned.h>
 #include <linux/compiler.h>
 #include "part_dos.h"

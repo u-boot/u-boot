@@ -6,7 +6,6 @@
  * Donghwa Lee <dh09.lee@samsung.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>

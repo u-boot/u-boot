@@ -5,7 +5,6 @@
  * Based on led.c
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <button.h>

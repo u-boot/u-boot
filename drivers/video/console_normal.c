@@ -6,7 +6,6 @@
  * (C) Copyright 2023 Dzmitry Sankouski <dsankouski@gmail.com>
  */
 
-#include <common.h>
 #include <charset.h>
 #include <dm.h>
 #include <video.h>

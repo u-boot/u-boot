@@ -3,7 +3,6 @@
  * Copyright 2018 NXP
  */
 
-#include <common.h>
 #include <log.h>
 #include <linux/kernel.h>
 #include <asm/arch/ddr.h>

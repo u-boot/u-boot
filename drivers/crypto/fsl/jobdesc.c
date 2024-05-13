@@ -8,7 +8,7 @@
  *
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <fsl_sec.h>
 #include "desc_constr.h"
