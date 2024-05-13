@@ -653,6 +653,7 @@ config ARCH_BCM283X
 	select SERIAL_SEARCH_ALL
 	imply CMD_DM
 	imply FAT_WRITE
+	imply OF_HAS_PRIOR_STAGE
 
 config ARCH_BCMSTB
 	bool "Broadcom BCM7XXX family"
