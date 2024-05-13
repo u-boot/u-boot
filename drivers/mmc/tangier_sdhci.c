@@ -2,7 +2,6 @@
 /*
  * Copyright (c) 2017 Intel Corporation
  */
-#include <common.h>
 #include <dm.h>
 #include <dm/device.h>
 #include <linux/io.h>

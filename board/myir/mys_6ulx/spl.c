@@ -4,7 +4,7 @@
  * Author: Parthiban Nallathambi <parthiban@linumiz.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/arch/clock.h>

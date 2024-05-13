@@ -9,94 +9,17 @@
 	chosen {
 		tick-timer = &main_timer0;
 	};
-
-	memory@80000000 {
-		bootph-all;
-	};
-};
-
-&cbass_main {
-	bootph-all;
 };
 
 &main_timer0 {
-	bootph-all;
 	clock-frequency = <200000000>;
-};
-
-&main_conf {
-	bootph-all;
-	chipid@14 {
-		bootph-all;
-	};
-};
-
-&main_pmx0 {
-	bootph-all;
-};
-
-&main_i2c0_pins_default {
-	bootph-all;
-};
-
-&main_i2c0 {
-	bootph-all;
-};
-
-&main_uart0_pins_default {
-	bootph-all;
-};
-
-&main_uart0 {
-	bootph-all;
-};
-
-&main_usb0_pins_default {
-	bootph-all;
 };
 
 &usb0 {
 	dr_mode="peripheral";
-	bootph-all;
-};
-
-&usbss0 {
-	bootph-all;
 };
 
 &main_mmc1_pins_default {
-	bootph-all;
-};
-
-&main_usb0_pins_default {
-	bootph-all;
-};
-
-&dmss {
-	bootph-all;
-};
-
-&secure_proxy_main {
-	bootph-all;
-};
-
-&dmsc {
-	bootph-all;
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
-};
-
-&k3_pds {
-	bootph-all;
-};
-
-&k3_clks {
-	bootph-all;
-};
-
-&k3_reset {
 	bootph-all;
 };
 
@@ -105,10 +28,6 @@
 };
 
 &main_mmc1_pins_default {
-	bootph-all;
-};
-
-&sdhci1 {
 	bootph-all;
 };
 
@@ -143,42 +62,22 @@
 	bootph-all;
 };
 
-&mdio1_pins_default {
-	bootph-all;
-};
-
-&cpsw3g_mdio {
-	bootph-all;
-};
-
-&cpsw3g_phy0 {
-	bootph-all;
-};
-
-&rgmii1_pins_default {
-	bootph-all;
-};
-
-&rgmii2_pins_default {
-	bootph-all;
-};
-
-&cpsw3g {
-	bootph-all;
-
-	ethernet-ports {
-		bootph-all;
-	};
-};
-
-&phy_gmii_sel {
-	bootph-all;
-};
-
-&cpsw_port1 {
-	bootph-all;
-};
-
 &cpsw_port2 {
 	status = "disabled";
+};
+
+&ospi0_pins_default {
+	bootph-all;
+};
+
+&fss {
+	bootph-all;
+};
+
+&ospi0 {
+	bootph-all;
+
+	flash@0 {
+		bootph-all;
+	};
 };

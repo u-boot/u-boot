@@ -39,12 +39,9 @@
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"boot_scripts=boot.scr\0" \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyS2\0" \
 	"fdt_board=dev\0" \
-	"setup=setenv setupargs console=tty1 console=${console},${baudrate} " \
-		"consoleblank=0 earlycon=ns16550a,mmio32,0x02800000\0" \
 	"update_tiboot3=askenv confirm Did you load tiboot3.bin (y/N)?; " \
 		"if test \"$confirm\" = \"y\"; then " \
 		"setexpr blkcnt ${filesize} + 0x1ff && setexpr blkcnt " \

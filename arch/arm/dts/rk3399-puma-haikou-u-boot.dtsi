@@ -30,18 +30,6 @@
 	aliases {
 		spi5 = &spi5;
 	};
-
-	vdd_log: vdd-log {
-		compatible = "pwm-regulator";
-		pwms = <&pwm2 0 25000 1>;
-		regulator-name = "vdd_log";
-		regulator-always-on;
-		regulator-boot-on;
-		regulator-min-microvolt = <800000>;
-		regulator-max-microvolt = <1400000>;
-		regulator-init-microvolt = <950000>;
-		vin-supply = <&vcc5v0_sys>;
-	};
 };
 
 &binman {
@@ -88,25 +76,30 @@
 };
 
 &norflash {
-	bootph-all;
+	bootph-pre-ram;
+	bootph-some-ram;
 };
 
-&pcfg_pull_none {
+&uart0 {
 	bootph-all;
+	clock-frequency = <24000000>;
 };
 
-&pcfg_pull_up {
-	bootph-all;
+&uart0_cts {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
-&sdmmc_bus4 {
-	bootph-all;
+&uart0_rts {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
-&sdmmc_clk {
-	bootph-all;
+&uart0_xfer {
+	bootph-pre-sram;
+	bootph-pre-ram;
 };
 
-&sdmmc_cmd {
-	bootph-all;
+&vdd_log {
+	regulator-init-microvolt = <950000>;
 };

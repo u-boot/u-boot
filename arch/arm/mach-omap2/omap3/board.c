@@ -15,7 +15,6 @@
  *      Syed Mohammed Khasim <khasim@ti.com>
  *
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <init.h>

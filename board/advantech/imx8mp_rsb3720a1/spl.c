@@ -4,7 +4,7 @@
  * Copyright 2022 Linaro
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <errno.h>

@@ -6,7 +6,6 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <abuf.h>
 #include <env.h>
 #include <log.h>
@@ -17,11 +16,15 @@
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
+#include <asm/unaligned.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <exports.h>
 #include <fdtdec.h>
 #include <version.h>
+#include <video.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
@@ -421,13 +424,13 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 
 	for (i = 0; i < n; i++) {
 		if (address_cells == 2)
-			*(fdt64_t *)p = cpu_to_fdt64(address[i]);
+			put_unaligned_be64(address[i], p);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(address[i]);
 		p += 4 * address_cells;
 
 		if (size_cells == 2)
-			*(fdt64_t *)p = cpu_to_fdt64(size[i]);
+			put_unaligned_be64(size[i], p);
 		else
 			*(fdt32_t *)p = cpu_to_fdt32(size[i]);
 		p += 4 * size_cells;
@@ -2041,6 +2044,24 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(VIDEO)
+int fdt_add_fb_mem_rsv(void *blob)
+{
+	struct fdt_memory mem;
+
+	/* nothing to do when the frame buffer is not defined */
+	if (gd->video_bottom == gd->video_top)
+		return 0;
+
+	/* reserved with no-map tag the video buffer */
+	mem.start = gd->video_bottom;
+	mem.end = gd->video_top - 1;
+
+	return fdtdec_add_reserved_memory(blob, "framebuffer", &mem, NULL, 0, NULL,
+					  FDTDEC_RESERVED_MEMORY_NO_MAP);
+}
+#endif
 
 /*
  * Update native-mode in display-timings from display environment variable.

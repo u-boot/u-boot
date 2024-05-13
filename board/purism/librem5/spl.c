@@ -4,7 +4,7 @@
  * Copyright 2021 Purism
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>
@@ -416,12 +416,6 @@ int power_init_board(void)
 	rv = 0;
 out:
 	return rv;
-}
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
 }
 
 static void dwc3_nxp_usb_phy_init(struct dwc3_device *dwc3)

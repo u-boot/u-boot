@@ -2,7 +2,7 @@
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd.
  */
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <debug_uart.h>
 #include <dm.h>

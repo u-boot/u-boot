@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-j784s4-binman.dtsi"
+
+/ {
+	memory@80000000 {
+		bootph-all;
+	};
+};
+
+&mcu_udmap {
+	reg =   <0x0 0x285c0000 0x0 0x100>,
+		<0x0 0x284c0000 0x0 0x4000>,
+		<0x0 0x2a800000 0x0 0x40000>,
+		<0x0 0x284a0000 0x0 0x4000>,
+		<0x0 0x2aa00000 0x0 0x40000>,
+		<0x0 0x28400000 0x0 0x2000>;
+	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
+		    "tchanrt", "rflow";
+	bootph-pre-ram;
+};
+
+#ifdef CONFIG_TARGET_J784S4_A72_EVM
+
+#define SPL_AM69_SK_DTB "spl/dts/ti/k3-am69-sk.dtb"
+#define AM69_SK_DTB "u-boot.dtb"
+
+&spl_j784s4_evm_dtb {
+	filename = SPL_AM69_SK_DTB;
+};
+
+&j784s4_evm_dtb {
+	filename = AM69_SK_DTB;
+};
+
+&spl_j784s4_evm_dtb_unsigned {
+	filename = SPL_AM69_SK_DTB;
+};
+
+&j784s4_evm_dtb_unsigned {
+	filename = AM69_SK_DTB;
+};
+
+#endif

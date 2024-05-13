@@ -24,10 +24,8 @@
 #include <dm/lists.h>
 #include <linux/iopoll.h>
 
-#include <common.h>
 #include <log.h>
 #include <video.h>
-#include <asm/io.h>
 #include <dm/device-internal.h>
 #include <linux/bitops.h>
 #include <linux/time.h>

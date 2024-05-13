@@ -8,7 +8,6 @@
  *	Copyright 2000-2004 Wolfgang Denk, wd@denx.de
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <env.h>
@@ -882,6 +881,14 @@ static void dhcp_process_options(uchar *popt, uchar *end)
 			net_root_path[size] = 0;
 			break;
 		case 28:	/* Ignore Broadcast Address Option */
+			break;
+		case 40:	/* NIS Domain name */
+			if (net_nis_domain[0] == 0) {
+				size = truncate_sz("NIS Domain Name",
+					sizeof(net_nis_domain), oplen);
+				memcpy(&net_nis_domain, popt + 2, size);
+				net_nis_domain[size] = 0;
+			}
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
 		case 42:	/* NTP server IP */

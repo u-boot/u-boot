@@ -2,7 +2,7 @@
 /*
  * Copyright (C) ASPEED Technology Inc.
  */
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

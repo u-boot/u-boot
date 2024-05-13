@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
-#include <common.h>
 #include <bloblist.h>
 #include <log.h>
 #include <malloc.h>
@@ -97,6 +96,8 @@ int write_tables(void)
 		const struct table_info *table = &table_list[i];
 		int size = table->size ? : CONFIG_ROM_TABLE_SIZE;
 		u32 rom_table_end;
+
+		rom_addr = ALIGN(rom_addr, 16);
 
 		if (!strcmp("smbios", table->name))
 			gd->arch.smbios_start = rom_addr;

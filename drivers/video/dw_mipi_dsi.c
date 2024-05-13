@@ -9,7 +9,6 @@
  * the Linux Kernel driver drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.c.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dsi_host.h>
 #include <dm.h>

@@ -7,6 +7,8 @@
 #ifndef __EXTENSION_SUPPORT_H
 #define __EXTENSION_SUPPORT_H
 
+#include <linux/list.h>
+
 struct extension {
 	struct list_head list;
 	char name[32];

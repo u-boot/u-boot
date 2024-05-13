@@ -11,16 +11,22 @@ Synopsis
 
 ::
 
-    rng [devnum [n]]
+    rng list
+    rng [dev] [n]
 
-Description
------------
+rng list
+--------
+
+List all the probed rng devices.
+
+rng [dev] [n]
+-------------
 
 The *rng* command reads the random number generator(RNG) device and
 prints the random bytes read on the console. A maximum of 64 bytes can
 be read in one invocation of the command.
 
-devnum
+dev
     The RNG device from which the random bytes are to be
     read. Defaults to 0.
 

@@ -21,7 +21,7 @@
  * using CFG_SYS_HZ_CLOCK.
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <time.h>
 #include <asm/global_data.h>

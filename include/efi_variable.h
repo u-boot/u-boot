@@ -8,7 +8,7 @@
 
 #include <linux/bitops.h>
 
-#define EFI_VARIABLE_READ_ONLY BIT(31)
+#define EFI_VARIABLE_READ_ONLY 0x80000000
 
 enum efi_auth_var_type {
 	EFI_AUTH_VAR_NONE = 0,
@@ -271,13 +271,16 @@ const efi_guid_t *efi_auth_var_get_guid(const u16 *name);
  *
  * @variable_name_size:	size of variable_name buffer in bytes
  * @variable_name:	name of uefi variable's name in u16
+ * @mask:		bitmask with required attributes of variables to be collected.
+ *                      variables are only collected if all of the required
+ *                      attributes match. Use 0 to skip matching
  * @vendor:		vendor's guid
  *
  * Return: status code
  */
 efi_status_t __efi_runtime
 efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_name,
-			       efi_guid_t *vendor);
+			       efi_guid_t *vendor, u32 mask);
 /**
  * efi_get_variable_mem() - Runtime common code across efi variable
  *                          implementations for GetVariable() from
@@ -289,12 +292,15 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_na
  * @data_size:		size of the buffer to which the variable value is copied
  * @data:		buffer to which the variable value is copied
  * @timep:		authentication time (seconds since start of epoch)
+ * @mask:		bitmask with required attributes of variables to be collected.
+ *                      variables are only collected if all of the required
+ *                      attributes match. Use 0 to skip matching
  * Return:		status code
  */
 efi_status_t __efi_runtime
 efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
 		     u32 *attributes, efi_uintn_t *data_size, void *data,
-		     u64 *timep);
+		     u64 *timep, u32 mask);
 
 /**
  * efi_get_variable_runtime() - runtime implementation of GetVariable()
@@ -333,5 +339,11 @@ efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
  * at runtime to fill the buffer.
  */
 void efi_var_buf_update(struct efi_var_file *var_buf);
+
+efi_status_t __efi_runtime efi_var_collect_mem(struct efi_var_file *buf,
+					       efi_uintn_t *lenp,
+					       u32 check_attr_mask);
+
+u32 efi_var_entry_len(struct efi_var_entry *var);
 
 #endif

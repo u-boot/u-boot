@@ -19,7 +19,7 @@
  * implementation of the driver you are using.
  */
 
-#include <asm/types.h>
+#include <linux/types.h>
 #include <asm/ptrace.h>
 
 struct udevice;

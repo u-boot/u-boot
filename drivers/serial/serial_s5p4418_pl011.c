@@ -3,7 +3,6 @@
  * Copyright (C) 2022  Stefan Bosch <stefan_b@posteo.net>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/reset.h>

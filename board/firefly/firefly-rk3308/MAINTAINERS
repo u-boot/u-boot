@@ -4,3 +4,4 @@ S:      Maintained
 F:      board/firefly/firefly-rk3308/
 F:      configs/roc-cc-rk3308_defconfig
 F:      include/configs/firefly_rk3308.h
+F:      arch/arm/dts/rk3308-roc-cc*

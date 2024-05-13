@@ -4,7 +4,6 @@
  * Take from coreboot project file of the same name
  */
 
-#include <common.h>
 #include <asm/intel_regs.h>
 #include <asm/io.h>
 #include <asm/arch/systemagent.h>

@@ -168,6 +168,14 @@ config CF_SPI
           Enable the ColdFire SPI driver. This driver can be used on
           some m68k SoCs.
 
+config CV1800B_SPIF
+	bool "Sophgo cv1800b SPI Flash Controller driver"
+	depends on SPI_MEM
+	help
+	  Enable the Sophgo cv1800b SPI Flash Controller driver. This driver
+	  can be used to access the SPI NOR flash on platforms embedding this
+	  Sophgo cv1800b IP core.
+
 config DAVINCI_SPI
 	bool "Davinci & Keystone SPI driver"
 	depends on ARCH_DAVINCI || ARCH_KEYSTONE
@@ -262,7 +270,7 @@ config MESON_SPIFC_A1
 
 config MPC8XX_SPI
 	bool "MPC8XX SPI Driver"
-	depends on MPC8xx
+	depends on MPC8xx && DM_GPIO
 	help
 	  Enable support for SPI on MPC8XX
 

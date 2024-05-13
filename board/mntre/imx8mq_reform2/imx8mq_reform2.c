@@ -4,7 +4,6 @@
  * Copyright (C) 2018, Boundary Devices <info@boundarydevices.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <malloc.h>

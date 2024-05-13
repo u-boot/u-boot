@@ -7,10 +7,10 @@
  *
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/soc.h>
+#include <linux/errno.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #include "pcie_layerscape_fixup_common.h"

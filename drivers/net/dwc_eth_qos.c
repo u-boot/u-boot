@@ -29,7 +29,6 @@
 
 #define LOG_CATEGORY UCLASS_ETH
 
-#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -159,7 +158,7 @@ static int eqos_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = eqos_mdio_wait_idle(eqos);
 	if (ret) {
-		pr_err("MDIO not idle at entry");
+		pr_err("MDIO not idle at entry\n");
 		return ret;
 	}
 
@@ -179,7 +178,7 @@ static int eqos_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = eqos_mdio_wait_idle(eqos);
 	if (ret) {
-		pr_err("MDIO read didn't complete");
+		pr_err("MDIO read didn't complete\n");
 		return ret;
 	}
 
@@ -203,7 +202,7 @@ static int eqos_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = eqos_mdio_wait_idle(eqos);
 	if (ret) {
-		pr_err("MDIO not idle at entry");
+		pr_err("MDIO not idle at entry\n");
 		return ret;
 	}
 
@@ -225,7 +224,7 @@ static int eqos_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = eqos_mdio_wait_idle(eqos);
 	if (ret) {
-		pr_err("MDIO read didn't complete");
+		pr_err("MDIO read didn't complete\n");
 		return ret;
 	}
 
@@ -242,37 +241,37 @@ static int eqos_start_clks_tegra186(struct udevice *dev)
 
 	ret = clk_enable(&eqos->clk_slave_bus);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_slave_bus) failed: %d", ret);
+		pr_err("clk_enable(clk_slave_bus) failed: %d\n", ret);
 		goto err;
 	}
 
 	ret = clk_enable(&eqos->clk_master_bus);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_master_bus) failed: %d", ret);
+		pr_err("clk_enable(clk_master_bus) failed: %d\n", ret);
 		goto err_disable_clk_slave_bus;
 	}
 
 	ret = clk_enable(&eqos->clk_rx);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_rx) failed: %d", ret);
+		pr_err("clk_enable(clk_rx) failed: %d\n", ret);
 		goto err_disable_clk_master_bus;
 	}
 
 	ret = clk_enable(&eqos->clk_ptp_ref);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_ptp_ref) failed: %d", ret);
+		pr_err("clk_enable(clk_ptp_ref) failed: %d\n", ret);
 		goto err_disable_clk_rx;
 	}
 
 	ret = clk_set_rate(&eqos->clk_ptp_ref, 125 * 1000 * 1000);
 	if (ret < 0) {
-		pr_err("clk_set_rate(clk_ptp_ref) failed: %d", ret);
+		pr_err("clk_set_rate(clk_ptp_ref) failed: %d\n", ret);
 		goto err_disable_clk_ptp_ref;
 	}
 
 	ret = clk_enable(&eqos->clk_tx);
 	if (ret < 0) {
-		pr_err("clk_enable(clk_tx) failed: %d", ret);
+		pr_err("clk_enable(clk_tx) failed: %d\n", ret);
 		goto err_disable_clk_ptp_ref;
 	}
 #endif
@@ -289,58 +288,6 @@ err_disable_clk_master_bus:
 	clk_disable(&eqos->clk_master_bus);
 err_disable_clk_slave_bus:
 	clk_disable(&eqos->clk_slave_bus);
-err:
-	debug("%s: FAILED: %d\n", __func__, ret);
-	return ret;
-#endif
-}
-
-static int eqos_start_clks_stm32(struct udevice *dev)
-{
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
-	int ret;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	ret = clk_enable(&eqos->clk_master_bus);
-	if (ret < 0) {
-		pr_err("clk_enable(clk_master_bus) failed: %d", ret);
-		goto err;
-	}
-
-	ret = clk_enable(&eqos->clk_rx);
-	if (ret < 0) {
-		pr_err("clk_enable(clk_rx) failed: %d", ret);
-		goto err_disable_clk_master_bus;
-	}
-
-	ret = clk_enable(&eqos->clk_tx);
-	if (ret < 0) {
-		pr_err("clk_enable(clk_tx) failed: %d", ret);
-		goto err_disable_clk_rx;
-	}
-
-	if (clk_valid(&eqos->clk_ck) && !eqos->clk_ck_enabled) {
-		ret = clk_enable(&eqos->clk_ck);
-		if (ret < 0) {
-			pr_err("clk_enable(clk_ck) failed: %d", ret);
-			goto err_disable_clk_tx;
-		}
-		eqos->clk_ck_enabled = true;
-	}
-#endif
-
-	debug("%s: OK\n", __func__);
-	return 0;
-
-#ifdef CONFIG_CLK
-err_disable_clk_tx:
-	clk_disable(&eqos->clk_tx);
-err_disable_clk_rx:
-	clk_disable(&eqos->clk_rx);
-err_disable_clk_master_bus:
-	clk_disable(&eqos->clk_master_bus);
 err:
 	debug("%s: FAILED: %d\n", __func__, ret);
 	return ret;
@@ -365,22 +312,6 @@ static int eqos_stop_clks_tegra186(struct udevice *dev)
 	return 0;
 }
 
-static int eqos_stop_clks_stm32(struct udevice *dev)
-{
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	clk_disable(&eqos->clk_tx);
-	clk_disable(&eqos->clk_rx);
-	clk_disable(&eqos->clk_master_bus);
-#endif
-
-	debug("%s: OK\n", __func__);
-	return 0;
-}
-
 static int eqos_start_resets_tegra186(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
@@ -390,7 +321,7 @@ static int eqos_start_resets_tegra186(struct udevice *dev)
 
 	ret = dm_gpio_set_value(&eqos->phy_reset_gpio, 1);
 	if (ret < 0) {
-		pr_err("dm_gpio_set_value(phy_reset, assert) failed: %d", ret);
+		pr_err("dm_gpio_set_value(phy_reset, assert) failed: %d\n", ret);
 		return ret;
 	}
 
@@ -398,13 +329,13 @@ static int eqos_start_resets_tegra186(struct udevice *dev)
 
 	ret = dm_gpio_set_value(&eqos->phy_reset_gpio, 0);
 	if (ret < 0) {
-		pr_err("dm_gpio_set_value(phy_reset, deassert) failed: %d", ret);
+		pr_err("dm_gpio_set_value(phy_reset, deassert) failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = reset_assert(&eqos->reset_ctl);
 	if (ret < 0) {
-		pr_err("reset_assert() failed: %d", ret);
+		pr_err("reset_assert() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -412,7 +343,7 @@ static int eqos_start_resets_tegra186(struct udevice *dev)
 
 	ret = reset_deassert(&eqos->reset_ctl);
 	if (ret < 0) {
-		pr_err("reset_deassert() failed: %d", ret);
+		pr_err("reset_deassert() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -448,14 +379,14 @@ static int eqos_calibrate_pads_tegra186(struct udevice *dev)
 	ret = wait_for_bit_le32(&eqos->tegra186_regs->auto_cal_status,
 				EQOS_AUTO_CAL_STATUS_ACTIVE, true, 10, false);
 	if (ret) {
-		pr_err("calibrate didn't start");
+		pr_err("calibrate didn't start\n");
 		goto failed;
 	}
 
 	ret = wait_for_bit_le32(&eqos->tegra186_regs->auto_cal_status,
 				EQOS_AUTO_CAL_STATUS_ACTIVE, false, 10, false);
 	if (ret) {
-		pr_err("calibrate didn't finish");
+		pr_err("calibrate didn't finish\n");
 		goto failed;
 	}
 
@@ -488,17 +419,6 @@ static ulong eqos_get_tick_clk_rate_tegra186(struct udevice *dev)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
 	return clk_get_rate(&eqos->clk_slave_bus);
-#else
-	return 0;
-#endif
-}
-
-static ulong eqos_get_tick_clk_rate_stm32(struct udevice *dev)
-{
-#ifdef CONFIG_CLK
-	struct eqos_priv *eqos = dev_get_priv(dev);
-
-	return clk_get_rate(&eqos->clk_master_bus);
 #else
 	return 0;
 #endif
@@ -586,13 +506,13 @@ static int eqos_set_tx_clk_speed_tegra186(struct udevice *dev)
 		rate = 2.5 * 1000 * 1000;
 		break;
 	default:
-		pr_err("invalid speed %d", eqos->phy->speed);
+		pr_err("invalid speed %d\n", eqos->phy->speed);
 		return -EINVAL;
 	}
 
 	ret = clk_set_rate(&eqos->clk_tx, rate);
 	if (ret < 0) {
-		pr_err("clk_set_rate(tx_clk, %lu) failed: %d", rate, ret);
+		pr_err("clk_set_rate(tx_clk, %lu) failed: %d\n", rate, ret);
 		return ret;
 	}
 #endif
@@ -613,7 +533,7 @@ static int eqos_adjust_link(struct udevice *dev)
 	else
 		ret = eqos_set_half_duplex(dev);
 	if (ret < 0) {
-		pr_err("eqos_set_*_duplex() failed: %d", ret);
+		pr_err("eqos_set_*_duplex() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -631,32 +551,32 @@ static int eqos_adjust_link(struct udevice *dev)
 		ret = eqos_set_mii_speed_10(dev);
 		break;
 	default:
-		pr_err("invalid speed %d", eqos->phy->speed);
+		pr_err("invalid speed %d\n", eqos->phy->speed);
 		return -EINVAL;
 	}
 	if (ret < 0) {
-		pr_err("eqos_set_*mii_speed*() failed: %d", ret);
+		pr_err("eqos_set_*mii_speed*() failed: %d\n", ret);
 		return ret;
 	}
 
 	if (en_calibration) {
 		ret = eqos->config->ops->eqos_calibrate_pads(dev);
 		if (ret < 0) {
-			pr_err("eqos_calibrate_pads() failed: %d",
+			pr_err("eqos_calibrate_pads() failed: %d\n",
 			       ret);
 			return ret;
 		}
 	} else {
 		ret = eqos->config->ops->eqos_disable_calibration(dev);
 		if (ret < 0) {
-			pr_err("eqos_disable_calibration() failed: %d",
+			pr_err("eqos_disable_calibration() failed: %d\n",
 			       ret);
 			return ret;
 		}
 	}
 	ret = eqos->config->ops->eqos_set_tx_clk_speed(dev);
 	if (ret < 0) {
-		pr_err("eqos_set_tx_clk_speed() failed: %d", ret);
+		pr_err("eqos_set_tx_clk_speed() failed: %d\n", ret);
 		return ret;
 	}
 
@@ -755,7 +675,7 @@ static int eqos_start(struct udevice *dev)
 
 	ret = eqos->config->ops->eqos_start_resets(dev);
 	if (ret < 0) {
-		pr_err("eqos_start_resets() failed: %d", ret);
+		pr_err("eqos_start_resets() failed: %d\n", ret);
 		goto err;
 	}
 
@@ -773,13 +693,13 @@ static int eqos_start(struct udevice *dev)
 				EQOS_DMA_MODE_SWR, false,
 				eqos->config->swr_wait, false);
 	if (ret) {
-		pr_err("EQOS_DMA_MODE_SWR stuck");
+		pr_err("EQOS_DMA_MODE_SWR stuck\n");
 		goto err_stop_resets;
 	}
 
 	ret = eqos->config->ops->eqos_calibrate_pads(dev);
 	if (ret < 0) {
-		pr_err("eqos_calibrate_pads() failed: %d", ret);
+		pr_err("eqos_calibrate_pads() failed: %d\n", ret);
 		goto err_stop_resets;
 	}
 
@@ -812,7 +732,7 @@ static int eqos_start(struct udevice *dev)
 		}
 
 		if (!eqos->phy) {
-			pr_err("phy_connect() failed");
+			pr_err("phy_connect() failed\n");
 			ret = -ENODEV;
 			goto err_stop_resets;
 		}
@@ -820,7 +740,7 @@ static int eqos_start(struct udevice *dev)
 		if (eqos->max_speed) {
 			ret = phy_set_supported(eqos->phy, eqos->max_speed);
 			if (ret) {
-				pr_err("phy_set_supported() failed: %d", ret);
+				pr_err("phy_set_supported() failed: %d\n", ret);
 				goto err_shutdown_phy;
 			}
 		}
@@ -828,26 +748,26 @@ static int eqos_start(struct udevice *dev)
 		eqos->phy->node = eqos->phy_of_node;
 		ret = phy_config(eqos->phy);
 		if (ret < 0) {
-			pr_err("phy_config() failed: %d", ret);
+			pr_err("phy_config() failed: %d\n", ret);
 			goto err_shutdown_phy;
 		}
 	}
 
 	ret = phy_startup(eqos->phy);
 	if (ret < 0) {
-		pr_err("phy_startup() failed: %d", ret);
+		pr_err("phy_startup() failed: %d\n", ret);
 		goto err_shutdown_phy;
 	}
 
 	if (!eqos->phy->link) {
-		pr_err("No link");
+		pr_err("No link\n");
 		ret = -EAGAIN;
 		goto err_shutdown_phy;
 	}
 
 	ret = eqos_adjust_link(dev);
 	if (ret < 0) {
-		pr_err("eqos_adjust_link() failed: %d", ret);
+		pr_err("eqos_adjust_link() failed: %d\n", ret);
 		goto err_shutdown_phy;
 	}
 
@@ -1090,7 +1010,7 @@ err_shutdown_phy:
 err_stop_resets:
 	eqos->config->ops->eqos_stop_resets(dev);
 err:
-	pr_err("FAILED: %d", ret);
+	pr_err("FAILED: %d\n", ret);
 	return ret;
 }
 
@@ -1217,7 +1137,7 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	u32 idx, idx_mask = eqos->desc_per_cacheline - 1;
 	uchar *packet_expected;
-	struct eqos_desc *rx_desc;
+	struct eqos_desc *rx_desc = NULL;
 
 	debug("%s(packet=%p, length=%d)\n", __func__, packet, length);
 
@@ -1361,7 +1281,7 @@ static int eqos_probe_resources_tegra186(struct udevice *dev)
 
 	ret = reset_get_by_name(dev, "eqos", &eqos->reset_ctl);
 	if (ret) {
-		pr_err("reset_get_by_name(rst) failed: %d", ret);
+		pr_err("reset_get_by_name(rst) failed: %d\n", ret);
 		return ret;
 	}
 
@@ -1369,37 +1289,37 @@ static int eqos_probe_resources_tegra186(struct udevice *dev)
 				   &eqos->phy_reset_gpio,
 				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 	if (ret) {
-		pr_err("gpio_request_by_name(phy reset) failed: %d", ret);
+		pr_err("gpio_request_by_name(phy reset) failed: %d\n", ret);
 		goto err_free_reset_eqos;
 	}
 
 	ret = clk_get_by_name(dev, "slave_bus", &eqos->clk_slave_bus);
 	if (ret) {
-		pr_err("clk_get_by_name(slave_bus) failed: %d", ret);
+		pr_err("clk_get_by_name(slave_bus) failed: %d\n", ret);
 		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "master_bus", &eqos->clk_master_bus);
 	if (ret) {
-		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
+		pr_err("clk_get_by_name(master_bus) failed: %d\n", ret);
 		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "rx", &eqos->clk_rx);
 	if (ret) {
-		pr_err("clk_get_by_name(rx) failed: %d", ret);
+		pr_err("clk_get_by_name(rx) failed: %d\n", ret);
 		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "ptp_ref", &eqos->clk_ptp_ref);
 	if (ret) {
-		pr_err("clk_get_by_name(ptp_ref) failed: %d", ret);
+		pr_err("clk_get_by_name(ptp_ref) failed: %d\n", ret);
 		goto err_free_gpio_phy_reset;
 	}
 
 	ret = clk_get_by_name(dev, "tx", &eqos->clk_tx);
 	if (ret) {
-		pr_err("clk_get_by_name(tx) failed: %d", ret);
+		pr_err("clk_get_by_name(tx) failed: %d\n", ret);
 		goto err_free_gpio_phy_reset;
 	}
 
@@ -1410,57 +1330,6 @@ err_free_gpio_phy_reset:
 	dm_gpio_free(dev, &eqos->phy_reset_gpio);
 err_free_reset_eqos:
 	reset_free(&eqos->reset_ctl);
-
-	debug("%s: returns %d\n", __func__, ret);
-	return ret;
-}
-
-static int eqos_probe_resources_stm32(struct udevice *dev)
-{
-	struct eqos_priv *eqos = dev_get_priv(dev);
-	int ret;
-	phy_interface_t interface;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	interface = eqos->config->interface(dev);
-
-	if (interface == PHY_INTERFACE_MODE_NA) {
-		pr_err("Invalid PHY interface\n");
-		return -EINVAL;
-	}
-
-	ret = board_interface_eth_init(dev, interface);
-	if (ret)
-		return -EINVAL;
-
-	ret = clk_get_by_name(dev, "stmmaceth", &eqos->clk_master_bus);
-	if (ret) {
-		pr_err("clk_get_by_name(master_bus) failed: %d", ret);
-		goto err_probe;
-	}
-
-	ret = clk_get_by_name(dev, "mac-clk-rx", &eqos->clk_rx);
-	if (ret) {
-		pr_err("clk_get_by_name(rx) failed: %d", ret);
-		goto err_probe;
-	}
-
-	ret = clk_get_by_name(dev, "mac-clk-tx", &eqos->clk_tx);
-	if (ret) {
-		pr_err("clk_get_by_name(tx) failed: %d", ret);
-		goto err_probe;
-	}
-
-	/*  Get ETH_CLK clocks (optional) */
-	ret = clk_get_by_name(dev, "eth-ck", &eqos->clk_ck);
-	if (ret)
-		pr_warn("No phy clock provided %d", ret);
-
-	debug("%s: OK\n", __func__);
-	return 0;
-
-err_probe:
 
 	debug("%s: returns %d\n", __func__, ret);
 	return ret;
@@ -1484,12 +1353,6 @@ static int eqos_remove_resources_tegra186(struct udevice *dev)
 	return 0;
 }
 
-static int eqos_remove_resources_stm32(struct udevice *dev)
-{
-	debug("%s(dev=%p):\n", __func__, dev);
-	return 0;
-}
-
 static int eqos_probe(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
@@ -1502,7 +1365,7 @@ static int eqos_probe(struct udevice *dev)
 
 	eqos->regs = dev_read_addr(dev);
 	if (eqos->regs == FDT_ADDR_T_NONE) {
-		pr_err("dev_read_addr() failed");
+		pr_err("dev_read_addr() failed\n");
 		return -ENODEV;
 	}
 	eqos->mac_regs = (void *)(eqos->regs + EQOS_MAC_REGS_BASE);
@@ -1514,19 +1377,19 @@ static int eqos_probe(struct udevice *dev)
 
 	ret = eqos_probe_resources_core(dev);
 	if (ret < 0) {
-		pr_err("eqos_probe_resources_core() failed: %d", ret);
+		pr_err("eqos_probe_resources_core() failed: %d\n", ret);
 		return ret;
 	}
 
 	ret = eqos->config->ops->eqos_probe_resources(dev);
 	if (ret < 0) {
-		pr_err("eqos_probe_resources() failed: %d", ret);
+		pr_err("eqos_probe_resources() failed: %d\n", ret);
 		goto err_remove_resources_core;
 	}
 
 	ret = eqos->config->ops->eqos_start_clks(dev);
 	if (ret < 0) {
-		pr_err("eqos_start_clks() failed: %d", ret);
+		pr_err("eqos_start_clks() failed: %d\n", ret);
 		goto err_remove_resources_tegra;
 	}
 
@@ -1536,7 +1399,7 @@ static int eqos_probe(struct udevice *dev)
 	if (!eqos->mii) {
 		eqos->mii = mdio_alloc();
 		if (!eqos->mii) {
-			pr_err("mdio_alloc() failed");
+			pr_err("mdio_alloc() failed\n");
 			ret = -ENOMEM;
 			goto err_stop_clks;
 		}
@@ -1547,7 +1410,7 @@ static int eqos_probe(struct udevice *dev)
 
 		ret = mdio_register(eqos->mii);
 		if (ret < 0) {
-			pr_err("mdio_register() failed: %d", ret);
+			pr_err("mdio_register() failed: %d\n", ret);
 			goto err_free_mdio;
 		}
 	}
@@ -1633,35 +1496,6 @@ static const struct eqos_config __maybe_unused eqos_tegra186_config = {
 	.ops = &eqos_tegra186_ops
 };
 
-static struct eqos_ops eqos_stm32_ops = {
-	.eqos_inval_desc = eqos_inval_desc_generic,
-	.eqos_flush_desc = eqos_flush_desc_generic,
-	.eqos_inval_buffer = eqos_inval_buffer_generic,
-	.eqos_flush_buffer = eqos_flush_buffer_generic,
-	.eqos_probe_resources = eqos_probe_resources_stm32,
-	.eqos_remove_resources = eqos_remove_resources_stm32,
-	.eqos_stop_resets = eqos_null_ops,
-	.eqos_start_resets = eqos_null_ops,
-	.eqos_stop_clks = eqos_stop_clks_stm32,
-	.eqos_start_clks = eqos_start_clks_stm32,
-	.eqos_calibrate_pads = eqos_null_ops,
-	.eqos_disable_calibration = eqos_null_ops,
-	.eqos_set_tx_clk_speed = eqos_null_ops,
-	.eqos_get_enetaddr = eqos_null_ops,
-	.eqos_get_tick_clk_rate = eqos_get_tick_clk_rate_stm32
-};
-
-static const struct eqos_config __maybe_unused eqos_stm32_config = {
-	.reg_access_always_ok = false,
-	.mdio_wait = 10000,
-	.swr_wait = 50,
-	.config_mac = EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_AV,
-	.config_mac_mdio = EQOS_MAC_MDIO_ADDRESS_CR_250_300,
-	.axi_bus_width = EQOS_AXI_WIDTH_64,
-	.interface = dev_read_phy_mode,
-	.ops = &eqos_stm32_ops
-};
-
 static const struct udevice_id eqos_ids[] = {
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_TEGRA186)
 	{
@@ -1671,8 +1505,12 @@ static const struct udevice_id eqos_ids[] = {
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_STM32)
 	{
+		.compatible = "st,stm32mp13-dwmac",
+		.data = (ulong)&eqos_stm32mp13_config
+	},
+	{
 		.compatible = "st,stm32mp1-dwmac",
-		.data = (ulong)&eqos_stm32_config
+		.data = (ulong)&eqos_stm32mp15_config
 	},
 #endif
 #if IS_ENABLED(CONFIG_DWC_ETH_QOS_IMX)

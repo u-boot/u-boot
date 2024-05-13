@@ -5,7 +5,6 @@
  * Copyright (C) 2008  Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
  */
 
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <log.h>

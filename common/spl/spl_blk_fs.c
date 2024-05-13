@@ -5,7 +5,6 @@
  *
  */
 
-#include <common.h>
 #include <spl.h>
 #include <spl_load.h>
 #include <image.h>

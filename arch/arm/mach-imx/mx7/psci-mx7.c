@@ -13,7 +13,6 @@
 #include <asm/armv7.h>
 #include <asm/gic.h>
 #include <linux/bitops.h>
-#include <common.h>
 #include <fsl_wdog.h>
 
 #define GPC_LPCR_A7_BSC	0x0
@@ -631,9 +630,9 @@ __secure void psci_system_suspend(u32 __always_unused function_id,
 	 * Workaround:
 	 * If both CPU0/CPU1 are IDLE, the last IDLE CPU should
 	 * disable GIC first, then REG_BYPASS_COUNTER is used
-	 * to mask wakeup INT, and then execute “wfi” is used to
+	 * to mask wakeup INT, and then execute "wfi" is used to
 	 * bring the system into power down processing safely.
-	 * The counter must be enabled as close to the “wfi” state
+	 * The counter must be enabled as close to the "wfi" state
 	 * as possible. The following equation can be used to
 	 * determine the RBC counter value:
 	 * RBC_COUNT * (1/32K RTC frequency) >=

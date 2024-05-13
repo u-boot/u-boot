@@ -5,14 +5,12 @@
  * Copyright 2014 Rockchip Inc.
  */
 
-#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>
 #include <video.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/hardware.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2018 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <adc.h>

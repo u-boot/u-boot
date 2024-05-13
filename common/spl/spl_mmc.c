@@ -5,7 +5,6 @@
  *
  * Aneesh V <aneesh@ti.com>
  */
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <part.h>
@@ -13,7 +12,6 @@
 #include <spl_load.h>
 #include <linux/compiler.h>
 #include <errno.h>
-#include <asm/u-boot.h>
 #include <errno.h>
 #include <mmc.h>
 #include <image.h>

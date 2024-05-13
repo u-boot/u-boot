@@ -18,7 +18,6 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
-#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>

@@ -5,7 +5,7 @@
  * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
+#include <config.h>
 #include <log.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/ddr_defs.h>

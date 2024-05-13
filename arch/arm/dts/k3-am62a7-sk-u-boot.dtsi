@@ -119,10 +119,6 @@
 
 &dmsc {
 	bootph-all;
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
 };
 
 &vdd_mmc1 {

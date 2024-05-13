@@ -9,7 +9,6 @@
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

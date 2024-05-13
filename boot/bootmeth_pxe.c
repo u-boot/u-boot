@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
@@ -184,7 +183,7 @@ static const struct udevice_id extlinux_bootmeth_pxe_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(bootmeth_pxe) = {
+U_BOOT_DRIVER(bootmeth_zpxe) = {
 	.name		= "bootmeth_pxe",
 	.id		= UCLASS_BOOTMETH,
 	.of_match	= extlinux_bootmeth_pxe_ids,

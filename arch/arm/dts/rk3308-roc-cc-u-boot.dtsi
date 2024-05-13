@@ -5,13 +5,37 @@
 #include "rk3308-u-boot.dtsi"
 
 / {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &emmc;
+	aliases {
+		ethernet0 = &gmac;
 	};
+};
+
+&gmac {
+	assigned-clocks = <&cru SCLK_MAC>;
+	assigned-clock-parents = <&mac_clkin>;
+	clock_in_out = "input";
+	pinctrl-names = "default";
+	pinctrl-0 = <&rmiim1_pins &macm1_refclk>;
+	status = "okay";
+};
+
+&gpio4 {
+	bootph-pre-ram;
 };
 
 &uart2 {
 	bootph-all;
 	clock-frequency = <24000000>;
-	status = "okay";
+};
+
+&uart2m0_xfer {
+	bootph-all;
+};
+
+&vcc_sd {
+	bootph-pre-ram;
+};
+
+&vdd_core {
+	regulator-init-microvolt = <1015000>;
 };

@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_TIMER
 
-#include <common.h>
 #include <clk.h>
 #include <cpu.h>
 #include <dm.h>

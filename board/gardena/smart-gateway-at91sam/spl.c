@@ -4,7 +4,7 @@
  * Copyright (C) 2019 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <nand.h>
 #include <spl.h>
 #include <asm/arch/at91sam9x5_matrix.h>

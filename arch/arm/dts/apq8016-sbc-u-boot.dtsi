@@ -1,0 +1,20 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2024, Linaro Ltd.
+ */
+
+/ {
+	/* When running as a first-stage bootloader this isn't filled in automatically */
+	memory@80000000 {
+		reg = <0 0x80000000 0 0x3da00000>;
+	};
+};
+
+/*
+ * When running as a first-stage bootloader, we need to re-configure the UART pins
+ * because SBL de-initialises them. Indicate that the UART pins should be configured
+ * during all boot stages.
+ */
+&blsp_uart2_default {
+	bootph-all;
+};

@@ -3,7 +3,7 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  *	Roy Zang <tie-fei.zang@freescale.com>
  */
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <phy.h>
 #include <fm_eth.h>

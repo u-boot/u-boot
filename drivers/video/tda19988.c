@@ -5,7 +5,6 @@
  * Based on the Linux driver, (C) 2012 Texas Instruments
  */
 
-#include <common.h>
 #include <dm.h>
 #include <display.h>
 #include <i2c.h>

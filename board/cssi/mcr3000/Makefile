@@ -6,3 +6,4 @@
 
 obj-y += mcr3000.o
 obj-$(CONFIG_CMD_NAND) += nand.o
+obj-$(CONFIG_MPC8XX_SPI) += mcr3000_gpio.o

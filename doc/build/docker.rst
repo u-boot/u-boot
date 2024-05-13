@@ -11,4 +11,4 @@ Or to use an existing container
 
 .. code-block:: bash
 
-    sudo docker pull trini/u-boot-gitlab-ci-runner:bionic-20200807-02Sep2020
+    sudo docker pull trini/u-boot-gitlab-ci-runner:jammy-20240227-14Mar2024

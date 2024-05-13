@@ -3,7 +3,6 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
-#include <common.h>
 #include <linux/errno.h>
 #include <asm/arch/sysmap.h>
 #include "clk-core.h"

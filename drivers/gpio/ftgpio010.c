@@ -3,7 +3,6 @@
  * Faraday Technology's FTGPIO010 controller.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

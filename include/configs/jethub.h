@@ -11,7 +11,7 @@
 #if defined(CONFIG_MESON_AXG)
 #define BOOTENV_DEV_RESCUE(devtypeu, devtypel, instance) \
 	"bootcmd_rescue=" \
-		"if gpio input 10; then " \
+		"if gpio input periphs-banks10; then " \
 		"run bootcmd_mmc0; " \
 		"run bootcmd_usb0;" \
 		"fi;\0"

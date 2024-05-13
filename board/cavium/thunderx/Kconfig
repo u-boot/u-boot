@@ -13,7 +13,6 @@ config SYS_VENDOR
 	default "cavium"
 
 config SYS_CONFIG_NAME
-	string
 	default "thunderx_88xx"
 
 config CMD_ATF

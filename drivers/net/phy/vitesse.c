@@ -6,7 +6,6 @@
  * Original Author: Andy Fleming
  * Add vsc8662 phy support - Priyanka Jain
  */
-#include <common.h>
 #include <miiphy.h>
 
 /* Cicada Auxiliary Control/Status Register */

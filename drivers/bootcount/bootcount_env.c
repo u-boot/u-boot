@@ -4,7 +4,6 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 
-#include <common.h>
 #include <env.h>
 
 void bootcount_store(ulong a)

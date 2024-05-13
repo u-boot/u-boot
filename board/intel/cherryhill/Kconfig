@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "braswell"
 
-config SYS_CONFIG_NAME
-	default "cherryhill"
-
 config TEXT_BASE
 	default 0xffe00000
 

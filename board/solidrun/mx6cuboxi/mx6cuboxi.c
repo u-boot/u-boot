@@ -15,7 +15,7 @@
  * Ported to SolidRun microSOM by Rabeeh Khoury <rabeeh@solid-run.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <image.h>
 #include <init.h>
 #include <log.h>
@@ -336,20 +336,17 @@ static enum board_type board_type(void)
 	 * HB             1     1    x
 	 */
 
-	gpio_direction_input(IMX_GPIO_NR(2, 8));
-	val3 = gpio_get_value(IMX_GPIO_NR(2, 8));
+	val3 = !!dm_gpio_get_value(&board_detect_desc[0]);
 
 	if (val3 == 0)
 		return HUMMINGBOARD2;
 
-	gpio_direction_input(IMX_GPIO_NR(3, 4));
-	val2 = gpio_get_value(IMX_GPIO_NR(3, 4));
+	val2 = !!dm_gpio_get_value(&board_detect_desc[1]);
 
 	if (val2 == 0)
 		return HUMMINGBOARD;
 
-	gpio_direction_input(IMX_GPIO_NR(4, 9));
-	val1 = gpio_get_value(IMX_GPIO_NR(4, 9));
+	val1 = !!dm_gpio_get_value(&board_detect_desc[2]);
 
 	if (val1 == 0) {
 		return CUBOXI;
@@ -363,8 +360,8 @@ static bool is_rev_15_som(void)
 	int val1, val2;
 	SETUP_IOMUX_PADS(som_rev_detect);
 
-	val1 = gpio_get_value(IMX_GPIO_NR(6, 0));
-	val2 = gpio_get_value(IMX_GPIO_NR(6, 4));
+	val1 = !!dm_gpio_get_value(&board_detect_desc[3]);
+	val2 = !!dm_gpio_get_value(&board_detect_desc[4]);
 
 	if (val1 == 1 && val2 == 0)
 		return true;
@@ -379,37 +376,6 @@ static bool has_emmc(void)
 	if (!mmc)
 		return 0;
 	return (mmc_get_op_cond(mmc, true) < 0) ? 0 : 1;
-}
-
-/* Override the default implementation, DT model is not accurate */
-int checkboard(void)
-{
-	request_detect_gpios();
-
-	switch (board_type()) {
-	case CUBOXI:
-		puts("Board: MX6 Cubox-i");
-		break;
-	case HUMMINGBOARD:
-		puts("Board: MX6 HummingBoard");
-		break;
-	case HUMMINGBOARD2:
-		puts("Board: MX6 HummingBoard2");
-		break;
-	case UNKNOWN:
-	default:
-		puts("Board: Unknown\n");
-		goto out;
-	}
-
-	if (is_rev_15_som())
-		puts(" (som rev 1.5)\n");
-	else
-		puts("\n");
-
-	free_detect_gpios();
-out:
-	return 0;
 }
 
 static int find_ethernet_phy(void)
@@ -505,12 +471,15 @@ int board_late_init(void)
 	switch (board_type()) {
 	case CUBOXI:
 		env_set("board_name", "CUBOXI");
+		puts("Board: MX6 Cubox-i");
 		break;
 	case HUMMINGBOARD:
 		env_set("board_name", "HUMMINGBOARD");
+		puts("Board: MX6 HummingBoard");
 		break;
 	case HUMMINGBOARD2:
 		env_set("board_name", "HUMMINGBOARD2");
+		puts("Board: MX6 HummingBoard2");
 		break;
 	case UNKNOWN:
 	default:
@@ -522,8 +491,12 @@ int board_late_init(void)
 	else
 		env_set("board_rev", "MX6DL");
 
-	if (is_rev_15_som())
+	if (is_rev_15_som()) {
 		env_set("som_rev", "V15");
+		puts(" (som rev 1.5)\n");
+	} else {
+		puts("\n");
+	}
 
 	if (has_emmc())
 		env_set("has_emmc", "yes");

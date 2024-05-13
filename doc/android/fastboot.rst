@@ -30,6 +30,7 @@ The following OEM commands are supported (if enabled):
 - ``oem bootbus``  - this executes ``mmc bootbus %x %s`` to configure eMMC
 - ``oem run`` - this executes an arbitrary U-Boot command
 - ``oem console`` - this dumps U-Boot console record buffer
+- ``oem board`` - this executes a custom board function which is defined by the vendor
 
 Support for both eMMC and NAND devices is included.
 
@@ -245,6 +246,23 @@ You can run any command you would normally run on the U-Boot command line,
 including multiple commands (using e.g. ``;`` or ``&&``) and control structures
 (``if``, ``while``, etc.). The exit code of ``fastboot`` will reflect the exit
 code of the command you ran.
+
+Running Custom Vendor Code
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+U-Boot allows you to execute custom fastboot logic, which can be defined
+in board/ files. It can still be used for production devices with verified
+boot, because the vendor defines logic at compile time by implementing
+fastboot_oem_board() function. The attacker will not be able to execute
+custom commands / code. For example, this can be useful for custom flashing
+or erasing protocols::
+
+    $ fastboot stage bootloader.img
+    $ fastboot oem board:write_bootloader
+
+In this case, ``cmd_parameter`` argument of the function ``fastboot_oem_board()``
+will contain string "write_bootloader" and ``data`` argument is a pointer to
+fastboot input buffer, which contains the contents of bootloader.img file.
 
 References
 ----------

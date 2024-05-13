@@ -3,7 +3,6 @@
  * Copyright 2019 Toradex
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/global_data.h>
@@ -46,7 +45,7 @@ static int is_imx8dx(void)
 	u32 val = 0;
 	int sc_err = sc_misc_otp_fuse_read(-1, 6, &val);
 
-	if (sc_err) {
+	if (!sc_err) {
 		/* DX has two A35 cores disabled */
 		return (val & 0xf) != 0x0;
 	}
@@ -93,15 +92,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if IS_ENABLED(CONFIG_DM_GPIO)
-static void board_gpio_init(void)
-{
-	/* TODO */
-}
-#else
-static inline void board_gpio_init(void) {}
-#endif
-
 #if IS_ENABLED(CONFIG_FEC_MXC)
 #include <miiphy.h>
 
@@ -113,16 +103,6 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 #endif
-
-int checkboard(void)
-{
-	puts("Model: Toradex Colibri iMX8X\n");
-
-	build_info();
-	print_bootinfo();
-
-	return tdx_checkboard();
-}
 
 static void select_dt_from_module_version(void)
 {
@@ -138,8 +118,6 @@ static void select_dt_from_module_version(void)
 
 int board_init(void)
 {
-	board_gpio_init();
-
 	if (IS_ENABLED(CONFIG_IMX_SNVS_SEC_SC_AUTO)) {
 		int ret = snvs_security_sc_init();
 
@@ -148,14 +126,6 @@ int board_init(void)
 	}
 
 	return 0;
-}
-
-/*
- * Board specific reset that is system reset.
- */
-void reset_cpu(void)
-{
-	/* TODO */
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

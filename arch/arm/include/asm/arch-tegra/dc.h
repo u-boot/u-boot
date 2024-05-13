@@ -443,6 +443,11 @@ enum win_color_depth_id {
 #define	WINDOW_D_SELECT		BIT(7)
 #define	WINDOW_H_SELECT		BIT(8)
 
+/* DC_COM_PIN_OUTPUT_POLARITY1 0x307 */
+#define LHS_OUTPUT_POLARITY_LOW		BIT(30)
+#define LVS_OUTPUT_POLARITY_LOW		BIT(28)
+#define LSC0_OUTPUT_POLARITY_LOW	BIT(24)
+
 /* DC_DISP_DISP_WIN_OPTIONS 0x402 */
 #define	CURSOR_ENABLE		BIT(16)
 #define	SOR_ENABLE		BIT(25)
@@ -568,13 +573,5 @@ enum {
 #define DC_POLL_TIMEOUT_MS		50
 #define DC_N_WINDOWS			5
 #define DC_REG_SAVE_SPACE		(DC_N_WINDOWS + 5)
-
-#define TEGRA_DSI_A		"dsi@54300000"
-#define TEGRA_DSI_B		"dsi@54400000"
-
-struct tegra_dc_plat {
-	struct udevice *dev;		/* Display controller device */
-	struct dc_ctlr *dc;		/* Display controller regmap */
-};
 
 #endif /* __ASM_ARCH_TEGRA_DC_H */

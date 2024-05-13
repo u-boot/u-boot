@@ -24,7 +24,6 @@ CONFIG_CLOCKS=y
 # CONFIG_CMDLINE_EDITING is not set
 # CONFIG_AUTO_COMPLETE is not set
 # CONFIG_SYS_LONGHELP is not set
-CONFIG_SYS_MAXARGS=64
 # CONFIG_CMD_BDI is not set
 # CONFIG_CMD_CONSOLE is not set
 # CONFIG_CMD_BOOTD is not set
@@ -41,7 +40,6 @@ CONFIG_SYS_MAXARGS=64
 # CONFIG_CMD_ENV_EXISTS is not set
 # CONFIG_CMD_CRC32 is not set
 # CONFIG_CMD_DM is not set
-# CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADB is not set
 # CONFIG_CMD_LOADS is not set
 # CONFIG_CMD_ECHO is not set

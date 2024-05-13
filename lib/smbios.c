@@ -394,6 +394,7 @@ static int smbios_write_type1(ulong *current, int handle,
 	} else {
 		t->serial_number = smbios_add_prop(ctx, "serial", NULL);
 	}
+	t->wakeup_type = SMBIOS_WAKEUP_TYPE_UNKNOWN;
 	t->sku_number = smbios_add_prop(ctx, "sku", NULL);
 	t->family = smbios_add_prop(ctx, "family", NULL);
 

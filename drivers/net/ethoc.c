@@ -9,7 +9,6 @@
  * Copyright (C) 2016 Cadence Design Systems Inc.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>

@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include "rk356x-u-boot.dtsi"
+
+&fspi_dual_io_pins {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&i2c0 {
+	bootph-pre-ram;
+};
+
+&i2c0_xfer {
+	bootph-pre-ram;
+};
+
+&i2s1m0_mclk {
+	bootph-pre-ram;
+};
+
+&pmic_int_l {
+	bootph-pre-ram;
+};
+
+&rk817 {
+	regulators {
+		bootph-pre-ram;
+	};
+};
+
+&sdhci {
+	cap-mmc-highspeed;
+};
+
+&sdmmc_pwren_l {
+	bootph-pre-ram;
+};
+
+&sfc {
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
+	};
+};
+
+&vcc3v3_sd {
+	bootph-pre-ram;
+};

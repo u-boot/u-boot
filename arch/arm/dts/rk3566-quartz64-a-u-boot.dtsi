@@ -3,7 +3,7 @@
 #include "rk356x-u-boot.dtsi"
 
 &gpio0 {
-	bootph-all;
+	bootph-pre-ram;
 };
 
 &sdhci {
@@ -13,11 +13,9 @@
 };
 
 &sfc {
-	bootph-pre-ram;
-	u-boot,spl-sfc-no-dma;
-
 	flash@0 {
 		bootph-pre-ram;
+		bootph-some-ram;
 	};
 };
 
@@ -34,5 +32,5 @@
 };
 
 &vcc_sd_h {
-	bootph-all;
+	bootph-pre-ram;
 };

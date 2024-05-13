@@ -6,17 +6,21 @@
 #include "imx8mp-u-boot.dtsi"
 
 / {
+	aliases {
+		eeprom0 = &eeprom_module;
+		eeprom1 = &eeprom_carrier_board;
+		eeprom2 = &eeprom_display_adapter;
+	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		bootph-pre-ram;
 		wdt = <&wdog1>;
 	};
-};
-
-&{/aliases} {
-	eeprom0 = &eeprom_module;
-	eeprom1 = &eeprom_carrier_board;
-	eeprom2 = &eeprom_display_adapter;
 };
 
 &clk {
@@ -54,6 +58,10 @@
 
 	ctrl-sleep-moci-hog {
 		bootph-pre-ram;
+		gpio-hog;
+		output-high;
+		gpios = <29 GPIO_ACTIVE_HIGH>;
+		line-name = "CTRL_SLEEP_MOCI#";
 	};
 };
 

@@ -5,7 +5,6 @@
  * Marek Behún <kabel@kernel.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <wdt.h>
 #include <asm/global_data.h>

@@ -72,7 +72,7 @@ out:
  *
  * Return:	device path or NULL. Caller must free the returned value
  */
-struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid)
 {
 	struct efi_load_option lo;
 	void *var_value;
@@ -92,7 +92,7 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid)
 	if (ret != EFI_SUCCESS)
 		goto err;
 
-	return efi_dp_from_lo(&lo, &guid);
+	return efi_dp_from_lo(&lo, guid);
 
 err:
 	free(var_value);
@@ -456,11 +456,11 @@ efi_status_t efi_install_fdt(void *fdt)
 		return EFI_LOAD_ERROR;
 	}
 
-	/* Create memory reservations as indicated by the device tree */
-	efi_carve_out_dt_rsv(fdt);
-
-	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE))
+	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)) {
+		/* Create memory reservations as indicated by the device tree */
+		efi_carve_out_dt_rsv(fdt);
 		return EFI_SUCCESS;
+	}
 
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
@@ -473,6 +473,9 @@ efi_status_t efi_install_fdt(void *fdt)
 		log_err("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
+
+	/* Create memory reservations as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
 
 	efi_try_purge_kaslr_seed(fdt);
 
@@ -541,15 +544,8 @@ efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 		}
 	}
 
-	efi_restore_gd();
-
 out:
 	free(load_options);
-
-	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
-		if (efi_initrd_deregister() != EFI_SUCCESS)
-			log_err("Failed to remove loadfile2 for initrd\n");
-	}
 
 	/* Notify EFI_EVENT_GROUP_RETURN_TO_EFIBOOTMGR event group. */
 	list_for_each_entry(evt, &efi_events, link) {

@@ -5,16 +5,14 @@
 
 #define LOG_CATEGORY UCLASS_RNG
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>
 #include <reset.h>
 #include <rng.h>
+#include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
-
-#include <asm/io.h>
 #include <linux/iopoll.h>
 #include <linux/kernel.h>
 
@@ -76,7 +74,7 @@ struct stm32_rng_plat {
  * Extracts from the STM32 RNG specification when RNG supports CONDRST.
  *
  * When a noise source (or seed) error occurs, the RNG stops generating
- * random numbers and sets to “1” both SEIS and SECS bits to indicate
+ * random numbers and sets to "1" both SEIS and SECS bits to indicate
  * that a seed error occurred. (...)
  *
  * 1. Software reset by writing CONDRST at 1 and at 0 (see bitfield
@@ -129,12 +127,12 @@ static int stm32_rng_conceal_seed_error_cond_reset(struct stm32_rng_plat *pdata)
  * Extracts from the STM32 RNG specification, when CONDRST is not supported
  *
  * When a noise source (or seed) error occurs, the RNG stops generating
- * random numbers and sets to “1” both SEIS and SECS bits to indicate
+ * random numbers and sets to "1" both SEIS and SECS bits to indicate
  * that a seed error occurred. (...)
  *
  * The following sequence shall be used to fully recover from a seed
  * error after the RNG initialization:
- * 1. Clear the SEIS bit by writing it to “0”.
+ * 1. Clear the SEIS bit by writing it to "0".
  * 2. Read out 12 words from the RNG_DR register, and discard each of
  * them in order to clean the pipeline.
  * 3. Confirm that SEIS is still cleared. Random number generation is

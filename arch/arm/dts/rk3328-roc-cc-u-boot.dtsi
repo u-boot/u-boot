@@ -5,11 +5,8 @@
 
 #include "rk3328-u-boot.dtsi"
 #include "rk3328-sdram-ddr4-666.dtsi"
-/ {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
-	};
 
+/ {
 	smbios {
 		compatible = "u-boot,sysinfo-smbios";
 
@@ -32,23 +29,10 @@
 	};
 };
 
-&gpio0 {
-	bootph-pre-ram;
+&usb20_otg {
+	hnp-srp-disable;
 };
 
-&pinctrl {
-	bootph-pre-ram;
-};
-
-&sdmmc0m1_pin {
-	bootph-pre-ram;
-};
-
-&pcfg_pull_up_4ma {
-	bootph-pre-ram;
-};
-
-/* Need this and all the pinctrl/gpio stuff above to set pinmux */
 &vcc_sd {
 	bootph-pre-ram;
 };

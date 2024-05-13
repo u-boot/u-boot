@@ -5,9 +5,9 @@
  * Copyright 2021 Google LLC
  */
 
-#include <common.h>
 #include <asm/cb_sysinfo.h>
 #include <asm/e820.h>
+#include <linux/kernel.h>
 
 unsigned int cb_install_e820_map(unsigned int max_entries,
 				 struct e820_entry *entries)

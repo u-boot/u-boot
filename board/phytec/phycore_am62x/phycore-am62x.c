@@ -5,11 +5,8 @@
  */
 
 #include <asm/io.h>
-#include <env.h>
-#include <env_internal.h>
 #include <spl.h>
 #include <fdt_support.h>
-#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

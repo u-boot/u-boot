@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <init.h>
 #include <div64.h>
 #include <asm/io.h>

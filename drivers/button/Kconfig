@@ -12,6 +12,7 @@ config BUTTON
 config BUTTON_ADC
 	bool "Button adc"
 	depends on BUTTON
+	depends on ADC
 	help
 	  Enable support for buttons which are connected to Analog to Digital
 	  Converter device. The ADC driver must use driver model. Buttons are

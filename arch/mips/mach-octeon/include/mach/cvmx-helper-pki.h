@@ -267,7 +267,7 @@ void cvmx_helper_pki_set_fcs_op(int node, int interface, int nports, int has_fcs
  *				    buffer separate from the work queue entry. Words following the
  *				    WQE in the same cache line will be zeroed, other lines in the
  *				    buffer will not be modified and will retain stale data (from the
- *				    buffer’s previous use). This setting may decrease the peak PKI
+ *				    buffer's previous use). This setting may decrease the peak PKI
  *				    performance by up to half on small packets.
  */
 void cvmx_helper_pki_set_wqe_mode(int node, bool pkt_outside_wqe);

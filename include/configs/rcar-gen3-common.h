@@ -9,7 +9,7 @@
 #ifndef __RCAR_GEN3_COMMON_H
 #define __RCAR_GEN3_COMMON_H
 
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 
 /* boot option */
 

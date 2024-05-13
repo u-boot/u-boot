@@ -3,7 +3,6 @@
  * Copyright (c) 2015 National Instruments
  */
 
-#include <common.h>
 #include <dm.h>
 #include <serial.h>
 

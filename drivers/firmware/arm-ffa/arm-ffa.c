@@ -6,7 +6,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <common.h>
 #include <arm_ffa.h>
 #include <arm_ffa_priv.h>
 #include <dm.h>

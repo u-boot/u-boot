@@ -6,7 +6,6 @@
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/io.h>

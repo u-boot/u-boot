@@ -44,9 +44,20 @@ partname
                 <devtype><devletter><partnum>
 
         devtype
-                A device type like ``mmcsd`` or ``hd``. See the
-                ``part_set_generic_name`` function in ``disk/part.c`` for a
-                complete list.
+                The devtype field is set in dependence of the device class:
+
+                ======= ===============
+                devtype device class
+                ======= ===============
+                hd      IDE or SATA
+                sd      SCSI
+                usbd    USB
+                mmcsd   eMMC or SD-card
+                xx      others
+                ======= ===============
+
+                See the ``part_set_generic_name`` function in ``disk/part.c``
+                for the complete list.
 
         devletter
                 The device number as an offset from ``a``. For example, device

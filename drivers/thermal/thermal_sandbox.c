@@ -6,13 +6,12 @@
  * Sandbox driver for the thermal uclass.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <thermal.h>
 
 int sandbox_thermal_get_temp(struct udevice *dev, int *temp)
 {
-	/* Simply return 100°C */
+	/* Simply return 100 deg C */
 	*temp = 100;
 
 	return 0;

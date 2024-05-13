@@ -10,13 +10,12 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 
-#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RMOBILE)
+#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RENESAS)
 #define TSTR	0x4
 #define TCR0	0x10
 #endif /* CONFIG_CPU_SH4 */

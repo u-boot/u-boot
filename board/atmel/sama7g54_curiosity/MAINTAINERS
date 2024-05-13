@@ -1,0 +1,9 @@
+SAMA7G54 CURIOSITY BOARD
+M:     Mihai Sain <mihai.sain@microchip.com>
+S:     Maintained
+F:     board/atmel/sama7g54_curiosity.c
+F:     include/configs/sama7g54_curiosity.h
+F:     configs/sama7g54_curiosity_mmc_defconfig
+F:     configs/sama7g54_curiosity_nandflash_defconfig
+F:     configs/sama7g54_curiosity_qspiflash_defconfig
+F:     arch/arm/dts/at91-sama7g54_curiosity*

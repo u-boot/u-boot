@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
@@ -216,6 +215,9 @@ static int iter_incr(struct bootflow_iter *iter)
 			inc_dev = false;
 		}
 	}
+
+	if (iter->flags & BOOTFLOWIF_SINGLE_PARTITION)
+		return BF_NO_MORE_DEVICES;
 
 	/* No more bootmeths; start at the first one, and... */
 	iter->cur_method = 0;

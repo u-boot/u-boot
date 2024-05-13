@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+&nand {
+	partition@0 {
+		/delete-property/ read-only;
+	};
+};

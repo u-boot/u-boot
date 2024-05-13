@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0
+
+/* Needed for Linux to boot from USB, otherwise if PCIe driver is not in initramfs
+ * the VBUS supply will never get turned on.
+ * https://lore.kernel.org/linux-arm-msm/20240320122515.3243711-1-caleb.connolly@linaro.org/
+ */
+&pcie0_3p3v_dual {
+	regulator-always-on;
+};
+
+&sdhc_2 {
+	/* Remove the unsupported rpmhcc xo clock reference */
+	clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+		 <&gcc GCC_SDCC2_APPS_CLK>;
+	clock-names = "iface", "core";
+};

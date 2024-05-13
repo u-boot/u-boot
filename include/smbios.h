@@ -108,6 +108,33 @@ struct __packed smbios_type0 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+/**
+ * enum smbios_wakeup_type - wake-up type
+ *
+ * These constants are used for the Wake-Up Type field in the SMBIOS
+ * System Information (Type 1) structure.
+ */
+enum smbios_wakeup_type {
+	/** @SMBIOS_WAKEUP_TYPE_RESERVED: Reserved */
+	SMBIOS_WAKEUP_TYPE_RESERVED,
+	/** @SMBIOS_WAKEUP_TYPE_OTHER: Other */
+	SMBIOS_WAKEUP_TYPE_OTHER,
+	/** @SMBIOS_WAKEUP_TYPE_UNKNOWN: Unknown */
+	SMBIOS_WAKEUP_TYPE_UNKNOWN,
+	/** @SMBIOS_WAKEUP_TYPE_APM_TIMER: APM Timer */
+	SMBIOS_WAKEUP_TYPE_APM_TIMER,
+	/** @SMBIOS_WAKEUP_TYPE_MODEM_RING: Modem Ring */
+	SMBIOS_WAKEUP_TYPE_MODEM_RING,
+	/** @SMBIOS_WAKEUP_TYPE_LAN_REMOTE: LAN Remote */
+	SMBIOS_WAKEUP_TYPE_LAN_REMOTE,
+	/** @SMBIOS_WAKEUP_TYPE_POWER_SWITCH: Power Switch */
+	SMBIOS_WAKEUP_TYPE_POWER_SWITCH,
+	/** @SMBIOS_WAKEUP_TYPE_PCI_PME: PCI PME# */
+	SMBIOS_WAKEUP_TYPE_PCI_PME,
+	/** @SMBIOS_WAKEUP_TYPE_AC_POWER_RESTORED: AC Power Restored */
+	SMBIOS_WAKEUP_TYPE_AC_POWER_RESTORED,
+};
+
 struct __packed smbios_type1 {
 	u8 type;
 	u8 length;

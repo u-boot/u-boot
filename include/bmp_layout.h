@@ -10,6 +10,8 @@
 #ifndef _BMP_H_
 #define _BMP_H_
 
+#include <linux/compiler.h>
+
 struct __packed bmp_color_table_entry {
 	__u8	blue;
 	__u8	green;

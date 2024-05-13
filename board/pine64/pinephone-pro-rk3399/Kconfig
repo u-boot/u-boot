@@ -9,7 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "pinephone-pro-rk3399"
 
-config BOARD_SPECIFIC_OPTIONS
-	def_bool y
-
 endif

@@ -27,9 +27,9 @@ int spl_board_init_f(void)
 {
 	int ret;
 
-	ret = spl_soc_init();
+	ret = spl_dram_init();
 	if (ret) {
-		debug("FU540 SPL init failed: %d\n", ret);
+		debug("FU540 DRAM init failed: %d\n", ret);
 		return ret;
 	}
 

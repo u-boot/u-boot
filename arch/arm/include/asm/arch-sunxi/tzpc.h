@@ -28,6 +28,12 @@ struct sunxi_tzpc {
 #define SUN8I_H3_TZPC_DECPORT1_ALL  0xff
 #define SUN8I_H3_TZPC_DECPORT2_ALL  0x7f
 
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I_H3
 void tzpc_init(void);
+#else
+static inline void tzpc_init(void)
+{
+}
+#endif
 
 #endif /* _SUNXI_TZPC_H */

@@ -3,12 +3,12 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <ram.h>
 #include <syscon.h>
-#include <asm/arch/grf_rk3308.h>
 #include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3308.h>
 #include <asm/arch-rockchip/sdram.h>
 
 struct dram_info {

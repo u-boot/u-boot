@@ -4,7 +4,7 @@
  */
 
 #include <clock_legacy.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/io.h>
 
 #define CPGWPR  0xE6150900

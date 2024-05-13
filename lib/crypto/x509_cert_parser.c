@@ -535,7 +535,7 @@ int x509_process_extension(void *context, size_t hdrlen,
  * Decode an ASN.1 universal time or generalised time field into a struct the
  * kernel can handle and check it for validity.  The time is decoded thus:
  *
- *	[RFC5280 §4.1.2.5]
+ *	[RFC5280 paragraph 74.1.2.5]
  *	CAs conforming to this profile MUST always encode certificate validity
  *	dates through the year 2049 as UTCTime; certificate validity dates in
  *	2050 or later MUST be encoded as GeneralizedTime.  Conforming

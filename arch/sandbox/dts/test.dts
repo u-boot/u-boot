@@ -1990,4 +1990,8 @@
 #include "sandbox_vpl.dtsi"
 #endif
 
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+#include "sandbox_capsule.dtsi"
+#endif
+
 #include "cedit.dtsi"

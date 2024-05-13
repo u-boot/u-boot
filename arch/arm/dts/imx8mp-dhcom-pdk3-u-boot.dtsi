@@ -4,3 +4,15 @@
  */
 
 #include "imx8mp-dhcom-u-boot.dtsi"
+
+/ {
+	clk_pcie100: clk-pcie100 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+};
+
+&pcie_phy {
+	clocks = <&clk_pcie100>;
+};

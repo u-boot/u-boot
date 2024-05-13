@@ -431,9 +431,9 @@ LEAF(change_k0_cca)
 #else
 	xor		a0, a0, t0
 	andi		a0, a0, CONF_CM_CMASK
-	xor		a0, a0, t0
+	xor		t0, a0, t0
 #endif
-	mtc0		a0, CP0_CONFIG
+	mtc0		t0, CP0_CONFIG
 
 	jr.hb		ra
 	END(change_k0_cca)

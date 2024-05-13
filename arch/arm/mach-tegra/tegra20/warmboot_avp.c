@@ -4,7 +4,7 @@
  * NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/flow.h>

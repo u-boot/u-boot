@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "tangier"
 
-config SYS_CONFIG_NAME
-	default "edison"
-
 config SYS_MALLOC_LEN
 	default 0x08000000
 

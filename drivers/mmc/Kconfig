@@ -20,10 +20,18 @@ config MMC_WRITE
 
 config MMC_PWRSEQ
 	bool "HW reset support for eMMC"
-	depends on PWRSEQ
+	depends on PWRSEQ && DM_GPIO
 	help
-	  Ths select Hardware reset support aka pwrseq-emmc for eMMC
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
 	  devices.
+
+config SPL_MMC_PWRSEQ
+	bool "HW reset support for eMMC in SPL"
+	depends on SPL_PWRSEQ && SPL_DM_GPIO
+	default y if MMC_PWRSEQ
+	help
+	  This select Hardware reset support aka pwrseq-emmc for eMMC
+	  devices in SPL.
 
 config MMC_BROKEN_CD
 	bool "Poll for broken card detection case"
@@ -79,11 +87,12 @@ config MMC_SPI_CRC_ON
 
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
+	depends on DM_MMC
 	help
 	  This selects the ARM(R) AMBA(R) PrimeCell Multimedia Card
 	  Interface (PL180, PL181 and compatible) support.
 	  If you have an ARM(R) platform with a Multimedia Card slot,
-	  say Y or M here.
+	  say Y here.
 
 config MMC_QUIRKS
 	bool "Enable quirks"
@@ -138,9 +147,16 @@ config SPL_MMC_IO_VOLTAGE
 	  support. For eMMC this not mandatory, but not enabling this option may
 	  prevent the driver of using the faster modes.
 
+config MMC_SUPPORTS_TUNING
+	bool
+
+config SPL_MMC_SUPPORTS_TUNING
+	bool
+
 config MMC_UHS_SUPPORT
 	bool "enable UHS support"
 	depends on MMC_IO_VOLTAGE
+	select MMC_SUPPORTS_TUNING
 	help
 	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
@@ -149,6 +165,7 @@ config MMC_UHS_SUPPORT
 config SPL_MMC_UHS_SUPPORT
 	bool "enable UHS support in SPL"
 	depends on SPL_MMC_IO_VOLTAGE
+	select SPL_MMC_SUPPORTS_TUNING
 	help
 	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
@@ -184,6 +201,7 @@ config SPL_MMC_HS400_SUPPORT
 
 config MMC_HS200_SUPPORT
 	bool "enable HS200 support"
+	select MMC_SUPPORTS_TUNING
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -191,6 +209,7 @@ config MMC_HS200_SUPPORT
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
 	depends on SPL_MMC
+	select SPL_MMC_SUPPORTS_TUNING
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -338,6 +357,7 @@ config MMC_OCTEONTX
 	bool "Marvell Octeon Multimedia Card Interface support"
 	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	depends on DM_MMC
+	select MMC_SUPPORTS_TUNING if ARCH_OCTEONTX2
 	help
 	  This selects the Octeon Multimedia card Interface.
 	  If you have an OcteonTX/TX2 or MIPS Octeon board with a
@@ -393,7 +413,7 @@ config HSMMC2_8BIT
 
 config SH_MMCIF
 	bool "SuperH/Renesas ARM SoCs on-chip MMCIF host controller support"
-	depends on ARCH_RMOBILE || SH
+	depends on ARCH_RENESAS || SH
 	help
 	  Support for the on-chip MMCIF host controller on SuperH/Renesas ARM SoCs platform
 
@@ -408,7 +428,7 @@ config MMC_UNIPHIER
 
 config RENESAS_SDHI
 	bool "Renesas R-Car SD/MMC Host Controller support"
-	depends on ARCH_RMOBILE
+	depends on ARCH_RENESAS
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
 	select BOUNCE_BUFFER
@@ -495,6 +515,24 @@ config SPL_MMC_SDHCI_ADMA
 	  This enables support for the ADMA (Advanced DMA) defined
 	  in the SD Host Controller Standard Specification Version 3.00 in SPL.
 
+config MMC_SDHCI_ADMA_FORCE_32BIT
+	bool "Force 32 bit mode for ADMA on 64 bit platforms"
+	help
+	  This forces SDHCI ADMA to be built for 32 bit descriptors, even
+	  on a 64 bit platform where they would otherwise be assumed to
+	  be 64 bits. This is necessary for certain hardware platforms
+	  that are 64-bit but include only 32-bit support within the selected
+	  SD host controller IP.
+
+config MMC_SDHCI_ADMA_64BIT
+	bool "Use SHDCI ADMA with 64 bit descriptors"
+	depends on !MMC_SDHCI_ADMA_FORCE_32BIT
+	default y if DMA_ADDR_T_64BIT
+	help
+	  This selects 64 bit descriptors for SDHCI ADMA. It is enabled by
+	  default on 64 bit systems, but can be disabled if one of these
+	  systems includes 32-bit ADMA.
+
 config FIXED_SDHCI_ALIGNED_BUFFER
 	hex "SDRAM address for fixed buffer"
 	depends on SPL && MVEBU_SPL_BOOT_DEVICE_MMC
@@ -568,6 +606,19 @@ config MMC_SDHCI_CADENCE
 
 	  If unsure, say N.
 
+config MMC_SDHCI_CV1800B
+	bool "SDHCI support for the CV1800B SD/SDIO/eMMC controller"
+	depends on BLK && DM_MMC
+	depends on MMC_SDHCI
+	depends on OF_CONTROL
+	help
+	  This selects the CV1800B SD/SDIO/eMMC driver.
+
+	  If you have a controller with this interface,
+	  say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_AM654
 	bool "SDHCI Controller on TI's Am654 devices"
 	depends on ARCH_K3
@@ -586,7 +637,7 @@ config MMC_SDHCI_IPROC
 	  This selects the iProc SD/MMC controller.
 
 	  If you have a Broadcom IPROC platform with SD or MMC devices,
-	  say Y or M here.
+	  say Y here.
 
 	  If unsure, say N.
 
@@ -597,7 +648,7 @@ config MMC_SDHCI_F_SDH30
 	help
 	  This selects the Secure Digital Host Controller Interface (SDHCI)
 	  Needed by some Fujitsu/Socionext SoC for MMC / SD / SDIO support.
-	  If you have a controller with this interface, say Y or M here.
+	  If you have a controller with this interface, say Y here.
 	  If unsure, say N.
 
 config MMC_SDHCI_KONA
@@ -791,7 +842,7 @@ config STM32_SDMMC2
 	help
 	  This selects support for the SD/MMC controller on STM32H7 SoCs.
 	  If you have a board based on such a SoC and with a SD/MMC slot,
-	  say Y or M here.
+	  say Y here.
 
 config FTSDC010
 	bool "Ftsdc010 SD/MMC controller Support"
@@ -811,7 +862,7 @@ config MMC_MTK
 	depends on OF_CONTROL
 	help
 	  This selects the MediaTek(R) Secure digital and Multimedia card Interface.
-	  If you have a machine with a integrated SD/MMC card reader, say Y or M here.
+	  If you have a machine with a integrated SD/MMC card reader, say Y here.
 	  This is needed if support for any SD/SDIO/MMC devices is required.
 	  If unsure, say N.
 

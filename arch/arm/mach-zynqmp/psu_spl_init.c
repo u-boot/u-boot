@@ -4,7 +4,6 @@
  *
  * Michal Simek <michal.simek@amd.com>
  */
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <linux/delay.h>

@@ -6,7 +6,6 @@
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <console.h>
@@ -87,10 +86,6 @@ static int ums_init(const char *devtype, const char *devnums_part_str)
 		 */
 		if (!strchr(devnum_part_str, ':'))
 			partnum = 0;
-
-		/* f_mass_storage.c assumes SECTOR_SIZE sectors */
-		if (block_dev->blksz != SECTOR_SIZE)
-			goto cleanup;
 
 		ums_new = realloc(ums, (ums_count + 1) * sizeof(*ums));
 		if (!ums_new)

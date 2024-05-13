@@ -6,7 +6,6 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 
@@ -364,16 +363,6 @@ int board_init(void)
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
 
 	return 0;
-}
-
-int checkboard(void)
-{
-	if (is_colibri_vf61())
-		puts("Model: Toradex Colibri VF61\n");
-	else
-		puts("Model: Toradex Colibri VF50\n");
-
-	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

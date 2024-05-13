@@ -3,10 +3,11 @@
  * Copyright 2019 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/arch-fsl-layerscape/immap_lsch3.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <asm/arch-fsl-layerscape/fsl_portals.h>
+#include <asm/arch/stream_id_lsch3.h>
 
 struct icid_id_table icid_tbl[] = {
 	SET_SDHC_ICID(1, FSL_SDMMC_STREAM_ID),

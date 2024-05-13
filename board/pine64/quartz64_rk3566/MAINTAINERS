@@ -21,3 +21,14 @@ F:	arch/arm/dts/rk3566-soquartz-cm4.dts
 F:	arch/arm/dts/rk3566-soquartz-cm4-u-boot.dtsi
 F:	arch/arm/dts/rk3566-soquartz-model-a.dts
 F:	arch/arm/dts/rk3566-soquartz-model-a-u-boot.dtsi
+
+PINETAB2-RK3566
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	configs/pinetab2-rk3566_defconfig
+F:	arch/arm/dts/rk3566-pinetab2.dtsi
+F:	arch/arm/dts/rk3566-pinetab2-u-boot.dtsi
+F:	arch/arm/dts/rk3566-pinetab2-v0.1.dts
+F:	arch/arm/dts/rk3566-pinetab2-v0.1-u-boot.dtsi
+F:	arch/arm/dts/rk3566-pinetab2-v2.0.dts
+F:	arch/arm/dts/rk3566-pinetab2-v2.0-u-boot.dtsi

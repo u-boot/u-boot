@@ -16,6 +16,8 @@ export HOST_ARCH_X86=0x0386
 export HOST_ARCH_X86_64=0x8664
 #endif
 
+#include <version.h>
+
 #define HOST_ARCH_AARCH64 0xaa64
 #define HOST_ARCH_ARM 0x00a7
 #define HOST_ARCH_RISCV32 0x5032

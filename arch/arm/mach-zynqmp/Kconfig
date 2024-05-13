@@ -1,29 +1,5 @@
 if ARCH_ZYNQMP
 
-config SPL_FS_FAT
-	default y
-
-config SPL_LIBCOMMON_SUPPORT
-	default y
-
-config SPL_LIBDISK_SUPPORT
-	default y
-
-config SPL_LIBGENERIC_SUPPORT
-	default y
-
-config SPL_MMC
-	default y if MMC_SDHCI_ZYNQ
-
-config SPL_SERIAL
-	default y
-
-config SPL_SPI_FLASH_SUPPORT
-	default y if ZYNQ_QSPI
-
-config SPL_SPI
-	default y if ZYNQ_QSPI
-
 config SYS_BOARD
 	string "Board name"
 	default "zynqmp"
@@ -34,14 +10,6 @@ config SYS_VENDOR
 
 config SYS_SOC
 	default "zynqmp"
-
-config SYS_CONFIG_NAME
-	string "Board configuration name"
-	default "xilinx_zynqmp"
-	help
-	  This option contains information about board configuration name.
-	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
-	  will be used for board configuration.
 
 config SYS_MEM_RSVD_FOR_MMU
 	bool "Reserve memory for MMU Table"
@@ -143,7 +111,8 @@ config ZYNQMP_PSU_INIT_ENABLED
 
 config SPL_ZYNQMP_PSU_INIT_ENABLED
 	bool "Include psu_init in SPL"
-	default y if SPL
+	depends on SPL
+	default y
 	select BOARD_EARLY_INIT_F
 	help
 	  Include psu_init by default in SPL.

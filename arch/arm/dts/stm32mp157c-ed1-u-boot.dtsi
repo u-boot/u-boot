@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
+#include <dt-bindings/input/linux-event-codes.h>
 #include "stm32mp15-u-boot.dtsi"
 #include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
 
@@ -13,11 +14,9 @@
 	};
 
 	config {
-		u-boot,boot-led = "heartbeat";
-		u-boot,error-led = "error";
+		u-boot,boot-led = "led-blue";
+		u-boot,error-led = "led-red";
 		u-boot,mmc-env-partition = "fip";
-		st,fastboot-gpios = <&gpioa 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-		st,stm32prog-gpios = <&gpioa 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	};
 
 #if defined(CONFIG_STM32MP15X_STM32IMAGE) || defined(CONFIG_SPL)
@@ -43,12 +42,31 @@
 	};
 #endif
 
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		button-user-1 {
+			label = "User-1";
+			linux,code = <BTN_1>;
+			gpios = <&gpioa 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+
+		button-user-2 {
+			label = "User-2";
+			linux,code = <BTN_2>;
+			gpios = <&gpioa 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+	};
+
 	led {
-		red {
-			label = "error";
+		compatible = "gpio-leds";
+
+		led-blue {
+			gpios = <&gpiod 9 GPIO_ACTIVE_HIGH>;
+		};
+
+		led-red {
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-			default-state = "off";
-			status = "okay";
 		};
 	};
 };

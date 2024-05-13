@@ -3,7 +3,6 @@
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <ahci.h>
 #include <scsi.h>
 #include <dm.h>

@@ -3,7 +3,6 @@
  * Copyright 2009-2010 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <asm/processor.h>

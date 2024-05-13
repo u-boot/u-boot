@@ -4,7 +4,6 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
-#include <common.h>
 #include <linux/delay.h>
 
 #include <miiphy.h>

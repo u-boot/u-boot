@@ -3,11 +3,12 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <log.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <linux/string.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 
@@ -258,7 +259,7 @@ int setup_serdes_volt(u32 svdd)
 	/* Wait for SVDD to stabilize */
 	udelay(100);
 
-	/* For each PLL that’s not disabled via RCW */
+	/* For each PLL that's not disabled via RCW */
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	cfg_tmp = (cfg_rcw5 >> 22) & 0x3;
 	for (i = 0; i < 2 && !(cfg_tmp & (0x1 << (1 - i))); i++) {

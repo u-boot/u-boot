@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <fs.h>
 #include <pxe_utils.h>
+#include <vsprintf.h>
 
 /**
  * struct sysboot_info - useful information for sysboot helpers
@@ -77,6 +77,10 @@ static int do_sysboot(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (argc < 6) {
 		filename = env_get("bootfile");
+		if (!filename) {
+			printf("Specify a filename or set the ${bootfile} environment variable\n");
+			return 1;
+		}
 	} else {
 		filename = argv[5];
 		env_set("bootfile", filename);

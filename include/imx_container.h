@@ -50,10 +50,10 @@ struct signature_block_hdr {
 	u8 length_lsb;
 	u8 length_msb;
 	u8 tag;
-	u16 srk_table_offset;
 	u16 cert_offset;
-	u16 blob_offset;
+	u16 srk_table_offset;
 	u16 signature_offset;
+	u16 blob_offset;
 	u32 reserved;
 } __packed;
 

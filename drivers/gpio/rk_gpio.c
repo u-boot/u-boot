@@ -6,12 +6,10 @@
  * Peter, Software Engineering, <superpeter.cai@gmail.com>.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <syscon.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/gpio.h>
@@ -201,8 +199,11 @@ static int rockchip_gpio_probe(struct udevice *dev)
 		priv->bank = args.args[1] / ROCKCHIP_GPIOS_PER_BANK;
 	} else {
 		uc_priv->gpio_count = ROCKCHIP_GPIOS_PER_BANK;
-		end = strrchr(dev->name, '@');
-		priv->bank = trailing_strtoln(dev->name, end);
+		ret = dev_read_alias_seq(dev, &priv->bank);
+		if (ret) {
+			end = strrchr(dev->name, '@');
+			priv->bank = trailing_strtoln(dev->name, end);
+		}
 	}
 
 	priv->name[0] = 'A' + priv->bank;

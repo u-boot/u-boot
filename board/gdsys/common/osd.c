@@ -6,7 +6,6 @@
 
 #ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 
-#include <common.h>
 #include <command.h>
 #include <i2c.h>
 #include <malloc.h>

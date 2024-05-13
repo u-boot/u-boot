@@ -10,9 +10,12 @@
 
 #ifndef _NETDEV_H_
 #define _NETDEV_H_
+
+#include <linux/types.h>
 #include <phy_interface.h>
 
 struct udevice;
+struct bd_info;
 
 /*
  * Board and CPU-specific initialization functions

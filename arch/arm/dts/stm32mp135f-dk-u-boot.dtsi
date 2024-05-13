@@ -16,11 +16,26 @@
 		u-boot,mmc-env-partition = "u-boot-env";
 	};
 
+	gpio-keys {
+		button-user-1 {
+			label = "User-1";
+			linux,code = <BTN_2>;
+			gpios = <&gpioa 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+
+		button-user {
+			/* update label to match the label requested in board_key_check() */
+			label = "User-2";
+		};
+	};
+
 	leds {
+		led-blue {
+			/delete-property/default-state;
+		};
+
 		led-red {
-			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-			default-state = "off";
 		};
 	};
 };

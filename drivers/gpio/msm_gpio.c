@@ -5,7 +5,6 @@
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/global_data.h>
@@ -35,20 +34,28 @@ struct msm_gpio_bank {
 #define GPIO_IN_OUT_REG(dev, x) \
 	(GPIO_CONFIG_REG(dev, x) + 0x4)
 
-static int msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
+static void msm_gpio_direction_input(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return;
 
 	/* Disable OE bit */
 	clrsetbits_le32(priv->base + GPIO_CONFIG_REG(dev, gpio),
 			GPIO_OE_MASK, GPIO_OE_DISABLE);
 
-	return 0;
+	return;
 }
 
 static int msm_gpio_set_value(struct udevice *dev, unsigned int gpio, int value)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
 
 	value = !!value;
 	/* set value */
@@ -62,6 +69,10 @@ static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
+
 	value = !!value;
 	/* set value */
 	writel(value << GPIO_OUT, priv->base + GPIO_IN_OUT_REG(dev, gpio));
@@ -72,9 +83,30 @@ static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 	return 0;
 }
 
+static int msm_gpio_set_flags(struct udevice *dev, unsigned int gpio, ulong flags)
+{
+	if (flags & GPIOD_IS_OUT_ACTIVE) {
+		return msm_gpio_direction_output(dev, gpio, 1);
+	} else if (flags & GPIOD_IS_OUT) {
+		return msm_gpio_direction_output(dev, gpio, 0);
+	} else if (flags & GPIOD_IS_IN) {
+		msm_gpio_direction_input(dev, gpio);
+		if (flags & GPIOD_PULL_UP)
+			return msm_gpio_set_value(dev, gpio, 1);
+		else if (flags & GPIOD_PULL_DOWN)
+			return msm_gpio_set_value(dev, gpio, 0);
+	}
+
+	return 0;
+}
+
 static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
+
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
 
 	return !!(readl(priv->base + GPIO_IN_OUT_REG(dev, gpio)) >> GPIO_IN);
 }
@@ -83,6 +115,10 @@ static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	/* Always NOP for special pins, assume they're in the correct state */
+	if (qcom_is_special_pin(priv->pin_data, gpio))
+		return 0;
+
 	if (readl(priv->base + GPIO_CONFIG_REG(dev, gpio)) & GPIO_OE_ENABLE)
 		return GPIOF_OUTPUT;
 
@@ -90,10 +126,8 @@ static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 }
 
 static const struct dm_gpio_ops gpio_msm_ops = {
-	.direction_input	= msm_gpio_direction_input,
-	.direction_output	= msm_gpio_direction_output,
+	.set_flags		= msm_gpio_set_flags,
 	.get_value		= msm_gpio_get_value,
-	.set_value		= msm_gpio_set_value,
 	.get_function		= msm_gpio_get_function,
 };
 

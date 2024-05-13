@@ -3,11 +3,11 @@
  * Copyright (c) 2016 Google, Inc
  */
 
-#include <common.h>
 #include <abuf.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <spl.h>
 #include <video.h>
 #include <video_console.h>
 
@@ -262,7 +262,7 @@ static int console_truetype_move_rows(struct udevice *dev, uint rowdst,
 }
 
 static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
-				    char ch)
+				    int cp)
 {
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct udevice *vid = dev->parent;
@@ -281,7 +281,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	int row, ret;
 
 	/* First get some basic metrics about this character */
-	stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+	stbtt_GetCodepointHMetrics(font, cp, &advance, &lsb);
 
 	/*
 	 * First out our current X position in fractional pixels. If we wrote
@@ -290,7 +290,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	xpos = frac(VID_TO_PIXEL((double)x));
 	if (vc_priv->last_ch) {
 		xpos += met->scale * stbtt_GetCodepointKernAdvance(font,
-							vc_priv->last_ch, ch);
+							vc_priv->last_ch, cp);
 	}
 
 	/*
@@ -320,7 +320,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
 	 * return NULL;
 	 */
 	data = stbtt_GetCodepointBitmapSubpixel(font, met->scale, met->scale,
-						x_shift, 0, ch, &width, &height,
+						x_shift, 0, cp, &width, &height,
 						&xoff, &yoff);
 	if (!data)
 		return width_frac;
@@ -802,6 +802,9 @@ static int truetype_entry_save(struct udevice *dev, struct abuf *buf)
 	struct console_tt_store store;
 	const uint size = sizeof(store);
 
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
+
 	/*
 	 * store the whole priv structure as it is simpler that picking out
 	 * what we need
@@ -822,6 +825,9 @@ static int truetype_entry_restore(struct udevice *dev, struct abuf *buf)
 	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 	struct console_tt_store store;
+
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
 
 	memcpy(&store, abuf_data(buf), sizeof(store));
 
@@ -846,6 +852,9 @@ static int truetype_set_cursor_visible(struct udevice *dev, bool visible,
 	void *start, *line;
 	uint out, val;
 	int ret;
+
+	if (spl_phase() <= PHASE_SPL)
+		return -ENOSYS;
 
 	if (!visible)
 		return 0;

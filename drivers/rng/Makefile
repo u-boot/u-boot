@@ -3,7 +3,7 @@
 # Copyright (c) 2019, Linaro Limited
 #
 
-obj-$(CONFIG_DM_RNG) += rng-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)DM_RNG) += rng-uclass.o
 obj-$(CONFIG_RNG_MESON) += meson-rng.o
 obj-$(CONFIG_RNG_SANDBOX) += sandbox_rng.o
 obj-$(CONFIG_RNG_MSM) += msm_rng.o
@@ -17,3 +17,4 @@ obj-$(CONFIG_RNG_SMCCC_TRNG) += smccc_trng.o
 obj-$(CONFIG_RNG_ARM_RNDR) += arm_rndr.o
 obj-$(CONFIG_TPM_RNG) += tpm_rng.o
 obj-$(CONFIG_RNG_JH7110) += jh7110_rng.o
+obj-$(CONFIG_RNG_TURRIS_RWTM) += turris_rwtm_rng.o

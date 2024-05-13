@@ -58,12 +58,9 @@
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
-	"boot_file=zImage\0" \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttymxc0\0" \
-	"defargs=enable_wait_mode=off galcore.contiguousSize=50331648\0" \
 	"fdt_board=eval-v3\0" \
-	"fdt_fixup=;\0" \
 	MEM_LAYOUT_ENV_SETTINGS \
 	UBOOT_UPDATE \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
@@ -72,16 +69,12 @@
 	"setsdupdate=setenv interface mmc; setenv drive 1; mmc rescan; load " \
 		"${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
-	"setup=setenv setupargs fec_mac=${ethaddr} " \
-		"consoleblank=0 no_console_suspend=1 console=tty1 " \
-		"console=${console},${baudrate}n8\0 " \
 	"setupdate=run setsdupdate || run setusbupdate || run setethupdate\0" \
 	"setusbupdate=usb start && setenv interface usb; setenv drive 0; " \
 		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	"splashpos=m,m\0" \
-	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
-	"vidargs=fbmem=8M\0"
+	"splashimage=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0"
 
 /* Miscellaneous configurable options */
 

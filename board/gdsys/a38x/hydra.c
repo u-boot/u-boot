@@ -1,8 +1,8 @@
-#include <common.h>
 #include <command.h>
 #include <console.h> /* ctrlc */
 #include <pci.h>
 #include <asm/io.h>
+#include <mach/soc.h>
 
 #include "hydra.h"
 

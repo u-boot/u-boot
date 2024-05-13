@@ -12,7 +12,6 @@
  * http://developer.apple.com/techpubs/mac/Devices/Devices-126.html#MARKER-14-92
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <memalign.h>

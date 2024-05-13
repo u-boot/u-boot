@@ -6,8 +6,8 @@
 mtrr command
 ============
 
-Synopis
--------
+Synopsis
+--------
 
     mtrr [list]
     mtrr set <reg> <type> <start> <size>

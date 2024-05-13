@@ -20,7 +20,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 
-#include <common.h>
 #include <fsl_esdhc_imx.h>
 #include <linux/libfdt.h>
 #include <malloc.h>

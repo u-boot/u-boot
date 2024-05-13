@@ -11,7 +11,7 @@ class Bintoolmkimage(bintool.Bintool):
     """Image generation for U-Boot
 
     This bintool supports running `mkimage` with some basic parameters as
-    neeed by binman.
+    needed by binman.
 
     Normally binman uses the mkimage built by U-Boot. But when run outside the
     U-Boot build system, binman can use the version installed in your system.

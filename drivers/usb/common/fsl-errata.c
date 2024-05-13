@@ -5,7 +5,6 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <hwconfig.h>
 #include <fsl_errata.h>
 #include<fsl_usb.h>

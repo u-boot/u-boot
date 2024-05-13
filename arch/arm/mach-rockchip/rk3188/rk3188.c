@@ -2,7 +2,6 @@
 /*
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
-#include <common.h>
 #include <dm.h>
 #include <hang.h>
 #include <init.h>
@@ -10,7 +9,6 @@
 #include <log.h>
 #include <syscon.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3188.h>

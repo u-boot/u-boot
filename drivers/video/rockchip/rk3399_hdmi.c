@@ -3,7 +3,6 @@
  * Copyright (c) 2017 Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
@@ -12,7 +11,6 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/grf_rk3399.h>

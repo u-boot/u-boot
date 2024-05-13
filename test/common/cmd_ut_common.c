@@ -6,7 +6,6 @@
  * Unit tests for common functions
  */
 
-#include <common.h>
 #include <command.h>
 #include <test/common.h>
 #include <test/suites.h>

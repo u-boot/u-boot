@@ -1,0 +1,13 @@
+JAGUAR-RK3588 (SBC-RK3588-AMR Single Board Computer)
+M:	Klaus Goger <klaus.goger@theobroma-systems.com>
+M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
+M:	Heiko Stuebner <heiko.stuebner@cherry.de>
+S:	Maintained
+F:	board/theobroma-systems/jaguar_rk3588
+F:	board/theobroma-systems/common
+F:	doc/board/theobroma-systems/
+F:	include/configs/jaguar_rk3588.h
+F:	arch/arm/dts/rk3588-jaguar*
+F:	configs/jaguar-rk3588_defconfig
+W:	https://theobroma-systems.com/product/jaguar-sbc-rk3588/
+T:	git git://git.theobroma-systems.com/jaguar-u-boot.git

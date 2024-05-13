@@ -91,10 +91,13 @@ int dram_init_banksize(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-#ifdef CONFIG_TARGET_AM654_A53_EVM
-	if (!strcmp(name, "k3-am654-base-board"))
+	if (IS_ENABLED(CONFIG_TI_ICSSG_PRUETH) &&
+	    strcmp(name, "k3-am654-icssg2") == 0)
 		return 0;
-#endif
+
+	if (IS_ENABLED(CONFIG_TARGET_AM654_A53_EVM) &&
+	    strcmp(name, "k3-am654-base-board") == 0)
+		return 0;
 
 	return -1;
 }

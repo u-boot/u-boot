@@ -4,9 +4,10 @@
  * Kamil Lulko, <kamil.lulko@gmail.com>
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <cpu_func.h>
 #include <irq_func.h>
+#include <vsprintf.h>
 
 /*
  * Upon exception entry ARMv7-M processors automatically save stack

@@ -42,6 +42,7 @@ Board-specific doc
    renesas/index
    rockchip/index
    samsung/index
+   schneider/index
    sielaff/index
    siemens/index
    sifive/index
@@ -53,6 +54,7 @@ Board-specific doc
    ste/index
    tbs/index
    thead/index
+   theobroma-systems/index
    ti/index
    toradex/index
    variscite/index

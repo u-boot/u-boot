@@ -6,8 +6,8 @@
 bootdev command
 ===============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

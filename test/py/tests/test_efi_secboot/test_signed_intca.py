@@ -43,7 +43,7 @@ class TestEfiSignedImageIntca(object):
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_a\' failed' in ''.join(output)
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
 
         with u_boot_console.log.section('Test Case 1b'):
             # Test Case 1b, signed and authenticated by root CA
@@ -74,7 +74,7 @@ class TestEfiSignedImageIntca(object):
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
 
         with u_boot_console.log.section('Test Case 2b'):
             # Test Case 2b, signed and authenticated by root CA
@@ -84,7 +84,7 @@ class TestEfiSignedImageIntca(object):
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
 
         with u_boot_console.log.section('Test Case 2c'):
             # Test Case 2c, signed and authenticated by root CA
@@ -122,7 +122,7 @@ class TestEfiSignedImageIntca(object):
             assert 'Hello, world!' in ''.join(output)
             # Or,
             # assert '\'HELLO_abc\' failed' in ''.join(output)
-            # assert 'efi_start_image() returned: 26' in ''.join(output)
+            # assert 'efi_bootmgr_load() returned: 26' in ''.join(output)
 
         with u_boot_console.log.section('Test Case 3b'):
             # Test Case 3b, revoked by root CA in dbx
@@ -132,4 +132,4 @@ class TestEfiSignedImageIntca(object):
                 'efidebug boot order 1',
                 'efidebug test bootmgr'])
             assert '\'HELLO_abc\' failed' in ''.join(output)
-            assert 'efi_start_image() returned: 26' in ''.join(output)
+            assert 'efi_bootmgr_load() returned: 26' in ''.join(output)

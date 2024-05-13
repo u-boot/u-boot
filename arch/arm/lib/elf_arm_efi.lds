@@ -7,6 +7,12 @@
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
+
+PHDRS
+{
+	data PT_LOAD FLAGS(3); /* PF_W | PF_X */
+}
+
 ENTRY(_start)
 SECTIONS
 {
@@ -18,11 +24,13 @@ SECTIONS
 		*(.gnu.linkonce.t.*)
 		*(.srodata)
 		*(.rodata*)
+		. = ALIGN(16);
+		*(.dynamic);
 		. = ALIGN(512);
 	}
 	_etext = .;
 	_text_size = . - _text;
-	.dynamic  : { *(.dynamic) }
+	. = ALIGN(4096);
 	.data : {
 		_data = .;
 		*(.sdata)
@@ -47,14 +55,20 @@ SECTIONS
 		. = ALIGN(512);
 		_bss_end = .;
 		_edata = .;
-	}
-	.rel.dyn : { *(.rel.dyn) }
-	.rel.plt : { *(.rel.plt) }
-	.rel.got : { *(.rel.got) }
-	.rel.data : { *(.rel.data) *(.rel.data*) }
-	_data_size = . - _etext;
+	} :data
+	_data_size = . - _data;
 
 	/DISCARD/ : {
+		/*
+		 * We don't support relocations. These would have to be
+		 * translated from ELF to PE format and added to the .reloc
+		 * section.
+		 */
+		*(.rel.dyn)
+		*(.rel.plt)
+		*(.rel.got)
+		*(.rel.data)
+		*(.rel.data*)
 		*(.rel.reloc)
 		*(.eh_frame)
 		*(.note.GNU-stack)

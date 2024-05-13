@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO
 
-#include <common.h>
 #include <bloblist.h>
 #include <console.h>
 #include <cpu_func.h>
@@ -403,6 +402,10 @@ void video_sync_all(void)
 bool video_is_active(void)
 {
 	struct udevice *dev;
+
+	/* Assume video to be active if SPL passed video hand-off to U-boot */
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL)
+		return true;
 
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
 	     dev;

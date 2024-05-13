@@ -1,0 +1,21 @@
+J784S4 EVM BOARD
+M:	Apurva Nandan <a-nandan@ti.com>
+S:	Maintained
+F:	board/ti/j784s4
+F:	arch/arm/mach-k3/j784s4
+F:	include/configs/j784s4_evm.h
+F:	configs/j784s4_evm_r5_defconfig
+F:	configs/j784s4_evm_a72_defconfig
+F:	arch/arm/dts/k3-j784s4-evm-u-boot.dtsi
+F:	arch/arm/dts/k3-j784s4-r5-evm.dts
+F:	arch/arm/dts/k3-j784s4-ddr.dtsi
+F:	arch/arm/dts/k3-j784s4-ddr-evm-lp4-4266.dtsi
+F:	doc/board/ti/j784s4_evm.rst
+
+AM69 SK BOARD
+M:	Apurva Nandan <a-nandan@ti.com>
+S:	Maintained
+F:	arch/arm/dts/k3-am69-sk-u-boot.dtsi
+F:	arch/arm/dts/k3-am69-r5-sk.dts
+F:	configs/am69_sk_r5_defconfig
+F:	configs/am69_sk_a72_defconfig

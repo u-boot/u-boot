@@ -5,9 +5,10 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/errno.h>
+#include <linux/types.h>
 #include <mach/mbox.h>
 #include <mach/soc.h>
 

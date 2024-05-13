@@ -6,7 +6,7 @@
  * project.
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch/base.h>

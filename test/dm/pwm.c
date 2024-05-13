@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Google, Inc
  */
 
-#include <common.h>
 #include <dm.h>
 #include <pwm.h>
 #include <asm/test.h>

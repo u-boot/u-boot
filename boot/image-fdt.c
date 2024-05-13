@@ -8,7 +8,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
@@ -158,11 +157,10 @@ void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
  */
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
+	u64	start, size, usable, addr, low, mapsize;
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = NULL;
-	u64	start, size, usable;
 	char	*fdt_high;
-	ulong	mapsize, low;
 	ulong	of_len = 0;
 	int	bank;
 	int	err;
@@ -185,7 +183,6 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	fdt_high = env_get("fdt_high");
 	if (fdt_high) {
 		ulong desired_addr = hextoul(fdt_high, NULL);
-		ulong addr;
 
 		if (desired_addr == ~0UL) {
 			/* All ones means use fdt in place */
@@ -217,14 +214,14 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			if (start + size < low)
 				continue;
 
-			usable = min(size, (u64)mapsize);
-
 			/*
 			 * At least part of this DRAM bank is usable, try
-			 * using it for LMB allocation.
+			 * using the DRAM bank up to 'usable' address limit
+			 * for LMB allocation.
 			 */
-			of_start = map_sysmem((ulong)lmb_alloc_base(lmb,
-				    of_len, 0x1000, start + usable), of_len);
+			usable = min(start + size, low + mapsize);
+			addr = lmb_alloc_base(lmb, of_len, 0x1000, usable);
+			of_start = map_sysmem(addr, of_len);
 			/* Allocation succeeded, use this block. */
 			if (of_start != NULL)
 				break;
@@ -233,7 +230,7 @@ int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			 * Reduce the mapping size in the next bank
 			 * by the size of attempt in current bank.
 			 */
-			mapsize -= usable - max(start, (u64)low);
+			mapsize -= usable - max(start, low);
 			if (!mapsize)
 				break;
 		}

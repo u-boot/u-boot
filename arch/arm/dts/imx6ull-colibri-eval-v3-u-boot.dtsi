@@ -9,6 +9,16 @@
 		usb0 = &usbotg1; /* required for ums */
 		display0 = &lcdif;
 	};
+
+	sysinfo {
+		compatible = "toradex,sysinfo";
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+		bootph-pre-ram;
+	};
 };
 
 &pinctrl_uart1 {
@@ -53,4 +63,8 @@
 			};
 		};
 	};
+};
+
+&wdog1 {
+	bootph-pre-ram;
 };

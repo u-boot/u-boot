@@ -4,7 +4,7 @@
  * Copyright (C) 2021-2023 Conclusive Engineering Sp. z o. o.
  */
 
-#include <common.h>
+#include <config.h>
 #include <debug_uart.h>
 #include <init.h>
 #include <env.h>

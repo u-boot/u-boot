@@ -104,7 +104,7 @@ config ROCKCHIP_OTP
 config ROCKCHIP_IODOMAIN
 	bool "Rockchip IO-domain driver support"
 	depends on DM_REGULATOR && ARCH_ROCKCHIP
-	default y if ROCKCHIP_RK3568
+	default y if ROCKCHIP_RK3328 || ROCKCHIP_RK3568
 	help
 	  Enable support for IO-domains in Rockchip SoCs. It is necessary
 	  for the IO-domain setting of the SoC to match the voltage supplied
@@ -505,6 +505,17 @@ config TEST_DRV
 	  model. This should only be enabled for testing as it is not useful for
 	  anything else.
 
+config TURRIS_OMNIA_MCU
+	bool "Enable Turris Omnia MCU driver"
+	depends on DM_I2C
+	depends on DM_GPIO
+	depends on DM_RNG
+	depends on SYSRESET
+	default y if TARGET_TURRIS_OMNIA
+	help
+	  This enables support for Turris Omnia MCU connected GPIOs and
+	  board power off.
+
 config USB_HUB_USB251XB
 	tristate "USB251XB Hub Controller Configuration Driver"
 	depends on I2C
@@ -689,4 +700,11 @@ config SL28CPLD
 	  the base driver which provides common access methods for the
 	  sub-drivers.
 
+config SPL_SOCFPGA_DT_REG
+	bool "Enable register setting from device tree in SPL"
+	depends on SPL
+	help
+	  Enable register setting from device tree. This also
+	  provides user a clean interface and all register settings are
+	  centralized in one place, device tree.
 endmenu

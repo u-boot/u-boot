@@ -342,7 +342,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 		return -EINVAL;
 	}
 
-	debug("Checksum algorithm: %s", checksum->name);
+	debug("Checksum algorithm: %s\n", checksum->name);
 
 	/* Sanity check for stack size */
 	if (sig_len > RSA_MAX_SIG_BITS / 8) {
@@ -444,13 +444,13 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	const char *algo;
 
 	if (node < 0) {
-		debug("%s: Skipping invalid node", __func__);
+		debug("%s: Skipping invalid node\n", __func__);
 		return -EBADF;
 	}
 
 	algo = fdt_getprop(blob, node, "algo", NULL);
 	if (strcmp(info->name, algo)) {
-		debug("%s: Wrong algo: have %s, expected %s", __func__,
+		debug("%s: Wrong algo: have %s, expected %s\n", __func__,
 		      info->name, algo);
 		return -EFAULT;
 	}
@@ -470,7 +470,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	prop.rr = fdt_getprop(blob, node, "rsa,r-squared", NULL);
 
 	if (!prop.num_bits || !prop.modulus || !prop.rr) {
-		debug("%s: Missing RSA key info", __func__);
+		debug("%s: Missing RSA key info\n", __func__);
 		return -EFAULT;
 	}
 

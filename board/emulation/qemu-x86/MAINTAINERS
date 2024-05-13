@@ -3,7 +3,6 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 F:	board/emulation/qemu-x86/
 F:	board/emulation/common/
-F:	include/configs/qemu-x86.h
 F:	configs/qemu-x86_defconfig
 
 QEMU X86 64-bit BOARD
@@ -11,5 +10,4 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 F:	board/emulation/qemu-x86/
 F:	board/emulation/common/
-F:	include/configs/qemu-x86.h
 F:	configs/qemu-x86_64_defconfig

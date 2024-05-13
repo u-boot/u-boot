@@ -6,8 +6,8 @@
 history command
 ===============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

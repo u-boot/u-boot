@@ -13,7 +13,6 @@
  * Copyright 1998-2000 Red Hat, Inc --- All Rights Reserved
  */
 
-#include <common.h>
 #include <blk.h>
 #include <ext4fs.h>
 #include <log.h>
@@ -430,7 +429,7 @@ int ext4fs_check_journal_state(int recovery_flag)
 			printf("Recovery required\n");
 	} else {
 		if (recovery_flag == RECOVER)
-			printf("File System is consistent\n");
+			log_debug("File System is consistent\n");
 		goto end;
 	}
 

@@ -13,6 +13,10 @@ config FASTBOOT
 	  More information about the protocol and usecases:
 	  https://android.googlesource.com/platform/system/core/+/refs/heads/master/fastboot/
 
+	  Note that enabling CMDLINE is recommended since fastboot allows U-Boot
+	  commands to be executed on request. The CMDLINE option is required
+	  for anything other than simply booting the OS.
+
 config USB_FUNCTION_FASTBOOT
 	bool "Enable USB fastboot gadget"
 	depends on USB_GADGET
@@ -248,6 +252,13 @@ config FASTBOOT_CMD_OEM_CONSOLE
 	help
 	  Add support for the "oem console" command to input and read console
 	  record buffer.
+
+config FASTBOOT_OEM_BOARD
+	bool "Enable the 'oem board' command"
+	help
+	  This extends the fastboot protocol with an "oem board" command. This
+	  command allows running vendor custom code defined in board/ files.
+	  Otherwise, it will do nothing and send fastboot fail.
 
 endif # FASTBOOT
 

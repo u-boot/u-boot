@@ -22,6 +22,7 @@ config TARGET_OPENPITON_RISCV64
 
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
+	select BOARD_LATE_INIT
 
 config TARGET_SIFIVE_UNLEASHED
 	bool "Support SiFive Unleashed Board"
@@ -93,6 +94,7 @@ source "board/xilinx/mbv/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/andesv5/Kconfig"
+source "arch/riscv/cpu/cv1800b/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
 source "arch/riscv/cpu/fu740/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
@@ -118,6 +120,26 @@ config ARCH_RV64I
 	  Choose this option to target the RV64I base integer instruction set.
 
 endchoice
+
+config FRAMEPOINTER
+	bool "Build with frame pointer for stack unwinding"
+	help
+	  Choose this option to use the frame pointer so the stack can be
+	  unwound if needed. This is useful for tracing where faults came
+	  from as the source may be several functions back
+
+	  If you say Y here, then the code size will be increased due to
+	  having to store the fp.
+
+config SPL_FRAMEPOINTER
+	bool "Build SPL with frame pointer for stack unwinding"
+	help
+	  Choose this option to use the frame pointer so the stack can be
+	  unwound if needed. This is useful for tracing where faults came
+	  from as the source may be several functions back
+
+	  If you say Y here, then the code size will be increased due to
+	  having to store the fp.
 
 choice
 	prompt "Code Model"
@@ -287,12 +309,6 @@ endmenu
 
 config RISCV_ISA_A
 	def_bool y
-
-config 32BIT
-	bool
-
-config 64BIT
-	bool
 
 config DMA_ADDR_T_64BIT
 	bool

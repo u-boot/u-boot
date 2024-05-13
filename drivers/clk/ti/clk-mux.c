@@ -7,7 +7,6 @@
  * Based on Linux kernel drivers/clk/ti/mux.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <clk-uclass.h>

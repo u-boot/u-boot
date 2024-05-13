@@ -265,7 +265,7 @@ config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
 	default 0x400 if M68K || PPC || ROCKCHIP_PX30 || ROCKCHIP_RK3036 || \
-			 ROCKCHIP_RK3308 || ROCKCHIP_RV1108
+			 ROCKCHIP_RV1108
 	default 0x600 if ARCH_ZYNQMP_R5 || ARCH_ZYNQMP
 	default 0x800 if ARCH_ZYNQ || ROCKCHIP_RK3128 || ROCKCHIP_RK3188 || \
 			 ROCKCHIP_RK322X || X86
@@ -714,6 +714,20 @@ config SYS_CLK_FREQ
 	help
 	  A static value for the CPU frequency.  Note that if not required
 	  for a given SoC, this can be left at 0.
+
+config HAS_LDR
+	bool
+	help
+	  Enables building .ldr targets for U-Boot and SPL. This does not
+	  automatically build any additional targets with make or buildman.
+
+config LDR_CPU
+	string "CPU name to be passed to LDR utility."
+	depends on HAS_LDR
+	help
+	  Set the CPU name for the -T parameter in the LDR utility.  This is
+	  generally used on processors from Analog Devices, but may be also
+	  be useful for other vendors.
 
 source "api/Kconfig"
 

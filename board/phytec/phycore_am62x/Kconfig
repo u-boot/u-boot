@@ -14,6 +14,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
        default "phycore_am62x"
 
+source "board/phytec/common/Kconfig"
+
 endif
 
 if TARGET_PHYCORE_AM62X_R5
@@ -29,5 +31,7 @@ config SYS_CONFIG_NAME
 
 config SPL_LDSCRIPT
 	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+source "board/phytec/common/Kconfig"
 
 endif

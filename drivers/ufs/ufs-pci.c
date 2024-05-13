@@ -4,7 +4,6 @@
  * Author: Bin Meng <bmeng@tinylab.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>

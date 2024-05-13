@@ -8,7 +8,6 @@
  */
 
 
-#include <common.h>
 #include <config.h>
 #include <fs_internal.h>
 #include <zfs_common.h>
@@ -26,5 +25,5 @@ void zfs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 int zfs_devread(int sector, int byte_offset, int byte_len, char *buf)
 {
 	return fs_devread(zfs_blk_desc, part_info, sector, byte_offset,
-			  byte_len, buf);
+			  byte_len, buf) ? 0 : 1;
 }

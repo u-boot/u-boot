@@ -48,7 +48,7 @@ obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
 ifndef CONFIG_SPL_BUILD
-obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
+obj-$(CONFIG_ZBOOT) += zimage.o
 endif
 obj-$(CONFIG_USE_HOB) += hob.o
 ifndef CONFIG_TPL_BUILD

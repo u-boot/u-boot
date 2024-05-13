@@ -3,7 +3,6 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <dsi_host.h>

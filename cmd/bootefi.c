@@ -107,7 +107,6 @@ static int do_efi_selftest(void)
 
 	/* Execute the test */
 	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
-	efi_restore_gd();
 	free(loaded_image_info->load_options);
 	efi_free_pool(test_device_path);
 	efi_free_pool(test_image_path);
@@ -154,9 +153,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 	    !strcmp(argv[1], "bootmgr")) {
 		ret = efi_bootmgr_run(fdt);
 
-		if (ret == EFI_INVALID_PARAMETER)
-			return CMD_RET_USAGE;
-		else if (ret)
+		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
 		return CMD_RET_SUCCESS;
@@ -173,9 +170,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 
 		ret = efi_install_fdt(fdt);
-		if (ret == EFI_INVALID_PARAMETER)
-			return CMD_RET_USAGE;
-		else if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
 		return do_efi_selftest();
@@ -218,9 +213,7 @@ static int do_bootefi(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	ret = efi_binary_run(image_buf, size, fdt);
 
-	if (ret == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (ret)
+	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
 	return CMD_RET_SUCCESS;

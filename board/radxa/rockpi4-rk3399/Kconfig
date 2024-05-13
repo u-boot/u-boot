@@ -1,0 +1,15 @@
+if TARGET_ROCKPI4_RK3399
+
+config SYS_BOARD
+	default "rockpi4-rk3399"
+
+config SYS_VENDOR
+	default "radxa"
+
+config SYS_CONFIG_NAME
+	default "rockpi4-rk3399"
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif

@@ -5,7 +5,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
@@ -21,13 +20,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int riscv_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 {
-	const char *isa;
+	const char *cpu;
 
-	isa = dev_read_string(dev, "riscv,isa");
-	if (size < (strlen(isa) + 1))
+	cpu = dev_read_string(dev, "compatible");
+	if (size < (strlen(cpu) + 1))
 		return -ENOSPC;
 
-	strcpy(buf, isa);
+	strcpy(buf, cpu);
 
 	return 0;
 }

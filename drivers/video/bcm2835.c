@@ -3,7 +3,6 @@
  * (C) Copyright 2012 Stephen Warren
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <video.h>

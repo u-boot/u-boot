@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Microchip Technology Inc.
  * Padmarao Begari <padmarao.begari@microchip.com>
  */
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

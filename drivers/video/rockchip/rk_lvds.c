@@ -3,7 +3,6 @@
  * Copyright 2016 Rockchip Inc.
  */
 
-#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <edid.h>
@@ -13,7 +12,6 @@
 #include <syscon.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/grf_rk3288.h>
 #include <asm/arch-rockchip/hardware.h>

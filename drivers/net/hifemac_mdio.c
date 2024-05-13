@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <clk.h>
 #include <miiphy.h>
+#include <dm/device_compat.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 
@@ -74,7 +75,8 @@ static int hisi_femac_mdio_of_to_plat(struct udevice *dev)
 	data->membase = dev_remap_addr(dev);
 	if (IS_ERR(data->membase)) {
 		ret = PTR_ERR(data->membase);
-		return log_msg_ret("Failed to remap base addr", ret);
+		dev_err(dev, "Failed to remap base addr %d\n", ret);
+		return log_msg_ret("mdio", ret);
 	}
 
 	// clk is optional
@@ -89,8 +91,10 @@ static int hisi_femac_mdio_probe(struct udevice *dev)
 	int ret;
 
 	ret = clk_prepare_enable(data->clk);
-	if (ret)
-		return log_msg_ret("Failed to enable clk", ret);
+	if (ret) {
+		dev_err(dev, "Failed to enable clock: %d\n", ret);
+		return log_msg_ret("clk", ret);
+	}
 
 	return 0;
 }
@@ -112,5 +116,6 @@ U_BOOT_DRIVER(hisi_femac_mdio_driver) = {
 	.of_to_plat = hisi_femac_mdio_of_to_plat,
 	.probe = hisi_femac_mdio_probe,
 	.ops = &hisi_femac_mdio_ops,
+	.plat_auto = sizeof(struct mdio_perdev_priv),
 	.priv_auto = sizeof(struct hisi_femac_mdio_data),
 };

@@ -4,7 +4,6 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/cache.h>
@@ -49,12 +48,6 @@ static struct dwc3_device dwc3_device_data = {
 	.dr_mode = USB_DR_MODE_PERIPHERAL,
 	.index = 0,
 };
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
-}
 
 int board_usb_init(int index, enum usb_init_type init)
 {

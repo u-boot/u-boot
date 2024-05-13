@@ -7,8 +7,7 @@
  * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
-#include <eeprom.h>
+#include <config.h>
 #include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <env.h>
@@ -759,17 +758,6 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.usb2_phy_power = (void *)USB2_PHY2_POWER,
 	.index = 1,
 };
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	u32 status;
-
-	status = dwc3_omap_uboot_interrupt_status(dev);
-	if (status)
-		dwc3_uboot_handle_interrupt(dev);
-
-	return 0;
-}
 #endif /* CONFIG_USB_DWC3 */
 
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)

@@ -62,8 +62,14 @@ config SYS_FSL_SEC_LE
 
 if FSL_CAAM
 
+config FSL_CAAM_JR_NTZ_ACCESS
+	bool "Give CAAM Job Ring access to non-secure world"
+	help
+	  It is needed when OP-TEE is not used and Freescale CAAM Job Ring linux
+	  driver is used.
+
 config FSL_CAAM_RNG
-	bool "Enable Random Number Generator support"
+	bool "Enable CAAM Random Number Generator support"
 	depends on DM_RNG
 	default y
 	help
@@ -72,10 +78,17 @@ config FSL_CAAM_RNG
 	  using the prediction resistance flag which means the DRGB is
 	  reseeded from the TRNG every time random data is generated.
 
+config SPL_FSL_CAAM_RNG
+	bool "Enable CAAM Random Number Generator support in SPL"
+	depends on SPL_DM_RNG
+	help
+	  This option is an SPL-variant of the FSL_CAAM_RNG option.
+	  See the help of FSL_CAAM_RNG for details.
+
 endif
 
 config FSL_DCP_RNG
-	bool "Enable Random Number Generator support"
+	bool "Enable DCP Random Number Generator support"
 	depends on DM_RNG
 	help
 	  Enable support for the hardware based random number generator

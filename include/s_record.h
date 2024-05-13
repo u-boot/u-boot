@@ -4,6 +4,8 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <linux/types.h>
+
 /*--------------------------------------------------------------------------
  *
  * Motorola S-Record Format:

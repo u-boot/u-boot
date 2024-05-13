@@ -9,7 +9,6 @@
  */
 
 #include <clk-uclass.h>
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dt-bindings/clock/qcom,gcc-ipq4019.h>
@@ -21,7 +20,7 @@ static ulong ipq4019_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case GCC_BLSP1_UART1_APPS_CLK: /*UART1*/
 		/* This clock is already initialized by SBL1 */
-		return 0;
+		return 1843200;
 	default:
 		return -EINVAL;
 	}

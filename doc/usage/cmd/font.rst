@@ -6,8 +6,8 @@
 font command
 ============
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

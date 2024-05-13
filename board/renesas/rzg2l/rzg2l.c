@@ -56,11 +56,3 @@ int board_init(void)
 {
 	return 0;
 }
-
-void reset_cpu(void)
-{
-	/*
-	 * TODO: Implement reset support once TrustedFirmware supports
-	 * the appropriate call.
-	 */
-}

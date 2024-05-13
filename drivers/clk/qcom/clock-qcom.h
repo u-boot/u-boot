@@ -9,8 +9,18 @@
 
 #define CFG_CLK_SRC_CXO   (0 << 8)
 #define CFG_CLK_SRC_GPLL0 (1 << 8)
+#define CFG_CLK_SRC_GPLL0_AUX2 (2 << 8)
+#define CFG_CLK_SRC_GPLL9 (2 << 8)
+#define CFG_CLK_SRC_GPLL6 (4 << 8)
+#define CFG_CLK_SRC_GPLL7 (3 << 8)
+#define CFG_CLK_SRC_GPLL4 (5 << 8)
 #define CFG_CLK_SRC_GPLL0_EVEN (6 << 8)
 #define CFG_CLK_SRC_MASK  (7 << 8)
+
+#define RCG_CFG_REG		0x4
+#define RCG_M_REG		0x8
+#define RCG_N_REG		0xc
+#define RCG_D_REG		0x10
 
 struct pll_vote_clk {
 	uintptr_t status;
@@ -23,13 +33,6 @@ struct vote_clk {
 	uintptr_t cbcr_reg;
 	uintptr_t ena_vote;
 	int vote_bit;
-};
-struct bcr_regs {
-	uintptr_t cfg_rcgr;
-	uintptr_t cmd_rcgr;
-	uintptr_t M;
-	uintptr_t N;
-	uintptr_t D;
 };
 
 struct freq_tbl {
@@ -59,9 +62,15 @@ struct qcom_reset_map {
 	u8 bit;
 };
 
+struct qcom_power_map {
+	unsigned int reg;
+};
+
 struct clk;
 
 struct msm_clk_data {
+	const struct qcom_power_map	*power_domains;
+	unsigned long			num_power_domains;
 	const struct qcom_reset_map	*resets;
 	unsigned long			num_resets;
 	const struct gate_clk		*clks;
@@ -82,9 +91,9 @@ void clk_bcr_update(phys_addr_t apps_cmd_rgcr);
 void clk_enable_cbc(phys_addr_t cbcr);
 void clk_enable_vote_clk(phys_addr_t base, const struct vote_clk *vclk);
 const struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, uint rate);
-void clk_rcg_set_rate_mnd(phys_addr_t base, const struct bcr_regs *regs,
+void clk_rcg_set_rate_mnd(phys_addr_t base, uint32_t cmd_rcgr,
 			  int div, int m, int n, int source, u8 mnd_width);
-void clk_rcg_set_rate(phys_addr_t base, const struct bcr_regs *regs, int div,
+void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 		      int source);
 
 static inline void qcom_gate_clk_en(const struct msm_clk_priv *priv, unsigned long id)

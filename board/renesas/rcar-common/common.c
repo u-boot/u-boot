@@ -14,7 +14,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <dm/uclass-internal.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <linux/libfdt.h>
 
 #ifdef CONFIG_RCAR_64

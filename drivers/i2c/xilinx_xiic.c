@@ -9,7 +9,6 @@
  * Copyright (c) 2009-2010 Intel Corporation
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>

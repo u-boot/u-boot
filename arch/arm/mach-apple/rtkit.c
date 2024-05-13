@@ -4,13 +4,14 @@
  * (C) Copyright 2021 Copyright The Asahi Linux Contributors
  */
 
-#include <common.h>
 #include <mailbox.h>
 #include <malloc.h>
 
 #include <asm/arch/rtkit.h>
 #include <linux/apple-mailbox.h>
 #include <linux/bitfield.h>
+#include <linux/errno.h>
+#include <linux/types.h>
 
 #define APPLE_RTKIT_EP_MGMT 0
 #define APPLE_RTKIT_EP_CRASHLOG	1

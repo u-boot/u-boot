@@ -6,8 +6,8 @@
 dm command
 ==========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

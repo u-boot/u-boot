@@ -8,7 +8,7 @@
  * JEDEC standard No.21-C 4_01_02_11R18.pdf
  */
 
-#include <common.h>
+#include <linux/string.h>
 #include <fsl_ddr_sdram.h>
 #include <log.h>
 

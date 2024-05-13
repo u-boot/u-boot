@@ -6,7 +6,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <net.h>
 #include <linux/types.h>
 #include <api_public.h>

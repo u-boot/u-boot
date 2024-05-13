@@ -6,7 +6,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <log.h>
 #include <malloc.h>
@@ -426,6 +425,11 @@ int log_device_set_enable(struct log_driver *drv, bool enable)
 		ldev->flags &= ~LOGDF_ENABLE;
 
 	return 0;
+}
+
+void log_fixup_for_gd_move(struct global_data *new_gd)
+{
+	new_gd->log_head.prev->next = &new_gd->log_head;
 }
 
 int log_init(void)

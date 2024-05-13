@@ -4,10 +4,10 @@
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
+#include <linux/errno.h>
 
 #define TIMER1_VALUE		18	/* 15.6us */
 #define BEEP_FREQUENCY_HZ	440

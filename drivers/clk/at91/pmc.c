@@ -4,7 +4,6 @@
  *               Wenyou.Yang <wenyou.yang@atmel.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <linux/clk-provider.h>

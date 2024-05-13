@@ -558,6 +558,16 @@ config BOOTMETH_EFILOADER
 
 	  This provides a way to try out standard boot on an existing boot flow.
 
+config BOOTMETH_EFI_BOOTMGR
+	bool "Bootdev support for EFI boot manager"
+	depends on EFI_BOOTMGR
+	select BOOTMETH_GLOBAL
+	default y
+	help
+	  Enable booting via the UEFI boot manager. Based on the EFI variables
+	  the EFI binary to be launched is determined. To set the EFI variables
+	  use the eficonfig command.
+
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
 	depends on FIT
@@ -745,7 +755,6 @@ if MEASURED_BOOT
 
 	config MEASURE_IGNORE_LOG
 	bool "Ignore the existing event log"
-	default n
 	help
 	  On platforms that use an event log memory region that persists
 	  through system resets and are the first stage bootloader, then

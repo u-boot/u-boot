@@ -6,7 +6,7 @@
  * Aneesh V <aneesh@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <bloblist.h>
 #include <binman_sym.h>
 #include <bootstage.h>
@@ -23,7 +23,6 @@
 #include <system-constants.h>
 #include <asm/global_data.h>
 #include <asm-generic/gpio.h>
-#include <asm/u-boot.h>
 #include <nand.h>
 #include <fat.h>
 #include <u-boot/crc.h>
@@ -908,6 +907,9 @@ ulong spl_relocate_stack_gd(void)
 	memcpy(new_gd, (void *)gd, sizeof(gd_t));
 #if CONFIG_IS_ENABLED(DM)
 	dm_fixup_for_gd_move(new_gd);
+#endif
+#if CONFIG_IS_ENABLED(LOG)
+	log_fixup_for_gd_move(new_gd);
 #endif
 #if !defined(CONFIG_ARM) && !defined(CONFIG_RISCV)
 	gd = new_gd;

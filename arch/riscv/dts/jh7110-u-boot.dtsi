@@ -93,6 +93,10 @@
 	bootph-pre-ram;
 };
 
+&pllclk {
+	bootph-pre-ram;
+};
+
 &S7_0 {
 	status = "okay";
 };

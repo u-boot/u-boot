@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <cpu_func.h>
 
 int board_init(void)

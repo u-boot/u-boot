@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_THERMAL
 
-#include <common.h>
 #include <dm.h>
 #include <thermal.h>
 #include <errno.h>

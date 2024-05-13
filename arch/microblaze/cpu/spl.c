@@ -10,7 +10,6 @@
 #include <log.h>
 #include <spl.h>
 #include <asm/io.h>
-#include <asm/u-boot.h>
 #include <linux/stringify.h>
 
 void board_boot_order(u32 *spl_boot_list)

@@ -4,7 +4,6 @@
  *
  * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>
@@ -17,7 +16,23 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	u8 buf[64];
 	int devnum;
 	struct udevice *dev;
-	int ret = CMD_RET_SUCCESS;
+	int ret = CMD_RET_SUCCESS, err;
+
+	if (argc == 2 && !strcmp(argv[1], "list")) {
+		int idx = 0;
+
+		uclass_foreach_dev_probe(UCLASS_RNG, dev) {
+			idx++;
+			printf("RNG #%d - %s\n", dev->seq_, dev->name);
+		}
+
+		if (!idx) {
+			log_err("No RNG device\n");
+			return CMD_RET_FAILURE;
+		}
+
+		return CMD_RET_SUCCESS;
+	}
 
 	switch (argc) {
 	case 1:
@@ -46,8 +61,9 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	n = min(n, sizeof(buf));
 
-	if (dm_rng_read(dev, buf, n)) {
-		printf("Reading RNG failed\n");
+	err = dm_rng_read(dev, buf, n);
+	if (err) {
+		puts(err == -EINTR ? "Abort\n" : "Reading RNG failed\n");
 		ret = CMD_RET_FAILURE;
 	} else {
 		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, n);
@@ -56,12 +72,9 @@ static int do_rng(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return ret;
 }
 
-U_BOOT_LONGHELP(rng,
-	"[dev [n]]\n"
-	"  - print n random bytes(max 64) read from dev\n");
-
 U_BOOT_CMD(
 	rng, 3, 0, do_rng,
 	"print bytes from the hardware random number generator",
-	rng_help_text
+	"list         - list all the probed rng devices\n"
+	"rng [dev] [n]    - print n random bytes(max 64) read from dev\n"
 );

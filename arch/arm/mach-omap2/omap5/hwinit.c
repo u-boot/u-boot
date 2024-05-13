@@ -11,7 +11,6 @@
  *	Steve Sakoman	<steve@sakoman.com>
  *	Sricharan	<r.sricharan@ti.com>
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <palmas.h>
 #include <asm/armv7.h>

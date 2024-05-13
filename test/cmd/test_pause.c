@@ -5,7 +5,6 @@
  * Copyright 2022, Samuel Dionne-Riel <samuel@dionne-riel.com>
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <test/lib.h>
 #include <test/ut.h>

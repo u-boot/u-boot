@@ -3,7 +3,6 @@
  * Copyright 2018 Lothar Felten, lothar.felten@gmail.com
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <net.h>

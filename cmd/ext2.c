@@ -19,7 +19,6 @@
 /*
  * Ext2fs support
  */
-#include <common.h>
 #include <command.h>
 #include <fs.h>
 

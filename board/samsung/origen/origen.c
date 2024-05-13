@@ -3,7 +3,6 @@
  * Copyright (C) 2011 Samsung Electronics
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/cpu.h>

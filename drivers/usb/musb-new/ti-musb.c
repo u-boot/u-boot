@@ -5,7 +5,6 @@
  * (C) Copyright 2016
  *     Texas Instruments Incorporated, <www.ti.com>
  */
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright 2023 Logic PD, Inc dba Beacon EmbeddedWorks */
 
-#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <asm/arch/sys_proto.h>

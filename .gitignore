@@ -10,6 +10,7 @@
 *.a
 *.asn1.[ch]
 *.bin
+*.bin[_.]*
 *.cfgout
 *.cover
 *.dtb
@@ -17,23 +18,27 @@
 *.dtb.S
 *.elf
 *.exe
+*.fit
 *.gcda
 *.gcno
 *.i
 *.img
+*.itb
 *.lex.c
 *.lst
+*.map
 *.mod.c
 *.mbx
 *.o
 *.o.*
 *.order
 *.patch
+*.pem
 *.s
 *.su
 *.swp
 *.tab.[ch]
-
+*.ti-*
 # Build tree
 /build*
 
@@ -63,6 +68,11 @@ fit-dtb.blob*
 /spl/
 /tpl/
 /defconfig
+/generated_defconfig
+/Test*
+/capsule.*.efi-capsule
+/capsule*.map
+/keep-syms-lto.*
 
 #
 # Generated include files

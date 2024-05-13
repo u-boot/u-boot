@@ -10,6 +10,7 @@ CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x4020ff00
 CONFIG_SPL_TEXT_BASE=0x40200000
 CONFIG_TARGET_SNIPER=y
 CONFIG_SPL_STACK=0x4020fffc
+CONFIG_SPL_BSS_START_ADDR=0x80000000
 CONFIG_SPL=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTCOMMAND="setenv boot_mmc_part ${kernel_mmc_part}; if test reboot-${reboot-mode} = reboot-r; then echo recovery; setenv boot_mmc_part ${recovery_mmc_part}; fi; if test reboot-${reboot-mode} = reboot-b; then echo fastboot; fastboot 0; fi; part start mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_start; part size mmc ${boot_mmc_dev} ${boot_mmc_part} boot_mmc_size; mmc dev ${boot_mmc_dev}; mmc read ${kernel_addr_r} ${boot_mmc_start} ${boot_mmc_size} && bootm ${kernel_addr_r};"
@@ -17,7 +18,6 @@ CONFIG_SYS_CBSIZE=512
 CONFIG_SYS_PBSIZE=538
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_SPL_MAX_SIZE=0xec00
-CONFIG_SPL_BSS_START_ADDR=0x80000000
 # CONFIG_SPL_SHARES_INIT_SP_ADDR is not set
 CONFIG_SPL_SYS_MALLOC=y
 CONFIG_SPL_HAS_CUSTOM_MALLOC_START=y

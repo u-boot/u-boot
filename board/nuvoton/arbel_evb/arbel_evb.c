@@ -3,7 +3,6 @@
  * Copyright (c) 2022 Nuvoton Technology Corp.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
@@ -25,6 +24,15 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	/* Use bank0 only */
+	if (gd->ram_size > DRAM_2GB_SIZE)
+		return DRAM_2GB_SIZE;
+
+	return gd->ram_size;
 }
 
 int dram_init(void)
@@ -70,21 +78,16 @@ int dram_init_banksize(void)
 		gd->bd->bi_dram[1].start = DRAM_4GB_SIZE;
 		gd->bd->bi_dram[1].size = DRAM_2GB_SIZE -
 			(DRAM_4GB_SIZE - DRAM_4GB_ECC_SIZE);
-		/* use bank0 only */
-		gd->ram_size = DRAM_2GB_SIZE;
 		break;
 	case DRAM_4GB_SIZE:
 		gd->bd->bi_dram[0].size = DRAM_2GB_SIZE;
 		gd->bd->bi_dram[1].start = DRAM_4GB_SIZE;
 		gd->bd->bi_dram[1].size = DRAM_2GB_SIZE;
-		/* use bank0 only */
-		gd->ram_size = DRAM_2GB_SIZE;
 		break;
 	default:
 		gd->bd->bi_dram[0].size = DRAM_1GB_SIZE;
 		gd->bd->bi_dram[1].start = 0;
 		gd->bd->bi_dram[1].size = 0;
-		gd->ram_size = DRAM_1GB_SIZE;
 		break;
 	}
 

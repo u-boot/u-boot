@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <sysreset.h>
 #include <linux/errno.h>

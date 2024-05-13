@@ -12,7 +12,6 @@
  *       GPIO driven chipselects are not supported.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <cpu_func.h>

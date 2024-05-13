@@ -5,7 +5,6 @@
  * Copyright 2011 Maxim Integrated Products
  */
 
-#include <common.h>
 #include <audio_codec.h>
 #include <div64.h>
 #include <dm.h>

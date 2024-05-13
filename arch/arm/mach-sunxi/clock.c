@@ -23,10 +23,8 @@ __weak void gtbus_init(void)
 
 int clock_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
 	clock_init_safe();
 	gtbus_init();
-#endif
 	clock_init_uart();
 	clock_init_sec();
 

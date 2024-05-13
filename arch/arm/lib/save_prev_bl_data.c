@@ -10,7 +10,6 @@
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <fdt.h>
-#include <common.h>
 #include <linux/errno.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
@@ -43,6 +42,11 @@ bool is_addr_accessible(phys_addr_t addr)
 	}
 
 	return false;
+}
+
+phys_addr_t get_prev_bl_fdt_addr(void)
+{
+	return reg0;
 }
 
 int save_prev_bl_data(void)

@@ -19,7 +19,7 @@ for f in $blobs; do
 	fi
 
 	if [ ! -f $tmp ]; then
-		echo "WARNING '$tmp' not found, resulting binary is not-functional" >&2
+		echo "WARNING '$tmp' not found, resulting binary may be not-functional" >&2
 
                 # Comment-out the lines for un-existing files. This way,
                 # mkimage can keep working. This allows CI tests to pass even

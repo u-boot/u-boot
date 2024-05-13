@@ -4,7 +4,6 @@
  * Roger Knecht <rknecht@pm.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <fs.h>
 #include <malloc.h>

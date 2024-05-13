@@ -10,11 +10,13 @@
 #include <dm.h>
 #include <elf.h>
 #include <efi_loader.h>
+#include <efi_variable.h>
 #include <log.h>
 #include <malloc.h>
 #include <rtc.h>
 #include <asm/global_data.h>
 #include <u-boot/crc.h>
+#include <asm/sections.h>
 
 /* For manual relocation support */
 DECLARE_GLOBAL_DATA_PTR;
@@ -109,6 +111,7 @@ static __efi_runtime_data efi_uintn_t efi_descriptor_size;
  */
 efi_status_t efi_init_runtime_supported(void)
 {
+	const efi_guid_t efi_guid_efi_rt_var_file = U_BOOT_EFI_RT_VAR_FILE_GUID;
 	efi_status_t ret;
 	struct efi_rt_properties_table *rt_table;
 
@@ -125,6 +128,50 @@ efi_status_t efi_init_runtime_supported(void)
 				EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME |
 				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 				EFI_RT_SUPPORTED_CONVERT_POINTER;
+
+	if (IS_ENABLED(CONFIG_EFI_VARIABLE_FILE_STORE))
+		rt_table->runtime_services_supported |=
+			EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO;
+
+	if (IS_ENABLED(CONFIG_EFI_RT_VOLATILE_STORE)) {
+		u8 s = 0;
+
+		ret = efi_set_variable_int(u"RTStorageVolatile",
+					   &efi_guid_efi_rt_var_file,
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS |
+					   EFI_VARIABLE_READ_ONLY,
+					   sizeof(EFI_VAR_FILE_NAME),
+					   EFI_VAR_FILE_NAME, false);
+		if (ret != EFI_SUCCESS) {
+			log_err("Failed to set RTStorageVolatile\n");
+			return ret;
+		}
+		/*
+		 * This variable needs to be visible so users can read it,
+		 * but the real contents are going to be filled during
+		 * GetVariable
+		 */
+		ret = efi_set_variable_int(u"VarToFile",
+					   &efi_guid_efi_rt_var_file,
+					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					   EFI_VARIABLE_RUNTIME_ACCESS |
+					   EFI_VARIABLE_READ_ONLY,
+					   sizeof(s),
+					   &s, false);
+		if (ret != EFI_SUCCESS) {
+			log_err("Failed to set VarToFile\n");
+			efi_set_variable_int(u"RTStorageVolatile",
+					     &efi_guid_efi_rt_var_file,
+					     EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					     EFI_VARIABLE_RUNTIME_ACCESS |
+					     EFI_VARIABLE_READ_ONLY,
+					     0, NULL, false);
+
+			return ret;
+		}
+		rt_table->runtime_services_supported |= EFI_RT_SUPPORTED_SET_VARIABLE;
+	}
 
 	/*
 	 * This value must be synced with efi_runtime_detach_list
@@ -668,14 +715,14 @@ static __efi_runtime void efi_relocate_runtime_table(ulong offset)
 void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 {
 #ifdef IS_RELA
-	struct elf_rela *rel = (void*)&__efi_runtime_rel_start;
+	struct elf_rela *rel = (void *)__efi_runtime_rel_start;
 #else
-	struct elf_rel *rel = (void*)&__efi_runtime_rel_start;
+	struct elf_rel *rel = (void *)__efi_runtime_rel_start;
 	static ulong lastoff = CONFIG_TEXT_BASE;
 #endif
 
 	debug("%s: Relocating to offset=%lx\n", __func__, offset);
-	for (; (ulong)rel < (ulong)&__efi_runtime_rel_stop; rel++) {
+	for (; (uintptr_t)rel < (uintptr_t)__efi_runtime_rel_stop; rel++) {
 		ulong base = CONFIG_TEXT_BASE;
 		ulong *p;
 		ulong newaddr;

@@ -2,13 +2,11 @@
 /*
  * (C) Copyright 2018-2019 Rockchip Electronics Co., Ltd
  */
- #include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <div64.h>

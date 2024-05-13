@@ -650,19 +650,6 @@ static int mctl_channel_init(uint16_t socid, struct dram_para *para)
 	return 0;
 }
 
-/*
- * Test if memory at offset offset matches memory at a certain base
- */
-static bool mctl_mem_matches_base(u32 offset, ulong base)
-{
-	/* Try to write different values to RAM at two addresses */
-	writel(0, base);
-	writel(0xaa55aa55, base + offset);
-	dsb();
-	/* Check if the same value is actually observed when reading back */
-	return readl(base) ==
-	       readl(base + offset);
-}
 
 static void mctl_auto_detect_dram_size_rank(uint16_t socid, struct dram_para *para, ulong base, struct rank_para *rank)
 {

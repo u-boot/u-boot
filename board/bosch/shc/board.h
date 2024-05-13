@@ -154,7 +154,7 @@ static inline int board_is_series(void)
 #define HDR_FATC_LEN	12
 
 /*
-* SHC parameters held in On-Board I²C EEPROM device.
+* SHC parameters held in On-Board I2C EEPROM device.
 *
 * Header Format
 *

@@ -319,6 +319,14 @@ config DEBUG_UART_S5P
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver-model serial is running.
 
+config DEBUG_UART_MSM
+	bool "Qualcomm QUP UART debug"
+	depends on ARCH_SNAPDRAGON || ARCH_IPQ40XX
+	help
+	  Select this to enable a debug UART using the serial_msm driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_MSM_GENI
 	bool "Qualcomm snapdragon"
 	depends on ARCH_SNAPDRAGON
@@ -433,7 +441,7 @@ config DEBUG_UART_SEMIHOSTING
 
 config DEBUG_UART_SCIF
 	bool "Renesas SCIF UART"
-	depends on SH || ARCH_RMOBILE
+	depends on SH || ARCH_RENESAS
 	help
 	  Select this to enable a debug UART using the serial_sh driver. You
 	  will need to provide parameters to make this work. The driver will
@@ -893,7 +901,7 @@ config SANDBOX_SERIAL
 
 config SCIF_CONSOLE
 	bool "Renesas SCIF UART support"
-	depends on SH || ARCH_RMOBILE
+	depends on SH || ARCH_RENESAS
 	help
 	  Select this to enable Renesas SCIF UART. To operate serial ports
 	  on systems with RCar or SH SoCs, say Y to this option. If unsure,

@@ -7,6 +7,8 @@
 #ifndef __STARFIVE_DDR_H__
 #define __STARFIVE_DDR_H__
 
+#include <linux/kernel.h>
+
 #define SEC_CTRL_ADDR		0x1000
 #define PHY_BASE_ADDR		0x800
 #define PHY_AC_BASE_ADDR	0x1000

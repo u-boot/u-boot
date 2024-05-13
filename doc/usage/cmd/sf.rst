@@ -6,8 +6,8 @@
 sf command
 ==========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

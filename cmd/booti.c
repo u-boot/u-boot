@@ -4,7 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <image.h>
@@ -74,7 +73,7 @@ static int booti_start(struct bootm_info *bmi)
 	unmap_sysmem((void *)ld);
 
 	ret = booti_setup(ld, &relocated_addr, &image_size, false);
-	if (ret || IS_ENABLED(CONFIG_SANDBOX))
+	if (ret)
 		return 1;
 
 	/* Handle BOOTM_STATE_LOADOS */

@@ -9,7 +9,6 @@
  * U-Boot.
  */
 
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <os.h>

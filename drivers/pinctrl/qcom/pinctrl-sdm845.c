@@ -7,7 +7,6 @@
  *
  */
 
-#include <common.h>
 #include <dm.h>
 
 #include "pinctrl-qcom.h"
@@ -66,19 +65,32 @@ static const char *sdm845_get_function_name(struct udevice *dev,
 static const char *sdm845_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
-	snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+	static const char *special_pins_names[] = {
+		"ufs_reset",
+		"sdc2_clk",
+		"sdc2_cmd",
+		"sdc2_data",
+	};
+
+	if (selector >= 150 && selector <= 154)
+		snprintf(pin_name, MAX_PIN_NAME_LEN, special_pins_names[selector - 150]);
+	else
+		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+
 	return pin_name;
 }
 
-static unsigned int sdm845_get_function_mux(unsigned int selector)
+static unsigned int sdm845_get_function_mux(__maybe_unused unsigned int pin,
+					    unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }
 
-static struct msm_pinctrl_data sdm845_data = {
+static const struct msm_pinctrl_data sdm845_data = {
 	.pin_data = {
 		.pin_offsets = sdm845_pin_offsets,
-		.pin_count = ARRAY_SIZE(sdm845_pin_offsets),
+		.pin_count = 154,
+		.special_pins_start = 150,
 	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = sdm845_get_function_name,

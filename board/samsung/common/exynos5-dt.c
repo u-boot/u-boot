@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Samsung Electronics
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dwc3-uboot.h>
 #include <env.h>
@@ -121,12 +121,6 @@ static struct dwc3_device dwc3_device_data = {
 	.dr_mode = USB_DR_MODE_PERIPHERAL,
 	.index = 0,
 };
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	dwc3_uboot_handle_interrupt(dev);
-	return 0;
-}
 
 int board_usb_init(int index, enum usb_init_type init)
 {

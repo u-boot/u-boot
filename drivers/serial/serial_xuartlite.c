@@ -8,7 +8,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -23,7 +22,7 @@
 #define ULITE_CONTROL_RST_TX	0x01
 #define ULITE_CONTROL_RST_RX	0x02
 
-static bool little_endian;
+static bool little_endian __section(".data");
 
 struct uartlite {
 	unsigned int rx_fifo;

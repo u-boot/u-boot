@@ -7,7 +7,6 @@
  * Loosely based on Linux kernel drivers/clk/ti/gate.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <clk-uclass.h>

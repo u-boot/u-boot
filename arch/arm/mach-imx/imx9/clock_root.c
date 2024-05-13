@@ -5,7 +5,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>

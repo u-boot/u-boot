@@ -2,9 +2,8 @@
 /*
  * (C) Copyright 2015 Rockchip Electronics Co., Ltd
  */
-#include <common.h>
+#include <config.h>
 #include <init.h>
-#include <asm/io.h>
 #include <asm/types.h>
 #include <asm/arch-rockchip/cru_rk3036.h>
 #include <asm/arch-rockchip/grf_rk3036.h>

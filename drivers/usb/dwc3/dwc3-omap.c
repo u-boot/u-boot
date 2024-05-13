@@ -13,7 +13,6 @@
  * commit 7ee2566ff5 : usb: dwc3: dwc3-omap: get rid of ->prepare()/->complete()
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>
@@ -428,7 +427,7 @@ void dwc3_omap_uboot_exit(int index)
 }
 
 /**
- * dwc3_omap_uboot_interrupt_status - check the status of interrupt
+ * dwc3_uboot_interrupt_status - check the status of interrupt
  * @dev: device of this controller
  *
  * Checks the status of interrupts and returns true if an interrupt
@@ -436,7 +435,7 @@ void dwc3_omap_uboot_exit(int index)
  *
  * Generally called from board file.
  */
-int dwc3_omap_uboot_interrupt_status(struct udevice *dev)
+int dwc3_uboot_interrupt_status(struct udevice *dev)
 {
 	struct dwc3_omap *omap = NULL;
 

@@ -6,6 +6,33 @@ config TARGET_EVB_RK3588
 	help
 	  RK3588 EVB is a evaluation board for Rockchp RK3588.
 
+config TARGET_JAGUAR_RK3588
+	bool "Theobroma Systems SBC-RK3588-AMR (Jaguar)"
+	select BOARD_LATE_INIT
+	help
+	  The SBC-RK3588-AMR is a Single Board Computer designed by
+	  Theobroma Systems for autonomous mobile robots.
+
+	  It provides the following features:
+	    * up to 32GB LDDR4
+	    * up to 128GB on-module eMMC (with 8-bit 1.8V interface)
+	    * SD card
+	    * Gigabit Ethernet
+	    * 1x USB-A 2.0 host
+	    * PCIe M.2 2230 Key M (Gen 2 1-lane) for WiFi+BT
+	    * PCIe M.2 2280 Key M (Gen 3 4-lane) for NVMe
+	    * CAN
+	    * RS485 UART
+	    * 2x USB Type-C 3.1 host/device
+	    * HDMI output
+	    * 2x camera connectors (MIPI-CSI 2-lane + I2C/SPI for IMUs + GPIOs)
+	    * EEPROM
+	    * Secure Element
+	    * ATtiny companion controller implementing:
+	      - low-power RTC functionality (ISL1208 emulation)
+	      - fan controller (AMC6821 emulation)
+	    * 80-pin Mezzanine connector
+
 config TARGET_NANOPCT6_RK3588
 	bool "FriendlyElec NanoPC-T6 RK3588 board"
 	select BOARD_LATE_INIT
@@ -39,7 +66,7 @@ config TARGET_NANOPCT6_RK3588
 	                HDMI2.0, and HDMI1.4
 	  2x 4-lane MIPI-DSI, compatible with MIPI DPHY 2.0 or CPHY 1.1
 	  USB-A: USB 3.0, Type A
-	  USB-C: Full function USB Type‑C port, DP display up to 4Kp60, USB 3.0
+	  USB-C: Full function USB Type-C port, DP display up to 4Kp60, USB 3.0
 	  40-pin 2.54mm header connector: up to 2x SPIs, 6x UARTs, 1x I2Cs,
 	                                  8x PWMs, 2x I2Ss, 28x GPIOs
 	  Debug UART: 3 Pin 2.54mm header, 3V level, 1500000bps
@@ -90,7 +117,7 @@ config TARGET_ROCK5A_RK3588
 	  Mali G610MC4 GPU
 	  MIPI CSI 2 multiple lanes connector
 	  4-lane MIPI DSI connector
-	  Audio – 3.5mm earphone jack
+	  Audio - 3.5mm earphone jack
 	  eMMC module connector
 	  uSD slot (up to 128GB)
 	  2x USB 2.0, 2x USB 3.0
@@ -155,6 +182,30 @@ config TARGET_TURINGRK1_RK3588
 	  Gigabit Ethernet
 	  Size: 69.6mm x 45mm (260-pin SO-DIMM connector)
 
+config TARGET_TOYBRICK_RK3588
+	bool "Toybrick TB-RK3588X board"
+	select BOARD_LATE_INIT
+	help
+	  Rockchip Toybrick TB-RK3588X is a Rockchip RK3588 based development board.
+	  TB-RK3588X adopts core board and mainboard design. The core board is connected
+	  with the mainboard through the MXM314Pin standard interface, which can form
+	  a complete industry development board.
+
+	  Specifications:
+
+	  Rockchip RK3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16GB Memory LPDDR4x
+	  Mali G610MC4 GPU
+	  2x MIPI-CSI0 Connector
+	  1x 2Lanes PCIe3.0 Connector
+	  1x SATA3.0 Connector
+	  32GB eMMC Module
+	  2x USB2.0, 2x USB3.0
+	  1x HDMI Output, 1x HDMI Input
+	  2x Ethernet Port
+
+
 config ROCKCHIP_BOOT_MODE_REG
 	default 0xfd588080
 
@@ -164,15 +215,20 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3588"
 
-config SYS_MALLOC_F_LEN
-	default 0x80000
+config ROCKCHIP_COMMON_STACK_ADDR
+	default y
 
-source board/edgeble/neural-compute-module-6/Kconfig
-source board/friendlyelec/nanopc-t6-rk3588/Kconfig
-source board/pine64/quartzpro64-rk3588/Kconfig
-source board/turing/turing-rk1-rk3588/Kconfig
-source board/rockchip/evb_rk3588/Kconfig
-source board/radxa/rock5a-rk3588s/Kconfig
-source board/radxa/rock5b-rk3588/Kconfig
+config TEXT_BASE
+	default 0x00a00000
+
+source "board/edgeble/neural-compute-module-6/Kconfig"
+source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
+source "board/pine64/quartzpro64-rk3588/Kconfig"
+source "board/turing/turing-rk1-rk3588/Kconfig"
+source "board/radxa/rock5a-rk3588s/Kconfig"
+source "board/radxa/rock5b-rk3588/Kconfig"
+source "board/rockchip/evb_rk3588/Kconfig"
+source "board/rockchip/toybrick_rk3588/Kconfig"
+source "board/theobroma-systems/jaguar_rk3588/Kconfig"
 
 endif

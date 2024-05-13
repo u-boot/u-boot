@@ -3,7 +3,6 @@
  * Copyright (C) 2016-2018 Toradex AG
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>
@@ -272,14 +271,6 @@ void reset_cpu(void)
 	mdelay(1);
 }
 #endif
-
-int checkboard(void)
-{
-	printf("Model: Toradex Colibri iMX7%c\n",
-	       is_cpu_type(MXC_CPU_MX7D) ? 'D' : 'S');
-
-	return tdx_checkboard();
-}
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)

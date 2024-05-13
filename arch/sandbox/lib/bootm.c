@@ -85,5 +85,7 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 		bool force_reloc)
 {
-	return 0;
+	log_err("Booting is not supported on the sandbox.\n");
+
+	return 1;
 }

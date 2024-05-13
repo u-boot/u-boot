@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2018-2019 Toradex AG
  */
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
@@ -203,13 +203,6 @@ int board_late_init(void)
 #endif
 
 	return 0;
-}
-
-int checkboard(void)
-{
-	printf("Model: Toradex Colibri iMX6ULL\n");
-
-	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

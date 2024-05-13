@@ -3,8 +3,8 @@
  * Copyright 2020 Broadcom
  */
 
-#include <common.h>
 #include <command.h>
+#include <vsprintf.h>
 
 #define FW_IMAGE_SIG	0xff123456
 #define CFG_IMAGE_SIG	0xcf54321a

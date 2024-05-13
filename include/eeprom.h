@@ -8,6 +8,8 @@
 #define __EEPROM_LEGACY_H
 
 #if defined(CONFIG_CMD_EEPROM) || defined(CONFIG_ENV_IS_IN_EEPROM)
+#include <linux/types.h>
+
 void eeprom_init(int bus);
 int eeprom_read(uint dev_addr, uint offset, uchar *buffer, uint cnt);
 int eeprom_write(uint dev_addr, uint offset, uchar *buffer, uint cnt);

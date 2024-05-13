@@ -17,6 +17,52 @@
 
 #ifdef CONFIG_SPL_BUILD
 
+static void clock_set_pll2(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	const int p = 0;
+
+	/* Switch cluster 1 to 24MHz clock while changing PLL2 */
+	clrsetbits_le32(&ccm->cpu_clk_source, C1_CPUX_CLK_SRC_MASK,
+			C1_CPUX_CLK_SRC_OSC24M);
+
+	writel(CCM_PLL2_CTRL_EN | CCM_PLL2_CTRL_P(p) |
+	       CCM_PLL2_CLOCK_TIME_2 | CCM_PLL2_CTRL_N(clk / 24000000),
+	       &ccm->pll2_c1_cfg);
+
+	sdelay(2000);
+
+	/* Switch cluster 1 back to PLL2 */
+	clrsetbits_le32(&ccm->cpu_clk_source, C1_CPUX_CLK_SRC_MASK,
+			C1_CPUX_CLK_SRC_PLL2);
+}
+
+static void clock_set_pll4(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	writel(CCM_PLL4_CTRL_EN | CCM_PLL4_CTRL_N(clk / 24000000),
+	       &ccm->pll4_periph0_cfg);
+
+	sdelay(2000);
+}
+
+static void clock_set_pll12(unsigned int clk)
+{
+	struct sunxi_ccm_reg * const ccm =
+		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	if (readl(&ccm->pll12_periph1_cfg) & CCM_PLL12_CTRL_EN)
+		return;
+
+	writel(CCM_PLL12_CTRL_EN | CCM_PLL12_CTRL_N(clk / 24000000),
+	       &ccm->pll12_periph1_cfg);
+
+	sdelay(2000);
+}
+
 void clock_init_safe(void)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -63,7 +109,6 @@ void clock_init_safe(void)
 	/* set enable-bit in TSTAMP_CTRL_REG */
 	writel(1, 0x01720000);
 }
-#endif
 
 void clock_init_uart(void)
 {
@@ -80,7 +125,6 @@ void clock_init_uart(void)
 			   CONFIG_CONS_INDEX - 1));
 }
 
-#ifdef CONFIG_SPL_BUILD
 void clock_set_pll1(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -108,27 +152,6 @@ void clock_set_pll1(unsigned int clk)
 			C0_CPUX_CLK_SRC_PLL1);
 }
 
-void clock_set_pll2(unsigned int clk)
-{
-	struct sunxi_ccm_reg * const ccm =
-		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-	const int p = 0;
-
-	/* Switch cluster 1 to 24MHz clock while changing PLL2 */
-	clrsetbits_le32(&ccm->cpu_clk_source, C1_CPUX_CLK_SRC_MASK,
-			C1_CPUX_CLK_SRC_OSC24M);
-
-	writel(CCM_PLL2_CTRL_EN | CCM_PLL2_CTRL_P(p) |
-	       CCM_PLL2_CLOCK_TIME_2 | CCM_PLL2_CTRL_N(clk / 24000000),
-	       &ccm->pll2_c1_cfg);
-
-	sdelay(2000);
-
-	/* Switch cluster 1 back to PLL2 */
-	clrsetbits_le32(&ccm->cpu_clk_source, C1_CPUX_CLK_SRC_MASK,
-			C1_CPUX_CLK_SRC_PLL2);
-}
-
 void clock_set_pll6(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
@@ -143,32 +166,6 @@ void clock_set_pll6(unsigned int clk)
 	sdelay(2000);
 }
 
-void clock_set_pll12(unsigned int clk)
-{
-	struct sunxi_ccm_reg * const ccm =
-		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	if (readl(&ccm->pll12_periph1_cfg) & CCM_PLL12_CTRL_EN)
-		return;
-
-	writel(CCM_PLL12_CTRL_EN | CCM_PLL12_CTRL_N(clk / 24000000),
-	       &ccm->pll12_periph1_cfg);
-
-	sdelay(2000);
-}
-
-
-void clock_set_pll4(unsigned int clk)
-{
-	struct sunxi_ccm_reg * const ccm =
-		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
-
-	writel(CCM_PLL4_CTRL_EN | CCM_PLL4_CTRL_N(clk / 24000000),
-	       &ccm->pll4_periph0_cfg);
-
-	sdelay(2000);
-}
-#endif
 
 int clock_twi_onoff(int port, int state)
 {
@@ -193,7 +190,9 @@ int clock_twi_onoff(int port, int state)
 
 	return 0;
 }
+#endif /* CONFIG_SPL_BUILD */
 
+/* PLL_PERIPH0 clock (used by the MMC driver) */
 unsigned int clock_get_pll4_periph0(void)
 {
 	struct sunxi_ccm_reg *const ccm =

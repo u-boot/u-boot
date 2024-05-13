@@ -5,7 +5,6 @@
  */
 
 #include <ansi.h>
-#include <common.h>
 #include <cli.h>
 #include <malloc.h>
 #include <errno.h>

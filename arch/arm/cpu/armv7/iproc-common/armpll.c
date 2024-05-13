@@ -3,7 +3,6 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/iproc-common/armpll.h>
 #include <asm/iproc-common/sysmap.h>

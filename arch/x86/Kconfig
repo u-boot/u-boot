@@ -723,6 +723,14 @@ config ROM_TABLE_SIZE
 	hex
 	default 0x10000
 
+config X86_HARDFP
+	bool "Support hardware floating point"
+	help
+	  U-Boot generally does not make use of floating point. Where this is
+	  needed, it can be enabled using this option. This adjusts the
+	  start-up code for 64-bit mode and changes the compiler options for
+	  64-bit to enable SSE.
+
 config HAVE_ITSS
 	bool "Enable ITSS"
 	help
@@ -1052,5 +1060,13 @@ config SPL_COREBOOT_SYSINFO
 	  various pieces of information about the running system, including
 	  display, memory and build information. It is stored in
 	  struct sysinfo_t after parsing by get_coreboot_info().
+
+config ZBOOT
+	bool "Support the zImage format"
+	default y
+	help
+	  Enable this to support booting the x86-specific zImage format. This
+	  uses a special, binary format containing information about the Linux
+	  format to boot.
 
 endmenu

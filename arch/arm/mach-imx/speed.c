@@ -7,7 +7,7 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>

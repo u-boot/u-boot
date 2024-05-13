@@ -5,7 +5,6 @@
  * Partially based on acpi.c for other x86 platforms
  */
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <mapmem.h>

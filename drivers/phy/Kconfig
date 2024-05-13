@@ -284,6 +284,17 @@ config PHY_IMX8MQ_USB
 	help
 	  Support the USB3.0 PHY in NXP i.MX8MQ or i.MX8MP SoC
 
+config PHY_IMX8M_PCIE
+	bool "NXP i.MX8MM/i.MX8MP PCIe PHY Driver"
+	depends on PHY
+	depends on IMX8MM || IMX8MP
+	select REGMAP
+	select SYSCON
+	help
+	  Support the PCIe PHY in NXP i.MX8MM or i.MX8MP SoC
+
+	  This PHY is found on i.MX8M devices supporting PCIe.
+
 config PHY_XILINX_ZYNQMP
 	tristate "Xilinx ZynqMP PHY driver"
 	depends on PHY && ARCH_ZYNQMP

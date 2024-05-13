@@ -3,7 +3,6 @@
  * (C) Copyright 2015 Google, Inc
  */
 
-#include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
 #include <div64.h>
@@ -15,7 +14,6 @@
 #include <mapmem.h>
 #include <syscon.h>
 #include <asm/global_data.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>
 #include <asm/arch-rockchip/grf_rk3288.h>

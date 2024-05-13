@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2022 Microchip Technology Inc.
  */
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <asm/io.h>

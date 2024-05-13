@@ -5,6 +5,7 @@
 #include <cyclic.h>
 #include <log.h>
 #include <malloc.h>
+#include <time.h>
 
 #include <asm/processor.h>
 

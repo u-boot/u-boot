@@ -8,7 +8,7 @@
  * CPU specific code
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <init.h>
 #include <vsprintf.h>

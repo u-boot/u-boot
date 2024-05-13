@@ -6,11 +6,10 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/arch/rcar-mstp.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

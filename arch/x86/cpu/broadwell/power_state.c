@@ -5,7 +5,6 @@
  * Copyright (C) 2016 Google, Inc.
  */
 
-#include <common.h>
 #include <log.h>
 #include <pci.h>
 #include <asm/io.h>

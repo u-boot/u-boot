@@ -6,7 +6,6 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <env_internal.h>
 #include <syscon.h>

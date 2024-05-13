@@ -2,7 +2,6 @@
 
 #define LOG_CATEGORY UCLASS_FIRMWARE
 
-#include <common.h>
 #include <dm.h>
 
 /* Firmware access is platform-dependent.  No generic code in uclass */

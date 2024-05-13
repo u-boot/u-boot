@@ -32,7 +32,6 @@
  */
 
 
-#include <common.h>
 #include <blk.h>
 #include <bootdev.h>
 #include <command.h>

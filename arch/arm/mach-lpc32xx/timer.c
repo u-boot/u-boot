@@ -3,7 +3,6 @@
  * Copyright (C) 2011 Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/arch/cpu.h>

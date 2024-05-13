@@ -8,7 +8,6 @@
  * Designware ethernet IP driver for U-Boot
  */
 
-#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -352,6 +351,11 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 
+#ifdef CONFIG_ARCH_NPCM8XX
+	/* Pass all Multicast Frames */
+	setbits_le32(&mac_p->framefilt, BIT(4));
+
+#endif
 	return 0;
 }
 
@@ -554,6 +558,11 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 	ulong desc_start = (ulong)desc_p;
 	ulong desc_end = desc_start +
 		roundup(sizeof(*desc_p), ARCH_DMA_MINALIGN);
+	ulong data_start = desc_p->dmamac_addr;
+	ulong data_end = data_start + roundup(CFG_ETH_BUFSIZE, ARCH_DMA_MINALIGN);
+
+	/* Invalidate the descriptor buffer data */
+	invalidate_dcache_range(data_start, data_end);
 
 	/*
 	 * Make the current descriptor valid again and go to
@@ -861,6 +870,7 @@ static const struct udevice_id designware_eth_ids[] = {
 	{ .compatible = "amlogic,meson6-dwmac" },
 	{ .compatible = "st,stm32-dwmac" },
 	{ .compatible = "snps,arc-dwmac-3.70a" },
+	{ .compatible = "sophgo,cv1800b-dwmac" },
 	{ }
 };
 

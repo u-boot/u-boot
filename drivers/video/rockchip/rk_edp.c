@@ -4,7 +4,6 @@
  * Copyright 2014 Rockchip Inc.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>
@@ -17,7 +16,6 @@
 #include <reset.h>
 #include <syscon.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/edp_rk3288.h>

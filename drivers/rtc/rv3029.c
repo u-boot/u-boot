@@ -7,10 +7,8 @@
  *   Michael Buesch <m@bues.ch>
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
-#include <eeprom.h>
 #include <i2c.h>
 #include <log.h>
 #include <rtc.h>

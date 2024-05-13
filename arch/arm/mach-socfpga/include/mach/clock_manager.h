@@ -1,10 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- *  Copyright (C) 2013-2017 Altera Corporation <www.altera.com>
+ *  Copyright (C) 2013-2024 Altera Corporation <www.altera.com>
  */
 
 #ifndef _CLOCK_MANAGER_H_
 #define _CLOCK_MANAGER_H_
+
+#include <linux/types.h>
 
 phys_addr_t socfpga_get_clkmgr_addr(void);
 
@@ -28,6 +30,8 @@ int cm_set_qspi_controller_clk_hz(u32 clk_hz);
 #include <asm/arch/clock_manager_s10.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_AGILEX)
 #include <asm/arch/clock_manager_agilex.h>
+#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#include <asm/arch/clock_manager_agilex5.h>
 #elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
 #include <asm/arch/clock_manager_n5x.h>
 #endif

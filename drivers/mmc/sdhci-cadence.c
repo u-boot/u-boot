@@ -4,7 +4,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>
@@ -224,7 +223,7 @@ static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
 
 	for (i = 0; i < SDHCI_CDNS_MAX_TUNING_LOOP; i++) {
 		if (sdhci_cdns_set_tune_val(plat, i) ||
-		    mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
+		    mmc_send_tuning(mmc, opcode)) { /* bad */
 			cur_streak = 0;
 		} else { /* good */
 			cur_streak++;
@@ -274,7 +273,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->ops = &sdhci_cdns_ops;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
 	sdhci_cdns_mmc_ops = sdhci_ops;
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	sdhci_cdns_mmc_ops.execute_tuning = sdhci_cdns_execute_tuning;
 #endif
 

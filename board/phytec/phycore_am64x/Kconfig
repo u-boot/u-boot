@@ -1,0 +1,37 @@
+# SPDX-License-Identifier:     GPL-2.0+
+#
+# Copyright (C) 2021 PHYTEC America, LLC - https://www.phytec.com
+# Author: Matt McKee <mmckee@phytec.com>
+#
+# Copyright (C) 2022 - 2024 PHYTEC Messtechnik GmbH
+# Author: Wadim Egorov <w.egorov@phytec.de>
+
+if TARGET_PHYCORE_AM64X_A53
+
+config SYS_BOARD
+       default "phycore_am64x"
+
+config SYS_VENDOR
+       default "phytec"
+
+config SYS_CONFIG_NAME
+       default "phycore_am64x"
+
+source "board/phytec/common/Kconfig"
+
+endif
+
+if TARGET_PHYCORE_AM64X_R5
+
+config SYS_BOARD
+       default "phycore_am64x"
+
+config SYS_VENDOR
+       default "phytec"
+
+config SYS_CONFIG_NAME
+       default "phycore_am64x"
+
+source "board/phytec/common/Kconfig"
+
+endif

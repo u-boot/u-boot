@@ -59,6 +59,11 @@ config SYSRESET_CMD_POWEROFF
 
 endif
 
+config SYSRESET_CV1800B
+	bool "Enable support for Sophgo cv1800b System Reset"
+	help
+	  Enable system reset support for Sophgo cv1800b SoC.
+
 config POWEROFF_GPIO
 	bool "Enable support for GPIO poweroff driver"
 	depends on DM_GPIO
@@ -228,6 +233,12 @@ config SYSRESET_MPC83XX
 	bool "Enable support MPC83xx SoC family reboot driver"
 	help
 	  Reboot support for NXP MPC83xx SoCs.
+
+config SYSRESET_RAA215300
+	bool "Support sysreset via Renesas RAA215300 PMIC"
+	depends on PMIC_RAA215300
+	help
+	  Add support for the system reboot via the Renesas RAA215300 PMIC.
 
 endif
 

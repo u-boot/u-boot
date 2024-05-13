@@ -5,7 +5,6 @@
  * Copyright (C) 2019 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <malloc.h>
 #include <asm/global_data.h>

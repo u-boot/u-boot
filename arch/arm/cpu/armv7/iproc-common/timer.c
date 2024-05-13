@@ -3,7 +3,6 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
-#include <common.h>
 #include <div64.h>
 #include <init.h>
 #include <time.h>

@@ -3,7 +3,6 @@
  * Copyright 2019 NXP
  */
 
-#include <common.h>
 #include <errno.h>
 #include <i2c.h>
 #include <power/pmic.h>

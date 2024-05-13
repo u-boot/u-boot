@@ -63,6 +63,8 @@ struct rk3588_pll {
 	unsigned int reserved0[3];
 };
 
+#define CRU_BASE	0xfd7c0000
+
 struct rk3588_cru {
 	struct rk3588_pll pll[18];
 	unsigned int reserved0[16];/* Address Offset: 0x0240 */

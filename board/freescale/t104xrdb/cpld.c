@@ -10,7 +10,7 @@
  * CFG_SYS_CPLD_BASE-The virtual address of the base of the CPLD register map
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <asm/io.h>
 

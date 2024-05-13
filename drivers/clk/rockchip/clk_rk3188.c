@@ -4,7 +4,6 @@
  * (C) Copyright 2016 Heiko Stuebner <heiko@sntech.de>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-structs.h>
@@ -13,7 +12,6 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <syscon.h>
-#include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3188.h>
 #include <asm/arch-rockchip/grf_rk3188.h>

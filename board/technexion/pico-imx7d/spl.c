@@ -5,7 +5,7 @@
  * Author: Richard Hu <richard.hu@technexion.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/arch/clock.h>

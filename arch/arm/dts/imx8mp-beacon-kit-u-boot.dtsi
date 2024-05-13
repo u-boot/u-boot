@@ -6,11 +6,22 @@
 #include "imx8mp-u-boot.dtsi"
 
 / {
+	/* U-Boot does not yet have a proper PCIe clk driver */
+	pcie0_refclk: clock-pcie {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
 		bootph-pre-ram;
 	};
+};
+
+&pcie_phy {
+	clocks = <&pcie0_refclk>;
 };
 
 &{/soc@0/bus@30800000/i2c@30a20000/pmic@25} {

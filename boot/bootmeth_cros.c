@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <blk.h>
 #include <bootdev.h>
 #include <bootflow.h>
@@ -432,9 +431,9 @@ static int cros_boot(struct udevice *dev, struct bootflow *bflow)
 	}
 
 	if (IS_ENABLED(CONFIG_X86)) {
-		ret = zboot_start(map_to_sysmem(bflow->buf), bflow->size, 0, 0,
-				  map_to_sysmem(bflow->x86_setup),
-				  bflow->cmdline);
+		ret = zboot_run(map_to_sysmem(bflow->buf), bflow->size, 0, 0,
+				map_to_sysmem(bflow->x86_setup),
+				bflow->cmdline);
 	} else {
 		ret = bootm_boot_start(map_to_sysmem(bflow->buf),
 				       bflow->cmdline);

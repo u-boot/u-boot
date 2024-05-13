@@ -6,7 +6,6 @@
 #define LOG_CATEGORY UCLASS_PANEL_BACKLIGHT
 
 #include <backlight.h>
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
@@ -15,7 +14,8 @@
 
 #include <asm/io.h>
 #include <asm/gpio.h>
-#include <asm/arch/display.h>
+
+#include "tegra-dc.h"
 
 #define TEGRA_DISPLAY_A_BASE		0x54200000
 #define TEGRA_DISPLAY_B_BASE		0x54240000

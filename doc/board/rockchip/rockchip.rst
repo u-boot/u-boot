@@ -60,9 +60,14 @@ List of mainline supported Rockchip boards:
      - ODROID-GO Advance (odroid-go2)
 * rk3328
      - Rockchip Evb-RK3328 (evb-rk3328)
+     - Firefly ROC-RK3328-CC (roc-cc-rk3328)
+     - FriendlyElec NanoPi R2C (nanopi-r2c-rk3328)
+     - FriendlyElec NanoPi R2C Plus (nanopi-r2c-plus-rk3328)
+     - FriendlyElec NanoPi R2S (nanopi-r2s-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
-     - Firefly-RK3328 (roc-cc-rk3328)
-     - Radxa Rockpi E (rock-pi-e-rk3328)
+     - Radxa ROCK Pi E (rock-pi-e-rk3328)
+     - Xunlong Orange Pi R1 Plus (orangepi-r1-plus-rk3328)
+     - Xunlong Orange Pi R1 Plus LTS (orangepi-r1-plus-lts-rk3328)
 * rk3368
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
@@ -93,6 +98,7 @@ List of mainline supported Rockchip boards:
 
 * rk3566
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
+     - Pine64 PineTab2 (pinetab2-rk3566)
      - Pine64 Quartz64-A Board (quartz64-a-rk3566)
      - Pine64 Quartz64-B Board (quartz64-b-rk3566)
      - Pine64 SOQuartz on Blade (soquartz-blade-rk3566)
@@ -116,12 +122,17 @@ List of mainline supported Rockchip boards:
      - Edgeble Neural Compute Module 6A SoM - Neu6a (neu6a-io-rk3588)
      - Edgeble Neural Compute Module 6B SoM - Neu6b (neu6b-io-rk3588)
      - FriendlyElec NanoPC-T6 (nanopc-t6-rk3588)
+     - Generic RK3588S/RK3588 (generic-rk3588)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)
-     - Turing Machines RK1 (turing-rk1-rk3588)
      - Radxa ROCK 5A (rock5a-rk3588s)
      - Radxa ROCK 5B (rock5b-rk3588)
+     - Rockchip Toybrick TB-RK3588X (toybrick-rk3588)
+     - Theobroma Systems RK3588-SBC Jaguar (jaguar-rk3588)
+     - Turing Machines RK1 (turing-rk1-rk3588)
      - Xunlong Orange Pi 5 (orangepi-5-rk3588s)
      - Xunlong Orange Pi 5 Plus (orangepi-5-plus-rk3588)
+     - Yanyi Tech CoolPi 4 Model B (coolpi-4b-rk3588s)
+     - Yanyi Tech CoolPi CM5 EVB (coolpi-cm5-evb-rk3588)
 
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)

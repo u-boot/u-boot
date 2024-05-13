@@ -6,8 +6,8 @@ config TARGET_RV1126_NEU2
 	  Neu2:
 	  Neural Compute Module 2(Neu2) is a 96boards SoM-CB compute module
 	  based on Rockchip RV1126 from Edgeble AI.
-	  Neu2 powered with Consumer grade (0 to +80 °C) RV1126 SoC.
-	  Neu2k powered with Industrial grade (-40 °C to +85 °C) RV1126K SoC.
+	  Neu2 powered with Consumer grade (0 to +80 deg C) RV1126 SoC.
+	  Neu2k powered with Industrial grade (-40 C to +85 deg C) RV1126K SoC.
 
 	  Neu2-IO:
 	  Neural Compute Module 2(Neu2) IO board is an industrial form factor
@@ -64,7 +64,7 @@ config SYS_MALLOC_F_LEN
 config TEXT_BASE
 	default 0x600000
 
-source board/edgeble/neural-compute-module-2/Kconfig
-source board/itead/sonoff-ihost/Kconfig
+source "board/edgeble/neural-compute-module-2/Kconfig"
+source "board/itead/sonoff-ihost/Kconfig"
 
 endif

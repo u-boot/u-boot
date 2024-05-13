@@ -15,7 +15,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/io.h>
-#include <common.h>
 #include <linux/sizes.h>
 #include <mmc.h>
 #include <power/pmic.h>

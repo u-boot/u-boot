@@ -21,7 +21,6 @@
 #include <asm/io.h>
 #include <asm/sections.h>
 #include <linux/sizes.h>
-#include <common.h>
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <mmc.h>

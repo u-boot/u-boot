@@ -11,6 +11,5 @@
 
 int ft_common_board_setup(void *blob, struct bd_info *bd);
 u32 get_board_revision(void);
-int tdx_checkboard(void);
 
 #endif /* _TDX_COMMON_H */

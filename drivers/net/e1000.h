@@ -212,6 +212,7 @@ typedef enum {
 	e1000_phy_igp_3,
 	e1000_phy_ife,
 	e1000_phy_igb,
+	e1000_phy_igc,
 	e1000_phy_bm,
 	e1000_phy_undefined = 0xFF
 } e1000_phy_type;
@@ -2420,6 +2421,7 @@ struct e1000_hw {
 #define BME1000_E_PHY_ID     0x01410CB0
 
 #define I210_I_PHY_ID		0x01410C00
+#define I225_I_PHY_ID		0x67C9DCC0
 
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE			0xFFFFFFFF

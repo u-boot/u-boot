@@ -71,6 +71,8 @@ Shell commands
    cmd/gpt
    cmd/history
    cmd/host
+   cmd/if
+   cmd/itest
    cmd/imxtract
    cmd/load
    cmd/loadb

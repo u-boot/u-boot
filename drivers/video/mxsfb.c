@@ -4,7 +4,6 @@
  *
  * Copyright (C) 2011-2013 Marek Vasut <marex@denx.de>
  */
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <env.h>
@@ -387,6 +386,7 @@ static int mxs_video_remove(struct udevice *dev)
 static const struct udevice_id mxs_video_ids[] = {
 	{ .compatible = "fsl,imx23-lcdif" },
 	{ .compatible = "fsl,imx28-lcdif" },
+	{ .compatible = "fsl,imx6sx-lcdif" },
 	{ .compatible = "fsl,imx7ulp-lcdif" },
 	{ .compatible = "fsl,imxrt-lcdif" },
 	{ /* sentinel */ }

@@ -3,7 +3,6 @@
  * Copyright 2018, 2021 NXP
  */
 
-#include <common.h>
 #include <clk.h>
 #include <cpu.h>
 #include <cpu_func.h>
@@ -82,6 +81,10 @@ static char *get_reset_cause(void)
 	default:
 		return "Unknown reset";
 	}
+}
+
+__weak void reset_cpu(void)
+{
 }
 
 int arch_cpu_init(void)

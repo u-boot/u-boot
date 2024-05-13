@@ -6,7 +6,6 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>

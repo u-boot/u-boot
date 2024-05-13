@@ -4,12 +4,12 @@
  * (C) Copyright 2010,2011 NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <tps6586x.h>
 #include <asm/io.h>
 #include <i2c.h>
 #include <linux/delay.h>
+#include <linux/errno.h>
 
 static struct udevice *tps6586x_dev;
 

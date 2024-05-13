@@ -4,7 +4,7 @@
  * Rajeshwari Shinde <rajeshwari.s@samsung.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cros_ec.h>
 #include <env.h>
 #include <errno.h>

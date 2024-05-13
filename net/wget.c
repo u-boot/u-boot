@@ -6,7 +6,6 @@
 
 #include <asm/global_data.h>
 #include <command.h>
-#include <common.h>
 #include <display_options.h>
 #include <env.h>
 #include <image.h>
@@ -50,6 +49,7 @@ static unsigned long content_length;
 static unsigned int packets;
 
 static unsigned int initial_data_seq_num;
+static unsigned int next_data_seq_num;
 
 static enum  wget_state current_wget_state;
 
@@ -272,17 +272,18 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 
 		current_wget_state = WGET_TRANSFERRING;
 
+		initial_data_seq_num = tcp_seq_num + hlen;
+		next_data_seq_num    = tcp_seq_num + len;
+
 		if (strstr((char *)pkt, http_ok) == 0) {
 			debug_cond(DEBUG_WGET,
 				   "wget: Connected Bad Xfer\n");
-			initial_data_seq_num = tcp_seq_num + hlen;
 			wget_loop_state = NETLOOP_FAIL;
 			wget_send(action, tcp_seq_num, tcp_ack_num, len);
 		} else {
 			debug_cond(DEBUG_WGET,
 				   "wget: Connctd pkt %p  hlen %x\n",
 				   pkt, hlen);
-			initial_data_seq_num = tcp_seq_num + hlen;
 
 			pos = strstr((char *)pkt, content_len);
 			if (!pos) {
@@ -396,9 +397,13 @@ static void wget_handler(uchar *pkt, u16 dport,
 			   "wget: Transferring, seq=%x, ack=%x,len=%x\n",
 			   tcp_seq_num, tcp_ack_num, len);
 
-		if (tcp_seq_num >= initial_data_seq_num &&
-		    store_block(pkt, tcp_seq_num - initial_data_seq_num,
-				len) != 0) {
+		if (next_data_seq_num != tcp_seq_num) {
+			debug_cond(DEBUG_WGET, "wget: seq=%x packet was lost\n", next_data_seq_num);
+			return;
+		}
+		next_data_seq_num = tcp_seq_num + len;
+
+		if (store_block(pkt, tcp_seq_num - initial_data_seq_num, len) != 0) {
 			wget_fail("wget: store error\n",
 				  tcp_seq_num, tcp_ack_num, action);
 			net_set_state(NETLOOP_FAIL);

@@ -8,7 +8,8 @@ config NR_DRAM_BANKS
 
 config SOCFPGA_SECURE_VAB_AUTH
 	bool "Enable boot image authentication with Secure Device Manager"
-	depends on TARGET_SOCFPGA_AGILEX || TARGET_SOCFPGA_N5X
+	depends on TARGET_SOCFPGA_AGILEX || TARGET_SOCFPGA_N5X || \
+	  TARGET_SOCFPGA_AGILEX5
 	select FIT_IMAGE_POST_PROCESS
 	select SHA384
 	select SHA512
@@ -58,6 +59,15 @@ config TARGET_SOCFPGA_AGILEX
 	select SPL_CLK if SPL
 	select TARGET_SOCFPGA_SOC64
 
+config TARGET_SOCFPGA_AGILEX5
+	bool
+	select BINMAN if SPL_ATF
+	select CLK
+	select FPGA_INTEL_SDM_MAILBOX
+	select GICV3
+	select SPL_CLK if SPL
+	select TARGET_SOCFPGA_SOC64
+
 config TARGET_SOCFPGA_ARRIA5
 	bool
 	select TARGET_SOCFPGA_GEN5
@@ -79,6 +89,14 @@ config TARGET_SOCFPGA_ARRIA10
 	select ETH_DESIGNWARE_SOCFPGA
 	imply FPGA_SOCFPGA
 	imply SPL_USE_TINY_PRINTF
+
+config SOCFPGA_ARRIA10_ALWAYS_REPROGRAM
+	bool "Always reprogram Arria 10 FPGA"
+	depends on TARGET_SOCFPGA_ARRIA10
+	help
+	  Arria 10 FPGA is only programmed during the cold boot.
+	  This option forces the FPGA to be reprogrammed every reboot,
+	  allowing to change the bitstream and apply it with warm reboot.
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool
@@ -128,6 +146,10 @@ choice
 config TARGET_SOCFPGA_AGILEX_SOCDK
 	bool "Intel SOCFPGA SoCDK (Agilex)"
 	select TARGET_SOCFPGA_AGILEX
+
+config TARGET_SOCFPGA_AGILEX5_SOCDK
+	bool "Intel SOCFPGA SoCDK (Agilex5)"
+	select TARGET_SOCFPGA_AGILEX5
 
 config TARGET_SOCFPGA_ARIES_MCVEVK
 	bool "Aries MCVEVK (Cyclone V)"
@@ -202,6 +224,7 @@ config TARGET_SOCFPGA_TERASIC_SOCKIT
 endchoice
 
 config SYS_BOARD
+	default "agilex5-socdk" if TARGET_SOCFPGA_AGILEX5_SOCDK
 	default "agilex-socdk" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "arria5-socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK
 	default "arria10-socdk" if TARGET_SOCFPGA_ARRIA10_SOCDK
@@ -223,6 +246,7 @@ config SYS_BOARD
 	default "vining_fpga" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 
 config SYS_VENDOR
+	default "intel" if TARGET_SOCFPGA_AGILEX5_SOCDK
 	default "intel" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "intel" if TARGET_SOCFPGA_N5X_SOCDK
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
@@ -245,6 +269,7 @@ config SYS_SOC
 	default "socfpga"
 
 config SYS_CONFIG_NAME
+	default "socfpga_agilex5_socdk" if TARGET_SOCFPGA_AGILEX5_SOCDK
 	default "socfpga_agilex_socdk" if TARGET_SOCFPGA_AGILEX_SOCDK
 	default "socfpga_arria5_secu1" if TARGET_SOCFPGA_ARRIA5_SECU1
 	default "socfpga_arria5_socdk" if TARGET_SOCFPGA_ARRIA5_SOCDK

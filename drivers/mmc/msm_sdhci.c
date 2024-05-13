@@ -7,7 +7,6 @@
  * Based on Linux driver
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>
@@ -33,9 +32,6 @@
 #define SDCC_MCI_STATUS2_MCI_ACT 0x1
 #define SDCC_MCI_HC_MODE 0x78
 
-/* Non standard (?) SDHCI register */
-#define SDHCI_VENDOR_SPEC_CAPABILITIES0  0x11c
-
 struct msm_sdhc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -44,45 +40,70 @@ struct msm_sdhc_plat {
 struct msm_sdhc {
 	struct sdhci_host host;
 	void *base;
+	struct clk_bulk clks;
 };
 
 struct msm_sdhc_variant_info {
 	bool mci_removed;
+
+	u32 core_vendor_spec_capabilities0;
 };
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static int msm_sdc_clk_init(struct udevice *dev)
 {
-	int node = dev_of_offset(dev);
-	uint clk_rate = fdtdec_get_uint(gd->fdt_blob, node, "clock-frequency",
-					400000);
-	uint clkd[2]; /* clk_id and clk_no */
-	int clk_offset;
-	struct udevice *clk_dev;
-	struct clk clk;
-	int ret;
+	struct msm_sdhc *prv = dev_get_priv(dev);
+	ofnode node = dev_ofnode(dev);
+	ulong clk_rate;
+	int ret, i = 0, n_clks;
+	const char *clk_name;
 
-	ret = fdtdec_get_int_array(gd->fdt_blob, node, "clock", clkd, 2);
+	ret = ofnode_read_u32(node, "clock-frequency", (uint *)(&clk_rate));
 	if (ret)
-		return ret;
+		clk_rate = 201500000;
 
-	clk_offset = fdt_node_offset_by_phandle(gd->fdt_blob, clkd[0]);
-	if (clk_offset < 0)
-		return clk_offset;
-
-	ret = uclass_get_device_by_of_offset(UCLASS_CLK, clk_offset, &clk_dev);
-	if (ret)
+	ret = clk_get_bulk(dev, &prv->clks);
+	if (ret) {
+		log_warning("Couldn't get mmc clocks: %d\n", ret);
 		return ret;
+	}
 
-	clk.id = clkd[1];
-	ret = clk_request(clk_dev, &clk);
-	if (ret < 0)
+	ret = clk_enable_bulk(&prv->clks);
+	if (ret) {
+		log_warning("Couldn't enable mmc clocks: %d\n", ret);
 		return ret;
+	}
 
-	ret = clk_set_rate(&clk, clk_rate);
-	if (ret < 0)
-		return ret;
+	/* If clock-names is unspecified, then the first clock is the core clock */
+	if (!ofnode_get_property(node, "clock-names", &n_clks)) {
+		if (!clk_set_rate(&prv->clks.clks[0], clk_rate)) {
+			log_warning("Couldn't set core clock rate: %d\n", ret);
+			return -EINVAL;
+		}
+	}
+
+	/* Find the index of the "core" clock */
+	while (i < n_clks) {
+		ofnode_read_string_index(node, "clock-names", i, &clk_name);
+		if (!strcmp(clk_name, "core"))
+			break;
+		i++;
+	}
+
+	if (i >= prv->clks.count) {
+		log_warning("Couldn't find core clock (index %d but only have %d clocks)\n", i,
+		       prv->clks.count);
+		return -EINVAL;
+	}
+
+	/* The clock is already enabled by the clk_bulk above */
+	clk_rate = clk_set_rate(&prv->clks.clks[i], clk_rate);
+	/* If we get a rate of 0 then something has probably gone wrong. */
+	if (clk_rate == 0 || IS_ERR((void *)clk_rate)) {
+		log_warning("Couldn't set MMC core clock rate: %dE\n", clk_rate ? (int)PTR_ERR((void *)clk_rate) : 0);
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -151,6 +172,8 @@ static int msm_sdc_probe(struct udevice *dev)
 
 	core_minor = core_version & SDCC_VERSION_MINOR_MASK;
 
+	log_debug("SDCC version %d.%d\n", core_major, core_minor);
+
 	/*
 	 * Support for some capabilities is not advertised by newer
 	 * controller versions and must be explicitly enabled.
@@ -158,7 +181,7 @@ static int msm_sdc_probe(struct udevice *dev)
 	if (core_major >= 1 && core_minor != 0x11 && core_minor != 0x12) {
 		caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
 		caps |= SDHCI_CAN_VDD_300 | SDHCI_CAN_DO_8BIT;
-		writel(caps, host->ioaddr + SDHCI_VENDOR_SPEC_CAPABILITIES0);
+		writel(caps, host->ioaddr + var_info->core_vendor_spec_capabilities0);
 	}
 
 	ret = mmc_of_parse(dev, &plat->cfg);
@@ -184,28 +207,40 @@ static int msm_sdc_remove(struct udevice *dev)
 	var_info = (void *)dev_get_driver_data(dev);
 
 	/* Disable host-controller mode */
-	if (!var_info->mci_removed)
+	if (!var_info->mci_removed && priv->base)
 		writel(0, priv->base + SDCC_MCI_HC_MODE);
+
+	clk_release_bulk(&priv->clks);
 
 	return 0;
 }
 
 static int msm_of_to_plat(struct udevice *dev)
 {
-	struct udevice *parent = dev->parent;
 	struct msm_sdhc *priv = dev_get_priv(dev);
+	const struct msm_sdhc_variant_info *var_info;
 	struct sdhci_host *host = &priv->host;
-	int node = dev_of_offset(dev);
+	int ret;
+
+	var_info = (void*)dev_get_driver_data(dev);
 
 	host->name = strdup(dev->name);
 	host->ioaddr = dev_read_addr_ptr(dev);
-	host->bus_width = fdtdec_get_int(gd->fdt_blob, node, "bus-width", 4);
-	host->index = fdtdec_get_uint(gd->fdt_blob, node, "index", 0);
-	priv->base = (void *)fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
-			dev_of_offset(parent), node, "reg", 1, NULL, false);
-	if (priv->base == (void *)FDT_ADDR_T_NONE ||
-	    host->ioaddr == (void *)FDT_ADDR_T_NONE)
+	ret = dev_read_u32(dev, "bus-width", &host->bus_width);
+	if (ret)
+		host->bus_width = 4;
+	ret = dev_read_u32(dev, "index", &host->index);
+	if (ret)
+		host->index = 0;
+	priv->base = dev_read_addr_index_ptr(dev, 1);
+
+	if (!host->ioaddr)
 		return -EINVAL;
+
+	if (!var_info->mci_removed && !priv->base) {
+		printf("msm_sdhci: MCI base address not found\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -219,10 +254,14 @@ static int msm_sdc_bind(struct udevice *dev)
 
 static const struct msm_sdhc_variant_info msm_sdhc_mci_var = {
 	.mci_removed = false,
+
+	.core_vendor_spec_capabilities0 = 0x11c,
 };
 
 static const struct msm_sdhc_variant_info msm_sdhc_v5_var = {
 	.mci_removed = true,
+
+	.core_vendor_spec_capabilities0 = 0x21c,
 };
 
 static const struct udevice_id msm_mmc_ids[] = {

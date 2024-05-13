@@ -1,7 +1,7 @@
 if TARGET_SILINUX_EK874
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "ek874"

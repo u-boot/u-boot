@@ -3,10 +3,10 @@
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <div64.h>
 #include <log.h>
+#include <time.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -714,10 +714,10 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		/*
 		 * Register: PLL_VIDEO
 		 * Bit Field: POST_DIV_SELECT
-		 * 00 — Divide by 4.
-		 * 01 — Divide by 2.
-		 * 10 — Divide by 1.
-		 * 11 — Reserved
+		 * 00 - Divide by 4.
+		 * 01 - Divide by 2.
+		 * 10 - Divide by 1.
+		 * 11 - Reserved
 		 * No need to check post_div(1)
 		 */
 		for (post_div = 2; post_div <= 4; post_div <<= 1) {

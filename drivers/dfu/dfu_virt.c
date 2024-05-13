@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
-#include <common.h>
 #include <dfu.h>
 #include <errno.h>
 #include <log.h>

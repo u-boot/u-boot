@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_PCH
 
-#include <common.h>
 #include <dm.h>
 #include <pch.h>
 

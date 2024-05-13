@@ -3,7 +3,6 @@
  *  Copyright (C) 2012 Lucas Stach
  */
 
-#include <common.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
@@ -68,16 +67,6 @@ int arch_misc_init(void)
 		printf("USB recovery mode\n");
 
 	return 0;
-}
-
-int checkboard(void)
-{
-	printf("Model: Toradex Colibri T20 %dMB V%s\n",
-	       (gd->ram_size == 0x10000000) ? 256 : 512,
-	       (get_nand_dev_by_index(0)->erasesize >> 10 == 512) ?
-	       ((gd->ram_size == 0x10000000) ? "1.1B" : "1.1C") : "1.2A");
-
-	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

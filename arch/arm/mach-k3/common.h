@@ -45,3 +45,11 @@ void ti_secure_image_post_process(void **p_image, size_t *p_size);
 struct ti_sci_handle *get_ti_sci_handle(void);
 void do_board_detect(void);
 void ti_secure_image_check_binary(void **p_image, size_t *p_size);
+
+#if (IS_ENABLED(CONFIG_K3_QOS))
+void setup_qos(void);
+#else
+static inline void setup_qos(void)
+{
+}
+#endif

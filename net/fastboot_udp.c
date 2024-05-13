@@ -3,7 +3,6 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
-#include <common.h>
 #include <command.h>
 #include <fastboot.h>
 #include <net.h>

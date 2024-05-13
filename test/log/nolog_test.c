@@ -8,7 +8,6 @@
 /* Needed for testing log_debug() */
 #define DEBUG 1
 
-#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <asm/global_data.h>

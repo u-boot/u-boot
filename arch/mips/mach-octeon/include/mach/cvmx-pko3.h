@@ -366,7 +366,7 @@ enum cvmx_pko_memalg_e {
 			       */
 	MEMALG_SETRSLT = 2,   /* [DSZ] = B64; mem = PKO_MEM_RESULT_S.  */
 	MEMALG_ADD = 8,	      /* mem = mem + PKO_SEND_MEM_S[OFFSET] */
-	MEMALG_SUB = 9,	      /* mem = mem – PKO_SEND_MEM_S[OFFSET] */
+	MEMALG_SUB = 9,	      /* mem = mem - PKO_SEND_MEM_S[OFFSET] */
 	MEMALG_ADDLEN = 0xA,  /* mem += [OFFSET] + PKO_SEND_HDR_S[TOTAL] */
 	MEMALG_SUBLEN = 0xB,  /* mem -= [OFFSET] + PKO_SEND_HDR_S[TOTAL] */
 	MEMALG_ADDMBUF = 0xC, /* mem += [OFFSET] + mbufs_freed */

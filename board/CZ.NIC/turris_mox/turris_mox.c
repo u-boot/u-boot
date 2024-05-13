@@ -3,7 +3,7 @@
  * Copyright (C) 2018 Marek Behún <kabel@kernel.org>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <net.h>
@@ -395,7 +395,7 @@ static void load_spi_dtb(void)
 		return;
 
 	/*
-	 * SPI NOR "dtb" partition offset & size hardcoded for now because the
+	 * SPI NOR "dtb" partition offset & size hardcoded for now because the
 	 * mtd subsystem does not offer finding the partition yet and we do not
 	 * want to reimplement OF partition parser here.
 	 */
@@ -565,12 +565,9 @@ static void handle_reset_button(void)
 int checkboard(void)
 {
 	int i, ret, board_version, ram_size, is_sd;
-	const char *pub_key, *model;
+	const char *pub_key;
 	const u8 *topology;
 	u64 serial_number;
-
-	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Model: %s\n", model);
 
 	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
 				     &ram_size, NULL);

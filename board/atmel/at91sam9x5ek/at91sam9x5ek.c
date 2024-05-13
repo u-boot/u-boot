@@ -3,7 +3,7 @@
  * Copyright (C) 2012 Atmel Corporation
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

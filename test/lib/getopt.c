@@ -6,7 +6,6 @@
  * posix/tst-getopt-cancel.c
  */
 
-#include <common.h>
 #include <getopt.h>
 #include <test/lib.h>
 #include <test/test.h>

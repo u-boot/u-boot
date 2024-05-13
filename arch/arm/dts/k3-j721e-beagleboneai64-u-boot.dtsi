@@ -92,10 +92,6 @@
 
 &dmsc {
 	bootph-all;
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
 };
 
 &k3_pds {
@@ -165,7 +161,6 @@
 
 &serdes_ln_ctrl {
 	bootph-all;
-	u-boot,mux-autoprobe;
 };
 
 &serdes2_usb_link {
@@ -174,7 +169,6 @@
 
 &usb_serdes_mux {
 	bootph-all;
-	u-boot,mux-autoprobe;
 };
 
 &serdes_wiz2 {
@@ -250,8 +244,8 @@
 					arch = "arm64";
 					compression = "none";
 					os = "tee";
-					load = <0x9e800000>;
-					entry = <0x9e800000>;
+					load = <CONFIG_K3_OPTEE_LOAD_ADDR>;
+					entry = <CONFIG_K3_OPTEE_LOAD_ADDR>;
 					tee-os {
 						filename = "tee-raw.bin";
 					};

@@ -6,8 +6,8 @@
 cli command
 ===========
 
-Synopis
--------
+Synopsis
+--------
 
 ::
 

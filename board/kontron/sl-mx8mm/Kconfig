@@ -9,7 +9,6 @@ config SYS_VENDOR
 	default "kontron"
 
 config SYS_CONFIG_NAME
-	string
 	default "kontron-sl-mx8mm"
 
 endif

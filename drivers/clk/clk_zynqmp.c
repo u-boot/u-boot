@@ -5,7 +5,6 @@
  * Copyright (C) 2016 Xilinx, Inc.
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <dm/device_compat.h>

@@ -5,7 +5,6 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/cache.h>
@@ -418,7 +417,7 @@ void k3_nav_ringacc_ring_reset_dma(struct k3_nav_ring *ring, u32 occ)
 			k3_ringacc_ring_reconfig_qmode_sci(
 					ring, K3_NAV_RINGACC_RING_MODE_RING);
 		/*
-		 * 4. Ring the doorbell 2**22 – ringOcc times.
+		 * 4. Ring the doorbell 2**22 - ringOcc times.
 		 * This will wrap the internal UDMAP ring state occupancy
 		 * counter (which is 21-bits wide) to 0.
 		 */

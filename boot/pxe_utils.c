@@ -4,7 +4,6 @@
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -21,9 +20,7 @@
 #include <errno.h>
 #include <linux/list.h>
 
-#ifdef CONFIG_DM_RNG
 #include <rng.h>
-#endif
 
 #include <splash.h>
 #include <asm/io.h>
@@ -323,7 +320,7 @@ static int label_localboot(struct pxe_label *label)
 
 static void label_boot_kaslrseed(void)
 {
-#ifdef CONFIG_DM_RNG
+#if CONFIG_IS_ENABLED(DM_RNG)
 	ulong fdt_addr;
 	struct fdt_header *working_fdt;
 	size_t n = 0x8;
@@ -634,7 +631,12 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		char *fdtfilefree = NULL;
 
 		if (label->fdt) {
-			fdtfile = label->fdt;
+			if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
+				if (strcmp("-", label->fdt))
+					fdtfile = label->fdt;
+			} else {
+				fdtfile = label->fdt;
+			}
 		} else if (label->fdtdir) {
 			char *f1, *f2, *f3, *f4, *slash;
 
@@ -731,14 +733,26 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		zboot_argc = 5;
 	}
 
-	if (!bootm_argv[3])
-		bootm_argv[3] = env_get("fdt_addr");
+	if (!bootm_argv[3]) {
+		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
+			if (strcmp("-", label->fdt))
+				bootm_argv[3] = env_get("fdt_addr");
+		} else {
+			bootm_argv[3] = env_get("fdt_addr");
+		}
+	}
 
 	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
 	buf = map_sysmem(kernel_addr_r, 0);
 
-	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT)
-		bootm_argv[3] = env_get("fdtcontroladdr");
+	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT) {
+		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
+			if (strcmp("-", label->fdt))
+				bootm_argv[3] = env_get("fdtcontroladdr");
+		} else {
+			bootm_argv[3] = env_get("fdtcontroladdr");
+		}
+	}
 
 	if (bootm_argv[3]) {
 		if (!bootm_argv[2])

@@ -39,6 +39,7 @@ setexpr name gsub <r> <s> [<t>]
      string <t>, substitute the string <s>.
      The result is assigned to <name>.
      If <t> is not supplied, use the old value of <name>.
+     If no substring matching <r> is found in <t>, assign <t> to <name>.
 
 setexpr name sub <r> <s> [<t>]
      Just like gsub(), but replace only the first matching substring

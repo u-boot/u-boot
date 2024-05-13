@@ -9,6 +9,7 @@
 #include <dt-bindings/clock/mt7988-clk.h>
 #include <dt-bindings/reset/mt7988-reset.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/mt65xx.h>
 #include <dt-bindings/phy/phy.h>
 
 / {

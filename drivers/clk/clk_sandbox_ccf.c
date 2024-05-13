@@ -6,7 +6,6 @@
  * Common Clock Framework [CCF] driver for Sandbox
  */
 
-#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <malloc.h>

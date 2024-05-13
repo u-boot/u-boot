@@ -5,7 +5,7 @@
  * Copyright (C) 2013-2017, ISEE 2007 SL - http://www.isee.biz/
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>

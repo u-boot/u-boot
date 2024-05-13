@@ -4,7 +4,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <blk.h>
 #include <env.h>
 #include <fastboot.h>

@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2018 Linaro Limited
  */
-#include <common.h>
+
 #include <dm.h>
 #include <sandboxtee.h>
 #include <tee.h>
@@ -14,7 +14,7 @@
 #include "optee/optee_private.h"
 
 /*
- * The sandbox tee driver tries to emulate a generic Trusted Exectution
+ * The sandbox tee driver tries to emulate a generic Trusted Execution
  * Environment (TEE) with the Trusted Applications (TA) OPTEE_TA_AVB and
  * OPTEE_TA_RPC_TEST available.
  */
@@ -23,7 +23,7 @@ static const u32 pstorage_max = 16;
 /**
  * struct ta_entry - TA entries
  * @uuid:		UUID of an emulated TA
- * @open_session	Called when a session is openened to the TA
+ * @open_session	Called when a session is opened to the TA
  * @invoke_func		Called when a function in the TA is to be invoked
  *
  * This struct is used to register TAs in this sandbox emulation of a TEE.
@@ -140,8 +140,8 @@ static u32 pta_scp03_invoke_func(struct udevice *dev, u32 func, uint num_params,
 			provisioned = true;
 
 		/*
-		 * Either way, we asume both operations succeeded and that
-		 * the communication channel has now been stablished
+		 * Either way, we assume both operations succeeded and that
+		 * the communication channel has now been established
 		 */
 
 		return TEE_SUCCESS;
@@ -174,7 +174,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 	uint slot;
 	u64 val;
 	char *value;
-	u32 value_sz;
+	u32 value_sz, tmp_sz;
 
 	switch (func) {
 	case TA_AVB_CMD_READ_ROLLBACK_INDEX:
@@ -267,8 +267,12 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 		if (!ep)
 			return TEE_ERROR_ITEM_NOT_FOUND;
 
-		value_sz = strlen(ep->data) + 1;
-		memcpy(value, ep->data, value_sz);
+		tmp_sz = strlen(ep->data) + 1;
+		if (value_sz < tmp_sz)
+			return TEE_ERROR_SHORT_BUFFER;
+
+		memcpy(value, ep->data, tmp_sz);
+		params[1].u.memref.size = tmp_sz;
 
 		return TEE_SUCCESS;
 	case TA_AVB_CMD_WRITE_PERSIST_VALUE:

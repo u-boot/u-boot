@@ -51,10 +51,6 @@
 
 &sms {
 	bootph-all;
-	k3_sysreset: sysreset-controller {
-		compatible = "ti,sci-sysreset";
-		bootph-all;
-	};
 };
 
 &main_pmx0 {

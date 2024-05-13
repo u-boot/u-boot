@@ -4,7 +4,7 @@
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>
@@ -483,7 +483,7 @@ int setup_serdes_volt(u32 svdd)
 		ret = -1;
 	}
 
-	/* For each PLL that’s not disabled via RCW enable the SERDES */
+	/* For each PLL that's not disabled via RCW enable the SERDES */
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	cfg_tmp = cfg_rcwsrds1 & 0x3;
 	do_serdes_enable(cfg_tmp, serdes1_base);

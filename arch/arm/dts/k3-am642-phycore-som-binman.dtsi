@@ -1,0 +1,453 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Based on k3-am64x-binman.dtsi
+ *
+ * Copyright (C) 2022 - 2024 PHYTEC Messtechnik GmbH
+ * Author: Wadim Egorov <w.egorov@phytec.de>
+ */
+
+#include "k3-binman.dtsi"
+
+#ifdef CONFIG_TARGET_PHYCORE_AM64X_R5
+&binman {
+	tiboot3-am64x_sr2-hs-phycore-som.bin {
+		filename = "tiboot3-am64x_sr2-hs-phycore-som.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl>, <&ti_sci_enc>,
+				<&combined_sysfw_cfg>, <&sysfw_inner_cert>;
+			combined;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl>;
+			content-sysfw = <&ti_sci_enc>;
+			content-sysfw-data = <&combined_sysfw_cfg>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert>;
+			load = <0x70000000>;
+			load-sysfw = <0x44000>;
+			load-sysfw-data = <0x7b000>;
+		};
+		u_boot_spl: u-boot-spl {
+			no-expanded;
+		};
+		ti_sci_enc: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am64x_sr2-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_sysfw_cfg: combined-sysfw-cfg.bin {
+			filename = "combined-sysfw-cfg.bin";
+			type = "blob-ext";
+		};
+		sysfw_inner_cert: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-sci-firmware-am64x_sr2-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+	};
+};
+
+&binman {
+	tiboot3-am64x_sr2-hs-fs-phycore-som.bin {
+		filename = "tiboot3-am64x_sr2-hs-fs-phycore-som.bin";
+		symlink = "tiboot3.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_fs>, <&ti_sci_enc_fs>,
+				<&combined_sysfw_cfg_fs>, <&sysfw_inner_cert_fs>;
+			combined;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl_fs>;
+			content-sysfw = <&ti_sci_enc_fs>;
+			content-sysfw-data = <&combined_sysfw_cfg_fs>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert_fs>;
+			load = <0x70000000>;
+			load-sysfw = <0x44000>;
+			load-sysfw-data = <0x7b000>;
+		};
+		u_boot_spl_fs: u-boot-spl {
+			no-expanded;
+		};
+		ti_sci_enc_fs: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am64x_sr2-hs-fs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_sysfw_cfg_fs: combined-sysfw-cfg.bin {
+			filename = "combined-sysfw-cfg.bin";
+			type = "blob-ext";
+		};
+		sysfw_inner_cert_fs: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-sci-firmware-am64x_sr2-hs-fs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+	};
+};
+
+&binman {
+	tiboot3-am64x-gp-phycore-som.bin {
+		filename = "tiboot3-am64x-gp-phycore-som.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_unsigned>, <&ti_sci_gp>, <&combined_sysfw_cfg_gp>;
+			combined;
+			content-sbl = <&u_boot_spl_unsigned>;
+			load = <0x70000000>;
+			content-sysfw = <&ti_sci_gp>;
+			load-sysfw = <0x44000>;
+			content-sysfw-data = <&combined_sysfw_cfg_gp>;
+			load-sysfw-data = <0x7b000>;
+			sw-rev = <1>;
+			keyfile = "ti-degenerate-key.pem";
+		};
+		u_boot_spl_unsigned: u-boot-spl {
+			no-expanded;
+		};
+		ti_sci_gp: ti-sci-gp.bin {
+			filename = "ti-sysfw/ti-sci-firmware-am64x-gp.bin";
+			type = "blob-ext";
+			optional;
+		};
+		combined_sysfw_cfg_gp: combined-sysfw-cfg-gp.bin {
+			filename = "combined-sysfw-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+
+#endif
+
+#ifdef CONFIG_TARGET_PHYCORE_AM64X_A53
+#define SPL_AM642_PHYBOARD_ELECTRA_DTB "spl/dts/ti/k3-am642-phyboard-electra-rdk.dtb"
+#define AM642_PHYBOARD_ELECTRA_DTB "u-boot.dtb"
+
+&binman {
+	ti-spl {
+		insert-template = <&ti_spl_template>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+				dm {
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&spl_am642_phyboard_electra_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					spl_am642_phyboard_electra_dtb: blob-ext {
+						filename = SPL_AM642_PHYBOARD_ELECTRA_DTB;
+					};
+
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		insert-template = <&u_boot_template>;
+
+		fit {
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&am642_phyboard_electra_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					am642_phyboard_electra_dtb: blob-ext {
+						filename = AM642_PHYBOARD_ELECTRA_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		insert-template = <&ti_spl_unsigned_template>;
+
+		fit {
+			images {
+				dm {
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_AM642_PHYBOARD_ELECTRA_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		insert-template = <&u_boot_unsigned_template>;
+
+		fit {
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM642_PHYBOARD_ELECTRA_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+#endif
+
+#ifdef CONFIG_TARGET_PHYCORE_AM64X_A53
+
+&binman {
+	ti-spl {
+		insert-template = <&ti_spl_template>;
+
+		fit {
+			description = "Configuration to load ATF and SPL";
+			#address-cells = <1>;
+
+			images {
+				dm {
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&spl_am642_phyboard_electra_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					spl_am642_phyboard_electra_dtb: blob-ext {
+						filename = SPL_AM642_PHYBOARD_ELECTRA_DTB;
+					};
+
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		insert-template = <&u_boot_template>;
+
+		fit {
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					ti-secure {
+						content = <&am642_phyboard_electra_dtb>;
+						keyfile = "custMpk.pem";
+					};
+					am642_phyboard_electra_dtb: blob-ext {
+						filename = AM642_PHYBOARD_ELECTRA_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	ti-spl_unsigned {
+		insert-template = <&ti_spl_unsigned_template>;
+
+		fit {
+			images {
+				dm {
+					blob-ext {
+						filename = "/dev/null";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = SPL_AM642_PHYBOARD_ELECTRA_DTB;
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot_unsigned {
+		insert-template = <&u_boot_unsigned_template>;
+
+		fit {
+			images {
+				uboot {
+					description = "U-Boot for AM64 board";
+				};
+
+				fdt-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					blob {
+						filename = AM642_PHYBOARD_ELECTRA_DTB;
+					};
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am642-phyboard-electra-rdk";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+#endif /* CONFIG_TARGET_PHYCORE_AM64X_A53 */

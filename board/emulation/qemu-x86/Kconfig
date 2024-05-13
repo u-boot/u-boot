@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "qemu"
 
-config SYS_CONFIG_NAME
-	default "qemu-x86"
-
 config TEXT_BASE
 	default 0xfff00000 if !SUPPORT_SPL
 	default 0x01110000 if SUPPORT_SPL
@@ -21,7 +18,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select X86_RESET_VECTOR
 	select QEMU
 	select QFW_PIO if CMD_QFW
-	select BOARD_ROMSIZE_KB_1024
+	select BOARD_ROMSIZE_KB_1024 if TARGET_QEMU_X86
+	select BOARD_ROMSIZE_KB_2048 if TARGET_QEMU_X86_64
 	imply VIRTIO_PCI
 	imply VIRTIO_NET
 	imply VIRTIO_BLK

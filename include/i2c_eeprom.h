@@ -7,6 +7,7 @@
 #define __I2C_EEPROM
 
 #include <linux/errno.h>
+#include <linux/types.h>
 
 struct udevice;
 

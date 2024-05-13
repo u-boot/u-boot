@@ -30,7 +30,6 @@
  * September 27, 2018. As of now, NFSv3 is the default choice. If the server
  * does not support NFSv3, we fall back to versions 2 or 1. */
 
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #ifdef CONFIG_SYS_DIRECT_FLASH_NFS
@@ -57,7 +56,8 @@ static int nfs_offset = -1;
 static int nfs_len;
 static const ulong nfs_timeout = CONFIG_NFS_TIMEOUT;
 
-static char dirfh[NFS_FHSIZE];	/* NFSv2 / NFSv3 file handle of directory */
+static char dirfh[NFS3_FHSIZE]; /* NFSv2 / NFSv3 file handle of directory */
+static unsigned int dirfh3_length; /* (variable) length of dirfh when NFSv3 */
 static char filefh[NFS3_FHSIZE]; /* NFSv2 / NFSv3 file handle */
 static unsigned int filefh3_length;	/* (variable) length of filefh when NFSv3 */
 
@@ -377,9 +377,9 @@ static void nfs_lookup_req(char *fname)
 
 		rpc_req(PROG_NFS, NFS_LOOKUP, data, len);
 	} else {  /* NFS_V3 */
-		*p++ = htonl(NFS_FHSIZE);	/* Dir handle length */
-		memcpy(p, dirfh, NFS_FHSIZE);
-		p += (NFS_FHSIZE / 4);
+		*p++ = htonl(dirfh3_length);	/* Dir handle length */
+		memcpy(p, dirfh, dirfh3_length);
+		p += (dirfh3_length / 4);
 		*p++ = htonl(fnamelen);
 		if (fnamelen & 3)
 			*(p + fnamelen / 4) = 0;
@@ -565,7 +565,14 @@ static int nfs_mount_reply(uchar *pkt, unsigned len)
 
 	fs_mounted = 1;
 	/*  NFSv2 and NFSv3 use same structure */
-	memcpy(dirfh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
+	if (choosen_nfs_version != NFS_V3) {
+		memcpy(dirfh, rpc_pkt.u.reply.data + 1, NFS_FHSIZE);
+	} else {
+		dirfh3_length = ntohl(rpc_pkt.u.reply.data[1]);
+		if (dirfh3_length > NFS3_FHSIZE)
+			dirfh3_length  = NFS3_FHSIZE;
+		memcpy(dirfh, rpc_pkt.u.reply.data + 2, dirfh3_length);
+	}
 
 	return 0;
 }

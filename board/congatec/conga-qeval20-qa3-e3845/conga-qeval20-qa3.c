@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <init.h>
 #include <winbond_w83627.h>

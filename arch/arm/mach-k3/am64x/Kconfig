@@ -29,8 +29,28 @@ config TARGET_AM642_R5_EVM
 	imply SYS_K3_SPL_ATF
 	imply TI_I2C_BOARD_DETECT
 
+config TARGET_PHYCORE_AM64X_A53
+	bool "PHYTEC phyCORE-AM64x running on A53"
+	select ARM64
+	select BINMAN
+	imply BOARD
+	imply SPL_BOARD
+	imply OF_UPSTREAM
+
+config TARGET_PHYCORE_AM64X_R5
+	bool "PHYTEC phyCORE-AM64x running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+
 endchoice
 
+source "board/phytec/phycore_am64x/Kconfig"
 source "board/ti/am64x/Kconfig"
 
 endif

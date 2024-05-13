@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_P2SB
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

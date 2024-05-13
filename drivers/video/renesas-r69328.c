@@ -5,7 +5,6 @@
  * Copyright (c) 2022 Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <panel.h>
@@ -19,7 +18,7 @@
 #include <power/regulator.h>
 
 /*
- * The datasheet is not publicly available, all values are
+ * The datasheet is not publicly available, all values are
  * taken from the downstream. If you have access to datasheets,
  * corrections are welcome.
  */
@@ -65,37 +64,6 @@ static struct display_timing default_timing = {
 
 static int renesas_r69328_enable_backlight(struct udevice *dev)
 {
-	struct renesas_r69328_priv *priv = dev_get_priv(dev);
-	int ret;
-
-	ret = dm_gpio_set_value(&priv->enable_gpio, 1);
-	if (ret) {
-		log_err("error changing enable-gpios (%d)\n", ret);
-		return ret;
-	}
-	mdelay(5);
-
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
-	if (ret) {
-		log_err("error changing reset-gpios (%d)\n", ret);
-		return ret;
-	}
-	mdelay(5);
-
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
-	if (ret) {
-		log_err("error changing reset-gpios (%d)\n", ret);
-		return ret;
-	}
-
-	mdelay(5);
-
-	return 0;
-}
-
-static int renesas_r69328_set_backlight(struct udevice *dev, int percent)
-{
-	struct renesas_r69328_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *dsi = plat->device;
 	int ret;
@@ -153,18 +121,23 @@ static int renesas_r69328_set_backlight(struct udevice *dev, int percent)
 		log_err("failed to set display on: %d\n", ret);
 		return ret;
 	}
-
 	mdelay(50);
+
+	return 0;
+}
+
+static int renesas_r69328_set_backlight(struct udevice *dev, int percent)
+{
+	struct renesas_r69328_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	ret = backlight_enable(priv->backlight);
 	if (ret)
 		return ret;
 
-	ret = backlight_set_brightness(priv->backlight, percent);
-	if (ret)
-		return ret;
+	mdelay(5);
 
-	return 0;
+	return backlight_set_brightness(priv->backlight, percent);
 }
 
 static int renesas_r69328_timings(struct udevice *dev,
@@ -203,6 +176,39 @@ static int renesas_r69328_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int renesas_r69328_hw_init(struct udevice *dev)
+{
+	struct renesas_r69328_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dm_gpio_set_value(&priv->enable_gpio, 1);
+	if (ret) {
+		log_debug("%s: error changing enable-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+	mdelay(5);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	if (ret) {
+		log_debug("%s: error changing reset-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+	mdelay(5);
+
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	if (ret) {
+		log_debug("%s: error changing reset-gpios (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
+
+	mdelay(5);
+
+	return 0;
+}
+
 static int renesas_r69328_probe(struct udevice *dev)
 {
 	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
@@ -212,7 +218,7 @@ static int renesas_r69328_probe(struct udevice *dev)
 	plat->format = MIPI_DSI_FMT_RGB888;
 	plat->mode_flags = MIPI_DSI_MODE_VIDEO;
 
-	return 0;
+	return renesas_r69328_hw_init(dev);
 }
 
 static const struct panel_ops renesas_r69328_ops = {

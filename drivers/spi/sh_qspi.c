@@ -8,12 +8,11 @@
 
 #define LOG_CATEGORY UCLASS_SPI
 
-#include <common.h>
 #include <console.h>
 #include <malloc.h>
 #include <spi.h>
 #include <wait_bit.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 

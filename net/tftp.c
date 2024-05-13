@@ -5,7 +5,6 @@
  * Copyright 2011 Comelit Group SpA,
  *                Luca Ceresoli <luca.ceresoli@comelit.it>
  */
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <efi_loader.h>

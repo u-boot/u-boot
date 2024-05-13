@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY	LOGC_ACPI
 
-#include <common.h>
 #include <binman.h>
 #include <dm.h>
 #include <log.h>
@@ -409,7 +408,7 @@ int nhlt_serialise_oem_overrides(struct acpi_ctx *ctx, struct nhlt *nhlt,
 		memcpy(header->oem_table_id, oem_table_id, oem_table_id_len);
 	}
 	header->oem_revision = oem_revision;
-	memcpy(header->aslc_id, ASLC_ID, 4);
+	memcpy(header->creator_id, ASLC_ID, 4);
 
 	cur.buf = (void *)(header + 1);
 	cur.start = (void *)header;

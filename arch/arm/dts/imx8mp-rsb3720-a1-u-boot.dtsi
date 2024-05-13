@@ -136,7 +136,7 @@
 };
 
 &binman {
-	itb {
+	section {
 		fit {
 			images {
 				fip {

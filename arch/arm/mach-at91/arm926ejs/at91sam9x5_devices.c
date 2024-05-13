@@ -3,7 +3,6 @@
  * Copyright (C) 2012 Atmel Corporation
  */
 
-#include <common.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>

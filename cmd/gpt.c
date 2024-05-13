@@ -10,7 +10,6 @@
  * author: Piotr Wilczek <p.wilczek@samsung.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <env.h>
 #include <log.h>
@@ -642,6 +641,10 @@ static int gpt_default(struct blk_desc *blk_dev_desc, const char *str_part)
 	ret = gpt_restore(blk_dev_desc, str_disk_guid, partitions, part_count);
 	free(str_disk_guid);
 	free(partitions);
+
+	/* initialize partition table */
+	if (blk_enabled())
+		part_init(blk_dev_desc);
 
 	return ret;
 }

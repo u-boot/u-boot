@@ -25,7 +25,6 @@ config SYS_VENDOR
 	default "cadence"
 
 config SYS_CONFIG_NAME
-	string
 	default "xtfpga"
 
 config BOARD_SDRAM_SIZE

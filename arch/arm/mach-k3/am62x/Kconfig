@@ -13,6 +13,7 @@ config TARGET_AM625_A53_EVM
 	bool "TI K3 based AM625 EVM running on A53"
 	select ARM64
 	select BINMAN
+	select OF_SYSTEM_SETUP
 
 config TARGET_AM625_R5_EVM
 	bool "TI K3 based AM625 EVM running on R5"
@@ -29,6 +30,8 @@ config TARGET_PHYCORE_AM62X_A53
 	bool "PHYTEC phyCORE-AM62x running on A53"
 	select ARM64
 	select BINMAN
+	select OF_SYSTEM_SETUP
+	imply OF_UPSTREAM
 
 config TARGET_PHYCORE_AM62X_R5
 	bool "PHYTEC phyCORE-AM62x running on R5"
@@ -45,6 +48,8 @@ config TARGET_VERDIN_AM62_A53
 	bool "Toradex Verdin AM62 running on A53"
 	select ARM64
 	select BINMAN
+	select OF_SYSTEM_SETUP
+	imply OF_UPSTREAM
 
 config TARGET_VERDIN_AM62_R5
 	bool "Toradex Verdin AM62 running on R5"

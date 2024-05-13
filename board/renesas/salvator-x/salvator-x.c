@@ -23,9 +23,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/arch/rcar-mstp.h>
-#include <asm/arch/sh_sdhi.h>
 #include <i2c.h>
 #include <mmc.h>
 
@@ -77,18 +76,18 @@ void reset_cpu(void)
 int board_fit_config_name_match(const char *name)
 {
 	/* PRR driver is not available yet */
-	u32 cpu_type = rmobile_get_cpu_type();
+	u32 cpu_type = renesas_get_cpu_type();
 
-	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
-	    !strcmp(name, "r8a77950-salvator-x-u-boot"))
+	if ((cpu_type == RENESAS_CPU_TYPE_R8A7795) &&
+	    !strcmp(name, "r8a77951-salvator-x"))
 		return 0;
 
-	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
-	    !strcmp(name, "r8a77960-salvator-x-u-boot"))
+	if ((cpu_type == RENESAS_CPU_TYPE_R8A7796) &&
+	    !strcmp(name, "r8a77960-salvator-x"))
 		return 0;
 
-	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
-	    !strcmp(name, "r8a77965-salvator-x-u-boot"))
+	if ((cpu_type == RENESAS_CPU_TYPE_R8A77965) &&
+	    !strcmp(name, "r8a77965-salvator-x"))
 		return 0;
 
 	return -1;

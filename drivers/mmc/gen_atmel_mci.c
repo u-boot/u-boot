@@ -8,7 +8,7 @@
  * Copyright (C) 2004-2006 Atmel Corporation
  */
 
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <display_options.h>
 #include <dm.h>

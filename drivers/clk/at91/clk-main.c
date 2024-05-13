@@ -10,7 +10,6 @@
  */
 
 #include <asm/processor.h>
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/clk-provider.h>

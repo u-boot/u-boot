@@ -10,7 +10,6 @@
  * project.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <bootstage.h>
 #include <command.h>

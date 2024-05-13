@@ -7,7 +7,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <mmc.h>
 #include <errno.h>
@@ -1011,7 +1010,7 @@ static int msdc_ops_get_wp(struct udevice *dev)
 #endif
 }
 
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static u32 test_delay_bit(u32 delay, u32 bit)
 {
 	bit %= PAD_DELAY_MAX;
@@ -1131,7 +1130,7 @@ static int hs400_tune_response(struct udevice *dev, u32 opcode)
 				i << PAD_CMD_TUNE_RX_DLY3_S);
 
 		for (j = 0; j < 3; j++) {
-			mmc_send_tuning(mmc, opcode, &cmd_err);
+			cmd_err = mmc_send_tuning(mmc, opcode);
 			if (!cmd_err) {
 				cmd_delay |= (1 << i);
 			} else {
@@ -1181,7 +1180,7 @@ static int msdc_tune_response(struct udevice *dev, u32 opcode)
 				i << MSDC_PAD_TUNE_CMDRDLY_S);
 
 		for (j = 0; j < 3; j++) {
-			mmc_send_tuning(mmc, opcode, &cmd_err);
+			cmd_err = mmc_send_tuning(mmc, opcode);
 			if (!cmd_err) {
 				rise_delay |= (1 << i);
 			} else {
@@ -1203,7 +1202,7 @@ static int msdc_tune_response(struct udevice *dev, u32 opcode)
 				i << MSDC_PAD_TUNE_CMDRDLY_S);
 
 		for (j = 0; j < 3; j++) {
-			mmc_send_tuning(mmc, opcode, &cmd_err);
+			cmd_err = mmc_send_tuning(mmc, opcode);
 			if (!cmd_err) {
 				fall_delay |= (1 << i);
 			} else {
@@ -1238,7 +1237,7 @@ skip_fall:
 		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_CMDRRDLY_M,
 				i << MSDC_PAD_TUNE_CMDRRDLY_S);
 
-		mmc_send_tuning(mmc, opcode, &cmd_err);
+		cmd_err = mmc_send_tuning(mmc, opcode);
 		if (!cmd_err)
 			internal_delay |= (1 << i);
 	}
@@ -1264,7 +1263,6 @@ static int msdc_tune_data(struct udevice *dev, u32 opcode)
 	struct msdc_delay_phase final_rise_delay, final_fall_delay = { 0, };
 	u8 final_delay, final_maxlen;
 	void __iomem *tune_reg = &host->base->pad_tune;
-	int cmd_err;
 	int i, ret;
 
 	if (host->dev_comp->pad_tune0)
@@ -1277,10 +1275,10 @@ static int msdc_tune_data(struct udevice *dev, u32 opcode)
 		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
 				i << MSDC_PAD_TUNE_DATRRDLY_S);
 
-		ret = mmc_send_tuning(mmc, opcode, &cmd_err);
+		ret = mmc_send_tuning(mmc, opcode);
 		if (!ret) {
 			rise_delay |= (1 << i);
-		} else if (cmd_err) {
+		} else {
 			/* in this case, retune response is needed */
 			ret = msdc_tune_response(dev, opcode);
 			if (ret)
@@ -1300,10 +1298,10 @@ static int msdc_tune_data(struct udevice *dev, u32 opcode)
 		clrsetbits_le32(tune_reg, MSDC_PAD_TUNE_DATRRDLY_M,
 				i << MSDC_PAD_TUNE_DATRRDLY_S);
 
-		ret = mmc_send_tuning(mmc, opcode, &cmd_err);
+		ret = mmc_send_tuning(mmc, opcode);
 		if (!ret) {
 			fall_delay |= (1 << i);
-		} else if (cmd_err) {
+		} else {
 			/* in this case, retune response is needed */
 			ret = msdc_tune_response(dev, opcode);
 			if (ret)
@@ -1362,7 +1360,7 @@ static int msdc_tune_together(struct udevice *dev, u32 opcode)
 	for (i = 0; i < PAD_DELAY_MAX; i++) {
 		msdc_set_cmd_delay(host, i);
 		msdc_set_data_delay(host, i);
-		ret = mmc_send_tuning(mmc, opcode, NULL);
+		ret = mmc_send_tuning(mmc, opcode);
 		if (!ret)
 			rise_delay |= (1 << i);
 	}
@@ -1378,7 +1376,7 @@ static int msdc_tune_together(struct udevice *dev, u32 opcode)
 	for (i = 0; i < PAD_DELAY_MAX; i++) {
 		msdc_set_cmd_delay(host, i);
 		msdc_set_data_delay(host, i);
-		ret = mmc_send_tuning(mmc, opcode, NULL);
+		ret = mmc_send_tuning(mmc, opcode);
 		if (!ret)
 			fall_delay |= (1 << i);
 	}
@@ -1761,7 +1759,7 @@ static const struct dm_mmc_ops msdc_ops = {
 	.set_ios = msdc_ops_set_ios,
 	.get_cd = msdc_ops_get_cd,
 	.get_wp = msdc_ops_get_wp,
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.execute_tuning = msdc_execute_tuning,
 #endif
 	.wait_dat0 = msdc_ops_wait_dat0,

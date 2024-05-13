@@ -4,7 +4,6 @@
  *  Marcel Ziswiler <marcel@ziswiler.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <log.h>
@@ -43,14 +42,6 @@ int arch_misc_init(void)
 		printf("USB recovery mode\n");
 
 	return 0;
-}
-
-int checkboard(void)
-{
-	printf("Model: Toradex Apalis T30 %dGB\n",
-	       (gd->ram_size == 0x40000000) ? 1 : 2);
-
-	return tdx_checkboard();
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)

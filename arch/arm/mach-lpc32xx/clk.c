@@ -3,7 +3,6 @@
  * Copyright (C) 2011 by Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <div64.h>
 #include <asm/arch/cpu.h>

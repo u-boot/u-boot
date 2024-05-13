@@ -3,14 +3,13 @@
  *  Copyright (C) 2012-2021 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
-#include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <image.h>
 #include <asm/arch/reset_manager.h>
@@ -122,7 +121,10 @@ void spl_board_init(void)
 	arch_early_init_r();
 
 	/* If the full FPGA is already loaded, ie.from EPCQ, config fpga pins */
-	if (is_fpgamgr_user_mode()) {
+	if ((IS_ENABLED(CONFIG_SOCFPGA_ARRIA10_ALWAYS_REPROGRAM) &&
+	     is_regular_boot_valid()) ||
+	    (!IS_ENABLED(CONFIG_SOCFPGA_ARRIA10_ALWAYS_REPROGRAM) &&
+	     is_fpgamgr_user_mode())) {
 		ret = config_pins(gd->fdt_blob, "shared");
 		if (ret)
 			return;
@@ -130,7 +132,8 @@ void spl_board_init(void)
 		ret = config_pins(gd->fdt_blob, "fpga");
 		if (ret)
 			return;
-	} else if (!is_fpgamgr_early_user_mode()) {
+	} else if (IS_ENABLED(CONFIG_SOCFPGA_ARRIA10_ALWAYS_REPROGRAM) ||
+		   !is_fpgamgr_early_user_mode()) {
 		/* Program IOSSM(early IO release) or full FPGA */
 		fpgamgr_program(buf, FPGA_BUFSIZ, 0);
 

@@ -9,9 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "lion_rk3368"
 
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-
 config ENV_SIZE
 	default 0x2000
 

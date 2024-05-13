@@ -163,7 +163,6 @@ config TARGET_RPI_4_32B
 
 	  This option creates a build targeting the ARMv7/AArch32 ISA.
 	select BCM2711_32B
-	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_RPI_4
 	bool "Raspberry Pi 4 64-bit build"
@@ -189,7 +188,6 @@ config TARGET_RPI_4
 
 	  This option creates a build targeting the ARMv8/AArch64 ISA.
 	select BCM2711_64B
-	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_RPI_ARM64
 	bool "Raspberry Pi one binary 64-bit build"
@@ -197,7 +195,6 @@ config TARGET_RPI_ARM64
 	  Support for all armv8 based Raspberry Pi variants, such as
 	  the RPi 4 model B, in AArch64 (64-bit) mode.
 	select ARM64
-	imply OF_HAS_PRIOR_STAGE
 
 endchoice
 

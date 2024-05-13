@@ -44,3 +44,7 @@
 	/* Integrated PHY unsupported by U-Boot */
 	status = "broken";
 };
+
+&vcc_sd {
+	bootph-pre-ram;
+};

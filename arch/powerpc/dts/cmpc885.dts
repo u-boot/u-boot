@@ -83,13 +83,23 @@
 		spi: spi@aa0 {
 			status = "okay";
 			#address-cells = <1>;
-			#size-cells = <1>;
-			cell-index = <0>;
+			#size-cells = <0>;
 			compatible = "fsl,mpc8xx-spi";
-			gpios = <&CPM1_PIO_B 21 1>; /* /EEPROM_CS ACTIVE_LOW */
+			gpios = <&CPM1_PIO_B 21 1	/* /EEPROM_CS ACTIVE_LOW */
+				 &CPM1_PIO_B 23 1	/* Temperature mother board */
+				 &CPM1_PIO_B 14 1>;	/* Temperature CPU board */
 
 			eeprom@0 {
-				cell-index = <1>;
+				reg = <0>;
+				compatible = "atmel,at25", "cs,eeprom";
+			};
+			temp@1 {
+				reg = <1>;
+				compatible = "ti,lm74";
+			};
+			temp@2 {
+				reg = <2>;
+				compatible = "ti,lm74";
 			};
 		};
 	};

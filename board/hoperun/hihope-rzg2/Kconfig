@@ -1,7 +1,7 @@
 if TARGET_HIHOPE_RZG2
 
 config SYS_SOC
-	default "rmobile"
+	default "renesas"
 
 config SYS_BOARD
 	default "hihope-rzg2"

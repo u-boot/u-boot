@@ -8,7 +8,6 @@
  * Modified from coreboot src/soc/intel/common/block/acpi.c
  */
 
-#include <common.h>
 #include <bloblist.h>
 #include <cpu.h>
 #include <dm.h>

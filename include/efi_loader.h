@@ -159,6 +159,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 #define EFICONFIG_AUTO_GENERATED_ENTRY_GUID \
 	EFI_GUID(0x8108ac4e, 0x9f11, 0x4d59, \
 		 0x85, 0x0e, 0xe2, 0x1a, 0x52, 0x2c, 0x59, 0xb2)
+#define U_BOOT_EFI_RT_VAR_FILE_GUID \
+	EFI_GUID(0xb2ac5fc9, 0x92b7, 0x4acd, \
+		 0xae, 0xac, 0x11, 0xe8, 0x18, 0xc3, 0x13, 0x0c)
+
 
 /* Use internal device tree when starting UEFI application */
 #define EFI_FDT_USE_INTERNAL NULL
@@ -344,9 +348,6 @@ extern const efi_guid_t smbios3_guid;
 /*GUID of console */
 extern const efi_guid_t efi_guid_text_input_protocol;
 extern const efi_guid_t efi_guid_text_output_protocol;
-
-extern char __efi_runtime_start[], __efi_runtime_stop[];
-extern char __efi_runtime_rel_start[], __efi_runtime_rel_stop[];
 
 /**
  * struct efi_open_protocol_info_item - open protocol info item
@@ -742,7 +743,7 @@ efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
 efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
 
 /* get a device path from a Boot#### option */
-struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t guid);
+struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid);
 
 /* get len, string (used in u-boot crypto from a guid */
 const char *guid_to_sha_str(const efi_guid_t *guid);

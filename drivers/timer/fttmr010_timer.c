@@ -5,7 +5,6 @@
  *
  * 23/08/2022 Port to DM
  */
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <timer.h>

@@ -6,7 +6,6 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include <common.h>
 #include <adc.h>
 #include <dm.h>
 #include <dm/root.h>

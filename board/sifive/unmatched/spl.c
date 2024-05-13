@@ -134,9 +134,9 @@ int spl_board_init_f(void)
 {
 	int ret;
 
-	ret = spl_soc_init();
+	ret = spl_dram_init();
 	if (ret) {
-		debug("HiFive Unmatched FU740 SPL init failed: %d\n", ret);
+		debug("HiFive Unmatched FU740 DRAM init failed: %d\n", ret);
 		goto end;
 	}
 

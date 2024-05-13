@@ -3,7 +3,6 @@
  * Copyright (C) 2010-2015 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <config.h>
 #include <display_options.h>

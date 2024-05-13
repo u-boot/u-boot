@@ -25,12 +25,13 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-int board_fit_config_name_match(const char *name)
+int board_fit_config_name_match(const char *path)
 {
-	int i  = 0;
-	const char *dtb;
+	const char *name = path + strlen("freescale/");
 	static char init;
+	const char *dtb;
 	char buf[32];
+	int i  = 0;
 
 	do {
 		dtb = eeprom_get_dtb_name(i++, buf, sizeof(buf));
@@ -229,6 +230,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 int ft_board_setup(void *fdt, struct bd_info *bd)
 {
 	const char *base_model = eeprom_get_baseboard_model();
+	const char *path;
 	char pcbrev;
 	int off;
 
@@ -237,10 +239,10 @@ int ft_board_setup(void *fdt, struct bd_info *bd)
 
 	if (!strncmp(base_model, "GW73", 4)) {
 		pcbrev = get_pcb_rev(base_model);
+		path = fdt_get_alias(fdt, "ethernet1");
 
-		if (pcbrev > 'B' && pcbrev < 'E') {
-			printf("adjusting dt for %s\n", base_model);
-
+		if (pcbrev > 'B' && pcbrev < 'E' && path && !strncmp(path, "/soc@0/pcie@", 12)) {
+			printf("adjusting %s pcie\n", base_model);
 			/*
 			 * revC/D/E has PCIe 4-port switch which changes
 			 * ethernet1 PCIe GbE:

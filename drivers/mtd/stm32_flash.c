@@ -4,7 +4,7 @@
  * Kamil Lulko, <kamil.lulko@gmail.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <flash.h>
 #include <asm/io.h>
 #include <asm/arch/stm32.h>

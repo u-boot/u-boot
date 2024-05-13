@@ -4,7 +4,7 @@
  *  NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>

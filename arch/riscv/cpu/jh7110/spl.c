@@ -28,7 +28,7 @@ static bool check_ddr_size(phys_size_t size)
 	}
 }
 
-int spl_soc_init(void)
+int spl_dram_init(void)
 {
 	int ret;
 	struct udevice *dev;

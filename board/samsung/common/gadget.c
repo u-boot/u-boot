@@ -4,7 +4,7 @@
  *  Lukasz Majewski <l.majewski@samsung.com>
  */
 
-#include <common.h>
+#include <linux/string.h>
 #include <linux/usb/ch9.h>
 
 #define EXYNOS_G_DNL_THOR_VENDOR_NUM	0x04E8

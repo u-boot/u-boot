@@ -10,7 +10,6 @@
  * https://patchwork.kernel.org/patch/9257715/
  */
 
-#include <common.h>
 #include <asm/gpio.h>
 #include <dm.h>
 #include <dm/device_compat.h>

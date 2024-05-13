@@ -6,7 +6,7 @@
  * Copyright (C) 2020 Renesas Electronics Corp.
  */
 
-#include <asm/arch/rmobile.h>
+#include <asm/arch/renesas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -14,7 +14,6 @@
 #include <asm/processor.h>
 #include <linux/errno.h>
 #include <asm/system.h>
-#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

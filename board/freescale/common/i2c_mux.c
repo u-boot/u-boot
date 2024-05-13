@@ -5,14 +5,15 @@
  * Copyright 2021 Microsoft Corporation
  */
 
-#include <common.h>
+#include <config.h>
 #include <i2c.h>
+#include <stdio.h>
 #include "i2c_common.h"
 #include "i2c_mux.h"
 
 /*
  * A new Kconfig option for something that used to always be built should be
- * “default y”.
+ * "default y".
  */
 #ifdef CONFIG_FSL_USE_PCA9547_MUX
 

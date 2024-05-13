@@ -4,7 +4,6 @@
  * Kyle Harris, kharris@nexus-tech.net
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <console.h>
@@ -14,6 +13,7 @@
 #include <part.h>
 #include <sparse_format.h>
 #include <image-sparse.h>
+#include <vsprintf.h>
 
 static int curr_device = -1;
 

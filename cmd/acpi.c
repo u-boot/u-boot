@@ -3,7 +3,6 @@
  * Copyright 2019 Google LLC
  * Written by Simon Glass <sjg@chromium.org>
  */
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <log.h>
@@ -11,6 +10,7 @@
 #include <acpi/acpi_table.h>
 #include <asm/acpi_table.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 #include <dm/acpi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,7 +32,7 @@ static void dump_hdr(struct acpi_table_header *hdr)
 	if (has_hdr) {
 		printf("  v%02d %.6s %.8s %x %.4s %x\n", hdr->revision,
 		       hdr->oem_id, hdr->oem_table_id, hdr->oem_revision,
-		       hdr->aslc_id, hdr->aslc_revision);
+		       hdr->creator_id, hdr->creator_revision);
 	} else {
 		printf("\n");
 	}

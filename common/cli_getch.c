@@ -6,8 +6,10 @@
  * Copyright 2022 Google LLC
  */
 
-#include <common.h>
 #include <cli.h>
+#include <stdio.h>
+#include <string.h>
+#include <linux/errno.h>
 
 /**
  * enum cli_esc_state_t - indicates what to do with an escape character

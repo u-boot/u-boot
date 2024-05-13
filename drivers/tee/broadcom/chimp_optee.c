@@ -3,9 +3,10 @@
  * Copyright 2020 Broadcom.
  */
 
-#include <common.h>
 #include <tee.h>
 #include <broadcom/chimp.h>
+#include <linux/errno.h>
+#include <string.h>
 
 #ifdef CONFIG_CHIMP_OPTEE
 

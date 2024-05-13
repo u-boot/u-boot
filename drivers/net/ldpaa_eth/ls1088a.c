@@ -2,7 +2,7 @@
 /*
  * Copyright 2017 NXP
  */
-#include <common.h>
+#include <config.h>
 #include <phy.h>
 #include <fsl-mc/ldpaa_wriop.h>
 #include <asm/io.h>

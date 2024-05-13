@@ -29,7 +29,6 @@ tested on both gig copper and gig fiber boards
  *  Copyright 2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -116,6 +115,8 @@ static struct pci_device_id e1000_supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_SERDES) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_SERDES_FLASHLESS) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I210_1000BASEKX) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I225_UNPROGRAMMED) },
+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_I225_IT) },
 
 	{}
 };
@@ -1575,6 +1576,8 @@ e1000_set_mac_type(struct e1000_hw *hw)
 	case PCI_DEVICE_ID_INTEL_I210_SERDES:
 	case PCI_DEVICE_ID_INTEL_I210_SERDES_FLASHLESS:
 	case PCI_DEVICE_ID_INTEL_I210_1000BASEKX:
+	case PCI_DEVICE_ID_INTEL_I225_UNPROGRAMMED:
+	case PCI_DEVICE_ID_INTEL_I225_IT:
 		hw->mac_type = e1000_igb;
 		break;
 	default:
@@ -3258,7 +3261,8 @@ e1000_setup_copper_link(struct e1000_hw *hw)
 		if (ret_val)
 			return ret_val;
 	} else if (hw->phy_type == e1000_phy_m88 ||
-		hw->phy_type == e1000_phy_igb) {
+		hw->phy_type == e1000_phy_igb ||
+		hw->phy_type == e1000_phy_igc) {
 		ret_val = e1000_copper_link_mgp_setup(hw);
 		if (ret_val)
 			return ret_val;
@@ -4531,6 +4535,8 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 	case e1000_igb:
 		while (timeout) {
 			if (hw->mac_type == e1000_igb) {
+				if (hw->phy_type == e1000_phy_igc)
+					break;
 				if (E1000_READ_REG(hw, I210_EEMNGCTL) & cfg_mask)
 					break;
 			} else {
@@ -4769,6 +4775,7 @@ e1000_phy_reset(struct e1000_hw *hw)
 	case e1000_phy_igp_3:
 	case e1000_phy_ife:
 	case e1000_phy_igb:
+	case e1000_phy_igc:
 		ret_val = e1000_phy_hw_reset(hw);
 		if (ret_val)
 			return ret_val;
@@ -4833,6 +4840,9 @@ static int e1000_set_phy_type (struct e1000_hw *hw)
 		break;
 	case I210_I_PHY_ID:
 		hw->phy_type = e1000_phy_igb;
+		break;
+	case I225_I_PHY_ID:
+		hw->phy_type = e1000_phy_igc;
 		break;
 		/* Fall Through */
 	default:
@@ -4940,6 +4950,8 @@ e1000_detect_gig_phy(struct e1000_hw *hw)
 		break;
 	case e1000_igb:
 		if (hw->phy_id == I210_I_PHY_ID)
+			match = true;
+		if (hw->phy_id == I225_I_PHY_ID)
 			match = true;
 		break;
 	default:

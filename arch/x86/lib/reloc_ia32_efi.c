@@ -7,7 +7,6 @@
  * All rights reserved.
  */
 
-#include <common.h>
 #include <efi.h>
 #include <elf.h>
 

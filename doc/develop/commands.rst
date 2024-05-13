@@ -88,7 +88,7 @@ The command function pointer has to be of type
 
 .. code-block:: c
 
-    int (*cmd)(struct cmd_tbl *cmdtp, int flag, int argc, const char *argv[]);
+    int (*cmd)(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 cmdtp
     Table entry describing the command (see above).

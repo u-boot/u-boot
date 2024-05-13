@@ -3,7 +3,7 @@
  * Copyright 2015-2016 Freescale Semiconductor, Inc.
  * Copyright 2017 NXP
  */
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

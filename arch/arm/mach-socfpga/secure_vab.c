@@ -8,7 +8,6 @@
 #include <asm/arch/secure_vab.h>
 #include <asm/arch/smc_api.h>
 #include <asm/unaligned.h>
-#include <common.h>
 #include <exports.h>
 #include <linux/errno.h>
 #include <linux/intel-smc.h>

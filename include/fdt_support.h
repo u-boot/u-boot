@@ -423,6 +423,8 @@ int arch_fixup_memory_node(void *blob);
 int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 			    u32 height, u32 stride, const char *format);
 
+int fdt_add_fb_mem_rsv(void *blob);
+
 int fdt_overlay_apply_verbose(void *fdt, void *fdto);
 
 int fdt_valid(struct fdt_header **blobp);

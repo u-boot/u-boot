@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * at91-sama7g54_curiosity-u-boot.dtsi - Device Tree file for SAMA7G5 SoC u-boot properties.
+ *
+ * Copyright (C) 2024 Microchip Technology Inc. and its subsidiaries
+ *
+ * Author: Mihai Sain <mihai.sain@microchip.com>
+ *
+ */
+
+/ {
+	chosen {
+		bootph-all;
+	};
+};
+
+&main_rc {
+	bootph-all;
+};
+
+&main_xtal {
+	bootph-all;
+};
+
+&pioA {
+	bootph-all;
+};
+
+&pinctrl_flx3_default {
+	bootph-all;
+};
+
+&pinctrl_sdmmc1_default {
+	bootph-all;
+};
+
+&pit64b0 {
+	bootph-all;
+};
+
+&pmc {
+	bootph-all;
+};
+
+&sdmmc1 {
+	bootph-all;
+};
+
+&slow_rc_osc {
+	bootph-all;
+};
+
+&slow_xtal {
+	bootph-all;
+};
+
+&uart3 {
+	bootph-all;
+};

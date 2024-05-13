@@ -9,7 +9,6 @@
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  */
 
-#include <common.h>
 #include <bmp_layout.h>
 #include <command.h>
 #include <image.h>

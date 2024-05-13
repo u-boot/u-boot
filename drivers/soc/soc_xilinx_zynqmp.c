@@ -9,7 +9,6 @@
  * Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <asm/cache.h>
@@ -44,6 +43,7 @@ enum {
 	ZYNQMP_VARIANT_DR = BIT(3),
 	ZYNQMP_VARIANT_DR_SE = BIT(4),
 	ZYNQMP_VARIANT_EG_SE = BIT(5),
+	ZYNQMP_VARIANT_TEG = BIT(6),
 };
 
 struct zynqmp_device {
@@ -73,6 +73,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.id = 0x04710093,
 		.device = 3,
 		.variants = ZYNQMP_VARIANT_EG | ZYNQMP_VARIANT_CG,
+	},
+	{
+		.id = 0x04718093,
+		.device = 3,
+		.variants = ZYNQMP_VARIANT_TEG,
 	},
 	{
 		.id = 0x04721093,
@@ -299,6 +304,8 @@ static int soc_xilinx_zynqmp_detect_machine(struct udevice *dev, u32 idcode,
 		strlcat(priv->machine, "dr", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_DR_SE) {
 		strlcat(priv->machine, "dr_SE", sizeof(priv->machine));
+	} else if (device->variants & ZYNQMP_VARIANT_TEG) {
+		strlcat(priv->machine, "teg", sizeof(priv->machine));
 	}
 
 	return 0;

@@ -13,7 +13,6 @@
 #include <asm/global_data.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
-#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
@@ -26,24 +25,6 @@
 #define SDC1_HDRV_PULL_CTL_REG          (TLMM_BASE_ADDR + 0x0012D000)
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int dram_init(void)
-{
-	gd->ram_size = PHYS_SDRAM_SIZE;
-
-	return 0;
-}
-
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size  = PHYS_SDRAM_2_SIZE;
-
-	return 0;
-}
 
 static void sdhci_power_init(void)
 {
@@ -113,28 +94,9 @@ static void sdhci_power_init(void)
 			rclk[i].val  << rclk[i].bit);
 }
 
-static void show_psci_version(void)
-{
-	struct arm_smccc_res res;
-
-	arm_smccc_smc(ARM_PSCI_0_2_FN_PSCI_VERSION, 0, 0, 0, 0, 0, 0, 0, &res);
-
-	printf("PSCI:  v%ld.%ld\n",
-	       PSCI_VERSION_MAJOR(res.a0),
-		PSCI_VERSION_MINOR(res.a0));
-}
-
-int board_init(void)
+void qcom_board_init(void)
 {
 	sdhci_power_init();
-	show_psci_version();
-
-	return 0;
-}
-
-void reset_cpu(void)
-{
-	psci_system_reset();
 }
 
 /* Check for vol- button - if pressed - stop autoboot */

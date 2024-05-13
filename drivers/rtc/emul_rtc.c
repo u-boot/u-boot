@@ -5,11 +5,11 @@
  * This driver emulates a real time clock based on timer ticks.
  */
 
-#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <env.h>
 #include <rtc.h>
+#include <time.h>
 #include <timestamp.h>
 
 /**

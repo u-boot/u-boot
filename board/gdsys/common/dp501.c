@@ -8,7 +8,6 @@
 
 #ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 
-#include <common.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <i2c.h>

@@ -5,7 +5,6 @@
  * Ported from linux drivers/soc/rockchip/io-domain.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <regmap.h>
@@ -28,6 +27,14 @@
 #define MAX_VOLTAGE_1_8		1980000
 #define MAX_VOLTAGE_3_3		3600000
 
+#define RK3328_SOC_CON4			0x410
+#define RK3328_SOC_CON4_VCCIO2		BIT(7)
+#define RK3328_SOC_VCCIO2_SUPPLY_NUM	1
+
+#define RK3399_PMUGRF_CON0		0x180
+#define RK3399_PMUGRF_CON0_VSEL		BIT(8)
+#define RK3399_PMUGRF_VSEL_SUPPLY_NUM	9
+
 #define RK3568_PMU_GRF_IO_VSEL0		0x0140
 #define RK3568_PMU_GRF_IO_VSEL1		0x0144
 #define RK3568_PMU_GRF_IO_VSEL2		0x0148
@@ -35,10 +42,10 @@
 struct rockchip_iodomain_soc_data {
 	int grf_offset;
 	const char *supply_names[MAX_SUPPLIES];
-	int (*write)(struct regmap *grf, int idx, int uV);
+	int (*write)(struct regmap *grf, uint offset, int idx, int uV);
 };
 
-static int rk3568_iodomain_write(struct regmap *grf, int idx, int uV)
+static int rk3568_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
 {
 	u32 is_3v3 = uV > MAX_VOLTAGE_1_8;
 	u32 val0, val1;
@@ -78,6 +85,94 @@ static int rk3568_iodomain_write(struct regmap *grf, int idx, int uV)
 	return 0;
 }
 
+static int rockchip_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
+{
+	u32 val;
+
+	/* set value bit */
+	val = (uV > MAX_VOLTAGE_1_8) ? 0 : 1;
+	val <<= idx;
+
+	/* apply hiword-mask */
+	val |= (BIT(idx) << 16);
+
+	return regmap_write(grf, offset, val);
+}
+
+static int rk3328_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
+{
+	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
+
+	if (!ret && idx == RK3328_SOC_VCCIO2_SUPPLY_NUM) {
+		/*
+		 * set vccio2 iodomain to also use this framework
+		 * instead of a special gpio.
+		 */
+		u32 val = RK3328_SOC_CON4_VCCIO2 | (RK3328_SOC_CON4_VCCIO2 << 16);
+		ret = regmap_write(grf, RK3328_SOC_CON4, val);
+	}
+
+	return ret;
+}
+
+static int rk3399_pmu_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
+{
+	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
+
+	if (!ret && idx == RK3399_PMUGRF_VSEL_SUPPLY_NUM) {
+		/*
+		 * set pmu io iodomain to also use this framework
+		 * instead of a special gpio.
+		 */
+		u32 val = RK3399_PMUGRF_CON0_VSEL | (RK3399_PMUGRF_CON0_VSEL << 16);
+		ret = regmap_write(grf, RK3399_PMUGRF_CON0, val);
+	}
+
+	return ret;
+}
+
+static const struct rockchip_iodomain_soc_data soc_data_rk3328 = {
+	.grf_offset = 0x410,
+	.supply_names = {
+		"vccio1-supply",
+		"vccio2-supply",
+		"vccio3-supply",
+		"vccio4-supply",
+		"vccio5-supply",
+		"vccio6-supply",
+		"pmuio-supply",
+	},
+	.write = rk3328_iodomain_write,
+};
+
+static const struct rockchip_iodomain_soc_data soc_data_rk3399 = {
+	.grf_offset = 0xe640,
+	.supply_names = {
+		"bt656-supply",		/* APIO2_VDD */
+		"audio-supply",		/* APIO5_VDD */
+		"sdmmc-supply",		/* SDMMC0_VDD */
+		"gpio1830-supply",	/* APIO4_VDD */
+	},
+	.write = rockchip_iodomain_write,
+};
+
+static const struct rockchip_iodomain_soc_data soc_data_rk3399_pmu = {
+	.grf_offset = 0x180,
+	.supply_names = {
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		"pmu1830-supply",	/* PMUIO2_VDD */
+	},
+	.write = rk3399_pmu_iodomain_write,
+};
+
 static const struct rockchip_iodomain_soc_data soc_data_rk3568_pmu = {
 	.grf_offset = 0x140,
 	.supply_names = {
@@ -95,6 +190,18 @@ static const struct rockchip_iodomain_soc_data soc_data_rk3568_pmu = {
 };
 
 static const struct udevice_id rockchip_iodomain_ids[] = {
+	{
+		.compatible = "rockchip,rk3328-io-voltage-domain",
+		.data = (ulong)&soc_data_rk3328,
+	},
+	{
+		.compatible = "rockchip,rk3399-io-voltage-domain",
+		.data = (ulong)&soc_data_rk3399,
+	},
+	{
+		.compatible = "rockchip,rk3399-pmu-io-voltage-domain",
+		.data = (ulong)&soc_data_rk3399_pmu,
+	},
 	{
 		.compatible = "rockchip,rk3568-pmu-io-voltage-domain",
 		.data = (ulong)&soc_data_rk3568_pmu,
@@ -152,7 +259,9 @@ static int rockchip_iodomain_probe(struct udevice *dev)
 			continue;
 		}
 
-		soc_data->write(grf, i, uV);
+		ret = soc_data->write(grf, soc_data->grf_offset, i, uV);
+		if (ret)
+			dev_err(dev, "%s: Couldn't write to GRF\n", supply_name);
 	}
 
 	return 0;

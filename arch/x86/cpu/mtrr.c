@@ -16,7 +16,6 @@
  * since the MTRR registers are sometimes in flux.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <sort.h>

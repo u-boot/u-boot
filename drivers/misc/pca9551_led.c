@@ -3,7 +3,6 @@
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <i2c.h>
 #include <status_led.h>
