@@ -582,3 +582,22 @@ __weak void arch_lmb_reserve(void)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }
+
+#if defined(CONFIG_UNIT_TEST)
+
+void lmb_init(void)
+{
+#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	lmb.memory.max = CONFIG_LMB_MAX_REGIONS;
+	lmb.reserved.max = CONFIG_LMB_MAX_REGIONS;
+#else
+	lmb.memory.max = CONFIG_LMB_MEMORY_REGIONS;
+	lmb.reserved.max = CONFIG_LMB_RESERVED_REGIONS;
+	lmb.memory.region = memory_regions;
+	lmb.reserved.region = reserved_regions;
+#endif
+	lmb.memory.cnt = 0;
+	lmb.reserved.cnt = 0;
+}
+
+#endif /* CONFIG_UNIT_TEST */

@@ -147,6 +147,10 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
  */
 void lmb_reserve_common(void *fdt_blob);
 
+#if defined(CONFIG_UNIT_TEST)
+void lmb_init(void);
+#endif /* CONFIG_UNIT_TEST */
+
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_LMB_H */
