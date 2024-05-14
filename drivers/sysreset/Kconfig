@@ -240,6 +240,12 @@ config SYSRESET_RAA215300
 	help
 	  Add support for the system reboot via the Renesas RAA215300 PMIC.
 
+config SYSRESET_QCOM_PSHOLD
+	bool "Support sysreset for Qualcomm SoCs via PSHOLD"
+	depends on ARCH_IPQ40XX
+	help
+	  Add support for the system reboot on Qualcomm SoCs via PSHOLD.
+
 endif
 
 endmenu
