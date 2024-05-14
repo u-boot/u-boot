@@ -718,3 +718,20 @@ static int efi_mem_map_update_sync(void *ctx, struct event *event)
 }
 EVENT_SPY_FULL(EVT_EFI_MEM_MAP_UPDATE, efi_mem_map_update_sync);
 #endif /* MEM_MAP_UPDATE_NOTIFY */
+
+#if CONFIG_IS_ENABLED(SANDBOX)
+void lmb_init(void)
+{
+#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
+	lmb.memory.max = CONFIG_LMB_MAX_REGIONS;
+	lmb.reserved.max = CONFIG_LMB_MAX_REGIONS;
+#else
+	lmb.memory.max = CONFIG_LMB_MEMORY_REGIONS;
+	lmb.reserved.max = CONFIG_LMB_RESERVED_REGIONS;
+	lmb.memory.region = memory_regions;
+	lmb.reserved.region = reserved_regions;
+#endif
+	lmb.memory.cnt = 0;
+	lmb.reserved.cnt = 0;
+}
+#endif /* SANDBOX */
