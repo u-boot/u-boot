@@ -8,7 +8,7 @@ Board-specific doc
 
    actions/index
    advantech/index
-   AndesTech/index
+   andestech/index
    allwinner/index
    amlogic/index
    anbernic/index

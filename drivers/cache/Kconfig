@@ -22,11 +22,11 @@ config L2X0_CACHE
 	  ARMv7(32-bit) devices. The driver configures the cache settings
 	  found in the device tree.
 
-config V5L2_CACHE
-	bool "Andes V5L2 cache driver"
+config ANDES_L2_CACHE
+	bool "Andes L2 cache driver"
 	select CACHE
 	help
-	  Support Andes V5L2 cache controller in AE350 platform.
+	  Support Andes L2 cache controller in AE350 platform.
 	  It will configure tag and data ram timing control from the
 	  device tree and enable L2 cache.
 

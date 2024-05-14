@@ -12,21 +12,21 @@
 #include <dm/uclass-internal.h>
 #include <asm/arch-andes/csr.h>
 
-#ifdef CONFIG_V5L2_CACHE
+#ifdef CONFIG_ANDES_L2_CACHE
 void enable_caches(void)
 {
 	struct udevice *dev;
 	int ret;
 
 	ret = uclass_get_device_by_driver(UCLASS_CACHE,
-					  DM_DRIVER_GET(v5l2_cache),
+					  DM_DRIVER_GET(andes_l2_cache),
 					  &dev);
 	if (ret) {
-		log_debug("Cannot enable v5l2 cache\n");
+		log_debug("Cannot enable Andes L2 cache\n");
 	} else {
 		ret = cache_enable(dev);
 		if (ret)
-			log_debug("v5l2 cache enable failed\n");
+			log_debug("Failed to enable Andes L2 cache\n");
 	}
 }
 
@@ -78,7 +78,7 @@ void dcache_enable(void)
 	asm volatile("csrsi %0, 0x2" :: "i"(CSR_MCACHE_CTL));
 #endif
 
-#ifdef CONFIG_V5L2_CACHE
+#ifdef CONFIG_ANDES_L2_CACHE
 	cache_ops(cache_enable);
 #endif
 }
@@ -89,7 +89,7 @@ void dcache_disable(void)
 	asm volatile("csrci %0, 0x2" :: "i"(CSR_MCACHE_CTL));
 #endif
 
-#ifdef CONFIG_V5L2_CACHE
+#ifdef CONFIG_ANDES_L2_CACHE
 	cache_ops(cache_disable);
 #endif
 }
