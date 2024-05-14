@@ -419,6 +419,22 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 }
 LIB_TEST(lib_test_lmb_at_0, 0);
 
+static int lib_test_lmb_overlapping_add(struct unit_test_state *uts)
+{
+	const phys_addr_t ram = 0x40000000;
+	const phys_size_t ram_size = 0x20000000;
+	long ret;
+
+	ret = lmb_add(ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	ret = lmb_add(ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	return 0;
+}
+LIB_TEST(lib_test_lmb_overlapping_add, 0);
+
 /* Check that calling lmb_reserve with overlapping regions fails. */
 static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 {
