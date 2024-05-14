@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * J784S4: SoC specific initialization
+ * J721E: SoC specific initialization
  *
- * Copyright (C) 2023-2024 Texas Instruments Incorporated - https://www.ti.com/
- *	Hari Nagalla <hnagalla@ti.com>
+ * Copyright (C) 2021 Texas Instruments Incorporated - https://www.ti.com/
+ *	David Huang <d-huang@ti.com>
  */
 
 #include <init.h>
@@ -11,30 +11,33 @@
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
-#include "sysfw-loader.h"
-#include "common.h"
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <dm/root.h>
 #include <mmc.h>
 #include <remoteproc.h>
 
-#define J784S4_MAX_DDR_CONTROLLERS	4
+#include "../sysfw-loader.h"
+#include "../common.h"
 
-struct fwl_data infra_cbass0_fwls[] = {
+struct fwl_data cbass_hc_cfg0_fwls[] = {
+	{ "PCIE0_CFG", 2577, 7 },
+	{ "EMMC8SS0_CFG", 2579, 4 },
+	{ "USB3SS0_CORE", 2580, 4 },
+	{ "USB3SS1_CORE", 2581, 1 },
+}, cbass_hc2_fwls[] = {
+	{ "PCIE0", 2547, 24 },
+	{ "HC2_WIZ16B8M4CT2", 2552, 1 },
+}, cbass_rc_cfg0_fwls[] = {
+	{ "EMMCSD4SS0_CFG", 2400, 4 },
+}, infra_cbass0_fwls[] = {
 	{ "PSC0", 5, 1 },
 	{ "PLL_CTRL0", 6, 1 },
 	{ "PLL_MMR0", 8, 26 },
 	{ "CTRL_MMR0", 9, 16 },
 	{ "GPIO0", 16, 1 },
-}, wkup_cbass0_fwls[] = {
-	{ "WKUP_PSC0", 129, 1 },
-	{ "WKUP_PLL_CTRL0", 130, 1 },
-	{ "WKUP_CTRL_MMR0", 131, 16 },
-	{ "WKUP_GPIO0", 132, 1 },
-	{ "WKUP_I2C0", 144, 1 },
-	{ "WKUP_USART0", 160, 1 },
 }, mcu_cbass0_fwls[] = {
 	{ "MCU_R5FSS0_CORE0", 1024, 4 },
 	{ "MCU_R5FSS0_CORE0_CFG", 1025, 3 },
@@ -53,15 +56,13 @@ struct fwl_data infra_cbass0_fwls[] = {
 	{ "MCU_CTRL_MMR0", 1200, 8 },
 	{ "MCU_PLL_MMR0", 1201, 3 },
 	{ "MCU_CPSW0", 1220, 2 },
-}, cbass_rc_cfg0_fwls[] = {
-	{ "EMMCSD4SS0_CFG", 2400, 4 },
-}, cbass_hc2_fwls[] = {
-	{ "PCIE0", 2547, 24 },
-}, cbass_hc_cfg0_fwls[] = {
-	{ "PCIE0_CFG", 2577, 7 },
-	{ "EMMC8SS0_CFG", 2579, 4 },
-	{ "USB3SS0_CORE", 2580, 4 },
-	{ "USB3SS1_CORE", 2581, 1 },
+}, wkup_cbass0_fwls[] = {
+	{ "WKUP_PSC0", 129, 1 },
+	{ "WKUP_PLL_CTRL0", 130, 1 },
+	{ "WKUP_CTRL_MMR0", 131, 16 },
+	{ "WKUP_GPIO0", 132, 1 },
+	{ "WKUP_I2C0", 144, 1 },
+	{ "WKUP_USART0", 160, 1 },
 }, navss_cbass0_fwls[] = {
 	{ "NACSS_VIRT0", 6253, 1 },
 };
@@ -93,12 +94,41 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 7);
 }
 
+void k3_mmc_stop_clock(void)
+{
+	if (IS_ENABLED(CONFIG_K3_LOAD_SYSFW)) {
+		if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+			struct mmc *mmc = find_mmc_device(0);
+
+			if (!mmc)
+				return;
+
+			mmc->saved_clock = mmc->clock;
+			mmc_set_clock(mmc, 0, true);
+		}
+	}
+}
+
+void k3_mmc_restart_clock(void)
+{
+	if (IS_ENABLED(CONFIG_K3_LOAD_SYSFW)) {
+		if (spl_boot_device() == BOOT_DEVICE_MMC1) {
+			struct mmc *mmc = find_mmc_device(0);
+
+			if (!mmc)
+				return;
+
+			mmc_set_clock(mmc, mmc->saved_clock, false);
+		}
+	}
+}
+
 /*
  * This uninitialized global variable would normal end up in the .bss section,
  * but the .bss is cleared between writing and reading this variable, so move
  * it to the .data section.
  */
-u32 bootindex __section(".data");
+u32 bootindex __attribute__((section(".data")));
 static struct rom_extended_boot_data bootdata __section(".data");
 
 static void store_boot_info_from_rom(void)
@@ -112,7 +142,6 @@ void k3_spl_init(void)
 {
 	struct udevice *dev;
 	int ret;
-
 	/*
 	 * Cannot delay this further as there is a chance that
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
@@ -128,18 +157,18 @@ void k3_spl_init(void)
 	}
 
 	/* Init DM early */
-	ret = spl_early_init();
+	spl_early_init();
 
 	/* Prepare console output */
 	preloader_console_init();
 
-	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+	if (IS_ENABLED(CONFIG_K3_LOAD_SYSFW)) {
 		/*
 		 * Process pinctrl for the serial0 a.k.a. WKUP_UART0 module and continue
 		 * regardless of the result of pinctrl. Do this without probing the
 		 * device, but instead by searching the device that would request the
 		 * given sequence number if probed. The UART will be used by the system
-		 * firmware (TIFS) image for various purposes and TIFS depends on us
+		 * firmware (SYSFW) image for various purposes and SYSFW depends on us
 		 * to initialize its pin settings.
 		 */
 		ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, &dev);
@@ -148,11 +177,12 @@ void k3_spl_init(void)
 
 		/*
 		 * Load, start up, and configure system controller firmware. Provide
-		 * the U-Boot console init function to the TIFS post-PM configuration
+		 * the U-Boot console init function to the SYSFW post-PM configuration
 		 * callback hook, effectively switching on (or over) the console
 		 * output.
 		 */
-		k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata), NULL, NULL);
+		k3_sysfw_loader(is_rom_loaded_sysfw(&bootdata),
+				k3_mmc_stop_clock, k3_mmc_restart_clock);
 
 		if (IS_ENABLED(CONFIG_SPL_CLK_K3)) {
 			/*
@@ -179,46 +209,99 @@ void k3_spl_init(void)
 	k3_sysfw_print_ver();
 }
 
+bool check_rom_loaded_sysfw(void)
+{
+	return is_rom_loaded_sysfw(&bootdata);
+}
+
 void k3_mem_init(void)
 {
 	struct udevice *dev;
-	int ret, ctrl = 0;
+	int ret;
 
 	if (IS_ENABLED(CONFIG_K3_J721E_DDRSS)) {
+		ret = uclass_get_device_by_name(UCLASS_MISC, "msmc", &dev);
+		if (ret)
+			panic("Probe of msmc failed: %d\n", ret);
+
 		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 		if (ret)
 			panic("DRAM 0 init failed: %d\n", ret);
-		ctrl++;
 
-		while (ctrl < J784S4_MAX_DDR_CONTROLLERS) {
-			ret = uclass_next_device_err(&dev);
-			if (ret == -ENODEV)
-				break;
-
-			if (ret)
-				panic("DRAM %d init failed: %d\n", ctrl, ret);
-			ctrl++;
-		}
-		printf("Initialized %d DRAM controllers\n", ctrl);
+		ret = uclass_next_device_err(&dev);
+		if (ret && ret != -ENODEV)
+			panic("DRAM 1 init failed: %d\n", ret);
 	}
-
 	spl_enable_cache();
 }
 
+/* Support for the various EVM / SK families */
+#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
+void do_dt_magic(void)
+{
+	int ret, rescan, mmc_dev = -1;
+	static struct mmc *mmc;
+
+	do_board_detect();
+
+	/*
+	 * Board detection has been done.
+	 * Let us see if another dtb wouldn't be a better match
+	 * for our board
+	 */
+	if (IS_ENABLED(CONFIG_CPU_V7R)) {
+		ret = fdtdec_resetup(&rescan);
+		if (!ret && rescan) {
+			dm_uninit();
+			dm_init_and_scan(true);
+		}
+	}
+
+	/*
+	 * Because of multi DTB configuration, the MMC device has
+	 * to be re-initialized after reconfiguring FDT inorder to
+	 * boot from MMC. Do this when boot mode is MMC and ROM has
+	 * not loaded SYSFW.
+	 */
+	switch (spl_boot_device()) {
+	case BOOT_DEVICE_MMC1:
+		mmc_dev = 0;
+		break;
+	case BOOT_DEVICE_MMC2:
+	case BOOT_DEVICE_MMC2_2:
+		mmc_dev = 1;
+		break;
+	}
+
+	if (mmc_dev > 0 && !check_rom_loaded_sysfw()) {
+		ret = mmc_init_device(mmc_dev);
+		if (!ret) {
+			mmc = find_mmc_device(mmc_dev);
+			if (mmc) {
+				ret = mmc_init(mmc);
+				if (ret)
+					printf("mmc init failed with error: %d\n", ret);
+			}
+		}
+	}
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
 	k3_spl_init();
+#if defined(CONFIG_SPL_OF_LIST) && defined(CONFIG_TI_I2C_BOARD_DETECT)
+	do_dt_magic();
+#endif
 	k3_mem_init();
 }
+#endif
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 	switch (boot_device) {
 	case BOOT_DEVICE_MMC1:
-		if (IS_ENABLED(CONFIG_SUPPORT_EMMC_BOOT))
-			return MMCSD_MODE_EMMCBOOT;
-		if (IS_ENABLED(CONFIG_SPL_FS_FAT) || IS_ENABLED(CONFIG_SPL_FS_EXT4))
-			return MMCSD_MODE_FS;
 		return MMCSD_MODE_EMMCBOOT;
 	case BOOT_DEVICE_MMC2:
 		return MMCSD_MODE_FS;
@@ -279,23 +362,12 @@ static u32 __get_primary_bootmedia(u32 main_devstat, u32 wkup_devstat)
 	return bootmode;
 }
 
-u32 spl_spi_boot_bus(void)
-{
-	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
-	u32 main_devstat = readl(CTRLMMR_MAIN_DEVSTAT);
-	u32 bootmode = ((wkup_devstat & WKUP_DEVSTAT_PRIMARY_BOOTMODE_MASK) >>
-				WKUP_DEVSTAT_PRIMARY_BOOTMODE_SHIFT) |
-			((main_devstat & MAIN_DEVSTAT_BOOT_MODE_B_MASK) << BOOT_MODE_B_SHIFT);
-
-	return (bootmode == BOOT_DEVICE_QSPI) ? 1 : 0;
-}
-
 u32 spl_boot_device(void)
 {
 	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
 	u32 main_devstat;
 
-	if (wkup_devstat & WKUP_DEVSTAT_MCU_ONLY_MASK) {
+	if (wkup_devstat & WKUP_DEVSTAT_MCU_OMLY_MASK) {
 		printf("ERROR: MCU only boot is not yet supported\n");
 		return BOOT_DEVICE_RAM;
 	}

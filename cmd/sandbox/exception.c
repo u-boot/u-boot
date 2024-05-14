@@ -19,7 +19,11 @@ static int do_sigsegv(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_undefined(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
+#ifdef __powerpc__
+	asm volatile (".long 0xffffffff\n");
+#else
 	asm volatile (".word 0xffff\n");
+#endif
 	return CMD_RET_FAILURE;
 }
 

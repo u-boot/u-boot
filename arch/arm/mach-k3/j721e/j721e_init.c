@@ -11,8 +11,6 @@
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
-#include "sysfw-loader.h"
-#include "common.h"
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
@@ -21,6 +19,9 @@
 #include <fdtdec.h>
 #include <mmc.h>
 #include <remoteproc.h>
+
+#include "../sysfw-loader.h"
+#include "../common.h"
 
 #ifdef CONFIG_K3_LOAD_SYSFW
 struct fwl_data cbass_hc_cfg0_fwls[] = {
