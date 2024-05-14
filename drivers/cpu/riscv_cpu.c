@@ -23,7 +23,7 @@ static int riscv_cpu_get_desc(const struct udevice *dev, char *buf, int size)
 	const char *cpu;
 
 	cpu = dev_read_string(dev, "compatible");
-	if (size < (strlen(cpu) + 1))
+	if (!cpu || size < (strlen(cpu) + 1))
 		return -ENOSPC;
 
 	strcpy(buf, cpu);

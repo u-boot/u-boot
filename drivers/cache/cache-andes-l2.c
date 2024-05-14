@@ -72,7 +72,7 @@ static u32 status_bit_offset = 0x4;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct v5l2_plat {
+struct andes_l2_plat {
 	struct l2cache	*regs;
 	u32		iprefetch;
 	u32		dprefetch;
@@ -80,9 +80,9 @@ struct v5l2_plat {
 	u32		dram_ctl[2];
 };
 
-static int v5l2_enable(struct udevice *dev)
+static int andes_l2_enable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_plat(dev);
+	struct andes_l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 
 	if (regs)
@@ -91,9 +91,9 @@ static int v5l2_enable(struct udevice *dev)
 	return 0;
 }
 
-static int v5l2_disable(struct udevice *dev)
+static int andes_l2_disable(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_plat(dev);
+	struct andes_l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 	u8 hart = gd->arch.boot_hart;
 	void __iomem *cctlcmd = (void __iomem *)CCTL_CMD_REG(regs, hart);
@@ -113,9 +113,9 @@ static int v5l2_disable(struct udevice *dev)
 	return 0;
 }
 
-static int v5l2_of_to_plat(struct udevice *dev)
+static int andes_l2_of_to_plat(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_plat(dev);
+	struct andes_l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs;
 
 	regs = dev_read_addr_ptr(dev);
@@ -137,9 +137,9 @@ static int v5l2_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-static int v5l2_probe(struct udevice *dev)
+static int andes_l2_probe(struct udevice *dev)
 {
-	struct v5l2_plat *plat = dev_get_plat(dev);
+	struct andes_l2_plat *plat = dev_get_plat(dev);
 	struct l2cache *regs = plat->regs;
 	u32 cfg_val, ctl_val;
 
@@ -182,23 +182,23 @@ static int v5l2_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id v5l2_cache_ids[] = {
+static const struct udevice_id andes_l2_cache_ids[] = {
 	{ .compatible = "cache" },
 	{}
 };
 
-static const struct cache_ops v5l2_cache_ops = {
-	.enable		= v5l2_enable,
-	.disable	= v5l2_disable,
+static const struct cache_ops andes_l2_cache_ops = {
+	.enable		= andes_l2_enable,
+	.disable	= andes_l2_disable,
 };
 
-U_BOOT_DRIVER(v5l2_cache) = {
-	.name   = "v5l2_cache",
+U_BOOT_DRIVER(andes_l2_cache) = {
+	.name   = "andes_l2_cache",
 	.id     = UCLASS_CACHE,
-	.of_match = v5l2_cache_ids,
-	.of_to_plat = v5l2_of_to_plat,
-	.probe	= v5l2_probe,
-	.plat_auto	= sizeof(struct v5l2_plat),
-	.ops = &v5l2_cache_ops,
+	.of_match = andes_l2_cache_ids,
+	.of_to_plat = andes_l2_of_to_plat,
+	.probe	= andes_l2_probe,
+	.plat_auto	= sizeof(struct andes_l2_plat),
+	.ops = &andes_l2_cache_ops,
 	.flags  = DM_FLAG_PRE_RELOC,
 };

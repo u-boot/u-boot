@@ -13,6 +13,13 @@ u8 get_pcb_revision_from_eeprom(void);
 u32 get_ddr_size_from_eeprom(void);
 
 /**
+ * get_mmc_size_from_eeprom() - read eMMC size from EEPROM
+ *
+ * @return: size in GiB or 0 on error.
+ */
+u32 get_mmc_size_from_eeprom(void);
+
+/**
  * get_product_id_from_eeprom - get product ID string
  *
  * A string like "VF7110A1-2228-D008E000-00000001" is returned.

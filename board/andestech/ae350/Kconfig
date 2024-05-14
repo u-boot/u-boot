@@ -1,13 +1,13 @@
 if TARGET_ANDES_AE350
 
 config SYS_CPU
-	default "andesv5"
+	default "andes"
 
 config SYS_BOARD
 	default "ae350"
 
 config SYS_VENDOR
-	default "AndesTech"
+	default "andestech"
 
 config SYS_SOC
 	default "ae350"
@@ -33,7 +33,7 @@ config SYS_FDT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select RISCV_NDS
+	select RISCV_ANDES
 	select SUPPORT_SPL
 	select BINMAN if SPL
 	imply SMP

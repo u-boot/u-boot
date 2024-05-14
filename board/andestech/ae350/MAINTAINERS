@@ -1,7 +1,7 @@
 AE350 BOARD
 M:	Rick Chen <rick@andestech.com>
 S:	Maintained
-F:	board/AndesTech/ae350/
+F:	board/andestech/ae350/
 F:	include/configs/ae350.h
 F:	configs/ae350_rv32_defconfig
 F:	configs/ae350_rv32_falcon_defconfig
