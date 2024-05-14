@@ -49,7 +49,7 @@ struct tegra_lcd_priv {
 	int dc_clk[2];			/* Contains clk and its parent */
 	ulong scdiv;			/* Clock divider used by disp_clk_ctrl */
 	bool rotation;			/* 180 degree panel turn */
-	bool pipe;			/* DC controller: 0 for A, 1 for B */
+	int pipe;			/* DC controller: 0 for A, 1 for B */
 };
 
 enum {
@@ -461,9 +461,7 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	}
 
 	priv->rotation = dev_read_bool(dev, "nvidia,180-rotation");
-
-	if (!strcmp(dev->name, TEGRA_DC_B))
-		priv->pipe = 1;
+	priv->pipe = dev_read_u32_default(dev, "nvidia,head", 0);
 
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 	if (rgb < 0) {
