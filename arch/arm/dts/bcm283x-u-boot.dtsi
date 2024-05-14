@@ -6,25 +6,6 @@
  * (C) Copyright 2016 Fabian Vogt <fvogt@suse.com>
  */
 
-/ {
-	smbios {
-		compatible = "u-boot,sysinfo-smbios";
-		smbios {
-			system {
-				manufacturer = "raspberrypi";
-				product = "rpi";
-			};
-			baseboard {
-				manufacturer = "raspberrypi";
-				product = "rpi";
-			};
-			chassis {
-				manufacturer = "raspberrypi";
-			};
-		};
-	};
-};
-
 &uart0 {
 	skip-init;
 	bootph-all;
