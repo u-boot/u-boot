@@ -769,6 +769,7 @@ config ARCH_IPQ40XX
 	select CLK_QCOM_IPQ4019
 	select PINCTRL_QCOM_IPQ4019
 	imply CMD_DM
+	imply OF_UPSTREAM
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
