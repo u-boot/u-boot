@@ -1898,8 +1898,11 @@ $(filter-out tools, $(u-boot-dirs)): tools
 # is "yes"), so compile examples after U-Boot is compiled.
 examples: $(filter-out examples, $(u-boot-dirs))
 
+# The setlocalversion script comes from linux and expects a
+# KERNELVERSION variable in the environment for figuring out which
+# annotated tags are relevant. Pass UBOOTVERSION.
 define filechk_uboot.release
-	echo "$(UBOOTVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
+	KERNELVERSION=$(UBOOTVERSION) $(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree)
 endef
 
 # Store (new) UBOOTRELEASE string in include/config/uboot.release
