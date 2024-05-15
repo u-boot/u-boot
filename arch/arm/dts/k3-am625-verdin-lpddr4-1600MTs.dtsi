@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * This file was generated with the
- * AM62x SysConfig DDR Subsystem Register Configuration Tool v0.09.10
- * Mon Dec 11 2023 17:07:35 GMT+0100 (Central European Standard Time)
+ * AM62x SysConfig DDR Subsystem Register Configuration Tool v0.10.01
+ * Tue May 14 2024 12:55:28 GMT+0200 (Central European Summer Time)
  * DDR Type: LPDDR4
  * F0 = 50MHz    F1 = NA     F2 = 800MHz
  * Density (per channel): 16Gb
@@ -10,9 +10,11 @@
  * Number of Ranks: 1
 */
 
+
 #define DDRSS_PLL_FHS_CNT 3
 #define DDRSS_PLL_FREQUENCY_1 400000000
 #define DDRSS_PLL_FREQUENCY_2 400000000
+#define DDRSS_SDRAM_IDX 15
 
 
 #define DDRSS_CTL_0_DATA 0x00000B00
