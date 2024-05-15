@@ -224,7 +224,7 @@ static struct fstype_info fstypes[] = {
 		.exists = ext4fs_exists,
 		.size = ext4fs_size,
 		.read = ext4_read_file,
-#ifdef CONFIG_CMD_EXT4_WRITE
+#ifdef CONFIG_EXT4_WRITE
 		.write = ext4_write_file,
 		.ln = ext4fs_create_link,
 #else
