@@ -2426,7 +2426,7 @@ checkstack:
 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
 
 ubootrelease:
-	@echo "$(UBOOTVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
+	@$(filechk_uboot.release)
 
 ubootversion:
 	@echo $(UBOOTVERSION)
