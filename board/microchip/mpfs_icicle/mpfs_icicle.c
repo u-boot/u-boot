@@ -73,7 +73,7 @@ int board_early_init_f(void)
 int board_late_init(void)
 {
 	u32 ret;
-	u32 node;
+	int node;
 	u8 idx;
 	u8 device_serial_number[16] = { 0 };
 	unsigned char mac_addr[6];
