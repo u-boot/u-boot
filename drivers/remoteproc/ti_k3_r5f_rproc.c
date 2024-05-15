@@ -39,6 +39,8 @@
 #define PROC_BOOT_CFG_FLAG_GEN_IGN_BOOTVECTOR		0x10000000
 /* Available from J7200 SoCs onwards */
 #define PROC_BOOT_CFG_FLAG_R5_MEM_INIT_DIS		0x00004000
+#define PROC_BOOT_CFG_FLAG_R5_SINGLE_CORE		0x00008000
+
 
 /* R5 TI-SCI Processor Control Flags */
 #define PROC_BOOT_CTRL_FLAG_R5_CORE_HALT		0x00000001
@@ -54,6 +56,8 @@
 enum cluster_mode {
 	CLUSTER_MODE_SPLIT = 0,
 	CLUSTER_MODE_LOCKSTEP,
+	CLUSTER_MODE_SINGLECPU,
+	CLUSTER_MODE_SINGLECORE,
 };
 
 /**
@@ -64,6 +68,7 @@ enum cluster_mode {
 struct k3_r5f_ip_data {
 	bool tcm_is_double;
 	bool tcm_ecc_autoinit;
+	bool is_single_core;
 };
 
 /**
@@ -598,8 +603,10 @@ static int k3_r5f_rproc_configure(struct k3_r5f_core *core)
 	/* Sanity check for Lockstep mode */
 	lockstep_permitted = !!(sts &
 				PROC_BOOT_STATUS_FLAG_R5_LOCKSTEP_PERMITTED);
-	if (cluster->mode && is_primary_core(core) && !lockstep_permitted) {
-		dev_err(core->dev, "LockStep mode not permitted on this device\n");
+	if (cluster->mode == CLUSTER_MODE_LOCKSTEP && is_primary_core(core) &&
+	    !lockstep_permitted) {
+		dev_err(core->dev, "LockStep mode not permitted on this \
+			device\n");
 		ret = -EINVAL;
 		goto out;
 	}
@@ -613,6 +620,9 @@ static int k3_r5f_rproc_configure(struct k3_r5f_core *core)
 		else if (lockstep_permitted)
 			clr_cfg |= PROC_BOOT_CFG_FLAG_R5_LOCKSTEP;
 	}
+
+	if (core->ipdata->is_single_core)
+		set_cfg = PROC_BOOT_CFG_FLAG_R5_SINGLE_CORE;
 
 	if (core->atcm_enable)
 		set_cfg |= PROC_BOOT_CFG_FLAG_R5_ATCM_EN;
@@ -852,11 +862,19 @@ static int k3_r5f_remove(struct udevice *dev)
 static const struct k3_r5f_ip_data k3_data = {
 	.tcm_is_double = false,
 	.tcm_ecc_autoinit = false,
+	.is_single_core = false,
 };
 
 static const struct k3_r5f_ip_data j7200_j721s2_data = {
 	.tcm_is_double = true,
 	.tcm_ecc_autoinit = true,
+	.is_single_core = false,
+};
+
+static const struct k3_r5f_ip_data am62_data = {
+	.tcm_is_double = false,
+	.tcm_ecc_autoinit = false,
+	.is_single_core = true,
 };
 
 static const struct udevice_id k3_r5f_rproc_ids[] = {
@@ -864,6 +882,7 @@ static const struct udevice_id k3_r5f_rproc_ids[] = {
 	{ .compatible = "ti,j721e-r5f", .data = (ulong)&k3_data, },
 	{ .compatible = "ti,j7200-r5f", .data = (ulong)&j7200_j721s2_data, },
 	{ .compatible = "ti,j721s2-r5f", .data = (ulong)&j7200_j721s2_data, },
+	{ .compatible = "ti,am62-r5f", .data = (ulong)&am62_data, },
 	{}
 };
 
@@ -886,6 +905,11 @@ static int k3_r5f_cluster_probe(struct udevice *dev)
 	cluster->mode = dev_read_u32_default(dev, "ti,cluster-mode",
 					     CLUSTER_MODE_LOCKSTEP);
 
+	if (device_is_compatible(dev, "ti,am62-r5fss")) {
+		cluster->mode = CLUSTER_MODE_SINGLECORE;
+		return 0;
+	}
+
 	if (device_get_child_count(dev) != 2) {
 		dev_err(dev, "Invalid number of R5 cores");
 		return -EINVAL;
@@ -902,6 +926,7 @@ static const struct udevice_id k3_r5fss_ids[] = {
 	{ .compatible = "ti,j721e-r5fss"},
 	{ .compatible = "ti,j7200-r5fss"},
 	{ .compatible = "ti,j721s2-r5fss"},
+	{ .compatible = "ti,am62-r5fss"},
 	{}
 };
 
