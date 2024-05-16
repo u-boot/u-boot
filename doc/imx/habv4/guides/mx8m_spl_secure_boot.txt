@@ -144,6 +144,23 @@ The signing is activated by wrapping SPL and fitImage sections into nxp-imx8mcst
 etype, which is done automatically in arch/arm/dts/imx8m{m,n,p,q}-u-boot.dtsi
 in case CONFIG_IMX_HAB Kconfig symbol is enabled.
 
+Per default the HAB keys and certificates need to be located in the build
+directory, this means creating a symbolic link or copying the following files
+from the HAB keys directory flat (e.g. removing the `keys` and `cert`
+subdirectory) into the u-boot build directory for the CST Code Signing Tool to
+locate them:
+
+- `crts/SRK_1_2_3_4_table.bin`
+- `crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem`
+- `keys/CSF1_1_sha256_4096_65537_v3_usr_key.pem`
+- `crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem`
+- `keys/IMG1_1_sha256_4096_65537_v3_usr_key.pem`
+- `keys/key_pass.txt`
+
+The paths to the SRK table and the certificates can be modified via changes to
+the nxp_imx8mcst device tree node(s), however the other files are required by
+the CST tools as well, and will be searched for in relation to them.
+
 Build of flash.bin target then produces a signed flash.bin automatically.
 
 The nxp-imx8mcst etype is configurable using either DT properties or environment
