@@ -235,9 +235,10 @@ void lmb_reserve_common(void *fdt_blob)
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
 		boot_fdt_add_mem_rsv_regions(fdt_blob);
-
+#if 0
 	if (CONFIG_IS_ENABLED(EFI_LOADER))
 		efi_lmb_reserve();
+#endif
 }
 
 /**
