@@ -14,5 +14,7 @@
 
 / {
 	model = "Arrow Electronics STM32MP15xx Avenger96 board";
-	compatible = "arrow,stm32mp15xx-avenger96", "st,stm32mp15x";
+	compatible = "arrow,stm32mp15xx-avenger96",
+		     "dh,stm32mp15xx-dhcor-som",
+		     "st,stm32mp15x";
 };
