@@ -25,6 +25,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern struct lmb lmb;
+
 /* Declare a new bdinfo test */
 #define BDINFO_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bdinfo_test)
 
@@ -125,11 +127,11 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 	return 0;
 }
 
-static int lmb_test_dump_all(struct unit_test_state *uts, struct lmb *lmb)
+static int lmb_test_dump_all(struct unit_test_state *uts)
 {
 	ut_assert_nextline("lmb_dump_all:");
-	ut_assertok(lmb_test_dump_region(uts, &lmb->memory, "memory"));
-	ut_assertok(lmb_test_dump_region(uts, &lmb->reserved, "reserved"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb.memory, "memory"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb.reserved, "reserved"));
 
 	return 0;
 }
@@ -191,10 +193,8 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 #endif
 
 	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
-		struct lmb lmb;
-
 		lmb_add_memory(gd->bd);
-		ut_assertok(lmb_test_dump_all(uts, &lmb));
+		ut_assertok(lmb_test_dump_all(uts));
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());
 	}
