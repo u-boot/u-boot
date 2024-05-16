@@ -1118,6 +1118,7 @@ F:	test/py/tests/test_event_dump.py
 FASTBOOT
 M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
 S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/fastboot.c
 F:	doc/android/fastboot*.rst
 F:	include/fastboot.h
