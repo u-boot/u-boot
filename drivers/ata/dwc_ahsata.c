@@ -6,6 +6,7 @@
 
 #include <ahci.h>
 #include <blk.h>
+#include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
@@ -18,9 +19,11 @@
 #include <sata.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#if IS_ENABLED(CONFIG_ARCH_MX5) || IS_ENABLED(CONFIG_ARCH_MX6)
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-imx/sata.h>
+#endif
 #include <linux/bitops.h>
 #include <linux/ctype.h>
 #include <linux/delay.h>
@@ -115,13 +118,12 @@ static int ahci_setup_oobr(struct ahci_uc_priv *uc_priv, int clk)
 	return 0;
 }
 
-static int ahci_host_init(struct ahci_uc_priv *uc_priv)
+static int ahci_host_init(struct ahci_uc_priv *uc_priv, int clk)
 {
 	u32 tmp, cap_save, num_ports;
 	int i, j, timeout = 1000;
 	struct sata_port_regs *port_mmio = NULL;
 	struct sata_host_regs *host_mmio = uc_priv->mmio_base;
-	int clk = mxc_get_clock(MXC_SATA_CLK);
 
 	cap_save = readl(&host_mmio->cap);
 	cap_save |= SATA_HOST_CAP_SSS;
@@ -909,17 +911,41 @@ int dwc_ahsata_scan(struct udevice *dev)
 int dwc_ahsata_probe(struct udevice *dev)
 {
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct clk_bulk clk_bulk __maybe_unused;
+	struct clk clk __maybe_unused;
+	int sataclk;
 	int ret;
 
-#if defined(CONFIG_MX6)
+#if IS_ENABLED(CONFIG_MX6)
 	setup_sata();
 #endif
+#if IS_ENABLED(CONFIG_MX5) || IS_ENABLED(CONFIG_MX6)
+	sataclk = mxc_get_clock(MXC_SATA_CLK);
+#else
+	ret = clk_get_bulk(dev, &clk_bulk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&clk_bulk);
+	if (ret)
+		return ret;
+
+	ret	= clk_get_by_name(dev, "sata", &clk);
+	if (ret)
+		return ret;
+
+	sataclk = clk_get_rate(&clk);
+#endif
+	if (IS_ERR_VALUE(sataclk)) {
+		log_err("Unable to get SATA clock rate\n");
+		return -EINVAL;
+	}
 	uc_priv->host_flags = ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
 			ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA | ATA_FLAG_NO_ATAPI;
 	uc_priv->mmio_base = dev_read_addr_ptr(dev);
 
 	/* initialize adapter */
-	ret = ahci_host_init(uc_priv);
+	ret = ahci_host_init(uc_priv, sataclk);
 	if (ret)
 		return ret;
 
@@ -961,7 +987,6 @@ U_BOOT_DRIVER(dwc_ahsata_blk) = {
 	.ops		= &dwc_ahsata_blk_ops,
 };
 
-#if CONFIG_IS_ENABLED(DWC_AHSATA_AHCI)
 struct ahci_ops dwc_ahsata_ahci_ops = {
 	.port_status = dwc_ahsata_port_status,
 	.reset       = dwc_ahsata_bus_reset,
@@ -969,7 +994,9 @@ struct ahci_ops dwc_ahsata_ahci_ops = {
 };
 
 static const struct udevice_id dwc_ahsata_ahci_ids[] = {
+	{ .compatible = "fsl,imx53-ahci" },
 	{ .compatible = "fsl,imx6q-ahci" },
+	{ .compatible = "fsl,imx6qp-ahci" },
 	{ }
 };
 
@@ -980,4 +1007,3 @@ U_BOOT_DRIVER(dwc_ahsata_ahci) = {
 	.ops      = &dwc_ahsata_ahci_ops,
 	.probe    = dwc_ahsata_probe,
 };
-#endif
