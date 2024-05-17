@@ -58,17 +58,21 @@ const struct clk_ops clk_boston_ops = {
 	.get_rate = clk_boston_get_rate,
 };
 
-static int clk_boston_of_to_plat(struct udevice *dev)
+static int clk_boston_probe(struct udevice *dev)
 {
 	struct clk_boston *state = dev_get_plat(dev);
 	struct udevice *syscon;
 	int err;
 
-	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "regmap", &syscon);
-	if (err) {
-		pr_err("unable to find syscon device\n");
-		return err;
+	if (dev->parent && device_get_uclass_id(dev->parent) == UCLASS_SYSCON) {
+		syscon = dev->parent;
+	} else {
+		err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
+						   "regmap", &syscon);
+		if (err) {
+			pr_err("unable to find syscon device\n");
+			return err;
+		}
 	}
 
 	state->regmap = syscon_get_regmap(syscon);
@@ -91,7 +95,8 @@ U_BOOT_DRIVER(clk_boston) = {
 	.name = "boston_clock",
 	.id = UCLASS_CLK,
 	.of_match = clk_boston_match,
-	.of_to_plat = clk_boston_of_to_plat,
+	.probe = clk_boston_probe,
 	.plat_auto	= sizeof(struct clk_boston),
 	.ops = &clk_boston_ops,
+	.flags = DM_FLAG_PRE_RELOC,
 };
