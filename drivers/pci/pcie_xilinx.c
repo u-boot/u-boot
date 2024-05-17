@@ -18,14 +18,19 @@
  */
 struct xilinx_pcie {
 	void *cfg_base;
+	pci_size_t size;
+	int first_busno;
 };
 
 /* Register definitions */
-#define XILINX_PCIE_REG_PSCR		0x144
-#define XILINX_PCIE_REG_PSCR_LNKUP	BIT(11)
-#define XILINX_PCIE_REG_RPSC		0x148
-#define XILINX_PCIE_REG_RPSC_BEN	BIT(0)
-
+#define XILINX_PCIE_REG_BRIDGE_INFO			0x130
+#define  XILINX_PCIE_REG_BRIDGE_INFO_ECAMSZ_SHIFT	16
+#define  XILINX_PCIE_REG_BRIDGE_INFO_ECAMSZ_MASK	(0x7 << 16)
+#define XILINX_PCIE_REG_INT_MASK			0x13c
+#define XILINX_PCIE_REG_PSCR				0x144
+#define  XILINX_PCIE_REG_PSCR_LNKUP			BIT(11)
+#define XILINX_PCIE_REG_RPSC				0x148
+#define  XILINX_PCIE_REG_RPSC_BEN			BIT(0)
 /**
  * pcie_xilinx_link_up() - Check whether the PCIe link is up
  * @pcie: Pointer to the PCI controller state
@@ -61,12 +66,16 @@ static int pcie_xilinx_config_address(const struct udevice *udev, pci_dev_t bdf,
 				      uint offset, void **paddress)
 {
 	struct xilinx_pcie *pcie = dev_get_priv(udev);
-	unsigned int bus = PCI_BUS(bdf);
+	unsigned int bus = PCI_BUS(bdf) - pcie->first_busno;
 	unsigned int dev = PCI_DEV(bdf);
 	unsigned int func = PCI_FUNC(bdf);
+	int num_buses = DIV_ROUND_UP(pcie->size, 1 << 16);
 	void *addr;
 
 	if ((bus > 0) && !pcie_xilinx_link_up(pcie))
+		return -ENODEV;
+
+	if (bus > num_buses)
 		return -ENODEV;
 
 	/*
@@ -142,20 +151,37 @@ static int pcie_xilinx_of_to_plat(struct udevice *dev)
 	struct xilinx_pcie *pcie = dev_get_priv(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
-	u32 rpsc;
 
 	addr = dev_read_addr_size(dev, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	pcie->cfg_base = devm_ioremap(dev, addr, size);
-	if (IS_ERR(pcie->cfg_base))
-		return PTR_ERR(pcie->cfg_base);
+	pcie->cfg_base = map_physmem(addr, size, MAP_NOCACHE);
+	if (!pcie->cfg_base)
+		return -ENOMEM;
+	pcie->size = size;
+	return 0;
+}
 
-	/* Enable the Bridge enable bit */
-	rpsc = __raw_readl(pcie->cfg_base + XILINX_PCIE_REG_RPSC);
+static int pci_xilinx_probe(struct udevice *dev)
+{
+	struct xilinx_pcie *pcie = dev_get_priv(dev);
+	u32 rpsc;
+	int num_buses = DIV_ROUND_UP(pcie->size, 1 << 16);
+
+	pcie->first_busno = dev_seq(dev);
+
+	/* Disable all interrupts */
+	writel(0, pcie->cfg_base + XILINX_PCIE_REG_INT_MASK);
+
+	/* Enable the bridge */
+	rpsc = readl(pcie->cfg_base + XILINX_PCIE_REG_RPSC);
 	rpsc |= XILINX_PCIE_REG_RPSC_BEN;
-	__raw_writel(rpsc, pcie->cfg_base + XILINX_PCIE_REG_RPSC);
+	writel(rpsc, pcie->cfg_base + XILINX_PCIE_REG_RPSC);
+
+	/* Enable access to all possible subordinate buses */
+	writel((0 << 0) | (1 << 8) | (num_buses << 16),
+	       pcie->cfg_base + PCI_PRIMARY_BUS);
 
 	return 0;
 }
@@ -176,5 +202,6 @@ U_BOOT_DRIVER(pcie_xilinx) = {
 	.of_match		= pcie_xilinx_ids,
 	.ops			= &pcie_xilinx_ops,
 	.of_to_plat	= pcie_xilinx_of_to_plat,
+	.probe			= pci_xilinx_probe,
 	.priv_auto	= sizeof(struct xilinx_pcie),
 };
