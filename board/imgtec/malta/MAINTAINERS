@@ -1,5 +1,5 @@
 MALTA BOARD
-M:	Paul Burton <paul.burton@mips.com>
+M:	Paul Burton <paulburton@kernel.org>
 S:	Maintained
 F:	board/imgtec/malta/
 F:	include/configs/malta.h
