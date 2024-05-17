@@ -108,6 +108,19 @@ Differences to the Linux Development Process
   In U-Boot, ``"-rc1"`` will only be released after all (or at least most of
   the) patches that were submitted during the merge window have been applied.
 
+Resyncing of the device tree subtree
+------------------------------------
+
+As explained in :doc:`devicetree/control` some platforms make use of device tree
+files which come from a git subtree that mirrors the Linux Kernel sources
+itself. For our purposes, we only track releases and not release candidates for
+merging in our tree. These merges follow the normal merge window rules.
+
+In the case of specific changes, such as bug fixes or new platform support,
+these can be "cherry-picked" and are subject to the normal merge rules. For
+example, a bug fix can come in later in the window but a full re-sync only
+happens within the merge window itself.
+
 .. _custodians:
 
 Custodians

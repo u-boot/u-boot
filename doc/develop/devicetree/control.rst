@@ -113,9 +113,12 @@ SoC being used via Kconfig and set `DEFAULT_DEVICE_TREE=<vendor>/<name>` when
 prompted by Kconfig.
 
 However, if `dts/upstream/` hasn't yet received devicetree source file for your
-newly added board support then you can add corresponding devicetree source file
-as `arch/<arch>/dts/<name>.dts`. To select that add `# CONFIG_OF_UPSTREAM is not
-set` and set `DEFAULT_DEVICE_TREE=<name>` when prompted by Kconfig.
+newly added board support then one option is that you can add the corresponding
+devicetree source file as `arch/<arch>/dts/<name>.dts`. To select that add `#
+CONFIG_OF_UPSTREAM is not set` and set `DEFAULT_DEVICE_TREE=<name>` when
+prompted by Kconfig. Another option is that you can use use the "pick" option of
+`dts/update-dts-subtree.sh` mentioned above to bring in the commits that you
+need.
 
 This should include your CPU or SoC's devicetree file. On top of that any U-Boot
 specific tweaks (see: :ref:`dttweaks`) can be made for your board.
