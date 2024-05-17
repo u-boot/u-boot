@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+&plat_regs {
+	compatible = "img,boston-platform-regs", "syscon", "simple-mfd";
+	bootph-all;
+};
+
+&clk_boston {
+	bootph-all;
+};
