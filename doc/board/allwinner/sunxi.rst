@@ -256,6 +256,65 @@ the SPI flash content from Linux, using the `MTD utils`_::
 ``/dev/mtdX`` needs to be replaced with the respective device name, as listed
 in the output of ``mtdinfo``.
 
+Installing on SPI flash from Programmer via flashrom
+````````````````````````````````````````````````````
+Alternatively it's possible to flash via programmer such as the CH341
+to flash u-boot on the SPI directly via a physical clamp or soldering 
+the chip onto the programmer itself or it's appropriate connector.
+
+Be aware that some devices such as the OLIMEX Teres-I have a physical
+Write Protection ("WP") pads on the mainboard that
+has to be disconnected prior to flashing.
+
+    # apt-get install flashrom
+    # flashrom -p PROGRAMMER -w path/to/u-boot.bin # or u-boot-with-spl, etc..
+    flashrom v1.3.0 on Linux 6.8.9-xanmod1 (x86_64)
+    flashrom is free software, get the source code at https://flashrom.org
+    
+    Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
+    Found Winbond flash chip "W25Q128.V" (16384 kB, SPI) on ch341a_spi.
+    ===
+    This flash part has status UNTESTED for operations: WP
+    The test status of this chip may have been updated in the latest development
+    version of flashrom. If you are running the latest development version,
+    please email a report to flashrom@flashrom.org if any of the above operations
+    work correctly for you with this flash chip. Please include the flashrom log
+    file for all operations you tested (see the man page for details), and mention
+    which mainboard or programmer you tested in the subject line.
+    Thanks for your help!
+    Error: Image size (799989 B) doesn't match the expected size (16777216 B)!
+                                                                  ^^^^^^^^
+
+Notice the expected reported size, in this case it's `16777216 B` which we will be using
+an empty image: <<Unsure why we are doing the \000 /3777>>
+
+    # dd if=/dev/zero count=$((16777216 / 1024)) bs=1k | tr '\000' '/377' > spi.img
+
+Followed by dd-ing the binary to it:
+
+    # dd if=path/to/your/u-boot.bin of=spi.img bs=1k conv=notrunc
+
+Now we can flash it to the SPI chip:
+
+    # flashrom -p PROGRAMMER -w path/to/spi.img
+    flashrom v1.3.0 on Linux 6.8.9-xanmod1 (x86_64)
+    flashrom is free software, get the source code at https://flashrom.org
+    
+    Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
+    Found Winbond flash chip "W25Q128.V" (16384 kB, SPI) on ch341a_spi.
+    ===
+    This flash part has status UNTESTED for operations: WP
+    The test status of this chip may have been updated in the latest development
+    version of flashrom. If you are running the latest development version,
+    please email a report to flashrom@flashrom.org if any of the above operations
+    work correctly for you with this flash chip. Please include the flashrom log
+    file for all operations you tested (see the man page for details), and mention
+    which mainboard or programmer you tested in the subject line.
+    Thanks for your help!
+    Reading old flash chip contents... done.
+    Erasing and writing flash chip... Erase/write done.
+    Verifying flash... VERIFIED.
+
 Installing on SPI flash from U-Boot
 ```````````````````````````````````
 If SPI flash driver and command support (``CONFIG_CMD_SF``) is enabled in the
