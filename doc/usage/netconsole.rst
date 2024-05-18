@@ -3,10 +3,10 @@ Network console
 
 In U-Boot, we implemented the networked console via the standard
 "devices" mechanism, which means that you can switch between the
-serial and network input/output devices by adjusting the 'stdin' and
-'stdout' environment variables. To switch to the networked console,
-set either of these variables to "nc". Input and output can be
-switched independently.
+serial and network input/output devices by adjusting the 'stdin',
+'stdout', and 'stderr' environment variables. To switch to the
+networked console, set either of these variables to "nc". Input and
+output can be switched independently.
 
 The default buffer size can be overridden by setting
 CFG_NETCONSOLE_BUFFER_SIZE.
@@ -22,12 +22,14 @@ configured by setting the 'ncoutport' environment variable. Note that
 you need to set up the network interface (e.g. using DHCP) before it
 can be used for network console.
 
-For example, if your server IP is 192.168.1.1, you could use::
+For example, if your server IP is 192.168.1.1, you could use:
 
-	=> setenv nc 'setenv stdout nc;setenv stdin nc'
-	=> setenv ncip 192.168.1.1
-	=> saveenv
-	=> run nc
+.. prompt:: bash =>
+
+    env set nc 'env set stdout nc; env set stderr nc; env set stdin nc'
+    env set ncip '192.168.1.1'
+    env save
+    run nc
 
 On the host side, please use this script to access the console
 
