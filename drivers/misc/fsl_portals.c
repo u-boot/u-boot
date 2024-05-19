@@ -4,7 +4,7 @@
  * Copyright 2017 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>

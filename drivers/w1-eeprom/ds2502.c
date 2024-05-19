@@ -20,6 +20,7 @@
  * Martin Fuzzey <martin.fuzzey@flowbird.group>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>

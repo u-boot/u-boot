@@ -3,7 +3,7 @@
  * Copyright 2018 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 

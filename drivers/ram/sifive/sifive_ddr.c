@@ -6,6 +6,7 @@
  *   Pragnesh Patel <pragnesh.patel@sifive.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <init.h>

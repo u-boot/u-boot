@@ -9,6 +9,7 @@
 
 #define pr_fmt(fmt)	"nand: " fmt
 
+#include <common.h>
 #include <watchdog.h>
 #ifndef __UBOOT__
 #include <linux/compat.h>

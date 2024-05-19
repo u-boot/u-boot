@@ -8,7 +8,7 @@
  *   Jan Kiszka <jan.kiszka@siemens.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <fdt_support.h>

@@ -16,7 +16,7 @@
  * Philippe Robin, <philippe.robin@arm.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <dm.h>

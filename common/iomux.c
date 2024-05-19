@@ -4,6 +4,7 @@
  * Gary Jennejohn, DENX Software Engineering GmbH, garyj@denx.de.
  */
 
+#include <common.h>
 #include <console.h>
 #include <serial.h>
 #include <malloc.h>

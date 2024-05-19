@@ -9,6 +9,7 @@
  * interface for driving a MIPI compatible TFT display.
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <mipi_display.h>
 #include <asm/gpio.h>

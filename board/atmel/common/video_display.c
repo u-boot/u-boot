@@ -4,6 +4,7 @@
  *		      Wenyou Yang <wenyou.yang@microchip.com>
  */
 
+#include <common.h>
 #include <atmel_lcd.h>
 #include <dm.h>
 #include <init.h>

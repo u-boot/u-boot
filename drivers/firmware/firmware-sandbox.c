@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 
 static const struct udevice_id generic_sandbox_firmware_ids[] = {

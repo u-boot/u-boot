@@ -13,6 +13,7 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <asm/cache.h>

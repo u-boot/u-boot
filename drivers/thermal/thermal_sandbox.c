@@ -6,6 +6,7 @@
  * Sandbox driver for the thermal uclass.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <thermal.h>
 

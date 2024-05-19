@@ -8,6 +8,7 @@
  * BMP handling routines
  */
 
+#include <common.h>
 #include <command.h>
 #include <image.h>
 #include <mapmem.h>

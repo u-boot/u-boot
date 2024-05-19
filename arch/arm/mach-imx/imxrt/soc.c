@@ -4,6 +4,7 @@
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>

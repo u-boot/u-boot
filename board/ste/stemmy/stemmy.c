@@ -2,12 +2,12 @@
 /*
  * Copyright (C) 2019 Stephan Gerhold <stephan@gerhold.net>
  */
+#include <common.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <init.h>
 #include <log.h>
 #include <stdlib.h>
-#include <linux/errno.h>
 #include <asm/global_data.h>
 #include <asm/setup.h>
 #include <asm/system.h>

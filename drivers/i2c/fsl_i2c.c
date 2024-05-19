@@ -6,7 +6,7 @@
  * Changes for multibus/multiadapter I2C support.
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <i2c.h>		/* Functional interface */
 #include <log.h>

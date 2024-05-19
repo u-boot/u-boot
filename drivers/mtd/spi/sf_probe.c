@@ -7,6 +7,7 @@
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <linux/mtd/spi-nor.h>

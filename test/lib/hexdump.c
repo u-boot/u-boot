@@ -4,6 +4,7 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#include <common.h>
 #include <hexdump.h>
 #include <test/lib.h>
 #include <test/test.h>

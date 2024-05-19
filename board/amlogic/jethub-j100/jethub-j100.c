@@ -4,6 +4,7 @@
  * Author: Vyacheslav Bocharov <adeep@lexina.in>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <net.h>

@@ -37,6 +37,7 @@
 
 #include <asm-generic/gpio.h>
 #include <asm/global_data.h>
+#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>

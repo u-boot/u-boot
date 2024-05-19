@@ -3,6 +3,7 @@
  * Copyright 2021-2022 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8mm_pins.h>
 #include <asm/arch/sys_proto.h>

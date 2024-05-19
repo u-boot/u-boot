@@ -10,6 +10,7 @@
  *
  */
 
+#include <common.h>
 #include <clk.h>
 #include <generic-phy.h>
 #include <reset.h>

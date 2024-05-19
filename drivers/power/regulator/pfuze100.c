@@ -5,6 +5,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>

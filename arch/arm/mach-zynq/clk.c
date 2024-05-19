@@ -4,6 +4,7 @@
  * Copyright (C) 2013 Xilinx, Inc. All rights reserved.
  */
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <malloc.h>

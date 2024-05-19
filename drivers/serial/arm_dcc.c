@@ -15,6 +15,7 @@
  * this file might be covered by the GNU General Public License.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <serial.h>
 

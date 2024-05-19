@@ -4,6 +4,7 @@
  * (C) Copyright 2010,2011 NVIDIA Corporation <www.nvidia.com>
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <log.h>
 #include <tps6586x.h>

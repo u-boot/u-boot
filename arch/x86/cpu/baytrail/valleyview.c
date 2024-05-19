@@ -3,6 +3,7 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <mmc.h>
 #include <pci_ids.h>
@@ -10,7 +11,6 @@
 #include <asm/mrccache.h>
 #include <asm/post.h>
 #include <asm/arch/iomap.h>
-#include <asm/u-boot-x86.h>
 #include <linux/bitops.h>
 
 /* GPIO SUS */

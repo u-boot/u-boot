@@ -8,6 +8,7 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <log.h>

@@ -2,7 +2,7 @@
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
-#include <config.h>
+#include <common.h>
 #include <net.h>
 #include <asm/io.h>
 #include <netdev.h>

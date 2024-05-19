@@ -4,6 +4,7 @@
  * Author(s): Dillon Min <dillon.minfei@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

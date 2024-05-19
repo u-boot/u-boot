@@ -6,6 +6,7 @@
  * Copyright (C) 2015 ARM Limited
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <efi_loader.h>

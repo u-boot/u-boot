@@ -4,6 +4,7 @@
  * Peng Fan <Peng.Fan@freescale.com>
  */
 
+#include <common.h>
 #include <errno.h>
 #include <i2c.h>
 #include <power/pmic.h>

@@ -13,6 +13,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <asm/io.h>

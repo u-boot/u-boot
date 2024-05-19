@@ -6,6 +6,7 @@
  * Basic support for the pwm module on imx6.
  */
 
+#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <log.h>

@@ -3,6 +3,7 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <dt-structs.h>

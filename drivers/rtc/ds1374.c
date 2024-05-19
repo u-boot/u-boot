@@ -13,7 +13,7 @@
  * based on ds1337.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>

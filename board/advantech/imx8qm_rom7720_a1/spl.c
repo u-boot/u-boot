@@ -2,7 +2,7 @@
 /*
  * Copyright 2017-2018 NXP
  */
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <image.h>
 #include <init.h>

@@ -4,8 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <config.h>
-#include <linux/kernel.h>
+#include <common.h>
 
 #include <post.h>
 

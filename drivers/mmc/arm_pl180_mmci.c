@@ -11,6 +11,7 @@
 
 /* #define DEBUG */
 
+#include "common.h"
 #include <clk.h>
 #include <errno.h>
 #include <log.h>

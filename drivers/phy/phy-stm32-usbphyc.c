@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_PHY
 
+#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <div64.h>

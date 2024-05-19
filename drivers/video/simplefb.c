@@ -3,6 +3,7 @@
  * (C) Copyright 2017 Rob Clark
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <fdt_support.h>

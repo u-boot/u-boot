@@ -5,6 +5,7 @@
  * Copyright 2019 Google LLC
  */
 
+#include <common.h>
 #include <dm.h>
 #include <irq.h>
 #include <acpi/acpi_device.h>

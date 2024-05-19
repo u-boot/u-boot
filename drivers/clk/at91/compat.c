@@ -6,7 +6,7 @@
  *
  * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
  */
-#include <config.h>
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <asm/global_data.h>

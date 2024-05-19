@@ -10,12 +10,12 @@
  *  (Note that alloca is a special case and handled in start.S)
  */
 
+#include <common.h>
 #include <command.h>
 #include <irq_func.h>
 #include <asm/ptrace.h>
 #include <asm/string.h>
 #include <asm/regs.h>
-#include <vsprintf.h>
 
 typedef void (*handler_t)(struct pt_regs *);
 

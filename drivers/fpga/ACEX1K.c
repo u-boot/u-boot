@@ -9,7 +9,7 @@
 
 #define LOG_CATEGORY UCLASS_FPGA
 
-#include <config.h>		/* core U-Boot definitions */
+#include <common.h>		/* core U-Boot definitions */
 #include <console.h>
 #include <log.h>
 #include <ACEX1K.h>		/* ACEX device family */

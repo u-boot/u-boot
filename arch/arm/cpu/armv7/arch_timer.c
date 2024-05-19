@@ -4,7 +4,7 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/global_data.h>

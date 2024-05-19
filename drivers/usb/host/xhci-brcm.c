@@ -3,6 +3,7 @@
  * Copyright (C) 2019 Broadcom.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <usb.h>

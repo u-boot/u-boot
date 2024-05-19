@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2020 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
  */
+#include <common.h>
 #include <dm.h>
 #include <reset-uclass.h>
 #include <asm/arch/msg.h>

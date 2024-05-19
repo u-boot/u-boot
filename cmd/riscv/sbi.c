@@ -5,6 +5,7 @@
  * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <asm/sbi.h>
 

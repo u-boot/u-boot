@@ -8,6 +8,7 @@
  *   Copyright (C) 2014-2015 Felix Fietkau <nbd@nbd.name>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

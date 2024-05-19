@@ -7,7 +7,8 @@
  * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <config.h>
+#include <common.h>
+#include <eeprom.h>
 #include <asm/global_data.h>
 #include <dm/uclass.h>
 #include <env.h>

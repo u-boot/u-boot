@@ -7,6 +7,7 @@
  * Some code taken from coreboot cpulib.c
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>

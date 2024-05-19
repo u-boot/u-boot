@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Compulab, Ltd.
  */
 
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>

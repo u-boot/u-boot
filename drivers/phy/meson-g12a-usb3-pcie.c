@@ -7,6 +7,7 @@
  * Author: Neil Armstrong <narmstron@baylibre.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

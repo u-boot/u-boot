@@ -3,6 +3,7 @@
  * Copyright 2020 NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/of_extra.h>

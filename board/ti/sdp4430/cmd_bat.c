@@ -3,6 +3,7 @@
  * Copyright (C) 2010 Texas Instruments
  */
 
+#include <common.h>
 #include <command.h>
 
 #ifdef CONFIG_CMD_BAT

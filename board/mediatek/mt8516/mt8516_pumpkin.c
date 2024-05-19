@@ -3,6 +3,7 @@
  * Copyright (C) 2019 BayLibre SAS
  */
 
+#include <common.h>
 #include <dm.h>
 #include <net.h>
 

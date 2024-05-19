@@ -8,7 +8,7 @@
  *  Command Processor Table
  */
 
-#include <config.h>
+#include <common.h>
 #include <compiler.h>
 #include <command.h>
 #include <console.h>
@@ -16,7 +16,6 @@
 #include <image.h>
 #include <log.h>
 #include <mapmem.h>
-#include <time.h>
 #include <asm/global_data.h>
 #include <linux/ctype.h>
 

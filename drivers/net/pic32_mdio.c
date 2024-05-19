@@ -5,6 +5,7 @@
  * Copyright 2015 Microchip Inc.
  *	Purna Chandra Mandal <purna.mandal@microchip.com>
  */
+#include <common.h>
 #include <phy.h>
 #include <miiphy.h>
 #include <errno.h>

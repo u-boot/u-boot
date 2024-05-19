@@ -10,6 +10,7 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO_BRIDGE
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dsi_host.h>

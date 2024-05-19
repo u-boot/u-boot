@@ -5,6 +5,7 @@
  * Test continuation of log messages.
  */
 
+#include <common.h>
 #include <console.h>
 #include <asm/global_data.h>
 #include <test/log.h>

@@ -4,6 +4,7 @@
  *		      Wenyou.Yang <wenyou.yang@microchip.com>
  */
 
+#include <common.h>
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <init.h>

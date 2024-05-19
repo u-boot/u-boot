@@ -7,6 +7,7 @@
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
+#include <common.h>
 #include <log.h>
 #include <linux/delay.h>
 

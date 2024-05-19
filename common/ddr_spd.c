@@ -3,8 +3,8 @@
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <ddr_spd.h>
-#include <stdio.h>
 
 /* used for ddr1 and ddr2 spd */
 static int

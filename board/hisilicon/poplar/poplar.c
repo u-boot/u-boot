@@ -4,6 +4,7 @@
  * Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>

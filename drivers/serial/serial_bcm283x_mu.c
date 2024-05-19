@@ -14,6 +14,7 @@
 
 /* Simple U-Boot driver for the BCM283x mini UART */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>

@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <i2c.h>
 #include <tca642x.h>

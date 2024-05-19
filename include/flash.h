@@ -7,8 +7,6 @@
 #ifndef _FLASH_H_
 #define _FLASH_H_
 
-#include <linux/types.h>
-
 /*-----------------------------------------------------------------------
  * FLASH Info: contains chip specific data, per FLASH bank
  */

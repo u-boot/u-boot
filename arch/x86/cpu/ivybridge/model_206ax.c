@@ -6,6 +6,7 @@
  * Copyright (C) 2011 The Chromium Authors
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <fdtdec.h>

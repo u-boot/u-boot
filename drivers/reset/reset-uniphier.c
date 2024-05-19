@@ -5,6 +5,7 @@
  *   Author: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

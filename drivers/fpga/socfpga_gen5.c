@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/fpga_manager.h>

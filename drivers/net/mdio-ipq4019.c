@@ -11,6 +11,7 @@
  */
 
 #include <asm/io.h>
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <linux/bitops.h>

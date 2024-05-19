@@ -8,6 +8,7 @@
  * made from existing GRUB Sources by Sun, GNU and others.
  */
 
+#include <common.h>
 #include <part.h>
 #include <config.h>
 #include <command.h>

@@ -5,6 +5,7 @@
  * Graeme Russ, <graeme.russ@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/e820.h>
 #include <asm/cb_sysinfo.h>

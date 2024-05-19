@@ -13,6 +13,7 @@
  * commit 7ee2566ff5 : usb: dwc3: dwc3-omap: get rid of ->prepare()/->complete()
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <dm.h>

@@ -3,7 +3,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <log.h>
 #include <asm/io.h>

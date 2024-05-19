@@ -8,8 +8,6 @@
 #ifndef __KIRKWOOD_MPP_H
 #define __KIRKWOOD_MPP_H
 
-#include <linux/types.h>
-
 #define MPP(_num, _sel, _in, _out, _F6180, _F6190, _F6192, _F6281) ( \
 	/* MPP number */		((_num) & 0xff) | \
 	/* MPP select value */		(((_sel) & 0xf) << 8) | \

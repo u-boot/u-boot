@@ -18,6 +18,7 @@
  * Manjunatha C Achar <a.manjunatha@samsung.com>
  */
 
+#include <common.h>
 #include <part.h>
 
 #include <command.h>

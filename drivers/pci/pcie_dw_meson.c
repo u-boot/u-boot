@@ -9,6 +9,7 @@
  * Copyright (c) 2021 Rockchip, Inc.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

@@ -3,6 +3,7 @@
  * (c) 2015 Paul Thacker <paul.thacker@microchip.com>
  *
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

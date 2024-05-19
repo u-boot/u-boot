@@ -5,7 +5,7 @@
  * Copyright 2016 Google, Inc
  */
 
-#include <config.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

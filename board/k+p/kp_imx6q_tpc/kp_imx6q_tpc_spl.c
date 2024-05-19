@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Lukasz Majewski <lukma@denx.de>
  */
 
+#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/arch/clock.h>

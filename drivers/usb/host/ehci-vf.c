@@ -6,6 +6,7 @@
  * Based on ehci-mx6 driver
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <usb.h>

@@ -3,7 +3,7 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <spi_flash.h>

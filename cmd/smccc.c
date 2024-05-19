@@ -4,8 +4,8 @@
  * Michalis Pappas <mpappas@fastmail.fm>
  */
 #include <asm/psci.h>
+#include <common.h>
 #include <command.h>
-#include <vsprintf.h>
 #include <linux/arm-smccc.h>
 #include <linux/compiler.h>
 #include <linux/psci.h>

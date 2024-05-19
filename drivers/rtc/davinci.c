@@ -4,6 +4,7 @@
  * Heiko Schocher <hs@denx.de>
  * Copyright (C) 2021 Dario Binacchi <dariobin@libero.it>
  */
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <clk.h>

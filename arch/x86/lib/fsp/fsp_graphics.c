@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

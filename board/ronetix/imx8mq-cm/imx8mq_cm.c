@@ -3,6 +3,7 @@
  * Copyright 2018 NXP
  */
 
+#include <common.h>
 #include <miiphy.h>
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mq_pins.h>

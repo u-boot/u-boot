@@ -4,6 +4,7 @@
  * Written by Andrew Scull <ascull@google.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <virtio.h>
 #include <virtio_ring.h>

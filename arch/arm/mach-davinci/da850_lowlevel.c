@@ -5,7 +5,7 @@
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <nand.h>
 #include <ns16550.h>

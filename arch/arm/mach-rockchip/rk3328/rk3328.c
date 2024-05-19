@@ -3,6 +3,7 @@
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>

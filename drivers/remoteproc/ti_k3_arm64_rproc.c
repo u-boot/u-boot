@@ -7,6 +7,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <remoteproc.h>
 #include <errno.h>

@@ -2,6 +2,7 @@
 /*
  * Copyright 2020 Gateworks Corporation
  */
+#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>

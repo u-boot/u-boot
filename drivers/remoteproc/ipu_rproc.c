@@ -8,6 +8,7 @@
  *      Keerthy <j-keerthy@ti.com>
  */
 
+#include <common.h>
 #include <hang.h>
 #include <cpu_func.h>
 #include <dm.h>

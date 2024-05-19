@@ -5,6 +5,7 @@
  * Copyright (C) 2015, Texas Instruments, Incorporated
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <timer.h>

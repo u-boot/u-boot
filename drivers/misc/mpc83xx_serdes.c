@@ -9,6 +9,7 @@
  * Copyright (C) 2008 MontaVista Software, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <mapmem.h>

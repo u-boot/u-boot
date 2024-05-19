@@ -4,6 +4,7 @@
  * Author(s): Patrice CHOTARD, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <init.h>

@@ -7,8 +7,8 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <command.h>
-#include <vsprintf.h>
 
 static char *start_addr, *last_addr;
 

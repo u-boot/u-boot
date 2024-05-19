@@ -3,6 +3,7 @@
  * (C) Copyright 2015-2019 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <debug_uart.h>
 #include <init.h>
 #include <asm/io.h>

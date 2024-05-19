@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <cros_ec.h>
 #include <errno.h>

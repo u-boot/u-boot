@@ -3,7 +3,7 @@
  * Copyright (C) 2018 Marvell International Ltd.
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>

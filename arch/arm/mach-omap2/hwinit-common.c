@@ -10,6 +10,7 @@
  *	Aneesh V	<aneesh@ti.com>
  *	Steve Sakoman	<steve@sakoman.com>
  */
+#include <common.h>
 #include <debug_uart.h>
 #include <event.h>
 #include <fdtdec.h>

@@ -3,6 +3,7 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <spl.h>
 
 u32 spl_boot_device(void)

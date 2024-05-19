@@ -7,6 +7,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <init.h>

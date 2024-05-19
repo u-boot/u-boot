@@ -9,6 +9,7 @@
  * Copyright (c) 2010 Texas Instruments Incorporated
  */
 
+#include <common.h>
 #include <linux/delay.h>
 
 #include "am35x.h"

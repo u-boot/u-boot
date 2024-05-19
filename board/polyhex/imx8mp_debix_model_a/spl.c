@@ -11,6 +11,7 @@
 #include <asm/global_data.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/sections.h>
+#include <common.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <hang.h>

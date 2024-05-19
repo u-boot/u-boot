@@ -3,6 +3,7 @@
  * Copyright (C) 2023 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <common.h>
 #include <image.h>
 #include <imx_container.h>
 #include <mapmem.h>

@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <dt-structs.h>

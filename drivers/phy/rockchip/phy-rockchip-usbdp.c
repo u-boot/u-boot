@@ -5,6 +5,7 @@
  * Copyright (C) 2021 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

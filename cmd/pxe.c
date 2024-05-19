@@ -4,12 +4,12 @@
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  */
 
+#include <common.h>
 #include <command.h>
 #include <fs.h>
 #include <net.h>
 #include <net6.h>
 #include <malloc.h>
-#include <vsprintf.h>
 
 #include "pxe_utils.h"
 

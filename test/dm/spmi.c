@@ -3,6 +3,7 @@
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <dm.h>
 #include <malloc.h>

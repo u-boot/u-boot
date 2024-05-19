@@ -3,7 +3,7 @@
  * Copyright (c) 2017 Tuomas Tynkkynen
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <efi.h>

@@ -6,7 +6,7 @@
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <cpu_func.h>

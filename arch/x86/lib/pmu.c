@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2017 Intel Corporation
  */
+#include <common.h>
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>

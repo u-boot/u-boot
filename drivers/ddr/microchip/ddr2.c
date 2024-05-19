@@ -3,6 +3,7 @@
  * (c) 2015 Paul Thacker <paul.thacker@microchip.com>
  *
  */
+#include <common.h>
 #include <wait_bit.h>
 #include <linux/kernel.h>
 #include <linux/bitops.h>

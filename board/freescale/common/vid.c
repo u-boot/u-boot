@@ -5,13 +5,12 @@
  * Copyright 2020 Stephen Carlson <stcarlso@linux.microsoft.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <i2c.h>
 #include <irq_func.h>
 #include <log.h>
-#include <vsprintf.h>
 #include <asm/io.h>
 #ifdef CONFIG_FSL_LSCH2
 #include <asm/arch/immap_lsch2.h>

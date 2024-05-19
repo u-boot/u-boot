@@ -4,7 +4,7 @@
  * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <dm.h>

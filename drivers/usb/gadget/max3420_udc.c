@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <common.h>
 #include <linux/errno.h>
 #include <linux/delay.h>
 #include <asm/gpio.h>

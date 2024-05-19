@@ -5,7 +5,7 @@
  * Copyright (c) 2020 Michael Walle <michael@walle.cc>
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <atf_common.h>

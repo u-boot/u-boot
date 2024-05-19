@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <audio_codec.h>
 #include <dm.h>
 #include <i2s.h>

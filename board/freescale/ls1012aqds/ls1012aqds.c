@@ -4,7 +4,7 @@
  * Copyright 2021 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <fdt_support.h>
 #include <asm/cache.h>

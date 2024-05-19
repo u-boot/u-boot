@@ -5,6 +5,7 @@
  * Based on Linux driver
  */
 
+#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <reset.h>

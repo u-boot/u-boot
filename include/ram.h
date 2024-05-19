@@ -7,8 +7,6 @@
 #ifndef __RAM_H
 #define __RAM_H
 
-#include <linux/types.h>
-
 struct udevice;
 
 struct ram_info {

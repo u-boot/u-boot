@@ -8,6 +8,7 @@
  *
  * This file is part of the Inventra Controller Driver for Linux.
  */
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <serial.h>

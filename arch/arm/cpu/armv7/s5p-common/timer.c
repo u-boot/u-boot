@@ -6,6 +6,7 @@
  * Minkyu Kang <mk7.kang@samsung.com>
  */
 
+#include <common.h>
 #include <div64.h>
 #include <init.h>
 #include <time.h>

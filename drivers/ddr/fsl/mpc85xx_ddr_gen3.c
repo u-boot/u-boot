@@ -3,10 +3,9 @@
  * Copyright 2008-2020 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
-#include <asm/ppc.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
 #include <linux/delay.h>

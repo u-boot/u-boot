@@ -6,6 +6,7 @@
  *	Vivek Gautam <gautam.vivek@samsung.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>

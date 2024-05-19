@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022-2024 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-binman.dtsi"
@@ -48,52 +48,6 @@
 };
 
 &binman {
-	tiboot3-j7200-hs-evm.bin {
-		filename = "tiboot3-j7200-hs-evm.bin";
-		ti-secure-rom {
-			content = <&u_boot_spl_sr1>, <&ti_fs_enc_sr1>, <&combined_tifs_cfg_sr1>,
-				<&combined_dm_cfg_sr1>, <&sysfw_inner_cert_sr1>;
-			combined;
-			dm-data;
-			core-opts = <2>;
-			sysfw-inner-cert;
-			keyfile = "custMpk.pem";
-			sw-rev = <1>;
-			content-sbl = <&u_boot_spl_sr1>;
-			content-sysfw = <&ti_fs_enc_sr1>;
-			content-sysfw-data = <&combined_tifs_cfg_sr1>;
-			content-sysfw-inner-cert = <&sysfw_inner_cert_sr1>;
-			content-dm-data = <&combined_dm_cfg_sr1>;
-			load = <0x41c00000>;
-			load-sysfw = <0x40000>;
-			load-sysfw-data = <0x7f000>;
-			load-dm-data = <0x41c80000>;
-		};
-		u_boot_spl_sr1: u-boot-spl {
-			no-expanded;
-		};
-		ti_fs_enc_sr1: ti-fs-enc.bin {
-			filename = "ti-sysfw/ti-fs-firmware-j7200-hs-enc.bin";
-			type = "blob-ext";
-			optional;
-		};
-		combined_tifs_cfg_sr1: combined-tifs-cfg.bin {
-			filename = "combined-tifs-cfg.bin";
-			type = "blob-ext";
-		};
-		sysfw_inner_cert_sr1: sysfw-inner-cert {
-			filename = "ti-sysfw/ti-fs-firmware-j7200-hs-cert.bin";
-			type = "blob-ext";
-			optional;
-		};
-		combined_dm_cfg_sr1: combined-dm-cfg.bin {
-			filename = "combined-dm-cfg.bin";
-			type = "blob-ext";
-		};
-	};
-};
-
-&binman {
 	tiboot3-j7200_sr2-hs-evm.bin {
 		filename = "tiboot3-j7200_sr2-hs-evm.bin";
 		ti-secure-rom {
@@ -132,53 +86,6 @@
 			optional;
 		};
 		combined_dm_cfg: combined-dm-cfg.bin {
-			filename = "combined-dm-cfg.bin";
-			type = "blob-ext";
-		};
-	};
-};
-
-&binman {
-	tiboot3-j7200-hs-fs-evm.bin {
-		filename = "tiboot3-j7200-hs-fs-evm.bin";
-		ti-secure-rom {
-			content = <&u_boot_spl_fs_sr1>, <&ti_fs_enc_fs_sr1>,
-				  <&combined_tifs_cfg_fs_sr1>, <&combined_dm_cfg_fs_sr1>,
-				  <&sysfw_inner_cert_fs_sr1>;
-			combined;
-			dm-data;
-			core-opts = <2>;
-			sysfw-inner-cert;
-			keyfile = "custMpk.pem";
-			sw-rev = <1>;
-			content-sbl = <&u_boot_spl_fs_sr1>;
-			content-sysfw = <&ti_fs_enc_fs_sr1>;
-			content-sysfw-data = <&combined_tifs_cfg_fs_sr1>;
-			content-sysfw-inner-cert = <&sysfw_inner_cert_fs_sr1>;
-			content-dm-data = <&combined_dm_cfg_fs_sr1>;
-			load = <0x41c00000>;
-			load-sysfw = <0x40000>;
-			load-sysfw-data = <0x7f000>;
-			load-dm-data = <0x41c80000>;
-		};
-		u_boot_spl_fs_sr1: u-boot-spl {
-			no-expanded;
-		};
-		ti_fs_enc_fs_sr1: ti-fs-enc.bin {
-			filename = "ti-sysfw/ti-fs-firmware-j7200-hs-fs-enc.bin";
-			type = "blob-ext";
-			optional;
-		};
-		combined_tifs_cfg_fs_sr1: combined-tifs-cfg.bin {
-			filename = "combined-tifs-cfg.bin";
-			type = "blob-ext";
-		};
-		sysfw_inner_cert_fs_sr1: sysfw-inner-cert {
-			filename = "ti-sysfw/ti-fs-firmware-j7200-hs-fs-cert.bin";
-			type = "blob-ext";
-			optional;
-		};
-		combined_dm_cfg_fs_sr1: combined-dm-cfg.bin {
 			filename = "combined-dm-cfg.bin";
 			type = "blob-ext";
 		};

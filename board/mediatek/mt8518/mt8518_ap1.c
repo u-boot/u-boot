@@ -3,7 +3,7 @@
  * Copyright (C) 2019 MediaTek Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

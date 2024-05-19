@@ -6,8 +6,6 @@
 #ifndef __DM_TEST_H
 #define __DM_TEST_H
 
-#include <linux/types.h>
-
 struct udevice;
 
 /**

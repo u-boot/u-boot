@@ -6,6 +6,7 @@
  *	Copyright (C) 2012 Jonas Gorski <jonas.gorski@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

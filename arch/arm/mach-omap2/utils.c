@@ -3,9 +3,9 @@
  * Copyright 2011 Linaro Limited
  * Aneesh V <aneesh@ti.com>
  */
+#include <common.h>
 #include <env.h>
 #include <part.h>
-#include <vsprintf.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>

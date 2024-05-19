@@ -9,6 +9,7 @@
  * existing code e.g. operations on strings and similar.
  */
 
+#include <common.h>
 #include <command.h>
 #include <hang.h>
 #include <linux/delay.h>

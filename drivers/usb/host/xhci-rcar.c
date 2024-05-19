@@ -5,6 +5,7 @@
  * Renesas RCar USB HOST xHCI Controller
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>

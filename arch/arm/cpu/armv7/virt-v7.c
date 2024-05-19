@@ -8,6 +8,7 @@
  * needed to enable ARMv7 virtualization for current hypervisors
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <asm/armv7.h>
 #include <asm/cache.h>

@@ -6,6 +6,7 @@
  * Author: Ryder Lee <ryder.lee@mediatek.com>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>

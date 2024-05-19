@@ -3,7 +3,7 @@
  * Copyright 2014 Freescale Semiconductor
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/cache.h>
 #include <asm/io.h>

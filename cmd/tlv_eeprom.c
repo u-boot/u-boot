@@ -9,6 +9,7 @@
  * Copyright (C) 2014,2016 david_yang <david_yang@accton.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <i2c.h>

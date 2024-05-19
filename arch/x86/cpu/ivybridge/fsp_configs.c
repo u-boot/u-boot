@@ -3,6 +3,7 @@
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/fsp1/fsp_support.h>

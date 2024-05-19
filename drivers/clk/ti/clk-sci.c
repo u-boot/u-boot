@@ -8,6 +8,7 @@
  * Loosely based on Linux kernel sci-clk.c...
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>

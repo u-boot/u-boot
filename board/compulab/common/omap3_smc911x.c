@@ -5,6 +5,7 @@
  * Authors: Igor Grinberg <grinberg@compulab.co.il>
  */
 
+#include <common.h>
 #include <netdev.h>
 #include <linux/delay.h>
 

@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Nuvoton Technology Corp.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/gpio.h>
 #include <linux/io.h>

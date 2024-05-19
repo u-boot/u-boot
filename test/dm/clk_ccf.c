@@ -4,6 +4,7 @@
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <asm/clk.h>

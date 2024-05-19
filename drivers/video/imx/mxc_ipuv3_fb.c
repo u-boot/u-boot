@@ -10,6 +10,7 @@
  * (C) Copyright 2004-2010 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <part.h>
 #include <asm/cache.h>

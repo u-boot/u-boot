@@ -64,6 +64,7 @@
  * Adapted from cmd_mem.c which is copyright Wolfgang Denk (wd@denx.de).
  */
 
+#include <common.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>

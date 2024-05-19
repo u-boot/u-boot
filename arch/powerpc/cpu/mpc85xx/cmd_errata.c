@@ -3,6 +3,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <init.h>
 #include <linux/compiler.h>

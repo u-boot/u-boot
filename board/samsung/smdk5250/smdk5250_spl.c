@@ -3,6 +3,7 @@
  * Copyright (c) 2012 The Chromium OS Authors.
  */
 
+#include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/spl.h>
 #include <asm/arch/clk.h>

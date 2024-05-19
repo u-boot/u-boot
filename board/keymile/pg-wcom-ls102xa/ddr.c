@@ -4,7 +4,7 @@
  * Copyright 2020 Hitachi Power Grids. All rights reserved.
  */
 
-#include <config.h>
+#include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 #include <asm/io.h>

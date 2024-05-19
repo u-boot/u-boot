@@ -11,11 +11,11 @@
  * A few parts were lifted from bash 'test' command
  */
 
+#include <common.h>
 #include <config.h>
 #include <command.h>
 #include <env.h>
 #include <mapmem.h>
-#include <vsprintf.h>
 
 #include <asm/io.h>
 

@@ -9,6 +9,7 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
+#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>

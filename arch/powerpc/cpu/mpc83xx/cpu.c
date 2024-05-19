@@ -9,6 +9,7 @@
  * Derived from the MPC8260 and MPC85xx.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
 #include <net.h>

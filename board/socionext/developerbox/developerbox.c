@@ -9,7 +9,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <config.h>
+#include <common.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env_internal.h>

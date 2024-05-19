@@ -3,6 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/post.h>

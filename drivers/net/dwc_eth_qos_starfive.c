@@ -4,6 +4,7 @@
  * Author: Yanhong Wang<yanhong.wang@starfivetech.com>
  */
 
+#include <common.h>
 #include <asm/cache.h>
 #include <asm/gpio.h>
 #include <clk.h>

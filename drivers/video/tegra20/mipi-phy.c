@@ -3,6 +3,7 @@
  * Copyright (C) 2013 NVIDIA Corporation
  */
 
+#include <common.h>
 #include <linux/err.h>
 
 #include "mipi-phy.h"

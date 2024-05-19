@@ -4,6 +4,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sysmap.h>
 #include <asm/kona-common/clk.h>

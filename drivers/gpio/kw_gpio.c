@@ -12,6 +12,7 @@
  * Dieter Kiermaier dk-arm-linux@gmx.de
  */
 
+#include <common.h>
 #include <linux/bitops.h>
 #include <asm/io.h>
 #include <asm/arch/soc.h>

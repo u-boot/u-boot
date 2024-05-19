@@ -4,7 +4,7 @@
  * Scott McNutt <smcnutt@psyent.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu.h>
 #include <cpu_func.h>

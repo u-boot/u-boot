@@ -4,6 +4,7 @@
  * Köry Maincent, Bootlin, <kory.maincent@bootlin.com>
  */
 
+#include <common.h>
 #include <bootdev.h>
 #include <command.h>
 #include <dm.h>

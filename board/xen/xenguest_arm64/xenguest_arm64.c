@@ -7,6 +7,7 @@
  * (C) 2020 EPAM Systems Inc
  */
 
+#include <common.h>
 #include <log.h>
 #include <cpu_func.h>
 #include <dm.h>

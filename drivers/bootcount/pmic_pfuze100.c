@@ -8,6 +8,7 @@
  * This works only, if the PMIC is not connected to a battery.
  */
 
+#include <common.h>
 #include <bootcount.h>
 #include <dm.h>
 #include <power/pmic.h>

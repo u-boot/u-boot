@@ -4,7 +4,7 @@
  * Josh Wu <josh.wu@atmel.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <vsprintf.h>

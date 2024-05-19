@@ -5,9 +5,9 @@
  * Copyright (C) 2019 Texas Instruments Incorporated - https://www.ti.com
  *
  */
+#include <common.h>
 #include <command.h>
 #include <ufs.h>
-#include <vsprintf.h>
 
 static int do_ufs(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

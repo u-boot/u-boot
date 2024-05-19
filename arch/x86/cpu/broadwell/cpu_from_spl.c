@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <bloblist.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
@@ -12,7 +13,6 @@
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/mtrr.h>
-#include <linux/errno.h>
 
 int misc_init_r(void)
 {

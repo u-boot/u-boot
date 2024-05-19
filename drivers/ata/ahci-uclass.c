@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_AHCI
 
+#include <common.h>
 #include <ahci.h>
 #include <dm.h>
 

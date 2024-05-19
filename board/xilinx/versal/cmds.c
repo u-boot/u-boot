@@ -6,10 +6,10 @@
 
 #include <cpu_func.h>
 #include <command.h>
+#include <common.h>
 #include <log.h>
 #include <memalign.h>
 #include <versalpl.h>
-#include <vsprintf.h>
 #include <zynqmp_firmware.h>
 
 static int do_versal_load_pdi(struct cmd_tbl *cmdtp, int flag, int argc,

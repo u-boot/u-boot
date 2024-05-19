@@ -5,7 +5,7 @@
  * (C) Copyright 2017 Angelo Dureghello <angelo@sysam.it>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <spi.h>
 #include <asm/global_data.h>

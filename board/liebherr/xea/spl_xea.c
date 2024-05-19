@@ -12,6 +12,7 @@
  * on behalf of DENX Software Engineering GmbH
  */
 
+#include <common.h>
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx28.h>

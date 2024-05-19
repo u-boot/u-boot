@@ -7,6 +7,7 @@
 /*
  * RTC, Date & Time support: get and set date & time
  */
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <rtc.h>

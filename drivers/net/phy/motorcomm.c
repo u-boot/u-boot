@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <malloc.h>
 #include <phy.h>
 #include <linux/bitfield.h>

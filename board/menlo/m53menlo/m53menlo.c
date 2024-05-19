@@ -6,6 +6,7 @@
  * Copyright (C) 2014-2017 Olaf Mandel <o.mandel@menlosystems.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <malloc.h>

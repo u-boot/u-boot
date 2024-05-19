@@ -5,6 +5,7 @@
  * Copyright (c) 2013 Lucas Stach
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <linux/delay.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 
 #define PCI_DEV_CONFIG(segbus, dev, fn) ( \

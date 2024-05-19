@@ -8,6 +8,7 @@
  * Copyright (C) 2021 Xilinx, Inc. All rights reserved.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>

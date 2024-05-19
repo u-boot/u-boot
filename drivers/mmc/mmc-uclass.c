@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY UCLASS_MMC
 
+#include <common.h>
 #include <bootdev.h>
 #include <log.h>
 #include <mmc.h>
@@ -111,7 +112,7 @@ int mmc_getcd(struct mmc *mmc)
 	return dm_mmc_get_cd(mmc->dev);
 }
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 static int dm_mmc_execute_tuning(struct udevice *dev, uint opcode)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);

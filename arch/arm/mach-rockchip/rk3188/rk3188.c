@@ -2,6 +2,7 @@
 /*
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
+#include <common.h>
 #include <dm.h>
 #include <hang.h>
 #include <init.h>

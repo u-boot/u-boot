@@ -7,9 +7,9 @@
 /*
  * FLASH support
  */
+#include <common.h>
 #include <command.h>
 #include <log.h>
-#include <vsprintf.h>
 #include <uuid.h>
 
 #if defined(CONFIG_CMD_MTDPARTS)

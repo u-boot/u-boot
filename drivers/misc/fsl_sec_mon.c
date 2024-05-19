@@ -3,7 +3,7 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <fsl_sec_mon.h>
 #include <linux/delay.h>
 

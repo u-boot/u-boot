@@ -8,6 +8,7 @@
  * Bo Shen <voice.shen@atmel.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/global_data.h>

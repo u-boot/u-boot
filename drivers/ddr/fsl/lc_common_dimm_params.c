@@ -4,6 +4,7 @@
  * Copyright 2017-2021 NXP Semiconductor
  */
 
+#include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <log.h>
 #include <asm/bitops.h>

@@ -3,6 +3,7 @@
  * Copyright 2021, Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

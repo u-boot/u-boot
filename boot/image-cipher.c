@@ -7,6 +7,7 @@
 #include "mkimage.h"
 #include <time.h>
 #else
+#include <common.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 DECLARE_GLOBAL_DATA_PTR;

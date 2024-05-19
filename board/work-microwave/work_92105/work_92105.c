@@ -6,7 +6,7 @@
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

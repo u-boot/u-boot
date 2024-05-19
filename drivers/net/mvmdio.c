@@ -4,6 +4,7 @@
  * Author: Ken Ma<make@marvell.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

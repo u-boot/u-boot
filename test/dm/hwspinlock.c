@@ -3,6 +3,7 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
 #include <asm/state.h>

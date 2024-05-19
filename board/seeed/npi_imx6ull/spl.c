@@ -4,7 +4,7 @@
  * Author: Navin Sankar Velliangiri <navin@linumiz.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/arch/clock.h>

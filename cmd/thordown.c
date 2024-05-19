@@ -6,6 +6,7 @@
  * All rights reserved.
  */
 
+#include <common.h>
 #include <command.h>
 #include <thor.h>
 #include <dfu.h>

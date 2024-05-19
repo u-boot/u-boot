@@ -3,6 +3,7 @@
  * (C) Copyright 2019, Vaisala Oyj
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <i2c.h>

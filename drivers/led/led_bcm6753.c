@@ -6,6 +6,7 @@
  * drivers/led/led_bcm6858.c
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <led.h>

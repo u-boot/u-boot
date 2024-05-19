@@ -4,7 +4,7 @@
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>

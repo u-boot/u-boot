@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* (C) Copyright 2019 CompuLab, Ltd. <www.compulab.co.il> */
 
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <linux/kernel.h>
 #include <asm/arch/imx8mq_pins.h>

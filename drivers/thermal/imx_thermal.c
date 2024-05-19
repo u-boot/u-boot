@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <div64.h>
 #include <fuse.h>
 #include <log.h>

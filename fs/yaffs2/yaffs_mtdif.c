@@ -12,6 +12,7 @@
  */
 
 /* XXX U-BOOT XXX */
+#include <common.h>
 
 #include "yportenv.h"
 

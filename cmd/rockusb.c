@@ -3,6 +3,7 @@
  * Copyright (C) 2017 Eddie Cai <eddie.cai.linux@gmail.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <g_dnl.h>

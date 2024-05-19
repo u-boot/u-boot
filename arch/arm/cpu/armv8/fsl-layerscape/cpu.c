@@ -4,7 +4,7 @@
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <env.h>

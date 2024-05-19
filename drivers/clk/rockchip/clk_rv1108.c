@@ -4,6 +4,7 @@
  * Author: Andy Yan <andy.yan@rock-chips.com>
  */
 
+#include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
 #include <dm.h>

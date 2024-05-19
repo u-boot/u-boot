@@ -4,6 +4,7 @@
  * Altera Corporation <www.altera.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <log.h>
 #include <dm.h>

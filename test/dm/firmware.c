@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <syscon.h>
 #include <asm/test.h>

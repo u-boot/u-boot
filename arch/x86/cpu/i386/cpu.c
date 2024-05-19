@@ -18,6 +18,7 @@
  * src/arch/x86/lib/cpu.c
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <log.h>
@@ -31,7 +32,6 @@
 #include <asm/msr.h>
 #include <asm/mtrr.h>
 #include <asm/processor-flags.h>
-#include <asm/u-boot-x86.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

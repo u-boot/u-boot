@@ -6,7 +6,7 @@
  * ARM Cortext A9 global timer driver
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <timer.h>

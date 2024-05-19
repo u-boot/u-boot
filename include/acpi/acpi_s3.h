@@ -37,9 +37,6 @@
 
 #ifndef __ASSEMBLY__
 
-#include <linux/errno.h>
-#include <linux/types.h>
-
 extern char __wakeup[];
 extern int __wakeup_size;
 

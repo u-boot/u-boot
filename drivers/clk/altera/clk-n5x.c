@@ -3,6 +3,7 @@
  * Copyright (C) 2020-2022 Intel Corporation <www.intel.com>
  */
 
+#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

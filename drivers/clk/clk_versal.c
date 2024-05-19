@@ -4,6 +4,7 @@
  * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>>
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/cache.h>
 #include <asm/ptrace.h>

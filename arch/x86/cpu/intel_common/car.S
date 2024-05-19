@@ -10,6 +10,7 @@
  * Copyright (C) 2012 Kyösti Mälkki <kyosti.malkki@gmail.com>
  */
 
+#include <common.h>
 #include <asm/microcode.h>
 #include <asm/msr-index.h>
 #include <asm/mtrr.h>

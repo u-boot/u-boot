@@ -3,6 +3,7 @@
  * (C) Copyright 2018 Rockchip Electronics Co., Ltd.
  */
 
+#include <common.h>
 #include <ram.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/sdram.h>

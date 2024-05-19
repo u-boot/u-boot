@@ -25,6 +25,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <dma.h>

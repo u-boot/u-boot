@@ -4,6 +4,7 @@
  * Author: Liviu Dudau <liviu.dudau@foss.arm.com>
  *
  */
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <dm/read.h>

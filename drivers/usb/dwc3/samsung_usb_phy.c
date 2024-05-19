@@ -7,7 +7,7 @@
  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
  */
 
-#include <asm/io.h>
+#include <common.h>
 #include <asm/arch/power.h>
 #include <asm/arch/xhci-exynos.h>
 #include <linux/delay.h>

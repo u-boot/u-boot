@@ -4,6 +4,7 @@
  * Minkyu Kang <mk7.kang@samsung.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

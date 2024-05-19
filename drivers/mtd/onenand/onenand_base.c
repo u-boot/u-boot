@@ -19,6 +19,7 @@
  * published by the Free Software Foundation.
  */
 
+#include <common.h>
 #include <log.h>
 #include <watchdog.h>
 #include <dm/devres.h>

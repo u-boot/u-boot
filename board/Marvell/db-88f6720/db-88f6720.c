@@ -3,6 +3,7 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
+#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>

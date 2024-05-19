@@ -6,7 +6,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <env.h>
 #include <log.h>

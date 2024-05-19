@@ -3,9 +3,9 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
+#include <common.h>
 #include <api_public.h>
 #include <log.h>
-#include <linux/types.h>
 
 /* TODO(clchiou): add support of video device */
 

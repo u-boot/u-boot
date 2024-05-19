@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Xilinx, Inc. (Michal Simek)
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/armv7_mpu.h>

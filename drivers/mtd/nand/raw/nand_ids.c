@@ -6,6 +6,7 @@
  * published by the Free Software Foundation.
  *
  */
+#include <common.h>
 #include <linux/mtd/rawnand.h>
 #include <linux/sizes.h>
 

@@ -39,8 +39,6 @@
 #endif
 
 #if defined(__KERNEL__) && !defined(__ASSEMBLY__)
-#include <linux/types.h>
-
 extern void flush_dcache_range(unsigned long start, unsigned long stop);
 extern void clean_dcache_range(unsigned long start, unsigned long stop);
 extern void invalidate_dcache_range(unsigned long start, unsigned long stop);

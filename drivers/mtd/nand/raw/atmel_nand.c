@@ -10,7 +10,7 @@
  *     (C) Copyright 2012 ATMEL, Hong Xu
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <system-constants.h>
 #include <asm/gpio.h>

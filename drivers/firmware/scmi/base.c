@@ -6,6 +6,7 @@
  *		author: AKASHI Takahiro <takahiro.akashi@linaro.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <scmi_agent.h>
 #include <scmi_protocols.h>

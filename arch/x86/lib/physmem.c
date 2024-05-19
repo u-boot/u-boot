@@ -8,6 +8,7 @@
  * Software Foundation.
  */
 
+#include <common.h>
 #include <log.h>
 #include <physmem.h>
 #include <asm/cpu.h>

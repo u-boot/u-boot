@@ -5,6 +5,7 @@
  * Authors: Igor Grinberg <grinberg@compulab.co.il>
  */
 
+#include <common.h>
 #include <bmp_layout.h>
 #include <command.h>
 #include <env.h>

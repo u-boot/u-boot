@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <vsprintf.h>
 #include <linux/ctype.h>
 
 enum {

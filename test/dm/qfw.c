@@ -3,6 +3,7 @@
  * Copyright 2021 Asherah Connor <ashe@kivikakk.ee>
  */
 
+#include <common.h>
 #include <qfw.h>
 #include <dm.h>
 #include <asm/test.h>

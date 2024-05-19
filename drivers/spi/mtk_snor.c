@@ -7,6 +7,7 @@
 // Some parts are based on drivers/spi/spi-mtk-nor.c of linux version
 
 #include <clk.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device.h>

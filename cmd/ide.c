@@ -8,6 +8,7 @@
  * IDE support
  */
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <config.h>

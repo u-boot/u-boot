@@ -4,6 +4,7 @@
  * Author(s): Yannick Fertre <yannick.fertre@st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dsi_host.h>
 #include <asm/state.h>

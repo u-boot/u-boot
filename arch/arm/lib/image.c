@@ -4,6 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <image.h>
 #include <mapmem.h>
 #include <asm/global_data.h>

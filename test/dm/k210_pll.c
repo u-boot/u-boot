@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <common.h>
 /* For DIV_ROUND_DOWN_ULL, defined in linux/kernel.h */
 #include <div64.h>
 #include <dm/test.h>

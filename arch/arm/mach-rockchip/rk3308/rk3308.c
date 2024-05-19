@@ -2,6 +2,7 @@
 /*
  *Copyright (c) 2018 Rockchip Electronics Co., Ltd
  */
+#include <common.h>
 #include <init.h>
 #include <malloc.h>
 #include <asm/arch-rockchip/bootrom.h>

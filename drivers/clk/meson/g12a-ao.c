@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <clk-uclass.h>

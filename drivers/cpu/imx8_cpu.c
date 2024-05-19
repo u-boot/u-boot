@@ -3,6 +3,7 @@
  * Copyright 2019 NXP
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <thermal.h>

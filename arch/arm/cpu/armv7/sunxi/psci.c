@@ -7,6 +7,7 @@
  * which was based on code by Carl van Schaik <carl@ok-labs.com>.
  */
 #include <config.h>
+#include <common.h>
 #include <asm/cache.h>
 
 #include <asm/arch/cpu.h>

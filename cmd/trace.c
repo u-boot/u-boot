@@ -3,11 +3,11 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <mapmem.h>
 #include <trace.h>
-#include <vsprintf.h>
 #include <asm/io.h>
 
 static int get_args(int argc, char *const argv[], char **buff,

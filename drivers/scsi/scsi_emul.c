@@ -11,6 +11,7 @@
 
 #define LOG_CATEGORY UCLASS_SCSI
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <scsi.h>

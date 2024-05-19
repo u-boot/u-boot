@@ -4,6 +4,7 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

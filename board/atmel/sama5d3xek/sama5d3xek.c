@@ -4,7 +4,7 @@
  * Bo Shen <voice.shen@atmel.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

@@ -4,7 +4,7 @@
  *		      Eugen Hristev <eugen.hristev@microchip.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <debug_uart.h>
 #include <init.h>
 #include <asm/global_data.h>

@@ -5,6 +5,7 @@
  * Copyright (C) 2020 Dario Binacchi <dariobin@libero.it>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <regmap.h>

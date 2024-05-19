@@ -3,6 +3,7 @@
  * (C) Copyright 2015 Google, Inc
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

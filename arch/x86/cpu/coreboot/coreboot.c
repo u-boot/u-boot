@@ -5,6 +5,7 @@
  * Graeme Russ, graeme.russ@gmail.com.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <event.h>
 #include <fdtdec.h>

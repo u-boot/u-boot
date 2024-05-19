@@ -4,6 +4,7 @@
  * Copyright (C) 2008-2009 coresystems GmbH
  */
 
+#include <common.h>
 #include <ahci.h>
 #include <dm.h>
 #include <fdtdec.h>

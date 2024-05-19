@@ -6,6 +6,7 @@
  * reference linux-2.6.20.6/drivers/rtc/rtc-pl031.c
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <errno.h>

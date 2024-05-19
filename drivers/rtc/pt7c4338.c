@@ -18,7 +18,7 @@
  * It has 56 bytes of nonvolatile RAM.
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <log.h>

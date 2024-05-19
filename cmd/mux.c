@@ -6,6 +6,7 @@
  * Author: Pratyush Yadav <p.yadav@ti.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <dm.h>

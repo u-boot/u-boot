@@ -3,7 +3,7 @@
  * Copyright (c) 2016-2020 Toradex
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/global_data.h>
 #include "tdx-cfg-block.h"
 #include "tdx-eeprom.h"

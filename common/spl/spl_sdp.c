@@ -4,6 +4,7 @@
  * Author: Stefan Agner <stefan.agner@toradex.com>
  */
 
+#include <common.h>
 #include <log.h>
 #include <spl.h>
 #include <usb.h>

@@ -12,6 +12,7 @@
 #define DEBUG
 #endif
 
+#include <common.h>
 #include <log.h>
 #include <asm/global_data.h>
 

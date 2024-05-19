@@ -7,6 +7,7 @@
  * Copyright (C) ST-Ericsson SA 2010
  */
 
+#include <common.h>
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>

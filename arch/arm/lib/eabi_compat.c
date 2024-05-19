@@ -5,9 +5,7 @@
  * (C) Copyright 2009 Wolfgang Denk <wd@denx.de>
  */
 
-#include <stdio.h>
-#include <linux/stddef.h>
-#include <linux/string.h>
+#include <common.h>
 
 int raise (int signum)
 {

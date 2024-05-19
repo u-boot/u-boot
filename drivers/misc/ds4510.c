@@ -8,6 +8,7 @@
  * and 4 programmable non-volatile GPIO pins.
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <command.h>
 #include <linux/delay.h>

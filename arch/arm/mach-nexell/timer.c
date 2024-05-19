@@ -4,6 +4,7 @@
  * Hyunseok, Jung <hsjung@nexell.co.kr>
  */
 
+#include <common.h>
 #include <log.h>
 
 #include <asm/io.h>

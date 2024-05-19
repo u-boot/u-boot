@@ -7,6 +7,7 @@
 #include <asm/io.h>
 #include <asm/arch/at91_rstc.h>
 #include <clk.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device_compat.h>

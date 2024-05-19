@@ -4,6 +4,7 @@
  * With help from the common/soft_spi and arch/powerpc/cpu/mpc8260 drivers
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

@@ -5,6 +5,7 @@
  * Unit tests for aes functions
  */
 
+#include <common.h>
 #include <command.h>
 #include <hexdump.h>
 #include <rand.h>

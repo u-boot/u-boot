@@ -6,6 +6,7 @@
 
 /* #define	DEBUG	*/
 
+#include <common.h>
 #include <autoboot.h>
 #include <button.h>
 #include <bootstage.h>

@@ -4,6 +4,7 @@
  * Texas Instruments Incorporated, <www.ti.com>
  * Steve Sakoman  <steve@sakoman.com>
  */
+#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <net.h>

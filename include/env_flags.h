@@ -7,8 +7,6 @@
 #ifndef __ENV_FLAGS_H__
 #define __ENV_FLAGS_H__
 
-#include <config.h>
-
 enum env_flags_vartype {
 	env_flags_vartype_string,
 	env_flags_vartype_decimal,

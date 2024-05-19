@@ -6,6 +6,7 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <mapmem.h>

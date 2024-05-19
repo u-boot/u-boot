@@ -6,7 +6,7 @@
  * copied from nitrogen6x
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <image.h>

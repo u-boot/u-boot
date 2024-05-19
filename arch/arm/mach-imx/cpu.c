@@ -7,6 +7,7 @@
  */
 
 #include <bootm.h>
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

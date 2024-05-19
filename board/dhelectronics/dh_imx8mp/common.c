@@ -3,6 +3,7 @@
  * Copyright 2022 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 

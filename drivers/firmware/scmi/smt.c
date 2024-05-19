@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_SCMI_AGENT
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device_compat.h>

@@ -10,7 +10,7 @@
  * (C) 2019 Angelo Dureghello <angelo.dureghello@timesys.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <hang.h>
 #include <malloc.h>

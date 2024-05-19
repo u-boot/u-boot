@@ -5,6 +5,7 @@
  * Copyright (c) 2013 Google, Inc
  */
 
+#include <common.h>
 #include <console.h>
 #include <malloc.h>
 #ifdef CONFIG_SANDBOX

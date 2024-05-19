@@ -9,6 +9,7 @@
 
 /* Simple ping6 implementation */
 
+#include <common.h>
 #include <net.h>
 #include <net6.h>
 #include "ndisc.h"

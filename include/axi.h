@@ -7,8 +7,6 @@
 #ifndef _AXI_H_
 #define _AXI_H_
 
-#include <linux/types.h>
-
 struct udevice;
 
 /**

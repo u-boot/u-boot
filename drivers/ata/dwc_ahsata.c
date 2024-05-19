@@ -4,6 +4,7 @@
  * Terry Lv <r65388@freescale.com>
  */
 
+#include <common.h>
 #include <ahci.h>
 #include <blk.h>
 #include <cpu_func.h>

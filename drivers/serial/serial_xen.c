@@ -3,6 +3,7 @@
  * (C) 2018 NXP
  * (C) 2020 EPAM Systems Inc.
  */
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <serial.h>

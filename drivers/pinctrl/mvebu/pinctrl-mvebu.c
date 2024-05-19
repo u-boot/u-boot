@@ -4,6 +4,7 @@
  * https://spdx.org/licenses
  */
 
+#include <common.h>
 #include <config.h>
 #include <fdtdec.h>
 #include <errno.h>

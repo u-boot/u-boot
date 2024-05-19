@@ -12,7 +12,7 @@
  *     Syed Mohammed Khasim <khasim@ti.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #if IS_ENABLED(CONFIG_TARGET_AM335X_GUARDIAN)

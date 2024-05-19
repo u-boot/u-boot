@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <asm/arch/reset.h>

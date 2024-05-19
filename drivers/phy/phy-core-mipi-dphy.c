@@ -4,8 +4,8 @@
  * Copyright (C) 2018 Cadence Design Systems Inc.
  */
 
+#include <common.h>
 #include <div64.h>
-#include <linux/kernel.h>
 #include <linux/time.h>
 
 #include <phy-mipi-dphy.h>

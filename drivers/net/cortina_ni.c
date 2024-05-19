@@ -7,6 +7,7 @@
  * Ethernet MAC Driver for all supported CAxxxx SoCs
  */
 
+#include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <net.h>

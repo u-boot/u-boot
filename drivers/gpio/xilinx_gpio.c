@@ -3,6 +3,7 @@
  * Copyright (c) 2013 - 2018 Xilinx, Michal Simek
  */
 
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>

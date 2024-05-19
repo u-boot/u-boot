@@ -23,6 +23,7 @@
  * on the mv88e6176 via an SGMII interface.
  */
 
+#include <common.h>
 #include <dm/device.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>

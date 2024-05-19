@@ -3,8 +3,8 @@
  * Copyright Altera Corporation (C) 2012-2015
  */
 
+#include <common.h>
 #include <log.h>
-#include <linux/string.h>
 #include <asm/io.h>
 #include <asm/arch/sdram.h>
 #include <errno.h>

@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY LOGC_ACPI
 
+#include <common.h>
 #include <bloblist.h>
 #include <log.h>
 #include <malloc.h>

@@ -8,6 +8,7 @@
  * Derived from linux/drivers/watchdog/rti_wdt.c
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

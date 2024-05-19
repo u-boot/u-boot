@@ -4,6 +4,7 @@
  * Copyright 2019 NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>

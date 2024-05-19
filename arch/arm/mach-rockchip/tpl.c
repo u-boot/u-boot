@@ -3,6 +3,7 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <bootstage.h>
 #include <debug_uart.h>
 #include <dm.h>

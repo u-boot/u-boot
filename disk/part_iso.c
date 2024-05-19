@@ -4,6 +4,7 @@
  * Denis Peter, MPL AG Switzerland, d.peter@mpl.ch.
  */
 
+#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <part.h>

@@ -3,6 +3,7 @@
  * (C) Copyright 2012-2016 Stephen Warren
  */
 
+#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <env.h>

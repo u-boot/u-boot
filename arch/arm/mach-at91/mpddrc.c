@@ -7,6 +7,7 @@
  *		      Wenyou Yang <wenyou.yang@atmel.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/atmel_mpddrc.h>
 #include <asm/arch/at91_common.h>

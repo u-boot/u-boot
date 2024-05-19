@@ -4,6 +4,7 @@
  * Hyunseok, Jung <hsjung@nexell.co.kr>
  */
 
+#include <common.h>
 #include <command.h>
 #include <asm/system.h>
 #include <asm/cache.h>

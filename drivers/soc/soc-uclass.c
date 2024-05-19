@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_SOC
 
+#include <common.h>
 #include <soc.h>
 #include <dm.h>
 #include <errno.h>

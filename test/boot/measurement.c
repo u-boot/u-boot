@@ -6,6 +6,7 @@
  * Written by Eddie James <eajames@linux.ibm.com>
  */
 
+#include <common.h>
 #include <bootm.h>
 #include <malloc.h>
 #include <test/suites.h>

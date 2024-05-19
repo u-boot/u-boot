@@ -5,6 +5,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <common.h>
 #include <dm.h>
 
 static const struct udevice_id sandbox_efi_media_ids[] = {

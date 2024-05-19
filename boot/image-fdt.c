@@ -8,6 +8,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>

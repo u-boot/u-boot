@@ -17,6 +17,7 @@
 
 #define LOG_CATEGORY UCLASS_VIRTIO
 
+#include <common.h>
 #include <bootdev.h>
 #include <dm.h>
 #include <log.h>

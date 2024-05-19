@@ -5,6 +5,7 @@
  * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <linux/bitops.h>
 

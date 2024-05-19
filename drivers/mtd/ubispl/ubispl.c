@@ -7,6 +7,7 @@
  * Copyright (c) International Business Machines Corp., 2006
  */
 
+#include <common.h>
 #include <errno.h>
 #include <linux/bug.h>
 #include <u-boot/crc.h>

@@ -24,6 +24,7 @@
 
 #define LOG_CATEGORY UCLASS_PCI
 
+#include <common.h>
 #include <bios_emul.h>
 #include <bloblist.h>
 #include <bootstage.h>
@@ -35,7 +36,6 @@
 #include <pci.h>
 #include <pci_rom.h>
 #include <spl.h>
-#include <time.h>
 #include <vesa.h>
 #include <video.h>
 #include <acpi/acpi_s3.h>

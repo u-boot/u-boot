@@ -3,6 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <event.h>
 #include <init.h>
@@ -18,7 +19,6 @@
 #include <asm/arch/device.h>
 #include <asm/arch/msg_port.h>
 #include <asm/arch/quark.h>
-#include <asm/u-boot-x86.h>
 #include <linux/delay.h>
 
 static void quark_setup_mtrr(void)

@@ -3,6 +3,7 @@
  * Copyright 2016 Rockchip Inc.
  */
 
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <edid.h>

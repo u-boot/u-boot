@@ -3,6 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <fdtdec.h>

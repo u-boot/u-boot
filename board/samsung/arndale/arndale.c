@@ -3,7 +3,7 @@
  * Copyright (C) 2013 Samsung Electronics
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <log.h>

@@ -6,6 +6,7 @@
  * Peter, Software Engineering, <superpeter.cai@gmail.com>.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <syscon.h>
 #include <linux/errno.h>

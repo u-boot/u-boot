@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY LOGC_ARCH
 
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>

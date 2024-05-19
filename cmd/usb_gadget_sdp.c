@@ -6,6 +6,7 @@
  * Author: Stefan Agner <stefan.agner@toradex.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <g_dnl.h>
 #include <sdp.h>

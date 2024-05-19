@@ -3,6 +3,7 @@
  * Copyright 2018 NXP
  */
 
+#include <common.h>
 #include <binman_sym.h>
 #include <log.h>
 #include <spl.h>

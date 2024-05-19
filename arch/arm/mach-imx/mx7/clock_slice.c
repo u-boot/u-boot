@@ -6,6 +6,7 @@
  *	Peng Fan <Peng.Fan@freescale.com>
  */
 
+#include <common.h>
 #include <div64.h>
 #include <asm/io.h>
 #include <linux/errno.h>

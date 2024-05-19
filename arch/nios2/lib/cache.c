@@ -5,6 +5,7 @@
  * Implemented by fredrik.markstrom@gmail.com and ivarholmqvist@gmail.com
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>

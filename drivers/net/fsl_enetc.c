@@ -4,6 +4,7 @@
  * Copyright 2017-2021 NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>

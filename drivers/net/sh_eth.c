@@ -9,6 +9,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <log.h>

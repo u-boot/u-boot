@@ -3,6 +3,7 @@
  * Copyright (c) 2021 Nuvoton Technology.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <spi.h>
 #include <clk.h>

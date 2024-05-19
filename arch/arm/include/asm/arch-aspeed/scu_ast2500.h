@@ -140,7 +140,6 @@
 #define SCU_CLKDUTY_RGMII2TXCK_MASK	(0x7f << SCU_CLKDUTY_RGMII2TXCK_SHIFT)
 
 #ifndef __ASSEMBLY__
-#include <linux/types.h>
 
 struct ast2500_clk_priv {
 	struct ast2500_scu *scu;

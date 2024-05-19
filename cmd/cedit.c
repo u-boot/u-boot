@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <abuf.h>
 #include <cedit.h>
 #include <command.h>

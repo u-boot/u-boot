@@ -3,6 +3,7 @@
  * Copyright (C) 2022 Mark Kettenis <kettenis@openbsd.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <generic-phy.h>

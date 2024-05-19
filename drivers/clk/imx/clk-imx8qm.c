@@ -4,6 +4,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>

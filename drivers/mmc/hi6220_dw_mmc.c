@@ -4,6 +4,7 @@
  * peter.griffin <peter.griffin@linaro.org>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dwmmc.h>

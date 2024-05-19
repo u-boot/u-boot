@@ -7,6 +7,7 @@
  * Loosely based on Linux kernel drivers/clk/ti/dpll.c
  */
 
+#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <div64.h>

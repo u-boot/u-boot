@@ -3,10 +3,10 @@
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/mrccache.h>
 #include <asm/post.h>
-#include <asm/u-boot-x86.h>
 
 int arch_cpu_init(void)
 {

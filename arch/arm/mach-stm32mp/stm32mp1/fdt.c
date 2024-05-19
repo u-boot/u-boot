@@ -5,11 +5,11 @@
 
 #define LOG_CATEGORY LOGC_ARCH
 
+#include <common.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
 #include <log.h>
 #include <tee.h>
-#include <mach/stm32.h>
 #include <asm/arch/sys_proto.h>
 #include <dt-bindings/pinctrl/stm32-pinfunc.h>
 #include <linux/io.h>

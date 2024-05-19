@@ -2,7 +2,7 @@
 /*
  * Copyright 2019 NXP
  */
-#include <config.h>
+#include <common.h>
 #include <fdt_support.h>
 #include <net.h>
 #include <asm/io.h>

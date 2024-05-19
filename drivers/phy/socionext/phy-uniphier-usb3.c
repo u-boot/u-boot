@@ -4,6 +4,7 @@
  * Copyright 2019-2023 Socionext, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 

@@ -2,6 +2,7 @@
 /*
  * Copyright 2019 Broadcom.
  */
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <asm/gic.h>

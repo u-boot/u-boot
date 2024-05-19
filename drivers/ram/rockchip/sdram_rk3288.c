@@ -6,7 +6,7 @@
  * Adapted from coreboot.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>

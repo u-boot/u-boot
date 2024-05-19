@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_NORTHBRIDGE
 
+#include <common.h>
 #include <binman.h>
 #include <bootstage.h>
 #include <dm.h>

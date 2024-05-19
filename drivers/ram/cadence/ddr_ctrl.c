@@ -24,6 +24,7 @@
  * bandwidth allocated to each AXI slave can be set.
  */
 
+#include <common.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
 #include <asm/io.h>

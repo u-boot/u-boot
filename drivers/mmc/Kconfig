@@ -147,16 +147,9 @@ config SPL_MMC_IO_VOLTAGE
 	  support. For eMMC this not mandatory, but not enabling this option may
 	  prevent the driver of using the faster modes.
 
-config MMC_SUPPORTS_TUNING
-	bool
-
-config SPL_MMC_SUPPORTS_TUNING
-	bool
-
 config MMC_UHS_SUPPORT
 	bool "enable UHS support"
 	depends on MMC_IO_VOLTAGE
-	select MMC_SUPPORTS_TUNING
 	help
 	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
@@ -165,7 +158,6 @@ config MMC_UHS_SUPPORT
 config SPL_MMC_UHS_SUPPORT
 	bool "enable UHS support in SPL"
 	depends on SPL_MMC_IO_VOLTAGE
-	select SPL_MMC_SUPPORTS_TUNING
 	help
 	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
@@ -201,7 +193,6 @@ config SPL_MMC_HS400_SUPPORT
 
 config MMC_HS200_SUPPORT
 	bool "enable HS200 support"
-	select MMC_SUPPORTS_TUNING
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -209,7 +200,6 @@ config MMC_HS200_SUPPORT
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
 	depends on SPL_MMC
-	select SPL_MMC_SUPPORTS_TUNING
 	help
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
@@ -357,7 +347,6 @@ config MMC_OCTEONTX
 	bool "Marvell Octeon Multimedia Card Interface support"
 	depends on (ARCH_OCTEON || ARCH_OCTEONTX || ARCH_OCTEONTX2)
 	depends on DM_MMC
-	select MMC_SUPPORTS_TUNING if ARCH_OCTEONTX2
 	help
 	  This selects the Octeon Multimedia card Interface.
 	  If you have an OcteonTX/TX2 or MIPS Octeon board with a

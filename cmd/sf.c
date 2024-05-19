@@ -5,6 +5,7 @@
  * Copyright (C) 2008 Atmel Corporation
  */
 
+#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <div64.h>
@@ -13,7 +14,6 @@
 #include <malloc.h>
 #include <mapmem.h>
 #include <spi.h>
-#include <time.h>
 #include <spi_flash.h>
 #include <asm/cache.h>
 #include <jffs2/jffs2.h>

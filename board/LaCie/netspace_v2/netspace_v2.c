@@ -8,6 +8,7 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <init.h>

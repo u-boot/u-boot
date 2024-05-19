@@ -3,6 +3,7 @@
  * Copyright (C) 2022 Stefan Roese <sr@denx.de>
  */
 
+#include <common.h>
 #include <cyclic.h>
 #include <dm.h>
 #include <test/common.h>

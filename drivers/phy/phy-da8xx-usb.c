@@ -6,9 +6,9 @@
  * DT support added by: Adam Ford <aford173@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
-#include <time.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <asm/arch/hardware.h>

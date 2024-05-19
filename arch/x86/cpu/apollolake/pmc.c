@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_ACPI_PMC
 
+#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <log.h>

@@ -6,7 +6,7 @@
  * Command for encapsulating DEK blob
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <malloc.h>
@@ -17,7 +17,6 @@
 #include <asm/arch/clock.h>
 #include <mapmem.h>
 #include <tee.h>
-#include <vsprintf.h>
 #ifdef CONFIG_IMX_SECO_DEK_ENCAP
 #include <imx_container.h>
 #include <firmware/imx/sci/sci.h>

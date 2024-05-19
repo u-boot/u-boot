@@ -3,7 +3,7 @@
  * Copyright 2017-2019 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 #include <asm/io.h>

@@ -8,6 +8,7 @@
  * JinHua Luo, GuangDong Linux Center, <luo.jinhua@gd-linux.com>
  */
 
+#include <common.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
@@ -15,7 +16,6 @@
 #include <malloc.h>
 #include <time.h>
 #include <watchdog.h>
-#include <linux/errno.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;

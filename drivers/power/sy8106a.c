@@ -3,6 +3,7 @@
  * (C) Copyright 2016
  * Jelle van der Waa <jelle@vdwaa.nl>
  */
+#include <common.h>
 #include <i2c.h>
 #include <sy8106a.h>
 

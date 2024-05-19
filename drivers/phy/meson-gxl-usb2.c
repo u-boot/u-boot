@@ -7,6 +7,7 @@
  * Author: Neil Armstrong <narmstron@baylibre.com>
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <bitfield.h>

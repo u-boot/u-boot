@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY UCLASS_UFS
 
+#include <common.h>
 #include "ufs.h"
 #include <dm.h>
 

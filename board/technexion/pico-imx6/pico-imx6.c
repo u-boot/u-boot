@@ -6,6 +6,7 @@
  * Author: Fabio Estevam <festevam@gmail.com>
  */
 
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>

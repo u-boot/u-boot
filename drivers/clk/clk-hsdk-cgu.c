@@ -9,6 +9,7 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>

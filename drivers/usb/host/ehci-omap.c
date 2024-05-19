@@ -10,8 +10,8 @@
  *
  */
 
+#include <common.h>
 #include <log.h>
-#include <time.h>
 #include <usb.h>
 #include <linux/delay.h>
 #include <usb/ulpi.h>

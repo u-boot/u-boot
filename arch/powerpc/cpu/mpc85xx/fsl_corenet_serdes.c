@@ -3,7 +3,7 @@
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <time.h>

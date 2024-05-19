@@ -4,6 +4,7 @@
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

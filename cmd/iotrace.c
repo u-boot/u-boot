@@ -3,9 +3,9 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#include <common.h>
 #include <command.h>
 #include <iotrace.h>
-#include <vsprintf.h>
 
 static void do_print_stats(void)
 {

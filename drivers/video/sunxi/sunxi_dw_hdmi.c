@@ -6,6 +6,7 @@
  */
 
 #include <clk.h>
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <dw_hdmi.h>

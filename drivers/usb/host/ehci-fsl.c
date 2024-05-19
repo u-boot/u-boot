@@ -7,6 +7,7 @@
  * Author: Tor Krill tor@excito.com
  */
 
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <pci.h>

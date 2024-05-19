@@ -9,6 +9,7 @@
 #include <asm/armv8/mmu.h>
 #include <asm/system.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;

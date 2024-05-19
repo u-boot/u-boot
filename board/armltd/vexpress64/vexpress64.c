@@ -4,7 +4,7 @@
  * David Feng <fenghua@phytium.com.cn>
  * Sharma Bhupesh <bhupesh.sharma@freescale.com>
  */
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>

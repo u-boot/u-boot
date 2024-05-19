@@ -5,6 +5,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
+#include <common.h>
 #include <hang.h>
 #include <malloc.h>
 #include <asm/global_data.h>

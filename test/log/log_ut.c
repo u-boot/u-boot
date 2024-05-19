@@ -5,6 +5,7 @@
  * Logging function tests.
  */
 
+#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <test/log.h>

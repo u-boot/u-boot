@@ -6,6 +6,7 @@
  *  Maximilian Schwerin <mvs@tigris.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>

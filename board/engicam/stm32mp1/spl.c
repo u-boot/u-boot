@@ -5,7 +5,7 @@
  * Copyright (C) 2020 Amarula Solutions(India)
  */
 
-#include <linux/types.h>
+#include <common.h>
 
 /* board early initialisation in board_f: need to use global variable */
 static u32 opp_voltage_mv __section(".data");

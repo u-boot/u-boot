@@ -5,6 +5,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
+#include <common.h>
 #include <errno.h>
 #include <marvell_phy.h>
 #include <phy.h>

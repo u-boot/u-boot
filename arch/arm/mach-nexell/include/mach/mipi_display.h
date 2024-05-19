@@ -11,8 +11,6 @@
 #ifndef MIPI_DISPLAY_H
 #define MIPI_DISPLAY_H
 
-#include <linux/types.h>
-
 /* MIPI DSI Processor-to-Peripheral transaction types */
 enum {
 	MIPI_DSI_V_SYNC_START				= 0x01,

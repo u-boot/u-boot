@@ -3,6 +3,7 @@
  * Copyright (C) 2012 Samsung Electronics
  */
 
+#include <common.h>
 #include <config.h>
 #include <init.h>
 #include <log.h>

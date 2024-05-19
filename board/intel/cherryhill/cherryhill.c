@@ -3,6 +3,7 @@
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <asm/arch/gpio.h>
 #include <asm/fsp1/fsp_support.h>
 

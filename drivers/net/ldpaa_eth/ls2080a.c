@@ -2,7 +2,7 @@
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
-#include <config.h>
+#include <common.h>
 #include <phy.h>
 #include <fsl-mc/ldpaa_wriop.h>
 #include <asm/io.h>

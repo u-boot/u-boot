@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_RESET
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>

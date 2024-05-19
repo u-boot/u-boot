@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <part.h>
 #include <asm/global_data.h>

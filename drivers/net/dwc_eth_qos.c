@@ -29,6 +29,7 @@
 
 #define LOG_CATEGORY UCLASS_ETH
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

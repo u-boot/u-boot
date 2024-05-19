@@ -4,8 +4,8 @@
  *		      Wenyou Yang <wenyou.yang@atmel.com>
  */
 
+#include <common.h>
 #include <dm.h>
-#include <time.h>
 #include <wdt.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

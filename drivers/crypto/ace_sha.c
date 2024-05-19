@@ -3,12 +3,10 @@
  * Advanced Crypto Engine - SHA Firmware
  * Copyright (c) 2012  Samsung Electronics
  */
-
-#include <config.h>
+#include <common.h>
 #include "ace_sha.h"
 #include <log.h>
 #include <rand.h>
-#include <linux/string.h>
 
 #ifdef CONFIG_SHA_HW_ACCEL
 #include <u-boot/sha256.h>

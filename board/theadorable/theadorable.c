@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2019 Stefan Roese <sr@denx.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>

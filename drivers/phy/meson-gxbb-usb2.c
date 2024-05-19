@@ -8,6 +8,7 @@
  * Author: Beniamino Galvani <b.galvani@gmail.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

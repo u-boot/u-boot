@@ -20,7 +20,7 @@
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/global_data.h>

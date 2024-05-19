@@ -6,6 +6,7 @@
  *	zhengxunli <zhengxunli@mxic.com.tw>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

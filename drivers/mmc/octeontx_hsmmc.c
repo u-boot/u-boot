@@ -794,7 +794,7 @@ octeontx_mmc_get_cr_mods(struct mmc *mmc, const struct mmc_cmd *cmd,
 	u8 desired_ctype = 0;
 
 	if (IS_MMC(mmc)) {
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 		if (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200) {
 			if (cmd->resp_type == MMC_RSP_R1)
 				cr.rtype_xor = 1;
@@ -1631,7 +1631,7 @@ static int octeontx_mmc_dev_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	return octeontx_mmc_send_cmd(dev_to_mmc(dev), cmd, data);
 }
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 static int octeontx_mmc_test_cmd(struct mmc *mmc, u32 opcode, int *statp)
 {
 	struct mmc_cmd cmd;
@@ -2421,12 +2421,12 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
 
 	return 0;
 }
-#else /* CONFIG_MMC_SUPPORTS_TUNING */
+#else /* MMC_SUPPORTS_TUNING */
 static void octeontx_mmc_set_emm_timing(struct mmc *mmc,
 					union mio_emm_timing emm_timing)
 {
 }
-#endif /* CONFIG_MMC_SUPPORTS_TUNING */
+#endif /* MMC_SUPPORTS_TUNING */
 
 /**
  * Calculate the clock period with rounding up
@@ -2573,7 +2573,7 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
 
 	err = octeontx_mmc_configure_delay(mmc);
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	if (!err && mmc->selected_mode == MMC_HS_400 && !slot->hs400_tuned) {
 		debug("%s: Tuning HS400 mode\n", __func__);
 		err = octeontx_tune_hs400(mmc);
@@ -3776,7 +3776,7 @@ static const struct dm_mmc_ops octeontx_hsmmc_ops = {
 	.set_ios = octeontx_mmc_set_ios,
 	.get_cd = octeontx_mmc_get_cd,
 	.get_wp = octeontx_mmc_get_wp,
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = octeontx_mmc_execute_tuning,
 #endif
 };

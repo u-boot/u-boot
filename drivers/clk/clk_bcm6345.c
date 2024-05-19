@@ -6,6 +6,7 @@
  *	Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

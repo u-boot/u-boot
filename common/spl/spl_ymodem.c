@@ -8,11 +8,13 @@
  *
  * Matt Porter <mporter@ti.com>
  */
+#include <common.h>
 #include <gzip.h>
 #include <image.h>
 #include <log.h>
 #include <spl.h>
 #include <xyzModem.h>
+#include <asm/u-boot.h>
 #include <linux/libfdt.h>
 
 #define BUF_SIZE 1024

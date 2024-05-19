@@ -5,6 +5,7 @@
  *
  * Ravi B <ravibabu@ti.com>
  */
+#include <common.h>
 #include <env.h>
 #include <spl.h>
 #include <linux/compiler.h>

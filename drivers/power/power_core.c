@@ -9,6 +9,7 @@
  * (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <malloc.h>

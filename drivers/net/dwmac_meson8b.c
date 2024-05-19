@@ -3,6 +3,7 @@
  * Copyright (C) 2021 BayLibre, SAS
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <phy.h>

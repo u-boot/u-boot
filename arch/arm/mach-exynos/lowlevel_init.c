@@ -23,6 +23,7 @@
  * MA 02111-1307 USA
  */
 
+#include <common.h>
 #include <config.h>
 #include <debug_uart.h>
 #include <asm/system.h>

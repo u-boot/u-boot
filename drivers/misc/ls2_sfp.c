@@ -12,6 +12,7 @@
  */
 
 #define LOG_CATEGORY UCLASS_MISC
+#include <common.h>
 #include <clk.h>
 #include <fuse.h>
 #include <misc.h>

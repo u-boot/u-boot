@@ -7,7 +7,7 @@
  * Derived from drivers/spi/mpc8xxx_spi.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

@@ -4,6 +4,7 @@
  * Copyright (C) 2023 Linus Walleij <linus.walleij@linaro.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

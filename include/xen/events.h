@@ -15,7 +15,6 @@
 #ifndef _EVENTS_H_
 #define _EVENTS_H_
 
-#include <asm/ptrace.h>
 #include <asm/xen/hypercall.h>
 #include <xen/interface/event_channel.h>
 

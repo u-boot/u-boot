@@ -5,6 +5,7 @@
  *	Mingkai Hu <Mingkai.hu@freescale.com>
  */
 
+#include <common.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <fsl_mdio.h>

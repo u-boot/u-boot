@@ -3,9 +3,9 @@
  * (C) Copyright 2018 Xilinx, Inc. (Michal Simek)
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <init.h>
-#include <linux/errno.h>
 
 int board_init(void)
 {

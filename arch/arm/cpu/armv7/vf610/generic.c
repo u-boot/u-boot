@@ -3,6 +3,7 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <clock_legacy.h>
 #include <command.h>
 #include <cpu_func.h>

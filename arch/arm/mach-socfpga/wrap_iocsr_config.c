@@ -3,7 +3,7 @@
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <errno.h>
 #include <asm/arch/clock_manager.h>
 

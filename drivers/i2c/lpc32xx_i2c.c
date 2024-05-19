@@ -6,7 +6,7 @@
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <i2c.h>

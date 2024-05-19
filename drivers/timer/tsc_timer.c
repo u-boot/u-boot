@@ -6,6 +6,7 @@
  * arch/x86/kernel/tsc_msr.c and arch/x86/kernel/tsc.c
  */
 
+#include <common.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <log.h>

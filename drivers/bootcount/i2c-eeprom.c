@@ -4,6 +4,7 @@
  * (C) Copyright 2019 GE
  */
 
+#include <common.h>
 #include <bootcount.h>
 #include <dm.h>
 #include <i2c_eeprom.h>

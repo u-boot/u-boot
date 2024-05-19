@@ -3,6 +3,7 @@
  * Copyright (C) 2015 Alexey Brodkin <abrodkin@synopsys.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <log.h>
 #include <dm/device_compat.h>

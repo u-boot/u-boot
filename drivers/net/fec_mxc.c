@@ -7,6 +7,7 @@
  * (C) Copyright 2007 Pengutronix, Juergen Beisert <j.beisert@pengutronix.de>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <env.h>

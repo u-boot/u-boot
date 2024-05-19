@@ -5,6 +5,7 @@
  *
  */
 #define DEBUG
+#include <common.h>
 #include <malloc.h>
 #include <video.h>
 #include <dm.h>

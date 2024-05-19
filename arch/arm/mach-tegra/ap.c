@@ -6,7 +6,7 @@
 
 /* Tegra AP (Application Processor) code */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/bug.h>
 #include <asm/io.h>

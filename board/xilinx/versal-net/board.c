@@ -6,6 +6,7 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <fdtdec.h>
 #include <init.h>

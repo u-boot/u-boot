@@ -5,6 +5,7 @@
  * Part of this file is ported from coreboot src/arch/x86/boot/pirq_routing.c
  */
 
+#include <common.h>
 #include <log.h>
 #include <pci.h>
 #include <asm/global_data.h>

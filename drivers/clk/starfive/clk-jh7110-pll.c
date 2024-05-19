@@ -6,6 +6,7 @@
  *		Xingyu Wu <xingyu.wu@starfivetech.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <clk-uclass.h>

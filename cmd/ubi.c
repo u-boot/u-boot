@@ -11,6 +11,7 @@
  * published by the Free Software Foundation.
  */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <exports.h>

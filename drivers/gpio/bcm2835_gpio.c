@@ -4,6 +4,7 @@
  * <vikram186@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <errno.h>

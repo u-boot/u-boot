@@ -5,6 +5,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/ofnode.h>
 #include <dt-bindings/reset/starfive,jh7110-crg.h>

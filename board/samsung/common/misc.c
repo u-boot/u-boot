@@ -4,7 +4,7 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <libtizen.h>

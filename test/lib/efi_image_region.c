@@ -3,6 +3,7 @@
  * (C) Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <common.h>
 #include <efi_loader.h>
 #include <test/lib.h>
 #include <test/test.h>

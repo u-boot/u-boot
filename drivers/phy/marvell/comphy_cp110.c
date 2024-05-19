@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2016 Marvell International Ltd.
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/global_data.h>
@@ -11,7 +12,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <linux/delay.h>
-#include <linux/errno.h>
 #include <linux/printk.h>
 
 #include "comphy_core.h"

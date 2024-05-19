@@ -5,6 +5,7 @@
  * Author: Weijie Gao <weijie.gao@mediatek.com>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-bindings/clock/mt7628-clk.h>

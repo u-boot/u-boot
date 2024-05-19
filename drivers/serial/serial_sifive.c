@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Anup Patel <anup@brainfault.org>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <debug_uart.h>
 #include <dm.h>

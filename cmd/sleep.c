@@ -4,10 +4,9 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <command.h>
 #include <console.h>
-#include <time.h>
-#include <vsprintf.h>
 #include <linux/delay.h>
 
 static int do_sleep(struct cmd_tbl *cmdtp, int flag, int argc,

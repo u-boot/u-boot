@@ -4,7 +4,7 @@
  *  based on board/solidrun/clearfog/clearfog.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <init.h>
 #include <miiphy.h>

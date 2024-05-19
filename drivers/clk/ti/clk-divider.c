@@ -7,6 +7,7 @@
  * Loosely based on Linux kernel drivers/clk/ti/divider.c
  */
 
+#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <div64.h>

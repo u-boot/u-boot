@@ -3,6 +3,7 @@
  * Copyright (c), Vaisala Oyj
  */
 
+#include <common.h>
 #include <asm/gpio.h>
 #include <dm.h>
 #include <dm/devres.h>

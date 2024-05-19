@@ -11,6 +11,7 @@
  * ISL1208 Real Time Clock (RTC).
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <rtc.h>

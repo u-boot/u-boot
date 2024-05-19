@@ -5,6 +5,7 @@
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <net.h>

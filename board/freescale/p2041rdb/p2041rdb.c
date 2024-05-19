@@ -3,7 +3,7 @@
  * Copyright 2011,2012 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <command.h>
 #include <env.h>

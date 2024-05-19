@@ -12,7 +12,6 @@ obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk-fixed-factor.o
 obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
 obj-$(CONFIG_$(SPL_TPL_)CLK_GPIO) += clk-gpio.o
 
-obj-y += adi/
 obj-y += analogbits/
 obj-y += imx/
 obj-$(CONFIG_CLK_JH7110) += starfive/

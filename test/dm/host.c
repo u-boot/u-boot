@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <fs.h>

@@ -6,8 +6,6 @@
 #ifndef _DDR_SPD_H_
 #define _DDR_SPD_H_
 
-#include <linux/types.h>
-
 /*
  * Format from "JEDEC Standard No. 21-C,
  * Appendix D: Rev 1.0: SPD's for DDR SDRAM

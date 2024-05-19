@@ -6,6 +6,7 @@
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm-demo.h>
 #include <mapmem.h>

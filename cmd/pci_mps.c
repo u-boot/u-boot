@@ -6,6 +6,7 @@
  * PCI Express Maximum Packet Size (MPS) configuration
  */
 
+#include <common.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>

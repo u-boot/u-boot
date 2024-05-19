@@ -12,6 +12,7 @@
  * exynos5 specific PHY-init sequence.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>

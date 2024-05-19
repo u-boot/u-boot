@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_SPI_EMUL
 
+#include <common.h>
 #include <dm.h>
 #include <spi.h>
 #include <spi_flash.h>

@@ -4,6 +4,7 @@
  *  Martin Fuzzey  <martin.fuzzey@flowbird.group>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>

@@ -21,13 +21,12 @@
  *
  *==========================================================================
  */
+#include <common.h>
 #include <xyzModem.h>
 #include <stdarg.h>
-#include <time.h>
 #include <u-boot/crc.h>
 #include <watchdog.h>
 #include <env.h>
-#include <vsprintf.h>
 
 /* Assumption - run xyzModem protocol over the console port */
 

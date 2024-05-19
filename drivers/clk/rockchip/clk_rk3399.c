@@ -4,6 +4,7 @@
  * (C) 2017 Theobroma Systems Design und Consulting GmbH
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-structs.h>

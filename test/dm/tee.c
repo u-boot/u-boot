@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Linaro Limited
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

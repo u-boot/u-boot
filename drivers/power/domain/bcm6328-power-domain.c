@@ -3,6 +3,7 @@
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <power-domain-uclass.h>

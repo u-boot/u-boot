@@ -3,7 +3,7 @@
  * Copyright (c) 2012, Google Inc.
  */
 
-#include <stdio.h>
+#include <common.h>
 #include <fs.h>
 #include <malloc.h>
 #include <os.h>

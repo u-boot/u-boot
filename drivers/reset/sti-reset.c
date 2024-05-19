@@ -4,6 +4,7 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>

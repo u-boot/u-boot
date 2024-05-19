@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2018-2019 Toradex AG
  */
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>

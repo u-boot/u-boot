@@ -4,7 +4,7 @@
  * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
  */
 
-#include <config.h>
+#include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <ram.h>

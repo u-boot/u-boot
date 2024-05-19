@@ -3,6 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
+#include <common.h>
 #include <gsc.h>
 #include <hexdump.h>
 #include <i2c.h>

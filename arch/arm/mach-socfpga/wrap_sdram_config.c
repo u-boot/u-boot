@@ -3,10 +3,8 @@
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <errno.h>
-#include <linux/types.h>
-#include <linux/kernel.h>
 #include <asm/arch/sdram.h>
 
 /* Board-specific header. */

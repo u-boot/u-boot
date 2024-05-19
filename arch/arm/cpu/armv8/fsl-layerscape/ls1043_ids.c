@@ -3,12 +3,11 @@
  * Copyright 2018 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch-fsl-layerscape/immap_lsch2.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <asm/arch-fsl-layerscape/fsl_portals.h>
 #include <fsl_sec.h>
-#include <asm/arch/stream_id_lsch3.h>
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
 struct qportal_info qp_info[CFG_SYS_QMAN_NUM_PORTALS] = {

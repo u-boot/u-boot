@@ -4,6 +4,7 @@
  * Copyright 2022 DENX Software Engineering GmbH, Philip Oberfichtner <pro@denx.de>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <i2c_eeprom.h>
 #include <net.h>

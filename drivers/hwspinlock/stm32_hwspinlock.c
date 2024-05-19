@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_HWSPINLOCK
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <hwspinlock.h>

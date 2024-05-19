@@ -26,4 +26,3 @@ obj-$(CONFIG_SOC_K3_AM62P5) += am62p5_init.o
 endif
 obj-y += common.o security.o
 obj-$(CONFIG_SOC_K3_AM625) += am62x/
-obj-$(CONFIG_SOC_K3_AM642) += am64x/

@@ -9,6 +9,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <command.h>
 #include <hash.h>
 #include <linux/ctype.h>

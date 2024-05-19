@@ -7,6 +7,7 @@
  * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
+#include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>

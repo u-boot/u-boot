@@ -10,7 +10,7 @@
  * Author: James Yang [at freescale.com]
  */
 
-#include <config.h>
+#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <i2c.h>

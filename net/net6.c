@@ -9,12 +9,12 @@
 
 /* Simple IPv6 network layer implementation */
 
+#include <common.h>
 #include <env_internal.h>
 #include <malloc.h>
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>
-#include <vsprintf.h>
 
 /* NULL IPv6 address */
 struct in6_addr const net_null_addr_ip6 = ZERO_IPV6_ADDR;

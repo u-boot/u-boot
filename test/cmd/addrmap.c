@@ -5,6 +5,7 @@
  * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <console.h>
 #include <test/suites.h>
 #include <test/ut.h>

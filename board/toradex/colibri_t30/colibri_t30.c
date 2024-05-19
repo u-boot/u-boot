@@ -4,6 +4,7 @@
  *  Stefan Agner <stefan@agner.ch>
  */
 
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <asm/arch/gp_padctrl.h>

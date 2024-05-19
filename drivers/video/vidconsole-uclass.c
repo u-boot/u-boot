@@ -9,6 +9,7 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
 
+#include <common.h>
 #include <abuf.h>
 #include <charset.h>
 #include <command.h>

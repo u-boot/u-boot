@@ -6,6 +6,7 @@
  *	   Weijie Gao <weijie.gao@mediatek.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

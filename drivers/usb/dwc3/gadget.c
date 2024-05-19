@@ -13,6 +13,7 @@
  * commit 8e74475b0e : usb: dwc3: gadget: use udc-core's reset notifier
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>

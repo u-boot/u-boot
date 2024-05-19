@@ -6,9 +6,7 @@
 #ifndef _FSL_LIODN_H_
 #define _FSL_LIODN_H_
 
-#include <config.h>
-#include <linux/types.h>
-#include <asm/ppc.h>
+#include <asm/types.h>
 #include <fsl_qbman.h>
 
 struct srio_liodn_id_table {

@@ -4,6 +4,7 @@
  * Microchip Technology, Inc.
  * Eugen Hristev <eugen.hristev@microchip.com>
  */
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <w1.h>

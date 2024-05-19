@@ -9,6 +9,7 @@
 
 /* #define DEBUG */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <env_internal.h>

@@ -6,6 +6,7 @@
  * Author: Kishon Vijay Abraham I <kishon@ti.com>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>

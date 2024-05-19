@@ -3,6 +3,7 @@
  * Copyright (C) 2017 The Android Open Source Project
  */
 
+#include <common.h>
 #include <android_ab.h>
 #include <command.h>
 #include <env.h>

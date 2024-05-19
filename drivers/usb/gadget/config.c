@@ -8,6 +8,7 @@
  *                      Remy Bohmer <linux@bohmer.net>
  */
 
+#include <common.h>
 #include <asm/unaligned.h>
 #include <linux/errno.h>
 #include <linux/list.h>

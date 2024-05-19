@@ -6,6 +6,7 @@
  * Copyright (c) 2005-2008 Analog Devices Inc.
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  */
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

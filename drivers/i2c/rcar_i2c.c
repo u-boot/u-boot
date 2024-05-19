@@ -11,6 +11,7 @@
  *   Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>

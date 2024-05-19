@@ -7,6 +7,7 @@
  * Syed Mohammed Khasim <khasim@ti.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 
 /************************************************************

@@ -5,6 +5,7 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include <common.h>
 #include <miiphy.h>
 #include <netdev.h>
 

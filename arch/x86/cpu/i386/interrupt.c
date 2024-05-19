@@ -10,6 +10,7 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
+#include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <hang.h>

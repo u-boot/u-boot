@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_MISC
 
+#include <common.h>
 #include <axi.h>
 #include <dm.h>
 #include <log.h>

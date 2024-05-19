@@ -3,6 +3,7 @@
  * Copyright (C) ASPEED Technology Inc.
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <asm/io.h>

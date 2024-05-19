@@ -6,6 +6,7 @@
  * Written by Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <command.h>
 #include <display_options.h>

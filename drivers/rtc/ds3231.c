@@ -14,7 +14,7 @@
  * copied from ds1337.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <log.h>

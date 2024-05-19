@@ -18,6 +18,7 @@
  * ext4write : Based on generic ext4 protocol.
  */
 
+#include <common.h>
 #include <blk.h>
 #include <ext_common.h>
 #include <ext4fs.h>

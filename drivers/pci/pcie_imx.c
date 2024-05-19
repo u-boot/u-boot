@@ -17,6 +17,7 @@
  * those too in order to have a single modern PCIe iMX driver.
  */
 
+#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <malloc.h>

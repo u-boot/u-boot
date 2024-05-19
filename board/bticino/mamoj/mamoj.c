@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/global_data.h>

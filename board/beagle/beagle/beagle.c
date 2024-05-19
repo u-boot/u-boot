@@ -12,7 +12,7 @@
  *	Syed Mohammed Khasim <khasim@ti.com>
  *
  */
-#include <config.h>
+#include <common.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <env.h>

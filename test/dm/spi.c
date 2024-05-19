@@ -3,6 +3,7 @@
  * Copyright (C) 2013 Google, Inc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <spi.h>

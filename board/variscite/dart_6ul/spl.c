@@ -4,7 +4,7 @@
  * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/arch/clock.h>

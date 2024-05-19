@@ -7,6 +7,7 @@
  * Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#include <common.h>
 #include <axi.h>
 #include <dm.h>
 #include <log.h>

@@ -6,7 +6,6 @@
 #ifndef __MISC_H
 #define __MISC_H
 
-#include <linux/types.h>
 #include <asm/arch/hardware.h>
 
 /* pin muxer definitions */

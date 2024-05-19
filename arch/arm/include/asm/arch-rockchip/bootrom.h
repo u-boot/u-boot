@@ -7,8 +7,6 @@
 #ifndef _ASM_ARCH_BOOTROM_H
 #define _ASM_ARCH_BOOTROM_H
 
-#include <linux/types.h>
-
 /*
  * Saved Stack pointer address.
  * Access might be needed in some special cases.

@@ -8,7 +8,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <display_options.h>

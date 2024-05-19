@@ -17,6 +17,7 @@
  * Copyright (C) 2003-2005 Nokia Corporation
  * Written by Juha Yrjölä <juha.yrjola@nokia.com>
  */
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <asm/global_data.h>

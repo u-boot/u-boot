@@ -3,6 +3,7 @@
  * Copyright (c) 2021 Nuvoton Technology Corp.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <serial.h>

@@ -8,6 +8,7 @@
  * B&R Industrial Automation GmbH - http://www.br-automation.com
  *
  */
+#include <common.h>
 #include <errno.h>
 #include <init.h>
 #include <spl.h>

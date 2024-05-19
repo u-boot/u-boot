@@ -3,6 +3,7 @@
  * (C) Copyright 2015 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/uart.h>

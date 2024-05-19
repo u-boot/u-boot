@@ -7,8 +7,6 @@
 #ifndef _ADC_H_
 #define _ADC_H_
 
-#include <stdbool.h>
-
 /* ADC_CHANNEL() - ADC channel bit mask, to select only required channels */
 #define ADC_CHANNEL(x)		(1 << x)
 

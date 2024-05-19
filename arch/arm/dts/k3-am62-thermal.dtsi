@@ -1,7 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only OR MIT
-/*
- * Copyright (C) 2023-2024 Texas Instruments Incorporated - https://www.ti.com/
- */
+// SPDX-License-Identifier: GPL-2.0
 
 #include <dt-bindings/thermal/thermal.h>
 

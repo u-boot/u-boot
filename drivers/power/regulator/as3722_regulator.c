@@ -6,6 +6,7 @@
  * Placeholder regulator driver for as3722.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

@@ -3,6 +3,7 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#include <common.h>
 #ifdef CONFIG_SANDBOX
 #include <log.h>
 #include <os.h>

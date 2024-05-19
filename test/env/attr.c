@@ -4,6 +4,7 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
+#include <common.h>
 #include <command.h>
 #include <env_attr.h>
 #include <test/env.h>

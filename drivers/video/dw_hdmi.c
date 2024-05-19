@@ -5,14 +5,13 @@
  * Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/io.h>
 #include <i2c.h>
 #include <media_bus_format.h>
-#include <time.h>
 #include <linux/delay.h>
-#include <linux/errno.h>
 #include "dw_hdmi.h"
 
 struct tmds_n_cts {

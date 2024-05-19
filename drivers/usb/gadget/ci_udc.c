@@ -7,6 +7,7 @@
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
  */
 
+#include <common.h>
 #include <command.h>
 #include <config.h>
 #include <cpu_func.h>

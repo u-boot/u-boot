@@ -3,6 +3,7 @@
  * Copyright 2018 NXP
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

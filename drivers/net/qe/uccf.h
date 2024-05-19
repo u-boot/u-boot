@@ -9,8 +9,8 @@
 #ifndef __UCCF_H__
 #define __UCCF_H__
 
-#include <linux/types.h>
-#include <linux/immap_qe.h>
+#include "common.h"
+#include "linux/immap_qe.h"
 #include <fsl_qe.h>
 
 /* Fast or Giga ethernet */

@@ -7,7 +7,7 @@
  * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>

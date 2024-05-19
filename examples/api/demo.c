@@ -5,7 +5,7 @@
  * Written by: Rafal Jaworowski <raj@semihalf.com>
  */
 
-#include <stdio.h>
+#include <common.h>
 #include <env.h>
 #include <linux/types.h>
 #include <api_public.h>

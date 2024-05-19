@@ -10,7 +10,6 @@
 
 #if CONFIG_IS_ENABLED(HANDOFF)
 
-#include <linux/types.h>
 #include <asm/handoff.h>
 
 /**

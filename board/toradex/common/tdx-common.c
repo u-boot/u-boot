@@ -4,7 +4,7 @@
  */
 
 #include <dm.h>
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <g_dnl.h>
 #include <init.h>

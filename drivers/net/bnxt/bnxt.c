@@ -3,6 +3,7 @@
  * Copyright 2019-2021 Broadcom.
  */
 
+#include <common.h>
 
 #include <asm/io.h>
 #include <dm.h>

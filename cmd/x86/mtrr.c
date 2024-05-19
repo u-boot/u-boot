@@ -3,9 +3,9 @@
  * (C) Copyright 2014 Google, Inc
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
-#include <vsprintf.h>
 #include <asm/msr.h>
 #include <asm/mp.h>
 #include <asm/mtrr.h>

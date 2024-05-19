@@ -5,6 +5,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
+#include <common.h>
 #include <phy.h>
 #include <linux/delay.h>
 

@@ -8,6 +8,7 @@
  * associated with timer tick.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>

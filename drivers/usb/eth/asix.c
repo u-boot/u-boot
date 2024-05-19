@@ -5,6 +5,7 @@
  * Patched for AX88772B by Antmicro Ltd <www.antmicro.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <net.h>

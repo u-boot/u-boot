@@ -3,6 +3,7 @@
  * Copyright (C) 2014-2015 Samsung Electronics
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
+#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <dm.h>

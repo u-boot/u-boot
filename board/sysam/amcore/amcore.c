@@ -7,7 +7,7 @@
  * This file copies memory testdram() from sandburst/common/sb_common.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/immap.h>

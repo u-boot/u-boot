@@ -4,6 +4,7 @@
  * Copyright (C) 2011  Missing Link Electronics
  *                     Joachim Foerster <joachim@missinglinkelectronics.com>
  */
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <malloc.h>

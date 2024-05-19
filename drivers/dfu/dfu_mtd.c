@@ -7,6 +7,7 @@
  * Based on dfu_nand.c
  */
 
+#include <common.h>
 #include <dfu.h>
 #include <mtd.h>
 #include <linux/err.h>

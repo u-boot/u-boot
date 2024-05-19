@@ -9,6 +9,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
 #include <axi.h>
 #include <command.h>
 #include <console.h>

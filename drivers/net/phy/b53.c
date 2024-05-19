@@ -22,6 +22,7 @@
  * cover other switches would be trivial.
  */
 
+#include <common.h>
 #include <command.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

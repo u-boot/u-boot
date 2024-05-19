@@ -3,16 +3,14 @@
  * Copyright (C) 2018 Intel Corporation <www.intel.com>
  */
 
+#include <common.h>
 #include <altera.h>
 #include <log.h>
-#include <time.h>
 #include <watchdog.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/smc_api.h>
 #include <linux/delay.h>
-#include <linux/errno.h>
 #include <linux/intel-smc.h>
-#include <linux/string.h>
 
 #define RECONFIG_STATUS_POLL_RESP_TIMEOUT_MS		60000
 #define RECONFIG_STATUS_INTERVAL_DELAY_US		1000000

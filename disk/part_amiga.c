@@ -4,12 +4,12 @@
  * Hans-Joerg Frieden, Hyperion Entertainment
  * Hans-JoergF@hyperion-entertainment.com
  */
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <ide.h>
 #include "part_amiga.h"
 #include <part.h>
-#include <vsprintf.h>
 
 #undef AMIGA_DEBUG
 

@@ -5,6 +5,7 @@
 
 #define pr_fmt(fmt) "as3722: " fmt
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

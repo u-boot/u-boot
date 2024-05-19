@@ -28,7 +28,7 @@
  -
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/mtd/rawnand.h>
 #include <asm/io.h>

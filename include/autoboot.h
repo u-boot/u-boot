@@ -12,7 +12,6 @@
 #define __AUTOBOOT_H
 
 #include <stdbool.h>
-#include <stddef.h>
 
 #ifdef CONFIG_SANDBOX
 

@@ -7,9 +7,9 @@
  * Copyright (c) 2015 Tyco Fire Protection Products.
  */
 
+#include <common.h>
 #include <errno.h>
 #include <init.h>
-#include <time.h>
 #include <asm/arch/dma.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>

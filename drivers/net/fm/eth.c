@@ -4,7 +4,7 @@
  * Copyright 2020 NXP
  *	Dave Liu <daveliu@freescale.com>
  */
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <part.h>
 #include <asm/io.h>

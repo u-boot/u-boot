@@ -6,6 +6,7 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <common.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/ti-aemif.h>
 

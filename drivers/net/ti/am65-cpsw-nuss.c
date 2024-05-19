@@ -6,6 +6,7 @@
  *
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <asm/gpio.h>

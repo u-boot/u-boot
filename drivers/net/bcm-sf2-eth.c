@@ -3,6 +3,7 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>

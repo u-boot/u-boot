@@ -4,6 +4,7 @@
  * Copyright (C) 2019 Oliver Graute <oliver.graute@kococonnector.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <errno.h>

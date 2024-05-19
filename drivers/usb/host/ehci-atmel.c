@@ -5,6 +5,7 @@
  * Written-by: Bo Shen <voice.shen@atmel.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

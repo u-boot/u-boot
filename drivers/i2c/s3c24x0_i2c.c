@@ -4,10 +4,10 @@
  * David Mueller, ELSOFT AG, d.mueller@elsoft.ch
  */
 
+#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <time.h>
 #if defined(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 #include <log.h>
 #include <asm/arch/clk.h>

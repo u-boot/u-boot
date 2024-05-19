@@ -9,6 +9,7 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <regmap.h>

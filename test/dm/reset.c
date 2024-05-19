@@ -3,6 +3,7 @@
  * Copyright (c) 2016, NVIDIA CORPORATION.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <log.h>

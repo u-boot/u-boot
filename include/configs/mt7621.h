@@ -14,6 +14,9 @@
 
 #define CFG_SYS_INIT_SP_OFFSET		0x800000
 
+/* MMC */
+#define MMC_SUPPORTS_TUNING
+
 /* Serial SPL */
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
 #define CFG_SYS_NS16550_CLK		50000000

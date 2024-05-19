@@ -4,6 +4,7 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

@@ -16,6 +16,7 @@
  * and remove" for phy-omap-usb2.c
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <ti-usb-phy-uboot.h>
 #include <dm/device_compat.h>

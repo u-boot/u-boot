@@ -5,6 +5,7 @@
  * Rockchip SARADC driver for U-Boot
  */
 
+#include <common.h>
 #include <adc.h>
 #include <clk.h>
 #include <dm.h>

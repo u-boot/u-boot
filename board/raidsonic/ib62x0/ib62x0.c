@@ -6,6 +6,7 @@
  * Simon Baatz <gmbnomis@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <asm/global_data.h>

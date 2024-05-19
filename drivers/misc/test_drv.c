@@ -3,6 +3,7 @@
  * Copyright (c) 2014 Google, Inc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/test.h>
 #include <asm/global_data.h>

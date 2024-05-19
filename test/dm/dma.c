@@ -6,6 +6,7 @@
  * Grygorii Strashko <grygorii.strashko@ti.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <dm/test.h>

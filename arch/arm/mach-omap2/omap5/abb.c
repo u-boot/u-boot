@@ -8,7 +8,7 @@
  * Andrii Tseglytskyi <andrii.tseglytskyi@ti.com>
  */
 
-#include <asm/arch/omap.h>
+#include <common.h>
 #include <asm/omap_common.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

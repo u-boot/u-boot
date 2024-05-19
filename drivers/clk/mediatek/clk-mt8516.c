@@ -6,6 +6,7 @@
  * Author: Fabien Parent <fparent@baylibre.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt8516-clk.h>

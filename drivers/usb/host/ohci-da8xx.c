@@ -3,6 +3,7 @@
  * Copyright (C) 2012 Sughosh Ganu <urwithsughosh@gmail.com>
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <clk.h>

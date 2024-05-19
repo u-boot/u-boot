@@ -13,6 +13,7 @@
  * https://github.com/microsoft/ms-tpm-20-ref/tree/master/Samples/ARM32-FirmwareTPM/optee_ta/fTPM
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <tpm-v2.h>

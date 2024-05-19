@@ -4,14 +4,13 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <autoboot.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <command.h>
 #include <console.h>
 #include <env.h>
-#include <errno.h>
 #include <fdtdec.h>
 #include <hash.h>
 #include <log.h>

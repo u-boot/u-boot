@@ -3,6 +3,7 @@
  * Copyright (c) 2012, Google Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <fs.h>

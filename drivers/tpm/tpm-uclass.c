@@ -6,9 +6,9 @@
 
 #define LOG_CATEGORY UCLASS_TPM
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
-#include <time.h>
 #include <tpm_api.h>
 #include <tpm-v1.h>
 #include <tpm-v2.h>

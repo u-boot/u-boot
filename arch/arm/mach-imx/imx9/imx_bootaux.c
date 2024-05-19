@@ -3,12 +3,11 @@
  * Copyright 2022 NXP
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <imx_sip.h>
-#include <vsprintf.h>
 #include <linux/arm-smccc.h>
-#include <linux/errno.h>
 
 int arch_auxiliary_core_check_up(u32 core_id)
 {

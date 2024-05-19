@@ -3,6 +3,7 @@
  * (C) Copyright 2008 - 2013 Tensilica Inc.
  */
 
+#include <common.h>
 #include <clock_legacy.h>
 #include <time.h>
 #include <asm/global_data.h>

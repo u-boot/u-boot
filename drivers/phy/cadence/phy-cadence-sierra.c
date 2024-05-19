@@ -11,6 +11,7 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  *
  */
+#include <common.h>
 #include <clk.h>
 #include <linux/delay.h>
 #include <linux/clk-provider.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/test.h>
 #include <regmap.h>

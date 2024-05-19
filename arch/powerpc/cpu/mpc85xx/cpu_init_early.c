@@ -3,9 +3,8 @@
  * Copyright 2009-2012 Freescale Semiconductor, Inc
  */
 
-#include <asm/ppc.h>
+#include <common.h>
 #include <system-constants.h>
-#include <linux/types.h>
 #include <asm-offsets.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>

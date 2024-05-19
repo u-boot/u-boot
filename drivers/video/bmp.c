@@ -8,6 +8,7 @@
  * BMP handling routines
  */
 
+#include <common.h>
 #include <bmp_layout.h>
 #include <command.h>
 #include <dm.h>

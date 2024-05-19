@@ -3,10 +3,10 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
-#include <time.h>
 #include <linux/delay.h>
 #include <power/pmic.h>
 #include <power/regulator.h>

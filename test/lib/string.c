@@ -9,6 +9,7 @@
  * This has to be considered in testing.
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <test/lib.h>

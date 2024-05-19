@@ -11,7 +11,7 @@
  */
 
 /* #define DEBUG */
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/delay.h>
 #include <linux/types.h>

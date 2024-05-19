@@ -4,7 +4,7 @@
  */
 
 
-#include <mach/base_addr_ac5.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>

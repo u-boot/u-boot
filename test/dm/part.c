@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Sean Anderson <sean.anderson@seco.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <mmc.h>
 #include <part.h>

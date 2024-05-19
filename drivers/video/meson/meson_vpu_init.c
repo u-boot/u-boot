@@ -8,6 +8,7 @@
 
 #define DEBUG
 
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

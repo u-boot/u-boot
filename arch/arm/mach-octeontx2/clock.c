@@ -5,6 +5,7 @@
  * https://spdx.org/licenses
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/board.h>
 #include <asm/arch/clock.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2016 Marvell International Ltd.
  */
 
+#include <common.h>
 #include <fdt_support.h>
 #include <log.h>
 #include <asm/global_data.h>

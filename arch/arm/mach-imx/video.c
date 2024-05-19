@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <stdio.h>
+#include <common.h>
 #include <env.h>
 #include <linux/errno.h>
-#include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/video.h>
 
 #ifdef CONFIG_IMX_HDMI

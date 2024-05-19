@@ -8,6 +8,7 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
+#include <common.h>
 #include <blk.h>
 #include <console.h>
 #include <dm.h>

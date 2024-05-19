@@ -3,6 +3,7 @@
  * Copyright 2019 Google LLC
  */
 
+#include <common.h>
 #include <binman.h>
 #include <binman_sym.h>
 #include <bootstage.h>

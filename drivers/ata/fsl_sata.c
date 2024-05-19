@@ -5,6 +5,7 @@
  * Author: Dave Liu <daveliu@freescale.com>
  */
 
+#include <common.h>
 #include <ahci.h>
 #include <blk.h>
 #include <command.h>

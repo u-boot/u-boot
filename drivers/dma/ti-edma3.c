@@ -10,6 +10,7 @@
 
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <common.h>
 #include <dm.h>
 #include <dma-uclass.h>
 #include <linux/dma-mapping.h>

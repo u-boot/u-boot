@@ -7,7 +7,7 @@
  * (c) Copyright 2008 Renesas Solutions Corp.
  */
 
-#include <config.h>
+#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <env.h>

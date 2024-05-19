@@ -5,6 +5,7 @@
  * Test continuation of log messages using pr_cont().
  */
 
+#include <common.h>
 #include <console.h>
 #include <test/log.h>
 #include <test/test.h>

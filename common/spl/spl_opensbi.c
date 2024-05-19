@@ -5,6 +5,7 @@
  *
  * Based on common/spl/spl_atf.c
  */
+#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <hang.h>

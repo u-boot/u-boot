@@ -10,6 +10,7 @@
  * Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <net.h>

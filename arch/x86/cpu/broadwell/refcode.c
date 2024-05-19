@@ -6,7 +6,7 @@
  * Copyright (c) 2016 Google, Inc
  */
 
-#include <config.h>
+#include <common.h>
 #include <display_options.h>
 #include <errno.h>
 #include <init.h>

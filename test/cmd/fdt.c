@@ -5,6 +5,7 @@
  * Copyright 2022 Google LLC
  */
 
+#include <common.h>
 #include <console.h>
 #include <fdt_support.h>
 #include <mapmem.h>

@@ -12,7 +12,7 @@
  * and serdes protocol selection.
  */
 
-#include <config.h>
+#include <common.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/fsl_serdes.h>

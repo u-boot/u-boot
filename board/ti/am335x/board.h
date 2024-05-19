@@ -10,8 +10,6 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include <linux/string.h>
-
 /**
  * AM335X (EMIF_4D) EMIF REG_COS_COUNT_1, REG_COS_COUNT_2, and
  * REG_PR_OLD_COUNT values to avoid LCDC DMA FIFO underflows and Frame

@@ -7,6 +7,7 @@
  *	Copyright (C) 2012-2013 Jonas Gorski <jogo@openwrt.org>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

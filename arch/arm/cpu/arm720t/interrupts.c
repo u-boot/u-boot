@@ -9,7 +9,7 @@
  * Alex Zuepke <azu@sysgo.de>
  */
 
-#include <linux/types.h>
+#include <common.h>
 
 #if defined(CONFIG_ARCH_TEGRA)
 static ulong timestamp;

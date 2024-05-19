@@ -5,6 +5,7 @@
  * 2017 Marek Behún, CZ.NIC, kabel@kernel.org
  */
 
+#include <common.h>
 #include <blk.h>
 #include <compiler.h>
 #include <fs_internal.h>

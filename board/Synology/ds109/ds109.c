@@ -5,7 +5,7 @@
  * Luka Perkov <luka@openwrt.org>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>

@@ -6,6 +6,7 @@
  * with some bits from older board-specific PCI initialization.
  */
 
+#include <common.h>
 #include <init.h>
 #include <pci.h>
 #include <asm/bitops.h>

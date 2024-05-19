@@ -4,7 +4,7 @@
  * Copyright (C) 2016 Mario Six <mario.six@gdsys.cc>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <event.h>

@@ -13,6 +13,7 @@
  * GNU General Public License for more details.
  */
 
+#include <common.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>

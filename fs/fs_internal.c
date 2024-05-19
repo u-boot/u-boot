@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_CORE
 
+#include <common.h>
 #include <blk.h>
 #include <compiler.h>
 #include <log.h>

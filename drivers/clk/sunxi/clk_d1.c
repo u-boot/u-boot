@@ -3,6 +3,7 @@
  * Copyright (C) 2021 Samuel Holland <samuel@sholland.org>
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

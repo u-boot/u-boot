@@ -4,7 +4,7 @@
  * Przemyslaw Marczak <p.marczak@samsung.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>

@@ -3,6 +3,7 @@
  * Copyright (c) 2018 JJ Hiblot <jjhiblot@ti.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <dm/device-internal.h>

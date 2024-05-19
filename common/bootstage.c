@@ -11,6 +11,7 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
+#include <common.h>
 #include <bootstage.h>
 #include <hang.h>
 #include <log.h>

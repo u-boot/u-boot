@@ -1,9 +1,9 @@
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <linux/delay.h>
 #include "e1000.h"
 #include <malloc.h>
-#include <vsprintf.h>
 #include <linux/compiler.h>
 
 /*-----------------------------------------------------------------------

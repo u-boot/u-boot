@@ -4,12 +4,12 @@
  * Arthur Li, Cortina Access, arthur.li@cortina-access.com.
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <log.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <mapmem.h>
-#include <time.h>
 #include "i2c-cortina.h"
 
 static void set_speed(struct i2c_regs *regs, int i2c_spd)

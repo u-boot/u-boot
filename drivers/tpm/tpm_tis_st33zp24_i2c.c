@@ -12,6 +12,7 @@
  * STMicroelectronics Protocol Stack Specification version 1.2.0.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>

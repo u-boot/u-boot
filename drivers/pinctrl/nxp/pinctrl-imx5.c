@@ -4,6 +4,7 @@
  * Copyright (C) 2016 Peng Fan <van.freenix@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 

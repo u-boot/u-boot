@@ -3,6 +3,7 @@
  * Copyright 2013 Broadcom Corporation.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <asm/io.h>
 #include <asm/arch/sysmap.h>

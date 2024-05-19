@@ -10,6 +10,7 @@
 
 #define LOG_CATEGORY UCLASS_SPI_FLASH
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

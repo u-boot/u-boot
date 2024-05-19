@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_FWU_MDATA
 
+#include <common.h>
 #include <dm.h>
 #include <efi_loader.h>
 #include <fwu.h>

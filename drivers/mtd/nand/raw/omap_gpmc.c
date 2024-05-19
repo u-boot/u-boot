@@ -4,7 +4,7 @@
  * Rohit Choraria <rohitkc@ti.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <system-constants.h>
 #include <asm/io.h>

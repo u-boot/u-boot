@@ -3,6 +3,7 @@
  * Copyright (C) 2013 Henrik Nordstrom <henrik@henriknordstrom.net>
  */
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <fdtdec.h>

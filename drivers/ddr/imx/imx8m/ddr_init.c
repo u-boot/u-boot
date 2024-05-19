@@ -3,6 +3,7 @@
  * Copyright 2018-2019 NXP
  */
 
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <asm/io.h>

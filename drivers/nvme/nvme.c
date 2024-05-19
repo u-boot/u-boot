@@ -4,6 +4,7 @@
  * Copyright (C) 2017 Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <blk.h>
 #include <bootdev.h>
 #include <cpu_func.h>

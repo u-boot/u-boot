@@ -52,7 +52,7 @@
  * http://www.ethernut.de/
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <netdev.h>

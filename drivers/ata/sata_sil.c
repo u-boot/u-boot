@@ -5,6 +5,7 @@
  * Author: Tang Yuantian <b29983@freescale.com>
  */
 
+#include <common.h>
 #include <blk.h>
 #include <cpu_func.h>
 #include <dm.h>

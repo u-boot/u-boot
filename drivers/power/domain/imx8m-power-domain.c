@@ -3,6 +3,7 @@
  * Copyright 2017 NXP
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

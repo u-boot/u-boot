@@ -4,6 +4,7 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <log.h>

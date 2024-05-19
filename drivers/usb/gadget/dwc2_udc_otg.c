@@ -17,6 +17,7 @@
  * Lukasz Majewski <l.majewski@samsumg.com>
  */
 #undef DEBUG
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

@@ -7,7 +7,7 @@
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
  */
 
-#include <linux/kernel.h>
+#include <common.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/arch-mx7/mx7-pins.h>
 

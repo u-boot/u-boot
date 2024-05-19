@@ -11,6 +11,7 @@
 #include <asm/global_data.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>

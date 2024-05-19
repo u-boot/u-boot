@@ -7,6 +7,7 @@
  * Author: Lee Jones <lee.jones@linaro.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

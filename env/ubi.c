@@ -4,6 +4,7 @@
  *        Joe Hershberger <joe.hershberger@ni.com>
  */
 
+#include <common.h>
 #include <asm/global_data.h>
 
 #include <command.h>

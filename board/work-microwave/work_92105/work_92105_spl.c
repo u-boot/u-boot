@@ -6,6 +6,7 @@
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/cpu.h>

@@ -7,6 +7,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <serial.h>
 #include <asm/global_data.h>

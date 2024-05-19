@@ -5,6 +5,7 @@
  * Inspired by cmd_ext_common.c, cmd_fat.c.
  */
 
+#include <common.h>
 #include <command.h>
 #include <fs.h>
 

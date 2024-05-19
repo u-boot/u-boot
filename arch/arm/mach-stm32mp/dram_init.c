@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY LOGC_ARCH
 
+#include <common.h>
 #include <dm.h>
 #include <image.h>
 #include <init.h>

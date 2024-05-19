@@ -4,6 +4,7 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <sysinfo.h>
 #include <i2c.h>

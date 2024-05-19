@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Allied Telesis Labs
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>

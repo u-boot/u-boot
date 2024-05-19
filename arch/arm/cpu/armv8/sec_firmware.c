@@ -3,7 +3,7 @@
  * Copyright 2016 NXP Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <fdt_support.h>

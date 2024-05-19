@@ -3,7 +3,7 @@
  * Copyright (C) 2018 Marek Behún <kabel@kernel.org>
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <net.h>

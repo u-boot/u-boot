@@ -13,6 +13,7 @@
 #include <asm/armv7.h>
 #include <asm/gic.h>
 #include <linux/bitops.h>
+#include <common.h>
 #include <fsl_wdog.h>
 
 #define GPC_LPCR_A7_BSC	0x0

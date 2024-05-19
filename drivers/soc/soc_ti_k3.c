@@ -4,6 +4,7 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <soc.h>
 

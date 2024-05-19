@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_MMC
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

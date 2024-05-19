@@ -11,6 +11,7 @@
  */
 
 #include <asm/processor.h>
+#include <common.h>
 #include <clk-uclass.h>
 #include <div64.h>
 #include <dm.h>

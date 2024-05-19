@@ -3,7 +3,7 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd.
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <ram.h>
 #include <syscon.h>

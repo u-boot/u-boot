@@ -6,6 +6,7 @@
  * Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>

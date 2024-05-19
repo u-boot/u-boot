@@ -4,6 +4,7 @@
  * Author: Miquel Raynal <miquel.raynal@bootlin.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <tpm-v2.h>
 #include <asm/state.h>

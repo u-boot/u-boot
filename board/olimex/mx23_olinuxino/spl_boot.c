@@ -5,6 +5,7 @@
  * Copyright (C) 2013 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/iomux-mx23.h>

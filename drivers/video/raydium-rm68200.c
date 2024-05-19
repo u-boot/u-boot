@@ -7,6 +7,7 @@
  * This rm68200 panel driver is inspired from the Linux Kernel driver
  * drivers/gpu/drm/panel/panel-raydium-rm68200.c.
  */
+#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <mipi_dsi.h>

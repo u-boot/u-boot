@@ -6,6 +6,7 @@
  * Author: Thomas Fitzsimmons <fitzsim@fitzsim.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <mach/sdhci.h>
 #include <malloc.h>

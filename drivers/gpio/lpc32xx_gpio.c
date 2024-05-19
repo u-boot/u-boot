@@ -6,6 +6,7 @@
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch-lpc32xx/cpu.h>
 #include <asm/arch-lpc32xx/gpio.h>

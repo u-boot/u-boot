@@ -19,7 +19,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <asm/sections.h>
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>

@@ -4,11 +4,10 @@
  *
  */
 
+#include <common.h>
 #include <scp03.h>
 #include <tee.h>
 #include <tee/optee_ta_scp03.h>
-#include <linux/errno.h>
-#include <linux/string.h>
 
 static int scp03_enable(bool provision)
 {

@@ -539,7 +539,6 @@ config CMD_IMI
 
 config CMD_IMLS
 	bool "imls"
-	depends on MTD_NOR_FLASH || FLASH_CFI_DRIVER
 	help
 	  List all images found in flash
 
@@ -832,7 +831,7 @@ config SYS_EEPROM_SIZE
 
 config SYS_EEPROM_PAGE_WRITE_BITS
 	int "Number of bits used to address bytes in a single page"
-	depends on CMD_EEPROM || ENV_IS_IN_EEPROM
+	depends on CMD_EEPROM
 	default 8
 	help
 	  The EEPROM page size is 2^SYS_EEPROM_PAGE_WRITE_BITS.
@@ -1024,8 +1023,8 @@ config CMD_ARMFFA
 		- Displaying the arm_ffa device info
 
 config CMD_ARMFLASH
+	#depends on FLASH_CFI_DRIVER
 	bool "armflash"
-	depends on FLASH_CFI_DRIVER
 	help
 	  ARM Ltd reference designs flash partition access
 
@@ -1168,7 +1167,6 @@ config CMD_FPGA_LOAD_SECURE
 
 config CMD_FPGAD
 	bool "fpgad - dump FPGA registers"
-	depends on GDSYS_LEGACY_DRIVERS
 	help
 	  (legacy, needs conversion to driver model)
 	  Provides a way to dump FPGA registers by calling the board-specific
@@ -1604,7 +1602,6 @@ config CMD_TEMPERATURE
 
 config CMD_TSI148
 	bool "tsi148 - Command to access tsi148 device"
-	depends on DM_PCI_COMPAT
 	help
 	  This provides various sub-commands to initialise and configure the
 	  Turndra tsi148 device. See the command help for full details.
@@ -1618,7 +1615,6 @@ config CMD_UFS
 
 config CMD_UNIVERSE
 	bool "universe - Command to set up the Turndra Universe controller"
-	depends on DM_PCI_COMPAT
 	help
 	  This allows setting up the VMEbus provided by this controller.
 	  See the command help for full details.
