@@ -418,14 +418,14 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 U_BOOT_CMD(
 	eeprom,	8,	1,	do_eeprom,
 	"EEPROM sub-system",
-	"read  <bus> <devaddr> addr off cnt\n"
-	"eeprom write <bus> <devaddr> addr off cnt\n"
+	"read  [[bus] devaddr] addr off cnt\n"
+	"eeprom write [[bus] devaddr] addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 	"\n"
-	"eeprom print [-l <layout_version>] <bus> <devaddr>\n"
+	"eeprom print [-l <layout_version>] [[bus] devaddr]\n"
 	"       - Print layout fields and their data in human readable format\n"
-	"eeprom update [-l <layout_version>] <bus> <devaddr> field_name field_value\n"
+	"eeprom update [-l <layout_version>] [[bus] devaddr] field_name field_value\n"
 	"       - Update a specific eeprom field with new data.\n"
 	"         The new data must be written in the same human readable format as shown by the print command.\n"
 	"\n"
