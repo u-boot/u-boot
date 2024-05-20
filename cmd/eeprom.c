@@ -311,16 +311,10 @@ static int do_eeprom_rw(struct eeprom_dev_spec *dev, bool read,
 static int do_eeprom_layout(struct eeprom_dev_spec *dev, int layout_ver,
 			    struct eeprom_layout *layout)
 {
-	int ret;
-
-	ret = eeprom_read(dev->i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
-	if (ret)
-		return ret;
-
 	eeprom_layout_setup(layout, eeprom_buf, CONFIG_SYS_EEPROM_SIZE,
 			    layout_ver);
 
-	return 0;
+	return eeprom_read(dev->i2c_addr, 0, eeprom_buf, layout->data_size);
 }
 
 static int do_eeprom_print(struct eeprom_dev_spec *dev, int layout_ver)
@@ -351,8 +345,7 @@ static int do_eeprom_update(struct eeprom_dev_spec *dev, int layout_ver,
 	if (ret)
 		return CMD_RET_FAILURE;
 
-	return eeprom_write(dev->i2c_addr, 0, layout.data,
-			    CONFIG_SYS_EEPROM_SIZE);
+	return eeprom_write(dev->i2c_addr, 0, layout.data, layout.data_size);
 }
 
 #endif
