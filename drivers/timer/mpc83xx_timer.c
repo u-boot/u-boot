@@ -4,7 +4,7 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
-#include <config.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <irq_func.h>

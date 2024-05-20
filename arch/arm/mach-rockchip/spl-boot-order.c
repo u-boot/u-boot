@@ -3,6 +3,7 @@
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <log.h>

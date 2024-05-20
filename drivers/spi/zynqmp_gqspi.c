@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY UCLASS_SPI
 
+#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/arch/sys_proto.h>

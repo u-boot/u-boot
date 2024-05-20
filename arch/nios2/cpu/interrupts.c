@@ -7,6 +7,7 @@
  * Scott McNutt <smcnutt@psyent.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <irq_func.h>
 #include <asm/nios2.h>

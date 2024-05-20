@@ -3,6 +3,7 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
+#include <common.h>
 #include <command.h>
 #include <fuse.h>
 #include <misc.h>

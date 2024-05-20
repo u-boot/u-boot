@@ -5,6 +5,7 @@
  * Copyright (C) 2021 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <soc.h>
 #include <zynqmp_firmware.h>

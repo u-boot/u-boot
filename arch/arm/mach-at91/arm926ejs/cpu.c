@@ -6,7 +6,7 @@
  * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <vsprintf.h>
 #include <asm/io.h>

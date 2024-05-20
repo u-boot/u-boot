@@ -3,6 +3,7 @@
  * Copyright 2017 NXP
  * Copyright 2019-2021 Traverse Technologies Australia
  */
+#include <common.h>
 #include <command.h>
 #include <netdev.h>
 #include <malloc.h>

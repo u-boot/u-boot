@@ -7,7 +7,7 @@
  * platform code, the real meat is located in drivers/fpga/socfpga.c .
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/fpga_manager.h>

@@ -4,6 +4,7 @@
  * Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device.h>
 #include <generic-phy.h>

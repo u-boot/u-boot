@@ -4,6 +4,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  */
+#include <common.h>
 #include <asm/bitops.h>
 #include <pci.h>
 #include <dm.h>

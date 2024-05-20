@@ -9,7 +9,7 @@
  * Aneesh V       <aneesh@ti.com>
  * Steve Sakoman  <steve@sakoman.com>
  */
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <fastboot.h>

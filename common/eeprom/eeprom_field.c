@@ -6,8 +6,7 @@
  *	    Igor Grinberg <grinberg@compulab.co.il>
  */
 
-#include <stdio.h>
-#include <vsprintf.h>
+#include <common.h>
 #include <linux/string.h>
 #include <eeprom_field.h>
 

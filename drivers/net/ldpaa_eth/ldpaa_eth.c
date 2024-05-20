@@ -4,6 +4,7 @@
  * Copyright 2017, 2023 NXP
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm/device_compat.h>
 #include <fsl-mc/fsl_dpmac.h>

@@ -3,6 +3,7 @@
  * Copyright 2016 NXP Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <asm/cache.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>

@@ -4,7 +4,7 @@
  * (C) Copyright 2014 - 2016 Cadence Design Systems Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <command.h>
 #include <dm.h>

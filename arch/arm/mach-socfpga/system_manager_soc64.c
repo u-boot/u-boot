@@ -8,6 +8,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

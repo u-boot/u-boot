@@ -467,10 +467,12 @@ void enable_caches(void)
 	gd->arch.tlb_addr = tlb_addr;
 	gd->arch.tlb_size = tlb_size;
 
-	carveout_start = get_timer(0);
-	/* Takes ~20-50ms on SDM845 */
-	carve_out_reserved_memory();
-	debug("carveout time: %lums\n", get_timer(carveout_start));
-
+	/* We do the carveouts only for QCS404, for now. */
+	if (fdt_node_check_compatible(gd->fdt_blob, 0, "qcom,qcs404") == 0) {
+		carveout_start = get_timer(0);
+		/* Takes ~20-50ms on SDM845 */
+		carve_out_reserved_memory();
+		debug("carveout time: %lums\n", get_timer(carveout_start));
+	}
 	dcache_enable();
 }

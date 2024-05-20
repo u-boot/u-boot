@@ -1,3 +1,4 @@
+#include <common.h>
 #include <netdev.h>
 #include <miiphy.h>
 #include <asm/io.h>

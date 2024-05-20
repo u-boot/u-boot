@@ -4,6 +4,7 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#include <common.h>
 #include <bitfield.h>
 #include <clk.h>
 #include <cpu.h>

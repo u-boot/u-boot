@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Álvaro Fernández Rojas <noltari@gmail.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

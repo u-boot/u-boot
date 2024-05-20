@@ -3,6 +3,7 @@
  * Copyright (c) 2018-2019, NVIDIA CORPORATION. All rights reserved.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/global_data.h>

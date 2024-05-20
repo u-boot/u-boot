@@ -3,7 +3,7 @@
  * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm-offsets.h>
 #include <clock_legacy.h>
 #include <mpc83xx.h>

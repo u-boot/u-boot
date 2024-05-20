@@ -5,6 +5,7 @@
  * Copyright (C) 2016, Texas Instruments, Incorporated
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <asm/global_data.h>

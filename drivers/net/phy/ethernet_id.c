@@ -5,6 +5,7 @@
  * Copyright (C) 2022 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

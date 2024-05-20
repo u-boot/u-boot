@@ -8,6 +8,7 @@
  * Martha Marx <mmarx@silicontkx.com>
  */
 
+#include <common.h>
 #include <fuse.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

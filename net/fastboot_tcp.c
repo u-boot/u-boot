@@ -3,6 +3,7 @@
  * Copyright (C) 2023 The Android Open Source Project
  */
 
+#include <common.h>
 #include <fastboot.h>
 #include <net.h>
 #include <net/fastboot_tcp.h>

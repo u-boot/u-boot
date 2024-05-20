@@ -45,7 +45,7 @@ c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) \
 
 quiet_cmd_autoconf_dep = GEN     $@
       cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M -MP $(c_flags) \
-	-MQ include/config/auto.conf include/config.h > $@ || {	\
+	-MQ include/config/auto.conf $(srctree)/include/common.h > $@ || {	\
 		rm $@; false;							\
 	}
 include/autoconf.mk.dep: include/config.h FORCE
@@ -70,7 +70,7 @@ quiet_cmd_autoconf = GEN     $@
 
 quiet_cmd_u_boot_cfg = CFG     $@
       cmd_u_boot_cfg = \
-	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM include/config.h > $@.tmp && { \
+	$(CPP) $(c_flags) $2 -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && { \
 		grep 'define CONFIG_' $@.tmp | \
 			sed '/define CONFIG_IS_ENABLED(/d;/define CONFIG_IF_ENABLED_INT(/d;/define CONFIG_VAL(/d;' > $@; \
 		rm $@.tmp;						\

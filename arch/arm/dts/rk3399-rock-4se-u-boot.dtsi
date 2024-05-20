@@ -4,3 +4,15 @@
  */
 
 #include "rk3399-rock-pi-4-u-boot.dtsi"
+
+&spi1 {
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		bootph-pre-ram;
+		bootph-some-ram;
+		spi-max-frequency = <10000000>;
+	};
+};

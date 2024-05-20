@@ -6,6 +6,7 @@
 #define LOG_CATEGORY UCLASS_PWM
 
 #include <clk.h>
+#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <log.h>

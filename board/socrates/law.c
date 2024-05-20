@@ -9,7 +9,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/fsl_law.h>
 #include <asm/mmu.h>
 

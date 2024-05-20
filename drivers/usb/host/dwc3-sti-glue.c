@@ -6,6 +6,7 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

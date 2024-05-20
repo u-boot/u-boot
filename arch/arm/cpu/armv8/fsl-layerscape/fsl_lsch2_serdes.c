@@ -3,12 +3,11 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
-#include <linux/string.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/soc.h>
 

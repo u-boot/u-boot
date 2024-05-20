@@ -11,8 +11,6 @@
 #ifndef _FUSE_H_
 #define _FUSE_H_
 
-#include <linux/types.h>
-
 /*
  * Read/Sense/Program/Override interface:
  *   bank:    Fuse bank

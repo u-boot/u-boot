@@ -19,6 +19,7 @@
  *   Freescale Semiconductors
  */
 
+#include <common.h>
 #include <exports.h>
 #include <log.h>
 #include <linux/delay.h>

@@ -5,6 +5,7 @@
  * Copyright (c) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <cpu.h>
 #include <display_options.h>

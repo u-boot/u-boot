@@ -4,7 +4,7 @@
  * Copyright (C) 2014-2015  Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>

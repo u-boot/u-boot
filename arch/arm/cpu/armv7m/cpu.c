@@ -7,6 +7,7 @@
  * Kamil Lulko, <kamil.lulko@gmail.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
 #include <asm/io.h>

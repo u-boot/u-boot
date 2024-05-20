@@ -8,6 +8,7 @@
  */
 
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <log.h>

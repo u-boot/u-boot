@@ -8,7 +8,7 @@
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <i2c.h>

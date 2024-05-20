@@ -8,6 +8,7 @@
  * Author: Yixun Lan <yixun.lan@amlogic.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/gpio/meson-g12a-gpio.h>

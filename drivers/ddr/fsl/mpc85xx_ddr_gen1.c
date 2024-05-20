@@ -3,7 +3,7 @@
  * Copyright 2008 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>

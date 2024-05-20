@@ -6,6 +6,7 @@
  */
 
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <time.h>

@@ -3,6 +3,7 @@
  * Copyright 2013 Stefan Roese <sr@denx.de>
  */
 
+#include <common.h>
 #include <lmb.h>
 #include <log.h>
 #include <asm/arch/sys_proto.h>

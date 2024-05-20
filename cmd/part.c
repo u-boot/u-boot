@@ -15,6 +15,7 @@
  * Pavel Bartusek <pba@sysgo.com>
  */
 
+#include <common.h>
 #include <config.h>
 #include <command.h>
 #include <env.h>

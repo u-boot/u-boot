@@ -3,6 +3,7 @@
  * Copyright (c) 2017 Theobroma Systems Design und Consulting GmbH
  */
 
+#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>

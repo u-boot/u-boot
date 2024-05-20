@@ -80,7 +80,7 @@ config SPL_ZERO_MEM_BEFORE_USE
 	  Sifive core devices that uses L2 cache to store SPL.
 
 # board-specific options below
-source "board/AndesTech/ae350/Kconfig"
+source "board/andestech/ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
@@ -93,7 +93,7 @@ source "board/thead/th1520_lpi4a/Kconfig"
 source "board/xilinx/mbv/Kconfig"
 
 # platform-specific options below
-source "arch/riscv/cpu/andesv5/Kconfig"
+source "arch/riscv/cpu/andes/Kconfig"
 source "arch/riscv/cpu/cv1800b/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
 source "arch/riscv/cpu/fu740/Kconfig"

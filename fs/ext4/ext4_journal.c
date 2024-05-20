@@ -13,6 +13,7 @@
  * Copyright 1998-2000 Red Hat, Inc --- All Rights Reserved
  */
 
+#include <common.h>
 #include <blk.h>
 #include <ext4fs.h>
 #include <log.h>

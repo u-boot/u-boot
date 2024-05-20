@@ -3,6 +3,7 @@
  * Copyright 2018 NXP
  */
 
+#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>

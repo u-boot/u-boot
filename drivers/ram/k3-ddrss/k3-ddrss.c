@@ -5,6 +5,7 @@
  * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#include <common.h>
 #include <config.h>
 #include <clk.h>
 #include <div64.h>

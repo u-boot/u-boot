@@ -5,6 +5,7 @@
  * Copyright (C) 2018-2019 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/system.h>

@@ -5,6 +5,7 @@
  * Copyright (C) 2020 Texas Instruments Incorporated, <www.ti.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <k3-dev.h>

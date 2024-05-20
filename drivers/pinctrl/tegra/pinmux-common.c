@@ -4,6 +4,7 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/pinmux.h>

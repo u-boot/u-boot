@@ -3,6 +3,7 @@
  * (C) Copyright 2019 - 2020 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <fdtdec.h>
 #include <malloc.h>

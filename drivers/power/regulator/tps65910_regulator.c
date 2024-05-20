@@ -3,6 +3,7 @@
  * Copyright (C) EETS GmbH, 2017, Felix Brack <f.brack@eets.ch>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <linux/printk.h>

@@ -3,6 +3,7 @@
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

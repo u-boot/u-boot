@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <abuf.h>
 #include <mapmem.h>
 #include <test/lib.h>

@@ -5,6 +5,7 @@
  * Rockchip SD Host Controller Interface
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/ofnode.h>

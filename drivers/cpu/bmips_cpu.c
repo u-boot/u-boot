@@ -7,6 +7,7 @@
  *	Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <display_options.h>
 #include <dm.h>

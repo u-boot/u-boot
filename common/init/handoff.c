@@ -5,6 +5,7 @@
  * Copyright 2018 Google, Inc
  */
 
+#include <common.h>
 #include <handoff.h>
 #include <asm/global_data.h>
 

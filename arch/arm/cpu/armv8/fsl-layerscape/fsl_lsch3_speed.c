@@ -6,7 +6,7 @@
  * Derived from arch/power/cpu/mpc85xx/speed.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <asm/global_data.h>

@@ -8,6 +8,7 @@
  * Author: Dan Murphy <dmurphy@ti.com>
  */
 
+#include <common.h>
 #include <log.h>
 #include <usb.h>
 #include <linux/errno.h>

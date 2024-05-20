@@ -3,6 +3,7 @@
  * Copyright (c) 2015 Google, Inc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <pci.h>
 #include <asm/pci.h>

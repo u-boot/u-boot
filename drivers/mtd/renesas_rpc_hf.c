@@ -7,6 +7,7 @@
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <clk.h>

@@ -5,6 +5,7 @@
  * (C) Copyright 2022 Sumit Garg <sumit.garg@linaro.org>
  */
 
+#include <common.h>
 #include <dm.h>
 
 #include "pinctrl-qcom.h"

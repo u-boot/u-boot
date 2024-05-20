@@ -3,8 +3,8 @@
  * Copyright (c) 2014-2019, NVIDIA CORPORATION.  All rights reserved.
  */
 
+#include <common.h>
 #include <errno.h>
-#include <time.h>
 #include <linux/delay.h>
 
 #include <asm/io.h>

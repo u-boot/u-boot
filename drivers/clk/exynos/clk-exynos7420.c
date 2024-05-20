@@ -5,6 +5,7 @@
  * Thomas Abraham <thomas.ab@samsung.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <clk-uclass.h>

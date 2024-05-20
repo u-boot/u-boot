@@ -3,6 +3,7 @@
  * Copyright (C) 2012 Samsung Electronics
  * R. Chandrasekar <rcsekar@samsung.com>
  */
+#include <common.h>
 #include <audio_codec.h>
 #include <dm.h>
 #include <div64.h>

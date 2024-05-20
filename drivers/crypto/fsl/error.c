@@ -7,9 +7,9 @@
  * Derived from error.c file in linux drivers/crypto/caam
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include "desc.h"
 #include "jr.h"
 

@@ -7,6 +7,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <part.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2015, Miao Yan <yanmiaobest@gmail.com>
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>

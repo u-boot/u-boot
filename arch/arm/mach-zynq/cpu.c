@@ -3,11 +3,10 @@
  * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2012 Xilinx, Inc. All rights reserved.
  */
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <zynqpl.h>
-#include <linux/errno.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>

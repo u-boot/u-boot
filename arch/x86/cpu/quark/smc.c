@@ -7,12 +7,11 @@
  * QuarkSocPkg/QuarkNorthCluster/MemoryInit/Pei
  */
 
+#include <common.h>
 #include <pci.h>
 #include <asm/arch/device.h>
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
-#include <asm/u-boot-x86.h>
-#include <linux/string.h>
 #include "mrc_util.h"
 #include "hte.h"
 #include "smc.h"

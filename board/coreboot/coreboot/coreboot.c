@@ -3,6 +3,7 @@
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <splash.h>
 #include <init.h>
 #include <smbios.h>

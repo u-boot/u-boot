@@ -3,6 +3,7 @@
  * Copyright (C) 2022 Sean Anderson <sean.anderson@seco.com>
  */
 
+#include <common.h>
 #include <i2c_eeprom.h>
 #include <linker_lists.h>
 #include <misc.h>

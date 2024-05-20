@@ -9,6 +9,7 @@
  */
 
 #include <clk-uclass.h>
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <dt-bindings/clock/qcom,gcc-ipq4019.h>

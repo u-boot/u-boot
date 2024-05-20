@@ -11,6 +11,7 @@
  * Copyright (C) 2018, IBM Corporation.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <reset.h>
 #include <cpu_func.h>

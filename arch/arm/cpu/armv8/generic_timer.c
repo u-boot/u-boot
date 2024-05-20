@@ -4,6 +4,7 @@
  * David Feng <fenghua@phytium.com.cn>
  */
 
+#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <time.h>

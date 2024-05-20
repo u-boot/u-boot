@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2017 Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <gzip.h>
 #include <malloc.h>

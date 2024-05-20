@@ -3,6 +3,7 @@
  * Copyright (C) 2021 SiFive
  */
 
+#include <common.h>
 #include <cache.h>
 #include <dm.h>
 #include <asm/io.h>

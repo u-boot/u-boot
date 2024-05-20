@@ -4,6 +4,7 @@
  * Author: Jorge Ramirez-Ortiz <jramirez@baylibre.com>
  */
 
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <edid.h>

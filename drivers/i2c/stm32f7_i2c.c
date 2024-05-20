@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_I2C
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>

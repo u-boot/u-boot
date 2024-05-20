@@ -4,6 +4,7 @@
  * Reinhard Pfau, Guntermann & Drunck GmbH, reinhard.pfau@gdsys.cc
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <fs.h>

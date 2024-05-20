@@ -5,6 +5,7 @@
  * Copyright 2014 Rockchip Inc.
  */
 
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <regmap.h>

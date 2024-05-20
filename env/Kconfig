@@ -312,7 +312,7 @@ config ENV_IS_IN_NVRAM
 
 config ENV_IS_IN_ONENAND
 	bool "Environment is in OneNAND"
-	depends on !CHAIN_OF_TRUST && CMD_ONENAND
+	depends on !CHAIN_OF_TRUST
 	help
 	  Define this if you want to put your local device's environment in
 	  OneNAND.

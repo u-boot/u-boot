@@ -5,6 +5,7 @@
  * Copyright (C) 2009-2010, Intel Corporation and its suppliers.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <nand.h>

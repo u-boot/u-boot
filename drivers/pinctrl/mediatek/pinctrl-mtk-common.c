@@ -4,6 +4,7 @@
  * Author: Ryder Lee <ryder.lee@mediatek.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>

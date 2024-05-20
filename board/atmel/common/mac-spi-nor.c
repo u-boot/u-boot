@@ -5,6 +5,7 @@
  * Author: Tudor Ambarus <tudor.ambarus@microchip.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <net.h>

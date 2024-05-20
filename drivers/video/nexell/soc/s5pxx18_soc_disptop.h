@@ -8,7 +8,6 @@
 #ifndef _S5PXX18_SOC_DISPTOP_H_
 #define _S5PXX18_SOC_DISPTOP_H_
 
-#include <linux/types.h>
 #include "s5pxx18_soc_disptype.h"
 
 #define NUMBER_OF_DISPTOP_MODULE	1

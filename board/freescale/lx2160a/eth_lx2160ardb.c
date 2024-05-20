@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <netdev.h>
 #include <exports.h>
 #include <fsl-mc/fsl_mc.h>

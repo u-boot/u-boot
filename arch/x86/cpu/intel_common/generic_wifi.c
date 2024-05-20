@@ -6,6 +6,7 @@
  * Modified from coreboot src/drivers/wifi/generic.c
  */
 
+#include <common.h>
 #include <log.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>

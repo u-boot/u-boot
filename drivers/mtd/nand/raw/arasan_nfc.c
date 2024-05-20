@@ -5,6 +5,7 @@
  * Copyright (C) 2014 - 2015 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
 #include <linux/delay.h>

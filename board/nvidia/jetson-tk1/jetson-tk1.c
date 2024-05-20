@@ -4,6 +4,7 @@
  * NVIDIA Corporation <www.nvidia.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <linux/printk.h>

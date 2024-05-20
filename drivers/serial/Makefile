@@ -65,4 +65,3 @@ obj-$(CONFIG_S5P4418_PL011_SERIAL) += serial_s5p4418_pl011.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o
 endif
-obj-$(CONFIG_UART4_SERIAL) += serial_adi_uart4.o

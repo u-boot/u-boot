@@ -3,6 +3,7 @@
  * Copyright (C) 2021 Philippe Reynes <philippe.reynes@softathome.com>
  */
 
+#include <common.h>
 #include <asm/global_data.h>
 DECLARE_GLOBAL_DATA_PTR;
 #include <image.h>

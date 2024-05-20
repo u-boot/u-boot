@@ -5,6 +5,7 @@
  */
 
 #include <android_image.h>
+#include <common.h>
 #include <command.h>
 #include <image.h>
 #include <mapmem.h>

@@ -1,3 +1,4 @@
+#include <common.h>
 #include <dm.h>
 #include <os.h>
 #include <wdt.h>

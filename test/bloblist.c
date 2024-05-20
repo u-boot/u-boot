@@ -3,6 +3,7 @@
  * Copyright (c) 2018, Google Inc. All rights reserved.
  */
 
+#include <common.h>
 #include <bloblist.h>
 #include <log.h>
 #include <mapmem.h>

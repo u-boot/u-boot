@@ -16,6 +16,7 @@
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdt_support.h>

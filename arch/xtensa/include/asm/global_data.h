@@ -6,8 +6,6 @@
 #ifndef	_XTENSA_GBL_DATA_H
 #define _XTENSA_GBL_DATA_H
 
-#include <asm/u-boot.h>
-
 /* Architecture-specific global data */
 
 struct arch_global_data {

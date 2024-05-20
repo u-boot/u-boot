@@ -3,6 +3,7 @@
  * Copyright (C) 2023, STMicroelectronics - All Rights Reserved
  */
 
+#include <common.h>
 #include <dfu.h>
 #include <dm.h>
 #include <misc.h>

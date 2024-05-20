@@ -4,6 +4,7 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
+#include <common.h>
 #include <env.h>
 #include <env_internal.h>
 #include <asm/global_data.h>

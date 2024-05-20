@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <asm/cache.h>
 #include <linux/dma-mapping.h>
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <linux/usb/ch9.h>

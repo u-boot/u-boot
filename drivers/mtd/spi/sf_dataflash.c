@@ -6,6 +6,7 @@
  * Haikun Wang (haikun.wang@freescale.com)
  */
 
+#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <errno.h>

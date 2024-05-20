@@ -10,6 +10,7 @@
  * Copyright 2009 Lattice Semiconductor Corp.
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <fpga.h>

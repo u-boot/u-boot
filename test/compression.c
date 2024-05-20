@@ -3,6 +3,7 @@
  * Copyright (c) 2013, The Chromium Authors
  */
 
+#include <common.h>
 #include <abuf.h>
 #include <bootm.h>
 #include <command.h>

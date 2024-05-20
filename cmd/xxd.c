@@ -4,6 +4,7 @@
  * Roger Knecht <rknecht@pm.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <fs.h>

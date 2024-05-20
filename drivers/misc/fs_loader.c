@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_FS_FIRMWARE_LOADER
 
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <errno.h>

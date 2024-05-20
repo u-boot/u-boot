@@ -4,13 +4,13 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
-#include <stdio.h>
 #ifdef USE_HOSTCC /* Eliminate "ANSI does not permit..." warnings */
 #include <stdint.h>
+#include <stdio.h>
 #include <linux/linux_string.h>
 #else
+#include <common.h>
 #include <slre.h>
-#include <vsprintf.h>
 #endif
 
 #include <env_attr.h>

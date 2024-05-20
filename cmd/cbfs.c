@@ -6,10 +6,10 @@
 /*
  * CBFS commands
  */
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <cbfs.h>
-#include <vsprintf.h>
 
 static int do_cbfs_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])

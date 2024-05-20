@@ -6,6 +6,7 @@
  *                       <armlinux@phytec.de>
  */
 
+#include <common.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>

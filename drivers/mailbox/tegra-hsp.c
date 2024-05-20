@@ -3,6 +3,7 @@
  * Copyright (c) 2016, NVIDIA CORPORATION.
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>

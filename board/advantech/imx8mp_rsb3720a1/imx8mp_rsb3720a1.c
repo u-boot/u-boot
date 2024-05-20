@@ -4,6 +4,7 @@
  * Copyright 2022 Linaro
  */
 
+#include <common.h>
 #include <dwc3-uboot.h>
 #include <efi.h>
 #include <efi_loader.h>

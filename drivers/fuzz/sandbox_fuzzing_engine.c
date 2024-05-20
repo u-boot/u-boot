@@ -4,6 +4,7 @@
  * Written by Andrew Scull <ascull@google.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fuzzing_engine.h>
 #include <asm/fuzzing_engine.h>

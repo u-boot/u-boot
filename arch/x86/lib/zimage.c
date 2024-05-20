@@ -14,6 +14,7 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
+#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <env.h>

@@ -4,6 +4,7 @@
  * Copyright (c) 2022, Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <asm/arch-tegra/crypto.h>

@@ -7,6 +7,7 @@
  * (C) Copyright 2019 Stefan Bosch <stefan_b@posteo.net>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <asm/global_data.h>

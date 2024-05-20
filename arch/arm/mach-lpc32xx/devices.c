@@ -3,7 +3,7 @@
  * Copyright (C) 2011 by Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <ns16550.h>
 

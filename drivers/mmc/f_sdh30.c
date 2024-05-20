@@ -5,6 +5,7 @@
  * Copyright 2021 Socionext, Inc.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

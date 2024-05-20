@@ -9,6 +9,7 @@
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <linux/errno.h>
 #include <asm/io.h>

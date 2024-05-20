@@ -9,6 +9,7 @@
  *
  * This driver enables IPC channel to SCU.
  */
+#include <common.h>
 #include <dm.h>
 #include <regmap.h>
 #include <syscon.h>

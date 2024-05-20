@@ -5,7 +5,7 @@
  * Joe D'Abbraccio <joe.d'abbraccio@freescale.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <hwconfig.h>
 #include <i2c.h>

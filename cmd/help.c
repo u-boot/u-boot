@@ -4,6 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <command.h>
 
 static int do_help(struct cmd_tbl *cmdtp, int flag, int argc,

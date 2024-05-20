@@ -4,6 +4,7 @@
  * NVIDIA Corporation <www.nvidia.com>
  */
 
+#include <common.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>

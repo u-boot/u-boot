@@ -3,6 +3,7 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <pci.h>
@@ -13,7 +14,6 @@
 #include <asm/processor.h>
 #include <asm/arch/device.h>
 #include <asm/arch/qemu.h>
-#include <asm/u-boot-x86.h>
 
 static bool i440fx;
 

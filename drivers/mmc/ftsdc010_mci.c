@@ -9,6 +9,7 @@
  * Author: Rick Chen (rick@andestech.com)
  */
 
+#include <common.h>
 #include <clk.h>
 #include <log.h>
 #include <malloc.h>

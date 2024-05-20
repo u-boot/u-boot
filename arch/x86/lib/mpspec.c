@@ -5,6 +5,7 @@
  * Adapted from coreboot src/arch/x86/boot/mpspec.c
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>

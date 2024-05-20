@@ -10,6 +10,7 @@
  *	    Lukasz Majewski <l.majewski@samsung.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <watchdog.h>

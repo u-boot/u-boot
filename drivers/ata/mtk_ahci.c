@@ -8,6 +8,7 @@
  * Author: Frank Wunderlich <frank-w@public-files.de>
  */
 
+#include <common.h>
 #include <ahci.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

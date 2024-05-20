@@ -5,6 +5,7 @@
  * Initialization of LCD interface and setup of SPLASH screen image
  */
 
+#include <common.h>
 #include <dm.h>
 #include <part.h>
 #include <video.h>

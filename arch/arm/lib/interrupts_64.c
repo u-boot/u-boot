@@ -4,6 +4,7 @@
  * David Feng <fenghua@phytium.com.cn>
  */
 
+#include <common.h>
 #include <asm/esr.h>
 #include <asm/global_data.h>
 #include <asm/ptrace.h>

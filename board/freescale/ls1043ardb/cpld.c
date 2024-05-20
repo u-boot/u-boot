@@ -5,7 +5,7 @@
  * Freescale LS1043ARDB board-specific CPLD controlling supports.
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <asm/io.h>
 #include "cpld.h"

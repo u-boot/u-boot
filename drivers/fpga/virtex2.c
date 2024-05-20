@@ -14,7 +14,7 @@
 
 #define LOG_CATEGORY UCLASS_FPGA
 
-#include <config.h>
+#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <virtex2.h>

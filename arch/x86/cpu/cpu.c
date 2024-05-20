@@ -20,6 +20,7 @@
 
 #define LOG_CATEGORY	UCLASS_CPU
 
+#include <common.h>
 #include <bootstage.h>
 #include <command.h>
 #include <cpu_func.h>

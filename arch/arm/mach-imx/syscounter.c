@@ -5,7 +5,7 @@
  * The file use ls102xa/timer.c as a reference.
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <time.h>
 #include <asm/global_data.h>

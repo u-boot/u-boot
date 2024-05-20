@@ -3,6 +3,7 @@
  * Copyright (C) 2022 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <clk-uclass.h>

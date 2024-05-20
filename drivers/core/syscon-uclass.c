@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_SYSCON
 
+#include <common.h>
 #include <log.h>
 #include <syscon.h>
 #include <dm.h>

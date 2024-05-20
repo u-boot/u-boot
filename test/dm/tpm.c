@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <tpm_api.h>
 #include <dm/test.h>

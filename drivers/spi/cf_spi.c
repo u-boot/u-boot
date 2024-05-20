@@ -13,6 +13,7 @@
  * TODO: fsl_dspi.c should work as a driver for the DSPI module.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/global_data.h>

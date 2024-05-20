@@ -6,6 +6,7 @@
  * Jean-Jacques Hiblot <jjhiblot@ti.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/ofnode.h>
 #include <dm/lists.h>

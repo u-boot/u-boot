@@ -13,7 +13,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <event.h>
 #include <fdt_support.h>

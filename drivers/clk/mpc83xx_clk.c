@@ -4,6 +4,7 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <clock_legacy.h>
 #include <command.h>

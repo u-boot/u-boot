@@ -4,6 +4,7 @@
  * Paolo Scaffardi, AIRVENT SAM s.p.a - RIMINI(ITALY), arsenio@tin.it
  */
 
+#include <common.h>
 #include <console.h>
 #include <debug_uart.h>
 #include <display_options.h>

@@ -5,6 +5,7 @@
  * Author: Sebastian Reichel <sebastian.reichel@collabora.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/arch-rockchip/clock.h>
 #include <dt-bindings/reset/rockchip,rk3588-cru.h>

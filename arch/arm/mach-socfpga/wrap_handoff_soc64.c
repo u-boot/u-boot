@@ -6,6 +6,7 @@
 
 #include <asm/arch/handoff_soc64.h>
 #include <asm/io.h>
+#include <common.h>
 #include <errno.h>
 #include "log.h"
 

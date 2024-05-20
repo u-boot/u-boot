@@ -5,6 +5,7 @@
  * Copyright (C) 2015 Atmel Corporation
  *		 Wenyou.Yang <wenyou.yang@atmel.com>
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>

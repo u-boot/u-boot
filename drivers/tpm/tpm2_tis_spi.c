@@ -13,11 +13,11 @@
  * It is based on the U-Boot driver tpm_tis_infineon_i2c.c.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <spi.h>
-#include <time.h>
 #include <tpm-v2.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

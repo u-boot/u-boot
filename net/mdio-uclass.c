@@ -4,6 +4,7 @@
  * Alex Marginean, NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <eth_phy.h>

@@ -3,6 +3,7 @@
  * Copyright (c) 2018 Ramon Fried <ramon.fried@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <smem.h>

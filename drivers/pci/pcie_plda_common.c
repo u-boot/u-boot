@@ -6,6 +6,7 @@
  *
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <pci.h>

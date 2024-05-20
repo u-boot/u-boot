@@ -3,6 +3,7 @@
  * Copyright 2021 NXP
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <clk-uclass.h>

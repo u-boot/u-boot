@@ -5,6 +5,7 @@
  * Written by Robert Marko <robert.marko@sartura.hr>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <thermal.h>

@@ -4,7 +4,7 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <debug_uart.h>

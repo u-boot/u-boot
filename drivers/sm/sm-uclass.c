@@ -5,6 +5,7 @@
  * Author: Alexey Romanov <avromanov@salutedevices.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <sm-uclass.h>

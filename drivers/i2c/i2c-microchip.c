@@ -6,6 +6,7 @@
  * Padmarao Begari <padmarao.begari@microchip.com>
  * Conor Dooley <conor.dooley@microchip.com>
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>

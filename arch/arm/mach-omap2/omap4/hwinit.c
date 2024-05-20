@@ -10,6 +10,7 @@
  *	Aneesh V	<aneesh@ti.com>
  *	Steve Sakoman	<steve@sakoman.com>
  */
+#include <common.h>
 #include <palmas.h>
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>

@@ -3,6 +3,7 @@
  * Copyright 2021 NXP
  */
 
+#include <common.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/io.h>

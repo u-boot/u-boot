@@ -8,6 +8,7 @@
  * This file provides a shell like 'expr' function to return.
  */
 
+#include <common.h>
 #include <config.h>
 #include <command.h>
 #include <ctype.h>
@@ -15,8 +16,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
-#include <vsprintf.h>
-#include <linux/errno.h>
 #include <linux/sizes.h>
 #include "printf.h"
 

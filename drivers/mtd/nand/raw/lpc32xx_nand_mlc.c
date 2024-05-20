@@ -19,7 +19,7 @@
  * should not rely on the ECC validity.
  */
 
-#include <config.h>
+#include <common.h>
 #include <nand.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

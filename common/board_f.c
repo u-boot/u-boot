@@ -9,7 +9,7 @@
  * Marius Groeger <mgroeger@sysgo.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <bloblist.h>
 #include <bootstage.h>
 #include <clock_legacy.h>

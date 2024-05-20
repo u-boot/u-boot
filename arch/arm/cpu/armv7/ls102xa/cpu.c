@@ -4,6 +4,7 @@
  * Copyright 2021 NXP
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <net.h>

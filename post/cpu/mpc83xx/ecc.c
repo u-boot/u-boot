@@ -8,7 +8,7 @@
  * Dave Liu <daveliu@freescale.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
 #include <log.h>

@@ -4,6 +4,7 @@
  * Author: Felipe Balbi <balbi@ti.com>
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <linux/errno.h>
 #include <power/pmic.h>

@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO_BRIDGE
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <edid.h>

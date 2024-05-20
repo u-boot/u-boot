@@ -7,6 +7,7 @@
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */
 
+#include <common.h>
 #include <log.h>
 #include <usb.h>
 #include <linux/delay.h>

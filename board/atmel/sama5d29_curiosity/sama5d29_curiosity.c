@@ -6,6 +6,7 @@
  *
  */
 
+#include <common.h>
 #include <debug_uart.h>
 #include <init.h>
 #include <asm/global_data.h>

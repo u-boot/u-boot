@@ -13,6 +13,7 @@
  * Copyright 2017-2019 NXP
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

@@ -4,6 +4,7 @@
  * Eddie James <eajames@linux.ibm.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>

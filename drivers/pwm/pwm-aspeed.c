@@ -38,6 +38,7 @@
  *   This improvement can disable/enable through PWM_ASPEED_CTRL_DUTY_SYNC_DISABLE.
  */
 
+#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <pwm.h>

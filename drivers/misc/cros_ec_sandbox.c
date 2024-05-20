@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY UCLASS_CROS_EC
 
+#include <common.h>
 #include <cros_ec.h>
 #include <dm.h>
 #include <ec_commands.h>
@@ -16,7 +17,6 @@
 #include <os.h>
 #include <u-boot/sha256.h>
 #include <spi.h>
-#include <time.h>
 #include <asm/malloc.h>
 #include <asm/state.h>
 #include <asm/sdl.h>

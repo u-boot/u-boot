@@ -8,6 +8,7 @@
  *FIXME : Not support device tree & reset control driver.
  *        will remove after support device tree & reset control driver.
  */
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/nexell.h>
 #include <asm/arch/reset.h>

@@ -4,6 +4,7 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/armv8/mmu.h>
 #include <asm/cache.h>

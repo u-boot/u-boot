@@ -4,11 +4,10 @@
  * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
  */
 
+#include <common.h>
 #include <cli_hush.h>
 #include <env.h>
 #include <i2c.h>
-#include <stdio.h>
-#include <vsprintf.h>
 #include "common.h"
 
 #define MAC_STR_SZ	20

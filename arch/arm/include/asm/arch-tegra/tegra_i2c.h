@@ -10,7 +10,6 @@
 
 #include <asm/io.h>
 #include <asm/types.h>
-#include <asm/arch/tegra.h>
 
 struct udevice;
 

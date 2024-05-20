@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2022, Ovidiu Panait <ovpanait@gmail.com>
  */
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <asm/cpuinfo.h>

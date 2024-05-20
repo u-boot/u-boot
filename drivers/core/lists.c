@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY LOGC_DM
 
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <dm/device.h>

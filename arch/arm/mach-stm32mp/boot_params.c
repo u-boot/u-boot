@@ -5,7 +5,7 @@
 
 #define LOG_CATEGORY LOGC_ARCH
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/libfdt.h>
 #include <asm/arch/sys_proto.h>

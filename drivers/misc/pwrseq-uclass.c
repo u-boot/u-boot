@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_PWRSEQ
 
+#include <common.h>
 #include <dm.h>
 #include <pwrseq.h>
 

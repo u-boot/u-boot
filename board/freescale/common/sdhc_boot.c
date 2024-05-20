@@ -3,6 +3,7 @@
  * Copyright 2011 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <mmc.h>
 #include <malloc.h>
 

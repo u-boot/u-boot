@@ -4,6 +4,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>

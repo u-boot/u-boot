@@ -5,6 +5,7 @@
  * Modified to support C structur SoC access by
  * Andreas Bießmann <biessmann@corscience.de>
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>

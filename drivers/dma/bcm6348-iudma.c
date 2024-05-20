@@ -15,6 +15,7 @@
  *	Copyright (C) 2010 Broadcom Corporation
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

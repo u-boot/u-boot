@@ -3,6 +3,7 @@
  * Copyright (c) 2016, NVIDIA CORPORATION.
  */
 
+#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>

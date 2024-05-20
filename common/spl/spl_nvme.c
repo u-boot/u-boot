@@ -5,6 +5,7 @@
  *
  */
 
+#include <common.h>
 #include <spl.h>
 #include <nvme.h>
 

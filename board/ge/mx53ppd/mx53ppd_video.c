@@ -8,6 +8,7 @@
  * Fabio Estevam <fabio.estevam@freescale.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <linux/list.h>
 #include <asm/arch/iomux-mx53.h>

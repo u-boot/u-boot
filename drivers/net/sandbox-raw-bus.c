@@ -4,6 +4,7 @@
  * Copyright (c) 2018 Joe Hershberger <joe.hershberger@ni.com>
  */
 
+#include <common.h>
 #include <asm/eth-raw-os.h>
 #include <dm.h>
 #include <errno.h>

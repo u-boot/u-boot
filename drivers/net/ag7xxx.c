@@ -6,6 +6,7 @@
  * Copyright (C) 2019 Rosy Song <rosysong@rosinson.com>
  */
 
+#include <common.h>
 #include <clock_legacy.h>
 #include <cpu_func.h>
 #include <dm.h>

@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_RTC
 
+#include <common.h>
 #include <dm.h>
 #include <rtc.h>
 #include <asm/io.h>

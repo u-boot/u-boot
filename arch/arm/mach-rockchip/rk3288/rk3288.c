@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>

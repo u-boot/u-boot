@@ -4,6 +4,7 @@
  * Copyright (C) 2015 Phil Sutter <phil@nwl.cc>
  */
 
+#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <asm/global_data.h>

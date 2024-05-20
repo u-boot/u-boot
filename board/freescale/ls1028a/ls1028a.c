@@ -3,7 +3,7 @@
  * Copyright 2019-2022 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <display_options.h>
 #include <init.h>
 #include <malloc.h>

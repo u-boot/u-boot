@@ -16,7 +16,7 @@
  * Philippe Robin, <philippe.robin@arm.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <div64.h>
 #include <time.h>
 #include <linux/delay.h>

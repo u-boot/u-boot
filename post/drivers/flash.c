@@ -7,7 +7,7 @@
  */
 
 #if CFG_POST & CFG_SYS_POST_FLASH
-#include <config.h>
+#include <common.h>
 #include <malloc.h>
 #include <post.h>
 #include <flash.h>

@@ -9,6 +9,7 @@
  *   Rui Miguel Silva <rui.silva@linaro.org>
  */
 
+#include <common.h>
 #include <console.h>
 #include <mapmem.h>
 #include <asm/global_data.h>

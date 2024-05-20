@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <dm/ofnode.h>
 #include <linux/libfdt.h>
 #include <test/test.h>

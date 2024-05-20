@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_KEYBOARD
 
+#include <common.h>
 #include <dm.h>
 #include <keyboard.h>
 #include <log.h>

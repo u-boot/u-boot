@@ -6,6 +6,7 @@
  * Author: Chen Zhong <chen.zhong@mediatek.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt8512-clk.h>

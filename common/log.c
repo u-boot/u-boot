@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <display_options.h>
 #include <log.h>
 #include <malloc.h>

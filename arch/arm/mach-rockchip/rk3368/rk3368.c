@@ -4,6 +4,7 @@
  * Copyright (c) 2016 Andreas Färber
  */
 
+#include <common.h>
 #include <init.h>
 #include <syscon.h>
 #include <asm/armv8/mmu.h>

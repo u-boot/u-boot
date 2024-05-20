@@ -3,6 +3,7 @@
  * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/test.h>
 #include <dm/simple_bus.h>

@@ -10,6 +10,7 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>

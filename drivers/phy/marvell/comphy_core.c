@@ -5,6 +5,7 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <asm/global_data.h>

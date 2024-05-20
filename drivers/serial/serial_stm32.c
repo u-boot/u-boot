@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_SERIAL
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

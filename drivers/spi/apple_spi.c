@@ -4,6 +4,7 @@
  * Copyright The Asahi Linux Contributors
  */
 
+#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <spi.h>

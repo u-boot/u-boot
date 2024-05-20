@@ -4,7 +4,7 @@
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
  */
 
-#include <config.h>
+#include <common.h>
 #include <image.h>
 #include <log.h>
 #include <spl.h>

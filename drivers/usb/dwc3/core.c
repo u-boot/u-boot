@@ -13,6 +13,7 @@
  * commit cd72f890d2 : usb: dwc3: core: enable phy suspend quirk on non-FPGA
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <malloc.h>

@@ -4,6 +4,7 @@
  *  Marcel Ziswiler <marcel@ziswiler.com>
  */
 
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <log.h>

@@ -3,6 +3,7 @@
  * Copyright 2012 Calxeda, Inc.
  */
 
+#include <common.h>
 #include <ahci.h>
 #include <asm/io.h>
 #include <linux/delay.h>

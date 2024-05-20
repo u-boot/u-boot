@@ -5,6 +5,7 @@
  * Based on code from coreboot src/soc/intel/broadwell/cpu.c
  */
 
+#include <common.h>
 #include <dm.h>
 #include <cpu.h>
 #include <event.h>

@@ -5,6 +5,7 @@
  * Note: Test coverage does not include 10-bit addressing
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>

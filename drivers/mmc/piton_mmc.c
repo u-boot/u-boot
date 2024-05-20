@@ -11,6 +11,7 @@
 
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>

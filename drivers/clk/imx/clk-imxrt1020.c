@@ -4,6 +4,7 @@
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

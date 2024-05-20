@@ -6,6 +6,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <common.h>
 #include <dm.h>
 #include <dt-bindings/reset/ti-syscon.h>
 #include <reset-uclass.h>

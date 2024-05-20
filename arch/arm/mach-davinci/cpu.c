@@ -4,7 +4,7 @@
  * Copyright (C) 2009 David Brownell
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <asm/arch/hardware.h>

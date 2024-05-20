@@ -4,7 +4,7 @@
  * Copyright 2019-2021 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <i2c.h>
 #include <fdt_support.h>

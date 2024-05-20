@@ -4,6 +4,7 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
+#include <common.h>
 #include <config.h>
 #include <net.h>
 #include <netdev.h>

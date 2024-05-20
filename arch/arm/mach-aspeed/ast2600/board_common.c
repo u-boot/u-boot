@@ -2,7 +2,7 @@
 /*
  * Copyright (c) Aspeed Technology Inc.
  */
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <ram.h>
 #include <timer.h>

@@ -6,6 +6,7 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

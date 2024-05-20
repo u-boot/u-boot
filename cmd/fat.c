@@ -7,6 +7,7 @@
 /*
  * Boot support
  */
+#include <common.h>
 #include <command.h>
 #include <mapmem.h>
 #include <fat.h>

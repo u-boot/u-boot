@@ -7,6 +7,7 @@
  * http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
  */
 
+#include <common.h>
 #include "jffs2_private.h"
 
 int sort_list(struct b_list *list)

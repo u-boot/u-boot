@@ -36,6 +36,7 @@
  * XXX
  */
 
+#include <common.h>
 #include <serial.h>
 #include <usbdevice.h>
 

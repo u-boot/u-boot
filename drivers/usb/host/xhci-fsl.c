@@ -7,6 +7,7 @@
  * Author: Ramneek Mehresh<ramneek.mehresh@freescale.com>
  */
 
+#include <common.h>
 #include <log.h>
 #include <usb.h>
 #include <linux/errno.h>

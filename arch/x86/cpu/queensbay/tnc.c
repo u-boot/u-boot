@@ -3,6 +3,7 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <dm/device-internal.h>

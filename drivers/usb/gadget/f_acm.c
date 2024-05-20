@@ -10,6 +10,7 @@
  */
 
 #include <circbuf.h>
+#include <common.h>
 #include <console.h>
 #include <errno.h>
 #include <g_dnl.h>

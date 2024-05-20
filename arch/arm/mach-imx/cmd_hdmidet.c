@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2012 Boundary Devices Inc.
  */
+#include <common.h>
 #include <command.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mxc_hdmi.h>

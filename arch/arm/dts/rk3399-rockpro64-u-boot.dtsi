@@ -5,11 +5,8 @@
 
 #include "rk3399-u-boot.dtsi"
 #include "rk3399-sdram-lpddr4-100.dtsi"
-/ {
-	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &spi_flash, &sdmmc, &sdhci;
-	};
 
+/ {
         smbios {
                 compatible = "u-boot,sysinfo-smbios";
                 smbios {
@@ -29,8 +26,10 @@
                         };
                 };
         };
+};
 
-
+&gpio0 {
+	bootph-pre-ram;
 };
 
 &sdhci {
@@ -38,10 +37,19 @@
 	mmc-ddr-1_8v;
 };
 
+&sdmmc0_pwr_h {
+	bootph-pre-ram;
+};
+
 &spi1 {
-	spi_flash: flash@0 {
-		bootph-all;
+	flash@0 {
+		bootph-pre-ram;
+		bootph-some-ram;
 	};
+};
+
+&vcc3v0_sd {
+	bootph-pre-ram;
 };
 
 &vdd_center {

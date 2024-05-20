@@ -129,6 +129,30 @@ void spl_fdt_fixup_mars(void *fdt)
 	}
 }
 
+void spl_fdt_fixup_mars_cm(void *fdt)
+{
+	const char *compat;
+	const char *model;
+
+	spl_fdt_fixup_mars(fdt);
+
+	if (!get_mmc_size_from_eeprom()) {
+		int offset;
+
+		model = "Milk-V Mars CM Lite";
+		compat = "milkv,mars-cm-lite\0starfive,jh7110";
+
+		offset = fdt_path_offset(fdt, "/soc/pinctrl/mmc0-pins/mmc0-pins-rest");
+		/* GPIOMUX(22, GPOUT_SYS_SDIO0_RST, GPOEN_ENABLE, GPI_NONE) */
+		fdt_setprop_u32(fdt, offset, "pinmux", 0xff130016);
+	} else {
+		model = "Milk-V Mars CM";
+		compat = "milkv,mars-cm\0starfive,jh7110";
+	}
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
+	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model", model);
+}
+
 void spl_fdt_fixup_version_a(void *fdt)
 {
 	static const char compat[] = "starfive,visionfive-2-v1.2a\0starfive,jh7110";
@@ -236,7 +260,9 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 		pr_err("Can't read EEPROM\n");
 		return;
 	}
-	if (!strncmp(product_id, "MARS", 4)) {
+	if (!strncmp(product_id, "MARC", 4)) {
+		spl_fdt_fixup_mars_cm(spl_image->fdt_addr);
+	} else if (!strncmp(product_id, "MARS", 4)) {
 		spl_fdt_fixup_mars(spl_image->fdt_addr);
 	} else if (!strncmp(product_id, "VF7110", 6)) {
 		version = get_pcb_revision_from_eeprom();

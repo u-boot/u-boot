@@ -3,6 +3,7 @@
  * (C) Copyright 2015 Rockchip Electronics Co., Ltd
  */
 
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <init.h>

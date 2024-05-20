@@ -12,12 +12,12 @@
  * KBC.
  */
 
+#include <common.h>
 #include <cros_ec.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
 #include <spi.h>
-#include <time.h>
 
 int cros_ec_spi_packet(struct udevice *udev, int out_bytes, int in_bytes)
 {

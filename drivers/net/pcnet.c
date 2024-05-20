@@ -6,6 +6,7 @@
  * Linux driver pcnet32.c written 1996-1999 by Thomas Bogendoerfer.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>

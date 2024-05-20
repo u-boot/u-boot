@@ -5,6 +5,7 @@
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  */
 
+#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <eeprom.h>

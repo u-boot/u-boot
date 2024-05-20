@@ -5,6 +5,7 @@
  * Copyright (C) 2011 The Chromium OS Authors. All rights reserved.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/arch/me.h>
 

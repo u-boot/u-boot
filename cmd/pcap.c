@@ -4,8 +4,8 @@
  * Ramon Fried <rfried.dev@gmail.com>
  */
 
+#include <common.h>
 #include <command.h>
-#include <vsprintf.h>
 #include <net.h>
 #include <net/pcap.h>
 

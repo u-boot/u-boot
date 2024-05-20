@@ -4,6 +4,7 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>

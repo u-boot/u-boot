@@ -3,6 +3,7 @@
  * Copyright (c) 2010-2016, NVIDIA CORPORATION.
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <stdlib.h>
 #include <asm/arch-tegra/cboot.h>

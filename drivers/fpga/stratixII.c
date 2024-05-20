@@ -4,6 +4,7 @@
  * Eran Liberty, Extricom , eran.liberty@gmail.com
  */
 
+#include <common.h>		/* core U-Boot definitions */
 #include <altera.h>
 #include <linux/delay.h>
 

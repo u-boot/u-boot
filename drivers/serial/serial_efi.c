@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <efi.h>

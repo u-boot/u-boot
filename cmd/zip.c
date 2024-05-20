@@ -4,10 +4,10 @@
  * Lei Wen <leiwen@marvell.com>, Marvell Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <gzip.h>
-#include <vsprintf.h>
 
 static int do_zip(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

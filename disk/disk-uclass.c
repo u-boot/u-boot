@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_PARTITION
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <log.h>

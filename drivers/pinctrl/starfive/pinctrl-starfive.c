@@ -7,6 +7,7 @@
  *   Author: Jianlong Huang <jianlong.huang@starfivetech.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device-internal.h>

@@ -8,7 +8,7 @@
  *	   Chuanhua Han (chuanhua.han@nxp.com)
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

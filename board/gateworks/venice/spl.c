@@ -3,6 +3,7 @@
  * Copyright 2021 Gateworks Corporation
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <i2c.h>

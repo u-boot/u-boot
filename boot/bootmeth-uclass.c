@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
+#include <common.h>
 #include <blk.h>
 #include <bootflow.h>
 #include <bootmeth.h>

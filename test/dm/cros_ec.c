@@ -3,6 +3,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <common.h>
 #include <cros_ec.h>
 #include <dm.h>
 #include <asm/test.h>

@@ -4,7 +4,7 @@
  * Author: Yanhong Wang<yanhong.wang@starfivetech.com>
  */
 
-#include <linux/kernel.h>
+#include <common.h>
 #include <asm/io.h>
 
 static const  u32 ddr_phy_data[] = {

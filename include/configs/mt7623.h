@@ -11,6 +11,9 @@
 
 #include <linux/sizes.h>
 
+/* MMC */
+#define MMC_SUPPORTS_TUNING
+
 /* DRAM */
 #define CFG_SYS_SDRAM_BASE		0x80000000
 

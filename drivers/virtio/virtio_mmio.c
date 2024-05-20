@@ -7,6 +7,7 @@
  * Ported from Linux drivers/virtio/virtio_mmio.c
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <virtio_types.h>

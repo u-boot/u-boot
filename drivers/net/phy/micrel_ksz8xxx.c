@@ -6,6 +6,7 @@
  * author Andy Fleming
  * (C) 2012 NetModule AG, David Andrey, added KSZ9031
  */
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

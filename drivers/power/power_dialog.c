@@ -4,7 +4,7 @@
  *  Lukasz Majewski <l.majewski@samsung.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <power/pmic.h>
 #include <dialog_pmic.h>

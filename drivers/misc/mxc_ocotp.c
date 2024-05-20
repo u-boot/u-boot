@@ -11,6 +11,7 @@
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <fuse.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

@@ -7,6 +7,7 @@
 #ifndef _DM_OF_H
 #define _DM_OF_H
 
+#include <asm/u-boot.h>
 #include <asm/global_data.h>
 
 /* integer value within a device tree property which references another node */

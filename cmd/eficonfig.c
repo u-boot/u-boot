@@ -7,6 +7,7 @@
 
 #include <ansi.h>
 #include <cli.h>
+#include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>

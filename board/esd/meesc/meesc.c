@@ -9,7 +9,7 @@
  * esd electronic system design gmbh <www.esd.eu>
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>

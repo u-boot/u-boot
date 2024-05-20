@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY LOGC_EXPO
 
+#include <common.h>
 #include <abuf.h>
 #include <cedit.h>
 #include <cli.h>

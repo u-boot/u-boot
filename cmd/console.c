@@ -7,6 +7,7 @@
 /*
  * Boot support
  */
+#include <common.h>
 #include <command.h>
 #include <iomux.h>
 #include <stdio_dev.h>

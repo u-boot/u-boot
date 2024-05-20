@@ -10,11 +10,10 @@
  *   - drivers/pci/pcie_xilinx.c
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <pci.h>
-#include <time.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>

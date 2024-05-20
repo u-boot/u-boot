@@ -30,6 +30,7 @@
  */
 
 #ifndef CONFIG_SPL_BUILD
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <misc.h>

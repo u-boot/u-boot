@@ -5,6 +5,7 @@
  * Intel Platform Controller Hub EG20T (codename Topcliff) GMAC Driver
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>

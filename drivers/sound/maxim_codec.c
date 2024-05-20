@@ -5,6 +5,7 @@
  * Copyright 2011 Maxim Integrated Products
  */
 
+#include <common.h>
 #include <div64.h>
 #include <i2c.h>
 #include <i2s.h>

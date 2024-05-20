@@ -4,9 +4,8 @@
  */
 
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
-#include <linux/types.h>
 
 /*
  * CADMUS Board System Registers

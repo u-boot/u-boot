@@ -3,6 +3,7 @@
  * (C) Copyright 2022 Broadcom Ltd.
  */
 
+#include <common.h>
 #include <fdtdec.h>
 
 int board_init(void)

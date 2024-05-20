@@ -7,8 +7,8 @@
 
 #include <command.h>
 #include <env.h>
-#include <vsprintf.h>
 #include <image-android-dt.h>
+#include <common.h>
 
 #define OPT_INDEX	"--index"
 

@@ -7,7 +7,7 @@
  *
  * Multibus/multiadapter I2C core functions (wrappers)
  */
-#include <config.h>
+#include <common.h>
 #include <i2c.h>
 #include <linker_lists.h>
 #include <asm/global_data.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2015 Google, Inc
  */
 
+#include <common.h>
 #include <dm.h>
 #include <sysreset.h>
 #include <asm/state.h>

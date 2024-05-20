@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2017 Rockchip Electronics Co., Ltd
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdt_support.h>

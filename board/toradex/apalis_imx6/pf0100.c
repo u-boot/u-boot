@@ -7,6 +7,7 @@
  * Helpers for Freescale PMIC PF0100
 */
 
+#include <common.h>
 #include <command.h>
 #include <i2c.h>
 #include <asm/arch/imx-regs.h>

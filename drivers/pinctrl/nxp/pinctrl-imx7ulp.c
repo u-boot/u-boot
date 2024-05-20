@@ -5,6 +5,7 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 

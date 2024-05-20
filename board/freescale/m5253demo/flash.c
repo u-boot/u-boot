@@ -7,11 +7,10 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
-#include <config.h>
+#include <common.h>
 #include <flash.h>
 #include <init.h>
 #include <irq_func.h>
-#include <time.h>
 
 #include <asm/immap.h>
 

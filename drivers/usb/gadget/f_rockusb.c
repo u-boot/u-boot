@@ -6,6 +6,7 @@
  */
 #include <command.h>
 #include <config.h>
+#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <log.h>

@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <phy.h>
 #include <linux/compat.h>
 #include <malloc.h>

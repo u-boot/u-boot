@@ -8,6 +8,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <errno.h>

@@ -3,6 +3,7 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>

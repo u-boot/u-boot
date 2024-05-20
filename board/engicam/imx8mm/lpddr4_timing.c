@@ -6,6 +6,7 @@
  * Align with uboot-imx_v2018.03_4.14.78_1.0.0_ga
  */
 
+#include <common.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/lpddr4_define.h>
 

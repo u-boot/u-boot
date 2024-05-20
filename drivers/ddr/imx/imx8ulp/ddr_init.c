@@ -2,6 +2,7 @@
 /*
  * Copyright 2021 NXP
  */
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>

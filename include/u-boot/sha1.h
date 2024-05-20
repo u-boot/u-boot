@@ -14,8 +14,6 @@
 #ifndef _SHA1_H
 #define _SHA1_H
 
-#include <linux/types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

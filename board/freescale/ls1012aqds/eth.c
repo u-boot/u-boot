@@ -4,7 +4,7 @@
  * Copyright 2017 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <netdev.h>

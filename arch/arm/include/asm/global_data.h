@@ -12,7 +12,6 @@
 #include <config.h>
 
 #include <linux/types.h>
-#include <asm/u-boot.h>
 
 /* Architecture-specific global data */
 struct arch_global_data {

@@ -4,9 +4,9 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 
+#include <common.h>
 #include <log.h>
 #include <sound.h>
-#include <linux/string.h>
 
 void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
 			      uint freq, uint channels)

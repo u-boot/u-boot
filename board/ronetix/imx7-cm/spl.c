@@ -5,6 +5,7 @@
  * Author: Ilko Iliev <iliev@ronetix.at>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/arch/clock.h>

@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <console.h>
 #include <mapmem.h>
 #include <dm/test.h>

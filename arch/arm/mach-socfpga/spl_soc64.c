@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;

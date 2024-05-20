@@ -6,6 +6,7 @@
  * Copyright 2022 Variscite Ltd.
  * Copyright 2022 Josua Mayer <josua@solid-run.com>
  */
+#include <common.h>
 #include <phy.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>

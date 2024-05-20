@@ -8,7 +8,7 @@
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <i2c.h>

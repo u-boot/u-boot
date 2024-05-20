@@ -23,7 +23,6 @@ config TARGET_MT7622
 config TARGET_MT7623
 	bool "MediaTek MT7623 SoC"
 	select CPU_V7A
-	select MMC_SUPPORTS_TUNING
 	help
 	  The MediaTek MT7623 is a ARM-based SoC with a quad-core Cortex-A7
 	  including NEON and GPU, Mali-450 graphics, several DDR3 options,

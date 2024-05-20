@@ -3,11 +3,10 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  */
 
-#include <linux/kernel.h>
+#include <common.h>
 #include <asm/fsl_serdes.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/ppc.h>
 
 
 static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {

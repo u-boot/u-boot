@@ -5,6 +5,7 @@
  * Copyright 2020, Heinrich Schuchadt <xypron.glpk@gmx.de>
  */
 
+#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <asm/global_data.h>

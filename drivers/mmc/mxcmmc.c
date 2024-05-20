@@ -17,6 +17,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <command.h>
 #include <mmc.h>
 #include <part.h>

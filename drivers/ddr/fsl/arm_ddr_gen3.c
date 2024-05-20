@@ -5,7 +5,7 @@
  * Derived from mpc85xx_ddr_gen3.c, removed all workarounds
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>

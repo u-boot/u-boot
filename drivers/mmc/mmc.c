@@ -8,6 +8,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <dm.h>
@@ -16,7 +17,6 @@
 #include <errno.h>
 #include <mmc.h>
 #include <part.h>
-#include <time.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
@@ -24,7 +24,6 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/list.h>
-#include <linux/printk.h>
 #include <div64.h>
 #include "mmc_private.h"
 
@@ -330,7 +329,7 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 				   MMC_QUIRK_RETRY_SET_BLOCKLEN, 4);
 }
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 static const u8 tuning_blk_pattern_4bit[] = {
 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
 	0xc3, 0x3c, 0xcc, 0xff, 0xfe, 0xff, 0xfe, 0xef,
@@ -1622,7 +1621,7 @@ static inline int bus_width(uint cap)
 }
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 static int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 {
 	return -ENOTSUPP;
@@ -1703,7 +1702,7 @@ void mmc_dump_capabilities(const char *text, uint caps)
 struct mode_width_tuning {
 	enum bus_mode mode;
 	uint widths;
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	uint tuning;
 #endif
 };
@@ -1744,7 +1743,7 @@ static inline int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage)
 #if !CONFIG_IS_ENABLED(MMC_TINY)
 static const struct mode_width_tuning sd_modes_by_pref[] = {
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	{
 		.mode = UHS_SDR104,
 		.widths = MMC_MODE_4BIT | MMC_MODE_1BIT,
@@ -1847,7 +1846,7 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				mmc_set_clock(mmc, mmc->tran_speed,
 						MMC_CLK_ENABLE);
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 				/* execute tuning if needed */
 				if (mwt->tuning && !mmc_host_is_spi(mmc)) {
 					err = mmc_execute_tuning(mmc,
@@ -2225,7 +2224,7 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 				mmc_select_mode(mmc, mwt->mode);
 				mmc_set_clock(mmc, mmc->tran_speed,
 					      MMC_CLK_ENABLE);
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 
 				/* execute tuning if needed */
 				if (mwt->tuning) {

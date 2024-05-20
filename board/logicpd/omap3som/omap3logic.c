@@ -10,7 +10,7 @@
  *	Richard Woodruff <r-woodruff2@ti.com>
  *	Syed Mohammed Khasim <khasim@ti.com>
  */
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <net.h>

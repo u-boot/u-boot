@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0+
+#include <common.h>
 #include <log.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>

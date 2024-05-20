@@ -3,10 +3,10 @@
  * Copyright 2019 Ramon Fried <rfried.dev@gmail.com>
  */
 
+#include <common.h>
 #include <net.h>
 #include <net/pcap.h>
 #include <time.h>
-#include <linux/errno.h>
 #include <asm/io.h>
 
 #define LINKTYPE_ETHERNET	1

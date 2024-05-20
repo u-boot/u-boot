@@ -13,7 +13,6 @@
 #define __ASM_ME_COMMON_H
 
 #include <linux/compiler.h>
-#include <linux/string.h>
 #include <linux/types.h>
 #include <pci.h>
 

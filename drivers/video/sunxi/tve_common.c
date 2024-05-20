@@ -7,6 +7,7 @@
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
+#include <common.h>
 
 #include <asm/arch/tve.h>
 #include <asm/io.h>

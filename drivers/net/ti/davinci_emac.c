@@ -21,7 +21,7 @@
  * ver. 1.0: Sep 2005, Anant Gole - Created EMAC version for uBoot.
  * ver  1.1: Nov 2005, Anant Gole - Extended the RX logic for multiple descriptors
  */
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <log.h>

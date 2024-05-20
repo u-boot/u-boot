@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include <stdlib.h>
-#include <errno.h>
+#include <common.h>
 #include <fs_internal.h>
 #include "ctree.h"
 #include "disk-io.h"

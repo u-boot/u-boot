@@ -10,7 +10,7 @@
  * Author: Kevin Wells
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <nand.h>
 #include <linux/bug.h>

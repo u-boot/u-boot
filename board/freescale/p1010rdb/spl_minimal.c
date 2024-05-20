@@ -2,7 +2,7 @@
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  */
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <mpc85xx.h>

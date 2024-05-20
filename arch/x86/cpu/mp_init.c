@@ -5,13 +5,13 @@
  * Based on code from the coreboot file of the same name
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
 #include <qfw.h>
-#include <time.h>
 #include <asm/atomic.h>
 #include <asm/cpu.h>
 #include <asm/global_data.h>

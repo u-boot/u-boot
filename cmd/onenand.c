@@ -9,6 +9,7 @@
  * published by the Free Software Foundation.
  */
 
+#include <common.h>
 #include <command.h>
 #include <malloc.h>
 #include <linux/printk.h>

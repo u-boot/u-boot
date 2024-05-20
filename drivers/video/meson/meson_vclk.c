@@ -6,6 +6,7 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <edid.h>
 #include <linux/bitops.h>

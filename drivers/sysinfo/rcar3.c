@@ -3,6 +3,7 @@
  * Copyright (C) 2021 Marek Vasut <marek.vasut+renesas@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <i2c_eeprom.h>
 #include <log.h>

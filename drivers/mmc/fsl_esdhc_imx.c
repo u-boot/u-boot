@@ -11,6 +11,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <command.h>
 #include <clk.h>
 #include <cpu_func.h>
@@ -634,7 +635,7 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	priv->clock = clock;
 }
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 static int esdhc_change_pinstate(struct udevice *dev)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
@@ -912,7 +913,7 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 	int ret __maybe_unused;
 	u32 clock;
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	/*
 	 * call esdhc_set_timing() before update the clock rate,
 	 * This is because current we support DDR and SDR mode,
@@ -950,7 +951,7 @@ static int esdhc_set_ios_common(struct fsl_esdhc_priv *priv, struct mmc *mmc)
 			esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
 	}
 
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	/*
 	 * For HS400/HS400ES mode, make sure set the strobe dll in the
 	 * target clock rate. So call esdhc_set_strobe_dll() after the
@@ -1617,7 +1618,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
 	.set_ios	= fsl_esdhc_set_ios,
-#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
+#ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= fsl_esdhc_execute_tuning,
 #endif
 #if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)

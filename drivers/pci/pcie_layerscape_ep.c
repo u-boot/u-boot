@@ -4,7 +4,7 @@
  * Layerscape PCIe EP driver
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch/fsl_serdes.h>
 #include <dm.h>
 #include <asm/global_data.h>

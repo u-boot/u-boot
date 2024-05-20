@@ -25,6 +25,7 @@
  */
 
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <memalign.h>

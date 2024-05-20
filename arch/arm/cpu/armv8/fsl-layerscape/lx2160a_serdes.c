@@ -3,7 +3,7 @@
  * Copyright 2018, 2020 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch/fsl_serdes.h>
 
 struct serdes_config {

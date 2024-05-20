@@ -12,8 +12,6 @@
 #ifndef __IMMAP_8XX__
 #define __IMMAP_8XX__
 
-#include <linux/types.h>
-
 /* System configuration registers.
 */
 typedef	struct sys_conf {

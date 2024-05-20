@@ -3,6 +3,7 @@
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

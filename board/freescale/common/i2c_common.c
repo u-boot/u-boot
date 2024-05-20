@@ -5,7 +5,7 @@
  * Copyright 2021 Microsoft Corporation
  */
 
-#include <stdio.h>
+#include <common.h>
 #include <i2c.h>
 #include "i2c_common.h"
 

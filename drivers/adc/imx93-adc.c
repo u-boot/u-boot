@@ -6,6 +6,7 @@
  * Originally based on NXP linux-imx kernel v5.15 drivers/iio/adc/imx93_adc.c
  */
 
+#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <linux/bitfield.h>

@@ -8,6 +8,7 @@
  * cpu specific common code for 85xx/86xx processors.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>

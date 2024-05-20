@@ -7,7 +7,7 @@
  * Copyright (C) 2011, Texas Instruments, Incorporated - https://www.ti.com/
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>

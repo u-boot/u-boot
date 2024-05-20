@@ -5,6 +5,7 @@
  * Copyright (C) 2021 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <errno.h>
 #include <asm/io.h>
 #include <asm/gpio.h>

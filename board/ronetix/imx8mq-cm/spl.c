@@ -4,7 +4,7 @@
  *
  */
 
-#include <config.h>
+#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <asm/arch/ddr.h>

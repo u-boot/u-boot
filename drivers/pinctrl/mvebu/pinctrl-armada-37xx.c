@@ -16,6 +16,7 @@
  * https://spdx.org/licenses
  */
 
+#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <malloc.h>

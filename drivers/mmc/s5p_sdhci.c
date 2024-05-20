@@ -4,6 +4,7 @@
  * Jaehoon Chung <jh80.chung@samsung.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

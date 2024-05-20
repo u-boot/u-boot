@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

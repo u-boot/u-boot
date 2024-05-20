@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
  */
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 

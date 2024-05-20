@@ -3,6 +3,7 @@
  * Copyright (C) 2008, Guennadi Liakhovetski <lg@denx.de>
  */
 
+#include <common.h>
 #include <rtc.h>
 #include <spi.h>
 #include <power/pmic.h>

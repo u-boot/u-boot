@@ -4,7 +4,7 @@
  * Naveen Krishna Ch <ch.naveen@samsung.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sromc.h>
 

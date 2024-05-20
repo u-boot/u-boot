@@ -1,3 +1,4 @@
+#include <common.h>
 #include <exports.h>
 #include <linux/compiler.h>
 

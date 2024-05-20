@@ -10,7 +10,6 @@
  *-----------------------------------------------------------------------*/
 
 #include <linux/list.h>
-#include <linux/string.h>
 
 /* mtd device types */
 #define MTD_DEV_TYPE_NOR	0x0001

@@ -3,6 +3,7 @@
  * Copyright (c) 2016, NVIDIA CORPORATION
  */
 
+#include <common.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <i2c.h>

@@ -3,7 +3,7 @@
  * Copyright (C) 2008, Guennadi Liakhovetski <lg@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

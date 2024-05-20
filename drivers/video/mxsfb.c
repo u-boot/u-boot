@@ -4,6 +4,7 @@
  *
  * Copyright (C) 2011-2013 Marek Vasut <marex@denx.de>
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <env.h>

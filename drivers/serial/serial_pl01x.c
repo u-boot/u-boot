@@ -10,6 +10,7 @@
 
 /* Simple U-Boot driver for the PrimeCell PL010/PL011 UARTs */
 
+#include <common.h>
 #include <asm/global_data.h>
 /* For get_bus_freq() */
 #include <clock_legacy.h>

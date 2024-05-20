@@ -17,6 +17,7 @@
  * Lukasz Majewski <l.majewski@samsumg.com>
  */
 
+#include <common.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 #include <linux/list.h>

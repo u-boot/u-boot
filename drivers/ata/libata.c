@@ -5,9 +5,9 @@
  *		port from the libata of linux kernel
  */
 
+#include <common.h>
 #include <compiler.h>
 #include <libata.h>
-#include <stdio.h>
 
 u64 ata_id_n_sectors(u16 *id)
 {

@@ -4,6 +4,7 @@
  * Copyright 2019 NXP
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
+#include <common.h>
 #include <log.h>
 #include <nand.h>
 #include <malloc.h>

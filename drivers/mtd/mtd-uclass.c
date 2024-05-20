@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_MTD
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <errno.h>

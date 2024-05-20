@@ -8,6 +8,7 @@
  *
  * (C) Copyright 2008 Atmel Corporation
  */
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>

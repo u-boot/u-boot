@@ -7,6 +7,7 @@
  * Amlogic Meson SPI Flash Controller driver
  */
 
+#include <common.h>
 #include <log.h>
 #include <spi.h>
 #include <clk.h>

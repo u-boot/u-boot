@@ -4,6 +4,7 @@
  * Copyright (c) 2016 Free Electrons
  */
 
+#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <fdt_support.h>

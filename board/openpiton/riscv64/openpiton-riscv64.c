@@ -8,6 +8,7 @@
  *   Pragnesh Patel <pragnesh.patel@sifive.com>
  *   Tianrui Wei <tianrui-wei@outlook.com>
  */
+#include <common.h>
 #include <init.h>
 #include <configs/openpiton-riscv64.h>
 #include <dm.h>

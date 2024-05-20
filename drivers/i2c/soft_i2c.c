@@ -15,7 +15,7 @@
  * Please see doc/driver-model/i2c-howto.rst for instructions.
  */
 
-#include <config.h>
+#include <common.h>
 #if defined(CONFIG_AT91FAMILY)
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

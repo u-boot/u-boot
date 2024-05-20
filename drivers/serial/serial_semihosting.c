@@ -3,6 +3,7 @@
  * Copyright (C) 2022 Sean Anderson <sean.anderson@seco.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <serial.h>

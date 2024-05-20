@@ -5,6 +5,7 @@
  * Authors:
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
+#include <common.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <string.h>

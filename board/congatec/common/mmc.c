@@ -4,8 +4,7 @@
  * Copyright 2018 NXP
  *
  */
-
-#include <vsprintf.h>
+#include <common.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <env.h>

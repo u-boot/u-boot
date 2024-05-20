@@ -3,6 +3,7 @@
  * Copyright (c) 2015 Realtek Semiconductor Corp. All rights reserved.
  *
   */
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <linux/bitops.h>

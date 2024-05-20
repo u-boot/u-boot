@@ -8,7 +8,7 @@
  * Bo Shen <voice.shen@atmel.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <vsprintf.h>

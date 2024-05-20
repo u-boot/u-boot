@@ -4,7 +4,7 @@
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  */
 
-#include <config.h>
+#include <common.h>
 #include <nand.h>
 #include <system-constants.h>
 #include <asm/io.h>

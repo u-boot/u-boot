@@ -6,6 +6,7 @@
  *	Tero Kristo <t-kristo@ti.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <div64.h>

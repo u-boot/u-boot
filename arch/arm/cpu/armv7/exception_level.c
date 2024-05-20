@@ -8,6 +8,7 @@
  * secure mode before booting an operating system.
  */
 
+#include <common.h>
 #include <bootm.h>
 #include <cpu_func.h>
 #include <log.h>

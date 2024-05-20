@@ -4,6 +4,7 @@
  * Thomas Abraham <thomas.ab@samsung.com>
  */
 
+#include <common.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>
 

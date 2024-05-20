@@ -7,6 +7,7 @@
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
  */
 
+#include <common.h>
 #include <bootm.h>
 #include <bootstage.h>
 #include <command.h>

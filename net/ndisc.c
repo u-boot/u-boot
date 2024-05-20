@@ -9,6 +9,7 @@
 
 /* Neighbour Discovery for IPv6 */
 
+#include <common.h>
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>

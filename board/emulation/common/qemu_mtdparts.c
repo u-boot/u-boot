@@ -3,6 +3,7 @@
  * Copyright (c) 2020 Linaro Limited
  */
 
+#include <common.h>
 #include <dm.h>
 #include <mtd.h>
 

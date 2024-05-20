@@ -3,6 +3,7 @@
  * Copyright 2019 Google LLC
  */
 
+#include <common.h>
 #include <dm.h>
 #include <pch.h>
 #include <spl.h>

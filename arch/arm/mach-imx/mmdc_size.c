@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <config.h>
+#include <common.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_MX53)

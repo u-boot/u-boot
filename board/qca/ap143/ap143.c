@@ -3,6 +3,7 @@
  * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/addrspace.h>

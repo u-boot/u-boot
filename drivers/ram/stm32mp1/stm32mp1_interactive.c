@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_RAM
 
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <cli.h>

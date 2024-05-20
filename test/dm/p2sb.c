@@ -5,6 +5,7 @@
  * Copyright 2019 Google LLC
  */
 
+#include <common.h>
 #include <dm.h>
 #include <p2sb.h>
 #include <asm/test.h>

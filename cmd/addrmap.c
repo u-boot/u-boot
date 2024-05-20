@@ -3,6 +3,7 @@
  * Copyright (C) 2021, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <addr_map.h>
 

@@ -3,6 +3,7 @@
  * Copyright (C) 2016-2017 Intel Corporation
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <malloc.h>
 #include <asm/io.h>

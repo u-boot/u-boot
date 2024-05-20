@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY	LOGC_EXPO
 
+#include <common.h>
 #include <expo.h>
 #include <fdtdec.h>
 #include <log.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2016 The Android Open Source Project
  */
 
+#include <common.h>
 #include <env.h>
 #include <fastboot.h>
 #include <fastboot-internal.h>
@@ -11,7 +12,6 @@
 #include <fs.h>
 #include <part.h>
 #include <version.h>
-#include <vsprintf.h>
 #include <linux/printk.h>
 
 static void getvar_version(char *var_parameter, char *response);

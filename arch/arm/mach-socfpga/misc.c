@@ -3,7 +3,7 @@
  *  Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <hang.h>

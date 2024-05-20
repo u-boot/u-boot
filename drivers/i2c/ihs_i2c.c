@@ -4,6 +4,7 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <dm.h>
 #include <regmap.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2015 Google, Inc
  */
 
+#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <malloc.h>

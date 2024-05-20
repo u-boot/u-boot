@@ -7,6 +7,7 @@
  * Based on RNGC driver in drivers/char/hw_random/imx-rngc.c in Linux
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <rng.h>

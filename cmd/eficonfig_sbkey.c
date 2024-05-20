@@ -6,6 +6,7 @@
  */
 
 #include <ansi.h>
+#include <common.h>
 #include <charset.h>
 #include <hexdump.h>
 #include <log.h>

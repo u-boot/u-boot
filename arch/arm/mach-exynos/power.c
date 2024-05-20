@@ -4,7 +4,7 @@
  * Donghwa Lee <dh09.lee@samsung.com>
  */
 
-#include <mach/cpu.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/power.h>
 

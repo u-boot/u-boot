@@ -3,6 +3,7 @@
  * Copyright 2014 Broadcom Corporation.
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

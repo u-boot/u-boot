@@ -3,6 +3,7 @@
  * Copyright (c) 2012-2016 Toradex, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_i2c.h>

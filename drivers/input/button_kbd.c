@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <input.h>

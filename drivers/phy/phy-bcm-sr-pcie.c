@@ -3,6 +3,7 @@
  * Copyright (C) 2019 Broadcom
  */
 
+#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <asm/io.h>

@@ -3,6 +3,7 @@
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
  */
 
+#include <common.h>
 #include <cache.h>
 #include <dm.h>
 #include <errno.h>

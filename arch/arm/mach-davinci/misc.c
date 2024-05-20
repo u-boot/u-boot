@@ -8,7 +8,7 @@
  * Copyright (C) 2004 Texas Instruments.
  */
 
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <i2c.h>
 #include <init.h>

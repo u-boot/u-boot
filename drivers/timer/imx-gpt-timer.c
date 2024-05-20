@@ -4,7 +4,7 @@
  * Author(s): Giulio Benetti <giulio.benetti@benettiengineering.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>

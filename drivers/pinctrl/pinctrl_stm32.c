@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_PINCTRL
 
+#include <common.h>
 #include <dm.h>
 #include <hwspinlock.h>
 #include <log.h>

@@ -5,13 +5,13 @@
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  */
 
-#include <config.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <linux/arm-smccc.h>
 #include <linux/psci.h>
+#include <common.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/psci.h>

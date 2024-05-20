@@ -8,6 +8,7 @@
  * Epson RX8025 RTC driver.
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <i2c.h>

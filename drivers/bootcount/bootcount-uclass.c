@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_BOOTCOUNT
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <bootcount.h>

@@ -5,6 +5,7 @@
  * Written by: Piotr Ziecik <kosmo@semihalf.com>
  */
 
+#include <common.h>
 #include <dma.h>
 #include <flash.h>
 #include <malloc.h>

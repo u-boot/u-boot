@@ -125,8 +125,6 @@
 #define SCU_MISC_CTRL1_UART5_DIV		BIT(12)
 
 #ifndef __ASSEMBLY__
-#include <linux/types.h>
-
 struct ast2600_scu {
 	uint32_t prot_key1;		/* 0x000 */
 	uint32_t chip_id1;		/* 0x004 */

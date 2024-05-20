@@ -5,6 +5,7 @@
  * Copyright (C) 2018 Jagan Teki <jagan@amarulasolutions.com>
  */
 
+#include <common.h>
 #include <init.h>
 #include <serial.h>
 #include <spl.h>

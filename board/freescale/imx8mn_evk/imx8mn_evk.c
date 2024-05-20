@@ -3,6 +3,7 @@
  * Copyright 2019 NXP
  */
 
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <asm/global_data.h>

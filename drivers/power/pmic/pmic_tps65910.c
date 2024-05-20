@@ -4,6 +4,7 @@
  * Texas Instruments, <www.ti.com>
  */
 
+#include <common.h>
 #include <i2c.h>
 #include <power/tps65910.h>
 

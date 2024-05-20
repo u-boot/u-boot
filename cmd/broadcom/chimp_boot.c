@@ -3,6 +3,7 @@
  * Copyright 2020 Broadcom
  */
 
+#include <common.h>
 #include <command.h>
 #include <broadcom/chimp.h>
 

@@ -6,6 +6,7 @@
  * Licensed under the GPL-2 or later.
  */
 
+#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <dm.h>

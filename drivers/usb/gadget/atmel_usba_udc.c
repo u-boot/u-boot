@@ -7,6 +7,7 @@
  *			   Bo Shen <voice.shen@atmel.com>
  */
 
+#include <common.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>

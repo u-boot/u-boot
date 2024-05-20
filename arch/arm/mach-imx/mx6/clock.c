@@ -3,10 +3,10 @@
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <command.h>
 #include <div64.h>
 #include <log.h>
-#include <time.h>
 #include <asm/io.h>
 #include <linux/errno.h>
 #include <asm/arch/imx-regs.h>

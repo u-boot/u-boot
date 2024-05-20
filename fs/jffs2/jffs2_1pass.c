@@ -111,6 +111,7 @@
  */
 
 
+#include <common.h>
 #include <config.h>
 #include <malloc.h>
 #include <div64.h>

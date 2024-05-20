@@ -5,6 +5,7 @@
  * Copyright (C) 2015  Phil Sutter <phil@nwl.cc>
  */
 
+#include <common.h>
 #include <command.h>
 #include <div64.h>
 #include <env.h>

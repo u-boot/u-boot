@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // (C) 2022 Pali Rohár <pali@kernel.org>
 
+#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <dm/devres.h>

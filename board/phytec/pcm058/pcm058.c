@@ -9,6 +9,7 @@
  * Both NAND and eMMC cannot be set because they share the
  * same pins (SD4)
  */
+#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/crm_regs.h>

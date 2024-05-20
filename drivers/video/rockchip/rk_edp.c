@@ -4,6 +4,7 @@
  * Copyright 2014 Rockchip Inc.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>

@@ -6,6 +6,7 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
 
+#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>

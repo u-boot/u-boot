@@ -3,6 +3,7 @@
  * Marvell SD Host Controller Interface
  */
 
+#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <sdhci.h>

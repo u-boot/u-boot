@@ -10,6 +10,7 @@
  *	Copyright 2004	Sun Microsystems, Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <linux/stat.h>

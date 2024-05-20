@@ -5,11 +5,11 @@
  * Written by Dirk Eibach <dirk.eibach@gdsys.cc>
  */
 
+#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <tpm-v1.h>
 #include <i2c.h>
-#include <time.h>
 #include <asm/unaligned.h>
 #include <linux/delay.h>
 

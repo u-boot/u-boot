@@ -14,6 +14,7 @@
  * 22/08/2022 Port to DM
  */
 
+#include <common.h>
 #include <dm.h>
 #include <wdt.h>
 #include <log.h>

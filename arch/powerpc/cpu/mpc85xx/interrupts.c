@@ -10,7 +10,7 @@
  * Xianghua Xiao (X.Xiao@motorola.com)
  */
 
-#include <asm/ppc.h>
+#include <common.h>
 #include <irq_func.h>
 #include <log.h>
 #include <time.h>

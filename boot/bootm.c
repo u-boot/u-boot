@@ -5,6 +5,7 @@
  */
 
 #ifndef USE_HOSTCC
+#include <common.h>
 #include <bootm.h>
 #include <bootstage.h>
 #include <cli.h>

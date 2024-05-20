@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_VIRTIO
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <part.h>

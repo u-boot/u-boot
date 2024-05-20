@@ -6,7 +6,7 @@
  * Based on CAAM driver in drivers/crypto/caam in Linux
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <linux/kernel.h>
 #include <log.h>

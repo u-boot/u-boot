@@ -8,6 +8,7 @@
  * A command interface to access misc devices with MISC uclass driver APIs.
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <errno.h>

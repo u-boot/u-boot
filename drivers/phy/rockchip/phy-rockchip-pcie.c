@@ -7,6 +7,7 @@
  * Copyright (C) 2016 ROCKCHIP, Inc.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <asm/global_data.h>

@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO_OSD
 
+#include <common.h>
 #include <dm.h>
 #include <video_osd.h>
 

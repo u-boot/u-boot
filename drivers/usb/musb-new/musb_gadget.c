@@ -22,6 +22,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
 #else
+#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <linux/bug.h>

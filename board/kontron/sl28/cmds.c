@@ -5,11 +5,10 @@
  * Copyright (c) 2020 Kontron Europe GmbH
  */
 
+#include <common.h>
 #include <command.h>
 #include <i2c.h>
-#include <vsprintf.h>
 #include <linux/delay.h>
-#include <linux/errno.h>
 
 #define CPLD_I2C_ADDR 0x4a
 #define REG_UFM_CTRL 0x02

@@ -3,6 +3,7 @@
  * Copyright (c) 2022 Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <linux/delay.h>

@@ -20,6 +20,7 @@
 
 #include <asm-offsets.h>
 #include <config.h>
+#include <common.h>
 #include <system-constants.h>
 
 /*

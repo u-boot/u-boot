@@ -6,6 +6,7 @@
  * (C) Copyright 2014 Linaro, Ltd.
  * Rob Herring <robh@kernel.org>
  */
+#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <g_dnl.h>

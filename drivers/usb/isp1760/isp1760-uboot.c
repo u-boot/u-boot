@@ -6,6 +6,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>

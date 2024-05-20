@@ -16,9 +16,9 @@
  * Modified by Ruslan Araslanov <ruslan.araslanov@vitecmm.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <spi.h>
-#include <time.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

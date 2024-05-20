@@ -3,6 +3,7 @@
  * Copyright (C) 2018 Xilinx, Inc. - Michal Simek
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <sysreset.h>

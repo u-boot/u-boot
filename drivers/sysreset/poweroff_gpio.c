@@ -11,6 +11,7 @@
  * Copyright (C) 2012 Jamie Lentin
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

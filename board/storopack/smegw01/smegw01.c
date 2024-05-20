@@ -12,6 +12,7 @@
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
+#include <common.h>
 #include <env.h>
 #include <env_internal.h>
 #include <asm/arch/crm_regs.h>

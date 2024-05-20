@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_CACHE
 
+#include <common.h>
 #include <cache.h>
 #include <dm.h>
 

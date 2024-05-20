@@ -4,6 +4,7 @@
  * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
  */
 
+#include <common.h>
 #include <spl.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-rockchip/bootrom.h>

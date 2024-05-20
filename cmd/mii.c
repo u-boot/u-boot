@@ -8,6 +8,7 @@
  * MII Utilities
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <miiphy.h>

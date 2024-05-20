@@ -7,6 +7,7 @@
  * Based on dwc3-generic.c.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/device-internal.h>

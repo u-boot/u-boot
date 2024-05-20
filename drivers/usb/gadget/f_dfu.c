@@ -16,6 +16,7 @@
 
 #include <env.h>
 #include <errno.h>
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 

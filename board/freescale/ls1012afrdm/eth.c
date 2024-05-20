@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <net.h>
 #include <asm/io.h>

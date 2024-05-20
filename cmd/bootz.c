@@ -4,6 +4,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <common.h>
 #include <bootm.h>
 #include <command.h>
 #include <image.h>

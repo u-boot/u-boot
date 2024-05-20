@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <init.h>

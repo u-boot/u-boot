@@ -41,6 +41,7 @@
 *
 ****************************************************************************/
 
+#include <common.h>
 #include <linux/compiler.h>
 #include <linux/printk.h>
 #include "x86emu/x86emui.h"

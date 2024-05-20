@@ -3,6 +3,7 @@
  * Copyright (c) 2017 Intel Corporation
  */
 
+#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/e820.h>

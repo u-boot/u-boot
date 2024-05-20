@@ -8,6 +8,7 @@
  *	Copyright (C) 2021 Broadcom Ltd
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <spi.h>

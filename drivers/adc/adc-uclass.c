@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_ADC
 
+#include <common.h>
 #include <errno.h>
 #include <div64.h>
 #include <dm.h>

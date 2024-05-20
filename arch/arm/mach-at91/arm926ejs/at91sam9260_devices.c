@@ -5,6 +5,7 @@
  * Lead Tech Design <www.leadtechdesign.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/at91sam9260_matrix.h>

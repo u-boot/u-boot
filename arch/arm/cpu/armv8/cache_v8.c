@@ -7,6 +7,7 @@
  * Alexander Graf <agraf@suse.de>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <hang.h>
 #include <log.h>

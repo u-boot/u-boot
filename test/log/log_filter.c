@@ -3,6 +3,7 @@
  * Copyright (C) 2020 Sean Anderson <seanga2@gmail.com>
  */
 
+#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <asm/global_data.h>

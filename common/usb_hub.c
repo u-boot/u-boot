@@ -21,6 +21,7 @@
  * Probes device for being a hub and configurate it
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -28,7 +29,6 @@
 #include <log.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <time.h>
 #include <asm/processor.h>
 #include <asm/unaligned.h>
 #include <linux/ctype.h>

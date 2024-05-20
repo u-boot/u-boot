@@ -10,8 +10,6 @@
 #define __bootstd_h
 
 #include <dm/ofnode_decl.h>
-#include <linux/list.h>
-#include <linux/types.h>
 
 struct udevice;
 

@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_LED
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <led.h>

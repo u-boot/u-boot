@@ -3,9 +3,9 @@
  * (C) Copyright 2003 Stefan Roese, stefan.roese@esd-electronics.com
  */
 
+#include <common.h>
 #include <command.h>
 #include <malloc.h>
-#include <vsprintf.h>
 #include <asm/io.h>
 #include <pci.h>
 

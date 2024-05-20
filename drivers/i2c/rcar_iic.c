@@ -9,6 +9,7 @@
  * Copyright (C) 2011, 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <i2c.h>

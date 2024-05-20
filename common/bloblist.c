@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY	LOGC_BLOBLIST
 
+#include <common.h>
 #include <bloblist.h>
 #include <display_options.h>
 #include <log.h>

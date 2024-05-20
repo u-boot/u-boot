@@ -8,6 +8,7 @@
  * Copyright (C) 2009 - 2014 Xilinx, Inc.
  */
 
+#include <common.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/bitops.h>

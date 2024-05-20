@@ -6,8 +6,6 @@
 #ifndef _DISPLAY_H
 #define _DISPLAY_H
 
-#include <linux/types.h>
-
 struct udevice;
 struct display_timing;
 

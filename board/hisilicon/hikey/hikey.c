@@ -3,6 +3,7 @@
  * (C) Copyright 2015 Linaro
  * Peter Griffin <peter.griffin@linaro.org>
  */
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdt_support.h>

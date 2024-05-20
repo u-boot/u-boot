@@ -6,6 +6,7 @@
 #define LOG_CATEGORY UCLASS_PANEL_BACKLIGHT
 
 #include <backlight.h>
+#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>

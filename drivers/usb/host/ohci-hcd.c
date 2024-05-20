@@ -27,7 +27,7 @@
  *     to activate workaround for bug #41 or this driver will NOT work!
  */
 
-#include <config.h>
+#include <common.h>
 #include <cpu_func.h>
 #include <asm/byteorder.h>
 #include <dm.h>

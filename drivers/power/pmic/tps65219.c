@@ -4,6 +4,7 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>

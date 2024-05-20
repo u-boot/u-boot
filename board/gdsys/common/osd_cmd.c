@@ -9,6 +9,7 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>

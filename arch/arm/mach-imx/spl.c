@@ -6,7 +6,7 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

@@ -3,12 +3,12 @@
  * (C) Copyright 2023 SberDevices, Inc.
  */
 
+#include <common.h>
 #include <asm/arch/a1.h>
 #include <asm/arch/boot.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
-#include <linux/errno.h>
 #include <linux/sizes.h>
 
 phys_size_t get_effective_memsize(void)

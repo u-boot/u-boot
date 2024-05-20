@@ -5,6 +5,7 @@
  * (C) Copyright 2017 Vasily Khoruzhick <anarsoul@gmail.com>
  */
 
+#include <common.h>
 #include <display.h>
 #include <log.h>
 #include <video_bridge.h>

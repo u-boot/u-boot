@@ -7,6 +7,7 @@
  *	Copyright 2013 Florian Fainelli <florian@openwrt.org>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

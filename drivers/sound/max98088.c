@@ -8,6 +8,7 @@
  * following the changes made in max98095.c
  */
 
+#include <common.h>
 #include <audio_codec.h>
 #include <div64.h>
 #include <dm.h>

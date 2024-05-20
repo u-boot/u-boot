@@ -7,6 +7,7 @@
  *
  * Copyright (C) 2015 Renesas Electronics Europe Ltd
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

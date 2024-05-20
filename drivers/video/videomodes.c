@@ -55,6 +55,7 @@
 		      "myvideo" and setting the variable "videomode=myvideo"..
 ****************************************************************************/
 
+#include <common.h>
 #include <edid.h>
 #include <env.h>
 #include <errno.h>

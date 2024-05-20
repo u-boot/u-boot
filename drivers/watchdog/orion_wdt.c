@@ -12,6 +12,7 @@
  * warranty of any kind, whether express or implied.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <log.h>

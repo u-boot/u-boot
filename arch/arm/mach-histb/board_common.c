@@ -5,6 +5,7 @@
  * (C) Copyright 2023 Yang Xiwen <forbidden405@outlook.com>
  */
 
+#include <common.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <asm/system.h>

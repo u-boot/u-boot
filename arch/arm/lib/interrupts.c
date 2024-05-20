@@ -18,6 +18,7 @@
  * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <efi_loader.h>
 #include <irq_func.h>

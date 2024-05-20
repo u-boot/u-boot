@@ -4,6 +4,7 @@
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <net.h>
 #include <virtio_types.h>

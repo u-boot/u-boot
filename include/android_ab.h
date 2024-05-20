@@ -6,8 +6,6 @@
 #ifndef __ANDROID_AB_H
 #define __ANDROID_AB_H
 
-#include <stdbool.h>
-
 struct blk_desc;
 struct disk_partition;
 

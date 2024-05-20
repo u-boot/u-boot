@@ -5,6 +5,7 @@
  *  Kyungmin Park <kyungmin.park@samsung.com>
  */
 
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <spi.h>

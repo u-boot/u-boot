@@ -4,6 +4,7 @@
  * Author: Jan Kiszka <jan.kiszka@siemens.com>
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/arch/flow.h>

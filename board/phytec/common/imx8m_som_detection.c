@@ -4,6 +4,7 @@
  * Author: Teresa Remmet <t.remmet@phytec.de>
  */
 
+#include <common.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>

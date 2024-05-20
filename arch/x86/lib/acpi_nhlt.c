@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY	LOGC_ACPI
 
+#include <common.h>
 #include <binman.h>
 #include <dm.h>
 #include <log.h>

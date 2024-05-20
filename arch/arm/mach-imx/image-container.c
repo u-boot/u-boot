@@ -3,7 +3,7 @@
  * Copyright 2019 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <errno.h>
 #include <imx_container.h>
 #include <log.h>

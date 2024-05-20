@@ -4,6 +4,7 @@
  * Licensed under the GPL-2 or later.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <hang.h>

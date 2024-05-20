@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <stdio_dev.h>

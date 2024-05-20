@@ -4,8 +4,8 @@
  * Hyunseok, Jung <hsjung@nexell.co.kr>
  */
 
+#include <common.h>
 #include <command.h>
-#include <vsprintf.h>
 #include <linux/err.h>
 #include <asm/io.h>
 #include <asm/arch/nexell.h>

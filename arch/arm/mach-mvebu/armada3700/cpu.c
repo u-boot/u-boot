@@ -4,6 +4,7 @@
  * Copyright (C) 2020 Marek Behún <kabel@kernel.org>
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <fdtdec.h>

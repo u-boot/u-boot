@@ -3,6 +3,7 @@
  * Copyright (c) 2018, STMicroelectronics
  */
 
+#include <common.h>
 #include <log.h>
 #include <serial.h>
 #include <dm.h>

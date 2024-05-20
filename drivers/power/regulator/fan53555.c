@@ -3,6 +3,7 @@
  * (C) 2018 Theobroma Systems Design und Consulting GmbH
  */
 
+#include <common.h>
 #include <bitfield.h>
 #include <errno.h>
 #include <dm.h>

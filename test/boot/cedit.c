@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <cedit.h>
 #include <env.h>
 #include <expo.h>

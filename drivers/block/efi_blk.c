@@ -8,6 +8,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <common.h>
 #include <blk.h>
 #include <dm.h>
 #include <efi.h>

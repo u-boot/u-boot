@@ -13,6 +13,7 @@
  * time-keeping. It does not change the system time.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>

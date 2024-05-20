@@ -6,6 +6,7 @@
  */
 
 #include <console.h>
+#include <common.h>
 #include <compiler.h>
 #include <cpu_func.h>
 #include <fpga.h>

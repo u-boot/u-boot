@@ -5,6 +5,7 @@
  */
 
 #include <config.h>
+#include <common.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <log.h>

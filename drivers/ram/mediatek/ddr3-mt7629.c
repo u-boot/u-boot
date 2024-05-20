@@ -8,7 +8,7 @@
  */
 
 #include <clk.h>
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>

@@ -6,6 +6,7 @@
  *      Purna Chandra Mandal <purna.mandal@microchip.com>
  */
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <log.h>

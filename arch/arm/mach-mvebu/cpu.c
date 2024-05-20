@@ -3,7 +3,7 @@
  * Copyright (C) 2014-2016 Stefan Roese <sr@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <ahci.h>
 #include <cpu_func.h>
 #include <init.h>

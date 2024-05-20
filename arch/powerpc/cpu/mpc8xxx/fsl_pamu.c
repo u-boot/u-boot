@@ -5,14 +5,12 @@
  * Copyright 2012-2016 Freescale Semiconductor, Inc.
  */
 
-#include <config.h>
+#include <common.h>
 #include <log.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
 #include <malloc.h>
 #include <asm/fsl_pamu.h>
-#include <asm/io.h>
-#include <asm/ppc.h>
 
 struct paace *ppaact;
 struct paace *sec;

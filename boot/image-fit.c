@@ -19,6 +19,7 @@
 #else
 #include <linux/compiler.h>
 #include <linux/sizes.h>
+#include <common.h>
 #include <errno.h>
 #include <log.h>
 #include <mapmem.h>

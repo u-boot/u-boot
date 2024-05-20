@@ -5,6 +5,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <common.h>
 #include <dm.h>
 
 UCLASS_DRIVER(efi_media) = {

@@ -4,6 +4,7 @@
  * Author: Ivan Vozvakhov <i.vozvakhov@vk.team>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <led.h>

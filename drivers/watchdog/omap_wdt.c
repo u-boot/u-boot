@@ -36,6 +36,7 @@
  *	Use the driver model and standard identifiers; handle bigger timeouts.
  */
 
+#include <common.h>
 #include <log.h>
 #include <watchdog.h>
 #include <asm/ti-common/omap_wdt.h>

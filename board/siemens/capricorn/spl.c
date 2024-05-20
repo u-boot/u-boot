@@ -5,6 +5,7 @@
  * Copyright 2019 Siemens AG
  *
  */
+#include <common.h>
 #include <init.h>
 #include <spl.h>
 #include <dm.h>

@@ -5,6 +5,7 @@
  * Copyright 2019 Google LLC
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <power/acpi_pmc.h>

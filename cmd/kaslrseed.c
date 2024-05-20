@@ -6,6 +6,7 @@
  * Copyright (c) 2021, Chris Morgan <macromorgan@hotmail.com>
  */
 
+#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>

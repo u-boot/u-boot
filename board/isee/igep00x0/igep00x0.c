@@ -3,7 +3,7 @@
  * (C) Copyright 2010
  * ISEE 2007 SL, <www.iseebcn.com>
  */
-#include <config.h>
+#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <malloc.h>

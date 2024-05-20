@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/firewall.h>
 #include <asm/arch/mailbox_s10.h>
@@ -12,6 +13,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <dm/uclass.h>
 #include <hang.h>

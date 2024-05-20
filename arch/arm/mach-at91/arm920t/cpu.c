@@ -10,7 +10,7 @@
  * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>

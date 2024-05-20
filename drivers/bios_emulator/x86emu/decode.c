@@ -36,6 +36,7 @@
 *		instruction decoding and accessess of immediate data via IP.  etc.
 *
 ****************************************************************************/
+#include <common.h>
 #include <linux/printk.h>
 #include "x86emu/x86emui.h"
 

@@ -5,7 +5,7 @@
  *  Kyungmin Park <kyungmin.park@samsung.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <asm/global_data.h>

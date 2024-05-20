@@ -4,8 +4,8 @@
  *
  */
 
+#include <common.h>
 #include <fdt_support.h>
-#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/gic-v3.h>
 #include <asm/global_data.h>

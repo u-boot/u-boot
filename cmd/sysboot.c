@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <fs.h>
 #include <pxe_utils.h>
-#include <vsprintf.h>
 
 /**
  * struct sysboot_info - useful information for sysboot helpers

@@ -5,7 +5,7 @@
  *         Richard Hu <hakahu@gmail.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>

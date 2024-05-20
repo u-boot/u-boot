@@ -4,6 +4,7 @@
  * Alex Marginean, NXP
  */
 
+#include <common.h>
 #include <dm.h>
 #include <miiphy.h>
 #include <misc.h>

@@ -12,6 +12,7 @@
  * channel.
  */
 
+#include <common.h>
 #include <ioports.h>
 #include <ppc_asm.tmpl>
 #include <miiphy.h>

@@ -6,6 +6,7 @@
  * Copyright (C) 2018 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
  */
 
+#include <common.h>
 #include <asm/armv8/mmu.h>
 
 static struct mm_region owl_mem_map[] = {

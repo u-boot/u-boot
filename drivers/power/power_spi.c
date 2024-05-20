@@ -9,6 +9,7 @@
  * (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
  */
 
+#include <common.h>
 #include <linux/types.h>
 #include <power/pmic.h>
 #include <spi.h>

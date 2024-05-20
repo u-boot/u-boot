@@ -5,6 +5,7 @@
  * Copyright (C) 2019 Hannes Schmelzer <oe5hpm@oevsv.at>
  * B&R Industrial Automation GmbH - http://www.br-automation.com/ *
  */
+#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <i2c.h>

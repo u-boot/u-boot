@@ -4,7 +4,6 @@
  * NVIDIA Corporation <www.nvidia.com>
  */
 #include <asm/types.h>
-#include <asm/arch-tegra/tegra.h>
 
 /* Stabilization delays, in usec */
 #define PLL_STABILIZATION_DELAY	(300)

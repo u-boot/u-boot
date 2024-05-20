@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <init.h>

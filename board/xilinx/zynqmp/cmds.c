@@ -4,14 +4,13 @@
  * Siva Durga Prasad Paladugu <siva.durga.prasad.paladugu@amd.com>>
  */
 
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <vsprintf.h>
 #include <zynqmp_firmware.h>
-#include <linux/errno.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>

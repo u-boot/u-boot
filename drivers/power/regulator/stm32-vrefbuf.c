@@ -8,6 +8,7 @@
 
 #define LOG_CATEGORY UCLASS_REGULATOR
 
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <asm/io.h>

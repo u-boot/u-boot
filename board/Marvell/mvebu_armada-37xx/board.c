@@ -3,7 +3,7 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <env.h>

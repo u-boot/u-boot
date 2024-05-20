@@ -41,7 +41,6 @@ dtb-$(CONFIG_ARCH_APPLE) += \
 	t8103-j457.dtb
 
 dtb-$(CONFIG_ARCH_DAVINCI) += \
-	da850-evm.dtb \
 	da850-lcdk.dtb \
 	da850-lego-ev3.dtb
 
@@ -92,99 +91,11 @@ dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-veyron-speedy.dtb \
 	rk3288-vyasa.dtb
 
-dtb-$(CONFIG_ROCKCHIP_RK3308) += \
-	rk3308-evb.dtb \
-	rk3308-roc-cc.dtb \
-	rk3308-rock-pi-s.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RK3328) += \
-	rk3328-evb.dtb \
-	rk3328-nanopi-r2c.dtb \
-	rk3328-nanopi-r2c-plus.dtb \
-	rk3328-nanopi-r2s.dtb \
-	rk3328-orangepi-r1-plus.dtb \
-	rk3328-orangepi-r1-plus-lts.dtb \
-	rk3328-roc-cc.dtb \
-	rk3328-rock64.dtb \
-	rk3328-rock-pi-e.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-lion-haikou.dtb \
 	rk3368-sheep.dtb \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
-
-dtb-$(CONFIG_ROCKCHIP_RK3399) += \
-	rk3399-evb.dtb \
-	rk3399-eaidk-610.dtb \
-	rk3399-ficus.dtb \
-	rk3399-firefly.dtb \
-	rk3399-gru-bob.dtb \
-	rk3399-gru-kevin.dtb \
-	rk3399-khadas-edge.dtb \
-	rk3399-khadas-edge-captain.dtb \
-	rk3399-khadas-edge-v.dtb \
-	rk3399-leez-p710.dtb \
-	rk3399-nanopc-t4.dtb \
-	rk3399-nanopi-m4.dtb \
-	rk3399-nanopi-m4-2gb.dtb \
-	rk3399-nanopi-m4b.dtb \
-	rk3399-nanopi-neo4.dtb \
-	rk3399-nanopi-r4s.dtb \
-	rk3399-orangepi.dtb \
-	rk3399-pinebook-pro.dtb \
-	rk3399-pinephone-pro.dtb \
-	rk3399-puma-haikou.dtb \
-	rk3399-roc-pc.dtb \
-	rk3399-roc-pc-mezzanine.dtb \
-	rk3399-rock-4c-plus.dtb \
-	rk3399-rock-4se.dtb \
-	rk3399-rock-pi-4a.dtb \
-	rk3399-rock-pi-4c.dtb \
-	rk3399-rock960.dtb \
-	rk3399-rockpro64.dtb \
-	rk3399pro-rock-pi-n10.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RK3568) += \
-	rk3566-anbernic-rgxx3.dtb \
-	rk3566-pinetab2-v0.1.dtb \
-	rk3566-pinetab2-v2.0.dtb \
-	rk3566-quartz64-a.dtb \
-	rk3566-quartz64-b.dtb \
-	rk3566-radxa-cm3-io.dtb \
-	rk3566-soquartz-blade.dtb \
-	rk3566-soquartz-cm4.dtb \
-	rk3566-soquartz-model-a.dtb \
-	rk3568-bpi-r2-pro.dtb \
-	rk3568-evb.dtb \
-	rk3568-generic.dtb \
-	rk3568-lubancat-2.dtb \
-	rk3568-nanopi-r5c.dtb \
-	rk3568-nanopi-r5s.dtb \
-	rk3568-odroid-m1.dtb \
-	rk3568-radxa-e25.dtb \
-	rk3568-rock-3a.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RK3588) += \
-	rk3588s-coolpi-4b.dtb \
-	rk3588-coolpi-cm5-evb.dtb \
-	rk3588-edgeble-neu6a-io.dtb \
-	rk3588-edgeble-neu6b-io.dtb \
-	rk3588-evb1-v10.dtb \
-	rk3588-generic.dtb \
-	rk3588-jaguar.dtb \
-	rk3588-nanopc-t6.dtb \
-	rk3588s-orangepi-5.dtb \
-	rk3588-orangepi-5-plus.dtb \
-	rk3588-quartzpro64.dtb \
-	rk3588s-rock-5a.dtb \
-	rk3588-rock-5b.dtb \
-	rk3588-toybrick-x0.dtb \
-	rk3588-turing-rk1.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RV1108) += \
-	rv1108-elgin-r1.dtb \
-	rv1108-evb.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RV1126) += \
 	rv1126-edgeble-neu2-io.dtb
@@ -483,7 +394,6 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am437x-idk-evm.dtb \
 	am4372-generic.dtb \
 	am437x-cm-t43.dtb
-dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
 dtb-$(CONFIG_TARGET_THUNDERX_88XX) += thunderx-88xx.dtb
 
 dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
@@ -1048,41 +958,7 @@ dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
 
-dtb-$(CONFIG_RCAR_GEN2) += \
-	r8a7790-lager.dtb \
-	r8a7790-stout.dtb \
-	r8a7791-koelsch.dtb \
-	r8a7791-porter.dtb \
-	r8a7792-blanche.dtb \
-	r8a7793-gose.dtb \
-	r8a7794-alt.dtb \
-	r8a7794-silk.dtb
-
-dtb-$(CONFIG_RCAR_GEN3) += \
-	r8a774a1-beacon-rzg2m-kit.dtb \
-	r8a774b1-beacon-rzg2n-kit.dtb \
-	r8a774e1-beacon-rzg2h-kit.dtb \
-	r8a774a1-hihope-rzg2m.dtb \
-	r8a774b1-hihope-rzg2n.dtb \
-	r8a774c0-ek874.dtb \
-	r8a774e1-hihope-rzg2h.dtb \
-	r8a77951-ulcb.dtb \
-	r8a77951-salvator-x.dtb \
-	r8a77960-ulcb.dtb \
-	r8a77960-salvator-x.dtb \
-	r8a77965-ulcb.dtb \
-	r8a77965-salvator-x.dtb \
-	r8a77970-eagle.dtb \
-	r8a77970-v3msk.dtb \
-	r8a77980-condor.dtb \
-	r8a77980-v3hsk.dtb \
-	r8a77990-ebisu.dtb \
-	r8a77995-draak.dtb
-
 dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779a0-falcon.dtb \
-	r8a779f0-spider.dtb \
-	r8a779g0-white-hawk.dtb \
 	r8a779h0-gray-hawk.dtb
 
 dtb-$(CONFIG_TARGET_RZG2L) += \
@@ -1142,12 +1018,6 @@ dtb-$(CONFIG_TARGET_GARDENA_SMART_GATEWAY_AT91SAM) += \
 dtb-$(CONFIG_TARGET_ETHERNUT5) += ethernut5.dtb
 
 dtb-$(CONFIG_TARGET_USB_A9263) += usb_a9263.dtb
-
-dtb-$(CONFIG_TARGET_OMAP3_LOGIC) += \
-	logicpd-som-lv-35xx-devkit.dtb \
-	logicpd-som-lv-37xx-devkit.dtb \
-	logicpd-torpedo-35xx-devkit.dtb \
-	logicpd-torpedo-37xx-devkit.dtb
 
 dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
 	omap3-evm-37xx.dtb \

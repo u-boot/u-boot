@@ -6,7 +6,7 @@
  * Copyright 2014 Google Inc.
  */
 
-#include <linux/types.h>
+#include <common.h>
 
 union overlay64 {
 	u64 longw;

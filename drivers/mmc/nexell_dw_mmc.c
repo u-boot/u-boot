@@ -6,6 +6,7 @@
  * (C) Copyright 2019 Stefan Bosch <stefan_b@posteo.net>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <dwmmc.h>

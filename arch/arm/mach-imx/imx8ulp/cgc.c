@@ -3,6 +3,7 @@
  * Copyright 2021 NXP
  */
 
+#include <common.h>
 #include <div64.h>
 #include <asm/io.h>
 #include <errno.h>

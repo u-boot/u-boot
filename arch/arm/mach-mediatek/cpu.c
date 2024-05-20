@@ -3,6 +3,7 @@
  * Copyright (C) 2018 MediaTek Inc.
  */
 
+#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>

@@ -3,6 +3,7 @@
  * (C) Copyright 2014
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
+#include <common.h>
 #include <env.h>
 #include <log.h>
 #include <malloc.h>

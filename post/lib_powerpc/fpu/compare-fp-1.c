@@ -9,7 +9,7 @@
  * This file is originally a part of the GCC testsuite.
  */
 
-#include <config.h>
+#include <common.h>
 
 #include <post.h>
 

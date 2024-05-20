@@ -9,6 +9,7 @@
 #include <config.h>
 #include <display_options.h>
 #include <errno.h>
+#include <common.h>
 #include <env.h>
 #include <lmb.h>
 #include <log.h>
@@ -20,7 +21,6 @@
 #include <fs.h>
 #include <sandboxfs.h>
 #include <semihostingfs.h>
-#include <time.h>
 #include <ubifs_uboot.h>
 #include <btrfs.h>
 #include <asm/global_data.h>

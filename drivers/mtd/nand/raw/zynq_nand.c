@@ -6,6 +6,7 @@
  * This driver is based on plat_nand.c and mxc_nand.c drivers
  */
 
+#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/io.h>

@@ -10,6 +10,7 @@
  * uclass write ops, that data is stored in little-endian mode.
  */
 
+#include <common.h>
 #include <asm/early_cmos.h>
 #include <asm/io.h>
 

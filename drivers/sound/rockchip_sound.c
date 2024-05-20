@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_SOUND
 
+#include <common.h>
 #include <audio_codec.h>
 #include <clk.h>
 #include <dm.h>

@@ -7,7 +7,7 @@
  */
 
 #include <clk.h>
-#include <config.h>
+#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <dm/device_compat.h>

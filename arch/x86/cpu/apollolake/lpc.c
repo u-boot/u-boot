@@ -5,6 +5,7 @@
  * From coreboot Apollo Lake support lpc.c
  */
 
+#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <spl.h>

@@ -9,6 +9,7 @@
  * Unit tests for sscanf() function
  */
 
+#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <test/lib.h>

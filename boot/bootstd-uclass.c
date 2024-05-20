@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <bootflow.h>
 #include <bootstd.h>
 #include <dm.h>

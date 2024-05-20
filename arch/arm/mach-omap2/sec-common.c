@@ -12,7 +12,7 @@
  * Andrew F. Davis <afd@ti.com>
  */
 
-#include <config.h>
+#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <hang.h>

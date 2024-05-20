@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY	LOGC_DT
 
+#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <fdt_support.h>

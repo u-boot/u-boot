@@ -3,6 +3,7 @@
  * (C) Copyright 2018
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <malloc.h>

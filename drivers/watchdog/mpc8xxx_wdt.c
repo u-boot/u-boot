@@ -3,6 +3,7 @@
  * Copyright 2017 CS Systemes d'Information
  */
 
+#include <common.h>
 #include <env.h>
 #include <dm.h>
 #include <wdt.h>

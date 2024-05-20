@@ -15,6 +15,7 @@
  *
  * This file is part of the Inventra Controller Driver for Linux.
  */
+#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <generic-phy.h>

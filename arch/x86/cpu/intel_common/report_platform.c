@@ -5,12 +5,12 @@
  * Copyright (C) 2012 Google Inc.
  */
 
+#include <common.h>
 #include <log.h>
 #include <asm/cpu.h>
 #include <asm/pci.h>
 #include <asm/report_platform.h>
 #include <asm/arch/pch.h>
-#include <linux/string.h>
 
 static void report_cpu_info(void)
 {

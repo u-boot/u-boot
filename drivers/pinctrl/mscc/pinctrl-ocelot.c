@@ -10,6 +10,7 @@
 
 #include <asm/gpio.h>
 #include <asm/system.h>
+#include <common.h>
 #include <config.h>
 #include <dm.h>
 #include <dm/device-internal.h>

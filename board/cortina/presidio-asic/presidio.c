@@ -3,7 +3,7 @@
  * (C) Copyright 2020 - Cortina Access Inc.
  *
  */
-#include <config.h>
+#include <common.h>
 #include <event.h>
 #include <init.h>
 #include <malloc.h>

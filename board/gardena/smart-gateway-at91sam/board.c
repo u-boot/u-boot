@@ -4,7 +4,7 @@
  * Copyright (C) 2019 Stefan Roese <sr@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <debug_uart.h>
 #include <env.h>
 #include <init.h>

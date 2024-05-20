@@ -4,9 +4,9 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
+#include <common.h>
 #include <command.h>
 #include <console.h>
-#include <vsprintf.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>

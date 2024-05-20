@@ -46,6 +46,7 @@
 ****************************************************************************/
 
 #include <malloc.h>
+#include <common.h>
 #include "biosemui.h"
 
 BE_sysEnv _BE_env = {{0}};

@@ -14,6 +14,7 @@
 #include <asm/processor.h>
 #include <linux/errno.h>
 #include <asm/system.h>
+#include <asm/u-boot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

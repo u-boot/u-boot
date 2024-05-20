@@ -20,12 +20,11 @@
  *
  */
 
+#include <common.h>
 #include <display_options.h>
 #include <env.h>
 #include <splash.h>
 #include <video.h>
-#include <vsprintf.h>
-#include <linux/kernel.h>
 
 static struct splash_location default_splash_locations[] = {
 	{

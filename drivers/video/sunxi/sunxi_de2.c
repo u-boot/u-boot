@@ -5,6 +5,7 @@
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
  */
 
+#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <edid.h>

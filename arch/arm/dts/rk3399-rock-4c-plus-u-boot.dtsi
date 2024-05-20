@@ -3,3 +3,25 @@
  * Copyright (c) 2023 Radxa Limited
  */
 #include "rk3399-rock-pi-4-u-boot.dtsi"
+
+&pcfg_pull_none_18ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pcfg_pull_up_8ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&spi1 {
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		bootph-pre-ram;
+		bootph-some-ram;
+		spi-max-frequency = <10000000>;
+	};
+};

@@ -14,6 +14,7 @@
 #include <linux/arm-smccc.h>
 #include <scsi.h>
 #include <init.h>
+#include <asm/u-boot.h>
 #include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;

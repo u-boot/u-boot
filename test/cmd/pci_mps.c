@@ -7,6 +7,7 @@
  * Written by Stephen Carlson <stcarlso@linux.microsoft.com>
  */
 
+#include <common.h>
 #include <console.h>
 #include <test/suites.h>
 #include <test/ut.h>

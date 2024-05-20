@@ -5,7 +5,7 @@
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
  */
 
-#include <config.h>
+#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>

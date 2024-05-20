@@ -6,8 +6,6 @@
 #ifndef _MAILBOX_H
 #define _MAILBOX_H
 
-#include <linux/types.h>
-
 /**
  * A mailbox is a hardware mechanism for transferring small fixed-size messages
  * and/or notifications between the CPU on which U-Boot runs and some other

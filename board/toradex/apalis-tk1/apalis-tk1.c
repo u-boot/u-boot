@@ -3,6 +3,7 @@
  * Copyright (c) 2016-2018 Toradex, Inc.
  */
 
+#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <init.h>

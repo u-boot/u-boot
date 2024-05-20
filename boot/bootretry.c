@@ -4,13 +4,12 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <stdio.h>
+#include <common.h>
 #include <bootretry.h>
 #include <cli.h>
 #include <env.h>
 #include <errno.h>
 #include <time.h>
-#include <vsprintf.h>
 #include <watchdog.h>
 
 static uint64_t endtime;  /* must be set, default is instant timeout */

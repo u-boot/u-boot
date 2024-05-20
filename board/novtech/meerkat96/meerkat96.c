@@ -12,6 +12,7 @@
 #include <asm/global_data.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
+#include <common.h>
 #include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;

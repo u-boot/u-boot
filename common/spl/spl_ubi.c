@@ -4,6 +4,7 @@
  * Ladislav Michl <ladis@linux-mips.org>
  */
 
+#include <common.h>
 #include <config.h>
 #include <image.h>
 #include <nand.h>

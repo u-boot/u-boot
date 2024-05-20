@@ -7,6 +7,7 @@
  * Some code from coreboot lpss.c
  */
 
+#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <malloc.h>

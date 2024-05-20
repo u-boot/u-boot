@@ -5,6 +5,7 @@
  * Unit test for crypt-style password hashing
  */
 
+#include <common.h>
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>

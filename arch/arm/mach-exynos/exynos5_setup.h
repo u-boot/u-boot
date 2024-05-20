@@ -8,7 +8,6 @@
 #ifndef _SMDK5250_SETUP_H
 #define _SMDK5250_SETUP_H
 
-#include <linux/types.h>
 #include <asm/arch/dmc.h>
 
 #define NOT_AVAILABLE		0

@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <dm.h>
 #include <clk-uclass.h>
 #include <dt-bindings/clock/intel-clock.h>

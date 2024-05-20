@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY UCLASS_P2SB
 
+#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <log.h>

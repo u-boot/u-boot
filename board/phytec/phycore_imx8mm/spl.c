@@ -4,6 +4,7 @@
  * Author: Teresa Remmet <t.remmet@phytec.de>
  */
 
+#include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/imx8mm_pins.h>

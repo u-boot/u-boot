@@ -4,6 +4,7 @@
  *
  */
 
+#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/global_data.h>

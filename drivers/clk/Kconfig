@@ -246,7 +246,6 @@ config CLK_ZYNQMP
 	  This clock driver adds support for clock realted settings for
 	  ZynqMP platform.
 
-source "drivers/clk/adi/Kconfig"
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"

@@ -5,6 +5,7 @@
  * Copyright (C) 2022 Linaro Ltd <loic.poulain@linaro.org>
  */
 
+#include <common.h>
 #include <u-boot/sha1.h>
 
 extern void sha1_armv8_ce_process(uint32_t state[5], uint8_t const *src,

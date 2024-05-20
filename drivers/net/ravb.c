@@ -8,6 +8,7 @@
  * Based on the SuperH Ethernet driver.
  */
 
+#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

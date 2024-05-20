@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 
+#include <common.h>
 #include <errno.h>
 #include <fsl_sec.h>
 #include <memalign.h>

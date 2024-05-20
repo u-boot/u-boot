@@ -4,6 +4,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <i2c.h>

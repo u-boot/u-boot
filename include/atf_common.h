@@ -74,8 +74,6 @@
 
 #ifndef __ASSEMBLY__
 
-#include <linux/types.h>
-
 /*******************************************************************************
  * Structure used for telling the next BL how much of a particular type of
  * memory is available for its use and how much is already used.

@@ -404,6 +404,24 @@ static void set_product_id(char *string)
 	update_crc();
 }
 
+/**
+ * set_vendor() - set vendor name
+ *
+ * Takes a pointer to a string representing the vendor name, e.g.
+ * "StarFive Technology Co., Ltd.", stores it in the vendor field
+ * of the EEPROM local copy, and updates the CRC of the local copy.
+ */
+static void set_vendor(char *string)
+{
+	memset(pbuf.eeprom.atom1.data.vstr, 0,
+	       sizeof(pbuf.eeprom.atom1.data.vstr));
+
+	strncpy(pbuf.eeprom.atom1.data.vstr,
+		string, sizeof(pbuf.eeprom.atom1.data.vstr) - 1);
+
+	update_crc();
+}
+
 const char *get_product_id_from_eeprom(void)
 {
 	if (read_eeprom())
@@ -462,6 +480,9 @@ int do_mac(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 0;
 	} else if (!strcmp(cmd, "product_id")) {
 		set_product_id(argv[2]);
+		return 0;
+	} else if (!strcmp(cmd, "vendor")) {
+		set_vendor(argv[2]);
 		return 0;
 	}
 
@@ -548,6 +569,24 @@ u32 get_ddr_size_from_eeprom(void)
 	return hextoul(&pbuf.eeprom.atom1.data.pstr[14], NULL);
 }
 
+u32 get_mmc_size_from_eeprom(void)
+{
+	u32 size;
+
+	if (IS_ENABLED(CONFIG_STARFIVE_NO_EMMC))
+		return 0;
+
+	if (read_eeprom())
+		return 0;
+
+	size = dectoul(&pbuf.eeprom.atom1.data.pstr[19], NULL);
+
+	if (pbuf.eeprom.atom1.data.pstr[21] == 'T')
+		size <<= 10;
+
+	return size;
+}
+
 U_BOOT_LONGHELP(mac,
 	"\n"
 	"    - display EEPROM content\n"
@@ -568,7 +607,9 @@ U_BOOT_LONGHELP(mac,
 	"mac bom_revision <A>\n"
 	"    - stores a StarFive BOM revision into the local EEPROM copy\n"
 	"mac product_id <VF7110A1-2228-D008E000-xxxxxxxx>\n"
-	"    - stores a StarFive product ID into the local EEPROM copy\n");
+	"    - stores a StarFive product ID into the local EEPROM copy\n"
+	"mac vendor <Vendor Name>\n"
+	"    - set vendor string\n");
 
 U_BOOT_CMD(
 	mac, 3, 1,  do_mac,

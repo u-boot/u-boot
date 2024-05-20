@@ -9,6 +9,7 @@
 
 #define LOG_CATEGORY UCLASS_SCSI
 
+#include <common.h>
 #include <dm.h>
 #include <os.h>
 #include <malloc.h>

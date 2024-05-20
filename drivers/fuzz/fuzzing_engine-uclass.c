@@ -6,6 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_FUZZING_ENGINE
 
+#include <common.h>
 #include <dm.h>
 #include <fuzzing_engine.h>
 

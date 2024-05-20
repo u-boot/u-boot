@@ -7,8 +7,6 @@
 #ifndef __GZIP_H
 #define __GZIP_H
 
-#include <linux/types.h>
-
 struct blk_desc;
 
 /**

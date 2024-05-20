@@ -30,6 +30,7 @@
  *  sdhci.c and sdhci-pci.c by Pierre Ossman
  */
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <mmc.h>
 #include <asm/arch/msg.h>

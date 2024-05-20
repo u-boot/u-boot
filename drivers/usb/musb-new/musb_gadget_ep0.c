@@ -18,6 +18,7 @@
 #include <linux/device.h>
 #include <linux/interrupt.h>
 #else
+#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <linux/printk.h>

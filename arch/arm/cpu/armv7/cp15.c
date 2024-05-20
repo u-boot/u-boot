@@ -7,6 +7,7 @@
  * CP15 specific code
  */
 
+#include <common.h>
 #include <command.h>
 #include <asm/system.h>
 #include <asm/cache.h>

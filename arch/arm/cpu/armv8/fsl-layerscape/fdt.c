@@ -4,7 +4,7 @@
  * Copyright 2020-2021 NXP
  */
 
-#include <config.h>
+#include <common.h>
 #include <clock_legacy.h>
 #include <efi_loader.h>
 #include <log.h>

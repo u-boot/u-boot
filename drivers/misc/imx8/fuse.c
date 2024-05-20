@@ -3,6 +3,7 @@
  * Copyright 2019 NXP
  */
 
+#include <common.h>
 #include <console.h>
 #include <errno.h>
 #include <fuse.h>

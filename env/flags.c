@@ -8,9 +8,9 @@
 #include <linux/string.h>
 #include <linux/ctype.h>
 
-#include <stdio.h>
 #ifdef USE_HOSTCC /* Eliminate "ANSI does not permit..." warnings */
 #include <stdint.h>
+#include <stdio.h>
 #include "fw_env_private.h"
 #include "fw_env.h"
 #include <env_attr.h>
@@ -18,7 +18,7 @@
 #define env_get fw_getenv
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #else
-#include <linux/kernel.h>
+#include <common.h>
 #include <env_internal.h>
 #endif
 

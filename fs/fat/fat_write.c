@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_FS
 
+#include <common.h>
 #include <command.h>
 #include <config.h>
 #include <div64.h>
