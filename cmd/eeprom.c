@@ -288,60 +288,74 @@ static enum eeprom_action parse_action(char *cmd)
 	return EEPROM_ACTION_INVALID;
 }
 
-static int eeprom_execute_command(enum eeprom_action action,
-				  struct eeprom_dev_spec *dev,
-				  int layout_ver, char *key, char *value,
-				  ulong addr, ulong off, ulong cnt)
+static int do_eeprom_rw(struct eeprom_dev_spec *dev, bool read,
+			ulong addr, ulong off, ulong cnt)
 {
-	int rcode = 0;
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr 0x%08lx  off 0x%04lx  count %ld ... ";
-#ifdef CONFIG_CMD_EEPROM_LAYOUT
-	struct eeprom_layout layout;
-#endif
+	uchar *memloc = (uchar *)addr;
+	int ret;
 
-	if (action == EEPROM_ACTION_INVALID)
-		return CMD_RET_USAGE;
+	printf(fmt, dev->i2c_addr, read ? "read" : "write", addr, off, cnt);
+	if (read)
+		ret = eeprom_read(dev->i2c_addr, off, memloc, cnt);
+	else
+		ret = eeprom_write(dev->i2c_addr, off, memloc, cnt);
+	puts("done\n");
 
-	eeprom_init(dev->i2c_bus);
-	if (action == EEPROM_READ) {
-		printf(fmt, dev->i2c_addr, "read", addr, off, cnt);
-
-		rcode = eeprom_read(dev->i2c_addr, off, (uchar *)addr, cnt);
-
-		puts("done\n");
-		return rcode;
-	} else if (action == EEPROM_WRITE) {
-		printf(fmt, dev->i2c_addr, "write", addr, off, cnt);
-
-		rcode = eeprom_write(dev->i2c_addr, off, (uchar *)addr, cnt);
-
-		puts("done\n");
-		return rcode;
-	}
+	return ret;
+}
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
-	rcode = eeprom_read(dev->i2c_addr, 0, eeprom_buf,
-			    CONFIG_SYS_EEPROM_SIZE);
-	if (rcode < 0)
-		return rcode;
 
-	eeprom_layout_setup(&layout, eeprom_buf, CONFIG_SYS_EEPROM_SIZE,
+static int do_eeprom_layout(struct eeprom_dev_spec *dev, int layout_ver,
+			    struct eeprom_layout *layout)
+{
+	int ret;
+
+	ret = eeprom_read(dev->i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
+	if (ret)
+		return ret;
+
+	eeprom_layout_setup(layout, eeprom_buf, CONFIG_SYS_EEPROM_SIZE,
 			    layout_ver);
 
-	if (action == EEPROM_PRINT) {
-		layout.print(&layout);
-		return 0;
-	}
-
-	layout.update(&layout, key, value);
-
-	rcode = eeprom_write(dev->i2c_addr, 0, layout.data,
-			     CONFIG_SYS_EEPROM_SIZE);
-#endif
-
-	return rcode;
+	return 0;
 }
+
+static int do_eeprom_print(struct eeprom_dev_spec *dev, int layout_ver)
+{
+	struct eeprom_layout layout;
+	int ret;
+
+	ret = do_eeprom_layout(dev, layout_ver, &layout);
+	if (ret)
+		return ret;
+
+	layout.print(&layout);
+
+	return 0;
+}
+
+static int do_eeprom_update(struct eeprom_dev_spec *dev, int layout_ver,
+			    char *key, char *value)
+{
+	struct eeprom_layout layout;
+	int ret;
+
+	ret = do_eeprom_layout(dev, layout_ver, &layout);
+	if (ret)
+		return ret;
+
+	ret = layout.update(&layout, key, value);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	return eeprom_write(dev->i2c_addr, 0, layout.data,
+			    CONFIG_SYS_EEPROM_SIZE);
+}
+
+#endif
 
 static int eeprom_action_expected_argc(enum eeprom_action action)
 {
@@ -361,13 +375,15 @@ static int eeprom_action_expected_argc(enum eeprom_action action)
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
 int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	int layout_ver = LAYOUT_VERSION_AUTODETECT;
 	enum eeprom_action action = EEPROM_ACTION_INVALID;
 	struct eeprom_dev_spec dev;
 	ulong addr = 0, cnt = 0, off = 0;
 	int ret, index = 0;
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
 	char *field_name = "";
 	char *field_value = "";
+	int layout_ver = LAYOUT_VERSION_AUTODETECT;
+#endif
 
 	if (argc <= 1)
 		return CMD_RET_USAGE;
@@ -416,8 +432,23 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 #endif
 
-	return eeprom_execute_command(action, &dev, layout_ver, field_name,
-				      field_value, addr, off, cnt);
+	eeprom_init(dev.i2c_bus);
+
+	switch (action) {
+	case EEPROM_READ:
+	case EEPROM_WRITE:
+		return do_eeprom_rw(&dev, action == EEPROM_READ,
+				    addr, off, cnt);
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+	case EEPROM_PRINT:
+		return do_eeprom_print(&dev, layout_ver);
+	case EEPROM_UPDATE:
+		return do_eeprom_update(&dev, layout_ver,
+					field_name, field_value);
+#endif
+	default:
+		return CMD_RET_USAGE;
+	}
 }
 
 #ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
