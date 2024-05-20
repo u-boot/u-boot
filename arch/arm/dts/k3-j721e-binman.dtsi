@@ -211,7 +211,7 @@
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 
-#define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
+#define SPL_J721E_EVM_DTB "spl/dts/ti/k3-j721e-common-proc-board.dtb"
 #define J721E_EVM_DTB "u-boot.dtb"
 
 &binman {

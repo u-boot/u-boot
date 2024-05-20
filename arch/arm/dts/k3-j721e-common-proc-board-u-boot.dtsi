@@ -15,10 +15,10 @@
 
 &cbass_mcu_wakeup {
 	bootph-all;
+};
 
-	chipid@43000014 {
-		bootph-all;
-	};
+&chipid {
+	bootph-all;
 };
 
 &mcu_navss {
@@ -30,14 +30,6 @@
 };
 
 &mcu_udmap {
-	reg =	<0x0 0x285c0000 0x0 0x100>,
-		<0x0 0x284c0000 0x0 0x4000>,
-		<0x0 0x2a800000 0x0 0x40000>,
-		<0x0 0x284a0000 0x0 0x4000>,
-		<0x0 0x2aa00000 0x0 0x40000>,
-		<0x0 0x28400000 0x0 0x2000>;
-	reg-names = "gcfg", "rchan", "rchanrt", "tchan",
-		    "tchanrt", "rflow";
 	bootph-all;
 };
 
