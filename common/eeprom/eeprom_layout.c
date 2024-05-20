@@ -111,14 +111,14 @@ void eeprom_layout_setup(struct eeprom_layout *layout, unsigned char *buf,
 	else
 		layout->layout_version = layout_version;
 
+	layout->data_size = buf_size;
+	layout->print = eeprom_layout_print;
+	layout->update = eeprom_layout_update_field;
+
 	eeprom_layout_assign(layout, layout_version);
 	layout->data = buf;
 	for (i = 0; i < layout->num_of_fields; i++) {
 		layout->fields[i].buf = buf;
 		buf += layout->fields[i].size;
 	}
-
-	layout->data_size = buf_size;
-	layout->print = eeprom_layout_print;
-	layout->update = eeprom_layout_update_field;
 }
