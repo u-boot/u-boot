@@ -212,10 +212,7 @@
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 
 #define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
-#define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
-
 #define J721E_EVM_DTB "u-boot.dtb"
-#define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
 
 &binman {
 	ti-dm {
@@ -361,26 +358,11 @@
 					arch = "arm";
 					compression = "none";
 					ti-secure {
-						content = <&spl_j721e_evm_dtb>;
+						content = <&spl_j721e_dtb>;
 						keyfile = "custMpk.pem";
 					};
-					spl_j721e_evm_dtb: blob-ext {
+					spl_j721e_dtb: blob-ext {
 						filename = SPL_J721E_EVM_DTB;
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&spl_j721e_sk_dtb>;
-						keyfile = "custMpk.pem";
-
-					};
-					spl_j721e_sk_dtb: blob-ext {
-						filename = SPL_J721E_SK_DTB;
 					};
 				};
 			};
@@ -393,13 +375,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -422,30 +397,12 @@
 					arch = "arm";
 					compression = "none";
 					ti-secure {
-						content = <&j721e_evm_dtb>;
+						content = <&j721e_dtb>;
 						keyfile = "custMpk.pem";
 
 					};
-					j721e_evm_dtb: blob-ext {
+					j721e_dtb: blob-ext {
 						filename = J721E_EVM_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&j721e_sk_dtb>;
-						keyfile = "custMpk.pem";
-
-					};
-					j721e_sk_dtb: blob-ext {
-						filename = J721E_SK_DTB;
 					};
 					hash {
 						algo = "crc32";
@@ -461,13 +418,6 @@
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -491,18 +441,8 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					spl_j721e_dtb_unsigned: blob {
 						filename = SPL_J721E_EVM_DTB;
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = SPL_J721E_SK_DTB;
 					};
 				};
 			};
@@ -515,13 +455,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -543,21 +476,8 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					j721e_dtb_unsigned: blob {
 						filename = J721E_EVM_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = J721E_SK_DTB;
 					};
 					hash {
 						algo = "crc32";
@@ -573,13 +493,6 @@
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
 				};
 			};
 		};

@@ -155,3 +155,26 @@
 		bootph-all;
 	};
 };
+
+#ifdef CONFIG_TARGET_J721E_A72_EVM
+
+#define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
+#define J721E_SK_DTB "u-boot.dtb"
+
+&spl_j721e_dtb {
+	filename = SPL_J721E_SK_DTB;
+};
+
+&j721e_dtb {
+	filename = J721E_SK_DTB;
+};
+
+&spl_j721e_dtb_unsigned {
+	filename = SPL_J721E_SK_DTB;
+};
+
+&j721e_dtb_unsigned {
+	filename = J721E_SK_DTB;
+};
+
+#endif
