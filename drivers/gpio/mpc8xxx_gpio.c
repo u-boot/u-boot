@@ -9,7 +9,6 @@
  * Copyright 2020-2021 NXP
  */
 
-#include <common.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <asm/gpio.h>

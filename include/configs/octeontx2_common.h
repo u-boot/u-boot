@@ -19,9 +19,4 @@
 					"loadaddr=20080000\0"	\
 					"ethrotate=yes\0"
 
-#if defined(CONFIG_MMC_OCTEONTX)
-#define MMC_SUPPORTS_TUNING
-/** EMMC specific defines */
-#endif
-
 #endif /* __OCTEONTX2_COMMON_H__ */

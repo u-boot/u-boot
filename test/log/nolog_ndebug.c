@@ -5,7 +5,6 @@
  * Logging function tests for CONFIG_LOG=n without #define DEBUG
  */
 
-#include <common.h>
 #include <console.h>
 #include <log.h>
 #include <asm/global_data.h>

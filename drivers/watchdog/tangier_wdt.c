@@ -2,7 +2,6 @@
 /*
  * Copyright (c) 2017 Intel Corporation
  */
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <wdt.h>

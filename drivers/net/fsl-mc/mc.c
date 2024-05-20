@@ -3,7 +3,7 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  * Copyright 2017-2018, 2020-2021 NXP
  */
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>

@@ -7,7 +7,6 @@
  */
 
 #include <hexdump.h>
-#include <common.h>
 #include <asm/cache.h>
 #include <cpu_func.h>
 #include <dm.h>

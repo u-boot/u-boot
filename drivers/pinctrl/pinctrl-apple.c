@@ -3,7 +3,6 @@
  * (C) Copyright 2021 Mark Kettenis <kettenis@openbsd.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/pinctrl.h>

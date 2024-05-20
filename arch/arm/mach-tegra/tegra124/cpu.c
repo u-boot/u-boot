@@ -4,7 +4,6 @@
  * NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/ahb.h>

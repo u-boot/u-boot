@@ -4,7 +4,6 @@
  * (C) Copyright 2010 - 2011 NVIDIA Corporation <www.nvidia.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <linux/errno.h>
 #include <asm/arch-tegra/crypto.h>

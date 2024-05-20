@@ -5,13 +5,13 @@
  * Command for en/de-crypting block of memory with AES-[128/192/256]-CBC cipher.
  */
 
-#include <common.h>
 #include <command.h>
 #include <uboot_aes.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
 #include <mapmem.h>
+#include <vsprintf.h>
 
 u32 aes_get_key_len(char *command)
 {

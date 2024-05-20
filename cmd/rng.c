@@ -4,7 +4,6 @@
  *
  * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <hexdump.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <efi_loader.h>
 #include <asm/e820.h>
 #include <asm/global_data.h>

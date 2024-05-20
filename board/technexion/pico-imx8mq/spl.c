@@ -3,7 +3,6 @@
  * Copyright 2018 NXP
  */
 
-#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

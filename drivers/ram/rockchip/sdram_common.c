@@ -3,7 +3,7 @@
  * (C) Copyright 2018 Rockchip Electronics Co., Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <debug_uart.h>
 #include <ram.h>
 #include <asm/io.h>

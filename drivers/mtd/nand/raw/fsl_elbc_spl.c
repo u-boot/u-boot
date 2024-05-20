@@ -9,7 +9,7 @@
  * Author: Scott Wood <scottwood@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <linux/mtd/rawnand.h>
 #include <asm/io.h>

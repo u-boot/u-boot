@@ -3,7 +3,7 @@
  *  Copyright (C) 2012 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <eeprom.h>
 #include <env.h>
 #include <init.h>

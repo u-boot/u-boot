@@ -3,7 +3,6 @@
  * Copyright (C) 2019, Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <fdt_support.h>

@@ -3,7 +3,6 @@
  * Copyright 2019 Google LLC
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/cpu_common.h>
 #include <asm/fast_spi.h>

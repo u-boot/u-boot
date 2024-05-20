@@ -3,7 +3,6 @@
  * Copyright (c) 2019 Fuzhou Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <command.h>
 #include <display_options.h>

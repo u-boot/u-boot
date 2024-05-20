@@ -5,9 +5,9 @@
  * From Coreboot src/lib/ramtest.c
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/post.h>
+#include <vsprintf.h>
 
 static void write_phys(unsigned long addr, u32 value)
 {

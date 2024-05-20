@@ -50,6 +50,14 @@ config TIMER_EARLY
 	  use an early timer. These functions must be supported by your timer
 	  driver: timer_early_get_count() and timer_early_get_rate().
 
+config ADI_SC5XX_TIMER
+	bool "ADI ADSP-SC5xx Timer Support"
+	depends on TIMER && (SC57X || SC58X || SC59X || SC59X_64)
+	help
+	  gptimer based timer support on ADI's ADSP-SC5xx platforms. Available
+	  but not required on sc59x-64-based platforms (598 and similar).
+	  Required on 32-bit platforms (sc57x, sc58x, sc594 and earlier).
+
 config ALTERA_TIMER
 	bool "Altera timer support"
 	depends on TIMER

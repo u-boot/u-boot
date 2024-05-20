@@ -3,12 +3,10 @@
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
-#include <common.h>
 #include <config.h>
 #include <hang.h>
 #include <init.h>
 #include <spl.h>
-#include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <nand.h>
 #include <asm/arch/dm365_lowlevel.h>

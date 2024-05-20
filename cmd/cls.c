@@ -5,7 +5,6 @@
  *
  * cls - clear screen command
  */
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <dm.h>

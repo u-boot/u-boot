@@ -8,7 +8,6 @@
  * Aneesh V <aneesh@ti.com>
  */
 
-#include <common.h>
 #include <asm/emif.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>

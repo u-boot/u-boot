@@ -3,7 +3,6 @@
  * Copyright (C) 2020 Texas Instruments Inc.
  * Pratyush Yadav <p.yadav@ti.com>
  */
-#include <common.h>
 #include <dm.h>
 #include <mux.h>
 #include <mux-internal.h>
@@ -13,6 +12,7 @@
 #include <test/ut.h>
 #include <console.h>
 #include <rand.h>
+#include <time.h>
 
 #define BUF_SIZE		256
 

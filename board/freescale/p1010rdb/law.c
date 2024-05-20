@@ -3,7 +3,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/fsl_law.h>
 #include <asm/mmu.h>
 

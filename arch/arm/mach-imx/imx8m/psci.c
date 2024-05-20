@@ -10,7 +10,6 @@
 #include <asm/io.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
-#include <common.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
 #include <fsl_wdog.h>

@@ -17,7 +17,6 @@
  * Martin Fuzzey <martin.fuzzey@flowbird.group>
  */
 
-#include <common.h>
 #include <asm/arch/clock.h>
 #include <dm.h>
 #include <dm/device_compat.h>

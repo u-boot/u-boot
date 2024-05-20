@@ -6,7 +6,6 @@
  * Stephen Warren <swarren@wwwdotorg.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <asm/global_data.h>

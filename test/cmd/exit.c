@@ -5,7 +5,6 @@
  * Copyright 2022 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <console.h>
 #include <mapmem.h>
 #include <asm/global_data.h>

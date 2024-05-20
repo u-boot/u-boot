@@ -15,7 +15,7 @@
  * Ported to SolidRun microSOM by Rabeeh Khoury <rabeeh@solid-run.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <image.h>
 #include <init.h>
 #include <log.h>

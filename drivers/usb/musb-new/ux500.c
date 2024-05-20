@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /* Copyright (C) 2019 Stephan Gerhold */
 
-#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <dm/device_compat.h>

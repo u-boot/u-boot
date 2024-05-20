@@ -3,7 +3,6 @@
  * (C) Copyright 2015 Miao Yan <yanmiaobest@gmail.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <errno.h>

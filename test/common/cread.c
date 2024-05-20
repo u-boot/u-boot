@@ -3,8 +3,8 @@
  * Copyright 2023 Google LLC
  */
 
-#include <common.h>
 #include <cli.h>
+#include <time.h>
 #include <test/common.h>
 #include <test/test.h>
 #include <test/ut.h>

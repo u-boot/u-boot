@@ -7,7 +7,6 @@
  *
  * Based loosely off of Linux's PHY Lib
  */
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <log.h>

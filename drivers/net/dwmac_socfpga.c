@@ -5,7 +5,6 @@
  * Altera SoCFPGA EMAC extras
  */
 
-#include <common.h>
 #include <asm/arch/secure_reg_helper.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>

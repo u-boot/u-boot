@@ -25,7 +25,6 @@
  *	        file in uboot. Added ext4fs ls load and write support.
  */
 
-#include <common.h>
 #include <part.h>
 #include <config.h>
 #include <command.h>

@@ -12,7 +12,6 @@
  *	Santosh Shilimkar <santosh.shilimkar@ti.com>
  *	Rajendra Nayak <rnayak@ti.com>
  */
-#include <common.h>
 #include <hang.h>
 #include <i2c.h>
 #include <init.h>

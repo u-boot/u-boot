@@ -9,7 +9,6 @@
  * MOSCHIP MCS7830 based (7730/7830/7832) USB 2.0 Ethernet Devices
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

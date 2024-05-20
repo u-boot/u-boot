@@ -6,7 +6,7 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/global_data.h>
 #include "board.h"
 #include <env.h>

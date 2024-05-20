@@ -4,7 +4,6 @@
  * Texas Instruments Incorporated - https://www.ti.com/
  */
 #define pr_fmt(fmt) "%s: " fmt, __func__
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

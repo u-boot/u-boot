@@ -6,6 +6,8 @@
 #ifndef	__ASM_ARC_GLOBAL_DATA_H
 #define __ASM_ARC_GLOBAL_DATA_H
 
+#include <asm/u-boot.h>
+
 #ifndef __ASSEMBLY__
 /* Architecture-specific global data */
 struct arch_global_data {

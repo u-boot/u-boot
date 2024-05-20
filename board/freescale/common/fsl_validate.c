@@ -4,7 +4,7 @@
  * Copyright 2021-2022 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <fsl_validate.h>
 #include <fsl_secboot_err.h>

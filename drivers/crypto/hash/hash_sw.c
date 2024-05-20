@@ -4,7 +4,6 @@
  * Author: ChiaWei Wang <chiawei_wang@aspeedtech.com>
  */
 #include <config.h>
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

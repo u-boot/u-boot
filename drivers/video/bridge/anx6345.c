@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Vasily Khoruzhick <anarsoul@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>

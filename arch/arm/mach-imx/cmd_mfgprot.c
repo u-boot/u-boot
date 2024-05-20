@@ -11,7 +11,7 @@
 #include <asm/arch/clock.h>
 #include <linux/compiler.h>
 #include <command.h>
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <fsl_sec.h>
 #include <mapmem.h>

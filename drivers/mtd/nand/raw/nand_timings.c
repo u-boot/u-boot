@@ -8,7 +8,6 @@
  * published by the Free Software Foundation.
  *
  */
-#include <common.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/mtd/rawnand.h>

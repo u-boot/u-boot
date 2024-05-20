@@ -4,7 +4,6 @@
  * Written by Ramon Fried <ramon.fried@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <pci_ep.h>

@@ -4,7 +4,6 @@
  * Copyright (C) 2015 Gerald Kerma <dreagle@doukki.net>
  */
 
-#include <common.h>
 #include <init.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>

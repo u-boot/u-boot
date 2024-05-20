@@ -3,7 +3,6 @@
  * Copyright 2020 Google LLC
  */
 
-#include <common.h>
 #include <init.h>
 
 int dram_init(void)

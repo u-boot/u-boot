@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/spl.h>
 #include <asm/arch-fsl-layerscape/fsl_serdes.h>

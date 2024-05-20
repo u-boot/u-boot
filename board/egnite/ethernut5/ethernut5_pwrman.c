@@ -31,8 +31,8 @@
  * For additional information visit the project home page at
  * http://www.ethernut.de/
  */
-#include <common.h>
 #include <command.h>
+#include <vsprintf.h>
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/gpio.h>

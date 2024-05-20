@@ -6,7 +6,7 @@
  *
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <hang.h>
 #include <asm/io.h>

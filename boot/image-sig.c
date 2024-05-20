@@ -3,7 +3,6 @@
  * Copyright (c) 2013, Google Inc.
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <asm/global_data.h>

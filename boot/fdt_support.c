@@ -6,7 +6,6 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <abuf.h>
 #include <env.h>
 #include <log.h>

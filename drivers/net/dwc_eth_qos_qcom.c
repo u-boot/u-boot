@@ -5,7 +5,6 @@
  * Qcom DWMAC specific glue layer
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

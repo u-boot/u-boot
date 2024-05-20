@@ -3,7 +3,6 @@
  * Copyright (C) ASPEED Technology Inc.
  */
 
-#include <common.h>
 #include <errno.h>
 #include <asm/arch/pinctrl.h>
 #include <asm/arch/scu_ast2600.h>

@@ -4,7 +4,6 @@
  * Niel Fourie, DENX Software Engineering, lusus@denx.de.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <dm.h>

@@ -4,7 +4,6 @@
  * Christophe Leroy <christophe.leroy@csgroup.eu>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <mapmem.h>
 #include <asm/gpio.h>

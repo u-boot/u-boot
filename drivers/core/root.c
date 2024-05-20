@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_ROOT
 
-#include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <log.h>

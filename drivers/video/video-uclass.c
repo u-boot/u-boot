@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_VIDEO
 
-#include <common.h>
 #include <bloblist.h>
 #include <console.h>
 #include <cpu_func.h>

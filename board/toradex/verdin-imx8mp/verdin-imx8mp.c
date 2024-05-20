@@ -3,7 +3,7 @@
  * Copyright 2022 Toradex
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>

@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY	UCLASS_SCSI
 
-#include <common.h>
 #include <blk.h>
 #include <bootdev.h>
 #include <bootstage.h>

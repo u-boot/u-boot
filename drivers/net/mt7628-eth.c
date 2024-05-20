@@ -13,7 +13,6 @@
  * copyrights here, so I can't add them here.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <log.h>

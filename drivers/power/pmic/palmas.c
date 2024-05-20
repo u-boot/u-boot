@@ -4,7 +4,6 @@
  * Keerthy <j-keerthy@ti.com>
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <errno.h>
 #include <dm.h>

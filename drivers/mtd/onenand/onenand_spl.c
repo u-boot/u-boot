@@ -7,9 +7,10 @@
  *	Kyungmin Park <kyungmin.park@samsung.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/string.h>
 #include <linux/mtd/onenand_regs.h>
 #include <onenand_uboot.h>
 

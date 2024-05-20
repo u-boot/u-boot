@@ -11,6 +11,7 @@
 #define _PHY_INTERFACE_H
 
 #include <string.h>
+#include <linux/kernel.h>
 
 typedef enum {
 	PHY_INTERFACE_MODE_NA, /* don't touch */

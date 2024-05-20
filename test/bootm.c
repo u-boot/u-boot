@@ -5,7 +5,6 @@
  * Copyright 2020 Google LLC
  */
 
-#include <common.h>
 #include <bootm.h>
 #include <asm/global_data.h>
 #include <test/suites.h>

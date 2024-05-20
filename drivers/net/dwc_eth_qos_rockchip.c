@@ -8,7 +8,6 @@
  * part in order to simplify future porting of fixes and support for other SoCs.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

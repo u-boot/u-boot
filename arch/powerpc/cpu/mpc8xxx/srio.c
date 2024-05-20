@@ -3,13 +3,13 @@
  * Copyright 2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <config.h>
 #include <log.h>
 #include <time.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
+#include <asm/ppc.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
 

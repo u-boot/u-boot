@@ -5,7 +5,6 @@
  * This file is based on: drivers/i2c/soft-i2c.c,
  * with added driver-model support and code cleanup.
  */
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <i2c.h>

@@ -3,9 +3,9 @@
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  */
 
-#include <common.h>
 #include <errno.h>
 
+#include <linux/compiler.h>
 #include <asm/arch-tegra/xusb-padctl.h>
 
 struct tegra_xusb_phy * __weak tegra_xusb_phy_get(unsigned int type)

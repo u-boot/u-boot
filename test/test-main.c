@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <console.h>
 #include <cyclic.h>

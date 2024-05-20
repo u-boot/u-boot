@@ -5,10 +5,10 @@
  * (C) Copyright 2012-2014
  *     Texas Instruments Incorporated, <www.ti.com>
  */
-#include <common.h>
 #include <asm/io.h>
 #include <asm/ti-common/keystone_nav.h>
 #include <linux/delay.h>
+#include <linux/string.h>
 
 struct qm_config qm_memmap = {
 	.stat_cfg	= KS2_QM_QUEUE_STATUS_BASE,

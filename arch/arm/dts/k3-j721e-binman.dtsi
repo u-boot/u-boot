@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2024 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-binman.dtsi"
@@ -124,6 +124,94 @@
 					};
 				};
 
+			};
+		};
+	};
+};
+
+&binman {
+	tiboot3-j721e_sr1_1-hs-fs-evm.bin {
+		filename = "tiboot3-j721e_sr1_1-hs-fs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_fs_sr1_1>;
+			core = "public";
+			core-opts = <2>;
+			load = <CONFIG_SPL_TEXT_BASE>;
+			keyfile = "custMpk.pem";
+		};
+		u_boot_spl_fs_sr1_1: u-boot-spl {
+			no-expanded;
+		};
+	};
+	sysfw_fs_sr1_1 {
+		filename = "sysfw.bin_fs_sr1_1";
+		ti-fs-cert-fs.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		ti-fs-firmware-j721e-hs-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	itb_fs_sr1_1 {
+		filename = "sysfw-j721e_sr1_1-hs-fs-evm.itb";
+		fit {
+			description = "SYSFW and Config fragments";
+			#address-cells = <1>;
+			images {
+				sysfw.bin {
+					description = "sysfw";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+					    filename = "sysfw.bin_fs_sr1_1";
+					};
+				};
+				board-cfg.bin {
+					description = "board-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					board-cfg {
+						filename = "board-cfg.bin";
+						type = "blob-ext";
+					};
+
+				};
+				pm-cfg.bin {
+					description = "pm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					pm-cfg {
+						filename = "pm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				rm-cfg.bin {
+					description = "rm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					rm-cfg {
+						filename = "rm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				sec-cfg.bin {
+					description = "sec-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					sec-cfg {
+						filename = "sec-cfg.bin";
+						type = "blob-ext";
+					};
+				};
 			};
 		};
 	};

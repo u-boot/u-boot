@@ -5,7 +5,6 @@
  * Licensed under the GPL-2 or later.
  */
 
-#include <common.h>
 #include <status_led.h>
 #include <asm/gpio.h>
 

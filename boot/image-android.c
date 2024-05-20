@@ -3,7 +3,6 @@
  * Copyright (c) 2011 Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  */
 
-#include <common.h>
 #include <env.h>
 #include <image.h>
 #include <image-android-dt.h>

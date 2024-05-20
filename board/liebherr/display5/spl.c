@@ -4,7 +4,6 @@
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <image.h>

@@ -93,4 +93,6 @@ struct arch_global_data {
 
 #define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("r2")
 
+#include <asm/u-boot.h>
+
 #endif /* __ASM_GBL_DATA_H */

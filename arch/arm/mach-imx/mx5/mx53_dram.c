@@ -4,7 +4,6 @@
  * Patrick Bruenn <p.bruenn@beckhoff.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 

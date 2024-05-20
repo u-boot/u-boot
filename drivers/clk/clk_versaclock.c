@@ -5,7 +5,6 @@
  * Derived from code Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

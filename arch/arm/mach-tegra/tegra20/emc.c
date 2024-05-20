@@ -3,7 +3,7 @@
  * Copyright (c) 2011 The Chromium OS Authors.
  */
 
-#include <common.h>
+#include <config.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/io.h>

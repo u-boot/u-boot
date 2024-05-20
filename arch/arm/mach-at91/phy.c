@@ -11,7 +11,7 @@
  * Copyright (C) 2013 DENX Software Engineering, hs@denx.de
  */
 
-#include <common.h>
+#include <time.h>
 #include <asm/hardware.h>
 #include <asm/io.h>
 #include <linux/delay.h>

@@ -7,6 +7,8 @@
 
 #include <asm/mach-imx/sys_proto.h>
 
+struct wdog_regs;
+
 void set_wdog_reset(struct wdog_regs *wdog);
 
 #endif /* __SYS_PROTO_IMX7_ */

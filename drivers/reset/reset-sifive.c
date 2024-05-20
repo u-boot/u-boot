@@ -4,7 +4,6 @@
  * Author: Sagar Kadam <sagar.kadam@sifive.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <reset-uclass.h>
 #include <asm/io.h>

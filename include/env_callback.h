@@ -7,6 +7,7 @@
 #ifndef __ENV_CALLBACK_H__
 #define __ENV_CALLBACK_H__
 
+#include <config.h>
 #include <env_flags.h>
 #include <linker_lists.h>
 #include <search.h>

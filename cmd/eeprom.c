@@ -19,12 +19,12 @@
  *
  */
 
-#include <common.h>
 #include <config.h>
 #include <command.h>
 #include <eeprom.h>
 #include <i2c.h>
 #include <eeprom_layout.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
 
 #ifndef	I2C_RXTX_LEN

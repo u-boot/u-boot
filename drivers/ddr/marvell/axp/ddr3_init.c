@@ -3,7 +3,6 @@
  * Copyright (C) Marvell International Ltd. and its affiliates
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <log.h>
 #include <spl.h>

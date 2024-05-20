@@ -10,7 +10,6 @@
  * Copied from FADS ROM, Dan Malek (dmalek@jlc.net)
  */
 
-#include <common.h>
 #include <console.h>
 #include <bootretry.h>
 #include <cli.h>
@@ -24,6 +23,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <rand.h>
+#include <time.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

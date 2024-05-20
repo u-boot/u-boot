@@ -6,7 +6,7 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc. All Rights Reserved.
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/immap.h>

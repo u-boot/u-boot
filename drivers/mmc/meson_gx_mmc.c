@@ -3,7 +3,6 @@
  * (C) Copyright 2016 Carlo Caione <carlo@caione.org>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>

@@ -8,7 +8,6 @@
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

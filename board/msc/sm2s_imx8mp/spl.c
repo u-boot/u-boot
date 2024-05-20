@@ -7,7 +7,7 @@
  * Copyright 2021 Collabora Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <fsl_esdhc_imx.h>
 #include <hang.h>

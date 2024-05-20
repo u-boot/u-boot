@@ -5,7 +5,6 @@
  */
 
 #include <blk.h>
-#include <common.h>
 #include <dm.h>
 #include <fwu.h>
 #include <fwu_mdata.h>

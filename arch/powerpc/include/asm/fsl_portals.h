@@ -6,6 +6,8 @@
 #ifndef _FSL_PORTALS_H_
 #define _FSL_PORTALS_H_
 
+#include <linux/types.h>
+
 /* entries must be in order and contiguous */
 enum fsl_dpaa_dev {
 	FSL_HW_PORTAL_SEC,

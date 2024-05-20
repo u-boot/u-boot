@@ -23,7 +23,7 @@
  * environment. After that, we use a hash table.
  */
 
-#include <common.h>
+#include <config.h>
 #include <cli.h>
 #include <command.h>
 #include <console.h>

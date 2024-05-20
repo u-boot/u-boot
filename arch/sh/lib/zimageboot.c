@@ -9,10 +9,10 @@
  * Linux SuperH zImage loading and boot
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <irq_func.h>
+#include <vsprintf.h>
 #include <asm/io.h>
 #include <asm/zimage.h>
 

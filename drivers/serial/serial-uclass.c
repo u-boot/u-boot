@@ -5,7 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_SERIAL
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <env_internal.h>
 #include <errno.h>

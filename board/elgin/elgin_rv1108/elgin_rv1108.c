@@ -4,7 +4,6 @@
  * Authors: Andy Yan <andy.yan@rock-chips.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <syscon.h>
 #include <asm/global_data.h>

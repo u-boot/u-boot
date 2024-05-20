@@ -49,7 +49,6 @@
  * TODO: external MII is not functional, only internal at the moment.
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <malloc.h>

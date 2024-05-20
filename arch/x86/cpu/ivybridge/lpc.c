@@ -5,7 +5,6 @@
  * Copyright (C) 2008-2009 coresystems GmbH
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

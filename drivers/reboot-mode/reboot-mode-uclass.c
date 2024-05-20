@@ -3,7 +3,6 @@
  * Copyright (c), Vaisala Oyj
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

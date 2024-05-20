@@ -3,7 +3,6 @@
  * Copyright (C) 2015, Google, Inc
  */
 
-#include <common.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>

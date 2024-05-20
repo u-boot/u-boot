@@ -3,7 +3,7 @@
  * Copyright (c) 2021 Nuvoton Technology Corp.
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/pl310.h>
 

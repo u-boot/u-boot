@@ -9,7 +9,6 @@
 
 #define LOG_CATEGORY UCLASS_CLK
 
-#include <common.h>
 #include <clk.h>
 #include <log.h>
 #include <clk-uclass.h>

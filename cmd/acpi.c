@@ -3,7 +3,6 @@
  * Copyright 2019 Google LLC
  * Written by Simon Glass <sjg@chromium.org>
  */
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #include <log.h>
@@ -11,6 +10,7 @@
 #include <acpi/acpi_table.h>
 #include <asm/acpi_table.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 #include <dm/acpi.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -9,7 +9,6 @@
  * interface for driving eDP TFT displays.
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <linux/delay.h>
 #include "anx98xx-edp.h"

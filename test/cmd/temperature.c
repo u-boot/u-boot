@@ -5,7 +5,6 @@
  * Copyright (C) 2022 Sartura Ltd.
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <dm/test.h>

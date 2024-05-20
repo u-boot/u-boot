@@ -10,7 +10,7 @@
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <env.h>
 #include <init.h>

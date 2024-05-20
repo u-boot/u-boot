@@ -6,12 +6,12 @@
  * Copyright (C) 2009 coresystems GmbH
  */
 
-#include <common.h>
 #include <asm/cb_sysinfo.h>
 #include <init.h>
 #include <mapmem.h>
 #include <net.h>
 #include <asm/global_data.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

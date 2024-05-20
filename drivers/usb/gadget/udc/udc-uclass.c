@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_USB_GADGET_GENERIC
 
-#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <linux/printk.h>

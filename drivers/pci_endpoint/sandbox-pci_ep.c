@@ -3,7 +3,6 @@
  * Copyright (c) 2019 Ramon Fried <ramon.fried@gmail.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <pci.h>

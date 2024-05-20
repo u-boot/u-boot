@@ -15,7 +15,7 @@
  * ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
  */
-#include <common.h>
+#include <config.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <init.h>

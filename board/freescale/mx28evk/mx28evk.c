@@ -11,7 +11,6 @@
  * on behalf of DENX Software Engineering GmbH
  */
 
-#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <asm/global_data.h>

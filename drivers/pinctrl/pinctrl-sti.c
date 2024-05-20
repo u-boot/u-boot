@@ -6,7 +6,6 @@
  * Author(s): Patrice Chotard, <patrice.chotard@foss.st.com> for STMicroelectronics.
  */
 
-#include <common.h>
 #include <bitfield.h>
 #include <dm.h>
 #include <errno.h>

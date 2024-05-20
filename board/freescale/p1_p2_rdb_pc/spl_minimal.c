@@ -3,7 +3,7 @@
  * Copyright 2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <ns16550.h>

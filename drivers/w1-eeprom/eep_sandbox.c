@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <linux/err.h>
 #include <dm.h>
 #include <w1-eeprom.h>

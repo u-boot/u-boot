@@ -6,7 +6,7 @@
  * Lokesh Vutla <lokeshvutla@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <hang.h>
 #include <log.h>
 #include <asm/utils.h>

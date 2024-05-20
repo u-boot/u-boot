@@ -5,7 +5,6 @@
  * Written-by: Siddarth Gore <gores@marvell.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <miiphy.h>
 #include <net.h>

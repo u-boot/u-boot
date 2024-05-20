@@ -7,7 +7,6 @@
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
  */
 
-#include <common.h>
 #include <fsl_esdhc_imx.h>
 #include <asm-generic/gpio.h>
 #include "common.h"

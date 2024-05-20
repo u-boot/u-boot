@@ -5,7 +5,6 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/arch/clock-gx.h>
 #include <asm/io.h>

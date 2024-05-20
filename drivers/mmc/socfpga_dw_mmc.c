@@ -3,7 +3,6 @@
  * (C) Copyright 2013 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/secure_reg_helper.h>

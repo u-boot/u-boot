@@ -5,7 +5,7 @@
  * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>

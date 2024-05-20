@@ -4,7 +4,6 @@
  * Copyright (C) 2015 Broadcom Corporation
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <memalign.h>
 #include <nand.h>

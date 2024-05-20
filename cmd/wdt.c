@@ -5,7 +5,6 @@
  * Copyright (c) 2019 Michael Walle <michael@walle.cc>
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <wdt.h>

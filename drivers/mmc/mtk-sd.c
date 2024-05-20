@@ -7,7 +7,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <mmc.h>
 #include <errno.h>
@@ -1011,7 +1010,7 @@ static int msdc_ops_get_wp(struct udevice *dev)
 #endif
 }
 
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static u32 test_delay_bit(u32 delay, u32 bit)
 {
 	bit %= PAD_DELAY_MAX;
@@ -1760,7 +1759,7 @@ static const struct dm_mmc_ops msdc_ops = {
 	.set_ios = msdc_ops_set_ios,
 	.get_cd = msdc_ops_get_cd,
 	.get_wp = msdc_ops_get_wp,
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.execute_tuning = msdc_execute_tuning,
 #endif
 	.wait_dat0 = msdc_ops_wait_dat0,

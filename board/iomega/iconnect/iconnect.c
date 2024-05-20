@@ -6,7 +6,6 @@
  * Luka Perkov <luka@openwrt.org>
  */
 
-#include <common.h>
 #include <init.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>

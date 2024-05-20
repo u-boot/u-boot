@@ -4,7 +4,6 @@
  * Author: Eric Gao <eric.gao@rock-chips.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <display.h>
 #include <dm.h>

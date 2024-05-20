@@ -4,7 +4,6 @@
  * (C) Copyright 2019 GE
  */
 
-#include <common.h>
 #include <bootcount.h>
 #include <dm.h>
 #include <spi_flash.h>

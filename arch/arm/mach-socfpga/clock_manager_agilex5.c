@@ -16,7 +16,6 @@
 #include <vsprintf.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
-#include <asm/u-boot.h>
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/types.h>

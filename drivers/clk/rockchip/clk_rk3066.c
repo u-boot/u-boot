@@ -5,7 +5,6 @@
  */
 
 #include <bitfield.h>
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-structs.h>

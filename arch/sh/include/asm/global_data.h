@@ -10,6 +10,8 @@
 #ifndef	__ASM_SH_GLOBALDATA_H_
 #define __ASM_SH_GLOBALDATA_H_
 
+#include <asm/u-boot.h>
+
 /* Architecture-specific global data */
 struct arch_global_data {
 };

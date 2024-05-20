@@ -7,7 +7,6 @@
  * Author: Govindraj R <govindraj.raja@ti.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <linux/delay.h>

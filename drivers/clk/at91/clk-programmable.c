@@ -8,7 +8,6 @@
  *
  * Based on drivers/clk/at91/clk-programmable.c from Linux.
  */
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/clk-provider.h>

@@ -30,7 +30,6 @@
  * September 27, 2018. As of now, NFSv3 is the default choice. If the server
  * does not support NFSv3, we fall back to versions 2 or 1. */
 
-#include <common.h>
 #include <command.h>
 #include <display_options.h>
 #ifdef CONFIG_SYS_DIRECT_FLASH_NFS

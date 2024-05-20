@@ -3,7 +3,6 @@
  * Copyright 2019 NXP
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>

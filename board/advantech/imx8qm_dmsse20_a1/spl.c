@@ -3,7 +3,7 @@
  * Copyright 2017-2018 NXP
  * Copyright 2019-2023 Kococonnector GmbH
  */
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <spl.h>
 #include <init.h>

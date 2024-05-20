@@ -6,7 +6,6 @@
  * Lukasz Majewski  <l.majewski@samsung.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 

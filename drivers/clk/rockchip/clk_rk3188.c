@@ -4,7 +4,6 @@
  * (C) Copyright 2016 Heiko Stuebner <heiko@sntech.de>
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <dt-structs.h>

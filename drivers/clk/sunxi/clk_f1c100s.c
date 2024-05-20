@@ -3,7 +3,6 @@
  * Copyright (C) 2019 George Hilliard <thirtythreeforty@gmail.com>.
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>

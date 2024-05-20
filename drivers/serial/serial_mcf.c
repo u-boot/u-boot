@@ -15,7 +15,6 @@
  * as serial console interface.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_coldfire.h>

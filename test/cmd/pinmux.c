@@ -5,7 +5,6 @@
  * Copyright (C) 2021, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <dm/test.h>

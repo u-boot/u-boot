@@ -3,7 +3,6 @@
  * Copyright (C) 2021 Mark Kettenis <kettenis@openbsd.org>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>

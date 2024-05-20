@@ -3,7 +3,7 @@
  * Copyright (c) 2020 Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
+#include <vsprintf.h>
 #include <command.h>
 
 static int do_panic(struct cmd_tbl *cmdtp, int flag, int argc,

@@ -3,7 +3,6 @@
  * Copyright (c) 2013-2014, NVIDIA CORPORATION. All rights reserved.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/pinmux.h>
 

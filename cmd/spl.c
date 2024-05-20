@@ -4,7 +4,6 @@
  * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cmd_spl.h>
 #include <env.h>

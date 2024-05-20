@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
  */
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>

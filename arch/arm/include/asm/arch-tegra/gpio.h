@@ -6,6 +6,7 @@
 #ifndef _TEGRA_GPIO_H_
 #define _TEGRA_GPIO_H_
 
+#include <linux/types.h>
 #include <dt-bindings/gpio/tegra-gpio.h>
 
 #define TEGRA_GPIOS_PER_PORT	8

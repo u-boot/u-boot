@@ -8,7 +8,7 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <image.h>
 #include <imx_container.h>
 #include <log.h>

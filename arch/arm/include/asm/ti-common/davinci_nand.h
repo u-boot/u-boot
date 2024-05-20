@@ -9,6 +9,7 @@
 #ifndef _DAVINCI_NAND_H_
 #define _DAVINCI_NAND_H_
 
+#include <config.h>
 #include <asm/arch/hardware.h>
 
 #define NAND_READ_START		0x00

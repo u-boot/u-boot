@@ -3,7 +3,6 @@
  * Copyright (C) 2023 Sean Anderson <seanga2@gmail.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <ext_common.h>
 #include <ext4fs.h>

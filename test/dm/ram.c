@@ -3,7 +3,6 @@
  * Copyright (C) 2015 Google, Inc
  */
 
-#include <common.h>
 #include <dm.h>
 #include <ram.h>
 #include <asm/global_data.h>

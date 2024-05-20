@@ -7,6 +7,7 @@
 #ifndef __ASM_ESR_H
 #define __ASM_ESR_H
 
+#include <stdbool.h>
 #include <asm/memory.h>
 #include <linux/const.h>
 

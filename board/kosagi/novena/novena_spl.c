@@ -5,7 +5,7 @@
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <clock_legacy.h>
 #include <init.h>
 #include <asm/io.h>

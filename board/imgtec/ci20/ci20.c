@@ -6,7 +6,6 @@
  * Author: Paul Burton <paul.burton@imgtec.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <init.h>
 #include <net.h>

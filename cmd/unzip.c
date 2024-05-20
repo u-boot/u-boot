@@ -4,12 +4,12 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <gzip.h>
 #include <mapmem.h>
 #include <part.h>
+#include <vsprintf.h>
 
 static int do_unzip(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])

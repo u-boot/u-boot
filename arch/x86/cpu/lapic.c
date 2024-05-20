@@ -6,7 +6,6 @@
  * Copyright (C) 2014 Google, Inc
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/lapic.h>

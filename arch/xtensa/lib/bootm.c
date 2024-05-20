@@ -4,7 +4,6 @@
  * (C) Copyright 2014 Cadence Design Systems Inc.
  */
 
-#include <common.h>
 #include <bootm.h>
 #include <bootstage.h>
 #include <command.h>

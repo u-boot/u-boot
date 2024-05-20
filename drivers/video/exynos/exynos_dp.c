@@ -5,7 +5,6 @@
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <display.h>
 #include <fdtdec.h>

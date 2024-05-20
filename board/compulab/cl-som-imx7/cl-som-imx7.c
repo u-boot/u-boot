@@ -7,7 +7,7 @@
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <init.h>
 #include <mmc.h>

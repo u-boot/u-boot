@@ -6,7 +6,7 @@
 
 #define LOG_CATEGORY UCLASS_TIMER
 
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>

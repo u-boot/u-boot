@@ -4,7 +4,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <asm/armv7.h>
 #include <asm/cache.h>
 #include <asm/gic.h>
@@ -13,6 +12,7 @@
 #include <asm/secure.h>
 #include <hang.h>
 #include <linux/bitops.h>
+#include <linux/errno.h>
 
 /* PWR */
 #define PWR_CR3					0x0c

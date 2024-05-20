@@ -7,7 +7,6 @@
  * Copyright (C) 2013 Xilinx, Inc. All rights reserved.
  */
 
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <log.h>

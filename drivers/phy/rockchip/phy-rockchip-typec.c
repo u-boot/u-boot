@@ -8,7 +8,6 @@
  *         Kever Yang <kever.yang@rock-chips.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <asm/global_data.h>

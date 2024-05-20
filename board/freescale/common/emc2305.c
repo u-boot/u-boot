@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <command.h>
 #include <i2c.h>
 #include <asm/global_data.h>

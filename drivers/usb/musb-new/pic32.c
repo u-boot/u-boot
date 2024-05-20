@@ -9,7 +9,6 @@
  * Based on the dsps "glue layer" code.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>

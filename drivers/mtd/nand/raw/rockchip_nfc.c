@@ -5,7 +5,6 @@
  * Author: Yifeng Zhao <yifeng.zhao@rock-chips.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>

@@ -5,7 +5,6 @@
  * Copyright (C) 2021 Linus Walleij <linus.walleij@linaro.org>
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <test/suites.h>

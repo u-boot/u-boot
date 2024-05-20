@@ -4,7 +4,6 @@
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <clock_legacy.h>
 #include <clk.h>
 #include <dm.h>

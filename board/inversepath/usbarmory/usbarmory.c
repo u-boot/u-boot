@@ -7,7 +7,7 @@
  * Andrej Rosano <andrej@inversepath.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <fs.h>
 #include <init.h>

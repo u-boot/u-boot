@@ -4,7 +4,6 @@
  * Valentin Lontgchamp, Keymile AG, valentin.longchamp@keymile.com
  */
 
-#include <common.h>
 #include <command.h>
 #include <log.h>
 #include <miiphy.h>

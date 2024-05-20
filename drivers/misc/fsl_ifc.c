@@ -4,7 +4,7 @@
  * Author: Dipen Dudhat <dipen.dudhat@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <fsl_ifc.h>
 #include <part.h>
 

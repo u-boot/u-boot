@@ -5,7 +5,6 @@
  * Copyright 2023 DimOnOff Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <env.h>
 #include <fdtdec.h>

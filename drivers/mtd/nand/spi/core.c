@@ -21,7 +21,6 @@
 #include <linux/spi/spi.h>
 #include <linux/spi/spi-mem.h>
 #else
-#include <common.h>
 #include <errno.h>
 #include <watchdog.h>
 #include <spi.h>

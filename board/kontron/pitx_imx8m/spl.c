@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
-#include <common.h>
+#include <config.h>
 #include <errno.h>
 #include <fsl_esdhc_imx.h>
 #include <hang.h>

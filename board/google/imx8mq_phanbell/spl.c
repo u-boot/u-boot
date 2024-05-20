@@ -4,7 +4,7 @@
  *
  */
 
-#include <common.h>
+#include <config.h>
 #include <hang.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

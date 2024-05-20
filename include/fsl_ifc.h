@@ -12,6 +12,8 @@
 #include <part.h>
 #ifdef CONFIG_ARM
 #include <asm/arch/soc.h>
+#else
+#include <asm/ppc.h>
 #endif
 
 #define FSL_IFC_V1_1_0	0x01010000

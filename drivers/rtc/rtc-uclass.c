@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_RTC
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

@@ -9,7 +9,6 @@
  * Copyright (C) Nalin Dahyabhai <bigfun@pobox.com>
  */
 
-#include <common.h>
 #include <edid.h>
 #include <errno.h>
 #include <fdtdec.h>

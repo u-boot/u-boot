@@ -3,7 +3,6 @@
  * Copyright (c) 2019, Linaro Limited
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <rng.h>

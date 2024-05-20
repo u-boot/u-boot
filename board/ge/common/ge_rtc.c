@@ -3,7 +3,6 @@
  * Copyright 2017 General Electric Company
  */
 
-#include <common.h>
 #include <env.h>
 #include <dm/uclass.h>
 #include <rtc.h>

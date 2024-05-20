@@ -7,7 +7,6 @@
  *
  * Copyright (C) 2013, Texas Instruments, Incorporated - https://www.ti.com/
  */
-#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

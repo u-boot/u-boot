@@ -4,8 +4,8 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <command.h>
+#include <time.h>
 
 static int do_timer(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[])

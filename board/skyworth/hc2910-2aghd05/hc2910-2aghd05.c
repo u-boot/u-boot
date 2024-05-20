@@ -3,7 +3,6 @@
  * Board init file for Skyworth HC2910 2AGHD05
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <asm/system.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <acpi/acpi_s3.h>
 #include <acpi/acpi_table.h>
 #include <asm/acpi.h>

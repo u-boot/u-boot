@@ -12,7 +12,6 @@
 
 #define LOG_CATEGORY LOGC_FS
 
-#include <common.h>
 #include <blk.h>
 #include <log.h>
 #include <part.h>

@@ -4,7 +4,6 @@
  *   Author: Kuan Lim Lee <kuanlim.lee@starfivetech.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <time.h>

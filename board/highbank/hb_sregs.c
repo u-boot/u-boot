@@ -10,7 +10,6 @@
  * Copyright (C) 2019 Arm Ltd.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/lists.h>
 

@@ -6,7 +6,6 @@
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  */
 
-#include <common.h>
 #include <asm/arch/dsim.h>
 #include <asm/arch/mipi_dsim.h>
 #include <asm/arch/power.h>

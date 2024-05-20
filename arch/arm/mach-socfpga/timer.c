@@ -3,7 +3,7 @@
  *  Copyright (C) 2012 Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch/timer.h>

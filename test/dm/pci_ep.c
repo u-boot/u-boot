@@ -3,7 +3,6 @@
  * Copyright (C) 2019 Ramon Fried
  */
 
-#include <common.h>
 #include <dm.h>
 #include <hexdump.h>
 #include <pci_ep.h>

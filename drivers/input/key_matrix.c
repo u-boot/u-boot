@@ -6,7 +6,6 @@
  * (C) Copyright 2004 DENX Software Engineering, Wolfgang Denk, wd@denx.de
  */
 
-#include <common.h>
 #include <dm.h>
 #include <key_matrix.h>
 #include <log.h>

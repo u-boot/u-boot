@@ -3,7 +3,6 @@
  * Copyright (c) 2013 Google, Inc
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <dm.h>
 #include <tpm-v1.h>

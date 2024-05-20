@@ -3,9 +3,9 @@
  * Copyright 2008 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <fsl_ddr_sdram.h>
 #include <log.h>
+#include <linux/string.h>
 #include <asm/bitops.h>
 
 #include <fsl_ddr.h>

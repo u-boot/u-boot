@@ -3,10 +3,10 @@
  * Copyright (c) 2015 Google, Inc
  */
 
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <time.h>
 #include <tpm-v1.h>
 #include <linux/printk.h>
 #include "tpm-user-utils.h"

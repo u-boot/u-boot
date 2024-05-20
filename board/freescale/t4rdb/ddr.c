@@ -3,7 +3,6 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <hwconfig.h>
 #include <init.h>

@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_PINCTRL
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>

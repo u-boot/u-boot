@@ -5,6 +5,8 @@
 #ifndef _ASM_ARCH_GRF_rk3308_H
 #define _ASM_ARCH_GRF_rk3308_H
 
+#include <linux/kernel.h>
+
 struct rk3308_grf {
 	unsigned int gpio0a_iomux;
 	unsigned int reserved0;

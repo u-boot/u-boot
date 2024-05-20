@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_SMEM
 
-#include <common.h>
 #include <dm.h>
 #include <smem.h>
 

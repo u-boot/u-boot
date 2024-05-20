@@ -8,11 +8,12 @@
  * Copyright (C) 2022 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cyclic.h>
 #include <div64.h>
 #include <malloc.h>
+#include <time.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
 
 struct cyclic_demo_info {

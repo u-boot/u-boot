@@ -3,7 +3,7 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
 #if CONFIG_SYS_FSL_SEC_COMPAT == 2 || CONFIG_SYS_FSL_SEC_COMPAT >= 4

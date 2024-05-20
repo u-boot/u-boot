@@ -4,7 +4,6 @@
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cache.h>
 #include <dm.h>

@@ -5,7 +5,6 @@
  *  Jorge Ramirez-Ortiz <jorge@foundries.io>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/ecc_spl_init.h>

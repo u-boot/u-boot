@@ -6,7 +6,6 @@
  */
 
 #include <blk.h>
-#include <common.h>
 #include <command.h>
 
 /* Current I/O Device */

@@ -5,8 +5,7 @@
  * (C) Copyright 2015
  *     Texas Instruments Incorporated, <www.ti.com>
  */
-#include <common.h>
-#include <eeprom.h>
+#include <config.h>
 #include <env.h>
 #include <hang.h>
 #include <image.h>
