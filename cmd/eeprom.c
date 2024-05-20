@@ -208,41 +208,42 @@ static long parse_numeric_param(char *str)
 	return (*endptr != '\0') ? -1 : value;
 }
 
+struct eeprom_dev_spec {
+	int i2c_bus;
+	ulong i2c_addr;
+};
+
 /**
- * parse_i2c_bus_addr - parse the i2c bus and i2c devaddr parameters
+ * parse_eeprom_dev_spec - parse the eeprom device specifier
  *
- * @i2c_bus:	address to store the i2c bus
- * @i2c_addr:	address to store the device i2c address
- * @argc:	count of command line arguments left to parse
+ * @dev:	pointer to eeprom device specifier
+ * @argc:	count of command line arguments that can be used to parse
+ *		the device specifier
  * @argv:	command line arguments left to parse
- * @argc_no_bus_addr:	argc value we expect to see when bus & addr aren't given
  *
  * @returns:	number of arguments parsed or CMD_RET_USAGE if error
  */
-static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
-			      char *const argv[], int argc_no_bus_addr)
+static int parse_eeprom_dev_spec(struct eeprom_dev_spec *dev, int argc,
+				 char *const argv[])
 {
-	int argc_no_bus = argc_no_bus_addr + 1;
-	int argc_bus_addr = argc_no_bus_addr + 2;
-
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR
-	if (argc == argc_no_bus_addr) {
-		*i2c_bus = -1;
-		*i2c_addr = CONFIG_SYS_I2C_EEPROM_ADDR;
+	if (argc == 0) {
+		dev->i2c_bus = -1;
+		dev->i2c_addr = CONFIG_SYS_I2C_EEPROM_ADDR;
 
 		return 0;
 	}
 #endif
-	if (argc == argc_no_bus) {
-		*i2c_bus = -1;
-		*i2c_addr = parse_numeric_param(argv[0]);
+	if (argc == 1) {
+		dev->i2c_bus = -1;
+		dev->i2c_addr = parse_numeric_param(argv[0]);
 
 		return 1;
 	}
 
-	if (argc == argc_bus_addr) {
-		*i2c_bus = parse_numeric_param(argv[0]);
-		*i2c_addr = parse_numeric_param(argv[1]);
+	if (argc == 2) {
+		dev->i2c_bus = parse_numeric_param(argv[0]);
+		dev->i2c_addr = parse_numeric_param(argv[1]);
 
 		return 2;
 	}
@@ -287,9 +288,10 @@ static enum eeprom_action parse_action(char *cmd)
 	return EEPROM_ACTION_INVALID;
 }
 
-static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
-				  ulong i2c_addr, int layout_ver, char *key,
-				  char *value, ulong addr, ulong off, ulong cnt)
+static int eeprom_execute_command(enum eeprom_action action,
+				  struct eeprom_dev_spec *dev,
+				  int layout_ver, char *key, char *value,
+				  ulong addr, ulong off, ulong cnt)
 {
 	int rcode = 0;
 	const char *const fmt =
@@ -301,25 +303,26 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 	if (action == EEPROM_ACTION_INVALID)
 		return CMD_RET_USAGE;
 
-	eeprom_init(i2c_bus);
+	eeprom_init(dev->i2c_bus);
 	if (action == EEPROM_READ) {
-		printf(fmt, i2c_addr, "read", addr, off, cnt);
+		printf(fmt, dev->i2c_addr, "read", addr, off, cnt);
 
-		rcode = eeprom_read(i2c_addr, off, (uchar *)addr, cnt);
+		rcode = eeprom_read(dev->i2c_addr, off, (uchar *)addr, cnt);
 
 		puts("done\n");
 		return rcode;
 	} else if (action == EEPROM_WRITE) {
-		printf(fmt, i2c_addr, "write", addr, off, cnt);
+		printf(fmt, dev->i2c_addr, "write", addr, off, cnt);
 
-		rcode = eeprom_write(i2c_addr, off, (uchar *)addr, cnt);
+		rcode = eeprom_write(dev->i2c_addr, off, (uchar *)addr, cnt);
 
 		puts("done\n");
 		return rcode;
 	}
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
-	rcode = eeprom_read(i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
+	rcode = eeprom_read(dev->i2c_addr, 0, eeprom_buf,
+			    CONFIG_SYS_EEPROM_SIZE);
 	if (rcode < 0)
 		return rcode;
 
@@ -333,7 +336,8 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 
 	layout.update(&layout, key, value);
 
-	rcode = eeprom_write(i2c_addr, 0, layout.data, CONFIG_SYS_EEPROM_SIZE);
+	rcode = eeprom_write(dev->i2c_addr, 0, layout.data,
+			     CONFIG_SYS_EEPROM_SIZE);
 #endif
 
 	return rcode;
@@ -359,9 +363,9 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	int layout_ver = LAYOUT_VERSION_AUTODETECT;
 	enum eeprom_action action = EEPROM_ACTION_INVALID;
-	int i2c_bus = -1, index = 0;
-	ulong i2c_addr = -1, addr = 0, cnt = 0, off = 0;
-	int ret;
+	struct eeprom_dev_spec dev;
+	ulong addr = 0, cnt = 0, off = 0;
+	int ret, index = 0;
 	char *field_name = "";
 	char *field_value = "";
 
@@ -386,8 +390,9 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 #endif
 
-	ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc, argv + index,
-				 eeprom_action_expected_argc(action));
+	ret = parse_eeprom_dev_spec(&dev,
+				    argc - eeprom_action_expected_argc(action),
+				    argv + index);
 	if (ret == CMD_RET_USAGE)
 		return ret;
 
@@ -411,8 +416,8 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 #endif
 
-	return eeprom_execute_command(action, i2c_bus, i2c_addr, layout_ver,
-				      field_name, field_value, addr, off, cnt);
+	return eeprom_execute_command(action, &dev, layout_ver, field_name,
+				      field_value, addr, off, cnt);
 }
 
 #ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
