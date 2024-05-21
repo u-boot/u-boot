@@ -339,6 +339,21 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 	return rcode;
 }
 
+static int eeprom_action_expected_argc(enum eeprom_action action)
+{
+	switch (action) {
+	case EEPROM_READ:
+	case EEPROM_WRITE:
+		return 3;
+	case EEPROM_PRINT:
+		return 0;
+	case EEPROM_UPDATE:
+		return 2;
+	default:
+		return CMD_RET_USAGE;
+	}
+}
+
 #define NEXT_PARAM(argc, index)	{ (argc)--; (index)++; }
 int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -371,25 +386,8 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	}
 #endif
 
-	switch (action) {
-	case EEPROM_READ:
-	case EEPROM_WRITE:
-		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
-					 argv + index, 3);
-		break;
-	case EEPROM_PRINT:
-		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
-					 argv + index, 0);
-		break;
-	case EEPROM_UPDATE:
-		ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc,
-					 argv + index, 2);
-		break;
-	default:
-		/* Get compiler to stop whining */
-		return CMD_RET_USAGE;
-	}
-
+	ret = parse_i2c_bus_addr(&i2c_bus, &i2c_addr, argc, argv + index,
+				 eeprom_action_expected_argc(action));
 	if (ret == CMD_RET_USAGE)
 		return ret;
 
