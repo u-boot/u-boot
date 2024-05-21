@@ -273,7 +273,7 @@
 
 #ifdef CONFIG_TARGET_J7200_A72_EVM
 
-#define SPL_J7200_EVM_DTB "spl/dts/k3-j7200-common-proc-board.dtb"
+#define SPL_J7200_EVM_DTB "spl/dts/ti/k3-j7200-common-proc-board.dtb"
 #define J7200_EVM_DTB "u-boot.dtb"
 
 &binman {
