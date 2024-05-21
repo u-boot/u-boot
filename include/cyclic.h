@@ -31,7 +31,7 @@
 struct cyclic_info {
 	void (*func)(void *ctx);
 	void *ctx;
-	char *name;
+	const char *name;
 	uint64_t delay_us;
 	uint64_t start_time_us;
 	uint64_t cpu_time_us;
