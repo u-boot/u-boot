@@ -283,8 +283,10 @@ int misc_init_r(void)
 	}
 
 	/* Default FIT boot on HS-SE devices */
-	if (get_device_type() == K3_DEVICE_TYPE_HS_SE)
+	if (get_device_type() == K3_DEVICE_TYPE_HS_SE) {
 		env_set("boot_fit", "1");
+		env_set("secure_rprocs", "1");
+	}
 
 	return 0;
 }
