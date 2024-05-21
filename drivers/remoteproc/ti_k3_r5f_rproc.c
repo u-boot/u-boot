@@ -20,6 +20,7 @@
 #include <linux/kernel.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
+#include <mach/security.h>
 
 /*
  * R5F's view of this address can either be for ATCM or BTCM with the other
@@ -301,6 +302,7 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
 	u64 boot_vector;
 	u32 ctrl, sts, cfg = 0;
 	bool mem_auto_init;
+	void *image_addr = (void *)addr;
 	int ret;
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
@@ -327,6 +329,8 @@ static int k3_r5f_load(struct udevice *dev, ulong addr, ulong size)
 	}
 
 	k3_r5f_init_tcm_memories(core, mem_auto_init);
+
+	ti_secure_image_post_process(&image_addr, &size);
 
 	ret = rproc_elf_load_image(dev, addr, size);
 	if (ret < 0) {

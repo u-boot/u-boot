@@ -21,6 +21,7 @@
 #include <linux/sizes.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
+#include <mach/security.h>
 
 #define KEYSTONE_RPROC_LOCAL_ADDRESS_MASK	(SZ_16M - 1)
 
@@ -127,6 +128,7 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
 	struct k3_dsp_boot_data *data = dsp->data;
 	u32 boot_vector;
+	void *image_addr = (void *)addr;
 	int ret;
 
 	if (dsp->in_use) {
@@ -147,6 +149,8 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 			dsp->tsp.proc_id);
 		goto proc_release;
 	}
+
+	ti_secure_image_post_process(&image_addr, &size);
 
 	ret = rproc_elf_load_image(dev, addr, size);
 	if (ret < 0) {
