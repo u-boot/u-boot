@@ -103,7 +103,7 @@
 		};
 #endif
 
-		nxp-imx8mimage {
+		binman_imx_spl: nxp-imx8mimage {
 			filename = "u-boot-spl-mkimage.bin";
 			nxp,boot-from = "sd";
 			nxp,rom-version = <2>;
@@ -169,7 +169,7 @@
 			};
 		};
 
-		fit {
+		binman_imx_fit: fit {
 			description = "Configuration to load ATF before U-Boot";
 #ifndef CONFIG_IMX_HAB
 			fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
