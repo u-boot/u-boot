@@ -1,0 +1,7 @@
+X55
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	board/powkiddy/x55
+F:	include/configs/powkiddy-x55-rk3566.h
+F:	configs/powkiddy-x55-rk3566_defconfig
+F:	arch/arm/dts/rk3566-powkiddy-x55-u-boot.dtsi
