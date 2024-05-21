@@ -56,7 +56,7 @@ static int __eeprom_field_update_bin(struct eeprom_field *field,
 		}
 
 		byte = simple_strtoul(tmp, &endptr, 16);
-		if (*endptr != '\0' || byte < 0)
+		if (*endptr != '\0')
 			return -1;
 
 		field->buf[j] = byte;
