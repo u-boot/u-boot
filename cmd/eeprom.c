@@ -252,10 +252,12 @@ static int parse_i2c_bus_addr(int *i2c_bus, ulong *i2c_addr, int argc,
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 
+#ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
 __weak int eeprom_parse_layout_version(char *str)
 {
 	return LAYOUT_VERSION_UNRECOGNIZED;
 }
+#endif
 
 static unsigned char eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
 
@@ -359,7 +361,7 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (action == EEPROM_ACTION_INVALID)
 		return CMD_RET_USAGE;
 
-#ifdef CONFIG_CMD_EEPROM_LAYOUT
+#ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
 	if (action == EEPROM_PRINT || action == EEPROM_UPDATE) {
 		if (!strcmp(argv[index], "-l")) {
 			NEXT_PARAM(argc, index);
@@ -415,6 +417,12 @@ int do_eeprom(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 				      field_name, field_value, addr, off, cnt);
 }
 
+#ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
+#define EEPROM_LAYOUT_SPEC	"[-l <layout_version>] "
+#else
+#define EEPROM_LAYOUT_SPEC	""
+#endif
+
 U_BOOT_CMD(
 	eeprom,	8,	1,	do_eeprom,
 	"EEPROM sub-system",
@@ -423,16 +431,18 @@ U_BOOT_CMD(
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 	"\n"
-	"eeprom print [-l <layout_version>] [[bus] devaddr]\n"
+	"eeprom print " EEPROM_LAYOUT_SPEC "[[bus] devaddr]\n"
 	"       - Print layout fields and their data in human readable format\n"
-	"eeprom update [-l <layout_version>] [[bus] devaddr] field_name field_value\n"
+	"eeprom update " EEPROM_LAYOUT_SPEC "[[bus] devaddr] field_name field_value\n"
 	"       - Update a specific eeprom field with new data.\n"
-	"         The new data must be written in the same human readable format as shown by the print command.\n"
-	"\n"
+	"         The new data must be written in the same human readable format as shown by the print command."
+#ifdef CONFIG_EEPROM_LAYOUT_VERSIONS
+	"\n\n"
 	"LAYOUT VERSIONS\n"
 	"The -l option can be used to force the command to interpret the EEPROM data using the chosen layout.\n"
 	"If the -l option is omitted, the command will auto detect the layout based on the data in the EEPROM.\n"
 	"The values which can be provided with the -l option are:\n"
 	CONFIG_EEPROM_LAYOUT_HELP_STRING"\n"
+#endif
 #endif
 );
