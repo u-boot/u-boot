@@ -119,7 +119,7 @@
 	"addargs=run addcons addmisc addmtd\0"				\
 	"mmcload="							\
 		"mmc rescan || reset ; load mmc ${mmcdev}:${mmcpart} "	\
-		"${kernel_addr_r} ${bootfile} || reset\0"		\
+		"${kernel_addr_r} boot/${bootfile} || reset\0"		\
 	"miscargs=nohlt panic=1\0"					\
 	"mmcargs=setenv bootargs root=/dev/mmcblk0p${mmcpart} rw "	\
 		"rootwait\0"						\
