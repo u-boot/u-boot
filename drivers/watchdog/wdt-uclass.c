@@ -17,12 +17,15 @@
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <linux/kernel.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define WATCHDOG_TIMEOUT_SECS	(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000)
 
 struct wdt_priv {
+	/* The udevice owning this wdt_priv. */
+	struct udevice *dev;
 	/* Timeout, in seconds, to configure this device to. */
 	u32 timeout;
 	/*
@@ -40,18 +43,17 @@ struct wdt_priv {
 	/* autostart */
 	bool autostart;
 
-	struct cyclic_info *cyclic;
+	struct cyclic_info cyclic;
 };
 
-static void wdt_cyclic(void *ctx)
+static void wdt_cyclic(struct cyclic_info *c)
 {
-	struct udevice *dev = ctx;
-	struct wdt_priv *priv;
+	struct wdt_priv *priv = container_of(c, struct wdt_priv, cyclic);
+	struct udevice *dev = priv->dev;
 
 	if (!device_active(dev))
 		return;
 
-	priv = dev_get_uclass_priv(dev);
 	if (!priv->running)
 		return;
 
@@ -124,20 +126,14 @@ int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 		memset(str, 0, 16);
 		if (IS_ENABLED(CONFIG_WATCHDOG)) {
 			if (priv->running)
-				cyclic_unregister(priv->cyclic);
+				cyclic_unregister(&priv->cyclic);
 
 			/* Register the watchdog driver as a cyclic function */
-			priv->cyclic = cyclic_register(wdt_cyclic,
-						       priv->reset_period * 1000,
-						       dev->name, dev);
-			if (!priv->cyclic) {
-				printf("cyclic_register for %s failed\n",
-				       dev->name);
-				return -ENODEV;
-			} else {
-				snprintf(str, 16, "every %ldms",
-					 priv->reset_period);
-			}
+			cyclic_register(&priv->cyclic, wdt_cyclic,
+					priv->reset_period * 1000,
+					dev->name);
+
+			snprintf(str, 16, "every %ldms", priv->reset_period);
 		}
 
 		priv->running = true;
@@ -162,7 +158,7 @@ int wdt_stop(struct udevice *dev)
 		struct wdt_priv *priv = dev_get_uclass_priv(dev);
 
 		if (IS_ENABLED(CONFIG_WATCHDOG) && priv->running)
-			cyclic_unregister(priv->cyclic);
+			cyclic_unregister(&priv->cyclic);
 
 		priv->running = false;
 	}
@@ -262,6 +258,7 @@ static int wdt_pre_probe(struct udevice *dev)
 			autostart = true;
 	}
 	priv = dev_get_uclass_priv(dev);
+	priv->dev = dev;
 	priv->timeout = timeout;
 	priv->reset_period = reset_period;
 	priv->autostart = autostart;
