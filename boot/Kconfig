@@ -38,6 +38,7 @@ config LIB_BOOTI
 
 config LIB_BOOTM
 	bool
+	select CRC32 if LOONGARCH
 
 config LIB_BOOTZ
 	bool
