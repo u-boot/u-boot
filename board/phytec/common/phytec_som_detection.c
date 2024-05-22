@@ -72,11 +72,29 @@ int phytec_eeprom_read(u8 *data, int bus_num, int addr, int size, int offset)
 	return ret;
 }
 
+int phytec_eeprom_data_init_v2(struct phytec_eeprom_data *data)
+{
+	unsigned int crc;
+
+	if (!data)
+		return -1;
+
+	crc = crc8(0, (const unsigned char *)&data->payload, PHYTEC_API2_DATA_LEN);
+	debug("%s: crc: %x\n", __func__, crc);
+
+	if (crc) {
+		pr_err("%s: CRC mismatch. EEPROM data is not usable.\n",
+		       __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 			    int bus_num, int addr)
 {
 	int ret, i;
-	unsigned int crc;
 	u8 *ptr;
 
 	if (!data)
@@ -104,20 +122,10 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 		goto err;
 	}
 
-	/* We are done here for early revisions */
-	if (data->payload.api_rev <= PHYTEC_API_REV1) {
-		data->valid = true;
-		return 0;
-	}
-
-	crc = crc8(0, (const unsigned char *)&data->payload, PHYTEC_API2_DATA_LEN);
-	debug("%s: crc: %x\n", __func__, crc);
-
-	if (crc) {
-		pr_err("%s: CRC mismatch. EEPROM data is not usable.\n",
-		       __func__);
-		ret = -EINVAL;
-		goto err;
+	if (data->payload.api_rev >= PHYTEC_API_REV2) {
+		ret = phytec_eeprom_data_init_v2(data);
+		if (ret)
+			goto err;
 	}
 
 	data->valid = true;
