@@ -78,13 +78,12 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	int ret, i;
 	unsigned int crc;
 	u8 *ptr;
-	const unsigned int payload_size = sizeof(struct phytec_eeprom_payload);
 
 	if (!data)
 		data = &eeprom_data;
 
 	ret = phytec_eeprom_read((u8 *)data, bus_num, addr,
-				 payload_size, 0);
+				 PHYTEC_API2_DATA_LEN, 0);
 	if (ret)
 		goto err;
 
@@ -95,11 +94,11 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	}
 
 	ptr = (u8 *)data;
-	for (i = 0; i < payload_size; ++i)
+	for (i = 0; i < PHYTEC_API2_DATA_LEN; ++i)
 		if (ptr[i] != 0x0)
 			break;
 
-	if (i == payload_size) {
+	if (i == PHYTEC_API2_DATA_LEN) {
 		pr_err("%s: EEPROM data is all zero. Erased?\n", __func__);
 		ret = -EINVAL;
 		goto err;
@@ -111,7 +110,7 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 		return 0;
 	}
 
-	crc = crc8(0, (const unsigned char *)&data->payload, payload_size);
+	crc = crc8(0, (const unsigned char *)&data->payload, PHYTEC_API2_DATA_LEN);
 	debug("%s: crc: %x\n", __func__, crc);
 
 	if (crc) {
