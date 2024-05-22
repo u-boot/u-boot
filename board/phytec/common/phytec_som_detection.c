@@ -47,6 +47,31 @@ int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
 	return ret;
 }
 
+int phytec_eeprom_read(u8 *data, int bus_num, int addr, int size, int offset)
+{
+	int ret;
+
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *dev;
+
+	ret = i2c_get_chip_for_busnum(bus_num, addr, 2, &dev);
+	if (ret) {
+		pr_err("%s: i2c EEPROM not found: %i.\n", __func__, ret);
+		return ret;
+	}
+
+	ret = dm_i2c_read(dev, offset, (uint8_t *)data, size);
+	if (ret) {
+		pr_err("%s: Unable to read EEPROM data: %i\n", __func__, ret);
+		return ret;
+	}
+#else
+	i2c_set_bus_num(bus_num);
+	ret = i2c_read(addr, offset, 2, (uint8_t *)data, size);
+#endif
+	return ret;
+}
+
 int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 			    int bus_num, int addr)
 {
@@ -58,25 +83,10 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	if (!data)
 		data = &eeprom_data;
 
-#if CONFIG_IS_ENABLED(DM_I2C)
-	struct udevice *dev;
-
-	ret = i2c_get_chip_for_busnum(bus_num, addr, 2, &dev);
-	if (ret) {
-		pr_err("%s: i2c EEPROM not found: %i.\n", __func__, ret);
+	ret = phytec_eeprom_read((u8 *)data, bus_num, addr,
+				 payload_size, 0);
+	if (ret)
 		goto err;
-	}
-
-	ret = dm_i2c_read(dev, 0, (uint8_t *)data, payload_size);
-	if (ret) {
-		pr_err("%s: Unable to read EEPROM data: %i\n", __func__, ret);
-		goto err;
-	}
-#else
-	i2c_set_bus_num(bus_num);
-	ret = i2c_read(addr, 0, 2, (uint8_t *)data,
-		       sizeof(struct phytec_eeprom_data));
-#endif
 
 	if (data->payload.api_rev == 0xff) {
 		pr_err("%s: EEPROM is not flashed. Prototype?\n", __func__);
