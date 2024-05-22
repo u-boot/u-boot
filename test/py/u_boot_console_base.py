@@ -55,6 +55,32 @@ class ConsoleDisableCheck(object):
         self.console.disable_check_count[self.check_type] -= 1
         self.console.eval_bad_patterns()
 
+class ConsoleEnableCheck(object):
+    """Context manager (for Python's with statement) that temporarily enables
+    the specified console output error check. This is useful when executing a
+    command that might raise an extra bad pattern, beyond the default bad
+    patterns, in order to validate that the extra bad pattern is actually
+    detected. This class is used internally by ConsoleBase::enable_check(); it
+    is not intended for direct usage."""
+
+    def __init__(self, console, check_type, check_pattern):
+        self.console = console
+        self.check_type = check_type
+        self.check_pattern = check_pattern
+
+    def __enter__(self):
+        global bad_pattern_defs
+        self.default_bad_patterns = bad_pattern_defs
+        bad_pattern_defs += ((self.check_type, self.check_pattern),)
+        self.console.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
+        self.console.eval_bad_patterns()
+
+    def __exit__(self, extype, value, traceback):
+        global bad_pattern_defs
+        bad_pattern_defs = self.default_bad_patterns
+        self.console.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
+        self.console.eval_bad_patterns()
+
 class ConsoleSetupTimeout(object):
     """Context manager (for Python's with statement) that temporarily sets up
     timeout for specific command. This is useful when execution time is greater
@@ -491,6 +517,24 @@ class ConsoleBase(object):
         """
 
         return ConsoleDisableCheck(self, check_type)
+
+    def enable_check(self, check_type, check_pattern):
+        """Temporarily enable an error check of U-Boot's output.
+
+        Create a new context manager (for use with the "with" statement) which
+        temporarily enables a particular console output error check. The
+        arguments form a new element of bad_pattern_defs defined above.
+
+        Args:
+            check_type: The type of error-check or bad pattern to enable.
+            check_pattern: The regexes for text error pattern or bad pattern
+                to be checked.
+
+        Returns:
+            A context manager object.
+        """
+
+        return ConsoleEnableCheck(self, check_type, check_pattern)
 
     def temporary_timeout(self, timeout):
         """Temporarily set up different timeout for commands.
