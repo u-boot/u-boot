@@ -243,6 +243,8 @@ else ifeq ("riscv32", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_RISCV32)
 else ifeq ("riscv64", $(MK_ARCH))
   export HOST_ARCH=$(HOST_ARCH_RISCV64)
+else ifeq ("loongarch64", $(MK_ARCH))
+  export HOST_ARCH=$(HOST_ARCH_LOONGARCH64)
 endif
 undefine MK_ARCH
 

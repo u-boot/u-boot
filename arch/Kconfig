@@ -110,6 +110,20 @@ config ARM
 	select SUPPORT_LITTLE_ENDIAN
 	select SUPPORT_OF_CONTROL
 
+config LOONGARCH
+	bool "LoongArch architecture"
+	select CREATE_ARCH_SYMLINK
+	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
+	select DM
+	select DM_EVENT
+	imply DM_SERIAL
+	imply BLK
+	imply CLK
+	imply MTD
+	imply TIMER
+	imply CMD_DM
+
 config M68K
 	bool "M68000 architecture"
 	select HAVE_PRIVATE_LIBGCC
@@ -569,6 +583,7 @@ config SYS_NONCACHED_MEMORY
 
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
+source "arch/loongarch/Kconfig"
 source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"

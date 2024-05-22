@@ -1,0 +1,40 @@
+menu "LoongArch architecture"
+	depends on LOONGARCH
+
+config SYS_ARCH
+	default "loongarch"
+
+choice
+	prompt "Target select"
+
+endchoice
+
+# board-specific options below
+
+# platform-specific options below
+
+# architecture-specific options below
+choice
+	prompt "Base ISA"
+
+config ARCH_LA64
+	bool "LoongArch64"
+	select 64BIT
+	select PHYS_64BIT
+	help
+	  Choose this option to target the LoongArch64 base ISA.
+
+endchoice
+
+config DMA_ADDR_T_64BIT
+	bool
+	default y if 64BIT
+
+config STACK_SIZE_SHIFT
+	int
+	default 14
+
+config OF_BOARD_FIXUP
+	default y if OF_SEPARATE
+
+endmenu
