@@ -33,7 +33,7 @@ struct linux_image_h {
 };
 
 int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
-		bool force_reloc)
+		ulong *entry, bool force_reloc)
 {
 	struct linux_image_h *lhdr;
 
@@ -55,6 +55,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 	} else {
 		*relocated_addr = image;
 	}
+
+	*entry = *relocated_addr;
 
 	unmap_sysmem(lhdr);
 
