@@ -14,7 +14,7 @@ struct extension {
 	char name[32];
 	char owner[32];
 	char version[32];
-	char overlay[32];
+	char overlay[64];
 	char other[32];
 };
 
