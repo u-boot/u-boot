@@ -496,13 +496,13 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = lmb_alloc(len, EFI_PAGE_SIZE);
+		addr = lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
-		addr = lmb_alloc_base(len, EFI_PAGE_SIZE, *memory);
+		addr = lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
@@ -510,7 +510,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		if (*memory & EFI_PAGE_MASK)
 			return EFI_NOT_FOUND;
 		/* Exact address, try to reserve it. */
-		addr = lmb_alloc_addr(*memory, len);
+		addr = lmb_alloc_addr_nooverwrite(*memory, len);
 		if (!addr)
 			return EFI_NOT_FOUND;
 		break;
