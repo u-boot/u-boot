@@ -29,14 +29,14 @@ void MD5Final(unsigned char digest[16], MD5Context *ctx)
 	mbedtls_md5_free(ctx);
 }
 
-void md5(unsigned char *input, int len, unsigned char output[16])
-{
-	MD5Context context;
+// void md5(unsigned char *input, int len, unsigned char output[16])
+// {
+// 	MD5Context context;
 
-	MD5Init(&context);
-	MD5Update(&context, input, len);
-	MD5Final(output, &context);
-}
+// 	MD5Init(&context);
+// 	MD5Update(&context, input, len);
+// 	MD5Final(output, &context);
+// }
 
 void md5_wd(const unsigned char *input, unsigned int len,
 	    unsigned char output[16], unsigned int chunk_sz)
