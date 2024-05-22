@@ -30,6 +30,9 @@ config DMA_ADDR_T_64BIT
 	bool
 	default y if 64BIT
 
+config SHOW_REGS
+	bool "Show registers on unhandled exception"
+
 config STACK_SIZE_SHIFT
 	int
 	default 14
