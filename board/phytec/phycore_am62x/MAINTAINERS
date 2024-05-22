@@ -11,3 +11,4 @@ F:	configs/phycore_am62x_a53_defconfig
 F:	configs/phycore_am62x_r5_defconfig
 F:	include/configs/phycore_am62x.h
 F:	doc/board/phytec/phycore-am62x.rst
+F:	board/phytec/common/k3

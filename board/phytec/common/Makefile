@@ -5,10 +5,8 @@
 ifdef CONFIG_SPL_BUILD
 # necessary to create built-in.o
 obj- := __dummy__.o
-else
-obj-$(CONFIG_ARCH_K3) += k3/
 endif
 
 obj-y += phytec_som_detection.o
-obj-$(CONFIG_ARCH_K3) += am6_som_detection.o
+obj-$(CONFIG_ARCH_K3) += am6_som_detection.o k3/
 obj-$(CONFIG_ARCH_IMX8M) += imx8m_som_detection.o
