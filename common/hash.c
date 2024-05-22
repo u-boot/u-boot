@@ -42,6 +42,8 @@ static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
 {
 	int ret;
 	mbedtls_sha1_context *ctx = malloc(sizeof(mbedtls_sha1_context));
+	if (!ctx)
+		return -ENOMEM;
 
 	mbedtls_sha1_init(ctx);
 	ret = mbedtls_sha1_starts(ctx);
@@ -83,6 +85,8 @@ static int hash_init_sha256(struct hash_algo *algo, void **ctxp)
 	int ret;
 	int is224 = algo->digest_size == SHA224_SUM_LEN ? 1 : 0;
 	mbedtls_sha256_context *ctx = malloc(sizeof(mbedtls_sha256_context));
+	if (!ctx)
+		return -ENOMEM;
 
 	mbedtls_sha256_init(ctx);
 	ret = mbedtls_sha256_starts(ctx, is224);
@@ -124,6 +128,8 @@ static int hash_init_sha512(struct hash_algo *algo, void **ctxp)
 	int ret;
 	int is384 = algo->digest_size == SHA384_SUM_LEN ? 1 : 0;
 	mbedtls_sha512_context *ctx = malloc(sizeof(mbedtls_sha512_context));
+	if (!ctx)
+		return -ENOMEM;
 
 	mbedtls_sha512_init(ctx);
 	ret = mbedtls_sha512_starts(ctx, is384);
