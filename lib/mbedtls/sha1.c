@@ -79,33 +79,33 @@ void sha1_hmac(const unsigned char *key, int keylen,
 {
 	int i;
 	sha1_context ctx;
-	unsigned char k_ipad[64];
-	unsigned char k_opad[64];
+	unsigned char k_ipad[K_PAD_LEN];
+	unsigned char k_opad[K_PAD_LEN];
 	unsigned char tmpbuf[20];
 
-	memset(k_ipad, 0x36, 64);
-	memset(k_opad, 0x5C, 64);
+	if (keylen > K_PAD_LEN)
+		return;
+
+	memset(k_ipad, K_IPAD_VAL, sizeof(k_ipad));
+	memset(k_opad, K_OPAD_VAL, sizeof(k_opad));
 
 	for (i = 0; i < keylen; i++) {
-		if (i >= 64)
-			break;
-
 		k_ipad[i] ^= key[i];
 		k_opad[i] ^= key[i];
 	}
 
 	sha1_starts(&ctx);
-	sha1_update(&ctx, k_ipad, 64);
+	sha1_update(&ctx, k_ipad, sizeof(k_ipad));
 	sha1_update(&ctx, input, ilen);
 	sha1_finish(&ctx, tmpbuf);
 
 	sha1_starts(&ctx);
-	sha1_update(&ctx, k_opad, 64);
-	sha1_update(&ctx, tmpbuf, 20);
+	sha1_update(&ctx, k_opad, sizeof(k_opad));
+	sha1_update(&ctx, tmpbuf, sizeof(tmpbuf));
 	sha1_finish(&ctx, output);
 
-	memset(k_ipad, 0, 64);
-	memset(k_opad, 0, 64);
-	memset(tmpbuf, 0, 20);
+	memset(k_ipad, 0, sizeof(k_ipad));
+	memset(k_opad, 0, sizeof(k_opad));
+	memset(tmpbuf, 0, sizeof(tmpbuf));
 	memset(&ctx, 0, sizeof(sha1_context));
 }
