@@ -73,7 +73,7 @@ static u8 phytec_check_opt(struct phytec_eeprom_data *data, u8 option)
  *  - The size
  *  - PHYTEC_EEPROM_INVAL when the data is invalid.
  */
-u8 __maybe_unused phytec_get_am62_ddr_size(struct phytec_eeprom_data *data)
+u8 __maybe_unused phytec_get_am6_ddr_size(struct phytec_eeprom_data *data)
 {
 	u8 ddr_id = phytec_check_opt(data, 3);
 
@@ -89,7 +89,7 @@ u8 __maybe_unused phytec_get_am62_ddr_size(struct phytec_eeprom_data *data)
  *  - Otherwise a board depended code for the size.
  *  - PHYTEC_EEPROM_INVAL when the data is invalid.
  */
-u8 __maybe_unused phytec_get_am62_spi(struct phytec_eeprom_data *data)
+u8 __maybe_unused phytec_get_am6_spi(struct phytec_eeprom_data *data)
 {
 	u8 spi = phytec_check_opt(data, 5);
 
@@ -105,7 +105,7 @@ u8 __maybe_unused phytec_get_am62_spi(struct phytec_eeprom_data *data)
  *  - 0x1 if 10/100/1000 MBit Phy is populated.
  *  - PHYTEC_EEPROM_INVAL when the data is invalid.
  */
-u8 __maybe_unused phytec_get_am62_eth(struct phytec_eeprom_data *data)
+u8 __maybe_unused phytec_get_am6_eth(struct phytec_eeprom_data *data)
 {
 	u8 eth = phytec_check_opt(data, 6);
 
@@ -121,7 +121,7 @@ u8 __maybe_unused phytec_get_am62_eth(struct phytec_eeprom_data *data)
  *  - 1 if it is populated.
  *  - PHYTEC_EEPROM_INVAL when the data is invalid.
  */
-u8 __maybe_unused phytec_get_am62_rtc(struct phytec_eeprom_data *data)
+u8 __maybe_unused phytec_get_am6_rtc(struct phytec_eeprom_data *data)
 {
 	u8 rtc = phytec_check_opt(data, 7);
 
@@ -131,28 +131,28 @@ u8 __maybe_unused phytec_get_am62_rtc(struct phytec_eeprom_data *data)
 
 #else
 
-inline int __maybe_unused phytec_am62_detect(struct phytec_eeprom_data *data)
+inline int __maybe_unused phytec_am6_detect(struct phytec_eeprom_data *data)
 {
 	return -1;
 }
 
 inline u8 __maybe_unused
-phytec_get_am62_ddr_size(struct phytec_eeprom_data *data)
+phytec_get_am6_ddr_size(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
 }
 
-inline u8 __maybe_unused phytec_get_am62_spi(struct phytec_eeprom_data *data)
+inline u8 __maybe_unused phytec_get_am6_spi(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
 }
 
-inline u8 __maybe_unused phytec_get_am62_eth(struct phytec_eeprom_data *data)
+inline u8 __maybe_unused phytec_get_am6_eth(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
 }
 
-inline u8 __maybe_unused phytec_get_am62_rtc(struct phytec_eeprom_data *data)
+inline u8 __maybe_unused phytec_get_am6_rtc(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
 }
