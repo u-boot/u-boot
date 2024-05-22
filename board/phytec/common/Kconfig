@@ -16,6 +16,7 @@ config PHYTEC_AM62_SOM_DETECTION
 	bool "Support SoM detection for AM62x PHYTEC platforms"
 	depends on (TARGET_PHYCORE_AM62X_A53 || TARGET_PHYCORE_AM62X_R5) && \
 		   PHYTEC_SOM_DETECTION
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported
@@ -25,6 +26,7 @@ config PHYTEC_AM64_SOM_DETECTION
 	bool "Support SoM detection for AM64x PHYTEC platforms"
 	depends on (TARGET_PHYCORE_AM64X_A53 || TARGET_PHYCORE_AM64X_R5) && \
 		   PHYTEC_SOM_DETECTION
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported
