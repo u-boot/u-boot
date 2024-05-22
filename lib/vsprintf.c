@@ -19,6 +19,7 @@
 #include <hexdump.h>
 #include <stdarg.h>
 #include <uuid.h>
+#include <stdio.h>
 #include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
