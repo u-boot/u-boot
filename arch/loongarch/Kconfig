@@ -30,6 +30,25 @@ config DMA_ADDR_T_64BIT
 	bool
 	default y if 64BIT
 
+config SHOW_REGS
+	bool "Show registers on unhandled exception"
+	default y
+	help
+	  By default only the program counter and the return address register
+	  are shown in crash dumps. Enable this symbol to show all registers
+	  in main U-Boot.
+
+config FRAMEPOINTER
+	bool "Build with frame pointer for stack unwinding"
+	default y
+	help
+	  Choose this option to use the framepointer so the stack can be
+	  unwound if needed. This is useful for tracing where faults came
+	  from as the source may be several functions back.
+
+	  If you say Y here, the code size will increase due to having to
+	  store the fp.
+
 config STACK_SIZE_SHIFT
 	int
 	default 14
