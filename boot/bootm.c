@@ -888,9 +888,10 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	    (images->os.arch == IH_ARCH_ARM64 || images->os.arch == IH_ARCH_RISCV)) {
 		ulong relocated_addr;
 		ulong image_size;
+		ulong entry;
 		int ret;
 
-		ret = booti_setup(load, &relocated_addr, &image_size, false);
+		ret = booti_setup(load, &relocated_addr, &image_size, &entry, false);
 		if (ret) {
 			printf("Failed to prep kernel image (err=%d)\n", ret);
 			return BOOTM_ERR_RESET;
@@ -904,7 +905,7 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 			memmove((void *)relocated_addr, load_buf, image_size);
 		}
 
-		images->ep = relocated_addr;
+		images->ep = entry;
 		images->os.start = relocated_addr;
 		images->os.end = relocated_addr + image_size;
 	}
