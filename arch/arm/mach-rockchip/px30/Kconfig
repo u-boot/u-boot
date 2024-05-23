@@ -83,6 +83,9 @@ config TPL_TEXT_BASE
 config TPL_STACK
 	default 0xff0e4fff
 
+config TPL_SYS_MALLOC_F_LEN
+	default 0x600
+
 config DEBUG_UART_CHANNEL
 	int "Mux channel to use for debug UART2/UART3"
 	depends on DEBUG_UART_BOARD_INIT
