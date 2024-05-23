@@ -1971,6 +1971,13 @@ bool is_android_vendor_boot_image_header(const void *vendor_boot_img);
 ulong get_abootimg_addr(void);
 
 /**
+ * get_ainit_bootimg_addr() - Get Android init boot image address
+ *
+ * Return: Android init boot image address
+ */
+ulong get_ainit_bootimg_addr(void);
+
+/**
  * get_avendor_bootimg_addr() - Get Android vendor boot image address
  *
  * Return: Android vendor boot image address
