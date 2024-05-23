@@ -528,10 +528,10 @@ int image_decomp(int comp, ulong load, ulong image_start, int type,
 		printf("Unimplemented compression type %d\n", comp);
 		return ret;
 	}
-	if (ret)
-		return ret;
 
 	*load_end = load + image_len;
+	if (ret)
+		return ret;
 
 	return 0;
 }
