@@ -48,7 +48,7 @@ The format looks like this:
 =====  ===  ==================  =================================
 Order  Seq  Name                Description
 =====  ===  ==================  =================================
-    0    0  extlinunx           Extlinux boot from a block device
+    0    0  extlinux            Extlinux boot from a block device
     1    1  efi                 EFI boot from an .efi file
     2    2  pxe                 PXE boot from a network device
     3    3  sandbox             Sandbox boot for testing
