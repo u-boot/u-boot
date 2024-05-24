@@ -69,6 +69,12 @@
 #define BOOTSTD_CALLBACK
 #endif
 
+#ifdef CONFIG_CYCLIC
+#define CYCLIC_CALLBACK ENV_DOT_ESCAPE ".cyclic_max_cpu_time:cyclic_max_cpu_time,"
+#else
+#define CYCLIC_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -83,6 +89,7 @@
 	SILENT_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	"serial#:serialno," \
+	CYCLIC_CALLBACK \
 	CFG_ENV_CALLBACK_LIST_STATIC
 
 #ifndef CONFIG_SPL_BUILD
