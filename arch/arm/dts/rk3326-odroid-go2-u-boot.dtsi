@@ -74,6 +74,21 @@
 	bootph-all;
 };
 
+&rk817 {
+	regulators {
+		vcc_cam: LDO_REG9 {
+			regulator-name = "vcc_cam";
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3000000>;
+
+			regulator-state-mem {
+				regulator-off-in-suspend;
+				regulator-suspend-microvolt = <3000000>;
+			};
+		};
+	};
+};
+
 &saradc {
 	bootph-all;
 	status = "okay";
