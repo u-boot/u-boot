@@ -530,7 +530,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	dp = efi_dp_shorten(dp_volume);
 	if (!dp)
 		dp = dp_volume;
-	dp = efi_dp_concat(dp, &fp->dp, false);
+	dp = efi_dp_concat(dp, &fp->dp, 0);
 	free(buf);
 
 	return dp;
@@ -1484,7 +1484,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 			goto out;
 		}
 		initrd_dp = efi_dp_concat((const struct efi_device_path *)&id_dp,
-					  dp, false);
+					  dp, 0);
 		efi_free_pool(dp);
 	}
 
@@ -1495,7 +1495,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	}
 	final_dp_size = efi_dp_size(dp) + sizeof(END);
 	if (initrd_dp) {
-		final_dp = efi_dp_concat(dp, initrd_dp, true);
+		final_dp = efi_dp_concat(dp, initrd_dp, 1);
 		final_dp_size += efi_dp_size(initrd_dp) + sizeof(END);
 	} else {
 		final_dp = efi_dp_dup(dp);

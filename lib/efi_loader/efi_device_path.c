@@ -276,10 +276,11 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
  *
  * @dp1:	    First device path
  * @dp2:	    Second device path
- * @split_end_node: If true the two device paths will be concatenated and
- *                  separated by an end node (DEVICE_PATH_SUB_TYPE_END).
- *		    If false the second device path will be concatenated to the
- *		    first one as-is.
+ * @split_end_node:
+ * * 0 to concatenate
+ * * 1 to concatenate with end node added as separator
+ * * size of dp1 excluding last end node to concatenate with end node as
+ *   separator in case dp1 contains an end node
  *
  * Return:
  * concatenated device path or NULL. Caller must free the returned value
@@ -287,7 +288,7 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 struct
 efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 			       const struct efi_device_path *dp2,
-			       bool split_end_node)
+			       size_t split_end_node)
 {
 	struct efi_device_path *ret;
 	size_t end_size;
@@ -301,9 +302,14 @@ efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 		ret = efi_dp_dup(dp1);
 	} else {
 		/* both dp1 and dp2 are non-null */
-		unsigned sz1 = efi_dp_size(dp1);
-		unsigned sz2 = efi_dp_size(dp2);
+		size_t sz1;
+		size_t sz2 = efi_dp_size(dp2);
 		void *p;
+
+		if (split_end_node < sizeof(struct efi_device_path))
+			sz1 = efi_dp_size(dp1);
+		else
+			sz1 = split_end_node;
 
 		if (split_end_node)
 			end_size = 2 * sizeof(END);
