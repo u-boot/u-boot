@@ -8,5 +8,5 @@ F:	doc/board/theobroma-systems
 F:	include/configs/puma_rk3399.h
 F:	arch/arm/dts/rk3399-puma*
 F:	configs/puma-rk3399_defconfig
-W:	https://www.theobroma-systems.com/rk3399-q7/tech-specs
-T:	git git://git.theobroma-systems.com/puma-u-boot.git
+W:	https://embedded.cherry.de/product/puma-som-rk3399-q7/
+T:	git git://git.embedded.cherry.de/puma-u-boot.git
