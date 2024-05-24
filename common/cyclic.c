@@ -9,6 +9,7 @@
  */
 
 #include <cyclic.h>
+#include <env.h>
 #include <log.h>
 #include <malloc.h>
 #include <time.h>
@@ -19,6 +20,17 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 void hw_watchdog_reset(void);
+
+static unsigned int max_cpu_time = CONFIG_CYCLIC_MAX_CPU_TIME_US;
+
+static int on_cyclic_max_cpu_time(const char *name, const char *value,
+				  enum env_op op, int flags)
+{
+	if (op != env_op_delete)
+		max_cpu_time = dectoul(value, NULL);
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(cyclic_max_cpu_time, on_cyclic_max_cpu_time);
 
 struct hlist_head *cyclic_get_list(void)
 {
@@ -70,11 +82,10 @@ void cyclic_run(void)
 			cyclic->cpu_time_us += cpu_time;
 
 			/* Check if cpu-time exceeds max allowed time */
-			if ((cpu_time > CONFIG_CYCLIC_MAX_CPU_TIME_US) &&
+			if ((cpu_time > max_cpu_time) &&
 			    (!cyclic->already_warned)) {
 				pr_err("cyclic function %s took too long: %lldus vs %dus max\n",
-				       cyclic->name, cpu_time,
-				       CONFIG_CYCLIC_MAX_CPU_TIME_US);
+				       cyclic->name, cpu_time, max_cpu_time);
 
 				/*
 				 * Don't disable this function, just warn once
