@@ -1,6 +1,6 @@
 RINGNECK-PX30
-M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
-M:	Klaus Goger <klaus.goger@theobroma-systems.com>
+M:	Quentin Schulz <quentin.schulz@cherry.de>
+M:	Klaus Goger <klaus.goger@cherry.de>
 S:	Maintained
 F:	board/theobroma-systems/ringneck_px30
 F:	board/theobroma-systems/common

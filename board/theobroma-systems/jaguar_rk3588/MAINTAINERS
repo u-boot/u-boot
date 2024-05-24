@@ -1,6 +1,6 @@
 JAGUAR-RK3588 (SBC-RK3588-AMR Single Board Computer)
-M:	Klaus Goger <klaus.goger@theobroma-systems.com>
-M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
+M:	Klaus Goger <klaus.goger@cherry.de>
+M:	Quentin Schulz <quentin.schulz@cherry.de>
 M:	Heiko Stuebner <heiko.stuebner@cherry.de>
 S:	Maintained
 F:	board/theobroma-systems/jaguar_rk3588
