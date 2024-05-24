@@ -205,6 +205,7 @@ class ConsoleBase(object):
                     continue
                 raise Exception('Bad pattern found on console: ' +
                                 self.bad_pattern_ids[m - 2])
+            self.run_command("env set .cyclic_max_cpu_time 100000")
 
         except Exception as ex:
             self.log.error(str(ex))
