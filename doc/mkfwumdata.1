@@ -6,9 +6,11 @@ mkfwumdata \- create FWU metadata image
 .
 .SH SYNOPSIS
 .SY mkfwumdata
+.OP \-v version
 .OP \-a activeidx
 .OP \-p previousidx
 .OP \-g
+.OP \-V vendor-file
 .BI \-i\~ imagecount
 .BI \-b\~ bankcount
 .I UUIDs
@@ -26,6 +28,12 @@ creates metadata info to be used with FWU.
 .TP
 .B \-h
 Print usage information and exit.
+.
+.TP
+.B \-v
+Set 
+.IR version
+as the metadata version to generate. Valid values 1 or 2.
 .
 .TP
 .B \-a
@@ -48,6 +56,12 @@ whichever is non-negative.
 Convert the
 .IR UUIDs
 as GUIDs before use.
+.
+.TP
+.B \-V
+Pass
+.IR vendor-file
+for appending vendor data to the metadata. Supported only with version 2.
 .
 .TP
 .B \-i
@@ -81,7 +95,7 @@ Create a metadata image with 2 banks and 1 image/bank, BankAct=0, BankPrev=1:
 .EX
 .in +4
 $ \c
-.B mkfwumdata \-a 0 \-p 1 \-b 2 \-i 1 \\\\\&
+.B mkfwumdata \-v 2 \-a 0 \-p 1 \-b 2 \-i 1 \\\\\&
 .in +6
 .B 17e86d77-41f9-4fd7-87ec-a55df9842de5,\\\\\&
 .B 10c36d7d-ca52-b843-b7b9-f9d6c501d108,\\\\\&

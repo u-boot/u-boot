@@ -31,4 +31,18 @@ config FWU_TRIAL_STATE_CNT
 	  the platform is allowed to boot in Trial State after an
 	  update.
 
+config FWU_MDATA_V1
+	bool "Enable support FWU Metadata version 1"
+	help
+	  The FWU specification supports two versions of the
+	  metadata structure. This option enables support for FWU
+	  Metadata version 1 access.
+
+config FWU_MDATA_V2
+	bool "Enable support FWU Metadata version 2"
+	help
+	  The FWU specification supports two versions of the
+	  metadata structure. This option enables support for FWU
+	  Metadata version 2 access.
+
 endif
