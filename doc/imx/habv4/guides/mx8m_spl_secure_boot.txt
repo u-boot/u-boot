@@ -121,6 +121,9 @@ build configuration:
 - Defconfig:
 
   CONFIG_IMX_HAB=y
+  CONFIG_FSL_CAAM=y
+  CONFIG_ARCH_MISC_INIT=y
+  CONFIG_SPL_CRYPTO=y
 
 - Kconfig:
 
@@ -131,91 +134,59 @@ build configuration:
 
 The CSF contains all the commands that the HAB executes during the secure
 boot. These commands instruct the HAB code on which memory areas of the image
-to authenticate, which keys to install, use and etc.
+to authenticate, which keys to install, use and etc. The CSF is generated
+using the CST Code Signing Tool based on input configuration file. This tool
+input configuration file is generated using binman, and the tool is invoked
+from binman as well.
 
-CSF examples are available under doc/imx/habv4/csf_examples/ directory.
+The SPL and fitImage sections of the generated image are signed separately.
+The signing is activated by wrapping SPL and fitImage sections into nxp-imx8mcst
+etype, which is done automatically in arch/arm/dts/imx8m{m,n,p,q}-u-boot.dtsi
+in case CONFIG_IMX_HAB Kconfig symbol is enabled.
 
-CSF "Blocks" line for csf_spl.txt can be generated as follows:
+Per default the HAB keys and certificates need to be located in the build
+directory, this means creating a symbolic link or copying the following files
+from the HAB keys directory flat (e.g. removing the `keys` and `cert`
+subdirectory) into the u-boot build directory for the CST Code Signing Tool to
+locate them:
 
-```
-spl_block_base=$(printf "0x%x" $(( $(sed -n "/CONFIG_SPL_TEXT_BASE=/ s@.*=@@p" .config) - 0x40)) )
-spl_block_size=$(printf "0x%x" $(stat -tc %s u-boot-spl-ddr.bin))
-sed -i "/Blocks = / s@.*@  Blocks = $spl_block_base 0x0 $spl_block_size \"flash.bin\"@" csf_spl.txt
-```
+- `crts/SRK_1_2_3_4_table.bin`
+- `crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem`
+- `keys/CSF1_1_sha256_4096_65537_v3_usr_key.pem`
+- `crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem`
+- `keys/IMG1_1_sha256_4096_65537_v3_usr_key.pem`
+- `keys/key_pass.txt`
 
-The resulting line looks as follows:
-```
-  Blocks = 0x7e0fc0 0x0 0x306f0 "flash.bin"
-```
+The paths to the SRK table and the certificates can be modified via changes to
+the nxp_imx8mcst device tree node(s), however the other files are required by
+the CST tools as well, and will be searched for in relation to them.
 
-The columns mean:
-  - CONFIG_SPL_TEXT_BASE - 0x40 -- Start address of signed data, in DRAM
-  - 0x0 -- Start address of signed data, in "flash.bin"
-  - 0x306f0 -- Length of signed data, in "flash.bin"
-  - Filename -- "flash.bin"
+Build of flash.bin target then produces a signed flash.bin automatically.
 
-To generate signature for the SPL part of flash.bin container, use CST:
-```
-cst -i csf_spl.tmp -o csf_spl.bin
-```
+The nxp-imx8mcst etype is configurable using either DT properties or environment
+variables. The following DT properties and environment variables are supported.
+Note that environment variables override DT properties.
 
-The newly generated CST blob has to be patched into existing flash.bin
-container. Conveniently, flash.bin IVT contains physical address of the
-CSF blob. Remember, the SPL part of flash.bin container is loaded by the
-BootROM at CONFIG_SPL_TEXT_BASE - 0x40 , so the offset of CSF blob in
-the fitImage can be calculated and inserted into the flash.bin in the
-correct location as follows:
-```
-# offset = IVT_HEADER[6 = CSF address] - CONFIG_SPL_TEXT_BASE - 0x40
-spl_csf_offset=$(xxd -s 24 -l 4 -e flash.bin | cut -d " " -f 2 | sed "s@^@0x@")
-spl_bin_offset=$(xxd -s 4 -l 4 -e flash.bin | cut -d " " -f 2 | sed "s@^@0x@")
-spl_dd_offset=$((${spl_csf_offset} - ${spl_bin_offset} + 0x40))
-dd if=csf_spl.bin of=flash.bin bs=1 seek=${spl_dd_offset} conv=notrunc
-```
++--------------------+-----------+------------------------------------------------------------------+
+| DT property        | Variable  | Description                                                      |
++====================+===========+==================================================================+
+| nxp,loader-address |           | SPL base address                                                 |
++--------------------+-----------+------------------------------------------------------------------+
+| nxp,srk-table      | SRK_TABLE | full path to SRK_1_2_3_4_table.bin                               |
++--------------------+-----------+------------------------------------------------------------------+
+| nxp,csf-crt        | CSF_KEY   | full path to the CSF Key CSF1_1_sha256_4096_65537_v3_usr_crt.pem |
++--------------------+-----------+------------------------------------------------------------------+
+| nxp,img-crt        | IMG_KEY   | full path to the IMG Key IMG1_1_sha256_4096_65537_v3_usr_crt.pem |
++--------------------+-----------+------------------------------------------------------------------+
 
-CSF "Blocks" line for csf_fit.txt can be generated as follows:
-```
-# fitImage
-fit_block_base=$(printf "0x%x" $(sed -n "/CONFIG_SPL_LOAD_FIT_ADDRESS=/ s@.*=@@p" .config) )
-fit_block_offset=$(printf "0x%s" $(fdtget -t x u-boot.dtb /binman/imx-boot/uboot offset))
-fit_block_size=$(printf "0x%x" $(( ( ( $(stat -tc %s u-boot.itb) + 0x1000 - 0x1 ) & ~(0x1000 - 0x1)) + 0x20 )) )
-sed -i "/Blocks = / s@.*@  Blocks = $fit_block_base $fit_block_offset $fit_block_size \"flash.bin\"@" csf_fit.tmp
-```
-
-The fitImage part of flash.bin requires separate IVT. Generate the IVT and
-patch it into the correct aligned location of flash.bin as follows:
-```
-# IVT
-ivt_ptr_base=$(printf "%08x" ${fit_block_base} | sed "s@\(..\)\(..\)\(..\)\(..\)@0x\4\3\2\1@")
-ivt_block_base=$(printf "%08x" $(( ${fit_block_base} + ${fit_block_size} - 0x20 )) | sed "s@\(..\)\(..\)\(..\)\(..\)@0x\4\3\2\1@")
-csf_block_base=$(printf "%08x" $(( ${fit_block_base} + ${fit_block_size} )) | sed "s@\(..\)\(..\)\(..\)\(..\)@0x\4\3\2\1@")
-ivt_block_offset=$((${fit_block_offset} + ${fit_block_size} - 0x20))
-csf_block_offset=$((${ivt_block_offset} + 0x20))
-
-echo "0xd1002041 ${ivt_block_base} 0x00000000 0x00000000 0x00000000 ${ivt_block_base} ${csf_block_base} 0x00000000" | xxd -r -p > ivt.bin
-dd if=ivt.bin of=flash.bin bs=1 seek=${ivt_block_offset} conv=notrunc
-```
-
-To generate CSF signature for the fitImage part of flash.bin container, use CST:
-```
-cst -i csf_fit.tmp -o csf_fit.bin
-```
-
-Finally, patch the CSF signature into the fitImage right past the IVT:
-```
-dd if=csf_fit.bin of=flash.bin bs=1 seek=${csf_block_offset} conv=notrunc
-```
-
-The entire script is available in doc/imx/habv4/csf_examples/mx8m/csf.sh
-and can be used as follows to modify flash.bin to be signed
-(adjust paths as needed):
+Environment variables can be set as follows to point the build process
+to external key material:
 ```
 export CST_DIR=/usr/src/cst-3.3.1/
 export CSF_KEY=$CST_DIR/crts/CSF1_1_sha256_4096_65537_v3_usr_crt.pem
 export IMG_KEY=$CST_DIR/crts/IMG1_1_sha256_4096_65537_v3_usr_crt.pem
 export SRK_TABLE=$CST_DIR/crts/SRK_1_2_3_4_table.bin
-export PATH=$CST_DIR/linux64/bin:$PATH
-/bin/sh doc/imx/habv4/csf_examples/mx8m/csf.sh
+make flash.bin
 ```
 
 1.4 Closing the device

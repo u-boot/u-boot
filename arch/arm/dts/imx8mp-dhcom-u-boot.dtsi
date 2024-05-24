@@ -135,73 +135,69 @@
 	bootph-pre-ram;
 };
 
-&binman {
-	section {
-		fit {
-			images {
-				fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast {
-					description = "imx8mp-dhcom-som-overlay-eth1xfast";
-					type = "flat_dt";
-					compression = "none";
+&binman_imx_fit {
+	images {
+		fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast {
+			description = "imx8mp-dhcom-som-overlay-eth1xfast";
+			type = "flat_dt";
+			compression = "none";
 
-					blob-ext {
-						filename = "imx8mp-dhcom-som-overlay-eth1xfast.dtbo";
-					};
-				};
-
-				fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast {
-					description = "imx8mp-dhcom-som-overlay-eth2xfast";
-					type = "flat_dt";
-					compression = "none";
-
-					blob-ext {
-						filename = "imx8mp-dhcom-som-overlay-eth2xfast.dtbo";
-					};
-				};
-
-				fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast {
-					description = "imx8mp-dhcom-pdk-overlay-eth2xfast";
-					type = "flat_dt";
-					compression = "none";
-
-					blob-ext {
-						filename = "imx8mp-dhcom-pdk-overlay-eth2xfast.dtbo";
-					};
-				};
-
-				fdt-dto-imx8mp-dhcom-som-overlay-rev100 {
-					description = "imx8mp-dhcom-som-overlay-rev100";
-					type = "flat_dt";
-					compression = "none";
-
-					blob-ext {
-						filename = "imx8mp-dhcom-som-overlay-rev100.dtbo";
-					};
-				};
-
-				fdt-dto-imx8mp-dhcom-pdk3-overlay-rev100 {
-					description = "imx8mp-dhcom-pdk3-overlay-rev100";
-					type = "flat_dt";
-					compression = "none";
-
-					blob-ext {
-						filename = "imx8mp-dhcom-pdk3-overlay-rev100.dtbo";
-					};
-				};
+			blob-ext {
+				filename = "imx8mp-dhcom-som-overlay-eth1xfast.dtbo";
 			};
+		};
 
-			configurations {
-				default = "@config-DEFAULT-SEQ";
+		fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast {
+			description = "imx8mp-dhcom-som-overlay-eth2xfast";
+			type = "flat_dt";
+			compression = "none";
 
-				@config-SEQ {
-					fdt = "fdt-1",
-					      "fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast",
-					      "fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast",
-					      "fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast",
-					      "fdt-dto-imx8mp-dhcom-som-overlay-rev100",
-					      "fdt-dto-imx8mp-dhcom-pdk3-overlay-rev100";
-				};
+			blob-ext {
+				filename = "imx8mp-dhcom-som-overlay-eth2xfast.dtbo";
 			};
+		};
+
+		fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast {
+			description = "imx8mp-dhcom-pdk-overlay-eth2xfast";
+			type = "flat_dt";
+			compression = "none";
+
+			blob-ext {
+				filename = "imx8mp-dhcom-pdk-overlay-eth2xfast.dtbo";
+			};
+		};
+
+		fdt-dto-imx8mp-dhcom-som-overlay-rev100 {
+			description = "imx8mp-dhcom-som-overlay-rev100";
+			type = "flat_dt";
+			compression = "none";
+
+			blob-ext {
+				filename = "imx8mp-dhcom-som-overlay-rev100.dtbo";
+			};
+		};
+
+		fdt-dto-imx8mp-dhcom-pdk3-overlay-rev100 {
+			description = "imx8mp-dhcom-pdk3-overlay-rev100";
+			type = "flat_dt";
+			compression = "none";
+
+			blob-ext {
+				filename = "imx8mp-dhcom-pdk3-overlay-rev100.dtbo";
+			};
+		};
+	};
+
+	configurations {
+		default = "@config-DEFAULT-SEQ";
+
+		@config-SEQ {
+			fdt = "fdt-1",
+			      "fdt-dto-imx8mp-dhcom-som-overlay-eth1xfast",
+			      "fdt-dto-imx8mp-dhcom-som-overlay-eth2xfast",
+			      "fdt-dto-imx8mp-dhcom-pdk-overlay-eth2xfast",
+			      "fdt-dto-imx8mp-dhcom-som-overlay-rev100",
+			      "fdt-dto-imx8mp-dhcom-pdk3-overlay-rev100";
 		};
 	};
 };

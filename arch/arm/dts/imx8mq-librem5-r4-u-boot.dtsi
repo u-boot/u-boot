@@ -10,14 +10,10 @@
 	bootph-pre-ram;
 };
 
-&binman {
+&binman_imx_spl {
 	section {
-		nxp-imx8mimage {
-			section {
-				signed-hdmi-imx8m {
-					filename = "signed_dp_imx8m.bin";
-				};
-			};
+		signed-hdmi-imx8m {
+			filename = "signed_dp_imx8m.bin";
 		};
 	};
 };
