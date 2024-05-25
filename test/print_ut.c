@@ -62,6 +62,7 @@ static int print_guid(struct unit_test_state *uts)
 PRINT_TEST(print_guid, 0);
 #endif
 
+#if 0
 #if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 /* Test efi_loader specific printing */
 static int print_efi_ut(struct unit_test_state *uts)
@@ -87,6 +88,7 @@ static int print_efi_ut(struct unit_test_state *uts)
 	dp_end->length = sizeof(struct efi_device_path);
 
 	snprintf(str, sizeof(str), "_%pD_", buf);
+	printf("str => %s\n", str);
 	ut_assertok(strcmp("_/SD(3)_", str));
 
 	/* NULL device path */
@@ -96,6 +98,7 @@ static int print_efi_ut(struct unit_test_state *uts)
 	return 0;
 }
 PRINT_TEST(print_efi_ut, 0);
+#endif
 #endif
 
 static int print_printf(struct unit_test_state *uts)

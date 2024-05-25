@@ -383,6 +383,7 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 			else {
 				printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
 					__func__, __LINE__, pbase, psize, flags);
+				lmb_dump_all_force();
 				return -1; /* regions with new flags */
 			}
 		}
@@ -408,6 +409,7 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 				if (ret < 0) {
 					printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
 					       __func__, __LINE__, pbase, psize, flags);
+					lmb_dump_all_force();
 					return -1;
 				}
 				break;
@@ -423,6 +425,7 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 			} else {
 				printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
 				       __func__, __LINE__, pbase, psize, flags);
+				lmb_dump_all_force();
 				return -1;
 			}
 		}
@@ -444,6 +447,7 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 	if (rgn->cnt >= rgn->max) {
 		printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
 		       __func__, __LINE__, pbase, psize, flags);
+		lmb_dump_all_force();
 		return -1;
 	}
 
