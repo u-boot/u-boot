@@ -386,7 +386,54 @@ enum tpm2_algorithms {
 	TPM2_ALG_SM3_256	= 0x12,
 };
 
-extern const enum tpm2_algorithms tpm2_supported_algorithms[4];
+/**
+ * struct digest_info - details of supported digests
+ *
+ * @hash_name:			hash name
+ * @hash_alg:			hash algorithm id
+ * @hash_mask:			hash registry mask
+ * @hash_len:			hash digest length
+ */
+struct digest_info {
+	const char *hash_name;
+	u16 hash_alg;
+	u32 hash_mask;
+	u16 hash_len;
+};
+
+/* Algorithm Registry */
+#define TCG2_BOOT_HASH_ALG_SHA1    0x00000001
+#define TCG2_BOOT_HASH_ALG_SHA256  0x00000002
+#define TCG2_BOOT_HASH_ALG_SHA384  0x00000004
+#define TCG2_BOOT_HASH_ALG_SHA512  0x00000008
+#define TCG2_BOOT_HASH_ALG_SM3_256 0x00000010
+
+static const struct digest_info hash_algo_list[] = {
+	{
+		"sha1",
+		TPM2_ALG_SHA1,
+		TCG2_BOOT_HASH_ALG_SHA1,
+		TPM2_SHA1_DIGEST_SIZE,
+	},
+	{
+		"sha256",
+		TPM2_ALG_SHA256,
+		TCG2_BOOT_HASH_ALG_SHA256,
+		TPM2_SHA256_DIGEST_SIZE,
+	},
+	{
+		"sha384",
+		TPM2_ALG_SHA384,
+		TCG2_BOOT_HASH_ALG_SHA384,
+		TPM2_SHA384_DIGEST_SIZE,
+	},
+	{
+		"sha512",
+		TPM2_ALG_SHA512,
+		TCG2_BOOT_HASH_ALG_SHA512,
+		TPM2_SHA512_DIGEST_SIZE,
+	},
+};
 
 static inline u16 tpm2_algorithm_to_len(enum tpm2_algorithms a)
 {
@@ -403,8 +450,6 @@ static inline u16 tpm2_algorithm_to_len(enum tpm2_algorithms a)
 		return 0;
 	}
 }
-
-#define tpm2_algorithm_to_mask(a)	(1 << (a))
 
 /* NV index attributes */
 enum tpm_index_attrs {
@@ -964,5 +1009,31 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 
  */
 u32 tpm2_auto_start(struct udevice *dev);
+
+/**
+ * tpm2_name_to_algorithm() - Return an algorithm id given a supported
+ *			      algorithm name
+ *
+ * @name: algorithm name
+ * Return: enum tpm2_algorithms or -EINVAL
+ */
+enum tpm2_algorithms tpm2_name_to_algorithm(const char *name);
+
+/**
+ * tpm2_algorithm_name() - Return an algorithm name string for a
+ *			   supported algorithm id
+ *
+ * @algorithm_id: algorithm defined in enum tpm2_algorithms
+ * Return: algorithm name string or ""
+ */
+const char *tpm2_algorithm_name(enum tpm2_algorithms);
+
+/**
+ * tpm2_algorithm_to_mask() - Get a TCG hash mask for algorithm
+ *
+ * @hash_alg: TCG defined algorithm
+ * Return: TCG hashing algorithm bitmaps (or 0 if algo not supported)
+ */
+u32 tpm2_algorithm_to_mask(enum tpm2_algorithms);
 
 #endif /* __TPM_V2_H */

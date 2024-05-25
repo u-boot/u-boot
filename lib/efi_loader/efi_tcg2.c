@@ -414,10 +414,10 @@ static efi_status_t tcg2_hash_pe_image(void *efi, u64 efi_size,
 	}
 
 	digest_list->count = 0;
-	for (i = 0; i < ARRAY_SIZE(tpm2_supported_algorithms); i++) {
-		u16 hash_alg = tpm2_supported_algorithms[i];
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+		u16 hash_alg = hash_algo_list[i].hash_alg;
 
-		if (!(active & tpm2_algorithm_to_mask(hash_alg)))
+		if (!(active & hash_algo_list[i].hash_mask))
 			continue;
 		switch (hash_alg) {
 		case TPM2_ALG_SHA1:
