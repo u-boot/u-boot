@@ -427,6 +427,7 @@ config ROCKCHIP_RV1126
 	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply SPL_SERIAL
 	imply SPL_SYSCON
+	imply OF_UPSTREAM
 
 config ROCKCHIP_USB_UART
 	bool "Route uart output to usb pins"

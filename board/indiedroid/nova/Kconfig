@@ -1,0 +1,12 @@
+if TARGET_NOVA_RK3588
+
+config SYS_BOARD
+	default "nova-rk3588s"
+
+config SYS_VENDOR
+	default "indiedroid"
+
+config SYS_CONFIG_NAME
+	default "nova-rk3588s"
+
+endif

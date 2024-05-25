@@ -1,0 +1,6 @@
+INDIEDROID-NOVA-RK3588
+M:	Chris Morgan <macromorgan@hotmail.com>
+S:	Maintained
+F:	board/indiedroid/nova
+F:	configs/nova-rk3588s_defconfig
+F:	include/configs/nova-rk3588s.h
