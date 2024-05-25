@@ -578,19 +578,14 @@ F:	drivers/clk/exynos/clk.h
 ARM SAMSUNG EXYNOS850 SOC
 M:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
-F:	arch/arm/dts/exynos850-pinctrl.dtsi
-F:	arch/arm/dts/exynos850.dtsi
-F:	doc/device-tree-bindings/clock/samsung,exynos850-clock.yaml
 F:	drivers/clk/exynos/clk-exynos850.c
 F:	drivers/pinctrl/exynos/pinctrl-exynos850.c
-F:	include/dt-bindings/clock/exynos850.h
 
 ARM SAMSUNG SOC DRIVERS
 M:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
-F:	doc/device-tree-bindings/soc/samsung/*
+F:	doc/device-tree-bindings/soc/samsung/exynos-pmu.yaml
 F:	drivers/soc/samsung/*
-F:	include/dt-bindings/soc/samsung,*.h
 
 ARM SANCLOUD
 M:	Paul Barker <paul.barker@sancloud.com>
