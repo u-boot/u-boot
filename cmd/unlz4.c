@@ -6,6 +6,7 @@
 
 #include <command.h>
 #include <env.h>
+#include <mapmem.h>
 #include <vsprintf.h>
 #include <u-boot/lz4.h>
 
@@ -26,7 +27,8 @@ static int do_unlz4(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	ret = ulz4fn((void *)src, src_len, (void *)dst, &dst_len);
+	ret = ulz4fn(map_sysmem(src, 0), src_len, map_sysmem(dst, dst_len),
+		     &dst_len);
 	if (ret) {
 		printf("Uncompressed err :%d\n", ret);
 		return 1;
