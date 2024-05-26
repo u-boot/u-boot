@@ -15,6 +15,7 @@
 
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <linux/types.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -274,6 +275,7 @@ static long lmb_merge_overlap_regions(struct lmb_region *rgn, unsigned long i,
 				      phys_addr_t base, phys_size_t size,
 				      enum lmb_flags flags)
 {
+	u64 pbase, psize;
 	phys_size_t rgnsize;
 	unsigned long rgn_cnt, idx;
 	phys_addr_t rgnbase, rgnend;
@@ -281,6 +283,9 @@ static long lmb_merge_overlap_regions(struct lmb_region *rgn, unsigned long i,
 
 	rgn_cnt = 0;
 	idx = i;
+	pbase = (u64)base;
+	psize = (u64)size;
+
 	/*
 	 * First thing to do is to identify how many regions does
 	 * the requested region overlap.
@@ -294,8 +299,11 @@ static long lmb_merge_overlap_regions(struct lmb_region *rgn, unsigned long i,
 
 		if (lmb_addrs_overlap(base, size, rgnbase,
 				      rgnsize)) {
-			if (!lmb_region_flags_match(rgn, idx, flags))
+			if (!lmb_region_flags_match(rgn, idx, flags)) {
+				printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
+				       __func__, __LINE__, pbase, psize, flags);
 				return -1;
+			}
 			rgn_cnt++;
 			idx++;
 		}
@@ -337,8 +345,12 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 				 phys_size_t size, enum lmb_flags flags,
 				 enum lmb_ops op)
 {
+	u64 pbase, psize;
 	unsigned long coalesced = 0;
 	long ret, i;
+
+	pbase = (u64)base;
+	psize = (u64)size;
 
 	if (rgn->cnt == 0) {
 		rgn->region[0].base = base;
@@ -359,8 +371,11 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 			if (flags == rgnflags)
 				/* Already have this region, so we're done */
 				return 0;
-			else
+			else {
+				printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
+					__func__, __LINE__, pbase, psize, flags);
 				return -1; /* regions with new flags */
+			}
 		}
 
 		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
@@ -381,8 +396,11 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 			if (op == LMB_OP_ADD) {
 				ret = lmb_resize_regions(rgn, i, base, size,
 							 flags);
-				if (ret < 0)
+				if (ret < 0) {
+					printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
+					       __func__, __LINE__, pbase, psize, flags);
 					return -1;
+				}
 				break;
 			} else if (op == LMB_OP_RESERVE &&
 				   flags != LMB_NOOVERWRITE) {
@@ -391,6 +409,8 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 				coalesced++;
 				break;
 			} else {
+				printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
+				       __func__, __LINE__, pbase, psize, flags);
 				return -1;
 			}
 		}
@@ -409,8 +429,11 @@ static long lmb_add_region_flags(struct lmb_region *rgn, phys_addr_t base,
 
 	if (coalesced)
 		return coalesced;
-	if (rgn->cnt >= rgn->max)
+	if (rgn->cnt >= rgn->max) {
+		printf("%s: %d, base => 0x%llx, size => 0x%llx, flags => 0x%x\n",
+		       __func__, __LINE__, pbase, psize, flags);
 		return -1;
+	}
 
 	/* Couldn't coalesce the LMB, so add it to the sorted table. */
 	for (i = rgn->cnt-1; i >= 0; i--) {
