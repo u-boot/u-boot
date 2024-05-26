@@ -814,15 +814,15 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 
 	EFI_ENTRY("%zx %zx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
-
+	printf("%s: %d\n", __func__, __LINE__);
 	if (descriptor_version != EFI_MEMORY_DESCRIPTOR_VERSION ||
 	    descriptor_size < sizeof(struct efi_mem_desc))
 		goto out;
-
+	printf("%s: %d\n", __func__, __LINE__);
 	efi_virtmap = virtmap;
 	efi_descriptor_size = descriptor_size;
 	efi_descriptor_count = n;
-
+	printf("%s: %d\n", __func__, __LINE__);
 	/*
 	 * TODO:
 	 * Further down we are cheating. While really we should implement

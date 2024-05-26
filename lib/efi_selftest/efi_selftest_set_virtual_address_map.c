@@ -182,6 +182,7 @@ static int execute(void)
 {
 	efi_status_t ret;
 
+	printf("%s: %d\n", __func__, __LINE__);
 	ret = runtime->set_virtual_address_map(map_size, desc_size,
 					       desc_version, memory_map);
 	if (ret != EFI_SUCCESS) {
