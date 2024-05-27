@@ -15,6 +15,7 @@
 #include <init.h>
 #include <lmb.h>
 #include <log.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <command.h>
 #include <image.h>
