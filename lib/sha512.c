@@ -14,6 +14,7 @@
 #include <cyclic.h>
 #endif /* USE_HOSTCC */
 #include <compiler.h>
+#include <u-boot/schedule.h>
 #include <u-boot/sha512.h>
 
 const uint8_t sha384_der_prefix[SHA384_DER_LEN] = {
