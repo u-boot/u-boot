@@ -15,6 +15,7 @@
 #include <hang.h>
 #include <malloc.h>
 #include <time.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 
