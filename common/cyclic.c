@@ -69,7 +69,7 @@ int cyclic_unregister(struct cyclic_info *cyclic)
 	return 0;
 }
 
-void cyclic_run(void)
+static void cyclic_run(void)
 {
 	struct cyclic_info *cyclic;
 	struct hlist_node *tmp;
