@@ -498,6 +498,40 @@ u32 spl_spi_boot_cs(void);
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
 
 /**
+ * arch_spl_mmc_boot_mode() - Lookup function for the mode of an MMC boot source (architecture override)
+ * @boot_device:	ID of the device which the MMC driver wants to read
+ *			from.  Common values are e.g. BOOT_DEVICE_MMC1,
+ *			BOOT_DEVICE_MMC2, BOOT_DEVICE_MMC2_2.
+ *
+ * This function should return one of MMCSD_MODE_FS, MMCSD_MODE_EMMCBOOT, or
+ * MMCSD_MODE_RAW for each MMC boot source which is defined for the target.  The
+ * boot_device parameter tells which device the MMC driver is interested in.
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ *
+ * Note:  It is important to use the boot_device parameter instead of e.g.
+ * spl_boot_device() as U-Boot is not always loaded from the same device as SPL.
+ */
+u32 arch_spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
+
+/**
+ * board_spl_mmc_boot_mode() - Lookup function for the mode of an MMC boot source (board override)
+ * @boot_device:	ID of the device which the MMC driver wants to read
+ *			from.  Common values are e.g. BOOT_DEVICE_MMC1,
+ *			BOOT_DEVICE_MMC2, BOOT_DEVICE_MMC2_2.
+ *
+ * This function should return one of MMCSD_MODE_FS, MMCSD_MODE_EMMCBOOT, or
+ * MMCSD_MODE_RAW for each MMC boot source which is defined for the target.  The
+ * boot_device parameter tells which device the MMC driver is interested in.
+ *
+ * If not overridden, it is weakly defined in common/spl/spl_mmc.c.
+ *
+ * Note:  It is important to use the boot_device parameter instead of e.g.
+ * spl_boot_device() as U-Boot is not always loaded from the same device as SPL.
+ */
+u32 board_spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device);
+
+/**
  * spl_mmc_boot_partition() - MMC partition to load U-Boot from.
  * @boot_device:	ID of the device which the MMC driver wants to load
  *			U-Boot from.
