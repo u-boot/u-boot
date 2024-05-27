@@ -105,6 +105,7 @@
 #include <miiphy.h>
 #include <status_led.h>
 #endif
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <linux/compiler.h>
 #include <test/test.h>
