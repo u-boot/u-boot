@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <linux/delay.h>
 #include <linux/list.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 #include "menu.h"
