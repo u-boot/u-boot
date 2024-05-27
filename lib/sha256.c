@@ -9,6 +9,7 @@
 #include <cyclic.h>
 #endif /* USE_HOSTCC */
 #include <string.h>
+#include <u-boot/schedule.h>
 #include <u-boot/sha256.h>
 
 #include <linux/compiler_attributes.h>
