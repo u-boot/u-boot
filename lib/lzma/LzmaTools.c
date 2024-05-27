@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <log.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 #ifdef CONFIG_LZMA
