@@ -13,7 +13,6 @@
 
 #include <linux/list.h>
 #include <asm/types.h>
-#include <u-boot/schedule.h> // to be removed later
 
 /**
  * struct cyclic_info - Information about cyclic execution function
