@@ -12,6 +12,7 @@
 #include <spl.h>
 #include <time.h>
 #include <timer.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <div64.h>
 #include <asm/global_data.h>
