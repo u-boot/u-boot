@@ -16,6 +16,7 @@
 #include <pe.h>
 #include <time.h>
 #include <u-boot/crc.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
