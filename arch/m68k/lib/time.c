@@ -11,6 +11,7 @@
 #include <time.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
+#include <u-boot/schedule.h>
 
 #include <asm/timer.h>
 #include <asm/immap.h>
