@@ -5,6 +5,7 @@
 
 #include <console.h>
 #include <time.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <linux/bitops.h>
 #include <linux/delay.h>

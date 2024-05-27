@@ -14,6 +14,7 @@
 #include <asm/byteorder.h>
 #include <asm/cache.h>
 #include <asm/unaligned.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
