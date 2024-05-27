@@ -22,13 +22,6 @@
 
 #include "tpm-utils.h"
 
-const enum tpm2_algorithms tpm2_supported_algorithms[4] = {
-	TPM2_ALG_SHA1,
-	TPM2_ALG_SHA256,
-	TPM2_ALG_SHA384,
-	TPM2_ALG_SHA512,
-};
-
 int tcg2_get_active_pcr_banks(struct udevice *dev, u32 *active_pcr_banks)
 {
 	u32 supported = 0;
@@ -82,14 +75,11 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 		return rc;
 
 	digest_list->count = 0;
-	for (i = 0; i < ARRAY_SIZE(tpm2_supported_algorithms); ++i) {
-		u32 mask =
-			tpm2_algorithm_to_mask(tpm2_supported_algorithms[i]);
-
-		if (!(active & mask))
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (!(active & hash_algo_list[i].hash_mask))
 			continue;
 
-		switch (tpm2_supported_algorithms[i]) {
+		switch (hash_algo_list[i].hash_alg) {
 		case TPM2_ALG_SHA1:
 			sha1_starts(&ctx);
 			sha1_update(&ctx, input, length);
@@ -116,12 +106,12 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 			break;
 		default:
 			printf("%s: unsupported algorithm %x\n", __func__,
-			       tpm2_supported_algorithms[i]);
+			       hash_algo_list[i].hash_alg);
 			continue;
 		}
 
 		digest_list->digests[digest_list->count].hash_alg =
-			tpm2_supported_algorithms[i];
+			hash_algo_list[i].hash_alg;
 		memcpy(&digest_list->digests[digest_list->count].digest, final,
 		       len);
 		digest_list->count++;
@@ -198,7 +188,6 @@ static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 	u32 count = 0;
 	u32 log_size;
 	u32 active;
-	u32 mask;
 	size_t i;
 	u16 len;
 	int rc;
@@ -208,13 +197,11 @@ static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 		return rc;
 
 	event_size = offsetof(struct tcg_efi_spec_id_event, digest_sizes);
-	for (i = 0; i < ARRAY_SIZE(tpm2_supported_algorithms); ++i) {
-		mask = tpm2_algorithm_to_mask(tpm2_supported_algorithms[i]);
-
-		if (!(active & mask))
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (!(active & hash_algo_list[i].hash_mask))
 			continue;
 
-		switch (tpm2_supported_algorithms[i]) {
+		switch (hash_algo_list[i].hash_alg) {
 		case TPM2_ALG_SHA1:
 		case TPM2_ALG_SHA256:
 		case TPM2_ALG_SHA384:
@@ -253,17 +240,15 @@ static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 	put_unaligned_le32(count, &ev->number_of_algorithms);
 
 	count = 0;
-	for (i = 0; i < ARRAY_SIZE(tpm2_supported_algorithms); ++i) {
-		mask = tpm2_algorithm_to_mask(tpm2_supported_algorithms[i]);
-
-		if (!(active & mask))
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (!(active & hash_algo_list[i].hash_mask))
 			continue;
 
-		len = tpm2_algorithm_to_len(tpm2_supported_algorithms[i]);
+		len = hash_algo_list[i].hash_len;
 		if (!len)
 			continue;
 
-		put_unaligned_le16(tpm2_supported_algorithms[i],
+		put_unaligned_le16(hash_algo_list[i].hash_alg,
 				   &ev->digest_sizes[count].algorithm_id);
 		put_unaligned_le16(len, &ev->digest_sizes[count].digest_size);
 		count++;
@@ -304,7 +289,7 @@ static int tcg2_replay_eventlog(struct tcg2_event_log *elog,
 		pos = offsetof(struct tcg_pcr_event2, digests) +
 			offsetof(struct tpml_digest_values, count);
 		count = get_unaligned_le32(log + pos);
-		if (count > ARRAY_SIZE(tpm2_supported_algorithms) ||
+		if (count > ARRAY_SIZE(hash_algo_list) ||
 		    (digest_list->count && digest_list->count != count))
 			return 0;
 
@@ -407,7 +392,7 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 		return 0;
 
 	count = get_unaligned_le32(&event->number_of_algorithms);
-	if (count > ARRAY_SIZE(tpm2_supported_algorithms))
+	if (count > ARRAY_SIZE(hash_algo_list))
 		return 0;
 
 	calc_size = offsetof(struct tcg_efi_spec_id_event, digest_sizes) +
@@ -1110,7 +1095,7 @@ int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 	 * We only support 5 algorithms for now so check against that
 	 * instead of TPM2_NUM_PCR_BANKS
 	 */
-	if (pcrs.count > ARRAY_SIZE(tpm2_supported_algorithms) ||
+	if (pcrs.count > ARRAY_SIZE(hash_algo_list) ||
 	    pcrs.count < 1) {
 		printf("%s: too many pcrs: %u\n", __func__, pcrs.count);
 		return -EMSGSIZE;
@@ -1552,6 +1537,43 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 	log_debug("ret=%s, %x\n", dev->name, ret);
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+enum tpm2_algorithms tpm2_name_to_algorithm(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (!strcasecmp(name, hash_algo_list[i].hash_name))
+			return hash_algo_list[i].hash_alg;
+	}
+	printf("%s: unsupported algorithm %s\n", __func__, name);
+
+	return -EINVAL;
+}
+
+const char *tpm2_algorithm_name(enum tpm2_algorithms algo)
+{
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (hash_algo_list[i].hash_alg == algo)
+			return hash_algo_list[i].hash_name;
+	}
+
+	return "";
+}
+
+u32 tpm2_algorithm_to_mask(enum tpm2_algorithms algo)
+{
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+		if (hash_algo_list[i].hash_alg == algo)
+			return hash_algo_list[i].hash_mask;
+	}
 
 	return 0;
 }
