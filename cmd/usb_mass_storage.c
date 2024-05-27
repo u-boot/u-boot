@@ -14,6 +14,7 @@
 #include <g_dnl.h>
 #include <malloc.h>
 #include <part.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <usb_mass_storage.h>
 #include <watchdog.h>
