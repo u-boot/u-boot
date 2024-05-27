@@ -13,6 +13,7 @@
 #include <irq_func.h>
 #include <log.h>
 #include <mpc83xx.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <post.h>

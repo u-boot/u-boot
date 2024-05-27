@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <u-boot/schedule.h>
 
 /*
  * FPU test
