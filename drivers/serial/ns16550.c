@@ -14,6 +14,7 @@
 #include <reset.h>
 #include <serial.h>
 #include <spl.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <linux/err.h>

@@ -13,6 +13,7 @@
 #include <log.h>
 #include <reset.h>
 #include <serial.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/types.h>

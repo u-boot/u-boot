@@ -13,6 +13,7 @@
 #include <serial.h>
 #include <stdio_dev.h>
 #include <string.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <linux/delay.h>
 #include <asm/addrspace.h>
