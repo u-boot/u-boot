@@ -17,6 +17,7 @@
 #include <linux/delay.h>
 #include <linux/sizes.h>
 #include <asm/arch/at91_rstc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 void at91_phy_reset(void)

@@ -25,6 +25,7 @@
 #include <asm/arch/nic301.h>
 #include <asm/sections.h>
 #include <fdtdec.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/fpga_manager.h>
