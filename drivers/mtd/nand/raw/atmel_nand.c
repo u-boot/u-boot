@@ -21,6 +21,7 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
+#include <u-boot/schedule.h>
 
 #include <malloc.h>
 #include <nand.h>

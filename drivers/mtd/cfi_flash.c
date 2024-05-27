@@ -34,6 +34,7 @@
 #include <env_internal.h>
 #include <linux/delay.h>
 #include <mtd/cfi_flash.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 /*
