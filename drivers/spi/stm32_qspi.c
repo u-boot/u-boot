@@ -16,6 +16,7 @@
 #include <reset.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>

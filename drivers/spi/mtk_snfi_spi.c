@@ -12,6 +12,7 @@
 #include <spi.h>
 #include <spi-mem.h>
 #include <stdbool.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
