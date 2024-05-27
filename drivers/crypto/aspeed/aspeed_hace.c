@@ -9,6 +9,7 @@
 #include <log.h>
 #include <asm/io.h>
 #include <malloc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <u-boot/hash.h>
 #include <linux/bitops.h>
