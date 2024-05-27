@@ -12,6 +12,7 @@
 #include <g_dnl.h>
 #include <fastboot.h>
 #include <net.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <watchdog.h>
 #include <linux/printk.h>
