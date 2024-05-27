@@ -2,6 +2,7 @@
 2009-09-20 : Igor Pavlov : Public domain */
 
 #include <config.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include "LzmaDec.h"
 
