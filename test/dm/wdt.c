@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <u-boot/schedule.h>
 #include <wdt.h>
 #include <asm/gpio.h>
 #include <asm/state.h>
