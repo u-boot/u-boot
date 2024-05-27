@@ -11,6 +11,7 @@
 #include <misc.h>
 #include <net.h>
 #include <pci.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 #include <asm/arch/board.h>

@@ -10,6 +10,7 @@
 #include <misc.h>
 #include <net.h>
 #include <pci.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <linux/types.h>
 #include <linux/list.h>
