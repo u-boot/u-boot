@@ -4,6 +4,7 @@
 
 #include <linux/compiler.h>
 #include <asm/unaligned.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include "u-boot/zlib.h"
 
