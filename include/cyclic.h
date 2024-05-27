@@ -13,6 +13,7 @@
 
 #include <linux/list.h>
 #include <asm/types.h>
+#include <u-boot/schedule.h> // to be removed later
 
 /**
  * struct cyclic_info - Information about cyclic execution function
@@ -89,13 +90,6 @@ struct hlist_head *cyclic_get_list(void);
  */
 void cyclic_run(void);
 
-/**
- * schedule() - Schedule all potentially waiting tasks
- *
- * Basically a wrapper for cyclic_run(), pontentially enhanced by some
- * other parts, that need to get handled periodically.
- */
-void schedule(void);
 #else
 static inline struct cyclic_info *cyclic_register(cyclic_func_t func,
 						  uint64_t delay_us,
@@ -111,10 +105,6 @@ static inline int cyclic_unregister(struct cyclic_info *cyclic)
 }
 
 static inline void cyclic_run(void)
-{
-}
-
-static inline void schedule(void)
 {
 }
 
