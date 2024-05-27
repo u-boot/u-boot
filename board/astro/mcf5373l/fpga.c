@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <altera.h>
 #include <ACEX1K.h>
