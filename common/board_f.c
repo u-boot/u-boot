@@ -40,6 +40,7 @@
 #include <sysreset.h>
 #include <timer.h>
 #include <trace.h>
+#include <u-boot/schedule.h>
 #include <video.h>
 #include <watchdog.h>
 #include <asm/cache.h>
