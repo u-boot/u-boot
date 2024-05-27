@@ -1006,7 +1006,6 @@ static int dm_test_uclass_before_ready(struct unit_test_state *uts)
 	ut_assertok(uclass_get(UCLASS_TEST, &uc));
 
 	gd->dm_root = NULL;
-	gd->dm_root_f = NULL;
 	memset(&gd->uclass_root, '\0', sizeof(gd->uclass_root));
 
 	ut_asserteq_ptr(NULL, uclass_find(UCLASS_TEST));
