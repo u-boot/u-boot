@@ -39,6 +39,7 @@
 #include <remoteproc.h>
 #include <reset.h>
 #include <syscon.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <watchdog.h>
