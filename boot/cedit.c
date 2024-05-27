@@ -18,6 +18,7 @@
 #include <malloc.h>
 #include <menu.h>
 #include <rtc.h>
+#include <u-boot/schedule.h>
 #include <video.h>
 #include <linux/delay.h>
 #include "scene_internal.h"
