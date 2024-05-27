@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <stdio_dev.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SANDBOX
