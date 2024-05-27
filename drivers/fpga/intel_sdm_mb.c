@@ -6,6 +6,7 @@
 #include <common.h>
 #include <altera.h>
 #include <log.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/smc_api.h>
