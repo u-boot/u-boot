@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <stdio.h>
 
