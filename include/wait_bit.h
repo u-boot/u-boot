@@ -14,6 +14,7 @@
 #include <watchdog.h>
 #include <linux/delay.h>
 #include <linux/errno.h>
+#include <u-boot/schedule.h>
 #include <asm/io.h>
 
 /**
