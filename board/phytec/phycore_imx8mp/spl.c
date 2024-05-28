@@ -65,11 +65,21 @@ void spl_dram_init(void)
 			size = PHYTEC_IMX8MP_DDR_4GB;
 		else if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_8GB))
 			size = PHYTEC_IMX8MP_DDR_8GB;
+	} else {
+		size = phytec_get_imx8m_ddr_size(NULL);
+	}
+
+	if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_FREQ_FIX)) {
 		if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_USE_2GHZ_RAM_TIMINGS)) {
 			if (size == PHYTEC_IMX8MP_DDR_4GB)
 				size = PHYTEC_IMX8MP_DDR_4GB_2GHZ;
 			else
 				use_2ghz_timings = true;
+		} else if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_USE_1_5GHZ_RAM_TIMINGS)) {
+			if (size == PHYTEC_IMX8MP_DDR_4GB_2GHZ)
+				size = PHYTEC_IMX8MP_DDR_4GB;
+			else
+				use_2ghz_timings = false;
 		}
 	} else {
 		u8 rev = phytec_get_rev(NULL);
@@ -78,8 +88,6 @@ void spl_dram_init(void)
 		if (rev != PHYTEC_EEPROM_INVAL &&
 		    (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1)))
 			use_2ghz_timings = true;
-
-		size = phytec_get_imx8m_ddr_size(NULL);
 	}
 
 	switch (size) {
