@@ -117,7 +117,7 @@ int board_phys_sdram_size(phys_size_t *size)
 	if (!size)
 		return -EINVAL;
 
-	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE);
 
 	return 0;
 }
