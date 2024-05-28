@@ -22,7 +22,7 @@
 		resets = <&k3_reset 202 0>;
 		clocks = <&k3_clks 61 1>;
 		assigned-clocks = <&k3_clks 61 1>, <&k3_clks 202 0>;
-		assigned-clock-parents = <&k3_clks 61 2>;
+		assigned-clock-parents = <&k3_clks 61 3>;
 		assigned-clock-rates = <200000000>, <2000000000>;
 		ti,sci = <&sms>;
 		ti,sci-proc-id = <32>;
