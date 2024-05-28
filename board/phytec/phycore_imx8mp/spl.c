@@ -20,6 +20,7 @@
 #include <power/pca9450.h>
 #include <spl.h>
 
+#include "lpddr4_timing.h"
 #include "../common/imx8m_som_detection.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,9 +33,19 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	return BOOT_DEVICE_BOOTROM;
 }
 
+enum phytec_imx8mp_ddr_eeprom_code {
+	PHYTEC_IMX8MP_DDR_1GB = 2,
+	PHYTEC_IMX8MP_DDR_2GB = 3,
+	PHYTEC_IMX8MP_DDR_4GB = 5,
+	PHYTEC_IMX8MP_DDR_8GB = 7,
+	PHYTEC_IMX8MP_DDR_4GB_2GHZ = 8,
+};
+
 void spl_dram_init(void)
 {
 	int ret;
+	bool use_2ghz_timings = false;
+	enum phytec_imx8mp_ddr_eeprom_code size = PHYTEC_EEPROM_INVAL;
 
 	ret = phytec_eeprom_data_setup_fallback(NULL, 0, EEPROM_ADDR,
 						EEPROM_ADDR_FALLBACK);
@@ -48,67 +59,38 @@ void spl_dram_init(void)
 	u8 rev = phytec_get_rev(NULL);
 	u8 somtype = phytec_get_som_type(NULL);
 
-	if (rev != PHYTEC_EEPROM_INVAL && (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1))) {
-		dram_timing.ddrc_cfg[3].val = 0x1323;
-		dram_timing.ddrc_cfg[4].val = 0x1e84800;
-		dram_timing.ddrc_cfg[5].val = 0x7a0118;
-		dram_timing.ddrc_cfg[8].val = 0xc00307a3;
-		dram_timing.ddrc_cfg[9].val = 0xc50000;
-		dram_timing.ddrc_cfg[10].val = 0xf4003f;
-		dram_timing.ddrc_cfg[11].val = 0xf30000;
-		dram_timing.ddrc_cfg[14].val = 0x2028222a;
-		dram_timing.ddrc_cfg[15].val = 0x8083f;
-		dram_timing.ddrc_cfg[16].val = 0xe0e000;
-		dram_timing.ddrc_cfg[17].val = 0x12040a12;
-		dram_timing.ddrc_cfg[18].val = 0x2050f0f;
-		dram_timing.ddrc_cfg[19].val = 0x1010009;
-		dram_timing.ddrc_cfg[20].val = 0x502;
-		dram_timing.ddrc_cfg[21].val = 0x20800;
-		dram_timing.ddrc_cfg[22].val = 0xe100002;
-		dram_timing.ddrc_cfg[23].val = 0x120;
-		dram_timing.ddrc_cfg[24].val = 0xc80064;
-		dram_timing.ddrc_cfg[25].val = 0x3e8001e;
-		dram_timing.ddrc_cfg[26].val = 0x3207a12;
-		dram_timing.ddrc_cfg[28].val = 0x4a3820e;
-		dram_timing.ddrc_cfg[30].val = 0x230e;
-		dram_timing.ddrc_cfg[37].val = 0x799;
-		dram_timing.ddrc_cfg[38].val = 0x9141d1c;
-		dram_timing.ddrc_cfg[74].val = 0x302;
-		dram_timing.ddrc_cfg[83].val = 0x599;
-		dram_timing.ddrc_cfg[99].val = 0x302;
-		dram_timing.ddrc_cfg[108].val = 0x599;
-		dram_timing.ddrphy_cfg[66].val = 0x18;
-		dram_timing.ddrphy_cfg[75].val = 0x1e3;
-		dram_timing.ddrphy_cfg[77].val = 0x1e3;
-		dram_timing.ddrphy_cfg[79].val = 0x1e3;
-		dram_timing.ddrphy_cfg[145].val = 0x3e8;
-		dram_timing.fsp_msg[0].drate = 4000;
-		dram_timing.fsp_msg[0].fsp_cfg[1].val = 0xfa0;
-		dram_timing.fsp_msg[0].fsp_cfg[10].val = 0x3ff4;
-		dram_timing.fsp_msg[0].fsp_cfg[11].val = 0xf3;
-		dram_timing.fsp_msg[0].fsp_cfg[15].val = 0x3ff4;
-		dram_timing.fsp_msg[0].fsp_cfg[16].val = 0xf3;
-		dram_timing.fsp_msg[0].fsp_cfg[22].val = 0xf400;
-		dram_timing.fsp_msg[0].fsp_cfg[23].val = 0xf33f;
-		dram_timing.fsp_msg[0].fsp_cfg[28].val = 0xf400;
-		dram_timing.fsp_msg[0].fsp_cfg[29].val = 0xf33f;
-		dram_timing.fsp_msg[3].drate = 4000;
-		dram_timing.fsp_msg[3].fsp_cfg[1].val = 0xfa0;
-		dram_timing.fsp_msg[3].fsp_cfg[11].val = 0x3ff4;
-		dram_timing.fsp_msg[3].fsp_cfg[12].val = 0xf3;
-		dram_timing.fsp_msg[3].fsp_cfg[16].val = 0x3ff4;
-		dram_timing.fsp_msg[3].fsp_cfg[17].val = 0xf3;
-		dram_timing.fsp_msg[3].fsp_cfg[23].val = 0xf400;
-		dram_timing.fsp_msg[3].fsp_cfg[24].val = 0xf33f;
-		dram_timing.fsp_msg[3].fsp_cfg[29].val = 0xf400;
-		dram_timing.fsp_msg[3].fsp_cfg[30].val = 0xf33f;
-		dram_timing.ddrphy_pie[480].val = 0x465;
-		dram_timing.ddrphy_pie[481].val = 0xfa;
-		dram_timing.ddrphy_pie[482].val = 0x9c4;
-		dram_timing.fsp_table[0] = 4000;
-	}
+	if (rev != PHYTEC_EEPROM_INVAL && (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1)))
+		use_2ghz_timings = true;
 
+	size = phytec_get_imx8m_ddr_size(NULL);
+
+	switch (size) {
+	case PHYTEC_IMX8MP_DDR_1GB:
+		if (use_2ghz_timings)
+			set_dram_timings_2ghz_1gb();
+		else
+			set_dram_timings_1_5ghz_1gb();
+		break;
+	case PHYTEC_IMX8MP_DDR_2GB:
+		if (use_2ghz_timings)
+			set_dram_timings_2ghz_2gb();
+		break;
+	case PHYTEC_IMX8MP_DDR_4GB:
+		set_dram_timings_1_5ghz_4gb();
+		break;
+	case PHYTEC_IMX8MP_DDR_4GB_2GHZ:
+		set_dram_timings_2ghz_4gb();
+		break;
+	case PHYTEC_IMX8MP_DDR_8GB:
+		set_dram_timings_2ghz_8gb();
+		break;
+	default:
+		goto out;
+	}
+	ddr_init(&dram_timing);
+	return;
 out:
+	printf("Could not detect correct RAM size. Fallback to default.\n");
 	ddr_init(&dram_timing);
 }
 
