@@ -24,8 +24,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define EEPROM_ADDR             0x51
-#define EEPROM_ADDR_FALLBACK    0x59
+#define EEPROM_ADDR		0x51
+#define EEPROM_ADDR_FALLBACK	0x59
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
