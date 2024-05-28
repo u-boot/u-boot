@@ -28,7 +28,7 @@ struct wdt_priv {
 	u32 timeout;
 	/*
 	 * Time, in milliseconds, between calling the device's ->reset()
-	 * method from watchdog_reset().
+	 * method from schedule().
 	 */
 	ulong reset_period;
 	/*
@@ -222,21 +222,6 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
 	return ret;
 }
 
-#if defined(CONFIG_WATCHDOG)
-/*
- * Called by macro WATCHDOG_RESET. This function be called *very* early,
- * so we need to make sure, that the watchdog driver is ready before using
- * it in this function.
- */
-void watchdog_reset(void)
-{
-	/*
-	 * Empty function for now. The actual WDT handling is now done in
-	 * the cyclic function instead.
-	 */
-}
-#endif
-
 static int wdt_pre_probe(struct udevice *dev)
 {
 	u32 timeout = WATCHDOG_TIMEOUT_SECS;
@@ -263,7 +248,7 @@ static int wdt_pre_probe(struct udevice *dev)
 	priv->autostart = autostart;
 	/*
 	 * Pretend this device was last reset "long" ago so the first
-	 * watchdog_reset will actually call its ->reset method.
+	 * schedule() will actually call its ->reset method.
 	 */
 	priv->next_reset = get_timer(0);
 
