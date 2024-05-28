@@ -49,20 +49,38 @@ void spl_dram_init(void)
 
 	ret = phytec_eeprom_data_setup_fallback(NULL, 0, EEPROM_ADDR,
 						EEPROM_ADDR_FALLBACK);
-	if (ret)
+	if (ret && !IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_FIX))
 		goto out;
 
 	ret = phytec_imx8m_detect(NULL);
 	if (!ret)
 		phytec_print_som_info(NULL);
 
-	u8 rev = phytec_get_rev(NULL);
-	u8 somtype = phytec_get_som_type(NULL);
+	if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_FIX)) {
+		if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_1GB))
+			size = PHYTEC_IMX8MP_DDR_1GB;
+		else if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_2GB))
+			size = PHYTEC_IMX8MP_DDR_2GB;
+		else if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_4GB))
+			size = PHYTEC_IMX8MP_DDR_4GB;
+		else if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_RAM_SIZE_8GB))
+			size = PHYTEC_IMX8MP_DDR_8GB;
+		if (IS_ENABLED(CONFIG_PHYCORE_IMX8MP_USE_2GHZ_RAM_TIMINGS)) {
+			if (size == PHYTEC_IMX8MP_DDR_4GB)
+				size = PHYTEC_IMX8MP_DDR_4GB_2GHZ;
+			else
+				use_2ghz_timings = true;
+		}
+	} else {
+		u8 rev = phytec_get_rev(NULL);
+		u8 somtype = phytec_get_som_type(NULL);
 
-	if (rev != PHYTEC_EEPROM_INVAL && (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1)))
-		use_2ghz_timings = true;
+		if (rev != PHYTEC_EEPROM_INVAL &&
+		    (rev >= 3 || (somtype == SOM_TYPE_PCL && rev >= 1)))
+			use_2ghz_timings = true;
 
-	size = phytec_get_imx8m_ddr_size(NULL);
+		size = phytec_get_imx8m_ddr_size(NULL);
+	}
 
 	switch (size) {
 	case PHYTEC_IMX8MP_DDR_1GB:
