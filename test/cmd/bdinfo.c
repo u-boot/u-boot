@@ -193,7 +193,6 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 #endif
 
 	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
-		lmb_add_memory(gd->bd);
 		ut_assertok(lmb_test_dump_all(uts));
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			ut_assert_nextline("devicetree  = %s", fdtdec_get_srcname());

@@ -485,9 +485,23 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base,
 /* This routine may be called with relocation disabled. */
 long lmb_add(phys_addr_t base, phys_size_t size)
 {
+	long ret;
 	struct lmb_region *_rgn = &lmb.memory;
 
-	return lmb_add_region(_rgn, base, size, LMB_OP_ADD);
+	ret = lmb_add_region(_rgn, base, size, LMB_OP_ADD);
+	if (ret < 0)
+		return ret;
+
+#if !defined(CONFIG_SPL_BUILD)
+	u64 start;
+	efi_status_t status;
+
+	start = (uintptr_t)map_sysmem(base, 0);
+	status = efi_add_memory_map(start, (u64)size, EFI_CONVENTIONAL_MEMORY);
+	if (status != EFI_SUCCESS)
+		return -1;
+#endif
+	return 0;
 }
 
 long lmb_free(phys_addr_t base, phys_size_t size)

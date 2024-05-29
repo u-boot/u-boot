@@ -279,6 +279,7 @@ static efi_status_t efi_update_memory_map_pg(u64 start, u64 pages,
 	newlist = calloc(1, sizeof(*newlist));
 	if (!newlist)
 		return EFI_OUT_OF_RESOURCES;
+
 	newlist->desc.type = memory_type;
 	newlist->desc.physical_start = start;
 	newlist->desc.virtual_start = start;
@@ -397,13 +398,18 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 
 	size = pages << EFI_PAGE_SHIFT;
 
+	if (memory_type != EFI_CONVENTIONAL_MEMORY) {
+		ret = lmb_reserve((phys_addr_t)start, size);
+		if (ret)
+			return EFI_OUT_OF_RESOURCES;
+	}
+
+#if 0
 	if (memory_type == EFI_CONVENTIONAL_MEMORY)
 		ret = lmb_add((phys_addr_t)start, size);
 	else
 		ret = lmb_reserve((phys_addr_t)start, size);
-
-	if (ret)
-		return EFI_OUT_OF_RESOURCES;
+#endif
 
 	return efi_update_memory_map_pg(start, pages, memory_type,
 					overlap_only_ram);
@@ -496,13 +502,15 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE);
+//		addr = lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE);
+		addr = (uint64_t)map_sysmem(lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE), 0);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
-		addr = lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory);
+//		addr = lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory);
+		addr = (uint64_t)map_sysmem(lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory), 0);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
@@ -510,7 +518,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		if (*memory & EFI_PAGE_MASK)
 			return EFI_NOT_FOUND;
 		/* Exact address, try to reserve it. */
-		addr = lmb_alloc_addr_nooverwrite(*memory, len);
+//		addr = lmb_alloc_addr_nooverwrite(*memory, len);
+		addr = (uint64_t)map_sysmem(lmb_alloc_addr_nooverwrite(*memory, len), 0);
 		if (!addr)
 			return EFI_NOT_FOUND;
 		break;
@@ -882,7 +891,7 @@ __weak void efi_add_known_memory(void)
 		efi_add_conventional_memory_map(ram_start, ram_end, ram_top);
 	}
 }
-
+#if 0
 /**
  * add_u_boot_and_runtime() - add U-Boot code to memory map
  *
@@ -923,13 +932,14 @@ static void add_u_boot_and_runtime(void)
 	efi_add_memory_map_pg(runtime_start, runtime_pages,
 			      EFI_RUNTIME_SERVICES_CODE, false);
 }
-
+#endif
 int efi_memory_init(void)
 {
+#if 0
 	efi_add_known_memory();
 
 	add_u_boot_and_runtime();
-
+#endif
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	/* Request a 32bit 64MB bounce buffer region */
 	uint64_t efi_bounce_buffer_addr = 0xffffffff;

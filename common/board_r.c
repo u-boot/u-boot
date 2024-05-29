@@ -561,6 +561,8 @@ static int initr_lmb(void)
 {
 	lmb_reserve_common((void *)gd->fdt_blob);
 
+	lmb_add_memory(gd->bd);
+
 	return 0;
 }
 #endif
@@ -578,9 +580,6 @@ static init_fnc_t init_sequence_r[] = {
 	initr_trace,
 	initr_reloc,
 	event_init,
-#if defined(CONFIG_LMB)
-	initr_lmb,
-#endif
 	/* TODO: could x86/PPC have this also perhaps? */
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
 	initr_caches,
@@ -623,6 +622,9 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
+#endif
+#if defined(CONFIG_LMB)
+	initr_lmb,
 #endif
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
