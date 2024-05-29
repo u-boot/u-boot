@@ -170,6 +170,7 @@
 
 		blob-ext {
 			filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 

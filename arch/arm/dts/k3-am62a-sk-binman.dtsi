@@ -152,6 +152,7 @@
 		filename = "ti-dm.bin";
 		blob-ext {
 			filename = "ti-dm/am62axx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 	ti-spl {

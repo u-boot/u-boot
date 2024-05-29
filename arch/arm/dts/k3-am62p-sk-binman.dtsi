@@ -72,6 +72,7 @@
 
 		blob-ext {
 			filename = "ti-dm/am62pxx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 
