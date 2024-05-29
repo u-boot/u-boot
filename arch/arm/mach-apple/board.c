@@ -776,8 +776,6 @@ int board_late_init(void)
 {
 	u32 status = 0;
 
-	lmb_add_memory(gd->bd);
-
 	/* somewhat based on the Linux Kernel boot requirements:
 	 * align by 2M and maximal FDT size 2M
 	 */
