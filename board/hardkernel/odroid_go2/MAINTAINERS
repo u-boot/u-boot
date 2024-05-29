@@ -1,5 +1,5 @@
 GO2
-M:      Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+M:      Heiko Stuebner <heiko.stuebner@cherry.de>
 S:      Maintained
 F:      board/hardkernel/odroid_go2/
 F:      include/configs/odroid_go2.h

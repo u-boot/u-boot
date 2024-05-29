@@ -13,6 +13,7 @@ obj-$(CONFIG_SOC_K3_J721S2) += j721s2_fdt.o
 obj-$(CONFIG_SOC_K3_AM625) += am625_fdt.o
 obj-$(CONFIG_SOC_K3_AM62A7) += am62a7_fdt.o
 obj-$(CONFIG_SOC_K3_J784S4) += j784s4_fdt.o
+obj-$(CONFIG_SOC_K3_AM62P5) += am62p5_fdt.o
 endif
 ifeq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_SOC_K3_AM654) += am654_init.o

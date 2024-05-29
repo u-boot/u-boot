@@ -1,5 +1,5 @@
 COLIBRI_T20
-M:	Marcel Ziswiler <marcel.ziswiler@toradex.com>
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
 S:	Maintained
 F:	board/toradex/colibri_t20/
 F:	board/toradex/common/
