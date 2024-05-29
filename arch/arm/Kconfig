@@ -1235,6 +1235,18 @@ config ARCH_VERSAL
 	imply BOARD_LATE_INIT
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 
+config ARCH_VERSAL2
+	bool "Support AMD Versal Gen 2 Platform"
+	select ARM64
+	select CLK
+	select DM
+	select DM_MMC if MMC
+	select DM_SERIAL
+	select OF_CONTROL
+	imply BOARD_LATE_INIT
+	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
+	imply ZYNQMP_FIRMWARE
+
 config ARCH_VERSAL_NET
 	bool "Support Xilinx Versal NET Platform"
 	select ARM64
@@ -2316,6 +2328,8 @@ source "arch/arm/mach-zynq/Kconfig"
 source "arch/arm/mach-zynqmp/Kconfig"
 
 source "arch/arm/mach-versal/Kconfig"
+
+source "arch/arm/mach-versal2/Kconfig"
 
 source "arch/arm/mach-versal-net/Kconfig"
 

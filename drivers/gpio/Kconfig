@@ -487,7 +487,7 @@ config MVEBU_GPIO
 config ZYNQ_GPIO
 	bool "Zynq GPIO driver"
 	depends on DM_GPIO
-	default y if ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
+	default y if ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARCH_VERSAL2
 	help
 	  Supports GPIO access on Zynq SoC.
 
