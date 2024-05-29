@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <linux/sizes.h>
 
+#define DVA_ADDR		0x89abc000
 #define IOMMU_PAGE_SIZE		SZ_4K
 
 static dma_addr_t sandbox_iommu_map(struct udevice *dev, void *addr,
@@ -22,7 +23,8 @@ static dma_addr_t sandbox_iommu_map(struct udevice *dev, void *addr,
 	off = virt_to_phys(addr) - paddr;
 	psize = ALIGN(size + off, IOMMU_PAGE_SIZE);
 
-	dva = lmb_alloc(psize, IOMMU_PAGE_SIZE);
+//	dva = lmb_alloc(psize, SZ_16K);
+	dva = (phys_addr_t)DVA_ADDR;
 
 	return dva + off;
 }
@@ -47,7 +49,7 @@ static struct iommu_ops sandbox_iommu_ops = {
 
 static int sandbox_iommu_probe(struct udevice *dev)
 {
-	lmb_add(0x89abc000, SZ_16K);
+//	lmb_add(0x89abc000, SZ_16K);
 
 	return 0;
 }
