@@ -43,9 +43,7 @@ static void cache_ops(int (*ops)(struct udevice *dev))
 
 void flush_dcache_all(void)
 {
-#if CONFIG_IS_ENABLED(RISCV_MMODE)
-	csr_write(CSR_MCCTLCOMMAND, CCTL_L1D_WBINVAL_ALL);
-#endif
+	csr_write(CSR_UCCTLCOMMAND, CCTL_L1D_WBINVAL_ALL);
 }
 
 void flush_dcache_range(unsigned long start, unsigned long end)

@@ -30,7 +30,7 @@ struct l2cache {
 	volatile u64	cctl_command2;
 	volatile u64	cctl_access_line2;
 	volatile u64	cctl_command3;
-	volatile u64	cctl_access_line4;
+	volatile u64	cctl_access_line3;
 	volatile u64	cctl_status;
 };
 
@@ -97,13 +97,15 @@ static int andes_l2_disable(struct udevice *dev)
 	struct andes_l2_plat *plat = dev_get_plat(dev);
 	volatile struct l2cache *regs = plat->regs;
 	u8 hart = gd->arch.boot_hart;
+
 	void __iomem *cctlcmd = (void __iomem *)CCTL_CMD_REG(regs, hart);
+	void __iomem *cctlstatus = (void __iomem *)CCTL_STATUS_REG(regs, hart);
 
 	if ((regs) && (readl(&regs->control) & L2_ENABLE)) {
 		writel(L2_WBINVAL_ALL, cctlcmd);
 
-		while ((readl(&regs->cctl_status) & CCTL_STATUS_MSK(hart))) {
-			if ((readl(&regs->cctl_status) & CCTL_STATUS_ILLEGAL(hart))) {
+		while ((readl(cctlstatus) & CCTL_STATUS_MSK(hart))) {
+			if ((readl(cctlstatus) & CCTL_STATUS_ILLEGAL(hart))) {
 				printf("L2 flush illegal! hanging...");
 				hang();
 			}

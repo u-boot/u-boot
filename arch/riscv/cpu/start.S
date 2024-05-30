@@ -210,10 +210,6 @@ wait_for_gd_init:
 	bnez	s2, secondary_hart_loop
 #endif
 
-	/* Enable cache */
-	jal	icache_enable
-	jal	dcache_enable
-
 #ifdef CONFIG_DEBUG_UART
 	jal	debug_uart_init
 #endif
