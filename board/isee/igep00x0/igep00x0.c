@@ -29,18 +29,6 @@
 #include <fdt_support.h>
 #include "igep00x0.h"
 
-static const struct ns16550_plat igep_serial = {
-	.base = OMAP34XX_UART3,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DRVINFO(igep_uart) = {
-	"ns16550_serial",
-	&igep_serial
-};
-
 /*
  * Routine: get_board_revision
  * Description: GPIO_28 and GPIO_129 are used to read board and revision from
