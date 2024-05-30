@@ -7,6 +7,7 @@
  */
 
 #include <efi_loader.h>
+#include <event.h>
 #include <image.h>
 #include <mapmem.h>
 #include <lmb.h>
@@ -15,8 +16,12 @@
 
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <asm-generic/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
 
 #define LMB_ALLOC_ANYWHERE	0
 
@@ -38,6 +43,19 @@ struct lmb lmb = {
 	.memory.cnt = 0,
 	.reserved.cnt = 0,
 };
+
+static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
+				  u8 op)
+{
+	struct event_lmb_map_update lmb_map = {0};
+
+//	printf("%s: %d\n", __func__, __LINE__);
+	lmb_map.base = addr;
+	lmb_map.size = size;
+	lmb_map.op = op;
+
+	event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
+}
 
 static void lmb_dump_region(struct lmb_region *rgn, char *name)
 {
@@ -450,7 +468,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+static long __lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &lmb.reserved;
 	phys_addr_t rgnbegin, rgnend;
@@ -500,11 +518,31 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 				    rgn->region[i].flags);
 }
 
+long lmb_free(phys_addr_t base, phys_size_t size)
+{
+	long ret;
+
+	ret = __lmb_free(base, size);
+	if (ret < 0)
+		return ret;
+
+	lmb_map_update_notify(base, size, MAP_OP_FREE);
+
+	return 0;
+}
+
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
+	long ret = 0;
 	struct lmb_region *_rgn = &lmb.reserved;
 
-	return lmb_add_region_flags(_rgn, base, size, flags);
+	ret = lmb_add_region_flags(_rgn, base, size, flags);
+	if (ret < 0)
+		return -1;
+
+	lmb_map_update_notify(base, size, MAP_OP_RESERVE);
+
+	return ret;
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -563,6 +601,8 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 				if (lmb_add_region(&lmb.reserved, base,
 						   size) < 0)
 					return 0;
+
+				lmb_map_update_notify(base, size, MAP_OP_RESERVE);
 				return base;
 			}
 			res_base = lmb.reserved.region[rgn].base;
@@ -674,6 +714,40 @@ __weak void arch_lmb_reserve(void)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }
+#if CONFIG_IS_ENABLED(EFI_LOADER)
+
+static long lmb_reserve_nooverwrite(phys_addr_t base, phys_size_t size)
+{
+	struct lmb_region *_rgn = &lmb.reserved;
+
+	return lmb_add_region_flags(_rgn, base, size, LMB_NOOVERWRITE);
+}
+
+static int efi_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	long ret;
+	phys_addr_t addr;
+	phys_size_t size;
+	struct event_efi_mem_map_update *efi_map = &event->data.efi_mem_map;
+
+	addr = virt_to_phys((void *)(uintptr_t)efi_map->base);
+	size = efi_map->size;
+	op = efi_map->op;
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx, op => %d\n",
+//	       __func__, __LINE__, (u64)addr, (u64)size, op);
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	ret = op == MAP_OP_RESERVE ? lmb_reserve_nooverwrite(addr, size) :
+		__lmb_free(addr, size);
+
+	return !ret ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_EFI_MEM_MAP_UPDATE, efi_mem_map_update_sync);
+#endif
 
 #if defined(CONFIG_UNIT_TEST)
 

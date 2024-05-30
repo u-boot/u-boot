@@ -8,6 +8,7 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <efi_loader.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <malloc.h>
@@ -35,6 +36,9 @@ struct efi_mem_list {
 #define EFI_CARVE_LOOP_AGAIN		-2
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
 #define EFI_CARVE_OUT_OF_RESOURCES	-4
+
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
 
 /* This list contains all memory map items */
 static LIST_HEAD(efi_mem);
@@ -65,6 +69,17 @@ struct efi_pool_allocation {
 	u64 checksum;
 	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
+
+static void efi_map_update_notify(u64 addr, u64 size, u8 op)
+{
+	struct event_efi_mem_map_update efi_map = {0};
+
+	efi_map.base = addr;
+	efi_map.size = size;
+	efi_map.op = op;
+
+	event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
+}
 
 /**
  * checksum() - calculate checksum for memory allocated from pool
@@ -501,6 +516,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	efi_status_t ret;
 	uint64_t addr;
 
+//	printf("%s: %d, type => 0x%x, memory_type => 0x%x, pages => %lx\n",
+//	       __func__, __LINE__, type, memory_type, pages);
 	/* Check import parameters */
 	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
 	    memory_type <= 0x6FFFFFFF)
@@ -547,6 +564,9 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		return  EFI_OUT_OF_RESOURCES;
 
 	*memory = addr;
+//	printf("%s: %d\n", __func__, __LINE__);
+	/* Notify the LMB module about this change */
+	efi_map_update_notify(addr, len, MAP_OP_RESERVE);
 
 	return EFI_SUCCESS;
 }
@@ -577,6 +597,11 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 				    false);
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
+
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx\n",
+//	       __func__, __LINE__, memory, (u64)pages << EFI_PAGE_SHIFT);
+
+	efi_map_update_notify(memory, pages << EFI_PAGE_SHIFT, MAP_OP_FREE);
 
 	return ret;
 }
@@ -941,6 +966,34 @@ static void add_u_boot_and_runtime(void)
 	efi_add_memory_map_pg(runtime_start, runtime_pages,
 			      EFI_RUNTIME_SERVICES_CODE, false);
 }
+
+static int lmb_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	u64 addr;
+	u64 size;
+	efi_status_t status;
+	struct event_lmb_map_update *lmb_map = &event->data.lmb_map;
+
+	addr = (uintptr_t)map_sysmem(lmb_map->base, 0);
+	size = lmb_map->size;
+	op = lmb_map->op;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx, op => %d\n",
+//	       __func__, __LINE__, addr, size, op);
+
+	status = efi_add_memory_map(addr, size, op == MAP_OP_FREE ?
+				    EFI_CONVENTIONAL_MEMORY :
+				    EFI_BOOT_SERVICES_DATA);
+
+	return status == EFI_SUCCESS ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
 
 int efi_memory_init(void)
 {
