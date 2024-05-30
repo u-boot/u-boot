@@ -523,6 +523,7 @@ static const struct mtk_clk_tree mt7981_topckgen_clk_tree = {
 static const struct mtk_clk_tree mt7981_infracfg_clk_tree = {
 	.fdivs_offs = CK_INFRA_66M_MCK,
 	.muxes_offs = CK_INFRA_UART0_SEL,
+	.gates_offs = CK_INFRA_GPT_STA,
 	.fdivs = infra_fixed_divs,
 	.muxes = infra_muxes,
 	.flags = CLK_INFRASYS,
