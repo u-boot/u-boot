@@ -8,8 +8,8 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <efi_loader.h>
+#include <event.h>
 #include <init.h>
-#include <lmb.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -36,6 +36,9 @@ struct efi_mem_list {
 #define EFI_CARVE_LOOP_AGAIN		-2
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
 #define EFI_CARVE_OUT_OF_RESOURCES	-4
+
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
 
 /* This list contains all memory map items */
 static LIST_HEAD(efi_mem);
@@ -66,6 +69,17 @@ struct efi_pool_allocation {
 	u64 checksum;
 	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
+
+static void efi_map_update_notify(u64 addr, u64 size, u8 op)
+{
+	struct event_efi_mem_map_update efi_map = {0};
+
+	efi_map.base = addr;
+	efi_map.size = size;
+	efi_map.op = op;
+
+	event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
+}
 
 /**
  * checksum() - calculate checksum for memory allocated from pool
@@ -257,7 +271,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 }
 
 /**
- * efi_update_memory_map_pg() - update the memory map
+ * efi_add_memory_map_pg() - add pages to the memory map
  *
  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
  * @pages:		number of pages to add
@@ -265,15 +279,24 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
  * @overlap_only_ram:	region may only overlap RAM
  * Return:		status code
  */
-static efi_status_t efi_update_memory_map_pg(u64 start, u64 pages,
-					     int memory_type,
-					     bool overlap_only_ram)
+static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
+					  int memory_type,
+					  bool overlap_only_ram)
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
 	bool carve_again;
 	uint64_t carved_pages = 0;
 	struct efi_event *evt;
+
+	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
+		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+
+	if (memory_type >= EFI_MAX_MEMORY_TYPE)
+		return EFI_INVALID_PARAMETER;
+
+	if (!pages)
+		return EFI_SUCCESS;
 
 	++efi_memory_map_key;
 	newlist = calloc(1, sizeof(*newlist));
@@ -371,50 +394,6 @@ static efi_status_t efi_update_memory_map_pg(u64 start, u64 pages,
 }
 
 /**
- * efi_add_memory_map_pg() - add pages to the memory map
- *
- * @start:		start address, must be a multiple of EFI_PAGE_SIZE
- * @pages:		number of pages to add
- * @memory_type:	type of memory added
- * @overlap_only_ram:	region may only overlap RAM
- * Return:		status code
- */
-static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
-					  int memory_type,
-					  bool overlap_only_ram)
-{
-	long ret;
-	phys_size_t size;
-
-	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
-		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
-
-	if (memory_type >= EFI_MAX_MEMORY_TYPE)
-		return EFI_INVALID_PARAMETER;
-
-	if (!pages)
-		return EFI_SUCCESS;
-
-	size = pages << EFI_PAGE_SHIFT;
-
-	if (memory_type != EFI_CONVENTIONAL_MEMORY) {
-		ret = lmb_reserve((phys_addr_t)start, size);
-		if (ret)
-			return EFI_OUT_OF_RESOURCES;
-	}
-
-#if 0
-	if (memory_type == EFI_CONVENTIONAL_MEMORY)
-		ret = lmb_add((phys_addr_t)start, size);
-	else
-		ret = lmb_reserve((phys_addr_t)start, size);
-#endif
-
-	return efi_update_memory_map_pg(start, pages, memory_type,
-					overlap_only_ram);
-}
-
-/**
  * efi_add_memory_map() - add memory area to the memory map
  *
  * @start:		start address of the memory area
@@ -448,9 +427,10 @@ efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type)
  * efi_free_pool().
  *
  * @addr:		address of page to be freed
+ * @must_be_allocated:	return success if the page is allocated
  * Return:		status code
  */
-static efi_status_t efi_check_allocated(u64 addr)
+static efi_status_t efi_check_allocated(u64 addr, bool must_be_allocated)
 {
 	struct efi_mem_list *item;
 
@@ -459,14 +439,64 @@ static efi_status_t efi_check_allocated(u64 addr)
 		u64 end = start + (item->desc.num_pages << EFI_PAGE_SHIFT);
 
 		if (addr >= start && addr < end) {
-			if (item->desc.type == EFI_CONVENTIONAL_MEMORY)
-				return EFI_NOT_FOUND;
-			else
+			if (must_be_allocated ^
+			    (item->desc.type == EFI_CONVENTIONAL_MEMORY))
 				return EFI_SUCCESS;
+			else
+				return EFI_NOT_FOUND;
 		}
 	}
 
 	return EFI_NOT_FOUND;
+}
+
+/**
+ * efi_find_free_memory() - find free memory pages
+ *
+ * @len:	size of memory area needed
+ * @max_addr:	highest address to allocate
+ * Return:	pointer to free memory area or 0
+ */
+static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
+{
+	struct list_head *lhandle;
+
+	/*
+	 * Prealign input max address, so we simplify our matching
+	 * logic below and can just reuse it as return pointer.
+	 */
+	max_addr &= ~EFI_PAGE_MASK;
+
+	list_for_each(lhandle, &efi_mem) {
+		struct efi_mem_list *lmem = list_entry(lhandle,
+			struct efi_mem_list, link);
+		struct efi_mem_desc *desc = &lmem->desc;
+		uint64_t desc_len = desc->num_pages << EFI_PAGE_SHIFT;
+		uint64_t desc_end = desc->physical_start + desc_len;
+		uint64_t curmax = min(max_addr, desc_end);
+		uint64_t ret = curmax - len;
+
+		/* We only take memory from free RAM */
+		if (desc->type != EFI_CONVENTIONAL_MEMORY)
+			continue;
+
+		/* Out of bounds for max_addr */
+		if ((ret + len) > max_addr)
+			continue;
+
+		/* Out of bounds for upper map limit */
+		if ((ret + len) > desc_end)
+			continue;
+
+		/* Out of bounds for lower map limit */
+		if (ret < desc->physical_start)
+			continue;
+
+		/* Return the highest address in this map within bounds */
+		return ret;
+	}
+
+	return 0;
 }
 
 /**
@@ -486,6 +516,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	efi_status_t ret;
 	uint64_t addr;
 
+//	printf("%s: %d, type => 0x%x, memory_type => 0x%x, pages => %lx\n",
+//	       __func__, __LINE__, type, memory_type, pages);
 	/* Check import parameters */
 	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
 	    memory_type <= 0x6FFFFFFF)
@@ -501,26 +533,24 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-//		addr = lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE);
-		addr = (uintptr_t)map_sysmem(lmb_alloc_nooverwrite(len, EFI_PAGE_SIZE), 0);
+		addr = efi_find_free_memory(len, -1ULL);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
-//		addr = lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory);
-		addr = (uintptr_t)map_sysmem(lmb_alloc_base_nooverwrite(len, EFI_PAGE_SIZE, *memory), 0);
+		addr = efi_find_free_memory(len, *memory);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_ADDRESS:
 		if (*memory & EFI_PAGE_MASK)
 			return EFI_NOT_FOUND;
-		/* Exact address, try to reserve it. */
-//		addr = lmb_alloc_addr_nooverwrite(*memory, len);
-		addr = (uintptr_t)map_sysmem(lmb_alloc_addr_nooverwrite(*memory, len), 0);
-		if (!addr)
+		/* Exact address, reserve it. The addr is already in *memory. */
+		ret = efi_check_allocated(*memory, false);
+		if (ret != EFI_SUCCESS)
 			return EFI_NOT_FOUND;
+		addr = *memory;
 		break;
 	default:
 		/* UEFI doesn't specify other allocation types */
@@ -528,12 +558,15 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	}
 
 	/* Reserve that map in our memory maps */
-	ret = efi_update_memory_map_pg(addr, pages, memory_type, true);
+	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
 	if (ret != EFI_SUCCESS)
 		/* Map would overlap, bail out */
 		return  EFI_OUT_OF_RESOURCES;
 
 	*memory = addr;
+//	printf("%s: %d\n", __func__, __LINE__);
+	/* Notify the LMB module about this change */
+	efi_map_update_notify(addr, len, MAP_OP_RESERVE);
 
 	return EFI_SUCCESS;
 }
@@ -549,7 +582,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	efi_status_t ret;
 
-	ret = efi_check_allocated(memory);
+//	printf("%s: %d\n", __func__, __LINE__);
+	ret = efi_check_allocated(memory, true);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -560,13 +594,15 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	if (lmb_free(memory, (pages << EFI_PAGE_SHIFT)))
-		return EFI_NOT_FOUND;
-
 	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
 				    false);
 	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
+
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx\n",
+//	       __func__, __LINE__, memory, (u64)pages << EFI_PAGE_SHIFT);
+
+	efi_map_update_notify(memory, pages << EFI_PAGE_SHIFT, MAP_OP_FREE);
 
 	return ret;
 }
@@ -695,7 +731,7 @@ efi_status_t efi_free_pool(void *buffer)
 	if (!buffer)
 		return EFI_INVALID_PARAMETER;
 
-	ret = efi_check_allocated((uintptr_t)buffer);
+	ret = efi_check_allocated((uintptr_t)buffer, true);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -932,11 +968,38 @@ static void add_u_boot_and_runtime(void)
 			      EFI_RUNTIME_SERVICES_CODE, false);
 }
 
+static int lmb_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	u64 addr;
+	u64 size;
+	efi_status_t status;
+	struct event_lmb_map_update *lmb_map = &event->data.lmb_map;
+
+	addr = (uintptr_t)map_sysmem(lmb_map->base, 0);
+	size = lmb_map->size;
+	op = lmb_map->op;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx, op => %d\n",
+//	       __func__, __LINE__, addr, size, op);
+
+	status = efi_add_memory_map(addr, size, op == MAP_OP_FREE ?
+				    EFI_CONVENTIONAL_MEMORY :
+				    EFI_BOOT_SERVICES_DATA);
+
+	return status == EFI_SUCCESS ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
+
 int efi_memory_init(void)
 {
-#if 0
 	efi_add_known_memory();
-#endif
+
 	add_u_boot_and_runtime();
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER

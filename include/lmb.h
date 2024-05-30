@@ -12,6 +12,12 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
+enum lmb_ops {
+	LMB_OP_ADD,
+	LMB_OP_RESERVE,
+	LMB_OP_FREE
+};
+
 /**
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request

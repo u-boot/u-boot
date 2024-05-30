@@ -7,6 +7,7 @@
  */
 
 #include <efi_loader.h>
+#include <event.h>
 #include <image.h>
 #include <mapmem.h>
 #include <lmb.h>
@@ -15,13 +16,13 @@
 
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <asm-generic/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-enum lmb_ops {
-	LMB_OP_ADD,
-	LMB_OP_RESERVE
-};
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
+
 #define LMB_ALLOC_ANYWHERE	0
 
 #if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
@@ -42,6 +43,19 @@ struct lmb lmb = {
 	.memory.cnt = 0,
 	.reserved.cnt = 0,
 };
+
+static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
+				  u8 op)
+{
+	struct event_lmb_map_update lmb_map = {0};
+
+//	printf("%s: %d\n", __func__, __LINE__);
+	lmb_map.base = addr;
+	lmb_map.size = size;
+	lmb_map.op = op;
+
+	event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
+}
 
 static void lmb_dump_region(struct lmb_region *rgn, char *name)
 {
@@ -458,31 +472,12 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base,
 /* This routine may be called with relocation disabled. */
 long lmb_add(phys_addr_t base, phys_size_t size)
 {
-	long ret;
 	struct lmb_region *_rgn = &lmb.memory;
 
-	ret = lmb_add_region(_rgn, base, size, LMB_OP_ADD);
-	if (ret < 0)
-		return ret;
-
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_EFI_LOADER)
-	u64 start;
-	static int map_added = 0;
-	efi_status_t status;
-
-	if (!map_added) {
-		start = (uintptr_t)map_sysmem(base, 0);
-		status = efi_add_memory_map(start, (u64)size, EFI_CONVENTIONAL_MEMORY);
-		if (status != EFI_SUCCESS)
-			return -1;
-
-		map_added = 1;
-	}
-#endif
-	return 0;
+	return lmb_add_region(_rgn, base, size, LMB_OP_ADD);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+static long __lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &lmb.reserved;
 	phys_addr_t rgnbegin, rgnend;
@@ -529,19 +524,47 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 	 */
 	rgn->region[i].size = base - rgn->region[i].base;
 	return lmb_add_region_flags(rgn, end + 1, rgnend - end,
-				    rgn->region[i].flags, LMB_OP_RESERVE);
+				   rgn->region[i].flags, LMB_OP_RESERVE);
+}
+
+long lmb_free(phys_addr_t base, phys_size_t size)
+{
+	long ret;
+
+	ret = __lmb_free(base, size);
+	if (ret < 0)
+		return ret;
+
+	lmb_map_update_notify(base, size, MAP_OP_FREE);
+
+	return 0;
 }
 
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
+	long ret = 0;
 	struct lmb_region *_rgn = &lmb.reserved;
 
-	return lmb_add_region_flags(_rgn, base, size, flags, LMB_OP_RESERVE);
+	ret = lmb_add_region_flags(_rgn, base, size, flags, LMB_OP_RESERVE);
+	if (ret < 0)
+		return -1;
+
+	lmb_map_update_notify(base, size, MAP_OP_RESERVE);
+
+	return ret;
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
 {
 	return lmb_reserve_flags(base, size, LMB_NONE);
+}
+
+static long lmb_reserve_nooverwrite(phys_addr_t base, phys_size_t size)
+{
+	struct lmb_region *_rgn = &lmb.reserved;
+
+	return lmb_add_region_flags(_rgn, base, size, LMB_NOOVERWRITE,
+				    LMB_OP_RESERVE);
 }
 
 static long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
@@ -596,6 +619,8 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 							 base, size, flags,
 							 LMB_OP_RESERVE) < 0)
 					return 0;
+
+				lmb_map_update_notify(base, size, MAP_OP_RESERVE);
 				return base;
 			}
 			res_base = lmb.reserved.region[rgn].base;
@@ -612,30 +637,11 @@ phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
 }
 
-phys_addr_t lmb_alloc_nooverwrite(phys_size_t size, ulong align)
-{
-	return lmb_alloc_base_nooverwrite(size, align, LMB_ALLOC_ANYWHERE);
-}
-
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	phys_addr_t alloc;
 
 	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NONE);
-
-	if (alloc == 0)
-		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
-		       (ulong)size, (ulong)max_addr);
-
-	return alloc;
-}
-
-phys_addr_t lmb_alloc_base_nooverwrite(phys_size_t size, ulong align,
-				       phys_addr_t max_addr)
-{
-	phys_addr_t alloc;
-
-	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NOOVERWRITE);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -675,11 +681,6 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 {
 	return __lmb_alloc_addr(base, size, LMB_NONE);
-}
-
-phys_addr_t lmb_alloc_addr_nooverwrite(phys_addr_t base, phys_size_t size)
-{
-	return __lmb_alloc_addr(base, size, LMB_NOOVERWRITE);
 }
 
 /* Return number of bytes from a given address that are free */
@@ -731,6 +732,32 @@ __weak void arch_lmb_reserve(void)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }
+#if CONFIG_IS_ENABLED(EFI_LOADER)
+static int efi_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	long ret;
+	phys_addr_t addr;
+	phys_size_t size;
+	struct event_efi_mem_map_update *efi_map = &event->data.efi_mem_map;
+
+	addr = virt_to_phys((void *)(uintptr_t)efi_map->base);
+	size = efi_map->size;
+	op = efi_map->op;
+//	printf("%s: %d, addr => 0x%llx, size => 0x%llx, op => %d\n",
+//	       __func__, __LINE__, (u64)addr, (u64)size, op);
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	ret = op == MAP_OP_RESERVE ? lmb_reserve_nooverwrite(addr, size) :
+		__lmb_free(addr, size);
+
+	return !ret ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_EFI_MEM_MAP_UPDATE, efi_mem_map_update_sync);
+#endif
 
 #if defined(CONFIG_SANDBOX)
 

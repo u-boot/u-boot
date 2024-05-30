@@ -48,6 +48,10 @@ const char *const type_name[] = {
 
 	/* main loop events */
 	"main_loop",
+
+	"lmb_map_update",
+
+	"efi_map_update",
 };
 
 _Static_assert(ARRAY_SIZE(type_name) == EVT_COUNT, "event type_name size");
