@@ -707,8 +707,9 @@ const struct clk_ops mtk_clk_gate_ops = {
 	.get_rate = mtk_clk_gate_get_rate,
 };
 
-int mtk_common_clk_init(struct udevice *dev,
-			const struct mtk_clk_tree *tree)
+static int mtk_common_clk_init_drv(struct udevice *dev,
+				   const struct mtk_clk_tree *tree,
+				   const struct driver *drv)
 {
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	struct udevice *parent;
@@ -720,8 +721,7 @@ int mtk_common_clk_init(struct udevice *dev,
 
 	ret = uclass_get_device_by_phandle(UCLASS_CLK, dev, "clock-parent", &parent);
 	if (ret || !parent) {
-		ret = uclass_get_device_by_driver(UCLASS_CLK,
-				DM_DRIVER_GET(mtk_clk_apmixedsys), &parent);
+		ret = uclass_get_device_by_driver(UCLASS_CLK, drv, &parent);
 		if (ret || !parent)
 			return -ENOENT;
 	}
@@ -730,6 +730,20 @@ int mtk_common_clk_init(struct udevice *dev,
 	priv->tree = tree;
 
 	return 0;
+}
+
+int mtk_common_clk_init(struct udevice *dev,
+			const struct mtk_clk_tree *tree)
+{
+	return mtk_common_clk_init_drv(dev, tree,
+				       DM_DRIVER_GET(mtk_clk_apmixedsys));
+}
+
+int mtk_common_clk_infrasys_init(struct udevice *dev,
+				 const struct mtk_clk_tree *tree)
+{
+	return mtk_common_clk_init_drv(dev, tree,
+				       DM_DRIVER_GET(mtk_clk_topckgen));
 }
 
 int mtk_common_clk_gate_init(struct udevice *dev,
