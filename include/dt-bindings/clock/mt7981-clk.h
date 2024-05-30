@@ -10,44 +10,8 @@
 
 /* INFRACFG */
 
-#define CK_INFRA_CK_F26M		0
-#define CK_INFRA_UART			1
-#define CK_INFRA_ISPI0			2
-#define CK_INFRA_I2C			3
-#define CK_INFRA_ISPI1			4
-#define CK_INFRA_PWM			5
-#define CK_INFRA_66M_MCK		6
-#define CK_INFRA_CK_F32K		7
-#define CK_INFRA_PCIE_CK		8
-#define CK_INFRA_PWM_BCK		9
-#define CK_INFRA_PWM_CK1		10
-#define CK_INFRA_PWM_CK2		11
-#define CK_INFRA_133M_HCK		12
-#define CK_INFRA_66M_PHCK		13
-#define CK_INFRA_FAUD_L_CK		14
-#define CK_INFRA_FAUD_AUD_CK		15
-#define CK_INFRA_FAUD_EG2_CK		16
-#define CK_INFRA_I2CS_CK		17
-#define CK_INFRA_MUX_UART0		18
-#define CK_INFRA_MUX_UART1		19
-#define CK_INFRA_MUX_UART2		20
-#define CK_INFRA_NFI_CK			21
-#define CK_INFRA_SPINFI_CK		22
-#define CK_INFRA_MUX_SPI0		23
-#define CK_INFRA_MUX_SPI1		24
-#define CK_INFRA_MUX_SPI2		25
-#define CK_INFRA_RTC_32K		26
-#define CK_INFRA_FMSDC_CK		27
-#define CK_INFRA_FMSDC_HCK_CK		28
-#define CK_INFRA_PERI_133M		29
-#define CK_INFRA_133M_PHCK		30
-#define CK_INFRA_USB_SYS_CK		31
-#define CK_INFRA_USB_CK			32
-#define CK_INFRA_USB_XHCI_CK		33
-#define CK_INFRA_PCIE_GFMUX_TL_O_PRE	34
-#define CK_INFRA_F26M_CK0		35
-#define CK_INFRA_133M_MCK		36
-#define CLK_INFRA_NR_CLK		37
+#define CK_INFRA_66M_MCK		0
+#define CLK_INFRA_NR_CLK		1
 
 /* TOPCKGEN */
 
