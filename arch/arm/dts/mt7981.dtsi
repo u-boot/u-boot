@@ -271,7 +271,7 @@
 				  <&infracfg CK_INFRA_SPI0_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
 					 <&topckgen CK_INFRA_ISPI0>;
-		clock-names = "sel-clk", "spi-clk";
+		clock-names = "spi-clk", "sel-clk";
 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
@@ -286,7 +286,7 @@
 				  <&infracfg CK_INFRA_SPI1_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
 					 <&topckgen CK_INFRA_ISPI1>;
-		clock-names = "sel-clk", "spi-clk";
+		clock-names = "spi-clk", "sel-clk";
 		status = "disabled";
 	};
 
@@ -299,7 +299,7 @@
 				  <&infracfg CK_INFRA_SPI2_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
 					 <&topckgen CK_INFRA_ISPI0>;
-		clock-names = "sel-clk", "spi-clk";
+		clock-names = "spi-clk", "sel-clk";
 		interrupts = <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
