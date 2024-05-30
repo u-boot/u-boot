@@ -441,7 +441,7 @@ static const struct mtk_gate_regs infra_2_cg_regs = {
 	GATE_INFRA2(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
 
 /* INFRA GATE */
-static const struct mtk_gate infracfg_ao_gates[] = {
+static const struct mtk_gate infracfg_gates[] = {
 	GATE_INFRA0_INFRA(CK_INFRA_GPT_STA, "infra_gpt_sta", CK_INFRA_66M_MCK, 0),
 	GATE_INFRA0_INFRA(CK_INFRA_PWM_HCK, "infra_pwm_hck", CK_INFRA_66M_MCK, 1),
 	GATE_INFRA0_INFRA(CK_INFRA_PWM_STA, "infra_pwm_sta", CK_INFRA_PWM_BSEL, 2),
@@ -529,6 +529,7 @@ static const struct mtk_clk_tree mt7981_infracfg_clk_tree = {
 	.gates_offs = CK_INFRA_GPT_STA,
 	.fdivs = infra_fixed_divs,
 	.muxes = infra_muxes,
+	.gates = infracfg_gates,
 	.flags = CLK_INFRASYS,
 };
 
@@ -583,20 +584,9 @@ static const struct udevice_id mt7981_infracfg_compat[] = {
 	{}
 };
 
-static const struct udevice_id mt7981_infracfg_ao_compat[] = {
-	{ .compatible = "mediatek,mt7981-infracfg_ao" },
-	{}
-};
-
 static int mt7981_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt7981_infracfg_clk_tree);
-}
-
-static int mt7981_infracfg_ao_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7981_infracfg_clk_tree,
-					infracfg_ao_gates);
+	return mtk_common_clk_infrasys_init(dev, &mt7981_infracfg_clk_tree);
 }
 
 U_BOOT_DRIVER(mtk_clk_infracfg) = {
@@ -606,16 +596,6 @@ U_BOOT_DRIVER(mtk_clk_infracfg) = {
 	.probe = mt7981_infracfg_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mtk_clk_infracfg_ao) = {
-	.name = "mt7981-clock-infracfg-ao",
-	.id = UCLASS_CLK,
-	.of_match = mt7981_infracfg_ao_compat,
-	.probe = mt7981_infracfg_ao_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
