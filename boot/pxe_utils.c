@@ -324,10 +324,6 @@ static void label_boot_kaslrseed(void)
 #if CONFIG_IS_ENABLED(DM_RNG)
 	ulong fdt_addr;
 	struct fdt_header *working_fdt;
-	size_t n = 0x8;
-	struct udevice *dev;
-	u64 *buf;
-	int nodeoffset;
 	int err;
 
 	/* Get the main fdt and map it */
@@ -343,35 +339,7 @@ static void label_boot_kaslrseed(void)
 	if (err <= 0)
 		return;
 
-	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
-		printf("No RNG device\n");
-		return;
-	}
-
-	nodeoffset = fdt_find_or_add_subnode(working_fdt, 0, "chosen");
-	if (nodeoffset < 0) {
-		printf("Reading chosen node failed\n");
-		return;
-	}
-
-	buf = malloc(n);
-	if (!buf) {
-		printf("Out of memory\n");
-		return;
-	}
-
-	if (dm_rng_read(dev, buf, n)) {
-		printf("Reading RNG failed\n");
-		goto err;
-	}
-
-	err = fdt_setprop(working_fdt, nodeoffset, "kaslr-seed", buf, sizeof(buf));
-	if (err < 0) {
-		printf("Unable to set kaslr-seed on chosen node: %s\n", fdt_strerror(err));
-		goto err;
-	}
-err:
-	free(buf);
+	fdt_kaslrseed(working_fdt, true);
 #endif
 	return;
 }
