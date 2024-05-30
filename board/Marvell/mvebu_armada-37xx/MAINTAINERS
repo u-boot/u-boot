@@ -9,3 +9,8 @@ ESPRESSOBin BOARD
 M:	Konstantin Porotchkin <kostap@marvell.com>
 S:	Maintained
 F:	configs/mvebu_espressobin-88f3720_defconfig
+
+ESPRESSOBin Ultra BOARD
+M:	Ben Schneider <ben@bens.haus>
+S:	Maintained
+F:	configs/mvebu_espressobin_ultra-88f3720_defconfig
