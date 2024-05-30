@@ -13,7 +13,11 @@
 
 /* flags in struct mtk_clk_tree */
 
-/* clk id == 0 doesn't mean it's xtal clk */
+/* clk id == 0 doesn't mean it's xtal clk
+ * This doesn't apply when CLK_PARENT_MIXED is defined.
+ * With CLK_PARENT_MIXED declare CLK_PARENT_XTAL for the
+ * relevant parent.
+ */
 #define CLK_BYPASS_XTAL			BIT(0)
 
 #define HAVE_RST_BAR			BIT(0)
@@ -30,7 +34,17 @@
 #define CLK_PARENT_TOPCKGEN		BIT(5)
 #define CLK_PARENT_INFRASYS		BIT(6)
 #define CLK_PARENT_XTAL			BIT(7)
-#define CLK_PARENT_MASK			GENMASK(7, 4)
+/*
+ * For CLK_PARENT_MIXED to correctly work, is required to
+ * define in clk_tree flags the clk type using the alias.
+ */
+#define CLK_PARENT_MIXED		BIT(8)
+#define CLK_PARENT_MASK			GENMASK(8, 4)
+
+/* alias to reference clk type */
+#define CLK_APMIXED			CLK_PARENT_APMIXED
+#define CLK_TOPCKGEN			CLK_PARENT_TOPCKGEN
+#define CLK_INFRASYS			CLK_PARENT_INFRASYS
 
 #define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
@@ -98,10 +112,30 @@ struct mtk_fixed_factor {
 	}
 
 /**
+ * struct mtk_parent -  clock parent with flags. Needed for MUX that
+ *			parent with mixed infracfg and topckgen.
+ *
+ * @id:			index of parent clocks
+ * @flags:		hardware-specific flags (parent location,
+ *			infracfg, topckgen, APMIXED, xtal ...)
+ */
+struct mtk_parent {
+	const int id;
+	u16 flags;
+};
+
+#define PARENT(_id, _flags) {				\
+		.id = _id,				\
+		.flags = _flags,			\
+	}
+
+/**
  * struct mtk_composite - aggregate clock of mux, divider and gate clocks
  *
  * @id:			index of clocks
  * @parent:		index of parnet clocks
+ * @parent:		index of parnet clocks
+ * @parent_flags:	table of parent clocks with flags
  * @mux_reg:		hardware-specific mux register
  * @gate_reg:		hardware-specific gate register
  * @mux_mask:		mask to the mux bit field
@@ -112,7 +146,10 @@ struct mtk_fixed_factor {
  */
 struct mtk_composite {
 	const int id;
-	const int *parent;
+	union {
+		const int *parent;
+		const struct mtk_parent *parent_flags;
+	};
 	u32 mux_reg;
 	u32 mux_set_reg;
 	u32 mux_clr_reg;
