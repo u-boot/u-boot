@@ -389,6 +389,9 @@ enum emmc_boot_part {
 	EMMC_BOOT_PART_USER = 7,
 };
 
+/* emmc PARTITION_CONFIG BOOT_PARTITION_ENABLE names */
+extern const char *emmc_boot_part_names[8];
+
 /* emmc PARTITION_CONFIG ACCESS_ENABLE values */
 enum emmc_hwpart {
 	EMMC_HWPART_DEFAULT = 0, /* user */
@@ -400,6 +403,9 @@ enum emmc_hwpart {
 	EMMC_HWPART_GP3 = 6,
 	EMMC_HWPART_GP4 = 7,
 };
+
+/* emmc PARTITION_CONFIG ACCESS_ENABLE names */
+extern const char *emmc_hwpart_names[8];
 
 /* Driver model support */
 
