@@ -10,6 +10,7 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
 obj-y += panic.o
 obj-y += version.o
+obj-y += efi_memory.o
 
 # command
 obj-$(CONFIG_CMD_ARMFFA) += armffa.o
