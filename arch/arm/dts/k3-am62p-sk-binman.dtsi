@@ -59,6 +59,17 @@
 	};
 };
 
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See am62px_evm.h
+#define AM62PX_SK_TIBOOT3_IMAGE_GUID_STR "b08471b7-be2d-4489-87a1-cab28a0cf743"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = AM62PX_SK_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
 #endif /* CONFIG_TARGET_AM62P5_R5_EVM */
 
 #if IS_ENABLED(CONFIG_TARGET_AM62P5_A53_EVM)
@@ -167,6 +178,24 @@
 
 			};
 		};
+	};
+};
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See am62px_evm.h
+#define AM62PX_SK_SPL_IMAGE_GUID_STR "d02ed781-6d71-4c1a-a999-3c6a41c36324"
+#define AM62PX_SK_UBOOT_IMAGE_GUID_STR "7e6aea51-965c-44ab-b388-daeb03b54f66"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = AM62PX_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = AM62PX_SK_UBOOT_IMAGE_GUID_STR;
 	};
 };
 
