@@ -102,8 +102,6 @@
 
 #endif
 
-#define PHY_ANEG_TIMEOUT	8000 /* PHY needs longer aneg time at 1G */
-
 /* NAND support */
 #ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */

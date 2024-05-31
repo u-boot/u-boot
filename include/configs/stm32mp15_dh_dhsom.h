@@ -9,7 +9,6 @@
 #define __CONFIG_STM32MP15_DH_DHSOM_H__
 
 /* PHY needs a longer autoneg timeout */
-#define PHY_ANEG_TIMEOUT		20000
 
 #ifdef CONFIG_SPL_BUILD
 #define CFG_EXTRA_ENV_SETTINGS						\

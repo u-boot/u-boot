@@ -19,8 +19,6 @@
 
 /* ENET Config */
 #if defined(CONFIG_FEC_MXC)
-#define PHY_ANEG_TIMEOUT		20000
-
 #define CFG_FEC_MXC_PHYADDR		1
 #endif
 

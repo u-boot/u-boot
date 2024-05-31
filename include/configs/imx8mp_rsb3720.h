@@ -35,8 +35,6 @@
 #if defined(CONFIG_CMD_NET)
 #define CFG_FEC_MXC_PHYADDR          4
 
-#define PHY_ANEG_TIMEOUT 20000
-
 #endif
 
 #if IS_ENABLED(CONFIG_CMD_MMC)

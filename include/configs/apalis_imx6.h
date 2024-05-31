@@ -22,7 +22,6 @@
 #define CFG_SYS_FSL_USDHC_NUM	3
 
 /* Network */
-#define PHY_ANEG_TIMEOUT		15000 /* PHY needs longer aneg time */
 
 /* USB Configs */
 /* Host */
