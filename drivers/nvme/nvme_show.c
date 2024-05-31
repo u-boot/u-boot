@@ -68,7 +68,7 @@ static void print_formats(struct nvme_id_ns *id, struct nvme_ns *ns)
 	printf("Blk device %d: LBA Format Support:\n", ns->devnum);
 
 	for (i = 0; i < id->nlbaf; i++) {
-		printf("\tLBA Foramt %d Support: ", i);
+		printf("\tLBA Format %d Support: ", i);
 		if (i == ns->flbas)
 			printf("(current)\n");
 		else
