@@ -183,3 +183,32 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsue update GUIDs.  See beagleboneai64.h.
+#define BEAGLEBONEAI64_TIBOOT3_IMAGE_GUID_STR "772a4810-2194-4923-8754-0115870ef367"
+#define BEAGLEBONEAI64_SYSFW_IMAGE_GUID_STR "dfc9c683-49b7-46bd-b3c1-3a3b2fdb135b"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = BEAGLEBONEAI64_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
+&binman {
+	capsule-sysfw {
+		filename = "sysfw-capsule.bin";
+		efi-capsule {
+			image-index = <0x4>;
+			image-guid = BEAGLEBONEAI64_SYSFW_IMAGE_GUID_STR;
+			private-key = "arch/arm/mach-k3/keys/custMpk.pem";
+			public-key-cert = "arch/arm/mach-k3/keys/custMpk.crt";
+			monotonic-count = <0x1>;
+
+			blob {
+				filename = "sysfw.itb";
+			};
+		};
+	};
+};
