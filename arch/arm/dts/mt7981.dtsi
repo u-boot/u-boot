@@ -106,7 +106,7 @@
 		bootph-all;
 	};
 
-	pinctrl: pinctrl@11d00000 {
+	pio: pinctrl@11d00000 {
 		compatible = "mediatek,mt7981-pinctrl";
 		reg = <0x11d00000 0x1000>,
 		      <0x11c00000 0x1000>,
@@ -120,10 +120,8 @@
 		reg-names = "gpio", "iocfg_rt", "iocfg_rm",
 			    "iocfg_rb", "iocfg_lb", "iocfg_bl",
 			    "iocfg_tm", "iocfg_tl", "eint";
-		gpio: gpio-controller {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
+		gpio-controller;
+		#gpio-cells = <2>;
 	};
 
 	pwm: pwm@10048000 {
