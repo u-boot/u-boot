@@ -1012,8 +1012,9 @@ static const struct mtk_function_desc mt7981_functions[] = {
 };
 
 static const char *const mt7981_pinctrl_register_base_names[] = {
-	"gpio_base", "iocfg_rt_base", "iocfg_rm_base", "iocfg_rb_base",
-	"iocfg_lb_base", "iocfg_bl_base", "iocfg_tm_base", "iocfg_tl_base",
+	"gpio", "iocfg_rt", "iocfg_rm", "iocfg_rb",
+	"iocfg_lb", "iocfg_bl", "iocfg_tm", "iocfg_tl",
+	"eint",
 };
 
 static const struct mtk_pinctrl_soc mt7981_data = {
