@@ -295,6 +295,36 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See j721e_evm.h
+#define J721E_SK_TIBOOT3_IMAGE_GUID_STR "e672b518-7cd7-4014-bd8d-40724d0ad4dc"
+#define J721E_SK_SYSFW_IMAGE_GUID_STR "6fd10680-361b-431f-80aa-899455819e11"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = J721E_SK_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
+&binman {
+	capsule-sysfw {
+		filename = "sysfw-capsule.bin";
+		efi-capsule {
+			image-index = <0x4>;
+			image-guid = J721E_SK_SYSFW_IMAGE_GUID_STR;
+			private-key = "arch/arm/mach-k3/keys/custMpk.pem";
+			public-key-cert = "arch/arm/mach-k3/keys/custMpk.crt";
+			monotonic-count = <0x1>;
+
+			blob {
+				filename = "sysfw.itb";
+			};
+		};
+	};
+};
+
 #endif
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
@@ -673,4 +703,23 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See j721e_evm.h
+#define J721E_SK_SPL_IMAGE_GUID_STR "86f710ad-10cf-46ea-ac67-856ae06efad2"
+#define J721E_SK_UBOOT_IMAGE_GUID_STR "81b58fb0-3b00-4add-a20a-c185bbaca1ed"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = J721E_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = J721E_SK_UBOOT_IMAGE_GUID_STR;
+	};
+};
+
 #endif
