@@ -224,8 +224,8 @@ static int mmc_burn_image(size_t image_size)
 #endif
 
 	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
-	if (part == 7)
-		part = 0;
+	if (part == EMMC_BOOT_PART_USER)
+		part = EMMC_HWPART_DEFAULT;
 
 #ifdef CONFIG_BLK
 	err = blk_dselect_hwpart(blk_desc, part);

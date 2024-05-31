@@ -320,8 +320,8 @@ int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 	 * which is the first physical partition (0).
 	 */
 	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
-	if (part == 7)
-		part = 0;
+	if (part == EMMC_BOOT_PART_USER)
+		part = EMMC_HWPART_DEFAULT;
 #endif
 	return part;
 }
