@@ -103,17 +103,24 @@ void status_led_tick(ulong timestamp)
 	}
 }
 
-void status_led_set(int led, int state)
+static led_dev_t *status_get_led_dev(int led)
 {
-	led_dev_t *ld;
-
 	if (led < 0 || led >= MAX_LED_DEV)
-		return;
+		return NULL;
 
 	if (!status_led_init_done)
 		status_led_init();
 
-	ld = &led_dev[led];
+	return &led_dev[led];
+}
+
+void status_led_set(int led, int state)
+{
+	led_dev_t *ld;
+
+	ld = status_get_led_dev(led);
+	if (!ld)
+		return;
 
 	ld->state = state;
 	if (state == CONFIG_LED_STATUS_BLINKING) {
@@ -121,4 +128,15 @@ void status_led_set(int led, int state)
 		state = CONFIG_LED_STATUS_ON;	/* always start with LED _ON_ */
 	}
 	__led_set (ld->mask, state);
+}
+
+void status_led_toggle(int led)
+{
+	led_dev_t *ld;
+
+	ld = status_get_led_dev(led);
+	if (!ld)
+		return;
+
+	__led_toggle(ld->mask);
 }
