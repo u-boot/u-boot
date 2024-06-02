@@ -72,6 +72,8 @@ __weak void yellow_led_on(void) {}
 __weak void yellow_led_off(void) {}
 __weak void blue_led_on(void) {}
 __weak void blue_led_off(void) {}
+__weak void white_led_on(void) {}
+__weak void white_led_off(void) {}
 
 /*
  * Why is gd allocated a register? Prior to reloc it might be better to

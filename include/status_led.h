@@ -87,6 +87,8 @@ void yellow_led_on(void);
 void yellow_led_off(void);
 void blue_led_on(void);
 void blue_led_off(void);
+void white_led_on(void);
+void white_led_off(void);
 #else
 	.extern LED_init
 	.extern red_led_on
@@ -97,6 +99,8 @@ void blue_led_off(void);
 	.extern green_led_off
 	.extern blue_led_on
 	.extern blue_led_off
+	.extern white_led_on
+	.extern white_led_off
 #endif
 
 #endif	/* _STATUS_LED_H_	*/

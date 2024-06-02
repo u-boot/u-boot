@@ -111,3 +111,15 @@ void blue_led_off(void)
 	__led_set(GPIO_BIT(CONFIG_LED_STATUS_BLUE), CONFIG_LED_STATUS_OFF);
 }
 #endif
+
+#ifdef CONFIG_LED_STATUS_WHITE
+void white_led_on(void)
+{
+	__led_set(GPIO_BIT(CONFIG_LED_STATUS_WHITE), CONFIG_LED_STATUS_ON);
+}
+
+void white_led_off(void)
+{
+	__led_set(GPIO_BIT(CONFIG_LED_STATUS_WHITE), CONFIG_LED_STATUS_OFF);
+}
+#endif

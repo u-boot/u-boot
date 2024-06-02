@@ -57,6 +57,9 @@ static const led_tbl_t led_commands[] = {
 #ifdef CONFIG_LED_STATUS_BLUE
 	{ "blue", CONFIG_LED_STATUS_BLUE, blue_led_off, blue_led_on, NULL },
 #endif
+#ifdef CONFIG_LED_STATUS_WHITE
+	{ "white", CONFIG_LED_STATUS_WHITE, white_led_off, white_led_on, NULL },
+#endif
 	{ NULL, 0, NULL, NULL, NULL }
 };
 
@@ -179,6 +182,9 @@ U_BOOT_CMD(
 #endif
 #ifdef CONFIG_LED_STATUS_BLUE
 	"blue|"
+#endif
+#ifdef CONFIG_LED_STATUS_WHITE
+	"white|"
 #endif
 	"all] [on|off|toggle|blink] [blink-freq in ms]",
 	"[led_name] [on|off|toggle|blink] sets or clears led(s)"

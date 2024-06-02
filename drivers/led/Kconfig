@@ -415,6 +415,20 @@ config LED_STATUS_GREEN
 
 endif # LED_STATUS_GREEN_ENABLE
 
+config LED_STATUS_WHITE_ENABLE
+	bool "Enable white LED"
+	help
+	  Enable white status LED.
+
+if LED_STATUS_WHITE_ENABLE
+
+config LED_STATUS_WHITE
+	int "White LED identification"
+	help
+	  Valid enabled LED device number (0-5).
+
+endif # LED_STATUS_WHITE_ENABLE
+
 config LED_STATUS_CMD
 	bool "Enable status LED commands"
 
