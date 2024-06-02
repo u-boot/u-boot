@@ -7,6 +7,6 @@
 
 obj-y += efi_uclass.o
 ifeq ($(CONFIG_PARTITIONS),y)
-obj-y += efi_block_device.o
+obj-$(CONFIG_BLK) += efi_block_device.o
 endif
 obj-$(CONFIG_SYSRESET_SBI) += efi_reset_riscv.o

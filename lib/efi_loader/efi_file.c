@@ -1117,7 +1117,12 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 	struct efi_file_handle *f;
 	efi_status_t ret;
 
+#if defined(CONFIG_BLK)
 	v = efi_fs_from_path(fp);
+#else
+	v = NULL;
+#endif
+
 	if (!v)
 		return NULL;
 

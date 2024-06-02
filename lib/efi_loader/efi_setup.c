@@ -235,7 +235,11 @@ efi_status_t efi_init_obj_list(void)
 	 * Probe block devices to find the ESP.
 	 * efi_disks_register() must be called before efi_init_variables().
 	 */
+#if defined(CONFIG_BLK)
 	ret = efi_disks_register();
+#else
+	ret = EFI_UNSUPPORTED;
+#endif
 	if (ret != EFI_SUCCESS)
 		goto out;
 

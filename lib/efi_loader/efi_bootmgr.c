@@ -7,7 +7,9 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#if defined(CONFIG_BLK)
 #include <blk.h>
+#endif
 #include <blkmap.h>
 #include <charset.h>
 #include <dm.h>
