@@ -359,6 +359,22 @@ config LED_STATUS_BOOT
 
 endif # LED_STATUS_BOOT_ENABLE
 
+config LED_STATUS_ACTIVITY_ENABLE
+	bool "Enable BOOT LED"
+	select CYCLIC
+	help
+	  Enable to turn an LED on when the board is doing some
+	  activity (flash write, file download).
+
+if LED_STATUS_ACTIVITY_ENABLE
+
+config LED_STATUS_ACTIVITY
+	int "LED to light when the board is doing some activity"
+	help
+	  Valid enabled LED device number.
+
+endif # LED_STATUS_ACTIVITY_ENABLE
+
 config LED_STATUS_RED_ENABLE
 	bool "Enable red LED"
 	help

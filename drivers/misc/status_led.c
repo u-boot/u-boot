@@ -4,7 +4,10 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <cyclic.h>
 #include <status_led.h>
+#include <stdio.h>
+#include <linux/kernel.h>
 #include <linux/types.h>
 
 /*
@@ -23,6 +26,7 @@ typedef struct {
 	int state;
 	int period;
 	int cnt;
+	struct cyclic_info cyclic;
 } led_dev_t;
 
 led_dev_t led_dev[] = {
@@ -141,4 +145,43 @@ void status_led_toggle(int led)
 		return;
 
 	__led_toggle(ld->mask);
+}
+
+static void status_led_activity_toggle(struct cyclic_info *ctx)
+{
+	led_dev_t *ld = container_of(ctx, led_dev_t, cyclic);
+	__led_toggle(ld->mask);
+}
+
+void status_led_activity_start(int led)
+{
+	led_dev_t *ld;
+
+	ld = status_get_led_dev(led);
+	if (!ld)
+		return;
+
+	/* Use status LED state to track if cyclic is already register */
+	if (ld->state == CONFIG_LED_STATUS_BLINKING) {
+		printf("Cyclic for activity status LED %d already registered. THIS IS AN ERROR.\n",
+		       led);
+		cyclic_unregister(&ld->cyclic);
+	}
+
+	status_led_set(led, CONFIG_LED_STATUS_BLINKING);
+
+	cyclic_register(&ld->cyclic, status_led_activity_toggle,
+			ld->period * 500, "activity");
+}
+
+void status_led_activity_stop(int led)
+{
+	led_dev_t *ld;
+
+	ld = status_get_led_dev(led);
+	if (!ld)
+		return;
+
+	cyclic_unregister(&ld->cyclic);
+	status_led_set(led, CONFIG_LED_STATUS_OFF);
 }
