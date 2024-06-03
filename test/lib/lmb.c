@@ -451,15 +451,15 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
 		   0, 0, 0, 0);
-	/* allocate overlapping region should fail */
+	/* allocate overlapping region should return the coalesced count */
 	ret = lmb_reserve(0x40011000, 0x10000);
-	ut_asserteq(ret, -1);
-	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+	ut_asserteq(ret, 1);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x11000,
 		   0, 0, 0, 0);
 	/* allocate 3nd region */
 	ret = lmb_reserve(0x40030000, 0x10000);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 2, 0x40010000, 0x10000,
+	ASSERT_LMB(&lmb, ram, ram_size, 2, 0x40010000, 0x11000,
 		   0x40030000, 0x10000, 0, 0);
 	/* allocate 2nd region , This should coalesced all region into one */
 	ret = lmb_reserve(0x40020000, 0x10000);
