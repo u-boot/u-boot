@@ -58,7 +58,8 @@ static inline int bcb_set(enum bcb_field field, const char *value)
 	return -EOPNOTSUPP;
 }
 
-static inline int bcb_get(enum bcb_field field, char *value_out)
+static inline int bcb_get(enum bcb_field field,
+			  char *value_out, size_t value_size)
 {
 	return -EOPNOTSUPP;
 }
