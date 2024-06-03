@@ -20,6 +20,7 @@
 enum lmb_flags {
 	LMB_NONE		= 0x0,
 	LMB_NOMAP		= 0x4,
+	LMB_NOOVERWRITE		= 0x8,
 };
 
 /**
