@@ -71,6 +71,176 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 /* topckgen */
+
+/* Fixed CLK exposed upstream by the hdmi PHY driver */
+#define CLK_TOP_HDMITX_CLKDIG_CTS		CLK_TOP_NR
+
+static const int top_id_offs_map[CLK_TOP_NR + 1] = {
+	/* Fixed CLK */
+	[CLK_TOP_DPI]				= 0,
+	[CLK_TOP_DMPLL]				= 1,
+	[CLK_TOP_VENCPLL]			= 2,
+	[CLK_TOP_HDMI_0_PIX340M]		= 3,
+	[CLK_TOP_HDMI_0_DEEP340M]		= 4,
+	[CLK_TOP_HDMI_0_PLL340M]		= 5,
+	[CLK_TOP_HADDS2_FB]			= 6,
+	[CLK_TOP_WBG_DIG_416M]			= 7,
+	[CLK_TOP_DSI0_LNTC_DSI]			= 8,
+	[CLK_TOP_HDMI_SCL_RX]			= 9,
+	[CLK_TOP_32K_EXTERNAL]			= 10,
+	[CLK_TOP_HDMITX_CLKDIG_CTS]		= 11,
+	[CLK_TOP_AUD_EXT1]			= 12,
+	[CLK_TOP_AUD_EXT2]			= 13,
+	[CLK_TOP_NFI1X_PAD]			= 14,
+	/* Factor CLK */
+	[CLK_TOP_SYSPLL]			= 15,
+	[CLK_TOP_SYSPLL_D2]			= 16,
+	[CLK_TOP_SYSPLL_D3]			= 17,
+	[CLK_TOP_SYSPLL_D5]			= 18,
+	[CLK_TOP_SYSPLL_D7]			= 19,
+	[CLK_TOP_SYSPLL1_D2]			= 20,
+	[CLK_TOP_SYSPLL1_D4]			= 21,
+	[CLK_TOP_SYSPLL1_D8]			= 22,
+	[CLK_TOP_SYSPLL1_D16]			= 23,
+	[CLK_TOP_SYSPLL2_D2]			= 24,
+	[CLK_TOP_SYSPLL2_D4]			= 25,
+	[CLK_TOP_SYSPLL2_D8]			= 26,
+	[CLK_TOP_SYSPLL3_D2]			= 27,
+	[CLK_TOP_SYSPLL3_D4]			= 28,
+	[CLK_TOP_SYSPLL4_D2]			= 29,
+	[CLK_TOP_SYSPLL4_D4]			= 30,
+	[CLK_TOP_UNIVPLL]			= 31,
+	[CLK_TOP_UNIVPLL_D2]			= 32,
+	[CLK_TOP_UNIVPLL_D3]			= 33,
+	[CLK_TOP_UNIVPLL_D5]			= 34,
+	[CLK_TOP_UNIVPLL_D7]			= 35,
+	[CLK_TOP_UNIVPLL_D26]			= 36,
+	[CLK_TOP_UNIVPLL_D52]			= 37,
+	[CLK_TOP_UNIVPLL_D108]			= 38,
+	[CLK_TOP_USB_PHY48M]			= 39,
+	[CLK_TOP_UNIVPLL1_D2]			= 40,
+	[CLK_TOP_UNIVPLL1_D4]			= 41,
+	[CLK_TOP_UNIVPLL1_D8]			= 42,
+	[CLK_TOP_UNIVPLL2_D2]			= 43,
+	[CLK_TOP_UNIVPLL2_D4]			= 44,
+	[CLK_TOP_UNIVPLL2_D8]			= 45,
+	[CLK_TOP_UNIVPLL2_D16]			= 46,
+	[CLK_TOP_UNIVPLL2_D32]			= 47,
+	[CLK_TOP_UNIVPLL3_D2]			= 48,
+	[CLK_TOP_UNIVPLL3_D4]			= 49,
+	[CLK_TOP_UNIVPLL3_D8]			= 50,
+	[CLK_TOP_MSDCPLL]			= 51,
+	[CLK_TOP_MSDCPLL_D2]			= 52,
+	[CLK_TOP_MSDCPLL_D4]			= 53,
+	[CLK_TOP_MSDCPLL_D8]			= 54,
+	[CLK_TOP_MMPLL]				= 55,
+	[CLK_TOP_MMPLL_D2]			= 56,
+	[CLK_TOP_DMPLL_D2]			= 57,
+	[CLK_TOP_DMPLL_D4]			= 58,
+	[CLK_TOP_DMPLL_X2]			= 59,
+	[CLK_TOP_TVDPLL]			= 60,
+	[CLK_TOP_TVDPLL_D2]			= 61,
+	[CLK_TOP_TVDPLL_D4]			= 62,
+	[CLK_TOP_VDECPLL]			= 63,
+	[CLK_TOP_TVD2PLL]			= 64,
+	[CLK_TOP_TVD2PLL_D2]			= 65,
+	[CLK_TOP_MIPIPLL]			= 66,
+	[CLK_TOP_MIPIPLL_D2]			= 67,
+	[CLK_TOP_MIPIPLL_D4]			= 68,
+	[CLK_TOP_HDMIPLL]			= 69,
+	[CLK_TOP_HDMIPLL_D2]			= 70,
+	[CLK_TOP_HDMIPLL_D3]			= 71,
+	[CLK_TOP_ARMPLL_1P3G]			= 72,
+	[CLK_TOP_AUDPLL]			= 73,
+	[CLK_TOP_AUDPLL_D4]			= 74,
+	[CLK_TOP_AUDPLL_D8]			= 75,
+	[CLK_TOP_AUDPLL_D16]			= 76,
+	[CLK_TOP_AUDPLL_D24]			= 77,
+	[CLK_TOP_AUD1PLL_98M]			= 78,
+	[CLK_TOP_AUD2PLL_90M]			= 79,
+	[CLK_TOP_HADDS2PLL_98M]			= 80,
+	[CLK_TOP_HADDS2PLL_294M]		= 81,
+	[CLK_TOP_ETHPLL_500M]			= 82,
+	[CLK_TOP_CLK26M_D8]			= 83,
+	[CLK_TOP_32K_INTERNAL]			= 84,
+	[CLK_TOP_AXISEL_D4]			= 85,
+	[CLK_TOP_8BDAC]				= 86,
+	/* MUX CLK */
+	[CLK_TOP_AXI_SEL]			= 87,
+	[CLK_TOP_MEM_SEL]			= 88,
+	[CLK_TOP_DDRPHYCFG_SEL]			= 89,
+	[CLK_TOP_MM_SEL]			= 90,
+	[CLK_TOP_PWM_SEL]			= 91,
+	[CLK_TOP_VDEC_SEL]			= 92,
+	[CLK_TOP_MFG_SEL]			= 93,
+	[CLK_TOP_CAMTG_SEL]			= 94,
+	[CLK_TOP_UART_SEL]			= 95,
+	[CLK_TOP_SPI0_SEL]			= 96,
+	[CLK_TOP_USB20_SEL]			= 97,
+	[CLK_TOP_MSDC30_0_SEL]			= 98,
+	[CLK_TOP_MSDC30_1_SEL]			= 99,
+	[CLK_TOP_MSDC30_2_SEL]			= 100,
+	[CLK_TOP_AUDIO_SEL]			= 101,
+	[CLK_TOP_AUDINTBUS_SEL]			= 102,
+	[CLK_TOP_PMICSPI_SEL]			= 103,
+	[CLK_TOP_SCP_SEL]			= 104,
+	[CLK_TOP_DPI0_SEL]			= 105,
+	[CLK_TOP_DPI1_SEL]			= 106,
+	[CLK_TOP_TVE_SEL]			= 107,
+	[CLK_TOP_HDMI_SEL]			= 108,
+	[CLK_TOP_APLL_SEL]			= 109,
+	[CLK_TOP_RTC_SEL]			= 110,
+	[CLK_TOP_NFI2X_SEL]			= 111,
+	[CLK_TOP_EMMC_HCLK_SEL]			= 112,
+	[CLK_TOP_FLASH_SEL]			= 113,
+	[CLK_TOP_DI_SEL]			= 114,
+	[CLK_TOP_NR_SEL]			= 115,
+	[CLK_TOP_OSD_SEL]			= 116,
+	[CLK_TOP_HDMIRX_BIST_SEL]		= 117,
+	[CLK_TOP_INTDIR_SEL]			= 118,
+	[CLK_TOP_ASM_I_SEL]			= 119,
+	[CLK_TOP_ASM_M_SEL]			= 120,
+	[CLK_TOP_ASM_H_SEL]			= 121,
+	[CLK_TOP_MS_CARD_SEL]			= 122,
+	[CLK_TOP_ETHIF_SEL]			= 123,
+	[CLK_TOP_HDMIRX26_24_SEL]		= 124,
+	[CLK_TOP_MSDC30_3_SEL]			= 125,
+	[CLK_TOP_CMSYS_SEL]			= 126,
+	[CLK_TOP_SPI1_SEL]			= 127,
+	[CLK_TOP_SPI2_SEL]			= 128,
+	[CLK_TOP_8BDAC_SEL]			= 129,
+	[CLK_TOP_AUD2DVD_SEL]			= 130,
+	[CLK_TOP_PADMCLK_SEL]			= 131,
+	[CLK_TOP_AUD_MUX1_SEL]			= 132,
+	[CLK_TOP_AUD_MUX2_SEL]			= 133,
+	[CLK_TOP_AUDPLL_MUX_SEL]		= 134,
+	[CLK_TOP_AUD_K1_SRC_SEL]		= 135,
+	[CLK_TOP_AUD_K2_SRC_SEL]		= 136,
+	[CLK_TOP_AUD_K3_SRC_SEL]		= 137,
+	[CLK_TOP_AUD_K4_SRC_SEL]		= 138,
+	[CLK_TOP_AUD_K5_SRC_SEL]		= 139,
+	[CLK_TOP_AUD_K6_SRC_SEL]		= 140,
+	/* Misc CLK only used as parents */
+	[CLK_TOP_AUD_EXTCK1_DIV]		= 141,
+	[CLK_TOP_AUD_EXTCK2_DIV]		= 142,
+	[CLK_TOP_AUD_MUX1_DIV]			= 143,
+	[CLK_TOP_AUD_MUX2_DIV]			= 144,
+	[CLK_TOP_AUD_K1_SRC_DIV]		= 145,
+	[CLK_TOP_AUD_K2_SRC_DIV]		= 146,
+	[CLK_TOP_AUD_K3_SRC_DIV]		= 147,
+	[CLK_TOP_AUD_K4_SRC_DIV]		= 148,
+	[CLK_TOP_AUD_K5_SRC_DIV]		= 149,
+	[CLK_TOP_AUD_K6_SRC_DIV]		= 150,
+	[CLK_TOP_AUD_48K_TIMING]		= 151,
+	[CLK_TOP_AUD_44K_TIMING]		= 152,
+	[CLK_TOP_AUD_I2S1_MCLK]			= 153,
+	[CLK_TOP_AUD_I2S2_MCLK]			= 154,
+	[CLK_TOP_AUD_I2S3_MCLK]			= 155,
+	[CLK_TOP_AUD_I2S4_MCLK]			= 156,
+	[CLK_TOP_AUD_I2S5_MCLK]			= 157,
+	[CLK_TOP_AUD_I2S6_MCLK]			= 158,
+};
+
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -746,8 +916,9 @@ static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 
 static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
 	.xtal_rate = 26 * MHZ,
-	.fdivs_offs = CLK_TOP_SYSPLL,
-	.muxes_offs = CLK_TOP_AXI_SEL,
+	.id_offs_map = top_id_offs_map,
+	.fdivs_offs = top_id_offs_map[CLK_TOP_SYSPLL],
+	.muxes_offs = top_id_offs_map[CLK_TOP_AXI_SEL],
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
@@ -789,27 +960,32 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 	return mtk_common_clk_init(dev, &mt7623_topckgen_clk_tree);
 }
 
+static const struct mtk_clk_tree mt7623_clk_gate_tree = {
+	/* Each CLK ID for gates clock starts at index 1 */
+	.gates_offs = 1,
+};
+
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
 					infra_cgs);
 }
 
 static int mt7623_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
 					peri_cgs);
 }
 
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
 					hif_cgs);
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
 					eth_cgs);
 }
 
