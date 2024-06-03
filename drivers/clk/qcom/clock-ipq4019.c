@@ -64,6 +64,9 @@ static int ipq4019_clk_enable(struct clk *clk)
 	case GCC_USB2_MOCK_UTMI_CLK:
 		/* These clocks is already initialized by SBL1 */
 		return 0;
+	case GCC_ESS_CLK:
+		/* This clock is already initialized by SBL1 */
+		return 0;
 	default:
 		return -EINVAL;
 	}
