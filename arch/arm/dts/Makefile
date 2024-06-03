@@ -958,9 +958,6 @@ dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
 
-dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779h0-gray-hawk.dtb
-
 dtb-$(CONFIG_TARGET_RZG2L) += \
 	r9a07g044l2-smarc.dts
 
