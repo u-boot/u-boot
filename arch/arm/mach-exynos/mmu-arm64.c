@@ -101,6 +101,14 @@ struct mm_region *mem_map = exynos7880_mem_map;
 
 static struct mm_region exynos850_mem_map[] = {
 	{
+		/* iRAM */
+		.virt = 0x02000000UL,
+		.phys = 0x02000000UL,
+		.size = SZ_2M,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
 		/* Peripheral block */
 		.virt = 0x10000000UL,
 		.phys = 0x10000000UL,
