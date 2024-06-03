@@ -9,6 +9,7 @@
 #include <asm/io.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <env.h>
+#include <init.h>
 #include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -52,6 +53,16 @@ int board_late_init(void)
 	default:
 		break;
 	}
+
+	return 0;
+}
+
+int board_phys_sdram_size(phys_size_t *size)
+{
+	if (!size)
+		return -EINVAL;
+
+	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE);
 
 	return 0;
 }
