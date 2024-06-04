@@ -68,6 +68,7 @@ config DFU_RAM
 
 config DFU_SF
 	bool "SPI flash back end for DFU"
+	depends on SPI_FLASH || DM_SPI_FLASH
 	help
 	  This option enables using DFU to read and write to SPI flash based
 	  storage.
