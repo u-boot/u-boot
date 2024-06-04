@@ -39,6 +39,8 @@ extern "C" {
 #define SHA1_SUM_LEN	20
 #define SHA1_DER_LEN	15
 
+#define SHA1_DEF_CHUNK_SZ 0x10000
+
 extern const uint8_t sha1_der_prefix[];
 
 #if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
@@ -80,16 +82,6 @@ void sha1_update(sha1_context *ctx, const unsigned char *input,
  * \param output   SHA-1 checksum result
  */
 void sha1_finish( sha1_context *ctx, unsigned char output[20] );
-
-/**
- * \brief	   Output = SHA-1( input buffer )
- *
- * \param input    buffer holding the  data
- * \param ilen	   length of the input data
- * \param output   SHA-1 checksum result
- */
-void sha1_csum(const unsigned char *input, unsigned int ilen,
-		unsigned char *output);
 
 /**
  * \brief	   Output = SHA-1( input buffer ), with watchdog triggering
