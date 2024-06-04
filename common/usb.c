@@ -214,8 +214,9 @@ int usb_int_msg(struct usb_device *dev, unsigned long pipe,
  * clear keyboards LEDs). For data transfers, (storage transfers) we don't
  * allow control messages with 0 timeout, by previousely resetting the flag
  * asynch_allowed (usb_disable_asynch(1)).
- * returns the transferred length if OK or -1 if error. The transferred length
- * and the current status are stored in the dev->act_len and dev->status.
+ * returns the transferred length if OK, otherwise a negative error code. The
+ * transferred length and the current status are stored in the dev->act_len and
+ * dev->status.
  */
 int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			unsigned char request, unsigned char requesttype,
@@ -257,11 +258,14 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 			break;
 		mdelay(1);
 	}
+
+	if (timeout == 0)
+		return -ETIMEDOUT;
+
 	if (dev->status)
 		return -1;
 
 	return dev->act_len;
-
 }
 
 /*-------------------------------------------------------------------
@@ -562,10 +566,29 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 static int usb_get_descriptor(struct usb_device *dev, unsigned char type,
 			unsigned char index, void *buf, int size)
 {
-	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-			       USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-			       (type << 8) + index, 0, buf, size,
-			       USB_CNTL_TIMEOUT);
+	int i;
+	int result;
+
+	if (size <= 0)		/* No point in asking for no data */
+		return -EINVAL;
+
+	memset(buf, 0, size);	/* Make sure we parse really received data */
+
+	for (i = 0; i < 3; ++i) {
+		/* retry on length 0 or error; some devices are flakey */
+		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+					 USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
+					 (type << 8) + index, 0, buf, size,
+					 USB_CNTL_TIMEOUT);
+		if (result <= 0 && result != -ETIMEDOUT)
+			continue;
+		if (result > 1 && ((u8 *)buf)[1] != type) {
+			result = -ENODATA;
+			continue;
+		}
+		break;
+	}
+	return result;
 }
 
 /**********************************************************************
