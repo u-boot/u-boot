@@ -103,7 +103,7 @@ class TestEntry(unittest.TestCase):
         ent = entry.Entry.Create(None, self.GetNode(), 'missing',
                                  missing_etype=True)
         self.assertTrue(isinstance(ent, Entry_blob))
-        self.assertEquals('missing', ent.etype)
+        self.assertEqual('missing', ent.etype)
 
     def testDecompressData(self):
         """Test the DecompressData() method of the base class"""
@@ -111,8 +111,8 @@ class TestEntry(unittest.TestCase):
         base.compress = 'lz4'
         bintools = {}
         base.comp_bintool = base.AddBintool(bintools, '_testing')
-        self.assertEquals(tools.get_bytes(0, 1024), base.CompressData(b'abc'))
-        self.assertEquals(tools.get_bytes(0, 1024), base.DecompressData(b'abc'))
+        self.assertEqual(tools.get_bytes(0, 1024), base.CompressData(b'abc'))
+        self.assertEqual(tools.get_bytes(0, 1024), base.DecompressData(b'abc'))
 
     def testLookupOffset(self):
         """Test the lookup_offset() method of the base class"""

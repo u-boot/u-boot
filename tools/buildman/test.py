@@ -584,7 +584,7 @@ class TestBuild(unittest.TestCase):
         if use_network:
             with test_util.capture_sys_output() as (stdout, stderr):
                 url = self.toolchains.LocateArchUrl('arm')
-            self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
+            self.assertRegex(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
                     'x86_64-gcc-.*-nolibc[-_]arm-.*linux-gnueabi.tar.xz')
 
