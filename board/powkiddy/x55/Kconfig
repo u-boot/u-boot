@@ -1,0 +1,15 @@
+if TARGET_POWKIDDY_X55_RK3566
+
+config SYS_BOARD
+	default "x55"
+
+config SYS_VENDOR
+	default "powkiddy"
+
+config SYS_CONFIG_NAME
+	default "powkiddy-x55-rk3566"
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+
+endif

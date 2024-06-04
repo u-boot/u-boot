@@ -68,8 +68,11 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "px30"
 
+config ROCKCHIP_COMMON_STACK_ADDR
+	default y
+
 config SYS_MALLOC_F_LEN
-	default 0x400
+	default 0x400 if !SPL_SHARES_INIT_SP_ADDR
 
 config SPL_SERIAL
 	default y
@@ -82,6 +85,9 @@ config TPL_TEXT_BASE
 
 config TPL_STACK
 	default 0xff0e4fff
+
+config TPL_SYS_MALLOC_F_LEN
+	default 0x600
 
 config DEBUG_UART_CHANNEL
 	int "Mux channel to use for debug UART2/UART3"

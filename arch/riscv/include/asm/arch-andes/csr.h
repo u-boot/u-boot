@@ -12,7 +12,7 @@
 
 #define CSR_MCACHE_CTL 0x7ca
 #define CSR_MMISC_CTL 0x7d0
-#define CSR_MCCTLCOMMAND 0x7cc
+#define CSR_UCCTLCOMMAND 0x80c
 
 /* mcache_ctl register */
 

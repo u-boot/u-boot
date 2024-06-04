@@ -29,6 +29,7 @@ enum rk3588_pll_id {
 	V0PLL,
 	AUPLL,
 	PPLL,
+	SPLL,
 	PLL_COUNT,
 };
 
@@ -149,6 +150,9 @@ struct pll_rate_table {
 #define RK3588_DSU_CLKSEL_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0x300)
 #define RK3588_DSU_CLKGATE_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0x800)
 #define RK3588_DSU_SOFTRST_CON(x)	((x) * 0x4 + RK3588_DSU_CRU_BASE + 0xa00)
+
+#define RK3588_SBUSCRU_SPLL_CON(x)	((x) * 0x4 + 0x220)
+#define RK3588_SBUSCRU_MODE_CON0	0x280
 
 enum {
 	/* CRU_CLK_SEL8_CON */

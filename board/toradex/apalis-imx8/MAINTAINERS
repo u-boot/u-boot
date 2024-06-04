@@ -1,5 +1,5 @@
 Apalis iMX8
-M:	Marcel Ziswiler <marcel.ziswiler@toradex.com>
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
 W:	http://developer.toradex.com/software/linux/linux-software
 S:	Maintained
 F:	arch/arm/dts/fsl-imx8qm-apalis.dts

@@ -104,6 +104,7 @@ List of mainline supported Rockchip boards:
      - Pine64 SOQuartz on Blade (soquartz-blade-rk3566)
      - Pine64 SOQuartz on CM4-IO (soquartz-cm4-rk3566)
      - Pine64 SOQuartz on Model A (soquartz-model-a-rk3566)
+     - Powkiddy X55 (powkiddy-x55-rk3566)
      - Radxa CM3 IO Board (radxa-cm3-io-rk3566)
 
 * rk3568
@@ -123,6 +124,7 @@ List of mainline supported Rockchip boards:
      - Edgeble Neural Compute Module 6B SoM - Neu6b (neu6b-io-rk3588)
      - FriendlyElec NanoPC-T6 (nanopc-t6-rk3588)
      - Generic RK3588S/RK3588 (generic-rk3588)
+     - Indiedroid Nova (nova-rk3588s)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)
      - Radxa ROCK 5A (rock5a-rk3588s)
      - Radxa ROCK 5B (rock5b-rk3588)

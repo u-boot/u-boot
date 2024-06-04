@@ -257,7 +257,7 @@ def test_tpm2_pcr_read(u_boot_console):
     updates = int(re.findall(r'\d+', str)[0])
 
     # Check the output value
-    assert 'PCR #10 content' in read_pcr
+    assert 'PCR #10 sha256 32 byte content' in read_pcr
     assert '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00' in read_pcr
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')

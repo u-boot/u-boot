@@ -1,5 +1,6 @@
 BEACON_RZG2M BOARD
 M:	Adam Ford <aford173@gmail.com>
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
 S:	Maintained
 F:	board/beacon/beacon-rzg2m/
 F:	include/configs/beacon-rzg2m.h

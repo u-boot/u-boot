@@ -31,7 +31,6 @@ dtb-$(CONFIG_EXYNOS7420) += exynos7420-espresso7420.dtb
 dtb-$(CONFIG_TARGET_A5Y17LTE) += exynos78x0-axy17lte.dtb
 dtb-$(CONFIG_TARGET_A3Y17LTE) += exynos78x0-axy17lte.dtb
 dtb-$(CONFIG_TARGET_A7Y17LTE) += exynos78x0-axy17lte.dtb
-dtb-$(CONFIG_TARGET_E850_96) += exynos850-e850-96.dtb
 
 dtb-$(CONFIG_ARCH_APPLE) += \
 	t8103-j274.dtb \
@@ -96,9 +95,6 @@ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
 	rk3368-sheep.dtb \
 	rk3368-geekbox.dtb \
 	rk3368-px5-evb.dtb \
-
-dtb-$(CONFIG_ROCKCHIP_RV1126) += \
-	rv1126-edgeble-neu2-io.dtb
 
 dtb-$(CONFIG_ARCH_S5P4418) += \
 	s5p4418-nanopi2.dtb
@@ -1023,9 +1019,6 @@ dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
 	omap3-beagle.dtb
 
 dtb-$(CONFIG_TARGET_DEVKIT8000) += omap3-devkit8000.dtb
-
-dtb-$(CONFIG_TARGET_OMAP3_IGEP00X0) += \
-	omap3-igep0020.dtb
 
 dtb-$(CONFIG_TARGET_OMAP4_PANDA) += \
 	omap4-panda.dtb \

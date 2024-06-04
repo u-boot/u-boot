@@ -1,6 +1,6 @@
 RINGNECK-PX30
-M:	Quentin Schulz <quentin.schulz@theobroma-systems.com>
-M:	Klaus Goger <klaus.goger@theobroma-systems.com>
+M:	Quentin Schulz <quentin.schulz@cherry.de>
+M:	Klaus Goger <klaus.goger@cherry.de>
 S:	Maintained
 F:	board/theobroma-systems/ringneck_px30
 F:	board/theobroma-systems/common
@@ -8,4 +8,5 @@ F:	doc/board/theobroma-systems/
 F:	include/configs/ringneck_px30.h
 F:	arch/arm/dts/px30-ringneck*
 F:	configs/ringneck-px30_defconfig
-W:	https://theobroma-systems.com/product/ringneck-som-px30-uq7/
+W:	https://embedded.cherry.de/product/ringneck-som-px30-uq7/
+T:	git git://git.embedded.cherry.de/ringneck-u-boot.git
