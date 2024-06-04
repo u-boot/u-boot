@@ -528,8 +528,8 @@ static unsigned long psu_mio_init_data(void)
 	psu_mask_write(0xFF180124, 0x000000FEU, 0x00000002U);
 	psu_mask_write(0xFF180128, 0x000000FEU, 0x00000002U);
 	psu_mask_write(0xFF18012C, 0x000000FEU, 0x00000002U);
-	psu_mask_write(0xFF180130, 0x000000FEU, 0x000000C0U);
-	psu_mask_write(0xFF180134, 0x000000FEU, 0x000000C0U);
+	psu_mask_write(0xFF180130, 0x000000FEU, 0x00000000U);
+	psu_mask_write(0xFF180134, 0x000000FEU, 0x00000000U);
 	psu_mask_write(0xFF180204, 0xFFFFFFFFU, 0x50000000U);
 	psu_mask_write(0xFF180208, 0xFFFFFFFFU, 0x00B02020U);
 	psu_mask_write(0xFF18020C, 0x00003FFFU, 0x00000FC0U);
@@ -569,21 +569,16 @@ static unsigned long psu_peripherals_init_data(void)
 	psu_mask_write(0xFD1A0100, 0x0001807CU, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x001A0000U, 0x00000000U);
 	psu_mask_write(0xFF5E023C, 0x0093C018U, 0x00000000U);
-	psu_mask_write(0xFF5E0230, 0x00000008U, 0x00000000U);
+	psu_mask_write(0xFF5E0230, 0x00000002U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00000001U, 0x00000000U);
 	psu_mask_write(0xFF180390, 0x00000004U, 0x00000004U);
 	psu_mask_write(0xFF5E023C, 0x00000400U, 0x00000000U);
-	psu_mask_write(0xFF5E0238, 0x00000040U, 0x00000000U);
-	psu_mask_write(0xFF180310, 0x00008000U, 0x00000000U);
-	psu_mask_write(0xFF180320, 0x33840000U, 0x02840000U);
-	psu_mask_write(0xFF18031C, 0x7FFE0000U, 0x64500000U);
-	psu_mask_write(0xFF180358, 0x00000008U, 0x00000008U);
-	psu_mask_write(0xFF180324, 0x03C00000U, 0x00000000U);
+	psu_mask_write(0xFF5E0238, 0x00000080U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00000400U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00008000U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00000010U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00007800U, 0x00000000U);
-	psu_mask_write(0xFF5E0238, 0x00000004U, 0x00000000U);
+	psu_mask_write(0xFF5E0238, 0x00000006U, 0x00000000U);
 	psu_mask_write(0xFF5E0238, 0x00040000U, 0x00000000U);
 	psu_mask_write(0xFF4B0024, 0x000000FFU, 0x000000FFU);
 	psu_mask_write(0xFFCA5000, 0x00001FFFU, 0x00000000U);
@@ -591,13 +586,15 @@ static unsigned long psu_peripherals_init_data(void)
 	psu_mask_write(0xFFA60040, 0x80000000U, 0x80000000U);
 	psu_mask_write(0xFF260020, 0xFFFFFFFFU, 0x05F5DD18U);
 	psu_mask_write(0xFF260000, 0x00000001U, 0x00000001U);
-	psu_mask_write(0xFF5E0250, 0x00000F0FU, 0x00000202U);
+	psu_mask_write(0xFF0A0284, 0x03FFFFFFU, 0x01000000U);
+	psu_mask_write(0xFF0A0288, 0x03FFFFFFU, 0x01000000U);
+	psu_mask_write(0xFF0A0014, 0x03FF03FFU, 0x02FF0100U);
 
 	mask_delay(1);
-	psu_mask_write(0xFF5E0250, 0x00000F0FU, 0x00000002U);
+	psu_mask_write(0xFF0A0014, 0x03FF03FFU, 0x02FF0000U);
 
 	mask_delay(5);
-	psu_mask_write(0xFF5E0250, 0x00000F0FU, 0x00000202U);
+	psu_mask_write(0xFF0A0014, 0x03FF03FFU, 0x02FF0100U);
 
 	return 1;
 }
