@@ -102,7 +102,9 @@
 };
 
 &ospi0 {
-	status = "disabled";
+	flash@0 {
+		bootph-all;
+	};
 };
 
 &ospi1 {
