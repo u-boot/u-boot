@@ -18,33 +18,6 @@
  */
 
 /**
- * \def MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
- *
- * Enable the RSA-only based ciphersuite modes in SSL / TLS.
- *
- * Requires: MBEDTLS_RSA_C, MBEDTLS_PKCS1_V15,
- *           MBEDTLS_X509_CRT_PARSE_C
- *
- * This enables the following ciphersuites (if other requisites are
- * enabled as well):
- *      MBEDTLS_TLS_RSA_WITH_AES_256_GCM_SHA384
- *      MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA256
- *      MBEDTLS_TLS_RSA_WITH_AES_256_CBC_SHA
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
- *      MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256
- *      MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256
- *      MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256
- *      MBEDTLS_TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
- */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_TLS)
-#define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
-#endif
-
-/**
  * \def MBEDTLS_PKCS1_V15
  *
  * Enable support for PKCS#1 v1.5 encoding.
@@ -53,29 +26,9 @@
  *
  * This enables support for PKCS#1 v1.5 operations.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
 #define MBEDTLS_PKCS1_V15
-#endif
-
-/**
- * \def MBEDTLS_SSL_PROTO_TLS1_2
- *
- * Enable support for TLS 1.2 (and DTLS 1.2 if DTLS is enabled).
- *
- * Requires: Without MBEDTLS_USE_PSA_CRYPTO: MBEDTLS_MD_C and
- *              (MBEDTLS_SHA256_C or MBEDTLS_SHA384_C or
- *               SHA-256 or SHA-512 provided by a PSA driver)
- *           With MBEDTLS_USE_PSA_CRYPTO:
- *              PSA_WANT_ALG_SHA_256 or PSA_WANT_ALG_SHA_384
- *
- * \warning If building with MBEDTLS_USE_PSA_CRYPTO, or if the hash(es) used
- * are only provided by PSA drivers, you must call psa_crypto_init() before
- * doing any TLS operations.
- *
- * Comment this macro to disable support for TLS 1.2 / DTLS 1.2
- */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_TLS)
-#define MBEDTLS_SSL_PROTO_TLS1_2
 #endif
 
 /** \} name SECTION: Mbed TLS feature support */
@@ -99,7 +52,8 @@
  *          library/pkcs5.c
  *          library/pkparse.c
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && \
+    CONFIG_IS_ENABLED(ASN1_DECODER)
 #define MBEDTLS_ASN1_PARSE_C
 #endif
 
@@ -115,7 +69,8 @@
  *          library/x509write_crt.c
  *          library/x509write_csr.c
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && \
+    CONFIG_IS_ENABLED(ASN1_DECODER)
 #define MBEDTLS_ASN1_WRITE_C
 #endif
 
@@ -137,7 +92,8 @@
  *
  * This module is required for RSA, DHM and ECC (ECDH, ECDSA) support.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && CONFIG_IS_ENABLED(RSA)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && \
+    CONFIG_IS_ENABLED(RSA_PUBLIC_KEY_PARSER)
 #define MBEDTLS_BIGNUM_C
 #endif
 
@@ -172,7 +128,7 @@
  *
  * Uncomment to enable generic message digest wrappers.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && CONFIG_IS_ENABLED(HASH)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 #define MBEDTLS_MD_C
 #endif
 
@@ -220,7 +176,7 @@
  *
  * This modules translates between OIDs and internal values.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(ASN1_DECODER)
 #define MBEDTLS_OID_C
 #endif
 
@@ -240,7 +196,8 @@
  *
  * Uncomment to enable generic public key wrappers.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(ASYMMETRIC_PUBLIC_KEY_SUBTYPE)
 #define MBEDTLS_PK_C
 #endif
 
@@ -257,7 +214,8 @@
  *
  * Uncomment to enable generic public key parse functions.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(ASYMMETRIC_PUBLIC_KEY_SUBTYPE)
 #define MBEDTLS_PK_PARSE_C
 #endif
 
@@ -275,7 +233,8 @@
  *
  * This module is required for the PKCS #7 parsing modules.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(PKCS7_MESSAGE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(PKCS7_MESSAGE_PARSER)
 #define MBEDTLS_PKCS7_C
 #endif
 
@@ -297,7 +256,8 @@
  *
  * Requires: MBEDTLS_BIGNUM_C, MBEDTLS_OID_C
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && CONFIG_IS_ENABLED(RSA)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO) && \
+    CONFIG_IS_ENABLED(RSA_PUBLIC_KEY_PARSER)
 #define MBEDTLS_RSA_C
 #endif
 
@@ -377,24 +337,6 @@
 #endif
 
 /**
- * \def MBEDTLS_SSL_TLS_C
- *
- * Enable the generic SSL/TLS code.
- *
- * Module:  library/ssl_tls.c
- * Caller:  library/ssl*_client.c
- *          library/ssl*_server.c
- *
- * Requires: MBEDTLS_CIPHER_C, MBEDTLS_MD_C
- *           and at least one of the MBEDTLS_SSL_PROTO_XXX defines
- *
- * This module is required for SSL/TLS.
- */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_TLS)
-#define MBEDTLS_SSL_TLS_C
-#endif
-
-/**
  * \def MBEDTLS_X509_USE_C
  *
  * Enable X.509 core for using certificates.
@@ -404,7 +346,8 @@
  *          library/x509_crt.c
  *          library/x509_csr.c
  *
- * Requires: MBEDTLS_ASN1_PARSE_C, MBEDTLS_BIGNUM_C, MBEDTLS_OID_C, MBEDTLS_PK_PARSE_C,
+ * Requires: MBEDTLS_ASN1_PARSE_C, MBEDTLS_BIGNUM_C, MBEDTLS_OID_C,
+ *           MBEDTLS_PK_PARSE_C,
  *           (MBEDTLS_MD_C or MBEDTLS_USE_PSA_CRYPTO)
  *
  * \warning If building with MBEDTLS_USE_PSA_CRYPTO, you must call
@@ -412,7 +355,8 @@
  *
  * This module is required for the X.509 parsing modules.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
 #define MBEDTLS_X509_USE_C
 #endif
 
@@ -430,7 +374,8 @@
  *
  * This module is required for X.509 certificate parsing.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
 #define MBEDTLS_X509_CRT_PARSE_C
 #endif
 
@@ -446,24 +391,9 @@
  *
  * This module is required for X.509 CRL parsing.
  */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && \
+    CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
 #define MBEDTLS_X509_CRL_PARSE_C
-#endif
-
-/**
- * \def MBEDTLS_X509_CSR_PARSE_C
- *
- * Enable X.509 Certificate Signing Request (CSR) parsing.
- *
- * Module:  library/x509_csr.c
- * Caller:  library/x509_crt_write.c
- *
- * Requires: MBEDTLS_X509_USE_C
- *
- * This module is used for reading X.509 certificate request.
- */
-#if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) && CONFIG_IS_ENABLED(X509_CERTIFICATE_PARSER)
-#define MBEDTLS_X509_CSR_PARSE_C
 #endif
 
 /** \} name SECTION: Mbed TLS modules */
