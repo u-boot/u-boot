@@ -2,7 +2,7 @@
 /*
  * Hash shim layer on MbedTLS Crypto library
  *
- * Copyright (c) 2023 Linaro Limited
+ * Copyright (c) 2024 Linaro Limited
  * Author: Raymond Mao <raymond.mao@linaro.org>
  */
 #include "compiler.h"
