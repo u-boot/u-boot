@@ -1216,7 +1216,7 @@ static int pldo_set_value(struct udevice *dev, int uvolt)
 	return _ldo_set_value(dev, info, uvolt);
 }
 
-static int _ldo_set_suspend_value(struct udevice *dev, const struct rk8xx_reg_info *info, int uvolt)
+static int _ldo_set_suspend_value(struct udevice *pmic, const struct rk8xx_reg_info *info, int uvolt)
 {
 	int mask = info->vsel_mask;
 	int val;
@@ -1232,7 +1232,7 @@ static int _ldo_set_suspend_value(struct udevice *dev, const struct rk8xx_reg_in
 	debug("%s: volt=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
 	      __func__, uvolt, info->vsel_sleep_reg, mask, val);
 
-	return pmic_clrsetbits(dev->parent, info->vsel_sleep_reg, mask, val);
+	return pmic_clrsetbits(pmic, info->vsel_sleep_reg, mask, val);
 }
 
 static int ldo_set_suspend_value(struct udevice *dev, int uvolt)
@@ -1259,7 +1259,7 @@ static int pldo_set_suspend_value(struct udevice *dev, int uvolt)
 	return _ldo_set_suspend_value(dev->parent, info, uvolt);
 }
 
-static int _ldo_get_suspend_value(struct udevice *dev, const struct rk8xx_reg_info *info)
+static int _ldo_get_suspend_value(struct udevice *pmic, const struct rk8xx_reg_info *info)
 {
 	int mask = info->vsel_mask;
 	int val, ret;
@@ -1267,7 +1267,7 @@ static int _ldo_get_suspend_value(struct udevice *dev, const struct rk8xx_reg_in
 	if (info->vsel_sleep_reg == NA)
 		return -ENOSYS;
 
-	ret = pmic_reg_read(dev->parent, info->vsel_sleep_reg);
+	ret = pmic_reg_read(pmic, info->vsel_sleep_reg);
 	if (ret < 0)
 		return ret;
 
