@@ -41,7 +41,6 @@ config MMC_BROKEN_CD
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
 	depends on DM
-	select BLK
 	help
 	  This enables the MultiMediaCard (MMC) uclass which supports MMC and
 	  Secure Digital I/O (SDIO) cards. Both removable (SD, micro-SD, etc.)
@@ -249,7 +248,6 @@ config MMC_DW_CORTINA
 	bool "Cortina specific extensions for Synopsys DW Memory Card Interface"
 	depends on DM_MMC
 	depends on MMC_DW
-	depends on BLK
 	help
 	  This selects support for Cortina SoC specific extensions to the
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
@@ -313,7 +311,7 @@ config NEXELL_DWMMC
 
 config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
-	depends on DM_MMC && BLK && ARCH_MESON
+	depends on DM_MMC && ARCH_MESON
 	help
 	 Support for EMMC host controller on Meson GX ARM SoCs platform (S905)
 
@@ -367,7 +365,7 @@ config MMC_OCTEONTX
 
 config MVEBU_MMC
 	bool "Kirkwood MMC controller support"
-	depends on DM_MMC && BLK && ARCH_KIRKWOOD
+	depends on DM_MMC && ARCH_KIRKWOOD
 	help
 	  Support for MMC host controller on Kirkwood SoCs.
 	  If you are on a Kirkwood architecture, say Y here.
@@ -420,7 +418,7 @@ config SH_MMCIF
 config MMC_UNIPHIER
 	bool "UniPhier SD/MMC Host Controller support"
 	depends on ARCH_UNIPHIER
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on OF_CONTROL
 	help
 	  This selects support for the Matsushita SD/MMC Host Controller on
@@ -429,7 +427,7 @@ config MMC_UNIPHIER
 config RENESAS_SDHI
 	bool "Renesas R-Car SD/MMC Host Controller support"
 	depends on ARCH_RENESAS
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on OF_CONTROL
 	select BOUNCE_BUFFER
 	help
@@ -439,7 +437,7 @@ config RENESAS_SDHI
 config MMC_BCM2835
 	bool "BCM2835 family custom SD/MMC Host Controller support"
 	depends on ARCH_BCM283X
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on OF_CONTROL
 	default y
 	help
@@ -459,7 +457,7 @@ config JZ47XX_MMC
 config MMC_SANDBOX
 	bool "Sandbox MMC support"
 	depends on SANDBOX
-	depends on BLK && DM_MMC && OF_CONTROL
+	depends on DM_MMC && OF_CONTROL
 	help
 	  This select a dummy sandbox MMC driver. At present this does nothing
 	  other than allow sandbox to be build with MMC support. This
@@ -561,7 +559,7 @@ config MMC_SDHCI_ASPEED
 config MMC_SDHCI_ATMEL
 	bool "Atmel SDHCI controller support"
 	depends on ARCH_AT91
-	depends on DM_MMC && BLK && ARCH_AT91
+	depends on DM_MMC && ARCH_AT91
 	depends on MMC_SDHCI
 	help
 	  This enables support for the Atmel SDHCI controller, which supports
@@ -596,7 +594,7 @@ config MMC_SDHCI_BCMSTB
 
 config MMC_SDHCI_CADENCE
 	bool "SDHCI support for the Cadence SD/SDIO/eMMC controller"
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	depends on OF_CONTROL
 	help
@@ -608,7 +606,7 @@ config MMC_SDHCI_CADENCE
 
 config MMC_SDHCI_CV1800B
 	bool "SDHCI support for the CV1800B SD/SDIO/eMMC controller"
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	depends on OF_CONTROL
 	help
@@ -643,7 +641,7 @@ config MMC_SDHCI_IPROC
 
 config MMC_SDHCI_F_SDH30
 	bool "SDHCI support for Fujitsu Semiconductor/Socionext F_SDH30"
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	help
 	  This selects the Secure Digital Host Controller Interface (SDHCI)
@@ -663,7 +661,7 @@ config MMC_SDHCI_KONA
 
 config MMC_SDHCI_MSM
 	bool "Qualcomm SDHCI controller"
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	help
 	  Enables support for SDHCI 2.0 controller present on some Qualcomm
@@ -829,7 +827,7 @@ config MMC_PITON
 
 config GENERIC_ATMEL_MCI
 	bool "Atmel Multimedia Card Interface support"
-	depends on DM_MMC && BLK && ARCH_AT91
+	depends on DM_MMC && ARCH_AT91
 	help
 	  This enables support for Atmel High Speed Multimedia Card Interface
 	  (HSMCI), which supports the MultiMedia Card (MMC) Specification V4.3,
@@ -838,7 +836,7 @@ config GENERIC_ATMEL_MCI
 
 config STM32_SDMMC2
 	bool "STMicroelectronics STM32H7 SD/MMC Host Controller support"
-	depends on DM_MMC && BLK && OF_CONTROL
+	depends on DM_MMC && OF_CONTROL
 	help
 	  This selects support for the SD/MMC controller on STM32H7 SoCs.
 	  If you have a board based on such a SoC and with a SD/MMC slot,
@@ -858,7 +856,7 @@ config FTSDC010_SDIO
 config MMC_MTK
 	bool "MediaTek SD/MMC Card Interface support"
 	depends on ARCH_MEDIATEK || ARCH_MTMIPS
-	depends on BLK && DM_MMC
+	depends on DM_MMC
 	depends on OF_CONTROL
 	help
 	  This selects the MediaTek(R) Secure digital and Multimedia card Interface.
