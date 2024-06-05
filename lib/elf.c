@@ -7,6 +7,7 @@
 #include <cpu_func.h>
 #include <elf.h>
 #include <env.h>
+#include <errno.h>
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86
@@ -14,6 +15,59 @@
 #include <asm/e820.h>
 #include <linux/linkage.h>
 #endif
+
+/**
+ * bootelf_exec() - start the ELF image execution.
+ *
+ * @entry: address of entry point of ELF.
+ *
+ * May by used to allow ports to override the default behavior.
+ */
+unsigned long bootelf_exec(ulong (*entry)(int, char * const[]),
+			   int argc, char *const argv[])
+{
+	return entry(argc, argv);
+}
+
+/**
+ * bootelf() - Boot ELF from memory.
+ *
+ * @addr:  Loading address of ELF in memory.
+ * @flags: Bits like ELF_PHDR to control boot details.
+ * @argc: May be used to pass command line arguments (maybe unused).
+ *	  Necessary for backward compatibility with the CLI command.
+ *	  If unused, must be 0.
+ * @argv: see @argc. If unused, must be NULL.
+ * Return: Number returned by ELF application.
+ *
+ * Sets errno = ENOEXEC if the ELF image is not valid.
+ */
+unsigned long bootelf(unsigned long addr, Bootelf_flags flags,
+		      int argc, char *const argv[])
+{
+	unsigned long entry_addr;
+	char *args[] = {"", NULL};
+
+	errno = 0;
+
+	if (!valid_elf_image(addr)) {
+		errno = ENOEXEC;
+		return 1;
+	}
+
+	entry_addr = flags.phdr ? load_elf_image_phdr(addr)
+					    : load_elf_image_shdr(addr);
+
+	if (!flags.autostart)
+		return 0;
+
+	if (!argc && !argv) {
+		argc = 1;
+		argv = args;
+	}
+
+	return bootelf_exec((void *)entry_addr, argc, argv);
+}
 
 /*
  * A very simple ELF64 loader, assumes the image is valid, returns the
