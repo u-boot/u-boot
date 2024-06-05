@@ -141,7 +141,7 @@
 
 #ifdef CONFIG_TARGET_AM625_A53_EVM
 
-#define SPL_AM625_SK_DTB "spl/dts/k3-am625-sk.dtb"
+#define SPL_AM625_SK_DTB "spl/dts/ti/k3-am625-sk.dtb"
 #define AM625_SK_DTB "u-boot.dtb"
 
 &binman {
