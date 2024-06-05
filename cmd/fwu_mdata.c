@@ -22,6 +22,7 @@ static void print_mdata(struct fwu_data *data)
 	printf("\tFWU Metadata\n");
 	printf("crc32: %#x\n", data->crc32);
 	printf("version: %#x\n", data->version);
+	printf("size: %#x\n", data->metadata_size);
 	printf("active_index: %#x\n", data->active_index);
 	printf("previous_active_index: %#x\n", data->previous_active_index);
 
