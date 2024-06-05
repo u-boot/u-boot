@@ -1293,7 +1293,7 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 
 config SPL_NVME
 	bool "NVM Express device support"
-	depends on BLK
+	depends on SPL_BLK
 	select FS_LOADER
 	select SPL_BLK_FS
 	help
