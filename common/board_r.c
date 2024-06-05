@@ -561,6 +561,8 @@ static int initr_lmb(void)
 {
 	lmb_reserve_common((void *)gd->fdt_blob);
 
+	lmb_add_memory(gd->bd);
+
 	return 0;
 }
 #endif
