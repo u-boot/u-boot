@@ -3,10 +3,10 @@ Network console
 
 In U-Boot, we implemented the networked console via the standard
 "devices" mechanism, which means that you can switch between the
-serial and network input/output devices by adjusting the 'stdin' and
-'stdout' environment variables. To switch to the networked console,
-set either of these variables to "nc". Input and output can be
-switched independently.
+serial and network input/output devices by adjusting the 'stdin',
+'stdout', and 'stderr' environment variables. To switch to the
+networked console, set either of these variables to "nc". Input and
+output can be switched independently.
 
 The default buffer size can be overridden by setting
 CFG_NETCONSOLE_BUFFER_SIZE.
@@ -18,14 +18,18 @@ broadcast address and port 6666 are used. If it is set to an IP
 address of 0 (or 0.0.0.0) then no messages are sent to the network.
 The source / listening port can be configured separately by setting
 the 'ncinport' environment variable and the destination port can be
-configured by setting the 'ncoutport' environment variable.
+configured by setting the 'ncoutport' environment variable. Note that
+you need to set up the network interface (e.g. using DHCP) before it
+can be used for network console.
 
-For example, if your server IP is 192.168.1.1, you could use::
+For example, if your server IP is 192.168.1.1, you could use:
 
-	=> setenv nc 'setenv stdout nc;setenv stdin nc'
-	=> setenv ncip 192.168.1.1
-	=> saveenv
-	=> run nc
+.. prompt:: bash =>
+
+    env set nc 'env set stdout nc; env set stderr nc; env set stdin nc'
+    env set ncip '192.168.1.1'
+    env save
+    run nc
 
 On the host side, please use this script to access the console
 
@@ -107,3 +111,34 @@ as follows:
 
 Note that unlike the U-Boot implementation the Linux netconsole is
 unidirectional, i. e. you have console output only in Linux.
+
+Setup via environment
+---------------------
+
+If persistent environment is enabled in your U-Boot configuration, you
+can configure the network console using the environment. For example:
+
+.. prompt:: bash =>
+
+    env set autoload no
+    env set hostname "u-boot"
+    env set bootdelay 5
+    env set nc 'dhcp; env set stdout nc; env set stderr nc; env set stdin nc'
+    env set ncip '192.168.1.1'
+    env set preboot "${preboot}; run nc;"
+    env save
+    reset
+
+``autoload no`` tells the ``dhcp`` command to configure the network
+interface without trying to load an image. ``hostname "u-boot"`` sets
+the hostname to be sent in DHCP requests, so they are easy to
+recognize in the DHCP server log. The command in ``nc`` calls ``dhcp``
+to make sure the network interface is set up before enabling
+netconsole.
+
+Adding ``nc`` to ``preboot`` tells U-Boot to activate netconsole
+before trying to find any boot options, so you can interact with it if
+desired.
+
+``env save`` stores the settings persistently, and ``reset`` then
+triggers a fresh start that will use the changed settings.
