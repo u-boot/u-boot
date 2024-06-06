@@ -130,7 +130,7 @@ int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	return idx;
 }
 
-struct law_entry find_law(phys_addr_t addr)
+struct law_entry find_law_by_addr_id(phys_addr_t addr, enum law_trgt_if id)
 {
 	struct law_entry entry;
 	int i;
@@ -144,6 +144,9 @@ struct law_entry find_law(phys_addr_t addr)
 		u64 upper;
 
 		if (!get_law_entry(i, &entry))
+			continue;
+
+		if (id != -1 && id != entry.trgt_id)
 			continue;
 
 		upper = entry.addr + (2ull << entry.size);
