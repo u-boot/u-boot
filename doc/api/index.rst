@@ -22,6 +22,7 @@ U-Boot API documentation
    rng
    sandbox
    serial
+   status_led
    sysreset
    timer
    unicode
