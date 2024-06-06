@@ -36,7 +36,7 @@ static const struct mbus_win windows[] = {
 };
 
 /* SPI0 CS0 Flash of size MBUS_SPI_SIZE is mapped to address MBUS_SPI_BASE */
-#if CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH) && CONFIG_ENV_SPI_BUS == 0 && CONFIG_ENV_SPI_CS == 0 && \
     CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE <= MBUS_SPI_SIZE
 void *env_sf_get_env_addr(void)
 {
