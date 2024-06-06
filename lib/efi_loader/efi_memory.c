@@ -47,6 +47,8 @@ static LIST_HEAD(efi_mem);
 void *efi_bounce_buffer;
 #endif
 
+static uint64_t desc_get_end(struct efi_mem_desc *desc);
+
 /**
  * struct efi_pool_allocation - memory block allocated from pool
  *
@@ -117,6 +119,36 @@ static int lmb_mem_map_update_sync(void *ctx, struct event *event)
 }
 EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
 #endif /* MEM_MAP_UPDATE_NOTIFY */
+
+static void dump_efi_mem_desc(struct efi_mem_desc *desc)
+{
+	u64 end;
+
+	end = desc_get_end(desc);
+
+	printf("-----------------------------------\n");
+	printf("Memory Range   [0x%llx - 0x%llx]\n",
+	       desc->physical_start, end);
+	printf("Num Pages      [0x%llx]\n", desc->num_pages);
+	printf("Memory Type    [0x%x]\n", desc->type);
+	printf("Attribute      [0x%llx]\n", desc->attribute);
+	printf("-----------------------------------\n");
+}
+
+void dump_efi_memory_map(void)
+{
+	struct list_head *lhandle;
+
+	list_for_each(lhandle, &efi_mem) {
+		struct efi_mem_list *lmem;
+		struct efi_mem_desc *desc;
+
+		lmem = list_entry(lhandle, struct efi_mem_list, link);
+		desc = &lmem->desc;
+
+		dump_efi_mem_desc(desc);
+	}
+}
 
 /**
  * checksum() - calculate checksum for memory allocated from pool
