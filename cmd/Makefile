@@ -11,6 +11,7 @@ obj-y += help.o
 obj-y += panic.o
 obj-y += version.o
 obj-y += efi_memory.o
+obj-y += efi_map_dump.o
 
 # command
 obj-$(CONFIG_CMD_ARMFFA) += armffa.o
