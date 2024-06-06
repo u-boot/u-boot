@@ -154,6 +154,14 @@ enum event_t {
 	EVT_MAIN_LOOP,
 
 	/**
+	 * @EVT_LMB_MAP_UPDATE:
+	 * This event is triggered on an update to the LMB reserved memory
+	 * region. This can be used to notify about any LMB memory allocation
+	 * or freeing of memory having occurred.
+	 */
+	EVT_LMB_MAP_UPDATE,
+
+	/**
 	 * @EVT_COUNT:
 	 * This constants holds the maximum event number + 1 and is used when
 	 * looping over all event classes.
@@ -203,6 +211,12 @@ union event_data {
 		oftree tree;
 		struct bootm_headers *images;
 	} ft_fixup;
+
+	struct event_lmb_map_update {
+		u64 base;
+		u64 size;
+		u8 op;
+	} lmb_map;
 };
 
 /**
