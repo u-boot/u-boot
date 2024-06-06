@@ -6,6 +6,7 @@
 
 #include <dm.h>
 #include <dm/lists.h>
+#include <bitfield.h>
 #include <errno.h>
 #include <log.h>
 #include <linux/bitfield.h>
@@ -277,10 +278,9 @@ static int rk8xx_probe(struct udevice *dev)
 		return ret;
 
 	priv->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
-	show_variant = priv->variant;
+	show_variant = bitfield_extract_by_mask(priv->variant, RK8XX_ID_MSK);
 	switch (priv->variant) {
 	case RK808_ID:
-		show_variant = 0x808;	/* RK808 hardware ID is 0 */
 		break;
 	case RK805_ID:
 	case RK816_ID:
@@ -311,7 +311,7 @@ static int rk8xx_probe(struct udevice *dev)
 		init_data_num = ARRAY_SIZE(rk806_init_reg);
 		break;
 	default:
-		printf("Unknown PMIC: RK%x!!\n", priv->variant);
+		printf("Unknown PMIC: RK%x!!\n", show_variant);
 		return -EINVAL;
 	}
 
