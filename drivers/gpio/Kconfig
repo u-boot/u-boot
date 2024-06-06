@@ -639,7 +639,7 @@ config NOMADIK_GPIO
 
 config ZYNQMP_GPIO_MODEPIN
 	bool "ZynqMP gpio modepin"
-	depends on DM_GPIO
+	depends on DM_GPIO && ZYNQMP_FIRMWARE
 	help
 	  This config enables the ZynqMP gpio modepin driver. ZynqMP modepin
 	  driver will set and get the status of PS_MODE pins. These modepins
