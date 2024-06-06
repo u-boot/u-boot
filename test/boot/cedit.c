@@ -8,6 +8,7 @@
 #include <cedit.h>
 #include <env.h>
 #include <expo.h>
+#include <lmb.h>
 #include <mapmem.h>
 #include <dm/ofnode.h>
 #include <test/ut.h>
@@ -62,7 +63,7 @@ static int cedit_fdt(struct unit_test_state *uts)
 	struct video_priv *vid_priv;
 	extern struct expo *cur_exp;
 	struct scene_obj_menu *menu;
-	ulong addr = 0x1000;
+	ulong addr;
 	struct ofprop prop;
 	struct scene *scn;
 	oftree tree;
@@ -87,6 +88,8 @@ static int cedit_fdt(struct unit_test_state *uts)
 	str = abuf_data(&tline->buf);
 	strcpy(str, "my-machine");
 
+	addr = lmb_alloc(1024, 1024);
+	ut_asserteq(!!addr, !0);
 	ut_assertok(run_command("cedit write_fdt hostfs - settings.dtb", 0));
 	ut_assertok(run_commandf("load hostfs - %lx settings.dtb", addr));
 	ut_assert_nextlinen("1024 bytes read");
@@ -95,6 +98,7 @@ static int cedit_fdt(struct unit_test_state *uts)
 	tree = oftree_from_fdt(fdt);
 	node = ofnode_find_subnode(oftree_root(tree), CEDIT_NODE_NAME);
 	ut_assert(ofnode_valid(node));
+	lmb_free(addr, 1024);
 
 	ut_asserteq(ID_CPU_SPEED_2,
 		    ofnode_read_u32_default(node, "cpu-speed", 0));
