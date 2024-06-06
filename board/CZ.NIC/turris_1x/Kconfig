@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: GPL-2.0+
+# (C) 2022 Pali Rohár <pali@kernel.org>
+
+if TARGET_TURRIS_1X
+
+# Board identification
+config SYS_BOARD
+	default "turris_1x"
+config SYS_VENDOR
+	default "CZ.NIC"
+config SYS_CONFIG_NAME
+	default "turris_1x"
+config DEFAULT_DEVICE_TREE
+	default "turris1x"
+
+# Board functions
+config ATSHA204A
+	default y
+config BOARD_EARLY_INIT_F
+	default y
+config BOARD_EARLY_INIT_R
+	default y
+config LAST_STAGE_INIT
+	default y
+config MISC
+	default y
+config OF_BOARD_FIXUP
+	default y
+config OF_BOARD_SETUP
+	default y
+
+# ENV
+config ENV_SIZE
+	default 0x2000
+config ENV_SECT_SIZE
+	default 0x20000
+config ENV_OVERWRITE
+	default y
+config ENV_IS_IN_FLASH
+	default y
+config ENV_ADDR
+	default 0xeff20000 # in NOR
+config SYS_RELOC_GD_ENV_ADDR
+	default y
+
+# DDR
+config DDR_CLK_FREQ
+	default 66666666
+config NR_DRAM_BANKS
+	default 5
+
+# UART
+config DEBUG_UART_BASE
+	default 0xffe04500 if DEBUG_UART
+config DEBUG_UART_CLOCK
+	default 37500000 if DEBUG_UART
+config SYS_NS16550
+	default y
+
+# I2C
+config I2C_SET_DEFAULT_BUS_NUM
+	default y
+config SYS_FSL_I2C_OFFSET
+	default 0x3000
+config SYS_FSL_HAS_I2C2_OFFSET
+	default y
+config SYS_FSL_I2C2_OFFSET
+	default 0x3100
+config SYS_I2C_FSL
+	default y
+
+# GPIO
+config MPC8XXX_GPIO
+	default y
+
+# WDT
+config WDT_MAX6370
+	default y
+
+# PCIe
+config PCI_INIT_R
+	default y
+config PCIE_FSL
+	default y
+
+# Ethernet
+config MII
+	default y
+config PHY_FIXED
+	default y
+config TSEC_ENET
+	default y
+
+# USB
+config USB_EHCI_FSL
+	default y
+config USB_XHCI_HCD
+	default y
+config USB_XHCI_PCI
+	default y
+
+# SDHC
+config FSL_ESDHC
+	default y
+config SYS_FSL_ESDHC_DEFAULT_BUS_WIDTH
+	default 4
+
+# NOR
+config MTD_NOR_FLASH
+	default y
+config CFI_FLASH
+	default y
+config FLASH_CFI_MTD
+	default y
+config SYS_FLASH_USE_BUFFER_WRITE
+	default y
+
+# NAND
+config MTD_RAW_NAND
+	default y
+config NAND_FSL_ELBC
+	default y
+config NAND_FSL_ELBC_DT
+	default y
+config BCH
+	default y
+config SYS_FLASH_CFI
+	default y
+config NAND_ECC_BCH
+	default y
+endif
+
+config SYS_LOAD_ADDR
+	default 0x1000000
+
+if SPL
+
+config SPL_ENV_SUPPORT
+	default y
+config SPL_FRAMEWORK
+	default n
+config SPL_I2C
+	default y
+config SPL_LIBCOMMON_SUPPORT
+	default y
+config SPL_LIBGENERIC_SUPPORT
+	default y
+config SPL_MPC8XXX_INIT_DDR
+	default y
+config SPL_SERIAL
+	default y
+config SPL_SYS_I2C_LEGACY
+	default y
+
+endif

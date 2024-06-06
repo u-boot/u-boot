@@ -224,7 +224,7 @@ int board_early_init_f(void)
 #define BOARD_NAME "P2020RDB-PC"
 #endif
 
-int checkboard(void)
+int checkboard_p1_p2(void)
 {
 	struct cpld_data *cpld_data = (void *)(CFG_SYS_CPLD_BASE);
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);
@@ -316,6 +316,13 @@ int checkboard(void)
 
 	return 0;
 }
+
+#if !defined(CONFIG_TARGET_TURRIS_1X)
+int checkboard(void)
+{
+	return checkboard_p1_p2();
+}
+#endif
 
 int board_early_init_r(void)
 {

@@ -1,0 +1,13 @@
+TURRIS 1.X BOARD
+M:	Marek Mojík <marek.mojik@nic.cz>
+S:	Maintained
+F:	arch/powerpc/dts/turris1x-u-boot.dtsi
+F:	arch/powerpc/dts/turris1x.dts
+F:	board/CZ.NIC/turris_1x/
+F:	board/CZ.NIC/turris_atsha_otp.c
+F:	board/CZ.NIC/turris_atsha_otp.h
+F:	board/freescale/p1_p2_rdb_pc/p1_p2_rdb_pc.c
+F:	board/freescale/p1_p2_rdb_pc/spl.c
+F:	configs/turris_1x_nor_defconfig
+F:	configs/turris_1x_sdcard_defconfig
+F:	include/configs/turris_1x.h

@@ -173,6 +173,12 @@ config TARGET_P2020RDB
 	imply CMD_SATA
 	imply SATA_SIL
 
+config TARGET_TURRIS_1X
+	bool "Support Turris 1.x"
+	select SUPPORT_SPL
+	select ARCH_P2020
+	select SYS_L2_SIZE_512KB
+
 config TARGET_P2041RDB
 	bool "Support P2041RDB"
 	select ARCH_P2041
@@ -1530,6 +1536,7 @@ config TPL_SYS_MPC85XX_NO_RESETVEC
 config FSL_VIA
 	bool
 
+source "board/CZ.NIC/turris_1x/Kconfig"
 source "board/emulation/qemu-ppce500/Kconfig"
 source "board/freescale/mpc8548cds/Kconfig"
 source "board/freescale/p1010rdb/Kconfig"

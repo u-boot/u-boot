@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+&soc {
+	i2c@3000 {
+		bootph-all;
+
+		crypto@64 {
+			bootph-all;
+		};
+	};
+};
+
+&serial0 {
+	bootph-all;
+};
+
+#include "u-boot.dtsi"
