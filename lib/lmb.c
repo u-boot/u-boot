@@ -25,6 +25,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define LMB_ALLOC_ANYWHERE	0
 
+extern bool is_addr_in_ram(uintptr_t addr);
+
 #if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
 struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
 struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
@@ -49,12 +51,12 @@ static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
 {
 	struct event_lmb_map_update lmb_map = {0};
 
-//	printf("%s: %d\n", __func__, __LINE__);
 	lmb_map.base = addr;
 	lmb_map.size = size;
 	lmb_map.op = op;
 
-	event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
+	if (is_addr_in_ram((uintptr_t)map_sysmem((uintptr_t)addr, 0)))
+		event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
 }
 
 static void lmb_dump_region(struct lmb_region *rgn, char *name)

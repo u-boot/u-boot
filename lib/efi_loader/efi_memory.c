@@ -47,6 +47,8 @@ static LIST_HEAD(efi_mem);
 void *efi_bounce_buffer;
 #endif
 
+extern bool is_addr_in_ram(uintptr_t addr);
+
 /**
  * struct efi_pool_allocation - memory block allocated from pool
  *
@@ -78,7 +80,8 @@ static void efi_map_update_notify(u64 addr, u64 size, u8 op)
 	efi_map.size = size;
 	efi_map.op = op;
 
-	event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
+	if (is_addr_in_ram((uintptr_t)addr))
+		event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
 }
 
 /**
