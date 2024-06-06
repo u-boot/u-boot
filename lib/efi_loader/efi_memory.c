@@ -48,6 +48,8 @@ void *efi_bounce_buffer;
 #define MAP_OP_FREE		(u8)0x2
 #define MAP_OP_ADD		(u8)0x3
 
+static uint64_t desc_get_end(struct efi_mem_desc *desc);
+
 /**
  * struct efi_pool_allocation - memory block allocated from pool
  *
@@ -70,6 +72,36 @@ struct efi_pool_allocation {
 	u64 checksum;
 	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
+
+static void dump_efi_mem_desc(struct efi_mem_desc *desc)
+{
+	u64 end;
+
+	end = desc_get_end(desc);
+
+	printf("-----------------------------------\n");
+	printf("Memory Range   [0x%llx - 0x%llx]\n",
+	       desc->physical_start, end);
+	printf("Num Pages      [0x%llx]\n", desc->num_pages);
+	printf("Memory Type    [0x%x]\n", desc->type);
+	printf("Attribute      [0x%llx]\n", desc->attribute);
+	printf("-----------------------------------\n");
+}
+
+void dump_efi_memory_map(void)
+{
+	struct list_head *lhandle;
+
+	list_for_each(lhandle, &efi_mem) {
+		struct efi_mem_list *lmem;
+		struct efi_mem_desc *desc;
+
+		lmem = list_entry(lhandle, struct efi_mem_list, link);
+		desc = &lmem->desc;
+
+		dump_efi_mem_desc(desc);
+	}
+}
 
 /**
  * checksum() - calculate checksum for memory allocated from pool
