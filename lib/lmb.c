@@ -7,6 +7,7 @@
  */
 
 #include <efi_loader.h>
+#include <event.h>
 #include <image.h>
 #include <mapmem.h>
 #include <lmb.h>
@@ -18,7 +19,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
+
 #define LMB_ALLOC_ANYWHERE	0
+
+extern bool is_addr_in_ram(uintptr_t addr);
 
 #if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
 struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
@@ -38,6 +44,19 @@ struct lmb lmb = {
 	.memory.cnt = 0,
 	.reserved.cnt = 0,
 };
+
+static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
+				  u8 op)
+{
+	struct event_lmb_map_update lmb_map = {0};
+
+	lmb_map.base = addr;
+	lmb_map.size = size;
+	lmb_map.op = op;
+
+	if (is_addr_in_ram((uintptr_t)addr))
+		event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
+}
 
 static void lmb_dump_region(struct lmb_region *rgn, char *name)
 {
@@ -450,7 +469,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_add_region(_rgn, base, size);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+static long __lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &lmb.reserved;
 	phys_addr_t rgnbegin, rgnend;
@@ -500,11 +519,33 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 				    rgn->region[i].flags);
 }
 
+long lmb_free(phys_addr_t base, phys_size_t size)
+{
+	long ret;
+
+	ret = __lmb_free(base, size);
+	if (ret < 0)
+		return ret;
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
+		lmb_map_update_notify(base, size, MAP_OP_FREE);
+
+	return 0;
+}
+
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
+	long ret = 0;
 	struct lmb_region *_rgn = &lmb.reserved;
 
-	return lmb_add_region_flags(_rgn, base, size, flags);
+	ret = lmb_add_region_flags(_rgn, base, size, flags);
+	if (ret < 0)
+		return -1;
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
+		lmb_map_update_notify(base, size, MAP_OP_RESERVE);
+
+	return ret;
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -563,6 +604,10 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 				if (lmb_add_region(&lmb.reserved, base,
 						   size) < 0)
 					return 0;
+
+				if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
+					lmb_map_update_notify(base, size,
+							      MAP_OP_RESERVE);
 				return base;
 			}
 			res_base = lmb.reserved.region[rgn].base;
