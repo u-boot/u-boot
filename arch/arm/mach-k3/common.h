@@ -2,12 +2,13 @@
 /*
  * K3: Architecture common definitions
  *
- * Copyright (C) 2018 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2018-2024 Texas Instruments Incorporated - https://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
 #include <asm/armv7_mpu.h>
 #include <asm/hardware.h>
+#include <mach/security.h>
 
 #define K3_FIREWALL_BACKGROUND_BIT (8)
 
@@ -41,7 +42,6 @@ void spl_enable_cache(void);
 void mmr_unlock(uintptr_t base, u32 partition);
 bool is_rom_loaded_sysfw(struct rom_extended_boot_data *data);
 enum k3_device_type get_device_type(void);
-void ti_secure_image_post_process(void **p_image, size_t *p_size);
 struct ti_sci_handle *get_ti_sci_handle(void);
 void do_board_detect(void);
 void ti_secure_image_check_binary(void **p_image, size_t *p_size);
