@@ -51,7 +51,7 @@
 
 /* TOPCKGEN */
 
-#define CK_TOP_CB_CKSQ_40M		0
+#define CK_TOP_XTAL			0
 #define CK_TOP_CB_M_416M		1
 #define CK_TOP_CB_M_D2			2
 #define CK_TOP_CB_M_D4			3
@@ -79,7 +79,7 @@
 #define CK_TOP_CB_WEDMCU_760M		25
 #define CK_TOP_WEDMCU_D5_D2		26
 #define CK_TOP_CB_SGM_325M		27
-#define CK_TOP_CB_CKSQ_40M_D2		28
+#define CK_TOP_XTAL_D2			28
 #define CK_TOP_CB_RTC_32K		29
 #define CK_TOP_CB_RTC_32P7K		30
 #define CK_TOP_NFI1X			31

@@ -41,7 +41,7 @@ static const struct mtk_fixed_clk fixed_pll_clks[] = {
 
 /* TOPCKGEN FIXED CLK */
 static const struct mtk_fixed_clk top_fixed_clks[] = {
-	FIXED_CLK(CK_TOP_CB_CKSQ_40M, CLK_XTAL, 40000000),
+	FIXED_CLK(CK_TOP_XTAL, CLK_XTAL, 40000000),
 };
 
 /* TOPCKGEN FIXED DIV */
@@ -77,18 +77,18 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	PLL_FACTOR(CK_TOP_WEDMCU_D5_D2, "wedmcu_d5_d2", CK_APMIXED_WEDMCUPLL, 1,
 		   10),
 	PLL_FACTOR(CK_TOP_CB_SGM_325M, "cb_sgm_325m", CK_APMIXED_SGMPLL, 1, 1),
-	TOP_FACTOR(CK_TOP_CB_CKSQ_40M_D2, "cb_cksq_40m_d2", CK_TOP_CB_CKSQ_40M,
+	TOP_FACTOR(CK_TOP_XTAL_D2, "xtal_d2", CK_TOP_XTAL,
 		   1, 2),
-	TOP_FACTOR(CK_TOP_CB_RTC_32K, "cb_rtc_32k", CK_TOP_CB_CKSQ_40M, 1,
+	TOP_FACTOR(CK_TOP_CB_RTC_32K, "cb_rtc_32k", CK_TOP_XTAL, 1,
 		   1250),
-	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_CB_CKSQ_40M, 1,
+	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_XTAL, 1,
 		   1220),
 	TOP_FACTOR(CK_TOP_NFI1X, "nfi1x", CK_TOP_NFI1X_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_EQ_RX250M, "usb_eq_rx250m", CK_TOP_CB_CKSQ_40M, 1,
+	TOP_FACTOR(CK_TOP_USB_EQ_RX250M, "usb_eq_rx250m", CK_TOP_XTAL, 1,
 		   1),
-	TOP_FACTOR(CK_TOP_USB_TX250M, "usb_tx250m", CK_TOP_CB_CKSQ_40M, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_LN0_CK, "usb_ln0", CK_TOP_CB_CKSQ_40M, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_CDR_CK, "usb_cdr", CK_TOP_CB_CKSQ_40M, 1, 1),
+	TOP_FACTOR(CK_TOP_USB_TX250M, "usb_tx250m", CK_TOP_XTAL, 1, 1),
+	TOP_FACTOR(CK_TOP_USB_LN0_CK, "usb_ln0", CK_TOP_XTAL, 1, 1),
+	TOP_FACTOR(CK_TOP_USB_CDR_CK, "usb_cdr", CK_TOP_XTAL, 1, 1),
 	TOP_FACTOR(CK_TOP_SPINFI_BCK, "spinfi_bck", CK_TOP_SPINFI_SEL, 1, 1),
 	TOP_FACTOR(CK_TOP_I2C_BCK, "i2c_bck", CK_TOP_I2C_SEL, 1, 1),
 	TOP_FACTOR(CK_TOP_PEXTP_TL, "pextp_tl", CK_TOP_PEXTP_TL_SEL, 1, 1),
@@ -114,91 +114,91 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 };
 
 /* TOPCKGEN MUX PARENTS */
-static const int nfi1x_parents[] = { CK_TOP_CB_CKSQ_40M,  CK_TOP_CB_MM_D8,
+static const int nfi1x_parents[] = { CK_TOP_XTAL,  CK_TOP_CB_MM_D8,
 				     CK_TOP_NET1_D8_D2,   CK_TOP_NET2_D3_D2,
 				     CK_TOP_CB_M_D4,      CK_TOP_MM_D8_D2,
 				     CK_TOP_WEDMCU_D5_D2, CK_TOP_CB_M_D8 };
 
 static const int spinfi_parents[] = {
-	CK_TOP_CB_CKSQ_40M_D2, CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D4,
+	CK_TOP_XTAL_D2, CK_TOP_XTAL, CK_TOP_NET1_D5_D4,
 	CK_TOP_CB_M_D4,	CK_TOP_MM_D8_D2,    CK_TOP_WEDMCU_D5_D2,
 	CK_TOP_MM_D3_D8,       CK_TOP_CB_M_D8
 };
 
-static const int spi_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D2,
+static const int spi_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2,
 				   CK_TOP_CB_MM_D8,    CK_TOP_NET1_D8_D2,
 				   CK_TOP_NET2_D3_D2,  CK_TOP_NET1_D5_D4,
 				   CK_TOP_CB_M_D4,     CK_TOP_WEDMCU_D5_D2 };
 
-static const int uart_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D8,
+static const int uart_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D8,
 				    CK_TOP_M_D8_D2 };
 
-static const int pwm_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D8_D2,
+static const int pwm_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D8_D2,
 				   CK_TOP_NET1_D5_D4, CK_TOP_CB_M_D4 };
 
-static const int i2c_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D4,
+static const int i2c_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4,
 				   CK_TOP_CB_M_D4, CK_TOP_NET1_D8_D4 };
 
-static const int pextp_tl_ck_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int pextp_tl_ck_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_NET1_D5_D4, CK_TOP_NET2_D4_D2,
 					   CK_TOP_CB_RTC_32K };
 
-static const int emmc_250m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int emmc_250m_parents[] = { CK_TOP_XTAL,
 					 CK_TOP_NET1_D5_D2 };
 
-static const int emmc_416m_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_416M };
+static const int emmc_416m_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_416M };
 
-static const int f_26m_adc_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_M_D8_D2 };
+static const int f_26m_adc_parents[] = { CK_TOP_XTAL, CK_TOP_M_D8_D2 };
 
-static const int dramc_md32_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D2 };
+static const int dramc_md32_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2 };
 
-static const int sysaxi_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D8_D2,
+static const int sysaxi_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D8_D2,
 				      CK_TOP_CB_NET2_D4 };
 
-static const int sysapb_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_M_D3_D2,
+static const int sysapb_parents[] = { CK_TOP_XTAL, CK_TOP_M_D3_D2,
 				      CK_TOP_NET2_D4_D2 };
 
-static const int arm_db_main_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int arm_db_main_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_NET2_D3_D2 };
 
-static const int arm_db_jtsel_parents[] = { -1, CK_TOP_CB_CKSQ_40M };
+static const int arm_db_jtsel_parents[] = { -1, CK_TOP_XTAL };
 
-static const int netsys_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_MM_D4 };
+static const int netsys_parents[] = { CK_TOP_XTAL, CK_TOP_CB_MM_D4 };
 
-static const int netsys_500m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_500m_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_CB_NET1_D5 };
 
-static const int netsys_mcu_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_mcu_parents[] = { CK_TOP_XTAL,
 					  CK_TOP_CB_WEDMCU_760M,
 					  CK_TOP_CB_MM_D2, CK_TOP_CB_NET1_D4,
 					  CK_TOP_CB_NET1_D5 };
 
-static const int netsys_2x_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_2x_parents[] = { CK_TOP_XTAL,
 					 CK_TOP_CB_NET2_800M,
 					 CK_TOP_CB_WEDMCU_760M,
 					 CK_TOP_CB_MM_D2 };
 
-static const int sgm_325m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int sgm_325m_parents[] = { CK_TOP_XTAL,
 					CK_TOP_CB_SGM_325M };
 
-static const int sgm_reg_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D8_D4 };
+static const int sgm_reg_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D8_D4 };
 
-static const int a1sys_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_APLL2_D4 };
+static const int a1sys_parents[] = { CK_TOP_XTAL, CK_TOP_APLL2_D4 };
 
-static const int conn_mcusys_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int conn_mcusys_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_CB_MM_D2 };
 
-static const int eip_b_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NET2_800M };
+static const int eip_b_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET2_800M };
 
-static const int aud_l_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_APLL2_196M,
+static const int aud_l_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M,
 				     CK_TOP_M_D8_D2 };
 
-static const int a_tuner_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_APLL2_D4,
+static const int a_tuner_parents[] = { CK_TOP_XTAL, CK_TOP_APLL2_D4,
 				       CK_TOP_M_D8_D2 };
 
-static const int u2u3_sys_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D4 };
+static const int u2u3_sys_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4 };
 
-static const int da_u2_refsel_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int da_u2_refsel_parents[] = { CK_TOP_XTAL,
 					    CK_TOP_CB_U2_PHYD_CK };
 
 #define TOP_MUX(_id, _name, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,    \
