@@ -492,7 +492,7 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 		    CK_INFRA_PERI_133M, 18),
 	GATE_INFRA1(CK_INFRA_MSDC_66M_CK, "infra_msdc_66m", CK_INFRA_66M_PHCK,
 		    19),
-	GATE_INFRA1(CK_INFRA_ADC_26M_CK, "infra_adc_26m", CK_INFRA_CK_F26M, 20),
+	GATE_INFRA1(CK_INFRA_ADC_26M_CK, "infra_adc_26m", CK_INFRA_ADC_FRC_CK, 20),
 	GATE_INFRA1(CK_INFRA_ADC_FRC_CK, "infra_adc_frc", CK_INFRA_CK_F26M, 21),
 	GATE_INFRA1(CK_INFRA_FBIST2FPC_CK, "infra_fbist2fpc", CK_INFRA_NFI_CK,
 		    23),
