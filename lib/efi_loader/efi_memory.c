@@ -964,6 +964,31 @@ static void add_u_boot_and_runtime(void)
 			      EFI_RUNTIME_SERVICES_CODE, false);
 }
 
+static int lmb_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	u64 addr;
+	u64 size;
+	efi_status_t status;
+	struct event_lmb_map_update *lmb_map = &event->data.lmb_map;
+
+	addr = (uintptr_t)map_sysmem(lmb_map->base, 0);
+	size = lmb_map->size;
+	op = lmb_map->op;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	status = efi_add_memory_map(addr, size, op == MAP_OP_FREE ?
+				    EFI_CONVENTIONAL_MEMORY :
+				    EFI_BOOT_SERVICES_DATA);
+
+	return status == EFI_SUCCESS ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
+
 int efi_memory_init(void)
 {
 	efi_add_known_memory();
