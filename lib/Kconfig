@@ -1111,6 +1111,7 @@ config LMB
 	bool "Enable the logical memory blocks library (lmb)"
 	default y if ARC || ARM || M68K || MICROBLAZE || MIPS || \
 		     NIOS2 || PPC || RISCV || SANDBOX || SH || X86 || XTENSA
+	select EVENT
 	help
 	  Support the library logical memory blocks.
 
