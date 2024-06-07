@@ -213,6 +213,8 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
+	do_board_detect();
+
 	/*
 	 * Allow establishing an early console as required for example when
 	 * doing a UART-based boot. Note that this console may not "survive"

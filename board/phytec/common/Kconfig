@@ -24,6 +24,7 @@ config PHYTEC_AM62_SOM_DETECTION
 	depends on (TARGET_PHYCORE_AM62X_A53 || TARGET_PHYCORE_AM62X_R5) && \
 		   PHYTEC_SOM_DETECTION
 	select PHYTEC_SOM_DETECTION_BLOCKS
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported
@@ -34,6 +35,7 @@ config PHYTEC_AM64_SOM_DETECTION
 	depends on (TARGET_PHYCORE_AM64X_A53 || TARGET_PHYCORE_AM64X_R5) && \
 		   PHYTEC_SOM_DETECTION
 	select PHYTEC_SOM_DETECTION_BLOCKS
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported

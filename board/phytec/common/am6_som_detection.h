@@ -9,10 +9,18 @@
 
 #include "phytec_som_detection.h"
 
+#define EEPROM_ADDR				0x50
 #define PHYTEC_AM62X_SOM			71
 #define PHYTEC_AM64X_SOM			72
 #define PHYTEC_EEPROM_VALUE_X			0x21
 #define PHYTEC_EEPROM_NOR_FLASH_64MB_QSPI	0xC
+
+enum {
+	EEPROM_RAM_SIZE_512MB = 0,
+	EEPROM_RAM_SIZE_1GB = 1,
+	EEPROM_RAM_SIZE_2GB = 2,
+	EEPROM_RAM_SIZE_4GB = 4
+};
 
 int __maybe_unused phytec_am6_detect(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_am6_ddr_size(struct phytec_eeprom_data *data);
