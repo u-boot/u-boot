@@ -73,6 +73,10 @@ struct efi_pool_allocation {
 #if CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY)
 extern bool is_addr_in_ram(uintptr_t addr);
 
+static efi_status_t __efi_add_memory_map_pg(u64 start, u64 pages,
+					    int memory_type,
+					    bool overlap_only_ram);
+
 static void efi_map_update_notify(u64 addr, u64 size, u8 op)
 {
 	struct event_efi_mem_map_update efi_map = {0};
@@ -84,6 +88,34 @@ static void efi_map_update_notify(u64 addr, u64 size, u8 op)
 	if (is_addr_in_ram((uintptr_t)addr))
 		event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
 }
+
+static int lmb_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	u64 addr;
+	u64 pages;
+	efi_status_t status;
+	struct event_lmb_map_update *lmb_map = &event->data.lmb_map;
+
+	addr = (uintptr_t)map_sysmem(lmb_map->base, 0);
+	pages = efi_size_in_pages(lmb_map->size + (addr & EFI_PAGE_MASK));
+	op = lmb_map->op;
+	addr &= ~EFI_PAGE_MASK;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	status = __efi_add_memory_map_pg(addr, pages,
+					 op == MAP_OP_FREE ?
+					 EFI_CONVENTIONAL_MEMORY :
+					 EFI_BOOT_SERVICES_DATA,
+					 true);
+
+	return status == EFI_SUCCESS ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
 #endif /* MEM_MAP_UPDATE_NOTIFY */
 
 /**
@@ -275,18 +307,9 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 	return EFI_CARVE_LOOP_AGAIN;
 }
 
-/**
- * efi_add_memory_map_pg() - add pages to the memory map
- *
- * @start:		start address, must be a multiple of EFI_PAGE_SIZE
- * @pages:		number of pages to add
- * @memory_type:	type of memory added
- * @overlap_only_ram:	region may only overlap RAM
- * Return:		status code
- */
-static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
-					  int memory_type,
-					  bool overlap_only_ram)
+static efi_status_t __efi_add_memory_map_pg(u64 start, u64 pages,
+					    int memory_type,
+					    bool overlap_only_ram)
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
@@ -394,6 +417,29 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 			break;
 		}
 	}
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_add_memory_map_pg() - add pages to the memory map
+ *
+ * @start:		start address, must be a multiple of EFI_PAGE_SIZE
+ * @pages:		number of pages to add
+ * @memory_type:	type of memory added
+ * @overlap_only_ram:	region may only overlap RAM
+ * Return:		status code
+ */
+static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
+					  int memory_type,
+					  bool overlap_only_ram)
+{
+	efi_status_t status;
+
+	status = __efi_add_memory_map_pg(start, pages, memory_type,
+					 overlap_only_ram);
+	if (status != EFI_SUCCESS)
+		return status;
 
 	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
 		efi_map_update_notify(start, pages << EFI_PAGE_SHIFT,
