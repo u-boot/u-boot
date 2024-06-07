@@ -8,6 +8,7 @@
 
 #include <alist.h>
 #include <efi_loader.h>
+#include <event.h>
 #include <image.h>
 #include <mapmem.h>
 #include <lmb.h>
@@ -22,10 +23,33 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
+#define MAP_OP_ADD		(u8)0x3
+
 #define LMB_ALLOC_ANYWHERE	0
 #define LMB_ALIST_INITIAL_SIZE	4
 
 static struct lmb lmb;
+extern bool is_addr_in_ram(uintptr_t addr);
+
+static bool lmb_notify(enum lmb_flags flags)
+{
+	return !lmb.test && !(flags & LMB_NONOTIFY);
+}
+
+static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
+				  u8 op)
+{
+	struct event_lmb_map_update lmb_map = {0};
+
+	lmb_map.base = addr;
+	lmb_map.size = size;
+	lmb_map.op = op;
+
+	if (is_addr_in_ram((uintptr_t)addr))
+		event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
+}
 
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
@@ -474,9 +498,17 @@ static long lmb_add_region(struct alist *lmb_rgn_lst, phys_addr_t base,
 /* This routine may be called with relocation disabled. */
 long lmb_add(phys_addr_t base, phys_size_t size)
 {
+	long ret;
 	struct alist *lmb_rgn_lst = &lmb.free_mem;
 
-	return lmb_add_region(lmb_rgn_lst, base, size);
+	ret = lmb_add_region(lmb_rgn_lst, base, size);
+	if (ret)
+		return ret;
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
+		lmb_map_update_notify(base, size, MAP_OP_ADD);
+
+	return 0;
 }
 
 static long __lmb_free(phys_addr_t base, phys_size_t size)
@@ -530,22 +562,39 @@ static long __lmb_free(phys_addr_t base, phys_size_t size)
 				    rgn[i].flags);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+long lmb_free_flags(phys_addr_t base, phys_size_t size,
+		    uint flags)
 {
-	return __lmb_free(base, size);
+	long ret;
+
+	ret = __lmb_free(base, size);
+	if (ret < 0)
+		return ret;
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY) && lmb_notify(flags))
+		lmb_map_update_notify(base, size, MAP_OP_FREE);
+
+	return ret;
 }
 
-long lmb_free_flags(phys_addr_t base, phys_size_t size,
-		    __always_unused uint flags)
+long lmb_free(phys_addr_t base, phys_size_t size)
 {
 	return __lmb_free(base, size);
 }
 
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
+	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
 
-	return lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
+	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
+	if (ret < 0)
+		return -1;
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY) && lmb_notify(flags))
+		lmb_map_update_notify(base, size, MAP_OP_RESERVE);
+
+	return ret;
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -607,6 +656,11 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 				if (lmb_add_region_flags(&lmb.used_mem, base,
 							 size, flags) < 0)
 					return 0;
+
+				if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY) &&
+				    lmb_notify(flags))
+					lmb_map_update_notify(base, size,
+							      MAP_OP_RESERVE);
 				return base;
 			}
 
@@ -740,7 +794,7 @@ int lmb_is_reserved_flags(phys_addr_t addr, int flags)
 	return 0;
 }
 
-static int lmb_setup(void)
+static int lmb_setup(bool test)
 {
 	bool ret;
 
@@ -757,6 +811,8 @@ static int lmb_setup(void)
 		log_debug("Unable to initialise the list for LMB used memory\n");
 		return -ENOMEM;
 	}
+
+	lmb.test = test;
 
 	return 0;
 }
@@ -777,7 +833,7 @@ int lmb_init(void)
 {
 	int ret;
 
-	ret = lmb_setup();
+	ret = lmb_setup(false);
 	if (ret) {
 		log_info("Unable to init LMB\n");
 		return ret;
@@ -805,7 +861,7 @@ int lmb_push(struct lmb *store)
 	int ret;
 
 	*store = lmb;
-	ret = lmb_setup();
+	ret = lmb_setup(true);
 	if (ret)
 		return ret;
 
