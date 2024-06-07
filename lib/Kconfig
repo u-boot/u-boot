@@ -75,6 +75,23 @@ config LIB_UUID
 	bool
 	select SHA1
 
+config MEM_MAP_UPDATE_NOTIFY
+	bool "Get notified of any changes to the LMB memory map"
+	default y if EFI_LOADER
+	help
+	  Enable this option to get notification on any changes to the
+	  memory that is allocated or freed by the LMB module. This will
+	  allow different modules that allocate memory or maintain a memory
+	  map to have a synchronous view of available and allocated memory.
+
+config SPL_MEM_MAP_UPDATE_NOTIFY
+	bool "Get notified of any changes to the LMB memory map in SPL"
+	help
+	  Enable this option to get notification on any changes to the
+	  memory that is allocated or freed by the LMB module. This will
+	  allow different modules that allocate memory or maintain a memory
+	  map to have a synchronous view of available and allocated memory.
+
 config RANDOM_UUID
 	bool "GPT Random UUID generation"
 	select LIB_UUID
