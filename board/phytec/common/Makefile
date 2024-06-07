@@ -9,6 +9,6 @@ else
 obj-$(CONFIG_ARCH_K3) += k3/
 endif
 
-obj-y += phytec_som_detection.o
+obj-y += phytec_som_detection.o phytec_som_detection_blocks.o
 obj-$(CONFIG_ARCH_K3) += am6_som_detection.o
 obj-$(CONFIG_ARCH_IMX8M) += imx8m_som_detection.o
