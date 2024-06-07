@@ -8,6 +8,7 @@
 #define LOG_CATEGORY LOGC_EFI
 
 #include <efi_loader.h>
+#include <event.h>
 #include <init.h>
 #include <log.h>
 #include <malloc.h>
@@ -35,6 +36,9 @@ struct efi_mem_list {
 #define EFI_CARVE_LOOP_AGAIN		-2
 #define EFI_CARVE_OVERLAPS_NONRAM	-3
 #define EFI_CARVE_OUT_OF_RESOURCES	-4
+
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
 
 /* This list contains all memory map items */
 static LIST_HEAD(efi_mem);
@@ -65,6 +69,22 @@ struct efi_pool_allocation {
 	u64 checksum;
 	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
+
+#if CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY)
+extern bool is_addr_in_ram(uintptr_t addr);
+
+static void efi_map_update_notify(u64 addr, u64 size, u8 op)
+{
+	struct event_efi_mem_map_update efi_map = {0};
+
+	efi_map.base = addr;
+	efi_map.size = size;
+	efi_map.op = op;
+
+	if (is_addr_in_ram((uintptr_t)addr))
+		event_notify(EVT_EFI_MEM_MAP_UPDATE, &efi_map, sizeof(efi_map));
+}
+#endif /* MEM_MAP_UPDATE_NOTIFY */
 
 /**
  * checksum() - calculate checksum for memory allocated from pool
@@ -374,6 +394,11 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 			break;
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY))
+		efi_map_update_notify(start, pages << EFI_PAGE_SHIFT,
+				      memory_type == EFI_CONVENTIONAL_MEMORY ?
+				      MAP_OP_FREE : MAP_OP_RESERVE);
 
 	return EFI_SUCCESS;
 }
