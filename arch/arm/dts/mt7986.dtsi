@@ -162,7 +162,7 @@
 				  <&infracfg CK_INFRA_PWM_BSEL>,
 				  <&infracfg CK_INFRA_PWM1_SEL>,
 				  <&infracfg CK_INFRA_PWM2_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D4>,
+		assigned-clock-parents = <&topckgen CK_TOP_MPLL_D4>,
 					 <&topckgen CK_TOP_PWM_SEL>,
 					 <&topckgen CK_TOP_PWM_SEL>,
 					 <&topckgen CK_TOP_PWM_SEL>;
@@ -218,8 +218,8 @@
 		clock-names = "pad_clk", "nfi_clk", "nfi_hclk";
 		assigned-clocks = <&topckgen CK_TOP_SPINFI_SEL>,
 				  <&topckgen CK_TOP_NFI1X_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D8>,
-					 <&topckgen CK_TOP_CB_M_D8>;
+		assigned-clock-parents = <&topckgen CK_TOP_MPLL_D8>,
+					 <&topckgen CK_TOP_MPLL_D8>;
 		status = "disabled";
 	};
 
@@ -262,7 +262,7 @@
 			 <&topckgen CK_TOP_SPI_SEL>;
 		assigned-clocks = <&topckgen CK_TOP_SPI_SEL>,
 				  <&infracfg CK_INFRA_SPI0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
+		assigned-clock-parents = <&topckgen CK_TOP_MPLL_D2>,
 					 <&topckgen CK_TOP_SPI_SEL>;
 		clock-names = "sel-clk", "spi-clk";
 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
@@ -281,12 +281,12 @@
 		reg = <0x11230000 0x1000>,
 		      <0x11C20000 0x1000>;
 		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&topckgen CK_TOP_EMMC_416M>,
-			<&topckgen CK_TOP_EMMC_250M>,
+		clocks = <&topckgen CK_TOP_EMMC_416M_SEL>,
+			<&topckgen CK_TOP_EMMC_250M_SEL>,
 			<&infracfg_ao CK_INFRA_MSDC_CK>;
 		assigned-clocks = <&topckgen CK_TOP_EMMC_416M_SEL>,
 				  <&topckgen CK_TOP_EMMC_250M_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_416M>,
+		assigned-clock-parents = <&fixed_plls CK_APMIXED_MPLL>,
 					 <&topckgen CK_TOP_NET1PLL_D5_D2>;
 		clock-names = "source", "hclk", "source_cg";
 		status = "disabled";
