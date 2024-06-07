@@ -16,7 +16,7 @@
 #define CK_INFRA_I2C			3
 #define CK_INFRA_ISPI1			4
 #define CK_INFRA_PWM			5
-#define CK_INFRA_66M_MCK		6
+#define CK_INFRA_SYSAXI_D2		6
 #define CK_INFRA_CK_F32K		7
 #define CK_INFRA_PCIE_CK		8
 #define CK_INFRA_PWM_BCK		9

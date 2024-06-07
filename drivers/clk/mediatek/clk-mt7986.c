@@ -309,7 +309,7 @@ static const struct mtk_fixed_factor infra_fixed_divs[] = {
 	TOP_FACTOR(CK_INFRA_I2C, "infra_i2c", CK_TOP_I2C_SEL, 1, 1),
 	TOP_FACTOR(CK_INFRA_ISPI1, "infra_ispi1", CK_TOP_SPINFI_SEL, 1, 1),
 	TOP_FACTOR(CK_INFRA_PWM, "infra_pwm", CK_TOP_PWM_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_66M_MCK, "infra_66m_mck", CK_TOP_SYSAXI_SEL, 1, 2),
+	TOP_FACTOR(CK_INFRA_SYSAXI_D2, "infra_sysaxi_d2", CK_TOP_SYSAXI_SEL, 1, 2),
 	TOP_FACTOR(CK_INFRA_CK_F32K, "infra_ck_f32k", CK_TOP_CB_RTC_32P7K, 1,
 		   1),
 	TOP_FACTOR(CK_INFRA_PCIE_CK, "infra_pcie", CK_TOP_PEXTP_TL_SEL, 1, 1),
@@ -365,7 +365,7 @@ static const int infra_spi1_parents[] = { CK_INFRA_I2C, CK_INFRA_ISPI1 };
 
 static const int infra_pwm_bsel_parents[] = { CK_INFRA_CK_F32K,
 					      CK_INFRA_CK_F26M,
-					      CK_INFRA_66M_MCK, CK_INFRA_PWM };
+					      CK_INFRA_SYSAXI_D2, CK_INFRA_PWM };
 
 static const int infra_pcie_parents[] = { CK_INFRA_CK_F32K, CK_INFRA_CK_F26M,
 					  -1, CK_INFRA_PCIE_CK };
@@ -447,8 +447,8 @@ static const struct mtk_gate_regs infra_2_cg_regs = {
 
 static const struct mtk_gate infracfg_ao_gates[] = {
 	/* INFRA0 */
-	GATE_INFRA0(CK_INFRA_GPT_STA, "infra_gpt_sta", CK_INFRA_66M_MCK, 0),
-	GATE_INFRA0(CK_INFRA_PWM_HCK, "infra_pwm_hck", CK_INFRA_66M_MCK, 1),
+	GATE_INFRA0(CK_INFRA_GPT_STA, "infra_gpt_sta", CK_INFRA_SYSAXI_D2, 0),
+	GATE_INFRA0(CK_INFRA_PWM_HCK, "infra_pwm_hck", CK_INFRA_SYSAXI_D2, 1),
 	GATE_INFRA0(CK_INFRA_PWM_STA, "infra_pwm_sta", CK_INFRA_PWM_BCK, 2),
 	GATE_INFRA0(CK_INFRA_PWM1_CK, "infra_pwm1", CK_INFRA_PWM_CK1, 3),
 	GATE_INFRA0(CK_INFRA_PWM2_CK, "infra_pwm2", CK_INFRA_PWM_CK2, 4),
@@ -463,9 +463,9 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 		    13),
 	GATE_INFRA0(CK_INFRA_DRAMC_26M_CK, "infra_dramc_26m", CK_INFRA_CK_F26M,
 		    14),
-	GATE_INFRA0(CK_INFRA_DBG_CK, "infra_dbg", CK_INFRA_66M_MCK, 15),
-	GATE_INFRA0(CK_INFRA_AP_DMA_CK, "infra_ap_dma", CK_INFRA_66M_MCK, 16),
-	GATE_INFRA0(CK_INFRA_SEJ_CK, "infra_sej", CK_INFRA_66M_MCK, 24),
+	GATE_INFRA0(CK_INFRA_DBG_CK, "infra_dbg", CK_INFRA_SYSAXI_D2, 15),
+	GATE_INFRA0(CK_INFRA_AP_DMA_CK, "infra_ap_dma", CK_INFRA_SYSAXI_D2, 16),
+	GATE_INFRA0(CK_INFRA_SEJ_CK, "infra_sej", CK_INFRA_SYSAXI_D2, 24),
 	GATE_INFRA0(CK_INFRA_SEJ_13M_CK, "infra_sej_13m", CK_INFRA_CK_F26M, 25),
 	GATE_INFRA0(CK_INFRA_TRNG_CK, "infra_trng", CK_INFRA_HD_133M, 26),
 	/* INFRA1 */
@@ -477,12 +477,12 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 	GATE_INFRA1(CK_INFRA_NFI1_CK, "infra_nfi1", CK_INFRA_NFI_CK, 8),
 	GATE_INFRA1(CK_INFRA_SPINFI1_CK, "infra_spinfi1", CK_INFRA_SPINFI_CK,
 		    9),
-	GATE_INFRA1(CK_INFRA_NFI_HCK_CK, "infra_nfi_hck", CK_INFRA_66M_MCK, 10),
+	GATE_INFRA1(CK_INFRA_NFI_HCK_CK, "infra_nfi_hck", CK_INFRA_SYSAXI_D2, 10),
 	GATE_INFRA1(CK_INFRA_SPI0_CK, "infra_spi0", CK_INFRA_MUX_SPI0, 11),
 	GATE_INFRA1(CK_INFRA_SPI1_CK, "infra_spi1", CK_INFRA_MUX_SPI1, 12),
-	GATE_INFRA1(CK_INFRA_SPI0_HCK_CK, "infra_spi0_hck", CK_INFRA_66M_MCK,
+	GATE_INFRA1(CK_INFRA_SPI0_HCK_CK, "infra_spi0_hck", CK_INFRA_SYSAXI_D2,
 		    13),
-	GATE_INFRA1(CK_INFRA_SPI1_HCK_CK, "infra_spi1_hck", CK_INFRA_66M_MCK,
+	GATE_INFRA1(CK_INFRA_SPI1_HCK_CK, "infra_spi1_hck", CK_INFRA_SYSAXI_D2,
 		    14),
 	GATE_INFRA1(CK_INFRA_FRTC_CK, "infra_frtc", CK_INFRA_RTC_32K, 15),
 	GATE_INFRA1(CK_INFRA_MSDC_CK, "infra_msdc", CK_INFRA_FMSDC_CK, 16),
