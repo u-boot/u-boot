@@ -784,6 +784,20 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				uint32_t *descriptor_version);
 /* Adds a range into the EFI memory map */
 efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type);
+
+/**
+ * efi_add_memory_map_pg() - add pages to the memory map
+ *
+ * @start:		start address, must be a multiple of EFI_PAGE_SIZE
+ * @pages:		number of pages to add
+ * @memory_type:	type of memory added
+ * @overlap_only_ram:	region may only overlap RAM
+ * Return:		status code
+ */
+efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
+					  int memory_type,
+					  bool overlap_only_ram);
+
 /* Adds a conventional range into the EFI memory map */
 efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
 					     u64 ram_top);
