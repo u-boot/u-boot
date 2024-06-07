@@ -73,6 +73,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 ulong monitor_flash_len;
 
+__weak bool __maybe_unused is_addr_in_ram(uintptr_t addr)
+{
+	return addr >= gd->ram_base && addr <= gd->ram_top;
+}
+
 __weak int board_flash_wp_on(void)
 {
 	/*
