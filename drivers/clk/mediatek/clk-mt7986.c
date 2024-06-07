@@ -336,7 +336,7 @@ static const struct mtk_parent infra_pwm_bsel_parents[] = {
 static const struct mtk_parent infra_pcie_parents[] = {
 	TOP_PARENT(CK_TOP_CB_RTC_32P7K),
 	TOP_PARENT(CK_TOP_F26M_SEL),
-	VOID_PARENT,
+	TOP_PARENT(CK_TOP_XTAL),
 	TOP_PARENT(CK_TOP_PEXTP_TL_SEL)
 };
 
@@ -487,6 +487,7 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 			2),
 	GATE_INFRA2_TOP(CK_INFRA_IUSB_CK, "infra_iusb", CK_TOP_U2U3_SEL, 3),
 	GATE_INFRA2_TOP(CK_INFRA_IPCIE_CK, "infra_ipcie", CK_TOP_PEXTP_TL_SEL, 12),
+	GATE_INFRA2_TOP(CK_INFRA_IPCIE_PIPE_CK, "infra_ipcie_pipe", CK_TOP_XTAL, 13),
 	GATE_INFRA2_TOP(CK_INFRA_IPCIER_CK, "infra_ipcier", CK_TOP_F26M_SEL, 14),
 	GATE_INFRA2_TOP(CK_INFRA_IPCIEB_CK, "infra_ipcieb", CK_TOP_SYSAXI_SEL, 15),
 };
