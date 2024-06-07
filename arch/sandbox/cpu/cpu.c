@@ -413,3 +413,8 @@ int sandbox_load_other_fdt(void **fdtp, int *sizep)
 
 	return 0;
 }
+
+bool __maybe_unused is_addr_in_ram(uintptr_t addr)
+{
+	return is_in_sandbox_mem((const void *)addr);
+}
