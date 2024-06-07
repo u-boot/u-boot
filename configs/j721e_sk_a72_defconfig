@@ -1,0 +1,9 @@
+#include <configs/j721e_evm_a72_defconfig>
+
+CONFIG_ARM=y
+CONFIG_ARCH_K3=y
+CONFIG_SOC_K3_J721E=y
+CONFIG_TARGET_J721E_A72_EVM=y
+
+CONFIG_DEFAULT_DEVICE_TREE="ti/k3-j721e-sk"
+CONFIG_OF_LIST="ti/k3-j721e-sk"
