@@ -285,6 +285,18 @@ int dram_init(void)
 #if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
+	if (!IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
+		log_warning("reset failed: ZYNQMP_FIRMWARE disabled");
+		return;
+	}
+
+	/* In case of !CONFIG_ZYNQMP_FIRMWARE the call to 'xilinx_pm_request()'
+	 * will be removed by the compiler due to the early return.
+	 * If CONFIG_ZYNQMP_FIRMWARE is defined in SPL 'xilinx_pm_request()'
+	 * will send command over IPI and requires pmufw to be present.
+	 */
+	xilinx_pm_request(PM_RESET_ASSERT, ZYNQMP_PM_RESET_SOFT,
+			  PM_RESET_ACTION_ASSERT, 0, 0, NULL);
 }
 #endif
 
