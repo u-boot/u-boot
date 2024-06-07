@@ -132,9 +132,9 @@
 		      <0x11f00000 0x1000>,
 		      <0x11f10000 0x1000>,
 		      <0x1000b000 0x1000>;
-		reg-names = "gpio_base", "iocfg_rt_base", "iocfg_rb_base",
-			    "iocfg_lt_base", "iocfg_lb_base", "iocfg_tr_base",
-			    "iocfg_tl_base", "eint";
+		reg-names = "gpio", "iocfg_rt", "iocfg_rb",
+			    "iocfg_lt", "iocfg_lb", "iocfg_tr",
+			    "iocfg_tl", "eint";
 		gpio: gpio-controller {
 			gpio-controller;
 			#gpio-cells = <2>;
