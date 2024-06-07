@@ -44,6 +44,10 @@ static LIST_HEAD(efi_mem);
 void *efi_bounce_buffer;
 #endif
 
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
+#define MAP_OP_ADD		(u8)0x3
+
 /**
  * struct efi_pool_allocation - memory block allocated from pool
  *
@@ -919,3 +923,33 @@ int efi_memory_init(void)
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY)
+static int lmb_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	u64 addr;
+	u64 pages;
+	efi_status_t status;
+	struct event_lmb_map_update *lmb_map = &event->data.lmb_map;
+
+	addr = (uintptr_t)map_sysmem(lmb_map->base, 0);
+	pages = efi_size_in_pages(lmb_map->size + (addr & EFI_PAGE_MASK));
+	op = lmb_map->op;
+	addr &= ~EFI_PAGE_MASK;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE && op != MAP_OP_ADD) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	status = efi_add_memory_map_pg(addr, pages,
+				       op == MAP_OP_RESERVE ?
+				       EFI_BOOT_SERVICES_DATA :
+				       EFI_CONVENTIONAL_MEMORY,
+				       op == MAP_OP_RESERVE ? true : false);
+
+	return status == EFI_SUCCESS ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_LMB_MAP_UPDATE, lmb_mem_map_update_sync);
+#endif /* MEM_MAP_UPDATE_NOTIFY */
