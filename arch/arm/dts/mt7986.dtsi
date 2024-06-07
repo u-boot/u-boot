@@ -122,7 +122,7 @@
 		#clock-cells = <1>;
 	};
 
-	pinctrl: pinctrl@1001f000 {
+	pio: pinctrl@1001f000 {
 		compatible = "mediatek,mt7986-pinctrl";
 		reg = <0x1001f000 0x1000>,
 		      <0x11c30000 0x1000>,
@@ -135,10 +135,8 @@
 		reg-names = "gpio", "iocfg_rt", "iocfg_rb",
 			    "iocfg_lt", "iocfg_lb", "iocfg_tr",
 			    "iocfg_tl", "eint";
-		gpio: gpio-controller {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
+		gpio-controller;
+		#gpio-cells = <2>;
 	};
 
 	pwm: pwm@10048000 {
