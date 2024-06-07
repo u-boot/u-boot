@@ -16,6 +16,7 @@
 
 #include <asm/global_data.h>
 #include <asm/sections.h>
+#include <asm-generic/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -719,3 +720,36 @@ __weak void arch_lmb_reserve(void)
 {
 	/* please define platform specific arch_lmb_reserve() */
 }
+
+#if CONFIG_IS_ENABLED(MEM_MAP_UPDATE_NOTIFY)
+static long lmb_reserve_nooverwrite(phys_addr_t base, phys_size_t size)
+{
+	struct lmb_region *_rgn = &lmb.reserved;
+
+	return lmb_add_region_flags(_rgn, base, size, LMB_NOOVERWRITE);
+}
+
+static int efi_mem_map_update_sync(void *ctx, struct event *event)
+{
+	u8 op;
+	long ret;
+	phys_addr_t addr;
+	phys_size_t size;
+	struct event_efi_mem_map_update *efi_map = &event->data.efi_mem_map;
+
+	addr = virt_to_phys((void *)(uintptr_t)efi_map->base);
+	size = efi_map->size;
+	op = efi_map->op;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE) {
+		log_debug("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	ret = op == MAP_OP_RESERVE ? lmb_reserve_nooverwrite(addr, size) :
+		__lmb_free(addr, size);
+
+	return !ret ? 0 : -1;
+}
+EVENT_SPY_FULL(EVT_EFI_MEM_MAP_UPDATE, efi_mem_map_update_sync);
+#endif /* MEM_MAP_UPDATE_NOTIFY */
