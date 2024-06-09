@@ -1989,13 +1989,11 @@ static int eth_bind(struct usb_gadget *gadget)
 	 * standard protocol is _strongly_ preferred for interop purposes.
 	 * (By everyone except Microsoft.)
 	 */
-	if (gadget_is_musbhdrc(gadget)) {
+
+	if (IS_ENABLED(CONFIG_USB_MUSB_GADGET) &&
+	    !strcmp("musb-hdrc", gadget->name)) {
 		/* reduce tx dma overhead by avoiding special cases */
 		zlp = 0;
-	} else if (gadget_is_sh(gadget)) {
-		/* sh doesn't support multiple interfaces or configs */
-		cdc = 0;
-		rndis = 0;
 	}
 
 	gcnum = (U_BOOT_VERSION_NUM << 4) | U_BOOT_VERSION_NUM_PATCH;

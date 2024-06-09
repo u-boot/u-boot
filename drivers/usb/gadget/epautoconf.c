@@ -12,7 +12,6 @@
 #include <linux/errno.h>
 #include <linux/usb/gadget.h>
 #include <asm/unaligned.h>
-#include "gadget_chips.h"
 
 #define isdigit(c)      ('0' <= (c) && (c) <= '9')
 
@@ -222,41 +221,9 @@ struct usb_ep *usb_ep_autoconfig(
 	/* First, apply chip-specific "best usage" knowledge.
 	 * This might make a good usb_gadget_ops hook ...
 	 */
-	if (gadget_is_net2280(gadget) && type == USB_ENDPOINT_XFER_INT) {
-		/* ep-e, ep-f are PIO with only 64 byte fifos */
-		ep = find_ep(gadget, "ep-e");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-		ep = find_ep(gadget, "ep-f");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-
-	} else if (gadget_is_goku(gadget)) {
-		if (USB_ENDPOINT_XFER_INT == type) {
-			/* single buffering is enough */
-			ep = find_ep(gadget, "ep3-bulk");
-			if (ep && ep_matches(gadget, ep, desc))
-				return ep;
-		} else if (USB_ENDPOINT_XFER_BULK == type
-				&& (USB_DIR_IN & desc->bEndpointAddress)) {
-			/* DMA may be available */
-			ep = find_ep(gadget, "ep2-bulk");
-			if (ep && ep_matches(gadget, ep, desc))
-				return ep;
-		}
-
-	} else if (gadget_is_sh(gadget) && USB_ENDPOINT_XFER_INT == type) {
-		/* single buffering is enough; maybe 8 byte fifo is too */
-		ep = find_ep(gadget, "ep3in-bulk");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-
-	} else if (gadget_is_mq11xx(gadget) && USB_ENDPOINT_XFER_INT == type) {
-		ep = find_ep(gadget, "ep1-bulk");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-#ifndef CONFIG_SPL_BUILD
-	} else if (gadget_is_dwc3(gadget)) {
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    IS_ENABLED(CONFIG_USB_DWC3_GADGET) &&
+	    !strcmp("dwc3-gadget", gadget->name)) {
 		const char *name = NULL;
 		/*
 		 * First try standard, common configuration: ep1in-bulk,
@@ -278,7 +245,6 @@ struct usb_ep *usb_ep_autoconfig(
 			ep = find_ep(gadget, name);
 		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
-#endif
 	}
 
 	if (gadget->ops->match_ep)
