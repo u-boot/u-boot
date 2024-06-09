@@ -22,8 +22,8 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <linux/ctype.h>
+#include <version.h>
 
-#include "gadget_chips.h"
 #include "rndis.h"
 
 #include <dm.h>
@@ -1998,19 +1998,8 @@ static int eth_bind(struct usb_gadget *gadget)
 		rndis = 0;
 	}
 
-	gcnum = usb_gadget_controller_number(gadget);
-	if (gcnum >= 0)
-		device_desc.bcdDevice = cpu_to_le16(0x0300 + gcnum);
-	else {
-		/*
-		 * can't assume CDC works.  don't want to default to
-		 * anything less functional on CDC-capable hardware,
-		 * so we fail in this case.
-		 */
-		pr_err("controller '%s' not recognized",
-			gadget->name);
-		return -ENODEV;
-	}
+	gcnum = (U_BOOT_VERSION_NUM << 4) | U_BOOT_VERSION_NUM_PATCH;
+	device_desc.bcdDevice = cpu_to_le16(gcnum);
 
 	/*
 	 * If there's an RNDIS configuration, that's what Windows wants to
