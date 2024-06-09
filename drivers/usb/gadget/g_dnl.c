@@ -17,10 +17,10 @@
 #include <usb_mass_storage.h>
 #include <dfu.h>
 #include <thor.h>
+#include <version.h>
 
 #include <env_callback.h>
 
-#include "gadget_chips.h"
 #include "composite.c"
 
 /*
@@ -199,18 +199,6 @@ void g_dnl_clear_detach(void)
 	g_dnl_detach_request = false;
 }
 
-static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
-{
-	struct usb_gadget *gadget = cdev->gadget;
-	int gcnum;
-
-	gcnum = usb_gadget_controller_number(gadget);
-	if (gcnum > 0)
-		gcnum += 0x200;
-
-	return g_dnl_get_board_bcd_device_number(gcnum);
-}
-
 /**
  * Update internal serial number variable when the "serial#" env var changes.
  *
@@ -261,7 +249,8 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	if (ret)
 		goto error;
 
-	gcnum = g_dnl_get_bcd_device_number(cdev);
+	gcnum = g_dnl_get_board_bcd_device_number((U_BOOT_VERSION_NUM << 4) |
+						  U_BOOT_VERSION_NUM_PATCH);
 	if (gcnum >= 0)
 		device_desc.bcdDevice = cpu_to_le16(gcnum);
 	else {
