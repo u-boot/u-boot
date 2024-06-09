@@ -247,8 +247,11 @@ struct usb_ep *usb_ep_autoconfig(
 			return ep;
 	}
 
-	if (gadget->ops->match_ep)
+	if (gadget->ops->match_ep) {
 		ep = gadget->ops->match_ep(gadget, desc, NULL);
+		if (ep && ep_matches(gadget, ep, desc))
+			return ep;
+	}
 
 	/* Second, look at endpoints until an unclaimed one looks usable */
 	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
