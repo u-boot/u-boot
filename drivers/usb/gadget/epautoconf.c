@@ -166,18 +166,6 @@ static int ep_matches(
 	return 1;
 }
 
-static struct usb_ep *
-find_ep(struct usb_gadget *gadget, const char *name)
-{
-	struct usb_ep	*ep;
-
-	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
-		if (0 == strcmp(ep->name, name))
-			return ep;
-	}
-	return NULL;
-}
-
 /**
  * usb_ep_autoconfig - choose an endpoint matching the descriptor
  * @gadget: The device to which the endpoint must belong.
@@ -213,39 +201,7 @@ struct usb_ep *usb_ep_autoconfig(
 	struct usb_endpoint_descriptor	*desc
 )
 {
-	struct usb_ep	*ep = NULL;
-	u8		type;
-
-	type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
-
-	/* First, apply chip-specific "best usage" knowledge.
-	 * This might make a good usb_gadget_ops hook ...
-	 */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
-	    IS_ENABLED(CONFIG_USB_DWC3_GADGET) &&
-	    !strcmp("dwc3-gadget", gadget->name)) {
-		const char *name = NULL;
-		/*
-		 * First try standard, common configuration: ep1in-bulk,
-		 * ep2out-bulk, ep3in-int to match other udc drivers to avoid
-		 * confusion in already deployed software (endpoint numbers
-		 * hardcoded in userspace software/drivers)
-		 */
-		if ((desc->bEndpointAddress & USB_DIR_IN) &&
-		    type == USB_ENDPOINT_XFER_BULK)
-			name = "ep1in";
-		else if ((desc->bEndpointAddress & USB_DIR_IN) == 0 &&
-			 type == USB_ENDPOINT_XFER_BULK)
-			name = "ep2out";
-		else if ((desc->bEndpointAddress & USB_DIR_IN) &&
-			 type == USB_ENDPOINT_XFER_INT)
-			name = "ep3in";
-
-		if (name)
-			ep = find_ep(gadget, name);
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-	}
+	struct usb_ep *ep;
 
 	if (gadget->ops->match_ep) {
 		ep = gadget->ops->match_ep(gadget, desc, NULL);
