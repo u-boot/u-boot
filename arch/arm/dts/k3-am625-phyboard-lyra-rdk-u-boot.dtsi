@@ -168,6 +168,15 @@
 	bootph-all;
 };
 
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-all;
+};
+
 &vcc_3v3_mmc {
 	bootph-all;
 };
