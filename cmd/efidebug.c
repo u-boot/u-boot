@@ -684,7 +684,7 @@ struct efi_device_path *create_lo_dp_part(const char *dev, const char *part,
 	struct efi_device_path *dp = NULL;
 	const struct efi_device_path *dp_prefix;
 	efi_status_t ret;
-	const struct efi_initrd_dp fdt_dp = {
+	const struct efi_lo_dp_prefix fdt_dp = {
 		.vendor = {
 			{
 			DEVICE_PATH_TYPE_MEDIA_DEVICE,
@@ -699,7 +699,7 @@ struct efi_device_path *create_lo_dp_part(const char *dev, const char *part,
 			sizeof(fdt_dp.end),
 		}
 	};
-	const struct efi_initrd_dp initrd_dp = {
+	const struct efi_lo_dp_prefix initrd_dp = {
 		.vendor = {
 			{
 			DEVICE_PATH_TYPE_MEDIA_DEVICE,

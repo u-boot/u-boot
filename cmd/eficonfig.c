@@ -1401,7 +1401,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	struct efi_device_path *initrd_device_dp = NULL;
 	struct efi_device_path *fdt_device_dp = NULL;
 
-	const struct efi_initrd_dp initrd_prefix = {
+	const struct efi_lo_dp_prefix initrd_prefix = {
 		.vendor = {
 			{
 			DEVICE_PATH_TYPE_MEDIA_DEVICE,
@@ -1417,7 +1417,7 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		}
 	};
 
-	const struct efi_initrd_dp fdt_prefix = {
+	const struct efi_lo_dp_prefix fdt_prefix = {
 		.vendor = {
 			{
 			DEVICE_PATH_TYPE_MEDIA_DEVICE,
