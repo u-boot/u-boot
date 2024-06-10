@@ -4,6 +4,7 @@
  * Author: Wadim Egorov <w.egorov@phytec.de>
  */
 
+#include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <spl.h>
 #include <fdt_support.h>
