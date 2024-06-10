@@ -99,7 +99,7 @@ U_BOOT_CMD(
 	sound, INT_MAX, 1, do_sound,
 	"sound sub-system",
 	"init - initialise the sound driver\n"
-	"sound play [[[-q|-s] len [freq]] ...] - play sounds\n"
+	"sound play [len [freq [len [freq ...]]]] - play sounds\n"
 	"  len - duration in ms\n"
 	"  freq - frequency in Hz\n"
 );
