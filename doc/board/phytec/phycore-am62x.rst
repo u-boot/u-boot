@@ -151,6 +151,10 @@ Boot switches should be changed with power off.
      - 11011100
      - 00000000
 
+   * - USB DFU
+     - 11001010
+     - 00100000
+
 Further Information
 -------------------
 
