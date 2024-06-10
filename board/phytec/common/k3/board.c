@@ -5,6 +5,7 @@
  */
 
 #include <env_internal.h>
+#include <fdt_support.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
 
@@ -90,6 +91,15 @@ int board_late_init(void)
 			}
 		}
 	}
+
+	return 0;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_OF_LIBFDT) && IS_ENABLED(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	fdt_copy_fixed_partitions(blob);
 
 	return 0;
 }
