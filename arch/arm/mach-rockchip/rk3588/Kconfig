@@ -193,6 +193,36 @@ config TARGET_QUARTZPRO64_RK3588
 	  Pine64 QuartzPro64 is a Rockchip RK3588 based SBC (Single Board
 	  Computer) by Pine64.
 
+config TARGET_TIGER_RK3588
+	bool "Theobroma Systems SOM-RK3588-Q7 (Tiger)"
+	select BOARD_LATE_INIT
+	help
+	  The RK3588-Q7 SoM is a Qseven-compatible (70mm x 70mm, MXM-230
+	  connector) system-on-module from Theobroma Systems, featuring the
+	  Rockchip RK3588.
+
+	  It provides the following feature set:
+	   * up to 16GB LPDDR4x
+	   * on-module eMMC
+	   * SD card (on a baseboard) via edge connector
+	   * Gigabit Ethernet with on-module GbE PHY
+	   * HDMI/eDP
+	   * MIPI-DSI
+	   * 4x MIPI-CSI (3x on FPC connectors, 1x over Q7)
+	   * HDMI input over FPC connector
+	   * CAN
+	   * USB
+	     - 1x USB 3.0 dual-role (direct connection)
+	     - 2x USB 3.0 host + 1x USB 2.0 host
+	   * PCIe
+	     - 1x PCIe 2.1 Gen3, 4 lanes
+	     - 2xSATA / 2x PCIe 2.1 Gen1, 2 lanes
+	   * on-module ATtiny816 companion controller, implementing:
+	     - low-power RTC functionality (ISL1208 emulation)
+	     - fan controller (AMC6821 emulation)
+	   * on-module Secure Element with Global Platform 2.2.1 compliant
+	     JavaCard environment
+
 config TARGET_TURINGRK1_RK3588
 	bool "Turing Machines RK1 RK3588 board"
 	select BOARD_LATE_INIT
@@ -266,5 +296,6 @@ source "board/radxa/rock5b-rk3588/Kconfig"
 source "board/rockchip/evb_rk3588/Kconfig"
 source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"
+source "board/theobroma-systems/tiger_rk3588/Kconfig"
 
 endif
