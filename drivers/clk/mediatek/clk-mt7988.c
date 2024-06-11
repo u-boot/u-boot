@@ -790,6 +790,7 @@ static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
 	.muxes_offs = CK_INFRA_MUX_UART0_SEL,
 	.gates_offs = CK_INFRA_PCIE_PERI_26M_CK_P0,
 	.muxes = infracfg_mtk_mux,
+	.gates = infracfg_mtk_gates,
 	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = 40 * MHZ,
 };
@@ -847,20 +848,9 @@ static const struct udevice_id mt7988_infracfg_compat[] = {
 	{}
 };
 
-static const struct udevice_id mt7988_infracfg_ao_cgs_compat[] = {
-	{ .compatible = "mediatek,mt7988-infracfg_ao_cgs" },
-	{}
-};
-
 static int mt7988_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt7988_infracfg_clk_tree);
-}
-
-static int mt7988_infracfg_ao_cgs_probe(struct udevice *dev)
-{
-	return mtk_common_clk_gate_init(dev, &mt7988_infracfg_clk_tree,
-					infracfg_mtk_gates);
+	return mtk_common_clk_infrasys_init(dev, &mt7988_infracfg_clk_tree);
 }
 
 U_BOOT_DRIVER(mtk_clk_infracfg) = {
@@ -870,16 +860,6 @@ U_BOOT_DRIVER(mtk_clk_infracfg) = {
 	.probe = mt7988_infracfg_probe,
 	.priv_auto = sizeof(struct mtk_clk_priv),
 	.ops = &mtk_clk_infrasys_ops,
-	.flags = DM_FLAG_PRE_RELOC,
-};
-
-U_BOOT_DRIVER(mtk_clk_infracfg_ao_cgs) = {
-	.name = "mt7988-clock-infracfg_ao_cgs",
-	.id = UCLASS_CLK,
-	.of_match = mt7988_infracfg_ao_cgs_compat,
-	.probe = mt7988_infracfg_ao_cgs_probe,
-	.priv_auto = sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
