@@ -56,7 +56,7 @@ config DM_WARN
 	  out - it will do nothing when called.
 
 config SPL_DM_WARN
-	bool "Enable warnings in driver model wuth SPL"
+	bool "Enable warnings in driver model in SPL"
 	depends on SPL_DM
 	help
 	  Enable this to see warnings related to driver model in SPL
