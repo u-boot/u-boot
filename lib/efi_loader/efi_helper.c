@@ -99,6 +99,50 @@ err:
 	return NULL;
 }
 
+/**
+ * efi_load_option_dp_join() - join device-paths for load option
+ *
+ * @dp:		in: binary device-path, out: joined device-path
+ * @dp_size:	size of joined device-path
+ * @initrd_dp:	initrd device-path or NULL
+ * @fdt_dp:	device-tree device-path or NULL
+ * Return:	status_code
+ */
+efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
+				     size_t *dp_size,
+				     struct efi_device_path *initrd_dp,
+				     struct efi_device_path *fdt_dp)
+{
+	if (!dp)
+		return EFI_INVALID_PARAMETER;
+
+	*dp_size = efi_dp_size(*dp);
+
+	if (initrd_dp) {
+		struct efi_device_path *tmp_dp = *dp;
+
+		*dp = efi_dp_concat(tmp_dp, initrd_dp, *dp_size);
+		efi_free_pool(tmp_dp);
+		if (!*dp)
+			return EFI_OUT_OF_RESOURCES;
+		*dp_size += efi_dp_size(initrd_dp) + sizeof(END);
+	}
+
+	if (fdt_dp) {
+		struct efi_device_path *tmp_dp = *dp;
+
+		*dp = efi_dp_concat(tmp_dp, fdt_dp, *dp_size);
+		efi_free_pool(tmp_dp);
+		if (!dp)
+			return EFI_OUT_OF_RESOURCES;
+		*dp_size += efi_dp_size(fdt_dp) + sizeof(END);
+	}
+
+	*dp_size += sizeof(END);
+
+	return EFI_SUCCESS;
+}
+
 const struct guid_to_hash_map {
 	efi_guid_t guid;
 	const char algo[32];

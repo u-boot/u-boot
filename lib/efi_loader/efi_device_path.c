@@ -276,10 +276,11 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
  *
  * @dp1:	    First device path
  * @dp2:	    Second device path
- * @split_end_node: If true the two device paths will be concatenated and
- *                  separated by an end node (DEVICE_PATH_SUB_TYPE_END).
- *		    If false the second device path will be concatenated to the
- *		    first one as-is.
+ * @split_end_node:
+ * * 0 to concatenate
+ * * 1 to concatenate with end node added as separator
+ * * size of dp1 excluding last end node to concatenate with end node as
+ *   separator in case dp1 contains an end node
  *
  * Return:
  * concatenated device path or NULL. Caller must free the returned value
@@ -287,7 +288,7 @@ struct efi_device_path *efi_dp_dup(const struct efi_device_path *dp)
 struct
 efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 			       const struct efi_device_path *dp2,
-			       bool split_end_node)
+			       size_t split_end_node)
 {
 	struct efi_device_path *ret;
 	size_t end_size;
@@ -301,9 +302,14 @@ efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
 		ret = efi_dp_dup(dp1);
 	} else {
 		/* both dp1 and dp2 are non-null */
-		unsigned sz1 = efi_dp_size(dp1);
-		unsigned sz2 = efi_dp_size(dp2);
+		size_t sz1;
+		size_t sz2 = efi_dp_size(dp2);
 		void *p;
+
+		if (split_end_node < sizeof(struct efi_device_path))
+			sz1 = efi_dp_size(dp1);
+		else
+			sz1 = split_end_node;
 
 		if (split_end_node)
 			end_size = 2 * sizeof(END);
@@ -1127,17 +1133,18 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
 }
 
 /**
- * efi_dp_from_lo() - Get the instance of a VenMedia node in a
- *                    multi-instance device path that matches
- *                    a specific GUID. This kind of device paths
- *                    is found in Boot#### options describing an
- *                    initrd location
+ * efi_dp_from_lo() - get device-path from load option
  *
- * @lo:		EFI_LOAD_OPTION containing a valid device path
- * @guid:	guid to search for
+ * The load options in U-Boot may contain multiple concatenated device-paths.
+ * The first device-path indicates the EFI binary to execute. Subsequent
+ * device-paths start with a VenMedia node where the GUID identifies the
+ * function (initrd or fdt).
+ *
+ * @lo:		EFI load option containing a valid device path
+ * @guid:	GUID identifying device-path or NULL for the EFI binary
  *
  * Return:
- * device path including the VenMedia node or NULL.
+ * device path excluding the matched VenMedia node or NULL.
  * Caller must free the returned value.
  */
 struct
@@ -1147,6 +1154,9 @@ efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
 	struct efi_device_path *fp = lo->file_path;
 	struct efi_device_path_vendor *vendor;
 	int lo_len = lo->file_path_length;
+
+	if (!guid)
+		return efi_dp_dup(fp);
 
 	for (; lo_len >=  sizeof(struct efi_device_path);
 	     lo_len -= fp->length, fp = (void *)fp + fp->length) {

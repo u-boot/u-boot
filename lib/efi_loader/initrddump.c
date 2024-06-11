@@ -33,7 +33,7 @@ static bool nocolor;
  * Device path defined by Linux to identify the handle providing the
  * EFI_LOAD_FILE2_PROTOCOL used for loading the initial ramdisk.
  */
-static const struct efi_initrd_dp initrd_dp = {
+static const struct efi_lo_dp_prefix initrd_dp = {
 	.vendor = {
 		{
 		   DEVICE_PATH_TYPE_MEDIA_DEVICE,
