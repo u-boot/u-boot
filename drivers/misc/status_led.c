@@ -105,8 +105,10 @@ void status_led_tick(ulong timestamp)
 
 static led_dev_t *status_get_led_dev(int led)
 {
-	if (led < 0 || led >= MAX_LED_DEV)
+	if (led < 0 || led >= MAX_LED_DEV) {
+		printf("Invalid Status LED ID %d.", led);
 		return NULL;
+	}
 
 	if (!status_led_init_done)
 		status_led_init();
