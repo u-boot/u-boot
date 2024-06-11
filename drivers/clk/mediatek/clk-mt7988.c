@@ -51,7 +51,7 @@ static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
 
 /* TOPCKGEN FIXED DIV */
 static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
-	XTAL_FACTOR(CK_TOP_CB_CKSQ_40M, "cb_cksq_40m", CLK_XTAL, 1, 1),
+	XTAL_FACTOR(CK_TOP_XTAL, "xtal", CLK_XTAL, 1, 1),
 	PLL_FACTOR(CK_TOP_CB_M_416M, "cb_m_416m", CK_APMIXED_MPLL, 1, 1),
 	PLL_FACTOR(CK_TOP_CB_M_D2, "cb_m_d2", CK_APMIXED_MPLL, 1, 2),
 	PLL_FACTOR(CK_TOP_M_D3_D2, "m_d3_d2", CK_APMIXED_MPLL, 1, 2),
@@ -92,10 +92,10 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 		   CK_APMIXED_NETSYSPLL, 1, 1),
 	PLL_FACTOR(CK_TOP_CB_MSDC_400M, "cb_msdc_400m", CK_APMIXED_MSDCPLL, 1,
 		   1),
-	TOP_FACTOR(CK_TOP_CKSQ_40M_D2, "cksq_40m_d2", CK_TOP_CB_CKSQ_40M, 1, 2),
-	TOP_FACTOR(CK_TOP_CB_RTC_32K, "cb_rtc_32k", CK_TOP_CB_CKSQ_40M, 1,
+	TOP_FACTOR(CK_TOP_XTAL_D2, "xtal_d2", CK_TOP_XTAL, 1, 2),
+	TOP_FACTOR(CK_TOP_CB_RTC_32K, "cb_rtc_32k", CK_TOP_XTAL, 1,
 		   1250),
-	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_CB_CKSQ_40M, 1,
+	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_XTAL, 1,
 		   1220),
 	TOP_FACTOR(CK_TOP_INFRA_F32K, "csw_infra_f32k", CK_TOP_CB_RTC_32P7K, 1,
 		   1),
@@ -135,125 +135,125 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 };
 
 /* TOPCKGEN MUX PARENTS */
-static const int netsys_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NET2_D2,
+static const int netsys_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET2_D2,
 				      CK_TOP_CB_MM_D2 };
 
-static const int netsys_500m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_500m_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_CB_NET1_D5,
 					   CK_TOP_NET1_D5_D2 };
 
-static const int netsys_2x_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_2x_parents[] = { CK_TOP_XTAL,
 					 CK_TOP_CB_NET2_800M,
 					 CK_TOP_CB_MM_720M };
 
-static const int netsys_gsw_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NET1_D4,
+static const int netsys_gsw_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET1_D4,
 					  CK_TOP_CB_NET1_D5 };
 
-static const int eth_gmii_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D4 };
+static const int eth_gmii_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4 };
 
 static const int netsys_mcu_parents[] = {
-	CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NET2_800M, CK_TOP_CB_MM_720M,
+	CK_TOP_XTAL, CK_TOP_CB_NET2_800M, CK_TOP_CB_MM_720M,
 	CK_TOP_CB_NET1_D4,  CK_TOP_CB_NET1_D5,   CK_TOP_CB_M_416M
 };
 
 static const int eip197_parents[] = {
-	CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NETSYS_850M, CK_TOP_CB_NET2_800M,
+	CK_TOP_XTAL, CK_TOP_CB_NETSYS_850M, CK_TOP_CB_NET2_800M,
 	CK_TOP_CB_MM_720M,  CK_TOP_CB_NET1_D4,     CK_TOP_CB_NET1_D5
 };
 
-static const int axi_infra_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int axi_infra_parents[] = { CK_TOP_XTAL,
 					 CK_TOP_NET1_D8_D2 };
 
-static const int uart_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D8,
+static const int uart_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D8,
 				    CK_TOP_M_D8_D2 };
 
-static const int emmc_250m_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D2,
+static const int emmc_250m_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D2,
 					 CK_TOP_CB_MM_D4 };
 
 static const int emmc_400m_parents[] = {
-	CK_TOP_CB_CKSQ_40M, CK_TOP_CB_MSDC_400M, CK_TOP_CB_MM_D2,
+	CK_TOP_XTAL, CK_TOP_CB_MSDC_400M, CK_TOP_CB_MM_D2,
 	CK_TOP_CB_M_D2,     CK_TOP_CB_MM_D4,     CK_TOP_NET1_D8_D2
 };
 
-static const int spi_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D2,
+static const int spi_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2,
 				   CK_TOP_CB_MM_D4,    CK_TOP_NET1_D8_D2,
 				   CK_TOP_CB_NET2_D6,  CK_TOP_NET1_D5_D4,
 				   CK_TOP_CB_M_D4,     CK_TOP_NET1_D8_D4 };
 
-static const int nfi1x_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_MM_D4,
+static const int nfi1x_parents[] = { CK_TOP_XTAL, CK_TOP_CB_MM_D4,
 				     CK_TOP_NET1_D8_D2,  CK_TOP_CB_NET2_D6,
 				     CK_TOP_CB_M_D4,     CK_TOP_CB_MM_D8,
 				     CK_TOP_NET1_D8_D4,  CK_TOP_CB_M_D8 };
 
-static const int spinfi_parents[] = { CK_TOP_CKSQ_40M_D2, CK_TOP_CB_CKSQ_40M,
+static const int spinfi_parents[] = { CK_TOP_XTAL_D2, CK_TOP_XTAL,
 				      CK_TOP_NET1_D5_D4,  CK_TOP_CB_M_D4,
 				      CK_TOP_CB_MM_D8,    CK_TOP_NET1_D8_D4,
 				      CK_TOP_MM_D6_D2,    CK_TOP_CB_M_D8 };
 
-static const int pwm_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D8_D2,
+static const int pwm_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D8_D2,
 				   CK_TOP_NET1_D5_D4,  CK_TOP_CB_M_D4,
 				   CK_TOP_M_D8_D2,     CK_TOP_CB_RTC_32K };
 
-static const int i2c_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_NET1_D5_D4,
+static const int i2c_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4,
 				   CK_TOP_CB_M_D4, CK_TOP_NET1_D8_D4 };
 
-static const int pcie_mbist_250m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int pcie_mbist_250m_parents[] = { CK_TOP_XTAL,
 					       CK_TOP_NET1_D5_D2 };
 
-static const int pextp_tl_ck_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int pextp_tl_ck_parents[] = { CK_TOP_XTAL,
 					   CK_TOP_CB_NET2_D6, CK_TOP_CB_MM_D8,
 					   CK_TOP_M_D8_D2, CK_TOP_CB_RTC_32K };
 
-static const int usb_frmcnt_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int usb_frmcnt_parents[] = { CK_TOP_XTAL,
 					  CK_TOP_CB_MM_D3_D5 };
 
-static const int aud_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_APLL2_196M };
+static const int aud_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M };
 
-static const int a1sys_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_APLL2_D4 };
+static const int a1sys_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_D4 };
 
-static const int aud_l_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_APLL2_196M,
+static const int aud_l_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M,
 				     CK_TOP_M_D8_D2 };
 
-static const int sspxtp_parents[] = { CK_TOP_CKSQ_40M_D2, CK_TOP_M_D8_D2 };
+static const int sspxtp_parents[] = { CK_TOP_XTAL_D2, CK_TOP_M_D8_D2 };
 
-static const int usxgmii_sbus_0_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int usxgmii_sbus_0_parents[] = { CK_TOP_XTAL,
 					      CK_TOP_NET1_D8_D4 };
 
-static const int sgm_0_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_SGM_325M };
+static const int sgm_0_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M };
 
-static const int sysapb_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_M_D3_D2 };
+static const int sysapb_parents[] = { CK_TOP_XTAL, CK_TOP_M_D3_D2 };
 
-static const int eth_refck_50m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int eth_refck_50m_parents[] = { CK_TOP_XTAL,
 					     CK_TOP_NET2_D4_D4 };
 
-static const int eth_sys_200m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int eth_sys_200m_parents[] = { CK_TOP_XTAL,
 					    CK_TOP_CB_NET2_D4 };
 
-static const int eth_xgmii_parents[] = { CK_TOP_CKSQ_40M_D2, CK_TOP_NET1_D8_D8,
+static const int eth_xgmii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET1_D8_D8,
 					 CK_TOP_NET1_D8_D16 };
 
-static const int bus_tops_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_NET1_D5,
+static const int bus_tops_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET1_D5,
 					CK_TOP_CB_NET2_D2 };
 
-static const int npu_tops_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int npu_tops_parents[] = { CK_TOP_XTAL,
 					CK_TOP_CB_NET2_800M };
 
-static const int dramc_md32_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_M_D2,
+static const int dramc_md32_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2,
 					  CK_TOP_CB_WEDMCU_208M };
 
-static const int da_xtp_glb_p0_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int da_xtp_glb_p0_parents[] = { CK_TOP_XTAL,
 					     CK_TOP_CB_NET2_D8 };
 
-static const int mcusys_backup_625m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int mcusys_backup_625m_parents[] = { CK_TOP_XTAL,
 						  CK_TOP_CB_NET1_D4 };
 
-static const int macsec_parents[] = { CK_TOP_CB_CKSQ_40M, CK_TOP_CB_SGM_325M,
+static const int macsec_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M,
 				      CK_TOP_CB_NET1_D8 };
 
-static const int netsys_tops_400m_parents[] = { CK_TOP_CB_CKSQ_40M,
+static const int netsys_tops_400m_parents[] = { CK_TOP_XTAL,
 						CK_TOP_CB_NET2_D2 };
 
-static const int eth_mii_parents[] = { CK_TOP_CKSQ_40M_D2, CK_TOP_NET2_D4_D8 };
+static const int eth_mii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET2_D4_D8 };
 
 #define TOP_MUX(_id, _name, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,    \
 		_shift, _width, _gate, _upd_ofs, _upd)                         \
@@ -814,7 +814,7 @@ static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
-	.fdivs_offs = CK_TOP_CB_CKSQ_40M,
+	.fdivs_offs = CK_TOP_XTAL,
 	.muxes_offs = CK_TOP_NETSYS_SEL,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
@@ -991,10 +991,10 @@ static const struct mtk_gate_regs sgmii0_cg_regs = {
 	}
 
 static const struct mtk_gate sgmiisys_0_mtk_gate[] = {
-	/* connect to fake clock, so use CK_TOP_CB_CKSQ_40M as the clock parent */
-	GATE_SGMII0(CK_SGM0_TX_EN, "sgm0_tx_en", CK_TOP_CB_CKSQ_40M, 2),
-	/* connect to fake clock, so use CK_TOP_CB_CKSQ_40M as the clock parent */
-	GATE_SGMII0(CK_SGM0_RX_EN, "sgm0_rx_en", CK_TOP_CB_CKSQ_40M, 3),
+	/* connect to fake clock, so use CK_TOP_XTAL as the clock parent */
+	GATE_SGMII0(CK_SGM0_TX_EN, "sgm0_tx_en", CK_TOP_XTAL, 2),
+	/* connect to fake clock, so use CK_TOP_XTAL as the clock parent */
+	GATE_SGMII0(CK_SGM0_RX_EN, "sgm0_rx_en", CK_TOP_XTAL, 3),
 };
 
 static int mt7988_sgmiisys_0_probe(struct udevice *dev)
@@ -1035,10 +1035,10 @@ static const struct mtk_gate_regs sgmii1_cg_regs = {
 	}
 
 static const struct mtk_gate sgmiisys_1_mtk_gate[] = {
-	/* connect to fake clock, so use CK_TOP_CB_CKSQ_40M as the clock parent */
-	GATE_SGMII1(CK_SGM1_TX_EN, "sgm1_tx_en", CK_TOP_CB_CKSQ_40M, 2),
-	/* connect to fake clock, so use CK_TOP_CB_CKSQ_40M as the clock parent */
-	GATE_SGMII1(CK_SGM1_RX_EN, "sgm1_rx_en", CK_TOP_CB_CKSQ_40M, 3),
+	/* connect to fake clock, so use CK_TOP_XTAL as the clock parent */
+	GATE_SGMII1(CK_SGM1_TX_EN, "sgm1_tx_en", CK_TOP_XTAL, 2),
+	/* connect to fake clock, so use CK_TOP_XTAL as the clock parent */
+	GATE_SGMII1(CK_SGM1_RX_EN, "sgm1_rx_en", CK_TOP_XTAL, 3),
 };
 
 static int mt7988_sgmiisys_1_probe(struct udevice *dev)
