@@ -30,6 +30,8 @@
 #include "x509_parser.h"
 #endif
 
+#if !CONFIG_IS_ENABLED(MBEDTLS_LIB_X509)
+
 /*
  * Set up the signature parameters in an X.509 certificate.  This involves
  * digesting the signed data and extracting the signature.
@@ -138,6 +140,8 @@ error:
 	pr_devel("<==%s() = %d\n", __func__, ret);
 	return ret;
 }
+
+#endif /* !CONFIG_IS_ENABLED(MBEDTLS_LIB_X509) */
 
 /*
  * Check for self-signedness in an X.509 cert and if found, check the signature
