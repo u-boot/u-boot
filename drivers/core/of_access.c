@@ -25,6 +25,7 @@
 #include <linux/bug.h>
 #include <linux/libfdt.h>
 #include <dm/of_access.h>
+#include <dm/util.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
 #include <linux/ioport.h>
@@ -489,17 +490,17 @@ int of_read_u8(const struct device_node *np, const char *propname, u8 *outp)
 {
 	const u8 *val;
 
-	debug("%s: %s: ", __func__, propname);
+	dm_warn("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
 	if (IS_ERR(val)) {
-		debug("(not found)\n");
+		dm_warn("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = *val;
-	debug("%#x (%d)\n", *outp, *outp);
+	dm_warn("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -508,17 +509,17 @@ int of_read_u16(const struct device_node *np, const char *propname, u16 *outp)
 {
 	const __be16 *val;
 
-	debug("%s: %s: ", __func__, propname);
+	dm_warn("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
 	if (IS_ERR(val)) {
-		debug("(not found)\n");
+		dm_warn("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be16_to_cpup(val);
-	debug("%#x (%d)\n", *outp, *outp);
+	dm_warn("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -533,14 +534,14 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 {
 	const __be32 *val;
 
-	debug("%s: %s: ", __func__, propname);
+	dm_warn("%s: %s: ", __func__, propname);
 	val = of_find_property_value_of_size(np, propname,
 					     sz * sizeof(*out_values));
 
 	if (IS_ERR(val))
 		return PTR_ERR(val);
 
-	debug("size %zd\n", sz);
+	dm_warn("size %zd\n", sz);
 	while (sz--)
 		*out_values++ = be32_to_cpup(val++);
 
@@ -552,19 +553,19 @@ int of_read_u32_index(const struct device_node *np, const char *propname,
 {
 	const __be32 *val;
 
-	debug("%s: %s: ", __func__, propname);
+	dm_warn("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 
 	val = of_find_property_value_of_size(np, propname,
 					     sizeof(*outp) * (index + 1));
 	if (IS_ERR(val)) {
-		debug("(not found)\n");
+		dm_warn("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be32_to_cpup(val + index);
-	debug("%#x (%d)\n", *outp, *outp);
+	dm_warn("%#x (%d)\n", *outp, *outp);
 
 	return 0;
 }
@@ -574,20 +575,20 @@ int of_read_u64_index(const struct device_node *np, const char *propname,
 {
 	const __be64 *val;
 
-	debug("%s: %s: ", __func__, propname);
+	dm_warn("%s: %s: ", __func__, propname);
 	if (!np)
 		return -EINVAL;
 
 	val = of_find_property_value_of_size(np, propname,
 					     sizeof(*outp) * (index + 1));
 	if (IS_ERR(val)) {
-		debug("(not found)\n");
+		dm_warn("(not found)\n");
 		return PTR_ERR(val);
 	}
 
 	*outp = be64_to_cpup(val + index);
-	debug("%#llx (%lld)\n", (unsigned long long)*outp,
-	      (unsigned long long)*outp);
+	dm_warn("%#llx (%lld)\n", (unsigned long long)*outp,
+		(unsigned long long)*outp);
 
 	return 0;
 }
@@ -620,7 +621,7 @@ int of_property_match_string(const struct device_node *np, const char *propname,
 		l = strnlen(p, end - p) + 1;
 		if (p + l > end)
 			return -EILSEQ;
-		debug("comparing %s with %s\n", string, p);
+		dm_warn("comparing %s with %s\n", string, p);
 		if (strcmp(string, p) == 0)
 			return i; /* Found it; return index */
 	}
@@ -707,17 +708,17 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 			if (cells_name || cur_index == index) {
 				node = of_find_node_by_phandle(NULL, phandle);
 				if (!node) {
-					debug("%s: could not find phandle\n",
-					      np->full_name);
+					dm_warn("%s: could not find phandle\n",
+						np->full_name);
 					goto err;
 				}
 			}
 
 			if (cells_name) {
 				if (of_read_u32(node, cells_name, &count)) {
-					debug("%s: could not get %s for %s\n",
-					      np->full_name, cells_name,
-					      node->full_name);
+					dm_warn("%s: could not get %s for %s\n",
+						np->full_name, cells_name,
+						node->full_name);
 					goto err;
 				}
 			} else {
@@ -729,8 +730,8 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 			 * remaining property data length
 			 */
 			if (list + count > list_end) {
-				debug("%s: arguments longer than property\n",
-				      np->full_name);
+				dm_warn("%s: arguments longer than property\n",
+					np->full_name);
 				goto err;
 			}
 		}
@@ -825,8 +826,8 @@ static void of_alias_add(struct alias_prop *ap, struct device_node *np,
 	strncpy(ap->stem, stem, stem_len);
 	ap->stem[stem_len] = 0;
 	list_add_tail(&ap->link, &aliases_lookup);
-	debug("adding DT alias:%s: stem=%s id=%i node=%s\n",
-	      ap->alias, ap->stem, ap->id, of_node_full_name(np));
+	dm_warn("adding DT alias:%s: stem=%s id=%i node=%s\n",
+		ap->alias, ap->stem, ap->id, of_node_full_name(np));
 }
 
 int of_alias_scan(void)
