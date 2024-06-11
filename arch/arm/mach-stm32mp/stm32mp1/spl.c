@@ -134,7 +134,7 @@ void stm32_init_tzc_for_optee(void)
 {
 	const uint32_t dram_size = stm32mp_get_dram_size();
 	const uintptr_t dram_top = STM32_DDR_BASE + (dram_size - 1);
-	uint32_t optee_base, optee_size, tee_shmem_base;
+	u32 optee_base = 0, optee_size = 0, tee_shmem_base;
 	const uintptr_t tzc = STM32_TZC_BASE;
 	int ret;
 
