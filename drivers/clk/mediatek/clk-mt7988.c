@@ -788,6 +788,7 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 
 static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
 	.muxes_offs = CK_INFRA_MUX_UART0_SEL,
+	.gates_offs = CK_INFRA_PCIE_PERI_26M_CK_P0,
 	.muxes = infracfg_mtk_mux,
 	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = 40 * MHZ,
