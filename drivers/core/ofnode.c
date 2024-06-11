@@ -326,7 +326,7 @@ int ofnode_read_u8(ofnode node, const char *propname, u8 *outp)
 		return -EINVAL;
 	}
 	*outp = *cell;
-	debug("%#x (%d)\n", *outp, *outp);
+	debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -357,7 +357,7 @@ int ofnode_read_u16(ofnode node, const char *propname, u16 *outp)
 		return -EINVAL;
 	}
 	*outp = be16_to_cpup(cell);
-	debug("%#x (%d)\n", *outp, *outp);
+	debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -409,7 +409,7 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 	}
 
 	*outp = fdt32_to_cpu(cell[index]);
-	debug("%#x (%d)\n", *outp, *outp);
+	debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -439,7 +439,7 @@ int ofnode_read_u64_index(ofnode node, const char *propname, int index,
 	}
 
 	*outp = fdt64_to_cpu(cell[index]);
-	debug("%#llx (%lld)\n", *outp, *outp);
+	debug("%#llx (%llu)\n", *outp, *outp);
 
 	return 0;
 }
@@ -479,7 +479,7 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp)
 		return -EINVAL;
 	}
 	*outp = fdt64_to_cpu(cell[0]);
-	debug("%#llx (%lld)\n", (unsigned long long)*outp,
+	debug("%#llx (%llu)\n", (unsigned long long)*outp,
 	      (unsigned long long)*outp);
 
 	return 0;
