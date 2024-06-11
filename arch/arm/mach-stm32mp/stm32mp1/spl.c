@@ -118,7 +118,7 @@ static int optee_get_reserved_memory(uint32_t *start, uint32_t *size)
 
 	node = ofnode_path("/reserved-memory/optee");
 	if (!ofnode_valid(node))
-		return 0;
+		return -ENOENT;
 
 	fdt_start = ofnode_get_addr_size(node, "reg", &fdt_mem_size);
 	*start = fdt_start;
