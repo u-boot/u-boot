@@ -657,17 +657,17 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 		    CK_TOP_SYSAXI_SEL, 29),
 	GATE_INFRA1_TOP(CK_INFRA_PRE_CK_SEJ_F13M, "infra_pre_ck_sej_f13m",
 			CK_TOP_INFRA_F26M_SEL, 30),
-	GATE_INFRA1_TOP(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_TOP_SYSAXI_SEL,
-			31),
+	/* GATE_INFRA1_TOP(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_TOP_SYSAXI_SEL,
+			31), */
 	GATE_INFRA2_TOP(CK_INFRA_26M_THERM_SYSTEM, "infra_hf_26m_therm_system",
 			CK_TOP_INFRA_F26M_SEL, 0),
 	GATE_INFRA2_TOP(CK_INFRA_I2C_BCK, "infra_i2c_bck", CK_TOP_I2C_SEL, 1),
-	GATE_INFRA2_TOP(CK_INFRA_66M_UART0_PCK, "infra_hf_66m_uart0_pck",
-		    CK_TOP_SYSAXI_SEL, 3),
-	GATE_INFRA2_TOP(CK_INFRA_66M_UART1_PCK, "infra_hf_66m_uart1_pck",
-		    CK_TOP_SYSAXI_SEL, 4),
-	GATE_INFRA2_TOP(CK_INFRA_66M_UART2_PCK, "infra_hf_66m_uart2_pck",
-		    CK_TOP_SYSAXI_SEL, 5),
+	/* GATE_INFRA2_TOP(CK_INFRA_66M_UART0_PCK, "infra_hf_66m_uart0_pck",
+		    CK_TOP_SYSAXI_SEL, 3), */
+	/* GATE_INFRA2_TOP(CK_INFRA_66M_UART1_PCK, "infra_hf_66m_uart1_pck",
+		    CK_TOP_SYSAXI_SEL, 4), */
+	/* GATE_INFRA2_TOP(CK_INFRA_66M_UART2_PCK, "infra_hf_66m_uart2_pck",
+		    CK_TOP_SYSAXI_SEL, 5), */
 	GATE_INFRA2_INFRA(CK_INFRA_52M_UART0_CK, "infra_f_52m_uart0",
 			  CK_INFRA_MUX_UART0_SEL, 3),
 	GATE_INFRA2_INFRA(CK_INFRA_52M_UART1_CK, "infra_f_52m_uart1",
