@@ -5,6 +5,7 @@
 ifeq ($(CONFIG_SPL_BUILD),)
 obj-y += cmd_ut_lib.o
 obj-y += abuf.o
+obj-y += alist.o
 obj-$(CONFIG_EFI_LOADER) += efi_device_path.o
 obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
 obj-y += hexdump.o
