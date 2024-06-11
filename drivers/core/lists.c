@@ -246,9 +246,8 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 		}
 
 		if (entry->of_match)
-			log_debug("   - found match at '%s': '%s' matches '%s'\n",
-				  entry->name, entry->of_match->compatible,
-				  id->compatible);
+			log_debug("   - found match at driver '%s' for '%s'\n",
+				  entry->name, id->compatible);
 		ret = device_bind_with_driver_data(parent, entry, name,
 						   id ? id->data : 0, node,
 						   &dev);
