@@ -8,77 +8,28 @@
 #ifndef _DT_BINDINGS_CLK_MT7988_H
 #define _DT_BINDINGS_CLK_MT7988_H
 
-/* INFRACFG */
-/* mtk_fixed_factor */
-#define CK_INFRA_CK_F26M	  0
-#define CK_INFRA_PWM_O		  1
-#define CK_INFRA_PCIE_OCC_P0	  2
-#define CK_INFRA_PCIE_OCC_P1	  3
-#define CK_INFRA_PCIE_OCC_P2	  4
-#define CK_INFRA_PCIE_OCC_P3	  5
-#define CK_INFRA_133M_HCK	  6
-#define CK_INFRA_133M_PHCK	  7
-#define CK_INFRA_66M_PHCK	  8
-#define CK_INFRA_FAUD_L_O	  9
-#define CK_INFRA_FAUD_AUD_O	  10
-#define CK_INFRA_FAUD_EG2_O	  11
-#define CK_INFRA_I2C_O		  12
-#define CK_INFRA_UART_O0	  13
-#define CK_INFRA_UART_O1	  14
-#define CK_INFRA_UART_O2	  15
-#define CK_INFRA_NFI_O		  16
-#define CK_INFRA_SPINFI_O	  17
-#define CK_INFRA_SPI0_O		  18
-#define CK_INFRA_SPI1_O		  19
-#define CK_INFRA_LB_MUX_FRTC	  20
-#define CK_INFRA_FRTC		  21
-#define CK_INFRA_FMSDC400_O	  22
-#define CK_INFRA_FMSDC2_HCK_OCC	  23
-#define CK_INFRA_PERI_133M	  24
-#define CK_INFRA_USB_O		  25
-#define CK_INFRA_USB_O_P1	  26
-#define CK_INFRA_USB_FRMCNT_O	  27
-#define CK_INFRA_USB_FRMCNT_O_P1  28
-#define CK_INFRA_USB_XHCI_O	  29
-#define CK_INFRA_USB_XHCI_O_P1	  30
-#define CK_INFRA_USB_PIPE_O	  31
-#define CK_INFRA_USB_PIPE_O_P1	  32
-#define CK_INFRA_USB_UTMI_O	  33
-#define CK_INFRA_USB_UTMI_O_P1	  34
-#define CK_INFRA_PCIE_PIPE_OCC_P0 35
-#define CK_INFRA_PCIE_PIPE_OCC_P1 36
-#define CK_INFRA_PCIE_PIPE_OCC_P2 37
-#define CK_INFRA_PCIE_PIPE_OCC_P3 38
-#define CK_INFRA_F26M_O0	  39
-#define CK_INFRA_F26M_O1	  40
-#define CK_INFRA_133M_MCK	  41
-#define CK_INFRA_66M_MCK	  42
-#define CK_INFRA_PERI_66M_O	  43
-#define CK_INFRA_USB_SYS_O	  44
-#define CK_INFRA_USB_SYS_O_P1	  45
-
 /* INFRACFG_AO */
 #define GATE_OFFSET 65
 /* mtk_mux */
-#define CK_INFRA_MUX_UART0_SEL		46 /* Linux CLK ID (0) */
-#define CK_INFRA_MUX_UART1_SEL		47 /* Linux CLK ID (1) */
-#define CK_INFRA_MUX_UART2_SEL		48 /* Linux CLK ID (2) */
-#define CK_INFRA_MUX_SPI0_SEL		49 /* Linux CLK ID (3) */
-#define CK_INFRA_MUX_SPI1_SEL		50 /* Linux CLK ID (4) */
-#define CK_INFRA_MUX_SPI2_SEL		51 /* Linux CLK ID (5) */
-#define CK_INFRA_PWM_SEL		52 /* Linux CLK ID (6) */
-#define CK_INFRA_PWM_CK1_SEL		53 /* Linux CLK ID (7) */
-#define CK_INFRA_PWM_CK2_SEL		54 /* Linux CLK ID (8) */
-#define CK_INFRA_PWM_CK3_SEL		55 /* Linux CLK ID (9) */
-#define CK_INFRA_PWM_CK4_SEL		56 /* Linux CLK ID (10) */
-#define CK_INFRA_PWM_CK5_SEL		57 /* Linux CLK ID (11) */
-#define CK_INFRA_PWM_CK6_SEL		58 /* Linux CLK ID (12) */
-#define CK_INFRA_PWM_CK7_SEL		59 /* Linux CLK ID (13) */
-#define CK_INFRA_PWM_CK8_SEL		60 /* Linux CLK ID (14) */
-#define CK_INFRA_PCIE_GFMUX_TL_O_P0_SEL 61 /* Linux CLK ID (15) */
-#define CK_INFRA_PCIE_GFMUX_TL_O_P1_SEL 62 /* Linux CLK ID (16) */
-#define CK_INFRA_PCIE_GFMUX_TL_O_P2_SEL 63 /* Linux CLK ID (17) */
-#define CK_INFRA_PCIE_GFMUX_TL_O_P3_SEL 64 /* Linux CLK ID (18) */
+#define CK_INFRA_MUX_UART0_SEL		0 /* Linux CLK ID (0) */
+#define CK_INFRA_MUX_UART1_SEL		1 /* Linux CLK ID (1) */
+#define CK_INFRA_MUX_UART2_SEL		2 /* Linux CLK ID (2) */
+#define CK_INFRA_MUX_SPI0_SEL		3 /* Linux CLK ID (3) */
+#define CK_INFRA_MUX_SPI1_SEL		4 /* Linux CLK ID (4) */
+#define CK_INFRA_MUX_SPI2_SEL		5 /* Linux CLK ID (5) */
+#define CK_INFRA_PWM_SEL		6 /* Linux CLK ID (6) */
+#define CK_INFRA_PWM_CK1_SEL		7 /* Linux CLK ID (7) */
+#define CK_INFRA_PWM_CK2_SEL		8 /* Linux CLK ID (8) */
+#define CK_INFRA_PWM_CK3_SEL		9 /* Linux CLK ID (9) */
+#define CK_INFRA_PWM_CK4_SEL		10 /* Linux CLK ID (10) */
+#define CK_INFRA_PWM_CK5_SEL		11 /* Linux CLK ID (11) */
+#define CK_INFRA_PWM_CK6_SEL		12 /* Linux CLK ID (12) */
+#define CK_INFRA_PWM_CK7_SEL		13 /* Linux CLK ID (13) */
+#define CK_INFRA_PWM_CK8_SEL		14 /* Linux CLK ID (14) */
+#define CK_INFRA_PCIE_GFMUX_TL_O_P0_SEL 15 /* Linux CLK ID (15) */
+#define CK_INFRA_PCIE_GFMUX_TL_O_P1_SEL 16 /* Linux CLK ID (16) */
+#define CK_INFRA_PCIE_GFMUX_TL_O_P2_SEL 17 /* Linux CLK ID (17) */
+#define CK_INFRA_PCIE_GFMUX_TL_O_P3_SEL 18 /* Linux CLK ID (18) */
 /* mtk_gate */
 #define CK_INFRA_PCIE_PERI_26M_CK_P0 (65 - GATE_OFFSET) /* Linux CLK ID (99) */
 #define CK_INFRA_PCIE_PERI_26M_CK_P1                                           \

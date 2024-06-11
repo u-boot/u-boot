@@ -424,116 +424,42 @@ static const struct mtk_composite topckgen_mtk_muxes[] = {
 		netsys_2x_parents, 0x120, 0x124, 0x128, 8, 2, 15, 0x1c8, 11),
 };
 
-/* INFRA FIXED DIV */
-static const struct mtk_fixed_factor infracfg_mtk_fixed_factor[] = {
-	TOP_FACTOR(CK_INFRA_CK_F26M, "infra_ck_f26m", CK_TOP_INFRA_F26M_SEL, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_PWM_O, "infra_pwm_o", CK_TOP_PWM_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_PCIE_OCC_P0, "infra_pcie_ck_occ_p0",
-		   CK_TOP_PEXTP_TL_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_PCIE_OCC_P1, "infra_pcie_ck_occ_p1",
-		   CK_TOP_PEXTP_TL_P1_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_PCIE_OCC_P2, "infra_pcie_ck_occ_p2",
-		   CK_TOP_PEXTP_TL_P2_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_PCIE_OCC_P3, "infra_pcie_ck_occ_p3",
-		   CK_TOP_PEXTP_TL_P3_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_133M_HCK, "infra_133m_hck", CK_TOP_SYSAXI, 1, 1),
-	INFRA_FACTOR(CK_INFRA_133M_PHCK, "infra_133m_phck", CK_INFRA_133M_HCK,
-		     1, 1),
-	INFRA_FACTOR(CK_INFRA_66M_PHCK, "infra_66m_phck", CK_INFRA_133M_HCK, 1,
-		     1),
-	TOP_FACTOR(CK_INFRA_FAUD_L_O, "infra_faud_l_o", CK_TOP_AUD_L, 1, 1),
-	TOP_FACTOR(CK_INFRA_FAUD_AUD_O, "infra_faud_aud_o", CK_TOP_A1SYS, 1, 1),
-	TOP_FACTOR(CK_INFRA_FAUD_EG2_O, "infra_faud_eg2_o", CK_TOP_A_TUNER, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_I2C_O, "infra_i2c_o", CK_TOP_I2C_BCK, 1, 1),
-	TOP_FACTOR(CK_INFRA_UART_O0, "infra_uart_o0", CK_TOP_UART_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_UART_O1, "infra_uart_o1", CK_TOP_UART_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_UART_O2, "infra_uart_o2", CK_TOP_UART_SEL, 1, 1),
-	TOP_FACTOR(CK_INFRA_NFI_O, "infra_nfi_o", CK_TOP_NFI1X, 1, 1),
-	TOP_FACTOR(CK_INFRA_SPINFI_O, "infra_spinfi_o", CK_TOP_SPINFI_BCK, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_SPI0_O, "infra_spi0_o", CK_TOP_SPI, 1, 1),
-	TOP_FACTOR(CK_INFRA_SPI1_O, "infra_spi1_o", CK_TOP_SPIM_MST, 1, 1),
-	INFRA_FACTOR(CK_INFRA_LB_MUX_FRTC, "infra_lb_mux_frtc", CK_INFRA_FRTC,
-		     1, 1),
-	TOP_FACTOR(CK_INFRA_FRTC, "infra_frtc", CK_TOP_CB_RTC_32K, 1, 1),
-	TOP_FACTOR(CK_INFRA_FMSDC400_O, "infra_fmsdc400_o", CK_TOP_EMMC_400M, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_FMSDC2_HCK_OCC, "infra_fmsdc2_hck_occ",
-		   CK_TOP_EMMC_250M, 1, 1),
-	TOP_FACTOR(CK_INFRA_PERI_133M, "infra_peri_133m", CK_TOP_SYSAXI, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_O, "infra_usb_o", CK_TOP_USB_REF, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_O_P1, "infra_usb_o_p1", CK_TOP_USB_CK_P1, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_FRMCNT_O, "infra_usb_frmcnt_o",
-		   CK_TOP_USB_FRMCNT, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_FRMCNT_O_P1, "infra_usb_frmcnt_o_p1",
-		   CK_TOP_USB_FRMCNT_P1, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_XHCI_O, "infra_usb_xhci_o", CK_TOP_USB_XHCI, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_USB_XHCI_O_P1, "infra_usb_xhci_o_p1",
-		   CK_TOP_USB_XHCI_P1, 1, 1),
-	XTAL_FACTOR(CK_INFRA_USB_PIPE_O, "infra_usb_pipe_o", CLK_XTAL, 1, 1),
-	XTAL_FACTOR(CK_INFRA_USB_PIPE_O_P1, "infra_usb_pipe_o_p1", CLK_XTAL, 1,
-		    1),
-	XTAL_FACTOR(CK_INFRA_USB_UTMI_O, "infra_usb_utmi_o", CLK_XTAL, 1, 1),
-	XTAL_FACTOR(CK_INFRA_USB_UTMI_O_P1, "infra_usb_utmi_o_p1", CLK_XTAL, 1,
-		    1),
-	XTAL_FACTOR(CK_INFRA_PCIE_PIPE_OCC_P0, "infra_pcie_pipe_ck_occ_p0",
-		    CLK_XTAL, 1, 1),
-	XTAL_FACTOR(CK_INFRA_PCIE_PIPE_OCC_P1, "infra_pcie_pipe_ck_occ_p1",
-		    CLK_XTAL, 1, 1),
-	XTAL_FACTOR(CK_INFRA_PCIE_PIPE_OCC_P2, "infra_pcie_pipe_ck_occ_p2",
-		    CLK_XTAL, 1, 1),
-	XTAL_FACTOR(CK_INFRA_PCIE_PIPE_OCC_P3, "infra_pcie_pipe_ck_occ_p3",
-		    CLK_XTAL, 1, 1),
-	TOP_FACTOR(CK_INFRA_F26M_O0, "infra_f26m_o0", CK_TOP_INFRA_F26M, 1, 1),
-	TOP_FACTOR(CK_INFRA_F26M_O1, "infra_f26m_o1", CK_TOP_INFRA_F26M, 1, 1),
-	TOP_FACTOR(CK_INFRA_133M_MCK, "infra_133m_mck", CK_TOP_SYSAXI, 1, 1),
-	TOP_FACTOR(CK_INFRA_66M_MCK, "infra_66m_mck", CK_TOP_SYSAXI, 1, 1),
-	TOP_FACTOR(CK_INFRA_PERI_66M_O, "infra_peri_66m_o", CK_TOP_SYSAXI, 1,
-		   1),
-	TOP_FACTOR(CK_INFRA_USB_SYS_O, "infra_usb_sys_o", CK_TOP_USB_SYS, 1, 1),
-	TOP_FACTOR(CK_INFRA_USB_SYS_O_P1, "infra_usb_sys_o_p1",
-		   CK_TOP_USB_SYS_P1, 1, 1),
-};
-
 /* INFRASYS MUX PARENTS */
-static const int infra_mux_uart0_parents[] = { CK_INFRA_CK_F26M,
-					       CK_INFRA_UART_O0 };
+static const int infra_mux_uart0_parents[] = { CK_TOP_INFRA_F26M_SEL,
+					       CK_TOP_UART_SEL };
 
-static const int infra_mux_uart1_parents[] = { CK_INFRA_CK_F26M,
-					       CK_INFRA_UART_O1 };
+static const int infra_mux_uart1_parents[] = { CK_TOP_INFRA_F26M_SEL,
+					       CK_TOP_UART_SEL };
 
-static const int infra_mux_uart2_parents[] = { CK_INFRA_CK_F26M,
-					       CK_INFRA_UART_O2 };
+static const int infra_mux_uart2_parents[] = { CK_TOP_INFRA_F26M_SEL,
+					       CK_TOP_UART_SEL };
 
-static const int infra_mux_spi0_parents[] = { CK_INFRA_I2C_O, CK_INFRA_SPI0_O };
+static const int infra_mux_spi0_parents[] = { CK_TOP_I2C_BCK, CK_TOP_SPI };
 
-static const int infra_mux_spi1_parents[] = { CK_INFRA_I2C_O, CK_INFRA_SPI1_O };
+static const int infra_mux_spi1_parents[] = { CK_TOP_I2C_BCK, CK_TOP_SPIM_MST };
 
 static const int infra_pwm_bck_parents[] = { CK_TOP_INFRA_F32K,
-					     CK_INFRA_CK_F26M, CK_INFRA_66M_MCK,
-					     CK_INFRA_PWM_O };
+					     CK_TOP_INFRA_F26M_SEL, CK_TOP_SYSAXI,
+					     CK_TOP_PWM_SEL };
 
 static const int infra_pcie_gfmux_tl_ck_o_p0_parents[] = {
-	CK_TOP_INFRA_F32K, CK_INFRA_CK_F26M, CK_INFRA_CK_F26M,
-	CK_INFRA_PCIE_OCC_P0
+	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_PEXTP_TL_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p1_parents[] = {
-	CK_TOP_INFRA_F32K, CK_INFRA_CK_F26M, CK_INFRA_CK_F26M,
-	CK_INFRA_PCIE_OCC_P1
+	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_PEXTP_TL_P1_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p2_parents[] = {
-	CK_TOP_INFRA_F32K, CK_INFRA_CK_F26M, CK_INFRA_CK_F26M,
-	CK_INFRA_PCIE_OCC_P2
+	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_PEXTP_TL_P2_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p3_parents[] = {
-	CK_TOP_INFRA_F32K, CK_INFRA_CK_F26M, CK_INFRA_CK_F26M,
-	CK_INFRA_PCIE_OCC_P3
+	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_PEXTP_TL_P3_SEL
 };
 
 #define INFRA_MUX(_id, _name, _parents, _reg, _shift, _width)                  \
@@ -542,7 +468,7 @@ static const int infra_pcie_gfmux_tl_ck_o_p3_parents[] = {
 		.mux_clr_reg = _reg + 0x4, .mux_shift = _shift,                \
 		.mux_mask = BIT(_width) - 1, .parent = _parents,               \
 		.num_parents = ARRAY_SIZE(_parents),                           \
-		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_INFRASYS,             \
+		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_TOPCKGEN,             \
 	}
 
 /* INFRA MUX */
@@ -615,196 +541,214 @@ static const struct mtk_gate_regs infra_3_cg_regs = {
 	.sta_ofs = 0x68,
 };
 
-#define GATE_INFRA0(_id, _name, _parent, _shift)                               \
+#define GATE_INFRA0(_id, _name, _parent, _shift, _flags)                       \
 	{                                                                      \
 		.id = _id, .parent = _parent, .regs = &infra_0_cg_regs,        \
 		.shift = _shift,                                               \
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_INFRASYS,                \
+		.flags = _flags,                                               \
 	}
+#define GATE_INFRA0_INFRA(_id, _name, _parent, _shift) \
+	GATE_INFRA0(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_INFRASYS)
+#define GATE_INFRA0_TOP(_id, _name, _parent, _shift) \
+	GATE_INFRA0(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
 
-#define GATE_INFRA1(_id, _name, _parent, _shift)                               \
+#define GATE_INFRA1(_id, _name, _parent, _shift, _flags)                       \
 	{                                                                      \
 		.id = _id, .parent = _parent, .regs = &infra_1_cg_regs,        \
 		.shift = _shift,                                               \
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_INFRASYS,                \
+		.flags = _flags,                                               \
 	}
+#define GATE_INFRA1_INFRA(_id, _name, _parent, _shift) \
+	GATE_INFRA1(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_INFRASYS)
+#define GATE_INFRA1_TOP(_id, _name, _parent, _shift) \
+	GATE_INFRA1(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
 
-#define GATE_INFRA2(_id, _name, _parent, _shift)                               \
+#define GATE_INFRA2(_id, _name, _parent, _shift, _flags)                       \
 	{                                                                      \
 		.id = _id, .parent = _parent, .regs = &infra_2_cg_regs,        \
 		.shift = _shift,                                               \
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_INFRASYS,                \
+		.flags = _flags,                                               \
 	}
+#define GATE_INFRA2_INFRA(_id, _name, _parent, _shift) \
+	GATE_INFRA2(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_INFRASYS)
+#define GATE_INFRA2_TOP(_id, _name, _parent, _shift) \
+	GATE_INFRA2(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
 
-#define GATE_INFRA3(_id, _name, _parent, _shift)                               \
+#define GATE_INFRA3(_id, _name, _parent, _shift, _flags)                       \
 	{                                                                      \
 		.id = _id, .parent = _parent, .regs = &infra_3_cg_regs,        \
 		.shift = _shift,                                               \
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_INFRASYS,                \
+		.flags = _flags,                                               \
 	}
+#define GATE_INFRA3_INFRA(_id, _name, _parent, _shift) \
+	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_INFRASYS)
+#define GATE_INFRA3_TOP(_id, _name, _parent, _shift) \
+	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+#define GATE_INFRA3_XTAL(_id, _name, _parent, _shift) \
+	GATE_INFRA3(_id, _name, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
 
 /* INFRA GATE */
 static const struct mtk_gate infracfg_mtk_gates[] = {
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P0,
-		    "infra_pcie_peri_ck_26m_ck_p0", CK_INFRA_F26M_O0, 7),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P1,
-		    "infra_pcie_peri_ck_26m_ck_p1", CK_INFRA_F26M_O0, 8),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P2,
+	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P0,
+			"infra_pcie_peri_ck_26m_ck_p0", CK_TOP_INFRA_F26M, 7),
+	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P1,
+			"infra_pcie_peri_ck_26m_ck_p1", CK_TOP_INFRA_F26M, 8),
+	GATE_INFRA0_INFRA(CK_INFRA_PCIE_PERI_26M_CK_P2,
 		    "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_PCIE_PERI_26M_CK_P3, 9),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P3,
-		    "infra_pcie_peri_ck_26m_ck_p3", CK_INFRA_F26M_O0, 10),
-	GATE_INFRA1(CK_INFRA_66M_GPT_BCK, "infra_hf_66m_gpt_bck",
-		    CK_INFRA_66M_MCK, 0),
-	GATE_INFRA1(CK_INFRA_66M_PWM_HCK, "infra_hf_66m_pwm_hck",
-		    CK_INFRA_66M_MCK, 1),
-	GATE_INFRA1(CK_INFRA_66M_PWM_BCK, "infra_hf_66m_pwm_bck",
-		    CK_INFRA_PWM_SEL, 2),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK1, "infra_hf_66m_pwm_ck1",
-		    CK_INFRA_PWM_CK1_SEL, 3),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK2, "infra_hf_66m_pwm_ck2",
-		    CK_INFRA_PWM_CK2_SEL, 4),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK3, "infra_hf_66m_pwm_ck3",
-		    CK_INFRA_PWM_CK3_SEL, 5),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK4, "infra_hf_66m_pwm_ck4",
-		    CK_INFRA_PWM_CK4_SEL, 6),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK5, "infra_hf_66m_pwm_ck5",
-		    CK_INFRA_PWM_CK5_SEL, 7),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK6, "infra_hf_66m_pwm_ck6",
-		    CK_INFRA_PWM_CK6_SEL, 8),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK7, "infra_hf_66m_pwm_ck7",
-		    CK_INFRA_PWM_CK7_SEL, 9),
-	GATE_INFRA1(CK_INFRA_66M_PWM_CK8, "infra_hf_66m_pwm_ck8",
-		    CK_INFRA_PWM_CK8_SEL, 10),
-	GATE_INFRA1(CK_INFRA_133M_CQDMA_BCK, "infra_hf_133m_cqdma_bck",
-		    CK_INFRA_133M_MCK, 12),
-	GATE_INFRA1(CK_INFRA_66M_AUD_SLV_BCK, "infra_66m_aud_slv_bck",
-		    CK_INFRA_66M_PHCK, 13),
-	GATE_INFRA1(CK_INFRA_AUD_26M, "infra_f_faud_26m", CK_INFRA_CK_F26M, 14),
-	GATE_INFRA1(CK_INFRA_AUD_L, "infra_f_faud_l", CK_INFRA_FAUD_L_O, 15),
-	GATE_INFRA1(CK_INFRA_AUD_AUD, "infra_f_aud_aud", CK_INFRA_FAUD_AUD_O,
-		    16),
-	GATE_INFRA1(CK_INFRA_AUD_EG2, "infra_f_faud_eg2", CK_INFRA_FAUD_EG2_O,
+	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P3,
+		    "infra_pcie_peri_ck_26m_ck_p3", CK_TOP_INFRA_F26M, 10),
+	GATE_INFRA1_TOP(CK_INFRA_66M_GPT_BCK, "infra_hf_66m_gpt_bck",
+			CK_TOP_SYSAXI, 0),
+	GATE_INFRA1_TOP(CK_INFRA_66M_PWM_HCK, "infra_hf_66m_pwm_hck",
+			CK_TOP_SYSAXI, 1),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_BCK, "infra_hf_66m_pwm_bck",
+			  CK_INFRA_PWM_SEL, 2),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK1, "infra_hf_66m_pwm_ck1",
+			  CK_INFRA_PWM_CK1_SEL, 3),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK2, "infra_hf_66m_pwm_ck2",
+			  CK_INFRA_PWM_CK2_SEL, 4),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK3, "infra_hf_66m_pwm_ck3",
+			  CK_INFRA_PWM_CK3_SEL, 5),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK4, "infra_hf_66m_pwm_ck4",
+			  CK_INFRA_PWM_CK4_SEL, 6),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK5, "infra_hf_66m_pwm_ck5",
+			  CK_INFRA_PWM_CK5_SEL, 7),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK6, "infra_hf_66m_pwm_ck6",
+			  CK_INFRA_PWM_CK6_SEL, 8),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK7, "infra_hf_66m_pwm_ck7",
+			  CK_INFRA_PWM_CK7_SEL, 9),
+	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK8, "infra_hf_66m_pwm_ck8",
+			  CK_INFRA_PWM_CK8_SEL, 10),
+	GATE_INFRA1_TOP(CK_INFRA_133M_CQDMA_BCK, "infra_hf_133m_cqdma_bck",
+			CK_TOP_SYSAXI, 12),
+	GATE_INFRA1_TOP(CK_INFRA_66M_AUD_SLV_BCK, "infra_66m_aud_slv_bck",
+			CK_TOP_SYSAXI, 13),
+	GATE_INFRA1_TOP(CK_INFRA_AUD_26M, "infra_f_faud_26m", CK_TOP_INFRA_F26M_SEL, 14),
+	GATE_INFRA1_TOP(CK_INFRA_AUD_L, "infra_f_faud_l", CK_TOP_AUD_L, 15),
+	GATE_INFRA1_TOP(CK_INFRA_AUD_AUD, "infra_f_aud_aud", CK_TOP_A1SYS,
+			16),
+	GATE_INFRA1_TOP(CK_INFRA_AUD_EG2, "infra_f_faud_eg2", CK_TOP_A_TUNER,
 		    18),
-	GATE_INFRA1(CK_INFRA_DRAMC_F26M, "infra_dramc_f26m", CK_INFRA_CK_F26M,
+	GATE_INFRA1_TOP(CK_INFRA_DRAMC_F26M, "infra_dramc_f26m", CK_TOP_INFRA_F26M_SEL,
 		    19),
-	GATE_INFRA1(CK_INFRA_133M_DBG_ACKM, "infra_hf_133m_dbg_ackm",
-		    CK_INFRA_133M_MCK, 20),
-	GATE_INFRA1(CK_INFRA_66M_AP_DMA_BCK, "infra_66m_ap_dma_bck",
-		    CK_INFRA_66M_MCK, 21),
-	GATE_INFRA1(CK_INFRA_66M_SEJ_BCK, "infra_hf_66m_sej_bck",
-		    CK_INFRA_66M_MCK, 29),
-	GATE_INFRA1(CK_INFRA_PRE_CK_SEJ_F13M, "infra_pre_ck_sej_f13m",
-		    CK_INFRA_CK_F26M, 30),
-	GATE_INFRA1(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_INFRA_PERI_66M_O,
-		    31),
-	GATE_INFRA2(CK_INFRA_26M_THERM_SYSTEM, "infra_hf_26m_therm_system",
-		    CK_INFRA_CK_F26M, 0),
-	GATE_INFRA2(CK_INFRA_I2C_BCK, "infra_i2c_bck", CK_INFRA_I2C_O, 1),
-	GATE_INFRA2(CK_INFRA_66M_UART0_PCK, "infra_hf_66m_uart0_pck",
-		    CK_INFRA_66M_MCK, 3),
-	GATE_INFRA2(CK_INFRA_66M_UART1_PCK, "infra_hf_66m_uart1_pck",
-		    CK_INFRA_66M_MCK, 4),
-	GATE_INFRA2(CK_INFRA_66M_UART2_PCK, "infra_hf_66m_uart2_pck",
-		    CK_INFRA_66M_MCK, 5),
-	GATE_INFRA2(CK_INFRA_52M_UART0_CK, "infra_f_52m_uart0",
-		    CK_INFRA_MUX_UART0_SEL, 3),
-	GATE_INFRA2(CK_INFRA_52M_UART1_CK, "infra_f_52m_uart1",
-		    CK_INFRA_MUX_UART1_SEL, 4),
-	GATE_INFRA2(CK_INFRA_52M_UART2_CK, "infra_f_52m_uart2",
-		    CK_INFRA_MUX_UART2_SEL, 5),
-	GATE_INFRA2(CK_INFRA_NFI, "infra_f_fnfi", CK_INFRA_NFI_O, 9),
-	GATE_INFRA2(CK_INFRA_SPINFI, "infra_f_fspinfi", CK_INFRA_SPINFI_O, 10),
-	GATE_INFRA2(CK_INFRA_66M_NFI_HCK, "infra_hf_66m_nfi_hck",
-		    CK_INFRA_66M_MCK, 11),
-	GATE_INFRA2(CK_INFRA_104M_SPI0, "infra_hf_104m_spi0",
-		    CK_INFRA_MUX_SPI0_SEL, 12),
-	GATE_INFRA2(CK_INFRA_104M_SPI1, "infra_hf_104m_spi1",
-		    CK_INFRA_MUX_SPI1_SEL, 13),
-	GATE_INFRA2(CK_INFRA_104M_SPI2_BCK, "infra_hf_104m_spi2_bck",
-		    CK_INFRA_MUX_SPI2_SEL, 14),
-	GATE_INFRA2(CK_INFRA_66M_SPI0_HCK, "infra_hf_66m_spi0_hck",
-		    CK_INFRA_66M_MCK, 15),
-	GATE_INFRA2(CK_INFRA_66M_SPI1_HCK, "infra_hf_66m_spi1_hck",
-		    CK_INFRA_66M_MCK, 16),
-	GATE_INFRA2(CK_INFRA_66M_SPI2_HCK, "infra_hf_66m_spi2_hck",
-		    CK_INFRA_66M_MCK, 17),
-	GATE_INFRA2(CK_INFRA_66M_FLASHIF_AXI, "infra_hf_66m_flashif_axi",
-		    CK_INFRA_66M_MCK, 18),
-	GATE_INFRA2(CK_INFRA_RTC, "infra_f_frtc", CK_INFRA_LB_MUX_FRTC, 19),
-	GATE_INFRA2(CK_INFRA_26M_ADC_BCK, "infra_f_26m_adc_bck",
-		    CK_INFRA_F26M_O1, 20),
-	GATE_INFRA2(CK_INFRA_RC_ADC, "infra_f_frc_adc", CK_INFRA_26M_ADC_BCK,
-		    21),
-	GATE_INFRA2(CK_INFRA_MSDC400, "infra_f_fmsdc400", CK_INFRA_FMSDC400_O,
-		    22),
-	GATE_INFRA2(CK_INFRA_MSDC2_HCK, "infra_f_fmsdc2_hck",
-		    CK_INFRA_FMSDC2_HCK_OCC, 23),
-	GATE_INFRA2(CK_INFRA_133M_MSDC_0_HCK, "infra_hf_133m_msdc_0_hck",
-		    CK_INFRA_PERI_133M, 24),
-	GATE_INFRA2(CK_INFRA_66M_MSDC_0_HCK, "infra_66m_msdc_0_hck",
-		    CK_INFRA_66M_PHCK, 25),
-	GATE_INFRA2(CK_INFRA_133M_CPUM_BCK, "infra_hf_133m_cpum_bck",
-		    CK_INFRA_133M_MCK, 26),
-	GATE_INFRA2(CK_INFRA_BIST2FPC, "infra_hf_fbist2fpc", CK_INFRA_NFI_O,
-		    27),
-	GATE_INFRA2(CK_INFRA_I2C_X16W_MCK_CK_P1, "infra_hf_i2c_x16w_mck_ck_p1",
-		    CK_INFRA_133M_MCK, 29),
-	GATE_INFRA2(CK_INFRA_I2C_X16W_PCK_CK_P1, "infra_hf_i2c_x16w_pck_ck_p1",
-		    CK_INFRA_66M_PHCK, 31),
-	GATE_INFRA3(CK_INFRA_133M_USB_HCK, "infra_133m_usb_hck",
-		    CK_INFRA_133M_PHCK, 0),
-	GATE_INFRA3(CK_INFRA_133M_USB_HCK_CK_P1, "infra_133m_usb_hck_ck_p1",
-		    CK_INFRA_133M_PHCK, 1),
-	GATE_INFRA3(CK_INFRA_66M_USB_HCK, "infra_66m_usb_hck",
-		    CK_INFRA_66M_PHCK, 2),
-	GATE_INFRA3(CK_INFRA_66M_USB_HCK_CK_P1, "infra_66m_usb_hck_ck_p1",
-		    CK_INFRA_66M_PHCK, 3),
-	GATE_INFRA3(CK_INFRA_USB_SYS, "infra_usb_sys", CK_INFRA_USB_SYS_O, 4),
-	GATE_INFRA3(CK_INFRA_USB_SYS_CK_P1, "infra_usb_sys_ck_p1",
-		    CK_INFRA_USB_SYS_O_P1, 5),
-	GATE_INFRA3(CK_INFRA_USB_REF, "infra_usb_ref", CK_INFRA_USB_O, 6),
-	GATE_INFRA3(CK_INFRA_USB_CK_P1, "infra_usb_ck_p1", CK_INFRA_USB_O_P1,
-		    7),
-	GATE_INFRA3(CK_INFRA_USB_FRMCNT, "infra_usb_frmcnt",
-		    CK_INFRA_USB_FRMCNT_O, 8),
-	GATE_INFRA3(CK_INFRA_USB_FRMCNT_CK_P1, "infra_usb_frmcnt_ck_p1",
-		    CK_INFRA_USB_FRMCNT_O_P1, 9),
-	GATE_INFRA3(CK_INFRA_USB_PIPE, "infra_usb_pipe", CK_INFRA_USB_PIPE_O,
-		    10),
-	GATE_INFRA3(CK_INFRA_USB_PIPE_CK_P1, "infra_usb_pipe_ck_p1",
-		    CK_INFRA_USB_PIPE_O_P1, 11),
-	GATE_INFRA3(CK_INFRA_USB_UTMI, "infra_usb_utmi", CK_INFRA_USB_UTMI_O,
-		    12),
-	GATE_INFRA3(CK_INFRA_USB_UTMI_CK_P1, "infra_usb_utmi_ck_p1",
-		    CK_INFRA_USB_UTMI_O_P1, 13),
-	GATE_INFRA3(CK_INFRA_USB_XHCI, "infra_usb_xhci", CK_INFRA_USB_XHCI_O,
-		    14),
-	GATE_INFRA3(CK_INFRA_USB_XHCI_CK_P1, "infra_usb_xhci_ck_p1",
-		    CK_INFRA_USB_XHCI_O_P1, 15),
-	GATE_INFRA3(CK_INFRA_PCIE_GFMUX_TL_P0, "infra_pcie_gfmux_tl_ck_p0",
-		    CK_INFRA_PCIE_GFMUX_TL_O_P0_SEL, 20),
-	GATE_INFRA3(CK_INFRA_PCIE_GFMUX_TL_P1, "infra_pcie_gfmux_tl_ck_p1",
-		    CK_INFRA_PCIE_GFMUX_TL_O_P1_SEL, 21),
-	GATE_INFRA3(CK_INFRA_PCIE_GFMUX_TL_P2, "infra_pcie_gfmux_tl_ck_p2",
-		    CK_INFRA_PCIE_GFMUX_TL_O_P2_SEL, 22),
-	GATE_INFRA3(CK_INFRA_PCIE_GFMUX_TL_P3, "infra_pcie_gfmux_tl_ck_p3",
-		    CK_INFRA_PCIE_GFMUX_TL_O_P3_SEL, 23),
-	GATE_INFRA3(CK_INFRA_PCIE_PIPE_P0, "infra_pcie_pipe_ck_p0",
-		    CK_INFRA_PCIE_PIPE_OCC_P0, 24),
-	GATE_INFRA3(CK_INFRA_PCIE_PIPE_P1, "infra_pcie_pipe_ck_p1",
-		    CK_INFRA_PCIE_PIPE_OCC_P1, 25),
-	GATE_INFRA3(CK_INFRA_PCIE_PIPE_P2, "infra_pcie_pipe_ck_p2",
-		    CK_INFRA_PCIE_PIPE_OCC_P2, 26),
-	GATE_INFRA3(CK_INFRA_PCIE_PIPE_P3, "infra_pcie_pipe_ck_p3",
-		    CK_INFRA_PCIE_PIPE_OCC_P3, 27),
-	GATE_INFRA3(CK_INFRA_133M_PCIE_CK_P0, "infra_133m_pcie_ck_p0",
-		    CK_INFRA_133M_PHCK, 28),
-	GATE_INFRA3(CK_INFRA_133M_PCIE_CK_P1, "infra_133m_pcie_ck_p1",
-		    CK_INFRA_133M_PHCK, 29),
-	GATE_INFRA3(CK_INFRA_133M_PCIE_CK_P2, "infra_133m_pcie_ck_p2",
-		    CK_INFRA_133M_PHCK, 30),
-	GATE_INFRA3(CK_INFRA_133M_PCIE_CK_P3, "infra_133m_pcie_ck_p3",
-		    CK_INFRA_133M_PHCK, 31),
+	GATE_INFRA1_TOP(CK_INFRA_133M_DBG_ACKM, "infra_hf_133m_dbg_ackm",
+			CK_TOP_SYSAXI, 20),
+	GATE_INFRA1_TOP(CK_INFRA_66M_AP_DMA_BCK, "infra_66m_ap_dma_bck",
+		    CK_TOP_SYSAXI, 21),
+	GATE_INFRA1_TOP(CK_INFRA_66M_SEJ_BCK, "infra_hf_66m_sej_bck",
+		    CK_TOP_SYSAXI, 29),
+	GATE_INFRA1_TOP(CK_INFRA_PRE_CK_SEJ_F13M, "infra_pre_ck_sej_f13m",
+			CK_TOP_INFRA_F26M_SEL, 30),
+	GATE_INFRA1_TOP(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_TOP_SYSAXI,
+			31),
+	GATE_INFRA2_TOP(CK_INFRA_26M_THERM_SYSTEM, "infra_hf_26m_therm_system",
+			CK_TOP_INFRA_F26M_SEL, 0),
+	GATE_INFRA2_TOP(CK_INFRA_I2C_BCK, "infra_i2c_bck", CK_TOP_I2C_BCK, 1),
+	GATE_INFRA2_TOP(CK_INFRA_66M_UART0_PCK, "infra_hf_66m_uart0_pck",
+		    CK_TOP_SYSAXI, 3),
+	GATE_INFRA2_TOP(CK_INFRA_66M_UART1_PCK, "infra_hf_66m_uart1_pck",
+		    CK_TOP_SYSAXI, 4),
+	GATE_INFRA2_TOP(CK_INFRA_66M_UART2_PCK, "infra_hf_66m_uart2_pck",
+		    CK_TOP_SYSAXI, 5),
+	GATE_INFRA2_INFRA(CK_INFRA_52M_UART0_CK, "infra_f_52m_uart0",
+			  CK_INFRA_MUX_UART0_SEL, 3),
+	GATE_INFRA2_INFRA(CK_INFRA_52M_UART1_CK, "infra_f_52m_uart1",
+			  CK_INFRA_MUX_UART1_SEL, 4),
+	GATE_INFRA2_INFRA(CK_INFRA_52M_UART2_CK, "infra_f_52m_uart2",
+			  CK_INFRA_MUX_UART2_SEL, 5),
+	GATE_INFRA2_TOP(CK_INFRA_NFI, "infra_f_fnfi", CK_TOP_NFI1X, 9),
+	GATE_INFRA2_TOP(CK_INFRA_SPINFI, "infra_f_fspinfi", CK_TOP_SPINFI_BCK, 10),
+	GATE_INFRA2_TOP(CK_INFRA_66M_NFI_HCK, "infra_hf_66m_nfi_hck",
+			CK_TOP_SYSAXI, 11),
+	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI0, "infra_hf_104m_spi0",
+			  CK_INFRA_MUX_SPI0_SEL, 12),
+	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI1, "infra_hf_104m_spi1",
+			  CK_INFRA_MUX_SPI1_SEL, 13),
+	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI2_BCK, "infra_hf_104m_spi2_bck",
+			  CK_INFRA_MUX_SPI2_SEL, 14),
+	GATE_INFRA2_TOP(CK_INFRA_66M_SPI0_HCK, "infra_hf_66m_spi0_hck",
+			CK_TOP_SYSAXI, 15),
+	GATE_INFRA2_TOP(CK_INFRA_66M_SPI1_HCK, "infra_hf_66m_spi1_hck",
+			CK_TOP_SYSAXI, 16),
+	GATE_INFRA2_TOP(CK_INFRA_66M_SPI2_HCK, "infra_hf_66m_spi2_hck",
+			CK_TOP_SYSAXI, 17),
+	GATE_INFRA2_TOP(CK_INFRA_66M_FLASHIF_AXI, "infra_hf_66m_flashif_axi",
+			CK_TOP_SYSAXI, 18),
+	GATE_INFRA2_TOP(CK_INFRA_RTC, "infra_f_frtc", CK_TOP_CB_RTC_32K, 19),
+	GATE_INFRA2_TOP(CK_INFRA_26M_ADC_BCK, "infra_f_26m_adc_bck",
+			CK_TOP_INFRA_F26M, 20),
+	GATE_INFRA2_INFRA(CK_INFRA_RC_ADC, "infra_f_frc_adc", CK_INFRA_26M_ADC_BCK,
+			  21),
+	GATE_INFRA2_TOP(CK_INFRA_MSDC400, "infra_f_fmsdc400", CK_TOP_EMMC_400M,
+			22),
+	GATE_INFRA2_TOP(CK_INFRA_MSDC2_HCK, "infra_f_fmsdc2_hck",
+			CK_TOP_EMMC_250M, 23),
+	GATE_INFRA2_TOP(CK_INFRA_133M_MSDC_0_HCK, "infra_hf_133m_msdc_0_hck",
+			CK_TOP_SYSAXI, 24),
+	GATE_INFRA2_TOP(CK_INFRA_66M_MSDC_0_HCK, "infra_66m_msdc_0_hck",
+			CK_TOP_SYSAXI, 25),
+	GATE_INFRA2_TOP(CK_INFRA_133M_CPUM_BCK, "infra_hf_133m_cpum_bck",
+			CK_TOP_SYSAXI, 26),
+	GATE_INFRA2_TOP(CK_INFRA_BIST2FPC, "infra_hf_fbist2fpc", CK_TOP_NFI1X,
+			27),
+	GATE_INFRA2_TOP(CK_INFRA_I2C_X16W_MCK_CK_P1, "infra_hf_i2c_x16w_mck_ck_p1",
+			CK_TOP_SYSAXI, 29),
+	GATE_INFRA2_TOP(CK_INFRA_I2C_X16W_PCK_CK_P1, "infra_hf_i2c_x16w_pck_ck_p1",
+			CK_TOP_SYSAXI, 31),
+	GATE_INFRA3_TOP(CK_INFRA_133M_USB_HCK, "infra_133m_usb_hck",
+			CK_TOP_SYSAXI, 0),
+	GATE_INFRA3_TOP(CK_INFRA_133M_USB_HCK_CK_P1, "infra_133m_usb_hck_ck_p1",
+			CK_TOP_SYSAXI, 1),
+	GATE_INFRA3_TOP(CK_INFRA_66M_USB_HCK, "infra_66m_usb_hck",
+			CK_TOP_SYSAXI, 2),
+	GATE_INFRA3_TOP(CK_INFRA_66M_USB_HCK_CK_P1, "infra_66m_usb_hck_ck_p1",
+			CK_TOP_SYSAXI, 3),
+	GATE_INFRA3_TOP(CK_INFRA_USB_SYS, "infra_usb_sys", CK_TOP_USB_SYS, 4),
+	GATE_INFRA3_TOP(CK_INFRA_USB_SYS_CK_P1, "infra_usb_sys_ck_p1",
+			CK_TOP_USB_SYS_P1, 5),
+	GATE_INFRA3_TOP(CK_INFRA_USB_REF, "infra_usb_ref", CK_TOP_USB_REF, 6),
+	GATE_INFRA3_TOP(CK_INFRA_USB_CK_P1, "infra_usb_ck_p1", CK_TOP_USB_CK_P1,
+			7),
+	GATE_INFRA3_TOP(CK_INFRA_USB_FRMCNT, "infra_usb_frmcnt",
+			CK_TOP_USB_FRMCNT, 8),
+	GATE_INFRA3_TOP(CK_INFRA_USB_FRMCNT_CK_P1, "infra_usb_frmcnt_ck_p1",
+			CK_TOP_USB_FRMCNT_P1, 9),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_PIPE, "infra_usb_pipe", CLK_XTAL,
+			 10),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_PIPE_CK_P1, "infra_usb_pipe_ck_p1",
+			 CLK_XTAL, 11),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_UTMI, "infra_usb_utmi", CLK_XTAL,
+			 12),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_UTMI_CK_P1, "infra_usb_utmi_ck_p1",
+			 CLK_XTAL, 13),
+	GATE_INFRA3_TOP(CK_INFRA_USB_XHCI, "infra_usb_xhci", CK_TOP_USB_XHCI,
+			14),
+	GATE_INFRA3_TOP(CK_INFRA_USB_XHCI_CK_P1, "infra_usb_xhci_ck_p1",
+			CK_TOP_USB_XHCI_P1, 15),
+	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P0, "infra_pcie_gfmux_tl_ck_p0",
+			  CK_INFRA_PCIE_GFMUX_TL_O_P0_SEL, 20),
+	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P1, "infra_pcie_gfmux_tl_ck_p1",
+			  CK_INFRA_PCIE_GFMUX_TL_O_P1_SEL, 21),
+	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P2, "infra_pcie_gfmux_tl_ck_p2",
+			  CK_INFRA_PCIE_GFMUX_TL_O_P2_SEL, 22),
+	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P3, "infra_pcie_gfmux_tl_ck_p3",
+			  CK_INFRA_PCIE_GFMUX_TL_O_P3_SEL, 23),
+	GATE_INFRA3_XTAL(CK_INFRA_PCIE_PIPE_P0, "infra_pcie_pipe_ck_p0",
+			 CLK_XTAL, 24),
+	GATE_INFRA3_XTAL(CK_INFRA_PCIE_PIPE_P1, "infra_pcie_pipe_ck_p1",
+			 CLK_XTAL, 25),
+	GATE_INFRA3_XTAL(CK_INFRA_PCIE_PIPE_P2, "infra_pcie_pipe_ck_p2",
+			 CLK_XTAL, 26),
+	GATE_INFRA3_XTAL(CK_INFRA_PCIE_PIPE_P3, "infra_pcie_pipe_ck_p3",
+			 CLK_XTAL, 27),
+	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P0, "infra_133m_pcie_ck_p0",
+			CK_TOP_SYSAXI, 28),
+	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P1, "infra_133m_pcie_ck_p1",
+			CK_TOP_SYSAXI, 29),
+	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P2, "infra_133m_pcie_ck_p2",
+			CK_TOP_SYSAXI, 30),
+	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P3, "infra_133m_pcie_ck_p3",
+			CK_TOP_SYSAXI, 31),
 };
 
 static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
@@ -823,9 +767,7 @@ static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
 };
 
 static const struct mtk_clk_tree mt7988_infracfg_clk_tree = {
-	.fdivs_offs = CK_INFRA_CK_F26M,
 	.muxes_offs = CK_INFRA_MUX_UART0_SEL,
-	.fdivs = infracfg_mtk_fixed_factor,
 	.muxes = infracfg_mtk_mux,
 	.flags = CLK_BYPASS_XTAL,
 	.xtal_rate = 40 * MHZ,
