@@ -36,6 +36,10 @@
 #include "j721s2_hardware.h"
 #endif
 
+#ifdef CONFIG_SOC_K3_J722S
+#include "j722s_hardware.h"
+#endif
+
 #ifdef CONFIG_SOC_K3_J784S4
 #include "j784s4_hardware.h"
 #endif
