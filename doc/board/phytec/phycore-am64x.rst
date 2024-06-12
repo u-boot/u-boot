@@ -156,4 +156,4 @@ Further Information
 -------------------
 
 Please see :doc:`../ti/am64x_evm` chapter for further AM64 SoC related documentation
-and https://docs.phytec.com/phycore-am64x for vendor documentation.
+and https://docs.phytec.com/projects/yocto-phycore-am64x/en/latest/ for vendor documentation.
