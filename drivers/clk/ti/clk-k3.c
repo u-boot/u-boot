@@ -93,6 +93,12 @@ static const struct soc_attr ti_k3_soc_clk_data[] = {
 		.data = &j721s2_clk_platdata,
 	},
 #endif
+#if IS_ENABLED(CONFIG_SOC_K3_J722S)
+	{
+		.family = "J722S",
+		.data = &j722s_clk_platdata,
+	},
+#endif
 #if IS_ENABLED(CONFIG_SOC_K3_J784S4)
 	{
 		.family = "J784S4",
