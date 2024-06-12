@@ -79,6 +79,15 @@ config UT_COMPRESSION
 	  Enables tests for compression and decompression routines for simple
 	  sanity and for buffer overflow conditions.
 
+config UT_LMB
+	bool "Unit tests for LMB functions"
+	depends on !SPL && UNIT_TEST
+	default y
+	help
+	  Enables the 'ut lmb' commands which tests the lmb functions
+	  responsible for reserving memory for loading images into
+	  memory.
+
 config UT_LOG
 	bool "Unit tests for logging functions"
 	depends on UNIT_TEST
