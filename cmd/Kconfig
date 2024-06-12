@@ -308,7 +308,7 @@ config CMD_BOOTMETH
 	depends on BOOTSTD
 	default y if BOOTSTD_FULL
 	help
-	  Support listing available bootmethds (methods used to boot an
+	  Support listing available bootmeths (methods used to boot an
 	  Operating System), as well as selecting the order that the bootmeths
 	  are used.
 
