@@ -78,6 +78,7 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_CONSOLE_TRUETYPE
 	U_BOOT_CMD_MKENT(font, CONFIG_SYS_MAXARGS, 1, do_ut_font, "", ""),
 #endif
+
 #ifdef CONFIG_UT_OPTEE
 	U_BOOT_CMD_MKENT(optee, CONFIG_SYS_MAXARGS, 1, do_ut_optee, "", ""),
 #endif
@@ -86,6 +87,9 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #endif
 #ifdef CONFIG_UT_LIB
 	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
+#endif
+#ifdef CONFIG_UT_LMB
+	U_BOOT_CMD_MKENT(lmb, CONFIG_SYS_MAXARGS, 1, do_ut_lmb, "", ""),
 #endif
 #ifdef CONFIG_UT_LOG
 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
@@ -227,6 +231,9 @@ U_BOOT_LONGHELP(ut,
 #endif
 #ifdef CONFIG_UT_LIB
 	"\nlib - library functions"
+#endif
+#ifdef CONFIG_UT_LMB
+	"\nlmb - lmb functions"
 #endif
 #ifdef CONFIG_UT_LOG
 	"\nlog - logging functions"
