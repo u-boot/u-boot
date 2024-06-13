@@ -13,6 +13,10 @@ obj-$(CONFIG_$(SPL_)ASYMMETRIC_PUBLIC_KEY_SUBTYPE) += public_key.o
 # RSA public key parser
 #
 obj-$(CONFIG_$(SPL_)RSA_PUBLIC_KEY_PARSER) += rsa_public_key.o
+ifeq ($(CONFIG_MBEDTLS_LIB_X509), y)
+rsa_public_key-y := \
+	rsa_helper.o
+else
 rsa_public_key-y := \
 	rsapubkey.asn1.o \
 	rsa_helper.o
@@ -26,11 +30,17 @@ $(obj)/rsa_helper.o: $(obj)/rsapubkey.asn1.h
 ifdef CONFIG_SPL_BUILD
 CFLAGS_rsa_helper.o += -I$(obj)
 endif
+endif
 
 #
 # X.509 Certificate handling
 #
 obj-$(CONFIG_$(SPL_)X509_CERTIFICATE_PARSER) += x509_key_parser.o
+ifeq ($(CONFIG_MBEDTLS_LIB_X509), y)
+x509_key_parser-y := \
+	x509_cert_parser.o \
+	x509_public_key.o
+else
 x509_key_parser-y := \
 	x509.asn1.o \
 	x509_akid.asn1.o \
@@ -43,27 +53,37 @@ $(obj)/x509_cert_parser.o: \
 
 $(obj)/x509.asn1.o: $(obj)/x509.asn1.c $(obj)/x509.asn1.h
 $(obj)/x509_akid.asn1.o: $(obj)/x509_akid.asn1.c $(obj)/x509_akid.asn1.h
+endif
 
 #
 # PKCS#7 message handling
 #
 obj-$(CONFIG_$(SPL_)PKCS7_MESSAGE_PARSER) += pkcs7_message.o
+ifeq ($(CONFIG_MBEDTLS_LIB_X509), y)
+pkcs7_message-y := \
+	pkcs7_parser.o
+else
 pkcs7_message-y := \
 	pkcs7.asn1.o \
 	pkcs7_parser.o
-obj-$(CONFIG_$(SPL_)PKCS7_VERIFY) += pkcs7_verify.o
 
 $(obj)/pkcs7_parser.o: $(obj)/pkcs7.asn1.h
 $(obj)/pkcs7.asn1.o: $(obj)/pkcs7.asn1.c $(obj)/pkcs7.asn1.h
+endif
+obj-$(CONFIG_$(SPL_)PKCS7_VERIFY) += pkcs7_verify.o
 
 #
 # Signed PE binary-wrapped key handling
 #
 obj-$(CONFIG_$(SPL_)MSCODE_PARSER) += mscode.o
-
+ifeq ($(CONFIG_MBEDTLS_LIB_X509), y)
+mscode-y := \
+	mscode_parser.o
+else
 mscode-y := \
 	mscode_parser.o \
 	mscode.asn1.o
 
 $(obj)/mscode_parser.o: $(obj)/mscode.asn1.h $(obj)/mscode.asn1.h
 $(obj)/mscode.asn1.o: $(obj)/mscode.asn1.c $(obj)/mscode.asn1.h
+endif
