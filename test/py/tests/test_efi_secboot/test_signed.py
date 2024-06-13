@@ -177,7 +177,7 @@ class TestEfiSignedImage(object):
         with u_boot_console.log.section('Test Case 5b'):
             # Test Case 5b, authenticated if both signatures are verified
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize db'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
@@ -201,7 +201,7 @@ class TestEfiSignedImage(object):
         with u_boot_console.log.section('Test Case 5d'):
             # Test Case 5d, rejected if both of signatures are revoked
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 dbx_hash1.auth',
+                'fatload host 0:1 4000000 dbx_hash2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize dbx'])
             assert 'Failed to set EFI variable' not in ''.join(output)
             output = u_boot_console.run_command_list([
@@ -223,7 +223,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK',
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize db',
                 'fatload host 0:1 4000000 dbx_hash1.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize dbx'])
@@ -300,7 +300,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK',
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize db',
                 'fatload host 0:1 4000000 dbx_hash384.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize dbx'])
@@ -323,7 +323,7 @@ class TestEfiSignedImage(object):
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize KEK',
                 'fatload host 0:1 4000000 PK.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize PK',
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize db',
                 'fatload host 0:1 4000000 dbx_hash512.auth',
                 'setenv -e -nv -bs -rt -at -i 4000000:$filesize dbx'])
