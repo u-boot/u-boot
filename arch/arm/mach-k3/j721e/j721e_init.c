@@ -23,6 +23,22 @@
 #include "../sysfw-loader.h"
 #include "../common.h"
 
+/* NAVSS North Bridge (NB) registers */
+#define NAVSS0_NBSS_NB0_CFG_MMRS		0x03802000
+#define NAVSS0_NBSS_NB1_CFG_MMRS		0x03803000
+#define NAVSS0_NBSS_NB0_CFG_NB_THREADMAP	(NAVSS0_NBSS_NB0_CFG_MMRS + 0x10)
+#define NAVSS0_NBSS_NB1_CFG_NB_THREADMAP	(NAVSS0_NBSS_NB1_CFG_MMRS + 0x10)
+/*
+ * Thread Map for North Bridge Configuration
+ * Each bit is for each VBUSM source.
+ * Bit[0] maps orderID 0-7 to VBUSM.C thread number
+ * Bit[1] maps orderID 8-15 to VBUSM.C thread number
+ * When bit has value 0: VBUSM.C thread 0 (non-real time traffic)
+ * When bit has value 1: VBUSM.C thread 2 (real time traffic)
+ */
+#define NB_THREADMAP_BIT0				BIT(0)
+#define NB_THREADMAP_BIT1				BIT(1)
+
 #ifdef CONFIG_K3_LOAD_SYSFW
 struct fwl_data cbass_hc_cfg0_fwls[] = {
 #if defined(CONFIG_TARGET_J721E_R5_EVM)
@@ -123,6 +139,13 @@ void k3_mmc_restart_clock(void)
 	}
 }
 #endif
+
+/* Setup North Bridge registers to map ORDERID 8-15 to RT traffic */
+static void setup_navss_nb(void)
+{
+	writel(NB_THREADMAP_BIT1, (uintptr_t)NAVSS0_NBSS_NB0_CFG_NB_THREADMAP);
+	writel(NB_THREADMAP_BIT1, (uintptr_t)NAVSS0_NBSS_NB1_CFG_NB_THREADMAP);
+}
 
 /*
  * This uninitialized global variable would normal end up in the .bss section,
@@ -288,6 +311,11 @@ void board_init_f(ulong dummy)
 		panic("DRAM init failed: %d\n", ret);
 #endif
 	spl_enable_cache();
+
+	if (IS_ENABLED(CONFIG_CPU_V7R))
+		setup_navss_nb();
+
+	setup_qos();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
