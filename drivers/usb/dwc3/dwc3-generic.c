@@ -194,16 +194,6 @@ static int dwc3_generic_of_to_plat(struct udevice *dev)
 }
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	struct dwc3_generic_priv *priv = dev_get_priv(dev);
-	struct dwc3 *dwc3 = &priv->dwc3;
-
-	dwc3_gadget_uboot_handle_interrupt(dwc3);
-
-	return 0;
-}
-
 static int dwc3_generic_peripheral_probe(struct udevice *dev)
 {
 	struct dwc3_generic_priv *priv = dev_get_priv(dev);
@@ -218,10 +208,25 @@ static int dwc3_generic_peripheral_remove(struct udevice *dev)
 	return dwc3_generic_remove(dev, priv);
 }
 
+static int dwc3_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct dwc3_generic_priv *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
+
+	dwc3_gadget_uboot_handle_interrupt(dwc3);
+
+	return 0;
+}
+
+static const struct usb_gadget_generic_ops dwc3_gadget_ops = {
+	.handle_interrupts	= dwc3_gadget_handle_interrupts,
+};
+
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 	.of_to_plat = dwc3_generic_of_to_plat,
+	.ops	= &dwc3_gadget_ops,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
 	.priv_auto	= sizeof(struct dwc3_generic_priv),
