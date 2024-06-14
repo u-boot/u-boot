@@ -1331,7 +1331,7 @@ efi_status_t efi_tcg2_measure_dtb(void *dtb)
 	sha256_update(&hash_ctx, (u8 *)dtb + fdt_off_mem_rsvmap(dtb), rsvmap_size);
 	sha256_finish(&hash_ctx, blob->data + blob->blob_description_size);
 
-	ret = measure_event(dev, 0, EV_POST_CODE, event_size, (u8 *)blob);
+	ret = measure_event(dev, 1, EV_POST_CODE, event_size, (u8 *)blob);
 
 	free(blob);
 	return ret;
