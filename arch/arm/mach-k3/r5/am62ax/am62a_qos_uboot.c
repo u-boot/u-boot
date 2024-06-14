@@ -12,20 +12,20 @@
 struct k3_qos_data qos_data[] = {
 	/* modules_qosConfig0 - 1 endpoints, 4 channels */
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0x100 + 0x4 * 0,
-		.val = ORDERID_8,
+		.reg = K3_QOS_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 0),
+		.val = K3_QOS_VAL(0, 8, 0, 0, 0, 0),
 	},
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0x100 + 0x4 * 1,
-		.val = ORDERID_8,
+		.reg = K3_QOS_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 1),
+		.val = K3_QOS_VAL(0, 8, 0, 0, 0, 0),
 	},
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0x100 + 0x4 * 2,
-		.val = ORDERID_8,
+		.reg = K3_QOS_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 2),
+		.val = K3_QOS_VAL(0, 8, 0, 0, 0, 0),
 	},
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0x100 + 0x4 * 3,
-		.val = ORDERID_8,
+		.reg = K3_QOS_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 3),
+		.val = K3_QOS_VAL(0, 8, 0, 0, 0, 0),
 	},
 
 	/* Following registers set 1:1 mapping for orderID MAP1/MAP2
@@ -35,12 +35,12 @@ struct k3_qos_data qos_data[] = {
 
 	/* K3_DSS_UL_MAIN_0_VBUSM_DMA - 1 groups */
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 0,
-		.val = 0x76543210,
+		.reg = K3_QOS_GROUP_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 0),
+		.val = K3_QOS_GROUP_DEFAULT_VAL_LOW,
 	},
 	{
-		.reg = K3_DSS_UL_MAIN_0_VBUSM_DMA + 4,
-		.val = 0xfedcba98,
+		.reg = K3_QOS_GROUP_REG(K3_DSS_UL_MAIN_0_VBUSM_DMA, 1),
+		.val = K3_QOS_GROUP_DEFAULT_VAL_HIGH,
 	},
 };
 
