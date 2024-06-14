@@ -971,6 +971,14 @@ extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 extern int dm_usb_gadget_handle_interrupts(struct udevice *);
 
 /**
+ * struct usb_gadget_generic_ops - The functions that a gadget driver must implement.
+ * @handle_interrupts: Handle UDC interrupts.
+ */
+struct usb_gadget_generic_ops {
+	int (*handle_interrupts)(struct udevice *udevice);
+};
+
+/**
  * udc_device_get_by_index() - Get UDC udevice by index
  * @index: UDC device index
  * @udev: UDC udevice matching the index (if found)
