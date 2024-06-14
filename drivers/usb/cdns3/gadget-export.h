@@ -25,4 +25,6 @@ static inline void cdns3_gadget_exit(struct cdns3 *cdns) { }
 
 #endif
 
+void cdns3_gadget_uboot_handle_interrupt(struct cdns3 *cdns);
+
 #endif /* __LINUX_CDNS3_GADGET_EXPORT */
