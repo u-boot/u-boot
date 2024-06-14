@@ -7,6 +7,7 @@
  *
  */
 
+#include <efi_loader.h>
 #include <generic-phy.h>
 #include <image.h>
 #include <net.h>
@@ -31,6 +32,45 @@
 #define DAUGHTER_CARD_NO_OF_MAC_ADDR	8
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct efi_fw_image fw_images[] = {
+	{
+		.image_type_id = J721E_SK_TIBOOT3_IMAGE_GUID,
+		.fw_name = u"J721E_SK_TIBOOT3",
+		.image_index = 1,
+	},
+	{
+		.image_type_id = J721E_SK_SPL_IMAGE_GUID,
+		.fw_name = u"J721E_SK_SPL",
+		.image_index = 2,
+	},
+	{
+		.image_type_id = J721E_SK_UBOOT_IMAGE_GUID,
+		.fw_name = u"J721E_SK_UBOOT",
+		.image_index = 3,
+	},
+	{
+		.image_type_id = J721E_SK_SYSFW_IMAGE_GUID,
+		.fw_name = u"J721E_SK_SYSFW",
+		.image_index = 4,
+	}
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "sf 0:0=tiboot3.bin raw 0 80000;"
+	"tispl.bin raw 80000 200000;u-boot.img raw 280000 400000;"
+	"sysfw.itb raw 6C0000 100000",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+
+#if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		env_set("dfu_alt_info", update_info.dfu_string);
+}
+#endif
 
 int board_init(void)
 {
