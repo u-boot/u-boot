@@ -23,6 +23,24 @@
 
 #define J784S4_MAX_DDR_CONTROLLERS	4
 
+/* NAVSS North Bridge (NB) */
+#define NAVSS0_NBSS_NB0_CFG_MMRS		0x03702000
+#define NAVSS0_NBSS_NB1_CFG_MMRS		0x03703000
+#define NAVSS0_NBSS_NB0_CFG_NB_THREADMAP	(NAVSS0_NBSS_NB0_CFG_MMRS + 0x10)
+#define NAVSS0_NBSS_NB1_CFG_NB_THREADMAP	(NAVSS0_NBSS_NB1_CFG_MMRS + 0x10)
+/*
+ * Thread Map for North Bridge Configuration
+ * Each bit is for each VBUSM source.
+ * Bit[0] maps orderID 0-3 to VBUSM.C thread number
+ * Bit[1] maps orderID 4-9 to VBUSM.C thread number
+ * Bit[2] maps orderID 10-15 to VBUSM.C thread number
+ * When bit has value 0: VBUSM.C thread 0 (non-real time traffic)
+ * When bit has value 1: VBUSM.C thread 2 (real time traffic)
+ */
+#define NB_THREADMAP_BIT0				BIT(0)
+#define NB_THREADMAP_BIT1				BIT(1)
+#define NB_THREADMAP_BIT2				BIT(2)
+
 struct fwl_data infra_cbass0_fwls[] = {
 	{ "PSC0", 5, 1 },
 	{ "PLL_CTRL0", 6, 1 },
@@ -92,6 +110,13 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 3);
 	mmr_unlock(CTRL_MMR0_BASE, 5);
 	mmr_unlock(CTRL_MMR0_BASE, 7);
+}
+
+/* Setup North Bridge registers to map ORDERID 10-15 to RT traffic */
+static void setup_navss_nb(void)
+{
+	writel(NB_THREADMAP_BIT1, (uintptr_t)NAVSS0_NBSS_NB0_CFG_NB_THREADMAP);
+	writel(NB_THREADMAP_BIT2, (uintptr_t)NAVSS0_NBSS_NB1_CFG_NB_THREADMAP);
 }
 
 /*
@@ -210,6 +235,11 @@ void board_init_f(ulong dummy)
 {
 	k3_spl_init();
 	k3_mem_init();
+
+	if (IS_ENABLED(CONFIG_CPU_V7R))
+		setup_navss_nb();
+
+	setup_qos();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
