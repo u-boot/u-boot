@@ -150,6 +150,33 @@ Image formats:
 .. image:: img/sysfw.itb.svg
   :alt: sysfw.itb image format
 
+OSPI:
+-----
+ROM supports booting from OSPI from offset 0x0.
+
+Flashing images to OSPI:
+
+Below commands can be used to download tiboot3.bin, tispl.bin, u-boot.img,
+and sysfw.itb over tftp and then flash those to OSPI at their respective
+addresses.
+
+.. prompt:: bash =>
+
+  sf probe
+  tftp ${loadaddr} tiboot3.bin
+  sf update $loadaddr 0x0 $filesize
+  tftp ${loadaddr} tispl.bin
+  sf update $loadaddr 0x80000 $filesize
+  tftp ${loadaddr} u-boot.img
+  sf update $loadaddr 0x280000 $filesize
+  tftp ${loadaddr} sysfw.itb
+  sf update $loadaddr 0x6C0000 $filesize
+
+Flash layout for OSPI:
+
+.. image:: img/ospi_sysfw.svg
+  :alt: OSPI flash partition layout
+
 R5 Memory Map:
 --------------
 
@@ -193,35 +220,8 @@ R5 Memory Map:
      - 0x41cffbfc
      - 0x41cfffff
 
-OSPI:
------
-ROM supports booting from OSPI from offset 0x0.
-
-Flashing images to OSPI:
-
-Below commands can be used to download tiboot3.bin, tispl.bin, u-boot.img,
-and sysfw.itb over tftp and then flash those to OSPI at their respective
-addresses.
-
-.. prompt:: bash =>
-
-  sf probe
-  tftp ${loadaddr} tiboot3.bin
-  sf update $loadaddr 0x0 $filesize
-  tftp ${loadaddr} tispl.bin
-  sf update $loadaddr 0x80000 $filesize
-  tftp ${loadaddr} u-boot.img
-  sf update $loadaddr 0x280000 $filesize
-  tftp ${loadaddr} sysfw.itb
-  sf update $loadaddr 0x6C0000 $filesize
-
-Flash layout for OSPI:
-
-.. image:: img/ospi_sysfw.svg
-  :alt: OSPI flash partition layout
-
-Firmwares:
-----------
+Firmware:
+---------
 
 The J721e u-boot allows firmware to be loaded for the Cortex-R5 subsystem.
 The CPSW5G in J7200 and CPSW9G in J721E present in MAIN domain is configured
