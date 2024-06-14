@@ -126,4 +126,5 @@ CONFIG_FS_FAT_MAX_CLUSTSIZE=16384
 CONFIG_LZO=y
 CONFIG_EFI_SET_TIME=y
 
+#include <configs/k3_efi_capsule.config>
 #include <configs/am62x_a53_usbdfu.config>
