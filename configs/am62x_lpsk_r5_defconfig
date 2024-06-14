@@ -1,0 +1,7 @@
+#include <configs/am62x_evm_r5_defconfig>
+
+CONFIG_ARM=y
+CONFIG_ARCH_K3=y
+CONFIG_DEFAULT_DEVICE_TREE="k3-am62-r5-lp-sk"
+CONFIG_SOC_K3_AM625=y
+CONFIG_TARGET_AM625_R5_EVM=y
