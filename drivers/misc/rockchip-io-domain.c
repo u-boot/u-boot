@@ -27,6 +27,10 @@
 #define MAX_VOLTAGE_1_8		1980000
 #define MAX_VOLTAGE_3_3		3600000
 
+#define PX30_IO_VSEL			0x180
+#define PX30_IO_VSEL_VCCIO6_SRC		BIT(0)
+#define PX30_IO_VSEL_VCCIO6_SUPPLY_NUM	1
+
 #define RK3328_SOC_CON4			0x410
 #define RK3328_SOC_CON4_VCCIO2		BIT(7)
 #define RK3328_SOC_VCCIO2_SUPPLY_NUM	1
@@ -99,6 +103,22 @@ static int rockchip_iodomain_write(struct regmap *grf, uint offset, int idx, int
 	return regmap_write(grf, offset, val);
 }
 
+static int px30_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
+{
+	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
+
+	if (!ret && idx == PX30_IO_VSEL_VCCIO6_SUPPLY_NUM) {
+		/*
+		 * set vccio6 iodomain to also use this framework
+		 * instead of a special gpio.
+		 */
+		u32 val = PX30_IO_VSEL_VCCIO6_SRC | (PX30_IO_VSEL_VCCIO6_SRC << 16);
+		ret = regmap_write(grf, PX30_IO_VSEL, val);
+	}
+
+	return ret;
+}
+
 static int rk3328_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
 {
 	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
@@ -130,6 +150,44 @@ static int rk3399_pmu_iodomain_write(struct regmap *grf, uint offset, int idx, i
 
 	return ret;
 }
+
+static const struct rockchip_iodomain_soc_data soc_data_px30 = {
+	.grf_offset = 0x180,
+	.supply_names = {
+		NULL,
+		"vccio6-supply",
+		"vccio1-supply",
+		"vccio2-supply",
+		"vccio3-supply",
+		"vccio4-supply",
+		"vccio5-supply",
+		"vccio-oscgpi-supply",
+	},
+	.write = px30_iodomain_write,
+};
+
+static const struct rockchip_iodomain_soc_data soc_data_px30_pmu = {
+	.grf_offset = 0x100,
+	.supply_names = {
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		"pmuio1-supply",
+		"pmuio2-supply",
+	},
+	.write = rockchip_iodomain_write,
+};
 
 static const struct rockchip_iodomain_soc_data soc_data_rk3328 = {
 	.grf_offset = 0x410,
@@ -190,6 +248,14 @@ static const struct rockchip_iodomain_soc_data soc_data_rk3568_pmu = {
 };
 
 static const struct udevice_id rockchip_iodomain_ids[] = {
+	{
+		.compatible = "rockchip,px30-io-voltage-domain",
+		.data = (ulong)&soc_data_px30,
+	},
+	{
+		.compatible = "rockchip,px30-pmu-io-voltage-domain",
+		.data = (ulong)&soc_data_px30_pmu,
+	},
 	{
 		.compatible = "rockchip,rk3328-io-voltage-domain",
 		.data = (ulong)&soc_data_rk3328,
