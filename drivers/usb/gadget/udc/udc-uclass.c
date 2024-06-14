@@ -18,7 +18,7 @@ usb_gadget_generic_dev_ops(struct udevice *dev)
 	return (const struct usb_gadget_generic_ops *)dev->driver->ops;
 }
 
-__weak int dm_usb_gadget_handle_interrupts(struct udevice *dev)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
 	const struct usb_gadget_generic_ops *ops;
 
