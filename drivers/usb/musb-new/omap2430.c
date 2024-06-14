@@ -46,16 +46,6 @@ static inline void omap2430_low_level_init(struct musb *musb)
 	musb_writel(musb->mregs, OTG_FORCESTDBY, l);
 }
 
-#ifdef CONFIG_DM_USB_GADGET
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	struct musb_host_data *host = dev_get_priv(dev);
-
-	host->host->isr(0, host->host);
-	return 0;
-}
-#endif
-
 static int omap2430_musb_init(struct musb *musb)
 {
 	u32 l;
@@ -273,6 +263,21 @@ static int omap2430_musb_remove(struct udevice *dev)
 	return 0;
 }
 
+#ifndef CONFIG_USB_MUSB_HOST
+static int omap2340_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct musb_host_data *host = dev_get_priv(dev);
+
+	host->host->isr(0, host->host);
+
+	return 0;
+}
+
+static const struct usb_gadget_generic_ops omap2340_gadget_ops = {
+	.handle_interrupts	= omap2340_gadget_handle_interrupts,
+};
+#endif
+
 static const struct udevice_id omap2430_musb_ids[] = {
 	{ .compatible = "ti,omap3-musb" },
 	{ .compatible = "ti,omap4-musb" },
@@ -285,6 +290,7 @@ U_BOOT_DRIVER(omap2430_musb) = {
 	.id		= UCLASS_USB,
 #else
 	.id		= UCLASS_USB_GADGET_GENERIC,
+	.ops		= &omap2340_gadget_ops,
 #endif
 	.of_match = omap2430_musb_ids,
 	.of_to_plat = omap2430_musb_of_to_plat,
