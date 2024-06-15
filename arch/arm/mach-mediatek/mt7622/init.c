@@ -28,7 +28,7 @@ int dram_init(void)
 	if (ret)
 		return ret;
 
-	gd->ram_size = get_ram_size((void *)gd->ram_base, SZ_2G);
+	gd->ram_size = get_ram_size((void *)gd->ram_base, SZ_1G);
 
 	return 0;
 }
