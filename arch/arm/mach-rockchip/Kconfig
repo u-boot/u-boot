@@ -3,6 +3,7 @@ if ARCH_ROCKCHIP
 config ROCKCHIP_PX30
 	bool "Support Rockchip PX30"
 	select ARM64
+	imply OF_UPSTREAM
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select SPL
