@@ -116,3 +116,15 @@ void enable_caches(void)
 #endif
 }
 #endif
+
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
+/* Invalidate entire I-cache */
+void invalidate_icache_all(void)
+{
+	unsigned long i = 0;
+
+	asm ("mcr p15, 0, %0, c7, c5, 0" : : "r" (i));
+}
+#else
+void invalidate_icache_all(void) {}
+#endif
