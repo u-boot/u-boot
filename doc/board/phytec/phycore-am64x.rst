@@ -9,7 +9,7 @@ SoM (System on Module) featuring TI's AM64x SoC. It can be used in combination
 with different carrier boards. This module can come with different sizes and
 models for DDR, eMMC, SPI NOR Flash and various SoCs from the AM64x family.
 
-A development Kit, called `phyBOARD-Lyra <https://www.phytec.com/product/phyboard-am64x>`_
+A development Kit, called `phyBOARD-Electra <https://www.phytec.com/product/phyboard-am64x>`_
 is used as a carrier board reference design around the AM64x SoM.
 
 Quickstart
@@ -156,4 +156,4 @@ Further Information
 -------------------
 
 Please see :doc:`../ti/am64x_evm` chapter for further AM64 SoC related documentation
-and https://docs.phytec.com/phycore-am64x for vendor documentation.
+and https://docs.phytec.com/projects/yocto-phycore-am64x/en/latest/ for vendor documentation.

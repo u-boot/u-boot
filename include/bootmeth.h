@@ -40,7 +40,7 @@ struct bootmeth_ops {
 	/**
 	 * get_state_desc() - get detailed state information
 	 *
-	 * Prodecues a textual description of the state of the bootmeth. This
+	 * Produces a textual description of the state of the boot method. This
 	 * can include newline characters if it extends to multiple lines. It
 	 * must be a nul-terminated string.
 	 *
@@ -138,7 +138,7 @@ struct bootmeth_ops {
 	 * @dev:	Bootmethod device to boot
 	 * @bflow:	Bootflow to boot
 	 * Return: does not return on success, since it should boot the
-	 *	Operating Systemn. Returns -EFAULT if that fails, -ENOTSUPP if
+	 *	operating system. Returns -EFAULT if that fails, -ENOTSUPP if
 	 *	trying method resulted in finding out that is not actually
 	 *	supported for this boot and should not be tried again unless
 	 *	something changes, other -ve on other error
@@ -151,7 +151,7 @@ struct bootmeth_ops {
 /**
  * bootmeth_get_state_desc() - get detailed state information
  *
- * Prodecues a textual description of the state of the bootmeth. This
+ * Produces a textual description of the state of the boot method. This
  * can include newline characters if it extends to multiple lines. It
  * must be a nul-terminated string.
  *
@@ -244,7 +244,7 @@ int bootmeth_read_file(struct udevice *dev, struct bootflow *bflow,
  * @dev:	Bootmethod device to use
  * @bflow:	Bootflow to read
  * Return: does not return on success, since it should boot the
- *	Operating Systemn. Returns -EFAULT if that fails, other -ve on
+ *	operating system. Returns -EFAULT if that fails, other -ve on
  *	other error
  */
 int bootmeth_read_all(struct udevice *dev, struct bootflow *bflow);
@@ -255,7 +255,7 @@ int bootmeth_read_all(struct udevice *dev, struct bootflow *bflow);
  * @dev:	Bootmethod device to boot
  * @bflow:	Bootflow to boot
  * Return: does not return on success, since it should boot the
- *	Operating Systemn. Returns -EFAULT if that fails, other -ve on
+ *	operating system. Returns -EFAULT if that fails, other -ve on
  *	other error
  */
 int bootmeth_boot(struct udevice *dev, struct bootflow *bflow);
@@ -264,7 +264,7 @@ int bootmeth_boot(struct udevice *dev, struct bootflow *bflow);
  * bootmeth_setup_iter_order() - Set up the ordering of bootmeths to scan
  *
  * This sets up the ordering information in @iter, based on the selected
- * ordering of the bootmethds in bootstd_priv->bootmeth_order. If there is no
+ * ordering of the boot methods in bootstd_priv->bootmeth_order. If there is no
  * ordering there, then all bootmethods are added
  *
  * @iter: Iterator to update with the order

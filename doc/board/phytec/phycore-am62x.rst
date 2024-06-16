@@ -155,4 +155,4 @@ Further Information
 -------------------
 
 Please see :doc:`../ti/am62x_sk` chapter for further AM62 SoC related documentation
-and https://docs.phytec.com/phycore-am62x for vendor documentation.
+and https://docs.phytec.com/projects/yocto-phycore-am62x/en/latest/ for vendor documentation.
