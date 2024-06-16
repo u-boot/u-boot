@@ -184,5 +184,4 @@ configuration */
 #define CFG_SYS_PBDAT		0x0000			/* PortB value reg. */
 #define CFG_SYS_PDCNT		0x00000000		/* PortD control reg. */
 
-
 #endif	/* _CONFIG_COBRA5272_H */

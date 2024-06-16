@@ -14,7 +14,6 @@
 #ifdef CONFIG_SPL_BUILD
 #define CFG_MALLOC_F_ADDR		0x22040000
 
-
 #endif
 
 /* ENET Config */
@@ -50,7 +49,6 @@
 
 #define CFG_SYS_INIT_RAM_ADDR	0x80000000
 #define CFG_SYS_INIT_RAM_SIZE	0x80000
-
 
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM			0x80000000

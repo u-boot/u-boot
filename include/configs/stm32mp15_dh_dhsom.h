@@ -53,7 +53,6 @@
 	"update_sf=run dh_update_sd_to_sf\0"				\
 	"usb_pgood_delay=1000\0"
 
-
 #include <configs/stm32mp15_common.h>
 
 #endif

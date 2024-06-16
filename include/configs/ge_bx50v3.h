@@ -88,7 +88,6 @@
 		"run doboot; " \
 		"run failbootcmd\0" \
 
-
 /* Physical Memory Map */
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 

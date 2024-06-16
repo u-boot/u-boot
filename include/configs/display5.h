@@ -119,7 +119,6 @@
 	"run tftp_mmc_rootfs;" \
 	"run tftp_mmc_rootfs_bkp;" \
 
-
 #define TFTP_UPDATE_RECOVERY_SWU_KERNEL \
 	"tftp_sf_fitImg_SWU=" \
 	    "if tftp ${loadaddr} ${kernel_file}; then " \

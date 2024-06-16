@@ -185,7 +185,6 @@
 #define CFG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CFG_SYS_INIT_RAM_SIZE	0x2000
 
-
 /* Extend size of kernel image for uncompression */
 
 /* Address in RAM where the parameters must be copied by SPL. */

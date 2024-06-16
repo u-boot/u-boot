@@ -77,7 +77,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR       USDHC1_BASE_ADDR
 #define CFG_SYS_FSL_USDHC_NUM		2
 
-
 /* USB Configs */
 #define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 

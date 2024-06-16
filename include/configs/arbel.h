@@ -15,7 +15,6 @@
 #define CFG_SYS_BAUDRATE_TABLE	\
 	{ 9600, 14400, 19200, 38400, 57600, 115200, 230400, 380400, 460800, 921600 }
 
-
 /* Default environemnt variables */
 #define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80400000\0"   \
 		"stdin=serial\0"   \

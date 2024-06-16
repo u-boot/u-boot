@@ -17,7 +17,6 @@
 
 #define SPD_EEPROM_ADDRESS	0x51
 
-
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
 #define CFG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CFG_SYS_NOR_AMASK		IFC_AMASK(128 * 1024 * 1024)

@@ -40,7 +40,6 @@
 #define CFG_SYS_NS16550_COM1		0x44e09000
 #define CFG_SYS_NS16550_COM4		0x481a6000
 
-
 /* I2C Configuration */
 
 /* Defines for SPL */

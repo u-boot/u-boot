@@ -32,7 +32,6 @@
 /* 512kB on-chip NOR flash */
 # define CFG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
 
-
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 
 /* NAND flash */

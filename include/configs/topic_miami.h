@@ -9,7 +9,6 @@
 #ifndef __CONFIG_TOPIC_MIAMI_H
 #define __CONFIG_TOPIC_MIAMI_H
 
-
 /* Speed up boot time by ignoring the environment which we never used */
 
 #include "zynq-common.h"

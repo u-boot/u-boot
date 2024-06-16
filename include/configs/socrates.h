@@ -48,7 +48,6 @@
 /* I2C addresses of SPD EEPROMs */
 #define SPD_EEPROM_ADDRESS	0x50	/* CTLR 0 DIMM 0 */
 
-
 /* Hardcoded values, to use instead of SPD */
 #define CFG_SYS_DDR_CS0_BNDS		0x0000000f
 #define CFG_SYS_DDR_CS0_CONFIG		0x80010102

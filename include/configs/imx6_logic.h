@@ -17,7 +17,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR      0
 #define CFG_SYS_FSL_USDHC_NUM       2
 
-
 /* Ethernet Configs */
 #define CFG_FEC_MXC_PHYADDR         0
 

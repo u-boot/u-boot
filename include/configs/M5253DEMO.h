@@ -10,7 +10,6 @@
 
 #define CFG_SYS_UART_PORT		(0)
 
-
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
@@ -131,6 +130,5 @@
 #define CFG_SYS_GPIO_OUT		0x00000008	/* Set outputs to default state */
 #define CFG_SYS_GPIO1_OUT		0x00c70000	/* Set outputs to default state */
 #define CFG_SYS_GPIO1_LED		0x00400000	/* user led */
-
 
 #endif				/* _M5253DEMO_H */

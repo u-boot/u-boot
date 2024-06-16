@@ -127,5 +127,4 @@
 #define CFG_SYS_DDRUA		0x05
 #define CFG_SYS_PJPAR		0xFF
 
-
 #endif				/* _CONFIG_M5282EVB_H */

@@ -11,7 +11,6 @@
 
 #include <linux/sizes.h>
 
-
 #define CFG_SYS_NS16550_COM1		0x11005000
 #define CFG_SYS_NS16550_CLK		26000000
 

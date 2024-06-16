@@ -16,7 +16,6 @@
 
 #define SPD_EEPROM_ADDRESS		0x51
 
-
 /*
  * IFC Definitions
  */

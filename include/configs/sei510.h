@@ -25,7 +25,6 @@
 	"name=userdata,size=4820M,uuid=${uuid_gpt_userdata};" \
 	"name=rootfs,size=-,uuid=" ROOT_UUID
 
-
 #include <configs/meson64_android.h>
 
 #endif /* __CONFIG_H */
