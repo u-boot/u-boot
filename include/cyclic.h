@@ -18,7 +18,6 @@
  * struct cyclic_info - Information about cyclic execution function
  *
  * @func: Function to call periodically
- * @ctx: Context pointer to get passed to this function
  * @name: Name of the cyclic function, e.g. shown in the commands
  * @delay_ns: Delay is ns after which this function shall get executed
  * @start_time_us: Start time in us, when this function started its execution
@@ -27,11 +26,13 @@
  * @next_call: Next time in us, when the function shall be executed again
  * @list: List node
  * @already_warned: Flag that we've warned about exceeding CPU time usage
+ *
+ * When !CONFIG_CYCLIC, this struct is empty.
  */
 struct cyclic_info {
-	void (*func)(void *ctx);
-	void *ctx;
-	char *name;
+#if defined(CONFIG_CYCLIC)
+	void (*func)(struct cyclic_info *c);
+	const char *name;
 	uint64_t delay_us;
 	uint64_t start_time_us;
 	uint64_t cpu_time_us;
@@ -39,31 +40,34 @@ struct cyclic_info {
 	uint64_t next_call;
 	struct hlist_node list;
 	bool already_warned;
+#endif
 };
 
 /** Function type for cyclic functions */
-typedef void (*cyclic_func_t)(void *ctx);
+typedef void (*cyclic_func_t)(struct cyclic_info *c);
 
 #if defined(CONFIG_CYCLIC)
 /**
  * cyclic_register - Register a new cyclic function
  *
+ * @cyclic: Cyclic info structure
  * @func: Function to call periodically
  * @delay_us: Delay is us after which this function shall get executed
  * @name: Cyclic function name/id
- * @ctx: Context to pass to the function
- * @return: pointer to cyclic_struct if OK, NULL on error
+ *
+ * The function @func will be called with @cyclic as its
+ * argument. @cyclic will usually be embedded in some device-specific
+ * structure, which the callback can retrieve using container_of().
  */
-struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
-				    const char *name, void *ctx);
+void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
+		     uint64_t delay_us, const char *name);
 
 /**
  * cyclic_unregister - Unregister a cyclic function
  *
  * @cyclic: Pointer to cyclic_struct of the function that shall be removed
- * @return: 0 if OK, -ve on error
  */
-int cyclic_unregister(struct cyclic_info *cyclic);
+void cyclic_unregister(struct cyclic_info *cyclic);
 
 /**
  * cyclic_unregister_all() - Clean up cyclic functions
@@ -97,17 +101,14 @@ void cyclic_run(void);
  */
 void schedule(void);
 #else
-static inline struct cyclic_info *cyclic_register(cyclic_func_t func,
-						  uint64_t delay_us,
-						  const char *name,
-						  void *ctx)
+
+static inline void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
+				   uint64_t delay_us, const char *name)
 {
-	return NULL;
 }
 
-static inline int cyclic_unregister(struct cyclic_info *cyclic)
+static inline void cyclic_unregister(struct cyclic_info *cyclic)
 {
-	return 0;
 }
 
 static inline void cyclic_run(void)

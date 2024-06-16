@@ -26,34 +26,22 @@ struct hlist_head *cyclic_get_list(void)
 	return (struct hlist_head *)&gd->cyclic_list;
 }
 
-struct cyclic_info *cyclic_register(cyclic_func_t func, uint64_t delay_us,
-				    const char *name, void *ctx)
+void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
+		     uint64_t delay_us, const char *name)
 {
-	struct cyclic_info *cyclic;
-
-	cyclic = calloc(1, sizeof(struct cyclic_info));
-	if (!cyclic) {
-		pr_debug("Memory allocation error\n");
-		return NULL;
-	}
+	memset(cyclic, 0, sizeof(*cyclic));
 
 	/* Store values in struct */
 	cyclic->func = func;
-	cyclic->ctx = ctx;
-	cyclic->name = strdup(name);
+	cyclic->name = name;
 	cyclic->delay_us = delay_us;
 	cyclic->start_time_us = timer_get_us();
 	hlist_add_head(&cyclic->list, cyclic_get_list());
-
-	return cyclic;
 }
 
-int cyclic_unregister(struct cyclic_info *cyclic)
+void cyclic_unregister(struct cyclic_info *cyclic)
 {
 	hlist_del(&cyclic->list);
-	free(cyclic);
-
-	return 0;
 }
 
 void cyclic_run(void)
@@ -76,7 +64,7 @@ void cyclic_run(void)
 		if (time_after_eq64(now, cyclic->next_call)) {
 			/* Call cyclic function and account it's cpu-time */
 			cyclic->next_call = now + cyclic->delay_us;
-			cyclic->func(cyclic->ctx);
+			cyclic->func(cyclic);
 			cyclic->run_cnt++;
 			cpu_time = timer_get_us() - now;
 			cyclic->cpu_time_us += cpu_time;
