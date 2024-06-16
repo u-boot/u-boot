@@ -362,6 +362,11 @@ static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 	if (vol == NULL)
 		return ENODEV;
 
+	if (!vol->updating) {
+		printf("UBI volume update was not initiated\n");
+		return EINVAL;
+	}
+
 	err = ubi_more_update_data(ubi, vol, buf, size);
 	if (err < 0) {
 		printf("Couldnt or partially wrote data\n");
@@ -410,6 +415,10 @@ int ubi_volume_begin_write(char *volume, void *buf, size_t size,
 		printf("Cannot start volume update\n");
 		return -err;
 	}
+
+	/* The volume is just wiped out */
+	if (!full_size)
+		return 0;
 
 	return ubi_volume_continue_write(volume, buf, size);
 }
