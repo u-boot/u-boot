@@ -134,7 +134,7 @@ static const char * const emmcsd1_lb_clksel_out0_parents[] = {
 
 static const char * const mcu_clkout_mux_out0_parents[] = {
 	"hsdiv4_16fft_mcu_2_hsdivout0_clk",
-	"hsdiv4_16fft_mcu_2_hsdivout0_clk",
+	"hsdiv4_16fft_mcu_2_hsdivout1_clk",
 };
 
 static const char * const k3_pll_ctrl_wrap_main_0_sysclkout_clk_parents[] = {
@@ -338,7 +338,7 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(149, 5, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
 	DEV_CLK(157, 174, "mcu_clkout_mux_out0"),
 	DEV_CLK(157, 175, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
-	DEV_CLK(157, 176, "hsdiv4_16fft_mcu_2_hsdivout0_clk"),
+	DEV_CLK(157, 176, "hsdiv4_16fft_mcu_2_hsdivout1_clk"),
 	DEV_CLK(157, 179, "fss_mcu_0_hyperbus1p0_0_hpb_out_clk_p"),
 	DEV_CLK(157, 180, "fss_mcu_0_hyperbus1p0_0_hpb_out_clk_n"),
 	DEV_CLK(157, 224, "fss_mcu_0_ospi_0_ospi_oclk_clk"),
