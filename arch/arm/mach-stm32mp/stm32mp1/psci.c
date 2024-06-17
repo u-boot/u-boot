@@ -809,6 +809,27 @@ void __secure psci_system_suspend(u32 __always_unused function_id,
 	clrbits_le32(STM32_SYSCFG_BASE + SYSCFG_CMPCR, SYSCFG_CMPCR_SW_CTRL);
 
 	/*
+	 * Make sure the OS would not get any spurious IWDG pretimeout IRQ
+	 * right after the system wakes up. This may happen in case the SoC
+	 * got woken up by another source than the IWDG pretimeout and the
+	 * pretimeout IRQ arrived immediately afterward, but too late to be
+	 * handled by the main loop above. In case either of the IWDG is
+	 * enabled, ping it first and then return to the OS.
+	 */
+
+	/* Ping IWDG1 and ACK pretimer IRQ */
+	if (gic_enabled[4] & BIT(22)) {
+		writel(IWDG_KR_RELOAD_KEY, STM32_IWDG1_BASE + IWDG_KR);
+		writel(IWDG_EWCR_EWIC, STM32_IWDG1_BASE + IWDG_EWCR);
+	}
+
+	/* Ping IWDG2 and ACK pretimer IRQ */
+	if (gic_enabled[4] & BIT(23)) {
+		writel(IWDG_KR_RELOAD_KEY, STM32_IWDG2_BASE + IWDG_KR);
+		writel(IWDG_EWCR_EWIC, STM32_IWDG2_BASE + IWDG_EWCR);
+	}
+
+	/*
 	 * The system has resumed successfully. Rewrite LR register stored
 	 * on stack with 'ep' value, so that on return from this PSCI call,
 	 * the code would jump to that 'ep' resume entry point code path
