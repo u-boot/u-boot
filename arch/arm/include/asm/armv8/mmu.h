@@ -51,7 +51,7 @@
 
 #define PTE_TABLE_PXN		(1UL << 59)
 #define PTE_TABLE_XN		(1UL << 60)
-#define PTE_TABLE_AP		(1UL << 61)
+#define PTE_TABLE_AP		(3UL << 61)
 #define PTE_TABLE_NS		(1UL << 63)
 
 /*
