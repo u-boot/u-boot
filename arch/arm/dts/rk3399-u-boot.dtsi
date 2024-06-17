@@ -145,6 +145,11 @@
 	bootph-some-ram;
 };
 
+&spi1 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
 &spi1_clk {
 	bootph-pre-ram;
 	bootph-some-ram;
