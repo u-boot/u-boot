@@ -5,7 +5,7 @@
 # (C) Copyright 2002-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y	+= fdt_fixup.o interrupts.o sections.o
+obj-y			+= fdt_fixup.o interrupts.o
 obj-$(CONFIG_PCI)	+= pci_io.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o
