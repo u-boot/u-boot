@@ -1,12 +1,12 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
- * (C) Copyright 2014 - 2018 Xilinx, Inc.
+ * Copyright (C) 2021 - 2022, Xilinx, Inc.
+ * Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+ *
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <command.h>
 #include <cpu_func.h>
-#include <env.h>
 #include <fdtdec.h>
 #include <init.h>
 #include <env_internal.h>
@@ -20,31 +20,87 @@
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
-#include <versalpl.h>
-#include "../common/board.h"
+#include "../../xilinx/common/board.h"
+
+#include <linux/bitfield.h>
+#include <debug_uart.h>
+#include <generated/dt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined(CONFIG_FPGA_VERSALPL)
-static xilinx_desc versalpl = {
-	xilinx_versal, csu_dma, 1, &versal_op, 0, &versal_op, NULL,
-	FPGA_LEGACY
-};
-#endif
 
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
 
-#if defined(CONFIG_FPGA_VERSALPL)
-	fpga_init();
-	fpga_add(fpga_xilinx, &versalpl);
-#endif
-
-	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))
-		xilinx_read_eeprom();
-
 	return 0;
+}
+
+static u32 platform_id, platform_version;
+
+char *soc_name_decode(void)
+{
+	char *name, *platform_name;
+
+	switch (platform_id) {
+	case VERSAL2_SPP:
+		platform_name = "spp";
+		break;
+	case VERSAL2_EMU:
+		platform_name = "emu";
+		break;
+	case VERSAL2_SPP_MMD:
+		platform_name = "spp-mmd";
+		break;
+	case VERSAL2_EMU_MMD:
+		platform_name = "emu-mmd";
+		break;
+	case VERSAL2_QEMU:
+		platform_name = "qemu";
+		break;
+	default:
+		return NULL;
+	}
+
+	/*
+	 * --rev. are 6 chars
+	 * max platform name is qemu which is 4 chars
+	 * platform version number are 1+1
+	 * Plus 1 char for \n
+	 */
+	name = calloc(1, strlen(CONFIG_SYS_BOARD) + 13);
+	if (!name)
+		return NULL;
+
+	sprintf(name, "%s-%s-rev%d.%d-el%d", CONFIG_SYS_BOARD,
+		platform_name, platform_version / 10,
+		platform_version % 10, current_el());
+
+	return name;
+}
+
+bool soc_detection(void)
+{
+	u32 version, ps_version;
+
+	version = readl(PMC_TAP_VERSION);
+	platform_id = FIELD_GET(PLATFORM_MASK, version);
+	ps_version = FIELD_GET(PS_VERSION_MASK, version);
+
+	debug("idcode %x, version %x, usercode %x\n",
+	      readl(PMC_TAP_IDCODE), version,
+	      readl(PMC_TAP_USERCODE));
+
+	debug("pmc_ver %lx, ps version %x, rtl version %lx\n",
+	      FIELD_GET(PMC_VERSION_MASK, version),
+	      ps_version,
+	      FIELD_GET(RTL_VERSION_MASK, version));
+
+	platform_version = FIELD_GET(PLATFORM_VERSION_MASK, version);
+
+	debug("Platform id: %d version: %d.%d\n", platform_id,
+	      platform_version / 10, platform_version % 10);
+
+	return true;
 }
 
 int board_early_init_r(void)
@@ -93,24 +149,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
-			 char *const argv[])
-{
-	int ret = 0;
-
-	if (current_el() > 1) {
-		smp_kick_all_cpus();
-		dcache_disable();
-		armv8_switch_to_el1(0x0, 0, 0, 0, (unsigned long)entry,
-				    ES_TO_AARCH64);
-	} else {
-		printf("FAIL: current EL is not above EL1\n");
-		ret = EINVAL;
-	}
-	return ret;
-}
-
-static u8 versal_get_bootmode(void)
+static u8 versal_net_get_bootmode(void)
 {
 	u8 bootmode;
 	u32 reg = 0;
@@ -136,7 +175,7 @@ static int boot_targets_setup(void)
 	char *new_targets;
 	char *env_targets;
 
-	bootmode = versal_get_bootmode();
+	bootmode = versal_net_get_bootmode();
 
 	puts("Bootmode: ");
 	switch (bootmode) {
@@ -155,7 +194,8 @@ static int boot_targets_setup(void)
 			debug("QSPI driver for QSPI device is not present\n");
 			break;
 		}
-		mode = "xspi0";
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case QSPI_MODE_32BIT:
 		puts("QSPI_MODE_32\n");
@@ -164,7 +204,8 @@ static int boot_targets_setup(void)
 			debug("QSPI driver for QSPI device is not present\n");
 			break;
 		}
-		mode = "xspi0";
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case OSPI_MODE:
 		puts("OSPI_MODE\n");
@@ -173,18 +214,11 @@ static int boot_targets_setup(void)
 			debug("OSPI driver for OSPI device is not present\n");
 			break;
 		}
-		mode = "xspi0";
+		mode = "xspi";
+		bootseq = dev_seq(dev);
 		break;
 	case EMMC_MODE:
 		puts("EMMC_MODE\n");
-		if (uclass_get_device_by_name(UCLASS_MMC,
-					      "mmc@f1050000", &dev) &&
-		    uclass_get_device_by_name(UCLASS_MMC,
-					      "sdhci@f1050000", &dev)) {
-			debug("SD1 driver for SD1 device is not present\n");
-			break;
-		}
-		debug("mmc1 device found at %p, seq %d\n", dev, dev_seq(dev));
 		mode = "mmc";
 		bootseq = dev_seq(dev);
 		break;
@@ -194,9 +228,7 @@ static int boot_targets_setup(void)
 	case SD_MODE:
 		puts("SD_MODE\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
-					      "mmc@f1040000", &dev) &&
-		    uclass_get_device_by_name(UCLASS_MMC,
-					      "sdhci@f1040000", &dev)) {
+					      "mmc@f1040000", &dev)) {
 			debug("SD0 driver for SD0 device is not present\n");
 			break;
 		}
@@ -207,13 +239,11 @@ static int boot_targets_setup(void)
 		break;
 	case SD1_LSHFT_MODE:
 		puts("LVL_SHFT_");
-		/* fall through */
+		fallthrough;
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
-					      "mmc@f1050000", &dev) &&
-		    uclass_get_device_by_name(UCLASS_MMC,
-					      "sdhci@f1050000", &dev)) {
+					      "mmc@f1050000", &dev)) {
 			debug("SD1 driver for SD1 device is not present\n");
 			break;
 		}
@@ -295,7 +325,14 @@ int dram_init_banksize(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_mem_size_base_lowest() != 0)
+	int ret;
+
+	if (IS_ENABLED(CONFIG_SYS_MEM_RSVD_FOR_MMU))
+		ret = fdtdec_setup_mem_size_base();
+	else
+		ret = fdtdec_setup_mem_size_base_lowest();
+
+	if (ret)
 		return -EINVAL;
 
 	return 0;
@@ -304,35 +341,3 @@ int dram_init(void)
 void reset_cpu(void)
 {
 }
-
-#if defined(CONFIG_ENV_IS_NOWHERE)
-enum env_location env_get_location(enum env_operation op, int prio)
-{
-	u32 bootmode = versal_get_bootmode();
-
-	if (prio)
-		return ENVL_UNKNOWN;
-
-	switch (bootmode) {
-	case EMMC_MODE:
-	case SD_MODE:
-	case SD1_LSHFT_MODE:
-	case SD_MODE1:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_FAT))
-			return ENVL_FAT;
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_EXT4))
-			return ENVL_EXT4;
-		return ENVL_NOWHERE;
-	case OSPI_MODE:
-	case QSPI_MODE_24BIT:
-	case QSPI_MODE_32BIT:
-		if (IS_ENABLED(CONFIG_ENV_IS_IN_SPI_FLASH))
-			return ENVL_SPI_FLASH;
-		return ENVL_NOWHERE;
-	case JTAG_MODE:
-	case SELECTMAP_MODE:
-	default:
-		return ENVL_NOWHERE;
-	}
-}
-#endif

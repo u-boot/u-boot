@@ -9,6 +9,14 @@ config SOC_DEVICE
 	  need different parameters or quirks enabled depending on the
 	  specific device variant in use.
 
+config SOC_AMD_VERSAL2
+	bool "Enable SoC Device ID driver for AMD Versal Gen 2"
+	depends on SOC_DEVICE && ARCH_VERSAL2
+	help
+	  Enable this option to select SoC device id driver for AMD Versal Gen 2.
+	  This allows other drivers to verify the SoC familiy & revision using
+	  matching SoC attributes.
+
 config SOC_DEVICE_TI_K3
 	depends on SOC_DEVICE && ARCH_K3
 	bool "Enable SoC Device ID driver for TI K3 SoCs"
