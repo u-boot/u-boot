@@ -71,11 +71,10 @@ Set the variables corresponding to this platform:
 
 Target Images
 -------------
-Copy the below images to an SD card and boot:
+Copy these images to an SD card and boot:
 
-* tiboot3-am62x-gp-evm.bin from R5 build as tiboot3.bin
-* tispl.bin_unsigned from Cortex-A build as tispl.bin
-* u-boot.img_unsigned from Cortex-A build as u-boot.img
+* tiboot3.bin from Cortex-R5 build.
+* tispl.bin and u-boot.img from Cortex-A build
 
 Image formats
 -------------
