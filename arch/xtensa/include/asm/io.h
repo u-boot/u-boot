@@ -12,6 +12,8 @@
 #include <linux/types.h>
 #include <asm/byteorder.h>
 
+#include <asm/addrspace.h>
+
 /*
  * swap functions to change byte order from little-endian to big-endian and
  * vice versa.
@@ -126,6 +128,36 @@ void outsl(unsigned long port, const void *src, unsigned long count);
 static inline void sync(void)
 {
 }
+
+#if XCHAL_HAVE_PTP_MMU
+static inline void *phys_to_virt(phys_addr_t paddr)
+{
+	if (paddr >= CFG_SYS_IO_BASE)
+		return (void *)(unsigned long)paddr;
+
+	if (paddr < CFG_MAX_MEM_MAPPED)
+		return (void *)(unsigned long)MEMADDR(paddr);
+
+	return NULL;
+}
+
+#define phys_to_virt phys_to_virt
+
+static inline phys_addr_t virt_to_phys(void *vaddr)
+{
+	unsigned long addr = (unsigned long)vaddr;
+
+	if (addr >= CFG_SYS_IO_BASE)
+		return addr;
+
+	if (addr >= CFG_SYS_SDRAM_BASE && addr < MEMADDR(CFG_MAX_MEM_MAPPED))
+		return PHYSADDR(addr);
+
+	return 0;
+}
+
+#define virt_to_phys virt_to_phys
+#endif /* XCHAL_HAVE_PTP_MMU */
 
 #include <asm-generic/io.h>
 
