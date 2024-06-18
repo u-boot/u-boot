@@ -85,7 +85,7 @@ config FIT_SIGNATURE
 	  using a hash signed and verified using RSA. If
 	  CONFIG_SHA_PROG_HW_ACCEL is defined, i.e support for progressive
 	  hashing is available using hardware, then the RSA library will use
-	  it. See doc/uImage.FIT/signature.txt for more details.
+	  it. See doc/usage/fit/signature.rst for more details.
 
 	  WARNING: When relying on signed FIT images with a required signature
 	  check the legacy image format is disabled by default, so that
@@ -223,8 +223,8 @@ config SPL_LOAD_FIT
 	  1. "loadables" images, other than FDTs, which do not have a "load"
 	     property will not be loaded. This limitation also applies to FPGA
 	     images with the correct "compatible" string.
-	  2. For FPGA images, the supported "compatible" list is in the
-	     doc/uImage.FIT/source_file_format.txt.
+	  2. For FPGA images, the supported "compatible" list may be found in
+	     https://fitspec.osfw.foundation/.
 	  3. FDTs are only loaded for images with an "os" property of "u-boot".
 	     "linux" images are also supported with Falcon boot mode.
 
