@@ -33,3 +33,9 @@ config CPU_MICROBLAZE
 	select XILINX_MICROBLAZE0_PVR
 	help
 	  Support CPU cores for Microblaze architecture.
+
+config CPU_XTENSA
+	bool "Enable Xtensa CPU driver"
+	depends on CPU && XTENSA
+	help
+	  Support CPU cores for Xtensa architecture.
