@@ -978,11 +978,21 @@ static int fixup_mcu_gpio_in_pcie_nodes(void *blob)
 	return 0;
 }
 
-static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
+static int get_phy_wan_node_offset(const void *blob)
+{
+	u32 phy_wan_phandle;
+
+	phy_wan_phandle = fdt_getprop_u32_default(blob, "ethernet2", "phy-handle", 0);
+	if (!phy_wan_phandle)
+		return -FDT_ERR_NOTFOUND;
+
+	return fdt_node_offset_by_phandle(blob, phy_wan_phandle);
+}
+
+static int fixup_mcu_gpio_in_phy_wan_node(void *blob)
 {
 	unsigned int mcu_phandle;
-	int eth_wan_node;
-	int ret;
+	int phy_wan_node, ret;
 
 	ret = fdt_increase_size(blob, 64);
 	if (ret < 0) {
@@ -990,21 +1000,17 @@ static int fixup_mcu_gpio_in_eth_wan_node(void *blob)
 		return ret;
 	}
 
-	eth_wan_node = fdt_path_offset(blob, "ethernet2");
-	if (eth_wan_node < 0)
-		return eth_wan_node;
+	phy_wan_node = get_phy_wan_node_offset(blob);
+	if (phy_wan_node < 0)
+		return phy_wan_node;
 
 	mcu_phandle = fdt_create_phandle_by_compatible(blob, "cznic,turris-omnia-mcu");
 	if (!mcu_phandle)
 		return -FDT_ERR_NOPHANDLES;
 
-	/* insert: phy-reset-gpios = <&mcu 2 gpio GPIO_ACTIVE_LOW>; */
-	ret = insert_mcu_gpio_prop(blob, eth_wan_node, "phy-reset-gpios",
-				   mcu_phandle, 2, ilog2(EXT_CTL_nRES_PHY), GPIO_ACTIVE_LOW);
-	if (ret < 0)
-		return ret;
-
-	return 0;
+	/* insert: reset-gpios = <&mcu 2 gpio GPIO_ACTIVE_LOW>; */
+	return insert_mcu_gpio_prop(blob, phy_wan_node, "reset-gpios",
+				    mcu_phandle, 2, ilog2(EXT_CTL_nRES_PHY), GPIO_ACTIVE_LOW);
 }
 
 static void fixup_atsha_node(void *blob)
@@ -1033,7 +1039,7 @@ int board_fix_fdt(void *blob)
 {
 	if (omnia_mcu_has_feature(FEAT_PERIPH_MCU)) {
 		fixup_mcu_gpio_in_pcie_nodes(blob);
-		fixup_mcu_gpio_in_eth_wan_node(blob);
+		fixup_mcu_gpio_in_phy_wan_node(blob);
 	}
 
 	fixup_msata_port_nodes(blob);
@@ -1218,14 +1224,14 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	int node;
 
 	/*
-	 * U-Boot's FDT blob contains phy-reset-gpios in ethernet2
-	 * node when MCU controls all peripherals resets.
+	 * U-Boot's FDT blob contains reset-gpios in ethernet2 PHY node when MCU
+	 * controls all peripherals resets.
 	 * Fixup MCU GPIO nodes in PCIe and eth wan nodes in this case.
 	 */
-	node = fdt_path_offset(gd->fdt_blob, "ethernet2");
-	if (node >= 0 && fdt_getprop(gd->fdt_blob, node, "phy-reset-gpios", NULL)) {
+	node = get_phy_wan_node_offset(gd->fdt_blob);
+	if (node >= 0 && fdt_getprop(gd->fdt_blob, node, "reset-gpios", NULL)) {
 		fixup_mcu_gpio_in_pcie_nodes(blob);
-		fixup_mcu_gpio_in_eth_wan_node(blob);
+		fixup_mcu_gpio_in_phy_wan_node(blob);
 	}
 
 	fixup_spi_nor_partitions(blob);
