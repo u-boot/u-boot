@@ -7,18 +7,21 @@
 #include "mv_ddr_training_db.h"
 #include "mv_ddr_regs.h"
 
+#if !defined(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS)
 u8 is_reg_dump = 0;
 u8 debug_pbs = DEBUG_LEVEL_ERROR;
+#endif
 
 /*
  * API to change flags outside of the lib
  */
-#if defined(SILENT_LIB)
+#if defined(SILENT_LIB) || defined(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS)
 void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 {
 	/* do nothing */
 }
-#else /* SILENT_LIB */
+#else /* !SILENT_LIB && !CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS */
+
 /* Debug flags for other Training modules */
 u8 debug_training_static = DEBUG_LEVEL_ERROR;
 u8 debug_training = DEBUG_LEVEL_ERROR;
@@ -104,7 +107,7 @@ void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 #endif /* CONFIG_DDR4 */
 	}
 }
-#endif /* SILENT_LIB */
+#endif /* !SILENT_LIB && !CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS */
 
 #if defined(DDR_VIEWER_TOOL)
 static char *convert_freq(enum mv_ddr_freq freq);
