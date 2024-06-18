@@ -9,9 +9,9 @@ variables:
   container_option: -u 0
   work_dir: /u
   # We define all of these as variables so we can easily reference them twice
-  am33xx_at91_kirkwood_mvebu_omap: "am33xx at91_kirkwood mvebu omap -x siemens"
+  am33xx_kirkwood_ls1_mvebu_omap: "am33xx kirkwood ls1 mvebu omap -x siemens,freescale"
   amlogic_bcm_boundary_engicam_siemens_technexion_oradex: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
-  arm_nxp_minus_imx: "freescale -x powerpc,m68k,imx,mx"
+  arm_nxp_minus_imx_and_at91: "at91 freescale -x powerpc,m68k,imx,mx"
   imx: "mx imx -x boundary,engicam,technexion,toradex"
   rk: "rk"
   sunxi: "sunxi"
@@ -487,12 +487,12 @@ stages:
       # We split the world up in to 10 jobs as we can have at most 10
       # parallel jobs going on the free tier of Azure.
       matrix:
-        am33xx_at91_kirkwood_mvebu_omap:
-          BUILDMAN: $(am33xx_at91_kirkwood_mvebu_omap)
+        am33xx_kirkwood_ls1_mvebu_omap:
+          BUILDMAN: $(am33xx_kirkwood_ls1_mvebu_omap)
         amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
           BUILDMAN: $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex)
-        arm_nxp_minus_imx:
-          BUILDMAN: $(arm_nxp_minus_imx)
+        arm_nxp_minus_imx_and_at91:
+          BUILDMAN: $(arm_nxp_minus_imx_and_at91)
         imx:
           BUILDMAN: $(imx)
         rk:
