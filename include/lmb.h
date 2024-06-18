@@ -24,78 +24,18 @@ enum lmb_flags {
 };
 
 /**
- * struct lmb_property - Description of one region.
+ * struct lmb_region - Description of one region.
  *
  * @base:	Base address of the region.
  * @size:	Size of the region
  * @flags:	memory region attributes
  */
-struct lmb_property {
+struct lmb_region {
 	phys_addr_t base;
 	phys_size_t size;
 	enum lmb_flags flags;
 };
 
-/*
- * For regions size management, see LMB configuration in KConfig
- * all the #if test are done with CONFIG_LMB_USE_MAX_REGIONS (boolean)
- *
- * case 1. CONFIG_LMB_USE_MAX_REGIONS is defined (legacy mode)
- *         => CONFIG_LMB_MAX_REGIONS is used to configure the region size,
- *         directly in the array lmb_region.region[], with the same
- *         configuration for memory and reserved regions.
- *
- * case 2. CONFIG_LMB_USE_MAX_REGIONS is not defined, the size of each
- *         region is configurated *independently* with
- *         => CONFIG_LMB_MEMORY_REGIONS: struct lmb.memory_regions
- *         => CONFIG_LMB_RESERVED_REGIONS: struct lmb.reserved_regions
- *         lmb_region.region is only a pointer to the correct buffer,
- *         initialized in lmb_init(). This configuration is useful to manage
- *         more reserved memory regions with CONFIG_LMB_RESERVED_REGIONS.
- */
-
-/**
- * struct lmb_region - Description of a set of region.
- *
- * @cnt: Number of regions.
- * @max: Size of the region array, max value of cnt.
- * @region: Array of the region properties
- */
-struct lmb_region {
-	unsigned long cnt;
-	unsigned long max;
-#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
-	struct lmb_property region[CONFIG_LMB_MAX_REGIONS];
-#else
-	struct lmb_property *region;
-#endif
-};
-
-/**
- * struct lmb - Logical memory block handle.
- *
- * Clients provide storage for Logical memory block (lmb) handles.
- * The content of the structure is managed by the lmb library.
- * A lmb struct is  initialized by lmb_init() functions.
- * The lmb struct is passed to all other lmb APIs.
- *
- * @memory: Description of memory regions.
- * @reserved: Description of reserved regions.
- * @memory_regions: Array of the memory regions (statically allocated)
- * @reserved_regions: Array of the reserved regions (statically allocated)
- */
-struct lmb {
-	struct lmb_region memory;
-	struct lmb_region reserved;
-#if !IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
-	struct lmb_property memory_regions[CONFIG_LMB_MEMORY_REGIONS];
-	struct lmb_property reserved_regions[CONFIG_LMB_RESERVED_REGIONS];
-#endif
-};
-
-void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob);
-void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
-				void *fdt_blob);
 long lmb_add(phys_addr_t base, phys_size_t size);
 long lmb_reserve(phys_addr_t base, phys_size_t size);
 /**
@@ -133,6 +73,19 @@ void lmb_dump_all_force(void);
 void board_lmb_reserve(void);
 void arch_lmb_reserve(void);
 void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
+
+/**
+ * lmb_mem_regions_init() - Initialise the LMB memory
+ *
+ * Initialise the LMB subsystem related data structures. There are two
+ * alloced lists that are initialised, one for the free memory, and one
+ * for the used memory.
+ *
+ * Initialise the two lists as part of board init.
+ *
+ * Return: 0 if OK, -ve on failure.
+ */
+int lmb_mem_regions_init(void);
 
 #endif /* __KERNEL__ */
 
