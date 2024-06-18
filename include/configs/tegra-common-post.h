@@ -7,7 +7,7 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
-#define BOOT_TARGETS	"mmc1 mmc0 usb pxe dhcp"
+#define BOOT_TARGETS	"usb mmc1 mmc0 pxe dhcp"
 
 #ifdef CONFIG_TEGRA_KEYBOARD
 #define STDIN_KBD_KBC ",tegra-kbc"
