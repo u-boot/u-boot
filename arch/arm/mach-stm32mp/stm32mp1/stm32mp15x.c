@@ -148,8 +148,8 @@ static void security_init(void)
 	 */
 	clrsetbits_le32(TAMP_SMCR,
 			TAMP_SMCR_BKPRWDPROT | TAMP_SMCR_BKPWDPROT,
-			FIELD_PREP(TAMP_SMCR_BKPRWDPROT, 0x20) |
-			FIELD_PREP(TAMP_SMCR_BKPWDPROT, 0x20));
+			FIELD_PREP(TAMP_SMCR_BKPRWDPROT, 0x0A) |
+			FIELD_PREP(TAMP_SMCR_BKPWDPROT, 0x0F));
 
 	/* GPIOZ: deactivate the security */
 	writel(BIT(0), RCC_MP_AHB5ENSETR);
