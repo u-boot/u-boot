@@ -431,7 +431,8 @@ struct omnia_eeprom {
 	u32 crc;
 
 	/* second part (only considered if crc2 is not all-ones) */
-	u8 reserved[44];
+	char ddr_speed[5];
+	u8 reserved[39];
 	u32 crc2;
 };
 
@@ -518,6 +519,26 @@ static int omnia_get_ram_size_gb(void)
 	}
 
 	return ram_size;
+}
+
+static const char *omnia_get_ddr_speed(void)
+{
+	struct omnia_eeprom oep;
+	static char speed[sizeof(oep.ddr_speed) + 1];
+
+	if (!omnia_read_eeprom(&oep))
+		return NULL;
+
+	if (!is_omnia_eeprom_second_part_valid(&oep))
+		return NULL;
+
+	if (!oep.ddr_speed[0] || oep.ddr_speed[0] == 0xff)
+		return NULL;
+
+	memcpy(&speed, &oep.ddr_speed, sizeof(oep.ddr_speed));
+	speed[sizeof(speed) - 1] = '\0';
+
+	return speed;
 }
 
 static const char * const omnia_get_mcu_type(void)
@@ -634,12 +655,84 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 	{0}				/* timing parameters */
 };
 
+static const struct omnia_ddr_speed {
+	char name[5];
+	u8 speed_bin;
+	u8 freq;
+} omnia_ddr_speeds[] = {
+	{ "1066F", SPEED_BIN_DDR_1066F, MV_DDR_FREQ_533 },
+	{ "1333H", SPEED_BIN_DDR_1333H, MV_DDR_FREQ_667 },
+	{ "1600K", SPEED_BIN_DDR_1600K, MV_DDR_FREQ_800 },
+};
+
+static const struct omnia_ddr_speed *find_ddr_speed_setting(const char *name)
+{
+	for (int i = 0; i < ARRAY_SIZE(omnia_ddr_speeds); ++i)
+		if (!strncmp(name, omnia_ddr_speeds[i].name, 5))
+			return &omnia_ddr_speeds[i];
+
+	return NULL;
+}
+
+bool omnia_valid_ddr_speed(const char *name)
+{
+	return find_ddr_speed_setting(name) != NULL;
+}
+
+void omnia_print_ddr_speeds(void)
+{
+	for (int i = 0; i < ARRAY_SIZE(omnia_ddr_speeds); ++i)
+		printf("%.5s%s", omnia_ddr_speeds[i].name,
+		       i == ARRAY_SIZE(omnia_ddr_speeds) - 1 ? "\n" : ", ");
+}
+
+static void fixup_speed_in_ddr_topology(struct mv_ddr_topology_map *topology)
+{
+	typeof(topology->interface_params[0]) *params;
+	const struct omnia_ddr_speed *setting;
+	const char *speed;
+	static bool done;
+
+	if (done)
+		return;
+
+	done = true;
+
+	speed = omnia_get_ddr_speed();
+	if (!speed)
+		return;
+
+	setting = find_ddr_speed_setting(speed);
+	if (!setting) {
+		printf("Unsupported value %s for DDR3 speed in EEPROM!\n",
+		       speed);
+		return;
+	}
+
+	params = &topology->interface_params[0];
+
+	/* don't inform if we are not changing the speed from the default one */
+	if (params->speed_bin_index == setting->speed_bin)
+		return;
+
+	printf("Fixing up DDR3 speed (EEPROM defines %s)\n", speed);
+
+	params->speed_bin_index = setting->speed_bin;
+	params->memory_freq = setting->freq;
+}
+
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 {
+	struct mv_ddr_topology_map *topology;
+
 	if (omnia_get_ram_size_gb() == 2)
-		return &board_topology_map_2g;
+		topology = &board_topology_map_2g;
 	else
-		return &board_topology_map_1g;
+		topology = &board_topology_map_1g;
+
+	fixup_speed_in_ddr_topology(topology);
+
+	return topology;
 }
 
 static int set_regdomain(void)

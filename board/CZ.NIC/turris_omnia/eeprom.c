@@ -55,12 +55,49 @@ static int eeprom_field_update_region(struct eeprom_field *field, char *value)
 	return 0;
 }
 
+static void eeprom_field_print_ddr_speed(const struct eeprom_field *field)
+{
+	printf(PRINT_FIELD_SEGMENT, field->name);
+
+	if (field->buf[0] == '\0' || field->buf[0] == 0xff)
+		puts("(empty, defaults to 1600K)\n");
+	else
+		printf("%.5s\n", field->buf);
+}
+
+bool omnia_valid_ddr_speed(const char *name);
+void omnia_print_ddr_speeds(void);
+
+static int eeprom_field_update_ddr_speed(struct eeprom_field *field,
+					 char *value)
+{
+	if (value[0] == '\0') {
+		/* setting default value */
+		memset(field->buf, 0xff, field->size);
+
+		return 0;
+	}
+
+	if (!omnia_valid_ddr_speed(value)) {
+		printf("%s: invalid setting, supported values are:\n  ",
+		       field->name);
+		omnia_print_ddr_speeds();
+
+		return -1;
+	}
+
+	strncpy(field->buf, value, field->size);
+
+	return 0;
+}
+
 static struct eeprom_field omnia_layout[] = {
 	_DEF_FIELD("Magic constant", 4, bin),
 	_DEF_FIELD("RAM size in GB", 4, ramsz),
 	_DEF_FIELD("Wi-Fi Region", 4, region),
 	_DEF_FIELD("CRC32 checksum", 4, bin),
-	_DEF_FIELD("Extended reserved fields", 44, reserved),
+	_DEF_FIELD("DDR speed", 5, ddr_speed),
+	_DEF_FIELD("Extended reserved fields", 39, reserved),
 	_DEF_FIELD("Extended CRC32 checksum", 4, bin),
 };
 
@@ -96,7 +133,7 @@ static int omnia_update_field(struct eeprom_layout *layout, char *field_name,
 	}
 
 	if (field < ext_crc_field) {
-		u32 crc = crc32(0, layout->data, 44);
+		u32 crc = crc32(0, layout->data, 60);
 		put_unaligned_le32(crc, ext_crc_field->buf);
 	}
 
