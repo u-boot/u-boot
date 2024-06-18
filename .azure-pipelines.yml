@@ -8,6 +8,17 @@ variables:
   # since our $(ci_runner_image) user is not root.
   container_option: -u 0
   work_dir: /u
+  # We define all of these as variables so we can easily reference them twice
+  am33xx_at91_kirkwood_mvebu_omap: "am33xx at91_kirkwood mvebu omap -x siemens"
+  amlogic_bcm_boundary_engicam_siemens_technexion_oradex: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
+  arm_nxp_minus_imx: "freescale -x powerpc,m68k,imx,mx"
+  imx: "mx imx -x boundary,engicam,technexion,toradex"
+  rk: "rk"
+  sunxi: "sunxi"
+  powerpc: "powerpc"
+  arm_catch_all: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
+  aarch64_catch_all: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
+  everything_but_arm_and_powerpc: "-x arm,powerpc"
 
 stages:
 - stage: testsuites
@@ -477,25 +488,25 @@ stages:
       # parallel jobs going on the free tier of Azure.
       matrix:
         am33xx_at91_kirkwood_mvebu_omap:
-          BUILDMAN: "am33xx at91_kirkwood mvebu omap -x siemens"
+          BUILDMAN: $(am33xx_at91_kirkwood_mvebu_omap)
         amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
-          BUILDMAN: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
+          BUILDMAN: $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex)
         arm_nxp_minus_imx:
-          BUILDMAN: "freescale -x powerpc,m68k,imx,mx"
+          BUILDMAN: $(arm_nxp_minus_imx)
         imx:
-          BUILDMAN: "mx imx -x boundary,engicam,technexion,toradex"
+          BUILDMAN: $(imx)
         rk:
-          BUILDMAN: "rk"
+          BUILDMAN: $(rk)
         sunxi:
-          BUILDMAN: "sunxi"
+          BUILDMAN: $(sunxi)
         powerpc:
-          BUILDMAN: "powerpc"
+          BUILDMAN: $(powerpc)
         arm_catch_all:
-          BUILDMAN: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
+          BUILDMAN: $(arm_catch_all)
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
+          BUILDMAN: $(aarch64_catch_all)
         everything_but_arm_and_powerpc:
-          BUILDMAN: "-x arm,powerpc"
+          BUILDMAN: $(everything_but_arm_and_powerpc)
     steps:
       - script: |
           cat << EOF > build.sh
