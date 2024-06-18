@@ -291,7 +291,9 @@ extern struct cl_val_per_freq cas_latency_table[];
 extern u32 target_freq;
 extern struct hws_tip_config_func_db config_func_info[HWS_MAX_DEVICE_NUM];
 extern u32 clamp_tbl[];
+#if 0
 extern u32 init_freq;
+#endif
 /* list of allowed frequency listed in order of enum hws_ddr_freq */
 extern u32 freq_val[];
 extern u8 debug_training_static;
