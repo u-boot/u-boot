@@ -388,7 +388,7 @@ int usb_init(void)
 
 	/* if we were not able to find at least one working bus, bail out */
 	if (controllers_initialized == 0)
-		printf("No working controllers found\n");
+		printf("No USB controllers found\n");
 
 	return usb_started ? 0 : -ENOENT;
 }
