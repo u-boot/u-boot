@@ -432,7 +432,8 @@ struct omnia_eeprom {
 
 	/* second part (only considered if crc2 is not all-ones) */
 	char ddr_speed[5];
-	u8 reserved[39];
+	u8 old_ddr_training;
+	u8 reserved[38];
 	u32 crc2;
 };
 
@@ -496,7 +497,7 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 	return true;
 }
 
-static int omnia_get_ram_size_gb(void)
+int omnia_get_ram_size_gb(void)
 {
 	static int ram_size;
 	struct omnia_eeprom oep;
@@ -519,6 +520,19 @@ static int omnia_get_ram_size_gb(void)
 	}
 
 	return ram_size;
+}
+
+bool board_use_old_ddr3_training(void)
+{
+	struct omnia_eeprom oep;
+
+	if (!omnia_read_eeprom(&oep))
+		return false;
+
+	if (!is_omnia_eeprom_second_part_valid(&oep))
+		return false;
+
+	return oep.old_ddr_training == 1;
 }
 
 static const char *omnia_get_ddr_speed(void)

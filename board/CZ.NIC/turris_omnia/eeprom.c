@@ -91,13 +91,48 @@ static int eeprom_field_update_ddr_speed(struct eeprom_field *field,
 	return 0;
 }
 
+static void eeprom_field_print_bool(const struct eeprom_field *field)
+{
+	unsigned char val = field->buf[0];
+
+	printf(PRINT_FIELD_SEGMENT, field->name);
+
+	if (val == 0xff)
+		puts("(empty, defaults to 0)\n");
+	else
+		printf("%u\n", val);
+}
+
+static int eeprom_field_update_bool(struct eeprom_field *field, char *value)
+{
+	unsigned char *val = &field->buf[0];
+
+	if (value[0] == '\0') {
+		/* setting default value */
+		*val = 0xff;
+
+		return 0;
+	}
+
+	if (value[1] != '\0')
+		return -1;
+
+	if (value[0] == '1' || value[0] == '0')
+		*val = value[0] - '0';
+	else
+		return -1;
+
+	return 0;
+}
+
 static struct eeprom_field omnia_layout[] = {
 	_DEF_FIELD("Magic constant", 4, bin),
 	_DEF_FIELD("RAM size in GB", 4, ramsz),
 	_DEF_FIELD("Wi-Fi Region", 4, region),
 	_DEF_FIELD("CRC32 checksum", 4, bin),
 	_DEF_FIELD("DDR speed", 5, ddr_speed),
-	_DEF_FIELD("Extended reserved fields", 39, reserved),
+	_DEF_FIELD("Use old DDR training", 1, bool),
+	_DEF_FIELD("Extended reserved fields", 38, reserved),
 	_DEF_FIELD("Extended CRC32 checksum", 4, bin),
 };
 
