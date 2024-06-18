@@ -224,4 +224,13 @@ void *alist_uninit_move_ptr(struct alist *alist, size_t *countp);
  */
 void alist_uninit(struct alist *alist);
 
+/**
+ * alist_expand_by() - Expand a list by the given amount
+ *
+ * @lst: alist to expand
+ * @inc_by: Amount to expand by
+ * Return: true if OK, false if out of memory
+ */
+bool alist_expand_by(struct alist *lst, uint inc_by);
+
 #endif /* __ALIST_H */
