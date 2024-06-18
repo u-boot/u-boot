@@ -83,6 +83,28 @@ static inline bool alist_err(struct alist *lst)
 }
 
 /**
+ * alist_full() - Check if the alist is full
+ *
+ * @lst: List to check
+ * Return: true if full, false otherwise
+ */
+static inline bool alist_full(struct alist *lst)
+{
+	return lst->count == lst->alloc;
+}
+
+/**
+ * alist_empty() - Check if the alist is empty
+ *
+ * @lst: List to check
+ * Return: true if empty, false otherwise
+ */
+static inline bool alist_empty(struct alist *lst)
+{
+	return !lst->count && lst->alloc;
+}
+
+/**
  * alist_get_ptr() - Get the value of a pointer
  *
  * @lst: alist to check
