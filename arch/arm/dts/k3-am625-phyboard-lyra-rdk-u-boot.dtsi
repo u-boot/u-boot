@@ -127,6 +127,32 @@
 
 	flash@0 {
 		bootph-all;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "ospi.tiboot3";
+				reg = <0x00000 0x80000>;
+			};
+			partition@80000 {
+				label = "ospi.tispl";
+				reg = <0x080000 0x200000>;
+			};
+			partition@280000 {
+				label = "ospi.u-boot";
+				reg = <0x280000 0x400000>;
+			};
+			partition@680000 {
+				label = "ospi.env";
+				reg = <0x680000 0x40000>;
+			};
+			partition@6c0000 {
+				label = "ospi.env.backup";
+				reg = <0x6c0000 0x40000>;
+			};
+		};
 	};
 };
 
@@ -139,6 +165,15 @@
 };
 
 &sdhci1 {
+	bootph-all;
+};
+
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
 	bootph-all;
 };
 
