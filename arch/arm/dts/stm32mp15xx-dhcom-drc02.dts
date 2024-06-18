@@ -11,5 +11,7 @@
 
 / {
 	model = "DH Electronics STM32MP15xx DHCOM DRC02";
-	compatible = "dh,stm32mp15xx-dhcom-drc02", "st,stm32mp1xx";
+	compatible = "dh,stm32mp15xx-dhcom-drc02",
+		     "dh,stm32mp15xx-dhcom-som",
+		     "st,stm32mp1xx";
 };

@@ -11,5 +11,7 @@
 
 / {
 	model = "STMicroelectronics STM32MP15xx DHCOM Premium Developer Kit (2)";
-	compatible = "dh,stm32mp15xx-dhcom-pdk2", "st,stm32mp15x";
+	compatible = "dh,stm32mp15xx-dhcom-pdk2",
+		     "dh,stm32mp15xx-dhcom-som",
+		     "st,stm32mp15x";
 };
