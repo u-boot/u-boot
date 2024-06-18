@@ -48,8 +48,3 @@ int arch_cpu_init(void)
 	gd->ram_size = CFG_SYS_SDRAM_SIZE;
 	return 0;
 }
-
-int dram_init(void)
-{
-	return 0;
-}
