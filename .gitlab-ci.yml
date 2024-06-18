@@ -419,6 +419,12 @@ qemu-x86_64 test.py:
     TEST_PY_TEST_SPEC: "not sleep"
   <<: *buildman_and_testpy_dfn
 
+qemu-xtensa-dc233c test.py:
+  variables:
+    TEST_PY_BD: "qemu-xtensa-dc233c"
+    TEST_PY_TEST_SPEC: "not sleep and not efi"
+  <<: *buildman_and_testpy_dfn
+
 r2dplus_i82557c test.py:
   variables:
     TEST_PY_BD: "r2dplus"
