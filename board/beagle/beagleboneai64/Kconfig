@@ -37,7 +37,7 @@ config SYS_VENDOR
        default "beagle"
 
 config SYS_CONFIG_NAME
-       default "j721e_evm"
+       default "beagleboneai64"
 
 source "board/ti/common/Kconfig"
 
@@ -52,7 +52,7 @@ config SYS_VENDOR
        default "beagle"
 
 config SYS_CONFIG_NAME
-       default "j721e_evm"
+       default "beagleboneai64"
 
 source "board/ti/common/Kconfig"
 

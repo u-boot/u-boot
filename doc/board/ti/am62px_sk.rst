@@ -156,6 +156,30 @@ Image formats:
 .. image:: img/dm_tispl.bin.svg
   :alt: tispl.bin image format
 
+OSPI:
+-----
+ROM supports booting from OSPI from offset 0x0.
+
+Flashing images to OSPI:
+
+Below commands can be used to download tiboot3.bin, tispl.bin, and u-boot.img,
+over tftp and then flash those to OSPI at their respective addresses.
+
+.. prompt:: bash =>
+
+  sf probe
+  tftp ${loadaddr} tiboot3.bin
+  sf update $loadaddr 0x0 $filesize
+  tftp ${loadaddr} tispl.bin
+  sf update $loadaddr 0x80000 $filesize
+  tftp ${loadaddr} u-boot.img
+  sf update $loadaddr 0x280000 $filesize
+
+Flash layout for OSPI:
+
+.. image:: img/ospi_sysfw2.svg
+  :alt: OSPI flash partition layout
+
 A53 SPL DDR Memory Layout
 -------------------------
 
