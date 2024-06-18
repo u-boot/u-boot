@@ -473,8 +473,8 @@ stages:
     pool:
       vmImage: $(ubuntu_vm)
     strategy:
-      # Use almost the same target division in .travis.yml, only merged
-      # 3 small build jobs (arc/microblaze/xtensa) into one.
+      # We split the world up in to 10 jobs as we can have at most 10
+      # parallel jobs going on the free tier of Azure.
       matrix:
         am33xx_at91_kirkwood_mvebu_omap:
           BUILDMAN: "am33xx at91_kirkwood mvebu omap -x siemens"
