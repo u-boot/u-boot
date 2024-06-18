@@ -116,7 +116,6 @@ extern u32 clamp_tbl[];
 extern u32 freq_mask[MAX_DEVICE_NUM][MV_DDR_FREQ_LAST];
 
 extern u32 maxt_poll_tries;
-extern u32 is_bist_reset_bit;
 
 extern u8 vref_window_size[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 extern u32 effective_cs;

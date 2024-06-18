@@ -117,12 +117,9 @@ u32 ctrl_level_phase[MAX_CS_NUM * MAX_INTERFACE_NUM * MAX_BUS_NUM];
 #endif /* DDR_VIEWER_TOOL */
 
 struct hws_tip_config_func_db config_func_info[MAX_DEVICE_NUM];
-u8 is_default_centralization = 0;
-u8 is_tune_result = 0;
 u8 is_validate_window_per_if = 0;
 u8 is_validate_window_per_pup = 0;
 u8 sweep_cnt = 1;
-u32 is_bist_reset_bit = 1;
 u8 is_run_leveling_sweep_tests;
 
 static struct hws_xsb_info xsb_info[MAX_DEVICE_NUM];
