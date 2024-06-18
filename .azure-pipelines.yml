@@ -196,6 +196,34 @@ stages:
     steps:
       - script: make pip
 
+  - job: count_built_machines
+    displayName: 'Ensure we build all possible machines'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          BMANARGS="-o /tmp --dry-run -v"
+          # First get the total number of boards
+          total=$(tools/buildman/buildman ${BMANARGS} | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
+          # Now build up the list of what each job built.
+          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood_ls1_mvebu_omap) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_nxp_minus_imx_and_at91) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sunxi) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(powerpc) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_catch_all) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(aarch64_catch_all) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(everything_but_arm_and_powerpc) | grep '^   ')"
+          # Finally see how many machines that is.
+          actual=$(tools/buildman/buildman ${BMANARGS} $built | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
+          echo We would build a total of $actual out of $total platforms this CI run
+          [ $actual -eq $total ] && exit 0 || exit 1
+
   - job: create_test_py_wrapper_script
     displayName: 'Create and stage a wrapper for test.py runs'
     pool:
