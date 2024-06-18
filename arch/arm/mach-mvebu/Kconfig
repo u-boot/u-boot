@@ -37,6 +37,10 @@ config ARMADA_38X_HS_IMPEDANCE_THRESH
 	default 0x6
 	range 0x0 0x7
 
+config ARMADA_38X_SUPPORT_OLD_DDR3_TRAINING
+	bool
+	depends on ARMADA_38X
+
 config ARMADA_XP
 	bool
 	select ARMADA_32BIT

@@ -313,6 +313,33 @@ int board_return_to_bootrom(struct spl_image_info *spl_image,
 	hang();
 }
 
+#if !defined(CONFIG_ARMADA_375)
+__weak bool board_use_old_ddr3_training(void)
+{
+	return false;
+}
+
+static void ddr3_init_or_fail(void)
+{
+	int ret;
+
+	if (IS_ENABLED(CONFIG_ARMADA_38X_SUPPORT_OLD_DDR3_TRAINING) &&
+	    board_use_old_ddr3_training())
+		ret = old_ddr3_init();
+	else
+		ret = ddr3_init();
+
+	if (ret) {
+		printf("ddr3 init failed: %d\n", ret);
+		if (IS_ENABLED(CONFIG_DDR_RESET_ON_TRAINING_FAILURE) &&
+		    get_boot_device() != BOOT_DEVICE_UART)
+			reset_cpu();
+		else
+			hang();
+	}
+}
+#endif
+
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -347,15 +374,7 @@ void board_init_f(ulong dummy)
 	serdes_phy_config();
 
 	/* Setup DDR */
-	ret = ddr3_init();
-	if (ret) {
-		printf("ddr3_init() failed: %d\n", ret);
-		if (IS_ENABLED(CONFIG_DDR_RESET_ON_TRAINING_FAILURE) &&
-		    get_boot_device() != BOOT_DEVICE_UART)
-			reset_cpu();
-		else
-			hang();
-	}
+	ddr3_init_or_fail();
 #endif
 
 	/* Initialize Auto Voltage Scaling */

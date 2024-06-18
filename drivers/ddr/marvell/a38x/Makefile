@@ -18,6 +18,8 @@ obj-$(CONFIG_SPL_BUILD) += mv_ddr_spd.o
 obj-$(CONFIG_SPL_BUILD) += mv_ddr_topology.o
 obj-$(CONFIG_SPL_BUILD) += xor.o
 
+obj-$(CONFIG_ARMADA_38X_SUPPORT_OLD_DDR3_TRAINING) += old/
+
 ifdef CONFIG_DDR4
 	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_mpr_pda_if.o
 	obj-$(CONFIG_SPL_BUILD) += mv_ddr4_training.o
