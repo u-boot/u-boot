@@ -399,6 +399,15 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 	}
 #endif /* DDR_VIEWER_TOOL */
 
+	/* return early if we won't print anything anyway */
+	if (
+#if defined(SILENT_LIB)
+	    1 ||
+#endif
+	    debug_training < DEBUG_LEVEL_INFO) {
+		return MV_OK;
+	}
+
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
 		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 
