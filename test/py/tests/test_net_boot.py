@@ -156,7 +156,7 @@ def setup_tftpboot_boot(u_boot_console):
 
     return addr, timeout, pattern, chk_type, chk_pattern, config
 
-@pytest.mark.buildconfigspec('cmd_net')
+@pytest.mark.buildconfigspec('cmd_tftpboot')
 def test_net_tftpboot_boot(u_boot_console):
     """Boot the loaded image
 
@@ -209,7 +209,6 @@ def setup_pxe_boot(u_boot_console):
 
     return f, bootfile
 
-@pytest.mark.buildconfigspec('cmd_net')
 @pytest.mark.buildconfigspec('cmd_pxe')
 def test_net_pxe_boot(u_boot_console):
     """Test the pxe boot command.
@@ -261,7 +260,6 @@ def test_net_pxe_boot(u_boot_console):
             u_boot_console.drain_console()
             u_boot_console.cleanup_spawn()
 
-@pytest.mark.buildconfigspec('cmd_net')
 @pytest.mark.buildconfigspec('cmd_pxe')
 def test_net_pxe_boot_config(u_boot_console):
     """Test the pxe boot command by selecting different combination of labels
@@ -341,7 +339,6 @@ def test_net_pxe_boot_config(u_boot_console):
             u_boot_console.drain_console()
             u_boot_console.cleanup_spawn()
 
-@pytest.mark.buildconfigspec('cmd_net')
 @pytest.mark.buildconfigspec('cmd_pxe')
 def test_net_pxe_boot_config_invalid(u_boot_console):
     """Test the pxe boot command by selecting invalid label

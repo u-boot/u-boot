@@ -254,7 +254,7 @@ def test_net_network_discovery(u_boot_console):
     assert 'Set gatewayip6:' in output
     assert '0000:0000:0000:0000:0000:0000:0000:0000' not in output
 
-@pytest.mark.buildconfigspec('cmd_net')
+@pytest.mark.buildconfigspec('cmd_tftpboot')
 def test_net_tftpboot(u_boot_console):
     """Test the tftpboot command.
 
@@ -335,7 +335,6 @@ def test_net_nfs(u_boot_console):
     output = u_boot_console.run_command('crc32 %x $filesize' % addr)
     assert expected_crc in output
 
-@pytest.mark.buildconfigspec("cmd_net")
 @pytest.mark.buildconfigspec("cmd_pxe")
 def test_net_pxe_get(u_boot_console):
     """Test the pxe get command.
@@ -391,7 +390,7 @@ def test_net_pxe_get(u_boot_console):
     assert "Config file 'default.boot' found" in output
 
 @pytest.mark.buildconfigspec("cmd_crc32")
-@pytest.mark.buildconfigspec("cmd_net")
+@pytest.mark.buildconfigspec("cmd_tftpboot")
 @pytest.mark.buildconfigspec("cmd_tftpput")
 def test_net_tftpput(u_boot_console):
     """Test the tftpput command.
