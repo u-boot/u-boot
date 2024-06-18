@@ -1,0 +1,8 @@
+QEMU XTENSA 'VIRT' BOARD
+M:	Jiaxun Yang <jiaxun.yang@flygoat.com>
+M:	Max Filippov <jcmvbkbc@gmail.com>
+S:	Maintained
+F:	board/emulation/qemu-xtensa/
+F:	board/emulation/common/
+F:	include/configs/qemu-xtensa.h
+F:	configs/qemu-xtensa-dc233c_defconfig

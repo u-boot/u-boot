@@ -15,6 +15,10 @@ config TARGET_XTFPGA
 	bool "Support XTFPGA"
 	select BOARD_POSTCLK_INIT
 
+config TARGET_QEMU_XTENSA
+	bool "Support QEMU Xtensa Virt Board"
+	select BOARD_LATE_INIT
+
 endchoice
 
 config SYS_ICACHE_OFF
@@ -69,5 +73,6 @@ config XTENSA_SIMCALL_GDBIO
 endchoice
 
 source "board/cadence/xtfpga/Kconfig"
+source "board/emulation/qemu-xtensa/Kconfig"
 
 endmenu
