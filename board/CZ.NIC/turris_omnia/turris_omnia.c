@@ -429,12 +429,40 @@ struct omnia_eeprom {
 	u32 ramsize;
 	char region[4];
 	u32 crc;
+
+	/* second part (only considered if crc2 is not all-ones) */
+	u8 reserved[44];
+	u32 crc2;
 };
+
+static bool is_omnia_eeprom_second_part_valid(const struct omnia_eeprom *oep)
+{
+	return oep->crc2 != 0xffffffff;
+}
+
+static void make_omnia_eeprom_second_part_invalid(struct omnia_eeprom *oep)
+{
+	oep->crc2 = 0xffffffff;
+}
+
+static bool check_eeprom_crc(const void *buf, size_t size, u32 expected,
+			     const char *name)
+{
+	u32 crc;
+
+	crc = crc32(0, buf, size);
+	if (crc != expected) {
+		printf("bad %s EEPROM CRC (stored %08x, computed %08x)\n",
+		       name, expected, crc);
+		return false;
+	}
+
+	return true;
+}
 
 static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 {
 	struct udevice *chip;
-	u32 crc;
 	int ret;
 
 	chip = omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
@@ -455,12 +483,14 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 		return false;
 	}
 
-	crc = crc32(0, (void *)oep, sizeof(*oep) - 4);
-	if (crc != oep->crc) {
-		printf("bad EEPROM CRC (stored %08x, computed %08x)\n",
-		       oep->crc, crc);
+	if (!check_eeprom_crc(oep, offsetof(struct omnia_eeprom, crc), oep->crc,
+			      "first"))
 		return false;
-	}
+
+	if (is_omnia_eeprom_second_part_valid(oep) &&
+	    !check_eeprom_crc(oep, offsetof(struct omnia_eeprom, crc2),
+			      oep->crc2, "second"))
+		make_omnia_eeprom_second_part_invalid(oep);
 
 	return true;
 }

@@ -60,9 +60,13 @@ static struct eeprom_field omnia_layout[] = {
 	_DEF_FIELD("RAM size in GB", 4, ramsz),
 	_DEF_FIELD("Wi-Fi Region", 4, region),
 	_DEF_FIELD("CRC32 checksum", 4, bin),
+	_DEF_FIELD("Extended reserved fields", 44, reserved),
+	_DEF_FIELD("Extended CRC32 checksum", 4, bin),
 };
 
 static struct eeprom_field *crc_field = &omnia_layout[3];
+static struct eeprom_field *ext_crc_field =
+	&omnia_layout[ARRAY_SIZE(omnia_layout) - 1];
 
 static int omnia_update_field(struct eeprom_layout *layout, char *field_name,
 			      char *new_data)
@@ -91,6 +95,11 @@ static int omnia_update_field(struct eeprom_layout *layout, char *field_name,
 		put_unaligned_le32(crc, crc_field->buf);
 	}
 
+	if (field < ext_crc_field) {
+		u32 crc = crc32(0, layout->data, 44);
+		put_unaligned_le32(crc, ext_crc_field->buf);
+	}
+
 	return 0;
 }
 
@@ -99,7 +108,7 @@ void eeprom_layout_assign(struct eeprom_layout *layout, int)
 	layout->fields = omnia_layout;
 	layout->num_of_fields = ARRAY_SIZE(omnia_layout);
 	layout->update = omnia_update_field;
-	layout->data_size = 16;
+	layout->data_size = 64;
 }
 
 int eeprom_layout_detect(unsigned char *)
