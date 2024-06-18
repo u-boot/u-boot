@@ -152,17 +152,38 @@ enum log_level  {
 };
 
 /* Globals */
-extern u8 debug_training;
+#if defined(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS)
+static const u8 is_reg_dump = 0;
+static const u8 debug_training_static = DEBUG_LEVEL_ERROR;
+static const u8 debug_training = DEBUG_LEVEL_ERROR;
+static const u8 debug_leveling = DEBUG_LEVEL_ERROR;
+static const u8 debug_centralization = DEBUG_LEVEL_ERROR;
+static const u8 debug_training_ip = DEBUG_LEVEL_ERROR;
+static const u8 debug_training_bist = DEBUG_LEVEL_ERROR;
+static const u8 debug_training_hw_alg = DEBUG_LEVEL_ERROR;
+static const u8 debug_training_access = DEBUG_LEVEL_ERROR;
+static const u8 debug_training_a38x = DEBUG_LEVEL_ERROR;
+static const u8 debug_pbs = DEBUG_LEVEL_ERROR;
+#else /* !CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS */
 extern u8 is_reg_dump;
+extern u8 debug_training_static;
+extern u8 debug_training;
+extern u8 debug_leveling;
+extern u8 debug_centralization;
+extern u8 debug_training_ip;
+extern u8 debug_training_bist;
+extern u8 debug_training_hw_alg;
+extern u8 debug_training_access;
+extern u8 debug_training_a38x;
+extern u8 debug_pbs;
+#endif /* !CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS */
+
 extern u8 generic_init_controller;
 extern u32 freq_val[];
 extern u32 is_pll_old;
 extern struct cl_val_per_freq cas_latency_table[];
 extern struct pattern_info pattern_table[];
 extern struct cl_val_per_freq cas_write_latency_table[];
-extern u8 debug_training;
-extern u8 debug_centralization, debug_training_ip, debug_training_bist,
-	debug_pbs, debug_training_static, debug_leveling;
 extern u32 pipe_multicast_mask;
 extern struct hws_tip_config_func_db config_func_info[];
 extern u8 cs_mask_reg[];
@@ -186,8 +207,6 @@ extern u32 g_dic;
 extern u32 g_odt_config;
 extern u32 g_rtt_nom;
 
-extern u8 debug_training_access;
-extern u8 debug_training_a38x;
 extern u32 first_active_if;
 extern enum hws_ddr_freq init_freq;
 extern u32 delay_enable, ck_delay, ck_delay_16, ca_delay;
@@ -227,7 +246,6 @@ extern u32 znri_data_phy_val;
 extern u32 zpri_data_phy_val;
 extern u32 znri_ctrl_phy_val;
 extern u32 zpri_ctrl_phy_val;
-extern u8 debug_training_access;
 extern u32 finger_test, p_finger_start, p_finger_end, n_finger_start,
 	n_finger_end, p_finger_step, n_finger_step;
 extern u32 mode2_t;
@@ -243,8 +261,6 @@ extern u32 freq_mask[HWS_MAX_DEVICE_NUM][DDR_FREQ_LIMIT];
 extern u32 start_pattern, end_pattern;
 
 extern u32 maxt_poll_tries;
-extern u32 is_bist_reset_bit;
-extern u8 debug_training_bist;
 
 extern u8 vref_window_size[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 extern u32 debug_mode;
@@ -252,20 +268,16 @@ extern u32 effective_cs;
 extern int ddr3_tip_centr_skip_min_win_check;
 extern u32 *dq_map_table;
 extern enum auto_tune_stage training_stage;
-extern u8 debug_centralization;
 
 extern u32 delay_enable;
 extern u32 start_pattern, end_pattern;
 extern u32 freq_val[DDR_FREQ_LIMIT];
-extern u8 debug_training_hw_alg;
 extern enum auto_tune_stage training_stage;
 
-extern u8 debug_training_ip;
 extern enum hws_result training_result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM];
 extern enum auto_tune_stage training_stage;
 extern u32 effective_cs;
 
-extern u8 debug_leveling;
 extern enum hws_result training_result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM];
 extern enum auto_tune_stage training_stage;
 extern u32 rl_version;
@@ -276,7 +288,6 @@ extern u32 odt_config;
 extern u32 effective_cs;
 extern u32 phy_reg1_val;
 
-extern u8 debug_pbs;
 extern u32 effective_cs;
 extern u16 mask_results_dq_reg_map[];
 extern enum hws_ddr_freq medium_freq;
@@ -296,7 +307,6 @@ extern u32 init_freq;
 #endif
 /* list of allowed frequency listed in order of enum hws_ddr_freq */
 extern u32 freq_val[];
-extern u8 debug_training_static;
 extern u32 first_active_if;
 
 /* Prototypes */

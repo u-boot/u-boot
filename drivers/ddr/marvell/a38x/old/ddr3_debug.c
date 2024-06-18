@@ -12,13 +12,15 @@
 
 #include "ddr3_init.h"
 
+#if !defined(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS)
 u8 is_reg_dump = 0;
 u8 debug_pbs = DEBUG_LEVEL_ERROR;
+#endif
 
 /*
  * API to change flags outside of the lib
  */
-#ifndef SILENT_LIB
+#if !defined(SILENT_LIB) && !defined(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS)
 /* Debug flags for other Training modules */
 u8 debug_training_static = DEBUG_LEVEL_ERROR;
 u8 debug_training = DEBUG_LEVEL_ERROR;
@@ -83,12 +85,13 @@ void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 #endif
 
 struct hws_tip_config_func_db config_func_info[HWS_MAX_DEVICE_NUM];
-u8 is_default_centralization = 0;
-u8 is_tune_result = 0;
-u8 is_validate_window_per_if = 0;
-u8 is_validate_window_per_pup = 0;
-u8 sweep_cnt = 1;
-u32 is_bist_reset_bit = 1;
+
+#if 0
+static u8 is_validate_window_per_if = 0;
+static u8 is_validate_window_per_pup = 0;
+static u8 sweep_cnt = 1;
+#endif
+
 static struct hws_xsb_info xsb_info[HWS_MAX_DEVICE_NUM];
 
 /*
@@ -291,6 +294,7 @@ int print_device_info(u8 dev_num)
 	return MV_OK;
 }
 
+#if 0
 void hws_ddr3_tip_sweep_test(int enable)
 {
 	if (enable) {
@@ -302,6 +306,7 @@ void hws_ddr3_tip_sweep_test(int enable)
 		is_validate_window_per_pup = 0;
 	}
 }
+#endif
 #endif
 
 char *ddr3_tip_convert_tune_result(enum hws_result tune_result)
@@ -326,6 +331,7 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 	u32 if_id = 0;
 	struct hws_topology_map *tm = ddr3_get_topology_map();
 
+#if 0
 #ifndef EXCLUDE_SWITCH_DEBUG
 	if ((is_validate_window_per_if != 0) ||
 	    (is_validate_window_per_pup != 0)) {
@@ -347,6 +353,16 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 		ddr3_tip_reg_dump(dev_num);
 	}
 #endif
+#endif
+
+	/* return early if we won't print anything anyway */
+	if (
+#if defined(SILENT_LIB)
+	    1 ||
+#endif
+	    debug_training < DEBUG_LEVEL_INFO) {
+		return MV_OK;
+	}
 
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
 		VALIDATE_ACTIVE(tm->if_act_mask, if_id);
@@ -756,7 +772,9 @@ u32 xsb_test_table[][8] = {
 	 0xffffffff, 0xffffffff}
 };
 
+#if 0
 static int ddr3_tip_access_atr(u32 dev_num, u32 flag_id, u32 value, u32 **ptr);
+#endif
 
 int ddr3_tip_print_adll(void)
 {
@@ -788,6 +806,7 @@ int ddr3_tip_print_adll(void)
 	return MV_OK;
 }
 
+#if 0
 /*
  * Set attribute value
  */
@@ -1155,6 +1174,7 @@ static int ddr3_tip_access_atr(u32 dev_num, u32 flag_id, u32 value, u32 **ptr)
 
 	return MV_OK;
 }
+#endif
 
 #ifndef EXCLUDE_SWITCH_DEBUG
 /*

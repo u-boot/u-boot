@@ -385,7 +385,8 @@ int ddr3_init(void)
 		return status;
 
 	/* Set log level for training lib */
-	ddr3_hws_set_log_level(DEBUG_BLOCK_ALL, DEBUG_LEVEL_ERROR);
+	if (!IS_ENABLED(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS))
+		ddr3_hws_set_log_level(DEBUG_BLOCK_ALL, DEBUG_LEVEL_ERROR);
 
 	/* Start New Training IP */
 	status = ddr3_hws_hw_training();
