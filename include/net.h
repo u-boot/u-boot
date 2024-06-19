@@ -914,7 +914,7 @@ static inline struct in_addr env_get_ip(char *var)
  */
 void reset_phy(void);
 
-#if CONFIG_IS_ENABLED(NET)
+#if CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)
 /**
  * eth_set_enable_bootdevs() - Enable or disable binding of Ethernet bootdevs
  *

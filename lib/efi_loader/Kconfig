@@ -505,8 +505,9 @@ config EFI_RISCV_BOOT_PROTOCOL
 
 config EFI_HTTP_BOOT
 	bool "EFI HTTP Boot support"
-	select CMD_DNS
-	select CMD_WGET
+	select CMD_DNS if NET
+	select CMD_WGET if NET
+	select CMD_WGET_LWIP if NET_LWIP
 	select BLKMAP
 	help
 	  Enabling this option adds EFI HTTP Boot support. It allows to
