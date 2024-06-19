@@ -118,16 +118,11 @@ static int do_cli(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
-static char cli_help_text[] =
+U_BOOT_LONGHELP(cli,
 	"get - print current cli\n"
-	"set - set the current cli, possible value are: old, modern"
-	;
-#endif
+	"set - set the current cli, possible value are: old, modern\n");
 
 U_BOOT_CMD(cli, 3, 1, do_cli,
 	   "cli",
-#if CONFIG_IS_ENABLED(SYS_LONGHELP)
 	   cli_help_text
-#endif
 );

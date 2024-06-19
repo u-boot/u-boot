@@ -71,10 +71,9 @@ static int do_versalnet_load_pdi(struct cmd_tbl *cmdtp, int flag, int argc,
 	return cmd_process_error(cmdtp, ret);
 }
 
-static char versalnet_help_text[] =
+U_BOOT_LONGHELP(versalnet,
 	"loadpdi addr len - Load pdi image\n"
-	"load pdi image at ddr address 'addr' with pdi image size 'len'\n"
-;
+	"load pdi image at ddr address 'addr' with pdi image size 'len'\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(versalnet, "Versal NET sub-system", versalnet_help_text,
 			U_BOOT_SUBCMD_MKENT(loadpdi, 3, 1,

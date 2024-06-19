@@ -19,10 +19,9 @@ static struct cmd_tbl cmd_sub[] = {
 			 "", ""),
 };
 
-static char exception_help_text[] =
+U_BOOT_LONGHELP(exception,
 	"<ex>\n"
 	"  The following exceptions are available:\n"
-	"  undefined  - undefined instruction\n"
-	;
+	"  undefined  - undefined instruction\n");
 
 #include <exception.h>

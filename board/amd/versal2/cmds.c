@@ -71,10 +71,9 @@ static int do_versal2_load_pdi(struct cmd_tbl *cmdtp, int flag, int argc,
 	return cmd_process_error(cmdtp, ret);
 }
 
-static char versal2_help_text[] =
+U_BOOT_LONGHELP(versal2,
 	"loadpdi addr len - Load pdi image\n"
-	"load pdi image at ddr address 'addr' with pdi image size 'len'\n"
-;
+	"load pdi image at ddr address 'addr' with pdi image size 'len'\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(versal2, "Versal Gen 2 sub-system", versal2_help_text,
 			U_BOOT_SUBCMD_MKENT(loadpdi, 3, 1,

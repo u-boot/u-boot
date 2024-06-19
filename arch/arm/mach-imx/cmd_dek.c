@@ -395,10 +395,10 @@ static int do_dek_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 /***************************************************/
-static char dek_blob_help_text[] =
+U_BOOT_LONGHELP(dek_blob,
 	"src dst len            - Encapsulate and create blob of data\n"
 	"                         $len bits long at address $src and\n"
-	"                         store the result at address $dst.\n";
+	"                         store the result at address $dst.\n");
 
 U_BOOT_CMD(
 	dek_blob, 4, 1, do_dek_blob,
