@@ -65,6 +65,15 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 	}
 }
 
+/*
+ * Default implementation:
+ * do a range flush for the entire range
+ */
+void flush_dcache_all(void)
+{
+	flush_dcache_range(0, ~0);
+}
+
 void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
 	u32 v;
