@@ -55,7 +55,6 @@ static int sandbox_iommu_probe(struct udevice *dev)
 {
 	struct sandbox_iommu_priv *priv = dev_get_priv(dev);
 
-	lmb_init(&priv->lmb);
 	lmb_add(&priv->lmb, 0x89abc000, SZ_16K);
 
 	return 0;
