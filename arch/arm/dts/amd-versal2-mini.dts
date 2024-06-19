@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Empty device tree for amd-versal2-mini
+ *
+ * Copyright (C) 2024, Advanced Micro Devices, Inc.
+ */
+
+/dts-v1/;
+
+/ {
+};
