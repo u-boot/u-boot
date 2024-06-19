@@ -302,6 +302,7 @@ void board_init_f(ulong dummy)
 				mdelay(10);
 			}
 			pinctrl_select_state(bus, "default");
+			mdelay(10);
 		}
 	}
 	/* Wait indefiniately until the GSC probes */
