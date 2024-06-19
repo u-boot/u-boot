@@ -75,6 +75,9 @@ int board_phy_config(struct phy_device *phydev)
 		val |= 0xb << 8; /* LED2(Green;Link/Act): blink for TX/RX act */
 		phy_write(phydev, MDIO_DEVAD_NONE, 24, val);
 		break;
+	case 0xd565a401: /* MaxLinear GPY111 */
+		puts("GPY111 ");
+		break;
 	}
 
 	if (phydev->drv->config)
