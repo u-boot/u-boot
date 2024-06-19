@@ -240,7 +240,7 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 }
 
 #ifdef CONFIG_LMB
-static void boot_start_lmb(struct bootm_headers *images)
+static void boot_start_lmb(void)
 {
 	phys_addr_t	mem_start;
 	phys_size_t	mem_size;
@@ -248,12 +248,11 @@ static void boot_start_lmb(struct bootm_headers *images)
 	mem_start = env_get_bootm_low();
 	mem_size = env_get_bootm_size();
 
-	lmb_init_and_reserve_range(&images->lmb, mem_start,
-				   mem_size, NULL);
+	lmb_init_and_reserve_range(mem_start, mem_size, NULL);
 }
 #else
-#define lmb_reserve(lmb, base, size)
-static inline void boot_start_lmb(struct bootm_headers *images) { }
+#define lmb_reserve(base, size)
+static inline void boot_start_lmb(void) { }
 #endif
 
 static int bootm_start(void)
@@ -261,7 +260,7 @@ static int bootm_start(void)
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = env_get_yesno("verify");
 
-	boot_start_lmb(&images);
+	boot_start_lmb();
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_START, "bootm_start");
 	images.state = BOOTM_STATE_START;
@@ -640,7 +639,7 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	if (os.type == IH_TYPE_KERNEL_NOLOAD && os.comp != IH_COMP_NONE) {
 		ulong req_size = ALIGN(image_len * 4, SZ_1M);
 
-		load = lmb_alloc(&images->lmb, req_size, SZ_2M);
+		load = lmb_alloc(req_size, SZ_2M);
 		if (!load)
 			return 1;
 		os.load = load;
@@ -714,8 +713,7 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		images->os.end = relocated_addr + image_size;
 	}
 
-	lmb_reserve(&images->lmb, images->os.load, (load_end -
-						    images->os.load));
+	lmb_reserve(images->os.load, (load_end - images->os.load));
 	return 0;
 }
 
@@ -1029,8 +1027,9 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 	if (!ret && (states & BOOTM_STATE_RAMDISK)) {
 		ulong rd_len = images->rd_end - images->rd_start;
 
-		ret = boot_ramdisk_high(&images->lmb, images->rd_start,
-			rd_len, &images->initrd_start, &images->initrd_end);
+		ret = boot_ramdisk_high(images->rd_start, rd_len,
+					&images->initrd_start,
+					&images->initrd_end);
 		if (!ret) {
 			env_set_hex("initrd_start", images->initrd_start);
 			env_set_hex("initrd_end", images->initrd_end);
@@ -1039,9 +1038,8 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 #endif
 #if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_LMB)
 	if (!ret && (states & BOOTM_STATE_FDT)) {
-		boot_fdt_add_mem_rsv_regions(&images->lmb, images->ft_addr);
-		ret = boot_relocate_fdt(&images->lmb, &images->ft_addr,
-					&images->ft_len);
+		boot_fdt_add_mem_rsv_regions(images->ft_addr);
+		ret = boot_relocate_fdt(&images->ft_addr, &images->ft_len);
 	}
 #endif
 
