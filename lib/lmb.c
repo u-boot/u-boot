@@ -130,21 +130,6 @@ static void lmb_fix_over_lap_regions(struct lmb_region *rgn, unsigned long r1,
 	lmb_remove_region(rgn, r2);
 }
 
-void lmb_init(struct lmb *lmb)
-{
-#if IS_ENABLED(CONFIG_LMB_USE_MAX_REGIONS)
-	lmb->memory.max = CONFIG_LMB_MAX_REGIONS;
-	lmb->reserved.max = CONFIG_LMB_MAX_REGIONS;
-#else
-	lmb->memory.max = CONFIG_LMB_MEMORY_REGIONS;
-	lmb->reserved.max = CONFIG_LMB_RESERVED_REGIONS;
-	lmb->memory.region = lmb->memory_regions;
-	lmb->reserved.region = lmb->reserved_regions;
-#endif
-	lmb->memory.cnt = 0;
-	lmb->reserved.cnt = 0;
-}
-
 void arch_lmb_reserve_generic(struct lmb *lmb, ulong sp, ulong end, ulong align)
 {
 	ulong bank_end;
@@ -231,8 +216,6 @@ void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
 {
 	int i;
 
-	lmb_init(lmb);
-
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		if (bd->bi_dram[i].size) {
 			lmb_add(lmb, bd->bi_dram[i].start,
@@ -247,7 +230,6 @@ void lmb_init_and_reserve(struct lmb *lmb, struct bd_info *bd, void *fdt_blob)
 void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
 				phys_size_t size, void *fdt_blob)
 {
-	lmb_init(lmb);
 	lmb_add(lmb, base, size);
 	lmb_reserve_common(lmb, fdt_blob);
 }
