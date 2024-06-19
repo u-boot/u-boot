@@ -70,7 +70,7 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		fdt_set_totalsize((void *)fdt_addr,
 				fdt_totalsize(fdt_addr) + CONFIG_SYS_FDT_PAD);
-		if (image_setup_libfdt(&img, (void *)fdt_addr, NULL))
+		if (image_setup_libfdt(&img, (void *)fdt_addr, false))
 			return 1;
 	}
 #endif
