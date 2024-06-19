@@ -5,6 +5,7 @@
  */
 
 #include <cpu_func.h>
+#include <stdio.h>
 #include <asm/cache.h>
 #include <watchdog.h>
 
@@ -51,4 +52,9 @@ void flush_cache(ulong start_addr, ulong size)
 void flush_dcache_all(void)
 {
 	flush_dcache_range(0, ~0);
+}
+
+void invalidate_icache_all(void)
+{
+	puts("No arch specific invalidate_icache_all available!\n");
 }
