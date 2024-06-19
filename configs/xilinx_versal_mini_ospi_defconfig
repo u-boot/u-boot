@@ -51,7 +51,7 @@ CONFIG_SYS_PROMPT="Versal> "
 # CONFIG_CMD_ITEST is not set
 # CONFIG_CMD_SOURCE is not set
 # CONFIG_CMD_SETEXPR is not set
-# CONFIG_NET is not set
+CONFIG_NO_NET=y
 # CONFIG_DM_DEVICE_REMOVE is not set
 # CONFIG_MMC is not set
 CONFIG_MTD=y
