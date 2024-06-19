@@ -30,9 +30,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static ulong get_sp (void);
 static void set_clocks_in_mhz (struct bd_info *kbd);
 
-void arch_lmb_reserve(struct lmb *lmb)
+void arch_lmb_reserve(void)
 {
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 1024);
+	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 1024);
 }
 
 int do_bootm_linux(int flag, struct bootm_info *bmi)
@@ -41,7 +41,6 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	int ret;
 	struct bd_info  *kbd;
 	void  (*kernel) (struct bd_info *, ulong, ulong, ulong, ulong);
-	struct lmb *lmb = &images->lmb;
 
 	/*
 	 * allow the PREP bootm subcommand, it is required for bootm to work
@@ -53,7 +52,7 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 		return 1;
 
 	/* allocate space for kernel copy of board info */
-	ret = boot_get_kbd (lmb, &kbd);
+	ret = boot_get_kbd(&kbd);
 	if (ret) {
 		puts("ERROR with allocation of kernel bd\n");
 		goto error;
