@@ -807,6 +807,74 @@ static const struct mtk_gate infra_cgs[] = {
 };
 
 /* pericfg */
+static const int peri_id_offs_map[] = {
+	/* MUX CLK */
+	[CLK_PERI_UART0_SEL]			= 1,
+	[CLK_PERI_UART1_SEL]			= 2,
+	[CLK_PERI_UART2_SEL]			= 3,
+	[CLK_PERI_UART3_SEL]			= 4,
+	/* GATE CLK */
+	[CLK_PERI_NFI]				= 5,
+	[CLK_PERI_THERM]			= 6,
+	[CLK_PERI_PWM1]				= 7,
+	[CLK_PERI_PWM2]				= 8,
+	[CLK_PERI_PWM3]				= 9,
+	[CLK_PERI_PWM4]				= 10,
+	[CLK_PERI_PWM5]				= 11,
+	[CLK_PERI_PWM6]				= 12,
+	[CLK_PERI_PWM7]				= 13,
+	[CLK_PERI_PWM]				= 14,
+	[CLK_PERI_USB0]				= 15,
+	[CLK_PERI_USB1]				= 16,
+	[CLK_PERI_AP_DMA]			= 17,
+	[CLK_PERI_MSDC30_0]			= 18,
+	[CLK_PERI_MSDC30_1]			= 19,
+	[CLK_PERI_MSDC30_2]			= 20,
+	[CLK_PERI_MSDC30_3]			= 21,
+	[CLK_PERI_MSDC50_3]			= 22,
+	[CLK_PERI_NLI]				= 23,
+	[CLK_PERI_UART0]			= 24,
+	[CLK_PERI_UART1]			= 25,
+	[CLK_PERI_UART2]			= 26,
+	[CLK_PERI_UART3]			= 27,
+	[CLK_PERI_BTIF]				= 28,
+	[CLK_PERI_I2C0]				= 29,
+	[CLK_PERI_I2C1]				= 30,
+	[CLK_PERI_I2C2]				= 31,
+	[CLK_PERI_I2C3]				= 32,
+	[CLK_PERI_AUXADC]			= 33,
+	[CLK_PERI_SPI0]				= 34,
+	[CLK_PERI_ETH]				= 35,
+	[CLK_PERI_USB0_MCU]			= 36,
+	[CLK_PERI_USB1_MCU]			= 37,
+	[CLK_PERI_USB_SLV]			= 38,
+	[CLK_PERI_GCPU]				= 39,
+	[CLK_PERI_NFI_ECC]			= 40,
+	[CLK_PERI_NFI_PAD]			= 41,
+	[CLK_PERI_FLASH]			= 42,
+	[CLK_PERI_HOST89_INT]			= 43,
+	[CLK_PERI_HOST89_SPI]			= 44,
+	[CLK_PERI_HOST89_DVD]			= 45,
+	[CLK_PERI_SPI1]				= 46,
+	[CLK_PERI_SPI2]				= 47,
+	[CLK_PERI_FCI]				= 48,
+};
+
+#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
+#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
+
+static const struct mtk_parent uart_ck_sel_parents[] = {
+	XTAL_PARENT(CLK_XTAL),
+	TOP_PARENT(CLK_TOP_UART_SEL),
+};
+
+static const struct mtk_composite peri_muxes[] = {
+	MUX_MIXED(CLK_PERI_UART0_SEL, uart_ck_sel_parents, 0x40C, 0, 1),
+	MUX_MIXED(CLK_PERI_UART1_SEL, uart_ck_sel_parents, 0x40C, 1, 1),
+	MUX_MIXED(CLK_PERI_UART2_SEL, uart_ck_sel_parents, 0x40C, 2, 1),
+	MUX_MIXED(CLK_PERI_UART3_SEL, uart_ck_sel_parents, 0x40C, 3, 1),
+};
+
 static const struct mtk_gate_regs peri0_cg_regs = {
 	.set_ofs = 0x8,
 	.clr_ofs = 0x10,
@@ -980,6 +1048,7 @@ static int mt7623_topckgen_probe(struct udevice *dev)
 static const struct mtk_clk_tree mt7623_clk_gate_tree = {
 	/* Each CLK ID for gates clock starts at index 1 */
 	.gates_offs = 1,
+	.xtal_rate = 26 * MHZ,
 };
 
 static int mt7623_infracfg_probe(struct udevice *dev)
@@ -988,10 +1057,18 @@ static int mt7623_infracfg_probe(struct udevice *dev)
 					infra_cgs);
 }
 
+static const struct mtk_clk_tree mt7623_clk_peri_tree = {
+	.id_offs_map = peri_id_offs_map,
+	.muxes_offs = peri_id_offs_map[CLK_PERI_UART0_SEL],
+	.gates_offs = peri_id_offs_map[CLK_PERI_NFI],
+	.muxes = peri_muxes,
+	.gates = peri_cgs,
+	.xtal_rate = 26 * MHZ,
+};
+
 static int mt7623_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
-					peri_cgs);
+	return mtk_common_clk_infrasys_init(dev, &mt7623_clk_peri_tree);
 }
 
 static int mt7623_hifsys_probe(struct udevice *dev)
@@ -1098,7 +1175,7 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.of_match = mt7623_pericfg_compat,
 	.probe = mt7623_pericfg_probe,
 	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
