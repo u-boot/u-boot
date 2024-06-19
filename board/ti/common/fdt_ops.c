@@ -6,7 +6,7 @@
  */
 
 #include <env.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include "fdt_ops.h"
 
 void ti_set_fdt_env(const char *board_name, struct ti_fdt_map *fdt_map)
