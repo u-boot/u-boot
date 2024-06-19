@@ -673,7 +673,7 @@ quiet_cmd_fdtgrep = FDTGREP $@
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
 		-P bootph-all -P bootph-pre-ram -P bootph-pre-sram \
-		-P bootph-verify \
+		-P bootph-verify -P bootph-some-ram \
 		$(migrate_all) \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
 
