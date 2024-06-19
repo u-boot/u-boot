@@ -134,6 +134,15 @@ void dcache_invalid(void)
 #endif
 }
 
+/*
+ * Default implementation:
+ * do a range flush for the entire range
+ */
+__weak void flush_dcache_all(void)
+{
+	flush_dcache_range(0, ~0);
+}
+
 __weak void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
 	/* An empty stub, real implementation should be in platform code */
