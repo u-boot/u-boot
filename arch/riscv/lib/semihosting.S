@@ -8,7 +8,7 @@
 
 .pushsection .text.smh_trap, "ax"
 ENTRY(smh_trap)
-	.align	2
+	.align	4		/* keep slli, ebreak, srai in same page */
 	.option	push
 	.option	norvc		/* semihosting sequence must be 32-bit wide */
 
