@@ -12,6 +12,7 @@ config TARGET_AM625_A53_BEAGLEPLAY
 	bool "BeagleBoard.org AM625 BeaglePlay running on A53"
 	select ARM64
 	select BINMAN
+	select OF_SYSTEM_SETUP
 
 config TARGET_AM625_R5_BEAGLEPLAY
 	bool "BeagleBoard.org AM625 BeaglePlay running on R5"
