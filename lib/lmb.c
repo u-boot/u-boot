@@ -740,3 +740,28 @@ static int lmb_init(void)
 
 	return 0;
 }
+
+/**
+ * initr_lmb() - Initialise the LMB lists
+ *
+ * Initialise the LMB lists needed for keeping the memory map. There
+ * are two lists, in form of alloced list data structure. One for the
+ * available memory, and one for the used memory. Initialise the two
+ * lists as part of board init.
+ *
+ * Return: 0 on success, -ve on error
+ */
+int initr_lmb(void)
+{
+#if CONFIG_IS_ENABLED(LMB)
+	int ret;
+
+	ret = lmb_init();
+	if (ret)
+		printf("Unable to initialise the LMB data structures\n");
+
+	return ret;
+#else
+	return 0;
+#endif
+}
