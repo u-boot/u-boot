@@ -686,6 +686,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 				SPL_SYS_MALLOC_SIZE);
 		gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 	}
+
 	if (!(gd->flags & GD_FLG_SPL_INIT)) {
 		if (spl_init())
 			hang();
@@ -722,6 +723,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) ||
 	    IS_ENABLED(CONFIG_SPL_ATF))
 		dram_init_banksize();
+
+	if (IS_ENABLED(CONFIG_SPL_LMB))
+		initr_lmb();
 
 	if (CONFIG_IS_ENABLED(PCI) && !(gd->flags & GD_FLG_DM_DEAD)) {
 		ret = pci_init();
