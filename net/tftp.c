@@ -83,7 +83,7 @@ static ulong	tftp_block_wrap;
 static ulong	tftp_block_wrap_offset;
 static int	tftp_state;
 static ulong	tftp_load_addr;
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 static ulong	tftp_load_size;
 #endif
 #ifdef CONFIG_TFTP_TSIZE
@@ -161,7 +161,7 @@ static inline int store_block(int block, uchar *src, unsigned int len)
 	ulong store_addr = tftp_load_addr + offset;
 	void *ptr;
 
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 	ulong end_addr = tftp_load_addr + tftp_load_size;
 
 	if (!end_addr)
@@ -711,7 +711,7 @@ static void tftp_timeout_handler(void)
 /* Initialize tftp_load_addr and tftp_load_size from image_load_addr and lmb */
 static int tftp_init_load_addr(void)
 {
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 	phys_size_t max_size;
 
 	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
