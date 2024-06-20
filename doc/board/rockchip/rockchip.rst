@@ -72,7 +72,6 @@ List of mainline supported Rockchip boards:
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
      - Rockchip Sheep (sheep-rk3368)
-     - Theobroma Systems RK3368-uQ7 SoM - Lion (lion-rk3368)
 * rk3399
      - 96boards RK3399 Ficus (ficus-rk3399)
      - 96boards Rock960 (rock960-rk3399)
