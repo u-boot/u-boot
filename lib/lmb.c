@@ -707,7 +707,10 @@ int lmb_mem_regions_init(struct bd_info *bd, void *fdt_blob)
 	lmb_memory = lmb_free_mem.data;
 	lmb_used = lmb_used_mem.data;
 
-	lmb_add_memory(bd)
+	if (IS_ENABLED(CONFIG_LMB))
+		lmb_reserve_common(fdt_blob);
+
+	lmb_add_memory(bd);
 
 	return 0;
 }
