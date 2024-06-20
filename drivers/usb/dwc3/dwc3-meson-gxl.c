@@ -26,7 +26,6 @@
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/compat.h>
-#include <asm/arch/usb-gx.h>
 
 /* USB Glue Control Registers */
 
@@ -193,7 +192,7 @@ static int dwc3_meson_gxl_usb_init(struct dwc3_meson_gxl *priv)
 	return 0;
 }
 
-int dwc3_meson_gxl_force_mode(struct udevice *dev, enum usb_dr_mode mode)
+static int dwc3_meson_gxl_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 {
 	struct dwc3_meson_gxl *priv = dev_get_plat(dev);
 
