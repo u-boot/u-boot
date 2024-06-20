@@ -239,7 +239,7 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	return 0;
 }
 
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 static void boot_start_lmb(void)
 {
 	phys_addr_t	mem_start;
@@ -1036,7 +1036,7 @@ int bootm_run_states(struct bootm_info *bmi, int states)
 		}
 	}
 #endif
-#if CONFIG_IS_ENABLED(OF_LIBFDT) && defined(CONFIG_LMB)
+#if CONFIG_IS_ENABLED(OF_LIBFDT) && CONFIG_IS_ENABLED(LMB)
 	if (!ret && (states & BOOTM_STATE_FDT)) {
 		boot_fdt_add_mem_rsv_regions(images->ft_addr);
 		ret = boot_relocate_fdt(&images->ft_addr, &images->ft_len);
