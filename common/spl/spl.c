@@ -686,6 +686,10 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 				SPL_SYS_MALLOC_SIZE);
 		gd->flags |= GD_FLG_FULL_MALLOC_INIT;
 	}
+
+	if (IS_ENABLED(CONFIG_SPL_LMB))
+		initr_lmb();
+
 	if (!(gd->flags & GD_FLG_SPL_INIT)) {
 		if (spl_init())
 			hang();
