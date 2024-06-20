@@ -158,9 +158,9 @@ static int dwc3_meson_gxl_usb2_init(struct dwc3_meson_gxl *priv)
 		if (!priv->phys[i].dev)
 			continue;
 
-		phy_meson_gxl_usb2_set_mode(&priv->phys[i],
-				(i == USB2_OTG_PHY) ? USB_DR_MODE_PERIPHERAL
-						    : USB_DR_MODE_HOST);
+		generic_phy_set_mode(&priv->phys[i],
+				(i == USB2_OTG_PHY) ? PHY_MODE_USB_DEVICE
+						    : PHY_MODE_USB_HOST, 0);
 	}
 
 	return 0;
@@ -224,7 +224,9 @@ int dwc3_meson_gxl_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 #endif
 	priv->otg_phy_mode = mode;
 
-	phy_meson_gxl_usb2_set_mode(&priv->phys[USB2_OTG_PHY], mode);
+	generic_phy_set_mode(&priv->phys[USB2_OTG_PHY],
+			     mode == USB_DR_MODE_PERIPHERAL ? PHY_MODE_USB_DEVICE
+							    : PHY_MODE_USB_HOST, 0);
 
 	dwc3_meson_gxl_usb2_set_mode(priv, mode);
 
@@ -361,8 +363,9 @@ static int dwc3_meson_gxl_probe(struct udevice *dev)
 	}
 
 	if (priv->phys[USB2_OTG_PHY].dev)
-		phy_meson_gxl_usb2_set_mode(&priv->phys[USB2_OTG_PHY],
-					    priv->otg_phy_mode);
+		generic_phy_set_mode(&priv->phys[USB2_OTG_PHY],
+			priv->otg_phy_mode == USB_DR_MODE_PERIPHERAL ? PHY_MODE_USB_DEVICE
+								     : PHY_MODE_USB_HOST, 0);
 
 	dwc3_meson_gxl_usb2_set_mode(priv, priv->otg_phy_mode);
 
