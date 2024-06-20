@@ -10,4 +10,4 @@ F:	include/configs/tiger_rk3588.h
 F:	arch/arm/dts/rk3588-tiger*
 F:	configs/tiger-rk3588_defconfig
 W:	https://embedded.cherry.de/product/tiger-som-rk3588-q7/
-T:	git git://git.embedded.cherry.de/tiger-u-boot.git
+T:	git https://git.embedded.cherry.de/tiger-u-boot.git
