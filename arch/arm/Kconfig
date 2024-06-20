@@ -1272,7 +1272,7 @@ config ARCH_ZYNQ
 	select OF_CONTROL
 	select MTD
 	select SPI
-	select SPL_BOARD_INIT if SPL
+	select SPL_ARCH_INIT if SPL
 	select SPL_CLK if SPL
 	select SPL_DM if SPL
 	select SPL_DM_SPI if SPL
@@ -1315,7 +1315,7 @@ config ARCH_ZYNQMP
 	imply FIRMWARE
 	select GICV2
 	select OF_CONTROL
-	select SPL_BOARD_INIT if SPL
+	select SPL_ARCH_INIT if SPL
 	select SPL_CLK if SPL
 	select SPL_DM if SPL
 	select SPL_DM_SPI if SPI && SPL_DM

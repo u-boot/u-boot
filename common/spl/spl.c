@@ -711,6 +711,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		}
 	}
 
+	if (CONFIG_IS_ENABLED(ARCH_INIT))
+		spl_arch_init();
+
 	if (CONFIG_IS_ENABLED(BOARD_INIT))
 		spl_board_init();
 
