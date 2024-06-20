@@ -37,6 +37,17 @@ struct lmb_region {
 };
 
 /**
+ * initr_lmb() - Initialise the LMB lists
+ *
+ * Initialise the LMB lists needed for keeping the memory map. There
+ * are two lists, in form of alloced list data structure. One for the
+ * available memory, and one for the used memory.
+ *
+ * Return: 0 on success, -ve on error
+ */
+int initr_lmb(void);
+
+/**
  * lmb_add_memory() - Add memory range for LMB allocations
  *
  * Add the entire available memory range to the pool of memory that
