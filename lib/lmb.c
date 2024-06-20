@@ -173,10 +173,11 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve(sp, bank_end - sp + 1);
+		lmb_reserve_flags(sp, bank_end - sp + 1, LMB_NOOVERWRITE);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve((phys_addr_t)(uintptr_t)_start, gd->mon_len);
+			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
+				    gd->mon_len, LMB_NOOVERWRITE);
 
 		break;
 	}
@@ -738,6 +739,9 @@ int lmb_mem_regions_init(void)
 	}
 
 	lmb_add_memory();
+
+	if (IS_ENABLED(CONFIG_LMB))
+		lmb_reserve_common((void *)gd->fdt_blob);
 
 	return 0;
 }
