@@ -50,6 +50,20 @@ struct lmb {
 };
 
 /**
+ * lmb_init() - Initialise the LMB module
+ *
+ * Initialise the LMB lists needed for keeping the memory map. There
+ * are two lists, in form of alloced list data structure. One for the
+ * available memory, and one for the used memory. Initialise the two
+ * lists as part of board init. Add memory to the available memory
+ * list and reserve common areas by adding them to the used memory
+ * list.
+ *
+ * Return: 0 on success, -ve on error
+ */
+int lmb_init(void);
+
+/**
  * lmb_add_memory() - Add memory range for LMB allocations
  *
  * Add the entire available memory range to the pool of memory that
