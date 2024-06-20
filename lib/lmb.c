@@ -706,3 +706,23 @@ int lmb_mem_regions_init(struct bd_info *bd, void *fdt_blob)
 
 	return 0;
 }
+
+/**
+ * initr_lmb() - Initialise the LMB lists
+ *
+ * Initialise the LMB lists needed for keeping the memory map. There
+ * are two lists, in form of alloced list data structure. One for the
+ * available memory, and one for the used memory.
+ *
+ * Return: 0 on success, -ve on error
+ */
+int initr_lmb(void)
+{
+	int ret;
+
+	ret = lmb_mem_regions_init(gd->bd, (void *)gd->fdt_blob);
+	if (ret)
+		printf("Unable to initialise the LMB data structures\n");
+
+	return ret;
+}
