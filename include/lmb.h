@@ -13,6 +13,8 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
+struct alist;
+
 /**
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request
@@ -109,6 +111,11 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
  * Return: 0 if OK, -ve on failure.
  */
 int lmb_mem_regions_init(void);
+
+#if CONFIG_IS_ENABLED(UT_LMB)
+int lmb_init(struct alist **mem_lst, struct alist **used_lst);
+void lmb_uninit(struct alist *mem_lst, struct alist *used_lst);
+#endif /* UT_LMB */
 
 #endif /* __KERNEL__ */
 
