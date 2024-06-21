@@ -740,16 +740,23 @@ __weak void arch_lmb_reserve(void)
 
 /**
  * lmb_mem_regions_init() - Initialise the LMB memory
+ * @mem_lst: Pointer to store location of free memory list
+ * @used_lst: Pointer to store location of used memory list
+ * @add_rsv_mem: flag to indicate if memory is to be added and reserved
  *
  * Initialise the LMB subsystem related data structures. There are two
  * alloced lists that are initialised, one for the free memory, and one
  * for the used memory.
  *
- * Initialise the two lists as part of board init.
+ * Initialise the two lists as part of board init during boot. When called
+ * from a test, passes the pointers to the two lists to the caller. The
+ * caller is then required to call the corresponding function to uninit
+ * the lists.
  *
  * Return: 0 if OK, -ve on failure.
  */
-int lmb_mem_regions_init(void)
+int lmb_mem_regions_init(struct alist **mem_lst, struct alist **used_lst,
+			 bool add_rsv_mem)
 {
 	bool ret;
 
@@ -767,6 +774,15 @@ int lmb_mem_regions_init(void)
 		return -1;
 	}
 
+	if (mem_lst)
+		*mem_lst = &lmb_free_mem;
+
+	if (used_lst)
+		*used_lst = &lmb_used_mem;
+
+	if (!add_rsv_mem)
+		return 0;
+
 	lmb_add_memory();
 
 	/* Reserve the U-Boot image region once U-Boot has relocated */
@@ -776,6 +792,22 @@ int lmb_mem_regions_init(void)
 		lmb_reserve_common((void *)gd->fdt_blob);
 
 	return 0;
+}
+
+/**
+ * lmb_mem_regions_uninit() - Unitialise the lmb lists
+ * @mem_lst: Pointer to store location of free memory list
+ * @used_lst: Pointer to store location of used memory list
+ *
+ * Unitialise the LMB lists for free and used memory that was
+ * initialised as part of the init function. Called when running
+ * lmb test routines.
+ */
+void __maybe_unused lmb_mem_regions_uninit(struct alist *mem_lst,
+					   struct alist *used_lst)
+{
+	alist_uninit(mem_lst);
+	alist_uninit(used_lst);
 }
 
 /**
@@ -791,7 +823,7 @@ int initr_lmb(void)
 {
 	int ret;
 
-	ret = lmb_mem_regions_init();
+	ret = lmb_mem_regions_init(NULL, NULL, true);
 	if (ret)
 		printf("Unable to initialise the LMB data structures\n");
 
