@@ -16,6 +16,7 @@
 #include <expo.h>
 #include <malloc.h>
 #include <menu.h>
+#include <u-boot/schedule.h>
 #include <video_console.h>
 #include <watchdog.h>
 #include <linux/delay.h>

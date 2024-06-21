@@ -9,6 +9,7 @@
 #include <dfu.h>
 #include <malloc.h>
 #include <serial.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/lists.h>

@@ -26,6 +26,7 @@
 #include <asm/mach-imx/sys_proto.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dm.h>
 #include <dm/pinctrl.h>

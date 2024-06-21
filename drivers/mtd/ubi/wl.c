@@ -94,6 +94,7 @@
 #include <linux/kthread.h>
 #else
 #include <ubi_uboot.h>
+#include <u-boot/schedule.h>
 #endif
 
 #include "ubi.h"

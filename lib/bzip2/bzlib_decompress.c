@@ -1,4 +1,5 @@
 #include <config.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 /*-------------------------------------------------------------*/

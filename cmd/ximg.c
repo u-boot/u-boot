@@ -19,6 +19,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #if defined(CONFIG_BZIP2)
 #include <bzlib.h>

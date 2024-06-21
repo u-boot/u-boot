@@ -10,6 +10,7 @@
 #include <common.h>
 #include <irq_func.h>
 #include <asm/processor.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #ifdef CONFIG_LED_STATUS
 #include <status_led.h>

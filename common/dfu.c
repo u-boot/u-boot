@@ -13,6 +13,7 @@
 #include <common.h>
 #include <command.h>
 #include <log.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dfu.h>
 #include <console.h>

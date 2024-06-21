@@ -23,6 +23,7 @@
 #include <u-boot/crc.h>
 #include <dm/ofnode.h>
 #include <net.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;

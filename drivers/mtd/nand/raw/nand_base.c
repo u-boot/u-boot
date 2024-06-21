@@ -31,6 +31,7 @@
 #include <common.h>
 #include <log.h>
 #include <malloc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dm/devres.h>
 #include <linux/bitops.h>

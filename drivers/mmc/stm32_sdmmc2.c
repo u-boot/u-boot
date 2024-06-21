@@ -26,6 +26,7 @@
 #include <asm/gpio.h>
 #include <linux/iopoll.h>
 #include <power/regulator.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <linux/printk.h>
 

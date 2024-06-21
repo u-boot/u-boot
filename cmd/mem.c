@@ -24,6 +24,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <rand.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

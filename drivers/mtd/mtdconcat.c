@@ -28,6 +28,7 @@
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/concat.h>
+#include <u-boot/schedule.h>
 
 #include <ubi_uboot.h>
 

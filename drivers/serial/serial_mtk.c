@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <log.h>
 #include <serial.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

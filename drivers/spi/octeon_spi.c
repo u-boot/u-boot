@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>

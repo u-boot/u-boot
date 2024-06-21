@@ -119,6 +119,7 @@
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <u-boot/crc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>

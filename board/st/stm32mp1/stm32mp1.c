@@ -32,6 +32,7 @@
 #include <remoteproc.h>
 #include <reset.h>
 #include <syscon.h>
+#include <u-boot/schedule.h>
 #include <usb.h>
 #include <watchdog.h>
 #include <asm/global_data.h>

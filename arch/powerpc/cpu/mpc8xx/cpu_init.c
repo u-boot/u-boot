@@ -5,6 +5,7 @@
  */
 
 #include <init.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 #include <mpc8xx.h>

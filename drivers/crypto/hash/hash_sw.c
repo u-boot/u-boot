@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <u-boot/hash.h>
 #include <u-boot/crc.h>

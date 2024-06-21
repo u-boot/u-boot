@@ -19,6 +19,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/mx6-pins.h>
+#include <u-boot/schedule.h>
 #include "asm/arch/crm_regs.h"
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/imx-regs.h>

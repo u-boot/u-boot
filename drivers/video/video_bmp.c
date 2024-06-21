@@ -9,6 +9,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <splash.h>
+#include <u-boot/schedule.h>
 #include <video.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>

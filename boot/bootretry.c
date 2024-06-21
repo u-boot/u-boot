@@ -10,6 +10,7 @@
 #include <env.h>
 #include <errno.h>
 #include <time.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 static uint64_t endtime;  /* must be set, default is instant timeout */

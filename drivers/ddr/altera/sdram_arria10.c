@@ -10,6 +10,7 @@
 #include <init.h>
 #include <log.h>
 #include <malloc.h>
+#include <u-boot/schedule.h>
 #include <wait_bit.h>
 #include <watchdog.h>
 #include <asm/cache.h>

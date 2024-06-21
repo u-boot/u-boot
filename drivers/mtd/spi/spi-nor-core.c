@@ -12,6 +12,7 @@
 #include <common.h>
 #include <display_options.h>
 #include <log.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <dm.h>
 #include <dm/device_compat.h>

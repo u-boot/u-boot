@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cpu_func.h>
+#include <u-boot/schedule.h>
 
 /*
  * CPU test

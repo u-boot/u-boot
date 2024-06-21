@@ -13,6 +13,7 @@
 #include <sysinfo.h>
 #include <time.h>
 #include <timer.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
 #include <asm/ptrace.h>

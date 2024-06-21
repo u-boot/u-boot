@@ -20,6 +20,7 @@
 #include <pci_ids.h>
 #include <power/regulator.h>
 #include <time.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/delay.h>

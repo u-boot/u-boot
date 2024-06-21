@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <stdio_dev.h>
+#include <u-boot/schedule.h>
 #include <version.h>
 #include <watchdog.h>
 

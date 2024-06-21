@@ -15,6 +15,7 @@
 #endif
 #include <compiler.h>
 #include <u-boot/crc.h>
+#include <u-boot/schedule.h>
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 #include <watchdog.h>

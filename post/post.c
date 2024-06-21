@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <time.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <div64.h>
 #include <post.h>

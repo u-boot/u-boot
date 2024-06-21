@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>

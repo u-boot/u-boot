@@ -31,6 +31,7 @@
 #include <watchdog.h>
 #endif /* USE_HOSTCC */
 #include <u-boot/md5.h>
+#include <u-boot/schedule.h>
 
 static void
 MD5Transform(__u32 buf[4], __u32 const in[16]);

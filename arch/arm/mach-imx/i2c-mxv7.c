@@ -10,6 +10,7 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 int force_idle_bus(void *priv)

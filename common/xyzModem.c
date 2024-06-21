@@ -22,6 +22,7 @@
  *==========================================================================
  */
 #include <common.h>
+#include <u-boot/schedule.h>
 #include <xyzModem.h>
 #include <stdarg.h>
 #include <u-boot/crc.h>

@@ -7,6 +7,7 @@
 #include <common.h>
 #include <cpu_func.h>
 #include <asm/cache.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 
 static ulong maybe_watchdog_reset(ulong flushed)

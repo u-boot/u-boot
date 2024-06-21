@@ -18,6 +18,7 @@
 #include <dm/ofnode.h>
 #include <errno.h>
 #include <fs_loader.h>
+#include <u-boot/schedule.h>
 #include <wait_bit.h>
 #include <watchdog.h>
 #include <linux/bitops.h>

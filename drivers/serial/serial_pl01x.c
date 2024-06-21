@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <asm/global_data.h>
+#include <u-boot/schedule.h>
 /* For get_bus_freq() */
 #include <clock_legacy.h>
 #include <dm.h>

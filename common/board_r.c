@@ -54,6 +54,7 @@
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>
+#include <u-boot/schedule.h>
 #include <watchdog.h>
 #include <xen.h>
 #include <asm/sections.h>
