@@ -242,6 +242,26 @@ void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob)
 	lmb_reserve_common(fdt_blob);
 }
 
+/**
+ * lmb_add_memory() - Add memory range for LMB allocations
+ * @bd: pointer to board info structure
+ *
+ * Add the entire available memory range to the pool of memory that
+ * can be used by the LMB module for allocations.
+ *
+ * Return: None
+ *
+ */
+void lmb_add_memory(struct bd_info *bd)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		if (bd->bi_dram[i].size)
+			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
+	}
+}
+
 /* Initialize the struct, add memory and call arch/board reserve functions */
 void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
 				void *fdt_blob)
@@ -699,6 +719,8 @@ int lmb_mem_regions_init(struct bd_info *bd, void *fdt_blob)
 
 	lmb_memory = lmb_free_mem.data;
 	lmb_used = lmb_used_mem.data;
+
+	lmb_add_memory(bd)
 
 	return 0;
 }

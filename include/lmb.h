@@ -36,6 +36,18 @@ struct lmb_region {
 	enum lmb_flags flags;
 };
 
+/**
+ * lmb_add_memory() - Add memory range for LMB allocations
+ * @bd: pointer to board info structure
+ *
+ * Add the entire available memory range to the pool of memory that
+ * can be used by the LMB module for allocations.
+ *
+ * Return: None
+ *
+ */
+void lmb_add_memory(struct bd_info *bd);
+
 long lmb_add(phys_addr_t base, phys_size_t size);
 long lmb_reserve(phys_addr_t base, phys_size_t size);
 /**
