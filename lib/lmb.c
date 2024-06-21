@@ -853,3 +853,38 @@ int initr_lmb(void)
 
 	return ret;
 }
+
+#if CONFIG_IS_ENABLED(UT_LMB)
+int lmb_init(struct alist **mem_lst, struct alist **used_lst)
+{
+	bool ret;
+
+	ret = alist_init(&lmb_free_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB free memory\n");
+		return -1;
+	}
+
+	ret = alist_init(&lmb_used_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB used memory\n");
+		return -1;
+	}
+
+	lmb_memory = lmb_free_mem.data;
+	lmb_used = lmb_used_mem.data;
+
+	*mem_lst = &lmb_free_mem;
+	*used_lst = &lmb_used_mem;
+
+	return 0;
+}
+
+void lmb_uninit(struct alist *mem_lst, struct alist *used_lst)
+{
+	alist_uninit(mem_lst);
+	alist_uninit(used_lst);
+}
+#endif /* UT_LMB */
