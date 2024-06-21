@@ -629,6 +629,74 @@ U_BOOT_DRIVER(mtk_clk_infracfg_ao) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
+/* sgmiisys */
+static const struct mtk_gate_regs sgmii_cg_regs = {
+	.set_ofs = 0xe4,
+	.clr_ofs = 0xe4,
+	.sta_ofs = 0xe4,
+};
+
+#define GATE_SGMII(_id, _name, _parent, _shift)                                \
+	{                                                                      \
+		.id = _id, .parent = _parent, .regs = &sgmii_cg_regs,          \
+		.shift = _shift,                                               \
+		.flags = CLK_GATE_NO_SETCLR_INV | CLK_PARENT_TOPCKGEN,         \
+	}
+
+static const struct mtk_gate sgmii0_cgs[] = {
+	GATE_SGMII(CK_SGM0_TX_EN, "sgm0_tx_en", CK_TOP_USB_TX250M, 2),
+	GATE_SGMII(CK_SGM0_RX_EN, "sgm0_rx_en", CK_TOP_USB_EQ_RX250M, 3),
+	GATE_SGMII(CK_SGM0_CK0_EN, "sgm0_ck0_en", CK_TOP_USB_LN0_CK, 4),
+	GATE_SGMII(CK_SGM0_CDR_CK0_EN, "sgm0_cdr_ck0_en", CK_TOP_USB_CDR_CK, 5),
+};
+
+static int mt7981_sgmii0sys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7981_topckgen_clk_tree,
+					sgmii0_cgs);
+}
+
+static const struct udevice_id mt7981_sgmii0sys_compat[] = {
+	{ .compatible = "mediatek,mt7981-sgmiisys_0", },
+	{}
+};
+
+U_BOOT_DRIVER(mtk_clk_sgmii0sys) = {
+	.name = "mt7981-clock-sgmii0sys",
+	.id = UCLASS_CLK,
+	.of_match = mt7981_sgmii0sys_compat,
+	.probe = mt7981_sgmii0sys_probe,
+	.priv_auto = sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
+};
+
+static const struct mtk_gate sgmii1_cgs[] = {
+	GATE_SGMII(CK_SGM1_TX_EN, "sgm1_tx_en", CK_TOP_USB_TX250M, 2),
+	GATE_SGMII(CK_SGM1_RX_EN, "sgm1_rx_en", CK_TOP_USB_EQ_RX250M, 3),
+	GATE_SGMII(CK_SGM1_CK1_EN, "sgm1_ck1_en", CK_TOP_USB_LN0_CK, 4),
+	GATE_SGMII(CK_SGM1_CDR_CK1_EN, "sgm1_cdr_ck1_en", CK_TOP_USB_CDR_CK, 5),
+};
+
+static int mt7981_sgmii1sys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7981_topckgen_clk_tree,
+					sgmii1_cgs);
+}
+
+static const struct udevice_id mt7981_sgmii1sys_compat[] = {
+	{ .compatible = "mediatek,mt7981-sgmiisys_1", },
+	{}
+};
+
+U_BOOT_DRIVER(mtk_clk_sgmii1sys) = {
+	.name = "mt7981-clock-sgmii1sys",
+	.id = UCLASS_CLK,
+	.of_match = mt7981_sgmii1sys_compat,
+	.probe = mt7981_sgmii1sys_probe,
+	.priv_auto = sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
+};
+
 /* ethsys */
 static const struct mtk_gate_regs eth_cg_regs = {
 	.set_ofs = 0x30,
