@@ -7,7 +7,9 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#if defined(CONFIG_BLK)
 #include <blk.h>
+#endif
 #include <dm.h>
 #include <dm/root.h>
 #include <log.h>
@@ -699,6 +701,7 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
 	}
 }
 
+#if defined(CONFIG_BLK)
 static unsigned dp_part_size(struct blk_desc *desc, int part)
 {
 	unsigned dpsize;
@@ -853,6 +856,7 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 
 	return buf;
 }
+#endif
 
 /**
  * path_to_uefi() - convert UTF-8 path to an UEFI style path
@@ -1051,7 +1055,9 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 			      struct efi_device_path **device,
 			      struct efi_device_path **file)
 {
+#if defined(CONFIG_BLK)
 	struct blk_desc *desc = NULL;
+#endif
 	struct efi_device_path *dp;
 	struct disk_partition fs_partition;
 	size_t image_size;
@@ -1073,12 +1079,17 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	} else if (!strcmp(dev, "Uart")) {
 		dp = efi_dp_from_uart();
 	} else {
+#if defined(CONFIG_BLK)
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
 		if (part < 0 || !desc)
 			return EFI_INVALID_PARAMETER;
 
 		dp = efi_dp_from_part(desc, part);
+#else
+		return EFI_UNSUPPORTED;
+#endif
+
 	}
 	if (device)
 		*device = dp;

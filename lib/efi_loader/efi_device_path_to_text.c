@@ -5,7 +5,9 @@
  *  Copyright (c) 2017 Heinrich Schuchardt
  */
 
+#if defined(CONFIG_BLK)
 #include <blk.h>
+#endif
 #include <efi_loader.h>
 #include <malloc.h>
 
