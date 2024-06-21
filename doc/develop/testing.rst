@@ -69,7 +69,7 @@ build::
 
    ./test/py/test.py --bd sandbox_spl --build -k test_spl
 
-See test/py/README.md for more information about the pytest suite.
+See :doc:`py_testing` for more information about the pytest suite.
 
 See :doc:`tests_sandbox` for how to run tests directly (not through pytest).
 
