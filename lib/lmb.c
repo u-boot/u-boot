@@ -246,6 +246,43 @@ void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
 	lmb_reserve_common(fdt_blob);
 }
 
+/**
+ * lmb_add_memory() - Add memory range for LMB allocations
+ *
+ * Add the entire available memory range to the pool of memory that
+ * can be used by the LMB module for allocations.
+ *
+ * Return: None
+ */
+void lmb_add_memory(void)
+{
+	int i;
+	phys_size_t size;
+	phys_addr_t rgn_top;
+	u64 ram_top = gd->ram_top;
+	struct bd_info *bd = gd->bd;
+
+	/* Assume a 4GB ram_top if not defined */
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		size = bd->bi_dram[i].size;
+		if (size) {
+			if (bd->bi_dram[i].start > ram_top)
+				continue;
+
+			rgn_top = bd->bi_dram[i].start +
+				bd->bi_dram[i].size;
+
+			if (rgn_top > ram_top)
+				size -= rgn_top - ram_top;
+
+			lmb_add(bd->bi_dram[i].start, size);
+		}
+	}
+}
+
 static long lmb_resize_regions(struct alist *lmb_rgn_lst,
 			       unsigned long idx_start,
 			       phys_addr_t base, phys_size_t size)
@@ -695,6 +732,8 @@ int lmb_init(void)
 		log_info("Unable to init LMB\n");
 		return ret;
 	}
+
+	lmb_add_memory();
 
 	return 0;
 }
