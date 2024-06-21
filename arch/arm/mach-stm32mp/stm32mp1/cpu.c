@@ -141,9 +141,6 @@ int mach_cpu_init(void)
 
 void enable_caches(void)
 {
-	/* parse device tree when data cache is still activated */
-	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
-
 	/* I-cache is already enabled in start.S: icache_enable() not needed */
 
 	/* deactivate the data cache, early enabled in arch_cpu_init() */
