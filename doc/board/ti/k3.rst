@@ -203,6 +203,11 @@ online
 Build Procedure
 ---------------
 
+.. note ::
+
+   Make sure you have installed all necessary host package dependencies
+   before proceeding. See :ref:`build/gcc:Building with GCC`.
+
 Depending on the specifics of your device, you will need three or more
 binaries to boot your SoC.
 
@@ -386,6 +391,30 @@ wakeup and main domain and to boot to the U-Boot prompt
 
    | `tispl.bin` for HS devices or `tispl.bin_unsigned` for GP devices
    | `u-boot.img` for HS devices or `u-boot.img_unsigned` for GP devices
+
+Capsules
+--------
+
+Most K3 boards have support for UEFI capsule update via capsule-on-disk
+functionality. Check the ``CONFIG_EFI_CAPSULE_ON_DISK`` config option for
+the board under question to verify. If configured, capsules for each of the
+binaries above are automatically generated as part of the binary's build.
+They are named `<binary>-capsule.bin`. For example, the capsule for
+`u-boot.img` would be called `uboot-capsule.bin`.
+
+See :ref:`uefi_capsule_update_ref` for more information on U-Boot's support
+for capsule update and how they are applied.
+
+Each board defines the capsules generated, including where those capsules
+are applied. See the ``update_info`` definition for a board, typically
+found at `board/ti/<board>/evm.c`. For example, `board/ti/am62x/evm.c`.
+Usually, if the board has OSPI flash, the capsules will be applied there,
+else the boot partition of the eMMC device.
+
+Once applied, the board will have U-Boot binaries in on-board non-volatile
+storage. To start booting from that storage, set the bootmode pins
+accordingly. Future updates can be performed by using the capsules
+generated from the corresponding U-Boot builds.
 
 FIT signature signing
 ---------------------
