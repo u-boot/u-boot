@@ -32,6 +32,8 @@
 #define SDCC_MCI_STATUS2_MCI_ACT 0x1
 #define SDCC_MCI_HC_MODE 0x78
 
+#define CORE_VENDOR_SPEC_POR_VAL 0xa9c
+
 struct msm_sdhc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -46,6 +48,7 @@ struct msm_sdhc {
 struct msm_sdhc_variant_info {
 	bool mci_removed;
 
+	u32 core_vendor_spec;
 	u32 core_vendor_spec_capabilities0;
 };
 
@@ -54,10 +57,13 @@ DECLARE_GLOBAL_DATA_PTR;
 static int msm_sdc_clk_init(struct udevice *dev)
 {
 	struct msm_sdhc *prv = dev_get_priv(dev);
+	const struct msm_sdhc_variant_info *var_info;
 	ofnode node = dev_ofnode(dev);
 	ulong clk_rate;
 	int ret, i = 0, n_clks;
 	const char *clk_name;
+
+	var_info = (void *)dev_get_driver_data(dev);
 
 	ret = ofnode_read_u32(node, "clock-frequency", (uint *)(&clk_rate));
 	if (ret)
@@ -104,6 +110,9 @@ static int msm_sdc_clk_init(struct udevice *dev)
 		log_warning("Couldn't set MMC core clock rate: %dE\n", clk_rate ? (int)PTR_ERR((void *)clk_rate) : 0);
 		return -EINVAL;
 	}
+
+	writel_relaxed(CORE_VENDOR_SPEC_POR_VAL,
+		       prv->host.ioaddr + var_info->core_vendor_spec);
 
 	return 0;
 }
@@ -254,12 +263,14 @@ static int msm_sdc_bind(struct udevice *dev)
 static const struct msm_sdhc_variant_info msm_sdhc_mci_var = {
 	.mci_removed = false,
 
+	.core_vendor_spec = 0x10c,
 	.core_vendor_spec_capabilities0 = 0x11c,
 };
 
 static const struct msm_sdhc_variant_info msm_sdhc_v5_var = {
 	.mci_removed = true,
 
+	.core_vendor_spec = 0x20c,
 	.core_vendor_spec_capabilities0 = 0x21c,
 };
 
