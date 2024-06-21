@@ -321,6 +321,13 @@ config BOOTM_EFI
 	help
 	  Support booting UEFI FIT images via the bootm command.
 
+config BOOTM_ELF
+	bool "Support booting ELF images"
+	depends on CMD_BOOTM && LIB_ELF
+	default n
+	help
+	  Support booting ELF images via the bootm command.
+
 config CMD_BOOTZ
 	bool "bootz"
 	help

@@ -8,6 +8,7 @@
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <efi_loader.h>
+#include <elf.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <image.h>
@@ -394,6 +395,20 @@ static int do_bootm_qnxelf(int flag, struct bootm_info *bmi)
 }
 #endif
 
+#if defined(CONFIG_BOOTM_ELF)
+static int do_bootm_elf(int flag, struct bootm_info *bmi)
+{
+	Bootelf_flags flags = { .autostart = 1 };
+
+	if (flag != BOOTM_STATE_OS_GO)
+		return 0;
+
+	bootelf(bmi->images->ep, flags, 0, NULL);
+
+	return 1;
+}
+#endif
+
 #ifdef CONFIG_INTEGRITY
 static int do_bootm_integrity(int flag, struct bootm_info *bmi)
 {
@@ -534,6 +549,9 @@ static boot_os_fn *boot_os[] = {
 #endif
 #ifdef CONFIG_BOOTM_EFI
 	[IH_OS_EFI] = do_bootm_efi,
+#endif
+#if defined(CONFIG_BOOTM_ELF)
+	[IH_OS_ELF] = do_bootm_elf,
 #endif
 };
 
