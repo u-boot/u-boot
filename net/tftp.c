@@ -718,8 +718,6 @@ static int tftp_init_load_addr(void)
 	if (CONFIG_IS_ENABLED(LMB)) {
 		phys_size_t max_size;
 
-		lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
-
 		max_size = lmb_get_free_size(image_load_addr);
 		if (!max_size)
 			return -1;
