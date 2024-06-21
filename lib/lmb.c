@@ -769,3 +769,29 @@ int initr_lmb(void)
 	return 0;
 #endif
 }
+
+#if CONFIG_IS_ENABLED(UNIT_TEST)
+struct lmb *lmb_get(void)
+{
+	return &lmb;
+}
+
+int lmb_push(struct lmb *store)
+{
+	int ret;
+
+	*store = lmb;
+	ret = lmb_setup(true);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+void lmb_pop(struct lmb *store)
+{
+	alist_uninit(&lmb.free_mem);
+	alist_uninit(&lmb.used_mem);
+	lmb = *store;
+}
+#endif /* UNIT_TEST */
