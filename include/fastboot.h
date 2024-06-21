@@ -12,6 +12,8 @@
 #ifndef _FASTBOOT_H_
 #define _FASTBOOT_H_
 
+#include <linux/types.h>
+
 #define FASTBOOT_VERSION	"0.4"
 
 /*
