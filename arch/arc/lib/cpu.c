@@ -7,7 +7,7 @@
 #include <clock_legacy.h>
 #include <init.h>
 #include <malloc.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <asm/arcregs.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
