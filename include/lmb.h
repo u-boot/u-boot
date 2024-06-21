@@ -13,6 +13,8 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
+struct alist;
+
 /**
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request
@@ -90,16 +92,34 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
 
 /**
  * lmb_mem_regions_init() - Initialise the LMB memory
+ * @mem_lst: Pointer to store location of free memory list
+ * @used_lst: Pointer to store location of used memory list
+ * @add_rsv_mem: flag to indicate if memory is to be added and reserved
  *
  * Initialise the LMB subsystem related data structures. There are two
  * alloced lists that are initialised, one for the free memory, and one
  * for the used memory.
  *
- * Initialise the two lists as part of board init.
+ * Initialise the two lists as part of board init during boot. When called
+ * from a test, passes the pointers to the two lists to the caller. The
+ * caller is then required to call the corresponding function to uninit
+ * the lists.
  *
  * Return: 0 if OK, -ve on failure.
  */
-int lmb_mem_regions_init(void);
+int lmb_mem_regions_init(struct alist **mem_lst, struct alist **used_lst,
+			 bool add_rsv_mem);
+
+/**
+ * lmb_mem_regions_uninit() - Unitialise the lmb lists
+ * @mem_lst: Pointer to store location of free memory list
+ * @used_lst: Pointer to store location of used memory list
+ *
+ * Unitialise the LMB lists for free and used memory that was
+ * initialised as part of the init function. Called when running
+ * lmb test routines.
+ */
+void lmb_mem_regions_uninit(struct alist *mem_lst, struct alist *used_lst);
 
 #endif /* __KERNEL__ */
 
