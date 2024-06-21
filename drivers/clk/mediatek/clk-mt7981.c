@@ -89,7 +89,7 @@ static const struct mtk_fixed_factor top_fixed_divs[] = {
 	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_CB_CKSQ_40M, 1,
 		   1220),
 	TOP_FACTOR(CK_TOP_USB_TX250M, "usb_tx250m", CK_TOP_CB_CKSQ_40M, 1, 1),
-	TOP_FACTOR(CK_TOP_FAUD, "faud", CK_TOP_CB_CKSQ_40M, 1, 1),
+	TOP_FACTOR(CK_TOP_FAUD, "faud", CK_TOP_AUD_SEL, 1, 1),
 	TOP_FACTOR(CK_TOP_NFI1X, "nfi1x", CK_TOP_NFI1X_SEL, 1, 1),
 	TOP_FACTOR(CK_TOP_USB_EQ_RX250M, "usb_eq_rx250m", CK_TOP_CB_CKSQ_40M, 1,
 		   1),
