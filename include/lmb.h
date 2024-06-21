@@ -49,7 +49,6 @@ struct lmb {
 	struct alist used_mem;
 };
 
-void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob);
 void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
 				void *fdt_blob);
 long lmb_add(phys_addr_t base, phys_size_t size);
