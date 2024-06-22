@@ -554,7 +554,7 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 		if (elog->log_size) {
 			if (log.found) {
 				if (elog->log_size < log.log_position)
-					return -ENOSPC;
+					return -ENOBUFS;
 
 				/*
 				 * Copy the discovered log into the user buffer
