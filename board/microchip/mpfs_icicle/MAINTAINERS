@@ -1,5 +1,5 @@
 Microchip MPFS icicle
-M:	Padmarao Begari <padmarao.begari@microchip.com>
+M:	Conor Dooley <conor.dooley@microchip.com>
 M:	Cyril Jean <cyril.jean@microchip.com>
 S:	Maintained
 F:	board/microchip/mpfs_icicle/
