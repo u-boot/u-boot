@@ -700,7 +700,7 @@ class BuilderThread(threading.Thread):
                         job.work_in_output, job.adjust_cfg)
                 failed = result.return_code or result.stderr
                 did_config = do_config
-                if failed and not do_config:
+                if failed and not do_config and not self.mrproper:
                     # If our incremental build failed, try building again
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
