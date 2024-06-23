@@ -18,6 +18,7 @@
 
 #include <efi_api.h>
 #include <tpm-v2.h>
+#include <tpm_tcg2.h>
 
 /* TPMV2 only */
 #define TCG2_EVENT_LOG_FORMAT_TCG_2 0x00000002

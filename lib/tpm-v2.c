@@ -10,6 +10,7 @@
 #include <tpm_api.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
+#include <tpm_tcg2.h>
 #include <u-boot/sha1.h>
 #include <u-boot/sha256.h>
 #include <u-boot/sha512.h>
