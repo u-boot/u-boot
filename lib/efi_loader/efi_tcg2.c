@@ -16,7 +16,6 @@
 #include <malloc.h>
 #include <smbios.h>
 #include <version_string.h>
-#include <tpm-v2.h>
 #include <tpm_api.h>
 #include <u-boot/hash-checksum.h>
 #include <linux/unaligned/be_byteshift.h>
