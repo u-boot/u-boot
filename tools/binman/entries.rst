@@ -470,11 +470,11 @@ updating the EC on startup via software sync.
 
 .. _etype_efi_capsule:
 
-Entry: capsule: Entry for generating EFI Capsule files
-------------------------------------------------------
+Entry: efi-capsule: Generate EFI capsules
+-----------------------------------------
 
-The parameters needed for generation of the capsules can be provided
-as properties in the entry.
+The parameters needed for generation of the capsules can
+be provided as properties in the entry.
 
 Properties / Entry arguments:
     - image-index: Unique number for identifying corresponding
@@ -495,9 +495,9 @@ Properties / Entry arguments:
       file. Mandatory property for generating signed capsules.
     - oem-flags - OEM flags to be passed through capsule header.
 
-    Since this is a subclass of Entry_section, all properties of the parent
-    class also apply here. Except for the properties stated as mandatory, the
-    rest of the properties are optional.
+Since this is a subclass of Entry_section, all properties of the parent
+class also apply here. Except for the properties stated as mandatory, the
+rest of the properties are optional.
 
 For more details on the description of the capsule format, and the capsule
 update functionality, refer Section 8.5 and Chapter 23 in the `UEFI
@@ -510,17 +510,17 @@ provided as a subnode of the capsule entry.
 A typical capsule entry node would then look something like this::
 
     capsule {
-            type = "efi-capsule";
-            image-index = <0x1>;
-            /* Image GUID for testing capsule update */
-            image-guid = SANDBOX_UBOOT_IMAGE_GUID;
-            hardware-instance = <0x0>;
-            private-key = "path/to/the/private/key";
-            public-key-cert = "path/to/the/public-key-cert";
-            oem-flags = <0x8000>;
+        type = "efi-capsule";
+        image-index = <0x1>;
+        /* Image GUID for testing capsule update */
+        image-guid = SANDBOX_UBOOT_IMAGE_GUID;
+        hardware-instance = <0x0>;
+        private-key = "path/to/the/private/key";
+        public-key-cert = "path/to/the/public-key-cert";
+        oem-flags = <0x8000>;
 
-            u-boot {
-            };
+        u-boot {
+        };
     };
 
 In the above example, the capsule payload is the U-Boot image. The
@@ -534,8 +534,8 @@ payload using the blob-ext subnode.
 
 .. _etype_efi_empty_capsule:
 
-Entry: efi-empty-capsule: Entry for generating EFI Empty Capsule files
-----------------------------------------------------------------------
+Entry: efi-empty-capsule: Generate EFI empty capsules
+-----------------------------------------------------
 
 The parameters needed for generation of the empty capsules can
 be provided as properties in the entry.
@@ -551,22 +551,22 @@ update functionality, refer Section 8.5 and Chapter 23 in the `UEFI
 specification`_. For more information on the empty capsule, refer the
 sections 2.3.2 and 2.3.3 in the `Dependable Boot specification`_.
 
-A typical accept empty capsule entry node would then look something
-like this::
+A typical accept empty capsule entry node would then look something like
+this::
 
     empty-capsule {
-            type = "efi-empty-capsule";
-            /* GUID of the image being accepted */
-            image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
-            capsule-type = "accept";
+        type = "efi-empty-capsule";
+        /* GUID of image being accepted */
+        image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
+        capsule-type = "accept";
     };
 
-A typical revert empty capsule entry node would then look something
-like this::
+A typical revert empty capsule entry node would then look something like
+this::
 
     empty-capsule {
-            type = "efi-empty-capsule";
-            capsule-type = "revert";
+        type = "efi-empty-capsule";
+        capsule-type = "revert";
     };
 
 The empty capsules do not have any input payload image.
