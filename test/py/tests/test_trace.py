@@ -12,7 +12,7 @@ import u_boot_utils as util
 TMPDIR = '/tmp/test_trace'
 
 # Decode a function-graph line
-RE_LINE = re.compile(r'.*0\.\.\.\.\. \s*([0-9.]*): func.*[|](\s*)(\S.*)?([{};])$')
+RE_LINE = re.compile(r'.*0\.\.\.\.\.? \s*([0-9.]*): func.*[|](\s*)(\S.*)?([{};])$')
 
 
 def collect_trace(cons):
