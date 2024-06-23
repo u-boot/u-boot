@@ -1521,6 +1521,28 @@ byte.
 
 
 
+.. _etype_nxp_imx8mcst:
+
+Entry: nxp-imx8mcst: NXP i.MX8M CST .cfg file generator and cst invoker
+-----------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - nxp,loader-address - loader address (SPL text base)
+
+
+
+.. _etype_nxp_imx8mimage:
+
+Entry: nxp-imx8mimage: NXP i.MX8M imx8mimage .cfg file generator and mkimage invoker
+------------------------------------------------------------------------------------
+
+Properties / Entry arguments:
+    - nxp,boot-from - device to boot from (e.g. 'sd')
+    - nxp,loader-address - loader address (SPL text base)
+    - nxp,rom-version - BootROM version ('2' for i.MX8M Nano and Plus)
+
+
+
 .. _etype_opensbi:
 
 Entry: opensbi: RISC-V OpenSBI fw_dynamic blob
