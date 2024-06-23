@@ -168,12 +168,86 @@ int led_boot_blink(void)
 #endif
 #endif
 
+#ifdef CONFIG_LED_ACTIVITY
+int led_activity_on(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->activity_led_dev ||
+	    uclass_get_device_tail(priv->activity_led_dev, 0, &dev)) {
+		printf("Failed to get activity LED %s\n",
+		       priv->activity_led_label);
+		return -EINVAL;
+	}
+
+	return led_set_state(dev, LEDST_ON);
+}
+
+int led_activity_off(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->activity_led_dev ||
+	    uclass_get_device_tail(priv->activity_led_dev, 0, &dev)) {
+		printf("Failed to get activity LED %s\n",
+		       priv->activity_led_label);
+		return -EINVAL;
+	}
+
+	return led_set_state(dev, LEDST_OFF);
+}
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+int led_activity_blink(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+	int ret;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->activity_led_dev ||
+	    uclass_get_device_tail(priv->activity_led_dev, 0, &dev)) {
+		printf("Failed to get activity LED %s\n",
+		       priv->activity_led_label);
+		return -EINVAL;
+	}
+
+	ret = led_set_period(dev, priv->activity_led_period);
+	if (ret) {
+		if (ret != -ENOSYS)
+			return ret;
+
+		/* fallback to ON with no set_period and no SW_BLINK */
+		return led_set_state(dev, LEDST_ON);
+	}
+
+	return led_set_state(dev, LEDST_BLINK);
+}
+#endif
+#endif
+
 static int led_post_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
 
-#ifdef CONFIG_LED_BOOT
+#if defined(CONFIG_LED_BOOT) || defined(CONFIG_LED_ACTIVITY)
 	struct led_uc_priv *priv = uclass_get_priv(dev->uclass);
 #endif
 
@@ -187,6 +261,12 @@ static int led_post_bind(struct udevice *dev)
 	/* check if we are binding boot LED and assign it */
 	if (!strcmp(priv->boot_led_label, uc_plat->label))
 		priv->boot_led_dev = dev;
+#endif
+
+#ifdef CONFIG_LED_ACTIVITY
+	/* check if we are binding activity LED and assign it */
+	if (!strcmp(priv->activity_led_label, uc_plat->label))
+		priv->activity_led_dev = dev;
 #endif
 
 	uc_plat->default_state = LEDST_COUNT;
@@ -242,13 +322,21 @@ static int led_post_probe(struct udevice *dev)
 	return ret;
 }
 
-#ifdef CONFIG_LED_BOOT
+#if defined(CONFIG_LED_BOOT) || defined(CONFIG_LED_ACTIVITY)
 static int led_init(struct uclass *uc)
 {
 	struct led_uc_priv *priv = uclass_get_priv(uc);
 
+#ifdef CONFIG_LED_BOOT
 	priv->boot_led_label = ofnode_options_read_str("boot-led");
 	priv->boot_led_period = ofnode_options_read_int("boot-led-period", 250);
+#endif
+
+#ifdef CONFIG_LED_ACTIVITY
+	priv->activity_led_label = ofnode_options_read_str("activity-led");
+	priv->activity_led_period = ofnode_options_read_int("activity-led-period",
+							    250);
+#endif
 
 	return 0;
 }
@@ -260,7 +348,7 @@ UCLASS_DRIVER(led) = {
 	.per_device_plat_auto	= sizeof(struct led_uc_plat),
 	.post_bind	= led_post_bind,
 	.post_probe	= led_post_probe,
-#ifdef CONFIG_LED_BOOT
+#if defined(CONFIG_LED_BOOT) || defined(CONFIG_LED_ACTIVITY)
 	.init		= led_init,
 	.priv_auto	= sizeof(struct led_uc_priv),
 #endif

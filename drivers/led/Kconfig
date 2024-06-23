@@ -16,6 +16,14 @@ config LED_BOOT
 
 	  LED boot is a specific LED assigned to signal boot operation status.
 
+config LED_ACTIVITY
+	bool "Enable LED activity support"
+	help
+	  Enable LED activity support.
+
+	  LED activity is a specific LED assigned to signal activity operation
+	  like file trasnfer, flash write/erase...
+
 config LED_BCM6328
 	bool "LED Support for BCM6328"
 	depends on LED && ARCH_BMIPS
