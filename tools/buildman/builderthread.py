@@ -381,7 +381,7 @@ class BuilderThread(threading.Thread):
             commit = 'current'
         return commit
 
-    def _config_and_build(self, commit_upto, brd, work_dir, do_config,
+    def _config_and_build(self, commit_upto, brd, work_dir, do_config, mrproper,
                           config_only, adjust_cfg, commit, out_dir, out_rel_dir,
                           result):
         """Do the build, configuring first if necessary
@@ -391,6 +391,7 @@ class BuilderThread(threading.Thread):
             brd (Board): Board to create arguments for
             work_dir (str): Directory to which the source will be checked out
             do_config (bool): True to run a make <board>_defconfig on the source
+            mrproper (bool): True to run mrproper first
             config_only (bool): Only configure the source, do not build it
             adjust_cfg (list of str): See the cfgutil module and run_commit()
             commit (Commit): Commit only being built
@@ -421,7 +422,7 @@ class BuilderThread(threading.Thread):
         if do_config or adjust_cfg:
             result = self._reconfigure(
                 commit, brd, cwd, args, env, config_args, config_out, cmd_list,
-                self.mrproper)
+                mrproper)
             do_config = False   # No need to configure next time
             if adjust_cfg:
                 cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
@@ -500,8 +501,9 @@ class BuilderThread(threading.Thread):
             if self.toolchain:
                 commit = self._checkout(commit_upto, work_dir)
                 result, do_config = self._config_and_build(
-                    commit_upto, brd, work_dir, do_config, config_only,
-                    adjust_cfg, commit, out_dir, out_rel_dir, result)
+                    commit_upto, brd, work_dir, do_config, self.mrproper,
+                    config_only, adjust_cfg, commit, out_dir, out_rel_dir,
+                    result)
             result.already_done = False
 
         result.toolchain = self.toolchain
