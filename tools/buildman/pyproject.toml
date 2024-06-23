@@ -8,7 +8,11 @@ version = "0.0.6"
 authors = [
   { name="Simon Glass", email="sjg@chromium.org" },
 ]
-dependencies = ["u_boot_pylib >= 0.0.6", "patch-manager >= 0.0.6"]
+dependencies = [
+    "filelock >= 3.0.12",
+    "u_boot_pylib >= 0.0.6",
+    "patch-manager >= 0.0.6"
+]
 description = "Buildman build tool for U-Boot"
 readme = "README.rst"
 requires-python = ">=3.7"

@@ -1286,6 +1286,11 @@ then buildman hangs. Failing to handle any eventuality is a bug in buildman and
 should be reported. But you can use -T0 to disable threading and hopefully
 figure out the root cause of the build failure.
 
+For situations where buildman is invoked from multiple running processes, it is
+sometimes useful to have buildman wait until the others have finished. Use the
+--process-limit option for this: --process-limit 1 will allow only one buildman
+to process jobs at a time.
+
 Build summary
 -------------
 
