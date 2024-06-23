@@ -9,6 +9,7 @@
 
 #include <stdbool.h>
 #include <cyclic.h>
+#include <dm/ofnode.h>
 
 struct udevice;
 
@@ -52,10 +53,15 @@ struct led_uc_plat {
 /**
  * struct led_uc_priv - Private data the uclass stores about each device
  *
- * @period_ms:	Flash period in milliseconds
+ * @boot_led_label:	Boot LED label
+ * @boot_led_dev:	Boot LED dev
+ * @boot_led_period:	Boot LED blink period
  */
 struct led_uc_priv {
-	int period_ms;
+#ifdef CONFIG_LED_BOOT
+	const char *boot_led_label;
+	int boot_led_period;
+#endif
 };
 
 struct led_ops {
@@ -140,5 +146,50 @@ int led_bind_generic(struct udevice *parent, const char *driver_name);
 int led_sw_set_period(struct udevice *dev, int period_ms);
 bool led_sw_is_blinking(struct udevice *dev);
 bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state);
+
+#ifdef CONFIG_LED_BOOT
+
+/**
+ * led_boot_on() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_on(void);
+
+/**
+ * led_boot_off() - turn OFF the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_off(void);
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+/**
+ * led_boot_blink() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_blink(void);
+
+#else
+/* If LED BLINK is not supported/enabled, fallback to LED ON */
+#define led_boot_blink led_boot_on
+#endif
+#else
+static inline int led_boot_on(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_boot_off(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_boot_blink(void)
+{
+	return -ENOSYS;
+}
+#endif
 
 #endif
