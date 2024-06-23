@@ -159,4 +159,48 @@ int led_sw_set_period(struct udevice *dev, int period_ms);
 bool led_sw_is_blinking(struct udevice *dev);
 bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state);
 
+#ifdef CONFIG_LED_BOOT_ENABLE
+
+/**
+ * led_boot_on() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static inline int led_boot_on(void)
+{
+	return led_set_state_by_label(CONFIG_LED_BOOT_LABEL, LEDST_ON);
+}
+
+/**
+ * led_boot_off() - turn OFF the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static inline int led_boot_off(void)
+{
+	return led_set_state_by_label(CONFIG_LED_BOOT_LABEL, LEDST_OFF);
+}
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+/**
+ * led_boot_blink() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static inline int led_boot_blink(void)
+{
+	int ret;
+
+	ret = led_set_period_by_label(CONFIG_LED_BOOT_LABEL, CONFIG_LED_BOOT_PERIOD);
+	if (ret)
+		return ret;
+
+	return led_set_state_by_label(CONFIG_LED_BOOT_LABEL, LEDST_BLINK);
+}
+#else
+/* If LED BLINK is not supported/enabled, fallback to LED ON */
+#define led_boot_blink led_boot_on
+#endif
+#endif
+
 #endif
