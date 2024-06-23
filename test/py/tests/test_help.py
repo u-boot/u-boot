@@ -7,7 +7,11 @@ import pytest
 def test_help(u_boot_console):
     """Test that the "help" command can be executed."""
 
-    u_boot_console.run_command('help')
+    lines = u_boot_console.run_command('help')
+    if u_boot_console.config.buildconfig.get('config_cmd_2048', 'n') == 'y':
+        assert lines.splitlines()[0] == "2048      - The 2048 game"
+    else:
+        assert lines.splitlines()[0] == "?         - alias for 'help'"
 
 @pytest.mark.boardspec('sandbox')
 def test_help_no_devicetree(u_boot_console):
