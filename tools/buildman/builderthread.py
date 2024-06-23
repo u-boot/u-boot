@@ -240,7 +240,7 @@ class BuilderThread(threading.Thread):
         return args, cwd, src_dir
 
     def _reconfigure(self, commit, brd, cwd, args, env, config_args, config_out,
-                     cmd_list):
+                     cmd_list, mrproper):
         """Reconfigure the build
 
         Args:
@@ -251,11 +251,12 @@ class BuilderThread(threading.Thread):
             env (dict): Environment strings
             config_args (list of str): defconfig arg for this board
             cmd_list (list of str): List to add the commands to, for logging
+            mrproper (bool): True to run mrproper first
 
         Returns:
             CommandResult object
         """
-        if self.mrproper:
+        if mrproper:
             result = self.make(commit, brd, 'mrproper', cwd, 'mrproper', *args,
                                env=env)
             config_out.write(result.combined)
@@ -419,7 +420,8 @@ class BuilderThread(threading.Thread):
         cmd_list = []
         if do_config or adjust_cfg:
             result = self._reconfigure(
-                commit, brd, cwd, args, env, config_args, config_out, cmd_list)
+                commit, brd, cwd, args, env, config_args, config_out, cmd_list,
+                self.mrproper)
             do_config = False   # No need to configure next time
             if adjust_cfg:
                 cfgutil.adjust_cfg_file(cfg_file, adjust_cfg)
