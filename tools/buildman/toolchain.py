@@ -175,9 +175,9 @@ class Toolchain:
     def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
 
-        Thie takes the current environment and adds CROSS_COMPILE so that
+        This takes the current environment and adds CROSS_COMPILE so that
         the tool chain will operate correctly. This also disables localized
-        output and possibly unicode encoded output of all build tools by
+        output and possibly Unicode encoded output of all build tools by
         adding LC_ALL=C.
 
         Note that os.environb is used to obtain the environment, since in some
