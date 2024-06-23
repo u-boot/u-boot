@@ -5,6 +5,8 @@
  * Adapted from coreboot src/arch/x86/smbios.c
  */
 
+#define LOG_CATEGORY	LOGC_BOARD
+
 #include <dm.h>
 #include <env.h>
 #include <linux/stringify.h>
@@ -596,8 +598,12 @@ ulong write_smbios_table(ulong addr)
 
 			parent_node = dev_read_subnode(ctx.dev, "smbios");
 			ret = sysinfo_detect(ctx.dev);
-			if (ret)
-				return ret;
+
+			/*
+			 * ignore the error since many boards don't implement
+			 * this and we can still use the info in the devicetree
+			 */
+			ret = log_msg_ret("sys", ret);
 		}
 	} else {
 		ctx.dev = NULL;
