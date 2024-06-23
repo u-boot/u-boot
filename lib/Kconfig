@@ -439,9 +439,6 @@ config TPM
 	depends on DM
 	imply DM_RNG
 	select SHA1
-	select SHA256
-	select SHA384
-	select SHA512
 	help
 	  This enables support for TPMs which can be used to provide security
 	  features for your board. The TPM can be connected via LPC or I2C
@@ -449,6 +446,9 @@ config TPM
 	  command to interactive the TPM. Driver model support is provided
 	  for the low-level TPM interface, but only one TPM is supported at
 	  a time by the TPM library.
+	  For size reasons only SHA1 is selected which is supported on TPM1.2.
+	  If you want a fully functional TPM enable all hashing algorithms.
+	  If you enabled measured boot all hashing algorithms are selected.
 
 config SPL_TPM
 	bool "Trusted Platform Module (TPM) Support in SPL"
