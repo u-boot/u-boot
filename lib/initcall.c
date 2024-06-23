@@ -49,13 +49,14 @@ static int initcall_is_event(init_fnc_t func)
  */
 int initcall_run_list(const init_fnc_t init_sequence[])
 {
-	ulong reloc_ofs = calc_reloc_ofs();
+	ulong reloc_ofs;
 	const init_fnc_t *ptr;
 	enum event_t type;
 	init_fnc_t func;
 	int ret = 0;
 
 	for (ptr = init_sequence; func = *ptr, func; ptr++) {
+		reloc_ofs = calc_reloc_ofs();
 		type = initcall_is_event(func);
 
 		if (type) {
@@ -84,7 +85,8 @@ int initcall_run_list(const init_fnc_t init_sequence[])
 				sprintf(buf, "event %d/%s", type,
 					event_type_name(type));
 			} else {
-				sprintf(buf, "call %p", func);
+				sprintf(buf, "call %p",
+					(char *)func - reloc_ofs);
 			}
 
 			printf("initcall failed at %s (err=%dE)\n", buf, ret);
