@@ -24,18 +24,20 @@ class Spawn:
         output: accumulated output from expect()
     """
 
-    def __init__(self, args, cwd=None):
+    def __init__(self, args, cwd=None, decode_signal=False):
         """Spawn (fork/exec) the sub-process.
 
         Args:
             args: array of processs arguments. argv[0] is the command to
               execute.
             cwd: the directory to run the process in, or None for no change.
+            decode_signal (bool): True to indicate the exception number when
+                something goes wrong
 
         Returns:
             Nothing.
         """
-
+        self.decode_signal = decode_signal
         self.waited = False
         self.exit_code = 0
         self.exit_info = ''
@@ -197,12 +199,12 @@ class Spawn:
                     # With sandbox, try to detect when U-Boot exits when it
                     # shouldn't and explain why. This is much more friendly than
                     # just dying with an I/O error
-                    if err.errno == 5:  # Input/output error
+                    if self.decode_signal and err.errno == 5:  # I/O error
                         alive, _, info = self.checkalive()
                         if alive:
                             raise err
                         raise ValueError('U-Boot exited with %s' % info)
-                    raise err
+                    raise
                 if self.logfile_read:
                     self.logfile_read.write(c)
                 self.buf += c
