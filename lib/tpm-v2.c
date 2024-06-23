@@ -395,48 +395,26 @@ static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
 	return 0;
 }
 
-static bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection)
-{
-	int i;
-
-	/*
-	 * check the pcr_select. If at least one of the PCRs supports the
-	 * algorithm add it on the active ones
-	 */
-	for (i = 0; i < selection->size_of_select; i++) {
-		if (selection->pcr_select[i])
-			return true;
-	}
-
-	return false;
-}
-
-int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks)
+int tpm2_get_pcr_info(struct udevice *dev, struct tpml_pcr_selection *pcrs)
 {
 	u8 response[(sizeof(struct tpms_capability_data) -
 		offsetof(struct tpms_capability_data, data))];
-	struct tpml_pcr_selection pcrs;
 	u32 num_pcr;
 	size_t i;
 	u32 ret;
 
-	*supported_pcr = 0;
-	*active_pcr = 0;
-	*pcr_banks = 0;
-	memset(response, 0, sizeof(response));
 	ret = tpm2_get_capability(dev, TPM2_CAP_PCRS, 0, response, 1);
 	if (ret)
 		return ret;
 
-	pcrs.count = get_unaligned_be32(response);
+	pcrs->count = get_unaligned_be32(response);
 	/*
 	 * We only support 5 algorithms for now so check against that
 	 * instead of TPM2_NUM_PCR_BANKS
 	 */
-	if (pcrs.count > ARRAY_SIZE(hash_algo_list) ||
-	    pcrs.count < 1) {
-		printf("%s: too many pcrs: %u\n", __func__, pcrs.count);
+	if (pcrs->count > ARRAY_SIZE(hash_algo_list) ||
+	    pcrs->count < 1) {
+		printf("%s: too many pcrs: %u\n", __func__, pcrs->count);
 		return -EMSGSIZE;
 	}
 
@@ -444,7 +422,7 @@ int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 	if (ret)
 		return ret;
 
-	for (i = 0; i < pcrs.count; i++) {
+	for (i = 0; i < pcrs->count; i++) {
 		/*
 		 * Definition of TPMS_PCR_SELECTION Structure
 		 * hash: u16
@@ -464,34 +442,19 @@ int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 			hash_offset + offsetof(struct tpms_pcr_selection,
 					       pcr_select);
 
-		pcrs.selection[i].hash =
+		pcrs->selection[i].hash =
 			get_unaligned_be16(response + hash_offset);
-		pcrs.selection[i].size_of_select =
+		pcrs->selection[i].size_of_select =
 			__get_unaligned_be(response + size_select_offset);
-		if (pcrs.selection[i].size_of_select > TPM2_PCR_SELECT_MAX) {
+		if (pcrs->selection[i].size_of_select > TPM2_PCR_SELECT_MAX) {
 			printf("%s: pcrs selection too large: %u\n", __func__,
-			       pcrs.selection[i].size_of_select);
+			       pcrs->selection[i].size_of_select);
 			return -ENOBUFS;
 		}
 		/* copy the array of pcr_select */
-		memcpy(pcrs.selection[i].pcr_select, response + pcr_select_offset,
-		       pcrs.selection[i].size_of_select);
+		memcpy(pcrs->selection[i].pcr_select, response + pcr_select_offset,
+		       pcrs->selection[i].size_of_select);
 	}
-
-	for (i = 0; i < pcrs.count; i++) {
-		u32 hash_mask = tcg2_algorithm_to_mask(pcrs.selection[i].hash);
-
-		if (hash_mask) {
-			*supported_pcr |= hash_mask;
-			if (tpm2_is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= hash_mask;
-		} else {
-			printf("%s: unknown algorithm %x\n", __func__,
-			       pcrs.selection[i].hash);
-		}
-	}
-
-	*pcr_banks = pcrs.count;
 
 	return 0;
 }
@@ -878,6 +841,18 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 		return ret;
 
 	return 0;
+}
+
+bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection)
+{
+	int i;
+
+	for (i = 0; i < selection->size_of_select; i++) {
+		if (selection->pcr_select[i])
+			return true;
+	}
+
+	return false;
 }
 
 enum tpm2_algorithms tpm2_name_to_algorithm(const char *name)

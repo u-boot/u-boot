@@ -276,7 +276,7 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 	/* Supported and active PCRs */
 	capability->hash_algorithm_bitmap = 0;
 	capability->active_pcr_banks = 0;
-	ret = tpm2_get_pcr_info(dev, &capability->hash_algorithm_bitmap,
+	ret = tcg2_get_pcr_info(dev, &capability->hash_algorithm_bitmap,
 				&capability->active_pcr_banks,
 				&capability->number_of_pcr_banks);
 	if (ret) {

@@ -522,14 +522,11 @@ u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
  * tpm2_get_pcr_info() - get the supported, active PCRs and number of banks
  *
  * @dev:		TPM device
- * @supported_pcr:	bitmask with the algorithms supported
- * @active_pcr:		bitmask with the active algorithms
- * @pcr_banks:		number of PCR banks
+ * @pcrs:		struct tpml_pcr_selection of available PCRs
  *
  * @return 0 on success, code of operation or negative errno on failure
  */
-int tpm2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks);
+int tpm2_get_pcr_info(struct udevice *dev, struct tpml_pcr_selection *pcrs);
 
 /**
  * Issue a TPM2_DictionaryAttackLockReset command.
@@ -714,5 +711,14 @@ enum tpm2_algorithms tpm2_name_to_algorithm(const char *name);
  * Return: algorithm name string or ""
  */
 const char *tpm2_algorithm_name(enum tpm2_algorithms);
+
+/**
+ * tpm2_is_active_pcr() - check the pcr_select. If at least one of the PCRs
+ *			  supports the algorithm add it on the active ones
+ *
+ * @selection: PCR selection structure
+ * Return: True if the algorithm is active
+ */
+bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection);
 
 #endif /* __TPM_V2_H */
