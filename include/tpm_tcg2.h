@@ -142,5 +142,194 @@ struct tcg_efi_spec_id_event {
 #define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MAJOR_TPM2 2
 #define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_MINOR_TPM2 0
 #define TCG_EFI_SPEC_ID_EVENT_SPEC_VERSION_ERRATA_TPM2 2
+/**
+ * struct tcg2_event_log - Container for managing the platform event log
+ *
+ * @log:		Address of the log
+ * @log_position:	Current entry position
+ * @log_size:		Log space available
+ * @found:		Boolean indicating if an existing log was discovered
+ */
+struct tcg2_event_log {
+	u8 *log;
+	u32 log_position;
+	u32 log_size;
+	bool found;
+};
+
+/**
+ * Create a list of digests of the supported PCR banks for a given input data
+ *
+ * @dev		TPM device
+ * @input	Data
+ * @length	Length of the data to calculate the digest
+ * @digest_list	List of digests to fill in
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
+		       struct tpml_digest_values *digest_list);
+
+/**
+ * Get the event size of the specified digests
+ *
+ * @digest_list	List of digests for the event
+ *
+ * Return: Size in bytes of the event
+ */
+u32 tcg2_event_get_size(struct tpml_digest_values *digest_list);
+
+/**
+ * tcg2_get_active_pcr_banks
+ *
+ * @dev			TPM device
+ * @active_pcr_banks	Bitmask of PCR algorithms supported
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_get_active_pcr_banks(struct udevice *dev, u32 *active_pcr_banks);
+
+/**
+ * tcg2_log_append - Append an event to an event log
+ *
+ * @pcr_index	Index of the PCR
+ * @event_type	Type of event
+ * @digest_list List of digests to add
+ * @size	Size of event
+ * @event	Event data
+ * @log		Log buffer to append the event to
+ */
+void tcg2_log_append(u32 pcr_index, u32 event_type,
+		     struct tpml_digest_values *digest_list, u32 size,
+		     const u8 *event, u8 *log);
+
+/**
+ * Extend the PCR with specified digests
+ *
+ * @dev		TPM device
+ * @pcr_index	Index of the PCR
+ * @digest_list	List of digests to extend
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
+		    struct tpml_digest_values *digest_list);
+
+/**
+ * Read the PCR into a list of digests
+ *
+ * @dev		TPM device
+ * @pcr_index	Index of the PCR
+ * @digest_list	List of digests to extend
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_pcr_read(struct udevice *dev, u32 pcr_index,
+		  struct tpml_digest_values *digest_list);
+
+/**
+ * Measure data into the TPM PCRs and the platform event log.
+ *
+ * @dev		TPM device
+ * @log		Platform event log
+ * @pcr_index	Index of the PCR
+ * @size	Size of the data or 0 for event only
+ * @data	Pointer to the data or NULL for event only
+ * @event_type	Event log type
+ * @event_size	Size of the event
+ * @event	Pointer to the event
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_measure_data(struct udevice *dev, struct tcg2_event_log *elog,
+		      u32 pcr_index, u32 size, const u8 *data, u32 event_type,
+		      u32 event_size, const u8 *event);
+
+#define tcg2_measure_event(dev, elog, pcr_index, event_type, size, event) \
+	tcg2_measure_data(dev, elog, pcr_index, 0, NULL, event_type, size, \
+			  event)
+
+/**
+ * Prepare the event log buffer. This function tries to discover an existing
+ * event log in memory from a previous bootloader stage. If such a log exists
+ * and the PCRs are not extended, the log is "replayed" to extend the PCRs.
+ * If no log is discovered, create the log header.
+ *
+ * @dev			TPM device
+ * @elog		Platform event log. The log pointer and log_size
+ *			members must be initialized to either 0 or to a valid
+ *			memory region, in which case any existing log
+ *			discovered will be copied to the specified memory
+ *			region.
+ * @ignore_existing_log	Boolean to indicate whether or not to ignore an
+ *			existing platform log in memory
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
+			    bool ignore_existing_log);
+
+/**
+ * Begin measurements.
+ *
+ * @dev			TPM device
+ * @elog		Platform event log. The log pointer and log_size
+ *			members must be initialized to either 0 or to a valid
+ *			memory region, in which case any existing log
+ *			discovered will be copied to the specified memory
+ *			region.
+ * @ignore_existing_log Boolean to indicate whether or not to ignore an
+ *			existing platform log in memory
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
+			  bool ignore_existing_log);
+
+/**
+ * Stop measurements and record separator events.
+ *
+ * @dev		TPM device
+ * @elog	Platform event log
+ * @error	Boolean to indicate whether an error ocurred or not
+ */
+void tcg2_measurement_term(struct udevice *dev, struct tcg2_event_log *elog,
+			   bool error);
+
+/**
+ * Get the platform event log address and size.
+ *
+ * @dev		TPM device
+ * @addr	Address of the log
+ * @size	Size of the log
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size);
+
+/**
+ * Get the first TPM2 device found.
+ *
+ * @dev		TPM device
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_platform_get_tpm2(struct udevice **dev);
+
+/**
+ * Platform-specific function for handling TPM startup errors
+ *
+ * @dev		TPM device
+ * @rc		The TPM response code
+ */
+void tcg2_platform_startup_error(struct udevice *dev, int rc);
+
+/**
+ * tcg2_algorithm_to_mask() - Get a TCG hash mask for algorithm
+ *
+ * @hash_alg: TCG defined algorithm
+ * Return: TCG hashing algorithm bitmaps (or 0 if algo not supported)
+ */
+u32 tcg2_algorithm_to_mask(enum tpm2_algorithms);
 
 #endif /* __TPM_TCG_V2_H */
