@@ -42,8 +42,8 @@ config BOOTP_SEND_HOSTNAME
 	  DNS server. To do this, they need the hostname of the DHCP
 	  requester.
 	  If CONFIG_BOOTP_SEND_HOSTNAME is defined, the content
-          of the "hostname" environment variable is passed as
-          option 12 to the DHCP server.
+	  of the "hostname" environment variable is passed as
+	  option 12 to the DHCP server.
 
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"

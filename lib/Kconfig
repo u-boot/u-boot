@@ -1143,7 +1143,7 @@ config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"
 	help
 	  When there are multiple device tree nodes with same name,
-          enable this config option to distinguish them using
+	  enable this config option to distinguish them using
 	  phandles in fdtdec_get_alias_seq() function.
 
 endmenu
