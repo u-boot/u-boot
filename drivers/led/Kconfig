@@ -20,6 +20,19 @@ config LED_BOOT
 
 	  [1] dtschema/schemas/options/u-boot.yaml
 
+config LED_ACTIVITY
+	bool "Enable LED activity support"
+	help
+	  Enable LED activity support.
+
+	  LED activity is a specific LED assigned to signal activity operation
+	  like file trasnfer, flash write/erase...
+
+	  Defined in Device Tree /options/u-boot node. Refer here for the supported
+	  options [1].
+
+	  [1] dtschema/schemas/options/u-boot.yaml
+
 config LED_BCM6328
 	bool "LED Support for BCM6328"
 	depends on LED && ARCH_BMIPS

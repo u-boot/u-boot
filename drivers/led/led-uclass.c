@@ -163,6 +163,75 @@ int led_boot_blink(void)
 #endif
 #endif
 
+#ifdef CONFIG_LED_ACTIVITY
+static int led_activity_get(struct udevice **devp, int *period_ms)
+{
+	struct led_uc_priv *priv;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_LED, &uc);
+	if (ret)
+		return ret;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->activity_led_label)
+		return -ENOENT;
+
+	if (period_ms)
+		*period_ms = priv->activity_led_period;
+
+	return led_get_by_label(priv->activity_led_label, devp);
+}
+
+int led_activity_on(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_activity_get(&dev, NULL);
+	if (ret)
+		return ret;
+
+	return led_set_state(dev, LEDST_ON);
+}
+
+int led_activity_off(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_activity_get(&dev, NULL);
+	if (ret)
+		return ret;
+
+	return led_set_state(dev, LEDST_OFF);
+}
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+int led_activity_blink(void)
+{
+	struct udevice *dev;
+	int period_ms, ret;
+
+	ret = led_activity_get(&dev, &period_ms);
+	if (ret)
+		return ret;
+
+	ret = led_set_period(dev, period_ms);
+	if (ret) {
+		if (ret != -ENOSYS)
+			return ret;
+
+		/* fallback to ON with no set_period and no SW_BLINK */
+		return led_set_state(dev, LEDST_ON);
+	}
+
+	return led_set_state(dev, LEDST_BLINK);
+}
+#endif
+#endif
+
 static int led_post_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
@@ -227,13 +296,21 @@ static int led_post_probe(struct udevice *dev)
 	return ret;
 }
 
-#ifdef CONFIG_LED_BOOT
+#if defined(CONFIG_LED_BOOT) || defined(CONFIG_LED_ACTIVITY)
 static int led_init(struct uclass *uc)
 {
 	struct led_uc_priv *priv = uclass_get_priv(uc);
 
+#ifdef CONFIG_LED_BOOT
 	priv->boot_led_label = ofnode_options_read_str("boot-led");
 	priv->boot_led_period = ofnode_options_read_int("boot-led-period", 250);
+#endif
+
+#ifdef CONFIG_LED_ACTIVITY
+	priv->activity_led_label = ofnode_options_read_str("activity-led");
+	priv->activity_led_period = ofnode_options_read_int("activity-led-period",
+							    250);
+#endif
 
 	return 0;
 }
@@ -245,7 +322,7 @@ UCLASS_DRIVER(led) = {
 	.per_device_plat_auto	= sizeof(struct led_uc_plat),
 	.post_bind	= led_post_bind,
 	.post_probe	= led_post_probe,
-#ifdef CONFIG_LED_BOOT
+#if defined(CONFIG_LED_BOOT) || defined(CONFIG_LED_ACTIVITY)
 	.init		= led_init,
 	.priv_auto	= sizeof(struct led_uc_priv),
 #endif

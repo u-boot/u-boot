@@ -54,13 +54,20 @@ struct led_uc_plat {
  * struct led_uc_priv - Private data the uclass stores about each device
  *
  * @boot_led_label:	Boot LED label
+ * @activity_led_label:	Activity LED label
  * @boot_led_dev:	Boot LED dev
+ * @activity_led_dev:	Activity LED dev
  * @boot_led_period:	Boot LED blink period
+ * @activity_led_period: Activity LED blink period
  */
 struct led_uc_priv {
 #ifdef CONFIG_LED_BOOT
 	const char *boot_led_label;
 	int boot_led_period;
+#endif
+#ifdef CONFIG_LED_ACTIVITY
+	const char *activity_led_label;
+	int activity_led_period;
 #endif
 };
 
@@ -187,6 +194,50 @@ static inline int led_boot_off(void)
 }
 
 static inline int led_boot_blink(void)
+{
+	return -ENOSYS;
+}
+#endif
+
+#ifdef CONFIG_LED_ACTIVITY
+
+/**
+ * led_activity_on() - turn ON the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_on(void);
+
+/**
+ * led_activity_off() - turn OFF the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_off(void);
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+/**
+ * led_activity_blink() - turn ON the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_blink(void);
+#else
+/* If LED BLINK is not supported/enabled, fallback to LED ON */
+#define led_activity_blink led_activity_on
+#endif
+#else
+static inline int led_activity_on(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_activity_off(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_activity_blink(void)
 {
 	return -ENOSYS;
 }
