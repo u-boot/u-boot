@@ -48,11 +48,16 @@ class Entry_blob(Entry):
             self.external and (self.optional or self.section.GetAllowMissing()))
         # Allow the file to be missing
         if not self._pathname:
+            if not fake_size and self.assume_size:
+                fake_size = self.assume_size
             self._pathname, faked = self.check_fake_fname(self._filename,
                                                           fake_size)
             self.missing = True
             if not faked:
-                self.SetContents(b'')
+                content_size = 0
+                if self.assume_size: # Ensure we get test coverage on next line
+                    content_size = self.assume_size
+                self.SetContents(tools.get_bytes(0, content_size))
                 return True
 
         self.ReadBlobContents()

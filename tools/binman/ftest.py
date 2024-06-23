@@ -7460,5 +7460,33 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('323_capsule_accept_revert_missing.dts')
 
+    def test_assume_size(self):
+        """Test handling of the assume-size property for external blob"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('326_assume_size.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        self.assertIn("contents size 0xa (10) exceeds section size 0x9 (9)",
+                      str(e.exception))
+
+    def test_assume_size_ok(self):
+        """Test handling of the assume-size where it fits OK"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('327_assume_size_ok.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+
+    def test_assume_size_no_fake(self):
+        """Test handling of the assume-size where it fits OK"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('327_assume_size_ok.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
+
+
 if __name__ == "__main__":
     unittest.main()

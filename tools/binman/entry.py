@@ -315,6 +315,7 @@ class Entry(object):
         self.overlap = fdt_util.GetBool(self._node, 'overlap')
         if self.overlap:
             self.required_props += ['offset', 'size']
+        self.assume_size = fdt_util.GetInt(self._node, 'assume-size', 0)
 
         # This is only supported by blobs and sections at present
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')
