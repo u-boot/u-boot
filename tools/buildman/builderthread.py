@@ -448,9 +448,9 @@ class BuilderThread(threading.Thread):
         result.cmd_list = cmd_list
         return result, do_config
 
-    def run_commit(self, commit_upto, brd, work_dir, do_config, config_only,
-                  force_build, force_build_failures, work_in_output,
-                  adjust_cfg):
+    def run_commit(self, commit_upto, brd, work_dir, do_config, mrproper,
+                   config_only, force_build, force_build_failures,
+                   work_in_output, adjust_cfg):
         """Build a particular commit.
 
         If the build is already done, and we are not forcing a build, we skip
@@ -461,6 +461,7 @@ class BuilderThread(threading.Thread):
             brd (Board): Board to build
             work_dir (str): Directory to which the source will be checked out
             do_config (bool): True to run a make <board>_defconfig on the source
+            mrproper (bool): True to run mrproper first
             config_only (bool): Only configure the source, do not build it
             force_build (bool): Force a build even if one was previously done
             force_build_failures (bool): Force a bulid if the previous result
@@ -501,7 +502,7 @@ class BuilderThread(threading.Thread):
             if self.toolchain:
                 commit = self._checkout(commit_upto, work_dir)
                 result, do_config = self._config_and_build(
-                    commit_upto, brd, work_dir, do_config, self.mrproper,
+                    commit_upto, brd, work_dir, do_config, mrproper,
                     config_only, adjust_cfg, commit, out_dir, out_rel_dir,
                     result)
             result.already_done = False
@@ -692,7 +693,8 @@ class BuilderThread(threading.Thread):
             force_build = False
             for commit_upto in range(0, len(job.commits), job.step):
                 result, request_config = self.run_commit(commit_upto, brd,
-                        work_dir, do_config, self.builder.config_only,
+                        work_dir, do_config, self.mrproper,
+                        self.builder.config_only,
                         force_build or self.builder.force_build,
                         self.builder.force_build_failures,
                         job.work_in_output, job.adjust_cfg)
@@ -703,8 +705,8 @@ class BuilderThread(threading.Thread):
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.run_commit(commit_upto,
-                            brd, work_dir, True, False, True, False,
-                            job.work_in_output, job.adjust_cfg)
+                            brd, work_dir, True, self.mrproper, False, True,
+                            False, job.work_in_output, job.adjust_cfg)
                         did_config = True
                 if not self.builder.force_reconfig:
                     do_config = request_config
@@ -748,7 +750,7 @@ class BuilderThread(threading.Thread):
         else:
             # Just build the currently checked-out build
             result, request_config = self.run_commit(None, brd, work_dir, True,
-                        self.builder.config_only, True,
+                        self.mrproper, self.builder.config_only, True,
                         self.builder.force_build_failures, job.work_in_output,
                         job.adjust_cfg)
             result.commit_upto = 0
