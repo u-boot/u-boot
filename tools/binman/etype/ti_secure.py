@@ -53,10 +53,11 @@ class Entry_ti_secure(Entry_x509_cert):
         - keyfile: Filename of file containing key to sign binary with
         - sha: Hash function to be used for signing
         - auth-in-place: This is an integer field that contains two pieces
-          of information
-            Lower Byte - Remains 0x02 as per our use case
-            ( 0x02: Move the authenticated binary back to the header )
-            Upper Byte - The Host ID of the core owning the firewall
+          of information:
+
+            - Lower Byte - Remains 0x02 as per our use case
+              ( 0x02: Move the authenticated binary back to the header )
+            - Upper Byte - The Host ID of the core owning the firewall
 
     Output files:
         - input.<unique_name> - input file passed to openssl
@@ -69,29 +70,29 @@ class Entry_ti_secure(Entry_x509_cert):
     firewall nodes that describe the configurations of firewall that TIFS
     will be doing after reading the certificate.
 
-    The syntax of the firewall nodes are as such:
+    The syntax of the firewall nodes are as such::
 
-    firewall-257-0 {
-        id = <257>;           /* The ID of the firewall being configured */
-        region = <0>;         /* Region number to configure */
+        firewall-257-0 {
+            id = <257>;           /* The ID of the firewall being configured */
+            region = <0>;         /* Region number to configure */
 
-        control =             /* The control register */
-            <(FWCTRL_EN | FWCTRL_LOCK | FWCTRL_BG | FWCTRL_CACHE)>;
+            control =             /* The control register */
+                <(FWCTRL_EN | FWCTRL_LOCK | FWCTRL_BG | FWCTRL_CACHE)>;
 
-        permissions =         /* The permission registers */
-            <((FWPRIVID_ALL << FWPRIVID_SHIFT) |
-                        FWPERM_SECURE_PRIV_RWCD |
-                        FWPERM_SECURE_USER_RWCD |
-                        FWPERM_NON_SECURE_PRIV_RWCD |
-                        FWPERM_NON_SECURE_USER_RWCD)>;
+            permissions =         /* The permission registers */
+                <((FWPRIVID_ALL << FWPRIVID_SHIFT) |
+                            FWPERM_SECURE_PRIV_RWCD |
+                            FWPERM_SECURE_USER_RWCD |
+                            FWPERM_NON_SECURE_PRIV_RWCD |
+                            FWPERM_NON_SECURE_USER_RWCD)>;
 
-        /* More defines can be found in k3-security.h */
+            /* More defines can be found in k3-security.h */
 
-        start_address =        /* The Start Address of the firewall */
-            <0x0 0x0>;
-        end_address =          /* The End Address of the firewall */
-            <0xff 0xffffffff>;
-    };
+            start_address =        /* The Start Address of the firewall */
+                <0x0 0x0>;
+            end_address =          /* The End Address of the firewall */
+                <0xff 0xffffffff>;
+        };
 
 
     openssl signs the provided data, using the TI templated config file and
