@@ -94,16 +94,100 @@ int led_set_period(struct udevice *dev, int period_ms)
 	return -ENOSYS;
 }
 
+#ifdef CONFIG_LED_BOOT
+int led_boot_on(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->boot_led_dev ||
+	    uclass_get_device_tail(priv->boot_led_dev, 0, &dev)) {
+		printf("Failed to get boot LED %s\n",
+		       priv->boot_led_label);
+		return -EINVAL;
+	}
+
+	return led_set_state(dev, LEDST_ON);
+}
+
+int led_boot_off(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->boot_led_dev ||
+	    uclass_get_device_tail(priv->boot_led_dev, 0, &dev)) {
+		printf("Failed to get boot LED %s\n",
+		       priv->boot_led_label);
+		return -EINVAL;
+	}
+
+	return led_set_state(dev, LEDST_OFF);
+}
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+int led_boot_blink(void)
+{
+	struct uclass *uc = uclass_find(UCLASS_LED);
+	struct led_uc_priv *priv;
+	struct udevice *dev;
+	int ret;
+
+	if (!uc)
+		return -ENOENT;
+
+	priv = uclass_get_priv(uc);
+	if (!priv->boot_led_dev ||
+	    uclass_get_device_tail(priv->boot_led_dev, 0, &dev)) {
+		printf("Failed to get boot LED %s\n",
+		       priv->boot_led_label);
+		return -EINVAL;
+	}
+
+	ret = led_set_period(dev, priv->boot_led_period);
+	if (ret) {
+		if (ret != -ENOSYS)
+			return ret;
+
+		/* fallback to ON with no set_period and no SW_BLINK */
+		return led_set_state(dev, LEDST_ON);
+	}
+
+	return led_set_state(dev, LEDST_BLINK);
+}
+#endif
+#endif
+
 static int led_post_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
+
+#ifdef CONFIG_LED_BOOT
+	struct led_uc_priv *priv = uclass_get_priv(dev->uclass);
+#endif
 
 	if (!uc_plat->label)
 		uc_plat->label = dev_read_string(dev, "label");
 
 	if (!uc_plat->label && !dev_read_string(dev, "compatible"))
 		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
+
+#ifdef CONFIG_LED_BOOT
+	/* check if we are binding boot LED and assign it */
+	if (!strcmp(priv->boot_led_label, uc_plat->label))
+		priv->boot_led_dev = dev;
+#endif
 
 	uc_plat->default_state = LEDST_COUNT;
 
@@ -158,10 +242,26 @@ static int led_post_probe(struct udevice *dev)
 	return ret;
 }
 
+#ifdef CONFIG_LED_BOOT
+static int led_init(struct uclass *uc)
+{
+	struct led_uc_priv *priv = uclass_get_priv(uc);
+
+	priv->boot_led_label = ofnode_options_read_str("boot-led");
+	priv->boot_led_period = ofnode_options_read_int("boot-led-period", 250);
+
+	return 0;
+}
+#endif
+
 UCLASS_DRIVER(led) = {
 	.id		= UCLASS_LED,
 	.name		= "led",
 	.per_device_plat_auto	= sizeof(struct led_uc_plat),
 	.post_bind	= led_post_bind,
 	.post_probe	= led_post_probe,
+#ifdef CONFIG_LED_BOOT
+	.init		= led_init,
+	.priv_auto	= sizeof(struct led_uc_priv),
+#endif
 };
