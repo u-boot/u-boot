@@ -755,6 +755,14 @@ class BuilderThread(threading.Thread):
                         self.mrproper, self.builder.config_only, True,
                         self.builder.force_build_failures, job.work_in_output,
                         job.adjust_cfg)
+            failed = result.return_code or result.stderr
+            if failed and not self.mrproper:
+                result, request_config = self.run_commit(None, brd, work_dir,
+                            True, self.builder.fallback_mrproper,
+                            self.builder.config_only, True,
+                            self.builder.force_build_failures,
+                            job.work_in_output, job.adjust_cfg)
+
             result.commit_upto = 0
             self._write_result(result, job.keep_outputs, job.work_in_output)
             self._send_result(result)
