@@ -29,6 +29,27 @@ config LED_BOOT_PERIOD
 	help
 	  LED boot blink period in ms.
 
+config LED_ACTIVITY_ENABLE
+	bool "Enable LED activity support"
+	help
+	  Enable LED activity support.
+
+	  LED activity is a specific LED assigned to signal activity operation
+	  like file trasnfer, flash write/erase...
+
+config LED_ACTIVITY_LABEL
+	string "LED activity label"
+	depends on LED_ACTIVITY_ENABLE
+	help
+	  LED label defined in DT to assign for LED activity usage.
+
+config LED_ACTIVITY_PERIOD
+	int "LED activity period"
+	depends on LED_ACTIVITY_ENABLE && (LED_BLINK || LED_SW_BLINK)
+	default 2
+	help
+	  LED activity blink period in ms.
+
 config LED_BCM6328
 	bool "LED Support for BCM6328"
 	depends on LED && ARCH_BMIPS
