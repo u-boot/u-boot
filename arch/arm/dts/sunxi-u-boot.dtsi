@@ -90,6 +90,7 @@
 					scp {
 						filename = "scp.bin";
 						missing-msg = "scp-sunxi";
+						optional;
 					};
 				};
 #endif
