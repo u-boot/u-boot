@@ -705,8 +705,10 @@ class BuilderThread(threading.Thread):
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.run_commit(commit_upto,
-                            brd, work_dir, True, self.mrproper, False, True,
-                            False, job.work_in_output, job.adjust_cfg)
+                            brd, work_dir, True,
+                            self.mrproper or self.builder.fallback_mrproper,
+                            False, True, False, job.work_in_output,
+                            job.adjust_cfg)
                         did_config = True
                 if not self.builder.force_reconfig:
                     do_config = request_config

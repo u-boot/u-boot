@@ -256,14 +256,14 @@ class Builder:
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
                  no_subdirs=False, full_path=False, verbose_build=False,
-                 mrproper=False, per_board_out_dir=False,
-                 config_only=False, squash_config_y=False,
-                 warnings_as_errors=False, work_in_output=False,
-                 test_thread_exceptions=False, adjust_cfg=None,
-                 allow_missing=False, no_lto=False, reproducible_builds=False,
-                 force_build=False, force_build_failures=False,
-                 force_reconfig=False, in_tree=False,
-                 force_config_on_failure=False, make_func=None):
+                 mrproper=False, fallback_mrproper=False,
+                 per_board_out_dir=False, config_only=False,
+                 squash_config_y=False, warnings_as_errors=False,
+                 work_in_output=False, test_thread_exceptions=False,
+                 adjust_cfg=None, allow_missing=False, no_lto=False,
+                 reproducible_builds=False, force_build=False,
+                 force_build_failures=False, force_reconfig=False,
+                 in_tree=False, force_config_on_failure=False, make_func=None):
         """Create a new Builder object
 
         Args:
@@ -283,6 +283,7 @@ class Builder:
                 PATH
             verbose_build: Run build with V=1 and don't use 'make -s'
             mrproper: Always run 'make mrproper' when configuring
+            fallback_mrproper: Run 'make mrproper' and retry on build failure
             per_board_out_dir: Build in a separate persistent directory per
                 board rather than a thread-specific directory
             config_only: Only configure each build, don't build it
@@ -352,6 +353,7 @@ class Builder:
         self.force_reconfig = force_reconfig
         self.in_tree = in_tree
         self.force_config_on_failure = force_config_on_failure
+        self.fallback_mrproper = fallback_mrproper
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
