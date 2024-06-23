@@ -112,6 +112,15 @@ int led_get_by_label(const char *label, struct udevice **devp);
 int led_set_state(struct udevice *dev, enum led_state_t state);
 
 /**
+ * led_set_state_by_label - set the state of an LED referenced by Label
+ *
+ * @label:	LED label
+ * @state:	LED state to set
+ * Return: 0 if OK, -ve on error
+ */
+int led_set_state_by_label(const char *label, enum led_state_t state);
+
+/**
  * led_get_state() - get the state of an LED
  *
  * @dev:	LED device to change
@@ -127,6 +136,15 @@ enum led_state_t led_get_state(struct udevice *dev);
  * Return: 0 if OK, -ve on error
  */
 int led_set_period(struct udevice *dev, int period_ms);
+
+/**
+ * led_set_period_by_label - set the blink period of an LED referenced by Label
+ *
+ * @label:	LED label
+ * @period_ms:	LED blink period in milliseconds
+ * Return: 0 if OK, -ve on error
+ */
+int led_set_period_by_label(const char *label, int period_ms);
 
 /**
  * led_bind_generic() - bind children of parent to given driver
