@@ -350,6 +350,13 @@ config PCIE_MEDIATEK
 	  Say Y here if you want to enable Gen2 PCIe controller,
 	  which could be found on MT7623 SoC family.
 
+config PCIE_MEDIATEK_GEN3
+	bool "MediaTek PCIe Gen3 controller"
+	depends on ARCH_MEDIATEK
+	help
+	  Say Y here if you want to enable Gen3 PCIe controller,
+	  which could be found on the Mediatek Filogic SoC family.
+
 config PCIE_DW_MESON
 	bool "Amlogic Meson DesignWare based PCIe controller"
 	depends on ARCH_MESON
