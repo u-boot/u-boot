@@ -376,7 +376,7 @@ static ulong mtk_infrasys_get_mux_rate(struct clk *clk, u32 off)
 			break;
 		}
 	}
-	return 0;
+	return priv->tree->xtal_rate;
 }
 
 static ulong mtk_topckgen_get_rate(struct clk *clk)
