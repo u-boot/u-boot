@@ -586,21 +586,26 @@ static const struct mtk_gate_regs infra_cg_regs = {
 	.sta_ofs = 0x48,
 };
 
-#define GATE_INFRA(_id, _parent, _shift) {			\
+#define GATE_INFRA_FLAGS(_id, _parent, _shift, _flags) {	\
 		.id = _id,					\
 		.parent = _parent,				\
 		.regs = &infra_cg_regs,				\
 		.shift = _shift,				\
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN,	\
+		.flags = _flags,				\
 	}
+#define GATE_INFRA(_id, _parent, _shift) \
+	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+#define GATE_INFRA_XTAL(_id, _parent, _shift) \
+	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
+
 
 static const struct mtk_gate infra_cgs[] = {
 	GATE_INFRA(CLK_INFRA_DBG, CLK_TOP_AXI_SEL, 0),
 	GATE_INFRA(CLK_INFRA_SMI, CLK_TOP_MM_SEL, 1),
 	GATE_INFRA(CLK_INFRA_QAXI_CM4, CLK_TOP_AXI_SEL, 2),
 	GATE_INFRA(CLK_INFRA_AUD_SPLIN_B, CLK_TOP_HADDS2PLL_294M, 4),
-	GATE_INFRA(CLK_INFRA_AUDIO, CLK_XTAL, 5),
-	GATE_INFRA(CLK_INFRA_EFUSE, CLK_XTAL, 6),
+	GATE_INFRA_XTAL(CLK_INFRA_AUDIO, CLK_XTAL, 5),
+	GATE_INFRA_XTAL(CLK_INFRA_EFUSE, CLK_XTAL, 6),
 	GATE_INFRA(CLK_INFRA_L2C_SRAM, CLK_TOP_MM_SEL, 7),
 	GATE_INFRA(CLK_INFRA_M4U, CLK_TOP_MEM_SEL, 8),
 	GATE_INFRA(CLK_INFRA_CONNMCU, CLK_TOP_WBG_DIG_416M, 12),
@@ -628,13 +633,17 @@ static const struct mtk_gate_regs peri1_cg_regs = {
 	.sta_ofs = 0x1C,
 };
 
-#define GATE_PERI0(_id, _parent, _shift) {			\
+#define GATE_PERI0_FLAGS(_id, _parent, _shift, _flags) {	\
 		.id = _id,					\
 		.parent = _parent,				\
 		.regs = &peri0_cg_regs,				\
 		.shift = _shift,				\
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN,	\
+		.flags = _flags,				\
 	}
+#define GATE_PERI0(_id, _parent, _shift) \
+	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+#define GATE_PERI0_XTAL(_id, _parent, _shift) \
+	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
 
 #define GATE_PERI1(_id, _parent, _shift) {			\
 		.id = _id,					\
@@ -672,10 +681,10 @@ static const struct mtk_gate peri_cgs[] = {
 	GATE_PERI0(CLK_PERI_I2C0, CLK_TOP_AXI_SEL, 24),
 	GATE_PERI0(CLK_PERI_I2C1, CLK_TOP_AXI_SEL, 25),
 	GATE_PERI0(CLK_PERI_I2C2, CLK_TOP_AXI_SEL, 26),
-	GATE_PERI0(CLK_PERI_I2C3, CLK_XTAL, 27),
-	GATE_PERI0(CLK_PERI_AUXADC, CLK_XTAL, 28),
+	GATE_PERI0_XTAL(CLK_PERI_I2C3, CLK_XTAL, 27),
+	GATE_PERI0_XTAL(CLK_PERI_AUXADC, CLK_XTAL, 28),
 	GATE_PERI0(CLK_PERI_SPI0, CLK_TOP_SPI0_SEL, 29),
-	GATE_PERI0(CLK_PERI_ETH, CLK_XTAL, 30),
+	GATE_PERI0_XTAL(CLK_PERI_ETH, CLK_XTAL, 30),
 	GATE_PERI0(CLK_PERI_USB0_MCU, CLK_TOP_AXI_SEL, 31),
 
 	GATE_PERI1(CLK_PERI_USB1_MCU, CLK_TOP_AXI_SEL, 0),
