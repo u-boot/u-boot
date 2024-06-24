@@ -543,6 +543,13 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate = &priv->gates[clk->id];
 
+	/*
+	 * Assume xtal_rate to be declared if some gates have
+	 * XTAL as parent
+	 */
+	if (gate->flags & CLK_PARENT_XTAL)
+		return priv->tree->xtal_rate;
+
 	return mtk_clk_find_parent_rate(clk, gate->parent, priv->parent);
 }
 
