@@ -916,8 +916,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-kontron-bl-osm-s.dtb \
 	imx8mm-mx8menlo.dtb \
 	imx8mm-phg.dtb \
-	imx8mn-bsh-smm-s2.dtb \
-	imx8mn-bsh-smm-s2pro.dtb \
 	imx8mq-cm.dtb \
 	imx8mn-var-som-symphony.dtb \
 	imx8mq-mnt-reform2.dtb \
