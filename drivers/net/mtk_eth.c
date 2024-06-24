@@ -1964,7 +1964,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 			return -ENODEV;
 		}
 
-		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap");
+		/* Upstream linux use mediatek,pnswap instead of pn_swap */
+		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap") ||
+				ofnode_read_bool(args.node, "mediatek,pnswap");
 	} else if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII) {
 		/* get corresponding usxgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,usxgmiisys",
