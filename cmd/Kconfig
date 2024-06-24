@@ -621,7 +621,7 @@ config CMD_ZBOOT
 
 	  Consider using FIT in preference to this since it supports directly
 	  booting both 32- and 64-bit kernels, as well as secure boot.
-	  Documentation is available in doc/uImage.FIT/x86-fit-boot.txt
+	  Documentation is available in doc/usage/fit/x86-fit-boot.rst.
 
 endmenu
 

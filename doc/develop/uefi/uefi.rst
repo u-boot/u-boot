@@ -72,7 +72,7 @@ bootm command. This feature is available if U-Boot is configured with::
 
     CONFIG_BOOTM_EFI=y
 
-A sample configuration is provided as file doc/uImage.FIT/uefi.its.
+A sample configuration is provided in :doc:`../../usage/fit/uefi`.
 
 Below you find the output of an example session starting GRUB::
 
@@ -96,7 +96,7 @@ Below you find the output of an example session starting GRUB::
     ## Transferring control to EFI (at address 404000d0) ...
     Welcome to GRUB!
 
-See doc/uImage.FIT/howto.txt for an introduction to FIT images.
+See :doc:`../../usage/fit/howto` for an introduction to FIT images.
 
 Configuring UEFI secure boot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
