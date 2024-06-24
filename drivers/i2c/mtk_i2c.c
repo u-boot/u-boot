@@ -221,6 +221,8 @@ struct mtk_i2c_priv {
 	void __iomem *pdmabase;		/* dma base address*/
 	struct clk clk_main;		/* main clock for i2c bus */
 	struct clk clk_dma;		/* DMA clock for i2c via DMA */
+	struct clk clk_arb;		/* DMA clock for i2c ARB */
+	struct clk clk_pmic;		/* DMA clock for i2c PMIC */
 	const struct mtk_i2c_soc_data *soc_data; /* Compatible data for different IC */
 	int op;				/* operation mode */
 	bool zero_len;			/* Only transfer slave address, no data */
@@ -255,12 +257,36 @@ static int mtk_i2c_clk_enable(struct mtk_i2c_priv *priv)
 	if (ret)
 		return log_msg_ret("enable clk_dma", ret);
 
+	if (priv->clk_arb.dev) {
+		ret = clk_enable(&priv->clk_arb);
+		if (ret)
+			return log_msg_ret("enable clk_arb", ret);
+	}
+
+	if (priv->clk_pmic.dev) {
+		ret = clk_enable(&priv->clk_pmic);
+		if (ret)
+			return log_msg_ret("enable clk_pmic", ret);
+	}
+
 	return 0;
 }
 
 static int mtk_i2c_clk_disable(struct mtk_i2c_priv *priv)
 {
 	int ret;
+
+	if (priv->clk_pmic.dev) {
+		ret = clk_disable(&priv->clk_pmic);
+		if (ret)
+			return log_msg_ret("disable clk_pmic", ret);
+	}
+
+	if (priv->clk_arb.dev) {
+		ret = clk_disable(&priv->clk_arb);
+		if (ret)
+			return log_msg_ret("disable clk_arb", ret);
+	}
 
 	ret = clk_disable(&priv->clk_dma);
 	if (ret)
@@ -747,6 +773,10 @@ static int mtk_i2c_of_to_plat(struct udevice *dev)
 		return log_msg_ret("clk_get_by_index 0", ret);
 
 	ret = clk_get_by_index(dev, 1, &priv->clk_dma);
+
+	/* optional i2c clock */
+	clk_get_by_name(dev, "arb", &priv->clk_arb);
+	clk_get_by_name(dev, "pmic", &priv->clk_pmic);
 
 	return ret;
 }
