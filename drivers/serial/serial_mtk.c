@@ -10,6 +10,7 @@
 #include <config.h>
 #include <div64.h>
 #include <dm.h>
+#include <dm/device.h>
 #include <dm/device_compat.h>
 #include <errno.h>
 #include <log.h>
@@ -80,6 +81,7 @@ struct mtk_serial_regs {
  * @fixed_clk_rate:		Fallback fixed baud clock rate if baud clock
  *				device is not specified
  * @force_highspeed:		Force using high-speed mode
+ * @upstream_highspeed_logic:	Apply upstream high-speed logic
  */
 struct mtk_serial_priv {
 	struct mtk_serial_regs __iomem *regs;
@@ -87,6 +89,7 @@ struct mtk_serial_priv {
 	struct clk clk_bus;
 	u32 fixed_clk_rate;
 	bool force_highspeed;
+	bool upstream_highspeed_logic;
 };
 
 static void _mtk_serial_setbrg(struct mtk_serial_priv *priv, int baud,
@@ -113,7 +116,12 @@ static void _mtk_serial_setbrg(struct mtk_serial_priv *priv, int baud,
 		goto set_baud;
 	}
 
-	if (priv->force_highspeed)
+	/*
+	 * Upstream linux use highspeed for anything >= 115200 and lowspeed
+	 * for < 115200. Simulate this if we are using the upstream compatible.
+	 */
+	if (priv->force_highspeed ||
+	    (priv->upstream_highspeed_logic && baud >= 115200))
 		goto use_hs3;
 
 	if (baud <= 115200) {
@@ -259,6 +267,8 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 	clk_get_by_name(dev, "bus", &priv->clk_bus);
 
 	priv->force_highspeed = dev_read_bool(dev, "mediatek,force-highspeed");
+	priv->upstream_highspeed_logic =
+		device_is_compatible(dev, "mediatek,mt6577-uart");
 
 	return 0;
 }
