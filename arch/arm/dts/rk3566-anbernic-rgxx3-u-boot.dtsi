@@ -4,7 +4,7 @@
 
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc1, &sdmmc0;
+		u-boot,spl-boot-order = &sdmmc0, &sdhci;
 	};
 };
 

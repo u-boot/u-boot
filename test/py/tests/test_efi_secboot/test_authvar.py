@@ -183,7 +183,7 @@ class TestEfiAuthVar(object):
             assert 'db:' in ''.join(output)
 
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -a -i 4000000:$filesize db'])
             assert 'Failed to set EFI variable' in ''.join(output)
 
@@ -197,7 +197,7 @@ class TestEfiAuthVar(object):
         with u_boot_console.log.section('Test Case 3c'):
             # Test Case 3c, update with correct signature
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 db1.auth',
+                'fatload host 0:1 4000000 db2.auth',
                 'setenv -e -nv -bs -rt -at -a -i 4000000:$filesize db',
                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
             assert 'Failed to set EFI variable' not in ''.join(output)

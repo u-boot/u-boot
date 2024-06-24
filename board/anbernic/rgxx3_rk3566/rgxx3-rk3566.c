@@ -6,22 +6,18 @@
 #include <abuf.h>
 #include <adc.h>
 #include <asm/io.h>
-#include <command.h>
 #include <display.h>
 #include <dm.h>
 #include <dm/lists.h>
 #include <env.h>
 #include <fdt_support.h>
 #include <linux/delay.h>
-#include <linux/iopoll.h>
 #include <mipi_dsi.h>
 #include <mmc.h>
 #include <panel.h>
 #include <pwm.h>
 #include <stdlib.h>
 #include <video_bridge.h>
-
-#define BOOT_BROM_DOWNLOAD	0xef08a53c
 
 #define GPIO0_BASE		0xfdd60000
 #define GPIO4_BASE		0xfe770000
@@ -35,14 +31,6 @@
 #define GPIO_C7			BIT(7)
 
 #define GPIO_WRITEMASK(bits)	((bits) << 16)
-
-#define SARADC_BASE		0xfe720000
-#define SARADC_DATA		0x0000
-#define SARADC_STAS		0x0004
-#define SARADC_ADC_STATUS	BIT(0)
-#define SARADC_CTRL		0x0008
-#define SARADC_INPUT_SRC_MSK	0x7
-#define SARADC_POWER_CTRL	BIT(3)
 
 #define DTB_DIR			"rockchip/"
 
@@ -170,63 +158,11 @@ static const struct rg353_panel rg353_panel_details[] = {
 };
 
 /*
- * The device has internal eMMC, and while some devices have an exposed
- * clk pin you can ground to force a bypass not all devices do. As a
- * result it may be possible for some devices to become a perma-brick
- * if a corrupted TPL or SPL stage with a valid header is flashed to
- * the internal eMMC. Add functionality to read ADC channel 0 (the func
- * button) as early as possible in the boot process to provide some
- * protection against this. If we ever get an open TPL stage, we should
- * consider moving this function there.
- */
-void read_func_button(void)
-{
-	int ret;
-	u32 reg;
-
-	/* Turn off SARADC to reset it. */
-	writel(0, (SARADC_BASE + SARADC_CTRL));
-
-	/* Enable channel 0 and power on SARADC. */
-	writel(((0 & SARADC_INPUT_SRC_MSK) | SARADC_POWER_CTRL),
-	       (SARADC_BASE + SARADC_CTRL));
-
-	/*
-	 * Wait for data to be ready. Use timeout of 20000us from
-	 * rockchip_saradc driver.
-	 */
-	ret = readl_poll_timeout((SARADC_BASE + SARADC_STAS), reg,
-				 !(reg & SARADC_ADC_STATUS), 20000);
-	if (ret) {
-		printf("ADC Timeout");
-		return;
-	}
-
-	/* Read the data from the SARADC. */
-	reg = readl((SARADC_BASE + SARADC_DATA));
-
-	/* Turn the SARADC back off so it's ready to be used again. */
-	writel(0, (SARADC_BASE + SARADC_CTRL));
-
-	/*
-	 * If the value is less than 30 the button is being pressed.
-	 * Reset the device back into Rockchip download mode.
-	 */
-	if (reg <= 30) {
-		printf("download key pressed, entering download mode...");
-		writel(BOOT_BROM_DOWNLOAD, CONFIG_ROCKCHIP_BOOT_MODE_REG);
-		do_reset(NULL, 0, 0, NULL);
-	}
-};
-
-/*
  * Start LED very early so user knows device is on. Set color
  * to red.
  */
 void spl_board_init(void)
 {
-	read_func_button();
-
 	/* Set GPIO0_C5, GPIO0_C6, and GPIO0_C7 to output. */
 	writel(GPIO_WRITEMASK(GPIO_C7 | GPIO_C6 | GPIO_C5) | \
 	       (GPIO_C7 | GPIO_C6 | GPIO_C5),

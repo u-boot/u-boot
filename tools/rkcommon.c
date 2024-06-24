@@ -470,7 +470,7 @@ int rkcommon_verify_header(unsigned char *buf, int size,
 	 * If no 'imagename' is specified via the commandline (e.g. if this is
 	 * 'dumpimage -l' w/o any further constraints), we accept any spl_info.
 	 */
-	if (params->imagename == NULL)
+	if (params->imagename == NULL || !strlen(params->imagename))
 		return 0;
 
 	/* Match the 'imagename' against the 'spl_hdr' found */

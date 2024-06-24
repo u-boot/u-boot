@@ -192,13 +192,13 @@ type
     invalid               Invalid Image
     aisimage              Davinci AIS image
     atmelimage            ATMEL ROM-Boot Image
-    copro                 Coprocessor Image}
+    copro                 Coprocessor Image
     fdt_legacy            legacy Image with Flat Device Tree
     filesystem            Filesystem Image
     firmware              Firmware
-    firmware_ivt          Firmware with HABv4 IVT }
+    firmware_ivt          Firmware with HABv4 IVT
     flat_dt               Flat Device Tree
-    fpga                  FPGA Image }
+    fpga                  FPGA Device Image (bitstream file, vendor specific)
     gpimage               TI Keystone SPL Image
     imx8image             NXP i.MX8 Boot Image
     imx8mimage            NXP i.MX8M Boot Image
@@ -207,31 +207,31 @@ type
     kernel_noload         Kernel Image (no loading done)
     kwbimage              Kirkwood Boot Image
     lpc32xximage          LPC32XX Boot Image
-    mtk_image             MediaTek BootROM loadable Image }
+    mtk_image             MediaTek BootROM loadable Image
     multi                 Multi-File Image
     mxsimage              Freescale MXS Boot Image
     omapimage             TI OMAP SPL With GP CH
     pblimage              Freescale PBL Boot Image
     pmmc                  TI Power Management Micro-Controller Firmware
     ramdisk               RAMDisk Image
-    rkimage               Rockchip Boot Image }
-    rksd                  Rockchip SD Boot Image }
-    rkspi                 Rockchip SPI Boot Image }
+    rkimage               Rockchip Boot Image
+    rksd                  Rockchip SD Boot Image
+    rkspi                 Rockchip SPI Boot Image
     script                Script
     socfpgaimage          Altera SoCFPGA CV/AV preloader
     socfpgaimage_v1       Altera SoCFPGA A10 preloader
-    spkgimage             Renesas SPKG Image }
+    spkgimage             Renesas SPKG Image
     standalone            Standalone Program
-    stm32image            STMicroelectronics STM32 Image }
-    sunxi_egon            Allwinner eGON Boot Image }
-    sunxi_toc0            Allwinner TOC0 Boot Image }
+    stm32image            STMicroelectronics STM32 Image
+    sunxi_egon            Allwinner eGON Boot Image
+    sunxi_toc0            Allwinner TOC0 Boot Image
     tee                   Trusted Execution Environment Image
     ublimage              Davinci UBL image
     vybridimage           Vybrid Boot Image
     x86_setup             x86 setup.bin
-    zynqimage             Xilinx Zynq Boot Image }
-    zynqmpbif             Xilinx ZynqMP Boot Image (bif) }
-    zynqmpimage           Xilinx ZynqMP Boot Image }
+    zynqimage             Xilinx Zynq Boot Image
+    zynqmpbif             Xilinx ZynqMP Boot Image (bif)
+    zynqmpimage           Xilinx ZynqMP Boot Image
     ====================  ==================
 
 compression

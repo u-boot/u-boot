@@ -628,7 +628,7 @@ if CYCLIC
 
 config CYCLIC_MAX_CPU_TIME_US
 	int "Sets the max allowed time for a cyclic function in us"
-	default 1000
+	default 5000
 	help
 	  The max allowed time for a cyclic function in us. If a functions
 	  takes longer than this duration this function will get unregistered

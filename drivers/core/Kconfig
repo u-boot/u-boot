@@ -113,7 +113,7 @@ config DM_EVENT
 	select EVENT
 	help
 	  This enables support for generating events related to driver model
-	  operations, such as prbing or removing a device. Subsystems can
+	  operations, such as probing or removing a device. Subsystems can
 	  register a 'spy' function that is called when the event occurs. Such
 	  subsystems must select this option.
 

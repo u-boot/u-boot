@@ -15,7 +15,7 @@ that it can be verified using a public key later. Provided that the private
 key is kept secret and the public key is stored in a non-volatile place,
 any image can be verified in this way.
 
-See verified-boot.txt for more general information on verified boot.
+See :doc:`verified-boot` for more general information on verified boot.
 
 
 Concepts

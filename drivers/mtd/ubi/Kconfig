@@ -9,6 +9,7 @@ config UBI_SILENCE_MSG
 
 config MTD_UBI
 	bool "Enable UBI - Unsorted block images"
+	depends on MTD
 	select RBTREE
 	select MTD_PARTITIONS
 	help

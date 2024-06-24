@@ -248,7 +248,7 @@ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
 
 	list_del(&req->list);
 	req->trb = NULL;
-	if (req->request.length)
+	if (req->request.dma && req->request.length)
 		dwc3_flush_cache((uintptr_t)req->request.dma, req->request.length);
 
 	if (req->request.status == -EINPROGRESS)
@@ -256,7 +256,7 @@ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
 
 	if (dwc->ep0_bounced && dep->number == 0)
 		dwc->ep0_bounced = false;
-	else
+	else if (req->request.dma)
 		usb_gadget_unmap_request(&dwc->gadget, &req->request,
 				req->direction);
 
