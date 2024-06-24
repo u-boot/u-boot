@@ -479,7 +479,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_add_region(lmb_rgn_lst, base, size);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+static long __lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
@@ -528,6 +528,27 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 	rgn[i].size = base - rgn[i].base;
 	return lmb_add_region_flags(lmb_rgn_lst, end + 1, rgnend - end,
 				    rgn[i].flags);
+}
+
+long lmb_free(phys_addr_t base, phys_size_t size)
+{
+	return __lmb_free(base, size);
+}
+
+/**
+ * lmb_free_flags() - Free up a region of memory
+ * @base: Base Address of region to be freed
+ * @size: Size of the region to be freed
+ * @flags: Memory region attributes
+ *
+ * Free up a region of memory.
+ *
+ * Return: 0 if successful, -1 on failure
+ */
+long lmb_free_flags(phys_addr_t base, phys_size_t size,
+		    __always_unused uint flags)
+{
+	return __lmb_free(base, size);
 }
 
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
@@ -613,11 +634,55 @@ phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
 }
 
+/**
+ * lmb_alloc_flags() - Allocate memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags)
+{
+	return __lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
+				flags);
+}
+
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	phys_addr_t alloc;
 
 	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NONE);
+
+	if (alloc == 0)
+		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
+		       (ulong)size, (ulong)max_addr);
+
+	return alloc;
+}
+
+/**
+ * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @max_addr: Maximum address of the requested region
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The max_addr parameter is used to specify the maximum address
+ * below which the requested region should be allocated.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
+				 phys_addr_t max_addr, uint flags)
+{
+	phys_addr_t alloc;
+
+	alloc = __lmb_alloc_base(size, align, max_addr, flags);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -658,6 +723,24 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 {
 	return __lmb_alloc_addr(base, size, LMB_NONE);
+}
+
+/**
+ * lmb_alloc_addr_flags() - Allocate specified memory address with specified attributes
+ * @base: Base Address requested
+ * @size: Size of the region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The base parameter is used to specify the base address
+ * of the requested region.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
+				 uint flags)
+{
+	return __lmb_alloc_addr(base, size, flags);
 }
 
 /* Return number of bytes from a given address that are free */
