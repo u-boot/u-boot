@@ -1,4 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include "rk3328-rock-pi-e-base-u-boot.dtsi"
-#include "rk3328-sdram-ddr3-666.dtsi"
+#include "rk3328-sdram-ddr4-666.dtsi"
