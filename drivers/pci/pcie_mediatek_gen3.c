@@ -284,9 +284,8 @@ static int mtk_pcie_power_on(struct udevice *dev)
 
 	pcie->priv = dev;
 
-	err = generic_phy_get_by_name(dev, "pcie-phy", &pcie->phy);
-	if (err)
-		return err;
+	/* pcie-phy is optional (mt7988 doesn't need it) */
+	generic_phy_get_by_name(dev, "pcie-phy", &pcie->phy);
 
 	/*
 	 * Upstream linux kernel devine these clock without clock-names
@@ -308,13 +307,15 @@ static int mtk_pcie_power_on(struct udevice *dev)
 	if (err)
 		return err;
 
-	err = generic_phy_init(&pcie->phy);
-	if (err)
-		return err;
+	if (pcie->phy.dev) {
+		err = generic_phy_init(&pcie->phy);
+		if (err)
+			return err;
 
-	err = generic_phy_power_on(&pcie->phy);
-	if (err)
-		goto err_phy_on;
+		err = generic_phy_power_on(&pcie->phy);
+		if (err)
+			goto err_phy_on;
+	}
 
 	err = clk_enable(&pcie->pl_250m_ck);
 	if (err)
@@ -348,7 +349,8 @@ err_clk_tl_26m:
 err_clk_pl_250m:
 	clk_disable(&pcie->pl_250m_ck);
 err_phy_on:
-	generic_phy_exit(&pcie->phy);
+	if (pcie->phy.dev)
+		generic_phy_exit(&pcie->phy);
 
 	return err;
 }
