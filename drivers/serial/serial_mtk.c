@@ -76,6 +76,7 @@ struct mtk_serial_regs {
  *				driver
  * @regs:			Register base of the serial port
  * @clk:			The baud clock device
+ * @clk_bus:			The bus clock device
  * @fixed_clk_rate:		Fallback fixed baud clock rate if baud clock
  *				device is not specified
  * @force_highspeed:		Force using high-speed mode
@@ -83,6 +84,7 @@ struct mtk_serial_regs {
 struct mtk_serial_priv {
 	struct mtk_serial_regs __iomem *regs;
 	struct clk clk;
+	struct clk clk_bus;
 	u32 fixed_clk_rate;
 	bool force_highspeed;
 };
@@ -220,6 +222,10 @@ static int mtk_serial_probe(struct udevice *dev)
 	writel(UART_MCRVAL, &priv->regs->mcr);
 	writel(UART_FCRVAL, &priv->regs->fcr);
 
+	clk_enable(&priv->clk);
+	if (priv->clk_bus.dev)
+		clk_enable(&priv->clk_bus);
+
 	return 0;
 }
 
@@ -249,6 +255,8 @@ static int mtk_serial_of_to_plat(struct udevice *dev)
 			return -EINVAL;
 		}
 	}
+
+	clk_get_by_name(dev, "bus", &priv->clk_bus);
 
 	priv->force_highspeed = dev_read_bool(dev, "mediatek,force-highspeed");
 
