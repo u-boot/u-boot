@@ -271,7 +271,7 @@ static int msm_spmi_probe(struct udevice *dev)
 	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
-		priv->max_channels = SPMI_MAX_CHANNELS;
+		priv->max_channels = SPMI_MAX_CHANNELS_V5;
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	} else {
 		/* TOFIX: handle second bus */
