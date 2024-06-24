@@ -23,6 +23,7 @@
 	func(MMC, mmc, 2) \
 	func(USB, usb, 0) \
 	func(USB, usb, 1) \
+	func(NVME, nvme, 0) \
 	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #define CFG_EXTRA_ENV_SETTINGS \

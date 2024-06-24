@@ -864,7 +864,6 @@ dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-phytec-segin-ff-rdk-emmc.dtb \
 	imx6ull-dart-6ul.dtb \
 	imx6ull-somlabs-visionsom.dtb \
-	imx6ulz-bsh-smm-m2.dtb \
 	imx6ulz-14x14-evk.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
@@ -916,8 +915,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-kontron-bl-osm-s.dtb \
 	imx8mm-mx8menlo.dtb \
 	imx8mm-phg.dtb \
-	imx8mn-bsh-smm-s2.dtb \
-	imx8mn-bsh-smm-s2pro.dtb \
 	imx8mq-cm.dtb \
 	imx8mn-var-som-symphony.dtb \
 	imx8mq-mnt-reform2.dtb \

@@ -45,22 +45,6 @@ int board_fit_config_name_match(const char *path)
 	return -1;
 }
 
-static int __maybe_unused setup_fec(void)
-{
-	struct iomuxc_gpr_base_regs *gpr =
-		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-
-#ifndef CONFIG_IMX8MP
-	/* Use 125M anatop REF_CLK1 for ENET1, not from external */
-	clrsetbits_le32(&gpr->gpr[1], 0x2000, 0);
-#else
-	/* Enable RGMII TX clk output */
-	setbits_le32(&gpr->gpr[1], BIT(22));
-#endif
-
-	return 0;
-}
-
 #if (IS_ENABLED(CONFIG_NET))
 int board_phy_config(struct phy_device *phydev)
 {
@@ -75,6 +59,9 @@ int board_phy_config(struct phy_device *phydev)
 		val |= 0xb << 8; /* LED2(Green;Link/Act): blink for TX/RX act */
 		phy_write(phydev, MDIO_DEVAD_NONE, 24, val);
 		break;
+	case 0xd565a401: /* MaxLinear GPY111 */
+		puts("GPY111 ");
+		break;
 	}
 
 	if (phydev->drv->config)
@@ -87,9 +74,6 @@ int board_phy_config(struct phy_device *phydev)
 int board_init(void)
 {
 	venice_eeprom_init(1);
-
-	if (IS_ENABLED(CONFIG_FEC_MXC))
-		setup_fec();
 
 	return 0;
 }

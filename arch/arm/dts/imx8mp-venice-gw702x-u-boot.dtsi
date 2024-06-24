@@ -4,9 +4,3 @@
  */
 
 #include "imx8mp-venice-u-boot.dtsi"
-
-&eqos {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
-};
