@@ -1129,7 +1129,7 @@ config SPL_LMB
 config LMB_ARCH_MEM_MAP
 	bool "Add an architecture specific memory map"
 	depends on LMB
-	default y if FSL_LAYERSCAPE
+	default y if FSL_LAYERSCAPE || X86
 	help
 	  Some architectures have special or unique aspects which need
 	  consideration when adding memory ranges to the list of available
