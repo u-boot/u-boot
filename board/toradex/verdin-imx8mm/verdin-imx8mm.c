@@ -126,6 +126,35 @@ int board_phys_sdram_size(phys_size_t *size)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	const char *canoscpath = "/oscillator";
+	int freq = 40000000;	/* 40 MHz is used on most variants */
+	int canoscoff, ret;
+
+	canoscoff = fdt_path_offset(blob, canoscpath);
+	if (canoscoff < 0)	/* No CAN oscillator found. */
+		goto exit;
+
+	/*
+	 * The following "prodid" (PID4 in Toradex naming) use
+	 * a 20MHz CAN oscillator:
+	 * - 0055, V1.1A, V1.1B, V1.1C and V1.1D
+	 * - 0059, V1.1A and V1.1B
+	 */
+	if ((tdx_hw_tag.ver_major == 1 && tdx_hw_tag.ver_minor == 1) &&
+	    ((tdx_hw_tag.prodid == VERDIN_IMX8MMQ_IT &&
+	      tdx_hw_tag.ver_assembly <= 1) ||	/* 0059 rev. A or B */
+	     (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT &&
+	      tdx_hw_tag.ver_assembly <= 3))) {	/* 0055 rev. A/B/C/D */
+		freq = 20000000;
+	}
+
+	ret = fdt_setprop_u32(blob, canoscoff, "clock-frequency", freq);
+	if (ret < 0) {
+		printf("Failed to set CAN oscillator clock-frequency, ret=%d\n",
+		       ret);
+	}
+
+exit:
 	return ft_common_board_setup(blob, bd);
 }
 #endif
