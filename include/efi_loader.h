@@ -798,10 +798,6 @@ efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 					  int memory_type,
 					  bool overlap_only_ram);
 
-/* Adds a conventional range into the EFI memory map */
-efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
-					     u64 ram_top);
-
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
 /* Called when a block device is added */
@@ -1186,9 +1182,14 @@ efi_status_t efi_console_get_u16_string
 efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int size);
 
 /**
- * efi_add_known_memory() - add memory banks to EFI memory map
+ * efi_add_known_memory() - add memory types to the EFI memory map
  *
- * This weak function may be overridden for specific architectures.
+ * This function is to be used to add different memory types other
+ * than EFI_CONVENTIONAL_MEMORY to the EFI memory map. The conventional
+ * memory is handled by the LMB module and gets added to the memory
+ * map through the LMB module.
+ *
+ * This function may be overridden for architectures specific purposes.
  */
 void efi_add_known_memory(void);
 

@@ -783,82 +783,17 @@ efi_status_t efi_get_memory_map_alloc(efi_uintn_t *map_size,
 }
 
 /**
- * efi_add_conventional_memory_map() - add a RAM memory area to the map
+ * efi_add_known_memory() - add memory types to the EFI memory map
  *
- * @ram_start:		start address of a RAM memory area
- * @ram_end:		end address of a RAM memory area
- * @ram_top:		max address to be used as conventional memory
- * Return:		status code
- */
-efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
-					     u64 ram_top)
-{
-	u64 pages;
-
-	/* Remove partial pages */
-	ram_end &= ~EFI_PAGE_MASK;
-	ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
-
-	if (ram_end <= ram_start) {
-		/* Invalid mapping */
-		return EFI_INVALID_PARAMETER;
-	}
-
-	pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
-
-	efi_add_memory_map_pg(ram_start, pages,
-			      EFI_CONVENTIONAL_MEMORY, false);
-
-	/*
-	 * Boards may indicate to the U-Boot memory core that they
-	 * can not support memory above ram_top. Let's honor this
-	 * in the efi_loader subsystem too by declaring any memory
-	 * above ram_top as "already occupied by firmware".
-	 */
-	if (ram_top < ram_start) {
-		/* ram_top is before this region, reserve all */
-		efi_add_memory_map_pg(ram_start, pages,
-				      EFI_BOOT_SERVICES_DATA, true);
-	} else if (ram_top < ram_end) {
-		/* ram_top is inside this region, reserve parts */
-		pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
-
-		efi_add_memory_map_pg(ram_top, pages,
-				      EFI_BOOT_SERVICES_DATA, true);
-	}
-
-	return EFI_SUCCESS;
-}
-
-/**
- * efi_add_known_memory() - add memory banks to map
+ * This function is to be used to add different memory types other
+ * than EFI_CONVENTIONAL_MEMORY to the EFI memory map. The conventional
+ * memory is handled by the LMB module and gets added to the memory
+ * map through the LMB module.
  *
- * This function may be overridden for specific architectures.
+ * This function may be overridden for architectures specific purposes.
  */
 __weak void efi_add_known_memory(void)
 {
-	u64 ram_top = gd->ram_top & ~EFI_PAGE_MASK;
-	int i;
-
-	/*
-	 * ram_top is just outside mapped memory. So use an offset of one for
-	 * mapping the sandbox address.
-	 */
-	ram_top = (uintptr_t)map_sysmem(ram_top - 1, 0) + 1;
-
-	/* Fix for 32bit targets with ram_top at 4G */
-	if (!ram_top)
-		ram_top = 0x100000000ULL;
-
-	/* Add RAM */
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		u64 ram_end, ram_start;
-
-		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
-		ram_end = ram_start + gd->bd->bi_dram[i].size;
-
-		efi_add_conventional_memory_map(ram_start, ram_end, ram_top);
-	}
 }
 
 /**
