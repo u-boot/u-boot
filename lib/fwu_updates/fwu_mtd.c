@@ -11,7 +11,7 @@
 #include <malloc.h>
 #include <mtd.h>
 #include <uuid.h>
-#include <vsprintf.h>
+#include <stdio.h>
 
 #include <dm/ofnode.h>
 

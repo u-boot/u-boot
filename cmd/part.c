@@ -20,6 +20,7 @@
 #include <command.h>
 #include <env.h>
 #include <part.h>
+#include <stdio.h>
 #include <vsprintf.h>
 
 enum cmd_part_info {
