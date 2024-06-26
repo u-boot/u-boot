@@ -38,7 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (struct bd_info *kbd);
 
@@ -119,6 +118,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 
 void arch_lmb_reserve(void)
 {
+	phys_addr_t rsv_start;
 	phys_size_t bootm_size;
 	ulong size, bootmap_base;
 
@@ -143,7 +143,8 @@ void arch_lmb_reserve(void)
 		lmb_reserve(base, bootm_size - size);
 	}
 
-	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
+	rsv_start = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	arch_lmb_reserve_generic(rsv_start, gd->ram_top, 4096);
 
 #ifdef CONFIG_MP
 	cpu_mp_lmb_reserve();
@@ -249,14 +250,6 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	boot_jump_linux(images);
 
 	return 0;
-}
-
-static ulong get_sp (void)
-{
-	ulong sp;
-
-	asm( "mr %0,1": "=r"(sp) : );
-	return sp;
 }
 
 static void set_clocks_in_mhz (struct bd_info *kbd)
