@@ -133,16 +133,3 @@ int do_bootm_vxworks(int flag, struct bootm_info *bmi)
 {
 	return do_bootm_linux(flag, bmi);
 }
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("mv %0, sp" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(void)
-{
-	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
-}
