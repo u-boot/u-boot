@@ -101,16 +101,3 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	/* does not return */
 	return 1;
 }
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("mov r15, %0" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(void)
-{
-	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
-}
