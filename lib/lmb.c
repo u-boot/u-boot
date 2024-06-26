@@ -19,6 +19,7 @@
 #include <asm/global_data.h>
 #include <asm/sections.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -212,33 +213,31 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
 /**
  * efi_lmb_reserve() - add reservations for EFI memory
  *
- * Add reservations for all EFI memory areas that are not
- * EFI_CONVENTIONAL_MEMORY.
+ * Add reservations for EFI runtime services memory
  *
- * Return:	0 on success, 1 on failure
+ * Return: None
  */
-static __maybe_unused int efi_lmb_reserve(void)
+static __maybe_unused void efi_lmb_reserve(void)
 {
-	struct efi_mem_desc *memmap = NULL, *map;
-	efi_uintn_t i, map_size = 0;
-	efi_status_t ret;
+	phys_addr_t runtime_start, runtime_end;
+	unsigned long runtime_mask = EFI_PAGE_MASK;
 
-	ret = efi_get_memory_map_alloc(&map_size, &memmap);
-	if (ret != EFI_SUCCESS)
-		return 1;
+#if defined(__aarch64__)
+	/*
+	 * Runtime Services must be 64KiB aligned according to the
+	 * "AArch64 Platforms" section in the UEFI spec (2.7+).
+	 */
 
-	for (i = 0, map = memmap; i < map_size / sizeof(*map); ++map, ++i) {
-		if (map->type != EFI_CONVENTIONAL_MEMORY) {
-			lmb_reserve_flags(map_to_sysmem((void *)(uintptr_t)
-							map->physical_start),
-					  map->num_pages * EFI_PAGE_SIZE,
-					  map->type == EFI_RESERVED_MEMORY_TYPE
-					      ? LMB_NOMAP : LMB_NONE);
-		}
-	}
-	efi_free_pool(memmap);
+	runtime_mask = SZ_64K - 1;
+#endif
 
-	return 0;
+	/* Reserve the EFI runtime services memory */
+	runtime_start = (uintptr_t)__efi_runtime_start & ~runtime_mask;
+	runtime_end = (uintptr_t)__efi_runtime_stop;
+	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
+
+	lmb_reserve_flags(runtime_start, runtime_end - runtime_start,
+			  LMB_NOOVERWRITE | LMB_NONOTIFY);
 }
 
 static void lmb_reserve_common(void *fdt_blob)
