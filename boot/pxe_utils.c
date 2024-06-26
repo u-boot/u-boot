@@ -4,6 +4,8 @@
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -762,17 +764,22 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
-            IS_ENABLED(CONFIG_CMD_BOOTM))
+	    IS_ENABLED(CONFIG_CMD_BOOTM)) {
+		log_debug("using bootm\n");
 		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an AArch64 Linux kernel image */
-	else if (IS_ENABLED(CONFIG_CMD_BOOTI))
+	} else if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+		log_debug("using booti\n");
 		do_booti(ctx->cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting a Image */
-	else if (IS_ENABLED(CONFIG_CMD_BOOTZ))
+	} else if (IS_ENABLED(CONFIG_CMD_BOOTZ)) {
+		log_debug("using bootz\n");
 		do_bootz(ctx->cmdtp, 0, bootm_argc, bootm_argv);
 	/* Try booting an x86_64 Linux kernel image */
-	else if (IS_ENABLED(CONFIG_CMD_ZBOOT))
+	} else if (IS_ENABLED(CONFIG_CMD_ZBOOT)) {
+		log_debug("using zboot\n");
 		do_zboot_parent(ctx->cmdtp, 0, zboot_argc, zboot_argv, NULL);
+	}
 
 	unmap_sysmem(buf);
 

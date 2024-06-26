@@ -5,6 +5,8 @@
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <command.h>
 #include <mapmem.h>
 #include <vsprintf.h>
@@ -14,8 +16,14 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	ulong bzimage_addr = 0, bzimage_size, initrd_addr, initrd_size;
-	ulong base_addr;
 	const char *s, *cmdline;
+	ulong base_addr;
+	int i;
+
+	log_debug("argc %d:", argc);
+	for (i = 0; i < argc; i++)
+		log_debug(" %s", argv[i]);
+	log_debug("\n");
 
 	/* argv[1] holds the address of the bzImage */
 	s = cmd_arg1(argc, argv) ? : env_get("fileaddr");
@@ -114,17 +122,18 @@ U_BOOT_SUBCMDS(zboot,
 int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[], int state_mask)
 {
-	int ret;
+	int ret = 0;
 
-	if (flag & ZBOOT_STATE_START)
+	log_debug("state_mask %x\n", state_mask);
+	if (state_mask & ZBOOT_STATE_START)
 		ret = do_zboot_start(cmdtp, flag, argc, argv);
-	if (!ret && (flag & ZBOOT_STATE_LOAD))
+	if (!ret && (state_mask & ZBOOT_STATE_LOAD))
 		ret = do_zboot_load(cmdtp, flag, argc, argv);
-	if (!ret && (flag & ZBOOT_STATE_SETUP))
+	if (!ret && (state_mask & ZBOOT_STATE_SETUP))
 		ret = do_zboot_setup(cmdtp, flag, argc, argv);
-	if (!ret && (flag & ZBOOT_STATE_INFO))
+	if (!ret && (state_mask & ZBOOT_STATE_INFO))
 		ret = do_zboot_info(cmdtp, flag, argc, argv);
-	if (!ret && (flag & ZBOOT_STATE_GO))
+	if (!ret && (state_mask & ZBOOT_STATE_GO))
 		ret = do_zboot_go(cmdtp, flag, argc, argv);
 	if (ret)
 		return ret;
