@@ -488,6 +488,10 @@ static ulong mtk_find_parent_rate(struct mtk_clk_priv *priv, struct clk *clk,
 	switch (flags & CLK_PARENT_MASK) {
 	case CLK_PARENT_XTAL:
 		return priv->tree->xtal_rate;
+	/* Assume the second level parent is always APMIXED */
+	case CLK_PARENT_APMIXED:
+		priv = dev_get_priv(priv->parent);
+		fallthrough;
 	case CLK_PARENT_TOPCKGEN:
 		return mtk_clk_find_parent_rate(clk, parent, priv->parent);
 	default:
