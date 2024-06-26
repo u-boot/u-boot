@@ -422,6 +422,18 @@ static const struct mtk_gate infra_cgs[] = {
 };
 
 /* pericfg */
+static const int peribus_ck_parents[] = {
+	CLK_TOP_SYSPLL1_D8,
+	CLK_TOP_SYSPLL1_D4,
+};
+
+#define PERI_MUX(_id, _parents, _reg, _shift, _width) \
+	MUX_FLAGS(_id, _parents, _reg, _shift, _width, CLK_PARENT_TOPCKGEN)
+
+static const struct mtk_composite peri_muxes[] = {
+	PERI_MUX(CLK_PERIBUS_SEL, peribus_ck_parents, 0x05c, 0, 1),
+};
+
 static const struct mtk_gate_regs peri0_cg_regs = {
 	.set_ofs = 0x8,
 	.clr_ofs = 0x10,
@@ -602,6 +614,14 @@ static const struct mtk_clk_tree mt7622_infra_clk_tree = {
 	.gates = infra_cgs,
 };
 
+static const struct mtk_clk_tree mt7622_peri_clk_tree = {
+	.xtal_rate = 25 * MHZ,
+	.muxes_offs = CLK_PERIBUS_SEL,
+	.gates_offs = CLK_PERI_THERM_PD,
+	.muxes = peri_muxes,
+	.gates = peri_cgs,
+};
+
 static const struct mtk_clk_tree mt7622_clk_tree = {
 	.xtal_rate = 25 * MHZ,
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
@@ -658,7 +678,7 @@ static int mt7622_infracfg_probe(struct udevice *dev)
 
 static int mt7622_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, peri_cgs);
+	return mtk_common_clk_infrasys_init(dev, &mt7622_peri_clk_tree);
 }
 
 static int mt7622_pciesys_probe(struct udevice *dev)
