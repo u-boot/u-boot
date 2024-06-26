@@ -694,7 +694,11 @@ __weak void board_lmb_reserve(void)
 
 __weak void arch_lmb_reserve(void)
 {
-	/* please define platform specific arch_lmb_reserve() */
+	phys_addr_t rsv_start;
+
+	rsv_start = gd->start_addr_sp - CONFIG_STACK_SIZE;
+
+	arch_lmb_reserve_generic(rsv_start, gd->ram_top, 16384);
 }
 
 static int lmb_setup(void)
