@@ -66,6 +66,24 @@ static const struct mtk_pll_data apmixed_plls[] = {
 	    21, 0x358, 1, 0x35c, 0),
 };
 
+static const struct mtk_gate_regs apmixed_cg_regs = {
+	.set_ofs = 0x8,
+	.clr_ofs = 0x8,
+	.sta_ofs = 0x8,
+};
+
+#define GATE_APMIXED(_id, _parent, _shift) {		\
+		.id = _id,				\
+		.parent = _parent,			\
+		.regs = &apmixed_cg_regs,		\
+		.shift = _shift,			\
+		.flags = CLK_GATE_NO_SETCLR_INV,	\
+	}
+
+static const struct mtk_gate apmixed_cgs[] = {
+	GATE_APMIXED(CLK_APMIXED_MAIN_CORE_EN, CLK_APMIXED_MAINPLL, 5),
+};
+
 /* topckgen */
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
@@ -554,12 +572,17 @@ static const struct mtk_gate ssusb_cgs[] = {
 	GATE_SSUSB(CLK_SSUSB_DMA_EN, CLK_TOP_HIF_SEL, 8),
 };
 
+static const struct mtk_clk_tree mt7622_apmixed_clk_tree = {
+	.xtal2_rate = 25 * MHZ,
+	.plls = apmixed_plls,
+	.gates_offs = CLK_APMIXED_MAIN_CORE_EN,
+	.gates = apmixed_cgs,
+};
+
 static const struct mtk_clk_tree mt7622_clk_tree = {
 	.xtal_rate = 25 * MHZ,
-	.xtal2_rate = 25 * MHZ,
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
 	.muxes_offs = CLK_TOP_AXI_SEL,
-	.plls = apmixed_plls,
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
@@ -586,7 +609,7 @@ static int mt7622_apmixedsys_probe(struct udevice *dev)
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, &mt7622_clk_tree);
+	ret = mtk_common_clk_init(dev, &mt7622_apmixed_clk_tree);
 	if (ret)
 		return ret;
 
