@@ -197,16 +197,3 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 
 	return 1;
 }
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("mov %0, a1" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(void)
-{
-	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
-}
