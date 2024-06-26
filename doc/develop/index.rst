@@ -60,6 +60,7 @@ Debugging
    :maxdepth: 1
 
    crash_dumps
+   gdb
    trace
 
 Packaging
