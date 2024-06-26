@@ -47,6 +47,56 @@ static int mtk_clk_get_id(struct clk *clk)
 	return id;
 }
 
+static int mtk_gate_enable(void __iomem *base, const struct mtk_gate *gate)
+{
+	u32 bit = BIT(gate->shift);
+
+	switch (gate->flags & CLK_GATE_MASK) {
+	case CLK_GATE_SETCLR:
+		writel(bit, base + gate->regs->clr_ofs);
+		break;
+	case CLK_GATE_SETCLR_INV:
+		writel(bit, base + gate->regs->set_ofs);
+		break;
+	case CLK_GATE_NO_SETCLR:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
+		break;
+	case CLK_GATE_NO_SETCLR_INV:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
+		break;
+
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int mtk_gate_disable(void __iomem *base, const struct mtk_gate *gate)
+{
+	u32 bit = BIT(gate->shift);
+
+	switch (gate->flags & CLK_GATE_MASK) {
+	case CLK_GATE_SETCLR:
+		writel(bit, base + gate->regs->set_ofs);
+		break;
+	case CLK_GATE_SETCLR_INV:
+		writel(bit, base + gate->regs->clr_ofs);
+		break;
+	case CLK_GATE_NO_SETCLR:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
+		break;
+	case CLK_GATE_NO_SETCLR_INV:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
+		break;
+
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /*
  * In case the rate change propagation to parent clocks is undesirable,
  * this function is recursively called to find the parent to calculate
@@ -143,11 +193,10 @@ static unsigned long __mtk_pll_recalc_rate(const struct mtk_pll_data *pll,
  * for the integer part and the remaining bits (if present) for the
  * fractional part. Also they have a 3 bit power-of-two post divider.
  */
-static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
+static void mtk_pll_set_rate_regs(struct mtk_clk_priv *priv, u32 id,
+				  u32 pcw, int postdiv)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll;
-	int id = mtk_clk_get_id(clk);
 	u32 val, chg;
 
 	pll = &priv->tree->plls[id];
@@ -182,17 +231,16 @@ static void mtk_pll_set_rate_regs(struct clk *clk, u32 pcw, int postdiv)
 
 /**
  * mtk_pll_calc_values - calculate good values for a given input frequency.
- * @clk:	The clk
+ * @priv:	The mtk priv struct
+ * @id:		The clk id
  * @pcw:	The pcw value (output)
  * @postdiv:	The post divider (output)
  * @freq:	The desired target frequency
  */
-static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
-				u32 freq)
+static void mtk_pll_calc_values(struct mtk_clk_priv *priv, u32 id,
+				u32 *pcw, u32 *postdiv, u32 freq)
 {
-	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll;
-	int id = mtk_clk_get_id(clk);
 	unsigned long fmin;
 	u64 _pcw;
 	int ibits;
@@ -220,11 +268,16 @@ static void mtk_pll_calc_values(struct clk *clk, u32 *pcw, u32 *postdiv,
 
 static ulong mtk_apmixedsys_set_rate(struct clk *clk, ulong rate)
 {
+	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
+	int id = mtk_clk_get_id(clk);
 	u32 pcw = 0;
 	u32 postdiv;
 
-	mtk_pll_calc_values(clk, &pcw, &postdiv, rate);
-	mtk_pll_set_rate_regs(clk, pcw, postdiv);
+	if (priv->tree->gates && id >= priv->tree->gates_offs)
+		return -EINVAL;
+
+	mtk_pll_calc_values(priv, id, &pcw, &postdiv, rate);
+	mtk_pll_set_rate_regs(priv, id, pcw, postdiv);
 
 	return 0;
 }
@@ -234,8 +287,15 @@ static ulong mtk_apmixedsys_get_rate(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll;
 	int id = mtk_clk_get_id(clk);
+	const struct mtk_gate *gate;
 	u32 postdiv;
 	u32 pcw;
+
+	/* GATE handling */
+	if (priv->tree->gates && id >= priv->tree->gates_offs) {
+		gate = &priv->tree->gates[id - priv->tree->gates_offs];
+		return mtk_clk_find_parent_rate(clk, gate->parent, NULL);
+	}
 
 	pll = &priv->tree->plls[id];
 
@@ -255,7 +315,14 @@ static int mtk_apmixedsys_enable(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll;
 	int id = mtk_clk_get_id(clk);
+	const struct mtk_gate *gate;
 	u32 r;
+
+	/* GATE handling */
+	if (priv->tree->gates && id >= priv->tree->gates_offs) {
+		gate = &priv->tree->gates[id - priv->tree->gates_offs];
+		return mtk_gate_enable(priv->base, gate);
+	}
 
 	pll = &priv->tree->plls[id];
 
@@ -287,7 +354,14 @@ static int mtk_apmixedsys_disable(struct clk *clk)
 	struct mtk_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_pll_data *pll;
 	int id = mtk_clk_get_id(clk);
+	const struct mtk_gate *gate;
 	u32 r;
+
+	/* GATE handling */
+	if (priv->tree->gates && id >= priv->tree->gates_offs) {
+		gate = &priv->tree->gates[id - priv->tree->gates_offs];
+		return mtk_gate_disable(priv->base, gate);
+	}
 
 	pll = &priv->tree->plls[id];
 
@@ -580,31 +654,6 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 
 /* CG functions */
 
-static int mtk_gate_enable(void __iomem *base, const struct mtk_gate *gate)
-{
-	u32 bit = BIT(gate->shift);
-
-	switch (gate->flags & CLK_GATE_MASK) {
-	case CLK_GATE_SETCLR:
-		writel(bit, base + gate->regs->clr_ofs);
-		break;
-	case CLK_GATE_SETCLR_INV:
-		writel(bit, base + gate->regs->set_ofs);
-		break;
-	case CLK_GATE_NO_SETCLR:
-		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
-		break;
-	case CLK_GATE_NO_SETCLR_INV:
-		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
-		break;
-
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 static int mtk_clk_gate_enable(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
@@ -630,31 +679,6 @@ static int mtk_clk_infrasys_enable(struct clk *clk)
 
 	gate = &priv->tree->gates[id - priv->tree->gates_offs];
 	return mtk_gate_enable(priv->base, gate);
-}
-
-static int mtk_gate_disable(void __iomem *base, const struct mtk_gate *gate)
-{
-	u32 bit = BIT(gate->shift);
-
-	switch (gate->flags & CLK_GATE_MASK) {
-	case CLK_GATE_SETCLR:
-		writel(bit, base + gate->regs->set_ofs);
-		break;
-	case CLK_GATE_SETCLR_INV:
-		writel(bit, base + gate->regs->clr_ofs);
-		break;
-	case CLK_GATE_NO_SETCLR:
-		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
-		break;
-	case CLK_GATE_NO_SETCLR_INV:
-		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
-		break;
-
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
 }
 
 static int mtk_clk_gate_disable(struct clk *clk)
