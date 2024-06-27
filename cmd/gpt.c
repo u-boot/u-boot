@@ -116,6 +116,7 @@ static char *extract_val(const char *str, const char *key)
 		k = strsep(&v, "=");
 		if (!k)
 			break;
+		k += strspn(k, " \t");
 		if  (strcmp(k, key) == 0) {
 			new = strdup(v);
 			break;
@@ -150,6 +151,7 @@ static bool found_key(const char *str, const char *key)
 		k = strsep(&s, ",");
 		if (!k)
 			break;
+		k += strspn(k, " \t");
 		if  (strcmp(k, key) == 0) {
 			result = true;
 			break;
