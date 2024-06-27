@@ -287,7 +287,7 @@ stages:
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:\${PATH}
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
           # "\${var:+"-k \$var"}" expands to "" if \$var is empty, "-k \$var" if not
-          ./test/py/test.py -ra -o cache_dir="\$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd \${TEST_PY_BD} \${TEST_PY_ID} \${TEST_PY_TEST_SPEC:+"-k \${TEST_PY_TEST_SPEC}"} --build-dir "\$UBOOT_TRAVIS_BUILD_DIR" --report-dir "\$UBOOT_TRAVIS_BUILD_DIR"
+          ./test/py/test.py -ra -o cache_dir="\$UBOOT_TRAVIS_BUILD_DIR"/.pytest_cache --bd \${TEST_PY_BD} \${TEST_PY_ID} \${TEST_PY_TEST_SPEC:+"-k \${TEST_PY_TEST_SPEC}"} --build-dir "\$UBOOT_TRAVIS_BUILD_DIR" --report-dir "\$UBOOT_TRAVIS_BUILD_DIR" --junitxml=\$(System.DefaultWorkingDirectory)/results.xml
           # the below corresponds to .gitlab-ci.yml "after_script"
           rm -rf /tmp/uboot-test-hooks /tmp/venv
           EOF
@@ -371,6 +371,7 @@ stages:
           docker run "$@" --device /dev/fuse:/dev/fuse \
                          -v $PWD:$(work_dir) \
                          -v $(Pipeline.Workspace):$(Pipeline.Workspace) \
+                         -v $(System.DefaultWorkingDirectory):$(System.DefaultWorkingDirectory) \
                          -e WORK_DIR="${WORK_DIR}" \
                          -e TEST_PY_BD="${TEST_PY_BD}" \
                          -e TEST_PY_ID="${TEST_PY_ID}" \
@@ -378,6 +379,10 @@ stages:
                          -e OVERRIDE="${OVERRIDE}" \
                          -e BUILD_ENV="${BUILD_ENV}" $(ci_runner_image) \
                          $(Pipeline.Workspace)/testsh/test.sh
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'results.xml'
 
 - stage: test_py_qemu
   jobs:
@@ -495,6 +500,7 @@ stages:
           docker run "$@" --device /dev/fuse:/dev/fuse \
                          -v $PWD:$(work_dir) \
                          -v $(Pipeline.Workspace):$(Pipeline.Workspace) \
+                         -v $(System.DefaultWorkingDirectory):$(System.DefaultWorkingDirectory) \
                          -e WORK_DIR="${WORK_DIR}" \
                          -e TEST_PY_BD="${TEST_PY_BD}" \
                          -e TEST_PY_ID="${TEST_PY_ID}" \
@@ -503,6 +509,10 @@ stages:
                          -e BUILD_ENV="${BUILD_ENV}" $(ci_runner_image) \
                          $(Pipeline.Workspace)/testsh/test.sh
         retryCountOnTaskFailure: 2 # QEMU may be too slow, etc.
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'results.xml'
 
 - stage: world_build
   jobs:
