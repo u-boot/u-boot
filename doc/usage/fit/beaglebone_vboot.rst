@@ -67,18 +67,20 @@ a. Set up the environment variable to point to your toolchain. You will need
 
        export CROSS_COMPILE=arm-linux-gnueabi-
 
-b. Configure and build U-Boot with verified boot enabled::
+b. Configure and build U-Boot with verified boot enabled. Note that we use the
+am335x_evm target since it covers all boards based on the AM335x evaluation
+board::
 
     export UBOOT=/path/to/u-boot
     cd $UBOOT
     # You can add -j10 if you have 10 CPUs to make it faster
-    make O=b/am335x_boneblack_vboot am335x_boneblack_vboot_config all
-    export UOUT=$UBOOT/b/am335x_boneblack_vboot
+    make O=b/am335x_evm am335x_evm_config all
+    export UOUT=$UBOOT/b/am335x_evm
 
 c. You will now have a U-Boot image::
 
-    file b/am335x_boneblack_vboot/u-boot-dtb.img
-    b/am335x_boneblack_vboot/u-boot-dtb.img: u-boot legacy uImage,
+    file b/am335x_evm/u-boot-dtb.img
+    b/am335x_evm/u-boot-dtb.img: u-boot legacy uImage,
       U-Boot 2014.07-rc2-00065-g2f69f8, Firmware/ARM, Firmware Image
       (Not compressed), 395375 bytes, Sat May 31 16:19:04 2014,
       Load Address: 0x80800000, Entry Point: 0x00000000,
@@ -466,7 +468,7 @@ the private key that you signed with so that it can verify any kernels that
 you sign::
 
     cd $UBOOT
-    make O=b/am335x_boneblack_vboot EXT_DTB=${WORK}/am335x-boneblack-pubkey.dtb
+    make O=b/am335x_evm EXT_DTB=${WORK}/am335x-boneblack-pubkey.dtb
 
 Here we are overriding the normal device tree file with our one, which
 contains the public key.
@@ -597,13 +599,10 @@ Further Improvements
 
 Several of the steps here can be easily automated. In particular it would be
 capital if signing and packaging a kernel were easy, perhaps a simple make
-target in the kernel.
+target in the kernel. A starting point for this is the 'make image.fit' target
+for ARM64 in Linux from v6.9 onwards.
 
 Some mention of how to use multiple .dtb files in a FIT might be useful.
-
-U-Boot's verified boot mechanism has not had a robust and independent security
-review. Such a review should look at the implementation and its resistance to
-attacks.
 
 Perhaps the verified boot feature could be integrated into the Amstrom
 distribution.
