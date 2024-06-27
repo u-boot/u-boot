@@ -410,6 +410,14 @@ static int ftgmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 	ulong des_end = des_start +
 		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 
+	/*
+	 * Make sure there are no stale data in write-back over this area, which
+	 * might get written into the memory while the ftgmac100 also writes
+	 * into the same memory area.
+	 */
+	flush_dcache_range((ulong)net_rx_packets[priv->rx_index],
+			   (ulong)net_rx_packets[priv->rx_index] + PKTSIZE_ALIGN);
+
 	/* Release buffer to DMA and flush descriptor */
 	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
 	flush_dcache_range(des_start, des_end);
