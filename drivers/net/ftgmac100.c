@@ -222,7 +222,7 @@ static int ftgmac100_phy_init(struct udevice *dev)
 	struct phy_device *phydev;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_DM_MDIO))
+	if (IS_ENABLED(CONFIG_DM_MDIO) && priv->phy_mode != PHY_INTERFACE_MODE_NCSI)
 		phydev = dm_eth_phy_connect(dev);
 	else
 		phydev = phy_connect(priv->bus, priv->phy_addr, dev, priv->phy_mode);
