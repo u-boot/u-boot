@@ -235,6 +235,14 @@ struct mtk_gate {
 struct mtk_clk_tree {
 	unsigned long xtal_rate;
 	unsigned long xtal2_rate;
+	/*
+	 * Clock ID offset are remapped with an auxiliary table.
+	 * Enable this by defining .id_offs_map.
+	 * This is needed for upstream linux kernel <soc>-clk.h that
+	 * have mixed clk ID and doesn't have clear distinction between
+	 * ID for factor, mux and gates.
+	 */
+	const int *id_offs_map; /* optional, table clk.h to driver ID */
 	const int fdivs_offs;
 	const int muxes_offs;
 	const int gates_offs;
