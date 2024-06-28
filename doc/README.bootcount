@@ -23,15 +23,15 @@ It is the responsibility of some application code (typically a Linux
 application) to reset the variable "bootcount" to 0 when the system booted
 successfully, thus allowing for more boot cycles.
 
-CONFIG_BOOTCOUNT_EXT
+CONFIG_BOOTCOUNT_FS
 --------------------
 
-This adds support for maintaining boot count in a file on an EXT filesystem.
-The file to use is defined by:
+This adds support for maintaining boot count in a file on a filesystem.
+Supported filesystems are FAT and EXT. The file to use is defined by:
 
-CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE
-CONFIG_SYS_BOOTCOUNT_EXT_DEVPART
-CONFIG_SYS_BOOTCOUNT_EXT_NAME
+CONFIG_SYS_BOOTCOUNT_FS_INTERFACE
+CONFIG_SYS_BOOTCOUNT_FS_DEVPART
+CONFIG_SYS_BOOTCOUNT_FS_NAME
 
 The format of the file is:
 

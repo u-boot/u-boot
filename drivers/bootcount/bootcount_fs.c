@@ -25,8 +25,8 @@ void bootcount_store(ulong a)
 	loff_t len;
 	int ret;
 
-	if (fs_set_blk_dev(CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE,
-			   CONFIG_SYS_BOOTCOUNT_EXT_DEVPART, FS_TYPE_EXT)) {
+	if (fs_set_blk_dev(CONFIG_SYS_BOOTCOUNT_FS_INTERFACE,
+			   CONFIG_SYS_BOOTCOUNT_FS_DEVPART, FS_TYPE_ANY)) {
 		puts("Error selecting device\n");
 		return;
 	}
@@ -42,7 +42,7 @@ void bootcount_store(ulong a)
 	buf->upgrade_available = upgrade_available;
 	unmap_sysmem(buf);
 
-	ret = fs_write(CONFIG_SYS_BOOTCOUNT_EXT_NAME,
+	ret = fs_write(CONFIG_SYS_BOOTCOUNT_FS_NAME,
 		       CONFIG_SYS_BOOTCOUNT_ADDR, 0, sizeof(bootcount_ext_t),
 		       &len);
 	if (ret != 0)
@@ -55,13 +55,13 @@ ulong bootcount_load(void)
 	loff_t len_read;
 	int ret;
 
-	if (fs_set_blk_dev(CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE,
-			   CONFIG_SYS_BOOTCOUNT_EXT_DEVPART, FS_TYPE_EXT)) {
+	if (fs_set_blk_dev(CONFIG_SYS_BOOTCOUNT_FS_INTERFACE,
+			   CONFIG_SYS_BOOTCOUNT_FS_DEVPART, FS_TYPE_ANY)) {
 		puts("Error selecting device\n");
 		return 0;
 	}
 
-	ret = fs_read(CONFIG_SYS_BOOTCOUNT_EXT_NAME, CONFIG_SYS_BOOTCOUNT_ADDR,
+	ret = fs_read(CONFIG_SYS_BOOTCOUNT_FS_NAME, CONFIG_SYS_BOOTCOUNT_ADDR,
 		      0, sizeof(bootcount_ext_t), &len_read);
 	if (ret != 0 || len_read != sizeof(bootcount_ext_t)) {
 		puts("Error loading bootcount\n");
