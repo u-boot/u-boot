@@ -652,6 +652,7 @@ static int mtk_clk_infrasys_disable(struct clk *clk)
 static ulong mtk_clk_gate_get_rate(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	struct udevice *parent = priv->parent;
 	const struct mtk_gate *gate;
 
 	if (clk->id < priv->tree->gates_offs)
@@ -659,13 +660,25 @@ static ulong mtk_clk_gate_get_rate(struct clk *clk)
 
 	gate = &priv->gates[clk->id - priv->tree->gates_offs];
 	/*
+	 * With requesting a TOPCKGEN parent, make sure the dev parent
+	 * is actually topckgen. This might not be the case for an
+	 * infracfg-ao implementation where:
+	 * parent = infracfg
+	 * parent->parent = topckgen
+	 */
+	if (gate->flags & CLK_PARENT_TOPCKGEN &&
+	    parent->driver != DM_DRIVER_GET(mtk_clk_topckgen)) {
+		priv = dev_get_priv(parent);
+		parent = priv->parent;
+	/*
 	 * Assume xtal_rate to be declared if some gates have
 	 * XTAL as parent
 	 */
-	if (gate->flags & CLK_PARENT_XTAL)
+	} else if (gate->flags & CLK_PARENT_XTAL) {
 		return priv->tree->xtal_rate;
+	}
 
-	return mtk_clk_find_parent_rate(clk, gate->parent, priv->parent);
+	return mtk_clk_find_parent_rate(clk, gate->parent, parent);
 }
 
 const struct clk_ops mtk_clk_apmixedsys_ops = {
