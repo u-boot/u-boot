@@ -321,7 +321,7 @@ static int ftgmac100_start(struct udevice *dev)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
-	unsigned int maccr;
+	unsigned int maccr, dblac, desc_size;
 	ulong start, end;
 	int ret;
 	int i;
@@ -365,6 +365,17 @@ static int ftgmac100_start(struct udevice *dev)
 
 	/* receive ring */
 	writel((u32)priv->rxdes, &ftgmac100->rxr_badr);
+
+	/* Configure TX/RX decsriptor size
+	 * This size is calculated based on cache line.
+	 */
+	desc_size = ARCH_DMA_MINALIGN / FTGMAC100_DESC_UNIT;
+	/* The descriptor size is at least 2 descriptor units. */
+	if (desc_size < 2)
+		desc_size = 2;
+	dblac = readl(&ftgmac100->dblac) & ~GENMASK(19, 12);
+	dblac |= FTGMAC100_DBLAC_RXDES_SIZE(desc_size) | FTGMAC100_DBLAC_TXDES_SIZE(desc_size);
+	writel(dblac, &ftgmac100->dblac);
 
 	/* poll receive descriptor automatically */
 	writel(FTGMAC100_APTC_RXPOLL_CNT(1), &ftgmac100->aptc);
