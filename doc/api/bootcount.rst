@@ -49,7 +49,7 @@ The format of the file is:
    * - u8
      - upgrade_available
 
-To prevent unattended usage of ``altbootcmd``, the ``upgrade_available``
+To prevent unintended usage of ``altbootcmd``, the ``upgrade_available``
 variable is used.
 If ``upgrade_available`` is 0, ``bootcount`` is not saved.
 If ``upgrade_available`` is 1, ``bootcount`` is saved.
