@@ -530,8 +530,12 @@ static int mtk_gate_enable(void __iomem *base, const struct mtk_gate *gate)
 static int mtk_clk_gate_enable(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate = &priv->gates[clk->id];
+	const struct mtk_gate *gate;
 
+	if (clk->id < priv->tree->gates_offs)
+		return -EINVAL;
+
+	gate = &priv->gates[clk->id - priv->tree->gates_offs];
 	return mtk_gate_enable(priv->base, gate);
 }
 
@@ -576,8 +580,12 @@ static int mtk_gate_disable(void __iomem *base, const struct mtk_gate *gate)
 static int mtk_clk_gate_disable(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate = &priv->gates[clk->id];
+	const struct mtk_gate *gate;
 
+	if (clk->id < priv->tree->gates_offs)
+		return -EINVAL;
+
+	gate = &priv->gates[clk->id - priv->tree->gates_offs];
 	return mtk_gate_disable(priv->base, gate);
 }
 
@@ -597,8 +605,12 @@ static int mtk_clk_infrasys_disable(struct clk *clk)
 static ulong mtk_clk_gate_get_rate(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate = &priv->gates[clk->id];
+	const struct mtk_gate *gate;
 
+	if (clk->id < priv->tree->gates_offs)
+		return -EINVAL;
+
+	gate = &priv->gates[clk->id - priv->tree->gates_offs];
 	/*
 	 * Assume xtal_rate to be declared if some gates have
 	 * XTAL as parent
