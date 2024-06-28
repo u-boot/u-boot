@@ -6,6 +6,7 @@ U-Boot API documentation
 .. toctree::
    :maxdepth: 2
 
+   bootcount
    clk
    dfu
    dm
