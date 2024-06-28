@@ -22,6 +22,7 @@
 #include <linux/libfdt.h>
 #include <linux/printk.h>
 #include <linux/psci.h>
+#include <power-domain-uclass.h>
 
 #define DRIVER_NAME "psci"
 
@@ -171,6 +172,10 @@ static int bind_smccc_features(struct udevice *dev, int psci_method)
 
 static int psci_bind(struct udevice *dev)
 {
+#if IS_ENABLED(CONFIG_POWER_DOMAIN)
+	ofnode node;
+#endif
+
 	/* No SYSTEM_RESET support for PSCI 0.1 */
 	if (device_is_compatible(dev, "arm,psci-0.2") ||
 	    device_is_compatible(dev, "arm,psci-1.0")) {
@@ -186,6 +191,16 @@ static int psci_bind(struct udevice *dev)
 	/* From PSCI v1.0 onward we can discover services through ARM_SMCCC_FEATURE */
 	if (IS_ENABLED(CONFIG_ARM_SMCCC_FEATURES) && device_is_compatible(dev, "arm,psci-1.0"))
 		dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+
+	/* Bind power-domain subnodes */
+#if IS_ENABLED(CONFIG_POWER_DOMAIN)
+	dev_for_each_subnode(node, dev) {
+		if (device_bind_driver_to_node(dev, "psci_power_domain",
+					       ofnode_get_name(node),
+					       node, NULL))
+			pr_warn("failed to bind %s\n", ofnode_get_name(node));
+	}
+#endif
 
 	return 0;
 }
@@ -323,3 +338,29 @@ U_BOOT_DRIVER(psci) = {
 #endif
 	.flags = DM_FLAG_PRE_RELOC,
 };
+
+#if IS_ENABLED(CONFIG_POWER_DOMAIN)
+/* Accept #power-domain-cells == 0 */
+static int psci_power_domain_xlate(struct power_domain *power_domain,
+				   struct ofnode_phandle_args *args)
+{
+	return args->args_count == 0 ? 0 : -EINVAL;
+}
+
+static const struct power_domain_ops psci_power_ops = {
+	.of_xlate = psci_power_domain_xlate,
+};
+
+static int psci_power_domain_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+U_BOOT_DRIVER(psci_power_domain) = {
+	.name = "psci_power_domain",
+	.id = UCLASS_POWER_DOMAIN,
+	.ops = &psci_power_ops,
+	.probe = psci_power_domain_probe,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+#endif
