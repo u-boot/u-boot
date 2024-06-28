@@ -463,4 +463,14 @@ void fdt_fixup_board_enet(void *blob);
 #ifdef CONFIG_CMD_PSTORE
 void fdt_fixup_pstore(void *blob);
 #endif
+
+/**
+ * fdt_kaslrseed() - create a 'kaslr-seed' node in chosen
+ *
+ * @blob:	fdt blob
+ * @overwrite:	do not overwrite existing non-zero node unless true
+ * Return:	0 if OK, -ve on error
+ */
+int fdt_kaslrseed(void *blob, bool overwrite);
+
 #endif /* ifndef __FDT_SUPPORT_H */
