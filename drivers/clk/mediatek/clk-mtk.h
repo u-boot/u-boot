@@ -266,6 +266,8 @@ extern const struct clk_ops mtk_clk_gate_ops;
 
 int mtk_common_clk_init(struct udevice *dev,
 			const struct mtk_clk_tree *tree);
+int mtk_common_clk_infrasys_init(struct udevice *dev,
+				 const struct mtk_clk_tree *tree);
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
 			     const struct mtk_gate *gates);
