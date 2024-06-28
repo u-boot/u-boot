@@ -68,6 +68,8 @@ int do_bootelf(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		log_debug("Setting up FDT at 0x%08lx ...\n", fdt_addr);
 		flush();
 
+		fdt_set_totalsize((void *)fdt_addr,
+				fdt_totalsize(fdt_addr) + CONFIG_SYS_FDT_PAD);
 		if (image_setup_libfdt(&img, (void *)fdt_addr, NULL))
 			return 1;
 	}
