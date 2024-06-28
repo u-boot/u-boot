@@ -200,10 +200,12 @@ struct mtk_clk_tree {
 	unsigned long xtal2_rate;
 	const int fdivs_offs;
 	const int muxes_offs;
+	const int gates_offs;
 	const struct mtk_pll_data *plls;
 	const struct mtk_fixed_clk *fclks;
 	const struct mtk_fixed_factor *fdivs;
 	const struct mtk_composite *muxes;
+	const struct mtk_gate *gates;
 	u32 flags;
 };
 

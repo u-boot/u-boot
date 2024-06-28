@@ -405,9 +405,26 @@ static ulong mtk_infrasys_get_rate(struct clk *clk)
 	} else if (clk->id < priv->tree->muxes_offs) {
 		rate = mtk_infrasys_get_factor_rate(clk, clk->id -
 						    priv->tree->fdivs_offs);
-	} else {
+	/* No gates defined or ID is a MUX */
+	} else if (!priv->tree->gates || clk->id < priv->tree->gates_offs) {
 		rate = mtk_infrasys_get_mux_rate(clk, clk->id -
 						 priv->tree->muxes_offs);
+	/* Only valid with muxes + gates implementation */
+	} else {
+		struct udevice *parent = NULL;
+		const struct mtk_gate *gate;
+
+		gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
+		if (gate->flags & CLK_PARENT_TOPCKGEN)
+			parent = priv->parent;
+		/*
+		 * Assume xtal_rate to be declared if some gates have
+		 * XTAL as parent
+		 */
+		else if (gate->flags & CLK_PARENT_XTAL)
+			return priv->tree->xtal_rate;
+
+		rate = mtk_clk_find_parent_rate(clk, gate->parent, parent);
 	}
 
 	return rate;
@@ -485,24 +502,68 @@ static int mtk_common_clk_set_parent(struct clk *clk, struct clk *parent)
 
 /* CG functions */
 
-static int mtk_clk_gate_enable(struct clk *clk)
+static int mtk_gate_enable(void __iomem *base, const struct mtk_gate *gate)
 {
-	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
-	const struct mtk_gate *gate = &priv->gates[clk->id];
 	u32 bit = BIT(gate->shift);
 
 	switch (gate->flags & CLK_GATE_MASK) {
 	case CLK_GATE_SETCLR:
-		writel(bit, priv->base + gate->regs->clr_ofs);
+		writel(bit, base + gate->regs->clr_ofs);
 		break;
 	case CLK_GATE_SETCLR_INV:
-		writel(bit, priv->base + gate->regs->set_ofs);
+		writel(bit, base + gate->regs->set_ofs);
 		break;
 	case CLK_GATE_NO_SETCLR:
-		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, 0);
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
 		break;
 	case CLK_GATE_NO_SETCLR_INV:
-		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, bit);
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
+		break;
+
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int mtk_clk_gate_enable(struct clk *clk)
+{
+	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_gate *gate = &priv->gates[clk->id];
+
+	return mtk_gate_enable(priv->base, gate);
+}
+
+static int mtk_clk_infrasys_enable(struct clk *clk)
+{
+	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_gate *gate;
+
+	/* MUX handling */
+	if (!priv->tree->gates || clk->id < priv->tree->gates_offs)
+		return mtk_clk_mux_enable(clk);
+
+	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
+	return mtk_gate_enable(priv->base, gate);
+}
+
+static int mtk_gate_disable(void __iomem *base, const struct mtk_gate *gate)
+{
+	u32 bit = BIT(gate->shift);
+
+	switch (gate->flags & CLK_GATE_MASK) {
+	case CLK_GATE_SETCLR:
+		writel(bit, base + gate->regs->set_ofs);
+		break;
+	case CLK_GATE_SETCLR_INV:
+		writel(bit, base + gate->regs->clr_ofs);
+		break;
+	case CLK_GATE_NO_SETCLR:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, bit);
+		break;
+	case CLK_GATE_NO_SETCLR_INV:
+		clrsetbits_le32(base + gate->regs->sta_ofs, bit, 0);
 		break;
 
 	default:
@@ -516,27 +577,21 @@ static int mtk_clk_gate_disable(struct clk *clk)
 {
 	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
 	const struct mtk_gate *gate = &priv->gates[clk->id];
-	u32 bit = BIT(gate->shift);
 
-	switch (gate->flags & CLK_GATE_MASK) {
-	case CLK_GATE_SETCLR:
-		writel(bit, priv->base + gate->regs->set_ofs);
-		break;
-	case CLK_GATE_SETCLR_INV:
-		writel(bit, priv->base + gate->regs->clr_ofs);
-		break;
-	case CLK_GATE_NO_SETCLR:
-		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, bit);
-		break;
-	case CLK_GATE_NO_SETCLR_INV:
-		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, 0);
-		break;
+	return mtk_gate_disable(priv->base, gate);
+}
 
-	default:
-		return -EINVAL;
-	}
+static int mtk_clk_infrasys_disable(struct clk *clk)
+{
+	struct mtk_cg_priv *priv = dev_get_priv(clk->dev);
+	const struct mtk_gate *gate;
 
-	return 0;
+	/* MUX handling */
+	if (!priv->tree->gates || clk->id < priv->tree->gates_offs)
+		return mtk_clk_mux_disable(clk);
+
+	gate = &priv->tree->gates[clk->id - priv->tree->gates_offs];
+	return mtk_gate_disable(priv->base, gate);
 }
 
 static ulong mtk_clk_gate_get_rate(struct clk *clk)
@@ -569,8 +624,8 @@ const struct clk_ops mtk_clk_topckgen_ops = {
 };
 
 const struct clk_ops mtk_clk_infrasys_ops = {
-	.enable = mtk_clk_mux_enable,
-	.disable = mtk_clk_mux_disable,
+	.enable = mtk_clk_infrasys_enable,
+	.disable = mtk_clk_infrasys_disable,
 	.get_rate = mtk_infrasys_get_rate,
 	.set_parent = mtk_common_clk_set_parent,
 };
