@@ -69,16 +69,22 @@ obj-$(CONFIG_$(SPL_TPL_)CRC16) += crc16.o
 obj-y += crypto/
 
 obj-$(CONFIG_$(SPL_TPL_)ACPI) += acpi/
-obj-$(CONFIG_$(SPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(SPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_BLAKE2) += blake2/blake2b.o
+
+ifneq ($(CONFIG_MBEDTLS_LIB_CRYPTO), y)
+obj-$(CONFIG_$(SPL_)MD5) += md5.o
 obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
 obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
 obj-$(CONFIG_$(SPL_)SHA512) += sha512.o
+endif
+
 obj-$(CONFIG_CRYPT_PW) += crypt/
+ifneq ($(CONFIG_MBEDTLS_LIB_X509), y)
 obj-$(CONFIG_$(SPL_)ASN1_DECODER) += asn1_decoder.o
+endif
 
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
@@ -93,6 +99,8 @@ obj-$(CONFIG_LIBAVB) += libavb/
 
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
 obj-$(CONFIG_$(SPL_TPL_)OF_REAL) += fdtdec_common.o fdtdec.o
+
+obj-$(CONFIG_MBEDTLS_LIB) += mbedtls/
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16-ccitt.o

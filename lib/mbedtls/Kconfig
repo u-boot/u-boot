@@ -1,0 +1,25 @@
+menuconfig MBEDTLS_LIB
+	bool "Use mbedtls libraries"
+	select MBEDTLS_LIB_CRYPTO
+	select MBEDTLS_LIB_X509
+	help
+	  Enable mbedtls libraries
+
+if MBEDTLS_LIB
+
+config MBEDTLS_LIB_CRYPTO
+	bool "Crypto library"
+	help
+	  Enable mbedtls crypto library
+
+config MBEDTLS_LIB_X509
+	bool "X509 library"
+	help
+	  Enable mbedtls X509 library
+
+config MBEDTLS_LIB_TLS
+	bool "TLS library"
+	help
+	  Enable mbedtls TLS library
+
+endif # MBEDTLS_LIB
