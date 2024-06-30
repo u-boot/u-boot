@@ -254,9 +254,6 @@ compression
     zstd                  zstd compressed
     ====================  ==================
 
-data-size
-    size of the data in bytes
-
 
 Conditionally mandatory property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -275,6 +272,9 @@ data-position
     Machine address at which the data is to be found. This is a fixed address
     not relative to the loading of the FIT. This is mandatory if external data
     used with a fixed address.
+
+data-size
+    Size of the data in bytes. This is mandatory if external data is used.
 
 os
     OS name, mandatory for types "kernel". Valid OS names are:
