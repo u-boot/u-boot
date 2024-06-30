@@ -33,6 +33,7 @@ Shell commands
    cmd/bootd
    cmd/bootdev
    cmd/bootefi
+   cmd/bootelf
    cmd/bootflow
    cmd/booti
    cmd/bootm
