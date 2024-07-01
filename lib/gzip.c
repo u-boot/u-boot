@@ -67,7 +67,7 @@ int zzip(void *dst, unsigned long *lenp, unsigned char *src,
 
 	r = deflateInit2_(&s, Z_BEST_SPEED, Z_DEFLATED,	window,
 			DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-			sizeof(z_stream));
+			ZLIB_VERSION, sizeof(z_stream));
 	if (r != Z_OK) {
 		printf ("Error: deflateInit2_() returned %d\n", r);
 		return -1;

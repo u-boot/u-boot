@@ -21,6 +21,7 @@ const char * const z_errmsg[10] = {
 "data error",          /* Z_DATA_ERROR    (-3) */
 "insufficient memory", /* Z_MEM_ERROR     (-4) */
 "buffer error",        /* Z_BUF_ERROR     (-5) */
+"incompatible version",/* Z_VERSION_ERROR (-6) */
 ""};
 
 #ifdef DEBUG
