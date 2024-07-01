@@ -39,6 +39,7 @@
 #include <initcall.h>
 #include <kgdb.h>
 #include <irq_func.h>
+#include <led.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <miiphy.h>
@@ -463,14 +464,30 @@ static int initr_malloc_bootparams(void)
 #if defined(CONFIG_LED_STATUS)
 static int initr_status_led(void)
 {
-#if defined(CONFIG_LED_STATUS_BOOT)
-	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_BLINKING);
-#else
 	status_led_init();
-#endif
+
 	return 0;
 }
 #endif
+
+static int initr_boot_led_blink(void)
+{
+#ifdef CONFIG_LED_STATUS_BOOT
+	status_led_set(CONFIG_LED_STATUS_BOOT, CONFIG_LED_STATUS_BLINKING);
+#endif
+#ifdef CONFIG_LED_BOOT_ENABLE
+	led_boot_blink();
+#endif
+	return 0;
+}
+
+static int initr_boot_led_on(void)
+{
+#ifdef CONFIG_LED_BOOT_ENABLE
+	led_boot_on();
+#endif
+	return 0;
+}
 
 #ifdef CONFIG_CMD_NET
 static int initr_net(void)
@@ -717,6 +734,7 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_LED_STATUS)
 	initr_status_led,
 #endif
+	initr_boot_led_blink,
 	/* PPC has a udelay(20) here dating from 2002. Why? */
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
@@ -739,6 +757,7 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CFG_PRAM)
 	initr_mem,
 #endif
+	initr_boot_led_on,
 	run_main_loop,
 };
 

@@ -9,6 +9,51 @@ config LED
 	  can provide access to board-specific LEDs. Use of the device tree
 	  for configuration is encouraged.
 
+config LED_BOOT_ENABLE
+	bool "Enable LED boot support"
+	help
+	  Enable LED boot support.
+
+	  LED boot is a specific LED assigned to signal boot operation status.
+
+config LED_BOOT_LABEL
+	string "LED boot label"
+	depends on LED_BOOT_ENABLE
+	help
+	  LED label defined in DT to assign for LED boot usage.
+
+config LED_BOOT_PERIOD
+	int "LED boot period"
+	depends on LED_BOOT_ENABLE && LED_BLINK
+	default 2
+	help
+	  LED boot blink period in ms.
+
+	  Value is normalized per CONFIG_SYS_HZ.
+
+config LED_ACTIVITY_ENABLE
+	bool "Enable LED activity support"
+	help
+	  Enable LED activity support.
+
+	  LED activity is a specific LED assigned to signal activity operation
+	  like file trasnfer, flash write/erase...
+
+config LED_ACTIVITY_LABEL
+	string "LED activity label"
+	depends on LED_ACTIVITY_ENABLE
+	help
+	  LED label defined in DT to assign for LED activity usage.
+
+config LED_ACTIVITY_PERIOD
+	int "LED activity period"
+	depends on LED_ACTIVITY_ENABLE && LED_BLINK
+	default 2
+	help
+	  LED activity blink period in ms.
+
+	  Value is normalized per CONFIG_SYS_HZ.
+
 config LED_BCM6328
 	bool "LED Support for BCM6328"
 	depends on LED && ARCH_BMIPS
@@ -90,6 +135,15 @@ config LED_GPIO
 	  GPIOs may be on the SoC or some other device which provides GPIOs.
 	  The GPIO driver must used driver model. LEDs are configured using
 	  the device tree.
+
+config LED_GPIO_SW_BLINK
+	bool "LED support for GPIO software blink"
+	depends on LED_GPIO
+	select CYCLIC
+	select LED_BLINK
+	help
+	  Enable support for GPIO-connected LEDs to make use of Cyclic API
+	  to simulate LED blink by software.
 
 config SPL_LED_GPIO
 	bool "LED support for GPIO-connected LEDs in SPL"

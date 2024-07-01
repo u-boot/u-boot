@@ -61,6 +61,20 @@ int led_set_state(struct udevice *dev, enum led_state_t state)
 	return ops->set_state(dev, state);
 }
 
+int led_set_state_by_label(const char *label, enum led_state_t state)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label(label, &dev);
+	if (ret) {
+		printf("Failed to get LED by label %s\n", label);
+		return ret;
+	}
+
+	return led_set_state(dev, state);
+}
+
 enum led_state_t led_get_state(struct udevice *dev)
 {
 	struct led_ops *ops = led_get_ops(dev);
@@ -80,6 +94,20 @@ int led_set_period(struct udevice *dev, int period_ms)
 		return -ENOSYS;
 
 	return ops->set_period(dev, period_ms);
+}
+
+int led_set_period_by_label(const char *label, int period_ms)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = led_get_by_label(label, &dev);
+	if (ret) {
+		printf("Failed to get LED by label %s\n", label);
+		return ret;
+	}
+
+	return led_set_period(dev, period_ms);
 }
 #endif
 
