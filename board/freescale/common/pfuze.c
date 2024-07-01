@@ -3,7 +3,6 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <errno.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>

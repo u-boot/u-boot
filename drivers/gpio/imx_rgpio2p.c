@@ -5,7 +5,6 @@
  * RGPIO2P driver for the Freescale i.MX7ULP.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>

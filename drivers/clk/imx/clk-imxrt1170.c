@@ -4,7 +4,6 @@
  * Author(s): Jesse Taube <Mr.Bossman075@gmail.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>

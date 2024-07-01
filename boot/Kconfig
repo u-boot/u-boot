@@ -423,7 +423,7 @@ config SPL_BOOTSTD
 	depends on SPL && SPL_DM && SPL_OF_CONTROL && SPL_BLK
 	default y if VPL
 	help
-	  This enables standard boot in SPL. This is neeeded so that VBE
+	  This enables standard boot in SPL. This is needed so that VBE
 	  (Verified Boot for Embedded) can be used, since it depends on standard
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
@@ -433,7 +433,7 @@ config VPL_BOOTSTD
 	depends on VPL && VPL_DM && VPL_OF_CONTROL && VPL_BLK
 	default y
 	help
-	  This enables standard boot in SPL. This is neeeded so that VBE
+	  This enables standard boot in SPL. This is needed so that VBE
 	  (Verified Boot for Embedded) can be used, since it depends on standard
 	  boot. It is enabled by default since the main purpose of VPL is to
 	  handle the firmware part of VBE.
@@ -449,7 +449,7 @@ config BOOTSTD_FULL
 	  - bootdev, bootmeth commands
 	  - extra features in the bootflow command
 	  - support for selecting the ordering of bootmeths ("bootmeth order")
-	  - support for selecting the ordering of bootdevs using the devicetree
+	  - support for selecting the ordering of bootdevs using the Device Tree
 	    as well as the "boot_targets" environment variable
 
 config BOOTSTD_DEFAULTS
@@ -481,7 +481,7 @@ config BOOTSTD_PROG
 	default y
 	help
 	  Enable this to provide a board_run_command() function which can boot
-	  a systen without using commands. If the boot fails, then U-Boot will
+	  a system without using commands. If the boot fails, then U-Boot will
 	  panic.
 
 	  Note: This currently has many limitations and is not a useful booting
@@ -517,7 +517,7 @@ config BOOTMETH_EXTLINUX
 	  bootdevs look for a 'extlinux/extlinux.conf' on each filesystem
 	  they scan.
 
-	  The specification for this filed is here:
+	  The specification for this file is here:
 
 	    https://uapi-group.org/specifications/specs/boot_loader_specification/
 
@@ -576,7 +576,7 @@ config BOOTMETH_VBE
 	select EVENT
 	help
 	  Enables support for VBE boot. This is a standard boot method which
-	  supports selection of various firmware components, seleciton of an OS to
+	  supports selection of various firmware components, selection of an OS to
 	  boot as well as updating these using fwupd.
 
 config BOOTMETH_DISTRO
@@ -593,7 +593,7 @@ config SPL_BOOTMETH_VBE
 	default y if VPL
 	help
 	  Enables support for VBE boot. This is a standard boot method which
-	  supports selection of various firmware components, seleciton of an OS to
+	  supports selection of various firmware components, selection of an OS to
 	  boot as well as updating these using fwupd.
 
 config VPL_BOOTMETH_VBE
@@ -603,7 +603,7 @@ config VPL_BOOTMETH_VBE
 	default y
 	help
 	  Enables support for VBE boot. This is a standard boot method which
-	  supports selection of various firmware components, seleciton of an OS to
+	  supports selection of various firmware components, selection of an OS to
 	  boot as well as updating these using fwupd.
 
 if BOOTMETH_VBE
@@ -752,7 +752,7 @@ if MEASURED_BOOT
 	bool "Measure the devicetree image"
 	default y if MEASURED_BOOT
 	help
-	  On some platforms, the devicetree is not static as it may contain
+	  On some platforms, the Device Tree is not static as it may contain
 	  random MAC addresses or other such data that changes each boot.
 	  Therefore, it should not be measured into the TPM. In that case,
 	  disable the measurement here.
@@ -1307,7 +1307,7 @@ config AUTOBOOT_PROMPT
 
 	  Note that this define is used as the (only) argument to a
 	  printf() call, so it may contain '%' format specifications,
-	  provided that it also includes, sepearated by commas exactly
+	  provided that it also includes, separated by commas exactly
 	  like in a printf statement, the required arguments. It is
 	  the responsibility of the user to select only such arguments
 	  that are valid in the given context.
@@ -1406,7 +1406,7 @@ config AUTOBOOT_STOP_STR_SHA256
 	help
 	  This option adds the feature to only stop the autobooting,
 	  and therefore boot into the U-Boot prompt, when the input
-	  string / password matches a values that is encypted via
+	  string / password matches a values that is encrypted via
 	  a SHA256 hash and saved in the environment variable
 	  "bootstopkeysha256". If the value in that variable
 	  includes a ":", the portion prior to the ":" will be treated

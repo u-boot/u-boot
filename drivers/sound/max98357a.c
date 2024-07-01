@@ -6,7 +6,6 @@
  * Parts taken from coreboot
  */
 
-#include <common.h>
 #include <audio_codec.h>
 #include <dm.h>
 #include <log.h>

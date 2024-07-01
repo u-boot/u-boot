@@ -4,14 +4,16 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <vsprintf.h>
 #include <zynqmp_firmware.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/string.h>
 
 #define LOCK		0
 #define SPLIT		1

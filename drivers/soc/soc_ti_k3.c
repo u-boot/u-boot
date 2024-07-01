@@ -4,7 +4,6 @@
  *	Dave Gerlach <d-gerlach@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <soc.h>
 
@@ -24,32 +23,35 @@ static const char *get_family_string(u32 idreg)
 	soc = (idreg & JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT;
 
 	switch (soc) {
-	case JTAG_ID_PARTNO_AM65X:
-		family = "AM65X";
-		break;
-	case JTAG_ID_PARTNO_J721E:
-		family = "J721E";
-		break;
-	case JTAG_ID_PARTNO_J7200:
-		family = "J7200";
-		break;
-	case JTAG_ID_PARTNO_AM64X:
-		family = "AM64X";
-		break;
-	case JTAG_ID_PARTNO_J721S2:
-		family = "J721S2";
-		break;
 	case JTAG_ID_PARTNO_AM62X:
 		family = "AM62X";
 		break;
 	case JTAG_ID_PARTNO_AM62AX:
 		family = "AM62AX";
 		break;
-	case JTAG_ID_PARTNO_J784S4:
-		family = "J784S4";
-		break;
 	case JTAG_ID_PARTNO_AM62PX:
 		family = "AM62PX";
+		break;
+	case JTAG_ID_PARTNO_AM64X:
+		family = "AM64X";
+		break;
+	case JTAG_ID_PARTNO_AM65X:
+		family = "AM65X";
+		break;
+	case JTAG_ID_PARTNO_J7200:
+		family = "J7200";
+		break;
+	case JTAG_ID_PARTNO_J721E:
+		family = "J721E";
+		break;
+	case JTAG_ID_PARTNO_J721S2:
+		family = "J721S2";
+		break;
+	case JTAG_ID_PARTNO_J722S:
+		family = "J722S";
+		break;
+	case JTAG_ID_PARTNO_J784S4:
+		family = "J784S4";
 		break;
 	default:
 		family = "Unknown Silicon";

@@ -9,7 +9,9 @@
 
 / {
 	model = "DH electronics STM32MP15xx DHCOR Testbench";
-	compatible = "dh,stm32mp15xx-dhcor-testbench", "st,stm32mp1xx";
+	compatible = "dh,stm32mp15xx-dhcor-testbench",
+		     "dh,stm32mp15xx-dhcor-som",
+		     "st,stm32mp1xx";
 
 	aliases {
 		ethernet0 = &ethernet0;

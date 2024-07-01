@@ -3,7 +3,7 @@
  * (C) Copyright 2021 Rockchip Electronics Co., Ltd.
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <ram.h>
 #include <syscon.h>

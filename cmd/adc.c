@@ -3,7 +3,6 @@
  * Copyright (C) 2018 BayLibre, SAS
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <adc.h>
@@ -153,11 +152,11 @@ static int do_adc_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-static char adc_help_text[] =
+U_BOOT_LONGHELP(adc,
 	"list - list ADC devices\n"
 	"adc info <name> - Get ADC device info\n"
 	"adc single <name> <channel> [varname] - Get Single data of ADC device channel\n"
-	"adc scan <name> [channel mask] - Scan all [or masked] ADC channels";
+	"adc scan <name> [channel mask] - Scan all [or masked] ADC channels\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(adc, "ADC sub-system", adc_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 1, do_adc_list),

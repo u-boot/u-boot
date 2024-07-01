@@ -55,7 +55,7 @@ byteReverse(unsigned char *buf, unsigned longs)
  * initialization constants.
  */
 void
-MD5Init(struct MD5Context *ctx)
+MD5Init(MD5Context *ctx)
 {
 	ctx->buf[0] = 0x67452301;
 	ctx->buf[1] = 0xefcdab89;
@@ -71,7 +71,7 @@ MD5Init(struct MD5Context *ctx)
  * of bytes.
  */
 void
-MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
+MD5Update(MD5Context *ctx, unsigned char const *buf, unsigned int len)
 {
 	register __u32 t;
 
@@ -120,7 +120,7 @@ MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 void
-MD5Final(unsigned char digest[16], struct MD5Context *ctx)
+MD5Final(unsigned char digest[16], MD5Context *ctx)
 {
 	unsigned int count;
 	unsigned char *p;
@@ -269,7 +269,7 @@ MD5Transform(__u32 buf[4], __u32 const in[16])
 void
 md5 (unsigned char *input, int len, unsigned char output[16])
 {
-	struct MD5Context context;
+	MD5Context context;
 
 	MD5Init(&context);
 	MD5Update(&context, input, len);
@@ -286,7 +286,7 @@ void
 md5_wd(const unsigned char *input, unsigned int len, unsigned char output[16],
 	unsigned int chunk_sz)
 {
-	struct MD5Context context;
+	MD5Context context;
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	const unsigned char *end, *curr;
 	int chunk;

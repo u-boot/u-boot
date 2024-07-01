@@ -4,7 +4,6 @@
  * Author: Eric Nelson <eric@nelint.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <asm/global_data.h>

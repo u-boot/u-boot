@@ -42,12 +42,7 @@
 # define PARTS_DEFAULT
 #endif
 
-/* Console I/O Buffer Size */
-
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM)
-# define PHY_ANEG_TIMEOUT       20000
-#endif
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x40000000\0" \
@@ -203,10 +198,6 @@
 # define CFG_SYS_SPI_ARGS_OFFS	0xa0000
 # define CFG_SYS_SPI_ARGS_SIZE	0xa0000
 #endif
-
-/* u-boot is like dtb */
-
-/* ATF is my kernel image */
 
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"

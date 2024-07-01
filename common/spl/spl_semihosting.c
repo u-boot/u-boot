@@ -3,7 +3,6 @@
  * Copyright (C) 2022 Sean Anderson <sean.anderson@seco.com>
  */
 
-#include <common.h>
 #include <image.h>
 #include <log.h>
 #include <semihosting.h>

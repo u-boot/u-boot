@@ -3,7 +3,6 @@
  * Copyright 2017 Texas Instruments, Inc.
  */
 
-#include <common.h>
 #include <hang.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>

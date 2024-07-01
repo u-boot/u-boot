@@ -6,7 +6,7 @@
  * Shengzhou Liu <Shengzhou.Liu@freescale.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <log.h>

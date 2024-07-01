@@ -4,7 +4,6 @@
  * Author: Patrick Delaunay <patrick.delaunay@foss.st.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <backlight.h>
 #include <log.h>

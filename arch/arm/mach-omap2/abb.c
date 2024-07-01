@@ -8,7 +8,6 @@
  * Andrii Tseglytskyi <andrii.tseglytskyi@ti.com>
  */
 
-#include <common.h>
 #include <asm/omap_common.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>

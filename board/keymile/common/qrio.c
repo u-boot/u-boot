@@ -4,7 +4,7 @@
  * Valentin Longchamp <valentin.longchamp@keymile.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 

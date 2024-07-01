@@ -3,7 +3,6 @@
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm/types.h>
 #include <asm/io.h>
 #include <fsl_dtsec.h>

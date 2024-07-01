@@ -640,7 +640,11 @@ static int read_and_truncate_page(struct btrfs_path *path,
 	extent_type = btrfs_file_extent_type(leaf, fi);
 	if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
 		ret = btrfs_read_extent_inline(path, fi, buf);
-		memcpy(dest, buf + page_off, min(page_len, ret));
+		if (ret < 0) {
+			free(buf);
+			return ret;
+		}
+		memcpy(dest, buf + page_off, min3(page_len, ret, len));
 		free(buf);
 		return len;
 	}
@@ -652,7 +656,7 @@ static int read_and_truncate_page(struct btrfs_path *path,
 		free(buf);
 		return ret;
 	}
-	memcpy(dest, buf + page_off, page_len);
+	memcpy(dest, buf + page_off, min(page_len, len));
 	free(buf);
 	return len;
 }

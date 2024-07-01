@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) 2024 Marek Vasut <marex@denx.de>
+ */
+
+#include "stm32mp13-u-boot.dtsi"
+
+/ {
+	aliases {
+		eeprom0 = &eeprom0;
+	};
+
+	config {
+		dh,ddr3-coding-gpios = <&gpiod 5 0>, <&gpiod 9 0>;
+		dh,som-coding-gpios = <&gpioa 13 0>, <&gpioi 1 0>;
+	};
+};
+
+&flash0 {
+	bootph-pre-ram;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		partition@0 {
+			label = "fsbl1";
+			reg = <0x00000000 0x00040000>;
+		};
+		partition@40000 {
+			label = "fsbl2";
+			reg = <0x00040000 0x00040000>;
+		};
+		partition@80000 {
+			label = "u-boot";
+			reg = <0x00080000 0x00360000>;
+		};
+		partition@3e0000 {
+			label = "u-boot-env-a";
+			reg = <0x003e0000 0x00010000>;
+		};
+		partition@3f0000 {
+			label = "u-boot-env-b";
+			reg = <0x003f0000 0x00010000>;
+		};
+	};
+};
+
+&sdmmc1 {
+	status = "disabled";
+};
+
+&usbotg_hs {
+	u-boot,force-b-session-valid;
+};

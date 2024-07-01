@@ -18,8 +18,6 @@
 
 #define DWC_NET_PHYADDR			1
 
-#define PHY_ANEG_TIMEOUT 20000
-
 #endif
 
 #define BOOT_TARGET_DEVICES(func) \

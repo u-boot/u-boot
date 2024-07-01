@@ -7,7 +7,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <cpu_func.h>
 #include <display_options.h>
 #include <dm.h>
@@ -362,7 +361,7 @@ static int pcs_pma_startup(struct axidma_priv *priv)
 	 * and the external PHY is not obtained.
 	 */
 	debug("axiemac: waiting for link status of the PCS/PMA PHY");
-	while (retry_cnt * 10 < PHY_ANEG_TIMEOUT) {
+	while (retry_cnt * 10 < CONFIG_PHY_ANEG_TIMEOUT) {
 		rc = phyread(priv, priv->pcsaddr, MII_BMSR, &mii_reg);
 		if ((mii_reg & BMSR_LSTATUS) && mii_reg != 0xffff && !rc) {
 			debug(".Done\n");

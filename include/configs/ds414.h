@@ -55,6 +55,5 @@
 
 
 /* increase autoneg timeout, my NIC sucks */
-#define PHY_ANEG_TIMEOUT	16000
 
 #endif /* _CONFIG_SYNOLOGY_DS414_H */

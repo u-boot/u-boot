@@ -5,9 +5,10 @@
  * Shengzhou Liu <Shengzhou.Liu@freescale.com>
  */
 
-#include <common.h>
+#include <linux/kernel.h>
 #include <asm/fsl_serdes.h>
 #include <asm/processor.h>
+#include <asm/ppc.h>
 #include "fsl_corenet2_serdes.h"
 
 struct serdes_config {

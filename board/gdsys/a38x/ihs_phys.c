@@ -1,4 +1,3 @@
-#include <common.h>
 #include <dm.h>
 #include <miiphy.h>
 #include <asm-generic/gpio.h>

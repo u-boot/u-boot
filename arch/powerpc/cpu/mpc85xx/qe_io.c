@@ -6,7 +6,7 @@
  * based on source code of Shlomi Gridish
  */
 
-#include <common.h>
+#include <config.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/immap_85xx.h>

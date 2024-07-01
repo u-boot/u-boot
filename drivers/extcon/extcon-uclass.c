@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_EXTCON
 
-#include <common.h>
 #include <extcon.h>
 #include <dm.h>
 

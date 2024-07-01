@@ -5,7 +5,6 @@
  * Author: Claudiu Beznea <claudiu.beznea@microchip.com>
  */
 
-#include <common.h>
 #include <cpu.h>
 #include <dm.h>
 #include <div64.h>

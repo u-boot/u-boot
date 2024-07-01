@@ -7,7 +7,6 @@
  * Author: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dwmmc.h>

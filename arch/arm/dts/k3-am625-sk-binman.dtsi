@@ -137,11 +137,22 @@
 	};
 };
 
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See am62x_evm.h
+#define AM62X_SK_TIBOOT3_IMAGE_GUID_STR "abcb83d2-9cb6-4351-b8f1-6494bbe3700a"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = AM62X_SK_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
 #endif
 
 #ifdef CONFIG_TARGET_AM625_A53_EVM
 
-#define SPL_AM625_SK_DTB "spl/dts/k3-am625-sk.dtb"
+#define SPL_AM625_SK_DTB "spl/dts/ti/k3-am625-sk.dtb"
 #define AM625_SK_DTB "u-boot.dtb"
 
 &binman {
@@ -149,6 +160,7 @@
 		filename = "ti-dm.bin";
 		blob-ext {
 			filename = "ti-dm/am62xx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 
@@ -452,4 +464,23 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See am62x_evm.h
+#define AM62X_SK_SPL_IMAGE_GUID_STR "aee355fc-bf97-4264-8c82-437255efdc1d"
+#define AM62X_SK_UBOOT_IMAGE_GUID_STR "28ab8c6c-fca8-41d3-8ea1-5f171b7d2929"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = AM62X_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = AM62X_SK_UBOOT_IMAGE_GUID_STR;
+	};
+};
+
 #endif

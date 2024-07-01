@@ -8,7 +8,6 @@
  * Author: Mugunthan V N <mugunthanvnm@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <ahci.h>
 #include <scsi.h>

@@ -3,7 +3,6 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/pnp_def.h>
 

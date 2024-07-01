@@ -12,8 +12,6 @@
 
 /* Environment in SPI NOR flash */
 
-#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-
 /* NAND */
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

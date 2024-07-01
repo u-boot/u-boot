@@ -5,7 +5,6 @@
  * Copyright 2022 Google LLC
  */
 
-#include <common.h>
 #include <console.h>
 #include <fdt_support.h>
 #include <mapmem.h>
@@ -1347,6 +1346,10 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
 	if (env_bootargs)
 		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	if (IS_ENABLED(CONFIG_DM_RNG) &&
+	    !IS_ENABLED(CONFIG_MEASURED_BOOT) &&
+	    !IS_ENABLED(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT))
+		ut_assert_nextlinen("\tkaslr-seed = ");
 	ut_assert_nextline("};");
 	ut_assertok(ut_check_console_end(uts));
 
@@ -1363,6 +1366,10 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	ut_assert_nextlinen("\tu-boot,version = "); /* Ignore the version string */
 	if (env_bootargs)
 		ut_assert_nextline("\tbootargs = \"%s\";", env_bootargs);
+	if (IS_ENABLED(CONFIG_DM_RNG) &&
+	    !IS_ENABLED(CONFIG_MEASURED_BOOT) &&
+	    !IS_ENABLED(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT))
+		ut_assert_nextlinen("\tkaslr-seed = ");
 	ut_assert_nextline("};");
 	ut_assertok(ut_check_console_end(uts));
 

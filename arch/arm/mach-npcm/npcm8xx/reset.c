@@ -3,7 +3,6 @@
  * Copyright (c) 2022 Nuvoton Technology Corp.
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
 #include <asm/arch/rst.h>

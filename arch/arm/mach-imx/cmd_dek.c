@@ -6,7 +6,7 @@
  * Command for encapsulating DEK blob
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <log.h>
 #include <malloc.h>
@@ -17,6 +17,7 @@
 #include <asm/arch/clock.h>
 #include <mapmem.h>
 #include <tee.h>
+#include <vsprintf.h>
 #ifdef CONFIG_IMX_SECO_DEK_ENCAP
 #include <imx_container.h>
 #include <firmware/imx/sci/sci.h>
@@ -394,10 +395,10 @@ static int do_dek_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 /***************************************************/
-static char dek_blob_help_text[] =
+U_BOOT_LONGHELP(dek_blob,
 	"src dst len            - Encapsulate and create blob of data\n"
 	"                         $len bits long at address $src and\n"
-	"                         store the result at address $dst.\n";
+	"                         store the result at address $dst.\n");
 
 U_BOOT_CMD(
 	dek_blob, 4, 1, do_dek_blob,

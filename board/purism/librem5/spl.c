@@ -4,7 +4,7 @@
  * Copyright 2021 Purism
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <errno.h>
 #include <asm/io.h>

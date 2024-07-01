@@ -4,7 +4,7 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <debug_uart.h>
@@ -285,6 +285,18 @@ int dram_init(void)
 #if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
+	if (!IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE)) {
+		log_warning("reset failed: ZYNQMP_FIRMWARE disabled");
+		return;
+	}
+
+	/* In case of !CONFIG_ZYNQMP_FIRMWARE the call to 'xilinx_pm_request()'
+	 * will be removed by the compiler due to the early return.
+	 * If CONFIG_ZYNQMP_FIRMWARE is defined in SPL 'xilinx_pm_request()'
+	 * will send command over IPI and requires pmufw to be present.
+	 */
+	xilinx_pm_request(PM_RESET_ASSERT, ZYNQMP_PM_RESET_SOFT,
+			  PM_RESET_ACTION_ASSERT, 0, 0, NULL);
 }
 #endif
 
@@ -519,6 +531,10 @@ int board_late_init(void)
 	usb_ether_init();
 #endif
 
+	multiboot = multi_boot();
+	if (multiboot >= 0)
+		env_set_hex("multiboot", multiboot);
+
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
 		return 0;
@@ -530,10 +546,6 @@ int board_late_init(void)
 	ret = set_fdtfile();
 	if (ret)
 		return ret;
-
-	multiboot = multi_boot();
-	if (multiboot >= 0)
-		env_set_hex("multiboot", multiboot);
 
 	if (IS_ENABLED(CONFIG_DISTRO_DEFAULTS)) {
 		ret = boot_targets_setup();

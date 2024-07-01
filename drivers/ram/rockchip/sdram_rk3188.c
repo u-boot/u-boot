@@ -6,7 +6,7 @@
  * Adapted from the very similar rk3288 ddr init.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>

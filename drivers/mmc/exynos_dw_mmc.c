@@ -4,7 +4,6 @@
  * Jaehoon Chung <jh80.chung@samsung.com>
  */
 
-#include <common.h>
 #include <dwmmc.h>
 #include <fdtdec.h>
 #include <asm/global_data.h>

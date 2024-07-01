@@ -12,14 +12,13 @@
  * unknown SCMI protocol ID.
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <reset.h>
 #include <scmi_agent.h>
 #include <scmi_agent-uclass.h>
 #include <scmi_protocols.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <asm/scmi_test.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>

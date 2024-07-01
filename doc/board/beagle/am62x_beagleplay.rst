@@ -71,11 +71,10 @@ Set the variables corresponding to this platform:
 
 Target Images
 -------------
-Copy the below images to an SD card and boot:
+Copy these images to an SD card and boot:
 
-* tiboot3-am62x-gp-evm.bin from R5 build as tiboot3.bin
-* tispl.bin_unsigned from Cortex-A build as tispl.bin
-* u-boot.img_unsigned from Cortex-A build as u-boot.img
+* tiboot3.bin from Cortex-R5 build.
+* tispl.bin and u-boot.img from Cortex-A build
 
 Image formats
 -------------
@@ -268,7 +267,19 @@ for details.
      - USB Device Firmware Upgrade (DFU) mode
 
 To switch to SD card boot mode, hold the USR button while powering on
-with Type-C power supply, then release when power LED lights up.
+with a USB type C power supply, then release when power LED lights up.
+
+DFU based boot
+--------------
+
+To boot the board over DFU, ensure there is no SD card inserted with a
+bootloader. Hold the USR switch while plugging into the type C to boot into DFU
+mode. After power-on the build artifacts needs to be uploaded one by one with a
+tool like dfu-util.
+
+.. include::  ../ti/am62x_sk.rst
+    :start-after: .. am62x_evm_rst_include_start_dfu_boot
+    :end-before: .. am62x_evm_rst_include_end_dfu_boot
 
 Debugging U-Boot
 ----------------

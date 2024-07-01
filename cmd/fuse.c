@@ -8,11 +8,11 @@
  * Martha Marx <mmarx@silicontkx.com>
  */
 
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <fuse.h>
 #include <mapmem.h>
+#include <vsprintf.h>
 #include <linux/errno.h>
 
 static int strtou32(const char *str, unsigned int base, u32 *result)

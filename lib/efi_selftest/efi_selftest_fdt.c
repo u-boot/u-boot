@@ -227,6 +227,13 @@ static int execute(void)
 			return EFI_ST_FAILURE;
 		}
 	}
+	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL_MEASURE_DTB)) {
+		str = get_property(u"kaslr-seed", u"chosen");
+		if (str) {
+			efi_st_error("kaslr-seed with measured fdt\n");
+			return EFI_ST_FAILURE;
+		}
+	}
 	if (IS_ENABLED(CONFIG_RISCV)) {
 		u32 fdt_hartid;
 

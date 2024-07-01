@@ -6,7 +6,6 @@
  * Unit test for asn1 compiler and asn1 decoder function via various parsers
  */
 
-#include <common.h>
 #include <command.h>
 #include <test/lib.h>
 #include <test/test.h>

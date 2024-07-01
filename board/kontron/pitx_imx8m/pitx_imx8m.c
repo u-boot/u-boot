@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include "pitx_misc.h"
-#include <common.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <init.h>

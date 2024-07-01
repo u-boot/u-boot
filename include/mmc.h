@@ -18,13 +18,6 @@
 
 struct bd_info;
 
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
-#define MMC_SUPPORTS_TUNING
-#endif
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
-#define MMC_SUPPORTS_TUNING
-#endif
-
 /* SD/MMC version bits; 8 flags, 8 major, 8 minor, 8 change */
 #define SD_VERSION_SD	(1U << 31)
 #define MMC_VERSION_MMC	(1U << 30)
@@ -485,7 +478,7 @@ struct dm_mmc_ops {
 	 */
 	int (*get_wp)(struct udevice *dev);
 
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	/**
 	 * execute_tuning() - Start the tuning process
 	 *

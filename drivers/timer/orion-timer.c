@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 #include <asm/io.h>
-#include <common.h>
+#include <config.h>
 #include <div64.h>
 #include <dm/device.h>
 #include <dm/fdtaddr.h>

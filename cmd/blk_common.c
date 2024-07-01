@@ -8,10 +8,10 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <mapmem.h>
+#include <vsprintf.h>
 
 int blk_common_cmd(int argc, char *const argv[], enum uclass_id uclass_id,
 		   int *cur_devnump)

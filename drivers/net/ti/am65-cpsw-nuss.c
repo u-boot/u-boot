@@ -6,7 +6,6 @@
  *
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/cache.h>
 #include <asm/gpio.h>
@@ -328,6 +327,9 @@ static int am65_cpsw_start(struct udevice *dev)
 	struct ti_udma_drv_chan_cfg_data *dma_rx_cfg_data;
 	int ret, i;
 
+	if (common->started)
+		return 0;
+
 	ret = power_domain_on(&common->pwrdmn);
 	if (ret) {
 		dev_err(dev, "power_domain_on() failed %d\n", ret);
@@ -359,7 +361,7 @@ static int am65_cpsw_start(struct udevice *dev)
 					  UDMA_RX_BUF_SIZE);
 		if (ret) {
 			dev_err(dev, "RX dma add buf failed %d\n", ret);
-			goto err_free_tx;
+			goto err_free_rx;
 		}
 	}
 
@@ -488,6 +490,9 @@ static int am65_cpsw_send(struct udevice *dev, void *packet, int length)
 	struct ti_udma_drv_packet_data packet_data;
 	int ret;
 
+	if (!common->started)
+		return -ENETDOWN;
+
 	packet_data.pkt_type = AM65_CPSW_CPPI_PKT_TYPE;
 	packet_data.dest_tag = priv->port_id;
 	ret = dma_send(&common->dma_tx, packet, length, &packet_data);
@@ -503,6 +508,9 @@ static int am65_cpsw_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct am65_cpsw_priv *priv = dev_get_priv(dev);
 	struct am65_cpsw_common	*common = priv->cpsw_common;
+
+	if (!common->started)
+		return -ENETDOWN;
 
 	/* try to receive a new packet */
 	return dma_receive(&common->dma_rx, (void **)packetp, NULL);

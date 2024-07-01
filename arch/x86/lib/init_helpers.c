@@ -4,11 +4,11 @@
  * Graeme Russ, <graeme.russ@gmail.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <linux/errno.h>
 #include <asm/mtrr.h>
+#include <asm/u-boot-x86.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

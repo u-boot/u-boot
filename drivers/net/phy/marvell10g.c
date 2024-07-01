@@ -22,7 +22,6 @@
  * If both the fiber and copper ports are connected, the first to gain
  * link takes priority and the other port is completely locked out.
  */
-#include <common.h>
 #include <console.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>

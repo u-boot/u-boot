@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2023 Marek Vasut <marex@denx.de>
  */
-#include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <serial.h>

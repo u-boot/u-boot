@@ -71,6 +71,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <linux/types.h>
+
 /* variable range MTRR usage */
 enum {
 	MTRR_VAR_ROM,

@@ -14,7 +14,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <clk-uclass.h>

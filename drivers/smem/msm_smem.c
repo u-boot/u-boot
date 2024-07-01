@@ -5,7 +5,6 @@
  * Copyright (c) 2018, Ramon Fried <ramon.fried@gmail.com>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <asm/global_data.h>

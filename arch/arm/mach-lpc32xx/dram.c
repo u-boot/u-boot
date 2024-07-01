@@ -10,7 +10,6 @@
  * This code runs from SRAM.
  */
 
-#include <common.h>
 #include <netdev.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>

@@ -6,7 +6,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <asm/bitops.h>
 #include <asm/global_data.h>

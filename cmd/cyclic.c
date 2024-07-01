@@ -8,20 +8,23 @@
  * Copyright (C) 2022 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <cyclic.h>
 #include <div64.h>
 #include <malloc.h>
+#include <time.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
+#include <linux/kernel.h>
 
 struct cyclic_demo_info {
+	struct cyclic_info cyclic;
 	uint delay_us;
 };
 
-static void cyclic_demo(void *ctx)
+static void cyclic_demo(struct cyclic_info *c)
 {
-	struct cyclic_demo_info *info = ctx;
+	struct cyclic_demo_info *info = container_of(c, struct cyclic_demo_info, cyclic);
 
 	/* Just a small dummy delay here */
 	udelay(info->delay_us);
@@ -31,7 +34,6 @@ static int do_cyclic_demo(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
 	struct cyclic_demo_info *info;
-	struct cyclic_info *cyclic;
 	uint time_ms;
 
 	if (argc < 3)
@@ -47,10 +49,7 @@ static int do_cyclic_demo(struct cmd_tbl *cmdtp, int flag, int argc,
 	info->delay_us = simple_strtoul(argv[2], NULL, 0);
 
 	/* Register demo cyclic function */
-	cyclic = cyclic_register(cyclic_demo, time_ms * 1000, "cyclic_demo",
-				 info);
-	if (!cyclic)
-		printf("Registering of cyclic_demo failed\n");
+	cyclic_register(&info->cyclic, cyclic_demo, time_ms * 1000, "cyclic_demo");
 
 	printf("Registered function \"%s\" to be executed all %dms\n",
 	       "cyclic_demo", time_ms);

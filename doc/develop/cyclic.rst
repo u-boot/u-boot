@@ -19,20 +19,26 @@ Registering a cyclic function
 
 To register a cyclic function, use something like this::
 
-    static void cyclic_demo(void *ctx)
+    struct donkey {
+        struct cyclic_info cyclic;
+        void (*say)(const char *s);
+    };
+
+    static void cyclic_demo(struct cyclic_info *c)
     {
-        /* Just a small dummy delay here */
-        udelay(10);
+        struct donkey *donkey = container_of(c, struct donkey, cyclic);
+
+        donkey->say("Are we there yet?");
     }
-    
-    int board_init(void)
+
+    int donkey_init(void)
     {
-        struct cyclic_info *cyclic;
-        
+        struct donkey *donkey;
+
+        /* Initialize donkey ... */
+
         /* Register demo cyclic function */
-        cyclic = cyclic_register(cyclic_demo, 10 * 1000, "cyclic_demo", NULL);
-        if (!cyclic)
-        printf("Registering of cyclic_demo failed\n");
+        cyclic_register(&donkey->cyclic, cyclic_demo, 10 * 1000, "cyclic_demo");
         
         return 0;
     }

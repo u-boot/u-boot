@@ -7,7 +7,6 @@
  * Helpers for i.MX OTP fusing during module production
 */
 
-#include <common.h>
 #ifndef CONFIG_SPL_BUILD
 #include <command.h>
 #include <console.h>

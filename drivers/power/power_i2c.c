@@ -10,7 +10,6 @@
  * (C) Copyright 2019 NXP
  */
 
-#include <common.h>
 #include <log.h>
 #include <linux/types.h>
 #include <power/pmic.h>

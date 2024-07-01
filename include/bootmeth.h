@@ -7,6 +7,8 @@
 #ifndef __bootmeth_h
 #define __bootmeth_h
 
+#include <linux/bitops.h>
+
 struct blk_desc;
 struct bootflow;
 struct bootflow_iter;

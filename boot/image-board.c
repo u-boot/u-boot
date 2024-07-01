@@ -8,7 +8,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <bootstage.h>
 #include <cpu_func.h>
 #include <display_options.h>
@@ -406,13 +406,20 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 		if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE)) {
 			int ret;
 			if (IS_ENABLED(CONFIG_CMD_ABOOTIMG)) {
-				void *boot_img = map_sysmem(get_abootimg_addr(), 0);
+				ulong boot_img = get_abootimg_addr();
+				ulong init_boot_img = get_ainit_bootimg_addr();
 				void *vendor_boot_img = map_sysmem(get_avendor_bootimg_addr(), 0);
+				void *ramdisk_img;
 
-				ret = android_image_get_ramdisk(boot_img, vendor_boot_img,
+				if (init_boot_img == -1)
+					ramdisk_img = map_sysmem(boot_img, 0);
+				else
+					ramdisk_img = map_sysmem(init_boot_img, 0);
+
+				ret = android_image_get_ramdisk(ramdisk_img, vendor_boot_img,
 								rd_datap, rd_lenp);
 				unmap_sysmem(vendor_boot_img);
-				unmap_sysmem(boot_img);
+				unmap_sysmem(ramdisk_img);
 			} else {
 				void *ptr = map_sysmem(images->os.start, 0);
 

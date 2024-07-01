@@ -5,7 +5,6 @@
  *	Roy Zang <tie-fei.zang@freescale.com>
  * Some part is taken from tsec.c
  */
-#include <common.h>
 #include <miiphy.h>
 #include <phy.h>
 #include <asm/io.h>

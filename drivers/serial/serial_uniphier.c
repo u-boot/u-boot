@@ -5,7 +5,6 @@
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>

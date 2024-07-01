@@ -14,7 +14,6 @@
 /* mtd interface for YAFFS2 */
 
 /* XXX U-BOOT XXX */
-#include <common.h>
 #include <linux/bug.h>
 #include <linux/errno.h>
 

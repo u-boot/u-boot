@@ -3,7 +3,6 @@
  * Copyright (c) Vaisala Oyj. All rights reserved.
  */
 
-#include <common.h>
 #include <bootcount.h>
 #include <dm.h>
 #include <dm/device_compat.h>

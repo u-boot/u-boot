@@ -3,7 +3,6 @@
  * Copyright (C) 2019 Intel Corporation <www.intel.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <linux/sizes.h>

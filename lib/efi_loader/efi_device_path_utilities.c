@@ -76,7 +76,7 @@ static struct efi_device_path * EFIAPI append_device_path(
 	const struct efi_device_path *src2)
 {
 	EFI_ENTRY("%pD, %pD", src1, src2);
-	return EFI_EXIT(efi_dp_concat(src1, src2, false));
+	return EFI_EXIT(efi_dp_concat(src1, src2, 0));
 }
 
 /*

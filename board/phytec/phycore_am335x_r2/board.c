@@ -10,7 +10,7 @@
  * Copyright (C) 2019 DENX Software Engineering GmbH
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

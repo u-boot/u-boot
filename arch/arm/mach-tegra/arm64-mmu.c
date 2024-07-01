@@ -7,7 +7,6 @@
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
  */
 
-#include <common.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 

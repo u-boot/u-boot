@@ -3,7 +3,6 @@
  * Copyright (C) 2015-2016 Marvell International Ltd.
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 

@@ -7,6 +7,7 @@
  */
 
 #include <malloc.h>
+#include <stdio.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <linux/immap_qe.h>

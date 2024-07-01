@@ -6,7 +6,6 @@
  * Copyright © 2006 Marvell International Ltd.
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <fdtdec.h>
 #include <nand.h>

@@ -8,11 +8,11 @@
  * based on the gpt command.
  */
 
-#include <common.h>
 #include <blk.h>
 #include <command.h>
 #include <malloc.h>
 #include <part.h>
+#include <vsprintf.h>
 
 /**
  * extract_val() - Extract a value from the key=value pair list

@@ -5,10 +5,11 @@
  * Copyright (c) 2020 Kontron Europe GmbH
  */
 
-#include <common.h>
 #include <command.h>
 #include <i2c.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
+#include <linux/errno.h>
 
 #define CPLD_I2C_ADDR 0x4a
 #define REG_UFM_CTRL 0x02
@@ -171,8 +172,8 @@ out:
 	return CMD_RET_FAILURE;
 }
 
-static char sl28_help_text[] =
-	"nvm [<hex>] - display/set the 16 non-volatile bits\n";
+U_BOOT_LONGHELP(sl28,
+	"nvm [<hex>] - display/set the 16 non-volatile bits\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(sl28, "SMARC-sAL28 specific", sl28_help_text,
 			U_BOOT_SUBCMD_MKENT(nvm, 2, 1, do_sl28_nvm));

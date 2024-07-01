@@ -19,7 +19,7 @@
  * This file handles the architecture-dependent parts of hardware exceptions
  */
 
-#include <common.h>
+#include <asm/ppc.h>
 #include <asm/global_data.h>
 #include <asm/ptrace.h>
 #include <command.h>

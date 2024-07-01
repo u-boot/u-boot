@@ -5,7 +5,7 @@
  * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <pci.h>
 #include <asm/processor.h>

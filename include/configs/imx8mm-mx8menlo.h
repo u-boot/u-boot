@@ -8,6 +8,8 @@
 
 #include <configs/verdin-imx8mm.h>
 
+/* PHY needs a longer autoneg timeout */
+
 /* Custom initial environment variables */
 #undef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS					\

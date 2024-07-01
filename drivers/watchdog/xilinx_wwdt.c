@@ -9,7 +9,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <regmap.h>
 #include <wdt.h>

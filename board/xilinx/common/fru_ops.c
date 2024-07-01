@@ -4,13 +4,13 @@
  * (C) Copyright 2022 - 2023, Advanced Micro Devices, Inc.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <malloc.h>
 #include <net.h>
+#include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 

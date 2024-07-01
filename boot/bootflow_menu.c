@@ -8,8 +8,8 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <bootflow.h>
+#include <bootmeth.h>
 #include <bootstd.h>
 #include <cli.h>
 #include <dm.h>
@@ -77,11 +77,17 @@ int bootflow_menu_new(struct expo **expp)
 	last_bootdev = NULL;
 	for (ret = bootflow_first_glob(&bflow), i = 0; !ret && i < 36;
 	     ret = bootflow_next_glob(&bflow), i++) {
+		struct bootmeth_uc_plat *ucp;
 		char str[2], *label, *key;
 		uint preview_id;
 		bool add_gap;
 
 		if (bflow->state != BOOTFLOWST_READY)
+			continue;
+
+		/* No media to show for BOOTMETHF_GLOBAL bootmeths */
+		ucp = dev_get_uclass_plat(bflow->method);
+		if (ucp->flags & BOOTMETHF_GLOBAL)
 			continue;
 
 		*str = i < 10 ? '0' + i : 'A' + i - 10;

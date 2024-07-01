@@ -110,9 +110,8 @@ Include files
 
 You should follow this ordering in U-Boot. In all cases, they should be listed
 in alphabetical order. First comes headers which are located directly in our
-top-level include diretory. This excludes the common.h header file which is to
-be removed. Second are headers within subdirectories, Finally directory-local
-includes should be listed. See this example:
+top-level include diretory. Second are headers within subdirectories, Finally
+directory-local includes should be listed. See this example:
 
 .. code-block:: C
 
@@ -128,9 +127,6 @@ includes should be listed. See this example:
 For files that need to be compiled for the host (e.g. tools), you need to use
 ``#ifndef USE_HOSTCC`` to avoid including U-Boot specific include files. See
 common/image.c for an example.
-
-If you encounter code which still uses <common.h> a patch to remove that and
-replace it with any required include files directly is much appreciated.
 
 If your file uses driver model, include <dm.h> in the C file. Do not include
 dm.h in a header file. Try to use forward declarations (e.g. ``struct

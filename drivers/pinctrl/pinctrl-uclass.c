@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_PINCTRL
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/global_data.h>
 #include <dm/device_compat.h>
@@ -210,7 +209,7 @@ pinctrl_gpio_get_pinctrl_and_offset(struct udevice *dev, unsigned offset,
 		pfc_base = args.args[1];
 		pfc_pins = args.args[2];
 
-		if (offset >= gpio_offset && offset <= gpio_offset + pfc_pins)
+		if (offset >= gpio_offset && offset < gpio_offset + pfc_pins)
 			break;
 	}
 

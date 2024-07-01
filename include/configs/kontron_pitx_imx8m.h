@@ -26,8 +26,6 @@
 #if defined(CONFIG_CMD_NET)
 #define CFG_FEC_MXC_PHYADDR          0
 
-#define PHY_ANEG_TIMEOUT		20000
-
 #endif
 
 #define ENV_MEM_LAYOUT_SETTINGS \

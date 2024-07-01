@@ -6,7 +6,7 @@
  * Author: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <malloc.h>
 #include <mapmem.h>

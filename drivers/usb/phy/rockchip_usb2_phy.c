@@ -3,7 +3,6 @@
  * Copyright 2016 Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <hang.h>
 #include <log.h>
 #include <asm/global_data.h>

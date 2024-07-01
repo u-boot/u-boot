@@ -12,7 +12,6 @@
 /*
  *  Altera FPGA support
  */
-#include <common.h>
 #include <errno.h>
 #include <ACEX1K.h>
 #include <log.h>

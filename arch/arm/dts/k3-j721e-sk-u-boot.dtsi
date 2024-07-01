@@ -15,10 +15,10 @@
 
 &cbass_mcu_wakeup {
 	bootph-all;
+};
 
-	chipid@43000014 {
-		bootph-all;
-	};
+&chipid {
+	bootph-all;
 };
 
 &mcu_navss {
@@ -26,19 +26,11 @@
 };
 
 &mcu_ringacc {
-		bootph-all;
+	bootph-all;
 };
 
 &mcu_udmap {
-	reg =	<0x0 0x285c0000 0x0 0x100>,
-		<0x0 0x284c0000 0x0 0x4000>,
-		<0x0 0x2a800000 0x0 0x40000>,
-		<0x0 0x284a0000 0x0 0x4000>,
-		<0x0 0x2aa00000 0x0 0x40000>,
-		<0x0 0x28400000 0x0 0x2000>;
-		reg-names = "gcfg", "rchan", "rchanrt", "tchan",
-			    "tchanrt", "rflow";
-		bootph-all;
+	bootph-all;
 };
 
 &secure_proxy_main {
@@ -155,3 +147,26 @@
 		bootph-all;
 	};
 };
+
+#ifdef CONFIG_TARGET_J721E_A72_EVM
+
+#define SPL_J721E_SK_DTB "spl/dts/ti/k3-j721e-sk.dtb"
+#define J721E_SK_DTB "u-boot.dtb"
+
+&spl_j721e_dtb {
+	filename = SPL_J721E_SK_DTB;
+};
+
+&j721e_dtb {
+	filename = J721E_SK_DTB;
+};
+
+&spl_j721e_dtb_unsigned {
+	filename = SPL_J721E_SK_DTB;
+};
+
+&j721e_dtb_unsigned {
+	filename = J721E_SK_DTB;
+};
+
+#endif

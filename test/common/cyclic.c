@@ -3,7 +3,6 @@
  * Copyright (C) 2022 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <cyclic.h>
 #include <dm.h>
 #include <test/common.h>
@@ -13,22 +12,27 @@
 #include <linux/delay.h>
 
 /* Test that cyclic function is called */
-static bool cyclic_active = false;
+static struct cyclic_test {
+	struct cyclic_info cyclic;
+	bool called;
+} cyclic_test;
 
-static void cyclic_test(void *ctx)
+static void test_cb(struct cyclic_info *c)
 {
-	cyclic_active = true;
+	struct cyclic_test *t = container_of(c, struct cyclic_test, cyclic);
+	t->called = true;
 }
 
 static int dm_test_cyclic_running(struct unit_test_state *uts)
 {
-	cyclic_active = false;
-	ut_assertnonnull(cyclic_register(cyclic_test, 10 * 1000, "cyclic_demo",
-					 NULL));
+	cyclic_test.called = false;
+	cyclic_register(&cyclic_test.cyclic, test_cb, 10 * 1000, "cyclic_test");
 
 	/* Execute all registered cyclic functions */
 	schedule();
-	ut_asserteq(true, cyclic_active);
+	ut_asserteq(true, cyclic_test.called);
+
+	cyclic_unregister(&cyclic_test.cyclic);
 
 	return 0;
 }

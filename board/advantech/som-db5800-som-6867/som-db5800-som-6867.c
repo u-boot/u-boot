@@ -4,7 +4,6 @@
  * Copyright (C) 2016 George McCollister <george.mccollister@gmail.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/fsp1/fsp_support.h>
 

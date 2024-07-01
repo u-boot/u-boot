@@ -6,4 +6,4 @@
 # (C) Copyright 2007
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
-obj-y	= cpu.o interrupts.o watchdog.o cache.o
+obj-y	= cpu.o interrupts.o cache.o

@@ -20,11 +20,7 @@
 /* console */
 #define CFG_SYS_BAUDRATE_TABLE	{ 115200, 38400 }
 
-/* PHY needs a longer autoneg timeout */
-#define PHY_ANEG_TIMEOUT		20000
-
 /* MEMORY */
-
 #define DRAM_RSV_SIZE			0x08000000
 #define CFG_SYS_SDRAM_BASE		(0x40000000 + DRAM_RSV_SIZE)
 #define CFG_SYS_SDRAM_SIZE		(0x80000000u - DRAM_RSV_SIZE)

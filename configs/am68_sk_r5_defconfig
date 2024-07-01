@@ -1,0 +1,10 @@
+#include <configs/j721s2_evm_r5_defconfig>
+
+CONFIG_ARM=y
+CONFIG_ARCH_K3=y
+CONFIG_SOC_K3_J721S2=y
+CONFIG_TARGET_J721S2_R5_EVM=y
+
+CONFIG_DEFAULT_DEVICE_TREE="k3-am68-sk-r5-base-board"
+CONFIG_SPL_OF_LIST="k3-am68-sk-r5-base-board"
+CONFIG_OF_LIST="k3-am68-sk-r5-base-board"

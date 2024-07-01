@@ -3,13 +3,13 @@
  * Copyright (c) 2012, The Chromium Authors
  */
 
-#include <common.h>
 #include <command.h>
 #include <efi_api.h>
 #include <display_options.h>
 #include <log.h>
 #include <mapmem.h>
 #include <version_string.h>
+#include <stdio.h>
 #include <vsprintf.h>
 #include <test/suites.h>
 #include <test/test.h>

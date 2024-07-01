@@ -11,5 +11,7 @@
 
 / {
 	model = "DH Electronics STM32MP15xx DHCOM PicoITX";
-	compatible = "dh,stm32mp15xx-dhcom-picoitx", "st,stm32mp1xx";
+	compatible = "dh,stm32mp15xx-dhcom-picoitx",
+		     "dh,stm32mp15xx-dhcom-som",
+		     "st,stm32mp1xx";
 };

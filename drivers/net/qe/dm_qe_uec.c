@@ -7,7 +7,6 @@
  * Copyright (C) 2020 Heiko Schocher <hs@denx.de>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <memalign.h>

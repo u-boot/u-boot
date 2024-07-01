@@ -21,7 +21,7 @@
  * - HW ECC: Only 24 and 32-bit error correction implemented.
  */
 
-#include <common.h>
+#include <config.h>
 #include <malloc.h>
 #include <dm/device_compat.h>
 #include <linux/printk.h>

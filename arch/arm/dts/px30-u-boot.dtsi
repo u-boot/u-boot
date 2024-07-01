@@ -33,8 +33,24 @@
 	bootph-all;
 };
 
+&uart2m0_xfer {
+	bootph-all;
+};
+
 &uart5 {
 	clock-frequency = <24000000>;
+	bootph-all;
+};
+
+&uart5_cts {
+	bootph-all;
+};
+
+&uart5_rts {
+	bootph-all;
+};
+
+&uart5_xfer {
 	bootph-all;
 };
 

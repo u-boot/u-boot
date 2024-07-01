@@ -12,6 +12,7 @@
 #include <linux/ctype.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
+#include <stdio.h>
 #include <vsprintf.h>
 
 char *display_options_get_banner_priv(bool newlines, const char *build_tag,

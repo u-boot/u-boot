@@ -7,7 +7,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <linux/delay.h>
@@ -123,7 +122,8 @@ __weak int zynqmp_pm_is_function_supported(const u32 api_id, const u32 id)
 	return 1;
 }
 
-#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL_NET)
+#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL) || \
+    defined(CONFIG_ARCH_VERSAL_NET) || defined(CONFIG_ARCH_VERSAL2)
 /* Default settings for ZynqMP Clock Phases */
 static const u32 zynqmp_iclk_phases[] = {0, 63, 63, 0, 63,  0,
 					 0, 183, 54,  0, 0};
@@ -157,7 +157,7 @@ static const u8 mode2timing[] = {
 	[MMC_HS_400] = MMC_TIMING_MMC_HS400,
 };
 
-#if defined(CONFIG_ARCH_VERSAL_NET)
+#if defined(CONFIG_ARCH_VERSAL_NET) || defined(CONFIG_ARCH_VERSAL2)
 /**
  * arasan_phy_set_delaychain - Set eMMC delay chain based Input/Output clock
  *
@@ -866,7 +866,9 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		ret = sdhci_zynqmp_sdcardclk_set_phase(host, oclk_phase);
 		if (ret)
 			return ret;
-	} else if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	} else if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
+		    IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
+		    IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
 		   device_is_compatible(dev, "xlnx,versal-8.9a")) {
 		ret = sdhci_versal_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
@@ -875,7 +877,8 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 		ret = sdhci_versal_sdcardclk_set_phase(host, oclk_phase);
 		if (ret)
 			return ret;
-	} else if (IS_ENABLED(CONFIG_ARCH_VERSAL_NET) &&
+	} else if ((IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
+		    IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
 		   device_is_compatible(dev, "xlnx,versal-net-emmc")) {
 		if (mmc->clock >= MIN_PHY_CLK_HZ)
 			if (iclk_phase == VERSAL_NET_EMMC_ICLK_PHASE_DDR52_DLY_CHAIN)
@@ -942,7 +945,9 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_ARCH_VERSAL) &&
+	if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
+	     IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
+	     IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
 	    device_is_compatible(dev, "xlnx,versal-8.9a")) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_iclk_phases[i];
@@ -950,7 +955,8 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_ARCH_VERSAL_NET) &&
+	if ((IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
+	     IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
 	    device_is_compatible(dev, "xlnx,versal-net-emmc")) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_net_emmc_iclk_phases[i];
@@ -986,7 +992,7 @@ static const struct sdhci_ops arasan_ops = {
 	.platform_execute_tuning	= &arasan_sdhci_execute_tuning,
 	.set_delay = &arasan_sdhci_set_tapdelay,
 	.set_control_reg = &sdhci_set_control_reg,
-#if defined(CONFIG_ARCH_VERSAL_NET)
+#if defined(CONFIG_ARCH_VERSAL_NET) || defined(CONFIG_ARCH_VERSAL2)
 	.config_dll = &arasan_sdhci_config_dll,
 #endif
 };
@@ -1194,7 +1200,8 @@ static int arasan_sdhci_of_to_plat(struct udevice *dev)
 
 	priv->host->name = dev->name;
 
-#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL_NET)
+#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL) || defined(CONFIG_ARCH_VERSAL_NET) || \
+    defined(CONFIG_ARCH_VERSAL2)
 	priv->host->ops = &arasan_ops;
 	arasan_dt_parse_clk_phases(dev);
 #endif

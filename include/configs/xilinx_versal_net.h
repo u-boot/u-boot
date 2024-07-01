@@ -42,9 +42,6 @@
 #endif
 
 /* Ethernet driver */
-#if defined(CONFIG_ZYNQ_GEM)
-# define PHY_ANEG_TIMEOUT	20000
-#endif
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_addr_r=0x40000000\0" \

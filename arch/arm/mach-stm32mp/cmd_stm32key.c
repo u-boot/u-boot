@@ -3,7 +3,6 @@
  * Copyright (C) 2019, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <log.h>
@@ -420,12 +419,12 @@ static int do_stm32key_close(struct cmd_tbl *cmdtp, int flag, int argc, char *co
 	return CMD_RET_SUCCESS;
 }
 
-static char stm32key_help_text[] =
+U_BOOT_LONGHELP(stm32key,
 	"list : list the supported key with description\n"
 	"stm32key select [<key>] : Select the key identified by <key> or display the key used for read/fuse command\n"
 	"stm32key read [<addr> | -a ] : Read the curent key at <addr> or current / all (-a) key in OTP\n"
 	"stm32key fuse [-y] <addr> : Fuse the current key at addr in OTP\n"
-	"stm32key close [-y] : Close the device\n";
+	"stm32key close [-y] : Close the device\n");
 
 U_BOOT_CMD_WITH_SUBCMDS(stm32key, "Manage key on STM32", stm32key_help_text,
 	U_BOOT_SUBCMD_MKENT(list, 1, 0, do_stm32key_list),

@@ -5,7 +5,6 @@
  * Copyright (c) 2013 Google, Inc
  */
 
-#include <common.h>
 #include <errno.h>
 #include <dm.h>
 #include <fdtdec.h>

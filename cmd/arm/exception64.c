@@ -5,7 +5,6 @@
  * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
-#include <common.h>
 #include <command.h>
 #include <linux/bitops.h>
 
@@ -78,12 +77,11 @@ static struct cmd_tbl cmd_sub[] = {
 			 "", ""),
 };
 
-static char exception_help_text[] =
+U_BOOT_LONGHELP(exception,
 	"<ex>\n"
 	"  The following exceptions are available:\n"
 	"  breakpoint - breakpoint instruction exception\n"
 	"  unaligned  - unaligned LDAR data abort\n"
-	"  undefined  - undefined instruction exception\n"
-	;
+	"  undefined  - undefined instruction exception\n");
 
 #include <exception.h>

@@ -3,7 +3,6 @@
  * Copyright 2022 Marek Vasut <marex@denx.de>
  */
 
-#include <common.h>
 #include <asm-generic/gpio.h>
 #include <asm-generic/sections.h>
 #include <asm/arch/clock.h>

@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <bootdev.h>
 #include <bootflow.h>
 #include <bootmeth.h>
@@ -144,62 +143,6 @@ static int distro_efi_check(struct udevice *dev, struct bootflow_iter *iter)
 	return 0;
 }
 
-/**
- * distro_efi_get_fdt_name() - Get the filename for reading the .dtb file
- *
- * @fname: Place to put filename
- * @size: Max size of filename
- * @seq: Sequence number, to cycle through options (0=first)
- * Returns: 0 on success, -ENOENT if the "fdtfile" env var does not exist,
- * -EINVAL if there are no more options, -EALREADY if the control FDT should be
- * used
- */
-static int distro_efi_get_fdt_name(char *fname, int size, int seq)
-{
-	const char *fdt_fname;
-	const char *prefix;
-
-	/* select the prefix */
-	switch (seq) {
-	case 0:
-		/* this is the default */
-		prefix = "/dtb";
-		break;
-	case 1:
-		prefix = "";
-		break;
-	case 2:
-		prefix = "/dtb/current";
-		break;
-	default:
-		return log_msg_ret("pref", -EINVAL);
-	}
-
-	fdt_fname = env_get("fdtfile");
-	if (fdt_fname) {
-		snprintf(fname, size, "%s/%s", prefix, fdt_fname);
-		log_debug("Using device tree: %s\n", fname);
-	} else if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE)) {
-		strcpy(fname, "<prior>");
-		return log_msg_ret("pref", -EALREADY);
-	/* Use this fallback only for 32-bit ARM */
-	} else if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_ARM64)) {
-		const char *soc = env_get("soc");
-		const char *board = env_get("board");
-		const char *boardver = env_get("boardver");
-
-		/* cf the code in label_boot() which seems very complex */
-		snprintf(fname, size, "%s/%s%s%s%s.dtb", prefix,
-			 soc ? soc : "", soc ? "-" : "", board ? board : "",
-			 boardver ? boardver : "");
-		log_debug("Using default device tree: %s\n", fname);
-	} else {
-		return log_msg_ret("env", -ENOENT);
-	}
-
-	return 0;
-}
-
 /*
  * distro_efi_try_bootflow_files() - Check that files are present
  *
@@ -241,7 +184,7 @@ static int distro_efi_try_bootflow_files(struct udevice *dev,
 	ret = -ENOENT;
 	*fname = '\0';
 	for (seq = 0; ret == -ENOENT; seq++) {
-		ret = distro_efi_get_fdt_name(fname, sizeof(fname), seq);
+		ret = efi_get_distro_fdt_name(fname, sizeof(fname), seq);
 		if (ret == -EALREADY)
 			bflow->flags = BOOTFLOWF_USE_PRIOR_FDT;
 		if (!ret) {
@@ -340,7 +283,7 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	sprintf(file_addr, "%lx", fdt_addr);
 
 	/* We only allow the first prefix with PXE */
-	ret = distro_efi_get_fdt_name(fname, sizeof(fname), 0);
+	ret = efi_get_distro_fdt_name(fname, sizeof(fname), 0);
 	if (ret)
 		return log_msg_ret("nam", ret);
 

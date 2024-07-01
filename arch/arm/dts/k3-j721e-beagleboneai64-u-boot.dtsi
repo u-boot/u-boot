@@ -351,4 +351,27 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See beagleboneai64.h
+#define BEAGLEBONEAI64_SPL_IMAGE_GUID_STR "83447222-1e26-40cd-a395-b7de0957e875"
+#define BEAGLEBONEAI64_UBOOT_IMAGE_GUID_STR "4249ff77-c17d-4eb7-a1db-45aa9887d49e"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = BEAGLEBONEAI64_SPL_IMAGE_GUID_STR;
+
+		blob {
+			filename = "tispl.bin_unsigned";
+		};
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = BEAGLEBONEAI64_UBOOT_IMAGE_GUID_STR;
+	};
+};
+
 #endif

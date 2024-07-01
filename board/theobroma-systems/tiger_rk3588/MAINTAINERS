@@ -1,0 +1,13 @@
+TIGER-RK3588 (SOM-RK3588-Q7)
+M:	Klaus Goger <klaus.goger@cherry.de>
+M:	Quentin Schulz <quentin.schulz@cherry.de>
+M:	Heiko Stuebner <heiko.stuebner@cherry.de>
+S:	Maintained
+F:	board/theobroma-systems/tiger_rk3588
+F:	board/theobroma-systems/common
+F:	doc/board/theobroma-systems/
+F:	include/configs/tiger_rk3588.h
+F:	arch/arm/dts/rk3588-tiger*
+F:	configs/tiger-rk3588_defconfig
+W:	https://embedded.cherry.de/product/tiger-som-rk3588-q7/
+T:	git git://git.embedded.cherry.de/tiger-u-boot.git

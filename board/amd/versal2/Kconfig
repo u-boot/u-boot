@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0
+#
+# Copyright (C) 2020 - 2022, Xilinx, Inc.
+# Copyright (C) 2022 - 2024, Advanced Micro Devices, Inc.
+#
+if ARCH_VERSAL2
+
+config CMD_VERSAL2
+	bool "Enable Versal Gen 2 specific commands"
+	default y
+	depends on ZYNQMP_FIRMWARE
+	help
+	  Select this to enable AMD Versal Gen 2 specific commands.
+	  Commands like versal2 loadpdi are enabled by this.
+
+endif

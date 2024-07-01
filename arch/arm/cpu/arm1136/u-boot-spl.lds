@@ -33,11 +33,7 @@ SECTIONS
 	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
 	. = ALIGN(4);
 	__image_copy_end = .;
-
-	.end :
-	{
-		*(.__end)
-	}
+	_end = .;
 
 	.bss :
 	{

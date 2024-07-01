@@ -3,7 +3,6 @@
  * Copyright 2013 Broadcom Corporation.
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
 #include <linux/delay.h>

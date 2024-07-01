@@ -5,7 +5,6 @@
  * Copyright 2023 Tony Dinh <mibodhi@gmail.com>
  */
 
-#include <common.h>
 #include <ahci.h>
 #include <bootdev.h>
 #include <dm.h>

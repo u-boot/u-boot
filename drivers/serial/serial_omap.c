@@ -6,7 +6,7 @@
  *	Lokesh Vutla <lokeshvutla@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <log.h>

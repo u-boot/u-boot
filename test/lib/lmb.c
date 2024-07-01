@@ -3,7 +3,6 @@
  * (C) Copyright 2018 Simon Goldschmidt
  */
 
-#include <common.h>
 #include <dm.h>
 #include <lmb.h>
 #include <log.h>

@@ -7,7 +7,7 @@
  * Copyright (C) 2009 Jean-Christopher PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <vsprintf.h>
 #include <asm/global_data.h>

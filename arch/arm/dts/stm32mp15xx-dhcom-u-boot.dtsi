@@ -26,6 +26,7 @@
 		u-boot,error-led = "error";
 		dh,som-coding-gpios = <&gpiof 12 0>, <&gpiof 13 0>, <&gpiof 15 0>;
 		dh,ddr3-coding-gpios = <&gpioz 6 0>, <&gpioz 7 0>;
+		dh,mac-coding-gpios = <&gpioc 3 0>;
 	};
 };
 

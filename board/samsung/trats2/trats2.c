@@ -5,7 +5,6 @@
  * Piotr Wilczek <p.wilczek@samsung.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>

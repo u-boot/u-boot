@@ -9,7 +9,6 @@
  * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
  */
 
-#include <common.h>
 #include <atf_common.h>
 #include <cpu_func.h>
 #include <errno.h>

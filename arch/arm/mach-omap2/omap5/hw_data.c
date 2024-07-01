@@ -8,7 +8,6 @@
  *
  * Sricharan R <r.sricharan@ti.com>
  */
-#include <common.h>
 #include <palmas.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>

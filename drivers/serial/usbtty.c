@@ -7,7 +7,6 @@
  * Bryan O'Donoghue, bodonoghue@codehermit.ie
  */
 
-#include <common.h>
 #include <config.h>
 #include <circbuf.h>
 #include <env.h>

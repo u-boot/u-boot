@@ -134,8 +134,4 @@
 /* Using ULP WDOG for reset */
 #define WDOG_BASE_ADDR          WDG3_BASE_ADDR
 
-#if defined(CONFIG_CMD_NET)
-#define PHY_ANEG_TIMEOUT 20000
-#endif
-
 #endif

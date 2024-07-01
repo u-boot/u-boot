@@ -4,7 +4,6 @@
  *		      Wenyou Yang <wenyou.yang@atmel.com>
  */
 
-#include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d2.h>

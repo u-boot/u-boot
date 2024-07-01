@@ -51,7 +51,7 @@
 
 #define PTE_TABLE_PXN		(1UL << 59)
 #define PTE_TABLE_XN		(1UL << 60)
-#define PTE_TABLE_AP		(1UL << 61)
+#define PTE_TABLE_AP		(3UL << 61)
 #define PTE_TABLE_NS		(1UL << 63)
 
 /*
@@ -128,6 +128,62 @@ static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
 	}
 	asm volatile("isb");
 }
+
+static inline void get_ttbr_tcr_mair(int el, u64 *table, u64 *tcr, u64 *attr)
+{
+	if (el == 1) {
+		asm volatile("mrs %0, ttbr0_el1" : "=r" (*table));
+		asm volatile("mrs %0, tcr_el1" : "=r" (*tcr));
+		asm volatile("mrs %0, mair_el1" : "=r" (*attr));
+	} else if (el == 2) {
+		asm volatile("mrs %0, ttbr0_el2" : "=r" (*table));
+		asm volatile("mrs %0, tcr_el2" : "=r" (*tcr));
+		asm volatile("mrs %0, mair_el2" : "=r" (*attr));
+	} else if (el == 3) {
+		asm volatile("mrs %0, ttbr0_el3" : "=r" (*table));
+		asm volatile("mrs %0, tcr_el3" : "=r" (*tcr));
+		asm volatile("mrs %0, mair_el3" : "=r" (*attr));
+	} else {
+		hang();
+	}
+}
+
+/**
+ * typedef pte_walker_cb_t - callback function for walk_pagetable.
+ *
+ * This function is called when the walker finds a table entry
+ * or after parsing a block or pages. For a table the @end address
+ * is 0, and @addr is the address of the table. Otherwise, they
+ * are the start and end physical addresses of the block or page.
+ *
+ * @addr: PTE start address (PA), or address of table. Includes attributes.
+ * @end: End address of the region (or 0 for a table)
+ * @va_bits: Number of bits in the virtual address
+ * @level: Table level
+ * @priv: Private data for the callback
+ *
+ * Return: true to stop walking, false to continue
+ */
+typedef bool (*pte_walker_cb_t)(u64 addr, u64 end, int va_bits, int level, void *priv);
+
+/**
+ * walk_pagetable() - Walk the pagetable at ttbr and call @cb for each region
+ *
+ * @ttbr: Address of the pagetable to dump
+ * @tcr: TCR value to use
+ * @cb: Callback function to call for each entry
+ * @priv: Private data for the callback
+ */
+void walk_pagetable(u64 ttbr, u64 tcr, pte_walker_cb_t cb, void *priv);
+
+/**
+ * dump_pagetable() - Dump the pagetable at ttbr, printing each region and
+ * level.
+ *
+ * @ttbr: Address of the pagetable to dump
+ * @tcr: TCR value to use
+ */
+void dump_pagetable(u64 ttbr, u64 tcr);
 
 struct mm_region {
 	u64 virt;

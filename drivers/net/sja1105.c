@@ -8,7 +8,6 @@
  * Ported from Linux (drivers/net/dsa/sja1105/).
  */
 
-#include <common.h>
 #include <dm/device_compat.h>
 #include <linux/bitops.h>
 #include <linux/bitrev.h>

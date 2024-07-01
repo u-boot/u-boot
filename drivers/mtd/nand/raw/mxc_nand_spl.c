@@ -10,7 +10,7 @@
  * Stefan Roese, DENX Software Engineering, sr at denx.de.
  */
 
-#include <common.h>
+#include <config.h>
 #include <hang.h>
 #include <nand.h>
 #include <system-constants.h>

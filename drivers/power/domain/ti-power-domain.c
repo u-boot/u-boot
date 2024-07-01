@@ -7,7 +7,6 @@
  */
 
 #include <asm/io.h>
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <power-domain-uclass.h>
@@ -72,6 +71,24 @@ static void lpsc_write(u32 val, struct ti_lpsc *lpsc, u32 reg)
 }
 
 static const struct soc_attr ti_k3_soc_pd_data[] = {
+#if IS_ENABLED(CONFIG_SOC_K3_AM625)
+	{
+		.family = "AM62X",
+		.data = &am62x_pd_platdata,
+	},
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_AM62A7)
+	{
+		.family = "AM62AX",
+		.data = &am62ax_pd_platdata,
+	},
+#endif
+#if IS_ENABLED(CONFIG_SOC_K3_AM62P5)
+	{
+		.family = "AM62PX",
+		.data = &am62px_pd_platdata,
+	},
+#endif
 #if IS_ENABLED(CONFIG_SOC_K3_J721E)
 	{
 		.family = "J721E",
@@ -88,28 +105,16 @@ static const struct soc_attr ti_k3_soc_pd_data[] = {
 		.data = &j721s2_pd_platdata,
 	},
 #endif
-#if IS_ENABLED(CONFIG_SOC_K3_AM625)
+#if IS_ENABLED(CONFIG_SOC_K3_J722S)
 	{
-		.family = "AM62X",
-		.data = &am62x_pd_platdata,
-	},
-#endif
-#if IS_ENABLED(CONFIG_SOC_K3_AM62A7)
-	{
-		.family = "AM62AX",
-		.data = &am62ax_pd_platdata,
+		.family = "J722S",
+		.data = &j722s_pd_platdata,
 	},
 #endif
 #if IS_ENABLED(CONFIG_SOC_K3_J784S4)
 	{
 		.family = "J784S4",
 		.data = &j784s4_pd_platdata,
-	},
-#endif
-#if IS_ENABLED(CONFIG_SOC_K3_AM62P5)
-	{
-		.family = "AM62PX",
-		.data = &am62px_pd_platdata,
 	},
 #endif
 	{ /* sentinel */ }

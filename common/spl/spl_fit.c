@@ -4,7 +4,6 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <errno.h>
 #include <fpga.h>
 #include <gzip.h>
@@ -588,7 +587,7 @@ __weak void *spl_load_simple_fit_fix_load(const void *fit)
 static void warn_deprecated(const char *msg)
 {
 	printf("DEPRECATED: %s\n", msg);
-	printf("\tSee doc/uImage.FIT/source_file_format.txt\n");
+	printf("\tSee https://fitspec.osfw.foundation/\n");
 }
 
 static int spl_fit_upload_fpga(struct spl_fit_info *ctx, int node,

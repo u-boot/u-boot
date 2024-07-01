@@ -8,7 +8,6 @@
  * Copyright (c) 2005, Grzegorz Milos, gm281@cam.ac.uk,Intel Research Cambridge
  * Copyright (c) 2020, EPAM Systems Inc.
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <memalign.h>

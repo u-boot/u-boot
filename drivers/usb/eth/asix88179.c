@@ -5,7 +5,6 @@
  * from the Linux AX88179_178a driver
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <usb.h>

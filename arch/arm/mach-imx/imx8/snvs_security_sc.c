@@ -14,7 +14,6 @@
 #include <command.h>
 #include <log.h>
 #include <stddef.h>
-#include <common.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/arch-imx8/imx8-pins.h>
 #include <asm/arch-imx8/snvs_security_sc.h>
@@ -598,7 +597,7 @@ exit:
 }
 #endif /* CONFIG_IMX_SNVS_SEC_SC_AUTO */
 
-static char snvs_cfg_help_text[] =
+U_BOOT_LONGHELP(snvs_cfg,
 	"snvs_cfg\n"
 	"\thp.lock\n"
 	"\thp.secvio_ctl\n"
@@ -619,7 +618,7 @@ static char snvs_cfg_help_text[] =
 	"\tlp.act_tamper_routing_ctl1\n"
 	"\tlp.act_tamper_routing_ctl2\n"
 	"\n"
-	"ALL values should be in hexadecimal format";
+	"ALL values should be in hexadecimal format\n");
 
 #define NB_REGISTERS 18
 static int do_snvs_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -663,7 +662,7 @@ U_BOOT_CMD(snvs_cfg,
 	   snvs_cfg_help_text
 );
 
-static char snvs_dgo_cfg_help_text[] =
+U_BOOT_LONGHELP(snvs_dgo_cfg,
 	"snvs_dgo_cfg\n"
 	"\ttamper_offset_ctl\n"
 	"\ttamper_pull_ctl\n"
@@ -672,7 +671,7 @@ static char snvs_dgo_cfg_help_text[] =
 	"\ttamper_misc_ctl\n"
 	"\ttamper_core_volt_mon_ctl\n"
 	"\n"
-	"ALL values should be in hexadecimal format";
+	"ALL values should be in hexadecimal format\n");
 
 static int do_snvs_dgo_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 			   char *const argv[])
@@ -703,12 +702,12 @@ U_BOOT_CMD(snvs_dgo_cfg,
 	   snvs_dgo_cfg_help_text
 );
 
-static char tamper_pin_cfg_help_text[] =
+U_BOOT_LONGHELP(tamper_pin_cfg,
 	"snvs_dgo_cfg\n"
 	"\tpad\n"
 	"\tvalue\n"
 	"\n"
-	"ALL values should be in hexadecimal format";
+	"ALL values should be in hexadecimal format\n");
 
 static int do_tamper_pin_cfg(struct cmd_tbl *cmdtp, int flag, int argc,
 			     char *const argv[])
@@ -735,7 +734,7 @@ U_BOOT_CMD(tamper_pin_cfg,
 	   tamper_pin_cfg_help_text
 );
 
-static char snvs_clear_status_help_text[] =
+U_BOOT_LONGHELP(snvs_clear_status,
 	"snvs_clear_status\n"
 	"\tHPSR\n"
 	"\tHPSVSR\n"
@@ -743,7 +742,7 @@ static char snvs_clear_status_help_text[] =
 	"\tLPTDSR\n"
 	"\n"
 	"Write the status registers with the value provided,"
-	" clearing the status";
+	" clearing the status\n");
 
 static int do_snvs_clear_status(struct cmd_tbl *cmdtp, int flag, int argc,
 				char *const argv[])
@@ -779,9 +778,9 @@ U_BOOT_CMD(snvs_clear_status,
 	   snvs_clear_status_help_text
 );
 
-static char snvs_sec_status_help_text[] =
+U_BOOT_LONGHELP(snvs_sec_status,
 	"snvs_sec_status\n"
-	"Display information about the security related to tamper and secvio";
+	"Display information about the security related to tamper and secvio\n");
 
 static int do_snvs_sec_status(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])

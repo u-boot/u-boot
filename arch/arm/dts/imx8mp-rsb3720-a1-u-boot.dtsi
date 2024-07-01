@@ -135,21 +135,17 @@
 	assigned-clock-parents = <&clk IMX8MP_SYS_PLL1_400M>;
 };
 
-&binman {
-	section {
-		fit {
-			images {
-				fip {
-					description = "Trusted Firmware FIP";
-					type = "firmware";
-					arch = "arm64";
-					compression = "none";
-					load = <0x40310000>;
+&binman_imx_fit {
+	images {
+		fip {
+			description = "Trusted Firmware FIP";
+			type = "firmware";
+			arch = "arm64";
+			compression = "none";
+			load = <0x40310000>;
 
-					fip_blob: blob-ext{
-						filename = "fip.bin";
-					};
-				};
+			fip_blob: blob-ext{
+				filename = "fip.bin";
 			};
 		};
 	};

@@ -10,7 +10,6 @@
  * published by the Free Software Foundation.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <errno.h>

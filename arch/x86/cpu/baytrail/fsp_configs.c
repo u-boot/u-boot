@@ -5,7 +5,6 @@
  * Copyright (C) 2015, Kodak Alaris, Inc
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/fsp1/fsp_support.h>

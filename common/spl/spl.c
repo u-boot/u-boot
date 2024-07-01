@@ -6,7 +6,7 @@
  * Aneesh V <aneesh@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <bloblist.h>
 #include <binman_sym.h>
 #include <bootstage.h>
@@ -23,7 +23,6 @@
 #include <system-constants.h>
 #include <asm/global_data.h>
 #include <asm-generic/gpio.h>
-#include <asm/u-boot.h>
 #include <nand.h>
 #include <fat.h>
 #include <u-boot/crc.h>
@@ -710,6 +709,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			hang();
 		}
 	}
+
+	if (CONFIG_IS_ENABLED(SOC_INIT))
+		spl_soc_init();
 
 	if (CONFIG_IS_ENABLED(BOARD_INIT))
 		spl_board_init();

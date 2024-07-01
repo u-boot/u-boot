@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/io.h>
 #include <asm/arch/handoff_soc64.h>

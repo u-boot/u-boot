@@ -33,12 +33,6 @@
 };
 
 &binman {
-	simple-bin {
-		fit {
-			offset = <((CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR - 64) * 512)>;
-		};
-	};
-
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 	simple-bin-spi {
 		fit {

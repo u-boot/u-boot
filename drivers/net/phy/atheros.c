@@ -6,7 +6,6 @@
  * author Andy Fleming
  * Copyright (c) 2019 Michael Walle <michael@walle.cc>
  */
-#include <common.h>
 #include <phy.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>

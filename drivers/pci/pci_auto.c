@@ -8,7 +8,7 @@
  * Copyright (c) 2021  Maciej W. Rozycki <macro@orcam.me.uk>
  */
 
-#include <common.h>
+#include <config.h>
 #include <dm.h>
 #include <errno.h>
 #include <log.h>

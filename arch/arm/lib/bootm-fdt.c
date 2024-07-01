@@ -14,7 +14,6 @@
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
  */
 
-#include <common.h>
 #include <fdt_support.h>
 #ifdef CONFIG_ARMV7_NONSEC
 #include <asm/armv7.h>

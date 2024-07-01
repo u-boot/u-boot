@@ -156,7 +156,7 @@ config CQSPI_REF_CLK
 
 config CADENCE_OSPI_VERSAL
 	bool "Configure Versal OSPI"
-	depends on (ARCH_VERSAL || ARCH_VERSAL_NET) && CADENCE_QSPI
+	depends on (ARCH_VERSAL || ARCH_VERSAL_NET || ARCH_VERSAL2) && CADENCE_QSPI
 	imply DM_GPIO
 	help
 	  This option is used to enable Versal OSPI DMA operations which

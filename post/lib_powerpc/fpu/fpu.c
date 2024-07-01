@@ -6,7 +6,7 @@
  * Author: Sergei Poselenov <sposelenov@emcraft.com>
  */
 
-#include <common.h>
+#include <config.h>
 
 /*
  * FPU test

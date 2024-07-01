@@ -9,6 +9,4 @@
 
 #include "octeon_common.h"
 
-#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-
 #endif /* __CONFIG_H__ */

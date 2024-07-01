@@ -10,7 +10,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <errno.h>
@@ -1102,7 +1101,7 @@ static int fsl_esdhc_reinit(struct udevice *dev)
 	return esdhc_init_common(priv, &plat->mmc);
 }
 
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 static int fsl_esdhc_execute_tuning(struct udevice *dev, uint32_t opcode)
 {
 	struct fsl_esdhc_plat *plat = dev_get_plat(dev);
@@ -1175,7 +1174,7 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
 	.set_ios	= fsl_esdhc_set_ios,
-#ifdef MMC_SUPPORTS_TUNING
+#if CONFIG_IS_ENABLED(MMC_SUPPORTS_TUNING)
 	.execute_tuning = fsl_esdhc_execute_tuning,
 #endif
 	.reinit = fsl_esdhc_reinit,

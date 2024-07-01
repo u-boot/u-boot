@@ -6,7 +6,6 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <dm.h>
 #include <dm/device-internal.h>
@@ -271,7 +270,7 @@ static int dwc3_meson_g12a_usb_init(struct dwc3_meson_g12a *priv)
 	return 0;
 }
 
-int dwc3_meson_g12a_force_mode(struct udevice *dev, enum usb_dr_mode mode)
+static int dwc3_meson_g12a_force_mode(struct udevice *dev, enum usb_dr_mode mode)
 {
 	struct dwc3_meson_g12a *priv = dev_get_plat(dev);
 

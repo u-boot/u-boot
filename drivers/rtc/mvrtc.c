@@ -8,7 +8,6 @@
  * Date & Time support for Marvell Integrated RTC
  */
 
-#include <common.h>
 #include <command.h>
 #include <dm.h>
 #include <rtc.h>

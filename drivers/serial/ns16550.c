@@ -5,7 +5,7 @@
  */
 
 #include <clock_legacy.h>
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
@@ -291,9 +291,9 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 	serial_out(c, &com_port->thr);
 
 	/*
-	 * Call watchdog_reset() upon newline. This is done here in putc
+	 * Call schedule() upon newline. This is done here in putc
 	 * since the environment code uses a single puts() to print the complete
-	 * environment upon "printenv". So we can't put this watchdog call
+	 * environment upon "printenv". So we can't put this schedule call
 	 * in puts().
 	 */
 	if (c == '\n')
@@ -390,9 +390,9 @@ static int ns16550_serial_putc(struct udevice *dev, const char ch)
 	serial_out(ch, &com_port->thr);
 
 	/*
-	 * Call watchdog_reset() upon newline. This is done here in putc
+	 * Call schedule() upon newline. This is done here in putc
 	 * since the environment code uses a single puts() to print the complete
-	 * environment upon "printenv". So we can't put this watchdog call
+	 * environment upon "printenv". So we can't put this schedule call
 	 * in puts().
 	 */
 	if (ch == '\n')

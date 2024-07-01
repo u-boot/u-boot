@@ -4,7 +4,6 @@
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/fsp1/fsp_support.h>
 #include <asm/post.h>

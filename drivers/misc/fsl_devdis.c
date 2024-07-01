@@ -3,7 +3,7 @@
  * Copyright 2015 Freescale Semiconductor, Inc.
  * Author: Zhuoyu Zhang <Zhuoyu.Zhang@freescale.com>
  */
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/arch-ls102xa/immap_ls102xa.h>
 #include <asm/arch-ls102xa/config.h>

@@ -3,7 +3,6 @@
  * Copyright (c) 2012 Michael Walle
  * Michael Walle <michael@walle.cc>
  */
-#include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/cache.h>
 

@@ -21,7 +21,6 @@
 #define CFG_MAX_MEM_MAPPED		(0x80000000u - DRAM_RSV_SIZE)
 
 /* PHY needs a longer autoneg timeout */
-#define PHY_ANEG_TIMEOUT		20000
 
 /* Environment setting */
 #define CFG_EXTRA_ENV_SETTINGS					\

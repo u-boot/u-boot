@@ -7,7 +7,6 @@
  *
  * Based loosely off of Linux's PHY Lib
  */
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <log.h>
@@ -251,7 +250,7 @@ int genphy_update_link(struct phy_device *phydev)
 			/*
 			 * Timeout reached ?
 			 */
-			if (i > (PHY_ANEG_TIMEOUT / 50)) {
+			if (i > (CONFIG_PHY_ANEG_TIMEOUT / 50)) {
 				printf(" TIMEOUT !\n");
 				phydev->link = 0;
 				return -ETIMEDOUT;

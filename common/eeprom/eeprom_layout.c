@@ -6,8 +6,8 @@
  *	    Igor Grinberg <grinberg@compulab.co.il>
  */
 
-#include <common.h>
 #include <linux/kernel.h>
+#include <linux/string.h>
 #include <eeprom_layout.h>
 #include <eeprom_field.h>
 
@@ -57,6 +57,28 @@ static void eeprom_layout_print(const struct eeprom_layout *layout)
 }
 
 /*
+ * eeprom_layout_find_field() - finds a layout field by name
+ * @layout:	A pointer to an existing struct layout.
+ * @field_name:	The name of the field to update.
+ * @warn:	Whether to print a warning if the field is not found.
+ *
+ * Returns: a pointer to the found field or NULL on failure.
+ */
+struct eeprom_field *eeprom_layout_find_field(struct eeprom_layout *layout,
+					      char *field_name, bool warn)
+{
+	for (int i = 0; i < layout->num_of_fields; i++)
+		if (layout->fields[i].name != RESERVED_FIELDS &&
+		    !strcmp(layout->fields[i].name, field_name))
+			return &layout->fields[i];
+
+	if (warn)
+		printf("No such field '%s'\n", field_name);
+
+	return NULL;
+}
+
+/*
  * eeprom_layout_update_field() - update a single field in the layout data.
  * @layout:	A pointer to an existing struct layout.
  * @field_name:	The name of the field to update.
@@ -67,8 +89,8 @@ static void eeprom_layout_print(const struct eeprom_layout *layout)
 static int eeprom_layout_update_field(struct eeprom_layout *layout,
 				      char *field_name, char *new_data)
 {
-	int i, err;
-	struct eeprom_field *fields = layout->fields;
+	struct eeprom_field *field;
+	int err;
 
 	if (new_data == NULL)
 		return 0;
@@ -76,21 +98,15 @@ static int eeprom_layout_update_field(struct eeprom_layout *layout,
 	if (field_name == NULL)
 		return -1;
 
-	for (i = 0; i < layout->num_of_fields; i++) {
-		if (fields[i].name == RESERVED_FIELDS ||
-		    strcmp(fields[i].name, field_name))
-			continue;
+	field = eeprom_layout_find_field(layout, field_name, true);
+	if (field == NULL)
+		return -1;
 
-		err = fields[i].update(&fields[i], new_data);
-		if (err)
-			printf("Invalid data for field %s\n", field_name);
+	err = field->update(field, new_data);
+	if (err)
+		printf("Invalid data for field %s\n", field_name);
 
-		return err;
-	}
-
-	printf("No such field '%s'\n", field_name);
-
-	return -1;
+	return err;
 }
 
 /*
@@ -111,14 +127,14 @@ void eeprom_layout_setup(struct eeprom_layout *layout, unsigned char *buf,
 	else
 		layout->layout_version = layout_version;
 
+	layout->data_size = buf_size;
+	layout->print = eeprom_layout_print;
+	layout->update = eeprom_layout_update_field;
+
 	eeprom_layout_assign(layout, layout_version);
 	layout->data = buf;
 	for (i = 0; i < layout->num_of_fields; i++) {
 		layout->fields[i].buf = buf;
 		buf += layout->fields[i].size;
 	}
-
-	layout->data_size = buf_size;
-	layout->print = eeprom_layout_print;
-	layout->update = eeprom_layout_update_field;
 }

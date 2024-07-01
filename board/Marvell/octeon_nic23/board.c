@@ -249,7 +249,7 @@ void board_configure_qlms(void)
  * read the incorrect device ID 0x9700 (reset value) instead of 0x9702
  * (restored value).
  */
-static void octeon_board_restore_pf(void *ctx)
+static void octeon_board_restore_pf(struct cyclic_info *c)
 {
 	union cvmx_spemx_flr_pf_stopreq stopreq;
 	static bool start_initialized[2] = {false, false};
@@ -357,10 +357,13 @@ int board_late_init(void)
 	board_configure_qlms();
 
 	/* Register cyclic function for PCIe FLR fixup */
-	cyclic = cyclic_register(octeon_board_restore_pf, 100,
-				 "pcie_flr_fix", NULL);
-	if (!cyclic)
+	cyclic = calloc(1, sizeof(*cyclic));
+	if (cyclic) {
+		cyclic_register(cyclic, octeon_board_restore_pf, 100,
+				"pcie_flr_fix");
+	} else {
 		printf("Registering of cyclic function failed\n");
+	}
 
 	return 0;
 }

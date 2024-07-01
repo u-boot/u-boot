@@ -4,7 +4,6 @@
  *
  */
 
-#include <common.h>
 #include <hang.h>
 #include <malloc.h>
 #include <asm/io.h>

@@ -401,6 +401,8 @@ void bdinfo_print_size(const char *name, uint64_t size);
 /* Show arch-specific information for the 'bd' command */
 void arch_print_bdinfo(void);
 
+struct cmd_tbl;
+
 int do_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 #endif	/* __ASSEMBLY__ */

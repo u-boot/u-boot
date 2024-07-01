@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <linux/delay.h>
 #include <linux/sizes.h>
-#include <common.h>
+#include <config.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <netdev.h>

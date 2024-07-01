@@ -5,7 +5,7 @@
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <display_options.h>
 #include <init.h>
 #include <net.h>

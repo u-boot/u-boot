@@ -5,7 +5,6 @@
  * Copyright (C) 2019 Texas Instruments Incorporated - https://www.ti.com
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <dm/device_compat.h>

@@ -7,7 +7,6 @@
  * Copyright (C) 2008 Nokia Corporation
  */
 
-#include <common.h>
 #include <console.h>
 #include <env.h>
 #include <log.h>

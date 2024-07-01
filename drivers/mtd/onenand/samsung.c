@@ -9,7 +9,6 @@
  *	Emulate the pseudo BufferRAM
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>

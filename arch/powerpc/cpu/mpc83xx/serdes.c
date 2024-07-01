@@ -9,7 +9,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <linux/delay.h>

@@ -33,6 +33,21 @@ _start:
 	str	sp, [ip]
 	b	main
 
+#elif defined(CONFIG_ARM64)
+
+              .text
+              .globl _start
+_start:
+              ldr           ip0, =search_hint
+              str           sp_el2, [ip0]
+              b             main
+
+
+              .globl syscall
+syscall:
+              ldr           ip0, =syscall_ptr
+              ldr           pc_el2, [ip0]
+
 
 	.globl syscall
 syscall:

@@ -3,7 +3,6 @@
  * Copyright (c) 2022 Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <panel.h>

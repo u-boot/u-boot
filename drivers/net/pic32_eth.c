@@ -3,7 +3,6 @@
  * (c) 2015 Purna Chandra Mandal <purna.mandal@microchip.com>
  *
  */
-#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <dm.h>

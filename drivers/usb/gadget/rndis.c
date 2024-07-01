@@ -18,7 +18,6 @@
  *		updates to merge with Linux 2.6, better match RNDIS spec
  */
 
-#include <common.h>
 #include <log.h>
 #include <net.h>
 #include <malloc.h>

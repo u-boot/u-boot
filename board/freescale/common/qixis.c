@@ -7,7 +7,7 @@
  * This file provides support for the QIXIS of some Freescale reference boards.
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <asm/io.h>
 #include <linux/compiler.h>

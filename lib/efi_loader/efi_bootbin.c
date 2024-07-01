@@ -150,7 +150,7 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
 		msg_path = file_path;
 	} else {
 		file_path = efi_dp_concat(bootefi_device_path,
-					  bootefi_image_path, false);
+					  bootefi_image_path, 0);
 		msg_path = bootefi_image_path;
 		log_debug("Loaded from disk\n");
 	}

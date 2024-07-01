@@ -4,7 +4,6 @@
  * (C) Copyright 2019 Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>

@@ -6,7 +6,6 @@
  * Laurence Withers <lwithers@guralp.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>

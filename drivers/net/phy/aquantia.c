@@ -6,7 +6,6 @@
  * Copyright 2018, 2021 NXP
  */
 #include <config.h>
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <net.h>
@@ -567,9 +566,9 @@ int aquantia_startup(struct phy_device *phydev)
 			if ((i++ % 500) == 0)
 				printf(".");
 		} while (!aquantia_link_is_up(phydev) &&
-			 i < (4 * PHY_ANEG_TIMEOUT));
+			 i < (4 * CONFIG_PHY_ANEG_TIMEOUT));
 
-		if (i > PHY_ANEG_TIMEOUT)
+		if (i > CONFIG_PHY_ANEG_TIMEOUT)
 			printf(" TIMEOUT !\n");
 	}
 

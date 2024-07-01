@@ -1,0 +1,7 @@
+XILINX_VERSAL2 BOARDS
+M:	Michal Simek <michal.simek@amd.com>
+S:	Maintained
+T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-microblaze.git
+F:	arch/arm/dts/versal2*
+F:	board/amd/
+F:	configs/amd*

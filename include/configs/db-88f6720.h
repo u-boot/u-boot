@@ -23,8 +23,6 @@
 
 /* Environment in SPI NOR flash */
 
-#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

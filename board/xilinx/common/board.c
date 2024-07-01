@@ -6,7 +6,6 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
 #include <efi.h>
 #include <efi_loader.h>
 #include <env.h>
@@ -702,52 +701,12 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 #define MAX_RAND_SIZE 8
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
-	size_t n = MAX_RAND_SIZE;
-	struct udevice *dev;
-	u8 buf[MAX_RAND_SIZE];
-	int nodeoffset, ret;
-
 	static const struct node_info nodes[] = {
 		{ "arm,pl353-nand-r2p1", MTD_DEV_TYPE_NAND, },
 	};
 
 	if (IS_ENABLED(CONFIG_FDT_FIXUP_PARTITIONS) && IS_ENABLED(CONFIG_NAND_ZYNQ))
 		fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
-
-	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
-		debug("No RNG device\n");
-		return 0;
-	}
-
-	if (dm_rng_read(dev, buf, n)) {
-		debug("Reading RNG failed\n");
-		return 0;
-	}
-
-	if (!blob) {
-		debug("No FDT memory address configured. Please configure\n"
-		      "the FDT address via \"fdt addr <address>\" command.\n"
-		      "Aborting!\n");
-		return 0;
-	}
-
-	ret = fdt_check_header(blob);
-	if (ret < 0) {
-		debug("fdt_chosen: %s\n", fdt_strerror(ret));
-		return ret;
-	}
-
-	nodeoffset = fdt_find_or_add_subnode(blob, 0, "chosen");
-	if (nodeoffset < 0) {
-		debug("Reading chosen node failed\n");
-		return nodeoffset;
-	}
-
-	ret = fdt_setprop(blob, nodeoffset, "kaslr-seed", buf, sizeof(buf));
-	if (ret < 0) {
-		debug("Unable to set kaslr-seed on chosen node: %s\n", fdt_strerror(ret));
-		return ret;
-	}
 
 	return 0;
 }

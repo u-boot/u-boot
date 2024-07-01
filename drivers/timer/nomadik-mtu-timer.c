@@ -12,7 +12,6 @@
  * Copyright (C) 2010 Linus Walleij for ST-Ericsson
  */
 
-#include <common.h>
 #include <dm.h>
 #include <timer.h>
 #include <asm/io.h>

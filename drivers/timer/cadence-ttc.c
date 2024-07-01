@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Xilinx, Inc. (Michal Simek)
  */
 
-#include <common.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <errno.h>

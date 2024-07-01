@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_BOOTSTD
 
-#include <common.h>
 #include <command.h>
 #include <bootdev.h>
 #include <bootflow.h>

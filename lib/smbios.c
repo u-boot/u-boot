@@ -383,8 +383,12 @@ static int smbios_write_type1(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type1));
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer", NULL);
-	t->product_name = smbios_add_prop(ctx, "product", NULL);
+	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
+					     SYSINFO_ID_SMBIOS_SYSTEM_MANUFACTURER,
+					     NULL);
+	t->product_name = smbios_add_prop_si(ctx, "product",
+					     SYSINFO_ID_SMBIOS_SYSTEM_PRODUCT,
+					     NULL);
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
 					NULL);
@@ -392,11 +396,15 @@ static int smbios_write_type1(ulong *current, int handle,
 		t->serial_number = smbios_add_prop(ctx, NULL, serial_str);
 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
-		t->serial_number = smbios_add_prop(ctx, "serial", NULL);
+		t->serial_number = smbios_add_prop_si(ctx, "serial",
+						      SYSINFO_ID_SMBIOS_SYSTEM_SERIAL,
+						      NULL);
 	}
 	t->wakeup_type = SMBIOS_WAKEUP_TYPE_UNKNOWN;
-	t->sku_number = smbios_add_prop(ctx, "sku", NULL);
-	t->family = smbios_add_prop(ctx, "family", NULL);
+	t->sku_number = smbios_add_prop_si(ctx, "sku",
+					   SYSINFO_ID_SMBIOS_SYSTEM_SKU, NULL);
+	t->family = smbios_add_prop_si(ctx, "family",
+				       SYSINFO_ID_SMBIOS_SYSTEM_FAMILY, NULL);
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -415,12 +423,22 @@ static int smbios_write_type2(ulong *current, int handle,
 	memset(t, 0, sizeof(struct smbios_type2));
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer", NULL);
-	t->product_name = smbios_add_prop(ctx, "product", NULL);
+	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
+					     SYSINFO_ID_SMBIOS_BASEBOARD_MANUFACTURER,
+					     NULL);
+	t->product_name = smbios_add_prop_si(ctx, "product",
+					     SYSINFO_ID_SMBIOS_BASEBOARD_PRODUCT,
+					     NULL);
 	t->version = smbios_add_prop_si(ctx, "version",
 					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
 					NULL);
-	t->asset_tag_number = smbios_add_prop(ctx, "asset-tag", NULL);
+
+	t->serial_number = smbios_add_prop_si(ctx, "serial",
+					      SYSINFO_ID_SMBIOS_BASEBOARD_SERIAL,
+					      NULL);
+	t->asset_tag_number = smbios_add_prop_si(ctx, "asset-tag",
+						 SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
+						 NULL);
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
 	t->chassis_handle = handle + 1;
@@ -571,10 +589,16 @@ ulong write_smbios_table(ulong addr)
 	int i;
 
 	ctx.node = ofnode_null();
-	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
+	if (IS_ENABLED(CONFIG_OF_CONTROL) && CONFIG_IS_ENABLED(SYSINFO)) {
 		uclass_first_device(UCLASS_SYSINFO, &ctx.dev);
-		if (ctx.dev)
+		if (ctx.dev) {
+			int ret;
+
 			parent_node = dev_read_subnode(ctx.dev, "smbios");
+			ret = sysinfo_detect(ctx.dev);
+			if (ret)
+				return ret;
+		}
 	} else {
 		ctx.dev = NULL;
 	}

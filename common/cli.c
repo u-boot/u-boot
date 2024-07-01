@@ -10,7 +10,6 @@
 
 #define pr_fmt(fmt) "cli: %s: " fmt, __func__
 
-#include <common.h>
 #include <ansi.h>
 #include <bootstage.h>
 #include <cli.h>

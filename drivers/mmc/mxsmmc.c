@@ -20,7 +20,6 @@
  * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
  */
 
-#include <common.h>
 #include <log.h>
 #include <malloc.h>
 #include <mmc.h>

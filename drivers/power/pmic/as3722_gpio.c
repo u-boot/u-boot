@@ -3,7 +3,6 @@
  * Copyright (C) 2014 NVIDIA Corporation
  */
 
-#include <common.h>
 #include <dm.h>
 #include <asm/gpio.h>
 #include <linux/printk.h>

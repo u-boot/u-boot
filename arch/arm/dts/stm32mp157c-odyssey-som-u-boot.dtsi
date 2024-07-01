@@ -115,11 +115,11 @@
 		bootph-all;
 	};
 
-	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
+	/* VCO = 750.0 MHz => P = 125, Q = 62.5, R = 62.5 */
 	pll4: st,pll@3 {
 		compatible = "st,stm32mp1-pll";
 		reg = <3>;
-		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
+		cfg = < 3 124 5 9 9 PQR(1,1,1) >;
 		bootph-all;
 	};
 };

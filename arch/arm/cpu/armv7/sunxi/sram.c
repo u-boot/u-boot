@@ -9,7 +9,6 @@
  * SRAM init for older sunxi SoCs.
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

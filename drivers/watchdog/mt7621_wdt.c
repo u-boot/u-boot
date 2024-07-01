@@ -9,7 +9,6 @@
  *   Copyright (C) 2013 John Crispin <blogic@openwrt.org>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <wdt.h>
 #include <asm/global_data.h>

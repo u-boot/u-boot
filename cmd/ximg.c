@@ -11,11 +11,13 @@
 /*
  * Multi Image extract
  */
-#include <common.h>
 #include <command.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <gzip.h>
+#if IS_ENABLED(CONFIG_ZSTD)
+#include <linux/zstd.h>
+#endif
 #include <image.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -238,6 +240,26 @@ do_imgextract(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			}
 			break;
 #endif /* CONFIG_BZIP2 */
+#if IS_ENABLED(CONFIG_ZSTD)
+		case IH_COMP_ZSTD:
+			{
+				int ret;
+				struct abuf in, out;
+
+				printf("   Uncompressing part %d ... ", part);
+
+				abuf_init_set(&in, (void *)data, len);
+				abuf_init_set(&out, (void *)dest, unc_len);
+				ret = zstd_decompress(&in, &out);
+				if (ret < 0) {
+					printf("ZSTD ERROR %d - "
+					       "image not loaded\n", ret);
+					return 1;
+				}
+				len = ret;
+			}
+			break;
+#endif
 		default:
 			printf("Unimplemented compression type %d\n", comp);
 			return 1;

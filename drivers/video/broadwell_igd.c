@@ -5,12 +5,12 @@
  * Copyright (C) 2016 Google, Inc
  */
 
-#include <common.h>
 #include <bios_emul.h>
 #include <bootstage.h>
 #include <dm.h>
 #include <init.h>
 #include <log.h>
+#include <time.h>
 #include <vesa.h>
 #include <video.h>
 #include <asm/cpu.h>

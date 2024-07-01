@@ -5,7 +5,7 @@
  * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clk.h>

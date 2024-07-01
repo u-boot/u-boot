@@ -4,7 +4,6 @@
  */
 
 #define LOG_CATEGORY LOGC_ARCH
-#include <common.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <imx_container.h>

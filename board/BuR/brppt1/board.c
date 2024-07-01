@@ -9,7 +9,7 @@
  *
  */
 
-#include <common.h>
+#include <config.h>
 #include <bootcount.h>
 #include <env.h>
 #include <errno.h>

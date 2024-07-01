@@ -7,6 +7,7 @@
  * Andreas Heppel <aheppel@sysgo.de>
  */
 
+#include <config.h>
 #include <env_callback.h>
 #include <linux/stringify.h>
 

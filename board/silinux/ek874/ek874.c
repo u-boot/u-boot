@@ -6,8 +6,8 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
 
-#include <common.h>
 #include <asm/global_data.h>
+#include <asm/u-boot.h>
 #include <asm/io.h>
 
 #define RST_BASE	0xE6160000

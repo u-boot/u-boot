@@ -10,7 +10,6 @@
 
 #include <bouncebuf.h>
 #include <charset.h>
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <dm/device_compat.h>

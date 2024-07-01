@@ -9,7 +9,6 @@
  * Taken from coreboot itss.c
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <irq.h>

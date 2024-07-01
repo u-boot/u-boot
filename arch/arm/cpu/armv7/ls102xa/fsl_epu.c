@@ -3,7 +3,6 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
 #include <asm/io.h>
 
 #include "fsl_epu.h"

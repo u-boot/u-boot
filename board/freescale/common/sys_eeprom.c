@@ -6,7 +6,6 @@
  * Timur Tabi (timur@freescale.com)
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
 #include <i2c.h>

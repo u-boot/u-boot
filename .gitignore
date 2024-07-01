@@ -73,6 +73,8 @@ fit-dtb.blob*
 /capsule.*.efi-capsule
 /capsule*.map
 /keep-syms-lto.*
+/*imx8mimage*
+/*imx8mcst*
 
 #
 # Generated include files

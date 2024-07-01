@@ -3,7 +3,6 @@
  * Copyright (C) 2017 Intel Corporation <www.intel.com>
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <errno.h>
 #include <fdtdec.h>

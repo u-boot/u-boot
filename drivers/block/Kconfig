@@ -1,8 +1,8 @@
 config BLK
 	bool # "Support block devices"
 	depends on DM
-	default y if MMC || USB || SCSI || NVME || IDE || AHCI || SATA
-	default y if EFI_MEDIA || VIRTIO_BLK || PVBLOCK
+	def_bool y if MMC || USB || SCSI || NVME || IDE || AHCI || SATA
+	def_bool y if EFI_MEDIA || VIRTIO_BLK || PVBLOCK
 	help
 	  Enable support for block devices, such as SCSI, MMC and USB
 	  flash sticks. These provide a block-level interface which permits

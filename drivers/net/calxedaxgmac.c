@@ -3,7 +3,6 @@
  * Copyright 2010-2011 Calxeda, Inc.
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <net.h>
 #include <linux/compiler.h>

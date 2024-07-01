@@ -272,6 +272,13 @@ config SPL_TEXT_BASE
 	help
 	  The address in memory that SPL will be running from.
 
+config SPL_SOC_INIT
+	bool "Call SoC-specific initialization in SPL"
+	help
+	  If this option is enabled, U-Boot will call the function
+	  spl_soc_init() from board_init_r(). This function should be
+	  provided by the SoC vendor.
+
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
 	help
@@ -409,6 +416,7 @@ config SPL_STACK_R_MALLOC_SIMPLE_LEN
 	depends on SPL_STACK_R && SPL_SYS_MALLOC_SIMPLE
 	hex "Size of malloc_simple heap after switching to DRAM SPL stack"
 	default 0x400000 if ARCH_K3 && ARM64
+	default 0x200000 if ARCH_K3 && CPU_V7R
 	default 0x100000
 	help
 	  Specify the amount of the stack to use as memory pool for
@@ -1293,7 +1301,7 @@ config SPL_SATA_RAW_U_BOOT_SECTOR
 
 config SPL_NVME
 	bool "NVM Express device support"
-	depends on BLK
+	depends on SPL_BLK
 	select FS_LOADER
 	select SPL_BLK_FS
 	help

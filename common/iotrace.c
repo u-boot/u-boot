@@ -5,7 +5,6 @@
 
 #define IOTRACE_IMPL
 
-#include <common.h>
 #include <mapmem.h>
 #include <time.h>
 #include <asm/global_data.h>

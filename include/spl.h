@@ -817,6 +817,14 @@ int spl_early_init(void);
 int spl_init(void);
 
 /*
+ * spl_soc_init() - Do architecture-specific init in SPL
+ *
+ * If SPL_SOC_INIT is enabled, this is called from board_init_r() before
+ * jumping to the next phase.
+ */
+void spl_soc_init(void);
+
+/*
  * spl_board_init() - Do board-specific init in SPL
  *
  * If xPL_BOARD_INIT is enabled, this is called from board_init_r() before

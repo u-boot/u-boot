@@ -7,7 +7,6 @@
  * Copyright (C) 2016 Imagination Technologies
  */
 
-#include <common.h>
 #include <dm.h>
 #include <pci.h>
 #include <linux/ioport.h>

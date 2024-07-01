@@ -16,7 +16,6 @@
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>

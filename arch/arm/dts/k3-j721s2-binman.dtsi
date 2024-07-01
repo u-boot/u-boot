@@ -141,17 +141,15 @@
 
 #ifdef CONFIG_TARGET_J721S2_A72_EVM
 
-#define SPL_J721S2_EVM_DTB "spl/dts/k3-j721s2-common-proc-board.dtb"
-#define SPL_AM68_SK_DTB "spl/dts/k3-am68-sk-base-board.dtb"
-
+#define SPL_J721S2_EVM_DTB "spl/dts/ti/k3-j721s2-common-proc-board.dtb"
 #define J721S2_EVM_DTB "u-boot.dtb"
-#define AM68_SK_DTB "arch/arm/dts/k3-am68-sk-base-board.dtb"
 
 &binman {
 	ti-dm {
 		filename = "ti-dm.bin";
 		blob-ext {
 			filename = "ti-dm/j721s2/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 	ti-spl {
@@ -306,20 +304,6 @@
 					};
 
 				};
-
-				fdt-1 {
-					description = "k3-am68-sk-base-board";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&spl_am68_sk_dtb>;
-						keyfile = "custMpk.pem";
-					};
-					spl_am68_sk_dtb: blob-ext {
-						filename = SPL_AM68_SK_DTB;
-					};
-				};
 			};
 
 			configurations {
@@ -330,13 +314,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-am68-sk-base-board";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -370,25 +347,6 @@
 						algo = "crc32";
 					};
 				};
-
-				fdt-1 {
-					description = "k3-am68-sk-base-board";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&am68_sk_dtb>;
-						keyfile = "custMpk.pem";
-					};
-					am68_sk_dtb: blob-ext {
-						filename = AM68_SK_DTB;
-					};
-
-					hash {
-						algo = "crc32";
-					};
-				};
-
 			};
 
 			configurations {
@@ -400,13 +358,6 @@
 					loadables = "uboot";
 					fdt = "fdt-0";
 				};
-				conf-1 {
-					description = "k3-am68-sk-base-board";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
-				};
-
 			};
 		};
 	};
@@ -429,20 +380,10 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					spl_j721s2_evm_dtb_unsigned: blob {
 						filename = SPL_J721S2_EVM_DTB;
 					};
 				};
-				fdt-1 {
-					description = "k3-am68-sk-base-board";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = SPL_AM68_SK_DTB;
-					};
-				};
-
 			};
 
 			configurations {
@@ -453,12 +394,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-				conf-1 {
-					description = "k3-am68-sk-base-board";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -480,26 +415,13 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					j721s2_evm_dtb_unsigned: blob {
 						filename = J721S2_EVM_DTB;
 					};
 					hash {
 						algo = "crc32";
 					};
 				};
-				fdt-1 {
-					description = "k3-am68-sk-base-board";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = AM68_SK_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
 			};
 
 			configurations {
@@ -510,12 +432,6 @@
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
-				};
-				conf-1 {
-					description = "k3-am68-sk-base-board";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
 				};
 			};
 		};

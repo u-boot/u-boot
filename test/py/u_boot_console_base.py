@@ -17,7 +17,6 @@ import u_boot_spawn
 
 # Regexes for text we expect U-Boot to send to the console.
 pattern_u_boot_spl_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}[^\r\n]*\\))')
-pattern_u_boot_spl2_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}[^\r\n]*\\))')
 pattern_u_boot_main_signon = re.compile('(U-Boot \\d{4}\\.\\d{2}[^\r\n]*\\))')
 pattern_stop_autoboot_prompt = re.compile('Hit any key to stop autoboot: ')
 pattern_unknown_command = re.compile('Unknown command \'.*\' - try \'help\'')
@@ -29,7 +28,6 @@ PAT_RE = 1
 
 bad_pattern_defs = (
     ('spl_signon', pattern_u_boot_spl_signon),
-    ('spl2_signon', pattern_u_boot_spl2_signon),
     ('main_signon', pattern_u_boot_main_signon),
     ('stop_autoboot_prompt', pattern_stop_autoboot_prompt),
     ('unknown_command', pattern_unknown_command),
@@ -55,6 +53,32 @@ class ConsoleDisableCheck(object):
 
     def __exit__(self, extype, value, traceback):
         self.console.disable_check_count[self.check_type] -= 1
+        self.console.eval_bad_patterns()
+
+class ConsoleEnableCheck(object):
+    """Context manager (for Python's with statement) that temporarily enables
+    the specified console output error check. This is useful when executing a
+    command that might raise an extra bad pattern, beyond the default bad
+    patterns, in order to validate that the extra bad pattern is actually
+    detected. This class is used internally by ConsoleBase::enable_check(); it
+    is not intended for direct usage."""
+
+    def __init__(self, console, check_type, check_pattern):
+        self.console = console
+        self.check_type = check_type
+        self.check_pattern = check_pattern
+
+    def __enter__(self):
+        global bad_pattern_defs
+        self.default_bad_patterns = bad_pattern_defs
+        bad_pattern_defs += ((self.check_type, self.check_pattern),)
+        self.console.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
+        self.console.eval_bad_patterns()
+
+    def __exit__(self, extype, value, traceback):
+        global bad_pattern_defs
+        bad_pattern_defs = self.default_bad_patterns
+        self.console.disable_check_count = {pat[PAT_ID]: 0 for pat in bad_pattern_defs}
         self.console.eval_bad_patterns()
 
 class ConsoleSetupTimeout(object):
@@ -152,25 +176,20 @@ class ConsoleBase(object):
         """
         try:
             bcfg = self.config.buildconfig
-            config_spl = bcfg.get('config_spl', 'n') == 'y'
             config_spl_serial = bcfg.get('config_spl_serial', 'n') == 'y'
             env_spl_skipped = self.config.env.get('env__spl_skipped', False)
-            env_spl2_skipped = self.config.env.get('env__spl2_skipped', True)
+            env_spl_banner_times = self.config.env.get('env__spl_banner_times', 1)
 
             while loop_num > 0:
                 loop_num -= 1
-                if config_spl and config_spl_serial and not env_spl_skipped:
+                while config_spl_serial and not env_spl_skipped and env_spl_banner_times > 0:
                     m = self.p.expect([pattern_u_boot_spl_signon] +
                                       self.bad_patterns)
                     if m != 0:
                         raise Exception('Bad pattern found on SPL console: ' +
                                         self.bad_pattern_ids[m - 1])
-                if not env_spl2_skipped:
-                    m = self.p.expect([pattern_u_boot_spl2_signon] +
-                                      self.bad_patterns)
-                    if m != 0:
-                        raise Exception('Bad pattern found on SPL2 console: ' +
-                                        self.bad_pattern_ids[m - 1])
+                    env_spl_banner_times -= 1
+
                 m = self.p.expect([pattern_u_boot_main_signon] + self.bad_patterns)
                 if m != 0:
                     raise Exception('Bad pattern found on console: ' +
@@ -498,6 +517,24 @@ class ConsoleBase(object):
         """
 
         return ConsoleDisableCheck(self, check_type)
+
+    def enable_check(self, check_type, check_pattern):
+        """Temporarily enable an error check of U-Boot's output.
+
+        Create a new context manager (for use with the "with" statement) which
+        temporarily enables a particular console output error check. The
+        arguments form a new element of bad_pattern_defs defined above.
+
+        Args:
+            check_type: The type of error-check or bad pattern to enable.
+            check_pattern: The regexes for text error pattern or bad pattern
+                to be checked.
+
+        Returns:
+            A context manager object.
+        """
+
+        return ConsoleEnableCheck(self, check_type, check_pattern)
 
     def temporary_timeout(self, timeout):
         """Temporarily set up different timeout for commands.

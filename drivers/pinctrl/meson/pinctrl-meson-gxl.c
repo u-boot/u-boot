@@ -6,7 +6,6 @@
  *   Copyright (C) 2016 Endless Mobile, Inc.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/gpio/meson-gxl-gpio.h>

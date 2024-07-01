@@ -6,7 +6,6 @@
  * Author: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
  */
 
-#include <common.h>
 #ifdef CONFIG_OF_BOARD_SETUP
 #include <dm.h>
 #include <fdt_support.h>

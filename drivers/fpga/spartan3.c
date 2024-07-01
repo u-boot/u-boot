@@ -11,8 +11,9 @@
 
 #define LOG_CATEGORY UCLASS_FPGA
 
-#include <common.h>		/* core U-Boot definitions */
+#include <config.h>		/* core U-Boot definitions */
 #include <log.h>
+#include <time.h>
 #include <spartan3.h>		/* Spartan-II device family */
 
 /* Note: The assumption is that we cannot possibly run fast enough to

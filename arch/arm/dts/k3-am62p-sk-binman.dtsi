@@ -59,6 +59,17 @@
 	};
 };
 
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See am62px_evm.h
+#define AM62PX_SK_TIBOOT3_IMAGE_GUID_STR "b08471b7-be2d-4489-87a1-cab28a0cf743"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = AM62PX_SK_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
 #endif /* CONFIG_TARGET_AM62P5_R5_EVM */
 
 #if IS_ENABLED(CONFIG_TARGET_AM62P5_A53_EVM)
@@ -72,7 +83,45 @@
 
 		blob-ext {
 			filename = "ti-dm/am62pxx/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
+	};
+	tifsstub-hs {
+		filename = "tifsstub.bin_hs";
+		ti-secure-rom {
+			content = <&tifsstub_hs_cert>;
+			core = "secure";
+			load = <0x60000>;
+			sw-rev = <CONFIG_K3_X509_SWRV>;
+			keyfile = "custMpk.pem";
+			countersign;
+			tifsstub;
+		};
+		tifsstub_hs_cert: tifsstub-hs-cert.bin {
+			filename = "ti-sysfw/ti-fs-stub-firmware-am62px-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		tifsstub_hs_enc: tifsstub-hs-enc.bin {
+			filename = "ti-sysfw/ti-fs-stub-firmware-am62px-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+
+	tifsstub-fs {
+		filename = "tifsstub.bin_fs";
+		tifsstub_fs_cert: tifsstub-fs-cert.bin {
+			filename = "ti-sysfw/ti-fs-stub-firmware-am62px-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		tifsstub_fs_enc: tifsstub-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-stub-firmware-am62px-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+
 	};
 
 	ti-spl {
@@ -80,6 +129,31 @@
 
 		fit {
 			images {
+				tifsstub-hs {
+					description = "TIFSSTUB";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "tifsstub-hs";
+					load = <0x9ca00000>;
+					entry = <0x9ca00000>;
+					blob-ext {
+						filename = "tifsstub.bin_hs";
+					};
+				};
+
+				tifsstub-fs {
+					description = "TIFSSTUB";
+					type = "firmware";
+					arch = "arm32";
+					compression = "none";
+					os = "tifsstub-fs";
+					load = <0x9ca00000>;
+					entry = <0x9ca00000>;
+					blob-ext {
+						filename = "tifsstub.bin_fs";
+					};
+				};
 				dm {
 					ti-secure {
 						content = <&dm>;
@@ -116,7 +190,8 @@
 				conf-0 {
 					description = "k3-am62px-sk";
 					firmware = "atf";
-					loadables = "tee", "dm", "spl";
+					loadables = "tee", "dm", "spl",
+					"tifsstub-hs", "tifsstub-fs";
 					fdt = "fdt-0";
 				};
 			};
@@ -167,6 +242,24 @@
 
 			};
 		};
+	};
+};
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See am62px_evm.h
+#define AM62PX_SK_SPL_IMAGE_GUID_STR "d02ed781-6d71-4c1a-a999-3c6a41c36324"
+#define AM62PX_SK_UBOOT_IMAGE_GUID_STR "7e6aea51-965c-44ab-b388-daeb03b54f66"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = AM62PX_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = AM62PX_SK_UBOOT_IMAGE_GUID_STR;
 	};
 };
 

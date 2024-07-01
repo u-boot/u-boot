@@ -6,7 +6,6 @@
 
 /* Tegra114 Clock control functions */
 
-#include <common.h>
 #include <init.h>
 #include <log.h>
 #include <asm/io.h>

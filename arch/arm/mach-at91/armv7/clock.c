@@ -9,7 +9,7 @@
  * Copyright (C) 2015 Wenyou Yang <wenyou.yang@atmel.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/global_data.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

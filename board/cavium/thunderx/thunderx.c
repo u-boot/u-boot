@@ -3,7 +3,7 @@
  * (C) Copyright 2014, Cavium Inc.
 **/
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <init.h>

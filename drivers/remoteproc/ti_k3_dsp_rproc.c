@@ -7,7 +7,6 @@
  *	Suman Anna <s-anna@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>
@@ -22,6 +21,7 @@
 #include <linux/sizes.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include "ti_sci_proc.h"
+#include <mach/security.h>
 
 #define KEYSTONE_RPROC_LOCAL_ADDRESS_MASK	(SZ_16M - 1)
 
@@ -128,6 +128,7 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
 	struct k3_dsp_boot_data *data = dsp->data;
 	u32 boot_vector;
+	void *image_addr = (void *)addr;
 	int ret;
 
 	if (dsp->in_use) {
@@ -148,6 +149,8 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 			dsp->tsp.proc_id);
 		goto proc_release;
 	}
+
+	ti_secure_image_post_process(&image_addr, &size);
 
 	ret = rproc_elf_load_image(dev, addr, size);
 	if (ret < 0) {
@@ -339,7 +342,8 @@ static int k3_dsp_of_get_memories(struct udevice *dev)
 	for (i = 0; i < dsp->num_mems; i++) {
 		/* C71 cores only have a L1P Cache, there are no L1P SRAMs */
 		if (((device_is_compatible(dev, "ti,j721e-c71-dsp")) ||
-		     (device_is_compatible(dev, "ti,j721s2-c71-dsp"))) &&
+		    (device_is_compatible(dev, "ti,j721s2-c71-dsp")) ||
+		    (device_is_compatible(dev, "ti,am62a-c7xv-dsp"))) &&
 		    !strcmp(mem_names[i], "l1pram")) {
 			dsp->mem[i].bus_addr = FDT_ADDR_T_NONE;
 			dsp->mem[i].dev_addr = FDT_ADDR_T_NONE;
@@ -347,7 +351,14 @@ static int k3_dsp_of_get_memories(struct udevice *dev)
 			dsp->mem[i].size = 0;
 			continue;
 		}
-
+		if (device_is_compatible(dev, "ti,am62a-c7xv-dsp") &&
+		    !strcmp(mem_names[i], "l1dram")) {
+			dsp->mem[i].bus_addr = FDT_ADDR_T_NONE;
+			dsp->mem[i].dev_addr = FDT_ADDR_T_NONE;
+			dsp->mem[i].cpu_addr = NULL;
+			dsp->mem[i].size = 0;
+			continue;
+		}
 		dsp->mem[i].bus_addr = dev_read_addr_size_name(dev, mem_names[i],
 					  (fdt_addr_t *)&dsp->mem[i].size);
 		if (dsp->mem[i].bus_addr == FDT_ADDR_T_NONE) {
@@ -459,6 +470,7 @@ static const struct udevice_id k3_dsp_ids[] = {
 	{ .compatible = "ti,j721e-c66-dsp", .data = (ulong)&c66_data, },
 	{ .compatible = "ti,j721e-c71-dsp", .data = (ulong)&c71_data, },
 	{ .compatible = "ti,j721s2-c71-dsp", .data = (ulong)&c71_data, },
+	{ .compatible = "ti,am62a-c7xv-dsp", .data = (ulong)&c71_data, },
 	{}
 };
 

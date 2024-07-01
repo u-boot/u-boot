@@ -13,7 +13,7 @@
  * OneNAND initialization at U-Boot
  */
 
-#include <common.h>
+#include <config.h>
 #include <display_options.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>

@@ -1,0 +1,7 @@
+SIGE7-RK3588
+M:	Jianfeng Liu <liujianfeng1994@gmail.com>
+S:	Maintained
+F:	board/armsom/sige7-rk3588
+F:	include/configs/sige7-rk3588.h
+F:	configs/sige7-rk3588_defconfig
+F:	arch/arm/dts/rk3588-armsom-sige7*

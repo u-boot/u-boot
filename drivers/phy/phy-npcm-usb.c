@@ -3,7 +3,6 @@
  * Copyright (c) 2021 Nuvoton Technology Corp.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <regmap.h>
@@ -12,6 +11,7 @@
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/delay.h>
+#include <dt-bindings/phy/nuvoton,npcm-usbphy.h>
 
 /* GCR Register Offsets */
 #define GCR_INTCR3	0x9C
@@ -32,14 +32,6 @@
 #define USBPHY3SW_HOST2		FIELD_PREP(USBPHY3SW, 1)
 #define USBPHY3SW_DEV8_PHY3	FIELD_PREP(USBPHY3SW, 3)
 
-enum controller_id {
-	UDC0_7,
-	UDC8,
-	UDC9,
-	USBH1,
-	USBH2,
-};
-
 enum phy_id {
 	PHY1 = 1,
 	PHY2,
@@ -47,13 +39,13 @@ enum phy_id {
 };
 
 /* Phy Switch Settings */
-#define USBDPHY1	((PHY1 << 8) | UDC0_7)	/* Connect UDC0~7 to PHY1 */
-#define USBD8PHY1	((PHY1 << 8) | UDC8)	/* Connect UDC8 to PHY1 */
-#define USBD9PHY1	((PHY1 << 8) | UDC9)	/* Connect UDC9 to PHY1 */
-#define USBD9PHY2	((PHY2 << 8) | UDC9)	/* Connect UDC9 to PHY2 */
-#define USBH1PHY2	((PHY2 << 8) | USBH1)	/* Connect USBH1 to PHY2 */
-#define USBD8PHY3	((PHY3 << 8) | UDC8)	/* Connect UDC8 to PHY3 */
-#define USBH2PHY3	((PHY3 << 8) | USBH2)	/* Connect USBH2 to PHY3 */
+#define USBDPHY1	((PHY1 << 8) | NPCM_UDC0_7)	/* Connect UDC0~7 to PHY1 */
+#define USBD8PHY1	((PHY1 << 8) | NPCM_UDC8)	/* Connect UDC8 to PHY1 */
+#define USBD9PHY1	((PHY1 << 8) | NPCM_UDC9)	/* Connect UDC9 to PHY1 */
+#define USBD9PHY2	((PHY2 << 8) | NPCM_UDC9)	/* Connect UDC9 to PHY2 */
+#define USBH1PHY2	((PHY2 << 8) | NPCM_USBH1)	/* Connect USBH1 to PHY2 */
+#define USBD8PHY3	((PHY3 << 8) | NPCM_UDC8)	/* Connect UDC8 to PHY3 */
+#define USBH2PHY3	((PHY3 << 8) | NPCM_USBH2)	/* Connect USBH2 to PHY3 */
 
 struct npcm_usbphy {
 	struct regmap *syscon;
@@ -153,12 +145,12 @@ static int npcm_usb_phy_exit(struct phy *phy)
 	return 0;
 }
 
-static int  npcm_usb_phy_xlate(struct phy *phy, struct ofnode_phandle_args *args)
+static int npcm_usb_phy_xlate(struct phy *phy, struct ofnode_phandle_args *args)
 {
 	struct npcm_usbphy *priv = dev_get_priv(phy->dev);
 	u16 phy_switch;
 
-	if (args->args_count < 1 || args->args[0] > USBH2)
+	if (args->args_count < 1 || args->args[0] > NPCM_MAX_USB_CTRL_ID)
 		return -EINVAL;
 
 	phy_switch = (priv->id << 8) | args->args[0];

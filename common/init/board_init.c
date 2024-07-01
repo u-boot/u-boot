@@ -6,7 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
+#include <config.h>
 #include <bootstage.h>
 #include <init.h>
 #include <asm/global_data.h>

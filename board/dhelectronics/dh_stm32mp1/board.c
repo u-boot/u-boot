@@ -3,7 +3,6 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <adc.h>
 #include <log.h>
 #include <net.h>
@@ -38,6 +37,7 @@
 #include <power/regulator.h>
 #include <remoteproc.h>
 #include <reset.h>
+#include <spl.h>
 #include <syscon.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
@@ -684,11 +684,68 @@ void board_quiesce_devices(void)
 #endif
 }
 
+static void dh_stm32_ks8851_fixup(void *blob)
+{
+	struct gpio_desc ks8851intrn;
+	bool compatible = false;
+	int ks8851intrn_value;
+	const char *prop;
+	ofnode node;
+	int idx = 0;
+	int offset;
+	int ret;
+
+	/* Do nothing if not STM32MP15xx DHCOM SoM */
+	while ((prop = fdt_stringlist_get(blob, 0, "compatible", idx++, NULL))) {
+		if (!strstr(prop, "dhcom-som"))
+			continue;
+		compatible = true;
+		break;
+	}
+
+	if (!compatible)
+		return;
+
+	/*
+	 * Read state of INTRN pull up resistor, if this pull up is populated,
+	 * KS8851-16MLL is populated as well and should be enabled, otherwise
+	 * it should be disabled.
+	 */
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node))
+		return;
+
+	ret = gpio_request_by_name_nodev(node, "dh,mac-coding-gpios", 0,
+					 &ks8851intrn, GPIOD_IS_IN);
+	if (ret)
+		return;
+
+	ks8851intrn_value = dm_gpio_get_value(&ks8851intrn);
+
+	dm_gpio_free(NULL, &ks8851intrn);
+
+	/* Set the 'status' property into KS8851-16MLL DT node. */
+	offset = fdt_path_offset(blob, "ethernet1");
+	ret = fdt_node_check_compatible(blob, offset, "micrel,ks8851-mll");
+	if (ret)	/* Not compatible */
+		return;
+
+	/* Add a bit of extra space for new 'status' property */
+	ret = fdt_shrink_to_minimum(blob, 4096);
+	if (!ret)
+		return;
+
+	fdt_setprop_string(blob, offset, "status",
+			   ks8851intrn_value ? "okay" : "disabled");
+}
+
 #if defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	const char *buck3path = "/soc/i2c@5c002000/stpmic@33/regulators/buck3";
 	int buck3off, ret, uv;
+
+	dh_stm32_ks8851_fixup(blob);
 
 	ret = board_get_regulator_buck3_nvm_uv_av96(&uv);
 	if (ret)	/* Not Avenger96 board, do not patch Buck3 in DT. */
@@ -707,6 +764,13 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 		return ret;
 
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_SPL_BUILD)
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	dh_stm32_ks8851_fixup(spl_image_fdt_addr(spl_image));
 }
 #endif
 

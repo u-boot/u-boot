@@ -5,7 +5,6 @@
  * Copyright 2021 NXP
  * Author: Radu Pirea <radu-nicolae.pirea@oss.nxp.com>
  */
-#include <common.h>
 #include <dm.h>
 #include <dm/devres.h>
 #include <linux/delay.h>

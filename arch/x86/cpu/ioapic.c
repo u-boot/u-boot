@@ -3,7 +3,6 @@
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <common.h>
 #include <log.h>
 #include <asm/io.h>
 #include <asm/ioapic.h>

@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_SPI
 
-#include <common.h>
 #include <console.h>
 #include <malloc.h>
 #include <spi.h>

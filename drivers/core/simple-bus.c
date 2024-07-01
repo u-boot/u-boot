@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_SIMPLE_BUS
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <dm.h>
 #include <dm/simple_bus.h>

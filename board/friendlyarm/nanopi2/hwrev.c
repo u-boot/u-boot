@@ -5,7 +5,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <i2c.h>
 #include <asm/io.h>
 

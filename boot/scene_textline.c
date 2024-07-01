@@ -8,10 +8,12 @@
 
 #define LOG_CATEGORY	LOGC_EXPO
 
-#include <common.h>
 #include <expo.h>
 #include <menu.h>
+#include <log.h>
 #include <video_console.h>
+#include <linux/errno.h>
+#include <linux/string.h>
 #include "scene_internal.h"
 
 int scene_textline(struct scene *scn, const char *name, uint id, uint max_chars,

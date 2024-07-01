@@ -5,7 +5,6 @@
 
 #define LOG_CATEGORY UCLASS_SCMI_AGENT
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <mailbox.h>

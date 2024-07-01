@@ -481,6 +481,7 @@ config TARGET_MX6ULZ_SMM_M2
 	select DM_MTD
 	select DM_THERMAL
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_MYS_6ULX
 	bool "MYiR MYS-6ULX"

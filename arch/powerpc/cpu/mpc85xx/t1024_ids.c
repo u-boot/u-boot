@@ -3,7 +3,8 @@
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
+#include <linux/kernel.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 

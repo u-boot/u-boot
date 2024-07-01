@@ -10,7 +10,6 @@
  * https://spdx.org/licenses
  */
 
-#include <common.h>
 #include <config.h>
 #include <errno.h>
 #include <dm.h>

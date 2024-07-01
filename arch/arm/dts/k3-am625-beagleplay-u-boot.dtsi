@@ -54,12 +54,21 @@
 	>;
 };
 
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-all;
+};
+
 #ifdef CONFIG_TARGET_AM625_A53_BEAGLEPLAY
 
 #define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
-#define SPL_AM625_BEAGLEPLAY_DTB "spl/dts/k3-am625-beagleplay.dtb"
+#define SPL_AM625_BEAGLEPLAY_DTB "spl/dts/ti/k3-am625-beagleplay.dtb"
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define AM625_BEAGLEPLAY_DTB "arch/arm/dts/k3-am625-beagleplay.dtb"
+#define AM625_BEAGLEPLAY_DTB "dts/upstream/src/arm64/ti/k3-am625-beagleplay.dtb"
 
 &binman {
 	ti-dm {
@@ -71,6 +80,7 @@
 
 	ti-spl_unsigned {
 		filename = "tispl.bin_unsigned";
+		symlink = "tispl.bin";
 		pad-byte = <0xff>;
 
 		fit {
@@ -205,4 +215,94 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See beagleplay.h
+#define BEAGLEPLAY_SPL_IMAGE_GUID_STR "b2e7cc49-1a5a-4036-ae01-3387c3bef657"
+#define BEAGLEPLAY_UBOOT_IMAGE_GUID_STR "92c92b11-a7ee-486f-aaa2-713d84425b0e"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = BEAGLEPLAY_SPL_IMAGE_GUID_STR;
+
+		blob {
+			filename = "tispl.bin_unsigned";
+		};
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = BEAGLEPLAY_UBOOT_IMAGE_GUID_STR;
+
+		blob {
+			filename = "u-boot.img_unsigned";
+		};
+	};
+};
+
 #endif
+
+&main_bcdma {
+	reg = <0x00 0x485c0100 0x00 0x100>,
+	      <0x00 0x4c000000 0x00 0x20000>,
+	      <0x00 0x4a820000 0x00 0x20000>,
+	      <0x00 0x4aa40000 0x00 0x20000>,
+	      <0x00 0x4bc00000 0x00 0x100000>,
+	      <0x00 0x48600000 0x00 0x8000>,
+	      <0x00 0x484a4000 0x00 0x2000>,
+	      <0x00 0x484c2000 0x00 0x2000>;
+	reg-names = "gcfg", "bchanrt", "rchanrt", "tchanrt", "ringrt",
+		    "cfg", "tchan", "rchan";
+};
+
+&main_pktdma {
+	reg = <0x00 0x485c0000 0x00 0x100>,
+	      <0x00 0x4a800000 0x00 0x20000>,
+	      <0x00 0x4aa00000 0x00 0x40000>,
+	      <0x00 0x4b800000 0x00 0x400000>,
+	      <0x00 0x485e0000 0x00 0x20000>,
+	      <0x00 0x484a0000 0x00 0x4000>,
+	      <0x00 0x484c0000 0x00 0x2000>,
+	      <0x00 0x48430000 0x00 0x4000>;
+	reg-names = "gcfg", "rchanrt", "tchanrt", "ringrt", "cfg",
+		    "tchan", "rchan", "rflow";
+	bootph-all;
+};
+
+&mdio0_pins_default {
+	bootph-all;
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy0 {
+	bootph-all;
+};
+
+&rgmii1_pins_default {
+	bootph-all;
+};
+
+&cpsw3g {
+	bootph-all;
+
+	ethernet-ports {
+		bootph-all;
+	};
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
+&cpsw_port1 {
+	bootph-all;
+};
+
+&cpsw_port2 {
+	status = "disabled";
+};

@@ -11,7 +11,6 @@
 
 /* Network */
 #define CFG_KSNET_CPSW_NUM_PORTS	2
-#define PHY_ANEG_TIMEOUT	10000 /* PHY needs longer aneg time */
 
 #include <configs/ti_armv7_keystone2.h>
 

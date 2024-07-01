@@ -14,7 +14,7 @@
  *
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <asm/io.h>
 

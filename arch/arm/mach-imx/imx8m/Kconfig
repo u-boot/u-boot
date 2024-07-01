@@ -137,12 +137,14 @@ config TARGET_IMX8MN_BSH_SMM_S2
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_DDR3L
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MN_BSH_SMM_S2PRO
 	bool "imx8mn-bsh-smm-s2pro"
 	select IMX8MN
 	select SUPPORT_SPL
 	select IMX8M_DDR3L
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MN_EVK
 	bool "imx8mn LPDDR4 EVK board"
@@ -296,12 +298,14 @@ config TARGET_PHYCORE_IMX8MM
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_PHYCORE_IMX8MP
 	bool "PHYTEC PHYCORE i.MX8MP"
 	select IMX8MP
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+	imply OF_UPSTREAM
 
 config TARGET_IMX8MM_CL_IOT_GATE
 	bool "CompuLab iot-gate-imx8"

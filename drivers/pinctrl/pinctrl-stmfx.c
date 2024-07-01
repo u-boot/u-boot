@@ -8,7 +8,6 @@
 
 #define LOG_CATEGORY UCLASS_PINCTRL
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <i2c.h>

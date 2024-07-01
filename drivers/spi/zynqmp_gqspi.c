@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY UCLASS_SPI
 
-#include <common.h>
 #include <cpu_func.h>
 #include <log.h>
 #include <asm/arch/sys_proto.h>
@@ -107,7 +106,8 @@
 #define TAP_DLY_BYPASS_LQSPI_RX_SHIFT	2
 #define GQSPI_DATA_DLY_ADJ_OFST		0x000001F8
 #define IOU_TAPDLY_BYPASS_OFST !(IS_ENABLED(CONFIG_ARCH_VERSAL) || \
-				 IS_ENABLED(CONFIG_ARCH_VERSAL_NET)) ? \
+				 IS_ENABLED(CONFIG_ARCH_VERSAL_NET) || \
+				 IS_ENABLED(CONFIG_ARCH_VERSAL2)) ? \
 				0xFF180390 : 0xF103003C
 #define GQSPI_LPBK_DLY_ADJ_LPBK_MASK	0x00000020
 #define GQSPI_FREQ_37_5MHZ		37500000
@@ -317,7 +317,8 @@ static void zynqmp_qspi_set_tapdelay(struct udevice *bus, u32 baudrateval)
 		  __func__, clk_rate, baudrateval, reqhz);
 
 	if (!(IS_ENABLED(CONFIG_ARCH_VERSAL) ||
-	      IS_ENABLED(CONFIG_ARCH_VERSAL_NET))) {
+	      IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
+	      IS_ENABLED(CONFIG_ARCH_VERSAL2))) {
 		if (reqhz <= GQSPI_FREQ_40MHZ) {
 			tapdlybypass = TAP_DLY_BYPASS_LQSPI_RX_VALUE <<
 					TAP_DLY_BYPASS_LQSPI_RX_SHIFT;

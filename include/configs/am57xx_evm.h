@@ -36,7 +36,6 @@
 #include <configs/ti_omap5_common.h>
 
 /* CPSW Ethernet */
-#define PHY_ANEG_TIMEOUT	8000	/* PHY needs longer aneg time at 1G */
 
 /*
  * Default to using SPI for environment, etc.

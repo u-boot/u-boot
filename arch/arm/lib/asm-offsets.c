@@ -16,7 +16,6 @@
  *   Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
  */
 
-#include <common.h>
 #include <linux/kbuild.h>
 #include <linux/arm-smccc.h>
 

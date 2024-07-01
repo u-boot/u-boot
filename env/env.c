@@ -4,13 +4,13 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <common.h>
 #include <env.h>
 #include <env_internal.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/bug.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

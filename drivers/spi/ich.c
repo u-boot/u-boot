@@ -7,7 +7,6 @@
 
 #define LOG_CATEGORY	UCLASS_SPI
 
-#include <common.h>
 #include <bootstage.h>
 #include <div64.h>
 #include <dm.h>

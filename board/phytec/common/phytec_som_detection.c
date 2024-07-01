@@ -4,7 +4,6 @@
  * Author: Teresa Remmet <t.remmet@phytec.de>
  */
 
-#include <common.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <i2c.h>
@@ -48,16 +47,9 @@ int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
 	return ret;
 }
 
-int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
-			    int bus_num, int addr)
+int phytec_eeprom_read(u8 *data, int bus_num, int addr, int size, int offset)
 {
-	int ret, i;
-	unsigned int crc;
-	u8 *ptr;
-	const unsigned int payload_size = sizeof(struct phytec_eeprom_payload);
-
-	if (!data)
-		data = &eeprom_data;
+	int ret;
 
 #if CONFIG_IS_ENABLED(DM_I2C)
 	struct udevice *dev;
@@ -65,19 +57,182 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	ret = i2c_get_chip_for_busnum(bus_num, addr, 2, &dev);
 	if (ret) {
 		pr_err("%s: i2c EEPROM not found: %i.\n", __func__, ret);
-		goto err;
+		return ret;
 	}
 
-	ret = dm_i2c_read(dev, 0, (uint8_t *)data, payload_size);
+	ret = dm_i2c_read(dev, offset, (uint8_t *)data, size);
 	if (ret) {
 		pr_err("%s: Unable to read EEPROM data: %i\n", __func__, ret);
-		goto err;
+		return ret;
 	}
 #else
 	i2c_set_bus_num(bus_num);
-	ret = i2c_read(addr, 0, 2, (uint8_t *)data,
-		       sizeof(struct phytec_eeprom_data));
+	ret = i2c_read(addr, offset, 2, (uint8_t *)data, size);
 #endif
+	return ret;
+}
+
+int phytec_eeprom_data_init_v2(struct phytec_eeprom_data *data)
+{
+	unsigned int crc;
+
+	if (!data)
+		return -1;
+
+	crc = crc8(0, (const unsigned char *)&data->payload, PHYTEC_API2_DATA_LEN);
+	debug("%s: crc: %x\n", __func__, crc);
+
+	if (crc) {
+		pr_err("%s: CRC mismatch. EEPROM data is not usable.\n",
+		       __func__);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+#if IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)
+
+int phytec_eeprom_data_init_v3_block(struct phytec_eeprom_data *data,
+				     struct phytec_api3_block_header *header,
+				     u8 *payload)
+{
+	struct phytec_api3_element *element = NULL;
+	struct phytec_api3_element *list_iterator;
+
+	if (!header)
+		return -1;
+	if (!payload)
+		return -1;
+
+	debug("%s: block type: %i\n", __func__, header->block_type);
+	switch (header->block_type) {
+	case PHYTEC_API3_BLOCK_MAC:
+		element = phytec_blocks_init_mac(header, payload);
+		break;
+	default:
+		debug("%s: Unknown block type %i\n", __func__,
+		      header->block_type);
+	}
+	if (!element)
+		return -1;
+
+	if (!data->payload.block_head) {
+		data->payload.block_head = element;
+		return 0;
+	}
+
+	list_iterator = data->payload.block_head;
+	while (list_iterator && list_iterator->next)
+		list_iterator = list_iterator->next;
+	list_iterator->next = element;
+
+	return 0;
+}
+
+int phytec_eeprom_data_init_v3(struct phytec_eeprom_data *data,
+			       int bus_num, int addr)
+{
+	int ret, i;
+	struct phytec_api3_header header;
+	unsigned int crc;
+	u8 *payload;
+	int block_addr;
+	struct phytec_api3_block_header *block_header;
+
+	if (!data)
+		return -1;
+
+	ret = phytec_eeprom_read((uint8_t *)&header, bus_num, addr,
+				 PHYTEC_API3_DATA_HEADER_LEN,
+				 PHYTEC_API2_DATA_LEN);
+	if (ret) {
+		pr_err("%s: Failed to read API v3 data header.\n", __func__);
+		goto err;
+	}
+
+	crc = crc8(0, (const unsigned char *)&header,
+		   PHYTEC_API3_DATA_HEADER_LEN);
+	debug("%s: crc: %x\n", __func__, crc);
+	if (crc) {
+		pr_err("%s: CRC mismatch. API3 header is unusable.\n",
+		       __func__);
+		goto err;
+	}
+
+	debug("%s: data length: %i\n", __func__, header.data_length);
+	payload = malloc(header.data_length);
+	if (!payload) {
+		pr_err("%s: Unable to allocate memory\n", __func__);
+		goto err_payload;
+	}
+
+	ret = phytec_eeprom_read(payload, bus_num, addr, header.data_length,
+				 PHYTEC_API3_DATA_HEADER_LEN +
+				 PHYTEC_API2_DATA_LEN);
+	if (ret) {
+		pr_err("%s: Failed to read API v3 data payload.\n", __func__);
+		goto err_payload;
+	}
+
+	block_addr = 0;
+	debug("%s: block count: %i\n", __func__, header.block_count);
+	for (i = 0; i < header.block_count; i++) {
+		debug("%s: block_addr: %i\n", __func__, block_addr);
+		block_header = (struct phytec_api3_block_header *)
+			&payload[block_addr];
+		crc = crc8(0, (const unsigned char *)block_header,
+			   PHYTEC_API3_BLOCK_HEADER_LEN);
+
+		debug("%s: crc: %x\n", __func__, crc);
+		if (crc) {
+			pr_err("%s: CRC mismatch. API3 block header is unusable\n",
+			       __func__);
+			goto err_payload;
+		}
+
+		ret = phytec_eeprom_data_init_v3_block(data, block_header,
+			&payload[block_addr + PHYTEC_API3_BLOCK_HEADER_LEN]);
+		/* Ignore failed block initialization and continue. */
+		if (ret)
+			debug("%s: Unable to create block with index %i.\n",
+			      __func__, i);
+
+		block_addr = block_header->next_block;
+	}
+
+	free(payload);
+	return 0;
+err_payload:
+	free(payload);
+err:
+	return -1;
+}
+
+#else
+
+inline int phytec_eeprom_data_init_v3(struct phytec_eeprom_data *data,
+				      int bus_num, int addr)
+{
+	return 0;
+}
+
+#endif
+
+int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
+			    int bus_num, int addr)
+{
+	int ret, i;
+	u8 *ptr;
+
+	if (!data)
+		data = &eeprom_data;
+
+	ret = phytec_eeprom_read((u8 *)data, bus_num, addr,
+				 PHYTEC_API2_DATA_LEN, 0);
+	if (ret)
+		goto err;
+	data->payload.block_head = NULL;
 
 	if (data->payload.api_rev == 0xff) {
 		pr_err("%s: EEPROM is not flashed. Prototype?\n", __func__);
@@ -86,31 +241,28 @@ int phytec_eeprom_data_init(struct phytec_eeprom_data *data,
 	}
 
 	ptr = (u8 *)data;
-	for (i = 0; i < payload_size; ++i)
+	for (i = 0; i < PHYTEC_API2_DATA_LEN; ++i)
 		if (ptr[i] != 0x0)
 			break;
 
-	if (i == payload_size) {
+	if (i == PHYTEC_API2_DATA_LEN) {
 		pr_err("%s: EEPROM data is all zero. Erased?\n", __func__);
 		ret = -EINVAL;
 		goto err;
 	}
 
-	/* We are done here for early revisions */
-	if (data->payload.api_rev <= PHYTEC_API_REV1) {
-		data->valid = true;
-		return 0;
+	if (data->payload.api_rev >= PHYTEC_API_REV2) {
+		ret = phytec_eeprom_data_init_v2(data);
+		if (ret)
+			goto err;
 	}
 
-	crc = crc8(0, (const unsigned char *)&data->payload, payload_size);
-	debug("%s: crc: %x\n", __func__, crc);
-
-	if (crc) {
-		pr_err("%s: CRC mismatch. EEPROM data is not usable.\n",
-		       __func__);
-		ret = -EINVAL;
-		goto err;
-	}
+	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS))
+		if (data->payload.api_rev >= PHYTEC_API_REV3) {
+			ret = phytec_eeprom_data_init_v3(data, bus_num, addr);
+			if (ret)
+				goto err;
+		}
 
 	data->valid = true;
 	return 0;
@@ -249,6 +401,17 @@ struct extension *phytec_add_extension(const char *name, const char *overlay,
 }
 #endif /* IS_ENABLED(CONFIG_CMD_EXTENSION) */
 
+struct phytec_api3_element *
+	__maybe_unused phytec_get_block_head(struct phytec_eeprom_data *data)
+{
+	if (!data)
+		data = &eeprom_data;
+	if (!data->valid)
+		return NULL;
+
+	return data->payload.block_head;
+}
+
 #else
 
 inline int phytec_eeprom_data_setup(struct phytec_eeprom_data *data,
@@ -287,6 +450,12 @@ u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data)
 u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data)
 {
 	return PHYTEC_EEPROM_INVAL;
+}
+
+inline struct phytec_api3_element * __maybe_unused
+	phytec_get_block_head(struct phytec_eeprom_data *data)
+{
+	return NULL;
 }
 
 #if IS_ENABLED(CONFIG_CMD_EXTENSION)

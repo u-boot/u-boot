@@ -80,6 +80,7 @@ config SOC_MT7621
 	bool "MT7621"
 	select MIPS_CM
 	select MIPS_L2_CACHE
+	select MMC_SUPPORTS_TUNING
 	select SYS_CACHE_SHIFT_5
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	select PINCTRL_MT7621

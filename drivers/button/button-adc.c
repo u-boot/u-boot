@@ -5,7 +5,6 @@
  * Author: Marek Szyprowski <m.szyprowski@samsung.com>
  */
 
-#include <common.h>
 #include <adc.h>
 #include <button.h>
 #include <log.h>

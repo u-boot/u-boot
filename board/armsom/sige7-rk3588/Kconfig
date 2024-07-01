@@ -1,0 +1,12 @@
+if TARGET_SIGE7_RK3588
+
+config SYS_BOARD
+	default "sige7-rk3588"
+
+config SYS_VENDOR
+	default "armsom"
+
+config SYS_CONFIG_NAME
+	default "sige7-rk3588"
+
+endif

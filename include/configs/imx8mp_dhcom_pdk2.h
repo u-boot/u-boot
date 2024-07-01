@@ -21,7 +21,6 @@
 #define CFG_MXC_UART_BASE		UART1_BASE_ADDR
 
 /* PHY needs a longer autonegotiation timeout after reset */
-#define PHY_ANEG_TIMEOUT		20000
 #define FEC_QUIRK_ENET_MAC
 
 /* USDHC */

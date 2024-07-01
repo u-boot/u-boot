@@ -4,7 +4,6 @@
  */
 
 #include <config.h>
-#include <common.h>
 #include <power/pmic.h>
 #include <power/stpmic1.h>
 #include <asm/arch/sys_proto.h>

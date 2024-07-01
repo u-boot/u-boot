@@ -9,7 +9,6 @@
  * Based on drivers/clk/at91/clk-utmi.c from Linux.
  */
 #include <asm/processor.h>
-#include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
 #include <linux/clk-provider.h>

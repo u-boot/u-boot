@@ -191,6 +191,14 @@ config ARMV8_EA_EL3_FIRST
 	  Exception handling at all exception levels for External Abort and
 	  SError interrupt exception are taken in EL3.
 
+config ARMV8_UDELAY_EVENT_STREAM
+	bool "Use the event stream for udelay"
+	default y if ARCH_VEXPRESS64
+	help
+	  Use the event stream provided by the AArch64 architectural timer for
+	  delays. This is more efficient than the default polling
+	  implementation.
+
 menuconfig ARMV8_CRYPTO
 	bool "ARM64 Accelerated Cryptographic Algorithms"
 

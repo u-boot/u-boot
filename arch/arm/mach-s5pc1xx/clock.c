@@ -5,7 +5,7 @@
  * Heungjun Kim <riverful.kim@samsung.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>

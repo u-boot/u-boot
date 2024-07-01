@@ -1,4 +1,4 @@
-#include <common.h>
+#include <linux/types.h>
 
 int test_types(void)
 {

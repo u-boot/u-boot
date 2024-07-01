@@ -6,13 +6,15 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <dm.h>
 #include <abuf.h>
 #include <env.h>
 #include <log.h>
 #include <mapmem.h>
 #include <net.h>
+#include <rng.h>
 #include <stdio_dev.h>
+#include <dm/device_compat.h>
 #include <dm/ofnode.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
@@ -274,6 +276,47 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 	return 0;
 }
 
+int fdt_kaslrseed(void *fdt, bool overwrite)
+{
+	int len, err, nodeoffset;
+	struct udevice *dev;
+	const u64 *orig;
+	u64 data = 0;
+
+	err = fdt_check_header(fdt);
+	if (err < 0)
+		return err;
+
+	/* find or create "/chosen" node. */
+	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
+	if (nodeoffset < 0)
+		return nodeoffset;
+
+	/* return without error if we are not overwriting and existing non-zero node */
+	orig = fdt_getprop(fdt, nodeoffset, "kaslr-seed", &len);
+	if (orig && len == sizeof(*orig))
+		data = fdt64_to_cpu(*orig);
+	if (data && !overwrite) {
+		debug("not overwriting existing kaslr-seed\n");
+		return 0;
+	}
+	err = uclass_get_device(UCLASS_RNG, 0, &dev);
+	if (err) {
+		printf("No RNG device\n");
+		return err;
+	}
+	err = dm_rng_read(dev, &data, sizeof(data));
+	if (err) {
+		dev_err(dev, "dm_rng_read failed: %d\n", err);
+		return err;
+	}
+	err = fdt_setprop(fdt, nodeoffset, "kaslr-seed", &data, sizeof(data));
+	if (err < 0)
+		printf("WARNING: could not set kaslr-seed %s.\n", fdt_strerror(err));
+
+	return err;
+}
+
 /**
  * board_fdt_chosen_bootargs - boards may override this function to use
  *                             alternative kernel command line arguments
@@ -300,6 +343,15 @@ int fdt_chosen(void *fdt)
 	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
 	if (nodeoffset < 0)
 		return nodeoffset;
+
+	/* if DM_RNG enabled automatically inject kaslr-seed node unless:
+	 * CONFIG_MEASURED_BOOT enabled: as dt modifications break measured boot
+	 * CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT enabled: as that implementation does not use dm yet
+	 */
+	if (IS_ENABLED(CONFIG_DM_RNG) &&
+	    !IS_ENABLED(CONFIG_MEASURED_BOOT) &&
+	    !IS_ENABLED(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT))
+		fdt_kaslrseed(fdt, false);
 
 	if (IS_ENABLED(CONFIG_BOARD_RNG_SEED) && !board_rng_seed(&buf)) {
 		err = fdt_setprop(fdt, nodeoffset, "rng-seed",

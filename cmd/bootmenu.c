@@ -5,7 +5,6 @@
 
 #include <charset.h>
 #include <cli.h>
-#include <common.h>
 #include <command.h>
 #include <ansi.h>
 #include <efi_config.h>

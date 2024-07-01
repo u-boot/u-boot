@@ -360,6 +360,10 @@ static int bcmgenet_gmac_free_pkt(struct udevice *dev, uchar *packet,
 				  int length)
 {
 	struct bcmgenet_eth_priv *priv = dev_get_priv(dev);
+	void *desc_base = priv->rx_desc_base + priv->rx_index * DMA_DESC_SIZE;
+	u32 addr = readl(desc_base + DMA_DESC_ADDRESS_LO);
+
+	flush_dcache_range(addr, addr + RX_BUF_LENGTH);
 
 	/* Tell the MAC we have consumed that last receive buffer. */
 	priv->c_index = (priv->c_index + 1) & 0xFFFF;

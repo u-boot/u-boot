@@ -11,7 +11,6 @@
 
 #define LOG_CATEGORY UCLASS_CLK
 
-#include <common.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <clk-uclass.h>

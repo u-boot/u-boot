@@ -3,7 +3,6 @@
  * (C) Copyright 2018 Rockchip Electronics Co., Ltd
  */
 
-#include <common.h>
 #include <adc.h>
 #include <asm/global_data.h>
 

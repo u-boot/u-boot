@@ -11,11 +11,12 @@
  *      Syed Mohammed Khasim <khasim@ti.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clocks_omap3.h>
 #include <asm/arch/mem.h>
+#include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <command.h>
 

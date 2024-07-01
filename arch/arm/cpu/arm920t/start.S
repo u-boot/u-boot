@@ -8,7 +8,6 @@
  */
 
 #include <asm-offsets.h>
-#include <common.h>
 #include <config.h>
 
 /*

@@ -4,7 +4,6 @@
  * Peter Griffin <peter.griffin@linaro.org>
  */
 
-#include <common.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <asm/gpio.h>

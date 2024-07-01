@@ -4,7 +4,6 @@
  * (C) Copyright 2018 Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <net.h>
 #include <asm/arch/boot.h>

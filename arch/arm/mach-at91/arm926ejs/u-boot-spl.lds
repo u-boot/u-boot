@@ -33,12 +33,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__image_copy_end = .;
-
-	.end :
-	{
-		*(.__end)
-	} >.sram
-
+	_end = .;
 	_image_binary_end = .;
 
 	.bss :

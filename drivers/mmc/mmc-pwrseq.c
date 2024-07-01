@@ -4,7 +4,6 @@
  * Jaehoon Chung <jh80.chung@samsung.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <mmc.h>
 #include <pwrseq.h>

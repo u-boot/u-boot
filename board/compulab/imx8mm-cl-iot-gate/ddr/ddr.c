@@ -5,7 +5,6 @@
  *
  */
 
-#include <common.h>
 #include <spl.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -47,7 +46,9 @@ struct lpddr4_desc {
 static const struct lpddr4_desc lpddr4_array[] = {
 	{ .name = "Nanya",	.id = 0x05000010, .subind = 0xff,
 	  .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
-	{ .name = "Samsung",	.id = 0x01061010, .subind = 0xff,
+	{ .name = "Samsung",	.id = 0x01061010, .subind = 0x04,
+	  .size = 4096, .count = 1, .timing = &ucm_dram_timing_ff000110},
+	{ .name = "Samsung",	.id = 0x01061010, .subind = 0x02,
 	  .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
 	{ .name = "Kingston",	.id = 0xff000010, .subind = 0x04,
 	  .size = 4096, .count = 1, .timing = &ucm_dram_timing_ff000110},

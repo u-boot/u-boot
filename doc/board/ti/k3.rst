@@ -42,6 +42,7 @@ K3 Based SoCs
    ../beagle/j721e_beagleboneai64
    j721e_evm
    j721s2_evm
+   j722s_evm
    j784s4_evm
 
 Boot Flow Overview
@@ -51,14 +52,14 @@ For all K3 SoCs the first core started will be inside the Security
 Management Subsystem (SMS) which will secure the device and start a core
 in the wakeup domain to run the ROM code. ROM will then initialize the
 boot media needed to load the binaries packaged inside `tiboot3.bin`,
-including a 32bit U-Boot SPL, (called the wakup SPL) that ROM will jump
+including a 32bit U-Boot SPL, (called the wakeup SPL) that ROM will jump
 to after it has finished loading everything into internal SRAM.
 
 .. image:: img/boot_flow_01.svg
   :alt: Boot flow up to wakeup domain SPL
 
 The wakeup SPL, running on a wakeup domain core, will initialize DDR and
-any peripherals needed load the larger binaries inside the `tispl.bin`
+any peripherals needed to load the larger binaries inside the `tispl.bin`
 into DDR.  Once loaded the wakeup SPL will start one of the 'big'
 application cores inside the main domain to initialize the main domain,
 starting with Trusted Firmware-A (TF-A), before moving on to start
@@ -94,7 +95,7 @@ essentially 4 unique but very similar flows:
 * Combined binary with a split firmware: (eg: AM62)
 
 For devices that utilize the split binary approach, ROM is not capable
-of loading the firmware into the SoC requiring the wakeup domain's
+of loading the firmware into the SoC, requiring the wakeup domain's
 U-Boot SPL to load the firmware.
 
 Devices with a split firmware will have two firmwares loaded into the
@@ -114,8 +115,8 @@ K3 HS-SE (High Security - Security Enforced) devices enforce an
 authenticated boot flow for secure boot. HS-FS (High Security - Field
 Securable) is the state of a K3 device before it has been eFused with
 customer security keys.  In the HS-FS state the authentication still can
-function as in HS-SE but as there are no customer keys to verify the
-signatures against the authentication will pass for certificates signed
+function as in HS-SE, but as there are no customer keys to verify the
+signatures against, the authentication will pass for certificates signed
 with any key.
 
 Chain of trust

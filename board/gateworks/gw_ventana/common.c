@@ -5,7 +5,6 @@
  * Author: Tim Harvey <tharvey@gateworks.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
 #include <hwconfig.h>

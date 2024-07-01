@@ -8,7 +8,6 @@
  * Copyright (C) 2021 Linaro Ltd.
  */
 
-#include <common.h>
 #include <dm.h>
 #include <pci.h>
 #include <log.h>

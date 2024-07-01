@@ -8,8 +8,6 @@
 #ifndef _NAND_H_
 #define _NAND_H_
 
-#include <config.h>
-
 extern void nand_init(void);
 void nand_reinit(void);
 unsigned long nand_size(void);

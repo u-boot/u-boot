@@ -8,6 +8,22 @@
 
 #include <asm/io.h>
 
+#ifdef CONFIG_SOC_K3_AM625
+#include "am62_hardware.h"
+#endif
+
+#ifdef CONFIG_SOC_K3_AM62A7
+#include "am62a_hardware.h"
+#endif
+
+#ifdef CONFIG_SOC_K3_AM62P5
+#include "am62p_hardware.h"
+#endif
+
+#ifdef CONFIG_SOC_K3_AM642
+#include "am64_hardware.h"
+#endif
+
 #ifdef CONFIG_SOC_K3_AM654
 #include "am6_hardware.h"
 #endif
@@ -20,25 +36,14 @@
 #include "j721s2_hardware.h"
 #endif
 
-#ifdef CONFIG_SOC_K3_AM642
-#include "am64_hardware.h"
-#endif
-
-#ifdef CONFIG_SOC_K3_AM625
-#include "am62_hardware.h"
-#endif
-
-#ifdef CONFIG_SOC_K3_AM62A7
-#include "am62a_hardware.h"
+#ifdef CONFIG_SOC_K3_J722S
+#include "j722s_hardware.h"
 #endif
 
 #ifdef CONFIG_SOC_K3_J784S4
 #include "j784s4_hardware.h"
 #endif
 
-#ifdef CONFIG_SOC_K3_AM62P5
-#include "am62p_hardware.h"
-#endif
 
 /* Assuming these addresses and definitions stay common across K3 devices */
 #define CTRLMMR_WKUP_JTAG_ID	(WKUP_CTRL_MMR0_BASE + 0x14)
@@ -54,6 +59,7 @@
 #define JTAG_ID_PARTNO_J7200	0xbb6d
 #define JTAG_ID_PARTNO_J721E	0xbb64
 #define JTAG_ID_PARTNO_J721S2	0xbb75
+#define JTAG_ID_PARTNO_J722S	0xbba0
 #define JTAG_ID_PARTNO_J784S4	0xbb80
 
 #define K3_SOC_ID(id, ID) \
@@ -63,14 +69,15 @@ static inline bool soc_is_##id(void) \
 		JTAG_ID_PARTNO_MASK) >> JTAG_ID_PARTNO_SHIFT; \
 	return soc == JTAG_ID_PARTNO_##ID; \
 }
-K3_SOC_ID(am65x, AM65X)
-K3_SOC_ID(j721e, J721E)
-K3_SOC_ID(j7200, J7200)
-K3_SOC_ID(am64x, AM64X)
-K3_SOC_ID(j721s2, J721S2)
 K3_SOC_ID(am62x, AM62X)
 K3_SOC_ID(am62ax, AM62AX)
 K3_SOC_ID(am62px, AM62PX)
+K3_SOC_ID(am64x, AM64X)
+K3_SOC_ID(am65x, AM65X)
+K3_SOC_ID(j7200, J7200)
+K3_SOC_ID(j721e, J721E)
+K3_SOC_ID(j721s2, J721S2)
+K3_SOC_ID(j722s, J722S)
 
 #define K3_SEC_MGR_SYS_STATUS		0x44234100
 #define SYS_STATUS_DEV_TYPE_SHIFT	0

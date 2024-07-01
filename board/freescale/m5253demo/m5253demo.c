@@ -7,7 +7,7 @@
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <net.h>
 #include <asm/global_data.h>

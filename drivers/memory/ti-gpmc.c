@@ -7,7 +7,6 @@
 
 #include <asm/io.h>
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/device_compat.h>
@@ -243,20 +242,20 @@ static int get_gpmc_timing_reg(/* timing specifiers */
 		if (l)
 			time_ns_min = gpmc_clk_ticks_to_ns(l - 1, cs, cd) + 1;
 		time_ns = gpmc_clk_ticks_to_ns(l, cs, cd);
-		pr_info("gpmc,%s = <%u>; /* %u ns - %u ns; %i ticks%s*/\n",
-			name, time_ns, time_ns_min, time_ns, l,
-			invalid ? "; invalid " : " ");
+		printf("gpmc,%s = <%u>; /* %u ns - %u ns; %i ticks%s*/\n",
+		       name, time_ns, time_ns_min, time_ns, l,
+		       invalid ? "; invalid " : " ");
 	} else {
 		/* raw format */
-		pr_info("gpmc,%s = <%u>;%s\n", name, l,
-			invalid ? " /* invalid */" : "");
+		printf("gpmc,%s = <%u>;%s\n", name, l,
+		       invalid ? " /* invalid */" : "");
 	}
 
 	return l;
 }
 
 #define GPMC_PRINT_CONFIG(cs, config) \
-	pr_info("CS%i %s: 0x%08x\n", cs, #config, \
+	printf("CS%i %s: 0x%08x\n", cs, #config, \
 		gpmc_cs_read_reg(cs, config))
 #define GPMC_GET_RAW(reg, st, end, field) \
 	get_gpmc_timing_reg(cs, (reg), (st), (end), 0, field, GPMC_CD_FCLK, 0, 1, 0)
@@ -275,7 +274,7 @@ static int get_gpmc_timing_reg(/* timing specifiers */
 
 static void gpmc_show_regs(int cs, const char *desc)
 {
-	pr_info("gpmc cs%i %s:\n", cs, desc);
+	printf("gpmc cs%i %s:\n", cs, desc);
 	GPMC_PRINT_CONFIG(cs, GPMC_CS_CONFIG1);
 	GPMC_PRINT_CONFIG(cs, GPMC_CS_CONFIG2);
 	GPMC_PRINT_CONFIG(cs, GPMC_CS_CONFIG3);
@@ -292,7 +291,7 @@ static void gpmc_cs_show_timings(int cs, const char *desc)
 {
 	gpmc_show_regs(cs, desc);
 
-	pr_info("gpmc cs%i access configuration:\n", cs);
+	printf("gpmc cs%i access configuration:\n", cs);
 	GPMC_GET_RAW_BOOL(GPMC_CS_CONFIG1,  4,  4, "time-para-granularity");
 	GPMC_GET_RAW(GPMC_CS_CONFIG1,  8,  9, "mux-add-data");
 	GPMC_GET_RAW_SHIFT_MAX(GPMC_CS_CONFIG1, 12, 13, 1,
@@ -319,7 +318,7 @@ static void gpmc_cs_show_timings(int cs, const char *desc)
 	GPMC_GET_RAW_BOOL(GPMC_CS_CONFIG6,  7,  7, "cycle2cycle-samecsen");
 	GPMC_GET_RAW_BOOL(GPMC_CS_CONFIG6,  6,  6, "cycle2cycle-diffcsen");
 
-	pr_info("gpmc cs%i timings configuration:\n", cs);
+	printf("gpmc cs%i timings configuration:\n", cs);
 	GPMC_GET_TICKS(GPMC_CS_CONFIG2,  0,  3, "cs-on-ns");
 	GPMC_GET_TICKS(GPMC_CS_CONFIG2,  8, 12, "cs-rd-off-ns");
 	GPMC_GET_TICKS(GPMC_CS_CONFIG2, 16, 20, "cs-wr-off-ns");
@@ -410,9 +409,9 @@ static int set_gpmc_timing_reg(int cs, int reg, int st_bit, int end_bit, int max
 
 	l = gpmc_cs_read_reg(cs, reg);
 	if (IS_ENABLED(CONFIG_TI_GPMC_DEBUG)) {
-		pr_info("GPMC CS%d: %-17s: %3d ticks, %3lu ns (was %3i ticks) %3d ns\n",
-			cs, name, ticks, gpmc_get_clk_period(cs, cd) * ticks / 1000,
-				(l >> st_bit) & mask, time);
+		printf("GPMC CS%d: %-17s: %3d ticks, %3lu ns (was %3i ticks) %3d ns\n",
+		       cs, name, ticks, gpmc_get_clk_period(cs, cd) * ticks / 1000,
+		       (l >> st_bit) & mask, time);
 	}
 
 	l &= ~(mask << st_bit);
@@ -619,8 +618,8 @@ static int gpmc_cs_set_timings(int cs, const struct gpmc_timings *t,
 		return -ENXIO;
 
 	if (IS_ENABLED(CONFIG_TI_GPMC_DEBUG)) {
-		pr_info("GPMC CS%d CLK period is %lu ns (div %d)\n",
-			cs, (div * gpmc_get_fclk_period()) / 1000, div);
+		printf("GPMC CS%d CLK period is %lu ns (div %d)\n",
+		       cs, (div * gpmc_get_fclk_period()) / 1000, div);
 	}
 
 	gpmc_cs_bool_timings(cs, &t->bool_timings);

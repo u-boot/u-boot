@@ -3,12 +3,12 @@
  * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
  */
 
-#include <common.h>
 #include <console.h>
 #include <dm.h>
 #include <dfu.h>
 #include <malloc.h>
 #include <serial.h>
+#include <time.h>
 #include <watchdog.h>
 #include <asm/arch/sys_proto.h>
 #include <dm/lists.h>

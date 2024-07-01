@@ -5,7 +5,7 @@
  * Copyright (C) 2012 Samsung Electronics
  */
 
-#include <common.h>
+#include <linux/types.h>
 #include <asm/arch/spl.h>
 
 #include "clock_init.h"

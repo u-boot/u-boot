@@ -9,7 +9,6 @@
 #define __CONFIGS_HMIBSC_H
 
 /* PHY needs a longer aneg time */
-#define PHY_ANEG_TIMEOUT		8000
 
 #define CFG_ENV_FLAGS_LIST_STATIC "BOOT_A_LEFT:dw,BOOT_B_LEFT:dw,BOOT_ORDER:sw"
 

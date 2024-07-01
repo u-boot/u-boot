@@ -631,6 +631,18 @@ where version.dtso looks like::
 The properties of image-type-id and image-index must match the value
 defined in the efi_fw_image array as image_type_id and image_index.
 
+Porting Capsule Updates to new boards
+*************************************
+
+It is important, when using a reference board as a starting point for a custom
+board, that certain steps are taken to properly support Capsule Updates.
+
+Capsule GUIDs need to be unique for each firmware and board. That is, if two
+firmwares are built from the same source but result in different binaries
+because they are built for different boards, they should have different GUIDs.
+Therefore it is important when creating support for a new board, new GUIDs are
+defined in the board's header file.  *DO NOT* reuse capsule GUIDs.
+
 Executing the boot manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

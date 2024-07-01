@@ -11,7 +11,7 @@
  * DS1337 Real Time Clock (RTC).
  */
 
-#include <common.h>
+#include <config.h>
 #include <command.h>
 #include <dm.h>
 #include <log.h>

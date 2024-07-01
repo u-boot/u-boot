@@ -3,7 +3,6 @@
  *  Copyright 2021 Broadcom
  */
 
-#include <common.h>
 #include <command.h>
 
 static int do_test_stackprot_fail(struct cmd_tbl *cmdtp, int flag, int argc,

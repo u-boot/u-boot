@@ -5,7 +5,6 @@
  */
 
 #include <command.h>
-#include <common.h>
 #include <cpu_func.h>
 #include <env.h>
 #include <fdtdec.h>
@@ -151,14 +150,29 @@ static int boot_targets_setup(void)
 		break;
 	case QSPI_MODE_24BIT:
 		puts("QSPI_MODE_24\n");
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1030000", &dev)) {
+			debug("QSPI driver for QSPI device is not present\n");
+			break;
+		}
 		mode = "xspi0";
 		break;
 	case QSPI_MODE_32BIT:
 		puts("QSPI_MODE_32\n");
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1030000", &dev)) {
+			debug("QSPI driver for QSPI device is not present\n");
+			break;
+		}
 		mode = "xspi0";
 		break;
 	case OSPI_MODE:
 		puts("OSPI_MODE\n");
+		if (uclass_get_device_by_name(UCLASS_SPI,
+					      "spi@f1010000", &dev)) {
+			debug("OSPI driver for OSPI device is not present\n");
+			break;
+		}
 		mode = "xspi0";
 		break;
 	case EMMC_MODE:

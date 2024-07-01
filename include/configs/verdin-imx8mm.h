@@ -58,8 +58,10 @@
 #define CFG_SYS_SDRAM_BASE           0x40000000
 
 /* SDRAM configuration */
-#define PHYS_SDRAM                      0x40000000
-#define PHYS_SDRAM_SIZE			SZ_2G /* 2GB DDR */
+#define PHYS_SDRAM                   0x40000000
+#define PHYS_SDRAM_SIZE              (long)(SZ_2G + SZ_1G)
+#define PHYS_SDRAM_2                 0x100000000
+#define PHYS_SDRAM_2_SIZE            (long)(SZ_1G)
 
 /* USB Configs */
 #define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)

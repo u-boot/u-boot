@@ -4,7 +4,6 @@
  * Author: Tobias Waldekranz <tobias@waldekranz.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <blkmap.h>
 #include <dm.h>

@@ -9,7 +9,6 @@
 #include <config.h>
 #include <display_options.h>
 #include <errno.h>
-#include <common.h>
 #include <env.h>
 #include <lmb.h>
 #include <log.h>
@@ -21,6 +20,7 @@
 #include <fs.h>
 #include <sandboxfs.h>
 #include <semihostingfs.h>
+#include <time.h>
 #include <ubifs_uboot.h>
 #include <btrfs.h>
 #include <asm/global_data.h>
@@ -224,7 +224,7 @@ static struct fstype_info fstypes[] = {
 		.exists = ext4fs_exists,
 		.size = ext4fs_size,
 		.read = ext4_read_file,
-#ifdef CONFIG_CMD_EXT4_WRITE
+#ifdef CONFIG_EXT4_WRITE
 		.write = ext4_write_file,
 		.ln = ext4fs_create_link,
 #else

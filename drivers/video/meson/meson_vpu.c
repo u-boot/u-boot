@@ -6,7 +6,6 @@
  * Author: Neil Armstrong <narmstrong@baylibre.com>
  */
 
-#include <common.h>
 #include <display.h>
 #include <dm.h>
 #include <efi_loader.h>

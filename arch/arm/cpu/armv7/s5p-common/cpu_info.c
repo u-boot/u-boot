@@ -3,7 +3,6 @@
  * Copyright (C) 2009 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  */
-#include <common.h>
 #include <display_options.h>
 #include <fdtdec.h>
 #include <init.h>

@@ -178,6 +178,7 @@ extern const struct ti_k3_clk_platdata am62x_clk_platdata;
 extern const struct ti_k3_clk_platdata am62ax_clk_platdata;
 extern const struct ti_k3_clk_platdata j784s4_clk_platdata;
 extern const struct ti_k3_clk_platdata am62px_clk_platdata;
+extern const struct ti_k3_clk_platdata j722s_clk_platdata;
 
 struct clk *clk_register_ti_pll(const char *name, const char *parent_name,
 				void __iomem *reg);

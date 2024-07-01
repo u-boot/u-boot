@@ -7,11 +7,13 @@
 
 #include <config.h>
 #include <command.h>
-#include <common.h>
 #include <env.h>
 #include <malloc.h>
+#include <time.h>
 #include <env_internal.h>
+#include <vsprintf.h>
 #include <linux/delay.h>
+#include <linux/errno.h>
 #include <linux/types.h>
 #include <api_public.h>
 #include <u-boot/crc.h>

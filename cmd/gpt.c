@@ -10,7 +10,6 @@
  * author: Piotr Wilczek <p.wilczek@samsung.com>
  */
 
-#include <common.h>
 #include <blk.h>
 #include <env.h>
 #include <log.h>
@@ -683,7 +682,8 @@ static int gpt_verify(struct blk_desc *blk_dev_desc, const char *str_part)
 	free(str_disk_guid);
 	free(partitions);
  out:
-	free(gpt_pte);
+	if (!ret)
+		free(gpt_pte);
 	return ret;
 }
 

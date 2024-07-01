@@ -5,7 +5,6 @@
  * Copyright (C) 2020-2021 Texas Instruments Incorporated - https://www.ti.com/
  */
 
-#include <common.h>
 #include <dm.h>
 #include <dm/of_access.h>
 #include <errno.h>
@@ -205,6 +204,7 @@ static int pruss_probe(struct udevice *dev)
 
 static const struct udevice_id pruss_ids[] = {
 	{ .compatible = "ti,am654-icssg"},
+	{ .compatible = "ti,am642-icssg"},
 	{}
 };
 

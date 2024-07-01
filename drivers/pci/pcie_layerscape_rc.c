@@ -4,7 +4,6 @@
  * Layerscape PCIe driver
  */
 
-#include <common.h>
 #include <asm/arch/fsl_serdes.h>
 #include <pci.h>
 #include <asm/global_data.h>

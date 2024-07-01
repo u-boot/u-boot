@@ -4,7 +4,6 @@
  *		      Wenyou.Yang <wenyou.yang@microchip.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <timer.h>

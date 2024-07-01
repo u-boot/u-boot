@@ -4,9 +4,10 @@
  * Michal Simek <michal.simek@amd.com>
  */
 
-#include <common.h>
 #include <init.h>
 #include <time.h>
+#include <linux/errno.h>
+#include <linux/types.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/armv8/mmu.h>

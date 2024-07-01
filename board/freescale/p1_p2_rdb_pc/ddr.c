@@ -3,11 +3,12 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  */
 
-#include <common.h>
+#include <config.h>
 #include <vsprintf.h>
+#include <linux/string.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
-#include <asm/processor.h>
+#include <asm/ppc.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 #include <asm/io.h>

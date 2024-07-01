@@ -9,7 +9,6 @@
  * Derived from the MPC8260 and MPC85xx.
  */
 
-#include <common.h>
 #include <cpu_func.h>
 #include <irq_func.h>
 #include <net.h>
@@ -162,21 +161,6 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 unsigned long get_tbclk(void)
 {
 	return (gd->bus_clk + 3L) / 4L;
-}
-#endif
-
-#if defined(CONFIG_WATCHDOG) && !defined(CONFIG_WDT)
-void watchdog_reset (void)
-{
-	int re_enable = disable_interrupts();
-
-	/* Reset the 83xx watchdog */
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	immr->wdt.swsrr = 0x556c;
-	immr->wdt.swsrr = 0xaa39;
-
-	if (re_enable)
-		enable_interrupts();
 }
 #endif
 

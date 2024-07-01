@@ -5,7 +5,6 @@
  * Rockchip GMAC ethernet IP driver for U-Boot
  */
 
-#include <common.h>
 #include <dm.h>
 #include <clk.h>
 #include <log.h>

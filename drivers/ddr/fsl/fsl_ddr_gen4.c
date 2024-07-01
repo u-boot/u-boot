@@ -4,7 +4,7 @@
  * Copyright 2021 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <log.h>
 #include <asm/io.h>

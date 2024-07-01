@@ -4,7 +4,7 @@
  * Copyright (c) 2012, Google Inc.
  */
 
-#include <common.h>
+#include <stdio.h>
 #include <fs.h>
 #include <malloc.h>
 #include <os.h>

@@ -5,7 +5,6 @@
  * Authors: Igor Grinberg <grinberg@compulab.co.il>
  */
 
-#include <common.h>
 #include <malloc.h>
 #include <asm/bootm.h>
 #include <asm/gpio.h>

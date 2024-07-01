@@ -130,7 +130,7 @@ static efi_status_t try_load_from_file_path(efi_handle_t *fs_handles,
 		if (!dp)
 			continue;
 
-		dp = efi_dp_concat(dp, fp, false);
+		dp = efi_dp_concat(dp, fp, 0);
 		if (!dp)
 			continue;
 
@@ -1186,6 +1186,59 @@ out:
 }
 
 /**
+ * load_fdt_from_load_option - load device-tree from load option
+ *
+ * @fdt:	pointer to loaded device-tree or NULL
+ * Return:	status code
+ */
+static efi_status_t load_fdt_from_load_option(void **fdt)
+{
+	struct efi_device_path *dp = NULL;
+	struct efi_file_handle *f = NULL;
+	efi_uintn_t filesize;
+	efi_status_t ret;
+
+	*fdt = NULL;
+
+	dp = efi_get_dp_from_boot(&efi_guid_fdt);
+	if (!dp)
+		return EFI_SUCCESS;
+
+	/* Open file */
+	f = efi_file_from_path(dp);
+	if (!f) {
+		log_err("Can't find %pD specified in Boot####\n", dp);
+		ret = EFI_NOT_FOUND;
+		goto out;
+	}
+
+	/* Get file size */
+	ret = efi_file_size(f, &filesize);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	*fdt = calloc(1, filesize);
+	if (!*fdt) {
+		log_err("Out of memory\n");
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	ret = EFI_CALL(f->read(f, &filesize, *fdt));
+	if (ret != EFI_SUCCESS) {
+		log_err("Can't read fdt\n");
+		free(*fdt);
+		*fdt = NULL;
+	}
+
+out:
+	efi_free_pool(dp);
+	if (f)
+		EFI_CALL(f->close(f));
+
+	return ret;
+}
+
+/**
  * efi_bootmgr_run() - execute EFI boot manager
  * @fdt:	Flat device tree
  *
@@ -1200,6 +1253,8 @@ efi_status_t efi_bootmgr_run(void *fdt)
 	efi_handle_t handle;
 	void *load_options;
 	efi_status_t ret;
+	void *fdt_lo, *fdt_distro = NULL;
+	efi_uintn_t fdt_size;
 
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
@@ -1215,7 +1270,31 @@ efi_status_t efi_bootmgr_run(void *fdt)
 		return ret;
 	}
 
+	if (!IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		ret = load_fdt_from_load_option(&fdt_lo);
+		if (ret != EFI_SUCCESS)
+			return ret;
+		if (fdt_lo)
+			fdt = fdt_lo;
+		if (!fdt) {
+			efi_load_distro_fdt(&fdt_distro, &fdt_size);
+			fdt = fdt_distro;
+		}
+	}
+
+	/*
+	 * Needed in ACPI case to create reservations based on
+	 * control device-tree.
+	 */
 	ret = efi_install_fdt(fdt);
+
+	if (!IS_ENABLED(CONFIG_GENERATE_ACPI_TABLE)) {
+		free(fdt_lo);
+		if (fdt_distro)
+			efi_free_pages((uintptr_t)fdt_distro,
+				       efi_size_in_pages(fdt_size));
+	}
+
 	if (ret != EFI_SUCCESS) {
 		if (EFI_CALL(efi_unload_image(handle)) == EFI_SUCCESS)
 			free(load_options);

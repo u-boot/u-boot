@@ -17,7 +17,6 @@
  *                      - TCP application (eg wget)
  *      Next Step       HTTPS?
  */
-#include <common.h>
 #include <command.h>
 #include <console.h>
 #include <env_internal.h>

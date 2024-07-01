@@ -4,13 +4,12 @@
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
  */
 
-#include <common.h>
 #include <bitfield.h>
 #include <clk.h>
 #include <cpu.h>
 #include <dm.h>
 #include <log.h>
-#include <vsprintf.h>
+#include <stdio.h>
 #include <linux/bitops.h>
 
 #include "mpc83xx_cpu.h"

@@ -7,7 +7,7 @@
  * Based on board/ti/dra7xx/evm.c
  */
 
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <fastboot.h>
 #include <fdt_support.h>

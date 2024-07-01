@@ -4,7 +4,6 @@
  * Altera Corporation <www.altera.com>
  */
 
-#include <common.h>
 #include <clk.h>
 #include <log.h>
 #include <dm.h>
@@ -254,7 +253,8 @@ static int cadence_spi_probe(struct udevice *bus)
 
 	/* Versal and Versal-NET use spi calibration to set read delay */
 	if (CONFIG_IS_ENABLED(ARCH_VERSAL) ||
-	    CONFIG_IS_ENABLED(ARCH_VERSAL_NET))
+	    CONFIG_IS_ENABLED(ARCH_VERSAL_NET) ||
+	    CONFIG_IS_ENABLED(ARCH_VERSAL2))
 		if (priv->read_delay >= 0)
 			priv->read_delay = -1;
 

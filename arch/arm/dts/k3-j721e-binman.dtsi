@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2022-2024 Texas Instruments Incorporated - https://www.ti.com/
  */
 
 #include "k3-binman.dtsi"
@@ -130,6 +130,94 @@
 };
 
 &binman {
+	tiboot3-j721e_sr1_1-hs-fs-evm.bin {
+		filename = "tiboot3-j721e_sr1_1-hs-fs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl_fs_sr1_1>;
+			core = "public";
+			core-opts = <2>;
+			load = <CONFIG_SPL_TEXT_BASE>;
+			keyfile = "custMpk.pem";
+		};
+		u_boot_spl_fs_sr1_1: u-boot-spl {
+			no-expanded;
+		};
+	};
+	sysfw_fs_sr1_1 {
+		filename = "sysfw.bin_fs_sr1_1";
+		ti-fs-cert-fs.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+		ti-fs-firmware-j721e-hs-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j721e_sr1_1-hs-fs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+	};
+	itb_fs_sr1_1 {
+		filename = "sysfw-j721e_sr1_1-hs-fs-evm.itb";
+		fit {
+			description = "SYSFW and Config fragments";
+			#address-cells = <1>;
+			images {
+				sysfw.bin {
+					description = "sysfw";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					blob-ext {
+					    filename = "sysfw.bin_fs_sr1_1";
+					};
+				};
+				board-cfg.bin {
+					description = "board-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					board-cfg {
+						filename = "board-cfg.bin";
+						type = "blob-ext";
+					};
+
+				};
+				pm-cfg.bin {
+					description = "pm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					pm-cfg {
+						filename = "pm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				rm-cfg.bin {
+					description = "rm-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					rm-cfg {
+						filename = "rm-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+				sec-cfg.bin {
+					description = "sec-cfg";
+					type = "firmware";
+					arch = "arm";
+					compression = "none";
+					sec-cfg {
+						filename = "sec-cfg.bin";
+						type = "blob-ext";
+					};
+				};
+			};
+		};
+	};
+};
+
+&binman {
 	tiboot3-j721e_sr2-hs-fs-evm.bin {
 		filename = "tiboot3-j721e_sr2-hs-fs-evm.bin";
 		ti-secure-rom {
@@ -207,21 +295,49 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See j721e_evm.h
+#define J721E_SK_TIBOOT3_IMAGE_GUID_STR "e672b518-7cd7-4014-bd8d-40724d0ad4dc"
+#define J721E_SK_SYSFW_IMAGE_GUID_STR "6fd10680-361b-431f-80aa-899455819e11"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = J721E_SK_TIBOOT3_IMAGE_GUID_STR;
+	};
+};
+
+&binman {
+	capsule-sysfw {
+		filename = "sysfw-capsule.bin";
+		efi-capsule {
+			image-index = <0x4>;
+			image-guid = J721E_SK_SYSFW_IMAGE_GUID_STR;
+			private-key = "arch/arm/mach-k3/keys/custMpk.pem";
+			public-key-cert = "arch/arm/mach-k3/keys/custMpk.crt";
+			monotonic-count = <0x1>;
+
+			blob {
+				filename = "sysfw.itb";
+			};
+		};
+	};
+};
+
 #endif
 
 #ifdef CONFIG_TARGET_J721E_A72_EVM
 
-#define SPL_J721E_EVM_DTB "spl/dts/k3-j721e-common-proc-board.dtb"
-#define SPL_J721E_SK_DTB "spl/dts/k3-j721e-sk.dtb"
-
+#define SPL_J721E_EVM_DTB "spl/dts/ti/k3-j721e-common-proc-board.dtb"
 #define J721E_EVM_DTB "u-boot.dtb"
-#define J721E_SK_DTB "arch/arm/dts/k3-j721e-sk.dtb"
 
 &binman {
 	ti-dm {
 		filename = "ti-dm.bin";
 		blob-ext {
 			filename = "ti-dm/j721e/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 	ti-spl {
@@ -361,26 +477,11 @@
 					arch = "arm";
 					compression = "none";
 					ti-secure {
-						content = <&spl_j721e_evm_dtb>;
+						content = <&spl_j721e_dtb>;
 						keyfile = "custMpk.pem";
 					};
-					spl_j721e_evm_dtb: blob-ext {
+					spl_j721e_dtb: blob-ext {
 						filename = SPL_J721E_EVM_DTB;
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&spl_j721e_sk_dtb>;
-						keyfile = "custMpk.pem";
-
-					};
-					spl_j721e_sk_dtb: blob-ext {
-						filename = SPL_J721E_SK_DTB;
 					};
 				};
 			};
@@ -393,13 +494,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -422,30 +516,12 @@
 					arch = "arm";
 					compression = "none";
 					ti-secure {
-						content = <&j721e_evm_dtb>;
+						content = <&j721e_dtb>;
 						keyfile = "custMpk.pem";
 
 					};
-					j721e_evm_dtb: blob-ext {
+					j721e_dtb: blob-ext {
 						filename = J721E_EVM_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					ti-secure {
-						content = <&j721e_sk_dtb>;
-						keyfile = "custMpk.pem";
-
-					};
-					j721e_sk_dtb: blob-ext {
-						filename = J721E_SK_DTB;
 					};
 					hash {
 						algo = "crc32";
@@ -461,13 +537,6 @@
 					firmware = "uboot";
 					loadables = "uboot";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -491,18 +560,8 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					spl_j721e_dtb_unsigned: blob {
 						filename = SPL_J721E_EVM_DTB;
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = SPL_J721E_SK_DTB;
 					};
 				};
 			};
@@ -515,13 +574,6 @@
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
 					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
 				};
 			};
 		};
@@ -543,21 +595,8 @@
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
+					j721e_dtb_unsigned: blob {
 						filename = J721E_EVM_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = J721E_SK_DTB;
 					};
 					hash {
 						algo = "crc32";
@@ -574,15 +613,27 @@
 					loadables = "uboot";
 					fdt = "fdt-0";
 				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
-				};
 			};
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See j721e_evm.h
+#define J721E_SK_SPL_IMAGE_GUID_STR "86f710ad-10cf-46ea-ac67-856ae06efad2"
+#define J721E_SK_UBOOT_IMAGE_GUID_STR "81b58fb0-3b00-4add-a20a-c185bbaca1ed"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = J721E_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = J721E_SK_UBOOT_IMAGE_GUID_STR;
+	};
+};
+
 #endif

@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Imagination Technologies
  */
 
-#include <common.h>
 #include <init.h>
 
 #include <asm/io.h>

@@ -157,6 +157,22 @@
 
 	};
 };
+
+#include "k3-binman-capsule-r5.dtsi"
+
+// Capsule update GUIDs in string form.  See j784s4_evm.h
+#define AM69_SK_TIBOOT3_IMAGE_GUID_STR "adf49ec5-61bb-4dbe-8b8d-39df4d7ebf46"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		image-guid = AM69_SK_TIBOOT3_IMAGE_GUID_STR;
+
+		blob {
+			filename = "tiboot3-j784s4-hs-fs-evm.bin";
+		};
+	};
+};
+
 #endif
 
 #ifdef CONFIG_TARGET_J784S4_A72_EVM
@@ -170,6 +186,7 @@
 
 		blob-ext {
 			filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
 		};
 	};
 
@@ -342,4 +359,23 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+// Capsule update GUIDs in string form.  See j784s4_evm.h
+#define AM69_SK_SPL_IMAGE_GUID_STR "787f0059-63a1-461c-a18e-9d838345fe8e"
+#define AM69_SK_UBOOT_IMAGE_GUID_STR "9300505d-6ec5-4ff8-99e4-5459a04be617"
+
+&capsule_tispl {
+	efi-capsule {
+		image-guid = AM69_SK_SPL_IMAGE_GUID_STR;
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		image-guid = AM69_SK_UBOOT_IMAGE_GUID_STR;
+	};
+};
+
 #endif

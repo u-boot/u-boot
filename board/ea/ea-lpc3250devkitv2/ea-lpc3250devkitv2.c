@@ -5,7 +5,7 @@
  */
 
 #include <init.h>
-#include <common.h>
+#include <config.h>
 #include <asm/io.h>
 #include <asm/global_data.h>
 

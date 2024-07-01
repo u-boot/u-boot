@@ -28,7 +28,6 @@
 #define CFG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* PHY needs a longer autonegotiation timeout after reset */
-#define PHY_ANEG_TIMEOUT		20000
 
 /* USDHC */
 #define CFG_SYS_FSL_USDHC_NUM	2

@@ -5,7 +5,6 @@
  * Author:  Weijie Gao <weijie.gao@mediatek.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <sysreset.h>

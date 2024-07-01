@@ -2,7 +2,7 @@
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
-#include <common.h>
+#include <config.h>
 #include <phy.h>
 #include <fm_eth.h>
 #include <asm/io.h>

@@ -9,7 +9,6 @@
  * Synced from Linux v4.19
  */
 
-#include <common.h>
 #include <display_options.h>
 #include <log.h>
 #include <watchdog.h>
@@ -1805,11 +1804,62 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 		if (ret < 0)
 			return ret;
 #endif
+
 		write_enable(nor);
-		ret = nor->write(nor, addr, page_remain, buf + i);
-		if (ret < 0)
-			goto write_err;
-		written = ret;
+
+		/*
+		 * On DTR capable flashes like Micron Xcella the writes cannot
+		 * start or end at an odd address in DTR mode. So we need to
+		 * append or prepend extra 0xff bytes to make sure the start
+		 * address and end address are even.
+		 */
+		if (spi_nor_protocol_is_dtr(nor->write_proto) &&
+		    ((addr | page_remain) & 1)) {
+			u_char *tmp;
+			size_t extra_bytes = 0;
+
+			tmp = kmalloc(nor->page_size, 0);
+			if (!tmp) {
+				ret = -ENOMEM;
+				goto write_err;
+			}
+
+			/* Prepend a 0xff byte if the start address is odd. */
+			if (addr & 1) {
+				tmp[0] = 0xff;
+				memcpy(tmp + 1, buf + i, page_remain);
+				addr--;
+				page_remain++;
+				extra_bytes++;
+			} else {
+				memcpy(tmp, buf + i, page_remain);
+			}
+
+			/* Append a 0xff byte if the end address is odd. */
+			if ((addr + page_remain) & 1) {
+				tmp[page_remain + extra_bytes] = 0xff;
+				extra_bytes++;
+				page_remain++;
+			}
+
+			ret = nor->write(nor, addr, page_remain, tmp);
+
+			kfree(tmp);
+
+			if (ret < 0)
+				goto write_err;
+
+			/*
+			 * We write extra bytes but they are not part of the
+			 * original write.
+			 */
+			written = ret - extra_bytes;
+		} else {
+			ret = nor->write(nor, addr, page_remain, buf + i);
+			if (ret < 0)
+				goto write_err;
+			written = ret;
+		}
 
 		ret = spi_nor_wait_till_ready(nor);
 		if (ret)

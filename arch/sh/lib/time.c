@@ -10,7 +10,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#include <common.h>
 #include <init.h>
 #include <asm/processor.h>
 #include <asm/io.h>

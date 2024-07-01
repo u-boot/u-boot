@@ -3,7 +3,6 @@
  * Copyright 2020 B&R Industrial Automation GmbH - http://www.br-automation.com
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <asm/arch/fsp_bindings.h>

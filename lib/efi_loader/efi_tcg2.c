@@ -16,12 +16,8 @@
 #include <malloc.h>
 #include <smbios.h>
 #include <version_string.h>
-#include <tpm-v2.h>
 #include <tpm_api.h>
 #include <u-boot/hash-checksum.h>
-#include <u-boot/sha1.h>
-#include <u-boot/sha256.h>
-#include <u-boot/sha512.h>
 #include <linux/unaligned/be_byteshift.h>
 #include <linux/unaligned/le_byteshift.h>
 #include <linux/unaligned/generic.h>
@@ -280,7 +276,7 @@ efi_tcg2_get_capability(struct efi_tcg2_protocol *this,
 	/* Supported and active PCRs */
 	capability->hash_algorithm_bitmap = 0;
 	capability->active_pcr_banks = 0;
-	ret = tpm2_get_pcr_info(dev, &capability->hash_algorithm_bitmap,
+	ret = tcg2_get_pcr_info(dev, &capability->hash_algorithm_bitmap,
 				&capability->active_pcr_banks,
 				&capability->number_of_pcr_banks);
 	if (ret) {

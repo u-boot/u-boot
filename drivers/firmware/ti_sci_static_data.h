@@ -85,7 +85,7 @@ static struct ti_sci_resource_static_data rm_static_data[] = {
 #endif /* CONFIG_SOC_K3_J721S2 */
 
 #if IS_ENABLED(CONFIG_SOC_K3_AM625) || IS_ENABLED(CONFIG_SOC_K3_AM62A7) || \
-	IS_ENABLED(CONFIG_SOC_K3_AM62P5)
+	IS_ENABLED(CONFIG_SOC_K3_AM62P5) || IS_ENABLED(CONFIG_SOC_K3_J722S)
 static struct ti_sci_resource_static_data rm_static_data[] = {
 	/* BC channels */
 	{

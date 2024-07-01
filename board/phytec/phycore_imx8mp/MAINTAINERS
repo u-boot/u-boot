@@ -2,7 +2,6 @@ phyCORE-i.MX8M Plus
 M:      Teresa Remmet <t.remmet@phytec.de>
 W:      https://www.phytec.eu/product-eu/system-on-modules/phycore-imx-8m-plus/
 S:      Maintained
-F:      arch/arm/dts/imx8mp-phyboard-pollux-rdk.dts
 F:      arch/arm/dts/imx8mp-phyboard-pollux-rdk-u-boot.dtsi
 F:      board/phytec/phycore_imx8mp/
 F:      configs/phycore-imx8mp_defconfig

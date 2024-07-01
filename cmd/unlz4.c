@@ -4,9 +4,9 @@
  * FUJITSU COMPUTERTECHNOLOGIES LIMITED. All rights reserved.
  */
 
-#include <common.h>
 #include <command.h>
 #include <env.h>
+#include <vsprintf.h>
 #include <u-boot/lz4.h>
 
 static int do_unlz4(struct cmd_tbl *cmdtp, int flag, int argc,

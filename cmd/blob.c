@@ -4,9 +4,9 @@
  * Command for encapsulating/decapsulating blob of memory.
  */
 
-#include <common.h>
 #include <command.h>
 #include <malloc.h>
+#include <vsprintf.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
 #if defined(CONFIG_ARCH_MX6) || defined(CONFIG_ARCH_MX7) || \
@@ -99,7 +99,7 @@ static int do_blob(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 
 /***************************************************/
-static char blob_help_text[] =
+U_BOOT_LONGHELP(blob,
 	"enc src dst len km - Encapsulate and create blob of data\n"
 	"                          $len bytes long at address $src and\n"
 	"                          store the result at address $dst.\n"
@@ -115,7 +115,7 @@ static char blob_help_text[] =
 	"                          modifier is stored.\n"
 	"                          The modifier is required for generation\n"
 	"                          /use as key for cryptographic operation.\n"
-	"                          Key modifier should be 16 byte long.\n";
+	"                          Key modifier should be 16 byte long.\n");
 
 U_BOOT_CMD(
 	blob, 6, 1, do_blob,

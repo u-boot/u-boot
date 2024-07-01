@@ -6,7 +6,6 @@
  * Copyright (C) 2017 Pengutronix, Philipp Zabel <kernel@pengutronix.de>
  * Copyright (C) 2019 Texas Instrument, Jean-jacques Hiblot <jjhiblot@ti.com>
  */
-#include <common.h>
 #include <dm.h>
 #include <mux-internal.h>
 #include <regmap.h>

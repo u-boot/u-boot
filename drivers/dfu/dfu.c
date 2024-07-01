@@ -6,7 +6,6 @@
  * author: Lukasz Majewski <l.majewski@samsung.com>
  */
 
-#include <common.h>
 #include <env.h>
 #include <errno.h>
 #include <log.h>

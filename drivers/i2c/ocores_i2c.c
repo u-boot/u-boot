@@ -12,7 +12,6 @@
  * Andreas Larsson <andreas@gaisler.com>
  */
 
-#include <common.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <clk.h>

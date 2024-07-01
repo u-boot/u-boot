@@ -32,9 +32,9 @@
  * DRAM unit configuration based on Valleyview MRC.
  */
 
-#include <common.h>
 #include <asm/arch/mrc.h>
 #include <asm/arch/msg_port.h>
+#include <asm/u-boot-x86.h>
 #include "mrc_util.h"
 #include "smc.h"
 

@@ -61,6 +61,8 @@ ifeq ($(CONFIG_$(SPL_TPL_)TPM),y)
 obj-$(CONFIG_TPM) += tpm_api.o
 obj-$(CONFIG_TPM_V1) += tpm-v1.o
 obj-$(CONFIG_TPM_V2) += tpm-v2.o
+obj-$(CONFIG_EFI_TCG2_PROTOCOL) += tpm_tcg2.o
+obj-$(CONFIG_MEASURED_BOOT) += tpm_tcg2.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)CRC8) += crc8.o

@@ -4,7 +4,7 @@
  * Copyright 2019 NXP
  */
 
-#include <common.h>
+#include <config.h>
 #include <log.h>
 #include <net.h>
 #include <asm/io.h>

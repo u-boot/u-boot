@@ -68,14 +68,13 @@ static struct cmd_tbl cmd_sub[] = {
 			 "", ""),
 };
 
-static char exception_help_text[] =
+U_BOOT_LONGHELP(exception,
 	"<ex>\n"
 	"  The following exceptions are available:\n"
 	"  compressed - compressed instruction\n"
 	"  ebreak     - breakpoint\n"
 	"  ialign16   - 16 bit aligned instruction\n"
 	"  undefined  - illegal instruction\n"
-	"  unaligned  - load address misaligned\n"
-	;
+	"  unaligned  - load address misaligned\n");
 
 #include <exception.h>

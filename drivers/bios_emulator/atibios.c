@@ -45,7 +45,6 @@
 *		Jason ported this file to u-boot to run the ATI video card
 *		BIOS in u-boot.
 ****************************************************************************/
-#include <common.h>
 #include <compiler.h>
 #include <bios_emul.h>
 #include <errno.h>

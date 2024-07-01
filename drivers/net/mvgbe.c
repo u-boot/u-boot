@@ -11,7 +11,6 @@
  * Copyright (C) 2002 rabeeh@galileo.co.il
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <net.h>

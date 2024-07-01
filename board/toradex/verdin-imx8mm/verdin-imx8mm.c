@@ -3,7 +3,7 @@
  * Copyright 2020-2021 Toradex
  */
 
-#include <common.h>
+#include <config.h>
 #include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -84,7 +84,8 @@ static void select_dt_from_module_version(void)
 		 */
 		is_wifi = (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT) ||
 			  (tdx_hw_tag.prodid == VERDIN_IMX8MMDL_WIFI_BT_IT) ||
-			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN);
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN) ||
+			  (tdx_hw_tag.prodid == VERDIN_IMX8MMQ_4G_WIFI_BT_ET);
 	}
 
 	switch (get_pcb_revision()) {
@@ -117,7 +118,7 @@ int board_phys_sdram_size(phys_size_t *size)
 	if (!size)
 		return -EINVAL;
 
-	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
+	*size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE + PHYS_SDRAM_2_SIZE);
 
 	return 0;
 }

@@ -155,4 +155,21 @@ source "arch/arm/mach-stm32mp/Kconfig.13x"
 source "arch/arm/mach-stm32mp/Kconfig.15x"
 source "arch/arm/mach-stm32mp/Kconfig.25x"
 source "arch/arm/mach-stm32mp/cmd_stm32prog/Kconfig"
+
+config STM32MP15_PWR
+	bool "Enable driver for STM32MP15x PWR"
+	depends on DM_REGULATOR && DM_PMIC && (STM32MP13X || STM32MP15X)
+	default y if STM32MP15X
+	help
+		This config enables implementation of driver-model pmic and
+		regulator uclass features for access to STM32MP15x PWR.
+
+config SPL_STM32MP15_PWR
+	bool "Enable driver for STM32MP15x PWR in SPL"
+	depends on SPL && SPL_DM_REGULATOR && SPL_DM_PMIC && (STM32MP13X || STM32MP15X)
+	default y if STM32MP15X
+	help
+		This config enables implementation of driver-model pmic and
+		regulator uclass features for access to STM32MP15x PWR in SPL.
+
 endif

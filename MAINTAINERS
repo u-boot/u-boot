@@ -306,6 +306,7 @@ F:	arch/arm/include/asm/mach-imx/
 F:	board/freescale/*mx*/
 F:	board/freescale/common/
 F:	common/spl/spl_imx_container.c
+F:	doc/imx/
 F:	drivers/serial/serial_mxc.c
 F:	include/imx_container.h
 
@@ -533,6 +534,7 @@ F:	arch/arm/include/asm/arch-rockchip/
 F:	arch/arm/mach-rockchip/
 F:	board/amarula/vyasa-rk3288/
 F:	board/anbernic/rgxx3_rk3566/
+F:	board/armsom/sige7-rk3588/
 F:	board/chipspark/popmetal_rk3288
 F:	board/engicam/px30_core/
 F:	board/firefly/
@@ -592,6 +594,22 @@ M:	Paul Barker <paul.barker@sancloud.com>
 R:	Marc Murphy <marc.murphy@sancloud.com>
 S:	Supported
 F:	arch/arm/dts/am335x-sancloud*
+
+ARM SC5XX
+M:	Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+M:	Greg Malysa <greg.malysa@timesys.com>
+M:	Ian Roberts <ian.roberts@timesys.com>
+M:	Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+M:	Utsav Agarwal <utsav.agarwal@analog.com>
+M:	Arturs Artamonovs <arturs.artamonovs@analog.com>
+S:	Supported
+T:	git https://github.com/analogdevicesinc/lnxdsp-u-boot
+F:	arch/arm/include/asm/arch-adi/
+F:	arch/arm/mach-sc5xx/
+F:	drivers/clk/adi/
+F:	drivers/serial/serial_adi_uart4.c
+F:	drivers/timer/adi_sc5xx_timer.c
+F:	include/env/adi/
 
 ARM SNAPDRAGON
 M:	Caleb Connolly <caleb.connolly@linaro.org>
@@ -1145,6 +1163,14 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-fsl-qoriq.git
 F:	drivers/watchdog/sp805_wdt.c
 F:	drivers/watchdog/sbsa_gwdt.c
+
+FWU Multi Bank Update
+M:	Sughosh Ganu <sughosh.ganu@linaro.org>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-efi.git
+F:	lib/fwu_updates/*
+F:	drivers/fwu-mdata/*
+F:	tools/mkfwumdata.c
 
 GATEWORKS_SC
 M:	Tim Harvey <tharvey@gateworks.com>

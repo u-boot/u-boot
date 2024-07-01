@@ -110,13 +110,13 @@ tiboot3.bin, tispl.bin and u-boot.img are stored on the uSD card.
 
 .. code-block:: bash
 
-  sf probe
+  mtd list
   fatload mmc 1 ${loadaddr} tiboot3.bin
-  sf update $loadaddr 0x0 $filesize
+  mtd write ospi.tiboot3 ${loadaddr} 0 ${filesize}
   fatload mmc 1 ${loadaddr} tispl.bin
-  sf update $loadaddr 0x80000 $filesize
+  mtd write ospi.tispl ${loadaddr} 0 ${filesize}
   fatload mmc 1 ${loadaddr} u-boot.img
-  sf update $loadaddr 0x280000 $filesize
+  mtd write ospi.u-boot ${loadaddr} 0 ${filesize}
 
 
 Boot Modes
@@ -150,6 +150,10 @@ Boot switches should be changed with power off.
    * - UART
      - 11011100
      - 00000000
+
+   * - USB DFU
+     - 11001010
+     - 00100000
 
 Further Information
 -------------------

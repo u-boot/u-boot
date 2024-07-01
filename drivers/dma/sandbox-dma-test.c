@@ -7,7 +7,6 @@
  * Author: Grygorii Strashko <grygorii.strashko@ti.com>
  */
 
-#include <common.h>
 #include <dm.h>
 #include <log.h>
 #include <malloc.h>

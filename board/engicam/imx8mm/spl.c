@@ -5,7 +5,6 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
-#include <common.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

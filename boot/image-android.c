@@ -3,7 +3,6 @@
  * Copyright (c) 2011 Sebastian Andrzej Siewior <bigeasy@linutronix.de>
  */
 
-#include <common.h>
 #include <env.h>
 #include <image.h>
 #include <image-android-dt.h>
@@ -64,7 +63,6 @@ static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3
 
 	data->kcmdline = hdr->cmdline;
 	data->header_version = hdr->header_version;
-	data->ramdisk_ptr = env_get_ulong("ramdisk_addr_r", 16, 0);
 
 	/*
 	 * The header takes a full page, the remaining components are aligned
@@ -75,6 +73,7 @@ static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3
 	data->kernel_ptr = end;
 	data->kernel_size = hdr->kernel_size;
 	end += ALIGN(hdr->kernel_size, ANDR_GKI_PAGE_SIZE);
+	data->ramdisk_ptr = end;
 	data->ramdisk_size = hdr->ramdisk_size;
 	data->boot_ramdisk_size = hdr->ramdisk_size;
 	end += ALIGN(hdr->ramdisk_size, ANDR_GKI_PAGE_SIZE);
@@ -394,25 +393,24 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 		return -1;
 	}
 	if (img_data.header_version > 2) {
-		ramdisk_ptr = img_data.ramdisk_ptr;
+		ramdisk_ptr = img_data.ramdisk_addr;
 		memcpy((void *)(ramdisk_ptr), (void *)img_data.vendor_ramdisk_ptr,
 		       img_data.vendor_ramdisk_size);
-		memcpy((void *)(ramdisk_ptr + img_data.vendor_ramdisk_size),
-		       (void *)img_data.ramdisk_ptr,
+		ramdisk_ptr += img_data.vendor_ramdisk_size;
+		memcpy((void *)(ramdisk_ptr), (void *)img_data.ramdisk_ptr,
 		       img_data.boot_ramdisk_size);
+		ramdisk_ptr += img_data.boot_ramdisk_size;
 		if (img_data.bootconfig_size) {
 			memcpy((void *)
-			       (ramdisk_ptr + img_data.vendor_ramdisk_size +
-			       img_data.boot_ramdisk_size),
-			       (void *)img_data.bootconfig_addr,
+			       (ramdisk_ptr), (void *)img_data.bootconfig_addr,
 			       img_data.bootconfig_size);
 		}
 	}
 
 	printf("RAM disk load addr 0x%08lx size %u KiB\n",
-	       img_data.ramdisk_ptr, DIV_ROUND_UP(img_data.ramdisk_size, 1024));
+	       img_data.ramdisk_addr, DIV_ROUND_UP(img_data.ramdisk_size, 1024));
 
-	*rd_data = img_data.ramdisk_ptr;
+	*rd_data = img_data.ramdisk_addr;
 
 	*rd_len = img_data.ramdisk_size;
 	return 0;

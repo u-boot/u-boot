@@ -11,7 +11,7 @@
 #include <asm/arch/clock.h>
 #include <linux/compiler.h>
 #include <command.h>
-#include <common.h>
+#include <config.h>
 #include <env.h>
 #include <fsl_sec.h>
 #include <mapmem.h>
@@ -134,12 +134,12 @@ free_m:
 }
 
 /***************************************************/
-static char mfgprot_help_text[] =
+U_BOOT_LONGHELP(mfgprot,
 	"Usage:\n"
 	 "Print the public key for Manufacturing Protection\n"
 	 "\tmfgprot pubk\n"
 	 "Generates a Manufacturing Protection signature\n"
-	 "\tmfgprot sign <data_addr> <size>";
+	 "\tmfgprot sign <data_addr> <size>\n");
 
 U_BOOT_CMD(
 	mfgprot, 4, 1, do_mfgprot,

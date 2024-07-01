@@ -6,7 +6,6 @@
  */
 
 #include <autoboot.h>
-#include <common.h>
 #include <test/common.h>
 #include <test/test.h>
 #include <test/ut.h>

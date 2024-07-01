@@ -2,7 +2,6 @@
 /*
  * Copyright (C) 2022 Ondrej Jirman <megi@xff.cz>
  */
-#include <common.h>
 #include <backlight.h>
 #include <dm.h>
 #include <mipi_dsi.h>

@@ -4,7 +4,7 @@
  *		      Bo Shen <voice.shen@atmel.com>
  */
 
-#include <common.h>
+#include <config.h>
 #include <hang.h>
 #include <init.h>
 #include <log.h>

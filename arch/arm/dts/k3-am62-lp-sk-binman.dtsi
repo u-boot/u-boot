@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+#include "k3-binman.dtsi"
+#include "k3-am625-sk-binman.dtsi"
+
+#ifdef CONFIG_TARGET_AM625_A53_EVM
+
+#define SPL_AM62_LP_SK_DTB "spl/dts/ti/k3-am62-lp-sk.dtb"
+
+&spl_am625_sk_dtb {
+	filename = SPL_AM62_LP_SK_DTB;
+};
+
+&spl_am625_sk_dtb_unsigned {
+	filename = SPL_AM62_LP_SK_DTB;
+};
+
+#endif

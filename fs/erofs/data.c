@@ -313,7 +313,7 @@ static int z_erofs_read_data(struct erofs_inode *inode, char *buffer,
 		}
 
 		if (!(map.m_flags & EROFS_MAP_MAPPED)) {
-			memset(buffer + end - offset, 0, length);
+			memset(buffer + end - offset, 0, length - skip);
 			end = map.m_la;
 			continue;
 		}

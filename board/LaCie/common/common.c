@@ -3,7 +3,6 @@
  * Copyright (C) 2011 Simon Guinot <sguinot@lacie.com>
  */
 
-#include <common.h>
 #include <i2c.h>
 #include <miiphy.h>
 

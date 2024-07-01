@@ -5,7 +5,7 @@
  * Adapted from coreboot.
  */
 
-#include <common.h>
+#include <config.h>
 #include <clk.h>
 #include <dm.h>
 #include <dt-structs.h>

@@ -8,6 +8,17 @@ variables:
   # since our $(ci_runner_image) user is not root.
   container_option: -u 0
   work_dir: /u
+  # We define all of these as variables so we can easily reference them twice
+  am33xx_kirkwood_ls1_mvebu_omap: "am33xx kirkwood ls1 mvebu omap -x siemens,freescale"
+  amlogic_bcm_boundary_engicam_siemens_technexion_oradex: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
+  arm_nxp_minus_imx_and_at91: "at91 freescale -x powerpc,m68k,imx,mx"
+  imx: "mx imx -x boundary,engicam,technexion,toradex"
+  rk: "rk"
+  sunxi: "sunxi"
+  powerpc: "powerpc"
+  arm_catch_all: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
+  aarch64_catch_all: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
+  everything_but_arm_and_powerpc: "arc m68k microblaze mips nios2 riscv sandbox sh x86 xtensa -x arm,powerpc"
 
 stages:
 - stage: testsuites
@@ -184,6 +195,34 @@ stages:
       options: $(container_option)
     steps:
       - script: make pip
+
+  - job: count_built_machines
+    displayName: 'Ensure we build all possible machines'
+    pool:
+      vmImage: $(ubuntu_vm)
+    container:
+      image: $(ci_runner_image)
+      options: $(container_option)
+    steps:
+      - script: |
+          BMANARGS="-o /tmp --dry-run -v"
+          # First get the total number of boards
+          total=$(tools/buildman/buildman ${BMANARGS} | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
+          # Now build up the list of what each job built.
+          built="$(tools/buildman/buildman ${BMANARGS} $(am33xx_kirkwood_ls1_mvebu_omap) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_nxp_minus_imx_and_at91) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(imx) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(rk) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(sunxi) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(powerpc) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(arm_catch_all) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(aarch64_catch_all) | grep '^   ')"
+          built="$built $(tools/buildman/buildman ${BMANARGS} $(everything_but_arm_and_powerpc) | grep '^   ')"
+          # Finally see how many machines that is.
+          actual=$(tools/buildman/buildman ${BMANARGS} $built | grep "Total boards to build for each commit" | cut -d ' ' -f 8)
+          echo We would build a total of $actual out of $total platforms this CI run
+          [ $actual -eq $total ] && exit 0 || exit 1
 
   - job: create_test_py_wrapper_script
     displayName: 'Create and stage a wrapper for test.py runs'
@@ -473,29 +512,29 @@ stages:
     pool:
       vmImage: $(ubuntu_vm)
     strategy:
-      # Use almost the same target division in .travis.yml, only merged
-      # 3 small build jobs (arc/microblaze/xtensa) into one.
+      # We split the world up in to 10 jobs as we can have at most 10
+      # parallel jobs going on the free tier of Azure.
       matrix:
-        am33xx_at91_kirkwood_mvebu_omap:
-          BUILDMAN: "am33xx at91_kirkwood mvebu omap -x siemens"
+        am33xx_kirkwood_ls1_mvebu_omap:
+          BUILDMAN: $(am33xx_kirkwood_ls1_mvebu_omap)
         amlogic_bcm_boundary_engicam_siemens_technexion_oradex:
-          BUILDMAN: "amlogic bcm boundary engicam siemens technexion toradex -x mips"
-        arm_nxp_minus_imx:
-          BUILDMAN: "freescale -x powerpc,m68k,imx,mx"
+          BUILDMAN: $(amlogic_bcm_boundary_engicam_siemens_technexion_oradex)
+        arm_nxp_minus_imx_and_at91:
+          BUILDMAN: $(arm_nxp_minus_imx_and_at91)
         imx:
-          BUILDMAN: "mx imx -x boundary,engicam,technexion,toradex"
+          BUILDMAN: $(imx)
         rk:
-          BUILDMAN: "rk"
+          BUILDMAN: $(rk)
         sunxi:
-          BUILDMAN: "sunxi"
+          BUILDMAN: $(sunxi)
         powerpc:
-          BUILDMAN: "powerpc"
+          BUILDMAN: $(powerpc)
         arm_catch_all:
-          BUILDMAN: "arm -x aarch64,am33xx,at91,bcm,ls1,kirkwood,mvebu,omap,rk,siemens,mx,sunxi,technexion,toradex"
+          BUILDMAN: $(arm_catch_all)
         aarch64_catch_all:
-          BUILDMAN: "aarch64 -x amlogic,bcm,engicam,imx,ls1,ls2,lx216,mvebu,rk,siemens,sunxi,toradex"
+          BUILDMAN: $(aarch64_catch_all)
         everything_but_arm_and_powerpc:
-          BUILDMAN: "-x arm,powerpc"
+          BUILDMAN: $(everything_but_arm_and_powerpc)
     steps:
       - script: |
           cat << EOF > build.sh

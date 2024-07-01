@@ -19,11 +19,11 @@
  * Version: 2.1.1
  */
 
-#include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <i2c.h>
 #include <log.h>
+#include <time.h>
 #include <tpm-v1.h>
 #include <linux/delay.h>
 #include <linux/errno.h>

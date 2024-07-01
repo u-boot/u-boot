@@ -4,7 +4,6 @@
  */
 
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <reset.h>
 #include <wdt.h>

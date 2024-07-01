@@ -448,4 +448,72 @@
 	};
 };
 
+&binman {
+	firmware-verdin-am62-gp.bin {
+		filename = "firmware-verdin-am62-gp.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am62x-gp-verdin.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin_unsigned";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img_unsigned";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
+	};
+
+	firmware-verdin-am62-hs.bin {
+		filename = "firmware-verdin-am62-hs.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am62x-hs-verdin.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
+	};
+
+	firmware-verdin-am62-hs-fs.bin {
+		filename = "firmware-verdin-am62-hs-fs.bin";
+
+		blob-ext@1 {
+			filename = "tiboot3-am62x-hs-fs-verdin.bin";
+		};
+
+		blob-ext@2 {
+			filename = "tispl.bin";
+			/*
+			 * This value matches CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
+			 * from R5 SPL config.
+			 */
+			offset = <0x80000>;
+		};
+
+		blob-ext@3 {
+			filename = "u-boot.img";
+			offset = <(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)>;
+		};
+	};
+};
+
 #endif /* CONFIG_TARGET_VERDIN_AM62_A53 */

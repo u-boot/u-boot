@@ -4,6 +4,13 @@ config PHYTEC_SOM_DETECTION
 	help
 	   Support of I2C EEPROM based SoM detection.
 
+config PHYTEC_SOM_DETECTION_BLOCKS
+	bool "Extend SoM detection with block support"
+	depends on PHYTEC_SOM_DETECTION
+	help
+	   Extend the I2C EEPROM based SoM detection with API v3. This API
+	   introduces blocks with different payloads.
+
 config PHYTEC_IMX8M_SOM_DETECTION
 	bool "Support SoM detection for i.MX8M PHYTEC platforms"
 	depends on ARCH_IMX8M && PHYTEC_SOM_DETECTION
@@ -16,6 +23,8 @@ config PHYTEC_AM62_SOM_DETECTION
 	bool "Support SoM detection for AM62x PHYTEC platforms"
 	depends on (TARGET_PHYCORE_AM62X_A53 || TARGET_PHYCORE_AM62X_R5) && \
 		   PHYTEC_SOM_DETECTION
+	select PHYTEC_SOM_DETECTION_BLOCKS
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported
@@ -25,6 +34,8 @@ config PHYTEC_AM64_SOM_DETECTION
 	bool "Support SoM detection for AM64x PHYTEC platforms"
 	depends on (TARGET_PHYCORE_AM64X_A53 || TARGET_PHYCORE_AM64X_R5) && \
 		   PHYTEC_SOM_DETECTION
+	select PHYTEC_SOM_DETECTION_BLOCKS
+	depends on SPL_I2C && DM_I2C
 	default y
 	help
 	   Support of I2C EEPROM based SoM detection. Supported

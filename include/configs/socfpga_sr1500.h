@@ -12,7 +12,6 @@
 
 /* Ethernet on SoC (EMAC) */
 /* The PHY is autodetected, so no MII PHY address is needed here */
-#define PHY_ANEG_TIMEOUT	8000
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

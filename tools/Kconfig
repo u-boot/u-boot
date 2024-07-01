@@ -98,7 +98,7 @@ config TOOLS_SHA512
 
 config TOOLS_MKEFICAPSULE
 	bool "Build efimkcapsule command"
-	default y if EFI_CAPSULE_ON_DISK
+	default y if EFI_LOADER
 	help
 	  This command allows users to create a UEFI capsule file and,
 	  optionally sign that file. If you want to enable UEFI capsule

@@ -58,11 +58,6 @@ struct udevice;
 #define PHY_10G_FEATURES	(PHY_GBIT_FEATURES | \
 				SUPPORTED_10000baseT_Full)
 
-#ifndef PHY_ANEG_TIMEOUT
-#define PHY_ANEG_TIMEOUT	4000
-#endif
-
-
 struct phy_device;
 
 #define MDIO_NAME_LEN 32

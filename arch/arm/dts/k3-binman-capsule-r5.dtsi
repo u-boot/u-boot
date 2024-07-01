@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com/
+ */
+
+&binman {
+	capsule_tiboot3: capsule-tiboot3 {
+		filename = "tiboot3-capsule.bin";
+		efi-capsule {
+			image-index = <0x1>;
+			image-guid = "00000000-0000-0000-0000-000000000000";
+			private-key = "arch/arm/mach-k3/keys/custMpk.pem";
+			public-key-cert = "arch/arm/mach-k3/keys/custMpk.crt";
+			monotonic-count = <0x1>;
+
+			blob {
+				filename = "tiboot3.bin";
+			};
+		};
+	};
+};

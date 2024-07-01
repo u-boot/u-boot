@@ -161,12 +161,67 @@ config TARGET_ROCK5B_RK3588
 	  USB PD over USB Type-C
 	  Size: 100mm x 72mm (Pico-ITX form factor)
 
+config TARGET_SIGE7_RK3588
+	bool "ArmSoM Sige7 RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  ArmSoM Sige7 is a Rockchip RK3588 based SBC (Single Board Computer)
+	  by ArmSoM.
+
+	  There are two variants depending on the DRAM size : 8G and 16G.
+
+	  Specification:
+
+	  Rockchip Rk3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16GB memory LPDDR4x
+	  Mali G610MC4 GPU
+	  2x MIPI CSI 2 multiple lanes connector
+	  64GB/128GB on board eMMC
+	  uSD slot
+	  1x USB 2.0 Type-A, 1x USB 3.0 Type-A, 1x USB 3.0 Type-C
+	  1x HDMI 2.1 output
+	  2x 2.5 Gbps Ethernet port
+	  40-pin IO header including UART, SPI and I2C
+	  USB PD over USB Type-C
+	  Size: 92mm x 62mm
+
 config TARGET_QUARTZPRO64_RK3588
 	bool "Pine64 QuartzPro64 RK3588 board"
 	select BOARD_LATE_INIT
 	help
 	  Pine64 QuartzPro64 is a Rockchip RK3588 based SBC (Single Board
 	  Computer) by Pine64.
+
+config TARGET_TIGER_RK3588
+	bool "Theobroma Systems SOM-RK3588-Q7 (Tiger)"
+	select BOARD_LATE_INIT
+	help
+	  The RK3588-Q7 SoM is a Qseven-compatible (70mm x 70mm, MXM-230
+	  connector) system-on-module from Theobroma Systems, featuring the
+	  Rockchip RK3588.
+
+	  It provides the following feature set:
+	   * up to 16GB LPDDR4x
+	   * on-module eMMC
+	   * SD card (on a baseboard) via edge connector
+	   * Gigabit Ethernet with on-module GbE PHY
+	   * HDMI/eDP
+	   * MIPI-DSI
+	   * 4x MIPI-CSI (3x on FPC connectors, 1x over Q7)
+	   * HDMI input over FPC connector
+	   * CAN
+	   * USB
+	     - 1x USB 3.0 dual-role (direct connection)
+	     - 2x USB 3.0 host + 1x USB 2.0 host
+	   * PCIe
+	     - 1x PCIe 2.1 Gen3, 4 lanes
+	     - 2xSATA / 2x PCIe 2.1 Gen1, 2 lanes
+	   * on-module ATtiny816 companion controller, implementing:
+	     - low-power RTC functionality (ISL1208 emulation)
+	     - fan controller (AMC6821 emulation)
+	   * on-module Secure Element with Global Platform 2.2.1 compliant
+	     JavaCard environment
 
 config TARGET_TURINGRK1_RK3588
 	bool "Turing Machines RK1 RK3588 board"
@@ -230,6 +285,7 @@ config ROCKCHIP_COMMON_STACK_ADDR
 config TEXT_BASE
 	default 0x00a00000
 
+source "board/armsom/sige7-rk3588/Kconfig"
 source "board/edgeble/neural-compute-module-6/Kconfig"
 source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 source "board/indiedroid/nova/Kconfig"
@@ -240,5 +296,6 @@ source "board/radxa/rock5b-rk3588/Kconfig"
 source "board/rockchip/evb_rk3588/Kconfig"
 source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"
+source "board/theobroma-systems/tiger_rk3588/Kconfig"
 
 endif

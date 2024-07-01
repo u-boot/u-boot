@@ -3,7 +3,6 @@
  * Copyright (c) 2017 Intel Corporation
  */
 
-#include <common.h>
 #include <dm.h>
 #include <ns16550.h>
 #include <serial.h>

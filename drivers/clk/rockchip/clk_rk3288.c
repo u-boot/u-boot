@@ -3,7 +3,6 @@
  * (C) Copyright 2015 Google, Inc
  */
 
-#include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
 #include <div64.h>

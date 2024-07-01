@@ -5,7 +5,7 @@
  * Copyright (c) 2022 DENX Software Engineering GmbH, Philip Oberfichtner <pro@denx.de>
  */
 
-#include <common.h>
+#include <config.h>
 #include <cpu_func.h>
 #include <bootstage.h>
 #include <dm.h>

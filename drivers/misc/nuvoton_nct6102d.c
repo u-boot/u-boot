@@ -3,7 +3,6 @@
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
  */
 
-#include <common.h>
 #include <nuvoton_nct6102d.h>
 #include <asm/io.h>
 #include <asm/pnp_def.h>

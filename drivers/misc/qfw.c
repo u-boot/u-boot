@@ -6,7 +6,6 @@
 
 #define LOG_CATEGORY UCLASS_QFW
 
-#include <common.h>
 #include <acpi/acpi_table.h>
 #include <bootdev.h>
 #include <bootflow.h>

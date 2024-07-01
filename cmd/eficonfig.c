@@ -7,7 +7,6 @@
 
 #include <ansi.h>
 #include <cli.h>
-#include <common.h>
 #include <charset.h>
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
@@ -62,6 +61,7 @@ struct eficonfig_filepath_info {
 struct eficonfig_boot_option {
 	struct eficonfig_select_file_info file_info;
 	struct eficonfig_select_file_info initrd_info;
+	struct eficonfig_select_file_info fdt_info;
 	unsigned int boot_index;
 	u16 *description;
 	u16 *optional_data;
@@ -531,7 +531,7 @@ struct efi_device_path *eficonfig_create_device_path(struct efi_device_path *dp_
 	dp = efi_dp_shorten(dp_volume);
 	if (!dp)
 		dp = dp_volume;
-	dp = efi_dp_concat(dp, &fp->dp, false);
+	dp = efi_dp_concat(dp, &fp->dp, 0);
 	free(buf);
 
 	return dp;
@@ -1308,6 +1308,10 @@ static efi_status_t eficonfig_show_boot_option(struct eficonfig_boot_option *bo,
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	ret = prepare_file_selection_entry(efi_menu, "Fdt File: ", &bo->fdt_info);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	ret = create_boot_option_entry(efi_menu, "Optional Data: ", bo->optional_data,
 				       eficonfig_boot_add_optional_data, bo);
 	if (ret != EFI_SUCCESS)
@@ -1388,27 +1392,44 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 	efi_status_t ret;
 	char *tmp = NULL, *p;
 	struct efi_load_option lo = {0};
-	efi_uintn_t final_dp_size;
+	efi_uintn_t dp_size;
 	struct efi_device_path *dp = NULL;
 	efi_uintn_t size = load_option_size;
-	struct efi_device_path *final_dp = NULL;
 	struct efi_device_path *device_dp = NULL;
 	struct efi_device_path *initrd_dp = NULL;
+	struct efi_device_path *fdt_dp = NULL;
 	struct efi_device_path *initrd_device_dp = NULL;
+	struct efi_device_path *fdt_device_dp = NULL;
 
-	const struct efi_initrd_dp id_dp = {
+	const struct efi_lo_dp_prefix initrd_prefix = {
 		.vendor = {
 			{
 			DEVICE_PATH_TYPE_MEDIA_DEVICE,
 			DEVICE_PATH_SUB_TYPE_VENDOR_PATH,
-			sizeof(id_dp.vendor),
+			sizeof(initrd_prefix.vendor),
 			},
 			EFI_INITRD_MEDIA_GUID,
 		},
 		.end = {
 			DEVICE_PATH_TYPE_END,
 			DEVICE_PATH_SUB_TYPE_END,
-			sizeof(id_dp.end),
+			sizeof(initrd_prefix.end),
+		}
+	};
+
+	const struct efi_lo_dp_prefix fdt_prefix = {
+		.vendor = {
+			{
+			DEVICE_PATH_TYPE_MEDIA_DEVICE,
+			DEVICE_PATH_SUB_TYPE_VENDOR_PATH,
+			sizeof(fdt_prefix.vendor),
+			},
+			EFI_FDT_GUID,
+		},
+		.end = {
+			DEVICE_PATH_TYPE_END,
+			DEVICE_PATH_SUB_TYPE_END,
+			sizeof(initrd_prefix.end),
 		}
 	};
 
@@ -1420,6 +1441,12 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 
 	bo->initrd_info.current_path = calloc(1, EFICONFIG_FILE_PATH_BUF_SIZE);
 	if (!bo->initrd_info.current_path) {
+		ret =  EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	bo->fdt_info.current_path = calloc(1, EFICONFIG_FILE_PATH_BUF_SIZE);
+	if (!bo->fdt_info.current_path) {
 		ret =  EFI_OUT_OF_RESOURCES;
 		goto out;
 	}
@@ -1456,11 +1483,18 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		if (lo.file_path)
 			fill_file_info(lo.file_path, &bo->file_info, device_dp);
 
-		/* Initrd file path(optional) is placed at second instance. */
+		/* Initrd file path (optional) is placed at second instance. */
 		initrd_dp = efi_dp_from_lo(&lo, &efi_lf2_initrd_guid);
 		if (initrd_dp) {
 			fill_file_info(initrd_dp, &bo->initrd_info, initrd_device_dp);
 			efi_free_pool(initrd_dp);
+		}
+
+		/* Fdt file path (optional) is placed as third instance. */
+		fdt_dp = efi_dp_from_lo(&lo, &efi_guid_fdt);
+		if (fdt_dp) {
+			fill_file_info(fdt_dp, &bo->fdt_info, fdt_device_dp);
+			efi_free_pool(fdt_dp);
 		}
 
 		if (size > 0)
@@ -1484,8 +1518,20 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 			ret = EFI_OUT_OF_RESOURCES;
 			goto out;
 		}
-		initrd_dp = efi_dp_concat((const struct efi_device_path *)&id_dp,
-					  dp, false);
+		initrd_dp = efi_dp_concat((const struct efi_device_path *)&initrd_prefix,
+					  dp, 0);
+		efi_free_pool(dp);
+	}
+
+	if (bo->fdt_info.dp_volume) {
+		dp = eficonfig_create_device_path(bo->fdt_info.dp_volume,
+						  bo->fdt_info.current_path);
+		if (!dp) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto out;
+		}
+		fdt_dp = efi_dp_concat((const struct efi_device_path *)&fdt_prefix,
+				       dp, 0);
 		efi_free_pool(dp);
 	}
 
@@ -1494,16 +1540,9 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		ret = EFI_OUT_OF_RESOURCES;
 		goto out;
 	}
-	final_dp_size = efi_dp_size(dp) + sizeof(END);
-	if (initrd_dp) {
-		final_dp = efi_dp_concat(dp, initrd_dp, true);
-		final_dp_size += efi_dp_size(initrd_dp) + sizeof(END);
-	} else {
-		final_dp = efi_dp_dup(dp);
-	}
-	efi_free_pool(dp);
 
-	if (!final_dp)
+	ret = efi_load_option_dp_join(&dp, &dp_size, initrd_dp, fdt_dp);
+	if (ret != EFI_SUCCESS)
 		goto out;
 
 	if (utf16_utf8_strlen(bo->optional_data)) {
@@ -1515,17 +1554,20 @@ static efi_status_t eficonfig_edit_boot_option(u16 *varname, struct eficonfig_bo
 		utf16_utf8_strncpy(&p, bo->optional_data, u16_strlen(bo->optional_data));
 	}
 
-	ret = eficonfig_set_boot_option(varname, final_dp, final_dp_size, bo->description, tmp);
+	ret = eficonfig_set_boot_option(varname, dp, dp_size, bo->description, tmp);
 out:
 	free(tmp);
 	free(bo->optional_data);
 	free(bo->description);
 	free(bo->file_info.current_path);
 	free(bo->initrd_info.current_path);
+	free(bo->fdt_info.current_path);
 	efi_free_pool(device_dp);
 	efi_free_pool(initrd_device_dp);
 	efi_free_pool(initrd_dp);
-	efi_free_pool(final_dp);
+	efi_free_pool(fdt_device_dp);
+	efi_free_pool(fdt_dp);
+	efi_free_pool(dp);
 
 	return ret;
 }
