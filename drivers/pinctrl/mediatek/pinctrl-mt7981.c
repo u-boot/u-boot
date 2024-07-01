@@ -1050,4 +1050,5 @@ U_BOOT_DRIVER(mt7981_pinctrl) = {
 	.ops = &mtk_pinctrl_ops,
 	.probe = mtk_pinctrl_mt7981_probe,
 	.priv_auto = sizeof(struct mtk_pinctrl_priv),
+	.flags = DM_FLAG_PRE_RELOC,
 };

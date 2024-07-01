@@ -761,6 +761,15 @@ static int mtk_gpiochip_register(struct udevice *parent)
 	if (!drv)
 		return -ENOENT;
 
+	/*
+	 * Support upstream linux DTSI that define gpio-controller
+	 * in the root node (instead of a dedicated subnode)
+	 */
+	if (dev_read_bool(parent, "gpio-controller")) {
+		node = dev_ofnode(parent);
+		goto bind;
+	}
+
 	ret = -ENOENT;
 	dev_for_each_subnode(node, parent)
 		if (ofnode_read_bool(node, "gpio-controller")) {
@@ -771,6 +780,7 @@ static int mtk_gpiochip_register(struct udevice *parent)
 	if (ret)
 		return ret;
 
+bind:
 	ret = device_bind_with_driver_data(parent, &mtk_gpio_driver,
 					   "mediatek_gpio", 0, node,
 					   &dev);

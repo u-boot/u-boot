@@ -10,6 +10,8 @@
 #include <generic-phy.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <dm/devres.h>
@@ -215,6 +217,14 @@
 #define ANA_EQ_EYE_CTRL_SIGNAL5		0xdc
 #define RG_CDR_BIRLTD0_GEN3_MSK		GENMASK(4, 0)
 
+/* PHY switch between pcie/usb3/sgmii/sata */
+#define USB_PHY_SWITCH_CTRL	0x0
+#define RG_PHY_SW_TYPE		GENMASK(3, 0)
+#define RG_PHY_SW_PCIE		0x0
+#define RG_PHY_SW_USB3		0x1
+#define RG_PHY_SW_SGMII		0x2
+#define RG_PHY_SW_SATA		0x3
+
 enum mtk_phy_version {
 	MTK_TPHY_V1 = 1,
 	MTK_TPHY_V2,
@@ -256,6 +266,10 @@ struct mtk_phy_instance {
 	struct clk da_ref_clk;	/* reference clock of analog phy */
 	u32 index;
 	u32 type;
+
+	struct regmap *type_sw;
+	u32 type_sw_reg;
+	u32 type_sw_index;
 
 	u32 eye_vrt;
 	u32 eye_term;
@@ -616,6 +630,67 @@ static void u2_phy_props_set(struct mtk_tphy *tphy,
 				FIELD_PREP(PA6_RG_U2_PRE_EMP, instance->pre_emphasis));
 }
 
+/* type switch for usb3/pcie/sgmii/sata */
+static int phy_type_syscon_get(struct udevice *dev, struct mtk_phy_instance *instance,
+			       ofnode dn)
+{
+	struct ofnode_phandle_args args;
+	int err;
+
+	if (!ofnode_read_bool(dn, "mediatek,syscon-type"))
+		return 0;
+
+	err = ofnode_parse_phandle_with_args(dn, "mediatek,syscon-type",
+					     NULL, 2, 0, &args);
+	if (err)
+		return err;
+
+	instance->type_sw_reg = args.args[0];
+	instance->type_sw_index = args.args[1] & 0x3; /* <=3 */
+	instance->type_sw = syscon_node_to_regmap(args.node);
+	if (IS_ERR(instance->type_sw))
+		return PTR_ERR(instance->type_sw);
+
+	debug("phy-%s.%d: type_sw - reg %#x, index %d\n",
+	      dev->name, instance->index, instance->type_sw_reg,
+	      instance->type_sw_index);
+
+	return 0;
+}
+
+static int phy_type_set(struct mtk_phy_instance *instance)
+{
+	int type;
+	u32 offset;
+
+	if (!instance->type_sw)
+		return 0;
+
+	switch (instance->type) {
+	case PHY_TYPE_USB3:
+		type = RG_PHY_SW_USB3;
+		break;
+	case PHY_TYPE_PCIE:
+		type = RG_PHY_SW_PCIE;
+		break;
+	case PHY_TYPE_SGMII:
+		type = RG_PHY_SW_SGMII;
+		break;
+	case PHY_TYPE_SATA:
+		type = RG_PHY_SW_SATA;
+		break;
+	case PHY_TYPE_USB2:
+	default:
+		return 0;
+	}
+
+	offset = instance->type_sw_index * BITS_PER_BYTE;
+	regmap_update_bits(instance->type_sw, instance->type_sw_reg,
+			   RG_PHY_SW_TYPE << offset, type << offset);
+
+	return 0;
+}
+
 static int mtk_phy_init(struct phy *phy)
 {
 	struct mtk_tphy *tphy = dev_get_priv(phy->dev);
@@ -746,6 +821,7 @@ static int mtk_phy_xlate(struct phy *phy,
 	}
 
 	phy_parse_property(tphy, instance);
+	phy_type_set(instance);
 
 	return 0;
 }
@@ -805,6 +881,10 @@ static int mtk_tphy_probe(struct udevice *dev)
 
 		err = clk_get_by_name_nodev_optional(subnode, "da_ref",
 						     &instance->da_ref_clk);
+		if (err)
+			return err;
+
+		err = phy_type_syscon_get(dev, instance, subnode);
 		if (err)
 			return err;
 	}

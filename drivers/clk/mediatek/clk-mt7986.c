@@ -533,6 +533,7 @@ static const struct mtk_clk_tree mt7986_infracfg_clk_tree = {
 
 static const struct udevice_id mt7986_fixed_pll_compat[] = {
 	{ .compatible = "mediatek,mt7986-fixed-plls" },
+	{ .compatible = "mediatek,mt7986-apmixedsys" },
 	{}
 };
 
