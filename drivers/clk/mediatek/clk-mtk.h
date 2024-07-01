@@ -13,7 +13,11 @@
 
 /* flags in struct mtk_clk_tree */
 
-/* clk id == 0 doesn't mean it's xtal clk */
+/* clk id == 0 doesn't mean it's xtal clk
+ * This doesn't apply when CLK_PARENT_MIXED is defined.
+ * With CLK_PARENT_MIXED declare CLK_PARENT_XTAL for the
+ * relevant parent.
+ */
 #define CLK_BYPASS_XTAL			BIT(0)
 
 #define HAVE_RST_BAR			BIT(0)
@@ -30,7 +34,17 @@
 #define CLK_PARENT_TOPCKGEN		BIT(5)
 #define CLK_PARENT_INFRASYS		BIT(6)
 #define CLK_PARENT_XTAL			BIT(7)
-#define CLK_PARENT_MASK			GENMASK(7, 4)
+/*
+ * For CLK_PARENT_MIXED to correctly work, is required to
+ * define in clk_tree flags the clk type using the alias.
+ */
+#define CLK_PARENT_MIXED		BIT(8)
+#define CLK_PARENT_MASK			GENMASK(8, 4)
+
+/* alias to reference clk type */
+#define CLK_APMIXED			CLK_PARENT_APMIXED
+#define CLK_TOPCKGEN			CLK_PARENT_TOPCKGEN
+#define CLK_INFRASYS			CLK_PARENT_INFRASYS
 
 #define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
@@ -98,10 +112,30 @@ struct mtk_fixed_factor {
 	}
 
 /**
+ * struct mtk_parent -  clock parent with flags. Needed for MUX that
+ *			parent with mixed infracfg and topckgen.
+ *
+ * @id:			index of parent clocks
+ * @flags:		hardware-specific flags (parent location,
+ *			infracfg, topckgen, APMIXED, xtal ...)
+ */
+struct mtk_parent {
+	const int id;
+	u16 flags;
+};
+
+#define PARENT(_id, _flags) {				\
+		.id = _id,				\
+		.flags = _flags,			\
+	}
+
+/**
  * struct mtk_composite - aggregate clock of mux, divider and gate clocks
  *
  * @id:			index of clocks
  * @parent:		index of parnet clocks
+ * @parent:		index of parnet clocks
+ * @parent_flags:	table of parent clocks with flags
  * @mux_reg:		hardware-specific mux register
  * @gate_reg:		hardware-specific gate register
  * @mux_mask:		mask to the mux bit field
@@ -112,7 +146,10 @@ struct mtk_fixed_factor {
  */
 struct mtk_composite {
 	const int id;
-	const int *parent;
+	union {
+		const int *parent;
+		const struct mtk_parent *parent_flags;
+	};
 	u32 mux_reg;
 	u32 mux_set_reg;
 	u32 mux_clr_reg;
@@ -142,7 +179,20 @@ struct mtk_composite {
 #define MUX_GATE(_id, _parents, _reg, _shift, _width, _gate)		\
 	MUX_GATE_FLAGS(_id, _parents, _reg, _shift, _width, _gate, 0)
 
-#define MUX(_id, _parents, _reg, _shift, _width) {			\
+#define MUX_MIXED_FLAGS(_id, _parents, _reg, _shift, _width, _flags) {	\
+		.id = _id,						\
+		.mux_reg = _reg,					\
+		.mux_shift = _shift,					\
+		.mux_mask = BIT(_width) - 1,				\
+		.gate_shift = -1,					\
+		.parent_flags = _parents,				\
+		.num_parents = ARRAY_SIZE(_parents),			\
+		.flags = CLK_PARENT_MIXED | (_flags),			\
+	}
+#define MUX_MIXED(_id, _parents, _reg, _shift, _width)			\
+	MUX_MIXED_FLAGS(_id, _parents, _reg, _shift, _width, 0)
+
+#define MUX_FLAGS(_id, _parents, _reg, _shift, _width, _flags) {	\
 		.id = _id,						\
 		.mux_reg = _reg,					\
 		.mux_shift = _shift,					\
@@ -150,8 +200,10 @@ struct mtk_composite {
 		.gate_shift = -1,					\
 		.parent = _parents,					\
 		.num_parents = ARRAY_SIZE(_parents),			\
-		.flags = 0,						\
+		.flags = _flags,					\
 	}
+#define MUX(_id, _parents, _reg, _shift, _width)			\
+	MUX_FLAGS(_id, _parents, _reg, _shift, _width, 0)
 
 #define MUX_CLR_SET_UPD_FLAGS(_id, _parents, _mux_ofs, _mux_set_ofs,\
 			_mux_clr_ofs, _shift, _width, _gate,		\
@@ -198,12 +250,22 @@ struct mtk_gate {
 struct mtk_clk_tree {
 	unsigned long xtal_rate;
 	unsigned long xtal2_rate;
+	/*
+	 * Clock ID offset are remapped with an auxiliary table.
+	 * Enable this by defining .id_offs_map.
+	 * This is needed for upstream linux kernel <soc>-clk.h that
+	 * have mixed clk ID and doesn't have clear distinction between
+	 * ID for factor, mux and gates.
+	 */
+	const int *id_offs_map; /* optional, table clk.h to driver ID */
 	const int fdivs_offs;
 	const int muxes_offs;
+	const int gates_offs;
 	const struct mtk_pll_data *plls;
 	const struct mtk_fixed_clk *fclks;
 	const struct mtk_fixed_factor *fdivs;
 	const struct mtk_composite *muxes;
+	const struct mtk_gate *gates;
 	u32 flags;
 };
 
@@ -227,6 +289,8 @@ extern const struct clk_ops mtk_clk_gate_ops;
 
 int mtk_common_clk_init(struct udevice *dev,
 			const struct mtk_clk_tree *tree);
+int mtk_common_clk_infrasys_init(struct udevice *dev,
+				 const struct mtk_clk_tree *tree);
 int mtk_common_clk_gate_init(struct udevice *dev,
 			     const struct mtk_clk_tree *tree,
 			     const struct mtk_gate *gates);
