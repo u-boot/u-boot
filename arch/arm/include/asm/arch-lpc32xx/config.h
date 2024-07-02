@@ -12,7 +12,7 @@
 /* Basic CPU architecture */
 
 #if !defined(CFG_SYS_NS16550_CLK)
-#define CFG_SYS_NS16550_CLK		13000000
+#define CFG_SYS_NS16550_CLK		get_serial_clock()
 #endif
 
 #define CFG_SYS_BAUDRATE_TABLE	\
