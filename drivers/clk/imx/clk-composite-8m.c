@@ -134,7 +134,6 @@ struct clk *imx8m_clk_composite_flags(const char *name,
 	mux->shift = PCG_PCS_SHIFT;
 	mux->mask = PCG_PCS_MASK;
 	mux->num_parents = num_parents;
-	mux->flags = flags;
 	mux->parent_names = parent_names;
 
 	div = kzalloc(sizeof(*div), GFP_KERNEL);
@@ -144,7 +143,7 @@ struct clk *imx8m_clk_composite_flags(const char *name,
 	div->reg = reg;
 	div->shift = PCG_PREDIV_SHIFT;
 	div->width = PCG_PREDIV_WIDTH;
-	div->flags = CLK_DIVIDER_ROUND_CLOSEST | flags;
+	div->flags = CLK_DIVIDER_ROUND_CLOSEST;
 
 	gate = kzalloc(sizeof(*gate), GFP_KERNEL);
 	if (!gate)
@@ -152,7 +151,6 @@ struct clk *imx8m_clk_composite_flags(const char *name,
 
 	gate->reg = reg;
 	gate->bit_idx = PCG_CGC_SHIFT;
-	gate->flags = flags;
 
 	clk = clk_register_composite(NULL, name,
 				     parent_names, num_parents,
