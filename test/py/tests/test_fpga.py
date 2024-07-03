@@ -256,7 +256,7 @@ def test_fpga_loadbp(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 def test_fpga_loadmk_fail(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy')
 
@@ -275,7 +275,7 @@ def test_fpga_loadmk_fail(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 def test_fpga_loadmk_legacy(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy')
 
@@ -289,7 +289,7 @@ def test_fpga_loadmk_legacy(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 def test_fpga_loadmk_legacy_variable_fpga(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy')
 
@@ -306,7 +306,7 @@ def test_fpga_loadmk_legacy_variable_fpga(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 def test_fpga_loadmk_legacy_variable_fpgadata(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy')
 
@@ -323,7 +323,7 @@ def test_fpga_loadmk_legacy_variable_fpgadata(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 def test_fpga_loadmk_legacy_variable(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy')
 
@@ -342,7 +342,7 @@ def test_fpga_loadmk_legacy_variable(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga')
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('cmd_echo')
-@pytest.mark.buildconfigspec('image_format_legacy')
+@pytest.mark.buildconfigspec('legacy_image_format')
 @pytest.mark.buildconfigspec('gzip')
 def test_fpga_loadmk_legacy_gz(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_legacy_gz')
