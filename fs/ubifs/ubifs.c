@@ -976,6 +976,5 @@ void uboot_ubifs_umount(void)
 		printf("Unmounting UBIFS volume %s!\n",
 		       ((struct ubifs_info *)(ubifs_sb->s_fs_info))->vi.name);
 		ubifs_umount(ubifs_sb->s_fs_info);
-		ubifs_sb = NULL;
 	}
 }

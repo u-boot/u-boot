@@ -1758,11 +1758,13 @@ void ubifs_umount(struct ubifs_info *c)
 	ubifs_debugging_exit(c);
 #ifdef __UBOOT__
 	ubi_close_volume(c->ubi);
+	c->ubi = NULL;
 	mutex_unlock(&c->umount_mutex);
 	/* Finally free U-Boot's global copy of superblock */
 	if (ubifs_sb != NULL) {
 		free(ubifs_sb->s_fs_info);
 		free(ubifs_sb);
+		ubifs_sb = NULL;
 	}
 #endif
 }
@@ -2061,6 +2063,7 @@ static void ubifs_put_super(struct super_block *sb)
 #ifndef __UBOOT__
 	bdi_destroy(&c->bdi);
 	ubi_close_volume(c->ubi);
+	c->ubi = NULL;
 	mutex_unlock(&c->umount_mutex);
 #endif
 }
@@ -2340,6 +2343,7 @@ out_bdi:
 out_close:
 #endif
 	ubi_close_volume(c->ubi);
+	c->ubi = NULL;
 out:
 	return err;
 }
