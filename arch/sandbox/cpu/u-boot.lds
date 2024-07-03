@@ -19,30 +19,18 @@ SECTIONS
 		*(_u_boot_sandbox_getopt_end)
 	}
 
-	efi_runtime_start : {
-		*(___efi_runtime_start)
-	}
-
 	efi_runtime : {
+                __efi_runtime_start = .;
 		*(efi_runtime_text)
 		*(efi_runtime_data)
-	}
-
-	efi_runtime_stop : {
-		*(___efi_runtime_stop)
-	}
-
-	efi_runtime_rel_start : {
-		*(___efi_runtime_rel_start)
+                __efi_runtime_stop = .;
 	}
 
 	efi_runtime_rel : {
+                __efi_runtime_rel_start = .;
 		*(.relefi_runtime_text)
 		*(.relefi_runtime_data)
-	}
-
-	efi_runtime_rel_stop : {
-		*(___efi_runtime_rel_stop)
+                __efi_runtime_rel_stop = .;
 	}
 
 	.dynsym :

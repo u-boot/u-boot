@@ -60,12 +60,17 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir, required=None
     prefix = ''
     if build_dir:
         prefix = 'PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools ' % build_dir
-    cmd = ('%spython3-coverage run '
-           '--omit "%s" %s %s %s %s' % (prefix, ','.join(glob_list),
+
+    # Detect a Python virtualenv and use 'coverage' instead
+    covtool = ('python3-coverage' if sys.prefix == sys.base_prefix else
+               'coverage')
+
+    cmd = ('%s%s run '
+           '--omit "%s" %s %s %s %s' % (prefix, covtool, ','.join(glob_list),
                                         prog, extra_args or '', test_cmd,
                                         single_thread or '-P1'))
     os.system(cmd)
-    stdout = command.output('python3-coverage', 'report')
+    stdout = command.output(covtool, 'report')
     lines = stdout.splitlines()
     if required:
         # Convert '/path/to/name.py' just the module name 'name'

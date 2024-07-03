@@ -995,7 +995,8 @@ By default, buildman doesn't execute 'make mrproper' prior to building the
 first commit for each board. This reduces the amount of work 'make' does, and
 hence speeds up the build. To force use of 'make mrproper', use -the -m flag.
 This flag will slow down any buildman invocation, since it increases the amount
-of work done on any build.
+of work done on any build. An alternative is to use the --fallback-mrproper
+flag, which retries the build with 'make mrproper' only after a build failure.
 
 One possible application of buildman is as part of a continual edit, build,
 edit, build, ... cycle; repeatedly applying buildman to the same change or
@@ -1284,6 +1285,11 @@ perhaps due to a failure of a tool that it calls. You might see the output, but
 then buildman hangs. Failing to handle any eventuality is a bug in buildman and
 should be reported. But you can use -T0 to disable threading and hopefully
 figure out the root cause of the build failure.
+
+For situations where buildman is invoked from multiple running processes, it is
+sometimes useful to have buildman wait until the others have finished. Use the
+--process-limit option for this: --process-limit 1 will allow only one buildman
+to process jobs at a time.
 
 Build summary
 -------------

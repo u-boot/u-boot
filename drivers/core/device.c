@@ -58,7 +58,7 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 
 	ret = uclass_get(drv->id, &uc);
 	if (ret) {
-		debug("Missing uclass for driver %s\n", drv->name);
+		dm_warn("Missing uclass for driver %s\n", drv->name);
 		return ret;
 	}
 

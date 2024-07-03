@@ -2095,7 +2095,7 @@ class TestFunctional(unittest.TestCase):
         dtb.Scan()
         props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
         orig = self._decompress(data)
-        self.assertEquals(COMPRESS_DATA, orig)
+        self.assertEqual(COMPRESS_DATA, orig)
 
         # Do a sanity check on various fields
         image = control.images['image']
@@ -2809,9 +2809,9 @@ class TestFunctional(unittest.TestCase):
 
         orig_entry = orig_image.GetEntries()['fdtmap']
         entry = image.GetEntries()['fdtmap']
-        self.assertEquals(orig_entry.offset, entry.offset)
-        self.assertEquals(orig_entry.size, entry.size)
-        self.assertEquals(orig_entry.image_pos, entry.image_pos)
+        self.assertEqual(orig_entry.offset, entry.offset)
+        self.assertEqual(orig_entry.size, entry.size)
+        self.assertEqual(orig_entry.image_pos, entry.image_pos)
 
     def testReadImageNoHeader(self):
         """Test accessing an image's FDT map without an image header"""
@@ -3895,7 +3895,7 @@ class TestFunctional(unittest.TestCase):
             mat = re_line.match(line)
             vals[mat.group(1)].append(mat.group(2))
 
-        self.assertEquals('FIT description: test-desc', lines[0])
+        self.assertEqual('FIT description: test-desc', lines[0])
         self.assertIn('Created:', lines[1])
         self.assertIn('Image 0 (kernel)', vals)
         self.assertIn('Hash value', vals)
@@ -4012,7 +4012,7 @@ class TestFunctional(unittest.TestCase):
             fit_pos,
             fdt_util.fdt32_to_cpu(fnode.props['data-position'].value))
 
-        self.assertEquals(expected_size, len(data))
+        self.assertEqual(expected_size, len(data))
         actual_pos = len(U_BOOT_DATA) + fit_pos
         self.assertEqual(U_BOOT_DATA + b'aa',
                          data[actual_pos:actual_pos + external_data_size])
@@ -4431,7 +4431,7 @@ class TestFunctional(unittest.TestCase):
         props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
                                         'uncomp-size'])
         orig = self._decompress(data)
-        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, orig)
 
         # Do a sanity check on various fields
         image = control.images['image']
@@ -4475,7 +4475,7 @@ class TestFunctional(unittest.TestCase):
                                         'uncomp-size'])
         orig = self._decompress(data)
 
-        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA + U_BOOT_DATA, orig)
+        self.assertEqual(COMPRESS_DATA + COMPRESS_DATA + U_BOOT_DATA, orig)
 
         # Do a sanity check on various fields
         image = control.images['image']
@@ -4519,7 +4519,7 @@ class TestFunctional(unittest.TestCase):
         props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
                                         'uncomp-size'])
         orig = self._decompress(data)
-        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, orig)
         expected = {
             'section/blob:offset': 0,
             'section/blob:size': len(COMPRESS_DATA),
@@ -4545,7 +4545,7 @@ class TestFunctional(unittest.TestCase):
         props = self._GetPropTree(dtb, ['offset', 'image-pos', 'size',
                                         'uncomp-size'])
         orig = self._decompress(data)
-        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, orig)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, orig)
         expected = {
             'section/blob:offset': 0,
             'section/blob:size': len(COMPRESS_DATA),
@@ -4580,7 +4580,7 @@ class TestFunctional(unittest.TestCase):
                                         'uncomp-size'])
 
         base = data[len(U_BOOT_DATA):]
-        self.assertEquals(U_BOOT_DATA, base[:len(U_BOOT_DATA)])
+        self.assertEqual(U_BOOT_DATA, base[:len(U_BOOT_DATA)])
         rest = base[len(U_BOOT_DATA):]
 
         # Check compressed data
@@ -4588,22 +4588,22 @@ class TestFunctional(unittest.TestCase):
         expect1 = bintool.compress(COMPRESS_DATA + U_BOOT_DATA)
         data1 = rest[:len(expect1)]
         section1 = self._decompress(data1)
-        self.assertEquals(expect1, data1)
-        self.assertEquals(COMPRESS_DATA + U_BOOT_DATA, section1)
+        self.assertEqual(expect1, data1)
+        self.assertEqual(COMPRESS_DATA + U_BOOT_DATA, section1)
         rest1 = rest[len(expect1):]
 
         expect2 = bintool.compress(COMPRESS_DATA + COMPRESS_DATA)
         data2 = rest1[:len(expect2)]
         section2 = self._decompress(data2)
-        self.assertEquals(expect2, data2)
-        self.assertEquals(COMPRESS_DATA + COMPRESS_DATA, section2)
+        self.assertEqual(expect2, data2)
+        self.assertEqual(COMPRESS_DATA + COMPRESS_DATA, section2)
         rest2 = rest1[len(expect2):]
 
         expect_size = (len(U_BOOT_DATA) + len(U_BOOT_DATA) + len(expect1) +
                        len(expect2) + len(U_BOOT_DATA))
-        #self.assertEquals(expect_size, len(data))
+        #self.assertEqual(expect_size, len(data))
 
-        #self.assertEquals(U_BOOT_DATA, rest2)
+        #self.assertEqual(U_BOOT_DATA, rest2)
 
         self.maxDiff = None
         expected = {
@@ -4695,7 +4695,7 @@ class TestFunctional(unittest.TestCase):
 
         u_boot = image.GetEntries()['section'].GetEntries()['u-boot']
 
-        self.assertEquals(U_BOOT_DATA, u_boot.ReadData())
+        self.assertEqual(U_BOOT_DATA, u_boot.ReadData())
 
     def testTplNoDtb(self):
         """Test that an image with tpl/u-boot-tpl-nodtb.bin can be created"""
@@ -5526,7 +5526,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         segments, entry = elf.read_loadable_segments(elf_data)
 
         # We assume there are two segments
-        self.assertEquals(2, len(segments))
+        self.assertEqual(2, len(segments))
 
         atf1 = dtb.GetNode('/images/atf-1')
         _, start, data = segments[0]
@@ -6107,7 +6107,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             data = bintool.compress(COMPRESS_DATA)
             self.assertNotEqual(COMPRESS_DATA, data)
             orig = bintool.decompress(data)
-            self.assertEquals(COMPRESS_DATA, orig)
+            self.assertEqual(COMPRESS_DATA, orig)
 
     def testCompUtilVersions(self):
         """Test tool version of compression algorithms"""
@@ -6125,7 +6125,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self.assertNotEqual(COMPRESS_DATA, data)
             data += tools.get_bytes(0, 64)
             orig = bintool.decompress(data)
-            self.assertEquals(COMPRESS_DATA, orig)
+            self.assertEqual(COMPRESS_DATA, orig)
 
     def testCompressDtbZstd(self):
         """Test that zstd compress of device-tree files failed"""
@@ -7459,6 +7459,34 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that both accept and revert capsule are not specified"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('323_capsule_accept_revert_missing.dts')
+
+    def test_assume_size(self):
+        """Test handling of the assume-size property for external blob"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('326_assume_size.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        self.assertIn("contents size 0xa (10) exceeds section size 0x9 (9)",
+                      str(e.exception))
+
+    def test_assume_size_ok(self):
+        """Test handling of the assume-size where it fits OK"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('327_assume_size_ok.dts', allow_missing=True,
+                             allow_fake_blobs=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' has faked external blobs and is non-functional: .*")
+
+    def test_assume_size_no_fake(self):
+        """Test handling of the assume-size where it fits OK"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoTestFile('327_assume_size_ok.dts', allow_missing=True)
+        err = stderr.getvalue()
+        self.assertRegex(
+            err,
+            "Image '.*' is missing external blobs and is non-functional: .*")
+
 
 if __name__ == "__main__":
     unittest.main()

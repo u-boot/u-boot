@@ -90,7 +90,7 @@ class Toolchain:
         if self.arch == 'sandbox' and override_toolchain:
             self.gcc = override_toolchain
 
-        env = self.MakeEnvironment(False)
+        env = self.MakeEnvironment()
 
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
@@ -172,12 +172,12 @@ class Toolchain:
         else:
             raise ValueError('Unknown arg to GetEnvArgs (%d)' % which)
 
-    def MakeEnvironment(self, full_path):
+    def MakeEnvironment(self, env=None):
         """Returns an environment for using the toolchain.
 
-        Thie takes the current environment and adds CROSS_COMPILE so that
+        This takes the current environment and adds CROSS_COMPILE so that
         the tool chain will operate correctly. This also disables localized
-        output and possibly unicode encoded output of all build tools by
+        output and possibly Unicode encoded output of all build tools by
         adding LC_ALL=C.
 
         Note that os.environb is used to obtain the environment, since in some
@@ -188,25 +188,23 @@ class Toolchain:
              569-570: surrogates not allowed
 
         Args:
-            full_path: Return the full path in CROSS_COMPILE and don't set
-                PATH
+            env (dict of bytes): Original environment, used for testing
+
         Returns:
             Dict containing the (bytes) environment to use. This is based on the
-            current environment, with changes as needed to CROSS_COMPILE, PATH
-            and LC_ALL.
+            current environment, with changes as needed to CROSS_COMPILE and
+            LC_ALL.
         """
-        env = dict(os.environb)
+        env = dict(env or os.environb)
+
         wrapper = self.GetWrapper()
 
         if self.override_toolchain:
             # We'll use MakeArgs() to provide this
             pass
-        elif full_path:
+        else:
             env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
-        else:
-            env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
-            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 

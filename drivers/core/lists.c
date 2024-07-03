@@ -144,7 +144,7 @@ int device_bind_driver_to_node(struct udevice *parent, const char *drv_name,
 
 	drv = lists_driver_lookup_name(drv_name);
 	if (!drv) {
-		debug("Cannot find driver '%s'\n", drv_name);
+		dm_warn("Cannot find driver '%s'\n", drv_name);
 		return -ENOENT;
 	}
 	ret = device_bind_with_driver_data(parent, drv, dev_name, 0 /* data */,
@@ -246,9 +246,8 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 		}
 
 		if (entry->of_match)
-			log_debug("   - found match at '%s': '%s' matches '%s'\n",
-				  entry->name, entry->of_match->compatible,
-				  id->compatible);
+			log_debug("   - found match at driver '%s' for '%s'\n",
+				  entry->name, id->compatible);
 		ret = device_bind_with_driver_data(parent, entry, name,
 						   id ? id->data : 0, node,
 						   &dev);

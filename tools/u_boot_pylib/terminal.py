@@ -164,8 +164,11 @@ def print_clear():
     global last_print_len
 
     if last_print_len:
-        print('\r%s\r' % (' '* last_print_len), end='', flush=True)
-        last_print_len = None
+        if print_test_mode:
+            print_test_list.append(PrintLine(None, None, None, None))
+        else:
+            print('\r%s\r' % (' '* last_print_len), end='', flush=True)
+            last_print_len = None
 
 def set_print_test_mode(enable=True):
     """Go into test mode, where all printing is recorded"""

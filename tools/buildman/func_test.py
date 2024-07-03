@@ -807,27 +807,27 @@ CONFIG_LOCALVERSION=y
         params, warnings = self._boards.scan_defconfigs(src, src)
 
         # We should get two boards
-        self.assertEquals(2, len(params))
+        self.assertEqual(2, len(params))
         self.assertFalse(warnings)
         first = 0 if params[0]['target'] == 'board0' else 1
         board0 = params[first]
         board2 = params[1 - first]
 
-        self.assertEquals('arm', board0['arch'])
-        self.assertEquals('armv7', board0['cpu'])
-        self.assertEquals('-', board0['soc'])
-        self.assertEquals('Tester', board0['vendor'])
-        self.assertEquals('ARM Board 0', board0['board'])
-        self.assertEquals('config0', board0['config'])
-        self.assertEquals('board0', board0['target'])
+        self.assertEqual('arm', board0['arch'])
+        self.assertEqual('armv7', board0['cpu'])
+        self.assertEqual('-', board0['soc'])
+        self.assertEqual('Tester', board0['vendor'])
+        self.assertEqual('ARM Board 0', board0['board'])
+        self.assertEqual('config0', board0['config'])
+        self.assertEqual('board0', board0['target'])
 
-        self.assertEquals('powerpc', board2['arch'])
-        self.assertEquals('ppc', board2['cpu'])
-        self.assertEquals('mpc85xx', board2['soc'])
-        self.assertEquals('Tester', board2['vendor'])
-        self.assertEquals('PowerPC board 1', board2['board'])
-        self.assertEquals('config2', board2['config'])
-        self.assertEquals('board2', board2['target'])
+        self.assertEqual('powerpc', board2['arch'])
+        self.assertEqual('ppc', board2['cpu'])
+        self.assertEqual('mpc85xx', board2['soc'])
+        self.assertEqual('Tester', board2['vendor'])
+        self.assertEqual('PowerPC board 1', board2['board'])
+        self.assertEqual('config2', board2['config'])
+        self.assertEqual('board2', board2['target'])
 
     def test_output_is_new(self):
         """Test detecting new changes to Kconfig"""
@@ -898,7 +898,7 @@ Active  aarch64     armv8 - armltd total_compute board2
         params_list, warnings = self._boards.build_board_list(config_dir, src)
 
         # There should be two boards no warnings
-        self.assertEquals(2, len(params_list))
+        self.assertEqual(2, len(params_list))
         self.assertFalse(warnings)
 
         # Set an invalid status line in the file
@@ -907,12 +907,12 @@ Active  aarch64     armv8 - armltd total_compute board2
                   for line in orig_data.splitlines(keepends=True)]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
+        self.assertEqual(2, len(params_list))
         params = params_list[0]
         if params['target'] == 'board2':
             params = params_list[1]
-        self.assertEquals('-', params['status'])
-        self.assertEquals(["WARNING: Other: unknown status for 'board0'"],
+        self.assertEqual('-', params['status'])
+        self.assertEqual(["WARNING: Other: unknown status for 'board0'"],
                           warnings)
 
         # Remove the status line (S:) from a file
@@ -920,39 +920,39 @@ Active  aarch64     armv8 - armltd total_compute board2
                  if not line.startswith('S:')]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(["WARNING: -: unknown status for 'board0'"], warnings)
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(["WARNING: -: unknown status for 'board0'"], warnings)
 
         # Remove the configs/ line (F:) from a file - this is the last line
         data = ''.join(orig_data.splitlines(keepends=True)[:-1])
         tools.write_file(main, data, binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Mark a board as orphaned - this should give a warning
         lines = ['S: Orphaned' if line.startswith('S') else line
                  for line in orig_data.splitlines(keepends=True)]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Change the maintainer to '-' - this should give a warning
         lines = ['M: -' if line.startswith('M') else line
                  for line in orig_data.splitlines(keepends=True)]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(["WARNING: -: unknown status for 'board0'"], warnings)
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(["WARNING: -: unknown status for 'board0'"], warnings)
 
         # Remove the maintainer line (M:) from a file
         lines = [line for line in orig_data.splitlines(keepends=True)
                  if not line.startswith('M:')]
         tools.write_file(main, ''.join(lines), binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(["WARNING: no maintainers for 'board0'"], warnings)
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(["WARNING: no maintainers for 'board0'"], warnings)
 
         # Move the contents of the second file into this one, removing the
         # second file, to check multiple records in a single file.
@@ -960,14 +960,14 @@ Active  aarch64     armv8 - armltd total_compute board2
         tools.write_file(main, both_data, binary=False)
         os.remove(other)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
+        self.assertEqual(2, len(params_list))
         self.assertFalse(warnings)
 
         # Add another record, this should be ignored with a warning
         extra = '\n\nAnother\nM: Fred\nF: configs/board9_defconfig\nS: other\n'
         tools.write_file(main, both_data + extra, binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
+        self.assertEqual(2, len(params_list))
         self.assertFalse(warnings)
 
         # Add another TARGET to the Kconfig
@@ -983,8 +983,8 @@ endif
         tools.write_file(kc_file, orig_kc_data + extra)
         params_list, warnings = self._boards.build_board_list(config_dir, src,
                                                               warn_targets=True)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(
             ['WARNING: board2_defconfig: Duplicate TARGET_xxx: board2 and other'],
              warnings)
 
@@ -994,8 +994,8 @@ endif
         tools.write_file(kc_file, b''.join(lines))
         params_list, warnings = self._boards.build_board_list(config_dir, src,
                                                               warn_targets=True)
-        self.assertEquals(2, len(params_list))
-        self.assertEquals(
+        self.assertEqual(2, len(params_list))
+        self.assertEqual(
             ['WARNING: board2_defconfig: No TARGET_BOARD2 enabled'],
              warnings)
         tools.write_file(kc_file, orig_kc_data)
@@ -1004,7 +1004,7 @@ endif
         data = ''.join(both_data.splitlines(keepends=True)[:-1])
         tools.write_file(main, data + 'N: oa.*2\n', binary=False)
         params_list, warnings = self._boards.build_board_list(config_dir, src)
-        self.assertEquals(2, len(params_list))
+        self.assertEqual(2, len(params_list))
         self.assertFalse(warnings)
 
     def testRegenBoards(self):

@@ -59,7 +59,7 @@ class Entry_intel_descriptor(Entry_blob_ext):
         if self.missing:
             # Return zero offsets so that these entries get placed somewhere
             if self.HasSibling('intel-me'):
-                info['intel-me'] = [0, None]
+                info['intel-me'] = [0x1000, None]
             return info
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:

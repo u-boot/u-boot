@@ -19,31 +19,33 @@ class Entry_efi_empty_capsule(Entry_section):
     be provided as properties in the entry.
 
     Properties / Entry arguments:
-    - image-guid: Image GUID which will be used for identifying the
-      updatable image on the board. Mandatory for accept capsule.
-    - capsule-type - String to indicate type of capsule to generate. Valid
-      values are 'accept' and 'revert'.
+        - image-guid: Image GUID which will be used for identifying the
+          updatable image on the board. Mandatory for accept capsule.
+        - capsule-type - String to indicate type of capsule to generate. Valid
+          values are 'accept' and 'revert'.
 
     For more details on the description of the capsule format, and the capsule
     update functionality, refer Section 8.5 and Chapter 23 in the `UEFI
     specification`_. For more information on the empty capsule, refer the
     sections 2.3.2 and 2.3.3 in the `Dependable Boot specification`_.
 
-    A typical accept empty capsule entry node would then look something like this
+    A typical accept empty capsule entry node would then look something like
+    this::
 
-    empty-capsule {
+        empty-capsule {
             type = "efi-empty-capsule";
             /* GUID of image being accepted */
             image-type-id = SANDBOX_UBOOT_IMAGE_GUID;
             capsule-type = "accept";
-    };
+        };
 
-    A typical revert empty capsule entry node would then look something like this
+    A typical revert empty capsule entry node would then look something like
+    this::
 
-    empty-capsule {
+        empty-capsule {
             type = "efi-empty-capsule";
             capsule-type = "revert";
-    };
+        };
 
     The empty capsules do not have any input payload image.
 

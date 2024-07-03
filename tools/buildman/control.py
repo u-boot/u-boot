@@ -7,10 +7,13 @@
 This holds the main control logic for buildman, when not running tests.
 """
 
+import getpass
 import multiprocessing
 import os
 import shutil
 import sys
+import tempfile
+import time
 
 from buildman import boards
 from buildman import bsettings
@@ -21,9 +24,22 @@ from patman import gitutil
 from patman import patchstream
 from u_boot_pylib import command
 from u_boot_pylib import terminal
-from u_boot_pylib.terminal import tprint
+from u_boot_pylib import tools
+from u_boot_pylib.terminal import print_clear, tprint
 
 TEST_BUILDER = None
+
+# Space-separated list of buildman process IDs currently running jobs
+RUNNING_FNAME = f'buildmanq.{getpass.getuser()}'
+
+# Lock file for access to RUNNING_FILE
+LOCK_FNAME = f'{RUNNING_FNAME}.lock'
+
+# Wait time for access to lock (seconds)
+LOCK_WAIT_S = 10
+
+# Wait time to start running
+RUN_WAIT_S = 300
 
 def get_plural(count):
     """Returns a plural 's' if count is not 1"""
@@ -578,6 +594,125 @@ def calc_adjust_cfg(adjust_cfg, reproducible_builds):
     return adjust_cfg
 
 
+def read_procs(tmpdir=tempfile.gettempdir()):
+    """Read the list of running buildman processes
+
+    If the list is corrupted, returns an empty list
+
+    Args:
+        tmpdir (str): Temporary directory to use (for testing only)
+    """
+    running_fname = os.path.join(tmpdir, RUNNING_FNAME)
+    procs = []
+    if os.path.exists(running_fname):
+        items = tools.read_file(running_fname, binary=False).split()
+        try:
+            procs = [int(x) for x in items]
+        except ValueError: # Handle invalid format
+            pass
+    return procs
+
+
+def check_pid(pid):
+    """Check for existence of a unix PID
+
+    https://stackoverflow.com/questions/568271/how-to-check-if-there-exists-a-process-with-a-given-pid-in-python
+
+    Args:
+        pid (int): PID to check
+
+    Returns:
+        True if it exists, else False
+    """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
+
+
+def write_procs(procs, tmpdir=tempfile.gettempdir()):
+    """Write the list of running buildman processes
+
+    Args:
+        tmpdir (str): Temporary directory to use (for testing only)
+    """
+    running_fname = os.path.join(tmpdir, RUNNING_FNAME)
+    tools.write_file(running_fname, ' '.join([str(p) for p in procs]),
+                     binary=False)
+
+    # Allow another user to access the file
+    os.chmod(running_fname, 0o666)
+
+def wait_for_process_limit(limit, tmpdir=tempfile.gettempdir(),
+                           pid=os.getpid()):
+    """Wait until the number of buildman processes drops to the limit
+
+    This uses FileLock to protect a 'running' file, which contains a list of
+    PIDs of running buildman processes. The number of PIDs in the file indicates
+    the number of running processes.
+
+    When buildman starts up, it calls this function to wait until it is OK to
+    start the build.
+
+    On exit, no attempt is made to remove the PID from the file, since other
+    buildman processes will notice that the PID is no-longer valid, and ignore
+    it.
+
+    Two timeouts are provided:
+        LOCK_WAIT_S: length of time to wait for the lock; if this occurs, the
+            lock is busted / removed before trying again
+        RUN_WAIT_S: length of time to wait to be allowed to run; if this occurs,
+            the build starts, with the PID being added to the file.
+
+    Args:
+        limit (int): Maximum number of buildman processes, including this one;
+            must be > 0
+        tmpdir (str): Temporary directory to use (for testing only)
+        pid (int): Current process ID (for testing only)
+    """
+    from filelock import Timeout, FileLock
+
+    running_fname = os.path.join(tmpdir, RUNNING_FNAME)
+    lock_fname = os.path.join(tmpdir, LOCK_FNAME)
+    lock = FileLock(lock_fname)
+
+    # Allow another user to access the file
+    col = terminal.Color()
+    tprint('Waiting for other buildman processes...', newline=False,
+           colour=col.RED)
+
+    claimed = False
+    deadline = time.time() + RUN_WAIT_S
+    while True:
+        try:
+            with lock.acquire(timeout=LOCK_WAIT_S):
+                os.chmod(lock_fname, 0o666)
+                procs = read_procs(tmpdir)
+
+                # Drop PIDs which are not running
+                procs = list(filter(check_pid, procs))
+
+                # If we haven't hit the limit, add ourself
+                if len(procs) < limit:
+                    tprint('done...', newline=False)
+                    claimed = True
+                if time.time() >= deadline:
+                    tprint('timeout...', newline=False)
+                    claimed = True
+                if claimed:
+                    write_procs(procs + [pid], tmpdir)
+                    break
+
+        except Timeout:
+            tprint('failed to get lock: busting...', newline=False)
+            os.remove(lock_fname)
+
+        time.sleep(1)
+    tprint('starting build', newline=False)
+    print_clear()
+
 def do_buildman(args, toolchains=None, make_func=None, brds=None,
                 clean_dir=False, test_thread_exceptions=False):
     """The main control code for buildman
@@ -653,9 +788,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
     builder = Builder(toolchains, output_dir, git_dir,
             args.threads, args.jobs, checkout=True,
             show_unknown=args.show_unknown, step=args.step,
-            no_subdirs=args.no_subdirs, full_path=args.full_path,
-            verbose_build=args.verbose_build,
-            mrproper=args.mrproper,
+            no_subdirs=args.no_subdirs, verbose_build=args.verbose_build,
+            mrproper=args.mrproper, fallback_mrproper=args.fallback_mrproper,
             per_board_out_dir=args.per_board_out_dir,
             config_only=args.config_only,
             squash_config_y=not args.preserve_config_y,
@@ -675,6 +809,9 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             force_config_on_failure=not args.quick, make_func=make_func)
 
     TEST_BUILDER = builder
+
+    if args.process_limit:
+        wait_for_process_limit(args.process_limit)
 
     return run_builder(builder, series.commits if series else None,
                        brds.get_selected_dict(), args)

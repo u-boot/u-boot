@@ -29,7 +29,10 @@ def setup(fname=''):
             settings.read(config_fname)
 
 def add_file(data):
-    settings.readfp(io.StringIO(data))
+    settings.read_file(io.StringIO(data))
+
+def add_section(name):
+    settings.add_section(name)
 
 def get_items(section):
     """Get the items from a section of the config.

@@ -196,10 +196,6 @@ struct global_data {
 	 */
 	struct udevice *dm_root;
 	/**
-	 * @dm_root_f: pre-relocation root instance
-	 */
-	struct udevice *dm_root_f;
-	/**
 	 * @uclass_root_s:
 	 * head of core tree when uclasses are not in read-only memory.
 	 *

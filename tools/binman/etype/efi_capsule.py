@@ -36,23 +36,23 @@ class Entry_efi_capsule(Entry_section):
     be provided as properties in the entry.
 
     Properties / Entry arguments:
-    - image-index: Unique number for identifying corresponding
-      payload image. Number between 1 and descriptor count, i.e.
-      the total number of firmware images that can be updated. Mandatory
-      property.
-    - image-guid: Image GUID which will be used for identifying the
-      updatable image on the board. Mandatory property.
-    - hardware-instance: Optional number for identifying unique
-      hardware instance of a device in the system. Default value of 0
-      for images where value is not to be used.
-    - fw-version: Value of image version that can be put on the capsule
-      through the Firmware Management Protocol(FMP) header.
-    - monotonic-count: Count used when signing an image.
-    - private-key: Path to PEM formatted .key private key file. Mandatory
-      property for generating signed capsules.
-    - public-key-cert: Path to PEM formatted .crt public key certificate
-      file. Mandatory property for generating signed capsules.
-    - oem-flags - OEM flags to be passed through capsule header.
+        - image-index: Unique number for identifying corresponding
+          payload image. Number between 1 and descriptor count, i.e.
+          the total number of firmware images that can be updated. Mandatory
+          property.
+        - image-guid: Image GUID which will be used for identifying the
+          updatable image on the board. Mandatory property.
+        - hardware-instance: Optional number for identifying unique
+          hardware instance of a device in the system. Default value of 0
+          for images where value is not to be used.
+        - fw-version: Value of image version that can be put on the capsule
+          through the Firmware Management Protocol(FMP) header.
+        - monotonic-count: Count used when signing an image.
+        - private-key: Path to PEM formatted .key private key file. Mandatory
+          property for generating signed capsules.
+        - public-key-cert: Path to PEM formatted .crt public key certificate
+          file. Mandatory property for generating signed capsules.
+        - oem-flags - OEM flags to be passed through capsule header.
 
     Since this is a subclass of Entry_section, all properties of the parent
     class also apply here. Except for the properties stated as mandatory, the
@@ -66,9 +66,9 @@ class Entry_efi_capsule(Entry_section):
     properties in the entry. The payload to be used in the capsule is to be
     provided as a subnode of the capsule entry.
 
-    A typical capsule entry node would then look something like this
+    A typical capsule entry node would then look something like this::
 
-    capsule {
+        capsule {
             type = "efi-capsule";
             image-index = <0x1>;
             /* Image GUID for testing capsule update */
@@ -80,7 +80,7 @@ class Entry_efi_capsule(Entry_section):
 
             u-boot {
             };
-    };
+        };
 
     In the above example, the capsule payload is the U-Boot image. The
     capsule entry would read the contents of the payload and put them

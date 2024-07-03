@@ -24,9 +24,11 @@
 #ifdef CONFIG_HAVE_INTEL_ME
 	intel-descriptor {
 		filename = CONFIG_FLASH_DESCRIPTOR_FILE;
+		assume-size = <0x1000>;
 	};
 	intel-me {
 		filename = CONFIG_INTEL_ME_FILE;
+		assume-size = <0x1ff000>;
 	};
 #endif
 #ifdef CONFIG_TPL
@@ -87,6 +89,7 @@
 #ifdef CONFIG_HAVE_MRC
 	intel-mrc {
 		offset = <CFG_X86_MRC_ADDR>;
+		assume-size = <0x2fc94>;
 	};
 #endif
 #ifdef CONFIG_FSP_VERSION1
@@ -98,6 +101,7 @@
 #ifdef CONFIG_FSP_VERSION2
 	intel-descriptor {
 		filename = CONFIG_FLASH_DESCRIPTOR_FILE;
+		assume-size = <4096>;
 	};
 	intel-ifwi {
 		filename = CONFIG_IFWI_INPUT_FILE;
@@ -139,6 +143,7 @@
 	intel-vga {
 		filename = CONFIG_VGA_BIOS_FILE;
 		offset = <CONFIG_VGA_BIOS_ADDR>;
+		assume-size = <0x10000>;
 	};
 #endif
 #ifdef CONFIG_HAVE_VBT

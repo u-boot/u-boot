@@ -21,7 +21,9 @@ Series-cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
 Cover-letter-cc: Lord Mëlchett <clergy@palace.gov>
 Series-version: 3
 Patch-cc: fred
+Commit-cc: joe
 Series-process-log: sort, uniq
+Commit-added-in: 4
 Series-changes: 4
 - Some changes
 - Multi

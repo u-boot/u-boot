@@ -2,12 +2,14 @@
 # Copyright (c) 2012 The Chromium OS Authors.
 #
 
+from filelock import FileLock
 import os
 import shutil
 import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 from buildman import board
 from buildman import boards
@@ -146,6 +148,7 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('arm-linux-gcc', test=False)
         self.toolchains.Add('sparc-linux-gcc', test=False)
         self.toolchains.Add('powerpc-linux-gcc', test=False)
+        self.toolchains.Add('/path/to/aarch64-linux-gcc', test=False)
         self.toolchains.Add('gcc', test=False)
 
         # Avoid sending any output
@@ -155,6 +158,11 @@ class TestBuild(unittest.TestCase):
         self.base_dir = tempfile.mkdtemp()
         if not os.path.isdir(self.base_dir):
             os.mkdir(self.base_dir)
+
+        self.cur_time = 0
+        self.valid_pids = []
+        self.finish_time = None
+        self.finish_pid = None
 
     def tearDown(self):
         shutil.rmtree(self.base_dir)
@@ -584,7 +592,7 @@ class TestBuild(unittest.TestCase):
         if use_network:
             with test_util.capture_sys_output() as (stdout, stderr):
                 url = self.toolchains.LocateArchUrl('arm')
-            self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
+            self.assertRegex(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
                     'x86_64-gcc-.*-nolibc[-_]arm-.*linux-gnueabi.tar.xz')
 
@@ -747,6 +755,194 @@ class TestBuild(unittest.TestCase):
         self.assertEqual([
             ['MARY="mary"', 'Missing expected line: CONFIG_MARY="mary"']], result)
 
+    def get_procs(self):
+        running_fname = os.path.join(self.base_dir, control.RUNNING_FNAME)
+        items = tools.read_file(running_fname, binary=False).split()
+        return [int(x) for x in items]
+
+    def get_time(self):
+        return self.cur_time
+
+    def inc_time(self, amount):
+        self.cur_time += amount
+
+        # Handle a process exiting
+        if self.finish_time == self.cur_time:
+            self.valid_pids = [pid for pid in self.valid_pids
+                               if pid != self.finish_pid]
+
+    def kill(self, pid, signal):
+        if pid not in self.valid_pids:
+            raise OSError('Invalid PID')
+
+    def test_process_limit(self):
+        """Test wait_for_process_limit() function"""
+        tmpdir = self.base_dir
+
+        with (patch('time.time', side_effect=self.get_time),
+              patch('time.sleep', side_effect=self.inc_time),
+              patch('os.kill', side_effect=self.kill)):
+            # Grab the process. Since there is no other profcess, this should
+            # immediately succeed
+            control.wait_for_process_limit(1, tmpdir=tmpdir, pid=1)
+            lines = terminal.get_print_test_lines()
+            self.assertEqual(0, self.cur_time)
+            self.assertEqual('Waiting for other buildman processes...',
+                             lines[0].text)
+            self.assertEqual(self._col.RED, lines[0].colour)
+            self.assertEqual(False, lines[0].newline)
+            self.assertEqual(True, lines[0].bright)
+
+            self.assertEqual('done...', lines[1].text)
+            self.assertEqual(None, lines[1].colour)
+            self.assertEqual(False, lines[1].newline)
+            self.assertEqual(True, lines[1].bright)
+
+            self.assertEqual('starting build', lines[2].text)
+            self.assertEqual([1], control.read_procs(tmpdir))
+            self.assertEqual(None, lines[2].colour)
+            self.assertEqual(False, lines[2].newline)
+            self.assertEqual(True, lines[2].bright)
+
+            # Try again, with a different PID...this should eventually timeout
+            # and start the build anyway
+            self.cur_time = 0
+            self.valid_pids = [1]
+            control.wait_for_process_limit(1, tmpdir=tmpdir, pid=2)
+            lines = terminal.get_print_test_lines()
+            self.assertEqual('Waiting for other buildman processes...',
+                             lines[0].text)
+            self.assertEqual('timeout...', lines[1].text)
+            self.assertEqual(None, lines[1].colour)
+            self.assertEqual(False, lines[1].newline)
+            self.assertEqual(True, lines[1].bright)
+            self.assertEqual('starting build', lines[2].text)
+            self.assertEqual([1, 2], control.read_procs(tmpdir))
+            self.assertEqual(control.RUN_WAIT_S, self.cur_time)
+
+            # Check lock-busting
+            self.cur_time = 0
+            self.valid_pids = [1, 2]
+            lock_fname = os.path.join(tmpdir, control.LOCK_FNAME)
+            lock = FileLock(lock_fname)
+            lock.acquire(timeout=1)
+            control.wait_for_process_limit(1, tmpdir=tmpdir, pid=3)
+            lines = terminal.get_print_test_lines()
+            self.assertEqual('Waiting for other buildman processes...',
+                             lines[0].text)
+            self.assertEqual('failed to get lock: busting...', lines[1].text)
+            self.assertEqual(None, lines[1].colour)
+            self.assertEqual(False, lines[1].newline)
+            self.assertEqual(True, lines[1].bright)
+            self.assertEqual('timeout...', lines[2].text)
+            self.assertEqual('starting build', lines[3].text)
+            self.assertEqual([1, 2, 3], control.read_procs(tmpdir))
+            self.assertEqual(control.RUN_WAIT_S, self.cur_time)
+            lock.release()
+
+            # Check handling of dead processes. Here we have PID 2 as a running
+            # process, even though the PID file contains 1, 2 and 3. So we can
+            # add one more PID, to make 2 and 4
+            self.cur_time = 0
+            self.valid_pids = [2]
+            control.wait_for_process_limit(2, tmpdir=tmpdir, pid=4)
+            lines = terminal.get_print_test_lines()
+            self.assertEqual('Waiting for other buildman processes...',
+                             lines[0].text)
+            self.assertEqual('done...', lines[1].text)
+            self.assertEqual('starting build', lines[2].text)
+            self.assertEqual([2, 4], control.read_procs(tmpdir))
+            self.assertEqual(0, self.cur_time)
+
+            # Try again, with PID 2 quitting at time 50. This allows the new
+            # build to start
+            self.cur_time = 0
+            self.valid_pids = [2, 4]
+            self.finish_pid = 2
+            self.finish_time = 50
+            control.wait_for_process_limit(2, tmpdir=tmpdir, pid=5)
+            lines = terminal.get_print_test_lines()
+            self.assertEqual('Waiting for other buildman processes...',
+                             lines[0].text)
+            self.assertEqual('done...', lines[1].text)
+            self.assertEqual('starting build', lines[2].text)
+            self.assertEqual([4, 5], control.read_procs(tmpdir))
+            self.assertEqual(self.finish_time, self.cur_time)
+
+    def call_make_environment(self, tchn, in_env=None):
+        """Call Toolchain.MakeEnvironment() and process the result
+
+        Args:
+            tchn (Toolchain): Toolchain to use
+            in_env (dict): Input environment to use, None to use current env
+
+        Returns:
+            tuple:
+                dict: Changes that MakeEnvironment has made to the environment
+                    key: Environment variable that was changed
+                    value: New value (for PATH this only includes components
+                        which were added)
+                str: Full value of the new PATH variable
+        """
+        env = tchn.MakeEnvironment(env=in_env)
+
+        # Get the original environment
+        orig_env = dict(os.environb if in_env is None else in_env)
+        orig_path = orig_env[b'PATH'].split(b':')
+
+        # Find new variables
+        diff = dict((k, env[k]) for k in env if orig_env.get(k) != env[k])
+
+        # Find new / different path components
+        diff_path = None
+        new_path = None
+        if b'PATH' in diff:
+            new_path = diff[b'PATH'].split(b':')
+            diff_paths = [p for p in new_path if p not in orig_path]
+            diff_path = b':'.join(p for p in new_path if p not in orig_path)
+            if diff_path:
+                diff[b'PATH'] = diff_path
+            else:
+                del diff[b'PATH']
+        return diff, new_path
+
+    def test_toolchain_env(self):
+        """Test PATH and other environment settings for toolchains"""
+        # Use a toolchain which has a path
+        tchn = self.toolchains.Select('aarch64')
+
+        # Normal case
+        diff = self.call_make_environment(tchn)[0]
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'/path/to/aarch64-linux-', b'LC_ALL': b'C'},
+            diff)
+
+        # When overriding the toolchain, only LC_ALL should be set
+        tchn.override_toolchain = True
+        diff = self.call_make_environment(tchn)[0]
+        self.assertEqual({b'LC_ALL': b'C'}, diff)
+
+        # Test that virtualenv is handled correctly
+        tchn.override_toolchain = False
+        sys.prefix = '/some/venv'
+        env = dict(os.environb)
+        env[b'PATH'] = b'/some/venv/bin:other/things'
+        tchn.path = '/my/path'
+        diff, diff_path = self.call_make_environment(tchn, env)
+
+        self.assertNotIn(b'PATH', diff)
+        self.assertEqual(None, diff_path)
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'/my/path/aarch64-linux-', b'LC_ALL': b'C'},
+            diff)
+
+        # Handle a toolchain wrapper
+        tchn.path = ''
+        bsettings.add_section('toolchain-wrapper')
+        bsettings.set_item('toolchain-wrapper', 'my-wrapper', 'fred')
+        diff = self.call_make_environment(tchn)[0]
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'fred aarch64-linux-', b'LC_ALL': b'C'}, diff)
 
 if __name__ == "__main__":
     unittest.main()

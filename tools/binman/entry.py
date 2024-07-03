@@ -315,6 +315,7 @@ class Entry(object):
         self.overlap = fdt_util.GetBool(self._node, 'overlap')
         if self.overlap:
             self.required_props += ['offset', 'size']
+        self.assume_size = fdt_util.GetInt(self._node, 'assume-size', 0)
 
         # This is only supported by blobs and sections at present
         self.compress = fdt_util.GetString(self._node, 'compress', 'none')
@@ -812,7 +813,7 @@ class Entry(object):
                 as missing
         """
         print('''Binman Entry Documentation
-===========================
+==========================
 
 This file describes the entry types supported by binman. These entry types can
 be placed in an image one by one to build up a final firmware image. It is
