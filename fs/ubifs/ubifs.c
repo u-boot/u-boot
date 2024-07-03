@@ -621,6 +621,11 @@ int ubifs_ls(const char *filename)
 	unsigned long inum;
 	int ret = 0;
 
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
 		ret = -1;
@@ -661,6 +666,11 @@ int ubifs_exists(const char *filename)
 {
 	unsigned long inum;
 
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 
 	return inum != 0;
@@ -671,6 +681,11 @@ int ubifs_size(const char *filename, loff_t *size)
 	unsigned long inum;
 	struct inode *inode;
 	int err = 0;
+
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
 
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
@@ -874,6 +889,11 @@ int ubifs_read(const char *filename, void *buf, loff_t offset,
 	int i;
 	int count;
 	int last_block_size = 0;
+
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
 
 	*actread = 0;
 
