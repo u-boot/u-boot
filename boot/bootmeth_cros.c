@@ -147,7 +147,7 @@ static int scan_part(struct udevice *blk, int partnum,
 {
 	struct blk_desc *desc = dev_get_uclass_plat(blk);
 	struct vb2_keyblock *hdr;
-	struct uuid type;
+	efi_guid_t type;
 	ulong num_blks;
 	int ret;
 
@@ -160,10 +160,10 @@ static int scan_part(struct udevice *blk, int partnum,
 
 	/* Check for kernel partition type */
 	log_debug("part %x: type=%s\n", partnum, info->type_guid);
-	if (uuid_str_to_bin(info->type_guid, (u8 *)&type, UUID_STR_FORMAT_GUID))
+	if (uuid_str_to_bin(info->type_guid, type.b, UUID_STR_FORMAT_GUID))
 		return log_msg_ret("typ", -EINVAL);
 
-	if (memcmp(&cros_kern_type, &type, sizeof(type)))
+	if (guidcmp(&cros_kern_type, &type))
 		return log_msg_ret("typ", -ENOEXEC);
 
 	/* Make a buffer for the header information */
