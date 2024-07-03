@@ -248,7 +248,7 @@ static int ubi_create_vol(char *volume, int64_t size, int dynamic, int vol_id,
 
 static struct ubi_volume *ubi_find_volume(char *volume)
 {
-	struct ubi_volume *vol = NULL;
+	struct ubi_volume *vol;
 	int i;
 
 	for (i = 0; i < ubi->vtbl_slots; i++) {
@@ -355,12 +355,17 @@ static int ubi_rename_vol(char *oldname, char *newname)
 
 static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 {
-	int err = 1;
+	int err;
 	struct ubi_volume *vol;
 
 	vol = ubi_find_volume(volume);
 	if (vol == NULL)
 		return ENODEV;
+
+	if (!vol->updating) {
+		printf("UBI volume update was not initiated\n");
+		return EINVAL;
+	}
 
 	err = ubi_more_update_data(ubi, vol, buf, size);
 	if (err < 0) {
@@ -391,8 +396,8 @@ static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 int ubi_volume_begin_write(char *volume, void *buf, size_t size,
 	size_t full_size)
 {
-	int err = 1;
-	int rsvd_bytes = 0;
+	int err;
+	int rsvd_bytes;
 	struct ubi_volume *vol;
 
 	vol = ubi_find_volume(volume);
@@ -410,6 +415,10 @@ int ubi_volume_begin_write(char *volume, void *buf, size_t size,
 		printf("Cannot start volume update\n");
 		return -err;
 	}
+
+	/* The volume is just wiped out */
+	if (!full_size)
+		return 0;
 
 	return ubi_volume_continue_write(volume, buf, size);
 }
@@ -573,7 +582,7 @@ static int ubi_detach(void)
 int ubi_part(char *part_name, const char *vid_header_offset)
 {
 	struct mtd_info *mtd;
-	int err = 0;
+	int err;
 
 	if (ubi && ubi->mtd && !strcmp(ubi->mtd->name, part_name)) {
 		printf("UBI partition '%s' already selected\n", part_name);
@@ -604,7 +613,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 
 static int do_ubi(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	int64_t size = 0;
+	int64_t size;
 	ulong addr = 0;
 	bool skipcheck = false;
 
