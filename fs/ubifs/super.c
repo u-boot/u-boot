@@ -1762,8 +1762,8 @@ void ubifs_umount(struct ubifs_info *c)
 	mutex_unlock(&c->umount_mutex);
 	/* Finally free U-Boot's global copy of superblock */
 	if (ubifs_sb != NULL) {
-		free(ubifs_sb->s_fs_info);
-		free(ubifs_sb);
+		kfree(ubifs_sb->s_fs_info);
+		kfree(ubifs_sb);
 		ubifs_sb = NULL;
 	}
 #endif
