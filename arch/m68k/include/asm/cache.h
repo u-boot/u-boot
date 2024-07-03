@@ -185,7 +185,6 @@
 
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
-void icache_invalid(void);
 void dcache_invalid(void);
 
 #endif

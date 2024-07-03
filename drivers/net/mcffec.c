@@ -11,6 +11,7 @@
  */
 
 #include <config.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <hang.h>
 #include <malloc.h>
@@ -399,7 +400,7 @@ static int mcffec_send(struct udevice *dev, void *packet, int length)
 #endif
 
 #ifdef CONFIG_SYS_UNIFY_CACHE
-	icache_invalid();
+	invalidate_icache_all();
 #endif
 
 	j = 0;
@@ -433,7 +434,7 @@ static int mcffec_recv(struct udevice *dev, int flags, uchar **packetp)
 
 	for (;;) {
 #ifdef CONFIG_SYS_UNIFY_CACHE
-		icache_invalid();
+		invalidate_icache_all();
 #endif
 		/* If nothing received - leave for() loop */
 		if (info->rxbd[info->rx_idx].cbd_sc & BD_ENET_RX_EMPTY)

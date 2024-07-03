@@ -29,7 +29,7 @@ int dcache_status(void)
 
 void icache_enable(void)
 {
-	icache_invalid();
+	invalidate_icache_all();
 
 	*cf_icache_status = 1;
 
@@ -53,7 +53,7 @@ void icache_disable(void)
 	u32 temp = 0;
 
 	*cf_icache_status = 0;
-	icache_invalid();
+	invalidate_icache_all();
 
 #if defined(CONFIG_CF_V4) || defined(CFG_CF_V4E)
 	__asm__ __volatile__("movec %0, %%acr2"::"r"(temp));
@@ -68,7 +68,7 @@ void icache_disable(void)
 #endif
 }
 
-void icache_invalid(void)
+void invalidate_icache_all(void)
 {
 	u32 temp;
 
@@ -132,6 +132,15 @@ void dcache_invalid(void)
 
 	__asm__ __volatile__("movec %0, %%cacr"::"r"(temp));
 #endif
+}
+
+/*
+ * Default implementation:
+ * do a range flush for the entire range
+ */
+__weak void flush_dcache_all(void)
+{
+	flush_dcache_range(0, ~0);
 }
 
 __weak void invalidate_dcache_range(unsigned long start, unsigned long stop)

@@ -5,6 +5,7 @@
  */
 
 #include <cpu_func.h>
+#include <stdio.h>
 #include <asm/cache.h>
 #include <watchdog.h>
 
@@ -42,4 +43,18 @@ void flush_cache(ulong start_addr, ulong size)
 	asm volatile("sync" : : : "memory");
 	/* flush prefetch queue */
 	asm volatile("isync" : : : "memory");
+}
+
+/*
+ * Default implementation:
+ * do a range flush for the entire range
+ */
+void flush_dcache_all(void)
+{
+	flush_dcache_range(0, ~0);
+}
+
+void invalidate_icache_all(void)
+{
+	puts("No arch specific invalidate_icache_all available!\n");
 }
