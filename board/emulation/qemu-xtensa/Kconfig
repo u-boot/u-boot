@@ -1,0 +1,43 @@
+if TARGET_QEMU_XTENSA
+
+config SYS_BOARD
+	default "qemu-xtensa"
+
+config SYS_VENDOR
+	default "emulation"
+
+config SYS_CONFIG_NAME
+	default "qemu-xtensa"
+
+config TEXT_BASE
+	default 0x50000000 if (SYS_CPU = de212)
+	default 0xfe000000
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select BOARD_EARLY_INIT_F
+	select DM
+	select CPU
+	select CPU_XTENSA
+	select CLK
+	select DM_SERIAL
+	select XTENSA_SEMIHOSTING
+	select XTENSA_SEMIHOSTING_SERIAL
+	imply BLK
+	imply VIRTIO
+	imply VIRTIO_PCI
+	imply VIRTIO_NET
+	imply VIRTIO_BLK
+	imply E1000
+	imply PCI
+	imply PCI_INIT_R
+	imply NVME_PCI
+	imply PCIE_ECAM_GENERIC
+	imply SCSI
+	imply REMAKE_ELF
+	select OF_CONTROL
+	select OF_UPSTREAM
+	imply CMD_DM
+	imply CMD_PCI
+
+endif

@@ -7,6 +7,8 @@
 #ifndef _XTENSA_ADDRSPACE_H
 #define _XTENSA_ADDRSPACE_H
 
+#include <config.h>
+
 #include <asm/arch/core.h>
 
 /*

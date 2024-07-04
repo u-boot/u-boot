@@ -501,6 +501,15 @@ config DEBUG_UART_MT7620
 	  driver will be available until the real driver model serial is
 	  running.
 
+config DEBUG_UART_XTENSA_SEMIHOSTING
+	bool "Xtensa semihosting"
+	depends on XTENSA_SEMIHOSTING_SERIAL
+	help
+	  Select this to enable the debug UART using the Xtensa semihosting driver.
+	  This provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -936,7 +945,6 @@ config SH_SCIF_CLK_FREQ
 config SEMIHOSTING_SERIAL
 	bool "Semihosting UART support"
 	depends on SEMIHOSTING && !SERIAL_RX_BUFFER
-	imply SERIAL_PUTS
 	help
 	  Select this to enable a serial UART using semihosting. Special halt
 	  instructions will be issued which an external debugger (such as a
@@ -1114,6 +1122,14 @@ config XEN_SERIAL
 	help
 	  If built without DM support, then requires Xen
 	  to be built with CONFIG_VERBOSE_DEBUG.
+
+config XTENSA_SEMIHOSTING_SERIAL
+	bool "Xtensa Semihosting UART support"
+	depends on DM_SERIAL
+	depends on XTENSA_SEMIHOSTING
+	imply SERIAL_PUTS
+	help
+	  Select this to enable a serial UART using Xtensa semihosting.
 
 choice
 	prompt "Console port"

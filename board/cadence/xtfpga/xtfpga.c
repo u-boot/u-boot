@@ -66,6 +66,11 @@ unsigned long get_board_sys_clk(void)
 #endif
 }
 
+int dram_init(void)
+{
+	return 0;
+}
+
 int board_postclk_init(void)
 {
 	gd->cpu_clk = get_board_sys_clk();

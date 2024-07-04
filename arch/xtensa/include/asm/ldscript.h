@@ -165,7 +165,6 @@
 		. = ALIGN(8);						\
 		_bss_end = ABSOLUTE(.);					\
 		__bss_end = ABSOLUTE(.);				\
-		_end = ALIGN(0x8);					\
 		PROVIDE(end = ALIGN(0x8));				\
 		_stack_sentry = ALIGN(0x8);				\
 	}

@@ -82,6 +82,8 @@ SECTIONS
 
   __reloc_end = .;
   __init_end = .;
+  /* Calculation to get end address in ROM */
+  _end = LOADADDR(.data) + (_data_end - _data_start);
 
   SECTION_bss(__init_end (OVERLAY),)
 

@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2024 Jiaxun Yang <jiaxun.yang@flygoat.com>
+ */
+
+#include <config.h>
+
+/ {
+	memory@0 {
+		device_type = "memory";
+#if XCHAL_HAVE_PTP_MMU
+		reg = <0x00000000 CFG_SYS_SDRAM_SIZE>;
+#else
+		reg = <CFG_SYS_MEMORY_BASE CFG_SYS_SDRAM_SIZE>;
+#endif
+	};
+};
