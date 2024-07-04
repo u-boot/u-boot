@@ -24,6 +24,7 @@ enum lmb_flags {
 	LMB_NONE		= BIT(0),
 	LMB_NOMAP		= BIT(1),
 	LMB_NOOVERWRITE		= BIT(2),
+	LMB_NONOTIFY		= BIT(3),
 };
 
 /**
