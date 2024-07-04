@@ -490,9 +490,6 @@ void early_system_init(void)
 	 */
 	save_omap_boot_params();
 #endif
-#ifdef CONFIG_DEBUG_UART_OMAP
-	debug_uart_init();
-#endif
 
 #ifdef CONFIG_SPL_BUILD
 	spl_early_init();
@@ -533,3 +530,18 @@ static int am33xx_dm_post_init(void)
 	return 0;
 }
 EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, am33xx_dm_post_init);
+
+#ifdef CONFIG_DEBUG_UART_BOARD_INIT
+void board_debug_uart_init(void)
+{
+	if (u_boot_first_phase()) {
+		hw_data_init();
+		set_uart_mux_conf();
+		setup_early_clocks();
+		uart_soft_reset();
+
+		/* avoid uart gibberish by allowing the clocks to settle */
+		mdelay(50);
+	}
+}
+#endif

@@ -470,6 +470,7 @@ def test_ut_dm_init(u_boot_console):
         fh.write(data)
 
 @pytest.mark.buildconfigspec('cmd_bootflow')
+@pytest.mark.buildconfigspec('sandbox')
 def test_ut_dm_init_bootstd(u_boot_console):
     """Initialise data for bootflow tests"""
 

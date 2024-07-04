@@ -13,8 +13,11 @@ def test_dm_compat(u_boot_console):
                for line in response[:-1].split('\n')[2:])
 
     response = u_boot_console.run_command('dm compat')
+    bad_drivers = set()
     for driver in drivers:
-        assert driver in response
+        if not driver in response:
+            bad_drivers.add(driver)
+    assert not bad_drivers
 
     # check sorting - output looks something like this:
     #  testacpi      0  [   ]   testacpi_drv          |-- acpi-test

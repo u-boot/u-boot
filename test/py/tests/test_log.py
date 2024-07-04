@@ -27,13 +27,16 @@ def test_log_format(u_boot_console):
 
     cons = u_boot_console
     with cons.log.section('format'):
-        run_with_format('all', 'NOTICE.arch,file.c:123-func() msg')
+        pad = int(u_boot_console.config.buildconfig.get('config_logf_func_pad'))
+        padding = ' ' * (pad - len('func'))
+
+        run_with_format('all', f'NOTICE.arch,file.c:123-{padding}func() msg')
         output = cons.run_command('log format')
         assert output == 'Log format: clFLfm'
 
-        run_with_format('fm', 'func() msg')
-        run_with_format('clfm', 'NOTICE.arch,func() msg')
-        run_with_format('FLfm', 'file.c:123-func() msg')
+        run_with_format('fm', f'{padding}func() msg')
+        run_with_format('clfm', f'NOTICE.arch,{padding}func() msg')
+        run_with_format('FLfm', f'file.c:123-{padding}func() msg')
         run_with_format('lm', 'NOTICE. msg')
         run_with_format('m', 'msg')
 
