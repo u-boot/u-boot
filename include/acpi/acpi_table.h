@@ -1238,6 +1238,16 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 void *acpi_fill_madt(struct acpi_madt *madt, struct acpi_ctx *ctx);
 
 /**
+ * acpi_write_park() - Installs the ACPI parking protocol.
+ *
+ * Sets up the ACPI parking protocol and installs the spinning code for
+ * secondary CPUs.
+ *
+ * @madt: The MADT to update
+ */
+void acpi_write_park(struct acpi_madt *madt);
+
+/**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address
  *
  * This routine returns the ACPI RSDP table address in the system memory.

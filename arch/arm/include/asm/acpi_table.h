@@ -4,6 +4,7 @@
 #define __ASM_ACPI_TABLE_H__
 
 #ifndef __ACPI__
+#ifndef __ASSEMBLY__
 
 #include <acpi/acpi_table.h>
 
@@ -109,7 +110,38 @@ int acpi_pptt_add_cache(struct acpi_ctx *ctx, const u32 flags,
 			const u32 sets, const u8 assoc, const u8 attributes,
 			const u16 line_size);
 
+/* Multi-processor Startup for ARM Platforms */
+/**
+ * struct acpi_pp_page - MP startup handshake mailbox
+ *
+ * Defines a 4096 byte memory region that is used for starting secondary CPUs on
+ * an Arm system that follows the "Multi-processor Startup for ARM Platforms" spec.
+ *
+ * @cpu_id:           MPIDR as returned by the Multiprocessor Affinity Register.
+ *                    On 32bit Arm systems the upper bits are unused.
+ * @jumping_address:  On 32bit Arm systems the address must be below 4 GiB
+ * @os_reserved:      Reserved for OS use. Firmware must not access this memory.
+ * @spinning_code:    Reserved for firmware use. OS must not access this memory.
+ *                    The spinning code will be installed by firmware and the secondary
+ *                    CPUs will enter it before the control is handed over to the OS.
+ */
+struct acpi_pp_page {
+	u64 cpu_id;
+	u64 jumping_address;
+	u8 os_reserved[2032];
+	u8 spinning_code[2048];
+} __packed;
+
 #endif /* !__ASSEMBLY__ */
 #endif /* !__ACPI__ */
+
+/* Multi-processor Startup for ARM Platforms defines */
+#define ACPI_PP_CPU_ID_INVALID		0xffffffff
+#define ACPI_PP_JMP_ADR_INVALID		0
+#define ACPI_PP_PAGE_SIZE		4096
+#define ACPI_PP_CPU_ID_OFFSET		0
+#define ACPI_PP_CPU_JMP_OFFSET		8
+#define ACPI_PP_CPU_CODE_OFFSET		2048
+#define ACPI_PP_VERSION			1
 
 #endif /* __ASM_ACPI_TABLE_H__ */
