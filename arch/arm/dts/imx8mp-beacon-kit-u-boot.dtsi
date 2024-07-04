@@ -32,12 +32,6 @@
 	bootph-pre-ram;
 };
 
-&eqos {
-	/delete-property/ assigned-clocks;
-	/delete-property/ assigned-clock-parents;
-	/delete-property/ assigned-clock-rates;
-};
-
 &ethphy0 {
 	reset-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
 	reset-assert-us = <15000>;
