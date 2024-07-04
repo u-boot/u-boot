@@ -35,10 +35,10 @@
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"image=Image\0" \
 	"console=ttymxc1,115200\0" \
-	"fdt_addr_r=0x43000000\0"			\
+	"fdt_addr_r=0x48600000\0"			\
 	"boot_fdt=try\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"initrd_addr=0x43800000\0"		\
+	"initrd_addr=0x48680000\0"		\
 	"bootm_size=0x10000000\0" \
 	"mmcpart=1\0" \
 	"mmcroot=/dev/mmcblk1p2 rootwait rw\0" \
