@@ -89,9 +89,9 @@ u32 get_cpu_package(void);
 
 /* package used for STM32MP25x */
 #define STM32MP25_PKG_CUSTOM		0
-#define STM32MP25_PKG_AL_TBGA361	3
-#define STM32MP25_PKG_AK_TBGA424	4
-#define STM32MP25_PKG_AI_TBGA436	5
+#define STM32MP25_PKG_AL_VFBGA361	1
+#define STM32MP25_PKG_AK_VFBGA424	3
+#define STM32MP25_PKG_AI_TFBGA436	5
 #define STM32MP25_PKG_UNKNOWN		7
 
 /* Get SOC name */

@@ -26,8 +26,8 @@
 
 /* Package = bit 0:2 of OTP122 => STM32MP25_PKG defines
  * - 000: Custom package
- * - 011: TFBGA361 => AL = 10x10, 361 balls pith 0.5mm
- * - 100: TFBGA424 => AK = 14x14, 424 balls pith 0.5mm
+ * - 001: VFBGA361 => AL = 10x10, 361 balls pith 0.5mm
+ * - 011: VFBGA424 => AK = 14x14, 424 balls pith 0.5mm
  * - 101: TFBGA436 => AI = 18x18, 436 balls pith 0.5mm
  * - others: Reserved
  */
@@ -189,13 +189,13 @@ void get_soc_name(char name[SOC_NAME_SIZE])
 		case STM32MP25_PKG_CUSTOM:
 			package = "XX";
 			break;
-		case STM32MP25_PKG_AL_TBGA361:
+		case STM32MP25_PKG_AL_VFBGA361:
 			package = "AL";
 			break;
-		case STM32MP25_PKG_AK_TBGA424:
+		case STM32MP25_PKG_AK_VFBGA424:
 			package = "AK";
 			break;
-		case STM32MP25_PKG_AI_TBGA436:
+		case STM32MP25_PKG_AI_TFBGA436:
 			package = "AI";
 			break;
 		default:
