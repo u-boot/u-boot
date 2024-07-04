@@ -25,6 +25,7 @@ enum bcb_cmd {
 	BCB_CMD_FIELD_DUMP,
 	BCB_CMD_STORE,
 	BCB_CMD_AB_SELECT,
+	BCB_CMD_AB_DUMP,
 };
 
 static const char * const fields[] = {
@@ -56,6 +57,8 @@ static int bcb_cmd_get(char *cmd)
 		return BCB_CMD_FIELD_DUMP;
 	if (!strcmp(cmd, "ab_select"))
 		return BCB_CMD_AB_SELECT;
+	if (!strcmp(cmd, "ab_dump"))
+		return BCB_CMD_AB_DUMP;
 	else
 		return -1;
 }
@@ -91,6 +94,10 @@ static int bcb_is_misused(int argc, char *const argv[])
 		break;
 	case BCB_CMD_AB_SELECT:
 		if (argc != 4 && argc != 5)
+			goto err;
+		return 0;
+	case BCB_CMD_AB_DUMP:
+		if (argc != 3)
 			goto err;
 		return 0;
 	default:
@@ -460,6 +467,28 @@ static int do_bcb_ab_select(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_bcb_ab_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+
+	if (part_get_info_by_dev_and_name_or_num(argv[1], argv[2],
+						 &dev_desc, &part_info,
+						 false) < 0) {
+		return CMD_RET_FAILURE;
+	}
+
+	ret = ab_dump_abc(dev_desc, &part_info);
+	if (ret < 0) {
+		printf("Cannot dump ABC data, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct cmd_tbl cmd_bcb_sub[] = {
 	U_BOOT_CMD_MKENT(load, CONFIG_SYS_MAXARGS, 1, do_bcb_load, "", ""),
 	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 1, do_bcb_set, "", ""),
@@ -469,6 +498,8 @@ static struct cmd_tbl cmd_bcb_sub[] = {
 	U_BOOT_CMD_MKENT(store, CONFIG_SYS_MAXARGS, 1, do_bcb_store, "", ""),
 	U_BOOT_CMD_MKENT(ab_select, CONFIG_SYS_MAXARGS, 1,
 			 do_bcb_ab_select, "", ""),
+	U_BOOT_CMD_MKENT(ab_dump, CONFIG_SYS_MAXARGS, 1,
+			 do_bcb_ab_dump, "", ""),
 };
 
 static int do_bcb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -522,6 +553,10 @@ U_BOOT_CMD(
 	"      the partition table. This is commonly the \"misc\" partition.\n"
 	"    - If '--no-dec' is set, the number of tries remaining will not\n"
 	"      decremented for the selected boot slot\n"
+	"\n"
+	"bcb ab_dump -\n"
+	"    Dump boot_control information from specific partition.\n"
+	"    <interface> <dev[:part|#part_name]>\n"
 	"\n"
 	"Legend:\n"
 	"<interface> - storage device interface (virtio, mmc, etc)\n"
