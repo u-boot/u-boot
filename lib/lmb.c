@@ -30,7 +30,7 @@ static struct lmb lmb;
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
 	u64 bitpos;
-	const char *flag_str[] = { "none", "no-map", "no-overwrite" };
+	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
 
 	do {
 		bitpos = flags ? fls(flags) - 1 : 0;
