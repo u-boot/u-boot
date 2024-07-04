@@ -173,6 +173,17 @@
 	status = "disabled";
 };
 
+&usb0 {
+	dr_mode = "peripheral";
+	/* Since role switching is not supported in U-Boot */
+	/delete-property/ extcon;
+	bootph-pre-ram;
+};
+
+&usbss0 {
+	bootph-pre-ram;
+};
+
 /* Verdin UART_2 */
 &wkup_uart0 {
 	bootph-all;

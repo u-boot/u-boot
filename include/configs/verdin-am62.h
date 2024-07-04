@@ -35,9 +35,18 @@
 	""
 #endif /* CONFIG_TARGET_VERDIN_AM62_A53 */
 
+#define EXTRA_ENV_DFUARGS \
+	"dfu_alt_info_ram=" \
+	"tispl.bin ram 0x80080000 0x200000;" \
+	"u-boot.img ram 0x81000000 0x400000;" \
+	"loadaddr ram " __stringify(CONFIG_SYS_LOAD_ADDR) " 0x80000;" \
+	"scriptaddr ram " __stringify(SCRIPTADDR) " 0x80000;" \
+	"ramdisk_addr_r ram " __stringify(RAMDISK_ADDR_R) " 0x8000000\0"
+
 /* Incorporate settings into the U-Boot environment */
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
+	EXTRA_ENV_DFUARGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	"boot_script_dhcp=boot.scr\0" \
 	"console=ttyS2\0" \
