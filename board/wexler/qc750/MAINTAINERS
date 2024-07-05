@@ -1,0 +1,7 @@
+QC750 BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	board/wexler/qc750/
+F:	configs/qc750_defconfig
+F:	doc/board/wexler/qc750.rst
+F:	include/configs/qc750.h

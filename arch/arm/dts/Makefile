@@ -94,7 +94,11 @@ dtb-$(CONFIG_ARCH_S5P4418) += \
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-a1-ad401.dtb
 
-dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
+dtb-$(CONFIG_ARCH_TEGRA) += \
+	tegra20-asus-sl101.dtb \
+	tegra20-asus-tf101.dtb \
+	tegra20-asus-tf101g.dtb \
+	tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \
 	tegra20-plutux.dtb \
@@ -118,9 +122,12 @@ dtb-$(CONFIG_ARCH_TEGRA) += tegra20-harmony.dtb \
 	tegra30-cardhu.dtb \
 	tegra30-colibri.dtb \
 	tegra30-htc-endeavoru.dtb \
+	tegra30-lenovo-ideapad-yoga-11.dtb \
 	tegra30-lg-p880.dtb \
 	tegra30-lg-p895.dtb \
+	tegra30-microsoft-surface-rt.dtb \
 	tegra30-tec-ng.dtb \
+	tegra30-wexler-qc750.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-apalis.dtb \
 	tegra124-jetson-tk1.dtb \

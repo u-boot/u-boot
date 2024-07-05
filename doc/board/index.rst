@@ -31,9 +31,11 @@ Board-specific doc
    htc/index
    intel/index
    kontron/index
+   lenovo/index
    lg/index
    mediatek/index
    microchip/index
+   microsoft/index
    nxp/index
    openpiton/index
    phytec/index
@@ -58,5 +60,6 @@ Board-specific doc
    ti/index
    toradex/index
    variscite/index
+   wexler/index
    xen/index
    xilinx/index

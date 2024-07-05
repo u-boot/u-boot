@@ -1,0 +1,8 @@
+TRANSFORMER T20 BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra20-asus-*
+F:	board/asus/transformer-t20/
+F:	configs/transformer_t20_defconfig
+F:	doc/board/asus/transformer_t20.rst
+F:	include/configs/transformer-t20.h

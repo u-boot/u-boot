@@ -14,15 +14,13 @@
 /* arch-tegra/dc exists only because T124 uses it */
 #include <asm/arch-tegra/dc.h>
 
-#define TEGRA_DC_A		"dc@54200000"
-#define TEGRA_DC_B		"dc@54240000"
 #define TEGRA_DSI_A		"dsi@54300000"
 #define TEGRA_DSI_B		"dsi@54400000"
 
 struct tegra_dc_plat {
 	struct udevice *dev;		/* Display controller device */
 	struct dc_ctlr *dc;		/* Display controller regmap */
-	bool pipe;			/* DC number: 0 for A, 1 for B */
+	int pipe;			/* DC number: 0 for A, 1 for B */
 	ulong scdiv;			/* Shift clock divider */
 };
 
