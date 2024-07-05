@@ -119,7 +119,7 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 
 	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
-	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
+	debug("%s: [%d:%d] %s: channel %d\n", dev->name, usid, pid, __func__, channel);
 
 	switch (priv->arb_ver) {
 	case V1:
@@ -186,7 +186,7 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 
 	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
-	dev_dbg(dev, "[%d:%d] %s: channel %d\n", usid, pid, __func__, channel);
+	debug("%s: [%d:%d] %s: channel %d\n", dev->name, usid, pid, __func__, channel);
 
 	switch (priv->arb_ver) {
 	case V1:
@@ -271,7 +271,7 @@ static int msm_spmi_probe(struct udevice *dev)
 	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
-		priv->max_channels = SPMI_MAX_CHANNELS;
+		priv->max_channels = SPMI_MAX_CHANNELS_V5;
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	} else {
 		/* TOFIX: handle second bus */

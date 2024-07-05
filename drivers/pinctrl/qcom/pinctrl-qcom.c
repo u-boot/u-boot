@@ -44,6 +44,7 @@ static const struct pinconf_param msm_conf_params[] = {
 	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 2 },
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 3 },
+	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "output-high", PIN_CONFIG_OUTPUT, 1, },
 	{ "output-low", PIN_CONFIG_OUTPUT, 0, },
 };
@@ -102,14 +103,47 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 	return 0;
 }
 
+static int msm_pinconf_set_special(struct msm_pinctrl_priv *priv, unsigned int pin_selector,
+				   unsigned int param, unsigned int argument)
+{
+	unsigned int offset = pin_selector - priv->data->pin_data.special_pins_start;
+	const struct msm_special_pin_data *data;
+
+	if (!priv->data->pin_data.special_pins_data)
+		return 0;
+
+	data = &priv->data->pin_data.special_pins_data[offset];
+
+	switch (param) {
+	case PIN_CONFIG_DRIVE_STRENGTH:
+		argument = (argument / 2) - 1;
+		clrsetbits_le32(priv->base + data->ctl_reg,
+				GENMASK(2, 0) << data->drv_bit,
+				argument << data->drv_bit);
+		break;
+	case PIN_CONFIG_BIAS_DISABLE:
+		clrbits_le32(priv->base + data->ctl_reg,
+			     TLMM_GPIO_PULL_MASK << data->pull_bit);
+		break;
+	case PIN_CONFIG_BIAS_PULL_UP:
+		clrsetbits_le32(priv->base + data->ctl_reg,
+				TLMM_GPIO_PULL_MASK << data->pull_bit,
+				argument << data->pull_bit);
+		break;
+	default:
+		return 0;
+	}
+
+	return 0;
+}
+
 static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			   unsigned int param, unsigned int argument)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
 
-	/* Always NOP for special pins */
 	if (qcom_is_special_pin(&priv->data->pin_data, pin_selector))
-		return 0;
+		return msm_pinconf_set_special(priv, pin_selector, param, argument);
 
 	switch (param) {
 	case PIN_CONFIG_DRIVE_STRENGTH:

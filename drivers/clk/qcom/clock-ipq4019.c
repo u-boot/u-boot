@@ -15,6 +15,12 @@
 
 #include "clock-qcom.h"
 
+/* I2C controller clock control registerss */
+#define BLSP1_QUP1_I2C_APPS_CBCR	(0x2008)
+#define BLSP1_QUP1_I2C_APPS_CMD_RCGR	(0x200C)
+#define BLSP1_QUP2_I2C_APPS_CBCR	(0x3010)
+#define BLSP1_QUP2_I2C_APPS_CMD_RCGR	(0x3000)
+
 static ulong ipq4019_clk_set_rate(struct clk *clk, ulong rate)
 {
 	switch (clk->id) {
@@ -28,7 +34,22 @@ static ulong ipq4019_clk_set_rate(struct clk *clk, ulong rate)
 
 static int ipq4019_clk_enable(struct clk *clk)
 {
+	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
+
 	switch (clk->id) {
+	case GCC_BLSP1_AHB_CLK:
+		/* This clock is already initialized by SBL1 */
+		return 0;
+	case GCC_BLSP1_QUP1_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP1_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, BLSP1_QUP1_I2C_APPS_CMD_RCGR, 0,
+				 CFG_CLK_SRC_CXO);
+		return 0;
+	case GCC_BLSP1_QUP2_I2C_APPS_CLK:
+		clk_enable_cbc(priv->base + BLSP1_QUP2_I2C_APPS_CBCR);
+		clk_rcg_set_rate(priv->base, BLSP1_QUP2_I2C_APPS_CMD_RCGR, 0,
+				 CFG_CLK_SRC_CXO);
+		return 0;
 	case GCC_BLSP1_QUP1_SPI_APPS_CLK: /*SPI1*/
 		/* This clock is already initialized by SBL1 */
 		return 0;

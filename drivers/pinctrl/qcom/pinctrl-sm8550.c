@@ -18,6 +18,37 @@ static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"gpio", 0},
 };
 
+#define SDC_QDSD_PINGROUP(pg_name, ctl, pull, drv)	\
+	{					        \
+		.name = pg_name,			\
+		.ctl_reg = ctl,				\
+		.io_reg = 0,				\
+		.pull_bit = pull,			\
+		.drv_bit = drv,				\
+		.oe_bit = -1,				\
+		.in_bit = -1,				\
+		.out_bit = -1,				\
+	}
+
+#define UFS_RESET(pg_name, ctl, io)			\
+	{					        \
+		.name = pg_name,			\
+		.ctl_reg = ctl,				\
+		.io_reg = io,				\
+		.pull_bit = 3,				\
+		.drv_bit = 0,				\
+		.oe_bit = -1,				\
+		.in_bit = -1,				\
+		.out_bit = 0,				\
+	}
+
+static const struct msm_special_pin_data msm_special_pins_data[] = {
+	[0] = UFS_RESET("ufs_reset", 0xde000, 0xde004),
+	[1] = SDC_QDSD_PINGROUP("sdc2_clk", 0xd6000, 14, 6),
+	[2] = SDC_QDSD_PINGROUP("sdc2_cmd", 0xd6000, 11, 3),
+	[3] = SDC_QDSD_PINGROUP("sdc2_data", 0xd6000, 9, 0),
+};
+
 static const char *sm8550_get_function_name(struct udevice *dev,
 						 unsigned int selector)
 {
@@ -27,15 +58,9 @@ static const char *sm8550_get_function_name(struct udevice *dev,
 static const char *sm8550_get_pin_name(struct udevice *dev,
 					unsigned int selector)
 {
-	static const char *special_pins_names[] = {
-		"ufs_reset",
-		"sdc2_clk",
-		"sdc2_cmd",
-		"sdc2_data",
-	};
-
 	if (selector >= 210 && selector <= 213)
-		snprintf(pin_name, MAX_PIN_NAME_LEN, special_pins_names[selector - 210]);
+		snprintf(pin_name, MAX_PIN_NAME_LEN,
+			 msm_special_pins_data[selector - 210].name);
 	else
 		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
 
@@ -52,6 +77,7 @@ static struct msm_pinctrl_data sm8550_data = {
 	.pin_data = {
 		.pin_count = 214,
 		.special_pins_start = 210,
+		.special_pins_data = msm_special_pins_data,
 	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = sm8550_get_function_name,

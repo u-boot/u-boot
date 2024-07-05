@@ -10,11 +10,25 @@
 #include <asm/types.h>
 #include <stdbool.h>
 
+struct msm_special_pin_data {
+	char *name;
+
+	u32 ctl_reg;
+	u32 io_reg;
+
+	unsigned pull_bit:5;
+	unsigned drv_bit:5;
+
+	unsigned oe_bit:5;
+	unsigned in_bit:5;
+	unsigned out_bit:5;
+};
+
 struct msm_pin_data {
 	int pin_count;
 	const unsigned int *pin_offsets;
-	/* Index of first special pin, these are ignored for now */
 	unsigned int special_pins_start;
+	const struct msm_special_pin_data *special_pins_data;
 };
 
 static inline u32 qcom_pin_offset(const unsigned int *offs, unsigned int selector)

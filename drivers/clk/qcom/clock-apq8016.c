@@ -16,6 +16,8 @@
 
 #include "clock-qcom.h"
 
+#define USB_HS_SYSTEM_CLK_CMD_RCGR	0x41010
+
 /* Clocks: (from CLK_CTL_BASE)  */
 #define GPLL0_STATUS			(0x2101C)
 #define APCS_GPLL_ENA_VOTE		(0x45000)
@@ -49,6 +51,11 @@ static struct vote_clk gcc_blsp1_ahb_clk = {
 	.cbcr_reg = BLSP1_AHB_CBCR,
 	.ena_vote = APCS_CLOCK_BRANCH_ENA_VOTE,
 	.vote_bit = BIT(10),
+};
+
+static const struct gate_clk apq8016_clks[] = {
+	GATE_CLK(GCC_USB_HS_AHB_CLK,    0x41008, 0x00000001),
+	GATE_CLK(GCC_USB_HS_SYSTEM_CLK,	0x41004, 0x00000001),
 };
 
 /* SDHCI */
@@ -116,13 +123,38 @@ static ulong apq8016_clk_set_rate(struct clk *clk, ulong rate)
 	case GCC_BLSP1_UART2_APPS_CLK: /* UART2 */
 		apq8016_clk_init_uart(priv->base, clk->id);
 		return 7372800;
+	case GCC_USB_HS_SYSTEM_CLK:
+		if (rate != 80000000)
+			log_warning("Unexpected rate %ld requested for USB_HS_SYSTEM_CLK\n",
+				    rate);
+		clk_rcg_set_rate_mnd(priv->base, USB_HS_SYSTEM_CLK_CMD_RCGR,
+				     10, 0, 0, CFG_CLK_SRC_GPLL0, 0);
+		return rate;
 	default:
 		return 0;
 	}
 }
 
+static int apq8016_clk_enable(struct clk *clk)
+{
+	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
+
+	if (priv->data->num_clks < clk->id) {
+		log_warning("%s: unknown clk id %lu\n", __func__, clk->id);
+		return 0;
+	}
+
+	debug("%s: clk %s\n", __func__, apq8016_clks[clk->id].name);
+	qcom_gate_clk_en(priv, clk->id);
+
+	return 0;
+}
+
 static struct msm_clk_data apq8016_clk_data = {
 	.set_rate = apq8016_clk_set_rate,
+	.clks = apq8016_clks,
+	.num_clks = ARRAY_SIZE(apq8016_clks),
+	.enable = apq8016_clk_enable,
 };
 
 static const struct udevice_id gcc_apq8016_of_match[] = {
