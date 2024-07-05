@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2023 Marek Vasut <marex@denx.de>
  */
-#include "imx8mp-dhcom-som-overlay-eth1xfast.dts"
+#include "imx8mp-dhcom-som-overlay-eth1xfast.dtso"
 
 /* Dual RMII 100/Full Fast ethernet on this SoM variant. */
 
