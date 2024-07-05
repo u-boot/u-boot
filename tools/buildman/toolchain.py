@@ -90,7 +90,7 @@ class Toolchain:
         if self.arch == 'sandbox' and override_toolchain:
             self.gcc = override_toolchain
 
-        env = self.MakeEnvironment()
+        env = self.MakeEnvironment(False)
 
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
@@ -172,7 +172,7 @@ class Toolchain:
         else:
             raise ValueError('Unknown arg to GetEnvArgs (%d)' % which)
 
-    def MakeEnvironment(self, env=None):
+    def MakeEnvironment(self, full_path):
         """Returns an environment for using the toolchain.
 
         This takes the current environment and adds CROSS_COMPILE so that
@@ -188,23 +188,25 @@ class Toolchain:
              569-570: surrogates not allowed
 
         Args:
-            env (dict of bytes): Original environment, used for testing
-
+            full_path: Return the full path in CROSS_COMPILE and don't set
+                PATH
         Returns:
             Dict containing the (bytes) environment to use. This is based on the
-            current environment, with changes as needed to CROSS_COMPILE and
-            LC_ALL.
+            current environment, with changes as needed to CROSS_COMPILE, PATH
+            and LC_ALL.
         """
-        env = dict(env or os.environb)
-
+        env = dict(os.environb)
         wrapper = self.GetWrapper()
 
         if self.override_toolchain:
             # We'll use MakeArgs() to provide this
             pass
-        else:
+        elif full_path:
             env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
+        else:
+            env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
+            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 

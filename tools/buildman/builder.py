@@ -255,7 +255,7 @@ class Builder:
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
                  gnu_make='make', checkout=True, show_unknown=True, step=1,
-                 no_subdirs=False, verbose_build=False,
+                 no_subdirs=False, full_path=False, verbose_build=False,
                  mrproper=False, fallback_mrproper=False,
                  per_board_out_dir=False, config_only=False,
                  squash_config_y=False, warnings_as_errors=False,
@@ -279,6 +279,8 @@ class Builder:
             step: 1 to process every commit, n to process every nth commit
             no_subdirs: Don't create subdirectories when building current
                 source for a single board
+            full_path: Return the full path in CROSS_COMPILE and don't set
+                PATH
             verbose_build: Run build with V=1 and don't use 'make -s'
             mrproper: Always run 'make mrproper' when configuring
             fallback_mrproper: Run 'make mrproper' and retry on build failure
@@ -335,6 +337,7 @@ class Builder:
         self._step = step
         self._error_lines = 0
         self.no_subdirs = no_subdirs
+        self.full_path = full_path
         self.verbose_build = verbose_build
         self.config_only = config_only
         self.squash_config_y = squash_config_y

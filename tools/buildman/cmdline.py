@@ -123,6 +123,8 @@ def add_after_m(parser):
           help="Override host toochain to use for sandbox (e.g. 'clang-7')")
     parser.add_argument('-Q', '--quick', action='store_true',
           default=False, help='Do a rough build, with limited warning resolution')
+    parser.add_argument('-p', '--full-path', action='store_true',
+          default=False, help="Use full toolchain path in CROSS_COMPILE")
     parser.add_argument('-P', '--per-board-out-dir', action='store_true',
           default=False, help="Use an O= (output) directory per board rather than per thread")
     parser.add_argument('--print-arch', action='store_true',
