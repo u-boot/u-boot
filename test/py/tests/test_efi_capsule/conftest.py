@@ -53,7 +53,7 @@ def efi_capsule_data(request, u_boot_config):
 
         # Update dtb to add the version information
         check_call('cd %s; '
-                   'cp %s/test/py/tests/test_efi_capsule/version.dts .'
+                   'cp %s/test/py/tests/test_efi_capsule/version.dtso .'
                    % (data_dir, u_boot_config.source_dir), shell=True)
 
         if capsule_auth_enabled:
@@ -61,13 +61,13 @@ def efi_capsule_data(request, u_boot_config):
                        'cp %s/arch/sandbox/dts/test.dtb test_sig.dtb'
                        % (data_dir, u_boot_config.build_dir), shell=True)
             check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
+                       'dtc -@ -I dts -O dtb -o version.dtbo version.dtso; '
                        'fdtoverlay -i test_sig.dtb '
                             '-o test_ver.dtb version.dtbo'
                        % (data_dir), shell=True)
         else:
             check_call('cd %s; '
-                       'dtc -@ -I dts -O dtb -o version.dtbo version.dts; '
+                       'dtc -@ -I dts -O dtb -o version.dtbo version.dtso; '
                        'fdtoverlay -i %s/arch/sandbox/dts/test.dtb '
                             '-o test_ver.dtb version.dtbo'
                        % (data_dir, u_boot_config.build_dir), shell=True)
