@@ -766,7 +766,7 @@ static int esdhc_set_voltage(struct mmc *mmc)
 			ret = regulator_set_value(priv->vqmmc_dev,
 						  3300000);
 			if (ret) {
-				printf("Setting to 3.3V error");
+				printf("Setting to 3.3V error: %d\n", ret);
 				return -EIO;
 			}
 			mdelay(5);
@@ -784,7 +784,7 @@ static int esdhc_set_voltage(struct mmc *mmc)
 			ret = regulator_set_value(priv->vqmmc_dev,
 						  1800000);
 			if (ret) {
-				printf("Setting to 1.8V error");
+				printf("Setting to 1.8V error: %d\n", ret);
 				return -EIO;
 			}
 		}
