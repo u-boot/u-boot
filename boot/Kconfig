@@ -150,10 +150,10 @@ config FIT_IMAGE_POST_PROCESS
 	  processed before being added to the FIT image).
 
 config FIT_PRINT
-        bool "Support FIT printing"
-        default y
-        help
-          Support printing the content of the fitImage in a verbose manner.
+	bool "Support FIT printing"
+	default y
+	help
+	  Support printing the content of the fitImage in a verbose manner.
 
 config SPL_FIT
 	bool "Support Flattened Image Tree within SPL"

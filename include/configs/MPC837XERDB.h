@@ -132,7 +132,6 @@
  */
 #define CFG_SYS_NAND_BASE	0xE0600000
 
-
 /* Vitesse 7385 */
 
 #define CFG_SYS_VSC7385_BASE	0xF0000000

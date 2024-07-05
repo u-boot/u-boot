@@ -92,7 +92,6 @@
 
 #define CFG_SYS_FSL_USDHC_NUM	1
 
-
 #define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 
 /* USB Device Firmware Update support */

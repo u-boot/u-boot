@@ -132,5 +132,4 @@
 #define CFG_SYS_CS1_MASK		0x00070001
 #define CFG_SYS_CS1_CTRL		0x00001FA0
 
-
 #endif				/* _M53017EVB_H */

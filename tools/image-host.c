@@ -730,7 +730,7 @@ static const char *fit_config_get_image_list(const void *fit, int noffset,
 					     int *lenp, int *allow_missingp)
 {
 	static const char default_list[] = FIT_KERNEL_PROP "\0"
-			FIT_FDT_PROP;
+			FIT_FDT_PROP "\0" FIT_SCRIPT_PROP;
 	const char *prop;
 
 	/* If there is an "sign-image" property, use that */

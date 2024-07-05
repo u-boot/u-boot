@@ -107,5 +107,4 @@
 #define CFG_SYS_PBDAT		0x0000
 #define CFG_SYS_PDCNT		0x00000000
 
-
 #endif				/* _M5272C3_H */

@@ -138,5 +138,4 @@
 #define CFG_SYS_CS2_CTRL		0x00001f60
 #endif
 
-
 #endif				/* _M5329EVB_H */

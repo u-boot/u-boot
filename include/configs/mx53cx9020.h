@@ -21,7 +21,6 @@
 
 /* bootz: zImage/initrd.img support */
 
-
 /* USB Configs */
 #define CFG_MXC_USB_PORT	1
 #define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)

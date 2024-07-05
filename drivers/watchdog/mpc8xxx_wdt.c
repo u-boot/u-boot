@@ -43,7 +43,7 @@ static int mpc8xxx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	struct mpc8xxx_wdt_priv *priv = dev_get_priv(dev);
 	const char *mode = env_get("watchdog_mode");
 	ulong prescaler = dev_get_driver_data(dev);
-	u16 swtc = min_t(u16, timeout * get_board_sys_clk() / 1000 / prescaler, U16_MAX);
+	u16 swtc = min_t(u32, timeout * get_board_sys_clk() / 1000 / prescaler, U16_MAX);
 	u32 val;
 
 	mpc8xxx_wdt_reset(dev);

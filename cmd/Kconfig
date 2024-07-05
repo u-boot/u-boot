@@ -271,7 +271,7 @@ config CMD_BOOTM_PRE_LOAD
        depends on CMD_BOOTM
        depends on IMAGE_PRE_LOAD
        help
-         Enable support of stage pre-load for the bootm command.
+	 Enable support of stage pre-load for the bootm command.
 	 This stage allow to check or modify the image provided
 	 to the bootm command.
 
@@ -320,6 +320,13 @@ config BOOTM_EFI
 	default y
 	help
 	  Support booting UEFI FIT images via the bootm command.
+
+config BOOTM_ELF
+	bool "Support booting ELF images"
+	depends on CMD_BOOTM && LIB_ELF
+	default n
+	help
+	  Support booting ELF images via the bootm command.
 
 config CMD_BOOTZ
 	bool "bootz"
@@ -905,9 +912,9 @@ config CMD_MX_CYCLIC
 	bool "Enable cyclic md/mw commands"
 	depends on CMD_MEMORY
 	help
-          Add the "mdc" and "mwc" memory commands. These are cyclic
-          "md/mw" commands.
-          Examples:
+	  Add the "mdc" and "mwc" memory commands. These are cyclic
+	  "md/mw" commands.
+	  Examples:
 
 	  => mdc.b 10 4 500
 	  This command will print 4 bytes (10,11,12,13) each 500 ms.
@@ -2161,12 +2168,12 @@ config CMD_BLKMAP
 
 	  Example use-cases:
 	  - Treat a region of RAM as a block device, i.e. a RAM disk. This let's
-            you extract files from filesystem images stored in RAM (perhaps as a
-            result of a TFTP transfer).
+	    you extract files from filesystem images stored in RAM (perhaps as a
+	    result of a TFTP transfer).
 	  - Create a virtual partition on an existing device. This let's you
-            access filesystems that aren't stored at an exact partition
-            boundary. A common example is a filesystem image embedded in an FIT
-            image.
+	    access filesystems that aren't stored at an exact partition
+	    boundary. A common example is a filesystem image embedded in an FIT
+	    image.
 
 config CMD_BUTTON
 	bool "button"
@@ -2945,7 +2952,7 @@ config CMD_UBI_RENAME
        bool "Enable rename"
        depends on CMD_UBI
        help
-         Enable a "ubi" command to rename ubi volume:
+	 Enable a "ubi" command to rename ubi volume:
 	   ubi rename <oldname> <newname>
 
 config CMD_UBIFS

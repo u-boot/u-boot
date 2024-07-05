@@ -116,7 +116,7 @@ config EFI_PARTITION_ENTRIES_NUMBERS
 	  number.
 
 config EFI_PARTITION_ENTRIES_OFF
-        int "Offset (in bytes) of the EFI partition entries"
+	int "Offset (in bytes) of the EFI partition entries"
 	depends on EFI_PARTITION
 	default 0
 	help

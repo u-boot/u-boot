@@ -120,5 +120,4 @@
 #define	CFG_SYS_GPIO1_OUT		0x00c70000	/* Set outputs to default state */
 #define CFG_SYS_GPIO1_LED		0x00400000	/* user led                     */
 
-
 #endif	/* M5249 */

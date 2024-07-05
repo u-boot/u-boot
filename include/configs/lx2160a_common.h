@@ -37,7 +37,6 @@
  * will be udpated later when get_bus_freq(0) is available.
  */
 
-
 /* Serial Port */
 #define CFG_PL011_CLOCK		(get_bus_freq(0) / 4)
 #define CFG_SYS_SERIAL0		0x21c0000

@@ -53,7 +53,6 @@
 		"tftpboot ${loadaddr} u-boot-with-spl.kwb; "	\
 		"sf update ${loadaddr} 0x0 0xd0000\0"
 
-
 /* increase autoneg timeout, my NIC sucks */
 
 #endif /* _CONFIG_SYNOLOGY_DS414_H */

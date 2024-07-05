@@ -130,5 +130,4 @@
 #	define CFG_SYS_CS0_CTRL	0x00001D80
 #endif
 
-
 #endif				/* _M5329EVB_H */

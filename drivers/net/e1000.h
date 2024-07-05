@@ -2421,7 +2421,9 @@ struct e1000_hw {
 #define BME1000_E_PHY_ID     0x01410CB0
 
 #define I210_I_PHY_ID		0x01410C00
+#define I226_LM_PHY_ID		0x67C9DC10
 #define I225_I_PHY_ID		0x67C9DCC0
+#define I226_I_PHY_ID		0x67C9DCD0
 
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE			0xFFFFFFFF

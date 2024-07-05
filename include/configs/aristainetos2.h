@@ -22,7 +22,6 @@
 
 #include "mx6_common.h"
 
-
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      USDHC1_BASE_ADDR
 
