@@ -73,7 +73,8 @@ static int mtk_timer_probe(struct udevice *dev)
 		return ret;
 
 	ret = clk_get_by_index(dev, 1, &parent);
-	if (!ret) {
+	/* Skip setting the parent with dummy fixed-clock */
+	if (!ret && parent.dev->driver != DM_DRIVER_GET(fixed_clock)) {
 		ret = clk_set_parent(&clk, &parent);
 		if (ret)
 			return ret;
