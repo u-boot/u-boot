@@ -57,15 +57,15 @@ static const char *imx8mn_usdhc2_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sy
 					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_out", "sys_pll1_100m", };
 
 #if CONFIG_IS_ENABLED(DM_SPI)
-static const char *imx8mn_ecspi1_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mn_ecspi1_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 					   "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 					   "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mn_ecspi2_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mn_ecspi2_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 					   "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 					   "sys_pll2_250m", "audio_pll2_out", };
 
-static const char *imx8mn_ecspi3_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll1_40m",
+static const char *imx8mn_ecspi3_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 					   "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 					   "sys_pll2_250m", "audio_pll2_out", };
 #endif
@@ -105,7 +105,7 @@ static const char *imx8mn_usdhc3_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sy
 static const char *imx8mn_qspi_sels[] = {"clock-osc-24m", "sys_pll1_400m", "sys_pll2_333m", "sys_pll2_500m",
 					   "audio_pll2_out", "sys_pll1_266m", "sys_pll3_out", "sys_pll1_100m", };
 
-static const char * const imx8mn_nand_sels[] = {"osc_24m", "sys_pll2_500m", "audio_pll1_out",
+static const char * const imx8mn_nand_sels[] = {"clock-osc-24m", "sys_pll2_500m", "audio_pll1_out",
 						"sys_pll1_400m", "audio_pll2_out", "sys_pll3_out",
 						"sys_pll2_250m", "video_pll_out", };
 
@@ -119,7 +119,9 @@ static const char * const imx8mn_usb_phy_sels[] = {"clock-osc-24m", "sys_pll1_10
 
 static int imx8mn_clk_probe(struct udevice *dev)
 {
+	struct clk osc_24m_clk;
 	void __iomem *base;
+	int ret;
 
 	base = (void *)ANATOP_BASE_ADDR;
 
@@ -237,6 +239,11 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	       imx_clk_fixed_factor("sys_pll2_500m", "sys_pll2_out", 1, 2));
 	clk_dm(IMX8MN_SYS_PLL2_1000M,
 	       imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
+
+	ret = clk_get_by_name(dev, "osc_24m", &osc_24m_clk);
+	if (ret)
+		return ret;
+	clk_dm(IMX8MN_CLK_24M, dev_get_clk_ptr(osc_24m_clk.dev));
 
 	base = dev_read_addr_ptr(dev);
 	if (!base)
