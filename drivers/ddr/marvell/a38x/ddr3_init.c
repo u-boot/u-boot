@@ -41,7 +41,8 @@ int ddr3_init(void)
 	mv_ddr_pre_training_soc_config(ddr_type);
 
 	/* Set log level for training library */
-	mv_ddr_user_log_level_set(DEBUG_BLOCK_ALL);
+	if (!IS_ENABLED(CONFIG_DDR_IMMUTABLE_DEBUG_SETTINGS))
+		mv_ddr_user_log_level_set(DEBUG_BLOCK_ALL);
 
 	mv_ddr_early_init();
 

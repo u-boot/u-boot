@@ -2,7 +2,7 @@
 /*
  * Device Tree file for Thecus N2350 board
  *
- * Copyright (C) 2018-2023 Tony Dinh <mibodhi@gmail.com>
+ * Copyright (C) 2018-2024 Tony Dinh <mibodhi@gmail.com>
  * Copyright (C) 2018 Manuel Jung <manuel.jung@hotmail.com>
  */
 
@@ -143,9 +143,9 @@
 	fan {
 		compatible = "gpio-fan";
 		gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
-		gpio-fan,speed-map = <	  0  0
-					600  1
-					3000 2 >;
+		gpio-fan,speed-map = <	  0  0>,
+					<600  1>,
+					<3000 2 >;
 		pinctrl-0 = <&pmx_fan>;
 		pinctrl-names = "default";
 	};
@@ -415,7 +415,7 @@
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 
-		spi-max-frequency = <108000000>;
+		spi-max-frequency = <50000000>;
 		spi-cpha;
 
 		partition@0 {

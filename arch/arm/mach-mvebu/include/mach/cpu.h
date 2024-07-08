@@ -174,6 +174,7 @@ int serdes_phy_config(void);
  * drivers/ddr/marvell
  */
 int ddr3_init(void);
+int old_ddr3_init(void);
 
 /* Auto Voltage Scaling */
 #if defined(CONFIG_ARMADA_38X)

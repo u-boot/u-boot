@@ -30,7 +30,7 @@
 /*
  * PCI configuration
  */
-
+#ifdef CONFIG_DISTRO_DEFAULTS
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
@@ -40,6 +40,9 @@
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
+#else
+#define BOOTENV
+#endif
 
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"scriptaddr=0x6d00000\0"	\

@@ -37,6 +37,10 @@ config ARMADA_38X_HS_IMPEDANCE_THRESH
 	default 0x6
 	range 0x0 0x7
 
+config ARMADA_38X_SUPPORT_OLD_DDR3_TRAINING
+	bool
+	depends on ARMADA_38X
+
 config ARMADA_XP
 	bool
 	select ARMADA_32BIT
@@ -145,6 +149,7 @@ config TARGET_TURRIS_OMNIA
 	select SPL_SYS_MALLOC_SIMPLE
 	select SYS_I2C_MVTWSI
 	select ATSHA204A
+	select ARMADA_38X_SUPPORT_OLD_DDR3_TRAINING
 
 config TARGET_TURRIS_MOX
 	bool "Support CZ.NIC's Turris Mox / RIPE Atlas Probe"
@@ -249,6 +254,16 @@ config DDR_LOG_LEVEL
 	  provides the windows margin as a results of DQS centeralization.
 	  At level 3, rovides the windows margin of each DQ as a results of
 	  DQS centeralization.
+
+config DDR_IMMUTABLE_DEBUG_SETTINGS
+	bool "Immutable DDR debug level (always DEBUG_LEVEL_ERROR)"
+	depends on ARMADA_38X
+	help
+	  Makes the DDR training code debug level settings immutable.
+	  The debug level setting from board topology definition is ignored.
+	  The debug level is always set to DEBUG_LEVEL_ERROR and register
+	  dumps are disabled.
+	  This can save around 10 KiB of space in SPL binary.
 
 config DDR_RESET_ON_TRAINING_FAILURE
 	bool "Reset the board on DDR training failure instead of hanging"
