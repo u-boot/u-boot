@@ -180,18 +180,18 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	/* Do late init to ensure successful enumeration of XHCI devices */
+	pci_init();
+	return 0;
+}
+
 int misc_init_r(void)
 {
 	if (!env_get("ethaddr")) {
 		puts("Incomplete environment, populating from SPI flash\n");
 		do_syno_populate(0, NULL);
 	}
-	return 0;
-}
-
-int checkboard(void)
-{
-	puts("Board: DS414\n");
-
 	return 0;
 }
