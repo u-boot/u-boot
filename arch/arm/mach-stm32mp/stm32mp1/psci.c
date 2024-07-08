@@ -393,8 +393,7 @@ static int __secure secure_waitbits(u32 reg, u32 mask, u32 val)
 	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (start));
 	for (;;) {
 		tmp = readl(reg);
-		tmp &= mask;
-		if ((tmp & val) == val)
+		if ((tmp & mask) == val)
 			return 0;
 		asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (end));
 		if ((end - start) > delay)
