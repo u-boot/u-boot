@@ -35,11 +35,16 @@
 &ethphy0f { /* SMSC LAN8740Ai */
 	pinctrl-0 = <&pinctrl_ethphy0 &pinctrl_ioexp>;
 	reset-gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;
+	reg = <0>;
 };
 
 &ethphy0g { /* Micrel KSZ9131RNXI */
 	pinctrl-0 = <&pinctrl_ethphy0 &pinctrl_ioexp>;
 	reset-gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;
+};
+
+&ethphy1f { /* SMSC LAN8740Ai */
+	reg = <1>;
 };
 
 &i2c3 {

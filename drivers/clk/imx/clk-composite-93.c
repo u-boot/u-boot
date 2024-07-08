@@ -102,7 +102,6 @@ struct clk *imx93_clk_composite_flags(const char *name,
 	mux->mask = CCM_MUX_MASK;
 	mux->num_parents = num_parents;
 	mux->parent_names = parent_names;
-	mux->flags = flags;
 
 	div = kzalloc(sizeof(*div), GFP_KERNEL);
 	if (!div)
@@ -119,7 +118,6 @@ struct clk *imx93_clk_composite_flags(const char *name,
 
 	gate->reg = reg;
 	gate->bit_idx = CCM_OFF_SHIFT;
-	gate->flags = flags;
 
 	clk = clk_register_composite(NULL, name,
 				     parent_names, num_parents,
