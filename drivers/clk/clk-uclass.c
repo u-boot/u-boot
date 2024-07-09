@@ -609,7 +609,7 @@ int clk_enable(struct clk *clk)
 	struct clk *clkp = NULL;
 	int ret;
 
-	debug("%s(clk=%p)\n", __func__, clk);
+	debug("%s(clk=%p name=%s)\n", __func__, clk, clk->dev->name);
 	if (!clk_valid(clk))
 		return 0;
 	ops = clk_dev_ops(clk->dev);
@@ -670,7 +670,7 @@ int clk_disable(struct clk *clk)
 	struct clk *clkp = NULL;
 	int ret;
 
-	debug("%s(clk=%p)\n", __func__, clk);
+	debug("%s(clk=%p name=%s)\n", __func__, clk, clk->dev->name);
 	if (!clk_valid(clk))
 		return 0;
 	ops = clk_dev_ops(clk->dev);
