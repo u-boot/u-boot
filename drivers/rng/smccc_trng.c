@@ -135,10 +135,6 @@ static bool smccc_trng_is_supported(void (*invoke_fn)(unsigned long a0, unsigned
 {
 	struct arm_smccc_res res;
 
-	(*invoke_fn)(ARM_SMCCC_ARCH_FEATURES, ARM_SMCCC_TRNG_VERSION, 0, 0, 0, 0, 0, 0, &res);
-	if (res.a0 == ARM_SMCCC_RET_NOT_SUPPORTED)
-		return false;
-
 	(*invoke_fn)(ARM_SMCCC_TRNG_VERSION, 0, 0, 0, 0, 0, 0, 0, &res);
 	if (res.a0 & BIT(31))
 		return false;
