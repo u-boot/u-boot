@@ -382,7 +382,7 @@ static void set_board_info(void)
 
 	snprintf(s, sizeof(s), "0x%X", revision);
 	env_set("board_revision", s);
-	snprintf(s, sizeof(s), "%d", rev_scheme);
+	snprintf(s, sizeof(s), "%u", rev_scheme);
 	env_set("board_rev_scheme", s);
 	/* Can't rename this to board_rev_type since it's an ABI for scripts */
 	snprintf(s, sizeof(s), "0x%X", rev_type);
