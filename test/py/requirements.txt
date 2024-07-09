@@ -27,4 +27,4 @@ testtools==2.3.0
 traceback2==1.4.0
 unittest2==1.1.0
 wcwidth==0.1.7
-zipp==0.6.0
+zipp==3.19.1
