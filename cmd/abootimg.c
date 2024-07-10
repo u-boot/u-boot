@@ -22,6 +22,11 @@ ulong get_abootimg_addr(void)
 	return (_abootimg_addr == -1 ? image_load_addr : _abootimg_addr);
 }
 
+void set_abootimg_addr(ulong addr)
+{
+	_abootimg_addr = addr;
+}
+
 ulong get_ainit_bootimg_addr(void)
 {
 	return _ainit_bootimg_addr;
@@ -30,6 +35,11 @@ ulong get_ainit_bootimg_addr(void)
 ulong get_avendor_bootimg_addr(void)
 {
 	return _avendor_bootimg_addr;
+}
+
+void set_avendor_bootimg_addr(ulong addr)
+{
+	_avendor_bootimg_addr = addr;
 }
 
 static int abootimg_get_ver(int argc, char *const argv[])
