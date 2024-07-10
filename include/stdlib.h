@@ -7,5 +7,6 @@
 #define __STDLIB_H_
 
 #include <malloc.h>
+#include <rand.h>
 
 #endif /* __STDLIB_H_ */
