@@ -1,0 +1,87 @@
+From aefd96330bfa8fb3dd50506308e2f789f606cbba Mon Sep 17 00:00:00 2001
+From: Raymond Mao <raymond.mao@linaro.org>
+Date: Fri, 5 Jan 2024 08:16:50 -0800
+Subject: [PATCH] fix linking multiple definitions errors
+
+State static for the inline functions to avoid linking errors.
+
+Signed-off-by: Raymond Mao <raymond.mao@linaro.org>
+---
+ library/alignment.h | 12 ++++++------
+ library/common.h    |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/library/alignment.h b/library/alignment.h
+index 4bca10e8f..db2b5ad87 100644
+--- a/library/alignment.h
++++ b/library/alignment.h
+@@ -39,7 +39,7 @@
+  * \param   p pointer to 2 bytes of data
+  * \return  Data at the given address
+  */
+-inline uint16_t mbedtls_get_unaligned_uint16(const void *p)
++static inline uint16_t mbedtls_get_unaligned_uint16(const void *p)
+ {
+     uint16_t r;
+     memcpy(&r, p, sizeof(r));
+@@ -53,7 +53,7 @@ inline uint16_t mbedtls_get_unaligned_uint16(const void *p)
+  * \param   p pointer to 2 bytes of data
+  * \param   x data to write
+  */
+-inline void mbedtls_put_unaligned_uint16(void *p, uint16_t x)
++static inline void mbedtls_put_unaligned_uint16(void *p, uint16_t x)
+ {
+     memcpy(p, &x, sizeof(x));
+ }
+@@ -65,7 +65,7 @@ inline void mbedtls_put_unaligned_uint16(void *p, uint16_t x)
+  * \param   p pointer to 4 bytes of data
+  * \return  Data at the given address
+  */
+-inline uint32_t mbedtls_get_unaligned_uint32(const void *p)
++static inline uint32_t mbedtls_get_unaligned_uint32(const void *p)
+ {
+     uint32_t r;
+     memcpy(&r, p, sizeof(r));
+@@ -79,7 +79,7 @@ inline uint32_t mbedtls_get_unaligned_uint32(const void *p)
+  * \param   p pointer to 4 bytes of data
+  * \param   x data to write
+  */
+-inline void mbedtls_put_unaligned_uint32(void *p, uint32_t x)
++static inline void mbedtls_put_unaligned_uint32(void *p, uint32_t x)
+ {
+     memcpy(p, &x, sizeof(x));
+ }
+@@ -91,7 +91,7 @@ inline void mbedtls_put_unaligned_uint32(void *p, uint32_t x)
+  * \param   p pointer to 8 bytes of data
+  * \return  Data at the given address
+  */
+-inline uint64_t mbedtls_get_unaligned_uint64(const void *p)
++static inline uint64_t mbedtls_get_unaligned_uint64(const void *p)
+ {
+     uint64_t r;
+     memcpy(&r, p, sizeof(r));
+@@ -105,7 +105,7 @@ inline uint64_t mbedtls_get_unaligned_uint64(const void *p)
+  * \param   p pointer to 8 bytes of data
+  * \param   x data to write
+  */
+-inline void mbedtls_put_unaligned_uint64(void *p, uint64_t x)
++static inline void mbedtls_put_unaligned_uint64(void *p, uint64_t x)
+ {
+     memcpy(p, &x, sizeof(x));
+ }
+diff --git a/library/common.h b/library/common.h
+index c6ed14b68..6a04c57dc 100644
+--- a/library/common.h
++++ b/library/common.h
+@@ -165,7 +165,7 @@ static inline const unsigned char *mbedtls_buffer_offset_const(
+  * \param   b Pointer to input (buffer of at least \p n bytes)
+  * \param   n Number of bytes to process.
+  */
+-inline void mbedtls_xor(unsigned char *r, const unsigned char *a, const unsigned char *b, size_t n)
++static inline void mbedtls_xor(unsigned char *r, const unsigned char *a, const unsigned char *b, size_t n)
+ {
+     size_t i = 0;
+ #if defined(MBEDTLS_EFFICIENT_UNALIGNED_ACCESS)
+--
+2.25.1
+

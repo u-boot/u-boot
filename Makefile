@@ -829,6 +829,12 @@ KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 UBOOTINCLUDE    := \
 	-Iinclude \
 	$(if $(KBUILD_SRC), -I$(srctree)/include) \
+	$(if $(KBUILD_SRC), \
+		$(if $(CONFIG_MBEDTLS_LIB), \
+			"-DMBEDTLS_CONFIG_FILE=\"mbedtls_def_config.h\"" \
+			-I$(srctree)/lib/mbedtls \
+			-I$(srctree)/lib/mbedtls/port \
+			-I$(srctree)/lib/mbedtls/external/mbedtls/include)) \
 	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
 			$(if $(CONFIG_CPU_V7M), \
@@ -1707,7 +1713,7 @@ u-boot.elf: u-boot.bin u-boot-elf.lds
 	$(Q)$(OBJCOPY) -I binary $(PLATFORM_ELFFLAGS) $< u-boot-elf.o
 	$(call if_changed,u-boot-elf)
 
-u-boot-elf.lds: arch/u-boot-elf.lds prepare FORCE
+u-boot-elf.lds: arch/u-boot-elf.lds prepare prepare_git FORCE
 	$(call if_changed_dep,cpp_lds)
 
 # MediaTek's ARM-based u-boot needs a header to contains its load address
@@ -1891,6 +1897,10 @@ PHONY += $(u-boot-dirs)
 $(u-boot-dirs): prepare scripts
 	$(Q)$(MAKE) $(build)=$@
 
+#$(filter arch% board% lib% drivers%,$(u-boot-dirs)): prepare_git
+$(filter arch%,$(u-boot-dirs)): prepare_git
+
+
 tools: prepare
 # The "tools" are needed early
 $(filter-out tools, $(u-boot-dirs)): tools
@@ -1917,7 +1927,7 @@ include/config/uboot.release: include/config/auto.conf FORCE
 # version.h and scripts_basic is processed / created.
 
 # Listed in dependency order
-PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
+PHONY += prepare prepare_git apply_mbedtls_patches update_submodule archprepare prepare0 prepare1 prepare2 prepare3
 
 # prepare3 is used to check if we are building in a separate output directory,
 # and if so do:
@@ -1953,8 +1963,31 @@ archprepare: prepare1 scripts_basic
 prepare0: archprepare FORCE
 	$(Q)$(MAKE) $(build)=.
 
+update_submodule:
+	@echo "Updating Git submodule..."
+	git -C $(srctree) submodule init
+	git -C $(srctree) submodule update
+
+# FIXME: Apply the patches of MbedTLS before they are merged into upstream.
+MBEDTLS_PATCH_DIR := $(srctree)/lib/mbedtls/patch
+MBEDTLS_PATCH_FILES := $(wildcard $(MBEDTLS_PATCH_DIR)/*.patch)
+
+# Skip the patch if it was applied and do not save any backup files
+PATCH_OPTIONS := -N --no-backup-if-mismatch -r ''
+
+apply_mbedtls_patches: $(MBEDTLS_PATCH_FILES)
+	@echo "Applying mbedtls patches..."
+	@for patch_file in $^; do \
+		echo "Applying patch: $${patch_file}"; \
+		patch -d $(srctree)/lib/mbedtls/external/mbedtls \
+			$(PATCH_OPTIONS) -p1 < $${patch_file} 2>/dev/null || true; \
+	done
+
 # All the preparing..
 prepare: prepare0
+
+.NOTPARALLEL:
+prepare_git: update_submodule apply_mbedtls_patches
 
 # Generate some files
 # ---------------------------------------------------------------------------
@@ -2088,7 +2121,7 @@ spl/u-boot-spl-dtb.bin: spl/u-boot-spl
 spl/u-boot-spl-dtb.hex: spl/u-boot-spl
 	@:
 
-spl/u-boot-spl: tools prepare $(if $(CONFIG_SPL_OF_CONTROL),dts/dt.dtb)
+spl/u-boot-spl: tools prepare prepare_git $(if $(CONFIG_SPL_OF_CONTROL),dts/dt.dtb)
 	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
@@ -2107,14 +2140,14 @@ tpl/u-boot-tpl.bin: tpl/u-boot-tpl
 	@:
 	$(TPL_SIZE_CHECK)
 
-tpl/u-boot-tpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
+tpl/u-boot-tpl: tools prepare prepare_git $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
 
 vpl/u-boot-vpl.bin: vpl/u-boot-vpl
 	@:
 	$(VPL_SIZE_CHECK)
 
-vpl/u-boot-vpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
+vpl/u-boot-vpl: tools prepare prepare_git $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
 	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.spl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
