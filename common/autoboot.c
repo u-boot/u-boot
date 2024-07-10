@@ -169,7 +169,7 @@ static int passwd_abort_sha256(uint64_t etime)
 
 	presskey = malloc_cache_aligned(DELAY_STOP_STR_MAX_LENGTH);
 	if (!presskey)
-		return -ENOMEM;
+		return 1;
 
 	c = strstr(sha_env_str, ":");
 	if (c && (c - sha_env_str < DELAY_STOP_STR_MAX_LENGTH)) {
