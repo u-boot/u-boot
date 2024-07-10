@@ -420,6 +420,10 @@ source "lib/dhry/Kconfig"
 
 menu "Security support"
 
+menu "mbedtls libraries"
+source lib/mbedtls/Kconfig
+endmenu
+
 config AES
 	bool "Support the AES algorithm"
 	help
