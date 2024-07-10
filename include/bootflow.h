@@ -409,6 +409,15 @@ void bootflow_remove(struct bootflow *bflow);
 int bootflow_iter_check_blk(const struct bootflow_iter *iter);
 
 /**
+ * bootflow_iter_check_mmc() - Check that a bootflow uses a MMC device
+ *
+ * This checks the bootdev in the bootflow to make sure it uses a mmc device
+ *
+ * Return: 0 if OK, -ENOTSUPP if some other device is used (e.g. ethernet)
+ */
+int bootflow_iter_check_mmc(const struct bootflow_iter *iter);
+
+/**
  * bootflow_iter_check_sf() - Check that a bootflow uses SPI FLASH
  *
  * This checks the bootdev in the bootflow to make sure it uses SPI flash
