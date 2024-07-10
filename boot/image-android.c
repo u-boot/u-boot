@@ -56,6 +56,11 @@ static ulong add_trailer(ulong bootconfig_start_addr, ulong bootconfig_size)
 	return BOOTCONFIG_TRAILER_SIZE;
 }
 
+__weak ulong get_avendor_bootimg_addr(void)
+{
+	return -1;
+}
+
 static void android_boot_image_v3_v4_parse_hdr(const struct andr_boot_img_hdr_v3 *hdr,
 					       struct andr_image_data *data)
 {
