@@ -78,12 +78,10 @@ enum {
 	BLOBLIST_VERSION	= 1,
 	BLOBLIST_MAGIC		= 0x4a0fb10b,
 
-	/*
-	 * FIXME:
-	 * Register convention version should be placed into a higher byte
-	 * https://github.com/FirmwareHandoff/firmware_handoff/issues/32
-	 */
-	BLOBLIST_REGCONV_VER	= 1 << 24,
+	BLOBLIST_REGCONV_SHIFT_64 = 32,
+	BLOBLIST_REGCONV_SHIFT_32 = 24,
+	BLOBLIST_REGCONV_MASK = 0xff,
+	BLOBLIST_REGCONV_VER = 1,
 
 	BLOBLIST_BLOB_ALIGN_LOG2 = 3,
 	BLOBLIST_BLOB_ALIGN	 = 1 << BLOBLIST_BLOB_ALIGN_LOG2,
