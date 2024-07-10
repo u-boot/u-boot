@@ -10,5 +10,5 @@ DTC_FLAGS += -@
 
 # DT overlays
 obj-y += test-fdt-base.dtb.o
-obj-y += test-fdt-overlay.dtb.o
-obj-y += test-fdt-overlay-stacked.dtb.o
+obj-y += test-fdt-overlay.dtbo.o
+obj-y += test-fdt-overlay-stacked.dtbo.o
