@@ -95,6 +95,7 @@ bootflows.
 
 Note: it is possible to have a bootmeth that uses a partition or a whole device
 directly, but it is more common to use a filesystem.
+For example, the Android bootmeth uses a whole device.
 
 Note that some bootmeths are 'global', meaning that they select the bootdev
 themselves. Examples include VBE and EFI boot manager. In this case, they
@@ -277,6 +278,9 @@ script_offset_f
 script_size_f
     Size of the script to load, e.g. 0x2000
 
+vendor_boot_comp_addr_r
+    Address to which to load the vendor_boot Android image, e.g. 0xe0000000
+
 Some variables are set by script bootmeth:
 
 devtype
@@ -418,6 +422,7 @@ Bootmeth drivers are provided for:
    - EFI boot using bootefi from disk
    - VBE
    - EFI boot using boot manager
+   - Android bootflow (boot image v4)
 
 
 Command interface
@@ -786,6 +791,7 @@ To do
 Some things that need to be done to completely replace the distro-boot scripts:
 
 - implement extensions (devicetree overlays with add-on boards)
+- implement legacy (boot image v2) android boot flow
 
 Other ideas:
 
