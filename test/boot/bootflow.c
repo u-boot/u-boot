@@ -27,6 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern U_BOOT_DRIVER(bootmeth_android);
 extern U_BOOT_DRIVER(bootmeth_cros);
 extern U_BOOT_DRIVER(bootmeth_2script);
 
@@ -518,12 +519,12 @@ BOOTSTD_TEST(bootflow_cmd_boot, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
  * @uts: Unit test state
  * @mmc_dev: MMC device to use, e.g. "mmc4". Note that this must remain valid
  *	in the caller until
- * @bind_cros: true to bind the ChromiumOS bootmeth
+ * @bind_cros: true to bind the ChromiumOS and Android bootmeths
  * @old_orderp: Returns the original bootdev order, which must be restored
  * Returns 0 on success, -ve on failure
  */
 static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
-			    bool bind_cros, const char ***old_orderp)
+			    bool bind_cros_android, const char ***old_orderp)
 {
 	static const char *order[] = {"mmc2", "mmc1", NULL, NULL};
 	struct udevice *dev, *bootstd;
@@ -545,10 +546,17 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
 				"bootmeth_script", 0, ofnode_null(), &dev));
 
 	/* Enable the cros bootmeth if needed */
-	if (IS_ENABLED(CONFIG_BOOTMETH_CROS) && bind_cros) {
+	if (IS_ENABLED(CONFIG_BOOTMETH_CROS) && bind_cros_android) {
 		ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 		ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_cros),
 					"cros", 0, ofnode_null(), &dev));
+	}
+
+	/* Enable the android bootmeths if needed */
+	if (IS_ENABLED(CONFIG_BOOTMETH_ANDROID) && bind_cros_android) {
+		ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+		ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_android),
+					"android", 0, ofnode_null(), &dev));
 	}
 
 	/* Change the order to include the device */
@@ -579,6 +587,37 @@ static int scan_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
 
 	console_record_reset_enable();
 	ut_assertok(run_command("bootflow scan", 0));
+	ut_assert_console_end();
+
+	/* Restore the order used by the device tree */
+	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
+	std = dev_get_priv(bootstd);
+	std->bootdev_order = old_order;
+
+	return 0;
+}
+
+/**
+ * scan_mmc_android_bootdev() - Set up an mmc bootdev so we can access other
+ * distros. Android bootflow might print "ANDROID:*" while scanning
+ *
+ * @uts: Unit test state
+ * @mmc_dev: MMC device to use, e.g. "mmc4"
+ * Returns 0 on success, -ve on failure
+ */
+static int scan_mmc_android_bootdev(struct unit_test_state *uts, const char *mmc_dev)
+{
+	struct bootstd_priv *std;
+	struct udevice *bootstd;
+	const char **old_order;
+
+	ut_assertok(prep_mmc_bootdev(uts, mmc_dev, true, &old_order));
+
+	console_record_reset_enable();
+	ut_assertok(run_command("bootflow scan", 0));
+	/* Android bootflow might print one or two 'ANDROID:*' logs */
+	ut_check_skipline(uts);
+	ut_check_skipline(uts);
 	ut_assert_console_end();
 
 	/* Restore the order used by the device tree */
@@ -1160,3 +1199,26 @@ static int bootflow_cros(struct unit_test_state *uts)
 	return 0;
 }
 BOOTSTD_TEST(bootflow_cros, 0);
+
+/* Test Android bootmeth  */
+static int bootflow_android(struct unit_test_state *uts)
+{
+	if (!IS_ENABLED(CONFIG_BOOTMETH_ANDROID))
+		return -EAGAIN;
+
+	ut_assertok(scan_mmc_android_bootdev(uts, "mmc7"));
+	ut_assertok(run_command("bootflow list", 0));
+
+	ut_assert_nextlinen("Showing all");
+	ut_assert_nextlinen("Seq");
+	ut_assert_nextlinen("---");
+	ut_assert_nextlinen("  0  extlinux");
+	ut_assert_nextlinen("  1  android      ready   mmc          0  mmc7.bootdev.whole        ");
+	ut_assert_nextlinen("---");
+	ut_assert_skip_to_line("(2 bootflows, 2 valid)");
+
+	ut_assert_console_end();
+
+	return 0;
+}
+BOOTSTD_TEST(bootflow_android, 0);
