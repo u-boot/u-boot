@@ -1,0 +1,7 @@
+NANOPI-R6S
+M:	Sebastian Kropatsch <seb-dev@mail.de>
+S:	Maintained
+F:	arch/arm/dts/rk3588s-nanopi-r6s-u-boot.dtsi
+F:	board/friendlyelec/nanopi-r6s-rk3588s
+F:	configs/nanopi-r6s-rk3588s_defconfig
+F:	include/configs/nanopi-r6s-rk3588s.h
