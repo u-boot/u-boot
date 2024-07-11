@@ -20,6 +20,7 @@
 #include <linux/bug.h>
 #include <linux/kernel.h>
 #include <linux/io.h>
+#include <linux/usb/gadget.h>
 #include <usb.h>
 #include <usb/xhci.h>
 
@@ -462,15 +463,38 @@ static int cdns3_gadget_remove(struct udevice *dev)
 	return cdns3_remove(cdns);
 }
 
+static int cdns3_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct cdns3 *cdns = dev_get_priv(dev);
+
+	cdns3_gadget_uboot_handle_interrupt(cdns);
+
+	return 0;
+}
+
+static const struct usb_gadget_generic_ops cdns3_gadget_ops = {
+	.handle_interrupts	= cdns3_gadget_handle_interrupts,
+};
+
 U_BOOT_DRIVER(cdns_usb3_peripheral) = {
 	.name	= "cdns-usb3-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
 	.of_match = cdns3_ids,
+	.ops	= &cdns3_gadget_ops,
 	.probe = cdns3_gadget_probe,
 	.remove = cdns3_gadget_remove,
 	.priv_auto	= sizeof(struct cdns3_gadget_priv),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
+#else
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct cdns3 *cdns = dev_get_priv(dev);
+
+	cdns3_gadget_uboot_handle_interrupt(cdns);
+
+	return 0;
+}
 #endif
 
 #if defined(CONFIG_SPL_USB_HOST) || \

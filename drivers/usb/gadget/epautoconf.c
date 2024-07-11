@@ -12,7 +12,6 @@
 #include <linux/errno.h>
 #include <linux/usb/gadget.h>
 #include <asm/unaligned.h>
-#include "gadget_chips.h"
 
 #define isdigit(c)      ('0' <= (c) && (c) <= '9')
 
@@ -167,18 +166,6 @@ static int ep_matches(
 	return 1;
 }
 
-static struct usb_ep *
-find_ep(struct usb_gadget *gadget, const char *name)
-{
-	struct usb_ep	*ep;
-
-	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
-		if (0 == strcmp(ep->name, name))
-			return ep;
-	}
-	return NULL;
-}
-
 /**
  * usb_ep_autoconfig - choose an endpoint matching the descriptor
  * @gadget: The device to which the endpoint must belong.
@@ -214,75 +201,13 @@ struct usb_ep *usb_ep_autoconfig(
 	struct usb_endpoint_descriptor	*desc
 )
 {
-	struct usb_ep	*ep = NULL;
-	u8		type;
+	struct usb_ep *ep;
 
-	type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
-
-	/* First, apply chip-specific "best usage" knowledge.
-	 * This might make a good usb_gadget_ops hook ...
-	 */
-	if (gadget_is_net2280(gadget) && type == USB_ENDPOINT_XFER_INT) {
-		/* ep-e, ep-f are PIO with only 64 byte fifos */
-		ep = find_ep(gadget, "ep-e");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-		ep = find_ep(gadget, "ep-f");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-
-	} else if (gadget_is_goku(gadget)) {
-		if (USB_ENDPOINT_XFER_INT == type) {
-			/* single buffering is enough */
-			ep = find_ep(gadget, "ep3-bulk");
-			if (ep && ep_matches(gadget, ep, desc))
-				return ep;
-		} else if (USB_ENDPOINT_XFER_BULK == type
-				&& (USB_DIR_IN & desc->bEndpointAddress)) {
-			/* DMA may be available */
-			ep = find_ep(gadget, "ep2-bulk");
-			if (ep && ep_matches(gadget, ep, desc))
-				return ep;
-		}
-
-	} else if (gadget_is_sh(gadget) && USB_ENDPOINT_XFER_INT == type) {
-		/* single buffering is enough; maybe 8 byte fifo is too */
-		ep = find_ep(gadget, "ep3in-bulk");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-
-	} else if (gadget_is_mq11xx(gadget) && USB_ENDPOINT_XFER_INT == type) {
-		ep = find_ep(gadget, "ep1-bulk");
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-#ifndef CONFIG_SPL_BUILD
-	} else if (gadget_is_dwc3(gadget)) {
-		const char *name = NULL;
-		/*
-		 * First try standard, common configuration: ep1in-bulk,
-		 * ep2out-bulk, ep3in-int to match other udc drivers to avoid
-		 * confusion in already deployed software (endpoint numbers
-		 * hardcoded in userspace software/drivers)
-		 */
-		if ((desc->bEndpointAddress & USB_DIR_IN) &&
-		    type == USB_ENDPOINT_XFER_BULK)
-			name = "ep1in";
-		else if ((desc->bEndpointAddress & USB_DIR_IN) == 0 &&
-			 type == USB_ENDPOINT_XFER_BULK)
-			name = "ep2out";
-		else if ((desc->bEndpointAddress & USB_DIR_IN) &&
-			 type == USB_ENDPOINT_XFER_INT)
-			name = "ep3in";
-
-		if (name)
-			ep = find_ep(gadget, name);
-		if (ep && ep_matches(gadget, ep, desc))
-			return ep;
-#endif
-	}
-
-	if (gadget->ops->match_ep)
+	if (gadget->ops->match_ep) {
 		ep = gadget->ops->match_ep(gadget, desc, NULL);
+		if (ep && ep_matches(gadget, ep, desc))
+			return ep;
+	}
 
 	/* Second, look at endpoints until an unclaimed one looks usable */
 	list_for_each_entry(ep, &gadget->ep_list, ep_list) {

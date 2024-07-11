@@ -808,13 +808,6 @@ static void max3420_setup_spi(struct max3420_udc *udc)
 	spi_wr8(udc, MAX3420_REG_PINCTL, bFDUPSPI);
 }
 
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	struct max3420_udc *udc = dev_get_priv(dev);
-
-	return max3420_irq(udc);
-}
-
 static int max3420_udc_probe(struct udevice *dev)
 {
 	struct max3420_udc *udc = dev_get_priv(dev);
@@ -859,6 +852,17 @@ static int max3420_udc_remove(struct udevice *dev)
 	return 0;
 }
 
+static int max3420_gadget_handle_interrupts(struct udevice *dev)
+{
+	struct max3420_udc *udc = dev_get_priv(dev);
+
+	return max3420_irq(udc);
+}
+
+static const struct usb_gadget_generic_ops max3420_gadget_ops = {
+	.handle_interrupts	= max3420_gadget_handle_interrupts,
+};
+
 static const struct udevice_id max3420_ids[] = {
 	{ .compatible = "maxim,max3421-udc" },
 	{ }
@@ -868,6 +872,7 @@ U_BOOT_DRIVER(max3420_generic_udc) = {
 	.name = "max3420-udc",
 	.id = UCLASS_USB_GADGET_GENERIC,
 	.of_match = max3420_ids,
+	.ops = &max3420_gadget_ops,
 	.probe = max3420_udc_probe,
 	.remove = max3420_udc_remove,
 	.priv_auto	= sizeof(struct max3420_udc),

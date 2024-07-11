@@ -2755,19 +2755,10 @@ int cdns3_gadget_init(struct cdns3 *cdns)
  *
  * Handles ep0 and gadget interrupt
  */
-static void cdns3_gadget_uboot_handle_interrupt(struct cdns3 *cdns)
+void cdns3_gadget_uboot_handle_interrupt(struct cdns3 *cdns)
 {
 	int ret = cdns3_device_irq_handler(0, cdns);
 
 	if (ret == IRQ_WAKE_THREAD)
 		cdns3_device_thread_irq_handler(0, cdns);
-}
-
-int dm_usb_gadget_handle_interrupts(struct udevice *dev)
-{
-	struct cdns3 *cdns = dev_get_priv(dev);
-
-	cdns3_gadget_uboot_handle_interrupt(cdns);
-
-	return 0;
 }

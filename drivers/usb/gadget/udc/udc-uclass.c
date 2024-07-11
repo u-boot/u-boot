@@ -12,6 +12,25 @@
 #include <linux/usb/gadget.h>
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
+static inline const struct usb_gadget_generic_ops *
+usb_gadget_generic_dev_ops(struct udevice *dev)
+{
+	return (const struct usb_gadget_generic_ops *)dev->driver->ops;
+}
+
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
+{
+	const struct usb_gadget_generic_ops *ops;
+
+	ops = usb_gadget_generic_dev_ops(dev);
+	if (!ops)
+		return -EFAULT;
+	if (!ops->handle_interrupts)
+		return -ENOSYS;
+
+	return ops->handle_interrupts(dev);
+}
+
 int udc_device_get_by_index(int index, struct udevice **udev)
 {
 	struct udevice *dev = NULL;
@@ -53,6 +72,11 @@ int udc_device_get_by_index(int index, struct udevice **udev)
 int udc_device_put(struct udevice *udev)
 {
 	return board_usb_cleanup(legacy_index, USB_INIT_DEVICE);
+}
+
+__weak int dm_usb_gadget_handle_interrupts(struct udevice *dev)
+{
+	return 0;
 }
 #endif
 
