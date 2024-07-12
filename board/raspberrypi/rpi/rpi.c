@@ -494,10 +494,6 @@ static void get_board_revision(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_HW_WATCHDOG
-	hw_watchdog_init();
-#endif
-
 	get_board_revision();
 
 	gd->bd->bi_boot_params = 0x100;
