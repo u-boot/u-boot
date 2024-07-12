@@ -39,7 +39,7 @@
 
 /* The FMAN driver uses the PHYLIB infrastructure */
 
-#if defined(CONFIG_DM_SERIAL) && !defined(CONFIG_CLK_MPC83XX)
+#if CONFIG_IS_ENABLED(DM_SERIAL) && !defined(CONFIG_CLK_MPC83XX)
 /*
  * TODO: Convert this to a clock driver exists that can give us the UART
  * clock here.

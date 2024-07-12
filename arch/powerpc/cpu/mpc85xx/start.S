@@ -116,7 +116,7 @@ bootsect:
 	.long (CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_START + CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA) * 512
 
 	.org 0x58 /* Target address in the system's local memory address space */
-	.long CONFIG_SYS_MONITOR_BASE
+	.long CONFIG_VAL(SYS_MONITOR_BASE)
 
 	.org 0x60 /* Execution starting address */
 	.long _start

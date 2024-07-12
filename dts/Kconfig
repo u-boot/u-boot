@@ -145,6 +145,12 @@ config OF_EMBED
 
 endchoice
 
+config OF_INITIAL_DTB_READONLY
+	bool "Initial DTB for DT control is read-only"
+	help
+	  If initial DTB for DT control is read-only (e.g. points to
+	  memory-mapped flash memory), then set this option.
+
 config OF_BOARD
 	bool "Provided by the board (e.g a previous loader) at runtime"
 	default y if SANDBOX || OF_HAS_PRIOR_STAGE
