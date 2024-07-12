@@ -135,7 +135,6 @@ struct sun4i_spi_variant {
 struct sun4i_spi_plat {
 	struct sun4i_spi_variant *variant;
 	u32 base;
-	u32 max_hz;
 };
 
 struct sun4i_spi_priv {
@@ -236,6 +235,13 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
 	unsigned int div;
 	u32 reg;
+
+	/*
+	 * The uclass should take care that this won't happen. But anyway,
+	 * avoid a div-by-zero exception.
+	 */
+	if (!priv->freq)
+		return;
 
 	/*
 	 * Setup clock divider.
@@ -401,11 +407,10 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 static int sun4i_spi_set_speed(struct udevice *dev, uint speed)
 {
-	struct sun4i_spi_plat *plat = dev_get_plat(dev);
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
 
-	if (speed > plat->max_hz)
-		speed = plat->max_hz;
+	if (speed > SUN4I_SPI_MAX_RATE)
+		speed = SUN4I_SPI_MAX_RATE;
 
 	if (speed < SUN4I_SPI_MIN_RATE)
 		speed = SUN4I_SPI_MIN_RATE;
@@ -458,7 +463,6 @@ static int sun4i_spi_probe(struct udevice *bus)
 
 	priv->variant = plat->variant;
 	priv->base = plat->base;
-	priv->freq = plat->max_hz;
 
 	return 0;
 }
@@ -466,16 +470,9 @@ static int sun4i_spi_probe(struct udevice *bus)
 static int sun4i_spi_of_to_plat(struct udevice *bus)
 {
 	struct sun4i_spi_plat *plat = dev_get_plat(bus);
-	int node = dev_of_offset(bus);
 
 	plat->base = dev_read_addr(bus);
 	plat->variant = (struct sun4i_spi_variant *)dev_get_driver_data(bus);
-	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node,
-				      "spi-max-frequency",
-				      SUN4I_SPI_DEFAULT_RATE);
-
-	if (plat->max_hz > SUN4I_SPI_MAX_RATE)
-		plat->max_hz = SUN4I_SPI_MAX_RATE;
 
 	return 0;
 }
