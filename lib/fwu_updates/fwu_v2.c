@@ -58,24 +58,6 @@ static int fwu_mdata_sanity_checks(void)
 	struct fwu_data *data = fwu_get_data();
 	struct fwu_mdata *mdata = data->fwu_mdata;
 
-	if (mdata->version != FWU_MDATA_VERSION) {
-		log_err("FWU metadata version %u. Expected value of %u\n",
-			mdata->version, FWU_MDATA_VERSION);
-		return -EINVAL;
-	}
-
-	if (!mdata->desc_offset) {
-		log_err("No image information provided with the Metadata. ");
-		log_err("Image information expected in the metadata\n");
-		return -EINVAL;
-	}
-
-	if (mdata->desc_offset != 0x20) {
-		log_err("Descriptor Offset(0x%x) in the FWU Metadata not equal to 0x20\n",
-			mdata->desc_offset);
-		return -EINVAL;
-	}
-
 	num_banks = fwu_get_fw_desc(mdata)->num_banks;
 	num_images = fwu_get_fw_desc(mdata)->num_images;
 
@@ -236,6 +218,24 @@ int fwu_init(void)
 	if (ret) {
 		log_err("FWU metadata read failed\n");
 		return ret;
+	}
+
+	if (mdata.version != FWU_MDATA_VERSION) {
+		log_err("FWU metadata version %u. Expected value of %u\n",
+			mdata.version, FWU_MDATA_VERSION);
+		return -EINVAL;
+	}
+
+	if (!mdata.desc_offset) {
+		log_err("No image information provided with the Metadata. ");
+		log_err("Image information expected in the metadata\n");
+		return -EINVAL;
+	}
+
+	if (mdata.desc_offset != 0x20) {
+		log_err("Descriptor Offset(0x%x) in the FWU Metadata not equal to 0x20\n",
+			mdata.desc_offset);
+		return -EINVAL;
 	}
 
 	ret = fwu_mdata_copies_allocate(mdata.metadata_size);
