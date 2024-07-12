@@ -25,8 +25,6 @@
 /* max ticks timeout */
 #define BCM2835_WDOG_MAX_TIMEOUT	0x000fffff
 
-void hw_watchdog_disable(void) {}
-
 __efi_runtime_data struct bcm2835_wdog_regs *wdog_regs;
 
 static void __efi_runtime
@@ -34,10 +32,9 @@ __reset_cpu(struct bcm2835_wdog_regs *wdog_regs, ulong ticks)
 {
 	uint32_t rstc, timeout;
 
-	if (ticks == 0) {
-		hw_watchdog_disable();
+	if (ticks == 0)
 		timeout = RESET_TIMEOUT;
-	} else
+	else
 		timeout = ticks & BCM2835_WDOG_MAX_TIMEOUT;
 
 	rstc = readl(&wdog_regs->rstc);
