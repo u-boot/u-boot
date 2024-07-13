@@ -83,7 +83,6 @@ int litesom_mmc_init(struct bd_info *bis)
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
 
-
 static struct mx6ul_iomux_grp_regs mx6_grp_ioregs = {
 	.grp_addds = 0x00000030,
 	.grp_ddrmode_ctl = 0x00020000,

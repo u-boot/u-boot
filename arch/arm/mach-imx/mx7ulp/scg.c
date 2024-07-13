@@ -428,7 +428,6 @@ static u32 scg_nic_get_rate(enum scg_clk clk)
 	return rate;
 }
 
-
 static enum scg_clk scg_scs_array[4] = {
 	SCG_SOSC_CLK, SCG_SIRC_CLK, SCG_FIRC_CLK, SCG_ROSC_CLK,
 };
@@ -806,7 +805,6 @@ int scg_enable_usb_pll(bool usb_control)
 
 	return 0;
 }
-
 
 /* A7 domain system clock source is SPLL */
 #define SCG1_RCCR_SCS_NUM	((SCG_SCS_SYS_PLL) << SCG_CCR_SCS_SHIFT)

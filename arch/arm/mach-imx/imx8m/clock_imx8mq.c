@@ -733,7 +733,6 @@ static int frac_pll_init(u32 pll, enum frac_pll_out_val val)
 	return 0;
 }
 
-
 int clock_init(void)
 {
 	u32 grade;
