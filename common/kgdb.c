@@ -446,7 +446,6 @@ handle_exception (struct pt_regs *regs)
 			}
 			break;
 
-
 		case 'k':    /* kill the program, actually return to monitor */
 			kd.extype = KGDBEXIT_KILL;
 			*regs = entry_regs;

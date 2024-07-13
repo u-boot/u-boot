@@ -392,7 +392,6 @@
 #define BASH_TEST2         (ENABLE_HUSH_BASH_COMPAT && ENABLE_HUSH_TEST)
 #define BASH_READ_D        ENABLE_HUSH_BASH_COMPAT
 
-
 /* Build knobs */
 #define LEAK_HUNTING 0
 #define BUILD_AS_NOMMU 0
@@ -412,7 +411,6 @@
  * So far ${var%...} ops are always enabled:
  */
 #define ENABLE_HUSH_DOLLAR_OPS 1
-
 
 #if BUILD_AS_NOMMU
 # undef BB_MMU
@@ -518,7 +516,6 @@ typedef struct nommu_save_t {
 	char **argv_from_re_execing;
 } nommu_save_t;
 #endif
-
 
 enum {
 	RES_NONE  = 0,
@@ -829,7 +826,6 @@ struct function {
 };
 #endif
 
-
 /* set -/+o OPT support. (TODO: make it optional)
  * bash supports the following opts:
  * allexport       off
@@ -1117,7 +1113,6 @@ struct globals *ptr_to_globals;
 	G.sa.sa_flags = SA_RESTART; \
 } while (0)
 #endif /* !__U_BOOT__ */
-
 
 #ifndef __U_BOOT__
 /* Function prototypes for builtins */
@@ -1416,7 +1411,6 @@ static void debug_print_strings(const char *prefix, char **vv)
 # define debug_print_strings(prefix, vv) ((void)0)
 #endif
 
-
 /* Leak hunting. Use hush_leaktool.sh for post-processing.
  */
 #if LEAK_HUNTING
@@ -1448,7 +1442,6 @@ static void xxfree(void *ptr)
 # define xstrdup(s)     xxstrdup(__LINE__, s)
 # define free(p)        xxfree(p)
 #endif
-
 
 /* Syntax and runtime errors. They always abort scripts.
  * In interactive use they usually discard unparsed and/or unexecuted commands
@@ -1689,7 +1682,6 @@ static int xdup_CLOEXEC_and_close(int fd, int avoid_fd)
 	return newfd;
 }
 
-
 /* Manipulating HFILEs */
 static HFILE *hfopen(const char *name)
 {
@@ -1881,7 +1873,6 @@ static void restore_G_args(save_arg_t *sv, char **argv)
 	IF_HUSH_SET(G.global_args_malloced = sv->sv_g_malloced;)
 }
 #endif /* !__U_BOOT__ */
-
 
 #ifndef __U_BOOT__
 /* Basic theory of signal handling in shell
@@ -2331,7 +2322,6 @@ static int check_and_run_traps(void)
 	return last_sig;
 }
 
-
 static const char *get_cwd(int force)
 {
 	if (force || G.cwd == NULL) {
@@ -2653,7 +2643,6 @@ static int unset_local_var(const char *name)
 }
 #endif
 
-
 #ifndef __U_BOOT__
 /*
  * Helpers for "var1=val1 var2=val2 cmd" feature
@@ -2727,7 +2716,6 @@ static void set_vars_and_save_old(char **strings)
 	}
 	free(strings);
 }
-
 
 /*
  * Unicode helper
@@ -3235,7 +3223,6 @@ static void setup_string_in_str(struct in_str *i, const char *s)
 	/*i->file = NULL */;
 	i->p = s;
 }
-
 
 /*
  * o_string support
@@ -3997,7 +3984,6 @@ static void free_pipe_list(struct pipe *pi)
 	}
 }
 
-
 /*** Parsing routines ***/
 
 #ifndef debug_print_tree
@@ -4648,7 +4634,6 @@ static int done_word(struct parse_context *ctx)
 	return 0;
 }
 
-
 #ifndef __U_BOOT__
 /* Peek ahead in the input to find out if we have a "&n" construct,
  * as in "2>&1", that represents duplicating a file descriptor.
@@ -4958,7 +4943,6 @@ static int fetch_heredocs(o_string *as_string, struct pipe *pi, int heredoc_cnt,
 	return heredoc_cnt;
 }
 
-
 static int run_list(struct pipe *pi);
 #if BB_MMU
 #define parse_stream(pstring, heredoc_cnt_ptr, input, end_trigger) \
@@ -5174,7 +5158,6 @@ static int add_till_double_quote(o_string *dest, struct in_str *input)
 		//if (ch == '$') ...
 	}
 }
-
 
 /* Process `cmd` - copy contents until "`" is seen. Complicated by
  * \` quoting.
@@ -6477,7 +6460,6 @@ static struct pipe *parse_stream(char **pstring,
 	}
 }
 
-
 /*** Execution routines ***/
 
 /* Expansion can recurse, need forward decls: */
@@ -7778,7 +7760,6 @@ static char **expand_assignments(char **argv, int count)
 	return p;
 }
 
-
 static void switch_off_special_sigs(unsigned mask)
 {
 	unsigned sig = 0;
@@ -8296,7 +8277,6 @@ static int process_command_subs(o_string *dest, const char *s)
 	return WEXITSTATUS(status);
 }
 #endif /* ENABLE_HUSH_TICK */
-
 
 static void setup_heredoc(struct redir_struct *redir)
 {
@@ -9006,7 +8986,6 @@ static int run_function(const struct function *funcp, char **argv)
 }
 #endif /* ENABLE_HUSH_FUNCTIONS */
 
-
 #ifndef __U_BOOT__
 #if BB_MMU
 #define exec_builtin(to_free, x, argv) \
@@ -9041,7 +9020,6 @@ static void exec_builtin(char ***to_free,
 #endif
 }
 #endif /* !__U_BOOT__ */
-
 
 #ifndef __U_BOOT__
 static void execvp_or_die(char **argv) NORETURN;
@@ -10839,7 +10817,6 @@ static int run_and_free_list(struct pipe *pi)
 	return rcode;
 }
 
-
 #ifndef __U_BOOT__
 static void install_sighandlers(unsigned mask)
 {
@@ -11523,8 +11500,6 @@ int hush_main(int argc, char **argv)
  final_return:
 	hush_exit(G.last_exitcode);
 }
-
-
 
 /*
  * Built-ins
@@ -13003,7 +12978,6 @@ static int FAST_FUNC builtin_memleak(char **argv UNUSED_PARAM)
 	p = malloc(3400);
 	if (l < (unsigned long)p) l = (unsigned long)p;
 	free(p);
-
 
 # if 0  /* debug */
 	{

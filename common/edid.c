@@ -268,7 +268,6 @@ int edid_get_timing(u8 *buf, int buf_size, struct display_timing *timing,
 					panel_bits_per_colourp, NULL, NULL);
 }
 
-
 /**
  * Snip the tailing whitespace/return of a string.
  *

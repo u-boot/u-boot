@@ -190,7 +190,6 @@ int usb_disable_asynch(int disable)
 }
 #endif /* !CONFIG_IS_ENABLED(DM_USB) */
 
-
 /*-------------------------------------------------------------------
  * Message wrappers.
  *
@@ -292,7 +291,6 @@ int usb_bulk_msg(struct usb_device *dev, unsigned int pipe,
 	else
 		return -EIO;
 }
-
 
 /*-------------------------------------------------------------------
  * Max Packet stuff
@@ -559,7 +557,6 @@ int usb_clear_halt(struct usb_device *dev, int pipe)
 	return 0;
 }
 
-
 /**********************************************************************
  * get_descriptor type
  */
@@ -768,7 +765,6 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
 	return result;
 }
 
-
 static void usb_try_string_workarounds(unsigned char *buf, int *length)
 {
 	int newlength, oldlength = *length;
@@ -782,7 +778,6 @@ static void usb_try_string_workarounds(unsigned char *buf, int *length)
 		*length = newlength;
 	}
 }
-
 
 static int usb_string_sub(struct usb_device *dev, unsigned int langid,
 		unsigned int index, unsigned char *buf)
@@ -817,7 +812,6 @@ static int usb_string_sub(struct usb_device *dev, unsigned int langid,
 
 	return rc;
 }
-
 
 /********************************************************************
  * usb_string:
@@ -873,7 +867,6 @@ int usb_string(struct usb_device *dev, int index, char *buf, size_t size)
 	err = idx;
 	return err;
 }
-
 
 /********************************************************************
  * USB device handling:
@@ -1387,6 +1380,5 @@ void usb_find_usb2_hub_address_port(struct usb_device *udev,
 	*hub_port = 0;
 }
 #endif
-
 
 /* EOF */

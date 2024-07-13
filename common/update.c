@@ -254,7 +254,6 @@ int update_tftp(ulong addr, char *interface, char *devstring)
 	else
 		addr = CONFIG_UPDATE_LOAD_ADDR;
 
-
 	if (update_load(filename, CONFIG_UPDATE_TFTP_MSEC_MAX,
 					CONFIG_UPDATE_TFTP_CNT_MAX, addr)) {
 		printf("Can't load update file, aborting auto-update\n");

@@ -5,7 +5,6 @@
  * Licensed under the GPL-2 or later.
  */
 
-
 /* We need the weak marking as this symbol is provided specially */
 extern const char system_map[] __attribute__((weak));
 

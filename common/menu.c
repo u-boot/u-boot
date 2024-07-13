@@ -398,7 +398,6 @@ struct menu *menu_create(char *title, int timeout, int prompt,
 	} else
 		m->title = NULL;
 
-
 	INIT_LIST_HEAD(&m->items);
 
 	return m;
