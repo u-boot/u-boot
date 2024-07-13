@@ -213,7 +213,6 @@ int dialog_yesno(const char *title, const char *prompt, int height, int width);
 int dialog_msgbox(const char *title, const char *prompt, int height,
 		  int width, int pause);
 
-
 typedef void (*update_text_fn)(char *buf, size_t start, size_t end, void
 			       *_data);
 int dialog_textbox(const char *title, char *tbuf, int initial_height,

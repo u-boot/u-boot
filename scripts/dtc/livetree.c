@@ -631,7 +631,6 @@ uint32_t guess_boot_cpuid(struct node *tree)
 	if (!cpus)
 		return 0;
 
-
 	bootcpu = cpus->children;
 	if (!bootcpu)
 		return 0;

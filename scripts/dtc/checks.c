@@ -111,7 +111,6 @@ static inline void  PRINTF(5, 6) check_msg(struct check *c, struct dt_info *dti,
 		check_msg((c), dti, node, prop, __VA_ARGS__);		\
 	} while (0)
 
-
 static void check_nodes_props(struct check *c, struct dt_info *dti, struct node *node)
 {
 	struct node *child;
@@ -1075,7 +1074,6 @@ static void check_obsolete_chosen_interrupt_controller(struct check *c,
 
 	if (node != dt)
 		return;
-
 
 	chosen = get_node_by_path(dt, "/chosen");
 	if (!chosen)

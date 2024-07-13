@@ -325,7 +325,6 @@ int utilfdt_write_err(const char *filename, const void *blob)
 	return ret < 0 ? -ret : 0;
 }
 
-
 int utilfdt_write(const char *filename, const void *blob)
 {
 	int ret = utilfdt_write_err(filename, blob);
