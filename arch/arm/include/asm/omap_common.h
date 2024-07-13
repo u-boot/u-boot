@@ -814,7 +814,6 @@ static inline u8 is_dra76x_acd(void)
 #define HS_DEVICE           0x2
 #define GP_DEVICE           0x3
 
-
 /*
  * SRAM scratch space entries
  */
