@@ -304,7 +304,6 @@ static int part_get_info_amiga(struct blk_desc *desc, int part,
     info->blksz = rdb.block_bytes;
     bcpl_strcpy((char *)info->name, p->drive_name);
 
-
     disk_type = g->dos_type;
 
     info->type[0] = (disk_type & 0xFF000000)>>24;

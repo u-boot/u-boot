@@ -29,7 +29,6 @@ extern ldiv_t ldiv (long int __numer, long int __denom);
 # define __ldiv_t_defined	1
 #endif
 
-
 static int part_mac_read_ddb(struct blk_desc *desc, mac_driver_desc_t *ddb_p);
 static int part_mac_read_pdb(struct blk_desc *desc, int part,
 			     mac_partition_t *pdb_p);
@@ -90,7 +89,6 @@ static void part_print_mac(struct blk_desc *desc)
 	gb.rem += 512;
 	gb.rem /= 1024;
 
-
 	printf ("Block Size=%d, Number of Blocks=%d, "
 		"Total Capacity: %ld.%ld MB = %ld.%ld GB\n"
 		"DeviceType=0x%x, DeviceId=0x%x\n\n"
@@ -147,7 +145,6 @@ static void part_print_mac(struct blk_desc *desc)
 
 	return;
 }
-
 
 /*
  * Read Device Descriptor Block

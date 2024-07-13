@@ -197,7 +197,6 @@ static void print_partition_extended(struct blk_desc *desc,
 	return;
 }
 
-
 /*  Print a partition that is relative to its Extended partition table
  */
 static int part_get_info_extended(struct blk_desc *desc,

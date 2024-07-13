@@ -43,7 +43,6 @@ typedef struct mac_driver_entry {
 	__u16	type;		/* OS Type				*/
 } mac_driver_entry_t;
 
-
 #define MAC_PARTITION_MAGIC	0x504d
 
 /* type field value for A/UX or other Unix partitions */
