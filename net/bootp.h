@@ -65,7 +65,6 @@ struct bootp_hdr {
 extern u32	bootp_id;		/* ID of cur BOOTP request	*/
 extern int	bootp_try;
 
-
 /* Send a BOOTP request */
 void bootp_reset(void);
 void bootp_request(void);

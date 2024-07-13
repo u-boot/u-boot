@@ -913,7 +913,6 @@ static void nfs_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	}
 }
 
-
 void nfs_start(void)
 {
 	debug("%s\n", __func__);
