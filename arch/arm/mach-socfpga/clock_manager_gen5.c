@@ -125,7 +125,6 @@ int cm_basic_init(const struct cm_config * const cfg)
 	readl(socfpga_get_clkmgr_addr() + CLKMGR_GEN5_PERPLL_VCO);
 	readl(socfpga_get_clkmgr_addr() + CLKMGR_GEN5_SDRPLL_VCO);
 
-
 	/*
 	 * We made sure bgpwr down was assert for 5 us. Now deassert BG PWR DN
 	 * with numerator and denominator.

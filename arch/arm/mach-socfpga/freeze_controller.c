@@ -3,7 +3,6 @@
  *  Copyright (C) 2013 Altera Corporation <www.altera.com>
  */
 
-
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock_manager.h>

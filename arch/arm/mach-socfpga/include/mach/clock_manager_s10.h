@@ -106,7 +106,6 @@ void cm_basic_init(const struct cm_config * const cfg);
 #define CLKMGR_INTER					CLKMGR_S10_INTER
 #define CLKMGR_PERPLL_EN				CLKMGR_S10_PERPLL_EN
 
-
 #define CLKMGR_CTRL_SAFEMODE				BIT(0)
 #define CLKMGR_BYPASS_MAINPLL_ALL			0x00000007
 #define CLKMGR_BYPASS_PERPLL_ALL			0x0000007f
