@@ -6,7 +6,6 @@
  *	Add support for a CRAMFS located in RAM
  */
 
-
 /*
  * CRAMFS support
  */
@@ -31,7 +30,6 @@
 #else
 # define DEBUGF(fmt, args...)
 #endif
-
 
 #ifndef CONFIG_MTD_NOR_FLASH
 # define OFFSET_ADJUSTMENT	0

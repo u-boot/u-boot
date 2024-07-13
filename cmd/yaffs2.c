@@ -13,7 +13,6 @@
  *  ...
  */
 
-
 #include <config.h>
 #include <command.h>
 

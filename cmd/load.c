@@ -417,7 +417,6 @@ static int write_record(char *buf)
 
 #endif
 
-
 #if defined(CONFIG_CMD_LOADB)
 /*
  * loadb command (load binary) included
@@ -440,7 +439,6 @@ static int write_record(char *buf)
 static void set_kerm_bin_mode(unsigned long *);
 static int k_recv(void);
 static ulong load_serial_bin(ulong offset);
-
 
 static char his_eol;        /* character he needs at end of packet */
 static int  his_pad_count;  /* number of pad chars he needs */
@@ -557,7 +555,6 @@ static int do_load_serial_bin(struct cmd_tbl *cmdtp, int flag, int argc,
 	return rcode;
 }
 
-
 static ulong load_serial_bin(ulong offset)
 {
 	int size, i;
@@ -652,7 +649,6 @@ static void send_nack(int n)
 	s1_sendpacket(a_b);
 }
 
-
 static void (*os_data_init)(void);
 static void (*os_data_char)(char new_char);
 static int os_data_state, os_data_state_saved;
@@ -692,7 +688,6 @@ static void set_kerm_bin_mode(unsigned long *addr)
 	os_data_init = bin_data_init;
 	os_data_char = bin_data_char;
 }
-
 
 /* k_data_* simply handles the kermit escape translations */
 static int k_data_escape, k_data_escape_saved;
@@ -1066,7 +1061,6 @@ static ulong load_serial_ymodem(ulong offset, int mode)
 	xyzModem_stream_terminate(false, &getcxmodem);
 	xyzModem_stream_close(&err);
 
-
 	flush_cache(offset, ALIGN(size, ARCH_DMA_MINALIGN));
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
@@ -1141,7 +1135,6 @@ U_BOOT_CMD(
  * SAVES always requires LOADS support, but not vice versa
  */
 
-
 #if defined(CONFIG_CMD_SAVES)
 #ifdef	CONFIG_SYS_LOADS_BAUD_CHANGE
 U_BOOT_CMD(
@@ -1161,7 +1154,6 @@ U_BOOT_CMD(
 #endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
 #endif	/* CONFIG_CMD_SAVES */
 #endif	/* CONFIG_CMD_LOADS */
-
 
 #if defined(CONFIG_CMD_LOADB)
 U_BOOT_CMD(

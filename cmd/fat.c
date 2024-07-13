@@ -32,7 +32,6 @@ int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_FAT);
 }
 
-
 U_BOOT_CMD(
 	fatload,	7,	0,	do_fat_fsload,
 	"load binary file from a dos filesystem",

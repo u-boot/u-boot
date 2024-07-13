@@ -14,7 +14,6 @@
 #define PCI_VENDOR PCI_VENDOR_ID_TUNDRA
 #define PCI_DEVICE PCI_DEVICE_ID_TUNDRA_CA91C042
 
-
 typedef struct _UNI_DEV UNI_DEV;
 
 struct _UNI_DEV {
@@ -25,7 +24,6 @@ struct _UNI_DEV {
 };
 
 static UNI_DEV   *dev;
-
 
 int universe_init(void)
 {
@@ -111,7 +109,6 @@ int universe_init(void)
  break_20:
 	return result;
 }
-
 
 /*
  * Create pci slave window (access: pci -> vme)
@@ -209,7 +206,6 @@ int universe_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int si
 	return -result;
 }
 
-
 /*
  * Create vme slave window (access: vme -> pci)
  */
@@ -294,7 +290,6 @@ int universe_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int si
 	return -result;
 }
 
-
 /*
  * Tundra Universe configuration
  */
@@ -341,7 +336,6 @@ int do_universe(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return 0;
 }
-
 
 U_BOOT_CMD(
 	universe,	8,	1,	do_universe,

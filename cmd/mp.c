@@ -42,7 +42,6 @@ cpu_cmd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return 1;
 	}
 
-
 	if (argc == 3) {
 		if (strncmp(argv[2], "reset", 5) == 0)
 			cpu_reset(cpuid);

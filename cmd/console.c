@@ -47,7 +47,6 @@ static int do_coninfo(struct cmd_tbl *cmd, int flag, int argc,
 	return 0;
 }
 
-
 /***************************************************/
 
 U_BOOT_CMD(

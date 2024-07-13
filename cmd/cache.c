@@ -86,7 +86,6 @@ static int parse_argv(const char *s)
 	return -1;
 }
 
-
 U_BOOT_CMD(
 	icache,   2,   1,     do_icache,
 	"enable or disable instruction cache",

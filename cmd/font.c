@@ -77,7 +77,6 @@ static int do_font_size(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
-
 U_BOOT_LONGHELP(font,
 	"list       - list available fonts\n"
 	"font select <name> [<size>] - select font to use\n"
