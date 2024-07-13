@@ -191,7 +191,6 @@ u32 determine_mp_bootpg(unsigned int *pagesize)
 	struct law_entry e;
 #endif
 
-
 	/* use last 4K of mapped memory */
 	bootpg = ((gd->ram_size > CFG_MAX_MEM_MAPPED) ?
 		CFG_MAX_MEM_MAPPED : gd->ram_size) +

@@ -6,7 +6,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-
 #include <config.h>
 #include <bootm.h>
 #include <bootstage.h>

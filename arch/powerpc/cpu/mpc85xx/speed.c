@@ -625,7 +625,6 @@ int get_clocks(void)
 	else return (1);
 }
 
-
 /********************************************
  * get_bus_freq
  * return system bus freq in Hz

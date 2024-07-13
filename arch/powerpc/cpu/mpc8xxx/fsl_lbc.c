@@ -20,7 +20,6 @@ static void __lbc_sdram_init(void)
 void lbc_sdram_init(void) __attribute__((weak, alias("__lbc_sdram_init")));
 #endif
 
-
 void print_lbc_regs(void)
 {
 	int i;

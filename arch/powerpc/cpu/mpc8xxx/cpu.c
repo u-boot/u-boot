@@ -300,7 +300,6 @@ __weak int cpu_numcores(void)
 	return cpu->num_cores;
 }
 
-
 /*
  * Check if the given core ID is valid
  *

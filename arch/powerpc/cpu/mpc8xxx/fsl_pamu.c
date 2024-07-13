@@ -26,7 +26,6 @@ static inline int __ilog2_roundup_64(uint64_t val)
 		return  __ilog2_u64(val) + 1;
 }
 
-
 static inline int count_lsb_zeroes(unsigned long val)
 {
 	return ffs(val) - 1;
@@ -332,14 +331,12 @@ void pamu_disable(void)
 	u32 i  = 0;
 	u32 base_addr = CFG_SYS_PAMU_ADDR;
 
-
 	for (i = 0; i < CFG_NUM_PAMU; i++) {
 		clrbits_be32((void *)base_addr + PAMU_PCR_OFFSET, PAMU_PCR_PE);
 		sync();
 		base_addr += PAMU_OFFSET;
 	}
 }
-
 
 static uint64_t find_max(uint64_t arr[], int num)
 {

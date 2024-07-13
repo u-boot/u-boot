@@ -206,7 +206,6 @@ static int do_iopset(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (pin > 31)
 		rcode = 1;
 
-
 	switch (argv[3][0]) {
 	case 'd':
 		if (argv[3][1] == 'a')

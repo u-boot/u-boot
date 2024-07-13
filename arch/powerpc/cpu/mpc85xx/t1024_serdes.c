@@ -7,7 +7,6 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 
-
 static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {
 	[0x40] = {PCIE1, PCIE1, PCIE1, PCIE1},
 	[0xD5] = {QSGMII_FM1_A, PCIE3, PCIE2, PCIE1},

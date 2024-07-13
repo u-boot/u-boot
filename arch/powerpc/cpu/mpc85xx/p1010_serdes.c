@@ -29,7 +29,6 @@ static const u8 serdes2_cfg_tbl[][SRDS2_MAX_LANES] = {
 	[0x03] = {PCIE1, PCIE2},
 };
 
-
 int is_serdes_configured(enum srds_prtcl device)
 {
 	int ret;

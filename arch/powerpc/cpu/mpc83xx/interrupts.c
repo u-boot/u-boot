@@ -32,7 +32,6 @@ void interrupt_init_cpu (unsigned *decrementer_count)
 	immr->sysconf.spcr |= 0x00400000;
 }
 
-
 /*
  * Handle external interrupts
  */
@@ -40,7 +39,6 @@ void interrupt_init_cpu (unsigned *decrementer_count)
 void external_interrupt(struct pt_regs *regs)
 {
 }
-
 
 /*
  * Install and free an interrupt handler.
@@ -51,18 +49,15 @@ irq_install_handler(int irq, interrupt_handler_t * handler, void *arg)
 {
 }
 
-
 void irq_free_handler(int irq)
 {
 }
-
 
 void timer_interrupt_cpu (struct pt_regs *regs)
 {
 	/* nothing to do here */
 	return;
 }
-
 
 #if defined(CONFIG_CMD_IRQ)
 

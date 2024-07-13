@@ -111,7 +111,6 @@ void show_regs(struct pt_regs *regs)
 	}
 }
 
-
 static void _exception(int signr, struct pt_regs *regs)
 {
 	show_regs(regs);
