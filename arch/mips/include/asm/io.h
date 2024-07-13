@@ -485,7 +485,6 @@ BUILDSTRING(q, u64)
 #define outsq outsq
 #endif
 
-
 #ifdef CONFIG_CPU_CAVIUM_OCTEON
 #define mmiowb() wmb()
 #else

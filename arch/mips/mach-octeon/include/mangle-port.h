@@ -43,7 +43,6 @@ static inline bool __should_swizzle_addr(u64 p)
 
 #endif /* __BIG_ENDIAN */
 
-
 # define ioswabb(a, x)		(x)
 # define __mem_ioswabb(a, x)	(x)
 # define ioswabw(a, x)		(__should_swizzle_bits(a) ? le16_to_cpu(x) : x)

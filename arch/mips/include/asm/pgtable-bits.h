@@ -7,7 +7,6 @@
 #ifndef _ASM_PGTABLE_BITS_H
 #define _ASM_PGTABLE_BITS_H
 
-
 /*
  * Note that we shift the lower 32bits of each EntryLo[01] entry
  * 6 bits to the left. That way we can convert the PFN into the
@@ -188,7 +187,6 @@
  *   64-bit, R2 or later:       CCC D V G RI/R XI [S H] M A W P
  *   32-bit, R2 or later:       CCC D V G RI/R XI M A W P
  */
-
 
 #ifndef __ASSEMBLY__
 /*
