@@ -12,7 +12,6 @@
 #include <post.h>
 #include <flash.h>
 
-
 /*
  * This code will walk over the declared sectors erasing them,
  * then programming them, then verifying the written contents.

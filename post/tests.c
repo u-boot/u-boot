@@ -43,7 +43,6 @@ extern int sysmon_init_f (void);
 
 extern void sysmon_reloc (void);
 
-
 struct post_test post_list[] =
 {
 #if CFG_POST & CFG_SYS_POST_OCM

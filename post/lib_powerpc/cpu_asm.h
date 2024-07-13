@@ -203,5 +203,4 @@
 #define ASM_STSWI(rd, rs, simm)		ASM_11IF(OP_STSWI, rd, rs, simm)
 #define ASM_STSWX(rd, rs1, rs2)		ASM_12(OP_STSWX, rd, rs1, rs2)
 
-
 #endif /* _CPU_ASM_H */
