@@ -76,7 +76,6 @@
 
 #define SAR_CPU_FAB_GET(cpu, fab)	(((cpu & 0x7) << 21) | ((fab & 0xF) << 24))
 
-
 #define CORE_AVS_CONTROL_0REG		0x18300
 #define CORE_AVS_CONTROL_2REG		0x18308
 #define CPU_AVS_CONTROL2_REG		0x20868
@@ -85,7 +84,6 @@
 
 #define MSAR_TCLK_OFFS			28
 #define MSAR_TCLK_MASK			(0x1 << MSAR_TCLK_OFFS)
-
 
 /* Controler environment registers offsets */
 #define GEN_PURP_RES_1_REG		0x182F4
@@ -146,7 +144,6 @@
 					 0x40000 + ((port) % 2) * 0x4000)
 #define MV_ETH_REGS_BASE(port)		MV_ETH_REGS_OFFSET(port)
 
-
 #define SGMII_PWR_PLL_CTRL_REG(port)	(MV_ETH_REGS_BASE(port) + 0xE04)
 #define SGMII_DIG_LP_ENA_REG(port)	(MV_ETH_REGS_BASE(port) + 0xE8C)
 #define SGMII_REF_CLK_SEL_REG(port)	(MV_ETH_REGS_BASE(port) + 0xF18)
@@ -181,7 +178,6 @@
 
 #define SCR_PEX1_4BY1_OFFS		8
 #define SCR_PEX1_4BY1_MASK		(1 << SCR_PEX1_4BY1_OFFS)
-
 
 #define MV_MISC_REGS_OFFSET		(0x18200)
 #define MV_MISC_REGS_BASE		(MV_MISC_REGS_OFFSET)
@@ -225,7 +221,6 @@
 
 #define PXCAR_REAL_EXT_REG_NUM_OFFS     8
 #define PXCAR_REAL_EXT_REG_NUM_MASK     (0xF << PXCAR_REAL_EXT_REG_NUM_OFFS)
-
 
 #define PEX_CAPABILITIES_REG(if)	((MV_PEX_IF_REGS_BASE(if)) + 0x60)
 #define PEX_LINK_CAPABILITIES_REG(if)	((MV_PEX_IF_REGS_BASE(if)) + 0x6C)
