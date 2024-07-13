@@ -12,5 +12,4 @@ struct pt_regs {
 	unsigned status;
 };
 
-
 #endif /* __ASM_NIOS2_PTRACE_H_ */
