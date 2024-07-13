@@ -117,7 +117,6 @@ union scratch3_reg {
 	u32 word;
 };
 
-
 /**
  * Save warmboot memory settings for a later resume
  *

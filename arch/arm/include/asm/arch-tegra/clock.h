@@ -130,7 +130,6 @@ void reset_periph(enum periph_id periph_id, int us_delay);
  */
 void reset_set_enable(enum periph_id periph_id, int enable);
 
-
 /* CLK_RST_CONTROLLER_RST_CPU_CMPLX_SET/CLR_0 */
 enum crc_reset_id {
 	/* Things we can hold in reset for each CPU */

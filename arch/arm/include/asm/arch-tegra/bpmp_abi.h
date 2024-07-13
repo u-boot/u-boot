@@ -29,7 +29,6 @@
  * @file
  */
 
-
 /**
  * @defgroup MRQ MRQ Messages
  * @brief Messages sent to/from BPMP via IPC
@@ -166,7 +165,6 @@ struct mrq_response {
  *   @defgroup EMC
  * @}
  */
-
 
 /**
  * @ingroup MRQ_Codes
@@ -615,7 +613,6 @@ struct mrq_debugfs_response {
 #define DEBUGFS_S_IRUSR	(1 << 8)
 #define DEBUGFS_S_IWUSR	(1 << 7)
 /** @} */
-
 
 /**
  * @ingroup MRQ_Codes
