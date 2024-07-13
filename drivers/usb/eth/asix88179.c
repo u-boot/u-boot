@@ -629,6 +629,12 @@ static int ax88179_eth_probe(struct udevice *dev)
 	usb_dev = priv->ueth.pusb_dev;
 	priv->maxpacketsize = usb_dev->epmaxpacketout[AX_ENDPOINT_OUT];
 
+	ret = asix_basic_reset(&priv->ueth, priv);
+	if (ret) {
+		printf("Failed to reset ethernet device\n");
+		return ret;
+	}
+
 	/* Get the MAC address */
 	ret = asix_read_mac(&priv->ueth, pdata->enetaddr);
 	if (ret)
