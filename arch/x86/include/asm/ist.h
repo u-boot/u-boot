@@ -7,7 +7,6 @@
  * Copyright 2002 Andy Grover <andrew.grover@intel.com>
  */
 
-
 #include <linux/types.h>
 
 struct ist_info {

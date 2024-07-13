@@ -245,7 +245,6 @@ do {                                                            \
 
 #endif	/* !CONFIG_PARAVIRT */
 
-
 #define checking_wrmsrl(msr, val) wrmsr_safe((msr), (u32)(val),		\
 					     (u32)((val) >> 32))
 

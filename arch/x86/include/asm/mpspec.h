@@ -374,7 +374,6 @@ void mp_write_pci_intsrc(struct mp_config_table *mc, int irqtype,
 void mp_write_lintsrc(struct mp_config_table *mc, int irqtype, int irqflag,
 		      int srcbus, int srcbusirq, int destapic, int destlint);
 
-
 /**
  * mp_write_address_space() - Write a system address space entry
  *

@@ -62,7 +62,6 @@ struct usb3_port_setting {
 	uint8_t fixed_eq;
 } __packed;
 
-
 struct pei_data {
 	uint32_t pei_version;
 

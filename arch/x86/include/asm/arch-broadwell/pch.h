@@ -30,7 +30,6 @@
 #define TCO1_CNT		0x60
 #define  TCO_TMR_HLT		(1 << 11)
 
-
 /* Device 0:0.0 PCI configuration space */
 
 #define EPBAR		0x40
