@@ -210,7 +210,6 @@
 #define RWTCSR      0xA4520004
 #define WTCNT	RWTCNT
 
-
 /*	TMU	*/
 #define TMU_BASE	0xFFD80000
 

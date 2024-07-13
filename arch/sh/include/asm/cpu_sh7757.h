@@ -162,7 +162,6 @@ struct pcie_system_bus_regs {
 };
 #define PCIE_SYSTEM_BUS_BASE	((struct pcie_system_bus_regs *)0xffca1600)
 
-
 /* PCIe-Bridge */
 struct pciebrg_regs {
 	unsigned short	ctrl_h8s;

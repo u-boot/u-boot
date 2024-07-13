@@ -50,5 +50,4 @@
 #define GPSR4	(GPSR0 + 0x10)
 #define GPSR5	(GPSR0 + 0x14)
 
-
 #endif /* _ASM_CPU_SH7734_H_ */

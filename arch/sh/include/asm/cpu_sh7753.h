@@ -66,7 +66,6 @@ struct sermux_regs {
 };
 #define SERMUX_BASE	((struct sermux_regs *)0xfe470000)
 
-
 /* USB0/1 */
 struct usb_common_regs {
 	unsigned short	reserved[129];
