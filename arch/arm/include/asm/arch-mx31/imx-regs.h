@@ -585,7 +585,6 @@ struct esdc_regs {
 #define GET_PLL_MFI(x)		(((x) >> 10) & 0xf)
 #define GET_PLL_MFN(x)		(((x) >> 0) & 0x3ff)
 
-
 #define WEIM_ESDCTL0	0xB8001000
 #define WEIM_ESDCFG0	0xB8001004
 #define WEIM_ESDCTL1	0xB8001008
@@ -776,7 +775,6 @@ struct esdc_regs {
 #define MUX_CTL_NFC_RE		0xD5
 #define MUX_CTL_NFC_ALE		0xD6
 #define MUX_CTL_NFC_CLE		0xD7
-
 
 #define MUX_CTL_CAPTURE		0x150
 #define MUX_CTL_COMPARE		0x151

@@ -278,7 +278,6 @@ enum pcc3_entry {
 	RSVD127_PCC3_SLOT		= 127,
 };
 
-
 /* PCC registers */
 #define PCC_PR_OFFSET	31
 #define PCC_PR_MASK		(0x1 << PCC_PR_OFFSET)
@@ -292,7 +291,6 @@ enum pcc3_entry {
 #define PCC_FRAC_MASK	(0x1 << PCC_FRAC_OFFSET)
 #define PCC_PCD_OFFSET	0
 #define PCC_PCD_MASK	(0x7 << PCC_PCD_OFFSET)
-
 
 enum pcc_clksrc_type {
 	CLKSRC_PER_PLAT = 0,
@@ -352,7 +350,6 @@ enum pcc_clk {
 	PER_CLK_GPU3D,
 	PER_CLK_GPU2D,
 };
-
 
 /* This structure keeps info for each pcc slot */
 struct pcc_entry {
