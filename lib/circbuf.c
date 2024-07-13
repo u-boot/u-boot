@@ -9,7 +9,6 @@
 
 #include <circbuf.h>
 
-
 int buf_init (circbuf_t * buf, unsigned int size)
 {
 	assert (buf != NULL);

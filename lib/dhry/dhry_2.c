@@ -106,7 +106,6 @@ One_Fifty      *Int_Par_Ref;
   *Int_Par_Ref = Int_2_Par_Val + Int_Loc;
 } /* Proc_7 */
 
-
 void Proc_8 (Arr_1_Par_Ref, Arr_2_Par_Ref, Int_1_Par_Val, Int_2_Par_Val)
 /*********************************************************************/
     /* executed once      */
@@ -131,7 +130,6 @@ int             Int_2_Par_Val;
   Int_Glob = 5;
 } /* Proc_8 */
 
-
 Enumeration Func_1 (Capital_Letter Ch_1_Par_Val, Capital_Letter Ch_2_Par_Val)
 /*************************************************/
     /* executed three times                                         */
@@ -153,8 +151,6 @@ Enumeration Func_1 (Capital_Letter Ch_1_Par_Val, Capital_Letter Ch_2_Par_Val)
     return (Ident_2);
    }
 } /* Func_1 */
-
-
 
 Boolean Func_2 (Str_1_Par_Ref, Str_2_Par_Ref)
 /*************************************************/
@@ -197,7 +193,6 @@ Str_30  Str_2_Par_Ref;
       return (false);
   } /* if Ch_Loc */
 } /* Func_2 */
-
 
 Boolean Func_3 (Enum_Par_Val)
 /***************************/

@@ -28,7 +28,6 @@
 #include "debug.h"          /* assert(), DEBUGLOG(), RAWLOG() */
 #include "error_private.h"  /* error codes and messages */
 
-
 /*=========================================
 *  Target specific
 =========================================*/
@@ -36,7 +35,6 @@
 #define STREAM_ACCUMULATOR_MIN_32  25
 #define STREAM_ACCUMULATOR_MIN_64  57
 #define STREAM_ACCUMULATOR_MIN    ((U32)(MEM_32bits() ? STREAM_ACCUMULATOR_MIN_32 : STREAM_ACCUMULATOR_MIN_64))
-
 
 /*-******************************************
 *  bitStream encoding API (write forward)
@@ -75,7 +73,6 @@ MEM_STATIC size_t BIT_closeCStream(BIT_CStream_t* bitC);
 *  If data couldn't fit into `dstBuffer`, it will return a 0 ( == not storable)
 */
 
-
 /*-********************************************
 *  bitStream decoding API (read backward)
 **********************************************/
@@ -98,7 +95,6 @@ MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, unsigned nbBits);
 MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD);
 MEM_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t* bitD);
 
-
 /* Start by invoking BIT_initDStream().
 *  A chunk of the bitStream is then stored into a local register.
 *  Local register size is 64-bits on 64-bits systems, 32-bits on 32-bits systems (size_t).
@@ -108,7 +104,6 @@ MEM_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t* bitD);
 *  Otherwise, it can be less than that, so proceed accordingly.
 *  Checking if DStream has reached its end can be performed with BIT_endOfDStream().
 */
-
 
 /*-****************************************
 *  unsafe API
@@ -121,8 +116,6 @@ MEM_STATIC void BIT_flushBitsFast(BIT_CStream_t* bitC);
 
 MEM_STATIC size_t BIT_readBitsFast(BIT_DStream_t* bitD, unsigned nbBits);
 /* faster, but works only if nbBits >= 1 */
-
-
 
 /*-**************************************************************
 *  Internal functions
@@ -244,7 +237,6 @@ MEM_STATIC size_t BIT_closeCStream(BIT_CStream_t* bitC)
     if (bitC->ptr >= bitC->endPtr) return 0; /* overflow detected */
     return (bitC->ptr - bitC->startPtr) + (bitC->bitPos > 0);
 }
-
 
 /*-********************************************************
 *  bitStream decoding
@@ -441,6 +433,5 @@ MEM_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t* DStream)
 {
     return ((DStream->ptr == DStream->start) && (DStream->bitsConsumed == sizeof(DStream->bitContainer)*8));
 }
-
 
 #endif /* BITSTREAM_H_MODULE */

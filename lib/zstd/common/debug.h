@@ -12,7 +12,6 @@
  * You may select, at your option, one of the above-listed licenses.
 ****************************************************************** */
 
-
 /*
  * The purpose of this header is to enable debug functions.
  * They regroup assert(), DEBUGLOG() and RAWLOG() for run-time,
@@ -32,13 +31,10 @@
 #ifndef DEBUG_H_12987983217
 #define DEBUG_H_12987983217
 
-
-
 /* static assert is triggered at compile time, leaving no runtime artefact.
  * static assert only works with compile-time constants.
  * Also, this variant can only be used inside a function. */
 #define DEBUG_STATIC_ASSERT(c) (void)sizeof(char[(c) ? 1 : -1])
-
 
 /* DEBUGLEVEL is expected to be defined externally,
  * typically through compiler command line.
@@ -46,7 +42,6 @@
 #ifndef DEBUGLEVEL
 #  define DEBUGLEVEL 0
 #endif
-
 
 /* recommended values for DEBUGLEVEL :
  * 0 : release mode, no debug, all run-time checks disabled
@@ -86,7 +81,5 @@ extern int g_debuglevel; /* the variable is only declared,
 #  define RAWLOG(l, ...)      {}    /* disabled */
 #  define DEBUGLOG(l, ...)    {}    /* disabled */
 #endif
-
-
 
 #endif /* DEBUG_H_12987983217 */

@@ -12,7 +12,6 @@
  * You may select, at your option, one of the above-listed licenses.
 ****************************************************************** */
 
-
 /* **************************************************************
 *  Includes
 ****************************************************************/
@@ -25,13 +24,11 @@
 #define ZSTD_DEPS_NEED_MALLOC
 #include "zstd_deps.h"
 
-
 /* **************************************************************
 *  Error Management
 ****************************************************************/
 #define FSE_isError ERR_isError
 #define FSE_STATIC_ASSERT(c) DEBUG_STATIC_ASSERT(c)   /* use only *after* variable declarations */
-
 
 /* **************************************************************
 *  Templates
@@ -54,7 +51,6 @@
 #define FSE_CAT(X,Y) X##Y
 #define FSE_FUNCTION_NAME(X,Y) FSE_CAT(X,Y)
 #define FSE_TYPE_NAME(X,Y) FSE_CAT(X,Y)
-
 
 /* Function templates */
 FSE_DTable* FSE_createDTable (unsigned tableLog)
@@ -178,7 +174,6 @@ size_t FSE_buildDTable_wksp(FSE_DTable* dt, const short* normalizedCounter, unsi
     return FSE_buildDTable_internal(dt, normalizedCounter, maxSymbolValue, tableLog, workSpace, wkspSize);
 }
 
-
 #ifndef FSE_COMMONDEFS_ONLY
 
 /*-*******************************************************
@@ -200,7 +195,6 @@ size_t FSE_buildDTable_rle (FSE_DTable* dt, BYTE symbolValue)
 
     return 0;
 }
-
 
 size_t FSE_buildDTable_raw (FSE_DTable* dt, unsigned nbBits)
 {
@@ -290,7 +284,6 @@ FORCE_INLINE_TEMPLATE size_t FSE_decompress_usingDTable_generic(
     return op-ostart;
 }
 
-
 size_t FSE_decompress_usingDTable(void* dst, size_t originalSize,
                             const void* cSrc, size_t cSrcSize,
                             const FSE_DTable* dt)
@@ -304,7 +297,6 @@ size_t FSE_decompress_usingDTable(void* dst, size_t originalSize,
     return FSE_decompress_usingDTable_generic(dst, originalSize, cSrc, cSrcSize, dt, 0);
 }
 
-
 size_t FSE_decompress_wksp(void* dst, size_t dstCapacity, const void* cSrc, size_t cSrcSize, unsigned maxLog, void* workSpace, size_t wkspSize)
 {
     return FSE_decompress_wksp_bmi2(dst, dstCapacity, cSrc, cSrcSize, maxLog, workSpace, wkspSize, /* bmi2 */ 0);
@@ -314,7 +306,6 @@ typedef struct {
     short ncount[FSE_MAX_SYMBOL_VALUE + 1];
     FSE_DTable dtable[1]; /* Dynamically sized */
 } FSE_DecompressWksp;
-
 
 FORCE_INLINE_TEMPLATE size_t FSE_decompress_wksp_body(
         void* dst, size_t dstCapacity,
@@ -382,9 +373,6 @@ size_t FSE_decompress_wksp_bmi2(void* dst, size_t dstCapacity, const void* cSrc,
     return FSE_decompress_wksp_body_default(dst, dstCapacity, cSrc, cSrcSize, maxLog, workSpace, wkspSize);
 }
 
-
 typedef FSE_DTable DTable_max_t[FSE_DTABLE_SIZE_U32(FSE_MAX_TABLELOG)];
-
-
 
 #endif   /* FSE_COMMONDEFS_ONLY */

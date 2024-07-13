@@ -8,7 +8,6 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-
 /* ***************************************************************
 *  Tuning parameters
 *****************************************************************/
@@ -48,7 +47,6 @@
 #  define ZSTD_NO_FORWARD_PROGRESS_MAX 16
 #endif
 
-
 /*-*******************************************************
 *  Dependencies
 *********************************************************/
@@ -63,9 +61,6 @@
 #include "zstd_decompress_internal.h"   /* ZSTD_DCtx */
 #include "zstd_ddict.h"  /* ZSTD_DDictDictContent */
 #include "zstd_decompress_block.h"   /* ZSTD_decompressBlock_internal */
-
-
-
 
 /* ***********************************
  * Multiple DDicts Hashset internals *
@@ -220,7 +215,6 @@ size_t ZSTD_sizeof_DCtx (const ZSTD_DCtx* dctx)
 
 size_t ZSTD_estimateDCtxSize(void) { return sizeof(ZSTD_DCtx); }
 
-
 static size_t ZSTD_startingInputLength(ZSTD_format_e format)
 {
     size_t const startingInputLength = ZSTD_FRAMEHEADERSIZE_PREFIX(format);
@@ -353,7 +347,6 @@ static void ZSTD_DCtx_selectFrameDDict(ZSTD_DCtx* dctx) {
     }
 }
 
-
 /*-*************************************************************
  *   Frame header decoding
  ***************************************************************/
@@ -414,7 +407,6 @@ size_t ZSTD_frameHeaderSize(const void* src, size_t srcSize)
 {
     return ZSTD_frameHeaderSize_internal(src, srcSize, ZSTD_f_zstd1);
 }
-
 
 /* ZSTD_getFrameHeader_advanced() :
  *  decode Frame Header, or require larger `srcSize`.
@@ -639,7 +631,6 @@ unsigned long long ZSTD_getDecompressedSize(const void* src, size_t srcSize)
     return (ret >= ZSTD_CONTENTSIZE_ERROR) ? 0 : ret;
 }
 
-
 /* ZSTD_decodeFrameHeader() :
  * `headerSize` must be the size provided by ZSTD_frameHeaderSize().
  * If multiple DDict references are enabled, also will choose the correct DDict to use.
@@ -680,7 +671,6 @@ static ZSTD_frameSizeInfo ZSTD_findFrameSizeInfo(const void* src, size_t srcSize
 {
     ZSTD_frameSizeInfo frameSizeInfo;
     ZSTD_memset(&frameSizeInfo, 0, sizeof(ZSTD_frameSizeInfo));
-
 
     if ((srcSize >= ZSTD_SKIPPABLEHEADERSIZE)
         && (MEM_readLE32(src) & ZSTD_MAGIC_SKIPPABLE_MASK) == ZSTD_MAGIC_SKIPPABLE_START) {
@@ -773,7 +763,6 @@ unsigned long long ZSTD_decompressBound(const void* src, size_t srcSize)
     return bound;
 }
 
-
 /*-*************************************************************
  *   Frame decoding
  ***************************************************************/
@@ -787,7 +776,6 @@ size_t ZSTD_insertBlock(ZSTD_DCtx* dctx, const void* blockStart, size_t blockSiz
     dctx->previousDstEnd = (const char*)blockStart + blockSize;
     return blockSize;
 }
-
 
 static size_t ZSTD_copyRawBlock(void* dst, size_t dstCapacity,
                           const void* src, size_t srcSize)
@@ -822,7 +810,6 @@ static void ZSTD_DCtx_trace_end(ZSTD_DCtx const* dctx, U64 uncompressedSize, U64
     (void)compressedSize;
     (void)streaming;
 }
-
 
 /*! ZSTD_decompressFrame() :
  * @dctx must be properly initialized
@@ -935,7 +922,6 @@ static size_t ZSTD_decompressMultiFrame(ZSTD_DCtx* dctx,
 
     while (srcSize >= ZSTD_startingInputLength(dctx->format)) {
 
-
         {   U32 const magicNumber = MEM_readLE32(src);
             DEBUGLOG(4, "reading magic number %08X (expecting %08X)",
                         (unsigned)magicNumber, ZSTD_MAGICNUMBER);
@@ -994,7 +980,6 @@ size_t ZSTD_decompress_usingDict(ZSTD_DCtx* dctx,
     return ZSTD_decompressMultiFrame(dctx, dst, dstCapacity, src, srcSize, dict, dictSize, NULL);
 }
 
-
 static ZSTD_DDict const* ZSTD_getDDict(ZSTD_DCtx* dctx)
 {
     switch (dctx->dictUses) {
@@ -1017,7 +1002,6 @@ size_t ZSTD_decompressDCtx(ZSTD_DCtx* dctx, void* dst, size_t dstCapacity, const
     return ZSTD_decompress_usingDDict(dctx, dst, dstCapacity, src, srcSize, ZSTD_getDDict(dctx));
 }
 
-
 size_t ZSTD_decompress(void* dst, size_t dstCapacity, const void* src, size_t srcSize)
 {
 #if defined(ZSTD_HEAPMODE) && (ZSTD_HEAPMODE>=1)
@@ -1033,7 +1017,6 @@ size_t ZSTD_decompress(void* dst, size_t dstCapacity, const void* src, size_t sr
     return ZSTD_decompressDCtx(&dctx, dst, dstCapacity, src, srcSize);
 #endif
 }
-
 
 /*-**************************************
 *   Advanced Streaming Decompression API
@@ -1247,7 +1230,6 @@ size_t ZSTD_decompressContinue(ZSTD_DCtx* dctx, void* dst, size_t dstCapacity, c
     }
 }
 
-
 static size_t ZSTD_refDictContent(ZSTD_DCtx* dctx, const void* dict, size_t dictSize)
 {
     dctx->dictEnd = dctx->previousDstEnd;
@@ -1407,7 +1389,6 @@ size_t ZSTD_decompressBegin_usingDict(ZSTD_DCtx* dctx, const void* dict, size_t 
     return 0;
 }
 
-
 /* ======   ZSTD_DDict   ====== */
 
 size_t ZSTD_decompressBegin_usingDDict(ZSTD_DCtx* dctx, const ZSTD_DDict* ddict)
@@ -1461,7 +1442,6 @@ unsigned ZSTD_getDictID_fromFrame(const void* src, size_t srcSize)
     return zfp.dictID;
 }
 
-
 /*! ZSTD_decompress_usingDDict() :
 *   Decompression using a pre-digested Dictionary
 *   Use dictionary without significant overhead. */
@@ -1475,7 +1455,6 @@ size_t ZSTD_decompress_usingDDict(ZSTD_DCtx* dctx,
                                      NULL, 0,
                                      ddict);
 }
-
 
 /*=====================================
 *   Streaming decompression
@@ -1501,7 +1480,6 @@ size_t ZSTD_freeDStream(ZSTD_DStream* zds)
 {
     return ZSTD_freeDCtx(zds);
 }
-
 
 /* ***  Initialization  *** */
 
@@ -1546,7 +1524,6 @@ size_t ZSTD_DCtx_refPrefix(ZSTD_DCtx* dctx, const void* prefix, size_t prefixSiz
     return ZSTD_DCtx_refPrefix_advanced(dctx, prefix, prefixSize, ZSTD_dct_rawContent);
 }
 
-
 /* ZSTD_initDStream_usingDict() :
  * return : expected size, aka ZSTD_startingInputLength().
  * this function cannot fail */
@@ -1583,7 +1560,6 @@ size_t ZSTD_resetDStream(ZSTD_DStream* dctx)
     FORWARD_IF_ERROR(ZSTD_DCtx_reset(dctx, ZSTD_reset_session_only), "");
     return ZSTD_startingInputLength(dctx->format);
 }
-
 
 size_t ZSTD_DCtx_refDDict(ZSTD_DCtx* dctx, const ZSTD_DDict* ddict)
 {
@@ -1745,7 +1721,6 @@ size_t ZSTD_DCtx_reset(ZSTD_DCtx* dctx, ZSTD_ResetDirective reset)
     return 0;
 }
 
-
 size_t ZSTD_sizeof_DStream(const ZSTD_DStream* dctx)
 {
     return ZSTD_sizeof_DCtx(dctx);
@@ -1782,7 +1757,6 @@ size_t ZSTD_estimateDStreamSize_fromFrame(const void* src, size_t srcSize)
                     frameParameter_windowTooLarge, "");
     return ZSTD_estimateDStreamSize((size_t)zfh.windowSize);
 }
-
 
 /* *****   Decompression   ***** */
 

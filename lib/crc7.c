@@ -8,7 +8,6 @@
 #include <linux/types.h>
 #include <linux/crc7.h>
 
-
 /* Table for CRC-7 (polynomial x^7 + x^3 + 1) */
 const u8 crc7_syndrome_table[256] = {
 	0x00, 0x09, 0x12, 0x1b, 0x24, 0x2d, 0x36, 0x3f,

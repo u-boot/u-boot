@@ -58,7 +58,6 @@ struct env_entry_node {
 	struct env_entry entry;
 };
 
-
 static void _hdelete(const char *key, struct hsearch_data *htab,
 		     struct env_entry *ep, int idx);
 
@@ -126,7 +125,6 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	/* everything went alright */
 	return 1;
 }
-
 
 /*
  * hdestroy()
@@ -428,7 +426,6 @@ int hsearch_r(struct env_entry item, enum env_action action,
 	return 0;
 }
 
-
 /*
  * hdelete()
  */
@@ -717,7 +714,6 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 	return size;
 }
 #endif
-
 
 /*
  * himport()

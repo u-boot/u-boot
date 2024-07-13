@@ -278,7 +278,6 @@ int fwu_get_mdata(struct fwu_mdata *mdata)
 	if (!err)
 		goto ret_mdata;
 
-
 	/* else read, verify and, if needed, fix mdata */
 	for (int i = 0; i < 2; i++) {
 		parts_ok[i] = false;

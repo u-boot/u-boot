@@ -447,7 +447,6 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
-
 	return EFI_ST_SUCCESS;
 }
 

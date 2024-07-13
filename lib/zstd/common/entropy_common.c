@@ -22,10 +22,8 @@
 #define HUF_STATIC_LINKING_ONLY  /* HUF_TABLELOG_ABSOLUTEMAX */
 #include "huf.h"
 
-
 /*===   Version   ===*/
 unsigned FSE_versionNumber(void) { return FSE_VERSION_NUMBER; }
-
 
 /*===   Error Management   ===*/
 unsigned FSE_isError(size_t code) { return ERR_isError(code); }
@@ -33,7 +31,6 @@ const char* FSE_getErrorName(size_t code) { return ERR_getErrorName(code); }
 
 unsigned HUF_isError(size_t code) { return ERR_isError(code); }
 const char* HUF_getErrorName(size_t code) { return ERR_getErrorName(code); }
-
 
 /*-**************************************************************
 *  FSE NCount encoding-decoding
@@ -239,7 +236,6 @@ size_t FSE_readNCount(
 {
     return FSE_readNCount_bmi2(normalizedCounter, maxSVPtr, tableLogPtr, headerBuffer, hbSize, /* bmi2 */ 0);
 }
-
 
 /*! HUF_readStats() :
     Read compact Huffman tree, saved by HUF_writeCTable().

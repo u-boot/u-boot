@@ -59,7 +59,6 @@
   For more information on these sources, see the manual.
 --*/
 
-
 #include "bzlib_private.h"
 
 /*--
@@ -138,7 +137,6 @@ UInt32 BZ2_crc32Table[256] = {
    0xafb010b1L, 0xab710d06L, 0xa6322bdfL, 0xa2f33668L,
    0xbcb4666dL, 0xb8757bdaL, 0xb5365d03L, 0xb1f740b4L
 };
-
 
 /*-------------------------------------------------------------*/
 /*--- end                                        crctable.c ---*/

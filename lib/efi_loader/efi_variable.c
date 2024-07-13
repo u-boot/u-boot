@@ -604,6 +604,5 @@ efi_status_t efi_init_variables(void)
 			log_err("Invalid EFI variable seed\n");
 	}
 
-
 	return efi_init_secure_state();
 }

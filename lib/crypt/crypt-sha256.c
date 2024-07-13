@@ -72,7 +72,6 @@ struct sha256_buffer
 static_assert (sizeof (struct sha256_buffer) <= ALG_SPECIFIC_SIZE,
                "ALG_SPECIFIC_SIZE is too small for SHA256");
 
-
 /* Use this instead of including errno.h */
 static int errno;
 

@@ -40,12 +40,10 @@
 #error "Cannot force the use of the short and the long ZSTD_decompressSequences variants!"
 #endif
 
-
 /*_*******************************************************
 *  Memory operations
 **********************************************************/
 static void ZSTD_copy4(void* dst, const void* src) { ZSTD_memcpy(dst, src, 4); }
-
 
 /*-*************************************************************
  *   Block decoding
@@ -379,7 +377,6 @@ static const ZSTD_seqSymbol OF_defaultDTable[(1<<OF_DEFAULTNORMLOG)+1] = {
     {  0, 25,  5,33554429},  {  0, 24,  5,16777213},
 };   /* OF_defaultDTable */
 
-
 /* Default FSE distribution table for Match Lengths */
 static const ZSTD_seqSymbol ML_defaultDTable[(1<<ML_DEFAULTNORMLOG)+1] = {
     {  1,  1,  1, ML_DEFAULTNORMLOG},  /* header : fastMode, tableLog */
@@ -418,7 +415,6 @@ static const ZSTD_seqSymbol ML_defaultDTable[(1<<ML_DEFAULTNORMLOG)+1] = {
     {  0, 11,  6, 2051},  {  0, 10,  6, 1027},
 };   /* ML_defaultDTable */
 
-
 static void ZSTD_buildSeqTable_rle(ZSTD_seqSymbol* dt, U32 baseValue, U8 nbAddBits)
 {
     void* ptr = dt;
@@ -434,7 +430,6 @@ static void ZSTD_buildSeqTable_rle(ZSTD_seqSymbol* dt, U32 baseValue, U8 nbAddBi
     cell->nbAdditionalBits = nbAddBits;
     cell->baseValue = baseValue;
 }
-
 
 /* ZSTD_buildFSETable() :
  * generate FSE decoding table for one symbol (ll, ml or off)
@@ -453,7 +448,6 @@ void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt,
     U16* symbolNext = (U16*)wksp;
     BYTE* spread = (BYTE*)(symbolNext + MaxSeq + 1);
     U32 highThreshold = tableSize - 1;
-
 
     /* Sanity Checks */
     assert(maxSymbolValue <= MaxSeq);
@@ -598,7 +592,6 @@ void ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
             baseValue, nbAdditionalBits, tableLog, wksp, wkspSize);
 }
 
-
 /*! ZSTD_buildSeqTable() :
  * @return : nb bytes read from src,
  *           or an error code if it fails */
@@ -728,7 +721,6 @@ size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr,
 
     return ip-istart;
 }
-
 
 typedef struct {
     size_t litLength;
@@ -914,7 +906,6 @@ size_t ZSTD_execSequenceEndSplitLitBuffer(BYTE* op,
     size_t const sequenceLength = sequence.litLength + sequence.matchLength;
     const BYTE* const iLitEnd = *litPtr + sequence.litLength;
     const BYTE* match = oLitEnd - sequence.offset;
-
 
     /* bounds checks : careful of address space overflow in 32-bit mode */
     RETURN_ERROR_IF(sequenceLength > (size_t)(oend - op), dstSize_tooSmall, "last match must fit within dstBuffer");
@@ -1133,7 +1124,6 @@ size_t ZSTD_execSequenceSplitLitBuffer(BYTE* op,
     return sequenceLength;
 }
 
-
 static void
 ZSTD_initFseState(ZSTD_fseState* DStatePtr, BIT_DStream_t* bitD, const ZSTD_seqSymbol* dt)
 {
@@ -1315,7 +1305,6 @@ MEM_STATIC void ZSTD_assertValidSequence(
 #endif
 
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
-
 
 FORCE_INLINE_TEMPLATE size_t
 DONT_VECTORIZE
@@ -1841,8 +1830,6 @@ ZSTD_decompressSequencesLong_default(ZSTD_DCtx* dctx,
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT */
 
-
-
 #if DYNAMIC_BMI2
 
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG
@@ -1920,7 +1907,6 @@ ZSTD_decompressSequencesSplitLitBuffer(ZSTD_DCtx* dctx, void* dst, size_t maxDst
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG */
 
-
 #ifndef ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT
 /* ZSTD_decompressSequencesLong() :
  * decompression function triggered when a minimum share of offsets is considered "long",
@@ -1943,8 +1929,6 @@ ZSTD_decompressSequencesLong(ZSTD_DCtx* dctx,
   return ZSTD_decompressSequencesLong_default(dctx, dst, maxDstSize, seqStart, seqSize, nbSeq, isLongOffset, frame);
 }
 #endif /* ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT */
-
-
 
 #if !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && \
     !defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
@@ -2048,7 +2032,6 @@ ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
     }
 }
 
-
 void ZSTD_checkContinuity(ZSTD_DCtx* dctx, const void* dst, size_t dstSize)
 {
     if (dst != dctx->previousDstEnd && dstSize > 0) {   /* not contiguous */
@@ -2058,7 +2041,6 @@ void ZSTD_checkContinuity(ZSTD_DCtx* dctx, const void* dst, size_t dstSize)
         dctx->previousDstEnd = dst;
     }
 }
-
 
 size_t ZSTD_decompressBlock(ZSTD_DCtx* dctx,
                             void* dst, size_t dstCapacity,

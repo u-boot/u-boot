@@ -22,7 +22,6 @@
 #include <linux/ctype.h>
 #include <malloc.h>
 
-
 /**
  * strncasecmp - Case insensitive, length-limited string comparison
  * @s1: One string

@@ -738,7 +738,6 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 		log_debug("Message digest doesn't match\n");
 	}
 
-
 	/* last resort try the image sha256 hash in db */
 	if (!ret && efi_signature_lookup_digest(regs, db, false))
 		ret = true;
@@ -760,7 +759,6 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
 	return true;
 }
 #endif /* CONFIG_EFI_SECURE_BOOT */
-
 
 /**
  * efi_check_pe() - check if a memory buffer contains a PE-COFF image

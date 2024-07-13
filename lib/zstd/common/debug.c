@@ -12,7 +12,6 @@
  * You may select, at your option, one of the above-listed licenses.
 ****************************************************************** */
 
-
 /*
  * This module only hosts one global variable
  * which can be used to dynamically influence the verbosity of traces,

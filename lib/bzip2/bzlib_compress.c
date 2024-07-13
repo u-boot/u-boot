@@ -80,7 +80,6 @@ void BZ2_bsInitWrite ( EState* s )
    s->bsBuff = 0;
 }
 
-
 /*---------------------------------------------------*/
 static
 void bsFinishWrite ( EState* s )
@@ -92,7 +91,6 @@ void bsFinishWrite ( EState* s )
       s->bsLive -= 8;
    }
 }
-
 
 /*---------------------------------------------------*/
 #define bsNEEDW(nz)                           \
@@ -106,7 +104,6 @@ void bsFinishWrite ( EState* s )
    }                                          \
 }
 
-
 /*---------------------------------------------------*/
 static
 __inline__
@@ -116,7 +113,6 @@ void bsW ( EState* s, Int32 n, UInt32 v )
    s->bsBuff |= (v << (32 - s->bsLive - n));
    s->bsLive += n;
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -128,14 +124,12 @@ void bsPutUInt32 ( EState* s, UInt32 u )
    bsW ( s, 8,  u        & 0xffL );
 }
 
-
 /*---------------------------------------------------*/
 static
 void bsPutUChar ( EState* s, UChar c )
 {
    bsW( s, 8, (UInt32)c );
 }
-
 
 /*---------------------------------------------------*/
 /*--- The back end proper                         ---*/
@@ -153,7 +147,6 @@ void makeMaps_e ( EState* s )
          s->nInUse++;
       }
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -270,7 +263,6 @@ void generateMTFValues ( EState* s )
    s->nMTF = wr;
 }
 
-
 /*---------------------------------------------------*/
 #define BZ_LESSER_ICOST  0
 #define BZ_GREATER_ICOST 15
@@ -292,7 +284,6 @@ void sendMTFValues ( EState* s )
    are also globals only used in this proc.
    Made global to keep stack frame size small.
    --*/
-
 
    UInt16 cost[BZ_N_GROUPS];
    Int32  fave[BZ_N_GROUPS];
@@ -492,12 +483,10 @@ void sendMTFValues ( EState* s )
                                  alphaSize, 17 /*20*/ );
    }
 
-
    AssertH( nGroups < 8, 3002 );
    AssertH( nSelectors < 32768 &&
             nSelectors <= (2 + (900000 / BZ_G_SIZE)),
             3003 );
-
 
    /*--- Compute MTF values for the selectors. ---*/
    {
@@ -628,7 +617,6 @@ void sendMTFValues ( EState* s )
          }
       }
 
-
       gs = ge+1;
       selCtr++;
    }
@@ -637,7 +625,6 @@ void sendMTFValues ( EState* s )
    if (s->verbosity >= 3)
       VPrintf1( "codes %d\n", s->numZ-nBytes );
 }
-
 
 /*---------------------------------------------------*/
 void BZ2_compressBlock ( EState* s, Bool is_last_block )
@@ -693,7 +680,6 @@ void BZ2_compressBlock ( EState* s, Bool is_last_block )
       sendMTFValues ( s );
    }
 
-
    /*-- If this is the last block, add the stream trailer. --*/
    if (is_last_block) {
 
@@ -706,7 +692,6 @@ void BZ2_compressBlock ( EState* s, Bool is_last_block )
       bsFinishWrite ( s );
    }
 }
-
 
 /*-------------------------------------------------------------*/
 /*--- end                                        compress.c ---*/

@@ -99,7 +99,6 @@ void fallbackSimpleSort ( UInt32* fmap,
    }
 }
 
-
 /*---------------------------------------------*/
 #define fswap(zz1, zz2) \
    { Int32 zztmp = zz1; zz1 = zz2; zz2 = zztmp; }
@@ -115,7 +114,6 @@ void fallbackSimpleSort ( UInt32* fmap,
    }                                  \
 }
 
-
 #define fmin(a,b) ((a) < (b)) ? (a) : (b)
 
 #define fpush(lz,hz) { stackLo[sp] = lz; \
@@ -128,7 +126,6 @@ void fallbackSimpleSort ( UInt32* fmap,
 
 #define FALLBACK_QSORT_SMALL_THRESH 10
 #define FALLBACK_QSORT_STACK_SIZE   100
-
 
 static
 void fallbackQSort3 ( UInt32* fmap, 
@@ -227,7 +224,6 @@ void fallbackQSort3 ( UInt32* fmap,
 #undef fvswap
 #undef FALLBACK_QSORT_SMALL_THRESH
 #undef FALLBACK_QSORT_STACK_SIZE
-
 
 /*---------------------------------------------*/
 /* Pre:
@@ -375,7 +371,6 @@ void fallbackSort ( UInt32* fmap,
 #undef      WORD_BH
 #undef UNALIGNED_BH
 
-
 /*---------------------------------------------*/
 /*--- The main, O(N^2 log(N)) sorting       ---*/
 /*--- algorithm.  Faster for "normal"       ---*/
@@ -509,7 +504,6 @@ Bool mainGtU ( UInt32  i1,
    return False;
 }
 
-
 /*---------------------------------------------*/
 /*--
    Knuth's increments seem to work better
@@ -595,7 +589,6 @@ void mainSimpleSort ( UInt32* ptr,
    }
 }
 
-
 /*---------------------------------------------*/
 /*--
    The following is an implementation of
@@ -644,7 +637,6 @@ UChar mmed3 ( UChar a, UChar b, UChar c )
                          hz = stackHi[sp]; \
                          dz = stackD [sp]; }
 
-
 #define mnextsize(az) (nextHi[az]-nextLo[az])
 
 #define mnextswap(az,bz)                                        \
@@ -652,7 +644,6 @@ UChar mmed3 ( UChar a, UChar b, UChar c )
      tz = nextLo[az]; nextLo[az] = nextLo[bz]; nextLo[bz] = tz; \
      tz = nextHi[az]; nextHi[az] = nextHi[bz]; nextHi[bz] = tz; \
      tz = nextD [az]; nextD [az] = nextD [bz]; nextD [bz] = tz; }
-
 
 #define MAIN_QSORT_SMALL_THRESH 20
 #define MAIN_QSORT_DEPTH_THRESH (BZ_N_RADIX + BZ_N_QSORT)
@@ -767,7 +758,6 @@ void mainQSort3 ( UInt32* ptr,
 #undef MAIN_QSORT_SMALL_THRESH
 #undef MAIN_QSORT_DEPTH_THRESH
 #undef MAIN_QSORT_STACK_SIZE
-
 
 /*---------------------------------------------*/
 /* Pre:
@@ -1055,7 +1045,6 @@ void mainSort ( UInt32* ptr,
 #undef SETMASK
 #undef CLEARMASK
 
-
 /*---------------------------------------------*/
 /* Pre:
       nblock > 0
@@ -1128,7 +1117,6 @@ void BZ2_blockSort ( EState* s )
 
    AssertH( s->origPtr != -1, 1003 );
 }
-
 
 /*-------------------------------------------------------------*/
 /*--- end                                       blocksort.c ---*/

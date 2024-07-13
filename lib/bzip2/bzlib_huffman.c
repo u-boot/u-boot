@@ -59,7 +59,6 @@
   For more information on these sources, see the manual.
 --*/
 
-
 #include "bzlib_private.h"
 
 /*---------------------------------------------------*/
@@ -98,7 +97,6 @@
    }                                                  \
    heap[zz] = tmp;                                    \
 }
-
 
 /*---------------------------------------------------*/
 void BZ2_hbMakeCodeLengths ( UChar *len,
@@ -171,7 +169,6 @@ void BZ2_hbMakeCodeLengths ( UChar *len,
    }
 }
 
-
 /*---------------------------------------------------*/
 void BZ2_hbAssignCodes ( Int32 *code,
 			 UChar *length,
@@ -188,7 +185,6 @@ void BZ2_hbAssignCodes ( Int32 *code,
       vec <<= 1;
    }
 }
-
 
 /*---------------------------------------------------*/
 void BZ2_hbCreateDecodeTables ( Int32 *limit,
@@ -222,7 +218,6 @@ void BZ2_hbCreateDecodeTables ( Int32 *limit,
    for (i = minLen + 1; i <= maxLen; i++)
       base[i] = ((limit[i-1] + 1) << 1) - base[i];
 }
-
 
 /*-------------------------------------------------------------*/
 /*--- end                                         huffman.c ---*/

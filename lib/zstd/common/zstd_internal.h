@@ -33,13 +33,11 @@
 #include <linux/xxhash.h>                /* XXH_reset, update, digest */
 #define ZSTD_TRACE 0
 
-
 /* ---- static assert (debug) --- */
 #define ZSTD_STATIC_ASSERT(c) DEBUG_STATIC_ASSERT(c)
 #define ZSTD_isError ERR_isError   /* for inlining */
 #define FSE_isError  ERR_isError
 #define HUF_isError  ERR_isError
-
 
 /*-*************************************
 *  shared macros
@@ -49,7 +47,6 @@
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)>(b) ? (a) : (b))
 #define BOUNDED(min,val,max) (MAX(min,MIN(val,max)))
-
 
 /*-*************************************
 *  Common constants
@@ -154,7 +151,6 @@ static UNUSED_ATTR const S16 OF_defaultNorm[DefaultMaxOff+1] = {
 };
 #define OF_DEFAULTNORMLOG 5  /* for static allocation */
 static UNUSED_ATTR const U32 OF_defaultNormLog = OF_DEFAULTNORMLOG;
-
 
 /*-*******************************************
 *  Shared functions to include for inlining
@@ -269,7 +265,6 @@ typedef enum {
     ZSTD_bm_stable = 1     /* ZSTD_inBuffer/ZSTD_outBuffer is stable */
 } ZSTD_bufferMode_e;
 
-
 /*-*******************************************
 *  Private declarations
 *********************************************/
@@ -349,7 +344,6 @@ void* ZSTD_customMalloc(size_t size, ZSTD_customMem customMem);
 void* ZSTD_customCalloc(size_t size, ZSTD_customMem customMem);
 void ZSTD_customFree(void* ptr, ZSTD_customMem customMem);
 
-
 MEM_STATIC U32 ZSTD_highbit32(U32 val)   /* compress, dictBuilder, decodeCorpus */
 {
     assert(val != 0);
@@ -404,13 +398,11 @@ MEM_STATIC unsigned ZSTD_countTrailingZeros(size_t val)
     }
 }
 
-
 /* ZSTD_invalidateRepCodes() :
  * ensures next compression will not use repcodes from previous block.
  * Note : only works with regular variant;
  *        do not use with extDict variant ! */
 void ZSTD_invalidateRepCodes(ZSTD_CCtx* cctx);   /* zstdmt, adaptive_compression (shouldn't get this definition from here) */
-
 
 typedef struct {
     blockType_e blockType;
@@ -438,6 +430,5 @@ MEM_STATIC int ZSTD_cpuSupportsBmi2(void)
     ZSTD_cpuid_t cpuid = ZSTD_cpuid();
     return ZSTD_cpuid_bmi1(cpuid) && ZSTD_cpuid_bmi2(cpuid);
 }
-
 
 #endif   /* ZSTD_CCOMMON_H_MODULE */

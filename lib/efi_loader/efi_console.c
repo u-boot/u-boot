@@ -1176,7 +1176,6 @@ out:
 	return EFI_EXIT(ret);
 }
 
-
 /**
  * efi_cin_reset() - drain the input buffer
  *
