@@ -32,7 +32,6 @@ static inline unsigned long ffz(unsigned long word)
 	return result;
 }
 
-
 static inline void set_bit(int nr, volatile void *addr)
 {
 	int	* a = (int *) addr;
@@ -256,7 +255,6 @@ found_middle:
 #define hweight32(x) generic_hweight32(x)
 #define hweight16(x) generic_hweight16(x)
 #define hweight8(x) generic_hweight8(x)
-
 
 static inline int ext2_set_bit(int nr, volatile void *addr)
 {

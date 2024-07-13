@@ -47,7 +47,6 @@ typedef unsigned int	__kernel_gid32_t;
 typedef unsigned short	__kernel_old_uid_t;
 typedef unsigned short	__kernel_old_gid_t;
 
-
 typedef struct {
 #if defined(__KERNEL__) || defined(__USE_ALL)
 	int	val[2];
@@ -55,7 +54,6 @@ typedef struct {
 	int	__val[2];
 #endif /* !defined(__KERNEL__) && !defined(__USE_ALL) */
 } __kernel_fsid_t;
-
 
 #if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
 

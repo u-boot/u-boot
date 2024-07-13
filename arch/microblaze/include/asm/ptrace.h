@@ -16,7 +16,6 @@
 #ifndef __MICROBLAZE_PTRACE_H__
 #define __MICROBLAZE_PTRACE_H__
 
-
 /* Microblaze general purpose registers with special meanings.  */
 #define GPR_ZERO	0	/* constant zero */
 #define GPR_ASM		18	/* reserved for assembler */
@@ -54,7 +53,6 @@
 #define SR_DIR		21
 #define SR_ASID		23
 
-
 #ifndef __ASSEMBLY__
 
 typedef unsigned long microblaze_reg_t;
@@ -74,7 +72,6 @@ struct pt_regs
 	microblaze_reg_t single_step;	/* 1 if in single step mode */
 };
 
-
 #define instruction_pointer(regs)	((regs)->pc)
 #define user_mode(regs)			(!(regs)->kernel_mode)
 
@@ -86,7 +83,6 @@ struct pt_regs
 #define PT_REGS_SET_SYSCALL(regs, val)	((regs)->gpr[0] = (val))
 
 #endif /* !__ASSEMBLY__ */
-
 
 /* The number of bytes used to store each register.  */
 #define _PT_REG_SIZE	4
