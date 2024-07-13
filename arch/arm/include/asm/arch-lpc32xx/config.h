@@ -8,7 +8,6 @@
 #ifndef _LPC32XX_CONFIG_H
 #define _LPC32XX_CONFIG_H
 
-
 /* Basic CPU architecture */
 
 #if !defined(CFG_SYS_NS16550_CLK)
