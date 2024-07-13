@@ -109,7 +109,6 @@ static char* ExtractDecimal (uint32_t* value,  char* getPtr)
   return getPtr;
 } /* ExtractDecimal */
 
-
 static void ExtractNumber (uint32_t* value,  char* getPtr)
 {
   bool  neg = false;
@@ -129,7 +128,6 @@ static void ExtractNumber (uint32_t* value,  char* getPtr)
   if (neg) *value = -(*value);
 } /* ExtractNumber */
 
-
 static uint8_t* ExtractWord(uint16_t* value, uint8_t* buffer)
 {
   uint16_t x;
@@ -138,7 +136,6 @@ static uint8_t* ExtractWord(uint16_t* value, uint8_t* buffer)
   *value = x;
   return buffer;
 } /* ExtractWord */
-
 
 static uint8_t* ExtractLong(uint32_t* value, uint8_t* buffer)
 {
@@ -151,13 +148,11 @@ static uint8_t* ExtractLong(uint32_t* value, uint8_t* buffer)
   return buffer;
 } /* ExtractLong */
 
-
 static uint8_t* ExtractBlock(uint16_t count, uint8_t* data, uint8_t* buffer)
 {
   while (count--) *data++ = *buffer++;
   return buffer;
 } /* ExtractBlock */
-
 
 static char* WriteHex(char* pa, uint8_t value, uint16_t* pCheckSum)
 {
@@ -172,7 +167,6 @@ static char* WriteHex(char* pa, uint8_t value, uint16_t* pCheckSum)
   *pa++ = ByteToHex[temp];
   return pa;
 }
-
 
 static char* BuildSRecord(char* pa, uint16_t sType, uint32_t addr,
 			  const uint8_t* data, int nCount)
@@ -223,7 +217,6 @@ static char* BuildSRecord(char* pa, uint16_t sType, uint32_t addr,
   return pa;
 }
 
-
 static void ConvertELF(char* fileName, uint32_t loadOffset)
 {
   FILE*         file;
@@ -239,7 +232,6 @@ static void ConvertELF(char* fileName, uint32_t loadOffset)
   uint8_t*         getPtr;
   char          srecLine[128];
   char		*hdr_name;
-
 
   /* open file */
   if ((file = fopen(fileName,"rb")) == NULL) {
@@ -347,7 +339,6 @@ static void ConvertELF(char* fileName, uint32_t loadOffset)
   printf("%s\r\n",srecLine);
   fclose(file);
 } /* ConvertELF */
-
 
 /*************************************************************************
 |  MAIN

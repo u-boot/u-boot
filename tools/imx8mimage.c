@@ -5,7 +5,6 @@
  * Peng Fan <peng.fan@nxp.com>
  */
 
-
 #include "imagetool.h"
 #include <image.h>
 #include "imximage.h"
