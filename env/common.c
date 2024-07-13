@@ -394,7 +394,6 @@ void env_set_default(const char *s, int flags)
 	gd->flags |= GD_FLG_ENV_DEFAULT;
 }
 
-
 /* [re]set individual variables to their value in the default environment */
 int env_set_default_vars(int nvars, char * const vars[], int flags)
 {
@@ -587,7 +586,6 @@ int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf,
 	idx = 0;
 	found = 0;
 	cmdv[0] = NULL;
-
 
 	while ((idx = hmatch_r(var, idx, &match, &env_htab))) {
 		int vallen = strlen(match->key) + 1;
