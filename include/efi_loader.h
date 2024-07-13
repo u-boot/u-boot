@@ -1195,6 +1195,6 @@ efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
 
 int efi_get_distro_fdt_name(char *fname, int size, int seq);
 
-void efi_load_distro_fdt(void **fdt, efi_uintn_t *fdt_size);
+void efi_load_distro_fdt(efi_handle_t handle, void **fdt, efi_uintn_t *fdt_size);
 
 #endif /* _EFI_LOADER_H */

@@ -1277,7 +1277,7 @@ efi_status_t efi_bootmgr_run(void *fdt)
 		if (fdt_lo)
 			fdt = fdt_lo;
 		if (!fdt) {
-			efi_load_distro_fdt(&fdt_distro, &fdt_size);
+			efi_load_distro_fdt(handle, &fdt_distro, &fdt_size);
 			fdt = fdt_distro;
 		}
 	}
