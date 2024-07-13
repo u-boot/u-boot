@@ -2452,7 +2452,6 @@ retry:
 
 EXPORT_SYMBOL(sget);
 
-
 static struct dentry *ubifs_mount(struct file_system_type *fs_type, int flags,
 			const char *name, void *data)
 {

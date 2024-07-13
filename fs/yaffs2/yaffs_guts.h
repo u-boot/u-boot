@@ -64,8 +64,6 @@
 #define YAFFS_MIN_YAFFS2_CHUNK_SIZE	1024
 #define YAFFS_MIN_YAFFS2_SPARE_SIZE	32
 
-
-
 #define YAFFS_ALLOCATION_NOBJECTS	100
 #define YAFFS_ALLOCATION_NTNODES	100
 #define YAFFS_ALLOCATION_NLINKS		100
@@ -154,7 +152,6 @@ union yaffs_tags_union {
 	struct yaffs_tags as_tags;
 	u8 as_bytes[8];
 };
-
 
 /* Stuff used for extended tags in YAFFS2 */
 
@@ -968,6 +965,5 @@ void yaffs_addr_to_chunk(struct yaffs_dev *dev, loff_t addr,
 void yaffs_oh_size_load(struct yaffs_obj_hdr *oh, loff_t fsize);
 loff_t yaffs_oh_to_size(struct yaffs_obj_hdr *oh);
 loff_t yaffs_max_file_size(struct yaffs_dev *dev);
-
 
 #endif

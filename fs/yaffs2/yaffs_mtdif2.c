@@ -32,7 +32,6 @@
 #define yaffs_dev_to_mtd(dev) ((struct mtd_info *)((dev)->driver_context))
 #define yaffs_dev_to_lc(dev) ((struct yaffs_linux_context *)((dev)->os_context))
 
-
 /* NB For use with inband tags....
  * We assume that the data buffer is of size total_bytes_per_chunk so
  * that we can also use it to load the tags.
@@ -168,7 +167,6 @@ int nandmtd2_read_chunk_tags(struct yaffs_dev *dev, int nand_chunk,
 	else
 		return YAFFS_FAIL;
 }
-
 
 int nandmtd2_MarkNANDBlockBad(struct yaffs_dev *dev, int blockNo)
 {

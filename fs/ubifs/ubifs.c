@@ -110,7 +110,6 @@ static struct ubifs_compressor zstd_compr = {
 /* All UBIFS compressors */
 struct ubifs_compressor *ubifs_compressors[UBIFS_COMPR_TYPES_CNT] = {NULL};
 
-
 #ifdef __UBOOT__
 
 struct crypto_comp {

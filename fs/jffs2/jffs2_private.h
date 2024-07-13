@@ -3,7 +3,6 @@
 
 #include <jffs2/jffs2.h>
 
-
 struct b_node {
 	u32 offset;
 	struct b_node *next;

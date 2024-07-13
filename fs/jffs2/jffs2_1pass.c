@@ -110,7 +110,6 @@
  * it should probably be dumped and replaced by something like jffs2reader!
  */
 
-
 #include <config.h>
 #include <malloc.h>
 #include <div64.h>
@@ -126,7 +125,6 @@
 
 #include "jffs2_private.h"
 
-
 #define	NODE_CHUNK	1024	/* size of memory allocation chunk in b_nodes */
 #define	SPIN_BLKSIZE	18	/* spin after having scanned 1<<BLKSIZE bytes */
 
@@ -134,7 +132,6 @@
 #undef	DEBUG_DIRENTS		/* print directory entry list after scan */
 #undef	DEBUG_FRAGMENTS		/* print fragment list after scan */
 #undef	DEBUG			/* enable debugging messages */
-
 
 #ifdef  DEBUG
 # define DEBUGF(fmt,args...)	printf(fmt ,##args)
@@ -370,13 +367,11 @@ static void *get_node_mem_onenand(u32 off, void *ext_buf)
 	return ret;
 }
 
-
 static void put_fl_mem_onenand(void *buf)
 {
 	free(buf);
 }
 #endif
-
 
 #if defined(CONFIG_CMD_FLASH)
 #include <flash.h>
@@ -413,7 +408,6 @@ static inline void *get_node_mem_nor(u32 off, void *ext_buf)
 			pNode->totlen : sizeof(*pNode), ext_buf);
 }
 #endif
-
 
 /*
  * Generic jffs2 raw memory and node read routines.
@@ -514,7 +508,6 @@ struct mem_block {
 	struct mem_block *next;
 	struct b_node nodes[NODE_CHUNK];
 };
-
 
 static void
 free_nodes(struct b_list *list)
@@ -1854,7 +1847,6 @@ jffs2_1pass_build_lists(struct part_info * part)
 	return 1;
 }
 
-
 static u32
 jffs2_1pass_fill_info(struct b_lists * pL, struct b_jffs2_info * piL)
 {
@@ -1883,7 +1875,6 @@ jffs2_1pass_fill_info(struct b_lists * pL, struct b_jffs2_info * piL)
 	return 0;
 }
 
-
 static struct b_lists *
 jffs2_get_list(struct part_info * part, const char *who)
 {
@@ -1898,7 +1889,6 @@ jffs2_get_list(struct part_info * part, const char *who)
 	}
 	return (struct b_lists *)part->jffs2_priv;
 }
-
 
 /* Print directory / file contents */
 u32
@@ -1916,7 +1906,6 @@ jffs2_1pass_ls(struct part_info * part, const char *fname)
 		return 0;
 	}
 
-
 #if 0
 	putLabeledWord("found file at inode = ", inode);
 	putLabeledWord("read_inode returns = ", ret);
@@ -1924,7 +1913,6 @@ jffs2_1pass_ls(struct part_info * part, const char *fname)
 
 	return ret;
 }
-
 
 /* Load a file from flash into memory. fname can be a full path */
 u32

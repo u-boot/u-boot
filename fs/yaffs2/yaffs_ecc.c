@@ -67,7 +67,6 @@ static const unsigned char column_parity_table[] = {
 	0x69, 0x3c, 0x30, 0x65, 0x0c, 0x59, 0x55, 0x00,
 };
 
-
 /* Calculate the ECC for a 256-byte block of data */
 void yaffs_ecc_calc(const unsigned char *data, unsigned char *ecc)
 {

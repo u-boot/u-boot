@@ -42,7 +42,6 @@
 #include <jffs2/jffs2.h>
 #include <jffs2/compr_rubin.h>
 
-
 void rubin_do_decompress(unsigned char *bits, unsigned char *in,
 			 unsigned char *page_out, __u32 destlen)
 {

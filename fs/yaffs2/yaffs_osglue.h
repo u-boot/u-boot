@@ -18,10 +18,8 @@
  * a direct interface.
  */
 
-
 #ifndef __YAFFS_OSGLUE_H__
 #define __YAFFS_OSGLUE_H__
-
 
 #include "yportenv.h"
 
@@ -36,6 +34,5 @@ void *yaffsfs_malloc(size_t size);
 void yaffsfs_free(void *ptr);
 
 void yaffsfs_OSInitialisation(void);
-
 
 #endif

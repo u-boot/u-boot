@@ -52,7 +52,6 @@ struct yaffs_summary_header {
 	unsigned sum;		/* Just add up all the bytes in the tags */
 };
 
-
 static void yaffs_summary_clear(struct yaffs_dev *dev)
 {
 	if (!dev->sum_tags)
@@ -60,7 +59,6 @@ static void yaffs_summary_clear(struct yaffs_dev *dev)
 	memset(dev->sum_tags, 0, dev->chunks_per_summary *
 		sizeof(struct yaffs_summary_tags));
 }
-
 
 void yaffs_summary_deinit(struct yaffs_dev *dev)
 {
@@ -168,10 +166,8 @@ static int yaffs_summary_write(struct yaffs_dev *dev, int blk)
 	} while (result == YAFFS_OK && n_bytes > 0);
 	yaffs_release_temp_buffer(dev, buffer);
 
-
 	if (result == YAFFS_OK)
 		bi->has_summary = 1;
-
 
 	return result;
 }

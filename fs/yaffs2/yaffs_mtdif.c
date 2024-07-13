@@ -15,14 +15,12 @@
 
 #include "yportenv.h"
 
-
 #include "yaffs_mtdif.h"
 
 #include <linux/mtd/mtd.h>
 #include <linux/types.h>
 #include <linux/time.h>
 #include <linux/mtd/rawnand.h>
-
 
 static inline void translate_spare2oob(const struct yaffs_spare *spare, u8 *oob)
 {
@@ -56,7 +54,6 @@ static inline void translate_oob2spare(struct yaffs_spare *spare, u8 *oob)
 
 	nspare->eccres1 = nspare->eccres2 = 0; /* FIXME */
 }
-
 
 int nandmtd_WriteChunkToNAND(struct yaffs_dev *dev, int chunkInNAND,
 			     const u8 *data, const struct yaffs_spare *spare)
@@ -147,7 +144,6 @@ int nandmtd_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber)
 	ei.priv = (u_long) dev;
 
 	/* Todo finish off the ei if required */
-
 
 	retval = mtd_erase(mtd, &ei);
 

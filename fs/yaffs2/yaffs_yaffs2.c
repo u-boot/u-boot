@@ -592,7 +592,6 @@ static int yaffs2_rd_checkpt_objs(struct yaffs_dev *dev)
 	int done = 0;
 	LIST_HEAD(hard_list);
 
-
 	while (ok && !done) {
 		ok = (yaffs2_checkpt_rd(dev, &cp, sizeof(cp)) == sizeof(cp));
 		if (cp.struct_type != sizeof(cp)) {
