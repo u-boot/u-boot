@@ -6,7 +6,6 @@
 #ifndef __ASM_SANDBOX_BYTEORDER_H
 #define __ASM_SANDBOX_BYTEORDER_H
 
-
 #include <asm/types.h>
 
 #if !defined(__STRICT_ANSI__) || defined(__KERNEL__)
