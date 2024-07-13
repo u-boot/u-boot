@@ -15,7 +15,6 @@
 #include <asm/processor.h>
 #include <asm/ptrace.h>
 
-
 extern void _exc_handler(void);
 extern void _int_handler(void);
 

@@ -700,7 +700,6 @@
 #define GPIO_PAR_FEC_FEC_MII		(0x01)	/* MDC & MDIO - GPIO */
 #define GPIO_PAR_FEC_FEC_MIIFUL	(0x00)
 
-
 /* TC: Need to edit here.... */
 
 /* Mode Select Control */

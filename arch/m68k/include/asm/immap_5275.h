@@ -223,7 +223,6 @@ typedef struct	gpio_ctrl {
 	u8 par_res2[3];
 } gpio_t;
 
-
 /* Watchdog registers
  */
 typedef struct wdog_ctrl {
