@@ -26,7 +26,6 @@
 #define PSC_REG_MDSTAT(x)       (0x800 + (4 * (x)))
 #define PSC_REG_MDCTL(x)        (0xa00 + (4 * (x)))
 
-
 static inline u32 _boot_bit_mask(u32 x, u32 y)
 {
 	u32 val = (1 << (x - y + 1)) - 1;

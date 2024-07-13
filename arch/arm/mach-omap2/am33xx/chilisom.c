@@ -102,7 +102,6 @@ void chilisom_spl_board_init(void)
 	/* Get the frequency */
 	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
 
-
 	if (i2c_probe(TPS65217_CHIP_PM))
 		return;
 

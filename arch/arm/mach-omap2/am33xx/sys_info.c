@@ -74,7 +74,6 @@ u32 get_sys_clk_index(void)
 			CTRL_SYSBOOT_15_14_SHIFT);
 }
 
-
 #ifdef CONFIG_DISPLAY_CPUINFO
 static char *cpu_revs[] = {
 		"1.0",

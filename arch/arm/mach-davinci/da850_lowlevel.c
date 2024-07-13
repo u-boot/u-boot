@@ -146,7 +146,6 @@ static int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult)
 	 */
 	setbits_le32(&reg->pllctl, PLLCTL_PLLEN);
 
-
 	/*
 	 * clear EMIFA and EMIFB clock source settings, let them
 	 * run off SYSCLK

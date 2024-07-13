@@ -405,7 +405,6 @@ void v7_arch_cp15_set_acr(u32 acr, u32 cpu_midr, u32 cpu_rev_comb,
 	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
 }
 
-
 #ifndef CONFIG_SYS_L2CACHE_OFF
 static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
 {
