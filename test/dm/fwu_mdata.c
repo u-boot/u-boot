@@ -129,7 +129,6 @@ static int dm_test_fwu_mdata_write(struct unit_test_state *uts)
 	 */
 	event_notify_null(EVT_MAIN_LOOP);
 
-
 	ut_assertok(uclass_first_device_err(UCLASS_FWU_MDATA, &dev));
 
 	ut_assertok(fwu_init());

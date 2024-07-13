@@ -423,7 +423,6 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
 		{0x00, 0x00, "\0"}
 	};
 
-
 	state_set_skip_delays(true);
 	ut_assertok(usb_init());
 

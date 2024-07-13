@@ -139,7 +139,6 @@ static const char zstd_compressed[] =
 	"\x01\xe4\xf4\x6e\xfa";
 static const unsigned long zstd_compressed_size = sizeof(zstd_compressed) - 1;
 
-
 #define TEST_BUFFER_SIZE	512
 
 typedef int (*mutate_func)(struct unit_test_state *uts, void *, unsigned long,
