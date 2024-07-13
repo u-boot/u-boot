@@ -532,7 +532,6 @@ check_member(rk3288_edp, pll_reg_5, 0xa00);
 #define EDID_HEADER				0x00
 #define EDID_EXTENSION_FLAG			0x7e
 
-
 enum dpcd_request {
 	DPCD_READ,
 	DPCD_WRITE,
