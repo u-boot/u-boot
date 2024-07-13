@@ -284,7 +284,6 @@ static int mctl_channel_init(struct dram_para *para)
 	writel(0x0, MCTL_PROTECT);
 	udelay(100);
 
-
 	/* Set ODT */
 	if (IS_ENABLED(CONFIG_DRAM_ODT_EN))
 		rval = 0x0;
