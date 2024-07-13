@@ -9,7 +9,6 @@
 
 #include "periph.h"
 
-
 /* iomg bit definition */
 #define MUX_M0          0
 #define MUX_M1          1

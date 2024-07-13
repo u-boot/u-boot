@@ -133,7 +133,6 @@ struct peri_sc_periph_regs {
 	u32 reserved8_addr;	/*0xd04*/
 };
 
-
 /* CTRL1 bit definitions */
 
 #define PERI_CTRL1_ETR_AXI_CSYSREQ_N			(1 << 0)
@@ -142,7 +141,6 @@ struct peri_sc_periph_regs {
 #define PERI_CTRL1_ETR_AXI_CSYSREQ_N_MSK		(1 << 16)
 #define PERI_CTRL1_HIFI_INT_MASK_MSK			(1 << 17)
 #define PERI_CTRL1_HIFI_ALL_INT_MASK_MSK		(1 << 18)
-
 
 /* CTRL2 bit definitions */
 

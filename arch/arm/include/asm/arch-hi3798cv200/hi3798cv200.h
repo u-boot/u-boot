@@ -49,5 +49,4 @@
 #define USB2_PHY01_REFCLK_SEL		(1 << 12)
 #define USB2_PHY2_REFCLK_SEL		(1 << 14)
 
-
 #endif
