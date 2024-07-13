@@ -49,7 +49,6 @@ unsigned long long get_ticks(void)
 	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
-
 ulong timer_get_boot_us(void)
 {
 	if (!gd->arch.timer_rate_hz)
