@@ -62,7 +62,6 @@ void __udelay(unsigned long usec)
 	delay_cycles(mhz * lo);
 }
 
-
 /*
  * Return the elapsed time (ticks) since 'base'.
  */
@@ -88,7 +87,6 @@ ulong get_timer(ulong base)
 	return fake_ccount / (get_board_sys_clk() / CONFIG_SYS_HZ) - base;
 #endif
 }
-
 
 /*
  * This function is derived from ARM/PowerPC code (read timebase as long long).

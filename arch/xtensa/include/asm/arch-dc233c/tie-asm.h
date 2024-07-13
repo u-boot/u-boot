@@ -159,7 +159,6 @@
 	.endif
     .endm	// xchal_ncp_load
 
-
 #define XCHAL_NCP_NUM_ATMPS	1
 
 #define XCHAL_SA_NUM_ATMPS	1

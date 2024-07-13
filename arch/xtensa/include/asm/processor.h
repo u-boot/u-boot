@@ -6,5 +6,4 @@
 #ifndef _XTENSA_PROCESSOR_H
 #define _XTENSA_PROCESSOR_H
 
-
 #endif /* _XTENSA_PROCESSOR_H */
