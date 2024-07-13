@@ -20,7 +20,6 @@ static void exynos4_mipi_phy_control(unsigned int dev_index,
 	else
 		addr = (unsigned int)&pmu->mipi_phy1_control;
 
-
 	cfg = readl(addr);
 	if (enable)
 		cfg |= (EXYNOS_MIPI_PHY_MRESETN | EXYNOS_MIPI_PHY_ENABLE);
@@ -173,7 +172,6 @@ void set_ps_hold_ctrl(void)
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
 }
-
 
 static void exynos5_set_xclkout(void)
 {

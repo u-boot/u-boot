@@ -4,7 +4,6 @@
  * Rajeshwari Shinde <rajeshwari.s@samsung.com>
  */
 
-
 #ifndef __SOUND_ARCH_H__
 #define __SOUND_ARCH_H__
 
