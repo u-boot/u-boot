@@ -97,7 +97,6 @@
 #define FSL_PEX_STREAM_ID_END          (0x100)
 #endif
 
-
 /* DPAA2 - set in MC DPC and alloced by MC */
 #define FSL_DPAA2_STREAM_ID_START	23
 #define FSL_DPAA2_STREAM_ID_END		63
