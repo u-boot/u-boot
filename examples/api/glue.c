@@ -153,7 +153,6 @@ unsigned long ub_get_timer(unsigned long base)
 	return cur;
 }
 
-
 /****************************************************************************
  *
  * devices

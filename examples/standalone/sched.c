@@ -21,7 +21,6 @@
  * timer interrupts.
  */
 
-
 #define MAX_THREADS 8
 
 #define CTX_SIZE 512
@@ -54,7 +53,6 @@ struct lthread {
 };
 static volatile struct lthread lthreads[MAX_THREADS];
 static volatile int current_tid = MASTER_THREAD;
-
 
 static uchar dbg = 0;
 
@@ -161,7 +159,6 @@ static int testthread (void *name)
 
 	return *(int *) name + 1;
 }
-
 
 static void sched_init (void)
 {
