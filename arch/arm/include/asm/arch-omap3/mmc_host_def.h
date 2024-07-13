@@ -63,5 +63,4 @@ typedef struct t2 {
 #define OMAP_HSMMC2_BASE	0x480B4000
 #define OMAP_HSMMC3_BASE	0x480AD000
 
-
 #endif /* MMC_HOST_DEF_H */
