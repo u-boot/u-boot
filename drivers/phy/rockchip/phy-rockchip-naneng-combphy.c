@@ -225,7 +225,7 @@ static int rockchip_combphy_xlate(struct phy *phy, struct ofnode_phandle_args *a
 	return 0;
 }
 
-static const struct phy_ops rochchip_combphy_ops = {
+static const struct phy_ops rockchip_combphy_ops = {
 	.init = rockchip_combphy_init,
 	.exit = rockchip_combphy_exit,
 	.of_xlate = rockchip_combphy_xlate,
@@ -535,7 +535,7 @@ U_BOOT_DRIVER(rockchip_naneng_combphy) = {
 	.name		= "naneng-combphy",
 	.id		= UCLASS_PHY,
 	.of_match	= rockchip_combphy_ids,
-	.ops		= &rochchip_combphy_ops,
+	.ops		= &rockchip_combphy_ops,
 	.probe		= rockchip_combphy_probe,
 	.priv_auto	= sizeof(struct rockchip_combphy_priv),
 };
