@@ -10,6 +10,7 @@
 #include <button.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <dt-bindings/input/linux-event-codes.h>
 
 int button_get_by_label(const char *label, struct udevice **devp)
 {
@@ -37,14 +38,33 @@ enum button_state_t button_get_state(struct udevice *dev)
 	return ops->get_state(dev);
 }
 
+static int button_remap_phone_keys(int code)
+{
+	switch (code) {
+	case KEY_VOLUMEUP:
+		return KEY_UP;
+	case KEY_VOLUMEDOWN:
+		return KEY_DOWN;
+	case KEY_POWER:
+		return KEY_ENTER;
+	default:
+		return code;
+	}
+}
+
 int button_get_code(struct udevice *dev)
 {
 	struct button_ops *ops = button_get_ops(dev);
+	int code;
 
 	if (!ops->get_code)
 		return -ENOSYS;
 
-	return ops->get_code(dev);
+	code = ops->get_code(dev);
+	if (CONFIG_IS_ENABLED(BUTTON_REMAP_PHONE_KEYS))
+		return button_remap_phone_keys(code);
+	else
+		return code;
 }
 
 UCLASS_DRIVER(button) = {
