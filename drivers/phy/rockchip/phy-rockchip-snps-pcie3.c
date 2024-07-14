@@ -164,7 +164,7 @@ static const struct rockchip_p3phy_ops rk3588_ops = {
 	.phy_init = rockchip_p3phy_rk3588_init,
 };
 
-static int rochchip_p3phy_init(struct phy *phy)
+static int rockchip_p3phy_init(struct phy *phy)
 {
 	struct rockchip_p3phy_ops *ops =
 		(struct rockchip_p3phy_ops *)dev_get_driver_data(phy->dev);
@@ -185,7 +185,7 @@ static int rochchip_p3phy_init(struct phy *phy)
 	return ret;
 }
 
-static int rochchip_p3phy_exit(struct phy *phy)
+static int rockchip_p3phy_exit(struct phy *phy)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 
@@ -251,9 +251,9 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct phy_ops rochchip_p3phy_ops = {
-	.init = rochchip_p3phy_init,
-	.exit = rochchip_p3phy_exit,
+static struct phy_ops rockchip_p3phy_ops = {
+	.init = rockchip_p3phy_init,
+	.exit = rockchip_p3phy_exit,
 };
 
 static const struct udevice_id rockchip_p3phy_of_match[] = {
@@ -272,7 +272,7 @@ U_BOOT_DRIVER(rockchip_pcie3phy) = {
 	.name		= "rockchip_pcie3phy",
 	.id		= UCLASS_PHY,
 	.of_match	= rockchip_p3phy_of_match,
-	.ops		= &rochchip_p3phy_ops,
+	.ops		= &rockchip_p3phy_ops,
 	.probe		= rockchip_p3phy_probe,
 	.priv_auto	= sizeof(struct rockchip_p3phy_priv),
 };
