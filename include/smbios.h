@@ -187,6 +187,66 @@ struct __packed smbios_type4 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+union cache_config {
+	struct {
+		u16 level:3;
+		u16 bsocketed:1;
+		u16 rsvd0:1;
+		u16 locate:2;
+		u16 benabled:1;
+		u16 opmode:2;
+		u16 rsvd1:6;
+	} fields;
+	u16 data;
+};
+
+union cache_size_word {
+	struct {
+		u16 size:15;
+		u16 granu:1;
+	} fields;
+	u16 data;
+};
+
+union cache_size_dword {
+	struct {
+		u32 size:31;
+		u32 granu:1;
+	} fields;
+	u32 data;
+};
+
+union cache_sram_type {
+	struct {
+		u16 other:1;
+		u16 unknown:1;
+		u16 nonburst:1;
+		u16 burst:1;
+		u16 plburst:1;
+		u16 sync:1;
+		u16 async:1;
+		u16 rsvd:9;
+	} fields;
+	u16 data;
+};
+
+struct __packed smbios_type7 {
+	struct smbios_header hdr;
+	u8 socket_design;
+	union cache_config config;
+	union cache_size_word max_size;
+	union cache_size_word inst_size;
+	union cache_sram_type supp_sram_type;
+	union cache_sram_type curr_sram_type;
+	u8 speed;
+	u8 err_corr_type;
+	u8 sys_cache_type;
+	u8 associativity;
+	union cache_size_dword max_size2;
+	union cache_size_dword inst_size2;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
 struct __packed smbios_type32 {
 	u8 type;
 	u8 length;
