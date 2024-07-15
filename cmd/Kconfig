@@ -324,7 +324,7 @@ config BOOTM_EFI
 config BOOTM_ELF
 	bool "Support booting ELF images"
 	depends on CMD_BOOTM && LIB_ELF
-	default n
+	default y if LIB_ELF
 	help
 	  Support booting ELF images via the bootm command.
 
@@ -500,8 +500,7 @@ config CMD_ELF
 config CMD_ELF_FDT_SETUP
 	bool "Flattened Device Tree setup in bootelf cmd"
 	depends on CMD_ELF
-	select LIB_LIBFDT
-	select LMB
+	select OF_LIBFDT
 	help
 	  Do FDT setup in bootelf command optionally by param -d, which
 	  allows to bring additional system info (e.g. /memory node) to
