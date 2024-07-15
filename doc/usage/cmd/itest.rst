@@ -58,7 +58,7 @@ op
     ======== ======================
 
 Examples
-========
+--------
 
 The itest command sets the result variable $? to true (0) or false (1):
 

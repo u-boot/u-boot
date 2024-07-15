@@ -2,7 +2,9 @@
 /*
  * Copyright 2023, Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
  *
- * This driver emulates a real time clock based on timer ticks.
+ * This driver supports the Google Goldfish virtual platform RTC device.
+ * The device is provided by the RISC-V virt machine in QEMU. It exposes
+ * a 64-bit nanosecond timer via two memory-mapped 32-bit registers.
  */
 
 #include <div64.h>

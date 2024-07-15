@@ -580,10 +580,10 @@ and used by the steps highlighted below.
     }
 
 You can perform step-4 through the Kconfig symbol
-CONFIG_EFI_CAPSULE_ESL_FILE. This symbol points to the esl file
-generated in step-2. Once the symbol has been populated with the path
-to the esl file, it will automatically get embedded into the
-platform's dtb as part of U-Boot build.
+CONFIG_EFI_CAPSULE_CRT_FILE. This symbol points to the signing key
+generated in step-2. As part of U-Boot build, the ESL certificate file will
+be generated from the signing key and automatically get embedded into the
+platform's dtb.
 
 Anti-rollback Protection
 ************************

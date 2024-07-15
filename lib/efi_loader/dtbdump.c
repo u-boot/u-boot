@@ -41,6 +41,53 @@ static void print(u16 *string)
 }
 
 /**
+ * print_char() - print character
+ *
+ * 0x00 is replaced by '", "'.
+ *
+ * @c:	- character
+ */
+static void print_char(unsigned char c)
+{
+	u16 out[2] = u"?";
+
+	if (!c) {
+		print(u"\", \"");
+		return;
+	}
+
+	if (c > 0x1f && c < 0x80)
+		out[0] = c;
+
+	print(out);
+}
+
+/**
+ * print_hex_digit() - print hexadecimal digit
+ *
+ * @digit:	digit to print
+ */
+static void print_hex_digit(unsigned char digit)
+{
+	if (digit < 10)
+		digit += '0';
+	else
+		digit += 'a' - 10;
+	print_char(digit);
+}
+
+/**
+ * printx() - print hexadecimal byte
+ *
+ * @val:	value to print
+ */
+static void printx(unsigned char val)
+{
+	print_hex_digit(val >> 4);
+	print_hex_digit(val & 0xf);
+}
+
+/**
  * error() - print error string
  *
  * @string:	error text
@@ -227,6 +274,7 @@ bool starts_with(u16 *string, u16 *keyword)
  */
 void do_help(void)
 {
+	error(u"dump       - print device-tree\r\n");
 	error(u"load <dtb> - load device-tree from file\r\n");
 	error(u"save <dtb> - save device-tree to file\r\n");
 	error(u"exit       - exit the shell\r\n");
@@ -490,6 +538,217 @@ efi_status_t do_save(u16 *filename)
 }
 
 /**
+ * indent() - print a number of tabstops
+ *
+ * @level:	indentation level
+ */
+static void indent(u32 level)
+{
+	for (; level; --level)
+		print(u"\t");
+}
+
+/**
+ * is_string_value() - determine if property is a string
+ *
+ * If a property is a string, an x-string, or a u32 cannot be deducted
+ * from the device-tree. Therefore a heuristic is used.
+ *
+ * @str:	pointer to device-tree property
+ * @len:	length of the device-tree property
+ * Return:	1 for string, 0 otherwise
+ */
+static int is_string_value(const unsigned char *str, u32 len)
+{
+	int nonzero_flag = 0;
+
+	/* Zero length or not ending with 0x00 */
+	if (!len || str[len - 1])
+		return 0;
+
+	for (u32 i = 0; i < len; ++i) {
+		if (!str[i]) {
+			/* Zero length string or two consecutive 0x00 */
+			if (!nonzero_flag)
+				return 0;
+
+			nonzero_flag = 0;
+
+			continue;
+		}
+		/* Non-printable */
+		if (str[i] < 0x20 || str[i] >= 0x80)
+			return 0;
+
+		nonzero_flag = 1;
+	}
+
+	return 1;
+}
+
+/**
+ * print_property() - print device-tree property
+ *
+ * If a property is a string, an x-string, or a u32 cannot be deducted
+ * from the device-tree. Therefore a heuristic is used.
+ *
+ * @str:	property value
+ * @len:	length of property value
+ */
+static void print_property(const unsigned char *val, u32 len)
+{
+	if (is_string_value(val, len)) {
+		/* string */
+		print(u"\"");
+		for (int i = 0; i < len - 1; ++i)
+			print_char(val[i]);
+		print(u"\"");
+	} else if (len & 0x3) {
+		/* byte string */
+		print(u"[");
+		for (int i = 0; i < len; ++i) {
+			if (i)
+				print(u" ");
+			printx(val[i]);
+		}
+		print(u"]\"");
+	} else {
+		/* cell list */
+		print(u"<");
+		for (u32 i = 0; i < len; ++i) {
+			if ((i & 0x3) == 0) {
+				if (i > 0)
+					print(u" ");
+				print(u"0x");
+			}
+			printx(val[i]);
+		}
+		print(u">");
+	}
+}
+
+/**
+ * print_mem_res_block() - print memory reservation block
+ *
+ * @rsvblk:	memory reservation block
+ */
+static void print_mem_res_block(const struct fdt_reserve_entry *rsvblk)
+{
+	for (; rsvblk->address || rsvblk->size; ++rsvblk) {
+		const unsigned char *val;
+
+		print(u"/memreserve/ 0x");
+		val = (const unsigned char *)&rsvblk->address;
+		for (u32 i = 0; i < sizeof(u64); ++i)
+			printx(val[i]);
+		print(u" 0x");
+		val = (const unsigned char *)&rsvblk->size;
+		for (u32 i = 0; i < sizeof(u64); ++i)
+			printx(val[i]);
+		print(u";\r\n");
+	}
+}
+
+/**
+ * do_dump() - print device-tree
+ */
+static efi_status_t do_dump(void)
+{
+	const unsigned char *fdt;
+	struct fdt_header *header;
+	const u32 *end;
+	const u32 *pos;
+	const char *strings;
+	u32 level = 0;
+
+	fdt = get_dtb(systable);
+	if (!fdt) {
+		error(u"DTB not found\r\n");
+		return EFI_NOT_FOUND;
+	}
+
+	header = (struct fdt_header *)fdt;
+	if (f2h(header->magic) != FDT_MAGIC) {
+		error(u"Wrong device tree magic\r\n");
+		error(u"Not a device-tree\r\n");
+		return EFI_LOAD_ERROR;
+	}
+
+	pos = (u32 *)(fdt + f2h(header->off_dt_struct));
+	end = &pos[f2h(header->totalsize) >> 2];
+	strings = fdt + f2h(header->off_dt_strings);
+
+	print(u"/dts-v1/;\r\n");
+
+	print_mem_res_block((const struct fdt_reserve_entry *)
+			    (fdt + f2h(header->off_mem_rsvmap)));
+
+	print(u"/");
+	for (; pos < end;) {
+		switch (f2h(pos[0])) {
+		case FDT_BEGIN_NODE: {
+			const char *c = (char *)&pos[1];
+			size_t i;
+
+			indent(level);
+			for (i = 0; c[i]; ++i)
+				print_char(c[i]);
+			print(u" {\n\r");
+
+			++level;
+			pos = &pos[2 + (i >> 2)];
+			break;
+		}
+		case FDT_PROP: {
+			struct fdt_property *prop = (struct fdt_property *)pos;
+			const unsigned char *label = &strings[f2h(prop->nameoff)];
+			u32 len = f2h(prop->len);
+			const unsigned char *str = (unsigned char *)&pos[3];
+
+			indent(level);
+			for (int i = 0; label[i]; ++i)
+				print_char(label[i]);
+
+			if (len) {
+				print(u" = ");
+				print_property(str, len);
+			}
+			print(u";\r\n");
+
+			pos = &pos[3 + ((f2h(prop->len) + 3) >> 2)];
+			break;
+		}
+		case FDT_NOP:
+			++pos;
+			break;
+		case FDT_END_NODE:
+			if (!level) {
+				error(u"Extraneous end node\r\n");
+				return EFI_LOAD_ERROR;
+			}
+
+			--level;
+			indent(level);
+			print(u"};\n\r");
+			++pos;
+			break;
+		case FDT_END:
+			if (level) {
+				error(u"Missing end node\r\n");
+				return EFI_LOAD_ERROR;
+			}
+			return EFI_SUCCESS;
+		default:
+			error(u"Invalid device tree token\r\n");
+			return EFI_LOAD_ERROR;
+		}
+	}
+	error(u"Overrun\r\n");
+
+	return EFI_LOAD_ERROR;
+}
+
+/**
  * efi_main() - entry point of the EFI application.
  *
  * @handle:	handle of the loaded image
@@ -524,6 +783,8 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
 		pos = skip_whitespace(command);
 		if (starts_with(pos, u"exit"))
 			break;
+		else if (starts_with(pos, u"dump"))
+			do_dump();
 		else if (starts_with(pos, u"load "))
 			do_load(pos + 5);
 		else if (starts_with(pos, u"save "))
