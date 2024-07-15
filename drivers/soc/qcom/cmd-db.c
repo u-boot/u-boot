@@ -4,16 +4,15 @@
  * Copyright (c) 2024, Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
-#include <linux/bitfield.h>
-#include <linux/debugfs.h>
+#define pr_fmt(fmt) "cmd-db: " fmt
+
+#include <dm.h>
+#include <dm/ofnode.h>
+#include <dm/device_compat.h>
 #include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/of.h>
-#include <linux/of_address.h>
-#include <linux/of_reserved_mem.h>
-#include <linux/platform_device.h>
-#include <linux/seq_file.h>
 #include <linux/types.h>
+#include <linux/ioport.h>
+#include <linux/byteorder/generic.h>
 
 #include <soc/qcom/cmd-db.h>
 
