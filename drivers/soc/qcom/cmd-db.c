@@ -106,7 +106,7 @@ static bool cmd_db_magic_matches(const struct cmd_db_header *header)
 	return memcmp(magic, CMD_DB_MAGIC, ARRAY_SIZE(CMD_DB_MAGIC)) == 0;
 }
 
-static struct cmd_db_header *cmd_db_header;
+static struct cmd_db_header *cmd_db_header __section(".data") = NULL;
 
 static inline const void *rsc_to_entry_header(const struct rsc_hdr *hdr)
 {
@@ -123,22 +123,6 @@ rsc_offset(const struct rsc_hdr *hdr, const struct entry_header *ent)
 
 	return cmd_db_header->data + offset + loffset;
 }
-
-/**
- * cmd_db_ready - Indicates if command DB is available
- *
- * Return: 0 on success, errno otherwise
- */
-int cmd_db_ready(void)
-{
-	if (cmd_db_header == NULL)
-		return -EPROBE_DEFER;
-	else if (!cmd_db_magic_matches(cmd_db_header))
-		return -EINVAL;
-
-	return 0;
-}
-EXPORT_SYMBOL_GPL(cmd_db_ready);
 
 static int cmd_db_get_header(const char *id, const struct entry_header **eh,
 			     const struct rsc_hdr **rh)
@@ -195,54 +179,44 @@ u32 cmd_db_read_addr(const char *id)
 }
 EXPORT_SYMBOL_GPL(cmd_db_read_addr);
 
-static int cmd_db_dev_probe(struct platform_device *pdev)
+int cmd_db_bind(struct udevice *dev)
 {
-	struct reserved_mem *rmem;
-	int ret = 0;
+	void __iomem *base;
+	ofnode node;
 
-	rmem = of_reserved_mem_lookup(pdev->dev.of_node);
-	if (!rmem) {
-		dev_err(&pdev->dev, "failed to acquire memory region\n");
-		return -EINVAL;
+	if (cmd_db_header)
+		return 0;
+
+	node = dev_ofnode(dev);
+
+	debug("%s(%s)\n", __func__, ofnode_get_name(node));
+
+	base = (void __iomem *)ofnode_get_addr(node);
+	if ((fdt_addr_t)base == FDT_ADDR_T_NONE) {
+		log_err("%s: Failed to read base address\n", __func__);
+		return -ENOENT;
 	}
 
-	cmd_db_header = memremap(rmem->base, rmem->size, MEMREMAP_WB);
-	if (!cmd_db_header) {
-		ret = -ENOMEM;
-		cmd_db_header = NULL;
-		return ret;
-	}
-
+	cmd_db_header = base;
 	if (!cmd_db_magic_matches(cmd_db_header)) {
-		dev_err(&pdev->dev, "Invalid Command DB Magic\n");
+		log_err("%s: Invalid Command DB Magic\n", __func__);
 		return -EINVAL;
 	}
-
-	device_set_pm_not_required(&pdev->dev);
 
 	return 0;
 }
 
-static const struct of_device_id cmd_db_match_table[] = {
+static const struct udevice_id cmd_db_ids[] = {
 	{ .compatible = "qcom,cmd-db" },
 	{ }
 };
-MODULE_DEVICE_TABLE(of, cmd_db_match_table);
 
-static struct platform_driver cmd_db_dev_driver = {
-	.probe  = cmd_db_dev_probe,
-	.driver = {
-		   .name = "cmd-db",
-		   .of_match_table = cmd_db_match_table,
-		   .suppress_bind_attrs = true,
-	},
+U_BOOT_DRIVER(qcom_cmd_db) = {
+	.name		= "qcom_cmd_db",
+	.id		= UCLASS_MISC,
+	.probe		= cmd_db_bind,
+	.of_match	= cmd_db_ids,
 };
-
-static int __init cmd_db_device_init(void)
-{
-	return platform_driver_register(&cmd_db_dev_driver);
-}
-core_initcall(cmd_db_device_init);
 
 MODULE_DESCRIPTION("Qualcomm Technologies, Inc. Command DB Driver");
 MODULE_LICENSE("GPL v2");
