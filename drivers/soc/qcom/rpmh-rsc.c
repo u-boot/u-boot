@@ -386,18 +386,18 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	return 0;
 }
 
-static int rpmh_probe_tcs_config(struct platform_device *pdev, struct rsc_drv *drv)
+static int rpmh_probe_tcs_config(struct udevice *dev, struct rsc_drv *drv)
 {
 	struct tcs_type_config {
 		u32 type;
 		u32 n;
 	} tcs_cfg[TCS_TYPE_NR] = { { 0 } };
-	struct device_node *dn = pdev->dev.of_node;
+	ofnode dn = dev_ofnode(dev);
 	u32 config, max_tcs, ncpt, offset;
 	int i, ret, n, st = 0;
 	struct tcs_group *tcs;
 
-	ret = of_property_read_u32(dn, "qcom,tcs-offset", &offset);
+	ret = ofnode_read_u32(dn, "qcom,tcs-offset", &offset);
 	if (ret)
 		return ret;
 	drv->tcs_base = drv->base + offset;
@@ -411,22 +411,13 @@ static int rpmh_probe_tcs_config(struct platform_device *pdev, struct rsc_drv *d
 	ncpt = config & (DRV_NCPT_MASK << DRV_NCPT_SHIFT);
 	ncpt = ncpt >> DRV_NCPT_SHIFT;
 
-	n = of_property_count_u32_elems(dn, "qcom,tcs-config");
-	if (n != 2 * TCS_TYPE_NR)
-		return -EINVAL;
+	n = ofnode_read_u32_array(dn, "qcom,tcs-config", (u32 *)tcs_cfg, 2 * TCS_TYPE_NR);
+	if (n < 0) {
+		log_err("RPMh: %s: error reading qcom,tcs-config %d\n", dev->name, n);
+		return n;
+	}
 
 	for (i = 0; i < TCS_TYPE_NR; i++) {
-		ret = of_property_read_u32_index(dn, "qcom,tcs-config",
-						 i * 2, &tcs_cfg[i].type);
-		if (ret)
-			return ret;
-		if (tcs_cfg[i].type >= TCS_TYPE_NR)
-			return -EINVAL;
-
-		ret = of_property_read_u32_index(dn, "qcom,tcs-config",
-						 i * 2 + 1, &tcs_cfg[i].n);
-		if (ret)
-			return ret;
 		if (tcs_cfg[i].n > MAX_TCS_PER_TYPE)
 			return -EINVAL;
 	}
@@ -457,41 +448,26 @@ static int rpmh_probe_tcs_config(struct platform_device *pdev, struct rsc_drv *d
 	return 0;
 }
 
-static int rpmh_rsc_probe(struct platform_device *pdev)
+static int rpmh_rsc_probe(struct udevice *dev)
 {
-	struct device_node *dn = pdev->dev.of_node;
+	ofnode dn = dev_ofnode(dev);
 	struct rsc_drv *drv;
 	char drv_id[10] = {0};
-	int ret, irq;
-	u32 solver_config;
+	int ret;
 	u32 rsc_id;
 
-	/*
-	 * Even though RPMh doesn't directly use cmd-db, all of its children
-	 * do. To avoid adding this check to our children we'll do it now.
-	 */
-	ret = cmd_db_ready();
-	if (ret) {
-		if (ret != -EPROBE_DEFER)
-			dev_err(&pdev->dev, "Command DB not available (%d)\n",
-									ret);
-		return ret;
-	}
+	drv = dev_get_priv(dev);
 
-	drv = devm_kzalloc(&pdev->dev, sizeof(*drv), GFP_KERNEL);
-	if (!drv)
-		return -ENOMEM;
-
-	ret = of_property_read_u32(dn, "qcom,drv-id", &drv->id);
+	ret = ofnode_read_u32(dn, "qcom,drv-id", &drv->id);
 	if (ret)
 		return ret;
 
-	drv->name = of_get_property(dn, "label", NULL);
+	drv->name = ofnode_get_property(dn, "label", NULL);
 	if (!drv->name)
-		drv->name = dev_name(&pdev->dev);
+		drv->name = dev->name;
 
 	snprintf(drv_id, ARRAY_SIZE(drv_id), "drv-%d", drv->id);
-	drv->base = devm_platform_ioremap_resource_byname(pdev, drv_id);
+	drv->base = (void __iomem *)dev_read_addr_name(dev, drv_id);
 	if (IS_ERR(drv->base))
 		return PTR_ERR(drv->base);
 
@@ -506,42 +482,13 @@ static int rpmh_rsc_probe(struct platform_device *pdev)
 	else
 		drv->regs = rpmh_rsc_reg_offset_ver_2_7;
 
-	ret = rpmh_probe_tcs_config(pdev, drv);
+	ret = rpmh_probe_tcs_config(dev, drv);
 	if (ret)
 		return ret;
 
 	spin_lock_init(&drv->lock);
 	init_waitqueue_head(&drv->tcs_wait);
 	bitmap_zero(drv->tcs_in_use, MAX_TCS_NR);
-
-	irq = platform_get_irq(pdev, drv->id);
-	if (irq < 0)
-		return irq;
-
-	ret = devm_request_irq(&pdev->dev, irq, tcs_tx_done,
-			       IRQF_TRIGGER_HIGH | IRQF_NO_SUSPEND,
-			       drv->name, drv);
-	if (ret)
-		return ret;
-
-	/*
-	 * CPU PM/genpd notification are not required for controllers that support
-	 * 'HW solver' mode where they can be in autonomous mode executing low
-	 * power mode to power down.
-	 */
-	solver_config = readl_relaxed(drv->base + drv->regs[DRV_SOLVER_CONFIG]);
-	solver_config &= DRV_HW_SOLVER_MASK << DRV_HW_SOLVER_SHIFT;
-	solver_config = solver_config >> DRV_HW_SOLVER_SHIFT;
-	if (!solver_config) {
-		if (pdev->dev.pm_domain) {
-			ret = rpmh_rsc_pd_attach(drv, &pdev->dev);
-			if (ret)
-				return ret;
-		} else {
-			drv->rsc_pm.notifier_call = rpmh_rsc_cpu_pm_callback;
-			cpu_pm_register_notifier(&drv->rsc_pm);
-		}
-	}
 
 	/* Enable the active TCS to send requests immediately */
 	writel_relaxed(drv->tcs[ACTIVE_TCS].mask,
@@ -551,38 +498,28 @@ static int rpmh_rsc_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&drv->client.cache);
 	INIT_LIST_HEAD(&drv->client.batch_cache);
 
-	dev_set_drvdata(&pdev->dev, drv);
-	drv->dev = &pdev->dev;
+	dev_set_drvdata(dev, drv);
+	drv->dev = dev;
 
-	ret = devm_of_platform_populate(&pdev->dev);
-	if (ret && pdev->dev.pm_domain) {
-		dev_pm_genpd_remove_notifier(&pdev->dev);
-		pm_runtime_disable(&pdev->dev);
-	}
+	log_debug("RPMh: %s: v%d.%d\n", dev->name, drv->ver.major, drv->ver.minor);
 
 	return ret;
 }
 
-static const struct of_device_id rpmh_drv_match[] = {
-	{ .compatible = "qcom,rpmh-rsc", },
+static const struct udevice_id qcom_rpmh_ids[] = {
+	{ .compatible = "qcom,rpmh-rsc" },
 	{ }
 };
-MODULE_DEVICE_TABLE(of, rpmh_drv_match);
 
-static struct platform_driver rpmh_driver = {
-	.probe = rpmh_rsc_probe,
-	.driver = {
-		  .name = "rpmh",
-		  .of_match_table = rpmh_drv_match,
-		  .suppress_bind_attrs = true,
-	},
+U_BOOT_DRIVER(qcom_rpmh_rsc) = {
+	.name		= "qcom_rpmh_rsc",
+	.id		= UCLASS_MISC,
+	.priv_auto	= sizeof(struct rsc_drv),
+	.probe		= rpmh_rsc_probe,
+	.of_match	= qcom_rpmh_ids,
+	/* rpmh is under CLUSTER_PD which we don't support, so skip trying to enable PDs */
+	.flags		= DM_FLAG_DEFAULT_PD_CTRL_OFF,
 };
-
-static int __init rpmh_driver_init(void)
-{
-	return platform_driver_register(&rpmh_driver);
-}
-core_initcall(rpmh_driver_init);
 
 MODULE_DESCRIPTION("Qualcomm Technologies, Inc. RPMh Driver");
 MODULE_LICENSE("GPL v2");
