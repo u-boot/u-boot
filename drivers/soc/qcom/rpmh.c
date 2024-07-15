@@ -3,20 +3,12 @@
  * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
  */
 
-#include <linux/atomic.h>
+#include <dm/device.h>
+#include <dm/device_compat.h>
 #include <linux/bug.h>
-#include <linux/interrupt.h>
-#include <linux/jiffies.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
-#include <linux/lockdep.h>
-#include <linux/module.h>
-#include <linux/of.h>
-#include <linux/platform_device.h>
-#include <linux/slab.h>
-#include <linux/spinlock.h>
 #include <linux/types.h>
-#include <linux/wait.h>
 
 #include <soc/qcom/rpmh.h>
 
