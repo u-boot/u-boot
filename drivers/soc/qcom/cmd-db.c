@@ -129,14 +129,10 @@ static int cmd_db_get_header(const char *id, const struct entry_header **eh,
 {
 	const struct rsc_hdr *rsc_hdr;
 	const struct entry_header *ent;
-	int ret, i, j;
+	int i, j;
 	u8 query[sizeof(ent->id)] __nonstring;
 
-	ret = cmd_db_ready();
-	if (ret)
-		return ret;
-
-	strtomem_pad(query, id, 0);
+	strncpy(query, id, sizeof(query));
 
 	for (i = 0; i < MAX_SLV_ID; i++) {
 		rsc_hdr = &cmd_db_header->header[i];
@@ -172,6 +168,13 @@ u32 cmd_db_read_addr(const char *id)
 {
 	int ret;
 	const struct entry_header *ent;
+
+	debug("%s(%s)\n", __func__, id);
+
+	if (!cmd_db_header) {
+		log_err("%s: Command DB not initialized\n", __func__);
+		return 0;
+	}
 
 	ret = cmd_db_get_header(id, &ent, NULL);
 
@@ -214,7 +217,7 @@ static const struct udevice_id cmd_db_ids[] = {
 U_BOOT_DRIVER(qcom_cmd_db) = {
 	.name		= "qcom_cmd_db",
 	.id		= UCLASS_MISC,
-	.probe		= cmd_db_bind,
+	.bind		= cmd_db_bind,
 	.of_match	= cmd_db_ids,
 };
 
