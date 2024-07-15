@@ -6,36 +6,24 @@
 
 #define pr_fmt(fmt) "%s " fmt, KBUILD_MODNAME
 
-#include <linux/atomic.h>
-#include <linux/cpu_pm.h>
+#include <dm.h>
+#include <dm/device_compat.h>
+#include <dm/devres.h>
+#include <dm/lists.h>
+#include <dm/ofnode.h>
+#include <linux/bitmap.h>
 #include <linux/delay.h>
-#include <linux/interrupt.h>
-#include <linux/io.h>
-#include <linux/iopoll.h>
-#include <linux/kernel.h>
-#include <linux/ktime.h>
-#include <linux/list.h>
-#include <linux/module.h>
-#include <linux/notifier.h>
-#include <linux/of.h>
-#include <linux/of_irq.h>
-#include <linux/of_platform.h>
-#include <linux/platform_device.h>
-#include <linux/pm_domain.h>
-#include <linux/pm_runtime.h>
-#include <linux/slab.h>
-#include <linux/spinlock.h>
-#include <linux/wait.h>
+#include <linux/err.h>
+#include <linux/types.h>
+#include <asm/bitops.h>
+#include <asm/io.h>
 
-#include <clocksource/arm_arch_timer.h>
-#include <soc/qcom/cmd-db.h>
+#include <log.h>
+
 #include <soc/qcom/tcs.h>
 #include <dt-bindings/soc/qcom,rpmh-rsc.h>
 
 #include "rpmh-internal.h"
-
-#define CREATE_TRACE_POINTS
-#include "trace-rpmh.h"
 
 
 #define RSC_DRV_ID			0
