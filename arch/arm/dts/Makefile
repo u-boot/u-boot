@@ -1006,11 +1006,6 @@ dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
 	omap3-evm-37xx.dtb \
 	omap3-evm.dtb
 
-dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
-	omap3-beagle-xm-ab.dtb \
-	omap3-beagle-xm.dtb \
-	omap3-beagle.dtb
-
 dtb-$(CONFIG_TARGET_DEVKIT8000) += omap3-devkit8000.dtb
 
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \

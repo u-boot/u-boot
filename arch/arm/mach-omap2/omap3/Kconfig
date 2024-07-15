@@ -34,15 +34,6 @@ config TARGET_AM3517_EVM
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_OMAP3_BEAGLE
-	bool "TI OMAP3 BeagleBoard"
-	select DM
-	select DM_GPIO
-	select DM_SERIAL
-	select OMAP3_GPIO_5
-	select OMAP3_GPIO_6
-	imply CMD_DM
-
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
 	select OMAP3_GPIO_2
@@ -153,7 +144,6 @@ config SYS_SOC
 	default "omap3"
 
 source "board/logicpd/am3517evm/Kconfig"
-source "board/beagle/beagle/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/omap3evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
