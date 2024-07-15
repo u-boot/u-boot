@@ -80,19 +80,24 @@ struct __packed smbios3_entry {
 	u64 struct_table_address;
 };
 
-/* BIOS characteristics */
-#define BIOS_CHARACTERISTICS_PCI_SUPPORTED	(1 << 7)
-#define BIOS_CHARACTERISTICS_UPGRADEABLE	(1 << 11)
-#define BIOS_CHARACTERISTICS_SELECTABLE_BOOT	(1 << 16)
-
-#define BIOS_CHARACTERISTICS_EXT1_ACPI		(1 << 0)
-#define BIOS_CHARACTERISTICS_EXT2_UEFI		(1 << 3)
-#define BIOS_CHARACTERISTICS_EXT2_TARGET	(1 << 2)
-
-struct __packed smbios_type0 {
+struct __packed smbios_header {
 	u8 type;
 	u8 length;
 	u16 handle;
+};
+
+/* BIOS characteristics */
+
+#define BIOS_CHARACTERISTICS_PCI_SUPPORTED	BIT(7)
+#define BIOS_CHARACTERISTICS_UPGRADEABLE	BIT(11)
+#define BIOS_CHARACTERISTICS_SELECTABLE_BOOT	BIT(16)
+
+#define BIOS_CHARACTERISTICS_EXT1_ACPI		BIT(0)
+#define BIOS_CHARACTERISTICS_EXT2_UEFI		BIT(3)
+#define BIOS_CHARACTERISTICS_EXT2_TARGET	BIT(2)
+
+struct __packed smbios_type0 {
+	struct smbios_header hdr;
 	u8 vendor;
 	u8 bios_ver;
 	u16 bios_start_segment;
@@ -136,10 +141,12 @@ enum smbios_wakeup_type {
 	SMBIOS_WAKEUP_TYPE_AC_POWER_RESTORED,
 };
 
+#define SMBIOS_TYPE1_LENGTH_V20		0x08
+#define SMBIOS_TYPE1_LENGTH_V21		0x19
+#define SMBIOS_TYPE1_LENGTH_V24		0x1b
+
 struct __packed smbios_type1 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 product_name;
 	u8 version;
@@ -151,8 +158,19 @@ struct __packed smbios_type1 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-#define SMBIOS_BOARD_FEATURE_HOSTING	(1 << 0)
+#define SMBIOS_BOARD_UNKNOWN		1
+#define SMBIOS_BOARD_OTHER		2
+#define SMBIOS_BOARD_SERVER_BLADE	3
+#define SMBIOS_BOARD_CON_SWITCH		4
+#define SMBIOS_BOARD_SM_MODULE		5
+#define SMBIOS_BOARD_PROCESSOR_MODULE	6
+#define SMBIOS_BOARD_IO_MODULE		7
+#define SMBIOS_BOARD_MEM_MODULE		8
+#define SMBIOS_BOARD_DAUGHTER_BOARD	9
 #define SMBIOS_BOARD_MOTHERBOARD	10
+#define SMBIOS_BOARD_PROC_MEM_MODULE	11
+#define SMBIOS_BOARD_PROC_IO_MODULE	12
+#define SMBIOS_BOARD_INTERCON		13
 
 union baseboard_feat {
 	struct {
@@ -167,9 +185,7 @@ union baseboard_feat {
 };
 
 struct __packed smbios_type2 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 product_name;
 	u8 version;
@@ -180,17 +196,29 @@ struct __packed smbios_type2 {
 	u16 chassis_handle;
 	u8 board_type;
 	u8 number_contained_objects;
+	/*
+	 * Dynamic bytes will be inserted here to store the objects.
+	 * length is equal to 'number_contained_objects'.
+	 */
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
 #define SMBIOS_ENCLOSURE_DESKTOP	3
 #define SMBIOS_STATE_SAFE		3
 #define SMBIOS_SECURITY_NONE		3
+#define SMBIOS_ENCLOSURE_OEM_UND	0
+#define SMBIOS_ENCLOSURE_HEIGHT_UND	0
+#define SMBIOS_POWCORD_NUM_UND		0
+#define SMBIOS_ELEMENT_TYPE_SELECT	BIT(7)
+
+struct __packed elem_hdr {
+	u8 type;
+	u8 minimum; /* 0 - 254 */
+	u8 maximum; /* 1 - 255 */
+};
 
 struct __packed smbios_type3 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 chassis_type;
 	u8 version;
@@ -205,21 +233,52 @@ struct __packed smbios_type3 {
 	u8 number_of_power_cords;
 	u8 element_count;
 	u8 element_record_length;
+	/*
+	 * Dynamic bytes will be inserted here to store the elements.
+	 * length is equal to 'element_record_length' * 'element_record_length'
+	 */
+	u8 sku_number;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
+#define SMBIOS_PROCESSOR_TYPE_OTHER	1
+#define SMBIOS_PROCESSOR_TYPE_UNKNOWN	2
 #define SMBIOS_PROCESSOR_TYPE_CENTRAL	3
-#define SMBIOS_PROCESSOR_STATUS_ENABLED	1
+#define SMBIOS_PROCESSOR_TYPE_MATH	4
+#define SMBIOS_PROCESSOR_TYPE_DSP	5
+#define SMBIOS_PROCESSOR_TYPE_VIDEO	6
+
+#define SMBIOS_PROCESSOR_STATUS_UNKNOWN		0
+#define SMBIOS_PROCESSOR_STATUS_ENABLED		1
+#define SMBIOS_PROCESSOR_STATUS_DISABLED_USER	2
+#define SMBIOS_PROCESSOR_STATUS_DISABLED_BIOS	3
+#define SMBIOS_PROCESSOR_STATUS_IDLE		4
+#define SMBIOS_PROCESSOR_STATUS_OTHER		7
+
 #define SMBIOS_PROCESSOR_UPGRADE_NONE	6
 
 #define SMBIOS_PROCESSOR_FAMILY_OTHER	1
 #define SMBIOS_PROCESSOR_FAMILY_UNKNOWN	2
+#define SMBIOS_PROCESSOR_FAMILY_ARMV7	256
+#define SMBIOS_PROCESSOR_FAMILY_ARMV8	257
+
+#define SMBIOS_PROCESSOR_FAMILY_EXT	0xfe
+
+/* Processor Characteristics */
+#define SMBIOS_PROCESSOR_RSVD		BIT(0)
+#define SMBIOS_PROCESSOR_UND		BIT(1)
+#define SMBIOS_PROCESSOR_64BIT		BIT(2)
+#define SMBIOS_PROCESSOR_MULTICORE	BIT(3)
+#define SMBIOS_PROCESSOR_HWTHREAD	BIT(4)
+#define SMBIOS_PROCESSOR_EXEC_PROT	BIT(5)
+#define SMBIOS_PROCESSOR_ENH_VIRT	BIT(6)
+#define SMBIOS_PROCESSOR_POW_CON	BIT(7)
+#define SMBIOS_PROCESSOR_128BIT		BIT(8)
+#define SMBIOS_PROCESSOR_ARM64_SOCID	BIT(9)
 
 struct __packed smbios_type4 {
-	u8 type;
-	u8 length;
-	u16 handle;
-	u8 socket_designation;
+	struct smbios_header hdr;
+	u8 socket_design;
 	u8 processor_type;
 	u8 processor_family;
 	u8 processor_manufacturer;
@@ -245,8 +304,11 @@ struct __packed smbios_type4 {
 	u16 core_count2;
 	u16 core_enabled2;
 	u16 thread_count2;
+	u16 thread_enabled;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
+
+#define SMBIOS_CACHE_HANDLE_NONE 0xffff
 
 struct __packed smbios_type32 {
 	u8 type;
@@ -262,12 +324,6 @@ struct __packed smbios_type127 {
 	u8 length;
 	u16 handle;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
-};
-
-struct __packed smbios_header {
-	u8 type;
-	u8 length;
-	u16 handle;
 };
 
 /**
