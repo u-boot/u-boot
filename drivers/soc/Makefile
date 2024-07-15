@@ -3,6 +3,7 @@
 # Makefile for the U-Boot SOC specific device drivers.
 
 obj-$(CONFIG_SOC_AMD_VERSAL2) += soc_amd_versal2.o
+obj-$(CONFIG_SOC_QCOM) += qcom/
 obj-$(CONFIG_SOC_SAMSUNG) += samsung/
 obj-$(CONFIG_SOC_TI) += ti/
 obj-$(CONFIG_SOC_DEVICE) += soc-uclass.o
