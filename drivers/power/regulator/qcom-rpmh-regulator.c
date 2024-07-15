@@ -103,11 +103,10 @@ struct linear_range {
  * @regulator_type:		RPMh accelerator type used to manage this
  *				regulator
  * @ops:			Pointer to regulator ops callback structure
- * @voltage_ranges:		The possible ranges of voltages supported by this
- * 				PMIC regulator type
- * @n_linear_ranges:		Number of entries in voltage_ranges
+ * @voltage_range:		The single range of voltages supported by this
+ *				PMIC regulator type
  * @n_voltages:			The number of unique voltage set points defined
- *				by voltage_ranges
+ *				by voltage_range
  * @hpm_min_load_uA:		Minimum load current in microamps that requires
  *				high power mode (HPM) operation.  This is used
  *				for LDO hardware type regulators only.
@@ -120,13 +119,13 @@ struct linear_range {
  */
 struct rpmh_vreg_hw_data {
 	enum rpmh_regulator_type		regulator_type;
-	const struct regulator_ops		*ops;
-	const struct linear_range		*voltage_ranges;
-	int					n_linear_ranges;
+	const struct dm_regulator_ops		*ops;
+	struct linear_range			voltage_range;
 	int					n_voltages;
 	int					hpm_min_load_uA;
-	const int				*pmic_mode_map;
-	unsigned int			      (*of_map_mode)(unsigned int mode);
+	struct dm_regulator_mode		*pmic_mode_map;
+	int					n_modes;
+	unsigned int				(*of_map_mode)(unsigned int mode);
 };
 
 /**
@@ -149,21 +148,20 @@ struct rpmh_vreg_hw_data {
  * @bypassed:			Boolean indicating if the regulator is in
  *				bypass (pass-through) mode or not.  This is
  *				only used by BOB rpmh-regulator resources.
- * @voltage_selector:		Selector used for get_voltage_sel() and
- *				set_voltage_sel() callbacks
+ * @uv:				Selector used for get_voltage_sel() and
+ *				set_value() callbacks
  * @mode:			RPMh VRM regulator current framework mode
  */
 struct rpmh_vreg {
-	struct device			*dev;
+	struct udevice			*dev;
 	u32				addr;
-	struct regulator_desc		rdesc;
 	const struct rpmh_vreg_hw_data	*hw_data;
 	bool				always_wait_for_ack;
 
 	int				enabled;
 	bool				bypassed;
-	int				voltage_selector;
-	unsigned int			mode;
+	int				uv;
+	int			mode;
 };
 
 /**
