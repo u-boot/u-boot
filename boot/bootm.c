@@ -239,11 +239,6 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(LMB)
-#define lmb_reserve(base, size)
-static inline void boot_start_lmb(void) { }
-#endif
-
 static int bootm_start(void)
 {
 	memset((void *)&images, 0, sizeof(images));
@@ -700,7 +695,9 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		images->os.end = relocated_addr + image_size;
 	}
 
-	lmb_reserve(images->os.load, (load_end - images->os.load));
+	if (CONFIG_IS_ENABLED(LMB))
+		lmb_reserve(images->os.load, (load_end - images->os.load));
+
 	return 0;
 }
 
