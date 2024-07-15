@@ -1019,13 +1019,17 @@ config BOOTSTAGE_STASH
 
 config BOOTSTAGE_STASH_ADDR
 	hex "Address to stash boot timing information"
-	default 0x0
+	depends on BOOTSTAGE_STASH
+	default 0xC3000000 if STM32MP13X || STM32MP15X
+	default 0x87000000 if STM32MP25X
+	default 0x0 if SANDBOX
 	help
 	  Provide an address which will not be overwritten by the OS when it
 	  starts, so that it can read this information when ready.
 
 config BOOTSTAGE_STASH_SIZE
 	hex "Size of boot timing stash region"
+	depends on BOOTSTAGE_STASH
 	default 0x1000
 	help
 	  This should be large enough to hold the bootstage stash. A value of

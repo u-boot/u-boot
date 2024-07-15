@@ -15,6 +15,7 @@ static int do_bootstage_report(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_BOOTSTAGE_STASH)
 static int get_base_size(int argc, char *const argv[], ulong *basep,
 			 ulong *sizep)
 {
@@ -58,11 +59,14 @@ static int do_bootstage_stash(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	return 0;
 }
+#endif
 
 static struct cmd_tbl cmd_bootstage_sub[] = {
 	U_BOOT_CMD_MKENT(report, 2, 1, do_bootstage_report, "", ""),
+#if IS_ENABLED(CONFIG_BOOTSTAGE_STASH)
 	U_BOOT_CMD_MKENT(stash, 4, 0, do_bootstage_stash, "", ""),
 	U_BOOT_CMD_MKENT(unstash, 4, 0, do_bootstage_stash, "", ""),
+#endif
 };
 
 /*
@@ -90,6 +94,8 @@ U_BOOT_CMD(bootstage, 4, 1, do_boostage,
 	"Boot stage command",
 	" - check boot progress and timing\n"
 	"report                      - Print a report\n"
+#if IS_ENABLED(CONFIG_BOOTSTAGE_STASH)
 	"stash [<start> [<size>]]    - Stash data into memory\n"
-	"unstash [<start> [<size>]]  - Unstash data from memory"
+	"unstash [<start> [<size>]]  - Unstash data from memory\n"
+#endif
 );

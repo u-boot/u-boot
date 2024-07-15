@@ -500,6 +500,7 @@ int bootstage_unstash(const void *base, int size)
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_BOOTSTAGE_STASH)
 int _bootstage_stash_default(void)
 {
 	return bootstage_stash(map_sysmem(CONFIG_BOOTSTAGE_STASH_ADDR, 0),
@@ -513,6 +514,7 @@ int _bootstage_unstash_default(void)
 
 	return bootstage_unstash(stash, CONFIG_BOOTSTAGE_STASH_SIZE);
 }
+#endif
 
 int bootstage_get_size(void)
 {

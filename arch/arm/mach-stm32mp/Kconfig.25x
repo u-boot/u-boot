@@ -24,9 +24,6 @@ config PRE_CON_BUF_ADDR
 config PRE_CON_BUF_SZ
 	default 4096
 
-config BOOTSTAGE_STASH_ADDR
-	default 0x87000000
-
 if DEBUG_UART
 
 config DEBUG_UART_BOARD_INIT

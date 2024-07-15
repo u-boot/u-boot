@@ -75,8 +75,7 @@ int __weak x86_cleanup_before_linux(void)
 	ret = mp_park_aps();
 	if (ret)
 		return log_msg_ret("park", ret);
-	bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
-			CONFIG_BOOTSTAGE_STASH_SIZE);
+	bootstage_stash_default();
 
 	return 0;
 }
