@@ -14,34 +14,15 @@
 int rpmh_write(const struct device *dev, enum rpmh_state state,
 	       const struct tcs_cmd *cmd, u32 n);
 
-int rpmh_write_async(const struct device *dev, enum rpmh_state state,
-		     const struct tcs_cmd *cmd, u32 n);
-
-int rpmh_write_batch(const struct device *dev, enum rpmh_state state,
-		     const struct tcs_cmd *cmd, u32 *n);
-
-void rpmh_invalidate(const struct device *dev);
-
 #else
 
 static inline int rpmh_write(const struct device *dev, enum rpmh_state state,
 			     const struct tcs_cmd *cmd, u32 n)
 { return -ENODEV; }
 
-static inline int rpmh_write_async(const struct device *dev,
-				   enum rpmh_state state,
-				   const struct tcs_cmd *cmd, u32 n)
-{ return -ENODEV; }
-
-static inline int rpmh_write_batch(const struct device *dev,
-				   enum rpmh_state state,
-				   const struct tcs_cmd *cmd, u32 *n)
-{ return -ENODEV; }
-
-static inline void rpmh_invalidate(const struct device *dev)
-{
-}
-
 #endif /* CONFIG_QCOM_RPMH */
+
+/* u-boot: no multithreading */
+#define rpmh_write_async(dev, state, cmd, n) rpmh_write(dev, state, cmd, n)
 
 #endif /* __SOC_QCOM_RPMH_H__ */
