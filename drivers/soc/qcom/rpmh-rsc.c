@@ -134,14 +134,6 @@ enum {
  *  +---------------------------------------------------+
  */
 
-#define USECS_TO_CYCLES(time_usecs)			\
-	xloops_to_cycles((time_usecs) * 0x10C7UL)
-
-static inline unsigned long xloops_to_cycles(u64 xloops)
-{
-	return (xloops * loops_per_jiffy * HZ) >> 32;
-}
-
 static u32 rpmh_rsc_reg_offset_ver_2_7[] = {
 	[RSC_DRV_TCS_OFFSET]		= 672,
 	[RSC_DRV_CMD_OFFSET]		= 20,
@@ -248,35 +240,16 @@ static void write_tcs_reg_sync(const struct rsc_drv *drv, int reg, int tcs_id,
 static struct tcs_group *get_tcs_for_msg(struct rsc_drv *drv,
 					 const struct tcs_request *msg)
 {
-	int type;
-	struct tcs_group *tcs;
-
-	switch (msg->state) {
-	case RPMH_ACTIVE_ONLY_STATE:
-		type = ACTIVE_TCS;
-		break;
-	case RPMH_WAKE_ONLY_STATE:
-		type = WAKE_TCS;
-		break;
-	case RPMH_SLEEP_STATE:
-		type = SLEEP_TCS;
-		break;
-	default:
+	/*
+	 * U-Boot: since we're single threaded and running synchronously we can
+	 * just always used the first active TCS.
+	 */
+	if (msg->state != RPMH_ACTIVE_ONLY_STATE) {
+		log_err("WARN: only ACTIVE_ONLY state supported\n");
 		return ERR_PTR(-EINVAL);
 	}
 
-	/*
-	 * If we are making an active request on a RSC that does not have a
-	 * dedicated TCS for active state use, then re-purpose a wake TCS to
-	 * send active votes. This is safe because we ensure any active-only
-	 * transfers have finished before we use it (maybe by running from
-	 * the last CPU in PM code).
-	 */
-	tcs = &drv->tcs[type];
-	if (msg->state == RPMH_ACTIVE_ONLY_STATE && !tcs->num_tcs)
-		tcs = &drv->tcs[WAKE_TCS];
-
-	return tcs;
+	return &drv->tcs[ACTIVE_TCS];
 }
 
 /**
@@ -298,9 +271,6 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 	struct tcs_cmd *cmd;
 	int i, j;
 
-	/* Convert all commands to RR when the request has wait_for_compl set */
-	cmd_msgid |= msg->wait_for_compl ? CMD_MSGID_RESP_REQ : 0;
-
 	for (i = 0, j = cmd_id; i < msg->num_cmds; i++, j++) {
 		cmd = &msg->cmds[i];
 		cmd_enable |= BIT(j);
@@ -314,7 +284,9 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_MSGID], tcs_id, j, msgid);
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], tcs_id, j, cmd->addr);
 		write_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_DATA], tcs_id, j, cmd->data);
-		trace_rpmh_send_msg(drv, tcs_id, msg->state, j, msgid, cmd);
+		debug("tcs(m): %d [%s] cmd(n): %d msgid: %#x addr: %#x data: %#x complete: %d\n",
+		      tcs_id, msg->state == RPMH_ACTIVE_ONLY_STATE ? "active" : "?", j, msgid,
+		      cmd->addr, cmd->data, cmd->wait);
 	}
 
 	cmd_enable |= read_tcs_reg(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id);
@@ -346,23 +318,18 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
 int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 {
 	struct tcs_group *tcs;
-	int tcs_id;
-
-	might_sleep();
+	int tcs_id, i;
+	u32 addr;
 
 	tcs = get_tcs_for_msg(drv, msg);
 	if (IS_ERR(tcs))
 		return PTR_ERR(tcs);
 
-	spin_lock_irq(&drv->lock);
-
-	/* Wait forever for a free tcs. It better be there eventually! */
-	wait_event_lock_irq(drv->tcs_wait,
-			    (tcs_id = claim_tcs_for_req(drv, tcs, msg)) >= 0,
-			    drv->lock);
+	/* u-boot is single-threaded, always use the first TCS as we'll never conflict */
+	tcs_id = tcs->offset;
 
 	tcs->req[tcs_id - tcs->offset] = msg;
-	set_bit(tcs_id, drv->tcs_in_use);
+	generic_set_bit(tcs_id, drv->tcs_in_use);
 	if (msg->state == RPMH_ACTIVE_ONLY_STATE && tcs->type != ACTIVE_TCS) {
 		/*
 		 * Clear previously programmed WAKE commands in selected
@@ -371,7 +338,6 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 		 */
 		write_tcs_reg_sync(drv, drv->regs[RSC_DRV_CMD_ENABLE], tcs_id, 0);
 	}
-	spin_unlock_irq(&drv->lock);
 
 	/*
 	 * These two can be done after the lock is released because:
@@ -382,6 +348,20 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 	 *   of __tcs_set_trigger() below.
 	 */
 	__tcs_buffer_write(drv, tcs_id, 0, msg);
+
+	/* U-Boot: Now wait for the TCS to be cleared, indicating that we're done */
+	for (i = 0; i < USEC_PER_SEC; i++) {
+		addr = read_tcs_cmd(drv, drv->regs[RSC_DRV_CMD_ADDR], i, 0);
+		if (addr != msg->cmds[0].addr)
+			break;
+		udelay(1);
+	}
+
+	if (i == USEC_PER_SEC) {
+		log_err("%s: error writing %#x to %d:%#x\n", drv->name,
+			msg->cmds[0].addr, tcs_id, drv->regs[RSC_DRV_CMD_ADDR]);
+		return -EINVAL;
+	}
 
 	return 0;
 }
