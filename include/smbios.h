@@ -154,6 +154,18 @@ struct __packed smbios_type1 {
 #define SMBIOS_BOARD_FEATURE_HOSTING	(1 << 0)
 #define SMBIOS_BOARD_MOTHERBOARD	10
 
+union baseboard_feat {
+	struct {
+		u8 hosting_board:1;
+		u8 need_daughter_board:1;
+		u8 removable:1;
+		u8 replaceable:1;
+		u8 hot_swappable:1;
+		u8 rsvd:3;
+	} fields;
+	u8 data;
+};
+
 struct __packed smbios_type2 {
 	u8 type;
 	u8 length;
