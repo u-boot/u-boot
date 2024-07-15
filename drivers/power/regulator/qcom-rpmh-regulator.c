@@ -193,85 +193,94 @@ struct rpmh_vreg_init_data {
  * Return: 0 on success, errno on failure
  */
 static int rpmh_regulator_send_request(struct rpmh_vreg *vreg,
-			struct tcs_cmd *cmd, bool wait_for_ack)
+				       const struct tcs_cmd *cmd, bool wait_for_ack)
 {
 	int ret;
 
 	if (wait_for_ack || vreg->always_wait_for_ack)
-		ret = rpmh_write(vreg->dev, RPMH_ACTIVE_ONLY_STATE, cmd, 1);
+		ret = rpmh_write(vreg->dev->parent, RPMH_ACTIVE_ONLY_STATE, cmd, 1);
 	else
-		ret = rpmh_write_async(vreg->dev, RPMH_ACTIVE_ONLY_STATE, cmd,
-					1);
+		ret = rpmh_write_async(vreg->dev->parent, RPMH_ACTIVE_ONLY_STATE, cmd, 1);
 
 	return ret;
 }
 
-static int _rpmh_regulator_vrm_set_voltage_sel(struct regulator_dev *rdev,
-				unsigned int selector, bool wait_for_ack)
+static int _rpmh_regulator_vrm_set_value(struct udevice *rdev,
+					 int uv, bool wait_for_ack)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
 	struct tcs_cmd cmd = {
 		.addr = vreg->addr + RPMH_REGULATOR_REG_VRM_VOLTAGE,
 	};
 	int ret;
+	unsigned int selector;
 
-	/* VRM voltage control register is set with voltage in millivolts. */
-	cmd.data = DIV_ROUND_UP(regulator_list_voltage_linear_range(rdev,
-							selector), 1000);
+	selector = (uv - vreg->hw_data->voltage_range.min) / vreg->hw_data->voltage_range.step;
+	cmd.data = DIV_ROUND_UP(vreg->hw_data->voltage_range.min +
+				selector * vreg->hw_data->voltage_range.step, 1000);
 
 	ret = rpmh_regulator_send_request(vreg, &cmd, wait_for_ack);
 	if (!ret)
-		vreg->voltage_selector = selector;
+		vreg->uv = cmd.data * 1000;
 
 	return ret;
 }
 
-static int rpmh_regulator_vrm_set_voltage_sel(struct regulator_dev *rdev,
-					unsigned int selector)
+static int rpmh_regulator_vrm_set_value(struct udevice *rdev,
+					int uv)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+
+	debug("%s: set_value %d (current %d)\n", rdev->name, uv, vreg->uv);
 
 	if (vreg->enabled == -EINVAL) {
 		/*
 		 * Cache the voltage and send it later when the regulator is
 		 * enabled or disabled.
 		 */
-		vreg->voltage_selector = selector;
+		vreg->uv = uv;
 		return 0;
 	}
 
-	return _rpmh_regulator_vrm_set_voltage_sel(rdev, selector,
-					selector > vreg->voltage_selector);
+	return _rpmh_regulator_vrm_set_value(rdev, uv,
+					uv > vreg->uv);
 }
 
-static int rpmh_regulator_vrm_get_voltage_sel(struct regulator_dev *rdev)
+static int rpmh_regulator_vrm_get_value(struct udevice *rdev)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
 
-	return vreg->voltage_selector;
+	debug("%s: get_value %d\n", rdev->name, vreg->uv);
+
+	return vreg->uv;
 }
 
-static int rpmh_regulator_is_enabled(struct regulator_dev *rdev)
+static int rpmh_regulator_is_enabled(struct udevice *rdev)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
 
-	return vreg->enabled;
+	debug("%s: is_enabled %d\n", rdev->name, vreg->enabled);
+
+	return vreg->enabled > 0;
 }
 
-static int rpmh_regulator_set_enable_state(struct regulator_dev *rdev,
-					bool enable)
+static int rpmh_regulator_set_enable_state(struct udevice *rdev,
+					   bool enable)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
 	struct tcs_cmd cmd = {
 		.addr = vreg->addr + RPMH_REGULATOR_REG_ENABLE,
 		.data = enable,
 	};
 	int ret;
 
+	debug("%s: set_enable %d (current %d)\n", rdev->name, enable,
+	      vreg->enabled);
+
 	if (vreg->enabled == -EINVAL &&
-	    vreg->voltage_selector != -ENOTRECOVERABLE) {
-		ret = _rpmh_regulator_vrm_set_voltage_sel(rdev,
-						vreg->voltage_selector, true);
+	    vreg->uv != -ENOTRECOVERABLE) {
+		ret = _rpmh_regulator_vrm_set_value(rdev,
+						    vreg->uv, true);
 		if (ret < 0)
 			return ret;
 	}
@@ -283,44 +292,43 @@ static int rpmh_regulator_set_enable_state(struct regulator_dev *rdev,
 	return ret;
 }
 
-static int rpmh_regulator_enable(struct regulator_dev *rdev)
-{
-	return rpmh_regulator_set_enable_state(rdev, true);
-}
-
-static int rpmh_regulator_disable(struct regulator_dev *rdev)
-{
-	return rpmh_regulator_set_enable_state(rdev, false);
-}
-
 static int rpmh_regulator_vrm_set_mode_bypass(struct rpmh_vreg *vreg,
-					unsigned int mode, bool bypassed)
+					      unsigned int mode, bool bypassed)
 {
 	struct tcs_cmd cmd = {
 		.addr = vreg->addr + RPMH_REGULATOR_REG_VRM_MODE,
 	};
-	int pmic_mode;
+	struct dm_regulator_mode *pmic_mode;
+	int i;
 
-	if (mode > REGULATOR_MODE_STANDBY)
+	if (mode > REGULATOR_MODE_HPM)
 		return -EINVAL;
 
-	pmic_mode = vreg->hw_data->pmic_mode_map[mode];
-	if (pmic_mode < 0)
-		return pmic_mode;
+	for (i = 0; i < vreg->hw_data->n_modes; i++) {
+		pmic_mode = &vreg->hw_data->pmic_mode_map[i];
+		if (pmic_mode->id == mode)
+			break;
+	}
+	if (pmic_mode->id != mode) {
+		printf("Invalid mode %d\n", mode);
+		return -EINVAL;
+	}
 
 	if (bypassed)
 		cmd.data = PMIC4_BOB_MODE_PASS;
 	else
-		cmd.data = pmic_mode;
+		cmd.data = pmic_mode->id;
 
 	return rpmh_regulator_send_request(vreg, &cmd, true);
 }
 
-static int rpmh_regulator_vrm_set_mode(struct regulator_dev *rdev,
-					unsigned int mode)
+static int rpmh_regulator_vrm_set_mode(struct udevice *rdev,
+				       int mode)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
 	int ret;
+
+	debug("%s: set_mode %d (current %d)\n", rdev->name, mode, vreg->mode);
 
 	if (mode == vreg->mode)
 		return 0;
@@ -332,49 +340,57 @@ static int rpmh_regulator_vrm_set_mode(struct regulator_dev *rdev,
 	return ret;
 }
 
-static unsigned int rpmh_regulator_vrm_get_mode(struct regulator_dev *rdev)
+static int rpmh_regulator_vrm_get_mode(struct udevice *rdev)
 {
-	struct rpmh_vreg *vreg = rdev_get_drvdata(rdev);
+	struct rpmh_vreg *vreg = dev_get_priv(rdev);
+
+	debug("%s: get_mode %d\n", rdev->name, vreg->mode);
 
 	return vreg->mode;
 }
+static const struct dm_regulator_ops rpmh_regulator_vrm_drms_ops = {
+	.get_value = rpmh_regulator_vrm_get_value,
+	.set_value = rpmh_regulator_vrm_set_value,
+	.set_enable = rpmh_regulator_set_enable_state,
+	.get_enable = rpmh_regulator_is_enabled,
+	.set_mode = rpmh_regulator_vrm_set_mode,
+	.get_mode = rpmh_regulator_vrm_get_mode,
+};
 
-static const struct regulator_ops rpmh_regulator_vrm_drms_ops = {
-	.enable			= rpmh_regulator_enable,
-	.disable		= rpmh_regulator_disable,
-	.is_enabled		= rpmh_regulator_is_enabled,
-	.set_voltage_sel	= rpmh_regulator_vrm_set_voltage_sel,
-	.get_voltage_sel	= rpmh_regulator_vrm_get_voltage_sel,
-	.list_voltage		= regulator_list_voltage_linear_range,
-	.set_mode		= rpmh_regulator_vrm_set_mode,
-	.get_mode		= rpmh_regulator_vrm_get_mode,
-	.get_optimum_mode	= rpmh_regulator_vrm_get_optimum_mode,
+static struct dm_regulator_mode pmic_mode_map_pmic5_ldo[] = {
+	{
+		.id = REGULATOR_MODE_RETENTION,
+		.register_value = PMIC5_LDO_MODE_RETENTION,
+		.name = "PMIC5_LDO_MODE_RETENTION"
+	}, {
+		.id = REGULATOR_MODE_LPM,
+		.register_value = PMIC5_LDO_MODE_LPM,
+		.name = "PMIC5_LDO_MODE_LPM"
+	}, {
+		.id = REGULATOR_MODE_HPM,
+		.register_value = PMIC5_LDO_MODE_HPM,
+		.name = "PMIC5_LDO_MODE_HPM"
+	},
 };
 
 static const struct rpmh_vreg_hw_data pmic5_pldo = {
 	.regulator_type = VRM,
 	.ops = &rpmh_regulator_vrm_drms_ops,
-	.voltage_ranges = (struct linear_range[]) {
-		REGULATOR_LINEAR_RANGE(1504000, 0, 255, 8000),
-	},
-	.n_linear_ranges = 1,
+	.voltage_range = REGULATOR_LINEAR_RANGE(1504000, 0, 255, 8000),
 	.n_voltages = 256,
 	.hpm_min_load_uA = 10000,
 	.pmic_mode_map = pmic_mode_map_pmic5_ldo,
-	.of_map_mode = rpmh_regulator_pmic4_ldo_of_map_mode,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic5_ldo),
 };
 
 static const struct rpmh_vreg_hw_data pmic5_pldo_lv = {
 	.regulator_type = VRM,
 	.ops = &rpmh_regulator_vrm_drms_ops,
-	.voltage_ranges = (struct linear_range[]) {
-		REGULATOR_LINEAR_RANGE(1504000, 0, 62, 8000),
-	},
-	.n_linear_ranges = 1,
+	.voltage_range = REGULATOR_LINEAR_RANGE(1504000, 0, 62, 8000),
 	.n_voltages = 63,
 	.hpm_min_load_uA = 10000,
 	.pmic_mode_map = pmic_mode_map_pmic5_ldo,
-	.of_map_mode = rpmh_regulator_pmic4_ldo_of_map_mode,
+	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic5_ldo),
 };
 
 #define RPMH_VREG(_name, _resource_name, _hw_data, _supply_name) \
