@@ -202,7 +202,6 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 	}
 }
 
-#ifndef CONFIG_OMAP44XX
 static void omap5_ddr3_leveling(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -510,7 +509,6 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	else
 		dra7_ddr3_init(base, regs);
 }
-#endif
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 #define print_timing_reg(reg) debug(#reg" - 0x%08x\n", (reg))
@@ -1292,10 +1290,8 @@ static void do_sdram_init(u32 base)
 		if (emif_sdram_type(regs->sdram_config) ==
 		    EMIF_SDRAM_TYPE_LPDDR2)
 			lpddr2_init(base, regs);
-#ifndef CONFIG_OMAP44XX
 		else
 			ddr3_init(base, regs);
-#endif
 	}
 #ifdef CONFIG_OMAP54XX
 	if (warm_reset() && (emif_sdram_type(regs->sdram_config) ==

@@ -30,7 +30,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
-#if defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)
+#if defined(CONFIG_OMAP54XX)
 #include <palmas.h>
 #endif
 #include <asm/cache.h>
@@ -270,8 +270,7 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 		&prcm_base->iclken1_core);
 #endif
 
-#if (defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)) &&\
-	!CONFIG_IS_ENABLED(DM_REGULATOR)
+#if defined(CONFIG_OMAP54XX) && !CONFIG_IS_ENABLED(DM_REGULATOR)
 	/* PBIAS config needed for MMC1 only */
 	if (mmc_get_blk_desc(mmc)->devnum == 0)
 		vmmc_pbias_config(LDO_VOLT_3V3);
@@ -541,8 +540,7 @@ static int omap_hsmmc_set_signal_voltage(struct mmc *mmc)
 
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
 	return omap_hsmmc_set_io_regulator(mmc, mv);
-#elif (defined(CONFIG_OMAP54XX) || defined(CONFIG_OMAP44XX)) && \
-	defined(CONFIG_PALMAS_POWER)
+#elif defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
 	if (mmc_get_blk_desc(mmc)->devnum == 0)
 		vmmc_pbias_config(palmas_ldo_volt);
 	return 0;
@@ -905,8 +903,7 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 	 * 3. Wait until the SRC (SRD) bit returns to 0x0
 	 *    (reset procedure is completed).
 	 */
-#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
-	defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
+#if defined(CONFIG_OMAP54XX) || defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
 	if (!(readl(&mmc_base->sysctl) & bit)) {
 		start = get_timer(0);
 		while (!(readl(&mmc_base->sysctl) & bit)) {
@@ -1556,7 +1553,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 #ifdef OMAP_HSMMC2_BASE
 	case 1:
 		priv->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
-#if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
+#if (defined(CONFIG_OMAP54XX) || \
 	defined(CONFIG_DRA7XX) || defined(CONFIG_AM33XX) || \
 	defined(CONFIG_AM43XX) || defined(CONFIG_ARCH_KEYSTONE)) && \
 		defined(CONFIG_HSMMC2_8BIT)

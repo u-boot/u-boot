@@ -227,8 +227,7 @@ static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 
 void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 {
-#if (defined(CONFIG_SPL_BUILD) && \
-		(defined(CONFIG_OMAP34XX) || defined(CONFIG_OMAP44XX)))
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX)
 	/*
 	 * On some OMAP3/OMAP4 devices when UART3 is configured for boot mode
 	 * before SPL starts only THRE bit is set. We have to empty the
