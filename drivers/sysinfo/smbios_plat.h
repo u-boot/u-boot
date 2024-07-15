@@ -13,6 +13,20 @@
  * sysinfo_plat and all sub data structure should be moved to <asm/sysinfo.h>
  * if we have this defined for each arch.
  */
+struct __packed cache_info {
+	char *socket_design;
+	union cache_config config;
+	u32 line_size;
+	u32 associativity;
+	u32 max_size;
+	u32 inst_size;
+	u8 cache_type;
+	union cache_sram_type supp_sram_type;
+	union cache_sram_type curr_sram_type;
+	u8 speed;
+	u8 err_corr_type;
+};
+
 struct __packed sys_info {
 	char *manufacturer;
 	char *prod_name;
@@ -89,12 +103,25 @@ struct sysinfo_plat {
 	struct baseboard_info board;
 	struct enclosure_info chassis;
 	struct processor_info *processor;
+	struct cache_info *cache;
 	/* add other sysinfo structure here */
 };
 
 #if CONFIG_IS_ENABLED(SYSINFO_SMBIOS)
+int sysinfo_get_cache_info(u8 level, struct cache_info *cache_info);
+void sysinfo_cache_info_default(struct cache_info *ci);
 int sysinfo_get_processor_info(struct processor_info *pinfo);
 #else
+static inline int sysinfo_get_cache_info(u8 level,
+					 struct cache_info *cache_info)
+{
+	return -ENOSYS;
+}
+
+static inline void sysinfo_cache_info_default(struct cache_info *ci)
+{
+}
+
 static inline int sysinfo_get_processor_info(struct processor_info *pinfo)
 {
 	return -ENOSYS;
