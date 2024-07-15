@@ -8,11 +8,11 @@
 
 #include <dm.h>
 #include <log.h>
+#include <nvmxip.h>
 #if CONFIG_IS_ENABLED(SANDBOX64)
 #include <asm/test.h>
 #endif
 #include <linux/bitops.h>
-#include "nvmxip.h"
 
 /* LBA Macros */
 

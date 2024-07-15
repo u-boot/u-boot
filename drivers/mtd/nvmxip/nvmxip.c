@@ -9,10 +9,10 @@
 #include <dm.h>
 #include <log.h>
 #include <mapmem.h>
+#include <nvmxip.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
-#include "nvmxip.h"
 
 /**
  * nvmxip_blk_read() - block device read operation

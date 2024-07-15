@@ -8,8 +8,8 @@
 
 #include <dm.h>
 #include <fdt_support.h>
+#include <nvmxip.h>
 #include <linux/errno.h>
-#include "nvmxip.h"
 
 #include <asm/global_data.h>
 DECLARE_GLOBAL_DATA_PTR;
