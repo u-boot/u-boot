@@ -61,7 +61,7 @@ static const char *get_family_string(u32 idreg)
 }
 
 static char *j721e_rev_string_map[] = {
-	"1.0", "1.1",
+	"1.0", "1.1", "2.0",
 };
 
 static char *typical_rev_string_map[] = {
