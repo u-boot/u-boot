@@ -121,7 +121,6 @@ static void dns_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	char ip_str[22];
 	struct in_addr ip_addr;
 
-
 	debug("%s\n", __func__);
 	if (dest != dns_our_port)
 		return;

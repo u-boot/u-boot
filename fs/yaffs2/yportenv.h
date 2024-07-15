@@ -13,7 +13,6 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-
 #ifndef __YPORTENV_H__
 #define __YPORTENV_H__
 
@@ -27,10 +26,8 @@ typedef unsigned short u16;
 typedef unsigned u32;
 #endif
 
-
 #ifdef CONFIG_YAFFS_PROVIDE_DEFS
 /* File types */
-
 
 #define DT_UNKNOWN	0
 #define DT_FIFO		1
@@ -41,7 +38,6 @@ typedef unsigned u32;
 #define DT_LNK		10
 #define DT_SOCK		12
 #define DT_WHT		14
-
 
 /*
  * Attribute flags.
@@ -69,12 +65,9 @@ struct iattr {
 
 #endif
 
-
-
 #if defined CONFIG_YAFFS_WINCE
 
 #include "ywinceenv.h"
-
 
 #elif defined CONFIG_YAFFS_DIRECT
 
@@ -215,7 +208,6 @@ struct iattr {
 #define ELOOP	40
 #endif
 
-
 /* Mode flags */
 
 #ifndef S_IFMT
@@ -257,7 +249,6 @@ struct iattr {
 #define S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)
 #define S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)
 #define S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)
-
 
 #ifndef S_IREAD
 #define S_IREAD		0000400

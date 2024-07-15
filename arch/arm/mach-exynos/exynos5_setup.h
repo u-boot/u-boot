@@ -685,7 +685,6 @@
 #define PWM_RATIO		8
 #define CLK_DIV_PERIC3_VAL	(PWM_RATIO << 0)
 
-
 /* CLK_DIV_PERIC4 */
 #define CLK_DIV_PERIC4_VAL	NOT_AVAILABLE
 
@@ -710,7 +709,6 @@
 /* MPLL_CON1 */
 #define MPLL_CON1_VAL   (0x0020F300)
 
-
 /* CPLL_CON1 */
 #define CPLL_CON1_VAL	0x0020f300
 
@@ -719,7 +717,6 @@
 
 /* GPLL_CON1 */
 #define GPLL_CON1_VAL	(NOT_AVAILABLE)
-
 
 /* EPLL_CON1, CON2 */
 #define EPLL_CON1_VAL	0x00000000
@@ -749,7 +746,6 @@
 #define CLK_SRC_ISP_VAL		0x33366000
 #define CLK_DIV_ISP0_VAL	0x13131300
 #define CLK_DIV_ISP1_VAL	0xbb110202
-
 
 /* CLK_FSYS */
 #define CLK_SRC_FSYS0_VAL              0x33033300

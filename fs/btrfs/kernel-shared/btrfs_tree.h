@@ -115,7 +115,6 @@
 #define BTRFS_LAST_FREE_OBJECTID -256ULL
 #define BTRFS_FIRST_CHUNK_TREE_OBJECTID 256ULL
 
-
 /*
  * The device items go into the chunk tree.
  *
@@ -333,7 +332,6 @@
  */
 #define BTRFS_STRING_ITEM_KEY	253
 
-
 /* 32 bytes in various csum fields */
 #define BTRFS_CSUM_SIZE 32
 
@@ -508,7 +506,6 @@ struct btrfs_free_space_header {
 #define BTRFS_SUPER_FLAG_CHANGING_FSID	(1ULL << 35)
 #define BTRFS_SUPER_FLAG_CHANGING_FSID_V2 (1ULL << 36)
 
-
 /*
  * Items in the extent tree are used to record the objectid of the
  * owner of the block and the number of references.
@@ -522,7 +519,6 @@ struct btrfs_extent_item {
 struct btrfs_extent_item_v0 {
 	__le32 refs;
 } __attribute__ ((__packed__));
-
 
 #define BTRFS_EXTENT_FLAG_DATA		(1ULL << 0)
 #define BTRFS_EXTENT_FLAG_TREE_BLOCK	(1ULL << 1)
@@ -564,7 +560,6 @@ struct btrfs_extent_ref_v0 {
 	__le64 objectid;
 	__le32 count;
 } __attribute__ ((__packed__));
-
 
 /* Dev extents record used space on individual devices.
  *

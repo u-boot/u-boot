@@ -19,7 +19,6 @@
 
 static void yaffs_handle_rd_data_error(struct yaffs_dev *dev, int nand_chunk);
 
-
 /********** Tags ECC calculations  *********/
 
 void yaffs_calc_ecc(const u8 *data, struct yaffs_spare *spare)

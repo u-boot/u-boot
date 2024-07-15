@@ -221,7 +221,6 @@ struct me_fw_version {
 	u16 recovery_hot_fix;
 } __packed;
 
-
 #define HECI_EOP_STATUS_SUCCESS       0x0
 #define HECI_EOP_PERFORM_GLOBAL_RESET 0x1
 

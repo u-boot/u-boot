@@ -804,7 +804,6 @@ static int kwb_sign_and_verify(RSA *key, void *data, int datasz,
 	return 0;
 }
 
-
 static int kwb_dump_fuse_cmds_38x(FILE *out, struct secure_hdr_v1 *sec_hdr)
 {
 	struct hash_v1 kak_pub_hash;

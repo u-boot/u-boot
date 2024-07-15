@@ -66,7 +66,6 @@ int do_terminal(struct cmd_tbl *cmd, int flag, int argc, char *const argv[])
 	return 0;
 }
 
-
 /***************************************************/
 
 U_BOOT_CMD(

@@ -118,7 +118,6 @@ void clock_set_pll5(unsigned int clk)
 	udelay(5500);
 }
 
-
 unsigned int clock_get_pll6(void)
 {
 	struct sunxi_ccm_reg *const ccm =

@@ -18,21 +18,17 @@
  * a direct interface.
  */
 
-
 #ifndef __YAFFSCFG_H__
 #define __YAFFSCFG_H__
-
 
 #include "yportenv.h"
 
 #define YAFFSFS_N_HANDLES	100
 #define YAFFSFS_N_DSC		20
 
-
 struct yaffsfs_DeviceConfiguration {
 	const YCHAR *prefix;
 	struct yaffs_dev *dev;
 };
-
 
 #endif

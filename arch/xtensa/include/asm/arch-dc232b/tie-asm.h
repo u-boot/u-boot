@@ -25,7 +25,6 @@
 /*  Misc  */
 #define XTHAL_SAS_ALL	0xFFFF	/* include all default NCP contents */
 
-
 /* Macro to save all non-coprocessor (extra) custom TIE and optional state
  * (not including zero-overhead loop registers).
  * Save area ptr (clobbered):  ptr  (1 byte aligned)

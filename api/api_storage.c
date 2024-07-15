@@ -26,7 +26,6 @@
 
 #define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
 
-
 #define ENUM_IDE	0
 #define ENUM_USB	1
 #define ENUM_SCSI	2
@@ -144,7 +143,6 @@ static int dev_stor_get(int type, int *more, struct device_info *di)
 	return found;
 }
 
-
 /* returns: ENUM_IDE, ENUM_USB etc. based on struct blk_desc */
 
 static int dev_stor_type(struct blk_desc *dd)
@@ -159,14 +157,12 @@ static int dev_stor_type(struct blk_desc *dd)
 	return ENUM_MAX;
 }
 
-
 /* returns: 0/1 whether cookie points to some device in this group */
 
 static int dev_is_stor(int type, struct device_info *di)
 {
 	return (dev_stor_type(di->cookie) == type) ? 1 : 0;
 }
-
 
 static int dev_enum_stor(int type, struct device_info *di)
 {
@@ -293,7 +289,6 @@ static int dev_stor_is_valid(int type, struct blk_desc *dd)
 	return 0;
 }
 
-
 int dev_open_stor(void *cookie)
 {
 	int type = dev_stor_type(cookie);
@@ -307,7 +302,6 @@ int dev_open_stor(void *cookie)
 	return API_ENODEV;
 }
 
-
 int dev_close_stor(void *cookie)
 {
 	/*
@@ -316,7 +310,6 @@ int dev_close_stor(void *cookie)
 	 */
 	return 0;
 }
-
 
 lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start)
 {
@@ -340,7 +333,6 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 	return dd->block_read(dd, start, len, buf);
 #endif	/* defined(CONFIG_BLK) */
 }
-
 
 lbasize_t dev_write_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start)
 {

@@ -102,7 +102,6 @@ void Proc_3 (Rec_Pointer *Ptr_Ref_Par);
 void Proc_4 (void);
 void Proc_5 (void);
 
-
 extern Boolean Func_2(Str_30, Str_30);
 extern void Proc_6(Enumeration, Enumeration *);
 extern void Proc_7(One_Fifty, One_Fifty, One_Fifty *);
@@ -323,7 +322,6 @@ void dhry(int Number_Of_Runs)
 #endif /* SELF_TIMED */
 }
 
-
 void Proc_1 (REG Rec_Pointer Ptr_Val_Par)
     /* executed once */
 {
@@ -354,7 +352,6 @@ void Proc_1 (REG Rec_Pointer Ptr_Val_Par)
     structassign (*Ptr_Val_Par, *Ptr_Val_Par->Ptr_Comp);
 } /* Proc_1 */
 
-
 void Proc_2 (One_Fifty   *Int_Par_Ref)
     /* executed once */
     /* *Int_Par_Ref == 1, becomes 4 */
@@ -376,7 +373,6 @@ void Proc_2 (One_Fifty   *Int_Par_Ref)
   while (Enum_Loc != Ident_1); /* true */
 } /* Proc_2 */
 
-
 void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
     /* executed once */
     /* Ptr_Ref_Par becomes Ptr_Glob */
@@ -386,7 +382,6 @@ void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
     *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
   Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
 } /* Proc_3 */
-
 
 void Proc_4 (void) /* without parameters */
     /* executed once */
@@ -405,7 +400,6 @@ void Proc_5 (void) /* without parameters */
   Ch_1_Glob = 'A';
   Bool_Glob = false;
 } /* Proc_5 */
-
 
         /* Procedure for the assignment of structures,          */
         /* if the C compiler doesn't support this feature       */

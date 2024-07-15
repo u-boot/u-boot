@@ -15,7 +15,6 @@
 #include "yaffs_guts.h"
 #include <malloc.h>
 
-
 #include "yaffs_nandif.h"
 #include "yaffs_packedtags2.h"
 
@@ -23,7 +22,6 @@
 
 #include "yaffs_trace.h"
 #include "yaffsfs.h"
-
 
 /* NB For use with inband tags....
  * We assume that the data buffer is of size totalBytersPerChunk so that
@@ -43,7 +41,6 @@ int ynandif_WriteChunkWithTagsToNAND(struct yaffs_dev *dev, int nand_chunk,
 	yaffs_trace(YAFFS_TRACE_MTD,
 		"nandmtd2_WriteChunkWithTagsToNAND chunk %d data %p tags %p",
 		nand_chunk, data, tags);
-
 
 	/* For yaffs2 writing there must be both data and tags.
 	 * If we're using inband tags, then the tags are stuffed into
@@ -152,7 +149,6 @@ int ynandif_EraseBlockInNAND(struct yaffs_dev *dev, int blockId)
 
 }
 
-
 static int ynandif_IsBlockOk(struct yaffs_dev *dev, int blockId)
 {
 	struct ynandif_Geometry *geometry = (struct ynandif_Geometry *)(dev->driver_context);
@@ -186,7 +182,6 @@ int ynandif_QueryNANDBlock(struct yaffs_dev *dev, int blockId,
 	return YAFFS_OK;
 }
 
-
 int ynandif_InitialiseNAND(struct yaffs_dev *dev)
 {
 	struct ynandif_Geometry *geometry = (struct ynandif_Geometry *)(dev->driver_context);
@@ -204,7 +199,6 @@ int ynandif_Deinitialise_flash_fn(struct yaffs_dev *dev)
 
 	return YAFFS_OK;
 }
-
 
 struct yaffs_dev *
 	yaffs_add_dev_from_geometry(const YCHAR *name,

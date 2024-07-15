@@ -145,7 +145,6 @@
 
 #define SCG_UPLL_CSR_UPLLVLD_MASK       (0x01000000)
 
-
 #define SCG_PLL_PFD3_GATE_MASK          (0x80000000)
 #define SCG_PLL_PFD2_GATE_MASK          (0x00800000)
 #define SCG_PLL_PFD1_GATE_MASK          (0x00008000)

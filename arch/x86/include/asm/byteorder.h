@@ -5,7 +5,6 @@
 
 #ifdef __GNUC__
 
-
 static __inline__ __u32 ___arch__swab32(__u32 x)
 {
 	__asm__("bswap %0" : "=r" (x) : "0" (x));

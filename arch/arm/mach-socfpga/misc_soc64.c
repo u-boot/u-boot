@@ -39,7 +39,6 @@ static Altera_desc altera_fpga[] = {
 	},
 };
 
-
 /*
  * Print CPU information
  */

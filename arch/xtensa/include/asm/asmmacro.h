@@ -59,7 +59,6 @@
 	loop	\at, 99f
 .endm
 
-
 .macro	__loops	ar, as, at, incr_log2, mask_log2, cond, ncond
 	.ifgt \incr_log2 - 1
 		addi	\at, \as, (1 << \incr_log2) - 1
@@ -72,7 +71,6 @@
 	loop\cond	\at, 99f
 .endm
 
-
 .macro	__loopt	ar, as, at, incr_log2
 	sub	\at, \as, \ar
 	.ifgt	\incr_log2 - 1
@@ -82,16 +80,13 @@
 	loop	\at, 99f
 .endm
 
-
 .macro	__loop	as
 	loop	\as, 99f
 .endm
 
-
 .macro	__endl	ar, as
 99:
 .endm
-
 
 #else
 
@@ -100,7 +95,6 @@
 	addi	\at, \ar, \size
 98:
 .endm
-
 
 .macro	__loops	ar, as, at, incr_log2, mask_log2, cond, ncond
 	.ifnc \mask_log2,
@@ -127,25 +121,20 @@
 98:
 .endm
 
-
 .macro	__loop	as
 98:
 .endm
-
 
 .macro	__endl	ar, as
 	bltu	\ar, \as, 98b
 99:
 .endm
 
-
 #endif
-
 
 .macro	__endla	ar, as, incr
 	addi	\ar, \ar, \incr
 	__endl	\ar \as
 .endm
-
 
 #endif /* _XTENSA_ASMMACRO_H */

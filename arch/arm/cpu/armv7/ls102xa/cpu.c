@@ -224,7 +224,6 @@ void enable_caches(void)
 }
 #endif /* #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) */
 
-
 uint get_svr(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CFG_SYS_FSL_GUTS_ADDR);

@@ -13,7 +13,6 @@
 
 #include "yaffs_attribs.h"
 
-
 void yaffs_load_attribs(struct yaffs_obj *obj, struct yaffs_obj_hdr *oh)
 {
 	obj->yst_uid = oh->yst_uid;
@@ -23,7 +22,6 @@ void yaffs_load_attribs(struct yaffs_obj *obj, struct yaffs_obj_hdr *oh)
 	obj->yst_ctime = oh->yst_ctime;
 	obj->yst_rdev = oh->yst_rdev;
 }
-
 
 void yaffs_load_attribs_oh(struct yaffs_obj_hdr *oh, struct yaffs_obj *obj)
 {

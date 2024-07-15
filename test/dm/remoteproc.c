@@ -28,7 +28,6 @@ static int dm_test_remoteproc_base(struct unit_test_state *uts)
 	/* Ensure we are initialized */
 	ut_asserteq(true, rproc_is_initialized());
 
-
 	/* platform data device 1 */
 	ut_assertok(rproc_stop(0));
 	ut_assertok(rproc_reset(0));

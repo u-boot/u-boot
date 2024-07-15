@@ -354,5 +354,4 @@ void clear_ddr_tlbs(unsigned int memsize_in_meg)
 	clear_ddr_tlbs_phys(CFG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
 
-
 #endif /* not SPL */

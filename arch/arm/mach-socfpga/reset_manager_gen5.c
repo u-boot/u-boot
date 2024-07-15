@@ -3,7 +3,6 @@
  *  Copyright (C) 2013 Altera Corporation <www.altera.com>
  */
 
-
 #include <mach/base_addr_ac5.h>
 #include <asm/io.h>
 #include <asm/arch/fpga_manager.h>

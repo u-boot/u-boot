@@ -31,7 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LAWBAR_SHIFT 12
 #endif
 
-
 static inline phys_addr_t get_law_base_addr(int idx)
 {
 #ifdef CONFIG_FSL_CORENET

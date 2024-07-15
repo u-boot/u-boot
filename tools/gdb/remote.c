@@ -45,7 +45,6 @@ extern "C" {
 #endif
 #endif /* alloca not defined.  */
 
-
 #include "serial.h"
 #include "error.h"
 #include "remote.h"
@@ -312,7 +311,6 @@ static int remote_binary_checked;
 #define	PBUFSIZ ((REGISTER_BYTES > MAXBUFBYTES (400)) \
 		 ? (REGISTER_BYTES * 2 + 32) \
 		 : 400)
-
 
 /* This variable sets the number of bytes to be written to the target
    in a single packet.  Normally PBUFSIZ is satisfactory, but some

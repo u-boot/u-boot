@@ -8,21 +8,17 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-
 /* zstd_decompress_internal:
  * objects and definitions shared within lib/decompress modules */
 
  #ifndef ZSTD_DECOMPRESS_INTERNAL_H
  #define ZSTD_DECOMPRESS_INTERNAL_H
 
-
 /*-*******************************************************
  *  Dependencies
  *********************************************************/
 #include "../common/mem.h"             /* BYTE, U16, U32 */
 #include "../common/zstd_internal.h"   /* constants : MaxLL, MaxML, MaxOff, LLFSELog, etc. */
-
-
 
 /*-*******************************************************
  *  Constants
@@ -54,7 +50,6 @@ static UNUSED_ATTR const U32 ML_base[MaxML+1] = {
                     35, 37, 39,   41,    43,    47,    51,    59,
                     67, 83, 99, 0x83, 0x103, 0x203, 0x403, 0x803,
                     0x1003, 0x2003, 0x4003, 0x8003, 0x10003 };
-
 
 /*-*******************************************************
  *  Decompression types
@@ -223,6 +218,5 @@ size_t ZSTD_loadDEntropy(ZSTD_entropyDTables_t* entropy,
  *  If not, classify previous segment as "external dictionary", and start a new segment.
  *  This function cannot fail. */
 void ZSTD_checkContinuity(ZSTD_DCtx* dctx, const void* dst, size_t dstSize);
-
 
 #endif /* ZSTD_DECOMPRESS_INTERNAL_H */

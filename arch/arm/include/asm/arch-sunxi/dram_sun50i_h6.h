@@ -323,7 +323,6 @@ struct dram_para {
 	const u8 dx_write_delays[NR_OF_BYTE_LANES][WR_LINES_PER_BYTE_LANE];
 };
 
-
 static inline int ns_to_t(int nanoseconds)
 {
 	const unsigned int ctrl_freq = CONFIG_DRAM_CLK / 2;

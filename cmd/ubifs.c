@@ -4,7 +4,6 @@
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  */
 
-
 /*
  * UBIFS command support
  */

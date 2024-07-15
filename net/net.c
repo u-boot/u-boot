@@ -80,7 +80,6 @@
  *	Next step:	none
  */
 
-
 #include <bootstage.h>
 #include <command.h>
 #include <console.h>

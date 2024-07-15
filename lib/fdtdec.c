@@ -1182,7 +1182,6 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 	if (!gzip && !lzo)
 		return -EBADMSG;
 
-
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT_DYN_ALLOC)) {
 		dst = malloc(sz_out);
 		if (!dst) {

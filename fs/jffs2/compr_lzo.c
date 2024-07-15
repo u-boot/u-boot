@@ -65,7 +65,6 @@
 
 */
 
-
 #include <config.h>
 #include <linux/stddef.h>
 #include <jffs2/jffs2.h>

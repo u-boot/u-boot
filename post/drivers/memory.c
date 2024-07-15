@@ -157,7 +157,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #warning "Injecting address line errors for testing purposes"
 #endif
 
-
 /*
  * This function performs a double word move from the data at
  * the source pointer to the location at the destination pointer.
@@ -198,7 +197,6 @@ const static unsigned long long pattern[] = {
 	0x5555555555555555ULL
 };
 const unsigned long long otherpattern = 0x0123456789abcdefULL;
-
 
 static int memory_post_dataline(unsigned long long * pmem)
 {

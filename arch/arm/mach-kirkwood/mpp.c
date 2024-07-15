@@ -48,7 +48,6 @@ void kirkwood_mpp_conf(const u32 *mpp_list, u32 *mpp_save)
 	}
 	debug("\n");
 
-
 	while (*mpp_list) {
 		unsigned int num = MPP_NUM(*mpp_list);
 		unsigned int sel = MPP_SEL(*mpp_list);

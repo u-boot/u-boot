@@ -40,7 +40,6 @@ struct sunxi_mctl_com_reg {
 	u32 mdfstcr;		/* 0x14c */
 };
 
-
 struct sunxi_mctl_ctl_reg {
 	u32 mstr;		/* 0x00 master register */
 	u32 stat;		/* 0x04 operating mode status register */
@@ -91,7 +90,6 @@ struct sunxi_mctl_ctl_reg {
 	u32 perfwr0;		/* 0x268 write CAM register 0 */
 	u32 perfwr1;		/* 0x26c write CAM register 1 */
 };
-
 
 struct sunxi_mctl_phy_reg {
 	u8 res0[0x04];		/* 0x00 revision id ??? */

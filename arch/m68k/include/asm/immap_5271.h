@@ -54,5 +54,4 @@
 #include <asm/coldfire/rng.h>
 #include <asm/coldfire/skha.h>
 
-
 #endif				/* __IMMAP_5271__ */

@@ -236,7 +236,6 @@ struct fuse_bank0_regs {
 #define SDCS1_SEL	(1 << 1)
 #define SDCS0_SEL	(1 << 0)
 
-
 /* important definition of some bits of WCR */
 #define WCR_WDE 0x04
 

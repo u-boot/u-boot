@@ -4,7 +4,6 @@
  * Philippe Reynes <tremyfr@yahoo.fr>
  */
 
-
 #ifndef __ASM_ARCH_MX27_GPIO_H
 #define __ASM_ARCH_MX27_GPIO_H
 

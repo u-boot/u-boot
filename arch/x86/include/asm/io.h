@@ -46,9 +46,7 @@
 
 #include <asm/types.h>
 
-
 #ifdef __KERNEL__
-
 
 /*
  * readX/writeX() are used to access memory mapped devices. On some
@@ -142,7 +140,6 @@
 #define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO
 #endif
 
-
 /*
  * Talk about misusing macros..
  */
@@ -151,7 +148,6 @@ static inline void _out##s(unsigned x value, unsigned short port) {
 
 #define __OUT2(s,s1,s2) \
 __asm__ __volatile__ ("out" #s " %" s1 "0,%" s2 "1"
-
 
 #define __OUT(s,s1,x) \
 __OUT1(s,x) __OUT2(s,s1,"w") : : "a" (value), "Nd" (port)); } \

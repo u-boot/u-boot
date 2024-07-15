@@ -111,7 +111,6 @@ void outsl(unsigned long port, const void *src, unsigned long count);
 # error processor byte order undefined!
 #endif
 
-
 /*
  * Convert a physical pointer to a virtual kernel pointer for /dev/mem access
  */

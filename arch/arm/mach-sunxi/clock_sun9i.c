@@ -14,7 +14,6 @@
 #include <asm/arch/prcm.h>
 #include <asm/arch/sys_proto.h>
 
-
 #ifdef CONFIG_SPL_BUILD
 
 static void clock_set_pll2(unsigned int clk)
@@ -165,7 +164,6 @@ void clock_set_pll6(unsigned int clk)
 
 	sdelay(2000);
 }
-
 
 int clock_twi_onoff(int port, int state)
 {

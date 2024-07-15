@@ -86,7 +86,6 @@ static int do_boostage(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 }
 
-
 U_BOOT_CMD(bootstage, 4, 1, do_boostage,
 	"Boot stage command",
 	" - check boot progress and timing\n"

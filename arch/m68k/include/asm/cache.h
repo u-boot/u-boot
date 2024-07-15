@@ -136,7 +136,6 @@
 #define CF_ACR_SP		(1 << 3)
 #endif				/* CONFIG_CF_V4 */
 
-
 #ifndef CFG_SYS_CACHE_ICACR
 #define CFG_SYS_CACHE_ICACR	0
 #endif

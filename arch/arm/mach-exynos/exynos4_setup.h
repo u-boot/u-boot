@@ -284,7 +284,6 @@
 #define MFC_0_SEL		MFC_SEL_MPLL
 #define CLK_SRC_MFC_VAL		((MFC_SEL << 8) | (MFC_0_SEL))
 
-
 /* CLK_DIV_MFC */
 #define MFC_RATIO		3
 #define CLK_DIV_MFC_VAL		(MFC_RATIO)
@@ -497,7 +496,6 @@ struct mem_timings {
 				| DPWRDN_TYPE | TP_DISABLE | DSREF_DIABLE\
 				| ADD_LAT_PALL | MEM_TYPE_DDR3 | MEM_WIDTH_32\
 				| NUM_CHIP_2 | BL_8)
-
 
 #define CHIP_BANK_8		(0x3 << 0)
 #define CHIP_ROW_14		(0x2 << 4)

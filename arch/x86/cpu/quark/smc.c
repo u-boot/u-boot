@@ -245,7 +245,6 @@ void perform_ddr_reset(struct mrc_params *mrc_params)
 	LEAVEFN();
 }
 
-
 /*
  * This function performs some initialization on the DDRIO unit.
  * This function is dependent on BOARD_ID, DDR_SPEED, and CHANNEL_ENABLES.

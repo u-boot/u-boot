@@ -1,7 +1,6 @@
 #ifndef _PPC_KERNEL_MPC8349_PCI_H
 #define _PPC_KERNEL_MPC8349_PCI_H
 
-
 #define M8265_PCIBR0	0x101ac
 #define M8265_PCIBR1	0x101b0
 #define M8265_PCIMSK0	0x101c4
@@ -30,9 +29,7 @@
 #define PCIMSK_512MB        0xE0000000
 #define PCIMSK_1GB          0xC0000000  /* Size of window, largest */
 
-
 #define M826X_SCCR_PCI_MODE_EN 0x100
-
 
 /*
  * Outbound ATU registers (3 sets). These registers control how 60x bus

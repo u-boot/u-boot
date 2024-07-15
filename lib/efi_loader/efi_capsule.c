@@ -572,7 +572,6 @@ static efi_status_t efi_capsule_update_firmware(
 			return EFI_INVALID_PARAMETER;
 		}
 
-
 		/* Obtain the update_index from the platform */
 		status = fwu_plat_get_update_index(&update_index);
 		if (status < 0) {

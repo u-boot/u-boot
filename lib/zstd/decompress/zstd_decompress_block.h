@@ -8,7 +8,6 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-
 #ifndef ZSTD_DEC_BLOCK_H
 #define ZSTD_DEC_BLOCK_H
 
@@ -20,7 +19,6 @@
 #include "../common/zstd_internal.h"  /* blockProperties_t, and some public functions */
 #include "zstd_decompress_internal.h"  /* ZSTD_seqSymbol */
 
-
 /* ===   Prototypes   === */
 
 /* note: prototypes already published within `zstd.h` :
@@ -31,7 +29,6 @@
  * ZSTD_getcBlockSize()
  * ZSTD_decodeSeqHeaders()
  */
-
 
  /* Streaming state is used to inform allocation of the literal buffer */
 typedef enum {
@@ -63,6 +60,5 @@ void ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
              const U32* baseValue, const U8* nbAdditionalBits,
                    unsigned tableLog, void* wksp, size_t wkspSize,
                    int bmi2);
-
 
 #endif /* ZSTD_DEC_BLOCK_H */

@@ -391,7 +391,6 @@ static void exynos5420_i2s_config(int peripheral)
 	}
 }
 
-
 void exynos5_spi_config(int peripheral)
 {
 	int cfg = 0, pin = 0, i;

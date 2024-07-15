@@ -33,7 +33,6 @@
 #define OMAP54XX_GPIO7_BASE		0x48051000
 #define OMAP54XX_GPIO8_BASE		0x48053000
 
-
 /* Get the GPIO index from the given bank number and bank gpio */
 #define GPIO_TO_PIN(bank, bank_gpio)	(32 * (bank - 1) + (bank_gpio))
 

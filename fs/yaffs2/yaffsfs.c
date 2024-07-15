@@ -82,7 +82,6 @@ struct yaffsfs_Handle {
 	short int useCount;
 };
 
-
 struct yaffsfs_DirSearchContxt {
 	struct yaffs_dirent de;	/* directory entry */
 	YCHAR name[NAME_MAX + 1];	/* name of directory being searched */

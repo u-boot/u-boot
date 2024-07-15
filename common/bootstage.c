@@ -3,7 +3,6 @@
  * Copyright (c) 2011, Google Inc. All rights reserved.
  */
 
-
 /*
  * This module records the progress of boot and arbitrary commands, and
  * permits accurate timestamping of each.

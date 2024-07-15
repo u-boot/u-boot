@@ -18,20 +18,17 @@
  * a direct interface.
  */
 
-
 #ifndef __YAFFSFS_H__
 #define __YAFFSFS_H__
 
 #include "yaffscfg.h"
 #include "yportenv.h"
 
-
 #ifndef NAME_MAX
 #define NAME_MAX	256
 #endif
 
 #define YAFFS_MAX_FILE_SIZE (0x800000000LL - 1)
-
 
 struct yaffs_dirent {
 	long d_ino;			/* inode number */
@@ -43,8 +40,6 @@ struct yaffs_dirent {
 };
 
 typedef struct opaque_structure yaffs_DIR;
-
-
 
 struct yaffs_stat {
 	int		st_dev;		/* device */
@@ -69,12 +64,10 @@ struct yaffs_stat {
 #endif
 };
 
-
 struct yaffs_utimbuf {
 	unsigned long actime;
 	unsigned long modtime;
 };
-
 
 int yaffs_open(const YCHAR *path, int oflag, int mode) ;
 
@@ -108,7 +101,6 @@ int yaffs_fstat(int fd, struct yaffs_stat *buf) ;
 int yaffs_utime(const YCHAR *path, const struct yaffs_utimbuf *buf);
 int yaffs_futime(int fd, const struct yaffs_utimbuf *buf);
 
-
 int yaffs_setxattr(const char *path, const char *name,
 			const void *data, int size, int flags);
 int yaffs_lsetxattr(const char *path, const char *name,
@@ -130,7 +122,6 @@ int yaffs_fremovexattr(int fd, const char *name);
 int yaffs_listxattr(const char *path, char *list, int size);
 int yaffs_llistxattr(const char *path, char *list, int size);
 int yaffs_flistxattr(int fd, char *list, int size);
-
 
 #ifdef CONFIG_YAFFS_WINCE
 
@@ -163,7 +154,6 @@ int yaffs_mount_common(const YCHAR *path, int read_only, int skip_checkpt);
 int yaffs_unmount(const YCHAR *path) ;
 int yaffs_unmount2(const YCHAR *path, int force);
 int yaffs_remount(const YCHAR *path, int force, int read_only);
-
 
 int yaffs_sync(const YCHAR *path) ;
 

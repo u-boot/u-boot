@@ -61,7 +61,6 @@ enum l2_cache_params {
 	CACHE_ENABLE_FORCE_L2_LOGIC = (1 << 27)
 };
 
-
 #if !defined(CONFIG_SYS_L2CACHE_OFF) && defined(CONFIG_EXYNOS5420)
 /*
  * Configure L2CTLR to get timings that keep us from hanging/crashing.

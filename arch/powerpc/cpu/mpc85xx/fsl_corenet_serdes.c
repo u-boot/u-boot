@@ -482,7 +482,6 @@ static void wait_for_rstdone(unsigned int bank)
 		printf("SERDES: timeout resetting bank %u\n", bank + 1);
 }
 
-
 static void __soc_serdes_init(void)
 {
 	/* Allow for SoC-specific initialization in <SOC>_serdes.c  */

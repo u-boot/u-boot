@@ -162,7 +162,6 @@ int usb_get_port_status(struct usb_device *dev, int port, void *data)
 	return ret;
 }
 
-
 static void usb_hub_power_on(struct usb_hub_device *hub)
 {
 	int i;

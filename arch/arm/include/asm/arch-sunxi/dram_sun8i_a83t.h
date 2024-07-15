@@ -146,7 +146,6 @@ struct sunxi_mctl_ctl_reg {
 	u32 perfwr1;		/* 0x1d8 */
 };
 
-
 #define ZQnPR(x)	(SUNXI_DRAM_CTL0_BASE + 0x00000144 + 0x10 * x)
 #define ZQnDR(x)	(SUNXI_DRAM_CTL0_BASE + 0x00000148 + 0x10 * x)
 #define ZQnSR(x)	(SUNXI_DRAM_CTL0_BASE + 0x0000014c + 0x10 * x)

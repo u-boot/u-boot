@@ -24,9 +24,6 @@
 #include "zstd_decompress_internal.h"
 #include "zstd_ddict.h"
 
-
-
-
 /*-*******************************************************
 *  Types
 *********************************************************/
@@ -82,7 +79,6 @@ void ZSTD_copyDDictParameters(ZSTD_DCtx* dctx, const ZSTD_DDict* ddict)
     }
 }
 
-
 static size_t
 ZSTD_loadEntropy_intoDDict(ZSTD_DDict* ddict,
                            ZSTD_dictContentType_e dictContentType)
@@ -112,7 +108,6 @@ ZSTD_loadEntropy_intoDDict(ZSTD_DDict* ddict,
     ddict->entropyPresent = 1;
     return 0;
 }
-
 
 static size_t ZSTD_initDDict_internal(ZSTD_DDict* ddict,
                                       const void* dict, size_t dictSize,
@@ -180,7 +175,6 @@ ZSTD_DDict* ZSTD_createDDict_byReference(const void* dictBuffer, size_t dictSize
     return ZSTD_createDDict_advanced(dictBuffer, dictSize, ZSTD_dlm_byRef, ZSTD_dct_auto, allocator);
 }
 
-
 const ZSTD_DDict* ZSTD_initStaticDDict(
                                 void* sBuffer, size_t sBufferSize,
                                 const void* dict, size_t dictSize,
@@ -204,7 +198,6 @@ const ZSTD_DDict* ZSTD_initStaticDDict(
         return NULL;
     return ddict;
 }
-
 
 size_t ZSTD_freeDDict(ZSTD_DDict* ddict)
 {

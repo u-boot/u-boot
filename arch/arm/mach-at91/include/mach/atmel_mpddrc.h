@@ -59,7 +59,6 @@ struct atmel_mpddr {
 	u32 version;		/* 0xfc: IP version */
 };
 
-
 int ddr2_init(const unsigned int base,
 	      const unsigned int ram_address,
 	      const struct atmel_mpddrc_config *mpddr_value);

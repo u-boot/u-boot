@@ -98,7 +98,6 @@ static int extension_scan(bool show)
 	return extension_num;
 }
 
-
 static int do_extension_scan(struct cmd_tbl *cmdtp, int flag,
 			     int argc, char *const argv[])
 {

@@ -69,7 +69,6 @@ static int dm_test_devres_free(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_devres_free, UT_TESTF_SCAN_PDATA);
 
-
 /* Test that kzalloc() returns memory that is zeroed */
 static int dm_test_devres_kzalloc(struct unit_test_state *uts)
 {

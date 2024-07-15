@@ -9,7 +9,6 @@
 #define BRVD	0x11
 #define PVD_OFFSET 0x10
 
-
 typedef struct iso_boot_rec {
 	unsigned char desctype;			/* type of Volume descriptor: 0 = boot record, 1 = primary, 2 = Supplement, 3 = volume part 0xff trminator */
 	unsigned char stand_ident[5]; /* "CD001" */
@@ -18,7 +17,6 @@ typedef struct iso_boot_rec {
 	unsigned char unused[0x20];		/* unused */
 	unsigned char pointer[4];		/* absolute pointer to Boot Catalog */
 } iso_boot_rec_t;
-
 
 typedef struct iso_pri_rec {
 	unsigned char desctype;			/* type of Volume descriptor: 0 = boot record, 1 = primary, 2 = Supplement, 3 = volume part 0xff trminator */
@@ -109,7 +107,6 @@ typedef struct iso_part_rec {
 	unsigned int partsiz_BE;		/* volume partition size BE */
 }iso_part_rec_t;
 
-
 typedef struct iso_val_entry {
 	unsigned char	header_id;		/* Header ID must be 0x01 */
 	unsigned char	platform;			/* Platform: 0=x86, 1=PowerPC, 2=MAC */
@@ -126,7 +123,6 @@ typedef struct iso_header_entry {
 	char					id_str[0x1C]; /* Ident String of sectionr */
 } iso_header_entry_t;
 
-
 typedef struct iso_init_def_entry {
 	unsigned char	boot_ind;			/* Boot indicator 0x88=bootable 0=not bootable */
 	unsigned char	boot_media;		/* boot Media Type: 0=no Emulation, 1=1.2MB floppy, 2=1.44MB floppy, 3=2.88MB floppy 4=hd (0x80) */
@@ -136,7 +132,6 @@ typedef struct iso_init_def_entry {
 	unsigned char sec_cnt[2];		/* sector count in VIRTUAL Blocks (0x200) */
 	unsigned char rel_block_addr[4];	/* relative Block address */
 } iso_init_def_entry_t;
-
 
 void print_partition_cd(int dev);
 

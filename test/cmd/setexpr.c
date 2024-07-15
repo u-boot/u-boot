@@ -329,7 +329,6 @@ static int setexpr_test_str(struct unit_test_state *uts)
 }
 SETEXPR_TEST(setexpr_test_str, UT_TESTF_CONSOLE_REC);
 
-
 /* Test 'setexpr' command with concatenating strings */
 static int setexpr_test_str_oper(struct unit_test_state *uts)
 {

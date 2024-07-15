@@ -21,7 +21,6 @@ typedef enum {
 	SERDES_LAST_UNIT
 } MV_BIN_SERDES_UNIT_INDX;
 
-
 typedef enum {
 	PEX_BUS_DISABLED	= 0,
 	PEX_BUS_MODE_X1		= 1,
@@ -62,7 +61,6 @@ typedef struct board_serdes_conf {
 
 	MV_SERDES_CHANGE_M_PHY *serdes_m_phy_change;
 } MV_BIN_SERDES_CFG;
-
 
 #define BIN_SERDES_CFG {	\
 	{0, 1, -1 , -1, -1, -1, -1, -1, -1}, /* Lane 0 */	\

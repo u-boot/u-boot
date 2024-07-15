@@ -102,7 +102,6 @@ static void print_ansi_colour(FILE *fout, int col)
 		fprintf(fout, "\033[1;%dm", col + 30);
 }
 
-
 /**
  * value_add() - Add a new value to our list of things to grep for
  *

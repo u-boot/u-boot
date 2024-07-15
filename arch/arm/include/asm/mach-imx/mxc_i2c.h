@@ -91,7 +91,6 @@ struct mxc_i2c_bus {
 		}					\
 	};
 
-
 #define I2C_PADS_INFO(name)	\
 	(is_mx6dq() || is_mx6dqp()) ? &mx6q_##name : &mx6s_##name
 #endif

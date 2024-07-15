@@ -262,7 +262,6 @@ struct sunxi_ccm_reg {
 #define CCM_DRAM_GATE_OFFSET_DE_BE0	26
 #define CCM_DRAM_GATE_OFFSET_DE_BE1	27
 
-
 #define MBUS_CLK_DEFAULT		0x81000002 /* PLL6 / 2 */
 
 #define MBUS_CLK_GATE			(0x1 << 31)
@@ -294,7 +293,6 @@ struct sunxi_ccm_reg {
 #define APB2_RESET_UART_MASK		(0xff << APB2_RESET_UART_SHIFT)
 #define APB2_RESET_TWI_SHIFT		(0)
 #define APB2_RESET_TWI_MASK		(0xf << APB2_RESET_TWI_SHIFT)
-
 
 #ifndef __ASSEMBLY__
 void clock_set_pll1(unsigned int hz);

@@ -269,5 +269,4 @@ int fsl_pcie_init_board(int busno);
 #error FT_FSL_PCI_SETUP not defined
 #endif
 
-
 #endif

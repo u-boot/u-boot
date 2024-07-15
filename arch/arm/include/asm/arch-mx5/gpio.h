@@ -4,7 +4,6 @@
  * Stefano Babic, DENX Software Engineering, <sbabic@denx.de>
  */
 
-
 #ifndef __ASM_ARCH_MX5_GPIO_H
 #define __ASM_ARCH_MX5_GPIO_H
 

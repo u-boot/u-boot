@@ -92,7 +92,6 @@ extern void _outsl_ns(volatile u32 *port, const void *buf, int nl);
 #define insl_ns(port, buf, nl)  _insl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
 #define outsl_ns(port, buf, nl) _outsl_ns((u32 *)((port)+_IO_BASE), (buf), (nl))
 
-
 #define IO_SPACE_LIMIT ~0
 
 #define memset_io(a,b,c)       memset((void __force *)(a),(b),(c))

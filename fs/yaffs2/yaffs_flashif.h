@@ -16,7 +16,6 @@
 #ifndef __YAFFS_FLASH_H__
 #define __YAFFS_FLASH_H__
 
-
 #include "yaffs_guts.h"
 int yflash_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber);
 int yflash_WriteChunkToNAND(struct yaffs_dev *dev, int nand_chunk,

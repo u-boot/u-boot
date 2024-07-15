@@ -262,7 +262,6 @@ static void mctl_sys_init(void)
 		reg_val |= ((0x1<<24)|(0x1<<30));
 		mctl_write_w(CCM_PLL6_DDR_REG, reg_val);
 
-
 		while(mctl_read_w(CCM_PLL6_DDR_REG) & (0x1<<30));
 	}
 

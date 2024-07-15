@@ -97,7 +97,6 @@ U_BOOT_CMD(
 );
 #endif
 
-
 #ifdef CONFIG_CMD_RARP
 int do_rarpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

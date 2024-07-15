@@ -365,7 +365,6 @@
  ***************************************************************************
  */
 
-
 /* Compiler and system dependent definitions: */
 
 #ifndef TIME
@@ -431,7 +430,6 @@ typedef struct record
                   } var_3;
           } variant;
       } Rec_Type, *Rec_Pointer;
-
 
 /*
  * dhry() - run dhrystone for a given number of iterations

@@ -50,9 +50,7 @@ struct blk_desc *zfs_dev_desc;
 #include <zfs/dsl_dir.h>
 #include <zfs/dsl_dataset.h>
 
-
 #define	ZPOOL_PROP_BOOTFS		"bootfs"
-
 
 /*
  * For nvlist manipulation. (from nvpair.h)
@@ -65,7 +63,6 @@ struct blk_desc *zfs_dev_desc;
 #define	DATA_TYPE_STRING	9
 #define	DATA_TYPE_NVLIST	19
 #define	DATA_TYPE_NVLIST_ARRAY	20
-
 
 /*
  * Macros to get fields in a bp or DVA.
@@ -120,15 +117,12 @@ struct blk_desc *zfs_dev_desc;
 	((zap_leaf_chunk_t *)(l->l_hash + ZAP_LEAF_HASH_NUMENTRIES(bs)))[idx]
 #define	ZAP_LEAF_ENTRY(l, bs, idx) (&ZAP_LEAF_CHUNK(l, bs, idx).l_entry)
 
-
 /*
  * Decompression Entry - lzjb
  */
 #ifndef	NBBY
 #define	NBBY	8
 #endif
-
-
 
 typedef int zfs_decomp_func_t(void *s_start, void *d_start,
 							  uint32_t s_len, uint32_t d_len);
@@ -176,9 +170,6 @@ struct zfs_data {
 
 };
 
-
-
-
 static int
 zlib_decompress(void *s, void *d,
 				uint32_t slen, uint32_t dlen)
@@ -206,8 +197,6 @@ static decomp_entry_t decomp_table[ZIO_COMPRESS_FUNCTIONS] = {
 	{"gzip-9", zlib_decompress},  /* ZIO_COMPRESS_GZIP9 */
 };
 
-
-
 static int zio_read_data(blkptr_t *bp, zfs_endian_t endian,
 						 void *buf, struct zfs_data *data);
 
@@ -230,7 +219,6 @@ zfs_log2(uint64_t num)
 
 	return i;
 }
-
 
 /* Checksum Functions */
 static void
@@ -812,7 +800,6 @@ zap_leaf_array_get(zap_leaf_phys_t *l, zfs_endian_t endian, int blksft,
 	return ZFS_ERR_NONE;
 }
 
-
 /*
  * Given a zap_leaf_phys_t, walk thru the zap leaf chunks to get the
  * value for the property "name".
@@ -878,7 +865,6 @@ zap_leaf_lookup(zap_leaf_phys_t *l, zfs_endian_t endian,
 	printf("couldn't find '%s'\n", name);
 	return ZFS_ERR_FILE_NOT_FOUND;
 }
-
 
 /* Verify if this is a fat zap header block */
 static int
@@ -1029,7 +1015,6 @@ fzap_iterate(dnode_end_t *zap_dnode, zap_phys_t *zap,
 	return 0;
 }
 
-
 /*
  * Read in the data of a zap object and find the value for a matching
  * property name.
@@ -1103,7 +1088,6 @@ zap_iterate(dnode_end_t *zap_dnode,
 	free(zapbuf);
 	return 0;
 }
-
 
 /*
  * Get the dnode of an object number from the metadnode of an object set.
@@ -1299,7 +1283,6 @@ dnode_get_path(dnode_end_t *mdn, const char *path_in, dnode_end_t *dn,
 	return err;
 }
 
-
 /*
  * Given a MOS metadnode, get the metadnode of a given filesystem name (fsname),
  * e.g. pool/rootfs, or a given object number (obj), e.g. the object number
@@ -1433,7 +1416,6 @@ dnode_get_fullpath(const char *fullpath, dnode_end_t *mdn,
 		printf("zfs fsname = '%s' snapname='%s' filename = '%s'\n",
 			   fsname, snapname, filename);
 	}
-
 
 	err = get_filesystem_dnode(&(data->mos), fsname, dn, data);
 
@@ -2335,7 +2317,6 @@ zfs_ls(device_t device, const char *path,
 			zfs_unmount(data);
 			return err;
 		}
-
 
 		zap_iterate(&dn, iterate_zap_fs, data);
 

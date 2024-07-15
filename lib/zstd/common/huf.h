@@ -12,13 +12,11 @@
  * You may select, at your option, one of the above-listed licenses.
 ****************************************************************** */
 
-
 #ifndef HUF_H_298734234
 #define HUF_H_298734234
 
 /* *** Dependencies *** */
 #include "zstd_deps.h"    /* size_t */
-
 
 /* *** library symbols visibility *** */
 /* Note : when linking with -fvisibility=hidden on gcc, or by default on Visual,
@@ -33,7 +31,6 @@
 #else
 #  define HUF_PUBLIC_API
 #endif
-
 
 /* ========================== */
 /* ***  simple functions  *** */
@@ -64,7 +61,6 @@ HUF_PUBLIC_API size_t HUF_compress(void* dst, size_t dstCapacity,
 HUF_PUBLIC_API size_t HUF_decompress(void* dst,  size_t originalSize,
                                const void* cSrc, size_t cSrcSize);
 
-
 /* ***   Tool functions *** */
 #define HUF_BLOCKSIZE_MAX (128 * 1024)                  /*< maximum input size for a single block compressed with HUF_compress */
 HUF_PUBLIC_API size_t HUF_compressBound(size_t size);   /*< maximum compressed size (worst case) */
@@ -72,7 +68,6 @@ HUF_PUBLIC_API size_t HUF_compressBound(size_t size);   /*< maximum compressed s
 /* Error Management */
 HUF_PUBLIC_API unsigned    HUF_isError(size_t code);       /*< tells if a return value is an error code */
 HUF_PUBLIC_API const char* HUF_getErrorName(size_t code);  /*< provides error code string (useful for debugging) */
-
 
 /* ***   Advanced function   *** */
 
@@ -111,7 +106,6 @@ HUF_PUBLIC_API size_t HUF_compress4X_wksp (void* dst, size_t dstCapacity,
 #define FSE_STATIC_LINKING_ONLY
 #include "fse.h"
 
-
 /* *** Constants *** */
 #define HUF_TABLELOG_MAX      12      /* max runtime value of tableLog (due to static allocation); can be modified up to HUF_TABLELOG_ABSOLUTEMAX */
 #define HUF_TABLELOG_DEFAULT  11      /* default tableLog value when none specified */
@@ -121,7 +115,6 @@ HUF_PUBLIC_API size_t HUF_compress4X_wksp (void* dst, size_t dstCapacity,
 #if (HUF_TABLELOG_MAX > HUF_TABLELOG_ABSOLUTEMAX)
 #  error "HUF_TABLELOG_MAX is too large !"
 #endif
-
 
 /* ****************************************
 *  Static allocation
@@ -147,7 +140,6 @@ typedef U32 HUF_DTable;
 #define HUF_CREATE_STATIC_DTABLEX2(DTable, maxTableLog) \
         HUF_DTable DTable[HUF_DTABLE_SIZE(maxTableLog)] = { ((U32)(maxTableLog) * 0x01000001) }
 
-
 /* ****************************************
 *  Advanced decompression functions
 ******************************************/
@@ -165,7 +157,6 @@ size_t HUF_decompress4X1_DCtx_wksp(HUF_DTable* dctx, void* dst, size_t dstSize, 
 size_t HUF_decompress4X2_DCtx(HUF_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);   /*< double-symbols decoder */
 size_t HUF_decompress4X2_DCtx_wksp(HUF_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize, void* workSpace, size_t wkspSize);   /*< double-symbols decoder */
 #endif
-
 
 /* ****************************************
  *  HUF detailed API
@@ -292,7 +283,6 @@ size_t HUF_decompress4X1_usingDTable(void* dst, size_t maxDstSize, const void* c
 #ifndef HUF_FORCE_DECOMPRESS_X1
 size_t HUF_decompress4X2_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUF_DTable* DTable);
 #endif
-
 
 /* ====================== */
 /* single stream variants */

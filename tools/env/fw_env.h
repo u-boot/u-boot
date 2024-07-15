@@ -94,7 +94,6 @@ int fw_env_set(int argc, char *argv[], struct env_opts *opts);
  */
 int fw_parse_script(char *fname, struct env_opts *opts);
 
-
 /**
  * fw_env_open() - read enviroment from flash into RAM cache
  *
@@ -150,7 +149,6 @@ int fw_env_flush(struct env_opts *opts);
  *  0 on success, -1 on failure (modifies errno)
  */
 int fw_env_close(struct env_opts *opts);
-
 
 /**
  * fw_env_version - return the current version of the library

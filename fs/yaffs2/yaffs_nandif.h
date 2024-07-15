@@ -13,7 +13,6 @@
  * Note: Only YAFFS headers are LGPL, YAFFS C code is covered by GPL.
  */
 
-
 #ifndef __YNANDIF_H__
 #define __YNANDIF_H__
 
@@ -60,6 +59,5 @@ struct ynandif_Geometry {
 struct yaffs_dev *
 	yaffs_add_dev_from_geometry(const YCHAR *name,
 					const struct ynandif_Geometry *geometry);
-
 
 #endif

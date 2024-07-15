@@ -48,7 +48,6 @@
 
 #define ENV_SIZE (CONFIG_ENV_SIZE - ENV_HEADER_SIZE)
 
-
 #ifdef ENV_IS_EMBEDDED
 # include <env_internal.h>
 extern unsigned int env_size;

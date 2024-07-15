@@ -86,7 +86,6 @@ void v7_outer_cache_enable(void)
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	unsigned int val, cache_id;
 
-
 	/*
 	 * Must disable the L2 before changing the latency parameters
 	 * and auxiliary control register.

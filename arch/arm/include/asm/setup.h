@@ -75,7 +75,6 @@ struct param_struct {
     char commandline[COMMAND_LINE_SIZE];
 };
 
-
 /*
  * The new way of passing information: a list of tagged entries
  */

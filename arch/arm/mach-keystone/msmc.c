@@ -53,7 +53,6 @@ struct msms_regs {
 	struct mpax ses[16][8];
 };
 
-
 void msmc_share_all_segments(int priv_id)
 {
 	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;

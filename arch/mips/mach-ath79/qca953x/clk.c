@@ -61,7 +61,6 @@ int get_clocks(void)
 			& QCA953X_PLL_CLK_CTRL_CPU_POST_DIV_MASK) + 1;
 	gd->cpu_clk = pll / div;
 
-
 	val = readl(regs + QCA953X_PLL_DDR_CONFIG_REG);
 	/* VCOOUT = XTAL * DIV_INT */
 	div = (val >> QCA953X_PLL_DDR_CONFIG_REFDIV_SHIFT)

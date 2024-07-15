@@ -190,7 +190,6 @@
 #define EXYNOS5420_MODEM_BASE		DEVICE_NOT_AVAILABLE
 #define EXYNOS5420_USB_HOST_XHCI_BASE	DEVICE_NOT_AVAILABLE
 
-
 #ifndef __ASSEMBLY__
 #include <asm/io.h>
 /* CPU detection macros */

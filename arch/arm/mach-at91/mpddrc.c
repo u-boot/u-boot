@@ -35,7 +35,6 @@ static int ddr2_decodtype_is_seq(const unsigned int base, u32 cr)
 	return 1;
 }
 
-
 int ddr2_init(const unsigned int base,
 	      const unsigned int ram_address,
 	      const struct atmel_mpddrc_config *mpddr_value)

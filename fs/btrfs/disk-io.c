@@ -69,7 +69,6 @@ static int check_tree_block(struct btrfs_fs_info *fs_info,
 						    btrfs_header_fsid(),
 						    BTRFS_FSID_SIZE);
 
-
 		if (fsid_match) {
 			ret = 0;
 			break;

@@ -463,7 +463,6 @@ enum {
 #define NET_LAN9221_GPMC_CONFIG6    0x87030000
 #define NET_LAN9221_GPMC_CONFIG7    0x00000f6c
 
-
 /* max number of GPMC Chip Selects */
 #define GPMC_MAX_CS	8
 /* max number of GPMC regs */

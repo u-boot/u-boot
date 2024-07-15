@@ -127,7 +127,6 @@ static const char *const me_progress_policy_values[] = {
 	[0x10] = "Required VSCC values for flash parts do not match",
 };
 
-
 /**
  * _intel_me_status() - Check Intel Management Engine status
  *

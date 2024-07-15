@@ -1470,7 +1470,6 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 			override_num = label->num;
 	}
 
-
 	if (label_override) {
 		if (override_num)
 			default_num = override_num;

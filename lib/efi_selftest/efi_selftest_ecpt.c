@@ -68,7 +68,6 @@ static int execute(void)
 	return EFI_ST_SUCCESS;
 }
 
-
 EFI_UNIT_TEST(ecpt) = {
 	.name = "conformance profile table",
 	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,

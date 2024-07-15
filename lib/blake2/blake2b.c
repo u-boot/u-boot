@@ -51,7 +51,6 @@ static const uint8_t blake2b_sigma[12][16] =
   { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-
 static void blake2b_set_lastnode( blake2b_state *S )
 {
   S->f[1] = (uint64_t)-1;
@@ -100,8 +99,6 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
   return 0;
 }
 
-
-
 int blake2b_init( blake2b_state *S, size_t outlen )
 {
   blake2b_param P[1];
@@ -122,7 +119,6 @@ int blake2b_init( blake2b_state *S, size_t outlen )
   memset( P->personal, 0, sizeof( P->personal ) );
   return blake2b_init_param( S, P );
 }
-
 
 int blake2b_init_key( blake2b_state *S, size_t outlen, const void *key, size_t keylen )
 {

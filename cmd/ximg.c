@@ -7,7 +7,6 @@
  * Kai-Uwe Bloem, Auerswald GmbH & Co KG, <linux-development@auerswald.de>
  */
 
-
 /*
  * Multi Image extract
  */

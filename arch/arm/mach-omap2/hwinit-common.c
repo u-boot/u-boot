@@ -268,7 +268,6 @@ void watchdog_init(void)
 	writel(WD_UNLOCK2, &wd2_base->wspr);
 }
 
-
 /*
  * This function finds the SDRAM size available in the system
  * based on DMM section configurations
@@ -314,7 +313,6 @@ u32 omap_sdram_size(void)
 
 	return total_size;
 }
-
 
 /*
  * Routine: dram_init

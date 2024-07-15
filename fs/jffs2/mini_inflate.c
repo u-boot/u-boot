@@ -336,10 +336,8 @@ static void decompress_fixed(struct bitstream *stream, unsigned char *dest)
 	cramfs_memset(distance->lengths, 5, 32);
 	distance->count[5] = 32;
 
-
 	fill_code_tables(lengths);
 	fill_code_tables(distance);
-
 
 	decompress_huffman(stream, dest);
 }

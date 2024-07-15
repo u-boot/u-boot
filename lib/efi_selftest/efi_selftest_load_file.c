@@ -233,7 +233,6 @@ static efi_status_t EFIAPI load_file(struct efi_load_file_protocol *this,
 	return EFI_SUCCESS;
 }
 
-
 /*
  * load_file2() - LoadFile() service of a EFI_LOAD_FILE2_PROTOCOL
  *

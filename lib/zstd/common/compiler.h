@@ -70,7 +70,6 @@
 /* force no inlining */
 #define FORCE_NOINLINE static __attribute__((__noinline__))
 
-
 /* target attribute */
 #define TARGET_ATTRIBUTE(target) __attribute__((__target__(target)))
 
@@ -135,7 +134,6 @@
 
 /*Like DYNAMIC_BMI2 but for compile time determination of BMI2 support*/
 
-
 /* compile time determination of SIMD support */
 
 /* C-language Attributes are added in C23. */
@@ -178,7 +176,5 @@
 /*-**************************************************************
 *  Sanitizer
 *****************************************************************/
-
-
 
 #endif /* ZSTD_COMPILER_H */

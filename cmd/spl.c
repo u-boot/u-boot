@@ -66,7 +66,6 @@ static int call_bootm(int argc, char *const argv[], const char *subcommand[])
 		bootm_argv[2] = argv[0]; /* kernel addr */
 	}
 
-
 	/*
 	 * - do the work -
 	 * exec subcommands of do_bootm to init the images

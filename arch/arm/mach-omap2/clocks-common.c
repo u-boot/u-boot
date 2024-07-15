@@ -896,7 +896,6 @@ void do_disable_clocks(u32 const *clk_domains,
 {
 	u32 i, max = 100;
 
-
 	/* Clock modules that need to be put in SW_DISABLE */
 	for (i = 0; (i < max) && clk_modules_disable[i]; i++)
 		disable_clock_module(clk_modules_disable[i],

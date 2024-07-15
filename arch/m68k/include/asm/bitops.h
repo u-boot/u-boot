@@ -19,7 +19,6 @@ extern int test_and_change_bit(int nr, volatile void *addr);
 
 #ifdef __KERNEL__
 
-
 static inline int test_bit(int nr, __const__ volatile void *addr)
 {
 	__const__ unsigned int *p = (__const__ unsigned int *) addr;

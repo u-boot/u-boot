@@ -32,7 +32,6 @@ static __inline__ unsigned long get_dec (void)
 	return val;
 }
 
-
 static __inline__ void set_dec (unsigned long val)
 {
 	if (val)

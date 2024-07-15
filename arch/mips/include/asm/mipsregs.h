@@ -125,7 +125,6 @@
  */
 #define CP0_TX39_CACHE	$7
 
-
 /* Generic EntryLo bit definitions */
 #define ENTRYLO_G		(_ULCAST_(1) << 0)
 #define ENTRYLO_V		(_ULCAST_(1) << 1)
@@ -987,7 +986,6 @@
 #define CP1_FENR	$28
 #define CP1_STATUS	$31
 
-
 /*
  * Bits in the MIPS32/64 coprocessor 1 (FPU) revision register.
  */
@@ -1101,7 +1099,6 @@
 #define FPU_CSR_RZ	0x1	/* towards zero */
 #define FPU_CSR_RU	0x2	/* towards +Infinity */
 #define FPU_CSR_RD	0x3	/* towards -Infinity */
-
 
 #ifndef __ASSEMBLY__
 
@@ -1261,7 +1258,6 @@ static inline void tlbinvf(void)
 		".set pop");
 }
 
-
 /*
  * Functions to access the R10000 performance counters.	 These are basically
  * mfc0 and mtc0 instructions from and to coprocessor register with a 5-bit
@@ -1306,7 +1302,6 @@ do {								\
 	:							\
 	: "r" (val), "i" (counter));				\
 } while (0)
-
 
 /*
  * Macros to access the system control coprocessor
@@ -2402,7 +2397,6 @@ do {									\
 	: "=r" (mfhi3));						\
 	mfhi3;								\
 })
-
 
 #define mtlo0(x)							\
 ({									\

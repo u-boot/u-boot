@@ -18,7 +18,6 @@
 
 #include "mem.h"
 
-
 typedef struct {
     U32 f1c;
     U32 f1d;

@@ -65,7 +65,6 @@ static __inline__ void __FD_CLR(unsigned long __fd, __kernel_fd_set *__fdsetp)
 	__fdsetp->fds_bits[__tmp] &= ~(1UL<<__rem);
 }
 
-
 #undef	__FD_ISSET
 static __inline__ int __FD_ISSET(unsigned long __fd, const __kernel_fd_set *__p)
 {

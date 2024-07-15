@@ -519,7 +519,6 @@ phys_size_t get_effective_memsize(void)
 	board_mem_get_layout(&phys_sdram_1_start, &phys_sdram_1_size,
 			     &phys_sdram_2_start, &phys_sdram_2_size);
 
-
 	end1 = (sc_faddr_t)phys_sdram_1_start + phys_sdram_1_size;
 	for (mr = 0; mr < 64; mr++) {
 		err = get_owned_memreg(mr, &start, &end);
@@ -698,7 +697,6 @@ static u64 get_block_size(sc_faddr_t addr_start, sc_faddr_t addr_end)
 
 	board_mem_get_layout(&phys_sdram_1_start, &phys_sdram_1_size,
 			     &phys_sdram_2_start, &phys_sdram_2_size);
-
 
 	end1 = (sc_faddr_t)phys_sdram_1_start + phys_sdram_1_size;
 	end2 = (sc_faddr_t)phys_sdram_2_start + phys_sdram_2_size;

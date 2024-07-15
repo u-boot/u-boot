@@ -3,7 +3,6 @@
 
 #include <asm/ptrace.h>
 
-
 struct sigcontext_struct {
 	unsigned long	_unused[4];
 	int		signal;

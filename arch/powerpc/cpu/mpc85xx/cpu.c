@@ -297,7 +297,6 @@ int checkcpu (void)
 	return 0;
 }
 
-
 /* ------------------------------------------------------------------------- */
 
 int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -337,7 +336,6 @@ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return 1;
 }
 
-
 /*
  * Get timebase clock frequency
  */
@@ -347,7 +345,6 @@ __weak unsigned long get_tbclk(void)
 
 	return (gd->bus_clk + (tbclk_div >> 1)) / tbclk_div;
 }
-
 
 /*
  * Initializes on-chip MMC controllers.

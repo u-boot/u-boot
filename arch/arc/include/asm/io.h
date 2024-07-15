@@ -77,7 +77,6 @@ static inline void sync(void)
 #define __arch_putl(v, a)	({ __comp_b(); *(volatile u32 *)(a) = (v); __comp_b(); })
 #define __arch_putq(v, a)	({ __comp_b(); *(volatile u64 *)(a) = (v); __comp_b(); })
 
-
 /*
  * We add memory barriers for __raw_readX / __raw_writeX accessors same way as
  * it is done for readX and writeX accessors as lots of U-Boot driver uses
@@ -92,7 +91,6 @@ static inline void sync(void)
 #define __raw_readw(c)		({ u16 __v = __arch_getw(c); __iormb(); __v; })
 #define __raw_readl(c)		({ u32 __v = __arch_getl(c); __iormb(); __v; })
 #define __raw_readq(c)		({ u64 __v = __arch_getq(c); __iormb(); __v; })
-
 
 static inline void __raw_writesb(unsigned long addr, const void *data,
 				 int bytelen)

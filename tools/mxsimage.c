@@ -2058,7 +2058,6 @@ static int sb_verify_image_end(struct sb_image_ctx *ictx,
 	return ret;
 }
 
-
 static int sb_build_tree_from_img(struct sb_image_ctx *ictx)
 {
 	long filesize;

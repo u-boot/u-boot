@@ -255,7 +255,6 @@ static int device_list_add(struct btrfs_super_block *disk_super,
 		}
 	}
 
-
 	if (found_transid > fs_devices->latest_trans) {
 		fs_devices->latest_devid = devid;
 		fs_devices->latest_trans = found_transid;

@@ -87,7 +87,6 @@
 /*--- Compression stuff                           ---*/
 /*---------------------------------------------------*/
 
-
 /*---------------------------------------------------*/
 #ifndef BZ_NO_STDIO
 void BZ2_bz__AssertH__fail ( int errcode )
@@ -137,7 +136,6 @@ void BZ2_bz__AssertH__fail ( int errcode )
 }
 #endif
 
-
 /*---------------------------------------------------*/
 static
 int bz_config_ok ( void )
@@ -147,7 +145,6 @@ int bz_config_ok ( void )
    if (sizeof(char)  != 1) return 0;
    return 1;
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -177,7 +174,6 @@ void prepare_new_block ( EState* s )
    s->blockNo++;
 }
 
-
 /*---------------------------------------------------*/
 static
 void init_RL ( EState* s )
@@ -185,7 +181,6 @@ void init_RL ( EState* s )
    s->state_in_ch  = 256;
    s->state_in_len = 0;
 }
-
 
 static
 Bool isempty_RL ( EState* s )
@@ -261,7 +256,6 @@ int BZ_API(BZ2_bzCompressInit)
    return BZ_OK;
 }
 
-
 /*---------------------------------------------------*/
 static
 void add_pair_to_block ( EState* s )
@@ -297,7 +291,6 @@ void add_pair_to_block ( EState* s )
    }
 }
 
-
 /*---------------------------------------------------*/
 static
 void flush_RL ( EState* s )
@@ -305,7 +298,6 @@ void flush_RL ( EState* s )
    if (s->state_in_ch < 256) add_pair_to_block ( s );
    init_RL ( s );
 }
-
 
 /*---------------------------------------------------*/
 #define ADD_CHAR_TO_BLOCK(zs,zchh0)               \
@@ -333,7 +325,6 @@ void flush_RL ( EState* s )
       zs->state_in_len++;                         \
    }                                              \
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -379,7 +370,6 @@ Bool copy_input_until_stop ( EState* s )
    return progress_in;
 }
 
-
 /*---------------------------------------------------*/
 static
 Bool copy_output_until_stop ( EState* s )
@@ -405,7 +395,6 @@ Bool copy_output_until_stop ( EState* s )
 
    return progress_out;
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -452,7 +441,6 @@ Bool handle_compress ( bz_stream* strm )
 
    return progress_in || progress_out;
 }
-
 
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzCompress) ( bz_stream *strm, int action )
@@ -513,7 +501,6 @@ int BZ_API(BZ2_bzCompress) ( bz_stream *strm, int action )
    }
    return BZ_OK; /*--not reached--*/
 }
-
 
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzCompressEnd)  ( bz_stream *strm )
@@ -578,7 +565,6 @@ int BZ_API(BZ2_bzDecompressInit)
    return BZ_OK;
 }
 
-
 /*---------------------------------------------------*/
 static
 void unRLE_obuf_to_output_FAST ( DState* s )
@@ -603,7 +589,6 @@ void unRLE_obuf_to_output_FAST ( DState* s )
 
 	 /* can a new run be started? */
 	 if (s->nblock_used == s->save_nblock+1) return;
-
 
 	 s->state_out_len = 1;
 	 s->state_out_ch = s->k0;
@@ -720,7 +705,6 @@ void unRLE_obuf_to_output_FAST ( DState* s )
    }
 }
 
-
 /*---------------------------------------------------*/
 __inline__ Int32 BZ2_indexIntoF ( Int32 indx, Int32 *cftab )
 {
@@ -734,7 +718,6 @@ __inline__ Int32 BZ2_indexIntoF ( Int32 indx, Int32 *cftab )
    while (na - nb != 1);
    return nb;
 }
-
 
 /*---------------------------------------------------*/
 static
@@ -760,7 +743,6 @@ void unRLE_obuf_to_output_SMALL ( DState* s )
 
 	 /* can a new run be started? */
 	 if (s->nblock_used == s->save_nblock+1) return;
-
 
 	 s->state_out_len = 1;
 	 s->state_out_ch = s->k0;
@@ -831,7 +813,6 @@ void unRLE_obuf_to_output_SMALL ( DState* s )
    }
 }
 
-
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzDecompress) ( bz_stream *strm )
 {
@@ -886,7 +867,6 @@ int BZ_API(BZ2_bzDecompress) ( bz_stream *strm )
    return 0;  /*NOTREACHED*/
 }
 
-
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzDecompressEnd)  ( bz_stream *strm )
 {
@@ -905,7 +885,6 @@ int BZ_API(BZ2_bzDecompressEnd)  ( bz_stream *strm )
 
    return BZ_OK;
 }
-
 
 #ifndef BZ_NO_STDIO
 /*---------------------------------------------------*/
@@ -930,7 +909,6 @@ typedef
    }
    bzFile;
 
-
 /*---------------------------------------------*/
 static Bool myfeof ( FILE* f )
 {
@@ -939,7 +917,6 @@ static Bool myfeof ( FILE* f )
    ungetc ( c, f );
    return False;
 }
-
 
 /*---------------------------------------------------*/
 BZFILE* BZ_API(BZ2_bzWriteOpen)
@@ -987,7 +964,6 @@ BZFILE* BZ_API(BZ2_bzWriteOpen)
    return bzf;
 }
 
-
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzWrite)
 	     ( int*    bzerror,
@@ -1032,7 +1008,6 @@ void BZ_API(BZ2_bzWrite)
    }
 }
 
-
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzWriteClose)
 		  ( int*          bzerror,
@@ -1044,7 +1019,6 @@ void BZ_API(BZ2_bzWriteClose)
    BZ2_bzWriteClose64 ( bzerror, b, abandon,
 			nbytes_in, NULL, nbytes_out, NULL );
 }
-
 
 void BZ_API(BZ2_bzWriteClose64)
 		  ( int*          bzerror,
@@ -1110,7 +1084,6 @@ void BZ_API(BZ2_bzWriteClose64)
    free ( bzf );
 }
 
-
 /*---------------------------------------------------*/
 BZFILE* BZ_API(BZ2_bzReadOpen)
 		   ( int*  bzerror,
@@ -1166,7 +1139,6 @@ BZFILE* BZ_API(BZ2_bzReadOpen)
    return bzf;
 }
 
-
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzReadClose) ( int *bzerror, BZFILE *b )
 {
@@ -1183,7 +1155,6 @@ void BZ_API(BZ2_bzReadClose) ( int *bzerror, BZFILE *b )
       (void)BZ2_bzDecompressEnd ( &(bzf->strm) );
    free ( bzf );
 }
-
 
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzRead)
@@ -1244,7 +1215,6 @@ int BZ_API(BZ2_bzRead)
    return 0; /*not reached*/
 }
 
-
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzReadGetUnused)
 		     ( int*    bzerror,
@@ -1265,7 +1235,6 @@ void BZ_API(BZ2_bzReadGetUnused)
    *unused = bzf->strm.next_in;
 }
 #endif
-
 
 /*---------------------------------------------------*/
 /*--- Misc convenience stuff                      ---*/
@@ -1372,7 +1341,6 @@ int BZ_API(BZ2_bzBuffToBuffDecompress)
    return ret;
 }
 
-
 /*---------------------------------------------------*/
 /*--
    Code contributed by Yoshioka Tsuneo
@@ -1393,7 +1361,6 @@ const char * BZ_API(BZ2_bzlibVersion)(void)
 {
    return BZ_VERSION;
 }
-
 
 #ifndef BZ_NO_STDIO
 /*---------------------------------------------------*/
@@ -1476,7 +1443,6 @@ BZFILE * bzopen_or_bzdopen
    return bzfp;
 }
 
-
 /*---------------------------------------------------*/
 /*--
    open file for read or write.
@@ -1490,7 +1456,6 @@ BZFILE * BZ_API(BZ2_bzopen)
    return bzopen_or_bzdopen(path,-1,mode,/*bzopen*/0);
 }
 
-
 /*---------------------------------------------------*/
 BZFILE * BZ_API(BZ2_bzdopen)
 	       ( int fd,
@@ -1498,7 +1463,6 @@ BZFILE * BZ_API(BZ2_bzdopen)
 {
    return bzopen_or_bzdopen(NULL,fd,mode,/*bzdopen*/1);
 }
-
 
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzread) (BZFILE* b, void* buf, int len )
@@ -1513,7 +1477,6 @@ int BZ_API(BZ2_bzread) (BZFILE* b, void* buf, int len )
    }
 }
 
-
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzwrite) (BZFILE* b, void* buf, int len )
 {
@@ -1527,14 +1490,12 @@ int BZ_API(BZ2_bzwrite) (BZFILE* b, void* buf, int len )
    }
 }
 
-
 /*---------------------------------------------------*/
 int BZ_API(BZ2_bzflush) (BZFILE *b)
 {
    /* do nothing now... */
    return 0;
 }
-
 
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzclose) (BZFILE* b)
@@ -1555,7 +1516,6 @@ void BZ_API(BZ2_bzclose) (BZFILE* b)
       fclose(fp);
    }
 }
-
 
 /*---------------------------------------------------*/
 /*--
@@ -1579,7 +1539,6 @@ static char *bzerrorstrings[] = {
       ,"???"   /* for future */
       ,"???"   /* for future */
 };
-
 
 const char * BZ_API(BZ2_bzerror) (BZFILE *b, int *errnum)
 {

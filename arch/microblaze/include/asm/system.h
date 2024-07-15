@@ -40,7 +40,6 @@ extern void *switch_thread (struct thread_struct *last,
 	}								\
 } while (0)
 
-
 /* Enable/disable interrupts.  */
 #define __sti() \
 {								\

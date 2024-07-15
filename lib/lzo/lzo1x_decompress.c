@@ -31,7 +31,6 @@ static const unsigned char lzop_magic[] = {
 
 #define HEADER_HAS_FILTER	0x00000800L
 
-
 bool lzop_is_valid_header(const unsigned char *src)
 {
 	int i;

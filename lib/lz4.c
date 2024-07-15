@@ -71,7 +71,6 @@ static void LZ4_wildCopy(void* dstPtr, const void* srcPtr, void* dstEnd)
     do { LZ4_copy8(d,s); d+=8; s+=8; } while (d<e);
 }
 
-
 /**************************************
 *  Common Constants
 **************************************/

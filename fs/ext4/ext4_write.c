@@ -20,7 +20,6 @@
  * ext4write : Based on generic ext4 protocol.
  */
 
-
 #include <blk.h>
 #include <log.h>
 #include <malloc.h>
@@ -745,7 +744,6 @@ void ext4fs_deinit(void)
 		free(fs->inode_bmaps);
 		fs->inode_bmaps = NULL;
 	}
-
 
 	free(fs->gdtable);
 	fs->gdtable = NULL;

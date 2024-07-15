@@ -1106,7 +1106,6 @@ void os_relaunch(char *argv[])
 	os_exit(1);
 }
 
-
 #ifdef CONFIG_FUZZ
 static void *fuzzer_thread(void * ptr)
 {

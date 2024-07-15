@@ -37,7 +37,6 @@
  *
  */
 
-
 #define FSL_INVALID_STREAM_ID		0
 
 /* legacy devices */

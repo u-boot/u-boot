@@ -31,7 +31,6 @@
  * only been tested with USB memory sticks.
  */
 
-
 #include <blk.h>
 #include <bootdev.h>
 #include <command.h>
@@ -352,7 +351,6 @@ static int usb_stor_irq(struct usb_device *dev)
 	return 0;
 }
 
-
 #ifdef	DEBUG
 
 static void usb_show_srb(struct scsi_cmd *pccb)
@@ -663,7 +661,6 @@ static int usb_stor_CB_comdat(struct scsi_cmd *srb, struct us_data *us)
 
 	return result;
 }
-
 
 static int usb_stor_CBI_get_status(struct scsi_cmd *srb, struct us_data *us)
 {
@@ -1115,7 +1112,6 @@ static int usb_write_10(struct scsi_cmd *srb, struct us_data *ss,
 	debug("write10: start %lx blocks %x\n", start, blocks);
 	return ss->transport(srb, ss);
 }
-
 
 #ifdef CONFIG_USB_BIN_FIXUP
 /*

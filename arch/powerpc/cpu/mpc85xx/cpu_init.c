@@ -128,7 +128,6 @@ void fsl_erratum_a006261_workaround(struct ccsr_usb_phy __iomem *usb_phy)
 }
 #endif
 
-
 #if defined(CONFIG_QE) && !defined(CONFIG_U_QE)
 extern qe_iop_conf_t qe_iop_conf_tab[];
 extern void qe_config_iopin(u8 port, u8 pin, int dir,

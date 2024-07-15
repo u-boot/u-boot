@@ -793,7 +793,6 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	return dcd_len;
 }
 
-
 static int imximage_check_image_types(uint8_t type)
 {
 	if (type == IH_TYPE_IMXIMAGE)
@@ -1056,7 +1055,6 @@ static int imximage_generate(struct image_tool_params *params,
 
 	return pad_len;
 }
-
 
 /*
  * imximage parameters

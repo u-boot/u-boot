@@ -84,7 +84,6 @@ static int peri_clk_enable(struct clk *c, int enable)
 	struct bcm_clk_gate *gate = &cd->gate;
 	void *base = (void *)c->ccu_clk_mgr_base;
 
-
 	debug("%s: %s\n", __func__, c->name);
 
 	clk_get_rate(c);	/* Make sure rate and sel are filled in */

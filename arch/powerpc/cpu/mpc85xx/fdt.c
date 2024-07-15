@@ -428,7 +428,6 @@ static inline void ft_fixup_cache(void *blob)
 	ft_fixup_l2cache(blob);
 }
 
-
 void fdt_add_enet_stashing(void *fdt)
 {
 	do_fixup_by_compat(fdt, "gianfar", "bd-stash", NULL, 0, 1);

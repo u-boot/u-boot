@@ -270,7 +270,6 @@ found_middle:
 	return result + ffz(tmp);
 }
 
-
 #define _EXT2_HAVE_ASM_BITOPS_
 
 #ifdef __KERNEL__

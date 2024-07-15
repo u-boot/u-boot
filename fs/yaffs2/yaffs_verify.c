@@ -240,7 +240,6 @@ void yaffs_verify_file(struct yaffs_obj *obj)
 	dev = obj->my_dev;
 	obj_id = obj->obj_id;
 
-
 	/* Check file size is consistent with tnode depth */
 	yaffs_addr_to_chunk(dev, obj->variant.file_variant.file_size,
 				&last_chunk, &offset_in_chunk);

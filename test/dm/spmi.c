@@ -70,7 +70,6 @@ static int dm_test_spmi_access(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_spmi_access, UT_TESTF_SCAN_FDT);
 
-
 /* Test if it's possible to access GPIO that should be in pmic */
 static int dm_test_spmi_access_peripheral(struct unit_test_state *uts)
 {

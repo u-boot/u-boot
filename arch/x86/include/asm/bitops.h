@@ -5,7 +5,6 @@
  * Copyright 1992, Linus Torvalds.
  */
 
-
 /*
  * These have to be done with inline assembly: that way the bit-setting
  * is guaranteed to be atomic. All bit operations return 0 if the bit

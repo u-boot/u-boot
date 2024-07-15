@@ -44,7 +44,6 @@ int cleanup_before_linux (void)
 
 	disable_interrupts();
 
-
 	/* turn off I/D-cache */
 	icache_disable();
 	dcache_disable();

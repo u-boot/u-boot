@@ -276,7 +276,6 @@ static int mvebu_mbus_alloc_window(phys_addr_t base, size_t size,
 							       target, attr);
 	}
 
-
 	for (win = 0; win < MVEBU_MBUS_NUM_WINS; win++)
 		if (mvebu_mbus_window_is_free(win))
 			return mvebu_mbus_setup_window(win, base, size,

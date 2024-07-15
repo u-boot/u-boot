@@ -694,7 +694,6 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	}
 }
 
-
 static void tftp_timeout_handler(void)
 {
 	if (++timeout_count > timeout_count_max) {

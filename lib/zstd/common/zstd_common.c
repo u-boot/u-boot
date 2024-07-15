@@ -8,8 +8,6 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-
-
 /*-*************************************
 *  Dependencies
 ***************************************/
@@ -18,14 +16,12 @@
 #include "error_private.h"
 #include "zstd_internal.h"
 
-
 /*-****************************************
 *  Version
 ******************************************/
 unsigned ZSTD_versionNumber(void) { return ZSTD_VERSION_NUMBER; }
 
 const char* ZSTD_versionString(void) { return ZSTD_VERSION_STRING; }
-
 
 /*-****************************************
 *  ZSTD Error Management
@@ -47,8 +43,6 @@ ZSTD_ErrorCode ZSTD_getErrorCode(size_t code) { return ERR_getErrorCode(code); }
 /*! ZSTD_getErrorString() :
  *  provides error code string from enum */
 const char* ZSTD_getErrorString(ZSTD_ErrorCode code) { return ERR_getErrorString(code); }
-
-
 
 /*=**************************************************************
 *  Custom allocator

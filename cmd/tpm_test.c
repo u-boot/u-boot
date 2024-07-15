@@ -424,7 +424,6 @@ static int test_startup(struct udevice *dev)
 	} \
 } while (0)
 
-
 static int test_timing(struct udevice *dev)
 {
 	uint8_t in[20], out[20];

@@ -20,7 +20,6 @@
  *
  */
 
-
 /* compat. with non-clang compilers */
 #ifndef __has_attribute
   #define __has_attribute(x) 0

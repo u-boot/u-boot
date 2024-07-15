@@ -96,5 +96,4 @@
 #define LVDS_24BIT		(0 << 1)
 #define LVDS_18BIT		(1 << 1)
 
-
 #endif
