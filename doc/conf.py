@@ -21,6 +21,12 @@ from subprocess import check_output
 # Get Sphinx version
 major, minor, patch = sphinx.version_info[:3]
 
+# Set canonical URL from the Read the Docs Domain
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+if os.environ.get("READTHEDOCS", "") == "True":
+    html_context["READTHEDOCS"] = True
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
