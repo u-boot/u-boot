@@ -21,16 +21,6 @@
 struct blk_desc;
 struct jmp_buf_data;
 
-static inline int guidcmp(const void *g1, const void *g2)
-{
-	return memcmp(g1, g2, sizeof(efi_guid_t));
-}
-
-static inline void *guidcpy(void *dst, const void *src)
-{
-	return memcpy(dst, src, sizeof(efi_guid_t));
-}
-
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
 /**

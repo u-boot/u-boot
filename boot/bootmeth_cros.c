@@ -163,7 +163,7 @@ static int scan_part(struct udevice *blk, int partnum,
 	if (uuid_str_to_bin(info->type_guid, type.b, UUID_STR_FORMAT_GUID))
 		return log_msg_ret("typ", -EINVAL);
 
-	if (memcmp(&cros_kern_type, &type, sizeof(type)))
+	if (guidcmp(&cros_kern_type, &type))
 		return log_msg_ret("typ", -ENOEXEC);
 
 	/* Make a buffer for the header information */
