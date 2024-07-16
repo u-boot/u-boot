@@ -703,6 +703,8 @@ static int smbios_write_type4(ulong *current, int handle,
 {
 	struct smbios_type4 *t;
 	int len = sizeof(*t);
+	u8 *hdl;
+	size_t hdl_size;
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
@@ -729,9 +731,25 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->processor_upgrade =
 		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_UPGRADE);
 
-	t->l1_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
-	t->l2_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
-	t->l3_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+	/* Read the cache handles */
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_CACHE_HANDLE,
+			      &hdl, &hdl_size) &&
+	    (hdl_size == SYSINFO_CACHE_LVL_MAX * sizeof(u16))) {
+		u16 *handle = (u16 *)hdl;
+
+		t->l1_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+		handle++;
+		t->l2_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+		handle++;
+		t->l3_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+	} else {
+		t->l1_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+		t->l2_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+		t->l3_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+	}
 
 	t->serial_number = smbios_add_prop_si(ctx, NULL,
 					      SYSINFO_ID_SMBIOS_PROCESSOR_SN,
@@ -762,6 +780,86 @@ static int smbios_write_type4(ulong *current, int handle,
 	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type7_1level(ulong *current, int handle,
+				     struct smbios_ctx *ctx, int level)
+{
+	struct smbios_type7 *t;
+	int len = sizeof(*t);
+	u8 *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+	fill_smbios_header(t, SMBIOS_CACHE_INFORMATION, len, handle);
+	smbios_set_eos(ctx, t->eos);
+
+	t->socket_design =
+		smbios_add_prop_si(ctx, "socket",
+				   SYSINFO_ID_SMBIOS_CACHE_SOCKET + level,
+				   NULL);
+	t->config.data =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_CACHE_CONFIG + level);
+	t->max_size.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_MAX_SIZE + level);
+	t->inst_size.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_INST_SIZE + level);
+	t->supp_sram_type.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_SUPSRAM_TYPE + level);
+	t->curr_sram_type.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_CURSRAM_TYPE + level);
+	t->speed = smbios_get_val_si(ctx,
+				     SYSINFO_ID_SMBIOS_CACHE_SPEED + level);
+	t->err_corr_type =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_ERRCOR_TYPE + level);
+	t->sys_cache_type =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_SCACHE_TYPE + level);
+	t->associativity =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_ASSOC + level);
+	t->max_size2.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_MAX_SIZE2 + level);
+	t->inst_size2.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_INST_SIZE2 + level);
+
+	/* Save the cache handles */
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_CACHE_HANDLE,
+			      &hdl, &hdl_size)) {
+		if (hdl_size == SYSINFO_CACHE_LVL_MAX * sizeof(u16))
+			*((u16 *)hdl + level) = handle;
+	}
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type7(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
+{
+	int len = 0;
+	int i, level;
+
+	/* Get the number of level */
+	level =	smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_CACHE_LEVEL);
+	if (level >= SYSINFO_CACHE_LVL_MAX) /* Error, return 0-length */
+		return 0;
+
+	for (i = 0; i <= level; i++)
+		len += smbios_write_type7_1level(current, handle++, ctx, i);
 
 	return len;
 }
@@ -805,6 +903,8 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type2, "baseboard", },
 	/* Type 3 must immediately follow type 2 due to chassis handle. */
 	{ smbios_write_type3, "chassis", },
+	/* Type 7 must ahead of type 4 to get cache handles. */
+	{ smbios_write_type7, },
 	{ smbios_write_type4, },
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
