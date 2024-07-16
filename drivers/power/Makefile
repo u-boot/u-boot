@@ -8,13 +8,16 @@ obj-$(CONFIG_$(SPL_TPL_)POWER_DOMAIN) += domain/
 obj-y += pmic/
 obj-y += regulator/
 
+obj-$(CONFIG_AXP221_POWER)	+= axp221.o
+ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_AXP152_POWER)	+= axp152.o
 obj-$(CONFIG_AXP209_POWER)	+= axp209.o
-obj-$(CONFIG_AXP221_POWER)	+= axp221.o
-obj-$(CONFIG_AXP305_POWER)	+= axp305.o
-obj-$(CONFIG_AXP313_POWER)	+= axp313.o
+obj-$(CONFIG_AXP305_POWER)	+= axp_spl.o
+obj-$(CONFIG_AXP313_POWER)	+= axp_spl.o
+obj-$(CONFIG_AXP717_POWER)	+= axp_spl.o
 obj-$(CONFIG_AXP809_POWER)	+= axp809.o
 obj-$(CONFIG_AXP818_POWER)	+= axp818.o
+endif
 obj-$(CONFIG_EXYNOS_TMU)	+= exynos-tmu.o
 obj-$(CONFIG_SY8106A_POWER)	+= sy8106a.o
 obj-$(CONFIG_TPS6586X_POWER)	+= tps6586x.o
