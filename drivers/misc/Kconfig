@@ -568,7 +568,7 @@ config QFW_MMIO
 config QFW_SMBIOS
 	bool
 	default y
-	depends on QFW && SMBIOS && !SANDBOX
+	depends on QFW && SMBIOS && !SANDBOX && !SYSINFO_SMBIOS
 	help
 	  Hidden option to read SMBIOS tables from QEMU.
 
