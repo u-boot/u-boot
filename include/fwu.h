@@ -417,4 +417,15 @@ int fwu_state_machine_updates(bool trial_state, uint32_t update_index);
  */
 int fwu_init(void);
 
+/**
+ * fwu_bank_accepted() - Has the bank been accepted
+ * @data: Version agnostic FWU metadata information
+ * @bank: Update bank to check
+ *
+ * Check in the given bank if all the images have been accepted.
+ *
+ * Return: true if all images accepted, false otherwise
+ */
+bool fwu_bank_accepted(struct fwu_data *data, uint32_t bank);
+
 #endif /* _FWU_H_ */
