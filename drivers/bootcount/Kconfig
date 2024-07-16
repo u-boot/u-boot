@@ -25,13 +25,13 @@ config BOOTCOUNT_GENERIC
 	    Set to the address where the bootcount and bootcount magic
 	    will be stored.
 
-config BOOTCOUNT_EXT
-	bool "Boot counter on EXT filesystem"
-	depends on FS_EXT4
-	select EXT4_WRITE
+config BOOTCOUNT_FS
+	bool "Boot counter on a filesystem"
 	help
-	  Add support for maintaining boot count in a file on an EXT
-	  filesystem.
+	  Add support for maintaining boot count in a file on a filesystem.
+	  This requires that you have enabled write support for the filesystem
+	  that will be used by the partition that you configure this feature
+	  for.
 
 config BOOTCOUNT_AM33XX
 	bool "Boot counter in AM33XX RTC IP block"
@@ -184,26 +184,26 @@ config SYS_BOOTCOUNT_SINGLEWORD
 	  This option enables packing boot count magic value and boot count
 	  into single word (32 bits).
 
-config SYS_BOOTCOUNT_EXT_INTERFACE
-	string "Interface on which to find boot counter EXT filesystem"
+config SYS_BOOTCOUNT_FS_INTERFACE
+	string "Interface on which to find boot counter filesystem"
 	default "mmc"
-	depends on BOOTCOUNT_EXT
+	depends on BOOTCOUNT_FS
 	help
 	  Set the interface to use when locating the filesystem to use for the
 	  boot counter.
 
-config SYS_BOOTCOUNT_EXT_DEVPART
-	string "Partition of the boot counter EXT filesystem"
+config SYS_BOOTCOUNT_FS_DEVPART
+	string "Partition of the boot counter filesystem"
 	default "0:1"
-	depends on BOOTCOUNT_EXT
+	depends on BOOTCOUNT_FS
 	help
 	  Set the partition to use when locating the filesystem to use for the
 	  boot counter.
 
-config SYS_BOOTCOUNT_EXT_NAME
-	string "Path and filename of the EXT filesystem based boot counter"
+config SYS_BOOTCOUNT_FS_NAME
+	string "Path and filename of the FS filesystem based boot counter"
 	default "/boot/failures"
-	depends on BOOTCOUNT_EXT
+	depends on BOOTCOUNT_FS
 	help
 	  Set the filename and path of the file used to store the boot counter.
 
@@ -211,18 +211,18 @@ config SYS_BOOTCOUNT_ADDR
 	hex "RAM address used for reading and writing the boot counter"
 	default 0x44E3E000 if BOOTCOUNT_AM33XX || BOOTCOUNT_AM33XX_NVMEM
 	default 0xE0115FF8 if ARCH_LS1043A || ARCH_LS1021A
-	depends on BOOTCOUNT_AM33XX || BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
+	depends on BOOTCOUNT_AM33XX || BOOTCOUNT_GENERIC || BOOTCOUNT_FS || \
 		   BOOTCOUNT_AM33XX_NVMEM
 	help
 	  Set the address used for reading and writing the boot counter.
 
 config SYS_BOOTCOUNT_MAGIC
 	hex "Magic value for the boot counter"
-	default 0xB001C041 if BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
+	default 0xB001C041 if BOOTCOUNT_GENERIC || BOOTCOUNT_FS || \
 			      BOOTCOUNT_AM33XX || BOOTCOUNT_ENV || \
 			      BOOTCOUNT_RAM || BOOTCOUNT_AT91 || DM_BOOTCOUNT
 	default 0xB0 if BOOTCOUNT_AM33XX_NVMEM
-	depends on BOOTCOUNT_GENERIC || BOOTCOUNT_EXT || \
+	depends on BOOTCOUNT_GENERIC || BOOTCOUNT_FS || \
 		   BOOTCOUNT_AM33XX || BOOTCOUNT_ENV || \
 		   BOOTCOUNT_RAM || BOOTCOUNT_AT91 || DM_BOOTCOUNT || \
 		   BOOTCOUNT_AM33XX_NVMEM
