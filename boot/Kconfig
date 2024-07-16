@@ -585,6 +585,15 @@ config BOOTMETH_EFI_BOOTMGR
 	  the EFI binary to be launched is determined. To set the EFI variables
 	  use the eficonfig command.
 
+config BOOTMETH_QFW
+	bool "Boot method using QEMU parameters"
+	depends on QFW
+	default y
+	help
+	 Use QEMU parameters -kernel, -initrd, -append to determine the kernel,
+	 initial RAM disk, and kernel command line parameters to boot an
+	 operating system. U-Boot's control device-tree is passed to the kernel.
+
 config BOOTMETH_VBE
 	bool "Bootdev support for Verified Boot for Embedded"
 	depends on FIT
