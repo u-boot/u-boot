@@ -1524,6 +1524,10 @@ doc/develop/moveconfig.rst for documentation.'''
 def main():
     """Main program"""
     parser, args = parse_args()
+    if not any((args.force_sync, args.build_db, args.imply, args.find,
+                args.scan_source, args.test)):
+        parser.print_usage()
+        sys.exit(1)
     if args.test:
         sys.argv = [sys.argv[0]]
         fail, _ = doctest.testmod()
@@ -1533,11 +1537,6 @@ def main():
 
     col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
                          else terminal.COLOR_IF_TERMINAL)
-
-    if not any((args.force_sync, args.build_db, args.imply, args.find,
-                args.scan_source)):
-        parser.print_usage()
-        sys.exit(1)
 
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
