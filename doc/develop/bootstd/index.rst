@@ -7,3 +7,4 @@ Standard Boot
    :maxdepth: 2
 
    overview
+   extlinux

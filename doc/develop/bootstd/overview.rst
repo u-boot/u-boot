@@ -414,9 +414,9 @@ a good selection of boot options is available.
 Available bootmeth drivers
 --------------------------
 
-Bootmeth drivers are provided for:
+Bootmeth drivers are provided for booting from various media:
 
-   - extlinux / syslinux boot from a disk
+   - :doc:`extlinux / syslinux <extlinux>` boot from a storage device
    - extlinux boot from a network (PXE)
    - U-Boot scripts from disk, network or SPI flash
    - EFI boot using bootefi from disk
