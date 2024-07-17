@@ -254,17 +254,18 @@ class Progress:
         sys.stdout.flush()
 
 
-class KconfigScanner:
-    """Kconfig scanner."""
+def scan_kconfig():
+    """Scan all the Kconfig files and create a Config object
 
-    def __init__(self):
-        """Scan all the Kconfig files and create a Config object."""
-        # Define environment variables referenced from Kconfig
-        os.environ['srctree'] = os.getcwd()
-        os.environ['UBOOTVERSION'] = 'dummy'
-        os.environ['KCONFIG_OBJDIR'] = ''
-        os.environ['CC'] = 'gcc'
-        self.conf = kconfiglib.Kconfig()
+    Returns:
+        Kconfig object
+    """
+    # Define environment variables referenced from Kconfig
+    os.environ['srctree'] = os.getcwd()
+    os.environ['UBOOTVERSION'] = 'dummy'
+    os.environ['KCONFIG_OBJDIR'] = ''
+    os.environ['CC'] = 'gcc'
+    return kconfiglib.Kconfig()
 
 
 class KconfigParser:
@@ -912,7 +913,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
         config - a CONFIG_XXX options (a string, e.g. 'CONFIG_CMD_EEPROM')
         defconfig - a defconfig file (a string, e.g. 'configs/snow_defconfig')
     """
-    kconf = KconfigScanner().conf if check_kconfig else None
+    kconf = scan_kconfig() if check_kconfig else None
     if add_imply and add_imply != 'all':
         add_imply = add_imply.split(',')
 
@@ -1342,7 +1343,7 @@ def do_scan_source(path, do_update):
 
 
     print('Scanning Kconfig')
-    kconf = KconfigScanner().conf
+    kconf = scan_kconfig()
     print(f'Scanning source in {path}')
     args = ['git', 'grep', '-E', r'IS_ENABLED|\bCONFIG']
     with subprocess.Popen(args, stdout=subprocess.PIPE) as proc:
