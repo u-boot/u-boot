@@ -21,7 +21,7 @@ Description
 The `bootmeth` command is used to manage bootmeths. It can list them and change
 the order in which they are used.
 
-See :doc:`../../develop/bootstd` for more information.
+See :doc:`/develop/bootstd/index` for more information.
 
 
 .. _bootmeth_order:

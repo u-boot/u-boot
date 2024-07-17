@@ -7,7 +7,7 @@ In addition to the regular best practices such as using :doc:`checkpatch` and
 following the :doc:`docstyle` and the :doc:`codingstyle` there are some things
 which are specific to creating a new board port.
 
-* Implement :doc:`bootstd` to ensure that most operating systems will be
+* Implement :doc:`bootstd/index` to ensure that most operating systems will be
   supported by the platform.
 
 * The platform defconfig file must be generated via `make savedefconfig`.

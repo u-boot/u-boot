@@ -89,7 +89,7 @@ provide a default value.
 
 The variable *$fdtfile* is used in the boot process to automatically load
 a device-tree provided by the operating system. For details of the boot
-process refer to the :doc:`U-Boot Standard Boot <../../../develop/bootstd>`
+process refer to the :doc:`/develop/bootstd/index`
 description.
 
 Boot source selection

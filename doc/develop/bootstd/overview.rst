@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
-U-Boot Standard Boot
-====================
+Standard Boot Overview
+======================
 
 Introduction
 ------------
@@ -17,7 +17,7 @@ introduces the following concepts:
 For Linux, the distro (Linux distribution, e.g. Debian, Fedora) is responsible
 for creating a bootflow for each kernel combination that it wants to offer.
 These bootflows are stored on media so they can be discovered by U-Boot. This
-feature is typically called `distro boot` (see :doc:`distro`) because it is
+feature is typically called `distro boot` (see :doc:`../distro`) because it is
 a way for distributions to boot on any hardware.
 
 Traditionally U-Boot has relied on scripts to implement this feature. See
@@ -32,7 +32,7 @@ way to boot with U-Boot. The feature is extensible to different Operating
 Systems (such as Chromium OS) and devices (beyond just block and network
 devices). It supports EFI boot and EFI bootmgr too.
 
-Finally, standard boot supports the operation of :doc:`vbe`.
+Finally, standard boot supports the operation of :doc:`../vbe`.
 
 Bootflow
 --------
@@ -432,16 +432,16 @@ Three commands are available:
 
 `bootdev`
     Allows listing of available bootdevs, selecting a particular one and
-    getting information about it. See :doc:`../usage/cmd/bootdev`
+    getting information about it. See :doc:`/usage/cmd/bootdev`
 
 `bootflow`
     Allows scanning one or more bootdevs for bootflows, listing available
     bootflows, selecting one, obtaining information about it and booting it.
-    See :doc:`../usage/cmd/bootflow`
+    See :doc:`/usage/cmd/bootflow`
 
 `bootmeth`
     Allow listing of available bootmethds and setting the order in which they
-    are tried. See :doc:`../usage/cmd/bootmeth`
+    are tried. See :doc:`/usage/cmd/bootmeth`
 
 .. _BootflowStates:
 
