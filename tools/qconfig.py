@@ -1453,8 +1453,14 @@ def do_scan_source(path, do_update):
                 print(item, file=out)
 
 
-def main():
-    """Main program"""
+def parse_args():
+    """Parse the program arguments
+
+    Returns:
+        tuple:
+            argparse.ArgumentParser: parser
+            argparse.Namespace: Parsed arguments
+    """
     try:
         cpu_count = multiprocessing.cpu_count()
     except NotImplementedError:
@@ -1512,8 +1518,12 @@ doc/develop/moveconfig.rst for documentation.'''
                       help='show any build errors as boards are built')
     parser.add_argument('configs', nargs='*')
 
-    args = parser.parse_args()
+    return parser, parser.parse_args()
 
+
+def main():
+    """Main program"""
+    parser, args = parse_args()
     if args.test:
         sys.argv = [sys.argv[0]]
         fail, _ = doctest.testmod()
