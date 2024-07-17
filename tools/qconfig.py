@@ -896,15 +896,15 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             - If imply_defconfigs contains anything not in defconfigs then
               this config does not imply the target config
 
-    Params:
-        config_list: List of CONFIG options to check (each a string)
-        add_imply: Automatically add an 'imply' for each config.
-        imply_flags: Flags which control which implying configs are allowed
+    Args:
+        config_list (list of str): List of CONFIG options to check
+        add_imply (bool): Automatically add an 'imply' for each config.
+        imply_flags (int): Flags which control which implying configs are allowed
            (IMPLY_...)
-        skip_added: Don't show options which already have an imply added.
-        check_kconfig: Check if implied symbols already have an 'imply' or
+        skip_added (bool): Don't show options which already have an imply added.
+        check_kconfig (bool): Check if implied symbols already have an 'imply' or
             'select' for the target config, and show this information if so.
-        find_superset: True to look for configs which are a superset of those
+        find_superset (bool): True to look for configs which are a superset of those
             already found. So for example if CONFIG_EXYNOS5 implies an option,
             but CONFIG_EXYNOS covers a larger set of defconfigs and also
             implies that option, this will drop the former in favour of the
@@ -1522,6 +1522,35 @@ doc/develop/moveconfig.rst for documentation.'''
     return parser, parser.parse_args()
 
 
+def imply(args):
+    """Handle checking for flags which imply others
+
+    Args:
+        args (argparse.Namespace): Program arguments
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    imply_flags = 0
+    if args.imply_flags == 'all':
+        imply_flags = -1
+
+    elif args.imply_flags:
+        for flag in args.imply_flags.split(','):
+            bad = flag not in IMPLY_FLAGS
+            if bad:
+                print(f"Invalid flag '{flag}'")
+            if flag == 'help' or bad:
+                print("Imply flags: (separate with ',')")
+                for name, info in IMPLY_FLAGS.items():
+                    print(f' {name:-15s}: {info[1]}')
+                return 1
+            imply_flags |= IMPLY_FLAGS[flag][0]
+
+    do_imply_config(args.configs, args.add_imply, imply_flags, args.skip_added)
+    return 0
+
+
 def do_tests():
     """Run doctests and unit tests (so far there are no unit tests)"""
     sys.argv = [sys.argv[0]]
@@ -1549,28 +1578,11 @@ def main():
         return do_tests()
     if args.scan_source:
         return do_scan_source(os.getcwd(), args.update)
-
     if args.imply:
-        imply_flags = 0
-        if args.imply_flags == 'all':
-            imply_flags = -1
-
-        elif args.imply_flags:
-            for flag in args.imply_flags.split(','):
-                bad = flag not in IMPLY_FLAGS
-                if bad:
-                    print(f"Invalid flag '{flag}'")
-                if flag == 'help' or bad:
-                    print("Imply flags: (separate with ',')")
-                    for name, info in IMPLY_FLAGS.items():
-                        print(f' {name:-15s}: {info[1]}')
-                    parser.print_usage()
-                    sys.exit(1)
-                imply_flags |= IMPLY_FLAGS[flag][0]
-
-        do_imply_config(args.configs, args.add_imply, imply_flags, args.skip_added)
+        if imply(args):
+            parser.print_usage()
+            sys.exit(1)
         return 0
-
     if args.find:
         do_find_config(args.configs)
         return 0
