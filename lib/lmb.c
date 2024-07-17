@@ -174,11 +174,11 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve_flags(sp, bank_end - sp + 1, LMB_NOOVERWRITE);
+		lmb_reserve(sp, bank_end - sp + 1, LMB_NOOVERWRITE);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
-				    gd->mon_len, LMB_NOOVERWRITE);
+			lmb_reserve((phys_addr_t)(uintptr_t)_start, gd->mon_len,
+				    LMB_NOOVERWRITE);
 
 		break;
 	}
@@ -204,7 +204,7 @@ static __maybe_unused int efi_lmb_reserve(void)
 
 	for (i = 0, map = memmap; i < map_size / sizeof(*map); ++map, ++i) {
 		if (map->type != EFI_CONVENTIONAL_MEMORY) {
-			lmb_reserve_flags(map_to_sysmem((void *)(uintptr_t)
+			lmb_reserve(map_to_sysmem((void *)(uintptr_t)
 							map->physical_start),
 					  map->num_pages * EFI_PAGE_SIZE,
 					  map->type == EFI_RESERVED_MEMORY_TYPE
@@ -240,7 +240,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	if (IS_ENABLED(CONFIG_SPL_STACK_R_ADDR)) {
 		rsv_start = gd->start_addr_sp - 16384;
 		rsv_size = 16384;
-		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, rsv_size, LMB_NOOVERWRITE);
 	}
 
 	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS)) {
@@ -248,7 +248,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 		rsv_start = (phys_addr_t)(uintptr_t)__bss_start;
 		rsv_size = (phys_addr_t)(uintptr_t)__bss_end -
 			(phys_addr_t)(uintptr_t)__bss_start;
-		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, rsv_size, LMB_NOOVERWRITE);
 	}
 }
 
@@ -287,7 +287,7 @@ __weak void lmb_add_memory(void)
 			if (rgn_top > ram_top)
 				size -= rgn_top - ram_top;
 
-			lmb_add(bd->bi_dram[i].start, size);
+			lmb_add(bd->bi_dram[i].start, size, LMB_NONE);
 		}
 	}
 }
@@ -496,21 +496,15 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 	return 0;
 }
 
-static long lmb_add_region(struct alist *lmb_rgn_lst, phys_addr_t base,
-			   phys_size_t size)
-{
-	return lmb_add_region_flags(lmb_rgn_lst, base, size, LMB_NONE);
-}
-
 /* This routine may be called with relocation disabled. */
-long lmb_add(phys_addr_t base, phys_size_t size)
+long lmb_add(phys_addr_t base, phys_size_t size, uint flags)
 {
 	struct alist *lmb_rgn_lst = &lmb_free_mem;
 
-	return lmb_add_region(lmb_rgn_lst, base, size);
+	return lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+long lmb_free(phys_addr_t base, phys_size_t size, uint flags)
 {
 	struct lmb_region *rgn;
 	struct alist *lmb_rgn_lst = &lmb_used_mem;
@@ -561,16 +555,11 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 				    rgn[i].flags);
 }
 
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
+long lmb_reserve(phys_addr_t base, phys_size_t size, uint flags)
 {
 	struct alist *lmb_rgn_lst = &lmb_used_mem;
 
 	return lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
-}
-
-long lmb_reserve(phys_addr_t base, phys_size_t size)
-{
-	return lmb_reserve_flags(base, size, LMB_NONE);
 }
 
 static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
@@ -639,16 +628,17 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 	return 0;
 }
 
-phys_addr_t lmb_alloc(phys_size_t size, ulong align)
+phys_addr_t lmb_alloc(phys_size_t size, ulong align, uint flags)
 {
-	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
+	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE, flags);
 }
 
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
+phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
+			   uint flags)
 {
 	phys_addr_t alloc;
 
-	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NONE);
+	alloc = __lmb_alloc_base(size, align, max_addr, flags);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -674,7 +664,7 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				      lmb_memory[rgn].size,
 				      base + size - 1, 1)) {
 			/* ok, reserve the memory */
-			if (lmb_reserve_flags(base, size, flags) >= 0)
+			if (lmb_reserve(base, size, flags) >= 0)
 				return base;
 		}
 	}
@@ -686,9 +676,9 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
  * Try to allocate a specific address range: must be in defined memory but not
  * reserved
  */
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, uint flags)
 {
-	return __lmb_alloc_addr(base, size, LMB_NONE);
+	return __lmb_alloc_addr(base, size, flags);
 }
 
 /* Return number of bytes from a given address that are free */

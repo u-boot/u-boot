@@ -59,21 +59,12 @@ int initr_lmb(void);
  */
 void lmb_add_memory(void);
 
-long lmb_add(phys_addr_t base, phys_size_t size);
-long lmb_reserve(phys_addr_t base, phys_size_t size);
-/**
- * lmb_reserve_flags - Reserve one region with a specific flags bitfield.
- *
- * @base:	base address of the memory region
- * @size:	size of the memory region
- * @flags:	flags for the memory region
- * Return:	0 if OK, > 0 for coalesced region or a negative error code.
- */
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size,
-		       enum lmb_flags flags);
-phys_addr_t lmb_alloc(phys_size_t size, ulong align);
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size);
+long lmb_add(phys_addr_t base, phys_size_t size, uint flags);
+long lmb_reserve(phys_addr_t base, phys_size_t size, uint flags);
+phys_addr_t lmb_alloc(phys_size_t size, ulong align, uint flags);
+phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
+			   uint flags);
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, uint flags);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
 
 /**
@@ -88,7 +79,7 @@ phys_size_t lmb_get_free_size(phys_addr_t addr);
  */
 int lmb_is_reserved_flags(phys_addr_t addr, int flags);
 
-long lmb_free(phys_addr_t base, phys_size_t size);
+long lmb_free(phys_addr_t base, phys_size_t size, uint flags);
 
 void lmb_dump_all(void);
 void lmb_dump_all_force(void);
