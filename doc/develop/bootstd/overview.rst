@@ -421,6 +421,7 @@ Bootmeth drivers are provided for booting from various media:
    - U-Boot scripts from disk, network or SPI flash
    - EFI boot using bootefi from disk
    - VBE
+   - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
    - EFI boot using boot manager
    - Android bootflow (boot image v4)
    - :doc:`QFW <qfw>`: QEMU firmware interface

@@ -10,3 +10,4 @@ Standard Boot
    extlinux
    pxelinux
    qfw
+   cros
