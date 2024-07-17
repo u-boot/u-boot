@@ -416,16 +416,16 @@ Available bootmeth drivers
 
 Bootmeth drivers are provided for booting from various media:
 
+   - Android bootflow (boot image v4)
+   - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
+   - EFI boot using bootefi from disk
+   - EFI boot using boot manager
    - :doc:`extlinux / syslinux <extlinux>` boot from a storage device
    - :doc:`extlinux / syslinux <extlinux>` boot from a network (PXE)
-   - :doc:`U-Boot scripts <script>` from disk, network or SPI flash
-   - EFI boot using bootefi from disk
-   - VBE
-   - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
-   - EFI boot using boot manager
-   - Android bootflow (boot image v4)
-   - :doc:`QFW <qfw>`: QEMU firmware interface
    - :doc:`sandbox <sandbox>` used only for testing
+   - :doc:`U-Boot scripts <script>` from disk, network or SPI flash
+   - :doc:`QFW <qfw>`: QEMU firmware interface
+   - :doc:`VBE </develop/vbe>`: Verified Boot for Embedded
 
 Each driver is controlled by a Kconfig option. If no bootmeth driver is
 selected by a compatible string in the devicetree, all available bootmeth
