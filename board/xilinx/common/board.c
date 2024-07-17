@@ -683,10 +683,10 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 		panic("Not 64bit aligned DT location: %p\n", gd->fdt_blob);
 
 	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_add(gd->ram_base, gd->ram_size);
+	lmb_add(gd->ram_base, gd->ram_size, LMB_NONE);
 	boot_fdt_add_mem_rsv_regions((void *)gd->fdt_blob);
 	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
-	reg = lmb_alloc(size, MMU_SECTION_SIZE);
+	reg = lmb_alloc(size, MMU_SECTION_SIZE, LMB_NONE);
 
 	if (!reg)
 		reg = gd->ram_top - size;

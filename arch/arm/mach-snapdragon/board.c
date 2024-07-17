@@ -275,7 +275,7 @@ void __weak qcom_late_init(void)
 
 #define KERNEL_COMP_SIZE	SZ_64M
 
-#define addr_alloc(size) lmb_alloc(size, SZ_2M)
+#define addr_alloc(size) lmb_alloc(size, SZ_2M, LMB_NONE)
 
 /* Stolen from arch/arm/mach-apple/board.c */
 int board_late_init(void)
