@@ -1072,11 +1072,14 @@ def defconfig_matches(configs, re_match):
 def do_find_config(config_list):
     """Find boards with a given combination of CONFIGs
 
-    Params:
-        config_list: List of CONFIG options to check (each a regex consisting
-            of a config option, with or without a CONFIG_ prefix. If an option
-            is preceded by a tilde (~) then it must be false, otherwise it must
-            be true)
+    Args:
+        config_list (list of str): List of CONFIG options to check (each a regex
+            consisting of a config option, with or without a CONFIG_ prefix. If
+            an option is preceded by a tilde (~) then it must be false,
+            otherwise it must be true)
+
+    Returns:
+        int: exit code (0 for success)
     """
     _, all_defconfigs, config_db, _ = read_database()
 
@@ -1104,6 +1107,7 @@ def do_find_config(config_list):
                 out.add(defc)
     print(f'{len(out)} matches')
     print(' '.join(item.split('_defconfig')[0] for item in out))
+    return 0
 
 
 def prefix_config(cfg):
@@ -1584,8 +1588,7 @@ def main():
             sys.exit(1)
         return 0
     if args.find:
-        do_find_config(args.configs)
-        return 0
+        return do_find_config(args.configs)
 
     # We are either building the database or forcing a sync of defconfigs
     config_db = {}
