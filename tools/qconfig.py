@@ -364,7 +364,7 @@ class Slot:
     """
 
     def __init__(self, toolchains, args, progress, devnull, make_cmd,
-                 reference_src_dir, db_queue, col):
+                 reference_src_dir, db_queue):
         """Create a new process slot.
 
         Args:
@@ -386,7 +386,7 @@ class Slot:
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
         self.reference_src_dir = reference_src_dir
         self.db_queue = db_queue
-        self.col = col
+        self.col = progress.col
         self.parser = KconfigParser(args, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
@@ -594,11 +594,9 @@ class Slot:
         return self.failed_boards
 
 class Slots:
-
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, toolchains, args, progress, reference_src_dir, db_queue,
-                 col):
+    def __init__(self, toolchains, args, progress, reference_src_dir, db_queue):
         """Create a new slots controller.
 
         Args:
@@ -608,17 +606,16 @@ class Slots:
             reference_src_dir (str): Determine the true starting config state
                 from this source tree (None for none)
             db_queue (Queue): output queue to write config info for the database
-            col (terminal.Color): Colour object
         """
         self.args = args
         self.slots = []
         self.progress = progress
-        self.col = col
+        self.col = progress.col
         devnull = subprocess.DEVNULL
         make_cmd = get_make_cmd()
         for _ in range(args.jobs):
             self.slots.append(Slot(toolchains, args, progress, devnull,
-                                   make_cmd, reference_src_dir, db_queue, col))
+                                   make_cmd, reference_src_dir, db_queue))
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
@@ -747,7 +744,7 @@ def move_config(args):
     col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
                          else terminal.COLOR_IF_TERMINAL)
     progress = Progress(col, len(defconfigs))
-    slots = Slots(toolchains, args, progress, reference_src_dir, db_queue, col)
+    slots = Slots(toolchains, args, progress, reference_src_dir, db_queue)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
