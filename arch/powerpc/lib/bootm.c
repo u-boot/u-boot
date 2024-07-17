@@ -139,7 +139,7 @@ void arch_lmb_reserve(void)
 		ulong base = bootmap_base + size;
 		printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
 		       size, (unsigned long long)bootm_size);
-		lmb_reserve(base, bootm_size - size);
+		lmb_reserve(base, bootm_size - size, LMB_NONE);
 	}
 
 	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
