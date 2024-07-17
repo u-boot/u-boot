@@ -918,7 +918,7 @@ F:	drivers/block/blkmap.c
 F:	include/blkmap.h
 F:	test/dm/blkmap.c
 
-BOOTDEVICE
+BOOTSTD
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	boot/bootdev*.c
