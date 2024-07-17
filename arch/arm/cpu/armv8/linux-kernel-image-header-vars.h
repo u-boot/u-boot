@@ -31,7 +31,7 @@
  * when PIE is in effect. So we need to split them up in 32-bit high and low
  * words.
  */
-#ifdef CONFIG_CPU_BIG_ENDIAN
+#ifdef CONFIG_SYS_BIG_ENDIAN
 #define DATA_LE32(data)				\
 	((((data) & 0x000000ff) << 24) |	\
 	 (((data) & 0x0000ff00) << 8)  |	\
@@ -55,7 +55,7 @@
 #endif
 #define __MEM_USAGE		(__CODE_DATA_SIZE + __MAX_EXTRA_RAM_USAGE)
 
-#ifdef CONFIG_CPU_BIG_ENDIAN
+#ifdef CONFIG_SYS_BIG_ENDIAN
 #define __HEAD_FLAG_BE		1
 #else
 #define __HEAD_FLAG_BE		0
