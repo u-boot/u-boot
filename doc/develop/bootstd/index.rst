@@ -11,4 +11,5 @@ Standard Boot
    pxelinux
    qfw
    cros
+   script
    sandbox

@@ -418,7 +418,7 @@ Bootmeth drivers are provided for booting from various media:
 
    - :doc:`extlinux / syslinux <extlinux>` boot from a storage device
    - :doc:`extlinux / syslinux <extlinux>` boot from a network (PXE)
-   - U-Boot scripts from disk, network or SPI flash
+   - :doc:`U-Boot scripts <script>` from disk, network or SPI flash
    - EFI boot using bootefi from disk
    - VBE
    - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
