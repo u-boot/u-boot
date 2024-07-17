@@ -13,7 +13,7 @@ config SOC_PIC32MZDA
 	select ROM_EXCEPTION_VECTORS
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
-	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORT_LITTLE_ENDIAN
 	select SYS_MIPS_CACHE_INIT_RAM_LOAD
 	help
 	  This supports Microchip PIC32MZ[DA] family of microcontrollers.
