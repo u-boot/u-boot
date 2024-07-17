@@ -9,3 +9,4 @@ Standard Boot
    overview
    extlinux
    pxelinux
+   qfw
