@@ -410,6 +410,19 @@ You should probably also enable `CONFIG_BOOTSTD_DEFAULTS`, which provides
 several filesystem and network features (if `CONFIG_NET` is enabled) so that
 a good selection of boot options is available.
 
+Some devicetree properties are supported in the bootstd node when
+`CONFIG_BOOTSTD_FULL` is enabled:
+
+    filename-prefixes
+        List of prefixes to use when searching for files on block devices. This
+        defaults to {"/", "/boot/"} if not provided.
+
+    bootdev-order
+        Lists the bootdev ordering to use. Note that the deprecated
+        `boot_targets` environment variable overrides this, if present.
+
+    theme (subnode)
+        Sets the theme to use for menus. See :doc:`/develop/expo`.
 
 Available bootmeth drivers
 --------------------------
