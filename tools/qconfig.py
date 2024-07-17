@@ -29,7 +29,6 @@ import threading
 import time
 import unittest
 
-import asteval
 from buildman import bsettings
 from buildman import kconfiglib
 from buildman import toolchain
@@ -215,26 +214,6 @@ def read_file(fname, as_lines=True, skip_unicode=False):
                 raise
             print(f"Failed on file '{fname}: {exc}")
             return None
-
-def try_expand(line):
-    """If value looks like an expression, try expanding it
-    Otherwise just return the existing value
-    """
-    if line.find('=') == -1:
-        return line
-
-    try:
-        aeval = asteval.Interpreter( usersyms=SIZES, minimal=True )
-        cfg, val = re.split("=", line)
-        val= val.strip('\"')
-        if re.search(r'[*+-/]|<<|SZ_+|\(([^\)]+)\)', val):
-            newval = hex(aeval(val))
-            print(f'\tExpanded expression {val} to {newval}')
-            return cfg+'='+newval
-    except:
-        print(f'\tFailed to expand expression in {line}')
-
-    return line
 
 
 ### classes ###
