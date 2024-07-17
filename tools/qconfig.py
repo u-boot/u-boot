@@ -1535,9 +1535,6 @@ def main():
             return 1
         unittest.main()
 
-    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
-                         else terminal.COLOR_IF_TERMINAL)
-
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
         return 0
@@ -1584,6 +1581,9 @@ def main():
     toolchains = toolchain.Toolchains()
     toolchains.GetSettings()
     toolchains.Scan(verbose=False)
+
+    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
+                         else terminal.COLOR_IF_TERMINAL)
     progress = move_config(toolchains, args, db_queue, col)
     db_queue.join()
 
