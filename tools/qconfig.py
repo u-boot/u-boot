@@ -693,18 +693,36 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(toolchains, args, db_queue, col):
+def move_config(args, col):
     """Build database or sync config options to defconfig files.
 
     Args:
-        toolchains (Toolchains): Toolchains to use
         args (Namespace): Program arguments
-        db_queue (Queue): Queue for database updates
         col (terminal.Color): Colour object
 
     Returns:
-        Progress: Progress indicator
+        tuple:
+            config_db (dict of configs for each defconfig):
+                key: defconfig name, e.g. "MPC8548CDS_legacy_defconfig"
+                value: dict:
+                    key: CONFIG option
+                    value: Value of option
+            Progress: Progress indicator
     """
+    config_db = {}
+    db_queue = queue.Queue()
+    dbt = DatabaseThread(config_db, db_queue)
+    dbt.daemon = True
+    dbt.start()
+
+    check_clean_directory()
+    bsettings.setup('')
+
+    # Get toolchains to use
+    toolchains = toolchain.Toolchains()
+    toolchains.GetSettings()
+    toolchains.Scan(verbose=False)
+
     if args.git_ref:
         reference_src = ReferenceSource(args.git_ref)
         reference_src_dir = reference_src.get_dir()
@@ -733,7 +751,8 @@ def move_config(toolchains, args, db_queue, col):
         time.sleep(SLEEP_TIME)
 
     slots.write_failed_boards()
-    return progress
+    db_queue.join()
+    return config_db, progress
 
 def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
@@ -1590,23 +1609,9 @@ def main():
     if args.find:
         return do_find_config(args.configs)
 
-    # We are either building the database or forcing a sync of defconfigs
-    config_db = {}
-    db_queue = queue.Queue()
-    dbt = DatabaseThread(config_db, db_queue)
-    dbt.daemon = True
-    dbt.start()
-
-    check_clean_directory()
-    bsettings.setup('')
-    toolchains = toolchain.Toolchains()
-    toolchains.GetSettings()
-    toolchains.Scan(verbose=False)
-
     col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
                          else terminal.COLOR_IF_TERMINAL)
-    progress = move_config(toolchains, args, db_queue, col)
-    db_queue.join()
+    config_db, progress = move_config(args, col)
 
     configs = args.configs
     if args.commit:
