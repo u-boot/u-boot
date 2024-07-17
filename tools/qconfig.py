@@ -1521,6 +1521,16 @@ doc/develop/moveconfig.rst for documentation.'''
     return parser, parser.parse_args()
 
 
+def do_tests():
+    """Run doctests and unit tests (so far there are no unit tests)"""
+    sys.argv = [sys.argv[0]]
+    fail, _ = doctest.testmod()
+    if fail:
+        return 1
+    unittest.main()
+    return 0
+
+
 def main():
     """Main program"""
     parser, args = parse_args()
@@ -1535,11 +1545,7 @@ def main():
     args.configs = [prefix_config(cfg) for cfg in args.configs]
 
     if args.test:
-        sys.argv = [sys.argv[0]]
-        fail, _ = doctest.testmod()
-        if fail:
-            return 1
-        unittest.main()
+        return do_tests()
 
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
