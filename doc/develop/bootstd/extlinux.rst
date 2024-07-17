@@ -14,7 +14,8 @@ under the `boot/` subdirectory. This list of prefixes (``{"/", "/boot"}`` by
 default) can be selected with the `filename-prefixes` property in the bootstd
 device.
 
-Note that the PXE bootmeth uses the same file format, but in a network context.
+Note that the :doc:`pxelinux` uses the same file format, but in a
+network context.
 
 When invoked on a bootdev, this bootmeth searches for the file and creates a
 bootflow if found.

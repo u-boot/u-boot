@@ -8,3 +8,4 @@ Standard Boot
 
    overview
    extlinux
+   pxelinux
