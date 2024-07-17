@@ -1038,8 +1038,8 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                             add_list[fname].append(linenum)
 
             if show and kconfig_info != 'skip':
-                print(f'{num_common:5d} : '
-                      f'{iconfig.ljust(30):-30s}{kconfig_info:-25s} {missing_str}')
+                print(f'{num_common:5} : '
+                      f'{iconfig.ljust(30)}{kconfig_info.ljust(25)} {missing_str}')
 
         # Having collected a list of things to add, now we add them. We process
         # each file from the largest line number to the smallest so that
