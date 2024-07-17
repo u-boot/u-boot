@@ -3,7 +3,7 @@
 
 """Build and query a Kconfig database for boards.
 
-See doc/develop/moveconfig.rst for documentation.
+See doc/develop/qconfig.rst for documentation.
 
 Author: Masahiro Yamada <yamada.masahiro@socionext.com>
 Author: Simon Glass <sjg@chromium.org>
