@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
-#
-# Author: Masahiro Yamada <yamada.masahiro@socionext.com>
-#
 
-"""
-Build and query a Kconfig database for boards.
+"""Build and query a Kconfig database for boards.
 
 See doc/develop/moveconfig.rst for documentation.
+
+Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+Author: Simon Glass <sjg@chromium.org>
 """
 
 from argparse import ArgumentParser
@@ -268,8 +267,8 @@ def scan_kconfig():
     return kconfiglib.Kconfig()
 
 
+# pylint: disable=R0903
 class KconfigParser:
-
     """A parser of .config and include/autoconf.mk."""
 
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
@@ -481,6 +480,7 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull,
                                      stderr=subprocess.PIPE,
                                      cwd=self.current_src_dir)
@@ -503,6 +503,7 @@ class Slot:
         cmd = list(self.make_cmd)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append(AUTO_CONF_PATH)
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull, env=env,
                                      stderr=subprocess.PIPE,
                                      cwd=self.current_src_dir)
@@ -526,6 +527,7 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull,
                                      stderr=subprocess.PIPE)
         self.state = STATE_SAVEDEFCONFIG
@@ -752,7 +754,7 @@ def find_kconfig_rules(kconf, config, imply_config):
                 return sym
     return None
 
-def check_imply_rule(kconf, config, imply_config):
+def check_imply_rule(kconf, imply_config):
     """Check if we can add an 'imply' option
 
     This finds imply_config in the Kconfig and looks to see if it is possible
@@ -760,7 +762,6 @@ def check_imply_rule(kconf, config, imply_config):
 
     Args:
         kconf (Kconfiglib.Kconfig): Kconfig object
-        config (str): Name of config to check (without CONFIG_ prefix)
         imply_config (str): Implying config (without CONFIG_ prefix) which may
             or may not have an 'imply' for 'config')
 
@@ -1032,7 +1033,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                     if add_imply and (add_imply == 'all' or
                                       iconfig in add_imply):
                         fname, linenum, kconfig_info = (check_imply_rule(kconf,
-                                config[CONFIG_LEN:], iconfig[CONFIG_LEN:]))
+                                iconfig[CONFIG_LEN:]))
                         if fname:
                             add_list[fname].append(linenum)
 
@@ -1136,7 +1137,16 @@ RE_C_CONFIGS = re.compile(r'CONFIG_([A-Za-z0-9_]*)')
 RE_CONFIG_IS = re.compile(r'CONFIG_IS_ENABLED\(([A-Za-z0-9_]*)\)')
 
 class ConfigUse:
+    """Tracks whether a config relates to SPL or not"""
     def __init__(self, cfg, is_spl, fname, rest):
+        """Set up a new ConfigUse
+
+        Args:
+            cfg (str): CONFIG option, without any CONFIG_ or SPL_ prefix
+            is_spl (bool): True if this option relates to SPL
+            fname (str): Makefile filename where the CONFIG option was found
+            rest (str): Line of the Makefile
+        """
         self.cfg = cfg
         self.is_spl = is_spl
         self.fname = fname
@@ -1444,6 +1454,7 @@ def do_scan_source(path, do_update):
 
 
 def main():
+    """Main program"""
     try:
         cpu_count = multiprocessing.cpu_count()
     except NotImplementedError:
@@ -1569,8 +1580,8 @@ doc/develop/moveconfig.rst for documentation.'''
     if args.commit:
         subprocess.call(['git', 'add', '-u'])
         if configs:
-            msg = 'Convert %s %sto Kconfig' % (configs[0],
-                    'et al ' if len(configs) > 1 else '')
+            part = 'et al ' if len(configs) > 1 else ''
+            msg = f'Convert {configs[0]} {part}to Kconfig'
             msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
                     '\n   '.join(configs))
         else:
