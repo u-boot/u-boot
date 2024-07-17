@@ -1552,7 +1552,13 @@ doc/develop/moveconfig.rst for documentation.'''
                       help='show any build errors as boards are built')
     parser.add_argument('configs', nargs='*')
 
-    return parser, parser.parse_args()
+    args = parser.parse_args()
+    if not any((args.force_sync, args.build_db, args.imply, args.find,
+                args.scan_source, args.test)):
+        parser.print_usage()
+        sys.exit(1)
+
+    return parser, args
 
 
 def imply(args):
@@ -1660,11 +1666,6 @@ def do_tests():
 def main():
     """Main program"""
     parser, args = parse_args()
-    if not any((args.force_sync, args.build_db, args.imply, args.find,
-                args.scan_source, args.test)):
-        parser.print_usage()
-        sys.exit(1)
-
     check_top_directory()
 
     # prefix the option name with CONFIG_ if missing
