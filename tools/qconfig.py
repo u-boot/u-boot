@@ -704,12 +704,11 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(args, col):
+def move_config(args):
     """Build database or sync config options to defconfig files.
 
     Args:
         args (Namespace): Program arguments
-        col (terminal.Color): Colour object
 
     Returns:
         tuple:
@@ -745,6 +744,8 @@ def move_config(args, col):
     else:
         defconfigs = get_all_defconfigs()
 
+    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
+                         else terminal.COLOR_IF_TERMINAL)
     progress = Progress(col, len(defconfigs))
     slots = Slots(toolchains, args, progress, reference_src_dir, db_queue, col)
 
@@ -1604,7 +1605,7 @@ def add_commit(configs):
     subprocess.call(['git', 'commit', '-s', '-m', msg])
 
 
-def write_db(config_db, col, progress):
+def write_db(config_db, progress):
     """Write the database to a file
 
     Args:
@@ -1613,12 +1614,12 @@ def write_db(config_db, col, progress):
             value: dict:
                 key: CONFIG option
                 value: Value of option
-        col (terminal.Color): Colour-output class
         progress (Progress): Progress indicator.
 
     Returns:
         int: exit code (0 for success)
     """
+    col = progress.col
     with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
         for defconfig, configs in config_db.items():
             outf.write(f'{defconfig}\n')
@@ -1631,16 +1632,16 @@ def write_db(config_db, col, progress):
     return 0
 
 
-def move_done(col, progress):
+def move_done(progress):
     """Write a message indicating that the move is done
 
     Args:
-        col (terminal.Color): Colour-output class
         progress (Progress): Progress indicator.
 
     Returns:
         int: exit code (0 for success)
     """
+    col = progress.col
     if progress.failed:
         print(col.build(col.RED, f'{progress.failure_msg}see {FAILED_LIST}', True))
     else:
@@ -1684,16 +1685,14 @@ def main():
     if args.find:
         return do_find_config(args.configs)
 
-    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
-                         else terminal.COLOR_IF_TERMINAL)
-    config_db, progress = move_config(args, col)
+    config_db, progress = move_config(args)
 
     if args.commit:
         add_commit(args.configs)
 
     if args.build_db:
-        return write_db(config_db, col, progress)
-    return move_done(col, progress)
+        return write_db(config_db, progress)
+    return move_done(progress)
 
 
 if __name__ == '__main__':
