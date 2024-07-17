@@ -1451,6 +1451,7 @@ def do_scan_source(path, do_update):
                   file=out)
             for item in sorted(proper_not_found):
                 print(item, file=out)
+    return 0
 
 
 def parse_args():
@@ -1546,10 +1547,8 @@ def main():
 
     if args.test:
         return do_tests()
-
     if args.scan_source:
-        do_scan_source(os.getcwd(), args.update)
-        return 0
+        return do_scan_source(os.getcwd(), args.update)
 
     if args.imply:
         imply_flags = 0
