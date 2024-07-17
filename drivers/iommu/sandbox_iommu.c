@@ -21,7 +21,7 @@ static dma_addr_t sandbox_iommu_map(struct udevice *dev, void *addr,
 	off = virt_to_phys(addr) - paddr;
 	psize = ALIGN(size + off, IOMMU_PAGE_SIZE);
 
-	dva = lmb_alloc(psize, IOMMU_PAGE_SIZE);
+	dva = lmb_alloc(psize, IOMMU_PAGE_SIZE, LMB_NONE);
 
 	return dva + off;
 }
@@ -36,7 +36,7 @@ static void sandbox_iommu_unmap(struct udevice *dev, dma_addr_t addr,
 	psize = size + (addr - dva);
 	psize = ALIGN(psize, IOMMU_PAGE_SIZE);
 
-	lmb_free(dva, psize);
+	lmb_free(dva, psize, LMB_NONE);
 }
 
 static struct iommu_ops sandbox_iommu_ops = {
@@ -46,7 +46,7 @@ static struct iommu_ops sandbox_iommu_ops = {
 
 static int sandbox_iommu_probe(struct udevice *dev)
 {
-	lmb_add(0x89abc000, SZ_16K);
+	lmb_add(0x89abc000, SZ_16K, LMB_NONE);
 
 	return 0;
 }

@@ -778,15 +778,18 @@ int board_late_init(void)
 	/* somewhat based on the Linux Kernel boot requirements:
 	 * align by 2M and maximal FDT size 2M
 	 */
-	status |= env_set_hex("loadaddr", lmb_alloc(SZ_1G, SZ_2M));
-	status |= env_set_hex("fdt_addr_r", lmb_alloc(SZ_2M, SZ_2M));
-	status |= env_set_hex("kernel_addr_r", lmb_alloc(SZ_128M, SZ_2M));
-	status |= env_set_hex("ramdisk_addr_r", lmb_alloc(SZ_1G, SZ_2M));
+	status |= env_set_hex("loadaddr", lmb_alloc(SZ_1G, SZ_2M, LMB_NONE));
+	status |= env_set_hex("fdt_addr_r", lmb_alloc(SZ_2M, SZ_2M, LMB_NONE));
+	status |= env_set_hex("kernel_addr_r", lmb_alloc(SZ_128M, SZ_2M,
+							 LMB_NONE));
+	status |= env_set_hex("ramdisk_addr_r", lmb_alloc(SZ_1G, SZ_2M,
+							  LMB_NONE));
 	status |= env_set_hex("kernel_comp_addr_r",
-			      lmb_alloc(KERNEL_COMP_SIZE, SZ_2M));
+			      lmb_alloc(KERNEL_COMP_SIZE, SZ_2M, LMB_NONE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	status |= env_set_hex("scriptaddr", lmb_alloc(SZ_4M, SZ_2M));
-	status |= env_set_hex("pxefile_addr_r", lmb_alloc(SZ_4M, SZ_2M));
+	status |= env_set_hex("scriptaddr", lmb_alloc(SZ_4M, SZ_2M, LMB_NONE));
+	status |= env_set_hex("pxefile_addr_r", lmb_alloc(SZ_4M, SZ_2M,
+							  LMB_NONE));
 
 	if (status)
 		log_warning("late_init: Failed to set run time variables\n");
