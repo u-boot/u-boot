@@ -873,6 +873,7 @@ def read_database():
     all_defconfigs = set()
 
     defconfig_db = collections.defaultdict(set)
+    defconfig = None
     for line in read_file(CONFIG_DATABASE):
         line = line.rstrip()
         if not line:  # Separator between defconfigs
