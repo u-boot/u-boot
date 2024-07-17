@@ -1604,6 +1604,51 @@ def add_commit(configs):
     subprocess.call(['git', 'commit', '-s', '-m', msg])
 
 
+def write_db(config_db, col, progress):
+    """Write the database to a file
+
+    Args:
+        config_db (dict of dict): configs for each defconfig
+            key: defconfig name, e.g. "MPC8548CDS_legacy_defconfig"
+            value: dict:
+                key: CONFIG option
+                value: Value of option
+        col (terminal.Color): Colour-output class
+        progress (Progress): Progress indicator.
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
+        for defconfig, configs in config_db.items():
+            outf.write(f'{defconfig}\n')
+            for config in sorted(configs.keys()):
+                outf.write(f'   {config}={configs[config]}\n')
+            outf.write('\n')
+    print(col.build(
+        col.RED if progress.failed else col.GREEN,
+        f'{progress.failure_msg}{len(config_db)} boards written to {CONFIG_DATABASE}'))
+    return 0
+
+
+def move_done(col, progress):
+    """Write a message indicating that the move is done
+
+    Args:
+        col (terminal.Color): Colour-output class
+        progress (Progress): Progress indicator.
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    if progress.failed:
+        print(col.build(col.RED, f'{progress.failure_msg}see {FAILED_LIST}', True))
+    else:
+        # Add enough spaces to overwrite the progress indicator
+        print(col.build(
+            col.GREEN, f'{progress.total} processed        ', bright=True))
+    return 0
+
 def do_tests():
     """Run doctests and unit tests (so far there are no unit tests)"""
     sys.argv = [sys.argv[0]]
@@ -1647,25 +1692,8 @@ def main():
         add_commit(args.configs)
 
     if args.build_db:
-        configs = args.configs
-        with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
-            for defconfig, configs in config_db.items():
-                outf.write(f'{defconfig}\n')
-                for config in sorted(configs.keys()):
-                    outf.write(f'   {config}={configs[config]}\n')
-                outf.write('\n')
-        print(col.build(
-            col.RED if progress.failed else col.GREEN,
-            f'{progress.failure_msg}{len(config_db)} boards written to {CONFIG_DATABASE}'))
-    else:
-        if progress.failed:
-            print(col.build(col.RED, f'{progress.failure_msg}see {FAILED_LIST}', True))
-        else:
-            # Add enough spaces to overwrite the progress indicator
-            print(col.build(
-                col.GREEN, f'{progress.total} processed        ', bright=True))
-
-    return 0
+        return write_db(config_db, col, progress)
+    return move_done(col, progress)
 
 
 if __name__ == '__main__':
