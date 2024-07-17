@@ -1528,6 +1528,9 @@ def main():
                 args.scan_source, args.test)):
         parser.print_usage()
         sys.exit(1)
+
+    check_top_directory()
+
     if args.test:
         sys.argv = [sys.argv[0]]
         fail, _ = doctest.testmod()
@@ -1541,8 +1544,6 @@ def main():
 
     # prefix the option name with CONFIG_ if missing
     configs = [prefix_config(cfg) for cfg in args.configs]
-
-    check_top_directory()
 
     if args.imply:
         imply_flags = 0
