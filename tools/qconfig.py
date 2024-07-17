@@ -1531,6 +1531,9 @@ def main():
 
     check_top_directory()
 
+    # prefix the option name with CONFIG_ if missing
+    args.configs = [prefix_config(cfg) for cfg in args.configs]
+
     if args.test:
         sys.argv = [sys.argv[0]]
         fail, _ = doctest.testmod()
@@ -1541,9 +1544,6 @@ def main():
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
         return 0
-
-    # prefix the option name with CONFIG_ if missing
-    configs = [prefix_config(cfg) for cfg in args.configs]
 
     if args.imply:
         imply_flags = 0
@@ -1563,11 +1563,11 @@ def main():
                     sys.exit(1)
                 imply_flags |= IMPLY_FLAGS[flag][0]
 
-        do_imply_config(configs, args.add_imply, imply_flags, args.skip_added)
+        do_imply_config(args.configs, args.add_imply, imply_flags, args.skip_added)
         return 0
 
     if args.find:
-        do_find_config(configs)
+        do_find_config(args.configs)
         return 0
 
     # We are either building the database or forcing a sync of defconfigs
@@ -1588,6 +1588,7 @@ def main():
     progress = move_config(toolchains, args, db_queue, col)
     db_queue.join()
 
+    configs = args.configs
     if args.commit:
         subprocess.call(['git', 'add', '-u'])
         if configs:
