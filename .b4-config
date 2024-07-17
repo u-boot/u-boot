@@ -1,0 +1,7 @@
+# Configuration for the `b4` tool
+# See https://b4.docs.kernel.org/en/latest/config.html
+
+[b4]
+    send-series-to = u-boot@lists.denx.de
+    send-auto-to-cmd = echo ""
+    send-auto-cc-cmd = scripts/get_maintainer.pl
