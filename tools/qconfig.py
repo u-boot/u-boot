@@ -1534,13 +1534,14 @@ def main():
     col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
                          else terminal.COLOR_IF_TERMINAL)
 
+    if not any((args.force_sync, args.build_db, args.imply, args.find,
+                args.scan_source)):
+        parser.print_usage()
+        sys.exit(1)
+
     if args.scan_source:
         do_scan_source(os.getcwd(), args.update)
         return 0
-
-    if not any((args.force_sync, args.build_db, args.imply, args.find)):
-        parser.print_usage()
-        sys.exit(1)
 
     # prefix the option name with CONFIG_ if missing
     configs = [prefix_config(cfg) for cfg in args.configs]
