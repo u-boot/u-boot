@@ -217,20 +217,26 @@ def read_file(fname, as_lines=True, skip_unicode=False):
 
 ### classes ###
 class Progress:
-
     """Progress Indicator"""
 
     def __init__(self, col, total):
         """Create a new progress indicator.
 
         Args:
-            color_enabled (bool): True for colour output
+            col (terminal.Color): Colour-output class
             total (int): A number of defconfig files to process.
+
+            current (int): Number of boards processed so far
+            failed (int): Number of failed boards
+            failure_msg (str): Message indicating number of failures, '' if none
         """
         self.col = col
+        self.total = total
+
         self.current = 0
         self.good = 0
-        self.total = total
+        self.failed = None
+        self.failure_msg = None
 
     def inc(self, success):
         """Increment the number of processed defconfig files.
@@ -251,6 +257,11 @@ class Progress:
                                    f'/{self.total - self.current}')
             print(f'{line}  \r', end='')
         sys.stdout.flush()
+
+    def completed(self):
+        """Set up extra properties when completed"""
+        self.failed = self.total - self.good
+        self.failure_msg = f'{self.failed} failed, ' if self.failed else ''
 
 
 def scan_kconfig():
@@ -752,6 +763,7 @@ def move_config(args, col):
 
     slots.write_failed_boards()
     db_queue.join()
+    progress.completed()
     return config_db, progress
 
 def find_kconfig_rules(kconf, config, imply_config):
@@ -1634,8 +1646,6 @@ def main():
     if args.commit:
         add_commit(args.configs)
 
-    failed = progress.total - progress.good
-    failure = f'{failed} failed, ' if failed else ''
     if args.build_db:
         configs = args.configs
         with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
@@ -1645,11 +1655,11 @@ def main():
                     outf.write(f'   {config}={configs[config]}\n')
                 outf.write('\n')
         print(col.build(
-            col.RED if failed else col.GREEN,
-            f'{failure}{len(config_db)} boards written to {CONFIG_DATABASE}'))
+            col.RED if progress.failed else col.GREEN,
+            f'{progress.failure_msg}{len(config_db)} boards written to {CONFIG_DATABASE}'))
     else:
-        if failed:
-            print(col.build(col.RED, f'{failure}see {FAILED_LIST}', True))
+        if progress.failed:
+            print(col.build(col.RED, f'{progress.failure_msg}see {FAILED_LIST}', True))
         else:
             # Add enough spaces to overwrite the progress indicator
             print(col.build(
