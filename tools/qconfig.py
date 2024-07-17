@@ -1574,6 +1574,24 @@ def imply(args):
     return 0
 
 
+def add_commit(configs):
+    """Add a commit indicating which CONFIG options were converted
+
+    Args:
+        configs (list of str) List of CONFIG_... options to process
+    """
+    subprocess.call(['git', 'add', '-u'])
+    if configs:
+        part = 'et al ' if len(configs) > 1 else ''
+        msg = f'Convert {configs[0]} {part}to Kconfig'
+        msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
+                '\n   '.join(configs))
+    else:
+        msg = 'configs: Resync with savedefconfig'
+        msg += '\n\nRsync all defconfig files using moveconfig.py'
+    subprocess.call(['git', 'commit', '-s', '-m', msg])
+
+
 def do_tests():
     """Run doctests and unit tests (so far there are no unit tests)"""
     sys.argv = [sys.argv[0]]
@@ -1613,22 +1631,13 @@ def main():
                          else terminal.COLOR_IF_TERMINAL)
     config_db, progress = move_config(args, col)
 
-    configs = args.configs
     if args.commit:
-        subprocess.call(['git', 'add', '-u'])
-        if configs:
-            part = 'et al ' if len(configs) > 1 else ''
-            msg = f'Convert {configs[0]} {part}to Kconfig'
-            msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
-                    '\n   '.join(configs))
-        else:
-            msg = 'configs: Resync with savedefconfig'
-            msg += '\n\nRsync all defconfig files using moveconfig.py'
-        subprocess.call(['git', 'commit', '-s', '-m', msg])
+        add_commit(args.configs)
 
     failed = progress.total - progress.good
     failure = f'{failed} failed, ' if failed else ''
     if args.build_db:
+        configs = args.configs
         with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
             for defconfig, configs in config_db.items():
                 outf.write(f'{defconfig}\n')
