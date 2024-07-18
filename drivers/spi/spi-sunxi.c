@@ -233,7 +233,7 @@ err_ahb:
 static void sun4i_spi_set_speed_mode(struct udevice *dev)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev);
-	unsigned int div;
+	unsigned int div, div_cdr2;
 	u32 reg;
 
 	/*
@@ -259,15 +259,12 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 	 */
 
 	div = DIV_ROUND_UP(SUNXI_INPUT_CLOCK, priv->freq);
+	div_cdr2 = DIV_ROUND_UP(div, 2);
 	reg = readl(SPI_REG(priv, SPI_CCR));
 
-	if ((div / 2) <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
-		div /= 2;
-		if (div > 0)
-			div--;
-
+	if (div_cdr2 <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
 		reg &= ~(SUN4I_CLK_CTL_CDR2_MASK | SUN4I_CLK_CTL_DRS);
-		reg |= SUN4I_CLK_CTL_CDR2(div) | SUN4I_CLK_CTL_DRS;
+		reg |= SUN4I_CLK_CTL_CDR2(div_cdr2 - 1) | SUN4I_CLK_CTL_DRS;
 	} else {
 		div = fls(div - 1);
 		/* The F1C100s encodes the divider as 2^(n+1) */
