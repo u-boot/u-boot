@@ -92,6 +92,8 @@ struct rk3588_cru {
 	unsigned int pmuclkgate_con[9]; /* Address Offset: 0x0100 */
 };
 
+#define rockchip_cru rk3588_cru
+
 check_member(rk3588_cru, mode_con00, 0x280);
 check_member(rk3588_cru, pmuclksel_con[1], 0x30304);
 

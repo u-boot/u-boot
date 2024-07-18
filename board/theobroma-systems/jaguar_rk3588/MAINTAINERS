@@ -10,4 +10,4 @@ F:	include/configs/jaguar_rk3588.h
 F:	arch/arm/dts/rk3588-jaguar*
 F:	configs/jaguar-rk3588_defconfig
 W:	https://embedded.cherry.de/product/jaguar-sbc-rk3588/
-T:	git git://git.embedded.cherry.de/jaguar-u-boot.git
+T:	git https://git.embedded.cherry.de/jaguar-u-boot.git

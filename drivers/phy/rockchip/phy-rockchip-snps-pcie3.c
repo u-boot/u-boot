@@ -36,6 +36,8 @@
 #define RK3588_BIFURCATION_LANE_0_1		BIT(0)
 #define RK3588_BIFURCATION_LANE_2_3		BIT(1)
 #define RK3588_LANE_AGGREGATION			BIT(2)
+#define RK3588_PCIE1LN_SEL_EN			(GENMASK(1, 0) << 16)
+#define RK3588_PCIE30_PHY_MODE_EN		(GENMASK(2, 0) << 16)
 
 /**
  * struct rockchip_p3phy_priv - RK DW PCIe PHY state
@@ -108,7 +110,7 @@ static int rockchip_p3phy_rk3588_init(struct phy *phy)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 	u32 reg = 0;
-	u8 mode = 0;
+	u8 mode = RK3588_LANE_AGGREGATION; /* Lane aggregation by default */
 	int ret;
 
 	/* Deassert PCIe PMA output clamp mode */
@@ -117,31 +119,23 @@ static int rockchip_p3phy_rk3588_init(struct phy *phy)
 
 	/* Set bifurcation if needed */
 	for (int i = 0; i < priv->num_lanes; i++) {
-		if (!priv->lanes[i])
-			mode |= (BIT(i) << 3);
-
 		if (priv->lanes[i] > 1)
-			mode |= (BIT(i) >> 1);
+			mode &= ~RK3588_LANE_AGGREGATION;
+		if (priv->lanes[i] == 3)
+			mode |= RK3588_BIFURCATION_LANE_0_1;
+		if (priv->lanes[i] == 4)
+			mode |= RK3588_BIFURCATION_LANE_2_3;
 	}
 
-	if (!mode) {
-		reg = RK3588_LANE_AGGREGATION;
-	} else {
-		if (mode & (BIT(0) | BIT(1)))
-			reg |= RK3588_BIFURCATION_LANE_0_1;
-
-		if (mode & (BIT(2) | BIT(3)))
-			reg |= RK3588_BIFURCATION_LANE_2_3;
-	}
-
+	reg = mode;
 	regmap_write(priv->phy_grf, RK3588_PCIE3PHY_GRF_CMN_CON0,
-		     (0x7 << 16) | reg);
+		     RK3588_PCIE30_PHY_MODE_EN | reg);
 
 	/* Set pcie1ln_sel in PHP_GRF_PCIESEL_CON */
-	reg = (mode & (BIT(6) | BIT(7))) >> 6;
+	reg = mode & (RK3588_BIFURCATION_LANE_0_1 | RK3588_BIFURCATION_LANE_2_3);
 	if (reg)
 		regmap_write(priv->pipe_grf, PHP_GRF_PCIESEL_CON,
-			     (reg << 16) | reg);
+			     RK3588_PCIE1LN_SEL_EN | reg);
 
 	reset_deassert(&priv->p30phy);
 	udelay(1);
@@ -164,7 +158,7 @@ static const struct rockchip_p3phy_ops rk3588_ops = {
 	.phy_init = rockchip_p3phy_rk3588_init,
 };
 
-static int rochchip_p3phy_init(struct phy *phy)
+static int rockchip_p3phy_init(struct phy *phy)
 {
 	struct rockchip_p3phy_ops *ops =
 		(struct rockchip_p3phy_ops *)dev_get_driver_data(phy->dev);
@@ -185,7 +179,7 @@ static int rochchip_p3phy_init(struct phy *phy)
 	return ret;
 }
 
-static int rochchip_p3phy_exit(struct phy *phy)
+static int rockchip_p3phy_exit(struct phy *phy)
 {
 	struct rockchip_p3phy_priv *priv = dev_get_priv(phy->dev);
 
@@ -251,9 +245,9 @@ static int rockchip_p3phy_probe(struct udevice *dev)
 	return 0;
 }
 
-static struct phy_ops rochchip_p3phy_ops = {
-	.init = rochchip_p3phy_init,
-	.exit = rochchip_p3phy_exit,
+static struct phy_ops rockchip_p3phy_ops = {
+	.init = rockchip_p3phy_init,
+	.exit = rockchip_p3phy_exit,
 };
 
 static const struct udevice_id rockchip_p3phy_of_match[] = {
@@ -272,7 +266,7 @@ U_BOOT_DRIVER(rockchip_pcie3phy) = {
 	.name		= "rockchip_pcie3phy",
 	.id		= UCLASS_PHY,
 	.of_match	= rockchip_p3phy_of_match,
-	.ops		= &rochchip_p3phy_ops,
+	.ops		= &rockchip_p3phy_ops,
 	.probe		= rockchip_p3phy_probe,
 	.priv_auto	= sizeof(struct rockchip_p3phy_priv),
 };

@@ -281,6 +281,8 @@ static int rk8xx_probe(struct udevice *dev)
 	show_variant = bitfield_extract_by_mask(priv->variant, RK8XX_ID_MSK);
 	switch (priv->variant) {
 	case RK808_ID:
+		/* RK808 ID is 0x0000, so fix show_variant for that PMIC */
+		show_variant = 0x808;
 		break;
 	case RK805_ID:
 	case RK816_ID:

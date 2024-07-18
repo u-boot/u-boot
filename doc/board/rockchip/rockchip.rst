@@ -72,7 +72,6 @@ List of mainline supported Rockchip boards:
      - GeekBox (geekbox)
      - PX5 EVB (evb-px5)
      - Rockchip Sheep (sheep-rk3368)
-     - Theobroma Systems RK3368-uQ7 SoM - Lion (lion-rk3368)
 * rk3399
      - 96boards RK3399 Ficus (ficus-rk3399)
      - 96boards Rock960 (rock960-rk3399)
@@ -124,6 +123,8 @@ List of mainline supported Rockchip boards:
      - Edgeble Neural Compute Module 6A SoM - Neu6a (neu6a-io-rk3588)
      - Edgeble Neural Compute Module 6B SoM - Neu6b (neu6b-io-rk3588)
      - FriendlyElec NanoPC-T6 (nanopc-t6-rk3588)
+     - FriendlyElec NanoPi R6C (nanopi-r6c-rk3588s)
+     - FriendlyElec NanoPi R6S (nanopi-r6s-rk3588s)
      - Generic RK3588S/RK3588 (generic-rk3588)
      - Indiedroid Nova (nova-rk3588s)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)

@@ -1,0 +1,12 @@
+if TARGET_NANOPI_R6S_RK3588S
+
+config SYS_BOARD
+	default "nanopi-r6s-rk3588s"
+
+config SYS_VENDOR
+	default "friendlyelec"
+
+config SYS_CONFIG_NAME
+	default "nanopi-r6s-rk3588s"
+
+endif

@@ -16,6 +16,8 @@ config ROCKCHIP_PX30
 	select DEBUG_UART_BOARD_INIT
 	imply ROCKCHIP_COMMON_BOARD
 	imply SPL_ROCKCHIP_COMMON_BOARD
+	imply ARMV8_CRYPTO
+	imply ARMV8_SET_SMPEN
 	help
 	  The Rockchip PX30 is a ARM-based SoC with a quad-core Cortex-A35
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -167,6 +169,7 @@ config ROCKCHIP_RK3308
 	imply LEGACY_IMAGE_FORMAT
 	imply MISC
 	imply MISC_INIT_R
+	imply OF_LIBFDT_OVERLAY
 	imply OF_UPSTREAM
 	imply RNG_ROCKCHIP
 	imply ROCKCHIP_COMMON_BOARD
@@ -197,6 +200,7 @@ config ROCKCHIP_RK3328
 	imply ARMV8_SET_SMPEN
 	imply MISC
 	imply MISC_INIT_R
+	imply OF_LIBFDT_OVERLAY
 	imply OF_LIVE
 	imply OF_UPSTREAM
 	imply PRE_CONSOLE_BUFFER
