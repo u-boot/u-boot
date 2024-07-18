@@ -494,6 +494,23 @@ config BOOTMETH_GLOBAL
 	  EFI bootmgr, since they take full control over which bootdevs are
 	  selected to boot.
 
+config BOOTMETH_ANDROID
+	bool "Bootdev support for Android"
+	depends on X86 || ARM || SANDBOX
+	depends on CMDLINE
+	select ANDROID_AB
+	select ANDROID_BOOT_IMAGE
+	select CMD_BCB
+	select CMD_FASTBOOT
+	select PARTITION_TYPE_GUID
+	select PARTITION_UUIDS
+	help
+	  Enables support for booting Android using bootstd. Android requires
+	  multiple partitions (misc, boot, vbmeta, ...) in storage for booting.
+
+	  Note that only MMC bootdevs are supported at present. This is caused
+	  by AVB being limited to MMC devices only.
+
 config BOOTMETH_CROS
 	bool "Bootdev support for Chromium OS"
 	depends on X86 || ARM || SANDBOX

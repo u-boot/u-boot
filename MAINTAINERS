@@ -939,6 +939,13 @@ F:	include/bootstd.h
 F:	net/eth_bootdevice.c
 F:	test/boot/
 
+BOOTMETH_ANDROID
+M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
+F:	boot/bootmeth_android.c
+F:	boot/bootmeth_android.h
+
 BTRFS
 M:	Marek Behún <kabel@kernel.org>
 R:	Qu Wenruo <wqu@suse.com>
