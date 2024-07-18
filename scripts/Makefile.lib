@@ -305,7 +305,7 @@ endif
 DTC_FLAGS += $(DTC_FLAGS_$(basetarget))
 
 # Generate an assembly file to wrap the output of the device tree compiler
-quiet_cmd_dt_S_dtb= DTB     $@
+quiet_cmd_dt_S_dtb= DTBS    $@
 # Modified for U-Boot
 cmd_dt_S_dtb=						\
 (							\
@@ -321,6 +321,24 @@ cmd_dt_S_dtb=						\
 
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
+
+# Generate an assembly file to wrap the output of the device tree compiler
+quiet_cmd_dt_S_dtbo= DTBOS   $@
+# Modified for U-Boot
+cmd_dt_S_dtbo=						\
+{							\
+	echo '.section .dtb.init.rodata,"a"';		\
+	echo '.balign 16';				\
+	echo '.global __dtbo_$(subst -,_,$(*F))_begin';	\
+	echo '__dtbo_$(subst -,_,$(*F))_begin:';	\
+	echo '.incbin "$<" ';				\
+	echo '__dtbo_$(subst -,_,$(*F))_end:';		\
+	echo '.global __dtbo_$(subst -,_,$(*F))_end';	\
+	echo '.balign 16';				\
+} > $@
+
+$(obj)/%.dtbo.S: $(obj)/%.dtbo
+	$(call cmd,dt_S_dtbo)
 
 ifeq ($(CONFIG_OF_LIBFDT_OVERLAY),y)
 DTC_FLAGS += -@
@@ -403,9 +421,6 @@ cmd_dtco = mkdir -p $(dir ${dtc-tmp}) ; \
 		-i $(dir $<) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
 	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
-
-$(obj)/%.dtbo: $(src)/%.dts $(DTC) FORCE
-	$(call if_changed_dep,dtco)
 
 $(obj)/%.dtbo: $(src)/%.dtso $(DTC) FORCE
 	$(call if_changed_dep,dtco)
