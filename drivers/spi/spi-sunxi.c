@@ -249,6 +249,8 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 	 * We have two choices there. Either we can use the clock
 	 * divide rate 1, which is calculated thanks to this formula:
 	 * SPI_CLK = MOD_CLK / (2 ^ (cdr + 1))
+	 * Or for sun6i/sun8i variants:
+	 * SPI_CLK = MOD_CLK / (2 ^ cdr)
 	 * Or we can use CDR2, which is calculated with the formula:
 	 * SPI_CLK = MOD_CLK / (2 * (cdr + 1))
 	 * Whether we use the former or the latter is set through the
@@ -256,13 +258,16 @@ static void sun4i_spi_set_speed_mode(struct udevice *dev)
 	 *
 	 * First try CDR2, and if we can't reach the expected
 	 * frequency, fall back to CDR1.
+	 * There is one exception if the requested clock is the input
+	 * clock. In that case we always use CDR1 because we'll get a
+	 * 1:1 ration for sun6i/sun8i variants.
 	 */
 
 	div = DIV_ROUND_UP(SUNXI_INPUT_CLOCK, priv->freq);
 	div_cdr2 = DIV_ROUND_UP(div, 2);
 	reg = readl(SPI_REG(priv, SPI_CCR));
 
-	if (div_cdr2 <= (SUN4I_CLK_CTL_CDR2_MASK + 1)) {
+	if (div != 1 && (div_cdr2 <= (SUN4I_CLK_CTL_CDR2_MASK + 1))) {
 		reg &= ~(SUN4I_CLK_CTL_CDR2_MASK | SUN4I_CLK_CTL_DRS);
 		reg |= SUN4I_CLK_CTL_CDR2(div_cdr2 - 1) | SUN4I_CLK_CTL_DRS;
 	} else {
