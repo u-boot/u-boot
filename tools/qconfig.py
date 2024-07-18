@@ -1100,7 +1100,7 @@ def defconfig_matches(configs, re_match, re_val):
                 return True
     return False
 
-def do_find_config(config_list):
+def do_find_config(config_list, list_format):
     """Find boards with a given combination of CONFIGs
 
     Args:
@@ -1108,6 +1108,8 @@ def do_find_config(config_list):
             consisting of a config option, with or without a CONFIG_ prefix. If
             an option is preceded by a tilde (~) then it must be false,
             otherwise it must be true)
+        list_format (bool): True to write in 'list' format, one board name per
+            line
 
     Returns:
         int: exit code (0 for success)
@@ -1141,8 +1143,10 @@ def do_find_config(config_list):
             has_cfg = defconfig_matches(config_db[defc], re_match, re_val)
             if has_cfg == want:
                 out.add(defc)
-    print(f'{len(out)} matches')
-    print(' '.join(item.split('_defconfig')[0] for item in sorted(list(out))))
+    if not list_format:
+        print(f'{len(out)} matches')
+    sep = '\n' if list_format else ' '
+    print(sep.join(item.split('_defconfig')[0] for item in sorted(list(out))))
     return 0
 
 
@@ -1535,6 +1539,8 @@ doc/develop/moveconfig.rst for documentation.'''
                       help='Find boards with a given config combination')
     parser.add_argument('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
+    parser.add_argument('-l', '--list', action='store_true', default=False,
+                      help='Show a sorted list of board names, one per line')
     parser.add_argument('-I', '--imply-flags', type=str, default='',
                       help="control the -i option ('help' for help")
     parser.add_argument('-j', '--jobs', type=int, default=cpu_count,
@@ -1688,7 +1694,7 @@ def main():
             sys.exit(1)
         return 0
     if args.find:
-        return do_find_config(args.configs)
+        return do_find_config(args.configs, args.list)
 
     config_db, progress = move_config(args)
 
