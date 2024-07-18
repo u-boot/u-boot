@@ -487,6 +487,7 @@ config EFI_ECPT
 
 config EFI_EBBR_2_1_CONFORMANCE
 	bool "Add the EBBRv2.1 conformance entry to the ECPT table"
+	depends on BOOTMETH_EFI_BOOTMGR
 	depends on EFI_ECPT
 	depends on EFI_LOADER_HII
 	depends on EFI_RISCV_BOOT_PROTOCOL || !RISCV
