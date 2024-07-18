@@ -1142,7 +1142,7 @@ def do_find_config(config_list):
             if has_cfg == want:
                 out.add(defc)
     print(f'{len(out)} matches')
-    print(' '.join(item.split('_defconfig')[0] for item in out))
+    print(' '.join(item.split('_defconfig')[0] for item in sorted(list(out))))
     return 0
 
 
