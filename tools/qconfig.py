@@ -1079,7 +1079,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             for linenum in sorted(linenums, reverse=True):
                 add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
-def defconfig_matches(configs, re_match):
+def defconfig_matches(configs, re_match, re_val):
     """Check if any CONFIG option matches a regex
 
     The match must be complete, i.e. from the start to end of the CONFIG option.
@@ -1089,13 +1089,15 @@ def defconfig_matches(configs, re_match):
             key: CONFIG option
             value: Value of option
         re_match (re.Pattern): Match to check
+        re_val (re.Pattern): Regular expression to check against value (or None)
 
     Returns:
         bool: True if any CONFIG matches the regex
     """
-    for cfg in configs:
+    for cfg, val in configs.items():
         if re_match.fullmatch(cfg):
-            return True
+            if not re_val or re_val.fullmatch(val):
+                return True
     return False
 
 def do_find_config(config_list):
@@ -1123,6 +1125,11 @@ def do_find_config(config_list):
         if cfg[0] == '~':
             want = False
             cfg = cfg[1:]
+        val = None
+        re_val = None
+        if '=' in cfg:
+            cfg, val = cfg.split('=', maxsplit=1)
+            re_val = re.compile(val)
 
         # Search everything that is still in the running. If it has a config
         # that we want, or doesn't have one that we don't, add it into the
@@ -1131,7 +1138,7 @@ def do_find_config(config_list):
         out = set()
         re_match = re.compile(cfg)
         for defc in in_list:
-            has_cfg = defconfig_matches(config_db[defc], re_match)
+            has_cfg = defconfig_matches(config_db[defc], re_match, re_val)
             if has_cfg == want:
                 out.add(defc)
     print(f'{len(out)} matches')
