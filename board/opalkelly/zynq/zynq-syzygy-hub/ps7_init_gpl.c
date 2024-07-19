@@ -254,7 +254,6 @@ unsigned long ps7_reset_apu_3_0[] = {
 	EMIT_EXIT(),
 };
 
-
 int ps7_post_config(void)
 {
 	return ps7_config(ps7_post_config_3_0);
