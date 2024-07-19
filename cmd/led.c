@@ -15,9 +15,7 @@ static const char *const state_label[] = {
 	[LEDST_OFF]	= "off",
 	[LEDST_ON]	= "on",
 	[LEDST_TOGGLE]	= "toggle",
-#ifdef CONFIG_LED_BLINK
 	[LEDST_BLINK]	= "blink",
-#endif
 };
 
 enum led_state_t get_led_cmd(char *var)
@@ -75,9 +73,7 @@ int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	enum led_state_t cmd;
 	const char *led_label;
 	struct udevice *dev;
-#ifdef CONFIG_LED_BLINK
 	int freq_ms = 0;
-#endif
 	int ret;
 
 	/* Validate arguments */
@@ -88,13 +84,11 @@ int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return list_leds();
 
 	cmd = argc > 2 ? get_led_cmd(argv[2]) : LEDST_COUNT;
-#ifdef CONFIG_LED_BLINK
 	if (cmd == LEDST_BLINK) {
 		if (argc < 4)
 			return CMD_RET_USAGE;
 		freq_ms = dectoul(argv[3], NULL);
 	}
-#endif
 	ret = led_get_by_label(led_label, &dev);
 	if (ret) {
 		printf("LED '%s' not found (err=%d)\n", led_label, ret);
@@ -106,13 +100,11 @@ int do_led(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	case LEDST_TOGGLE:
 		ret = led_set_state(dev, cmd);
 		break;
-#ifdef CONFIG_LED_BLINK
 	case LEDST_BLINK:
 		ret = led_set_period(dev, freq_ms);
 		if (!ret)
 			ret = led_set_state(dev, LEDST_BLINK);
 		break;
-#endif
 	case LEDST_COUNT:
 		printf("LED '%s': ", led_label);
 		ret = show_led_state(dev);

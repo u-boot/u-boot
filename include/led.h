@@ -13,9 +13,7 @@ enum led_state_t {
 	LEDST_OFF = 0,
 	LEDST_ON = 1,
 	LEDST_TOGGLE,
-#ifdef CONFIG_LED_BLINK
 	LEDST_BLINK,
-#endif
 
 	LEDST_COUNT,
 };

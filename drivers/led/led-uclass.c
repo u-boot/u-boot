@@ -71,17 +71,17 @@ enum led_state_t led_get_state(struct udevice *dev)
 	return ops->get_state(dev);
 }
 
-#ifdef CONFIG_LED_BLINK
 int led_set_period(struct udevice *dev, int period_ms)
 {
+#ifdef CONFIG_LED_BLINK
 	struct led_ops *ops = led_get_ops(dev);
 
-	if (!ops->set_period)
-		return -ENOSYS;
-
-	return ops->set_period(dev, period_ms);
-}
+	if (ops->set_period)
+		return ops->set_period(dev, period_ms);
 #endif
+
+	return -ENOSYS;
+}
 
 static int led_post_bind(struct udevice *dev)
 {
