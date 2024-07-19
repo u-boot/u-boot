@@ -115,7 +115,6 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	do_fixup_by_compat(blob, "qcom,wcnss-wlan",
 			   "local-mac-address", mac, ARP_HLEN, 1);
 
-
 	if (!eth_env_get_enetaddr("btaddr", mac)) {
 		msm_generate_mac_addr(mac);
 
