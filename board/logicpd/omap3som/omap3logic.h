@@ -19,7 +19,6 @@
 #define NET_LAN92XX_GPMC_CONFIG5	0x00080a0a
 #define NET_LAN92XX_GPMC_CONFIG6	0x03000280
 
-
 const omap3_sysinfo sysinfo = {
 	DDR_DISCRETE,
 	"Logic DM37x/OMAP35x reference board",
