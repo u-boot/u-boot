@@ -136,8 +136,25 @@ static int setup_fec(void)
 	return enable_fec_anatop_clock(0, ENET_25MHZ);
 }
 
+static char *board_string(int type)
+{
+	switch (type) {
+	case UDOO_NEO_TYPE_BASIC:
+		return "BASIC";
+	case UDOO_NEO_TYPE_BASIC_KS:
+		return "BASICKS";
+	case UDOO_NEO_TYPE_FULL:
+		return "FULL";
+	case UDOO_NEO_TYPE_EXTENDED:
+		return "EXTENDED";
+	}
+	return "UNDEFINED";
+}
+
 int board_init(void)
 {
+	int *board_type = (int *)OCRAM_START;
+
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
@@ -148,6 +165,8 @@ int board_init(void)
 	/* Active high for ncp692 */
 	gpio_request(IMX_GPIO_NR(4, 16), "ncp692");
 	gpio_direction_output(IMX_GPIO_NR(4, 16) , 1);
+
+	printf("Board: UDOO Neo %s\n", board_string(*board_type));
 
 	setup_fec();
 
@@ -177,30 +196,6 @@ int board_mmc_init(struct bd_info *bis)
 	gpio_direction_output(USDHC2_PWR_GPIO, 1);
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-}
-
-static char *board_string(int type)
-{
-	switch (type) {
-	case UDOO_NEO_TYPE_BASIC:
-		return "BASIC";
-	case UDOO_NEO_TYPE_BASIC_KS:
-		return "BASICKS";
-	case UDOO_NEO_TYPE_FULL:
-		return "FULL";
-	case UDOO_NEO_TYPE_EXTENDED:
-		return "EXTENDED";
-	}
-	return "UNDEFINED";
-}
-
-/* Override the default implementation, DT model is not accurate */
-int checkboard(void)
-{
-	int *board_type = (int *)OCRAM_START;
-
-	printf("Board: UDOO Neo %s\n", board_string(*board_type));
-	return 0;
 }
 
 int board_late_init(void)
