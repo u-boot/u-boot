@@ -223,7 +223,6 @@ int power_init_board(void)
 	int reg, ver;
 	int ret;
 
-
 	ret = pmic_get("pmic@33", &dev);
 	if (ret)
 		return ret;
