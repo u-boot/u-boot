@@ -655,5 +655,4 @@ const unsigned long iocsr_scan_chain3_table[] = {
 	0x00004100,
 };
 
-
 #endif /* __SOCFPGA_IOCSR_CONFIG_H__ */
