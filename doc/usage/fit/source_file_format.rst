@@ -450,8 +450,8 @@ algo
     ==================== ============ =========================================
     sha1,rsa2048         256          SHA1 hash signed with 2048-bit
                                       Rivest–Shamir–Adleman algorithm
-    sha1,rsa3072         384          SHA1 hash signed with 2048-bit RSA
-    sha1,rsa4096         512          SHA1 hash signed with 2048-bit RSA
+    sha1,rsa3072         384          SHA1 hash signed with 3072-bit RSA
+    sha1,rsa4096         512          SHA1 hash signed with 4096-bit RSA
     sha1,ecdsa256        32           SHA1 hash signed with 256-bit  Elliptic
                                       Curve Digital Signature Algorithm
     sha256,...
