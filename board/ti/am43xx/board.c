@@ -336,7 +336,6 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return NULL;
 }
 
-
 /*
  * get_opp_offset:
  * Returns the index for safest OPP of the device to boot.
