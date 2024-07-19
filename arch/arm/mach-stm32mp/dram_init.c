@@ -86,14 +86,3 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 	return reg + size;
 }
-
-void efi_add_known_memory(void)
-{
-	if (IS_ENABLED(CONFIG_EFI_LOADER))
-		/*
-		 * Memory over ram_top is reserved to OPTEE.
-		 * Declare to EFI only memory area below ram_top
-		 */
-		efi_add_memory_map(gd->ram_base, gd->ram_top - gd->ram_base,
-				   EFI_CONVENTIONAL_MEMORY);
-}
