@@ -75,28 +75,34 @@ int efi_get_distro_fdt_name(char *fname, int size, int seq)
 /**
  * efi_load_distro_fdt() - load distro device-tree
  *
+ * @handle:	handle of loaded image
  * @fdt:	on return device-tree, must be freed via efi_free_pages()
  * @fdt_size:	buffer size
  */
-void efi_load_distro_fdt(void **fdt, efi_uintn_t *fdt_size)
+void efi_load_distro_fdt(efi_handle_t handle, void **fdt, efi_uintn_t *fdt_size)
 {
-	struct efi_device_path *rem, *dp;
+	struct efi_device_path *dp;
 	efi_status_t  ret;
+	struct efi_handler *handler;
+	struct efi_loaded_image *loaded_image;
 	efi_handle_t device;
 
 	*fdt = NULL;
 
-	dp = efi_get_dp_from_boot(NULL);
-	if (!dp)
-		return;
-	device = efi_dp_find_obj(dp, NULL, &rem);
-	ret = efi_search_protocol(device, &efi_simple_file_system_protocol_guid,
-				  NULL);
+	/* Get boot device from loaded image protocol */
+	ret = efi_search_protocol(handle, &efi_guid_loaded_image, &handler);
 	if (ret != EFI_SUCCESS)
-		goto err;
-	memcpy(rem, &END, sizeof(END));
+		return;
+	loaded_image = handler->protocol_interface;
+	device = loaded_image->device_handle;
 
-	/* try the various available names */
+	/* Get device path of boot device */
+	ret = efi_search_protocol(device, &efi_guid_device_path, &handler);
+	if (ret != EFI_SUCCESS)
+		return;
+	dp = handler->protocol_interface;
+
+	/* Try the various available names */
 	for (int seq = 0; ; ++seq) {
 		struct efi_device_path *file;
 		char buf[255];
@@ -108,10 +114,9 @@ void efi_load_distro_fdt(void **fdt, efi_uintn_t *fdt_size)
 			break;
 		ret = efi_load_image_from_path(true, file, fdt, fdt_size);
 		efi_free_pool(file);
-		if (ret == EFI_SUCCESS)
+		if (ret == EFI_SUCCESS) {
+			log_debug("Fdt %pD loaded\n", file);
 			break;
+		}
 	}
-
-err:
-	efi_free_pool(dp);
 }

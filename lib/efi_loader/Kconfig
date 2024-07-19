@@ -67,7 +67,7 @@ config EFI_RT_VOLATILE_STORE
 	depends on EFI_VARIABLE_FILE_STORE
 	help
 	  When EFI variables are stored on file we don't allow SetVariableRT,
-	  since the OS doesn't know how to write that file. At he same time
+	  since the OS doesn't know how to write that file. At the same time
 	  we copy runtime variables in DRAM and support GetVariableRT
 
 	  Enable this option to allow SetVariableRT on the RAM backend of

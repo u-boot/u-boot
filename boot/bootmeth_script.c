@@ -185,31 +185,42 @@ static int script_set_bootflow(struct udevice *dev, struct bootflow *bflow,
 
 static int script_boot(struct udevice *dev, struct bootflow *bflow)
 {
-	struct blk_desc *desc = dev_get_uclass_plat(bflow->blk);
+	struct blk_desc *desc;
 	ulong addr;
 	int ret = 0;
 
-	if (desc->uclass_id == UCLASS_USB) {
-		ret = env_set("devtype", "usb");
+	if (bflow->blk) {
+		desc = dev_get_uclass_plat(bflow->blk);
+		if (desc->uclass_id == UCLASS_USB) {
+			ret = env_set("devtype", "usb");
+		} else {
+			/*
+			 * If the uclass is AHCI, but the driver is ATA
+			 * (not scsi), set devtype to sata
+			 */
+			if (IS_ENABLED(CONFIG_SATA) &&
+			    desc->uclass_id == UCLASS_AHCI)
+				ret = env_set("devtype", "sata");
+			else
+				ret = env_set("devtype", blk_get_devtype(bflow->blk));
+		}
+		if (!ret)
+			ret = env_set_hex("devnum", desc->devnum);
+		if (!ret)
+			ret = env_set_hex("distro_bootpart", bflow->part);
+		if (!ret)
+			ret = env_set("prefix", bflow->subdir);
+		if (!ret && IS_ENABLED(CONFIG_ARCH_SUNXI) &&
+		    !strcmp("mmc", blk_get_devtype(bflow->blk)))
+			ret = env_set_hex("mmc_bootdev", desc->devnum);
 	} else {
-		/* If the uclass is AHCI, but the driver is ATA
-		 * (not scsi), set devtype to sata
-		 */
-		if (IS_ENABLED(CONFIG_SATA) &&
-		    desc->uclass_id == UCLASS_AHCI)
-			ret = env_set("devtype", "sata");
-		else
-			ret = env_set("devtype", blk_get_devtype(bflow->blk));
+		const struct udevice *media = dev_get_parent(bflow->dev);
+
+		ret = env_set("devtype",
+			      uclass_get_name(device_get_uclass_id(media)));
+		if (!ret)
+			ret = env_set_hex("devnum", dev_seq(media));
 	}
-	if (!ret)
-		ret = env_set_hex("devnum", desc->devnum);
-	if (!ret)
-		ret = env_set_hex("distro_bootpart", bflow->part);
-	if (!ret)
-		ret = env_set("prefix", bflow->subdir);
-	if (!ret && IS_ENABLED(CONFIG_ARCH_SUNXI) &&
-	    !strcmp("mmc", blk_get_devtype(bflow->blk)))
-		ret = env_set_hex("mmc_bootdev", desc->devnum);
 	if (ret)
 		return log_msg_ret("env", ret);
 
@@ -250,7 +261,7 @@ static const struct udevice_id script_bootmeth_ids[] = {
 	{ }
 };
 
-/* Put an number before 'script' to provide a default ordering */
+/* Put a number before 'script' to provide a default ordering */
 U_BOOT_DRIVER(bootmeth_2script) = {
 	.name		= "bootmeth_script",
 	.id		= UCLASS_BOOTMETH,

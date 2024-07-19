@@ -1,7 +1,7 @@
 .. SPDX-License-Identifier: GPL-2.0+:
 
-U-Boot Standard Boot
-====================
+Standard Boot Overview
+======================
 
 Introduction
 ------------
@@ -17,7 +17,7 @@ introduces the following concepts:
 For Linux, the distro (Linux distribution, e.g. Debian, Fedora) is responsible
 for creating a bootflow for each kernel combination that it wants to offer.
 These bootflows are stored on media so they can be discovered by U-Boot. This
-feature is typically called `distro boot` (see :doc:`distro`) because it is
+feature is typically called `distro boot` (see :doc:`../distro`) because it is
 a way for distributions to boot on any hardware.
 
 Traditionally U-Boot has relied on scripts to implement this feature. See
@@ -32,7 +32,7 @@ way to boot with U-Boot. The feature is extensible to different Operating
 Systems (such as Chromium OS) and devices (beyond just block and network
 devices). It supports EFI boot and EFI bootmgr too.
 
-Finally, standard boot supports the operation of :doc:`vbe`.
+Finally, standard boot supports the operation of :doc:`../vbe`.
 
 Bootflow
 --------
@@ -410,20 +410,39 @@ You should probably also enable `CONFIG_BOOTSTD_DEFAULTS`, which provides
 several filesystem and network features (if `CONFIG_NET` is enabled) so that
 a good selection of boot options is available.
 
+Some devicetree properties are supported in the bootstd node when
+`CONFIG_BOOTSTD_FULL` is enabled:
+
+    filename-prefixes
+        List of prefixes to use when searching for files on block devices. This
+        defaults to {"/", "/boot/"} if not provided.
+
+    bootdev-order
+        Lists the bootdev ordering to use. Note that the deprecated
+        `boot_targets` environment variable overrides this, if present.
+
+    theme (subnode)
+        Sets the theme to use for menus. See :doc:`/develop/expo`.
 
 Available bootmeth drivers
 --------------------------
 
-Bootmeth drivers are provided for:
+Bootmeth drivers are provided for booting from various media:
 
-   - extlinux / syslinux boot from a disk
-   - extlinux boot from a network (PXE)
-   - U-Boot scripts from disk, network or SPI flash
-   - EFI boot using bootefi from disk
-   - VBE
-   - EFI boot using boot manager
    - Android bootflow (boot image v4)
+   - :doc:`ChromiumOS <cros>` ChromiumOS boot from a disk
+   - EFI boot using bootefi from disk
+   - EFI boot using boot manager
+   - :doc:`extlinux / syslinux <extlinux>` boot from a storage device
+   - :doc:`extlinux / syslinux <extlinux>` boot from a network (PXE)
+   - :doc:`sandbox <sandbox>` used only for testing
+   - :doc:`U-Boot scripts <script>` from disk, network or SPI flash
+   - :doc:`QFW <qfw>`: QEMU firmware interface
+   - :doc:`VBE </develop/vbe>`: Verified Boot for Embedded
 
+Each driver is controlled by a Kconfig option. If no bootmeth driver is
+selected by a compatible string in the devicetree, all available bootmeth
+drivers are bound automatically.
 
 Command interface
 -----------------
@@ -432,16 +451,16 @@ Three commands are available:
 
 `bootdev`
     Allows listing of available bootdevs, selecting a particular one and
-    getting information about it. See :doc:`../usage/cmd/bootdev`
+    getting information about it. See :doc:`/usage/cmd/bootdev`
 
 `bootflow`
     Allows scanning one or more bootdevs for bootflows, listing available
     bootflows, selecting one, obtaining information about it and booting it.
-    See :doc:`../usage/cmd/bootflow`
+    See :doc:`/usage/cmd/bootflow`
 
 `bootmeth`
     Allow listing of available bootmethds and setting the order in which they
-    are tried. See :doc:`../usage/cmd/bootmeth`
+    are tried. See :doc:`/usage/cmd/bootmeth`
 
 .. _BootflowStates:
 

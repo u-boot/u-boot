@@ -1684,26 +1684,6 @@ images ready for download to / installation on your system:
 - "u-boot" is an image in ELF binary format
 - "u-boot.srec" is in Motorola S-Record format
 
-By default the build is performed locally and the objects are saved
-in the source directory. One of the two methods can be used to change
-this behavior and build U-Boot to some external directory:
-
-1. Add O= to the make command line invocations:
-
-	make O=/tmp/build distclean
-	make O=/tmp/build NAME_defconfig
-	make O=/tmp/build all
-
-2. Set environment variable KBUILD_OUTPUT to point to the desired location:
-
-	export KBUILD_OUTPUT=/tmp/build
-	make distclean
-	make NAME_defconfig
-	make all
-
-Note that the command line "O=" setting overrides the KBUILD_OUTPUT environment
-variable.
-
 User specific CPPFLAGS, AFLAGS and CFLAGS can be passed to the compiler by
 setting the according environment variables KCPPFLAGS, KAFLAGS and KCFLAGS.
 For example to treat all compiler warnings as errors:
