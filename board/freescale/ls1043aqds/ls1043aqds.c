@@ -508,7 +508,6 @@ int config_serdes_mux(void)
 	return 0;
 }
 
-
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {

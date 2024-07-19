@@ -11,7 +11,6 @@
 #define QIXIS_SRDS1CLK_122		0x5a
 #define QIXIS_SRDS1CLK_125		0x5e
 
-
 /* BRDCFG4[4:7]] select EC1 and EC2 as a pair */
 #define BRDCFG4_EMISEL_MASK             0xE0
 #define BRDCFG4_EMISEL_SHIFT            5

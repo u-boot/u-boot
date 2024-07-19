@@ -327,7 +327,6 @@ static u32 read_validate_ie_tbl(struct fsl_secboot_img_priv *img)
 }
 #endif
 
-
 /* This function return length of public key.*/
 static inline u32 get_key_len(struct fsl_secboot_img_priv *img)
 {
@@ -857,7 +856,6 @@ static int secboot_init(struct fsl_secboot_img_priv **img_ptr)
 #endif
 	return 0;
 }
-
 
 /* haddr - Address of the header of image to be validated.
  * arg_hash_str - Option hash string. If provided, this

@@ -214,7 +214,6 @@ static void setup_iomux_nfc(void)
 }
 #endif
 
-
 static void setup_iomux_qspi(void)
 {
 	static const iomux_v3_cfg_t qspi0_pads[] = {

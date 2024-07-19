@@ -622,7 +622,6 @@ void board_reset(void)
 }
 #endif
 
-
 int misc_init_r(void)
 {
 	ccsr_gur_t *gur = (void *)(CFG_SYS_MPC85xx_GUTS_ADDR);

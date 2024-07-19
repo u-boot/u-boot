@@ -23,7 +23,6 @@ struct cpld_data {
 	u8 boot_config2;	/* 0x1A - Boot config override register*/
 };
 
-
 /* Pointer to the CPLD register set */
 
 u8 cpld_read(unsigned int reg);

@@ -84,7 +84,6 @@ int board_eth_init(struct bd_info *bis)
 							DEFAULT_FM_MDIO_NAME));
 	}
 
-
 	cpu_eth_init(bis);
 #endif
 

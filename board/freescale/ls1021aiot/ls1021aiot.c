@@ -33,7 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DDR_SIZE		0x40000000
 
-
 int checkboard(void)
 {
 	puts("Board: LS1021AIOT\n");

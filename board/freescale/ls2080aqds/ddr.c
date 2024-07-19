@@ -46,7 +46,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	else
 		pbsp = udimms[ctrl_num];
 
-
 	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */

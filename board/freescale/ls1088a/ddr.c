@@ -94,7 +94,6 @@ found:
 	popts->wrlvl_override = 1;
 	popts->wrlvl_sample = 0xf;
 
-
 	/* Enable ZQ calibration */
 	popts->zq_en = 1;
 

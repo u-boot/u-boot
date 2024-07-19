@@ -74,7 +74,6 @@ int dram_init(void)
 	*((volatile unsigned long *)CFG_SYS_SDRAM_BASE) = 0xa5a59696;
 	*((volatile unsigned long *)CFG_SYS_SDRAM_BASE) = 0xa5a59696;
 
-
 	out_be32(&sdp->sdmr, 0x018d0000);
 	*((volatile unsigned long *)CFG_SYS_SDRAM_BASE) = 0xa5a59696;
 
