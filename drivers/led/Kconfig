@@ -65,13 +65,27 @@ config LED_PWM
 	  Linux compatible ofdata.
 
 config LED_BLINK
-	bool "Support LED blinking"
+	bool "Support hardware LED blinking"
 	depends on LED
 	help
 	  Some drivers can support automatic blinking of LEDs with a given
 	  period, without needing timers or extra code to handle the timing.
 	  This option enables support for this which adds slightly to the
 	  code size.
+
+config LED_SW_BLINK
+	bool "Support software LED blinking"
+	depends on LED
+	select CYCLIC
+	help
+	  Turns on led blinking implemented in the software, useful when
+	  the hardware doesn't support led blinking. Half of the period
+	  led will be ON and the rest time it will be OFF. Standard
+	  led commands can be used to configure blinking. Does nothing
+	  if driver supports hardware blinking.
+	  WARNING: Blinking may be inaccurate during execution of time
+	  consuming commands (ex. flash reading). Also it completely
+	  stops during OS booting.
 
 config SPL_LED
 	bool "Enable LED support in SPL"

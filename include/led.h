@@ -18,6 +18,20 @@ enum led_state_t {
 	LEDST_COUNT,
 };
 
+enum led_sw_blink_state_t {
+	LED_SW_BLINK_ST_DISABLED,
+	LED_SW_BLINK_ST_NOT_READY,
+	LED_SW_BLINK_ST_OFF,
+	LED_SW_BLINK_ST_ON,
+};
+
+struct led_sw_blink {
+	enum led_sw_blink_state_t state;
+	struct udevice *dev;
+	struct cyclic_info cyclic;
+	const char cyclic_name[0];
+};
+
 /**
  * struct led_uc_plat - Platform data the uclass stores about each device
  *
@@ -27,6 +41,9 @@ enum led_state_t {
 struct led_uc_plat {
 	const char *label;
 	enum led_state_t default_state;
+#ifdef CONFIG_LED_SW_BLINK
+	struct led_sw_blink *sw_blink;
+#endif
 };
 
 /**
@@ -115,5 +132,10 @@ int led_set_period(struct udevice *dev, int period_ms);
  * @driver_name: Driver for handling individual child nodes
  */
 int led_bind_generic(struct udevice *parent, const char *driver_name);
+
+/* Internal functions for software blinking. Do not use them in your code */
+int led_sw_set_period(struct udevice *dev, int period_ms);
+bool led_sw_is_blinking(struct udevice *dev);
+bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state);
 
 #endif

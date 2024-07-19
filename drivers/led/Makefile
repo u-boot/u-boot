@@ -4,6 +4,7 @@
 # Written by Simon Glass <sjg@chromium.org>
 
 obj-y += led-uclass.o
+obj-$(CONFIG_LED_SW_BLINK) += led_sw_blink.o
 obj-$(CONFIG_LED_BCM6328) += led_bcm6328.o
 obj-$(CONFIG_LED_BCM6358) += led_bcm6358.o
 obj-$(CONFIG_LED_BCM6753) += led_bcm6753.o

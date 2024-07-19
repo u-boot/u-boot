@@ -58,6 +58,10 @@ int led_set_state(struct udevice *dev, enum led_state_t state)
 	if (!ops->set_state)
 		return -ENOSYS;
 
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK) &&
+	    led_sw_on_state_change(dev, state))
+		return 0;
+
 	return ops->set_state(dev, state);
 }
 
@@ -67,6 +71,10 @@ enum led_state_t led_get_state(struct udevice *dev)
 
 	if (!ops->get_state)
 		return -ENOSYS;
+
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK) &&
+	    led_sw_is_blinking(dev))
+		return LEDST_BLINK;
 
 	return ops->get_state(dev);
 }
@@ -79,6 +87,9 @@ int led_set_period(struct udevice *dev, int period_ms)
 	if (ops->set_period)
 		return ops->set_period(dev, period_ms);
 #endif
+
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK))
+		return led_sw_set_period(dev, period_ms);
 
 	return -ENOSYS;
 }
