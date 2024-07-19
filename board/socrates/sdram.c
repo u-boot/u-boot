@@ -14,7 +14,6 @@
 #include <spd_sdram.h>
 #include <linux/delay.h>
 
-
 #if !defined(CONFIG_SPD_EEPROM)
 /*
  * Autodetect onboard DDR SDRAM on 85xx platforms

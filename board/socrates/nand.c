@@ -56,7 +56,6 @@ static void sc_nand_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 	}
 }
 
-
 /**
  * sc_nand_read_byte -  read one byte from the chip
  * @mtd:	MTD device structure
