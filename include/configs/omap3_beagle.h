@@ -28,9 +28,6 @@
 /* NAND: SPL falcon mode configs */
 #endif /* CONFIG_MTD_RAW_NAND */
 
-/* Enable Multi Bus support for I2C */
-#define CFG_I2C_MULTI_BUS
-
 /* DSS Support */
 
 /* TWL4030 LED Support */

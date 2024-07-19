@@ -41,7 +41,6 @@
 #include "beagle.h"
 #include <command.h>
 
-#define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	1
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x50
 
@@ -213,27 +212,37 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
  */
 static unsigned int get_expansion_id(void)
 {
-	i2c_set_bus_num(EXPANSION_EEPROM_I2C_BUS);
+	struct udevice *eeprom = NULL;
+	int ret;
 
-	/* return BEAGLE_NO_EEPROM if eeprom doesn't respond */
-	if (i2c_probe(EXPANSION_EEPROM_I2C_ADDRESS) == 1) {
-		i2c_set_bus_num(TWL4030_I2C_BUS);
+	ret = i2c_get_chip_for_busnum(EXPANSION_EEPROM_I2C_BUS,
+				      EXPANSION_EEPROM_I2C_ADDRESS, 1, &eeprom);
+	if (ret)
+		return BEAGLE_NO_EEPROM;
+
+	/* read configuration data */
+	ret = dm_i2c_read(eeprom, 0, (uint8_t *)&expansion_config,
+			  sizeof(expansion_config));
+	if (ret != 0) {
+		/* return BEAGLE_NO_EEPROM if eeprom doesn't respond */
 		return BEAGLE_NO_EEPROM;
 	}
 
-	/* read configuration data */
-	i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 1, (u8 *)&expansion_config,
-		 sizeof(expansion_config));
-
-	/* retry reading configuration data with 16bit addressing */
 	if ((expansion_config.device_vendor == 0xFFFFFF00) ||
 	    (expansion_config.device_vendor == 0xFFFFFFFF)) {
 		printf("EEPROM is blank or 8bit addressing failed: retrying with 16bit:\n");
-		i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 2, (u8 *)&expansion_config,
-			 sizeof(expansion_config));
 	}
 
-	i2c_set_bus_num(TWL4030_I2C_BUS);
+	/* retry reading configuration data with 16bit addressing */
+	ret = i2c_get_chip_for_busnum(EXPANSION_EEPROM_I2C_BUS,
+				      EXPANSION_EEPROM_I2C_ADDRESS, 2, &eeprom);
+	if (ret)
+		return BEAGLE_NO_EEPROM;
+
+	ret = dm_i2c_read(eeprom, 0, (uint8_t *)&expansion_config,
+			  sizeof(expansion_config));
+	if (ret != 0)
+		return BEAGLE_NO_EEPROM;
 
 	return expansion_config.device_vendor;
 }
@@ -281,13 +290,13 @@ static void beagle_dvi_pup(void)
 		#define GPIODATADIR1 (TWL4030_BASEADD_GPIO+3)
 		#define GPIODATAOUT1 (TWL4030_BASEADD_GPIO+6)
 
-		i2c_read(TWL4030_CHIP_GPIO, GPIODATADIR1, 1, &val, 1);
+		twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, GPIODATADIR1, &val);
 		val |= 4;
-		i2c_write(TWL4030_CHIP_GPIO, GPIODATADIR1, 1, &val, 1);
+		twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, GPIODATADIR1, val);
 
-		i2c_read(TWL4030_CHIP_GPIO, GPIODATAOUT1, 1, &val, 1);
+		twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, GPIODATAOUT1, &val);
 		val |= 4;
-		i2c_write(TWL4030_CHIP_GPIO, GPIODATAOUT1, 1, &val, 1);
+		twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, GPIODATAOUT1, val);
 		break;
 	}
 }
