@@ -107,7 +107,6 @@ static struct module_pin_mux mii1_pin_mux[] = {
 	{-1},
 };
 
-
 void enable_uart0_pin_mux(void)
 {
 	configure_module_pin_mux(uart0_pin_mux);
