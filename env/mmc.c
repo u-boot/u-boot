@@ -110,8 +110,9 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 	int hwpart = 0;
 	int err;
 
-	if (IS_ENABLED(CONFIG_SYS_MMC_ENV_PART))
-		hwpart = mmc_get_env_part(mmc);
+#if defined(CONFIG_SYS_MMC_ENV_PART)
+	hwpart = mmc_get_env_part(mmc);
+#endif
 
 #if defined(CONFIG_ENV_MMC_PARTITION)
 	str = CONFIG_ENV_MMC_PARTITION;
