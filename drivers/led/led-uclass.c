@@ -118,6 +118,14 @@ static int led_post_bind(struct udevice *dev)
 	else
 		return 0;
 
+	if (IS_ENABLED(CONFIG_LED_BLINK)) {
+		const char *trigger;
+
+		trigger = dev_read_string(dev, "linux,default-trigger");
+		if (trigger && !strncmp(trigger, "pattern", 7))
+			uc_plat->default_state = LEDST_BLINK;
+	}
+
 	/*
 	 * In case the LED has default-state DT property, trigger
 	 * probe() to configure its default state during startup.
@@ -130,12 +138,24 @@ static int led_post_bind(struct udevice *dev)
 static int led_post_probe(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	int default_period_ms = 1000;
+	int ret = 0;
 
-	if (uc_plat->default_state == LEDST_ON ||
-	    uc_plat->default_state == LEDST_OFF)
-		led_set_state(dev, uc_plat->default_state);
+	switch (uc_plat->default_state) {
+	case LEDST_ON:
+	case LEDST_OFF:
+		ret = led_set_state(dev, uc_plat->default_state);
+		break;
+	case LEDST_BLINK:
+		ret = led_set_period(dev, default_period_ms);
+		if (!ret)
+			ret = led_set_state(dev, uc_plat->default_state);
+		break;
+	default:
+		break;
+	}
 
-	return 0;
+	return ret;
 }
 
 UCLASS_DRIVER(led) = {
