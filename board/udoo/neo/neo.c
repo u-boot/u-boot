@@ -57,9 +57,6 @@ enum {
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |          \
 	PAD_CTL_SPEED_MED   | PAD_CTL_SRE_FAST)
 
-#define WDOG_PAD_CTRL (PAD_CTL_PUE | PAD_CTL_PKE | PAD_CTL_SPEED_MED |	\
-	PAD_CTL_DSE_40ohm)
-
 #define BOARD_DETECT_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
 	PAD_CTL_DSE_34ohm | PAD_CTL_HYS | PAD_CTL_SRE_FAST)
@@ -113,10 +110,6 @@ static iomux_v3_cfg_t const phy_control_pads[] = {
 	MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const wdog_b_pad = {
-	MX6_PAD_GPIO1_IO13__GPIO1_IO_13 | MUX_PAD_CTRL(WDOG_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const peri_3v3_pads[] = {
 	MX6_PAD_QSPI1A_DATA0__GPIO4_IO_16 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
@@ -147,15 +140,6 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-	/*
-	 * Because kernel set WDOG_B mux before pad with the commone pinctrl
-	 * framwork now and wdog reset will be triggered once set WDOG_B mux
-	 * with default pad setting, we set pad setting here to workaround this.
-	 * Since imx_iomux_v3_setup_pad also set mux before pad setting, we set
-	 * as GPIO mux firstly here to workaround it.
-	 */
-	imx_iomux_v3_setup_pad(wdog_b_pad);
 
 	/* Enable PERI_3V3, which is used by SD2, ENET, LVDS, BT */
 	imx_iomux_v3_setup_multiple_pads(peri_3v3_pads,
