@@ -5,7 +5,6 @@
 
 #include <config.h>
 #include <event.h>
-#include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/immap_ls102xa.h>
 #include <asm/arch/clock.h>
@@ -106,6 +105,13 @@ int board_early_init_f(void)
 	qrio_enable_app_buffer();
 
 	arch_soc_init();
+
+	/*
+	 * Reset I2C bus. When the board is powercycled during a bus
+	 * transfer it might hang; for details see doc/I2C_Edge_Conditions.
+	 * Now run the AbortSequence()
+	 */
+	i2c_make_abort();
 
 	return 0;
 }

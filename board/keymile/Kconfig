@@ -11,9 +11,6 @@ if VENDOR_KM
 
 menu "KM Board Setup"
 
-config SYS_I2C_INIT_BOARD
-	def_bool y if ARM
-
 config HUSH_INIT_VAR
 	def_bool y
 
