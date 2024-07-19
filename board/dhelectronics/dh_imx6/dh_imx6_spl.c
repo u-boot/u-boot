@@ -541,7 +541,6 @@ static int spl_dram_perform_cal(struct mx6_ddr_sysinfo const *sysinfo)
 	return ret;
 }
 
-
 /* DRAM */
 static void dhcom_spl_dram_init(void)
 {
