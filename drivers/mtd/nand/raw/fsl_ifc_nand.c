@@ -1012,7 +1012,6 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 		priv->bufnum_mask = 0;
 		break;
 
-
 	default:
 		printf("ifc nand: bad csor %#x: bad page size\n", csor);
 		return -ENODEV;

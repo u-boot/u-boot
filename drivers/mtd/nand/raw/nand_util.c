@@ -276,7 +276,6 @@ int nand_get_lock_status(struct mtd_info *mtd, loff_t offset)
 	chipnr = (int)(offset >> chip->chip_shift);
 	chip->select_chip(mtd, chipnr);
 
-
 	if ((offset & (mtd->writesize - 1)) != 0) {
 		printf("nand_get_lock_status: "
 			"Start address must be beginning of "

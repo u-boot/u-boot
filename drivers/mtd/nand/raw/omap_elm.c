@@ -134,7 +134,6 @@ int elm_check_error(u8 *syndrome, enum bch_level bch_type, u32 *error_count,
 	return 0;
 }
 
-
 /**
  * elm_config - Configure ELM module
  * @level: 4 / 8 / 16 bit BCH

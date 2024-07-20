@@ -503,7 +503,6 @@ static int onenand_wait(struct mtd_info *mtd, int state)
 		return -EIO;
 	}
 
-
 	return 0;
 }
 
@@ -1278,7 +1277,6 @@ int onenand_bbt_read_oob(struct mtd_info *mtd, loff_t from,
 	return ret;
 }
 
-
 #ifdef CONFIG_MTD_ONENAND_VERIFY_WRITE
 /**
  * onenand_verify_oob - [GENERIC] verify the oob contents after a write
@@ -1720,7 +1718,6 @@ static int onenand_block_isbad_nolock(struct mtd_info *mtd, loff_t ofs, int allo
 	return bbm->isbad_bbt(mtd, ofs, allowbbt);
 }
 
-
 /**
  * onenand_erase - [MTD Interface] erase block(s)
  * @param mtd		MTD device structure
@@ -2127,7 +2124,6 @@ static void onenand_unlock_all(struct mtd_info *mtd)
 
 	onenand_do_lock_cmd(mtd, ofs, len, ONENAND_CMD_UNLOCK);
 }
-
 
 /**
  * onenand_check_features - Check and set OneNAND features

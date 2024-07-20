@@ -47,14 +47,12 @@
 #define NFC_CTL_PAGE_SIZE_MASK     (0xf << 8)
 #define NFC_CTL_PAGE_SIZE(a)       ((fls(a) - 11) << 8)
 
-
 #define NFC_ECC_EN                 (1 << 0)
 #define NFC_ECC_PIPELINE           (1 << 3)
 #define NFC_ECC_EXCEPTION          (1 << 4)
 #define NFC_ECC_BLOCK_SIZE         (1 << 5)
 #define NFC_ECC_RANDOM_EN          (1 << 9)
 #define NFC_ECC_RANDOM_DIRECTION   (1 << 10)
-
 
 #define NFC_ADDR_NUM_OFFSET        16
 #define NFC_SEND_ADDR              (1 << 19)

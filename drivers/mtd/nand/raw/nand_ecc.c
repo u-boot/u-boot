@@ -22,7 +22,6 @@
  * this file might be covered by the GNU General Public License.
  */
 
-
 #include <linux/errno.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand_ecc.h>

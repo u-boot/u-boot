@@ -34,7 +34,6 @@ enum bch_level {
 	BCH_16_BIT
 };
 
-
 /* BCH syndrome registers */
 struct syndrome {
 	u32 syndrome_fragment_x[7];	/* 0x400, 0x404.... 0x418 */
