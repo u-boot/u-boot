@@ -1393,6 +1393,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a tpl-dtb=$(CONFIG_TPL_OF_REAL) \
 		-a vpl-dtb=$(CONFIG_VPL_OF_REAL) \
 		-a pre-load-key-path=${PRE_LOAD_KEY_PATH} \
+		-a of-spl-remove-props=$(CONFIG_OF_SPL_REMOVE_PROPS) \
 		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex

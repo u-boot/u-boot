@@ -210,7 +210,8 @@ class Entry_fit(Entry_section):
 
     Note that the `of-spl-remove-props` entryarg can be used to indicate
     additional properties to remove. It is often used to remove properties like
-    `clock-names` and `pinctrl-names` which are not needed in SPL builds.
+    `clock-names` and `pinctrl-names` which are not needed in SPL builds. This
+    value is automatically passed to binman by the U-Boot build.
 
     See :ref:`fdtgrep_filter` for more information.
 
