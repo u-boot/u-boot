@@ -11,8 +11,6 @@
 
 #include "mx6_common.h"
 
-#define CFG_MXC_UART_BASE	       UART2_BASE
-
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR      0
 #define CFG_SYS_FSL_USDHC_NUM       2
