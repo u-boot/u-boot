@@ -294,7 +294,6 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	return 0;
 }
 
-
 static void ahci_print_info(struct ahci_uc_priv *uc_priv)
 {
 	void __iomem *mmio = uc_priv->mmio_base;
@@ -520,7 +519,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	return wait_spinup(port_mmio);
 }
 
-
 static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 			       int fis_len, u8 *buf, int buf_len, u8 is_write)
 {
@@ -647,7 +645,6 @@ static int ata_scsiop_inquiry(struct ahci_uc_priv *uc_priv,
 	return 0;
 }
 
-
 /*
  * SCSI READ10/WRITE10 command operation.
  */
@@ -759,7 +756,6 @@ static int ata_scsiop_read_write(struct ahci_uc_priv *uc_priv,
 	return 0;
 }
 
-
 /*
  * SCSI READ CAPACITY10 command operation.
  */
@@ -790,7 +786,6 @@ static int ata_scsiop_read_capacity10(struct ahci_uc_priv *uc_priv,
 	return 0;
 }
 
-
 /*
  * SCSI READ CAPACITY16 command operation.
  */
@@ -817,7 +812,6 @@ static int ata_scsiop_read_capacity16(struct ahci_uc_priv *uc_priv,
 	return 0;
 }
 
-
 /*
  * SCSI TEST UNIT READY command operation.
  */
@@ -826,7 +820,6 @@ static int ata_scsiop_test_unit_ready(struct ahci_uc_priv *uc_priv,
 {
 	return (uc_priv->ataid[pccb->target]) ? 0 : -EPERM;
 }
-
 
 static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 {
