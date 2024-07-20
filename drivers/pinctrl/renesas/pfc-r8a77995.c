@@ -428,7 +428,6 @@ FM(IP12_31_28)	IP12_31_28 \
 #define MOD_SEL1_27		FM(SEL_SCIF0_0)		FM(SEL_SCIF0_1)
 #define MOD_SEL1_26		FM(SEL_SSIF4_0)		FM(SEL_SSIF4_1)
 
-
 #define PINMUX_MOD_SELS	\
 \
 		MOD_SEL1_31 \
@@ -2869,7 +2868,6 @@ static const struct pinmux_ioctrl_reg pinmux_ioctrl_regs[] = {
 	[TDSELCTRL] = { 0xe60603c0, },
 	{ /* sentinel */ }
 };
-
 
 static int r8a77995_pin_to_pocctrl(unsigned int pin, u32 *pocctrl)
 {

@@ -92,7 +92,6 @@ struct exynos_pinctrl_config_data {
 	const unsigned int	value;
 };
 
-
 void exynos_pinctrl_setup_peri(struct exynos_pinctrl_config_data *conf,
 		unsigned int num_conf, unsigned long base);
 int exynos_pinctrl_set_state(struct udevice *dev,

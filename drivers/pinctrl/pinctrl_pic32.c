@@ -114,7 +114,6 @@ struct pic32_reg_in_mux {
 #define PPS_OUT(__port, __pin) \
 	(((__port) * PIC32_PINS_PER_PORT + (__pin)) << 2)
 
-
 struct pic32_pinctrl_priv {
 	struct pic32_reg_in_mux *mux_in; /* mux input function */
 	struct pic32_reg_port *pinconf; /* pin configuration*/
