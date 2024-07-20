@@ -269,7 +269,6 @@ int dfu_get_medium_size_mmc(struct dfu_entity *dfu, u64 *size)
 	}
 }
 
-
 static int mmc_file_buf_read(struct dfu_entity *dfu, u64 offset, void *buf,
 			     long *len)
 {
