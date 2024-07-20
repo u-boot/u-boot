@@ -99,7 +99,6 @@ static int cros_ec_i2c_packet(struct udevice *udev, int out_bytes, int in_bytes)
 		return -EBADMSG;
 	}
 
-
 	/* drop result and packet_len */
 	memmove(dev->din, &ec_response_i2c->ec_response, in_bytes);
 

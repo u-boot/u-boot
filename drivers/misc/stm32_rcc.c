@@ -76,7 +76,6 @@ static int stm32_rcc_bind(struct udevice *dev)
 					    dev_ofnode(dev), &child);
 }
 
-
 static const struct udevice_id stm32_rcc_ids[] = {
 	{.compatible = "st,stm32f42xx-rcc", .data = (ulong)&stm32_rcc_clk_f42x },
 	{.compatible = "st,stm32f469-rcc", .data = (ulong)&stm32_rcc_clk_f469 },
