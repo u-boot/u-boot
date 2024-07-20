@@ -24,7 +24,6 @@
 #define FB_VMODE_SMOOTH_XPAN	512	/* smooth xpan possible (internally used) */
 #define FB_VMODE_CONUPDATE	512	/* don't update x/yoffset	*/
 
-
 /******************************************************************
  * Resolution Struct
  ******************************************************************/

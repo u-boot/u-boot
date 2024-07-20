@@ -204,7 +204,6 @@ static void clk_ipu_disable(struct clk *clk)
 #endif
 }
 
-
 static struct clk ipu_clk = {
 	.name = "ipu_clk",
 #if defined(CONFIG_MX51) || defined(CONFIG_MX53)
@@ -271,7 +270,6 @@ static inline int ipu_is_dmfc_chan(uint32_t dma_chan)
 {
 	return ((dma_chan >= 23) && (dma_chan <= 29));
 }
-
 
 static inline void ipu_ch_param_set_buffer(uint32_t ch, int bufNum,
 					    dma_addr_t phyaddr)
@@ -587,7 +585,6 @@ int32_t ipu_init_channel(ipu_channel_t channel, ipu_channel_params_t *params)
 		g_ipu_clk_enabled = 1;
 		clk_enable(g_ipu_clk);
 	}
-
 
 	if (g_channel_init_mask & (1L << IPU_CHAN_ID(channel))) {
 		printf("Warning: channel already initialized %d\n",
@@ -953,7 +950,6 @@ static void ipu_ch_param_init(int ch,
 		puts("mxc ipu: unimplemented pixel format\n");
 		break;
 	}
-
 
 	if (uv_stride)
 		ipu_ch_param_set_field(&params, 1, 128, 14, uv_stride - 1);

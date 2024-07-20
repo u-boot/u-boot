@@ -334,7 +334,6 @@ static void mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info,
 	 */
 	writel(0x00000000, regs + MVEBU_LCD_SPU_SRAM_PARA1);
 
-
 	/* Clock settings in the at 01A8 and in the range F0A0 see below */
 
 	/*

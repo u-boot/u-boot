@@ -250,7 +250,6 @@ static int pwm_backlight_of_to_plat(struct udevice *dev)
 	priv->cur_level = priv->default_level;
 	log_debug("done\n");
 
-
 	return 0;
 }
 

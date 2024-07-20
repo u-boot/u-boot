@@ -353,12 +353,10 @@ struct ipu_dmfc {
 #define DMFC_GENERAL1		(&DMFC_REG->general[0])
 #define DMFC_IC_CTRL		(&DMFC_REG->ic_ctrl)
 
-
 #define DC_REG			((struct ipu_dc *)(IPU_CTRL_BASE_ADDR + \
 				IPU_DC_REG_BASE))
 #define DC_MAP_CONF_PTR(n)	(&DC_REG->dc_map_ptr[n / 2])
 #define DC_MAP_CONF_VAL(n)	(&DC_REG->dc_map_val[n / 2])
-
 
 static inline struct ipu_dc_ch *dc_ch_offset(int ch)
 {
