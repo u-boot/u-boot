@@ -518,7 +518,6 @@ int rproc_is_running(int id)
 	return _rproc_ops_wrapper(id, RPROC_RUNNING);
 };
 
-
 static int handle_trace(struct udevice *dev, struct fw_rsc_trace *rsc,
 			int offset, int avail)
 {
