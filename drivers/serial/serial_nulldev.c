@@ -31,7 +31,6 @@ static const struct udevice_id nulldev_serial_ids[] = {
 	{ }
 };
 
-
 const struct dm_serial_ops nulldev_serial_ops = {
 	.putc = nulldev_serial_putc,
 	.pending = nulldev_serial_pending,
