@@ -580,7 +580,6 @@ void ispVMFreeMem(void)
 	}
 }
 
-
 /*
  *
  * ispVMDataSize

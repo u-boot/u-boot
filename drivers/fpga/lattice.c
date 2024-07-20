@@ -35,7 +35,6 @@ extern unsigned short g_usIntelDataIndex;
 extern unsigned short g_usIntelBufferSize;
 extern char *const g_szSupportedVersions[];
 
-
 /*
  * ispVMDelay
  *

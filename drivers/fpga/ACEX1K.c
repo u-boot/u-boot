@@ -79,7 +79,6 @@ int ACEX1K_info( Altera_desc *desc )
 	return FPGA_SUCCESS;
 }
 
-
 /* ------------------------------------------------------------------------- */
 /* ACEX1K Passive Serial Generic Implementation                                  */
 
