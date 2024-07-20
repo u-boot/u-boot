@@ -263,7 +263,6 @@ static int bus_i2c_write(struct udevice *bus, u32 chip, u8 *buf, int len)
 	return result;
 }
 
-
 u32 __weak imx_get_i2cclk(u32 i2c_num)
 {
 	return 0;

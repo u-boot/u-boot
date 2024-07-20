@@ -198,7 +198,6 @@ static int uniphier_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 	return 0;
 }
 
-
 static const struct dm_i2c_ops uniphier_i2c_ops = {
 	.xfer = uniphier_i2c_xfer,
 	.set_bus_speed = uniphier_i2c_set_bus_speed,
