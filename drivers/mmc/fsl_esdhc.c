@@ -850,7 +850,6 @@ __weak int esdhc_status_fixup(void *blob, const char *compat)
 	return 0;
 }
 
-
 #if CONFIG_IS_ENABLED(DM_MMC)
 static int fsl_esdhc_get_cd(struct udevice *dev);
 static void esdhc_disable_for_no_card(void *blob)

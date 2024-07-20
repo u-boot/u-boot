@@ -114,7 +114,6 @@ static int msm_sdc_mci_init(struct msm_sdhc *prv)
 	writel(readl(prv->base + SDCC_MCI_POWER) | SDCC_MCI_POWER_SW_RST,
 	       prv->base + SDCC_MCI_POWER);
 
-
 	/* Wait for reset to be written to register */
 	if (wait_for_bit_le32(prv->base + SDCC_MCI_STATUS2,
 			      SDCC_MCI_STATUS2_MCI_ACT, false, 10, false)) {

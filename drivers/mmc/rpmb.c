@@ -60,7 +60,6 @@ static const char * const rpmb_err_msg[] = {
 	"Authentication key not yet programmed",
 };
 
-
 /* Structure of RPMB data frame. */
 struct s_rpmb {
 	unsigned char stuff[RPMB_SZ_STUFF];

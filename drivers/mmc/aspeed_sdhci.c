@@ -93,7 +93,6 @@ U_BOOT_DRIVER(aspeed_sdhci_drv) = {
 	.plat_auto	= sizeof(struct aspeed_sdhci_plat),
 };
 
-
 static int aspeed_sdc_probe(struct udevice *parent)
 {
 	struct clk clk;

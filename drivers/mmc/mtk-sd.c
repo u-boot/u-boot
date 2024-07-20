@@ -1631,7 +1631,6 @@ static void msdc_init_hw(struct msdc_host *host)
 	clrsetbits_le32(&host->base->sdc_cfg, SDC_CFG_DTOC_M,
 			3 << SDC_CFG_DTOC_S);
 
-
 	host->def_tune_para.iocon = readl(&host->base->msdc_iocon);
 	host->def_tune_para.pad_tune = readl(&host->base->pad_tune);
 }
