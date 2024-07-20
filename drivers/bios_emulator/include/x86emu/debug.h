@@ -105,7 +105,6 @@
 
 #ifdef CONFIG_X86EMU_DEBUG
 
-
 # define DECODE_PRINTF(x)	if (DEBUG_DECODE()) \
 				    x86emu_decode_printf(x)
 # define DECODE_PRINTF2(x,y)	if (DEBUG_DECODE()) \
