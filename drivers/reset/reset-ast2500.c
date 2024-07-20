@@ -63,8 +63,6 @@ static int ast2500_reset_status(struct reset_ctl *reset_ctl)
 	return !!status;
 }
 
-
-
 static int ast2500_reset_probe(struct udevice *dev)
 {
 	int rc;
