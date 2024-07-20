@@ -1199,6 +1199,9 @@ features to produce new behaviours.
             self.uncomp_size = len(indata)
             if self.comp_bintool.is_present():
                 data = self.comp_bintool.compress(indata)
+                uniq = self.GetUniqueName()
+                fname = tools.get_output_filename(f'comp.{uniq}')
+                tools.write_file(fname, data)
             else:
                 self.record_missing_bintool(self.comp_bintool)
                 data = tools.get_bytes(0, 1024)
