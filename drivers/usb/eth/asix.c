@@ -96,7 +96,6 @@
 #define FLAG_TYPE_AX88772B	(1U << 2)
 #define FLAG_EEPROM_MAC		(1U << 3) /* initial mac address in eeprom */
 
-
 /* driver private */
 struct asix_private {
 	int flags;

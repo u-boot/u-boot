@@ -588,7 +588,6 @@ static struct usb_request *alloc_ep_req(struct usb_ep *ep, unsigned length)
 	return req;
 }
 
-
 static struct usb_request *sdp_start_ep(struct usb_ep *ep, bool in)
 {
 	struct usb_request *req;

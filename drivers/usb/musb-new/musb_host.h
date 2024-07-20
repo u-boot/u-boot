@@ -59,7 +59,6 @@ static inline struct musb_qh *first_qh(struct list_head *q)
 	return list_entry(q->next, struct musb_qh, ring);
 }
 
-
 extern void musb_root_disconnect(struct musb *musb);
 
 struct usb_hcd;

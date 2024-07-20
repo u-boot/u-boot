@@ -13,7 +13,6 @@
  * Łukasz Majewski <l.majewski@samsung.com>
  */
 
-
 /*
  * This file requires the following identifiers used in USB strings to
  * be defined (each of type pointer to char):
@@ -46,9 +45,7 @@
  * characters rather then a pointer to void.
  */
 
-
 /* #include <asm/unaligned.h> */
-
 
 /*
  * Thanks to NetChip Technologies for donating this product ID.

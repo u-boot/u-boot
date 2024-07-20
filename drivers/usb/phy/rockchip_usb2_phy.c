@@ -72,7 +72,6 @@ static void property_enable(struct dwc2_plat_otg_data *pdata,
 	writel(val, pdata->regs_phy + reg->offset);
 }
 
-
 void otg_phy_init(struct dwc2_udc *dev)
 {
 	struct dwc2_plat_otg_data *pdata = dev->pdata;

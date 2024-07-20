@@ -24,7 +24,6 @@ static unsigned epnum;
 static unsigned in_epnum;
 #endif
 
-
 /*
  * This should work with endpoints from controller drivers sharing the
  * same endpoint naming convention.  By example:

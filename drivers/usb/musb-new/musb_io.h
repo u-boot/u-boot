@@ -24,13 +24,11 @@ static inline u16 musb_readw(const void __iomem *addr, unsigned offset)
 static inline u32 musb_readl(const void __iomem *addr, unsigned offset)
 	{ return __raw_readl(addr + offset); }
 
-
 static inline void musb_writew(void __iomem *addr, unsigned offset, u16 data)
 	{ __raw_writew(data, addr + offset); }
 
 static inline void musb_writel(void __iomem *addr, unsigned offset, u32 data)
 	{ __raw_writel(data, addr + offset); }
-
 
 #if defined(CONFIG_USB_MUSB_TUSB6010) || defined (CONFIG_USB_MUSB_TUSB6010_MODULE)
 

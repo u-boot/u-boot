@@ -53,7 +53,6 @@ static const __le32 rndis_driver_version = __constant_cpu_to_le32(1);
 /* Function Prototypes */
 static rndis_resp_t *rndis_add_response(int configNr, u32 length);
 
-
 /* supported OIDs */
 static const u32 oid_supported_list[] = {
 	/* the general stuff */
@@ -137,7 +136,6 @@ static const u32 oid_supported_list[] = {
 #endif	/* RNDIS_WAKEUP */
 #endif	/* RNDIS_PM */
 };
-
 
 /* NDIS Functions */
 static int gen_ndis_query_resp(int configNr, u32 OID, u8 *buf,
@@ -941,7 +939,6 @@ static int rndis_keepalive_response(int configNr,
 
 	return 0;
 }
-
 
 /*
  * Device to Host Comunication

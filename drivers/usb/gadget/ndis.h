@@ -21,7 +21,6 @@
 #ifndef _USBGADGET_NDIS_H
 #define _USBGADGET_NDIS_H
 
-
 #define NDIS_STATUS_MULTICAST_FULL        0xC0010009
 #define NDIS_STATUS_MULTICAST_EXISTS      0xC001000A
 #define NDIS_STATUS_MULTICAST_NOT_FOUND   0xC001000B
@@ -59,7 +58,6 @@ struct NDIS_PM_PACKET_PATTERN {
 	__le32	PatternSize;
 	__le32	PatternFlags;
 };
-
 
 /* Required Object IDs (OIDs) */
 #define OID_GEN_SUPPORTED_LIST            0x00010101

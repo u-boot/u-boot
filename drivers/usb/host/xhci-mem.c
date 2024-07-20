@@ -56,7 +56,6 @@ void xhci_inval_cache(uintptr_t addr, u32 len)
 				ALIGN(addr + len, CACHELINE_SIZE));
 }
 
-
 /**
  * frees the "segment" pointer passed
  *
