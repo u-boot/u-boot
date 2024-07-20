@@ -67,7 +67,6 @@
 #define EMAC_PTP_CMD_RCGR		(0x4e014)
 #define EMAC_CMD_RCGR			(0x4e01c)
 
-
 /* GPLL0 clock control registers */
 #define GPLL0_STATUS_ACTIVE BIT(31)
 

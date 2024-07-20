@@ -248,7 +248,6 @@ static ulong clk_pll1416x_set_rate(struct clk *clk, unsigned long drate)
 	tmp |= BYPASS_MASK;
 	writel(tmp, pll->base);
 
-
 	div_val = (rate->mdiv << MDIV_SHIFT) | (rate->pdiv << PDIV_SHIFT) |
 		(rate->sdiv << SDIV_SHIFT);
 	writel(div_val, pll->base + 0x4);
