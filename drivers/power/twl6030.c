@@ -29,7 +29,6 @@ static struct twl6030_data twl6032_info = {
 	.vbat_shift	= TWL6032_VBAT_SHIFT,
 };
 
-
 static int twl6030_gpadc_read_channel(u8 channel_no)
 {
 	u8 lsb = 0;
