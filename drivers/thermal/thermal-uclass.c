@@ -13,7 +13,6 @@
 #include <asm/io.h>
 #include <linux/list.h>
 
-
 int thermal_get_temp(struct udevice *dev, int *temp)
 {
 	const struct dm_thermal_ops *ops = device_get_ops(dev);
