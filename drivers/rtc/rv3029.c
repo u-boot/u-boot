@@ -73,7 +73,6 @@
 					 RV3029_TRICKLE_80K)
 #define RV3029_TRICKLE_SHIFT		4
 
-
 static int rv3029_rtc_get(struct udevice *dev, struct rtc_time *tm)
 {
 	u8 regs[RTC_RV3029_PAGE_LEN];
@@ -126,7 +125,6 @@ static int rv3029_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	debug("%s: %4d-%02d-%02d (wday=%d( %2d:%02d:%02d\n",
 	      __func__, tm->tm_year, tm->tm_mon, tm->tm_mday,
 	      tm->tm_wday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-
 
 	if (tm->tm_year < 2000) {
 		printf("%s: year %d (before 2000) not supported\n",

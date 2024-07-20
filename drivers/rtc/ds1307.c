@@ -139,7 +139,6 @@ read_rtc:
 	}
 #endif
 
-
 	tmp->tm_sec  = bcd2bin (sec & 0x7F);
 	tmp->tm_min  = bcd2bin (min & 0x7F);
 	tmp->tm_hour = bcd2bin (hour & 0x3F);
@@ -156,7 +155,6 @@ read_rtc:
 
 	return rel;
 }
-
 
 /*
  * Set the RTC
@@ -190,7 +188,6 @@ int rtc_set (struct rtc_time *tmp)
 	return 0;
 }
 
-
 /*
  * Reset the RTC. We setting the date back to 1970-01-01.
  * We also enable the oscillator output on the SQW/OUT pin and program
@@ -204,7 +201,6 @@ void rtc_reset (void)
 	rtc_write (RTC_CTL_REG_ADDR, RTC_CTL_BIT_SQWE | RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS0);
 }
 
-
 /*
  * Helper functions
  */
@@ -214,7 +210,6 @@ uchar rtc_read (uchar reg)
 {
 	return (i2c_reg_read (CFG_SYS_I2C_RTC_ADDR, reg));
 }
-
 
 static void rtc_write (uchar reg, uchar val)
 {

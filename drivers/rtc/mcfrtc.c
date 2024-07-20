@@ -4,7 +4,6 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  */
 
-
 #include <command.h>
 #include <rtc.h>
 #include <asm/immap.h>
