@@ -7175,27 +7175,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
 
     def testSplPubkeyDtb(self):
-         """Test u_boot_spl_pubkey_dtb etype"""
-         data = tools.read_file(self.TestFile("key.pem"))
-         self._MakeInputFile("key.crt", data)
-         self._DoReadFileRealDtb('306_spl_pubkey_dtb.dts')
-         image = control.images['image']
-         entries = image.GetEntries()
-         dtb_entry = entries['u-boot-spl-pubkey-dtb']
-         dtb_data = dtb_entry.GetData()
-         dtb = fdt.Fdt.FromData(dtb_data)
-         dtb.Scan()
+        """Test u_boot_spl_pubkey_dtb etype"""
+        data = tools.read_file(self.TestFile("key.pem"))
+        self._MakeInputFile("key.crt", data)
+        self._DoReadFileRealDtb('306_spl_pubkey_dtb.dts')
+        image = control.images['image']
+        entries = image.GetEntries()
+        dtb_entry = entries['u-boot-spl-pubkey-dtb']
+        dtb_data = dtb_entry.GetData()
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
 
-         signature_node = dtb.GetNode('/signature')
-         self.assertIsNotNone(signature_node)
-         key_node = signature_node.FindNode("key-key")
-         self.assertIsNotNone(key_node)
-         self.assertEqual(fdt_util.GetString(key_node, "required"),
-                          "conf")
-         self.assertEqual(fdt_util.GetString(key_node, "algo"),
-                          "sha384,rsa4096")
-         self.assertEqual(fdt_util.GetString(key_node, "key-name-hint"),
-                          "key")
+        signature_node = dtb.GetNode('/signature')
+        self.assertIsNotNone(signature_node)
+        key_node = signature_node.FindNode("key-key")
+        self.assertIsNotNone(key_node)
+        self.assertEqual(fdt_util.GetString(key_node, "required"), "conf")
+        self.assertEqual(fdt_util.GetString(key_node, "algo"), "sha384,rsa4096")
+        self.assertEqual(fdt_util.GetString(key_node, "key-name-hint"), "key")
 
     def testXilinxBootgenSigning(self):
         """Test xilinx-bootgen etype"""
