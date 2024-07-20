@@ -27,7 +27,6 @@ static int snadbox_disable(struct udevice *dev)
 	return 0;
 }
 
-
 static const struct cache_ops sandbox_cache_ops = {
 	.get_info	= sandbox_get_info,
 	.enable		= sandbox_enable,
