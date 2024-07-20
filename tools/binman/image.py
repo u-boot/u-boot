@@ -21,6 +21,9 @@ from dtoc import fdt_util
 from u_boot_pylib import tools
 from u_boot_pylib import tout
 
+# This is imported if needed
+state = None
+
 class Image(section.Entry_section):
     """A Image, representing an output from binman
 
@@ -75,6 +78,10 @@ class Image(section.Entry_section):
     def __init__(self, name, node, copy_to_orig=True, test=False,
                  ignore_missing=False, use_expanded=False, missing_etype=False,
                  generate=True):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        from binman import state
+
         super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = name
