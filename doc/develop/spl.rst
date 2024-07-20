@@ -121,6 +121,8 @@ Use `spl_phase()` to find the current U-Boot phase, e.g. `PHASE_SPL`. You can
 also find the previous and next phase and get the phase name.
 
 
+.. _fdtgrep_filter:
+
 Device tree
 -----------
 The U-Boot device tree is filtered by the fdtgrep tools during the build

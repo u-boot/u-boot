@@ -7655,6 +7655,41 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             self.assertEqual(f'u-boot,model-{expected}',
                              fnode.props['compatible'].value)
 
+    def testFitFdtPhase(self):
+        """Test an image with an FIT with fdt-phase in the fdt nodes"""
+        phase = 'tpl'
+        entry_args = {
+            f'{phase}-dtb': '1',
+            f'{phase}-bss-pad': 'y',
+            'of-spl-remove-props': 'prop-to-remove another-prop-to-get-rid-of',
+            'of-list': 'model1 model2',
+            'default-dt': 'model2',
+            }
+        testdir, dtb_list = self.SetupAlternateDts()
+        data = self._DoReadFileDtb(
+            '335_fit_fdt_phase.dts', use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args, extra_indirs=[testdir])[0]
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+        fit = fdt.Fdt.FromData(fit_data)
+        fit.Scan()
+
+        # Check that each FDT has only the expected properties for the phase
+        for seq in range(1, 2):
+            fnode = fit.GetNode(f'/images/fdt-{seq}')
+            self.assertIsNotNone(fnode)
+            dtb = fdt.Fdt.FromData(fnode.props['data'].bytes)
+            dtb.Scan()
+
+            # Make sure that the 'bootph-pre-sram' tag in /node protects it from
+            # removal
+            node = dtb.GetNode('/node')
+            self.assertIsNotNone(node)
+            self.assertEqual({'some-prop', 'not-a-prop-to-remove'},
+                             node.props.keys())
+
+            # Make sure the other node is gone
+            self.assertIsNone(dtb.GetNode('/node/other-node'))
+
 
 if __name__ == "__main__":
     unittest.main()

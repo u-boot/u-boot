@@ -953,6 +953,35 @@ The 'fit,compatible' property (if present) is replaced with the compatible
 string from the root node of the devicetree, so that things work correctly
 with FIT's configuration-matching algortihm.
 
+Dealing with phases
+~~~~~~~~~~~~~~~~~~~
+
+FIT can be used to load firmware. In this case it may be necessary to run
+the devicetree for each model through fdtgrep to remove unwanted properties.
+The 'fit,fdt-phase' property can be provided to indicate the phase for which
+the devicetree is intended.
+
+For example this indicates that the FDT should be processed for VPL::
+
+    images {
+        @fdt-SEQ {
+            description = "fdt-NAME";
+            type = "flat_dt";
+            compression = "none";
+            fit,fdt-phase = "vpl";
+        };
+    };
+
+Using this mechanism, it is possible to generate a FIT which can provide VPL
+images for multiple models, with TPL selecting the correct model to use. The
+same approach can of course be used for SPL images.
+
+Note that the `of-spl-remove-props` entryarg can be used to indicate
+additional properties to remove. It is often used to remove properties like
+`clock-names` and `pinctrl-names` which are not needed in SPL builds.
+
+See :ref:`fdtgrep_filter` for more information.
+
 Generating nodes from an ELF file (split-elf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
