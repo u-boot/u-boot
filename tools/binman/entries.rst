@@ -857,6 +857,13 @@ The top-level 'fit' node supports the following special properties:
 
             fit,fdt-list-val = "dtb1", "dtb2";
 
+    fit,fdt-list-dir
+        As an alternative to fit,fdt-list the list of device tree files
+        can be provided as a directory. Each .dtb file in the directory is
+        processed, , e.g.::
+
+            fit,fdt-list-dir = "arch/arm/dts
+
 Substitutions
 ~~~~~~~~~~~~~
 

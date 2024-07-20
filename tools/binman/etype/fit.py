@@ -5,7 +5,9 @@
 
 """Entry-type module for producing a FIT"""
 
+import glob
 import libfdt
+import os
 
 from binman.entry import Entry, EntryArg
 from binman.etype.section import Entry_section
@@ -86,6 +88,13 @@ class Entry_fit(Entry_section):
             can be provided in this property as a string list, e.g.::
 
                 fit,fdt-list-val = "dtb1", "dtb2";
+
+        fit,fdt-list-dir
+            As an alternative to fit,fdt-list the list of device tree files
+            can be provided as a directory. Each .dtb file in the directory is
+            processed, , e.g.::
+
+                fit,fdt-list-dir = "arch/arm/dts
 
     Substitutions
     ~~~~~~~~~~~~~
@@ -352,6 +361,7 @@ class Entry_fit(Entry_section):
         self._fit = None
         self._fit_props = {}
         self._fdts = None
+        self._fdt_dir = None
         self.mkimage = None
         self._priv_entries = {}
         self._loadables = []
@@ -368,7 +378,14 @@ class Entry_fit(Entry_section):
             if fdts is not None:
                 self._fdts = fdts.split()
         else:
-            self._fdts = fdt_util.GetStringList(self._node, 'fit,fdt-list-val')
+            self._fdt_dir = fdt_util.GetString(self._node, 'fit,fdt-list-dir')
+            if self._fdt_dir:
+                indir = tools.get_input_filename(self._fdt_dir)
+                fdts = glob.glob('*.dtb', root_dir=indir)
+                self._fdts = [os.path.splitext(f)[0] for f in sorted(fdts)]
+            else:
+                self._fdts = fdt_util.GetStringList(self._node,
+                                                    'fit,fdt-list-val')
 
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]

@@ -4181,8 +4181,8 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('172_scp.dts')
         self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
-    def testFitFdt(self):
-        """Test an image with an FIT with multiple FDT images"""
+    def CheckFitFdt(self, dts='170_fit_fdt.dts', use_fdt_list=True):
+        """Check an image with an FIT with multiple FDT images"""
         def _CheckFdt(seq, expected_data):
             """Check the FDT nodes
 
@@ -4221,11 +4221,12 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual('fdt-%d' % seq, fnode.props['fdt'].value)
 
         entry_args = {
-            'of-list': 'test-fdt1 test-fdt2',
             'default-dt': 'test-fdt2',
         }
+        if use_fdt_list:
+            entry_args['of-list'] = 'test-fdt1 test-fdt2'
         data = self._DoReadFileDtb(
-            '170_fit_fdt.dts',
+            dts,
             entry_args=entry_args,
             extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
@@ -4243,6 +4244,10 @@ class TestFunctional(unittest.TestCase):
         # Check configurations
         _CheckConfig(1, TEST_FDT1_DATA)
         _CheckConfig(2, TEST_FDT2_DATA)
+
+    def testFitFdt(self):
+        """Test an image with an FIT with multiple FDT images"""
+        self.CheckFitFdt()
 
     def testFitFdtMissingList(self):
         """Test handling of a missing 'of-list' entry arg"""
@@ -7604,6 +7609,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                                         U_BOOT_SPL_NODTB_DATA)
         self.assertIn("Invalid U-Boot phase 'bad-phase': Use tpl/vpl/spl",
                       str(e.exception))
+
+    def testFitFdtListDir(self):
+        """Test an image with an FIT with FDT images using fit,fdt-list-dir"""
+        self.CheckFitFdt('333_fit_fdt_dir.dts', False)
 
 
 if __name__ == "__main__":
