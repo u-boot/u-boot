@@ -42,14 +42,12 @@ U_BOOT_PHY_DRIVER(dp83630) = {
 	.shutdown = &genphy_shutdown,
 };
 
-
 /* DP83865 Link and Auto-Neg Status Register */
 #define MIIM_DP83865_LANR      0x11
 #define MIIM_DP83865_SPD_MASK  0x0018
 #define MIIM_DP83865_SPD_1000  0x0010
 #define MIIM_DP83865_SPD_100   0x0008
 #define MIIM_DP83865_DPX_FULL  0x0002
-
 
 /* NatSemi DP83865 */
 static int dp838xx_config(struct phy_device *phydev)
@@ -100,7 +98,6 @@ static int dp83865_startup(struct phy_device *phydev)
 
 	return dp83865_parse_status(phydev);
 }
-
 
 U_BOOT_PHY_DRIVER(dp83865) = {
 	.name = "NatSemi DP83865",

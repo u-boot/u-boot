@@ -114,7 +114,6 @@
 #define TXSR_TXFID_SHIFT		(0)
 #define TXSR_TXFID_GET(_v)		(((_v) >> 0) & 0x3f)
 
-
 #define KS_RXCR1			0x74
 #define RXCR1_FRXQ			(1 << 15)
 #define RXCR1_RXUDPFCC			(1 << 14)

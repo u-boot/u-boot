@@ -83,7 +83,6 @@ enum link_type {
 
 #endif
 
-
 struct ks2_eth_priv {
 	struct udevice			*dev;
 	struct phy_device		*phydev;
@@ -207,7 +206,6 @@ int keystone_sgmii_config(struct phy_device *phy_dev, int port, int interface)
 
 	__raw_writel(mr_adv_ability, SGMII_MRADV_REG(port));
 	__raw_writel(control, SGMII_CTL_REG(port));
-
 
 	mask = SGMII_REG_STATUS_LINK;
 

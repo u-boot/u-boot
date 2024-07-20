@@ -390,7 +390,6 @@ static int zynq_phy_init(struct udevice *dev)
 	return phy_config(priv->phydev);
 }
 
-
 static int zynq_gem_init(struct udevice *dev)
 {
 	u32 i, nwconfig, nwcfg;

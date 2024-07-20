@@ -279,7 +279,6 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 	return rdreg;
 }
 
-
 /*****************************************************************************
  *
  * Write a MII PHY register.

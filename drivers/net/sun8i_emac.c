@@ -171,14 +171,12 @@ struct emac_eth_dev {
 	struct udevice *phy_reg;
 };
 
-
 struct sun8i_eth_pdata {
 	struct eth_pdata eth_pdata;
 	u32 reset_delays[3];
 	int tx_delay_ps;
 	int rx_delay_ps;
 };
-
 
 static int sun8i_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {

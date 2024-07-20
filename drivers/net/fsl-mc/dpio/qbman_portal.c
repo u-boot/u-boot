@@ -218,7 +218,6 @@ void qbman_eq_desc_set_response(struct qbman_eq_desc *d,
 	qb_attr_code_encode(&code_eq_rsp_stash, cl, !!stash);
 }
 
-
 void qbman_eq_desc_set_qd(struct qbman_eq_desc *d, uint32_t qdid,
 			  uint32_t qd_bin, uint32_t qd_prio)
 {
@@ -364,7 +363,6 @@ static struct qb_attr_code code_dqrr_stat = QB_CODE(0, 8, 8);
 #define QBMAN_DQRR_RESPONSE_CGCU      0x28
 #define QBMAN_DQRR_RESPONSE_BPSCN     0x29
 #define QBMAN_DQRR_RESPONSE_CSCN_WQ   0x2a
-
 
 /* NULL return if there are no unconsumed DQRR entries. Returns a DQRR entry
  * only once, so repeated calls can return a sequence of DQRR entries, without

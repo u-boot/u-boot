@@ -3,7 +3,6 @@
  * Copyright 2019-2021 Broadcom.
  */
 
-
 #include <asm/io.h>
 #include <dm.h>
 #include <linux/delay.h>

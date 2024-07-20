@@ -20,5 +20,4 @@ struct mii_dev *mscc_mdiobus_init(struct mscc_miim_dev *miim, int *miim_count,
 				  phys_addr_t miim_base,
 				  unsigned long miim_size);
 
-
 #endif /* _MSCC_MIIM_H_ */

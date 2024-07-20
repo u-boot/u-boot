@@ -228,7 +228,6 @@ int ksz9021_phy_extended_read(struct phy_device *phydev, int regnum)
 	return phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZ9021_EXTENDED_DATAR);
 }
 
-
 static int ksz9021_phy_extread(struct phy_device *phydev, int addr, int devaddr,
 			       int regnum)
 {

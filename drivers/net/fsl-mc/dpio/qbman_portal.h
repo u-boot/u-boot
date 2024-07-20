@@ -16,7 +16,6 @@
 #define QBMAN_VER_4_0_DQRR_SIZE 4
 #define QBMAN_VER_4_1_DQRR_SIZE 8
 
-
 /* --------------------- */
 /* portal data structure */
 /* --------------------- */
@@ -129,7 +128,6 @@ static inline uint32_t qb_attr_code_decode(const struct qb_attr_code *code,
 {
 	return d32_uint32_t(code->lsoffset, code->width, cacheline[code->word]);
 }
-
 
 /* encode a field to a cacheline */
 static inline void qb_attr_code_encode(const struct qb_attr_code *code,

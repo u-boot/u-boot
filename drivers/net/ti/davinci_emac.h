@@ -20,7 +20,6 @@
  */
 #define EMAC_MAX_RX_BUFFERS		10
 
-
 /***********************************************
  ******** Internally used macros ***************
  ***********************************************/
@@ -44,7 +43,6 @@
 
 /* Number of statistics registers */
 #define EMAC_NUM_STATS			36
-
 
 /* EMAC Descriptor */
 typedef volatile struct _emac_desc
@@ -77,7 +75,6 @@ typedef volatile struct _emac_desc
 
 #define EMAC_RXMBPENABLE_RXCAFEN_ENABLE	(0x200000)
 #define EMAC_RXMBPENABLE_RXBROADEN	(0x2000)
-
 
 #define MDIO_CONTROL_IDLE		(0x80000000)
 #define MDIO_CONTROL_ENABLE		(0x40000000)

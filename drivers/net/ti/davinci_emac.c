@@ -144,7 +144,6 @@ static int davinci_emac_write_hwaddr(struct udevice *dev)
 	writel(mac_hi, &adap_emac->MACSRCADDRHI);
 	writel(mac_lo, &adap_emac->MACSRCADDRLO);
 
-
 	return 0;
 }
 
@@ -204,7 +203,6 @@ static int davinci_eth_phy_detect(void)
 
 	return count;
 }
-
 
 /* Read a PHY register via MDIO inteface. Returns 1 on success, 0 otherwise */
 int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data)
@@ -377,7 +375,6 @@ static int gen_auto_negotiate(int phy_addr)
 	return(gen_get_link_speed(phy_addr));
 }
 /* End of generic PHY functions */
-
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 static int davinci_mii_phy_read(struct mii_dev *bus, int addr, int devad,

@@ -627,7 +627,6 @@ static int luton_probe(struct udevice *dev)
 			      GCB_MISC_STAT_PHY_READY, true, 500, false))
 		return -EACCES;
 
-
 	/* Initialize miim buses */
 	memset(&miim, 0x0, sizeof(miim) * LUTON_MIIM_BUS_COUNT);
 

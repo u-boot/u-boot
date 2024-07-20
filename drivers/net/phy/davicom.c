@@ -21,7 +21,6 @@
 #define MIIM_DM9161_10BTCSR    0x12
 #define MIIM_DM9161_10BTCSR_INIT       0x7800
 
-
 /* Davicom DM9161E */
 static int dm9161_config(struct phy_device *phydev)
 {

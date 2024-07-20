@@ -7,9 +7,7 @@ tested on both gig copper and gig fiber boards
 ***************************************************************************/
 /*******************************************************************************
 
-
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
-
 
   Contact Information:
   Linux NICS <linux.nics@intel.com>
@@ -1742,7 +1740,6 @@ e1000_initialize_hardware_bits(struct e1000_hw *hw)
 		reg_txdctl1 |= E1000_TXDCTL_COUNT_DESC;
 		E1000_WRITE_REG(hw, TXDCTL1, reg_txdctl1);
 
-
 		switch (hw->mac_type) {
 		case e1000_igb:			/* IGB is cool */
 			return;
@@ -2593,7 +2590,6 @@ e1000_set_d0_lplu_state(struct e1000_hw *hw, bool active)
 			if (ret_val)
 				return ret_val;
 		}
-
 
 	} else {
 
@@ -5216,7 +5212,6 @@ e1000_configure_tx(struct e1000_hw *hw)
 		E1000_WRITE_REG(hw, TARC1, tarc);
 	}
 
-
 	e1000_config_collision_dist(hw);
 	/* Setup Transmit Descriptor Settings for eop descriptor */
 	hw->txd_cmd = E1000_TXD_CMD_EOP | E1000_TXD_CMD_IFCS;
@@ -5226,7 +5221,6 @@ e1000_configure_tx(struct e1000_hw *hw)
 		hw->txd_cmd |= E1000_TXD_CMD_RPS;
 	else
 		hw->txd_cmd |= E1000_TXD_CMD_RS;
-
 
 	if (hw->mac_type == e1000_igb) {
 		E1000_WRITE_REG(hw, TCTL_EXT, 0x42 << 10);
