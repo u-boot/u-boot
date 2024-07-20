@@ -171,6 +171,7 @@ class Entry_fit(Entry_section):
                 firmware = "atf";
                 loadables = "uboot";
                 fdt = "fdt-SEQ";
+                fit,compatible;
             };
         };
 
@@ -179,6 +180,10 @@ class Entry_fit(Entry_section):
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
+
+    The 'fit,compatible' property is replaced with the compatible string from
+    the root node of the devicetree, so that things work correctly with FIT's
+    configuration-matching algortihm.
 
     Generating nodes from an ELF file (split-elf)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -611,6 +616,13 @@ class Entry_fit(Entry_section):
                                 fsw.property('loadables', val.encode('utf-8'))
                             elif pname == 'fit,operation':
                                 pass
+                            elif pname == 'fit,compatible':
+                                fdt_phase = fdt_util.GetString(node, pname)
+                                data = tools.read_file(fname)
+                                fdt = Fdt.FromData(data)
+                                fdt.Scan()
+                                prop = fdt.GetRoot().props['compatible']
+                                fsw.property('compatible', prop.bytes)
                             elif pname.startswith('fit,'):
                                 self._raise_subnode(
                                     node, f"Unknown directive '{pname}'")

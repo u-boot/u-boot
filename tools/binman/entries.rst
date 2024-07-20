@@ -939,6 +939,7 @@ You can create config nodes in a similar way::
             firmware = "atf";
             loadables = "uboot";
             fdt = "fdt-SEQ";
+            fit,compatible;    // optional
         };
     };
 
@@ -947,6 +948,10 @@ for each of your two files.
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
+
+The 'fit,compatible' property (if present) is replaced with the compatible
+string from the root node of the devicetree, so that things work correctly
+with FIT's configuration-matching algortihm.
 
 Generating nodes from an ELF file (split-elf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

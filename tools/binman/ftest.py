@@ -7490,6 +7490,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
 
+    def SetupAlternateDts(self):
+        """Compile the .dts test files for alternative-fdt
+
+        Returns:
+            tuple:
+                str: Test directory created
+                list of str: '.bin' files which we expect Binman to create
+        """
+        testdir = TestFunctional._MakeInputDir('dtb')
+        dtb_list = []
+        for fname in glob.glob(f'{self.TestFile("alt_dts")}/*.dts'):
+            tmp_fname = fdt_util.EnsureCompiled(fname, testdir)
+            base = os.path.splitext(os.path.basename(fname))[0]
+            dtb_list.append(base + '.bin')
+            shutil.move(tmp_fname, os.path.join(testdir, base + '.dtb'))
+
+        return testdir, dtb_list
+
     def CheckAlternates(self, dts, phase, xpl_data):
         """Run the test for the alterative-fdt etype
 
@@ -7503,13 +7521,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                 key: str filename
                 value: Fdt object
         """
-        testdir = TestFunctional._MakeInputDir('dtb')
-        dtb_list = []
-        for fname in glob.glob(f'{self.TestFile("alt_dts")}/*.dts'):
-            tmp_fname = fdt_util.EnsureCompiled(fname, testdir)
-            base = os.path.splitext(os.path.basename(fname))[0]
-            dtb_list.append(base + '.bin')
-            shutil.move(tmp_fname, os.path.join(testdir, base + '.dtb'))
+        dtb_list = self.SetupAlternateDts()[1]
 
         entry_args = {
             f'{phase}-dtb': '1',
@@ -7613,6 +7625,35 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFitFdtListDir(self):
         """Test an image with an FIT with FDT images using fit,fdt-list-dir"""
         self.CheckFitFdt('333_fit_fdt_dir.dts', False)
+
+    def testFitFdtCompat(self):
+        """Test an image with an FIT with compatible in the config nodes"""
+        entry_args = {
+            'of-list': 'model1 model2',
+            'default-dt': 'model2',
+            }
+        testdir, dtb_list = self.SetupAlternateDts()
+        data = self._DoReadFileDtb(
+            '334_fit_fdt_compat.dts', use_real_dtb=True, update_dtb=True,
+            entry_args=entry_args, extra_indirs=[testdir])[0]
+
+        fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
+
+        fit = fdt.Fdt.FromData(fit_data)
+        fit.Scan()
+
+        cnode = fit.GetNode('/configurations')
+        self.assertIn('default', cnode.props)
+        self.assertEqual('config-2', cnode.props['default'].value)
+
+        for seq in range(1, 2):
+            name = f'config-{seq}'
+            fnode = fit.GetNode('/configurations/%s' % name)
+            self.assertIsNotNone(fnode)
+            self.assertIn('compatible', fnode.props.keys())
+            expected = 'one' if seq == 1 else 'two'
+            self.assertEqual(f'u-boot,model-{expected}',
+                             fnode.props['compatible'].value)
 
 
 if __name__ == "__main__":
