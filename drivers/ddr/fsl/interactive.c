@@ -1209,7 +1209,6 @@ void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 	for (i = 0; i < 18; i++)
 		printf("%c", spd->mpart[i]);
 
-
 	printf("<<* 73 Manufacturer's Part Number *\n");
 
 	printf("%-3d-%3d: %02x %02x %s\n", 91, 92, spd->rev[0], spd->rev[1],
@@ -1226,7 +1225,6 @@ void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 	printf("%-3d-%3d: ", 99, 127);
 	for (i = 0; i < 27; i++)
 		printf("%02x", spd->mspec[i]);
-
 
 	printf("* 99 Manufacturer Specific Data *\n");
 }
@@ -1946,7 +1944,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 		if (argc == 0)
 			continue;
 
-
 		if (strcmp(argv[0], "help") == 0) {
 			puts(usage);
 			continue;
@@ -2042,7 +2039,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 			debug("src_ctlr_num = %u, src_dimm_num = %u, dst_ctlr_num = %u, dst_dimm_num = %u, step_mask = %x\n",
 				src_ctlr_num, src_dimm_num, dst_ctlr_num, dst_dimm_num, step_mask);
 
-
 			switch (step_mask) {
 
 			case STEP_GET_SPD:
@@ -2116,7 +2112,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 
 			if (error)
 				continue;
-
 
 			/* Check arguments */
 

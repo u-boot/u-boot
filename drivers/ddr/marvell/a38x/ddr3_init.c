@@ -75,7 +75,6 @@ int ddr3_init(void)
 #endif
 	}
 
-
 	status = ddr3_silicon_post_init();
 	if (MV_OK != status) {
 		printf("DDR3 Post Init - FAILED 0x%x\n", status);
@@ -88,7 +87,6 @@ int ddr3_init(void)
 		printf("%s Training Sequence - FAILED\n", ddr_type);
 		return status;
 	}
-
 
 	/* Post MC/PHY initializations */
 	mv_ddr_post_training_soc_config(ddr_type);

@@ -1677,7 +1677,6 @@ static int mpr_rd_frmt_config(
 	u32 val, mask;
 	u8 cs_bitmask_inv;
 
-
 	if (dis_auto_refresh == 1) {
 		ddr3_tip_if_write(0, ACCESS_TYPE_UNICAST, 0, ODPG_CTRL_CTRL_REG,
 			  ODPG_CTRL_AUTO_REFRESH_DIS << ODPG_CTRL_AUTO_REFRESH_OFFS,

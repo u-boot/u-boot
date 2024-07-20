@@ -78,7 +78,6 @@ int ddr_cfg_phy(struct dram_timing_info *dram_timing)
 
 		dwc_ddrphy_apb_wr(0xd0000, 0x1);
 
-
 		fsp_msg++;
 	}
 

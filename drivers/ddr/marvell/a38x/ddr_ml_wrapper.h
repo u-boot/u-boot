@@ -79,7 +79,6 @@
 #define MV_DEBUG_WL_FULL
 #endif
 
-
 /* The following is a list of Marvell status */
 #define MV_ERROR	(-1)
 #define MV_OK		(0x00)	/* Operation succeeded                   */
