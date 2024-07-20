@@ -29,7 +29,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SP804_CTRL_TIMER_32BIT		(1U << 1)
 #define SP804_CTRL_ONESHOT		(1U << 0)
 
-
 struct sp804_timer_plat {
 	uintptr_t base;
 };
