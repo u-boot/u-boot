@@ -65,6 +65,14 @@ to add the public key separately from mkimage.
 
 
 
+Bintool: fdtgrep: Handles the 'fdtgrep' tool
+--------------------------------------------
+
+This bintool supports running `fdtgrep` with parameters suitable for
+producing SPL devicetrees from the main one.
+
+
+
 Bintool: fiptool: Image generation for ARM Trusted Firmware
 -----------------------------------------------------------
 
