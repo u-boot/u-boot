@@ -186,7 +186,6 @@ static int __nspi_espi_rx(struct nds_spi_slave *ns, void *din, unsigned int byte
 	return bytes;
 }
 
-
 static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		unsigned int bitlen,  const void *data_out, void *data_in,
 		unsigned long flags)

@@ -53,7 +53,6 @@ struct zynq_spi_regs {
 	u32 rxdr;	/* 0x20 */
 };
 
-
 /* zynq spi platform data */
 struct zynq_spi_plat {
 	struct zynq_spi_regs *regs;

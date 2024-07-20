@@ -133,7 +133,6 @@ static int ath79_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return 0;
 }
 
-
 static int ath79_spi_set_speed(struct udevice *bus, uint speed)
 {
 	struct ath79_spi_priv *priv = dev_get_priv(bus);
