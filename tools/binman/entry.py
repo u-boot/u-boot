@@ -1386,3 +1386,15 @@ features to produce new behaviours.
 
     def UpdateSignatures(self, privatekey_fname, algo, input_fname):
         self.Raise('Updating signatures is not supported with this entry type')
+
+    def FdtContents(self, fdt_etype):
+        """Get the contents of an FDT for a particular phase
+
+        Args:
+            fdt_etype (str): Filename of the phase of the FDT to return, e.g.
+                'u-boot-tpl-dtb'
+
+        Returns:
+            bytes: Contents of requested FDT
+        """
+        return self.section.FdtContents(fdt_etype)

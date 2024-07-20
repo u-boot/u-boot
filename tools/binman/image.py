@@ -425,3 +425,7 @@ class Image(section.Entry_section):
         super().AddBintools(bintools)
         self.bintools = bintools
         return bintools
+
+    def FdtContents(self, fdt_etype):
+        """This base-class implementation simply calls the state function"""
+        return state.GetFdtContents(fdt_etype)
