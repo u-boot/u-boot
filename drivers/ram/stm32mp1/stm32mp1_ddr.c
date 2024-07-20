@@ -707,7 +707,6 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 		break;
 	}
 
-
 	if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
 		ret = board_ddr_power_init(STM32MP_DDR3);
 	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2) {

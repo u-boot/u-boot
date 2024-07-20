@@ -138,7 +138,6 @@ enum {
 #define DDR3_MR2_TWL(n) \
 	(((n - 5) & 0x7) << 3)
 
-
 #ifdef CONFIG_TPL_BUILD
 
 static void ddr_set_noc_spr_err_stall(struct rk3368_grf *grf, bool enable)
@@ -523,7 +522,6 @@ static int pctl_calc_timings(struct rk3368_sdram_params *params,
 	pctl_timing->tmrr = 0;
 	pctl_timing->tckesr = pctl_timing->tcke + 1;  /* JESD-79: tCKE + 1tCK */
 	pctl_timing->tdpd = 0;    /* RK3368 TRM: "allowed values for DDR3: 0" */
-
 
 	/*
 	 * The controller can represent tFAW as 4x, 5x or 6x tRRD only.
@@ -986,7 +984,6 @@ static int rk3368_dmc_get_info(struct udevice *dev, struct ram_info *info)
 static struct ram_ops rk3368_dmc_ops = {
 	.get_info = rk3368_dmc_get_info,
 };
-
 
 static const struct udevice_id rk3368_dmc_ids[] = {
 	{ .compatible = "rockchip,rk3368-dmc" },
