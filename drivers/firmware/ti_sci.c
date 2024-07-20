@@ -139,7 +139,6 @@ static struct ti_sci_xfer *ti_sci_setup_one_xfer(struct ti_sci_info *info,
 		return ERR_PTR(-ERANGE);
 	}
 
-
 	info->seq = ~info->seq;
 	xfer->tx_message.buf = buf;
 	xfer->tx_message.len = tx_message_size;
