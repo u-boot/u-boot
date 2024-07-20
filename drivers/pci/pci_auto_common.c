@@ -108,7 +108,6 @@ void pciauto_config_init(struct pci_controller *hose)
 		}
 	}
 
-
 	if (hose->pci_mem)
 		pciauto_show_region("Memory", hose->pci_mem);
 	if (hose->pci_prefetch)
