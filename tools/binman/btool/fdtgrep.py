@@ -84,7 +84,7 @@ class Bintoolfdtgrep(bintool.Bintool):
         elif phase == 'spl':
             tag = 'bootph-pre-ram'
         else:
-            raise(f"Invalid U-Boot phase '{phase}': Use tpl/vpl/spl")
+            raise ValueError(f"Invalid U-Boot phase '{phase}': Use tpl/vpl/spl")
 
         # These args mirror those in cmd_fdtgrep in scripts/Makefile.lib
         # First do the first stage

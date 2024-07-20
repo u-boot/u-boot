@@ -734,6 +734,9 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
         image.WriteMap()
 
     has_problems = CheckForProblems(image)
+
+    image.WriteAlternates()
+
     return has_problems
 
 def Binman(args):

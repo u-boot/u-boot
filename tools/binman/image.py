@@ -193,6 +193,19 @@ class Image(section.Entry_section):
                 os.remove(sname)
             os.symlink(fname, sname)
 
+    def WriteAlternates(self):
+        """Write out alternative devicetree blobs, each in its own file"""
+        alt_entry = self.FindEntryType('alternates-fdt')
+        if not alt_entry:
+            return
+
+        for alt in alt_entry.alternates:
+            fname, data = alt_entry.ProcessWithFdt(alt)
+            pathname = tools.get_output_filename(fname)
+            tout.info(f"Writing alternate '{alt}' to '{pathname}'")
+            tools.write_file(pathname, data)
+            tout.info("Wrote %#x bytes" % len(data))
+
     def WriteMap(self):
         """Write a map of the image to a .map file
 

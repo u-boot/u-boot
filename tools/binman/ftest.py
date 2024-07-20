@@ -7,6 +7,7 @@
 #    python -m unittest func_test.TestFunctional.testHelp
 
 import collections
+import glob
 import gzip
 import hashlib
 from optparse import OptionParser
@@ -7483,6 +7484,126 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertRegex(
             err,
             "Image '.*' is missing external blobs and is non-functional: .*")
+
+    def CheckAlternates(self, dts, phase, xpl_data):
+        """Run the test for the alterative-fdt etype
+
+        Args:
+            dts (str): Devicetree file to process
+            phase (str): Phase to process ('spl', 'tpl' or 'vpl')
+            xpl_data (bytes): Expected data for the phase's binary
+
+        Returns:
+            dict of .dtb files produced
+                key: str filename
+                value: Fdt object
+        """
+        testdir = TestFunctional._MakeInputDir('dtb')
+        dtb_list = []
+        for fname in glob.glob(f'{self.TestFile("alt_dts")}/*.dts'):
+            tmp_fname = fdt_util.EnsureCompiled(fname, testdir)
+            base = os.path.splitext(os.path.basename(fname))[0]
+            dtb_list.append(base + '.bin')
+            shutil.move(tmp_fname, os.path.join(testdir, base + '.dtb'))
+
+        entry_args = {
+            f'{phase}-dtb': '1',
+            f'{phase}-bss-pad': 'y',
+            'of-spl-remove-props': 'prop-to-remove another-prop-to-get-rid-of',
+        }
+        data = self._DoReadFileDtb(dts, use_real_dtb=True, update_dtb=True,
+                                   use_expanded=True, entry_args=entry_args)[0]
+        self.assertEqual(xpl_data, data[:len(xpl_data)])
+        rest = data[len(xpl_data):]
+        pad_len = 10
+        self.assertEqual(tools.get_bytes(0, pad_len), rest[:pad_len])
+
+        # Check the dtb is using the test file
+        dtb_data = rest[pad_len:]
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
+        fdt_size = dtb.GetFdtObj().totalsize()
+        self.assertEqual('model-not-set',
+                         fdt_util.GetString(dtb.GetRoot(), 'compatible'))
+
+        pad_len = 10
+
+        # Check the other output files
+        dtbs = {}
+        for fname in dtb_list:
+            pathname = tools.get_output_filename(fname)
+            self.assertTrue(os.path.exists(pathname))
+
+            data = tools.read_file(pathname)
+            self.assertEqual(xpl_data, data[:len(xpl_data)])
+            rest = data[len(xpl_data):]
+
+            self.assertEqual(tools.get_bytes(0, pad_len), rest[:pad_len])
+            rest = rest[pad_len:]
+
+            dtb = fdt.Fdt.FromData(rest)
+            dtb.Scan()
+            dtbs[fname] = dtb
+
+            expected = 'one' if '1' in fname else 'two'
+            self.assertEqual(f'u-boot,model-{expected}',
+                             fdt_util.GetString(dtb.GetRoot(), 'compatible'))
+
+            # Make sure the FDT is the same size as the 'main' one
+            rest = rest[fdt_size:]
+
+            self.assertEqual(b'', rest)
+        return dtbs
+
+    def testAlternatesFdt(self):
+        """Test handling of alternates-fdt etype"""
+        self._SetupTplElf()
+        dtbs = self.CheckAlternates('328_alternates_fdt.dts', 'tpl',
+                                    U_BOOT_TPL_NODTB_DATA)
+        for dtb in dtbs.values():
+            # Check for the node with the tag
+            node = dtb.GetNode('/node')
+            self.assertIsNotNone(node)
+            self.assertEqual(5, len(node.props.keys()))
+
+            # Make sure the other node is still there
+            self.assertIsNotNone(dtb.GetNode('/node/other-node'))
+
+    def testAlternatesFdtgrep(self):
+        """Test handling of alternates-fdt etype using fdtgrep"""
+        self._SetupTplElf()
+        dtbs = self.CheckAlternates('329_alternates_fdtgrep.dts', 'tpl',
+                                    U_BOOT_TPL_NODTB_DATA)
+        for dtb in dtbs.values():
+            # Check for the node with the tag
+            node = dtb.GetNode('/node')
+            self.assertIsNotNone(node)
+            self.assertEqual({'some-prop', 'not-a-prop-to-remove'},
+                             node.props.keys())
+
+            # Make sure the other node is gone
+            self.assertIsNone(dtb.GetNode('/node/other-node'))
+
+    def testAlternatesFdtgrepVpl(self):
+        """Test handling of alternates-fdt etype using fdtgrep with vpl"""
+        self._SetupVplElf()
+        dtbs = self.CheckAlternates('330_alternates_vpl.dts', 'vpl',
+                                    U_BOOT_VPL_NODTB_DATA)
+
+    def testAlternatesFdtgrepSpl(self):
+        """Test handling of alternates-fdt etype using fdtgrep with spl"""
+        self._SetupSplElf()
+        dtbs = self.CheckAlternates('331_alternates_spl.dts', 'spl',
+                                    U_BOOT_SPL_NODTB_DATA)
+
+    def testAlternatesFdtgrepInval(self):
+        """Test alternates-fdt etype using fdtgrep with invalid phase"""
+        self._SetupSplElf()
+        with self.assertRaises(ValueError) as e:
+            dtbs = self.CheckAlternates('332_alternates_inval.dts', 'spl',
+                                        U_BOOT_SPL_NODTB_DATA)
+        self.assertIn("Invalid U-Boot phase 'bad-phase': Use tpl/vpl/spl",
+                      str(e.exception))
 
 
 if __name__ == "__main__":

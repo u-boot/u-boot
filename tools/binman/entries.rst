@@ -11,6 +11,48 @@ features to produce new behaviours.
 
 
 
+.. _etype_alternates_fdt:
+
+Entry: alternates-fdt: Entry that generates alternative sections for each devicetree provided
+---------------------------------------------------------------------------------------------
+
+When creating an image designed to boot on multiple models, each model
+requires its own devicetree. This entry deals with selecting the correct
+devicetree from a directory containing them. Each one is read in turn, then
+used to produce section contents which are written to a file. This results
+in a number of images, one for each model.
+
+For example this produces images for each .dtb file in the 'dtb' directory::
+
+    alternates-fdt {
+        fdt-list-dir = "dtb";
+        filename-pattern = "NAME.bin";
+        fdt-phase = "tpl";
+
+        section {
+            u-boot-tpl {
+            };
+        };
+    };
+
+Each output file is named based on its input file, so an input file of
+`model1.dtb` results in an output file of `model1.bin` (i.e. the `NAME` in
+the `filename-pattern` property is replaced with the .dtb basename).
+
+Note that this entry type still produces contents for the 'main' image, in
+that case using the normal dtb provided to Binman, e.g. `u-boot-tpl.dtb`.
+But that image is unlikely to be useful, since it relates to whatever dtb
+happened to be the default when U-Boot builds
+(i.e. `CONFIG_DEFAULT_DEVICE_TREE`). However, Binman ensures that the size
+of each of the alternates is the same as the 'default' one, so they can in
+principle be 'slotted in' to the appropriate place in the main image.
+
+The optional `fdt-phase` property indicates the phase to build. In this
+case, it etype runs fdtgrep to obtain the devicetree subset for that phase,
+respecting the `bootph-xxx` tags in the devicetree.
+
+
+
 .. _etype_atf_bl31:
 
 Entry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob

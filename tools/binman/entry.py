@@ -1395,6 +1395,8 @@ features to produce new behaviours.
                 'u-boot-tpl-dtb'
 
         Returns:
-            bytes: Contents of requested FDT
+            tuple:
+                fname (str): Filename of .dtb
+                bytes: Contents of FDT (possibly run through fdtgrep)
         """
         return self.section.FdtContents(fdt_etype)

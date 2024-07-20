@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright 2024 Google LLC
+// Written by Simon Glass <sjg@chromium.org>
+
+/dts-v1/;
+
+/ {
+	model = "Model Two";
+	compatible = "u-boot,model-two";
+
+	/* this node remains due to bootph-pre-sram tag */
+	node {
+		some-prop;
+		prop-to-remove;
+		another-prop-to-get-rid-of;
+		not-a-prop-to-remove;
+		bootph-pre-sram;
+
+		/* this node get removed by fdtgrep */
+		other-node {
+			another-prop;
+		};
+	};
+};
