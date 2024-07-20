@@ -790,7 +790,6 @@ static ulong ide_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			pwrsave = 1;
 	}
 
-
 	while (blkcnt-- > 0) {
 		c = ide_wait(device, IDE_TIME_OUT);
 
