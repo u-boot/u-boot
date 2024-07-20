@@ -546,7 +546,7 @@ class TestFunctional(unittest.TestCase):
             dtb_data = self._SetupDtb(fname)
 
             # For testing purposes, make a copy of the DT for SPL and TPL. Add
-            # a node indicating which it is, so aid verification.
+            # a node indicating which it is, to aid verification.
             for name in ['spl', 'tpl', 'vpl']:
                 dtb_fname = '%s/u-boot-%s.dtb' % (name, name)
                 outfile = os.path.join(self._indir, dtb_fname)
