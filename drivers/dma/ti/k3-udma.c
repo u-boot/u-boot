@@ -1710,7 +1710,6 @@ static int udma_probe(struct udevice *dev)
 	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
 	ofnode navss_ofnode = ofnode_get_parent(dev_ofnode(dev));
 
-
 	ud->match_data = (void *)dev_get_driver_data(dev);
 	ret = udma_get_mmrs(dev);
 	if (ret)
