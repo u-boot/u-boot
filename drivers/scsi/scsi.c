@@ -345,7 +345,6 @@ static int scsi_read_capacity(struct udevice *dev, struct scsi_cmd *pccb,
 	return 0;
 }
 
-
 /*
  * Some setup (fill-in) routines
  */
