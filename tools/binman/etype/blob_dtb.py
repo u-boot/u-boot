@@ -57,7 +57,9 @@ class Entry_blob_dtb(Entry_blob):
     def GetFdtEtype(self):
         """Get the entry type of this device tree
 
-        This can be 'u-boot-dtb', 'u-boot-spl-dtb' or 'u-boot-tpl-dtb'
+        This can be 'u-boot-dtb', 'u-boot-spl-dtb', 'u-boot-tpl-dtb' or
+        'u-boot-vpl-dtb'
+
         Returns:
             Entry type if any, e.g. 'u-boot-dtb'
         """
