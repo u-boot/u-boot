@@ -421,6 +421,8 @@ int main(int argc, char *argv[])
 		strcpy(tmp_buf, "SPL_");
 	else if (!strncmp(target, "tpl/", 4))
 		strcpy(tmp_buf, "TPL_");
+	else if (!strncmp(target, "vpl/", 4))
+		strcpy(tmp_buf, "VPL_");
 	/* end U-Boot hack */
 
 	xprintf("cmd_%s := %s\n\n", target, cmdline);
