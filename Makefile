@@ -1388,8 +1388,10 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		-a rockchip-tpl-path=$(ROCKCHIP_TPL) \
 		-a spl-bss-pad=$(if $(CONFIG_SPL_SEPARATE_BSS),,1) \
 		-a tpl-bss-pad=$(if $(CONFIG_TPL_SEPARATE_BSS),,1) \
+		-a vpl-bss-pad=$(if $(CONFIG_VPL_SEPARATE_BSS),,1) \
 		-a spl-dtb=$(CONFIG_SPL_OF_REAL) \
 		-a tpl-dtb=$(CONFIG_TPL_OF_REAL) \
+		-a vpl-dtb=$(CONFIG_VPL_OF_REAL) \
 		-a pre-load-key-path=${PRE_LOAD_KEY_PATH} \
 		$(BINMAN_$(@F))
 
