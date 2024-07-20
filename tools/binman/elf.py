@@ -275,7 +275,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
         return 0
     base = syms.get(base_sym)
     if not base and not is_elf:
-        tout.debug('LookupAndWriteSymbols: no base')
+        tout.debug(f'LookupAndWriteSymbols: no base: elf_fname={elf_fname}, base_sym={base_sym}, is_elf={is_elf}')
         return 0
     base_addr = 0 if is_elf else base.address
     count = 0
