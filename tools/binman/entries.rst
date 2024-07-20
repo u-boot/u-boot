@@ -2290,8 +2290,6 @@ u-boot-spl-dtb
 
 SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
-in the binman README for more information.
-
 The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
 
@@ -2480,8 +2478,6 @@ u-boot-tpl-dtb
 
 TPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
-in the binman README for more information.
-
 The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
 
@@ -2571,6 +2567,9 @@ in the binman README for more information.
 The ELF file 'vpl/u-boot-vpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the VPL binary.
 
+Note that this entry is automatically replaced with u-boot-vpl-expanded
+unless --no-expanded is used or the node has a 'no-expanded' property.
+
 
 
 .. _etype_u_boot_vpl_bss_pad:
@@ -2659,8 +2658,8 @@ Properties / Entry arguments:
 
 This is the U-Boot VPL binary, It does not include a device tree blob at
 the end of it so may not be able to work without it, assuming VPL needs
-a device tree to operate on your platform. You can add a u_boot_vpl_dtb
-entry after this one, or use a u_boot_vpl entry instead, which normally
+a device tree to operate on your platform. You can add a u-boot-vpl-dtb
+entry after this one, or use a u-boot-vpl entry instead, which normally
 expands to a section containing u-boot-vpl-dtb, u-boot-vpl-bss-pad and
 u-boot-vpl-dtb
 

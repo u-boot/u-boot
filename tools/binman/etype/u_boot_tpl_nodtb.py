@@ -23,8 +23,6 @@ class Entry_u_boot_tpl_nodtb(Entry_blob):
 
     TPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
-    in the binman README for more information.
-
     The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
     binman uses that to look up symbols to write into the TPL binary.
     """
