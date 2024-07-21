@@ -12,6 +12,7 @@
 #include <dwmmc.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
@@ -29,6 +30,7 @@ struct snps_dwmci_plat {
 struct snps_dwmci_priv_data {
 	struct dwmci_host	host;
 	u32			f_max;
+	struct gpio_desc	cd_gpio;
 };
 
 static int snps_dwmmc_clk_setup(struct udevice *dev)
@@ -104,6 +106,10 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 	if (!ret && priv->f_max < CLOCK_MIN)
 		return -EINVAL;
 
+	if (CONFIG_IS_ENABLED(DM_GPIO))
+		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+				     GPIOD_IS_IN);
+
 	host->fifo_mode = dev_read_bool(dev, "fifo-mode");
 	host->name = dev->name;
 	host->dev_index = 0;
@@ -116,6 +122,9 @@ int snps_dwmmc_getcd(struct udevice *dev)
 {
 	struct snps_dwmci_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&priv->cd_gpio))
+		return dm_gpio_get_value(&priv->cd_gpio);
 
 	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
 }
