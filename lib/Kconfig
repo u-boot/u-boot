@@ -403,7 +403,7 @@ config TRACE_EARLY_CALL_DEPTH_LIMIT
 config TRACE_EARLY_ADDR
 	hex "Address of early trace buffer in U-Boot"
 	depends on TRACE_EARLY
-	default 0x00100000
+	default 0x00200000
 	help
 	  Sets the address of the early trace buffer in U-Boot. This memory
 	  must be accessible before relocation.
