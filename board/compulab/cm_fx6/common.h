@@ -31,6 +31,5 @@
 #define CM_FX6_SATA_NRSTDLY	IMX_GPIO_NR(6, 6)
 #define CM_FX6_SATA_PWLOSS_INT	IMX_GPIO_NR(6, 31)
 
-
 void cm_fx6_set_usdhc_iomux(void);
 void cm_fx6_set_ecspi_iomux(void);

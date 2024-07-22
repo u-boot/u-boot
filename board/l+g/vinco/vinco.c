@@ -62,7 +62,6 @@ static void vinco_spi0_hw_init(void)
 }
 #endif /* CONFIG_ATMEL_SPI */
 
-
 #ifdef CONFIG_CMD_USB
 static void vinco_usb_hw_init(void)
 {
@@ -71,7 +70,6 @@ static void vinco_usb_hw_init(void)
 	at91_set_pio_output(AT91_PIO_PORTE, 10, 0);
 }
 #endif
-
 
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 void vinco_mci0_hw_init(void)

@@ -5,7 +5,6 @@
  * Author: Jagan Teki <jagan@amarulasolutions.com>
  */
 
-
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/sizes.h>

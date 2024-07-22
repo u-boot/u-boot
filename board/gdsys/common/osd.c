@@ -165,7 +165,6 @@ static unsigned int ics8n3qv01_get_fout_calc(unsigned index)
 	return fout_calc;
 }
 
-
 static void ics8n3qv01_calc_parameters(unsigned int fout,
 	unsigned int *_mint, unsigned int *_mfrac,
 	unsigned int *_n)
@@ -423,7 +422,6 @@ int osd_write(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		x = hextoul(argv[1], NULL);
 		y = hextoul(argv[2], NULL);
 		rp = argv[3];
-
 
 		while (*rp) {
 			char substr[5];

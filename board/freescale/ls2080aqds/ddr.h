@@ -87,5 +87,4 @@ static const struct board_specific_parameters *rdimms[] = {
 	rdimm2,
 };
 
-
 #endif

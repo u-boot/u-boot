@@ -76,7 +76,6 @@ int board_early_init_r(void)
 	// Switch PSRAM controller back to memory mode
 	writel(0, PSRAM_FLASH_CONFIG_REG_0);
 
-
 	// Switch PSRAM controller to command mode
 	writel(CRE_ENABLE | CRE_DRIVE_CMD, PSRAM_FLASH_CONFIG_REG_1);
 	// Program Refresh Configuration Register (RCR) for BANK1

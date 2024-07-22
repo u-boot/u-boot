@@ -72,5 +72,4 @@ static const struct board_specific_parameters *rdimms[] = {
 	udimm2,	/* DP-DDR doesn't support RDIMM */
 };
 
-
 #endif

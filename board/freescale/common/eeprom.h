@@ -6,11 +6,9 @@
 #ifndef __EEPROM_H_
 #define __EEPROM_H_
 
-
 /*
  * EEPROM Board System Register interface.
  */
-
 
 /*
  * CPU Board Revision
@@ -28,6 +26,5 @@
  * the Major in the high byte, and Minor in the low byte.
  */
 extern unsigned int get_cpu_board_revision(void);
-
 
 #endif	/* __CADMUS_H_ */

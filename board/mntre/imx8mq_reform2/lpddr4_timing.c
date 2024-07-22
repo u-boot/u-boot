@@ -312,7 +312,6 @@ static struct dram_cfg_param lpddr4_fsp0_cfg[] = {
 	{ 0xd0000, 1 },
 };
 
-
 /* P1 message block parameter for training firmware */
 static struct dram_cfg_param lpddr4_fsp1_cfg[] = {
 	{ 0xd0000, 0 },
@@ -351,7 +350,6 @@ static struct dram_cfg_param lpddr4_fsp1_cfg[] = {
 	{ 0x5403d, 0x1600 },
 	{ 0xd0000, 1 },
 };
-
 
 /* P0 2D message block parameter for training firmware */
 static struct dram_cfg_param lpddr4_fsp0_2d_cfg[] = {

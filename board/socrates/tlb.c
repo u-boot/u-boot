@@ -28,7 +28,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
 
-
 	/*
 	 * TLB 1:	64M	Non-cacheable, guarded
 	 * 0xfc000000	64M	FLASH

@@ -147,7 +147,6 @@ int dram_init(void)
 }
 #endif
 
-
 int board_early_init_f(void)
 {
 	fsl_lsch2_early_init_f();

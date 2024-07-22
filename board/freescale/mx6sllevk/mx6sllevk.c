@@ -54,7 +54,6 @@ int power_init_board(void)
 	rev_id = pmic_reg_read(dev, PFUZE100_REVID);
 	printf("PMIC: PFUZE100! DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
-
 	/* Init mode to APS_PFM */
 	pmic_reg_write(dev, PFUZE100_SW1ABMODE, APS_PFM);
 

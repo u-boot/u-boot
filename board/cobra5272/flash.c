@@ -61,7 +61,6 @@ Done:
 	return;
 }
 
-
 unsigned long flash_init(void)
 {
 	int i, j;
@@ -112,7 +111,6 @@ unsigned long flash_init(void)
 	return size;
 }
 
-
 #define CMD_READ_ARRAY		0x00F0
 #define CMD_UNLOCK1		0x00AA
 #define CMD_UNLOCK2		0x0055
@@ -132,7 +130,6 @@ unsigned long flash_init(void)
 #define READY 1
 #define ERR   2
 #define TMO   4
-
 
 int flash_erase(flash_info_t *info, int s_first, int s_last)
 {
@@ -267,7 +264,6 @@ static int write_word(flash_info_t *info, ulong dest, ulong data)
 	if ((result & data) != data)
 		return ERR_NOT_ERASED;
 
-
 	/*
 	 * Disable interrupts which might cause a timeout
 	 * here. Remember that our exception vectors are
@@ -316,7 +312,6 @@ static int write_word(flash_info_t *info, ulong dest, ulong data)
 
 	return rc;
 }
-
 
 int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 {

@@ -434,7 +434,6 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
-
 /*
  * The SoM used by these boards has XTAL not connected despite datasheet
  * suggesting connecting unused XTAL pins to ground. Without explicitly

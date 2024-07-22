@@ -109,7 +109,6 @@ static void xr3pci_setup_atr(void)
 			     XR3_PCI_MEMSPACE64_SIZE,
 			     XR3PCI_ATR_TRSLID_AXIMEMORY);
 
-
 	/* setup CPU to PCIe address translation table */
 	base = XR3_CONFIG_BASE + XR3PCI_ATR_AXI4_SLV0;
 

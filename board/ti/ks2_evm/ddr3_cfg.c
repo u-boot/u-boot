@@ -6,7 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  */
 
-
 #include <asm/arch/ddr3.h>
 #include "ddr3_cfg.h"
 

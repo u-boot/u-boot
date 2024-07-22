@@ -783,7 +783,6 @@ static void ccgr_init(void)
 	writel(0x010E0101, &ccm->ccosr);
 }
 
-
 #define PAD_CTL_INPUT_DDR BIT(17)
 
 struct mx6dq_iomux_ddr_regs mx6_ddr_ioregs = {
@@ -950,7 +949,6 @@ static const struct mx6_ddr3_cfg ddr3_cfg_it = {
 	.trasmin = 3500,
 	.SRT = 1,
 };
-
 
 /* Perform DDR DRAM calibration */
 static void spl_dram_perform_cal(const struct mx6_ddr_sysinfo *ddr_sysinfo)

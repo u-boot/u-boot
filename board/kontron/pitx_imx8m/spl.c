@@ -28,7 +28,6 @@ extern struct dram_timing_info dram_timing_4gb;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-
 static void spl_dram_init(void)
 {
 	struct dram_timing_info *dram_timing;
@@ -88,7 +87,6 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	return 0;
 }
-
 
 #define USDHC_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_HYS | PAD_CTL_PUE | \
 			 PAD_CTL_FSEL2)

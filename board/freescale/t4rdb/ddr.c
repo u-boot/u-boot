@@ -39,7 +39,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	else
 		pbsp = udimms[0];
 
-
 	/* Get clk_adjust, cpo, write_data_delay,2T, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */

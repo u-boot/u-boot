@@ -6,7 +6,6 @@
 
 #ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 
-
 #include <gdsys_fpga.h>
 #include <linux/bitops.h>
 

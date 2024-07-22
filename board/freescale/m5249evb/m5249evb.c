@@ -32,7 +32,6 @@ int checkboard (void) {
 	return 0;
 };
 
-
 int dram_init(void)
 {
 	unsigned long	junk = 0xa5a59696;
@@ -90,7 +89,6 @@ int dram_init(void)
 
 	return 0;
 };
-
 
 int testdram(void)
 {

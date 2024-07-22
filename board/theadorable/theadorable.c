@@ -288,7 +288,6 @@ int board_late_init(void)
 			}
 		} while (get_timer(start_time) < ABORT_TIMEOUT);
 
-
 		/*
 		 * At this stage the bootcounter has not been incremented
 		 * yet. We need to do this manually here to get an actually

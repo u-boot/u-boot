@@ -11,7 +11,6 @@
 
 #include <asm/arch/mux_omap4.h>
 
-
 const struct pad_conf_entry core_padconf_array_essential[] = {
 
 {GPMC_AD0, (PTU | IEN | OFF_EN | OFF_PD | OFF_IN | M1)}, /* sdmmc2_dat0 */

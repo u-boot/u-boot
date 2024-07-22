@@ -4060,7 +4060,6 @@ unsigned long ps7_post_config_3_0[] = {
     //
 };
 
-
 unsigned long ps7_pll_init_data_2_0[] = {
     // START: top
     // .. START: SLCR SETTINGS
@@ -8262,7 +8261,6 @@ unsigned long ps7_post_config_2_0[] = {
 
     //
 };
-
 
 unsigned long ps7_pll_init_data_1_0[] = {
     // START: top

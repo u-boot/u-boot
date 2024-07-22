@@ -22,7 +22,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-
 #ifdef CONFIG_SPL_BUILD
 void set_uart_mux_conf(void)
 {

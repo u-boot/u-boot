@@ -84,7 +84,6 @@ int board_phys_sdram_size(phys_size_t *memsize)
 	return 0;
 }
 
-
 #ifdef CONFIG_FEC_MXC
 #define FEC_RST_PAD IMX_GPIO_NR(1, 11)
 static iomux_v3_cfg_t const fec1_rst_pads[] = {

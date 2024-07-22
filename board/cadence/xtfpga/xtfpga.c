@@ -23,7 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
  * (Print information about the board to stdout.)
  */
 
-
 #if defined(CONFIG_XTFPGA_LX60)
 const char *board = "XT_AV60";
 const char *description = "Avnet Xilinx LX60 FPGA Evaluation Board / ";

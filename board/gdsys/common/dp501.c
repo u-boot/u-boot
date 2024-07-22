@@ -136,7 +136,6 @@ void dp501_powerdown(u8 addr)
 	dp501_setbits(addr, 0x0a, 0x30); /* power down encoder, standby mode */
 }
 
-
 int dp501_probe(unsigned screen, bool power)
 {
 #ifdef CONFIG_SYS_DP501_BASE
