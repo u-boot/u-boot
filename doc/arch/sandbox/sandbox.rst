@@ -662,7 +662,8 @@ Addr      Config                     Usage
    b000   CONFIG_BLOBLIST_ADDR       Blob list
   10000   CFG_MALLOC_F_ADDR          Early memory allocation
   f0000   CONFIG_PRE_CON_BUF_ADDR    Pre-console buffer
- 100000   CONFIG_TRACE_EARLY_ADDR    Early trace buffer (if enabled). Also used
+ 100000   TCG Event log              TCG Event Log
+ 200000   CONFIG_TRACE_EARLY_ADDR    Early trace buffer (if enabled). Also used
                                      as the SPL load buffer in spl_test_load().
- 200000   CONFIG_TEXT_BASE           Load buffer for U-Boot (sandbox_spl only)
+ 400000   CONFIG_TEXT_BASE           Load buffer for U-Boot (sandbox_spl only)
 =======   ========================   ===============================
