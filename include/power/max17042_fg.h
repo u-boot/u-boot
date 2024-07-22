@@ -43,7 +43,6 @@ enum {
 #define RCOMP0			0x0060
 #define TempCo			0x1015
 
-
 #define MAX17042_POR (1 << 1)
 
 #define MODEL_UNLOCK1		0x0059
