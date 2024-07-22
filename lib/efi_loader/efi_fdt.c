@@ -43,6 +43,9 @@ int efi_get_distro_fdt_name(char *fname, int size, int seq)
 	case 2:
 		prefix = "/dtb/current";
 		break;
+	case 3:
+		prefix = "/dtbs";
+		break;
 	default:
 		return log_msg_ret("pref", -EINVAL);
 	}
