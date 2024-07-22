@@ -347,7 +347,6 @@
 #define GCC_USB3PHY_PHY_BCR					104
 #define GCC_MSS_RESTART						105
 
-
 /* Indexes for GDSCs */
 #define AGGRE0_NOC_GDSC			0
 #define HLOS1_VOTE_AGGRE0_NOC_GDSC	1
