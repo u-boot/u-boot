@@ -97,7 +97,7 @@ def test_vbe(u_boot_console):
     fdt_out = fit_util.make_fname(cons, 'fdt-out.dtb')
 
     params = {
-        'fit_addr' : 0x1000,
+        'fit_addr' : 0x4000,
 
         'kernel' : kernel,
 
