@@ -44,7 +44,6 @@ u64 of_translate_address(const struct device_node *np, const __be32 *in_addr);
  */
 u64 of_translate_dma_address(const struct device_node *np, const __be32 *in_addr);
 
-
 /**
  * of_get_dma_range() - get dma-ranges for a specific DT node
  *
