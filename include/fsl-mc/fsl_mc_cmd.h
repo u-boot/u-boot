@@ -68,7 +68,6 @@ enum mc_cmd_status {
 /* Command completion flag */
 #define MC_CMD_FLAG_INTR_DIS	0x01000000
 
-
 #define MC_CMD_HDR_CMDID_O	48	/* Command ID field offset */
 #define MC_CMD_HDR_CMDID_S	16	/* Command ID field size */
 #define MC_CMD_HDR_STATUS_O	16	/* Status field offset */
