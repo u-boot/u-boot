@@ -20,7 +20,6 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/spi.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -56,10 +55,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BUTTON_PAD_CTRL (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
 #define RGB_PAD_CTRL	PAD_CTL_DSE_120ohm
 
 #define WEAK_PULLUP	(PAD_CTL_PUS_100K_UP |			\
@@ -72,53 +67,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define OUTPUT_40OHM (PAD_CTL_SPEED_MED|PAD_CTL_DSE_40ohm)
 
-/* Prevent compiler error if gpio number 08 or 09 is used */
-#define not_octal(gp) ((((0x##gp >> 4) & 0xf) * 10) + ((0x##gp & 0xf)))
-
-#define _I2C_PADS_INFO_CPU(cpu, i2cnum, scl_pad, scl_bank, scl_gp,	       \
-		sda_pad, sda_bank, sda_gp, pad_ctrl, join_io) {		       \
-	.scl = {							       \
-		.i2c_mode = NEW_PAD_CTRL(cpu##_PAD_##scl_pad##__##i2cnum##_SCL,\
-					 pad_ctrl),			       \
-		.gpio_mode = NEW_PAD_CTRL(				       \
-			cpu##_PAD_##scl_pad##__GPIO##scl_bank##join_io##scl_gp,\
-			pad_ctrl),					       \
-		.gp = IMX_GPIO_NR(scl_bank, not_octal(scl_gp))		       \
-	},								       \
-	.sda = {							       \
-		.i2c_mode = NEW_PAD_CTRL(cpu##_PAD_##sda_pad##__##i2cnum##_SDA,\
-					 pad_ctrl),			       \
-		.gpio_mode = NEW_PAD_CTRL(				       \
-			cpu##_PAD_##sda_pad##__GPIO##sda_bank##join_io##sda_gp,\
-			pad_ctrl),					       \
-			.gp = IMX_GPIO_NR(sda_bank, not_octal(sda_gp))	       \
-	}								       \
-}
-
-#define I2C_PADS_INFO_CPU(cpu, i2cnum, scl_pad, scl_bank, scl_gp,	       \
-		sda_pad, sda_bank, sda_gp, pad_ctrl)			       \
-		_I2C_PADS_INFO_CPU(cpu, i2cnum, scl_pad, scl_bank, scl_gp,     \
-				sda_pad, sda_bank, sda_gp, pad_ctrl, _IO)
-
 #if defined(CONFIG_MX6QDL)
-#define I2C_PADS_INFO_ENTRY(i2cnum, scl_pad, scl_bank, scl_gp,		\
-		sda_pad, sda_bank, sda_gp, pad_ctrl)			\
-	I2C_PADS_INFO_CPU(MX6Q, i2cnum, scl_pad, scl_bank, scl_gp,	\
-		sda_pad, sda_bank, sda_gp, pad_ctrl),			\
-	I2C_PADS_INFO_CPU(MX6DL, i2cnum, scl_pad, scl_bank, scl_gp,	\
-		sda_pad, sda_bank, sda_gp, pad_ctrl)
-#define I2C_PADS_INFO_ENTRY_SPACING 2
-
 #define IOMUX_PAD_CTRL(name, pad_ctrl) \
 		NEW_PAD_CTRL(MX6Q_PAD_##name, pad_ctrl),	\
 		NEW_PAD_CTRL(MX6DL_PAD_##name, pad_ctrl)
 #else
-#define I2C_PADS_INFO_ENTRY(i2cnum, scl_pad, scl_bank, scl_gp,		\
-		sda_pad, sda_bank, sda_gp, pad_ctrl)			\
-	I2C_PADS_INFO_CPU(MX6, i2cnum, scl_pad, scl_bank, scl_gp,	\
-		sda_pad, sda_bank, sda_gp, pad_ctrl)
-#define I2C_PADS_INFO_ENTRY_SPACING 1
-
 #define IOMUX_PAD_CTRL(name, pad_ctrl) NEW_PAD_CTRL(MX6_PAD_##name, pad_ctrl)
 #endif
 
@@ -138,18 +91,6 @@ static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PAD_CTRL(EIM_D26__UART2_TX_DATA, UART_PAD_CTRL),
 	IOMUX_PAD_CTRL(EIM_D27__UART2_RX_DATA, UART_PAD_CTRL),
 };
-
-static struct i2c_pads_info i2c_pads[] = {
-	/* I2C1, SGTL5000 */
-	I2C_PADS_INFO_ENTRY(I2C1, EIM_D21, 3, 21, EIM_D28, 3, 28, I2C_PAD_CTRL),
-	/* I2C2 Camera, MIPI */
-	I2C_PADS_INFO_ENTRY(I2C2, KEY_COL3, 4, 12, KEY_ROW3, 4, 13,
-			    I2C_PAD_CTRL),
-	/* I2C3, J15 - RGB connector */
-	I2C_PADS_INFO_ENTRY(I2C3, GPIO_5, 1, 05, GPIO_16, 7, 11, I2C_PAD_CTRL),
-};
-
-#define I2C_BUS_CNT    3
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PAD_CTRL(SD2_CLK__SD2_CLK, USDHC_PAD_CTRL),
@@ -420,9 +361,11 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 
 static int detect_i2c(struct display_info_t const *dev)
 {
-	return ((0 == i2c_set_bus_num(dev->bus))
-		&&
-		(0 == i2c_probe(dev->addr)));
+	struct udevice *udev = NULL;
+	int ret;
+
+	ret = i2c_get_chip_for_busnum(dev->bus, dev->addr, 1, &udev);
+	return ret ? 0 : 1;
 }
 
 static void enable_lvds(struct display_info_t const *dev)
@@ -831,15 +774,7 @@ int overwrite_console(void)
 int board_init(void)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct i2c_pads_info *p = i2c_pads;
-	int i;
-	int stride = 1;
 
-#if defined(CONFIG_MX6QDL)
-	stride = 2;
-	if (!is_mx6dq() && !is_mx6dqp())
-		p += 1;
-#endif
 	clrsetbits_le32(&iomuxc_regs->gpr[1],
 			IOMUXC_GPR1_OTG_ID_MASK,
 			IOMUXC_GPR1_OTG_ID_GPIO1);
@@ -853,10 +788,6 @@ int board_init(void)
 	setup_spi();
 #endif
 	SETUP_IOMUX_PADS(usdhc2_pads);
-	for (i = 0; i < I2C_BUS_CNT; i++) {
-		setup_i2c(i, CONFIG_SYS_I2C_SPEED, 0x7f, p);
-		p += stride;
-	}
 
 #ifdef CONFIG_SATA
 	setup_sata();

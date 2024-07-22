@@ -9,6 +9,14 @@
 	};
 };
 
+&A55_0 {
+	clocks = <&clk IMX93_CLK_ARM_PLL>;
+};
+
+&A55_1 {
+	clocks = <&clk IMX93_CLK_ARM_PLL>;
+};
+
 &binman {
 	u-boot-spl-ddr {
 		align = <4>;

@@ -636,6 +636,7 @@ config TARGET_UDOO_NEO
 	select DM_THERMAL
 	select SUPPORT_SPL
 	imply CMD_DM
+	imply OF_UPSTREAM
 
 config TARGET_SOFTING_VINING_2000
 	bool "Softing VIN|ING 2000"
