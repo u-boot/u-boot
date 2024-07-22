@@ -43,5 +43,4 @@ typedef __u64 u64;
 
 #endif /* __ASSEMBLY__ */
 
-
 #endif /* _ASM_GENERIC_INT_LL64_H */
