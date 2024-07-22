@@ -24,7 +24,6 @@
 #ifndef __VALGRIND_H
 #define __VALGRIND_H
 
-
 /* ------------------------------------------------------------------ */
 /* VERSION NUMBER OF VALGRIND                                         */
 /* ------------------------------------------------------------------ */
@@ -41,7 +40,6 @@
 */
 #define __VALGRIND_MAJOR__    3
 #define __VALGRIND_MINOR__    16
-
 
 #include <stdarg.h>
 
@@ -76,7 +74,6 @@
 #undef PLAT_nanomips_linux
 #undef PLAT_x86_solaris
 #undef PLAT_amd64_solaris
-
 
 #if defined(__APPLE__) && defined(__i386__)
 #  define PLAT_x86_darwin 1
@@ -125,7 +122,6 @@
 #    error "Unsupported platform for valgrind"
 #  endif
 #endif
-
 
 /* ------------------------------------------------------------------ */
 /* ARCHITECTURE SPECIFICS for SPECIAL INSTRUCTIONS.  There is nothing */
@@ -928,7 +924,6 @@ typedef
                     );                                           \
  } while (0)
 
-
 #endif /* PLAT_mips32_linux */
 
 /* ------------------------- mips64-linux ---------------- */
@@ -1072,7 +1067,6 @@ typedef
 /* Insert assembly code for other platforms here... */
 
 #endif /* CONFIG_VALGRIND */
-
 
 /* ------------------------------------------------------------------ */
 /* PLATFORM SPECIFICS for FUNCTION WRAPPING.  This is all very        */
@@ -5168,7 +5162,6 @@ typedef
       lval = (__typeof__(lval)) _res;                            \
    } while (0)
 
-
 #endif /* PLAT_s390x_linux */
 
 /* ------------------------- mips32-linux ----------------------- */
@@ -6197,7 +6190,6 @@ typedef
       lval = (__typeof__(lval)) (long)_res;                       \
    } while (0)
 
-
 #define CALL_FN_W_WWW(lval, orig, arg1,arg2,arg3)                 \
    do {                                                           \
       volatile OrigFn        _orig = (orig);                      \
@@ -6657,7 +6649,6 @@ typedef
 #  define __extension__ /* */
 #endif
 
-
 /* Returns the number of Valgrinds this code is running under.  That
    is, 0 if running natively, 1 if running under Valgrind, 2 if
    running under Valgrind which is running under another Valgrind,
@@ -6666,7 +6657,6 @@ typedef
     (unsigned)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,         \
                                     VG_USERREQ__RUNNING_ON_VALGRIND,  \
                                     0, 0, 0, 0, 0)                    \
-
 
 /* Discard translation of code in the range [_qzz_addr .. _qzz_addr +
    _qzz_len - 1].  Useful if you are debugging a JITter or some such,
@@ -6679,7 +6669,6 @@ typedef
 #define VALGRIND_INNER_THREADS(_qzz_addr)                               \
    VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__INNER_THREADS,           \
                                    _qzz_addr, 0, 0, 0, 0)
-
 
 /* These requests are for getting Valgrind itself to print something.
    Possibly with a backtrace.  This is a really ugly hack.  The return value
@@ -6766,7 +6755,6 @@ VALGRIND_PRINTF_BACKTRACE(const char *format, ...)
 #endif /* CONFIG_VALGRIND */
 }
 
-
 /* These requests allow control to move from the simulated CPU to the
    real CPU, calling an arbitrary function.
    
@@ -6814,7 +6802,6 @@ VALGRIND_PRINTF_BACKTRACE(const char *format, ...)
                                     _qyy_fn,                            \
                                     _qyy_arg1, _qyy_arg2,               \
                                     _qyy_arg3, 0)
-
 
 /* Counts the number of errors that have been recorded by a tool.  Nb:
    the tool must record the errors with VG_(maybe_record_error)() or
@@ -7079,14 +7066,12 @@ VALGRIND_PRINTF_BACKTRACE(const char *format, ...)
    VALGRIND_DO_CLIENT_REQUEST_EXPR(0, VG_USERREQ__GDB_MONITOR_COMMAND, \
                                    command, 0, 0, 0, 0)
 
-
 /* Change the value of a dynamic command line option.
    Note that unknown or not dynamically changeable options
    will cause a warning message to be output.  */
 #define VALGRIND_CLO_CHANGE(option)                           \
    VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__CLO_CHANGE, \
                                    option, 0, 0, 0, 0)
-
 
 #undef PLAT_x86_darwin
 #undef PLAT_amd64_darwin
