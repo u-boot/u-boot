@@ -101,7 +101,6 @@ static int _ftmac100_init(struct ftmac100_data *priv, unsigned char enetaddr[6])
 	/* set the ethernet address */
 	ftmac100_set_mac(priv, enetaddr);
 
-
 	/* disable all interrupts */
 
 	writel (0, &ftmac100->imr);

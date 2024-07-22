@@ -46,7 +46,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PCIE_CMD_STATUS			0x04
 #define LTSSM_EN_VAL			BIT(0)
 
-
 #define AM654_PCIE_DEV_TYPE_MASK	0x3
 #define EP				0x0
 #define LEG_EP				0x1

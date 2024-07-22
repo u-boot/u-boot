@@ -54,7 +54,6 @@
 static circbuf_t usbtty_input;
 static circbuf_t usbtty_output;
 
-
 /*
  * Instance variables
  */
@@ -76,7 +75,6 @@ int usbtty_configured_flag = 0;
  * Serial number
  */
 static char serial_number[16];
-
 
 /*
  * Descriptors, Strings, Local variables.
@@ -257,11 +255,9 @@ static struct rs232_emu rs232_desc={
 		.data_bits	=	0x08
 };
 
-
 /*
  * Static Generic Serial specific data
  */
-
 
 struct gserial_config_desc {
 
@@ -575,13 +571,11 @@ static void usbtty_init_strings (void)
 	str2wide (CONFIG_USBD_MANUFACTURER, string->wData);
 	usbtty_string_table[STR_MANUFACTURER]=string;
 
-
 	string = (struct usb_string_descriptor *) wstrProduct;
 	string->bLength = sizeof(wstrProduct);
 	string->bDescriptorType = USB_DT_STRING;
 	str2wide (CONFIG_USBD_PRODUCT_NAME, string->wData);
 	usbtty_string_table[STR_PRODUCT]=string;
-
 
 	string = (struct usb_string_descriptor *) wstrSerial;
 	string->bLength = sizeof(serial_number);
@@ -589,13 +583,11 @@ static void usbtty_init_strings (void)
 	str2wide (serial_number, string->wData);
 	usbtty_string_table[STR_SERIAL]=string;
 
-
 	string = (struct usb_string_descriptor *) wstrConfiguration;
 	string->bLength = sizeof(wstrConfiguration);
 	string->bDescriptorType = USB_DT_STRING;
 	str2wide (CFG_USBD_CONFIGURATION_STR, string->wData);
 	usbtty_string_table[STR_CONFIG]=string;
-
 
 	string = (struct usb_string_descriptor *) wstrDataInterface;
 	string->bLength = sizeof(wstrDataInterface);

@@ -26,7 +26,6 @@
 #define JRSTA_DECOERR_INDEX_MASK    0xff00
 #define JRSTA_DECOERR_ERROR_MASK    0x00ff
 
-
 static const struct {
 	u8 value;
 	const char *error_text;

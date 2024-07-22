@@ -310,7 +310,6 @@ static int buck_get_enable(struct udevice *dev)
 	bool enable = false;
 	int ret;
 
-
 	ret = lp873x_buck_enable(dev, PMIC_OP_GET, &enable);
 	if (ret)
 		return ret;

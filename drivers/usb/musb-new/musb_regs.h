@@ -188,7 +188,6 @@
 /* HUBADDR */
 #define MUSB_HUBADDR_MULTI_TT		0x80
 
-
 /* SUNXI has different reg addresses, but identical r/w functions */
 #ifndef CONFIG_ARCH_SUNXI
 

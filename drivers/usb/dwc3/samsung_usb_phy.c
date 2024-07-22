@@ -26,7 +26,6 @@ void exynos5_usb3_phy_init(struct exynos_usb3_phy *phy)
 			PHYPARAM0_REF_LOSLEVEL_MASK);
 	setbits_le32(&phy->phy_param0, PHYPARAM0_REF_LOSLEVEL);
 
-
 	writel(0x0, &phy->phy_resume);
 
 	/*

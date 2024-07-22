@@ -28,7 +28,6 @@ struct cros_ec_keyb_priv {
 	int ghost_filter;		/* 1 to enable ghost filter, else 0 */
 };
 
-
 /**
  * Check the keyboard controller and return a list of key matrix positions
  * for which a key is pressed

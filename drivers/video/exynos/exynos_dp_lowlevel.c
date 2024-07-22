@@ -65,7 +65,6 @@ void exynos_dp_enable_video_mute(struct exynos_dp *dp_regs, unsigned int enable)
 	return;
 }
 
-
 static void exynos_dp_init_analog_param(struct exynos_dp *dp_regs)
 {
 	unsigned int reg;

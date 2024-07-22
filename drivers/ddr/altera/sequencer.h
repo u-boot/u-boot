@@ -164,7 +164,6 @@ struct param_type {
 	u32	write_correct_mask_vg;
 };
 
-
 /* global variable holder */
 struct gbl_type {
 	uint32_t phy_debug_mode_flags;

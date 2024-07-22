@@ -32,7 +32,6 @@ static const struct pmux_pingrp_config disp1_default[] = {
 	PINMUX(SLXD,  SPDIF,      NORMAL,    NORMAL),
 };
 
-
 int funcmux_select(enum periph_id id, int config)
 {
 	int bad_config = config != FUNCMUX_DEFAULT;

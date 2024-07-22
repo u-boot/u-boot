@@ -59,7 +59,6 @@ static int altera_pio_get_value(struct udevice *dev, unsigned pin)
 	return !!(readl(&regs->data) & (1 << pin));
 }
 
-
 static int altera_pio_set_value(struct udevice *dev, unsigned pin, int val)
 {
 	struct altera_pio_plat *plat = dev_get_plat(dev);

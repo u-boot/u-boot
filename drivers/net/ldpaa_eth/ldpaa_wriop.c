@@ -52,7 +52,6 @@ void wriop_init_dpmac_enet_if(int dpmac_id, phy_interface_t enet_if)
 	}
 }
 
-
 /*TODO what it do */
 static int wriop_dpmac_to_index(int dpmac_id)
 {
@@ -101,7 +100,6 @@ int wriop_is_enabled_dpmac(int dpmac_id)
 
 	return dpmac_info[i].enabled;
 }
-
 
 int wriop_set_mdio(int dpmac_id, struct mii_dev *bus)
 {

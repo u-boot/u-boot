@@ -319,7 +319,6 @@ err:
 	return ret;
 };
 
-
 static unsigned long gtt_read(struct broadwell_igd_priv *priv,
 			      unsigned long reg)
 {

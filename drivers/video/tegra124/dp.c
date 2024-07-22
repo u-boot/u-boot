@@ -627,7 +627,6 @@ static int tegra_dc_dp_calc_config(struct tegra_dp_priv *dp,
 	if (link_cfg->hblank_sym < 0)
 		link_cfg->hblank_sym = 0;
 
-
 	/*
 	 * Refer to dev_disp.ref for more information.
 	 * # symbols/vblank = ((SetRasterBlankStart.X -

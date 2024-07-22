@@ -172,7 +172,6 @@ bool mtd_dev_list_updated(void)
 #ifndef __UBOOT__
 static LIST_HEAD(mtd_notifiers);
 
-
 #define MTD_DEVT(index) MKDEV(MTD_CHAR_MAJOR, (index)*2)
 
 /* REVISIT once MTD uses the driver model better, whoever allocates
@@ -746,7 +745,6 @@ out:
 	return ret;
 }
 EXPORT_SYMBOL_GPL(get_mtd_device);
-
 
 int __get_mtd_device(struct mtd_info *mtd)
 {

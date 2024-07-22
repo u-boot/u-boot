@@ -401,7 +401,6 @@ out:
 	return ret;
 }
 
-
 static int __of_address_to_resource(const struct device_node *dev,
 		const __be32 *addrp, u64 size, unsigned int flags,
 		const char *name, struct resource *r)

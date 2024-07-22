@@ -109,7 +109,6 @@ static const resource_size_t zynqmp_crl_apb_clkc_base = 0xff5e0020;
 #define PLLCTRL_PRE_SRC_SHFT	20
 #define PLLCTRL_PRE_SRC_MASK	(0x7 << PLLCTRL_PRE_SRC_SHFT)
 
-
 #define NUM_MIO_PINS	77
 
 enum zynqmp_clk {

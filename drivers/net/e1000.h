@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*******************************************************************************
 
-
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
   Copyright 2011 Freescale Semiconductor, Inc.
 
@@ -401,7 +400,6 @@ struct e1000_phy_stats {
 #define IFE_PSCL_PROBE_LEDS_OFF              0x0006  /* Force LEDs 0 and 2
 							off */
 #define IFE_PSCL_PROBE_LEDS_ON               0x0007  /* Force LEDs 0 and 2 on */
-
 
 #define NUM_DEV_IDS 16
 
@@ -1068,7 +1066,6 @@ typedef enum {
     e1000_ffe_config_active,
     e1000_ffe_config_blocked
 } e1000_ffe_config;
-
 
 /* Structure containing variables used by the shared code (e1000_hw.c) */
 struct e1000_hw {
@@ -2127,7 +2124,6 @@ struct e1000_hw {
 
 /* In-Band Control Register (Page 194, Register 18) */
 #define GG82563_ICR_DIS_PADDING		0x0010 /* Disable Padding Use */
-
 
 /* Bits...
  * 15-5: page

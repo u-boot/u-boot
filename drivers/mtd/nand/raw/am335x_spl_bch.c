@@ -25,7 +25,6 @@ static struct nand_chip nand_chip;
 					CFG_SYS_NAND_ECCSIZE)
 #define ECCTOTAL	(ECCSTEPS * CFG_SYS_NAND_ECCBYTES)
 
-
 /*
  * NAND command for large page NAND devices (2k)
  */
@@ -86,7 +85,6 @@ static int nand_command(int block, int page, uint32_t offs,
 	}
 
 	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
-
 
 	/*
 	 * Program and erase have their own busy handlers status, sequential

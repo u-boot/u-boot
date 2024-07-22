@@ -101,7 +101,6 @@ static void lpuart_write32(u32 flags, u32 *addr, u32 val)
 	}
 }
 
-
 u32 __weak get_lpuart_clk(void)
 {
 	return get_board_sys_clk();

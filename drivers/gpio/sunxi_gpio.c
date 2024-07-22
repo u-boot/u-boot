@@ -157,7 +157,6 @@ void sunxi_gpio_set_pull_bank(void *bank_base, int pin_offset, u32 val)
 			0x3U << offset, val << offset);
 }
 
-
 /* =========== Non-DM code, used by the SPL. ============ */
 
 #if !CONFIG_IS_ENABLED(DM_GPIO)

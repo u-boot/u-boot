@@ -960,7 +960,6 @@ static int aspeed_spi_ctrl_init(struct udevice *bus)
 		return 0;
 	}
 
-
 	ret = aspeed_spi_read_fixed_decoded_ranges(bus);
 	if (ret != 0)
 		return ret;

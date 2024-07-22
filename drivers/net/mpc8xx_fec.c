@@ -636,7 +636,6 @@ static int fec_start(struct udevice *dev)
 	return 0;
 }
 
-
 static void fec_stop(struct udevice *dev)
 {
 	struct ether_fcc_info_s *efis = dev_get_priv(dev);

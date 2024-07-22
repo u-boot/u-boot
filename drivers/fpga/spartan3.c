@@ -91,7 +91,6 @@ static int spartan3_info(xilinx_desc *desc)
 	return FPGA_SUCCESS;
 }
 
-
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Slave Parallel Generic Implementation */
 
@@ -292,7 +291,6 @@ static int spartan3_sp_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 
 	return ret_val;
 }
-
 
 /* ------------------------------------------------------------------------- */
 

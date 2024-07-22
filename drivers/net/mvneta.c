@@ -970,7 +970,6 @@ static struct mvneta_rx_queue *mvneta_rxq_handle_get(struct mvneta_port *pp,
 	return &pp->rxqs[rxq];
 }
 
-
 /* Drop packets received by the RXQ and free buffers */
 static void mvneta_rxq_drop_pkts(struct mvneta_port *pp,
 				 struct mvneta_rx_queue *rxq)
@@ -1106,7 +1105,6 @@ static void mvneta_cleanup_rxqs(struct mvneta_port *pp)
 	for (queue = 0; queue < rxq_number; queue++)
 		mvneta_rxq_deinit(pp, &pp->rxqs[queue]);
 }
-
 
 /* Init all Rx queues */
 static int mvneta_setup_rxqs(struct mvneta_port *pp)

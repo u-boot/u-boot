@@ -113,15 +113,12 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 	/* Anatop clocks */
 	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
-
-
 	clk_dm(IMXRT1170_CLK_RCOSC_48M,
 	       imx_clk_fixed_factor("rcosc48M", "rcosc16M", 3, 1));
 	clk_dm(IMXRT1170_CLK_RCOSC_400M,
 	       imx_clk_fixed_factor("rcosc400M",  "rcosc16M", 25, 1));
 	clk_dm(IMXRT1170_CLK_RCOSC_48M_DIV2,
 	       imx_clk_fixed_factor("rcosc48M_div2",  "rcosc48M", 1, 2));
-
 
 	clk_dm(IMXRT1170_CLK_PLL_ARM,
 	       imx_clk_pllv3(IMX_PLLV3_SYS, "pll_arm", "osc",

@@ -28,5 +28,4 @@ int rk_mipi_dsi_enable(struct udevice *dev,
 
 int rk_mipi_phy_enable(struct udevice *dev);
 
-
 #endif

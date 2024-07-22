@@ -32,7 +32,6 @@
 #include "musb_core.h"
 #include "musb_host.h"
 
-
 /* MUSB HOST status 22-mar-2006
  *
  * - There's still lots of partial code duplication for fault paths, so
@@ -67,7 +66,6 @@
  *   although ARP RX wins.  (That test was done with a full speed link.)
  */
 
-
 /*
  * NOTE on endpoint usage:
  *
@@ -81,7 +79,6 @@
  * "claimed" until its software queue is no longer refilled.  No multiplexing
  * of transfers between endpoints, or anything clever.
  */
-
 
 static void musb_ep_program(struct musb *musb, u8 epnum,
 			struct urb *urb, int is_out,
@@ -884,7 +881,6 @@ static void musb_ep_program(struct musb *musb, u8 epnum,
 	}
 }
 
-
 /*
  * Service the default endpoint (ep0) as host.
  * Return true until it's time to start the status stage.
@@ -1084,7 +1080,6 @@ irqreturn_t musb_h_ep0_irq(struct musb *musb)
 done:
 	return retval;
 }
-
 
 #ifdef CONFIG_USB_INVENTRA_DMA
 
@@ -1343,7 +1338,6 @@ void musb_host_tx(struct musb *musb, u8 epnum)
 	musb_writew(epio, MUSB_TXCSR,
 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
 }
-
 
 #ifdef CONFIG_USB_INVENTRA_DMA
 

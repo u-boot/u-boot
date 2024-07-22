@@ -277,7 +277,6 @@ static inline int mxs_nand_calc_ecc_for_large_oob(struct bch_geometry *geo,
 	max_ecc = min(round_down(max_ecc, 2),
 				nand_info->max_ecc_strength_supported);
 
-
 	/* search a supported ecc strength that makes bbm */
 	/* located in data chunk  */
 	geo->ecc_strength = chip->ecc_strength_ds;

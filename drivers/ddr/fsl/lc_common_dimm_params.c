@@ -191,7 +191,6 @@ compute_cas_latency(const unsigned int ctrl_num,
 	      lowest_good_caslat);
 	outpdimm->lowest_common_spd_caslat = lowest_good_caslat;
 
-
 	/*
 	 * Compute a common 'de-rated' CAS latency.
 	 *

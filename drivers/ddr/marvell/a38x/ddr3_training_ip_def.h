@@ -82,7 +82,6 @@
 #define ADDR_SIZE_8GB			0x40000000
 #define ADDR_SIZE_16GB			0x80000000
 
-
 enum hws_edge_compare {
 	EDGE_PF,
 	EDGE_FP,

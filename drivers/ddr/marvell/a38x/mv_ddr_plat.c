@@ -1144,7 +1144,6 @@ static int ddr3_fast_path_dynamic_cs_size_config(u32 cs_ena)
 	uint64_t cs_mem_size = 0;
 	uint64_t mem_total_size_c, cs_mem_size_c;
 
-
 #ifdef DEVICE_MAX_DRAM_ADDRESS_SIZE
 	u32 physical_mem_size;
 	u32 max_mem_size = DEVICE_MAX_DRAM_ADDRESS_SIZE;

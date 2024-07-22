@@ -24,7 +24,6 @@ struct arc_serial_regs {
 	unsigned int baudh;
 };
 
-
 struct arc_serial_plat {
 	struct arc_serial_regs *reg;
 	unsigned int uartclk;

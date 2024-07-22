@@ -389,7 +389,6 @@ static int comphy_usb3_power_up(u32 lane, u32 type, u32 speed, u32 invert)
 	 */
 	reg_set(USB3_CTRPUL_VAL_REG, 0x8 << 24, rb_usb3_ctr_100ns);
 
-
 	/* 0xd005c300 = 0x1001 */
 	/* set PRD_TXDEEMPH (3.5db de-emph) */
 	usb3_reg_set16(LANE_CFG0, 0x1, 0xFF, lane);

@@ -729,7 +729,6 @@ static int armada_37xx_pinctrl_probe(struct udevice *dev)
 	if (!info->funcs)
 		return -ENOMEM;
 
-
 	ret = armada_37xx_fill_group(info);
 	if (ret)
 		return ret;

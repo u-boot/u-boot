@@ -503,7 +503,6 @@ static void fdt_fixup_pcie_ls(void *blob)
 	struct extra_iommu_entry *entries;
 	int i, cnt, nodeoffset;
 
-
 	/* Scan all known buses */
 	for (pci_find_first_device(&dev);
 	     dev;

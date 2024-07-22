@@ -21,7 +21,6 @@
 
 #define MX5_USBOTHER_REGS_OFFSET 0x800
 
-
 #define MXC_OTG_OFFSET			0
 #define MXC_H1_OFFSET			0x200
 #define MXC_H2_OFFSET			0x400

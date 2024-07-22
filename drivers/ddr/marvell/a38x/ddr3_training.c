@@ -285,7 +285,6 @@ int ddr3_tip_tune_training_params(u32 dev_num,
 	if (params->g_rtt_park != PARAM_UNDEFINED)
 		g_rtt_park = params->g_rtt_park;
 
-
 	DEBUG_TRAINING_IP(DEBUG_LEVEL_INFO,
 			  ("DGL parameters: 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X 0x%X\n",
 			   g_zpri_data, g_znri_data, g_zpri_ctrl, g_znri_ctrl, g_zpodt_data, g_znodt_data,
@@ -870,7 +869,6 @@ int ddr3_tip_validate_algo_components(u8 dev_num)
 	return (status == 1) ? MV_OK : MV_NOT_INITIALIZED;
 }
 
-
 int ddr3_pre_algo_config(void)
 {
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
@@ -1113,7 +1111,6 @@ int ddr3_tip_bus_write(u32 dev_num, enum hws_access_type interface_access,
 	return config_func_info[dev_num].
 		mv_ddr_phy_write(phy_access, phy_id, phy_type, reg_addr, data_value, OPERATION_WRITE);
 }
-
 
 /*
  * Phy read-modify-write
@@ -1405,7 +1402,6 @@ int ddr3_tip_freq_set(u32 dev_num, enum hws_access_type access_type,
 			cs_num = mv_ddr_cs_num_get();
 			t2t = (cs_num == 1) ? 0 : 1;
 		}
-
 
 		if (ddr3_tip_dev_attr_get(dev_num, MV_ATTR_INTERLEAVE_WA) == 1) {
 			/* Use 1T mode if 1:1 ratio configured */

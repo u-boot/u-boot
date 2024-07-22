@@ -506,7 +506,6 @@ static int rockchip_pcie_probe(struct udevice *dev)
 		 pcie_dw_get_link_width(&priv->dw),
 		 hose->first_busno);
 
-
 	ret = pcie_dw_prog_outbound_atu_unroll(&priv->dw,
 					       PCIE_ATU_REGION_INDEX0,
 					       PCIE_ATU_TYPE_MEM,

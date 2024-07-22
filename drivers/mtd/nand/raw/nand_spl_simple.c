@@ -19,7 +19,6 @@ static struct nand_chip nand_chip;
 					CFG_SYS_NAND_ECCSIZE)
 #define ECCTOTAL	(ECCSTEPS * CFG_SYS_NAND_ECCBYTES)
 
-
 #if (CONFIG_SYS_NAND_PAGE_SIZE <= 512)
 /*
  * NAND command for small page NAND devices (512)
@@ -152,7 +151,6 @@ static int nand_read_page(int block, int page, uchar *dst)
 	/* Pick the ECC bytes out of the oob data */
 	for (i = 0; i < ECCTOTAL; i++)
 		ecc_code[i] = oob_data[nand_ecc_pos[i]];
-
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
 		this->ecc.hwctl(mtd, NAND_ECC_READ);

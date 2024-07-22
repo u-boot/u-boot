@@ -376,7 +376,6 @@ static int qcom_power_set(struct power_domain *pwr, bool on)
 					 !(value & GDSC_PWR_ON_MASK),
 					 GDSC_STATUS_POLL_TIMEOUT_US);
 
-
 	if (ret == -ETIMEDOUT)
 		printf("WARNING: GDSC %lu is stuck during power on/off\n",
 		       pwr->id);

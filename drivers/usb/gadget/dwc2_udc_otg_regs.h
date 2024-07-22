@@ -204,7 +204,6 @@ struct dwc2_usbotg_reg {
 
 #define DIEPCTL0_NEXT_EP_BIT		(11)
 
-
 /* DWC2_UDC_OTG_DIEPMSK/DOEPMSK device IN/OUT endpoint
    common interrupt mask register */
 /* DWC2_UDC_OTG_DIEPINTn/DOEPINTn device IN/OUT endpoint interrupt register */

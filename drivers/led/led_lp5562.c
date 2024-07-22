@@ -122,7 +122,6 @@ static int lp5562_led_reg_update(struct udevice *dev, int regnum,
 	else
 		ret = dm_i2c_reg_clrset(dev, regnum, mask, value);
 
-
 	/*
 	 * Data sheet says "Delay between consecutive I2C writes to
 	 * ENABLE register (00h) need to be longer than 488 us
@@ -520,7 +519,6 @@ U_BOOT_DRIVER(lp5562_led) = {
 	.priv_auto = sizeof(struct lp5562_led_priv),
 	.ops = &lp5562_led_ops,
 };
-
 
 static int lp5562_led_wrap_probe(struct udevice *dev)
 {

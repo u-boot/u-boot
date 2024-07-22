@@ -39,7 +39,6 @@
 #define PCA957X_INVERT          1
 #define PCA957X_DIRECTION       4
 
-
 #define PCA_GPIO_MASK           0x00FF
 #define PCA_INT                 0x0100
 #define PCA_PCAL		BIT(9)

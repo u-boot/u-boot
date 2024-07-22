@@ -1064,7 +1064,6 @@ int exynos_dp_enable(struct udevice *dev, int panel_bpp,
 	return ret;
 }
 
-
 static const struct dm_display_ops exynos_dp_ops = {
 	.enable = exynos_dp_enable,
 };

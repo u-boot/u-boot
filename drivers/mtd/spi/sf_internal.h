@@ -79,7 +79,6 @@ extern const struct flash_info spi_nor_ids[];
 /* Get software write-protect value (BP bits) */
 int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash);
 
-
 #if CONFIG_IS_ENABLED(SPI_FLASH_MTD)
 int spi_flash_mtd_register(struct spi_flash *flash);
 void spi_flash_mtd_unregister(struct spi_flash *flash);

@@ -34,7 +34,6 @@
 #define RTC_CTL_REG_ADDR	0x0e
 #define RTC_STAT_REG_ADDR	0x0f
 
-
 /*
  * RTC control register bits
  */
@@ -54,11 +53,9 @@
 #define RTC_STAT_BIT_BB32KHZ	0x40	/* Battery backed 32KHz Output  */
 #define RTC_STAT_BIT_EN32KHZ	0x8	/* Enable 32KHz Output  */
 
-
 #if !CONFIG_IS_ENABLED(DM_RTC)
 static uchar rtc_read (uchar reg);
 static void rtc_write (uchar reg, uchar val);
-
 
 /*
  * Get the current time from the RTC
@@ -107,7 +104,6 @@ int rtc_get (struct rtc_time *tmp)
 	return rel;
 }
 
-
 /*
  * Set the RTC
  */
@@ -132,7 +128,6 @@ int rtc_set (struct rtc_time *tmp)
 
 	return 0;
 }
-
 
 /*
  * Reset the RTC.  We also enable the oscillator output on the
@@ -166,7 +161,6 @@ uchar rtc_read (uchar reg)
 {
 	return (i2c_reg_read (CFG_SYS_I2C_RTC_ADDR, reg));
 }
-
 
 static void rtc_write (uchar reg, uchar val)
 {

@@ -175,7 +175,6 @@ static int tpm_tis_spi_read32(struct udevice *dev, u32 addr, u32 *result)
 	return ret;
 }
 
-
 static int tpm_tis_spi_write(struct udevice *dev, u32 addr, u16 len, const u8 *out)
 {
 	return tpm_tis_spi_xfer(dev, addr, out, NULL, len);

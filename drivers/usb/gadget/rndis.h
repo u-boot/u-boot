@@ -72,7 +72,6 @@
 #define OID_PNP_REMOVE_WAKE_UP_PATTERN		0xFD010104
 #define OID_PNP_ENABLE_WAKE_UP			0xFD010106
 
-
 typedef struct rndis_init_msg_type {
 	__le32	MessageType;
 	__le32	MessageLength;

@@ -473,7 +473,6 @@ int davinci_mmc_init(struct bd_info *bis, struct davinci_mmc *host)
 }
 #else
 
-
 static int davinci_mmc_probe(struct udevice *dev)
 {
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);

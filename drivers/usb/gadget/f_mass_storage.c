@@ -387,7 +387,6 @@ struct fsg_dev {
 	struct usb_ep		*bulk_out;
 };
 
-
 static inline int __fsg_is_set(struct fsg_common *common,
 			       const char *func, unsigned line)
 {
@@ -404,12 +403,10 @@ static inline int __fsg_is_set(struct fsg_common *common,
 
 #define fsg_is_set(common) likely(__fsg_is_set(common, __func__, __LINE__))
 
-
 static inline struct fsg_dev *fsg_from_func(struct usb_function *f)
 {
 	return container_of(f, struct fsg_dev, function);
 }
-
 
 typedef void (*fsg_routine_t)(struct fsg_dev *);
 
@@ -1118,7 +1115,6 @@ static int do_inquiry(struct fsg_common *common, struct fsg_buffhd *bh)
 	return 36;
 }
 
-
 static int do_request_sense(struct fsg_common *common, struct fsg_buffhd *bh)
 {
 	struct fsg_lun	*curlun = &common->luns[common->lun];
@@ -1209,7 +1205,6 @@ static int do_read_header(struct fsg_common *common, struct fsg_buffhd *bh)
 	store_cdrom_address(&buf[4], msf, lba);
 	return 8;
 }
-
 
 static int do_read_toc(struct fsg_common *common, struct fsg_buffhd *bh)
 {
@@ -1319,7 +1314,6 @@ static int do_mode_sense(struct fsg_common *common, struct fsg_buffhd *bh)
 	return len;
 }
 
-
 static int do_start_stop(struct fsg_common *common)
 {
 	struct fsg_lun	*curlun = &common->luns[common->lun];
@@ -1358,7 +1352,6 @@ static int do_prevent_allow(struct fsg_common *common)
 	return 0;
 }
 
-
 static int do_read_format_capacities(struct fsg_common *common,
 			struct fsg_buffhd *bh)
 {
@@ -1376,7 +1369,6 @@ static int do_read_format_capacities(struct fsg_common *common,
 	return 12;
 }
 
-
 static int do_mode_select(struct fsg_common *common, struct fsg_buffhd *bh)
 {
 	struct fsg_lun	*curlun = &common->luns[common->lun];
@@ -1386,7 +1378,6 @@ static int do_mode_select(struct fsg_common *common, struct fsg_buffhd *bh)
 		curlun->sense_data = SS_INVALID_COMMAND;
 	return -EINVAL;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1512,7 +1503,6 @@ static int throw_away_data(struct fsg_common *common)
 	return 0;
 }
 
-
 static int finish_reply(struct fsg_common *common)
 {
 	struct fsg_buffhd	*bh = common->next_buffhd_to_fill;
@@ -1608,7 +1598,6 @@ static int finish_reply(struct fsg_common *common)
 	return rc;
 }
 
-
 static int send_status(struct fsg_common *common)
 {
 	struct fsg_lun		*curlun = &common->luns[common->lun];
@@ -1663,7 +1652,6 @@ static int send_status(struct fsg_common *common)
 	common->next_buffhd_to_fill = bh->next;
 	return 0;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1791,7 +1779,6 @@ static int check_command_size_in_blocks(struct fsg_common *common,
 	return check_command(common, cmnd_size, data_dir,
 			mask, needs_medium, name);
 }
-
 
 static int do_scsi_command(struct fsg_common *common)
 {
@@ -2127,7 +2114,6 @@ static int received_cbw(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	return 0;
 }
 
-
 static int get_next_command(struct fsg_common *common)
 {
 	struct fsg_buffhd	*bh;
@@ -2165,7 +2151,6 @@ static int get_next_command(struct fsg_common *common)
 
 	return rc;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -2279,9 +2264,7 @@ reset:
 	return rc;
 }
 
-
 /****************************** ALT CONFIGS ******************************/
-
 
 static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
@@ -2603,7 +2586,6 @@ static void fsg_common_release(struct kref *ref)
 		kfree(common);
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -2721,7 +2703,6 @@ autoconf_fail:
 	ERROR(fsg, "unable to autoconfigure all endpoints\n");
 	return -ENOTSUPP;
 }
-
 
 /****************************** ADD FUNCTION ******************************/
 

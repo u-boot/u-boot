@@ -35,7 +35,6 @@
 
 extern struct platform_data brd;
 
-
 unsigned packet_received, packet_sent;
 
 /*
@@ -272,7 +271,6 @@ static char *iSerialNumber;
 static char dev_addr[18];
 
 static char host_addr[18];
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -805,7 +803,6 @@ static const struct usb_descriptor_header *hs_rndis_function[] = {
 	NULL,
 };
 #endif
-
 
 /* maxpacket and other transfer characteristics vary by speed. */
 static inline struct usb_endpoint_descriptor *
@@ -2136,7 +2133,6 @@ autoconf_fail:
 		rndis_config.bMaxPower = 4;
 #endif
 	}
-
 
 	/* network device setup */
 	dev->net = l_priv->netdev;

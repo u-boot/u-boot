@@ -19,7 +19,6 @@
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
 #endif
 
-
 /*
  * regs has the to-be-set values for DDR controller registers
  * ctrl_num is the DDR controller number

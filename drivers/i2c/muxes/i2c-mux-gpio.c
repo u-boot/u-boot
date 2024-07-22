@@ -38,7 +38,6 @@ struct i2c_mux_gpio_priv {
 	u32 idle;
 };
 
-
 static int i2c_mux_gpio_select(struct udevice *dev, struct udevice *bus,
 			       uint channel)
 {

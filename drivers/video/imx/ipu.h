@@ -143,7 +143,6 @@ enum ipu_dmfc_type {
 	DMFC_HIGH_RESOLUTION_ONLY_DP,
 };
 
-
 /*
  * Union of initialization parameters for a logical channel.
  */

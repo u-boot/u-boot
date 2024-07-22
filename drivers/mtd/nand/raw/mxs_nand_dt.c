@@ -90,7 +90,6 @@ static int mxs_nand_dt_probe(struct udevice *dev)
 
 	info->gpmi_regs = devm_ioremap(dev, res.start, resource_size(&res));
 
-
 	ret = dev_read_resource_byname(dev, "bch", &res);
 	if (ret)
 		return ret;

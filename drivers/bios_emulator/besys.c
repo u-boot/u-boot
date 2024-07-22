@@ -422,7 +422,6 @@ static u32 BE_accessReg(int regOffset, u32 value, int func)
 	u16 val16;
 	u32 val32;
 
-
 	/* Decode the configuration register values for the register we wish to
 	 * access
 	 */

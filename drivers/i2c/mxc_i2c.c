@@ -512,7 +512,6 @@ static int i2c_init_transfer(struct mxc_i2c_bus *i2c_bus, u8 chip,
 	return ret;
 }
 
-
 static int i2c_write_data(struct mxc_i2c_bus *i2c_bus, u8 chip, const u8 *buf,
 			  int len)
 {

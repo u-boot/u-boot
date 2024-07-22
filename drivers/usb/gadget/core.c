@@ -22,7 +22,6 @@
 
 #define MAX_INTERFACES 2
 
-
 int maxstrings = 20;
 
 /* Global variables ************************************************************************** */
@@ -65,9 +64,7 @@ __maybe_unused static char *usbd_device_status[] = {
 
 #define USBD_DEVICE_STATUS(x) (((unsigned int)x <= USBD_CLOSING) ? usbd_device_status[x] : "UNKNOWN")
 
-
 /* Descriptor support functions ************************************************************** */
-
 
 /**
  * usbd_get_string - find and return a string descriptor
@@ -83,9 +80,7 @@ struct usb_string_descriptor *usbd_get_string (__u8 index)
 	return usb_strings[index];
 }
 
-
 /* Access to device descriptor functions ***************************************************** */
-
 
 /* *
  * usbd_device_configuration_instance - find a configuration instance for this device
@@ -102,7 +97,6 @@ static struct usb_configuration_instance *usbd_device_configuration_instance (st
 
 	return device->configuration_instance_array + configuration;
 }
-
 
 /* *
  * usbd_device_interface_instance
@@ -149,7 +143,6 @@ struct usb_alternate_instance *usbd_device_alternate_instance (struct usb_device
 	return interface_instance->alternates_instance_array + alternate;
 }
 
-
 /* *
  * usbd_device_device_descriptor
  * @device: which device
@@ -181,7 +174,6 @@ struct usb_configuration_descriptor *usbd_device_configuration_descriptor (struc
 	}
 	return (configuration_instance->configuration_descriptor);
 }
-
 
 /**
  * usbd_device_interface_descriptor
@@ -231,7 +223,6 @@ struct usb_endpoint_descriptor *usbd_device_endpoint_descriptor_index (struct us
 	return *(alternate_instance->endpoints_descriptor_array + index);
 }
 
-
 /**
  * usbd_device_endpoint_transfersize
  * @device: which device
@@ -254,7 +245,6 @@ int usbd_device_endpoint_transfersize (struct usb_device_instance *device, int p
 	}
 	return *(alternate_instance->endpoint_transfersize_array + index);
 }
-
 
 /**
  * usbd_device_endpoint_descriptor
@@ -291,7 +281,6 @@ int usbd_endpoint_halted (struct usb_device_instance *device, int endpoint)
 {
 	return (device->status == USB_STATUS_HALT);
 }
-
 
 /**
  * usbd_rcv_complete - complete a receive
@@ -459,7 +448,6 @@ struct urb *first_urb_detached (urb_link * hd)
 	}
 	return urb;
 }
-
 
 /*
  * Append an urb_link (or a whole list of

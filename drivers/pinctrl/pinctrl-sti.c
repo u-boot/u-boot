@@ -208,7 +208,6 @@ void sti_pin_configure(struct udevice *dev, struct sti_pin_desc *pin_desc)
 		generic_clear_bit(bit, sysconfreg);
 }
 
-
 static int sti_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct fdtdec_phandle_args args;

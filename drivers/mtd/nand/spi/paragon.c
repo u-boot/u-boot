@@ -11,9 +11,7 @@
 #endif
 #include <linux/mtd/spinand.h>
 
-
 #define SPINAND_MFR_PARAGON	0xa1
-
 
 #define PN26G0XA_STATUS_ECC_BITMASK		(3 << 4)
 
@@ -21,7 +19,6 @@
 #define PN26G0XA_STATUS_ECC_1_7_CORRECTED	(1 << 4)
 #define PN26G0XA_STATUS_ECC_ERRORED		(2 << 4)
 #define PN26G0XA_STATUS_ECC_8_CORRECTED		(3 << 4)
-
 
 static SPINAND_OP_VARIANTS(read_cache_variants,
 		SPINAND_PAGE_READ_FROM_CACHE_QUADIO_OP(0, 2, NULL, 0),
@@ -38,7 +35,6 @@ static SPINAND_OP_VARIANTS(write_cache_variants,
 static SPINAND_OP_VARIANTS(update_cache_variants,
 		SPINAND_PROG_LOAD_X4(false, 0, NULL, 0),
 		SPINAND_PROG_LOAD(false, 0, NULL, 0));
-
 
 static int pn26g0xa_ooblayout_ecc(struct mtd_info *mtd, int section,
 				   struct mtd_oob_region *region)
@@ -96,7 +92,6 @@ static const struct mtd_ooblayout_ops pn26g0xa_ooblayout = {
 	.ecc = pn26g0xa_ooblayout_ecc,
 	.rfree = pn26g0xa_ooblayout_free,
 };
-
 
 static const struct spinand_info paragon_spinand_table[] = {
 	SPINAND_INFO("PN26G01A",

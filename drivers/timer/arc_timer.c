@@ -89,7 +89,6 @@ static int arc_timer_probe(struct udevice *dev)
 	return 0;
 }
 
-
 static const struct timer_ops arc_timer_ops = {
 	.get_count = arc_timer_get_count,
 };

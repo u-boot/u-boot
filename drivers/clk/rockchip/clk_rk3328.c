@@ -334,7 +334,6 @@ void rk3328_configure_cpu(struct rk3328_cru *cru,
 		     aclkm_div << ACLKM_CORE_DIV_SHIFT);
 }
 
-
 static ulong rk3328_i2c_get_clk(struct rk3328_cru *cru, ulong clk_id)
 {
 	u32 div, con;

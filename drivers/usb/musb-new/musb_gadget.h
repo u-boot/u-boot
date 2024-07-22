@@ -43,7 +43,6 @@ extern struct usb_request *
 musb_alloc_request(struct usb_ep *ep, gfp_t gfp_flags);
 extern void musb_free_request(struct usb_ep *ep, struct usb_request *req);
 
-
 /*
  * struct musb_ep - peripheral side view of endpoint rx or tx side
  */

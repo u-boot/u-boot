@@ -72,7 +72,6 @@ static void rk_edp_init_refclk(struct rk3288_edp *regs, enum rockchip_dp_types c
 		reg ^= REF_CLK_MASK;
 	writel(reg, &regs->pll_reg_1);
 
-
 	writel(LDO_OUTPUT_V_SEL_145 | KVCO_DEFALUT | CHG_PUMP_CUR_SEL_5US |
 	       V2L_CUR_SEL_1MA, &regs->pll_reg_2);
 
@@ -313,7 +312,6 @@ static int rk_edp_dpcd_write(struct rk3288_edp *regs, u32 addr, u8 *values,
 {
 	return rk_edp_dpcd_transfer(regs, addr, values, size, DPCD_WRITE);
 }
-
 
 static int rk_edp_link_power_up(struct rk_edp_priv *edp)
 {

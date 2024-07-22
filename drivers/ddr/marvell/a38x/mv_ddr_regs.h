@@ -520,5 +520,4 @@ enum {
 #define RESULT_PHY_RX_OFFS			5
 #define RESULT_PHY_TX_OFFS			0
 
-
 #endif /* _MV_DDR_REGS_H */

@@ -273,7 +273,6 @@
 #define GEM_SGMIIEN_OFFSET	27
 #define GEM_SGMIIEN_SIZE	1
 
-
 /* Constants for data bus width. */
 #define GEM_DBW32		0 /* 32 bit AMBA AHB data bus width */
 #define GEM_DBW64		1 /* 64 bit AMBA AHB data bus width */
@@ -302,7 +301,6 @@
 #define GEM_TXEXT_SIZE		1
 #define GEM_ADDR64_OFFSET	30 /* Address bus width - 64b or 32b */
 #define GEM_ADDR64_SIZE		1
-
 
 /* Bitfields in NSR */
 #define MACB_NSR_LINK_OFFSET	0 /* pcs_link_state */
@@ -455,7 +453,6 @@
 #define GEM_RX_PKT_BUFF_SIZE			1
 #define GEM_TX_PKT_BUFF_OFFSET			21
 #define GEM_TX_PKT_BUFF_SIZE			1
-
 
 /* Bitfields in DCFG5. */
 #define GEM_TSU_OFFSET				8

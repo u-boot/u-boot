@@ -691,7 +691,6 @@
 #define OP_ALG_RNG4_MAS                (0x1f3 << OP_ALG_RNG4_SHIFT)
 #define OP_ALG_RNG4_SK         (0x100 << OP_ALG_RNG4_SHIFT)
 
-
 /* Structures for Protocol Data Blocks */
 struct __packed pdb_ecdsa_verify {
 	uint32_t pdb_hdr;

@@ -679,7 +679,6 @@ static int nand_write_page_hwecc(struct mtd_info *mtd,
 	return 0;
 }
 
-
 /**
  * Read raw page data without ecc
  *

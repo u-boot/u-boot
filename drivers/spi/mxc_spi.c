@@ -622,7 +622,6 @@ static int mxc_spi_xfer(struct udevice *dev, unsigned int bitlen,
 {
 	struct mxc_spi_slave *mxcs = dev_get_plat(dev->parent);
 
-
 	return mxc_spi_xfer_internal(mxcs, bitlen, dout, din, flags);
 }
 

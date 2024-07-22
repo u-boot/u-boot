@@ -164,7 +164,6 @@ static void pfe_configure_serdes(struct pfe_eth_dev *priv)
 	if (gem->phy_mode == PHY_INTERFACE_MODE_2500BASEX)
 		sgmii_2500 = 1;
 
-
 	/* PCS configuration done with corresponding GEMAC */
 	bus.priv = gem_info[priv->gemac_port].gemac_base;
 

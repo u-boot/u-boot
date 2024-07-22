@@ -25,7 +25,6 @@ extern uchar mmc_u_boot_offs[];
 #define MBRDBR_BOOT_SIG_55	0x1fe
 #define MBRDBR_BOOT_SIG_AA	0x1ff
 
-
 void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
 {
 	uint blk_start, blk_cnt, err;

@@ -22,7 +22,6 @@
 #include <log.h>
 #include <mmc.h>
 
-
 #define PITON_MMC_DUMMY_F_MAX 20000000
 #define PITON_MMC_DUMMY_F_MIN 10000000
 #define PITON_MMC_DUMMY_CAPACITY SZ_4G << 3

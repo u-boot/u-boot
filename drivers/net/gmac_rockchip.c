@@ -51,7 +51,6 @@ struct rk_gmac_ops {
 	void (*set_to_rgmii)(struct gmac_rockchip_plat *pdata);
 };
 
-
 static int gmac_rockchip_of_to_plat(struct udevice *dev)
 {
 	struct gmac_rockchip_plat *pdata = dev_get_plat(dev);

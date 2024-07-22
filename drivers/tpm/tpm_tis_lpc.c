@@ -453,7 +453,6 @@ static int tpm_tis_lpc_get_desc(struct udevice *dev, char *buf, int size)
 			chip_name[chip_type]);
 }
 
-
 static const struct tpm_ops tpm_tis_lpc_ops = {
 	.open		= tpm_tis_lpc_open,
 	.close		= tpm_tis_lpc_close,

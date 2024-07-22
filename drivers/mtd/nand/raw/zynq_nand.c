@@ -51,7 +51,6 @@
 				(0x5 << 0))	/* t_rc from nand_cycles */
 #endif
 
-
 #define ZYNQ_NAND_DIRECT_CMD	((0x4 << 23) |	/* Chip 0 from interface 1 */ \
 				(0x2 << 21))	/* UpdateRegs operation */
 

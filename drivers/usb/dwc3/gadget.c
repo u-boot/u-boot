@@ -754,7 +754,6 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
 		 dep->name, req, (unsigned long long)dma,
 		 length, last ? " last" : "", chain ? " chain" : "");
 
-
 	trb = &dep->trb_pool[dep->free_slot & DWC3_TRB_MASK];
 
 	if (!req->trb) {

@@ -92,7 +92,6 @@ struct pl01x_priv {
 #define UART_PL010_LCRH_PEN             (1 << 1)
 #define UART_PL010_LCRH_BRK             (1 << 0)
 
-
 #define UART_PL010_BAUD_460800            1
 #define UART_PL010_BAUD_230400            3
 #define UART_PL010_BAUD_115200            7

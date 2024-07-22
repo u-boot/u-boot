@@ -17,7 +17,6 @@
 #include <fsl-mc/fsl_qbman_portal.h>
 #include <fsl-mc/fsl_mc_private.h>
 
-
 enum ldpaa_eth_type {
 	LDPAA_ETH_1G_E,
 	LDPAA_ETH_10G_E,
