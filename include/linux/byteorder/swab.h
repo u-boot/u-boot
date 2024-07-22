@@ -76,7 +76,6 @@
 #  define __arch__swab64s(x) do { *(x) = __swab64p((x)); } while (0)
 #endif
 
-
 /*
  * Allow constant folding
  */
@@ -98,7 +97,6 @@
 #  define __swab32(x) __fswab32(x)
 #  define __swab64(x) __fswab64(x)
 #endif /* OPTIMIZE */
-
 
 static __inline__ __attribute__((const)) __u16 __fswab16(__u16 x)
 {

@@ -160,7 +160,6 @@ struct fb_con2fbmap {
 #define VESA_HSYNC_SUSPEND	2
 #define VESA_POWERDOWN		3
 
-
 enum {
 	/* screen: unblanked, hsync: on,  vsync: on */
 	FB_BLANK_UNBLANK       = VESA_NO_BLANKING,
@@ -582,7 +581,6 @@ struct fb_info {
 #define FB_MODE_IS_CALCULATED	8
 #define FB_MODE_IS_FIRST	16
 #define FB_MODE_IS_FROM_VAR	32
-
 
 /* drivers/video/fbcmap.c */
 

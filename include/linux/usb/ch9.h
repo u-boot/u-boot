@@ -248,7 +248,6 @@ struct usb_descriptor_header {
 	__u8  bDescriptorType;
 } __attribute__ ((packed));
 
-
 /*-------------------------------------------------------------------------*/
 
 /* USB_DT_DEVICE: Device descriptor */
@@ -271,7 +270,6 @@ struct usb_device_descriptor {
 } __attribute__ ((packed));
 
 #define USB_DT_DEVICE_SIZE		18
-
 
 /*
  * Device and/or Interface Class codes
@@ -703,7 +701,6 @@ struct usb_qualifier_descriptor {
 	__u8  bRESERVED;
 } __attribute__ ((packed));
 
-
 /*-------------------------------------------------------------------------*/
 
 /* USB_DT_OTG (from OTG 1.0a supplement) */
@@ -744,7 +741,6 @@ struct usb_interface_assoc_descriptor {
 	__u8  bFunctionProtocol;
 	__u8  iFunction;
 } __attribute__ ((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -788,7 +784,6 @@ struct usb_encryption_descriptor {
 	__u8  bEncryptionValue;		/* use in SET_ENCRYPTION */
 	__u8  bAuthKeyIndex;
 } __attribute__((packed));
-
 
 /*-------------------------------------------------------------------------*/
 
