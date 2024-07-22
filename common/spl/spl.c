@@ -711,9 +711,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (CONFIG_IS_ENABLED(SOC_INIT))
 		spl_soc_init();
 
-	if (CONFIG_IS_ENABLED(BOARD_INIT))
-		spl_board_init();
-
 	if (IS_ENABLED(CONFIG_SPL_WATCHDOG) && CONFIG_IS_ENABLED(WDT))
 		initr_watchdog();
 
@@ -730,6 +727,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			puts(SPL_TPL_PROMPT "Cannot initialize PCI\n");
 		/* Don't fail. We still can try other boot methods. */
 	}
+
+	if (CONFIG_IS_ENABLED(BOARD_INIT))
+		spl_board_init();
 
 	bootcount_inc();
 
