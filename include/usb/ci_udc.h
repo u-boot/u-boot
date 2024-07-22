@@ -4,7 +4,6 @@
  * Lei Wen <leiwen@marvell.com>
  */
 
-
 #ifndef __CI_UDC_H__
 #define __CI_UDC_H__
 
