@@ -73,7 +73,6 @@
 #define ATAPI_CMD_START_STOP 0x1B
 #define ATAPI_CMD_READ_12 0xA8
 
-
 #define ATA_GET_ERR()	inb(ATA_STATUS)
 #define ATA_GET_STAT()	inb(ATA_STATUS)
 #define ATA_OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
@@ -188,7 +187,6 @@ typedef struct hd_driveid {
 	unsigned short	cf_advanced_caps;
 	unsigned short	words164_255[92];/* reserved words 164-255 */
 } hd_driveid_t;
-
 
 /*
  * PIO Mode Configuration

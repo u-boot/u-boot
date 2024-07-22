@@ -2017,7 +2017,6 @@ struct efi_firmware_image_authentication {
 	struct win_certificate_uefi_guid auth_info;
 } __attribute__((__packed__));
 
-
 /**
  * struct efi_signature_data - A format of signature
  *

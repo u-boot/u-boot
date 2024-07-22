@@ -436,7 +436,6 @@ int spl_load_legacy_img(struct spl_image_info *spl_image,
 			struct spl_load_info *load, ulong offset,
 			struct legacy_img_hdr *hdr);
 
-
 /**
  * spl_load_imx_container() - Loads a imx container image from a device.
  * @spl_image:	Image description to set up

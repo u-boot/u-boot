@@ -77,7 +77,6 @@ typedef struct spd_eeprom_s {
 	unsigned char intel_cas;   /* 129 Intel spec: CAS# Latency support */
 } spd_eeprom_t;
 
-
 /*
  * Byte 2 Fundamental Memory Types.
  */

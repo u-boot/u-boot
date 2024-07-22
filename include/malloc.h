@@ -213,7 +213,6 @@
      quickly avoid procedure declaration conflicts and linker symbol
      conflicts with existing memory allocation routines.
 
-
 */
 
 
@@ -256,11 +255,9 @@ extern "C" {
 #include <stdio.h>	/* needed for malloc_stats */
 #endif
 
-
 /*
   Compile-time options
 */
-
 
 /*
     Debugging:
@@ -306,9 +303,7 @@ extern "C" {
   returns a unique pointer for malloc(0), so does realloc(p, 0).
 */
 
-
 /*   #define REALLOC_ZERO_BYTES_FREES */
-
 
 /*
   WIN32 causes an emulation of sbrk to be compiled in
@@ -334,7 +329,6 @@ extern "C" {
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-
 
 /*
   HAVE_MEMCPY should be defined if you are not otherwise using
@@ -460,7 +454,6 @@ do {                                                                          \
 
 #endif
 
-
 /*
   Define HAVE_MMAP to optionally make malloc() use mmap() to
   allocate very large blocks.  These will be returned to the
@@ -563,7 +556,6 @@ do {                                                                          \
 #  endif
 #endif
 
-
 /*
 
   This version of malloc supports the standard SVID/XPG mallinfo
@@ -626,7 +618,6 @@ struct mallinfo {
 #define M_MMAP_THRESHOLD    -3
 #define M_MMAP_MAX          -4
 
-
 #ifndef DEFAULT_TRIM_THRESHOLD
 #define DEFAULT_TRIM_THRESHOLD (128 * 1024)
 #endif
@@ -677,9 +668,7 @@ struct mallinfo {
       It must be greater than page size to have any useful effect.  To
       disable trimming completely, you can set to (unsigned long)(-1);
 
-
 */
-
 
 #ifndef DEFAULT_TOP_PAD
 #define DEFAULT_TOP_PAD        (0)
@@ -712,7 +701,6 @@ struct mallinfo {
       the program needs.
 
 */
-
 
 #ifndef DEFAULT_MMAP_THRESHOLD
 #define DEFAULT_MMAP_THRESHOLD (128 * 1024)
@@ -753,9 +741,7 @@ struct mallinfo {
       All together, these considerations should lead you to use mmap
       only for relatively large requests.
 
-
 */
-
 
 #ifndef DEFAULT_MMAP_MAX
 #ifdef HAVE_MMAP
@@ -783,7 +769,6 @@ struct mallinfo {
       the default value is 0, and attempts to set it to non-zero values
       in mallopt will fail.
 */
-
 
 /*
     USE_DL_PREFIX will prefix all public routines with the string 'dl'.
@@ -814,7 +799,6 @@ struct mallinfo {
   be hard to obtain finer granularity.
 
 */
-
 
 #ifdef INTERNAL_LINUX_C_LIB
 

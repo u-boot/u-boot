@@ -62,7 +62,6 @@
   For more information on these sources, see the manual.
 --*/
 
-
 #ifndef _BZLIB_H
 #define _BZLIB_H
 
@@ -117,7 +116,6 @@ typedef
    }
    bz_stream;
 
-
 #ifndef BZ_IMPORT
 #define BZ_EXPORT
 #endif
@@ -140,7 +138,6 @@ typedef
 #   define BZ_API(func) func
 #   define BZ_EXTERN extern
 #endif
-
 
 /*-- Core (low-level) library functions --*/
 
@@ -173,7 +170,6 @@ BZ_EXTERN int BZ_API(BZ2_bzDecompress) (
 BZ_EXTERN int BZ_API(BZ2_bzDecompressEnd) (
       bz_stream *strm
    );
-
 
 /*-- High(er) level library functions --*/
 
@@ -247,7 +243,6 @@ BZ_EXTERN void BZ_API(BZ2_bzWriteClose64) (
    );
 #endif
 
-
 /*-- Utility functions --*/
 
 BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffCompress) (
@@ -268,7 +263,6 @@ BZ_EXTERN int BZ_API(BZ2_bzBuffToBuffDecompress) (
       int           small,
       int           verbosity
    );
-
 
 /*--
    Code contributed by Yoshioka Tsuneo

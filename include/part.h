@@ -609,7 +609,6 @@ int gpt_verify_partitions(struct blk_desc *desc,
 			  struct disk_partition *partitions, int parts,
 			  gpt_header *gpt_head, gpt_entry **gpt_pte);
 
-
 /**
  * get_disk_guid() - Read the GUID string from a device's GPT
  *

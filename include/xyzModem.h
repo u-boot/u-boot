@@ -44,7 +44,6 @@
 #define xyzModem_close 1
 #define xyzModem_abort 2
 
-
 #define CYGNUM_CALL_IF_SET_COMM_ID_QUERY_CURRENT
 #define CYGACC_CALL_IF_SET_CONSOLE_COMM(x)
 
@@ -59,8 +58,6 @@ typedef struct {
     int   mode;
     int   chan;
 } connection_info_t;
-
-
 
 int   xyzModem_stream_open(connection_info_t *info, int *err);
 void  xyzModem_stream_close(int *err);

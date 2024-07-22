@@ -345,7 +345,6 @@
 /* Current version of ACPI memory address space */
 #define EC_ACPI_MEM_VERSION_CURRENT 2
 
-
 /*
  * This header file is used in coreboot both in C and ACPI code.  The ACPI code
  * is pre-processed to handle constants but the ASL compiler is unable to
@@ -984,7 +983,6 @@ struct __ec_align4 ec_response_get_protocol_info {
 	uint32_t flags;
 };
 
-
 /*****************************************************************************/
 /* Get/Set miscellaneous values */
 
@@ -1300,7 +1298,6 @@ struct __ec_align4 ec_params_flash_erase {
 	uint32_t size;     /* Size to erase in bytes */
 };
 
-
 #define EC_VER_FLASH_WRITE 1
 /* v1 add async erase:
  * subcommands can returns:
@@ -1451,7 +1448,6 @@ struct __ec_align4 ec_response_vbnvcontext {
 	uint8_t block[EC_VBNV_BLOCK_SIZE_V2];
 };
 
-
 /* Get SPI flash information */
 #define EC_CMD_FLASH_SPI_INFO 0x0018
 
@@ -1468,7 +1464,6 @@ struct __ec_align1 ec_response_flash_spi_info {
 	/* Status registers from command 0x05 and 0x35 */
 	uint8_t sr1, sr2;
 };
-
 
 /* Select flash during flash operations */
 #define EC_CMD_FLASH_SELECT 0x0019
@@ -1800,7 +1795,6 @@ struct __ec_todo_packed ec_response_lightbar {
 
 		struct lightbar_params_v0 get_params_v0;
 		struct lightbar_params_v1 get_params_v1;
-
 
 		struct lightbar_params_v2_timing get_params_v2_timing;
 		struct lightbar_params_v2_tap get_params_v2_tap;
@@ -2667,7 +2661,6 @@ struct __ec_align2 ec_response_thermal_get_threshold {
 	uint16_t value;
 };
 
-
 /* The version 1 structs are visible. */
 enum ec_temp_thresholds {
 	EC_TEMP_THRESH_WARN = 0,
@@ -2764,7 +2757,6 @@ struct __ec_align4 ec_params_tmp006_set_calibration_v1 {
 	uint8_t reserved;
 	float val[0];
 };
-
 
 /* Read raw TMP006 data */
 #define EC_CMD_TMP006_GET_RAW 0x0055
@@ -3081,7 +3073,6 @@ struct __ec_align1 ec_response_temp_sensor_get_info {
 
 /*****************************************************************************/
 /* Host event commands */
-
 
 /* Obsolete. New implementation should use EC_CMD_PROGRAM_HOST_EVENT instead */
 /*
@@ -3618,7 +3609,6 @@ struct __ec_align4 ec_response_charge_state {
 		} set_param;
 	};
 };
-
 
 /*
  * Set maximum battery charging current.
@@ -4207,7 +4197,6 @@ struct __ec_align4 ec_response_pd_log {
 	uint8_t payload[0]; /* optional additional data payload: 0..16 bytes */
 };
 
-
 /* The timestamp is the microsecond counter shifted to get about a ms. */
 #define PD_LOG_TIMESTAMP_SHIFT 10 /* 1 LSB = 1024us */
 
@@ -4321,7 +4310,6 @@ struct __ec_align1 ec_params_pd_write_log_entry {
 	uint8_t type; /* event type : see PD_EVENT_xx above */
 	uint8_t port; /* port#, or 0 for events unrelated to a given port */
 };
-
 
 /* Control USB-PD chip */
 #define EC_CMD_PD_CONTROL 0x0119

@@ -15,7 +15,6 @@
 #ifndef _ENV_INTERNAL_H_
 #define _ENV_INTERNAL_H_
 
-
 /**************************************************************************
  *
  * The "environment" is stored as a list of '\0' terminated

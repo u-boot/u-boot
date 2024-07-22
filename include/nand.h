@@ -58,7 +58,6 @@ static inline int nand_erase(struct mtd_info *info, loff_t off, size_t size)
 	return mtd_erase(info, &instr);
 }
 
-
 /*****************************************************************************
  * declarations from nand_util.c
  ****************************************************************************/

@@ -19,9 +19,7 @@
 
 #include "usbdescriptors.h"
 
-
 #define MAX_URBS_QUEUED 5
-
 
 #if 1
 #define usberr(fmt,args...) serial_printf("ERROR: %s(), %d: "fmt"\n",__FUNCTION__,__LINE__,##args)
@@ -269,13 +267,11 @@ struct usb_bus_instance;
 #define USB_REQ_SET_IDLE		0x0A
 #define USB_REQ_SET_PROTOCOL		0x0B
 
-
 /*
  * USB Spec Release number
  */
 
 #define USB_BCD_VERSION			0x0110
-
 
 /*
  * Device Requests	(c.f Table 9-2)
@@ -328,7 +324,6 @@ struct usb_bus_instance;
 #define USB_DEVICE_REMOTE_WAKEUP	0x01
 #define USB_TEST_MODE			0x02
 
-
 /* USB Requests
  *
  */
@@ -340,7 +335,6 @@ struct usb_device_request {
 	u16 wIndex;
 	u16 wLength;
 } __attribute__ ((packed));
-
 
 /* USB Status
  *
@@ -424,7 +418,6 @@ typedef enum usb_device_event {
 	DEVICE_FUNCTION_PRIVATE,	/* function - private */
 
 } usb_device_event_t;
-
 
 typedef struct urb_link {
 	struct urb_link *next;
@@ -518,7 +511,6 @@ struct usb_configuration_instance {
 	struct usb_configuration_descriptor *configuration_descriptor;
 	struct usb_interface_instance *interface_instance_array;
 };
-
 
 /* USB Device Instance
  *

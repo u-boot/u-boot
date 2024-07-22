@@ -8,7 +8,6 @@
 #ifndef _KEY_MATRIX_H
 #define _KEY_MATRIX_H
 
-
 /* Information about a matrix keyboard */
 struct key_matrix {
 	/* Dimensions of the keyboard matrix, in rows and columns */

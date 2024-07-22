@@ -27,13 +27,11 @@
 #define SECTOR_SIZE			0x200
 #define SECTOR_BITS			9
 
-
 typedef enum zfs_endian {
 	UNKNOWN_ENDIAN = -2,
 	LITTLE_ENDIAN = -1,
 	BIG_ENDIAN = 0
 } zfs_endian_t;
-
 
 /* Endian macros. */
 #define zfs_to_cpu16(x, a) (((a) == BIG_ENDIAN) ? be16_to_cpu(x) \
@@ -50,7 +48,6 @@ typedef enum zfs_endian {
 								: le64_to_cpu(x))
 #define cpu_to_zfs64(x, a) (((a) == BIG_ENDIAN) ? cpu_to_be64(x) \
 								: cpu_to_le64(x))
-
 
 enum zfs_errors {
 	ZFS_ERR_NONE = 0,
@@ -88,9 +85,6 @@ struct zfs_dirhook_info {
 	time_t mtime;
 	time_t mtime2;
 };
-
-
-
 
 struct zfs_filesystem *zfsget_fs(void);
 int zfs_open(zfs_file_t, const char *filename);

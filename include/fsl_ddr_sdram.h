@@ -197,7 +197,6 @@ typedef struct ddr4_spd_eeprom_s generic_spd_eeprom_t;
 /* DEBUG_29 register */
 #define DDR_TX_BD_DIS	(1 << 10) /* Transmit Bit Deskew Disable */
 
-
 #if (defined(CONFIG_SYS_FSL_DDR_VER) && \
 	(CONFIG_SYS_FSL_DDR_VER >= FSL_DDR_VER_4_7))
 #ifdef CONFIG_SYS_FSL_DDR3L
@@ -472,7 +471,6 @@ extern phys_size_t fixed_sdram(void);
 #if defined(CONFIG_DDR_ECC)
 extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
-
 
 typedef struct fixed_ddr_parm{
 	int min_freq;

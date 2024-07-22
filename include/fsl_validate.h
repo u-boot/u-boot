@@ -161,7 +161,6 @@ struct fsl_secboot_img_hdr {
 
 #endif /* CONFIG_ESBC_HDR_LS */
 
-
 #if defined(CONFIG_FSL_ISBC_KEY_EXT)
 struct ie_key_table {
 	u32 key_len;
