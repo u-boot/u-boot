@@ -36,7 +36,6 @@
   Jean-loup Gailly        Mark Adler
   jloup@gzip.org          madler@alumni.caltech.edu
 
-
   The data format used by the zlib library is described by RFCs (Request for
   Comments) 1950 to 1952 in the files http://www.ietf.org/rfc/rfc1950.txt
   (zlib format), rfc1951.txt (deflate format) and rfc1952.txt (gzip format).
@@ -546,7 +545,6 @@ ZEXTERN uLong ZEXPORT deflateBound OF((z_streamp strm,
 			uLong sourceLen));
 ZEXTERN int ZEXPORT deflateCopy OF((z_streamp dest,
 			z_streamp source));
-
 
 ZEXTERN int ZEXPORT inflateInit_ OF((z_streamp strm,
 			int stream_size));

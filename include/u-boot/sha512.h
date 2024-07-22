@@ -36,5 +36,4 @@ void sha384_finish(sha512_context * ctx, uint8_t digest[SHA384_SUM_LEN]);
 void sha384_csum_wd(const unsigned char *input, unsigned int ilen,
 		unsigned char *output, unsigned int chunk_sz);
 
-
 #endif /* _SHA512_H */
