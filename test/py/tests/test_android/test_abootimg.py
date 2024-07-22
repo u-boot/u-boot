@@ -90,7 +90,7 @@ dtb_dump_resp="""## DTB area contents (concat format):
           (DTB)model = x2
      (DTB)compatible = y2,z2"""
 # Address in RAM where to load the boot image ('abootimg' looks in $loadaddr)
-loadaddr = 0x1000
+loadaddr = 0x4000
 # Address in RAM where to load the vendor boot image ('abootimg' looks in $vloadaddr)
 vloadaddr= 0x10000
 # Expected DTB #1 offset from the boot image start address
