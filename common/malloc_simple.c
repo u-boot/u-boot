@@ -40,6 +40,10 @@ void *malloc_simple(size_t bytes)
 {
 	void *ptr;
 
+#if IS_ENABLED(CONFIG_SPL_SYS_MALLOC) && IS_ENABLED(CONFIG_SPL_LMB)
+	if (gd->flags & GD_FLG_FULL_MALLOC_INIT)
+		return mALLOc(bytes);
+#endif
 	ptr = alloc_simple(bytes, 1);
 	if (!ptr)
 		return ptr;
@@ -48,6 +52,15 @@ void *malloc_simple(size_t bytes)
 	VALGRIND_MALLOCLIKE_BLOCK(ptr, bytes, 0, false);
 
 	return ptr;
+}
+
+void *realloc_simple(void *oldmem, size_t bytes)
+{
+#if IS_ENABLED(CONFIG_SPL_SYS_MALLOC) && IS_ENABLED(CONFIG_SPL_LMB)
+	if (gd->flags & GD_FLG_FULL_MALLOC_INIT)
+		return rEALLOc(oldmem, bytes);
+#endif
+	return NULL;
 }
 
 void *memalign_simple(size_t align, size_t bytes)
