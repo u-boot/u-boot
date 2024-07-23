@@ -13,3 +13,12 @@
 &uart5 {
 	compatible = "nxp,lpc3220-uart", "ns16550a";
 };
+
+&isp1301 {
+	#phy-cells = <0>;
+};
+
+&ohci {
+	phys = <&isp1301>;
+	phy-names = "usb";
+};

@@ -363,6 +363,13 @@ config USB_OHCI_DA8XX
 	help
 	  Enable support for the da850 USB controller.
 
+config USB_OHCI_LPC32XX
+	bool "Support for LPC32xx OHCI USB"
+	depends on ARCH_LPC32XX && DM_I2C && USB_OHCI_GENERIC
+	select USB_OHCI_NEW
+	help
+	  Enable support for the LPC32xx USB controller with ISP1301/STOTG04 phy.
+
 config USB_OHCI_NPCM
 	bool "Support for Nuvoton NPCM on-chip OHCI USB controller"
 	depends on ARCH_NPCM
@@ -446,12 +453,6 @@ config USB_ATMEL_CLK_SEL_UPLL
 	bool "UPLL"
 
 endchoice
-
-config USB_OHCI_LPC32XX
-	bool "LPC32xx USB OHCI support"
-	depends on ARCH_LPC32XX
-	select SYS_USB_OHCI_CPU_INIT
-	select USB_OHCI_NEW
 
 config USB_MAX_CONTROLLER_COUNT
 	int "Maximum number of USB host controllers"

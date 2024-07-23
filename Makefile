@@ -1513,7 +1513,7 @@ OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 u-boot-with-spl.bin: $(SPL_IMAGE) $(SPL_PAYLOAD) FORCE
 	$(call if_changed,pad_cat)
 
-ifeq ($(CONFIG_ARCH_LPC32XX)$(CONFIG_SPL),yy)
+ifeq ($(CONFIG_ARCH_LPC32XX)_$(CONFIG_SPL)_$(CONFIG_BINMAN),y_y_)
 MKIMAGEFLAGS_lpc32xx-spl.img = -T lpc32xximage -a $(CONFIG_SPL_TEXT_BASE)
 
 lpc32xx-spl.img: spl/u-boot-spl.bin FORCE

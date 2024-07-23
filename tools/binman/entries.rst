@@ -712,6 +712,18 @@ without the fdtmap header, so it can be viewed with `fdtdump`.
 
 
 
+.. _etype_file_size:
+
+Entry: file_size: Size of a file as 32bit integer
+--------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: relative file path
+
+This entry reads file size and places it as 32bit integer.
+
+
+
 .. _etype_files:
 
 Entry: files: A set of files arranged in a section
@@ -1135,6 +1147,19 @@ This entry must be in the top-level part of the image.
 NOTE: If the location is at the start/end, you will probably need to specify
 sort-by-offset for the image, unless you actually put the image header
 first/last in the entry list.
+
+
+
+.. _etype_int32:
+
+Entry: int32: Arbitrary 32bit integer
+--------------------------------------------------
+
+Properties / Entry arguments:
+    - value: 32bit integer value
+
+This entry places arbitrary 32bit integer. Useful when a magic value is
+required in a firmware.
 
 
 
