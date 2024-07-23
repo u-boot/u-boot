@@ -323,14 +323,18 @@ U_BOOT_DRIVER(exynos850_cmu_peri) = {
 /* Register Offset definitions for CMU_CORE (0x12000000) */
 #define PLL_CON0_MUX_CLKCMU_CORE_BUS_USER	0x0600
 #define PLL_CON0_MUX_CLKCMU_CORE_MMC_EMBD_USER	0x0620
+#define PLL_CON0_MUX_CLKCMU_CORE_SSS_USER	0x0630
 #define CLK_CON_DIV_DIV_CLK_CORE_BUSP		0x1800
 #define CLK_CON_GAT_GOUT_CORE_MMC_EMBD_I_ACLK	0x20e8
 #define CLK_CON_GAT_GOUT_CORE_MMC_EMBD_SDCLKIN	0x20ec
+#define CLK_CON_GAT_GOUT_CORE_SSS_I_ACLK	0x2128
+#define CLK_CON_GAT_GOUT_CORE_SSS_I_PCLK	0x212c
 
 /* List of parent clocks for Muxes in CMU_CORE */
 PNAME(mout_core_bus_user_p)		= { "clock-oscclk", "dout_core_bus" };
 PNAME(mout_core_mmc_embd_user_p)	= { "clock-oscclk",
 					    "dout_core_mmc_embd" };
+PNAME(mout_core_sss_user_p)		= { "clock-oscclk", "dout_core_sss" };
 
 static const struct samsung_mux_clock core_mux_clks[] = {
 	MUX(CLK_MOUT_CORE_BUS_USER, "mout_core_bus_user", mout_core_bus_user_p,
@@ -338,6 +342,8 @@ static const struct samsung_mux_clock core_mux_clks[] = {
 	MUX_F(CLK_MOUT_CORE_MMC_EMBD_USER, "mout_core_mmc_embd_user",
 	      mout_core_mmc_embd_user_p, PLL_CON0_MUX_CLKCMU_CORE_MMC_EMBD_USER,
 	      4, 1, CLK_SET_RATE_PARENT, 0),
+	MUX(CLK_MOUT_CORE_SSS_USER, "mout_core_sss_user", mout_core_sss_user_p,
+	    PLL_CON0_MUX_CLKCMU_CORE_SSS_USER, 4, 1),
 };
 
 static const struct samsung_div_clock core_div_clks[] = {
@@ -351,6 +357,10 @@ static const struct samsung_gate_clock core_gate_clks[] = {
 	GATE(CLK_GOUT_MMC_EMBD_SDCLKIN, "gout_mmc_embd_sdclkin",
 	     "mout_core_mmc_embd_user", CLK_CON_GAT_GOUT_CORE_MMC_EMBD_SDCLKIN,
 	     21, CLK_SET_RATE_PARENT, 0),
+	GATE(CLK_GOUT_SSS_ACLK, "gout_sss_aclk", "mout_core_sss_user",
+	     CLK_CON_GAT_GOUT_CORE_SSS_I_ACLK, 21, 0, 0),
+	GATE(CLK_GOUT_SSS_PCLK, "gout_sss_pclk", "dout_core_busp",
+	     CLK_CON_GAT_GOUT_CORE_SSS_I_PCLK, 21, 0, 0),
 };
 
 static const struct samsung_clk_group core_cmu_clks[] = {
