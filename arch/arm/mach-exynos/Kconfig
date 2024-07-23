@@ -250,6 +250,8 @@ config TARGET_E850_96
 	select PINCTRL
 	select PINCTRL_EXYNOS850
 	imply OF_UPSTREAM
+	imply DM_RNG
+	imply RNG_EXYNOS
 
 endchoice
 endif
