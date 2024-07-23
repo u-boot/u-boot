@@ -22,7 +22,6 @@ obj-$(CONFIG_EXYNOS_TMU)	+= exynos-tmu.o
 obj-$(CONFIG_SY8106A_POWER)	+= sy8106a.o
 obj-$(CONFIG_TPS6586X_POWER)	+= tps6586x.o
 obj-$(CONFIG_TWL4030_POWER)	+= twl4030.o
-obj-$(CONFIG_TWL6030_POWER)	+= twl6030.o
 obj-$(CONFIG_PALMAS_POWER)	+= palmas.o
 obj-$(CONFIG_$(SPL_TPL_)POWER_LEGACY) += power_core.o
 obj-$(CONFIG_DIALOG_POWER) += power_dialog.o

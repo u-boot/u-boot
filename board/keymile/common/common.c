@@ -129,7 +129,6 @@ void check_for_uboot_update(void)
 }
 #endif
 
-#if defined(CONFIG_SYS_I2C_INIT_BOARD)
 static void i2c_write_start_seq(void)
 {
 	set_sda(1);
@@ -186,17 +185,6 @@ int i2c_make_abort(void)
 
 	return ret;
 }
-
-/**
- * i2c_init_board - reset i2c bus. When the board is powercycled during a
- * bus transfer it might hang; for details see doc/I2C_Edge_Conditions.
- */
-void i2c_init_board(void)
-{
-	/* Now run the AbortSequence() */
-	i2c_make_abort();
-}
-#endif
 
 #if defined(CONFIG_KM_COMMON_ETH_INIT)
 int board_eth_init(struct bd_info *bis)

@@ -490,7 +490,7 @@ struct omap_sys_ctrl_regs {
 	u32 ctrl_core_sma_sw_1;
 };
 
-#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX)
+#if defined(CONFIG_OMAP54XX)
 struct dpll_params {
 	u32 m;
 	u32 n;
@@ -523,7 +523,7 @@ struct dpll_regs {
 	u32 cm_div_h23_dpll;
 	u32 cm_div_h24_dpll;
 };
-#endif /* CONFIG_OMAP44XX || CONFIG_OMAP54XX */
+#endif /* CONFIG_OMAP54XX */
 
 struct dplls {
 	const struct dpll_params *mpu;
@@ -547,7 +547,7 @@ struct pmic_data {
 	int (*pmic_write)(u8 sa, u8 reg_addr, u8 reg_data);
 };
 
-#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX)
+#if defined(CONFIG_OMAP54XX)
 enum {
 	OPP_LOW,
 	OPP_NOM,
@@ -593,7 +593,7 @@ struct vcores_data {
 	struct volts eve;
 	struct volts iva;
 };
-#endif /* CONFIG_OMAP44XX || CONFIG_OMAP54XX */
+#endif /* CONFIG_OMAP54XX */
 
 extern struct prcm_regs const **prcm;
 extern struct prcm_regs const omap5_es1_prcm;
@@ -626,7 +626,7 @@ const struct dpll_params *get_iva_dpll_params(struct dplls const *);
 const struct dpll_params *get_usb_dpll_params(struct dplls const *);
 const struct dpll_params *get_abe_dpll_params(struct dplls const *);
 
-#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX)
+#if defined(CONFIG_OMAP54XX)
 void do_enable_clocks(u32 const *clk_domains,
 		      u32 const *clk_modules_hw_auto,
 		      u32 const *clk_modules_explicit_en,
@@ -635,7 +635,7 @@ void do_enable_clocks(u32 const *clk_domains,
 void do_disable_clocks(u32 const *clk_domains,
 		       u32 const *clk_modules_disable,
 		       u8 wait_for_disable);
-#endif /* CONFIG_OMAP44XX || CONFIG_OMAP54XX */
+#endif /* CONFIG_OMAP54XX */
 
 void do_enable_ipu_clocks(u32 const *clk_domains,
 			  u32 const *clk_modules_hw_auto,
@@ -653,9 +653,9 @@ void enable_basic_uboot_clocks(void);
 void enable_usb_clocks(int index);
 void disable_usb_clocks(int index);
 
-#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX)
+#if defined(CONFIG_OMAP54XX)
 void scale_vcores(struct vcores_data const *);
-#endif /* CONFIG_OMAP44XX || CONFIG_OMAP54XX */
+#endif /* CONFIG_OMAP54XX */
 int get_voltrail_opp(int rail_offset);
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
