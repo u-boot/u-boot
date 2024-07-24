@@ -60,6 +60,8 @@ int regulator_set_value(struct udevice *dev, int uV)
 		return -EINVAL;
 	if (uc_pdata->max_uV != -ENODATA && uV > uc_pdata->max_uV)
 		return -EINVAL;
+	if (uV == -ENODATA)
+		return -EINVAL;
 
 	if (!ops || !ops->set_value)
 		return -ENOSYS;
@@ -89,6 +91,8 @@ int regulator_set_suspend_value(struct udevice *dev, int uV)
 	if (uc_pdata->min_uV != -ENODATA && uV < uc_pdata->min_uV)
 		return -EINVAL;
 	if (uc_pdata->max_uV != -ENODATA && uV > uc_pdata->max_uV)
+		return -EINVAL;
+	if (uV == -ENODATA)
 		return -EINVAL;
 
 	if (!ops->set_suspend_value)
@@ -140,6 +144,8 @@ int regulator_set_current(struct udevice *dev, int uA)
 	if (uc_pdata->min_uA != -ENODATA && uA < uc_pdata->min_uA)
 		return -EINVAL;
 	if (uc_pdata->max_uA != -ENODATA && uA > uc_pdata->max_uA)
+		return -EINVAL;
+	if (uA == -ENODATA)
 		return -EINVAL;
 
 	if (!ops || !ops->set_current)
@@ -299,7 +305,7 @@ int regulator_autoset(struct udevice *dev)
 	if (ret == -ENOSYS)
 		ret = 0;
 
-	if (!ret && uc_pdata->suspend_on) {
+	if (!ret && uc_pdata->suspend_on && uc_pdata->suspend_uV != -ENODATA) {
 		ret = regulator_set_suspend_value(dev, uc_pdata->suspend_uV);
 		if (ret == -ENOSYS)
 			ret = 0;
