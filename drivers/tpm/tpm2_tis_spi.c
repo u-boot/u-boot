@@ -187,29 +187,6 @@ static int tpm_tis_spi_write32(struct udevice *dev, u32 addr, u32 value)
 	return tpm_tis_spi_write(dev, addr, sizeof(value), (u8 *)&value_le);
 }
 
-static int tpm_tis_wait_init(struct udevice *dev, int loc)
-{
-	struct tpm_chip *chip = dev_get_priv(dev);
-	unsigned long start, stop;
-	u8 status;
-	int ret;
-
-	start = get_timer(0);
-	stop = chip->timeout_b;
-	do {
-		mdelay(TPM_TIMEOUT_MS);
-
-		ret = tpm_tis_spi_read(dev, TPM_ACCESS(loc), 1, &status);
-		if (ret)
-			break;
-
-		if (status & TPM_ACCESS_VALID)
-			return 0;
-	} while (get_timer(start) < stop);
-
-	return -EIO;
-}
-
 static struct tpm_tis_phy_ops phy_ops = {
 	.read_bytes = tpm_tis_spi_read,
 	.write_bytes = tpm_tis_spi_write,
@@ -221,7 +198,6 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 {
 	struct tpm_tis_chip_data *drv_data = (void *)dev_get_driver_data(dev);
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
-	struct tpm_chip *chip = dev_get_priv(dev);
 	int ret;
 
 	/* Use the TPM v2 stack */
@@ -254,12 +230,6 @@ static int tpm_tis_spi_probe(struct udevice *dev)
 
 	/* Ensure a minimum amount of time elapsed since reset of the TPM */
 	mdelay(drv_data->time_before_first_cmd_ms);
-
-	ret = tpm_tis_wait_init(dev, chip->locality);
-	if (ret) {
-		log(LOGC_DM, LOGL_ERR, "%s: no device found\n", __func__);
-		return ret;
-	}
 
 	tpm_tis_ops_register(dev, &phy_ops);
 	ret = tpm_tis_init(dev);
