@@ -10,6 +10,7 @@ Standard Boot
    extlinux
    pxelinux
    qfw
+   android
    cros
    script
    sandbox
