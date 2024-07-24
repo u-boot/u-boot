@@ -133,7 +133,7 @@ efi_status_t efi_load_option_dp_join(struct efi_device_path **dp,
 
 		*dp = efi_dp_concat(tmp_dp, fdt_dp, *dp_size);
 		efi_free_pool(tmp_dp);
-		if (!dp)
+		if (!*dp)
 			return EFI_OUT_OF_RESOURCES;
 		*dp_size += efi_dp_size(fdt_dp) + sizeof(END);
 	}
