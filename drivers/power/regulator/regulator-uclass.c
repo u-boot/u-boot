@@ -55,6 +55,9 @@ int regulator_set_value(struct udevice *dev, int uV)
 	struct dm_regulator_uclass_plat *uc_pdata;
 	int ret, old_uV = uV, is_enabled = 0;
 
+	if (!ops || !ops->set_value)
+		return -ENOSYS;
+
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (uc_pdata->min_uV != -ENODATA && uV < uc_pdata->min_uV)
 		return -EINVAL;
@@ -62,9 +65,6 @@ int regulator_set_value(struct udevice *dev, int uV)
 		return -EINVAL;
 	if (uV == -ENODATA)
 		return -EINVAL;
-
-	if (!ops || !ops->set_value)
-		return -ENOSYS;
 
 	if (uc_pdata->ramp_delay) {
 		is_enabled = regulator_get_enable(dev);
@@ -87,6 +87,9 @@ int regulator_set_suspend_value(struct udevice *dev, int uV)
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 	struct dm_regulator_uclass_plat *uc_pdata;
 
+	if (!ops || !ops->set_suspend_value)
+		return -ENOSYS;
+
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (uc_pdata->min_uV != -ENODATA && uV < uc_pdata->min_uV)
 		return -EINVAL;
@@ -95,9 +98,6 @@ int regulator_set_suspend_value(struct udevice *dev, int uV)
 	if (uV == -ENODATA)
 		return -EINVAL;
 
-	if (!ops->set_suspend_value)
-		return -ENOSYS;
-
 	return ops->set_suspend_value(dev, uV);
 }
 
@@ -105,7 +105,7 @@ int regulator_get_suspend_value(struct udevice *dev)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 
-	if (!ops->get_suspend_value)
+	if (!ops || !ops->get_suspend_value)
 		return -ENOSYS;
 
 	return ops->get_suspend_value(dev);
@@ -140,6 +140,9 @@ int regulator_set_current(struct udevice *dev, int uA)
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 	struct dm_regulator_uclass_plat *uc_pdata;
 
+	if (!ops || !ops->set_current)
+		return -ENOSYS;
+
 	uc_pdata = dev_get_uclass_plat(dev);
 	if (uc_pdata->min_uA != -ENODATA && uA < uc_pdata->min_uA)
 		return -EINVAL;
@@ -147,9 +150,6 @@ int regulator_set_current(struct udevice *dev, int uA)
 		return -EINVAL;
 	if (uA == -ENODATA)
 		return -EINVAL;
-
-	if (!ops || !ops->set_current)
-		return -ENOSYS;
 
 	return ops->set_current(dev, uA);
 }
@@ -216,7 +216,7 @@ int regulator_set_suspend_enable(struct udevice *dev, bool enable)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 
-	if (!ops->set_suspend_enable)
+	if (!ops || !ops->set_suspend_enable)
 		return -ENOSYS;
 
 	return ops->set_suspend_enable(dev, enable);
@@ -226,7 +226,7 @@ int regulator_get_suspend_enable(struct udevice *dev)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 
-	if (!ops->get_suspend_enable)
+	if (!ops || !ops->get_suspend_enable)
 		return -ENOSYS;
 
 	return ops->get_suspend_enable(dev);
