@@ -159,6 +159,10 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	host->mmc->dev = dev;
 	upriv->mmc = host->mmc;
 
+	/* Hosts capable of 8-bit can also do 4 bits */
+	if (host->buswidth == 8)
+		plat->cfg.host_caps |= MMC_MODE_4BIT;
+
 	return dwmci_probe(dev);
 }
 
