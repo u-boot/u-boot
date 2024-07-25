@@ -1204,7 +1204,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	int ret;
 
 	if (!driver || !driver->bind || !driver->setup) {
-		log_err("bad paramter\n");
+		log_err("bad parameter\n");
 		return -EINVAL;
 	}
 
@@ -1231,7 +1231,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	struct usba_udc *udc = &controller;
 
 	if (!driver || !driver->unbind || !driver->disconnect) {
-		log_err("bad paramter\n");
+		log_err("bad parameter\n");
 		return -EINVAL;
 	}
 
