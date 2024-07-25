@@ -120,4 +120,17 @@ config RNG_TURRIS_RWTM
 	  on other Armada-3700 devices (like EspressoBin) if Secure
 	  Firmware from CZ.NIC is used.
 
+config RNG_EXYNOS
+	bool "Samsung Exynos True Random Number Generator support"
+	depends on DM_RNG
+	help
+	  Enable support for True Random Number Generator (TRNG) available on
+	  Exynos SoCs.
+
+	  On some chips (like Exynos850) TRNG registers are protected with TZPC
+	  (TrustZone Protection Control). For such chips the driver provides an
+	  implementation based on SMC calls to EL3 monitor program. In that
+	  case the LDFW (Loadable Firmware) has to be loaded first, as it
+	  actually implements TRNG SMC calls.
+
 endif

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2020, Linaro Limited
- * Sam Protsenko <semen.protsenko@linaro.org>
+ * Copyright (c) 2024, Linaro Ltd.
+ * Author: Sam Protsenko <semen.protsenko@linaro.org>
  */
 
 #include <init.h>
+#include "fw.h"
 
 int dram_init(void)
 {
@@ -18,5 +19,6 @@ int dram_init_banksize(void)
 
 int board_init(void)
 {
+	load_ldfw();
 	return 0;
 }

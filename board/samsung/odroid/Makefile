@@ -3,4 +3,4 @@
 # Copyright (c) 2014 Samsung Electronics Co., Ltd. All rights reserved.
 # Przemyslaw Marczak <p.marczak@samsung.com>
 
-obj-y	:= odroid.o
+obj-$(CONFIG_TARGET_ODROID)	:= odroid.o
