@@ -1179,6 +1179,46 @@ static int atmel_usba_stop(struct usba_udc *udc)
 	return 0;
 }
 
+static struct usba_ep *usba_udc_pdata(struct usba_platform_data *pdata,
+				      struct usba_udc *udc)
+{
+	struct usba_ep *eps;
+	int i;
+
+	eps = malloc(sizeof(struct usba_ep) * pdata->num_ep);
+	if (!eps) {
+		log_err("failed to alloc eps\n");
+		return NULL;
+	}
+
+	udc->gadget.ep0 = &eps[0].ep;
+
+	INIT_LIST_HEAD(&udc->gadget.ep_list);
+	INIT_LIST_HEAD(&eps[0].ep.ep_list);
+
+	for (i = 0; i < pdata->num_ep; i++) {
+		struct usba_ep *ep = &eps[i];
+
+		ep->ep_regs = udc->regs + USBA_EPT_BASE(i);
+		ep->dma_regs = udc->regs + USBA_DMA_BASE(i);
+		ep->fifo = udc->fifo + USBA_FIFO_BASE(i);
+		ep->ep.ops = &usba_ep_ops;
+		ep->ep.name = pdata->ep[i].name;
+		ep->ep.maxpacket = pdata->ep[i].fifo_size;
+		ep->fifo_size = ep->ep.maxpacket;
+		ep->udc = udc;
+		INIT_LIST_HEAD(&ep->queue);
+		ep->nr_banks = pdata->ep[i].nr_banks;
+		ep->index = pdata->ep[i].index;
+		ep->can_dma = pdata->ep[i].can_dma;
+		ep->can_isoc = pdata->ep[i].can_isoc;
+		if (i)
+			list_add_tail(&ep->ep.ep_list, &udc->gadget.ep_list);
+	};
+
+	return eps;
+}
+
 static struct usba_udc controller = {
 	.regs = (unsigned *)ATMEL_BASE_UDPHS,
 	.fifo = (unsigned *)ATMEL_BASE_UDPHS_FIFO,
@@ -1242,46 +1282,6 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	atmel_usba_stop(udc);
 
 	return 0;
-}
-
-static struct usba_ep *usba_udc_pdata(struct usba_platform_data *pdata,
-				      struct usba_udc *udc)
-{
-	struct usba_ep *eps;
-	int i;
-
-	eps = malloc(sizeof(struct usba_ep) * pdata->num_ep);
-	if (!eps) {
-		log_err("failed to alloc eps\n");
-		return NULL;
-	}
-
-	udc->gadget.ep0 = &eps[0].ep;
-
-	INIT_LIST_HEAD(&udc->gadget.ep_list);
-	INIT_LIST_HEAD(&eps[0].ep.ep_list);
-
-	for (i = 0; i < pdata->num_ep; i++) {
-		struct usba_ep *ep = &eps[i];
-
-		ep->ep_regs = udc->regs + USBA_EPT_BASE(i);
-		ep->dma_regs = udc->regs + USBA_DMA_BASE(i);
-		ep->fifo = udc->fifo + USBA_FIFO_BASE(i);
-		ep->ep.ops = &usba_ep_ops;
-		ep->ep.name = pdata->ep[i].name;
-		ep->ep.maxpacket = pdata->ep[i].fifo_size;
-		ep->fifo_size = ep->ep.maxpacket;
-		ep->udc = udc;
-		INIT_LIST_HEAD(&ep->queue);
-		ep->nr_banks = pdata->ep[i].nr_banks;
-		ep->index = pdata->ep[i].index;
-		ep->can_dma = pdata->ep[i].can_dma;
-		ep->can_isoc = pdata->ep[i].can_isoc;
-		if (i)
-			list_add_tail(&ep->ep.ep_list, &udc->gadget.ep_list);
-	};
-
-	return eps;
 }
 
 int usba_udc_probe(struct usba_platform_data *pdata)
