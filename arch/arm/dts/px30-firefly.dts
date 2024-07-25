@@ -13,6 +13,10 @@
 	model = "Firefly Core-PX30-JD4";
 	compatible = "rockchip,px30-firefly", "rockchip,px30";
 
+	aliases {
+		ethernet0 = &gmac;
+	};
+
 	chosen {
 		stdout-path = "serial2:115200n8";
 	};
