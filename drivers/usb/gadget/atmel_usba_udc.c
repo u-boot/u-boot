@@ -7,13 +7,13 @@
  *			   Bo Shen <voice.shen@atmel.com>
  */
 
+#include <log.h>
 #include <malloc.h>
 #include <asm/gpio.h>
 #include <asm/hardware.h>
 #include <linux/bitops.h>
 #include <linux/errno.h>
 #include <linux/list.h>
-#include <linux/printk.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/atmel_usba_udc.h>
@@ -1204,12 +1204,12 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	int ret;
 
 	if (!driver || !driver->bind || !driver->setup) {
-		printf("bad paramter\n");
+		log_err("bad paramter\n");
 		return -EINVAL;
 	}
 
 	if (udc->driver) {
-		printf("UDC already has a gadget driver\n");
+		log_err("UDC already has a gadget driver\n");
 		return -EBUSY;
 	}
 
@@ -1219,7 +1219,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 	ret = driver->bind(&udc->gadget);
 	if (ret) {
-		pr_err("driver->bind() returned %d\n", ret);
+		log_err("driver->bind() returned %d\n", ret);
 		udc->driver = NULL;
 	}
 
@@ -1231,7 +1231,7 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	struct usba_udc *udc = &controller;
 
 	if (!driver || !driver->unbind || !driver->disconnect) {
-		pr_err("bad paramter\n");
+		log_err("bad paramter\n");
 		return -EINVAL;
 	}
 
@@ -1252,7 +1252,7 @@ static struct usba_ep *usba_udc_pdata(struct usba_platform_data *pdata,
 
 	eps = malloc(sizeof(struct usba_ep) * pdata->num_ep);
 	if (!eps) {
-		pr_err("failed to alloc eps\n");
+		log_err("failed to alloc eps\n");
 		return NULL;
 	}
 
