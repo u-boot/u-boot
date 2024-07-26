@@ -48,7 +48,7 @@ RE_TAG = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc|Fixes): (.*)')
 RE_COMMIT = re.compile('^commit ([0-9a-f]*)$')
 
 # We detect these since checkpatch doesn't always do it
-RE_SPACE_BEFORE_TAB = re.compile('^[+].* \t')
+RE_SPACE_BEFORE_TAB = re.compile(r'^[+].* \t')
 
 # Match indented lines for changes
 RE_LEADING_WHITESPACE = re.compile(r'^\s')
