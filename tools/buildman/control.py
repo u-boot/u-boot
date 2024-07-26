@@ -124,7 +124,8 @@ def show_actions(series, why_selected, boards_selected, output_dir,
             print(commit.subject)
     print()
     for arg in why_selected:
-        if arg != 'all':
+        # When -x is used, only the 'all' member exists
+        if arg != 'all' or len(why_selected) == 1:
             print(arg, f': {len(why_selected[arg])} boards')
             if verbose:
                 print(f"   {' '.join(why_selected[arg])}")

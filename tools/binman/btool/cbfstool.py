@@ -214,6 +214,7 @@ class Bintoolcbfstool(bintool.Bintool):
         """
         if method != bintool.FETCH_BIN:
             return None
+        # Version 4.22.01
         fname, tmpdir = self.fetch_from_drive(
-            '1IOnE0Qvy97d-0WOCwF64xBGpKSY2sMtJ')
+            '1gxNxRuJgD0Iiy9LAPCSB_0959eJCp98g')
         return fname, tmpdir

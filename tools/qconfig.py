@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-2.0+
-#
-# Author: Masahiro Yamada <yamada.masahiro@socionext.com>
-#
 
-"""
-Build and query a Kconfig database for boards.
+"""Build and query a Kconfig database for boards.
 
-See doc/develop/moveconfig.rst for documentation.
+See doc/develop/qconfig.rst for documentation.
+
+Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+Author: Simon Glass <sjg@chromium.org>
 """
 
 from argparse import ArgumentParser
@@ -29,7 +28,6 @@ import threading
 import time
 import unittest
 
-import asteval
 from buildman import bsettings
 from buildman import kconfiglib
 from buildman import toolchain
@@ -216,43 +214,29 @@ def read_file(fname, as_lines=True, skip_unicode=False):
             print(f"Failed on file '{fname}: {exc}")
             return None
 
-def try_expand(line):
-    """If value looks like an expression, try expanding it
-    Otherwise just return the existing value
-    """
-    if line.find('=') == -1:
-        return line
-
-    try:
-        aeval = asteval.Interpreter( usersyms=SIZES, minimal=True )
-        cfg, val = re.split("=", line)
-        val= val.strip('\"')
-        if re.search(r'[*+-/]|<<|SZ_+|\(([^\)]+)\)', val):
-            newval = hex(aeval(val))
-            print(f'\tExpanded expression {val} to {newval}')
-            return cfg+'='+newval
-    except:
-        print(f'\tFailed to expand expression in {line}')
-
-    return line
-
 
 ### classes ###
 class Progress:
-
     """Progress Indicator"""
 
     def __init__(self, col, total):
         """Create a new progress indicator.
 
         Args:
-            color_enabled (bool): True for colour output
+            col (terminal.Color): Colour-output class
             total (int): A number of defconfig files to process.
+
+            current (int): Number of boards processed so far
+            failed (int): Number of failed boards
+            failure_msg (str): Message indicating number of failures, '' if none
         """
         self.col = col
+        self.total = total
+
         self.current = 0
         self.good = 0
-        self.total = total
+        self.failed = None
+        self.failure_msg = None
 
     def inc(self, success):
         """Increment the number of processed defconfig files.
@@ -274,22 +258,28 @@ class Progress:
             print(f'{line}  \r', end='')
         sys.stdout.flush()
 
-
-class KconfigScanner:
-    """Kconfig scanner."""
-
-    def __init__(self):
-        """Scan all the Kconfig files and create a Config object."""
-        # Define environment variables referenced from Kconfig
-        os.environ['srctree'] = os.getcwd()
-        os.environ['UBOOTVERSION'] = 'dummy'
-        os.environ['KCONFIG_OBJDIR'] = ''
-        os.environ['CC'] = 'gcc'
-        self.conf = kconfiglib.Kconfig()
+    def completed(self):
+        """Set up extra properties when completed"""
+        self.failed = self.total - self.good
+        self.failure_msg = f'{self.failed} failed, ' if self.failed else ''
 
 
+def scan_kconfig():
+    """Scan all the Kconfig files and create a Config object
+
+    Returns:
+        Kconfig object
+    """
+    # Define environment variables referenced from Kconfig
+    os.environ['srctree'] = os.getcwd()
+    os.environ['UBOOTVERSION'] = 'dummy'
+    os.environ['KCONFIG_OBJDIR'] = ''
+    os.environ['CC'] = 'gcc'
+    return kconfiglib.Kconfig()
+
+
+# pylint: disable=R0903
 class KconfigParser:
-
     """A parser of .config and include/autoconf.mk."""
 
     re_arch = re.compile(r'CONFIG_SYS_ARCH="(.*)"')
@@ -374,7 +364,7 @@ class Slot:
     """
 
     def __init__(self, toolchains, args, progress, devnull, make_cmd,
-                 reference_src_dir, db_queue, col):
+                 reference_src_dir, db_queue):
         """Create a new process slot.
 
         Args:
@@ -396,7 +386,7 @@ class Slot:
         self.make_cmd = (make_cmd, 'O=' + self.build_dir)
         self.reference_src_dir = reference_src_dir
         self.db_queue = db_queue
-        self.col = col
+        self.col = progress.col
         self.parser = KconfigParser(args, self.build_dir)
         self.state = STATE_IDLE
         self.failed_boards = set()
@@ -501,6 +491,7 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append(self.defconfig)
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull,
                                      stderr=subprocess.PIPE,
                                      cwd=self.current_src_dir)
@@ -523,6 +514,7 @@ class Slot:
         cmd = list(self.make_cmd)
         cmd.append('KCONFIG_IGNORE_DUPLICATES=1')
         cmd.append(AUTO_CONF_PATH)
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull, env=env,
                                      stderr=subprocess.PIPE,
                                      cwd=self.current_src_dir)
@@ -546,6 +538,7 @@ class Slot:
 
         cmd = list(self.make_cmd)
         cmd.append('savedefconfig')
+        # pylint: disable=R1732
         self.proc = subprocess.Popen(cmd, stdout=self.devnull,
                                      stderr=subprocess.PIPE)
         self.state = STATE_SAVEDEFCONFIG
@@ -601,11 +594,9 @@ class Slot:
         return self.failed_boards
 
 class Slots:
-
     """Controller of the array of subprocess slots."""
 
-    def __init__(self, toolchains, args, progress, reference_src_dir, db_queue,
-                 col):
+    def __init__(self, toolchains, args, progress, reference_src_dir, db_queue):
         """Create a new slots controller.
 
         Args:
@@ -615,17 +606,16 @@ class Slots:
             reference_src_dir (str): Determine the true starting config state
                 from this source tree (None for none)
             db_queue (Queue): output queue to write config info for the database
-            col (terminal.Color): Colour object
         """
         self.args = args
         self.slots = []
         self.progress = progress
-        self.col = col
+        self.col = progress.col
         devnull = subprocess.DEVNULL
         make_cmd = get_make_cmd()
         for _ in range(args.jobs):
             self.slots.append(Slot(toolchains, args, progress, devnull,
-                                   make_cmd, reference_src_dir, db_queue, col))
+                                   make_cmd, reference_src_dir, db_queue))
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is found.
@@ -711,18 +701,35 @@ class ReferenceSource:
 
         return self.src_dir
 
-def move_config(toolchains, args, db_queue, col):
+def move_config(args):
     """Build database or sync config options to defconfig files.
 
     Args:
-        toolchains (Toolchains): Toolchains to use
         args (Namespace): Program arguments
-        db_queue (Queue): Queue for database updates
-        col (terminal.Color): Colour object
 
     Returns:
-        Progress: Progress indicator
+        tuple:
+            config_db (dict of configs for each defconfig):
+                key: defconfig name, e.g. "MPC8548CDS_legacy_defconfig"
+                value: dict:
+                    key: CONFIG option
+                    value: Value of option
+            Progress: Progress indicator
     """
+    config_db = {}
+    db_queue = queue.Queue()
+    dbt = DatabaseThread(config_db, db_queue)
+    dbt.daemon = True
+    dbt.start()
+
+    check_clean_directory()
+    bsettings.setup('')
+
+    # Get toolchains to use
+    toolchains = toolchain.Toolchains()
+    toolchains.GetSettings()
+    toolchains.Scan(verbose=False)
+
     if args.git_ref:
         reference_src = ReferenceSource(args.git_ref)
         reference_src_dir = reference_src.get_dir()
@@ -734,8 +741,10 @@ def move_config(toolchains, args, db_queue, col):
     else:
         defconfigs = get_all_defconfigs()
 
+    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
+                         else terminal.COLOR_IF_TERMINAL)
     progress = Progress(col, len(defconfigs))
-    slots = Slots(toolchains, args, progress, reference_src_dir, db_queue, col)
+    slots = Slots(toolchains, args, progress, reference_src_dir, db_queue)
 
     # Main loop to process defconfig files:
     #  Add a new subprocess into a vacant slot.
@@ -751,7 +760,9 @@ def move_config(toolchains, args, db_queue, col):
         time.sleep(SLEEP_TIME)
 
     slots.write_failed_boards()
-    return progress
+    db_queue.join()
+    progress.completed()
+    return config_db, progress
 
 def find_kconfig_rules(kconf, config, imply_config):
     """Check whether a config has a 'select' or 'imply' keyword
@@ -772,7 +783,7 @@ def find_kconfig_rules(kconf, config, imply_config):
                 return sym
     return None
 
-def check_imply_rule(kconf, config, imply_config):
+def check_imply_rule(kconf, imply_config):
     """Check if we can add an 'imply' option
 
     This finds imply_config in the Kconfig and looks to see if it is possible
@@ -780,7 +791,6 @@ def check_imply_rule(kconf, config, imply_config):
 
     Args:
         kconf (Kconfiglib.Kconfig): Kconfig object
-        config (str): Name of config to check (without CONFIG_ prefix)
         imply_config (str): Implying config (without CONFIG_ prefix) which may
             or may not have an 'imply' for 'config')
 
@@ -873,6 +883,7 @@ def read_database():
     all_defconfigs = set()
 
     defconfig_db = collections.defaultdict(set)
+    defconfig = None
     for line in read_file(CONFIG_DATABASE):
         line = line.rstrip()
         if not line:  # Separator between defconfigs
@@ -914,15 +925,15 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             - If imply_defconfigs contains anything not in defconfigs then
               this config does not imply the target config
 
-    Params:
-        config_list: List of CONFIG options to check (each a string)
-        add_imply: Automatically add an 'imply' for each config.
-        imply_flags: Flags which control which implying configs are allowed
+    Args:
+        config_list (list of str): List of CONFIG options to check
+        add_imply (bool): Automatically add an 'imply' for each config.
+        imply_flags (int): Flags which control which implying configs are allowed
            (IMPLY_...)
-        skip_added: Don't show options which already have an imply added.
-        check_kconfig: Check if implied symbols already have an 'imply' or
+        skip_added (bool): Don't show options which already have an imply added.
+        check_kconfig (bool): Check if implied symbols already have an 'imply' or
             'select' for the target config, and show this information if so.
-        find_superset: True to look for configs which are a superset of those
+        find_superset (bool): True to look for configs which are a superset of those
             already found. So for example if CONFIG_EXYNOS5 implies an option,
             but CONFIG_EXYNOS covers a larger set of defconfigs and also
             implies that option, this will drop the former in favour of the
@@ -932,7 +943,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
         config - a CONFIG_XXX options (a string, e.g. 'CONFIG_CMD_EEPROM')
         defconfig - a defconfig file (a string, e.g. 'configs/snow_defconfig')
     """
-    kconf = KconfigScanner().conf if check_kconfig else None
+    kconf = scan_kconfig() if check_kconfig else None
     if add_imply and add_imply != 'all':
         add_imply = add_imply.split(',')
 
@@ -1051,13 +1062,13 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
                     if add_imply and (add_imply == 'all' or
                                       iconfig in add_imply):
                         fname, linenum, kconfig_info = (check_imply_rule(kconf,
-                                config[CONFIG_LEN:], iconfig[CONFIG_LEN:]))
+                                iconfig[CONFIG_LEN:]))
                         if fname:
                             add_list[fname].append(linenum)
 
             if show and kconfig_info != 'skip':
-                print(f'{num_common:5d} : '
-                      f'{iconfig.ljust(30):-30s}{kconfig_info:-25s} {missing_str}')
+                print(f'{num_common:5} : '
+                      f'{iconfig.ljust(30)}{kconfig_info.ljust(25)} {missing_str}')
 
         # Having collected a list of things to add, now we add them. We process
         # each file from the largest line number to the smallest so that
@@ -1090,11 +1101,14 @@ def defconfig_matches(configs, re_match):
 def do_find_config(config_list):
     """Find boards with a given combination of CONFIGs
 
-    Params:
-        config_list: List of CONFIG options to check (each a regex consisting
-            of a config option, with or without a CONFIG_ prefix. If an option
-            is preceded by a tilde (~) then it must be false, otherwise it must
-            be true)
+    Args:
+        config_list (list of str): List of CONFIG options to check (each a regex
+            consisting of a config option, with or without a CONFIG_ prefix. If
+            an option is preceded by a tilde (~) then it must be false,
+            otherwise it must be true)
+
+    Returns:
+        int: exit code (0 for success)
     """
     _, all_defconfigs, config_db, _ = read_database()
 
@@ -1122,6 +1136,7 @@ def do_find_config(config_list):
                 out.add(defc)
     print(f'{len(out)} matches')
     print(' '.join(item.split('_defconfig')[0] for item in out))
+    return 0
 
 
 def prefix_config(cfg):
@@ -1155,7 +1170,16 @@ RE_C_CONFIGS = re.compile(r'CONFIG_([A-Za-z0-9_]*)')
 RE_CONFIG_IS = re.compile(r'CONFIG_IS_ENABLED\(([A-Za-z0-9_]*)\)')
 
 class ConfigUse:
+    """Tracks whether a config relates to SPL or not"""
     def __init__(self, cfg, is_spl, fname, rest):
+        """Set up a new ConfigUse
+
+        Args:
+            cfg (str): CONFIG option, without any CONFIG_ or SPL_ prefix
+            is_spl (bool): True if this option relates to SPL
+            fname (str): Makefile filename where the CONFIG option was found
+            rest (str): Line of the Makefile
+        """
         self.cfg = cfg
         self.is_spl = is_spl
         self.fname = fname
@@ -1362,7 +1386,7 @@ def do_scan_source(path, do_update):
 
 
     print('Scanning Kconfig')
-    kconf = KconfigScanner().conf
+    kconf = scan_kconfig()
     print(f'Scanning source in {path}')
     args = ['git', 'grep', '-E', r'IS_ENABLED|\bCONFIG']
     with subprocess.Popen(args, stdout=subprocess.PIPE) as proc:
@@ -1460,9 +1484,17 @@ def do_scan_source(path, do_update):
                   file=out)
             for item in sorted(proper_not_found):
                 print(item, file=out)
+    return 0
 
 
-def main():
+def parse_args():
+    """Parse the program arguments
+
+    Returns:
+        tuple:
+            argparse.ArgumentParser: parser
+            argparse.Namespace: Parsed arguments
+    """
     try:
         cpu_count = multiprocessing.cpu_count()
     except NotImplementedError:
@@ -1521,103 +1553,144 @@ doc/develop/moveconfig.rst for documentation.'''
     parser.add_argument('configs', nargs='*')
 
     args = parser.parse_args()
-
-    if args.test:
-        sys.argv = [sys.argv[0]]
-        fail, _ = doctest.testmod()
-        if fail:
-            return 1
-        unittest.main()
-
-    col = terminal.Color(terminal.COLOR_NEVER if args.nocolour
-                         else terminal.COLOR_IF_TERMINAL)
-
-    if args.scan_source:
-        do_scan_source(os.getcwd(), args.update)
-        return 0
-
-    if not any((args.force_sync, args.build_db, args.imply, args.find)):
+    if not any((args.force_sync, args.build_db, args.imply, args.find,
+                args.scan_source, args.test)):
         parser.print_usage()
         sys.exit(1)
 
-    # prefix the option name with CONFIG_ if missing
-    configs = [prefix_config(cfg) for cfg in args.configs]
+    return parser, args
 
+
+def imply(args):
+    """Handle checking for flags which imply others
+
+    Args:
+        args (argparse.Namespace): Program arguments
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    imply_flags = 0
+    if args.imply_flags == 'all':
+        imply_flags = -1
+
+    elif args.imply_flags:
+        for flag in args.imply_flags.split(','):
+            bad = flag not in IMPLY_FLAGS
+            if bad:
+                print(f"Invalid flag '{flag}'")
+            if flag == 'help' or bad:
+                print("Imply flags: (separate with ',')")
+                for name, info in IMPLY_FLAGS.items():
+                    print(f' {name:-15s}: {info[1]}')
+                return 1
+            imply_flags |= IMPLY_FLAGS[flag][0]
+
+    do_imply_config(args.configs, args.add_imply, imply_flags, args.skip_added)
+    return 0
+
+
+def add_commit(configs):
+    """Add a commit indicating which CONFIG options were converted
+
+    Args:
+        configs (list of str) List of CONFIG_... options to process
+    """
+    subprocess.call(['git', 'add', '-u'])
+    if configs:
+        part = 'et al ' if len(configs) > 1 else ''
+        msg = f'Convert {configs[0]} {part}to Kconfig'
+        msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
+                '\n   '.join(configs))
+    else:
+        msg = 'configs: Resync with savedefconfig'
+        msg += '\n\nRsync all defconfig files using moveconfig.py'
+    subprocess.call(['git', 'commit', '-s', '-m', msg])
+
+
+def write_db(config_db, progress):
+    """Write the database to a file
+
+    Args:
+        config_db (dict of dict): configs for each defconfig
+            key: defconfig name, e.g. "MPC8548CDS_legacy_defconfig"
+            value: dict:
+                key: CONFIG option
+                value: Value of option
+        progress (Progress): Progress indicator.
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    col = progress.col
+    with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
+        for defconfig, configs in config_db.items():
+            outf.write(f'{defconfig}\n')
+            for config in sorted(configs.keys()):
+                outf.write(f'   {config}={configs[config]}\n')
+            outf.write('\n')
+    print(col.build(
+        col.RED if progress.failed else col.GREEN,
+        f'{progress.failure_msg}{len(config_db)} boards written to {CONFIG_DATABASE}'))
+    return 0
+
+
+def move_done(progress):
+    """Write a message indicating that the move is done
+
+    Args:
+        progress (Progress): Progress indicator.
+
+    Returns:
+        int: exit code (0 for success)
+    """
+    col = progress.col
+    if progress.failed:
+        print(col.build(col.RED, f'{progress.failure_msg}see {FAILED_LIST}', True))
+    else:
+        # Add enough spaces to overwrite the progress indicator
+        print(col.build(
+            col.GREEN, f'{progress.total} processed        ', bright=True))
+    return 0
+
+def do_tests():
+    """Run doctests and unit tests (so far there are no unit tests)"""
+    sys.argv = [sys.argv[0]]
+    fail, _ = doctest.testmod()
+    if fail:
+        return 1
+    unittest.main()
+    return 0
+
+
+def main():
+    """Main program"""
+    parser, args = parse_args()
     check_top_directory()
 
+    # prefix the option name with CONFIG_ if missing
+    args.configs = [prefix_config(cfg) for cfg in args.configs]
+
+    if args.test:
+        return do_tests()
+    if args.scan_source:
+        return do_scan_source(os.getcwd(), args.update)
     if args.imply:
-        imply_flags = 0
-        if args.imply_flags == 'all':
-            imply_flags = -1
-
-        elif args.imply_flags:
-            for flag in args.imply_flags.split(','):
-                bad = flag not in IMPLY_FLAGS
-                if bad:
-                    print(f"Invalid flag '{flag}'")
-                if flag == 'help' or bad:
-                    print("Imply flags: (separate with ',')")
-                    for name, info in IMPLY_FLAGS.items():
-                        print(f' {name:-15s}: {info[1]}')
-                    parser.print_usage()
-                    sys.exit(1)
-                imply_flags |= IMPLY_FLAGS[flag][0]
-
-        do_imply_config(configs, args.add_imply, imply_flags, args.skip_added)
+        if imply(args):
+            parser.print_usage()
+            sys.exit(1)
         return 0
-
     if args.find:
-        do_find_config(configs)
-        return 0
+        return do_find_config(args.configs)
 
-    # We are either building the database or forcing a sync of defconfigs
-    config_db = {}
-    db_queue = queue.Queue()
-    dbt = DatabaseThread(config_db, db_queue)
-    dbt.daemon = True
-    dbt.start()
-
-    check_clean_directory()
-    bsettings.setup('')
-    toolchains = toolchain.Toolchains()
-    toolchains.GetSettings()
-    toolchains.Scan(verbose=False)
-    progress = move_config(toolchains, args, db_queue, col)
-    db_queue.join()
+    config_db, progress = move_config(args)
 
     if args.commit:
-        subprocess.call(['git', 'add', '-u'])
-        if configs:
-            msg = 'Convert %s %sto Kconfig' % (configs[0],
-                    'et al ' if len(configs) > 1 else '')
-            msg += ('\n\nThis converts the following to Kconfig:\n   %s\n' %
-                    '\n   '.join(configs))
-        else:
-            msg = 'configs: Resync with savedefconfig'
-            msg += '\n\nRsync all defconfig files using moveconfig.py'
-        subprocess.call(['git', 'commit', '-s', '-m', msg])
+        add_commit(args.configs)
 
-    failed = progress.total - progress.good
-    failure = f'{failed} failed, ' if failed else ''
     if args.build_db:
-        with open(CONFIG_DATABASE, 'w', encoding='utf-8') as outf:
-            for defconfig, configs in config_db.items():
-                outf.write(f'{defconfig}\n')
-                for config in sorted(configs.keys()):
-                    outf.write(f'   {config}={configs[config]}\n')
-                outf.write('\n')
-        print(col.build(
-            col.RED if failed else col.GREEN,
-            f'{failure}{len(config_db)} boards written to {CONFIG_DATABASE}'))
-    else:
-        if failed:
-            print(col.build(col.RED, f'{failure}see {FAILED_LIST}', True))
-        else:
-            # Add enough spaces to overwrite the progress indicator
-            print(col.build(
-                col.GREEN, f'{progress.total} processed        ', bright=True))
-
-    return 0
+        return write_db(config_db, progress)
+    return move_done(progress)
 
 
 if __name__ == '__main__':
