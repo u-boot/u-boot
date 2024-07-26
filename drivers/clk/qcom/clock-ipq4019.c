@@ -64,6 +64,9 @@ static int ipq4019_clk_enable(struct clk *clk)
 	case GCC_USB2_MOCK_UTMI_CLK:
 		/* These clocks is already initialized by SBL1 */
 		return 0;
+	case GCC_ESS_CLK:
+		/* This clock is already initialized by SBL1 */
+		return 0;
 	default:
 		return -EINVAL;
 	}
@@ -141,6 +144,12 @@ static const struct qcom_reset_map gcc_ipq4019_resets[] = {
 	[GCC_TCSR_BCR] = {0x22000, 0},
 	[GCC_MPM_BCR] = {0x24000, 0},
 	[GCC_SPDM_BCR] = {0x25000, 0},
+	[ESS_MAC1_ARES] = {0x1200C, 0},
+	[ESS_MAC2_ARES] = {0x1200C, 1},
+	[ESS_MAC3_ARES] = {0x1200C, 2},
+	[ESS_MAC4_ARES] = {0x1200C, 3},
+	[ESS_MAC5_ARES] = {0x1200C, 4},
+	[ESS_PSGMII_ARES] = {0x1200C, 5},
 };
 
 static struct msm_clk_data ipq4019_clk_data = {

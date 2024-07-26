@@ -243,7 +243,8 @@ int dm_extended_scan(bool pre_reloc_only)
 	const char * const nodes[] = {
 		"/chosen",
 		"/clocks",
-		"/firmware"
+		"/firmware",
+		"/reserved-memory",
 	};
 
 	ret = dm_scan_fdt(pre_reloc_only);

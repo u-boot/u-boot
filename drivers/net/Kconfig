@@ -325,6 +325,14 @@ config EEPRO100
 	  This driver supports Intel(R) PRO/100 82557/82559/82559ER fast
 	  ethernet family of adapters.
 
+config ESSEDMA
+	bool "Qualcomm ESS Edma support"
+	depends on DM_ETH && ARCH_IPQ40XX
+	select PHYLIB
+	help
+	  This driver supports ethernet DMA adapter found in
+	  Qualcomm IPQ40xx series SoC-s.
+
 config ETH_SANDBOX
 	depends on SANDBOX
 	default y
