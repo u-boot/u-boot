@@ -620,6 +620,7 @@ config SYS_SRAM_SIZE
 config SYS_MONITOR_LEN
 	int "Maximum size in bytes reserved for U-Boot in memory"
 	default 1048576 if X86
+	default 262144 if OMAP34XX
 	default 786432 if ARCH_SUNXI
 	default 0
 	help
