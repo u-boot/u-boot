@@ -236,7 +236,7 @@ config SYS_BOOT_GET_KBD
 config HAS_CUSTOM_SYS_INIT_SP_ADDR
 	bool "Use a custom location for the initial stack pointer address"
 	depends on ARC || (ARM && !INIT_SP_RELATIVE) || MIPS || PPC || RISCV
-	default y if OMAP34XX
+	default y if OMAP34XX || AM33XX
 	default y if TFABOOT
 	help
 	  Typically, we use an initial stack pointer address that is calculated
@@ -251,6 +251,7 @@ config CUSTOM_SYS_INIT_SP_ADDR
 	hex "Static location for the initial stack pointer"
 	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
 	default 0x4020ff00 if OMAP34XX
+	default 0x4030ff00 if AM33XX
 	default TEXT_BASE if TFABOOT
 
 config SYS_MALLOC_F
