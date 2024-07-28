@@ -209,6 +209,7 @@ config ENV_VARS_UBOOT_CONFIG
 config NR_DRAM_BANKS
 	int "Number of DRAM banks"
 	default 1 if ARCH_SUNXI || ARCH_OWL
+	default 2 if OMAP34XX
 	default 4
 	help
 	  This defines the number of DRAM banks.
