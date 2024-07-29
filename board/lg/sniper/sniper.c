@@ -14,11 +14,9 @@
 #include <linux/ctype.h>
 #include <linux/usb/musb.h>
 #include <asm/omap_musb.h>
-#include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
 #include <asm/io.h>
-#include <ns16550.h>
 #include <twl4030.h>
 #include "sniper.h"
 
@@ -28,18 +26,6 @@ const omap3_sysinfo sysinfo = {
 	.mtype = DDR_STACKED,
 	.board_string = "sniper",
 	.nand_string = "MMC"
-};
-
-static const struct ns16550_plat serial_omap_plat = {
-	.base = OMAP34XX_UART3,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DRVINFO(sniper_serial) = {
-	.name = "ns16550_serial",
-	.plat = &serial_omap_plat
 };
 
 #if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_USB_MUSB_GADGET)
@@ -76,6 +62,11 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	timings->ctrlb = HYNIX_V_ACTIMB_200;
 	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 	timings->mr = MICRON_V_MR_165;
+}
+
+void spl_board_init(void)
+{
+	twl4030_power_mmc_init(1);
 }
 #endif
 
@@ -187,14 +178,4 @@ int fastboot_set_reboot_flag(enum fastboot_reboot_reason reason)
 		return -ENOTSUPP;
 
 	return omap_reboot_mode_store("b");
-}
-
-int board_mmc_init(struct bd_info *bis)
-{
-	return omap_mmc_init(1, 0, 0, -1, -1);
-}
-
-void board_mmc_power_init(void)
-{
-	twl4030_power_mmc_init(1);
 }
