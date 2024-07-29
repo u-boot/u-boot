@@ -34,11 +34,62 @@ struct disk_partition;
 #define EXT4_TOPDIR_FL		0x00020000 /* Top of directory hierarchies*/
 #define EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
 #define EXT4_EXT_MAGIC			0xf30a
-#define EXT4_FEATURE_RO_COMPAT_GDT_CSUM	0x0010
+
+#define EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER  0x0001
+#define EXT4_FEATURE_RO_COMPAT_LARGE_FILE    0x0002
+#define EXT4_FEATURE_RO_COMPAT_BTREE_DIR     0x0004
+#define EXT4_FEATURE_RO_COMPAT_HUGE_FILE     0x0008
+#define EXT4_FEATURE_RO_COMPAT_GDT_CSUM      0x0010
+#define EXT4_FEATURE_RO_COMPAT_DIR_NLINK     0x0020
+#define EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE   0x0040
+#define EXT4_FEATURE_RO_COMPAT_QUOTA         0x0100
+#define EXT4_FEATURE_RO_COMPAT_BIGALLOC      0x0200
 #define EXT4_FEATURE_RO_COMPAT_METADATA_CSUM 0x0400
+
+#define EXT4_FEATURE_INCOMPAT_FILETYPE  0x0002
+#define EXT4_FEATURE_INCOMPAT_RECOVER   0x0004
 #define EXT4_FEATURE_INCOMPAT_EXTENTS	0x0040
 #define EXT4_FEATURE_INCOMPAT_64BIT	0x0080
+#define EXT4_FEATURE_INCOMPAT_MMP       0x0100
+#define EXT4_FEATURE_INCOMPAT_FLEX_BG   0x0200
+#define EXT4_FEATURE_INCOMPAT_CSUM_SEED 0x2000
+#define EXT4_FEATURE_INCOMPAT_ENCRYPT   0x10000
+
 #define EXT4_INDIRECT_BLOCKS		12
+
+/*
+ * Incompat features supported by this implementation.
+ */
+#define EXT4_FEATURE_INCOMPAT_SUPP (EXT4_FEATURE_INCOMPAT_FILETYPE | \
+				   EXT4_FEATURE_INCOMPAT_RECOVER | \
+				   EXT4_FEATURE_INCOMPAT_EXTENTS | \
+				   EXT4_FEATURE_INCOMPAT_64BIT | \
+				   EXT4_FEATURE_INCOMPAT_FLEX_BG)
+
+/*
+ * Incompat features supported by this implementation only in a lazy
+ * way, good enough for reading files.
+ *
+ * - Multi mount protection (mmp) is not supported, but for read-only
+ *   we get away with it.
+ * - Same for metadata_csum_seed and metadata_csum.
+ * - The implementation has also no clue about fscrypt, but it can read
+ *   unencrypted files. Reading encrypted files will read garbage.
+ */
+#define EXT4_FEATURE_INCOMPAT_SUPP_LAZY_RO (EXT4_FEATURE_INCOMPAT_MMP | \
+					   EXT4_FEATURE_INCOMPAT_CSUM_SEED | \
+					   EXT4_FEATURE_INCOMPAT_ENCRYPT)
+
+/*
+ * Read-only compat features we support.
+ * If unknown ro compat features are detected, writing to the fs is denied.
+ */
+#define EXT4_FEATURE_RO_COMPAT_SUPP (EXT4_FEATURE_RO_COMPAT_SPARSE_SUPER | \
+				    EXT4_FEATURE_RO_COMPAT_LARGE_FILE | \
+				    EXT4_FEATURE_RO_COMPAT_HUGE_FILE | \
+				    EXT4_FEATURE_RO_COMPAT_GDT_CSUM | \
+				    EXT4_FEATURE_RO_COMPAT_DIR_NLINK | \
+				    EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)
 
 #define EXT4_BG_INODE_UNINIT		0x0001
 #define EXT4_BG_BLOCK_UNINIT		0x0002
