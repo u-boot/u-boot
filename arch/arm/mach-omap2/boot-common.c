@@ -269,7 +269,7 @@ skip_ipu1:
 		debug("%s: IPU2 failed to start (%d)\n", __func__, ret);
 }
 
-void spl_board_init(void)
+void spl_soc_init(void)
 {
 	/* Prepare console output */
 	preloader_console_init();
