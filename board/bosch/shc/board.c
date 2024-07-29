@@ -310,7 +310,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 const struct dpll_params dpll_mpu_shc_opp100 = {
 		99, MPUPLL_N, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	int sil_rev;
 	int mpu_vdd;

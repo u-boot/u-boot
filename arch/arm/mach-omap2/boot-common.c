@@ -286,9 +286,6 @@ void spl_soc_init(void)
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	hw_watchdog_init();
 #endif
-#ifdef CONFIG_AM33XX
-	am33xx_spl_board_init();
-#endif
 	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
 	    IS_ENABLED(CONFIG_REMOTEPROC_TI_IPU))
 		spl_boot_ipu();
