@@ -122,6 +122,8 @@ def RunBinman(args):
             ret_code = RunTests(args.debug, args.verbosity, args.processes,
                                 args.test_preserve_dirs, args.tests,
                                 args.toolpath)
+            if args.debug and not test_util.use_concurrent:
+                print('Tests can run in parallel: pip install concurrencytest')
 
     elif args.cmd == 'bintool-docs':
         control.write_bintool_docs(bintool.Bintool.get_tool_list())

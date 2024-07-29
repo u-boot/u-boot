@@ -32,6 +32,10 @@ class Bintoolfdt_add_pubkey(bintool.Bintool):
                 verified for the image / configuration to be considered valid.
             algo (str): Cryptographic algorithm. Optional parameter,
                 default value: sha1,rsa2048
+
+        Returns:
+            CommandResult: Resulting output from the bintool, or None if the
+                tool is not present
         """
         args = []
         if algo:

@@ -10,6 +10,15 @@ binaries. It is fairly easy to create new bintools. Just add a new file to the
 
 
 
+Bintool: bootgen: Generate bootable fsbl image for zynq/zynqmp
+--------------------------------------------------------------
+
+This bintools supports running Xilinx "bootgen" in order
+to generate a bootable, authenticated image form an SPL.
+
+
+
+
 Bintool: bzip2: Compression/decompression using the bzip2 algorithm
 -------------------------------------------------------------------
 
@@ -34,6 +43,33 @@ It also supports fetching a binary cbfstool, since building it from source
 is fairly slow.
 
 Documentation about CBFS is at https://www.coreboot.org/CBFS
+
+
+
+Bintool: cst: Image generation for U-Boot
+-----------------------------------------
+
+This bintool supports running `cst` with some basic parameters as
+needed by binman.
+
+
+
+Bintool: fdt_add_pubkey: Add public key to control dtb (spl or u-boot proper)
+-----------------------------------------------------------------------------
+
+This bintool supports running `fdt_add_pubkey`.
+
+Normally mkimage adds signature information to the control dtb. However
+binman images are built independent from each other. Thus it is required
+to add the public key separately from mkimage.
+
+
+
+Bintool: fdtgrep: Handles the 'fdtgrep' tool
+--------------------------------------------
+
+This bintool supports running `fdtgrep` with parameters suitable for
+producing SPL devicetrees from the main one.
 
 
 
@@ -143,11 +179,20 @@ Documentation is available via::
 
 
 
+Bintool: mkeficapsule: Handles the 'mkeficapsule' tool
+------------------------------------------------------
+
+This bintool is used for generating the EFI capsules. The
+capsule generation parameters can either be specified through
+commandline, or through a config file.
+
+
+
 Bintool: mkimage: Image generation for U-Boot
 ---------------------------------------------
 
 This bintool supports running `mkimage` with some basic parameters as
-neeed by binman.
+needed by binman.
 
 Normally binman uses the mkimage built by U-Boot. But when run outside the
 U-Boot build system, binman can use the version installed in your system.
@@ -194,25 +239,3 @@ Documentation is available via::
 
 
 
-Bintool: fdt_add_pubkey: Add public key to device tree
-------------------------------------------------------
-
-This bintool supports running `fdt_add_pubkey` in order to add a public
-key coming from a certificate to a device-tree.
-
-Normally signing is done using `mkimage` in context of `binman sign`. However,
-in this process the public key is not added to the stage before u-boot proper.
-Using `fdt_add_pubkey` the key can be injected to the SPL independent of
-`mkimage`
-
-
-
-Bintool: bootgen: Sign ZynqMP FSBL image
-----------------------------------------
-
-This bintool supports running `bootgen` in order to sign a SPL for ZynqMP
-devices.
-
-The bintool automatically creates an appropriate input image file (.bif) for
-bootgen based on the passed arguments. The output is a bootable,
-authenticated `boot.bin` file.

@@ -1199,6 +1199,9 @@ features to produce new behaviours.
             self.uncomp_size = len(indata)
             if self.comp_bintool.is_present():
                 data = self.comp_bintool.compress(indata)
+                uniq = self.GetUniqueName()
+                fname = tools.get_output_filename(f'comp.{uniq}')
+                tools.write_file(fname, data)
             else:
                 self.record_missing_bintool(self.comp_bintool)
                 data = tools.get_bytes(0, 1024)
@@ -1383,3 +1386,17 @@ features to produce new behaviours.
 
     def UpdateSignatures(self, privatekey_fname, algo, input_fname):
         self.Raise('Updating signatures is not supported with this entry type')
+
+    def FdtContents(self, fdt_etype):
+        """Get the contents of an FDT for a particular phase
+
+        Args:
+            fdt_etype (str): Filename of the phase of the FDT to return, e.g.
+                'u-boot-tpl-dtb'
+
+        Returns:
+            tuple:
+                fname (str): Filename of .dtb
+                bytes: Contents of FDT (possibly run through fdtgrep)
+        """
+        return self.section.FdtContents(fdt_etype)

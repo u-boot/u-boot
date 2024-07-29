@@ -21,6 +21,9 @@ from dtoc import fdt_util
 from u_boot_pylib import tools
 from u_boot_pylib import tout
 
+# This is imported if needed
+state = None
+
 class Image(section.Entry_section):
     """A Image, representing an output from binman
 
@@ -75,6 +78,10 @@ class Image(section.Entry_section):
     def __init__(self, name, node, copy_to_orig=True, test=False,
                  ignore_missing=False, use_expanded=False, missing_etype=False,
                  generate=True):
+        # Put this here to allow entry-docs and help to work without libfdt
+        global state
+        from binman import state
+
         super().__init__(None, 'section', node, test=test)
         self.copy_to_orig = copy_to_orig
         self.name = name
@@ -185,6 +192,19 @@ class Image(section.Entry_section):
             if os.path.islink(sname):
                 os.remove(sname)
             os.symlink(fname, sname)
+
+    def WriteAlternates(self):
+        """Write out alternative devicetree blobs, each in its own file"""
+        alt_entry = self.FindEntryType('alternates-fdt')
+        if not alt_entry:
+            return
+
+        for alt in alt_entry.alternates:
+            fname, data = alt_entry.ProcessWithFdt(alt)
+            pathname = tools.get_output_filename(fname)
+            tout.info(f"Writing alternate '{alt}' to '{pathname}'")
+            tools.write_file(pathname, data)
+            tout.info("Wrote %#x bytes" % len(data))
 
     def WriteMap(self):
         """Write a map of the image to a .map file
@@ -418,3 +438,7 @@ class Image(section.Entry_section):
         super().AddBintools(bintools)
         self.bintools = bintools
         return bintools
+
+    def FdtContents(self, fdt_etype):
+        """This base-class implementation simply calls the state function"""
+        return state.GetFdtContents(fdt_etype)

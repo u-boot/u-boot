@@ -5,7 +5,9 @@
 
 """Entry-type module for producing a FIT"""
 
+import glob
 import libfdt
+import os
 
 from binman.entry import Entry, EntryArg
 from binman.etype.section import Entry_section
@@ -87,6 +89,13 @@ class Entry_fit(Entry_section):
 
                 fit,fdt-list-val = "dtb1", "dtb2";
 
+        fit,fdt-list-dir
+            As an alternative to fit,fdt-list the list of device tree files
+            can be provided as a directory. Each .dtb file in the directory is
+            processed, , e.g.::
+
+                fit,fdt-list-dir = "arch/arm/dts
+
     Substitutions
     ~~~~~~~~~~~~~
 
@@ -162,6 +171,7 @@ class Entry_fit(Entry_section):
                 firmware = "atf";
                 loadables = "uboot";
                 fdt = "fdt-SEQ";
+                fit,compatible;    // optional
             };
         };
 
@@ -170,6 +180,40 @@ class Entry_fit(Entry_section):
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
+
+    The 'fit,compatible' property (if present) is replaced with the compatible
+    string from the root node of the devicetree, so that things work correctly
+    with FIT's configuration-matching algortihm.
+
+    Dealing with phases
+    ~~~~~~~~~~~~~~~~~~~
+
+    FIT can be used to load firmware. In this case it may be necessary to run
+    the devicetree for each model through fdtgrep to remove unwanted properties.
+    The 'fit,fdt-phase' property can be provided to indicate the phase for which
+    the devicetree is intended.
+
+    For example this indicates that the FDT should be processed for VPL::
+
+        images {
+            @fdt-SEQ {
+                description = "fdt-NAME";
+                type = "flat_dt";
+                compression = "none";
+                fit,fdt-phase = "vpl";
+            };
+        };
+
+    Using this mechanism, it is possible to generate a FIT which can provide VPL
+    images for multiple models, with TPL selecting the correct model to use. The
+    same approach can of course be used for SPL images.
+
+    Note that the `of-spl-remove-props` entryarg can be used to indicate
+    additional properties to remove. It is often used to remove properties like
+    `clock-names` and `pinctrl-names` which are not needed in SPL builds. This
+    value is automatically passed to binman by the U-Boot build.
+
+    See :ref:`fdtgrep_filter` for more information.
 
     Generating nodes from an ELF file (split-elf)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -352,9 +396,16 @@ class Entry_fit(Entry_section):
         self._fit = None
         self._fit_props = {}
         self._fdts = None
+        self._fdt_dir = None
         self.mkimage = None
+        self.fdtgrep = None
         self._priv_entries = {}
         self._loadables = []
+        self._remove_props = []
+        props, = self.GetEntryArgsOrProps(
+            [EntryArg('of-spl-remove-props', str)], required=False)
+        if props:
+            self._remove_props = props.split()
 
     def ReadNode(self):
         super().ReadNode()
@@ -368,7 +419,14 @@ class Entry_fit(Entry_section):
             if fdts is not None:
                 self._fdts = fdts.split()
         else:
-            self._fdts = fdt_util.GetStringList(self._node, 'fit,fdt-list-val')
+            self._fdt_dir = fdt_util.GetString(self._node, 'fit,fdt-list-dir')
+            if self._fdt_dir:
+                indir = tools.get_input_filename(self._fdt_dir)
+                fdts = glob.glob('*.dtb', root_dir=indir)
+                self._fdts = [os.path.splitext(f)[0] for f in sorted(fdts)]
+            else:
+                self._fdts = fdt_util.GetStringList(self._node,
+                                                    'fit,fdt-list-val')
 
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
@@ -483,6 +541,19 @@ class Entry_fit(Entry_section):
         rel_path = node.path[len(self._node.path) + 1:]
         self.Raise(f"subnode '{rel_path}': {msg}")
 
+    def _run_fdtgrep(self, infile, phase, outfile):
+        """Run fdtgrep to create the dtb for a phase
+
+        Args:
+            infile (str): Input filename containing the full FDT contents (with
+                all nodes and properties)
+            phase (str): Phase to generate for ('tpl', 'vpl', 'spl')
+            outfile (str): Output filename to write the grepped FDT contents to
+                (with only neceesary nodes and properties)
+        """
+        return self.fdtgrep.create_for_phase(infile, phase, outfile,
+                                             self._remove_props)
+
     def _build_input(self):
         """Finish the FIT by adding the 'data' properties to it
 
@@ -584,6 +655,7 @@ class Entry_fit(Entry_section):
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
                     fname = tools.get_input_filename(fdt_fname + '.dtb')
+                    fdt_phase = None
                     with fsw.add_node(node_name):
                         for pname, prop in node.props.items():
                             if pname == 'fit,firmware':
@@ -594,6 +666,15 @@ class Entry_fit(Entry_section):
                                 fsw.property('loadables', val.encode('utf-8'))
                             elif pname == 'fit,operation':
                                 pass
+                            elif pname == 'fit,compatible':
+                                fdt_phase = fdt_util.GetString(node, pname)
+                                data = tools.read_file(fname)
+                                fdt = Fdt.FromData(data)
+                                fdt.Scan()
+                                prop = fdt.GetRoot().props['compatible']
+                                fsw.property('compatible', prop.bytes)
+                            elif pname == 'fit,fdt-phase':
+                                fdt_phase = fdt_util.GetString(node, pname)
                             elif pname.startswith('fit,'):
                                 self._raise_subnode(
                                     node, f"Unknown directive '{pname}'")
@@ -606,7 +687,14 @@ class Entry_fit(Entry_section):
 
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
-                            fsw.property('data', tools.read_file(fname))
+                            if fdt_phase:
+                                phase_fname = tools.get_output_filename(
+                                    f'{fdt_fname}-{fdt_phase}.dtb')
+                                self._run_fdtgrep(fname, fdt_phase, phase_fname)
+                                data = tools.read_file(phase_fname)
+                            else:
+                                data = tools.read_file(fname)
+                            fsw.property('data', data)
 
                         for subnode in node.subnodes:
                             with fsw.add_node(subnode.name):
@@ -834,6 +922,7 @@ class Entry_fit(Entry_section):
     def AddBintools(self, btools):
         super().AddBintools(btools)
         self.mkimage = self.AddBintool(btools, 'mkimage')
+        self.fdtgrep = self.AddBintool(btools, 'fdtgrep')
 
     def CheckMissing(self, missing_list):
         # We must use our private entry list for this since generator nodes

@@ -11,6 +11,48 @@ features to produce new behaviours.
 
 
 
+.. _etype_alternates_fdt:
+
+Entry: alternates-fdt: Entry that generates alternative sections for each devicetree provided
+---------------------------------------------------------------------------------------------
+
+When creating an image designed to boot on multiple models, each model
+requires its own devicetree. This entry deals with selecting the correct
+devicetree from a directory containing them. Each one is read in turn, then
+used to produce section contents which are written to a file. This results
+in a number of images, one for each model.
+
+For example this produces images for each .dtb file in the 'dtb' directory::
+
+    alternates-fdt {
+        fdt-list-dir = "dtb";
+        filename-pattern = "NAME.bin";
+        fdt-phase = "tpl";
+
+        section {
+            u-boot-tpl {
+            };
+        };
+    };
+
+Each output file is named based on its input file, so an input file of
+`model1.dtb` results in an output file of `model1.bin` (i.e. the `NAME` in
+the `filename-pattern` property is replaced with the .dtb basename).
+
+Note that this entry type still produces contents for the 'main' image, in
+that case using the normal dtb provided to Binman, e.g. `u-boot-tpl.dtb`.
+But that image is unlikely to be useful, since it relates to whatever dtb
+happened to be the default when U-Boot builds
+(i.e. `CONFIG_DEFAULT_DEVICE_TREE`). However, Binman ensures that the size
+of each of the alternates is the same as the 'default' one, so they can in
+principle be 'slotted in' to the appropriate place in the main image.
+
+The optional `fdt-phase` property indicates the phase to build. In this
+case, it etype runs fdtgrep to obtain the devicetree subset for that phase,
+respecting the `bootph-xxx` tags in the devicetree.
+
+
+
 .. _etype_atf_bl31:
 
 Entry: atf-bl31: ARM Trusted Firmware (ATF) BL31 blob
@@ -815,6 +857,13 @@ The top-level 'fit' node supports the following special properties:
 
             fit,fdt-list-val = "dtb1", "dtb2";
 
+    fit,fdt-list-dir
+        As an alternative to fit,fdt-list the list of device tree files
+        can be provided as a directory. Each .dtb file in the directory is
+        processed, , e.g.::
+
+            fit,fdt-list-dir = "arch/arm/dts
+
 Substitutions
 ~~~~~~~~~~~~~
 
@@ -890,6 +939,7 @@ You can create config nodes in a similar way::
             firmware = "atf";
             loadables = "uboot";
             fdt = "fdt-SEQ";
+            fit,compatible;    // optional
         };
     };
 
@@ -898,6 +948,39 @@ for each of your two files.
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
+
+The 'fit,compatible' property (if present) is replaced with the compatible
+string from the root node of the devicetree, so that things work correctly
+with FIT's configuration-matching algortihm.
+
+Dealing with phases
+~~~~~~~~~~~~~~~~~~~
+
+FIT can be used to load firmware. In this case it may be necessary to run
+the devicetree for each model through fdtgrep to remove unwanted properties.
+The 'fit,fdt-phase' property can be provided to indicate the phase for which
+the devicetree is intended.
+
+For example this indicates that the FDT should be processed for VPL::
+
+    images {
+        @fdt-SEQ {
+            description = "fdt-NAME";
+            type = "flat_dt";
+            compression = "none";
+            fit,fdt-phase = "vpl";
+        };
+    };
+
+Using this mechanism, it is possible to generate a FIT which can provide VPL
+images for multiple models, with TPL selecting the correct model to use. The
+same approach can of course be used for SPL images.
+
+Note that the `of-spl-remove-props` entryarg can be used to indicate
+additional properties to remove. It is often used to remove properties like
+`clock-names` and `pinctrl-names` which are not needed in SPL builds.
+
+See :ref:`fdtgrep_filter` for more information.
 
 Generating nodes from an ELF file (split-elf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2290,8 +2373,6 @@ u-boot-spl-dtb
 
 SPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
-in the binman README for more information.
-
 The ELF file 'spl/u-boot-spl' must also be available for this to work, since
 binman uses that to look up symbols to write into the SPL binary.
 
@@ -2480,8 +2561,6 @@ u-boot-tpl-dtb
 
 TPL can access binman symbols at runtime. See :ref:`binman_fdt`.
 
-in the binman README for more information.
-
 The ELF file 'tpl/u-boot-tpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the TPL binary.
 
@@ -2571,6 +2650,9 @@ in the binman README for more information.
 The ELF file 'vpl/u-boot-vpl' must also be available for this to work, since
 binman uses that to look up symbols to write into the VPL binary.
 
+Note that this entry is automatically replaced with u-boot-vpl-expanded
+unless --no-expanded is used or the node has a 'no-expanded' property.
+
 
 
 .. _etype_u_boot_vpl_bss_pad:
@@ -2659,8 +2741,8 @@ Properties / Entry arguments:
 
 This is the U-Boot VPL binary, It does not include a device tree blob at
 the end of it so may not be able to work without it, assuming VPL needs
-a device tree to operate on your platform. You can add a u_boot_vpl_dtb
-entry after this one, or use a u_boot_vpl entry instead, which normally
+a device tree to operate on your platform. You can add a u-boot-vpl-dtb
+entry after this one, or use a u-boot-vpl entry instead, which normally
 expands to a section containing u-boot-vpl-dtb, u-boot-vpl-bss-pad and
 u-boot-vpl-dtb
 

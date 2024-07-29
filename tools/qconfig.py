@@ -1079,7 +1079,7 @@ def do_imply_config(config_list, add_imply, imply_flags, skip_added,
             for linenum in sorted(linenums, reverse=True):
                 add_imply_rule(config[CONFIG_LEN:], fname, linenum)
 
-def defconfig_matches(configs, re_match):
+def defconfig_matches(configs, re_match, re_val):
     """Check if any CONFIG option matches a regex
 
     The match must be complete, i.e. from the start to end of the CONFIG option.
@@ -1089,16 +1089,18 @@ def defconfig_matches(configs, re_match):
             key: CONFIG option
             value: Value of option
         re_match (re.Pattern): Match to check
+        re_val (re.Pattern): Regular expression to check against value (or None)
 
     Returns:
         bool: True if any CONFIG matches the regex
     """
-    for cfg in configs:
+    for cfg, val in configs.items():
         if re_match.fullmatch(cfg):
-            return True
+            if not re_val or re_val.fullmatch(val):
+                return True
     return False
 
-def do_find_config(config_list):
+def do_find_config(config_list, list_format):
     """Find boards with a given combination of CONFIGs
 
     Args:
@@ -1106,6 +1108,8 @@ def do_find_config(config_list):
             consisting of a config option, with or without a CONFIG_ prefix. If
             an option is preceded by a tilde (~) then it must be false,
             otherwise it must be true)
+        list_format (bool): True to write in 'list' format, one board name per
+            line
 
     Returns:
         int: exit code (0 for success)
@@ -1123,6 +1127,11 @@ def do_find_config(config_list):
         if cfg[0] == '~':
             want = False
             cfg = cfg[1:]
+        val = None
+        re_val = None
+        if '=' in cfg:
+            cfg, val = cfg.split('=', maxsplit=1)
+            re_val = re.compile(val)
 
         # Search everything that is still in the running. If it has a config
         # that we want, or doesn't have one that we don't, add it into the
@@ -1131,11 +1140,13 @@ def do_find_config(config_list):
         out = set()
         re_match = re.compile(cfg)
         for defc in in_list:
-            has_cfg = defconfig_matches(config_db[defc], re_match)
+            has_cfg = defconfig_matches(config_db[defc], re_match, re_val)
             if has_cfg == want:
                 out.add(defc)
-    print(f'{len(out)} matches')
-    print(' '.join(item.split('_defconfig')[0] for item in out))
+    if not list_format:
+        print(f'{len(out)} matches')
+    sep = '\n' if list_format else ' '
+    print(sep.join(item.split('_defconfig')[0] for item in sorted(list(out))))
     return 0
 
 
@@ -1528,6 +1539,8 @@ doc/develop/moveconfig.rst for documentation.'''
                       help='Find boards with a given config combination')
     parser.add_argument('-i', '--imply', action='store_true', default=False,
                       help='find options which imply others')
+    parser.add_argument('-l', '--list', action='store_true', default=False,
+                      help='Show a sorted list of board names, one per line')
     parser.add_argument('-I', '--imply-flags', type=str, default='',
                       help="control the -i option ('help' for help")
     parser.add_argument('-j', '--jobs', type=int, default=cpu_count,
@@ -1681,7 +1694,7 @@ def main():
             sys.exit(1)
         return 0
     if args.find:
-        return do_find_config(args.configs)
+        return do_find_config(args.configs, args.list)
 
     config_db, progress = move_config(args)
 
