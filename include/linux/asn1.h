@@ -17,7 +17,6 @@ enum asn1_class {
 };
 #define ASN1_CLASS_BITS	0xc0
 
-
 enum asn1_method {
 	ASN1_PRIM	= 0,	/* Primitive */
 	ASN1_CONS	= 1	/* Constructed */

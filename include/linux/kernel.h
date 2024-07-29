@@ -255,7 +255,6 @@
  */
 #define clamp_val(val, lo, hi) clamp_t(typeof(val), val, lo, hi)
 
-
 /*
  * swap - swap value of @a and @b
  */

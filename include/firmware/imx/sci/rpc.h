@@ -44,7 +44,6 @@
 #define SC_RPC_SVC_SECO         9U
 #define SC_RPC_SVC_ABORT        10U
 
-
 /* Types */
 
 struct sc_rpc_msg_s {

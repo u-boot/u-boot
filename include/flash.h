@@ -256,7 +256,6 @@ void flash_perror(int err);
 #define AMD_ID_GL128N_2	0x22212221	/* 2nd ID word for S29GL128N */
 #define AMD_ID_GL128N_3	0x22012201	/* 3rd ID word for S29GL128N */
 
-
 #define AMD_ID_LV320B_2 0x221A221A	/* 2d ID word for AM29LV320MB at 0x38 */
 #define AMD_ID_LV320B_3 0x22002200	/* 3d ID word for AM29LV320MB at 0x3c */
 
@@ -475,7 +474,6 @@ void flash_perror(int err);
 #define FLASH_STM32	0x00F2		/* STM32 Embedded Flash */
 
 #define FLASH_UNKNOWN	0xFFFF		/* unknown flash type			*/
-
 
 /* manufacturer offsets
  */

@@ -34,7 +34,6 @@
 
 #define isleap(y) ((((y) % 4) == 0 && ((y) % 100) != 0) || ((y) % 400) == 0)
 
-
 /* Used by other time functions.  */
 struct tm {
     int tm_sec;                   /* Seconds.     [0-60] (1 leap second) */

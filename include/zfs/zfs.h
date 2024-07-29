@@ -10,7 +10,6 @@
 #ifndef	GRUB_ZFS_HEADER
 #define	GRUB_ZFS_HEADER 1
 
-
 /*
  * On-disk version number.
  */

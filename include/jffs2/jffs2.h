@@ -109,7 +109,6 @@
 #define JFFS2_INO_FLAG_USERCOMPR  2	/* User has requested a specific
 					   compression type */
 
-
 struct jffs2_unknown_node
 {
 	/* All start like this */
@@ -211,7 +210,6 @@ enum
     DT_WHT = 14
 # define DT_WHT         DT_WHT
   };
-
 
 u32 jffs2_1pass_ls(struct part_info *part,const char *fname);
 u32 jffs2_1pass_load(char *dest, struct part_info *part,const char *fname);

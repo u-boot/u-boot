@@ -11,10 +11,8 @@
 #ifndef ZSTD_ERRORS_H_398273423
 #define ZSTD_ERRORS_H_398273423
 
-
 /*===== dependency =====*/
 #include <linux/types.h>   /* size_t */
-
 
 /* =====   ZSTDERRORLIB_API : control library symbols visibility   ===== */
 #define ZSTDERRORLIB_VISIBILITY 
@@ -71,7 +69,5 @@ typedef enum {
     which can be used to compare with enum list published above */
 ZSTDERRORLIB_API ZSTD_ErrorCode ZSTD_getErrorCode(size_t functionResult);
 ZSTDERRORLIB_API const char* ZSTD_getErrorString(ZSTD_ErrorCode code);   /*< Same as ZSTD_getErrorName, but using a `ZSTD_ErrorCode` enum argument */
-
-
 
 #endif /* ZSTD_ERRORS_H_398273423 */

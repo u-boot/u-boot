@@ -225,7 +225,6 @@ int eth_get_dev_index(void);		/* get the device index */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr);
 
-
 /*
  * Initialize USB ethernet device with CONFIG_DM_ETH
  * Returns:

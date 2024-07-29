@@ -65,7 +65,6 @@ int blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		    phys_addr_t paddr);
 
-
 /**
  * blkmap_from_label() - Find blkmap from label
  *

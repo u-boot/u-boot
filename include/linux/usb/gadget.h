@@ -446,7 +446,6 @@ static inline void usb_ep_fifo_flush(struct usb_ep *ep)
 		ep->ops->fifo_flush(ep);
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 struct usb_dcd_config_params {
@@ -566,7 +565,6 @@ static inline struct usb_gadget *dev_to_usb_gadget(struct device *dev)
 /* iterates the non-control endpoints; 'tmp' is a struct usb_ep pointer */
 #define gadget_for_each_ep(tmp, gadget) \
 	list_for_each_entry(tmp, &(gadget)->ep_list, ep_list)
-
 
 /**
  * gadget_is_dualspeed - return true iff the hardware handles high speed
@@ -769,7 +767,6 @@ static inline int usb_gadget_disconnect(struct usb_gadget *gadget)
 	return gadget->ops->pullup(gadget, 0);
 }
 
-
 /*-------------------------------------------------------------------------*/
 
 /**
@@ -855,7 +852,6 @@ struct usb_gadget_driver {
 	void			(*resume)(struct usb_gadget *);
 	void			(*reset)(struct usb_gadget *);
 };
-
 
 /*-------------------------------------------------------------------------*/
 

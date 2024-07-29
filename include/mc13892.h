@@ -6,7 +6,6 @@
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  */
 
-
 #ifndef __MC13892_H__
 #define __MC13892_H__
 

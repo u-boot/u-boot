@@ -97,7 +97,6 @@ struct dtsec {
 	u32	res9[80];
 };
 
-
 /* TBI register addresses */
 #define TBI_CR			0x00
 #define TBI_SR			0x01

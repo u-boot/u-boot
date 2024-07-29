@@ -10,7 +10,6 @@
 #ifndef ZFS_SPA_HEADER
 #define	ZFS_SPA_HEADER 1
 
-
 /*
  * General-purpose 32-bit and 64-bit bitfield encodings.
  */

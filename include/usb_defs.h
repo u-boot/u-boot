@@ -30,7 +30,6 @@
 #define USB_PROT_HID_KEYBOARD   1
 #define USB_PROT_HID_MOUSE      2
 
-
 /* Sub STORAGE Classes */
 #define US_SC_RBC              1		/* Typically, flash devices */
 #define US_SC_8020             2		/* CD-ROM */
@@ -190,7 +189,6 @@
 #define USB_TEST_MODE_PACKET        0x04
 #define USB_TEST_MODE_FORCE_ENABLE  0x05
 
-
 /*
  * "pipe" definitions, use unsigned so we can compare reliably, since this
  * value is shifted up to bits 30/31.
@@ -224,7 +222,6 @@
 #define USB_ST_CRC_ERR          0x20	/* CRC/timeout Error */
 #define USB_ST_BIT_ERR          0x40	/* Bitstuff error */
 #define USB_ST_NOT_PROC         0x80000000L	/* Not yet processed */
-
 
 /*************************************************************************
  * Hub defines

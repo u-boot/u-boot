@@ -9,7 +9,6 @@
 #ifndef __MEMCHECK_H
 #define __MEMCHECK_H
 
-
 /* This file is for inclusion into client (your!) code.
 
    You can use these macros to manipulate and query memory permissions
@@ -52,8 +51,6 @@ typedef
       _VG_USERREQ__MEMCHECK_RECORD_OVERLAP_ERROR 
          = VG_USERREQ_TOOL_BASE('M','C') + 256
    } Vg_MemCheckClientRequest;
-
-
 
 /* Client-code macros to manipulate the state of memory. */
 
@@ -102,7 +99,6 @@ typedef
                             VG_USERREQ__DISCARD,                 \
                             0, (_qzz_blkindex), 0, 0, 0)
 
-
 /* Client-code macros to check the state of memory. */
 
 /* Check that memory at _qzz_addr is addressable for _qzz_len bytes.
@@ -132,7 +128,6 @@ typedef
    VALGRIND_CHECK_MEM_IS_DEFINED(                                \
       (volatile unsigned char *)&(__lvalue),                     \
                       (unsigned long)(sizeof (__lvalue)))
-
 
 /* Do a full memory leak check (like --leak-check=full) mid-execution. */
 #define VALGRIND_DO_LEAK_CHECK                                   \
@@ -201,7 +196,6 @@ typedef
     reachable  = _qzz_reachable;                                         \
     suppressed = _qzz_suppressed;                                        \
    }
-
 
 /* Get the validity data for addresses [zza..zza+zznbytes-1] and copy it
    into the provided zzvbits array.  Return values:

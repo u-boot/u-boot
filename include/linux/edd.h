@@ -35,7 +35,6 @@
 #define EDDMAGIC1 0x55AA
 #define EDDMAGIC2 0xAA55
 
-
 #define READ_SECTORS 0x02         /* int13 AH=0x02 is READ_SECTORS command */
 #define EDD_MBR_SIG_OFFSET 0x1B8  /* offset of signature in the MBR */
 #define EDD_MBR_SIG_BUF    0x290  /* addr in boot params */

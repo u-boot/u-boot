@@ -12,5 +12,4 @@ void gt64120_pci_init(void *regs, unsigned long sys_bus, unsigned long sys_phys,
 		     unsigned long io_bus, unsigned long io_phys,
 		     unsigned long io_size);
 
-
 #endif /* _PCI_GT64120_H */

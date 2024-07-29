@@ -9,7 +9,6 @@
 #define NTP_SERVICE_PORT	123
 #define SNTP_PACKET_LEN		48
 
-
 /* Leap Indicator */
 #define NTP_LI_NOLEAP		0x0
 #define NTP_LI_61SECS		0x1

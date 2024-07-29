@@ -149,7 +149,6 @@ int dprc_close(struct fsl_mc_io *mc_io, u32 cmd_flags, u16 token);
  */
 #define DPRC_CFG_OPT_TOPOLOGY_CHANGES_ALLOWED	0x00000008
 
-
 /* AIOP - Indicates that container belongs to AIOP. */
 #define DPRC_CFG_OPT_AIOP			0x00000020
 

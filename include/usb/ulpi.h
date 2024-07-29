@@ -116,7 +116,6 @@ int ulpi_suspend(struct ulpi_viewport *ulpi_vp);
  */
 int ulpi_reset(struct ulpi_viewport *ulpi_vp);
 
-
 /* ULPI access methods below must be implemented for each ULPI viewport. */
 
 /*
@@ -313,6 +312,5 @@ struct ulpi_regs {
 #define ULPI_CARKIT_PLS_CTRL_RXPLSEN		(1 << 1)
 #define ULPI_CARKIT_PLS_CTRL_SPKRLEFT_BIASEN	(1 << 2)
 #define ULPI_CARKIT_PLS_CTRL_SPKRRIGHT_BIASEN	(1 << 3)
-
 
 #endif /* __USB_ULPI_H__ */

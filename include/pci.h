@@ -272,7 +272,6 @@
 #define  PCI_X_CMD_MAX_SPLIT    0x0030  /* Max Outstanding Split Transactions */
 #define  PCI_X_CMD_VERSION(x)   (((x) >> 12) & 3) /* Version */
 
-
 /* Slot Identification */
 
 #define PCI_SID_ESR		2	/* Expansion Slot Register */

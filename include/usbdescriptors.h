@@ -58,7 +58,6 @@
  *
  */
 
-
 #ifndef __USBDESCRIPTORS_H__
 #define __USBDESCRIPTORS_H__
 
@@ -110,7 +109,6 @@
 
 /* c.f. CDC 4.7 Table 19 */
 #define DATA_INTERFACE_PROTOCOL_NONE	0x00	/* No class protcol required */
-
 
 /* c.f. CDC 5.2.3 Table 24 */
 #define CS_INTERFACE		0x24
@@ -167,7 +165,6 @@
 #define ISOCHRONOUS	0x01
 #define BULK		0x02
 #define INTERRUPT	0x03
-
 
 /* configuration modifiers
  */
@@ -238,7 +235,6 @@ struct usb_generic_descriptor {
 	u8 bDescriptorType;
 	u8 bDescriptorSubtype;
 } __attribute__ ((packed));
-
 
 /*
  * communications class descriptor structures
@@ -319,14 +315,12 @@ struct usb_class_country_selection_descriptor {
 	u16 wCountryCode0[0];
 } __attribute__ ((packed));
 
-
 struct usb_class_telephone_operational_descriptor {
 	u8 bFunctionLength;
 	u8 bDescriptorType;
 	u8 bDescriptorSubtype;	/* 0x08 */
 	u8 bmCapabilities;
 } __attribute__ ((packed));
-
 
 struct usb_class_usb_terminal_descriptor {
 	u8 bFunctionLength;
@@ -404,7 +398,6 @@ struct usb_class_atm_networking_descriptor {
 	u16 wType3MaxSegmentSize;
 	u16 wMaxVC;
 } __attribute__ ((packed));
-
 
 struct usb_class_mdlm_descriptor {
 	u8 bFunctionLength;

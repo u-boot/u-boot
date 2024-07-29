@@ -38,5 +38,4 @@ typedef struct zfs_znode_acl {
 	uint8_t	z_ace_data[ZFS_ACE_SPACE]; /* space for embedded ACEs */
 } zfs_znode_acl_t;
 
-
 #endif	/* _SYS_FS_ZFS_ACL_H */

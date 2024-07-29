@@ -177,7 +177,6 @@ enum nand_ecc_algo {
 /* Bit mask for flags passed to do_nand_read_ecc */
 #define NAND_GET_DEVICE		0x80
 
-
 /*
  * Option constants for bizarre disfunctionality and real
  * features.
@@ -930,7 +929,6 @@ struct nand_chip {
 	int (*setup_read_retry)(struct mtd_info *mtd, int retry_mode);
 	int (*setup_data_interface)(struct mtd_info *mtd, int chipnr,
 				    const struct nand_data_interface *conf);
-
 
 	int chip_delay;
 	unsigned int options;

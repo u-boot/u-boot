@@ -26,7 +26,6 @@
 #define AT91_DMA_CFG_FIFOCFG_ALAP	(0x1 << AT91_DMA_CFG_FIFOCFG_OFFSET)	/* largest defined AHB burst */
 #define AT91_DMA_CFG_FIFOCFG_ASAP	(0x2 << AT91_DMA_CFG_FIFOCFG_OFFSET)	/* single AHB access */
 
-
 /* ---------- XDMAC ---------- */
 #define AT91_XDMAC_DT_MEM_IF_MASK	(0x1)
 #define AT91_XDMAC_DT_MEM_IF_OFFSET	(13)

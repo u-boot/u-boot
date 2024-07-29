@@ -7,7 +7,6 @@
 #ifndef __MV886352_H
 #define __MV886352_H
 
-
 /* PHY registers */
 #define PHY(itf)	(itf)
 

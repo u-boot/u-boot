@@ -95,7 +95,6 @@ struct scsi_cmd {
 #define	M_X_WIDE_REQ	(0x03)
 #define	M_X_PPR_REQ	(0x04)
 
-
 /*
 **	Status
 */
@@ -130,7 +129,6 @@ struct scsi_cmd {
 #define SENSE_ABORTED_COMMAND	0xB
 #define SENSE_VOLUME_OVERFLOW	0xD
 #define SENSE_MISCOMPARE			0xE
-
 
 #define SCSI_CHANGE_DEF	0x40		/* Change Definition (Optional) */
 #define SCSI_COMPARE		0x39		/* Compare (O) */
