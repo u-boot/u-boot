@@ -20,6 +20,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch-tegra/clk_rst.h>
 
 #include "tegra-dc.h"
 #include "tegra-dsi.h"
@@ -50,6 +51,10 @@ struct tegra_dsi_priv {
 	int host_fifo_depth;
 
 	u32 version;
+
+	/* for ganged-mode support */
+	struct udevice *master;
+	struct udevice *slave;
 };
 
 static void tegra_dc_enable_controller(struct udevice *dev)
@@ -595,6 +600,17 @@ static void tegra_dsi_set_phy_timing(struct dsi_timing_reg *ptiming,
 	writel(value, &ptiming->dsi_bta_timing);
 }
 
+static void tegra_dsi_ganged_enable(struct udevice *dev, unsigned int start,
+				    unsigned int size)
+{
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct dsi_ganged_mode_reg *ganged = &priv->dsi->ganged;
+
+	writel(start, &ganged->ganged_mode_start);
+	writel(size << 16 | size, &ganged->ganged_mode_size);
+	writel(DSI_GANGED_MODE_CONTROL_ENABLE, &ganged->ganged_mode_ctrl);
+}
+
 static void tegra_dsi_configure(struct udevice *dev,
 				unsigned long mode_flags)
 {
@@ -679,9 +695,19 @@ static void tegra_dsi_configure(struct udevice *dev,
 		writel(hact << 16 | hbp, &len->dsi_pkt_len_2_3);
 		writel(hfp, &len->dsi_pkt_len_4_5);
 		writel(0x0f0f << 16, &len->dsi_pkt_len_6_7);
+
+		/* set SOL delay (for non-burst mode only) */
+		writel(8 * mul / div, &misc->dsi_sol_delay);
 	} else {
-		/* 1 byte (DCS command) + pixel data */
-		value = 1 + timing->hactive.typ * mul / div;
+		if (priv->master || priv->slave) {
+			/*
+			 * For ganged mode, assume symmetric left-right mode.
+			 */
+			value = 1 + (timing->hactive.typ / 2) * mul / div;
+		} else {
+			/* 1 byte (DCS command) + pixel data */
+			value = 1 + timing->hactive.typ * mul / div;
+		}
 
 		writel(0, &len->dsi_pkt_len_0_1);
 		writel(value << 16, &len->dsi_pkt_len_2_3);
@@ -691,10 +717,40 @@ static void tegra_dsi_configure(struct udevice *dev,
 		value = MIPI_DCS_WRITE_MEMORY_START << 8 |
 			MIPI_DCS_WRITE_MEMORY_CONTINUE;
 		writel(value, &len->dsi_dcs_cmds);
+
+		/* set SOL delay */
+		if (priv->master || priv->slave) {
+			unsigned long delay, bclk, bclk_ganged;
+			unsigned int lanes = device->lanes;
+			unsigned long htotal = timing->hactive.typ + timing->hfront_porch.typ +
+					       timing->hback_porch.typ + timing->hsync_len.typ;
+
+			/* SOL to valid, valid to FIFO and FIFO write delay */
+			delay = 4 + 4 + 2;
+			delay = DIV_ROUND_UP(delay * mul, div * lanes);
+			/* FIFO read delay */
+			delay = delay + 6;
+
+			bclk = DIV_ROUND_UP(htotal * mul, div * lanes);
+			bclk_ganged = DIV_ROUND_UP(bclk * lanes / 2, lanes);
+			value = bclk - bclk_ganged + delay + 20;
+		} else {
+			/* TODO: revisit for non-ganged mode */
+			value = 8 * mul / div;
+		}
+
+		writel(value, &misc->dsi_sol_delay);
 	}
 
-	/* set SOL delay (for non-burst mode only) */
-	writel(8 * mul / div, &misc->dsi_sol_delay);
+	if (priv->slave) {
+		/*
+		 * TODO: Support modes other than symmetrical left-right
+		 * split.
+		 */
+		tegra_dsi_ganged_enable(dev, 0, timing->hactive.typ / 2);
+		tegra_dsi_ganged_enable(priv->slave, timing->hactive.typ / 2,
+					timing->hactive.typ / 2);
+	}
 }
 
 static int tegra_dsi_encoder_enable(struct udevice *dev)
@@ -774,6 +830,9 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	value |= DSI_POWER_CONTROL_ENABLE;
 	writel(value, &misc->dsi_pwr_ctrl);
 
+	if (priv->slave)
+		tegra_dsi_encoder_enable(priv->slave);
+
 	return 0;
 }
 
@@ -802,6 +861,14 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 	struct mipi_dsi_device *device = &priv->device;
 	unsigned int mul, div;
 	unsigned long bclk, plld;
+
+	if (!priv->slave) {
+		/* Change DSIB clock parent to match DSIA */
+		struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+		clrbits_le32(&clkrst->plld2.pll_base, BIT(25)); /* DSIB_CLK_SRC */
+	}
 
 	tegra_dsi_get_muldiv(device->format, &mul, &div);
 
@@ -854,6 +921,24 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 	reset_set_enable(priv->dsi_clk, 0);
 }
 
+static int tegra_dsi_ganged_probe(struct udevice *dev)
+{
+	struct tegra_dsi_priv *mpriv = dev_get_priv(dev);
+	struct udevice *gangster;
+
+	uclass_get_device_by_phandle(UCLASS_PANEL, dev,
+				     "nvidia,ganged-mode", &gangster);
+	if (gangster) {
+		/* Ganged mode is set */
+		struct tegra_dsi_priv *spriv = dev_get_priv(gangster);
+
+		mpriv->slave = gangster;
+		spriv->master = dev;
+	}
+
+	return 0;
+}
+
 static int tegra_dsi_bridge_probe(struct udevice *dev)
 {
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
@@ -872,6 +957,8 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 
 	priv->video_fifo_depth = 1920;
 	priv->host_fifo_depth = 64;
+
+	tegra_dsi_ganged_probe(dev);
 
 	ret = reset_get_by_name(dev, "dsi", &reset_ctl);
 	if (ret) {
