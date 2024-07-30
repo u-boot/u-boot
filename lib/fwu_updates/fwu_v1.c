@@ -146,6 +146,7 @@ int fwu_init(void)
 {
 	int ret;
 	uint32_t mdata_size;
+	struct fwu_mdata mdata = {0};
 
 	fwu_get_mdata_size(&mdata_size);
 
@@ -157,9 +158,15 @@ int fwu_init(void)
 	 * Now read the entire structure, both copies, and
 	 * validate that the copies.
 	 */
-	ret = fwu_get_mdata(NULL);
+	ret = fwu_get_mdata(&mdata);
 	if (ret)
 		return ret;
+
+	if (mdata.version != 0x1) {
+		log_err("FWU metadata version %u. Expected value of %u\n",
+			mdata.version, FWU_MDATA_VERSION);
+		return -EINVAL;
+	}
 
 	fwu_data_init();
 
