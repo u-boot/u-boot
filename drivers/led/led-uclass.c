@@ -58,6 +58,10 @@ int led_set_state(struct udevice *dev, enum led_state_t state)
 	if (!ops->set_state)
 		return -ENOSYS;
 
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK) &&
+	    led_sw_on_state_change(dev, state))
+		return 0;
+
 	return ops->set_state(dev, state);
 }
 
@@ -68,20 +72,27 @@ enum led_state_t led_get_state(struct udevice *dev)
 	if (!ops->get_state)
 		return -ENOSYS;
 
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK) &&
+	    led_sw_is_blinking(dev))
+		return LEDST_BLINK;
+
 	return ops->get_state(dev);
 }
 
-#ifdef CONFIG_LED_BLINK
 int led_set_period(struct udevice *dev, int period_ms)
 {
+#ifdef CONFIG_LED_BLINK
 	struct led_ops *ops = led_get_ops(dev);
 
-	if (!ops->set_period)
-		return -ENOSYS;
-
-	return ops->set_period(dev, period_ms);
-}
+	if (ops->set_period)
+		return ops->set_period(dev, period_ms);
 #endif
+
+	if (IS_ENABLED(CONFIG_LED_SW_BLINK))
+		return led_sw_set_period(dev, period_ms);
+
+	return -ENOSYS;
+}
 
 static int led_post_bind(struct udevice *dev)
 {
@@ -107,6 +118,14 @@ static int led_post_bind(struct udevice *dev)
 	else
 		return 0;
 
+	if (IS_ENABLED(CONFIG_LED_BLINK)) {
+		const char *trigger;
+
+		trigger = dev_read_string(dev, "linux,default-trigger");
+		if (trigger && !strncmp(trigger, "pattern", 7))
+			uc_plat->default_state = LEDST_BLINK;
+	}
+
 	/*
 	 * In case the LED has default-state DT property, trigger
 	 * probe() to configure its default state during startup.
@@ -119,12 +138,24 @@ static int led_post_bind(struct udevice *dev)
 static int led_post_probe(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+	int default_period_ms = 1000;
+	int ret = 0;
 
-	if (uc_plat->default_state == LEDST_ON ||
-	    uc_plat->default_state == LEDST_OFF)
-		led_set_state(dev, uc_plat->default_state);
+	switch (uc_plat->default_state) {
+	case LEDST_ON:
+	case LEDST_OFF:
+		ret = led_set_state(dev, uc_plat->default_state);
+		break;
+	case LEDST_BLINK:
+		ret = led_set_period(dev, default_period_ms);
+		if (!ret)
+			ret = led_set_state(dev, uc_plat->default_state);
+		break;
+	default:
+		break;
+	}
 
-	return 0;
+	return ret;
 }
 
 UCLASS_DRIVER(led) = {
