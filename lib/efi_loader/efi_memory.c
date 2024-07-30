@@ -138,7 +138,7 @@ static void efi_mem_sort(void)
 		merge_again = false;
 		list_for_each(lhandle, &efi_mem) {
 			struct efi_mem_list *lmem;
-			struct efi_mem_desc *prev = &prevmem->desc;
+			struct efi_mem_desc *prev;
 			struct efi_mem_desc *cur;
 			uint64_t pages;
 
@@ -149,6 +149,7 @@ static void efi_mem_sort(void)
 			}
 
 			cur = &lmem->desc;
+			prev = &prevmem->desc;
 
 			if ((desc_get_end(cur) == prev->physical_start) &&
 			    (prev->type == cur->type) &&
