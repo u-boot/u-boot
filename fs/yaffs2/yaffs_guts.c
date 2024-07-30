@@ -4452,13 +4452,12 @@ loff_t yaffs_get_obj_length(struct yaffs_obj *obj)
 int yaffs_get_obj_link_count(struct yaffs_obj *obj)
 {
 	int count = 0;
-	struct list_head *i;
 
 	if (!obj->unlinked)
 		count++;	/* the object itself */
 
-	list_for_each(i, &obj->hard_links)
-	    count++;		/* add the hard links; */
+	/* add the hard links; */
+	count += list_count_nodes(&obj->hard_links);
 
 	return count;
 }

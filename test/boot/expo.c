@@ -702,9 +702,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	txt = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
 	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->str_id));
 
-	count = 0;
-	list_for_each_entry(item, &menu->item_head, sibling)
-		count++;
+	count = list_count_nodes(&menu->item_head);
 	ut_asserteq(3, count);
 
 	expo_destroy(exp);
