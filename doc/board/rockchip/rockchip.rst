@@ -54,6 +54,7 @@ List of mainline supported Rockchip boards:
      - Amarula Vyasa-RK3288 (vyasa-rk3288)
 * rk3308
      - Radxa ROCK Pi S (rock-pi-s-rk3308)
+     - Radxa ROCK S0 (rock-s0-rk3308)
      - Rockchip Evb-RK3308 (evb-rk3308)
      - Roc-cc-RK3308 (roc-cc-rk3308)
 * rk3326
