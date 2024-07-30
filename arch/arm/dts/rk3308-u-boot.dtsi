@@ -21,22 +21,6 @@
 		bootph-all;
 	};
 
-	otp: nvmem@ff210000 {
-		compatible = "rockchip,rk3308-otp";
-		reg = <0x0 0xff210000 0x0 0x4000>;
-		clocks = <&cru SCLK_OTP_USR>, <&cru PCLK_OTP_NS>,
-			 <&cru PCLK_OTP_PHY>;
-		clock-names = "otp", "apb_pclk", "phy";
-		resets = <&cru SRST_OTP_PHY>;
-		reset-names = "phy";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		cpu_id: id@7 {
-			reg = <0x07 0x10>;
-		};
-	};
-
 	rng: rng@ff2f0000 {
 		compatible = "rockchip,cryptov2-rng";
 		reg = <0x0 0xff2f0000 0x0 0x4000>;
