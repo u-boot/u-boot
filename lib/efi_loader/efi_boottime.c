@@ -2516,9 +2516,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	/* Count protocols */
-	list_for_each(protocol_handle, &efiobj->protocols) {
-		++*protocol_buffer_count;
-	}
+	*protocol_buffer_count = list_count_nodes(&efiobj->protocols);
 
 	/* Copy GUIDs */
 	if (*protocol_buffer_count) {

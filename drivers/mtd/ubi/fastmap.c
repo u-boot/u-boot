@@ -581,13 +581,11 @@ static int count_fastmap_pebs(struct ubi_attach_info *ai)
 	struct ubi_ainf_peb *aeb;
 	struct ubi_ainf_volume *av;
 	struct rb_node *rb1, *rb2;
-	int n = 0;
+	int n;
 
-	list_for_each_entry(aeb, &ai->erase, u.list)
-		n++;
+	n = list_count_nodes(&ai->erase);
 
-	list_for_each_entry(aeb, &ai->free, u.list)
-		n++;
+	n += list_count_nodes(&ai->free);
 
 	 ubi_rb_for_each_entry(rb1, av, &ai->volumes, rb)
 		ubi_rb_for_each_entry(rb2, aeb, &av->root, u.rb)

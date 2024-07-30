@@ -79,13 +79,7 @@ int scene_title_set(struct scene *scn, uint id)
 
 int scene_obj_count(struct scene *scn)
 {
-	struct scene_obj *obj;
-	int count = 0;
-
-	list_for_each_entry(obj, &scn->obj_head, sibling)
-		count++;
-
-	return count;
+	return list_count_nodes(&scn->obj_head);
 }
 
 void *scene_obj_find(const struct scene *scn, uint id, enum scene_obj_t type)

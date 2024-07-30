@@ -742,8 +742,8 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				efi_uintn_t *descriptor_size,
 				uint32_t *descriptor_version)
 {
+	efi_uintn_t map_entries;
 	efi_uintn_t map_size = 0;
-	int map_entries = 0;
 	struct list_head *lhandle;
 	efi_uintn_t provided_map_size;
 
@@ -752,8 +752,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 
 	provided_map_size = *memory_map_size;
 
-	list_for_each(lhandle, &efi_mem)
-		map_entries++;
+	map_entries = list_count_nodes(&efi_mem);
 
 	map_size = map_entries * sizeof(struct efi_mem_desc);
 
