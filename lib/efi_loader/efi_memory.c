@@ -127,7 +127,7 @@ static uint64_t desc_get_end(struct efi_mem_desc *desc)
  */
 static void efi_mem_sort(void)
 {
-	struct list_head *lhandle;
+	struct efi_mem_list *lmem;
 	struct efi_mem_list *prevmem = NULL;
 	bool merge_again = true;
 
@@ -136,13 +136,11 @@ static void efi_mem_sort(void)
 	/* Now merge entries that can be merged */
 	while (merge_again) {
 		merge_again = false;
-		list_for_each(lhandle, &efi_mem) {
-			struct efi_mem_list *lmem;
+		list_for_each_entry(lmem, &efi_mem, link) {
 			struct efi_mem_desc *prev;
 			struct efi_mem_desc *cur;
 			uint64_t pages;
 
-			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			if (!prevmem) {
 				prevmem = lmem;
 				continue;
@@ -269,7 +267,7 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 					  int memory_type,
 					  bool overlap_only_ram)
 {
-	struct list_head *lhandle;
+	struct efi_mem_list *lmem;
 	struct efi_mem_list *newlist;
 	bool carve_again;
 	uint64_t carved_pages = 0;
@@ -309,11 +307,9 @@ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 	/* Add our new map */
 	do {
 		carve_again = false;
-		list_for_each(lhandle, &efi_mem) {
-			struct efi_mem_list *lmem;
+		list_for_each_entry(lmem, &efi_mem, link) {
 			s64 r;
 
-			lmem = list_entry(lhandle, struct efi_mem_list, link);
 			r = efi_mem_carve_out(lmem, &newlist->desc,
 					      overlap_only_ram);
 			switch (r) {
@@ -445,7 +441,7 @@ static efi_status_t efi_check_allocated(u64 addr, bool must_be_allocated)
  */
 static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 {
-	struct list_head *lhandle;
+	struct efi_mem_list *lmem;
 
 	/*
 	 * Prealign input max address, so we simplify our matching
@@ -453,9 +449,7 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 	 */
 	max_addr &= ~EFI_PAGE_MASK;
 
-	list_for_each(lhandle, &efi_mem) {
-		struct efi_mem_list *lmem = list_entry(lhandle,
-			struct efi_mem_list, link);
+	list_for_each_entry(lmem, &efi_mem, link) {
 		struct efi_mem_desc *desc = &lmem->desc;
 		uint64_t desc_len = desc->num_pages << EFI_PAGE_SHIFT;
 		uint64_t desc_end = desc->physical_start + desc_len;
@@ -745,7 +739,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 {
 	size_t map_entries;
 	efi_uintn_t map_size = 0;
-	struct list_head *lhandle;
+	struct efi_mem_list *lmem;
 	efi_uintn_t provided_map_size;
 
 	if (!memory_map_size)
@@ -774,10 +768,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	/* Copy list into array */
 	/* Return the list in ascending order */
 	memory_map = &memory_map[map_entries - 1];
-	list_for_each(lhandle, &efi_mem) {
-		struct efi_mem_list *lmem;
-
-		lmem = list_entry(lhandle, struct efi_mem_list, link);
+	list_for_each_entry(lmem, &efi_mem, link) {
 		*memory_map = lmem->desc;
 		memory_map--;
 	}
