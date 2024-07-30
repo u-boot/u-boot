@@ -14,6 +14,7 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
+#include <linux/list.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -27,14 +28,14 @@ static int dm_test_bus_children(struct unit_test_state *uts)
 	struct uclass *uc;
 
 	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
-	ut_asserteq(num_devices, list_count_items(&uc->dev_head));
+	ut_asserteq(num_devices, list_count_nodes(&uc->dev_head));
 
 	/* Probe the bus, which should yield 3 more devices */
 	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
 	num_devices += 3;
 
 	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
-	ut_asserteq(num_devices, list_count_items(&uc->dev_head));
+	ut_asserteq(num_devices, list_count_nodes(&uc->dev_head));
 
 	ut_assert(!dm_check_devices(uts, num_devices));
 

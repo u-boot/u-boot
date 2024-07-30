@@ -3,23 +3,13 @@
  * Copyright (c) 2013 Google, Inc
  */
 
+#include <vsprintf.h>
 #include <dm/device.h>
 #include <dm/ofnode.h>
 #include <dm/read.h>
 #include <dm/util.h>
 #include <linux/libfdt.h>
-#include <vsprintf.h>
-
-int list_count_items(struct list_head *head)
-{
-	struct list_head *node;
-	int count = 0;
-
-	list_for_each(node, head)
-		count++;
-
-	return count;
-}
+#include <linux/list.h>
 
 #if CONFIG_IS_ENABLED(OF_REAL)
 int pci_get_devfn(struct udevice *dev)
