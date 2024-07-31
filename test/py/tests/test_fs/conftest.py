@@ -178,13 +178,13 @@ def fs_obj_basic(request, u_boot_config):
     fs_ubtype = fstype_to_ubname(fs_type)
     check_ubconfig(u_boot_config, fs_ubtype)
 
-    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+    scratch_dir = u_boot_config.persistent_data_dir + '/scratch'
 
-    small_file = mount_dir + '/' + SMALL_FILE
-    big_file = mount_dir + '/' + BIG_FILE
+    small_file = scratch_dir + '/' + SMALL_FILE
+    big_file = scratch_dir + '/' + BIG_FILE
 
     try:
-        check_call('mkdir -p %s' % mount_dir, shell=True)
+        check_call('mkdir -p %s' % scratch_dir, shell=True)
     except CalledProcessError as err:
         pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
         call('rm -f %s' % fs_img, shell=True)
@@ -192,7 +192,7 @@ def fs_obj_basic(request, u_boot_config):
 
     try:
         # Create a subdirectory.
-        check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
+        check_call('mkdir %s/SUBDIR' % scratch_dir, shell=True)
 
         # Create big file in this image.
         # Note that we work only on the start 1MB, couple MBs in the 2GB range
@@ -253,7 +253,7 @@ def fs_obj_basic(request, u_boot_config):
 
         try:
             # 3GiB volume
-            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0xc0000000, '3GB', mount_dir)
+            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0xc0000000, '3GB', scratch_dir)
         except CalledProcessError as err:
             pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
             return
@@ -264,7 +264,7 @@ def fs_obj_basic(request, u_boot_config):
     else:
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        call('rm -rf %s' % mount_dir, shell=True)
+        call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
 
 #
@@ -288,13 +288,13 @@ def fs_obj_ext(request, u_boot_config):
     fs_ubtype = fstype_to_ubname(fs_type)
     check_ubconfig(u_boot_config, fs_ubtype)
 
-    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+    scratch_dir = u_boot_config.persistent_data_dir + '/scratch'
 
-    min_file = mount_dir + '/' + MIN_FILE
-    tmp_file = mount_dir + '/tmpfile'
+    min_file = scratch_dir + '/' + MIN_FILE
+    tmp_file = scratch_dir + '/tmpfile'
 
     try:
-        check_call('mkdir -p %s' % mount_dir, shell=True)
+        check_call('mkdir -p %s' % scratch_dir, shell=True)
     except CalledProcessError as err:
         pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
         call('rm -f %s' % fs_img, shell=True)
@@ -302,7 +302,7 @@ def fs_obj_ext(request, u_boot_config):
 
     try:
         # Create a test directory
-        check_call('mkdir %s/dir1' % mount_dir, shell=True)
+        check_call('mkdir %s/dir1' % scratch_dir, shell=True)
 
         # Create a small file and calculate md5
         check_call('dd if=/dev/urandom of=%s bs=1K count=20'
@@ -343,7 +343,7 @@ def fs_obj_ext(request, u_boot_config):
 
         try:
             # 128MiB volume
-            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x8000000, '128MB', mount_dir)
+            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x8000000, '128MB', scratch_dir)
         except CalledProcessError as err:
             pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
             return
@@ -354,7 +354,7 @@ def fs_obj_ext(request, u_boot_config):
     else:
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        call('rm -rf %s' % mount_dir, shell=True)
+        call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
 
 #
@@ -409,10 +409,10 @@ def fs_obj_unlink(request, u_boot_config):
     fs_ubtype = fstype_to_ubname(fs_type)
     check_ubconfig(u_boot_config, fs_ubtype)
 
-    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+    scratch_dir = u_boot_config.persistent_data_dir + '/scratch'
 
     try:
-        check_call('mkdir -p %s' % mount_dir, shell=True)
+        check_call('mkdir -p %s' % scratch_dir, shell=True)
     except CalledProcessError as err:
         pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
         call('rm -f %s' % fs_img, shell=True)
@@ -420,29 +420,29 @@ def fs_obj_unlink(request, u_boot_config):
 
     try:
         # Test Case 1 & 3
-        check_call('mkdir %s/dir1' % mount_dir, shell=True)
+        check_call('mkdir %s/dir1' % scratch_dir, shell=True)
         check_call('dd if=/dev/urandom of=%s/dir1/file1 bs=1K count=1'
-                                    % mount_dir, shell=True)
+                                    % scratch_dir, shell=True)
         check_call('dd if=/dev/urandom of=%s/dir1/file2 bs=1K count=1'
-                                    % mount_dir, shell=True)
+                                    % scratch_dir, shell=True)
 
         # Test Case 2
-        check_call('mkdir %s/dir2' % mount_dir, shell=True)
+        check_call('mkdir %s/dir2' % scratch_dir, shell=True)
         for i in range(0, 20):
             check_call('mkdir %s/dir2/0123456789abcdef%02x'
-                                    % (mount_dir, i), shell=True)
+                                    % (scratch_dir, i), shell=True)
 
         # Test Case 4
-        check_call('mkdir %s/dir4' % mount_dir, shell=True)
+        check_call('mkdir %s/dir4' % scratch_dir, shell=True)
 
         # Test Case 5, 6 & 7
-        check_call('mkdir %s/dir5' % mount_dir, shell=True)
+        check_call('mkdir %s/dir5' % scratch_dir, shell=True)
         check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
-                                    % mount_dir, shell=True)
+                                    % scratch_dir, shell=True)
 
         try:
             # 128MiB volume
-            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x8000000, '128MB', mount_dir)
+            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x8000000, '128MB', scratch_dir)
         except CalledProcessError as err:
             pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
             return
@@ -453,7 +453,7 @@ def fs_obj_unlink(request, u_boot_config):
     else:
         yield [fs_ubtype, fs_img]
     finally:
-        call('rm -rf %s' % mount_dir, shell=True)
+        call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
 
 #
@@ -477,13 +477,13 @@ def fs_obj_symlink(request, u_boot_config):
     fs_ubtype = fstype_to_ubname(fs_type)
     check_ubconfig(u_boot_config, fs_ubtype)
 
-    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+    scratch_dir = u_boot_config.persistent_data_dir + '/scratch'
 
-    small_file = mount_dir + '/' + SMALL_FILE
-    medium_file = mount_dir + '/' + MEDIUM_FILE
+    small_file = scratch_dir + '/' + SMALL_FILE
+    medium_file = scratch_dir + '/' + MEDIUM_FILE
 
     try:
-        check_call('mkdir -p %s' % mount_dir, shell=True)
+        check_call('mkdir -p %s' % scratch_dir, shell=True)
     except CalledProcessError as err:
         pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
         call('rm -f %s' % fs_img, shell=True)
@@ -491,7 +491,7 @@ def fs_obj_symlink(request, u_boot_config):
 
     try:
         # Create a subdirectory.
-        check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
+        check_call('mkdir %s/SUBDIR' % scratch_dir, shell=True)
 
         # Create a small file in this image.
         check_call('dd if=/dev/urandom of=%s bs=1M count=1'
@@ -513,7 +513,7 @@ def fs_obj_symlink(request, u_boot_config):
 
         try:
             # 1GiB volume
-            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x40000000, '1GB', mount_dir)
+            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x40000000, '1GB', scratch_dir)
         except CalledProcessError as err:
             pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
             return
@@ -524,7 +524,7 @@ def fs_obj_symlink(request, u_boot_config):
     else:
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        call('rm -rf %s' % mount_dir, shell=True)
+        call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
 
 #
