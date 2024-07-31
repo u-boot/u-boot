@@ -60,7 +60,7 @@ static int f35sqa002g_ecc_get_status(struct spinand_device *spinand, u8 status)
 		return 0;
 
 	case STATUS_ECC_HAS_BITFLIPS:
-		return nand->eccreq.strength;
+		return nanddev_get_ecc_conf(nand)->strength;
 
 	default:
 		break;
