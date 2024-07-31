@@ -22,6 +22,7 @@
 #include <cpu.h>
 #include <dm/uclass-internal.h>
 #endif
+#include <linux/sizes.h>
 
 /* Safeguard for checking that U_BOOT_VERSION_NUM macros are compatible with U_BOOT_DMI */
 #if U_BOOT_VERSION_NUM < 2000 || U_BOOT_VERSION_NUM > 2099 || \
@@ -348,7 +349,13 @@ static int smbios_write_type0(ulong *current, int handle,
 #endif
 	t->bios_release_date = smbios_add_prop(ctx, NULL, U_BOOT_DMI_DATE);
 #ifdef CONFIG_ROM_SIZE
-	t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
+	if (CONFIG_ROM_SIZE < SZ_16M) {
+		t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
+	} else {
+		/* CONFIG_ROM_SIZE < 8 GiB */
+		t->bios_rom_size = 0xff;
+		t->extended_bios_rom_size = CONFIG_ROM_SIZE >> 20;
+	}
 #endif
 	t->bios_characteristics = BIOS_CHARACTERISTICS_PCI_SUPPORTED |
 				  BIOS_CHARACTERISTICS_SELECTABLE_BOOT |

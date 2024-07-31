@@ -17,14 +17,6 @@ struct dm_stats;
 struct list_head;
 
 /**
- * list_count_items() - Count number of items in a list
- *
- * @param head:		Head of list
- * Return: number of items, or 0 if empty
- */
-int list_count_items(struct list_head *head);
-
-/**
  * Dump out a tree of all devices starting @uclass
  *
  * @dev_name: udevice name
