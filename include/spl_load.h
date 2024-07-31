@@ -22,7 +22,7 @@ static inline int _spl_load(struct spl_image_info *spl_image,
 
 	read = info->read(info, offset, ALIGN(sizeof(*header),
 					      spl_get_bl_len(info)), header);
-	if (read < sizeof(*header))
+	if (read < (int)sizeof(*header))
 		return -EIO;
 
 	if (image_get_magic(header) == FDT_MAGIC) {
