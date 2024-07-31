@@ -271,7 +271,7 @@ static int soft_spi_probe(struct udevice *dev)
 	ret = gpio_request_by_name(dev, "gpio-miso", 0, &plat->miso,
 				   GPIOD_IS_IN);
 	if (ret)
-		ret = gpio_request_by_name(dev, "gpio-miso", 0, &plat->miso,
+		ret = gpio_request_by_name(dev, "miso-gpios", 0, &plat->miso,
 					   GPIOD_IS_IN);
 	if (ret)
 		plat->flags |= SPI_MASTER_NO_RX;
