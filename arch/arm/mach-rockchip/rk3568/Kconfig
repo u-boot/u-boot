@@ -37,6 +37,11 @@ config TARGET_RADXA_ZERO_3_RK3566
 	help
 	  Radxa ZERO 3W/3E single board computers with a RK3566 SoC.
 
+config TARGET_ORANGEPI_3B_RK3566
+	bool "Xunlong Orange Pi 3B"
+	help
+	  Xunlong Orange Pi 3B single board computer with a RK3566 SoC.
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -60,5 +65,6 @@ source "board/hardkernel/odroid_m1/Kconfig"
 source "board/pine64/quartz64_rk3566/Kconfig"
 source "board/powkiddy/x55/Kconfig"
 source "board/radxa/zero3-rk3566/Kconfig"
+source "board/xunlong/orangepi-3b-rk3566/Kconfig"
 
 endif
