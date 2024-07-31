@@ -54,11 +54,15 @@ struct bootstage_hdr {
 	u32 next_id;		/* Next ID to use for bootstage */
 };
 
-int bootstage_relocate(void)
+int bootstage_relocate(void *to)
 {
-	struct bootstage_data *data = gd->bootstage;
+	struct bootstage_data *data;
 	int i;
 	char *ptr;
+
+	debug("Copying bootstage from %p to %p\n", gd->bootstage, to);
+	memcpy(to, gd->bootstage, sizeof(struct bootstage_data));
+	data = gd->bootstage = to;
 
 	/* Figure out where to relocate the strings to */
 	ptr = (char *)(data + 1);

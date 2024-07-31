@@ -684,13 +684,7 @@ static int reloc_bootstage(void)
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
 	if (gd->new_bootstage) {
-		int size = bootstage_get_size();
-
-		debug("Copying bootstage from %p to %p, size %x\n",
-		      gd->bootstage, gd->new_bootstage, size);
-		memcpy(gd->new_bootstage, gd->bootstage, size);
-		gd->bootstage = gd->new_bootstage;
-		bootstage_relocate();
+		bootstage_relocate(gd->new_bootstage);
 	}
 #endif
 
