@@ -50,6 +50,7 @@ Shell commands
    cmd/coninfo
    cmd/conitrace
    cmd/cp
+   cmd/cpu
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate
