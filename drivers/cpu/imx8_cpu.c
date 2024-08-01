@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <thermal.h>
 #include <asm/global_data.h>
+#include <asm/ptrace.h>
 #include <asm/system.h>
 #include <firmware/imx/sci/sci.h>
 #include <asm/arch/sys_proto.h>
@@ -15,6 +16,7 @@
 #include <imx_thermal.h>
 #include <linux/bitops.h>
 #include <linux/clk-provider.h>
+#include <linux/psci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -240,12 +242,34 @@ static int cpu_imx_is_current(struct udevice *dev)
 	return 0;
 }
 
+static int cpu_imx_release_core(const struct udevice *dev, phys_addr_t addr)
+{
+	struct cpu_imx_plat *plat = dev_get_plat(dev);
+	struct pt_regs regs;
+
+	regs.regs[0] = PSCI_0_2_FN64_CPU_ON;
+	regs.regs[1] = plat->mpidr;
+	regs.regs[2] = addr;
+	regs.regs[3] = 0;
+
+	smc_call(&regs);
+	if (regs.regs[0]) {
+		printf("Failed to release CPU core (mpidr: 0x%x)\n", plat->mpidr);
+		return -1;
+	}
+
+	printf("Released CPU core (mpidr: 0x%x) to address 0x%llx\n", plat->mpidr, addr);
+
+	return 0;
+}
+
 static const struct cpu_ops cpu_imx_ops = {
 	.get_desc	= cpu_imx_get_desc,
 	.get_info	= cpu_imx_get_info,
 	.get_count	= cpu_imx_get_count,
 	.get_vendor	= cpu_imx_get_vendor,
 	.is_current	= cpu_imx_is_current,
+	.release_core	= cpu_imx_release_core,
 };
 
 static const struct udevice_id cpu_imx_ids[] = {
