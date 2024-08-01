@@ -20,15 +20,18 @@ Quick Start
 Build U-Boot
 ------------
 
-Device support is implemented by applying a config fragment to a generic board
-defconfig. Valid fragments are ``tf201.config``, ``tf300t.config``,
-``tf300tg.config``, ``tf300tl.config``, ``tf700t.config``, ``tf600t.config`` and
-``p1801-t.config``.
+U-Boot features ability to detect transformer device model on which it is
+loaded. The list of supported devices include:
+- ASUS Transformer Prime TF201
+- ASUS Transformer Pad (3G/LTE) TF300T/TG/TL
+- ASUS Transformer Infinity TF700T
+- ASUS Portable AiO P1801-T
+- ASUS VivoTab RT TF600T
 
 .. code-block:: bash
 
     $ export CROSS_COMPILE=arm-linux-gnueabi-
-    $ make transformer_t30_defconfig tf201.config # For TF201
+    $ make transformer_t30_defconfig
     $ make
 
 After the build succeeds, you will obtain the final ``u-boot-dtb-tegra.bin``
