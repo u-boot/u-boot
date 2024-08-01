@@ -184,8 +184,6 @@ static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 			ret = snprintf(buf, size, " - invalid sensor data");
 	}
 
-	snprintf(buf + ret, size - ret, "\n");
-
 	return 0;
 }
 
