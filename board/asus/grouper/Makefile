@@ -7,5 +7,6 @@
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
 obj-$(CONFIG_SPL_BUILD) += grouper-spl.o
+obj-$(CONFIG_MULTI_DTB_FIT) += board-info.o
 
 obj-y += grouper.o

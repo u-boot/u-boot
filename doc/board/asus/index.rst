@@ -6,6 +6,6 @@ ASUS
 .. toctree::
    :maxdepth: 2
 
-   grouper_common
+   grouper
    transformer_t20
    transformer_t30
