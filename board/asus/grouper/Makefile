@@ -6,9 +6,6 @@
 #  (C) Copyright 2021
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
-ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_DM_PMIC_MAX77663) += grouper-spl-max.o
-obj-$(CONFIG_DM_PMIC_TPS65910) += grouper-spl-ti.o
-endif
+obj-$(CONFIG_SPL_BUILD) += grouper-spl.o
 
 obj-y += grouper.o
