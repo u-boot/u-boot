@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  */
 
 #include <cpu.h>
@@ -193,7 +193,7 @@ static int cpu_imx_get_info(const struct udevice *dev, struct cpu_info *info)
 {
 	struct cpu_imx_plat *plat = dev_get_plat(dev);
 
-	info->cpu_freq = plat->freq_mhz * 1000;
+	info->cpu_freq = plat->freq_mhz * 1000000;
 	info->features = BIT(CPU_FEAT_L1_CACHE) | BIT(CPU_FEAT_MMU);
 	return 0;
 }
