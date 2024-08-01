@@ -2,7 +2,6 @@
 # Copyright (c) 2016, NVIDIA CORPORATION. All rights reserved.
 
 import collections
-import getpass
 import gzip
 import os
 import os.path
@@ -22,8 +21,8 @@ def mkdir_cond(dirname):
     if not os.path.exists(dirname):
         os.mkdir(dirname)
 
-def setup_image(cons, mmc_dev, part_type, second_part=False):
-    """Create a 20MB disk image with a single partition
+def setup_image(cons, mmc_dev, part_type, img_size, second_part=False):
+    """Create a img_size sized disk image with a single partition
 
     Args:
         cons (ConsoleBase): Console to use
@@ -32,45 +31,18 @@ def setup_image(cons, mmc_dev, part_type, second_part=False):
         second_part (bool): True to contain a small second partition
 
     Returns:
-        tuple:
-            str: Filename of MMC image
-            str: Directory name of 'mnt' directory
+        str: Filename of MMC image
     """
     fname = os.path.join(cons.config.source_dir, f'mmc{mmc_dev}.img')
-    mnt = os.path.join(cons.config.persistent_data_dir, 'mnt')
-    mkdir_cond(mnt)
 
-    spec = f'type={part_type:x}, size=18M, bootable'
+    spec = f'type={part_type:x}, size={img_size - 2}M, start=1M, bootable'
     if second_part:
         spec += '\ntype=c'
 
-    u_boot_utils.run_and_log(cons, 'qemu-img create %s 20M' % fname)
-    u_boot_utils.run_and_log(cons, 'sudo sfdisk %s' % fname,
+    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} {img_size}M')
+    u_boot_utils.run_and_log(cons, 'sfdisk %s' % fname,
                              stdin=spec.encode('utf-8'))
-    return fname, mnt
-
-def mount_image(cons, fname, mnt, fstype):
-    """Create a filesystem and mount it on partition 1
-
-    Args:
-        cons (ConsoleBase): Console to use
-        fname (str): Filename of MMC image
-        mnt (str): Directory name of 'mnt' directory
-        fstype (str): Filesystem type ('vfat' or 'ext4')
-
-    Returns:
-        str: Name of loop device used
-    """
-    out = u_boot_utils.run_and_log(cons, 'sudo losetup --show -f -P %s' % fname)
-    loop = out.strip()
-    part = f'{loop}p1'
-    u_boot_utils.run_and_log(cons, f'sudo mkfs.{fstype} {part}')
-    opts = ''
-    if fstype == 'vfat':
-         opts += f' -o uid={os.getuid()},gid={os.getgid()}'
-    u_boot_utils.run_and_log(cons, f'sudo mount -o loop {part} {mnt}{opts}')
-    u_boot_utils.run_and_log(cons, f'sudo chown {getpass.getuser()} {mnt}')
-    return loop
+    return fname
 
 def copy_prepared_image(cons, mmc_dev, fname):
     """Use a prepared image since we cannot create one
@@ -92,14 +64,12 @@ def setup_bootmenu_image(cons):
     This is modelled on Armbian 22.08 Jammy
     """
     mmc_dev = 4
-    fname, mnt = setup_image(cons, mmc_dev, 0x83)
+    fname = setup_image(cons, mmc_dev, 0x83, 20)
 
-    loop = None
-    mounted = False
     complete = False
     try:
-        loop = mount_image(cons, fname, mnt, 'ext4')
-        mounted = True
+        scratch_dir = os.path.join(cons.config.persistent_data_dir, 'scratch')
+        mkdir_cond(scratch_dir)
 
         vmlinux = 'Image'
         initrd = 'uInitrd'
@@ -178,7 +148,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
 # Recompile with:
 # mkimage -C none -A arm -T script -d /boot/boot.cmd /boot/boot.scr
 ''' % (mmc_dev)
-        bootdir = os.path.join(mnt, 'boot')
+        bootdir = os.path.join(scratch_dir, 'boot')
         mkdir_cond(bootdir)
         cmd_fname = os.path.join(bootdir, 'boot.cmd')
         scr_fname = os.path.join(bootdir, 'boot.scr')
@@ -209,16 +179,19 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
 
         u_boot_utils.run_and_log(
             cons, f'mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
+
+        fsfile = 'ext18M.img'
+        u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
+        u_boot_utils.run_and_log(cons, f'mkfs.ext4 {fsfile} -d {scratch_dir}')
+        u_boot_utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
         complete = True
 
     except ValueError as exc:
         print('Falled to create image, failing back to prepared copy: %s',
               str(exc))
     finally:
-        if mounted:
-            u_boot_utils.run_and_log(cons, 'sudo umount --lazy %s' % mnt)
-        if loop:
-            u_boot_utils.run_and_log(cons, 'sudo losetup -d %s' % loop)
+        u_boot_utils.run_and_log(cons, 'rm -rf %s' % scratch_dir)
+        u_boot_utils.run_and_log(cons, 'rm -f %s' % fsfile)
 
     if not complete:
         copy_prepared_image(cons, mmc_dev, fname)
@@ -226,14 +199,12 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
 def setup_bootflow_image(cons):
     """Create a 20MB disk image with a single FAT partition"""
     mmc_dev = 1
-    fname, mnt = setup_image(cons, mmc_dev, 0xc, second_part=True)
+    fname = setup_image(cons, mmc_dev, 0xc, 20, second_part=True)
 
-    loop = None
-    mounted = False
     complete = False
     try:
-        loop = mount_image(cons, fname, mnt, 'vfat')
-        mounted = True
+        scratch_dir = os.path.join(cons.config.persistent_data_dir, 'scratch')
+        mkdir_cond(scratch_dir)
 
         vmlinux = 'vmlinuz-5.3.7-301.fc31.armv7hl'
         initrd = 'initramfs-5.3.7-301.fc31.armv7hl.img'
@@ -251,7 +222,7 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
         append ro root=UUID=9732b35b-4cd5-458b-9b91-80f7047e0b8a rhgb quiet LANG=en_US.UTF-8 cma=192MB cma=256MB
         fdtdir /%s/
         initrd /%s''' % (vmlinux, dtbdir, initrd)
-        ext = os.path.join(mnt, 'extlinux')
+        ext = os.path.join(scratch_dir, 'extlinux')
         mkdir_cond(ext)
 
         with open(os.path.join(ext, 'extlinux.conf'), 'w') as fd:
@@ -261,25 +232,29 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
         with open(inf, 'wb') as fd:
             fd.write(gzip.compress(b'vmlinux'))
         u_boot_utils.run_and_log(cons, 'mkimage -f auto -d %s %s' %
-                                 (inf, os.path.join(mnt, vmlinux)))
+                                 (inf, os.path.join(scratch_dir, vmlinux)))
 
-        with open(os.path.join(mnt, initrd), 'w') as fd:
+        with open(os.path.join(scratch_dir, initrd), 'w') as fd:
             print('initrd', file=fd)
 
-        mkdir_cond(os.path.join(mnt, dtbdir))
+        mkdir_cond(os.path.join(scratch_dir, dtbdir))
 
-        dtb_file = os.path.join(mnt, '%s/sandbox.dtb' % dtbdir)
+        dtb_file = os.path.join(scratch_dir, '%s/sandbox.dtb' % dtbdir)
         u_boot_utils.run_and_log(
             cons, 'dtc -o %s' % dtb_file, stdin=b'/dts-v1/; / {};')
+
+        fsfile = 'vfat18M.img'
+        u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
+        u_boot_utils.run_and_log(cons, f'mkfs.vfat {fsfile}')
+        u_boot_utils.run_and_log(cons, ['sh', '-c', f'mcopy -i {fsfile} {scratch_dir}/* ::/'])
+        u_boot_utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
         complete = True
     except ValueError as exc:
         print('Falled to create image, failing back to prepared copy: %s',
               str(exc))
     finally:
-        if mounted:
-            u_boot_utils.run_and_log(cons, 'sudo umount --lazy %s' % mnt)
-        if loop:
-            u_boot_utils.run_and_log(cons, 'sudo losetup -d %s' % loop)
+        u_boot_utils.run_and_log(cons, 'rm -rf %s' % scratch_dir)
+        u_boot_utils.run_and_log(cons, 'rm -f %s' % fsfile)
 
     if not complete:
         copy_prepared_image(cons, mmc_dev, fname)
