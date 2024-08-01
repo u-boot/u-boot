@@ -102,6 +102,15 @@ struct cpu_ops {
 	 *         if not.
 	 */
 	int (*is_current)(struct udevice *dev);
+
+	/**
+	 * release_core() - Relase a CPU core to the given address to run application
+	 *
+	 * @dev:	Device to check (UCLASS_CPU)
+	 * @addr:	Address to relese the CPU core
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*release_core)(const struct udevice *dev, phys_addr_t addr);
 };
 
 #define cpu_get_ops(dev)        ((struct cpu_ops *)(dev)->driver->ops)
@@ -164,4 +173,10 @@ int cpu_is_current(struct udevice *cpu);
  */
 struct udevice *cpu_get_current_dev(void);
 
+/**
+ * cpu_release_core() - Relase a CPU core to the given address to run application
+ *
+ * @return 0 if OK, -ve on error
+ */
+int cpu_release_core(const struct udevice *dev, phys_addr_t addr);
 #endif
