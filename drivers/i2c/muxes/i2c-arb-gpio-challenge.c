@@ -54,7 +54,7 @@ int i2c_arbitrator_select(struct udevice *mux, struct udevice *bus,
 		/* Indicate that we want to claim the bus */
 		ret = dm_gpio_set_value(&priv->ap_claim, 1);
 		if (ret)
-			goto err;
+			return ret;
 		udelay(priv->slew_delay_us);
 
 		/* Wait for the EC to release it */
@@ -62,7 +62,7 @@ int i2c_arbitrator_select(struct udevice *mux, struct udevice *bus,
 		while (get_timer(start_retry) < priv->wait_retry_ms) {
 			ret = dm_gpio_get_value(&priv->ec_claim);
 			if (ret < 0) {
-				goto err;
+				return ret;
 			} else if (!ret) {
 				/* We got it, so return */
 				return 0;
@@ -75,17 +75,14 @@ int i2c_arbitrator_select(struct udevice *mux, struct udevice *bus,
 		/* It didn't release, so give up, wait, and try again */
 		ret = dm_gpio_set_value(&priv->ap_claim, 0);
 		if (ret)
-			goto err;
+			return ret;
 
 		mdelay(priv->wait_retry_ms);
 	} while (get_timer(start) < priv->wait_free_ms);
 
 	/* Give up, release our claim */
 	printf("I2C: Could not claim bus, timeout %lu\n", get_timer(start));
-	ret = -ETIMEDOUT;
-	ret = 0;
-err:
-	return ret;
+	return -ETIMEDOUT;
 }
 
 static int i2c_arbitrator_probe(struct udevice *dev)
