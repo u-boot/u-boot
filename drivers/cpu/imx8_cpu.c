@@ -31,6 +31,12 @@ struct cpu_imx_plat {
 static const char *get_imx_type_str(u32 imxtype)
 {
 	switch (imxtype) {
+	case MXC_CPU_IMX8MM:
+		return "8MM";
+	case MXC_CPU_IMX8MN:
+		return "8MN";
+	case MXC_CPU_IMX8MP:
+		return "8MP";
 	case MXC_CPU_IMX8QXP:
 	case MXC_CPU_IMX8QXP_A0:
 		return "8QXP";
