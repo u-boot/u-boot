@@ -287,7 +287,7 @@ static int imx_cpu_probe(struct udevice *dev)
 	cpurev = get_cpu_rev();
 	plat->cpurev = cpurev;
 	plat->rev = get_imx_rev_str(cpurev & 0xFFF);
-	plat->type = get_imx_type_str((cpurev & 0xFF000) >> 12);
+	plat->type = get_imx_type_str((cpurev & 0x1FF000) >> 12);
 	plat->freq_mhz = imx_get_cpu_rate(dev) / 1000000;
 	plat->mpidr = dev_read_addr(dev);
 	if (plat->mpidr == FDT_ADDR_T_NONE) {
