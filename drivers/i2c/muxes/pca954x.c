@@ -10,11 +10,8 @@
 #include <i2c.h>
 #include <log.h>
 #include <malloc.h>
-#include <asm/global_data.h>
 
 #include <asm-generic/gpio.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum pca_type {
 	PCA9543,
