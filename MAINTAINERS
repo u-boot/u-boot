@@ -997,6 +997,13 @@ F:	arch/m68k/
 F:	doc/arch/m68k.rst
 F:	drivers/watchdog/mcf_wdt.c
 
+CPU
+M:	Simon Glass <sjg@chromium.org>
+M:	Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+S:	Maintained
+F:	cmd/cpu.c
+F:	doc/usage/cpu.rst
+
 CYCLIC
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
