@@ -23,6 +23,8 @@ static const char * const sys_pll1_bypass_sels[] = {"sys_pll1", "sys_pll1_ref_se
 static const char * const sys_pll2_bypass_sels[] = {"sys_pll2", "sys_pll2_ref_sel", };
 static const char * const sys_pll3_bypass_sels[] = {"sys_pll3", "sys_pll3_ref_sel", };
 
+static const char * const imx8mn_arm_core_sels[] = {"arm_a53_src", "arm_pll_out", };
+
 static const char * const imx8mn_a53_sels[] = {"clock-osc-24m", "arm_pll_out", "sys_pll2_500m",
 					       "sys_pll2_1000m", "sys_pll1_800m", "sys_pll1_400m",
 					       "audio_pll1_out", "sys_pll3_out", };
@@ -402,6 +404,12 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MN_CLK_ECSPI3_ROOT,
 	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
 #endif
+
+	clk_dm(IMX8MN_CLK_ARM,
+	       imx_clk_mux2_flags("arm_core", base + 0x9880, 24, 1,
+				  imx8mn_arm_core_sels,
+				  ARRAY_SIZE(imx8mn_arm_core_sels),
+				  CLK_IS_CRITICAL));
 
 	return 0;
 }

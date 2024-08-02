@@ -44,6 +44,11 @@ void cpu_sandbox_set_current(const char *name)
 	cpu_current = name;
 }
 
+static int cpu_sandbox_release_core(const struct udevice *dev, phys_addr_t addr)
+{
+	return 0;
+}
+
 static int cpu_sandbox_is_current(struct udevice *dev)
 {
 	if (!strcmp(dev->name, cpu_current))
@@ -58,6 +63,7 @@ static const struct cpu_ops cpu_sandbox_ops = {
 	.get_count = cpu_sandbox_get_count,
 	.get_vendor = cpu_sandbox_get_vendor,
 	.is_current = cpu_sandbox_is_current,
+	.release_core = cpu_sandbox_release_core,
 };
 
 static int cpu_sandbox_bind(struct udevice *dev)

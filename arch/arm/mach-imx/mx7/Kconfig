@@ -87,6 +87,7 @@ config TARGET_WARP7
 	select DM_THERMAL
 	select MX7D
 	imply CMD_DM
+	imply OF_UPSTREAM
 
 config TARGET_COLIBRI_IMX7
 	bool "Support Colibri iMX7S/iMX7D modules"
