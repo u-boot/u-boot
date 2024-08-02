@@ -107,6 +107,7 @@ List of mainline supported Rockchip boards:
      - Powkiddy X55 (powkiddy-x55-rk3566)
      - Radxa CM3 IO Board (radxa-cm3-io-rk3566)
      - Radxa ROCK 3C (rock-3c-rk3566)
+     - Radxa ZERO 3W/3E (radxa-zero-3-rk3566)
 
 * rk3568
      - Rockchip Evb-RK3568 (evb-rk3568)
