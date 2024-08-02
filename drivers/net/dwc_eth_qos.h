@@ -290,6 +290,7 @@ void eqos_flush_desc_generic(void *desc);
 void eqos_inval_buffer_generic(void *buf, size_t size);
 void eqos_flush_buffer_generic(void *buf, size_t size);
 int eqos_get_base_addr_dt(struct udevice *dev);
+int eqos_get_base_addr_pci(struct udevice *dev);
 int eqos_null_ops(struct udevice *dev);
 void *eqos_get_driver_data(struct udevice *dev);
 

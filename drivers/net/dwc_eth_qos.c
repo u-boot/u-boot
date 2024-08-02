@@ -1434,6 +1434,18 @@ int eqos_get_base_addr_dt(struct udevice *dev)
 	return eqos_get_base_addr_common(dev, addr);
 }
 
+int eqos_get_base_addr_pci(struct udevice *dev)
+{
+	fdt_addr_t addr;
+	void *paddr;
+
+	paddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, 0, 0, PCI_REGION_TYPE,
+							      PCI_REGION_MEM);
+	addr = paddr ? (fdt_addr_t)paddr : FDT_ADDR_T_NONE;
+
+	return eqos_get_base_addr_common(dev, addr);
+}
+
 static int eqos_probe(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
