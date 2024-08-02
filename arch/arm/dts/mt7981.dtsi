@@ -280,6 +280,13 @@
 		compatible = "mediatek,ipm-spi";
 		reg = <0x1100b000 0x100>;
 		interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&infracfg_ao CK_INFRA_SPI1_CK>,
+			 <&topckgen CK_TOP_SPIM_MST_SEL>;
+		assigned-clocks = <&topckgen CK_TOP_SPIM_MST_SEL>,
+				  <&infracfg CK_INFRA_SPI1_SEL>;
+		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
+					 <&topckgen CK_INFRA_ISPI1>;
+		clock-names = "sel-clk", "spi-clk";
 		status = "disabled";
 	};
 
