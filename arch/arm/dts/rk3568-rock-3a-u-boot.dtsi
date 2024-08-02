@@ -40,3 +40,7 @@
 		spi-tx-bus-width = <1>;
 	};
 };
+
+&usb_host0_ohci {
+	status = "disabled";
+};
