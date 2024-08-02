@@ -25,6 +25,22 @@
 #define AXI_DIV_SEL(x)			(x)
 
 /* apmixedsys */
+static const int pll_id_offs_map[] = {
+	[CLK_APMIXED_ARMPLL]			= 0,
+	[CLK_APMIXED_MAINPLL]			= 1,
+	[CLK_APMIXED_UNIVPLL]			= 2,
+	[CLK_APMIXED_MMPLL]			= 3,
+	[CLK_APMIXED_MSDCPLL]			= 4,
+	[CLK_APMIXED_TVDPLL]			= 5,
+	[CLK_APMIXED_AUD1PLL]			= 6,
+	[CLK_APMIXED_TRGPLL]			= 7,
+	[CLK_APMIXED_ETHPLL]			= 8,
+	[CLK_APMIXED_VDECPLL]			= 9,
+	[CLK_APMIXED_HADDS2PLL]			= 10,
+	[CLK_APMIXED_AUD2PLL]			= 11,
+	[CLK_APMIXED_TVD2PLL]			= 12,
+};
+
 #define PLL(_id, _reg, _pwr_reg, _en_mask, _flags, _pcwbits, _pd_reg,	\
 	    _pd_shift, _pcw_reg, _pcw_shift) {				\
 		.id = _id,						\
@@ -911,6 +927,7 @@ static const struct mtk_gate hif_cgs[] = {
 
 static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 	.xtal2_rate = 26 * MHZ,
+	.id_offs_map = pll_id_offs_map,
 	.plls = apmixed_plls,
 };
 
