@@ -8,14 +8,10 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <time.h>
-#if defined(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 #include <log.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/pinmux.h>
-#else
-#include <asm/arch/s3c24x0_cpu.h>
-#endif
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <i2c.h>
@@ -53,11 +49,7 @@ static void read_write_byte(struct s3c24x0_i2c *i2c)
 static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 {
 	ulong freq, pres = 16, div;
-#if defined(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 	freq = get_i2c_clk();
-#else
-	freq = get_PCLK();
-#endif
 	/* calculate prescaler and divisor values */
 	if ((freq / pres / (16 + 1)) > speed)
 		/* set prescaler to 512 */
