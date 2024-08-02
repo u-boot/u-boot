@@ -373,7 +373,7 @@ static const int infra_spi0_parents[] = { CK_INFRA_I2C, CK_INFRA_ISPI0 };
 
 static const int infra_spi1_parents[] = { CK_INFRA_I2C, CK_INFRA_ISPI1 };
 
-static const int infra_pwm1_parents[] = { -1, -1, -1, CK_INFRA_PWM };
+static const int infra_pwm1_parents[] = {-1, CK_INFRA_PWM };
 
 static const int infra_pwm_bsel_parents[] = { -1, -1, -1, CK_INFRA_PWM };
 
