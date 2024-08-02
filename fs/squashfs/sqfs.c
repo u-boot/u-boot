@@ -474,6 +474,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 	/* Start by root inode */
 	table = sqfs_find_inode(dirs->inode_table, le32_to_cpu(sblk->inodes),
 				sblk->inodes, sblk->block_size);
+	if (!table)
+		return -EINVAL;
 
 	dir = (struct squashfs_dir_inode *)table;
 	ldir = (struct squashfs_ldir_inode *)table;
@@ -529,6 +531,8 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 		/* Get reference to inode in the inode table */
 		table = sqfs_find_inode(dirs->inode_table, new_inode_number,
 					sblk->inodes, sblk->block_size);
+		if (!table)
+			return -EINVAL;
 		dir = (struct squashfs_dir_inode *)table;
 
 		/* Check for symbolic link and inode type sanity */
@@ -1025,6 +1029,8 @@ int sqfs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
 	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
 			       sblk->block_size);
+	if (!ipos)
+		return -SQFS_STOP_READDIR;
 
 	base = (struct squashfs_base_inode *)ipos;
 
@@ -1381,6 +1387,10 @@ int sqfs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
 	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
 			       sblk->block_size);
+	if (!ipos) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	base = (struct squashfs_base_inode *)ipos;
 	switch (get_unaligned_le16(&base->inode_type)) {
@@ -1629,6 +1639,13 @@ int sqfs_size(const char *filename, loff_t *size)
 	i_number = dirs->dir_header->inode_number + dirs->entry->inode_offset;
 	ipos = sqfs_find_inode(dirs->inode_table, i_number, sblk->inodes,
 			       sblk->block_size);
+
+	if (!ipos) {
+		*size = 0;
+		ret = -EINVAL;
+		goto free_strings;
+	}
+
 	free(dirs->entry);
 	dirs->entry = NULL;
 
