@@ -158,7 +158,7 @@
 		      <0x10217080 0x80>;
 		interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>;
 		clock-div = <1>;
-		clocks = <&infracfg_ao CK_INFRA_I2CO_CK>,
+		clocks = <&infracfg_ao CK_INFRA_I2C0_CK>,
 			 <&infracfg_ao CK_INFRA_AP_DMA_CK>;
 		clock-names = "main", "dma";
 		#address-cells = <1>;
