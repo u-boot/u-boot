@@ -144,8 +144,7 @@
 			 <&infracfg_ao CK_INFRA_PWM_BSEL>,
 			 <&infracfg_ao CK_INFRA_PWM1_CK>,
 			 <&infracfg_ao CK_INFRA_PWM2_CK>,
-			 /* FIXME */
-			 <&infracfg_ao CK_INFRA_PWM2_CK>;
+			 <&infracfg_ao CK_INFRA_PWM3_CK>;
 		assigned-clocks = <&topckgen CK_TOP_PWM_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>;
 		clock-names = "top", "main", "pwm1", "pwm2", "pwm3";
