@@ -9,12 +9,15 @@
 #include <fdtdec.h>
 #include <time.h>
 #include <log.h>
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/pinmux.h>
+#endif
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <i2c.h>
+#include <clk.h>
 #include "s3c24x0_i2c.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -46,10 +49,23 @@ static void read_write_byte(struct s3c24x0_i2c *i2c)
 	clrbits_le32(&i2c->iiccon, I2CCON_IRPND);
 }
 
-static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
+static int i2c_ch_init(struct udevice *dev, int speed, int slaveadd)
 {
+	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
+	struct s3c24x0_i2c *i2c = i2c_bus->regs;
 	ulong freq, pres = 16, div;
+
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || defined(CONFIG_ARCH_EXYNOS5)
 	freq = get_i2c_clk();
+#else
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "i2c", &clk);
+	if (ret < 0)
+		return ret;
+	freq = clk_get_rate(&clk);
+#endif
 	/* calculate prescaler and divisor values */
 	if ((freq / pres / (16 + 1)) > speed)
 		/* set prescaler to 512 */
@@ -67,6 +83,7 @@ static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 	writel(slaveadd, &i2c->iicadd);
 	/* program Master Transmit (and implicit STOP) */
 	writel(I2C_MODE_MT | I2C_TXRX_ENA, &i2c->iicstat);
+	return 0;
 }
 
 #define SYS_I2C_S3C24X0_SLAVE_ADDR	0
@@ -77,8 +94,9 @@ static int s3c24x0_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 
 	i2c_bus->clock_frequency = speed;
 
-	i2c_ch_init(i2c_bus->regs, i2c_bus->clock_frequency,
-		    SYS_I2C_S3C24X0_SLAVE_ADDR);
+	if (i2c_ch_init(dev, i2c_bus->clock_frequency,
+			SYS_I2C_S3C24X0_SLAVE_ADDR))
+		return -EFAULT;
 
 	return 0;
 }
@@ -293,7 +311,9 @@ static int s3c24x0_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 
 static int s3c_i2c_of_to_plat(struct udevice *dev)
 {
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	const void *blob = gd->fdt_blob;
+#endif
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	int node;
 
@@ -301,7 +321,9 @@ static int s3c_i2c_of_to_plat(struct udevice *dev)
 
 	i2c_bus->regs = dev_read_addr_ptr(dev);
 
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);
+#endif
 
 	i2c_bus->clock_frequency =
 		dev_read_u32_default(dev, "clock-frequency",
@@ -309,7 +331,9 @@ static int s3c_i2c_of_to_plat(struct udevice *dev)
 	i2c_bus->node = node;
 	i2c_bus->bus_num = dev_seq(dev);
 
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	exynos_pinmux_config(i2c_bus->id, 0);
+#endif
 
 	i2c_bus->active = true;
 

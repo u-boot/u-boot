@@ -9,11 +9,15 @@
 #include <dm.h>
 #include <i2c.h>
 #include <log.h>
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 #include <asm/arch/clk.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/pinmux.h>
+#endif
 #include <asm/global_data.h>
+#include <asm/io.h>
 #include <linux/delay.h>
+#include <clk.h>
 #include "s3c24x0_i2c.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -137,15 +141,26 @@ static int hsi2c_wait_for_trx(struct exynos5_hsi2c *i2c)
 	return I2C_NOK_TOUT;
 }
 
-static int hsi2c_get_clk_details(struct s3c24x0_i2c_bus *i2c_bus)
+static int hsi2c_get_clk_details(struct udevice *dev)
 {
+	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	struct exynos5_hsi2c *hsregs = i2c_bus->hsregs;
 	ulong clkin;
 	unsigned int op_clk = i2c_bus->clock_frequency;
 	unsigned int i = 0, utemp0 = 0, utemp1 = 0;
 	unsigned int t_ftl_cycle;
 
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	clkin = get_i2c_clk();
+#else
+	struct clk clk;
+	int ret;
+
+	ret = clk_get_by_name(dev, "hsi2c", &clk);
+	if (ret < 0)
+		return ret;
+	clkin = clk_get_rate(&clk);
+#endif
 	/* FPCLK / FI2C =
 	 * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + 2 * FLT_CYCLE
 	 * uTemp0 = (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2)
@@ -487,7 +502,7 @@ static int s3c24x0_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 
 	i2c_bus->clock_frequency = speed;
 
-	if (hsi2c_get_clk_details(i2c_bus))
+	if (hsi2c_get_clk_details(dev))
 		return -EFAULT;
 	hsi2c_ch_init(i2c_bus);
 
@@ -514,7 +529,9 @@ static int s3c24x0_i2c_probe(struct udevice *dev, uint chip, uint chip_flags)
 
 static int s3c_i2c_of_to_plat(struct udevice *dev)
 {
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	const void *blob = gd->fdt_blob;
+#endif
 	struct s3c24x0_i2c_bus *i2c_bus = dev_get_priv(dev);
 	int node;
 
@@ -522,7 +539,9 @@ static int s3c_i2c_of_to_plat(struct udevice *dev)
 
 	i2c_bus->hsregs = dev_read_addr_ptr(dev);
 
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	i2c_bus->id = pinmux_decode_periph_id(blob, node);
+#endif
 
 	i2c_bus->clock_frequency =
 		dev_read_u32_default(dev, "clock-frequency",
@@ -530,7 +549,9 @@ static int s3c_i2c_of_to_plat(struct udevice *dev)
 	i2c_bus->node = node;
 	i2c_bus->bus_num = dev_seq(dev);
 
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	exynos_pinmux_config(i2c_bus->id, PINMUX_FLAG_HS_MODE);
+#endif
 
 	i2c_bus->active = true;
 
