@@ -311,6 +311,12 @@ static int eqos_probe_resources_rk(struct udevice *dev)
 	int reset_flags = GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE;
 	int ret;
 
+	ret = eqos_get_base_addr_dt(dev);
+	if (ret) {
+		dev_err(dev, "eqos_get_base_addr_dt failed: %d\n", ret);
+		return ret;
+	}
+
 	data = calloc(1, sizeof(struct rockchip_platform_data));
 	if (!data)
 		return -ENOMEM;
