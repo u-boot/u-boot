@@ -422,8 +422,10 @@ static char *sqfs_resolve_symlink(struct squashfs_symlink_inode *sym,
 	char *resolved, *target;
 	u32 sz;
 
-	sz = get_unaligned_le32(&sym->symlink_size);
-	target = malloc(sz + 1);
+	if (__builtin_add_overflow(get_unaligned_le32(&sym->symlink_size), 1, &sz))
+		return NULL;
+
+	target = malloc(sz);
 	if (!target)
 		return NULL;
 
@@ -431,9 +433,9 @@ static char *sqfs_resolve_symlink(struct squashfs_symlink_inode *sym,
 	 * There is no trailling null byte in the symlink's target path, so a
 	 * copy is made and a '\0' is added at its end.
 	 */
-	target[sz] = '\0';
+	target[sz - 1] = '\0';
 	/* Get target name (relative path) */
-	strncpy(target, sym->symlink, sz);
+	strncpy(target, sym->symlink, sz - 1);
 
 	/* Relative -> absolute path conversion */
 	resolved = sqfs_get_abs_path(base_path, target);
