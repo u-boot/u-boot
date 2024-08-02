@@ -208,6 +208,34 @@ config TARGET_ROCK5B_RK3588
 	  USB PD over USB Type-C
 	  Size: 100mm x 72mm (Pico-ITX form factor)
 
+config TARGET_ROCK_5_ITX_RK3588
+	bool "Radxa ROCK-5-ITX RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa ROCK-5-ITX is a Rockchip RK3588 based SBC (Single Board
+	  Computer) by Radxa in the ITX formfactor.
+
+	  There are variants depending on the DRAM size : from 4G up to 32G.
+
+	  Specification:
+
+	  Rockchip Rk3588 SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  4/8/16/24/32GB memory LPDDR5
+	  Mali G610MC4 GPU
+	  2x MIPI CSI 2 multiple lanes connector
+	  eMMC
+	  uSD slot (up to 128GB)
+	  M.2 M-key and M.2 E-key connector
+	  4x SATA
+	  2x USB 2.0 + 4x USB 3.0 Type-A, 2x USB 2.0 Panel, 1x USB 3.0 Type-C
+	  2x HDMI 2.1 output, 1x HDMI input
+	  DP via Type-C
+	  2x DSI via PCB connector
+	  2x 2.5 Gbps Ethernet port
+	  Front-panel connectors for audio and case-power, -leds
+	  Powered by either 12V, ATX power-supply or PoE
+
 config TARGET_SIGE7_RK3588
 	bool "ArmSoM Sige7 RK3588 board"
 	select BOARD_LATE_INIT
@@ -343,6 +371,7 @@ source "board/pine64/quartzpro64-rk3588/Kconfig"
 source "board/turing/turing-rk1-rk3588/Kconfig"
 source "board/radxa/rock5a-rk3588s/Kconfig"
 source "board/radxa/rock5b-rk3588/Kconfig"
+source "board/radxa/rock-5-itx-rk3588/Kconfig"
 source "board/rockchip/evb_rk3588/Kconfig"
 source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"

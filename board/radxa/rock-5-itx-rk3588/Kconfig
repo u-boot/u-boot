@@ -1,0 +1,12 @@
+if TARGET_ROCK_5_ITX_RK3588
+
+config SYS_BOARD
+	default "rock-5-itx-rk3588"
+
+config SYS_VENDOR
+	default "radxa"
+
+config SYS_CONFIG_NAME
+	default "rock-5-itx-rk3588"
+
+endif

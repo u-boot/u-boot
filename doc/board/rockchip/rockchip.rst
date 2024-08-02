@@ -134,6 +134,7 @@ List of mainline supported Rockchip boards:
      - Generic RK3588S/RK3588 (generic-rk3588)
      - Indiedroid Nova (nova-rk3588s)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)
+     - Radxa ROCK 5 ITX (rock-5-itx-rk3588)
      - Radxa ROCK 5A (rock5a-rk3588s)
      - Radxa ROCK 5B (rock5b-rk3588)
      - Rockchip Toybrick TB-RK3588X (toybrick-rk3588)
