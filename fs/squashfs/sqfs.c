@@ -567,8 +567,11 @@ static int sqfs_search_dir(struct squashfs_dir_stream *dirs, char **token_list,
 				ret = -ENOMEM;
 				goto out;
 			}
-			/* Concatenate remaining tokens and symlink's target */
-			res = malloc(strlen(rem) + strlen(target) + 1);
+			/*
+			 * Concatenate remaining tokens and symlink's target.
+			 * Allocate enough space for rem, target, '/' and '\0'.
+			 */
+			res = malloc(strlen(rem) + strlen(target) + 2);
 			if (!res) {
 				ret = -ENOMEM;
 				goto out;
