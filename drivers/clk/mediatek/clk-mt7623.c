@@ -739,12 +739,15 @@ static const struct mtk_gate hif_cgs[] = {
 	GATE_ETH_HIF1(CLK_HIFSYS_PCIE2, CLK_TOP_ETHPLL_500M, 26),
 };
 
-static const struct mtk_clk_tree mt7623_clk_tree = {
-	.xtal_rate = 26 * MHZ,
+static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 	.xtal2_rate = 26 * MHZ,
+	.plls = apmixed_plls,
+};
+
+static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
+	.xtal_rate = 26 * MHZ,
 	.fdivs_offs = CLK_TOP_SYSPLL,
 	.muxes_offs = CLK_TOP_AXI_SEL,
-	.plls = apmixed_plls,
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
@@ -769,7 +772,7 @@ static int mt7623_apmixedsys_probe(struct udevice *dev)
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, &mt7623_clk_tree);
+	ret = mtk_common_clk_init(dev, &mt7623_apmixedsys_clk_tree);
 	if (ret)
 		return ret;
 
@@ -783,27 +786,31 @@ static int mt7623_apmixedsys_probe(struct udevice *dev)
 
 static int mt7623_topckgen_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt7623_clk_tree);
+	return mtk_common_clk_init(dev, &mt7623_topckgen_clk_tree);
 }
 
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, infra_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+					infra_cgs);
 }
 
 static int mt7623_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, peri_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+					peri_cgs);
 }
 
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, hif_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+					hif_cgs);
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_topckgen_clk_tree,
+					eth_cgs);
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
