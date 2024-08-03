@@ -384,6 +384,20 @@ static const struct mtk_composite top_muxes[] = {
 };
 
 /* infracfg */
+#define APMIXED_PARENT(_id) PARENT(_id, CLK_PARENT_APMIXED)
+#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
+
+static const struct mtk_parent infra_mux1_parents[] = {
+	XTAL_PARENT(CLK_XTAL),
+	APMIXED_PARENT(CLK_APMIXED_MAINPLL),
+	APMIXED_PARENT(CLK_APMIXED_MAIN_CORE_EN),
+	APMIXED_PARENT(CLK_APMIXED_MAINPLL),
+};
+
+static const struct mtk_composite infra_muxes[] = {
+	MUX_MIXED(CLK_INFRA_MUX1_SEL, infra_mux1_parents, 0x000, 2, 2),
+};
+
 static const struct mtk_gate_regs infra_cg_regs = {
 	.set_ofs = 0x40,
 	.clr_ofs = 0x44,
@@ -579,6 +593,14 @@ static const struct mtk_clk_tree mt7622_apmixed_clk_tree = {
 	.gates = apmixed_cgs,
 };
 
+static const struct mtk_clk_tree mt7622_infra_clk_tree = {
+	.xtal_rate = 25 * MHZ,
+	.muxes_offs = CLK_INFRA_MUX1_SEL,
+	.gates_offs = CLK_INFRA_DBGCLK_PD,
+	.muxes = infra_muxes,
+	.gates = infra_cgs,
+};
+
 static const struct mtk_clk_tree mt7622_clk_tree = {
 	.xtal_rate = 25 * MHZ,
 	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
@@ -630,7 +652,7 @@ static int mt7622_topckgen_probe(struct udevice *dev)
 
 static int mt7622_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7622_clk_tree, infra_cgs);
+	return mtk_common_clk_infrasys_init(dev, &mt7622_infra_clk_tree);
 }
 
 static int mt7622_pericfg_probe(struct udevice *dev)
