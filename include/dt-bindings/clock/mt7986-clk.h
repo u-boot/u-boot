@@ -142,7 +142,7 @@
 #define CK_INFRA_SEJ_CK			15
 #define CK_INFRA_SEJ_13M_CK		16
 #define CK_INFRA_THERM_CK		17
-#define CK_INFRA_I2CO_CK		18
+#define CK_INFRA_I2C0_CK		18
 #define CK_INFRA_TRNG_CK		19
 #define CK_INFRA_UART0_CK		20
 #define CK_INFRA_UART1_CK		21
