@@ -49,63 +49,28 @@ static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
 	FIXED_CLK(CK_APMIXED_MSDCPLL, CLK_XTAL, 400000000),
 };
 
+/* TOPCKGEN FIXED CLK */
+static const struct mtk_fixed_clk topckgen_mtk_fixed_clks[] = {
+	FIXED_CLK(CK_TOP_XTAL, CLK_XTAL, 40000000),
+};
+
 /* TOPCKGEN FIXED DIV */
 static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
-	XTAL_FACTOR(CK_TOP_XTAL, "xtal", CLK_XTAL, 1, 1),
 	TOP_FACTOR(CK_TOP_XTAL_D2, "xtal_d2", CK_TOP_XTAL, 1, 2),
 	TOP_FACTOR(CK_TOP_RTC_32K, "rtc_32k", CK_TOP_XTAL, 1,
 		   1250),
 	TOP_FACTOR(CK_TOP_RTC_32P7K, "rtc_32p7k", CK_TOP_XTAL, 1,
 		   1220),
-	TOP_FACTOR(CK_TOP_INFRA_F32K, "csw_infra_f32k", CK_TOP_RTC_32P7K, 1,
-		   1),
-	XTAL_FACTOR(CK_TOP_CKSQ_SRC, "cksq_src", CLK_XTAL, 1, 1),
-	TOP_FACTOR(CK_TOP_NETSYS_2X, "netsys_2x", CK_TOP_NETSYS_2X_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_NETSYS_GSW, "netsys_gsw", CK_TOP_NETSYS_GSW_SEL, 1,
-		   1),
-	TOP_FACTOR(CK_TOP_NETSYS_WED_MCU, "netsys_wed_mcu",
-		   CK_TOP_NETSYS_MCU_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_EIP197, "eip197", CK_TOP_EIP197_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_EMMC_250M, "emmc_250m", CK_TOP_EMMC_250M_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_EMMC_400M, "emmc_400m", CK_TOP_EMMC_400M_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_SPI, "spi", CK_TOP_SPI_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_SPIM_MST, "spim_mst", CK_TOP_SPIM_MST_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_NFI1X, "nfi1x", CK_TOP_NFI1X_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_SPINFI_BCK, "spinfi_bck", CK_TOP_SPINFI_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_I2C_BCK, "i2c_bck", CK_TOP_I2C_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_SYS, "usb_sys", CK_TOP_USB_SYS_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_SYS_P1, "usb_sys_p1", CK_TOP_USB_SYS_P1_SEL, 1,
-		   1),
-	TOP_FACTOR(CK_TOP_USB_XHCI, "usb_xhci", CK_TOP_USB_XHCI_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_XHCI_P1, "usb_xhci_p1", CK_TOP_USB_XHCI_P1_SEL, 1,
-		   1),
-	TOP_FACTOR(CK_TOP_USB_FRMCNT, "usb_frmcnt", CK_TOP_USB_FRMCNT_SEL, 1,
-		   1),
-	TOP_FACTOR(CK_TOP_USB_FRMCNT_P1, "usb_frmcnt_p1",
-		   CK_TOP_USB_FRMCNT_P1_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_AUD, "aud", CK_TOP_AUD_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_A1SYS, "a1sys", CK_TOP_A1SYS_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_AUD_L, "aud_l", CK_TOP_AUD_L_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_A_TUNER, "a_tuner", CK_TOP_A_TUNER_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_SYSAXI, "sysaxi", CK_TOP_SYSAXI_SEL, 1, 1),
-	TOP_FACTOR(CK_TOP_INFRA_F26M, "csw_infra_f26m", CK_TOP_INFRA_F26M_SEL,
-		   1, 1),
-	TOP_FACTOR(CK_TOP_USB_REF, "usb_ref", CK_TOP_CKSQ_SRC, 1, 1),
-	TOP_FACTOR(CK_TOP_USB_CK_P1, "usb_ck_p1", CK_TOP_CKSQ_SRC, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_MPLL_416M, "cb_mpll_416m", CK_APMIXED_MPLL, 1, 1),
 	PLL_FACTOR(CK_TOP_MPLL_D2, "mpll_d2", CK_APMIXED_MPLL, 1, 2),
 	PLL_FACTOR(CK_TOP_MPLL_D3_D2, "mpll_d3_d2", CK_APMIXED_MPLL, 1, 2),
 	PLL_FACTOR(CK_TOP_MPLL_D4, "mpll_d4", CK_APMIXED_MPLL, 1, 4),
 	PLL_FACTOR(CK_TOP_MPLL_D8, "mpll_d8", CK_APMIXED_MPLL, 1, 8),
 	PLL_FACTOR(CK_TOP_MPLL_D8_D2, "mpll_d8_d2", CK_APMIXED_MPLL, 1, 16),
-	PLL_FACTOR(CK_TOP_CB_MMPLL_720M, "cb_mmpll_720m", CK_APMIXED_MMPLL, 1, 1),
 	PLL_FACTOR(CK_TOP_MMPLL_D2, "mmpll_d2", CK_APMIXED_MMPLL, 1, 2),
 	PLL_FACTOR(CK_TOP_MMPLL_D3_D5, "mmpll_d3_d5", CK_APMIXED_MMPLL, 1, 15),
 	PLL_FACTOR(CK_TOP_MMPLL_D4, "mmpll_d4", CK_APMIXED_MMPLL, 1, 4),
 	PLL_FACTOR(CK_TOP_MMPLL_D6_D2, "mmpll_d6_d2", CK_APMIXED_MMPLL, 1, 12),
 	PLL_FACTOR(CK_TOP_MMPLL_D8, "mmpll_d8", CK_APMIXED_MMPLL, 1, 8),
-	PLL_FACTOR(CK_TOP_CB_APLL2_196M, "cb_apll2_196m", CK_APMIXED_APLL2, 1,
-		   1),
 	PLL_FACTOR(CK_TOP_APLL2_D4, "apll2_d4", CK_APMIXED_APLL2, 1, 4),
 	PLL_FACTOR(CK_TOP_NET1PLL_D4, "net1pll_d4", CK_APMIXED_NET1PLL, 1, 4),
 	PLL_FACTOR(CK_TOP_NET1PLL_D5, "net1pll_d5", CK_APMIXED_NET1PLL, 1, 5),
@@ -117,143 +82,196 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 	PLL_FACTOR(CK_TOP_NET1PLL_D8_D8, "net1pll_d8_d8", CK_APMIXED_NET1PLL, 1, 64),
 	PLL_FACTOR(CK_TOP_NET1PLL_D8_D16, "net1pll_d8_d16", CK_APMIXED_NET1PLL, 1,
 		   128),
-	PLL_FACTOR(CK_TOP_NET2PLL_800M, "cb_net2pll_800m", CK_APMIXED_NET2PLL, 1,
-		   1),
 	PLL_FACTOR(CK_TOP_NET2PLL_D2, "net2pll_d2", CK_APMIXED_NET2PLL, 1, 2),
 	PLL_FACTOR(CK_TOP_NET2PLL_D4, "net2pll_d4", CK_APMIXED_NET2PLL, 1, 4),
 	PLL_FACTOR(CK_TOP_NET2PLL_D4_D4, "net2pll_d4_d4", CK_APMIXED_NET2PLL, 1, 16),
 	PLL_FACTOR(CK_TOP_NET2PLL_D4_D8, "net2pll_d4_d8", CK_APMIXED_NET2PLL, 1, 32),
 	PLL_FACTOR(CK_TOP_NET2PLL_D6, "net2pll_d6", CK_APMIXED_NET2PLL, 1, 6),
 	PLL_FACTOR(CK_TOP_NET2PLL_D8, "net2pll_d8", CK_APMIXED_NET2PLL, 1, 8),
-	PLL_FACTOR(CK_TOP_CB_WEDMCUPLL_208M, "cb_wedmcupll_208m",
-		   CK_APMIXED_WEDMCUPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_SGM_325M, "cb_sgm_325m", CK_APMIXED_SGMPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_NETSYSPLL_850M, "cb_netsyspll_850m",
-		   CK_APMIXED_NETSYSPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_MSDCPLL_400M, "cb_msdcpll_400m", CK_APMIXED_MSDCPLL, 1,
-		   1),
 };
 
 /* TOPCKGEN MUX PARENTS */
-static const int netsys_parents[] = { CK_TOP_XTAL, CK_TOP_NET2PLL_D2,
-				      CK_TOP_MMPLL_D2 };
+#define APMIXED_PARENT(_id) PARENT(_id, CLK_PARENT_APMIXED)
+#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
 
-static const int netsys_500m_parents[] = { CK_TOP_XTAL,
-					   CK_TOP_NET1PLL_D5,
-					   CK_TOP_NET1PLL_D5_D2 };
-
-static const int netsys_2x_parents[] = { CK_TOP_XTAL,
-					 CK_TOP_NET2PLL_800M,
-					 CK_TOP_CB_MMPLL_720M };
-
-static const int netsys_gsw_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D4,
-					  CK_TOP_NET1PLL_D5 };
-
-static const int eth_gmii_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D4 };
-
-static const int netsys_mcu_parents[] = {
-	CK_TOP_XTAL, CK_TOP_NET2PLL_800M, CK_TOP_CB_MMPLL_720M,
-	CK_TOP_NET1PLL_D4,  CK_TOP_NET1PLL_D5,   CK_TOP_CB_MPLL_416M
+static const struct mtk_parent netsys_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D2),
+	TOP_PARENT(CK_TOP_MMPLL_D2),
 };
 
-static const int eip197_parents[] = {
-	CK_TOP_XTAL, CK_TOP_CB_NETSYSPLL_850M, CK_TOP_NET2PLL_800M,
-	CK_TOP_CB_MMPLL_720M,  CK_TOP_NET1PLL_D4,     CK_TOP_NET1PLL_D5
+static const struct mtk_parent netsys_500m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5),
+	TOP_PARENT(CK_TOP_NET1PLL_D5_D2),
 };
 
-static const int axi_infra_parents[] = { CK_TOP_XTAL,
-					 CK_TOP_NET1PLL_D8_D2 };
-
-static const int uart_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D8,
-				    CK_TOP_MPLL_D8_D2 };
-
-static const int emmc_250m_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D2,
-					 CK_TOP_MMPLL_D4 };
-
-static const int emmc_400m_parents[] = {
-	CK_TOP_XTAL, CK_TOP_CB_MSDCPLL_400M, CK_TOP_MMPLL_D2,
-	CK_TOP_MPLL_D2,     CK_TOP_MMPLL_D4,     CK_TOP_NET1PLL_D8_D2
+static const struct mtk_parent netsys_2x_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_NET2PLL),
+	APMIXED_PARENT(CK_APMIXED_MMPLL),
 };
 
-static const int spi_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D2,
-				   CK_TOP_MMPLL_D4,    CK_TOP_NET1PLL_D8_D2,
-				   CK_TOP_NET2PLL_D6,  CK_TOP_NET1PLL_D5_D4,
-				   CK_TOP_MPLL_D4,     CK_TOP_NET1PLL_D8_D4 };
+static const struct mtk_parent netsys_gsw_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D4),
+	TOP_PARENT(CK_TOP_NET1PLL_D5),
+};
 
-static const int nfi1x_parents[] = { CK_TOP_XTAL, CK_TOP_MMPLL_D4,
-				     CK_TOP_NET1PLL_D8_D2,  CK_TOP_NET2PLL_D6,
-				     CK_TOP_MPLL_D4,     CK_TOP_MMPLL_D8,
-				     CK_TOP_NET1PLL_D8_D4,  CK_TOP_MPLL_D8 };
+static const struct mtk_parent eth_gmii_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5_D4),
+};
 
-static const int spinfi_parents[] = { CK_TOP_XTAL_D2, CK_TOP_XTAL,
-				      CK_TOP_NET1PLL_D5_D4,  CK_TOP_MPLL_D4,
-				      CK_TOP_MMPLL_D8,    CK_TOP_NET1PLL_D8_D4,
-				      CK_TOP_MMPLL_D6_D2,    CK_TOP_MPLL_D8 };
+static const struct mtk_parent netsys_mcu_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_NET2PLL),
+	APMIXED_PARENT(CK_APMIXED_MMPLL), TOP_PARENT(CK_TOP_NET1PLL_D4),
+	TOP_PARENT(CK_TOP_NET1PLL_D5), APMIXED_PARENT(CK_APMIXED_MPLL),
+};
 
-static const int pwm_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D8_D2,
-				   CK_TOP_NET1PLL_D5_D4,  CK_TOP_MPLL_D4,
-				   CK_TOP_MPLL_D8_D2,     CK_TOP_RTC_32K };
+static const struct mtk_parent eip197_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_NETSYSPLL),
+	APMIXED_PARENT(CK_APMIXED_NET2PLL), APMIXED_PARENT(CK_APMIXED_MMPLL),
+	TOP_PARENT(CK_TOP_NET1PLL_D4), TOP_PARENT(CK_TOP_NET1PLL_D5),
+};
 
-static const int i2c_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D4,
-				   CK_TOP_MPLL_D4, CK_TOP_NET1PLL_D8_D4 };
+static const struct mtk_parent axi_infra_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D8_D2),
+};
 
-static const int pcie_mbist_250m_parents[] = { CK_TOP_XTAL,
-					       CK_TOP_NET1PLL_D5_D2 };
+static const struct mtk_parent uart_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MPLL_D8),
+	TOP_PARENT(CK_TOP_MPLL_D8_D2),
+};
 
-static const int pextp_tl_ck_parents[] = { CK_TOP_XTAL,
-					   CK_TOP_NET2PLL_D6, CK_TOP_MMPLL_D8,
-					   CK_TOP_MPLL_D8_D2, CK_TOP_RTC_32K };
+static const struct mtk_parent emmc_250m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5_D2),
+	TOP_PARENT(CK_TOP_MMPLL_D4),
+};
 
-static const int usb_frmcnt_parents[] = { CK_TOP_XTAL,
-					  CK_TOP_MMPLL_D3_D5 };
+static const struct mtk_parent emmc_400m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_MSDCPLL),
+	TOP_PARENT(CK_TOP_MMPLL_D2), TOP_PARENT(CK_TOP_MPLL_D2),
+	TOP_PARENT(CK_TOP_MMPLL_D4), TOP_PARENT(CK_TOP_NET1PLL_D8_D2),
+};
 
-static const int aud_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M };
+static const struct mtk_parent spi_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MPLL_D2),
+	TOP_PARENT(CK_TOP_MMPLL_D4), TOP_PARENT(CK_TOP_NET1PLL_D8_D2),
+	TOP_PARENT(CK_TOP_NET2PLL_D6), TOP_PARENT(CK_TOP_NET1PLL_D5_D4),
+	TOP_PARENT(CK_TOP_MPLL_D4), TOP_PARENT(CK_TOP_NET1PLL_D8_D4),
+};
 
-static const int a1sys_parents[] = { CK_TOP_XTAL, CK_TOP_APLL2_D4 };
+static const struct mtk_parent nfi1x_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MMPLL_D4),
+	TOP_PARENT(CK_TOP_NET1PLL_D8_D2), TOP_PARENT(CK_TOP_NET2PLL_D6),
+	TOP_PARENT(CK_TOP_MPLL_D4), TOP_PARENT(CK_TOP_MMPLL_D8),
+	TOP_PARENT(CK_TOP_NET1PLL_D8_D4), TOP_PARENT(CK_TOP_MPLL_D8),
+};
 
-static const int aud_l_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M,
-				     CK_TOP_MPLL_D8_D2 };
+static const struct mtk_parent spinfi_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL_D2), TOP_PARENT(CK_TOP_XTAL),
+	TOP_PARENT(CK_TOP_NET1PLL_D5_D4), TOP_PARENT(CK_TOP_MPLL_D4),
+	TOP_PARENT(CK_TOP_MMPLL_D8), TOP_PARENT(CK_TOP_NET1PLL_D8_D4),
+	TOP_PARENT(CK_TOP_MMPLL_D6_D2), TOP_PARENT(CK_TOP_MPLL_D8),
+};
 
-static const int sspxtp_parents[] = { CK_TOP_XTAL_D2, CK_TOP_MPLL_D8_D2 };
+static const struct mtk_parent pwm_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D8_D2),
+	TOP_PARENT(CK_TOP_NET1PLL_D5_D4), TOP_PARENT(CK_TOP_MPLL_D4),
+	TOP_PARENT(CK_TOP_MPLL_D8_D2), TOP_PARENT(CK_TOP_RTC_32K),
+};
 
-static const int usxgmii_sbus_0_parents[] = { CK_TOP_XTAL,
-					      CK_TOP_NET1PLL_D8_D4 };
+static const struct mtk_parent i2c_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5_D4),
+	TOP_PARENT(CK_TOP_MPLL_D4), TOP_PARENT(CK_TOP_NET1PLL_D8_D4),
+};
 
-static const int sgm_0_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M };
+static const struct mtk_parent pcie_mbist_250m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5_D2),
+};
 
-static const int sysapb_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D3_D2 };
+static const struct mtk_parent pextp_tl_ck_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D6),
+	TOP_PARENT(CK_TOP_MMPLL_D8), TOP_PARENT(CK_TOP_MPLL_D8_D2),
+	TOP_PARENT(CK_TOP_RTC_32K),
+};
 
-static const int eth_refck_50m_parents[] = { CK_TOP_XTAL,
-					     CK_TOP_NET2PLL_D4_D4 };
+static const struct mtk_parent usb_frmcnt_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MMPLL_D3_D5),
+};
 
-static const int eth_sys_200m_parents[] = { CK_TOP_XTAL,
-					    CK_TOP_NET2PLL_D4 };
+static const struct mtk_parent aud_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_APLL2),
+};
 
-static const int eth_xgmii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET1PLL_D8_D8,
-					 CK_TOP_NET1PLL_D8_D16 };
+static const struct mtk_parent a1sys_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_APLL2_D4),
+};
 
-static const int bus_tops_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5,
-					CK_TOP_NET2PLL_D2 };
+static const struct mtk_parent aud_l_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_APLL2),
+	TOP_PARENT(CK_TOP_MPLL_D8_D2),
+};
 
-static const int npu_tops_parents[] = { CK_TOP_XTAL,
-					CK_TOP_NET2PLL_800M };
+static const struct mtk_parent sspxtp_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL_D2), TOP_PARENT(CK_TOP_MPLL_D8_D2),
+};
 
-static const int dramc_md32_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D2,
-					  CK_TOP_CB_WEDMCUPLL_208M };
+static const struct mtk_parent usxgmii_sbus_0_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D8_D4),
+};
 
-static const int da_xtp_glb_p0_parents[] = { CK_TOP_XTAL,
-					     CK_TOP_NET2PLL_D8 };
+static const struct mtk_parent sgm_0_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_SGMPLL),
+};
 
-static const int mcusys_backup_625m_parents[] = { CK_TOP_XTAL,
-						  CK_TOP_NET1PLL_D4 };
+static const struct mtk_parent sysapb_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MPLL_D3_D2),
+};
 
-static const int macsec_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M,
-				      CK_TOP_NET1PLL_D8 };
+static const struct mtk_parent eth_refck_50m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D4_D4),
+};
 
-static const int netsys_tops_400m_parents[] = { CK_TOP_XTAL,
-						CK_TOP_NET2PLL_D2 };
+static const struct mtk_parent eth_sys_200m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D4),
+};
 
-static const int eth_mii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET2PLL_D4_D8 };
+static const struct mtk_parent eth_xgmii_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL_D2), TOP_PARENT(CK_TOP_NET1PLL_D8_D8),
+	TOP_PARENT(CK_TOP_NET1PLL_D8_D16),
+};
+
+static const struct mtk_parent bus_tops_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D5),
+	TOP_PARENT(CK_TOP_NET2PLL_D2),
+};
+
+static const struct mtk_parent npu_tops_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_NET2PLL),
+};
+
+static const struct mtk_parent dramc_md32_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_MPLL_D2),
+	APMIXED_PARENT(CK_APMIXED_WEDMCUPLL),
+};
+
+static const struct mtk_parent da_xtp_glb_p0_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D8),
+};
+
+static const struct mtk_parent mcusys_backup_625m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET1PLL_D4),
+};
+
+static const struct mtk_parent macsec_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), APMIXED_PARENT(CK_APMIXED_SGMPLL),
+	TOP_PARENT(CK_TOP_NET1PLL_D8),
+};
+
+static const struct mtk_parent netsys_tops_400m_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL), TOP_PARENT(CK_TOP_NET2PLL_D2),
+};
+
+static const struct mtk_parent eth_mii_parents[] = {
+	TOP_PARENT(CK_TOP_XTAL_D2), TOP_PARENT(CK_TOP_NET2PLL_D4_D8),
+};
 
 #define TOP_MUX(_id, _name, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,    \
 		_shift, _width, _gate, _upd_ofs, _upd)                         \
@@ -262,9 +280,9 @@ static const int eth_mii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET2PLL_D4_D8 };
 		.mux_clr_reg = _mux_clr_ofs, .upd_reg = _upd_ofs,              \
 		.upd_shift = _upd, .mux_shift = _shift,                        \
 		.mux_mask = BIT(_width) - 1, .gate_reg = _mux_ofs,             \
-		.gate_shift = _gate, .parent = _parents,                       \
+		.gate_shift = _gate, .parent_flags = _parents,                 \
 		.num_parents = ARRAY_SIZE(_parents),                           \
-		.flags = CLK_MUX_SETCLR_UPD,                                   \
+		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_MIXED,                \
 	}
 
 /* TOPCKGEN MUX_GATE */
@@ -434,31 +452,31 @@ static const int infra_mux_uart1_parents[] = { CK_TOP_INFRA_F26M_SEL,
 static const int infra_mux_uart2_parents[] = { CK_TOP_INFRA_F26M_SEL,
 					       CK_TOP_UART_SEL };
 
-static const int infra_mux_spi0_parents[] = { CK_TOP_I2C_BCK, CK_TOP_SPI };
+static const int infra_mux_spi0_parents[] = { CK_TOP_I2C_SEL, CK_TOP_SPI_SEL };
 
-static const int infra_mux_spi1_parents[] = { CK_TOP_I2C_BCK, CK_TOP_SPIM_MST };
+static const int infra_mux_spi1_parents[] = { CK_TOP_I2C_SEL, CK_TOP_SPIM_MST_SEL };
 
-static const int infra_pwm_bck_parents[] = { CK_TOP_INFRA_F32K,
-					     CK_TOP_INFRA_F26M_SEL, CK_TOP_SYSAXI,
+static const int infra_pwm_bck_parents[] = { CK_TOP_RTC_32P7K,
+					     CK_TOP_INFRA_F26M_SEL, CK_TOP_SYSAXI_SEL,
 					     CK_TOP_PWM_SEL };
 
 static const int infra_pcie_gfmux_tl_ck_o_p0_parents[] = {
-	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_RTC_32P7K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
 	CK_TOP_PEXTP_TL_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p1_parents[] = {
-	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_RTC_32P7K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
 	CK_TOP_PEXTP_TL_P1_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p2_parents[] = {
-	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_RTC_32P7K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
 	CK_TOP_PEXTP_TL_P2_SEL
 };
 
 static const int infra_pcie_gfmux_tl_ck_o_p3_parents[] = {
-	CK_TOP_INFRA_F32K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
+	CK_TOP_RTC_32P7K, CK_TOP_INFRA_F26M_SEL, CK_TOP_INFRA_F26M_SEL,
 	CK_TOP_PEXTP_TL_P3_SEL
 };
 
@@ -590,17 +608,17 @@ static const struct mtk_gate_regs infra_3_cg_regs = {
 /* INFRA GATE */
 static const struct mtk_gate infracfg_mtk_gates[] = {
 	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P0,
-			"infra_pcie_peri_ck_26m_ck_p0", CK_TOP_INFRA_F26M, 7),
+			"infra_pcie_peri_ck_26m_ck_p0", CK_TOP_INFRA_F26M_SEL, 7),
 	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P1,
-			"infra_pcie_peri_ck_26m_ck_p1", CK_TOP_INFRA_F26M, 8),
+			"infra_pcie_peri_ck_26m_ck_p1", CK_TOP_INFRA_F26M_SEL, 8),
 	GATE_INFRA0_INFRA(CK_INFRA_PCIE_PERI_26M_CK_P2,
 			  "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_PCIE_PERI_26M_CK_P3, 9),
 	GATE_INFRA0_TOP(CK_INFRA_PCIE_PERI_26M_CK_P3,
-			"infra_pcie_peri_ck_26m_ck_p3", CK_TOP_INFRA_F26M, 10),
+			"infra_pcie_peri_ck_26m_ck_p3", CK_TOP_INFRA_F26M_SEL, 10),
 	GATE_INFRA1_TOP(CK_INFRA_66M_GPT_BCK, "infra_hf_66m_gpt_bck",
-			CK_TOP_SYSAXI, 0),
+			CK_TOP_SYSAXI_SEL, 0),
 	GATE_INFRA1_TOP(CK_INFRA_66M_PWM_HCK, "infra_hf_66m_pwm_hck",
-			CK_TOP_SYSAXI, 1),
+			CK_TOP_SYSAXI_SEL, 1),
 	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_BCK, "infra_hf_66m_pwm_bck",
 			  CK_INFRA_PWM_SEL, 2),
 	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK1, "infra_hf_66m_pwm_ck1",
@@ -620,46 +638,46 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 	GATE_INFRA1_INFRA(CK_INFRA_66M_PWM_CK8, "infra_hf_66m_pwm_ck8",
 			  CK_INFRA_PWM_CK8_SEL, 10),
 	GATE_INFRA1_TOP(CK_INFRA_133M_CQDMA_BCK, "infra_hf_133m_cqdma_bck",
-			CK_TOP_SYSAXI, 12),
+			CK_TOP_SYSAXI_SEL, 12),
 	GATE_INFRA1_TOP(CK_INFRA_66M_AUD_SLV_BCK, "infra_66m_aud_slv_bck",
-			CK_TOP_SYSAXI, 13),
+			CK_TOP_SYSAXI_SEL, 13),
 	GATE_INFRA1_TOP(CK_INFRA_AUD_26M, "infra_f_faud_26m", CK_TOP_INFRA_F26M_SEL, 14),
-	GATE_INFRA1_TOP(CK_INFRA_AUD_L, "infra_f_faud_l", CK_TOP_AUD_L, 15),
-	GATE_INFRA1_TOP(CK_INFRA_AUD_AUD, "infra_f_aud_aud", CK_TOP_A1SYS,
+	GATE_INFRA1_TOP(CK_INFRA_AUD_L, "infra_f_faud_l", CK_TOP_AUD_L_SEL, 15),
+	GATE_INFRA1_TOP(CK_INFRA_AUD_AUD, "infra_f_aud_aud", CK_TOP_A1SYS_SEL,
 			16),
-	GATE_INFRA1_TOP(CK_INFRA_AUD_EG2, "infra_f_faud_eg2", CK_TOP_A_TUNER,
+	GATE_INFRA1_TOP(CK_INFRA_AUD_EG2, "infra_f_faud_eg2", CK_TOP_A_TUNER_SEL,
 			18),
 	GATE_INFRA1_TOP(CK_INFRA_DRAMC_F26M, "infra_dramc_f26m", CK_TOP_INFRA_F26M_SEL,
 			19),
 	GATE_INFRA1_TOP(CK_INFRA_133M_DBG_ACKM, "infra_hf_133m_dbg_ackm",
-			CK_TOP_SYSAXI, 20),
+			CK_TOP_SYSAXI_SEL, 20),
 	GATE_INFRA1_TOP(CK_INFRA_66M_AP_DMA_BCK, "infra_66m_ap_dma_bck",
-			CK_TOP_SYSAXI, 21),
+			CK_TOP_SYSAXI_SEL, 21),
 	GATE_INFRA1_TOP(CK_INFRA_66M_SEJ_BCK, "infra_hf_66m_sej_bck",
-			CK_TOP_SYSAXI, 29),
+			CK_TOP_SYSAXI_SEL, 29),
 	GATE_INFRA1_TOP(CK_INFRA_PRE_CK_SEJ_F13M, "infra_pre_ck_sej_f13m",
 			CK_TOP_INFRA_F26M_SEL, 30),
-	GATE_INFRA1_TOP(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_TOP_SYSAXI,
+	GATE_INFRA1_TOP(CK_INFRA_66M_TRNG, "infra_hf_66m_trng", CK_TOP_SYSAXI_SEL,
 			31),
 	GATE_INFRA2_TOP(CK_INFRA_26M_THERM_SYSTEM, "infra_hf_26m_therm_system",
 			CK_TOP_INFRA_F26M_SEL, 0),
-	GATE_INFRA2_TOP(CK_INFRA_I2C_BCK, "infra_i2c_bck", CK_TOP_I2C_BCK, 1),
+	GATE_INFRA2_TOP(CK_INFRA_I2C_BCK, "infra_i2c_bck", CK_TOP_I2C_SEL, 1),
 	GATE_INFRA2_TOP(CK_INFRA_66M_UART0_PCK, "infra_hf_66m_uart0_pck",
-			CK_TOP_SYSAXI, 3),
+			CK_TOP_SYSAXI_SEL, 3),
 	GATE_INFRA2_TOP(CK_INFRA_66M_UART1_PCK, "infra_hf_66m_uart1_pck",
-			CK_TOP_SYSAXI, 4),
+			CK_TOP_SYSAXI_SEL, 4),
 	GATE_INFRA2_TOP(CK_INFRA_66M_UART2_PCK, "infra_hf_66m_uart2_pck",
-			CK_TOP_SYSAXI, 5),
+			CK_TOP_SYSAXI_SEL, 5),
 	GATE_INFRA2_INFRA(CK_INFRA_52M_UART0_CK, "infra_f_52m_uart0",
 			  CK_INFRA_MUX_UART0_SEL, 3),
 	GATE_INFRA2_INFRA(CK_INFRA_52M_UART1_CK, "infra_f_52m_uart1",
 			  CK_INFRA_MUX_UART1_SEL, 4),
 	GATE_INFRA2_INFRA(CK_INFRA_52M_UART2_CK, "infra_f_52m_uart2",
 			  CK_INFRA_MUX_UART2_SEL, 5),
-	GATE_INFRA2_TOP(CK_INFRA_NFI, "infra_f_fnfi", CK_TOP_NFI1X, 9),
-	GATE_INFRA2_TOP(CK_INFRA_SPINFI, "infra_f_fspinfi", CK_TOP_SPINFI_BCK, 10),
+	GATE_INFRA2_TOP(CK_INFRA_NFI, "infra_f_fnfi", CK_TOP_NFI1X_SEL, 9),
+	GATE_INFRA2_TOP(CK_INFRA_SPINFI, "infra_f_fspinfi", CK_TOP_SPINFI_SEL, 10),
 	GATE_INFRA2_TOP(CK_INFRA_66M_NFI_HCK, "infra_hf_66m_nfi_hck",
-			CK_TOP_SYSAXI, 11),
+			CK_TOP_SYSAXI_SEL, 11),
 	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI0, "infra_hf_104m_spi0",
 			  CK_INFRA_MUX_SPI0_SEL, 12),
 	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI1, "infra_hf_104m_spi1",
@@ -667,52 +685,52 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 	GATE_INFRA2_INFRA(CK_INFRA_104M_SPI2_BCK, "infra_hf_104m_spi2_bck",
 			  CK_INFRA_MUX_SPI2_SEL, 14),
 	GATE_INFRA2_TOP(CK_INFRA_66M_SPI0_HCK, "infra_hf_66m_spi0_hck",
-			CK_TOP_SYSAXI, 15),
+			CK_TOP_SYSAXI_SEL, 15),
 	GATE_INFRA2_TOP(CK_INFRA_66M_SPI1_HCK, "infra_hf_66m_spi1_hck",
-			CK_TOP_SYSAXI, 16),
+			CK_TOP_SYSAXI_SEL, 16),
 	GATE_INFRA2_TOP(CK_INFRA_66M_SPI2_HCK, "infra_hf_66m_spi2_hck",
-			CK_TOP_SYSAXI, 17),
+			CK_TOP_SYSAXI_SEL, 17),
 	GATE_INFRA2_TOP(CK_INFRA_66M_FLASHIF_AXI, "infra_hf_66m_flashif_axi",
-			CK_TOP_SYSAXI, 18),
+			CK_TOP_SYSAXI_SEL, 18),
 	GATE_INFRA2_TOP(CK_INFRA_RTC, "infra_f_frtc", CK_TOP_RTC_32K, 19),
 	GATE_INFRA2_TOP(CK_INFRA_26M_ADC_BCK, "infra_f_26m_adc_bck",
-			CK_TOP_INFRA_F26M, 20),
+			CK_TOP_INFRA_F26M_SEL, 20),
 	GATE_INFRA2_INFRA(CK_INFRA_RC_ADC, "infra_f_frc_adc", CK_INFRA_26M_ADC_BCK,
 			  21),
-	GATE_INFRA2_TOP(CK_INFRA_MSDC400, "infra_f_fmsdc400", CK_TOP_EMMC_400M,
+	GATE_INFRA2_TOP(CK_INFRA_MSDC400, "infra_f_fmsdc400", CK_TOP_EMMC_400M_SEL,
 			22),
 	GATE_INFRA2_TOP(CK_INFRA_MSDC2_HCK, "infra_f_fmsdc2_hck",
-			CK_TOP_EMMC_250M, 23),
+			CK_TOP_EMMC_250M_SEL, 23),
 	GATE_INFRA2_TOP(CK_INFRA_133M_MSDC_0_HCK, "infra_hf_133m_msdc_0_hck",
-			CK_TOP_SYSAXI, 24),
+			CK_TOP_SYSAXI_SEL, 24),
 	GATE_INFRA2_TOP(CK_INFRA_66M_MSDC_0_HCK, "infra_66m_msdc_0_hck",
-			CK_TOP_SYSAXI, 25),
+			CK_TOP_SYSAXI_SEL, 25),
 	GATE_INFRA2_TOP(CK_INFRA_133M_CPUM_BCK, "infra_hf_133m_cpum_bck",
-			CK_TOP_SYSAXI, 26),
-	GATE_INFRA2_TOP(CK_INFRA_BIST2FPC, "infra_hf_fbist2fpc", CK_TOP_NFI1X,
+			CK_TOP_SYSAXI_SEL, 26),
+	GATE_INFRA2_TOP(CK_INFRA_BIST2FPC, "infra_hf_fbist2fpc", CK_TOP_NFI1X_SEL,
 			27),
 	GATE_INFRA2_TOP(CK_INFRA_I2C_X16W_MCK_CK_P1, "infra_hf_i2c_x16w_mck_ck_p1",
-			CK_TOP_SYSAXI, 29),
+			CK_TOP_SYSAXI_SEL, 29),
 	GATE_INFRA2_TOP(CK_INFRA_I2C_X16W_PCK_CK_P1, "infra_hf_i2c_x16w_pck_ck_p1",
-			CK_TOP_SYSAXI, 31),
+			CK_TOP_SYSAXI_SEL, 31),
 	GATE_INFRA3_TOP(CK_INFRA_133M_USB_HCK, "infra_133m_usb_hck",
-			CK_TOP_SYSAXI, 0),
+			CK_TOP_SYSAXI_SEL, 0),
 	GATE_INFRA3_TOP(CK_INFRA_133M_USB_HCK_CK_P1, "infra_133m_usb_hck_ck_p1",
-			CK_TOP_SYSAXI, 1),
+			CK_TOP_SYSAXI_SEL, 1),
 	GATE_INFRA3_TOP(CK_INFRA_66M_USB_HCK, "infra_66m_usb_hck",
-			CK_TOP_SYSAXI, 2),
+			CK_TOP_SYSAXI_SEL, 2),
 	GATE_INFRA3_TOP(CK_INFRA_66M_USB_HCK_CK_P1, "infra_66m_usb_hck_ck_p1",
-			CK_TOP_SYSAXI, 3),
-	GATE_INFRA3_TOP(CK_INFRA_USB_SYS, "infra_usb_sys", CK_TOP_USB_SYS, 4),
+			CK_TOP_SYSAXI_SEL, 3),
+	GATE_INFRA3_TOP(CK_INFRA_USB_SYS, "infra_usb_sys", CK_TOP_USB_SYS_SEL, 4),
 	GATE_INFRA3_TOP(CK_INFRA_USB_SYS_CK_P1, "infra_usb_sys_ck_p1",
-			CK_TOP_USB_SYS_P1, 5),
-	GATE_INFRA3_TOP(CK_INFRA_USB_REF, "infra_usb_ref", CK_TOP_USB_REF, 6),
-	GATE_INFRA3_TOP(CK_INFRA_USB_CK_P1, "infra_usb_ck_p1", CK_TOP_USB_CK_P1,
-			7),
+			CK_TOP_USB_SYS_P1_SEL, 5),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_REF, "infra_usb_ref", CLK_XTAL, 6),
+	GATE_INFRA3_XTAL(CK_INFRA_USB_CK_P1, "infra_usb_ck_p1", CLK_XTAL,
+			 7),
 	GATE_INFRA3_TOP(CK_INFRA_USB_FRMCNT, "infra_usb_frmcnt",
-			CK_TOP_USB_FRMCNT, 8),
+			CK_TOP_USB_FRMCNT_SEL, 8),
 	GATE_INFRA3_TOP(CK_INFRA_USB_FRMCNT_CK_P1, "infra_usb_frmcnt_ck_p1",
-			CK_TOP_USB_FRMCNT_P1, 9),
+			CK_TOP_USB_FRMCNT_P1_SEL, 9),
 	GATE_INFRA3_XTAL(CK_INFRA_USB_PIPE, "infra_usb_pipe", CLK_XTAL,
 			 10),
 	GATE_INFRA3_XTAL(CK_INFRA_USB_PIPE_CK_P1, "infra_usb_pipe_ck_p1",
@@ -721,10 +739,10 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 			 12),
 	GATE_INFRA3_XTAL(CK_INFRA_USB_UTMI_CK_P1, "infra_usb_utmi_ck_p1",
 			 CLK_XTAL, 13),
-	GATE_INFRA3_TOP(CK_INFRA_USB_XHCI, "infra_usb_xhci", CK_TOP_USB_XHCI,
+	GATE_INFRA3_TOP(CK_INFRA_USB_XHCI, "infra_usb_xhci", CK_TOP_USB_XHCI_SEL,
 			14),
 	GATE_INFRA3_TOP(CK_INFRA_USB_XHCI_CK_P1, "infra_usb_xhci_ck_p1",
-			CK_TOP_USB_XHCI_P1, 15),
+			CK_TOP_USB_XHCI_P1_SEL, 15),
 	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P0, "infra_pcie_gfmux_tl_ck_p0",
 			  CK_INFRA_PCIE_GFMUX_TL_O_P0_SEL, 20),
 	GATE_INFRA3_INFRA(CK_INFRA_PCIE_GFMUX_TL_P1, "infra_pcie_gfmux_tl_ck_p1",
@@ -742,27 +760,29 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 	GATE_INFRA3_XTAL(CK_INFRA_PCIE_PIPE_P3, "infra_pcie_pipe_ck_p3",
 			 CLK_XTAL, 27),
 	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P0, "infra_133m_pcie_ck_p0",
-			CK_TOP_SYSAXI, 28),
+			CK_TOP_SYSAXI_SEL, 28),
 	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P1, "infra_133m_pcie_ck_p1",
-			CK_TOP_SYSAXI, 29),
+			CK_TOP_SYSAXI_SEL, 29),
 	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P2, "infra_133m_pcie_ck_p2",
-			CK_TOP_SYSAXI, 30),
+			CK_TOP_SYSAXI_SEL, 30),
 	GATE_INFRA3_TOP(CK_INFRA_133M_PCIE_CK_P3, "infra_133m_pcie_ck_p3",
-			CK_TOP_SYSAXI, 31),
+			CK_TOP_SYSAXI_SEL, 31),
 };
 
 static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
 	.fdivs_offs = ARRAY_SIZE(apmixedsys_mtk_plls),
 	.fclks = apmixedsys_mtk_plls,
+	.flags = CLK_APMIXED,
 	.xtal_rate = 40 * MHZ,
 };
 
 static const struct mtk_clk_tree mt7988_topckgen_clk_tree = {
-	.fdivs_offs = CK_TOP_XTAL,
+	.fdivs_offs = CK_TOP_XTAL_D2,
 	.muxes_offs = CK_TOP_NETSYS_SEL,
+	.fclks = topckgen_mtk_fixed_clks,
 	.fdivs = topckgen_mtk_fixed_factors,
 	.muxes = topckgen_mtk_muxes,
-	.flags = CLK_BYPASS_XTAL,
+	.flags = CLK_BYPASS_XTAL | CLK_TOPCKGEN,
 	.xtal_rate = 40 * MHZ,
 };
 
@@ -878,7 +898,7 @@ static const struct mtk_gate_regs ethdma_cg_regs = {
 	}
 
 static const struct mtk_gate ethdma_mtk_gate[] = {
-	GATE_ETHDMA(CK_ETHDMA_FE_EN, "ethdma_fe_en", CK_TOP_NETSYS_2X, 6),
+	GATE_ETHDMA(CK_ETHDMA_FE_EN, "ethdma_fe_en", CK_TOP_NETSYS_2X_SEL, 6),
 };
 
 static int mt7988_ethdma_probe(struct udevice *dev)
@@ -1022,11 +1042,11 @@ static const struct mtk_gate_regs ethwarp_cg_regs = {
 
 static const struct mtk_gate ethwarp_mtk_gate[] = {
 	GATE_ETHWARP(CK_ETHWARP_WOCPU2_EN, "ethwarp_wocpu2_en",
-		     CK_TOP_NETSYS_WED_MCU, 13),
+		     CK_TOP_NETSYS_MCU_SEL, 13),
 	GATE_ETHWARP(CK_ETHWARP_WOCPU1_EN, "ethwarp_wocpu1_en",
-		     CK_TOP_NETSYS_WED_MCU, 14),
+		     CK_TOP_NETSYS_MCU_SEL, 14),
 	GATE_ETHWARP(CK_ETHWARP_WOCPU0_EN, "ethwarp_wocpu0_en",
-		     CK_TOP_NETSYS_WED_MCU, 15),
+		     CK_TOP_NETSYS_MCU_SEL, 15),
 };
 
 static int mt7988_ethwarp_probe(struct udevice *dev)
