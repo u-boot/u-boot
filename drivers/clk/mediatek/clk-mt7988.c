@@ -650,7 +650,7 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P1,
 		    "infra_pcie_peri_ck_26m_ck_p1", CK_INFRA_F26M_O0, 8),
 	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P2,
-		    "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_F26M_O0, 9),
+		    "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_PCIE_PERI_26M_CK_P3, 9),
 	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P3,
 		    "infra_pcie_peri_ck_26m_ck_p3", CK_INFRA_F26M_O0, 10),
 	GATE_INFRA1(CK_INFRA_66M_GPT_BCK, "infra_hf_66m_gpt_bck",
