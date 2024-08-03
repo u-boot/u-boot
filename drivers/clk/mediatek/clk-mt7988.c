@@ -52,52 +52,52 @@ static const struct mtk_fixed_clk apmixedsys_mtk_plls[] = {
 /* TOPCKGEN FIXED DIV */
 static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 	XTAL_FACTOR(CK_TOP_XTAL, "xtal", CLK_XTAL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_M_416M, "cb_m_416m", CK_APMIXED_MPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_M_D2, "cb_m_d2", CK_APMIXED_MPLL, 1, 2),
-	PLL_FACTOR(CK_TOP_M_D3_D2, "m_d3_d2", CK_APMIXED_MPLL, 1, 2),
-	PLL_FACTOR(CK_TOP_CB_M_D4, "cb_m_d4", CK_APMIXED_MPLL, 1, 4),
-	PLL_FACTOR(CK_TOP_CB_M_D8, "cb_m_d8", CK_APMIXED_MPLL, 1, 8),
-	PLL_FACTOR(CK_TOP_M_D8_D2, "m_d8_d2", CK_APMIXED_MPLL, 1, 16),
-	PLL_FACTOR(CK_TOP_CB_MM_720M, "cb_mm_720m", CK_APMIXED_MMPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_MM_D2, "cb_mm_d2", CK_APMIXED_MMPLL, 1, 2),
-	PLL_FACTOR(CK_TOP_CB_MM_D3_D5, "cb_mm_d3_d5", CK_APMIXED_MMPLL, 1, 15),
-	PLL_FACTOR(CK_TOP_CB_MM_D4, "cb_mm_d4", CK_APMIXED_MMPLL, 1, 4),
-	PLL_FACTOR(CK_TOP_MM_D6_D2, "mm_d6_d2", CK_APMIXED_MMPLL, 1, 12),
-	PLL_FACTOR(CK_TOP_CB_MM_D8, "cb_mm_d8", CK_APMIXED_MMPLL, 1, 8),
+	PLL_FACTOR(CK_TOP_CB_MPLL_416M, "cb_mpll_416m", CK_APMIXED_MPLL, 1, 1),
+	PLL_FACTOR(CK_TOP_MPLL_D2, "mpll_d2", CK_APMIXED_MPLL, 1, 2),
+	PLL_FACTOR(CK_TOP_MPLL_D3_D2, "mpll_d3_d2", CK_APMIXED_MPLL, 1, 2),
+	PLL_FACTOR(CK_TOP_MPLL_D4, "mpll_d4", CK_APMIXED_MPLL, 1, 4),
+	PLL_FACTOR(CK_TOP_MPLL_D8, "mpll_d8", CK_APMIXED_MPLL, 1, 8),
+	PLL_FACTOR(CK_TOP_MPLL_D8_D2, "mpll_d8_d2", CK_APMIXED_MPLL, 1, 16),
+	PLL_FACTOR(CK_TOP_CB_MMPLL_720M, "cb_mmpll_720m", CK_APMIXED_MMPLL, 1, 1),
+	PLL_FACTOR(CK_TOP_MMPLL_D2, "mmpll_d2", CK_APMIXED_MMPLL, 1, 2),
+	PLL_FACTOR(CK_TOP_MMPLL_D3_D5, "mmpll_d3_d5", CK_APMIXED_MMPLL, 1, 15),
+	PLL_FACTOR(CK_TOP_MMPLL_D4, "mmpll_d4", CK_APMIXED_MMPLL, 1, 4),
+	PLL_FACTOR(CK_TOP_MMPLL_D6_D2, "mmpll_d6_d2", CK_APMIXED_MMPLL, 1, 12),
+	PLL_FACTOR(CK_TOP_MMPLL_D8, "mmpll_d8", CK_APMIXED_MMPLL, 1, 8),
 	PLL_FACTOR(CK_TOP_CB_APLL2_196M, "cb_apll2_196m", CK_APMIXED_APLL2, 1,
 		   1),
-	PLL_FACTOR(CK_TOP_CB_APLL2_D4, "cb_apll2_d4", CK_APMIXED_APLL2, 1, 4),
-	PLL_FACTOR(CK_TOP_CB_NET1_D4, "cb_net1_d4", CK_APMIXED_NET1PLL, 1, 4),
-	PLL_FACTOR(CK_TOP_CB_NET1_D5, "cb_net1_d5", CK_APMIXED_NET1PLL, 1, 5),
-	PLL_FACTOR(CK_TOP_NET1_D5_D2, "net1_d5_d2", CK_APMIXED_NET1PLL, 1, 10),
-	PLL_FACTOR(CK_TOP_NET1_D5_D4, "net1_d5_d4", CK_APMIXED_NET1PLL, 1, 20),
-	PLL_FACTOR(CK_TOP_CB_NET1_D8, "cb_net1_d8", CK_APMIXED_NET1PLL, 1, 8),
-	PLL_FACTOR(CK_TOP_NET1_D8_D2, "net1_d8_d2", CK_APMIXED_NET1PLL, 1, 16),
-	PLL_FACTOR(CK_TOP_NET1_D8_D4, "net1_d8_d4", CK_APMIXED_NET1PLL, 1, 32),
-	PLL_FACTOR(CK_TOP_NET1_D8_D8, "net1_d8_d8", CK_APMIXED_NET1PLL, 1, 64),
-	PLL_FACTOR(CK_TOP_NET1_D8_D16, "net1_d8_d16", CK_APMIXED_NET1PLL, 1,
+	PLL_FACTOR(CK_TOP_APLL2_D4, "apll2_d4", CK_APMIXED_APLL2, 1, 4),
+	PLL_FACTOR(CK_TOP_NET1PLL_D4, "net1pll_d4", CK_APMIXED_NET1PLL, 1, 4),
+	PLL_FACTOR(CK_TOP_NET1PLL_D5, "net1pll_d5", CK_APMIXED_NET1PLL, 1, 5),
+	PLL_FACTOR(CK_TOP_NET1PLL_D5_D2, "net1pll_d5_d2", CK_APMIXED_NET1PLL, 1, 10),
+	PLL_FACTOR(CK_TOP_NET1PLL_D5_D4, "net1pll_d5_d4", CK_APMIXED_NET1PLL, 1, 20),
+	PLL_FACTOR(CK_TOP_NET1PLL_D8, "net1pll_d8", CK_APMIXED_NET1PLL, 1, 8),
+	PLL_FACTOR(CK_TOP_NET1PLL_D8_D2, "net1pll_d8_d2", CK_APMIXED_NET1PLL, 1, 16),
+	PLL_FACTOR(CK_TOP_NET1PLL_D8_D4, "net1pll_d8_d4", CK_APMIXED_NET1PLL, 1, 32),
+	PLL_FACTOR(CK_TOP_NET1PLL_D8_D8, "net1pll_d8_d8", CK_APMIXED_NET1PLL, 1, 64),
+	PLL_FACTOR(CK_TOP_NET1PLL_D8_D16, "net1pll_d8_d16", CK_APMIXED_NET1PLL, 1,
 		   128),
-	PLL_FACTOR(CK_TOP_CB_NET2_800M, "cb_net2_800m", CK_APMIXED_NET2PLL, 1,
+	PLL_FACTOR(CK_TOP_NET2PLL_800M, "cb_net2pll_800m", CK_APMIXED_NET2PLL, 1,
 		   1),
-	PLL_FACTOR(CK_TOP_CB_NET2_D2, "cb_net2_d2", CK_APMIXED_NET2PLL, 1, 2),
-	PLL_FACTOR(CK_TOP_CB_NET2_D4, "cb_net2_d4", CK_APMIXED_NET2PLL, 1, 4),
-	PLL_FACTOR(CK_TOP_NET2_D4_D4, "net2_d4_d4", CK_APMIXED_NET2PLL, 1, 16),
-	PLL_FACTOR(CK_TOP_NET2_D4_D8, "net2_d4_d8", CK_APMIXED_NET2PLL, 1, 32),
-	PLL_FACTOR(CK_TOP_CB_NET2_D6, "cb_net2_d6", CK_APMIXED_NET2PLL, 1, 6),
-	PLL_FACTOR(CK_TOP_CB_NET2_D8, "cb_net2_d8", CK_APMIXED_NET2PLL, 1, 8),
-	PLL_FACTOR(CK_TOP_CB_WEDMCU_208M, "cb_wedmcu_208m",
+	PLL_FACTOR(CK_TOP_NET2PLL_D2, "net2pll_d2", CK_APMIXED_NET2PLL, 1, 2),
+	PLL_FACTOR(CK_TOP_NET2PLL_D4, "net2pll_d4", CK_APMIXED_NET2PLL, 1, 4),
+	PLL_FACTOR(CK_TOP_NET2PLL_D4_D4, "net2pll_d4_d4", CK_APMIXED_NET2PLL, 1, 16),
+	PLL_FACTOR(CK_TOP_NET2PLL_D4_D8, "net2pll_d4_d8", CK_APMIXED_NET2PLL, 1, 32),
+	PLL_FACTOR(CK_TOP_NET2PLL_D6, "net2pll_d6", CK_APMIXED_NET2PLL, 1, 6),
+	PLL_FACTOR(CK_TOP_NET2PLL_D8, "net2pll_d8", CK_APMIXED_NET2PLL, 1, 8),
+	PLL_FACTOR(CK_TOP_CB_WEDMCUPLL_208M, "cb_wedmcupll_208m",
 		   CK_APMIXED_WEDMCUPLL, 1, 1),
 	PLL_FACTOR(CK_TOP_CB_SGM_325M, "cb_sgm_325m", CK_APMIXED_SGMPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_NETSYS_850M, "cb_netsys_850m",
+	PLL_FACTOR(CK_TOP_CB_NETSYSPLL_850M, "cb_netsyspll_850m",
 		   CK_APMIXED_NETSYSPLL, 1, 1),
-	PLL_FACTOR(CK_TOP_CB_MSDC_400M, "cb_msdc_400m", CK_APMIXED_MSDCPLL, 1,
+	PLL_FACTOR(CK_TOP_CB_MSDCPLL_400M, "cb_msdcpll_400m", CK_APMIXED_MSDCPLL, 1,
 		   1),
 	TOP_FACTOR(CK_TOP_XTAL_D2, "xtal_d2", CK_TOP_XTAL, 1, 2),
-	TOP_FACTOR(CK_TOP_CB_RTC_32K, "cb_rtc_32k", CK_TOP_XTAL, 1,
+	TOP_FACTOR(CK_TOP_RTC_32K, "rtc_32k", CK_TOP_XTAL, 1,
 		   1250),
-	TOP_FACTOR(CK_TOP_CB_RTC_32P7K, "cb_rtc_32p7k", CK_TOP_XTAL, 1,
+	TOP_FACTOR(CK_TOP_RTC_32P7K, "rtc_32p7k", CK_TOP_XTAL, 1,
 		   1220),
-	TOP_FACTOR(CK_TOP_INFRA_F32K, "csw_infra_f32k", CK_TOP_CB_RTC_32P7K, 1,
+	TOP_FACTOR(CK_TOP_INFRA_F32K, "csw_infra_f32k", CK_TOP_RTC_32P7K, 1,
 		   1),
 	XTAL_FACTOR(CK_TOP_CKSQ_SRC, "cksq_src", CLK_XTAL, 1, 1),
 	TOP_FACTOR(CK_TOP_NETSYS_2X, "netsys_2x", CK_TOP_NETSYS_2X_SEL, 1, 1),
@@ -135,125 +135,125 @@ static const struct mtk_fixed_factor topckgen_mtk_fixed_factors[] = {
 };
 
 /* TOPCKGEN MUX PARENTS */
-static const int netsys_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET2_D2,
-				      CK_TOP_CB_MM_D2 };
+static const int netsys_parents[] = { CK_TOP_XTAL, CK_TOP_NET2PLL_D2,
+				      CK_TOP_MMPLL_D2 };
 
 static const int netsys_500m_parents[] = { CK_TOP_XTAL,
-					   CK_TOP_CB_NET1_D5,
-					   CK_TOP_NET1_D5_D2 };
+					   CK_TOP_NET1PLL_D5,
+					   CK_TOP_NET1PLL_D5_D2 };
 
 static const int netsys_2x_parents[] = { CK_TOP_XTAL,
-					 CK_TOP_CB_NET2_800M,
-					 CK_TOP_CB_MM_720M };
+					 CK_TOP_NET2PLL_800M,
+					 CK_TOP_CB_MMPLL_720M };
 
-static const int netsys_gsw_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET1_D4,
-					  CK_TOP_CB_NET1_D5 };
+static const int netsys_gsw_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D4,
+					  CK_TOP_NET1PLL_D5 };
 
-static const int eth_gmii_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4 };
+static const int eth_gmii_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D4 };
 
 static const int netsys_mcu_parents[] = {
-	CK_TOP_XTAL, CK_TOP_CB_NET2_800M, CK_TOP_CB_MM_720M,
-	CK_TOP_CB_NET1_D4,  CK_TOP_CB_NET1_D5,   CK_TOP_CB_M_416M
+	CK_TOP_XTAL, CK_TOP_NET2PLL_800M, CK_TOP_CB_MMPLL_720M,
+	CK_TOP_NET1PLL_D4,  CK_TOP_NET1PLL_D5,   CK_TOP_CB_MPLL_416M
 };
 
 static const int eip197_parents[] = {
-	CK_TOP_XTAL, CK_TOP_CB_NETSYS_850M, CK_TOP_CB_NET2_800M,
-	CK_TOP_CB_MM_720M,  CK_TOP_CB_NET1_D4,     CK_TOP_CB_NET1_D5
+	CK_TOP_XTAL, CK_TOP_CB_NETSYSPLL_850M, CK_TOP_NET2PLL_800M,
+	CK_TOP_CB_MMPLL_720M,  CK_TOP_NET1PLL_D4,     CK_TOP_NET1PLL_D5
 };
 
 static const int axi_infra_parents[] = { CK_TOP_XTAL,
-					 CK_TOP_NET1_D8_D2 };
+					 CK_TOP_NET1PLL_D8_D2 };
 
-static const int uart_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D8,
-				    CK_TOP_M_D8_D2 };
+static const int uart_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D8,
+				    CK_TOP_MPLL_D8_D2 };
 
-static const int emmc_250m_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D2,
-					 CK_TOP_CB_MM_D4 };
+static const int emmc_250m_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D2,
+					 CK_TOP_MMPLL_D4 };
 
 static const int emmc_400m_parents[] = {
-	CK_TOP_XTAL, CK_TOP_CB_MSDC_400M, CK_TOP_CB_MM_D2,
-	CK_TOP_CB_M_D2,     CK_TOP_CB_MM_D4,     CK_TOP_NET1_D8_D2
+	CK_TOP_XTAL, CK_TOP_CB_MSDCPLL_400M, CK_TOP_MMPLL_D2,
+	CK_TOP_MPLL_D2,     CK_TOP_MMPLL_D4,     CK_TOP_NET1PLL_D8_D2
 };
 
-static const int spi_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2,
-				   CK_TOP_CB_MM_D4,    CK_TOP_NET1_D8_D2,
-				   CK_TOP_CB_NET2_D6,  CK_TOP_NET1_D5_D4,
-				   CK_TOP_CB_M_D4,     CK_TOP_NET1_D8_D4 };
+static const int spi_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D2,
+				   CK_TOP_MMPLL_D4,    CK_TOP_NET1PLL_D8_D2,
+				   CK_TOP_NET2PLL_D6,  CK_TOP_NET1PLL_D5_D4,
+				   CK_TOP_MPLL_D4,     CK_TOP_NET1PLL_D8_D4 };
 
-static const int nfi1x_parents[] = { CK_TOP_XTAL, CK_TOP_CB_MM_D4,
-				     CK_TOP_NET1_D8_D2,  CK_TOP_CB_NET2_D6,
-				     CK_TOP_CB_M_D4,     CK_TOP_CB_MM_D8,
-				     CK_TOP_NET1_D8_D4,  CK_TOP_CB_M_D8 };
+static const int nfi1x_parents[] = { CK_TOP_XTAL, CK_TOP_MMPLL_D4,
+				     CK_TOP_NET1PLL_D8_D2,  CK_TOP_NET2PLL_D6,
+				     CK_TOP_MPLL_D4,     CK_TOP_MMPLL_D8,
+				     CK_TOP_NET1PLL_D8_D4,  CK_TOP_MPLL_D8 };
 
 static const int spinfi_parents[] = { CK_TOP_XTAL_D2, CK_TOP_XTAL,
-				      CK_TOP_NET1_D5_D4,  CK_TOP_CB_M_D4,
-				      CK_TOP_CB_MM_D8,    CK_TOP_NET1_D8_D4,
-				      CK_TOP_MM_D6_D2,    CK_TOP_CB_M_D8 };
+				      CK_TOP_NET1PLL_D5_D4,  CK_TOP_MPLL_D4,
+				      CK_TOP_MMPLL_D8,    CK_TOP_NET1PLL_D8_D4,
+				      CK_TOP_MMPLL_D6_D2,    CK_TOP_MPLL_D8 };
 
-static const int pwm_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D8_D2,
-				   CK_TOP_NET1_D5_D4,  CK_TOP_CB_M_D4,
-				   CK_TOP_M_D8_D2,     CK_TOP_CB_RTC_32K };
+static const int pwm_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D8_D2,
+				   CK_TOP_NET1PLL_D5_D4,  CK_TOP_MPLL_D4,
+				   CK_TOP_MPLL_D8_D2,     CK_TOP_RTC_32K };
 
-static const int i2c_parents[] = { CK_TOP_XTAL, CK_TOP_NET1_D5_D4,
-				   CK_TOP_CB_M_D4, CK_TOP_NET1_D8_D4 };
+static const int i2c_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5_D4,
+				   CK_TOP_MPLL_D4, CK_TOP_NET1PLL_D8_D4 };
 
 static const int pcie_mbist_250m_parents[] = { CK_TOP_XTAL,
-					       CK_TOP_NET1_D5_D2 };
+					       CK_TOP_NET1PLL_D5_D2 };
 
 static const int pextp_tl_ck_parents[] = { CK_TOP_XTAL,
-					   CK_TOP_CB_NET2_D6, CK_TOP_CB_MM_D8,
-					   CK_TOP_M_D8_D2, CK_TOP_CB_RTC_32K };
+					   CK_TOP_NET2PLL_D6, CK_TOP_MMPLL_D8,
+					   CK_TOP_MPLL_D8_D2, CK_TOP_RTC_32K };
 
 static const int usb_frmcnt_parents[] = { CK_TOP_XTAL,
-					  CK_TOP_CB_MM_D3_D5 };
+					  CK_TOP_MMPLL_D3_D5 };
 
 static const int aud_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M };
 
-static const int a1sys_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_D4 };
+static const int a1sys_parents[] = { CK_TOP_XTAL, CK_TOP_APLL2_D4 };
 
 static const int aud_l_parents[] = { CK_TOP_XTAL, CK_TOP_CB_APLL2_196M,
-				     CK_TOP_M_D8_D2 };
+				     CK_TOP_MPLL_D8_D2 };
 
-static const int sspxtp_parents[] = { CK_TOP_XTAL_D2, CK_TOP_M_D8_D2 };
+static const int sspxtp_parents[] = { CK_TOP_XTAL_D2, CK_TOP_MPLL_D8_D2 };
 
 static const int usxgmii_sbus_0_parents[] = { CK_TOP_XTAL,
-					      CK_TOP_NET1_D8_D4 };
+					      CK_TOP_NET1PLL_D8_D4 };
 
 static const int sgm_0_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M };
 
-static const int sysapb_parents[] = { CK_TOP_XTAL, CK_TOP_M_D3_D2 };
+static const int sysapb_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D3_D2 };
 
 static const int eth_refck_50m_parents[] = { CK_TOP_XTAL,
-					     CK_TOP_NET2_D4_D4 };
+					     CK_TOP_NET2PLL_D4_D4 };
 
 static const int eth_sys_200m_parents[] = { CK_TOP_XTAL,
-					    CK_TOP_CB_NET2_D4 };
+					    CK_TOP_NET2PLL_D4 };
 
-static const int eth_xgmii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET1_D8_D8,
-					 CK_TOP_NET1_D8_D16 };
+static const int eth_xgmii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET1PLL_D8_D8,
+					 CK_TOP_NET1PLL_D8_D16 };
 
-static const int bus_tops_parents[] = { CK_TOP_XTAL, CK_TOP_CB_NET1_D5,
-					CK_TOP_CB_NET2_D2 };
+static const int bus_tops_parents[] = { CK_TOP_XTAL, CK_TOP_NET1PLL_D5,
+					CK_TOP_NET2PLL_D2 };
 
 static const int npu_tops_parents[] = { CK_TOP_XTAL,
-					CK_TOP_CB_NET2_800M };
+					CK_TOP_NET2PLL_800M };
 
-static const int dramc_md32_parents[] = { CK_TOP_XTAL, CK_TOP_CB_M_D2,
-					  CK_TOP_CB_WEDMCU_208M };
+static const int dramc_md32_parents[] = { CK_TOP_XTAL, CK_TOP_MPLL_D2,
+					  CK_TOP_CB_WEDMCUPLL_208M };
 
 static const int da_xtp_glb_p0_parents[] = { CK_TOP_XTAL,
-					     CK_TOP_CB_NET2_D8 };
+					     CK_TOP_NET2PLL_D8 };
 
 static const int mcusys_backup_625m_parents[] = { CK_TOP_XTAL,
-						  CK_TOP_CB_NET1_D4 };
+						  CK_TOP_NET1PLL_D4 };
 
 static const int macsec_parents[] = { CK_TOP_XTAL, CK_TOP_CB_SGM_325M,
-				      CK_TOP_CB_NET1_D8 };
+				      CK_TOP_NET1PLL_D8 };
 
 static const int netsys_tops_400m_parents[] = { CK_TOP_XTAL,
-						CK_TOP_CB_NET2_D2 };
+						CK_TOP_NET2PLL_D2 };
 
-static const int eth_mii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET2_D4_D8 };
+static const int eth_mii_parents[] = { CK_TOP_XTAL_D2, CK_TOP_NET2PLL_D4_D8 };
 
 #define TOP_MUX(_id, _name, _parents, _mux_ofs, _mux_set_ofs, _mux_clr_ofs,    \
 		_shift, _width, _gate, _upd_ofs, _upd)                         \
@@ -674,7 +674,7 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 			CK_TOP_SYSAXI, 17),
 	GATE_INFRA2_TOP(CK_INFRA_66M_FLASHIF_AXI, "infra_hf_66m_flashif_axi",
 			CK_TOP_SYSAXI, 18),
-	GATE_INFRA2_TOP(CK_INFRA_RTC, "infra_f_frtc", CK_TOP_CB_RTC_32K, 19),
+	GATE_INFRA2_TOP(CK_INFRA_RTC, "infra_f_frtc", CK_TOP_RTC_32K, 19),
 	GATE_INFRA2_TOP(CK_INFRA_26M_ADC_BCK, "infra_f_26m_adc_bck",
 			CK_TOP_INFRA_F26M, 20),
 	GATE_INFRA2_INFRA(CK_INFRA_RC_ADC, "infra_f_frc_adc", CK_INFRA_26M_ADC_BCK,
