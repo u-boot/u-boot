@@ -170,7 +170,7 @@
 
 /* TOPCKGEN */
 /* mtk_fixed_factor */
-#define CK_TOP_CB_CKSQ_40M    0 /* Linux CLK ID (74) */
+#define CK_TOP_XTAL           0 /* Linux CLK ID (74) */
 #define CK_TOP_CB_M_416M      1 /* Linux CLK ID (75) */
 #define CK_TOP_CB_M_D2	      2 /* Linux CLK ID (76) */
 #define CK_TOP_M_D3_D2	      3 /* Linux CLK ID (77) */
@@ -205,7 +205,7 @@
 #define CK_TOP_CB_SGM_325M    32 /* Linux CLK ID (106) */
 #define CK_TOP_CB_NETSYS_850M 33 /* Linux CLK ID (107) */
 #define CK_TOP_CB_MSDC_400M   34 /* Linux CLK ID (108) */
-#define CK_TOP_CKSQ_40M_D2    35 /* Linux CLK ID (109) */
+#define CK_TOP_XTAL_D2    35 /* Linux CLK ID (109) */
 #define CK_TOP_CB_RTC_32K     36 /* Linux CLK ID (110) */
 #define CK_TOP_CB_RTC_32P7K   37 /* Linux CLK ID (111) */
 #define CK_TOP_INFRA_F32K     38 /* Linux CLK ID (112) */

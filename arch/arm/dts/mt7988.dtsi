@@ -265,7 +265,7 @@
 		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART0_CK>;
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
+		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
 					 <&infracfg_ao CK_INFRA_UART_O0>;
 		status = "disabled";
 	};
@@ -277,7 +277,7 @@
 		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART1_CK>;
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART1_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
+		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
 					 <&infracfg_ao CK_INFRA_UART_O1>;
 		status = "disabled";
 	};
@@ -289,7 +289,7 @@
 		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART2_CK>;
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART2_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
+		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
 					 <&infracfg_ao CK_INFRA_UART_O2>;
 		status = "disabled";
 	};
