@@ -810,7 +810,7 @@ static int initf_bootstage(void)
 	if (ret)
 		return ret;
 	if (from_spl) {
-		ret = bootstage_stash_default();
+		ret = bootstage_unstash_default();
 		if (ret && ret != -ENOENT) {
 			debug("Failed to unstash bootstage: err=%d\n", ret);
 			return ret;
