@@ -206,7 +206,7 @@
 #define CLK_AUDIO_DLMCH			31
 #define CLK_AUDIO_ARB1			32
 #define CLK_AUDIO_AWB			33
-#define CLK_AUDIO_AWB3			34
+#define CLK_AUDIO_AWB2			34
 #define CLK_AUDIO_DAI			35
 #define CLK_AUDIO_MOD			36
 #define CLK_AUDIO_ASRCI3		37
