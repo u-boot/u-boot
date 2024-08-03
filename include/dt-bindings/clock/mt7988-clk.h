@@ -309,7 +309,7 @@
 #define CK_TOP_NETSYS_PPEFB_250M_SEL  135 /* Linux CLK ID (70) */
 #define CK_TOP_NETSYS_WARP_SEL	      136 /* Linux CLK ID (71) */
 #define CK_TOP_ETH_MII_SEL	      137 /* Linux CLK ID (72) */
-#define CK_TOP_CK_NPU_SEL_CM_TOPS_SEL 138 /* Linux CLK ID (73) */
+#define CK_TOP_NPU_SEL		      138 /* Linux CLK ID (73) */
 
 /* APMIXEDSYS */
 /* mtk_pll_data */

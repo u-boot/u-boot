@@ -420,7 +420,7 @@ static const struct mtk_composite topckgen_mtk_muxes[] = {
 		0x110, 0x114, 0x118, 24, 2, 31, 0x1c8, 9),
 	TOP_MUX(CK_TOP_ETH_MII_SEL, "eth_mii_sel", eth_mii_parents, 0x120,
 		0x124, 0x128, 0, 1, 7, 0x1c8, 10),
-	TOP_MUX(CK_TOP_CK_NPU_SEL_CM_TOPS_SEL, "ck_npu_sel_cm_tops_sel",
+	TOP_MUX(CK_TOP_NPU_SEL, "ck_npu_sel",
 		netsys_2x_parents, 0x120, 0x124, 0x128, 8, 2, 15, 0x1c8, 11),
 };
 
