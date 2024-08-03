@@ -78,7 +78,7 @@
 		compatible = "mediatek,mt7986-timer";
 		reg = <0x10008000 0x1000>;
 		interrupts = <GIC_SPI 130 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg CK_INFRA_CK_F26M>;
+		clocks = <&topckgen CK_TOP_F26M_SEL>;
 		clock-names = "gpt-clk";
 		bootph-all;
 	};
@@ -154,7 +154,7 @@
 		#clock-cells = <1>;
 		#pwm-cells = <2>;
 		interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg CK_INFRA_PWM>,
+		clocks = <&topckgen CK_TOP_PWM_SEL>,
 			 <&infracfg_ao CK_INFRA_PWM_BSEL>,
 			 <&infracfg_ao CK_INFRA_PWM1_CK>,
 			 <&infracfg_ao CK_INFRA_PWM2_CK>;
@@ -163,9 +163,9 @@
 				  <&infracfg CK_INFRA_PWM1_SEL>,
 				  <&infracfg CK_INFRA_PWM2_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D4>,
-					 <&infracfg CK_INFRA_PWM>,
-					 <&infracfg CK_INFRA_PWM>,
-					 <&infracfg CK_INFRA_PWM>;
+					 <&topckgen CK_TOP_PWM_SEL>,
+					 <&topckgen CK_TOP_PWM_SEL>,
+					 <&topckgen CK_TOP_PWM_SEL>;
 		clock-names = "top", "main", "pwm1", "pwm2";
 		status = "disabled";
 		bootph-all;
@@ -179,7 +179,7 @@
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_UART0_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
-					 <&infracfg CK_INFRA_UART>;
+					 <&topckgen CK_TOP_UART_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 		bootph-all;
@@ -191,7 +191,7 @@
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&infracfg_ao CK_INFRA_UART1_CK>;
 		assigned-clocks = <&infracfg CK_INFRA_UART1_SEL>;
-		assigned-clock-parents = <&infracfg CK_INFRA_CK_F26M>;
+		assigned-clock-parents = <&topckgen CK_TOP_F26M_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 	};
@@ -202,7 +202,7 @@
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
 		clocks = <&infracfg_ao CK_INFRA_UART2_CK>;
 		assigned-clocks = <&infracfg CK_INFRA_UART2_SEL>;
-		assigned-clock-parents = <&infracfg CK_INFRA_CK_F26M>;
+		assigned-clock-parents = <&topckgen CK_TOP_F26M_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 	};
@@ -263,7 +263,7 @@
 		assigned-clocks = <&topckgen CK_TOP_SPI_SEL>,
 				  <&infracfg CK_INFRA_SPI0_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
-					 <&topckgen CK_INFRA_ISPI0>;
+					 <&topckgen CK_TOP_SPI_SEL>;
 		clock-names = "sel-clk", "spi-clk";
 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
