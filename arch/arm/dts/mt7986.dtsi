@@ -178,7 +178,7 @@
 		clocks = <&infracfg_ao CK_INFRA_UART0_CK>;
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_UART0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
+		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
 					 <&infracfg CK_INFRA_UART>;
 		mediatek,force-highspeed;
 		status = "disabled";
