@@ -121,11 +121,11 @@
 /* INFRACFG */
 
 #define CLK_INFRA_DBGCLK_PD		0
-#define CLK_INFRA_TRNG			1
-#define CLK_INFRA_AUDIO_PD		2
-#define CLK_INFRA_IRRX_PD		3
-#define CLK_INFRA_APXGPT_PD		4
-#define CLK_INFRA_PMIC_PD		5
+#define CLK_INFRA_AUDIO_PD		1
+#define CLK_INFRA_IRRX_PD		2
+#define CLK_INFRA_APXGPT_PD		3
+#define CLK_INFRA_PMIC_PD		4
+#define CLK_INFRA_TRNG			5
 
 /* PERICFG */
 
