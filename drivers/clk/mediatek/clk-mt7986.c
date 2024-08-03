@@ -470,7 +470,6 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 	GATE_INFRA0_INFRA(CK_INFRA_AP_DMA_CK, "infra_ap_dma", CK_INFRA_SYSAXI_D2, 16),
 	GATE_INFRA0_INFRA(CK_INFRA_SEJ_CK, "infra_sej", CK_INFRA_SYSAXI_D2, 24),
 	GATE_INFRA0_TOP(CK_INFRA_SEJ_13M_CK, "infra_sej_13m", CK_TOP_F26M_SEL, 25),
-	GATE_INFRA0_TOP(CK_INFRA_TRNG_CK, "infra_trng", CK_TOP_SYSAXI_SEL, 26),
 	/* INFRA1 */
 	GATE_INFRA1_TOP(CK_INFRA_THERM_CK, "infra_therm", CK_TOP_F26M_SEL, 0),
 	GATE_INFRA1_TOP(CK_INFRA_I2C0_CK, "infra_i2co", CK_TOP_I2C_SEL, 1),
@@ -511,6 +510,8 @@ static const struct mtk_gate infracfg_ao_gates[] = {
 	GATE_INFRA2_TOP(CK_INFRA_IPCIE_PIPE_CK, "infra_ipcie_pipe", CK_TOP_XTAL, 13),
 	GATE_INFRA2_TOP(CK_INFRA_IPCIER_CK, "infra_ipcier", CK_TOP_F26M_SEL, 14),
 	GATE_INFRA2_TOP(CK_INFRA_IPCIEB_CK, "infra_ipcieb", CK_TOP_SYSAXI_SEL, 15),
+	/* upstream linux unordered */
+	GATE_INFRA0_TOP(CK_INFRA_TRNG_CK, "infra_trng", CK_TOP_SYSAXI_SEL, 26),
 };
 
 static const struct mtk_clk_tree mt7986_fixed_pll_clk_tree = {
