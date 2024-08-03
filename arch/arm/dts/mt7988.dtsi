@@ -266,7 +266,7 @@
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART0_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
-					 <&infracfg_ao CK_INFRA_UART_O0>;
+					 <&topckgen CK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
@@ -278,7 +278,7 @@
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART1_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
-					 <&infracfg_ao CK_INFRA_UART_O1>;
+					 <&topckgen CK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
@@ -290,7 +290,7 @@
 		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
 				  <&infracfg_ao CK_INFRA_MUX_UART2_SEL>;
 		assigned-clock-parents = <&topckgen CK_TOP_XTAL>,
-					 <&infracfg_ao CK_INFRA_UART_O2>;
+					 <&topckgen CK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
