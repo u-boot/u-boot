@@ -396,7 +396,7 @@ static const struct mtk_composite topckgen_mtk_muxes[] = {
 		da_xtp_glb_p0_parents, 0xf0, 0xf4, 0xf8, 8, 1, 15, 0x1c4, 30),
 	TOP_MUX(CK_TOP_CKM_SEL, "ckm_sel", sspxtp_parents, 0xf0, 0xf4, 0xf8, 16,
 		1, 23, 0x1c8, 0),
-	TOP_MUX(CK_TOP_DA_SELM_XTAL_SEL, "da_selm_xtal_sel", sspxtp_parents,
+	TOP_MUX(CK_TOP_DA_SEL, "da_sel", sspxtp_parents,
 		0xf0, 0xf4, 0xf8, 24, 1, 31, 0x1c8, 1),
 	TOP_MUX(CK_TOP_PEXTP_SEL, "pextp_sel", sspxtp_parents, 0x100, 0x104,
 		0x108, 0, 1, 7, 0x1c8, 2),

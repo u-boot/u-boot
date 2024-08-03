@@ -299,7 +299,7 @@
 #define CK_TOP_DA_XTP_GLB_P2_SEL      125 /* Linux CLK ID (60) */
 #define CK_TOP_DA_XTP_GLB_P3_SEL      126 /* Linux CLK ID (61) */
 #define CK_TOP_CKM_SEL		      127 /* Linux CLK ID (62) */
-#define CK_TOP_DA_SELM_XTAL_SEL	      128 /* Linux CLK ID (63) */
+#define CK_TOP_DA_SEL		      128 /* Linux CLK ID (63) */
 #define CK_TOP_PEXTP_SEL	      129 /* Linux CLK ID (64) */
 #define CK_TOP_TOPS_P2_26M_SEL	      130 /* Linux CLK ID (65) */
 #define CK_TOP_MCUSYS_BACKUP_625M_SEL 131 /* Linux CLK ID (66) */
