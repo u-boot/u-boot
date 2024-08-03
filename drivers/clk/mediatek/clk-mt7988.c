@@ -645,6 +645,14 @@ static const struct mtk_gate_regs infra_3_cg_regs = {
 
 /* INFRA GATE */
 static const struct mtk_gate infracfg_mtk_gates[] = {
+	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P0,
+		    "infra_pcie_peri_ck_26m_ck_p0", CK_INFRA_F26M_O0, 7),
+	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P1,
+		    "infra_pcie_peri_ck_26m_ck_p1", CK_INFRA_F26M_O0, 8),
+	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P2,
+		    "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_F26M_O0, 9),
+	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P3,
+		    "infra_pcie_peri_ck_26m_ck_p3", CK_INFRA_F26M_O0, 10),
 	GATE_INFRA1(CK_INFRA_66M_GPT_BCK, "infra_hf_66m_gpt_bck",
 		    CK_INFRA_66M_MCK, 0),
 	GATE_INFRA1(CK_INFRA_66M_PWM_HCK, "infra_hf_66m_pwm_hck",
@@ -797,14 +805,6 @@ static const struct mtk_gate infracfg_mtk_gates[] = {
 		    CK_INFRA_133M_PHCK, 30),
 	GATE_INFRA3(CK_INFRA_133M_PCIE_CK_P3, "infra_133m_pcie_ck_p3",
 		    CK_INFRA_133M_PHCK, 31),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P0,
-		    "infra_pcie_peri_ck_26m_ck_p0", CK_INFRA_F26M_O0, 7),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P1,
-		    "infra_pcie_peri_ck_26m_ck_p1", CK_INFRA_F26M_O0, 8),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P2,
-		    "infra_pcie_peri_ck_26m_ck_p2", CK_INFRA_F26M_O0, 9),
-	GATE_INFRA0(CK_INFRA_PCIE_PERI_26M_CK_P3,
-		    "infra_pcie_peri_ck_26m_ck_p3", CK_INFRA_F26M_O0, 10),
 };
 
 static const struct mtk_clk_tree mt7988_fixed_pll_clk_tree = {
