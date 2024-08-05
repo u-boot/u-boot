@@ -119,7 +119,7 @@ static void parse_cfg_cmd(image_t *param_stack, int32_t cmd, char *token,
 		} else if (!strncmp(token, "IMX8QM", 6)) {
 			soc = QM;
 		} else if (!strncmp(token, "ULP", 3)) {
-			soc = IMX9;
+			soc = ULP;
 		} else if (!strncmp(token, "IMX9", 4)) {
 			soc = IMX9;
 		} else {
