@@ -32,7 +32,7 @@ Sources
 
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_boot_firmwares
-    :end-before: .. k3_rst_include_end_boot_firmwares
+    :end-before: .. k3_rst_include_end_tifsstub
 
 Build procedure
 ---------------
