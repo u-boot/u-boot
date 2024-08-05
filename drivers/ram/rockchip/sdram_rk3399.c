@@ -13,6 +13,7 @@
 #include <log.h>
 #include <ram.h>
 #include <regmap.h>
+#include <spl.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru.h>
@@ -63,8 +64,6 @@ struct chan_info {
 };
 
 struct dram_info {
-#if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
 	u32 pwrup_srefresh_exit[2];
 	struct chan_info chan[2];
 	struct clk ddr_clk;
@@ -75,7 +74,6 @@ struct dram_info {
 	struct rk3399_pmusgrf_regs *pmusgrf;
 	struct rk3399_ddr_cic_regs *cic;
 	const struct sdram_rk3399_ops *ops;
-#endif
 	struct ram_info info;
 	struct rk3399_pmugrf_regs *pmugrf;
 };
@@ -91,9 +89,6 @@ struct sdram_rk3399_ops {
 		(*get_phy_index_params)(u32 phy_fn,
 					struct rk3399_sdram_params *params);
 };
-
-#if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
 
 struct rockchip_dmc_plat {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -190,6 +185,19 @@ struct io_setting {
 		20,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
 	},
 };
+
+/**
+ * phase_sdram_init() - Check if this is the phase where SDRAM init happens
+ *
+ * Returns: true to do SDRAM init in this phase, false to not
+ */
+static bool phase_sdram_init(void)
+{
+	return spl_phase() == PHASE_TPL ||
+		(!IS_ENABLED(CONFIG_TPL) &&
+		 !IS_ENABLED(CONFIG_ROCKCHIP_EXTERNAL_TPL) &&
+		 !spl_in_proper());
+}
 
 static struct io_setting *
 lpddr4_get_io_settings(const struct rk3399_sdram_params *params, u32 mr5)
@@ -3021,12 +3029,13 @@ static int sdram_init(struct dram_info *dram,
 
 static int rk3399_dmc_of_to_plat(struct udevice *dev)
 {
-	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
+	struct rockchip_dmc_plat *plat;
 	int ret;
 
-	if (!CONFIG_IS_ENABLED(OF_REAL))
+	if (!CONFIG_IS_ENABLED(OF_REAL) || !phase_sdram_init())
 		return 0;
 
+	plat = dev_get_plat(dev);
 	ret = dev_read_u32_array(dev, "rockchip,sdram-params",
 				 (u32 *)&plat->sdram_params,
 				 sizeof(plat->sdram_params) / sizeof(u32));
@@ -3093,7 +3102,6 @@ static int rk3399_dmc_init(struct udevice *dev)
 	priv->cic = syscon_get_first_range(ROCKCHIP_SYSCON_CIC);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
-	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	priv->pmusgrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUSGRF);
 	priv->pmucru = rockchip_get_pmucru();
 	priv->cru = rockchip_get_cru();
@@ -3138,23 +3146,26 @@ static int rk3399_dmc_init(struct udevice *dev)
 
 	return 0;
 }
-#endif
 
 static int rk3399_dmc_probe(struct udevice *dev)
 {
-#if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	if (rk3399_dmc_init(dev))
-		return 0;
-#else
 	struct dram_info *priv = dev_get_priv(dev);
 
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	debug("%s: pmugrf = %p\n", __func__, priv->pmugrf);
-	priv->info.base = CFG_SYS_SDRAM_BASE;
-	priv->info.size =
-		rockchip_sdram_size((phys_addr_t)&priv->pmugrf->os_reg2);
-#endif
+	if (phase_sdram_init() && rk3399_dmc_init(dev))
+		return 0;
+
+	/*
+	 * There is no point in checking the SDRAM size in TPL as it is not
+	 * used, so avoid the code size increment.
+	 */
+	if (!IS_ENABLED(CONFIG_TPL_BUILD)) {
+		priv->info.base = CFG_SYS_SDRAM_BASE;
+		priv->info.size = rockchip_sdram_size(
+			(phys_addr_t)&priv->pmugrf->os_reg2);
+	}
+
 	return 0;
 }
 
@@ -3181,10 +3192,7 @@ U_BOOT_DRIVER(dmc_rk3399) = {
 	.id = UCLASS_RAM,
 	.of_match = rk3399_dmc_ids,
 	.ops = &rk3399_dmc_ops,
-#if defined(CONFIG_TPL_BUILD) || \
-	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
 	.of_to_plat = rk3399_dmc_of_to_plat,
-#endif
 	.probe = rk3399_dmc_probe,
 	.priv_auto	= sizeof(struct dram_info),
 #if defined(CONFIG_TPL_BUILD) || \
