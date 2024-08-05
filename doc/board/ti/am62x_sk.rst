@@ -46,7 +46,7 @@ Boot Flow:
 ----------
 Below is the pictorial representation of boot flow:
 
-.. image:: img/boot_diagram_k3_current.svg
+.. image:: img/boot_diagram_am62.svg
   :alt: Boot flow diagram
 
 - Here TIFS acts as master and provides all the critical services. R5/A53
@@ -165,7 +165,7 @@ Image formats:
 
 - tispl.bin
 
-.. image:: img/dm_tispl.bin.svg
+.. image:: img/tifsstub_dm_tispl.bin.svg
   :alt: tispl.bin image format
 
 OSPI:
