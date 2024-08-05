@@ -732,6 +732,7 @@ F:	arch/arm/mach-omap2/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/
 F:	board/ti/
+F:	doc/board/ti/
 F:	drivers/dma/ti*
 F:	drivers/dma/ti*/
 F:	drivers/firmware/ti_sci.*
