@@ -444,7 +444,7 @@ static int toc0_verify_cert_item(const uint8_t *buf, uint32_t len, RSA *fw_key,
 
 	/* If a digest was provided, compare it to the embedded digest. */
 	extension = &totalSequence->mainSequence.explicit3.extension;
-	if (digest && memcmp(&extension->digest, digest, SHA256_DIGEST_LENGTH)) {
+	if (memcmp(&extension->digest, digest, SHA256_DIGEST_LENGTH)) {
 		pr_err("Wrong firmware digest in certificate\n");
 		goto err;
 	}
