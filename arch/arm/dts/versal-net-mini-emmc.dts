@@ -42,14 +42,14 @@
 		bootph-all;
 	};
 
-	amba: amba {
+	amba: axi {
 		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		sdhci1: sdhci@f1050000 {
+		sdhci1: mmc@f1050000 {
 			compatible = "xlnx,versal-net-emmc";
 			status = "okay";
 			non-removable;

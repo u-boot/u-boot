@@ -42,7 +42,7 @@
 		bootph-all;
 	};
 
-	amba: amba {
+	amba: axi {
 		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <0x2>;
@@ -50,7 +50,7 @@
 		ranges;
 
 		ospi: spi@f1010000 {
-			compatible = "cadence,qspi", "cdns,qspi-nor";
+			compatible = "cdns,qspi-nor";
 			status = "okay";
 			reg = <0 0xf1010000 0 0x10000>, <0 0xc0000000 0 0x20000000>;
 			clock-names = "ref_clk", "pclk";

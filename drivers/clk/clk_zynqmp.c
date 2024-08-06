@@ -726,6 +726,7 @@ static ulong zynqmp_clk_set_rate(struct clk *clk, ulong rate)
 	case gem_tsu:
 	case qspi_ref ... can1_ref:
 	case usb0_bus_ref ... usb3_dual_ref:
+	case dp_video_ref ... dp_stc_ref:
 		return zynqmp_clk_set_peripheral_rate(priv, id,
 						      rate, two_divs);
 	default:
