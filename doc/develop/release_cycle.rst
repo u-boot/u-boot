@@ -55,7 +55,7 @@ Current Status
 
 * The Merge Window for the next release (v2024.10) is **closed**.
 
-* The next branch is now **closed**.
+* The next branch is now **open**.
 
 * Release "v2024.10" is scheduled for 07 October 2024.
 
@@ -69,7 +69,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2024.10-rc1 was released on Mon 22 July 2024.
 
-.. * U-Boot v2024.10-rc2 was released on Mon 05 August 2024.
+* U-Boot v2024.10-rc2 was released on Mon 05 August 2024.
 
 .. * U-Boot v2024.10-rc3 was released on Mon 19 August 2024.
 
