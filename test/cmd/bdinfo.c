@@ -100,6 +100,22 @@ static int test_video_info(struct unit_test_state *uts)
 	return 0;
 }
 
+static int test_print_region_flags(struct unit_test_state *uts, enum lmb_flags flags)
+{
+	uint64_t bitpos;
+	const char *flag_str[] = { "LMB_NONE", "LMB_NOMAP", "LMB_NOOVERWRITE",
+		"LMB_NONOTIFY" };
+
+	do {
+		bitpos = fls(flags) - 1;
+		ut_assert_nextline("%s", flag_str[bitpos]);
+		flags &= ~(1 << bitpos);
+		flags ? puts(", ") : puts("\n");
+	} while (flags);
+
+	return 0;
+}
+
 static int lmb_test_dump_region(struct unit_test_state *uts,
 				struct alist *lmb_rgn_lst, char *name)
 {
@@ -120,8 +136,9 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 			ut_assert_nextlinen(" %s[%d]\t[", name, i);
 			continue;
 		}
-		ut_assert_nextline(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x",
-				   name, i, base, end, size, flags);
+		ut_assert_nextline(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+				   name, i, base, end, size);
+		test_print_region_flags(uts, flags);
 	}
 
 	return 0;

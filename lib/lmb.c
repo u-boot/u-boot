@@ -50,6 +50,20 @@ static void lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
 		event_notify(EVT_LMB_MAP_UPDATE, &lmb_map, sizeof(lmb_map));
 }
 
+static void print_region_flags(enum lmb_flags flags)
+{
+	uint64_t bitpos;
+	const char *flag_str[] = { "LMB_NONE", "LMB_NOMAP", "LMB_NOOVERWRITE",
+		"LMB_NONOTIFY" };
+
+	do {
+		bitpos = fls(flags) - 1;
+		printf("%s", flag_str[bitpos]);
+		flags &= ~(1ull << bitpos);
+		flags ? puts(", ") : puts("\n");
+	} while (flags);
+}
+
 static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
@@ -65,8 +79,9 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 		end = base + size - 1;
 		flags = rgn[i].flags;
 
-		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x\n",
-		       name, i, base, end, size, flags);
+		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+		       name, i, base, end, size);
+		print_region_flags(flags);
 	}
 }
 
