@@ -3,14 +3,18 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	LOGC_BOOT
+
 #include <dm.h>
 #include <hang.h>
 #include <handoff.h>
 #include <image.h>
 #include <init.h>
 #include <log.h>
+#include <mapmem.h>
 #include <os.h>
 #include <spl.h>
+#include <upl.h>
 #include <asm/global_data.h>
 #include <asm/spl.h>
 #include <asm/state.h>
@@ -52,7 +56,8 @@ void board_init_f(ulong flag)
 void board_boot_order(u32 *spl_boot_list)
 {
 	spl_boot_list[0] = BOOT_DEVICE_VBE;
-	spl_boot_list[1] = BOOT_DEVICE_BOARD;
+	spl_boot_list[1] = BOOT_DEVICE_UPL;
+	spl_boot_list[2] = BOOT_DEVICE_BOARD;
 }
 
 static int spl_board_load_file(struct spl_image_info *spl_image,
@@ -250,3 +255,45 @@ int sandbox_spl_load_fit(char *fname, int maxlen, struct spl_image_info *image)
 
 	return 0;
 }
+
+static int upl_load_from_image(struct spl_image_info *spl_image,
+			       struct spl_boot_device *bootdev)
+{
+	long long size;
+	char *fname;
+	int ret, fd;
+	ulong addr;
+
+	if (!CONFIG_IS_ENABLED(UPL_OUT))
+		return -ENOTSUPP;
+
+	spl_upl_init();
+	fname = os_malloc(256);
+
+	ret = sandbox_spl_load_fit(fname, 256, spl_image);
+	if (ret)
+		return log_msg_ret("fit", ret);
+	spl_image->flags = SPL_SANDBOXF_ARG_IS_BUF;
+	spl_image->arg = map_sysmem(spl_image->load_addr, 0);
+	/* size is set by load_simple_fit(), offset is left as 0 */
+
+	/* now read the whole FIT into memory */
+	fd = os_open(fname, OS_O_RDONLY);
+	if (fd < 0)
+		return log_msg_ret("op2", -ENOENT);
+	if (os_get_filesize(fname,  &size))
+		return log_msg_ret("fis", -ENOENT);
+
+	/* place it after the loaded image, allowing plenty of space */
+	addr = ALIGN(spl_image->load_addr + size, 0x1000);
+	log_debug("Loading whole FIT to %lx\n", addr);
+	if (os_read(fd, map_sysmem(addr, 0), size) != size)
+		return log_msg_ret("rea", -EIO);
+	os_close(fd);
+
+	/* tell UPL where it is */
+	upl_set_fit_addr(addr);
+
+	return 0;
+}
+SPL_LOAD_IMAGE_METHOD("upl", 4, BOOT_DEVICE_UPL, upl_load_from_image);
