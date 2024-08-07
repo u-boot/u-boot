@@ -21,8 +21,8 @@
  */
 enum lmb_flags {
 	LMB_NONE		= 0,
-	LMB_NOMAP		= BIT(0),
-	LMB_NOOVERWRITE		= BIT(1),
+	LMB_NOMAP		= BIT(1),
+	LMB_NOOVERWRITE		= BIT(2),
 };
 
 /**
