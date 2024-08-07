@@ -716,6 +716,10 @@ enum gd_flags {
 	 * @GD_FLG_HUSH_MODERN_PARSER: Use hush 2021 parser.
 	 */
 	GD_FLG_HUSH_MODERN_PARSER = 0x2000000,
+	/**
+	 * @GD_FLG_UPL: Read/write a Universal Payload (UPL) handoff
+	 */
+	GD_FLG_UPL = 0x4000000,
 };
 
 #endif /* __ASSEMBLY__ */
