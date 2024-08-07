@@ -1720,6 +1720,7 @@ F:	doc/usage/upl.rst
 F:	doc/usage/cmd/upl.rst
 F:	include/upl.h
 F:	test/boot/upl.c
+F:	test/py/tests/test_upl.py
 
 USB
 M:	Marek Vasut <marex@denx.de>

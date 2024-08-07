@@ -398,6 +398,35 @@ static int upl_test_read_write(struct unit_test_state *uts)
 }
 UPL_TEST(upl_test_read_write, UT_TESTF_CONSOLE_REC);
 
+/* Test UPL passthrough */
+static int upl_test_info_norun(struct unit_test_state *uts)
+{
+	const struct upl_image *img;
+	struct upl *upl = gd_upl();
+	const void *fit;
+
+	ut_assertok(run_command("upl info -v", 0));
+	ut_assert_nextline("UPL state: active");
+	ut_assert_nextline("fit %lx", upl->fit);
+	ut_assert_nextline("conf_offset %x", upl->conf_offset);
+	ut_assert_nextlinen("image 0");
+	ut_assert_nextlinen("image 1");
+	ut_assert_console_end();
+
+	/* check the offsets */
+	fit = map_sysmem(upl->fit, 0);
+	ut_asserteq_str("conf-1", fdt_get_name(fit, upl->conf_offset, NULL));
+
+	ut_asserteq(2, upl->image.count);
+
+	img = alist_get(&upl->image, 1, struct upl_image);
+	ut_asserteq_str("firmware-1", fdt_get_name(fit, img->offset, NULL));
+	ut_asserteq(CONFIG_TEXT_BASE, img->load);
+
+	return 0;
+}
+UPL_TEST(upl_test_info_norun, UT_TESTF_CONSOLE_REC | UT_TESTF_MANUAL);
+
 int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(upl_test);
