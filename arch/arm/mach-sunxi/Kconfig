@@ -437,6 +437,7 @@ config MACH_SUN50I_H616
 	select ARM64
 	select DRAM_SUN50I_H616
 	select SUN50I_GEN_H6
+	imply OF_UPSTREAM
 
 endchoice
 
