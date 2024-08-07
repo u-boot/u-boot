@@ -358,6 +358,46 @@ static int upl_test_base(struct unit_test_state *uts)
 }
 UPL_TEST(upl_test_base, 0);
 
+/* Test 'upl info' command */
+static int upl_test_info(struct unit_test_state *uts)
+{
+	gd_set_upl(NULL);
+	ut_assertok(run_command("upl info", 0));
+	ut_assert_nextline("UPL state: inactive");
+	ut_assert_console_end();
+
+	gd_set_upl((struct upl *)uts);	/* set it to any non-zero value */
+	ut_assertok(run_command("upl info", 0));
+	ut_assert_nextline("UPL state: active");
+	ut_assert_console_end();
+	gd_set_upl(NULL);
+
+	return 0;
+}
+UPL_TEST(upl_test_info, UT_TESTF_CONSOLE_REC);
+
+/* Test 'upl read' and 'upl_write' commands */
+static int upl_test_read_write(struct unit_test_state *uts)
+{
+	ulong addr;
+
+	if (!CONFIG_IS_ENABLED(OFNODE_MULTI_TREE))
+		return -EAGAIN;  /* skip test */
+	ut_assertok(run_command("upl write", 0));
+
+	addr = env_get_hex("upladdr", 0);
+	ut_assert_nextline("UPL handoff written to %lx size %lx", addr,
+			   env_get_hex("uplsize", 0));
+	ut_assert_console_end();
+
+	ut_assertok(run_command("upl read ${upladdr}", 0));
+	ut_assert_nextline("Reading UPL at %lx", addr);
+	ut_assert_console_end();
+
+	return 0;
+}
+UPL_TEST(upl_test_read_write, UT_TESTF_CONSOLE_REC);
+
 int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(upl_test);

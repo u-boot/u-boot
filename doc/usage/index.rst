@@ -114,6 +114,7 @@ Shell commands
    cmd/tftpput
    cmd/trace
    cmd/true
+   cmd/upl
    cmd/ums
    cmd/unbind
    cmd/ut

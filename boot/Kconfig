@@ -747,6 +747,7 @@ config BOOTMETH_SCRIPT
 
 config UPL
 	bool "upl - Universal Payload Specification"
+	imply CMD_UPL
 	imply UPL_READ
 	imply UPL_WRITE
 	help

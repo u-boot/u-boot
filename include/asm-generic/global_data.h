@@ -30,6 +30,7 @@
 
 struct acpi_ctx;
 struct driver_rt;
+struct upl;
 
 typedef struct global_data gd_t;
 
@@ -491,6 +492,12 @@ struct global_data {
 	 * @dmtag_list: List of DM tags
 	 */
 	struct list_head dmtag_list;
+#if CONFIG_IS_ENABLED(UPL)
+	/**
+	 * @upl: Universal Payload-handoff information
+	 */
+	struct upl *upl;
+#endif
 };
 #ifndef DO_DEPS_ONLY
 static_assert(sizeof(struct global_data) == GD_SIZE);
@@ -588,6 +595,14 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_malloc_ptr()		gd->malloc_ptr
 #else
 #define gd_malloc_ptr()		0L
+#endif
+
+#if CONFIG_IS_ENABLED(UPL)
+#define gd_upl()		gd->upl
+#define gd_set_upl(_val)	gd->upl = (_val)
+#else
+#define gd_upl()		NULL
+#define gd_set_upl(val)
 #endif
 
 /**
