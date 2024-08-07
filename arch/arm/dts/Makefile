@@ -953,13 +953,6 @@ endif
 dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach.dtb
 
-dtb-$(CONFIG_ARCH_KEYSTONE) += keystone-k2hk-evm.dtb \
-	keystone-k2l-evm.dtb \
-	keystone-k2e-evm.dtb \
-	keystone-k2g-evm.dtb \
-	keystone-k2g-generic.dtb \
-	keystone-k2g-ice.dtb
-
 dtb-$(CONFIG_TARGET_AT91SAM9261EK) += at91sam9261ek.dtb
 
 dtb-$(CONFIG_TARGET_PM9261) += at91sam9261ek.dtb
