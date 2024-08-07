@@ -748,6 +748,7 @@ config BOOTMETH_SCRIPT
 config UPL
 	bool "upl - Universal Payload Specification"
 	imply UPL_READ
+	imply UPL_WRITE
 	help
 	  Provides support for UPL payloads and handoff information. U-Boot
 	  supports generating and accepting handoff information. The mkimage
@@ -760,6 +761,13 @@ config UPL_READ
 	help
 	  Provides support for decoding a UPL-format payload into a C structure
 	  which can be used elsewhere in U-Boot. This is just the reading
+	  implementation, useful for trying it out.
+
+config UPL_WRITE
+	bool "upl - Support writing a Universal Payload handoff"
+	help
+	  Provides support for encoding a UPL-format payload from a C structure
+	  so it can be passed to another program. This is just the writing
 	  implementation, useful for trying it out.
 
 endif  # UPL
