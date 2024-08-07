@@ -16,8 +16,8 @@ Description
 -----------
 
 The *upl* command is used to test U-Boot's support for the Universal Payload
-Specification (UPL) firmware standard. It allows creation of a fake handoff for
-use in testing.
+Specification (UPL) firmware standard (see :doc:`../upl`). It allows creation of
+a fake handoff for use in testing.
 
 
 upl write
