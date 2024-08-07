@@ -19,7 +19,7 @@
 #define LPI2C_NACK_TOUT_MS 1
 #define LPI2C_TIMEOUT_MS 100
 
-static int bus_i2c_init(struct udevice *bus, int speed);
+static int bus_i2c_init(struct udevice *bus);
 
 /* Weak linked function for overridden by some SoC power function */
 int __weak init_i2c_power(unsigned i2c_num)
@@ -172,7 +172,7 @@ static int bus_i2c_start(struct udevice *bus, u8 addr, u8 dir)
 		debug("i2c: start check busy bus: 0x%x\n", result);
 
 		/* Try to init the lpi2c then check the bus busy again */
-		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
+		bus_i2c_init(bus);
 		result = imx_lpci2c_check_busy_bus(regs);
 		if (result) {
 			printf("i2c: Error check busy bus: 0x%x\n", result);
@@ -344,10 +344,13 @@ static int bus_i2c_set_bus_speed(struct udevice *bus, int speed)
 	return 0;
 }
 
-static int bus_i2c_init(struct udevice *bus, int speed)
+static int bus_i2c_init(struct udevice *bus)
 {
 	u32 val;
 	int ret;
+
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(bus);
+	int speed = i2c->speed_hz;
 
 	struct imx_lpi2c_bus *i2c_bus = dev_get_priv(bus);
 	struct imx_lpi2c_reg *regs = (struct imx_lpi2c_reg *)(i2c_bus->base);
@@ -388,13 +391,13 @@ static int imx_lpi2c_probe_chip(struct udevice *bus, u32 chip,
 	result = bus_i2c_start(bus, chip, 0);
 	if (result) {
 		bus_i2c_stop(bus);
-		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
+		bus_i2c_init(bus);
 		return result;
 	}
 
 	result = bus_i2c_stop(bus);
 	if (result)
-		bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
+		bus_i2c_init(bus);
 
 	return result;
 }
@@ -489,7 +492,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 			return ret;
 	}
 
-	ret = bus_i2c_init(bus, I2C_SPEED_STANDARD_RATE);
+	ret = bus_i2c_init(bus);
 	if (ret < 0)
 		return ret;
 
