@@ -130,7 +130,7 @@ static int bus_i2c_receive(struct udevice *bus, u8 *rxbuf, int len)
 
 	result = bus_i2c_wait_for_tx_ready(regs);
 	if (result) {
-		debug("i2c: receive wait fot tx ready: %d\n", result);
+		debug("i2c: receive wait for tx ready: %d\n", result);
 		return result;
 	}
 
