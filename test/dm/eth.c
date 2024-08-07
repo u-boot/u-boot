@@ -169,6 +169,7 @@ static int dm_test_ip6_make_lladdr(struct unit_test_state *uts)
 DM_TEST(dm_test_ip6_make_lladdr, UT_TESTF_SCAN_FDT);
 #endif
 
+#if !defined(CONFIG_NET_LWIP)
 static int dm_test_eth(struct unit_test_state *uts)
 {
 	net_ping_ip = string_to_ip("1.1.2.2");
@@ -297,6 +298,7 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_eth_act, UT_TESTF_SCAN_FDT);
+#endif /* !CONFIG_NET_LWIP */
 
 /* Ensure that all addresses are loaded properly */
 static int dm_test_ethaddr(struct unit_test_state *uts)
@@ -331,6 +333,7 @@ static int dm_test_ethaddr(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ethaddr, UT_TESTF_SCAN_FDT);
 
+#if !defined(CONFIG_NET_LWIP)
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_eth_rotate1(struct unit_test_state *uts)
 {
@@ -615,6 +618,7 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_eth_async_ping_reply, UT_TESTF_SCAN_FDT);
+#endif /* !CONFIG_NET_LWIP */
 
 #if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
 

@@ -781,9 +781,11 @@ static int efi_boot_add_uri(int argc, char *const argv[], u16 *var_name16,
 	if (!label)
 		return CMD_RET_FAILURE;
 
-	if (!wget_validate_uri(argv[3])) {
-		printf("ERROR: invalid URI\n");
-		return CMD_RET_FAILURE;
+	if (IS_ENABLED(CONFIG_CMD_WGET)) {
+		if (!wget_validate_uri(argv[3])) {
+			printf("ERROR: invalid URI\n");
+			return CMD_RET_FAILURE;
+		}
 	}
 
 	efi_create_indexed_name(var_name16, var_name16_size, "Boot", id);

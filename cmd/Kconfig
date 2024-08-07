@@ -2101,6 +2101,50 @@ config CMD_WOL
 
 endif
 
+if NET_LWIP
+
+menuconfig CMD_NET_LWIP
+	bool "Network commands (lwIP)"
+	default y
+
+if CMD_NET_LWIP
+
+config CMD_DHCP
+	bool "dhcp"
+	select PROT_DHCP_LWIP
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
+config CMD_DNS
+	bool "dns"
+	select PROT_DNS_LWIP
+	help
+	  Lookup the IP of a hostname
+
+config CMD_PING
+	bool "ping"
+	select PROT_RAW_LWIP
+	help
+	  Send ICMP ECHO_REQUEST to network host
+
+config CMD_TFTPBOOT
+	bool "tftp"
+	select PROT_UDP_LWIP
+	default y
+	help
+	  tftpboot - load file via network using TFTP protocol
+
+config CMD_WGET
+	bool "wget"
+	select PROT_TCP_LWIP
+	help
+	  wget is a simple command to download kernel, or other files,
+	  from a http server over TCP.
+
+endif
+
+endif
+
 menu "Misc commands"
 
 config CMD_2048
