@@ -1715,6 +1715,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-dm.git
 F:	boot/upl*
 F:	include/upl.h
+F:	test/boot/upl.c
 
 USB
 M:	Marek Vasut <marex@denx.de>
