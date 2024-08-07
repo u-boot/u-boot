@@ -120,8 +120,8 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 			ut_assert_nextlinen(" %s[%d]\t[", name, i);
 			continue;
 		}
-		ut_assert_nextline(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x",
-				   name, i, base, end, size, flags);
+		ut_assert_nextlinen(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+				   name, i, base, end, size);
 	}
 
 	return 0;
