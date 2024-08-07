@@ -195,16 +195,14 @@ static ulong read_fit_image(struct spl_load_info *load, ulong offset,
 
 	ret = os_lseek(load_ctx->fd, offset, OS_SEEK_SET);
 	if (ret < 0) {
-		printf("Failed to seek to %zx, got %zx (errno=%d)\n", offset,
-		       ret, errno);
-		return log_msg_ret("lse", -errno);
+		printf("Failed to seek to %zx, got %zx\n", offset, ret);
+		return log_msg_ret("lse", ret);
 	}
 
 	res = os_read(load_ctx->fd, buf, size);
 	if (res < 0) {
-		printf("Failed to read %lx bytes, got %ld (errno=%d)\n",
-		       size, res, errno);
-		return log_msg_ret("osr", -errno);
+		printf("Failed to read %lx bytes, got %ld\n", size, res);
+		return log_msg_ret("osr", res);
 	}
 
 	return size;
@@ -238,9 +236,9 @@ int sandbox_spl_load_fit(char *fname, int maxlen, struct spl_image_info *image)
 	}
 	ret = os_read(fd, header, sizeof(*header));
 	if (ret != sizeof(*header)) {
-		printf("Failed to read %lx bytes, got %ld (errno=%d)\n",
-		       sizeof(*header), ret, -errno);
-		return log_msg_ret("rea", -errno);
+		printf("Failed to read %lx bytes, got %d\n", sizeof(*header),
+		       ret);
+		return log_msg_ret("rea", ret);
 	}
 	load_ctx.fd = fd;
 
