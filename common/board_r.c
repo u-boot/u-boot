@@ -521,6 +521,8 @@ static int dm_announce(void)
 		       uclass_count);
 		if (CONFIG_IS_ENABLED(OF_REAL))
 			printf(", devicetree: %s", fdtdec_get_srcname());
+		if (CONFIG_IS_ENABLED(UPL))
+			printf(", universal payload active");
 		printf("\n");
 		if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE) &&
 		    (gd->fdt_src == FDTSRC_SEPARATE ||

@@ -763,7 +763,9 @@ config UPL_READ
 	help
 	  Provides support for decoding a UPL-format payload into a C structure
 	  which can be used elsewhere in U-Boot. This is just the reading
-	  implementation, useful for trying it out.
+	  implementation, useful for trying it out. See UPL_IN for how
+	  to tell U-Boot to actually read it on startup and use it for memory
+	  and device information, etc.
 
 config UPL_WRITE
 	bool "upl - Support writing a Universal Payload handoff"
@@ -773,6 +775,14 @@ config UPL_WRITE
 	  implementation, useful for trying it out. See SPL_UPL_OUT
 	  for how to tell U-Boot SPL to actually write it before jumping to
 	  the next phase.
+
+config UPL_IN
+	bool "upl - Read the UPL handoff on startup"
+	select UPL_READ
+	help
+	  Read an SPL handoff when U-Boot starts and use it to provide
+	  devices, memory layout, etc. required by U-Boot. This allows U-Boot
+	  to function as a payload in the meaning of the specification.
 
 if SPL
 
