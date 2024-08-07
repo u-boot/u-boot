@@ -808,7 +808,7 @@ static int make_exec(char *fname, const void *data, int size)
  * @count: Number of arguments in @add_args
  * Return: 0 if OK, -ENOMEM if out of memory
  */
-static int add_args(char ***argvp, char *add_args[], int count)
+static int add_args(char ***argvp, const char *add_args[], int count)
 {
 	char **argv, **ap;
 	int argc;
@@ -859,7 +859,7 @@ static int os_jump_to_file(const char *fname, bool delete_it)
 	struct sandbox_state *state = state_get_current();
 	char mem_fname[30];
 	int fd, err;
-	char *extra_args[5];
+	const char *extra_args[5];
 	char **argv = state->argv;
 	int argc;
 #ifdef DEBUG
