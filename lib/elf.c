@@ -90,6 +90,10 @@ unsigned long load_elf64_image_phdr(unsigned long addr)
 		void *dst = (void *)(ulong)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
 
+		/* Only load PT_LOAD program header */
+		if (phdr->p_type != PT_LOAD)
+			continue;
+
 		debug("Loading phdr %i to 0x%p (%lu bytes)\n",
 		      i, dst, (ulong)phdr->p_filesz);
 		if (phdr->p_filesz)
@@ -204,6 +208,10 @@ unsigned long load_elf_image_phdr(unsigned long addr)
 	for (i = 0; i < ehdr->e_phnum; ++i) {
 		void *dst = (void *)(uintptr_t)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+
+		/* Only load PT_LOAD program header */
+		if (phdr->p_type != PT_LOAD)
+			continue;
 
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
