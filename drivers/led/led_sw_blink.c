@@ -103,8 +103,21 @@ bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state)
 		return false;
 
 	if (state == LEDST_BLINK) {
-		/* start blinking on next led_sw_blink() call */
-		sw_blink->state = LED_SW_BLINK_ST_OFF;
+		struct led_ops *ops = led_get_ops(dev);
+
+		/*
+		 * toggle LED initially and start blinking on next
+		 * led_sw_blink() call.
+		 */
+		switch (ops->get_state(dev)) {
+		case LEDST_ON:
+			ops->set_state(dev, LEDST_OFF);
+			sw_blink->state = LED_SW_BLINK_ST_OFF;
+		default:
+			ops->set_state(dev, LEDST_ON);
+			sw_blink->state = LED_SW_BLINK_ST_ON;
+		}
+
 		return true;
 	}
 
