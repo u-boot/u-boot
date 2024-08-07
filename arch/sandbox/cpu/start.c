@@ -431,6 +431,14 @@ static int sandbox_cmdline_cb_autoboot_keyed(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT(autoboot_keyed, 0, "Allow keyed autoboot");
 
+static int sandbox_cmdline_cb_upl(struct sandbox_state *state, const char *arg)
+{
+	state->upl = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(upl, 0, "Enable Universal Payload (UPL)");
+
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
@@ -540,6 +548,9 @@ int sandbox_main(int argc, char *argv[])
 			goto err;
 	}
 
+	if (state->upl)
+		gd->flags |= GD_FLG_UPL;
+
 #if CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	gd->malloc_base = CFG_MALLOC_F_ADDR;
 #endif
@@ -558,7 +569,7 @@ int sandbox_main(int argc, char *argv[])
 	log_debug("debug: %s\n", __func__);
 
 	/* Do pre- and post-relocation init */
-	board_init_f(0);
+	board_init_f(gd->flags);
 
 	board_init_r(gd->new_gd, 0);
 
