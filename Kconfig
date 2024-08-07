@@ -209,6 +209,7 @@ config ENV_VARS_UBOOT_CONFIG
 config NR_DRAM_BANKS
 	int "Number of DRAM banks"
 	default 1 if ARCH_SUNXI || ARCH_OWL
+	default 2 if OMAP34XX
 	default 4
 	help
 	  This defines the number of DRAM banks.
@@ -236,6 +237,7 @@ config SYS_BOOT_GET_KBD
 config HAS_CUSTOM_SYS_INIT_SP_ADDR
 	bool "Use a custom location for the initial stack pointer address"
 	depends on ARC || (ARM && !INIT_SP_RELATIVE) || MIPS || PPC || RISCV
+	default y if OMAP34XX || AM33XX || AM43XX || DRA7XX
 	default y if TFABOOT
 	help
 	  Typically, we use an initial stack pointer address that is calculated
@@ -249,6 +251,10 @@ config HAS_CUSTOM_SYS_INIT_SP_ADDR
 config CUSTOM_SYS_INIT_SP_ADDR
 	hex "Static location for the initial stack pointer"
 	depends on HAS_CUSTOM_SYS_INIT_SP_ADDR
+	default 0x4020ff00 if OMAP34XX
+	default 0x4030ff00 if AM33XX
+	default 0x4033ff00 if AM43XX
+	default 0x4037ff00 if DRA7XX
 	default TEXT_BASE if TFABOOT
 
 config SYS_MALLOC_F
@@ -615,6 +621,7 @@ config SYS_SRAM_SIZE
 config SYS_MONITOR_LEN
 	int "Maximum size in bytes reserved for U-Boot in memory"
 	default 1048576 if X86
+	default 262144 if OMAP34XX
 	default 786432 if ARCH_SUNXI
 	default 0
 	help

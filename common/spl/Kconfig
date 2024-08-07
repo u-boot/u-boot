@@ -78,6 +78,7 @@ config SPL_MAX_SIZE
 	hex "Maximum size of the SPL image, excluding BSS"
 	default 0x30000 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0x1b000 if AM33XX && !TI_SECURE_DEVICE
+	default 0xec00 if OMAP34XX
 	default 0x10000 if ARCH_MX6 && !MX6_OCRAM_256KB
 	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x10000
 	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x20000 && !MACH_SUN50I_H616
@@ -261,6 +262,7 @@ config SPL_LDSCRIPT
 
 config SPL_TEXT_BASE
 	hex "SPL Text Base"
+	default 0x40200000 if OMAP34XX
 	default 0x402F4000 if AM43XX
 	default 0x402F0400 if AM33XX
 	default 0x40301350 if OMAP54XX
