@@ -474,4 +474,17 @@ void fdt_fixup_pstore(void *blob);
  */
 int fdt_kaslrseed(void *blob, bool overwrite);
 
+/**
+ * fdt_fixup_pmem_region() - add a pmem node on the device tree
+ *
+ * This functions injects a pmem node to the device tree. Usually
+ * used with EFI installers to preserve installer images
+ *
+ * @blob:	device tree provided by caller
+ * @addr:	start address of the pmem node
+ * @size:	size of the memory of the pmem node
+ * Return:	0 on success or < 0 on failure
+ */
+int fdt_fixup_pmem_region(void *blob, ulong addr, u32 size);
+
 #endif /* ifndef __FDT_SUPPORT_H */

@@ -18,6 +18,7 @@
 #include <dm/ofnode.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
+#include <linux/sizes.h>
 #include <asm/global_data.h>
 #include <asm/unaligned.h>
 #include <linux/libfdt.h>
@@ -463,7 +464,6 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 	do_fixup_by_compat(fdt, compat, prop, &tmp, 4, create);
 }
 
-#ifdef CONFIG_ARCH_FIXUP_FDT_MEMORY
 /*
  * fdt_pack_reg - pack address and size array into the "reg"-suitable stream
  */
@@ -491,7 +491,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 
 	return p - (char *)buf;
 }
-
+#ifdef CONFIG_ARCH_FIXUP_FDT_MEMORY
 #if CONFIG_NR_DRAM_BANKS > 4
 #define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
 #else
@@ -2220,4 +2220,41 @@ int fdt_valid(struct fdt_header **blobp)
 		return 0;
 	}
 	return 1;
+}
+
+int fdt_fixup_pmem_region(void *blob, ulong addr, u32 size)
+{
+	u64 pmem_start[2] = { 0 };
+	u64 pmem_size[2] = { 0 };
+	char pmem_node[32] = {0};
+	int nodeoffset, len;
+	int err;
+	u8 tmp[4 * 16]; /* Up to 64-bit address + 64-bit size */
+
+	if (!IS_ALIGNED(addr, SZ_2M) || !IS_ALIGNED(addr + size, SZ_2M)) {
+		printf("Start and end address needs at 2MB alignment\n");
+		return -1;
+	}
+	snprintf(pmem_node, sizeof(pmem_node), "pmem@%lx", addr);
+	nodeoffset = fdt_find_or_add_subnode(blob, 0, pmem_node);
+	if (nodeoffset < 0)
+		return nodeoffset;
+
+	err = fdt_setprop_string(blob, nodeoffset, "compatible", "pmem-region");
+	if (err)
+		return err;
+	err = fdt_setprop_empty(blob, nodeoffset, "volatile");
+	if (err)
+		return err;
+	pmem_start[0] = addr;
+	pmem_size[0] = size;
+	len = fdt_pack_reg(blob, tmp, pmem_start, pmem_size, 1);
+	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
+	if (err < 0) {
+		printf("WARNING: could not set pmem %s %s.\n", "reg",
+		       fdt_strerror(err));
+		return err;
+	}
+
+	return 0;
 }
