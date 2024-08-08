@@ -756,7 +756,7 @@ menu Networking
 
 choice
 	prompt "Networking stack"
-	default NET
+	default NET_LWIP
 
 config NO_NET
 	bool "No networking support"
