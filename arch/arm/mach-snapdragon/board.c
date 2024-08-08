@@ -423,6 +423,8 @@ void __weak qcom_late_init(void)
 int board_late_init(void)
 {
 	u32 status = 0;
+	phys_addr_t fdt_addr;
+	struct fdt_header *fdt_blob = (struct fdt_header *)gd->fdt_blob;
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
 	status |= env_set_hex("kernel_addr_r", addr_alloc(SZ_128M));
@@ -433,10 +435,14 @@ int board_late_init(void)
 		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
 	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
 	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
-	status |= env_set_hex("fdt_addr_r", addr_alloc(SZ_2M));
+	fdt_addr = addr_alloc(SZ_2M);
+	status |= env_set_hex("fdt_addr_r", fdt_addr);
 
 	if (status)
 		log_warning("%s: Failed to set run time variables\n", __func__);
+
+	/* By default copy U-Boots FDT, it will be used as a fallback */
+	memcpy((void *)fdt_addr, (void *)gd->fdt_blob, fdt32_to_cpu(fdt_blob->totalsize));
 
 	configure_env();
 	qcom_late_init();
