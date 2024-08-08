@@ -141,7 +141,7 @@ static int cmd_db_get_header(const char *id, const struct entry_header **eh,
 
 		ent = rsc_to_entry_header(rsc_hdr);
 		for (j = 0; j < le16_to_cpu(rsc_hdr->cnt); j++, ent++) {
-			if (memcmp(ent->id, query, sizeof(ent->id)) == 0) {
+			if (strncmp(ent->id, query, sizeof(ent->id)) == 0) {
 				if (eh)
 					*eh = ent;
 				if (rh)
