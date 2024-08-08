@@ -6,6 +6,18 @@
 #include "rk3399-u-boot.dtsi"
 #include "rk3399-sdram-lpddr4-100.dtsi"
 
+/ {
+	leds {
+		led-0 {
+			default-state = "on";
+		};
+
+		led-1 {
+			default-state = "on";
+		};
+	};
+};
+
 &pcfg_pull_none_18ma {
 	bootph-pre-ram;
 	bootph-some-ram;

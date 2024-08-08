@@ -6,6 +6,14 @@
 #include <dt-bindings/usb/pd.h>
 #include "rk3588-u-boot.dtsi"
 
+/ {
+	leds {
+		led_rgb_b {
+			default-state = "on";
+		};
+	};
+};
+
 &fspim2_pins {
 	bootph-pre-ram;
 	bootph-some-ram;

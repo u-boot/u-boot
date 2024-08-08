@@ -6,6 +6,12 @@
 #include "rk3328-u-boot.dtsi"
 
 / {
+	leds {
+		led-0 {
+			default-state = "on";
+		};
+	};
+
 	smbios {
 		compatible = "u-boot,sysinfo-smbios";
 

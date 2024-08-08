@@ -2,6 +2,29 @@
 
 #include "rk356x-u-boot.dtsi"
 
+/ {
+	gpio-leds {
+		led-0 {
+			default-state = "on";
+		};
+
+		led-red {
+			default-state = "on";
+			gpios = <&gpio0 RK_PC0 GPIO_ACTIVE_HIGH>;
+		};
+
+		led-green {
+			default-state = "on";
+			gpios = <&gpio0 RK_PC1 GPIO_ACTIVE_HIGH>;
+		};
+
+		led-blue {
+			default-state = "on";
+			gpios = <&gpio4 RK_PC5 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
+
 &pcie3x1 {
 	pinctrl-0 = <&pcie30x1_reset_h>;
 };
