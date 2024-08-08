@@ -6,6 +6,7 @@
 
 #define pr_fmt(fmt) "cmd-db: " fmt
 
+#include <asm/system.h>
 #include <dm.h>
 #include <dm/ofnode.h>
 #include <dm/device_compat.h>
@@ -182,9 +183,10 @@ u32 cmd_db_read_addr(const char *id)
 }
 EXPORT_SYMBOL_GPL(cmd_db_read_addr);
 
-int cmd_db_bind(struct udevice *dev)
+static int cmd_db_bind(struct udevice *dev)
 {
 	void __iomem *base;
+	fdt_size_t size;
 	ofnode node;
 
 	if (cmd_db_header)
@@ -194,11 +196,14 @@ int cmd_db_bind(struct udevice *dev)
 
 	debug("%s(%s)\n", __func__, ofnode_get_name(node));
 
-	base = (void __iomem *)ofnode_get_addr(node);
+	base = (void __iomem *)ofnode_get_addr_size(node, "reg", &size);
 	if ((fdt_addr_t)base == FDT_ADDR_T_NONE) {
 		log_err("%s: Failed to read base address\n", __func__);
 		return -ENOENT;
 	}
+
+	/* On SM8550/SM8650 and newer SoCs cmd-db might not be mapped */
+	mmu_map_region((phys_addr_t)base, (phys_size_t)size, false);
 
 	cmd_db_header = base;
 	if (!cmd_db_magic_matches(cmd_db_header)) {
