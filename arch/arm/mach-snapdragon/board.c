@@ -411,6 +411,11 @@ void __weak qcom_late_init(void)
 }
 
 #define KERNEL_COMP_SIZE	SZ_64M
+#ifdef CONFIG_FASTBOOT_BUF_SIZE
+#define FASTBOOT_BUF_SIZE CONFIG_FASTBOOT_BUF_SIZE
+#else
+#define FASTBOOT_BUF_SIZE 0
+#endif
 
 #define addr_alloc(size) lmb_alloc(size, SZ_2M)
 
@@ -424,6 +429,8 @@ int board_late_init(void)
 	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
 	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
+	if (IS_ENABLED(CONFIG_FASTBOOT))
+		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
 	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
 	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
 	status |= env_set_hex("fdt_addr_r", addr_alloc(SZ_2M));
