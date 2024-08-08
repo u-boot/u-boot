@@ -125,8 +125,9 @@ static void dwmci_prepare_desc(struct dwmci_host *host, struct mmc_data *data,
 		if (blk_cnt <= 8) {
 			flags |= DWMCI_IDMAC_LD;
 			cnt = data->blocksize * blk_cnt;
-		} else
+		} else {
 			cnt = data->blocksize * 8;
+		}
 
 		if (host->dma_64bit_address) {
 			dwmci_set_idma_desc64(desc64, flags, cnt,
@@ -150,10 +151,8 @@ static void dwmci_prepare_desc(struct dwmci_host *host, struct mmc_data *data,
 	flush_dcache_range(data_start, roundup(data_end, ARCH_DMA_MINALIGN));
 }
 
-static void dwmci_prepare_data(struct dwmci_host *host,
-			       struct mmc_data *data,
-			       void *cur_idmac,
-			       void *bounce_buffer)
+static void dwmci_prepare_data(struct dwmci_host *host, struct mmc_data *data,
+			       void *cur_idmac, void *bounce_buffer)
 {
 	const u32 idmacl = virt_to_phys(cur_idmac) & 0xffffffff;
 	const u32 idmacu = (u64)virt_to_phys(cur_idmac) >> 32;
@@ -277,7 +276,7 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 
 	for (;;) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
-		/* Error during data transfer. */
+		/* Error during data transfer */
 		if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
 			debug("%s: DATA ERROR!\n", __func__);
 			ret = -EINVAL;
@@ -286,16 +285,15 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 
 		ret = dwmci_data_transfer_fifo(host, data, mask);
 
-		/* Data arrived correctly. */
+		/* Data arrived correctly */
 		if (mask & DWMCI_INTMSK_DTO) {
 			ret = 0;
 			break;
 		}
 
-		/* Check for timeout. */
+		/* Check for timeout */
 		if (get_timer(start) > timeout) {
-			debug("%s: Timeout waiting for data!\n",
-			      __func__);
+			debug("%s: Timeout waiting for data!\n", __func__);
 			ret = -ETIMEDOUT;
 			break;
 		}
@@ -317,8 +315,8 @@ static int dwmci_dma_transfer(struct dwmci_host *host, uint flags,
 	else
 		mask = DWMCI_IDINTEN_TI;
 
-	ret = wait_for_bit_le32(host->ioaddr + host->regs->idsts,
-				mask, true, 1000, false);
+	ret = wait_for_bit_le32(host->ioaddr + host->regs->idsts, mask, true,
+				1000, false);
 	if (ret)
 		debug("%s: DWMCI_IDINTEN mask 0x%x timeout\n", __func__, mask);
 
@@ -334,7 +332,7 @@ static int dwmci_dma_transfer(struct dwmci_host *host, uint flags,
 }
 
 static int dwmci_set_transfer_mode(struct dwmci_host *host,
-		struct mmc_data *data)
+				   struct mmc_data *data)
 {
 	unsigned long mode;
 
@@ -380,12 +378,12 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 		} else {
 			if (data->flags == MMC_DATA_READ) {
 				ret = bounce_buffer_start(&bbstate,
-						(void*)data->dest,
+						(void *)data->dest,
 						data->blocksize *
 						data->blocks, GEN_BB_WRITE);
 			} else {
 				ret = bounce_buffer_start(&bbstate,
-						(void*)data->src,
+						(void *)data->src,
 						data->blocksize *
 						data->blocks, GEN_BB_READ);
 			}
@@ -420,9 +418,9 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 	if (cmd->resp_type & MMC_RSP_CRC)
 		flags |= DWMCI_CMD_CHECK_CRC;
 
-	flags |= (cmd->cmdidx | DWMCI_CMD_START | DWMCI_CMD_USE_HOLD_REG);
+	flags |= cmd->cmdidx | DWMCI_CMD_START | DWMCI_CMD_USE_HOLD_REG;
 
-	debug("Sending CMD%d\n",cmd->cmdidx);
+	debug("Sending CMD%d\n", cmd->cmdidx);
 
 	dwmci_writel(host, DWMCI_CMD, flags);
 
@@ -436,7 +434,7 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 	}
 
 	if (i == retry) {
-		debug("%s: Timeout.\n", __func__);
+		debug("%s: Timeout\n", __func__);
 		return -ETIMEDOUT;
 	}
 
@@ -449,14 +447,14 @@ static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
 		 * below shall be debug(). eMMC cards also do not favor
 		 * CMD8, please keep that in mind.
 		 */
-		debug("%s: Response Timeout.\n", __func__);
+		debug("%s: Response Timeout\n", __func__);
 		return -ETIMEDOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
-		debug("%s: Response Error.\n", __func__);
+		debug("%s: Response Error\n", __func__);
 		return -EIO;
 	} else if ((cmd->resp_type & MMC_RSP_CRC) &&
 		   (mask & DWMCI_INTMSK_RCRC)) {
-		debug("%s: Response CRC Error.\n", __func__);
+		debug("%s: Response CRC Error\n", __func__);
 		return -EIO;
 	}
 
@@ -555,24 +553,24 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	unsigned long sclk;
 	int ret;
 
-	if ((freq == host->clock) || (freq == 0))
+	if (freq == host->clock || freq == 0)
 		return 0;
+
 	/*
-	 * If host->get_mmc_clk isn't defined,
-	 * then assume that host->bus_hz is source clock value.
-	 * host->bus_hz should be set by user.
+	 * If host->get_mmc_clk isn't defined, then assume that host->bus_hz is
+	 * source clock value. host->bus_hz should be set by user.
 	 */
-	if (host->get_mmc_clk)
+	if (host->get_mmc_clk) {
 		sclk = host->get_mmc_clk(host, freq);
-	else if (host->bus_hz)
+	} else if (host->bus_hz) {
 		sclk = host->bus_hz;
-	else {
-		debug("%s: Didn't get source clock value.\n", __func__);
+	} else {
+		debug("%s: Didn't get source clock value\n", __func__);
 		return -EINVAL;
 	}
 
 	if (sclk == freq)
-		div = 0;	/* bypass mode */
+		div = 0; /* bypass mode */
 	else
 		div = DIV_ROUND_UP(sclk, 2 * freq);
 
@@ -596,7 +594,7 @@ static int dwmci_set_ios(struct mmc *mmc)
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
 	u32 ctype, regs;
 
-	debug("Buswidth = %d, clock: %d\n", mmc->bus_width, mmc->clock);
+	debug("Bus width = %d, clock: %d\n", mmc->bus_width, mmc->clock);
 
 	dwmci_setup_bus(host, mmc->clock);
 	switch (mmc->bus_width) {
@@ -710,10 +708,10 @@ static int dwmci_init(struct mmc *mmc)
 	/* Enumerate at 400KHz */
 	dwmci_setup_bus(host, mmc->cfg->f_min);
 
-	dwmci_writel(host, DWMCI_RINTSTS, 0xFFFFFFFF);
+	dwmci_writel(host, DWMCI_RINTSTS, 0xffffffff);
 	dwmci_writel(host, DWMCI_INTMASK, 0);
 
-	dwmci_writel(host, DWMCI_TMOUT, 0xFFFFFFFF);
+	dwmci_writel(host, DWMCI_TMOUT, 0xffffffff);
 
 	dwmci_writel(host, DWMCI_BMOD, 1);
 	dwmci_init_fifo(host);
@@ -747,7 +745,7 @@ static const struct mmc_ops dwmci_ops = {
 #endif
 
 void dwmci_setup_cfg(struct mmc_config *cfg, struct dwmci_host *host,
-		u32 max_clk, u32 min_clk)
+		     u32 max_clk, u32 min_clk)
 {
 	cfg->name = host->name;
 #ifndef CONFIG_DM_MMC
@@ -783,7 +781,7 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 	dwmci_setup_cfg(&host->cfg, host, max_clk, min_clk);
 
 	host->mmc = mmc_create(&host->cfg, host);
-	if (host->mmc == NULL)
+	if (!host->mmc)
 		return -1;
 
 	return 0;
