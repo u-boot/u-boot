@@ -26,6 +26,7 @@
 #include <dm/device.h>
 #endif
 #include <dm/ofnode.h>
+#include <blk.h>
 
 #define MAX_MTD_DEVICES 32
 #endif
@@ -411,6 +412,30 @@ int mtd_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
 	      const u_char *buf);
 int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
 		    const u_char *buf);
+
+#if CONFIG_IS_ENABLED(MTD_BLOCK)
+static inline struct mtd_info *blk_desc_to_mtd(struct blk_desc *bdesc)
+{
+	void *priv = dev_get_priv(bdesc->bdev);
+
+	if (!priv)
+		return NULL;
+
+	return *((struct mtd_info **)priv);
+}
+
+int mtd_bind(struct udevice *dev, struct mtd_info **mtd);
+#else
+static inline struct mtd_info *blk_desc_to_mtd(struct blk_desc *bdesc)
+{
+	return NULL;
+}
+
+static inline int mtd_bind(struct udevice *dev, struct mtd_info **mtd)
+{
+	return -EOPNOTSUPP;
+}
+#endif
 
 int mtd_read_oob(struct mtd_info *mtd, loff_t from, struct mtd_oob_ops *ops);
 int mtd_write_oob(struct mtd_info *mtd, loff_t to, struct mtd_oob_ops *ops);

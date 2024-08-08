@@ -2,6 +2,7 @@ menu "MTD Support"
 
 config MTD_PARTITIONS
 	bool
+	select PARTITIONS
 
 config MTD
 	bool "Enable MTD layer"
@@ -30,6 +31,13 @@ config MTD_CONCAT
 	  Enable support for concatenating multiple physical MTD devices
 	  into a single logical device. The larger logical device can then
 	  be partitioned.
+
+config MTD_BLOCK
+	bool "Enable block device access to MTD devices"
+	depends on BLK
+	help
+	  Enable support for block device access to MTD devices
+	  using blk_ops abstraction.
 
 config SYS_MTDPARTS_RUNTIME
 	bool "Allow MTDPARTS to be configured at runtime"
