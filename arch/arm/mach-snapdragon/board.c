@@ -244,6 +244,66 @@ int board_init(void)
 	return 0;
 }
 
+/**
+ * out_len includes the trailing null space
+ */
+static int get_cmdline_option(const char *cmdline, const char *key, char *out, int out_len)
+{
+	const char *p, *p_end;
+	int len;
+
+	p = strstr(cmdline, key);
+	if (!p)
+		return -ENOENT;
+
+	p += strlen(key);
+	p_end = strstr(p, " ");
+	if (!p_end)
+		return -ENOENT;
+
+	len = p_end - p;
+	if (len > out_len)
+		len = out_len;
+
+	strncpy(out, p, len);
+	out[len] = '\0';
+
+	return 0;
+}
+
+/* The bootargs are populated by the previous stage bootloader */
+static const char *get_cmdline(void)
+{
+	ofnode node;
+	static const char *cmdline = NULL;
+
+	if (cmdline)
+		return cmdline;
+
+	node = ofnode_path("/chosen");
+	if (!ofnode_valid(node))
+		return NULL;
+
+	cmdline = ofnode_read_string(node, "bootargs");
+
+	return cmdline;
+}
+
+void qcom_set_serialno(void)
+{
+	const char *cmdline = get_cmdline();
+	char serial[32];
+
+	if (!cmdline) {
+		log_debug("Failed to get bootargs\n");
+		return;
+	}
+
+	get_cmdline_option(cmdline, "androidboot.serialno=", serial, sizeof(serial));
+	if (serial[0] != '\0')
+		env_set("serial#", serial);
+}
+
 /* Sets up the "board", and "soc" environment variables as well as constructing the devicetree
  * path, with a few quirks to handle non-standard dtb filenames. This is not meant to be a
  * comprehensive solution to automatically picking the DTB, but aims to be correct for the
@@ -342,6 +402,8 @@ static void configure_env(void)
 	snprintf(dt_path, sizeof(dt_path), "qcom/%s-%s.dtb",
 		 env_get("soc"), env_get("board"));
 	env_set("fdtfile", dt_path);
+
+	qcom_set_serialno();
 }
 
 void __weak qcom_late_init(void)
