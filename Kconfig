@@ -749,6 +749,7 @@ menu Networking
 
 choice
 	prompt "Networking stack"
+	default NET_LWIP if !SANDBOX
 	default NET
 
 config NO_NET
