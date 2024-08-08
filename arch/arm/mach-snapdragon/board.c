@@ -18,6 +18,7 @@
 #include <dm/read.h>
 #include <power/regulator.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <linux/arm-smccc.h>
 #include <linux/bug.h>
@@ -85,26 +86,35 @@ static void show_psci_version(void)
 	      PSCI_VERSION_MINOR(res.a0));
 }
 
+/* We support booting U-Boot with an internal DT when running as a first-stage bootloader
+ * or for supporting quirky devices where it's easier to leave the downstream DT in place
+ * to improve ABL compatibility. Otherwise, we use the DT provided by ABL.
+ */
 void *board_fdt_blob_setup(int *err)
 {
-	phys_addr_t fdt;
-	/* Return DTB pointer passed by ABL */
+	struct fdt_header *fdt;
+	bool internal_valid, external_valid;
+
 	*err = 0;
-	fdt = get_prev_bl_fdt_addr();
+	fdt = (struct fdt_header *)get_prev_bl_fdt_addr();
+	external_valid = fdt && !fdt_check_header(fdt);
+	internal_valid = !fdt_check_header(gd->fdt_blob);
 
 	/*
-	 * If we bail then the board will simply not boot, instead let's
-	 * try and use the FDT built into U-Boot if there is one...
-	 * This avoids having a hard dependency on the previous stage bootloader
+	 * There is no point returning an error here, U-Boot can't do anything useful in this situation.
+	 * Bail out while we can still print a useful error message.
 	 */
+	if (!internal_valid && !external_valid)
+		panic("Internal FDT is invalid and no external FDT was provided! (fdt=%#llx)\n",
+		      (phys_addr_t)fdt);
 
-	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K) ||
-					       fdt_check_header((void *)fdt))) {
-		debug("%s: Using built in FDT, bootloader gave us %#llx\n", __func__, fdt);
+	if (internal_valid) {
+		debug("Using built in FDT\n");
 		return (void *)gd->fdt_blob;
+	} else {
+		debug("Using external FDT\n");
+		return (void *)fdt;
 	}
-
-	return (void *)fdt;
 }
 
 void reset_cpu(void)
