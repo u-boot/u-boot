@@ -414,7 +414,7 @@ static void build_mem_map(void)
 
 u64 get_page_table_size(void)
 {
-	return SZ_64K;
+	return SZ_1M;
 }
 
 static int fdt_cmp_res(const void *v1, const void *v2)
