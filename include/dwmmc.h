@@ -44,12 +44,22 @@
 #define DWMCI_UHS_REG		0x074
 #define DWMCI_BMOD		0x080
 #define DWMCI_PLDMND		0x084
+#define DWMCI_DATA		0x200
+/* Registers to support IDMAC 32-bit address mode */
 #define DWMCI_DBADDR		0x088
 #define DWMCI_IDSTS		0x08C
 #define DWMCI_IDINTEN		0x090
 #define DWMCI_DSCADDR		0x094
 #define DWMCI_BUFADDR		0x098
-#define DWMCI_DATA		0x200
+/* Registers to support IDMAC 64-bit address mode */
+#define DWMCI_DBADDRL		0x088
+#define DWMCI_DBADDRU		0x08c
+#define DWMCI_IDSTS64		0x090
+#define DWMCI_IDINTEN64		0x094
+#define DWMCI_DSCADDRL		0x098
+#define DWMCI_DSCADDRU		0x09c
+#define DWMCI_BUFADDRL		0x0a0
+#define DWMCI_BUFADDRU		0x0a4
 
 /* Interrupt Mask register */
 #define DWMCI_INTMSK_ALL	0xffffffff
@@ -143,6 +153,29 @@
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
 /**
+ * struct dwmci_idmac_regs - Offsets of IDMAC registers
+ *
+ * @dbaddrl:	Descriptor base address, lower 32 bits
+ * @dbaddru:	Descriptor base address, upper 32 bits
+ * @idsts:	Internal DMA status
+ * @idinten:	Internal DMA interrupt enable
+ * @dscaddrl:	IDMAC descriptor address, lower 32 bits
+ * @dscaddru:	IDMAC descriptor address, upper 32 bits
+ * @bufaddrl:	Current data buffer address, lower 32 bits
+ * @bufaddru:	Current data buffer address, upper 32 bits
+ */
+struct dwmci_idmac_regs {
+	u32 dbaddrl;
+	u32 dbaddru;
+	u32 idsts;
+	u32 idinten;
+	u32 dscaddrl;
+	u32 dscaddru;
+	u32 bufaddrl;
+	u32 bufaddru;
+};
+
+/**
  * struct dwmci_host - Information about a designware MMC host
  *
  * @name:	Device name
@@ -157,6 +190,8 @@
  * @fifoth_val:	Value for FIFOTH register (or 0 to leave unset)
  * @mmc:	Pointer to generic MMC structure for this device
  * @priv:	Private pointer for use by controller
+ * @dma_64bit_address: Whether DMA supports 64-bit address mode or not
+ * @regs:	Registers that can vary for different DW MMC block versions
  */
 struct dwmci_host {
 	const char *name;
@@ -196,6 +231,8 @@ struct dwmci_host {
 
 	/* use fifo mode to read and write data */
 	bool fifo_mode;
+	bool dma_64bit_address;
+	const struct dwmci_idmac_regs *regs;
 };
 
 static inline void dwmci_writel(struct dwmci_host *host, int reg, u32 val)

@@ -28,6 +28,39 @@ struct dwmci_idmac32 {
 	u32 des3;	/* Next descriptor physical address */
 } __aligned(ARCH_DMA_MINALIGN);
 
+/* Internal DMA Controller (IDMAC) descriptor for 64-bit addressing mode */
+struct dwmci_idmac64 {
+	u32 des0;	/* Control descriptor */
+	u32 des1;	/* Reserved */
+	u32 des2;	/* Buffer sizes */
+	u32 des3;	/* Reserved */
+	u32 des4;	/* Lower 32-bits of Buffer Address Pointer 1 */
+	u32 des5;	/* Upper 32-bits of Buffer Address Pointer 1 */
+	u32 des6;	/* Lower 32-bits of Next Descriptor Address */
+	u32 des7;	/* Upper 32-bits of Next Descriptor Address */
+} __aligned(ARCH_DMA_MINALIGN);
+
+/* Register offsets for DW MMC blocks with 32-bit IDMAC */
+static const struct dwmci_idmac_regs dwmci_idmac_regs32 = {
+	.dbaddrl	= DWMCI_DBADDR,
+	.idsts		= DWMCI_IDSTS,
+	.idinten	= DWMCI_IDINTEN,
+	.dscaddrl	= DWMCI_DSCADDR,
+	.bufaddrl	= DWMCI_BUFADDR,
+};
+
+/* Register offsets for DW MMC blocks with 64-bit IDMAC */
+static const struct dwmci_idmac_regs dwmci_idmac_regs64 = {
+	.dbaddrl	= DWMCI_DBADDRL,
+	.dbaddru	= DWMCI_DBADDRU,
+	.idsts		= DWMCI_IDSTS64,
+	.idinten	= DWMCI_IDINTEN64,
+	.dscaddrl	= DWMCI_DSCADDRL,
+	.dscaddru	= DWMCI_DSCADDRU,
+	.bufaddrl	= DWMCI_BUFADDRL,
+	.bufaddru	= DWMCI_BUFADDRU,
+};
+
 static int dwmci_wait_reset(struct dwmci_host *host, u32 value)
 {
 	unsigned long timeout = 1000;
@@ -55,11 +88,27 @@ static void dwmci_set_idma_desc32(struct dwmci_idmac32 *desc, u32 control,
 	desc->des3 = next_desc_phys;
 }
 
-static void dwmci_prepare_desc(struct mmc_data *data,
-			       struct dwmci_idmac32 *cur_idmac,
-			       void *bounce_buffer)
+static void dwmci_set_idma_desc64(struct dwmci_idmac64 *desc, u32 control,
+				  u32 buf_size, u64 buf_addr)
+{
+	phys_addr_t desc_phys = virt_to_phys(desc);
+	u64 next_desc_phys = desc_phys + sizeof(struct dwmci_idmac64);
+
+	desc->des0 = control;
+	desc->des1 = 0;
+	desc->des2 = buf_size;
+	desc->des3 = 0;
+	desc->des4 = buf_addr & 0xffffffff;
+	desc->des5 = buf_addr >> 32;
+	desc->des6 = next_desc_phys & 0xffffffff;
+	desc->des7 = next_desc_phys >> 32;
+}
+
+static void dwmci_prepare_desc(struct dwmci_host *host, struct mmc_data *data,
+			       void *cur_idmac, void *bounce_buffer)
 {
 	struct dwmci_idmac32 *desc32 = cur_idmac;
+	struct dwmci_idmac64 *desc64 = cur_idmac;
 	ulong data_start, data_end;
 	unsigned int blk_cnt, i;
 
@@ -79,34 +128,47 @@ static void dwmci_prepare_desc(struct mmc_data *data,
 		} else
 			cnt = data->blocksize * 8;
 
-		dwmci_set_idma_desc32(desc32, flags, cnt,
-				      buf_phys + i * PAGE_SIZE);
-		desc32++;
+		if (host->dma_64bit_address) {
+			dwmci_set_idma_desc64(desc64, flags, cnt,
+					      buf_phys + i * PAGE_SIZE);
+			desc64++;
+		} else {
+			dwmci_set_idma_desc32(desc32, flags, cnt,
+					      buf_phys + i * PAGE_SIZE);
+			desc32++;
+		}
 
 		if (blk_cnt <= 8)
 			break;
 		blk_cnt -= 8;
 	}
 
-	data_end = (ulong)desc32;
+	if (host->dma_64bit_address)
+		data_end = (ulong)desc64;
+	else
+		data_end = (ulong)desc32;
 	flush_dcache_range(data_start, roundup(data_end, ARCH_DMA_MINALIGN));
 }
 
 static void dwmci_prepare_data(struct dwmci_host *host,
 			       struct mmc_data *data,
-			       struct dwmci_idmac32 *cur_idmac,
+			       void *cur_idmac,
 			       void *bounce_buffer)
 {
+	const u32 idmacl = virt_to_phys(cur_idmac) & 0xffffffff;
+	const u32 idmacu = (u64)virt_to_phys(cur_idmac) >> 32;
 	unsigned long ctrl;
 
 	dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 
 	/* Clear IDMAC interrupt */
-	dwmci_writel(host, DWMCI_IDSTS, 0xFFFFFFFF);
+	dwmci_writel(host, host->regs->idsts, 0xffffffff);
 
-	dwmci_writel(host, DWMCI_DBADDR, (ulong)cur_idmac);
+	dwmci_writel(host, host->regs->dbaddrl, idmacl);
+	if (host->dma_64bit_address)
+		dwmci_writel(host, host->regs->dbaddru, idmacu);
 
-	dwmci_prepare_desc(data, cur_idmac, bounce_buffer);
+	dwmci_prepare_desc(host, data, cur_idmac, bounce_buffer);
 
 	ctrl = dwmci_readl(host, DWMCI_CTRL);
 	ctrl |= DWMCI_IDMAC_EN | DWMCI_DMA_EN;
@@ -257,13 +319,13 @@ static int dwmci_dma_transfer(struct dwmci_host *host, uint flags,
 	else
 		mask = DWMCI_IDINTEN_TI;
 
-	ret = wait_for_bit_le32(host->ioaddr + DWMCI_IDSTS,
+	ret = wait_for_bit_le32(host->ioaddr + host->regs->idsts,
 				mask, true, 1000, false);
 	if (ret)
 		debug("%s: DWMCI_IDINTEN mask 0x%x timeout\n", __func__, mask);
 
 	/* Clear interrupts */
-	dwmci_writel(host, DWMCI_IDSTS, DWMCI_IDINTEN_MASK);
+	dwmci_writel(host, host->regs->idsts, DWMCI_IDINTEN_MASK);
 
 	ctrl = dwmci_readl(host, DWMCI_CTRL);
 	ctrl &= ~DWMCI_DMA_EN;
@@ -300,20 +362,10 @@ static void dwmci_wait_while_busy(struct dwmci_host *host, struct mmc_cmd *cmd)
 	}
 }
 
-#ifdef CONFIG_DM_MMC
-static int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
-		   struct mmc_data *data)
+static int dwmci_send_cmd_common(struct dwmci_host *host, struct mmc_cmd *cmd,
+				 struct mmc_data *data, void *cur_idmac)
 {
-	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-		struct mmc_data *data)
-{
-#endif
-	struct dwmci_host *host = mmc->priv;
-	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac32, cur_idmac,
-				 data ? DIV_ROUND_UP(data->blocks, 8) : 0);
-	int ret = 0, flags = 0, i;
+	int ret, flags = 0, i;
 	u32 retry = 100000;
 	u32 mask;
 	struct bounce_buffer bbstate;
@@ -430,6 +482,28 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	udelay(100);
 
 	return ret;
+}
+
+#ifdef CONFIG_DM_MMC
+static int dwmci_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			  struct mmc_data *data)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+#else
+static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			  struct mmc_data *data)
+{
+#endif
+	struct dwmci_host *host = mmc->priv;
+	const size_t buf_size = data ? DIV_ROUND_UP(data->blocks, 8) : 0;
+
+	if (host->dma_64bit_address) {
+		ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac64, idmac, buf_size);
+		return dwmci_send_cmd_common(host, cmd, data, idmac);
+	} else {
+		ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac32, idmac, buf_size);
+		return dwmci_send_cmd_common(host, cmd, data, idmac);
+	}
 }
 
 static int dwmci_control_clken(struct dwmci_host *host, bool on)
@@ -593,6 +667,27 @@ static void dwmci_init_fifo(struct dwmci_host *host)
 	dwmci_writel(host, DWMCI_FIFOTH, host->fifoth_val);
 }
 
+static void dwmci_init_dma(struct dwmci_host *host)
+{
+	int addr_config;
+
+	if (host->fifo_mode)
+		return;
+
+	addr_config = (dwmci_readl(host, DWMCI_HCON) >> 27) & 0x1;
+	if (addr_config == 1) {
+		host->dma_64bit_address = true;
+		host->regs = &dwmci_idmac_regs64;
+		debug("%s: IDMAC supports 64-bit address mode\n", __func__);
+	} else {
+		host->dma_64bit_address = false;
+		host->regs = &dwmci_idmac_regs32;
+		debug("%s: IDMAC supports 32-bit address mode\n", __func__);
+	}
+
+	dwmci_writel(host, host->regs->idinten, DWMCI_IDINTEN_MASK);
+}
+
 static int dwmci_init(struct mmc *mmc)
 {
 	struct dwmci_host *host = mmc->priv;
@@ -615,15 +710,12 @@ static int dwmci_init(struct mmc *mmc)
 
 	dwmci_writel(host, DWMCI_TMOUT, 0xFFFFFFFF);
 
-	dwmci_writel(host, DWMCI_IDINTEN, 0);
 	dwmci_writel(host, DWMCI_BMOD, 1);
 	dwmci_init_fifo(host);
+	dwmci_init_dma(host);
 
 	dwmci_writel(host, DWMCI_CLKENA, 0);
 	dwmci_writel(host, DWMCI_CLKSRC, 0);
-
-	if (!host->fifo_mode)
-		dwmci_writel(host, DWMCI_IDINTEN, DWMCI_IDINTEN_MASK);
 
 	return 0;
 }
