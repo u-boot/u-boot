@@ -78,10 +78,15 @@
 #else
 #define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
 #endif
+
+/* Number of TX descriptors   */
+#if CONFIG_IS_ENABLED(TULIP_MULTIPLE_TX_DESC)
+#define NUM_TX_DESC 4
+#else
+#define NUM_TX_DESC 1
 #endif
 
 #define NUM_RX_DESC PKTBUFSRX
-#define NUM_TX_DESC 1			/* Number of TX descriptors   */
 #define RX_BUFF_SZ  PKTSIZE_ALIGN
 
 #define TOUT_LOOP   1000000
@@ -312,7 +317,12 @@ static void send_setup_frame(struct dc2114x_priv *priv)
 
 	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
 						      (phys_addr_t)&setup_frame[0]));
+#if CONFIG_IS_ENABLED(TULIP_MULTIPLE_TX_DESC)
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_SET | SETUP_FRAME_LEN);
+	priv->tx_ring[priv->tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
+#else
 	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
+#endif
 	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
 	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
@@ -356,7 +366,12 @@ static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int leng
 
 	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
 						      (phys_addr_t)packet));
+#if CONFIG_IS_ENABLED(TULIP_MULTIPLE_TX_DESC)
+	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_LS | TD_FS | length);
+	priv->tx_ring[priv->tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
+#else
 	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
+#endif
 	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
 	dc2114x_outl(priv, POLL_DEMAND, DE4X5_TPD);
