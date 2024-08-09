@@ -19,11 +19,9 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/spi.h>
 #include <fsl_esdhc_imx.h>
 #include <linux/libfdt.h>
-#include <i2c.h>
 #include <mmc.h>
 #include <power/pfuze100_pmic.h>
 #include <power/pmic.h>
@@ -47,10 +45,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SPI_PAD_CTRL (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
 	PAD_CTL_DSE_80ohm | PAD_CTL_SRE_FAST | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_80ohm | PAD_CTL_HYS |			\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
 int dram_init(void)
 {
@@ -170,38 +164,6 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 #endif
 #endif
 
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-static struct i2c_pads_info tqma6_i2c3_pads = {
-	/* I2C3: on board LM75, M24C64,  */
-	.scl = {
-		.i2c_mode = NEW_PAD_CTRL(MX6_PAD_GPIO_5__I2C3_SCL,
-					 I2C_PAD_CTRL),
-		.gpio_mode = NEW_PAD_CTRL(MX6_PAD_GPIO_5__GPIO1_IO05,
-					  I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(1, 5)
-	},
-	.sda = {
-		.i2c_mode = NEW_PAD_CTRL(MX6_PAD_GPIO_6__I2C3_SDA,
-					 I2C_PAD_CTRL),
-		.gpio_mode = NEW_PAD_CTRL(MX6_PAD_GPIO_6__GPIO1_IO06,
-					  I2C_PAD_CTRL),
-		.gp = IMX_GPIO_NR(1, 6)
-	}
-};
-
-static void tqma6_setup_i2c(void)
-{
-	int ret;
-	/*
-	 * use logical index for bus, e.g. I2C1 -> 0
-	 * warn on error
-	 */
-	ret = setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
-	if (ret)
-		printf("setup I2C3 failed: %d\n", ret);
-}
-#endif
-
 int board_early_init_f(void)
 {
 	return tqma6_bb_board_early_init_f();
@@ -215,10 +177,6 @@ int board_init(void)
 #ifndef CONFIG_DM_SPI
 	tqma6_iomuxc_spi();
 #endif
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-	tqma6_setup_i2c();
-#endif
-
 	tqma6_bb_board_init();
 
 	return 0;
@@ -246,21 +204,22 @@ static const char *tqma6_get_boardname(void)
 	};
 }
 
-#if CONFIG_IS_ENABLED(POWER_LEGACY)
+#if CONFIG_IS_ENABLED(DM_PMIC)
 /* setup board specific PMIC */
 int power_init_board(void)
 {
-	struct pmic *p;
+	struct udevice *dev;
 	u32 reg, rev;
+	int ret;
 
-	power_pfuze100_init(TQMA6_PFUZE100_I2C_BUS);
-	p = pmic_get("PFUZE100");
-	if (p && !pmic_probe(p)) {
-		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-		pmic_reg_read(p, PFUZE100_REVID, &rev);
-		printf("PMIC: PFUZE100 ID=0x%02x REV=0x%02x\n", reg, rev);
-	}
+	ret = pmic_get("pmic@8", &dev);
+	if (ret < 0)
+		return 0;
 
+	reg = pmic_reg_read(dev, PFUZE100_DEVICEID);
+	rev = pmic_reg_read(dev, PFUZE100_REVID);
+
+	printf("PMIC:  PFUZE100 ID=0x%02x REV=0x%02x\n", reg, rev);
 	return 0;
 }
 #endif
