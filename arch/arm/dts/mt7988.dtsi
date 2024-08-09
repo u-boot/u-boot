@@ -97,13 +97,6 @@
 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
-	infracfg_ao_cgs: infracfg_ao_cgs@10001000 {
-		compatible = "mediatek,mt7988-infracfg_ao_cgs", "syscon";
-		reg = <0 0x10001000 0 0x1000>;
-		clock-parent = <&infracfg_ao>;
-		#clock-cells = <1>;
-	};
-
 	apmixedsys: apmixedsys@1001e000 {
 		compatible = "mediatek,mt7988-fixed-plls", "syscon";
 		reg = <0 0x1001e000 0 0x1000>;
@@ -251,7 +244,7 @@
 		#clock-cells = <1>;
 	};
 
-	infracfg_ao: infracfg@10001000 {
+	infracfg: infracfg@10001000 {
 		compatible = "mediatek,mt7988-infracfg", "syscon";
 		reg = <0 0x10001000 0 0x1000>;
 		clock-parent = <&topckgen>;
@@ -262,11 +255,11 @@
 		compatible = "mediatek,hsuart";
 		reg = <0 0x11000000 0 0x100>;
 		interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART0_CK>;
-		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
-				  <&infracfg_ao CK_INFRA_MUX_UART0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
-					 <&infracfg_ao CK_INFRA_UART_O0>;
+		clocks = <&infracfg CLK_INFRA_52M_UART0_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_UART_SEL>,
+				  <&infracfg CLK_INFRA_MUX_UART0_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_XTAL>,
+					 <&topckgen CLK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
@@ -274,11 +267,11 @@
 		compatible = "mediatek,hsuart";
 		reg = <0 0x11000100 0 0x100>;
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART1_CK>;
-		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
-				  <&infracfg_ao CK_INFRA_MUX_UART1_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
-					 <&infracfg_ao CK_INFRA_UART_O1>;
+		clocks = <&infracfg CLK_INFRA_52M_UART1_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_UART_SEL>,
+				  <&infracfg CLK_INFRA_MUX_UART1_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_XTAL>,
+					 <&topckgen CLK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
@@ -286,11 +279,11 @@
 		compatible = "mediatek,hsuart";
 		reg = <0 0x11000200 0 0x100>;
 		interrupts = <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao_cgs CK_INFRA_52M_UART2_CK>;
-		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
-				  <&infracfg_ao CK_INFRA_MUX_UART2_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
-					 <&infracfg_ao CK_INFRA_UART_O2>;
+		clocks = <&infracfg CLK_INFRA_52M_UART2_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_UART_SEL>,
+				  <&infracfg CLK_INFRA_MUX_UART2_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_XTAL>,
+					 <&topckgen CLK_TOP_UART_SEL>;
 		status = "disabled";
 	};
 
@@ -301,8 +294,8 @@
 		      <0 0x10217080 0 0x80>;
 		interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>;
 		clock-div = <1>;
-		clocks = <&infracfg_ao CK_INFRA_I2C_BCK>,
-			 <&infracfg_ao CK_INFRA_66M_AP_DMA_BCK>;
+		clocks = <&infracfg CLK_INFRA_I2C_BCK>,
+			 <&infracfg CLK_INFRA_66M_AP_DMA_BCK>;
 		clock-names = "main", "dma";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -316,8 +309,8 @@
 		      <0 0x10217100 0 0x80>;
 		interrupts = <GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH>;
 		clock-div = <1>;
-		clocks = <&infracfg_ao CK_INFRA_I2C_BCK>,
-			 <&infracfg_ao CK_INFRA_66M_AP_DMA_BCK>;
+		clocks = <&infracfg CLK_INFRA_I2C_BCK>,
+			 <&infracfg CLK_INFRA_66M_AP_DMA_BCK>;
 		clock-names = "main", "dma";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -331,8 +324,8 @@
 		      <0 0x10217180 0 0x80>;
 		interrupts = <GIC_SPI 145 IRQ_TYPE_LEVEL_HIGH>;
 		clock-div = <1>;
-		clocks = <&infracfg_ao CK_INFRA_I2C_BCK>,
-			 <&infracfg_ao CK_INFRA_66M_AP_DMA_BCK>;
+		clocks = <&infracfg CLK_INFRA_I2C_BCK>,
+			 <&infracfg CLK_INFRA_66M_AP_DMA_BCK>;
 		clock-names = "main", "dma";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -343,16 +336,16 @@
 		compatible = "mediatek,mt7988-pwm";
 		reg = <0 0x10048000 0 0x1000>;
 		#pwm-cells = <2>;
-		clocks = <&infracfg_ao CK_INFRA_66M_PWM_BCK>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_HCK>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK1>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK2>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK3>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK4>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK5>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK6>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK7>,
-			 <&infracfg_ao CK_INFRA_66M_PWM_CK8>;
+		clocks = <&infracfg CLK_INFRA_66M_PWM_BCK>,
+			 <&infracfg CLK_INFRA_66M_PWM_HCK>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK1>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK2>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK3>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK4>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK5>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK6>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK7>,
+			 <&infracfg CLK_INFRA_66M_PWM_CK8>;
 		clock-names = "top", "main", "pwm1", "pwm2", "pwm3",
 			      "pwm4","pwm5","pwm6","pwm7","pwm8";
 		status = "disabled";
@@ -365,14 +358,14 @@
 		      <0 0x11002000 0 0x1000>;
 		reg-names = "nfi", "ecc";
 		interrupts = <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao CK_INFRA_SPINFI>,
-			 <&infracfg_ao CK_INFRA_NFI>,
-			 <&infracfg_ao CK_INFRA_66M_NFI_HCK>;
+		clocks = <&infracfg CLK_INFRA_SPINFI>,
+			 <&infracfg CLK_INFRA_NFI>,
+			 <&infracfg CLK_INFRA_66M_NFI_HCK>;
 		clock-names = "pad_clk", "nfi_clk", "nfi_hclk";
-		assigned-clocks = <&topckgen CK_TOP_SPINFI_SEL>,
-				  <&topckgen CK_TOP_NFI1X_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D8>,
-					 <&topckgen CK_TOP_CB_M_D8>;
+		assigned-clocks = <&topckgen CLK_TOP_SPINFI_SEL>,
+				  <&topckgen CLK_TOP_NFI1X_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_MPLL_D8>,
+					 <&topckgen CLK_TOP_MPLL_D8>;
 		status = "disabled";
 	};
 
@@ -408,10 +401,10 @@
 			     "mediatek,mt7986-mmc";
 		reg = <0 0x11230000 0 0x1000>;
 		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao_cgs CK_INFRA_MSDC400>,
-			 <&infracfg_ao_cgs CK_INFRA_MSDC2_HCK>,
-			 <&infracfg_ao_cgs CK_INFRA_133M_MSDC_0_HCK>,
-			 <&infracfg_ao_cgs CK_INFRA_66M_MSDC_0_HCK>;
+		clocks = <&infracfg CLK_INFRA_MSDC400>,
+			 <&infracfg CLK_INFRA_MSDC2_HCK>,
+			 <&infracfg CLK_INFRA_133M_MSDC_0_HCK>,
+			 <&infracfg CLK_INFRA_66M_MSDC_0_HCK>;
 		clock-names = "source", "hclk", "source_cg", "axi_cg";
 		status = "disabled";
 	};
