@@ -12,6 +12,7 @@
 #include <memalign.h>
 #include <mapmem.h>
 #include <spl.h>
+#include <upl.h>
 #include <sysinfo.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
@@ -335,6 +336,8 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		else
 			image_info->entry_point = FDT_ERROR;
 	}
+
+	upl_add_image(fit, node, load_addr, length);
 
 	return 0;
 }
@@ -847,6 +850,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 		spl_image->entry_point = spl_image->load_addr;
 
 	spl_image->flags |= SPL_FIT_FOUND;
+	upl_set_fit_info(map_to_sysmem(ctx.fit), ctx.conf_node,
+			 spl_image->entry_point);
 
 	return 0;
 }
@@ -941,6 +946,10 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 		if (ret < 0)
 			return ret;
 	}
+	spl_image->flags |= SPL_FIT_FOUND;
+
+	upl_set_fit_info(map_to_sysmem(header), conf_noffset,
+			 spl_image->entry_point);
 
 	return 0;
 }

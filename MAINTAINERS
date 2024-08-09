@@ -1709,6 +1709,19 @@ M:	Neha Malcom Francis <n-francis@ti.com>
 S:	Maintained
 F:	drivers/ufs/
 
+UPL
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+T:	git https://source.denx.de/u-boot/custodians/u-boot-dm.git
+F:	boot/upl*
+F:	cmd/upl.c
+F:	common/spl/spl_upl.c
+F:	doc/usage/upl.rst
+F:	doc/usage/cmd/upl.rst
+F:	include/upl.h
+F:	test/boot/upl.c
+F:	test/py/tests/test_upl.py
+
 USB
 M:	Marek Vasut <marex@denx.de>
 S:	Maintained

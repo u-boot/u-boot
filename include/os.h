@@ -29,7 +29,7 @@ int os_printf(const char *format, ...);
  * @fd:		File descriptor as returned by os_open()
  * @buf:	Buffer to place data
  * @count:	Number of bytes to read
- * Return:	number of bytes read, or -1 on error
+ * Return:	number of bytes read, or -errno on error
  */
 ssize_t os_read(int fd, void *buf, size_t count);
 
@@ -39,7 +39,7 @@ ssize_t os_read(int fd, void *buf, size_t count);
  * @fd:		File descriptor as returned by os_open()
  * @buf:	Buffer containing data to write
  * @count:	Number of bytes to write
- * Return:	number of bytes written, or -1 on error
+ * Return:	number of bytes written, or -errno on error
  */
 ssize_t os_write(int fd, const void *buf, size_t count);
 
@@ -49,7 +49,7 @@ ssize_t os_write(int fd, const void *buf, size_t count);
  * @fd:		File descriptor as returned by os_open()
  * @offset:	File offset (based on whence)
  * @whence:	Position offset is relative to (see below)
- * Return:	new file offset
+ * Return:	new file offset, or -errno on error
  */
 off_t os_lseek(int fd, off_t offset, int whence);
 
