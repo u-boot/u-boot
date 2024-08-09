@@ -419,6 +419,28 @@ static bool tis_check_ops(struct tpm_tis_phy_ops *phy_ops)
 	return true;
 }
 
+static int tpm_tis_wait_init(struct udevice *dev, int loc)
+{
+	struct tpm_chip *chip = dev_get_priv(dev);
+	unsigned long start, stop;
+	u8 status;
+	int ret;
+
+	start = get_timer(0);
+	stop = chip->timeout_b;
+	do {
+		mdelay(TPM_TIMEOUT_MS);
+		ret = chip->phy_ops->read_bytes(dev, TPM_ACCESS(loc), 1, &status);
+		if (ret)
+			break;
+
+		if (status & TPM_ACCESS_VALID)
+			return 0;
+	} while (get_timer(start) < stop);
+
+	return -EIO;
+}
+
 int tpm_tis_init(struct udevice *dev)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
@@ -435,6 +457,12 @@ int tpm_tis_init(struct udevice *dev)
 	chip->timeout_b = TIS_LONG_TIMEOUT_MS;
 	chip->timeout_c = TIS_SHORT_TIMEOUT_MS;
 	chip->timeout_d = TIS_SHORT_TIMEOUT_MS;
+
+	ret = tpm_tis_wait_init(dev, chip->locality);
+	if (ret) {
+		log(LOGC_DM, LOGL_ERR, "%s: no device found\n", __func__);
+		return ret;
+	}
 
 	ret = tpm_tis_request_locality(dev, 0);
 	if (ret)
