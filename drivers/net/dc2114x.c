@@ -561,7 +561,7 @@ static int dc2114x_read_rom_hwaddr(struct udevice *dev)
 
 static int dc2114x_bind(struct udevice *dev)
 {
-	static int card_number;
+	static int card_number = 0;
 	char name[16];
 
 	sprintf(name, "dc2114x#%u", card_number++);
