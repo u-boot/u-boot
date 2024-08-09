@@ -10,8 +10,10 @@
 #include <log.h>
 #include <mapmem.h>
 #include <tables_csum.h>
+#include <serial.h>
 #include <version_string.h>
 #include <acpi/acpi_table.h>
+#include <acpi/acpi_device.h>
 #include <asm/global_data.h>
 #include <dm/acpi.h>
 
@@ -61,9 +63,9 @@ int acpi_get_table_revision(enum acpi_tables table)
 {
 	switch (table) {
 	case ACPITAB_FADT:
-		return ACPI_FADT_REV_ACPI_3_0;
+		return ACPI_FADT_REV_ACPI_6_0;
 	case ACPITAB_MADT:
-		return ACPI_MADT_REV_ACPI_3_0;
+		return ACPI_MADT_REV_ACPI_6_2;
 	case ACPITAB_MCFG:
 		return ACPI_MCFG_REV_ACPI_3_0;
 	case ACPITAB_TCPA:
@@ -104,6 +106,10 @@ int acpi_get_table_revision(enum acpi_tables table)
 	case ACPITAB_BERT:
 		return 1;
 	case ACPITAB_SPCR:
+		return 2;
+	case ACPITAB_PPTT: /* ACPI 6.2: 1 */
+		return 1;
+	case ACPITAB_GTDT: /* ACPI 6.2: 2, ACPI 6.3: 3 */
 		return 2;
 	default:
 		return -EINVAL;
@@ -200,10 +206,87 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 	return 0;
 }
 
-void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
-		      int port_type, int port_subtype,
-		      struct acpi_gen_regaddr *address, u32 address_size,
-		      const char *device_path)
+__weak void acpi_fill_fadt(struct acpi_fadt *fadt)
+{
+}
+
+int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	struct acpi_table_header *header;
+	struct acpi_fadt *fadt;
+
+	fadt = ctx->current;
+	header = &fadt->header;
+
+	memset((void *)fadt, '\0', sizeof(struct acpi_fadt));
+
+	acpi_fill_header(header, "FACP");
+	header->length = sizeof(struct acpi_fadt);
+	header->revision = acpi_get_table_revision(ACPITAB_FADT);
+	memcpy(header->oem_id, OEM_ID, 6);
+	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
+	memcpy(header->creator_id, ASLC_ID, 4);
+	header->creator_revision = 1;
+	fadt->minor_revision = 2;
+
+	fadt->x_firmware_ctrl = map_to_sysmem(ctx->facs);
+	fadt->x_dsdt = map_to_sysmem(ctx->dsdt);
+
+	if (fadt->x_firmware_ctrl < 0x100000000ULL)
+		fadt->firmware_ctrl = fadt->x_firmware_ctrl;
+
+	if (fadt->x_dsdt < 0x100000000ULL)
+		fadt->dsdt = fadt->x_dsdt;
+
+	fadt->preferred_pm_profile = ACPI_PM_UNSPECIFIED;
+
+	acpi_fill_fadt(fadt);
+
+	header->checksum = table_compute_checksum(fadt, header->length);
+
+	return acpi_add_fadt(ctx, fadt);
+}
+
+ACPI_WRITER(5fadt, "FADT", acpi_write_fadt, 0);
+
+int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	struct acpi_table_header *header;
+	struct acpi_madt *madt;
+	void *current;
+
+	madt = ctx->current;
+
+	memset(madt, '\0', sizeof(struct acpi_madt));
+	header = &madt->header;
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "APIC");
+	header->length = sizeof(struct acpi_madt);
+	header->revision = acpi_get_table_revision(ACPITAB_MADT);
+
+	current = (void *)madt + sizeof(struct acpi_madt);
+	current = acpi_fill_madt(madt, current);
+
+	/* (Re)calculate length and checksum */
+	header->length = (uintptr_t)current - (uintptr_t)madt;
+
+	if (IS_ENABLED(CONFIG_ACPI_PARKING_PROTOCOL))
+		acpi_write_parking_protocol(madt);
+
+	header->checksum = table_compute_checksum((void *)madt, header->length);
+	acpi_add_table(ctx, madt);
+	acpi_inc(ctx, madt->header.length);
+
+	return 0;
+}
+
+ACPI_WRITER(5madt, "MADT", acpi_write_madt, 0);
+
+static void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
+			     int port_type, int port_subtype,
+			     struct acpi_gen_regaddr *address, u32 address_size,
+			     const char *device_path)
 {
 	uintptr_t current;
 	struct acpi_dbg2_device *device;
@@ -262,3 +345,225 @@ void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
 	header->length = current - (uintptr_t)dbg2;
 	header->checksum = table_compute_checksum(dbg2, header->length);
 }
+
+/**
+ * acpi_create_dbg2() - Create a DBG2 table
+ *
+ * This table describes how to access the debug UART
+ *
+ * @dbg2: Place to put information
+ * @port_type: Serial port type (see ACPI_DBG2_...)
+ * @port_subtype: Serial port sub-type (see ACPI_DBG2_...)
+ * @address: ACPI address of port
+ * @address_size: Size of address space
+ * @device_path: Path of device (created using acpi_device_path())
+ */
+static void acpi_write_dbg2_uart(struct acpi_ctx *ctx,
+				 int space_id, int subtype, uint64_t base, uint32_t size,
+				 int access_size, const char *name)
+{
+	struct acpi_dbg2_header *dbg2 = (struct acpi_dbg2_header *)ctx->current;
+	struct acpi_gen_regaddr address;
+
+	memset(&address, 0, sizeof(address));
+
+	address.space_id = space_id;
+	address.addrl = (uint32_t)base;
+	address.addrh = (uint32_t)((base >> 32) & 0xffffffff);
+	address.access_size = access_size;
+
+	acpi_create_dbg2(dbg2,
+			 ACPI_DBG2_SERIAL_PORT,
+			 subtype,
+			 &address, size,
+			 name);
+
+	if (dbg2->header.length) {
+		acpi_inc_align(ctx, dbg2->header.length);
+		acpi_add_table(ctx, dbg2);
+	}
+}
+
+int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
+			     uint access_size)
+{
+	char path[ACPI_PATH_MAX];
+	phys_addr_t addr;
+	int ret;
+
+	if (!device_active(dev)) {
+		log_info("Device not enabled\n");
+		return -EACCES;
+	}
+	/*
+	 * PCI devices don't remember their resource allocation information in
+	 * U-Boot at present. We assume that MMIO is used for the UART and that
+	 * the address space is 32 bytes: ns16550 uses 8 registers of up to
+	 * 32-bits each. This is only for debugging so it is not a big deal.
+	 */
+	addr = dm_pci_read_bar32(dev, 0);
+	log_debug("UART addr %lx\n", (ulong)addr);
+
+	ret = acpi_device_path(dev, path, sizeof(path));
+	if (ret)
+		return log_msg_ret("path", ret);
+
+	acpi_write_dbg2_uart(ctx, ACPI_ADDRESS_SPACE_MEMORY, ACPI_DBG2_16550_COMPATIBLE,
+			     addr, 0x1000, access_size, path);
+
+	return 0;
+}
+
+void acpi_pl011_write_dbg2_uart(struct acpi_ctx *ctx,
+				u64 base, const char *name)
+{
+	acpi_write_dbg2_uart(ctx, ACPI_ADDRESS_SPACE_MEMORY,
+			     ACPI_DBG2_ARM_PL011, base, 0x1000,
+			     ACPI_ACCESS_SIZE_DWORD_ACCESS, name);
+}
+
+void acpi_16550_mmio32_write_dbg2_uart(struct acpi_ctx *ctx,
+				       u64 base, const char *name)
+{
+	acpi_write_dbg2_uart(ctx, ACPI_ADDRESS_SPACE_MEMORY,
+			     ACPI_DBG2_16550_COMPATIBLE, base, 0x100,
+			     ACPI_ACCESS_SIZE_DWORD_ACCESS, name);
+}
+
+int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	struct serial_device_info serial_info = {0};
+	ulong serial_address, serial_offset;
+	struct acpi_table_header *header;
+	struct acpi_spcr *spcr;
+	struct udevice *dev;
+	uint serial_config;
+	uint serial_width;
+	int access_size;
+	int space_id;
+	int ret = -ENODEV;
+
+	spcr = ctx->current;
+	header = &spcr->header;
+
+	memset(spcr, '\0', sizeof(struct acpi_spcr));
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "SPCR");
+	header->length = sizeof(struct acpi_spcr);
+	header->revision = 2;
+
+	/* Read the device once, here. It is reused below */
+	dev = gd->cur_serial_dev;
+	if (dev)
+		ret = serial_getinfo(dev, &serial_info);
+	if (ret)
+		serial_info.type = SERIAL_CHIP_UNKNOWN;
+
+	/* Encode chip type */
+	switch (serial_info.type) {
+	case SERIAL_CHIP_16550_COMPATIBLE:
+		spcr->interface_type = ACPI_DBG2_16550_COMPATIBLE;
+		break;
+	case SERIAL_CHIP_PL01X:
+		spcr->interface_type = ACPI_DBG2_ARM_PL011;
+		break;
+	case SERIAL_CHIP_UNKNOWN:
+	default:
+		spcr->interface_type = ACPI_DBG2_UNKNOWN;
+		break;
+	}
+
+	/* Encode address space */
+	switch (serial_info.addr_space) {
+	case SERIAL_ADDRESS_SPACE_MEMORY:
+		space_id = ACPI_ADDRESS_SPACE_MEMORY;
+		break;
+	case SERIAL_ADDRESS_SPACE_IO:
+	default:
+		space_id = ACPI_ADDRESS_SPACE_IO;
+		break;
+	}
+
+	serial_width = serial_info.reg_width * 8;
+	serial_offset = serial_info.reg_offset << serial_info.reg_shift;
+	serial_address = serial_info.addr + serial_offset;
+
+	/* Encode register access size */
+	switch (serial_info.reg_shift) {
+	case 0:
+		access_size = ACPI_ACCESS_SIZE_BYTE_ACCESS;
+		break;
+	case 1:
+		access_size = ACPI_ACCESS_SIZE_WORD_ACCESS;
+		break;
+	case 2:
+		access_size = ACPI_ACCESS_SIZE_DWORD_ACCESS;
+		break;
+	case 3:
+		access_size = ACPI_ACCESS_SIZE_QWORD_ACCESS;
+		break;
+	default:
+		access_size = ACPI_ACCESS_SIZE_UNDEFINED;
+		break;
+	}
+
+	debug("UART type %u @ %lx\n", spcr->interface_type, serial_address);
+
+	/* Fill GAS */
+	spcr->serial_port.space_id = space_id;
+	spcr->serial_port.bit_width = serial_width;
+	spcr->serial_port.bit_offset = 0;
+	spcr->serial_port.access_size = access_size;
+	spcr->serial_port.addrl = lower_32_bits(serial_address);
+	spcr->serial_port.addrh = upper_32_bits(serial_address);
+
+	/* Encode baud rate */
+	switch (serial_info.baudrate) {
+	case 9600:
+		spcr->baud_rate = 3;
+		break;
+	case 19200:
+		spcr->baud_rate = 4;
+		break;
+	case 57600:
+		spcr->baud_rate = 6;
+		break;
+	case 115200:
+		spcr->baud_rate = 7;
+		break;
+	default:
+		spcr->baud_rate = 0;
+		break;
+	}
+
+	serial_config = SERIAL_DEFAULT_CONFIG;
+	if (dev)
+		ret = serial_getconfig(dev, &serial_config);
+
+	spcr->parity = SERIAL_GET_PARITY(serial_config);
+	spcr->stop_bits = SERIAL_GET_STOP(serial_config);
+
+	/* No PCI devices for now */
+	spcr->pci_device_id = 0xffff;
+	spcr->pci_vendor_id = 0xffff;
+
+	/*
+	 * SPCR has no clue if the UART base clock speed is different
+	 * to the default one. However, the SPCR 1.04 defines baud rate
+	 * 0 as a preconfigured state of UART and OS is supposed not
+	 * to touch the configuration of the serial device.
+	 */
+	if (serial_info.clock != SERIAL_DEFAULT_CLOCK)
+		spcr->baud_rate = 0;
+
+	/* Fix checksum */
+	header->checksum = table_compute_checksum((void *)spcr, header->length);
+
+	acpi_add_table(ctx, spcr);
+	acpi_inc(ctx, spcr->header.length);
+
+	return 0;
+}
+
+ACPI_WRITER(5spcr, "SPCR", acpi_write_spcr, 0);

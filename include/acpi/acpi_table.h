@@ -290,7 +290,8 @@ struct __packed acpi_fadt {
 #define ACPI_MADT_REV_ACPI_3_0		2
 #define ACPI_MADT_REV_ACPI_4_0		3
 #define ACPI_MADT_REV_ACPI_5_0		3
-#define ACPI_MADT_REV_ACPI_6_0		5
+#define ACPI_MADT_REV_ACPI_6_2		4
+#define ACPI_MADT_REV_ACPI_6_3		5
 
 #define ACPI_MCFG_REV_ACPI_3_0		1
 
@@ -386,20 +387,20 @@ struct __packed acpi_madt_lapic_nmi {
 	u8 lint;		/* Local APIC LINT# */
 };
 
-/* flags for acpi_madr_gicc flags word */
+/* flags for acpi_madt_gicc flags word */
 enum {
-	ACPI_MADRF_ENABLED	= BIT(0),
-	ACPI_MADRF_PERF		= BIT(1),
-	ACPI_MADRF_VGIC		= BIT(2),
+	ACPI_MADTF_ENABLED	= BIT(0),
+	ACPI_MADTF_PERF		= BIT(1),
+	ACPI_MADTF_VGIC		= BIT(2),
 };
 
 /**
- * struct __packed acpi_madr_gicc - GIC CPU interface (type 0xb)
+ * struct __packed acpi_madt_gicc - GIC CPU interface (type 0xb)
  *
  * This holds information about the Generic Interrupt Controller (GIC) CPU
  * interface. See ACPI Spec v6.3 section 5.2.12.14
  */
-struct acpi_madr_gicc {
+struct acpi_madt_gicc {
 	u8 type;
 	u8 length;
 	u16 reserved;
@@ -421,12 +422,12 @@ struct acpi_madr_gicc {
 } __packed;
 
 /**
- * struct __packed acpi_madr_gicc - GIC distributor (type 0xc)
+ * struct __packed acpi_madt_gicc - GIC distributor (type 0xc)
  *
  * This holds information about the Generic Interrupt Controller (GIC)
  * Distributor interface. See ACPI Spec v6.3 section 5.2.12.15
  */
-struct acpi_madr_gicd {
+struct acpi_madt_gicd {
 	u8 type;
 	u8 length;
 	u16 reserved;
@@ -707,6 +708,8 @@ struct acpi_gtdt {
 	u32 virt_el2_flags;
 } __packed;
 
+#define GTDT_FLAG_INT_ACTIVE_LOW	BIT(1)
+
 /**
  * struct acpi_bgrt -  Boot Graphics Resource Table (BGRT)
  *
@@ -806,12 +809,14 @@ enum acpi_tables {
 	ACPITAB_ECDT,
 	ACPITAB_FACS,
 	ACPITAB_FADT,
+	ACPITAB_GTDT,
 	ACPITAB_HEST,
 	ACPITAB_HPET,
 	ACPITAB_IVRS,
 	ACPITAB_MADT,
 	ACPITAB_MCFG,
 	ACPITAB_NHLT,
+	ACPITAB_PPTT,
 	ACPITAB_RSDP,
 	ACPITAB_RSDT,
 	ACPITAB_SLIT,
@@ -845,23 +850,6 @@ int acpi_get_table_revision(enum acpi_tables table);
  * Return: 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
-
-/**
- * acpi_create_dbg2() - Create a DBG2 table
- *
- * This table describes how to access the debug UART
- *
- * @dbg2: Place to put information
- * @port_type: Serial port type (see ACPI_DBG2_...)
- * @port_subtype: Serial port sub-type (see ACPI_DBG2_...)
- * @address: ACPI address of port
- * @address_size: Size of address space
- * @device_path: Path of device (created using acpi_device_path())
- */
-void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
-		      int port_type, int port_subtype,
-		      struct acpi_gen_regaddr *address, uint32_t address_size,
-		      const char *device_path);
 
 /**
  * acpi_align() - Align the ACPI output pointer to a 16-byte boundary
@@ -942,6 +930,73 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature);
  * @return 0 if OK, -ve on error
  */
 int acpi_fill_csrt(struct acpi_ctx *ctx);
+
+/**
+ * acpi_fill_fadt() - Fill out the body of the FADT
+ *
+ * Should be implemented in SoC specific code.
+ *
+ * @fadt: Pointer to FADT to update
+ */
+void acpi_fill_fadt(struct acpi_fadt *fadt);
+
+/**
+ * acpi_fill_madt() - Fill out the body of the MADT
+ *
+ * Must be implemented in SoC specific code.
+ *
+ * @madt: The MADT to update
+ * @current: Pointer to the MADT body
+ * @return Pointer to the end of tables, where the next tables can be written
+ */
+void *acpi_fill_madt(struct acpi_madt *madt, void *current);
+
+/**
+ * acpi_write_parking_protocol() - Installs the ACPI parking protocol.
+ *
+ * Sets up the ACPI parking protocol and installs the spinning code for
+ * secondary CPUs.
+ *
+ * @madt: The MADT to update
+ */
+void acpi_write_parking_protocol(struct acpi_madt *madt);
+
+/**
+ * acpi_write_dbg2_pci_uart() - Write out a DBG2 table
+ *
+ * @ctx: Current ACPI context
+ * @dev: Debug UART device to describe
+ * @access_size: Access size for UART (e.g. ACPI_ACCESS_SIZE_DWORD_ACCESS)
+ * Return: 0 if OK, -ve on error
+ */
+int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
+			     uint access_size);
+
+/**
+ * acpi_pl011_write_dbg2_uart() - Write out a DBG2 table
+ *
+ * To be used for PL011 style MMIO UARTs.
+ *
+ * @ctx: Current ACPI context
+ * @base: Memory base address of Debug UART
+ * @name: ACPI device path of the Debug UART
+ * Return: 0 if OK, -ve on error
+ */
+void acpi_pl011_write_dbg2_uart(struct acpi_ctx *ctx,
+				u64 base, const char *name);
+
+/**
+ * acpi_16550_mmio32_write_dbg2_uart() - Write out a DBG2 table
+ *
+ * To be used for 16550 style MMIO UARTs.
+ *
+ * @ctx: Current ACPI context
+ * @base: Memory base address of Debug UART
+ * @name: ACPI device path of the Debug UART
+ * Return: 0 if OK, -ve on error
+ */
+void acpi_16550_mmio32_write_dbg2_uart(struct acpi_ctx *ctx,
+				       u64 base, const char *name);
 
 /**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address

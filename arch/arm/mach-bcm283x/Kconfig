@@ -12,6 +12,7 @@ config BCM2836
 config BCM2837
 	bool "Broadcom BCM2837 SoC support"
 	depends on ARCH_BCM283X
+	select ARCH_EARLY_INIT_R
 
 config BCM2837_32B
 	bool "Broadcom BCM2837 SoC 32-bit support"
@@ -25,10 +26,12 @@ config BCM2837_64B
 	depends on ARCH_BCM283X
 	select BCM2837
 	select ARM64
+	select ARMV8_MULTIENTRY if GENERATE_ACPI_TABLE
 
 config BCM2711
 	bool "Broadcom BCM2711 SoC support"
 	depends on ARCH_BCM283X
+	select ARCH_EARLY_INIT_R
 
 config BCM2711_32B
 	bool "Broadcom BCM2711 SoC 32-bit support"
@@ -43,6 +46,7 @@ config BCM2711_64B
 	depends on ARCH_BCM283X
 	select BCM2711
 	select ARM64
+	select ARMV8_MULTIENTRY if GENERATE_ACPI_TABLE
 
 menu "Broadcom BCM283X family"
 	depends on ARCH_BCM283X

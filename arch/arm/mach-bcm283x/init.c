@@ -6,11 +6,14 @@
  * project.
  */
 
+#include <acpi/acpi_table.h>
+#include <asm-generic/sections.h>
 #include <cpu_func.h>
 #include <init.h>
 #include <dm/device.h>
 #include <fdt_support.h>
 #include <asm/global_data.h>
+#include <malloc.h>
 
 #define BCM2711_RPI4_PCIE_XHCI_MMIO_PHYS	0x600000000UL
 #define BCM2711_RPI4_PCIE_XHCI_MMIO_SIZE	0x400000UL
@@ -50,7 +53,7 @@ static struct mm_region bcm2711_mem_map[MEM_MAP_MAX_ENTRIES] = {
 	}, {
 		.virt = 0xfc000000UL,
 		.phys = 0xfc000000UL,
-		.size = 0x03800000UL,
+		.size = 0x04000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -199,6 +202,52 @@ int mach_cpu_init(void)
 					       "brcm,bcm2712-pm");
 	if (offset > soc)
 		rpi_wdog_base = fdt_get_base_address(gd->fdt_blob, offset);
+	return 0;
+}
+
+int arch_early_init_r(void)
+{
+	int cpus, offset;
+	const char *prop;
+	u64 release_addr64;
+	uintptr_t *start_address;
+
+	if (CONFIG_IS_ENABLED(ARMV8_MULTIENTRY)) {
+		/*
+		 * Release CPUs from reset after u-boot has been relocated.
+		 */
+		cpus = fdt_path_offset(gd->fdt_blob, "/cpus");
+		if (cpus < 0)
+			return -ENODEV;
+
+		for (offset = fdt_first_subnode(gd->fdt_blob, cpus);
+		     offset >= 0;
+		     offset = fdt_next_subnode(gd->fdt_blob, offset)) {
+			prop = fdt_getprop(gd->fdt_blob, offset, "device_type", NULL);
+			if (!prop || strcmp(prop, "cpu"))
+				continue;
+
+			prop = fdt_getprop(gd->fdt_blob, offset, "enable-method", NULL);
+			if (!prop || strcmp(prop, "spin-table"))
+				continue;
+
+			release_addr64 = fdtdec_get_uint64(gd->fdt_blob, offset,
+							   "cpu-release-addr", ~0ULL);
+			if (release_addr64 == ~0ULL)
+				continue;
+
+			/* Point to U-Boot start */
+			start_address = (uintptr_t *)(uintptr_t)release_addr64;
+			*start_address = (uintptr_t)_start;
+
+			if (!CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+				flush_dcache_range(release_addr64,
+						   release_addr64 + sizeof(uintptr_t));
+			/* Send an event to wake up the secondary CPU. */
+			asm("dsb	ishst\n"
+			    "sev");
+		}
+	}
 
 	return 0;
 }
@@ -239,4 +288,32 @@ void enable_caches(void)
 {
 	dcache_enable();
 }
+#endif
+
+#ifdef CONFIG_GENERATE_ACPI_TABLE
+static int last_stage_init(void)
+{
+	ulong end;
+	void *ptr;
+
+	/* Reserve 64K for ACPI tables, aligned to a 4K boundary */
+	ptr = memalign(SZ_4K, SZ_64K);
+
+	/* Generate ACPI tables */
+	end = write_acpi_tables((uintptr_t)ptr);
+	if (end < 0) {
+		log_err("Failed to write tables\n");
+		return log_msg_ret("table", end);
+	}
+	if (end > ((ulong)ptr + SZ_64K)) {
+		log_err("ACPI tables overflowed\n");
+		return 0;
+	}
+
+	gd->arch.table_start = (uintptr_t)ptr;
+	gd->arch.table_end = end;
+
+	return 0;
+}
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 #endif

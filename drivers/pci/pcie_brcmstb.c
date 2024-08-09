@@ -12,6 +12,7 @@
  * Copyright (C) 2020 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
  */
 
+#include <asm/arch/acpi/bcm2711.h>
 #include <errno.h>
 #include <dm.h>
 #include <dm/ofnode.h>
@@ -20,88 +21,6 @@
 #include <linux/bitfield.h>
 #include <linux/log2.h>
 #include <linux/iopoll.h>
-
-/* Offset of the mandatory PCIe capability config registers */
-#define BRCM_PCIE_CAP_REGS				0x00ac
-
-/* The PCIe controller register offsets */
-#define PCIE_RC_CFG_VENDOR_SPECIFIC_REG1		0x0188
-#define  VENDOR_SPECIFIC_REG1_ENDIAN_MODE_BAR2_MASK	0xc
-#define  VENDOR_SPECIFIC_REG1_LITTLE_ENDIAN		0x0
-
-#define PCIE_RC_CFG_PRIV1_ID_VAL3			0x043c
-#define  CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK		0xffffff
-
-#define PCIE_RC_CFG_PRIV1_LINK_CAPABILITY			0x04dc
-#define  PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK	0xc00
-
-#define PCIE_RC_DL_MDIO_ADDR				0x1100
-#define PCIE_RC_DL_MDIO_WR_DATA				0x1104
-#define PCIE_RC_DL_MDIO_RD_DATA				0x1108
-
-#define PCIE_MISC_MISC_CTRL				0x4008
-#define  MISC_CTRL_SCB_ACCESS_EN_MASK			0x1000
-#define  MISC_CTRL_CFG_READ_UR_MODE_MASK		0x2000
-#define  MISC_CTRL_MAX_BURST_SIZE_MASK			0x300000
-#define  MISC_CTRL_MAX_BURST_SIZE_128			0x0
-#define  MISC_CTRL_SCB0_SIZE_MASK			0xf8000000
-
-#define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LO		0x400c
-#define PCIE_MEM_WIN0_LO(win)	\
-		PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LO + ((win) * 4)
-
-#define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_HI		0x4010
-#define PCIE_MEM_WIN0_HI(win)	\
-		PCIE_MISC_CPU_2_PCIE_MEM_WIN0_HI + ((win) * 4)
-
-#define PCIE_MISC_RC_BAR1_CONFIG_LO			0x402c
-#define  RC_BAR1_CONFIG_LO_SIZE_MASK			0x1f
-
-#define PCIE_MISC_RC_BAR2_CONFIG_LO			0x4034
-#define  RC_BAR2_CONFIG_LO_SIZE_MASK			0x1f
-#define PCIE_MISC_RC_BAR2_CONFIG_HI			0x4038
-
-#define PCIE_MISC_RC_BAR3_CONFIG_LO			0x403c
-#define  RC_BAR3_CONFIG_LO_SIZE_MASK			0x1f
-
-#define PCIE_MISC_PCIE_STATUS				0x4068
-#define  STATUS_PCIE_PORT_MASK				0x80
-#define  STATUS_PCIE_PORT_SHIFT				7
-#define  STATUS_PCIE_DL_ACTIVE_MASK			0x20
-#define  STATUS_PCIE_DL_ACTIVE_SHIFT			5
-#define  STATUS_PCIE_PHYLINKUP_MASK			0x10
-#define  STATUS_PCIE_PHYLINKUP_SHIFT			4
-
-#define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_BASE_LIMIT	0x4070
-#define  MEM_WIN0_BASE_LIMIT_LIMIT_MASK			0xfff00000
-#define  MEM_WIN0_BASE_LIMIT_BASE_MASK			0xfff0
-#define  MEM_WIN0_BASE_LIMIT_BASE_HI_SHIFT		12
-#define PCIE_MEM_WIN0_BASE_LIMIT(win)	\
-	 PCIE_MISC_CPU_2_PCIE_MEM_WIN0_BASE_LIMIT + ((win) * 4)
-
-#define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_BASE_HI		0x4080
-#define  MEM_WIN0_BASE_HI_BASE_MASK			0xff
-#define PCIE_MEM_WIN0_BASE_HI(win)	\
-	 PCIE_MISC_CPU_2_PCIE_MEM_WIN0_BASE_HI + ((win) * 8)
-
-#define PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LIMIT_HI		0x4084
-#define  PCIE_MEM_WIN0_LIMIT_HI_LIMIT_MASK		0xff
-#define PCIE_MEM_WIN0_LIMIT_HI(win)	\
-	 PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LIMIT_HI + ((win) * 8)
-
-#define PCIE_MISC_HARD_PCIE_HARD_DEBUG			0x4204
-#define  PCIE_HARD_DEBUG_SERDES_IDDQ_MASK		0x08000000
-
-#define PCIE_MSI_INTR2_CLR				0x4508
-#define PCIE_MSI_INTR2_MASK_SET				0x4510
-
-#define PCIE_EXT_CFG_DATA				0x8000
-
-#define PCIE_EXT_CFG_INDEX				0x9000
-
-#define PCIE_RGR1_SW_INIT_1				0x9210
-#define  RGR1_SW_INIT_1_PERST_MASK			0x1
-#define  RGR1_SW_INIT_1_INIT_MASK			0x2
 
 /* PCIe parameters */
 #define BRCM_NUM_PCIE_OUT_WINS				4
@@ -447,7 +366,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	 * This will need to be changed when support for other SoCs is added.
 	 */
 	setbits_le32(base + PCIE_RGR1_SW_INIT_1,
-		     RGR1_SW_INIT_1_INIT_MASK | RGR1_SW_INIT_1_PERST_MASK);
+		     PCIE_RGR1_SW_INIT_1_INIT_MASK | PCIE_RGR1_SW_INIT_1_PERST_MASK);
 	/*
 	 * The delay is a safety precaution to preclude the reset signal
 	 * from looking like a glitch.
@@ -455,7 +374,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	udelay(100);
 
 	/* Take the bridge out of reset */
-	clrbits_le32(base + PCIE_RGR1_SW_INIT_1, RGR1_SW_INIT_1_INIT_MASK);
+	clrbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_INIT_MASK);
 
 	clrbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
 		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
@@ -508,7 +427,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 
 	/* Unassert the fundamental reset */
 	clrbits_le32(pcie->base + PCIE_RGR1_SW_INIT_1,
-		     RGR1_SW_INIT_1_PERST_MASK);
+		     PCIE_RGR1_SW_INIT_1_PERST_MASK);
 
 	/*
 	 * Wait for 100ms after PERST# deassertion; see PCIe CEM specification
@@ -552,7 +471,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	 * a PCIe-PCIe bridge (the default setting is to be EP mode).
 	 */
 	clrsetbits_le32(base + PCIE_RC_CFG_PRIV1_ID_VAL3,
-			CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK, 0x060400);
+			PCIE_RC_CFG_PRIV1_ID_VAL3_CLASS_CODE_MASK, 0x060400);
 
 	if (pcie->ssc) {
 		ret = brcm_pcie_set_ssc(pcie->base);
@@ -570,8 +489,8 @@ static int brcm_pcie_probe(struct udevice *dev)
 	       nlw, ssc_good ? "(SSC)" : "(!SSC)");
 
 	/* PCIe->SCB endian mode for BAR */
-	clrsetbits_le32(base + PCIE_RC_CFG_VENDOR_SPECIFIC_REG1,
-			VENDOR_SPECIFIC_REG1_ENDIAN_MODE_BAR2_MASK,
+	clrsetbits_le32(base + PCIE_RC_CFG_VENDOR_VENDOR_SPECIFIC_REG1,
+			PCIE_RC_CFG_VENDOR_VENDOR_SPECIFIC_REG1_ENDIAN_MODE_BAR2_MASK,
 			VENDOR_SPECIFIC_REG1_LITTLE_ENDIAN);
 
 	/*
@@ -584,7 +503,7 @@ static int brcm_pcie_probe(struct udevice *dev)
 	 * let's instead just unadvertise ASPM support.
 	 */
 	clrbits_le32(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY,
-		     PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
+		     LINK_CAPABILITY_ASPM_SUPPORT_MASK);
 
 	return 0;
 }
@@ -595,14 +514,14 @@ static int brcm_pcie_remove(struct udevice *dev)
 	void __iomem *base = pcie->base;
 
 	/* Assert fundamental reset */
-	setbits_le32(base + PCIE_RGR1_SW_INIT_1, RGR1_SW_INIT_1_PERST_MASK);
+	setbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_PERST_MASK);
 
 	/* Turn off SerDes */
 	setbits_le32(base + PCIE_MISC_HARD_PCIE_HARD_DEBUG,
 		     PCIE_HARD_DEBUG_SERDES_IDDQ_MASK);
 
 	/* Shutdown bridge */
-	setbits_le32(base + PCIE_RGR1_SW_INIT_1, RGR1_SW_INIT_1_INIT_MASK);
+	setbits_le32(base + PCIE_RGR1_SW_INIT_1, PCIE_RGR1_SW_INIT_1_INIT_MASK);
 
 	return 0;
 }
