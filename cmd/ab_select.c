@@ -49,6 +49,31 @@ static int do_ab_select(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_ab_dump(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
+{
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if (part_get_info_by_dev_and_name_or_num(argv[1], argv[2],
+						 &dev_desc, &part_info,
+						 false) < 0) {
+		return CMD_RET_FAILURE;
+	}
+
+	ret = ab_dump_abc(dev_desc, &part_info);
+	if (ret < 0) {
+		printf("Cannot dump ABC data, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 U_BOOT_CMD(ab_select, 5, 0, do_ab_select,
 	   "Select the slot used to boot from and register the boot attempt.",
 	   "<slot_var_name> <interface> <dev[:part|#part_name]> [--no-dec]\n"
@@ -61,6 +86,11 @@ U_BOOT_CMD(ab_select, 5, 0, do_ab_select,
 	   "    - If 'part_name' is passed, preceded with a # instead of :, the\n"
 	   "      partition name whose label is 'part_name' will be looked up in\n"
 	   "      the partition table. This is commonly the \"misc\" partition.\n"
-           "    - If '--no-dec' is set, the number of tries remaining will not\n"
-           "      decremented for the selected boot slot\n"
+	   "    - If '--no-dec' is set, the number of tries remaining will not\n"
+	   "      decremented for the selected boot slot\n"
+);
+
+U_BOOT_CMD(ab_dump, 3, 0, do_ab_dump,
+	   "Dump boot_control information from specific partition.",
+	   "<interface> <dev[:part|#part_name]>\n"
 );

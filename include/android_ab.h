@@ -35,4 +35,13 @@ struct disk_partition;
 int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
                    bool dec_tries);
 
+/**
+ * Dump ABC information for specific partition.
+ *
+ * @param[in] dev_desc Device description pointer
+ * @param[in] part_info Partition information
+ * Return: 0 on success, or a negative on error
+ */
+int ab_dump_abc(struct blk_desc *dev_desc, struct disk_partition *part_info);
+
 #endif /* __ANDROID_AB_H */
