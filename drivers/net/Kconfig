@@ -762,6 +762,14 @@ config TULIP
 	help
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
+config TULIP_SUPPORT_NON_PCI
+	bool "No PCI controller"
+	depends on TULIP
+	default n
+	help
+	  Say Y to this and you can run this driver on platforms that do not
+	  have PCI controllers.
+
 config XILINX_AXIEMAC
 	select PHYLIB
 	select MII

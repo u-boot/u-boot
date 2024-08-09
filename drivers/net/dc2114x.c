@@ -72,7 +72,12 @@
 
 #define POLL_DEMAND	1
 
+#if CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
+#define phys_to_bus(dev, a)	virt_to_phys((volatile const void *)(a))
+#else
 #define phys_to_bus(dev, a)	dm_pci_phys_to_mem((dev), (a))
+#endif
+#endif
 
 #define NUM_RX_DESC PKTBUFSRX
 #define NUM_TX_DESC 1			/* Number of TX descriptors   */
@@ -461,11 +466,13 @@ static void read_hw_addr(struct dc2114x_priv *priv)
 	}
 }
 
+#if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 static struct pci_device_id supported[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_TULIP_FAST) },
 	{ PCI_DEVICE(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142) },
 	{ }
 };
+#endif
 
 static int dc2114x_start(struct udevice *dev)
 {
@@ -474,8 +481,10 @@ static int dc2114x_start(struct udevice *dev)
 
 	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
 
+#if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 	/* Ensure we're not sleeping. */
 	dm_pci_write_config8(dev, PCI_CFDA_PSM, WAKEUP);
+#endif
 
 	return dc21x4x_init_common(priv);
 }
@@ -485,8 +494,9 @@ static void dc2114x_stop(struct udevice *dev)
 	struct dc2114x_priv *priv = dev_get_priv(dev);
 
 	dc21x4x_halt_common(priv);
-
+#if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 	dm_pci_write_config8(dev, PCI_CFDA_PSM, SLEEP);
+#endif
 }
 
 static int dc2114x_send(struct udevice *dev, void *packet, int length)
@@ -555,6 +565,8 @@ static int dc2114x_probe(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
 	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+#if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 	u16 command, status;
 	u32 iobase;
 
@@ -576,9 +588,22 @@ static int dc2114x_probe(struct udevice *dev)
 	}
 
 	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x60);
+#endif
+	return 0;
+}
+
+#if CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
+static int dc2114x_of_to_plat(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_plat(dev);
+	struct dc2114x_priv *priv = dev_get_priv(dev);
+
+	plat->iobase = (phys_addr_t)map_physmem((phys_addr_t)devfdt_get_addr(dev), 0, MAP_NOCACHE);
+	priv->iobase = (void*)plat->iobase;
 
 	return 0;
 }
+#endif
 
 static const struct eth_ops dc2114x_ops = {
 	.start		= dc2114x_start,
@@ -589,9 +614,23 @@ static const struct eth_ops dc2114x_ops = {
 	.read_rom_hwaddr = dc2114x_read_rom_hwaddr,
 };
 
+#if CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
+static const struct udevice_id dc2114x_eth_ids[] = {
+	{ .compatible = "dec,dmfe" },
+	{ .compatible = "tulip,dmfe" },
+	{ .compatible = "dec,dc2114x" },
+	{ .compatible = "tulip,dc2114x" },
+	{ }
+};
+#endif
+
 U_BOOT_DRIVER(eth_dc2114x) = {
 	.name	= "eth_dc2114x",
 	.id	= UCLASS_ETH,
+#if CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
+	.of_match	= dc2114x_eth_ids,
+	.of_to_plat	= dc2114x_of_to_plat,
+#endif
 	.bind	= dc2114x_bind,
 	.probe	= dc2114x_probe,
 	.ops	= &dc2114x_ops,
@@ -599,4 +638,6 @@ U_BOOT_DRIVER(eth_dc2114x) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 };
 
+#if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 U_BOOT_PCI_DEVICE(eth_dc2114x, supported);
+#endif
