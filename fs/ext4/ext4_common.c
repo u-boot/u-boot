@@ -2181,13 +2181,18 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	struct ext2fs_node *diro = node;
 	int status;
 	loff_t actread;
+	size_t alloc_size;
 
 	if (!diro->inode_read) {
 		status = ext4fs_read_inode(diro->data, diro->ino, &diro->inode);
 		if (status == 0)
 			return NULL;
 	}
-	symlink = zalloc(le32_to_cpu(diro->inode.size) + 1);
+
+	if (__builtin_add_overflow(le32_to_cpu(diro->inode.size), 1, &alloc_size))
+		return NULL;
+
+	symlink = zalloc(alloc_size);
 	if (!symlink)
 		return NULL;
 
