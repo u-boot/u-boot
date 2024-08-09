@@ -54,7 +54,9 @@ struct s3c24x0_i2c_bus {
 	struct exynos5_hsi2c *hsregs;
 	int is_highspeed;	/* High speed type, rather than I2C */
 	unsigned clock_frequency;
+#if IS_ENABLED(CONFIG_ARCH_EXYNOS4) || IS_ENABLED(CONFIG_ARCH_EXYNOS5)
 	int id;
+#endif
 	unsigned clk_cycle;
 	unsigned clk_div;
 };
