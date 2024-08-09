@@ -437,7 +437,16 @@ static int dc21x4x_init_common(struct dc2114x_priv *priv)
 		return -1;
 	}
 
-	dc2114x_outl(priv, OMR_SDP | OMR_PS | OMR_PM, DE4X5_OMR);
+	/* 2024-07:
+	 * Remove the OMR_PM flag and choose 16 perfect filtering mode since in
+	 * modern networks there're plenty of multicasts and set ORM_PM flag will
+	 * increase the dc2114x's workload and ask the U-Boot to handle packets
+	 * not related to itself. And most of the time, U-Boot does not need this
+	 * feature.
+	 *
+	 * A better way: let user to decide whether to have this flag.
+	 */
+	dc2114x_outl(priv, OMR_SDP | OMR_PS, DE4X5_OMR);
 
 	for (i = 0; i < NUM_RX_DESC; i++) {
 		priv->rx_ring[i].status = cpu_to_le32(R_OWN);
