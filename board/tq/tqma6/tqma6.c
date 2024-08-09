@@ -230,11 +230,6 @@ int board_late_init(void)
 
 	tqma6_bb_board_late_init();
 
-	return 0;
-}
-
-int checkboard(void)
-{
 	printf("Board: %s on a %s\n", tqma6_get_boardname(),
 	       tqma6_bb_get_boardname());
 	return 0;
