@@ -270,7 +270,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image,
 }
 #endif
 
-u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+u32 __weak arch_spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 {
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	return MMCSD_MODE_FS;
@@ -279,6 +279,16 @@ u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 #else
 	return MMCSD_MODE_RAW;
 #endif
+}
+
+u32 __weak board_spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+{
+	return arch_spl_mmc_boot_mode(mmc, boot_device);
+}
+
+u32 __weak spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
+{
+	return board_spl_mmc_boot_mode(mmc, boot_device);
 }
 
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
