@@ -478,8 +478,16 @@ static int dc2114x_start(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
 	struct dc2114x_priv *priv = dev_get_priv(dev);
+	int rval;
 
-	memcpy(priv->enetaddr, plat->enetaddr, sizeof(plat->enetaddr));
+	if(!priv->enetaddr) {
+		rval = eth_env_get_enetaddr("ethaddr", priv->enetaddr);
+
+		if (!rval) {
+			printf("dc2114x: Err: please set a valid MAC address\n");
+			return -EINVAL;
+		}
+	}
 
 #if !CONFIG_IS_ENABLED(TULIP_SUPPORT_NON_PCI)
 	/* Ensure we're not sleeping. */
@@ -574,9 +582,6 @@ static int dc2114x_probe(struct udevice *dev)
 	iobase &= ~0xf;
 
 	debug("dc2114x: DEC 2114x PCI Device @0x%x\n", iobase);
-
-	priv->devno = dev;
-	priv->enetaddr = plat->enetaddr;
 	priv->iobase = (void __iomem *)dm_pci_mem_to_phys(dev, iobase);
 
 	command = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
@@ -589,6 +594,9 @@ static int dc2114x_probe(struct udevice *dev)
 
 	dm_pci_write_config8(dev, PCI_LATENCY_TIMER, 0x60);
 #endif
+
+	priv->devno = dev;
+	priv->enetaddr = plat->enetaddr;
 	return 0;
 }
 
