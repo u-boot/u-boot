@@ -770,6 +770,17 @@ config TULIP_SUPPORT_NON_PCI
 	  Say Y to this and you can run this driver on platforms that do not
 	  have PCI controllers.
 
+config TULIP_IGNORE_TX_NO_CARRIER
+	bool "Ignore tx no carrier error"
+	depends on TULIP
+	default n
+	help
+	  Some IP cores of dc2114x or its variants do not comply so well with
+	  the behaviors described by the official document. A packet could be
+	  sent successfully but reported with No Carrier error. Latest drivers
+	  of this IP core do not detect this error anymore. Say Y to this could
+	  disable handling of this error.
+
 config XILINX_AXIEMAC
 	select PHYLIB
 	select MII

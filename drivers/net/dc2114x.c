@@ -371,7 +371,9 @@ static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int leng
 
 	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) & TD_ES) {
 		priv->tx_ring[priv->tx_new].status = 0x0;
+#if !CONFIG_IS_ENABLED(TULIP_IGNORE_TX_NO_CARRIER)
 		goto done;
+#endif
 	}
 
 	status = length;
