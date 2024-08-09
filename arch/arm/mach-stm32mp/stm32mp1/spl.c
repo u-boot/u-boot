@@ -18,6 +18,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <mach/tzc.h>
+#include <mach/stm32mp.h>
 #include <linux/libfdt.h>
 
 u32 spl_boot_device(void)
@@ -108,22 +109,6 @@ uint32_t stm32mp_get_dram_size(void)
 		return 0;
 
 	return ram.size;
-}
-
-static int optee_get_reserved_memory(uint32_t *start, uint32_t *size)
-{
-	fdt_addr_t fdt_mem_size;
-	fdt_addr_t fdt_start;
-	ofnode node;
-
-	node = ofnode_path("/reserved-memory/optee");
-	if (!ofnode_valid(node))
-		return -ENOENT;
-
-	fdt_start = ofnode_get_addr_size(node, "reg", &fdt_mem_size);
-	*start = fdt_start;
-	*size = fdt_mem_size;
-	return (fdt_start < 0) ? fdt_start : 0;
 }
 
 #define CFG_SHMEM_SIZE			0x200000
