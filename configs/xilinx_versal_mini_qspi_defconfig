@@ -53,7 +53,7 @@ CONFIG_SYS_PROMPT="Versal> "
 # CONFIG_CMD_SOURCE is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG is not set
-# CONFIG_NET is not set
+CONFIG_NO_NET=y
 # CONFIG_DM_DEVICE_REMOVE is not set
 # CONFIG_GPIO is not set
 # CONFIG_I2C is not set
