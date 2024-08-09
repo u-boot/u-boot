@@ -72,6 +72,7 @@ config MBA6
 	select PHY_MICREL
 	select PHY_MICREL_KSZ90X1
 	select MXC_UART
+	imply OF_UPSTREAM
 	help
 	  Select the MBa6 starterkit. This features a GigE Phy, USB, SD-Card
 	  etc.
