@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 
 #include <asm/io.h>
+#include <cpu_func.h>
 #include <dm.h>
 #include <malloc.h>
 #include <net.h>
@@ -94,9 +95,17 @@ struct de4x5_desc {
 	u32 next;
 };
 
+/* Assigned for network card's ring buffer:
+ * Some CPU might treat these memories as cached, and changes to these memories
+ * won't immediately be visible to each other. It is necessary to ensure that
+ * these memories between the CPU and the network card are marked as uncached.
+ */
+static struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
+static struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+
 struct dc2114x_priv {
-	struct de4x5_desc rx_ring[NUM_RX_DESC] __aligned(32);
-	struct de4x5_desc tx_ring[NUM_TX_DESC] __aligned(32);
+	struct de4x5_desc *rx_ring; /* Must be uncached to CPU */
+	struct de4x5_desc *tx_ring; /* Must be uncached to CPU */
 	int rx_new;	/* RX descriptor ring pointer */
 	int tx_new;	/* TX descriptor ring pointer */
 	char rx_ring_size;
@@ -276,7 +285,12 @@ static int read_srom(struct dc2114x_priv *priv, u_long ioaddr, int index)
 
 static void send_setup_frame(struct dc2114x_priv *priv)
 {
-	char setup_frame[SETUP_FRAME_LEN];
+	/* We are writing setup frame and these changes should be visible to the
+	 * network card immediately. So let's directly read/write through the
+	 * uncached window.
+	 */
+	char __setup_frame[SETUP_FRAME_LEN] __aligned(32);
+	char *setup_frame = (char *)map_physmem((phys_addr_t)virt_to_phys(__setup_frame), 0, MAP_NOCACHE);
 	char *pa = &setup_frame[0];
 	int i;
 
@@ -336,6 +350,9 @@ static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int leng
 		printf("%s: tx error buffer not ready\n", priv->name);
 		goto done;
 	}
+
+	/* Packet should be visible to the network card */
+	flush_dcache_range((phys_addr_t)packet, (phys_addr_t)(packet + RX_BUFF_SZ));
 
 	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
 						      (u32)packet));
@@ -533,7 +550,8 @@ static int dc2114x_recv(struct udevice *dev, int flags, uchar **packetp)
 	if (!ret)
 		return 0;
 
-	*packetp = net_rx_packets[priv->rx_new];
+	invalidate_dcache_range((phys_addr_t)net_rx_packets[priv->rx_new], (phys_addr_t)(net_rx_packets[priv->rx_new] + RX_BUFF_SZ));
+	*packetp = (uchar *)net_rx_packets[priv->rx_new];
 
 	return ret - 4;
 }
@@ -597,6 +615,9 @@ static int dc2114x_probe(struct udevice *dev)
 
 	priv->devno = dev;
 	priv->enetaddr = plat->enetaddr;
+	priv->rx_ring = (struct de4x5_desc *)map_physmem((phys_addr_t)virt_to_phys(rx_ring), 0, MAP_NOCACHE);
+	priv->tx_ring = (struct de4x5_desc *)map_physmem((phys_addr_t)virt_to_phys(tx_ring), 0, MAP_NOCACHE);
+
 	return 0;
 }
 
