@@ -311,7 +311,7 @@ static void send_setup_frame(struct dc2114x_priv *priv)
 	}
 
 	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
-						      (u32)&setup_frame[0]));
+						      (phys_addr_t)&setup_frame[0]));
 	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_SET | SETUP_FRAME_LEN);
 	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
@@ -326,7 +326,7 @@ static void send_setup_frame(struct dc2114x_priv *priv)
 	}
 
 	if (le32_to_cpu(priv->tx_ring[priv->tx_new].status) != 0x7FFFFFFF) {
-		printf("TX error status2 = 0x%08X\n",
+		debug("TX error status2 = 0x%08X\n",
 		       le32_to_cpu(priv->tx_ring[priv->tx_new].status));
 	}
 
@@ -355,7 +355,7 @@ static int dc21x4x_send_common(struct dc2114x_priv *priv, void *packet, int leng
 	flush_dcache_range((phys_addr_t)packet, (phys_addr_t)(packet + RX_BUFF_SZ));
 
 	priv->tx_ring[priv->tx_new].buf = cpu_to_le32(phys_to_bus(priv->devno,
-						      (u32)packet));
+						      (phys_addr_t)packet));
 	priv->tx_ring[priv->tx_new].des1 = cpu_to_le32(TD_TER | TD_LS | TD_FS | length);
 	priv->tx_ring[priv->tx_new].status = cpu_to_le32(T_OWN);
 
@@ -426,7 +426,7 @@ static int dc21x4x_init_common(struct dc2114x_priv *priv)
 		priv->rx_ring[i].status = cpu_to_le32(R_OWN);
 		priv->rx_ring[i].des1 = cpu_to_le32(RX_BUFF_SZ);
 		priv->rx_ring[i].buf = cpu_to_le32(phys_to_bus(priv->devno,
-					     (u32)net_rx_packets[i]));
+					     (phys_addr_t)net_rx_packets[i]));
 		priv->rx_ring[i].next = 0;
 	}
 
@@ -445,9 +445,9 @@ static int dc21x4x_init_common(struct dc2114x_priv *priv)
 	priv->tx_ring[priv->tx_ring_size - 1].des1 |= cpu_to_le32(TD_TER);
 
 	/* Tell the adapter where the TX/RX rings are located. */
-	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->rx_ring),
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (phys_addr_t)priv->rx_ring),
 		     DE4X5_RRBA);
-	dc2114x_outl(priv, phys_to_bus(priv->devno, (u32)&priv->tx_ring),
+	dc2114x_outl(priv, phys_to_bus(priv->devno, (phys_addr_t)priv->tx_ring),
 		     DE4X5_TRBA);
 
 	start_de4x5(priv);
@@ -493,7 +493,6 @@ static struct pci_device_id supported[] = {
 
 static int dc2114x_start(struct udevice *dev)
 {
-	struct eth_pdata *plat = dev_get_plat(dev);
 	struct dc2114x_priv *priv = dev_get_priv(dev);
 	int rval;
 
