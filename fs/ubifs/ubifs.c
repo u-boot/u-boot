@@ -319,9 +319,7 @@ static int filldir(struct ubifs_info *c, const char *name, int namlen,
 	}
 	ctime_r((time_t *)&inode->i_mtime, filetime);
 	printf("%9lld  %24.24s  ", inode->i_size, filetime);
-#ifndef __UBOOT__
 	ubifs_iput(inode);
-#endif
 
 	printf("%s\n", name);
 
@@ -557,6 +555,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 
 			/* We have some sort of symlink recursion, bail out */
 			if (symlink_count++ > 8) {
+				ubifs_iput(inode);
 				printf("Symlink recursion, aborting\n");
 				return 0;
 			}
@@ -568,6 +567,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 				 * the leading slash */
 				next = name = link_name + 1;
 				root_inum = 1;
+				ubifs_iput(inode);
 				continue;
 			}
 			/* Relative to cur dir */
@@ -575,6 +575,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 					link_name, next == NULL ? "" : next);
 			memcpy(symlinkpath, buf, sizeof(buf));
 			next = name = symlinkpath;
+			ubifs_iput(inode);
 			continue;
 		}
 
@@ -583,8 +584,10 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		 */
 
 		/* Found the node!  */
-		if (!next || *next == '\0')
+		if (!next || *next == '\0') {
+			ubifs_iput(inode);
 			return inum;
+		}
 
 		root_inum = inum;
 		name = next;

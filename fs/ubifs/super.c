@@ -2324,6 +2324,7 @@ static int ubifs_fill_super(struct super_block *sb, void *data, int silent)
 		goto out_umount;
 	}
 #else
+	ubifs_iput(root);
 	sb->s_root = NULL;
 #endif
 
