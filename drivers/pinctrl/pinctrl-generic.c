@@ -22,7 +22,7 @@ static int pinctrl_pin_name_to_selector(struct udevice *dev, const char *pin)
 
 	if (!ops->get_pins_count || !ops->get_pin_name) {
 		dev_dbg(dev, "get_pins_count or get_pin_name missing\n");
-		return -ENOSYS;
+		return -ENOENT;
 	}
 
 	npins = ops->get_pins_count(dev);
@@ -35,7 +35,7 @@ static int pinctrl_pin_name_to_selector(struct udevice *dev, const char *pin)
 			return selector;
 	}
 
-	return -ENOSYS;
+	return -ENOENT;
 }
 
 /**
@@ -53,7 +53,7 @@ static int pinctrl_group_name_to_selector(struct udevice *dev,
 
 	if (!ops->get_groups_count || !ops->get_group_name) {
 		dev_dbg(dev, "get_groups_count or get_group_name missing\n");
-		return -ENOSYS;
+		return -ENOENT;
 	}
 
 	ngroups = ops->get_groups_count(dev);
@@ -66,7 +66,7 @@ static int pinctrl_group_name_to_selector(struct udevice *dev,
 			return selector;
 	}
 
-	return -ENOSYS;
+	return -ENOENT;
 }
 
 #if CONFIG_IS_ENABLED(PINMUX)
@@ -86,7 +86,7 @@ static int pinmux_func_name_to_selector(struct udevice *dev,
 	if (!ops->get_functions_count || !ops->get_function_name) {
 		dev_dbg(dev,
 			"get_functions_count or get_function_name missing\n");
-		return -ENOSYS;
+		return -ENOENT;
 	}
 
 	nfuncs = ops->get_functions_count(dev);
@@ -99,7 +99,7 @@ static int pinmux_func_name_to_selector(struct udevice *dev,
 			return selector;
 	}
 
-	return -ENOSYS;
+	return -ENOENT;
 }
 
 /**
@@ -119,14 +119,14 @@ static int pinmux_enable_setting(struct udevice *dev, bool is_group,
 	if (is_group) {
 		if (!ops->pinmux_group_set) {
 			dev_dbg(dev, "pinmux_group_set op missing\n");
-			return -ENOSYS;
+			return -ENOENT;
 		}
 
 		return ops->pinmux_group_set(dev, selector, func_selector);
 	} else {
 		if (!ops->pinmux_set) {
 			dev_dbg(dev, "pinmux_set op missing\n");
-			return -ENOSYS;
+			return -ENOENT;
 		}
 		return ops->pinmux_set(dev, selector, func_selector);
 	}
@@ -162,7 +162,7 @@ static int pinconf_prop_name_to_param(struct udevice *dev,
 
 	if (!ops->pinconf_num_params || !ops->pinconf_params) {
 		dev_dbg(dev, "pinconf_num_params or pinconf_params missing\n");
-		return -ENOSYS;
+		return -ENOENT;
 	}
 
 	p = ops->pinconf_params;
@@ -176,7 +176,7 @@ static int pinconf_prop_name_to_param(struct udevice *dev,
 		}
 	}
 
-	return -ENOSYS;
+	return -ENOENT;
 }
 
 /**
@@ -198,7 +198,7 @@ static int pinconf_enable_setting(struct udevice *dev, bool is_group,
 	if (is_group) {
 		if (!ops->pinconf_group_set) {
 			dev_dbg(dev, "pinconf_group_set op missing\n");
-			return -ENOSYS;
+			return -ENOENT;
 		}
 
 		return ops->pinconf_group_set(dev, selector, param,
@@ -206,7 +206,7 @@ static int pinconf_enable_setting(struct udevice *dev, bool is_group,
 	} else {
 		if (!ops->pinconf_set) {
 			dev_dbg(dev, "pinconf_set op missing\n");
-			return -ENOSYS;
+			return -ENOENT;
 		}
 		return ops->pinconf_set(dev, selector, param, argument);
 	}
@@ -215,7 +215,7 @@ static int pinconf_enable_setting(struct udevice *dev, bool is_group,
 static int pinconf_prop_name_to_param(struct udevice *dev,
 				      const char *property, u32 *default_value)
 {
-	return -ENOSYS;
+	return -ENOENT;
 }
 
 static int pinconf_enable_setting(struct udevice *dev, bool is_group,
