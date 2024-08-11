@@ -947,13 +947,6 @@ unsigned int i2c_get_bus_speed(void);
 # define I2C_MULTI_BUS				0
 #endif
 
-/* NOTE: These two functions MUST be always_inline to avoid code growth! */
-static inline unsigned int I2C_GET_BUS(void) __attribute__((always_inline));
-static inline unsigned int I2C_GET_BUS(void)
-{
-	return I2C_MULTI_BUS ? i2c_get_bus_num() : 0;
-}
-
 /**
  * Find the I2C bus number by given a FDT I2C node.
  *
