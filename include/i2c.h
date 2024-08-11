@@ -942,7 +942,7 @@ unsigned int i2c_get_bus_speed(void);
  * only for backwardcompatibility, should go away if we switched
  * completely to new multibus support.
  */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY) || defined(CFG_I2C_MULTI_BUS)
+#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
 # if !defined(CFG_SYS_MAX_I2C_BUS)
 #  define CFG_SYS_MAX_I2C_BUS		2
 # endif

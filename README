@@ -883,13 +883,6 @@ The following options need to be configured:
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
 
-		CFG_I2C_MULTI_BUS
-
-		This option allows the use of multiple I2C buses, each of which
-		must have a controller.	 At any point in time, only one bus is
-		active.	 To switch to a different bus, use the 'i2c dev' command.
-		Note that bus numbering is zero-based.
-
 		CFG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
