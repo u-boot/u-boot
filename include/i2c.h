@@ -933,24 +933,6 @@ int i2c_set_bus_speed(unsigned int);
 unsigned int i2c_get_bus_speed(void);
 #endif /* CONFIG_SYS_I2C_LEGACY */
 
-/**
- * Find the I2C bus number by given a FDT I2C node.
- *
- * @param blob  Device tree blbo
- * @param node  FDT I2C node to find
- * Return: the number of I2C bus (zero based), or -1 on error
- */
-int i2c_get_bus_num_fdt(int node);
-
-/**
- * Reset the I2C bus represented by the given a FDT I2C node.
- *
- * @param blob  Device tree blbo
- * @param node  FDT I2C node to find
- * Return: 0 if port was reset, -1 if not found
- */
-int i2c_reset_port_fdt(const void *blob, int node);
-
 #endif /* !CONFIG_DM_I2C */
 
 #endif	/* _I2C_H_ */
