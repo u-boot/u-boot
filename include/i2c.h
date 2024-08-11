@@ -933,20 +933,6 @@ int i2c_set_bus_speed(unsigned int);
 unsigned int i2c_get_bus_speed(void);
 #endif /* CONFIG_SYS_I2C_LEGACY */
 
-/*
- * only for backwardcompatibility, should go away if we switched
- * completely to new multibus support.
- */
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-# if !defined(CFG_SYS_MAX_I2C_BUS)
-#  define CFG_SYS_MAX_I2C_BUS		2
-# endif
-# define I2C_MULTI_BUS				1
-#else
-# define CFG_SYS_MAX_I2C_BUS		1
-# define I2C_MULTI_BUS				0
-#endif
-
 /**
  * Find the I2C bus number by given a FDT I2C node.
  *

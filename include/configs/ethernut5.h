@@ -59,9 +59,6 @@
 #define CFG_SYS_I2C_RTC_ADDR		0x51
 #endif
 
-/* I2C */
-#define CFG_SYS_MAX_I2C_BUS	1
-
 #define I2C_SOFT_DECLARATIONS
 
 #define GPIO_I2C_SCL		AT91_PIO_PORTA, 24
