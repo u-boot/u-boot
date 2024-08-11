@@ -133,6 +133,7 @@ config FRAMEPOINTER
 
 config SPL_FRAMEPOINTER
 	bool "Build SPL with frame pointer for stack unwinding"
+	depends on SPL
 	help
 	  Choose this option to use the frame pointer so the stack can be
 	  unwound if needed. This is useful for tracing where faults came
