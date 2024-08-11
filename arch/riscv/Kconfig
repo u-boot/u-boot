@@ -439,6 +439,18 @@ config AVAILABLE_HARTS
 
 config SHOW_REGS
 	bool "Show registers on unhandled exception"
+	help
+	  By default only the program counter and the return address register
+	  are shown in crash dumps. Enable this symbol to show all registers in
+	  main U-Boot.
+
+config SPL_SHOW_REGS
+	bool "In SPL show registers on unhandled exception"
+	depends on SPL
+	help
+	  By default only the program counter and the return address register
+	  are shown in crash dumps. Enable this symbol to show all registers in
+	  SPL.
 
 config RISCV_PRIV_1_9
 	bool "Use version 1.9 of the RISC-V priviledged specification"
