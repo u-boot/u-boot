@@ -973,14 +973,6 @@ enum {
 };
 
 /**
- * Get FDT values for i2c bus.
- *
- * @param blob  Device tree blbo
- * Return: the number of I2C bus
- */
-void board_i2c_init(const void *blob);
-
-/**
  * Find the I2C bus number by given a FDT I2C node.
  *
  * @param blob  Device tree blbo
