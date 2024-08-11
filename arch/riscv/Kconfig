@@ -438,6 +438,7 @@ config AVAILABLE_HARTS
 	  If disable this, it will send IPI by CPUs node numbers of device tree.
 
 config SHOW_REGS
+	default y
 	bool "Show registers on unhandled exception"
 	help
 	  By default only the program counter and the return address register
