@@ -893,11 +893,6 @@ The following options need to be configured:
 
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
 
-		CFG_SYS_RTC_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for the RTC.
-		If not defined, then U-Boot assumes that RTC is on I2C bus 0.
-
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 
 		defining this will force the i2c_read() function in

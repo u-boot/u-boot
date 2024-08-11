@@ -655,11 +655,6 @@ void i2c_early_init_f(void);
 #undef CFG_SYS_I2C_DIRECT_BUS
 #endif
 
-/* define the I2C bus number for RTC and DTT if not already done */
-#if !defined(CFG_SYS_RTC_BUS_NUM)
-#define CFG_SYS_RTC_BUS_NUM		0
-#endif
-
 struct i2c_adapter {
 	void		(*init)(struct i2c_adapter *adap, int speed,
 				int slaveaddr);
