@@ -79,7 +79,8 @@ The *env default* command resets the selected variables in the U-Boot
 environment to their default values.
 
     var
-        list of variable name.
+        list of variable names. If variable is not part of default
+        environment, it is deleted with a warning message on console.
     \-a
         all U-Boot environment.
     \-f
@@ -309,6 +310,7 @@ Delete environment variable in memory::
 Reset environment variable to default value, in memory::
 
     => env default bootcmd
+    => env default ipaddr serverip
     => env default -a
 
 Save current environment in persistent storage::
