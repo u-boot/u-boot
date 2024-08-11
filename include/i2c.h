@@ -646,7 +646,6 @@ void i2c_early_init_f(void);
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
 /* no muxes used bus = i2c adapters */
-#define CFG_SYS_I2C_DIRECT_BUS	1
 #define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
 
 struct i2c_adapter {
@@ -692,46 +691,12 @@ struct i2c_adapter {
 
 struct i2c_adapter *i2c_get_adapter(int index);
 
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-struct i2c_mux {
-	int	id;
-	char	name[16];
-};
-
-struct i2c_next_hop {
-	struct i2c_mux		mux;
-	uint8_t		chip;
-	uint8_t		channel;
-};
-
-struct i2c_bus_hose {
-	int	adapter;
-};
-#define I2C_NULL_HOP	{{-1, ""}, 0, 0}
-extern struct i2c_bus_hose	i2c_bus[];
-
-#define I2C_ADAPTER(bus)	i2c_bus[bus].adapter
-#else
 #define I2C_ADAPTER(bus)	bus
-#endif
 #define	I2C_BUS			gd->cur_i2c_bus
 
 #define	I2C_ADAP_NR(bus)	i2c_get_adapter(I2C_ADAPTER(bus))
 #define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
 #define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
-
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-#define I2C_MUX_PCA9540_ID	1
-#define I2C_MUX_PCA9540		{I2C_MUX_PCA9540_ID, "PCA9540B"}
-#define I2C_MUX_PCA9542_ID	2
-#define I2C_MUX_PCA9542		{I2C_MUX_PCA9542_ID, "PCA9542A"}
-#define I2C_MUX_PCA9544_ID	3
-#define I2C_MUX_PCA9544		{I2C_MUX_PCA9544_ID, "PCA9544A"}
-#define I2C_MUX_PCA9547_ID	4
-#define I2C_MUX_PCA9547		{I2C_MUX_PCA9547_ID, "PCA9547A"}
-#define I2C_MUX_PCA9548_ID	5
-#define I2C_MUX_PCA9548		{I2C_MUX_PCA9548_ID, "PCA9548"}
-#endif
 
 #ifndef I2C_SOFT_DECLARATIONS
 # if (defined(CONFIG_AT91RM9200) || \
