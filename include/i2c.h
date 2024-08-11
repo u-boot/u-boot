@@ -954,13 +954,6 @@ static inline unsigned int I2C_GET_BUS(void)
 	return I2C_MULTI_BUS ? i2c_get_bus_num() : 0;
 }
 
-static inline void I2C_SET_BUS(unsigned int bus) __attribute__((always_inline));
-static inline void I2C_SET_BUS(unsigned int bus)
-{
-	if (I2C_MULTI_BUS)
-		i2c_set_bus_num(bus);
-}
-
 /**
  * Find the I2C bus number by given a FDT I2C node.
  *
