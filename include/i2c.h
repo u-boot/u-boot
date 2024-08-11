@@ -966,12 +966,6 @@ static inline void I2C_SET_BUS(unsigned int bus)
 		i2c_set_bus_num(bus);
 }
 
-/* Multi I2C definitions */
-enum {
-	I2C_0, I2C_1, I2C_2, I2C_3, I2C_4, I2C_5, I2C_6, I2C_7,
-	I2C_8, I2C_9, I2C_10,
-};
-
 /**
  * Find the I2C bus number by given a FDT I2C node.
  *
