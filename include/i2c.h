@@ -645,15 +645,9 @@ void i2c_early_init_f(void);
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
-#if !defined(CFG_SYS_I2C_MAX_HOPS)
 /* no muxes used bus = i2c adapters */
 #define CFG_SYS_I2C_DIRECT_BUS	1
-#define CFG_SYS_I2C_MAX_HOPS		0
 #define CFG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
-#else
-/* we use i2c muxes */
-#undef CFG_SYS_I2C_DIRECT_BUS
-#endif
 
 struct i2c_adapter {
 	void		(*init)(struct i2c_adapter *adap, int speed,
@@ -712,7 +706,6 @@ struct i2c_next_hop {
 
 struct i2c_bus_hose {
 	int	adapter;
-	struct i2c_next_hop	next_hop[CFG_SYS_I2C_MAX_HOPS];
 };
 #define I2C_NULL_HOP	{{-1, ""}, 0, 0}
 extern struct i2c_bus_hose	i2c_bus[];

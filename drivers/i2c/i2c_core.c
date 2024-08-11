@@ -111,23 +111,6 @@ static int i2c_mux_set_all(void)
 	struct i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
 	int i;
 
-	/* Connect requested bus if behind muxes */
-	if (i2c_bus_tmp->next_hop[0].chip != 0) {
-		/* Set all muxes along the path to that bus */
-		for (i = 0; i < CFG_SYS_I2C_MAX_HOPS; i++) {
-			int	ret;
-
-			if (i2c_bus_tmp->next_hop[i].chip == 0)
-				break;
-
-			ret = i2c_mux_set(I2C_ADAP,
-					i2c_bus_tmp->next_hop[i].mux.id,
-					i2c_bus_tmp->next_hop[i].chip,
-					i2c_bus_tmp->next_hop[i].channel);
-			if (ret != 0)
-				return ret;
-		}
-	}
 	return 0;
 }
 
@@ -139,26 +122,6 @@ static int i2c_mux_disconnect_all(void)
 
 	if (I2C_ADAP->init_done == 0)
 		return 0;
-
-	/* Disconnect current bus (turn off muxes if any) */
-	if ((i2c_bus_tmp->next_hop[0].chip != 0) &&
-	    (I2C_ADAP->init_done != 0)) {
-		i = CFG_SYS_I2C_MAX_HOPS;
-		do {
-			uint8_t	chip;
-			int ret;
-
-			chip = i2c_bus_tmp->next_hop[--i].chip;
-			if (chip == 0)
-				continue;
-
-			ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
-			if (ret != 0) {
-				printf("i2c: mux disconnect error\n");
-				return ret;
-			}
-		} while (i > 0);
-	}
 
 	return 0;
 }
