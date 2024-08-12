@@ -380,12 +380,12 @@ err:
 }
 
 /**
- * efi_bootmgr_release_uridp_resource() - cleanup uri device path resource
+ * efi_bootmgr_release_uridp() - cleanup uri device path resource
  *
  * @ctx:	event context
  * Return:	status code
  */
-efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
+efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
 {
 	efi_status_t ret = EFI_SUCCESS;
 
@@ -432,7 +432,7 @@ static void EFIAPI efi_bootmgr_image_return_notify(struct efi_event *event,
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p", event, context);
-	ret = efi_bootmgr_release_uridp_resource(context);
+	ret = efi_bootmgr_release_uridp(context);
 	EFI_EXIT(ret);
 }
 
@@ -544,7 +544,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	return ret;
 
 err:
-	efi_bootmgr_release_uridp_resource(ctx);
+	efi_bootmgr_release_uridp(ctx);
 
 	return ret;
 }
