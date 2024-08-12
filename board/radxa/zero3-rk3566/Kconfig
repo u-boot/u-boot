@@ -1,0 +1,12 @@
+if TARGET_RADXA_ZERO_3_RK3566
+
+config SYS_BOARD
+	default "zero3-rk3566"
+
+config SYS_VENDOR
+	default "radxa"
+
+config SYS_CONFIG_NAME
+	default "evb_rk3568"
+
+endif

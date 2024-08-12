@@ -1,0 +1,6 @@
+CM3588-NAS-RK3588
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/friendlyelec/cm3588-nas-rk3588
+F:	configs/cm3588-nas-rk3588_defconfig
+F:	arch/arm/dts/rk3588-friendlyelec-cm3588-nas*

@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
+#include "rk356x-u-boot.dtsi"
+
+&saradc {
+	bootph-pre-ram;
+};
+
+&usb_host0_xhci {
+	dr_mode = "otg";
+};
+
+&vcca_1v8 {
+	bootph-pre-ram;
+};

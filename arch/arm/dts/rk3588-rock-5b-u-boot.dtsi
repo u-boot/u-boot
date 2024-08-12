@@ -39,18 +39,6 @@
 	status = "okay";
 };
 
-&u2phy1 {
-	status = "okay";
-};
-
-&u2phy1_otg {
-	status = "okay";
-};
-
-&usbdp_phy1 {
-	status = "okay";
-};
-
 &usbdp_phy0 {
 	status = "okay";
 };
@@ -58,10 +46,5 @@
 &usb_host0_xhci {
 	dr_mode = "peripheral";
 	maximum-speed = "high-speed";
-	status = "okay";
-};
-
-&usb_host1_xhci {
-	dr_mode = "host";
 	status = "okay";
 };

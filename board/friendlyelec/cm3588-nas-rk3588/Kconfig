@@ -1,0 +1,12 @@
+if TARGET_CM3588_NAS_RK3588
+
+config SYS_BOARD
+	default "cm3588-nas-rk3588"
+
+config SYS_VENDOR
+	default "friendlyelec"
+
+config SYS_CONFIG_NAME
+	default "nanopc-t6-rk3588"
+
+endif

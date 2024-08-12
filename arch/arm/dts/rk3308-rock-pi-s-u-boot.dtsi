@@ -4,17 +4,6 @@
  */
 #include "rk3308-u-boot.dtsi"
 
-&emmc {
-	cap-sd-highspeed;
-	pinctrl-names = "default";
-	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus4>;
-};
-
-&emmc_bus4 {
-	bootph-pre-ram;
-	bootph-some-ram;
-};
-
 &u2phy_otg {
 	/delete-property/ phy-supply;
 };
@@ -22,14 +11,6 @@
 &uart0 {
 	bootph-all;
 	clock-frequency = <24000000>;
-};
-
-&uart0_cts {
-	bootph-all;
-};
-
-&uart0_rts {
-	bootph-all;
 };
 
 &uart0_xfer {
