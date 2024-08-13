@@ -258,14 +258,14 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 			return -EIO;
 		}
 
-		if (!power_domain_lookup_name("audio_sai0", &pd)) {
+		if (!imx8_power_domain_lookup_name("audio_sai0", &pd)) {
 			if (power_domain_on(&pd)) {
 				printf("Error power on SAI0\n");
 				return -EIO;
 			}
 		}
 
-		if (!power_domain_lookup_name("audio_ocram", &pd)) {
+		if (!imx8_power_domain_lookup_name("audio_ocram", &pd)) {
 			if (power_domain_on(&pd)) {
 				printf("Error power on HIFI RAM\n");
 				return -EIO;

@@ -162,6 +162,7 @@ enum imx8image_cmd {
 enum imx8image_core_type {
 	CFG_CORE_INVALID,
 	CFG_SCU,
+	CFG_PWR,
 	CFG_M40,
 	CFG_M41,
 	CFG_A35,
