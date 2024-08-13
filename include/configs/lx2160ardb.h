@@ -8,9 +8,6 @@
 
 #include "lx2160a_common.h"
 
-/* RTC */
-#define CFG_SYS_RTC_BUS_NUM		4
-
 #if defined(CONFIG_FSL_MC_ENET)
 #define AQR113C_PHY_ADDR1		0x0
 #define AQR113C_PHY_ADDR2		0x08

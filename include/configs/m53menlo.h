@@ -57,8 +57,6 @@
 #define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
-#define CFG_SYS_RTC_BUS_NUM		1 /* I2C2 */
-
 /*
  * RTC
  */
