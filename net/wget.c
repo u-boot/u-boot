@@ -244,7 +244,7 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 		pkt_in_q = (void *)image_load_addr + PKT_QUEUE_OFFSET +
 			(pkt_q_idx * PKT_QUEUE_PACKET_SIZE);
 
-		ptr1 = map_sysmem((phys_addr_t)pkt_in_q, len);
+		ptr1 = map_sysmem((ulong)pkt_in_q, len);
 		memcpy(ptr1, pkt, len);
 		unmap_sysmem(ptr1);
 
@@ -314,9 +314,8 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 			for (i = 0; i < pkt_q_idx; i++) {
 				int err;
 
-				ptr1 = map_sysmem(
-					(phys_addr_t)(pkt_q[i].pkt),
-					pkt_q[i].len);
+				ptr1 = map_sysmem((ulong)pkt_q[i].pkt,
+						  pkt_q[i].len);
 				err = store_block(ptr1,
 					  pkt_q[i].tcp_seq_num -
 					  initial_data_seq_num,
