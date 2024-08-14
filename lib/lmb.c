@@ -455,11 +455,11 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
 	efi_addr &= ~EFI_PAGE_MASK;
 
-	status = efi_add_memory_map_pg(efi_addr, pages,
+	status = efi_update_memory_map(efi_addr, pages,
 				       op == MAP_OP_RESERVE ?
 				       EFI_BOOT_SERVICES_DATA :
 				       EFI_CONVENTIONAL_MEMORY,
-				       false);
+				       false, false);
 	if (status != EFI_SUCCESS) {
 		log_err("%s: LMB Map notify failure %lu\n", __func__,
 			status & ~EFI_ERROR_MASK);
