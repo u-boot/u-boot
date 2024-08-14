@@ -26,6 +26,8 @@
 #define SHIFT_TO_TCPHDRLEN_FIELD(x) ((x) << 4)
 #define LEN_B_TO_DW(x) ((x) >> 2)
 
+int net_set_ack_options(union tcp_build_pkt *b);
+
 static int sb_arp_handler(struct udevice *dev, void *packet,
 			  unsigned int len)
 {
@@ -105,6 +107,10 @@ static int sb_ack_handler(struct udevice *dev, void *packet,
 	const char *payload1 = "HTTP/1.1 200 OK\r\n"
 		"Content-Length: 30\r\n\r\n\r\n"
 		"<html><body>Hi</body></html>\r\n";
+	union tcp_build_pkt *b = (union tcp_build_pkt *)tcp;
+	const int recv_payload_len = len - net_set_ack_options(b) - IP_HDR_SIZE - ETHER_HDR_SIZE;
+	static int next_seq;
+	const int bottom_payload_len = 10;
 
 	/* Don't allow the buffer to overrun */
 	if (priv->recv_packets >= PKTBUFSRX)
@@ -119,13 +125,31 @@ static int sb_ack_handler(struct udevice *dev, void *packet,
 	tcp_send->tcp_dst = tcp->tcp_src;
 	data = (void *)tcp_send + IP_TCP_HDR_SIZE;
 
-	if (ntohl(tcp->tcp_seq) == 1 && ntohl(tcp->tcp_ack) == 1) {
+	if (ntohl(tcp->tcp_seq) == 1 && ntohl(tcp->tcp_ack) == 1 && recv_payload_len == 0) {
+		// ignore ACK for three-way handshaking
+		return 0;
+	} else if (ntohl(tcp->tcp_seq) == 1 && ntohl(tcp->tcp_ack) == 1) {
+		// recv HTTP request message and reply top half data
 		tcp_send->tcp_seq = htonl(ntohl(tcp->tcp_ack));
-		tcp_send->tcp_ack = htonl(ntohl(tcp->tcp_seq) + 1);
-		payload_len = strlen(payload1);
+		tcp_send->tcp_ack = htonl(ntohl(tcp->tcp_seq) + recv_payload_len);
+
+		payload_len = strlen(payload1) - bottom_payload_len;
 		memcpy(data, payload1, payload_len);
 		tcp_send->tcp_flags = TCP_ACK;
-	} else if (ntohl(tcp->tcp_seq) == 2) {
+
+		next_seq = ntohl(tcp_send->tcp_seq) + payload_len;
+	} else if (ntohl(tcp->tcp_ack) == next_seq) {
+		// reply bottom half data
+		const int top_payload_len = strlen(payload1) - bottom_payload_len;
+
+		tcp_send->tcp_seq = htonl(next_seq);
+		tcp_send->tcp_ack = htonl(ntohl(tcp->tcp_seq) + recv_payload_len);
+
+		payload_len = bottom_payload_len;
+		memcpy(data, payload1 + top_payload_len, payload_len);
+		tcp_send->tcp_flags = TCP_ACK;
+	} else {
+		// close connection
 		tcp_send->tcp_seq = htonl(ntohl(tcp->tcp_ack));
 		tcp_send->tcp_ack = htonl(ntohl(tcp->tcp_seq) + 1);
 		payload_len = 0;
@@ -148,11 +172,9 @@ static int sb_ack_handler(struct udevice *dev, void *packet,
 			  pkt_len,
 			  IPPROTO_TCP);
 
-	if (ntohl(tcp->tcp_seq) == 1 || ntohl(tcp->tcp_seq) == 2) {
-		priv->recv_packet_length[priv->recv_packets] =
-			ETHER_HDR_SIZE + IP_TCP_HDR_SIZE + payload_len;
-		++priv->recv_packets;
-	}
+	priv->recv_packet_length[priv->recv_packets] =
+		ETHER_HDR_SIZE + IP_TCP_HDR_SIZE + payload_len;
+	++priv->recv_packets;
 
 	return 0;
 }
