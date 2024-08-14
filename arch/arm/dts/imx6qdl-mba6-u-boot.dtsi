@@ -10,6 +10,22 @@
 	};
 };
 
+&aips2 {
+	bootph-all;
+};
+
+&pinctrl_uart2 {
+	bootph-all;
+};
+
+&soc {
+	bootph-all;
+};
+
+&uart2 {
+	bootph-all;
+};
+
 &wdog1 {
 	bootph-pre-ram;
 };
