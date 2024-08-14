@@ -66,6 +66,8 @@ obj-y	+= wrap_handoff_soc64.o
 obj-y	+= wrap_pll_config_soc64.o
 obj-y	+= altera-sysmgr.o
 obj-y	+= ccu_ncore3.o
+obj-y	+= system_manager_soc64.o
+obj-y	+= timer_s10.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_N5X
@@ -109,6 +111,7 @@ obj-y	+= spl_n5x.o
 endif
 ifdef CONFIG_TARGET_SOCFPGA_AGILEX5
 obj-y	+= spl_soc64.o
+obj-y	+= spl_agilex5.o
 endif
 else
 obj-$(CONFIG_SPL_ATF) += secure_reg_helper.o
