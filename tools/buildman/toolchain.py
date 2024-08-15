@@ -172,13 +172,14 @@ class Toolchain:
         else:
             raise ValueError('Unknown arg to GetEnvArgs (%d)' % which)
 
-    def MakeEnvironment(self, full_path):
+    def MakeEnvironment(self, full_path, env=None):
         """Returns an environment for using the toolchain.
 
         This takes the current environment and adds CROSS_COMPILE so that
         the tool chain will operate correctly. This also disables localized
         output and possibly Unicode encoded output of all build tools by
-        adding LC_ALL=C.
+        adding LC_ALL=C. For the case where full_path is False, it prepends
+        the toolchain to PATH
 
         Note that os.environb is used to obtain the environment, since in some
         cases the environment many contain non-ASCII characters and we see
@@ -187,15 +188,21 @@ class Toolchain:
           UnicodeEncodeError: 'utf-8' codec can't encode characters in position
              569-570: surrogates not allowed
 
+        When running inside a Python venv, care is taken not to put the
+        toolchain path before the venv path, so that builds initiated by
+        buildman will still respect the venv.
+
         Args:
             full_path: Return the full path in CROSS_COMPILE and don't set
                 PATH
+            env (dict of bytes): Original environment, used for testing
         Returns:
             Dict containing the (bytes) environment to use. This is based on the
             current environment, with changes as needed to CROSS_COMPILE, PATH
             and LC_ALL.
         """
-        env = dict(os.environb)
+        env = dict(env or os.environb)
+
         wrapper = self.GetWrapper()
 
         if self.override_toolchain:
@@ -206,7 +213,23 @@ class Toolchain:
                 wrapper + os.path.join(self.path, self.cross))
         else:
             env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
-            env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
+
+            # Detect a Python virtualenv and avoid defeating it
+            if sys.prefix != sys.base_prefix:
+                paths = env[b'PATH'].split(b':')
+                new_paths = []
+                to_insert = tools.to_bytes(self.path)
+                insert_after = tools.to_bytes(sys.prefix)
+                for path in paths:
+                    new_paths.append(path)
+                    if to_insert and path.startswith(insert_after):
+                        new_paths.append(to_insert)
+                        to_insert = None
+                if to_insert:
+                    new_paths.append(to_insert)
+                env[b'PATH'] = b':'.join(new_paths)
+            else:
+                env[b'PATH'] = tools.to_bytes(self.path) + b':' + env[b'PATH']
 
         env[b'LC_ALL'] = b'C'
 
