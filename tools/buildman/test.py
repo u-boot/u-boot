@@ -999,6 +999,37 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(
             {b'CROSS_COMPILE': b'fred aarch64-linux-', b'LC_ALL': b'C'}, diff)
 
+    def test_skip_dtc(self):
+        """Test skipping building the dtc tool"""
+        old_path = os.getenv('PATH')
+        try:
+            os.environ['PATH'] = self.base_dir
+
+            # Check a missing tool
+            with self.assertRaises(ValueError) as exc:
+                builder.Builder(self.toolchains, self.base_dir, None, 0, 2,
+                                dtc_skip=True)
+            self.assertIn('Cannot find dtc', str(exc.exception))
+
+            # Create a fake tool to use
+            dtc = os.path.join(self.base_dir, 'dtc')
+            tools.write_file(dtc, b'xx')
+            os.chmod(dtc, 0o777)
+
+            build = builder.Builder(self.toolchains, self.base_dir, None, 0, 2,
+                                    dtc_skip=True)
+            toolchain = self.toolchains.Select('arm')
+            env = build.make_environment(toolchain)
+            self.assertIn(b'DTC', env)
+
+            # Try the normal case, i.e. not skipping the dtc build
+            build = builder.Builder(self.toolchains, self.base_dir, None, 0, 2)
+            toolchain = self.toolchains.Select('arm')
+            env = build.make_environment(toolchain)
+            self.assertNotIn(b'DTC', env)
+        finally:
+            os.environ['PATH'] = old_path
+
 
 if __name__ == "__main__":
     unittest.main()

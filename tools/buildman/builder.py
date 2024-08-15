@@ -22,6 +22,7 @@ from buildman import toolchain
 from patman import gitutil
 from u_boot_pylib import command
 from u_boot_pylib import terminal
+from u_boot_pylib import tools
 from u_boot_pylib.terminal import tprint
 
 # This indicates an new int or hex Kconfig property with no default
@@ -263,7 +264,8 @@ class Builder:
                  adjust_cfg=None, allow_missing=False, no_lto=False,
                  reproducible_builds=False, force_build=False,
                  force_build_failures=False, force_reconfig=False,
-                 in_tree=False, force_config_on_failure=False, make_func=None):
+                 in_tree=False, force_config_on_failure=False, make_func=None,
+                 dtc_skip=False):
         """Create a new Builder object
 
         Args:
@@ -312,6 +314,7 @@ class Builder:
             force_config_on_failure (bool): Reconfigure the build before
                 retrying a failed build
             make_func (function): Function to call to run 'make'
+            dtc_skip (bool): True to skip building dtc and use the system one
         """
         self.toolchains = toolchains
         self.base_dir = base_dir
@@ -354,6 +357,12 @@ class Builder:
         self.in_tree = in_tree
         self.force_config_on_failure = force_config_on_failure
         self.fallback_mrproper = fallback_mrproper
+        if dtc_skip:
+            self.dtc = shutil.which('dtc')
+            if not self.dtc:
+                raise ValueError('Cannot find dtc')
+        else:
+            self.dtc = None
 
         if not self.squash_config_y:
             self.config_filenames += EXTRA_CONFIG_FILENAMES
@@ -406,6 +415,22 @@ class Builder:
 
     def signal_handler(self, signal, frame):
         sys.exit(1)
+
+    def make_environment(self, toolchain):
+        """Create the environment to use for building
+
+        Args:
+            toolchain (Toolchain): Toolchain to use for building
+
+        Returns:
+            dict:
+                key (str): Variable name
+                value (str): Variable value
+        """
+        env = toolchain.MakeEnvironment(self.full_path)
+        if self.dtc:
+            env[b'DTC'] = tools.to_bytes(self.dtc)
+        return env
 
     def set_display_options(self, show_errors=False, show_sizes=False,
                           show_detail=False, show_bloat=False,
