@@ -1,8 +1,10 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright (C) 2019 Jagan Teki <jagan@amarulasolutions.com>
  * Copyright (c) 2023 Radxa Limited
  */
-#include "rk3399-rock-pi-4-u-boot.dtsi"
+#include "rk3399-u-boot.dtsi"
+#include "rk3399-sdram-lpddr4-100.dtsi"
 
 &pcfg_pull_none_18ma {
 	bootph-pre-ram;
@@ -12,6 +14,12 @@
 &pcfg_pull_up_8ma {
 	bootph-pre-ram;
 	bootph-some-ram;
+};
+
+&sdhci {
+	cap-mmc-highspeed;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
 };
 
 &spi1 {
@@ -24,4 +32,8 @@
 		bootph-some-ram;
 		spi-max-frequency = <10000000>;
 	};
+};
+
+&vdd_log {
+	regulator-init-microvolt = <950000>;
 };
