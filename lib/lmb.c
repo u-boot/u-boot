@@ -222,7 +222,6 @@ static void lmb_reserve_uboot_region(void)
 
 static void lmb_reserve_common(void *fdt_blob)
 {
-	board_lmb_reserve();
 	lmb_reserve_uboot_region();
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
@@ -688,11 +687,6 @@ int lmb_is_reserved_flags(phys_addr_t addr, int flags)
 			return (lmb_used[i].flags & flags) == flags;
 	}
 	return 0;
-}
-
-__weak void board_lmb_reserve(void)
-{
-	/* please define platform specific board_lmb_reserve() */
 }
 
 static int lmb_setup(void)
