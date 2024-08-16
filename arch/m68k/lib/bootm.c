@@ -9,7 +9,6 @@
 #include <command.h>
 #include <env.h>
 #include <image.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <u-boot/zlib.h>
@@ -27,13 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LINUX_MAX_ENVS		256
 #define LINUX_MAX_ARGS		256
 
-static ulong get_sp (void);
 static void set_clocks_in_mhz (struct bd_info *kbd);
-
-void arch_lmb_reserve(void)
-{
-	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 1024);
-}
 
 int do_bootm_linux(int flag, struct bootm_info *bmi)
 {
@@ -86,16 +79,6 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	/* does not return */
 error:
 	return 1;
-}
-
-static ulong get_sp (void)
-{
-	ulong sp;
-
-	asm("movel %%a7, %%d0\n"
-	    "movel %%d0, %0\n": "=d"(sp): :"%d0");
-
-	return sp;
 }
 
 static void set_clocks_in_mhz (struct bd_info *kbd)

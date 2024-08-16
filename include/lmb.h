@@ -108,8 +108,6 @@ void lmb_dump_all(void);
 void lmb_dump_all_force(void);
 
 void board_lmb_reserve(void);
-void arch_lmb_reserve(void);
-void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align);
 
 struct lmb *lmb_get(void);
 int lmb_push(struct lmb *store);
