@@ -44,7 +44,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir, size_gran = 0x100000):
             mkfs_opt = mkfs_opt + ' -d ' + src_dir
         elif fs_lnxtype != 'vfat':
             # Implement src_dir for this fs!
-            raise
+            assert 0
 
     count = (size + size_gran - 1) // size_gran
 
@@ -75,4 +75,4 @@ if __name__ == "__main__":
 
     CNF= collections.namedtuple('config', 'persistent_data_dir')
 
-    mk_fs(CNF('.'), 'ext4', 0x1000000, 'pref')
+    mk_fs(CNF('.'), 'ext4', 0x1000000, 'pref', None)
