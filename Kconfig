@@ -1,6 +1,6 @@
 #
 # For a description of the syntax of this configuration file,
-# see the file Documentation/kbuild/kconfig-language.txt in the
+# see the file Documentation/kbuild/kconfig-language.rst in the
 # Linux kernel source tree.
 #
 mainmenu "U-Boot $(UBOOTVERSION) Configuration"
