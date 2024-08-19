@@ -1,0 +1,233 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2024 Nuvoton Technology
+
+/dts-v1/;
+
+#include <dt-bindings/phy/nuvoton,npcm-usbphy.h>
+#include "nuvoton-npcm845.dtsi"
+#include "nuvoton-npcm845-yosemite4-pincfg.dtsi"
+
+/ {
+	model = "Nuvoton npcm845 yosemite4";
+	compatible = "nuvoton,npcm845";
+
+	aliases {
+		serial0 = &serial0;
+		ethernet0 = &gmac0;
+		ethernet1 = &gmac1;
+		ethernet2 = &gmac2;
+		ethernet3 = &gmac3;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		i2c7 = &i2c7;
+		i2c8 = &i2c8;
+		i2c9 = &i2c9;
+		i2c10 = &i2c10;
+		i2c11 = &i2c11;
+		i2c12 = &i2c12;
+		i2c13 = &i2c13;
+		i2c14 = &i2c14;
+		i2c15 = &i2c15;
+		i2c16 = &i2c16;
+		i2c17 = &i2c17;
+		i2c18 = &i2c18;
+		i2c19 = &i2c19;
+		i2c20 = &i2c20;
+		i2c21 = &i2c21;
+		i2c22 = &i2c22;
+		i2c23 = &i2c23;
+		i2c24 = &i2c24;
+		i2c25 = &i2c25;
+		i2c26 = &i2c26;
+		spi0 = &fiu0;
+		spi1 = &fiu1;
+		spi3 = &fiu3;
+		spi4 = &fiux;
+		spi5 = &pspi;
+		usb0 = &udc0;
+		usb1 = &ehci1;
+		usb2 = &udc8;
+	};
+
+	chosen {
+		stdout-path = &serial0;
+	};
+
+	memory {
+		reg = <0x0 0x0 0x0 0x40000000>;
+	};
+
+	tpm@0 {
+		compatible = "microsoft,ftpm";
+	};
+
+	firmware {
+		optee {
+			compatible = "linaro,optee-tz";
+			method = "smc";
+		};
+	};
+
+	vsbr2: vsbr2 {
+		compatible = "regulator-npcm845";
+		regulator-name = "vr2";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	vsbv8: vsbv8 {
+		compatible = "regulator-npcm845";
+		regulator-name = "v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	vsbv5: vsbv5 {
+		compatible = "regulator-npcm845";
+		regulator-name = "v5";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+};
+
+&serial0 {
+	status = "okay";
+};
+
+&watchdog1 {
+	status = "okay";
+};
+
+&fiu0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0cs1_pins>;
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+	spi_flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiu1 {
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>, <&spi3quad_pins>;
+	status = "okay";
+	vqspi-supply = <&vsbv5>;
+	vqspi-microvolt = <3300000>;
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+	};
+};
+
+&fiux {
+	nuvoton,spix-mode;
+	status = "okay";
+};
+
+&pspi {
+	status = "okay";
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&usbphy3 {
+	status = "okay";
+};
+
+&udc0 {
+	status = "okay";
+	phys = <&usbphy1 NPCM_UDC0_7>;
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 NPCM_USBH1>;
+};
+
+&udc8 {
+	status = "okay";
+	phys = <&usbphy3 NPCM_UDC8>;
+};
+
+&rng {
+	status = "okay";
+};
+
+&aes {
+	status = "okay";
+};
+
+&sha {
+	status = "okay";
+};
+
+&otp {
+	status = "okay";
+};
+
+&pinctrl {
+        pinctrl-names = "default";
+        pinctrl-0 = <
+		&spix_pins
+		&r1_pins
+		&r1en_pins
+		&r1oen_pins
+		&r2_pins
+		&r2en_pins
+		&r2oen_pins
+		&gpio234_pins
+		&gpio61_pins
+		&gpio46_pins
+		&gpio54_pins
+		&gpio55_pins
+		&gpio121_pins
+		&gpio108_pins
+		&gpio109_pins
+		&gpio183_pins
+		&gpio184_pins
+		&gpio189_pins
+		&gpio92_pins
+		&gpio35_pins
+		&gpio36_pins
+		&gpio62_pins
+		&gpio45_pins
+		&gpio83_pins
+		&gpio144_pins
+		&gpio145_pins
+		&gpio146_pins
+		&gpio159_pins
+		&gpio127_pins
+		&gpio15_pins
+	>;
+};
