@@ -147,7 +147,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
         ['sh', '-c', f'xz -dc {infname} >{bmp_file}'])
 
     u_boot_utils.run_and_log(
-        cons, f'mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
+        cons, f'/tmp/tools-only/tools/mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
 
     kernel = 'vmlinuz-5.15.63-rockchip64'
     target = os.path.join(bootdir, kernel)
@@ -162,7 +162,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
     os.symlink(kernel, symlink)
 
     u_boot_utils.run_and_log(
-        cons, f'mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
+        cons, f'/tmp/tools-only/tools/mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
 
     fsfile = 'ext18M.img'
     u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
@@ -204,7 +204,7 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
     inf = os.path.join(cons.config.persistent_data_dir, 'inf')
     with open(inf, 'wb') as fd:
         fd.write(gzip.compress(b'vmlinux'))
-    u_boot_utils.run_and_log(cons, 'mkimage -f auto -d %s %s' %
+    u_boot_utils.run_and_log(cons, '/tmp/tools-only/tools/mkimage -f auto -d %s %s' %
                              (inf, os.path.join(scratch_dir, vmlinux)))
 
     with open(os.path.join(scratch_dir, initrd), 'w') as fd:
