@@ -3,8 +3,8 @@
 # to build U-Boot and run our test suites.
 
 FROM ubuntu:jammy-20240227
-MAINTAINER Tom Rini <trini@konsulko.com>
-LABEL Description=" This image is for building U-Boot inside a container"
+LABEL org.opencontainers.image.authors="Tom Rini <trini@konsulko.com>"
+LABEL org.opencontainers.image.description=" This image is for building U-Boot inside a container"
 
 # Make sure apt is happy
 ENV DEBIAN_FRONTEND=noninteractive
