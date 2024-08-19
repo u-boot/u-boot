@@ -13,6 +13,7 @@
  */
 
 #include <clk-uclass.h>
+#include <linux/clk-provider.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -215,9 +216,127 @@ static int msm_clk_enable(struct clk *clk)
 	return 0;
 }
 
+static void dump_gplls(struct udevice *dev, phys_addr_t base)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
+	u32 i;
+	bool locked;
+	u64 l, a, xo_rate = 19200000;
+	struct clk *clk = NULL;
+	struct udevice *xodev;
+	const phys_addr_t *gplls = data->dbg_pll_addrs;
+
+	uclass_foreach_dev_probe(UCLASS_CLK, xodev) {
+		if (!strcmp(xodev->name, "xo-board") || !strcmp(xodev->name, "xo_board")) {
+			clk = dev_get_clk_ptr(xodev);
+			break;
+		}
+	}
+
+	if (clk) {
+		xo_rate = clk_get_rate(clk);
+
+		/* On SDM845 this needs to be divided by 2 for some reason */
+		if (xo_rate && of_machine_is_compatible("qcom,sdm845"))
+			xo_rate /= 2;
+	} else {
+		printf("Can't find XO clock, XO_BOARD rate may be wrong\n");
+	}
+
+	printf("GPLL clocks:\n");
+	printf("| GPLL   | LOCKED | XO_BOARD  |  PLL_L     | ALPHA          |\n");
+	printf("+--------+--------+-----------+------------+----------------+\n");
+	for (i = 0; i < data->num_plls; i++) {
+		locked = !!(readl(gplls[i]) & BIT(31));
+		l = readl(gplls[i] + 4) & (BIT(16) - 1);
+		a = readq(gplls[i] + 40) & (BIT(16) - 1);
+		printf("| GPLL%-2d | %-6s | %9llu * (%#-9llx + %#-13llx  * 2 ** -40 ) / 1000000\n",
+		       i, locked ? "X" : "", xo_rate, l, a);
+	}
+}
+
+static void dump_rcgs(struct udevice *dev)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
+	int i;
+	u32 cmd;
+	u32 cfg;
+	u32 not_n_minus_m;
+	u32 src, m, n, div;
+	bool root_on, d_odd;
+
+	printf("\nRCGs:\n");
+
+	/*
+	 * Which GPLL SRC corresponds to depends on the parent map, see gcc-<soc>.c in Linux
+	 * and find the parent map associated with the clock. Note that often there are multiple
+	 * outputs from a single GPLL where one is actually half the rate of the other (_EVEN).
+	 * intput_freq = associated GPLL output freq (potentially divided depending on SRC).
+	 */
+	printf("| NAME                             | ON | SRC | OUT_FREQ = input_freq * (m/n) * (1/d) | [CMD REG   ] |\n");
+	printf("+----------------------------------+----+-----+---------------------------------------+--------------+\n");
+	for (i = 0; i < data->num_rcgs; i++) {
+		cmd = readl(data->dbg_rcg_addrs[i]);
+		cfg = readl(data->dbg_rcg_addrs[i] + 0x4);
+		m = readl(data->dbg_rcg_addrs[i] + 0x8);
+		n = 0;
+		not_n_minus_m = readl(data->dbg_rcg_addrs[i] + 0xc);
+
+		root_on = !(cmd & BIT(31)); // ROOT_OFF
+		src = (cfg >> 8) & 7;
+
+		if (not_n_minus_m) {
+			n = (~not_n_minus_m & 0xffff);
+
+			/* A clumsy assumption that this is an 8-bit MND RCG */
+			if ((n & 0xff00) == 0xff00)
+				n = n & 0xff;
+
+			n += m;
+		}
+
+		div = ((cfg & 0b11111) + 1) / 2;
+		d_odd = ((cfg & 0b11111) + 1) % 2 == 1;
+		printf("%-34s | %-2s | %3d | input_freq * (%4d/%5d) * (1/%1d%-2s)   | [%#010x]\n",
+		       data->dbg_rcg_names[i], root_on ? "X" : "", src,
+		       m ?: 1, n ?: 1, div, d_odd ? ".5" : "", cmd);
+	}
+
+	printf("\n");
+}
+
+static void __maybe_unused msm_dump_clks(struct udevice *dev)
+{
+	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(dev);
+	struct msm_clk_priv *priv = dev_get_priv(dev);
+	const struct gate_clk *sclk;
+	int val, i;
+
+	if (!data->clks) {
+		printf("No clocks\n");
+		return;
+	}
+
+	printf("Gate Clocks:\n");
+	for (i = 0; i < data->num_clks; i++) {
+		sclk = &data->clks[i];
+		if (!sclk->name)
+			continue;
+		printf("%-32s: ", sclk->name);
+		val = readl(priv->base + sclk->reg) & sclk->en_val;
+		printf("%s\n", val ? "ON" : "");
+	}
+
+	dump_gplls(dev, priv->base);
+	dump_rcgs(dev);
+}
+
 static struct clk_ops msm_clk_ops = {
 	.set_rate = msm_clk_set_rate,
 	.enable = msm_clk_enable,
+#if IS_ENABLED(CONFIG_CMD_CLK)
+	.dump = msm_dump_clks,
+#endif
 };
 
 U_BOOT_DRIVER(qcom_clk) = {

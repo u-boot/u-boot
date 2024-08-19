@@ -77,6 +77,12 @@ struct msm_clk_data {
 	const struct gate_clk		*clks;
 	unsigned long			num_clks;
 
+	const phys_addr_t		*dbg_pll_addrs;
+	unsigned long			num_plls;
+	const phys_addr_t		*dbg_rcg_addrs;
+	unsigned long			num_rcgs;
+	const char * const		*dbg_rcg_names;
+
 	int (*enable)(struct clk *clk);
 	unsigned long (*set_rate)(struct clk *clk, unsigned long rate);
 };
