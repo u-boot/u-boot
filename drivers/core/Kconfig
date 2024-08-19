@@ -146,6 +146,7 @@ config DM_SEQ_ALIAS
 config SPL_DM_SEQ_ALIAS
 	bool "Support numbered aliases in device tree in SPL"
 	depends on SPL_DM
+	select SPL_STRTO
 	help
 	  Most boards will have a '/aliases' node containing the path to
 	  numbered devices (e.g. serial0 = &serial0). This feature can be
