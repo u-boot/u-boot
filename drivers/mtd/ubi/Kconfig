@@ -114,5 +114,11 @@ config MTD_UBI_FM_DEBUG
 	help
 	  Enable UBI fastmap debug
 
+config UBI_BLOCK
+	bool "Enable UBI block device support"
+	depends on BLK
+	help
+	  Enable UBI block device support using blk_ops abstraction.
+
 endif # MTD_UBI
 endmenu # "Enable UBI - Unsorted block images"

@@ -549,6 +549,12 @@ S:	Maintained
 F:	configs/Sunchip_CX-A99_defconfig
 W:	https://linux-sunxi.org/Sunchip_CX-A99
 
+TANIX TX1 BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/tanix_tx1_defconfig
+W:	https://linux-sunxi.org/Tanix_TX1
+
 TANIX TX6 BOARD
 M:	Jernej Skrabec <jernej.skrabec@siol.net>
 S:	Maintained

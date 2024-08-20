@@ -650,7 +650,7 @@ config SYS_I2C_GENI
 
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"
-	depends on (ARCH_EXYNOS4 || ARCH_EXYNOS5) && DM_I2C
+	depends on DM_I2C
 	help
 	  Support for Samsung I2C controller as Samsung SoCs.
 

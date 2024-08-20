@@ -152,20 +152,7 @@ int board_init(void)
 	if (sizeof(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE) > 1)
 		zynqmp_pmufw_load_config_object(zynqmp_pm_cfg_obj,
 						zynqmp_pm_cfg_obj_size);
-#endif
 
-#if defined(CONFIG_ZYNQMP_FIRMWARE)
-	struct udevice *dev;
-
-	uclass_get_device_by_name(UCLASS_FIRMWARE, "power-management", &dev);
-	if (!dev) {
-		uclass_get_device_by_name(UCLASS_FIRMWARE, "zynqmp-power", &dev);
-		if (!dev)
-			panic("PMU Firmware device not found - Enable it");
-	}
-#endif
-
-#if defined(CONFIG_SPL_BUILD)
 	printf("Silicon version:\t%d\n", zynqmp_get_silicon_version());
 
 	/* the CSU disables the JTAG interface when secure boot is enabled */

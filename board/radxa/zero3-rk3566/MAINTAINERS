@@ -1,0 +1,6 @@
+RADXA-ZERO-3-RK3566
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/radxa/zero3-rk3566
+F:	configs/radxa-zero-3-rk3566_defconfig
+F:	arch/arm/dts/rk3566-radxa-zero-3*

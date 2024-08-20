@@ -14,7 +14,7 @@
 #include <vsprintf.h>
 
 /**
- * distro_efi_get_fdt_name() - get the filename for reading the .dtb file
+ * efi_get_distro_fdt_name() - get the filename for reading the .dtb file
  *
  * @fname:	buffer for filename
  * @size:	buffer size

@@ -358,6 +358,7 @@
 	status = "okay";
 	rts-gpios = <&gpio 72 GPIO_ACTIVE_HIGH>;
 	linux,rs485-enabled-at-boot-time;
+	rs485-rts-delay = <10 10>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart0_default>;
 	assigned-clock-rates = <100000000>;

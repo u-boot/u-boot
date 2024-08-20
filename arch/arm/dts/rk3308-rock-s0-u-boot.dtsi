@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+#include "rk3308-u-boot.dtsi"
+
+&emmc_pwren {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&uart0 {
+	bootph-all;
+	clock-frequency = <24000000>;
+};
+
+&uart0_xfer {
+	bootph-all;
+};
+
+&vdd_core {
+	regulator-init-microvolt = <1015000>;
+};

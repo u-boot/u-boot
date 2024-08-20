@@ -3,6 +3,8 @@
  * Copyright 2021 NXP
  */
 
+#include "imx8ulp-u-boot.dtsi"
+
 / {
 	mu@27020000 {
 		compatible = "fsl,imx8ulp-mu";

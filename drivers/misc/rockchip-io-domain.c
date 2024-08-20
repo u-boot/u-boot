@@ -31,6 +31,10 @@
 #define PX30_IO_VSEL_VCCIO6_SRC		BIT(0)
 #define PX30_IO_VSEL_VCCIO6_SUPPLY_NUM	1
 
+#define RK3308_SOC_CON0			0x300
+#define RK3308_SOC_CON0_VCCIO3		BIT(8)
+#define RK3308_SOC_VCCIO3_SUPPLY_NUM	3
+
 #define RK3328_SOC_CON4			0x410
 #define RK3328_SOC_CON4_VCCIO2		BIT(7)
 #define RK3328_SOC_VCCIO2_SUPPLY_NUM	1
@@ -119,6 +123,22 @@ static int px30_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
 	return ret;
 }
 
+static int rk3308_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
+{
+	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
+
+	if (!ret && idx == RK3308_SOC_VCCIO3_SUPPLY_NUM) {
+		/*
+		 * set vccio3 iodomain to also use this framework
+		 * instead of a special gpio.
+		 */
+		u32 val = RK3308_SOC_CON0_VCCIO3 | (RK3308_SOC_CON0_VCCIO3 << 16);
+		ret = regmap_write(grf, RK3308_SOC_CON0, val);
+	}
+
+	return ret;
+}
+
 static int rk3328_iodomain_write(struct regmap *grf, uint offset, int idx, int uV)
 {
 	int ret = rockchip_iodomain_write(grf, offset, idx, uV);
@@ -189,6 +209,19 @@ static const struct rockchip_iodomain_soc_data soc_data_px30_pmu = {
 	.write = rockchip_iodomain_write,
 };
 
+static const struct rockchip_iodomain_soc_data soc_data_rk3308 = {
+	.grf_offset = 0x300,
+	.supply_names = {
+		"vccio0-supply",
+		"vccio1-supply",
+		"vccio2-supply",
+		"vccio3-supply",
+		"vccio4-supply",
+		"vccio5-supply",
+	},
+	.write = rk3308_iodomain_write,
+};
+
 static const struct rockchip_iodomain_soc_data soc_data_rk3328 = {
 	.grf_offset = 0x410,
 	.supply_names = {
@@ -255,6 +288,10 @@ static const struct udevice_id rockchip_iodomain_ids[] = {
 	{
 		.compatible = "rockchip,px30-pmu-io-voltage-domain",
 		.data = (ulong)&soc_data_px30_pmu,
+	},
+	{
+		.compatible = "rockchip,rk3308-io-voltage-domain",
+		.data = (ulong)&soc_data_rk3308,
 	},
 	{
 		.compatible = "rockchip,rk3328-io-voltage-domain",

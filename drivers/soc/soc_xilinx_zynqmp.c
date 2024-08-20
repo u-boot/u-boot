@@ -44,6 +44,7 @@ enum {
 	ZYNQMP_VARIANT_DR_SE = BIT(4),
 	ZYNQMP_VARIANT_EG_SE = BIT(5),
 	ZYNQMP_VARIANT_TEG = BIT(6),
+	ZYNQMP_VARIANT_EG_LR = BIT(7),
 };
 
 struct zynqmp_device {
@@ -63,6 +64,11 @@ static const struct zynqmp_device zynqmp_devices[] = {
 		.id = 0x04688093,
 		.device = 1,
 		.variants = ZYNQMP_VARIANT_EG,
+	},
+	{
+		.id = 0x04689093,
+		.device = 1,
+		.variants = ZYNQMP_VARIANT_EG_LR,
 	},
 	{
 		.id = 0x04711093,
@@ -300,6 +306,8 @@ static int soc_xilinx_zynqmp_detect_machine(struct udevice *dev, u32 idcode,
 		strlcat(priv->machine, "eg", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_EG_SE) {
 		strlcat(priv->machine, "eg_SE", sizeof(priv->machine));
+	} else if (device->variants & ZYNQMP_VARIANT_EG_LR) {
+		strlcat(priv->machine, "eg_LR", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_DR) {
 		strlcat(priv->machine, "dr", sizeof(priv->machine));
 	} else if (device->variants & ZYNQMP_VARIANT_DR_SE) {

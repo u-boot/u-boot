@@ -57,6 +57,7 @@ static table_entry_t imx8image_cmds[] = {
 
 static table_entry_t imx8image_core_entries[] = {
 	{CFG_SCU,	"SCU",			"scu core",	},
+	{CFG_PWR,	"PWR",			"uPower core",	},
 	{CFG_M40,	"M40",			"M4 core 0",	},
 	{CFG_M41,	"M41",			"M4 core 1",	},
 	{CFG_A35,	"A35",			"A35 core",	},
@@ -119,7 +120,7 @@ static void parse_cfg_cmd(image_t *param_stack, int32_t cmd, char *token,
 		} else if (!strncmp(token, "IMX8QM", 6)) {
 			soc = QM;
 		} else if (!strncmp(token, "ULP", 3)) {
-			soc = IMX9;
+			soc = ULP;
 		} else if (!strncmp(token, "IMX9", 4)) {
 			soc = IMX9;
 		} else {
@@ -179,6 +180,10 @@ static void parse_cfg_fld(image_t *param_stack, int32_t *cmd, char *token,
 		switch (core_type) {
 		case CFG_SCU:
 			param_stack[p_idx].option = SCFW;
+			param_stack[p_idx++].filename = token;
+			break;
+		case CFG_PWR:
+			param_stack[p_idx].option = UPOWER;
 			param_stack[p_idx++].filename = token;
 			break;
 		case CFG_M40:

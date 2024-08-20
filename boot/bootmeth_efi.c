@@ -100,11 +100,10 @@ static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 	if (last_slash)
 		*last_slash = '\0';
 
-	log_debug("setting bootdev %s, %s, %s, %p, %x\n",
-		  dev_get_uclass_name(media_dev), devnum_str, bflow->fname,
-		  bflow->buf, size);
 	dev_name = device_get_uclass_id(media_dev) == UCLASS_MASS_STORAGE ?
-		 "usb" : dev_get_uclass_name(media_dev);
+		 "usb" : blk_get_uclass_name(device_get_uclass_id(media_dev));
+	log_debug("setting bootdev %s, %s, %s, %p, %x\n",
+		  dev_name, devnum_str, bflow->fname, bflow->buf, size);
 	efi_set_bootdev(dev_name, devnum_str, bflow->fname, bflow->buf, size);
 }
 

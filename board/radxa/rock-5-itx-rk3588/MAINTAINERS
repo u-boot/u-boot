@@ -1,0 +1,8 @@
+ROCK-5-ITX-RK3588
+M:	Heiko Stuebner <heiko@sntech.de>
+R:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/radxa/rock-5-itx-rk3588
+F:	include/configs/rock-5-itx-rk3588.h
+F:	configs/rock-5-itx-rk3588_defconfig
+F:	arch/arm/dts/rk3588-rock-5-itx-u-boot.dtsi

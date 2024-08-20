@@ -182,24 +182,43 @@ online
 
 .. note::
 
-  The TI Firmware required for functionality of the system can be
-  one of the following combination (see platform specific boot diagram for
-  further information as to which component runs on which processor):
-
-  * **TIFS** - TI Foundational Security Firmware - Consists of purely firmware
-    meant to run on the security enclave.
-  * **DM** - Device Management firmware also called TI System Control Interface
-    server (TISCI Server) - This component purely plays the role of managing
-    device resources such as power, clock, interrupts, dma etc. This firmware
-    runs on a dedicated or multi-use microcontroller outside the security
-    enclave.
-
- OR
-
-  * **SYSFW** - System firmware - consists of both TIFS and DM both running on
-    the security enclave.
+  The TI Firmwares required for functionality of the system are (see
+  platform specific boot diagram for further information as to which
+  component runs on which processor):
 
 .. k3_rst_include_end_boot_sources
+
+.. k3_rst_include_start_boot_firmwares
+
+* **TIFS** - TI Foundational Security Firmware - Consists of purely firmware
+  meant to run on the security enclave.
+* **DM** - Device Management firmware also called TI System Control Interface
+  server (TISCI Server) - This component purely plays the role of managing
+  device resources such as power, clock, interrupts, dma etc. This firmware
+  runs on a dedicated or multi-use microcontroller outside the security
+  enclave.
+
+.. k3_rst_include_end_boot_firmwares
+.. k3_rst_include_start_tifsstub
+
+* **TIFS Stub** - The TIFS stub is a small piece of binary designed to help
+  restore the required security context and resume the TIFS firmware when
+  the system resumes from low-power modes such as suspend-to-RAM/Deep
+  Sleep. This stub uses the same encryption and customer key signing model
+  as TIFS and is loaded into the ATCM (Tightly Coupled Memory 'A' of the
+  DM R5) during DM startup. Due to the independent certificate signing
+  process, the stub is maintained separately from DM.
+
+.. k3_rst_include_end_tifsstub
+
+OR
+
+.. k3_rst_include_start_boot_firmwares_sysfw
+
+* **SYSFW** - System firmware - consists of both TIFS and DM both running on
+  the security enclave.
+
+.. k3_rst_include_end_boot_firmwares_sysfw
 
 Build Procedure
 ---------------

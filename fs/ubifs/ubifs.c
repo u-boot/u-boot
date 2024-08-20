@@ -319,9 +319,7 @@ static int filldir(struct ubifs_info *c, const char *name, int namlen,
 	}
 	ctime_r((time_t *)&inode->i_mtime, filetime);
 	printf("%9lld  %24.24s  ", inode->i_size, filetime);
-#ifndef __UBOOT__
 	ubifs_iput(inode);
-#endif
 
 	printf("%s\n", name);
 
@@ -557,6 +555,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 
 			/* We have some sort of symlink recursion, bail out */
 			if (symlink_count++ > 8) {
+				ubifs_iput(inode);
 				printf("Symlink recursion, aborting\n");
 				return 0;
 			}
@@ -568,6 +567,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 				 * the leading slash */
 				next = name = link_name + 1;
 				root_inum = 1;
+				ubifs_iput(inode);
 				continue;
 			}
 			/* Relative to cur dir */
@@ -575,6 +575,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 					link_name, next == NULL ? "" : next);
 			memcpy(symlinkpath, buf, sizeof(buf));
 			next = name = symlinkpath;
+			ubifs_iput(inode);
 			continue;
 		}
 
@@ -583,8 +584,10 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		 */
 
 		/* Found the node!  */
-		if (!next || *next == '\0')
+		if (!next || *next == '\0') {
+			ubifs_iput(inode);
 			return inum;
+		}
 
 		root_inum = inum;
 		name = next;
@@ -614,7 +617,6 @@ int ubifs_set_blk_dev(struct blk_desc *rbdd, struct disk_partition *info)
 
 int ubifs_ls(const char *filename)
 {
-	struct ubifs_info *c = ubifs_sb->s_fs_info;
 	struct file *file;
 	struct dentry *dentry;
 	struct inode *dir;
@@ -622,7 +624,11 @@ int ubifs_ls(const char *filename)
 	unsigned long inum;
 	int ret = 0;
 
-	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
 		ret = -1;
@@ -656,30 +662,33 @@ out_mem:
 		free(dir);
 
 out:
-	ubi_close_volume(c->ubi);
 	return ret;
 }
 
 int ubifs_exists(const char *filename)
 {
-	struct ubifs_info *c = ubifs_sb->s_fs_info;
 	unsigned long inum;
 
-	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
-	ubi_close_volume(c->ubi);
 
 	return inum != 0;
 }
 
 int ubifs_size(const char *filename, loff_t *size)
 {
-	struct ubifs_info *c = ubifs_sb->s_fs_info;
 	unsigned long inum;
 	struct inode *inode;
 	int err = 0;
 
-	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
 
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
 	if (!inum) {
@@ -698,7 +707,6 @@ int ubifs_size(const char *filename, loff_t *size)
 
 	ubifs_iput(inode);
 out:
-	ubi_close_volume(c->ubi);
 	return err;
 }
 
@@ -885,6 +893,11 @@ int ubifs_read(const char *filename, void *buf, loff_t offset,
 	int count;
 	int last_block_size = 0;
 
+	if (!ubifs_is_mounted()) {
+		debug("UBIFS not mounted, use ubifsmount to mount volume first!\n");
+		return -1;
+	}
+
 	*actread = 0;
 
 	if (offset & (PAGE_SIZE - 1)) {
@@ -893,7 +906,6 @@ int ubifs_read(const char *filename, void *buf, loff_t offset,
 		return -1;
 	}
 
-	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
 	/* ubifs_findfile will resolve symlinks, so we know that we get
 	 * the real file here */
 	inum = ubifs_findfile(ubifs_sb, (char *)filename);
@@ -957,7 +969,6 @@ put_inode:
 	ubifs_iput(inode);
 
 out:
-	ubi_close_volume(c->ubi);
 	return err;
 }
 
@@ -988,6 +999,5 @@ void uboot_ubifs_umount(void)
 		printf("Unmounting UBIFS volume %s!\n",
 		       ((struct ubifs_info *)(ubifs_sb->s_fs_info))->vi.name);
 		ubifs_umount(ubifs_sb->s_fs_info);
-		ubifs_sb = NULL;
 	}
 }

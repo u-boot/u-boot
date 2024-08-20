@@ -1,0 +1,6 @@
+ORANGEPI-3B-RK3566
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	board/xunlong/orangepi-3b-rk3566
+F:	configs/orangepi-3b-rk3566_defconfig
+F:	arch/arm/dts/rk3566-orangepi-3b*
