@@ -5,8 +5,11 @@
  * Copyright 2019 Google LLC
  */
 
-#include <dm.h>
+#include <bloblist.h>
 #include <cpu.h>
+#include <dm.h>
+#include <efi_api.h>
+#include <efi_loader.h>
 #include <log.h>
 #include <mapmem.h>
 #include <tables_csum.h>
@@ -16,6 +19,14 @@
 #include <acpi/acpi_device.h>
 #include <asm/global_data.h>
 #include <dm/acpi.h>
+#include <linux/sizes.h>
+#include <linux/log2.h>
+
+enum {
+	TABLE_SIZE	= SZ_64K,
+};
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * OEM_REVISION is 32-bit unsigned number. It should be increased only when
@@ -752,3 +763,56 @@ static int acpi_write_iort(struct acpi_ctx *ctx, const struct acpi_writer *entry
 }
 
 ACPI_WRITER(5iort, "IORT", acpi_write_iort, 0);
+
+/*
+ * Allocate memory for ACPI tables and write ACPI tables to the
+ * allocated buffer.
+ *
+ * Return:	status code
+ */
+static int alloc_write_acpi_tables(void)
+{
+	u64 table_end;
+	void *addr;
+
+	if (IS_ENABLED(CONFIG_X86) ||
+	    IS_ENABLED(CONFIG_QFW_ACPI) ||
+	    IS_ENABLED(CONFIG_SANDBOX)) {
+		log_debug("Skipping writing ACPI tables as already done\n");
+		return 0;
+	}
+
+	if (!IS_ENABLED(CONFIG_BLOBLIST_TABLES)) {
+		log_debug("Skipping writing ACPI tables as BLOBLIST_TABLES is not selected\n");
+		return 0;
+	}
+
+	/* Align the table to a 4KB boundary to keep EFI happy */
+	addr = bloblist_add(BLOBLISTT_ACPI_TABLES, TABLE_SIZE,
+			    ilog2(SZ_4K));
+
+	if (!addr)
+		return log_msg_ret("mem", -ENOMEM);
+
+	gd->arch.table_start_high = virt_to_phys(addr);
+	gd->arch.table_end_high = gd->arch.table_start_high + TABLE_SIZE;
+
+	table_end = write_acpi_tables(gd->arch.table_start_high);
+	if (!table_end) {
+		log_err("Can't create ACPI configuration table\n");
+		return -EINTR;
+	}
+
+	log_debug("- wrote 'acpi' to %lx, end %llx\n", gd->arch.table_start_high, table_end);
+	if (table_end > gd->arch.table_end_high) {
+		log_err("Out of space for configuration tables: need %llx, have %x\n",
+			table_end - gd->arch.table_start_high, TABLE_SIZE);
+		return log_msg_ret("acpi", -ENOSPC);
+	}
+
+	log_debug("- done writing tables\n");
+
+	return 0;
+}
+
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, alloc_write_acpi_tables);
