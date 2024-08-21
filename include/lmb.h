@@ -166,6 +166,8 @@ long lmb_free(phys_addr_t base, phys_size_t size);
 void lmb_dump_all(void);
 void lmb_dump_all_force(void);
 
+void lmb_arch_add_memory(void);
+
 struct lmb *lmb_get(void);
 int lmb_push(struct lmb *store);
 void lmb_pop(struct lmb *store);
