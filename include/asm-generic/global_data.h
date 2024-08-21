@@ -340,6 +340,16 @@ struct global_data {
 #endif
 #ifdef CONFIG_LOG
 	/**
+	 * @log_head: list of logging devices
+	 */
+	struct list_head log_head;
+	/**
+	 * @log_fmt: bit mask for logging format
+	 *
+	 * The @log_fmt bit mask selects the fields to be shown in log messages.
+	 * &enum log_fmt defines the bits of the bit mask.
+	 */
+	/**
 	 * @log_drop_count: number of dropped log messages
 	 *
 	 * This counter is incremented for each log message which can not
@@ -353,19 +363,26 @@ struct global_data {
 	 * For logging devices without filters @default_log_level defines the
 	 * logging level, cf. &enum log_level_t.
 	 */
-	int default_log_level;
+	char default_log_level;
+	char log_fmt;
 	/**
-	 * @log_head: list of logging devices
-	 */
-	struct list_head log_head;
-	/**
-	 * @log_fmt: bit mask for logging format
+	 * @logc_prev: logging category of previous message
 	 *
-	 * The @log_fmt bit mask selects the fields to be shown in log messages.
-	 * &enum log_fmt defines the bits of the bit mask.
+	 * This value is used as logging category for continuation messages.
 	 */
-	int log_fmt;
-
+	unsigned char logc_prev;
+	/**
+	 * @logl_prev: logging level of the previous message
+	 *
+	 * This value is used as logging level for continuation messages.
+	 */
+	unsigned char logl_prev;
+	/**
+	 * @log_cont: Previous log line did not finished wtih \n
+	 *
+	 * This allows for chained log messages on the same line
+	 */
+	bool log_cont;
 	/**
 	 * @processing_msg: a log message is being processed
 	 *
@@ -373,24 +390,6 @@ struct global_data {
 	 * while another message is being processed.
 	 */
 	bool processing_msg;
-	/**
-	 * @logc_prev: logging category of previous message
-	 *
-	 * This value is used as logging category for continuation messages.
-	 */
-	int logc_prev;
-	/**
-	 * @logl_prev: logging level of the previous message
-	 *
-	 * This value is used as logging level for continuation messages.
-	 */
-	int logl_prev;
-	/**
-	 * @log_cont: Previous log line did not finished wtih \n
-	 *
-	 * This allows for chained log messages on the same line
-	 */
-	bool log_cont;
 #endif
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	/**
