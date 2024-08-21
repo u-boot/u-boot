@@ -152,6 +152,20 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
+ulong video_get_fb(void)
+{
+	struct udevice *dev;
+
+	uclass_find_first_device(UCLASS_VIDEO, &dev);
+	if (dev) {
+		const struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+
+		return uc_plat->base;
+	}
+
+	return 0;
+}
+
 int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 		    int yend, u32 colour)
 {
