@@ -99,3 +99,11 @@ Code quality
    :maxdepth: 1
 
    python_cq
+
+Historical documentation
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   historical/index

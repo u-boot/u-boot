@@ -1,10 +1,9 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# (C) Copyright 2014 Google, Inc
-# Simon Glass <sjg@chromium.org>
+.. SPDX-License-Identifier: GPL-2.0+
+.. (C) Copyright 2014 Google, Inc
+.. sectionauthor:: Simon Glass <sjg@chromium.org>
 
-Background
-----------
+Generic board
+-------------
 
 U-Boot traditionally had a board.c file for each architecture. This introduced
 quite a lot of duplication, with each architecture tending to do
@@ -16,7 +15,7 @@ All boards and architectures have moved to this as of mid 2016.
 
 
 What has changed?
------------------
+~~~~~~~~~~~~~~~~~
 
 The main change is that the arch/<arch>/lib/board.c file is removed in
 favour of common/board_f.c (for pre-relocation init) and common/board_r.c
@@ -28,7 +27,7 @@ have been moved to separate structures.
 
 
 Further Background
-------------------
+~~~~~~~~~~~~~~~~~~
 
 The full text of the original generic board series is reproduced below.
 
@@ -132,4 +131,6 @@ convenience.
 
 Simon Glass, sjg@chromium.org
 March 2014
+
 Updated after final removal, May 2016
+
