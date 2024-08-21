@@ -586,7 +586,7 @@ int getchar(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return 0;
 
 	ch = console_record_getc();
@@ -607,7 +607,7 @@ int tstc(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return 0;
 
 	if (console_record_tstc())
@@ -715,7 +715,7 @@ void putc(const char c)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return pre_console_putc(c);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -759,7 +759,7 @@ void puts(const char *s)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return pre_console_puts(s);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -793,7 +793,7 @@ void flush(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return;
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -872,7 +872,7 @@ static int ctrlc_disabled = 0;	/* see disable_ctrl() */
 static int ctrlc_was_pressed = 0;
 int ctrlc(void)
 {
-	if (!ctrlc_disabled && gd->have_console) {
+	if (!ctrlc_disabled && (gd->flags & GD_FLG_HAVE_CONSOLE)) {
 		if (tstc()) {
 			switch (getchar()) {
 			case 0x03:		/* ^C - Control C */
@@ -1011,7 +1011,7 @@ int console_announce_r(void)
 /* Called before relocation - use serial functions */
 int console_init_f(void)
 {
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 	console_update_silent();
 

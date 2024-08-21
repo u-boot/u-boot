@@ -93,15 +93,6 @@ struct global_data {
 	 */
 	unsigned long board_type;
 #endif
-	/**
-	 * @have_console: console is available
-	 *
-	 * A value of 1 indicates that serial_init() was called and a console
-	 * is available.
-	 * A value of 0 indicates that console input and output drivers shall
-	 * not be called.
-	 */
-	unsigned long have_console;
 #if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
 	/**
 	 * @precon_buf_idx: pre-console buffer index
@@ -709,6 +700,12 @@ enum gd_flags {
 	 * @GD_FLG_UPL: Read/write a Universal Payload (UPL) handoff
 	 */
 	GD_FLG_UPL = 0x4000000,
+	/**
+	 * @GD_FLG_HAVE_CONSOLE: serial_init() was called and a console
+	 * is available. When not set, indicates that console input and output
+	 * drivers shall not be called.
+	 */
+	GD_FLG_HAVE_CONSOLE = 0x8000000,
 };
 
 #endif /* __ASSEMBLY__ */
