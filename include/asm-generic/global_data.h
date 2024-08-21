@@ -71,48 +71,6 @@ struct global_data {
 	 * @mem_clk: memory clock rate in Hz
 	 */
 	unsigned long mem_clk;
-#if defined(CONFIG_POST)
-	/**
-	 * @post_log_word: active POST tests
-	 *
-	 * @post_log_word is a bit mask defining which POST tests are recorded
-	 * (see constants POST_*).
-	 */
-	unsigned long post_log_word;
-	/**
-	 * @post_log_res: POST results
-	 *
-	 * @post_log_res is a bit mask with the POST results. A bit with value 1
-	 * indicates successful execution.
-	 */
-	unsigned long post_log_res;
-	/**
-	 * @post_init_f_time: time in ms when post_init_f() started
-	 */
-	unsigned long post_init_f_time;
-#endif
-#ifdef CONFIG_BOARD_TYPES
-	/**
-	 * @board_type: board type
-	 *
-	 * If a U-Boot configuration supports multiple board types, the actual
-	 * board type may be stored in this field.
-	 */
-	unsigned long board_type;
-#endif
-#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
-	/**
-	 * @precon_buf_idx: pre-console buffer index
-	 *
-	 * @precon_buf_idx indicates the current position of the
-	 * buffer used to collect output before the console becomes
-	 * available. When negative, the pre-console buffer is
-	 * temporarily disabled (used when the pre-console buffer is
-	 * being written out, to prevent adding its contents to
-	 * itself).
-	 */
-	long precon_buf_idx;
-#endif
 	/**
 	 * @env_addr: address of environment structure
 	 *
@@ -177,7 +135,87 @@ struct global_data {
 	 * @new_gd: pointer to relocated global data
 	 */
 	struct global_data *new_gd;
-
+	/**
+	 * @fdt_blob: U-Boot's own device tree, NULL if none
+	 */
+	const void *fdt_blob;
+	/**
+	 * @fdt_src: Source of FDT
+	 */
+	enum fdt_source_t fdt_src;
+	/**
+	 * @jt: jump table
+	 *
+	 * The jump table contains pointers to exported functions. A pointer to
+	 * the jump table is passed to standalone applications.
+	 */
+	struct jt_funcs *jt;
+	/**
+	 * @env_buf: buffer for env_get() before reloc
+	 */
+	char env_buf[32];
+	/**
+	 * @cur_serial_dev: current serial device
+	 */
+	struct udevice *cur_serial_dev;
+	/**
+	 * @arch: architecture-specific data
+	 */
+	struct arch_global_data arch;
+	/**
+	 * @dmtag_list: List of DM tags
+	 */
+	struct list_head dmtag_list;
+	/**
+	 * @timebase_h: high 32 bits of timer
+	 */
+	unsigned int timebase_h;
+	/**
+	 * @timebase_l: low 32 bits of timer
+	 */
+	unsigned int timebase_l;
+#if defined(CONFIG_POST)
+	/**
+	 * @post_log_word: active POST tests
+	 *
+	 * @post_log_word is a bit mask defining which POST tests are recorded
+	 * (see constants POST_*).
+	 */
+	unsigned long post_log_word;
+	/**
+	 * @post_log_res: POST results
+	 *
+	 * @post_log_res is a bit mask with the POST results. A bit with value 1
+	 * indicates successful execution.
+	 */
+	unsigned long post_log_res;
+	/**
+	 * @post_init_f_time: time in ms when post_init_f() started
+	 */
+	unsigned long post_init_f_time;
+#endif
+#ifdef CONFIG_BOARD_TYPES
+	/**
+	 * @board_type: board type
+	 *
+	 * If a U-Boot configuration supports multiple board types, the actual
+	 * board type may be stored in this field.
+	 */
+	unsigned long board_type;
+#endif
+#if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+	/**
+	 * @precon_buf_idx: pre-console buffer index
+	 *
+	 * @precon_buf_idx indicates the current position of the
+	 * buffer used to collect output before the console becomes
+	 * available. When negative, the pre-console buffer is
+	 * temporarily disabled (used when the pre-console buffer is
+	 * being written out, to prevent adding its contents to
+	 * itself).
+	 */
+	long precon_buf_idx;
+#endif
 #ifdef CONFIG_DM
 	/**
 	 * @dm_root: root instance for Driver Model
@@ -222,38 +260,18 @@ struct global_data {
 	 */
 	struct udevice *timer;
 #endif
-	/**
-	 * @fdt_blob: U-Boot's own device tree, NULL if none
-	 */
-	const void *fdt_blob;
-	/**
-	 * @fdt_src: Source of FDT
-	 */
-	enum fdt_source_t fdt_src;
 #if CONFIG_IS_ENABLED(OF_LIVE)
 	/**
 	 * @of_root: root node of the live tree
 	 */
 	struct device_node *of_root;
 #endif
-
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	/**
 	 * @multi_dtb_fit: pointer to uncompressed multi-dtb FIT image
 	 */
 	const void *multi_dtb_fit;
 #endif
-	/**
-	 * @jt: jump table
-	 *
-	 * The jump table contains pointers to exported functions. A pointer to
-	 * the jump table is passed to standalone applications.
-	 */
-	struct jt_funcs *jt;
-	/**
-	 * @env_buf: buffer for env_get() before reloc
-	 */
-	char env_buf[32];
 #ifdef CONFIG_TRACE
 	/**
 	 * @trace_buff: trace buffer
@@ -269,18 +287,10 @@ struct global_data {
 	 */
 	int cur_i2c_bus;
 #endif
-	/**
-	 * @timebase_h: high 32 bits of timer
-	 */
-	unsigned int timebase_h;
-	/**
-	 * @timebase_l: low 32 bits of timer
-	 */
-	unsigned int timebase_l;
+#if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
 	/**
 	 * @malloc_start: start of malloc() region
 	 */
-#if CONFIG_IS_ENABLED(CMD_BDINFO_EXTRA)
 	unsigned long malloc_start;
 #endif
 #if CONFIG_IS_ENABLED(SYS_MALLOC_F)
@@ -297,14 +307,6 @@ struct global_data {
 	 */
 	unsigned long malloc_ptr;
 #endif
-	/**
-	 * @cur_serial_dev: current serial device
-	 */
-	struct udevice *cur_serial_dev;
-	/**
-	 * @arch: architecture-specific data
-	 */
-	struct arch_global_data arch;
 #ifdef CONFIG_CONSOLE_RECORD
 	/**
 	 * @console_out: output buffer for console recording
@@ -432,10 +434,6 @@ struct global_data {
 	 */
 	struct hlist_head cyclic_list;
 #endif
-	/**
-	 * @dmtag_list: List of DM tags
-	 */
-	struct list_head dmtag_list;
 #if CONFIG_IS_ENABLED(UPL)
 	/**
 	 * @upl: Universal Payload-handoff information
