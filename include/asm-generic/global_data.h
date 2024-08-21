@@ -64,12 +64,6 @@ struct global_data {
 	 * @mem_clk: memory clock rate in Hz
 	 */
 	unsigned long mem_clk;
-#if CONFIG_IS_ENABLED(VIDEO)
-	/**
-	 * @fb_base: base address of frame buffer memory
-	 */
-	unsigned long fb_base;
-#endif
 #if defined(CONFIG_POST)
 	/**
 	 * @post_log_word: active POST tests
