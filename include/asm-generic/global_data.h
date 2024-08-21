@@ -335,10 +335,6 @@ struct global_data {
 	 * @bootstage: boot stage information
 	 */
 	struct bootstage_data *bootstage;
-	/**
-	 * @new_bootstage: relocated boot stage information
-	 */
-	struct bootstage_data *new_bootstage;
 #endif
 #ifdef CONFIG_LOG
 	/**
