@@ -227,10 +227,6 @@ struct global_data {
 	 */
 	const void *fdt_blob;
 	/**
-	 * @fdt_size: space reserved for relocated device space
-	 */
-	unsigned long fdt_size;
-	/**
 	 * @fdt_src: Source of FDT
 	 */
 	enum fdt_source_t fdt_src;

@@ -18,6 +18,10 @@ struct board_f {
 	 * @new_fdt: relocated device tree
 	 */
 	void *new_fdt;
+	/**
+	 * @fdt_size: space reserved for relocated device space
+	 */
+	unsigned long fdt_size;
 };
 
 #endif
