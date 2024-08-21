@@ -66,11 +66,11 @@ struct global_data {
 	/**
 	 * @bus_clk: platform clock rate in Hz
 	 */
-	unsigned long bus_clk;
+	unsigned int bus_clk;
 	/**
 	 * @mem_clk: memory clock rate in Hz
 	 */
-	unsigned long mem_clk;
+	unsigned int mem_clk;
 	/**
 	 * @env_addr: address of environment structure
 	 *
