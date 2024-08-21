@@ -578,7 +578,7 @@ static int reserve_fdt(void)
 			gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob), 32);
 
 			gd->start_addr_sp = reserve_stack_aligned(gd->fdt_size);
-			gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
+			gd->boardf->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
 			debug("Reserving %lu Bytes for FDT at: %08lx\n",
 			      gd->fdt_size, gd->start_addr_sp);
 		}
@@ -668,10 +668,10 @@ static int init_post(void)
 static int reloc_fdt(void)
 {
 	if (!IS_ENABLED(CONFIG_OF_EMBED)) {
-		if (gd->new_fdt) {
-			memcpy(gd->new_fdt, gd->fdt_blob,
+		if (gd->boardf->new_fdt) {
+			memcpy(gd->boardf->new_fdt, gd->fdt_blob,
 			       fdt_totalsize(gd->fdt_blob));
-			gd->fdt_blob = gd->new_fdt;
+			gd->fdt_blob = gd->boardf->new_fdt;
 		}
 	}
 
@@ -1021,8 +1021,11 @@ static const init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
+	struct board_f boardf;
+
 	gd->flags = boot_flags;
 	gd->flags &= ~GD_FLG_HAVE_CONSOLE;
+	gd->boardf = &boardf;
 
 	if (initcall_run_list(init_sequence_f))
 		hang();

@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <board_f.h>
 #include <cyclic.h>
 #include <event_internal.h>
 #include <fdtdec.h>
@@ -42,6 +43,12 @@ struct global_data {
 	 * @bd: board information
 	 */
 	struct bd_info *bd;
+#ifndef CONFIG_SPL_BUILD
+	/**
+	 * @boardf: information only used before relocation
+	 */
+	struct board_f *boardf;
+#endif
 	/**
 	 * @flags: global data flags
 	 *
@@ -219,10 +226,6 @@ struct global_data {
 	 * @fdt_blob: U-Boot's own device tree, NULL if none
 	 */
 	const void *fdt_blob;
-	/**
-	 * @new_fdt: relocated device tree
-	 */
-	void *new_fdt;
 	/**
 	 * @fdt_size: space reserved for relocated device space
 	 */
