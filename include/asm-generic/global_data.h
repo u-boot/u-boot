@@ -61,11 +61,6 @@ struct global_data {
 	 */
 	unsigned long bus_clk;
 	/**
-	 * @pci_clk: PCI clock rate in Hz
-	 */
-	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
-	unsigned long pci_clk;
-	/**
 	 * @mem_clk: memory clock rate in Hz
 	 */
 	unsigned long mem_clk;
