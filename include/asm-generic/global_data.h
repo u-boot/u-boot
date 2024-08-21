@@ -72,6 +72,10 @@ struct global_data {
 	 */
 	unsigned int mem_clk;
 	/**
+	 * @mon_len: monitor length in bytes
+	 */
+	unsigned int mon_len;
+	/**
 	 * @env_addr: address of environment structure
 	 *
 	 * @env_addr contains the address of the structure holding the
@@ -115,10 +119,6 @@ struct global_data {
 	 * @ram_size: RAM size in bytes
 	 */
 	phys_size_t ram_size;
-	/**
-	 * @mon_len: monitor length in bytes
-	 */
-	unsigned long mon_len;
 	/**
 	 * @irq_sp: IRQ stack pointer
 	 */
