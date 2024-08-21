@@ -298,17 +298,6 @@ struct global_data {
 	 */
 	unsigned long malloc_ptr;
 #endif
-#ifdef CONFIG_PCI_BOOTDELAY
-	/**
-	 * @pcidelay_done: delay time before scanning of PIC hose expired
-	 *
-	 * If CONFIG_PCI_BOOTDELAY=y, pci_hose_scan() waits for the number of
-	 * milliseconds defined by environment variable pcidelay before
-	 * scanning. Once this delay has expired the flag @pcidelay_done
-	 * is set to 1.
-	 */
-	int pcidelay_done;
-#endif
 	/**
 	 * @cur_serial_dev: current serial device
 	 */
