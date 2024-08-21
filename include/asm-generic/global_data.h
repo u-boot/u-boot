@@ -75,6 +75,31 @@ struct global_data {
 	 */
 	unsigned long env_addr;
 	/**
+	 * @ram_base: base address of RAM used by U-Boot
+	 */
+	unsigned long ram_base;
+	/**
+	 * @relocaddr: start address of U-Boot in RAM
+	 *
+	 * After relocation this field indicates the address to which U-Boot
+	 * has been relocated. It can be displayed using the bdinfo command.
+	 * Its value is needed to display the source code when debugging with
+	 * GDB using the 'add-symbol-file u-boot <relocaddr>' command.
+	 */
+	unsigned long relocaddr;
+	/**
+	 * @irq_sp: IRQ stack pointer
+	 */
+	unsigned long irq_sp;
+	/**
+	 * @start_addr_sp: initial stack pointer address
+	 */
+	unsigned long start_addr_sp;
+	/**
+	 * @reloc_off: relocation offset
+	 */
+	unsigned long reloc_off;
+	/**
 	 * @bus_clk: platform clock rate in Hz
 	 */
 	unsigned int bus_clk;
@@ -106,31 +131,6 @@ struct global_data {
 	 * @env_load_prio: priority of the loaded environment
 	 */
 	char env_load_prio;
-	/**
-	 * @ram_base: base address of RAM used by U-Boot
-	 */
-	unsigned long ram_base;
-	/**
-	 * @relocaddr: start address of U-Boot in RAM
-	 *
-	 * After relocation this field indicates the address to which U-Boot
-	 * has been relocated. It can be displayed using the bdinfo command.
-	 * Its value is needed to display the source code when debugging with
-	 * GDB using the 'add-symbol-file u-boot <relocaddr>' command.
-	 */
-	unsigned long relocaddr;
-	/**
-	 * @irq_sp: IRQ stack pointer
-	 */
-	unsigned long irq_sp;
-	/**
-	 * @start_addr_sp: initial stack pointer address
-	 */
-	unsigned long start_addr_sp;
-	/**
-	 * @reloc_off: relocation offset
-	 */
-	unsigned long reloc_off;
 	/**
 	 * @new_gd: pointer to relocated global data
 	 */
