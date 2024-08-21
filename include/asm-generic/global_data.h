@@ -303,10 +303,6 @@ struct global_data {
 	 * @hose: PCI hose for early use
 	 */
 	struct pci_controller *hose;
-	/**
-	 * @pci_ram_top: top of region accessible to PCI
-	 */
-	phys_addr_t pci_ram_top;
 #endif
 #ifdef CONFIG_PCI_BOOTDELAY
 	/**
@@ -563,12 +559,6 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #else
 #define gd_malloc_start()	0
 #define gd_set_malloc_start(val)
-#endif
-
-#if CONFIG_IS_ENABLED(PCI)
-#define gd_set_pci_ram_top(val)	gd->pci_ram_top = val
-#else
-#define gd_set_pci_ram_top(val)
 #endif
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)

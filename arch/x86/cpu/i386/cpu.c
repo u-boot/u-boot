@@ -412,12 +412,6 @@ int cpu_phys_address_size(void)
 	return 32;
 }
 
-/* Don't allow PCI region 3 to use memory in the 2-4GB memory hole */
-static void setup_pci_ram_top(void)
-{
-	gd_set_pci_ram_top(0x80000000U);
-}
-
 static void setup_mtrr(void)
 {
 	u64 mtrr_cap;
@@ -469,7 +463,6 @@ int x86_cpu_init_f(void)
 		setup_cpu_features();
 	setup_identity();
 	setup_mtrr();
-	setup_pci_ram_top();
 
 	/* Set up the i8254 timer if required */
 	if (IS_ENABLED(CONFIG_I8254_TIMER))
@@ -483,7 +476,6 @@ int x86_cpu_reinit_f(void)
 	long addr;
 
 	setup_identity();
-	setup_pci_ram_top();
 	addr = locate_coreboot_table();
 	if (addr >= 0) {
 		gd->arch.coreboot_table = addr;
