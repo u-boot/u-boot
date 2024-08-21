@@ -86,6 +86,7 @@ struct global_data {
 	 * @cpu_clk: CPU clock rate in Hz
 	 */
 	unsigned long cpu_clk;
+#if CONFIG_IS_ENABLED(ENV_SUPPORT)
 	/**
 	 * @env_addr: address of environment structure
 	 *
@@ -93,6 +94,7 @@ struct global_data {
 	 * environment variables.
 	 */
 	unsigned long env_addr;
+#endif /* ENV_SUPPORT */
 	/**
 	 * @ram_base: base address of RAM used by U-Boot
 	 */
@@ -134,6 +136,7 @@ struct global_data {
 	 * @baudrate: baud rate of the serial interface
 	 */
 	unsigned int baudrate;
+#if CONFIG_IS_ENABLED(ENV_SUPPORT)
 	/**
 	 * @env_has_init: bit mask indicating environment locations
 	 *
@@ -151,13 +154,14 @@ struct global_data {
 	 */
 	char env_load_prio;
 	/**
-	 * @fdt_src: Source of FDT
-	 */
-	enum fdt_source_t fdt_src;
-	/**
 	 * @env_buf: buffer for env_get() before reloc
 	 */
 	char env_buf[32];
+#endif /* ENV_SUPPORT */
+	/**
+	 * @fdt_src: Source of FDT
+	 */
+	enum fdt_source_t fdt_src;
 	/**
 	 * @arch: architecture-specific data
 	 */
