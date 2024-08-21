@@ -43,6 +43,25 @@ struct global_data {
 	 * @bd: board information
 	 */
 	struct bd_info *bd;
+	/**
+	 * @new_gd: pointer to relocated global data
+	 */
+	struct global_data *new_gd;
+	/**
+	 * @fdt_blob: U-Boot's own device tree, NULL if none
+	 */
+	const void *fdt_blob;
+	/**
+	 * @jt: jump table
+	 *
+	 * The jump table contains pointers to exported functions. A pointer to
+	 * the jump table is passed to standalone applications.
+	 */
+	struct jt_funcs *jt;
+	/**
+	 * @cur_serial_dev: current serial device
+	 */
+	struct udevice *cur_serial_dev;
 #ifndef CONFIG_SPL_BUILD
 	/**
 	 * @boardf: information only used before relocation
@@ -132,32 +151,13 @@ struct global_data {
 	 */
 	char env_load_prio;
 	/**
-	 * @new_gd: pointer to relocated global data
-	 */
-	struct global_data *new_gd;
-	/**
-	 * @fdt_blob: U-Boot's own device tree, NULL if none
-	 */
-	const void *fdt_blob;
-	/**
 	 * @fdt_src: Source of FDT
 	 */
 	enum fdt_source_t fdt_src;
 	/**
-	 * @jt: jump table
-	 *
-	 * The jump table contains pointers to exported functions. A pointer to
-	 * the jump table is passed to standalone applications.
-	 */
-	struct jt_funcs *jt;
-	/**
 	 * @env_buf: buffer for env_get() before reloc
 	 */
 	char env_buf[32];
-	/**
-	 * @cur_serial_dev: current serial device
-	 */
-	struct udevice *cur_serial_dev;
 	/**
 	 * @arch: architecture-specific data
 	 */
