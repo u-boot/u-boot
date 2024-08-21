@@ -395,10 +395,6 @@ struct global_data {
 	 * @bloblist: blob list information
 	 */
 	struct bloblist_hdr *bloblist;
-	/**
-	 * @new_bloblist: relocated blob list information
-	 */
-	struct bloblist_hdr *new_bloblist;
 #endif
 #if CONFIG_IS_ENABLED(HANDOFF)
 	/**

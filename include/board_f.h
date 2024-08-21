@@ -26,6 +26,10 @@ struct board_f {
 	 * @new_bootstage: relocated boot stage information
 	 */
 	struct bootstage_data *new_bootstage;
+	/**
+	 * @new_bloblist: relocated blob list information
+	 */
+	struct bloblist_hdr *new_bloblist;
 };
 
 #endif
