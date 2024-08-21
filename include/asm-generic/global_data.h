@@ -114,21 +114,21 @@ struct global_data {
 	 */
 	unsigned long env_addr;
 	/**
-	 * @env_valid: environment is valid
-	 *
-	 * See &enum env_valid
-	 */
-	unsigned long env_valid;
-	/**
 	 * @env_has_init: bit mask indicating environment locations
 	 *
 	 * &enum env_location defines which bit relates to which location
 	 */
-	unsigned long env_has_init;
+	unsigned short env_has_init;
+	/**
+	 * @env_valid: environment is valid
+	 *
+	 * See &enum env_valid
+	 */
+	unsigned char env_valid;
 	/**
 	 * @env_load_prio: priority of the loaded environment
 	 */
-	int env_load_prio;
+	char env_load_prio;
 	/**
 	 * @ram_base: base address of RAM used by U-Boot
 	 */
