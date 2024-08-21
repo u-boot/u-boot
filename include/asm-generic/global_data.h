@@ -298,12 +298,6 @@ struct global_data {
 	 */
 	unsigned long malloc_ptr;
 #endif
-#ifdef CONFIG_PCI
-	/**
-	 * @hose: PCI hose for early use
-	 */
-	struct pci_controller *hose;
-#endif
 #ifdef CONFIG_PCI_BOOTDELAY
 	/**
 	 * @pcidelay_done: delay time before scanning of PIC hose expired
