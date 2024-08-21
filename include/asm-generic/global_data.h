@@ -396,12 +396,6 @@ struct global_data {
 	 */
 	struct bloblist_hdr *bloblist;
 #endif
-#if CONFIG_IS_ENABLED(HANDOFF)
-	/**
-	 * @spl_handoff: SPL hand-off information
-	 */
-	struct spl_handoff *spl_handoff;
-#endif
 #if defined(CONFIG_TRANSLATION_OFFSET)
 	/**
 	 * @translation_offset: optional translation offset
