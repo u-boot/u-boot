@@ -309,6 +309,9 @@ void lmb_add_memory(void)
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
 
+	if (CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP))
+		return lmb_arch_add_memory();
+
 	/* Assume a 4GB ram_top if not defined */
 	if (!ram_top)
 		ram_top = 0x100000000ULL;
