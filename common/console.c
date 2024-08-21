@@ -189,6 +189,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		/* Assign the new device (leaving the existing one started) */
 		stdio_devices[file] = dev;
 
+#ifndef CONFIG_SPL_BUILD
 		/*
 		 * Update monitor functions
 		 * (to use the console stuff by other applications)
@@ -206,7 +207,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 			break;
 		}
 		break;
-
+#endif
 	default:		/* Invalid file ID */
 		error = -1;
 	}

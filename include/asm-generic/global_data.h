@@ -52,17 +52,17 @@ struct global_data {
 	 */
 	const void *fdt_blob;
 	/**
+	 * @cur_serial_dev: current serial device
+	 */
+	struct udevice *cur_serial_dev;
+#ifndef CONFIG_SPL_BUILD
+	/**
 	 * @jt: jump table
 	 *
 	 * The jump table contains pointers to exported functions. A pointer to
 	 * the jump table is passed to standalone applications.
 	 */
 	struct jt_funcs *jt;
-	/**
-	 * @cur_serial_dev: current serial device
-	 */
-	struct udevice *cur_serial_dev;
-#ifndef CONFIG_SPL_BUILD
 	/**
 	 * @boardf: information only used before relocation
 	 */
