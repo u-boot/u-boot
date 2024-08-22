@@ -1858,7 +1858,7 @@ int android_image_get_kernel(const void *hdr,
  * @vendor_boot_img : Pointer to vendor boot image header
  * @rd_data:	Pointer to a ulong variable, will hold ramdisk address
  * @rd_len:	Pointer to a ulong variable, will hold ramdisk length
- * Return: 0 if succeeded, -1 if ramdisk size is 0
+ * Return: 0 if OK, -ENOPKG if no ramdisk, -EINVAL if invalid image
  */
 int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 			      ulong *rd_data, ulong *rd_len);
