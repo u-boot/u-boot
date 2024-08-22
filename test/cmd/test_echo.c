@@ -49,7 +49,7 @@ static int lib_test_hush_echo(struct unit_test_state *uts)
 		console_record_readline(uts->actual_str,
 					sizeof(uts->actual_str));
 		ut_asserteq_str(echo_data[i].expected, uts->actual_str);
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 	}
 	return 0;
 }

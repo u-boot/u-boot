@@ -28,7 +28,7 @@ static int log_test_nolog_err(struct unit_test_state *uts)
 	log_err("testing %s\n", "log_err");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_err"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_err);
@@ -41,7 +41,7 @@ static int log_test_nolog_warning(struct unit_test_state *uts)
 	log_warning("testing %s\n", "log_warning");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_warning"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_warning);
@@ -54,7 +54,7 @@ static int log_test_nolog_notice(struct unit_test_state *uts)
 	log_notice("testing %s\n", "log_notice");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_notice"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_notice);
@@ -67,7 +67,7 @@ static int log_test_nolog_info(struct unit_test_state *uts)
 	log_err("testing %s\n", "log_info");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_info"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_info);
@@ -81,7 +81,7 @@ static int nolog_test_nodebug(struct unit_test_state *uts)
 	memset(buf, 0, BUFFSIZE);
 	debug("testing %s\n", "debug");
 	gd->flags &= ~GD_FLG_RECORD;
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(nolog_test_nodebug);
@@ -94,7 +94,7 @@ static int log_test_nolog_nodebug(struct unit_test_state *uts)
 	log_debug("testing %s\n", "log_debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assert(!strcmp(buf, ""));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_nodebug);
@@ -109,7 +109,7 @@ static int nolog_test_debug(struct unit_test_state *uts)
 	debug("testing %s\n", "debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing debug"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(nolog_test_debug);
@@ -124,7 +124,7 @@ static int log_test_nolog_debug(struct unit_test_state *uts)
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_debug"));
 	ut_assertok(ut_check_console_line(uts, "more log_debug"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	return 0;
 }
 LOG_TEST(log_test_nolog_debug);

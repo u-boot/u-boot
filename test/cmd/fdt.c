@@ -171,7 +171,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	ut_assertok(run_command("fdt addr -c", 0));
 	ut_assert_nextline("Control fdt: %08lx",
 			   (ulong)map_to_sysmem(gd->fdt_blob));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* The working fdt is not set, so this should fail */
 	set_working_fdt_addr(0);
@@ -184,13 +184,13 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	 */
 	if (IS_ENABLED(CONFIG_SANDBOX))
 		ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Set up a working FDT and try again */
 	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	ut_assertok(run_command("fdt addr", 0));
 	ut_assert_nextline("Working fdt: %08lx", (ulong)map_to_sysmem(fdt));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Set the working FDT */
 	set_working_fdt_addr(0);
@@ -198,7 +198,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	ut_assertok(run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_asserteq(addr, map_to_sysmem(working_fdt));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 	set_working_fdt_addr(0);
 	ut_assert_nextline("Working FDT set to 0");
 
@@ -210,13 +210,13 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	gd->fdt_blob = fdt_blob;
 	ut_assertok(ret);
 	ut_asserteq(addr, map_to_sysmem(new_fdt));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test setting an invalid FDT */
 	fdt[0] = 123;
 	ut_asserteq(1, run_commandf("fdt addr %08lx", addr));
 	ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test detecting an invalid FDT */
 	fdt[0] = 123;
@@ -224,7 +224,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_asserteq(1, run_commandf("fdt addr"));
 	ut_assert_nextline("libfdt fdt_check_header(): FDT_ERR_BADMAGIC");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -242,18 +242,18 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 	/* Test setting and resizing the working FDT to a larger size */
 	ut_assertok(run_commandf("fdt addr %08lx %x", addr, newsize));
 	ut_assert_nextline("Working FDT set to %lx", addr);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Try shrinking it */
 	ut_assertok(run_commandf("fdt addr %08lx %zx", addr, sizeof(fdt) / 4));
 	ut_assert_nextline("Working FDT set to %lx", addr);
 	ut_assert_nextline("New length %d < existing length %d, ignoring",
 			   (int)sizeof(fdt) / 4, newsize);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* ...quietly */
 	ut_assertok(run_commandf("fdt addr -q %08lx %zx", addr, sizeof(fdt) / 4));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* We cannot easily provoke errors in fdt_open_into(), so ignore that */
 
@@ -280,12 +280,12 @@ static int fdt_test_move(struct unit_test_state *uts)
 	/* Test moving the working FDT to a new location */
 	ut_assertok(run_commandf("fdt move %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Working FDT set to %lx", newaddr);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Compare the source and destination DTs */
 	ut_assertok(run_commandf("cmp.b %08lx %08lx %x", addr, newaddr, ts));
 	ut_assert_nextline("Total of %d byte(s) were the same", ts);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -306,7 +306,7 @@ static int fdt_test_resize(struct unit_test_state *uts)
 	/* Test resizing the working FDT and verify the new space was added */
 	ut_assertok(run_commandf("fdt resize %x", newsize));
 	ut_asserteq(ts + newsize, fdt_totalsize(fdt));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -325,7 +325,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	ut_assert_nextline("\t#size-cells = <0x00000000>;");
 	ut_assert_nextline("\tcompatible = \"u-boot,fdt-subnode-test-device\";");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -333,7 +333,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 */
 	ut_assertok(run_commandf("fdt %s / model", opc));
 	ut_assert_nextline("model = \"U-Boot FDT test\"");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -341,7 +341,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 */
 	ut_assertok(run_commandf("fdt %s %s compatible", opc, node));
 	ut_assert_nextline("compatible = \"u-boot,fdt-test-device1\"");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -349,7 +349,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 */
 	ut_assertok(run_commandf("fdt %s %s clock-names", opc, node));
 	ut_assert_nextline("clock-names = \"fixed\", \"i2c\", \"spi\", \"uart2\", \"uart1\"");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -357,7 +357,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 */
 	ut_assertok(run_commandf("fdt %s %s clock-frequency", opc, node));
 	ut_assert_nextline("clock-frequency = <0x00fde800>");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -370,7 +370,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 * since the beginning of the command 'fdt', keep it.
 	 */
 	ut_assert_nextline("%s u-boot,empty-property", node);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Test printing/listing the working FDT
@@ -378,7 +378,7 @@ static int fdt_test_print_list_common(struct unit_test_state *uts,
 	 */
 	ut_assertok(run_commandf("fdt %s %s regs", opc, node));
 	ut_assert_nextline("regs = <0x00001234 0x00001000>");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -424,7 +424,7 @@ static int fdt_test_print_list(struct unit_test_state *uts, bool print)
 	}
 	ut_assert_nextline("\t};");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	ret = fdt_test_print_list_common(uts, opc, "/test-node@1234");
 	if (!ret)
@@ -457,7 +457,7 @@ static int fdt_test_get_value_string(struct unit_test_state *uts,
 		ut_asserteq_str(strres, env_get("var"));
 	else
 		ut_asserteq(intres, env_get_hex("var", 0x1234));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -501,16 +501,16 @@ static int fdt_test_get_value_common(struct unit_test_state *uts,
 
 	/* Test missing 10th element of $node node clock-names property */
 	ut_asserteq(1, run_commandf("fdt get value ften %s clock-names 10", node));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test missing 10th element of $node node regs property */
 	ut_asserteq(1, run_commandf("fdt get value ften %s regs 10", node));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting default element of $node node nonexistent property */
 	ut_asserteq(1, run_commandf("fdt get value fnone %s nonexistent", node));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -528,17 +528,17 @@ static int fdt_test_get_value(struct unit_test_state *uts)
 	/* Test getting default element of /nonexistent node */
 	ut_asserteq(1, run_command("fdt get value fnode /nonexistent nonexistent", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting default element of bad alias */
 	ut_asserteq(1, run_command("fdt get value vbadalias badalias nonexistent", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting default element of nonexistent alias */
 	ut_asserteq(1, run_command("fdt get value vnoalias noalias nonexistent", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -554,58 +554,58 @@ static int fdt_test_get_name(struct unit_test_state *uts)
 	/* Test getting name of node 0 in /, which is /aliases node */
 	ut_assertok(run_command("fdt get name nzero / 0", 0));
 	ut_asserteq_str("aliases", env_get("nzero"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node 1 in /, which is /test-node@1234 node */
 	ut_assertok(run_command("fdt get name none / 1", 0));
 	ut_asserteq_str("test-node@1234", env_get("none"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node -1 in /, which is /aliases node, same as 0 */
 	ut_assertok(run_command("fdt get name nmone / -1", 0));
 	ut_asserteq_str("aliases", env_get("nmone"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node 2 in /, which does not exist */
 	ut_asserteq(1, run_command("fdt get name ntwo / 2", 1));
 	ut_assert_nextline("libfdt node not found");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node 0 in /test-node@1234, which is /subnode node */
 	ut_assertok(run_command("fdt get name snzero /test-node@1234 0", 0));
 	ut_asserteq_str("subnode", env_get("snzero"));
 	ut_assertok(run_command("fdt get name asnzero testnodealias 0", 0));
 	ut_asserteq_str("subnode", env_get("asnzero"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node 1 in /test-node@1234, which does not exist */
 	ut_asserteq(1, run_command("fdt get name snone /test-node@1234 1", 1));
 	ut_assert_nextline("libfdt node not found");
 	ut_asserteq(1, run_command("fdt get name asnone testnodealias 1", 1));
 	ut_assert_nextline("libfdt node not found");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of node -1 in /test-node@1234, which is /subnode node, same as 0 */
 	ut_assertok(run_command("fdt get name snmone /test-node@1234 -1", 0));
 	ut_asserteq_str("subnode", env_get("snmone"));
 	ut_assertok(run_command("fdt get name asnmone testnodealias -1", 0));
 	ut_asserteq_str("subnode", env_get("asnmone"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of nonexistent node */
 	ut_asserteq(1, run_command("fdt get name nonode /nonexistent 0", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of bad alias */
 	ut_asserteq(1, run_command("fdt get name vbadalias badalias 0", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting name of nonexistent alias */
 	ut_asserteq(1, run_command("fdt get name vnoalias noalias 0", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -628,7 +628,7 @@ static int fdt_test_get_addr_common(struct unit_test_state *uts, char *fdt,
 	ut_assertok(run_commandf("fdt get addr pstr %s %s", path, prop));
 	ut_asserteq((ulong)map_sysmem(env_get_hex("fdtaddr", 0x1234), 0),
 		    (ulong)(map_sysmem(env_get_hex("pstr", 0x1234), 0) - offset));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -670,12 +670,12 @@ static int fdt_test_get_addr(struct unit_test_state *uts)
 	/* Test getting address of node /test-node@1234/subnode non-existent property "noprop" */
 	ut_asserteq(1, run_command("fdt get addr pnoprop /test-node@1234/subnode noprop", 1));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting address of non-existent node /test-node@1234/nonode@1 property "noprop" */
 	ut_asserteq(1, run_command("fdt get addr pnonode /test-node@1234/nonode@1 noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -691,7 +691,7 @@ static int fdt_test_get_size_common(struct unit_test_state *uts,
 		ut_assertok(run_commandf("fdt get size sstr %s", path));
 	}
 	ut_asserteq(val, env_get_hex("sstr", 0x1234));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -742,27 +742,27 @@ static int fdt_test_get_size(struct unit_test_state *uts)
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
 	ut_asserteq(1, run_command("fdt get size pnoprop subnodealias noprop", 1));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting size of non-existent node /test-node@1234/nonode@1 property "noprop" */
 	ut_asserteq(1, run_command("fdt get size pnonode /test-node@1234/nonode@1 noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting node count of non-existent node /test-node@1234/nonode@1 */
 	ut_asserteq(1, run_command("fdt get size pnonode /test-node@1234/nonode@1", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting node count of bad alias badalias */
 	ut_asserteq(1, run_command("fdt get size pnonode badalias noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting node count of non-existent alias noalias */
 	ut_asserteq(1, run_command("fdt get size pnonode noalias", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -793,7 +793,7 @@ static int fdt_test_set_single(struct unit_test_state *uts,
 		ut_asserteq(ival, env_get_hex("svar", 0x1234));
 	else
 		ut_assertnull(env_get("svar"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -842,7 +842,7 @@ static int fdt_test_set_multi(struct unit_test_state *uts,
 		ut_asserteq(ival2, env_get_hex("svar2", 0x1234));
 		ut_assertnull(env_get("svarn"));
 	}
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -889,17 +889,17 @@ static int fdt_test_set(struct unit_test_state *uts)
 	/* Test setting property of non-existent node */
 	ut_asserteq(1, run_command("fdt set /no-node noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test setting property of non-existent alias */
 	ut_asserteq(1, run_command("fdt set noalias noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test setting property of bad alias */
 	ut_asserteq(1, run_command("fdt set badalias noprop", 1));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -918,46 +918,46 @@ static int fdt_test_mknode(struct unit_test_state *uts)
 	ut_assertok(run_commandf("fdt list /newnode"));
 	ut_assert_nextline("newnode {");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in /test-node@1234 */
 	ut_assertok(run_commandf("fdt mknode /test-node@1234 newsubnode"));
 	ut_assertok(run_commandf("fdt list /test-node@1234/newsubnode"));
 	ut_assert_nextline("newsubnode {");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in /test-node@1234 by alias */
 	ut_assertok(run_commandf("fdt mknode testnodealias newersubnode"));
 	ut_assertok(run_commandf("fdt list testnodealias/newersubnode"));
 	ut_assert_nextline("newersubnode {");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in /test-node@1234 over existing node */
 	ut_asserteq(1, run_commandf("fdt mknode testnodealias newsubnode"));
 	ut_assert_nextline("libfdt fdt_add_subnode(): FDT_ERR_EXISTS");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in /test-node@1234 by alias over existing node */
 	ut_asserteq(1, run_commandf("fdt mknode testnodealias newersubnode"));
 	ut_assert_nextline("libfdt fdt_add_subnode(): FDT_ERR_EXISTS");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in non-existent node */
 	ut_asserteq(1, run_commandf("fdt mknode /no-node newnosubnode"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in non-existent alias */
 	ut_asserteq(1, run_commandf("fdt mknode noalias newfailsubnode"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test creation of new node in bad alias */
 	ut_asserteq(1, run_commandf("fdt mknode badalias newbadsubnode"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -976,7 +976,7 @@ static int fdt_test_rm(struct unit_test_state *uts)
 	ut_assertok(run_commandf("fdt rm / compatible"));
 	ut_asserteq(1, run_commandf("fdt print / compatible"));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of property clock-names in subnode /test-node@1234 */
 	ut_assertok(run_commandf("fdt print /test-node@1234 clock-names"));
@@ -984,7 +984,7 @@ static int fdt_test_rm(struct unit_test_state *uts)
 	ut_assertok(run_commandf("fdt rm /test-node@1234 clock-names"));
 	ut_asserteq(1, run_commandf("fdt print /test-node@1234 clock-names"));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of property u-boot,empty-property in subnode /test-node@1234 by alias */
 	ut_assertok(run_commandf("fdt print testnodealias u-boot,empty-property"));
@@ -992,44 +992,44 @@ static int fdt_test_rm(struct unit_test_state *uts)
 	ut_assertok(run_commandf("fdt rm testnodealias u-boot,empty-property"));
 	ut_asserteq(1, run_commandf("fdt print testnodealias u-boot,empty-property"));
 	ut_assert_nextline("libfdt fdt_getprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of non-existent property noprop in subnode /test-node@1234 */
 	ut_asserteq(1, run_commandf("fdt rm /test-node@1234 noprop"));
 	ut_assert_nextline("libfdt fdt_delprop(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of non-existent node /no-node@5678 */
 	ut_asserteq(1, run_commandf("fdt rm /no-node@5678"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of subnode /test-node@1234/subnode by alias */
 	ut_assertok(run_commandf("fdt rm subnodealias"));
 	ut_asserteq(1, run_commandf("fdt print /test-node@1234/subnode"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of node by non-existent alias */
 	ut_asserteq(1, run_commandf("fdt rm noalias"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of node by bad alias */
 	ut_asserteq(1, run_commandf("fdt rm noalias"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_BADPATH");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of node /test-node@1234 */
 	ut_assertok(run_commandf("fdt rm /test-node@1234"));
 	ut_asserteq(1, run_commandf("fdt print /test-node@1234"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test removal of node / */
 	ut_assertok(run_commandf("fdt rm /"));
 	ut_asserteq(1, run_commandf("fdt print /"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -1046,17 +1046,17 @@ static int fdt_test_bootcpu(struct unit_test_state *uts)
 	/* Test getting default bootcpu entry */
 	ut_assertok(run_commandf("fdt header get bootcpu boot_cpuid_phys"));
 	ut_asserteq(0, env_get_ulong("bootcpu", 10, 0x1234));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test setting and getting new bootcpu entry, twice, to test overwrite */
 	for (i = 42; i <= 43; i++) {
 		ut_assertok(run_commandf("fdt bootcpu %d", i));
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 
 		/* Test getting new bootcpu entry */
 		ut_assertok(run_commandf("fdt header get bootcpu boot_cpuid_phys"));
 		ut_asserteq(i, env_get_ulong("bootcpu", 10, 0x1234));
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 	}
 
 	return 0;
@@ -1069,11 +1069,11 @@ static int fdt_test_header_get(struct unit_test_state *uts,
 	/* Test getting valid header entry */
 	ut_assertok(run_commandf("fdt header get fvar %s", field));
 	ut_asserteq(val, env_get_hex("fvar", 0x1234));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test getting malformed header entry */
 	ut_asserteq(1, run_commandf("fdt header get fvar typo%stypo", field));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -1099,7 +1099,7 @@ static int fdt_test_header(struct unit_test_state *uts)
 	ut_assert_nextline("size_dt_struct:\t\t0x%x", fdt_size_dt_struct(fdt));
 	ut_assert_nextline("number mem_rsv:\t\t0x%x", fdt_num_mem_rsv(fdt));
 	ut_assert_nextline_empty();
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test header get */
 	ut_assertok(fdt_test_header_get(uts, "magic", fdt_magic(fdt)));
@@ -1175,7 +1175,7 @@ static int fdt_test_memory_cells(struct unit_test_state *uts,
 	ut_assert_nextline("\tdevice_type = \"memory\";");
 	ut_assert_nextline("\treg = <%s %s>;", pada, pads);
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	free(sets);
 	free(seta);
@@ -1223,7 +1223,7 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 	ut_assert_nextline("------------------------------------------------");
 	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
 	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test add new reserved memory node */
 	ut_assertok(run_commandf("fdt rsvmem add 0x1234 0x5678"));
@@ -1233,7 +1233,7 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x42, 0x1701);
 	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x74656, 0x9);
 	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x1234, 0x5678);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test delete reserved memory node */
 	ut_assertok(run_commandf("fdt rsvmem delete 0"));
@@ -1242,7 +1242,7 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 	ut_assert_nextline("------------------------------------------------");
 	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
 	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test re-add new reserved memory node */
 	ut_assertok(run_commandf("fdt rsvmem add 0x42 0x1701"));
@@ -1252,12 +1252,12 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 	ut_assert_nextline("    %x\t%016x\t%016x", 0, 0x74656, 0x9);
 	ut_assert_nextline("    %x\t%016x\t%016x", 1, 0x1234, 0x5678);
 	ut_assert_nextline("    %x\t%016x\t%016x", 2, 0x42, 0x1701);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test delete nonexistent reserved memory node */
 	ut_asserteq(1, run_commandf("fdt rsvmem delete 10"));
 	ut_assert_nextline("libfdt fdt_del_mem_rsv(): FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -1275,7 +1275,7 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	/* Test default chosen node presence, fail as there is no /chosen node */
 	ut_asserteq(1, run_commandf("fdt print /chosen"));
 	ut_assert_nextline("libfdt fdt_path_offset() returned FDT_ERR_NOTFOUND");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test add new chosen node without initrd */
 	ut_assertok(run_commandf("fdt chosen"));
@@ -1289,7 +1289,7 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	    !IS_ENABLED(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT))
 		ut_assert_nextlinen("\tkaslr-seed = ");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test add new chosen node with initrd */
 	ut_assertok(run_commandf("fdt chosen 0x1234 0x5678"));
@@ -1308,7 +1308,7 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	    !IS_ENABLED(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT))
 		ut_assert_nextlinen("\tkaslr-seed = ");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -1351,7 +1351,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 	ut_assert_nextline("\t__symbols__ {");
 	ut_assert_nextline("\t};");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test simple DTO application */
 	ut_assertok(run_commandf("fdt apply 0x%08lx", addro));
@@ -1361,7 +1361,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 	ut_assert_nextline("\t__symbols__ {");
 	ut_assert_nextline("\t};");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Create complex DTO which:
@@ -1414,7 +1414,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
 	ut_assert_nextline("\t};");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/*
 	 * Create complex DTO which:
@@ -1457,7 +1457,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 	ut_assert_nextline("\t\tsubnodephandle = \"/subnode\";");
 	ut_assert_nextline("\t};");
 	ut_assert_nextline("};");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }

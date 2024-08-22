@@ -221,7 +221,7 @@ static int net_test_wget(struct unit_test_state *uts)
 
 	run_command("md5sum ${loadaddr} ${filesize}", 0);
 	ut_assert_nextline("md5 for 00020000 ... 0002001f ==> 234af48e94b0085060249ecb5942ab57");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }

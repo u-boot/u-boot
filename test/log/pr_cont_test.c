@@ -34,7 +34,7 @@ static int log_test_pr_cont(struct unit_test_state *uts)
 	gd->log_fmt = log_fmt;
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "ea1 cc2"));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }

@@ -30,7 +30,7 @@ static int log_test_log_disabled_ndebug(struct unit_test_state *uts)
 	/* Since DEBUG is not defined, we expect to not get debug output */
 	for (i = LOGL_EMERG; i < LOGL_DEBUG; i++)
 		ut_assertok(ut_check_console_line(uts, "testing level %d", i));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }

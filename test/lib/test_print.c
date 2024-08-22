@@ -20,7 +20,7 @@ static int test_print_freq(struct unit_test_state *uts,
 	print_freq(freq, ";\n");
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -46,7 +46,7 @@ static int test_print_size(struct unit_test_state *uts,
 	print_size(freq, ";\n");
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }

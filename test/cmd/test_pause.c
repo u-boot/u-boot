@@ -19,7 +19,7 @@ static int lib_test_hush_pause(struct unit_test_state *uts)
 	ut_assertok(run_command("pause", 0));
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str("Press any key to continue...", uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test provided message */
 	/* Cook a newline when the command is expected to pause */
@@ -27,7 +27,7 @@ static int lib_test_hush_pause(struct unit_test_state *uts)
 	ut_assertok(run_command("pause 'Prompt for pause...'", 0));
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str("Prompt for pause...", uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Test providing more than one params */
 	/* No newline cooked here since the command is expected to fail */

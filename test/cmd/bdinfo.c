@@ -239,7 +239,7 @@ static int bdinfo_test_full(struct unit_test_state *uts)
 	ut_assertok(bdinfo_test_all(uts));
 	ut_assertok(run_commandf("bdinfo -a"));
 	ut_assertok(bdinfo_test_all(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -259,7 +259,7 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 		ut_assert_nextlinen("Usage:");
 		ut_assert_nextlinen("bdinfo");
 	}
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -273,7 +273,7 @@ static int bdinfo_test_memory(struct unit_test_state *uts)
 		ut_assertok(bdinfo_test_all(uts));
 	else
 		ut_assertok(bdinfo_check_mem(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -287,7 +287,7 @@ static int bdinfo_test_eth(struct unit_test_state *uts)
 		ut_assertok(bdinfo_test_all(uts));
 	else if (IS_ENABLED(CONFIG_CMD_NET))
 		ut_assertok(test_eth(uts));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
