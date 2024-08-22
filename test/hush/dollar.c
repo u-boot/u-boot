@@ -14,7 +14,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int hush_test_simple_dollar(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
 	ut_assertok(run_command("echo $dollar_foo", 0));
 	ut_assert_nextline_empty();
 	ut_assert_console_end();
@@ -121,12 +120,11 @@ static int hush_test_simple_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_simple_dollar, 0);
+HUSH_TEST(hush_test_simple_dollar, UTF_CONSOLE);
 
 static int hush_test_env_dollar(struct unit_test_state *uts)
 {
 	env_set("env_foo", "bar");
-	console_record_reset_enable();
 
 	ut_assertok(run_command("echo $env_foo", 0));
 	ut_assert_nextline("bar");
@@ -154,12 +152,10 @@ static int hush_test_env_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_env_dollar, 0);
+HUSH_TEST(hush_test_env_dollar, UTF_CONSOLE);
 
 static int hush_test_command_dollar(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
-
 	ut_assertok(run_command("dollar_bar=\"echo bar\"", 0));
 
 	ut_assertok(run_command("$dollar_bar", 0));
@@ -222,4 +218,4 @@ static int hush_test_command_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_command_dollar, 0);
+HUSH_TEST(hush_test_command_dollar, UTF_CONSOLE);
