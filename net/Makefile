@@ -42,3 +42,5 @@ obj-$(CONFIG_CMD_WGET) += wget.o
 CFLAGS_eth_common.o += -Wno-format-extra-args
 
 endif
+
+obj-y += net-common.o
