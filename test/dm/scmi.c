@@ -281,7 +281,7 @@ static int dm_test_scmi_cmd(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_scmi_cmd, UTF_SCAN_FDT);
+DM_TEST(dm_test_scmi_cmd, UTF_SCAN_FDT | UTF_CONSOLE);
 
 static int dm_test_scmi_power_domains(struct unit_test_state *uts)
 {

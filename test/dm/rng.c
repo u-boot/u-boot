@@ -33,8 +33,6 @@ static int dm_test_rng_cmd(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_RNG, 0, &dev));
 	ut_assertnonnull(dev);
 
-	ut_assertok(console_record_reset_enable());
-
 	run_command("rng", 0);
 	ut_assert_nextlinen("00000000:");
 	ut_assert_nextlinen("00000010:");

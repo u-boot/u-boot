@@ -115,8 +115,6 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 	struct blk_desc *desc;
 	char fname[256];
 
-	console_record_reset();
-
 	/* first check 'host info' with binding */
 	ut_assertok(run_command("host info", 0));
 	ut_assert_nextline("dev       blocks  blksz label           path");
@@ -199,4 +197,4 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cmd_host, UTF_SCAN_FDT);
+DM_TEST(dm_test_cmd_host, UTF_SCAN_FDT | UTF_CONSOLE);

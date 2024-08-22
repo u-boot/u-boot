@@ -389,7 +389,6 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 
 	ut_assertok(acpi_write_dev_tables(&ctx));
 
-	console_record_reset();
 	run_command("acpi list", 0);
 	ut_assert_nextline("Name              Base   Size  Detail");
 	ut_assert_nextline("----  ----------------  -----  ----------------------------");
@@ -416,7 +415,7 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_cmd_list, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_cmd_list, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Test 'acpi dump' command */
 static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
@@ -433,13 +432,11 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 	ut_assertok(acpi_write_dev_tables(&ctx));
 
 	/* First search for a non-existent table */
-	console_record_reset();
 	run_command("acpi dump rdst", 0);
 	ut_assert_nextline("Table 'RDST' not found");
 	ut_assert_console_end();
 
 	/* Now a real table */
-	console_record_reset();
 	run_command("acpi dump dmar", 0);
 	addr = ALIGN(nomap_to_sysmem(ctx.xsdt) + sizeof(struct acpi_xsdt), 64);
 	ut_assert_nextline("DMAR @ %16lx", addr);
@@ -448,7 +445,7 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_cmd_dump, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_cmd_dump, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Test acpi_device_path() */
 static int dm_test_acpi_device_path(struct unit_test_state *uts)
@@ -575,7 +572,6 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	acpi_reset_items();
 	ctx.current = buf;
 	ut_assertok(acpi_fill_ssdt(&ctx));
-	console_record_reset();
 	run_command("acpi items", 0);
 	ut_assert_nextline("Seq  Type       Base   Size  Device/Writer");
 	ut_assert_nextline("---  -----  --------   ----  -------------");
@@ -586,7 +582,6 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	acpi_reset_items();
 	ctx.current = buf;
 	ut_assertok(acpi_inject_dsdt(&ctx));
-	console_record_reset();
 	run_command("acpi items", 0);
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
@@ -594,7 +589,6 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	ut_assert_nextline("  1  dsdt   %8lx      2  acpi-test2", addr + 2);
 	ut_assert_console_end();
 
-	console_record_reset();
 	run_command("acpi items -d", 0);
 	ut_assert_nextlinen("Seq");
 	ut_assert_nextlinen("---");
@@ -608,7 +602,7 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_cmd_items, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_cmd_items, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Test 'acpi set' command */
 static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
@@ -619,7 +613,6 @@ static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
 
 	gd_set_acpi_start(0);
 
-	console_record_reset();
 	ut_asserteq(0, gd_acpi_start());
 	ut_assertok(run_command("acpi set", 0));
 	ut_assert_nextline("ACPI pointer: 0");
@@ -646,7 +639,7 @@ static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_cmd_set, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_cmd_set, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /**
  * dm_test_write_test_table() - create test ACPI table

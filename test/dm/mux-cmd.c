@@ -109,7 +109,7 @@ static int dm_test_cmd_mux_list(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cmd_mux_list, UTF_SCAN_PDATA | UTF_SCAN_FDT);
+DM_TEST(dm_test_cmd_mux_list, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 static int dm_test_cmd_mux_select(struct unit_test_state *uts)
 {
