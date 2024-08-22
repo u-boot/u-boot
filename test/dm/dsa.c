@@ -56,7 +56,6 @@ static int dm_test_dsa_probe(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_dsa_probe, UTF_SCAN_FDT);
 
 /* This test sends ping requests with the local address through each DSA port
@@ -78,5 +77,4 @@ static int dm_test_dsa(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_dsa, UTF_SCAN_FDT);

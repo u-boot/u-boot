@@ -301,7 +301,6 @@ static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_i2c_addr_offset, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_reg_clrset(struct unit_test_state *uts)

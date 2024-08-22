@@ -188,7 +188,6 @@ static int dm_test_compare_node_name(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_compare_node_name, UTF_SCAN_PDATA);
 
 /* Test that binding with uclass plat setting occurs correctly */

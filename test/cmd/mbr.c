@@ -479,5 +479,4 @@ static int dm_test_cmd_mbr(struct unit_test_state *uts)
 {
 	return mbr_test_run(uts);
 }
-
 DM_TEST(dm_test_cmd_mbr, UTF_SCAN_FDT | UTF_CONSOLE_REC);

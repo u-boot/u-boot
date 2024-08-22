@@ -69,5 +69,4 @@ static int dm_test_nop(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_nop, UTF_FLAT_TREE | UTF_SCAN_FDT);

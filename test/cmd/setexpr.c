@@ -478,7 +478,6 @@ static int setexpr_test_fmt(struct unit_test_state *uts)
 
 	return 0;
 }
-
 SETEXPR_TEST(setexpr_test_fmt, UTF_CONSOLE_REC);
 #endif
 

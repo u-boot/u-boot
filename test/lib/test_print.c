@@ -41,7 +41,6 @@ static int lib_test_print_freq(struct unit_test_state *uts)
 	ut_assertok(test_print_freq(uts, 54321987654321, "54321.99 GHz;"));
 	return 0;
 }
-
 LIB_TEST(lib_test_print_freq, 0);
 
 static int test_print_size(struct unit_test_state *uts,
@@ -74,5 +73,4 @@ static int lib_test_print_size(struct unit_test_state *uts)
 	ut_assertok(test_print_size(uts, 54321987654321, "49.4 TiB;"));
 	return 0;
 }
-
 LIB_TEST(lib_test_print_size, 0);

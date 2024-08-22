@@ -46,7 +46,6 @@ static int dm_test_clk_base(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_clk_base, UTF_SCAN_FDT);
 
 static int dm_test_clk(struct unit_test_state *uts)

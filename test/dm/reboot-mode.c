@@ -39,7 +39,6 @@ static int dm_test_reboot_mode_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_reboot_mode_gpio,
 	UTF_PROBE_TEST | UTF_SCAN_FDT | UTF_FLAT_TREE);
 
@@ -65,6 +64,5 @@ static int dm_test_reboot_mode_rtc(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_reboot_mode_rtc,
 	UTF_PROBE_TEST | UTF_SCAN_FDT | UTF_FLAT_TREE);

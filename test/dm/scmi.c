@@ -202,7 +202,6 @@ static int dm_test_scmi_base(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_scmi_base, UTF_SCAN_FDT);
 
 static int dm_test_scmi_cmd(struct unit_test_state *uts)
@@ -282,7 +281,6 @@ static int dm_test_scmi_cmd(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_scmi_cmd, UTF_SCAN_FDT);
 
 static int dm_test_scmi_power_domains(struct unit_test_state *uts)
@@ -388,7 +386,6 @@ static int dm_test_scmi_power_domains(struct unit_test_state *uts)
 
 	return release_sandbox_scmi_test_devices(uts, dev);
 }
-
 DM_TEST(dm_test_scmi_power_domains, UTF_SCAN_FDT);
 
 static int dm_test_scmi_clocks(struct unit_test_state *uts)

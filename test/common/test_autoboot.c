@@ -91,5 +91,4 @@ static int test_autoboot(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 COMMON_TEST(test_autoboot, 0);

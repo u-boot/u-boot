@@ -157,7 +157,6 @@ static int dm_test_regmap_getset(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_regmap_getset, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Read polling test */

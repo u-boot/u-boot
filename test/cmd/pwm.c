@@ -71,5 +71,4 @@ static int dm_test_pwm_cmd(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_pwm_cmd, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE_REC);

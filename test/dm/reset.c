@@ -66,7 +66,6 @@ static int dm_test_reset_base(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_reset_base, UTF_SCAN_FDT);
 
 static int dm_test_reset(struct unit_test_state *uts)

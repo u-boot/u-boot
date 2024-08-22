@@ -56,5 +56,4 @@ static int lib_test_hush_echo(struct unit_test_state *uts)
 	}
 	return 0;
 }
-
 LIB_TEST(lib_test_hush_echo, 0);

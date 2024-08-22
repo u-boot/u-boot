@@ -228,6 +228,9 @@ Declare the test with::
    }
    DM_TEST(dm_test_uclassname_what, UTF_SCAN_FDT);
 
+Note that the convention is to NOT add a blank line before the macro, so that
+the function it relates to is more obvious.
+
 Replace 'uclassname' with the name of your uclass, if applicable. Replace 'what'
 with what you are testing.
 

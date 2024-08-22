@@ -99,5 +99,4 @@ static int dm_test_read_write(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_read_write, UTF_SCAN_FDT | UTF_CONSOLE_REC);

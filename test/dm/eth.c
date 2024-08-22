@@ -528,7 +528,6 @@ static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_eth_async_arp_reply, UTF_SCAN_FDT);
 
 static int sb_check_ping_reply(struct udevice *dev, void *packet,
@@ -613,7 +612,6 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_eth_async_ping_reply, UTF_SCAN_FDT);
 
 #if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
@@ -659,7 +657,6 @@ static int dm_test_validate_ra(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_validate_ra, 0);
 
 static int dm_test_process_ra(struct unit_test_state *uts)
@@ -698,7 +695,6 @@ static int dm_test_process_ra(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_process_ra, 0);
 
 #endif

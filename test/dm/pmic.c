@@ -52,7 +52,6 @@ static int dm_test_power_pmic_mc34708_get(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_power_pmic_mc34708_get, UTF_SCAN_FDT);
 
 /* Test PMIC I/O */
