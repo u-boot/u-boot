@@ -213,10 +213,12 @@ static int net_test_wget(struct unit_test_state *uts)
 	env_set("ethrotate", "no");
 	env_set("loadaddr", "0x20000");
 	ut_assertok(run_command("wget ${loadaddr} 1.1.2.2:/index.html", 0));
+	ut_assert_nextline("HTTP/1.1 200 OK");
+	ut_assert_nextline("Packets received 5, Transfer Successful");
+	ut_assert_nextline("Bytes transferred = 32 (20 hex)");
 
 	sandbox_eth_set_tx_handler(0, NULL);
 
-	ut_assertok(console_record_reset_enable());
 	run_command("md5sum ${loadaddr} ${filesize}", 0);
 	ut_assert_nextline("md5 for 00020000 ... 0002001f ==> 234af48e94b0085060249ecb5942ab57");
 	ut_assertok(ut_check_console_end(uts));

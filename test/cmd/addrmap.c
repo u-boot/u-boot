@@ -15,7 +15,6 @@
 /* Test 'addrmap' command output */
 static int addrmap_test_basic(struct unit_test_state *uts)
 {
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_command("addrmap", 0));
 	ut_assert_nextline("           vaddr            paddr             size");
 	ut_assert_nextline("================ ================ ================");

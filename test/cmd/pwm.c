@@ -22,8 +22,6 @@ static int dm_test_pwm_cmd(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_PWM, 0, &dev));
 	ut_assertnonnull(dev);
 
-	ut_assertok(console_record_reset_enable());
-
 	/* pwm <invert> <pwm_dev_num> <channel> <polarity> */
 	/* cros-ec-pwm doesn't support invert */
 	ut_asserteq(1, run_command("pwm invert 0 0 1", 0));
@@ -48,8 +46,6 @@ static int dm_test_pwm_cmd(struct unit_test_state *uts)
 	/* sandbox-pwm */
 	ut_assertok(uclass_get_device(UCLASS_PWM, 1, &dev));
 	ut_assertnonnull(dev);
-
-	ut_assertok(console_record_reset_enable());
 
 	/* pwm <invert> <pwm_dev_num> <channel> <polarity> */
 	ut_assertok(run_command("pwm invert 1 0 1", 0));

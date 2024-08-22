@@ -26,7 +26,6 @@ static int font_test_base(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev));
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_command("font list", 0));
 	ut_assert_nextline("nimbus_sans_l_regular");
 	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_CANTORAONE))

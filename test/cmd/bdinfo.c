@@ -235,7 +235,6 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 static int bdinfo_test_full(struct unit_test_state *uts)
 {
 	/* Test BDINFO full print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo"));
 	ut_assertok(bdinfo_test_all(uts));
 	ut_assertok(run_commandf("bdinfo -a"));
@@ -249,7 +248,6 @@ BDINFO_TEST(bdinfo_test_full, UTF_CONSOLE);
 static int bdinfo_test_help(struct unit_test_state *uts)
 {
 	/* Test BDINFO unknown option help text print */
-	ut_assertok(console_record_reset_enable());
 	if (!CONFIG_IS_ENABLED(GETOPT)) {
 		ut_asserteq(0, run_commandf("bdinfo -h"));
 		ut_assertok(bdinfo_test_all(uts));
@@ -270,7 +268,6 @@ BDINFO_TEST(bdinfo_test_help, UTF_CONSOLE);
 static int bdinfo_test_memory(struct unit_test_state *uts)
 {
 	/* Test BDINFO memory layout only print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -m"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));
@@ -285,7 +282,6 @@ BDINFO_TEST(bdinfo_test_memory, UTF_CONSOLE);
 static int bdinfo_test_eth(struct unit_test_state *uts)
 {
 	/* Test BDINFO ethernet settings only print */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("bdinfo -e"));
 	if (!CONFIG_IS_ENABLED(GETOPT))
 		ut_assertok(bdinfo_test_all(uts));

@@ -340,7 +340,6 @@ static int setexpr_test_str_oper(struct unit_test_state *uts)
 	strcpy(buf, "hello");
 	strcpy(buf + 0x10, " there");
 
-	ut_assertok(console_record_reset_enable());
 	start_mem = ut_check_free();
 	ut_asserteq(1, run_command("setexpr.s fred *0 * *10", 0));
 	ut_assertok(ut_check_delta(start_mem));
