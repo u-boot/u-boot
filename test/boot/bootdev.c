@@ -49,7 +49,7 @@ static int bootdev_test_cmd_list(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_list, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_cmd_list, UTF_DM | UTF_SCAN_FDT);
 
 /* Check 'bootdev select' and 'info' commands */
 static int bootdev_test_cmd_select(struct unit_test_state *uts)
@@ -99,7 +99,7 @@ static int bootdev_test_cmd_select(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_select, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_cmd_select, UTF_DM | UTF_SCAN_FDT);
 
 /* Check bootdev labels */
 static int bootdev_test_labels(struct unit_test_state *uts)
@@ -131,8 +131,7 @@ static int bootdev_test_labels(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_labels, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_labels, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV);
 
 /* Check bootdev_find_by_any() */
 static int bootdev_test_any(struct unit_test_state *uts)
@@ -186,8 +185,7 @@ static int bootdev_test_any(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_any, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_any, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV);
 
 /*
  * Check bootdev ordering with the bootdev-order property and boot_targets
@@ -274,7 +272,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_order, UTF_DM | UTF_SCAN_FDT);
 
 /* Check default bootdev ordering  */
 static int bootdev_test_order_default(struct unit_test_state *uts)
@@ -301,7 +299,7 @@ static int bootdev_test_order_default(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_order_default, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_order_default, UTF_DM | UTF_SCAN_FDT);
 
 /* Check bootdev ordering with the uclass priority */
 static int bootdev_test_prio(struct unit_test_state *uts)
@@ -350,7 +348,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_prio, UTF_DM | UTF_SCAN_FDT);
 
 /* Check listing hunters */
 static int bootdev_test_hunter(struct unit_test_state *uts)
@@ -390,7 +388,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunter, UTF_DM | UTF_SCAN_FDT);
 
 /* Check 'bootdev hunt' command */
 static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
@@ -464,8 +462,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_hunt, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_cmd_hunt, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV);
 
 /* Check searching for bootdevs using the hunters */
 static int bootdev_test_hunt_scan(struct unit_test_state *uts)
@@ -485,7 +482,7 @@ static int bootdev_test_hunt_scan(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_scan, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_scan, UTF_DM | UTF_SCAN_FDT);
 
 /* Check that only bootable partitions are processed */
 static int bootdev_test_bootable(struct unit_test_state *uts)
@@ -522,7 +519,7 @@ static int bootdev_test_bootable(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_bootable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_bootable, UTF_DM | UTF_SCAN_FDT);
 
 /* Check hunting for bootdev of a particular priority */
 static int bootdev_test_hunt_prio(struct unit_test_state *uts)
@@ -547,7 +544,7 @@ static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_prio, UTF_DM | UTF_SCAN_FDT);
 
 /* Check hunting for bootdevs with a particular label */
 static int bootdev_test_hunt_label(struct unit_test_state *uts)
@@ -600,7 +597,7 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_label, UTF_DM | UTF_SCAN_FDT);
 
 /* Check iterating to the next label in a list */
 static int bootdev_test_next_label(struct unit_test_state *uts)
@@ -677,8 +674,8 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_next_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV | UT_TESTF_SF_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_next_label, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV |
+	     UTF_SF_BOOTDEV);
 
 /* Check iterating to the next prioirty in a list */
 static int bootdev_test_next_prio(struct unit_test_state *uts)
@@ -762,5 +759,4 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_next_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_SF_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_next_prio, UTF_DM | UTF_SCAN_FDT | UTF_SF_BOOTDEV);

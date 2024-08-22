@@ -114,7 +114,7 @@ static int expo_base(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_base, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_base, UTF_DM | UTF_SCAN_FDT);
 
 /* Check creating a scene */
 static int expo_scene(struct unit_test_state *uts)
@@ -165,7 +165,7 @@ static int expo_scene(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_scene, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_scene, UTF_DM | UTF_SCAN_FDT);
 
 /* Check creating a scene with objects */
 static int expo_object(struct unit_test_state *uts)
@@ -225,7 +225,7 @@ static int expo_object(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_object, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_object, UTF_DM | UTF_SCAN_FDT);
 
 /* Check setting object attributes and using themes */
 static int expo_object_attr(struct unit_test_state *uts)
@@ -286,7 +286,7 @@ static int expo_object_attr(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_object_attr, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_object_attr, UTF_DM | UTF_SCAN_FDT);
 
 /**
  * struct test_iter_priv - private data for expo-iterator test
@@ -432,7 +432,7 @@ static int expo_object_menu(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_object_menu, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_object_menu, UTF_DM | UTF_SCAN_FDT);
 
 /* Check rendering a scene */
 static int expo_render_image(struct unit_test_state *uts)
@@ -633,7 +633,7 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_render_image, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(expo_render_image, UTF_DM | UTF_SCAN_FDT);
 
 /* Check building an expo from a devicetree description */
 static int expo_test_build(struct unit_test_state *uts)
@@ -712,4 +712,4 @@ static int expo_test_build(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_test_build, UT_TESTF_DM);
+BOOTSTD_TEST(expo_test_build, UTF_DM);

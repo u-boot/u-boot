@@ -465,7 +465,7 @@ static int mbr_test_run(struct unit_test_state *uts)
 }
 
 /* Declare mbr test */
-UNIT_TEST(mbr_test_run, UT_TESTF_CONSOLE_REC, mbr_test);
+UNIT_TEST(mbr_test_run, UTF_CONSOLE_REC, mbr_test);
 
 int do_ut_mbr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
@@ -480,4 +480,4 @@ static int dm_test_cmd_mbr(struct unit_test_state *uts)
 	return mbr_test_run(uts);
 }
 
-DM_TEST(dm_test_cmd_mbr, UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+DM_TEST(dm_test_cmd_mbr, UTF_SCAN_FDT | UTF_CONSOLE_REC);

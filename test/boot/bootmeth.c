@@ -31,7 +31,7 @@ static int bootmeth_cmd_list(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_cmd_list, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_cmd_list, UTF_DM | UTF_SCAN_FDT);
 
 /* Check 'bootmeth order' command */
 static int bootmeth_cmd_order(struct unit_test_state *uts)
@@ -104,7 +104,7 @@ static int bootmeth_cmd_order(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_cmd_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_cmd_order, UTF_DM | UTF_SCAN_FDT);
 
 /* Check 'bootmeth order' command with global bootmeths */
 static int bootmeth_cmd_order_glob(struct unit_test_state *uts)
@@ -128,7 +128,7 @@ static int bootmeth_cmd_order_glob(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_cmd_order_glob, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_cmd_order_glob, UTF_DM | UTF_SCAN_FDT);
 
 /* Check 'bootmeths' env var */
 static int bootmeth_env(struct unit_test_state *uts)
@@ -154,7 +154,7 @@ static int bootmeth_env(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_env, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_env, UTF_DM | UTF_SCAN_FDT);
 
 /* Check the get_state_desc() method */
 static int bootmeth_state(struct unit_test_state *uts)
@@ -170,4 +170,4 @@ static int bootmeth_state(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootmeth_state, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootmeth_state, UTF_DM | UTF_SCAN_FDT);

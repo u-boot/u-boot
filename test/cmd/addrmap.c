@@ -24,7 +24,7 @@ static int addrmap_test_basic(struct unit_test_state *uts)
 
 	return 0;
 }
-ADDRMAP_TEST(addrmap_test_basic, UT_TESTF_CONSOLE_REC);
+ADDRMAP_TEST(addrmap_test_basic, UTF_CONSOLE_REC);
 
 int do_ut_addrmap(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

@@ -68,7 +68,7 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test of the phy uclass using the sandbox phy driver operations */
 static int dm_test_phy_ops(struct unit_test_state *uts)
@@ -140,7 +140,7 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_ops, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_bulk(struct unit_test_state *uts)
 {
@@ -173,7 +173,7 @@ static int dm_test_phy_bulk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_bulk, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_bulk, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 {
@@ -232,7 +232,7 @@ static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_multi_exit, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_multi_exit, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_setup(struct unit_test_state *uts)
 {
@@ -261,4 +261,4 @@ static int dm_test_phy_setup(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_setup, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_setup, UTF_SCAN_PDATA | UTF_SCAN_FDT);

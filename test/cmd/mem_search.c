@@ -43,7 +43,7 @@ static int mem_test_ms_b(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_b, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_b, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with 16-bit values */
 static int mem_test_ms_w(struct unit_test_state *uts)
@@ -68,7 +68,7 @@ static int mem_test_ms_w(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_w, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_w, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with 32-bit values */
 static int mem_test_ms_l(struct unit_test_state *uts)
@@ -102,7 +102,7 @@ static int mem_test_ms_l(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_l, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_l, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with continuation */
 static int mem_test_ms_cont(struct unit_test_state *uts)
@@ -152,7 +152,7 @@ static int mem_test_ms_cont(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_cont, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_cont, UTF_CONSOLE_REC);
 
 /* Test that an 'ms' command with continuation stops at the end of the range */
 static int mem_test_ms_cont_end(struct unit_test_state *uts)
@@ -196,7 +196,7 @@ static int mem_test_ms_cont_end(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_cont_end, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_cont_end, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with multiple values */
 static int mem_test_ms_mult(struct unit_test_state *uts)
@@ -225,7 +225,7 @@ static int mem_test_ms_mult(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_mult, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_mult, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with string */
 static int mem_test_ms_s(struct unit_test_state *uts)
@@ -268,7 +268,7 @@ static int mem_test_ms_s(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_s, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_s, UTF_CONSOLE_REC);
 
 /* Test 'ms' command with limit */
 static int mem_test_ms_limit(struct unit_test_state *uts)
@@ -297,7 +297,7 @@ static int mem_test_ms_limit(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_limit, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_limit, UTF_CONSOLE_REC);
 
 /* Test 'ms' command in quiet mode */
 static int mem_test_ms_quiet(struct unit_test_state *uts)
@@ -321,4 +321,4 @@ static int mem_test_ms_quiet(struct unit_test_state *uts)
 
 	return 0;
 }
-MEM_TEST(mem_test_ms_quiet, UT_TESTF_CONSOLE_REC);
+MEM_TEST(mem_test_ms_quiet, UTF_CONSOLE_REC);

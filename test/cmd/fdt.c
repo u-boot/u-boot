@@ -213,7 +213,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_addr, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_addr, UTF_CONSOLE_REC);
 
 /* Test 'fdt addr' resizing an fdt */
 static int fdt_test_addr_resize(struct unit_test_state *uts)
@@ -247,7 +247,7 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_addr_resize, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_addr_resize, UTF_CONSOLE_REC);
 
 static int fdt_test_move(struct unit_test_state *uts)
 {
@@ -281,7 +281,7 @@ static int fdt_test_move(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_move, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_move, UTF_CONSOLE_REC);
 
 static int fdt_test_resize(struct unit_test_state *uts)
 {
@@ -305,7 +305,7 @@ static int fdt_test_resize(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_resize, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_resize, UTF_CONSOLE_REC);
 
 static int fdt_test_print_list_common(struct unit_test_state *uts,
 				      const char *opc, const char *node)
@@ -442,13 +442,13 @@ static int fdt_test_print(struct unit_test_state *uts)
 {
 	return fdt_test_print_list(uts, true);
 }
-FDT_TEST(fdt_test_print, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_print, UTF_CONSOLE_REC);
 
 static int fdt_test_list(struct unit_test_state *uts)
 {
 	return fdt_test_print_list(uts, false);
 }
-FDT_TEST(fdt_test_list, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_list, UTF_CONSOLE_REC);
 
 /* Test 'fdt get value' reading an fdt */
 static int fdt_test_get_value_string(struct unit_test_state *uts,
@@ -554,7 +554,7 @@ static int fdt_test_get_value(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_get_value, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_get_value, UTF_CONSOLE_REC);
 
 static int fdt_test_get_name(struct unit_test_state *uts)
 {
@@ -633,7 +633,7 @@ static int fdt_test_get_name(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_get_name, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_get_name, UTF_CONSOLE_REC);
 
 static int fdt_test_get_addr_common(struct unit_test_state *uts, char *fdt,
 				    const char *path, const char *prop)
@@ -700,7 +700,7 @@ static int fdt_test_get_addr(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_get_addr, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_get_addr, UTF_CONSOLE_REC);
 
 static int fdt_test_get_size_common(struct unit_test_state *uts,
 				     const char *path, const char *prop,
@@ -787,7 +787,7 @@ static int fdt_test_get_size(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_get_size, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_get_size, UTF_CONSOLE_REC);
 
 static int fdt_test_set_single(struct unit_test_state *uts,
 			       const char *path, const char *prop,
@@ -929,7 +929,7 @@ static int fdt_test_set(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_set, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_set, UTF_CONSOLE_REC);
 
 static int fdt_test_mknode(struct unit_test_state *uts)
 {
@@ -997,7 +997,7 @@ static int fdt_test_mknode(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_mknode, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_mknode, UTF_CONSOLE_REC);
 
 static int fdt_test_rm(struct unit_test_state *uts)
 {
@@ -1081,7 +1081,7 @@ static int fdt_test_rm(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_rm, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_rm, UTF_CONSOLE_REC);
 
 static int fdt_test_bootcpu(struct unit_test_state *uts)
 {
@@ -1114,7 +1114,7 @@ static int fdt_test_bootcpu(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_bootcpu, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_bootcpu, UTF_CONSOLE_REC);
 
 static int fdt_test_header_get(struct unit_test_state *uts,
 			       const char *field, const unsigned long val)
@@ -1173,7 +1173,7 @@ static int fdt_test_header(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_header, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_header, UTF_CONSOLE_REC);
 
 static int fdt_test_memory_cells(struct unit_test_state *uts,
 				 const unsigned int cells)
@@ -1256,7 +1256,7 @@ static int fdt_test_memory(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_memory, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_memory, UTF_CONSOLE_REC);
 
 static int fdt_test_rsvmem(struct unit_test_state *uts)
 {
@@ -1319,7 +1319,7 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_rsvmem, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_rsvmem, UTF_CONSOLE_REC);
 
 static int fdt_test_chosen(struct unit_test_state *uts)
 {
@@ -1375,7 +1375,7 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_chosen, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_chosen, UTF_CONSOLE_REC);
 
 static int fdt_test_apply(struct unit_test_state *uts)
 {
@@ -1527,7 +1527,7 @@ static int fdt_test_apply(struct unit_test_state *uts)
 
 	return 0;
 }
-FDT_TEST(fdt_test_apply, UT_TESTF_CONSOLE_REC);
+FDT_TEST(fdt_test_apply, UTF_CONSOLE_REC);
 
 int do_ut_fdt(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

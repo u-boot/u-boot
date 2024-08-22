@@ -81,7 +81,7 @@ The best of both worlds is sometimes to have a Python test set things up and
 perform some operations, with a 'checker' C unit test doing the checks
 afterwards. This can be achieved with these steps:
 
-- Add the `UT_TESTF_MANUAL` flag to the checker test so that the `ut` command
+- Add the `UTF_MANUAL` flag to the checker test so that the `ut` command
   does not run it by default
 - Add a `_norun` suffix to the name so that pytest knows to skip it too
 
@@ -95,7 +95,7 @@ test to run it, e.g.::
    # Run the checker to make sure that everything worked
    ut -f bootstd vbe_test_fixup_norun
 
-Note that apart from the `UT_TESTF_MANUAL` flag, the code in a 'manual' C test
+Note that apart from the `UTF_MANUAL` flag, the code in a 'manual' C test
 is just like any other C test. It still uses ut_assert...() and other such
 constructs, in this case to check that the expected things happened in the
 Python test.
@@ -167,7 +167,7 @@ There is no exactly equivalent C test, but here is a similar one that tests 'ms'
 
       return 0;
    }
-   MEM_TEST(mem_test_ms_b, UT_TESTF_CONSOLE_REC);
+   MEM_TEST(mem_test_ms_b, UTF_CONSOLE_REC);
 
 This runs the command directly in U-Boot, then checks the console output, also
 directly in U-Boot. If run by itself this takes 100ms. For 1000 runs it takes
@@ -226,14 +226,14 @@ Declare the test with::
 
       return 0;
    }
-   DM_TEST(dm_test_uclassname_what, UT_TESTF_SCAN_FDT);
+   DM_TEST(dm_test_uclassname_what, UTF_SCAN_FDT);
 
 Replace 'uclassname' with the name of your uclass, if applicable. Replace 'what'
 with what you are testing.
 
 The flags for DM_TEST() are defined in test/test.h and you typically want
-UT_TESTF_SCAN_FDT so that the devicetree is scanned and all devices are bound
-and ready for use. The DM_TEST macro adds UT_TESTF_DM automatically so that
+UTF_SCAN_FDT so that the devicetree is scanned and all devices are bound
+and ready for use. The DM_TEST macro adds UTF_DM automatically so that
 the test runner knows it is a driver model test.
 
 Driver model tests are special in that the entire driver model state is
@@ -263,7 +263,7 @@ with the suite. For example, to add a new mem_search test::
 
          return 0;
    }
-   MEM_TEST(mem_test_ms_new_thing, UT_TESTF_CONSOLE_REC);
+   MEM_TEST(mem_test_ms_new_thing, UTF_CONSOLE_REC);
 
 Note that the MEM_TEST() macros is defined at the top of the file.
 

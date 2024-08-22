@@ -51,5 +51,5 @@ static int vbe_test_fixup_norun(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(vbe_test_fixup_norun, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_FLAT_TREE | UT_TESTF_MANUAL);
+BOOTSTD_TEST(vbe_test_fixup_norun, UTF_DM | UTF_SCAN_FDT | UTF_FLAT_TREE |
+	     UTF_MANUAL);

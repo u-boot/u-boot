@@ -93,12 +93,12 @@ static int dm_test_nand##dev##_start(struct unit_test_state *uts) \
 { \
 	return dm_test_nand(uts, dev, false); \
 } \
-DM_TEST(dm_test_nand##dev##_start, UT_TESTF_SCAN_FDT); \
+DM_TEST(dm_test_nand##dev##_start, UTF_SCAN_FDT); \
 static int dm_test_nand##dev##_end(struct unit_test_state *uts) \
 { \
 	return dm_test_nand(uts, dev, true); \
 } \
-DM_TEST(dm_test_nand##dev##_end, UT_TESTF_SCAN_FDT)
+DM_TEST(dm_test_nand##dev##_end, UTF_SCAN_FDT)
 
 DM_NAND_TEST(0);
 DM_NAND_TEST(1);

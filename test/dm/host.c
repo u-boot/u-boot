@@ -72,7 +72,7 @@ static int dm_test_host(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_host, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_host, UTF_SCAN_FDT);
 
 /* reusing the same label should work */
 static int dm_test_host_dup(struct unit_test_state *uts)
@@ -106,7 +106,7 @@ static int dm_test_host_dup(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_host_dup, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_host_dup, UTF_SCAN_FDT);
 
 /* Basic test of 'host' command */
 static int dm_test_cmd_host(struct unit_test_state *uts)
@@ -199,4 +199,4 @@ static int dm_test_cmd_host(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cmd_host, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cmd_host, UTF_SCAN_FDT);

@@ -28,7 +28,7 @@ static int dm_test_cros_ec_hello(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_hello, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_hello, UTF_SCAN_FDT);
 
 static int dm_test_cros_ec_sku_id(struct unit_test_state *uts)
 {
@@ -45,7 +45,7 @@ static int dm_test_cros_ec_sku_id(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_sku_id, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_sku_id, UTF_SCAN_FDT);
 
 static int dm_test_cros_ec_features(struct unit_test_state *uts)
 {
@@ -75,7 +75,7 @@ static int dm_test_cros_ec_features(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_features, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_features, UTF_SCAN_FDT);
 
 static int dm_test_cros_ec_switches(struct unit_test_state *uts)
 {
@@ -101,7 +101,7 @@ static int dm_test_cros_ec_switches(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_switches, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_switches, UTF_SCAN_FDT);
 
 static int dm_test_cros_ec_events(struct unit_test_state *uts)
 {
@@ -138,7 +138,7 @@ static int dm_test_cros_ec_events(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_events, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_events, UTF_SCAN_FDT);
 
 static int dm_test_cros_ec_vstore(struct unit_test_state *uts)
 {
@@ -174,4 +174,4 @@ static int dm_test_cros_ec_vstore(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_cros_ec_vstore, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cros_ec_vstore, UTF_SCAN_FDT);

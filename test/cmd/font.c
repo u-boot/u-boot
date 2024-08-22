@@ -69,8 +69,8 @@ static int font_test_base(struct unit_test_state *uts)
 
 	return 0;
 }
-FONT_TEST(font_test_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
-	  UT_TESTF_CONSOLE_REC | UT_TESTF_DM);
+FONT_TEST(font_test_base, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE_REC |
+	  UTF_DM);
 
 int do_ut_font(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

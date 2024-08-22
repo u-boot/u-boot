@@ -246,7 +246,7 @@ static int print_display_buffer(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_display_buffer, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_display_buffer, UTF_CONSOLE_REC);
 
 static int print_hexdump_line(struct unit_test_state *uts)
 {
@@ -272,7 +272,7 @@ static int print_hexdump_line(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_hexdump_line, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_hexdump_line, UTF_CONSOLE_REC);
 
 static int print_do_hex_dump(struct unit_test_state *uts)
 {
@@ -365,7 +365,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_do_hex_dump, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_do_hex_dump, UTF_CONSOLE_REC);
 
 static int snprint(struct unit_test_state *uts)
 {
