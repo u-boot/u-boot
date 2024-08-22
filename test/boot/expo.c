@@ -445,7 +445,6 @@ static int expo_render_image(struct unit_test_state *uts)
 	struct expo *exp;
 	int id;
 
-	console_record_reset_enable();
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
 
 	ut_assertok(expo_new(EXPO_NAME, NULL, &exp));
@@ -633,7 +632,7 @@ static int expo_render_image(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(expo_render_image, UTF_DM | UTF_SCAN_FDT);
+BOOTSTD_TEST(expo_render_image, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check building an expo from a devicetree description */
 static int expo_test_build(struct unit_test_state *uts)
