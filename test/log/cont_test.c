@@ -25,7 +25,6 @@ static int log_test_cont(struct unit_test_state *uts)
 	/* Write two messages, the second continuing the first */
 	gd->log_fmt = (1 << LOGF_CAT) | (1 << LOGF_LEVEL) | (1 << LOGF_MSG);
 	gd->default_log_level = LOGL_INFO;
-	console_record_reset_enable();
 	log(LOGC_ARCH, LOGL_ERR, "ea%d\n", 1);
 	log(LOGC_CONT, LOGL_CONT, "cc%d\n", 2);
 	gd->default_log_level = log_level;

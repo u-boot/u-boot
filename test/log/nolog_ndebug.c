@@ -21,7 +21,6 @@ static int log_test_log_disabled_ndebug(struct unit_test_state *uts)
 	int i;
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 
 	/* Output a log record at every level */
 	for (i = LOGL_EMERG; i < LOGL_COUNT; i++)

@@ -25,7 +25,6 @@ static int log_test_nolog_err(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_err("testing %s\n", "log_err");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_err"));
@@ -39,7 +38,6 @@ static int log_test_nolog_warning(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_warning("testing %s\n", "log_warning");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_warning"));
@@ -53,7 +51,6 @@ static int log_test_nolog_notice(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_notice("testing %s\n", "log_notice");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_notice"));
@@ -67,7 +64,6 @@ static int log_test_nolog_info(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_err("testing %s\n", "log_info");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing log_info"));
@@ -83,7 +79,6 @@ static int nolog_test_nodebug(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	debug("testing %s\n", "debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_end(uts));
@@ -96,7 +91,6 @@ static int log_test_nolog_nodebug(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_debug("testing %s\n", "log_debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assert(!strcmp(buf, ""));
@@ -112,7 +106,6 @@ static int nolog_test_debug(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	debug("testing %s\n", "debug");
 	gd->flags &= ~GD_FLG_RECORD;
 	ut_assertok(ut_check_console_line(uts, "testing debug"));
@@ -126,7 +119,6 @@ static int log_test_nolog_debug(struct unit_test_state *uts)
 	char buf[BUFFSIZE];
 
 	memset(buf, 0, BUFFSIZE);
-	console_record_reset_enable();
 	log_debug("testing %s\n", "log_debug");
 	log(LOGC_NONE, LOGL_DEBUG, "more %s\n", "log_debug");
 	gd->flags &= ~GD_FLG_RECORD;
