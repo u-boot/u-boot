@@ -221,9 +221,8 @@ int sandbox_spl_load_fit(char *fname, int maxlen, struct spl_image_info *image)
 	int ret;
 	int fd;
 
-	memset(&load, '\0', sizeof(load));
-	spl_set_bl_len(&load, IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) ? 512 : 1);
-	load.read = read_fit_image;
+	spl_load_init(&load, read_fit_image, &load_ctx,
+		      IS_ENABLED(CONFIG_SPL_LOAD_BLOCK) ? 512 : 1);
 
 	ret = sandbox_find_next_phase(fname, maxlen, true);
 	if (ret) {

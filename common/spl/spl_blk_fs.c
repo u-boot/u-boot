@@ -80,11 +80,8 @@ int spl_blk_load_image(struct spl_image_info *spl_image,
 		return ret;
 	}
 
-	load.read = spl_fit_read;
-	if (IS_ENABLED(CONFIG_SPL_FS_FAT_DMA_ALIGN))
-		spl_set_bl_len(&load, ARCH_DMA_MINALIGN);
-	else
-		spl_set_bl_len(&load, 1);
-	load.priv = &dev;
+	spl_load_init(&load, spl_fit_read, &dev,
+		      IS_ENABLED(CONFIG_SPL_FS_FAT_DMA_ALIGN) ?
+		      ARCH_DMA_MINALIGN : 1);
 	return spl_load(spl_image, bootdev, &load, filesize, 0);
 }

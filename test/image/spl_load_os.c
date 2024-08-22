@@ -20,3 +20,4 @@ static int spl_test_load(struct unit_test_state *uts)
 	return 0;
 }
 SPL_TEST(spl_test_load, 0);
+

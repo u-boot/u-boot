@@ -108,18 +108,13 @@ static int spl_romapi_load_image_seekable(struct spl_image_info *spl_image,
 	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) && image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
 
-		memset(&load, 0, sizeof(load));
-		spl_set_bl_len(&load, pagesize);
-		load.read = spl_romapi_read_seekable;
+		spl_load_init(&load, spl_romapi_read_seekable, NULL, pagesize);
 		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER) &&
 		   valid_container_hdr((void *)header)) {
 		struct spl_load_info load;
 
-		memset(&load, 0, sizeof(load));
-		spl_set_bl_len(&load, pagesize);
-		load.read = spl_romapi_read_seekable;
-
+		spl_load_init(&load, spl_romapi_read_seekable, NULL, pagesize);
 		ret = spl_load_imx_container(spl_image, &load, offset);
 	} else {
 		/* TODO */
@@ -341,10 +336,7 @@ static int spl_romapi_load_image_stream(struct spl_image_info *spl_image,
 		ss.end = p;
 		ss.pagesize = pagesize;
 
-		memset(&load, 0, sizeof(load));
-		spl_set_bl_len(&load, 1);
-		load.read = spl_romapi_read_stream;
-		load.priv = &ss;
+		spl_load_init(&load, spl_romapi_read_stream, &ss, 1);
 
 		return spl_load_simple_fit(spl_image, &load, (ulong)phdr, phdr);
 	}
