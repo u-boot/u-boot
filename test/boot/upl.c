@@ -374,7 +374,7 @@ static int upl_test_info(struct unit_test_state *uts)
 
 	return 0;
 }
-UPL_TEST(upl_test_info, UTF_CONSOLE_REC);
+UPL_TEST(upl_test_info, UTF_CONSOLE);
 
 /* Test 'upl read' and 'upl_write' commands */
 static int upl_test_read_write(struct unit_test_state *uts)
@@ -396,7 +396,7 @@ static int upl_test_read_write(struct unit_test_state *uts)
 
 	return 0;
 }
-UPL_TEST(upl_test_read_write, UTF_CONSOLE_REC);
+UPL_TEST(upl_test_read_write, UTF_CONSOLE);
 
 /* Test UPL passthrough */
 static int upl_test_info_norun(struct unit_test_state *uts)
@@ -425,7 +425,7 @@ static int upl_test_info_norun(struct unit_test_state *uts)
 
 	return 0;
 }
-UPL_TEST(upl_test_info_norun, UTF_CONSOLE_REC | UTF_MANUAL);
+UPL_TEST(upl_test_info_norun, UTF_CONSOLE | UTF_MANUAL);
 
 int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

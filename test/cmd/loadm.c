@@ -41,7 +41,7 @@ static int loadm_test_params(struct unit_test_state *uts)
 
 	return 0;
 }
-LOADM_TEST(loadm_test_params, UTF_CONSOLE_REC);
+LOADM_TEST(loadm_test_params, UTF_CONSOLE);
 
 static int loadm_test_load (struct unit_test_state *uts)
 {
@@ -59,7 +59,7 @@ static int loadm_test_load (struct unit_test_state *uts)
 
 	return 0;
 }
-LOADM_TEST(loadm_test_load, UTF_CONSOLE_REC);
+LOADM_TEST(loadm_test_load, UTF_CONSOLE);
 
 int do_ut_loadm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

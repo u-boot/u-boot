@@ -121,7 +121,7 @@ static int cmd_exit_test(struct unit_test_state *uts)
 
 	return 0;
 }
-EXIT_TEST(cmd_exit_test, UTF_CONSOLE_REC);
+EXIT_TEST(cmd_exit_test, UTF_CONSOLE);
 
 int do_ut_exit(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

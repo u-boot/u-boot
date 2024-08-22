@@ -24,7 +24,7 @@ static int log_test_filter_invalid(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_filter_invalid, UTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_filter_invalid, UTF_CONSOLE);
 
 /* Test adding and removing filters */
 static int log_test_filter(struct unit_test_state *uts)
@@ -105,4 +105,4 @@ static int log_test_filter(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_filter, UTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_filter, UTF_CONSOLE);

@@ -167,7 +167,7 @@ There is no exactly equivalent C test, but here is a similar one that tests 'ms'
 
       return 0;
    }
-   MEM_TEST(mem_test_ms_b, UTF_CONSOLE_REC);
+   MEM_TEST(mem_test_ms_b, UTF_CONSOLE);
 
 This runs the command directly in U-Boot, then checks the console output, also
 directly in U-Boot. If run by itself this takes 100ms. For 1000 runs it takes
@@ -266,7 +266,7 @@ with the suite. For example, to add a new mem_search test::
 
          return 0;
    }
-   MEM_TEST(mem_test_ms_new_thing, UTF_CONSOLE_REC);
+   MEM_TEST(mem_test_ms_new_thing, UTF_CONSOLE);
 
 Note that the MEM_TEST() macros is defined at the top of the file.
 

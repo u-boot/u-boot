@@ -196,4 +196,4 @@ static int dm_test_rkmtd_cmd(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_rkmtd_cmd, UTF_SCAN_FDT | UTF_CONSOLE_REC);
+DM_TEST(dm_test_rkmtd_cmd, UTF_SCAN_FDT | UTF_CONSOLE);

@@ -197,7 +197,7 @@ static int dm_test_ffa_ack(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ffa_ack, UTF_SCAN_FDT | UTF_CONSOLE_REC);
+DM_TEST(dm_test_ffa_ack, UTF_SCAN_FDT | UTF_CONSOLE);
 
 static int dm_test_ffa_nack(struct unit_test_state *uts)
 {
@@ -255,4 +255,4 @@ static int dm_test_ffa_nack(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ffa_nack, UTF_SCAN_FDT | UTF_CONSOLE_REC);
+DM_TEST(dm_test_ffa_nack, UTF_SCAN_FDT | UTF_CONSOLE);

@@ -244,7 +244,7 @@ static int bdinfo_test_full(struct unit_test_state *uts)
 
 	return 0;
 }
-BDINFO_TEST(bdinfo_test_full, UTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_full, UTF_CONSOLE);
 
 static int bdinfo_test_help(struct unit_test_state *uts)
 {
@@ -265,7 +265,7 @@ static int bdinfo_test_help(struct unit_test_state *uts)
 
 	return 0;
 }
-BDINFO_TEST(bdinfo_test_help, UTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_help, UTF_CONSOLE);
 
 static int bdinfo_test_memory(struct unit_test_state *uts)
 {
@@ -280,7 +280,7 @@ static int bdinfo_test_memory(struct unit_test_state *uts)
 
 	return 0;
 }
-BDINFO_TEST(bdinfo_test_memory, UTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_memory, UTF_CONSOLE);
 
 static int bdinfo_test_eth(struct unit_test_state *uts)
 {
@@ -295,7 +295,7 @@ static int bdinfo_test_eth(struct unit_test_state *uts)
 
 	return 0;
 }
-BDINFO_TEST(bdinfo_test_eth, UTF_CONSOLE_REC);
+BDINFO_TEST(bdinfo_test_eth, UTF_CONSOLE);
 
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

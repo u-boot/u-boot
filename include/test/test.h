@@ -61,7 +61,7 @@ enum ut_flags {
 	UTF_SCAN_FDT	= BIT(2),	/* scan device tree */
 	UTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
 	UTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
-	UTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
+	UTF_CONSOLE	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
 	UTF_DM		= BIT(6),
 	UTF_OTHER_FDT	= BIT(7),	/* read in other device tree */

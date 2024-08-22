@@ -333,7 +333,7 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 		}
 	}
 
-	if (test->flags & UTF_CONSOLE_REC) {
+	if (test->flags & UTF_CONSOLE) {
 		int ret = console_record_reset_enable();
 
 		if (ret) {
