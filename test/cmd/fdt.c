@@ -28,19 +28,29 @@ DECLARE_GLOBAL_DATA_PTR;
 /**
  * make_test_fdt() - Create an FDT with just a root node
  *
- * The size is set to the minimum needed
+ * The size is set to the minimum needed. This also sets the working FDT and
+ * checks that the expected output is received from doing so.
  *
  * @uts: Test state
  * @fdt: Place to write FDT
  * @size: Maximum size of space for fdt
+ * @addrp: Returns address of the devicetree
  */
-static int make_test_fdt(struct unit_test_state *uts, void *fdt, int size)
+static int make_test_fdt(struct unit_test_state *uts, void *fdt, int size,
+			 ulong *addrp)
 {
+	ulong addr;
+
 	ut_assertok(fdt_create(fdt, size));
 	ut_assertok(fdt_finish_reservemap(fdt));
 	ut_assert(fdt_begin_node(fdt, "") >= 0);
 	ut_assertok(fdt_end_node(fdt));
 	ut_assertok(fdt_finish(fdt));
+
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+	ut_assert_nextline("Working FDT set to %lx", addr);
+	*addrp = addr;
 
 	return 0;
 }
@@ -48,15 +58,19 @@ static int make_test_fdt(struct unit_test_state *uts, void *fdt, int size)
 /**
  * make_fuller_fdt() - Create an FDT with root node and properties
  *
- * The size is set to the minimum needed
+ * The size is set to the minimum needed. This also sets the working FDT and
+ * checks that the expected output is received from doing so.
  *
  * @uts: Test state
  * @fdt: Place to write FDT
  * @size: Maximum size of space for fdt
+ * @addrp: Returns address of the devicetree
  */
-static int make_fuller_fdt(struct unit_test_state *uts, void *fdt, int size)
+static int make_fuller_fdt(struct unit_test_state *uts, void *fdt, int size,
+			   ulong *addrp)
 {
 	fdt32_t regs[2] = { cpu_to_fdt32(0x1234), cpu_to_fdt32(0x1000) };
+	ulong addr;
 
 	/*
 	 * Assemble the following DT for test purposes:
@@ -138,6 +152,11 @@ static int make_fuller_fdt(struct unit_test_state *uts, void *fdt, int size)
 	ut_assertok(fdt_end_node(fdt));
 	ut_assertok(fdt_finish(fdt));
 
+	addr = map_to_sysmem(fdt);
+	set_working_fdt_addr(addr);
+	ut_assert_nextline("Working FDT set to %lx", addr);
+	*addrp = addr;
+
 	return 0;
 }
 
@@ -169,10 +188,7 @@ static int fdt_test_addr(struct unit_test_state *uts)
 	ut_assertok(ut_check_console_end(uts));
 
 	/* Set up a working FDT and try again */
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
-	ut_assert_nextline("Working FDT set to %lx", addr);
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	ut_assertok(run_command("fdt addr", 0));
 	ut_assert_nextline("Working fdt: %08lx", (ulong)map_to_sysmem(fdt));
 	ut_assertok(ut_check_console_end(uts));
@@ -222,9 +238,7 @@ static int fdt_test_addr_resize(struct unit_test_state *uts)
 	const int newsize = sizeof(fdt) / 2;
 	ulong addr;
 
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test setting and resizing the working FDT to a larger size */
 	ut_assertok(console_record_reset_enable());
@@ -258,10 +272,8 @@ static int fdt_test_move(struct unit_test_state *uts)
 	void *buf;
 
 	/* Original source DT */
-	ut_assertok(make_test_fdt(uts, fdt, size));
+	ut_assertok(make_test_fdt(uts, fdt, size, &addr));
 	ts = fdt_totalsize(fdt);
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Moved target DT location */
 	buf = map_sysmem(newaddr, size);
@@ -291,11 +303,9 @@ static int fdt_test_resize(struct unit_test_state *uts)
 	ulong addr;
 
 	/* Original source DT */
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 0);	/* Resize with 0 extra bytes */
 	ts = fdt_totalsize(fdt);
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Test resizing the working FDT and verify the new space was added */
 	ut_assertok(console_record_reset_enable());
@@ -393,9 +403,7 @@ static int fdt_test_print_list(struct unit_test_state *uts, bool print)
 	int ret;
 
 	/* Original source DT */
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test printing/listing the working FDT -- node / */
 	ut_assertok(console_record_reset_enable());
@@ -529,9 +537,7 @@ static int fdt_test_get_value(struct unit_test_state *uts)
 	char fdt[4096];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	ut_assertok(fdt_test_get_value_common(uts, "/test-node@1234"));
 	ut_assertok(fdt_test_get_value_common(uts, "testnodealias"));
@@ -563,9 +569,7 @@ static int fdt_test_get_name(struct unit_test_state *uts)
 	char fdt[4096];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test getting name of node 0 in /, which is /aliases node */
 	ut_assertok(console_record_reset_enable());
@@ -665,9 +669,7 @@ static int fdt_test_get_addr(struct unit_test_state *uts)
 	char fdt[4096];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test getting address of root node / string property "compatible" */
 	ut_assertok(fdt_test_get_addr_common(uts, fdt, "/", "compatible"));
@@ -733,9 +735,7 @@ static int fdt_test_get_size(struct unit_test_state *uts)
 	char fdt[4096];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test getting size of root node / string property "compatible" */
 	ut_assertok(fdt_test_get_size_common(uts, "/", "compatible", 16));
@@ -908,10 +908,8 @@ static int fdt_test_set(struct unit_test_state *uts)
 	char fdt[8192];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Test setting of root node / existing property "compatible" */
 	ut_assertok(fdt_test_set_node(uts, "/", "compatible"));
@@ -956,10 +954,8 @@ static int fdt_test_mknode(struct unit_test_state *uts)
 	char fdt[8192];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Test creation of new node in / */
 	ut_assertok(console_record_reset_enable());
@@ -1024,9 +1020,7 @@ static int fdt_test_rm(struct unit_test_state *uts)
 	char fdt[4096];
 	ulong addr;
 
-	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_fuller_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test removal of property in root node / */
 	ut_assertok(console_record_reset_enable());
@@ -1109,9 +1103,7 @@ static int fdt_test_bootcpu(struct unit_test_state *uts)
 	ulong addr;
 	int i;
 
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test getting default bootcpu entry */
 	ut_assertok(console_record_reset_enable());
@@ -1158,9 +1150,7 @@ static int fdt_test_header(struct unit_test_state *uts)
 	char fdt[256];
 	ulong addr;
 
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 
 	/* Test header print */
 	ut_assertok(console_record_reset_enable());
@@ -1290,12 +1280,10 @@ static int fdt_test_rsvmem(struct unit_test_state *uts)
 	char fdt[8192];
 	ulong addr;
 
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
 	fdt_add_mem_rsv(fdt, 0x42, 0x1701);
 	fdt_add_mem_rsv(fdt, 0x74656, 0x9);
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Test default reserved memory node presence */
 	ut_assertok(console_record_reset_enable());
@@ -1354,10 +1342,8 @@ static int fdt_test_chosen(struct unit_test_state *uts)
 	char fdt[8192];
 	ulong addr;
 
-	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt)));
+	ut_assertok(make_test_fdt(uts, fdt, sizeof(fdt), &addr));
 	fdt_shrink_to_minimum(fdt, 4096);	/* Resize with 4096 extra bytes */
-	addr = map_to_sysmem(fdt);
-	set_working_fdt_addr(addr);
 
 	/* Test default chosen node presence, fail as there is no /chosen node */
 	ut_assertok(console_record_reset_enable());
