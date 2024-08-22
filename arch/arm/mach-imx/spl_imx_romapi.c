@@ -33,8 +33,17 @@ ulong spl_romapi_raw_seekable_read(u32 offset, u32 size, void *buf)
 
 ulong __weak spl_romapi_get_uboot_base(u32 image_offset, u32 rom_bt_dev)
 {
-	return image_offset +
-		(CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512 - 0x8000);
+	u32 sector = 0;
+
+	/*
+	 * Some boards use this value even though MMC is not enabled in SPL, for
+	 * example imx8mn_bsh_smm_s2
+	 */
+#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	sector = CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+#endif
+
+	return image_offset + sector * 512 - 0x8000;
 }
 
 static int is_boot_from_stream_device(u32 boot)

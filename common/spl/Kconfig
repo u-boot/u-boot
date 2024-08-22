@@ -492,23 +492,44 @@ config SPL_DISPLAY_PRINT
 	  the board.
 
 config SPL_SYS_MMCSD_RAW_MODE
-	bool
-	help
-	  Support booting from an MMC without a filesystem.
-
-config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
-	bool "MMC raw mode: by sector"
+	bool "Use raw reads to locate the next boot phase"
+	depends on SPL_DM_MMC || SPL_MMC
 	default y if ARCH_SUNXI || ARCH_DAVINCI || ARCH_UNIPHIER || \
 		     ARCH_MX6 || ARCH_MX7 || \
 		     ARCH_ROCKCHIP || ARCH_MVEBU ||  ARCH_SOCFPGA || \
 		     ARCH_AT91 || ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || \
 		     OMAP54XX || AM33XX || AM43XX || \
 		     TARGET_SIFIVE_UNLEASHED || TARGET_SIFIVE_UNMATCHED
-	select SPL_LOAD_BLOCK if SPL_MMC
-	select SPL_SYS_MMCSD_RAW_MODE if SPL_MMC
+	help
+	  Support booting from an MMC without a filesystem.
+
+if SPL_SYS_MMCSD_RAW_MODE
+
+choice
+	prompt "Method for locating next phase of boot (e.g. U-Boot)"
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+	bool "MMC raw mode: by sector"
+	select SPL_LOAD_BLOCK
 	help
 	  Use sector number for specifying U-Boot location on MMC/SD in
 	  raw mode.
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	bool "MMC raw mode: by partition"
+	select SPL_LOAD_BLOCK
+	help
+	  Use a partition for loading U-Boot when using MMC/SD in raw mode.
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
+	bool "MMC raw mode: by partition type"
+	depends on DOS_PARTITION
+	help
+	  Use partition type for specifying U-Boot partition on MMC/SD in
+	  raw mode. U-Boot will be loaded from the first partition of this
+	  type to be found.
+
+endchoice
 
 config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	hex "Address on the MMC to load U-Boot from"
@@ -540,13 +561,6 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_DATA_PART_OFFSET
 
 	  If unsure, leave the default.
 
-config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-	bool "MMC Raw mode: by partition"
-	select SPL_LOAD_BLOCK if SPL_MMC
-	select SPL_SYS_MMCSD_RAW_MODE if SPL_MMC
-	help
-	  Use a partition for loading U-Boot when using MMC/SD in raw mode.
-
 config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 	hex "Partition to use to load U-Boot from"
 	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
@@ -555,20 +569,14 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION
 	  Partition on the MMC to load U-Boot from when the MMC is being
 	  used in raw mode
 
-config SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
-	bool "MMC raw mode: by partition type"
-	depends on DOS_PARTITION && SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
-	help
-	  Use partition type for specifying U-Boot partition on MMC/SD in
-	  raw mode. U-Boot will be loaded from the first partition of this
-	  type to be found.
-
 config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 	hex "Partition Type on the MMC to load U-Boot from"
 	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	help
 	  Partition Type on the MMC to load U-Boot from, when the MMC is being
 	  used in raw mode.
+
+endif # SPL_SYS_MMCSD_RAW_MODE
 
 config SUPPORT_EMMC_BOOT_OVERRIDE_PART_CONFIG
 	bool "Override eMMC EXT_CSC_PART_CONFIG by user defined partition"
