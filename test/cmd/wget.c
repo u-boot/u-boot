@@ -223,4 +223,4 @@ static int net_test_wget(struct unit_test_state *uts)
 
 	return 0;
 }
-LIB_TEST(net_test_wget, 0);
+LIB_TEST(net_test_wget, UTF_CONSOLE);
