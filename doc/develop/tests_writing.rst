@@ -151,7 +151,6 @@ There is no exactly equivalent C test, but here is a similar one that tests 'ms'
       buf[0x31] = 0x12;
       buf[0xff] = 0x12;
       buf[0x100] = 0x12;
-      ut_assertok(console_record_reset_enable());
       run_command("ms.b 1 ff 12", 0);
       ut_assert_nextline("00000030: 00 12 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................");
       ut_assert_nextline("--");
