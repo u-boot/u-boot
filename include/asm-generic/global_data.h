@@ -299,13 +299,13 @@ struct global_data {
 	 */
 	unsigned long malloc_base;
 	/**
-	 * @malloc_limit: limit address of early malloc()
+	 * @malloc_limit: maximum size of early malloc()
 	 */
-	unsigned long malloc_limit;
+	unsigned int malloc_limit;
 	/**
-	 * @malloc_ptr: current address of early malloc()
+	 * @malloc_ptr: currently used bytes of early malloc()
 	 */
-	unsigned long malloc_ptr;
+	unsigned int malloc_ptr;
 #endif
 #ifdef CONFIG_CONSOLE_RECORD
 	/**
