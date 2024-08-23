@@ -15,4 +15,7 @@ struct rk_timer {
 	u32 timer_int_status;
 };
 
+/** rockchip_stimer_init() - Set up the timer ready for use */
+void rockchip_stimer_init(void);
+
 #endif

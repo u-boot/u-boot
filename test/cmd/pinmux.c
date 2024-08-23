@@ -30,7 +30,13 @@ static int dm_test_cmd_pinmux_status_pinname(struct unit_test_state *uts)
 
 	console_record_reset();
 	run_command("pinmux status P9", 0);
-	ut_assert_nextlinen("single-pinctrl pinctrl-single-no-width: missing register width");
+	if (IS_ENABLED(CONFIG_LOGF_FUNC)) {
+		ut_assert_nextlinen(
+			"   single_of_to_plat() single-pinctrl pinctrl-single-no-width: missing register width");
+	} else {
+		ut_assert_nextlinen(
+			"single-pinctrl pinctrl-single-no-width: missing register width");
+	}
 	ut_assert_nextlinen("P9 not found");
 	ut_assert_console_end();
 
