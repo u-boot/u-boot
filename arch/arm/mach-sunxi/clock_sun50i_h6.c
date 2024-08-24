@@ -16,15 +16,22 @@ void clock_init_safe(void)
 	void *const ccm = (void *)SUNXI_CCM_BASE;
 	void *const prcm = (void *)SUNXI_PRCM_BASE;
 
-	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616)) {
-		/* this seems to enable PLLs on H616 */
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616))
 		setbits_le32(prcm + CCU_PRCM_SYS_PWROFF_GATING, 0x10);
-		setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 2);
-	}
+	if (IS_ENABLED(CONFIG_MACH_SUN55I_A523))
+		setbits_le32(prcm + CCU_PRCM_SYS_PWROFF_GATING, 0x200);
+	udelay(1);
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
-	    IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
+	    IS_ENABLED(CONFIG_MACH_SUN55I_A523))
+		setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 2);
+	udelay(1);
+
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
+	    IS_ENABLED(CONFIG_MACH_SUN50I_H6) ||
+	    IS_ENABLED(CONFIG_MACH_SUN55I_A523)) {
 		clrbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 1);
+		udelay(1);
 		setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 1);
 	}
 
@@ -41,9 +48,10 @@ void clock_init_safe(void)
 	while (!(readl(ccm + CCU_H6_PLL6_CFG) & CCM_PLL_LOCK))
 		;
 
-	clrsetbits_le32(ccm + CCU_H6_CPU_AXI_CFG,
-			CCM_CPU_AXI_APB_MASK | CCM_CPU_AXI_AXI_MASK,
-			CCM_CPU_AXI_DEFAULT_FACTORS);
+	if (!IS_ENABLED(CONFIG_MACH_SUN55I_A523))
+		clrsetbits_le32(ccm + CCU_H6_CPU_AXI_CFG,
+				CCM_CPU_AXI_APB_MASK | CCM_CPU_AXI_AXI_MASK,
+				CCM_CPU_AXI_DEFAULT_FACTORS);
 
 	writel(CCM_PSI_AHB1_AHB2_DEFAULT, ccm + CCU_H6_PSI_AHB1_AHB2_CFG);
 #ifdef CCM_AHB3_DEFAULT
@@ -55,7 +63,15 @@ void clock_init_safe(void)
 	 * The mux and factor are set, but the clock will be enabled in
 	 * DRAM initialization code.
 	 */
-	writel(MBUS_CLK_SRC_PLL6X2 | MBUS_CLK_M(3), ccm + CCU_H6_MBUS_CFG);
+	if (IS_ENABLED(CONFIG_MACH_SUN55I_A523)) {
+		writel(MBUS_RESET, ccm + CCU_H6_MBUS_CFG);
+		udelay(1);
+		writel(MBUS_UPDATE | MBUS_CLK_SRC_OSCM24 | MBUS_CLK_M(4),
+		       ccm + CCU_H6_MBUS_CFG);
+	} else {
+		writel(MBUS_CLK_SRC_PLL6X2 | MBUS_CLK_M(3),
+		       ccm + CCU_H6_MBUS_CFG);
+	}
 }
 
 void clock_init_uart(void)

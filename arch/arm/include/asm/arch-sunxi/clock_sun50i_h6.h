@@ -108,6 +108,13 @@
 #define CCM_PSI_AHB1_AHB2_DEFAULT	0x03000002
 #define CCM_AHB3_DEFAULT		0x03000002
 #define CCM_APB1_DEFAULT		0x03000102
+
+#elif CONFIG_MACH_SUN55I_A523				/* A523 */
+
+#define CCM_PLL6_DEFAULT		0xe8216310	    /* 1200 MHz */
+#define CCM_PSI_AHB1_AHB2_DEFAULT	0x03000002	    /* 200 MHz */
+#define CCM_APB1_DEFAULT		0x03000005	    /* APB0 really */
+#define CCM_APB2_DEFAULT		0x03000005	    /* APB1 really */
 #endif
 
 /* apb2 bit field */
@@ -127,6 +134,7 @@
 /* MBUS clock bit field */
 #define MBUS_ENABLE			BIT(31)
 #define MBUS_RESET			BIT(30)
+#define MBUS_UPDATE			BIT(27)
 #define MBUS_CLK_SRC_MASK		GENMASK(25, 24)
 #define MBUS_CLK_SRC_OSCM24		(0 << 24)
 #define MBUS_CLK_SRC_PLL6X2		(1 << 24)
@@ -139,10 +147,12 @@
 #define GATE_SHIFT			(0)
 
 /* DRAM clock bit field */
+#define DRAM_CLK_ENABLE			BIT(31)
 #define DRAM_MOD_RESET			BIT(30)
 #define DRAM_CLK_UPDATE			BIT(27)
 #define DRAM_CLK_SRC_MASK		GENMASK(25, 24)
 #define DRAM_CLK_SRC_PLL5		(0 << 24)
+#define DRAM_CLK_M_MASK			(0x1f)
 #define DRAM_CLK_M(m)			(((m)-1) << 0)
 
 /* MMC clock bit field */
