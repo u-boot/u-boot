@@ -991,10 +991,6 @@ dtb-$(CONFIG_TARGET_ETHERNUT5) += ethernut5.dtb
 
 dtb-$(CONFIG_TARGET_USB_A9263) += usb_a9263.dtb
 
-dtb-$(CONFIG_TARGET_OMAP3_EVM) += \
-	omap3-evm-37xx.dtb \
-	omap3-evm.dtb
-
 dtb-$(CONFIG_TARGET_DEVKIT8000) += omap3-devkit8000.dtb
 
 dtb-$(CONFIG_TARGET_SAMA7G5EK) += \
