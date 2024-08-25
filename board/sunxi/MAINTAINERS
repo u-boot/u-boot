@@ -601,6 +601,11 @@ M:	Peter Korsgaard <peter@korsgaard.com>
 S:	Maintained
 F:	configs/Yones_Toptech_BS1078_V2_defconfig
 
+YUZUKIHD CHAMELEON BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/yuzukihd-chameleon_defconfig
+
 ZEROPI BOARD
 M:	Yu-Tung Chang <mtwget@gmail.com>
 S:	Maintained
