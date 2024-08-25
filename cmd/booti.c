@@ -78,7 +78,7 @@ static int booti_start(struct bootm_info *bmi)
 
 	/* Handle BOOTM_STATE_LOADOS */
 	if (relocated_addr != ld) {
-		printf("Moving Image from 0x%lx to 0x%lx, end=%lx\n", ld,
+		printf("Moving Image from 0x%lx to 0x%lx, end=0x%lx\n", ld,
 		       relocated_addr, relocated_addr + image_size);
 		memmove((void *)relocated_addr, (void *)ld, image_size);
 	}
