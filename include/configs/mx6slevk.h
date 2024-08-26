@@ -25,9 +25,9 @@
 	"fdt_addr=0x88000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=1\0" \
+	"mmcdev=0\0" \
 	"mmcpart=1\0" \
-	"finduuid=part uuid mmc 1:2 uuid\0" \
+	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=PARTUUID=${uuid} rootwait rw\0" \
 	"loadbootscript=" \
