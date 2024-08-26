@@ -14,8 +14,25 @@
 #include <ram.h>
 #include <asm/global_data.h>
 #include <asm/system.h>
+#include <mach/stm32mp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int optee_get_reserved_memory(u32 *start, u32 *size)
+{
+	fdt_addr_t fdt_mem_size;
+	fdt_addr_t fdt_start;
+	ofnode node;
+
+	node = ofnode_path("/reserved-memory/optee");
+	if (!ofnode_valid(node))
+		return -ENOENT;
+
+	fdt_start = ofnode_get_addr_size(node, "reg", &fdt_mem_size);
+	*start = fdt_start;
+	*size = fdt_mem_size;
+	return (fdt_start < 0) ? fdt_start : 0;
+}
 
 int dram_init(void)
 {
