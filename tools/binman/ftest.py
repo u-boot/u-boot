@@ -1526,18 +1526,40 @@ class TestFunctional(unittest.TestCase):
         # The image should contain the symbols from u_boot_binman_syms.c
         # Note that image_pos is adjusted by the base address of the image,
         # which is 0x10 in our test image
-        sym_values = struct.pack('<LLQLL', elf.BINMAN_SYM_MAGIC_VALUE,
-                                 0x00, u_boot_offset + len(U_BOOT_DATA),
-                                 0x10 + u_boot_offset, 0x04)
+        vals = (elf.BINMAN_SYM_MAGIC_VALUE, 0x00,
+                u_boot_offset + len(U_BOOT_DATA),
+                0x10 + u_boot_offset, 0x04)
+        sym_values = struct.pack('<LLQLL', *vals)
         if no_write_symbols:
-            expected = (base_data +
-                        tools.get_bytes(0xff, 0x38 - len(base_data)) +
-                        U_BOOT_DATA + base_data)
+            self.assertEqual(
+                base_data +
+                tools.get_bytes(0xff, 0x38 - len(base_data)) +
+                U_BOOT_DATA + base_data, data)
         else:
+            got_vals = struct.unpack('<LLQLL', data[:24])
+
+            # For debugging:
+            #print('expect:', list(f'{v:x}' for v in vals))
+            #print('   got:', list(f'{v:x}' for v in got_vals))
+
+            self.assertEqual(vals, got_vals)
+            self.assertEqual(sym_values, data[:24])
+
+            blen = len(base_data)
+            self.assertEqual(base_data[24:], data[24:blen])
+            self.assertEqual(0xff, data[blen])
+
+            ofs = blen + 1 + len(U_BOOT_DATA)
+            self.assertEqual(U_BOOT_DATA, data[blen + 1:ofs])
+
+            self.assertEqual(sym_values, data[ofs:ofs + 24])
+            self.assertEqual(base_data[24:], data[ofs + 24:])
+
+            # Just repeating the above asserts all at once, for clarity
             expected = (sym_values + base_data[24:] +
                         tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
                         base_data[24:])
-        self.assertEqual(expected, data)
+            self.assertEqual(expected, data)
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""

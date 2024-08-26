@@ -494,7 +494,9 @@ point into the image.
 For example, say SPL is at the start of the image and linked to start at address
 80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
 for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
-to 80108000, with SPL at 80108000 and U-Boot at 80110000.
+to 80108000, with SPL at 80108000 and U-Boot at 80110000. In other words, the
+positions are calculated relative to the start address of the image to which
+they are being written.
 
 For x86 devices (with the end-at-4gb property) this base address is not added
 since it is assumed that images are XIP and the offsets already include the

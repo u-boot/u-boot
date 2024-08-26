@@ -247,7 +247,8 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
             entry
         entry: Entry to process
         section: Section which can be used to lookup symbol values
-        base_sym: Base symbol marking the start of the image
+        base_sym: Base symbol marking the start of the image (__image_copy_start
+            by default)
 
     Returns:
         int: Number of symbols written
