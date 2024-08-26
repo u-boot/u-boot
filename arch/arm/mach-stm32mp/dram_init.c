@@ -47,7 +47,6 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	phys_size_t size;
 	phys_addr_t reg;
-	struct lmb lmb;
 
 	if (!total_size)
 		return gd->ram_top;
@@ -59,12 +58,11 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	gd->ram_top = clamp_val(gd->ram_top, 0, SZ_4G - 1);
 
 	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_init(&lmb);
-	lmb_add(&lmb, gd->ram_base, gd->ram_top - gd->ram_base);
-	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
+	lmb_add(gd->ram_base, gd->ram_top - gd->ram_base);
+	boot_fdt_add_mem_rsv_regions((void *)gd->fdt_blob);
 	/* add 8M for reserved memory for display, fdt, gd,... */
 	size = ALIGN(SZ_8M + CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE),
-	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
+	reg = lmb_alloc(size, MMU_SECTION_SIZE);
 
 	if (!reg)
 		reg = gd->ram_top - size;

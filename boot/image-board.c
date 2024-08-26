@@ -515,7 +515,6 @@ int boot_get_ramdisk(char const *select, struct bootm_headers *images,
 
 /**
  * boot_ramdisk_high - relocate init ramdisk
- * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @rd_data: ramdisk data start address
  * @rd_len: ramdisk data length
  * @initrd_start: pointer to a ulong variable, will hold final init ramdisk
@@ -534,8 +533,8 @@ int boot_get_ramdisk(char const *select, struct bootm_headers *images,
  *      0 - success
  *     -1 - failure
  */
-int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
-		      ulong *initrd_start, ulong *initrd_end)
+int boot_ramdisk_high(ulong rd_data, ulong rd_len, ulong *initrd_start,
+		      ulong *initrd_end)
 {
 	char	*s;
 	phys_addr_t initrd_high;
@@ -561,13 +560,14 @@ int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 			debug("   in-place initrd\n");
 			*initrd_start = rd_data;
 			*initrd_end = rd_data + rd_len;
-			lmb_reserve(lmb, rd_data, rd_len);
+			lmb_reserve(rd_data, rd_len);
 		} else {
 			if (initrd_high)
-				*initrd_start = (ulong)lmb_alloc_base(lmb,
-						rd_len, 0x1000, initrd_high);
+				*initrd_start = (ulong)lmb_alloc_base(rd_len,
+								      0x1000,
+								      initrd_high);
 			else
-				*initrd_start = (ulong)lmb_alloc(lmb, rd_len,
+				*initrd_start = (ulong)lmb_alloc(rd_len,
 								 0x1000);
 
 			if (*initrd_start == 0) {
@@ -800,7 +800,6 @@ int boot_get_loadable(struct bootm_headers *images)
 
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
- * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @cmd_start: pointer to a ulong variable, will hold cmdline start
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
  *
@@ -813,7 +812,7 @@ int boot_get_loadable(struct bootm_headers *images)
  *      0 - success
  *     -1 - failure
  */
-int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
+int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
 {
 	int barg;
 	char *cmdline;
@@ -827,7 +826,7 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 		return 0;
 
 	barg = IF_ENABLED_INT(CONFIG_SYS_BOOT_GET_CMDLINE, CONFIG_SYS_BARGSIZE);
-	cmdline = (char *)(ulong)lmb_alloc_base(lmb, barg, 0xf,
+	cmdline = (char *)(ulong)lmb_alloc_base(barg, 0xf,
 				env_get_bootm_mapsize() + env_get_bootm_low());
 	if (!cmdline)
 		return -1;
@@ -848,7 +847,6 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 
 /**
  * boot_get_kbd - allocate and initialize kernel copy of board info
- * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @kbd: double pointer to board info data
  *
  * boot_get_kbd() allocates space for kernel copy of board info data below
@@ -859,10 +857,9 @@ int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
  *      0 - success
  *     -1 - failure
  */
-int boot_get_kbd(struct lmb *lmb, struct bd_info **kbd)
+int boot_get_kbd(struct bd_info **kbd)
 {
-	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(lmb,
-						       sizeof(struct bd_info),
+	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(sizeof(struct bd_info),
 						       0xf,
 						       env_get_bootm_mapsize() +
 						       env_get_bootm_low());
@@ -883,17 +880,16 @@ int image_setup_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
-	struct lmb *lmb = images_lmb(images);
 	int ret;
 
 	/* This function cannot be called without lmb support */
 	if (!IS_ENABLED(CONFIG_LMB))
 		return -EFAULT;
 	if (CONFIG_IS_ENABLED(OF_LIBFDT))
-		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+		boot_fdt_add_mem_rsv_regions(*of_flat_tree);
 
 	if (IS_ENABLED(CONFIG_SYS_BOOT_GET_CMDLINE)) {
-		ret = boot_get_cmdline(lmb, &images->cmdline_start,
+		ret = boot_get_cmdline(&images->cmdline_start,
 				       &images->cmdline_end);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
@@ -902,13 +898,13 @@ int image_setup_linux(struct bootm_headers *images)
 	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT)) {
-		ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
+		ret = boot_relocate_fdt(of_flat_tree, &of_size);
 		if (ret)
 			return ret;
 	}
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && of_size) {
-		ret = image_setup_libfdt(images, *of_flat_tree, lmb);
+		ret = image_setup_libfdt(images, *of_flat_tree, true);
 		if (ret)
 			return ret;
 	}

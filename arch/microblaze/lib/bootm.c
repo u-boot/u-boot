@@ -32,9 +32,9 @@ static ulong get_sp(void)
 	return ret;
 }
 
-void arch_lmb_reserve(struct lmb *lmb)
+void arch_lmb_reserve(void)
 {
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
 }
 
 static void boot_jump_linux(struct bootm_headers *images, int flag)

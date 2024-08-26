@@ -73,12 +73,11 @@ static ulong wget_load_size;
  */
 static int wget_init_load_size(void)
 {
-	struct lmb lmb;
 	phys_size_t max_size;
 
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
 
-	max_size = lmb_get_free_size(&lmb, image_load_addr);
+	max_size = lmb_get_free_size(image_load_addr);
 	if (!max_size)
 		return -1;
 

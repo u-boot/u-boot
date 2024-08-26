@@ -116,7 +116,7 @@ static void boot_jump_linux(struct bootm_headers *images)
 	return;
 }
 
-void arch_lmb_reserve(struct lmb *lmb)
+void arch_lmb_reserve(void)
 {
 	phys_size_t bootm_size;
 	ulong size, bootmap_base;
@@ -139,13 +139,13 @@ void arch_lmb_reserve(struct lmb *lmb)
 		ulong base = bootmap_base + size;
 		printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
 		       size, (unsigned long long)bootm_size);
-		lmb_reserve(lmb, base, bootm_size - size);
+		lmb_reserve(base, bootm_size - size);
 	}
 
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
+	arch_lmb_reserve_generic(get_sp(), gd->ram_top, 4096);
 
 #ifdef CONFIG_MP
-	cpu_mp_lmb_reserve(lmb);
+	cpu_mp_lmb_reserve();
 #endif
 
 	return;
@@ -166,7 +166,6 @@ static void boot_prep_linux(struct bootm_headers *images)
 static int boot_cmdline_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
 	ulong *cmd_start = &images->cmdline_start;
 	ulong *cmd_end = &images->cmdline_end;
 
@@ -174,7 +173,7 @@ static int boot_cmdline_linux(struct bootm_headers *images)
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		ret = boot_get_cmdline (lmb, cmd_start, cmd_end);
+		ret = boot_get_cmdline(cmd_start, cmd_end);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
 			return ret;
@@ -187,14 +186,13 @@ static int boot_cmdline_linux(struct bootm_headers *images)
 static int boot_bd_t_linux(struct bootm_headers *images)
 {
 	ulong of_size = images->ft_len;
-	struct lmb *lmb = &images->lmb;
 	struct bd_info **kbd = &images->kbd;
 
 	int ret = 0;
 
 	if (!of_size) {
 		/* allocate space for kernel copy of board info */
-		ret = boot_get_kbd (lmb, kbd);
+		ret = boot_get_kbd(kbd);
 		if (ret) {
 			puts("ERROR with allocation of kernel bd\n");
 			return ret;

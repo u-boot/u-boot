@@ -275,24 +275,23 @@ void __weak qcom_late_init(void)
 
 #define KERNEL_COMP_SIZE	SZ_64M
 
-#define addr_alloc(lmb, size) lmb_alloc(lmb, size, SZ_2M)
+#define addr_alloc(size) lmb_alloc(size, SZ_2M)
 
 /* Stolen from arch/arm/mach-apple/board.c */
 int board_late_init(void)
 {
-	struct lmb lmb;
 	u32 status = 0;
 
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
-	status |= env_set_hex("kernel_addr_r", addr_alloc(&lmb, SZ_128M));
-	status |= env_set_hex("ramdisk_addr_r", addr_alloc(&lmb, SZ_128M));
-	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(&lmb, KERNEL_COMP_SIZE));
+	status |= env_set_hex("kernel_addr_r", addr_alloc(SZ_128M));
+	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
+	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	status |= env_set_hex("scriptaddr", addr_alloc(&lmb, SZ_4M));
-	status |= env_set_hex("pxefile_addr_r", addr_alloc(&lmb, SZ_4M));
-	status |= env_set_hex("fdt_addr_r", addr_alloc(&lmb, SZ_2M));
+	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
+	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
+	status |= env_set_hex("fdt_addr_r", addr_alloc(SZ_2M));
 
 	if (status)
 		log_warning("%s: Failed to set run time variables\n", __func__);

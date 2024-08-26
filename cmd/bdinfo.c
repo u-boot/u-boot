@@ -162,10 +162,8 @@ static int bdinfo_print_all(struct bd_info *bd)
 	bdinfo_print_num_l("multi_dtb_fit", (ulong)gd->multi_dtb_fit);
 #endif
 	if (IS_ENABLED(CONFIG_LMB) && gd->fdt_blob) {
-		struct lmb lmb;
-
-		lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-		lmb_dump_all_force(&lmb);
+		lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
+		lmb_dump_all_force();
 		if (IS_ENABLED(CONFIG_OF_REAL))
 			printf("devicetree  = %s\n", fdtdec_get_srcname());
 	}

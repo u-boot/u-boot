@@ -531,7 +531,6 @@ int fs_size(const char *filename, loff_t *size)
 static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 			     loff_t len, struct fstype_info *info)
 {
-	struct lmb lmb;
 	int ret;
 	loff_t size;
 	loff_t read_len;
@@ -550,10 +549,10 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 	if (len && len < read_len)
 		read_len = len;
 
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-	lmb_dump_all(&lmb);
+	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
+	lmb_dump_all();
 
-	if (lmb_alloc_addr(&lmb, addr, read_len) == addr)
+	if (lmb_alloc_addr(addr, read_len) == addr)
 		return 0;
 
 	log_err("** Reading file would overwrite reserved memory **\n");

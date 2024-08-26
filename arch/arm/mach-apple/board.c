@@ -773,23 +773,22 @@ u64 get_page_table_size(void)
 
 int board_late_init(void)
 {
-	struct lmb lmb;
 	u32 status = 0;
 
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(gd->bd, (void *)gd->fdt_blob);
 
 	/* somewhat based on the Linux Kernel boot requirements:
 	 * align by 2M and maximal FDT size 2M
 	 */
-	status |= env_set_hex("loadaddr", lmb_alloc(&lmb, SZ_1G, SZ_2M));
-	status |= env_set_hex("fdt_addr_r", lmb_alloc(&lmb, SZ_2M, SZ_2M));
-	status |= env_set_hex("kernel_addr_r", lmb_alloc(&lmb, SZ_128M, SZ_2M));
-	status |= env_set_hex("ramdisk_addr_r", lmb_alloc(&lmb, SZ_1G, SZ_2M));
+	status |= env_set_hex("loadaddr", lmb_alloc(SZ_1G, SZ_2M));
+	status |= env_set_hex("fdt_addr_r", lmb_alloc(SZ_2M, SZ_2M));
+	status |= env_set_hex("kernel_addr_r", lmb_alloc(SZ_128M, SZ_2M));
+	status |= env_set_hex("ramdisk_addr_r", lmb_alloc(SZ_1G, SZ_2M));
 	status |= env_set_hex("kernel_comp_addr_r",
-			      lmb_alloc(&lmb, KERNEL_COMP_SIZE, SZ_2M));
+			      lmb_alloc(KERNEL_COMP_SIZE, SZ_2M));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	status |= env_set_hex("scriptaddr", lmb_alloc(&lmb, SZ_4M, SZ_2M));
-	status |= env_set_hex("pxefile_addr_r", lmb_alloc(&lmb, SZ_4M, SZ_2M));
+	status |= env_set_hex("scriptaddr", lmb_alloc(SZ_4M, SZ_2M));
+	status |= env_set_hex("pxefile_addr_r", lmb_alloc(SZ_4M, SZ_2M));
 
 	if (status)
 		log_warning("late_init: Failed to set run time variables\n");
