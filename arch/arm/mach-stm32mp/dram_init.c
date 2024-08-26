@@ -62,8 +62,10 @@ int dram_init(void)
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
+	int ret;
 	phys_size_t size;
 	phys_addr_t reg;
+	u32 optee_start, optee_size;
 
 	if (!total_size)
 		return gd->ram_top;
@@ -73,16 +75,10 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	 * if the effective available memory is bigger
 	 */
 	gd->ram_top = clamp_val(gd->ram_top, 0, SZ_4G - 1);
+	size = ALIGN(SZ_8M + CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
 
-	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_add(gd->ram_base, gd->ram_top - gd->ram_base);
-	boot_fdt_add_mem_rsv_regions((void *)gd->fdt_blob);
-	/* add 8M for reserved memory for display, fdt, gd,... */
-	size = ALIGN(SZ_8M + CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE),
-	reg = lmb_alloc(size, MMU_SECTION_SIZE);
-
-	if (!reg)
-		reg = gd->ram_top - size;
+	ret = optee_get_reserved_memory(&optee_start, &optee_size);
+	reg = (!ret ? optee_start : gd->ram_top) - size;
 
 	/* before relocation, mark the U-Boot memory as cacheable by default */
 	if (!(gd->flags & GD_FLG_RELOC))
