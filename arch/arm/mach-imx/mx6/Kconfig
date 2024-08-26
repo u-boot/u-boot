@@ -393,6 +393,7 @@ config TARGET_MX6SLEVK
 	bool "mx6slevk"
 	depends on MX6SL
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_MX6SLLEVK
 	bool "mx6sll evk"
