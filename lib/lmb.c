@@ -27,6 +27,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct lmb lmb;
 
+static void lmb_print_region_flags(enum lmb_flags flags)
+{
+	u64 bitpos;
+	const char *flag_str[] = { "none", "no-map", "no-overwrite" };
+
+	do {
+		bitpos = flags ? fls(flags) - 1 : 0;
+		printf("%s", flag_str[bitpos]);
+		flags &= ~(1ull << bitpos);
+		puts(flags ? ", " : "\n");
+	} while (flags);
+}
+
 static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
@@ -42,8 +55,9 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 		end = base + size - 1;
 		flags = rgn[i].flags;
 
-		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: %x\n",
-		       name, i, base, end, size, flags);
+		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+		       name, i, base, end, size);
+		lmb_print_region_flags(flags);
 	}
 }
 
