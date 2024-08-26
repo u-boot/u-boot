@@ -4183,7 +4183,8 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('172_scp.dts')
         self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
-    def CheckFitFdt(self, dts='170_fit_fdt.dts', use_fdt_list=True):
+    def CheckFitFdt(self, dts='170_fit_fdt.dts', use_fdt_list=True,
+                    default_dt=None):
         """Check an image with an FIT with multiple FDT images"""
         def _CheckFdt(seq, expected_data):
             """Check the FDT nodes
@@ -4227,6 +4228,8 @@ class TestFunctional(unittest.TestCase):
         }
         if use_fdt_list:
             entry_args['of-list'] = 'test-fdt1 test-fdt2'
+        if default_dt:
+            entry_args['default-dt'] = default_dt
         data = self._DoReadFileDtb(
             dts,
             entry_args=entry_args,
@@ -7630,6 +7633,16 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         try:
             os.chdir(self._indir)
             self.CheckFitFdt('333_fit_fdt_dir.dts', False)
+        finally:
+            os.chdir(old_dir)
+
+    def testFitFdtListDirDefault(self):
+        """Test an FIT fit,fdt-list-dir where the default DT in is a subdir"""
+        old_dir = os.getcwd()
+        try:
+            os.chdir(self._indir)
+            self.CheckFitFdt('333_fit_fdt_dir.dts', False,
+                             default_dt='rockchip/test-fdt2')
         finally:
             os.chdir(old_dir)
 

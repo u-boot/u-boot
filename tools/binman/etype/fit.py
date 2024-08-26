@@ -600,13 +600,17 @@ class Entry_fit(Entry_section):
                 if val.startswith('@'):
                     if not self._fdts:
                         return
-                    if not self._fit_default_dt:
+                    default_dt = self._fit_default_dt
+                    if not default_dt:
                         self.Raise("Generated 'default' node requires default-dt entry argument")
-                    if self._fit_default_dt not in self._fdts:
-                        self.Raise(
-                            f"default-dt entry argument '{self._fit_default_dt}' "
-                            f"not found in fdt list: {', '.join(self._fdts)}")
-                    seq = self._fdts.index(self._fit_default_dt)
+                    if default_dt not in self._fdts:
+                        if self._fdt_dir:
+                            default_dt = os.path.basename(default_dt)
+                        if default_dt not in self._fdts:
+                            self.Raise(
+                                f"default-dt entry argument '{self._fit_default_dt}' "
+                                f"not found in fdt list: {', '.join(self._fdts)}")
+                    seq = self._fdts.index(default_dt)
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
                     fsw.property_string(pname, val)
                     return
@@ -711,8 +715,9 @@ class Entry_fit(Entry_section):
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
                             if fdt_phase:
+                                leaf = os.path.basename(fdt_fname)
                                 phase_fname = tools.get_output_filename(
-                                    f'{fdt_fname}-{fdt_phase}.dtb')
+                                    f'{leaf}-{fdt_phase}.dtb')
                                 self._run_fdtgrep(fname, fdt_phase, phase_fname)
                                 data = tools.read_file(phase_fname)
                             else:
