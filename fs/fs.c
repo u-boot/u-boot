@@ -526,7 +526,7 @@ int fs_size(const char *filename, loff_t *size)
 	return ret;
 }
 
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 /* Check if a file may be read to the given address */
 static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 			     loff_t len, struct fstype_info *info)
@@ -567,7 +567,7 @@ static int _fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 	void *buf;
 	int ret;
 
-#ifdef CONFIG_LMB
+#if CONFIG_IS_ENABLED(LMB)
 	if (do_lmb_check) {
 		ret = fs_read_lmb_check(filename, addr, offset, len, info);
 		if (ret)

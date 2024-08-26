@@ -665,7 +665,7 @@ int embedded_dtb_select(void)
 }
 #endif
 
-#if defined(CONFIG_LMB)
+#if IS_ENABLED(CONFIG_LMB)
 
 #ifndef MMU_SECTION_SIZE
 #define MMU_SECTION_SIZE        (1 * 1024 * 1024)
