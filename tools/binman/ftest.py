@@ -7800,6 +7800,10 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertIn('Symbol-writing: no value for /binman/section/u-boot',
                       out)
 
+    def testNxpImx8Image(self):
+        """Test that binman can produce an iMX8 image"""
+        self._DoTestFile('339_nxp_imx8.dts')
+
 
 if __name__ == "__main__":
     unittest.main()
