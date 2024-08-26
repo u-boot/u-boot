@@ -108,6 +108,9 @@ class Entry(object):
             not need to be done again. This is only used with 'binman replace',
             to stop sections from being rebuilt if their entries have not been
             replaced
+        symbols_base (int): Use this value as the assumed load address of the
+            target entry, when calculating the symbol value. If None, this is
+            0 for blobs and the image-start address for ELF files
     """
     fake_dir = None
 
@@ -159,6 +162,7 @@ class Entry(object):
         self.preserve = False
         self.build_done = False
         self.no_write_symbols = False
+        self.symbols_base = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -324,6 +328,7 @@ class Entry(object):
 
         self.preserve = fdt_util.GetBool(self._node, 'preserve')
         self.no_write_symbols = fdt_util.GetBool(self._node, 'no-write-symbols')
+        self.symbols_base = fdt_util.GetInt(self._node, 'symbols-base')
 
     def GetDefaultFilename(self):
         return None
@@ -713,7 +718,8 @@ class Entry(object):
             # Check if we are writing symbols into an ELF file
             is_elf = self.GetDefaultFilename() == self.elf_fname
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
-                                      is_elf, self.elf_base_sym)
+                                      is_elf, self.elf_base_sym,
+                                      self.symbols_base)
 
     def CheckEntries(self):
         """Check that the entry offsets are correct

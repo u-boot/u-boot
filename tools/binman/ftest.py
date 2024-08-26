@@ -1500,7 +1500,8 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
     def checkSymbols(self, dts, base_data, u_boot_offset, entry_args=None,
-                     use_expanded=False, no_write_symbols=False):
+                     use_expanded=False, no_write_symbols=False,
+                     symbols_base=None):
         """Check the image contains the expected symbol values
 
         Args:
@@ -1512,6 +1513,8 @@ class TestFunctional(unittest.TestCase):
                 value: value of that arg
             use_expanded: True to use expanded entries where available, e.g.
                 'u-boot-expanded' instead of 'u-boot'
+            symbols_base (int): Value to expect for symbols-base in u-boot-spl,
+                None if none
         """
         elf_fname = self.ElfTestFile('u_boot_binman_syms')
         syms = elf.GetSymbols(elf_fname, ['binman', 'image'])
@@ -1526,10 +1529,19 @@ class TestFunctional(unittest.TestCase):
         # The image should contain the symbols from u_boot_binman_syms.c
         # Note that image_pos is adjusted by the base address of the image,
         # which is 0x10 in our test image
-        vals = (elf.BINMAN_SYM_MAGIC_VALUE, 0x00,
+        vals2 = (elf.BINMAN_SYM_MAGIC_VALUE, 0x00,
                 u_boot_offset + len(U_BOOT_DATA),
                 0x10 + u_boot_offset, 0x04)
+
+        # u-boot-spl has a symbols-base property, so take that into account if
+        # required. The caller must supply the value
+        vals = list(vals2)
+        if symbols_base is not None:
+            vals[3] = symbols_base + u_boot_offset
+        vals = tuple(vals)
+
         sym_values = struct.pack('<LLQLL', *vals)
+        sym_values2 = struct.pack('<LLQLL', *vals2)
         if no_write_symbols:
             self.assertEqual(
                 base_data +
@@ -1552,12 +1564,12 @@ class TestFunctional(unittest.TestCase):
             ofs = blen + 1 + len(U_BOOT_DATA)
             self.assertEqual(U_BOOT_DATA, data[blen + 1:ofs])
 
-            self.assertEqual(sym_values, data[ofs:ofs + 24])
+            self.assertEqual(sym_values2, data[ofs:ofs + 24])
             self.assertEqual(base_data[24:], data[ofs + 24:])
 
             # Just repeating the above asserts all at once, for clarity
             expected = (sym_values + base_data[24:] +
-                        tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                        tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values2 +
                         base_data[24:])
             self.assertEqual(expected, data)
 
@@ -7749,6 +7761,21 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         self.assertEqual(103, ret)
         err = stderr.getvalue()
         self.assertRegex(err, "Image 'image'.*missing bintools.*: mkeficapsule")
+
+    def testSymbolsBase(self):
+        """Test handling of symbols-base"""
+        self.checkSymbols('336_symbols_base.dts', U_BOOT_SPL_DATA, 0x1c,
+                          symbols_base=0)
+
+    def testSymbolsBaseExpanded(self):
+        """Test handling of symbols-base with expanded entries"""
+        entry_args = {
+            'spl-dtb': '1',
+        }
+        self.checkSymbols('337_symbols_base_expand.dts', U_BOOT_SPL_NODTB_DATA +
+                          U_BOOT_SPL_DTB_DATA, 0x38,
+                          entry_args=entry_args, use_expanded=True,
+                          symbols_base=0)
 
 
 if __name__ == "__main__":
