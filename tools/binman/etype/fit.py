@@ -96,7 +96,10 @@ class Entry_fit(Entry_section):
             can be provided as a directory. Each .dtb file in the directory is
             processed, , e.g.::
 
-                fit,fdt-list-dir = "arch/arm/dts
+                fit,fdt-list-dir = "arch/arm/dts";
+
+            In this case the input directories are ignored and all devicetree
+            files must be in that directory.
 
     Substitutions
     ~~~~~~~~~~~~~
@@ -671,7 +674,10 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
-                    fname = tools.get_input_filename(fdt_fname + '.dtb')
+                    if self._fdt_dir:
+                        fname = os.path.join(self._fdt_dir, fdt_fname + '.dtb')
+                    else:
+                        fname = tools.get_input_filename(fdt_fname + '.dtb')
                     fdt_phase = None
                     with fsw.add_node(node_name):
                         for pname, prop in node.props.items():

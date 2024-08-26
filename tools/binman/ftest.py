@@ -7626,7 +7626,12 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitFdtListDir(self):
         """Test an image with an FIT with FDT images using fit,fdt-list-dir"""
-        self.CheckFitFdt('333_fit_fdt_dir.dts', False)
+        old_dir = os.getcwd()
+        try:
+            os.chdir(self._indir)
+            self.CheckFitFdt('333_fit_fdt_dir.dts', False)
+        finally:
+            os.chdir(old_dir)
 
     def testFitFdtCompat(self):
         """Test an image with an FIT with compatible in the config nodes"""
