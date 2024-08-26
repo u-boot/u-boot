@@ -904,7 +904,7 @@ class Entry_fit(Entry_section):
         fdt = Fdt.FromData(self.GetData())
         fdt.Scan()
 
-        for image_name, section in self._entries.items():
+        for image_name, entry in self._entries.items():
             path = f"/images/{image_name}"
             node = fdt.GetNode(path)
 
@@ -936,8 +936,8 @@ class Entry_fit(Entry_section):
                 size = None
                 self.Raise(f'{path}: missing data properties')
 
-            section.SetOffsetSize(offset, size)
-            section.SetImagePos(self.image_pos)
+            entry.SetOffsetSize(offset, size)
+            entry.SetImagePos(image_pos + self.offset)
 
     def AddBintools(self, btools):
         super().AddBintools(btools)
