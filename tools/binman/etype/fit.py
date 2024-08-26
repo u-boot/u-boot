@@ -894,7 +894,10 @@ class Entry_fit(Entry_section):
         """
         if self.build_done:
             return
-        super().SetImagePos(image_pos)
+
+        # Skip the section processing, since we do that below. Just call the
+        # entry method
+        Entry.SetImagePos(self, image_pos)
 
         # If mkimage is missing we'll have empty data,
         # which will cause a FDT_ERR_BADMAGIC error
