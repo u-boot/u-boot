@@ -6,7 +6,7 @@ menuconfig BOOTCOUNT_LIMIT
 	bool "Enable support for checking boot count limit"
 	help
 	  Enable checking for exceeding the boot count limit.
-	  More information: http://www.denx.de/wiki/DULG/UBootBootCountLimit
+	  More information: https://docs.u-boot.org/en/latest/api/bootcount.html
 
 if BOOTCOUNT_LIMIT
 
