@@ -550,6 +550,9 @@ class Entry_fit(Entry_section):
             phase (str): Phase to generate for ('tpl', 'vpl', 'spl')
             outfile (str): Output filename to write the grepped FDT contents to
                 (with only neceesary nodes and properties)
+
+        Returns:
+            str or bytes: Resulting stdout from fdtgrep
         """
         return self.fdtgrep.create_for_phase(infile, phase, outfile,
                                              self._remove_props)
