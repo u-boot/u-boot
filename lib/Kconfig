@@ -1105,40 +1105,6 @@ config LMB
 	help
 	  Support the library logical memory blocks.
 
-config LMB_USE_MAX_REGIONS
-	bool "Use a common number of memory and reserved regions in lmb lib"
-	default y
-	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  This feature allow to reduce the lmb library size by using compiler
-	  optimization when LMB_MEMORY_REGIONS == LMB_RESERVED_REGIONS.
-
-config LMB_MAX_REGIONS
-	int "Number of memory and reserved regions in lmb lib"
-	depends on LMB_USE_MAX_REGIONS
-	default 16
-	help
-	  Define the number of supported regions, memory and reserved, in the
-	  library logical memory blocks.
-
-config LMB_MEMORY_REGIONS
-	int "Number of memory regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
-	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  The minimal value is CONFIG_NR_DRAM_BANKS.
-
-config LMB_RESERVED_REGIONS
-	int "Number of reserved regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
-	help
-	  Define the number of supported reserved regions in the library logical
-	  memory blocks.
-
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"
 	help
