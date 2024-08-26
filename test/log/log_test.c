@@ -379,9 +379,9 @@ int log_test_level_deny(struct unit_test_state *uts)
 
 	ut_assertok(console_record_reset_enable());
 	log_run();
-	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
-				       LOGL_WARNING + 1,
-				       min(gd->default_log_level, LOGL_INFO));
+	check_log_entries_flags_levels(
+		EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
+		LOGL_WARNING + 1, min((int)gd->default_log_level, LOGL_INFO));
 
 	ut_assertok(log_remove_filter("console", filt1));
 	ut_assertok(log_remove_filter("console", filt2));

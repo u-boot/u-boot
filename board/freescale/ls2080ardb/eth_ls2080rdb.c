@@ -12,7 +12,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_eth_init(struct bd_info *bis)
 {
 
-#ifdef CONFIG_PHY_AQUANTIA
+#if defined(CONFIG_PHY_AQUANTIA) && !defined(CONFIG_SPL_BUILD)
 	/*
 	 * Export functions to be used by AQ firmware
 	 * upload application

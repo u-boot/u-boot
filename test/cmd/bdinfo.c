@@ -185,9 +185,6 @@ static int bdinfo_test_all(struct unit_test_state *uts)
 	ut_assert(map_to_sysmem(gd->fdt_blob) == env_get_hex("fdtcontroladdr", 0x1234));
 	ut_assertok(test_num_l(uts, "fdt_blob",
 			       (ulong)map_to_sysmem(gd->fdt_blob)));
-	ut_assertok(test_num_l(uts, "new_fdt",
-			       (ulong)map_to_sysmem(gd->new_fdt)));
-	ut_assertok(test_num_l(uts, "fdt_size", (ulong)gd->fdt_size));
 
 	if (IS_ENABLED(CONFIG_VIDEO))
 		ut_assertok(test_video_info(uts));

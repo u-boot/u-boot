@@ -92,7 +92,7 @@ int print_cpuinfo(void)
 		       strmhz(buf3, gd->arch.flb_clk));
 #ifdef CONFIG_PCI
 		printf("       PCI CLK %s MHz INP CLK %s MHz VCO CLK %s MHz\n",
-		       strmhz(buf1, gd->pci_clk),
+		       strmhz(buf1, gd->arch.pci_clk),
 		       strmhz(buf2, gd->arch.inp_clk),
 		       strmhz(buf3, gd->arch.vco_clk));
 #else

@@ -305,17 +305,6 @@ static int setup_mon_len(void)
 	return 0;
 }
 
-static int setup_spl_handoff(void)
-{
-#if CONFIG_IS_ENABLED(HANDOFF)
-	gd->spl_handoff = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF,
-					sizeof(struct spl_handoff));
-	debug("Found SPL hand-off info %p\n", gd->spl_handoff);
-#endif
-
-	return 0;
-}
-
 __weak int arch_cpu_init(void)
 {
 	return 0;
@@ -351,7 +340,7 @@ __weak int arch_setup_dest_addr(void)
 
 static int setup_dest_addr(void)
 {
-	debug("Monitor len: %08lX\n", gd->mon_len);
+	debug("Monitor len: %08x\n", gd->mon_len);
 	/*
 	 * Ram is setup, size stored in gd !!
 	 */
@@ -488,7 +477,7 @@ static int reserve_uboot(void)
 		gd->relocaddr &= ~(65536 - 1);
 	#endif
 
-		debug("Reserving %ldk for U-Boot at: %08lx\n",
+		debug("Reserving %dk for U-Boot at: %08lx\n",
 		      gd->mon_len >> 10, gd->relocaddr);
 	}
 
@@ -575,12 +564,15 @@ static int reserve_fdt(void)
 		 * section, then it will be relocated with other data.
 		 */
 		if (gd->fdt_blob) {
-			gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob), 32);
+			gd->boardf->fdt_size =
+				ALIGN(fdt_totalsize(gd->fdt_blob), 32);
 
-			gd->start_addr_sp = reserve_stack_aligned(gd->fdt_size);
-			gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
+			gd->start_addr_sp = reserve_stack_aligned(
+				gd->boardf->fdt_size);
+			gd->boardf->new_fdt = map_sysmem(gd->start_addr_sp,
+							 gd->boardf->fdt_size);
 			debug("Reserving %lu Bytes for FDT at: %08lx\n",
-			      gd->fdt_size, gd->start_addr_sp);
+			      gd->boardf->fdt_size, gd->start_addr_sp);
 		}
 	}
 
@@ -593,7 +585,7 @@ static int reserve_bootstage(void)
 	int size = bootstage_get_size();
 
 	gd->start_addr_sp = reserve_stack_aligned(size);
-	gd->new_bootstage = map_sysmem(gd->start_addr_sp, size);
+	gd->boardf->new_bootstage = map_sysmem(gd->start_addr_sp, size);
 	debug("Reserving %#x Bytes for bootstage at: %08lx\n", size,
 	      gd->start_addr_sp);
 #endif
@@ -624,8 +616,8 @@ static int reserve_bloblist(void)
 	/* Align to a 4KB boundary for easier reading of addresses */
 	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp -
 				       CONFIG_BLOBLIST_SIZE_RELOC, 0x1000);
-	gd->new_bloblist = map_sysmem(gd->start_addr_sp,
-				      CONFIG_BLOBLIST_SIZE_RELOC);
+	gd->boardf->new_bloblist = map_sysmem(gd->start_addr_sp,
+					      CONFIG_BLOBLIST_SIZE_RELOC);
 #endif
 
 	return 0;
@@ -668,10 +660,10 @@ static int init_post(void)
 static int reloc_fdt(void)
 {
 	if (!IS_ENABLED(CONFIG_OF_EMBED)) {
-		if (gd->new_fdt) {
-			memcpy(gd->new_fdt, gd->fdt_blob,
+		if (gd->boardf->new_fdt) {
+			memcpy(gd->boardf->new_fdt, gd->fdt_blob,
 			       fdt_totalsize(gd->fdt_blob));
-			gd->fdt_blob = gd->new_fdt;
+			gd->fdt_blob = gd->boardf->new_fdt;
 		}
 	}
 
@@ -683,9 +675,8 @@ static int reloc_bootstage(void)
 #ifdef CONFIG_BOOTSTAGE
 	if (gd->flags & GD_FLG_SKIP_RELOC)
 		return 0;
-	if (gd->new_bootstage) {
-		bootstage_relocate(gd->new_bootstage);
-	}
+	if (gd->boardf->new_bootstage)
+		bootstage_relocate(gd->boardf->new_bootstage);
 #endif
 
 	return 0;
@@ -702,10 +693,11 @@ static int reloc_bloblist(void)
 		debug("Not relocating bloblist\n");
 		return 0;
 	}
-	if (gd->new_bloblist) {
+	if (gd->boardf->new_bloblist) {
 		debug("Copying bloblist from %p to %p, size %x\n",
-		      gd->bloblist, gd->new_bloblist, gd->bloblist->total_size);
-		return bloblist_reloc(gd->new_bloblist,
+		      gd->bloblist, gd->boardf->new_bloblist,
+	gd->bloblist->total_size);
+		return bloblist_reloc(gd->boardf->new_bloblist,
 				      CONFIG_BLOBLIST_SIZE_RELOC);
 	}
 #endif
@@ -888,7 +880,6 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_bootstage,	/* uses its own timer, so does not need DM */
 	event_init,
 	bloblist_maybe_init,
-	setup_spl_handoff,
 #if defined(CONFIG_CONSOLE_RECORD_INIT_F)
 	console_record_init,
 #endif
@@ -1021,8 +1012,11 @@ static const init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
+	struct board_f boardf;
+
 	gd->flags = boot_flags;
-	gd->have_console = 0;
+	gd->flags &= ~GD_FLG_HAVE_CONSOLE;
+	gd->boardf = &boardf;
 
 	if (initcall_run_list(init_sequence_f))
 		hang();
