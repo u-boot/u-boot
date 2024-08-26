@@ -721,6 +721,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	    IS_ENABLED(CONFIG_SPL_ATF))
 		dram_init_banksize();
 
+	if (IS_ENABLED(CONFIG_SPL_LMB))
+		lmb_init();
+
 	if (CONFIG_IS_ENABLED(PCI) && !(gd->flags & GD_FLG_DM_DEAD)) {
 		ret = pci_init();
 		if (ret)
