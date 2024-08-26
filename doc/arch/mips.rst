@@ -8,9 +8,8 @@ Notes for the MIPS architecture port of U-Boot
 Toolchains
 ----------
 
-  * `ELDK < DULG < DENX <http://www.denx.de/wiki/DULG/ELDK>`_
-  * `Embedded Debian -- Cross-development toolchains <http://www.emdebian.org/crosstools.html>`_
   * `Buildroot <http://buildroot.uclibc.org/>`_
+  * `kernel.org cross-development toolchains <https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/>`_
 
 Known Issues
 ------------
