@@ -381,11 +381,10 @@ class Image(section.Entry_section):
             selected_entries.append(entry)
         return selected_entries, lines, widths
 
-    def LookupImageSymbol(self, sym_name, optional, msg, base_addr):
-        """Look up a symbol in an ELF file
+    def GetImageSymbolValue(self, sym_name, optional, msg, base_addr):
+        """Get the value of a Binman symbol
 
-        Looks up a symbol in an ELF file. Only entry types which come from an
-        ELF image can be used by this function.
+        Look up a Binman symbol and obtain its value.
 
         This searches through this image including all of its subsections.
 
@@ -423,8 +422,8 @@ class Image(section.Entry_section):
         entries = OrderedDict()
         entries_by_name = {}
         self._CollectEntries(entries, entries_by_name, self)
-        return self.LookupSymbol(sym_name, optional, msg, base_addr,
-                                 entries_by_name)
+        return self.GetSymbolValue(sym_name, optional, msg, base_addr,
+                                   entries_by_name)
 
     def CollectBintools(self):
         """Collect all the bintools used by this image

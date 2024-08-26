@@ -301,8 +301,8 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
                 value = BINMAN_SYM_MAGIC_VALUE
             else:
                 # Look up the symbol in our entry tables.
-                value = section.GetImage().LookupImageSymbol(name, sym.weak,
-                                                             msg, base_addr)
+                value = section.GetImage().GetImageSymbolValue(name, sym.weak,
+                                                               msg, base_addr)
             if value is None:
                 value = -1
                 pack_string = pack_string.lower()

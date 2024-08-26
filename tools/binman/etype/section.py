@@ -563,13 +563,13 @@ class Entry_section(Entry):
         return entry.GetData(required)
 
     def LookupEntry(self, entries, sym_name, msg):
-        """Look up the entry for an ENF  symbol
+        """Look up the entry for a binman symbol
 
         Args:
             entries (dict): entries to search:
                 key: entry name
                 value: Entry object
-            sym_name: Symbol name in the ELF file to look up in the format
+            sym_name: Symbol name to look up in the format
                 _binman_<entry>_prop_<property> where <entry> is the name of
                 the entry and <property> is the property to find (e.g.
                 _binman_u_boot_prop_offset). As a special case, you can append
@@ -606,11 +606,10 @@ class Entry_section(Entry):
                             entry = entries[name]
         return entry, entry_name, prop_name
 
-    def LookupSymbol(self, sym_name, optional, msg, base_addr, entries=None):
-        """Look up a symbol in an ELF file
+    def GetSymbolValue(self, sym_name, optional, msg, base_addr, entries=None):
+        """Get the value of a Binman symbol
 
-        Looks up a symbol in an ELF file. Only entry types which come from an
-        ELF image can be used by this function.
+        Look up a Binman symbol and obtain its value.
 
         At present the only entry properties supported are:
             offset
@@ -618,7 +617,7 @@ class Entry_section(Entry):
             size
 
         Args:
-            sym_name: Symbol name in the ELF file to look up in the format
+            sym_name: Symbol name to look up in the format
                 _binman_<entry>_prop_<property> where <entry> is the name of
                 the entry and <property> is the property to find (e.g.
                 _binman_u_boot_prop_offset). As a special case, you can append
