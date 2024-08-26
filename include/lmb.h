@@ -5,6 +5,7 @@
 
 #include <asm/types.h>
 #include <asm/u-boot.h>
+#include <linux/bitops.h>
 
 /*
  * Logical memory blocks.
@@ -18,8 +19,8 @@
  * @LMB_NOMAP: don't add to mmu configuration
  */
 enum lmb_flags {
-	LMB_NONE		= 0x0,
-	LMB_NOMAP		= 0x4,
+	LMB_NONE		= 0,
+	LMB_NOMAP		= BIT(1),
 };
 
 /**
