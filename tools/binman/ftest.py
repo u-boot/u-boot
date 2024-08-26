@@ -505,8 +505,9 @@ class TestFunctional(unittest.TestCase):
         return dtb.GetContents()
 
     def _DoReadFileDtb(self, fname, use_real_dtb=False, use_expanded=False,
-                       map=False, update_dtb=False, entry_args=None,
-                       reset_dtbs=True, extra_indirs=None, threads=None):
+                       verbosity=None, map=False, update_dtb=False,
+                       entry_args=None, reset_dtbs=True, extra_indirs=None,
+                       threads=None):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -523,6 +524,7 @@ class TestFunctional(unittest.TestCase):
                 But in some test we need the real contents.
             use_expanded: True to use expanded entries where available, e.g.
                 'u-boot-expanded' instead of 'u-boot'
+            verbosity: Verbosity level to use (0-3, None=don't set it)
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
@@ -559,7 +561,8 @@ class TestFunctional(unittest.TestCase):
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
                     entry_args=entry_args, use_real_dtb=use_real_dtb,
-                    use_expanded=use_expanded, extra_indirs=extra_indirs,
+                    use_expanded=use_expanded, verbosity=verbosity,
+                    extra_indirs=extra_indirs,
                     threads=threads)
             self.assertEqual(0, retcode)
             out_dtb_fname = tools.get_output_filename('u-boot.dtb.out')
@@ -1507,7 +1510,8 @@ class TestFunctional(unittest.TestCase):
         Args:
             dts: Device tree file to use for test
             base_data: Data before and after 'u-boot' section
-            u_boot_offset: Offset of 'u-boot' section in image
+            u_boot_offset (int): Offset of 'u-boot' section in image, or None if
+                the offset not available due to it being in a compressed section
             entry_args: Dict of entry args to supply to binman
                 key: arg name
                 value: value of that arg
@@ -1525,13 +1529,20 @@ class TestFunctional(unittest.TestCase):
 
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFileDtb(dts, entry_args=entry_args,
-                                   use_expanded=use_expanded)[0]
+                                   use_expanded=use_expanded,
+                                   verbosity=None if u_boot_offset else 3)[0]
+
+        # The lz4-compressed version of the U-Boot data is 19 bytes long
+        comp_uboot_len = 19
+
         # The image should contain the symbols from u_boot_binman_syms.c
         # Note that image_pos is adjusted by the base address of the image,
         # which is 0x10 in our test image
+        # If u_boot_offset is None, Binman should write -1U into the image
         vals2 = (elf.BINMAN_SYM_MAGIC_VALUE, 0x00,
-                u_boot_offset + len(U_BOOT_DATA),
-                0x10 + u_boot_offset, 0x04)
+                u_boot_offset + len(U_BOOT_DATA) if u_boot_offset else
+                    len(U_BOOT_SPL_DATA) + 1 + comp_uboot_len,
+                0x10 + u_boot_offset if u_boot_offset else 0xffffffff, 0x04)
 
         # u-boot-spl has a symbols-base property, so take that into account if
         # required. The caller must supply the value
@@ -1561,17 +1572,21 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(base_data[24:], data[24:blen])
             self.assertEqual(0xff, data[blen])
 
-            ofs = blen + 1 + len(U_BOOT_DATA)
-            self.assertEqual(U_BOOT_DATA, data[blen + 1:ofs])
+            if u_boot_offset:
+                ofs = blen + 1 + len(U_BOOT_DATA)
+                self.assertEqual(U_BOOT_DATA, data[blen + 1:ofs])
+            else:
+                ofs = blen + 1 + comp_uboot_len
 
             self.assertEqual(sym_values2, data[ofs:ofs + 24])
             self.assertEqual(base_data[24:], data[ofs + 24:])
 
             # Just repeating the above asserts all at once, for clarity
-            expected = (sym_values + base_data[24:] +
-                        tools.get_bytes(0xff, 1) + U_BOOT_DATA + sym_values2 +
-                        base_data[24:])
-            self.assertEqual(expected, data)
+            if u_boot_offset:
+                expected = (sym_values + base_data[24:] +
+                            tools.get_bytes(0xff, 1) + U_BOOT_DATA +
+                            sym_values2 + base_data[24:])
+                self.assertEqual(expected, data)
 
     def testSymbols(self):
         """Test binman can assign symbols embedded in U-Boot"""
@@ -7776,6 +7791,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                           U_BOOT_SPL_DTB_DATA, 0x38,
                           entry_args=entry_args, use_expanded=True,
                           symbols_base=0)
+
+    def testSymbolsCompressed(self):
+        """Test binman complains about symbols from a compressed section"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self.checkSymbols('338_symbols_comp.dts', U_BOOT_SPL_DATA, None)
+        out = stdout.getvalue()
+        self.assertIn('Symbol-writing: no value for /binman/section/u-boot',
+                      out)
 
 
 if __name__ == "__main__":

@@ -653,6 +653,9 @@ class Entry_section(Entry):
         if prop_name == 'offset':
             return entry.offset
         elif prop_name == 'image_pos':
+            if not entry.image_pos:
+                tout.info(f'Symbol-writing: no value for {entry._node.path}')
+                return None
             return base_addr + entry.image_pos
         if prop_name == 'size':
             return entry.size
