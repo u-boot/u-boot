@@ -576,8 +576,16 @@ class Entry(object):
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
 
+        Looks up the named entryargs and returns the value for each. If any
+        required ones are missing, the error is reported to the user.
+
         Args:
-            props: List of EntryArg objects
+            props (list of EntryArg): List of entry arguments to look up
+            required (bool): True if these entry arguments are required
+
+        Returns:
+            list of values: one for each item in props, the type is determined
+                by the EntryArg's 'datatype' property (str or int)
 
         Raises:
             ValueError if a property is not found
