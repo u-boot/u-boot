@@ -13,6 +13,7 @@
 #include <lmb.h>
 #include <log.h>
 #include <malloc.h>
+#include <spl.h>
 
 #include <asm/global_data.h>
 #include <asm/sections.h>
@@ -172,10 +173,11 @@ void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve(sp, bank_end - sp + 1);
+		lmb_reserve_flags(sp, bank_end - sp + 1, LMB_NOOVERWRITE);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve((phys_addr_t)(uintptr_t)_start, gd->mon_len);
+			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
+					  gd->mon_len, LMB_NOOVERWRITE);
 
 		break;
 	}
@@ -244,6 +246,30 @@ void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
 {
 	lmb_add(base, size);
 	lmb_reserve_common(fdt_blob);
+}
+
+static __maybe_unused void lmb_reserve_common_spl(void)
+{
+	phys_addr_t rsv_start;
+	phys_size_t rsv_size;
+
+	/*
+	 * Assume a SPL stack of 16KB. This must be
+	 * more than enough for the SPL stage.
+	 */
+	if (IS_ENABLED(CONFIG_SPL_STACK_R_ADDR)) {
+		rsv_start = gd->start_addr_sp - 16384;
+		rsv_size = 16384;
+		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+	}
+
+	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS)) {
+		/* Reserve the bss region */
+		rsv_start = (phys_addr_t)(uintptr_t)__bss_start;
+		rsv_size = (phys_addr_t)(uintptr_t)__bss_end -
+			(phys_addr_t)(uintptr_t)__bss_start;
+		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+	}
 }
 
 /**
@@ -734,6 +760,12 @@ int lmb_init(void)
 	}
 
 	lmb_add_memory();
+
+	/* Reserve the U-Boot image region once U-Boot has relocated */
+	if (spl_phase() == PHASE_SPL)
+		lmb_reserve_common_spl();
+	else if (spl_phase() == PHASE_BOARD_R)
+		lmb_reserve_common((void *)gd->fdt_blob);
 
 	return 0;
 }
