@@ -228,19 +228,6 @@ static void lmb_reserve_common(void *fdt_blob)
 }
 
 /* Initialize the struct, add memory and call arch/board reserve functions */
-void lmb_init_and_reserve(struct bd_info *bd, void *fdt_blob)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		if (bd->bi_dram[i].size)
-			lmb_add(bd->bi_dram[i].start, bd->bi_dram[i].size);
-	}
-
-	lmb_reserve_common(fdt_blob);
-}
-
-/* Initialize the struct, add memory and call arch/board reserve functions */
 void lmb_init_and_reserve_range(phys_addr_t base, phys_size_t size,
 				void *fdt_blob)
 {
