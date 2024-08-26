@@ -248,7 +248,7 @@ class Entry_atf_fip(Entry_section):
             fent = entry._fip_entry
             entry.size = fent.size
             entry.offset = fent.offset
-            entry.image_pos = self.image_pos + entry.offset
+            entry.SetImagePos(image_pos + self.offset)
 
     def ReadChildData(self, child, decomp=True, alt_format=None):
         if not self.reader:
