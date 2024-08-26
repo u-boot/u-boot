@@ -1,0 +1,6 @@
+#include <configs/tqma6ul_common.config>
+#include <configs/tqma6ul_uuu.config>
+
+CONFIG_MX6UL=y
+CONFIG_TQMA6UL_VARIANT_LGA=y
+CONFIG_DEFAULT_DEVICE_TREE="nxp/imx/imx6ul-tqma6ul2l-mba6ulx"
