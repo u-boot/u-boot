@@ -151,6 +151,8 @@ class Entry_efi_capsule(Entry_section):
             return tools.read_file(capsule_fname)
         else:
             # Bintool is missing; just use the input data as the output
+            if not self.GetAllowMissing():
+                self.Raise("Missing tool: 'mkeficapsule'")
             self.record_missing_bintool(self.mkeficapsule)
             return data
 

@@ -403,8 +403,10 @@ class TestFunctional(unittest.TestCase):
             test_section_timeout: True to force the first time to timeout, as
                 used in testThreadTimeout()
             update_fdt_in_elf: Value to pass with --update-fdt-in-elf=xxx
-            force_missing_tools (str): comma-separated list of bintools to
+            force_missing_bintools (str): comma-separated list of bintools to
                 regard as missing
+            ignore_missing (bool): True to return success even if there are
+                missing blobs or bintools
             output_dir: Specific output directory to use for image using -O
 
         Returns:
@@ -7689,6 +7691,24 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
             # Make sure the other node is gone
             self.assertIsNone(dtb.GetNode('/node/other-node'))
+
+    def testMkeficapsuleMissing(self):
+        """Test that binman complains if mkeficapsule is missing"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('311_capsule.dts',
+                             force_missing_bintools='mkeficapsule')
+        self.assertIn("Node '/binman/efi-capsule': Missing tool: 'mkeficapsule'",
+                      str(e.exception))
+
+    def testMkeficapsuleMissingOk(self):
+        """Test that binman deals with mkeficapsule being missing"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            ret = self._DoTestFile('311_capsule.dts',
+                                   force_missing_bintools='mkeficapsule',
+                                   allow_missing=True)
+        self.assertEqual(103, ret)
+        err = stderr.getvalue()
+        self.assertRegex(err, "Image 'image'.*missing bintools.*: mkeficapsule")
 
 
 if __name__ == "__main__":
