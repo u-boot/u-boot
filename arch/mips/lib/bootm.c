@@ -9,7 +9,6 @@
 #include <env.h>
 #include <image.h>
 #include <fdt_support.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/addrspace.h>
 #include <asm/global_data.h>
@@ -27,20 +26,6 @@ static char *linux_argp;
 static char **linux_env;
 static char *linux_env_p;
 static int linux_env_idx;
-
-static ulong arch_get_sp(void)
-{
-	ulong ret;
-
-	__asm__ __volatile__("move %0, $sp" : "=r"(ret) : );
-
-	return ret;
-}
-
-void arch_lmb_reserve(void)
-{
-	arch_lmb_reserve_generic(arch_get_sp(), gd->ram_top, 4096);
-}
 
 static void linux_cmdline_init(void)
 {

@@ -18,6 +18,7 @@
 #include <asm/global_data.h>
 #include <asm/sections.h>
 #include <linux/kernel.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -147,42 +148,6 @@ static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
-void arch_lmb_reserve_generic(ulong sp, ulong end, ulong align)
-{
-	ulong bank_end;
-	int bank;
-
-	/*
-	 * Reserve memory from aligned address below the bottom of U-Boot stack
-	 * until end of U-Boot area using LMB to prevent U-Boot from overwriting
-	 * that memory.
-	 */
-	debug("## Current stack ends at 0x%08lx ", sp);
-
-	/* adjust sp by 4K to be safe */
-	sp -= align;
-	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		if (!gd->bd->bi_dram[bank].size ||
-		    sp < gd->bd->bi_dram[bank].start)
-			continue;
-		/* Watch out for RAM at end of address space! */
-		bank_end = gd->bd->bi_dram[bank].start +
-			gd->bd->bi_dram[bank].size - 1;
-		if (sp > bank_end)
-			continue;
-		if (bank_end > end)
-			bank_end = end - 1;
-
-		lmb_reserve_flags(sp, bank_end - sp + 1, LMB_NOOVERWRITE);
-
-		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
-					  gd->mon_len, LMB_NOOVERWRITE);
-
-		break;
-	}
-}
-
 /**
  * efi_lmb_reserve() - add reservations for EFI memory
  *
@@ -215,10 +180,50 @@ static __maybe_unused int efi_lmb_reserve(void)
 	return 0;
 }
 
+static void lmb_reserve_uboot_region(void)
+{
+	int bank;
+	ulong end, bank_end;
+	phys_addr_t rsv_start;
+
+	rsv_start = gd->start_addr_sp - CONFIG_STACK_SIZE;
+	end = gd->ram_top;
+
+	/*
+	 * Reserve memory from aligned address below the bottom of U-Boot stack
+	 * until end of RAM area to prevent LMB from overwriting that memory.
+	 */
+	debug("## Current stack ends at 0x%08lx ", (ulong)rsv_start);
+
+	/* adjust sp by 16K to be safe */
+	rsv_start -= SZ_16K;
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (!gd->bd->bi_dram[bank].size ||
+		    rsv_start < gd->bd->bi_dram[bank].start)
+			continue;
+		/* Watch out for RAM at end of address space! */
+		bank_end = gd->bd->bi_dram[bank].start +
+			gd->bd->bi_dram[bank].size - 1;
+		if (rsv_start > bank_end)
+			continue;
+		if (bank_end > end)
+			bank_end = end - 1;
+
+		lmb_reserve_flags(rsv_start, bank_end - rsv_start + 1,
+				  LMB_NOOVERWRITE);
+
+		if (gd->flags & GD_FLG_SKIP_RELOC)
+			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
+					  gd->mon_len, LMB_NOOVERWRITE);
+
+		break;
+	}
+}
+
 static void lmb_reserve_common(void *fdt_blob)
 {
-	arch_lmb_reserve();
 	board_lmb_reserve();
+	lmb_reserve_uboot_region();
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
 		boot_fdt_add_mem_rsv_regions(fdt_blob);
@@ -688,11 +693,6 @@ int lmb_is_reserved_flags(phys_addr_t addr, int flags)
 __weak void board_lmb_reserve(void)
 {
 	/* please define platform specific board_lmb_reserve() */
-}
-
-__weak void arch_lmb_reserve(void)
-{
-	/* please define platform specific arch_lmb_reserve() */
 }
 
 static int lmb_setup(void)

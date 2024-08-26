@@ -36,7 +36,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (struct bd_info *kbd);
 
@@ -208,14 +207,6 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 	boot_jump_linux(images);
 
 	return 0;
-}
-
-static ulong get_sp (void)
-{
-	ulong sp;
-
-	asm( "mr %0,1": "=r"(sp) : );
-	return sp;
 }
 
 static void set_clocks_in_mhz (struct bd_info *kbd)
