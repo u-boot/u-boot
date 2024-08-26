@@ -711,15 +711,22 @@ class Entry(object):
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time
 
+        As a special case, if symbols_base is not specified and this is an
+        end-at-4gb image, a symbols_base of 0 is used
+
         Args:
           section: Section containing the entry
         """
         if self.auto_write_symbols and not self.no_write_symbols:
             # Check if we are writing symbols into an ELF file
             is_elf = self.GetDefaultFilename() == self.elf_fname
+
+            symbols_base = self.symbols_base
+            if symbols_base is None and self.GetImage()._end_4gb:
+                symbols_base = 0
+
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
-                                      is_elf, self.elf_base_sym,
-                                      self.symbols_base)
+                                      is_elf, self.elf_base_sym, symbols_base)
 
     def CheckEntries(self):
         """Check that the entry offsets are correct

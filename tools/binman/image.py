@@ -404,12 +404,10 @@ class Image(section.Entry_section):
             optional: True if the symbol is optional. If False this function
                 will raise if the symbol is not found
             msg: Message to display if an error occurs
-            base_addr: Base address of image. This is added to the returned
-                image_pos in most cases so that the returned position indicates
-                where the targeted entry/binary has actually been loaded. But
-                if end-at-4gb is used, this is not done, since the binary is
-                already assumed to be linked to the ROM position and using
-                execute-in-place (XIP).
+            base_addr (int): Base address of image. This is added to the
+                returned value of image-pos so that the returned position
+                indicates where the targeted entry/binary has actually been
+                loaded
 
         Returns:
             Value that should be assigned to that symbol, or None if it was
