@@ -435,30 +435,13 @@ static long lmb_overlaps_region(struct lmb_region *rgn, phys_addr_t base,
 	return (i < rgn->cnt) ? i : -1;
 }
 
-phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align)
-{
-	return lmb_alloc_base(lmb, size, align, LMB_ALLOC_ANYWHERE);
-}
-
-phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
-{
-	phys_addr_t alloc;
-
-	alloc = __lmb_alloc_base(lmb, size, align, max_addr);
-
-	if (alloc == 0)
-		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
-		       (ulong)size, (ulong)max_addr);
-
-	return alloc;
-}
-
 static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 {
 	return addr & ~(size - 1);
 }
 
-phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
+static phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size,
+				    ulong align, phys_addr_t max_addr)
 {
 	long i, rgn;
 	phys_addr_t base = 0;
@@ -497,6 +480,24 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 		}
 	}
 	return 0;
+}
+
+phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align)
+{
+	return lmb_alloc_base(lmb, size, align, LMB_ALLOC_ANYWHERE);
+}
+
+phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
+{
+	phys_addr_t alloc;
+
+	alloc = __lmb_alloc_base(lmb, size, align, max_addr);
+
+	if (alloc == 0)
+		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
+		       (ulong)size, (ulong)max_addr);
+
+	return alloc;
 }
 
 /*

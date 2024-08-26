@@ -112,8 +112,6 @@ long lmb_reserve_flags(struct lmb *lmb, phys_addr_t base,
 phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
 phys_addr_t lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
 			   phys_addr_t max_addr);
-phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align,
-			     phys_addr_t max_addr);
 phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr);
 
