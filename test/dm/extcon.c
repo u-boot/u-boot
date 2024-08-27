@@ -17,5 +17,4 @@ static int dm_test_extcon(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_extcon, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_extcon, UTF_SCAN_FDT);

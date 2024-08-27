@@ -65,4 +65,4 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_sysinfo_gpio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_sysinfo_gpio, UTF_SCAN_PDATA | UTF_SCAN_FDT);

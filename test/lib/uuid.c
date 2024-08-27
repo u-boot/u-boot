@@ -36,5 +36,4 @@ static int lib_test_uuid_to_le(struct unit_test_state *uts)
 
 	return 0;
 }
-
 LIB_TEST(lib_test_uuid_to_le, 0);

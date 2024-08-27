@@ -27,8 +27,7 @@ static int test_pci_mps_safe(struct unit_test_state *uts)
 
 	return 0;
 }
-
-PCI_MPS_TEST(test_pci_mps_safe, UT_TESTF_CONSOLE_REC);
+PCI_MPS_TEST(test_pci_mps_safe, UTF_CONSOLE);
 
 int do_ut_pci_mps(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char * const argv[])

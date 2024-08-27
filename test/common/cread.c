@@ -66,8 +66,6 @@ static int cread_test(struct unit_test_state *uts)
 	 * print_buffer(0, buf, 1, 7, 0);
 	 */
 
-	console_record_reset_enable();
-
 	/* simple input */
 	*buf = '\0';
 	ut_asserteq(4, console_in_puts("abc\n"));
@@ -102,4 +100,4 @@ static int cread_test(struct unit_test_state *uts)
 
 	return 0;
 }
-COMMON_TEST(cread_test, 0);
+COMMON_TEST(cread_test, UTF_CONSOLE);

@@ -28,7 +28,6 @@ static int bootdev_test_cmd_list(struct unit_test_state *uts)
 {
 	int probed;
 
-	console_record_reset_enable();
 	for (probed = 0; probed < 2; probed++) {
 		int probe_ch = probed ? '+' : ' ';
 
@@ -49,7 +48,7 @@ static int bootdev_test_cmd_list(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_list, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_cmd_list, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check 'bootdev select' and 'info' commands */
 static int bootdev_test_cmd_select(struct unit_test_state *uts)
@@ -59,7 +58,6 @@ static int bootdev_test_cmd_select(struct unit_test_state *uts)
 	/* get access to the CLI's cur_bootdev */
 	ut_assertok(bootstd_get_priv(&std));
 
-	console_record_reset_enable();
 	ut_asserteq(1, run_command("bootdev info", 0));
 	ut_assert_nextlinen("Please use");
 	ut_assert_console_end();
@@ -99,7 +97,7 @@ static int bootdev_test_cmd_select(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_select, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_cmd_select, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check bootdev labels */
 static int bootdev_test_labels(struct unit_test_state *uts)
@@ -131,8 +129,7 @@ static int bootdev_test_labels(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_labels, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_labels, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV);
 
 /* Check bootdev_find_by_any() */
 static int bootdev_test_any(struct unit_test_state *uts)
@@ -158,7 +155,6 @@ static int bootdev_test_any(struct unit_test_state *uts)
 	 * 9   [ + ]      OK  mmc       mmc1.bootdev
 	 * a   [   ]      OK  mmc       mmc0.bootdev
 	 */
-	console_record_reset_enable();
 	ut_assertok(bootdev_find_by_any("8", &dev, &mflags));
 	ut_asserteq(UCLASS_BOOTDEV, device_get_uclass_id(dev));
 	ut_asserteq(BOOTFLOW_METHF_SINGLE_DEV, mflags);
@@ -186,8 +182,8 @@ static int bootdev_test_any(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_any, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_any, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV |
+	     UTF_CONSOLE);
 
 /*
  * Check bootdev ordering with the bootdev-order property and boot_targets
@@ -274,7 +270,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_order, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_order, UTF_DM | UTF_SCAN_FDT);
 
 /* Check default bootdev ordering  */
 static int bootdev_test_order_default(struct unit_test_state *uts)
@@ -301,7 +297,7 @@ static int bootdev_test_order_default(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_order_default, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_order_default, UTF_DM | UTF_SCAN_FDT);
 
 /* Check bootdev ordering with the uclass priority */
 static int bootdev_test_prio(struct unit_test_state *uts)
@@ -323,7 +319,6 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
 
 	/* 3 MMC and 3 USB bootdevs: MMC should come before USB */
-	console_record_reset_enable();
 	ut_assertok(bootflow_scan_first(NULL, NULL, &iter, 0, &bflow));
 	ut_asserteq(-ENODEV, bootflow_scan_next(&iter, &bflow));
 	ut_asserteq(6, iter.num_devs);
@@ -350,7 +345,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_prio, UTF_DM | UTF_SCAN_FDT);
 
 /* Check listing hunters */
 static int bootdev_test_hunter(struct unit_test_state *uts)
@@ -363,7 +358,6 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
 
-	console_record_reset_enable();
 	bootdev_list_hunters(std);
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
@@ -390,7 +384,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunter, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunter, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check 'bootdev hunt' command */
 static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
@@ -403,7 +397,6 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
 
-	console_record_reset_enable();
 	ut_assertok(run_command("bootdev hunt -l", 0));
 	ut_assert_nextline("Prio  Used  Uclass           Hunter");
 	ut_assert_nextlinen("----");
@@ -464,8 +457,8 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_cmd_hunt, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_cmd_hunt, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV |
+	     UTF_CONSOLE);
 
 /* Check searching for bootdevs using the hunters */
 static int bootdev_test_hunt_scan(struct unit_test_state *uts)
@@ -485,7 +478,7 @@ static int bootdev_test_hunt_scan(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_scan, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_scan, UTF_DM | UTF_SCAN_FDT);
 
 /* Check that only bootable partitions are processed */
 static int bootdev_test_bootable(struct unit_test_state *uts)
@@ -522,7 +515,7 @@ static int bootdev_test_bootable(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_bootable, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_bootable, UTF_DM | UTF_SCAN_FDT);
 
 /* Check hunting for bootdev of a particular priority */
 static int bootdev_test_hunt_prio(struct unit_test_state *uts)
@@ -530,7 +523,6 @@ static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 	usb_started = false;
 	test_set_skip_delays(true);
 
-	console_record_reset_enable();
 	ut_assertok(bootdev_hunt_prio(BOOTDEVP_4_SCAN_FAST, false));
 	ut_assert_nextline("scanning bus for devices...");
 	ut_assert_skip_to_line("            Type: Hard Disk");
@@ -547,7 +539,7 @@ static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_prio, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check hunting for bootdevs with a particular label */
 static int bootdev_test_hunt_label(struct unit_test_state *uts)
@@ -562,7 +554,6 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 	ut_assertok(bootstd_get_priv(&std));
 
 	/* scan an unknown uclass */
-	console_record_reset_enable();
 	old = (void *)&mflags;   /* arbitrary pointer to check against dev */
 	dev = old;
 	mflags = 123;
@@ -600,7 +591,7 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_hunt_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT);
+BOOTSTD_TEST(bootdev_test_hunt_label, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Check iterating to the next label in a list */
 static int bootdev_test_next_label(struct unit_test_state *uts)
@@ -627,7 +618,6 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 	dev = NULL;
 	mflags = 123;
 	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
-	console_record_reset_enable();
 	ut_assert_console_end();
 	ut_assertnonnull(dev);
 	ut_asserteq_str("mmc0.bootdev", dev->name);
@@ -677,8 +667,8 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_next_label, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_ETH_BOOTDEV | UT_TESTF_SF_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_next_label, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV |
+	     UTF_SF_BOOTDEV | UTF_CONSOLE);
 
 /* Check iterating to the next prioirty in a list */
 static int bootdev_test_next_prio(struct unit_test_state *uts)
@@ -703,7 +693,6 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 	iter.flags = BOOTFLOWIF_SHOW;
 
 	dev = NULL;
-	console_record_reset_enable();
 	ut_assertok(bootdev_next_prio(&iter, &dev));
 	ut_assertnonnull(dev);
 	ut_asserteq_str("mmc2.bootdev", dev->name);
@@ -762,5 +751,5 @@ static int bootdev_test_next_prio(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootdev_test_next_prio, UT_TESTF_DM | UT_TESTF_SCAN_FDT |
-	     UT_TESTF_SF_BOOTDEV);
+BOOTSTD_TEST(bootdev_test_next_prio, UTF_DM | UTF_SCAN_FDT | UTF_SF_BOOTDEV |
+	     UTF_CONSOLE);

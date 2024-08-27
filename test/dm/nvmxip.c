@@ -142,5 +142,4 @@ static int dm_test_nvmxip(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
-DM_TEST(dm_test_nvmxip, UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+DM_TEST(dm_test_nvmxip, UTF_SCAN_FDT | UTF_CONSOLE);

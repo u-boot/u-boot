@@ -165,8 +165,6 @@ static int dm_test_cmd_blkmap(struct unit_test_state *uts)
 	ulong loadaddr = env_get_hex("loadaddr", 0);
 	struct udevice *dev;
 
-	console_record_reset();
-
 	ut_assertok(run_command("blkmap info", 0));
 	ut_assert_console_end();
 
@@ -197,4 +195,4 @@ static int dm_test_cmd_blkmap(struct unit_test_state *uts)
 	ut_assert_console_end();
 	return 0;
 }
-DM_TEST(dm_test_cmd_blkmap, 0);
+DM_TEST(dm_test_cmd_blkmap, UTF_CONSOLE);

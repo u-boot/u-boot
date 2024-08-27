@@ -23,8 +23,7 @@ static int dm_test_qfw_cpus(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_qfw_cpus, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_qfw_cpus, UTF_SCAN_PDATA);
 
 static int dm_test_qfw_firmware_list(struct unit_test_state *uts)
 {
@@ -37,5 +36,4 @@ static int dm_test_qfw_firmware_list(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_qfw_firmware_list, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_qfw_firmware_list, UTF_SCAN_PDATA);

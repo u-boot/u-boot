@@ -846,6 +846,8 @@ int console_record_readline(char *str, int maxlen)
 {
 	if (gd->flags & GD_FLG_RECORD_OVF)
 		return -ENOSPC;
+	if (console_record_isempty())
+		return -ENOENT;
 
 	return membuff_readline((struct membuff *)&gd->console_out, str,
 				maxlen, '\0', false);

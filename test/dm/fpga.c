@@ -16,5 +16,4 @@ static int dm_test_fpga(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_fpga, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fpga, UTF_SCAN_FDT);

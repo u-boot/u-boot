@@ -73,7 +73,7 @@ int console_record_reset_enable(void);
  * @str: Place to put string
  * @maxlen: Maximum length of @str including nul terminator
  * Return: length of string returned, or -ENOSPC if the console buffer was
- *	overflowed by the output
+ *	overflowed by the output, or -ENOENT if there was nothing to read
  */
 int console_record_readline(char *str, int maxlen);
 

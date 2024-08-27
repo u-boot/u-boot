@@ -14,8 +14,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int hush_test_for(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
-
 	ut_assertok(run_command("for loop_i in foo bar quux quux; do echo $loop_i; done", 0));
 	ut_assert_nextline("foo");
 	ut_assert_nextline("bar");
@@ -32,12 +30,10 @@ static int hush_test_for(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_for, 0);
+HUSH_TEST(hush_test_for, UTF_CONSOLE);
 
 static int hush_test_while(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
-
 	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
 		/*
 		 * Hush 2021 always returns 0 from while loop...
@@ -65,11 +61,10 @@ static int hush_test_while(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_while, 0);
+HUSH_TEST(hush_test_while, UTF_CONSOLE);
 
 static int hush_test_until(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
 	env_set("loop_bar", "bar");
 
 	/*
@@ -87,4 +82,4 @@ static int hush_test_until(struct unit_test_state *uts)
 	env_set("loop_bar", NULL);
 	return 0;
 }
-HUSH_TEST(hush_test_until, 0);
+HUSH_TEST(hush_test_until, UTF_CONSOLE);

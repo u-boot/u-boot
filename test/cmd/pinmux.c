@@ -18,17 +18,14 @@ static int dm_test_cmd_pinmux_status_pinname(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_LED, 2, &dev));
 
 	/* Test that 'pinmux status <pinname>' displays the selected pin. */
-	console_record_reset();
 	run_command("pinmux status a5", 0);
 	ut_assert_nextlinen("a5        : gpio output .");
 	ut_assert_console_end();
 
-	console_record_reset();
 	run_command("pinmux status P7", 0);
 	ut_assert_nextlinen("P7        : GPIO2 bias-pull-down input-enable.");
 	ut_assert_console_end();
 
-	console_record_reset();
 	run_command("pinmux status P9", 0);
 	if (IS_ENABLED(CONFIG_LOGF_FUNC)) {
 		ut_assert_nextlinen(
@@ -42,5 +39,5 @@ static int dm_test_cmd_pinmux_status_pinname(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_cmd_pinmux_status_pinname, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cmd_pinmux_status_pinname, UTF_SCAN_PDATA | UTF_SCAN_FDT |
+	UTF_CONSOLE);

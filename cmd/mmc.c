@@ -238,7 +238,7 @@ static int do_mmcrpmb_read(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 5)
 		key_addr = (void *)hextoul(argv[4], NULL);
 
-	printf("\nMMC RPMB read: dev # %d, block # %d, count %d ... ",
+	printf("MMC RPMB read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 	n =  mmc_rpmb_read(mmc, addr, blk, cnt, key_addr);
 
@@ -265,7 +265,7 @@ static int do_mmcrpmb_write(struct cmd_tbl *cmdtp, int flag,
 	cnt = hextoul(argv[3], NULL);
 	key_addr = (void *)hextoul(argv[4], NULL);
 
-	printf("\nMMC RPMB write: dev # %d, block # %d, count %d ... ",
+	printf("MMC RPMB write: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 	n =  mmc_rpmb_write(mmc, addr, blk, cnt, key_addr);
 
@@ -362,7 +362,7 @@ static int do_mmc_read(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+	printf("MMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
 	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
@@ -411,7 +411,7 @@ static int do_mmc_sparse_write(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC Sparse write: dev # %d, block # %d ... ",
+	printf("MMC Sparse write: dev # %d, block # %d ... ",
 	       curr_device, blk);
 
 	if (mmc_getwp(mmc) == 1) {
@@ -455,7 +455,7 @@ static int do_mmc_write(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC write: dev # %d, block # %d, count %d ... ",
+	printf("MMC write: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
 	if (mmc_getwp(mmc) == 1) {
@@ -484,7 +484,7 @@ static int do_mmc_erase(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC erase: dev # %d, block # %d, count %d ... ",
+	printf("MMC erase: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
 	if (mmc_getwp(mmc) == 1) {

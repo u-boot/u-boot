@@ -360,7 +360,6 @@ static int lib_test_lmb_noreserved(struct unit_test_state *uts)
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
 	return test_noreserved(uts, 0xE0000000, 4, 1);
 }
-
 LIB_TEST(lib_test_lmb_noreserved, 0);
 
 static int lib_test_lmb_unaligned_size(struct unit_test_state *uts)

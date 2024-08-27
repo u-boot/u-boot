@@ -34,7 +34,7 @@ static int env_test_env_cmd(struct unit_test_state *uts)
 
 	return 0;
 }
-ENV_TEST(env_test_env_cmd, UT_TESTF_CONSOLE_REC);
+ENV_TEST(env_test_env_cmd, UTF_CONSOLE);
 
 int do_ut_env(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
