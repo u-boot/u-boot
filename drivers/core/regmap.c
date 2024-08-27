@@ -168,18 +168,21 @@ static int init_range(ofnode node, struct regmap_range *range, int addr_len,
 
 int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
 {
+	ofnode parent;
 	struct regmap *map;
 	int addr_len, size_len;
 	int ret;
 
-	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
+	parent = ofnode_get_parent(node);
+
+	addr_len = ofnode_read_simple_addr_cells(parent);
 	if (addr_len < 0) {
 		dm_warn("%s: Error while reading the addr length (ret = %d)\n",
 			ofnode_get_name(node), addr_len);
 		return addr_len;
 	}
 
-	size_len = ofnode_read_simple_size_cells(ofnode_get_parent(node));
+	size_len = ofnode_read_simple_size_cells(parent);
 	if (size_len < 0) {
 		dm_warn("%s: Error while reading the size length: (ret = %d)\n",
 			ofnode_get_name(node), size_len);
@@ -241,6 +244,7 @@ int regmap_init_mem_range(ofnode node, ulong r_start, ulong r_size,
 
 int regmap_init_mem(ofnode node, struct regmap **mapp)
 {
+	ofnode parent;
 	struct regmap_range *range;
 	struct regmap *map;
 	int count;
@@ -249,14 +253,16 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	int index;
 	int ret;
 
-	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
+	parent = ofnode_get_parent(node);
+
+	addr_len = ofnode_read_simple_addr_cells(parent);
 	if (addr_len < 0) {
 		dm_warn("%s: Error while reading the addr length (ret = %d)\n",
 			ofnode_get_name(node), addr_len);
 		return addr_len;
 	}
 
-	size_len = ofnode_read_simple_size_cells(ofnode_get_parent(node));
+	size_len = ofnode_read_simple_size_cells(parent);
 	if (size_len < 0) {
 		dm_warn("%s: Error while reading the size length: (ret = %d)\n",
 			ofnode_get_name(node), size_len);
