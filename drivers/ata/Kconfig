@@ -78,14 +78,16 @@ config MTK_AHCI
 	  Enable this driver to support Sata devices through
 	  Mediatek AHCI controller (e.g. MT7622).
 
-config AHCI_MVEBU
-	bool "Marvell EBU AHCI SATA support"
-	depends on ARCH_MVEBU || ARCH_OCTEON
+config AHCI_GENERIC
+	bool "Generic AHCI SATA support"
+	depends on OF_CONTROL
 	select SCSI_AHCI
 	select SCSI
 	help
-	  This option enables support for the Marvell EBU SoC's
-	  onboard AHCI SATA.
+	  This option enables support for generic onboard AHCI SATA controller
+	  that do not need platform specific quirks, like emulated devices,
+	  Marvell EBU SoC's onboard AHCI SATA controllers or Cavium's Octeon
+	  7130 AHCI controllers.
 
 	  If unsure, say N.
 
