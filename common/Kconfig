@@ -986,7 +986,8 @@ config ANDROID_AB_BACKUP_OFFSET
 	help
 	  If non-zero, a backup bootloader message starting at this offset in
 	  the partition will tried in the event that the primary one (starting
-	  at offset 0) fails its checksum.
+	  at offset 0) fails its checksum. The offset is in bytes and must be
+	  multiple of the block size.
 
 endmenu
 
