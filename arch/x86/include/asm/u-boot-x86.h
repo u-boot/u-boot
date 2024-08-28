@@ -51,6 +51,14 @@ int x86_cpu_init_tpl(void);
  */
 void cpu_reinit_fpu(void);
 
+/**
+ * x86_cpu_vendor_info() - Get the CPU-vendor name and device number
+ *
+ * @name: 13-byte area to hold the returned string
+ * Return: CPU device number read from cpuid
+ */
+int x86_cpu_vendor_info(char *name);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*

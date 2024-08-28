@@ -263,6 +263,49 @@ static int build_vendor_name(char *vendor_name)
 }
 #endif
 
+int x86_cpu_vendor_info(char *name)
+{
+	uint cpu_device;
+
+	cpu_device = 0;
+
+	/* gcc 7.3 does not want to drop x86_vendors, so use #ifdef */
+#ifndef CONFIG_TPL_BUILD
+	*name = '\0'; /* Unset */
+
+	/* Find the id and vendor_name */
+	if (!has_cpuid()) {
+		/* Its a 486 if we can modify the AC flag */
+		if (flag_is_changeable_p(X86_EFLAGS_AC))
+			cpu_device = 0x00000400; /* 486 */
+		else
+			cpu_device = 0x00000300; /* 386 */
+		if (cpu_device == 0x00000400 && test_cyrix_52div()) {
+			/* If we ever care we can enable cpuid here */
+			memcpy(name, "CyrixInstead", 13);
+
+		/* Detect NexGen with old hypercode */
+		} else if (deep_magic_nexgen_probe()) {
+			memcpy(name, "NexGenDriven", 13);
+		}
+	} else {
+		int cpuid_level;
+
+		cpuid_level = build_vendor_name(name);
+		name[12] = '\0';
+
+		/* Intel-defined flags: level 0x00000001 */
+		if (cpuid_level >= 0x00000001)
+			cpu_device = cpuid_eax(0x00000001);
+		else
+			/* Have CPUID level 0 only unheard of */
+			cpu_device = 0x00000400;
+	}
+#endif /* CONFIG_TPL_BUILD */
+
+	return cpu_device;
+}
+
 static void identify_cpu(struct cpu_device_id *cpu)
 {
 	cpu->device = 0; /* fix gcc 4.4.4 warning */
@@ -289,46 +332,19 @@ static void identify_cpu(struct cpu_device_id *cpu)
 		return;
 	}
 
-/* gcc 7.3 does not want to drop x86_vendors, so use #ifdef */
 #ifndef CONFIG_TPL_BUILD
-	char vendor_name[16];
-	int i;
+	{
+		char vendor_name[16];
+		int i;
 
-	vendor_name[0] = '\0'; /* Unset */
+		cpu->device = x86_cpu_vendor_info(vendor_name);
 
-	/* Find the id and vendor_name */
-	if (!has_cpuid()) {
-		/* Its a 486 if we can modify the AC flag */
-		if (flag_is_changeable_p(X86_EFLAGS_AC))
-			cpu->device = 0x00000400; /* 486 */
-		else
-			cpu->device = 0x00000300; /* 386 */
-		if ((cpu->device == 0x00000400) && test_cyrix_52div()) {
-			memcpy(vendor_name, "CyrixInstead", 13);
-			/* If we ever care we can enable cpuid here */
-		}
-		/* Detect NexGen with old hypercode */
-		else if (deep_magic_nexgen_probe())
-			memcpy(vendor_name, "NexGenDriven", 13);
-	} else {
-		int cpuid_level;
-
-		cpuid_level = build_vendor_name(vendor_name);
-		vendor_name[12] = '\0';
-
-		/* Intel-defined flags: level 0x00000001 */
-		if (cpuid_level >= 0x00000001) {
-			cpu->device = cpuid_eax(0x00000001);
-		} else {
-			/* Have CPUID level 0 only unheard of */
-			cpu->device = 0x00000400;
-		}
-	}
-	cpu->vendor = X86_VENDOR_UNKNOWN;
-	for (i = 0; i < ARRAY_SIZE(x86_vendors); i++) {
-		if (memcmp(vendor_name, x86_vendors[i].name, 12) == 0) {
-			cpu->vendor = x86_vendors[i].vendor;
-			break;
+		cpu->vendor = X86_VENDOR_UNKNOWN;
+		for (i = 0; i < ARRAY_SIZE(x86_vendors); i++) {
+			if (memcmp(vendor_name, x86_vendors[i].name, 12) == 0) {
+				cpu->vendor = x86_vendors[i].vendor;
+				break;
+			}
 		}
 	}
 #endif
