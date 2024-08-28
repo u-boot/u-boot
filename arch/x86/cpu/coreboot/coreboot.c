@@ -77,6 +77,8 @@ static void board_final_init(void)
 
 static int last_stage_init(void)
 {
+	timestamp_add_to_bootstage();
+
 	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return 0;
 
