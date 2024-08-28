@@ -6,12 +6,11 @@
  */
 
 #include <bootstage.h>
+#include <errno.h>
 #include <asm/arch/timestamp.h>
 #include <asm/cb_sysinfo.h>
 #include <asm/u-boot-x86.h>
 #include <linux/compiler.h>
-
-static struct timestamp_table *ts_table  __section(".data");
 
 void timestamp_init(void)
 {
@@ -20,6 +19,8 @@ void timestamp_init(void)
 
 void timestamp_add(enum timestamp_id id, uint64_t ts_time)
 {
+	const struct sysinfo_t *info = cb_get_sysinfo();
+	struct timestamp_table *ts_table = info->tstamp_table;
 	struct timestamp_entry *tse;
 
 	if (!ts_table || (ts_table->num_entries == ts_table->max_entries))
@@ -37,13 +38,15 @@ void timestamp_add_now(enum timestamp_id id)
 
 int timestamp_add_to_bootstage(void)
 {
+	const struct sysinfo_t *info = cb_get_sysinfo();
+	const struct timestamp_table *ts_table = info->tstamp_table;
 	uint i;
 
 	if (!ts_table)
-		return -1;
+		return -ENOENT;
 
 	for (i = 0; i < ts_table->num_entries; i++) {
-		struct timestamp_entry *tse = &ts_table->entries[i];
+		const struct timestamp_entry *tse = &ts_table->entries[i];
 		const char *name = NULL;
 
 		switch (tse->entry_id) {
