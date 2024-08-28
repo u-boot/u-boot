@@ -83,7 +83,7 @@ static unsigned long cpu_mhz_from_cpuid(void)
 	if (cpuid_eax(0) < 0x16)
 		return 0;
 
-	return cpuid_eax(0x16);
+	return cpuid_eax(0x15);
 }
 
 /*
@@ -299,10 +299,19 @@ static unsigned long __maybe_unused quick_pit_calibrate(void)
 			if (!pit_expect_msb(0xff-i, &delta, &d2))
 				break;
 
+			delta -= tsc;
+
+			/*
+			 * Extrapolate the error and fail fast if the error will
+			 * never be below 500 ppm.
+			 */
+			if (i == 1 &&
+			    d1 + d2 >= (delta * MAX_QUICK_PIT_ITERATIONS) >> 11)
+				return 0;
+
 			/*
 			 * Iterate until the error is less than 500 ppm
 			 */
-			delta -= tsc;
 			if (d1+d2 >= delta >> 11)
 				continue;
 
