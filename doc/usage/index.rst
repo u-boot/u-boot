@@ -87,6 +87,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/msr
    cmd/mtest
    cmd/mtrr
    cmd/panic
