@@ -501,6 +501,11 @@ int x86_cpu_reinit_f(void)
 	return 0;
 }
 
+void x86_get_identity_for_timer(void)
+{
+	setup_identity();
+}
+
 void x86_enable_caches(void)
 {
 	unsigned long cr0;

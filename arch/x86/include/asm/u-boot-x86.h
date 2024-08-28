@@ -44,6 +44,15 @@ int x86_cpu_reinit_f(void);
 int x86_cpu_init_tpl(void);
 
 /**
+ * x86_get_identity_for_timer() - Set up CPU identity for use by the early timer
+ *
+ * The timer can be needed early in board_f if bootstage is enabled. This
+ * function can be called from the TSC timer to make sure that the CPU-identity
+ * info has been set up
+ */
+void x86_get_identity_for_timer(void);
+
+/**
  * cpu_reinit_fpu() - Reinit the FPU if something is wrong with it
  *
  * The FSP-M code can leave registers in use in the FPU. This functions reinits

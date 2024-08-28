@@ -403,6 +403,10 @@ static void tsc_timer_ensure_setup(bool early)
 	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
 
+		/* deal with this being called before x86_cpu_init_f() */
+		if (!gd->arch.x86_vendor)
+			x86_get_identity_for_timer();
+
 		/**
 		 * There is no obvious way to obtain this information from EFI
 		 * boot services. This value was measured on a Framework Laptop
