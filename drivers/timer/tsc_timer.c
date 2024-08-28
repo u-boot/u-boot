@@ -442,6 +442,7 @@ static void tsc_timer_ensure_setup(bool early)
 			return;
 
 done:
+		fast_calibrate = min(fast_calibrate, 4000UL);
 		if (!gd->arch.clock_rate)
 			gd->arch.clock_rate = fast_calibrate * 1000000;
 	}
