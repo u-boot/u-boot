@@ -52,6 +52,7 @@ Shell commands
    cmd/conitrace
    cmd/cp
    cmd/cpu
+   cmd/cpuid
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate
