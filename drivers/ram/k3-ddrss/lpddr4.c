@@ -155,10 +155,11 @@ u32 lpddr4_start(const lpddr4_privatedata *pd)
 	u32 result = 0U;
 
 	result = lpddr4_startsf(pd);
-	if (result == (u32)0) {
+	if (result == (u32)0)
 		result = lpddr4_enablepiinitiator(pd);
+	if (result == (u32)0)
 		result = lpddr4_startsequencecontroller(pd);
-	}
+
 	return result;
 }
 
