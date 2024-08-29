@@ -272,7 +272,8 @@ int ecdsa_verify(struct image_sign_info *info,
 	return ret;
 }
 
-static int do_add(struct signer *ctx, void *fdt, const char *key_node_name)
+static int do_add(struct signer *ctx, void *fdt, const char *key_node_name,
+		  struct image_sign_info *info)
 {
 	int signature_node, key_node, ret, key_bits;
 	const char *curve_name;
@@ -322,6 +323,11 @@ static int do_add(struct signer *ctx, void *fdt, const char *key_node_name)
 	point = EC_KEY_get0_public_key(ctx->ecdsa_key);
 	EC_POINT_get_affine_coordinates(group, point, x, y, NULL);
 
+	ret = fdt_setprop_string(fdt, key_node, FIT_KEY_HINT,
+				 info->keyname);
+	if (ret < 0)
+		return ret;
+
 	ret = fdt_setprop_string(fdt, key_node, "ecdsa,curve", curve_name);
 	if (ret < 0)
 		return ret;
@@ -331,6 +337,16 @@ static int do_add(struct signer *ctx, void *fdt, const char *key_node_name)
 		return ret;
 
 	ret = fdt_add_bignum(fdt, key_node, "ecdsa,y-point", y, key_bits);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_string(fdt, key_node, FIT_ALGO_PROP,
+				 info->name);
+	if (ret < 0)
+		return ret;
+
+	ret = fdt_setprop_string(fdt, key_node, FIT_KEY_REQUIRED,
+				 info->require_keys);
 	if (ret < 0)
 		return ret;
 
@@ -346,7 +362,7 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *fdt)
 	fdt_key_name = info->keyname ? info->keyname : "default-key";
 	ret = prepare_ctx(&ctx, info);
 	if (ret >= 0) {
-		ret = do_add(&ctx, fdt, fdt_key_name);
+		ret = do_add(&ctx, fdt, fdt_key_name, info);
 		if (ret < 0)
 			ret = ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 	}
