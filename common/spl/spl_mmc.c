@@ -291,17 +291,84 @@ unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 int default_spl_mmc_emmc_boot_partition(struct mmc *mmc)
 {
 	int part;
+	/*
+	 * This function returns the eMMC partition from which
+	 * would be loaded next payload (e.g. U-Boot proper).
+	 * This partition will be set into eMMC partition access
+	 * register and therefore return value of this function
+	 * has same meaning as EXT_CSD_EXTRACT_PARTITION_ACCESS.
+	 *
+	 * Meaning of EXT_CSD_EXTRACT_PARTITION_ACCESS (3-bit) is:
+	 * 0 - User area
+	 * 1 - Boot partition 1
+	 * 2 - Boot partition 2
+	 * 3 - Replay Protected Memory Block (RPMB)
+	 * 4 - General Purpose partition 1
+	 * 5 - General Purpose partition 2
+	 * 6 - General Purpose partition 3
+	 * 7 - General Purpose partition 4
+	 */
 #ifdef CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
 	part = CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION;
 #else
 	/*
-	 * We need to check what the partition is configured to.
-	 * 1 and 2 match up to boot0 / boot1 and 7 is user data
-	 * which is the first physical partition (0).
+	 * When explicit CONFIG_SYS_MMCSD_RAW_MODE_EMMC_BOOT_PARTITION
+	 * config option was not chosen during build time we choose
+	 * the boot partition based on the eMMC boot partition enable
+	 * register (EXT_CSD_EXTRACT_BOOT_PART).
+	 *
+	 * Meaning of EXT_CSD_EXTRACT_BOOT_PART (3-bit) value is:
+	 * 0 - Booting from this eMMC device is disabled
+	 * 1 - Boot partition 1 is used for booting
+	 * 2 - Boot partition 2 is used for booting
+	 * 3 - Reserved
+	 * 4 - Reserved
+	 * 5 - Reserved
+	 * 6 - Reserved
+	 * 7 - User area is used for booting
+	 *
+	 * Note: See difference between EXT_CSD_EXTRACT_PARTITION_ACCESS
+	 * and EXT_CSD_EXTRACT_BOOT_PART, specially about User area value.
 	 */
-	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
-	if (part == 7)
-		part = 0;
+	if (mmc->part_config == MMCPART_NOAVAILABLE)
+		part = 0; /* If partitions are not supported then we have only User Area partition */
+	else {
+		switch(EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
+		case 0: /* Booting from this eMMC device is disabled */
+			/*
+			 * This eMMC device has disabled booting.
+			 * This may happen because of misconfiguration of eMMC device or
+			 * because user explicitly wanted to not boot from this eMMC device.
+			 * eMMC boot configuration can be changed by "mmc partconf" command.
+			 */
+			part = -ENXIO; /* negative value indicates error */
+			/* Note that error message is printed by caller of this function. */
+			break;
+		case 1: /* Boot partition 1 is used for booting */
+			part = 1;
+			break;
+		case 2: /* Boot partition 2 is used for booting */
+			part = 2;
+			break;
+		case 7: /* User area is used for booting */
+			part = 0;
+			break;
+		default: /* Other values are reserved */
+			/*
+			 * This eMMC device has configured booting from reserved value.
+			 * This may happen because of misconfiguration of eMMC device or
+			 * because this is newer eMMC device than what U-Boot understand.
+			 * If newer eMMC specification defines meaning for some reserved
+			 * values then switch above should be updated for new cases.
+			 * At this stage we do not know how to interpret this reserved
+			 * value so return error.
+			 * eMMC boot configuration can be changed by "mmc partconf" command.
+			 */
+			part = -EINVAL; /* negative value indicates error */
+			/* Note that error message is printed by caller of this function. */
+			break;
+		}
+	}
 #endif
 	return part;
 }
@@ -360,6 +427,15 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 	switch (boot_mode) {
 	case MMCSD_MODE_EMMCBOOT:
 		part = spl_mmc_emmc_boot_partition(mmc);
+		if (part < 0) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			if (part == -ENXIO)
+				puts("spl: mmc booting disabled\n");
+			else
+				puts("spl: mmc misconfigured\n");
+#endif
+			return part;
+		}
 
 		if (CONFIG_IS_ENABLED(MMC_TINY))
 			ret = mmc_switch_part(mmc, part);
