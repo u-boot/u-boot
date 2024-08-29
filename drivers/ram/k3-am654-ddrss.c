@@ -24,6 +24,22 @@ u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
 
 /* DDRSS PHY configuration register fixed values */
 #define DDRSS_DDRPHY_RANKIDR_RANK0	0
+#define DDRSS_DDRPHY_RANKIDR_RANK1	0x00010001
+
+/* Amount of DDR we wish to prime */
+#define DATA_BYTES 0x80000000
+
+/* Base address of DDR */
+static uint32_t * ddrPtr = (uint32_t *)0x80000000;
+
+/**
+ * am654_prime_ecc() - Prime ECC
+ *
+ * Write a specified pattern to our entire DDR so that ECC timing 
+ * parameters can be calibrated
+ *
+ */
+static int am654_prime_ecc(void);
 
 /**
  * struct am654_ddrss_desc - Description of ddrss integration.
@@ -171,6 +187,11 @@ static void am654_ddrss_ctrl_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_ctl_writel(DDRSS_DDRCTL_ADDRMAP10, map->ddrctl_addrmap10);
 	ddrss_ctl_writel(DDRSS_DDRCTL_ADDRMAP11, map->ddrctl_addrmap11);
 
+	ddrss_ctl_writel(DDRSS_DDRCTL_DQMAP0,map->ddrctl_dqmap0);
+	ddrss_ctl_writel(DDRSS_DDRCTL_DQMAP1,map->ddrctl_dqmap1);
+	ddrss_ctl_writel(DDRSS_DDRCTL_DQMAP4,map->ddrctl_dqmap4);
+	ddrss_ctl_writel(DDRSS_DDRCTL_DQMAP5,map->ddrctl_dqmap5);
+
 	ddrss_ctl_writel(DDRSS_DDRCTL_ODTCFG, reg->ddrctl_odtcfg);
 	ddrss_ctl_writel(DDRSS_DDRCTL_ODTMAP, reg->ddrctl_odtmap);
 
@@ -286,12 +307,14 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_phy_writel(DDRSS_DDRPHY_DX1GCR4, cfg->ddrphy_dx1gcr4);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX2GCR4, cfg->ddrphy_dx2gcr4);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX3GCR4, cfg->ddrphy_dx3gcr4);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX4GCR4, cfg->ddrphy_dx4gcr4);
 
 	ddrss_phy_writel(DDRSS_DDRPHY_PGCR5, cfg->ddrphy_pgcr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX0GCR5, cfg->ddrphy_dx0gcr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX1GCR5, cfg->ddrphy_dx1gcr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX2GCR5, cfg->ddrphy_dx2gcr5);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX3GCR5, cfg->ddrphy_dx3gcr5);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX4GCR5, cfg->ddrphy_dx4gcr5);
 
 	ddrss_phy_writel(DDRSS_DDRPHY_RANKIDR, DDRSS_DDRPHY_RANKIDR_RANK0);
 
@@ -299,6 +322,16 @@ static void am654_ddrss_phy_configuration(struct am654_ddrss_desc *ddrss)
 	ddrss_phy_writel(DDRSS_DDRPHY_DX1GTR0, cfg->ddrphy_dx1gtr0);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX2GTR0, cfg->ddrphy_dx2gtr0);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX3GTR0, cfg->ddrphy_dx3gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX4GTR0, cfg->ddrphy_dx4gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_ODTCR, cfg->ddrphy_odtcr);
+
+	ddrss_phy_writel(DDRSS_DDRPHY_RANKIDR, DDRSS_DDRPHY_RANKIDR_RANK1);
+
+	ddrss_phy_writel(DDRSS_DDRPHY_DX0GTR0, cfg->ddrphy_dx0gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX1GTR0, cfg->ddrphy_dx1gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX2GTR0, cfg->ddrphy_dx2gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX3GTR0, cfg->ddrphy_dx3gtr0);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX4GTR0, cfg->ddrphy_dx4gtr0);
 	ddrss_phy_writel(DDRSS_DDRPHY_ODTCR, cfg->ddrphy_odtcr);
 
 	ddrss_phy_writel(DDRSS_DDRPHY_DX8SL0IOCR, cfg->ddrphy_dx8sl0iocr);
@@ -542,13 +575,14 @@ int disable_dqs_pd(struct am654_ddrss_desc *ddrss)
 int cleanup_training(struct am654_ddrss_desc *ddrss)
 {
 	u32 val;
-	u32 dgsl0, dgsl1, dgsl2, dgsl3, rddly, rd2wr_wr2rd;
+	u32 dgsl0, dgsl1, dgsl2, dgsl3, dgsl4, rddly, rd2wr_wr2rd;
 
 	ddrss_phy_writel(DDRSS_DDRPHY_RANKIDR, 0x00000000);
 	dgsl0 = (ddrss_phy_readl(DDRSS_DDRPHY_DX0GTR0) & 0x1F) >> 2;
 	dgsl1 = (ddrss_phy_readl(DDRSS_DDRPHY_DX1GTR0) & 0x1F) >> 2;
 	dgsl2 = (ddrss_phy_readl(DDRSS_DDRPHY_DX2GTR0) & 0x1F) >> 2;
 	dgsl3 = (ddrss_phy_readl(DDRSS_DDRPHY_DX3GTR0) & 0x1F) >> 2;
+	dgsl4 = (ddrss_phy_readl(DDRSS_DDRPHY_DX4GTR0) & 0x1F) >> 2;
 
 	rddly = dgsl0;
 	if (dgsl1 < rddly)
@@ -557,6 +591,8 @@ int cleanup_training(struct am654_ddrss_desc *ddrss)
 		rddly = dgsl2;
 	if (dgsl3 < rddly)
 		rddly = dgsl3;
+	if (dgsl4 < rddly)
+		rddly = dgsl4;
 
 	rddly += 5;
 
@@ -576,6 +612,10 @@ int cleanup_training(struct am654_ddrss_desc *ddrss)
 	val = (ddrss_phy_readl(DDRSS_DDRPHY_DX3GCR0) & ~0xF00000);
 	val |= (rddly << 20);
 	ddrss_phy_writel(DDRSS_DDRPHY_DX3GCR0, val);
+
+	val = (ddrss_phy_readl(DDRSS_DDRPHY_DX4GCR0) & ~0xF00000);
+	val |= (rddly << 20);
+	ddrss_phy_writel(DDRSS_DDRPHY_DX4GCR0, val);
 
 	/*
 	 * Add system latency derived from training back into rd2wr and wr2rd
@@ -599,6 +639,8 @@ int cleanup_training(struct am654_ddrss_desc *ddrss)
 		rd2wr_wr2rd = dgsl2;
 	if (dgsl3 > rd2wr_wr2rd)
 		rd2wr_wr2rd = dgsl3;
+	if (dgsl4 > rd2wr_wr2rd)
+		rd2wr_wr2rd = dgsl4;
 
 	rd2wr_wr2rd >>= 1;
 
@@ -1069,8 +1111,22 @@ static int am654_ddrss_probe(struct udevice *dev)
 		return ret;
 
 	ret = am654_ddrss_init(ddrss);
+	// Only prime ECC if it is enabled
+	if (ddrss_ctl_readl(DDRSS_DDRCTL_ECCCFG0) & 0x4)
+		ret = am654_prime_ecc();
 
 	return ret;
+}
+
+static int am654_prime_ecc(void)
+{
+	//Prime DDR ECC by writing to DDR space 
+	for(int i = 0; i < DATA_BYTES / 4; i++)
+	{
+		ddrPtr[i] = 0xA5A5A5A5;
+	}
+
+	return 0; 
 }
 
 static int am654_ddrss_get_info(struct udevice *dev, struct ram_info *info)
