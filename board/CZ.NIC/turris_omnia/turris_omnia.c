@@ -47,6 +47,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMNIA_I2C_EEPROM_CHIP_LEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
+#define OMNIA_RESET_TO_LOWER_DDR_SPEED	9
+#define OMNIA_LOWER_DDR_SPEED		"1333H"
+
 #define A385_SYS_RSTOUT_MASK		MVEBU_REGISTER(0x18260)
 #define   A385_SYS_RSTOUT_MASK_WD	BIT(10)
 
@@ -204,6 +207,20 @@ static u32 omnia_mcu_crc32(const void *p, size_t len)
 	}
 
 	return ~bitrev32(crc);
+}
+
+static int omnia_mcu_get_reset(void)
+{
+	u8 reset_status;
+	int ret;
+
+	ret = omnia_mcu_read(CMD_GET_RESET, &reset_status, 1);
+	if (ret) {
+		printf("omnia_mcu_read failed: %i, reset status unknown!\n", ret);
+		return ret;
+	}
+
+	return reset_status;
 }
 
 /* Can only be called after relocation, since it needs cleared BSS */
@@ -463,13 +480,16 @@ static bool check_eeprom_crc(const void *buf, size_t size, u32 expected,
 	return true;
 }
 
+static struct udevice *omnia_get_eeprom(void)
+{
+	return omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
+				  OMNIA_I2C_EEPROM_CHIP_LEN);
+}
+
 static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 {
-	struct udevice *eeprom;
+	struct udevice *eeprom = omnia_get_eeprom();
 	int ret;
-
-	eeprom = omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
-				    OMNIA_I2C_EEPROM_CHIP_LEN);
 
 	if (!eeprom)
 		return false;
@@ -502,6 +522,35 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 	return true;
 }
 
+static void omnia_eeprom_set_lower_ddr_speed(void)
+{
+	struct udevice *eeprom = omnia_get_eeprom();
+	struct omnia_eeprom oep;
+	int ret;
+
+	if (!eeprom || !omnia_read_eeprom(&oep))
+		return;
+
+	puts("Setting DDR speed to " OMNIA_LOWER_DDR_SPEED " in EEPROM as requested by reset button... ");
+
+	/* check if already set */
+	if (!strncmp(oep.ddr_speed, OMNIA_LOWER_DDR_SPEED, sizeof(oep.ddr_speed)) &&
+	    (oep.old_ddr_training == 0 || oep.old_ddr_training == 0xff)) {
+		puts("was already set\n");
+		return;
+	}
+
+	strncpy(oep.ddr_speed, OMNIA_LOWER_DDR_SPEED, sizeof(oep.ddr_speed));
+	oep.old_ddr_training = 0xff;
+	oep.crc2 = crc32(0, (const void *)&oep, offsetof(struct omnia_eeprom, crc2));
+
+	ret = i2c_eeprom_write(eeprom, 0, (const void *)&oep, sizeof(oep));
+	if (ret)
+		printf("cannot write EEPROM: %d\n", ret);
+	else
+		puts("done\n");
+}
+
 int omnia_get_ram_size_gb(void)
 {
 	static int ram_size;
@@ -530,6 +579,13 @@ int omnia_get_ram_size_gb(void)
 bool board_use_old_ddr3_training(void)
 {
 	struct omnia_eeprom oep;
+
+	/*
+	 * If lower DDR speed is requested by reset button, we can't use old DDR
+	 * training algorithm.
+	 */
+	if (omnia_mcu_get_reset() == OMNIA_RESET_TO_LOWER_DDR_SPEED)
+		return false;
 
 	if (!omnia_read_eeprom(&oep))
 		return false;
@@ -711,13 +767,19 @@ static void fixup_speed_in_ddr_topology(struct mv_ddr_topology_map *topology)
 	const struct omnia_ddr_speed *setting;
 	const char *speed;
 	static bool done;
+	int reset_status;
 
 	if (done)
 		return;
 
 	done = true;
 
-	speed = omnia_get_ddr_speed();
+	reset_status = omnia_mcu_get_reset();
+	if (reset_status == OMNIA_RESET_TO_LOWER_DDR_SPEED)
+		speed = OMNIA_LOWER_DDR_SPEED;
+	else
+		speed = omnia_get_ddr_speed();
+
 	if (!speed)
 		return;
 
@@ -734,7 +796,10 @@ static void fixup_speed_in_ddr_topology(struct mv_ddr_topology_map *topology)
 	if (params->speed_bin_index == setting->speed_bin)
 		return;
 
-	printf("Fixing up DDR3 speed (EEPROM defines %s)\n", speed);
+	if (reset_status == OMNIA_RESET_TO_LOWER_DDR_SPEED)
+		printf("Fixing up DDR3 speed to %s as requested by reset button\n", speed);
+	else
+		printf("Fixing up DDR3 speed (EEPROM defines %s)\n", speed);
 
 	params->speed_bin_index = setting->speed_bin;
 	params->memory_freq = setting->freq;
@@ -771,8 +836,7 @@ static int set_regdomain(void)
 static void handle_reset_button(void)
 {
 	const char * const vars[1] = { "bootcmd_rescue", };
-	int ret;
-	u8 reset_status;
+	int reset_status;
 
 	/*
 	 * Ensure that bootcmd_rescue has always stock value, so that running
@@ -781,12 +845,12 @@ static void handle_reset_button(void)
 	 */
 	env_set_default_vars(1, (char * const *)vars, 0);
 
-	ret = omnia_mcu_read(CMD_GET_RESET, &reset_status, 1);
-	if (ret) {
-		printf("omnia_mcu_read failed: %i, reset status unknown!\n",
-		       ret);
+	reset_status = omnia_mcu_get_reset();
+	if (reset_status < 0)
 		return;
-	}
+
+	if (reset_status == OMNIA_RESET_TO_LOWER_DDR_SPEED)
+		return omnia_eeprom_set_lower_ddr_speed();
 
 	env_set_ulong("omnia_reset", reset_status);
 
