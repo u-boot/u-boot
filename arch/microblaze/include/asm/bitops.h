@@ -31,6 +31,7 @@ static inline unsigned long ffz(unsigned long word)
 	}
 	return result;
 }
+#define PLATFORM_FFZ
 
 static inline void set_bit(int nr, volatile void *addr)
 {

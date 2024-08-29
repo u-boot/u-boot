@@ -137,6 +137,7 @@ static inline unsigned long ffz(unsigned long word)
 
 	return k;
 }
+#define PLATFORM_FFZ
 
 /*
  * ffs: find first bit set. This is defined the same way as

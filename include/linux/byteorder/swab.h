@@ -1,6 +1,9 @@
 #ifndef _LINUX_BYTEORDER_SWAB_H
 #define _LINUX_BYTEORDER_SWAB_H
 
+#include <linux/types.h>
+#include <linux/stddef.h>
+
 /*
  * linux/byteorder/swab.h
  * Byte-swapping, independently from CPU endianness
@@ -143,10 +146,20 @@ static __inline__ void __swab64s(__u64 *addr)
 	__arch__swab64s(addr);
 }
 
+static __inline__ unsigned long __swab(const unsigned long y)
+{
+#if __BITS_PER_LONG == 64
+	return __swab64(y);
+#else /* __BITS_PER_LONG == 32 */
+	return __swab32(y);
+#endif
+}
+
 #if defined(__KERNEL__)
 #define swab16 __swab16
 #define swab32 __swab32
 #define swab64 __swab64
+#define swab __swab
 #define swab16p __swab16p
 #define swab32p __swab32p
 #define swab64p __swab64p
