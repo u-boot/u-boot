@@ -19,9 +19,9 @@ MAKEFLAGS += -rR
 # Determine target architecture for the sandbox
 include include/host_arch.h
 ifeq ("", "$(CROSS_COMPILE)")
-  MK_ARCH="${shell uname -m}"
+  MK_ARCH := $(shell uname -m)
 else
-  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\2/p'}"
+  MK_ARCH := $(shell echo $(CROSS_COMPILE) | sed -n 's/^[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\2/p')
 endif
 unexport HOST_ARCH
 ifeq ("x86_64", $(MK_ARCH))
@@ -138,140 +138,6 @@ export quiet Q KBUILD_VERBOSE
 # KBUILD_SRC is set on invocation of make in OBJ directory
 # KBUILD_SRC is not intended to be used by the regular user (for now)
 ifeq ($(KBUILD_SRC),)
-
-# OK, Make called in directory where kernel src resides
-# Do we want to locate output files in a separate directory?
-ifeq ("$(origin O)", "command line")
-  KBUILD_OUTPUT := $(O)
-endif
-
-# That's our default target when none is given on the command line
-PHONY := _all
-_all:
-
-# Cancel implicit rules on top Makefile
-$(CURDIR)/Makefile Makefile: ;
-
-ifneq ($(KBUILD_OUTPUT),)
-# Invoke a second make in the output directory, passing relevant variables
-# check that the output directory actually exists
-saved-output := $(KBUILD_OUTPUT)
-KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
-								&& /bin/pwd)
-$(if $(KBUILD_OUTPUT),, \
-     $(error failed to create output directory "$(saved-output)"))
-
-# Look for make include files relative to root of kernel src
-#
-# This does not become effective immediately because MAKEFLAGS is re-parsed
-# once after the Makefile is read.  It is OK since we are going to invoke
-# 'sub-make' below.
-MAKEFLAGS += --include-dir=$(CURDIR)
-
-PHONY += $(MAKECMDGOALS) sub-make
-
-$(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
-	@:
-
-sub-make: FORCE
-	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
-	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
-
-# Leave processing to above invocation of make
-skip-makefile := 1
-endif # ifneq ($(KBUILD_OUTPUT),)
-endif # ifeq ($(KBUILD_SRC),)
-
-# We process the rest of the Makefile if this is the final invocation of make
-ifeq ($(skip-makefile),)
-
-# Do not print "Entering directory ...",
-# but we want to display it when entering to the output directory
-# so that IDEs/editors are able to understand relative filenames.
-MAKEFLAGS += --no-print-directory
-
-# Call a source code checker (by default, "sparse") as part of the
-# C compilation.
-#
-# Use 'make C=1' to enable checking of only re-compiled files.
-# Use 'make C=2' to enable checking of *all* source files, regardless
-# of whether they are re-compiled or not.
-#
-# See the file "doc/sparse.txt" for more details, including
-# where to get the "sparse" utility.
-
-ifeq ("$(origin C)", "command line")
-  KBUILD_CHECKSRC = $(C)
-endif
-ifndef KBUILD_CHECKSRC
-  KBUILD_CHECKSRC = 0
-endif
-
-# Use make M=dir to specify directory of external module to build
-# Old syntax make ... SUBDIRS=$PWD is still supported
-# Setting the environment variable KBUILD_EXTMOD take precedence
-ifdef SUBDIRS
-  KBUILD_EXTMOD ?= $(SUBDIRS)
-endif
-
-ifeq ("$(origin M)", "command line")
-  KBUILD_EXTMOD := $(M)
-endif
-
-# If building an external module we do not care about the all: rule
-# but instead _all depend on modules
-PHONY += all
-ifeq ($(KBUILD_EXTMOD),)
-_all: all
-else
-_all: modules
-endif
-
-ifeq ($(KBUILD_SRC),)
-        # building in the source tree
-        srctree := .
-else
-        ifeq ($(KBUILD_SRC)/,$(dir $(CURDIR)))
-                # building in a subdirectory of the source tree
-                srctree := ..
-        else
-                srctree := $(KBUILD_SRC)
-        endif
-endif
-objtree		:= .
-src		:= $(srctree)
-obj		:= $(objtree)
-
-VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
-
-export srctree objtree VPATH
-
-# Make sure CDPATH settings don't interfere
-unexport CDPATH
-
-#########################################################################
-
-HOSTARCH := $(shell uname -m | \
-	sed -e s/i.86/x86/ \
-	    -e s/sun4u/sparc64/ \
-	    -e s/arm.*/arm/ \
-	    -e s/sa110/arm/ \
-	    -e s/ppc64/powerpc/ \
-	    -e s/ppc/powerpc/ \
-	    -e s/macppc/powerpc/\
-	    -e s/sh.*/sh/)
-
-HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
-	    sed -e 's/\(cygwin\).*/cygwin/')
-
-export	HOSTARCH HOSTOS
-
-#########################################################################
-
-# set default to nothing for native builds
-ifeq ($(HOSTARCH),$(ARCH))
-CROSS_COMPILE ?=
-endif
 
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
