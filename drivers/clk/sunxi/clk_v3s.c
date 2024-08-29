@@ -39,6 +39,9 @@ static struct ccu_clk_gate v3s_gates[] = {
 
 	[CLK_DE]		= GATE(0x104, BIT(31)),
 	[CLK_TCON0]		= GATE(0x118, BIT(31)),
+
+	[CLK_BUS_EMAC]  = GATE(0x060, BIT(17)),
+	[CLK_BUS_EPHY]  = GATE(0x070, BIT(0)),
 };
 
 static struct ccu_reset v3s_resets[] = {
@@ -61,6 +64,9 @@ static struct ccu_reset v3s_resets[] = {
 	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x2d8, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x2d8, BIT(18)),
+
+	[RST_BUS_EMAC] 		= RESET(0x2c0, BIT(17)),
+	[RST_BUS_EPHY]		= RESET(0x2c8, BIT(2)),
 };
 
 const struct ccu_desc v3s_ccu_desc = {
