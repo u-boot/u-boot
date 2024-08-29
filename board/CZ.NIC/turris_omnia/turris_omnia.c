@@ -464,16 +464,16 @@ static bool check_eeprom_crc(const void *buf, size_t size, u32 expected,
 
 static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 {
-	struct udevice *chip;
+	struct udevice *eeprom;
 	int ret;
 
-	chip = omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
-				  OMNIA_I2C_EEPROM_CHIP_LEN);
+	eeprom = omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
+				    OMNIA_I2C_EEPROM_CHIP_LEN);
 
-	if (!chip)
+	if (!eeprom)
 		return false;
 
-	ret = dm_i2c_read(chip, 0, (void *)oep, sizeof(*oep));
+	ret = dm_i2c_read(eeprom, 0, (void *)oep, sizeof(*oep));
 	if (ret) {
 		printf("dm_i2c_read failed: %i, cannot read EEPROM\n", ret);
 		return false;
