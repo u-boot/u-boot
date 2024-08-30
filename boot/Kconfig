@@ -1,5 +1,7 @@
 menu "Boot options"
 
+source "lib/efi_loader/Kconfig"
+
 menu "Boot images"
 
 config ANDROID_BOOT_IMAGE

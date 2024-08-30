@@ -1,3 +1,6 @@
+menu "U-Boot as UEFI application"
+	depends on X86
+
 config EFI
 	bool "Support running U-Boot from EFI"
 	depends on X86
@@ -72,3 +75,5 @@ config EFI_RAM_SIZE
 	  use. U-Boot allocates this from EFI on start-up (along with a few
 	  other smaller amounts) and it can never be increased after that.
 	  It is used as the RAM size in with U-Boot.
+
+endmenu

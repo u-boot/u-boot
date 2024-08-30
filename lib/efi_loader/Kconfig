@@ -1,3 +1,5 @@
+menu "UEFI Support"
+
 config EFI_LOADER
 	bool "Support running UEFI applications"
 	depends on OF_LIBFDT && ( \
@@ -41,13 +43,58 @@ config EFI_BINARY_EXEC
 	  You may enable CMD_BOOTEFI_BINARY so that you can use bootefi
 	  command to do that.
 
-config EFI_BOOTMGR
-	bool "UEFI Boot Manager"
+config EFI_SECURE_BOOT
+	bool "Enable EFI secure boot support"
+	depends on EFI_LOADER && FIT_SIGNATURE
+	select HASH
+	select SHA256
+	select RSA
+	select RSA_VERIFY_WITH_PKEY
+	select IMAGE_SIGN_INFO
+	select ASYMMETRIC_KEY_TYPE
+	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
+	select PKCS7_VERIFY
+	select MSCODE_PARSER
+	select EFI_SIGNATURE_SUPPORT
+	help
+	  Select this option to enable EFI secure boot support.
+	  Once SecureBoot mode is enforced, any EFI binary can run only if
+	  it is signed with a trusted key. To do that, you need to install,
+	  at least, PK, KEK and db.
+
+config EFI_SIGNATURE_SUPPORT
+	bool
+
+menu "UEFI services"
+
+config EFI_GET_TIME
+	bool "GetTime() runtime service"
+	depends on DM_RTC
 	default y
 	help
-	  Select this option if you want to select the UEFI binary to be booted
-	  via UEFI variables Boot####, BootOrder, and BootNext. You should also
-	  normally enable CMD_BOOTEFI_BOOTMGR so that the command is available.
+	  Provide the GetTime() runtime service at boottime. This service
+	  can be used by an EFI application to read the real time clock.
+
+config EFI_SET_TIME
+	bool "SetTime() runtime service"
+	depends on EFI_GET_TIME
+	default y if ARCH_QEMU || SANDBOX
+	help
+	  Provide the SetTime() runtime service at boottime. This service
+	  can be used by an EFI application to adjust the real time clock.
+
+config EFI_HAVE_RUNTIME_RESET
+	# bool "Reset runtime service is available"
+	bool
+	default y
+	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || \
+		   SANDBOX || SYSRESET_SBI || SYSRESET_X86
+
+endmenu
+
+menu "UEFI Variables"
 
 choice
 	prompt "Store for non-volatile UEFI variables"
@@ -172,30 +219,18 @@ config EFI_VAR_BUF_SIZE
 
 	  Minimum 4096, default 131072
 
-config EFI_GET_TIME
-	bool "GetTime() runtime service"
-	depends on DM_RTC
-	default y
+config EFI_PLATFORM_LANG_CODES
+	string "Language codes supported by firmware"
+	default "en-US"
 	help
-	  Provide the GetTime() runtime service at boottime. This service
-	  can be used by an EFI application to read the real time clock.
+	  This value is used to initialize the PlatformLangCodes variable. Its
+	  value is a semicolon (;) separated list of language codes in native
+	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
+	  to initialize the PlatformLang variable.
 
-config EFI_SET_TIME
-	bool "SetTime() runtime service"
-	depends on EFI_GET_TIME
-	default y if ARCH_QEMU || SANDBOX
-	help
-	  Provide the SetTime() runtime service at boottime. This service
-	  can be used by an EFI application to adjust the real time clock.
+endmenu
 
-config EFI_SCROLL_ON_CLEAR_SCREEN
-	bool "Avoid overwriting previous output on clear screen"
-	help
-	  Instead of erasing the screen content when the console screen should
-	  be cleared, emit blank new lines so that previous output is scrolled
-	  out of sight rather than overwritten. On serial consoles this allows
-	  to capture complete boot logs (except for interactive menus etc.)
-	  and can ease debugging related issues.
+menu "Capsule support"
 
 config EFI_HAVE_CAPSULE_SUPPORT
 	bool
@@ -309,6 +344,10 @@ config EFI_CAPSULE_CRT_FILE
 	  embedded in the platform's device tree and used for capsule
 	  authentication at the time of capsule update.
 
+endmenu
+
+menu "UEFI protocol support"
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y
@@ -362,39 +401,6 @@ config EFI_UNICODE_CAPITALIZATION
 
 endif
 
-config EFI_LOADER_BOUNCE_BUFFER
-	bool "EFI Applications use bounce buffers for DMA operations"
-	help
-	  Some hardware does not support DMA to full 64bit addresses. For this
-	  hardware we can create a bounce buffer so that payloads don't have to
-	  worry about platform details.
-
-config EFI_PLATFORM_LANG_CODES
-	string "Language codes supported by firmware"
-	default "en-US"
-	help
-	  This value is used to initialize the PlatformLangCodes variable. Its
-	  value is a semicolon (;) separated list of language codes in native
-	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
-	  to initialize the PlatformLang variable.
-
-config EFI_HAVE_RUNTIME_RESET
-	# bool "Reset runtime service is available"
-	bool
-	default y
-	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || \
-		   SANDBOX || SYSRESET_SBI || SYSRESET_X86
-
-config EFI_GRUB_ARM32_WORKAROUND
-	bool "Workaround for GRUB on 32bit ARM"
-	default n if ARCH_BCM283X || ARCH_SUNXI || ARCH_QEMU
-	default y
-	depends on ARM && !ARM64
-	help
-	  GRUB prior to version 2.04 requires U-Boot to disable caches. This
-	  workaround currently is also needed on systems with caches that
-	  cannot be managed via CP15.
-
 config EFI_RNG_PROTOCOL
 	bool "EFI_RNG_PROTOCOL support"
 	depends on DM_RNG
@@ -447,29 +453,36 @@ config EFI_LOAD_FILE2_INITRD
 	  installed and Linux 5.7+ will ignore any initrd=<ramdisk> command line
 	  argument.
 
-config EFI_SECURE_BOOT
-	bool "Enable EFI secure boot support"
-	depends on EFI_LOADER && FIT_SIGNATURE
-	select HASH
-	select SHA256
-	select RSA
-	select RSA_VERIFY_WITH_PKEY
-	select IMAGE_SIGN_INFO
-	select ASYMMETRIC_KEY_TYPE
-	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
-	select X509_CERTIFICATE_PARSER
-	select PKCS7_MESSAGE_PARSER
-	select PKCS7_VERIFY
-	select MSCODE_PARSER
-	select EFI_SIGNATURE_SUPPORT
+config EFI_RISCV_BOOT_PROTOCOL
+	bool "RISCV_EFI_BOOT_PROTOCOL support"
+	default y
+	depends on RISCV
 	help
-	  Select this option to enable EFI secure boot support.
-	  Once SecureBoot mode is enforced, any EFI binary can run only if
-	  it is signed with a trusted key. To do that, you need to install,
-	  at least, PK, KEK and db.
+	  The EFI_RISCV_BOOT_PROTOCOL is used to transfer the boot hart ID
+	  to the next boot stage. It should be enabled as it is meant to
+	  replace the transfer via the device-tree. The latter is not
+	  possible on systems using ACPI.
 
-config EFI_SIGNATURE_SUPPORT
-	bool
+endmenu
+
+menu "Misc options"
+config EFI_LOADER_BOUNCE_BUFFER
+	bool "EFI Applications use bounce buffers for DMA operations"
+	depends on ARM64
+	help
+	  Some hardware does not support DMA to full 64bit addresses. For this
+	  hardware we can create a bounce buffer so that payloads don't have to
+	  worry about platform details.
+
+config EFI_GRUB_ARM32_WORKAROUND
+	bool "Workaround for GRUB on 32bit ARM"
+	default n if ARCH_BCM283X || ARCH_SUNXI || ARCH_QEMU
+	default y
+	depends on ARM && !ARM64
+	help
+	  GRUB prior to version 2.04 requires U-Boot to disable caches. This
+	  workaround currently is also needed on systems with caches that
+	  cannot be managed via CP15.
 
 config EFI_ESRT
 	bool "Enable the UEFI ESRT generation"
@@ -496,15 +509,26 @@ config EFI_EBBR_2_1_CONFORMANCE
 	help
 	  Enabling this option adds the EBBRv2.1 conformance entry to the ECPT UEFI table.
 
-config EFI_RISCV_BOOT_PROTOCOL
-	bool "RISCV_EFI_BOOT_PROTOCOL support"
-	default y
-	depends on RISCV
+config EFI_SCROLL_ON_CLEAR_SCREEN
+	bool "Avoid overwriting previous output on clear screen"
 	help
-	  The EFI_RISCV_BOOT_PROTOCOL is used to transfer the boot hart ID
-	  to the next boot stage. It should be enabled as it is meant to
-	  replace the transfer via the device-tree. The latter is not
-	  possible on systems using ACPI.
+	  Instead of erasing the screen content when the console screen should
+	  be cleared, emit blank new lines so that previous output is scrolled
+	  out of sight rather than overwritten. On serial consoles this allows
+	  to capture complete boot logs (except for interactive menus etc.)
+	  and can ease debugging related issues.
+
+endmenu
+
+menu "EFI bootmanager"
+
+config EFI_BOOTMGR
+	bool "UEFI Boot Manager"
+	default y
+	help
+	  Select this option if you want to select the UEFI binary to be booted
+	  via UEFI variables Boot####, BootOrder, and BootNext. You should also
+	  normally enable CMD_BOOTEFI_BOOTMGR so that the command is available.
 
 config EFI_HTTP_BOOT
 	bool "EFI HTTP Boot support"
@@ -514,5 +538,10 @@ config EFI_HTTP_BOOT
 	help
 	  Enabling this option adds EFI HTTP Boot support. It allows to
 	  directly boot from network.
+endmenu
 
 endif
+
+source "lib/efi/Kconfig"
+
+endmenu

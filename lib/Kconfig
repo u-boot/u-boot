@@ -1081,8 +1081,6 @@ config SMBIOS_PARSER
 	help
 	  A simple parser for SMBIOS data.
 
-source "lib/efi/Kconfig"
-source "lib/efi_loader/Kconfig"
 source "lib/optee/Kconfig"
 
 config TEST_FDTDEC
