@@ -55,8 +55,8 @@ static void mbus_configure_port(u8 port,
 	writel_relaxed(cfg1, &mctl_com->master[port].cfg1);
 }
 
-#define MBUS_CONF(port, bwlimit, qos, acs, bwl0, bwl1, bwl2)	\
-	mbus_configure_port(port, bwlimit, false, \
+#define MBUS_CONF(port, priority, qos, acs, bwl0, bwl1, bwl2)	\
+	mbus_configure_port(port, true, priority, \
 			    MBUS_QOS_ ## qos, 0, acs, bwl0, bwl1, bwl2)
 
 static void mctl_set_master_priority(void)
@@ -68,24 +68,25 @@ static void mctl_set_master_priority(void)
 	writel(399, &mctl_com->tmr);
 	writel(BIT(16), &mctl_com->bwcr);
 
-	MBUS_CONF( 0, true, HIGHEST, 0,  256,  128,  100);
-	MBUS_CONF( 1, true,    HIGH, 0, 1536, 1400,  256);
-	MBUS_CONF( 2, true, HIGHEST, 0,  512,  256,   96);
-	MBUS_CONF( 3, true,    HIGH, 0,  256,  100,   80);
-	MBUS_CONF( 4, true,    HIGH, 2, 8192, 5500, 5000);
-	MBUS_CONF( 5, true,    HIGH, 2,  100,   64,   32);
-	MBUS_CONF( 6, true,    HIGH, 2,  100,   64,   32);
-	MBUS_CONF( 8, true,    HIGH, 0,  256,  128,   64);
-	MBUS_CONF(11, true,    HIGH, 0,  256,  128,  100);
-	MBUS_CONF(14, true,    HIGH, 0, 1024,  256,   64);
-	MBUS_CONF(16, true, HIGHEST, 6, 8192, 2800, 2400);
-	MBUS_CONF(21, true, HIGHEST, 6, 2048,  768,  512);
-	MBUS_CONF(25, true, HIGHEST, 0,  100,   64,   32);
-	MBUS_CONF(26, true,    HIGH, 2, 8192, 5500, 5000);
-	MBUS_CONF(37, true,    HIGH, 0,  256,  128,   64);
-	MBUS_CONF(38, true,    HIGH, 2,  100,   64,   32);
-	MBUS_CONF(39, true,    HIGH, 2, 8192, 5500, 5000);
-	MBUS_CONF(40, true,    HIGH, 2,  100,   64,   32);
+	MBUS_CONF(0, false, HIGHEST, 0,  256,  128,  100);
+	MBUS_CONF(1, false,    HIGH, 0, 1536, 1400,  256);
+	MBUS_CONF(2, false, HIGHEST, 0,  512,  256,   96);
+	MBUS_CONF(3, false,    HIGH, 0,  256,  100,   80);
+	MBUS_CONF(4, false,    HIGH, 2, 8192, 5500, 5000);
+	MBUS_CONF(5, false,    HIGH, 2,  100,   64,   32);
+	MBUS_CONF(6, false,    HIGH, 2,  100,   64,   32);
+	MBUS_CONF(8, false,    HIGH, 0,  256,  128,   64);
+	MBUS_CONF(11, false,    HIGH, 0,  256,  128,  100);
+	MBUS_CONF(14, false,    HIGH, 0, 1024,  256,   64);
+	MBUS_CONF(16, false, HIGHEST, 6, 8192, 2800, 2400);
+	MBUS_CONF(21, false, HIGHEST, 6, 2048,  768,  512);
+	MBUS_CONF(22, false,    HIGH, 0,  256,  128,  100);
+	MBUS_CONF(25, true,  HIGHEST, 0,  100,   64,   32);
+	MBUS_CONF(26, false,    HIGH, 2, 8192, 5500, 5000);
+	MBUS_CONF(37, false,    HIGH, 0,  256,  128,   64);
+	MBUS_CONF(38, false,    HIGH, 2,  100,   64,   32);
+	MBUS_CONF(39, false,    HIGH, 2, 8192, 5500, 5000);
+	MBUS_CONF(40, false,    HIGH, 2,  100,   64,   32);
 
 	dmb();
 }
