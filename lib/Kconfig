@@ -73,6 +73,7 @@ config HAVE_PRIVATE_LIBGCC
 
 config LIB_UUID
 	bool
+	select SHA1
 
 config RANDOM_UUID
 	bool "GPT Random UUID generation"
