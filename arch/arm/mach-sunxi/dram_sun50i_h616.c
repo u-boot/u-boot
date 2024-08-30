@@ -1362,28 +1362,33 @@ static void mctl_auto_detect_rank_width(const struct dram_para *para,
 static void mctl_auto_detect_dram_size(const struct dram_para *para,
 				       struct dram_config *config)
 {
-	/* detect row address bits */
-	config->cols = 8;
+	unsigned int shift;
+
+	/* max. config for columns, but not rows */
+	config->cols = 11;
+	config->rows = 13;
+	mctl_core_init(para, config);
+
+	shift = config->bus_full_width + 1;
+
+	/* detect column address bits */
+	for (config->cols = 8; config->cols < 11; config->cols++) {
+		if (mctl_mem_matches(1ULL << (config->cols + shift)))
+			break;
+	}
+	debug("detected %u columns\n", config->cols);
+
+	/* reconfigure to make sure that all active rows are accessible */
 	config->rows = 18;
 	mctl_core_init(para, config);
 
+	/* detect row address bits */
+	shift = config->bus_full_width + 4 + config->cols;
 	for (config->rows = 13; config->rows < 18; config->rows++) {
-		/* 8 banks, 8 bit per byte and 16/32 bit width */
-		if (mctl_mem_matches((1 << (config->rows + config->cols +
-					    4 + config->bus_full_width))))
+		if (mctl_mem_matches(1ULL << (config->rows + shift)))
 			break;
 	}
-
-	/* detect column address bits */
-	config->cols = 11;
-	mctl_core_init(para, config);
-
-	for (config->cols = 8; config->cols < 11; config->cols++) {
-		/* 8 bits per byte and 16/32 bit width */
-		if (mctl_mem_matches(1 << (config->cols + 1 +
-					   config->bus_full_width)))
-			break;
-	}
+	debug("detected %u rows\n", config->rows);
 }
 
 static unsigned long mctl_calc_size(const struct dram_config *config)
