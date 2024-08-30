@@ -43,6 +43,47 @@ static int lib_test_uuid_to_le(struct unit_test_state *uts)
 }
 LIB_TEST(lib_test_uuid_to_le, 0);
 
+#if defined(CONFIG_RANDOM_UUID) || defined(CONFIG_CMD_UUID)
+/* Test UUID attribute bits (version, variant) */
+static int lib_test_uuid_bits(struct unit_test_state *uts)
+{
+	unsigned char uuid[16];
+	efi_guid_t guid;
+	int i;
+
+	/*
+	 * Reduce the chance of a randomly generated UUID disguising
+	 * a regression by testing multiple times.
+	 */
+	for (i = 0; i < 5; i++) {
+		/* Test UUID v4 */
+		gen_rand_uuid((unsigned char *)&uuid);
+
+		printf("v4 UUID: %pUb\n", (efi_guid_t *)uuid);
+
+		/* version 4 */
+		ut_assert((uuid[6] & 0xf0) == 0x40);
+		/* variant 1 */
+		ut_assert((uuid[8] & UUID_VARIANT_MASK) == (UUID_VARIANT << UUID_VARIANT_SHIFT));
+
+		/* Test v5, use the v4 UUID as the namespace */
+		gen_v5_guid((struct uuid *)uuid,
+			    &guid, "test", 4, NULL);
+
+		printf("v5 GUID: %pUl\n", (efi_guid_t *)uuid);
+
+		/* This is a GUID so bits 6 and 7 are swapped (little endian). Version 5 */
+		ut_assert((guid.b[7] & 0xf0) == 0x50);
+		/* variant 1 */
+		ut_assert((guid.b[8] & UUID_VARIANT_MASK) == (UUID_VARIANT << UUID_VARIANT_SHIFT));
+	}
+
+	return 0;
+}
+
+LIB_TEST(lib_test_uuid_bits, 0);
+#endif
+
 struct dynamic_uuid_test_data {
 	const char *compatible;
 	const u16 *images[4];
