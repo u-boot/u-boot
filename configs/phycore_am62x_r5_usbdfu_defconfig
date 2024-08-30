@@ -1,0 +1,2 @@
+#include <configs/phycore_am62x_r5_defconfig>
+#include <configs/am62x_r5_usbdfu.config>
