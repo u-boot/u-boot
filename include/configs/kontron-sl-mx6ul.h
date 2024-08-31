@@ -26,7 +26,6 @@
 
 #ifdef CONFIG_USB_EHCI_HCD
 #define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* Boot order for distro boot */

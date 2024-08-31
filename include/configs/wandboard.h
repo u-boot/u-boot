@@ -18,7 +18,6 @@
 
 /* USB Configs */
 #define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \

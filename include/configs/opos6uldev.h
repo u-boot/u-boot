@@ -20,7 +20,6 @@
 /* USB */
 #ifdef CONFIG_USB_EHCI_MX6
 #define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
 #endif
 
 /* LCD */
