@@ -83,6 +83,10 @@ static inline int _spl_load(struct spl_image_info *spl_image,
 
 	read = info->read(info, offset + image_offset, size,
 			  map_sysmem(spl_image->load_addr - overhead, size));
+
+	if (read < 0)
+		return read;
+
 	return read < spl_image->size ? -EIO : 0;
 }
 
