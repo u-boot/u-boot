@@ -277,14 +277,15 @@ static int rpc_spi_mem_exec_op(struct spi_slave *spi,
 		writel(RPC_DRCMR_CMD(op->cmd.opcode), priv->regs + RPC_DRCMR);
 		smenr |= RPC_DRENR_CDE;
 
-		writel(0, priv->regs + RPC_DREAR);
 		if (op->addr.nbytes == 4) {
 			writel(RPC_DREAR_EAV(offset >> 25) | RPC_DREAR_EAC(1),
 			       priv->regs + RPC_DREAR);
 			smenr |= RPC_DRENR_ADE(0xF);
 		} else if (op->addr.nbytes == 3) {
+			writel(0, priv->regs + RPC_DREAR);
 			smenr |= RPC_DRENR_ADE(0x7);
 		} else {
+			writel(0, priv->regs + RPC_DREAR);
 			smenr |= RPC_DRENR_ADE(0);
 		}
 
