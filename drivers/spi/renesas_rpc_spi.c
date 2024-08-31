@@ -294,6 +294,7 @@ static int rpc_spi_mem_exec_op(struct spi_slave *spi,
 
 		writel(8 * op->dummy.nbytes - 1, priv->regs + RPC_DRDMCR);
 		writel(0, priv->regs + RPC_DROPR);
+		writel(0, priv->regs + RPC_DRDRENR);
 		writel(smenr, priv->regs + RPC_DRENR);
 
 		memcpy_fromio(din, (void *)(priv->extr + offset), op->data.nbytes);
