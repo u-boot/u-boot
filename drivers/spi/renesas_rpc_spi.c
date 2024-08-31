@@ -289,12 +289,10 @@ static int rpc_spi_mem_exec_op(struct spi_slave *spi,
 			smenr |= RPC_DRENR_ADE(0);
 		}
 
-		writel(0, priv->regs + RPC_DRDMCR);
-		if (op->dummy.nbytes) {
-			writel(8 * op->dummy.nbytes - 1, priv->regs + RPC_DRDMCR);
+		if (op->dummy.nbytes)
 			smenr |= RPC_DRENR_DME;
-		}
 
+		writel(8 * op->dummy.nbytes - 1, priv->regs + RPC_DRDMCR);
 		writel(0, priv->regs + RPC_DROPR);
 		writel(smenr, priv->regs + RPC_DRENR);
 
