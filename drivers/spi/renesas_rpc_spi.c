@@ -465,6 +465,7 @@ static const struct dm_spi_ops rpc_spi_ops = {
 static const struct udevice_id rpc_spi_ids[] = {
 	{ .compatible = "renesas,r7s72100-rpc-if" },
 	{ .compatible = "renesas,rcar-gen3-rpc-if" },
+	{ .compatible = "renesas,rcar-gen4-rpc-if" },
 	{ }
 };
 
