@@ -411,9 +411,6 @@
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* UBI support */
 
 #define CFG_ENV_FLAGS_LIST_STATIC "ethaddr:mw,serial#:sw,board_type:sw," \

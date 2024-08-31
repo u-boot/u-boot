@@ -95,10 +95,6 @@
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 #define CFG_FEC_MXC_PHYADDR          0x0
 
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 #define CFG_SYS_FSL_USDHC_NUM	2
 
 #endif				/* __CONFIG_H */

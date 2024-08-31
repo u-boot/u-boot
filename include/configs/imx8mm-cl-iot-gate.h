@@ -137,7 +137,4 @@
 
 #define CFG_FEC_MXC_PHYADDR		-1 /* Auto search of PHY on MII */
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #endif /*__IMX8MM_CL_IOT_GATE_H*/

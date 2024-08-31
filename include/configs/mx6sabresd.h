@@ -24,9 +24,4 @@
 #define CFG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(3, 19)
 #endif
 
-/* USB Configs */
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 #endif                         /* __MX6SABRESD_CONFIG_H */

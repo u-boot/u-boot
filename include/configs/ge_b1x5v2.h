@@ -23,9 +23,6 @@
 #define CONSOLE_DEVICE "ttymxc2" /* Base board debug connector */
 #endif
 
-/* USB */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* Memory */
 #define PHYS_SDRAM		       MMDC0_ARB_BASE_ADDR
 

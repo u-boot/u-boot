@@ -16,11 +16,6 @@
 
 /* FEC ethernet */
 
-/* USB Configs */
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 #define CFG_EXTRA_ENV_SETTINGS	\
 	"console=ttymxc0,115200\0"	\
 	"fdt_addr=0x18000000\0"		\

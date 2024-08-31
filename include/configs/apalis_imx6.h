@@ -23,10 +23,6 @@
 
 /* Network */
 
-/* USB Configs */
-/* Host */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* Framebuffer and LCD */
 
 /* Command definition */

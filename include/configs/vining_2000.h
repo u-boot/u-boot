@@ -36,7 +36,6 @@
 /* Network */
 #define CFG_FEC_MXC_PHYADDR          0x0
 
-#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #ifdef CONFIG_CMD_PCI
 #define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(4, 6)

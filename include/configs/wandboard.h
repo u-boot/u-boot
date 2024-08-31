@@ -16,9 +16,6 @@
 #define CFG_SYS_FSL_USDHC_NUM	2
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #define CFG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
 	"splashpos=m,m\0" \

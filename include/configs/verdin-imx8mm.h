@@ -63,7 +63,4 @@
 #define PHYS_SDRAM_2                 0x100000000
 #define PHYS_SDRAM_2_SIZE            (long)(SZ_1G)
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #endif /* __VERDIN_IMX8MM_H */

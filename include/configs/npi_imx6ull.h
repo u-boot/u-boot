@@ -28,9 +28,6 @@
 /* NAND */
 #define CFG_SYS_NAND_BASE		0x40000000
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #ifdef CONFIG_CMD_NET
 #define CFG_FEC_MXC_PHYADDR		0x1
 #endif

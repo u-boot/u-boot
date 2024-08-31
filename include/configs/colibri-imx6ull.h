@@ -117,10 +117,6 @@
 #define CFG_SYS_NAND_BASE		-1
 #endif
 
-/* USB Configs */
-
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* USB Device Firmware Update support */
 #define DFU_DEFAULT_POLL_TIMEOUT	300
 

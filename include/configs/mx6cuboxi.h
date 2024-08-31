@@ -14,9 +14,6 @@
 /* MMC Configs */
 #define CFG_SYS_FSL_ESDHC_ADDR	USDHC2_BASE_ADDR
 
-/* USB */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* Command definition */
 
 #define CFG_MXC_UART_BASE	UART1_BASE

@@ -114,11 +114,6 @@
 
 /* environment organization */
 
-/* USB Configs */
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 #ifdef CONFIG_CMD_NET
 #define CFG_FEC_ENET_DEV		1
 

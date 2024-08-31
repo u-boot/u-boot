@@ -110,6 +110,5 @@
 #endif
 #endif
 
-#define CFG_MXC_USB_PORTSC            (PORT_PTS_UTMI | PORT_PTS_PTW)
 
 #endif /* __IMX6Q_ACC_H */

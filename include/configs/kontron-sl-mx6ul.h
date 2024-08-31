@@ -24,10 +24,6 @@
 /* Board and environment settings */
 #define CFG_MXC_UART_BASE		UART4_BASE
 
-#ifdef CONFIG_USB_EHCI_HCD
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif
-
 /* Boot order for distro boot */
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \

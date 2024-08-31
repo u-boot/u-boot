@@ -42,9 +42,6 @@
 /* Ethernet */
 #define CFG_FEC_MXC_PHYADDR		1
 
-/* USB */
-#define CFG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 /* Falcon */
 
 /* MMC support: args@1MB kernel@2MB */
