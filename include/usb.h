@@ -1092,4 +1092,16 @@ struct usb_generic_descriptor **usb_emul_find_descriptor(
  */
 void usb_show_tree(void);
 
+/**
+ * usb_kbd_remove_for_test() - Remove any USB keyboard
+ *
+ * This can only be called from test_pre_run(). It removes the USB keyboard from
+ * the console system so that the USB device can be dropped
+ */
+#if CONFIG_IS_ENABLED(USB_KEYBOARD)
+int usb_kbd_remove_for_test(void);
+#else
+static inline int usb_kbd_remove_for_test(void) { return 0; }
+#endif
+
 #endif /*_USB_H_ */

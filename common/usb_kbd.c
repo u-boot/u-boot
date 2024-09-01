@@ -137,6 +137,11 @@ extern int __maybe_unused net_busy_flag;
 /* The period of time between two calls of usb_kbd_testc(). */
 static unsigned long kbd_testc_tms;
 
+int usb_kbd_remove_for_test(void)
+{
+	return console_remove_by_name(DEVNAME);
+}
+
 /* Puts character in the queue and sets up the in and out pointer. */
 static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
 {

@@ -179,6 +179,14 @@ void console_puts_select_stderr(bool serial_only, const char *s);
  */
 int console_clear(void);
 
+/**
+ * console_remove_by_name() - Remove a console by its stdio name
+ *
+ * This must only be used in tests. It removes any use of the named stdio device
+ * from the console tables.
+ */
+int console_remove_by_name(const char *name);
+
 /*
  * CONSOLE multiplexing.
  */
