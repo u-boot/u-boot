@@ -612,7 +612,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	debug("USB KBD: register.\n");
 	memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
 	strcpy(usb_kbd_dev.name, DEVNAME);
-	usb_kbd_dev.flags =  DEV_FLAGS_INPUT;
+	usb_kbd_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_DM;
 	usb_kbd_dev.getc = usb_kbd_getc;
 	usb_kbd_dev.tstc = usb_kbd_testc;
 	usb_kbd_dev.priv = (void *)dev;
