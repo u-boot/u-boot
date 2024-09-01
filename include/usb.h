@@ -250,19 +250,11 @@ int usb_host_eth_scan(int mode);
 
 #endif
 
-#ifdef CONFIG_USB_KEYBOARD
-
 /*
  * USB Keyboard reports are 8 bytes in boot protocol.
  * Appendix B of HID Device Class Definition 1.11
  */
 #define USB_KBD_BOOT_REPORT_SIZE 8
-
-int drv_usb_kbd_init(void);
-int usb_kbd_deregister(int force);
-
-#endif
-/* routines */
 
 /*
  * usb_init() - initialize the USB Controllers
