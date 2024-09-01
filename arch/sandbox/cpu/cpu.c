@@ -111,6 +111,7 @@ void *phys_to_virt(phys_addr_t paddr)
 		if (mentry->tag == paddr) {
 			log_debug("Used map from %lx to %p\n", (ulong)paddr,
 				  mentry->ptr);
+			mentry->refcnt++;
 			return mentry->ptr;
 		}
 	}
@@ -200,10 +201,12 @@ void unmap_physmem(const void *ptr, unsigned long flags)
 
 	mentry = find_tag(ptr);
 	if (mentry) {
-		list_del(&mentry->sibling_node);
-		log_debug("Removed map from %p to %lx\n", ptr,
-			  (ulong)mentry->tag);
-		free(mentry);
+		if (!--mentry->refcnt) {
+			list_del(&mentry->sibling_node);
+			log_debug("Removed map from %p to %lx\n", ptr,
+				  (ulong)mentry->tag);
+			free(mentry);
+		}
 	} else {
 		log_warning("Address not mapped: %p\n", ptr);
 	}
@@ -235,10 +238,13 @@ phys_addr_t map_to_sysmem(const void *ptr)
 		}
 		mentry->tag = state->next_tag++;
 		mentry->ptr = (void *)ptr;
+		mentry->refcnt = 0;
 		list_add_tail(&mentry->sibling_node, &state->mapmem_head);
 		log_debug("Added map from %p to %lx\n", ptr,
 			  (ulong)mentry->tag);
 	}
+
+	mentry->refcnt++;
 
 	/*
 	 * Return the tag as the address to use. A later call to map_sysmem()
