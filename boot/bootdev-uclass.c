@@ -434,6 +434,9 @@ int bootdev_find_by_label(const char *label, struct udevice **devp,
 	struct uclass *uc;
 	enum uclass_id id;
 
+	if (!CONFIG_IS_ENABLED(BLK))
+		return -ENOSYS;
+
 	ret = label_to_uclass(label, &seq, &method_flags);
 	if (ret < 0)
 		return log_msg_ret("uc", ret);
