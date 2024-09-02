@@ -473,17 +473,25 @@ static int do_mmc_erase(struct cmd_tbl *cmdtp, int flag,
 			int argc, char *const argv[])
 {
 	struct mmc *mmc;
+	struct disk_partition info;
 	u32 blk, cnt, n;
 
-	if (argc != 3)
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
-
-	blk = hextoul(argv[1], NULL);
-	cnt = hextoul(argv[2], NULL);
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
+
+	if (argc == 3) {
+		blk = hextoul(argv[1], NULL);
+		cnt = hextoul(argv[2], NULL);
+	} else if (part_get_info_by_name(mmc_get_blk_desc(mmc), argv[1], &info) >= 0) {
+		blk = info.start;
+		cnt = info.size;
+	} else {
+		return CMD_RET_FAILURE;
+	}
 
 	printf("MMC erase: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
@@ -1290,6 +1298,7 @@ U_BOOT_CMD(
 	"mmc swrite addr blk#\n"
 #endif
 	"mmc erase blk# cnt\n"
+	"mmc erase partname\n"
 	"mmc rescan [mode]\n"
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] [mode] - show or set current mmc device [partition] and set mode\n"

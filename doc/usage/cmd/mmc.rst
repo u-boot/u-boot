@@ -15,6 +15,7 @@ Synopsis
     mmc read addr blk# cnt
     mmc write addr blk# cnt
     mmc erase blk# cnt
+    mmc erase partname
     mmc rescan [mode]
     mmc part
     mmc dev [dev] [part] [mode]
@@ -44,12 +45,15 @@ The 'mmc write' command writes raw data to MMC device from memory address with b
     cnt
         block count
 
-The 'mmc erase' command erases *cnt* blocks on the MMC device starting at block *blk#*.
+The 'mmc erase' command erases *cnt* blocks on the MMC device starting at block *blk#* or
+the entire partition specified by *partname*.
 
     blk#
         start block offset
     cnt
         block count
+    partname
+        partition name
 
 The 'mmc rescan' command scans the available MMC device.
 
