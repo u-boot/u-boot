@@ -1406,6 +1406,15 @@ config CMD_MMC_SWRITE
 	  Enable support for the "mmc swrite" command to write Android sparse
 	  images to eMMC.
 
+config MMC_SPEED_MODE_SET
+	bool "set speed mode using mmc command"
+	help
+	  Enable setting speed mode using mmc rescan and mmc dev commands.
+	  The speed mode is provided as the last argument in these commands
+	  and is indicated using the index from enum bus_mode in
+	  include/mmc.h. A speed mode can be set only if it has already
+	  been enabled in the device tree.
+
 endif
 
 config CMD_CLONE
@@ -2970,16 +2979,6 @@ config CMD_UBIFS
 	select GZIP
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
-
-config MMC_SPEED_MODE_SET
-	bool "set speed mode using mmc command"
-	depends on CMD_MMC
-	help
-	  Enable setting speed mode using mmc rescan and mmc dev commands.
-	  The speed mode is provided as the last argument in these commands
-	  and is indicated using the index from enum bus_mode in
-	  include/mmc.h. A speed mode can be set only if it has already
-	  been enabled in the device tree.
 
 config CMD_MESON
 	bool "Amlogic Meson commands"
