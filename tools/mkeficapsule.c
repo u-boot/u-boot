@@ -5,6 +5,7 @@
  */
 
 #include <getopt.h>
+#include <inttypes.h>
 #include <pe.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -691,7 +692,7 @@ static uint32_t dump_fmp_payload_header(
 static void dump_capsule_auth_header(
 	struct efi_firmware_image_authentication *capsule_auth_hdr)
 {
-	printf("EFI_FIRMWARE_IMAGE_AUTH.MONOTONIC_COUNT\t\t: %08lX\n",
+	printf("EFI_FIRMWARE_IMAGE_AUTH.MONOTONIC_COUNT\t\t: %08" PRIX64 "\n",
 	       capsule_auth_hdr->monotonic_count);
 	printf("EFI_FIRMWARE_IMAGE_AUTH.AUTH_INFO.HDR.dwLENGTH\t: %08X\n",
 	       capsule_auth_hdr->auth_info.hdr.dwLength);
@@ -724,9 +725,9 @@ static void dump_fmp_capsule_image_header(
 	       image_hdr->update_image_size);
 	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_VENDOR_CODE_SIZE\t: %08X\n",
 	       image_hdr->update_vendor_code_size);
-	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_HARDWARE_INSTANCE\t: %08lX\n",
+	printf("FMP_CAPSULE_IMAGE_HDR.UPDATE_HARDWARE_INSTANCE\t: %08" PRIX64 "\n",
 	       image_hdr->update_hardware_instance);
-	printf("FMP_CAPSULE_IMAGE_HDR.IMAGE_CAPSULE_SUPPORT\t: %08lX\n",
+	printf("FMP_CAPSULE_IMAGE_HDR.IMAGE_CAPSULE_SUPPORT\t: %08" PRIX64 "\n",
 	       image_hdr->image_capsule_support);
 
 	printf("--------\n");

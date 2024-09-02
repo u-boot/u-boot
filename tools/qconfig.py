@@ -1595,7 +1595,7 @@ def imply(args):
             if flag == 'help' or bad:
                 print("Imply flags: (separate with ',')")
                 for name, info in IMPLY_FLAGS.items():
-                    print(f' {name:-15s}: {info[1]}')
+                    print(f' {name.ljust(15)}: {info[1]}')
                 return 1
             imply_flags |= IMPLY_FLAGS[flag][0]
 

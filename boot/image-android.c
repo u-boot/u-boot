@@ -393,10 +393,9 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 	if (!android_image_get_data(hdr, vendor_boot_img, &img_data))
 		return -EINVAL;
 
-	if (!img_data.ramdisk_size) {
-		*rd_data = *rd_len = 0;
-		return -1;
-	}
+	if (!img_data.ramdisk_size)
+		return -ENOENT;
+
 	if (img_data.header_version > 2) {
 		ramdisk_ptr = img_data.ramdisk_addr;
 		memcpy((void *)(ramdisk_ptr), (void *)img_data.vendor_ramdisk_ptr,

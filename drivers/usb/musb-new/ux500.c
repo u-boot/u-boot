@@ -169,16 +169,14 @@ U_BOOT_DRIVER(ux500_musb) = {
 	.name		= "ux500-musb",
 #ifdef CONFIG_USB_MUSB_HOST
 	.id		= UCLASS_USB,
+	.ops		= &musb_usb_ops,
 #else
 	.id		= UCLASS_USB_GADGET_GENERIC,
+	.ops		= &ux500_gadget_ops,
 #endif
 	.of_match	= ux500_musb_ids,
-	.ops		= &ux500_gadget_ops,
 	.probe		= ux500_musb_probe,
 	.remove		= ux500_musb_remove,
-#ifdef CONFIG_USB_MUSB_HOST
-	.ops		= &musb_usb_ops,
-#endif
 	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct ux500_glue),
 };

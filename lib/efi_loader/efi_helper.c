@@ -74,6 +74,7 @@ out:
  */
 struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid)
 {
+	struct efi_device_path *file_path = NULL;
 	struct efi_load_option lo;
 	void *var_value;
 	efi_uintn_t size;
@@ -92,11 +93,11 @@ struct efi_device_path *efi_get_dp_from_boot(const efi_guid_t *guid)
 	if (ret != EFI_SUCCESS)
 		goto err;
 
-	return efi_dp_from_lo(&lo, guid);
+	file_path = efi_dp_from_lo(&lo, guid);
 
 err:
 	free(var_value);
-	return NULL;
+	return file_path;
 }
 
 /**

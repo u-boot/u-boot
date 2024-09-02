@@ -427,7 +427,9 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 				unmap_sysmem(ptr);
 			}
 
-			if (ret)
+			if (ret == -ENOENT)
+				return -ENOPKG;
+			else if (ret)
 				return ret;
 			done = true;
 		}
