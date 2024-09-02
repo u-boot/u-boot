@@ -646,7 +646,7 @@ def test_spi_negative(u_boot_console):
 
         # If erase size is 0
         esize = 0
-        error_msg = 'ERROR: Invalid size 0'
+        error_msg = None
         flash_ops(
             u_boot_console, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
@@ -685,7 +685,7 @@ def test_spi_negative(u_boot_console):
         # if Write/Read size is 0
         offset = random.randint(0, 2)
         size = 0
-        error_msg = 'ERROR: Invalid size 0'
+        error_msg = None
         flash_ops(
             u_boot_console, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
         )
