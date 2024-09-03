@@ -36,6 +36,16 @@ main: /usr/sbin
 x86: i386 x86_64
 '''
 
+settings_data_wrapper = '''
+# Buildman settings file
+
+[toolchain]
+main: /usr/sbin
+
+[toolchain-wrapper]
+wrapper = ccache
+'''
+
 migration = '''===================== WARNING ======================
 This board does not use CONFIG_DM. CONFIG_DM will be
 compulsory starting with the v2020.01 release.
@@ -605,6 +615,9 @@ class TestBuild(unittest.TestCase):
                          tc.GetEnvArgs(toolchain.VAR_ARCH))
         self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
 
+        tc = self.toolchains.Select('sandbox')
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
         self.toolchains.Add('/path/to/x86_64-linux-gcc', test=False)
         tc = self.toolchains.Select('x86')
         self.assertEqual('/path/to',
@@ -612,6 +625,39 @@ class TestBuild(unittest.TestCase):
         tc.override_toolchain = 'clang'
         self.assertEqual('HOSTCC=clang CC=clang',
                          tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
+
+        # Test config with ccache wrapper
+        bsettings.setup(None)
+        bsettings.add_file(settings_data_wrapper)
+
+        tc = self.toolchains.Select('arm')
+        self.assertEqual('ccache arm-linux-',
+                         tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
+        tc = self.toolchains.Select('sandbox')
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
+    def testMakeEnvironment(self):
+        """Test the MakeEnvironment function"""
+        tc = self.toolchains.Select('arm')
+        env = tc.MakeEnvironment(False)
+        self.assertEqual(env[b'CROSS_COMPILE'], b'arm-linux-')
+
+        tc = self.toolchains.Select('sandbox')
+        env = tc.MakeEnvironment(False)
+        self.assertTrue(b'CROSS_COMPILE' not in env)
+
+        # Test config with ccache wrapper
+        bsettings.setup(None)
+        bsettings.add_file(settings_data_wrapper)
+
+        tc = self.toolchains.Select('arm')
+        env = tc.MakeEnvironment(False)
+        self.assertEqual(env[b'CROSS_COMPILE'], b'ccache arm-linux-')
+
+        tc = self.toolchains.Select('sandbox')
+        env = tc.MakeEnvironment(False)
+        self.assertTrue(b'CROSS_COMPILE' not in env)
 
     def testPrepareOutputSpace(self):
         def _Touch(fname):
