@@ -185,9 +185,6 @@ endif
 dtsi_include_list = $(strip $(u_boot_dtsi_options_debug) \
 	$(notdir $(firstword $(u_boot_dtsi_options))))
 
-# The CONFIG_DEVICE_TREE_INCLUDES also need to be included
-dtsi_include_list += $(CONFIG_DEVICE_TREE_INCLUDES)
-
 # Modified for U-Boot
 upstream_dtsi_include = $(addprefix -I, $(srctree)/dts/upstream/src/ \
 	$(sort $(dir $(wildcard $(srctree)/dts/upstream/src/$(ARCH)/*/*))) \
@@ -350,7 +347,7 @@ quiet_cmd_dtc = DTC     $@
 # And finally any custom .dtsi fragments specified with CONFIG_DEVICE_TREE_INCLUDES
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 	(cat $< > $(pre-tmp)); \
-	$(foreach f,$(subst $(quote),,$(dtsi_include_list)), \
+	$(foreach f,$(subst $(quote),,$(dtsi_include_list) $(CONFIG_DEVICE_TREE_INCLUDES)), \
 	  echo '$(pound)include "$(f)"' >> $(pre-tmp);) \
 	$(HOSTCC) -E $(dtc_cpp_flags) -I$(obj) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
