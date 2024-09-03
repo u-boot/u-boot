@@ -22,6 +22,7 @@
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <lmb.h>
 #include <log.h>
 #include <net.h>
 #include <asm/cache.h>
@@ -510,6 +511,14 @@ int initr_mem(void)
 }
 #endif
 
+static int initr_lmb(void)
+{
+	if (CONFIG_IS_ENABLED(LMB))
+		return lmb_init();
+	else
+		return 0;
+}
+
 static int dm_announce(void)
 {
 	int device_count;
@@ -612,6 +621,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
+	initr_lmb,
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
 #endif

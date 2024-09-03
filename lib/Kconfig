@@ -403,7 +403,7 @@ config TRACE_EARLY_CALL_DEPTH_LIMIT
 config TRACE_EARLY_ADDR
 	hex "Address of early trace buffer in U-Boot"
 	depends on TRACE_EARLY
-	default 0x00100000
+	default 0x00200000
 	help
 	  Sets the address of the early trace buffer in U-Boot. This memory
 	  must be accessible before relocation.
@@ -1102,42 +1102,19 @@ config LMB
 	bool "Enable the logical memory blocks library (lmb)"
 	default y if ARC || ARM || M68K || MICROBLAZE || MIPS || \
 		     NIOS2 || PPC || RISCV || SANDBOX || SH || X86 || XTENSA
+	select ARCH_MISC_INIT if PPC
 	help
-	  Support the library logical memory blocks.
+	  Support the library logical memory blocks. This will require
+	  a malloc() implementation for defining the data structures
+	  needed for maintaining the LMB memory map.
 
-config LMB_USE_MAX_REGIONS
-	bool "Use a common number of memory and reserved regions in lmb lib"
-	default y
+config SPL_LMB
+	bool "Enable LMB module for SPL"
+	depends on SPL && SPL_FRAMEWORK && SPL_SYS_MALLOC
 	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  This feature allow to reduce the lmb library size by using compiler
-	  optimization when LMB_MEMORY_REGIONS == LMB_RESERVED_REGIONS.
-
-config LMB_MAX_REGIONS
-	int "Number of memory and reserved regions in lmb lib"
-	depends on LMB_USE_MAX_REGIONS
-	default 16
-	help
-	  Define the number of supported regions, memory and reserved, in the
-	  library logical memory blocks.
-
-config LMB_MEMORY_REGIONS
-	int "Number of memory regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
-	help
-	  Define the number of supported memory regions in the library logical
-	  memory blocks.
-	  The minimal value is CONFIG_NR_DRAM_BANKS.
-
-config LMB_RESERVED_REGIONS
-	int "Number of reserved regions in lmb lib"
-	depends on !LMB_USE_MAX_REGIONS
-	default 8
-	help
-	  Define the number of supported reserved regions in the library logical
-	  memory blocks.
+	  Enable support for Logical Memory Block library routines in
+	  SPL. This will require a malloc() implementation for defining
+	  the data structures needed for maintaining the LMB memory map.
 
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"

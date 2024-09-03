@@ -12,7 +12,6 @@
 #include <image.h>
 #include <init.h>
 #include <jffs2/load_kernel.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
@@ -662,38 +661,6 @@ int embedded_dtb_select(void)
 		}
 	}
 	return 0;
-}
-#endif
-
-#if defined(CONFIG_LMB)
-
-#ifndef MMU_SECTION_SIZE
-#define MMU_SECTION_SIZE        (1 * 1024 * 1024)
-#endif
-
-phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
-{
-	phys_size_t size;
-	phys_addr_t reg;
-	struct lmb lmb;
-
-	if (!total_size)
-		return gd->ram_top;
-
-	if (!IS_ALIGNED((ulong)gd->fdt_blob, 0x8))
-		panic("Not 64bit aligned DT location: %p\n", gd->fdt_blob);
-
-	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_init(&lmb);
-	lmb_add(&lmb, gd->ram_base, gd->ram_size);
-	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
-	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
-	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
-
-	if (!reg)
-		reg = gd->ram_top - size;
-
-	return reg + size;
 }
 #endif
 

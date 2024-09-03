@@ -73,12 +73,9 @@ static ulong wget_load_size;
  */
 static int wget_init_load_size(void)
 {
-	struct lmb lmb;
 	phys_size_t max_size;
 
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-
-	max_size = lmb_get_free_size(&lmb, image_load_addr);
+	max_size = lmb_get_free_size(image_load_addr);
 	if (!max_size)
 		return -1;
 
@@ -99,7 +96,7 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	ulong newsize = offset + len;
 	uchar *ptr;
 
-	if (IS_ENABLED(CONFIG_LMB)) {
+	if (CONFIG_IS_ENABLED(LMB)) {
 		ulong end_addr = image_load_addr + wget_load_size;
 
 		if (!end_addr)
@@ -496,7 +493,7 @@ void wget_start(void)
 	debug_cond(DEBUG_WGET,
 		   "\nwget:Load address: 0x%lx\nLoading: *\b", image_load_addr);
 
-	if (IS_ENABLED(CONFIG_LMB)) {
+	if (CONFIG_IS_ENABLED(LMB)) {
 		if (wget_init_load_size()) {
 			printf("\nwget error: ");
 			printf("trying to overwrite reserved memory...\n");
