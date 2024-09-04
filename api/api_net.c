@@ -51,6 +51,7 @@ int dev_close_net(void *cookie)
 /*
  * There can only be one active eth interface at a time - use what is
  * currently set to eth_current
+ * Shiva added the comment
  */
 int dev_enum_net(struct device_info *di)
 {
