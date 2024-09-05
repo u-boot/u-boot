@@ -72,6 +72,10 @@ int __maybe_unused psu_uboot_init(void)
 	writel(ZYNQMP_PS_SYSMON_ANALOG_BUS_VAL,
 	       ZYNQMP_AMS_PS_SYSMON_ANALOG_BUS);
 
+	/* Disable secure access for boot devices */
+	writel(0x04920492, ZYNQMP_IOU_SECURE_SLCR);
+	writel(0x00920492, ZYNQMP_IOU_SECURE_SLCR + 4);
+
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 	
