@@ -14,6 +14,7 @@
 #include <sparse_format.h>
 #include <image-sparse.h>
 #include <vsprintf.h>
+#include <linux/ctype.h>
 
 static int curr_device = -1;
 
@@ -918,8 +919,9 @@ static int mmc_partconf_print(struct mmc *mmc, const char *varname)
 
 	printf("EXT_CSD[179], PARTITION_CONFIG:\n"
 		"BOOT_ACK: 0x%x\n"
-		"BOOT_PARTITION_ENABLE: 0x%x\n"
-		"PARTITION_ACCESS: 0x%x\n", ack, part, access);
+		"BOOT_PARTITION_ENABLE: 0x%x (%s)\n"
+		"PARTITION_ACCESS: 0x%x (%s)\n", ack, part, emmc_boot_part_names[part],
+		access, emmc_hwpart_names[access]);
 
 	return CMD_RET_SUCCESS;
 }
@@ -948,9 +950,26 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 2 || argc == 3)
 		return mmc_partconf_print(mmc, cmd_arg2(argc, argv));
 
+	/* BOOT_ACK */
 	ack = dectoul(argv[2], NULL);
-	part_num = dectoul(argv[3], NULL);
-	access = dectoul(argv[4], NULL);
+	/* BOOT_PARTITION_ENABLE */
+	if (!isdigit(*argv[3])) {
+		for (part_num = ARRAY_SIZE(emmc_boot_part_names) - 1; part_num > 0; part_num--) {
+			if (!strcmp(argv[3], emmc_boot_part_names[part_num]))
+				break;
+		}
+	} else {
+		part_num = dectoul(argv[3], NULL);
+	}
+	/* PARTITION_ACCESS */
+	if (!isdigit(*argv[4])) {
+		for (access = ARRAY_SIZE(emmc_hwpart_names) - 1; access > 0; access--) {
+			if (!strcmp(argv[4], emmc_hwpart_names[access]))
+				break;
+		}
+	} else {
+		access = dectoul(argv[4], NULL);
+	}
 
 	/* acknowledge to be sent during boot operation */
 	ret = mmc_set_part_conf(mmc, ack, part_num, access);

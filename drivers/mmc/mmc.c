@@ -30,6 +30,41 @@
 
 #define DEFAULT_CMD6_TIMEOUT_MS  500
 
+/**
+ * names of emmc BOOT_PARTITION_ENABLE values
+ *
+ * Boot Area Partitions - name consistent with Linux
+ */
+const char *emmc_boot_part_names[] = {
+	"default",	/* EMMC_BOOT_PART_DEFAULT */
+	"boot0",	/* EMMC_BOOT_PART_BOOT1 */
+	"boot1",	/* EMMC_BOOT_PART_BOOT2 */
+	"",
+	"",
+	"",
+	"",
+	"user",		/* EMMC_BOOT_PART_USER */
+};
+
+/**
+ * names of emmc 'hardware partitions' consistent with:
+ *  - value used in mmc_switch()
+ *  - value used by PARTITION_CONFIG PARTITION_ACCESS field
+ *
+ * Boot Area Partitions - name consistent with Linux
+ * General Perpose Partitions - name consistent with 'mmc hwpartition' usage
+ */
+const char *emmc_hwpart_names[] = {
+	"user",		/* EMMC_HWPART_DEFAULT */
+	"boot0",	/* EMMC_HWPART_BOOT1 */
+	"boot1",	/* EMMC_HWPART_BOOT2 */
+	"rpmb",		/* EMMC_HWPART_RPMB */
+	"gp1",		/* EMMC_HWPART_GP1 */
+	"gp2",		/* EMMC_HWPART_GP2 */
+	"gp3",		/* EMMC_HWPART_GP3 */
+	"gp4",		/* EMMC_HWPART_GP4 */
+};
+
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
