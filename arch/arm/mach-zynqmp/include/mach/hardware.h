@@ -132,6 +132,9 @@ struct crfapb_regs {
 
 #define crfapb_base ((struct crfapb_regs *)ZYNQMP_CRF_APB_BASEADDR)
 
+#define ZYNQMP_CCI_REG_CCI_MISC_CTRL	0xFD5E0040
+#define ZYNQMP_CCI_REG_CCI_MISC_CTRL_NIDEN	BIT(1)
+
 #define ZYNQMP_APU_BASEADDR	0xFD5C0000
 
 struct apu_regs {

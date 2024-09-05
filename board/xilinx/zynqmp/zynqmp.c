@@ -76,6 +76,10 @@ int __maybe_unused psu_uboot_init(void)
 	writel(0x04920492, ZYNQMP_IOU_SECURE_SLCR);
 	writel(0x00920492, ZYNQMP_IOU_SECURE_SLCR + 4);
 
+	/* Enable CCI PMU events */
+	writel(ZYNQMP_CCI_REG_CCI_MISC_CTRL_NIDEN,
+	       ZYNQMP_CCI_REG_CCI_MISC_CTRL);
+
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 	
