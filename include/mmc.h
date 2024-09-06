@@ -14,6 +14,7 @@
 #include <linux/sizes.h>
 #include <linux/compiler.h>
 #include <linux/dma-direction.h>
+#include <cyclic.h>
 #include <part.h>
 
 struct bd_info;
@@ -757,6 +758,8 @@ struct mmc {
 	bool hs400_tuning:1;
 
 	enum bus_mode user_speed_mode; /* input speed mode from user */
+
+	CONFIG_IS_ENABLED(CYCLIC, (struct cyclic_info cyclic));
 };
 
 #if CONFIG_IS_ENABLED(DM_MMC)
