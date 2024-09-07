@@ -224,7 +224,7 @@ endif # USB_GADGET_DOWNLOAD
 
 config USB_ETHER
 	bool "USB Ethernet Gadget"
-	depends on NET
+	depends on NET || NET_LWIP
 	default y if ARCH_SUNXI && USB_MUSB_GADGET
 	help
 	  Creates an Ethernet network device through a USB peripheral
@@ -324,6 +324,7 @@ config SPL_DFU
 	select SPL_HASH
 	select SPL_DFU_NO_RESET
 	depends on SPL_RAM_SUPPORT
+	depends on DFU_OVER_USB
 	help
 	  This feature enables the DFU (Device Firmware Upgrade) in SPL with
 	  RAM memory device support. The ROM code will load and execute

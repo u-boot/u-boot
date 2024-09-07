@@ -26,7 +26,8 @@
 
 #include "fm.h"
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) && !defined(BITBANGMII)
+#if ((defined(CONFIG_MII) || defined(CONFIG_CMD_MII)) && \
+     !defined(CONFIG_BITBANGMII))
 
 #define TBIANA_SETTINGS (TBIANA_ASYMMETRIC_PAUSE | TBIANA_SYMMETRIC_PAUSE | \
 			 TBIANA_FULL_DUPLEX)
@@ -701,8 +702,11 @@ static int init_phy(struct fm_eth *fm_eth)
 		supported |= SUPPORTED_2500baseX_Full;
 #endif
 
-	if (fm_eth->type == FM_ETH_1G_E)
-		dtsec_init_phy(fm_eth);
+	if ((IS_ENABLED(CONFIG_MII) || IS_ENABLED(CONFIG_CMD_MII)) &&
+	    !IS_ENABLED(CONFIG_BITBANGMII)) {
+		if (fm_eth->type == FM_ETH_1G_E)
+			dtsec_init_phy(fm_eth);
+	}
 
 #ifdef CONFIG_PHYLIB
 #ifdef CONFIG_DM_MDIO

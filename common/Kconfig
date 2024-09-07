@@ -424,7 +424,7 @@ config LOGF_FUNC_PAD
 
 config LOG_SYSLOG
 	bool "Log output to syslog server"
-	depends on NET
+	depends on NET || NET_LWIP
 	help
 	  Enables a log driver which broadcasts log records via UDP port 514
 	  to syslog servers.
@@ -934,6 +934,7 @@ menu "Update support"
 config UPDATE_COMMON
 	bool
 	select DFU_WRITE_ALT
+	imply CMD_TFTPBOOT
 
 config UPDATE_TFTP
 	bool "Auto-update using fitImage via TFTP"

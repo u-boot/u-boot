@@ -159,6 +159,8 @@ class Toolchain:
         if which == VAR_CROSS_COMPILE:
             wrapper = self.GetWrapper()
             base = '' if self.arch == 'sandbox' else self.path
+            if (base == '' and self.cross == ''):
+                return ''
             return wrapper + os.path.join(base, self.cross)
         elif which == VAR_PATH:
             return self.path
@@ -208,10 +210,10 @@ class Toolchain:
         if self.override_toolchain:
             # We'll use MakeArgs() to provide this
             pass
-        elif full_path:
+        elif full_path and self.cross:
             env[b'CROSS_COMPILE'] = tools.to_bytes(
                 wrapper + os.path.join(self.path, self.cross))
-        else:
+        elif self.cross:
             env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
 
             # Detect a Python virtualenv and avoid defeating it

@@ -334,17 +334,22 @@ void net_auto_load(void)
 		net_set_state(NETLOOP_SUCCESS);
 		return;
 	}
-	if (net_check_prereq(TFTPGET)) {
-/* We aren't expecting to get a serverip, so just accept the assigned IP */
-		if (IS_ENABLED(CONFIG_BOOTP_SERVERIP)) {
-			net_set_state(NETLOOP_SUCCESS);
-		} else {
-			printf("Cannot autoload with TFTPGET\n");
-			net_set_state(NETLOOP_FAIL);
+	if (IS_ENABLED(CONFIG_CMD_TFTPBOOT)) {
+		if (net_check_prereq(TFTPGET)) {
+			/*
+			 * We aren't expecting to get a serverip, so just
+			 * accept the assigned IP
+			 */
+			if (IS_ENABLED(CONFIG_BOOTP_SERVERIP)) {
+				net_set_state(NETLOOP_SUCCESS);
+			} else {
+				printf("Cannot autoload with TFTPGET\n");
+				net_set_state(NETLOOP_FAIL);
+			}
+			return;
 		}
-		return;
+		tftp_start(TFTPGET);
 	}
-	tftp_start(TFTPGET);
 }
 
 static int net_init_loop(void)
@@ -1682,18 +1687,6 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 	ip->udp_dst  = htons(dport);
 	ip->udp_len  = htons(UDP_HDR_SIZE + len);
 	ip->udp_xsum = 0;
-}
-
-void copy_filename(char *dst, const char *src, int size)
-{
-	if (src && *src && (*src == '"')) {
-		++src;
-		--size;
-	}
-
-	while ((--size > 0) && src && *src && (*src != '"'))
-		*dst++ = *src++;
-	*dst = '\0';
 }
 
 int is_serverip_in_cmd(void)

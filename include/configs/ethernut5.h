@@ -55,9 +55,7 @@
 #endif
 
 /* RTC */
-#if defined(CONFIG_CMD_DATE) || defined(CONFIG_CMD_SNTP)
 #define CFG_SYS_I2C_RTC_ADDR		0x51
-#endif
 
 #define I2C_SOFT_DECLARATIONS
 
