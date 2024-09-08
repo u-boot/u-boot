@@ -246,6 +246,13 @@ static int dm_test_phy_setup(struct unit_test_state *uts)
 	ut_assertok(generic_setup_phy(parent, &phy, 0, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
+	/* set_mode as USB Host passes, anything else is not supported */
+	ut_assertok(generic_setup_phy(parent, &phy, 0, PHY_MODE_USB_HOST, 0));
+	ut_assertok(generic_phy_set_mode(&phy, PHY_MODE_USB_HOST, 0));
+	ut_asserteq(-EOPNOTSUPP, generic_phy_set_mode(&phy, PHY_MODE_USB_HOST, 1));
+	ut_asserteq(-EINVAL, generic_phy_set_mode(&phy, PHY_MODE_USB_DEVICE, 0));
+	ut_assertok(generic_shutdown_phy(&phy));
+
 	/* power_off fail with -EIO */
 	ut_assertok(generic_setup_phy(parent, &phy, 1, PHY_MODE_USB_HOST, 0));
 	ut_asserteq(-EIO, generic_shutdown_phy(&phy));
