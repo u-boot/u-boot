@@ -17,6 +17,7 @@ dtb-$(CONFIG_BOARD_HUAWEI_HG556A) += huawei,hg556a.dtb
 dtb-$(CONFIG_BOARD_INTENO_XG6846) += inteno,xg6846.dtb
 dtb-$(CONFIG_BOARD_MT7620_RFB) += mediatek,mt7620-rfb.dtb
 dtb-$(CONFIG_BOARD_MT7620_MT7530_RFB) += mediatek,mt7620-mt7530-rfb.dtb
+dtb-$(CONFIG_BOARD_EDUP_EP2913) += mediatek,edup_ep-2913.dtb
 dtb-$(CONFIG_BOARD_MT7621_RFB) += mediatek,mt7621-rfb.dtb
 dtb-$(CONFIG_BOARD_MT7621_NAND_RFB) += mediatek,mt7621-nand-rfb.dtb
 dtb-$(CONFIG_BOARD_MT7628_RFB) += mediatek,mt7628-rfb.dtb
