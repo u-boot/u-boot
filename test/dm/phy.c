@@ -243,20 +243,20 @@ static int dm_test_phy_setup(struct unit_test_state *uts)
 					      "gen_phy_user", &parent));
 
 	/* normal */
-	ut_assertok(generic_setup_phy(parent, &phy, 0));
+	ut_assertok(generic_setup_phy(parent, &phy, 0, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	/* power_off fail with -EIO */
-	ut_assertok(generic_setup_phy(parent, &phy, 1));
+	ut_assertok(generic_setup_phy(parent, &phy, 1, PHY_MODE_USB_HOST, 0));
 	ut_asserteq(-EIO, generic_shutdown_phy(&phy));
 
 	/* power_on fail with -EIO */
-	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2));
+	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	/* generic_phy_get_by_index fail with -ENOENT */
 	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3, &phy));
-	ut_assertok(generic_setup_phy(parent, &phy, 3));
+	ut_assertok(generic_setup_phy(parent, &phy, 3, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	return 0;
