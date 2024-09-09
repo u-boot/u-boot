@@ -8,6 +8,7 @@
 #include <android_bootloader_message.h>
 #include <bcb.h>
 #include <command.h>
+#include <android_ab.h>
 #include <display_options.h>
 #include <log.h>
 #include <part.h>
@@ -23,6 +24,7 @@ enum bcb_cmd {
 	BCB_CMD_FIELD_TEST,
 	BCB_CMD_FIELD_DUMP,
 	BCB_CMD_STORE,
+	BCB_CMD_AB_SELECT,
 };
 
 static const char * const fields[] = {
@@ -52,6 +54,8 @@ static int bcb_cmd_get(char *cmd)
 		return BCB_CMD_STORE;
 	if (!strcmp(cmd, "dump"))
 		return BCB_CMD_FIELD_DUMP;
+	if (!strcmp(cmd, "ab_select"))
+		return BCB_CMD_AB_SELECT;
 	else
 		return -1;
 }
@@ -85,6 +89,10 @@ static int bcb_is_misused(int argc, char *const argv[])
 		if (argc != 2)
 			goto err;
 		break;
+	case BCB_CMD_AB_SELECT:
+		if (argc != 4 && argc != 5)
+			goto err;
+		return 0;
 	default:
 		printf("Error: 'bcb %s' not supported\n", argv[0]);
 		return -1;
@@ -414,6 +422,44 @@ void bcb_reset(void)
 	__bcb_reset();
 }
 
+static int do_bcb_ab_select(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char * const argv[])
+{
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+	char slot[2];
+	bool dec_tries = true;
+
+	for (int i = 4; i < argc; i++) {
+		if (strcmp(argv[i], "--no-dec") == 0)
+			dec_tries = false;
+		else
+			return CMD_RET_USAGE;
+	}
+
+	/* Lookup the "misc" partition from argv[2] and argv[3] */
+	if (part_get_info_by_dev_and_name_or_num(argv[2], argv[3],
+						 &dev_desc, &part_info,
+						 false) < 0) {
+		return CMD_RET_FAILURE;
+	}
+
+	ret = ab_select_slot(dev_desc, &part_info, dec_tries);
+	if (ret < 0) {
+		printf("Android boot failed, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	/* Android standard slot names are 'a', 'b', ... */
+	slot[0] = BOOT_SLOT_NAME(ret);
+	slot[1] = '\0';
+	env_set(argv[1], slot);
+	printf("ANDROID: Booting slot: %s\n", slot);
+
+	return CMD_RET_SUCCESS;
+}
+
 static struct cmd_tbl cmd_bcb_sub[] = {
 	U_BOOT_CMD_MKENT(load, CONFIG_SYS_MAXARGS, 1, do_bcb_load, "", ""),
 	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 1, do_bcb_set, "", ""),
@@ -421,6 +467,8 @@ static struct cmd_tbl cmd_bcb_sub[] = {
 	U_BOOT_CMD_MKENT(test, CONFIG_SYS_MAXARGS, 1, do_bcb_test, "", ""),
 	U_BOOT_CMD_MKENT(dump, CONFIG_SYS_MAXARGS, 1, do_bcb_dump, "", ""),
 	U_BOOT_CMD_MKENT(store, CONFIG_SYS_MAXARGS, 1, do_bcb_store, "", ""),
+	U_BOOT_CMD_MKENT(ab_select, CONFIG_SYS_MAXARGS, 1,
+			 do_bcb_ab_select, "", ""),
 };
 
 static int do_bcb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
@@ -459,6 +507,21 @@ U_BOOT_CMD(
 	"bcb test  <field> <op> <val>   - test  BCB <field> against <val>\n"
 	"bcb dump  <field>              - dump  BCB <field>\n"
 	"bcb store                      - store BCB back to <interface>\n"
+	"\n"
+	"bcb ab_select -\n"
+	"    Select the slot used to boot from and register the boot attempt.\n"
+	"    <slot_var_name> <interface> <dev[:part|#part_name]> [--no-dec]\n"
+	"    - Load the slot metadata from the partition 'part' on\n"
+	"      device type 'interface' instance 'dev' and store the active\n"
+	"      slot in the 'slot_var_name' variable. This also updates the\n"
+	"      Android slot metadata with a boot attempt, which can cause\n"
+	"      successive calls to this function to return a different result\n"
+	"      if the returned slot runs out of boot attempts.\n"
+	"    - If 'part_name' is passed, preceded with a # instead of :, the\n"
+	"      partition name whose label is 'part_name' will be looked up in\n"
+	"      the partition table. This is commonly the \"misc\" partition.\n"
+	"    - If '--no-dec' is set, the number of tries remaining will not\n"
+	"      decremented for the selected boot slot\n"
 	"\n"
 	"Legend:\n"
 	"<interface> - storage device interface (virtio, mmc, etc)\n"

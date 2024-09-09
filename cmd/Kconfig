@@ -1067,6 +1067,7 @@ config CMD_ADC
 config CMD_BCB
 	bool "bcb"
 	depends on PARTITIONS
+	depends on ANDROID_AB
 	help
 	  Read/modify/write the fields of Bootloader Control Block, usually
 	  stored on the flash "misc" partition with its structure defined in:
@@ -1786,20 +1787,6 @@ config CMD_XXD
 	bool "xxd"
 	help
 	  Print file as hexdump to standard output
-
-endmenu
-
-menu "Android support commands"
-
-config CMD_AB_SELECT
-	bool "ab_select"
-	depends on ANDROID_AB
-	help
-	  On Android devices with more than one boot slot (multiple copies of
-	  the kernel and system images) this provides a command to select which
-	  slot should be used to boot from and register the boot attempt. This
-	  is used by the new A/B update model where one slot is updated in the
-	  background while running from the other slot.
 
 endmenu
 
