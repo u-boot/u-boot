@@ -85,6 +85,9 @@ static int fwu_bank_state_update(bool trial_state, uint32_t bank)
 	struct fwu_data *data = fwu_get_data();
 	struct fwu_mdata *mdata = data->fwu_mdata;
 
+	if (!trial_state && !fwu_bank_accepted(data, bank))
+		return 0;
+
 	mdata->bank_state[bank] = data->bank_state[bank] = trial_state ?
 		FWU_BANK_VALID : FWU_BANK_ACCEPTED;
 
