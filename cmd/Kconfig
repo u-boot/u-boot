@@ -1079,13 +1079,10 @@ config CMD_BIND
 	  gadget driver from the command line.
 
 config CMD_CLK
-	bool "clk - Show clock frequencies"
+	bool "clk - Show and set clock frequencies"
+	depends on CLK
 	help
-	  (deprecated)
-	  Shows clock frequences by calling a sock_clk_dump() hook function.
-	  This is depreated in favour of using the CLK uclass and accessing
-	  clock values from associated drivers. However currently no command
-	  exists for this.
+	  Show and set clock frequencies managed by CLK uclass drivers.
 
 config CMD_DEMO
 	bool "demo - Demonstration commands for driver model"
