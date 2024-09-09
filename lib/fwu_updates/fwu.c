@@ -113,6 +113,8 @@ static int fwu_trial_count_update(void)
 		ret = fwu_revert_boot_index();
 		if (ret)
 			log_err("Unable to revert active_index\n");
+
+		trial_counter_update(NULL);
 		ret = 1;
 	} else {
 		log_info("Trial State count: attempt %d out of %d\n",
@@ -762,8 +764,8 @@ static int fwu_boottime_checks(void)
 		return 0;
 
 	in_trial = in_trial_state();
-	if (!in_trial || (ret = fwu_trial_count_update()) > 0)
-		ret = trial_counter_update(NULL);
+
+	ret = in_trial ? fwu_trial_count_update() : trial_counter_update(NULL);
 
 	if (!ret)
 		boottime_check = 1;
