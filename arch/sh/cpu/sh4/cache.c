@@ -33,8 +33,9 @@ static inline void cache_wback_all(void)
 	}
 }
 
-#define CACHE_ENABLE      0
-#define CACHE_DISABLE     1
+#define CACHE_ENABLE		0
+#define CACHE_DISABLE		1
+#define CACHE_INVALIDATE	2
 
 static int cache_control(unsigned int cmd)
 {
@@ -46,7 +47,9 @@ static int cache_control(unsigned int cmd)
 	if (ccr & CCR_CACHE_ENABLE)
 		cache_wback_all();
 
-	if (cmd == CACHE_DISABLE)
+	if (cmd == CACHE_INVALIDATE)
+		outl(CCR_CACHE_ICI | ccr, CCR);
+	else if (cmd == CACHE_DISABLE)
 		outl(CCR_CACHE_STOP, CCR);
 	else
 		outl(CCR_CACHE_INIT, CCR);
@@ -103,7 +106,7 @@ void icache_disable(void)
 
 void invalidate_icache_all(void)
 {
-	puts("No arch specific invalidate_icache_all available!\n");
+	cache_control(CACHE_INVALIDATE);
 }
 
 int icache_status(void)
