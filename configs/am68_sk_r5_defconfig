@@ -8,3 +8,4 @@ CONFIG_TARGET_J721S2_R5_EVM=y
 CONFIG_DEFAULT_DEVICE_TREE="k3-am68-sk-r5-base-board"
 CONFIG_SPL_OF_LIST="k3-am68-sk-r5-base-board"
 CONFIG_OF_LIST="k3-am68-sk-r5-base-board"
+CONFIG_MBEDTLS_LIB=y
