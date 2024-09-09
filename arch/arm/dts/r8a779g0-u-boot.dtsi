@@ -8,7 +8,6 @@
 #include "r8a779x-u-boot.dtsi"
 
 &rpc {
-	reg = <0 0xee200000 0 0x200>, <0 0x08000000 0 0x04000000>;
 	bank-width = <2>;
 	num-cs = <1>;
 };

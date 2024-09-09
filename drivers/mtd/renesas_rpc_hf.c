@@ -387,6 +387,7 @@ static int rpc_hf_probe(struct udevice *dev)
 static const struct udevice_id rpc_hf_ids[] = {
 	{ .compatible = "renesas,r7s72100-rpc-if" },
 	{ .compatible = "renesas,rcar-gen3-rpc-if" },
+	{ .compatible = "renesas,rcar-gen4-rpc-if" },
 	{}
 };
 
