@@ -60,3 +60,4 @@ CONFIG_FAT_WRITE=y
 # CONFIG_GZIP is not set
 # CONFIG_EFI_LOADER is not set
 # CONFIG_LMB is not set
+CONFIG_MBEDTLS_LIB=y
