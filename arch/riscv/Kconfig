@@ -308,7 +308,10 @@ config TPL_USE_ARCH_STRNCMP
 endmenu
 
 config RISCV_ISA_A
-	def_bool y
+	bool "Standard extension for Atomic Instructions"
+	default y
+	help
+	  Adds "A" to the ISA string passed to the compiler.
 
 config DMA_ADDR_T_64BIT
 	bool
