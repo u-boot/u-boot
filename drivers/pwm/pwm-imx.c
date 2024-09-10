@@ -20,10 +20,11 @@ int pwm_config_internal(struct pwm_regs *pwm, unsigned long period_cycles,
 	u32 cr;
 
 	writel(0, &pwm->ir);
-	cr = PWMCR_PRESCALER(prescale) |
+
+	cr = readl(&pwm->cr) & PWMCR_EN;
+	cr |= PWMCR_PRESCALER(prescale) |
 		PWMCR_DOZEEN | PWMCR_WAITEN |
 		PWMCR_DBGEN | PWMCR_CLKSRC_IPG_HIGH;
-
 	writel(cr, &pwm->cr);
 	/* set duty cycles */
 	writel(duty_cycles, &pwm->sar);
