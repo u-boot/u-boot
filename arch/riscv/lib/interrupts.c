@@ -34,9 +34,8 @@ static void show_efi_loaded_images(uintptr_t epc)
 	efi_print_image_infos((void *)epc);
 }
 
-static void show_regs(struct pt_regs *regs)
+static void __maybe_unused show_regs(struct pt_regs *regs)
 {
-#ifdef CONFIG_SHOW_REGS
 	printf("\nSP:  " REG_FMT " GP:  " REG_FMT " TP:  " REG_FMT "\n",
 	       regs->sp, regs->gp, regs->tp);
 	printf("T0:  " REG_FMT " T1:  " REG_FMT " T2:  " REG_FMT "\n",
@@ -57,7 +56,6 @@ static void show_regs(struct pt_regs *regs)
 	       regs->s10, regs->s11, regs->t3);
 	printf("T4:  " REG_FMT " T5:  " REG_FMT " T6:  " REG_FMT "\n",
 	       regs->t4, regs->t5, regs->t6);
-#endif
 }
 
 static void __maybe_unused show_backtrace(struct pt_regs *regs)
@@ -157,7 +155,8 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
 		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n",
 		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
 
-	show_regs(regs);
+	if (CONFIG_IS_ENABLED(SHOW_REGS))
+		show_regs(regs);
 	if (CONFIG_IS_ENABLED(FRAMEPOINTER))
 		show_backtrace(regs);
 	show_code(epc);
