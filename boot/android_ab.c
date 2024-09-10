@@ -13,12 +13,12 @@
 #include <u-boot/crc.h>
 
 /**
- * Compute the CRC-32 of the bootloader control struct.
+ * ab_control_compute_crc() - Compute the CRC32 of the bootloader control.
+ *
+ * @abc: Bootloader control block
  *
  * Only the bytes up to the crc32_le field are considered for the CRC-32
  * calculation.
- *
- * @param[in] abc bootloader control block
  *
  * Return: crc32 sum
  */
@@ -28,13 +28,13 @@ static uint32_t ab_control_compute_crc(struct bootloader_control *abc)
 }
 
 /**
- * Initialize bootloader_control to the default value.
+ * ab_control_default() - Initialize bootloader_control to the default value.
+ *
+ * @abc: Bootloader control block
  *
  * It allows us to boot all slots in order from the first one. This value
  * should be used when the bootloader message is corrupted, but not when
  * a valid message indicates that all slots are unbootable.
- *
- * @param[in] abc bootloader control block
  *
  * Return: 0 on success and a negative on error
  */
@@ -67,7 +67,13 @@ static int ab_control_default(struct bootloader_control *abc)
 }
 
 /**
- * Load the boot_control struct from disk into newly allocated memory.
+ * ab_control_create_from_disk() - Load the boot_control from disk into memory.
+ *
+ * @dev_desc: Device where to read the boot_control struct from
+ * @part_info: Partition in 'dev_desc' where to read from, normally
+ *             the "misc" partition should be used
+ * @abc: pointer to pointer to bootloader_control data
+ * @offset: boot_control struct offset
  *
  * This function allocates and returns an integer number of disk blocks,
  * based on the block size of the passed device to help performing a
@@ -75,10 +81,6 @@ static int ab_control_default(struct bootloader_control *abc)
  * The boot_control struct offset (2 KiB) must be a multiple of the device
  * block size, for simplicity.
  *
- * @param[in] dev_desc Device where to read the boot_control struct from
- * @param[in] part_info Partition in 'dev_desc' where to read from, normally
- *			the "misc" partition should be used
- * @param[out] pointer to pointer to bootloader_control data
  * Return: 0 on success and a negative on error
  */
 static int ab_control_create_from_disk(struct blk_desc *dev_desc,
@@ -122,15 +124,17 @@ static int ab_control_create_from_disk(struct blk_desc *dev_desc,
 }
 
 /**
- * Store the loaded boot_control block.
+ * ab_control_store() - Store the loaded boot_control block.
+ *
+ * @dev_desc: Device where we should write the boot_control struct
+ * @part_info: Partition on the 'dev_desc' where to write
+ * @abc Pointer to the boot control struct and the extra bytes after
+ *      it up to the nearest block boundary
+ * @offset: boot_control struct offset
  *
  * Store back to the same location it was read from with
  * ab_control_create_from_misc().
  *
- * @param[in] dev_desc Device where we should write the boot_control struct
- * @param[in] part_info Partition on the 'dev_desc' where to write
- * @param[in] abc Pointer to the boot control struct and the extra bytes after
- *                it up to the nearest block boundary
  * Return: 0 on success and a negative on error
  */
 static int ab_control_store(struct blk_desc *dev_desc,
@@ -160,12 +164,13 @@ static int ab_control_store(struct blk_desc *dev_desc,
 }
 
 /**
- * Compare two slots.
+ * ab_compare_slots() - Compare two slots.
+ *
+ * @a: The first bootable slot metadata
+ * @b: The second bootable slot metadata
  *
  * The function determines slot which is should we boot from among the two.
  *
- * @param[in] a The first bootable slot metadata
- * @param[in] b The second bootable slot metadata
  * Return: Negative if the slot "a" is better, positive of the slot "b" is
  *         better or 0 if they are equally good.
  */
