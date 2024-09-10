@@ -9,6 +9,7 @@ obj-$(CONFIG_$(SPL_)ANDES_PLMT_TIMER) += andes_plmt_timer.o
 obj-$(CONFIG_ARC_TIMER)	+= arc_timer.o
 obj-$(CONFIG_ARM_TWD_TIMER)	+= arm_twd_timer.o
 obj-$(CONFIG_AST_TIMER)	+= ast_timer.o
+obj-$(CONFIG_AST_IBEX_TIMER)	+= ast_ibex_timer.o
 obj-$(CONFIG_ATCPIT100_TIMER) += atcpit100_timer.o
 obj-$(CONFIG_$(SPL_)ATMEL_PIT_TIMER) += atmel_pit_timer.o
 obj-$(CONFIG_$(SPL_)ATMEL_TCB_TIMER) += atmel_tcb_timer.o
