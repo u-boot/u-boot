@@ -696,6 +696,8 @@ struct ufs_dev_cmd {
 
 struct ufs_hba_ops {
 	int (*init)(struct ufs_hba *hba);
+	int (*get_max_pwr_mode)(struct ufs_hba *hba,
+				struct ufs_pwr_mode_info *max_pwr_info);
 	int (*hce_enable_notify)(struct ufs_hba *hba,
 				 enum ufs_notify_change_status);
 	int (*link_startup_notify)(struct ufs_hba *hba,
@@ -899,6 +901,15 @@ static inline int ufshcd_ops_init(struct ufs_hba *hba)
 {
 	if (hba->ops && hba->ops->init)
 		return hba->ops->init(hba);
+
+	return 0;
+}
+
+static inline int ufshcd_ops_get_max_pwr_mode(struct ufs_hba *hba,
+					      struct ufs_pwr_mode_info *max_pwr_info)
+{
+	if (hba->ops && hba->ops->get_max_pwr_mode)
+		return hba->ops->get_max_pwr_mode(hba, max_pwr_info);
 
 	return 0;
 }

@@ -1744,7 +1744,7 @@ static int ufshcd_get_max_pwr_mode(struct ufs_hba *hba)
 	}
 
 	hba->max_pwr_info.is_valid = true;
-	return 0;
+	return ufshcd_ops_get_max_pwr_mode(hba, &hba->max_pwr_info);
 }
 
 static int ufshcd_change_power_mode(struct ufs_hba *hba,
