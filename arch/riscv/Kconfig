@@ -453,7 +453,7 @@ config RISCV_PRIV_1_9
 	  memory is configured was also changed.
 
 config STACK_SIZE_SHIFT
-	int
+	int "Stack size shift"
 	default 14
 
 config OF_BOARD_FIXUP
