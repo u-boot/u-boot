@@ -323,7 +323,7 @@ config SPL_DFU
 	bool "Support DFU (Device Firmware Upgrade) in SPL"
 	select SPL_HASH
 	select SPL_DFU_NO_RESET
-	depends on SPL_RAM_SUPPORT
+	select SPL_RAM_SUPPORT
 	help
 	  This feature enables the DFU (Device Firmware Upgrade) in SPL with
 	  RAM memory device support. The ROM code will load and execute
