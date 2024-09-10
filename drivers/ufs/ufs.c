@@ -125,6 +125,11 @@ static void ufshcd_print_pwr_info(struct ufs_hba *hba)
 		hba->pwr_info.hs_rate);
 }
 
+static void ufshcd_device_reset(struct ufs_hba *hba)
+{
+	ufshcd_vops_device_reset(hba);
+}
+
 /**
  * ufshcd_ready_for_uic_cmd - Check if controller is ready
  *                            to accept UIC commands
@@ -1996,6 +2001,9 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	ufshcd_writel(hba, 0, REG_INTERRUPT_ENABLE);
 
 	mb();
+
+	/* Reset the attached device */
+	ufshcd_device_reset(hba);
 
 	err = ufshcd_hba_enable(hba);
 	if (err) {

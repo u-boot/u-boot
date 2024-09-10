@@ -701,6 +701,7 @@ struct ufs_hba_ops {
 	int (*link_startup_notify)(struct ufs_hba *hba,
 				   enum ufs_notify_change_status);
 	int (*phy_initialization)(struct ufs_hba *hba);
+	int (*device_reset)(struct ufs_hba *hba);
 };
 
 enum ufshcd_quirks {
@@ -916,6 +917,14 @@ static inline int ufshcd_ops_link_startup_notify(struct ufs_hba *hba,
 {
 	if (hba->ops && hba->ops->link_startup_notify)
 		return hba->ops->link_startup_notify(hba, status);
+
+	return 0;
+}
+
+static inline int ufshcd_vops_device_reset(struct ufs_hba *hba)
+{
+	if (hba->ops && hba->ops->device_reset)
+		return hba->ops->device_reset(hba);
 
 	return 0;
 }
