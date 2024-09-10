@@ -1,0 +1,7 @@
+AST2700 using Ibex RISC-V Core as the boot MCU
+M:	Chia-Wei, Wang <chiawei_wang@aspeedtech.com>
+S:	Maintained
+F:	arch/riscv/include/asm/arch-ast2700/
+F:	board/aspeed/ibex_ast2700/
+F:	configs/ibex-ast2700_defconfig
+F:	include/configs/ibex_ast2700.h
