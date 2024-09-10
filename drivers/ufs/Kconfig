@@ -26,6 +26,13 @@ config UFS_PCI
 
 	  If unsure, say N.
 
+config QCOM_UFS
+	bool "Qualcomm Host Controller driver for UFS"
+	depends on UFS && ARCH_SNAPDRAGON
+        help
+	  This selects the platform driver for the UFS host
+	  controller present on Qualcomm Snapdragon SoCs.
+
 config TI_J721E_UFS
 	bool "Glue Layer driver for UFS on TI J721E devices"
 	help
