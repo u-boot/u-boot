@@ -391,7 +391,7 @@ __maybe_unused static int do_bcb_ab_select(struct cmd_tbl *cmdtp,
 		return CMD_RET_USAGE;
 
 	for (int i = 4; i < argc; i++) {
-		if (strcmp(argv[i], "--no-dec") == 0)
+		if (!strcmp(argv[i], "--no-dec"))
 			dec_tries = false;
 		else
 			return CMD_RET_USAGE;
