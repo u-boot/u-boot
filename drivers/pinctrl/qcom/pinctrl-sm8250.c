@@ -18,8 +18,37 @@
 static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 
 static const struct pinctrl_function msm_pinctrl_functions[] = { { "qup12", 1 },
-								 { "gpio", 0 },
-								 { "sdc2_clk", 0 } };
+								 { "gpio", 0 }, };
+#define SDC_PINGROUP(pg_name, ctl, pull, drv)		\
+	{						\
+		.name = pg_name,			\
+		.ctl_reg = ctl,				\
+		.io_reg = 0,				\
+		.pull_bit = pull,			\
+		.drv_bit = drv,				\
+		.oe_bit = -1,				\
+		.in_bit = -1,				\
+		.out_bit = -1,				\
+	}
+
+#define UFS_RESET(pg_name, offset)			\
+	{						\
+		.name = pg_name,			\
+		.ctl_reg = offset,			\
+		.io_reg = offset + 0x4,			\
+		.pull_bit = 3,				\
+		.drv_bit = 0,				\
+		.oe_bit = -1,				\
+		.in_bit = -1,				\
+		.out_bit = 0,				\
+	}
+
+static const struct msm_special_pin_data sm8250_special_pins_data[] = {
+	[0] = UFS_RESET("ufs_reset", SOUTH + 0xb8000),
+	[1] = SDC_PINGROUP("sdc2_clk", NORTH + 0xb7000, 14, 6),
+	[2] = SDC_PINGROUP("sdc2_cmd", NORTH + 0xb7000, 11, 3),
+	[3] = SDC_PINGROUP("sdc2_data", NORTH + 0xb7000, 9, 0),
+};
 
 static const unsigned int sm8250_pin_offsets[] = {
 	[0] = SOUTH,   [1] = SOUTH,   [2] = SOUTH,   [3] = SOUTH,   [4] = NORTH,   [5] = NORTH,
@@ -52,7 +81,6 @@ static const unsigned int sm8250_pin_offsets[] = {
 	[162] = WEST,  [163] = WEST,  [164] = WEST,  [165] = WEST,  [166] = WEST,  [167] = WEST,
 	[168] = WEST,  [169] = WEST,  [170] = WEST,  [171] = WEST,  [172] = WEST,  [173] = WEST,
 	[174] = WEST,  [175] = WEST,  [176] = WEST,  [177] = WEST,  [178] = WEST,  [179] = WEST,
-	[180] = 0,     [181] = 0,     [182] = 0,     [183] = 0,
 };
 
 static const char *sm8250_get_function_name(struct udevice *dev, unsigned int selector)
@@ -62,7 +90,12 @@ static const char *sm8250_get_function_name(struct udevice *dev, unsigned int se
 
 static const char *sm8250_get_pin_name(struct udevice *dev, unsigned int selector)
 {
-	snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+	if (selector >= 180 && selector <= 183)
+		snprintf(pin_name, MAX_PIN_NAME_LEN,
+			 sm8250_special_pins_data[selector - 180].name);
+	else
+		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
+
 	return pin_name;
 }
 
@@ -76,6 +109,7 @@ static struct msm_pinctrl_data sm8250_data = {
 		.pin_offsets = sm8250_pin_offsets,
 		.pin_count = ARRAY_SIZE(sm8250_pin_offsets),
 		.special_pins_start = 180,
+		.special_pins_data = sm8250_special_pins_data,
 	},
 	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
 	.get_function_name = sm8250_get_function_name,
