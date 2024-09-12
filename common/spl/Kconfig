@@ -87,7 +87,7 @@ config SPL_MAX_SIZE
 	default 0x10000 if ASPEED_AST2600
 	default 0x27000 if IMX8MM && SPL_TEXT_BASE = 0x7E1000
 	default 0x30000 if ARCH_SC5XX && (SC59X_64 || SC59X)
-	default 0x20000 if ARCH_SC5XX && SC58X
+	default 0x20000 if ARCH_SC5XX && (SC58X || SC57X)
 	default 0x0
 	help
 	  Maximum size of the SPL image (text, data, rodata, and linker lists
@@ -126,6 +126,7 @@ config SPL_BSS_START_ADDR
 	default 0x1000 if ARCH_ZYNQMP
 	default 0x200B0000 if ARCH_SC5XX && (SC59X_64 || SC59X)
 	default 0x20080000 if ARCH_SC5XX && SC58X
+	default 0x200A0000 if ARCH_SC5XX && SC57X
 
 choice
 	prompt "Enforce SPL BSS limit"
@@ -398,6 +399,7 @@ config SPL_STACK
 	default 0x8000 if ARCH_SUNXI
 	default 0x200E4000 if ARCH_SC5XX && (SC59X_64 || SC59X)
 	default 0x200B0000 if ARCH_SC5XX && SC58X
+	default 0x200D0000 if ARCH_SC5XX && SC57X
 	help
 	  Address of the start of the stack SPL will use before SDRAM is
 	  initialized.

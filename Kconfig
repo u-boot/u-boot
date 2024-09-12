@@ -649,6 +649,7 @@ config TEXT_BASE
 	default 0xB2200000 if ARCH_SC5XX && SC59X
 	default 0x89200000 if ARCH_SC5XX && TARGET_SC584_EZKIT
 	default 0xC2200000 if ARCH_SC5XX && (TARGET_SC589_EZKIT || TARGET_SC589_MINI)
+	default 0x82200000 if ARCH_SC5XX && SC57X
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be copied and executed from

@@ -25,6 +25,7 @@ config SC57X
 	bool "SC57x series"
 	select COMMON_CLK_ADI_SC57X
 	select CPU_V7A
+	select TARGET_SC573_EZKIT
 
 config SC58X
 	bool "SC58x series"
@@ -48,6 +49,13 @@ config SC59X_64
 	select NOP_PHY if PHY
 
 endchoice
+
+if SC57X
+
+config TARGET_SC573_EZKIT
+	bool "Support SC573-EZKIT"
+
+endif
 
 if SC58X
 
@@ -555,5 +563,6 @@ source "board/adi/sc594-som-ezlite/Kconfig"
 source "board/adi/sc589-ezkit/Kconfig"
 source "board/adi/sc589-mini/Kconfig"
 source "board/adi/sc584-ezkit/Kconfig"
+source "board/adi/sc573-ezkit/Kconfig"
 
 endif
