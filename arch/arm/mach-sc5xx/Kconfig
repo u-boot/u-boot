@@ -49,6 +49,20 @@ config SC59X_64
 
 endchoice
 
+if SC58X
+
+choice
+	prompt "SC58x board select"
+
+config TARGET_SC584_EZKIT
+	bool
+	prompt "SC584-EZKIT"
+	select ADI_USE_DDR2
+
+endchoice
+
+endif
+
 if SC59X
 
 choice
@@ -530,5 +544,6 @@ source "board/adi/sc598-som-ezkit/Kconfig"
 source "board/adi/sc598-som-ezlite/Kconfig"
 source "board/adi/sc594-som-ezkit/Kconfig"
 source "board/adi/sc594-som-ezlite/Kconfig"
+source "board/adi/sc584-ezkit/Kconfig"
 
 endif
