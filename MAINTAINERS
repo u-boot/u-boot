@@ -601,8 +601,10 @@ M:	Ian Roberts <ian.roberts@timesys.com>
 M:	Vasileios Bimpikas <vasileios.bimpikas@analog.com>
 M:	Utsav Agarwal <utsav.agarwal@analog.com>
 M:	Arturs Artamonovs <arturs.artamonovs@analog.com>
+L:	adsp-linux@analog.com
 S:	Supported
 T:	git https://github.com/analogdevicesinc/lnxdsp-u-boot
+F:	arch/arm/dts/sc5*
 F:	arch/arm/include/asm/arch-adi/
 F:	arch/arm/mach-sc5xx/
 F:	drivers/clk/adi/
