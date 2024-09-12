@@ -13,46 +13,37 @@
 
 if ARCH_SC5XX
 
+choice
+	prompt "SC5xx SoC Select"
+	help
+	  Selects which series of Analog Devices SC5xx chips to support.
+
 config SC57X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC57x series"
 	select COMMON_CLK_ADI_SC57X
-	select TIMER
-	select ADI_SC5XX_TIMER
+	select CPU_V7A
 
 config SC58X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC58x series"
 	select COMMON_CLK_ADI_SC58X
-	select TIMER
-	select ADI_SC5XX_TIMER
+	select CPU_V7A
 
 config SC59X
-	bool
-	select SUPPORT_SPL
-	select CPU_V7A
-	select PANIC_HANG
+	bool "SC59x 32-bit series"
 	select COMMON_CLK_ADI_SC594
-	select TIMER
-	select ADI_SC5XX_TIMER
+	select CPU_V7A
 	select NOP_PHY
 
 config SC59X_64
-	bool
-	select SUPPORT_SPL
-	select PANIC_HANG
-	select MMC_SDHCI_ADMA_FORCE_32BIT
+	bool "SC59x 64-bit series"
 	select ARM64
-	select DM
-	select DM_SERIAL
 	select COMMON_CLK_ADI_SC598
 	select GICV3
 	select GIC_600_CLEAR_RDPD
+	select MMC_SDHCI_ADMA_FORCE_32BIT
 	select NOP_PHY
+
+endchoice
 
 config SC_BOOT_MODE
 	int "SC5XX boot mode select"
