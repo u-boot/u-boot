@@ -1,14 +1,13 @@
 menuconfig ASPEED_RAM
 	bool "ASPEED SDRAM configuration"
-	depends on RAM && ARCH_ASPEED
+	depends on RAM
+	depends on ARCH_ASPEED || TARGET_ASPEED_AST2700_IBEX
 	default ARCH_ASPEED
 	help
 	 Configuration options for DDR SDRAM on ASPEED systems.
 
 	 RAM initialisation is always built in for the platform. This menu
 	 allows customisation of the configuration used.
-
-if ASPEED_RAM
 
 config ASPEED_DDR4_DUALX8
 	bool "Enable Dual X8 DDR4 die"
@@ -74,4 +73,24 @@ config ASPEED_DDR4_1600
 	  select DDR4 target data rate at 1600M
 endchoice
 
-endif # End of ASPEED_RAM
+choice
+	prompt "AST2700 DDR target date rate"
+	default ASPEED_DDR_3200
+	depends on ASPEED_RAM
+	depends on TARGET_ASPEED_AST2700_IBEX
+
+config ASPEED_DDR_1600
+	bool "1600 Mbps"
+	help
+	  select DDR target data rate at 1600M
+
+config ASPEED_DDR_2400
+	bool "2400 Mbps"
+	help
+	  select DDR target data rate at 2400M
+
+config ASPEED_DDR_3200
+	bool "3200 Mbps"
+	help
+	  select DDR target data rate at 3200M
+endchoice
