@@ -32,6 +32,7 @@
 #include <imx_sip.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -205,6 +206,14 @@ void enable_caches(void)
 	 */
 	int entry = imx8m_find_dram_entry_in_mem_map();
 	u64 attrs = imx8m_mem_map[entry].attrs;
+
+	/* Deactivate the data cache, possibly enabled in arch_cpu_init() */
+	dcache_disable();
+	/*
+	 * Force the call of setup_all_pgtables() in mmu_setup() by clearing tlb_fillptr
+	 * to update the TLB location udpated in board_f.c::reserve_mmu
+	 */
+	gd->arch.tlb_fillptr = 0;
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx8m_mem_map)) {
@@ -587,12 +596,50 @@ static void imx8m_setup_csu_tzasc(void)
 	}
 }
 
+/*
+ * Place early TLB into the .data section so that it will not
+ * get cleared, use 16 kiB alignment.
+ */
+#define EARLY_TLB_SIZE SZ_64K
+u8 early_tlb[EARLY_TLB_SIZE] __section(".data") __aligned(0x4000);
+
+/*
+ * Initialize the MMU and activate cache in U-Boot pre-reloc stage
+ * MMU/TLB is updated in enable_caches() for U-Boot after relocation
+ */
+static void early_enable_caches(void)
+{
+	phys_size_t sdram_size;
+	int entry, ret;
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return;
+
+	if (CONFIG_IS_ENABLED(SYS_ICACHE_OFF) || CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	/* Use maximum available DRAM size in first bank. */
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return;
+
+	entry = imx8m_find_dram_entry_in_mem_map();
+	imx8m_mem_map[entry].size = max(sdram_size, (phys_size_t)0xc0000000);
+
+	gd->arch.tlb_size = EARLY_TLB_SIZE;
+	gd->arch.tlb_addr = (unsigned long)&early_tlb;
+
+	/* Enable MMU (default configuration) */
+	dcache_enable();
+}
+
 int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
 
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	icache_enable();
+	early_enable_caches();
 #endif
 
 	/*
