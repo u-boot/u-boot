@@ -208,7 +208,7 @@ config ENV_VARS_UBOOT_CONFIG
 
 config NR_DRAM_BANKS
 	int "Number of DRAM banks"
-	default 1 if ARCH_SUNXI || ARCH_OWL
+	default 1 if ARCH_SC5XX || ARCH_SUNXI || ARCH_OWL
 	default 4
 	help
 	  This defines the number of DRAM banks.
@@ -545,6 +545,7 @@ config SYS_LOAD_ADDR
 	default 0x12000000 if ARCH_MX6 && !(MX6SL || MX6SLL  || MX6SX || MX6UL || MX6ULL)
 	default 0x80800000 if ARCH_MX7
 	default 0x90000000 if FSL_LSCH2 || FSL_LSCH3
+	default 0x0 if ARCH_SC5XX
 	help
 	  Address in memory to use as the default safe load address.
 
@@ -644,6 +645,7 @@ config TEXT_BASE
 	default 0x2a000000 if MACH_SUN9I
 	default 0x4a000000 if SUNXI_MINIMUM_DRAM_MB >= 256
 	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
+	default 0x96000000 if ARCH_SC5XX && SC59X_64
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be copied and executed from

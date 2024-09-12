@@ -14,6 +14,7 @@ obj-$(CONFIG_SC57X) += sc57x.o
 obj-$(CONFIG_SC58X) += sc58x.o
 obj-$(CONFIG_SC59X) += sc59x.o
 obj-$(CONFIG_SC59X_64) += sc59x_64.o
+obj-$(CONFIG_SC59X_64) += sc59x_64-spl.o
 
 obj-$(CONFIG_SPL_BUILD) += spl.o
 obj-$(CONFIG_SYSCON) += rcu.o

@@ -1871,9 +1871,15 @@ config ARCH_SC5XX
 	select ADI_SC5XX_TIMER
 	select DM
 	select DM_SERIAL
+	select HAS_CUSTOM_SYS_INIT_SP_ADDR
 	select PANIC_HANG
 	select SPL
+	select SPL_BOOTROM_SUPPORT
 	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_SKIP_LOWLEVEL_INIT
 	select SUPPORT_SPL
 	select TIMER
 

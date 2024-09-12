@@ -13,6 +13,9 @@
 
 if ARCH_SC5XX
 
+config SYS_VENDOR
+	default "adi"
+
 choice
 	prompt "SC5xx SoC Select"
 	help
@@ -39,11 +42,32 @@ config SC59X_64
 	select ARM64
 	select COMMON_CLK_ADI_SC598
 	select GICV3
+	select GICV3_SUPPORT_GIC600
 	select GIC_600_CLEAR_RDPD
 	select MMC_SDHCI_ADMA_FORCE_32BIT
-	select NOP_PHY
+	select NOP_PHY if PHY
 
 endchoice
+
+if SC59X_64
+
+choice
+	prompt "SC59x 64-bit board select"
+
+config TARGET_SC598_SOM_EZKIT
+	bool
+	prompt "SC598-SOM with SOMCRR-EZKIT"
+	select ADI_CARRIER_SOMCRR_EZKIT
+
+endchoice
+
+endif
+
+config ADI_IMAGE
+	string "ADI fitImage type"
+	help
+	  The image built by the ADI ADSP Linux build system.
+	  Is one of tiny, minimal, full.
 
 config SC_BOOT_MODE
 	int "SC5XX boot mode select"
@@ -84,9 +108,24 @@ config SC_BOOT_OSPI_SSEL
 	  This is the OSPI chip select number to use for booting, Y in the
 	  expression `sf probe X:Y`
 
+config SYS_BOOTM_LEN
+	hex
+	default 0x1800000
+
 config SYS_FLASH_BASE
 	hex
 	default 0x60000000
+
+config SYS_MALLOC_F_LEN
+	default 0x14000
+
+config SYS_LOAD_ADDR
+	hex
+	default 0x0
+
+config SYS_MALLOC_LEN
+	hex
+	default 1048576
 
 config UART_CONSOLE
 	int
@@ -462,5 +501,7 @@ config ADI_GPIO
 config PINCTRL_ADI
 	bool
 	default y
+
+source "board/adi/sc598-som-ezkit/Kconfig"
 
 endif
