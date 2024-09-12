@@ -759,6 +759,29 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h616_pinctrl_desc =
 	.num_banks	= 9,
 };
 
+static const struct sunxi_pinctrl_function sun55i_a523_pinctrl_functions[] = {
+	{ "emac0",	5 },	/* PI0-PI16 */
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+	{ "mmc0",	2 },	/* PF0-PF5 */
+	{ "mmc1",	2 },	/* PG0-PG5 */
+	{ "mmc2",	3 },	/* PC0-PC16 */
+	{ "spi0",	4 },	/* PC0-PC7, PC15-PC16 */
+#if IS_ENABLED(CONFIG_UART0_PORT_F)
+	{ "uart0",	3 },	/* PF2-PF4 */
+#else
+	{ "uart0",	2 },	/* PH0-PH1 */
+#endif
+	{ "uart1",	2 },	/* PG6-PG7 */
+};
+
+static const struct sunxi_pinctrl_desc __maybe_unused sun55i_a523_pinctrl_desc = {
+	.functions	= sun55i_a523_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun55i_a523_pinctrl_functions),
+	.first_bank	= SUNXI_GPIO_A,
+	.num_banks	= 11,
+};
+
 static const struct sunxi_pinctrl_function sun50i_h616_r_pinctrl_functions[] = {
 	{ "gpio_in",	0 },
 	{ "gpio_out",	1 },
@@ -807,6 +830,21 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a100_r_pinctrl_desc
 	.num_functions	= ARRAY_SIZE(sun50i_a100_r_pinctrl_functions),
 	.first_bank	= SUNXI_GPIO_L,
 	.num_banks	= 1,
+};
+
+static const struct sunxi_pinctrl_function sun55i_a523_r_pinctrl_functions[] = {
+	{ "gpio_in",	0 },
+	{ "gpio_out",	1 },
+	{ "r_i2c0",	2 },	/* PL0-PL1 */
+	{ "r_spi",	6 },	/* PL10-PL13 */
+	{ "r_uart",	2 },	/* PL2-PL3 */
+};
+
+static const struct sunxi_pinctrl_desc __maybe_unused sun55i_a523_r_pinctrl_desc = {
+	.functions	= sun55i_a523_r_pinctrl_functions,
+	.num_functions	= ARRAY_SIZE(sun55i_a523_r_pinctrl_functions),
+	.first_bank	= SUNXI_GPIO_L,
+	.num_banks	= 2,
 };
 
 static const struct udevice_id sunxi_pinctrl_ids[] = {
@@ -982,6 +1020,18 @@ static const struct udevice_id sunxi_pinctrl_ids[] = {
 	{
 		.compatible = "allwinner,sun50i-a100-r-pinctrl",
 		.data = (ulong)&sun50i_a100_r_pinctrl_desc,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_SUN55I_A523
+	{
+		.compatible = "allwinner,sun55i-a523-pinctrl",
+		.data = (ulong)&sun55i_a523_pinctrl_desc,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_SUN55I_A523_R
+	{
+		.compatible = "allwinner,sun55i-a523-r-pinctrl",
+		.data = (ulong)&sun55i_a523_r_pinctrl_desc,
 	},
 #endif
 	{}
