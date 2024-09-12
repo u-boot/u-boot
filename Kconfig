@@ -646,6 +646,7 @@ config TEXT_BASE
 	default 0x4a000000 if SUNXI_MINIMUM_DRAM_MB >= 256
 	default 0x42e00000 if SUNXI_MINIMUM_DRAM_MB >= 64
 	default 0x96000000 if ARCH_SC5XX && SC59X_64
+	default 0xB2200000 if ARCH_SC5XX && SC59X
 	hex "Text Base"
 	help
 	  The address in memory that U-Boot will be copied and executed from

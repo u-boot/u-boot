@@ -35,7 +35,7 @@ config SC59X
 	bool "SC59x 32-bit series"
 	select COMMON_CLK_ADI_SC594
 	select CPU_V7A
-	select NOP_PHY
+	select NOP_PHY if PHY
 
 config SC59X_64
 	bool "SC59x 64-bit series"
@@ -48,6 +48,20 @@ config SC59X_64
 	select NOP_PHY if PHY
 
 endchoice
+
+if SC59X
+
+choice
+	prompt "SC59x 32-bit board select"
+
+config TARGET_SC594_SOM_EZKIT
+	bool
+	prompt "SC594-SOM with SOMCRR-EZKIT"
+	select ADI_CARRIER_SOMCRR_EZKIT
+
+endchoice
+
+endif
 
 if SC59X_64
 
@@ -509,5 +523,6 @@ config PINCTRL_ADI
 
 source "board/adi/sc598-som-ezkit/Kconfig"
 source "board/adi/sc598-som-ezlite/Kconfig"
+source "board/adi/sc594-som-ezkit/Kconfig"
 
 endif
