@@ -53,11 +53,45 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+
+static int mmc_env_partition_by_name(struct blk_desc *desc, const char *str,
+				     struct disk_partition *info)
+{
+	int i, ret;
+
+	for (i = 1;; i++) {
+		ret = part_get_info(desc, i, info);
+		if (ret < 0)
+			return ret;
+
+		if (!strncmp((const char *)info->name, str, sizeof(info->name)))
+			return 0;
+	}
+}
+
+static int mmc_env_partition_by_guid(struct blk_desc *desc, struct disk_partition *info)
+{
+	const efi_guid_t env_guid = PARTITION_U_BOOT_ENVIRONMENT;
+	efi_guid_t type_guid;
+	int i, ret;
+
+	for (i = 1;; i++) {
+		ret = part_get_info(desc, i, info);
+		if (ret < 0)
+			return ret;
+
+		uuid_str_to_bin(disk_partition_type_guid(info), type_guid.b, UUID_STR_FORMAT_GUID);
+		if (!memcmp(&env_guid, &type_guid, sizeof(efi_guid_t)))
+			return 0;
+	}
+}
+
+
 static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 {
 	struct disk_partition info;
 	struct blk_desc *desc;
-	int len, i, ret;
+	int len, ret;
 	char dev_str[4];
 
 	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
@@ -65,24 +99,13 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 	if (ret < 0)
 		return (ret);
 
-	for (i = 1;;i++) {
-		ret = part_get_info(desc, i, &info);
-		if (ret < 0)
-			return ret;
-
-		if (str && !strncmp((const char *)info.name, str, sizeof(info.name)))
-			break;
-#ifdef CONFIG_PARTITION_TYPE_GUID
-		if (!str) {
-			const efi_guid_t env_guid = PARTITION_U_BOOT_ENVIRONMENT;
-			efi_guid_t type_guid;
-
-			uuid_str_to_bin(info.type_guid, type_guid.b, UUID_STR_FORMAT_GUID);
-			if (!memcmp(&env_guid, &type_guid, sizeof(efi_guid_t)))
-				break;
-		}
-#endif
+	if (str) {
+		ret = mmc_env_partition_by_name(desc, str, &info);
+	} else if (IS_ENABLED(CONFIG_PARTITION_TYPE_GUID) && !str) {
+		ret = mmc_env_partition_by_guid(desc, &info);
 	}
+	if (ret < 0)
+		return ret;
 
 	/* round up to info.blksz */
 	len = DIV_ROUND_UP(CONFIG_ENV_SIZE, info.blksz);
