@@ -91,7 +91,8 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 {
 	struct disk_partition info;
 	struct blk_desc *desc;
-	int len, ret;
+	lbaint_t len;
+	int ret;
 	char dev_str[4];
 
 	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
@@ -109,6 +110,13 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 
 	/* round up to info.blksz */
 	len = DIV_ROUND_UP(CONFIG_ENV_SIZE, info.blksz);
+
+	if ((1 + copy) * len > info.size) {
+		printf("Partition '%s' [0x"LBAF"; 0x"LBAF"] too small for %senvironment, required size 0x"LBAF" blocks\n",
+		       (const char*)info.name, info.start, info.size,
+		       copy ? "two copies of " : "", (1 + copy)*len);
+		return -ENOSPC;
+	}
 
 	/* use the top of the partion for the environment */
 	*val = (info.start + info.size - (1 + copy) * len) * info.blksz;
