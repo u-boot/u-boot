@@ -1131,6 +1131,7 @@ config SPL_PAYLOAD_ARGS_ADDR
 	default 0x88000000 if ARCH_OMAP2PLUS
 	default 0x99000000 if ARCH_SC5XX && SC59X_64
 	default 0xA0000000 if ARCH_SC5XX && TARGET_SC594_SOM_EZKIT
+	default 0x80000000 if ARCH_SC5XX && TARGET_SC594_SOM_EZLITE
 	help
 	  Address in memory where the 'args' file, typically a device tree
 	  will be loaded in to memory.
