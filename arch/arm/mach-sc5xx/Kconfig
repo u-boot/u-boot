@@ -54,6 +54,11 @@ if SC59X_64
 choice
 	prompt "SC59x 64-bit board select"
 
+config TARGET_SC598_SOM_EZLITE
+	bool
+	prompt "SC598-SOM with SOMCRR-EZLITE"
+	select ADI_CARRIER_SOMCRR_EZLITE
+
 config TARGET_SC598_SOM_EZKIT
 	bool
 	prompt "SC598-SOM with SOMCRR-EZKIT"
@@ -503,5 +508,6 @@ config PINCTRL_ADI
 	default y
 
 source "board/adi/sc598-som-ezkit/Kconfig"
+source "board/adi/sc598-som-ezlite/Kconfig"
 
 endif
