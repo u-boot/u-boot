@@ -59,6 +59,10 @@ config TARGET_SC584_EZKIT
 	prompt "SC584-EZKIT"
 	select ADI_USE_DDR2
 
+config TARGET_SC589_EZKIT
+	bool
+	prompt "SC589-EZKIT"
+
 endchoice
 
 endif
@@ -544,6 +548,7 @@ source "board/adi/sc598-som-ezkit/Kconfig"
 source "board/adi/sc598-som-ezlite/Kconfig"
 source "board/adi/sc594-som-ezkit/Kconfig"
 source "board/adi/sc594-som-ezlite/Kconfig"
+source "board/adi/sc589-ezkit/Kconfig"
 source "board/adi/sc584-ezkit/Kconfig"
 
 endif
