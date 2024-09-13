@@ -140,7 +140,7 @@
 		  "USB1_DIR", "USB1_DATA2", "USB1_NXT", "USB1_DATA0", "USB1_DATA1", /* 65 - 69 */
 		  "USB1_STP", "USB1_DATA3", "USB1_DATA4", "USB1_DATA5", "USB1_DATA6", /* 70 - 74 */
 		  "USB1_DATA7", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
-		  "", "", "", "", "", /* 78 - 79 */
+		  "", "", /* 78 - 79 */
 		  "", "", "", "", "", /* 80 - 84 */
 		  "", "", "", "", "", /* 85 -89 */
 		  "", "", "", "", "", /* 90 - 94 */
