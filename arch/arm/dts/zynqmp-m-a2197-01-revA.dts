@@ -300,7 +300,7 @@
 		i2c@3 { /* MEM PMBUS - FIXME bug in schematics */
 			#address-cells = <1>;
 			#size-cells = <0>;
-			/* reg = <3>; */
+			reg = <3>;
 		};
 		i2c@4 { /* LP_I2C_SM */
 			#address-cells = <1>;
