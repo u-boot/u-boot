@@ -97,7 +97,7 @@
 };
 
 &sdhci1 { /* sd1 MIO45-51 cd in place */
-	status = "disable";
+	status = "disabled";
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio-bank = <1>;
