@@ -80,7 +80,6 @@
 	status = "okay";
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
-	is-internal-pcspma;
 	mdio: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;

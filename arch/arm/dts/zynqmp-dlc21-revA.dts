@@ -87,7 +87,6 @@
 	status = "okay";
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii"; /* DTG generates this properly  1512 */
-	is-internal-pcspma;
 	mdio: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
