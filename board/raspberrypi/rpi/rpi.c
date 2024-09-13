@@ -68,6 +68,19 @@ struct msg_get_clock_rate {
 	u32 end_tag;
 };
 
+struct efi_fw_image fw_images[] = {
+	{
+		.fw_name = u"RPI_UBOOT",
+		.image_index = 1,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 0=u-boot.bin fat 0 1",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+
 #ifdef CONFIG_ARM64
 #define DTB_DIR "broadcom/"
 #else
