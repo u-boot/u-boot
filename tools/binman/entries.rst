@@ -221,7 +221,7 @@ FIPs so that binman and other tools can access the entire image correctly.
 
 .. _FIP: https://trustedfirmware-a.readthedocs.io/en/latest/design/firmware-design.html#firmware-image-package-fip
 .. _`TF-A source tree`: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
-.. _`send a patch`: https://www.denx.de/wiki/U-Boot/Patches
+.. _`send a patch`: https://docs.u-boot.org/en/latest/develop/sending_patches.html
 
 
 
