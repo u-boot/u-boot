@@ -117,7 +117,7 @@
 		  "USB1_DATA7", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
 		  "", "", /* 78 - 79 */
 		  "", "", "", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 -89 */
+		  "", "", "", "", "", /* 85 - 89 */
 		  "", "", "", "", "", /* 90 - 94 */
 		  "", "VCCO_500_RBIAS", "VCCO_501_RBIAS", "VCCO_502_RBIAS", "VCCO_500_RBIAS_LED", /* 95 - 99 */
 		  "VCCO_501_RBIAS_LED", "VCCO_502_RBIAS_LED", "SYSCTLR_VCCINT_EN", "SYSCTLR_VCC_IO_SOC_EN", "SYSCTLR_VCC_PMC_EN", /* 100 - 104 */
