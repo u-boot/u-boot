@@ -36,6 +36,12 @@
 		bootph-all;
 	};
 
+	misc_clk: misc-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <125000000>;
+	};
+
 	amba: axi {
 		compatible = "simple-bus";
 		#address-cells = <2>;
@@ -52,19 +58,13 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 		};
-
-		misc_clk: misc-clk {
-			compatible = "fixed-clock";
-			#clock-cells = <0>;
-			clock-frequency = <125000000>;
-		};
 	};
 };
 
 &qspi {
 	status = "okay";
 	flash0: flash@0 {
-		compatible = "n25q512a11", "jedec,spi-nor";
+		compatible = "jedec,spi-nor";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
