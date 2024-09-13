@@ -367,25 +367,25 @@
 				#gpio-cells = <2>;
 				gpio-line-names = "sw4_1", "sw4_2", "sw4_3", "sw4_4",
 						  "", "", "", "";
-				gtr-sel0 {
+				gtr-sel0-hog {
 					gpio-hog;
 					gpios = <0 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_1";
 				};
-				gtr-sel1 {
+				gtr-sel1-hog {
 					gpio-hog;
 					gpios = <1 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_2";
 				};
-				gtr-sel2 {
+				gtr-sel2-hog {
 					gpio-hog;
 					gpios = <2 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_3";
 				};
-				gtr-sel3 {
+				gtr-sel3-hog {
 					gpio-hog;
 					gpios = <3 0>;
 					input; /* FIXME add meaning */
