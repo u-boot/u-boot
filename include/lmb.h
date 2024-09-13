@@ -111,6 +111,11 @@ struct lmb *lmb_get(void);
 int lmb_push(struct lmb *store);
 void lmb_pop(struct lmb *store);
 
+static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
+{
+	return lmb_alloc_addr(addr, len) == addr ? 0 : -1;
+}
+
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_LMB_H */
