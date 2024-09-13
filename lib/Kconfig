@@ -73,6 +73,7 @@ config HAVE_PRIVATE_LIBGCC
 
 config LIB_UUID
 	bool
+	select SHA1
 
 config RANDOM_UUID
 	bool "GPT Random UUID generation"
@@ -1081,8 +1082,6 @@ config SMBIOS_PARSER
 	help
 	  A simple parser for SMBIOS data.
 
-source "lib/efi/Kconfig"
-source "lib/efi_loader/Kconfig"
 source "lib/optee/Kconfig"
 
 config TEST_FDTDEC
