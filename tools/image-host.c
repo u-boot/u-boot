@@ -1333,7 +1333,7 @@ int fit_add_verification_data(const char *keydir, const char *keyfile,
 		if (ret) {
 			fprintf(stderr, "Can't add verification data for node '%s' (%s)\n",
 				fdt_get_name(fit, noffset, NULL),
-				fdt_strerror(ret));
+				strerror(-ret));
 			return ret;
 		}
 	}
