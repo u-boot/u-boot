@@ -7804,6 +7804,101 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         """Test that binman can produce an iMX8 image"""
         self._DoTestFile('339_nxp_imx8.dts')
 
+    def testFitSignSimple(self):
+        """Test that image with FIT and signature nodes can be signed"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        self._MakeInputFile("keys/rsa2048.key", data)
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        keys_subdir = os.path.join(self._indir, "keys")
+        data = self._DoReadFileDtb(
+            '340_fit_signature.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir, keys_subdir])[0]
+
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+
+        conf = dtb.GetNode('/configurations/conf-uboot-1')
+        self.assertIsNotNone(conf)
+        signature = conf.FindNode('signature')
+        self.assertIsNotNone(signature)
+        self.assertIsNotNone(signature.props.get('value'))
+
+        images = dtb.GetNode('/images')
+        self.assertIsNotNone(images)
+        for subnode in images.subnodes:
+            signature = subnode.FindNode('signature')
+            self.assertIsNotNone(signature)
+            self.assertIsNotNone(signature.props.get('value'))
+
+    def testFitSignKeyNotFound(self):
+        """Test that missing keys raise an error"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                '340_fit_signature.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir])[0]
+        self.assertIn(
+            'Filename \'rsa2048.key\' not found in input path',
+            str(e.exception))
+
+    def testFitSignMultipleKeyPaths(self):
+        """Test that keys found in multiple paths raise an error"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        self._MakeInputFile("keys1/rsa2048.key", data)
+        data = tools.read_file(self.TestFile("340_rsa2048.key"))
+        self._MakeInputFile("keys2/conf-rsa2048.key", data)
+
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        keys_subdir1 = os.path.join(self._indir, "keys1")
+        keys_subdir2 = os.path.join(self._indir, "keys2")
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb(
+                '341_fit_signature.dts',
+                entry_args=entry_args,
+                extra_indirs=[test_subdir, keys_subdir1, keys_subdir2])[0]
+        self.assertIn(
+            'Node \'/binman/fit\': multiple key paths found',
+            str(e.exception))
+
+    def testFitSignNoSingatureNodes(self):
+        """Test that fit,sign doens't raise error if no signature nodes found"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        entry_args = {
+            'of-list': 'test-fdt1',
+            'default-dt': 'test-fdt1',
+            'atf-bl31-path': 'bl31.elf',
+        }
+        test_subdir = os.path.join(self._indir, TEST_FDT_SUBDIR)
+        self._DoReadFileDtb(
+            '342_fit_signature.dts',
+            entry_args=entry_args,
+            extra_indirs=[test_subdir])[0]
+
 
 if __name__ == "__main__":
     unittest.main()
