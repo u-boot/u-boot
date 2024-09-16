@@ -637,8 +637,8 @@ class Entry_fit(Entry_section):
             """
             val = fdt_util.GetStringList(node, 'fit,firmware')
             if val is None:
-                return None, self._loadables
-            valid_entries = list(self._loadables)
+                return None, loadables
+            valid_entries = list(loadables)
             for name, entry in self.GetEntries().items():
                 missing = []
                 entry.CheckMissing(missing)
@@ -653,7 +653,7 @@ class Entry_fit(Entry_section):
                         firmware = name
                     elif name not in result:
                         result.append(name)
-            for name in self._loadables:
+            for name in loadables:
                 if name != firmware and name not in result:
                     result.append(name)
             return firmware, result
