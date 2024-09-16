@@ -170,23 +170,32 @@ void spl_fdt_fixup_mars_cm(void *fdt)
 {
 	const char *compat;
 	const char *model;
+	int compat_size;
 
 	spl_fdt_fixup_mars(fdt);
 
 	if (!get_mmc_size_from_eeprom()) {
 		int offset;
+		static const char
+		compat_cm_lite[] = "milkv,mars-cm-lite\0starfive,jh7110";
 
 		model = "Milk-V Mars CM Lite";
-		compat = "milkv,mars-cm-lite\0starfive,jh7110";
+		compat = compat_cm_lite;
+		compat_size = sizeof(compat_cm_lite);
 
 		offset = fdt_path_offset(fdt, "/soc/pinctrl/mmc0-pins/mmc0-pins-rest");
 		/* GPIOMUX(22, GPOUT_SYS_SDIO0_RST, GPOEN_ENABLE, GPI_NONE) */
 		fdt_setprop_u32(fdt, offset, "pinmux", 0xff130016);
 	} else {
+		static const char
+		compat_cm[] = "milkv,mars-cm\0starfive,jh7110";
+
 		model = "Milk-V Mars CM";
-		compat = "milkv,mars-cm\0starfive,jh7110";
+		compat = compat_cm;
+		compat_size = sizeof(compat_cm);
 	}
-	fdt_setprop(fdt, fdt_path_offset(fdt, "/"), "compatible", compat, sizeof(compat));
+	fdt_setprop(fdt, fdt_path_offset(fdt, "/"),
+		    "compatible", compat, compat_size);
 	fdt_setprop_string(fdt, fdt_path_offset(fdt, "/"), "model", model);
 }
 

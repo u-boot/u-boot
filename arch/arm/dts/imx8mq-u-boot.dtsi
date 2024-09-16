@@ -111,6 +111,8 @@
 #endif
 				#address-cells = <1>;
 
+				offset = <0x57c00>;
+
 				images {
 					uboot {
 						arch = "arm64";
