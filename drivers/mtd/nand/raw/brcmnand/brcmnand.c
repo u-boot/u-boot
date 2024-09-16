@@ -1011,6 +1011,14 @@ static int bcmnand_ctrl_poll_status(struct brcmnand_controller *ctrl,
 	} while (get_timer(base) < limit);
 #endif /* __UBOOT__ */
 
+	/*
+	 * do a final check after time out in case the CPU was busy and the driver
+	 * did not get enough time to perform the polling to avoid false alarms
+	 */
+	val = brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS);
+	if ((val & mask) == expected_val)
+		return 0;
+
 	dev_warn(ctrl->dev, "timeout on status poll (expected %x got %x)\n",
 		 expected_val, val & mask);
 
