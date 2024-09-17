@@ -169,6 +169,12 @@ config WDT_CORTINA
 	  This driver support all CPU ISAs supported by Cortina
 	  Access CAxxxx SoCs.
 
+config WDT_DA9063
+	bool "DA9063 watchdog timer support"
+	depends on WDT && DM_PMIC_DA9063
+	help
+	  Enable support for the watchdog timer in Dialog DA9063.
+
 config WDT_GPIO
 	bool "External gpio watchdog support"
 	depends on WDT
