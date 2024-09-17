@@ -415,7 +415,7 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
 		break;
 	case RK806_ID:
 		value = RK806_POWER_EN_CLRSETBITS(buck % 4, enable);
-		en_reg = RK806_POWER_EN((buck + 1) / 4);
+		en_reg = RK806_POWER_EN(buck / 4);
 		ret = pmic_reg_write(pmic, en_reg, value);
 		break;
 	case RK808_ID:
@@ -494,7 +494,7 @@ static int _buck_get_enable(struct udevice *pmic, int buck)
 		break;
 	case RK806_ID:
 		mask = BIT(buck % 4);
-		ret = pmic_reg_read(pmic, RK806_POWER_EN((buck + 1) / 4));
+		ret = pmic_reg_read(pmic, RK806_POWER_EN(buck / 4));
 		break;
 	case RK808_ID:
 	case RK818_ID:
@@ -544,7 +544,7 @@ static int _buck_set_suspend_enable(struct udevice *pmic, int buck, bool enable)
 				mask = BIT(buck + 1 - 3);
 			} else {
 				reg = RK806_POWER_SLP_EN0;
-				mask = BIT(buck + 1);
+				mask = BIT(buck);
 			}
 			ret = pmic_clrsetbits(pmic, reg, mask, enable ? mask : 0);
 		}
@@ -595,7 +595,7 @@ static int _buck_get_suspend_enable(struct udevice *pmic, int buck)
 				mask = BIT(buck + 1 - 3);
 			} else {
 				reg = RK806_POWER_SLP_EN0;
-				mask = BIT(buck + 1);
+				mask = BIT(buck);
 			}
 			val = pmic_reg_read(pmic, reg);
 		}
