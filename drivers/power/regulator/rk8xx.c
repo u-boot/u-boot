@@ -381,7 +381,7 @@ static int _buck_set_value(struct udevice *pmic, int buck, int uvolt)
 		val = ((uvolt - info->min_uv) / info->step_uv) + info->min_sel;
 
 	debug("%s: volt=%d, buck=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
-	      __func__, uvolt, buck + 1, info->vsel_reg, mask, val);
+	      __func__, uvolt, buck, info->vsel_reg, mask, val);
 
 	if (priv->variant == RK816_ID) {
 		pmic_clrsetbits(pmic, info->vsel_reg, mask, val);
@@ -470,7 +470,7 @@ static int _buck_set_suspend_value(struct udevice *pmic, int buck, int uvolt)
 		val = ((uvolt - info->min_uv) / info->step_uv) + info->min_sel;
 
 	debug("%s: volt=%d, buck=%d, reg=0x%x, mask=0x%x, val=0x%x\n",
-	      __func__, uvolt, buck + 1, info->vsel_sleep_reg, mask, val);
+	      __func__, uvolt, buck, info->vsel_sleep_reg, mask, val);
 
 	return pmic_clrsetbits(pmic, info->vsel_sleep_reg, mask, val);
 }
@@ -539,9 +539,10 @@ static int _buck_set_suspend_enable(struct udevice *pmic, int buck, bool enable)
 		{
 			u8 reg;
 
-			if (buck + 1 >= 9) {
+			if (buck >= 8) {
+				/* BUCK9 and BUCK10 */
 				reg = RK806_POWER_SLP_EN1;
-				mask = BIT(buck + 1 - 3);
+				mask = BIT(buck - 2);
 			} else {
 				reg = RK806_POWER_SLP_EN0;
 				mask = BIT(buck);
@@ -590,9 +591,10 @@ static int _buck_get_suspend_enable(struct udevice *pmic, int buck)
 		{
 			u8 reg;
 
-			if (buck + 1 >= 9) {
+			if (buck >= 8) {
+				/* BUCK9 and BUCK10 */
 				reg = RK806_POWER_SLP_EN1;
-				mask = BIT(buck + 1 - 3);
+				mask = BIT(buck - 2);
 			} else {
 				reg = RK806_POWER_SLP_EN0;
 				mask = BIT(buck);
