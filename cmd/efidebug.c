@@ -665,7 +665,7 @@ enum efi_lo_dp_part {
 };
 
 /**
- * create_lo_dp() - create a special device path for our Boot### option
+ * create_lo_dp_part() - create a special device path for our Boot### option
  *
  * @dev:	device
  * @part:	disk partition
@@ -1127,7 +1127,7 @@ static void show_efi_boot_opt(u16 *varname16)
 }
 
 /**
- * show_efi_boot_dump() - dump all UEFI load options
+ * do_efi_boot_dump() - dump all UEFI load options
  *
  * @cmdtp:	Command table
  * @flag:	Command flag
