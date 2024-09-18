@@ -42,7 +42,7 @@ enum expoact_type {
  *
  * @type: Action type (EXPOACT_NONE if there is no action)
  * @select: Used for EXPOACT_POINT_ITEM and EXPOACT_SELECT
- * @id: ID number of the object affected.
+ * @select.id: ID number of the object affected.
  */
 struct expo_action {
 	enum expoact_type type;
