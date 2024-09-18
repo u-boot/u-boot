@@ -24,7 +24,7 @@ struct sandbox_state;
 int os_printf(const char *format, ...);
 
 /**
- * Access to the OS read() system call
+ * os_read() - access the OS read() system call
  *
  * @fd:		File descriptor as returned by os_open()
  * @buf:	Buffer to place data
@@ -34,7 +34,7 @@ int os_printf(const char *format, ...);
 ssize_t os_read(int fd, void *buf, size_t count);
 
 /**
- * Access to the OS write() system call
+ * os_write() - access the OS write() system call
  *
  * @fd:		File descriptor as returned by os_open()
  * @buf:	Buffer containing data to write
@@ -44,7 +44,7 @@ ssize_t os_read(int fd, void *buf, size_t count);
 ssize_t os_write(int fd, const void *buf, size_t count);
 
 /**
- * Access to the OS lseek() system call
+ * os_lseek() - access the OS lseek() system call
  *
  * @fd:		File descriptor as returned by os_open()
  * @offset:	File offset (based on whence)
@@ -67,7 +67,7 @@ off_t os_lseek(int fd, off_t offset, int whence);
 off_t os_filesize(int fd);
 
 /**
- * Access to the OS open() system call
+ * os_open() - access the OS open() system call
  *
  * @pathname:	Pathname of file to open
  * @flags:	Flags, like OS_O_RDONLY, OS_O_RDWR
@@ -162,7 +162,7 @@ void os_raise_sigalrm(void);
 void os_tty_raw(int fd, bool allow_sigs);
 
 /**
- * os_fs_restore() - restore the tty to its original mode
+ * os_fd_restore() - restore the tty to its original mode
  *
  * Call this to restore the original terminal mode, after it has been changed
  * by os_tty_raw(). This is an internal function.
@@ -207,14 +207,14 @@ void *os_realloc(void *ptr, size_t length);
 void os_usleep(unsigned long usec);
 
 /**
- * Gets a monotonic increasing number of nano seconds from the OS
+ * os_get_nsec() - get monotonically increasing number of nano seconds from OS
  *
- * Return:	a monotonic increasing time scaled in nano seconds
+ * Return:	a monotoniccally increasing time scaled in nano seconds
  */
 uint64_t os_get_nsec(void);
 
 /**
- * Parse arguments and update sandbox state.
+ * os_parse_args() - parse arguments and update sandbox state.
  *
  * @state:	sandbox state to update
  * @argc:	argument count
