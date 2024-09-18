@@ -248,10 +248,6 @@ void socfpga_get_managers_addr(void)
 	if (ret)
 		hang();
 
-	ret = socfpga_get_base_addr("altr,sys-mgr", &socfpga_sysmgr_base);
-	if (ret)
-		hang();
-
 #ifdef CONFIG_TARGET_SOCFPGA_AGILEX
 	ret = socfpga_get_base_addr("intel,agilex-clkmgr",
 				    &socfpga_clkmgr_base);
@@ -263,6 +259,20 @@ void socfpga_get_managers_addr(void)
 #endif
 	if (ret)
 		hang();
+}
+
+void socfpga_get_sys_mgr_addr(const char *compat)
+{
+	int ret;
+	struct udevice *sysmgr_dev;
+
+	ret = uclass_get_device_by_name(UCLASS_NOP, compat, &sysmgr_dev);
+	if (ret) {
+		printf("Altera system manager init failed: %d\n", ret);
+		hang();
+	} else {
+		socfpga_sysmgr_base = (phys_addr_t)dev_read_addr(sysmgr_dev);
+	}
 }
 
 phys_addr_t socfpga_get_rstmgr_addr(void)

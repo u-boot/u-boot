@@ -3,7 +3,7 @@
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
+# Copyright (C) 2012-2025 Altera Corporation <www.altera.com>
 # Copyright (C) 2017-2024 Intel Corporation <www.intel.com>
 
 obj-y	+= board.o
@@ -63,6 +63,7 @@ obj-y	+= misc_soc64.o
 obj-y	+= mmu-arm64_s10.o
 obj-y	+= reset_manager_s10.o
 obj-y	+= wrap_pll_config_soc64.o
+obj-y	+= altera-sysmgr.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_N5X
