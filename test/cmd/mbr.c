@@ -14,10 +14,14 @@
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <linux/sizes.h>
 #include <test/suites.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define BLKSZ	SZ_512	/* block size */
+
 /*
  * Requirements for running test manually:
  * mmc6.img - File size needs to be at least 12 MiB
@@ -50,7 +54,7 @@ static char * mbr_parts_tail = "'";
 000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
 */
-static unsigned mbr_cmp_start = 0x1B8;
+static unsigned int mbr_cmp_start = 0x1b8;
 static unsigned mbr_cmp_size = 0x48;
 static unsigned char mbr_parts_ref_p1[] = {
                                                 0x78, 0x56, 0x34, 0x12, 0x00, 0x00, 0x80, 0x05,
@@ -228,9 +232,11 @@ static unsigned build_mbr_parts(char *buf, size_t buf_size, unsigned num_parts)
 static int mbr_test_run(struct unit_test_state *uts)
 {
 	struct blk_desc *mmc_dev_desc;
-	unsigned char mbr_wbuf[512], ebr_wbuf[512], rbuf[512];
+	unsigned char *mbr_wbuf, *ebr_wbuf, *rbuf;
 	char mbr_parts_buf[256];
-	ulong mbr_wa, ebr_wa, ra, ebr_blk, mbr_parts_max;
+	ulong addr = 0x1000;  /* start address for buffers */
+	ulong mbr_wa = addr, ebr_wa = addr + BLKSZ, ra = addr + BLKSZ * 2;
+	ulong ebr_blk, mbr_parts_max;
 	struct udevice *dev;
 	ofnode root, node;
 
@@ -254,10 +260,10 @@ static int mbr_test_run(struct unit_test_state *uts)
 	ut_assertf(sizeof(mbr_parts_buf) >= mbr_parts_max, "Buffer avail: %ld; buffer req: %ld\n",
 		sizeof(mbr_parts_buf), mbr_parts_max);
 
-	mbr_wa = map_to_sysmem(mbr_wbuf);
-	ebr_wa = map_to_sysmem(ebr_wbuf);
-	ra = map_to_sysmem(rbuf);
-	ebr_blk = (ulong)0xB00000 / 0x200;
+	mbr_wbuf = map_sysmem(mbr_wa, BLKSZ);
+	ebr_wbuf = map_sysmem(ebr_wa, BLKSZ);
+	rbuf = map_sysmem(ra, BLKSZ);
+	ebr_blk = (ulong)0xb00000 / BLKSZ;
 
 	/* Make sure mmc6 exists */
 	ut_asserteq(6, blk_get_device_by_str("mmc", "6", &mmc_dev_desc));
@@ -267,28 +273,29 @@ static int mbr_test_run(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* Make sure mmc6 is 12+ MiB in size */
-	ut_assertok(run_commandf("mmc read 0x%lx 0x%lx 1", ra, (ulong)0xBFFE00 / 0x200));
+	ut_assertok(run_commandf("mmc read %lx %lx 1", ra,
+				 (ulong)0xbffe00 / BLKSZ));
 
 	/* Test one MBR partition */
 	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 1));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0 1", mbr_wa));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
-	ut_assertok(memcmp(mbr_wbuf, rbuf, 512));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0x%lx 1", ebr_wa, ebr_blk));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
+	ut_assertok(memcmp(mbr_wbuf, rbuf, BLKSZ));
+	ut_assertok(run_commandf("write mmc 6:0 %lx %lx 1", ebr_wa, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assertf(0 == run_commandf(mbr_parts_buf), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assertok(run_commandf("mbr write mmc 6"));
 	ut_assert_nextlinen("MMC read: dev # 6");
 	ut_assert_nextline("MBR: write success!");
 	ut_assertok(run_commandf("mbr verify mmc 6"));
 	ut_assert_nextline("MBR: verify success!");
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assert_console_end();
 	/*
 	000001b0  00 00 00 00 00 00 00 00  78 56 34 12 00 00 80 05  |........xV4.....|
@@ -297,33 +304,33 @@ static int mbr_test_run(struct unit_test_state *uts)
 	000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 	000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
 	for (unsigned i = 0; i < mbr_cmp_size; i++) {
 		ut_assertf(rbuf[mbr_cmp_start + i] == mbr_parts_ref_p1[i],
-			"1P MBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"1P MBR+0x%04X: expected %#02X, actual: %#02X\n",
 			mbr_cmp_start + i, mbr_parts_ref_p1[i], rbuf[mbr_cmp_start + i]);
 	}
 
 	/* Test two MBR partitions */
 	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 2));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0 1", mbr_wa));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
-	ut_assertok(memcmp(mbr_wbuf, rbuf, 512));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0x%lx 1", ebr_wa, ebr_blk));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
+	ut_assertok(memcmp(mbr_wbuf, rbuf, BLKSZ));
+	ut_assertok(run_commandf("write mmc 6:0 %lx %lx 1", ebr_wa, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assertf(0 == run_commandf(mbr_parts_buf), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assertok(run_commandf("mbr write mmc 6"));
 	ut_assert_nextline("MBR: write success!");
 	ut_assertok(run_commandf("mbr verify mmc 6"));
 	ut_assert_nextline("MBR: verify success!");
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assert_console_end();
 	/*
 	000001b0  00 00 00 00 00 00 00 00  78 56 34 12 00 00 80 05  |........xV4.....|
@@ -332,33 +339,33 @@ static int mbr_test_run(struct unit_test_state *uts)
 	000001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 	000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
 	for (unsigned i = 0; i < mbr_cmp_size; i++) {
 		ut_assertf(rbuf[mbr_cmp_start + i] == mbr_parts_ref_p2[i],
-			"2P MBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"2P MBR+0x%04X: expected %#02X, actual: %#02X\n",
 			mbr_cmp_start + i, mbr_parts_ref_p2[i], rbuf[mbr_cmp_start + i]);
 	}
 
 	/* Test three MBR partitions */
 	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 3));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0 1", mbr_wa));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
-	ut_assertok(memcmp(mbr_wbuf, rbuf, 512));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0x%lx 1", ebr_wa, ebr_blk));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
+	ut_assertok(memcmp(mbr_wbuf, rbuf, BLKSZ));
+	ut_assertok(run_commandf("write mmc 6:0 %lx %lx 1", ebr_wa, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assertf(0 == run_commandf(mbr_parts_buf), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assertok(run_commandf("mbr write mmc 6"));
 	ut_assert_nextline("MBR: write success!");
 	ut_assertok(run_commandf("mbr verify mmc 6"));
 	ut_assert_nextline("MBR: verify success!");
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assert_console_end();
 	/*
 	000001b0  00 00 00 00 00 00 00 00  78 56 34 12 00 00 80 05  |........xV4.....|
@@ -367,33 +374,33 @@ static int mbr_test_run(struct unit_test_state *uts)
 	000001e0  06 01 0e 66 25 01 00 50  00 00 00 08 00 00 00 00  |...f%..P........|
 	000001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
 	for (unsigned i = 0; i < mbr_cmp_size; i++) {
 		ut_assertf(rbuf[mbr_cmp_start + i] == mbr_parts_ref_p3[i],
-			"3P MBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"3P MBR+0x%04X: expected %#02X, actual: %#02X\n",
 			mbr_cmp_start + i, mbr_parts_ref_p3[i], rbuf[mbr_cmp_start + i]);
 	}
 
 	/* Test four MBR partitions */
 	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 4));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0 1", mbr_wa));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
-	ut_assertok(memcmp(mbr_wbuf, rbuf, 512));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0x%lx 1", ebr_wa, ebr_blk));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
+	ut_assertok(memcmp(mbr_wbuf, rbuf, BLKSZ));
+	ut_assertok(run_commandf("write mmc 6:0 %lx %lx 1", ebr_wa, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assertf(0 == run_commandf(mbr_parts_buf), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assertok(run_commandf("mbr write mmc 6"));
 	ut_assert_nextline("MBR: write success!");
 	ut_assertok(run_commandf("mbr verify mmc 6"));
 	ut_assert_nextline("MBR: verify success!");
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assert_console_end();
 	/*
 	000001b0  00 00 00 00 00 00 00 00  78 56 34 12 00 00 80 05  |........xV4.....|
@@ -402,25 +409,25 @@ static int mbr_test_run(struct unit_test_state *uts)
 	000001e0  06 01 0e 66 25 01 00 50  00 00 00 08 00 00 00 66  |...f%..P.......f|
 	000001f0  26 01 0e 87 06 01 00 58  00 00 00 08 00 00 55 aa  |&......X......U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
 	for (unsigned i = 0; i < mbr_cmp_size; i++) {
 		ut_assertf(rbuf[mbr_cmp_start + i] == mbr_parts_ref_p4[i],
-			"4P MBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"4P MBR+0x%04X: expected %#02X, actual: %#02X\n",
 			mbr_cmp_start + i, mbr_parts_ref_p4[i], rbuf[mbr_cmp_start + i]);
 	}
 
 	/* Test five MBR partitions */
 	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 5));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0 1", mbr_wa));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
-	ut_assertok(memcmp(mbr_wbuf, rbuf, 512));
-	ut_assertok(run_commandf("write mmc 6:0 0x%lx 0x%lx 1", ebr_wa, ebr_blk));
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
-	ut_assertok(memcmp(ebr_wbuf, rbuf, 512));
+	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
+	ut_assertok(memcmp(mbr_wbuf, rbuf, BLKSZ));
+	ut_assertok(run_commandf("write mmc 6:0 %lx %lx 1", ebr_wa, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
+	ut_assertok(memcmp(ebr_wbuf, rbuf, BLKSZ));
 	ut_assertf(0 == run_commandf(mbr_parts_buf), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assertf(0 == run_commandf("mbr write mmc 6"), "Invalid partitions string: %s\n", mbr_parts_buf);
 	ut_assert_nextline("MBR: write success!");
@@ -434,11 +441,11 @@ static int mbr_test_run(struct unit_test_state *uts)
 	000001e0  06 01 0e 66 25 01 00 50  00 00 00 08 00 00 00 66  |...f%..P.......f|
 	000001f0  26 01 05 a7 26 01 00 58  00 00 00 10 00 00 55 aa  |&...&..X......U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0 1", ra));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx 0 1", ra));
 	for (unsigned i = 0; i < mbr_cmp_size; i++) {
 		ut_assertf(rbuf[mbr_cmp_start + i] == mbr_parts_ref_p5[i],
-			"5P MBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"5P MBR+0x%04X: expected %#02X, actual: %#02X\n",
 			mbr_cmp_start + i, mbr_parts_ref_p5[i], rbuf[mbr_cmp_start + i]);
 	}
 	/*
@@ -448,13 +455,16 @@ static int mbr_test_run(struct unit_test_state *uts)
 	00b001e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 	00b001f0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 55 aa  |..............U.|
 	*/
-	memset(rbuf, 0, sizeof(rbuf));
-	ut_assertok(run_commandf("read mmc 6:0 0x%lx 0x%lx 1", ra, ebr_blk));
+	memset(rbuf, '\0', BLKSZ);
+	ut_assertok(run_commandf("read mmc 6:0 %lx %lx 1", ra, ebr_blk));
 	for (unsigned i = 0; i < ebr_cmp_size; i++) {
 		ut_assertf(rbuf[ebr_cmp_start + i] == ebr_parts_ref_p5[i],
-			"5P EBR+0x%04X: expected 0x%02X, actual: 0x%02X\n",
+			"5P EBR+0x%04X: expected %#02X, actual: %#02X\n",
 			ebr_cmp_start + i, ebr_parts_ref_p5[i], rbuf[ebr_cmp_start + i]);
 	}
+	unmap_sysmem(mbr_wbuf);
+	unmap_sysmem(ebr_wbuf);
+	unmap_sysmem(rbuf);
 
 	return 0;
 }
@@ -469,9 +479,3 @@ int do_ut_mbr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	return cmd_ut_category("mbr", "mbr_test_", tests, n_ents, argc, argv);
 }
-
-static int dm_test_cmd_mbr(struct unit_test_state *uts)
-{
-	return mbr_test_run(uts);
-}
-DM_TEST(dm_test_cmd_mbr, UTF_SCAN_FDT | UTF_CONSOLE);

@@ -16,13 +16,6 @@
 #include <test/ut.h>
 #include "bootstd_common.h"
 
-/* Allow reseting the USB-started flag */
-#if defined(CONFIG_USB_HOST) || defined(CONFIG_USB_GADGET)
-extern bool usb_started;
-#else
-#include <usb.h>
-#endif
-
 /* Check 'bootdev list' command */
 static int bootdev_test_cmd_list(struct unit_test_state *uts)
 {
@@ -197,7 +190,7 @@ static int bootdev_test_order(struct unit_test_state *uts)
 	test_set_skip_delays(true);
 
 	/* Start up USB which gives us three additional bootdevs */
-	usb_started = false;
+	bootstd_reset_usb();
 	ut_assertok(run_command("usb start", 0));
 
 	/*
@@ -313,7 +306,7 @@ static int bootdev_test_prio(struct unit_test_state *uts)
 	test_set_eth_enable(false);
 
 	/* Start up USB which gives us three additional bootdevs */
-	usb_started = false;
+	bootstd_reset_usb();
 	ut_assertok(run_command("usb start", 0));
 
 	ut_assertok(bootstd_test_drop_bootdev_order(uts));
@@ -352,7 +345,7 @@ static int bootdev_test_hunter(struct unit_test_state *uts)
 {
 	struct bootstd_priv *std;
 
-	usb_started = false;
+	bootstd_reset_usb();
 	test_set_skip_delays(true);
 
 	/* get access to the used hunters */
@@ -392,7 +385,7 @@ static int bootdev_test_cmd_hunt(struct unit_test_state *uts)
 	struct bootstd_priv *std;
 
 	test_set_skip_delays(true);
-	usb_started = false;
+	bootstd_reset_usb();
 
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));
@@ -520,7 +513,7 @@ BOOTSTD_TEST(bootdev_test_bootable, UTF_DM | UTF_SCAN_FDT);
 /* Check hunting for bootdev of a particular priority */
 static int bootdev_test_hunt_prio(struct unit_test_state *uts)
 {
-	usb_started = false;
+	bootstd_reset_usb();
 	test_set_skip_delays(true);
 
 	ut_assertok(bootdev_hunt_prio(BOOTDEVP_4_SCAN_FAST, false));
@@ -548,7 +541,7 @@ static int bootdev_test_hunt_label(struct unit_test_state *uts)
 	struct bootstd_priv *std;
 	int mflags;
 
-	usb_started = false;
+	bootstd_reset_usb();
 
 	/* get access to the used hunters */
 	ut_assertok(bootstd_get_priv(&std));

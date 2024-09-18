@@ -20,7 +20,7 @@ do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct disk_partition part_info;
 	ulong offset, limit;
 	uint blk, cnt, res;
-	void *addr;
+	void *ptr;
 	int part;
 
 	if (argc != 6) {
@@ -33,7 +33,7 @@ do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (part < 0)
 		return 1;
 
-	addr = map_sysmem(hextoul(argv[3], NULL), 0);
+	ptr = map_sysmem(hextoul(argv[3], NULL), 0);
 	blk = hextoul(argv[4], NULL);
 	cnt = hextoul(argv[5], NULL);
 
@@ -48,13 +48,15 @@ do_rw(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if (cnt + blk > limit) {
 		printf("%s out of range\n", cmdtp->name);
+		unmap_sysmem(ptr);
 		return 1;
 	}
 
 	if (IS_ENABLED(CONFIG_CMD_WRITE) && !strcmp(cmdtp->name, "write"))
-		res = blk_dwrite(dev_desc, offset + blk, cnt, addr);
+		res = blk_dwrite(dev_desc, offset + blk, cnt, ptr);
 	else
-		res = blk_dread(dev_desc, offset + blk, cnt, addr);
+		res = blk_dread(dev_desc, offset + blk, cnt, ptr);
+	unmap_sysmem(ptr);
 
 	if (res != cnt) {
 		printf("%s error\n", cmdtp->name);
