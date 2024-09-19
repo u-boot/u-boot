@@ -280,4 +280,5 @@ enum boot_device get_boot_device(void);
 
 int disable_cpu_nodes(void *blob, const char * const *nodes_path,
 		      u32 num_disabled_cores, u32 max_cores);
+int fixup_thermal_trips(void *blob, const char *name);
 #endif

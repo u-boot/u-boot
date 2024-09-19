@@ -1215,48 +1215,6 @@ static int cleanup_nodes_for_efi(void *blob)
 	return 0;
 }
 
-static int fixup_thermal_trips(void *blob, const char *name)
-{
-	int minc, maxc;
-	int node, trip;
-
-	node = fdt_path_offset(blob, "/thermal-zones");
-	if (node < 0)
-		return node;
-
-	node = fdt_subnode_offset(blob, node, name);
-	if (node < 0)
-		return node;
-
-	node = fdt_subnode_offset(blob, node, "trips");
-	if (node < 0)
-		return node;
-
-	get_cpu_temp_grade(&minc, &maxc);
-
-	fdt_for_each_subnode(trip, blob, node) {
-		const char *type;
-		int temp, ret;
-
-		type = fdt_getprop(blob, trip, "type", NULL);
-		if (!type)
-			continue;
-
-		temp = 0;
-		if (!strcmp(type, "critical"))
-			temp = 1000 * maxc;
-		else if (!strcmp(type, "passive"))
-			temp = 1000 * (maxc - 10);
-		if (temp) {
-			ret = fdt_setprop_u32(blob, trip, "temperature", temp);
-			if (ret)
-				return ret;
-		}
-	}
-
-	return 0;
-}
-
 #define OPTEE_SHM_SIZE 0x00400000
 static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 {
