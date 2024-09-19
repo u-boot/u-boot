@@ -30,6 +30,7 @@ choice
 
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
+	select OF_BOARD_FIXUP
 	select IMX93
 	imply OF_UPSTREAM
 

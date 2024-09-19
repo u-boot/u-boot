@@ -191,6 +191,10 @@ static u32 get_cpu_variant_type(u32 type)
 	bool core1_disable = !!(val & BIT(15));
 	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);
 
+	/* Low performance 93 part */
+	if (((val >> 6) & 0x3F) == 0xE && npu_disable)
+		return core1_disable ? MXC_CPU_IMX9301 : MXC_CPU_IMX9302;
+
 	if ((val2 & pack_9x9_fused) == pack_9x9_fused)
 		type = MXC_CPU_IMX9322;
 
@@ -704,7 +708,7 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	if (fixup_thermal_trips(blob, "cpu-thermal"))
 		printf("Failed to update cpu-thermal trip(s)");
 
-	if (is_imx9351() || is_imx9331() || is_imx9321() || is_imx9311())
+	if (is_imx9351() || is_imx9331() || is_imx9321() || is_imx9311() || is_imx9301())
 		disable_cpu_nodes(blob, nodes_path, 1, 2);
 
 	if (is_voltage_mode(VOLT_LOW_DRIVE))
