@@ -10,6 +10,9 @@
 #include <linux/types.h>
 
 #define FWU_MDATA_VERSION	0x2U
+#define FWU_IMG_DESC_OFFSET	0x20U
+
+static struct fwu_mdata g_mdata;
 
 static inline struct fwu_fw_store_desc *fwu_get_fw_desc(struct fwu_mdata *mdata)
 {
@@ -58,24 +61,6 @@ static int fwu_mdata_sanity_checks(void)
 	struct fwu_data *data = fwu_get_data();
 	struct fwu_mdata *mdata = data->fwu_mdata;
 
-	if (mdata->version != FWU_MDATA_VERSION) {
-		log_err("FWU metadata version %u. Expected value of %u\n",
-			mdata->version, FWU_MDATA_VERSION);
-		return -EINVAL;
-	}
-
-	if (!mdata->desc_offset) {
-		log_err("No image information provided with the Metadata. ");
-		log_err("Image information expected in the metadata\n");
-		return -EINVAL;
-	}
-
-	if (mdata->desc_offset != 0x20) {
-		log_err("Descriptor Offset(0x%x) in the FWU Metadata not equal to 0x20\n",
-			mdata->desc_offset);
-		return -EINVAL;
-	}
-
 	num_banks = fwu_get_fw_desc(mdata)->num_banks;
 	num_images = fwu_get_fw_desc(mdata)->num_images;
 
@@ -99,6 +84,9 @@ static int fwu_bank_state_update(bool trial_state, uint32_t bank)
 	int ret;
 	struct fwu_data *data = fwu_get_data();
 	struct fwu_mdata *mdata = data->fwu_mdata;
+
+	if (!trial_state && !fwu_bank_accepted(data, bank))
+		return 0;
 
 	mdata->bank_state[bank] = data->bank_state[bank] = trial_state ?
 		FWU_BANK_VALID : FWU_BANK_ACCEPTED;
@@ -125,6 +113,35 @@ static int fwu_trial_state_start(uint update_index)
 		return ret;
 
 	return 0;
+}
+
+static bool fwu_get_mdata_mandatory(uint part)
+{
+	int ret = 0;
+	struct udevice *fwu_dev = fwu_get_dev();
+
+	memset(&g_mdata, 0, sizeof(struct fwu_mdata));
+
+	ret = fwu_read_mdata(fwu_dev, &g_mdata,
+			     part == PRIMARY_PART ? true : false,
+			     sizeof(struct fwu_mdata));
+	if (ret)
+		return false;
+
+	if (g_mdata.version != FWU_MDATA_VERSION) {
+		log_err("FWU partition %u has metadata version %u. Expected value of %u\n",
+			part, g_mdata.version, FWU_MDATA_VERSION);
+		return false;
+	}
+
+	if (g_mdata.desc_offset != FWU_IMG_DESC_OFFSET) {
+		log_err("Descriptor Offset(0x%x) in the FWU Metadata partition %u not equal to 0x20\n",
+			g_mdata.desc_offset, part);
+		log_err("Image information expected in the metadata\n");
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -187,24 +204,14 @@ int fwu_state_machine_updates(bool trial_state, uint32_t update_index)
  */
 int fwu_get_mdata_size(uint32_t *mdata_size)
 {
-	int ret = 0;
-	struct fwu_mdata mdata = { 0 };
 	struct fwu_data *data = fwu_get_data();
-	struct udevice *fwu_dev = fwu_get_dev();
 
 	if (data->metadata_size) {
 		*mdata_size = data->metadata_size;
 		return 0;
 	}
 
-	ret = fwu_read_mdata(fwu_dev, &mdata, 1,
-			     sizeof(struct fwu_mdata));
-	if (ret) {
-		log_err("FWU metadata read failed\n");
-		return ret;
-	}
-
-	*mdata_size = mdata.metadata_size;
+	*mdata_size = g_mdata.metadata_size;
 	if (!*mdata_size)
 		return -EINVAL;
 
@@ -224,21 +231,23 @@ int fwu_get_mdata_size(uint32_t *mdata_size)
 int fwu_init(void)
 {
 	int ret;
-	struct fwu_mdata mdata = { 0 };
-	struct udevice *fwu_dev = fwu_get_dev();
 
 	/*
 	 * First we read only the top level structure
 	 * and get the size of the complete structure.
+	 * Try reading the first partition first, if
+	 * that does not work, try the secondary
+	 * partition. The idea is, if one of the
+	 * partitions is corrupted, it should be restored
+	 * from the intact partition.
 	 */
-	ret = fwu_read_mdata(fwu_dev, &mdata, 1,
-			     sizeof(struct fwu_mdata));
-	if (ret) {
+	if (!fwu_get_mdata_mandatory(PRIMARY_PART) &&
+	    !fwu_get_mdata_mandatory(SECONDARY_PART)) {
 		log_err("FWU metadata read failed\n");
-		return ret;
+		return -1;
 	}
 
-	ret = fwu_mdata_copies_allocate(mdata.metadata_size);
+	ret = fwu_mdata_copies_allocate(g_mdata.metadata_size);
 	if (ret)
 		return ret;
 
