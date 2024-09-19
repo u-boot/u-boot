@@ -1220,43 +1220,6 @@ static void disable_thermal_cpu_nodes(void *blob, u32 disabled_cores)
 	}
 }
 
-static void disable_pmu_cpu_nodes(void *blob, u32 disabled_cores)
-{
-	static const char * const pmu_path[] = {
-		"/pmu"
-	};
-
-	int nodeoff, cnt, i, ret, j;
-	u32 irq_affinity[4];
-
-	for (i = 0; i < ARRAY_SIZE(pmu_path); i++) {
-		nodeoff = fdt_path_offset(blob, pmu_path[i]);
-		if (nodeoff < 0)
-			continue; /* Not found, skip it */
-
-		cnt = fdtdec_get_int_array_count(blob, nodeoff, "interrupt-affinity",
-						 irq_affinity, 4);
-		if (cnt < 0)
-			continue;
-
-		if (cnt != 4)
-			printf("Warning: %s, interrupt-affinity count %d\n", pmu_path[i], cnt);
-
-		for (j = 0; j < cnt; j++)
-			irq_affinity[j] = cpu_to_fdt32(irq_affinity[j]);
-
-		ret = fdt_setprop(blob, nodeoff, "interrupt-affinity", &irq_affinity,
-				 sizeof(u32) * (4 - disabled_cores));
-		if (ret < 0) {
-			printf("Warning: %s, interrupt-affinity setprop failed %d\n",
-			       pmu_path[i], ret);
-			continue;
-		}
-
-		printf("Update node %s, interrupt-affinity prop\n", pmu_path[i]);
-	}
-}
-
 static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 {
 	static const char * const nodes_path[] = {
@@ -1290,7 +1253,6 @@ static int disable_cpu_nodes(void *blob, u32 disabled_cores)
 	}
 
 	disable_thermal_cpu_nodes(blob, disabled_cores);
-	disable_pmu_cpu_nodes(blob, disabled_cores);
 
 	return 0;
 }
