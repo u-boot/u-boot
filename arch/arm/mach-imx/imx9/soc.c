@@ -560,8 +560,9 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 #if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 void get_board_serial(struct tag_serialnr *serialnr)
 {
-	printf("UID: 0x%x 0x%x 0x%x 0x%x\n",
-	       gd->arch.uid[0], gd->arch.uid[1], gd->arch.uid[2], gd->arch.uid[3]);
+	printf("UID: %08x%08x%08x%08x\n", __be32_to_cpu(gd->arch.uid[0]),
+	       __be32_to_cpu(gd->arch.uid[1]), __be32_to_cpu(gd->arch.uid[2]),
+	       __be32_to_cpu(gd->arch.uid[3]));
 
 	serialnr->low = __be32_to_cpu(gd->arch.uid[1]);
 	serialnr->high = __be32_to_cpu(gd->arch.uid[0]);
