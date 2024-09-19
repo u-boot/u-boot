@@ -615,10 +615,98 @@ int arch_misc_init(void)
 	return 0;
 }
 
+struct low_drive_freq_entry {
+	const char *node_path;
+	u32 clk;
+	u32 new_rate;
+};
+
+static int low_drive_fdt_fix_clock(void *fdt, int node_off, u32 clk_index, u32 new_rate)
+{
+#define MAX_ASSIGNED_CLKS 8
+	int cnt, j;
+	u32 assignedclks[MAX_ASSIGNED_CLKS]; /* max 8 clocks*/
+
+	cnt = fdtdec_get_int_array_count(fdt, node_off, "assigned-clock-rates",
+					 assignedclks, MAX_ASSIGNED_CLKS);
+	if (cnt > 0) {
+		if (cnt <= clk_index)
+			return -ENOENT;
+
+		if (assignedclks[clk_index] <= new_rate)
+			return 0;
+
+		assignedclks[clk_index] = new_rate;
+		for (j = 0; j < cnt; j++)
+			assignedclks[j] = cpu_to_fdt32(assignedclks[j]);
+
+		return fdt_setprop(fdt, node_off, "assigned-clock-rates", &assignedclks,
+				   cnt * sizeof(u32));
+	}
+
+	return -ENOENT;
+}
+
+static int low_drive_freq_update(void *blob)
+{
+	int nodeoff, ret;
+	int i;
+
+	/* Update kernel dtb clocks for low drive mode */
+	struct low_drive_freq_entry table[] = {
+		{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
+		{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
+		{"/soc@0/bus@42800000/mmc@428b0000", 0, 266666667},
+	};
+
+	for (i = 0; i < ARRAY_SIZE(table); i++) {
+		nodeoff = fdt_path_offset(blob, table[i].node_path);
+		if (nodeoff >= 0) {
+			ret = low_drive_fdt_fix_clock(blob, nodeoff, table[i].clk,
+						      table[i].new_rate);
+			if (!ret)
+				printf("%s freq updated\n", table[i].node_path);
+		}
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_OF_BOARD_FIXUP
+#ifndef CONFIG_SPL_BUILD
+int board_fix_fdt(void *fdt)
+{
+	/* Update dtb clocks for low drive mode */
+	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
+		int nodeoff;
+		int i;
+
+		struct low_drive_freq_entry table[] = {
+			{"/soc@0/bus@42800000/mmc@42850000", 0, 266666667},
+			{"/soc@0/bus@42800000/mmc@42860000", 0, 266666667},
+			{"/soc@0/bus@42800000/mmc@428b0000", 0, 266666667},
+		};
+
+		for (i = 0; i < ARRAY_SIZE(table); i++) {
+			nodeoff = fdt_path_offset(fdt, table[i].node_path);
+			if (nodeoff >= 0)
+				low_drive_fdt_fix_clock(fdt, nodeoff, table[i].clk,
+							table[i].new_rate);
+		}
+	}
+
+	return 0;
+}
+#endif
+#endif
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	if (fixup_thermal_trips(blob, "cpu-thermal"))
 		printf("Failed to update cpu-thermal trip(s)");
+
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		low_drive_freq_update(blob);
 
 	return 0;
 }
@@ -942,4 +1030,23 @@ int psci_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	}
 
 	return 0;
+}
+
+enum imx9_soc_voltage_mode soc_target_voltage_mode(void)
+{
+	u32 speed = get_cpu_speed_grade_hz();
+	enum imx9_soc_voltage_mode voltage = VOLT_OVER_DRIVE;
+
+	if (is_imx93()) {
+		if (speed == 1700000000)
+			voltage = VOLT_OVER_DRIVE;
+		else if (speed == 1400000000)
+			voltage = VOLT_NOMINAL_DRIVE;
+		else if (speed == 900000000 || speed == 800000000)
+			voltage = VOLT_LOW_DRIVE;
+		else
+			printf("Unexpected A55 freq %u, default to OD\n", speed);
+	}
+
+	return voltage;
 }

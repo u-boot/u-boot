@@ -77,7 +77,7 @@ int power_init_board(void)
 	/* enable DVS control through PMIC_STBY_REQ */
 	pmic_reg_write(dev, PCA9450_BUCK1CTRL, 0x59);
 
-	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE)) {
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
 		/* 0.75v for Low drive mode
 		 */
 		pmic_reg_write(dev, PCA9450_BUCK1OUT_DVS0, 0x0c);

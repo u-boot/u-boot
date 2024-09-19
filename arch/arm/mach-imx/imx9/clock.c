@@ -603,7 +603,7 @@ void init_clk_usdhc(u32 index)
 {
 	u32 div;
 
-	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
 		div = 3; /* 266.67 Mhz */
 	else
 		div = 2; /* 400 Mhz */
@@ -700,8 +700,7 @@ void set_arm_core_max_clk(void)
 
 #endif
 
-#if IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE)
-struct imx_clk_setting imx_clk_settings[] = {
+struct imx_clk_setting imx_clk_ld_settings[] = {
 	/* Set A55 clk to 500M */
 	{ARM_A55_CLK_ROOT, SYS_PLL_PFD0, 2},
 	/* Set A55 periphal to 200M */
@@ -728,7 +727,7 @@ struct imx_clk_setting imx_clk_settings[] = {
 	/* NIC_APB to 133M */
 	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
 };
-#else
+
 struct imx_clk_setting imx_clk_settings[] = {
 	/*
 	 * Set A55 clk to 500M. This clock root is normally used as intermediate
@@ -762,9 +761,18 @@ struct imx_clk_setting imx_clk_settings[] = {
 	/* NIC_APB to 133M */
 	{NIC_APB_CLK_ROOT, SYS_PLL_PFD1_DIV2, 3}
 };
-#endif
 
-int clock_init(void)
+void bus_clock_init_low_drive(void)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(imx_clk_ld_settings); i++) {
+		ccm_clk_root_cfg(imx_clk_ld_settings[i].clk_root,
+				 imx_clk_ld_settings[i].src, imx_clk_ld_settings[i].div);
+	}
+}
+
+void bus_clock_init(void)
 {
 	int i;
 
@@ -772,9 +780,18 @@ int clock_init(void)
 		ccm_clk_root_cfg(imx_clk_settings[i].clk_root,
 				 imx_clk_settings[i].src, imx_clk_settings[i].div);
 	}
+}
 
-	if (IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+int clock_init(void)
+{
+	int i;
+
+	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
+		bus_clock_init_low_drive();
 		set_arm_clk(MHZ(900));
+	} else {
+		bus_clock_init();
+	}
 
 	/* allow for non-secure access */
 	for (i = 0; i < OSCPLL_END; i++)
