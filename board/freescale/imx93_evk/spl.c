@@ -52,9 +52,16 @@ void spl_board_init(void)
 	puts("Normal Boot\n");
 }
 
+extern struct dram_timing_info dram_timing_1866mts;
 void spl_dram_init(void)
 {
-	ddr_init(&dram_timing);
+	struct dram_timing_info *ptiming = &dram_timing;
+
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		ptiming = &dram_timing_1866mts;
+
+	printf("DDR: %uMTS\n", ptiming->fsp_msg[0].drate);
+	ddr_init(ptiming);
 }
 
 #if CONFIG_IS_ENABLED(DM_PMIC_PCA9450)
