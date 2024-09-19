@@ -96,10 +96,16 @@ int mmc_get_env_dev(void)
  */
 u32 get_cpu_speed_grade_hz(void)
 {
-	u32 speed, max_speed;
+	int ret;
+	u32 bank, word, speed, max_speed;
 	u32 val;
 
-	fuse_read(2, 3, &val);
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
 	val = FIELD_GET(SPEED_GRADING_MASK, val) & 0xF;
 
 	speed = MHZ(2300) - val * MHZ(100);
@@ -122,9 +128,15 @@ u32 get_cpu_speed_grade_hz(void)
  */
 u32 get_cpu_temp_grade(int *minc, int *maxc)
 {
-	u32 val;
+	int ret;
+	u32 bank, word, val;
 
-	fuse_read(2, 3, &val);
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
 	val = FIELD_GET(MARKETING_GRADING_MASK, val);
 
 	if (minc && maxc) {
@@ -160,9 +172,21 @@ static void set_cpu_info(struct ele_get_info_data *info)
 
 static u32 get_cpu_variant_type(u32 type)
 {
-	/* word 19 */
-	u32 val = readl((ulong)FSB_BASE_ADDR + 0x8000 + (19 << 2));
-	u32 val2 = readl((ulong)FSB_BASE_ADDR + 0x8000 + (20 << 2));
+	u32 bank, word, val, val2;
+	int ret;
+
+	bank = HW_CFG1 / NUM_WORDS_PER_BANK;
+	word = HW_CFG1 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val);
+	if (ret)
+		val = 0; /* If read fuse failed, return as blank fuse */
+
+	bank = HW_CFG2 / NUM_WORDS_PER_BANK;
+	word = HW_CFG2 % NUM_WORDS_PER_BANK;
+	ret = fuse_read(bank, word, &val2);
+	if (ret)
+		val2 = 0; /* If read fuse failed, return as blank fuse */
+
 	bool npu_disable = !!(val & BIT(13));
 	bool core1_disable = !!(val & BIT(15));
 	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);

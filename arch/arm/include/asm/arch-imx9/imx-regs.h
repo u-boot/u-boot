@@ -52,6 +52,9 @@
 
 #define MARKETING_GRADING_MASK	GENMASK(5, 4)
 #define SPEED_GRADING_MASK	GENMASK(11, 6)
+#define NUM_WORDS_PER_BANK	8
+#define HW_CFG1			19
+#define HW_CFG2			20
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
