@@ -26,6 +26,8 @@
 #define PMU_BASE_ADDR		0xfdd90000
 #define PMU_NOC_AUTO_CON0	(0x70)
 #define PMU_NOC_AUTO_CON1	(0x74)
+#define PMU_PWR_GATE_SFTCON	(0xa0)
+#define PMU_PD_VO_DWN_ENA	BIT(7)
 #define EDP_PHY_GRF_BASE	0xfdcb0000
 #define EDP_PHY_GRF_CON0	(EDP_PHY_GRF_BASE + 0x00)
 #define EDP_PHY_GRF_CON10	(EDP_PHY_GRF_BASE + 0x28)
@@ -130,6 +132,10 @@ int arch_cpu_init(void)
 	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_1);
 	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_2);
 	writel(0x3f3f0707, GRF_BASE + GRF_GPIO1C_DS_3);
+
+	/* Enable VO power domain for display */
+	writel((PMU_PD_VO_DWN_ENA << 16),
+	       PMU_BASE_ADDR + PMU_PWR_GATE_SFTCON);
 #endif
 	return 0;
 }
