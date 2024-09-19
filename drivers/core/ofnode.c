@@ -1734,6 +1734,39 @@ const char *ofnode_conf_read_str(const char *prop_name)
 	return ofnode_read_string(node, prop_name);
 }
 
+bool ofnode_options_read_bool(const char *prop_name)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return false;
+
+	return ofnode_read_bool(uboot, prop_name);
+}
+
+int ofnode_options_read_int(const char *prop_name, int default_val)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return default_val;
+
+	return ofnode_read_u32_default(uboot, prop_name, default_val);
+}
+
+const char *ofnode_options_read_str(const char *prop_name)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return NULL;
+
+	return ofnode_read_string(uboot, prop_name);
+}
+
 int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
 {
 	int ret;
