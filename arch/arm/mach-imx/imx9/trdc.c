@@ -19,6 +19,7 @@
 #define MRC_MAX_NUM 2
 #define MBC_NUM(HWCFG) (((HWCFG) >> 16) & 0xF)
 #define MRC_NUM(HWCFG) (((HWCFG) >> 24) & 0x1F)
+#define MBC_BLK_NUM(GLBCFG)	((GLBCFG) & 0x3FF)
 
 enum {
 	/* Order following ELE API Spec, not change */
@@ -152,6 +153,22 @@ static ulong trdc_get_mrc_base(ulong trdc_reg, u32 mrc_x)
 		return 0;
 
 	return trdc_reg + 0x10000 + 0x2000 * mbc_num + 0x1000 * mrc_x;
+}
+
+static u32 trdc_mbc_blk_num(ulong trdc_reg, u32 mbc_x, u32 mem_x)
+{
+	struct trdc_mbc *mbc_base = (struct trdc_mbc *)trdc_get_mbc_base(trdc_reg, mbc_x);
+	struct mbc_mem_dom *mbc_dom;
+	u32 glbcfg;
+
+	if (mbc_base == 0)
+		return 0;
+
+	/* only first dom has the glbcfg */
+	mbc_dom = &mbc_base->mem_dom[0];
+	glbcfg = readl((uintptr_t)&mbc_dom->mem_glbcfg[mem_x]);
+
+	return MBC_BLK_NUM(glbcfg);
 }
 
 int trdc_mbc_set_control(ulong trdc_reg, u32 mbc_x, u32 glbac_id, u32 glbac_val)
@@ -383,6 +400,7 @@ int release_rdc(u8 xrdc)
 void trdc_early_init(void)
 {
 	int ret = 0, i;
+	u32 blks;
 
 	ret |= release_rdc(TRDC_A);
 	ret |= release_rdc(TRDC_M);
@@ -397,7 +415,8 @@ void trdc_early_init(void)
 	/* Set OCRAM to RWX for secure, when OEM_CLOSE, the image is RX only */
 	trdc_mbc_set_control(TRDC_NIC_BASE, MBC(3), GLOBAL_ID(0), PERM(0x7700));
 
-	for (i = 0; i < 40; i++) {
+	blks = trdc_mbc_blk_num(TRDC_NIC_BASE, MBC(3), MEM(0));
+	for (i = 0; i < blks; i++) {
 		trdc_mbc_blk_config(TRDC_NIC_BASE, MBC(3), DOM(3), MEM(0), i,
 				    true, GLOBAL_ID(0));
 
