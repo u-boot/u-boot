@@ -211,7 +211,8 @@ struct imx_clk_setting {
 	u32 div;
 };
 
-int clock_init(void);
+int clock_init_early(void);
+int clock_init_late(void);
 u32 get_clk_src_rate(enum ccm_clk_src source);
 u32 get_lpuart_clk(void);
 void init_uart_clk(u32 index);

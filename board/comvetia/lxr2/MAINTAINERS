@@ -1,0 +1,6 @@
+COMVETIA LXR2
+M:	Fabio Estevam <festevam@denx.de>
+S:	Maintained
+F:	board/comvetia/lxr2/
+F:	include/configs/lxr2.h
+F:	configs/lxr2_defconfig

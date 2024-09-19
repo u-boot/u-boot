@@ -54,6 +54,8 @@ enum {
 	PCA9450_REG_NUM,
 };
 
+#define PCA9450_REG_PWRCTRL_TOFF_DEB    BIT(5)
+
 int power_pca9450_init(unsigned char bus, unsigned char addr);
 
 enum {
