@@ -123,9 +123,11 @@ void board_init_f(ulong dummy)
 		debug("LC: 0x%x\n", gd->arch.lifecycle);
 	}
 
+	clock_init_late();
+
 	power_init_board();
 
-	if (!IS_ENABLED(CONFIG_IMX9_LOW_DRIVE_MODE))
+	if (!is_voltage_mode(VOLT_LOW_DRIVE))
 		set_arm_clk(get_cpu_speed_grade_hz());
 
 	/* Init power of mix */

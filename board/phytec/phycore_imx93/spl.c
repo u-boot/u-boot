@@ -130,7 +130,7 @@ void board_init_f(ulong dummy)
 		debug("LC: 0x%x\n", gd->arch.lifecycle);
 	}
 
-	clock_init();
+	clock_init_late();
 
 	power_init_board();
 

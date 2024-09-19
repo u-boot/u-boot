@@ -782,16 +782,9 @@ void bus_clock_init(void)
 	}
 }
 
-int clock_init(void)
+int clock_init_early(void)
 {
 	int i;
-
-	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
-		bus_clock_init_low_drive();
-		set_arm_clk(MHZ(900));
-	} else {
-		bus_clock_init();
-	}
 
 	/* allow for non-secure access */
 	for (i = 0; i < OSCPLL_END; i++)
@@ -805,6 +798,19 @@ int clock_init(void)
 
 	for (i = 0; i < SHARED_GPR_NUM; i++)
 		ccm_shared_gpr_tz_access(i, true, false, false);
+
+	return 0;
+}
+
+/* Set bus and A55 core clock per voltage mode */
+int clock_init_late(void)
+{
+	if (is_voltage_mode(VOLT_LOW_DRIVE)) {
+		bus_clock_init_low_drive();
+		set_arm_core_max_clk();
+	} else {
+		bus_clock_init();
+	}
 
 	return 0;
 }
