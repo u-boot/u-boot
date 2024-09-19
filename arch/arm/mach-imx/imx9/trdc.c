@@ -4,12 +4,13 @@
  */
 
 #include <log.h>
+#include <div64.h>
+#include <hang.h>
 #include <linux/errno.h>
 #include <asm/io.h>
 #include <asm/types.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <div64.h>
 #include <asm/mach-imx/ele_api.h>
 #include <asm/mach-imx/mu_hal.h>
 
@@ -18,6 +19,25 @@
 #define MRC_MAX_NUM 2
 #define MBC_NUM(HWCFG) (((HWCFG) >> 16) & 0xF)
 #define MRC_NUM(HWCFG) (((HWCFG) >> 24) & 0x1F)
+
+enum {
+	/* Order following ELE API Spec, not change */
+	TRDC_A,
+	TRDC_W,
+	TRDC_M,
+	TRDC_N,
+};
+
+/* Just make it easier to know what the parameter is */
+#define MBC(X)			(X)
+#define MRC(X)			(X)
+#define GLOBAL_ID(X)		(X)
+#define MEM(X)			(X)
+#define DOM(X)			(X)
+/*
+ *0|SPR|SPW|SPX,0|SUR|SUW|SWX, 0|NPR|NPW|NPX, 0|NUR|NUW|NUX
+ */
+#define PERM(X)			(X)
 
 struct mbc_mem_dom {
 	u32 mem_glbcfg[4];
@@ -364,68 +384,84 @@ void trdc_early_init(void)
 {
 	int ret = 0, i;
 
-	ret |= release_rdc(0);
-	ret |= release_rdc(2);
-	ret |= release_rdc(1);
-	ret |= release_rdc(3);
+	ret |= release_rdc(TRDC_A);
+	ret |= release_rdc(TRDC_M);
+	ret |= release_rdc(TRDC_W);
+	ret |= release_rdc(TRDC_N);
 
-	if (!ret) {
-		/* Set OCRAM to RWX for secure, when OEM_CLOSE, the image is RX only */
-		trdc_mbc_set_control(0x49010000, 3, 0, 0x7700);
+	if (ret) {
+		hang();
+		return;
+	}
 
-		for (i = 0; i < 40; i++)
-			trdc_mbc_blk_config(0x49010000, 3, 3, 0, i, true, 0);
+	/* Set OCRAM to RWX for secure, when OEM_CLOSE, the image is RX only */
+	trdc_mbc_set_control(TRDC_NIC_BASE, MBC(3), GLOBAL_ID(0), PERM(0x7700));
 
-		for (i = 0; i < 40; i++)
-			trdc_mbc_blk_config(0x49010000, 3, 3, 1, i, true, 0);
+	for (i = 0; i < 40; i++) {
+		trdc_mbc_blk_config(TRDC_NIC_BASE, MBC(3), DOM(3), MEM(0), i,
+				    true, GLOBAL_ID(0));
 
-		for (i = 0; i < 40; i++)
-			trdc_mbc_blk_config(0x49010000, 3, 0, 0, i, true, 0);
+		trdc_mbc_blk_config(TRDC_NIC_BASE, MBC(3), DOM(3), MEM(1), i,
+				    true, GLOBAL_ID(0));
 
-		for (i = 0; i < 40; i++)
-			trdc_mbc_blk_config(0x49010000, 3, 0, 1, i, true, 0);
+		trdc_mbc_blk_config(TRDC_NIC_BASE, MBC(3), DOM(0), MEM(0), i,
+				    true, GLOBAL_ID(0));
+
+		trdc_mbc_blk_config(TRDC_NIC_BASE, MBC(3), DOM(0), MEM(1), i,
+				    true, GLOBAL_ID(0));
 	}
 }
 
 void trdc_init(void)
 {
 	/* TRDC mega */
-	if (trdc_mrc_enabled(0x49010000)) {
+	if (trdc_mrc_enabled(TRDC_NIC_BASE)) {
 		/* DDR */
-		trdc_mrc_set_control(0x49010000, 0, 0, 0x7777);
+		trdc_mrc_set_control(TRDC_NIC_BASE, MRC(0), GLOBAL_ID(0), PERM(0x7777));
 
 		/* ELE */
-		trdc_mrc_region_config(0x49010000, 0, 0, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(0), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* MTR */
-		trdc_mrc_region_config(0x49010000, 0, 1, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(1), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* M33 */
-		trdc_mrc_region_config(0x49010000, 0, 2, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(2), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* A55*/
-		trdc_mrc_region_config(0x49010000, 0, 3, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(3), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* For USDHC1 to DDR, USDHC1 is default force to non-secure */
-		trdc_mrc_region_config(0x49010000, 0, 5, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(5), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* For USDHC2 to DDR, USDHC2 is default force to non-secure */
-		trdc_mrc_region_config(0x49010000, 0, 6, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(6), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* eDMA */
-		trdc_mrc_region_config(0x49010000, 0, 7, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(7), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/*CoreSight, TestPort*/
-		trdc_mrc_region_config(0x49010000, 0, 8, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(8), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/* DAP */
-		trdc_mrc_region_config(0x49010000, 0, 9, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(9), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/*SoC masters */
-		trdc_mrc_region_config(0x49010000, 0, 10, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(10), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 
 		/*USB*/
-		trdc_mrc_region_config(0x49010000, 0, 11, 0x80000000, 0xFFFFFFFF, false, 0);
+		trdc_mrc_region_config(TRDC_NIC_BASE, MRC(0), DOM(11), 0x80000000,
+				       0xFFFFFFFF, false, GLOBAL_ID(0));
 	}
 }
 
@@ -504,78 +540,78 @@ void trdc_dump(void)
 
 	printf("TRDC AONMIX MBC\n");
 
-	trdc_mbc_control_dump(0x44270000, 0, 0);
-	trdc_mbc_control_dump(0x44270000, 1, 0);
+	trdc_mbc_control_dump(TRDC_AON_BASE, MBC(0), GLOBAL_ID(0));
+	trdc_mbc_control_dump(TRDC_AON_BASE, MBC(1), GLOBAL_ID(0));
 
 	for (i = 0; i < 11; i++)
-		trdc_mbc_mem_dump(0x44270000, 0, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_AON_BASE, MBC(0), DOM(3), MEM(0), i);
 	for (i = 0; i < 1; i++)
-		trdc_mbc_mem_dump(0x44270000, 0, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_AON_BASE, MBC(0), DOM(3), MEM(1), i);
 
 	for (i = 0; i < 4; i++)
-		trdc_mbc_mem_dump(0x44270000, 1, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_AON_BASE, MBC(1), DOM(3), MEM(0), i);
 	for (i = 0; i < 4; i++)
-		trdc_mbc_mem_dump(0x44270000, 1, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_AON_BASE, MBC(1), DOM(3), MEM(1), i);
 
 	printf("TRDC WAKEUP MBC\n");
 
-	trdc_mbc_control_dump(0x42460000, 0, 0);
-	trdc_mbc_control_dump(0x42460000, 1, 0);
+	trdc_mbc_control_dump(TRDC_WAKEUP_BASE, MBC(0), GLOBAL_ID(0));
+	trdc_mbc_control_dump(TRDC_WAKEUP_BASE, MBC(1), GLOBAL_ID(0));
 
 	for (i = 0; i < 15; i++)
-		trdc_mbc_mem_dump(0x42460000, 0, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, MBC(0), DOM(3), MEM(0), i);
 
-	trdc_mbc_mem_dump(0x42460000, 0, 3, 1, 0);
-	trdc_mbc_mem_dump(0x42460000, 0, 3, 2, 0);
+	trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, MBC(0), DOM(3), MEM(1), 0);
+	trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, 0, 3, 2, 0);
 
 	for (i = 0; i < 2; i++)
-		trdc_mbc_mem_dump(0x42460000, 1, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, MBC(1), DOM(3), MEM(0), i);
 
-	trdc_mbc_mem_dump(0x42460000, 1, 3, 1, 0);
-	trdc_mbc_mem_dump(0x42460000, 1, 3, 2, 0);
-	trdc_mbc_mem_dump(0x42460000, 1, 3, 3, 0);
+	trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, MBC(1), DOM(3), MEM(1), 0);
+	trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, 1, 3, 2, 0);
+	trdc_mbc_mem_dump(TRDC_WAKEUP_BASE, MBC(1), DOM(3), MEM(3), 0);
 
 	printf("TRDC NICMIX MBC\n");
 
-	trdc_mbc_control_dump(0x49010000, 0, 0);
-	trdc_mbc_control_dump(0x49010000, 1, 0);
-	trdc_mbc_control_dump(0x49010000, 2, 0);
-	trdc_mbc_control_dump(0x49010000, 3, 0);
+	trdc_mbc_control_dump(TRDC_NIC_BASE, MBC(0), GLOBAL_ID(0));
+	trdc_mbc_control_dump(TRDC_NIC_BASE, MBC(1), GLOBAL_ID(0));
+	trdc_mbc_control_dump(TRDC_NIC_BASE, MBC(2), GLOBAL_ID(0));
+	trdc_mbc_control_dump(TRDC_NIC_BASE, MBC(3), GLOBAL_ID(0));
 
 	for (i = 0; i < 7; i++)
-		trdc_mbc_mem_dump(0x49010000, 0, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(0), DOM(3), MEM(0), i);
 
 	for (i = 0; i < 2; i++)
-		trdc_mbc_mem_dump(0x49010000, 0, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(0), DOM(3), MEM(1), i);
 
 	for (i = 0; i < 5; i++)
-		trdc_mbc_mem_dump(0x49010000, 0, 3, 2, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(0), DOM(3), MEM(2), i);
 
 	for (i = 0; i < 6; i++)
-		trdc_mbc_mem_dump(0x49010000, 0, 3, 3, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(0), DOM(3), MEM(3), i);
 
 	for (i = 0; i < 1; i++)
-		trdc_mbc_mem_dump(0x49010000, 1, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(1), DOM(3), MEM(0), i);
 
 	for (i = 0; i < 1; i++)
-		trdc_mbc_mem_dump(0x49010000, 1, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(1), DOM(3), MEM(1), i);
 
 	for (i = 0; i < 3; i++)
-		trdc_mbc_mem_dump(0x49010000, 1, 3, 2, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(1), DOM(3), MEM(2), i);
 
 	for (i = 0; i < 3; i++)
-		trdc_mbc_mem_dump(0x49010000, 1, 3, 3, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(1), DOM(3), MEM(3), i);
 
 	for (i = 0; i < 2; i++)
-		trdc_mbc_mem_dump(0x49010000, 2, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(2), DOM(3), MEM(0), i);
 
 	for (i = 0; i < 2; i++)
-		trdc_mbc_mem_dump(0x49010000, 2, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(2), DOM(3), MEM(1), i);
 
 	for (i = 0; i < 5; i++)
-		trdc_mbc_mem_dump(0x49010000, 3, 3, 0, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(3), DOM(3), MEM(0), i);
 
 	for (i = 0; i < 5; i++)
-		trdc_mbc_mem_dump(0x49010000, 3, 3, 1, i);
+		trdc_mbc_mem_dump(TRDC_NIC_BASE, MBC(3), DOM(3), MEM(1), i);
 }
 #endif
