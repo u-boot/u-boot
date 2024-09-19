@@ -240,15 +240,9 @@ static void disable_wdog(void __iomem *wdog_base)
 
 void init_wdog(void)
 {
-	u32 src_val;
-
 	disable_wdog((void __iomem *)WDG3_BASE_ADDR);
 	disable_wdog((void __iomem *)WDG4_BASE_ADDR);
 	disable_wdog((void __iomem *)WDG5_BASE_ADDR);
-
-	src_val = readl(0x54460018); /* reset mask */
-	src_val &= ~0x1c;
-	writel(src_val, 0x54460018);
 }
 
 static struct mm_region imx93_mem_map[] = {
