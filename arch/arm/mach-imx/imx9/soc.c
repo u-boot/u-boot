@@ -696,8 +696,16 @@ int board_fix_fdt(void *fdt)
 
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
+	static const char * const nodes_path[] = {
+		"/cpus/cpu@0",
+		"/cpus/cpu@100",
+	};
+
 	if (fixup_thermal_trips(blob, "cpu-thermal"))
 		printf("Failed to update cpu-thermal trip(s)");
+
+	if (is_imx9351() || is_imx9331() || is_imx9321() || is_imx9311())
+		disable_cpu_nodes(blob, nodes_path, 1, 2);
 
 	if (is_voltage_mode(VOLT_LOW_DRIVE))
 		low_drive_freq_update(blob);
