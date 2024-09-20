@@ -41,4 +41,12 @@ config UFS_RENESAS
 	  UFS host on Renesas needs some vendor specific configuration before
 	  accessing the hardware.
 
+config UFS_AMD_VERSAL2
+	bool "AMD Versal Gen 2 UFS controller platform driver"
+	depends on UFS && ZYNQMP_FIRMWARE
+	help
+	  This selects the AMD specific additions to UFSHCD platform driver.
+	  UFS host on AMD needs some vendor specific configuration before accessing
+	  the hardware.
+
 endmenu
