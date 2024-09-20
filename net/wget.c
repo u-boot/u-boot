@@ -64,26 +64,6 @@ static unsigned int retry_tcp_ack_num;	/* TCP retry acknowledge number*/
 static unsigned int retry_tcp_seq_num;	/* TCP retry sequence number */
 static int retry_len;			/* TCP retry length */
 
-static ulong wget_load_size;
-
-/**
- * wget_init_max_size() - initialize maximum load size
- *
- * Return:	0 if success, -1 if fails
- */
-static int wget_init_load_size(void)
-{
-	phys_size_t max_size;
-
-	max_size = lmb_get_free_size(image_load_addr);
-	if (!max_size)
-		return -1;
-
-	wget_load_size = max_size;
-
-	return 0;
-}
-
 /**
  * store_block() - store block in memory
  * @src: source of data
@@ -97,13 +77,8 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	uchar *ptr;
 
 	if (CONFIG_IS_ENABLED(LMB)) {
-		ulong end_addr = image_load_addr + wget_load_size;
-
-		if (!end_addr)
-			end_addr = ULONG_MAX;
-
 		if (store_addr < image_load_addr ||
-		    store_addr + len > end_addr) {
+		    lmb_read_check(store_addr, len)) {
 			printf("\nwget error: ");
 			printf("trying to overwrite reserved memory...\n");
 			return -1;
@@ -492,15 +467,6 @@ void wget_start(void)
 	}
 	debug_cond(DEBUG_WGET,
 		   "\nwget:Load address: 0x%lx\nLoading: *\b", image_load_addr);
-
-	if (CONFIG_IS_ENABLED(LMB)) {
-		if (wget_init_load_size()) {
-			printf("\nwget error: ");
-			printf("trying to overwrite reserved memory...\n");
-			net_set_state(NETLOOP_FAIL);
-			return;
-		}
-	}
 
 	net_set_timeout_handler(wget_timeout, wget_timeout_handler);
 	tcp_set_tcp_handler(wget_handler);
