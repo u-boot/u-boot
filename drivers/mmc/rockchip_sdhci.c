@@ -571,20 +571,19 @@ static int rockchip_sdhci_probe(struct udevice *dev)
 	struct rockchip_sdhc *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	struct sdhci_host *host = &priv->host;
-	struct clk clk;
+	struct clk *clk = &priv->emmc_clk;
 	int ret;
 
 	host->max_clk = cfg->f_max;
-	ret = clk_get_by_index(dev, 0, &clk);
+	ret = clk_get_by_index(dev, 0, clk);
 	if (!ret) {
-		ret = clk_set_rate(&clk, host->max_clk);
+		ret = clk_set_rate(clk, host->max_clk);
 		if (IS_ERR_VALUE(ret))
 			printf("%s clk set rate fail!\n", __func__);
-	} else {
+	} else if (ret != -ENOSYS) {
 		printf("%s fail to get clk\n", __func__);
 	}
 
-	priv->emmc_clk = clk;
 	priv->dev = dev;
 
 	if (data->get_phy) {

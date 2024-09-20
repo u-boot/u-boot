@@ -131,13 +131,11 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[1] = dtplat->max_frequency;
 
 	ret = clk_get_by_phandle(dev, &dtplat->clocks[1], &priv->clk);
-	if (ret < 0)
-		return ret;
 #else
 	ret = clk_get_by_index(dev, 1, &priv->clk);
-	if (ret < 0)
-		return ret;
 #endif
+	if (ret < 0 && ret != -ENOSYS)
+		return log_msg_ret("clk", ret);
 	host->fifo_depth = priv->fifo_depth;
 	host->fifo_mode = priv->fifo_mode;
 
