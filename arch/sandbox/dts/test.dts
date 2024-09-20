@@ -103,6 +103,9 @@
 			bootscr-flash-size = /bits/ 64 <0x2000>;
 			boot-led = "sandbox:green";
 			activity-led = "sandbox:red";
+			testing-bool;
+			testing-int = <123>;
+			testing-str = "testing";
 		};
 	};
 
