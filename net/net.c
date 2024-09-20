@@ -89,41 +89,43 @@
 #include <image.h>
 #include <led.h>
 #include <log.h>
+#if defined(CONFIG_LED_STATUS)
+#include <miiphy.h>
+#endif
 #include <net.h>
 #include <net6.h>
 #include <ndisc.h>
-#include <net/fastboot_udp.h>
-#include <net/fastboot_tcp.h>
-#include <net/tftp.h>
-#include <net/ncsi.h>
-#if defined(CONFIG_CMD_PCAP)
-#include <net/pcap.h>
-#endif
-#include <net/udp.h>
 #if defined(CONFIG_LED_STATUS)
-#include <miiphy.h>
 #include <status_led.h>
 #endif
 #include <watchdog.h>
 #include <linux/compiler.h>
-#include <test/test.h>
+#include <net/fastboot_udp.h>
+#include <net/fastboot_tcp.h>
+#include <net/ncsi.h>
+#if defined(CONFIG_CMD_PCAP)
+#include <net/pcap.h>
+#endif
 #include <net/tcp.h>
+#include <net/tftp.h>
+#include <net/udp.h>
 #include <net/wget.h>
+#include <test/test.h>
 #include "arp.h"
 #include "bootp.h"
 #include "cdp.h"
+#include "dhcpv6.h"
 #if defined(CONFIG_CMD_DNS)
 #include "dns.h"
 #endif
 #include "link_local.h"
+#include "net_rand.h"
 #include "nfs.h"
 #include "ping.h"
 #include "rarp.h"
 #if defined(CONFIG_CMD_WOL)
 #include "wol.h"
 #endif
-#include "dhcpv6.h"
-#include "net_rand.h"
 
 /** BOOTP EXTENTIONS **/
 
