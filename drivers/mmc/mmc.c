@@ -3188,7 +3188,7 @@ int mmc_init_device(int num)
 	if (uclass_get_device_by_seq(UCLASS_MMC, num, &dev)) {
 		ret = uclass_get_device(UCLASS_MMC, num, &dev);
 		if (ret)
-			return ret;
+			return log_msg_ret("ini", ret);
 	}
 
 	m = mmc_get_mmc_dev(dev);
