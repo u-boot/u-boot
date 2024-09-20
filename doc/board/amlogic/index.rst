@@ -85,6 +85,7 @@ Board Documentation
 .. toctree::
    :maxdepth: 1
 
+   aml-a311d-cc
    bananapi-cm4io
    bananapi-m2pro
    bananapi-m2s
