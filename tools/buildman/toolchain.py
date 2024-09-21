@@ -440,12 +440,12 @@ class Toolchains:
         This converts ${blah} within the string to the value of blah.
         This function works recursively.
 
+            Resolved string
+
         Args:
             var_dict: Dictionary containing variables and their values
             args: String containing make arguments
         Returns:
-            Resolved string
-
         >>> bsettings.setup(None)
         >>> tcs = Toolchains()
         >>> tcs.Add('fred', False)
@@ -456,7 +456,7 @@ class Toolchains:
         >>> tcs.ResolveReferences(var_dict, 'this=${oblique}_set${first}nd')
         'this=OBLIQUE_setfi2ndrstnd'
         """
-        re_var = re.compile('(\$\{[-_a-z0-9A-Z]{1,}\})')
+        re_var = re.compile(r'(\$\{[-_a-z0-9A-Z]{1,}\})')
 
         while True:
             m = re_var.search(args)
@@ -495,7 +495,7 @@ class Toolchains:
         self._make_flags['target'] = brd.target
         arg_str = self.ResolveReferences(self._make_flags,
                            self._make_flags.get(brd.target, ''))
-        args = re.findall("(?:\".*?\"|\S)+", arg_str)
+        args = re.findall(r"(?:\".*?\"|\S)+", arg_str)
         i = 0
         while i < len(args):
             args[i] = args[i].replace('"', '')
