@@ -21,7 +21,7 @@ config TARGET_OPENPITON_RISCV64
 	bool "Support RISC-V cores on OpenPiton SoC"
 
 config TARGET_QEMU_VIRT
-	bool "Support QEMU Virt Board"
+	bool "Support QEMU Virt & RVVM Boards"
 	select BOARD_LATE_INIT
 
 config TARGET_SIFIVE_UNLEASHED
