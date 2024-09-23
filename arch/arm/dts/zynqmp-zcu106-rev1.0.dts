@@ -11,6 +11,6 @@
 
 / {
 	model = "ZynqMP ZCU106 Rev1.0";
-	compatible = "xlnx,zynqmp-zcu106-rev1.0", "xlnx,zynqmp-zcu106-revA",
+	compatible = "xlnx,zynqmp-zcu106-rev1.0",
 		     "xlnx,zynqmp-zcu106", "xlnx,zynqmp";
 };

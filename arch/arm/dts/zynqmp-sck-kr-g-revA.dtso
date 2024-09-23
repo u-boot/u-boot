@@ -195,7 +195,6 @@
 	phys = <&psgtr 0 PHY_TYPE_SGMII 0 0>;
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii";
-	is-internal-pcspma;
 	assigned-clock-rates = <250000000>;
 };
 
