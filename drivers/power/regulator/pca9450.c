@@ -288,7 +288,7 @@ static int pca9450_regulator_probe(struct udevice *dev)
 	type = dev_get_driver_data(dev_get_parent(dev));
 
 	if (type != NXP_CHIP_TYPE_PCA9450A && type != NXP_CHIP_TYPE_PCA9450BC &&
-	    type != NXP_CHIP_TYPE_PCA9451A) {
+	    type != NXP_CHIP_TYPE_PCA9451A && type != NXP_CHIP_TYPE_PCA9452) {
 		debug("Unknown PMIC type\n");
 		return -EINVAL;
 	}
@@ -299,7 +299,8 @@ static int pca9450_regulator_probe(struct udevice *dev)
 
 	val = ret;
 
-	if (type == NXP_CHIP_TYPE_PCA9451A && (val & PCA9450_REG_PWRCTRL_TOFF_DEB))
+	if ((type == NXP_CHIP_TYPE_PCA9451A || type == NXP_CHIP_TYPE_PCA9452) &&
+	    (val & PCA9450_REG_PWRCTRL_TOFF_DEB))
 		pmic_trim = true;
 
 	for (i = 0; i < ARRAY_SIZE(pca9450_reg_data); i++) {
@@ -323,6 +324,12 @@ static int pca9450_regulator_probe(struct udevice *dev)
 		    (!strcmp(pca9450_reg_data[i].name, "BUCK3") ||
 		    !strcmp(pca9450_reg_data[i].name, "LDO2") ||
 		    !strcmp(pca9450_reg_data[i].name, "LDO3"))) {
+			continue;
+		}
+
+		if (type == NXP_CHIP_TYPE_PCA9452 &&
+		    (!strcmp(pca9450_reg_data[i].name, "BUCK3") ||
+		    !strcmp(pca9450_reg_data[i].name, "LDO2"))) {
 			continue;
 		}
 

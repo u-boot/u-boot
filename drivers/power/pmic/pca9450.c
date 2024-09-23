@@ -121,6 +121,7 @@ static const struct udevice_id pca9450_ids[] = {
 	{ .compatible = "nxp,pca9450b", .data = NXP_CHIP_TYPE_PCA9450BC, },
 	{ .compatible = "nxp,pca9450c", .data = NXP_CHIP_TYPE_PCA9450BC, },
 	{ .compatible = "nxp,pca9451a", .data = NXP_CHIP_TYPE_PCA9451A, },
+	{ .compatible = "nxp,pca9452",  .data = NXP_CHIP_TYPE_PCA9452, },
 	{ }
 };
 
