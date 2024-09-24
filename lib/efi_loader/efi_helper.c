@@ -314,6 +314,11 @@ int efi_unlink_dev(efi_handle_t handle)
 	return 0;
 }
 
+int fdt_efi_pmem_setup(void *fdt)
+{
+	return efi_bootmgr_pmem_setup(fdt) == EFI_SUCCESS ? 0 : -1;
+}
+
 static int u16_tohex(u16 c)
 {
 	if (c >= '0' && c <= '9')

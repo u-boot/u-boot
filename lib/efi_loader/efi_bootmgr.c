@@ -41,6 +41,8 @@ struct uridp_context {
 	efi_handle_t mem_handle;
 };
 
+static struct uridp_context *uctx;
+
 const efi_guid_t efi_guid_bootmenu_auto_generated =
 		EFICONFIG_AUTO_GENERATED_ENTRY_GUID;
 
@@ -427,6 +429,7 @@ static efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
 
 	efi_free_pool(ctx->loaded_dp);
 	free(ctx);
+	uctx = NULL;
 
 	return ret == EFI_SUCCESS ? ret2 : ret;
 }
@@ -445,6 +448,15 @@ static void EFIAPI efi_bootmgr_http_return(struct efi_event *event,
 	EFI_ENTRY("%p, %p", event, context);
 	ret = efi_bootmgr_release_uridp(context);
 	EFI_EXIT(ret);
+}
+
+efi_status_t efi_bootmgr_pmem_setup(void *fdt)
+{
+	if (!uctx)
+		return EFI_SUCCESS;
+
+	return !fdt_fixup_pmem_region(fdt, uctx->image_addr, uctx->image_size) ?
+		EFI_SUCCESS : EFI_INVALID_PARAMETER;
 }
 
 /**
@@ -476,6 +488,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	if (!ctx)
 		return EFI_OUT_OF_RESOURCES;
 
+	uctx = ctx;
 	s = env_get("loadaddr");
 	if (!s) {
 		log_err("Error: loadaddr is not set\n");

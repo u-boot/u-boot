@@ -816,6 +816,15 @@ efi_status_t efi_next_variable_name(efi_uintn_t *size, u16 **buf,
 				    efi_guid_t *guid);
 
 /**
+ * fdt_efi_pmem_setup() - Setup the pmem node in the devicetree
+ *
+ * @fdt:	Pointer to the devicetree
+ *
+ * Return:	0 on success, negative on failure
+ */
+int fdt_efi_pmem_setup(void *fdt);
+
+/**
  * efi_size_in_pages() - convert size in bytes to size in pages
  *
  * This macro returns the number of EFI memory pages required to hold 'size'
@@ -1031,6 +1040,14 @@ efi_status_t efi_set_load_options(efi_handle_t handle,
 				  efi_uintn_t load_options_size,
 				  void *load_options);
 efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options);
+
+/**
+ * efi_bootmgr_pmem_setup() - Put a pmem node for UEFI HTTP installers
+ *
+ * @fdt:	Pointer to the DT blob
+ * Return:	status code
+ */
+efi_status_t efi_bootmgr_pmem_setup(void *fdt);
 
 /**
  * struct efi_image_regions - A list of memory regions
