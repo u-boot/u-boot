@@ -58,8 +58,9 @@ int tegra_get_chip_sku(void)
 	switch (chip_id) {
 	case CHIPID_TEGRA20:
 		switch (sku_id) {
-		case SKU_ID_T20_7:
+		case SKU_ID_AP20:
 		case SKU_ID_T20:
+		case SKU_ID_AP20H:
 			return TEGRA_SOC_T20;
 		case SKU_ID_T25SE:
 		case SKU_ID_AP25:
