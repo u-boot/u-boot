@@ -818,6 +818,9 @@ static int fecmxc_recv(struct udevice *dev, int flags, uchar **packetp)
 		return -ENOMEM;
 	}
 
+	if (!(readl(&fec->eth->ecntrl) & FEC_ECNTRL_ETHER_EN))
+		return 0;
+
 	/* Check if any critical events have happened */
 	ievent = readl(&fec->eth->ievent);
 	writel(ievent, &fec->eth->ievent);
