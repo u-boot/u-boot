@@ -54,6 +54,9 @@
 			status = "okay";
 			non-removable;
 			disable-wp;
+			no-sd;
+			no-sdio;
+			cap-mmc-hw-reset;
 			bus-width = <8>;
 			reg = <0 0xf1050000 0 0x10000>;
 			clock-names = "clk_xin", "clk_ahb";
