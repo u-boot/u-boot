@@ -817,6 +817,9 @@ static int fecmxc_recv(struct udevice *dev, int flags, uchar **packetp)
 		return -ENOMEM;
 	}
 
+	if (!(readl(&fec->eth->ecntrl) & FEC_ECNTRL_ETHER_EN))
+		return 0;
+
 	/* Check if any critical events have happened */
 	ievent = readl(&fec->eth->ievent);
 	writel(ievent, &fec->eth->ievent);
@@ -1209,10 +1212,13 @@ static int fecmxc_set_ref_clk(struct clk *clk_ref, phy_interface_t interface)
 	else if (interface == PHY_INTERFACE_MODE_RGMII ||
 		 interface == PHY_INTERFACE_MODE_RGMII_ID ||
 		 interface == PHY_INTERFACE_MODE_RGMII_RXID ||
-		 interface == PHY_INTERFACE_MODE_RGMII_TXID)
+		 interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 		freq = 125000000;
-	else
+		if (is_imx93())
+			freq = freq << 1;
+	} else {
 		return -EINVAL;
+	}
 
 	ret = clk_set_rate(clk_ref, freq);
 	if (ret < 0)
