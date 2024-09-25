@@ -16,6 +16,7 @@
 #include <cpu_func.h>
 #include <k3-ddrss.h>
 #include <fdt_support.h>
+#include <fdt_simplefb.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm/uclass.h>
@@ -160,5 +161,25 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 #else
 	fixup_memory_node(spl_image);
 #endif
+}
+#endif
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	int ret = -1;
+
+	if (IS_ENABLED(CONFIG_FDT_SIMPLEFB))
+		ret = fdt_simplefb_enable_and_mem_rsv(blob);
+
+	/* If simplefb is not enabled and video is active, then at least reserve
+	 * the framebuffer region to preserve the splash screen while OS is booting
+	 */
+	if (IS_ENABLED(CONFIG_VIDEO) && IS_ENABLED(CONFIG_OF_LIBFDT)) {
+		if (ret && video_is_active())
+			return fdt_add_fb_mem_rsv(blob);
+	}
+
+	return 0;
 }
 #endif
