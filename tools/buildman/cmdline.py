@@ -46,6 +46,8 @@ def add_upto_m(parser):
           help='Show detailed size delta for each board in the -S summary')
     parser.add_argument('-D', '--debug', action='store_true',
         help='Enabling debugging (provides a full traceback on error)')
+    parser.add_argument('--dtc-skip', action='store_true', default=False,
+          help='Skip building of dtc and use the system version')
     parser.add_argument('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
     parser.add_argument('-E', '--warnings-as-errors', action='store_true',
