@@ -510,10 +510,10 @@ static void fsl_qspi_select_mem(struct fsl_qspi *q, struct spi_slave *slave)
 	struct dm_spi_slave_plat *plat =
 		dev_get_parent_plat(slave->dev);
 
-	if (q->selected == plat->cs)
+	if (q->selected == plat->cs[0])
 		return;
 
-	q->selected = plat->cs;
+	q->selected = plat->cs[0];
 	fsl_qspi_invalidate(q);
 }
 

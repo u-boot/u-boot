@@ -338,13 +338,13 @@ static int davinci_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
-	if (slave_plat->cs >= ds->num_cs) {
+	if (slave_plat->cs[0] >= ds->num_cs) {
 		printf("Invalid SPI chipselect\n");
 		return -EINVAL;
 	}
 	ds->half_duplex = slave_plat->mode & SPI_PREAMBLE;
 
-	return __davinci_spi_claim_bus(ds, slave_plat->cs);
+	return __davinci_spi_claim_bus(ds, slave_plat->cs[0]);
 }
 
 static int davinci_spi_release_bus(struct udevice *dev)
@@ -363,11 +363,11 @@ static int davinci_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct udevice *bus = dev->parent;
 	struct davinci_spi_slave *ds = dev_get_priv(bus);
 
-	if (slave->cs >= ds->num_cs) {
+	if (slave->cs[0] >= ds->num_cs) {
 		printf("Invalid SPI chipselect\n");
 		return -EINVAL;
 	}
-	ds->cur_cs = slave->cs;
+	ds->cur_cs = slave->cs[0];
 
 	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
 }

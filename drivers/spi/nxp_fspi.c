@@ -962,7 +962,7 @@ static int nxp_fspi_claim_bus(struct udevice *dev)
 	bus = dev->parent;
 	f = dev_get_priv(bus);
 
-	nxp_fspi_select_mem(f, slave_plat->cs);
+	nxp_fspi_select_mem(f, slave_plat->cs[0]);
 
 	return 0;
 }

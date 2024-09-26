@@ -247,7 +247,7 @@ static int pic32_spi_xfer(struct udevice *slave, unsigned int bitlen,
 	slave_plat = dev_get_parent_plat(slave);
 
 	debug("spi_xfer: bus:%i cs:%i flags:%lx\n",
-	      dev_seq(bus), slave_plat->cs, flags);
+	      dev_seq(bus), slave_plat->cs[0], flags);
 	debug("msg tx %p, rx %p submitted of %d byte(s)\n",
 	      tx_buf, rx_buf, len);
 
