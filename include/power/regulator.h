@@ -430,7 +430,7 @@ int regulators_enable_boot_on(bool verbose);
  *
  * This disables all regulators which are marked to be off at boot time.
  *
- * This effectively calls regulator_unset() for every regulator.
+ * This effectively does nothing.
  */
 int regulators_enable_boot_off(bool verbose);
 
@@ -452,18 +452,6 @@ int regulators_enable_boot_off(bool verbose);
  * @return: 0 on success or negative value of errno.
  */
 int regulator_autoset(struct udevice *dev);
-
-/**
- * regulator_unset: turn off a regulator
- *
- * The setup depends on constraints found in device's uclass's platform data
- * (struct dm_regulator_uclass_platdata):
- *
- * - Disable - will set - if  'force_off' is set to true,
- *
- * The function returns on the first-encountered error.
- */
-int regulator_unset(struct udevice *dev);
 
 /**
  * regulator_autoset_by_name: setup the regulator given by its uclass's
