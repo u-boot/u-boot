@@ -13,6 +13,7 @@ General
    codingstyle
    designprinciples
    docstyle
+   memory
    patman
    process
    release_cycle
