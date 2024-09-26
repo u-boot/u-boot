@@ -20,6 +20,12 @@ menuconfig SPI
 
 if SPI
 
+config SPI_ADVANCE
+	bool "Enable the advance feature"
+	help
+	 Enable the SPI advance feature support. By default this is disabled.
+	 If you intend to use the advance feature support you should enable.
+
 config DM_SPI
 	bool "Enable Driver Model for SPI drivers"
 	depends on DM
