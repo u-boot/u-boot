@@ -415,26 +415,6 @@ int regulator_get_mode(struct udevice *dev);
 int regulator_set_mode(struct udevice *dev, int mode_id);
 
 /**
- * regulators_enable_boot_on() - enable regulators needed for boot
- *
- * This enables all regulators which are marked to be on at boot time. This
- * only works for regulators which don't have a range for voltage/current,
- * since in that case it is not possible to know which value to use.
- *
- * This effectively calls regulator_autoset() for every regulator.
- */
-int regulators_enable_boot_on(bool verbose);
-
-/**
- * regulators_enable_boot_off() - disable regulators needed for boot
- *
- * This disables all regulators which are marked to be off at boot time.
- *
- * This effectively does nothing.
- */
-int regulators_enable_boot_off(bool verbose);
-
-/**
  * regulator_autoset: setup the voltage/current on a regulator
  *
  * The setup depends on constraints found in device's uclass's platform data
@@ -613,11 +593,6 @@ static inline int regulator_get_mode(struct udevice *dev)
 }
 
 static inline int regulator_set_mode(struct udevice *dev, int mode_id)
-{
-	return -ENOSYS;
-}
-
-static inline int regulators_enable_boot_on(bool verbose)
 {
 	return -ENOSYS;
 }

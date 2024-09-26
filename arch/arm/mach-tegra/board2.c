@@ -187,9 +187,6 @@ int board_init(void)
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
 
-	/* Set up boot-on regulators */
-	regulators_enable_boot_on(_DEBUG);
-
 	return nvidia_board_init();
 }
 

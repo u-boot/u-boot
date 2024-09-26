@@ -526,16 +526,6 @@ static int regulator_post_probe(struct udevice *dev)
 	return 0;
 }
 
-int regulators_enable_boot_on(bool verbose)
-{
-	return 0;
-}
-
-int regulators_enable_boot_off(bool verbose)
-{
-	return 0;
-}
-
 UCLASS_DRIVER(regulator) = {
 	.id		= UCLASS_REGULATOR,
 	.name		= "regulator",
