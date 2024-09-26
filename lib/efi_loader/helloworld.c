@@ -72,6 +72,33 @@ static void uint2dec(u32 value, u16 **buf)
 }
 
 /**
+ * Print an unsigned 32bit value as hexadecimal number to an u16 string
+ *
+ * @value:	value to be printed
+ * @buf:	pointer to buffer address
+ *		on return position of terminating zero word
+ */
+static void uint2hex(u32 value, u16 **buf)
+{
+	u16 *pos = *buf;
+	int i;
+	u16 c;
+
+	for (i = 0; i < 8; ++i) {
+		/* Write current digit */
+		c = value >> 28;
+		value <<= 4;
+		if (c < 10)
+			c += '0';
+		else
+			c += 'a' - 10;
+		*pos++ = c;
+	}
+	*pos = 0;
+	*buf = pos;
+}
+
+/**
  * print_uefi_revision() - print UEFI revision number
  */
 static void print_uefi_revision(void)
@@ -94,6 +121,16 @@ static void print_uefi_revision(void)
 	}
 
 	con_out->output_string(con_out, u"Running on UEFI ");
+	con_out->output_string(con_out, rev);
+	con_out->output_string(con_out, u"\r\n");
+
+	con_out->output_string(con_out, u"Firmware vendor: ");
+	con_out->output_string(con_out, systable->fw_vendor);
+	con_out->output_string(con_out, u"\r\n");
+
+	buf = rev;
+	uint2hex(systable->fw_revision, &buf);
+	con_out->output_string(con_out, u"Firmware revision: ");
 	con_out->output_string(con_out, rev);
 	con_out->output_string(con_out, u"\r\n");
 }
