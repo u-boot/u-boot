@@ -7,6 +7,10 @@
 #include "rk3399-sdram-lpddr4-100.dtsi"
 
 / {
+	config {
+		sysreset-gpio = <&gpio1 RK_PA6 GPIO_ACTIVE_HIGH>;
+	};
+
 	vcc_hub_en: vcc_hub_en-regulator {
 		compatible = "regulator-fixed";
 		enable-active-high;
@@ -33,6 +37,10 @@
 };
 
 &gpio4 {
+	bootph-pre-ram;
+};
+
+&gpio1 {
 	bootph-pre-ram;
 };
 
