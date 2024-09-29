@@ -700,4 +700,10 @@ config RZG2L_GPIO
 	  Support the gpio functionality of the pin function controller (PFC)
 	  on the Renesas RZ/G2L SoC family.
 
+config SPL_ADP5585_GPIO
+	bool "ADP5585 GPIO driver in SPL"
+	depends on SPL_DM_GPIO && SPL_I2C
+	help
+	  Support ADP5585 GPIO expander in SPL.
+
 endif
