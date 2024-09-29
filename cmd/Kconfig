@@ -498,11 +498,18 @@ config CMD_CEDIT
 	  loading and saving of configuration as well as showing an editor.
 
 config CMD_ELF
-	bool "bootelf, bootvx"
+	bool "bootelf"
 	default y
 	select LIB_ELF
 	help
-	  Boot an ELF/vxWorks image from the memory.
+	  Boot an ELF image from memory.
+
+config CMD_ELF_BOOTVX
+	bool "bootvx"
+	default y
+	depends on CMD_ELF
+	help
+	  Boot a vxWorks image from memory
 
 config CMD_ELF_FDT_SETUP
 	bool "Flattened Device Tree setup in bootelf cmd"
