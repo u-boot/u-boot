@@ -65,15 +65,7 @@ obj-$(CONFIG_DDR_SPD) += ddr_spd.o
 obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
-ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_TPL_BUILD
-obj-$(CONFIG_TPL_SERIAL) += console.o
-else
-obj-$(CONFIG_SPL_SERIAL) += console.o
-endif
-else
-obj-y += console.o
-endif # CONFIG_SPL_BUILD
+obj-$(CONFIG_$(SPL_TPL_)SERIAL) += console.o
 
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
