@@ -696,17 +696,28 @@ static inline u8 ufshcd_get_upmcrs(struct ufs_hba *hba)
 }
 
 /**
- * ufshcd_cache_flush_and_invalidate - Flush and invalidate cache
+ * ufshcd_cache_flush - Flush cache
  *
- * Flush and invalidate cache in aligned address..address+size range.
- * The invalidation is in place to avoid stale data in cache.
+ * Flush cache in aligned address..address+size range.
  */
-static void ufshcd_cache_flush_and_invalidate(void *addr, unsigned long size)
+static void ufshcd_cache_flush(void *addr, unsigned long size)
 {
 	uintptr_t start_addr = (uintptr_t)addr & ~(ARCH_DMA_MINALIGN - 1);
 	uintptr_t end_addr = ALIGN((uintptr_t)addr + size, ARCH_DMA_MINALIGN);
 
 	flush_dcache_range(start_addr, end_addr);
+}
+
+/**
+ * ufshcd_cache_invalidate - Invalidate cache
+ *
+ * Invalidate cache in aligned address..address+size range.
+ */
+static void ufshcd_cache_invalidate(void *addr, unsigned long size)
+{
+	uintptr_t start_addr = (uintptr_t)addr & ~(ARCH_DMA_MINALIGN - 1);
+	uintptr_t end_addr = ALIGN((uintptr_t)addr + size, ARCH_DMA_MINALIGN);
+
 	invalidate_dcache_range(start_addr, end_addr);
 }
 
@@ -754,7 +765,7 @@ static void ufshcd_prepare_req_desc_hdr(struct ufs_hba *hba,
 
 	req_desc->prd_table_length = 0;
 
-	ufshcd_cache_flush_and_invalidate(req_desc, sizeof(*req_desc));
+	ufshcd_cache_flush(req_desc, sizeof(*req_desc));
 }
 
 static void ufshcd_prepare_utp_query_req_upiu(struct ufs_hba *hba,
@@ -785,13 +796,13 @@ static void ufshcd_prepare_utp_query_req_upiu(struct ufs_hba *hba,
 	/* Copy the Descriptor */
 	if (query->request.upiu_req.opcode == UPIU_QUERY_OPCODE_WRITE_DESC) {
 		memcpy(ucd_req_ptr + 1, query->descriptor, len);
-		ufshcd_cache_flush_and_invalidate(ucd_req_ptr, 2 * sizeof(*ucd_req_ptr));
+		ufshcd_cache_flush(ucd_req_ptr, 2 * sizeof(*ucd_req_ptr));
 	} else {
-		ufshcd_cache_flush_and_invalidate(ucd_req_ptr, sizeof(*ucd_req_ptr));
+		ufshcd_cache_flush(ucd_req_ptr, sizeof(*ucd_req_ptr));
 	}
 
 	memset(hba->ucd_rsp_ptr, 0, sizeof(struct utp_upiu_rsp));
-	ufshcd_cache_flush_and_invalidate(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
+	ufshcd_cache_flush(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
 }
 
 static inline void ufshcd_prepare_utp_nop_upiu(struct ufs_hba *hba)
@@ -809,8 +820,8 @@ static inline void ufshcd_prepare_utp_nop_upiu(struct ufs_hba *hba)
 
 	memset(hba->ucd_rsp_ptr, 0, sizeof(struct utp_upiu_rsp));
 
-	ufshcd_cache_flush_and_invalidate(ucd_req_ptr, sizeof(*ucd_req_ptr));
-	ufshcd_cache_flush_and_invalidate(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
+	ufshcd_cache_flush(ucd_req_ptr, sizeof(*ucd_req_ptr));
+	ufshcd_cache_flush(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
 }
 
 /**
@@ -877,6 +888,8 @@ static int ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
  */
 static inline int ufshcd_get_req_rsp(struct utp_upiu_rsp *ucd_rsp_ptr)
 {
+	ufshcd_cache_invalidate(ucd_rsp_ptr, sizeof(*ucd_rsp_ptr));
+
 	return be32_to_cpu(ucd_rsp_ptr->header.dword_0) >> 24;
 }
 
@@ -887,6 +900,8 @@ static inline int ufshcd_get_req_rsp(struct utp_upiu_rsp *ucd_rsp_ptr)
 static inline int ufshcd_get_tr_ocs(struct ufs_hba *hba)
 {
 	struct utp_transfer_req_desc *req_desc = hba->utrdl;
+
+	ufshcd_cache_invalidate(req_desc, sizeof(*req_desc));
 
 	return le32_to_cpu(req_desc->header.dword_2) & MASK_OCS;
 }
@@ -1437,8 +1452,8 @@ void ufshcd_prepare_utp_scsi_cmd_upiu(struct ufs_hba *hba,
 	memcpy(ucd_req_ptr->sc.cdb, pccb->cmd, cdb_len);
 
 	memset(hba->ucd_rsp_ptr, 0, sizeof(struct utp_upiu_rsp));
-	ufshcd_cache_flush_and_invalidate(ucd_req_ptr, sizeof(*ucd_req_ptr));
-	ufshcd_cache_flush_and_invalidate(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
+	ufshcd_cache_flush(ucd_req_ptr, sizeof(*ucd_req_ptr));
+	ufshcd_cache_flush(hba->ucd_rsp_ptr, sizeof(*hba->ucd_rsp_ptr));
 }
 
 static inline void prepare_prdt_desc(struct ufshcd_sg_entry *entry,
@@ -1461,7 +1476,7 @@ static void prepare_prdt_table(struct ufs_hba *hba, struct scsi_cmd *pccb)
 
 	if (!datalen) {
 		req_desc->prd_table_length = 0;
-		ufshcd_cache_flush_and_invalidate(req_desc, sizeof(*req_desc));
+		ufshcd_cache_flush(req_desc, sizeof(*req_desc));
 		return;
 	}
 
@@ -1487,8 +1502,8 @@ static void prepare_prdt_table(struct ufs_hba *hba, struct scsi_cmd *pccb)
 	prepare_prdt_desc(&prd_table[table_length - i - 1], buf, datalen - 1);
 
 	req_desc->prd_table_length = table_length;
-	ufshcd_cache_flush_and_invalidate(prd_table, sizeof(*prd_table) * table_length);
-	ufshcd_cache_flush_and_invalidate(req_desc, sizeof(*req_desc));
+	ufshcd_cache_flush(prd_table, sizeof(*prd_table) * table_length);
+	ufshcd_cache_flush(req_desc, sizeof(*req_desc));
 }
 
 static int ufs_scsi_exec(struct udevice *scsi_dev, struct scsi_cmd *pccb)
