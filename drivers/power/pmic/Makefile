@@ -3,7 +3,7 @@
 # Copyright (C) 2012 Samsung Electronics
 # Lukasz Majewski <l.majewski@samsung.com>
 
-obj-$(CONFIG_$(SPL_TPL_)DM_PMIC) += pmic-uclass.o
+obj-$(CONFIG_$(PHASE_)DM_PMIC) += pmic-uclass.o
 obj-$(CONFIG_$(XPL_)DM_PMIC_FAN53555) += fan53555.o
 obj-$(CONFIG_$(XPL_)DM_PMIC_DA9063) += da9063.o
 obj-$(CONFIG_$(XPL_)DM_PMIC_MAX77663) += max77663.o
@@ -22,7 +22,7 @@ obj-$(CONFIG_PMIC_AS3722) += as3722.o as3722_gpio.o
 obj-$(CONFIG_$(XPL_)PMIC_AXP) += axp.o
 obj-$(CONFIG_PMIC_MAX8997) += max8997.o
 obj-$(CONFIG_PMIC_QCOM) += pmic_qcom.o
-obj-$(CONFIG_$(SPL_TPL_)PMIC_RK8XX) += rk8xx.o
+obj-$(CONFIG_$(PHASE_)PMIC_RK8XX) += rk8xx.o
 obj-$(CONFIG_$(XPL_)PMIC_RN5T567) += rn5t567.o
 obj-$(CONFIG_PMIC_TPS65090) += tps65090.o
 obj-$(CONFIG_PMIC_S5M8767) += s5m8767.o

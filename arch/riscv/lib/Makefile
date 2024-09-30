@@ -40,11 +40,11 @@ extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0) $(EFI_RELOC)
 extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0) $(EFI_RELOC)
 extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
 
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMMOVE) += memmove.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_STRLEN) += strlen_zbb.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_STRCMP) += strcmp_zbb.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_STRNCMP) += strncmp_zbb.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMSET) += memset.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMMOVE) += memmove.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMCPY) += memcpy.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_STRLEN) += strlen_zbb.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_STRCMP) += strcmp_zbb.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_STRNCMP) += strncmp_zbb.o
 
-obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o
+obj-$(CONFIG_$(PHASE_)SEMIHOSTING) += semihosting.o

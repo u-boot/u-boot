@@ -3,7 +3,7 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_$(SPL_TPL_)BLK) += blk-uclass.o
+obj-$(CONFIG_$(PHASE_)BLK) += blk-uclass.o
 
 ifndef CONFIG_$(XPL_)BLK
 obj-$(CONFIG_SPL_LEGACY_BLOCK) += blk_legacy.o
@@ -14,9 +14,9 @@ obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_RKMTD) += rkmtd.o
 endif
 obj-$(CONFIG_SANDBOX) += sandbox.o host-uclass.o host_dev.o
-obj-$(CONFIG_$(SPL_TPL_)BLOCK_CACHE) += blkcache.o
-obj-$(CONFIG_$(SPL_TPL_)BLKMAP) += blkmap.o
-obj-$(CONFIG_$(SPL_TPL_)BLKMAP) += blkmap_helper.o
+obj-$(CONFIG_$(PHASE_)BLOCK_CACHE) += blkcache.o
+obj-$(CONFIG_$(PHASE_)BLKMAP) += blkmap.o
+obj-$(CONFIG_$(PHASE_)BLKMAP) += blkmap_helper.o
 
 obj-$(CONFIG_EFI_MEDIA) += efi-media-uclass.o
 obj-$(CONFIG_EFI_MEDIA_SANDBOX) += sb_efi_media.o

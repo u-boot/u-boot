@@ -34,7 +34,7 @@ obj-$(CONFIG_CMD_BOOTI) += bootm.o image.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_BOOTZ) += bootm.o zimage.o
 else
-obj-$(CONFIG_$(SPL_TPL_)FRAMEWORK) += spl.o
+obj-$(CONFIG_$(PHASE_)FRAMEWORK) += spl.o
 ifdef CONFIG_SPL_FRAMEWORK
 obj-$(CONFIG_CMD_BOOTI) += image.o
 obj-$(CONFIG_CMD_BOOTZ) += zimage.o
@@ -42,14 +42,14 @@ endif
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 endif
 ifdef CONFIG_ARM64
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset-arm64.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy-arm64.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMSET) += memset-arm64.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMCPY) += memcpy-arm64.o
 else
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
-obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMSET) += memset.o
+obj-$(CONFIG_$(PHASE_)USE_ARCH_MEMCPY) += memcpy.o
 endif
-obj-$(CONFIG_$(SPL_TPL_)SYS_L2_PL310) += cache-pl310.o
-obj-$(CONFIG_$(SPL_TPL_)SEMIHOSTING) += semihosting.o
+obj-$(CONFIG_$(PHASE_)SYS_L2_PL310) += cache-pl310.o
+obj-$(CONFIG_$(PHASE_)SEMIHOSTING) += semihosting.o
 
 ifneq ($(filter y,$(CONFIG_SAVE_PREV_BL_INITRAMFS_START_ADDR) $(CONFIG_SAVE_PREV_BL_FDT_ADDR)),)
 obj-y += save_prev_bl_data.o
@@ -73,7 +73,7 @@ obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o
 endif
-ifndef CONFIG_$(SPL_TPL_)SYSRESET
+ifndef CONFIG_$(PHASE_)SYSRESET
 obj-y	+= reset.o
 endif
 

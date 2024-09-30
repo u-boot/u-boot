@@ -46,5 +46,5 @@ obj-y	+= traps.o
 endif # not minimal
 
 ifdef CONFIG_XPL_BUILD
-obj-$(CONFIG_$(SPL_TPL)_FRAMEWORK) += spl.o
+obj-$(CONFIG_$(PHASE_)FRAMEWORK) += spl.o
 endif

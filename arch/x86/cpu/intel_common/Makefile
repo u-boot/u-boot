@@ -5,10 +5,10 @@
 obj-$(CONFIG_INTEL_ACPIGEN) += acpi.o
 
 ifdef CONFIG_HAVE_MRC
-obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += car.o
-obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += me_status.o
-obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += report_platform.o
-obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += mrc.o
+obj-$(CONFIG_$(PHASE_)X86_16BIT_INIT) += car.o
+obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += me_status.o
+obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += report_platform.o
+obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += mrc.o
 endif
 
 ifndef CONFIG_XPL_BUILD
@@ -28,7 +28,7 @@ obj-y += lpc.o
 obj-y += lpss.o
 obj-$(CONFIG_$(XPL_)INTEL_GENERIC_WIFI) += generic_wifi.o
 ifndef CONFIG_EFI_APP
-obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += microcode.o
+obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += microcode.o
 ifndef CONFIG_$(XPL_)X86_64
 obj-y += microcode.o
 endif

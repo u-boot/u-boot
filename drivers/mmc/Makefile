@@ -6,11 +6,11 @@
 obj-y += mmc.o
 obj-$(CONFIG_$(XPL_)DM_MMC) += mmc-uclass.o
 
-ifdef CONFIG_$(SPL_TPL_)DM_MMC
-obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += mmc_bootdev.o
+ifdef CONFIG_$(PHASE_)DM_MMC
+obj-$(CONFIG_$(PHASE_)BOOTSTD) += mmc_bootdev.o
 endif
 
-obj-$(CONFIG_$(SPL_TPL_)MMC_WRITE) += mmc_write.o
+obj-$(CONFIG_$(PHASE_)MMC_WRITE) += mmc_write.o
 obj-$(CONFIG_$(XPL_)MMC_PWRSEQ) += mmc-pwrseq.o
 obj-$(CONFIG_MMC_SDHCI_ADMA_HELPERS) += sdhci-adma.o
 

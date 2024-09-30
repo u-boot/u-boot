@@ -3,7 +3,7 @@
 # Copyright (c) 2015 Google, Inc
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-obj-$(CONFIG_$(SPL_TPL_)DM) += ram-uclass.o
+obj-$(CONFIG_$(PHASE_)DM) += ram-uclass.o
 obj-$(CONFIG_MPC83XX_SDRAM) += mpc83xx_sdram.o
 obj-$(CONFIG_SANDBOX) += sandbox_ram.o
 obj-$(CONFIG_STM32MP1_DDR) += stm32mp1/

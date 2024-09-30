@@ -3,7 +3,7 @@
 # (C) Copyright 2006-2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifeq ($(CONFIG_$(SPL_TPL_)DM_SERIAL),y)
+ifeq ($(CONFIG_$(PHASE_)DM_SERIAL),y)
 obj-y += serial-uclass.o
 else
 obj-y += serial.o

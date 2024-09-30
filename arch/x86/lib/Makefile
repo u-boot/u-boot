@@ -5,7 +5,7 @@
 
 obj-y	+= bdinfo.o
 
-ifndef CONFIG_$(SPL_TPL_)X86_64
+ifndef CONFIG_$(PHASE_)X86_64
 obj-y += bios.o
 obj-y += bios_asm.o
 obj-y += bios_interrupts.o
@@ -27,7 +27,7 @@ obj-y	+= init_helpers.o
 obj-y	+= interrupts.o
 obj-y	+= lpc-uclass.o
 obj-y	+= mpspec.o
-obj-$(CONFIG_$(SPL_TPL_)ACPIGEN) += acpi_nhlt.o
+obj-$(CONFIG_$(PHASE_)ACPIGEN) += acpi_nhlt.o
 obj-y	+= northbridge-uclass.o
 obj-$(CONFIG_I8259_PIC) += i8259.o
 obj-$(CONFIG_I8254_TIMER) += i8254.o
@@ -44,7 +44,7 @@ obj-y	+= acpi.o
 obj-$(CONFIG_HAVE_ACPI_RESUME) += acpi_s3.o
 ifndef CONFIG_QEMU
 obj-y += acpigen.o
-obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi_table.o
+obj-$(CONFIG_$(PHASE_)GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
 ifndef CONFIG_XPL_BUILD

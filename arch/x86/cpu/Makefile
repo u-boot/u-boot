@@ -9,7 +9,7 @@
 ifeq ($(CONFIG_$(XPL_)X86_64),y)
 extra-y	= start64.o
 else
-ifeq ($(CONFIG_$(SPL_TPL_)X86_16BIT_INIT),y)
+ifeq ($(CONFIG_$(PHASE_)X86_16BIT_INIT),y)
 extra-y	= start.o
 else
 ifndef CONFIG_SPL
@@ -24,7 +24,7 @@ endif
 endif
 endif
 
-extra-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += resetvec.o start16.o
+extra-$(CONFIG_$(PHASE_)X86_16BIT_INIT) += resetvec.o start16.o
 
 obj-y	+= cpu.o
 ifndef CONFIG_TPL_BUILD
@@ -54,10 +54,10 @@ obj-$(CONFIG_INTEL_QUARK) += quark/
 obj-$(CONFIG_INTEL_QUEENSBAY) += queensbay/
 obj-$(CONFIG_INTEL_TANGIER) += tangier/
 obj-$(CONFIG_APIC) += lapic.o ioapic.o
-obj-$(CONFIG_$(SPL_TPL_)ACPI_GPE) += acpi_gpe.o
+obj-$(CONFIG_$(PHASE_)ACPI_GPE) += acpi_gpe.o
 obj-$(CONFIG_QFW) += qfw_cpu.o
 ifndef CONFIG_SYS_COREBOOT
-obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += irq.o
+obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += irq.o
 endif
 ifndef CONFIG_$(XPL_)X86_64
 obj-$(CONFIG_$(XPL_)SMP) += mp_init.o

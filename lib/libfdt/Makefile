@@ -16,4 +16,4 @@ obj-y += \
 obj-$(CONFIG_OF_LIBFDT_OVERLAY) += fdt_overlay.o
 
 ccflags-y := -I$(srctree)/scripts/dtc/libfdt \
-	-DFDT_ASSUME_MASK=$(CONFIG_$(SPL_TPL_)OF_LIBFDT_ASSUME_MASK)
+	-DFDT_ASSUME_MASK=$(CONFIG_$(PHASE_)OF_LIBFDT_ASSUME_MASK)

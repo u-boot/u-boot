@@ -44,8 +44,8 @@ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 
 endif # !CONFIG_XPL_BUILD
 
-obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
-obj-$(CONFIG_$(SPL_TPL_)BLOBLIST) += bloblist.o
+obj-$(CONFIG_$(PHASE_)BOOTSTAGE) += bootstage.o
+obj-$(CONFIG_$(PHASE_)BLOBLIST) += bloblist.o
 
 ifdef CONFIG_XPL_BUILD
 ifdef CONFIG_SPL_DFU
@@ -65,16 +65,16 @@ obj-$(CONFIG_DDR_SPD) += ddr_spd.o
 obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
-obj-$(CONFIG_$(SPL_TPL_)SERIAL) += console.o
+obj-$(CONFIG_$(PHASE_)SERIAL) += console.o
 
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
-obj-$(CONFIG_$(SPL_TPL_)SYS_MALLOC_F) += malloc_simple.o
+obj-$(CONFIG_$(PHASE_)SYS_MALLOC_F) += malloc_simple.o
 
-obj-$(CONFIG_$(SPL_TPL_)CYCLIC) += cyclic.o
-obj-$(CONFIG_$(SPL_TPL_)EVENT) += event.o
+obj-$(CONFIG_$(PHASE_)CYCLIC) += cyclic.o
+obj-$(CONFIG_$(PHASE_)EVENT) += event.o
 
-obj-$(CONFIG_$(SPL_TPL_)HASH) += hash.o
+obj-$(CONFIG_$(PHASE_)HASH) += hash.o
 obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
@@ -88,15 +88,15 @@ obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_getch.o cli_simple.o cli_readline.o
 obj-$(CONFIG_STM32MP1_DDR_INTERACTIVE) += cli_getch.o cli_simple.o cli_readline.o
 obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
-obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
-obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
-obj-$(CONFIG_$(SPL_TPL_)LOG_SYSLOG) += log_syslog.o
+obj-$(CONFIG_$(PHASE_)LOG) += log.o
+obj-$(CONFIG_$(PHASE_)LOG_CONSOLE) += log_console.o
+obj-$(CONFIG_$(PHASE_)LOG_SYSLOG) += log_syslog.o
 obj-y += s_record.o
 obj-$(CONFIG_CMD_LOADB) += xyzModem.o
-obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
+obj-$(CONFIG_$(PHASE_)YMODEM_SUPPORT) += xyzModem.o
 
-obj-$(CONFIG_$(SPL_TPL_)AVB_VERIFY) += avb_verify.o
-obj-$(CONFIG_$(SPL_TPL_)STACKPROTECTOR) += stackprot.o
+obj-$(CONFIG_$(PHASE_)AVB_VERIFY) += avb_verify.o
+obj-$(CONFIG_$(PHASE_)STACKPROTECTOR) += stackprot.o
 obj-$(CONFIG_SCP03) += scp03.o
 
 obj-$(CONFIG_QFW) += qfw.o

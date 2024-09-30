@@ -3,12 +3,12 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_$(SPL_TPL_)MISC) += misc-uclass.o
-obj-$(CONFIG_$(SPL_TPL_)NVMEM) += nvmem.o
+obj-$(CONFIG_$(PHASE_)MISC) += misc-uclass.o
+obj-$(CONFIG_$(PHASE_)NVMEM) += nvmem.o
 
-obj-$(CONFIG_$(SPL_TPL_)CROS_EC) += cros_ec.o
-obj-$(CONFIG_$(SPL_TPL_)CROS_EC_SANDBOX) += cros_ec_sandbox.o
-obj-$(CONFIG_$(SPL_TPL_)CROS_EC_LPC) += cros_ec_lpc.o
+obj-$(CONFIG_$(PHASE_)CROS_EC) += cros_ec.o
+obj-$(CONFIG_$(PHASE_)CROS_EC_SANDBOX) += cros_ec_sandbox.o
+obj-$(CONFIG_$(PHASE_)CROS_EC_LPC) += cros_ec_lpc.o
 
 ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_SANDBOX) += sandbox_adder.o
@@ -51,7 +51,7 @@ obj-$(CONFIG_IMX_ELE) += imx_ele/
 obj-$(CONFIG_LED_STATUS) += status_led.o
 obj-$(CONFIG_LED_STATUS_GPIO) += gpio_led.o
 obj-$(CONFIG_MPC83XX_SERDES) += mpc83xx_serdes.o
-obj-$(CONFIG_$(SPL_TPL_)LS2_SFP) += ls2_sfp.o
+obj-$(CONFIG_$(PHASE_)LS2_SFP) += ls2_sfp.o
 obj-$(CONFIG_$(XPL_)MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NPCM_OTP) += npcm_otp.o
@@ -70,7 +70,7 @@ obj-$(CONFIG_SANDBOX) += qfw_sandbox.o
 endif
 obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
 obj-$(CONFIG_ROCKCHIP_OTP) += rockchip-otp.o
-obj-$(CONFIG_$(SPL_TPL_)ROCKCHIP_IODOMAIN) += rockchip-io-domain.o
+obj-$(CONFIG_$(PHASE_)ROCKCHIP_IODOMAIN) += rockchip-io-domain.o
 obj-$(CONFIG_SANDBOX) += syscon_sandbox.o misc_sandbox.o
 obj-$(CONFIG_SIFIVE_OTP) += sifive-otp.o
 obj-$(CONFIG_SMSC_LPC47M) += smsc_lpc47m.o
@@ -81,7 +81,7 @@ obj-$(CONFIG_SYS_DPAA_QBMAN) += fsl_portals.o
 obj-$(CONFIG_TEGRA186_BPMP) += tegra186_bpmp.o
 obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
 obj-$(CONFIG_TEST_DRV) += test_drv.o
-obj-$(CONFIG_$(SPL_TPL_)TURRIS_OMNIA_MCU) += turris_omnia_mcu.o
+obj-$(CONFIG_$(PHASE_)TURRIS_OMNIA_MCU) += turris_omnia_mcu.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_VEXPRESS_CONFIG) += vexpress_config.o
 obj-$(CONFIG_WINBOND_W83627) += winbond_w83627.o

@@ -29,7 +29,7 @@ ifeq ($(CONFIG_TPL_BUILD),)
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu-info.o
 endif
 
-obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram.o
+obj-$(CONFIG_$(PHASE_)RAM) += sdram.o
 
 obj-$(CONFIG_ROCKCHIP_PX30) += px30/
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/

@@ -6,7 +6,7 @@
 ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_SCSI) += scsi.o scsi-uclass.o
 ifdef CONFIG_SCSI
-obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += scsi_bootdev.o
+obj-$(CONFIG_$(PHASE_)BOOTSTD) += scsi_bootdev.o
 obj-$(CONFIG_SANDBOX) += sandbox_scsi.o
 obj-$(CONFIG_SANDBOX) += scsi_emul.o
 endif

@@ -1222,8 +1222,8 @@ def scan_makefiles(fnames):
     (None, 'FRED')
     >>> RE_MK_CONFIGS.search('CONFIG_$(XPL_)MARY').groups()
     ('$(XPL_)', 'MARY')
-    >>> RE_MK_CONFIGS.search('CONFIG_$(SPL_TPL_)MARY').groups()
-    ('$(SPL_TPL_)', 'MARY')
+    >>> RE_MK_CONFIGS.search('CONFIG_$(PHASE_)MARY').groups()
+    ('$(PHASE_)', 'MARY')
     """
     all_uses = collections.defaultdict(list)
     fname_uses = {}
@@ -1322,7 +1322,7 @@ def do_scan_source(path, do_update):
                 an SPL_ option, but for which there is none;
                 for MOD_PROPER, look at source code which implies a Proper
                 option (i.e. use of CONFIG_IS_ENABLED() or $(XPL_) or
-                $(SPL_TPL_) but for which there none;
+                $(PHASE_) but for which there none;
                 if MODE_NORMAL, ignore SPL
 
         Returns:

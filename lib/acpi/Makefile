@@ -3,7 +3,7 @@
 
 obj-y += acpi.o
 
-ifdef CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE
+ifdef CONFIG_$(PHASE_)GENERATE_ACPI_TABLE
 
 obj-$(CONFIG_$(XPL_)ACPIGEN) += acpigen.o
 obj-$(CONFIG_$(XPL_)ACPIGEN) += acpi_device.o

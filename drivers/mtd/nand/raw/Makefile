@@ -18,7 +18,7 @@ obj-$(CONFIG_SPL_NAND_BASE) += nand_base.o nand_amd.o nand_hynix.o \
 				nand_macronix.o nand_micron.o \
 				nand_samsung.o nand_toshiba.o
 obj-$(CONFIG_SPL_NAND_IDENT) += nand_ids.o nand_timings.o
-obj-$(CONFIG_$(SPL_TPL_)NAND_INIT) += nand.o
+obj-$(CONFIG_$(PHASE_)NAND_INIT) += nand.o
 ifeq ($(CONFIG_SPL_ENV_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_IN_NAND) += nand_util.o
 endif

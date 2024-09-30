@@ -16,7 +16,7 @@ obj-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
 obj-$(CONFIG_SAM9X60)		+= sam9x60_devices.o
 obj-y += clock.o
 obj-y += cpu.o
-ifndef CONFIG_$(SPL_TPL_)SYSRESET
+ifndef CONFIG_$(PHASE_)SYSRESET
 obj-y	+= reset.o
 endif
 ifneq ($(CONFIG_ATMEL_PIT_TIMER),y)

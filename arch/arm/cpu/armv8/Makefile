@@ -6,7 +6,7 @@
 extra-y	:= start.o
 
 obj-y	+= cpu.o
-ifndef CONFIG_$(SPL_TPL_)TIMER
+ifndef CONFIG_$(PHASE_)TIMER
 obj-$(CONFIG_SYS_ARCH_TIMER) += generic_timer.o
 endif
 ifndef CONFIG_$(XPL_)SYS_DCACHE_OFF
