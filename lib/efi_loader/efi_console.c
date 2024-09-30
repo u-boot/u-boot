@@ -100,7 +100,7 @@ static int term_get_char(s32 *c)
 }
 
 /**
- * Receive and parse a reply from the terminal.
+ * term_read_reply() - receive and parse a reply from the terminal
  *
  * @n:		array of return values
  * @num:	number of return values expected

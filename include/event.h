@@ -385,7 +385,7 @@ static inline int event_notify_null(enum event_t type)
 int event_uninit(void);
 
 /**
- * event_uninit() - Set up dynamic events
+ * event_init() - Set up dynamic events
  *
  * Init a list of dynamic event handlers, so that these can be added as
  * needed

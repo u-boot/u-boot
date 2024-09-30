@@ -295,7 +295,7 @@ out:
 }
 
 /**
- * efi_file_open_()
+ * efi_file_open() - open file synchronously
  *
  * This function implements the Open service of the File Protocol.
  * See the UEFI spec for details.
