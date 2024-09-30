@@ -91,7 +91,7 @@ static int load_from_image(struct spl_image_info *spl_image,
 			   struct spl_boot_device *bootdev)
 {
 	struct sandbox_state *state = state_get_current();
-	enum u_boot_phase next_phase;
+	enum xpl_phase_t next_phase;
 	const char *fname;
 	ulong pos, size;
 	int full_size;

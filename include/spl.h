@@ -62,7 +62,7 @@ static inline bool xpl_is_first_phase(void)
 	return false;
 }
 
-enum u_boot_phase {
+enum xpl_phase_t {
 	PHASE_NONE,	/* Invalid phase, signifying before U-Boot */
 	PHASE_TPL,	/* Running in TPL */
 	PHASE_VPL,	/* Running in VPL */
@@ -116,7 +116,7 @@ enum u_boot_phase {
  *
  * Return: U-Boot phase
  */
-static inline enum u_boot_phase spl_phase(void)
+static inline enum xpl_phase_t spl_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return PHASE_TPL;
@@ -150,7 +150,7 @@ static inline bool spl_in_proper(void)
  * Return: the previous phase from this one, e.g. if called in SPL this returns
  *	PHASE_TPL, if TPL is enabled
  */
-static inline enum u_boot_phase spl_prev_phase(void)
+static inline enum xpl_phase_t spl_prev_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return PHASE_NONE;
@@ -172,7 +172,7 @@ static inline enum u_boot_phase spl_prev_phase(void)
  * Return: the next phase from this one, e.g. if called in TPL this returns
  *	PHASE_SPL
  */
-static inline enum u_boot_phase spl_next_phase(void)
+static inline enum xpl_phase_t spl_next_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return IS_ENABLED(CONFIG_VPL) ? PHASE_VPL : PHASE_SPL;
@@ -188,7 +188,7 @@ static inline enum u_boot_phase spl_next_phase(void)
  *
  * Return: phase name
  */
-static inline const char *spl_phase_name(enum u_boot_phase phase)
+static inline const char *spl_phase_name(enum xpl_phase_t phase)
 {
 	switch (phase) {
 	case PHASE_TPL:
@@ -211,7 +211,7 @@ static inline const char *spl_phase_name(enum u_boot_phase phase)
  * @phase: Phase to look up
  * Return: phase prefix ("spl", "tpl", etc.)
  */
-static inline const char *spl_phase_prefix(enum u_boot_phase phase)
+static inline const char *spl_phase_prefix(enum xpl_phase_t phase)
 {
 	switch (phase) {
 	case PHASE_TPL:
