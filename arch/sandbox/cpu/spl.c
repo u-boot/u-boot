@@ -28,7 +28,7 @@ int sandbox_find_next_phase(char *fname, int maxlen, bool use_img)
 	int ret;
 
 	cur_prefix = spl_phase_prefix(xpl_phase());
-	next_prefix = spl_phase_prefix(spl_next_phase());
+	next_prefix = spl_phase_prefix(xpl_next_phase());
 	ret = os_find_u_boot(fname, maxlen, use_img, cur_prefix, next_prefix);
 	if (ret)
 		return log_msg_ret("find", ret);
@@ -101,7 +101,7 @@ static int load_from_image(struct spl_image_info *spl_image,
 	if (!IS_ENABLED(CONFIG_SANDBOX_VPL))
 		return -ENOENT;
 
-	next_phase = spl_next_phase();
+	next_phase = xpl_next_phase();
 	pos = spl_get_image_pos();
 	size = spl_get_image_size();
 	if (pos == BINMAN_SYM_MISSING || size == BINMAN_SYM_MISSING) {

@@ -176,10 +176,10 @@ ulong spl_get_image_pos(void)
 		return BINMAN_SYM_MISSING;
 
 #ifdef CONFIG_VPL
-	if (spl_next_phase() == PHASE_VPL)
+	if (xpl_next_phase() == PHASE_VPL)
 		return binman_sym(ulong, u_boot_vpl_any, image_pos);
 #endif
-	return spl_next_phase() == PHASE_SPL ?
+	return xpl_next_phase() == PHASE_SPL ?
 		binman_sym(ulong, u_boot_spl_any, image_pos) :
 		binman_sym(ulong, u_boot_any, image_pos);
 }
@@ -190,10 +190,10 @@ ulong spl_get_image_size(void)
 		return BINMAN_SYM_MISSING;
 
 #ifdef CONFIG_VPL
-	if (spl_next_phase() == PHASE_VPL)
+	if (xpl_next_phase() == PHASE_VPL)
 		return binman_sym(ulong, u_boot_vpl_any, size);
 #endif
-	return spl_next_phase() == PHASE_SPL ?
+	return xpl_next_phase() == PHASE_SPL ?
 		binman_sym(ulong, u_boot_spl_any, size) :
 		binman_sym(ulong, u_boot_any, size);
 }
@@ -201,10 +201,10 @@ ulong spl_get_image_size(void)
 ulong spl_get_image_text_base(void)
 {
 #ifdef CONFIG_VPL
-	if (spl_next_phase() == PHASE_VPL)
+	if (xpl_next_phase() == PHASE_VPL)
 		return CONFIG_VPL_TEXT_BASE;
 #endif
-	return spl_next_phase() == PHASE_SPL ? CONFIG_SPL_TEXT_BASE :
+	return xpl_next_phase() == PHASE_SPL ? CONFIG_SPL_TEXT_BASE :
 		CONFIG_TEXT_BASE;
 }
 
@@ -762,7 +762,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	os = spl_image.os;
 	if (os == IH_OS_U_BOOT) {
-		debug("Jumping to %s...\n", spl_phase_name(spl_next_phase()));
+		debug("Jumping to %s...\n", spl_phase_name(xpl_next_phase()));
 	} else if (CONFIG_IS_ENABLED(ATF) && os == IH_OS_ARM_TRUSTED_FIRMWARE) {
 		debug("Jumping to U-Boot via ARM Trusted Firmware\n");
 		spl_fixup_fdt(spl_image_fdt_addr(&spl_image));
