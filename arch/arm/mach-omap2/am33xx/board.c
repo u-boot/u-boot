@@ -526,7 +526,7 @@ EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_F, am33xx_dm_post_init);
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
 {
-	if (u_boot_first_phase()) {
+	if (xpl_is_first_phase()) {
 		hw_data_init();
 		set_uart_mux_conf();
 		setup_early_clocks();
