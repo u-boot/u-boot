@@ -1220,8 +1220,8 @@ def scan_makefiles(fnames):
 
     >>> RE_MK_CONFIGS.search('CONFIG_FRED').groups()
     (None, 'FRED')
-    >>> RE_MK_CONFIGS.search('CONFIG_$(SPL_)MARY').groups()
-    ('$(SPL_)', 'MARY')
+    >>> RE_MK_CONFIGS.search('CONFIG_$(XPL_)MARY').groups()
+    ('$(XPL_)', 'MARY')
     >>> RE_MK_CONFIGS.search('CONFIG_$(SPL_TPL_)MARY').groups()
     ('$(SPL_TPL_)', 'MARY')
     """
@@ -1321,7 +1321,7 @@ def do_scan_source(path, do_update):
             spl_mode (int): If MODE_SPL, look at source code which implies
                 an SPL_ option, but for which there is none;
                 for MOD_PROPER, look at source code which implies a Proper
-                option (i.e. use of CONFIG_IS_ENABLED() or $(SPL_) or
+                option (i.e. use of CONFIG_IS_ENABLED() or $(XPL_) or
                 $(SPL_TPL_) but for which there none;
                 if MODE_NORMAL, ignore SPL
 

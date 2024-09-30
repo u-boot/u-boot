@@ -71,25 +71,25 @@ obj-$(CONFIG_$(SPL_TPL_)CRC16) += crc16.o
 obj-y += crypto/
 
 obj-$(CONFIG_$(SPL_TPL_)ACPI) += acpi/
-obj-$(CONFIG_$(SPL_)MD5) += md5.o
+obj-$(CONFIG_$(XPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
-obj-$(CONFIG_$(SPL_)RSA) += rsa/
+obj-$(CONFIG_$(XPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_BLAKE2) += blake2/blake2b.o
-obj-$(CONFIG_$(SPL_)SHA1) += sha1.o
-obj-$(CONFIG_$(SPL_)SHA256) += sha256.o
-obj-$(CONFIG_$(SPL_)SHA512) += sha512.o
+obj-$(CONFIG_$(XPL_)SHA1) += sha1.o
+obj-$(CONFIG_$(XPL_)SHA256) += sha256.o
+obj-$(CONFIG_$(XPL_)SHA512) += sha512.o
 obj-$(CONFIG_CRYPT_PW) += crypt/
-obj-$(CONFIG_$(SPL_)ASN1_DECODER) += asn1_decoder.o
+obj-$(CONFIG_$(XPL_)ASN1_DECODER) += asn1_decoder.o
 
-obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
-obj-$(CONFIG_$(SPL_)ZSTD) += zstd/
-obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
-obj-$(CONFIG_$(SPL_)LZO) += lzo/
-obj-$(CONFIG_$(SPL_)LZMA) += lzma/
-obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
+obj-$(CONFIG_$(XPL_)ZLIB) += zlib/
+obj-$(CONFIG_$(XPL_)ZSTD) += zstd/
+obj-$(CONFIG_$(XPL_)GZIP) += gunzip.o
+obj-$(CONFIG_$(XPL_)LZO) += lzo/
+obj-$(CONFIG_$(XPL_)LZMA) += lzma/
+obj-$(CONFIG_$(XPL_)LZ4) += lz4_wrapper.o
 
-obj-$(CONFIG_$(SPL_)LIB_RATIONAL) += rational.o
+obj-$(CONFIG_$(XPL_)LIB_RATIONAL) += rational.o
 
 obj-$(CONFIG_LIBAVB) += libavb/
 
@@ -144,7 +144,7 @@ else
 obj-y += vsprintf.o strto.o
 obj-$(CONFIG_SSCANF) += sscanf.o
 endif
-obj-$(CONFIG_$(SPL_)OID_REGISTRY) += oid_registry.o
+obj-$(CONFIG_$(XPL_)OID_REGISTRY) += oid_registry.o
 
 obj-y += abuf.o
 obj-y += alist.o

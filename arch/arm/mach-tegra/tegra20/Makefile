@@ -3,7 +3,7 @@
 # (C) Copyright 2010,2011 Nvidia Corporation.
 
 obj-$(CONFIG_XPL_BUILD) += cpu.o
-obj-$(CONFIG_$(SPL_)CMD_EBTUPDATE) += bct.o
+obj-$(CONFIG_$(XPL_)CMD_EBTUPDATE) += bct.o
 
 # The AVP is ARMv4T architecture so we must use special compiler
 # flags for any startup files it might use.

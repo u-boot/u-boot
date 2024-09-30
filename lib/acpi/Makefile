@@ -5,10 +5,10 @@ obj-y += acpi.o
 
 ifdef CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE
 
-obj-$(CONFIG_$(SPL_)ACPIGEN) += acpigen.o
-obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_device.o
-obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_dp.o
-obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi_table.o
+obj-$(CONFIG_$(XPL_)ACPIGEN) += acpigen.o
+obj-$(CONFIG_$(XPL_)ACPIGEN) += acpi_device.o
+obj-$(CONFIG_$(XPL_)ACPIGEN) += acpi_dp.o
+obj-$(CONFIG_$(XPL_)ACPIGEN) += acpi_table.o
 obj-y += acpi_writer.o
 
 # With QEMU the ACPI tables come from there, not from U-Boot

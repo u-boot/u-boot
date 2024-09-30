@@ -94,7 +94,7 @@ endif
 
 # some files can only build in ARM or THUMB2, not THUMB1
 
-ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD
+ifdef CONFIG_$(XPL_)SYS_THUMB_BUILD
 asflags-$(CONFIG_HAS_THUMB2) += -DCONFIG_THUMB2_KERNEL
 ifndef CONFIG_HAS_THUMB2
 

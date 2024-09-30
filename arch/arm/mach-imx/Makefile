@@ -60,7 +60,7 @@ obj-$(CONFIG_IMX_RDC) += rdc-sema.o
 ifneq ($(CONFIG_XPL_BUILD),y)
 obj-$(CONFIG_IMX_BOOTAUX) += imx_bootaux.o
 endif
-obj-$(CONFIG_$(SPL_)SATA) += sata.o
+obj-$(CONFIG_$(XPL_)SATA) += sata.o
 obj-$(CONFIG_IMX_HAB)    += hab.o
 obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
 endif

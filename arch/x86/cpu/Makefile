@@ -6,7 +6,7 @@
 # (C) Copyright 2002
 # Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
 
-ifeq ($(CONFIG_$(SPL_)X86_64),y)
+ifeq ($(CONFIG_$(XPL_)X86_64),y)
 extra-y	= start64.o
 else
 ifeq ($(CONFIG_$(SPL_TPL_)X86_16BIT_INIT),y)
@@ -31,7 +31,7 @@ ifndef CONFIG_TPL_BUILD
 obj-y	+= cpu_x86.o
 endif
 
-ifndef CONFIG_$(SPL_)X86_64
+ifndef CONFIG_$(XPL_)X86_64
 AFLAGS_REMOVE_call32.o := -mregparm=3 \
 	$(if $(CONFIG_EFI_STUB_64BIT),-march=i386 -m32)
 AFLAGS_call32.o := -fpic -fshort-wchar \
@@ -59,18 +59,18 @@ obj-$(CONFIG_QFW) += qfw_cpu.o
 ifndef CONFIG_SYS_COREBOOT
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += irq.o
 endif
-ifndef CONFIG_$(SPL_)X86_64
-obj-$(CONFIG_$(SPL_)SMP) += mp_init.o
+ifndef CONFIG_$(XPL_)X86_64
+obj-$(CONFIG_$(XPL_)SMP) += mp_init.o
 endif
 obj-y += mtrr.o
 obj-$(CONFIG_PCI) += pci.o
-ifndef CONFIG_$(SPL_)X86_64
+ifndef CONFIG_$(XPL_)X86_64
 obj-$(CONFIG_SMP) += sipi_vector.o
 endif
 obj-y += turbo.o
 obj-$(CONFIG_HAVE_ACPI_RESUME) += wakeup.o
 
-ifeq ($(CONFIG_$(SPL_)X86_64),y)
+ifeq ($(CONFIG_$(XPL_)X86_64),y)
 obj-y += x86_64/
 else
 obj-y += i386/

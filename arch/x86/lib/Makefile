@@ -19,7 +19,7 @@ ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 obj-y	+= cmd_boot.o
-obj-$(CONFIG_$(SPL_)COREBOOT_SYSINFO)	+= coreboot/
+obj-$(CONFIG_$(XPL_)COREBOOT_SYSINFO)	+= coreboot/
 obj-$(CONFIG_SEABIOS) += coreboot_table.o
 obj-y	+= early_cmos.o
 obj-y	+= e820.o
@@ -90,7 +90,7 @@ endif
 
 ifdef CONFIG_EFI_STUB
 
-ifeq ($(CONFIG_$(SPL_)X86_64),)
+ifeq ($(CONFIG_$(XPL_)X86_64),)
 extra-y += $(EFI_CRT0) $(EFI_RELOC)
 endif
 

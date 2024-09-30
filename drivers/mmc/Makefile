@@ -4,17 +4,17 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 obj-y += mmc.o
-obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
+obj-$(CONFIG_$(XPL_)DM_MMC) += mmc-uclass.o
 
 ifdef CONFIG_$(SPL_TPL_)DM_MMC
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTD) += mmc_bootdev.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)MMC_WRITE) += mmc_write.o
-obj-$(CONFIG_$(SPL_)MMC_PWRSEQ) += mmc-pwrseq.o
+obj-$(CONFIG_$(XPL_)MMC_PWRSEQ) += mmc-pwrseq.o
 obj-$(CONFIG_MMC_SDHCI_ADMA_HELPERS) += sdhci-adma.o
 
-ifndef CONFIG_$(SPL_)BLK
+ifndef CONFIG_$(XPL_)BLK
 obj-y += mmc_legacy.o
 endif
 

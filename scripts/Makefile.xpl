@@ -59,7 +59,7 @@ endif
 export SPL_NAME
 
 ifdef CONFIG_XPL_BUILD
-SPL_ := SPL_
+XPL_ := SPL_
 ifeq ($(CONFIG_VPL_BUILD),y)
 SPL_TPL_ := VPL_
 else
@@ -70,7 +70,7 @@ SPL_TPL_ := SPL_
 endif
 endif
 else
-SPL_ :=
+XPL_ :=
 SPL_TPL_ :=
 endif
 
