@@ -20,6 +20,12 @@ _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 include $(srctree)/scripts/Kbuild.include
 
 -include include/config/auto.conf
+
+# This file contains 0, 1 or 2 lines
+# It is empty for U-Boot proper (where $(obj) is empty)
+# For any xPL build it contains CONFIG_SPL_BUILD=y
+# For TPL builds it has CONFIG_SPL_BUILD=y and CONFIG_TPL_BUILD=y
+# For VPL builds it has CONFIG_SPL_BUILD=y and CONFIG_VPL_BUILD=y
 -include $(obj)/include/autoconf.mk
 
 UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
