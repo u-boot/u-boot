@@ -246,10 +246,10 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 #define _DEBUG	0
 #endif
 
-#ifdef CONFIG_SPL_BUILD
-#define _SPL_BUILD	1
+#ifdef CONFIG_XPL_BUILD
+#define _XPL_BUILD	1
 #else
-#define _SPL_BUILD	0
+#define _XPL_BUILD	0
 #endif
 
 #if CONFIG_IS_ENABLED(LOG)
@@ -281,9 +281,9 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 #define debug(fmt, args...)			\
 	debug_cond(_DEBUG, fmt, ##args)
 
-/* Show a message if not in SPL */
-#define warn_non_spl(fmt, args...)			\
-	debug_cond(!_SPL_BUILD, fmt, ##args)
+/* Show a message if not in xPL */
+#define warn_non_xpl(fmt, args...)			\
+	debug_cond(!_XPL_BUILD, fmt, ##args)
 
 /*
  * An assertion is run-time check done in debug mode only. If DEBUG is not
