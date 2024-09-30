@@ -1175,7 +1175,7 @@ def prefix_config(cfg):
     return oper + cfg
 
 
-RE_MK_CONFIGS = re.compile(r'CONFIG_(\$\(SPL_(?:TPL_)?\))?([A-Za-z0-9_]*)')
+RE_MK_CONFIGS = re.compile(r'CONFIG_(\$\(XPL_\)|\$\(PHASE_\))?([A-Za-z0-9_]*)')
 RE_IFDEF = re.compile(r'(ifdef|ifndef)')
 RE_C_CONFIGS = re.compile(r'CONFIG_([A-Za-z0-9_]*)')
 RE_CONFIG_IS = re.compile(r'CONFIG_IS_ENABLED\(([A-Za-z0-9_]*)\)')
@@ -1186,7 +1186,7 @@ class ConfigUse:
         """Set up a new ConfigUse
 
         Args:
-            cfg (str): CONFIG option, without any CONFIG_ or SPL_ prefix
+            cfg (str): CONFIG option, without any CONFIG_ or xPL_ prefix
             is_spl (bool): True if this option relates to SPL
             fname (str): Makefile filename where the CONFIG option was found
             rest (str): Line of the Makefile
@@ -1319,7 +1319,7 @@ def do_scan_source(path, do_update):
                 key (ConfigUse): object
                 value (list of str): matching lines
             spl_mode (int): If MODE_SPL, look at source code which implies
-                an SPL_ option, but for which there is none;
+                an xPL_ option, but for which there is none;
                 for MOD_PROPER, look at source code which implies a Proper
                 option (i.e. use of CONFIG_IS_ENABLED() or $(XPL_) or
                 $(PHASE_) but for which there none;
@@ -1341,7 +1341,7 @@ def do_scan_source(path, do_update):
             if spl_mode == MODE_SPL:
                 check = use.is_spl
 
-                # If it is an SPL symbol, try prepending all SPL_ prefixes to
+                # If it is an SPL symbol, try prepending all xPL_ prefixes to
                 # find at least one SPL symbol
                 if use.is_spl:
                     for prefix in SPL_PREFIXES:
@@ -1354,7 +1354,7 @@ def do_scan_source(path, do_update):
                     continue
             elif spl_mode == MODE_PROPER:
                 # Try to find the Proper version of this symbol, i.e. without
-                # the SPL_ prefix
+                # the xPL_ prefix
                 proper_name = is_not_proper(name)
                 if proper_name:
                     name = proper_name
@@ -1450,7 +1450,7 @@ def do_scan_source(path, do_update):
     show_uses(not_found)
     spl_not_found |= {is_not_proper(key) or key for key in not_found.keys()}
 
-    print('\nCONFIG options used as Proper in Makefiles but without a non-SPL_ variant:')
+    print('\nCONFIG options used as Proper in Makefiles but without a non-xPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
     proper_not_found |= {not_found.keys()}
@@ -1468,16 +1468,16 @@ def do_scan_source(path, do_update):
     show_uses(not_found)
     spl_not_found |= {is_not_proper(key) or key for key in not_found.keys()}
 
-    print('\nCONFIG options used as Proper in source but without a non-SPL_ variant:')
+    print('\nCONFIG options used as Proper in source but without a non-xPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
     proper_not_found |= {not_found.keys()}
 
-    print('\nCONFIG options used as SPL but without an SPL_ variant:')
+    print('\nCONFIG options used as SPL but without an xPL_ variant:')
     for item in sorted(spl_not_found):
         print(f'   {item}')
 
-    print('\nCONFIG options used as Proper but without a non-SPL_ variant:')
+    print('\nCONFIG options used as Proper but without a non-xPL_ variant:')
     for item in sorted(proper_not_found):
         print(f'   {item}')
 
