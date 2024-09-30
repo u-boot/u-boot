@@ -1030,7 +1030,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 
 	while (len) {
 		schedule();
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && ctrlc()) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && ctrlc()) {
 			addr_known = false;
 			ret = -EINTR;
 			goto erase_err;
@@ -4262,7 +4262,7 @@ int spi_nor_scan(struct spi_nor *nor)
 	nor->erase_size = mtd->erasesize;
 	nor->sector_size = mtd->erasesize;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	printf("SF: Detected %s with page size ", nor->name);
 	print_size(nor->page_size, ", erase size ");
 	print_size(nor->erase_size, ", total ");

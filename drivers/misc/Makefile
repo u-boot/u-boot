@@ -10,7 +10,7 @@ obj-$(CONFIG_$(SPL_TPL_)CROS_EC) += cros_ec.o
 obj-$(CONFIG_$(SPL_TPL_)CROS_EC_SANDBOX) += cros_ec_sandbox.o
 obj-$(CONFIG_$(SPL_TPL_)CROS_EC_LPC) += cros_ec_lpc.o
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_SANDBOX) += sandbox_adder.o
 obj-$(CONFIG_CROS_EC_I2C) += cros_ec_i2c.o
 obj-$(CONFIG_CROS_EC_SPI) += cros_ec_spi.o
@@ -19,13 +19,13 @@ obj-$(CONFIG_SANDBOX) += swap_case.o
 endif
 
 ifdef CONFIG_$(SPL_)DM_I2C
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_SANDBOX) += i2c_eeprom_emul.o
 obj-$(CONFIG_USB_HUB_USB251XB) += usb251xb.o
 endif
 endif
 ifdef CONFIG_SPL_OF_PLATDATA
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SANDBOX) += spltest_sandbox.o
 endif
 endif

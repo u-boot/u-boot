@@ -152,7 +152,7 @@ static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 static int zynq_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	struct zynq_uart_plat *plat = dev_get_plat(dev);

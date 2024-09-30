@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_IMX8M_DRAM) += ddr_init.o
 obj-y += ../phy/
 endif

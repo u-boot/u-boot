@@ -411,7 +411,7 @@ static void sdp_rx_data_complete(struct usb_ep *ep, struct usb_request *req)
 		return;
 	}
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	env_set_hex("filesize", sdp->dnl_bytes);
 #endif
 	printf("done\n");
@@ -736,7 +736,7 @@ static u32 sdp_jump_imxheader(void *address)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static ulong sdp_load_read(struct spl_load_info *load, ulong sector,
 			   ulong count, void *buf)
 {
@@ -825,7 +825,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 
 		/* If imx header fails, try some U-Boot specific headers */
 		if (status) {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 			if (IS_ENABLED(CONFIG_SPL_LOAD_IMX_CONTAINER))
 				sdp_func->jmp_address = (u32)search_container_header((ulong)sdp_func->jmp_address, sdp_func->dnl_bytes);
 			else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT))
@@ -907,7 +907,7 @@ static void sdp_handle_out_ep(void)
 	}
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int sdp_handle(struct udevice *udc)
 #else
 int spl_sdp_handle(struct udevice *udc, struct spl_image_info *spl_image,
@@ -928,7 +928,7 @@ int spl_sdp_handle(struct udevice *udc, struct spl_image_info *spl_image,
 		schedule();
 		dm_usb_gadget_handle_interrupts(udc);
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 		flag = sdp_handle_in_ep(spl_image, bootdev);
 #else
 		flag = sdp_handle_in_ep(NULL, NULL);

@@ -39,7 +39,7 @@ struct stm32_gpio_bank {
 	struct list_head list;
 };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 static char pin_name[PINNAME_SIZE];
 static const char * const pinmux_mode[GPIOF_COUNT] = {
@@ -488,7 +488,7 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 #else /* PINCTRL_FULL */
 	.set_state_simple	= stm32_pinctrl_set_state_simple,
 #endif /* PINCTRL_FULL */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	.get_pin_name		= stm32_pinctrl_get_pin_name,
 	.get_pins_count		= stm32_pinctrl_get_pins_count,
 	.get_pin_muxing		= stm32_pinctrl_get_pin_muxing,

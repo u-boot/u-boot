@@ -16,7 +16,7 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define ENABLE_DRIVER
 #endif
 

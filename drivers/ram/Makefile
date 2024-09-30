@@ -20,7 +20,7 @@ obj-$(CONFIG_K3_DDRSS) += k3-ddrss/
 obj-$(CONFIG_IMXRT_SDRAM) += imxrt_sdram.o
 
 obj-$(CONFIG_RAM_SIFIVE) += sifive/
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_STARFIVE_DDR) += starfive/
 endif
 

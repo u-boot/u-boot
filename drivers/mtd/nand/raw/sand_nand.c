@@ -680,7 +680,7 @@ void board_nand_init(void)
 		log_info("Failed to get sandbox NAND: %d\n", err);
 }
 
-#if IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_SPL_NAND_INIT)
+#if IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_SPL_NAND_INIT)
 void nand_deselect(void)
 {
 	nand_chip->select_chip(nand_to_mtd(nand_chip), -1);

@@ -8,7 +8,7 @@ obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += key_matrix.o
 obj-$(CONFIG_$(SPL_TPL_)DM_KEYBOARD) += input.o keyboard-uclass.o
 obj-$(CONFIG_BUTTON_KEYBOARD) += button_kbd.o
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 
 obj-$(CONFIG_APPLE_SPI_KEYB) += apple_spi_kbd.o
 obj-$(CONFIG_I8042_KEYB) += i8042.o

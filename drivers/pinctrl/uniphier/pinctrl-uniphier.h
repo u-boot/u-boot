@@ -126,7 +126,7 @@ struct uniphier_pinctrl_socdata {
 
 #define __UNIPHIER_PINMUX_FUNCTION(func)	#func
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * a tricky way to drop unneeded *_pins and *_muxvals arrays from SPL,
 	 * suppressing "defined but not used" warnings.

@@ -245,7 +245,7 @@ int sunxi_name_to_gpio(const char *name)
 {
 	unsigned int gpio;
 	int ret;
-#if !defined CONFIG_SPL_BUILD && defined CONFIG_AXP_GPIO
+#if !defined CONFIG_XPL_BUILD && defined CONFIG_AXP_GPIO
 	char lookup[8];
 
 	if (strcasecmp(name, "AXP0-VBUS-ENABLE") == 0) {

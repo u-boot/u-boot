@@ -227,7 +227,7 @@ static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 
 void ns16550_init(struct ns16550 *com_port, int baud_divisor)
 {
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_OMAP34XX)
 	/*
 	 * On some OMAP3/OMAP4 devices when UART3 is configured for boot mode
 	 * before SPL starts only THRE bit is set. We have to empty the
@@ -303,7 +303,7 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 char ns16550_getc(struct ns16550 *com_port)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_TTY)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_TTY)
 		extern void usbtty_poll(void);
 		usbtty_poll();
 #endif

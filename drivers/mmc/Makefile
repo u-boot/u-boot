@@ -20,7 +20,7 @@ endif
 
 obj-$(CONFIG_SUPPORT_EMMC_BOOT) += mmc_boot.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 endif
 

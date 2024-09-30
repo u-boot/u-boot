@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 ifdef CONFIG_TEGRA20
 obj-y += pinctrl-tegra20.o
 else
