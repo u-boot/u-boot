@@ -4,15 +4,16 @@ Board Initialisation Flow
 -------------------------
 
 This is the intended start-up flow for boards. This should apply for both
-SPL and U-Boot proper (i.e. they both follow the same rules).
+xPL and U-Boot proper (i.e. they both follow the same rules).
 
-Note: "SPL" stands for "Secondary Program Loader," which is explained in
-more detail later in this file.
+Note: "xPL" stands for "any Program Loader", including SPL (Secondary
+Program Loader), TPL (Tertiary Program Loader) and VPL (Verifying Program
+Loader). The boot sequence is TPL->VPL->SPL->U-Boot proper
 
-At present, SPL mostly uses a separate code path, but the function names
+At present, xPL mostly uses a separate code path, but the function names
 and roles of each function are the same. Some boards or architectures
 may not conform to this.  At least most ARM boards which use
-CONFIG_SPL_FRAMEWORK conform to this.
+CONFIG_xPL_FRAMEWORK conform to this.
 
 Execution typically starts with an architecture-specific (and possibly
 CPU-specific) start.S file, such as:
@@ -48,7 +49,7 @@ board_init_f()
 
 Non-xPL-specific notes:
 
-    - dram_init() is called to set up DRAM. If already done in SPL this
+    - dram_init() is called to set up DRAM. If already done in xPL this
       can do nothing
 
 xPL-specific notes:
@@ -68,9 +69,9 @@ xPL-specific notes:
     - must return normally from this function (don't call board_init_r()
       directly)
 
-Here the BSS is cleared. For SPL, if CONFIG_SPL_STACK_R is defined, then at
+Here the BSS is cleared. For xPL, if CONFIG_xPL_STACK_R is defined, then at
 this point the stack and global_data are relocated to below
-CONFIG_SPL_STACK_R_ADDR. For non-SPL, U-Boot is relocated to run at the top of
+CONFIG_xPL_STACK_R_ADDR. For non-xPL, U-Boot is relocated to run at the top of
 memory.
 
 board_init_r()
@@ -82,11 +83,11 @@ board_init_r()
     - BSS is available, all static/global variables can be used
     - execution eventually continues to main_loop()
 
-Non-SPL-specific notes:
+Non-xPL-specific notes:
 
     - U-Boot is relocated to the top of memory and is now running from
       there.
 
-SPL-specific notes:
+xPL-specific notes:
 
-    - stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined
+    - stack is optionally in SDRAM, if CONFIG_xPL_STACK_R is defined
