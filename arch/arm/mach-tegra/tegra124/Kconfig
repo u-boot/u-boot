@@ -21,8 +21,8 @@ config TARGET_CEI_TK1_SOM
 	bool "Colorado Engineering Inc Tegra124 TK1-som board"
 	select ARCH_SUPPORT_PSCI
 	select BOARD_LATE_INIT
-	select CPU_V7_HAS_NONSEC if !SPL_BUILD
-	select CPU_V7_HAS_VIRT if !SPL_BUILD
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	help
 	  The Colorado Engineering Tegra TK1-SOM is a very compact
 	  (51mmx58mm) board that is functionally almost the same as
