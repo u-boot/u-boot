@@ -28,7 +28,7 @@
 #define CFG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */
 #define CFG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
@@ -37,7 +37,7 @@
 	DFU_ALT_INFO_QSPI
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #ifdef CONFIG_SPL_DFU
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \

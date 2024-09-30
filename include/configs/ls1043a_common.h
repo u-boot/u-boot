@@ -8,7 +8,7 @@
 #define __LS1043A_COMMON_H
 
 /* SPL build */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define SPL_NO_FMAN
 #define SPL_NO_DSPI
 #define SPL_NO_PCIE
@@ -19,10 +19,10 @@
 #define SPL_NO_QE
 #define SPL_NO_EEPROM
 #endif
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_BOOT))
+#if (defined(CONFIG_XPL_BUILD) && defined(CONFIG_NAND_BOOT))
 #define SPL_NO_MMC
 #endif
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SD_BOOT_QSPI))
+#if (defined(CONFIG_XPL_BUILD) && defined(CONFIG_SD_BOOT_QSPI))
 #define SPL_NO_IFC
 #endif
 

@@ -10,7 +10,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <config.h>
 #endif
 
@@ -39,7 +39,7 @@
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CFG_MALLOC_F_ADDR		0x930000
 #endif

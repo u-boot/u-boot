@@ -44,7 +44,7 @@
 
 /* Boot configuration */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define BOOTENV
 #else
 
@@ -167,7 +167,7 @@
 	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /* Default environment */
 #ifndef CFG_EXTRA_ENV_SETTINGS

@@ -11,7 +11,7 @@
 
 int sdp_init(struct udevice *udc);
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 
 int spl_sdp_handle(struct udevice *udc, struct spl_image_info *spl_image,

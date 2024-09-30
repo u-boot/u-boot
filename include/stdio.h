@@ -9,7 +9,7 @@ int getchar(void);
 int tstc(void);
 
 /* stdout */
-#if !defined(CONFIG_SPL_BUILD) || CONFIG_IS_ENABLED(SERIAL)
+#if !defined(CONFIG_XPL_BUILD) || CONFIG_IS_ENABLED(SERIAL)
 void putc(const char c);
 void puts(const char *s);
 #ifdef CONFIG_CONSOLE_FLUSH_SUPPORT

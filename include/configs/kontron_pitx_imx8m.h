@@ -12,7 +12,7 @@
 	EFI_GUID(0xc898e959, 0x5b1f, 0x4e6d, 0x88, 0xe0, \
 		 0x40, 0xd4, 0x5c, 0xca, 0x13, 0x99)
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
 #define CFG_MALLOC_F_ADDR		0x182000

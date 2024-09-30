@@ -15,7 +15,7 @@
 #define CFG_SYS_INIT_SP_OFFSET		0x800000
 
 /* Serial SPL */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_SERIAL)
 #define CFG_SYS_NS16550_CLK		50000000
 #define CFG_SYS_NS16550_COM1		0xbe000c00
 #endif
