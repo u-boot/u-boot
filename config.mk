@@ -21,7 +21,7 @@ VENDOR :=
 
 ARCH := $(CONFIG_SYS_ARCH:"%"=%)
 CPU := $(CONFIG_SYS_CPU:"%"=%)
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 ifdef CONFIG_ARCH_TEGRA
 CPU := arm720t
 endif

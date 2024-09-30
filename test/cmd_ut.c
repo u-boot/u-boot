@@ -256,7 +256,7 @@ U_BOOT_LONGHELP(ut,
 	"\ntime - very basic test of time functions"
 #endif
 #if defined(CONFIG_UT_UNICODE) && \
-	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+	!defined(CONFIG_XPL_BUILD) && !defined(API_BUILD)
 	"\nunicode - Unicode functions"
 #endif
 	);

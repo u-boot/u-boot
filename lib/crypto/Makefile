@@ -18,12 +18,12 @@ rsa_public_key-y := \
 	rsa_helper.o
 
 $(obj)/rsapubkey.asn1.o: $(obj)/rsapubkey.asn1.c $(obj)/rsapubkey.asn1.h
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 CFLAGS_rsapubkey.asn1.o += -I$(obj)
 endif
 
 $(obj)/rsa_helper.o: $(obj)/rsapubkey.asn1.h
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 CFLAGS_rsa_helper.o += -I$(obj)
 endif
 

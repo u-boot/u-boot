@@ -55,7 +55,7 @@ endif
 
 export SPL_NAME
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 SPL_ := SPL_
 ifeq ($(CONFIG_VPL_BUILD),y)
 SPL_TPL_ := VPL_

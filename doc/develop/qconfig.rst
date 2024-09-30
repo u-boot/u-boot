@@ -226,7 +226,7 @@ Available options
    Look for moved config options in spl/include/autoconf.mk instead of
    include/autoconf.mk.  This is useful for moving options for SPL build
    because SPL related options (mostly prefixed with CONFIG_SPL\_) are
-   sometimes blocked by CONFIG_SPL_BUILD ifdef conditionals.
+   sometimes blocked by CONFIG_XPL_BUILD ifdef conditionals.
 
  -j, --jobs
    Specify the number of threads to run simultaneously.  If not specified,

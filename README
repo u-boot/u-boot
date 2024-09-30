@@ -1418,13 +1418,13 @@ Low Level (hardware related) configuration options:
 		This only takes effect if the memory commands are activated
 		globally (CONFIG_CMD_MEMORY).
 
-- CONFIG_SPL_BUILD
+- CONFIG_XPL_BUILD
 		Set when the currently running compilation is for an artifact
 		that will end up in one of the 'xPL' builds, i.e. SPL, TPL or
 		VPL. Code that needs phase-specific behaviour can check this,
 		or (where possible) use xpl_phase() instead.
 
-		Note that CONFIG_SPL_BUILD *is* always defined when either
+		Note that CONFIG_XPL_BUILD *is* always defined when either
 		of CONFIG_TPL_BUILD / CONFIG_VPL_BUILD is defined. This can be
 		counter-intuitive and should perhaps be changed.
 

@@ -434,7 +434,7 @@ static u8 *add_vci(u8 *e)
 	char *vci = NULL;
 	char *env_vci = env_get("bootp_vci");
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_NET_VCI_STRING)
 	vci = CONFIG_SPL_NET_VCI_STRING;
 #elif defined(CONFIG_BOOTP_VCI_STRING)
 	vci = CONFIG_BOOTP_VCI_STRING;
