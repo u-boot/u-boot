@@ -2099,12 +2099,15 @@ Code coverage
 -------------
 
 Binman is a critical tool and is designed to be very testable. Entry
-implementations target 100% test coverage. Run 'binman test -T' to check this.
+implementations target 100% test coverage. Run ``binman test -T`` to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu)::
 
    $ sudo apt-get install python-coverage python3-coverage python-pytest
 
+You can also check the coverage provided by a single test, e.g.::
+
+   binman test -T testSimple
 
 Exit status
 -----------
