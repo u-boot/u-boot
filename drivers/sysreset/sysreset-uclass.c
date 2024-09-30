@@ -102,7 +102,7 @@ void sysreset_walk_halt(enum sysreset_t type)
 		mdelay(100);
 
 	/* Still no reset? Give up */
-	if (spl_phase() <= PHASE_SPL)
+	if (xpl_phase() <= PHASE_SPL)
 		log_err("no sysreset\n");
 	else
 		log_err("System reset not supported on this platform\n");

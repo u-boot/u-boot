@@ -193,7 +193,7 @@ struct io_setting {
  */
 static bool phase_sdram_init(void)
 {
-	return spl_phase() == PHASE_TPL ||
+	return xpl_phase() == PHASE_TPL ||
 		(!IS_ENABLED(CONFIG_TPL) &&
 		 !IS_ENABLED(CONFIG_ROCKCHIP_EXTERNAL_TPL) &&
 		 !spl_in_proper());

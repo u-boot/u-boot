@@ -68,7 +68,7 @@ int arch_cpu_init(void)
 	post_code(POST_CPU_INIT);
 
 	/* Do a mini-init if TPL has already done the full init */
-	if (IS_ENABLED(CONFIG_TPL) && spl_phase() != PHASE_TPL)
+	if (IS_ENABLED(CONFIG_TPL) && xpl_phase() != PHASE_TPL)
 		return x86_cpu_reinit_f();
 	else
 		return x86_cpu_init_f();

@@ -74,7 +74,7 @@ enum xpl_phase_t {
 };
 
 /**
- * spl_phase() - Find out the phase of U-Boot
+ * xpl_phase() - Find out the phase of U-Boot
  *
  * This can be used to avoid #ifdef logic and use if() instead.
  *
@@ -86,7 +86,7 @@ enum xpl_phase_t {
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_TPL) {
+ *    if (xpl_phase() == PHASE_TPL) {
  *       ...
  *    }
  *
@@ -98,7 +98,7 @@ enum xpl_phase_t {
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_SPL) {
+ *    if (xpl_phase() == PHASE_SPL) {
  *       ...
  *    }
  *
@@ -110,13 +110,13 @@ enum xpl_phase_t {
  *
  * but with this you can use:
  *
- *    if (spl_phase() == PHASE_BOARD_F) {
+ *    if (xpl_phase() == PHASE_BOARD_F) {
  *       ...
  *    }
  *
  * Return: U-Boot phase
  */
-static inline enum xpl_phase_t spl_phase(void)
+static inline enum xpl_phase_t xpl_phase(void)
 {
 #ifdef CONFIG_TPL_BUILD
 	return PHASE_TPL;

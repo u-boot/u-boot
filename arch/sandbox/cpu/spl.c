@@ -27,7 +27,7 @@ int sandbox_find_next_phase(char *fname, int maxlen, bool use_img)
 	const char *cur_prefix, *next_prefix;
 	int ret;
 
-	cur_prefix = spl_phase_prefix(spl_phase());
+	cur_prefix = spl_phase_prefix(xpl_phase());
 	next_prefix = spl_phase_prefix(spl_next_phase());
 	ret = os_find_u_boot(fname, maxlen, use_img, cur_prefix, next_prefix);
 	if (ret)

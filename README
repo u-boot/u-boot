@@ -1512,7 +1512,7 @@ Low Level (hardware related) configuration options:
 		Set when the currently running compilation is for an artifact
 		that will end up in one of the 'xPL' builds, i.e. SPL, TPL or
 		VPL. Code that needs phase-specific behaviour can check this,
-		or (where possible) use spl_phase() instead.
+		or (where possible) use xpl_phase() instead.
 
 		Note that CONFIG_SPL_BUILD *is* always defined when either
 		of CONFIG_TPL_BUILD / CONFIG_VPL_BUILD is defined. This can be
@@ -1522,13 +1522,13 @@ Low Level (hardware related) configuration options:
 		Set when the currently running compilation is for an artifact
 		that will end up in the TPL build (as opposed to SPL, VPL or
 		U-Boot proper). Code that needs phase-specific behaviour can
-		check this, or (where possible) use spl_phase() instead.
+		check this, or (where possible) use xpl_phase() instead.
 
 - CONFIG_VPL_BUILD
 		Set when the currently running compilation is for an artifact
 		that will end up in the VPL build (as opposed to the SPL, TPL
 		or U-Boot proper). Code that needs phase-specific behaviour can
-		check this, or (where possible) use spl_phase() instead.
+		check this, or (where possible) use xpl_phase() instead.
 
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses

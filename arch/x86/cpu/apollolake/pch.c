@@ -12,7 +12,7 @@
 
 static int apl_set_spi_protect(struct udevice *dev, bool protect)
 {
-	if (spl_phase() == PHASE_SPL)
+	if (xpl_phase() == PHASE_SPL)
 		return lpc_set_spi_protect(dev, BIOS_CTRL, protect);
 
 	return 0;

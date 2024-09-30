@@ -255,7 +255,7 @@ static int apl_hostbridge_of_to_plat(struct udevice *dev)
 
 static int apl_hostbridge_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_TPL)
+	if (xpl_phase() == PHASE_TPL)
 		return apl_hostbridge_early_init(dev);
 
 	return 0;
