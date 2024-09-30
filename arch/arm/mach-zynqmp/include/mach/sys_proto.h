@@ -48,6 +48,7 @@ enum {
 
 unsigned int zynqmp_get_silicon_version(void);
 
+int check_tcm_mode(bool mode);
 void initialize_tcm(bool mode);
 void mem_map_fill(void);
 #if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
