@@ -226,11 +226,11 @@ config OF_LIST
 
 config OF_OVERLAY_LIST
 	string "List of device tree overlays to include for DT control"
-	depends on SPL_LOAD_FIT_APPLY_OVERLAY
 	help
 	  This option specifies a list of device tree overlays to use for DT
 	  control. This option can then be used by a FIT generator to include
-	  the overlays in the FIT image.
+	  the overlays in the FIT image or by binman when assembling an image
+	  that uses overlays during DT fixup.
 
 choice
 	prompt "OF LIST compression"
