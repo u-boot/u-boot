@@ -97,9 +97,9 @@ __weak int dram_init_banksize(void)
 #if CONFIG_IS_ENABLED(OS_BOOT)
 __weak int spl_start_uboot(void)
 {
-	puts(SPL_TPL_PROMPT
+	puts(PHASE_PROMPT
 	     "Please implement spl_start_uboot() for your board\n");
-	puts(SPL_TPL_PROMPT "Direct Linux boot not active!\n");
+	puts(PHASE_PROMPT "Direct Linux boot not active!\n");
 	return 1;
 }
 
@@ -140,13 +140,13 @@ void spl_fixup_fdt(void *fdt_blob)
 	/* fixup the memory dt node */
 	err = fdt_shrink_to_minimum(fdt_blob, 0);
 	if (err == 0) {
-		printf(SPL_TPL_PROMPT "fdt_shrink_to_minimum err - %d\n", err);
+		printf(PHASE_PROMPT "fdt_shrink_to_minimum err - %d\n", err);
 		return;
 	}
 
 	err = arch_fixup_fdt(fdt_blob);
 	if (err) {
-		printf(SPL_TPL_PROMPT "arch_fixup_fdt err - %d\n", err);
+		printf(PHASE_PROMPT "arch_fixup_fdt err - %d\n", err);
 		return;
 	}
 #endif
@@ -330,7 +330,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->load_addr = start;
 			spl_image->entry_point = start;
 			spl_image->size = size;
-			debug(SPL_TPL_PROMPT
+			debug(PHASE_PROMPT
 			      "payload Image, load addr: 0x%lx size: %d\n",
 			      spl_image->load_addr, spl_image->size);
 			return 0;
@@ -344,7 +344,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->load_addr = CONFIG_SYS_LOAD_ADDR;
 			spl_image->entry_point = CONFIG_SYS_LOAD_ADDR;
 			spl_image->size = end - start;
-			debug(SPL_TPL_PROMPT
+			debug(PHASE_PROMPT
 			      "payload zImage, load addr: 0x%lx size: %d\n",
 			      spl_image->load_addr, spl_image->size);
 			return 0;
@@ -423,7 +423,7 @@ static int write_spl_handoff(void)
 	ret = handoff_arch_save(ho);
 	if (ret)
 		return ret;
-	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
+	debug(PHASE_PROMPT "Wrote SPL handoff\n");
 
 	return 0;
 }
@@ -623,11 +623,11 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 					printf("Trying to boot from %s\n",
 					       spl_loader_name(loader));
 				else if (CONFIG_IS_ENABLED(SHOW_ERRORS)) {
-					printf(SPL_TPL_PROMPT
+					printf(PHASE_PROMPT
 					       "Unsupported Boot Device %d\n",
 					       bootdev);
 				} else {
-					puts(SPL_TPL_PROMPT
+					puts(PHASE_PROMPT
 					     "Unsupported Boot Device!\n");
 				}
 			}
@@ -673,7 +673,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	struct spl_image_info spl_image;
 	int ret, os;
 
-	debug(">>" SPL_TPL_PROMPT "board_init_r()\n");
+	debug(">>" PHASE_PROMPT "board_init_r()\n");
 
 	spl_set_bd();
 
@@ -693,7 +693,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		if (ret) {
 			debug("%s: Failed to set up bloblist: ret=%d\n",
 			      __func__, ret);
-			puts(SPL_TPL_PROMPT "Cannot set up bloblist\n");
+			puts(PHASE_PROMPT "Cannot set up bloblist\n");
 			hang();
 		}
 	}
@@ -702,7 +702,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 		ret = setup_spl_handoff();
 		if (ret) {
-			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
+			puts(PHASE_PROMPT "Cannot set up SPL handoff\n");
 			hang();
 		}
 	}
@@ -723,7 +723,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (CONFIG_IS_ENABLED(PCI) && !(gd->flags & GD_FLG_DM_DEAD)) {
 		ret = pci_init();
 		if (ret)
-			puts(SPL_TPL_PROMPT "Cannot initialize PCI\n");
+			puts(PHASE_PROMPT "Cannot initialize PCI\n");
 		/* Don't fail. We still can try other boot methods. */
 	}
 
@@ -750,10 +750,10 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 				ARRAY_SIZE(spl_boot_list));
 	if (ret) {
 		if (CONFIG_IS_ENABLED(SHOW_ERRORS))
-			printf(SPL_TPL_PROMPT "failed to boot from all boot devices (err=%d)\n",
+			printf(PHASE_PROMPT "failed to boot from all boot devices (err=%d)\n",
 			       ret);
 		else
-			puts(SPL_TPL_PROMPT "failed to boot from all boot devices\n");
+			puts(PHASE_PROMPT "failed to boot from all boot devices\n");
 		hang();
 	}
 
@@ -807,13 +807,13 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (CONFIG_IS_ENABLED(HANDOFF)) {
 		ret = write_spl_handoff();
 		if (ret)
-			printf(SPL_TPL_PROMPT
+			printf(PHASE_PROMPT
 			       "SPL hand-off write failed (err=%d)\n", ret);
 	}
 	if (CONFIG_IS_ENABLED(UPL_OUT) && (gd->flags & GD_FLG_UPL)) {
 		ret = spl_write_upl_handoff(&spl_image);
 		if (ret) {
-			printf(SPL_TPL_PROMPT
+			printf(PHASE_PROMPT
 			       "UPL hand-off write failed (err=%d)\n", ret);
 			hang();
 		}
@@ -843,7 +843,7 @@ void preloader_console_init(void)
 	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 #if CONFIG_IS_ENABLED(BANNER_PRINT)
-	puts("\nU-Boot " SPL_TPL_NAME " " PLAIN_VERSION " (" U_BOOT_DATE " - "
+	puts("\nU-Boot " PHASE_NAME " " PLAIN_VERSION " (" U_BOOT_DATE " - "
 	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 #endif
 #ifdef CONFIG_SPL_DISPLAY_PRINT
