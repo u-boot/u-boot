@@ -7,7 +7,7 @@ config DFU
 config DFU_OVER_USB
 	bool
 	select HASH
-	depends on USB_GADGET
+	depends on USB_GADGET_DOWNLOAD
 
 config DFU_OVER_TFTP
 	bool
