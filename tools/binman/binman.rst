@@ -2194,6 +2194,11 @@ Use '-P 1' to disable this. It is automatically disabled when code coverage is
 being used (-T) since they are incompatible.
 
 
+Writing tests
+-------------
+
+See :doc:`../binman_tests`.
+
 Debugging tests
 ---------------
 

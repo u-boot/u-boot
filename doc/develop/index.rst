@@ -83,6 +83,7 @@ Testing
    py_testing
    tests_writing
    tests_sandbox
+   binman_tests
 
 Refactoring
 -----------
