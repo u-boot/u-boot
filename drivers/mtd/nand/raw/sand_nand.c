@@ -601,7 +601,7 @@ static int sand_nand_probe(struct udevice *dev)
 		}
 
 		nand = &chip->nand;
-		nand->options = spl_in_proper() ? 0 : NAND_SKIP_BBTSCAN;
+		nand->options = not_xpl() ? 0 : NAND_SKIP_BBTSCAN;
 		nand->flash_node = np;
 		nand->dev_ready = sand_nand_dev_ready;
 		nand->cmdfunc = sand_nand_command;

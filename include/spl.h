@@ -134,8 +134,8 @@ static inline enum xpl_phase_t xpl_phase(void)
 #endif
 }
 
-/* returns true if in U-Boot proper, false if in SPL */
-static inline bool spl_in_proper(void)
+/* returns true if in U-Boot proper, false if in xPL */
+static inline bool not_xpl(void)
 {
 #ifdef CONFIG_SPL_BUILD
 	return false;

@@ -473,7 +473,7 @@ static int ns16550_serial_getinfo(struct udevice *dev,
 	struct ns16550_plat *plat = com_port->plat;
 
 	/* save code size */
-	if (!spl_in_proper())
+	if (!not_xpl())
 		return -ENOSYS;
 
 	info->type = SERIAL_CHIP_16550_COMPATIBLE;
@@ -555,7 +555,7 @@ int ns16550_serial_of_to_plat(struct udevice *dev)
 	struct clk clk;
 	int err;
 
-	addr = spl_in_proper() ? dev_read_addr_size(dev, &size) :
+	addr = not_xpl() ? dev_read_addr_size(dev, &size) :
 		dev_read_addr(dev);
 	err = ns16550_serial_assign_base(plat, addr, size);
 	if (err && !device_is_on_pci_bus(dev))
