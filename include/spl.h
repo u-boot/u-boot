@@ -144,6 +144,16 @@ static inline bool not_xpl(void)
 	return true;
 }
 
+/* returns true if in xPL, false if in U-Boot proper */
+static inline bool is_xpl(void)
+{
+#ifdef CONFIG_XPL_BUILD
+	return true;
+#endif
+
+	return false;
+}
+
 /**
  * spl_prev_phase() - Figure out the previous U-Boot phase
  *
