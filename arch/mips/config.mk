@@ -53,7 +53,7 @@ PLATFORM_ELFFLAGS += -B mips $(OBJCOPYFLAGS)
 # LDFLAGS_vmlinux		+= -G 0 -static -n -nostdlib
 # MODFLAGS			+= -mlong-calls
 #
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 OBJCOPYFLAGS			+= -j .data.reloc -j .dtb.init.rodata
 LDFLAGS_FINAL			+= --emit-relocs
 endif

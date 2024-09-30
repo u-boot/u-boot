@@ -11,11 +11,11 @@ obj-y += bios_asm.o
 obj-y += bios_interrupts.o
 endif
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_X86_32BIT_INIT) += string.o
 endif
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 obj-y	+= cmd_boot.o
@@ -47,7 +47,7 @@ obj-y += acpigen.o
 obj-$(CONFIG_$(SPL_TPL_)GENERATE_ACPI_TABLE) += acpi_table.o
 endif
 obj-y	+= tables.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_ZBOOT) += zimage.o
 endif
 obj-$(CONFIG_USE_HOB) += hob.o
@@ -58,7 +58,7 @@ obj-$(CONFIG_FSP_VERSION1) += fsp1/
 obj-$(CONFIG_FSP_VERSION2) += fsp2/
 endif
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 ifdef CONFIG_TPL_BUILD
 obj-y += tpl.o
 else
@@ -96,7 +96,7 @@ endif
 
 else
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 extra-y += $(EFI_CRT0) $(EFI_RELOC)
 endif

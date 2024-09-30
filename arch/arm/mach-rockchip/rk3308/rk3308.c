@@ -185,7 +185,7 @@ __weak void board_debug_uart_init(void)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 int arch_cpu_init(void)
 {
 	static struct rk3308_sgrf * const sgrf = (void *)SGRF_BASE;

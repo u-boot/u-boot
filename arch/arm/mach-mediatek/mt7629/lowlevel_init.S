@@ -16,7 +16,7 @@
 
 ENTRY(lowlevel_init)
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	/* Return to U-Boot via saved link register */
 	mov	pc, lr
 #else

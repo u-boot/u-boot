@@ -74,7 +74,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 }
 #endif /* CONFIG_ARM64 */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static int gpio_init(void)
 {
 	__maybe_unused uint val;
@@ -209,7 +209,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 	return 0;
 }
 SPL_LOAD_IMAGE_METHOD("FEL", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #define SUNXI_INVALID_BOOT_SOURCE	-1
 
@@ -258,7 +258,7 @@ static int sunxi_get_boot_source(void)
 	 * proper, just return MMC0 as a placeholder, for now.
 	 */
 	if (IS_ENABLED(CONFIG_MACH_SUNIV) &&
-	    !IS_ENABLED(CONFIG_SPL_BUILD))
+	    !IS_ENABLED(CONFIG_XPL_BUILD))
 		return SUNXI_BOOTED_FROM_MMC0;
 
 	if (IS_ENABLED(CONFIG_MACH_SUNIV))
@@ -314,7 +314,7 @@ uint32_t sunxi_get_boot_device(void)
 	return -1;		/* Never reached */
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 uint32_t sunxi_get_spl_size(void)
 {
 	struct boot_file_head *egon_head = (void *)SPL_ADDR;
@@ -478,7 +478,7 @@ void board_init_f(ulong dummy)
 #endif
 	sunxi_board_init();
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)

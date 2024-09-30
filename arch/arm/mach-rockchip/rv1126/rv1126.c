@@ -66,7 +66,7 @@ int arch_cpu_init(void)
 	 * since they are unsecure.
 	 * (Note: only secure-world can access this register)
 	 */
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		writel(0, FIREWALL_APB_BASE + FW_DDR_CON_REG);
 
 	return 0;

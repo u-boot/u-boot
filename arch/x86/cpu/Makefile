@@ -15,7 +15,7 @@ else
 ifndef CONFIG_SPL
 extra-y	= start.o
 else
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 extra-y	= start_from_tpl.o
 else
 extra-y	= start_from_spl.o

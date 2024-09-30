@@ -28,7 +28,7 @@
 #define LAW_EN		0x80000000
 
 #if defined(CONFIG_NAND_SPL) || \
-	(defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL))
+	(defined(CONFIG_XPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL))
 #define MINIMAL_SPL
 #endif
 
@@ -58,16 +58,16 @@
 	END_GOT
 
 #ifdef CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD)
 
 /* Maximal size of the image */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define MAX_IMAGE_SIZE (CONFIG_SPL_MAX_SIZE - (CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512))
 #else
 #define MAX_IMAGE_SIZE CONFIG_SYS_L2_SIZE
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && CONFIG_SPL_MAX_SIZE < CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512
+#if defined(CONFIG_XPL_BUILD) && CONFIG_SPL_MAX_SIZE < CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA * 512
 #error "CONFIG_SPL_MAX_SIZE is too small for CONFIG_FSL_PREPBL_ESDHC_BOOT_SECTOR_DATA"
 #endif
 
@@ -1138,10 +1138,10 @@ create_init_ram_area:
 /*
  * For Targets without CONFIG_SPL like P3, P5
  * and for targets with CONFIG_SPL like T1, T2, T4, only for
- * u-boot-spl i.e. CONFIG_SPL_BUILD
+ * u-boot-spl i.e. CONFIG_XPL_BUILD
  */
 #elif defined(CONFIG_RAMBOOT_PBL) && defined(CONFIG_NXP_ESBC) && \
-	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+	(!defined(CONFIG_SPL) || defined(CONFIG_XPL_BUILD))
 	/* create a temp mapping in AS = 1 for mapping CONFIG_VAL(SYS_MONITOR_BASE)
 	 * to L3 Address configured by PBL for ISBC code
 	 */
@@ -1617,7 +1617,7 @@ relocate_code:
 	mr	r10,r5		/* Save copy of Destination Address	*/
 
 	GET_GOT
-#if !defined(CONFIG_SPL_SKIP_RELOCATE) || !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_SPL_SKIP_RELOCATE) || !defined(CONFIG_XPL_BUILD)
 	mr	r3,r5				/* Destination Address	*/
 	lis	r4,CONFIG_VAL(SYS_MONITOR_BASE)@h		/* Source      Address	*/
 	ori	r4,r4,CONFIG_VAL(SYS_MONITOR_BASE)@l

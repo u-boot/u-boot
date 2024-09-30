@@ -244,7 +244,7 @@ int arch_cpu_init(void)
 	static struct px30_cru * const cru = (void *)CRU_BASE;
 	u32 __maybe_unused val;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* We do some SoC one time setting here. */
 	/* Disable the ddr secure region setting to make it non-secure */
 	writel(0x0, DDR_FW_BASE + FW_DDR_CON);

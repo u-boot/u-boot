@@ -16,6 +16,6 @@ obj-y += common.o
 obj-y += lowlevel_init.o
 obj-y += r5_mpu.o
 
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 obj-$(CONFIG_K3_LOAD_SYSFW) += sysfw-loader.o
 endif

@@ -165,7 +165,7 @@ phys_addr_t virt_to_phys(void *ptr)
 
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
-#if defined(CONFIG_PCI) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_PCI) && !defined(CONFIG_XPL_BUILD)
 	unsigned long plen = len;
 	void *ptr;
 

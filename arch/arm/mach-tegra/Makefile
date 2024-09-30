@@ -5,7 +5,7 @@
 # (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 obj-y += cpu.o
 else
@@ -25,7 +25,7 @@ obj-y += dt-setup.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o
 obj-$(CONFIG_TEGRA_IVC) += ivc.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
 endif
 obj-$(CONFIG_DISPLAY_CPUINFO) += sys_info.o

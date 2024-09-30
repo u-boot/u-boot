@@ -99,7 +99,7 @@ PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_ARM) $(PF_CPPFLAGS_ABI)
 ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 # This file is parsed many times, so the string may get added multiple
 # times. Also, the prefix needs to be different based on whether
-# CONFIG_SPL_BUILD is defined or not. 'filter-out' the existing entry
+# CONFIG_XPL_BUILD is defined or not. 'filter-out' the existing entry
 # before adding the correct one.
 PLATFORM_LIBS := arch/arm/lib/eabi_compat.o \
 	$(filter-out arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
@@ -126,7 +126,7 @@ PLATFORM_RELFLAGS += -fno-optimize-sibling-calls
 endif
 endif
 
-ifneq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_XPL_BUILD),y)
 # Check that only R_ARM_RELATIVE relocations are generated.
 INPUTS-y += checkarmreloc
 # The movt / movw can hardcode 16 bit parts of the addresses in the
@@ -160,7 +160,7 @@ endif
 ifdef CONFIG_MACH_IMX
 ifneq ($(CONFIG_IMX_CONFIG),"")
 ifdef CONFIG_SPL
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 INPUTS-y += SPL
 endif
 else

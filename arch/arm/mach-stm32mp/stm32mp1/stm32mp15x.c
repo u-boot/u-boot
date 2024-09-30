@@ -214,13 +214,13 @@ static void update_bootmode(void)
 /* weak function: STM32MP15x mach init for boot without TFA */
 void stm32mp_cpu_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		security_init();
 		update_bootmode();
 	}
 
 	/* reset copro state in SPL, when used, or in U-Boot */
-	if (!IS_ENABLED(CONFIG_SPL) || IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (!IS_ENABLED(CONFIG_SPL) || IS_ENABLED(CONFIG_XPL_BUILD)) {
 		/* Reset Coprocessor state unless it wakes up from Standby power mode */
 		if (!(readl(PWR_MCUCR) & PWR_MCUCR_SBF)) {
 			writel(TAMP_COPRO_STATE_OFF, TAMP_COPRO_STATE);

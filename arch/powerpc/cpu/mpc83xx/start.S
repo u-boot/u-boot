@@ -41,11 +41,11 @@
 #endif
 
 #if defined(CONFIG_NAND_SPL) || \
-	(defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL))
+	(defined(CONFIG_XPL_BUILD) && CONFIG_IS_ENABLED(INIT_MINIMAL))
 #define MINIMAL_SPL
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NAND_SPL) && \
+#if !defined(CONFIG_XPL_BUILD) && !defined(CONFIG_NAND_SPL) && \
 	!defined(CONFIG_SYS_RAMBOOT)
 #define CFG_SYS_FLASHBOOT
 #endif
@@ -168,7 +168,7 @@ _start: /* time t 0 */
 	/* Initialise the E300 processor core		*/
 	/*------------------------------------------*/
 
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MPC83XX_WAIT_FOR_NAND)) || \
+#if (defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_MPC83XX_WAIT_FOR_NAND)) || \
 		defined(CONFIG_NAND_SPL)
 	/* The FCM begins execution after only the first page
 	 * is loaded.  Wait for the rest before branching

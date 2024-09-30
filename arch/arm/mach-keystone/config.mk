@@ -7,7 +7,7 @@
 
 include  $(srctree)/arch/arm/mach-omap2/config_secure.mk
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 INPUTS-y += u-boot_HS_MLO
 else
@@ -25,7 +25,7 @@ OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) 
 u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 MKIMAGEFLAGS_MLO = -A $(ARCH) -T gpimage -C none \
 	-a $(CONFIG_TEXT_BASE) -e $(CONFIG_TEXT_BASE) -n U-Boot
 MLO: u-boot.bin FORCE

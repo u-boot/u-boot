@@ -21,7 +21,7 @@ else
 obj-y   += setjmp.o
 endif
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 ifdef CONFIG_ARM64
 obj-y	+= relocate_64.o
 else

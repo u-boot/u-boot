@@ -6,7 +6,7 @@
 extra-y	= start.o
 obj-y	= cpu.o cache.o
 
-ifdef	CONFIG_SPL_BUILD
+ifdef	CONFIG_XPL_BUILD
 ifdef	CONFIG_SPL_NO_CPU_SUPPORT
 extra-y	:=
 endif

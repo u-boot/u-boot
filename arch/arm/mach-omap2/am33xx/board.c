@@ -209,7 +209,7 @@ int cpu_mmc_init(struct bd_info *bis)
 
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1)) && \
-	defined(CONFIG_SPL_BUILD)
+	defined(CONFIG_XPL_BUILD)
 
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
@@ -282,7 +282,7 @@ int arch_misc_init(void)
 #if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT))
+	(defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT))
 static void rtc32k_unlock(struct davinci_rtc *rtc)
 {
 	/*
@@ -295,7 +295,7 @@ static void rtc32k_unlock(struct davinci_rtc *rtc)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 /*
  * Write contents of the RTC_SCRATCH1 register based on board type
  * Two things are passed
@@ -331,7 +331,7 @@ int board_early_init_f(void)
 {
 	set_mux_conf_regs();
 	prcm_init();
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 	update_rtc_magic();
 #endif
 	return 0;
@@ -379,7 +379,7 @@ static void watchdog_disable(void)
 		;
 }
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 /*
  * Check if we are executing rtc-only + DDR mode, and resume from it if needed
  */
@@ -455,7 +455,7 @@ am43xx_wait:
 
 void s_init(void)
 {
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 	rtc_only();
 #endif
 }
@@ -474,7 +474,7 @@ void early_system_init(void)
 	set_uart_mux_conf();
 	setup_early_clocks();
 	uart_soft_reset();
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * Save the boot parameters passed from romcode.
 	 * We cannot delay the saving further than this,
@@ -483,7 +483,7 @@ void early_system_init(void)
 	save_omap_boot_params();
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	spl_early_init();
 #endif
 
@@ -497,7 +497,7 @@ void early_system_init(void)
 #endif
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	hw_data_init();

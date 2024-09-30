@@ -312,7 +312,7 @@ void do_dt_magic(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	k3_spl_init();

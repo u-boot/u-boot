@@ -11,13 +11,13 @@ obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += report_platform.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += mrc.o
 endif
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_INTEL_GMA_ACPI) += intel_opregion.o
 endif
 
 ifdef CONFIG_INTEL_CAR_CQOS
 obj-$(CONFIG_TPL_BUILD) += car2.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y += car2_uninit.o
 endif
 endif
@@ -38,7 +38,7 @@ obj-$(CONFIG_HAVE_ITSS) += itss.o
 obj-$(CONFIG_HAVE_P2SB) += p2sb.o
 
 ifdef CONFIG_SPL
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 ifndef CONFIG_SYS_COREBOOT
 obj-y += cpu_from_spl.o
 endif

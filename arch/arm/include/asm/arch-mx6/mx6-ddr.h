@@ -5,7 +5,7 @@
 #ifndef __ASM_ARCH_MX6_DDR_H__
 #define __ASM_ARCH_MX6_DDR_H__
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #ifdef CONFIG_MX6Q
 #include "mx6q-ddr.h"
 #else
@@ -488,7 +488,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
 		  const struct mx6_mmdc_calibration *,
 		  const void *);
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #define MX6_MMDC_P0_MDCTL	0x021b0000
 #define MX6_MMDC_P0_MDPDC	0x021b0004

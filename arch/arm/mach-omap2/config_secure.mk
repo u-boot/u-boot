@@ -4,7 +4,7 @@
 quiet_cmd_mkomapsecimg = SECURE  $@
 ifneq ($(TI_SECURE_DEV_PKG),)
 ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh),)
-ifneq ($(CONFIG_SPL_BUILD),)
+ifneq ($(CONFIG_XPL_BUILD),)
 cmd_mkomapsecimg = $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh \
 	$(patsubst u-boot-spl_HS_%,%,$(@F)) $< $@ $(CONFIG_SPL_TEXT_BASE) \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)

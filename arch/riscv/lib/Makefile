@@ -24,7 +24,7 @@ obj-y	+= reset.o
 endif
 obj-y   += setjmp.o
 obj-$(CONFIG_$(SPL_)SMP) += smp.o
-obj-$(CONFIG_SPL_BUILD)	+= spl.o
+obj-$(CONFIG_XPL_BUILD)	+= spl.o
 obj-y   += fdt_fixup.o
 obj-$(CONFIG_$(SPL)CMD_BDI) += bdinfo.o
 

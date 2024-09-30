@@ -27,7 +27,7 @@ PLATFORM_CPPFLAGS+= -D__PPC__
 endif
 
 # Only test once
-ifneq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_XPL_BUILD),y)
 archprepare: checkgcc4
 
 # GCC 3.x is reported to have problems generating the type of relocation

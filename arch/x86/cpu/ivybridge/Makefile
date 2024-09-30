@@ -9,7 +9,7 @@ obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += cpu.o
 obj-y += early_me.o
 obj-y += lpc.o
 obj-y += northbridge.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y += sata.o
 endif
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += sdram.o

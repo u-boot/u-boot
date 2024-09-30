@@ -8,7 +8,7 @@
 obj-y	:= cache.o cpu.o state.o
 extra-y	:= start.o os.o
 extra-$(CONFIG_SANDBOX_SDL)    += sdl.o
-obj-$(CONFIG_SPL_BUILD)	+= spl.o
+obj-$(CONFIG_XPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
 
 # os.c is build in the system environment, so needs standard includes

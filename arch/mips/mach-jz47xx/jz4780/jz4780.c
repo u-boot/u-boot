@@ -19,7 +19,7 @@
 #include <mmc.h>
 #include <spl.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* Pointer to the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
 gd_t gdata __section(".bss");
@@ -73,7 +73,7 @@ void board_init_f(ulong dummy)
 
 	hang();
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {

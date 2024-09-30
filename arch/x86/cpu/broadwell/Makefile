@@ -6,12 +6,12 @@ obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += cpu.o
 obj-$(CONFIG_$(SPL_TPL_)X86_32BIT_INIT) += cpu_full.o
 
 ifdef CONFIG_SPL
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y += cpu_from_spl.o
 obj-y += cpu_full.o
 obj-y += refcode.o
 endif
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 # obj-y += cpu_from_spl.o
 obj-y += adsp.o
 obj-y += sata.o
