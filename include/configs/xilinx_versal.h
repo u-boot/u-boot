@@ -48,6 +48,12 @@
 # define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
+#if defined(CONFIG_USB_STORAGE)
+# define BOOT_TARGET_DEVICES_USB(func)	func(USB, usb, 0)
+#else
+# define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
 #if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
 # define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
 #else
@@ -118,6 +124,7 @@
 	BOOT_TARGET_DEVICES_XSPI(func) \
 	BOOT_TARGET_DEVICES_USB_DFU(func) \
 	BOOT_TARGET_DEVICES_USB_THOR(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
 
