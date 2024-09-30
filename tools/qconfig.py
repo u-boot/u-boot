@@ -77,7 +77,7 @@ IGNORE_SYMS = ['DEBUG_SECTION_MISMATCH', 'FTRACE_MCOUNT_RECORD', 'GCOV_KERNEL',
                'IS_ENABLED_', 'IS_ENABLED_1', 'IS_ENABLED_2', 'IS_ENABLED_3',
                'SPL_', 'TPL_', 'SPL_FOO', 'TPL_FOO', 'TOOLS_FOO',
                'ACME', 'SPL_ACME', 'TPL_ACME', 'TRACE_BRANCH_PROFILING',
-               'VAL', '_UNDEFINED', 'SPL_BUILD', ]
+               'VAL', '_UNDEFINED', 'SPL_BUILD', 'XPL_BUILD', ]
 
 SPL_PREFIXES = ['SPL_', 'TPL_', 'VPL_', 'TOOLS_']
 
