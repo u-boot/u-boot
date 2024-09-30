@@ -433,6 +433,12 @@ static int ufshcd_make_hba_operational(struct ufs_hba *hba)
 		      REG_UTP_TASK_REQ_LIST_BASE_H);
 
 	/*
+	 * Make sure base address and interrupt setup are updated before
+	 * enabling the run/stop registers below.
+	 */
+	wmb();
+
+	/*
 	 * UCRDY, UTMRLDY and UTRLRDY bits must be 1
 	 */
 	reg = ufshcd_readl(hba, REG_CONTROLLER_STATUS);
@@ -860,6 +866,9 @@ static int ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
 	u32 enabled_intr_status;
 
 	ufshcd_writel(hba, 1 << task_tag, REG_UTP_TRANSFER_REQ_DOOR_BELL);
+
+	/* Make sure doorbell reg is updated before reading interrupt status */
+	wmb();
 
 	start = get_timer(0);
 	do {
@@ -1993,6 +2002,8 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 	ufshcd_writel(hba, ufshcd_readl(hba, REG_INTERRUPT_STATUS),
 		      REG_INTERRUPT_STATUS);
 	ufshcd_writel(hba, 0, REG_INTERRUPT_ENABLE);
+
+	mb();
 
 	err = ufshcd_hba_enable(hba);
 	if (err) {
