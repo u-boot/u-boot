@@ -21,15 +21,16 @@ include $(srctree)/scripts/Kbuild.include
 
 -include include/config/auto.conf
 
-# This file contains 0, 1 or 2 lines
+# This file contains 0, 2 or 3 lines
 # It is empty for U-Boot proper (where $(obj) is empty)
-# For any xPL build it contains CONFIG_SPL_BUILD=y
-# For TPL builds it has CONFIG_SPL_BUILD=y and CONFIG_TPL_BUILD=y
-# For VPL builds it has CONFIG_SPL_BUILD=y and CONFIG_VPL_BUILD=y
+# For any xPL build it contains CONFIG_SPL_BUILD=y and CONFIG_XPL_BUILD=y
+#    - for TPL builds it also contains CONFIG_TPL_BUILD=y
+#    - for VPL builds it also contains CONFIG_VPL_BUILD=y
 -include $(obj)/include/autoconf.mk
 
 UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
 
+KBUILD_CPPFLAGS += -DCONFIG_XPL_BUILD
 KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
