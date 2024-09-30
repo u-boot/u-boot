@@ -475,8 +475,7 @@ static int spl_common_init(bool setup_malloc)
 		if (ret)
 			log_debug("Failed to unstash bootstage: ret=%d\n", ret);
 	}
-	bootstage_mark_name(get_bootstage_id(true),
-			    spl_phase_name(xpl_phase()));
+	bootstage_mark_name(get_bootstage_id(true), xpl_name(xpl_phase()));
 #if CONFIG_IS_ENABLED(LOG)
 	ret = log_init();
 	if (ret) {
@@ -762,7 +761,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	os = spl_image.os;
 	if (os == IH_OS_U_BOOT) {
-		debug("Jumping to %s...\n", spl_phase_name(xpl_next_phase()));
+		debug("Jumping to %s...\n", xpl_name(xpl_next_phase()));
 	} else if (CONFIG_IS_ENABLED(ATF) && os == IH_OS_ARM_TRUSTED_FIRMWARE) {
 		debug("Jumping to U-Boot via ARM Trusted Firmware\n");
 		spl_fixup_fdt(spl_image_fdt_addr(&spl_image));
