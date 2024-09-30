@@ -6,6 +6,6 @@
 #  (C) Copyright 2023
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
-obj-$(CONFIG_SPL_BUILD) += qc750-spl.o
+obj-$(CONFIG_XPL_BUILD) += qc750-spl.o
 
 obj-y += qc750.o

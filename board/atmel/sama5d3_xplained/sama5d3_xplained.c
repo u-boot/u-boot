@@ -117,7 +117,7 @@ int dram_init(void)
 }
 
 /* SPL */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_board_init(void)
 {
 #ifdef CONFIG_SD_BOOT

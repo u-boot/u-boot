@@ -5,7 +5,7 @@
 # Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
 # Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
 
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 obj-y	:= mux.o
 endif
 obj-y	+= ../common/common.o

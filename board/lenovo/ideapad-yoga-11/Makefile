@@ -3,4 +3,4 @@
 #  (C) Copyright 2022
 #  Open Surface RT
 
-obj-$(CONFIG_SPL_BUILD) += ideapad-yoga-11-spl.o
+obj-$(CONFIG_XPL_BUILD) += ideapad-yoga-11-spl.o

@@ -7,7 +7,7 @@
  * Helpers for i.MX OTP fusing during module production
 */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #include <command.h>
 #include <console.h>
 #include <fuse.h>
@@ -94,4 +94,4 @@ U_BOOT_CMD(
 	"OTP fusing during module update",
 	"updt_fuse [-n] [-y] - boot cfg fast boot mode fusing"
 );
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

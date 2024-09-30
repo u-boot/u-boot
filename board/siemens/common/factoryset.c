@@ -5,7 +5,7 @@
  * (C) Copyright 2013 Siemens Schweiz AG
  */
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 
 #include <env.h>
 #include <g_dnl.h>
@@ -350,4 +350,4 @@ int g_dnl_get_board_bcd_device_number(int gcnum)
 {
 	return factory_dat.version;
 }
-#endif /* defined(CONFIG_SPL_BUILD) */
+#endif /* defined(CONFIG_XPL_BUILD) */

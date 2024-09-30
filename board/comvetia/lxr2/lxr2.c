@@ -138,7 +138,7 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 
 #define MX6_PHYFLEX_ERR006282	IMX_GPIO_NR(2, 11)

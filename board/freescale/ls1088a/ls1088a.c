@@ -248,7 +248,7 @@ int fixup_ls1088ardb_pb_banner(void *fdt)
 	return 0;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 int checkboard(void)
 {
 #ifdef CONFIG_TFABOOT
@@ -421,7 +421,7 @@ unsigned long get_board_ddr_clk(void)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 void board_retimer_init(void)
 {
 	u8 reg;
@@ -804,7 +804,7 @@ exit:
 	return ret;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 int board_init(void)
 {
 	init_final_memctl_regs();
@@ -995,7 +995,7 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	return 0;
 }
 #endif
-#endif /* defined(CONFIG_SPL_BUILD) */
+#endif /* defined(CONFIG_XPL_BUILD) */
 
 #ifdef CONFIG_TFABOOT
 #ifdef CONFIG_MTD_NOR_FLASH

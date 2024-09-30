@@ -295,7 +295,7 @@ err_free:
 	return ret;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 U_BOOT_CMD(
 	fd_write,	1,	0,	do_fd_write,
 	"Write test factory-data values to SPI NOR",

@@ -8,7 +8,7 @@
 obj-y += imx93_var_som.o
 obj-$(CONFIG_TARGET_IMX93_VAR_SOM) += ../common/imx9_eeprom.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 obj-$(CONFIG_TARGET_IMX93_VAR_SOM) += lpddr4x_timing.o
 else

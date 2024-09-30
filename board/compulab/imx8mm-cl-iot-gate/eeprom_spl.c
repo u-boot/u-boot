@@ -10,7 +10,7 @@
 #include <asm/setup.h>
 #include <linux/delay.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #define CFG_SYS_I2C_EEPROM_ADDR_P1	0x51
 

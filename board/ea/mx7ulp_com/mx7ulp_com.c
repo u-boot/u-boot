@@ -52,7 +52,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 
 #ifdef CONFIG_SPL_LOAD_FIT

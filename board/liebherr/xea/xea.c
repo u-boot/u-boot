@@ -37,7 +37,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 #endif
 
@@ -62,7 +62,7 @@ static void init_clocks(void)
 	mxs_set_sspclk(MXC_SSPCLK3, 96000, 0);
 }
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)
 void board_init_f(ulong arg)
 {
 	init_clocks();
@@ -355,4 +355,4 @@ U_BOOT_DRIVER(fsl_imx28_clkctrl) = {
 	.id             = UCLASS_CLK,
 	.of_match       = imx28_clk_ids,
 };
-#endif	/* CONFIG_SPL_BUILD */
+#endif	/* CONFIG_XPL_BUILD */

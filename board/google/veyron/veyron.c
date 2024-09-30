@@ -19,7 +19,7 @@
  * There is a U-Boot driver for this but it may need to add support for the
  * 'voltage-table' property.
  */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #if !CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 static int veyron_init(void)
 {

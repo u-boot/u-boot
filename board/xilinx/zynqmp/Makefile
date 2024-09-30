@@ -26,16 +26,16 @@ endif
 ifeq ($(init-objs),)
 ifneq ($(wildcard $(srctree)/$(src)/psu_init_gpl.c),)
 init-objs := psu_init_gpl.o
-$(if $(CONFIG_SPL_BUILD),\
+$(if $(CONFIG_XPL_BUILD),\
 $(warning Put custom psu_init_gpl.c/h to board/xilinx/zynqmp/custom_hw_platform/))
 endif
 endif
 
 obj-$(CONFIG_$(SPL_)ZYNQMP_PSU_INIT_ENABLED) += $(init-objs)
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 ifneq ($(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE),"")
-obj-$(CONFIG_SPL_BUILD) += pm_cfg_obj.o
+obj-$(CONFIG_XPL_BUILD) += pm_cfg_obj.o
 $(obj)/pm_cfg_obj.o: $(shell cd $(srctree); readlink -f $(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE)) FORCE
 endif
 endif

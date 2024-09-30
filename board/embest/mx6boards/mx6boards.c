@@ -394,7 +394,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <spl.h>
 
 void board_init_f(ulong dummy)

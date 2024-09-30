@@ -79,7 +79,7 @@ static void taurus_nand_hw_init(void)
 	at91_set_gpio_output(CFG_SYS_NAND_ENABLE_PIN, 1);
 }
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 #include <spl.h>
 #include <nand.h>
 #include <spi_flash.h>
@@ -331,7 +331,7 @@ int dram_init(void)
 	return 0;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 #if defined(CONFIG_BOARD_AXM)
 /*
  * Booting the Fallback Image.

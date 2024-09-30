@@ -370,7 +370,7 @@ void *board_fdt_blob_setup(int *err)
 			return fdt_blob;
 	}
 
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) &&
 	    !IS_ENABLED(CONFIG_VERSAL_NO_DDR) &&
 	    !IS_ENABLED(CONFIG_ZYNQMP_NO_DDR)) {
 		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
@@ -381,7 +381,7 @@ void *board_fdt_blob_setup(int *err)
 		debug("DTB is not passed via %p\n", fdt_blob);
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		/*
 		 * FDT is at end of BSS unless it is in a different memory
 		 * region
@@ -515,7 +515,7 @@ int __maybe_unused board_fit_config_name_match(const char *name)
 {
 	debug("%s: Check %s, default %s\n", __func__, name, board_name);
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 	if (IS_ENABLED(CONFIG_REGEX)) {
 		struct slre slre;
 		int ret;

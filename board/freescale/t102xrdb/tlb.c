@@ -53,7 +53,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_256M, 1),
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	/* *I*G* - PCI */
 	SET_TLB_ENTRY(1, CFG_SYS_PCIE1_MEM_VIRT, CFG_SYS_PCIE1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -100,7 +100,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 11, BOOKE_PAGESZ_256K, 1),
 #endif
 
-#if defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_XPL_BUILD)
 	SET_TLB_ENTRY(1, CFG_SYS_DDR_SDRAM_BASE, CFG_SYS_DDR_SDRAM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M,
 		      0, 12, BOOKE_PAGESZ_1G, 1),

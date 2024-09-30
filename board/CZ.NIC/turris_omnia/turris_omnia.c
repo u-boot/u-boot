@@ -494,7 +494,7 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 	if (!eeprom)
 		return false;
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		ret = dm_i2c_read(eeprom, 0, (void *)oep, sizeof(*oep));
 	else
 		ret = i2c_eeprom_read(eeprom, 0, (void *)oep, sizeof(*oep));

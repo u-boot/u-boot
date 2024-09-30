@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:      GPL-2.0
 #
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o lpddr4_timing.o
 else
 obj-y += sm2s_imx8mp.o

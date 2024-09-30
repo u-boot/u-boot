@@ -6,7 +6,7 @@
 
 obj-y += icore_mx8mm.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 obj-y += lpddr4_timing.o
 endif

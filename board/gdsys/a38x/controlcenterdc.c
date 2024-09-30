@@ -84,7 +84,7 @@ int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
 
 void spl_board_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	uint k;
 	struct gpio_desc gpio = {};
 
@@ -139,7 +139,7 @@ struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 
 int board_early_init_f(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* Configure MPP */
 	writel(0x00111111, MVEBU_MPP_BASE + 0x00);
 	writel(0x40040000, MVEBU_MPP_BASE + 0x04);
@@ -174,7 +174,7 @@ int board_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 void init_host_phys(struct mii_dev *bus)
 {
 	uint k;
@@ -241,7 +241,7 @@ int ccdc_eth_init(void)
 
 int board_late_init(void)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	hydra_initialize();
 #endif
 	return 0;
@@ -272,13 +272,13 @@ int board_fix_fdt(void *rw_fdt_blob)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int last_stage_init(void)
 {
 	struct udevice *tpm;
 	int ret;
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return 0;
 	ccdc_eth_init();
 

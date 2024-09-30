@@ -105,7 +105,7 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 #if CONFIG_IS_ENABLED(USB_STORAGE)
 static int fixup_usb_boot(const void *fdt_blob)
 {
