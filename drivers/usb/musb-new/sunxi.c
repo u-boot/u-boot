@@ -505,6 +505,12 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+static int musb_usb_bind(struct udevice *dev)
+{
+	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+	return 0;
+}
+
 /*
  * The Linux driver has a config struct, its fields mapping to this driver
  * like this:
