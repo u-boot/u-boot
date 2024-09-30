@@ -151,14 +151,12 @@ static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	if (strcmp(argv[2], "lockstep") && strcmp(argv[2], "split")) {
-		printf("mode param should be lockstep or split\n");
-		return CMD_RET_FAILURE;
-	}
-
-	mode = hextoul(argv[2], NULL);
-	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
-		printf("Mode should be either 0(lock)/1(split)\n");
+	if (!strcmp(argv[2], "lockstep") || !strcmp(argv[2], "0")) {
+		mode = TCM_LOCK;
+	} else if (!strcmp(argv[2], "split") || !strcmp(argv[2], "1")) {
+		mode = TCM_SPLIT;
+	} else {
+		printf("Mode should be either lockstep/split\n");
 		return CMD_RET_FAILURE;
 	}
 
@@ -429,7 +427,7 @@ U_BOOT_LONGHELP(zynqmp,
 	"		       initialized before accessing to avoid ECC\n"
 	"		       errors. mode specifies in which mode TCM has\n"
 	"		       to be initialized. Supported modes will be\n"
-	"		       lock(0)/split(1)\n"
+	"		       lockstep(0)/split(1)\n"
 #endif
 	"zynqmp pmufw address size - load PMU FW configuration object\n"
 	"zynqmp pmufw node <id> - load PMU FW configuration object, <id> in dec\n"
