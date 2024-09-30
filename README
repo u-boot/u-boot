@@ -213,15 +213,7 @@ board_init_r():
 		there.
 
 	SPL-specific notes:
-	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
-		CONFIG_SYS_FSL_HAS_CCI400
-
-		Defined For SoC that has cache coherent interconnect
-		CCN-400
-
-		CONFIG_SYS_FSL_HAS_CCN504
-
-		Defined for SoC that has cache coherent interconnect CCN-504
+	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined
 
 The following options need to be configured:
 
