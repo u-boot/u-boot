@@ -38,6 +38,9 @@ CSF_CONFIG_TEMPLATE = f'''
   File = "SRK_1_2_3_4_table.bin"
   Source index = 0
 
+[Install NOCAK]
+  File = "SRK1_{KEY_NAME}.pem"
+
 [Install CSFK]
   File = "CSF1_1_{KEY_NAME}.pem"
 
@@ -74,12 +77,19 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         self.srk_table = os.getenv(
             'SRK_TABLE', fdt_util.GetString(self._node, 'nxp,srk-table',
                                             'SRK_1_2_3_4_table.bin'))
-        self.csf_crt = os.getenv(
-            'CSF_KEY', fdt_util.GetString(self._node, 'nxp,csf-crt',
-                                          f'CSF1_1_{KEY_NAME}.pem'))
-        self.img_crt = os.getenv(
-            'IMG_KEY', fdt_util.GetString(self._node, 'nxp,img-crt',
-                                          f'IMG1_1_{KEY_NAME}.pem'))
+        self.fast_auth = fdt_util.GetBool(self._node, 'nxp,fast-auth')
+        if not self.fast_auth:
+            self.csf_crt = os.getenv(
+                'CSF_KEY', fdt_util.GetString(self._node, 'nxp,csf-crt',
+                                              f'CSF1_1_{KEY_NAME}.pem'))
+            self.img_crt = os.getenv(
+                'IMG_KEY', fdt_util.GetString(self._node, 'nxp,img-crt',
+                                              f'IMG1_1_{KEY_NAME}.pem'))
+        else:
+            self.srk_crt = os.getenv(
+                'SRK_KEY', fdt_util.GetString(self._node, 'nxp,srk-crt',
+                                              f'SRK1_{KEY_NAME}.pem'))
+
         self.unlock = fdt_util.GetBool(self._node, 'nxp,unlock')
         self.ReadEntries()
 
@@ -133,8 +143,16 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         # Load configuration template and modify keys of interest
         config.read_string(CSF_CONFIG_TEMPLATE)
         config['Install SRK']['File']  = f'"{self.srk_table}"'
-        config['Install CSFK']['File'] = f'"{self.csf_crt}"'
-        config['Install Key']['File']  = f'"{self.img_crt}"'
+        if not self.fast_auth:
+            config.remove_section('Install NOCAK')
+            config['Install CSFK']['File'] = f'"{self.csf_crt}"'
+            config['Install Key']['File']  = f'"{self.img_crt}"'
+        else:
+            config.remove_section('Install CSFK')
+            config.remove_section('Install Key')
+            config['Install NOCAK']['File'] = f'"{self.srk_crt}"'
+            config['Authenticate Data']['Verification index'] = '0'
+
         config['Authenticate Data']['Blocks'] = \
             f'{signbase:#x} 0 {len(data):#x} "{output_dname}"'
 
