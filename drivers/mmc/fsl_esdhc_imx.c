@@ -1327,6 +1327,8 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
 		break;
 	default:
 		printf("invalid max bus width %u\n", cfg->max_bus_width);
+		free(plat);
+		free(priv);
 		return -EINVAL;
 	}
 
