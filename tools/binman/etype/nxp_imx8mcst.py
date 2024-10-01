@@ -23,7 +23,9 @@ from u_boot_pylib import tools
 MAGIC_NXP_IMX_IVT = 0x412000d1
 MAGIC_FITIMAGE    = 0xedfe0dd0
 
-csf_config_template = """
+KEY_NAME = 'sha256_4096_65537_v3_usr_crt'
+
+CSF_CONFIG_TEMPLATE = f'''
 [Header]
   Version = 4.3
   Hash Algorithm = sha256
@@ -37,7 +39,7 @@ csf_config_template = """
   Source index = 0
 
 [Install CSFK]
-  File = "CSF1_1_sha256_4096_65537_v3_usr_crt.pem"
+  File = "CSF1_1_{KEY_NAME}.pem"
 
 [Authenticate CSF]
 
@@ -48,12 +50,12 @@ csf_config_template = """
 [Install Key]
   Verification index = 0
   Target Index = 2
-  File = "IMG1_1_sha256_4096_65537_v3_usr_crt.pem"
+  File = "IMG1_1_{KEY_NAME}.pem"
 
 [Authenticate Data]
   Verification index = 2
   Blocks = 0x1234 0x78 0xabcd "data.bin"
-"""
+'''
 
 class Entry_nxp_imx8mcst(Entry_mkimage):
     """NXP i.MX8M CST .cfg file generator and cst invoker
@@ -69,9 +71,15 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
     def ReadNode(self):
         super().ReadNode()
         self.loader_address = fdt_util.GetInt(self._node, 'nxp,loader-address')
-        self.srk_table = os.getenv('SRK_TABLE', fdt_util.GetString(self._node, 'nxp,srk-table', 'SRK_1_2_3_4_table.bin'))
-        self.csf_crt = os.getenv('CSF_KEY', fdt_util.GetString(self._node, 'nxp,csf-crt', 'CSF1_1_sha256_4096_65537_v3_usr_crt.pem'))
-        self.img_crt = os.getenv('IMG_KEY', fdt_util.GetString(self._node, 'nxp,img-crt', 'IMG1_1_sha256_4096_65537_v3_usr_crt.pem'))
+        self.srk_table = os.getenv(
+            'SRK_TABLE', fdt_util.GetString(self._node, 'nxp,srk-table',
+                                            'SRK_1_2_3_4_table.bin'))
+        self.csf_crt = os.getenv(
+            'CSF_KEY', fdt_util.GetString(self._node, 'nxp,csf-crt',
+                                          f'CSF1_1_{KEY_NAME}.pem'))
+        self.img_crt = os.getenv(
+            'IMG_KEY', fdt_util.GetString(self._node, 'nxp,img-crt',
+                                          f'IMG1_1_{KEY_NAME}.pem'))
         self.unlock = fdt_util.GetBool(self._node, 'nxp,unlock')
         self.ReadEntries()
 
@@ -118,16 +126,18 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         tools.write_file(output_dname, data)
 
         # Generate CST configuration file used to sign payload
-        cfg_fname = tools.get_output_filename('nxp.csf-config-txt.%s' % uniq)
+        cfg_fname = tools.get_output_filename(f'nxp.csf-config-txt.{uniq}')
         config = configparser.ConfigParser()
         # Do not make key names lowercase
         config.optionxform = str
         # Load configuration template and modify keys of interest
-        config.read_string(csf_config_template)
-        config['Install SRK']['File'] = '"' + self.srk_table + '"'
-        config['Install CSFK']['File'] = '"' + self.csf_crt + '"'
-        config['Install Key']['File'] = '"' + self.img_crt + '"'
-        config['Authenticate Data']['Blocks'] = hex(signbase) + ' 0 ' + hex(len(data)) + ' "' + str(output_dname) + '"'
+        config.read_string(CSF_CONFIG_TEMPLATE)
+        config['Install SRK']['File']  = f'"{self.srk_table}"'
+        config['Install CSFK']['File'] = f'"{self.csf_crt}"'
+        config['Install Key']['File']  = f'"{self.img_crt}"'
+        config['Authenticate Data']['Blocks'] = \
+            f'{signbase:#x} 0 {len(data):#x} "{output_dname}"'
+
         if not self.unlock:
             config.remove_section('Unlock')
         with open(cfg_fname, 'w') as cfgf:
