@@ -350,6 +350,17 @@ config ETH_SANDBOX
 
 	  This driver is particularly useful in the test/dm/eth.c tests
 
+config ETH_SANDBOX_LWIP
+	depends on SANDBOX
+	depends on NET_LWIP
+	default y
+	bool "Sandbox: Mocked Ethernet driver (for NET_LWIP)"
+	help
+	  This driver is meant as a replacement for ETH_SANDBOX when
+	  the network stack is NET_LWIP rather than NET. It currently
+	  does nothing, i.e. it drops the sent packets and never receives
+	  data.
+
 config ETH_SANDBOX_RAW
 	depends on SANDBOX
 	default y
