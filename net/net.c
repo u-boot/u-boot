@@ -87,6 +87,7 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <image.h>
+#include <led.h>
 #include <log.h>
 #include <net.h>
 #include <net6.h>
@@ -658,6 +659,9 @@ restart:
 			eth_halt();
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
+
+			/* Turn off activity LED if triggered */
+			led_activity_off();
 
 			puts("\nAbort\n");
 			/* include a debug print as well incase the debug
