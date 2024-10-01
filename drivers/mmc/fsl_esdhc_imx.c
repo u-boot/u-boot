@@ -1194,8 +1194,6 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
 
 	esdhc_write32(&regs->irqstaten, SDHCI_IRQ_EN_BITS);
 	cfg = &plat->cfg;
-	if (!CONFIG_IS_ENABLED(DM_MMC))
-		memset(cfg, '\0', sizeof(*cfg));
 
 	caps = esdhc_read32(&regs->hostcapblt);
 
