@@ -11,6 +11,46 @@
 #include <cyclic.h>
 #include <dm/ofnode.h>
 
+/**
+ * DOC: Overview
+ *
+ * Generic LED API provided when a supported compatible is defined in DeviceTree.
+ *
+ * To enable support for LEDs, enable the `CONFIG_LED` Kconfig option.
+ *
+ * The most common implementation is for GPIO-connected LEDs. If using GPIO-connected LEDs,
+ * enable the `LED_GPIO` Kconfig option.
+ *
+ * `LED_BLINK` support requires LED driver support and is therefore optional. If LED blink
+ * functionality is needed, enable the `LED_BLINK` Kconfig option. If LED driver doesn't
+ * support HW Blink, SW Blink can be used with the Cyclic framework by enabling the
+ * CONFIG_LED_SW_BLINK.
+ *
+ * Boot and Activity LEDs are also supported. These LEDs can signal various system operations
+ * during runtime, such as boot initialization, file transfers, and flash write/erase operations.
+ *
+ * To enable a Boot LED, enable `CONFIG_LED_BOOT` and define in `/options/u-boot` root node the
+ * property `boot-led`. This will enable the specified LED to blink and turn ON when
+ * the bootloader initializes correctly.
+ *
+ * To enable an Activity LED, enable `CONFIG_LED_ACTIVITY` and define in `/options/u-boot` root
+ * node the property `activity-led`.
+ * This will enable the specified LED to blink and turn ON during file transfers or flash
+ * write/erase operations.
+ *
+ * Both Boot and Activity LEDs provide a simple API to turn the LED ON or OFF:
+ * `led_boot_on()`, `led_boot_off()`, `led_activity_on()`, and `led_activity_off()`.
+ *
+ * Both configurations can optionally define a `boot/activity-led-period` property
+ * if `CONFIG_LED_BLINK` or `CONFIG_LED_SW_BLINK` is enabled for LED blink operations, which
+ * is usually used by the Activity LED. If not defined the default value of 250 (ms) is used.
+ *
+ * When `CONFIG_LED_BLINK` or `CONFIG_LED_SW_BLINK` is enabled, additional APIs are exposed:
+ * `led_boot_blink()` and `led_activity_blink()`. Note that if `CONFIG_LED_BLINK` or
+ * `CONFIG_LED_SW_BLINK` is disabled, these APIs will behave like the `led_boot_on()` and
+ * `led_activity_on()` APIs, respectively.
+ */
+
 struct udevice;
 
 enum led_state_t {
@@ -41,6 +81,7 @@ struct led_sw_blink {
  *
  * @label:	LED label
  * @default_state:	LED default state
+ * @sw_blink:	LED software blink struct
  */
 struct led_uc_plat {
 	const char *label;
