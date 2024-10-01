@@ -117,7 +117,7 @@
 #if defined(CONFIG_PROT_TCP_LWIP)
 #define LWIP_TCP                        1
 #define TCP_MSS                         1460
-#define TCP_WND                         CONFIG_LWIP_TCP_WND
+#define TCP_WND                         8000
 #define LWIP_WND_SCALE                  1
 #define TCP_RCV_SCALE                   0x7
 #define TCP_SND_BUF                     (2 * TCP_MSS)
