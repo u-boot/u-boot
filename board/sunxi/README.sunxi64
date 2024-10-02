@@ -211,6 +211,6 @@ Then write this image to a microSD card, replacing /dev/sdx with the right
 device file (see above):
 $ dd if=firmware.img of=/dev/sdx bs=8k seek=1
 
-[1] https://github.com/ARM-software/arm-trusted-firmware.git
+[1] https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 [2] git://github.com/linux-sunxi/sunxi-tools.git
 [3] https://github.com/apritzel/pine64/

@@ -31,7 +31,7 @@ Get the Source and prebuild binary
 
   > mkdir ~/evb_rk3399
   > cd ~/evb_rk3399
-  > git clone https://github.com/ARM-software/arm-trusted-firmware.git
+  > git clone https://github.com/TrustedFirmware-A/trusted-firmware-a.git
   > git clone https://github.com/rockchip-linux/rkbin.git
   > git clone https://github.com/rockchip-linux/rkdeveloptool.git
 

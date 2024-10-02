@@ -73,7 +73,7 @@ Building
 
    - Compile ATF
 
-     => git clone https://github.com/ARM-software/arm-trusted-firmware.git
+     => git clone https://github.com/TrustedFirmware-A/trusted-firmware-a.git
      => cd arm-trusted-firmware
 
      (export cross compiler path for Cortex-M0 MCU likely arm-none-eabi-)

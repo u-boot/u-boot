@@ -104,7 +104,7 @@ U-Boot serves as a non-secure boot loader loaded by [ARM Trusted Firmware],
 so you need to provide the `u-boot.bin` to the build command of ARM Trusted
 Firmware.
 
-[ARM Trusted Firmware]: https://github.com/ARM-software/arm-trusted-firmware
+[ARM Trusted Firmware]: https://github.com/TrustedFirmware-A/trusted-firmware-a
 
 
 Verified Boot

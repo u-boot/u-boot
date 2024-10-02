@@ -1432,7 +1432,7 @@ config SPL_ATF
 	help
 	  ATF(ARM Trusted Firmware) is a component for ARM AArch64 which
 	  is loaded by SPL (which is considered as BL2 in ATF terminology).
-	  More detail at: https://github.com/ARM-software/arm-trusted-firmware
+	  More detail at: https://github.com/TrustedFirmware-A/trusted-firmware-a
 
 config SPL_ATF_LOAD_IMAGE_V2
 	bool "Use the new LOAD_IMAGE_V2 parameter passing"

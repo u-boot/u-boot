@@ -17,7 +17,7 @@ If ATF updates, run this program to update the FIT_TYPE_LIST.
 
 ARM Trusted Firmware is available at:
 
-https://github.com/ARM-software/arm-trusted-firmware.git
+https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 """
 
 from argparse import ArgumentParser
@@ -560,7 +560,7 @@ def parse_atf_source(srcdir, dstfile, oldfile):
 
     Args:
         srcdir (str): Path to 'arm-trusted-firmware' directory. Get this from:
-            https://github.com/ARM-software/arm-trusted-firmware.git
+            https://github.com/TrustedFirmware-A/trusted-firmware-a.git
         dstfile (str): File to write new code to, if an update is needed
         oldfile (str): Python source file to compare against
 

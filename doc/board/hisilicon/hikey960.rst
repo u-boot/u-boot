@@ -32,7 +32,7 @@ First get all the sources
 
   mkdir -p ~/hikey960/src ~/hikey960/bin
   cd ~/hikey960/src
-  git clone https://github.com/ARM-software/arm-trusted-firmware
+  git clone https://github.com/TrustedFirmware-A/trusted-firmware-a
   git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
   git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
   wget http://snapshots.linaro.org/reference-platform/components/uefi-staging/123/hikey960/release/config
@@ -95,7 +95,7 @@ Copy the resulting binaries
   cp l-loader.bin ~/hikey960/bin
 
 These instructions are adapted from
-https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/plat/hikey960.rst
+https://github.com/TrustedFirmware-A/trusted-firmware-a/blob/master/docs/plat/hikey960.rst
 
 Setup console
 =============

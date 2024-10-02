@@ -166,7 +166,7 @@ To build TF-A:
 
 .. code-block:: bash
 
-        git clone --depth 1 https://github.com/ARM-software/arm-trusted-firmware.git
+        git clone --depth 1 https://github.com/TrustedFirmware-A/trusted-firmware-a.git
         cd arm-trusted-firmware
         make realclean
         make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399

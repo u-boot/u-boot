@@ -41,7 +41,7 @@ First get all the sources
   mkdir -p ~/hikey/src ~/hikey/bin
   cd ~/hikey/src
   git clone https://github.com/96boards-hikey/edk2 -b testing/hikey960_v2.5
-  git clone https://github.com/ARM-software/arm-trusted-firmware
+  git clone https://github.com/TrustedFirmware-A/trusted-firmware-a
   git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
   git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
   git clone https://github.com/96boards-hikey/atf-fastboot
@@ -114,7 +114,7 @@ Copy the resulting binaries
   cp recovery.bin ~/hikey/bin
 
 These instructions are adapted from
-https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/plat/hikey.rst
+https://github.com/TrustedFirmware-A/trusted-firmware-a/blob/master/docs/plat/hikey.rst
 
 Flashing
 ========
