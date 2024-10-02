@@ -5,6 +5,7 @@
  * Author: Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>
  */
 
+#include <cyclic.h>
 #include <dm.h>
 #include <led.h>
 #include <time.h>
