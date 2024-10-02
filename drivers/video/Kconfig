@@ -783,6 +783,16 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
+config BACKLIGHT_AAT2870
+	bool "Backlight Driver for AAT2870"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for Skyworks AAT2870 LED
+	  Backlight Driver and Multiple LDO Lighting Management Unit.
+	  Only backlight is supported as for now. Supported backlight
+	  level range is from 2 to 255 with step of 1.
+
 config BACKLIGHT_LM3532
 	bool "Backlight Driver for LM3532"
 	depends on BACKLIGHT
