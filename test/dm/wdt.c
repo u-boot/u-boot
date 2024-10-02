@@ -71,7 +71,7 @@ static int dm_test_wdt_gpio_toggle(struct unit_test_state *uts)
 	ut_assertok(wdt_reset(wdt));
 	ut_asserteq(val, sandbox_gpio_get_value(gpio, offset));
 
-	ut_asserteq(-ENOSYS, wdt_stop(wdt));
+	ut_asserteq(-EOPNOTSUPP, wdt_stop(wdt));
 
 	return 0;
 }
@@ -103,7 +103,7 @@ static int dm_test_wdt_gpio_level(struct unit_test_state *uts)
 	ut_assertok(wdt_reset(wdt));
 	ut_asserteq(val, sandbox_gpio_get_value(gpio, offset));
 
-	ut_asserteq(-ENOSYS, wdt_stop(wdt));
+	ut_asserteq(-EOPNOTSUPP, wdt_stop(wdt));
 
 	return 0;
 }
