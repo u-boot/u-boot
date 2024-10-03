@@ -15,6 +15,7 @@
 #include <linux/errno.h>
 #include <linux/list.h>
 #include <asm/global_data.h>
+#include <u-boot/schedule.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
