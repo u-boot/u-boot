@@ -175,6 +175,13 @@ config WDT_DA9063
 	help
 	  Enable support for the watchdog timer in Dialog DA9063.
 
+config WDT_DAVINCI
+	bool "DaVinci watchdog timer support"
+	depends on WDT
+	help
+	  Select this to enable the watchdog timer for DaVinci SoCs such as the
+	  OMAP-L138.
+
 config WDT_GPIO
 	bool "External gpio watchdog support"
 	depends on WDT
