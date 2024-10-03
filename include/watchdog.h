@@ -10,7 +10,7 @@
 #ifndef _WATCHDOG_H_
 #define _WATCHDOG_H_
 
-#include <cyclic.h>
+#include <u-boot/schedule.h> // to be removed later
 
 /*
  * Reset the watchdog timer, always returns 0
