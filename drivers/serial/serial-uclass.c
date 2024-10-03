@@ -588,11 +588,6 @@ static int serial_post_probe(struct udevice *dev)
 	sdev.getc = serial_stub_getc;
 	sdev.tstc = serial_stub_tstc;
 
-#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
-	/* Allocate the RX buffer */
-	upriv->buf = malloc(CONFIG_SERIAL_RX_BUFFER_SIZE);
-#endif
-
 	stdio_register_dev(&sdev, &upriv->sdev);
 #endif
 	return 0;

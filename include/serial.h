@@ -298,9 +298,11 @@ struct dm_serial_ops {
 struct serial_dev_priv {
 	struct stdio_dev *sdev;
 
-	char *buf;
+#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
+	char buf[CONFIG_SERIAL_RX_BUFFER_SIZE];
 	uint rd_ptr;
 	uint wr_ptr;
+#endif
 };
 
 /* Access the serial operations for a device */
