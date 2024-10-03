@@ -87,14 +87,6 @@ int cyclic_unregister_all(void);
  */
 struct hlist_head *cyclic_get_list(void);
 
-/**
- * cyclic_run() - Interate over all registered cyclic functions
- *
- * Interate over all registered cyclic functions and if the it's function
- * needs to be executed, then call into these registered functions.
- */
-void cyclic_run(void);
-
 #else
 
 static inline void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
@@ -103,10 +95,6 @@ static inline void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t fun
 }
 
 static inline void cyclic_unregister(struct cyclic_info *cyclic)
-{
-}
-
-static inline void cyclic_run(void)
 {
 }
 
