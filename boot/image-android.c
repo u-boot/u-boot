@@ -409,6 +409,10 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 			       (ramdisk_ptr), (void *)img_data.bootconfig_addr,
 			       img_data.bootconfig_size);
 		}
+	} else {
+		ramdisk_ptr = img_data.ramdisk_addr;
+		memcpy((void *)(ramdisk_ptr), (void *)img_data.ramdisk_ptr,
+		       img_data.ramdisk_size);
 	}
 
 	printf("RAM disk load addr 0x%08lx size %u KiB\n",
