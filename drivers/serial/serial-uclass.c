@@ -328,10 +328,11 @@ static int __serial_tstc(struct udevice *dev)
 static int _serial_tstc(struct udevice *dev)
 {
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
-	uint wr;
+	uint wr, avail;
 
-	/* Read all available chars into the RX buffer */
-	while (__serial_tstc(dev)) {
+	/* Read all available chars into the RX buffer while there's room */
+	avail = CONFIG_SERIAL_RX_BUFFER_SIZE - (upriv->wr_ptr - upriv->rd_ptr);
+	while (avail-- && __serial_tstc(dev)) {
 		wr = upriv->wr_ptr++ % CONFIG_SERIAL_RX_BUFFER_SIZE;
 		upriv->buf[wr] = __serial_getc(dev);
 	}
