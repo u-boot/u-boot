@@ -28,7 +28,8 @@ int gzip_parse_header(const unsigned char *src, unsigned long len);
  * @dst: Destination for uncompressed data
  * @dstlen: Size of destination buffer
  * @src: Source data to decompress
- * @lenp: Returns length of uncompressed data
+ * @lenp: On entry, length of data at @src. On exit, number of bytes used from
+ * @src
  * Return: 0 if OK, -1 on error
  */
 int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
@@ -39,7 +40,8 @@ int gunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
  * @dst: Destination for uncompressed data
  * @dstlen: Size of destination buffer
  * @src: Source data to decompress
- * @lenp: On entry, length data at @src. On exit, number of bytes used from @src
+ * @lenp: On entry, length of data at @src. On exit, number of bytes used from
+ * @src
  * @stoponerr: 0 to continue when a decode error is found, 1 to stop
  * @offset: start offset within the src buffer
  * Return: 0 if OK, -1 on error

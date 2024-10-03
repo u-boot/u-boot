@@ -50,6 +50,7 @@ int mmc_load_image_raw_sector(struct spl_image_info *spl_image,
 	ret = spl_load(spl_image, bootdev, &load, 0, sector << bd->log2blksz);
 	if (ret) {
 		puts("mmc_load_image_raw_sector: mmc block read error\n");
+		log_debug("(error=%d)\n", ret);
 		return ret;
 	}
 
@@ -76,6 +77,12 @@ static int spl_mmc_find_device(struct mmc **mmcp, int mmc_dev)
 	int ret;
 
 #if CONFIG_IS_ENABLED(DM_MMC)
+	struct udevice *dev;
+	struct uclass *uc;
+
+	log_debug("Selecting MMC dev %d; seqs:\n", mmc_dev);
+	uclass_id_foreach_dev(UCLASS_MMC, dev, uc)
+		log_debug("%d: %s\n", dev_seq(dev), dev->name);
 	ret = mmc_init_device(mmc_dev);
 #else
 	ret = mmc_initialize(NULL);
@@ -91,6 +98,9 @@ static int spl_mmc_find_device(struct mmc **mmcp, int mmc_dev)
 		       mmc_dev, ret);
 		return ret;
 	}
+#if CONFIG_IS_ENABLED(DM_MMC)
+	log_debug("mmc %d: %s\n", mmc_dev, (*mmcp)->dev->name);
+#endif
 
 	return 0;
 }
@@ -342,6 +352,8 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 
 	/* Perform peripheral init only once for an mmc device */
 	mmc_dev = spl_mmc_get_device_index(bootdev->boot_device);
+	log_debug("boot_device=%d, mmc_dev=%d\n", bootdev->boot_device,
+		  mmc_dev);
 	if (!mmc || spl_mmc_get_mmc_devnum(mmc) != mmc_dev) {
 		ret = spl_mmc_find_device(&mmc, mmc_dev);
 		if (ret)
