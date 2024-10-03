@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/of_access.h>
+#include <linux/build_bug.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -329,6 +330,8 @@ static int _serial_tstc(struct udevice *dev)
 {
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	uint wr, avail;
+
+	BUILD_BUG_ON_NOT_POWER_OF_2(CONFIG_SERIAL_RX_BUFFER_SIZE);
 
 	/* Read all available chars into the RX buffer while there's room */
 	avail = CONFIG_SERIAL_RX_BUFFER_SIZE - (upriv->wr_ptr - upriv->rd_ptr);
