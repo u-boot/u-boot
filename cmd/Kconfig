@@ -1685,9 +1685,8 @@ config CMD_ROCKUSB
 
 config CMD_USB_MASS_STORAGE
 	bool "UMS usb mass storage"
-	depends on USB_GADGET_DOWNLOAD
+	depends on BLK && USB_GADGET_DOWNLOAD
 	select USB_FUNCTION_MASS_STORAGE
-	depends on BLK && USB_GADGET
 	help
 	  Enables the command "ums" and the USB mass storage support to the
 	  export a block device: U-Boot, the USB device, acts as a simple

@@ -114,6 +114,15 @@ config USB_GADGET_DWC2_OTG
 	  driver to operate in Peripheral mode. This option requires
 	  USB_GADGET to be enabled.
 
+config USB_RENESAS_USBHS
+	bool "Renesas RCar USB2.0 HS controller (gadget mode)"
+	select USB_GADGET_DUALSPEED
+	help
+	  The Renesas Rcar USB 2.0 high-speed gadget controller
+	  integrated into Salvator and Kingfisher boards. Select this
+	  option if you want the driver to operate in Peripheral mode.
+	  This option requires USB_GADGET to be enabled.
+
 if USB_GADGET_DWC2_OTG
 
 config USB_GADGET_DWC2_OTG_PHY
