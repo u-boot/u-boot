@@ -15,6 +15,7 @@
 #include <linux/errno.h>
 #include <linux/list.h>
 #include <asm/global_data.h>
+#include <u-boot/schedule.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,7 +45,7 @@ void cyclic_unregister(struct cyclic_info *cyclic)
 	hlist_del(&cyclic->list);
 }
 
-void cyclic_run(void)
+static void cyclic_run(void)
 {
 	struct cyclic_info *cyclic;
 	struct hlist_node *tmp;

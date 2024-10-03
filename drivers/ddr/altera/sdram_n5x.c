@@ -22,6 +22,7 @@
 #include <asm/io.h>
 #include <linux/err.h>
 #include <linux/sizes.h>
+#include <u-boot/schedule.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
