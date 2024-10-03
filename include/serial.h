@@ -299,8 +299,8 @@ struct serial_dev_priv {
 	struct stdio_dev *sdev;
 
 	char *buf;
-	int rd_ptr;
-	int wr_ptr;
+	uint rd_ptr;
+	uint wr_ptr;
 };
 
 /* Access the serial operations for a device */
