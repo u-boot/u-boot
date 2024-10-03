@@ -24,6 +24,7 @@
 #include <asm/io.h>
 #include <dm/device_compat.h>
 #include <linux/sizes.h>
+#include <u-boot/schedule.h>
 
 #define PGTABLE_OFF	0x4000
 
