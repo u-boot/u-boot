@@ -1426,17 +1426,11 @@ u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
 # or a generator script
 # NOTE: Please do not use this. We are migrating away from Makefile rules to use
 # binman instead.
-ifneq ($(CONFIG_SPL_FIT_SOURCE),"")
-U_BOOT_ITS := u-boot.its
-$(U_BOOT_ITS): $(subst ",,$(CONFIG_SPL_FIT_SOURCE))
-	$(call if_changed,copy)
-else
 ifneq ($(CONFIG_USE_SPL_FIT_GENERATOR),)
 U_BOOT_ITS := u-boot.its
 $(U_BOOT_ITS): $(U_BOOT_ITS_DEPS) FORCE
 	$(srctree)/$(CONFIG_SPL_FIT_GENERATOR) \
 	$(patsubst %,$(dt_dir)/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) > $@
-endif
 endif
 
 ifdef CONFIG_SPL_LOAD_FIT
