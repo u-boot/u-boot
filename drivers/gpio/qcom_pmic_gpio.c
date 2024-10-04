@@ -69,17 +69,6 @@
 #define REG_EN_CTL             0x46
 #define REG_EN_CTL_ENABLE      (1 << 7)
 
-/**
- * pmic_gpio_match_data - platform specific configuration
- *
- * @PMIC_MATCH_READONLY: treat all GPIOs as readonly, don't attempt to configure them.
- * This is a workaround for an unknown bug on some platforms where trying to write the
- * GPIO configuration registers causes the board to hang.
- */
-enum pmic_gpio_quirks {
-	QCOM_PMIC_QUIRK_READONLY = (1 << 0),
-};
-
 struct qcom_pmic_gpio_data {
 	uint32_t pid; /* Peripheral ID on SPMI bus */
 	bool     lv_mv_type; /* If subtype is GPIO_LV(0x10) or GPIO_MV(0x11) */
@@ -128,12 +117,7 @@ static int qcom_gpio_set_direction(struct udevice *dev, unsigned int offset,
 {
 	struct qcom_pmic_gpio_data *plat = dev_get_plat(dev);
 	uint32_t gpio_base = plat->pid + REG_OFFSET(offset);
-	ulong quirks = dev_get_driver_data(dev);
 	int ret = 0;
-
-	/* Some PMICs don't like their GPIOs being configured */
-	if (quirks & QCOM_PMIC_QUIRK_READONLY)
-		return 0;
 
 	/* Disable the GPIO */
 	ret = pmic_clrsetbits(dev->parent, gpio_base + REG_EN_CTL,
@@ -278,7 +262,6 @@ static int qcom_gpio_bind(struct udevice *dev)
 {
 
 	struct qcom_pmic_gpio_data *plat = dev_get_plat(dev);
-	ulong quirks = dev_get_driver_data(dev);
 	struct udevice *child;
 	struct driver *drv;
 	int ret;
@@ -292,7 +275,7 @@ static int qcom_gpio_bind(struct udevice *dev)
 	/* Bind the GPIO driver as a child of the PMIC. */
 	ret = device_bind_with_driver_data(dev, drv,
 					   dev->name,
-					   quirks, dev_ofnode(dev), &child);
+					   0, dev_ofnode(dev), &child);
 	if (ret)
 		return log_msg_ret("bind", ret);
 
@@ -361,11 +344,11 @@ static int qcom_gpio_probe(struct udevice *dev)
 static const struct udevice_id qcom_gpio_ids[] = {
 	{ .compatible = "qcom,pm8916-gpio" },
 	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
-	{ .compatible = "qcom,pm8998-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
+	{ .compatible = "qcom,pm8998-gpio" },
 	{ .compatible = "qcom,pms405-gpio" },
-	{ .compatible = "qcom,pm6125-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
-	{ .compatible = "qcom,pm8150-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
-	{ .compatible = "qcom,pm8550-gpio", .data = QCOM_PMIC_QUIRK_READONLY },
+	{ .compatible = "qcom,pm6125-gpio" },
+	{ .compatible = "qcom,pm8150-gpio" },
+	{ .compatible = "qcom,pm8550-gpio" },
 	{ }
 };
 
