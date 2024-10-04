@@ -1,0 +1,37 @@
+#
+# Network configuration (with lwIP stack)
+#
+
+config LWIP_DEBUG
+	bool "Enable debug traces in the lwIP library"
+
+config LWIP_ASSERT
+	bool "Enable assertions in the lwIP library"
+
+config PROT_DHCP_LWIP
+	bool "DHCP support in lwIP"
+	depends on PROT_UDP_LWIP
+	help
+	  Enable support for the DHCP protocol in lwIP.
+
+config PROT_DNS_LWIP
+	bool
+	depends on PROT_UDP_LWIP
+
+config PROT_RAW_LWIP
+	bool
+
+config PROT_TCP_LWIP
+	bool
+
+config PROT_UDP_LWIP
+	bool
+
+config BOOTDEV_ETH
+        bool "Enable bootdev for ethernet"
+        depends on BOOTSTD
+        default y
+        help
+          Provide a bootdev for ethernet so that is it possible to boot
+          an operating system over the network, using the PXE (Preboot
+          Execution Environment) protocol.

@@ -11,7 +11,7 @@ config DFU_OVER_USB
 
 config DFU_OVER_TFTP
 	bool
-	depends on NET
+	depends on NET && !NET_LWIP
 
 if DFU
 config DFU_WRITE_ALT
