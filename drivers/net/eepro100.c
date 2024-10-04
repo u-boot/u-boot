@@ -678,7 +678,7 @@ static int eepro100_recv_common(struct eepro100_priv *priv, uchar **packetp)
 	status = le16_to_cpu(desc->status);
 
 	if (!(status & RFD_STATUS_C))
-		return 0;
+		return -EAGAIN;
 
 	/* Valid frame status. */
 	if (status & RFD_STATUS_OK) {
