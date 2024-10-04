@@ -42,6 +42,16 @@ config TEGRA_BACKLIGHT_PWM
 	   Enable support for the Display Controller dependent PWM backlight
 	   found in the Tegra SoC and usually used with DSI panels.
 
+config TEGRA_8BIT_CPU_BRIDGE
+	bool "Enable 8 bit panel communication protocol for Tegra 20/30"
+	depends on VIDEO_BRIDGE && DM_GPIO
+	select VIDEO_TEGRA
+	select VIDEO_MIPI_DSI
+	help
+	   Tegra 20 and Tegra 30 feature 8 bit CPU driver panel control
+	   protocol. This option allows use it as a MIPI DSI bridge to
+	   set up and control compatible panel.
+
 config VIDEO_TEGRA124
 	bool "Enable video support on Tegra124"
 	imply VIDEO_DAMAGE
