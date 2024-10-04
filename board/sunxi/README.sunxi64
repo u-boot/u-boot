@@ -12,7 +12,7 @@ file describes how to make full use of the 64-bit capabilities.
 Quick Start / Overview
 ======================
 - Build the ARM Trusted Firmware binary (see "ARM Trusted Firmware (ATF)" below)
-  $ cd /src/arm-trusted-firmware
+  $ cd /src/trusted-firmware-a
   $ make PLAT=sun50i_a64 DEBUG=1 bl31
 - Build the SCP firmware binary (see "SCP firmware (Crust)" below)
   $ cd /src/crust
@@ -49,7 +49,7 @@ $ make PLAT=sun50i_a64 DEBUG=1 bl31
 The resulting binary is build/sun50i_a64/debug/bl31.bin. Either put the
 location of this file into the BL31 environment variable or copy this to
 the root of your U-Boot build directory (or create a symbolic link).
-$ export BL31=/src/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin
+$ export BL31=/src/trusted-firmware-a/build/sun50i_a64/debug/bl31.bin
   (adjust the actual path accordingly)
 The platform target "sun50i_a64" covers all boards with either an Allwinner
 A64 or H5 SoC (since they are very similar). For boards with an Allwinner H6

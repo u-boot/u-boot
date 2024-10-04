@@ -26,6 +26,7 @@ Note: builddir is U-Boot build directory (source directory for in-tree builds)
 .. code-block:: bash
 
     $ git clone https://github.com/TrustedFirmware-A/trusted-firmware-a.git
+    $ cd trusted-firmware-a
     $ git checkout v2.5
     $ make PLAT=imx8mq ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- bl31
     $ cp build/imx8mq/release/bl31.bin $(builddir)

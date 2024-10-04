@@ -167,7 +167,7 @@ To build TF-A:
 .. code-block:: bash
 
         git clone --depth 1 https://github.com/TrustedFirmware-A/trusted-firmware-a.git
-        cd arm-trusted-firmware
+        cd trusted-firmware-a
         make realclean
         make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
         cd ..
@@ -199,7 +199,7 @@ To build px30 boards:
 
 .. code-block:: bash
 
-        export BL31=../arm-trusted-firmware/build/px30/release/bl31/bl31.elf
+        export BL31=../trusted-firmware-a/build/px30/release/bl31/bl31.elf
         make evb-px30_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
@@ -230,7 +230,7 @@ To build rk3328 boards:
 
 .. code-block:: bash
 
-        export BL31=../arm-trusted-firmware/build/rk3328/release/bl31/bl31.elf
+        export BL31=../trusted-firmware-a/build/rk3328/release/bl31/bl31.elf
         make evb-rk3328_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
@@ -238,7 +238,7 @@ To build rk3368 boards:
 
 .. code-block:: bash
 
-        export BL31=../arm-trusted-firmware/build/rk3368/release/bl31/bl31.elf
+        export BL31=../trusted-firmware-a/build/rk3368/release/bl31/bl31.elf
         make evb-px5_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
@@ -246,7 +246,7 @@ To build rk3399 boards:
 
 .. code-block:: bash
 
-        export BL31=../arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
+        export BL31=../trusted-firmware-a/build/rk3399/release/bl31/bl31.elf
         make evb-rk3399_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
@@ -254,7 +254,7 @@ To build rk3568 boards:
 
 .. code-block:: bash
 
-        export BL31=../arm-trusted-firmware/build/rk3568/release/bl31/bl31.elf
+        export BL31=../trusted-firmware-a/build/rk3568/release/bl31/bl31.elf
         [or]export BL31=../rkbin/bin/rk35/rk3568_bl31_v1.34.elf
         export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3568_ddr_1560MHz_v1.13.bin
         make evb-rk3568_defconfig

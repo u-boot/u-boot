@@ -64,7 +64,7 @@ Compile ARM Trusted Firmware (ATF)
 
 .. code-block:: bash
 
-  cd ~/hikey960/src/arm-trusted-firmware
+  cd ~/hikey960/src/trusted-firmware-a
   make CROSS_COMPILE=aarch64-linux-gnu- all fip \
     SCP_BL2=~/hikey960/bin/lpm3.img \
     BL33=~/hikey960/bin/u-boot.bin DEBUG=1 PLAT=hikey960
@@ -81,9 +81,9 @@ Compile l-loader
 .. code-block:: bash
 
   cd ~/hikey960/src/l-loader
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/bl1.bin
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/bl2.bin
-  ln -sf ~/hikey960/src/arm-trusted-firmware/build/hikey960/debug/fip.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/bl1.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/bl2.bin
+  ln -sf ~/hikey960/src/trusted-firmware-a/build/hikey960/debug/fip.bin
   ln -sf ~/hikey960/bin/u-boot.bin
   make hikey960 PTABLE_LST=linux-32g NS_BL1U=u-boot.bin
 

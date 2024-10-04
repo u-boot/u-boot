@@ -74,14 +74,14 @@ Building
    - Compile ATF
 
      => git clone https://github.com/TrustedFirmware-A/trusted-firmware-a.git
-     => cd arm-trusted-firmware
+     => cd trusted-firmware-a
 
      (export cross compiler path for Cortex-M0 MCU likely arm-none-eabi-)
      => make realclean
      => make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
 
     (export bl31.elf)
-    => export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
+    => export BL31=/path/to/trusted-firmware-a/build/rk3399/release/bl31/bl31.elf
 
    - Compile PMU M0 firmware
 
