@@ -293,4 +293,11 @@ u32 cpu_get_stepping(void);
  */
 int cpu_phys_address_size(void);
 
+void board_final_init(void);
+void board_final_cleanup(void);
+
+#ifndef CONFIG_EFI_STUB
+int reserve_arch(void);
+#endif
+
 #endif
