@@ -38,11 +38,6 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-int checkcpu(void)
-{
-	return 0;
-}
-
 static void board_final_init(void)
 {
 	/*

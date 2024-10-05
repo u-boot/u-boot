@@ -95,7 +95,6 @@ void x86_enable_caches(void);
 void x86_disable_caches(void);
 int x86_init_cache(void);
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size);
-int default_print_cpuinfo(void);
 
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
 int setup_internal_uart(int enable);
