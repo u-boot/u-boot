@@ -18,7 +18,7 @@
 
 		fdt-1 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcom-pdk2.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp157c-dhcom-pdk2.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -26,7 +26,7 @@
 
 		fdt-2 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcom-drc02.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp153c-dhcom-drc02.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -34,7 +34,7 @@
 
 		fdt-3 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcom-picoitx.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp157c-dhcom-picoitx.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -46,42 +46,42 @@
 
 		config-1 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-pdk2_somrev0_boardrev0";
+			description = "dh,stm32mp157c-dhcom-pdk2_somrev0_boardrev0";
 			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 
 		config-2 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-pdk2_somrev1_boardrev0";
+			description = "dh,stm32mp157c-dhcom-pdk2_somrev1_boardrev0";
 			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 
 		config-3 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-drc02_somrev0_boardrev0";
+			description = "dh,stm32mp153c-dhcom-drc02_somrev0_boardrev0";
 			firmware = "uboot";
 			fdt = "fdt-2";
 		};
 
 		config-4 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-drc02_somrev1_boardrev0";
+			description = "dh,stm32mp153c-dhcom-drc02_somrev1_boardrev0";
 			firmware = "uboot";
 			fdt = "fdt-2";
 		};
 
 		config-5 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-picoitx_somrev0_boardrev0";
+			description = "dh,stm32mp157c-dhcom-picoitx_somrev0_boardrev0";
 			loadables = "uboot";
 			fdt = "fdt-3";
 		};
 
 		config-6 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcom-picoitx_somrev1_boardrev0";
+			description = "dh,stm32mp157c-dhcom-picoitx_somrev1_boardrev0";
 			loadables = "uboot";
 			fdt = "fdt-3";
 		};

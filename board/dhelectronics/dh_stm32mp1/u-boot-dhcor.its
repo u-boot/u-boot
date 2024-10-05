@@ -18,7 +18,7 @@
 
 		fdt-1 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcor-testbench.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp151a-dhcor-testbench.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -26,7 +26,7 @@
 
 		fdt-2 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcor-avenger96.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp157a-dhcor-avenger96.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -34,7 +34,7 @@
 
 		fdt-3 {
 			description = ".dtb";
-			data = /incbin/("arch/arm/dts/stm32mp15xx-dhcor-drc-compact.dtb");
+			data = /incbin/("dts/upstream/src/arm/st/stm32mp153c-dhcor-drc-compact.dtb");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
@@ -46,21 +46,21 @@
 
 		config-1 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcor-testbench_somrev0_boardrev1";
+			description = "dh,stm32mp151a-dhcor-testbench_somrev0_boardrev1";
 			firmware = "uboot";
 			fdt = "fdt-1";
 		};
 
 		config-2 {
 			/* DT+SoM+board model */
-			description = "arrow,stm32mp15xx-avenger96_somrev0_boardrev1";
+			description = "arrow,stm32mp157a-avenger96_somrev0_boardrev1";
 			firmware = "uboot";
 			fdt = "fdt-2";
 		};
 
 		config-3 {
 			/* DT+SoM+board model */
-			description = "dh,stm32mp15xx-dhcor-drc-compact_somrev0_boardrev0";
+			description = "dh,stm32mp153c-dhcor-drc-compact_somrev0_boardrev0";
 			firmware = "uboot";
 			fdt = "fdt-3";
 		};
