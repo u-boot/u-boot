@@ -10,6 +10,7 @@
 #define __IRQ_FUNC_H
 
 struct pt_regs;
+struct cmd_tbl;
 
 typedef void (interrupt_handler_t)(void *arg);
 
@@ -22,5 +23,8 @@ void reset_timer(void);
 
 void enable_interrupts(void);
 int disable_interrupts(void);
+
+/* Implemented in $(CPU)/interrupts.c */
+int do_irqinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 #endif
