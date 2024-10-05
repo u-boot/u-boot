@@ -340,7 +340,7 @@ int reserve_arch(void)
 }
 #endif
 
-long detect_coreboot_table_at(ulong start, ulong size)
+static long detect_coreboot_table_at(ulong start, ulong size)
 {
 	u32 *ptr, *end;
 

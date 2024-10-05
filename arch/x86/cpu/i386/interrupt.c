@@ -237,7 +237,7 @@ void *x86_get_idt(void)
 	return &idt_ptr;
 }
 
-void __do_irq(int irq)
+static void __do_irq(int irq)
 {
 	printf("Unhandled IRQ : %d\n", irq);
 }
