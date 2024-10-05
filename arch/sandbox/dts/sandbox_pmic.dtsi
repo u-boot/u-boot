@@ -10,6 +10,7 @@
 
 &sandbox_pmic {
 	compatible = "sandbox,pmic";
+	sandbox,emul = <&emul_pmic0>;
 
 	buck1 {
 		regulator-name = "SUPPLY_1.2V";
