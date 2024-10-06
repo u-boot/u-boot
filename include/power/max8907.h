@@ -12,6 +12,7 @@
 /* Drivers name */
 #define MAX8907_LDO_DRIVER		"max8907_ldo"
 #define MAX8907_SD_DRIVER		"max8907_sd"
+#define MAX8907_RST_DRIVER		"max8907_rst"
 
 /* MAX8907 register map */
 #define MAX8907_REG_SDCTL1		0x04
@@ -38,6 +39,9 @@
 #define MAX8907_REG_LDOCTL19		0x5C
 #define MAX8907_REG_LDOCTL18		0x72
 #define MAX8907_REG_LDOCTL20		0x9C
+
+#define MAX8907_REG_RESET_CNFG		0x0F
+#define   MASK_POWER_OFF		BIT(6)
 
 /* MAX8907 configuration values */
 #define MAX8907_CTL			0

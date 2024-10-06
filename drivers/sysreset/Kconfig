@@ -131,6 +131,13 @@ config SYSRESET_MAX77663
 	help
 	  Enable system power management functions found in MAX77663 PMIC.
 
+config SYSRESET_MAX8907
+	bool "Enable support for MAX8907 PMIC System Reset"
+	depends on DM_PMIC_MAX8907
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
+	help
+	  Enable system power management functions found in MAX8907 PMIC.
+
 config SYSRESET_MICROBLAZE
 	bool "Enable support for Microblaze soft reset"
 	depends on MICROBLAZE

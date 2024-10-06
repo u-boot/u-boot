@@ -45,7 +45,19 @@ static int max8907_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 static int max8907_bind(struct udevice *dev)
 {
 	ofnode regulators_node;
-	int children;
+	int children, ret;
+
+	if (IS_ENABLED(CONFIG_SYSRESET_MAX8907) &&
+	    dev_read_bool(dev, "maxim,system-power-controller")) {
+		ret = device_bind_driver_to_node(dev, MAX8907_RST_DRIVER,
+						 "sysreset", dev_ofnode(dev),
+						 NULL);
+		if (ret) {
+			log_debug("%s: cannot bind SYSRESET (ret = %d)\n",
+				  __func__, ret);
+			return ret;
+		}
+	}
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
