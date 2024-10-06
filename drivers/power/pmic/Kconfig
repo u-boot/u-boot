@@ -184,6 +184,15 @@ config SPL_DM_PMIC_PFUZE100
 	This config enables implementation of driver-model pmic uclass features
 	for PMIC PFUZE100 in SPL. The driver implements read/write operations.
 
+config DM_PMIC_MAX8907
+	bool "Enable Driver Model for PMIC MAX8907"
+	---help---
+	This config enables implementation of driver-model pmic uclass features
+	for PMIC MAX8907. The driver implements read/write operations.
+	This is a Power Management IC with a decent set of peripherals from which
+	3 DC-to-DC Step-Down (SD) Regulators, 20 Low-Dropout Linear (LDO) Regulators,
+	Real-Time Clock (RTC) and more with I2C Compatible Interface.
+
 config DM_PMIC_MAX77663
 	bool "Enable Driver Model for PMIC MAX77663"
 	---help---
