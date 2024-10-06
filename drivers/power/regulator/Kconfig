@@ -148,6 +148,15 @@ config SPL_REGULATOR_PWM
 	  This config enables implementation of driver-model regulator uclass
 	  features for PWM regulators in SPL.
 
+config DM_REGULATOR_MAX8907
+	bool "Enable Driver Model for REGULATOR MAX8907"
+	depends on DM_REGULATOR && DM_PMIC_MAX8907
+	---help---
+	This config enables implementation of driver-model regulator uclass
+	features for REGULATOR MAX8907. The driver supports both DC-to-DC
+	Step-Down (SD) Regulators and Low-Dropout Linear (LDO) Regulators
+	found in MAX8907 PMIC and implements get/set api for value and enable.
+
 config DM_REGULATOR_MAX77663
 	bool "Enable Driver Model for REGULATOR MAX77663"
 	depends on DM_REGULATOR && DM_PMIC_MAX77663
