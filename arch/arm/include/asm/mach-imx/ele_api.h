@@ -47,6 +47,8 @@
 #define ELE_ATTEST_REQ (0xDB)
 #define ELE_RELEASE_PATCH_REQ (0xDC)
 #define ELE_OTP_SEQ_SWITH_REQ (0xDD)
+#define ELE_WRITE_SHADOW_REQ (0xF2)
+#define ELE_READ_SHADOW_REQ (0xF3)
 
 /* ELE failure indications */
 #define ELE_ROM_PING_FAILURE_IND (0x0A)
@@ -154,4 +156,6 @@ int ele_release_m33_trout(void);
 int ele_write_secure_fuse(ulong signed_msg_blk, u32 *response);
 int ele_return_lifecycle_update(ulong signed_msg_blk, u32 *response);
 int ele_start_rng(void);
+int ele_write_shadow_fuse(u32 fuse_id, u32 fuse_val, u32 *response);
+int ele_read_shadow_fuse(u32 fuse_id, u32 *fuse_val, u32 *response);
 #endif

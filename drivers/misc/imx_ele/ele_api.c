@@ -268,6 +268,72 @@ int ele_write_fuse(u16 fuse_id, u32 fuse_val, bool lock, u32 *response)
 	return ret;
 }
 
+int ele_write_shadow_fuse(u32 fuse_id, u32 fuse_val, u32 *response)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg;
+	int ret;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 3;
+	msg.command = ELE_WRITE_SHADOW_REQ;
+	msg.data[0] = fuse_id;
+	msg.data[1] = fuse_val;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, fuse_id 0x%x, response 0x%x\n",
+		       __func__, ret, fuse_id, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	return ret;
+}
+
+int ele_read_shadow_fuse(u32 fuse_id, u32 *fuse_val, u32 *response)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	int size = sizeof(struct ele_msg);
+	struct ele_msg msg = {};
+	int ret;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (!fuse_val) {
+		printf("Invalid parameters for shadow read\n");
+		return -EINVAL;
+	}
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 2;
+	msg.command = ELE_READ_SHADOW_REQ;
+	msg.data[0] = fuse_id;
+
+	ret = misc_call(dev, false, &msg, size, &msg, size);
+	if (ret)
+		printf("Error: %s: ret %d, fuse_id 0x%x, response 0x%x\n",
+		       __func__, ret, fuse_id, msg.data[0]);
+
+	if (response)
+		*response = msg.data[0];
+
+	*fuse_val = msg.data[1];
+
+	return ret;
+}
+
 int ele_release_caam(u32 core_did, u32 *response)
 {
 	struct udevice *dev = gd->arch.ele_dev;
