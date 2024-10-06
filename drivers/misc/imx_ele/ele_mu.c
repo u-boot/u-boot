@@ -25,9 +25,20 @@ struct imx8ulp_mu {
 void mu_hal_init(ulong base)
 {
 	struct mu_type *mu_base = (struct mu_type *)base;
+	u32 rr_num = (readl(&mu_base->par) & 0xFF00) >> 8;
+	int i;
 
 	writel(0, &mu_base->tcr);
 	writel(0, &mu_base->rcr);
+
+	while (true) {
+		/* If there is pending RX data, clear them by read them out */
+		if (!(readl(&mu_base->sr) & BIT(6)))
+			return;
+
+		for (i = 0; i < rr_num; i++)
+			readl(&mu_base->rr[i]);
+	}
 }
 
 int mu_hal_sendmsg(ulong base, u32 reg_index, u32 msg)
