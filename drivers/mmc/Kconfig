@@ -130,6 +130,7 @@ config MMC_HW_PARTITIONING
 config SUPPORT_EMMC_RPMB
 	bool "Support eMMC replay protected memory block (RPMB)"
 	imply CMD_MMC_RPMB
+	select SHA256
 	help
 	  Enable support for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.

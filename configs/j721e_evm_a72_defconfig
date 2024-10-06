@@ -212,5 +212,6 @@ CONFIG_UFS=y
 CONFIG_CADENCE_UFS=y
 CONFIG_TI_J721E_UFS=y
 CONFIG_EFI_SET_TIME=y
+CONFIG_MBEDTLS_LIB=y
 
 #include <configs/k3_efi_capsule.config>
