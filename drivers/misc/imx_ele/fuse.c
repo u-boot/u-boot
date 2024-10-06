@@ -11,10 +11,10 @@
 #include <env.h>
 #include <asm/mach-imx/ele_api.h>
 #include <asm/global_data.h>
+#include <env.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define FUSE_BANKS	64
 #define WORDS_PER_BANKS 8
 
 struct fsb_map_entry {
@@ -32,6 +32,7 @@ struct ele_map_entry {
 
 #if defined(CONFIG_IMX8ULP)
 #define FSB_OTP_SHADOW	0x800
+#define IS_FSB_ALLOWED (true)
 
 struct fsb_map_entry fsb_mapping_table[] = {
 	{ 3, 8 },
@@ -84,6 +85,8 @@ struct ele_map_entry ele_api_mapping_table[] = {
 };
 #elif defined(CONFIG_ARCH_IMX9)
 #define FSB_OTP_SHADOW	0x8000
+#define IS_FSB_ALLOWED (!IS_ENABLED(CONFIG_SCMI_FIRMWARE) && \
+	!(readl(BLK_CTRL_NS_ANOMIX_BASE_ADDR + 0x28) & BIT(0)))
 
 struct fsb_map_entry fsb_mapping_table[] = {
 	{ 0, 8 },
@@ -191,19 +194,9 @@ static s32 map_ele_fuse_index(u32 bank, u32 word)
 int fuse_sense(u32 bank, u32 word, u32 *val)
 {
 	s32 word_index;
-	bool redundancy;
 
-	if (bank >= FUSE_BANKS || word >= WORDS_PER_BANKS || !val)
+	if (word >= WORDS_PER_BANKS || !val)
 		return -EINVAL;
-
-	word_index = map_fsb_fuse_index(bank, word, &redundancy);
-	if (word_index >= 0) {
-		*val = readl((ulong)FSB_BASE_ADDR + FSB_OTP_SHADOW + (word_index << 2));
-		if (redundancy)
-			*val = (*val >> ((word % 2) * 16)) & 0xFFFF;
-
-		return 0;
-	}
 
 	word_index = map_ele_fuse_index(bank, word);
 	if (word_index >= 0) {
@@ -240,25 +233,26 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 
 	return -ENOENT;
 }
+
 #elif defined(CONFIG_ARCH_IMX9)
 int fuse_sense(u32 bank, u32 word, u32 *val)
 {
 	s32 word_index;
 	bool redundancy;
 
-	if (bank >= FUSE_BANKS || word >= WORDS_PER_BANKS || !val)
+	if (word >= WORDS_PER_BANKS || !val)
 		return -EINVAL;
 
-	word_index = map_fsb_fuse_index(bank, word, &redundancy);
-	if (word_index >= 0) {
-		*val = readl((ulong)FSB_BASE_ADDR + FSB_OTP_SHADOW + (word_index << 2));
-		if (redundancy)
-			*val = (*val >> ((word % 2) * 16)) & 0xFFFF;
+	if (!IS_ENABLED(CONFIG_SCMI_FIRMWARE)) {
+		word_index = map_fsb_fuse_index(bank, word, &redundancy);
 
-		return 0;
+		/* ELE read common fuse API supports all FSB fuse. */
+		if (word_index < 0)
+			word_index = map_ele_fuse_index(bank, word);
+	} else {
+		word_index = bank * 8 + word;
 	}
 
-	word_index = map_ele_fuse_index(bank, word);
 	if (word_index >= 0) {
 		u32 data;
 		u32 res = 0, size = 1;
@@ -279,9 +273,53 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 }
 #endif
 
+static int fuse_read_default(u32 bank, u32 word, u32 *val)
+{
+	s32 word_index;
+	bool redundancy;
+
+	if (IS_FSB_ALLOWED) {
+		word_index = map_fsb_fuse_index(bank, word, &redundancy);
+		if (word_index >= 0) {
+			*val = readl((ulong)FSB_BASE_ADDR + FSB_OTP_SHADOW + (word_index << 2));
+			if (redundancy)
+				*val = (*val >> ((word % 2) * 16)) & 0xFFFF;
+
+			return 0;
+		}
+	}
+
+	return fuse_sense(bank, word, val);
+}
+
+static int fuse_read_ele_shd(u32 bank, u32 word, u32 *val)
+{
+	u32 res = 0;
+	int ret;
+	struct udevice *dev = gd->arch.ele_dev;
+
+	if (!dev)
+		return -ENODEV;
+
+	ret = ele_read_shadow_fuse((bank * 8 + word), val, &res);
+	if (ret) {
+		printf("ele read shadow fuse failed %d, 0x%x\n", ret, res);
+		return ret;
+	}
+
+	return 0;
+}
+
 int fuse_read(u32 bank, u32 word, u32 *val)
 {
-	return fuse_sense(bank, word, val);
+	if (word >= WORDS_PER_BANKS || !val)
+		return -EINVAL;
+
+	if (!IS_ENABLED(CONFIG_SPL_BUILD) &&
+	    env_get_yesno("enable_ele_shd") == 1)
+		return fuse_read_ele_shd(bank, word, val);
+	else
+		return fuse_read_default(bank, word, val);
 }
 
 int fuse_prog(u32 bank, u32 word, u32 val)
@@ -290,7 +328,7 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 	int ret;
 	bool lock = false;
 
-	if (bank >= FUSE_BANKS || word >= WORDS_PER_BANKS || !val)
+	if (word >= WORDS_PER_BANKS || !val)
 		return -EINVAL;
 
 	/* Lock 8ULP ECC fuse word, so second programming will return failure.
@@ -318,6 +356,17 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 
 int fuse_override(u32 bank, u32 word, u32 val)
 {
-	printf("Override fuse to i.MX8ULP in u-boot is forbidden\n");
-	return -EPERM;
+	u32 res = 0;
+	int ret;
+
+	if (word >= WORDS_PER_BANKS || !val)
+		return -EINVAL;
+
+	ret = ele_write_shadow_fuse((bank * 8 + word), val, &res);
+	if (ret) {
+		printf("ahab write shadow fuse failed %d, 0x%x\n", ret, res);
+		return ret;
+	}
+
+	return 0;
 }
