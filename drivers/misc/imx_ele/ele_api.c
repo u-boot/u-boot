@@ -5,12 +5,12 @@
  *
  */
 
-#include <hang.h>
+#include <asm/io.h>
+#include <asm/mach-imx/sys_proto.h>
+#include <asm/mach-imx/ele_api.h>
+#include <dm.h>
 #include <malloc.h>
 #include <memalign.h>
-#include <asm/io.h>
-#include <dm.h>
-#include <asm/mach-imx/ele_api.h>
 #include <misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -205,8 +205,7 @@ int ele_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respon
 		return -EINVAL;
 	}
 
-	if ((fuse_id != 1 && fuse_num != 1) ||
-	    (fuse_id == 1 && fuse_num != 4)) {
+	if (is_imx8ulp() && ((fuse_id != 1 && fuse_num != 1) || (fuse_id == 1 && fuse_num != 4))) {
 		printf("Invalid fuse number parameter\n");
 		return -EINVAL;
 	}
@@ -226,7 +225,7 @@ int ele_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respon
 		*response = msg.data[0];
 
 	fuse_words[0] = msg.data[1];
-	if (fuse_id == 1) {
+	if (fuse_id == 1 && is_imx8ulp()) {
 		/* OTP_UNIQ_ID */
 		fuse_words[1] = msg.data[2];
 		fuse_words[2] = msg.data[3];
