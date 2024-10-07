@@ -93,7 +93,7 @@ int axp_set_dcdc4(unsigned int mvolt)
 		return pmic_bus_clrbits(AXP809_OUTPUT_CTRL1,
 					AXP809_OUTPUT_CTRL1_DCDC4_EN);
 
-	ret = pmic_bus_write(AXP809_DCDC5_CTRL, cfg);
+	ret = pmic_bus_write(AXP809_DCDC4_CTRL, cfg);
 	if (ret)
 		return ret;
 
