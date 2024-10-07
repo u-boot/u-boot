@@ -13,6 +13,7 @@ obj-$(CONFIG_$(SPL_TPL_)DM_GPIO) += gpio-uclass.o
 obj-$(CONFIG_$(SPL_)DM_PCA953X)	+= pca953x_gpio.o
 
 obj-$(CONFIG_ASPEED_GPIO)	+= gpio-aspeed.o
+obj-$(CONFIG_ASPEED_G7_GPIO)	+= gpio-aspeed-g7.o
 obj-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 obj-$(CONFIG_ATMEL_PIO4)	+= atmel_pio4.o
 obj-$(CONFIG_BCM6345_GPIO)	+= bcm6345_gpio.o
@@ -27,6 +28,7 @@ obj-$(CONFIG_$(SPL_TPL_)MCP230XX_GPIO)	+= mcp230xx_gpio.o
 obj-$(CONFIG_MXC_GPIO)	+= mxc_gpio.o
 obj-$(CONFIG_MXS_GPIO)	+= mxs_gpio.o
 obj-$(CONFIG_NPCM_GPIO)      	+= npcm_gpio.o
+obj-$(CONFIG_NPCM_SGPIO)	+= npcm_sgpio.o
 obj-$(CONFIG_PCA953X)		+= pca953x.o
 obj-$(CONFIG_ROCKCHIP_GPIO)	+= rk_gpio.o
 obj-$(CONFIG_RCAR_GPIO)		+= gpio-rcar.o

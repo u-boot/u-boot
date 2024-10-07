@@ -22,6 +22,7 @@
 #include <hang.h>
 #include <image.h>
 #include <irq_func.h>
+#include <lmb.h>
 #include <log.h>
 #include <net.h>
 #include <asm/cache.h>
@@ -192,7 +193,7 @@ static int initr_malloc(void)
 	ulong start;
 
 #if CONFIG_IS_ENABLED(SYS_MALLOC_F)
-	debug("Pre-reloc malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
+	debug("Pre-reloc malloc() used %#x bytes (%d KB)\n", gd->malloc_ptr,
 	      gd->malloc_ptr / 1024);
 #endif
 	/* The malloc area is immediately below the monitor copy in DRAM */
@@ -510,6 +511,14 @@ int initr_mem(void)
 }
 #endif
 
+static int initr_lmb(void)
+{
+	if (CONFIG_IS_ENABLED(LMB))
+		return lmb_init();
+	else
+		return 0;
+}
+
 static int dm_announce(void)
 {
 	int device_count;
@@ -521,6 +530,8 @@ static int dm_announce(void)
 		       uclass_count);
 		if (CONFIG_IS_ENABLED(OF_REAL))
 			printf(", devicetree: %s", fdtdec_get_srcname());
+		if (CONFIG_IS_ENABLED(UPL))
+			printf(", universal payload active");
 		printf("\n");
 		if (IS_ENABLED(CONFIG_OF_HAS_PRIOR_STAGE) &&
 		    (gd->fdt_src == FDTSRC_SEPARATE ||
@@ -610,6 +621,7 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
+	initr_lmb,
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
 #endif

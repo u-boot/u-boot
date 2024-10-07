@@ -30,7 +30,7 @@ ifdef CONFIG_SANDBOX
 obj-$(CONFIG_CMD_MBR) += mbr.o
 obj-$(CONFIG_CMD_READ) += rw.o
 obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+obj-$(CONFIG_CMD_WGET) += wget.o
 obj-$(CONFIG_ARM_FFA_TRANSPORT) += armffa.o
 endif
 obj-$(CONFIG_CMD_TEMPERATURE) += temperature.o
-obj-$(CONFIG_CMD_WGET) += wget.o

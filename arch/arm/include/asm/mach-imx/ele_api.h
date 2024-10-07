@@ -26,6 +26,7 @@
 #define ELE_GET_EVENTS_REQ (0xA2)
 #define ELE_COMMIT_REQ (0xA8)
 #define ELE_START_RNG (0xA3)
+#define ELE_CMD_DERIVE_KEY (0xA9)
 #define ELE_GENERATE_DEK_BLOB (0xAF)
 #define ELE_ENABLE_PATCH_REQ (0xC3)
 #define ELE_RELEASE_RDC_REQ (0xC4)
@@ -143,6 +144,7 @@ int ele_read_common_fuse(u16 fuse_id, u32 *fuse_words, u32 fuse_num, u32 *respon
 int ele_release_caam(u32 core_did, u32 *response);
 int ele_get_fw_version(u32 *fw_version, u32 *sha1, u32 *response);
 int ele_get_events(u32 *events, u32 *events_cnt, u32 *response);
+int ele_derive_huk(u8 *key, size_t key_size, u8 *ctx, size_t seed_size);
 int ele_commit(u16 fuse_id, u32 *response, u32 *info_type);
 int ele_generate_dek_blob(u32 key_id, u32 src_paddr, u32 dst_paddr, u32 max_output_size);
 int ele_dump_buffer(u32 *buffer, u32 buffer_length);

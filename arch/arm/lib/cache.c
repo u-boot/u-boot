@@ -4,8 +4,6 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-/* for now: just dummy functions to satisfy the linker */
-
 #include <config.h>
 #include <cpu_func.h>
 #include <log.h>

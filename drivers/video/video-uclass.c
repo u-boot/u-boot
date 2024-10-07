@@ -145,9 +145,22 @@ int video_reserve(ulong *addrp)
 		*addrp -= CONFIG_VAL(VIDEO_PCI_DEFAULT_FB_SIZE);
 
 	gd->video_bottom = *addrp;
-	gd->fb_base = *addrp;
 	debug("Video frame buffers from %lx to %lx\n", gd->video_bottom,
 	      gd->video_top);
+
+	return 0;
+}
+
+ulong video_get_fb(void)
+{
+	struct udevice *dev;
+
+	uclass_find_first_device(UCLASS_VIDEO, &dev);
+	if (dev) {
+		const struct video_uc_plat *uc_plat = dev_get_uclass_plat(dev);
+
+		return uc_plat->base;
+	}
 
 	return 0;
 }
@@ -210,7 +223,6 @@ int video_reserve_from_bloblist(struct video_handoff *ho)
 		return -ENOENT;
 
 	gd->video_bottom = ho->fb;
-	gd->fb_base = ho->fb;
 	gd->video_top = ho->fb + ho->size;
 	debug("%s: Reserving %lx bytes at %08x as per bloblist received\n",
 	      __func__, (unsigned long)ho->size, (u32)ho->fb);

@@ -108,6 +108,9 @@ class Entry(object):
             not need to be done again. This is only used with 'binman replace',
             to stop sections from being rebuilt if their entries have not been
             replaced
+        symbols_base (int): Use this value as the assumed load address of the
+            target entry, when calculating the symbol value. If None, this is
+            0 for blobs and the image-start address for ELF files
     """
     fake_dir = None
 
@@ -159,6 +162,7 @@ class Entry(object):
         self.preserve = False
         self.build_done = False
         self.no_write_symbols = False
+        self.symbols_base = None
 
     @staticmethod
     def FindEntryClass(etype, expanded):
@@ -324,6 +328,7 @@ class Entry(object):
 
         self.preserve = fdt_util.GetBool(self._node, 'preserve')
         self.no_write_symbols = fdt_util.GetBool(self._node, 'no-write-symbols')
+        self.symbols_base = fdt_util.GetInt(self._node, 'symbols-base')
 
     def GetDefaultFilename(self):
         return None
@@ -576,8 +581,16 @@ class Entry(object):
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
 
+        Looks up the named entryargs and returns the value for each. If any
+        required ones are missing, the error is reported to the user.
+
         Args:
-            props: List of EntryArg objects
+            props (list of EntryArg): List of entry arguments to look up
+            required (bool): True if these entry arguments are required
+
+        Returns:
+            list of values: one for each item in props, the type is determined
+                by the EntryArg's 'datatype' property (str or int)
 
         Raises:
             ValueError if a property is not found
@@ -698,14 +711,22 @@ class Entry(object):
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time
 
+        As a special case, if symbols_base is not specified and this is an
+        end-at-4gb image, a symbols_base of 0 is used
+
         Args:
           section: Section containing the entry
         """
         if self.auto_write_symbols and not self.no_write_symbols:
             # Check if we are writing symbols into an ELF file
             is_elf = self.GetDefaultFilename() == self.elf_fname
+
+            symbols_base = self.symbols_base
+            if symbols_base is None and self.GetImage()._end_4gb:
+                symbols_base = 0
+
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),
-                                      is_elf, self.elf_base_sym)
+                                      is_elf, self.elf_base_sym, symbols_base)
 
     def CheckEntries(self):
         """Check that the entry offsets are correct

@@ -245,7 +245,7 @@ class Entry_cbfs(Entry):
             cfile = entry._cbfs_file
             entry.size = cfile.data_len
             entry.offset = cfile.calced_cbfs_offset
-            entry.image_pos = self.image_pos + entry.offset
+            entry.SetImagePos(image_pos + self.offset)
             if entry._cbfs_compress:
                 entry.uncomp_size = cfile.memlen
 

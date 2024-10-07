@@ -12,6 +12,7 @@
 #include <dwmmc.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
@@ -29,6 +30,7 @@ struct snps_dwmci_plat {
 struct snps_dwmci_priv_data {
 	struct dwmci_host	host;
 	u32			f_max;
+	struct gpio_desc	cd_gpio;
 };
 
 static int snps_dwmmc_clk_setup(struct udevice *dev)
@@ -81,7 +83,7 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 	host->ioaddr = dev_read_addr_ptr(dev);
 
 	/*
-	 * If fifo-depth is unset don't set fifoth_val - we will try to
+	 * If fifo-depth is unset don't set fifo_depth - we will try to
 	 * auto detect it.
 	 */
 	ret = dev_read_u32(dev, "fifo-depth", &fifo_depth);
@@ -89,9 +91,7 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 		if (fifo_depth < FIFO_MIN || fifo_depth > FIFO_MAX)
 			return -EINVAL;
 
-		host->fifoth_val = MSIZE(0x2) |
-				   RX_WMARK(fifo_depth / 2 - 1) |
-				   TX_WMARK(fifo_depth / 2);
+		host->fifo_depth = fifo_depth;
 	}
 
 	host->buswidth = dev_read_u32_default(dev, "bus-width", 4);
@@ -106,6 +106,10 @@ static int snps_dwmmc_of_to_plat(struct udevice *dev)
 	if (!ret && priv->f_max < CLOCK_MIN)
 		return -EINVAL;
 
+	if (CONFIG_IS_ENABLED(DM_GPIO))
+		gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+				     GPIOD_IS_IN);
+
 	host->fifo_mode = dev_read_bool(dev, "fifo-mode");
 	host->name = dev->name;
 	host->dev_index = 0;
@@ -118,6 +122,9 @@ int snps_dwmmc_getcd(struct udevice *dev)
 {
 	struct snps_dwmci_priv_data *priv = dev_get_priv(dev);
 	struct dwmci_host *host = &priv->host;
+
+	if (CONFIG_IS_ENABLED(DM_GPIO) && dm_gpio_is_valid(&priv->cd_gpio))
+		return dm_gpio_get_value(&priv->cd_gpio);
 
 	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
 }

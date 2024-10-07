@@ -24,6 +24,7 @@
 #include <ext4fs.h>
 #include <malloc.h>
 #include <asm/cache.h>
+#include <linux/compat.h>
 #include <linux/errno.h>
 #if defined(CONFIG_EXT4_WRITE)
 #include "ext4_journal.h"
@@ -43,9 +44,7 @@
 
 static inline void *zalloc(size_t size)
 {
-	void *p = memalign(ARCH_DMA_MINALIGN, size);
-	memset(p, 0, size);
-	return p;
+	return kzalloc(size, 0);
 }
 
 int ext4fs_read_inode(struct ext2_data *data, int ino,

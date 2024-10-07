@@ -1,6 +1,8 @@
 config MACH_IMX
 	bool
 
+if MACH_IMX
+
 config HAS_CAAM
 	bool
 
@@ -200,3 +202,5 @@ config IOMUX_LPSR
 
 config IOMUX_SHARE_CONF_REG
 	bool
+
+endif

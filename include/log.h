@@ -104,6 +104,8 @@ enum log_category_t {
 	LOGC_FS,
 	/** @LOGC_EXPO: Related to expo handling */
 	LOGC_EXPO,
+	/** @LOGC_CONSOLE: Related to the console and stdio */
+	LOGC_CONSOLE,
 	/** @LOGC_COUNT: Number of log categories */
 	LOGC_COUNT,
 	/** @LOGC_END: Sentinel value for lists of log categories */
@@ -125,7 +127,7 @@ static inline int log_uc_cat(enum uclass_id id)
  * @level: Level of log record (indicating its severity)
  * @file: File name of file where log record was generated
  * @line: Line number in file where log record was generated
- * @func: Function where log record was generated
+ * @func: Function where log record was generated, NULL if not known
  * @fmt: printf() format string for log record
  * @...: Optional parameters, according to the format string @fmt
  * Return: 0 if log record was emitted, -ve on error
@@ -141,7 +143,7 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  * @level: Level of log record (indicating its severity)
  * @file: File name of file where log record was generated
  * @line: Line number in file where log record was generated
- * @func: Function where log record was generated
+ * @func: Function where log record was generated, NULL if not known
  * @addr:	Starting address to display at start of line
  * @data:	pointer to data buffer
  * @width:	data value width.  May be 1, 2, or 4.
@@ -193,6 +195,12 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 #define _LOG_DEBUG	0
 #endif
 
+#ifdef CONFIG_LOGF_FUNC
+#define _log_func	__func__
+#else
+#define _log_func	NULL
+#endif
+
 #if CONFIG_IS_ENABLED(LOG)
 
 /* Emit a log record if the level is less that the maximum */
@@ -201,7 +209,7 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 	if (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL) \
 		_log((enum log_category_t)(_cat), \
 		     (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
-		     __LINE__, __func__, \
+		     __LINE__, _log_func, \
 		      pr_fmt(_fmt), ##_args); \
 	})
 
@@ -211,7 +219,7 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 	if (_LOG_DEBUG != 0 || _l <= _LOG_MAX_LEVEL) \
 		_log_buffer((enum log_category_t)(_cat), \
 			    (enum log_level_t)(_l | _LOG_DEBUG), __FILE__, \
-			    __LINE__, __func__, _addr, _data, \
+			    __LINE__, _log_func, _addr, _data, \
 			    _width, _count, _linelen); \
 	})
 #else
@@ -314,7 +322,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 #define assert_noisy(x) \
 	({ bool _val = (x); \
 	if (!_val) \
-		__assert_fail(#x, "?", __LINE__, __func__); \
+		__assert_fail(#x, "?", __LINE__, _log_func); \
 	_val; \
 	})
 

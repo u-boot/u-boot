@@ -495,7 +495,7 @@ void test_set_state(struct unit_test_state *uts);
  * @select_name: Name of a single test to run (from the list provided). If NULL
  *	then all tests are run
  * @runs_per_test: Number of times to run each test (typically 1)
- * @force_run: Run tests that are marked as manual-only (UT_TESTF_MANUAL)
+ * @force_run: Run tests that are marked as manual-only (UTF_MANUAL)
  * @test_insert: String describing a test to run after n other tests run, in the
  * format n:name where n is the number of tests to run before this one and
  * name is the name of the test to run. This is used to find which test causes

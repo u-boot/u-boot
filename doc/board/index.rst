@@ -14,6 +14,7 @@ Board-specific doc
    anbernic/index
    apple/index
    armltd/index
+   aspeed/index
    asus/index
    atmel/index
    beacon/index

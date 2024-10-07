@@ -26,6 +26,15 @@ config TPL_RAM
 	  TPL, enable this option. It might provide a cleaner interface to
 	  setting up RAM (e.g. SDRAM / DDR) within TPL.
 
+config VPL_RAM
+	bool "Enable RAM support in VPL"
+	depends on RAM && VPL
+	help
+	  The RAM subsystem adds a small amount of overhead to the image.
+	  If this is acceptable and you have a need to use RAM drivers in
+	  VPL, enable this option. It might provide a cleaner interface to
+	  setting up RAM (e.g. SDRAM / DDR) within VPL.
+
 config STM32_SDRAM
 	bool "Enable STM32 SDRAM support"
 	depends on RAM

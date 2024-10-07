@@ -1367,7 +1367,17 @@ u-boot.ldr:	u-boot
 # ---------------------------------------------------------------------------
 # Use 'make BINMAN_DEBUG=1' to enable debugging
 # Use 'make BINMAN_VERBOSE=3' to set vebosity level
+
+ifneq ($(EXT_DTB),)
+ext_dtb_list := $(basename $(notdir $(EXT_DTB)))
+default_dt := $(firstword $(ext_dtb_list))
+of_list := "$(ext_dtb_list)"
+of_list_dirs := $(dir $(EXT_DTB))
+else
+of_list := $(CONFIG_OF_LIST)
+of_list_dirs := $(dt_dir)
 default_dt := $(if $(DEVICE_TREE),$(DEVICE_TREE),$(CONFIG_DEFAULT_DEVICE_TREE))
+endif
 
 quiet_cmd_binman = BINMAN  $@
 cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
@@ -1377,7 +1387,7 @@ cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
 		build -u -d u-boot.dtb -O . -m \
 		--allow-missing $(if $(BINMAN_ALLOW_MISSING),--ignore-missing) \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
-		-I $(dt_dir) -a of-list=$(CONFIG_OF_LIST) \
+		$(foreach f,$(of_list_dirs),-I $(f)) -a of-list=$(of_list) \
 		$(foreach f,$(BINMAN_INDIRS),-I $(f)) \
 		-a atf-bl31-path=${BL31} \
 		-a tee-os-path=${TEE} \
@@ -1473,8 +1483,10 @@ u-boot.bin.lzma: u-boot.bin FORCE
 u-boot-lzma.img: u-boot.bin.lzma FORCE
 	$(call if_changed,mkimage)
 
+fit_image := $(if $(CONFIG_SANDBOX_VPL),u-boot,u-boot-nodtb.bin)
+
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
-		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin \
+		$(if $(CONFIG_SPL_LOAD_FIT),$(fit_image) \
 			$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SANDBOX),dts/dt.dtb) \
 		,$(UBOOT_BIN)) FORCE
 	$(call if_changed,mkimage)

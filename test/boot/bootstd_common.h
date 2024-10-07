@@ -53,4 +53,12 @@ int bootstd_setup_for_tests(void);
  */
 int bootstd_test_check_mmc_hunter(struct unit_test_state *uts);
 
+/**
+ * bootstd_reset_usb() - Reset the USB subsystem
+ *
+ * Resets USB so that it can be started (and scanning) again. This is useful in
+ * tests which need to use USB.
+ */
+void bootstd_reset_usb(void);
+
 #endif

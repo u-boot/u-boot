@@ -33,96 +33,83 @@ static int cmd_exit_test(struct unit_test_state *uts)
 	 * - return value can be printed outside of 'run' command
 	 */
 	for (i = -3; i <= 3; i++) {
-		ut_assertok(console_record_reset_enable());
 		ut_assertok(run_commandf("setenv foo 'echo bar ; exit %d ; echo baz' ; run foo ; echo $?", i));
 		ut_assert_nextline("bar");
 		ut_assert_nextline("%d", i > 0 ? i : 0);
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 
-		ut_assertok(console_record_reset_enable());
 		ut_assertok(run_commandf("setenv foo 'echo bar ; exit %d ; echo baz' ; run foo && echo quux ; echo $?", i));
 		ut_assert_nextline("bar");
 		if (i <= 0)
 			ut_assert_nextline("quux");
 		ut_assert_nextline("%d", i > 0 ? i : 0);
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 
-		ut_assertok(console_record_reset_enable());
 		ut_assertok(run_commandf("setenv foo 'echo bar ; exit %d ; echo baz' ; run foo || echo quux ; echo $?", i));
 		ut_assert_nextline("bar");
 		if (i > 0)
 			ut_assert_nextline("quux");
 		/* Either 'exit' returns 0, or 'echo quux' returns 0 */
 		ut_assert_nextline("0");
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 	}
 
 	/* Validate that 'exit' behaves the same way as 'exit 0' */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; exit ; echo baz' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	/* Either 'exit' returns 0, or 'echo quux' returns 0 */
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	/* Validate that return value still propagates from 'run' command */
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; true' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	/* The 'true' returns 0 */
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("1");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo && echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("1");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_commandf("setenv foo 'echo bar ; false' ; run foo || echo quux ; echo $?"));
 	ut_assert_nextline("bar");
 	ut_assert_nextline("quux");
 	/* The 'echo quux' returns 0 */
 	ut_assert_nextline("0");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
-
-EXIT_TEST(cmd_exit_test, UT_TESTF_CONSOLE_REC);
+EXIT_TEST(cmd_exit_test, UTF_CONSOLE);
 
 int do_ut_exit(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

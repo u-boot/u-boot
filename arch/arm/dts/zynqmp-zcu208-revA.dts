@@ -68,7 +68,7 @@
 		compatible = "iio-hwmon";
 		io-channels = <&vccint 0>, <&vccint 1>, <&vccint 2>, <&vccint 3>;
 	};
-	ina226-vccint-io-bram-ps {
+	ina226-vccint-io-bram {
 		compatible = "iio-hwmon";
 		io-channels = <&vccint_io_bram_ps 0>, <&vccint_io_bram_ps 1>, <&vccint_io_bram_ps 2>, <&vccint_io_bram_ps 3>;
 	};
@@ -205,7 +205,7 @@
 		  "ENET_RX_CTRL", "ENET_MDC", "ENET_MDIO", /* 75 - 77, MIO end and EMIO start */
 		  "", "", /* 78 - 79 */
 		  "", "", "", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 -89 */
+		  "", "", "", "", "", /* 85 - 89 */
 		  "", "", "", "", "", /* 90 - 94 */
 		  "", "", "", "", "", /* 95 - 99 */
 		  "", "", "", "", "", /* 100 - 104 */

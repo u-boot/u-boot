@@ -23,7 +23,7 @@ static int dm_test_timer_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_timer_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_timer_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /*
  * Test of timebase fallback
@@ -46,4 +46,4 @@ static int dm_test_timer_timebase_fallback(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_timer_timebase_fallback,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+	UTF_SCAN_PDATA | UTF_SCAN_FDT);

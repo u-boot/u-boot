@@ -1,0 +1,168 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (c) 2021 Nuvoton Technology tomer.maimon@nuvoton.com
+
+/ {
+	pinctrl: pinctrl@f0800000 {
+		gpio234_pins: gpio234-pins {
+			pins = "GPIO234/PWM10/SMB20_SCL";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio61_pins: gpio61-pins {
+			pins = "GPIO61/SI1_nDTR_BOUT";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio46_pins: gpio46-pins {
+			pins = "GPIO46/SI1_nDSR/CP_TCK_SWCLK/TP_TCK_SWCLK/CP_TP_TCK_SWCLK";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio54_pins: gpio54-pins {
+			pins = "GPIO54/SI2_nDSR/BU4_TXD";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio55_pins: gpio55-pins {
+			pins = "GPIO55/SI2_RI2/BU4_RXD";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio121_pins: gpio121-pins {
+			pins = "GPIO121/SMB2C_SCL";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio108_pins: gpio108-pins {
+			pins = "GPIO108/SG1_MDC";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio109_pins: gpio109-pins {
+			pins = "GPIO109/SG1_MDIO";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio183_pins: gpio183-pins {
+			pins = "GPIO183/SPI3_SEL";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio184_pins: gpio184-pins {
+			pins = "GPIO184/SPI3_D0/STRAP13";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio189_pins: gpio189-pins {
+			pins = "GPIO189/SPI3_D3/SPI3_nCS3";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio92_pins: gpio92-pins {
+			pins = "GPIO92/R2_MDIO/CP1_GPIO7/TP_GPIO1";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio35_pins: gpio35-pins {
+			pins = "GPI35/MCBPCK";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio36_pins: gpio36-pins {
+			pins = "GPI36/SYSBPCK";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio62_pins: gpio62-pins {
+			pins = "GPIO62/SI1_nRTS/BU1_nRTS/CP_TDO_SWO/TP_TDO_SWO/CP_TP_TDO_SWO";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio45_pins: gpio45-pins {
+			pins = "GPIO45/SI1_nDCD/CP_TMS_SWIO/TP_TMS_SWIO/CP_TP_TMS_SWIO";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio83_pins: gpio83-pins {
+			pins = "GPIO83/PWM3";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio144_pins: gpio144-pins {
+			pins = "GPIO144/PWM4";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio145_pins: gpio145-pins {
+			pins = "GPIO145/PWM5";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio146_pins: gpio146-pins {
+			pins = "GPIO146/PWM6";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio159_pins: gpio159-pins {
+			pins = "GPIO159/MMC_DT3";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio127_pins: gpio127-pins {
+			pins = "GPIO127/SMB1B_SCL/CP1_GPIO0";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+		gpio15_pins: gpio15-pins {
+			pins = "GPIO15/GSPI_CS/SMB5C_SDA";
+			bias-disable;
+			input-enable;
+			event-clear;
+			persist-enable;
+		};
+	};
+};

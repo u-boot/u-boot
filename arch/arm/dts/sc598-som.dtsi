@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * (C) Copyright 2024 - Analog Devices, Inc.
+ */
+
+/dts-v1/;
+
+#include "sc5xx.dtsi"
+
+/ {
+	gic: interrupt-controller@31200000 {
+		compatible = "arm,gic-v3";
+		#interrupt-cells = <3>;
+		interrupt-controller;
+		reg = <0x31200000 0x40000>, /* GIC Dist */
+		      <0x31240000 0x40000>; /* GICR */
+	};
+};
+
+&clk {
+	compatible = "adi,sc598-clocks";
+	reg = <0x3108d000 0x1000>,
+	      <0x3108e000 0x1000>,
+	      <0x3108f000 0x1000>,
+	      <0x310a9000 0x1000>;
+	reg-names = "cgu0", "cgu1", "cdu", "pll3";
+};
+
+&timer0 {
+	clocks = <&clk ADSP_SC598_CLK_CGU0_SCLK0>;
+};

@@ -100,7 +100,10 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	if (boot_dev_spl == MMC3_BOOT)		/* eMMC */
 		return BOOT_DEVICE_MMC2;
 
-	return BOOT_DEVICE_MMC1;		/* SD */
+	if (boot_dev_spl == SD2_BOOT)		/* SD */
+		return BOOT_DEVICE_MMC1;
+
+	return BOOT_DEVICE_BOOTROM;		/* USB SDPS */
 }
 
 void board_boot_order(u32 *spl_boot_list)

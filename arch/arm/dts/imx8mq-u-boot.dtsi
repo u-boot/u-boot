@@ -106,6 +106,7 @@
 
 			binman_imx_fit: fit {
 				description = "Configuration to load ATF before U-Boot";
+				filename = "u-boot.itb";
 #ifndef CONFIG_IMX_HAB
 				fit,external-offset = <CONFIG_FIT_EXTERNAL_OFFSET>;
 #endif

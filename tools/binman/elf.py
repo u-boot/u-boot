@@ -234,7 +234,7 @@ def GetSymbolOffset(elf_fname, sym_name, base_sym=None):
     return val - base
 
 def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
-                          base_sym=None):
+                          base_sym=None, base_addr=None):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
@@ -247,7 +247,10 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
             entry
         entry: Entry to process
         section: Section which can be used to lookup symbol values
-        base_sym: Base symbol marking the start of the image
+        base_sym: Base symbol marking the start of the image (__image_copy_start
+            by default)
+        base_addr (int): Base address to use for the entry being written. If
+            None then the value of base_sym is used
 
     Returns:
         int: Number of symbols written
@@ -277,7 +280,8 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
     if not base and not is_elf:
         tout.debug(f'LookupAndWriteSymbols: no base: elf_fname={elf_fname}, base_sym={base_sym}, is_elf={is_elf}')
         return 0
-    base_addr = 0 if is_elf else base.address
+    if base_addr is None:
+        base_addr = 0 if is_elf else base.address
     count = 0
     for name, sym in syms.items():
         if name.startswith('_binman'):
@@ -301,8 +305,8 @@ def LookupAndWriteSymbols(elf_fname, entry, section, is_elf=False,
                 value = BINMAN_SYM_MAGIC_VALUE
             else:
                 # Look up the symbol in our entry tables.
-                value = section.GetImage().LookupImageSymbol(name, sym.weak,
-                                                             msg, base_addr)
+                value = section.GetImage().GetImageSymbolValue(name, sym.weak,
+                                                               msg, base_addr)
             if value is None:
                 value = -1
                 pack_string = pack_string.lower()

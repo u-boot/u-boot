@@ -1651,12 +1651,22 @@ static int dup_CLOEXEC(int fd, int avoid_fd)
 	newfd = fcntl(fd, F_DUPFD_CLOEXEC, avoid_fd + 1);
 	if (newfd >= 0) {
 		if (F_DUPFD_CLOEXEC == F_DUPFD) /* if old libc (w/o F_DUPFD_CLOEXEC) */
-			fcntl(newfd, F_SETFD, FD_CLOEXEC);
+			close_on_exec_on(newfd);
 	} else { /* newfd < 0 */
 		if (errno == EBUSY)
 			goto repeat;
 		if (errno == EINTR)
 			goto repeat;
+		if (errno != EBADF) {
+			/* "echo >&9999" gets EINVAL trying to save fd 1 to above 9999.
+			 * We could try saving it _below_ 9999 instead (how?), but
+			 * this probably means that dup2(9999,1) to effectuate >&9999
+			 * would also not work: fd 9999 can't exist.
+			 * (This differs from "echo >&99" where saving works, but
+			 * subsequent dup2(99,1) fails if fd 99 is not open).
+			 */
+			bb_perror_msg("fcntl(%d,F_DUPFD,%d)", fd, avoid_fd + 1);
+		}
 	}
 	return newfd;
 }
@@ -1677,7 +1687,7 @@ static int xdup_CLOEXEC_and_close(int fd, int avoid_fd)
 		xfunc_die();
 	}
 	if (F_DUPFD_CLOEXEC == F_DUPFD) /* if old libc (w/o F_DUPFD_CLOEXEC) */
-		fcntl(newfd, F_SETFD, FD_CLOEXEC);
+		close_on_exec_on(newfd);
 	close(fd);
 	return newfd;
 }
@@ -5851,6 +5861,15 @@ static struct pipe *parse_stream(char **pstring,
 			}
 			o_free_and_set_NULL(&ctx.word);
 			done_pipe(&ctx, PIPE_SEQ);
+
+			/* Do we sit inside of any if's, loops or case's? */
+			if (HAS_KEYWORDS
+			IF_HAS_KEYWORDS(&& (ctx.ctx_res_w != RES_NONE || ctx.old_flag != 0))
+			) {
+				syntax_error_unterm_str("compound statement");
+				goto parse_error_exitcode1;
+			}
+
 			pi = ctx.list_head;
 			/* If we got nothing... */
 			/* (this makes bare "&" cmd a no-op.
@@ -5873,7 +5892,7 @@ static struct pipe *parse_stream(char **pstring,
 			//	*heredoc_cnt_ptr = heredoc_cnt;
 			debug_leave();
 			debug_printf_heredoc("parse_stream return heredoc_cnt:%d\n", heredoc_cnt);
-			debug_printf_parse("parse_stream return %p\n", pi);
+			debug_printf_parse("parse_stream return %p: EOF\n", pi);
 			return pi;
 		}
 
@@ -8384,10 +8403,16 @@ static struct squirrel *add_squirrel(struct squirrel *sq, int fd, int avoid_fd)
 	if (sq) for (; sq[i].orig_fd >= 0; i++) {
 		/* If we collide with an already moved fd... */
 		if (fd == sq[i].moved_to) {
-			sq[i].moved_to = dup_CLOEXEC(sq[i].moved_to, avoid_fd);
-			debug_printf_redir("redirect_fd %d: already busy, moving to %d\n", fd, sq[i].moved_to);
-			if (sq[i].moved_to < 0) /* what? */
-				xfunc_die();
+			moved_to = dup_CLOEXEC(sq[i].moved_to, avoid_fd);
+			debug_printf_redir("redirect_fd %d: already busy, moving to %d\n", fd, moved_to);
+			if (moved_to < 0) {
+				/* "echo 2>/dev/tty 10>&9999" testcase:
+				 * We move fd 2 to 10, then discover we need to move fd 10
+				 * (and not hit 9999) and the latter fails.
+				 */
+				return NULL; /* fcntl failed */
+			}
+			sq[i].moved_to = moved_to;
 			return sq;
 		}
 		if (fd == sq[i].orig_fd) {
@@ -8401,7 +8426,7 @@ static struct squirrel *add_squirrel(struct squirrel *sq, int fd, int avoid_fd)
 	moved_to = dup_CLOEXEC(fd, avoid_fd);
 	debug_printf_redir("redirect_fd %d: previous fd is moved to %d (-1 if it was closed)\n", fd, moved_to);
 	if (moved_to < 0 && errno != EBADF)
-		xfunc_die();
+		return NULL; /* fcntl failed (not because fd is closed) */
 	return append_squirrel(sq, i, fd, moved_to);
 }
 
@@ -8434,6 +8459,8 @@ static struct squirrel *add_squirrel_closed(struct squirrel *sq, int fd)
  */
 static int save_fd_on_redirect(int fd, int avoid_fd, struct squirrel **sqp)
 {
+	struct squirrel *new_squirrel;
+
 	if (avoid_fd < 9) /* the important case here is that it can be -1 */
 		avoid_fd = 9;
 
@@ -8497,7 +8524,10 @@ static int save_fd_on_redirect(int fd, int avoid_fd, struct squirrel **sqp)
 	}
 
 	/* Check whether it collides with any open fds (e.g. stdio), save fds as needed */
-	*sqp = add_squirrel(*sqp, fd, avoid_fd);
+	new_squirrel = add_squirrel(*sqp, fd, avoid_fd);
+	if (!new_squirrel)
+		return -1; /* redirect error */
+	*sqp = new_squirrel;
 	return 0; /* "we did not close fd" */
 }
 
@@ -8568,8 +8598,11 @@ static int internally_opened_fd(int fd, struct squirrel *sq)
 	return 0;
 }
 
-/* squirrel != NULL means we squirrel away copies of stdin, stdout,
- * and stderr if they are redirected. */
+/* sqp != NULL means we squirrel away copies of stdin, stdout,
+ * and stderr if they are redirected.
+ * If redirection fails, return 1. This will make caller
+ * skip command execution and restore already created redirect fds.
+ */
 static int setup_redirects(struct command *prog, struct squirrel **sqp)
 {
 	struct redir_struct *redir;
@@ -8580,7 +8613,8 @@ static int setup_redirects(struct command *prog, struct squirrel **sqp)
 
 		if (redir->rd_type == REDIRECT_HEREDOC2) {
 			/* "rd_fd<<HERE" case */
-			save_fd_on_redirect(redir->rd_fd, /*avoid:*/ 0, sqp);
+			if (save_fd_on_redirect(redir->rd_fd, /*avoid:*/ 0, sqp) < 0)
+				return 1;
 			/* for REDIRECT_HEREDOC2, rd_filename holds _contents_
 			 * of the heredoc */
 			debug_printf_redir("set heredoc '%s'\n",
@@ -8600,7 +8634,7 @@ static int setup_redirects(struct command *prog, struct squirrel **sqp)
 				 * "cmd > <file" (2nd redirect starts too early)
 				 */
 				syntax_error("invalid redirect");
-				continue;
+				return 1;
 			}
 			mode = redir_table[redir->rd_type].mode;
 			p = expand_string_to_string(redir->rd_filename,
@@ -8615,7 +8649,9 @@ static int setup_redirects(struct command *prog, struct squirrel **sqp)
 				 */
 				return 1;
 			}
-			if (newfd == redir->rd_fd && sqp) {
+			if (newfd == redir->rd_fd && sqp
+			 && sqp != ERR_PTR /* not a redirect in "exec" */
+			) {
 				/* open() gave us precisely the fd we wanted.
 				 * This means that this fd was not busy
 				 * (not opened to anywhere).
@@ -8637,6 +8673,8 @@ static int setup_redirects(struct command *prog, struct squirrel **sqp)
 		/* if "N>&-": close redir->rd_fd (newfd is REDIRFD_CLOSE) */
 
 		closed = save_fd_on_redirect(redir->rd_fd, /*avoid:*/ newfd, sqp);
+		if (closed < 0)
+			return 1; /* error */
 		if (newfd == REDIRFD_CLOSE) {
 			/* "N>&-" means "close me" */
 			if (!closed) {
@@ -8650,13 +8688,16 @@ static int setup_redirects(struct command *prog, struct squirrel **sqp)
 			 * and second redirect closes 3! Restore code then closes 3 again.
 			 */
 		} else {
-			/* if newfd is a script fd or saved fd, simulate EBADF */
+			/* if newfd is a script fd or saved fd, do not allow to use it */
 			if (internally_opened_fd(newfd, sqp && sqp != ERR_PTR ? *sqp : NULL)) {
-				//errno = EBADF;
-				//bb_perror_msg_and_die("can't duplicate file descriptor");
-				newfd = -1; /* same effect as code above */
+				bb_error_msg("fd#%d is not open", newfd);
+				return 1;
 			}
-			xdup2(newfd, redir->rd_fd);
+			if (dup2(newfd, redir->rd_fd) < 0) {
+				/* "echo >&99" testcase */
+				bb_perror_msg("dup2(%d,%d)", newfd, redir->rd_fd);
+				return 1;
+			}
 			if (redir->rd_dup == REDIRFD_TO_FILE)
 				/* "rd_fd > FILE" */
 				close(newfd);
@@ -9731,6 +9772,7 @@ static int checkjobs_and_fg_shell(struct pipe *fg_pipe)
 	return rcode;
 }
 #endif
+#endif /* !__U_BOOT__ */
 
 /* Start all the jobs, but don't wait for anything to finish.
  * See checkjobs().
@@ -9758,6 +9800,38 @@ static int checkjobs_and_fg_shell(struct pipe *fg_pipe)
  * backgrounded: cmd &     { list } &
  * subshell:     ( list ) [&]
  */
+static void set_G_ifs(void)
+{
+	/* Testcase: set -- q w e; (IFS='' echo "$*"; IFS=''; echo "$*"); echo "$*"
+	 * Result should be 3 lines: q w e, qwe, q w e
+	 */
+	if (G.ifs_whitespace != G.ifs)
+		free(G.ifs_whitespace);
+	G.ifs = get_local_var_value("IFS");
+	if (G.ifs) {
+		char *p;
+		G.ifs_whitespace = (char*)G.ifs;
+		p = skip_whitespace(G.ifs);
+		if (*p) {
+			/* Not all $IFS is whitespace */
+			char *d;
+			int len = p - G.ifs;
+			p = skip_non_whitespace(p);
+			G.ifs_whitespace = xmalloc(len + strlen(p) + 1); /* can overestimate */
+			d = mempcpy(G.ifs_whitespace, G.ifs, len);
+			while (*p) {
+				if (isspace(*p))
+					*d++ = *p;
+				p++;
+			}
+			*d = '\0';
+		}
+	} else {
+		G.ifs = defifs;
+		G.ifs_whitespace = (char*)G.ifs;
+	}
+}
+#ifndef __U_BOOT__
 #if !ENABLE_HUSH_MODE_X
 #define redirect_and_varexp_helper(command, sqp, argv_expanded) \
 	redirect_and_varexp_helper(command, sqp)
@@ -9810,34 +9884,7 @@ static NOINLINE int run_pipe(struct pipe *pi)
 	debug_printf_exec("run_pipe start: members:%d\n", pi->num_cmds);
 	debug_enter();
 
-	/* Testcase: set -- q w e; (IFS='' echo "$*"; IFS=''; echo "$*"); echo "$*"
-	 * Result should be 3 lines: q w e, qwe, q w e
-	 */
-	if (G.ifs_whitespace != G.ifs)
-		free(G.ifs_whitespace);
-	G.ifs = get_local_var_value("IFS");
-	if (G.ifs) {
-		char *p;
-		G.ifs_whitespace = (char*)G.ifs;
-		p = skip_whitespace(G.ifs);
-		if (*p) {
-			/* Not all $IFS is whitespace */
-			char *d;
-			int len = p - G.ifs;
-			p = skip_non_whitespace(p);
-			G.ifs_whitespace = xmalloc(len + strlen(p) + 1); /* can overestimate */
-			d = mempcpy(G.ifs_whitespace, G.ifs, len);
-			while (*p) {
-				if (isspace(*p))
-					*d++ = *p;
-				p++;
-			}
-			*d = '\0';
-		}
-	} else {
-		G.ifs = defifs;
-		G.ifs_whitespace = (char*)G.ifs;
-	}
+	set_G_ifs();
 
 #ifndef __U_BOOT__
 	IF_HUSH_JOB(pi->pgrp = -1;)
@@ -10361,6 +10408,8 @@ static int run_list(struct pipe *pi)
 	debug_printf_exec("run_list lvl %d start\n", G.run_list_level);
 	debug_enter();
 #endif /* !__U_BOOT__ */
+
+	set_G_ifs();
 
 #if ENABLE_HUSH_LOOPS
 	/* Check syntax for "for" */
@@ -11377,7 +11426,7 @@ int hush_main(int argc, char **argv)
 		G_interactive_fd = dup_CLOEXEC(STDIN_FILENO, 254);
 		if (G_interactive_fd < 0) {
 			/* try to dup to any fd */
-			G_interactive_fd = dup(STDIN_FILENO);
+			G_interactive_fd = dup_CLOEXEC(STDIN_FILENO, -1);
 			if (G_interactive_fd < 0) {
 				/* give up */
 				G_interactive_fd = 0;
@@ -11387,8 +11436,6 @@ int hush_main(int argc, char **argv)
 	}
 	debug_printf("interactive_fd:%d\n", G_interactive_fd);
 	if (G_interactive_fd) {
-		close_on_exec_on(G_interactive_fd);
-
 		if (G_saved_tty_pgrp) {
 			/* If we were run as 'hush &', sleep until we are
 			 * in the foreground (tty pgrp == our pgrp).
@@ -11462,9 +11509,6 @@ int hush_main(int argc, char **argv)
 				/* give up */
 				G_interactive_fd = 0;
 		}
-	}
-	if (G_interactive_fd) {
-		close_on_exec_on(G_interactive_fd);
 	}
 	install_special_sighandlers();
 #else

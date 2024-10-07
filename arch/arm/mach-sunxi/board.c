@@ -399,7 +399,7 @@ static bool sunxi_valid_emmc_boot(struct mmc *mmc)
 		return false;
 
 	/* Partition 0 is the user data partition, bootpart must be 1 or 2. */
-	if (bootpart != 1 && bootpart != 2)
+	if (bootpart != EMMC_BOOT_PART_BOOT1 && bootpart != EMMC_BOOT_PART_BOOT2)
 		return false;
 
 	/* Failure to switch to the boot partition is fatal. */

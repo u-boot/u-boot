@@ -53,5 +53,4 @@ static int dm_test_mdio(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_mdio, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_mdio, UTF_SCAN_FDT);

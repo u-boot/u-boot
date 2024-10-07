@@ -49,7 +49,7 @@ static void dma_init_video_descriptor(struct udevice *dev)
 			     DPDMA_DESCRIPTOR_ADDR_EXT_SRC_ADDR_EXT_SHIFT) |
 			     (upper_32_bits((u64)&cur_desc)));
 	cur_desc.next_desr = lower_32_bits((u64)&cur_desc);
-	cur_desc.src_addr = lower_32_bits((u64)gd->fb_base);
+	cur_desc.src_addr = lower_32_bits((u64)video_get_fb());
 }
 
 static void dma_set_descriptor_address(struct udevice *dev)
@@ -2134,7 +2134,6 @@ static int zynqmp_dpsub_probe(struct udevice *dev)
 	dev_dbg(dev, "BPP in bits %d, bpix %d\n",
 		priv->non_live_graphics->bpp, uc_priv->bpix);
 
-	uc_priv->fb = (void *)gd->fb_base;
 	uc_priv->xsize = vidc_video_timing_modes[priv->video_mode].video_timing.h_active;
 	uc_priv->ysize = vidc_video_timing_modes[priv->video_mode].video_timing.v_active;
 	/* Calculated by core but need it for my own setup */

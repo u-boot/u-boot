@@ -56,7 +56,7 @@ static int dm_test_tpm(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_tpm, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_tpm, UTF_SCAN_FDT);
 
 /* Test report_state */
 static int dm_test_tpm_report_state(struct unit_test_state *uts)
@@ -77,7 +77,7 @@ static int dm_test_tpm_report_state(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_tpm_report_state, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_tpm_report_state, UTF_SCAN_FDT);
 
 /**
  * test_tpm_autostart() - check the tpm_auto_start() call
@@ -114,7 +114,7 @@ static int dm_test_tpm_autostart(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_tpm_autostart, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_tpm_autostart, UTF_SCAN_FDT);
 
 static int dm_test_tpm_autostart_reinit(struct unit_test_state *uts)
 {
@@ -123,4 +123,4 @@ static int dm_test_tpm_autostart_reinit(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_tpm_autostart_reinit, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_tpm_autostart_reinit, UTF_SCAN_FDT);

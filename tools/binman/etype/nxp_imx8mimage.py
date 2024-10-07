@@ -27,7 +27,8 @@ class Entry_nxp_imx8mimage(Entry_mkimage):
 
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
-        self.required_props = ['nxp,boot-from', 'nxp,rom-version', 'nxp,loader-address']
+        self.required_props = ['nxp,boot-from', 'nxp,rom-version',
+                               'nxp,loader-address']
 
     def ReadNode(self):
         super().ReadNode()

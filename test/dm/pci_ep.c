@@ -59,5 +59,4 @@ static int dm_test_pci_ep_base(struct unit_test_state *uts)
 	ut_asserteq(sandbox_get_pci_ep_irq_count(bus), 10);
 	return 0;
 }
-
-DM_TEST(dm_test_pci_ep_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pci_ep_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);

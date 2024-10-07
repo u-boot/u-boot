@@ -180,14 +180,12 @@ static int print_display_buffer(struct unit_test_state *uts)
 		buf[i] = i * 0x11;
 
 	/* bytes */
-	console_record_reset();
 	print_buffer(0, buf, 1, 0x12, 0);
 	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 10 00                                            ..");
 	ut_assert_console_end();
 
 	/* line length */
-	console_record_reset();
 	print_buffer(0, buf, 1, 0x12, 8);
 	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77  ..\"3DUfw");
 	ut_assert_nextline("00000008: 88 99 aa bb cc dd ee ff  ........");
@@ -195,7 +193,6 @@ static int print_display_buffer(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* long line */
-	console_record_reset();
 	buf[0x41] = 0x41;
 	print_buffer(0, buf, 1, 0x42, 0x40);
 	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ..\"3DUfw........................................................");
@@ -203,35 +200,30 @@ static int print_display_buffer(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* address */
-	console_record_reset();
 	print_buffer(0x12345678, buf, 1, 0x12, 0);
 	ut_assert_nextline("12345678: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
 	ut_assert_nextline("12345688: 10 00                                            ..");
 	ut_assert_console_end();
 
 	/* 16-bit */
-	console_record_reset();
 	print_buffer(0, buf, 2, 9, 0);
 	ut_assert_nextline("00000000: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 0010                                     ..");
 	ut_assert_console_end();
 
 	/* 32-bit */
-	console_record_reset();
 	print_buffer(0, buf, 4, 5, 0);
 	ut_assert_nextline("00000000: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 00000010                             ....");
 	ut_assert_console_end();
 
 	/* 64-bit */
-	console_record_reset();
 	print_buffer(0, buf, 8, 3, 0);
 	ut_assert_nextline("00000000: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........");
 	ut_assert_nextline("00000010: 0000000000000010                   ........");
 	ut_assert_console_end();
 
 	/* ASCII */
-	console_record_reset();
 	buf[1] = 31;
 	buf[2] = 32;
 	buf[3] = 33;
@@ -246,7 +238,7 @@ static int print_display_buffer(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_display_buffer, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_display_buffer, UTF_CONSOLE);
 
 static int print_hexdump_line(struct unit_test_state *uts)
 {
@@ -272,7 +264,7 @@ static int print_hexdump_line(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_hexdump_line, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_hexdump_line, UTF_CONSOLE);
 
 static int print_do_hex_dump(struct unit_test_state *uts)
 {
@@ -289,7 +281,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 		buf[i] = i * 0x11;
 
 	/* bytes */
-	console_record_reset();
 	print_hex_dump_bytes("", DUMP_PREFIX_ADDRESS, buf, 0x12);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, 0x0UL);
@@ -298,7 +289,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* line length */
-	console_record_reset();
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 8, 1, buf, 0x12, true);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77  ..\"3DUfw",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, 0x0UL);
@@ -310,7 +300,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	unmap_sysmem(buf);
 
 	/* long line */
-	console_record_reset();
 	buf[0x41] = 0x41;
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0x40, 1, buf, 0x42, true);
 	ut_assert_nextline("%0*lx: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ..\"3DUfw........................................................",
@@ -320,7 +309,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	ut_assert_console_end();
 
 	/* 16-bit */
-	console_record_reset();
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 2, buf, 0x12, true);
 	ut_assert_nextline("%0*lx: 1100 3322 5544 7766 9988 bbaa ddcc ffee  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, 0x0UL);
@@ -330,7 +318,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	unmap_sysmem(buf);
 
 	/* 32-bit */
-	console_record_reset();
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 0, 4, buf, 0x14, true);
 	ut_assert_nextline("%0*lx: 33221100 77665544 bbaa9988 ffeeddcc  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, 0x0UL);
@@ -340,7 +327,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	unmap_sysmem(buf);
 
 	/* 64-bit */
-	console_record_reset();
 	print_hex_dump("", DUMP_PREFIX_ADDRESS, 16, 8, buf, 0x18, true);
 	ut_assert_nextline("%0*lx: 7766554433221100 ffeeddccbbaa9988  ..\"3DUfw........",
 			   IS_ENABLED(CONFIG_PHYS_64BIT) ? 16 : 8, 0x0UL);
@@ -350,7 +336,6 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 	unmap_sysmem(buf);
 
 	/* ASCII */
-	console_record_reset();
 	buf[1] = 31;
 	buf[2] = 32;
 	buf[3] = 33;
@@ -365,7 +350,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_do_hex_dump, UT_TESTF_CONSOLE_REC);
+PRINT_TEST(print_do_hex_dump, UTF_CONSOLE);
 
 static int snprint(struct unit_test_state *uts)
 {

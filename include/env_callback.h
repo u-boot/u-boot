@@ -69,6 +69,12 @@
 #define BOOTSTD_CALLBACK
 #endif
 
+#ifdef CONFIG_DFU
+#define DFU_CALLBACK "dfu_alt_info:dfu_alt_info,"
+#else
+#define DFU_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -79,6 +85,7 @@
 	NET_CALLBACKS \
 	NET6_CALLBACKS \
 	BOOTSTD_CALLBACK \
+	DFU_CALLBACK \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \

@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <usb.h>
 #include <linux/log2.h>
 #include <test/suites.h>
 #include <test/ut.h>
@@ -86,6 +87,11 @@ int bootstd_test_check_mmc_hunter(struct unit_test_state *uts)
 	ut_asserteq(BIT(seq), std->hunters_used);
 
 	return 0;
+}
+
+void bootstd_reset_usb(void)
+{
+	usb_started = false;
 }
 
 int do_ut_bootstd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

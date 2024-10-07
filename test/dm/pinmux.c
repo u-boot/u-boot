@@ -68,8 +68,7 @@ static int dm_test_pinmux(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_pinmux, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pinmux, UTF_SCAN_FDT);
 
 static int dm_test_pinctrl_single(struct unit_test_state *uts)
 {
@@ -143,5 +142,4 @@ static int dm_test_pinctrl_single(struct unit_test_state *uts)
 	ut_asserteq(-EINVAL, ret);
 	return 0;
 }
-
-DM_TEST(dm_test_pinctrl_single, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_pinctrl_single, UTF_SCAN_FDT);

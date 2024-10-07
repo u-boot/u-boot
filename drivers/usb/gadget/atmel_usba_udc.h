@@ -211,6 +211,9 @@
 #define EP0_EPT_SIZE		USBA_EPT_SIZE_64
 #define EP0_NR_BANKS		1
 
+#define FIFO_IOMEM_ID	0
+#define CTRL_IOMEM_ID	1
+
 #define DBG_ERR		0x0001	/* report all error returns */
 #define DBG_HW		0x0002	/* debug hardware initialization */
 #define DBG_GADGET	0x0004	/* calls to/from gadget driver */

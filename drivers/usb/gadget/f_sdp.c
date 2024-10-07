@@ -842,9 +842,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 				struct spl_load_info load;
 
 				debug("Found FIT\n");
-				load.priv = header;
-				spl_set_bl_len(&load, 1);
-				load.read = sdp_load_read;
+				spl_load_init(&load, sdp_load_read, header, 1);
 				spl_load_simple_fit(spl_image, &load, 0,
 						    header);
 
@@ -855,9 +853,7 @@ static int sdp_handle_in_ep(struct spl_image_info *spl_image,
 			    valid_container_hdr((void *)header)) {
 				struct spl_load_info load;
 
-				load.priv = header;
-				spl_set_bl_len(&load, 1);
-				load.read = sdp_load_read;
+				spl_load_init(&load, sdp_load_read, header, 1);
 				spl_load_imx_container(spl_image, &load, 0);
 				return SDP_EXIT;
 			}

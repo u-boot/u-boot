@@ -47,7 +47,6 @@
 #endif
 
 /* RTC */
-#define CFG_SYS_RTC_BUS_NUM         1
 #define I2C_MUX_CH_RTC                 0xB
 
 /* Store environment at top of flash */

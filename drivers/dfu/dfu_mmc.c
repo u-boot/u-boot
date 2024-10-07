@@ -232,7 +232,8 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 		break;
 	case DFU_SCRIPT:
 		/* script may have changed the dfu_alt_info */
-		dfu_reinit_needed = true;
+		if (dfu_alt_info_changed)
+			dfu_reinit_needed = true;
 		break;
 	case DFU_RAW_ADDR:
 	case DFU_SKIP:

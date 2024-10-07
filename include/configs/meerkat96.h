@@ -23,7 +23,4 @@
 
 /* Environment configs */
 
-/* USB configs */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #endif

@@ -112,8 +112,6 @@ int dh_setup_mac_address(void)
 
 int board_init(void)
 {
-	regulators_enable_boot_on(_DEBUG);
-
 	return 0;
 }
 

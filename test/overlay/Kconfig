@@ -1,6 +1,6 @@
 config UT_OVERLAY
 	bool "Enable Device Tree Overlays Unit Tests"
-	depends on UNIT_TEST && OF_CONTROL
+	depends on UNIT_TEST && OF_CONTROL && SANDBOX
 	default y
 	select OF_LIBFDT_OVERLAY
 	help

@@ -28,6 +28,31 @@ enum {
 	IMAGE_ACCEPT_CLEAR,
 };
 
+/**
+ * fwu_bank_accepted() - Has the bank been accepted
+ * @data: Version agnostic FWU metadata information
+ * @bank: Update bank to check
+ *
+ * Check in the given bank if all the images have been accepted.
+ *
+ * Return: true if all images accepted, false otherwise
+ */
+bool fwu_bank_accepted(struct fwu_data *data, uint32_t bank)
+{
+	u32 i;
+	struct fwu_image_entry *img_entry;
+	struct fwu_image_bank_info *img_bank_info;
+
+	img_entry = &data->fwu_images[0];
+	for (i = 0; i < CONFIG_FWU_NUM_IMAGES_PER_BANK; i++) {
+		img_bank_info = &img_entry[i].img_bank_info[bank];
+		if (!img_bank_info->accepted)
+			return false;
+	}
+
+	return true;
+}
+
 static int trial_counter_update(u16 *trial_state_ctr)
 {
 	bool delete;
@@ -88,6 +113,8 @@ static int fwu_trial_count_update(void)
 		ret = fwu_revert_boot_index();
 		if (ret)
 			log_err("Unable to revert active_index\n");
+
+		trial_counter_update(NULL);
 		ret = 1;
 	} else {
 		log_info("Trial State count: attempt %d out of %d\n",
@@ -737,8 +764,8 @@ static int fwu_boottime_checks(void)
 		return 0;
 
 	in_trial = in_trial_state();
-	if (!in_trial || (ret = fwu_trial_count_update()) > 0)
-		ret = trial_counter_update(NULL);
+
+	ret = in_trial ? fwu_trial_count_update() : trial_counter_update(NULL);
 
 	if (!ret)
 		boottime_check = 1;

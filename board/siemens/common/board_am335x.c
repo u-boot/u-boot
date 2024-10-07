@@ -36,7 +36,7 @@ void set_mux_conf_regs(void)
 	/* enable early the console */
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 	siemens_ee_setup();
 	if (draco_read_eeprom() < 0)

@@ -395,6 +395,7 @@ int bootdev_next_prio(struct bootflow_iter *iter, struct udevice **devp);
  */
 int bootdev_setup_for_dev(struct udevice *parent, const char *drv_name);
 
+#if CONFIG_IS_ENABLED(BOOTSTD)
 /**
  * bootdev_setup_for_sibling_blk() - Bind a new bootdev device for a blk device
  *
@@ -409,6 +410,13 @@ int bootdev_setup_for_dev(struct udevice *parent, const char *drv_name);
  * Return: 0 if OK, -ve on error
  */
 int bootdev_setup_for_sibling_blk(struct udevice *blk, const char *drv_name);
+#else
+static int bootdev_setup_for_sibling_blk(struct udevice *blk,
+					 const char *drv_name)
+{
+	return 0;
+}
+#endif
 
 /**
  * bootdev_get_sibling_blk() - Locate the block device for a bootdev

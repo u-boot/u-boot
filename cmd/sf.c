@@ -10,6 +10,7 @@
 #include <div64.h>
 #include <dm.h>
 #include <log.h>
+#include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <spi.h>
@@ -316,6 +317,13 @@ static int do_spi_flash_read_write(int argc, char *const argv[])
 	} else if (strncmp(argv[0], "read", 4) == 0 ||
 			strncmp(argv[0], "write", 5) == 0) {
 		int read;
+
+		if (CONFIG_IS_ENABLED(LMB)) {
+			if (lmb_read_check(addr, len)) {
+				printf("ERROR: trying to overwrite reserved memory...\n");
+				return CMD_RET_FAILURE;
+			}
+		}
 
 		read = strncmp(argv[0], "read", 4) == 0;
 		if (read)

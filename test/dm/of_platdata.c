@@ -20,7 +20,7 @@ static int dm_test_of_plat_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_base, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_base, UTF_SCAN_PDATA);
 
 /* Test that we can read properties from a device */
 static int dm_test_of_plat_props(struct unit_test_state *uts)
@@ -91,7 +91,7 @@ static int dm_test_of_plat_props(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_props, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_props, UTF_SCAN_PDATA);
 
 /*
  * find_driver_info - recursively find the driver_info for a device
@@ -173,7 +173,7 @@ static int dm_test_of_plat_dev(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_dev, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_dev, UTF_SCAN_PDATA);
 
 /* Test handling of phandles that point to other devices */
 static int dm_test_of_plat_phandle(struct unit_test_state *uts)
@@ -206,7 +206,7 @@ static int dm_test_of_plat_phandle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_phandle, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_phandle, UTF_SCAN_PDATA);
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA_PARENT)
 /* Test that device parents are correctly set up */
@@ -220,7 +220,7 @@ static int dm_test_of_plat_parent(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_parent, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_parent, UTF_SCAN_PDATA);
 #endif
 
 /* Test clocks with of-platdata */
@@ -239,7 +239,7 @@ static int dm_test_of_plat_clk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_clk, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_clk, UTF_SCAN_PDATA);
 
 /* Test irqs with of-platdata */
 static int dm_test_of_plat_irq(struct unit_test_state *uts)
@@ -258,7 +258,7 @@ static int dm_test_of_plat_irq(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_irq, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_irq, UTF_SCAN_PDATA);
 
 /* Test GPIOs with of-platdata */
 static int dm_test_of_plat_gpio(struct unit_test_state *uts)
@@ -277,4 +277,4 @@ static int dm_test_of_plat_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_of_plat_gpio, UT_TESTF_SCAN_PDATA);
+DM_TEST(dm_test_of_plat_gpio, UTF_SCAN_PDATA);

@@ -366,8 +366,8 @@ unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long 
 {
 	if (!IS_SD(mmc)) {
 		switch (EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)) {
-		case 1:
-		case 2:
+		case EMMC_BOOT_PART_BOOT1:
+		case EMMC_BOOT_PART_BOOT2:
 			if (IS_ENABLED(CONFIG_IMX8MN) || IS_ENABLED(CONFIG_IMX8MP))
 				raw_sect -= 32 * 2;
 			break;
@@ -379,16 +379,24 @@ unsigned long board_spl_mmc_get_uboot_raw_sector(struct mmc *mmc, unsigned long 
 
 const char *spl_board_loader_name(u32 boot_device)
 {
+	static char name[16];
+	struct mmc *mmc;
+
 	switch (boot_device) {
 	/* SDHC2 */
 	case BOOT_DEVICE_MMC1:
-		return "eMMC";
+		mmc_init_device(0);
+		mmc = find_mmc_device(0);
+		mmc_init(mmc);
+		snprintf(name, sizeof(name), "eMMC %s", emmc_hwpart_names[EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config)]);
+		return name;
 	/* SDHC3 */
 	case BOOT_DEVICE_MMC2:
-		return "SD card";
-	default:
-		return NULL;
+		sprintf(name, "SD card");
+		return name;
 	}
+
+	return NULL;
 }
 
 void spl_board_init(void)

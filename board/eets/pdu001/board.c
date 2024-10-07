@@ -56,10 +56,10 @@ DECLARE_GLOBAL_DATA_PTR;
  *  boot device save register
  * -------------------------
  * The boot device can be quired by 'spl_boot_device()' in
- * 'am33xx_spl_board_init'. However it can't be saved in the u-boot
+ * 'spl_board_init'. However it can't be saved in the u-boot
  * environment here. In turn 'spl_boot_device' can't be called in
  * 'board_late_init' which allows writing to u-boot environment.
- * To get the boot device from 'am33xx_spl_board_init' to
+ * To get the boot device from 'spl_board_init' to
  * 'board_late_init' we therefore use a scratch register from the RTC.
  */
 #define CFG_SYS_RTC_SCRATCH0 0x60
@@ -192,7 +192,7 @@ const struct dpll_params dpll_ddr_evm_sk = {
 const struct dpll_params dpll_ddr_bone_black = {
 		400, OSC - 1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 

@@ -5,7 +5,7 @@
 #include <linux/compiler.h>
 
 /**
- * These two symbols are declared in a C file so that the linker
+ * These symbols are declared in a C file so that the linker
  * uses R_ARM_RELATIVE relocation, rather than the R_ARM_ABS32 one
  * it would use if the symbols were defined in the linker file.
  * Using only R_ARM_RELATIVE relocation ensures that references to

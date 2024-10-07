@@ -80,7 +80,7 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	chilisom_spl_board_init();
 }

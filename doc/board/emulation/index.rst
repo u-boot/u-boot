@@ -13,5 +13,6 @@ Emulation
    qemu-mips
    qemu-ppce500
    qemu-riscv
+   qemu-sbsa
    qemu-x86
    qemu-xtensa

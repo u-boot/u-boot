@@ -36,6 +36,16 @@ main: /usr/sbin
 x86: i386 x86_64
 '''
 
+settings_data_wrapper = '''
+# Buildman settings file
+
+[toolchain]
+main: /usr/sbin
+
+[toolchain-wrapper]
+wrapper = ccache
+'''
+
 migration = '''===================== WARNING ======================
 This board does not use CONFIG_DM. CONFIG_DM will be
 compulsory starting with the v2020.01 release.
@@ -148,6 +158,7 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('arm-linux-gcc', test=False)
         self.toolchains.Add('sparc-linux-gcc', test=False)
         self.toolchains.Add('powerpc-linux-gcc', test=False)
+        self.toolchains.Add('/path/to/aarch64-linux-gcc', test=False)
         self.toolchains.Add('gcc', test=False)
 
         # Avoid sending any output
@@ -605,6 +616,9 @@ class TestBuild(unittest.TestCase):
                          tc.GetEnvArgs(toolchain.VAR_ARCH))
         self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
 
+        tc = self.toolchains.Select('sandbox')
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
         self.toolchains.Add('/path/to/x86_64-linux-gcc', test=False)
         tc = self.toolchains.Select('x86')
         self.assertEqual('/path/to',
@@ -612,6 +626,39 @@ class TestBuild(unittest.TestCase):
         tc.override_toolchain = 'clang'
         self.assertEqual('HOSTCC=clang CC=clang',
                          tc.GetEnvArgs(toolchain.VAR_MAKE_ARGS))
+
+        # Test config with ccache wrapper
+        bsettings.setup(None)
+        bsettings.add_file(settings_data_wrapper)
+
+        tc = self.toolchains.Select('arm')
+        self.assertEqual('ccache arm-linux-',
+                         tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
+        tc = self.toolchains.Select('sandbox')
+        self.assertEqual('', tc.GetEnvArgs(toolchain.VAR_CROSS_COMPILE))
+
+    def testMakeEnvironment(self):
+        """Test the MakeEnvironment function"""
+        tc = self.toolchains.Select('arm')
+        env = tc.MakeEnvironment(False)
+        self.assertEqual(env[b'CROSS_COMPILE'], b'arm-linux-')
+
+        tc = self.toolchains.Select('sandbox')
+        env = tc.MakeEnvironment(False)
+        self.assertTrue(b'CROSS_COMPILE' not in env)
+
+        # Test config with ccache wrapper
+        bsettings.setup(None)
+        bsettings.add_file(settings_data_wrapper)
+
+        tc = self.toolchains.Select('arm')
+        env = tc.MakeEnvironment(False)
+        self.assertEqual(env[b'CROSS_COMPILE'], b'ccache arm-linux-')
+
+        tc = self.toolchains.Select('sandbox')
+        env = tc.MakeEnvironment(False)
+        self.assertTrue(b'CROSS_COMPILE' not in env)
 
     def testPrepareOutputSpace(self):
         def _Touch(fname):
@@ -779,6 +826,7 @@ class TestBuild(unittest.TestCase):
         tmpdir = self.base_dir
 
         with (patch('time.time', side_effect=self.get_time),
+              patch('time.monotonic', side_effect=self.get_time),
               patch('time.sleep', side_effect=self.inc_time),
               patch('os.kill', side_effect=self.kill)):
             # Grab the process. Since there is no other profcess, this should
@@ -867,6 +915,120 @@ class TestBuild(unittest.TestCase):
             self.assertEqual('starting build', lines[2].text)
             self.assertEqual([4, 5], control.read_procs(tmpdir))
             self.assertEqual(self.finish_time, self.cur_time)
+
+    def call_make_environment(self, tchn, full_path, in_env=None):
+        """Call Toolchain.MakeEnvironment() and process the result
+
+        Args:
+            tchn (Toolchain): Toolchain to use
+            full_path (bool): True to return the full path in CROSS_COMPILE
+                rather than adding it to the PATH variable
+            in_env (dict): Input environment to use, None to use current env
+
+        Returns:
+            tuple:
+                dict: Changes that MakeEnvironment has made to the environment
+                    key: Environment variable that was changed
+                    value: New value (for PATH this only includes components
+                        which were added)
+                str: Full value of the new PATH variable
+        """
+        env = tchn.MakeEnvironment(full_path, env=in_env)
+
+        # Get the original environment
+        orig_env = dict(os.environb if in_env is None else in_env)
+        orig_path = orig_env[b'PATH'].split(b':')
+
+        # Find new variables
+        diff = dict((k, env[k]) for k in env if orig_env.get(k) != env[k])
+
+        # Find new / different path components
+        diff_path = None
+        new_path = None
+        if b'PATH' in diff:
+            new_path = diff[b'PATH'].split(b':')
+            diff_paths = [p for p in new_path if p not in orig_path]
+            diff_path = b':'.join(p for p in new_path if p not in orig_path)
+            if diff_path:
+                diff[b'PATH'] = diff_path
+            else:
+                del diff[b'PATH']
+        return diff, new_path
+
+    def test_toolchain_env(self):
+        """Test PATH and other environment settings for toolchains"""
+        # Use a toolchain which has a path, so that full_path makes a difference
+        tchn = self.toolchains.Select('aarch64')
+
+        # Normal cases
+        diff = self.call_make_environment(tchn, full_path=False)[0]
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'aarch64-linux-', b'LC_ALL': b'C',
+             b'PATH': b'/path/to'}, diff)
+
+        diff = self.call_make_environment(tchn, full_path=True)[0]
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'/path/to/aarch64-linux-', b'LC_ALL': b'C'},
+            diff)
+
+        # When overriding the toolchain, only LC_ALL should be set
+        tchn.override_toolchain = True
+        diff = self.call_make_environment(tchn, full_path=True)[0]
+        self.assertEqual({b'LC_ALL': b'C'}, diff)
+
+        # Test that virtualenv is handled correctly
+        tchn.override_toolchain = False
+        sys.prefix = '/some/venv'
+        env = dict(os.environb)
+        env[b'PATH'] = b'/some/venv/bin:other/things'
+        tchn.path = '/my/path'
+        diff, diff_path = self.call_make_environment(tchn, False, env)
+
+        self.assertIn(b'PATH', diff)
+        self.assertEqual([b'/some/venv/bin', b'/my/path', b'other/things'],
+                         diff_path)
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'aarch64-linux-', b'LC_ALL': b'C',
+             b'PATH': b'/my/path'}, diff)
+
+        # Handle a toolchain wrapper
+        tchn.path = ''
+        bsettings.add_section('toolchain-wrapper')
+        bsettings.set_item('toolchain-wrapper', 'my-wrapper', 'fred')
+        diff = self.call_make_environment(tchn, full_path=True)[0]
+        self.assertEqual(
+            {b'CROSS_COMPILE': b'fred aarch64-linux-', b'LC_ALL': b'C'}, diff)
+
+    def test_skip_dtc(self):
+        """Test skipping building the dtc tool"""
+        old_path = os.getenv('PATH')
+        try:
+            os.environ['PATH'] = self.base_dir
+
+            # Check a missing tool
+            with self.assertRaises(ValueError) as exc:
+                builder.Builder(self.toolchains, self.base_dir, None, 0, 2,
+                                dtc_skip=True)
+            self.assertIn('Cannot find dtc', str(exc.exception))
+
+            # Create a fake tool to use
+            dtc = os.path.join(self.base_dir, 'dtc')
+            tools.write_file(dtc, b'xx')
+            os.chmod(dtc, 0o777)
+
+            build = builder.Builder(self.toolchains, self.base_dir, None, 0, 2,
+                                    dtc_skip=True)
+            toolchain = self.toolchains.Select('arm')
+            env = build.make_environment(toolchain)
+            self.assertIn(b'DTC', env)
+
+            # Try the normal case, i.e. not skipping the dtc build
+            build = builder.Builder(self.toolchains, self.base_dir, None, 0, 2)
+            toolchain = self.toolchains.Select('arm')
+            env = build.make_environment(toolchain)
+            self.assertNotIn(b'DTC', env)
+        finally:
+            os.environ['PATH'] = old_path
 
 
 if __name__ == "__main__":

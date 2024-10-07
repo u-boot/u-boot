@@ -17,7 +17,7 @@
 
 #include "regulator_common.h"
 
-struct fixed_clock_regulator_plat {
+struct fixed_clock_regulator_priv {
 	struct clk *enable_clock;
 	unsigned int clk_enable_counter;
 };
@@ -83,14 +83,14 @@ static int fixed_regulator_set_enable(struct udevice *dev, bool enable)
 
 static int fixed_clock_regulator_get_enable(struct udevice *dev)
 {
-	struct fixed_clock_regulator_plat *priv = dev_get_priv(dev);
+	struct fixed_clock_regulator_priv *priv = dev_get_priv(dev);
 
 	return priv->clk_enable_counter > 0;
 }
 
 static int fixed_clock_regulator_set_enable(struct udevice *dev, bool enable)
 {
-	struct fixed_clock_regulator_plat *priv = dev_get_priv(dev);
+	struct fixed_clock_regulator_priv *priv = dev_get_priv(dev);
 	struct regulator_common_plat *plat = dev_get_plat(dev);
 	int ret = 0;
 
@@ -111,6 +111,17 @@ static int fixed_clock_regulator_set_enable(struct udevice *dev, bool enable)
 		udelay(plat->off_on_delay_us);
 
 	return ret;
+}
+
+static int fixed_clock_regulator_probe(struct udevice *dev)
+{
+	struct fixed_clock_regulator_priv *priv = dev_get_priv(dev);
+
+	priv->enable_clock = devm_clk_get(dev, NULL);
+	if (IS_ERR(priv->enable_clock))
+		return PTR_ERR(priv->enable_clock);
+
+	return 0;
 }
 
 static const struct dm_regulator_ops fixed_regulator_ops = {
@@ -149,6 +160,8 @@ U_BOOT_DRIVER(regulator_fixed_clock) = {
 	.id = UCLASS_REGULATOR,
 	.ops = &fixed_clock_regulator_ops,
 	.of_match = fixed_clock_regulator_ids,
+	.probe = fixed_clock_regulator_probe,
 	.of_to_plat = fixed_regulator_of_to_plat,
-	.plat_auto = sizeof(struct fixed_clock_regulator_plat),
+	.plat_auto = sizeof(struct regulator_common_plat),
+	.priv_auto = sizeof(struct fixed_clock_regulator_priv),
 };

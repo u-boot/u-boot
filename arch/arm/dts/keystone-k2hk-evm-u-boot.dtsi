@@ -4,9 +4,19 @@
  */
 
 /{
-	soc {
-		bootph-all;
+	aliases {
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
 	};
+
+	chosen {
+		stdout-path = &uart0;
+	};
+};
+
+&soc0 {
+	bootph-all;
 };
 
 &i2c1 {
@@ -18,11 +28,9 @@
 	psc-domain = <2>;
 };
 
-&usb {
-	dwc3@2690000 {
-		phys = <&usb_phy>;
-		dr_mode = "host";
-		snps,u2ss_inp3_quirk;
-		status = "okay";
-	};
+&usb0 {
+	phys = <&usb_phy>;
+	dr_mode = "host";
+	snps,u2ss_inp3_quirk;
+	status = "okay";
 };

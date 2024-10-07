@@ -28,7 +28,7 @@
 		bootph-all;
 	};
 
-	amba: amba {
+	amba: axi {
 		bootph-all;
 		compatible = "simple-bus";
 		#address-cells = <0x2>;

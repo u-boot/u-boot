@@ -31,6 +31,5 @@
 #define CFG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CFG_SYS_INIT_RAM_SIZE       IRAM_SIZE
 
-#define CFG_MXC_USB_PORTSC	PORT_PTS_UTMI
 
 #endif	       /* __CONFIG_H */

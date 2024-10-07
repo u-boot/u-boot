@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2020, 2023 NXP
+ * Copyright 2024 Mathieu Othacehe <othacehe@gnu.org>
  *
  */
 
 #include <hang.h>
 #include <malloc.h>
+#include <memalign.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <asm/mach-imx/ele_api.h>
@@ -523,6 +525,81 @@ int ele_start_rng(void)
 	if (ret)
 		printf("Error: %s: ret %d, response 0x%x\n",
 		       __func__, ret, msg.data[0]);
+
+	return ret;
+}
+
+int ele_derive_huk(u8 *key, size_t key_size, u8 *seed, size_t seed_size)
+{
+	struct udevice *dev = gd->arch.ele_dev;
+	struct ele_msg msg;
+	int msg_size = sizeof(struct ele_msg);
+	u8 *seed_aligned, *key_aligned;
+	int ret, size;
+
+	if (!dev) {
+		printf("ele dev is not initialized\n");
+		return -ENODEV;
+	}
+
+	if (key_size != 16 && key_size != 32) {
+		printf("key size can only be 16 or 32\n");
+		return -EINVAL;
+	}
+
+	if (seed_size >= (1U << 16) - 1) {
+		printf("seed size is too large\n");
+		return -EINVAL;
+	}
+
+	seed_aligned = memalign(ARCH_DMA_MINALIGN, seed_size);
+	if (!seed_aligned) {
+		printf("failed to alloc memory\n");
+		return -EINVAL;
+	}
+	memcpy(seed_aligned, seed, seed_size);
+
+	key_aligned = memalign(ARCH_DMA_MINALIGN, key_size);
+	if (!key_aligned) {
+		printf("failed to alloc memory\n");
+		ret = -EINVAL;
+		goto ret_seed;
+	}
+
+	size = ALIGN(seed_size, ARCH_DMA_MINALIGN);
+	flush_dcache_range((ulong)seed_aligned,
+			   (ulong)seed_aligned + size);
+
+	size = ALIGN(key_size, ARCH_DMA_MINALIGN);
+	invalidate_dcache_range((ulong)key_aligned,
+				(ulong)key_aligned + size);
+
+	msg.version = ELE_VERSION;
+	msg.tag = ELE_CMD_TAG;
+	msg.size = 7;
+	msg.command = ELE_CMD_DERIVE_KEY;
+	msg.data[0] = upper_32_bits((ulong)key_aligned);
+	msg.data[1] = lower_32_bits((ulong)key_aligned);
+	msg.data[2] = upper_32_bits((ulong)seed_aligned);
+	msg.data[3] = lower_32_bits((ulong)seed_aligned);
+	msg.data[4] = seed_size << 16 | key_size;
+	msg.data[5] = compute_crc(&msg);
+
+	ret = misc_call(dev, false, &msg, msg_size, &msg, msg_size);
+	if (ret) {
+		printf("Error: %s: ret %d, response 0x%x\n",
+		       __func__, ret, msg.data[0]);
+		goto ret_key;
+	}
+
+	invalidate_dcache_range((ulong)key_aligned,
+				(ulong)key_aligned + size);
+	memcpy(key, key_aligned, key_size);
+
+ret_key:
+	free(key_aligned);
+ret_seed:
+	free(seed_aligned);
 
 	return ret;
 }

@@ -137,6 +137,11 @@ extern int __maybe_unused net_busy_flag;
 /* The period of time between two calls of usb_kbd_testc(). */
 static unsigned long kbd_testc_tms;
 
+int usb_kbd_remove_for_test(void)
+{
+	return console_remove_by_name(DEVNAME);
+}
+
 /* Puts character in the queue and sets up the in and out pointer. */
 static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
 {
@@ -612,7 +617,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	debug("USB KBD: register.\n");
 	memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
 	strcpy(usb_kbd_dev.name, DEVNAME);
-	usb_kbd_dev.flags =  DEV_FLAGS_INPUT;
+	usb_kbd_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_DM;
 	usb_kbd_dev.getc = usb_kbd_getc;
 	usb_kbd_dev.tstc = usb_kbd_testc;
 	usb_kbd_dev.priv = (void *)dev;
@@ -642,71 +647,6 @@ static int probe_usb_keyboard(struct usb_device *dev)
 
 	return 0;
 }
-
-#if !CONFIG_IS_ENABLED(DM_USB)
-/* Search for keyboard and register it if found. */
-int drv_usb_kbd_init(void)
-{
-	int error, i;
-
-	debug("%s: Probing for keyboard\n", __func__);
-	/* Scan all USB Devices */
-	for (i = 0; i < USB_MAX_DEVICE; i++) {
-		struct usb_device *dev;
-
-		/* Get USB device. */
-		dev = usb_get_dev_index(i);
-		if (!dev)
-			break;
-
-		if (dev->devnum == -1)
-			continue;
-
-		error = probe_usb_keyboard(dev);
-		if (!error)
-			return 1;
-		if (error && error != -ENOENT)
-			return error;
-	}
-
-	/* No USB Keyboard found */
-	return -1;
-}
-
-/* Deregister the keyboard. */
-int usb_kbd_deregister(int force)
-{
-#if CONFIG_IS_ENABLED(SYS_STDIO_DEREGISTER)
-	struct stdio_dev *dev;
-	struct usb_device *usb_kbd_dev;
-	struct usb_kbd_pdata *data;
-
-	dev = stdio_get_by_name(DEVNAME);
-	if (dev) {
-		usb_kbd_dev = (struct usb_device *)dev->priv;
-		data = usb_kbd_dev->privptr;
-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
-		if (iomux_replace_device(stdin, DEVNAME, force ? "nulldev" : ""))
-			return 1;
-#endif
-		if (stdio_deregister_dev(dev, force) != 0)
-			return 1;
-#ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
-		destroy_int_queue(usb_kbd_dev, data->intq);
-#endif
-		free(data->new);
-		free(data);
-	}
-
-	return 0;
-#else
-	return 1;
-#endif
-}
-
-#endif
-
-#if CONFIG_IS_ENABLED(DM_USB)
 
 static int usb_kbd_probe(struct udevice *dev)
 {
@@ -788,5 +728,3 @@ static const struct usb_device_id kbd_id_table[] = {
 };
 
 U_BOOT_USB_DEVICE(usb_kbd, kbd_id_table);
-
-#endif

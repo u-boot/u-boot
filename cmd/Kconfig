@@ -388,6 +388,13 @@ config CMD_SEAMA
 	help
 	  Support reading NAND Seattle Image (SEAMA) images.
 
+config CMD_UPL
+	bool "upl - Universal Payload Specification"
+	help
+	  Provides commands to deal with UPL payloads and handoff information.
+	  U-Boot supports generating and accepting handoff information. The
+	  mkimage tool will eventually support creating payloads.
+
 config CMD_VBE
 	bool "vbe - Verified Boot for Embedded"
 	depends on BOOTMETH_VBE
@@ -1399,6 +1406,15 @@ config CMD_MMC_SWRITE
 	  Enable support for the "mmc swrite" command to write Android sparse
 	  images to eMMC.
 
+config MMC_SPEED_MODE_SET
+	bool "set speed mode using mmc command"
+	help
+	  Enable setting speed mode using mmc rescan and mmc dev commands.
+	  The speed mode is provided as the last argument in these commands
+	  and is indicated using the index from enum bus_mode in
+	  include/mmc.h. A speed mode can be set only if it has already
+	  been enabled in the device tree.
+
 endif
 
 config CMD_CLONE
@@ -1487,6 +1503,7 @@ config USE_ONENAND_BOARD_INIT
 
 config CMD_OSD
 	bool "osd"
+	depends on OSD
 	help
 	  Enable the 'osd' command which allows to query information from and
 	  write text data to a on-screen display (OSD) device; a virtual device
@@ -1668,9 +1685,8 @@ config CMD_ROCKUSB
 
 config CMD_USB_MASS_STORAGE
 	bool "UMS usb mass storage"
-	depends on USB_GADGET_DOWNLOAD
+	depends on BLK && USB_GADGET_DOWNLOAD
 	select USB_FUNCTION_MASS_STORAGE
-	depends on BLK && USB_GADGET
 	help
 	  Enables the command "ums" and the USB mass storage support to the
 	  export a block device: U-Boot, the USB device, acts as a simple
@@ -2003,6 +2019,7 @@ config SYS_DISABLE_AUTOLOAD
 config CMD_WGET
 	bool "wget"
 	select PROT_TCP
+	default y if SANDBOX
 	help
 	  wget is a simple command to download kernel, or other files,
 	  from a http server over TCP.
@@ -2091,6 +2108,7 @@ config CMD_ETHSW
 config CMD_PXE
 	bool "pxe"
 	select PXE_UTILS
+	imply CMD_TFTPBOOT
 	help
 	  Boot image via network using PXE protocol
 
@@ -2962,16 +2980,6 @@ config CMD_UBIFS
 	select GZIP
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
-
-config MMC_SPEED_MODE_SET
-	bool "set speed mode using mmc command"
-	depends on CMD_MMC
-	help
-	  Enable setting speed mode using mmc rescan and mmc dev commands.
-	  The speed mode is provided as the last argument in these commands
-	  and is indicated using the index from enum bus_mode in
-	  include/mmc.h. A speed mode can be set only if it has already
-	  been enabled in the device tree.
 
 config CMD_MESON
 	bool "Amlogic Meson commands"

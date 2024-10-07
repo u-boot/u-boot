@@ -15,7 +15,6 @@
 #include <fdt_support.h>
 #include <hang.h>
 #include <image.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -23,19 +22,6 @@
 #include <asm/byteorder.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static ulong get_sp(void)
-{
-	ulong ret;
-
-	asm("addik %0, r1, 0" : "=r"(ret) : );
-	return ret;
-}
-
-void arch_lmb_reserve(struct lmb *lmb)
-{
-	arch_lmb_reserve_generic(lmb, get_sp(), gd->ram_top, 4096);
-}
 
 static void boot_jump_linux(struct bootm_headers *images, int flag)
 {

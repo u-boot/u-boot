@@ -1,15 +1,12 @@
 if TARGET_STM32H743_EVAL
 
 config SYS_BOARD
-	string
 	default "stm32h743-eval"
 
 config SYS_VENDOR
-	string
 	default "st"
 
 config SYS_SOC
-	string
 	default "stm32h7"
 
 config SYS_CONFIG_NAME

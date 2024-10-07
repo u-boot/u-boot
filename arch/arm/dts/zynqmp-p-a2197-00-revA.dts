@@ -90,7 +90,6 @@
 	status = "okay";
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii"; /* DTG generates this properly  1512 */
-	is-internal-pcspma;
 	mdio: mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -121,7 +120,7 @@
 		  "USB1_DATA7", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
 		  "SYSCTLR_VERSAL_MODE0", "SYSCTLR_VERSAL_MODE1", /* 78 - 79 */
 		  "SYSCTLR_VERSAL_MODE2", "SYSCTLR_VERSAL_MODE3", "SYSCTLR_POR_B_LS", "DC_PRSNT", "SYSCTLR_POWER_EN", /* 80 - 84 */
-		  "SYSCTLR_JTAG_S0", "SYSCTLR_JTAG_S1", "SYSCTLR_IIC_MUX0_RESET_B", "SYSCTLR_IIC_MUX1_RESET_B", "SYSCTLR_LP_I2C_SM_ALERT", /* 85 -89 */
+		  "SYSCTLR_JTAG_S0", "SYSCTLR_JTAG_S1", "SYSCTLR_IIC_MUX0_RESET_B", "SYSCTLR_IIC_MUX1_RESET_B", "SYSCTLR_LP_I2C_SM_ALERT", /* 85 - 89 */
 		  "SYSCTLR_GPIO0", "SYSCTLR_GPIO1", "SYSCTLR_GPIO2", "SYSCTLR_GPIO3", "SYSCTLR_GPIO4", /* 90 - 94 */
 		  "SYSCTLR_GPIO5", "VCCO_500_RBIAS", "VCCO_501_RBIAS", "VCCO_502_RBIAS", "VCCO_500_RBIAS_LED", /* 95 - 99 */
 		  "VCCO_501_RBIAS_LED", "VCCO_502_RBIAS_LED", "SYSCTLR_VCCINT_EN", "SYSCTLR_VCC_IO_SOC_EN", "SYSCTLR_VCC_PMC_EN", /* 100 - 104 */
@@ -427,25 +426,25 @@
 				#gpio-cells = <2>;
 				gpio-line-names = "sw4_1", "sw4_2", "sw4_3", "sw4_4",
 						  "", "", "", "";
-				gtr-sel0 {
+				gtr-sel0-hog {
 					gpio-hog;
 					gpios = <0 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_1";
 				};
-				gtr-sel1 {
+				gtr-sel1-hog {
 					gpio-hog;
 					gpios = <1 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_2";
 				};
-				gtr-sel2 {
+				gtr-sel2-hog {
 					gpio-hog;
 					gpios = <2 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_3";
 				};
-				gtr-sel3 {
+				gtr-sel3-hog {
 					gpio-hog;
 					gpios = <3 0>;
 					input; /* FIXME add meaning */

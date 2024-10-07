@@ -55,7 +55,6 @@ int arch_cpu_init(void)
 
 static int ivybridge_cpu_init(void)
 {
-	struct pci_controller *hose;
 	struct udevice *bus, *dev;
 	int ret;
 
@@ -65,10 +64,6 @@ static int ivybridge_cpu_init(void)
 	if (ret)
 		return ret;
 	post_code(0x72);
-	hose = dev_get_uclass_priv(bus);
-
-	/* TODO(sjg@chromium.org): Get rid of gd->hose */
-	gd->hose = hose;
 
 	ret = uclass_first_device_err(UCLASS_LPC, &dev);
 	if (ret)

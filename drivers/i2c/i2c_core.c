@@ -33,136 +33,7 @@ struct i2c_adapter *i2c_get_adapter(int index)
 	return i2c_adap_p;
 }
 
-#if !defined(CFG_SYS_I2C_DIRECT_BUS)
-struct i2c_bus_hose i2c_bus[CFG_SYS_NUM_I2C_BUSES] =
-			CFG_SYS_I2C_BUSES;
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-/*
- * i2c_mux_set()
- * -------------
- *
- * This turns on the given channel on I2C multiplexer chip connected to
- * a given I2C adapter directly or via other multiplexers. In the latter
- * case the entire multiplexer chain must be initialized first starting
- * with the one connected directly to the adapter. When disabling a chain
- * muxes must be programmed in reverse order, starting with the one
- * farthest from the adapter.
- *
- * mux_id is the multiplexer chip type from defined in i2c.h. So far only
- * NXP (Philips) PCA954x multiplexers are supported. Switches are NOT
- * supported (anybody uses them?)
- */
-
-static int i2c_mux_set(struct i2c_adapter *adap, int mux_id, int chip,
-			int channel)
-{
-	uint8_t	buf;
-	int ret;
-
-	/* channel < 0 - turn off the mux */
-	if (channel < 0) {
-		buf = 0;
-		ret = adap->write(adap, chip, 0, 0, &buf, 1);
-		if (ret)
-			printf("%s: Could not turn off the mux.\n", __func__);
-		return ret;
-	}
-
-	switch (mux_id) {
-	case I2C_MUX_PCA9540_ID:
-	case I2C_MUX_PCA9542_ID:
-		if (channel > 1)
-			return -1;
-		buf = (uint8_t)((channel & 0x01) | (1 << 2));
-		break;
-	case I2C_MUX_PCA9544_ID:
-		if (channel > 3)
-			return -1;
-		buf = (uint8_t)((channel & 0x03) | (1 << 2));
-		break;
-	case I2C_MUX_PCA9547_ID:
-		if (channel > 7)
-			return -1;
-		buf = (uint8_t)((channel & 0x07) | (1 << 3));
-		break;
-	case I2C_MUX_PCA9548_ID:
-		if (channel > 7)
-			return -1;
-		buf = (uint8_t)(0x01 << channel);
-		break;
-	default:
-		printf("%s: wrong mux id: %d\n", __func__, mux_id);
-		return -1;
-	}
-
-	ret = adap->write(adap, chip, 0, 0, &buf, 1);
-	if (ret)
-		printf("%s: could not set mux: id: %d chip: %x channel: %d\n",
-		       __func__, mux_id, chip, channel);
-	return ret;
-}
-
-static int i2c_mux_set_all(void)
-{
-	struct i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
-	int i;
-
-	/* Connect requested bus if behind muxes */
-	if (i2c_bus_tmp->next_hop[0].chip != 0) {
-		/* Set all muxes along the path to that bus */
-		for (i = 0; i < CFG_SYS_I2C_MAX_HOPS; i++) {
-			int	ret;
-
-			if (i2c_bus_tmp->next_hop[i].chip == 0)
-				break;
-
-			ret = i2c_mux_set(I2C_ADAP,
-					i2c_bus_tmp->next_hop[i].mux.id,
-					i2c_bus_tmp->next_hop[i].chip,
-					i2c_bus_tmp->next_hop[i].channel);
-			if (ret != 0)
-				return ret;
-		}
-	}
-	return 0;
-}
-
-static int i2c_mux_disconnect_all(void)
-{
-	struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
-	int	i;
-	uint8_t	buf = 0;
-
-	if (I2C_ADAP->init_done == 0)
-		return 0;
-
-	/* Disconnect current bus (turn off muxes if any) */
-	if ((i2c_bus_tmp->next_hop[0].chip != 0) &&
-	    (I2C_ADAP->init_done != 0)) {
-		i = CFG_SYS_I2C_MAX_HOPS;
-		do {
-			uint8_t	chip;
-			int ret;
-
-			chip = i2c_bus_tmp->next_hop[--i].chip;
-			if (chip == 0)
-				continue;
-
-			ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
-			if (ret != 0) {
-				printf("i2c: mux disconnect error\n");
-				return ret;
-			}
-		} while (i > 0);
-	}
-
-	return 0;
-}
-#endif
 
 /*
  * i2c_init_bus():
@@ -237,11 +108,6 @@ int i2c_set_bus_num(unsigned int bus)
 	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
 		return 0;
 
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-	if (bus >= CFG_SYS_NUM_I2C_BUSES)
-		return -1;
-#endif
-
 	max = ll_entry_count(struct i2c_adapter, i2c);
 	if (I2C_ADAPTER(bus) >= max) {
 		printf("Error, wrong i2c adapter %d max %d possible\n",
@@ -249,17 +115,10 @@ int i2c_set_bus_num(unsigned int bus)
 		return -2;
 	}
 
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-	i2c_mux_disconnect_all();
-#endif
-
 	gd->cur_i2c_bus = bus;
 	if (I2C_ADAP->init_done == 0)
 		i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
 
-#ifndef CFG_SYS_I2C_DIRECT_BUS
-	i2c_mux_set_all();
-#endif
 	return 0;
 }
 

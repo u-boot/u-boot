@@ -1,11 +1,9 @@
 if TARGET_MX6S_SIELAFF
 
 config SYS_BOARD
-	string
 	default "imx6dl-sielaff"
 
 config SYS_VENDOR
-	string
 	default "sielaff"
 
 config SYS_CONFIG_NAME

@@ -130,8 +130,7 @@ static int dm_test_osd_basics(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_osd_basics, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_osd_basics, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_osd_extended(struct unit_test_state *uts)
 {
@@ -214,5 +213,4 @@ static int dm_test_osd_extended(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_osd_extended, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_osd_extended, UTF_SCAN_PDATA | UTF_SCAN_FDT);

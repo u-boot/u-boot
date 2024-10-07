@@ -17,13 +17,10 @@ DECLARE_GLOBAL_DATA_PTR;
 static int test_print_freq(struct unit_test_state *uts,
 			   uint64_t freq, char *expected)
 {
-	ut_silence_console(uts);
-	console_record_reset_enable();
 	print_freq(freq, ";\n");
-	ut_unsilence_console(uts);
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -41,19 +38,15 @@ static int lib_test_print_freq(struct unit_test_state *uts)
 	ut_assertok(test_print_freq(uts, 54321987654321, "54321.99 GHz;"));
 	return 0;
 }
-
-LIB_TEST(lib_test_print_freq, 0);
+LIB_TEST(lib_test_print_freq, UTF_CONSOLE);
 
 static int test_print_size(struct unit_test_state *uts,
 			   uint64_t freq, char *expected)
 {
-	ut_silence_console(uts);
-	console_record_reset_enable();
 	print_size(freq, ";\n");
-	ut_unsilence_console(uts);
 	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
 	ut_asserteq_str(expected, uts->actual_str);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	return 0;
 }
@@ -74,5 +67,4 @@ static int lib_test_print_size(struct unit_test_state *uts)
 	ut_assertok(test_print_size(uts, 54321987654321, "49.4 TiB;"));
 	return 0;
 }
-
-LIB_TEST(lib_test_print_size, 0);
+LIB_TEST(lib_test_print_size, UTF_CONSOLE);

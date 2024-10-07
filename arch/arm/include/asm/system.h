@@ -277,6 +277,16 @@ void protect_secure_region(void);
 void smp_kick_all_cpus(void);
 
 void flush_l3_cache(void);
+
+/**
+ * mmu_map_region() - map a region of previously unmapped memory.
+ * Will be mapped MT_NORMAL & PTE_BLOCK_INNER_SHARE.
+ *
+ * @start: Start address of the region
+ * @size: Size of the region
+ * @emerg: Also map the region in the emergency table
+ */
+void mmu_map_region(phys_addr_t start, u64 size, bool emerg);
 void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
 
 /*
@@ -383,6 +393,15 @@ void switch_to_hypervisor_ret(void);
 #else
 #define wfi()
 #endif
+
+static inline unsigned long read_mpidr(void)
+{
+	unsigned long val;
+
+	asm volatile("mrc p15, 0, %0, c0, c0, 5" : "=r" (val));
+
+	return val;
+}
 
 static inline unsigned long get_cpsr(void)
 {

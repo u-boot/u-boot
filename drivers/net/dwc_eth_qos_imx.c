@@ -47,6 +47,12 @@ static int eqos_probe_resources_imx(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
+	ret = eqos_get_base_addr_dt(dev);
+	if (ret) {
+		dev_dbg(dev, "eqos_get_base_addr_dt failed: %d", ret);
+		goto err_probe;
+	}
+
 	interface = eqos->config->interface(dev);
 
 	if (interface == PHY_INTERFACE_MODE_NA) {

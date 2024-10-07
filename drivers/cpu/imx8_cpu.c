@@ -60,6 +60,10 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "93(12)";/* iMX93 9x9 Dual core without NPU */
 	case MXC_CPU_IMX9311:
 		return "93(11)";/* iMX93 9x9 Single core without NPU */
+	case MXC_CPU_IMX9302:
+		return "93(02)";/* iMX93 900Mhz Low performance Dual core without NPU */
+	case MXC_CPU_IMX9301:
+		return "93(01)";/* iMX93 900Mhz Low performance Single core without NPU */
 	default:
 		return "??";
 	}

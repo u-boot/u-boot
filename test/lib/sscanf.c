@@ -169,5 +169,4 @@ static int lib_sscanf(struct unit_test_state *uts)
 
 	return 0;
 }
-
 LIB_TEST(lib_sscanf, 0);

@@ -25,6 +25,22 @@
 #define AXI_DIV_SEL(x)			(x)
 
 /* apmixedsys */
+static const int pll_id_offs_map[] = {
+	[CLK_APMIXED_ARMPLL]			= 0,
+	[CLK_APMIXED_MAINPLL]			= 1,
+	[CLK_APMIXED_UNIVPLL]			= 2,
+	[CLK_APMIXED_MMPLL]			= 3,
+	[CLK_APMIXED_MSDCPLL]			= 4,
+	[CLK_APMIXED_TVDPLL]			= 5,
+	[CLK_APMIXED_AUD1PLL]			= 6,
+	[CLK_APMIXED_TRGPLL]			= 7,
+	[CLK_APMIXED_ETHPLL]			= 8,
+	[CLK_APMIXED_VDECPLL]			= 9,
+	[CLK_APMIXED_HADDS2PLL]			= 10,
+	[CLK_APMIXED_AUD2PLL]			= 11,
+	[CLK_APMIXED_TVD2PLL]			= 12,
+};
+
 #define PLL(_id, _reg, _pwr_reg, _en_mask, _flags, _pcwbits, _pd_reg,	\
 	    _pd_shift, _pcw_reg, _pcw_shift) {				\
 		.id = _id,						\
@@ -71,6 +87,176 @@ static const struct mtk_pll_data apmixed_plls[] = {
 };
 
 /* topckgen */
+
+/* Fixed CLK exposed upstream by the hdmi PHY driver */
+#define CLK_TOP_HDMITX_CLKDIG_CTS		CLK_TOP_NR
+
+static const int top_id_offs_map[CLK_TOP_NR + 1] = {
+	/* Fixed CLK */
+	[CLK_TOP_DPI]				= 0,
+	[CLK_TOP_DMPLL]				= 1,
+	[CLK_TOP_VENCPLL]			= 2,
+	[CLK_TOP_HDMI_0_PIX340M]		= 3,
+	[CLK_TOP_HDMI_0_DEEP340M]		= 4,
+	[CLK_TOP_HDMI_0_PLL340M]		= 5,
+	[CLK_TOP_HADDS2_FB]			= 6,
+	[CLK_TOP_WBG_DIG_416M]			= 7,
+	[CLK_TOP_DSI0_LNTC_DSI]			= 8,
+	[CLK_TOP_HDMI_SCL_RX]			= 9,
+	[CLK_TOP_32K_EXTERNAL]			= 10,
+	[CLK_TOP_HDMITX_CLKDIG_CTS]		= 11,
+	[CLK_TOP_AUD_EXT1]			= 12,
+	[CLK_TOP_AUD_EXT2]			= 13,
+	[CLK_TOP_NFI1X_PAD]			= 14,
+	/* Factor CLK */
+	[CLK_TOP_SYSPLL]			= 15,
+	[CLK_TOP_SYSPLL_D2]			= 16,
+	[CLK_TOP_SYSPLL_D3]			= 17,
+	[CLK_TOP_SYSPLL_D5]			= 18,
+	[CLK_TOP_SYSPLL_D7]			= 19,
+	[CLK_TOP_SYSPLL1_D2]			= 20,
+	[CLK_TOP_SYSPLL1_D4]			= 21,
+	[CLK_TOP_SYSPLL1_D8]			= 22,
+	[CLK_TOP_SYSPLL1_D16]			= 23,
+	[CLK_TOP_SYSPLL2_D2]			= 24,
+	[CLK_TOP_SYSPLL2_D4]			= 25,
+	[CLK_TOP_SYSPLL2_D8]			= 26,
+	[CLK_TOP_SYSPLL3_D2]			= 27,
+	[CLK_TOP_SYSPLL3_D4]			= 28,
+	[CLK_TOP_SYSPLL4_D2]			= 29,
+	[CLK_TOP_SYSPLL4_D4]			= 30,
+	[CLK_TOP_UNIVPLL]			= 31,
+	[CLK_TOP_UNIVPLL_D2]			= 32,
+	[CLK_TOP_UNIVPLL_D3]			= 33,
+	[CLK_TOP_UNIVPLL_D5]			= 34,
+	[CLK_TOP_UNIVPLL_D7]			= 35,
+	[CLK_TOP_UNIVPLL_D26]			= 36,
+	[CLK_TOP_UNIVPLL_D52]			= 37,
+	[CLK_TOP_UNIVPLL_D108]			= 38,
+	[CLK_TOP_USB_PHY48M]			= 39,
+	[CLK_TOP_UNIVPLL1_D2]			= 40,
+	[CLK_TOP_UNIVPLL1_D4]			= 41,
+	[CLK_TOP_UNIVPLL1_D8]			= 42,
+	[CLK_TOP_UNIVPLL2_D2]			= 43,
+	[CLK_TOP_UNIVPLL2_D4]			= 44,
+	[CLK_TOP_UNIVPLL2_D8]			= 45,
+	[CLK_TOP_UNIVPLL2_D16]			= 46,
+	[CLK_TOP_UNIVPLL2_D32]			= 47,
+	[CLK_TOP_UNIVPLL3_D2]			= 48,
+	[CLK_TOP_UNIVPLL3_D4]			= 49,
+	[CLK_TOP_UNIVPLL3_D8]			= 50,
+	[CLK_TOP_MSDCPLL]			= 51,
+	[CLK_TOP_MSDCPLL_D2]			= 52,
+	[CLK_TOP_MSDCPLL_D4]			= 53,
+	[CLK_TOP_MSDCPLL_D8]			= 54,
+	[CLK_TOP_MMPLL]				= 55,
+	[CLK_TOP_MMPLL_D2]			= 56,
+	[CLK_TOP_DMPLL_D2]			= 57,
+	[CLK_TOP_DMPLL_D4]			= 58,
+	[CLK_TOP_DMPLL_X2]			= 59,
+	[CLK_TOP_TVDPLL]			= 60,
+	[CLK_TOP_TVDPLL_D2]			= 61,
+	[CLK_TOP_TVDPLL_D4]			= 62,
+	[CLK_TOP_VDECPLL]			= 63,
+	[CLK_TOP_TVD2PLL]			= 64,
+	[CLK_TOP_TVD2PLL_D2]			= 65,
+	[CLK_TOP_MIPIPLL]			= 66,
+	[CLK_TOP_MIPIPLL_D2]			= 67,
+	[CLK_TOP_MIPIPLL_D4]			= 68,
+	[CLK_TOP_HDMIPLL]			= 69,
+	[CLK_TOP_HDMIPLL_D2]			= 70,
+	[CLK_TOP_HDMIPLL_D3]			= 71,
+	[CLK_TOP_ARMPLL_1P3G]			= 72,
+	[CLK_TOP_AUDPLL]			= 73,
+	[CLK_TOP_AUDPLL_D4]			= 74,
+	[CLK_TOP_AUDPLL_D8]			= 75,
+	[CLK_TOP_AUDPLL_D16]			= 76,
+	[CLK_TOP_AUDPLL_D24]			= 77,
+	[CLK_TOP_AUD1PLL_98M]			= 78,
+	[CLK_TOP_AUD2PLL_90M]			= 79,
+	[CLK_TOP_HADDS2PLL_98M]			= 80,
+	[CLK_TOP_HADDS2PLL_294M]		= 81,
+	[CLK_TOP_ETHPLL_500M]			= 82,
+	[CLK_TOP_CLK26M_D8]			= 83,
+	[CLK_TOP_32K_INTERNAL]			= 84,
+	[CLK_TOP_AXISEL_D4]			= 85,
+	[CLK_TOP_8BDAC]				= 86,
+	/* MUX CLK */
+	[CLK_TOP_AXI_SEL]			= 87,
+	[CLK_TOP_MEM_SEL]			= 88,
+	[CLK_TOP_DDRPHYCFG_SEL]			= 89,
+	[CLK_TOP_MM_SEL]			= 90,
+	[CLK_TOP_PWM_SEL]			= 91,
+	[CLK_TOP_VDEC_SEL]			= 92,
+	[CLK_TOP_MFG_SEL]			= 93,
+	[CLK_TOP_CAMTG_SEL]			= 94,
+	[CLK_TOP_UART_SEL]			= 95,
+	[CLK_TOP_SPI0_SEL]			= 96,
+	[CLK_TOP_USB20_SEL]			= 97,
+	[CLK_TOP_MSDC30_0_SEL]			= 98,
+	[CLK_TOP_MSDC30_1_SEL]			= 99,
+	[CLK_TOP_MSDC30_2_SEL]			= 100,
+	[CLK_TOP_AUDIO_SEL]			= 101,
+	[CLK_TOP_AUDINTBUS_SEL]			= 102,
+	[CLK_TOP_PMICSPI_SEL]			= 103,
+	[CLK_TOP_SCP_SEL]			= 104,
+	[CLK_TOP_DPI0_SEL]			= 105,
+	[CLK_TOP_DPI1_SEL]			= 106,
+	[CLK_TOP_TVE_SEL]			= 107,
+	[CLK_TOP_HDMI_SEL]			= 108,
+	[CLK_TOP_APLL_SEL]			= 109,
+	[CLK_TOP_RTC_SEL]			= 110,
+	[CLK_TOP_NFI2X_SEL]			= 111,
+	[CLK_TOP_EMMC_HCLK_SEL]			= 112,
+	[CLK_TOP_FLASH_SEL]			= 113,
+	[CLK_TOP_DI_SEL]			= 114,
+	[CLK_TOP_NR_SEL]			= 115,
+	[CLK_TOP_OSD_SEL]			= 116,
+	[CLK_TOP_HDMIRX_BIST_SEL]		= 117,
+	[CLK_TOP_INTDIR_SEL]			= 118,
+	[CLK_TOP_ASM_I_SEL]			= 119,
+	[CLK_TOP_ASM_M_SEL]			= 120,
+	[CLK_TOP_ASM_H_SEL]			= 121,
+	[CLK_TOP_MS_CARD_SEL]			= 122,
+	[CLK_TOP_ETHIF_SEL]			= 123,
+	[CLK_TOP_HDMIRX26_24_SEL]		= 124,
+	[CLK_TOP_MSDC30_3_SEL]			= 125,
+	[CLK_TOP_CMSYS_SEL]			= 126,
+	[CLK_TOP_SPI1_SEL]			= 127,
+	[CLK_TOP_SPI2_SEL]			= 128,
+	[CLK_TOP_8BDAC_SEL]			= 129,
+	[CLK_TOP_AUD2DVD_SEL]			= 130,
+	[CLK_TOP_PADMCLK_SEL]			= 131,
+	[CLK_TOP_AUD_MUX1_SEL]			= 132,
+	[CLK_TOP_AUD_MUX2_SEL]			= 133,
+	[CLK_TOP_AUDPLL_MUX_SEL]		= 134,
+	[CLK_TOP_AUD_K1_SRC_SEL]		= 135,
+	[CLK_TOP_AUD_K2_SRC_SEL]		= 136,
+	[CLK_TOP_AUD_K3_SRC_SEL]		= 137,
+	[CLK_TOP_AUD_K4_SRC_SEL]		= 138,
+	[CLK_TOP_AUD_K5_SRC_SEL]		= 139,
+	[CLK_TOP_AUD_K6_SRC_SEL]		= 140,
+	/* Misc CLK only used as parents */
+	[CLK_TOP_AUD_EXTCK1_DIV]		= 141,
+	[CLK_TOP_AUD_EXTCK2_DIV]		= 142,
+	[CLK_TOP_AUD_MUX1_DIV]			= 143,
+	[CLK_TOP_AUD_MUX2_DIV]			= 144,
+	[CLK_TOP_AUD_K1_SRC_DIV]		= 145,
+	[CLK_TOP_AUD_K2_SRC_DIV]		= 146,
+	[CLK_TOP_AUD_K3_SRC_DIV]		= 147,
+	[CLK_TOP_AUD_K4_SRC_DIV]		= 148,
+	[CLK_TOP_AUD_K5_SRC_DIV]		= 149,
+	[CLK_TOP_AUD_K6_SRC_DIV]		= 150,
+	[CLK_TOP_AUD_48K_TIMING]		= 151,
+	[CLK_TOP_AUD_44K_TIMING]		= 152,
+	[CLK_TOP_AUD_I2S1_MCLK]			= 153,
+	[CLK_TOP_AUD_I2S2_MCLK]			= 154,
+	[CLK_TOP_AUD_I2S3_MCLK]			= 155,
+	[CLK_TOP_AUD_I2S4_MCLK]			= 156,
+	[CLK_TOP_AUD_I2S5_MCLK]			= 157,
+	[CLK_TOP_AUD_I2S6_MCLK]			= 158,
+};
+
 #define FACTOR0(_id, _parent, _mult, _div)			\
 	FACTOR(_id, _parent, _mult, _div, CLK_PARENT_APMIXED)
 
@@ -586,21 +772,26 @@ static const struct mtk_gate_regs infra_cg_regs = {
 	.sta_ofs = 0x48,
 };
 
-#define GATE_INFRA(_id, _parent, _shift) {			\
+#define GATE_INFRA_FLAGS(_id, _parent, _shift, _flags) {	\
 		.id = _id,					\
 		.parent = _parent,				\
 		.regs = &infra_cg_regs,				\
 		.shift = _shift,				\
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN,	\
+		.flags = _flags,				\
 	}
+#define GATE_INFRA(_id, _parent, _shift) \
+	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+#define GATE_INFRA_XTAL(_id, _parent, _shift) \
+	GATE_INFRA_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
+
 
 static const struct mtk_gate infra_cgs[] = {
 	GATE_INFRA(CLK_INFRA_DBG, CLK_TOP_AXI_SEL, 0),
 	GATE_INFRA(CLK_INFRA_SMI, CLK_TOP_MM_SEL, 1),
 	GATE_INFRA(CLK_INFRA_QAXI_CM4, CLK_TOP_AXI_SEL, 2),
 	GATE_INFRA(CLK_INFRA_AUD_SPLIN_B, CLK_TOP_HADDS2PLL_294M, 4),
-	GATE_INFRA(CLK_INFRA_AUDIO, CLK_XTAL, 5),
-	GATE_INFRA(CLK_INFRA_EFUSE, CLK_XTAL, 6),
+	GATE_INFRA_XTAL(CLK_INFRA_AUDIO, CLK_XTAL, 5),
+	GATE_INFRA_XTAL(CLK_INFRA_EFUSE, CLK_XTAL, 6),
 	GATE_INFRA(CLK_INFRA_L2C_SRAM, CLK_TOP_MM_SEL, 7),
 	GATE_INFRA(CLK_INFRA_M4U, CLK_TOP_MEM_SEL, 8),
 	GATE_INFRA(CLK_INFRA_CONNMCU, CLK_TOP_WBG_DIG_416M, 12),
@@ -616,6 +807,74 @@ static const struct mtk_gate infra_cgs[] = {
 };
 
 /* pericfg */
+static const int peri_id_offs_map[] = {
+	/* MUX CLK */
+	[CLK_PERI_UART0_SEL]			= 1,
+	[CLK_PERI_UART1_SEL]			= 2,
+	[CLK_PERI_UART2_SEL]			= 3,
+	[CLK_PERI_UART3_SEL]			= 4,
+	/* GATE CLK */
+	[CLK_PERI_NFI]				= 5,
+	[CLK_PERI_THERM]			= 6,
+	[CLK_PERI_PWM1]				= 7,
+	[CLK_PERI_PWM2]				= 8,
+	[CLK_PERI_PWM3]				= 9,
+	[CLK_PERI_PWM4]				= 10,
+	[CLK_PERI_PWM5]				= 11,
+	[CLK_PERI_PWM6]				= 12,
+	[CLK_PERI_PWM7]				= 13,
+	[CLK_PERI_PWM]				= 14,
+	[CLK_PERI_USB0]				= 15,
+	[CLK_PERI_USB1]				= 16,
+	[CLK_PERI_AP_DMA]			= 17,
+	[CLK_PERI_MSDC30_0]			= 18,
+	[CLK_PERI_MSDC30_1]			= 19,
+	[CLK_PERI_MSDC30_2]			= 20,
+	[CLK_PERI_MSDC30_3]			= 21,
+	[CLK_PERI_MSDC50_3]			= 22,
+	[CLK_PERI_NLI]				= 23,
+	[CLK_PERI_UART0]			= 24,
+	[CLK_PERI_UART1]			= 25,
+	[CLK_PERI_UART2]			= 26,
+	[CLK_PERI_UART3]			= 27,
+	[CLK_PERI_BTIF]				= 28,
+	[CLK_PERI_I2C0]				= 29,
+	[CLK_PERI_I2C1]				= 30,
+	[CLK_PERI_I2C2]				= 31,
+	[CLK_PERI_I2C3]				= 32,
+	[CLK_PERI_AUXADC]			= 33,
+	[CLK_PERI_SPI0]				= 34,
+	[CLK_PERI_ETH]				= 35,
+	[CLK_PERI_USB0_MCU]			= 36,
+	[CLK_PERI_USB1_MCU]			= 37,
+	[CLK_PERI_USB_SLV]			= 38,
+	[CLK_PERI_GCPU]				= 39,
+	[CLK_PERI_NFI_ECC]			= 40,
+	[CLK_PERI_NFI_PAD]			= 41,
+	[CLK_PERI_FLASH]			= 42,
+	[CLK_PERI_HOST89_INT]			= 43,
+	[CLK_PERI_HOST89_SPI]			= 44,
+	[CLK_PERI_HOST89_DVD]			= 45,
+	[CLK_PERI_SPI1]				= 46,
+	[CLK_PERI_SPI2]				= 47,
+	[CLK_PERI_FCI]				= 48,
+};
+
+#define TOP_PARENT(_id) PARENT(_id, CLK_PARENT_TOPCKGEN)
+#define XTAL_PARENT(_id) PARENT(_id, CLK_PARENT_XTAL)
+
+static const struct mtk_parent uart_ck_sel_parents[] = {
+	XTAL_PARENT(CLK_XTAL),
+	TOP_PARENT(CLK_TOP_UART_SEL),
+};
+
+static const struct mtk_composite peri_muxes[] = {
+	MUX_MIXED(CLK_PERI_UART0_SEL, uart_ck_sel_parents, 0x40C, 0, 1),
+	MUX_MIXED(CLK_PERI_UART1_SEL, uart_ck_sel_parents, 0x40C, 1, 1),
+	MUX_MIXED(CLK_PERI_UART2_SEL, uart_ck_sel_parents, 0x40C, 2, 1),
+	MUX_MIXED(CLK_PERI_UART3_SEL, uart_ck_sel_parents, 0x40C, 3, 1),
+};
+
 static const struct mtk_gate_regs peri0_cg_regs = {
 	.set_ofs = 0x8,
 	.clr_ofs = 0x10,
@@ -628,13 +887,17 @@ static const struct mtk_gate_regs peri1_cg_regs = {
 	.sta_ofs = 0x1C,
 };
 
-#define GATE_PERI0(_id, _parent, _shift) {			\
+#define GATE_PERI0_FLAGS(_id, _parent, _shift, _flags) {	\
 		.id = _id,					\
 		.parent = _parent,				\
 		.regs = &peri0_cg_regs,				\
 		.shift = _shift,				\
-		.flags = CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN,	\
+		.flags = _flags,				\
 	}
+#define GATE_PERI0(_id, _parent, _shift) \
+	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_TOPCKGEN)
+#define GATE_PERI0_XTAL(_id, _parent, _shift) \
+	GATE_PERI0_FLAGS(_id, _parent, _shift, CLK_GATE_SETCLR | CLK_PARENT_XTAL)
 
 #define GATE_PERI1(_id, _parent, _shift) {			\
 		.id = _id,					\
@@ -672,10 +935,10 @@ static const struct mtk_gate peri_cgs[] = {
 	GATE_PERI0(CLK_PERI_I2C0, CLK_TOP_AXI_SEL, 24),
 	GATE_PERI0(CLK_PERI_I2C1, CLK_TOP_AXI_SEL, 25),
 	GATE_PERI0(CLK_PERI_I2C2, CLK_TOP_AXI_SEL, 26),
-	GATE_PERI0(CLK_PERI_I2C3, CLK_XTAL, 27),
-	GATE_PERI0(CLK_PERI_AUXADC, CLK_XTAL, 28),
+	GATE_PERI0_XTAL(CLK_PERI_I2C3, CLK_XTAL, 27),
+	GATE_PERI0_XTAL(CLK_PERI_AUXADC, CLK_XTAL, 28),
 	GATE_PERI0(CLK_PERI_SPI0, CLK_TOP_SPI0_SEL, 29),
-	GATE_PERI0(CLK_PERI_ETH, CLK_XTAL, 30),
+	GATE_PERI0_XTAL(CLK_PERI_ETH, CLK_XTAL, 30),
 	GATE_PERI0(CLK_PERI_USB0_MCU, CLK_TOP_AXI_SEL, 31),
 
 	GATE_PERI1(CLK_PERI_USB1_MCU, CLK_TOP_AXI_SEL, 0),
@@ -730,12 +993,17 @@ static const struct mtk_gate hif_cgs[] = {
 	GATE_ETH_HIF1(CLK_HIFSYS_PCIE2, CLK_TOP_ETHPLL_500M, 26),
 };
 
-static const struct mtk_clk_tree mt7623_clk_tree = {
-	.xtal_rate = 26 * MHZ,
+static const struct mtk_clk_tree mt7623_apmixedsys_clk_tree = {
 	.xtal2_rate = 26 * MHZ,
-	.fdivs_offs = CLK_TOP_SYSPLL,
-	.muxes_offs = CLK_TOP_AXI_SEL,
+	.id_offs_map = pll_id_offs_map,
 	.plls = apmixed_plls,
+};
+
+static const struct mtk_clk_tree mt7623_topckgen_clk_tree = {
+	.xtal_rate = 26 * MHZ,
+	.id_offs_map = top_id_offs_map,
+	.fdivs_offs = top_id_offs_map[CLK_TOP_SYSPLL],
+	.muxes_offs = top_id_offs_map[CLK_TOP_AXI_SEL],
 	.fclks = top_fixed_clks,
 	.fdivs = top_fixed_divs,
 	.muxes = top_muxes,
@@ -760,7 +1028,7 @@ static int mt7623_apmixedsys_probe(struct udevice *dev)
 	struct mtk_clk_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = mtk_common_clk_init(dev, &mt7623_clk_tree);
+	ret = mtk_common_clk_init(dev, &mt7623_apmixedsys_clk_tree);
 	if (ret)
 		return ret;
 
@@ -774,27 +1042,45 @@ static int mt7623_apmixedsys_probe(struct udevice *dev)
 
 static int mt7623_topckgen_probe(struct udevice *dev)
 {
-	return mtk_common_clk_init(dev, &mt7623_clk_tree);
+	return mtk_common_clk_init(dev, &mt7623_topckgen_clk_tree);
 }
+
+static const struct mtk_clk_tree mt7623_clk_gate_tree = {
+	/* Each CLK ID for gates clock starts at index 1 */
+	.gates_offs = 1,
+	.xtal_rate = 26 * MHZ,
+};
 
 static int mt7623_infracfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, infra_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
+					infra_cgs);
 }
+
+static const struct mtk_clk_tree mt7623_clk_peri_tree = {
+	.id_offs_map = peri_id_offs_map,
+	.muxes_offs = peri_id_offs_map[CLK_PERI_UART0_SEL],
+	.gates_offs = peri_id_offs_map[CLK_PERI_NFI],
+	.muxes = peri_muxes,
+	.gates = peri_cgs,
+	.xtal_rate = 26 * MHZ,
+};
 
 static int mt7623_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, peri_cgs);
+	return mtk_common_clk_infrasys_init(dev, &mt7623_clk_peri_tree);
 }
 
 static int mt7623_hifsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, hif_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
+					hif_cgs);
 }
 
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, eth_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_gate_tree,
+					eth_cgs);
 }
 
 static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
@@ -889,7 +1175,7 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.of_match = mt7623_pericfg_compat,
 	.probe = mt7623_pericfg_probe,
 	.priv_auto	= sizeof(struct mtk_cg_priv),
-	.ops = &mtk_clk_gate_ops,
+	.ops = &mtk_clk_infrasys_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
 

@@ -47,5 +47,4 @@ static int dm_test_cpu(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_cpu, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_cpu, UTF_SCAN_FDT);

@@ -158,9 +158,19 @@ static int rproc_pre_probe(struct udevice *dev)
 		uc_pdata->driver_plat_data = pdata->driver_plat_data;
 	}
 
-	/* Else try using device Name */
-	if (!uc_pdata->name)
-		uc_pdata->name = dev->name;
+	/* Else try using a combination of device Name and devices's parent's name */
+	if (!uc_pdata->name) {
+		/* 2 in the rproc_name_size indicates 1 for null and one for '-' */
+		int rproc_name_size = strlen(dev->name) + strlen(dev->parent->name) + 2;
+		char *buf;
+
+		buf = malloc(rproc_name_size);
+		if (!buf)
+			return -ENOMEM;
+
+		snprintf(buf, rproc_name_size, "%s-%s", dev->name, dev->parent->name);
+		uc_pdata->name = buf;
+	}
 	if (!uc_pdata->name) {
 		debug("Unnamed device!");
 		return -EINVAL;

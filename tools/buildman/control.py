@@ -809,7 +809,8 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             force_build = args.force_build,
             force_build_failures = args.force_build_failures,
             force_reconfig = args.force_reconfig, in_tree = args.in_tree,
-            force_config_on_failure=not args.quick, make_func=make_func)
+            force_config_on_failure=not args.quick, make_func=make_func,
+            dtc_skip=args.dtc_skip)
 
     TEST_BUILDER = builder
 

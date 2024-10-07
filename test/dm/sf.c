@@ -72,7 +72,7 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_spi_flash, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_spi_flash, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Functional test that sandbox SPI flash works correctly */
 static int dm_test_spi_flash_func(struct unit_test_state *uts)
@@ -100,4 +100,4 @@ static int dm_test_spi_flash_func(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_spi_flash_func, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_spi_flash_func, UTF_SCAN_PDATA | UTF_SCAN_FDT);

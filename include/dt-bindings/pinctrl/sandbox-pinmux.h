@@ -13,6 +13,7 @@
 #define SANDBOX_PINMUX_GPIO 4
 #define SANDBOX_PINMUX_CS   5
 #define SANDBOX_PINMUX_PWM  6
+#define SANDBOX_PINMUX_ONEWIRE 7
 
 #define SANDBOX_PINMUX(pin, func) ((func) << 16 | (pin))
 

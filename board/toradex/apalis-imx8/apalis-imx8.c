@@ -290,6 +290,14 @@ int board_init(void)
 	return 0;
 }
 
+void reset_cpu(void)
+{
+	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
+
+	do {
+	} while (1);
+}
+
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {

@@ -43,6 +43,10 @@ endif
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
 obj-$(CONFIG_$(SPL_TPL_)FDT_SIMPLEFB) += fdt_simplefb.o
 
+obj-$(CONFIG_$(SPL_TPL_)UPL) += upl_common.o
+obj-$(CONFIG_$(SPL_TPL_)UPL_READ) += upl_read.o
+obj-$(CONFIG_$(SPL_TPL_)UPL_WRITE) += upl_write.o
+
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_$(SPL_TPL_)FIT_SIGNATURE) += fdt_region.o
 obj-$(CONFIG_$(SPL_TPL_)FIT) += image-fit.o

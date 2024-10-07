@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0+)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/adi,sc5xx-clocks.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Clock Tree Drivers for Analog Devices SC5XX Processors
+
+maintainers:
+  - Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+  - Utsav Agarwal <utsav.agarwal@analog.com>
+  - Arturs Artamonovs <arturs.artamonovs@analog.com>
+
+description: |
+  These drivers read in the processors CDU (clock distribution unit)
+  and CGU (clock generation unit) values to determine various clock
+  rates
+
+properties:
+  compatible:
+    enum:
+      - adi,sc5xx-clocks # Any
+      - adi,sc57x-clocks # 32-Bit SC573 processor
+      - adi,sc58x-clocks # 32-Bit SC584, SC589 processors
+      - adi,sc594-clocks # 32-Bit SC594 processor
+      - adi,sc598-clocks # 64-Bit SC598 processor
+
+  '#clock-cells':
+    const: 1
+
+  reg:
+    minItems: 3
+    maxItems: 4
+
+  reg-names:
+    description:
+      String reference names for the reg property
+    minItems: 3
+    maxItems: 4
+
+  clocks:
+    description:
+      Specifies the CLKIN0 and CLKIN1 reference clock(s) from which the
+      output frequencies are derived via CDU+CGU
+    minItems: 2
+    maxItems: 2
+
+  clock-names:
+    description:
+      String reference names for CLKIN0 and CLKIN1
+    minItems: 2
+    maxItems: 2
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - '#clock-cells'
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    clk0: clocks@3108d000 {
+      compatible = "adi,sc57x-clocks";
+      reg = <0x3108d000 0x1000>,
+            <0x3108e000 0x1000>,
+            <0x3108f000 0x1000>;
+      #clock-cells = <1>;
+      clocks = <&sys_clkin0>, <&sys_clkin1>;
+      clock-names = "sys_clkin0", "sys_clkin1";
+      status = "okay";
+    };
+
+  - |
+    clk1: clocks@3108d000 {
+      compatible = "adi,sc58x-clocks";
+      reg = <0x3108d000 0x1000>,
+            <0x3108e000 0x1000>,
+            <0x3108f000 0x1000>;
+      #clock-cells = <1>;
+      clocks = <&sys_clkin0>, <&sys_clkin1>;
+      clock-names = "sys_clkin0", "sys_clkin1";
+      status = "okay";
+    };
+
+  - |
+    clk2: clocks@3108d000 {
+      compatible = "adi,sc594-clocks";
+      reg = <0x3108d000 0x1000>,
+            <0x3108e000 0x1000>,
+            <0x3108f000 0x1000>;
+      #clock-cells = <1>;
+      clocks = <&sys_clkin0>, <&sys_clkin1>;
+      clock-names = "sys_clkin0", "sys_clkin1";
+      status = "okay";
+    };
+
+  - |
+    clk3: clocks@3108d000 {
+      compatible = "adi,sc598-clocks";
+      reg = <0x3108d000 0x1000>,
+            <0x3108e000 0x1000>,
+            <0x3108f000 0x1000>,
+            <0x310a9000 0x1000>;
+      #clock-cells = <1>;
+      clocks = <&sys_clkin0>, <&sys_clkin1>;
+      clock-names = "sys_clkin0", "sys_clkin1";
+      status = "okay";
+    };
+

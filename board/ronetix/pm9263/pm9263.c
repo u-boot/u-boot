@@ -9,6 +9,7 @@
 
 #include <config.h>
 #include <init.h>
+#include <video.h>
 #include <asm/global_data.h>
 #include <linux/sizes.h>
 #include <asm/io.h>
@@ -110,11 +111,12 @@ int dram_init_banksize(void)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard (void)
 {
+	ulong fb_base = video_get_fb();
 	char *ss;
 
 	printf ("Board : Ronetix PM9263\n");
 
-	switch (gd->fb_base) {
+	switch (fb_base) {
 	case PHYS_PSRAM:
 		ss = "(PSRAM)";
 		break;
@@ -127,7 +129,7 @@ int checkboard (void)
 		ss = "";
 		break;
 	}
-	printf("Video memory : 0x%08lX %s\n", gd->fb_base, ss );
+	printf("Video memory : 0x%08lX %s\n", fb_base, ss);
 
 	printf ("\n");
 	return 0;

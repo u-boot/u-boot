@@ -91,4 +91,4 @@ static int dm_test_fastboot_mmc_part(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_fastboot_mmc_part, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_fastboot_mmc_part, UTF_SCAN_PDATA | UTF_SCAN_FDT);

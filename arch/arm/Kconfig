@@ -113,6 +113,13 @@ config GICV2
 config GICV3
 	bool
 
+config DRIVER_GICV2
+	bool "ARM GICV2 driver"
+	select IRQ
+	help
+	  ARM GICV2 driver.
+	  Basic support for parsing the GICV2 node and generate ACPI tables.
+
 config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
 	select IRQ
@@ -644,6 +651,7 @@ config ARCH_ORION5X
 
 config ARCH_BCM283X
 	bool "Broadcom BCM283X family"
+	select CPU
 	select DM
 	select DM_GPIO
 	select DM_SERIAL
@@ -802,7 +810,7 @@ config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
 	select CPU_V7A
 	select GPIO_EXTRA_HEADER
-	select SPL_BOARD_INIT if SPL
+	select SPL_SOC_INIT if SPL
 	select SPL_STACK_R if SPL
 	select SUPPORT_SPL
 	imply TI_SYSC if DM && OF_CONTROL
@@ -1047,7 +1055,7 @@ config ARCH_QEMU
 	imply DM_RNG
 	imply DM_RTC
 	imply RTC_PL031
-	imply OF_HAS_PRIOR_STAGE
+	imply OF_HAS_PRIOR_STAGE if !TARGET_QEMU_ARM_SBSA
 	imply VIDEO
 	imply VIDEO_BOCHS
 	imply SYS_WHITE_ON_BLACK
@@ -1868,6 +1876,20 @@ config TARGET_LS1046AFRWY
 
 config ARCH_SC5XX
 	bool "Analog Devices SC5XX-processor family"
+	select ADI_SC5XX_TIMER
+	select DM
+	select DM_SERIAL
+	select HAS_CUSTOM_SYS_INIT_SP_ADDR
+	select PANIC_HANG
+	select SPL
+	select SPL_BOOTROM_SUPPORT
+	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_SKIP_LOWLEVEL_INIT
+	select SUPPORT_SPL
+	select TIMER
 
 config TARGET_SL28
 	bool "Support sl28"
@@ -2360,6 +2382,7 @@ source "board/broadcom/bcmns3/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/eets/pdu001/Kconfig"
 source "board/emulation/qemu-arm/Kconfig"
+source "board/emulation/qemu-sbsa/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1088a/Kconfig"

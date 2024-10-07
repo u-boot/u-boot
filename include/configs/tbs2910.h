@@ -25,11 +25,6 @@
 #define CFG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(7, 12)
 #endif
 
-/* USB */
-#ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#endif /* CONFIG_CMD_USB      */
-
 #define CFG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \

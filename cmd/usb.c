@@ -560,17 +560,6 @@ static int do_usbboot(struct cmd_tbl *cmdtp, int flag, int argc,
 }
 #endif /* CONFIG_USB_STORAGE */
 
-static int do_usb_stop_keyboard(int force)
-{
-#if !defined CONFIG_DM_USB && defined CONFIG_USB_KEYBOARD
-	if (usb_kbd_deregister(force) != 0) {
-		printf("USB not stopped: usbkbd still using USB\n");
-		return 1;
-	}
-#endif
-	return 0;
-}
-
 static void do_usb_start(void)
 {
 	bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
@@ -583,11 +572,6 @@ static void do_usb_start(void)
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
 # endif
-#ifndef CONFIG_DM_USB
-# ifdef CONFIG_USB_KEYBOARD
-	drv_usb_kbd_init();
-# endif
-#endif /* !CONFIG_DM_USB */
 }
 
 #ifdef CONFIG_DM_USB
@@ -633,8 +617,6 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 	if (strncmp(argv[1], "reset", 5) == 0) {
 		printf("resetting USB...\n");
-		if (do_usb_stop_keyboard(1) != 0)
-			return 1;
 		usb_stop();
 		do_usb_start();
 		return 0;
@@ -642,8 +624,6 @@ static int do_usb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (strncmp(argv[1], "stop", 4) == 0) {
 		if (argc != 2)
 			console_assign(stdin, "serial");
-		if (do_usb_stop_keyboard(0) != 0)
-			return 1;
 		printf("stopping USB..\n");
 		usb_stop();
 		return 0;

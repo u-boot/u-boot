@@ -11,10 +11,6 @@ config AT91SAM9G20
 	bool
 	select CPU_ARM926EJS
 
-config AT91SAM9XE
-	bool
-	select CPU_ARM926EJS
-
 config AT91SAM9261
 	bool
 	select CPU_ARM926EJS
@@ -74,10 +70,6 @@ config TARGET_AT91SAM9260EK
 	bool "Atmel at91sam9260 reference board"
 	select AT91SAM9260
 	select BOARD_EARLY_INIT_F
-
-config TARGET_ETHERNUT5
-	bool "Ethernut5 board"
-	select AT91SAM9XE
 
 config TARGET_GURNARD
 	bool "Support gurnard"
@@ -340,21 +332,6 @@ config AT91RESET_EXTRST
 config SYS_SOC
 	default "at91"
 
-config AT91_EFLASH
-	bool "Support AT91 flash driver"
-	depends on AT91SAM9XE
-	select USE_SYS_MAX_FLASH_BANKS
-	help
-	  Enable the driver for the embedded flash used in the Atmel
-	  AT91SAM9XE devices.
-
-config EFLASH_PROTSECTORS
-	int "Number of flash sectors to protect from erasing"
-	depends on AT91_EFLASH
-	help
-	  If non-zero, this will be the number of sectors of the flash to disallow
-	  U-Boot to ease, starting from the beginning of flash.
-
 config AT91_GPIO_PULLUP
 	bool "Keep pullups on peripheral pins"
 	depends on CPU_ARM926EJS
@@ -389,7 +366,6 @@ source "board/atmel/sama5d4ek/Kconfig"
 source "board/bluewater/gurnard/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/conclusive/kstr-sama5d27/Kconfig"
-source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/gardena/smart-gateway-at91sam/Kconfig"
 source "board/l+g/vinco/Kconfig"

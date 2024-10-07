@@ -380,14 +380,15 @@ err:
 }
 
 /**
- * efi_bootmgr_release_uridp_resource() - cleanup uri device path resource
+ * efi_bootmgr_release_uridp() - cleanup uri device path resource
  *
  * @ctx:	event context
  * Return:	status code
  */
-efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
+efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
 {
 	efi_status_t ret = EFI_SUCCESS;
+	efi_status_t ret2 = EFI_SUCCESS;
 
 	if (!ctx)
 		return ret;
@@ -407,32 +408,33 @@ efi_status_t efi_bootmgr_release_uridp_resource(struct uridp_context *ctx)
 
 	/* cleanup for PE-COFF image */
 	if (ctx->mem_handle) {
-		ret = efi_uninstall_multiple_protocol_interfaces(
-			ctx->mem_handle, &efi_guid_device_path, ctx->loaded_dp,
-			NULL);
-		if (ret != EFI_SUCCESS)
+		ret2 = efi_uninstall_multiple_protocol_interfaces(ctx->mem_handle,
+								  &efi_guid_device_path,
+								  ctx->loaded_dp,
+								  NULL);
+		if (ret2 != EFI_SUCCESS)
 			log_err("Uninstall device_path protocol failed\n");
 	}
 
 	efi_free_pool(ctx->loaded_dp);
 	free(ctx);
 
-	return ret;
+	return ret == EFI_SUCCESS ? ret2 : ret;
 }
 
 /**
- * efi_bootmgr_image_return_notify() - return to efibootmgr callback
+ * efi_bootmgr_http_return() - return to efibootmgr callback
  *
  * @event:	the event for which this notification function is registered
  * @context:	event context
  */
-static void EFIAPI efi_bootmgr_image_return_notify(struct efi_event *event,
-						   void *context)
+static void EFIAPI efi_bootmgr_http_return(struct efi_event *event,
+					   void *context)
 {
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p", event, context);
-	ret = efi_bootmgr_release_uridp_resource(context);
+	ret = efi_bootmgr_release_uridp(context);
 	EFI_EXIT(ret);
 }
 
@@ -533,7 +535,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 
 	/* create event for cleanup when the image returns or error occurs */
 	ret = efi_create_event(EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			       efi_bootmgr_image_return_notify, ctx,
+			       efi_bootmgr_http_return, ctx,
 			       &efi_guid_event_group_return_to_efibootmgr,
 			       &event);
 	if (ret != EFI_SUCCESS) {
@@ -544,7 +546,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	return ret;
 
 err:
-	efi_bootmgr_release_uridp_resource(ctx);
+	efi_bootmgr_release_uridp(ctx);
 
 	return ret;
 }

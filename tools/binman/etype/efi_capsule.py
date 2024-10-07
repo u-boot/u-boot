@@ -24,7 +24,7 @@ def get_binman_test_guid(type_str):
         The actual GUID value (str)
     """
     TYPE_TO_GUID = {
-        'binman-test' : '09d7cf52-0720-4710-91d1-08469b7fe9c8'
+        'binman-test' : '985f2937-7c2e-5e9a-8a5e-8e063312964b'
     }
 
     return TYPE_TO_GUID[type_str]
@@ -151,6 +151,8 @@ class Entry_efi_capsule(Entry_section):
             return tools.read_file(capsule_fname)
         else:
             # Bintool is missing; just use the input data as the output
+            if not self.GetAllowMissing():
+                self.Raise("Missing tool: 'mkeficapsule'")
             self.record_missing_bintool(self.mkeficapsule)
             return data
 

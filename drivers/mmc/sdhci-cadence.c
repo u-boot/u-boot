@@ -16,56 +16,7 @@
 #include <linux/libfdt.h>
 #include <mmc.h>
 #include <sdhci.h>
-
-/* HRS - Host Register Set (specific to Cadence) */
-#define SDHCI_CDNS_HRS04		0x10		/* PHY access port */
-#define   SDHCI_CDNS_HRS04_ACK			BIT(26)
-#define   SDHCI_CDNS_HRS04_RD			BIT(25)
-#define   SDHCI_CDNS_HRS04_WR			BIT(24)
-#define   SDHCI_CDNS_HRS04_RDATA		GENMASK(23, 16)
-#define   SDHCI_CDNS_HRS04_WDATA		GENMASK(15, 8)
-#define   SDHCI_CDNS_HRS04_ADDR			GENMASK(5, 0)
-
-#define SDHCI_CDNS_HRS06		0x18		/* eMMC control */
-#define   SDHCI_CDNS_HRS06_TUNE_UP		BIT(15)
-#define   SDHCI_CDNS_HRS06_TUNE			GENMASK(13, 8)
-#define   SDHCI_CDNS_HRS06_MODE			GENMASK(2, 0)
-#define   SDHCI_CDNS_HRS06_MODE_SD		0x0
-#define   SDHCI_CDNS_HRS06_MODE_MMC_SDR		0x2
-#define   SDHCI_CDNS_HRS06_MODE_MMC_DDR		0x3
-#define   SDHCI_CDNS_HRS06_MODE_MMC_HS200	0x4
-#define   SDHCI_CDNS_HRS06_MODE_MMC_HS400	0x5
-#define   SDHCI_CDNS_HRS06_MODE_MMC_HS400ES	0x6
-
-/* SRS - Slot Register Set (SDHCI-compatible) */
-#define SDHCI_CDNS_SRS_BASE		0x200
-
-/* PHY */
-#define SDHCI_CDNS_PHY_DLY_SD_HS	0x00
-#define SDHCI_CDNS_PHY_DLY_SD_DEFAULT	0x01
-#define SDHCI_CDNS_PHY_DLY_UHS_SDR12	0x02
-#define SDHCI_CDNS_PHY_DLY_UHS_SDR25	0x03
-#define SDHCI_CDNS_PHY_DLY_UHS_SDR50	0x04
-#define SDHCI_CDNS_PHY_DLY_UHS_DDR50	0x05
-#define SDHCI_CDNS_PHY_DLY_EMMC_LEGACY	0x06
-#define SDHCI_CDNS_PHY_DLY_EMMC_SDR	0x07
-#define SDHCI_CDNS_PHY_DLY_EMMC_DDR	0x08
-#define SDHCI_CDNS_PHY_DLY_SDCLK	0x0b
-#define SDHCI_CDNS_PHY_DLY_HSMMC	0x0c
-#define SDHCI_CDNS_PHY_DLY_STROBE	0x0d
-
-/*
- * The tuned val register is 6 bit-wide, but not the whole of the range is
- * available.  The range 0-42 seems to be available (then 43 wraps around to 0)
- * but I am not quite sure if it is official.  Use only 0 to 39 for safety.
- */
-#define SDHCI_CDNS_MAX_TUNING_LOOP	40
-
-struct sdhci_cdns_plat {
-	struct mmc_config cfg;
-	struct mmc mmc;
-	void __iomem *hrs_addr;
-};
+#include "sdhci-cadence.h"
 
 struct sdhci_cdns_phy_cfg {
 	const char *property;
@@ -162,6 +113,9 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	tmp &= ~SDHCI_CDNS_HRS06_MODE;
 	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
+
+	if (device_is_compatible(mmc->dev, "cdns,sd6hc"))
+		sdhci_cdns6_phy_adj(mmc->dev, plat, mode);
 }
 
 static const struct sdhci_ops sdhci_cdns_ops = {
@@ -174,6 +128,9 @@ static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
 	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS06;
 	u32 tmp;
 	int i, ret;
+
+	if (device_is_compatible(plat->mmc.dev, "cdns,sd6hc"))
+		return sdhci_cdns6_set_tune_val(plat, val);
 
 	if (WARN_ON(!FIELD_FIT(SDHCI_CDNS_HRS06_TUNE, val)))
 		return -EINVAL;
@@ -281,7 +238,10 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
+	if (device_is_compatible(dev, "cdns,sd6hc"))
+		ret = sdhci_cdns6_phy_init(dev, plat);
+	else
+		ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
 	if (ret)
 		return ret;
 
@@ -300,6 +260,7 @@ static int sdhci_cdns_probe(struct udevice *dev)
 static const struct udevice_id sdhci_cdns_match[] = {
 	{ .compatible = "socionext,uniphier-sd4hc" },
 	{ .compatible = "cdns,sd4hc" },
+	{ .compatible = "cdns,sd6hc" },
 	{ /* sentinel */ }
 };
 

@@ -245,7 +245,6 @@ __weak struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 	return map_sysmem(CONFIG_TEXT_BASE + offset, 0);
 }
 
-#ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
 void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 {
 	ulong u_boot_pos = spl_get_image_pos();
@@ -273,7 +272,6 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 }
-#endif
 
 __weak int spl_parse_board_header(struct spl_image_info *spl_image,
 				  const struct spl_boot_device *bootdev,
@@ -308,8 +306,10 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		ret = spl_parse_legacy_header(spl_image, header);
 		if (ret)
 			return ret;
-	} else {
-#ifdef CONFIG_SPL_PANIC_ON_RAW_IMAGE
+		return 0;
+	}
+
+	if (IS_ENABLED(CONFIG_SPL_PANIC_ON_RAW_IMAGE)) {
 		/*
 		 * CONFIG_SPL_PANIC_ON_RAW_IMAGE is defined when the
 		 * code which loads images in SPL cannot guarantee that
@@ -319,10 +319,9 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		 * is bad, and thus should be skipped silently.
 		 */
 		panic("** no mkimage signature but raw image not supported");
-#endif
+	}
 
-#if CONFIG_IS_ENABLED(OS_BOOT)
-#if defined(CMD_BOOTI)
+	if (CONFIG_IS_ENABLED(OS_BOOT) && IS_ENABLED(CONFIG_CMD_BOOTI)) {
 		ulong start, size;
 
 		if (!booti_setup((ulong)header, &start, &size, 0)) {
@@ -336,7 +335,7 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
-#elif defined(CMD_BOOTZ)
+	} else if (CONFIG_IS_ENABLED(OS_BOOT) && IS_ENABLED(CONFIG_CMD_BOOTZ)) {
 		ulong start, end;
 
 		if (!bootz_setup((ulong)header, &start, &end)) {
@@ -350,22 +349,21 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
-#endif
-#endif
+	}
 
-		if (!spl_parse_board_header(spl_image, bootdev, (const void *)header, sizeof(*header)))
-			return 0;
+	if (!spl_parse_board_header(spl_image, bootdev, (const void *)header,
+				    sizeof(*header)))
+		return 0;
 
-#ifdef CONFIG_SPL_RAW_IMAGE_SUPPORT
+	if (IS_ENABLED(CONFIG_SPL_RAW_IMAGE_SUPPORT)) {
 		/* Signature not found - assume u-boot.bin */
 		debug("mkimage signature not found - ih_magic = %x\n",
-			header->ih_magic);
+		      header->ih_magic);
 		spl_set_header_raw_uboot(spl_image);
-#else
+	} else {
 		/* RAW image not supported, proceed to other boot methods. */
 		debug("Raw boot image support not enabled, proceeding to other boot methods\n");
 		return -EINVAL;
-#endif
 	}
 
 	return 0;
@@ -713,15 +711,15 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	if (CONFIG_IS_ENABLED(SOC_INIT))
 		spl_soc_init();
 
-	if (CONFIG_IS_ENABLED(BOARD_INIT))
-		spl_board_init();
-
 	if (IS_ENABLED(CONFIG_SPL_WATCHDOG) && CONFIG_IS_ENABLED(WDT))
 		initr_watchdog();
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) ||
-	    IS_ENABLED(CONFIG_SPL_ATF))
+	    IS_ENABLED(CONFIG_SPL_ATF) || IS_ENABLED(CONFIG_SPL_NET))
 		dram_init_banksize();
+
+	if (IS_ENABLED(CONFIG_SPL_LMB))
+		lmb_init();
 
 	if (CONFIG_IS_ENABLED(PCI) && !(gd->flags & GD_FLG_DM_DEAD)) {
 		ret = pci_init();
@@ -729,6 +727,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			puts(SPL_TPL_PROMPT "Cannot initialize PCI\n");
 		/* Don't fail. We still can try other boot methods. */
 	}
+
+	if (CONFIG_IS_ENABLED(BOARD_INIT))
+		spl_board_init();
 
 	bootcount_inc();
 
@@ -784,7 +785,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	}
 	if (CONFIG_IS_ENABLED(SYS_MALLOC_F) &&
 	    !IS_ENABLED(CONFIG_SPL_SYS_MALLOC_SIZE))
-		debug("SPL malloc() used 0x%lx bytes (%ld KB)\n",
+		debug("SPL malloc() used 0x%x bytes (%d KB)\n",
 		      gd_malloc_ptr(), gd_malloc_ptr() / 1024);
 
 	bootstage_mark_name(get_bootstage_id(false), "end phase");
@@ -810,6 +811,14 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 			printf(SPL_TPL_PROMPT
 			       "SPL hand-off write failed (err=%d)\n", ret);
 	}
+	if (CONFIG_IS_ENABLED(UPL_OUT) && (gd->flags & GD_FLG_UPL)) {
+		ret = spl_write_upl_handoff(&spl_image);
+		if (ret) {
+			printf(SPL_TPL_PROMPT
+			       "UPL hand-off write failed (err=%d)\n", ret);
+			hang();
+		}
+	}
 	if (CONFIG_IS_ENABLED(BLOBLIST)) {
 		ret = bloblist_finish();
 		if (ret)
@@ -832,7 +841,7 @@ void preloader_console_init(void)
 
 	serial_init();		/* serial communications setup */
 
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 #if CONFIG_IS_ENABLED(BANNER_PRINT)
 	puts("\nU-Boot " SPL_TPL_NAME " " PLAIN_VERSION " (" U_BOOT_DATE " - "
@@ -895,7 +904,7 @@ ulong spl_relocate_stack_gd(void)
 
 #if defined(CONFIG_SPL_SYS_MALLOC_SIMPLE) && CONFIG_IS_ENABLED(SYS_MALLOC_F)
 	if (CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN) {
-		debug("SPL malloc() before relocation used 0x%lx bytes (%ld KB)\n",
+		debug("SPL malloc() before relocation used 0x%x bytes (%d KB)\n",
 		      gd->malloc_ptr, gd->malloc_ptr / 1024);
 		ptr -= CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN;
 		gd->malloc_base = ptr;

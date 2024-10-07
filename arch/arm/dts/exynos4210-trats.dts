@@ -240,15 +240,13 @@
 };
 
 &sdhci0 {
-	samsung,bus-width = <8>;
-	samsung,timing = <1 3 3>;
+	bus-width = <8>;
 	pwr-gpios = <&gpk0 2 0>;
 	status = "okay";
 };
 
 &sdhci2 {
-	samsung,bus-width = <4>;
-	samsung,timing = <1 2 3>;
+	bus-width = <4>;
 	cd-gpios = <&gpx3 4 0>;
 	status = "okay";
 };

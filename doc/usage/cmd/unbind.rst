@@ -12,8 +12,8 @@ Synopsis
 ::
 
     unbind <node path>
-    unbind <class> <index>
-    unbind <class> <index> <driver>
+    unbind <class> <seq>
+    unbind <class> <seq> <driver>
 
 Description
 -----------
@@ -27,8 +27,8 @@ node path
 class
     device class name
 
-index
-    index of the device in the device class
+seq
+    sequence number of the device in the device class
 
 driver
     device driver name
@@ -43,7 +43,7 @@ using the three alternative unbind syntaxes.
 .. code-block::
 
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...
@@ -70,7 +70,7 @@ using the three alternative unbind syntaxes.
     }
     => unbind /pl031@9010000
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...
@@ -78,7 +78,7 @@ using the three alternative unbind syntaxes.
     Cannot find a device with path /pl031@9010000
     => bind /pl031@9010000 rtc-pl031
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...

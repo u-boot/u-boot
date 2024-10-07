@@ -80,7 +80,7 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 	priv->fifo_depth = dev_read_u32_default(dev, "fifo-depth", 0);
 
 	if (priv->fifo_depth < 0)
-		return -EINVAL;
+		return log_msg_ret("rkp", -EINVAL);
 	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
 
 #ifdef CONFIG_SPL_BUILD
@@ -96,7 +96,7 @@ static int rockchip_dwmmc_of_to_plat(struct udevice *dev)
 		int val = dev_read_u32_default(dev, "max-frequency", -EINVAL);
 
 		if (val < 0)
-			return val;
+			return log_msg_ret("rkc", val);
 
 		priv->minmax[0] = 400000;  /* 400 kHz */
 		priv->minmax[1] = val;
@@ -131,17 +131,12 @@ static int rockchip_dwmmc_probe(struct udevice *dev)
 	priv->minmax[1] = dtplat->max_frequency;
 
 	ret = clk_get_by_phandle(dev, &dtplat->clocks[1], &priv->clk);
-	if (ret < 0)
-		return ret;
 #else
 	ret = clk_get_by_index(dev, 1, &priv->clk);
-	if (ret < 0)
-		return ret;
 #endif
-	host->fifoth_val = MSIZE(0x2) |
-		RX_WMARK(priv->fifo_depth / 2 - 1) |
-		TX_WMARK(priv->fifo_depth / 2);
-
+	if (ret < 0 && ret != -ENOSYS)
+		return log_msg_ret("clk", ret);
+	host->fifo_depth = priv->fifo_depth;
 	host->fifo_mode = priv->fifo_mode;
 
 #if CONFIG_IS_ENABLED(MMC_PWRSEQ)

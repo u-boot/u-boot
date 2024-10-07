@@ -117,7 +117,7 @@ static void mxs_spl_console_init(void)
 	gd->bd = &bdata;
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 #endif
 }
 

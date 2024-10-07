@@ -32,6 +32,10 @@ baseprereq = $(basename $(notdir $<))
 escsq = $(subst $(squote),'\$(squote)',$1)
 
 ###
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+
+###
 # Easy method for doing a status message
        kecho := :
  quiet_kecho := echo

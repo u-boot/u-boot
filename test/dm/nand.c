@@ -12,7 +12,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/rawnand.h>
 
-static int dm_test_nand(struct unit_test_state *uts, int dev, bool end)
+static int run_test_nand(struct unit_test_state *uts, int dev, bool end)
 {
 	nand_erase_options_t opts = { };
 	struct mtd_info *mtd;
@@ -88,17 +88,34 @@ static int dm_test_nand(struct unit_test_state *uts, int dev, bool end)
 	return 0;
 }
 
-#define DM_NAND_TEST(dev) \
-static int dm_test_nand##dev##_start(struct unit_test_state *uts) \
-{ \
-	return dm_test_nand(uts, dev, false); \
-} \
-DM_TEST(dm_test_nand##dev##_start, UT_TESTF_SCAN_FDT); \
-static int dm_test_nand##dev##_end(struct unit_test_state *uts) \
-{ \
-	return dm_test_nand(uts, dev, true); \
-} \
-DM_TEST(dm_test_nand##dev##_end, UT_TESTF_SCAN_FDT)
+static int dm_test_nand0_start(struct unit_test_state *uts)
+{
+	ut_assertok(run_test_nand(uts, 0, false));
 
-DM_NAND_TEST(0);
-DM_NAND_TEST(1);
+	return 0;
+}
+DM_TEST(dm_test_nand0_start, UTF_SCAN_FDT);
+
+static int dm_test_nand1_start(struct unit_test_state *uts)
+{
+	ut_assertok(run_test_nand(uts, 1, false));
+
+	return 0;
+}
+DM_TEST(dm_test_nand1_start, UTF_SCAN_FDT);
+
+static int dm_test_nand0_end(struct unit_test_state *uts)
+{
+	ut_assertok(run_test_nand(uts, 0, true));
+
+	return 0;
+}
+DM_TEST(dm_test_nand0_end, UTF_SCAN_FDT);
+
+static int dm_test_nand1_end(struct unit_test_state *uts)
+{
+	ut_assertok(run_test_nand(uts, 1, true));
+
+	return 0;
+}
+DM_TEST(dm_test_nand1_end, UTF_SCAN_FDT);

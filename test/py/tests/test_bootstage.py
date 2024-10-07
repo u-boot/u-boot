@@ -33,7 +33,7 @@ def test_bootstage_report(u_boot_console):
 @pytest.mark.buildconfigspec('bootstage')
 @pytest.mark.buildconfigspec('cmd_bootstage')
 @pytest.mark.buildconfigspec('bootstage_stash')
-def test_bootstage_stash(u_boot_console):
+def test_bootstage_stash_and_unstash(u_boot_console):
     f = u_boot_console.config.env.get('env__bootstage_cmd_file', None)
     if not f:
         pytest.skip('No bootstage environment file is defined')
@@ -55,13 +55,8 @@ def test_bootstage_stash(u_boot_console):
     # Check expected string in last column of output
     output_last_col = ''.join([i.split()[-1] for i in output.split('\n')])
     assert expected_text in output_last_col
-    return addr, size
 
-@pytest.mark.buildconfigspec('bootstage')
-@pytest.mark.buildconfigspec('cmd_bootstage')
-@pytest.mark.buildconfigspec('bootstage_stash')
-def test_bootstage_unstash(u_boot_console):
-    addr, size = test_bootstage_stash(u_boot_console)
+    # Check that unstash works as expected
     u_boot_console.run_command('bootstage unstash %x %x' % (addr, size))
     output = u_boot_console.run_command('echo $?')
     assert output.endswith('0')

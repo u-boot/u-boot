@@ -105,6 +105,19 @@ struct arasan_sdhci_priv {
 	struct reset_ctl_bulk resets;
 };
 
+enum arasan_sdhci_compatible {
+	SDHCI_COMPATIBLE_SDHCI_89A,
+	SDHCI_COMPATIBLE_VERSAL_NET_EMMC,
+};
+
+static bool arasan_sdhci_is_compatible(struct udevice *dev,
+				       enum arasan_sdhci_compatible family)
+{
+	enum arasan_sdhci_compatible compat = dev_get_driver_data(dev);
+
+	return compat == family;
+}
+
 /* For Versal platforms zynqmp_mmio_write() won't be available */
 __weak int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value)
 {
@@ -422,7 +435,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	mdelay(1);
 
-	if (device_is_compatible(mmc->dev, "xlnx,zynqmp-8.9a"))
+	if (arasan_sdhci_is_compatible(mmc->dev, SDHCI_COMPATIBLE_SDHCI_89A))
 		arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	sdhci_writel(host, SDHCI_INT_DATA_AVAIL, SDHCI_INT_ENABLE);
@@ -470,7 +483,7 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 
 	udelay(1);
 
-	if (device_is_compatible(mmc->dev, "xlnx,zynqmp-8.9a"))
+	if (arasan_sdhci_is_compatible(mmc->dev, SDHCI_COMPATIBLE_SDHCI_89A))
 		arasan_zynqmp_dll_reset(host, priv->node_id);
 
 	/* Enable only interrupts served by the SD controller */
@@ -858,7 +871,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	dev_dbg(dev, "%s, host:%s, mode:%d\n", __func__, host->name, timing);
 
 	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) &&
-	    device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+	    arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_SDHCI_89A)) {
 		ret = sdhci_zynqmp_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
 			return ret;
@@ -869,7 +882,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	} else if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
 		    IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
 		    IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
-		   device_is_compatible(dev, "xlnx,versal-8.9a")) {
+		   arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_SDHCI_89A)) {
 		ret = sdhci_versal_sampleclk_set_phase(host, iclk_phase);
 		if (ret)
 			return ret;
@@ -879,7 +892,7 @@ static int arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 			return ret;
 	} else if ((IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
 		    IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
-		   device_is_compatible(dev, "xlnx,versal-net-emmc")) {
+		   arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_VERSAL_NET_EMMC)) {
 		if (mmc->clock >= MIN_PHY_CLK_HZ)
 			if (iclk_phase == VERSAL_NET_EMMC_ICLK_PHASE_DDR52_DLY_CHAIN)
 				iclk_phase = VERSAL_NET_EMMC_ICLK_PHASE_DDR52_DLL;
@@ -933,7 +946,7 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 	int i;
 
 	if (IS_ENABLED(CONFIG_ARCH_ZYNQMP) &&
-	    device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+	    arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_SDHCI_89A)) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = zynqmp_iclk_phases[i];
 			clk_data->clk_phase_out[i] = zynqmp_oclk_phases[i];
@@ -948,7 +961,7 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 	if ((IS_ENABLED(CONFIG_ARCH_VERSAL) ||
 	     IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
 	     IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
-	    device_is_compatible(dev, "xlnx,versal-8.9a")) {
+	    arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_SDHCI_89A)) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_iclk_phases[i];
 			clk_data->clk_phase_out[i] = versal_oclk_phases[i];
@@ -957,7 +970,7 @@ static void arasan_dt_parse_clk_phases(struct udevice *dev)
 
 	if ((IS_ENABLED(CONFIG_ARCH_VERSAL_NET) ||
 	     IS_ENABLED(CONFIG_ARCH_VERSAL2)) &&
-	    device_is_compatible(dev, "xlnx,versal-net-emmc")) {
+	    arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_VERSAL_NET_EMMC)) {
 		for (i = 0; i <= MMC_TIMING_MMC_HS400; i++) {
 			clk_data->clk_phase_in[i] = versal_net_emmc_iclk_phases[i];
 			clk_data->clk_phase_out[i] = versal_net_emmc_oclk_phases[i];
@@ -1101,7 +1114,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 	host = priv->host;
 
 #if defined(CONFIG_ARCH_ZYNQMP) && defined(CONFIG_ZYNQMP_FIRMWARE)
-	if (device_is_compatible(dev, "xlnx,zynqmp-8.9a")) {
+	if (arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_SDHCI_89A)) {
 		ret = zynqmp_pm_is_function_supported(PM_IOCTL,
 						      IOCTL_SET_SD_CONFIG);
 		if (!ret) {
@@ -1111,7 +1124,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		}
 	}
 #endif
-	if (device_is_compatible(dev, "xlnx,versal-net-emmc"))
+	if (arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_VERSAL_NET_EMMC))
 		priv->internal_phy_reg = true;
 
 	ret = clk_get_by_index(dev, 0, &clk);
@@ -1145,7 +1158,7 @@ static int arasan_sdhci_probe(struct udevice *dev)
 		host->quirks |= SDHCI_QUIRK_NO_1_8_V;
 
 	if (CONFIG_IS_ENABLED(ARCH_VERSAL_NET) &&
-	    device_is_compatible(dev, "xlnx,versal-net-emmc"))
+	    arasan_sdhci_is_compatible(dev, SDHCI_COMPATIBLE_VERSAL_NET_EMMC))
 		host->quirks |= SDHCI_QUIRK_CAPS_BIT63_FOR_HS400;
 
 	plat->cfg.f_max = CONFIG_ZYNQ_SDHCI_MAX_FREQ;
@@ -1228,8 +1241,8 @@ static int arasan_sdhci_bind(struct udevice *dev)
 }
 
 static const struct udevice_id arasan_sdhci_ids[] = {
-	{ .compatible = "arasan,sdhci-8.9a" },
-	{ .compatible = "xlnx,versal-net-emmc" },
+	{ .compatible = "arasan,sdhci-8.9a", .data = SDHCI_COMPATIBLE_SDHCI_89A },
+	{ .compatible = "xlnx,versal-net-emmc", .data = SDHCI_COMPATIBLE_VERSAL_NET_EMMC },
 	{ }
 };
 

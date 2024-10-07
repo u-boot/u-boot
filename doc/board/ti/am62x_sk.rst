@@ -132,6 +132,20 @@ DFU support (and disable storage support)
 .. include::  ../ti/k3.rst
     :start-after: .. k3_rst_include_start_build_steps_uboot
     :end-before: .. k3_rst_include_end_build_steps_uboot
+
+* 3.2.1 Alternative build of A53 for Android bootflow:
+
+Since the Android requires many more dependencies, it is disabled by default.
+An extra config fragment should be used to enable Android bootflow support.
+
+.. prompt:: bash $
+
+  export UBOOT_CFG_CORTEXR="${UBOOT_CFG_CORTEXA} am62x_a53_android.config"
+
+.. include::  ../ti/k3.rst
+    :start-after: .. k3_rst_include_start_build_steps_uboot
+    :end-before: .. k3_rst_include_end_build_steps_uboot
+
 .. am62x_evm_rst_include_end_build_steps
 
 Target Images

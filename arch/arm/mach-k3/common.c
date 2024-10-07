@@ -104,7 +104,7 @@ int early_console_init(void)
 
 	gd->cur_serial_dev = dev;
 	gd->flags |= GD_FLG_SERIAL_READY;
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 	return 0;
 }

@@ -244,7 +244,7 @@ rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 1160
+            resasg_entries_size: 1184
             reserved: 0
     resasg_entries:
         -
@@ -1017,13 +1017,13 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 8
-            num_resource: 12
+            num_resource: 32
             type: 12750
             host_id: 12
             reserved: 0
         -
-            start_resource: 20
-            num_resource: 20
+            start_resource: 8
+            num_resource: 32
             type: 12750
             host_id: 38
             reserved: 0
@@ -1035,13 +1035,13 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 0
-            num_resource: 12
+            num_resource: 32
             type: 12769
             host_id: 12
             reserved: 0
         -
-            start_resource: 12
-            num_resource: 20
+            start_resource: 0
+            num_resource: 32
             type: 12769
             host_id: 38
             reserved: 0
@@ -1053,9 +1053,21 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 0
-            num_resource: 8
+            num_resource: 2
             type: 12810
             host_id: 12
+            reserved: 0
+        -
+            start_resource: 2
+            num_resource: 2
+            type: 12810
+            host_id: 20
+            reserved: 0
+        -
+            start_resource: 4
+            num_resource: 2
+            type: 12810
+            host_id: 22
             reserved: 0
         -
             start_resource: 22
@@ -1065,21 +1077,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 12288
-            num_resource: 64
+            num_resource: 56
             type: 12813
             host_id: 12
             reserved: 0
         -
-            start_resource: 12352
+            start_resource: 12344
+            num_resource: 48
+            type: 12813
+            host_id: 20
+            reserved: 0
+        -
+            start_resource: 12392
+            num_resource: 48
+            type: 12813
+            host_id: 22
+            reserved: 0
+        -
+            start_resource: 12440
             num_resource: 64
             type: 12813
             host_id: 38
-            reserved: 0
-        -
-            start_resource: 12416
-            num_resource: 88
-            type: 12813
-            host_id: 128
             reserved: 0
         -
             start_resource: 1536

@@ -82,9 +82,6 @@ static ulong	tftp_block_wrap;
 static ulong	tftp_block_wrap_offset;
 static int	tftp_state;
 static ulong	tftp_load_addr;
-#ifdef CONFIG_LMB
-static ulong	tftp_load_size;
-#endif
 #ifdef CONFIG_TFTP_TSIZE
 /* The file size reported by the server */
 static int	tftp_tsize;
@@ -160,19 +157,15 @@ static inline int store_block(int block, uchar *src, unsigned int len)
 	ulong store_addr = tftp_load_addr + offset;
 	void *ptr;
 
-#ifdef CONFIG_LMB
-	ulong end_addr = tftp_load_addr + tftp_load_size;
-
-	if (!end_addr)
-		end_addr = ULONG_MAX;
-
-	if (store_addr < tftp_load_addr ||
-	    store_addr + len > end_addr) {
-		puts("\nTFTP error: ");
-		puts("trying to overwrite reserved memory...\n");
-		return -1;
+	if (CONFIG_IS_ENABLED(LMB)) {
+		if (store_addr < tftp_load_addr ||
+		    lmb_read_check(store_addr, len)) {
+			puts("\nTFTP error: ");
+			puts("trying to overwrite reserved memory...\n");
+			return -1;
+		}
 	}
-#endif
+
 	ptr = map_sysmem(store_addr, len);
 	memcpy(ptr, src, len);
 	unmap_sysmem(ptr);
@@ -713,21 +706,8 @@ static void tftp_timeout_handler(void)
 	}
 }
 
-/* Initialize tftp_load_addr and tftp_load_size from image_load_addr and lmb */
 static int tftp_init_load_addr(void)
 {
-#ifdef CONFIG_LMB
-	struct lmb lmb;
-	phys_size_t max_size;
-
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
-
-	max_size = lmb_get_free_size(&lmb, image_load_addr);
-	if (!max_size)
-		return -1;
-
-	tftp_load_size = max_size;
-#endif
 	tftp_load_addr = image_load_addr;
 	return 0;
 }

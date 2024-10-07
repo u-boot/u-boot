@@ -105,8 +105,4 @@
 
 #define CFG_SYS_FSL_USDHC_NUM		2
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC			(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS			0
-
 #endif

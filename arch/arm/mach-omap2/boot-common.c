@@ -269,7 +269,7 @@ skip_ipu1:
 		debug("%s: IPU2 failed to start (%d)\n", __func__, ret);
 }
 
-void spl_board_init(void)
+void spl_soc_init(void)
 {
 	/* Prepare console output */
 	preloader_console_init();
@@ -285,9 +285,6 @@ void spl_board_init(void)
 #endif
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	hw_watchdog_init();
-#endif
-#ifdef CONFIG_AM33XX
-	am33xx_spl_board_init();
 #endif
 	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
 	    IS_ENABLED(CONFIG_REMOTEPROC_TI_IPU))

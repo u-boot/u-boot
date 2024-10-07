@@ -94,10 +94,6 @@ static int isp1301_set_value(struct udevice *dev, int reg, u8 value)
 
 static void isp1301_configure(struct udevice *dev)
 {
-#if !CONFIG_IS_ENABLED(DM_I2C)
-	i2c_set_bus_num(I2C_2);
-#endif
-
 	/*
 	 * LPC32XX only supports DAT_SE0 USB mode
 	 * This sequence is important

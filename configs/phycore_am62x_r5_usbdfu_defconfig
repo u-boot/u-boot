@@ -1,0 +1,9 @@
+#include <configs/phycore_am62x_r5_defconfig>
+#include <configs/am62x_r5_usbdfu.config>
+
+CONFIG_ARM=y
+CONFIG_ARCH_K3=y
+CONFIG_SOC_K3_AM625=y
+CONFIG_TARGET_PHYCORE_AM62X_R5=y
+
+CONFIG_USB_GADGET_MANUFACTURER="PHYTEC"

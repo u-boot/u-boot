@@ -187,9 +187,6 @@ int board_init(void)
 	warmboot_prepare_code(TEGRA_LP0_ADDR, TEGRA_LP0_SIZE);
 #endif
 
-	/* Set up boot-on regulators */
-	regulators_enable_boot_on(_DEBUG);
-
 	return nvidia_board_init();
 }
 
@@ -422,10 +419,6 @@ int dram_init_banksize(void)
 
 	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
-
-#ifdef CONFIG_PCI
-	gd->pci_ram_top = gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size;
-#endif
 
 #ifdef CONFIG_PHYS_64BIT
 	if (gd->ram_size > SZ_2G) {

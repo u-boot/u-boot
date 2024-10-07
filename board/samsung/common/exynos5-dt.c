@@ -88,10 +88,6 @@ int exynos_power_init(void)
 	if (ret == -ENODEV)
 		return 0;
 
-	ret = regulators_enable_boot_on(false);
-	if (ret)
-		return ret;
-
 	ret = exynos_set_regulator("vdd_mif", 1100000);
 	if (ret)
 		return ret;

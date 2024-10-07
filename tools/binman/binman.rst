@@ -494,11 +494,17 @@ point into the image.
 For example, say SPL is at the start of the image and linked to start at address
 80108000. If U-Boot's image-pos is 0x8000 then binman will write an image-pos
 for U-Boot of 80110000 into the SPL binary, since it assumes the image is loaded
-to 80108000, with SPL at 80108000 and U-Boot at 80110000.
+to 80108000, with SPL at 80108000 and U-Boot at 80110000. In other words, the
+positions are calculated relative to the start address of the image to which
+they are being written.
 
 For x86 devices (with the end-at-4gb property) this base address is not added
 since it is assumed that images are XIP and the offsets already include the
 address.
+
+For non-x86 cases where the symbol is used as a flash offset, the symbols-base
+property can be set to that offset (e.g. 0), so that the unadjusted image-pos
+is written into the image.
 
 While U-Boot's symbol updating is handled automatically by the u-boot-spl
 entry type (and others), it is possible to use this feature with any blob. To
@@ -740,6 +746,17 @@ insert-template:
     include in the current (target) node. For each node, its subnodes and their
     properties are brought into the target node. See Templates_ below for
     more information.
+
+symbols-base:
+    When writing symbols into a binary, the value of that symbol is assumed to
+    be relative to the base address of the binary. This allow the binary to be
+    loaded in memory at its base address, so that symbols point into the binary
+    correctly. In some cases the binary is in fact not yet in memory, but must
+    be read from storage. In this case there is no base address for the symbols.
+    This property can be set to 0 to indicate this. Other values for
+    symbols-base are allowed, but care must be taken that the code which uses
+    the symbol is aware of the base being used. If omitted, the binary's base
+    address is used.
 
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.

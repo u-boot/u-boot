@@ -260,12 +260,11 @@ static void do_bootvx_fdt(struct bootm_headers *images)
 	char *bootline;
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
-	struct lmb *lmb = &images->lmb;
 
 	if (*of_flat_tree) {
-		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+		boot_fdt_add_mem_rsv_regions(*of_flat_tree);
 
-		ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
+		ret = boot_relocate_fdt(of_flat_tree, &of_size);
 		if (ret)
 			return;
 

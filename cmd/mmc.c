@@ -8,12 +8,14 @@
 #include <command.h>
 #include <console.h>
 #include <display_options.h>
+#include <mapmem.h>
 #include <memalign.h>
 #include <mmc.h>
 #include <part.h>
 #include <sparse_format.h>
 #include <image-sparse.h>
 #include <vsprintf.h>
+#include <linux/ctype.h>
 
 static int curr_device = -1;
 
@@ -238,7 +240,7 @@ static int do_mmcrpmb_read(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 5)
 		key_addr = (void *)hextoul(argv[4], NULL);
 
-	printf("\nMMC RPMB read: dev # %d, block # %d, count %d ... ",
+	printf("MMC RPMB read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 	n =  mmc_rpmb_read(mmc, addr, blk, cnt, key_addr);
 
@@ -265,7 +267,7 @@ static int do_mmcrpmb_write(struct cmd_tbl *cmdtp, int flag,
 	cnt = hextoul(argv[3], NULL);
 	key_addr = (void *)hextoul(argv[4], NULL);
 
-	printf("\nMMC RPMB write: dev # %d, block # %d, count %d ... ",
+	printf("MMC RPMB write: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 	n =  mmc_rpmb_write(mmc, addr, blk, cnt, key_addr);
 
@@ -349,12 +351,12 @@ static int do_mmc_read(struct cmd_tbl *cmdtp, int flag,
 {
 	struct mmc *mmc;
 	u32 blk, cnt, n;
-	void *addr;
+	void *ptr;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	addr = (void *)hextoul(argv[1], NULL);
+	ptr = map_sysmem(hextoul(argv[1], NULL), 0);
 	blk = hextoul(argv[2], NULL);
 	cnt = hextoul(argv[3], NULL);
 
@@ -362,11 +364,12 @@ static int do_mmc_read(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+	printf("MMC read: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
-	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
+	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, ptr);
 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+	unmap_sysmem(ptr);
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
@@ -411,7 +414,7 @@ static int do_mmc_sparse_write(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC Sparse write: dev # %d, block # %d ... ",
+	printf("MMC Sparse write: dev # %d, block # %d ... ",
 	       curr_device, blk);
 
 	if (mmc_getwp(mmc) == 1) {
@@ -442,12 +445,12 @@ static int do_mmc_write(struct cmd_tbl *cmdtp, int flag,
 {
 	struct mmc *mmc;
 	u32 blk, cnt, n;
-	void *addr;
+	void *ptr;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	addr = (void *)hextoul(argv[1], NULL);
+	ptr = map_sysmem(hextoul(argv[1], NULL), 0);
 	blk = hextoul(argv[2], NULL);
 	cnt = hextoul(argv[3], NULL);
 
@@ -455,15 +458,16 @@ static int do_mmc_write(struct cmd_tbl *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC write: dev # %d, block # %d, count %d ... ",
+	printf("MMC write: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
 	if (mmc_getwp(mmc) == 1) {
 		printf("Error: card is write protected!\n");
 		return CMD_RET_FAILURE;
 	}
-	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
+	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, ptr);
 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+	unmap_sysmem(ptr);
 
 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
 }
@@ -472,19 +476,27 @@ static int do_mmc_erase(struct cmd_tbl *cmdtp, int flag,
 			int argc, char *const argv[])
 {
 	struct mmc *mmc;
+	struct disk_partition info;
 	u32 blk, cnt, n;
 
-	if (argc != 3)
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
-
-	blk = hextoul(argv[1], NULL);
-	cnt = hextoul(argv[2], NULL);
 
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	printf("\nMMC erase: dev # %d, block # %d, count %d ... ",
+	if (argc == 3) {
+		blk = hextoul(argv[1], NULL);
+		cnt = hextoul(argv[2], NULL);
+	} else if (part_get_info_by_name(mmc_get_blk_desc(mmc), argv[1], &info) >= 0) {
+		blk = info.start;
+		cnt = info.size;
+	} else {
+		return CMD_RET_FAILURE;
+	}
+
+	printf("MMC erase: dev # %d, block # %d, count %d ... ",
 	       curr_device, blk, cnt);
 
 	if (mmc_getwp(mmc) == 1) {
@@ -918,8 +930,9 @@ static int mmc_partconf_print(struct mmc *mmc, const char *varname)
 
 	printf("EXT_CSD[179], PARTITION_CONFIG:\n"
 		"BOOT_ACK: 0x%x\n"
-		"BOOT_PARTITION_ENABLE: 0x%x\n"
-		"PARTITION_ACCESS: 0x%x\n", ack, part, access);
+		"BOOT_PARTITION_ENABLE: 0x%x (%s)\n"
+		"PARTITION_ACCESS: 0x%x (%s)\n", ack, part, emmc_boot_part_names[part],
+		access, emmc_hwpart_names[access]);
 
 	return CMD_RET_SUCCESS;
 }
@@ -948,9 +961,26 @@ static int do_mmc_partconf(struct cmd_tbl *cmdtp, int flag,
 	if (argc == 2 || argc == 3)
 		return mmc_partconf_print(mmc, cmd_arg2(argc, argv));
 
+	/* BOOT_ACK */
 	ack = dectoul(argv[2], NULL);
-	part_num = dectoul(argv[3], NULL);
-	access = dectoul(argv[4], NULL);
+	/* BOOT_PARTITION_ENABLE */
+	if (!isdigit(*argv[3])) {
+		for (part_num = ARRAY_SIZE(emmc_boot_part_names) - 1; part_num > 0; part_num--) {
+			if (!strcmp(argv[3], emmc_boot_part_names[part_num]))
+				break;
+		}
+	} else {
+		part_num = dectoul(argv[3], NULL);
+	}
+	/* PARTITION_ACCESS */
+	if (!isdigit(*argv[4])) {
+		for (access = ARRAY_SIZE(emmc_hwpart_names) - 1; access > 0; access--) {
+			if (!strcmp(argv[4], emmc_hwpart_names[access]))
+				break;
+		}
+	} else {
+		access = dectoul(argv[4], NULL);
+	}
 
 	/* acknowledge to be sent during boot operation */
 	ret = mmc_set_part_conf(mmc, ack, part_num, access);
@@ -1271,6 +1301,7 @@ U_BOOT_CMD(
 	"mmc swrite addr blk#\n"
 #endif
 	"mmc erase blk# cnt\n"
+	"mmc erase partname\n"
 	"mmc rescan [mode]\n"
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] [mode] - show or set current mmc device [partition] and set mode\n"

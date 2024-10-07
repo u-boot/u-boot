@@ -87,6 +87,8 @@ struct arch_global_data {
 #if defined(CONFIG_LWMON5)
 	unsigned long kbd_status;
 #endif
+	/** @pci_clk: PCI clock rate in Hz */
+	unsigned long pci_clk;
 };
 
 #include <asm-generic/global_data.h>

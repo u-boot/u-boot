@@ -46,6 +46,9 @@ config TARGET_TH1520_LPI4A
 config TARGET_XILINX_MBV
 	bool "Support AMD/Xilinx MicroBlaze V"
 
+config TARGET_ASPEED_AST2700_IBEX
+	bool "Support Ibex RISC-V cores on Aspeed AST2700 SoC"
+
 endchoice
 
 config SYS_ICACHE_OFF
@@ -81,6 +84,7 @@ config SPL_ZERO_MEM_BEFORE_USE
 
 # board-specific options below
 source "board/andestech/ae350/Kconfig"
+source "board/aspeed/ibex_ast2700/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
@@ -97,6 +101,7 @@ source "arch/riscv/cpu/andes/Kconfig"
 source "arch/riscv/cpu/cv1800b/Kconfig"
 source "arch/riscv/cpu/fu540/Kconfig"
 source "arch/riscv/cpu/fu740/Kconfig"
+source "arch/riscv/cpu/ast2700/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
 source "arch/riscv/cpu/jh7110/Kconfig"
 
@@ -309,7 +314,10 @@ config TPL_USE_ARCH_STRNCMP
 endmenu
 
 config RISCV_ISA_A
-	def_bool y
+	bool "Standard extension for Atomic Instructions"
+	default y
+	help
+	  Adds "A" to the ISA string passed to the compiler.
 
 config DMA_ADDR_T_64BIT
 	bool
@@ -464,7 +472,7 @@ config RISCV_PRIV_1_9
 	  memory is configured was also changed.
 
 config STACK_SIZE_SHIFT
-	int
+	int "Stack size shift"
 	default 14
 
 config OF_BOARD_FIXUP

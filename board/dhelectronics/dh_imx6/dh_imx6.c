@@ -128,8 +128,6 @@ int board_init(void)
 
 	setup_fec_clock();
 
-	regulators_enable_boot_on(_DEBUG);
-
 	return 0;
 }
 

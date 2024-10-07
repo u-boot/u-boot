@@ -5,11 +5,6 @@ config AHAB_BOOT
     help
     This option enables the support for AHAB secure boot.
 
-config IMX9_LOW_DRIVE_MODE
-    bool "Configure to i.MX9 low drive mode"
-    help
-    This option enables the settings for iMX9 low drive mode.
-
 config IMX9
 	bool
 	select BINMAN
@@ -30,6 +25,7 @@ choice
 
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
+	select OF_BOARD_FIXUP
 	select IMX93
 	imply OF_UPSTREAM
 

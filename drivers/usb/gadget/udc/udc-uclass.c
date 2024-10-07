@@ -83,7 +83,7 @@ __weak int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM)
 UCLASS_DRIVER(usb_gadget_generic) = {
 	.id		= UCLASS_USB_GADGET_GENERIC,
-	.name		= "usb",
+	.name		= "usb_gadget",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
 #endif

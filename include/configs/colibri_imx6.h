@@ -21,11 +21,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 #define CFG_SYS_FSL_USDHC_NUM	2
 
-/* USB Configs */
-/* Host */
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
-
 /* Command definition */
 
 #define BOOT_TARGET_DEVICES(func) \

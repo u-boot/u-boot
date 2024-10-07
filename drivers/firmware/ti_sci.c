@@ -2450,6 +2450,12 @@ fail:
 	return ret;
 }
 
+static int ti_sci_cmd_rm_udmap_rx_flow_cfg_noop(const struct ti_sci_handle *handle,
+						const struct ti_sci_msg_rm_udmap_flow_cfg *params)
+{
+	return 0;
+}
+
 /**
  * ti_sci_cmd_set_fwl_region() - Request for configuring a firewall region
  * @handle:    pointer to TI SCI handle
@@ -2895,7 +2901,7 @@ static __maybe_unused int ti_sci_dm_probe(struct udevice *dev)
 	udmap_ops = &ops->rm_udmap_ops;
 	udmap_ops->tx_ch_cfg = ti_sci_cmd_rm_udmap_tx_ch_cfg;
 	udmap_ops->rx_ch_cfg = ti_sci_cmd_rm_udmap_rx_ch_cfg;
-	udmap_ops->rx_flow_cfg = ti_sci_cmd_rm_udmap_rx_flow_cfg;
+	udmap_ops->rx_flow_cfg = ti_sci_cmd_rm_udmap_rx_flow_cfg_noop;
 
 	return ret;
 }

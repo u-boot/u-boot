@@ -87,17 +87,14 @@ static int dm_test_read_write(struct unit_test_state *uts)
 	ut_assertok(memcmp(wbuf, rbuf, sizeof(wbuf)));
 
 	/* Read/write outside partition bounds should be rejected upfront. */
-	console_record_reset_enable();
 	ut_asserteq(1, run_commandf("read mmc 2#data 0x%lx 3 2", ra));
 	ut_assert_nextlinen("read out of range");
 	ut_assert_console_end();
 
-	console_record_reset_enable();
 	ut_asserteq(1, run_commandf("write mmc 2#log 0x%lx 9 2", wa));
 	ut_assert_nextlinen("write out of range");
 	ut_assert_console_end();
 
 	return 0;
 }
-
-DM_TEST(dm_test_read_write, UT_TESTF_SCAN_FDT | UT_TESTF_CONSOLE_REC);
+DM_TEST(dm_test_read_write, UTF_SCAN_FDT | UTF_CONSOLE);

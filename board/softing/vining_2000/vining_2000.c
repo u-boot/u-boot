@@ -18,7 +18,6 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/sections.h>
 #include <env.h>
 #include <linux/bitops.h>
@@ -27,7 +26,6 @@
 #include <config.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
-#include <i2c.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <power/pmic.h>
@@ -52,10 +50,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_RX_PAD_CTRL  (PAD_CTL_PKE |			\
 	PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_HIGH |		\
 	PAD_CTL_SRE_FAST)
-
-#define I2C_PAD_CTRL  (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP |	\
-	PAD_CTL_PKE | PAD_CTL_ODE | PAD_CTL_SPEED_MED |		\
-	PAD_CTL_DSE_40ohm)
 
 #define USDHC_CLK_PAD_CTRL  (PAD_CTL_HYS | PAD_CTL_SPEED_MED |	\
 	PAD_CTL_DSE_80ohm | PAD_CTL_SRE_FAST)
@@ -119,21 +113,6 @@ eth_fail:
 	printf("FEC MXC: %s:failed (%i)\n", __func__, ret);
 	return ret;
 }
-
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1 for PMIC */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO1_IO00__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO00__GPIO1_IO_0 | PC,
-		.gp = IMX_GPIO_NR(1, 0),
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO1_IO01__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_GPIO1_IO01__GPIO1_IO_1 | PC,
-		.gp = IMX_GPIO_NR(1, 1),
-	},
-};
 
 static struct pmic *pfuze_init(unsigned char i2cbus)
 {
@@ -399,10 +378,6 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-#ifdef CONFIG_SYS_I2C_MXC
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-#endif
 
 	return board_net_init();
 }

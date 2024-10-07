@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0+)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/timer/adi,sc5xx-gptimer.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices SC5XX Series SoC Timer Peripherals
+
+maintainers:
+  - Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+  - Utsav Agarwal <utsav.agarwal@analog.com>
+  - Arturs Artamonovs <arturs.artamonovs@analog.com>
+
+properties:
+  compatible:
+    const: adi,sc5xx-gptimer
+
+  reg:
+    minItems: 2
+    maxItems: 2
+
+  clocks:
+    minItems: 1
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    timer0: timer@31018000 {
+      compatible = "adi,sc5xx-gptimer";
+      reg = <0x31018004 0x100>,
+            <0x31018060 0x100>;
+      status = "okay";
+      bootph-all;
+    };
+

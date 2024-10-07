@@ -68,7 +68,7 @@ static int dm_test_phy_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test of the phy uclass using the sandbox phy driver operations */
 static int dm_test_phy_ops(struct unit_test_state *uts)
@@ -140,7 +140,7 @@ static int dm_test_phy_ops(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_ops, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_ops, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_bulk(struct unit_test_state *uts)
 {
@@ -173,7 +173,7 @@ static int dm_test_phy_bulk(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_bulk, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_bulk, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 {
@@ -232,7 +232,7 @@ static int dm_test_phy_multi_exit(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_phy_multi_exit, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_multi_exit, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_phy_setup(struct unit_test_state *uts)
 {
@@ -243,22 +243,29 @@ static int dm_test_phy_setup(struct unit_test_state *uts)
 					      "gen_phy_user", &parent));
 
 	/* normal */
-	ut_assertok(generic_setup_phy(parent, &phy, 0));
+	ut_assertok(generic_setup_phy(parent, &phy, 0, PHY_MODE_USB_HOST, 0));
+	ut_assertok(generic_shutdown_phy(&phy));
+
+	/* set_mode as USB Host passes, anything else is not supported */
+	ut_assertok(generic_setup_phy(parent, &phy, 0, PHY_MODE_USB_HOST, 0));
+	ut_assertok(generic_phy_set_mode(&phy, PHY_MODE_USB_HOST, 0));
+	ut_asserteq(-EOPNOTSUPP, generic_phy_set_mode(&phy, PHY_MODE_USB_HOST, 1));
+	ut_asserteq(-EINVAL, generic_phy_set_mode(&phy, PHY_MODE_USB_DEVICE, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	/* power_off fail with -EIO */
-	ut_assertok(generic_setup_phy(parent, &phy, 1));
+	ut_assertok(generic_setup_phy(parent, &phy, 1, PHY_MODE_USB_HOST, 0));
 	ut_asserteq(-EIO, generic_shutdown_phy(&phy));
 
 	/* power_on fail with -EIO */
-	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2));
+	ut_asserteq(-EIO, generic_setup_phy(parent, &phy, 2, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	/* generic_phy_get_by_index fail with -ENOENT */
 	ut_asserteq(-ENOENT, generic_phy_get_by_index(parent, 3, &phy));
-	ut_assertok(generic_setup_phy(parent, &phy, 3));
+	ut_assertok(generic_setup_phy(parent, &phy, 3, PHY_MODE_USB_HOST, 0));
 	ut_assertok(generic_shutdown_phy(&phy));
 
 	return 0;
 }
-DM_TEST(dm_test_phy_setup, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_phy_setup, UTF_SCAN_PDATA | UTF_SCAN_FDT);

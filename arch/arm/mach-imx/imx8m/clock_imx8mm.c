@@ -181,10 +181,19 @@ void dram_disable_bypass(void)
 }
 #endif
 
-int intpll_configure(enum pll_clocks pll, ulong freq)
+__weak int board_imx_intpll_override(enum pll_clocks pll, ulong *freq)
+{
+	return 0;
+}
+
+static int intpll_configure(enum pll_clocks pll, ulong freq)
 {
 	void __iomem *pll_gnrl_ctl, __iomem *pll_div_ctl;
 	u32 pll_div_ctl_val, pll_clke_masks;
+	int ret = board_imx_intpll_override(pll, &freq);
+
+	if (ret)
+		return ret;
 
 	switch (pll) {
 	case ANATOP_SYSTEM_PLL1:

@@ -408,11 +408,11 @@ static void plat_mp_up(unsigned long bootpg, unsigned int pagesize)
 }
 #endif
 
-void cpu_mp_lmb_reserve(struct lmb *lmb)
+void cpu_mp_lmb_reserve(void)
 {
 	u32 bootpg = determine_mp_bootpg(NULL);
 
-	lmb_reserve(lmb, bootpg, 4096);
+	lmb_reserve(bootpg, 4096);
 }
 
 void setup_mp(void)

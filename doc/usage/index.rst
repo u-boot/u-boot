@@ -15,6 +15,7 @@ Use U-Boot
    cmdline
    semihosting
    measured_boot
+   upl
 
 Shell commands
 --------------
@@ -115,6 +116,7 @@ Shell commands
    cmd/tftpput
    cmd/trace
    cmd/true
+   cmd/upl
    cmd/ums
    cmd/unbind
    cmd/ut

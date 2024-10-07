@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	model = "Aspeed AST2700 Ibex BootMCU";
+	compatible = "aspeed,ast2700-ibex";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "lowrisc,ibex";
+			device_type = "cpu";
+			reg = <0>;
+			comptaible = "riscv";
+			riscv,isa = "rv32imc";
+		};
+	};
+
+	memory@80000000 {
+		reg = <0x80000000 0x80000000>;
+	};
+
+	soc0: soc@12000000 {
+		compatible = "aspeed,soc1","simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		sdrammc: sdrammc@12c00000 {
+			compatible = "aspeed,ast2700-sdrammc";
+			reg = <0x12c00000 0x3000>, <0x13000000 0x1000>;
+			aspeed,scu0 = <&syscon0>;
+			aspeed,scu1 = <&syscon1>;
+		};
+
+		syscon0: syscon@12c02000 {
+			compatible = "aspeed,ast2700-scu0", "syscon", "simple-mfd";
+			reg = <0x12c02000 0x1000>;
+			ranges = <0 0x12c02000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+		};
+	};
+
+	soc1: soc@14000000 {
+		compatible = "aspeed,soc1","simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		syscon1: syscon@14c02000 {
+			compatible = "aspeed,ast2700-scu1", "syscon", "simple-mfd";
+			reg = <0x14c02000 0x1000>;
+			ranges = <0 0x14c02000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+		};
+
+		uart12: serial@14c33b00 {
+			compatible = "ns16550a";
+			reg = <0x14c33b00 0x20>;
+			reg-shift = <2>;
+			no-loopback-test;
+			clock-frequency = <1846153>;
+			status = "disabled";
+		};
+
+		ast_ibex_timer: timer {
+			compatible = "aspeed,ast2700-ibex-timer";
+			clock-frequency = <200000000>;
+		};
+	};
+};

@@ -43,6 +43,7 @@
 
 &gem1 {
 	status = "okay";
+	phy-mode = "rgmii-id";
 	mdio {
 		#address-cells = <1>;
 		#size-cells = <0>;

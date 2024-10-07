@@ -7,7 +7,7 @@
  * Reinhard Meyer, EMK Elektronik, reinhard.meyer@emk-elektronik.de
  *
  * Definitions for the SoCs:
- * AT91SAM9260, AT91SAM9G20, AT91SAM9XE
+ * AT91SAM9260, AT91SAM9G20
  *
  * Note that those SoCs are mostly software and pin compatible,
  * therefore this file applies to all of them. Differences between
@@ -142,15 +142,7 @@
 /*
  * SoC specific defines
  */
-#if defined(CONFIG_AT91SAM9XE)
-# define ATMEL_CPU_NAME		"AT91SAM9XE"
-# define ATMEL_ID_TWI1		25	/* TWI 1 */
-# define ATMEL_BASE_FLASH	0x00200000	/* Internal FLASH */
-# define ATMEL_BASE_SRAM	0x00300000	/* Internal SRAM */
-# define ATMEL_BASE_TWI1	0xfffd8000
-# define ATMEL_BASE_EEFC	0xfffffa00
-# define ATMEL_BASE_GPBR	0xfffffd60
-#elif defined(CONFIG_AT91SAM9260)
+#if defined(CONFIG_AT91SAM9260)
 # define ATMEL_CPU_NAME		"AT91SAM9260"
 # define ATMEL_ID_USART5	25	/* USART 5 */
 # define ATMEL_BASE_SRAM0	0x00200000	/* Internal SRAM 0 */

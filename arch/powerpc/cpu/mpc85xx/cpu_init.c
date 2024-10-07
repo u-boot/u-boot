@@ -940,22 +940,6 @@ int cpu_init_r(void)
 	return 0;
 }
 
-#ifdef CONFIG_ARCH_MISC_INIT
-int arch_misc_init(void)
-{
-	if (IS_ENABLED(CONFIG_FSL_CAAM)) {
-		struct udevice *dev;
-		int ret;
-
-		ret = uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(caam_jr), &dev);
-		if (ret)
-			printf("Failed to initialize caam_jr: %d\n", ret);
-	}
-
-	return 0;
-}
-#endif
-
 void arch_preboot_os(void)
 {
 	u32 msr;

@@ -16,6 +16,12 @@
 &{/} {
 	compatible = "xlnx,zynqmp-sc-vpk180-revA", "xlnx,zynqmp-vpk180-revA",
 		     "xlnx,zynqmp-vpk180", "xlnx,zynqmp";
+
+	vc7_xin: vc7-xin {
+		compatible = "fixed-clock";
+		#clock-cells = <0x0>;
+		clock-frequency = <50000000>;
+	};
 };
 
 &i2c0 {

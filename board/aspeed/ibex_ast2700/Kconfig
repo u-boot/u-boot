@@ -1,0 +1,21 @@
+if TARGET_ASPEED_AST2700_IBEX
+
+config SYS_BOARD
+	default "ibex_ast2700"
+
+config SYS_VENDOR
+	default "aspeed"
+
+config SYS_CPU
+	default "ast2700"
+
+config SYS_CONFIG_NAME
+	default "ibex_ast2700"
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select RISCV_AST2700
+	select SUPPORT_SPL
+	imply SPL_DRIVERS_MISC
+
+endif

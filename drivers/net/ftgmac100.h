@@ -66,6 +66,13 @@ struct ftgmac100 {
 	unsigned int	rx_runt;	/* 0xc0 */
 	unsigned int	rx_crcer_ftl;	/* 0xc4 */
 	unsigned int	rx_col_lost;	/* 0xc8 */
+	unsigned int	reserved[43];	/* 0xcc - 0x174 */
+	unsigned int	txr_badr_lo;	/* 0x178, defined in ast2700 */
+	unsigned int	txr_badr_hi;	/* 0x17c, defined in ast2700 */
+	unsigned int	hptxr_badr_lo;	/* 0x180, defined in ast2700 */
+	unsigned int	hptxr_badr_hi;	/* 0x184, defined in ast2700 */
+	unsigned int	rxr_badr_lo;	/* 0x188, defined in ast2700 */
+	unsigned int	rxr_badr_hi;	/* 0x18c, defined in ast2700 */
 };
 
 /*
@@ -111,6 +118,7 @@ struct ftgmac100 {
 #define FTGMAC100_DBLAC_TXBURST_SIZE(x)	(((x) & 0x3) << 10)
 #define FTGMAC100_DBLAC_RXDES_SIZE(x)	(((x) & 0xf) << 12)
 #define FTGMAC100_DBLAC_TXDES_SIZE(x)	(((x) & 0xf) << 16)
+#define FTGMAC100_DESC_UNIT		8
 #define FTGMAC100_DBLAC_IFG_CNT(x)	(((x) & 0x7) << 20)
 #define FTGMAC100_DBLAC_IFG_INC		BIT(23)
 
@@ -157,6 +165,7 @@ struct ftgmac100 {
 #define FTGMAC100_MACCR_RX_BROADPKT	BIT(17)
 #define FTGMAC100_MACCR_DISCARD_CRCERR	BIT(18)
 #define FTGMAC100_MACCR_FAST_MODE	BIT(19)
+#define FTGMAC100_MACCR_RMII_ENABLE	BIT(20)	/* defined in ast2700 */
 #define FTGMAC100_MACCR_SW_RST		BIT(31)
 
 /*
@@ -183,7 +192,7 @@ struct ftgmac100_txdes {
 	unsigned int	txdes1;
 	unsigned int	txdes2;	/* not used by HW */
 	unsigned int	txdes3;	/* TXBUF_BADR */
-} __aligned(16);
+} __aligned(ARCH_DMA_MINALIGN);
 
 #define FTGMAC100_TXDES0_TXBUF_SIZE(x)	((x) & 0x3fff)
 #define FTGMAC100_TXDES0_EDOTR		BIT(15)
@@ -201,6 +210,8 @@ struct ftgmac100_txdes {
 #define FTGMAC100_TXDES1_TX2FIC		BIT(30)
 #define FTGMAC100_TXDES1_TXIC		BIT(31)
 
+#define FTGMAC100_TXDES2_TXBUF_BADR_HI	GENMASK(18, 16)
+
 /*
  * Receive descriptor, aligned to 16 bytes
  */
@@ -209,7 +220,7 @@ struct ftgmac100_rxdes {
 	unsigned int	rxdes1;
 	unsigned int	rxdes2;	/* not used by HW */
 	unsigned int	rxdes3;	/* RXBUF_BADR */
-} __aligned(16);
+} __aligned(ARCH_DMA_MINALIGN);
 
 #define FTGMAC100_RXDES0_VDBC(x)	((x) & 0x3fff)
 #define FTGMAC100_RXDES0_EDORR		BIT(15)
@@ -239,5 +250,7 @@ struct ftgmac100_rxdes {
 #define FTGMAC100_RXDES1_TCP_CHKSUM_ERR	BIT(25)
 #define FTGMAC100_RXDES1_UDP_CHKSUM_ERR	BIT(26)
 #define FTGMAC100_RXDES1_IP_CHKSUM_ERR	BIT(27)
+
+#define FTGMAC100_RXDES2_RXBUF_BADR_HI	GENMASK(18, 16)
 
 #endif /* __FTGMAC100_H */

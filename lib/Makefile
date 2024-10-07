@@ -118,7 +118,7 @@ obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdtdec.o fdtdec_common.o
 obj-y += hang.o
 obj-y += linux_compat.o
 obj-y += linux_string.o
-obj-$(CONFIG_LMB) += lmb.o
+obj-$(CONFIG_$(SPL_TPL_)LMB) += lmb.o
 obj-y += membuff.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
@@ -147,6 +147,7 @@ endif
 obj-$(CONFIG_$(SPL_)OID_REGISTRY) += oid_registry.o
 
 obj-y += abuf.o
+obj-y += alist.o
 obj-y += date.o
 obj-y += rtc-lib.o
 obj-$(CONFIG_LIB_ELF) += elf.o

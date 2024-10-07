@@ -55,4 +55,4 @@ static int dm_test_syscon_reset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_syscon_reset, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_syscon_reset, UTF_SCAN_FDT);

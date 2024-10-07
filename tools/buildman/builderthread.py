@@ -406,7 +406,7 @@ class BuilderThread(threading.Thread):
                     the next incremental build
         """
         # Set up the environment and command line
-        env = self.toolchain.MakeEnvironment(self.builder.full_path)
+        env = self.builder.make_environment(self.toolchain)
         mkdir(out_dir)
 
         args, cwd, src_dir = self._build_args(brd, out_dir, out_rel_dir,
@@ -574,7 +574,7 @@ class BuilderThread(threading.Thread):
                 outf.write(f'{result.return_code}')
 
             # Write out the image and function size information and an objdump
-            env = result.toolchain.MakeEnvironment(self.builder.full_path)
+            env = self.builder.make_environment(self.toolchain)
             with open(os.path.join(build_dir, 'out-env'), 'wb') as outf:
                 for var in sorted(env.keys()):
                     outf.write(b'%s="%s"' % (var, env[var]))
@@ -755,6 +755,14 @@ class BuilderThread(threading.Thread):
                         self.mrproper, self.builder.config_only, True,
                         self.builder.force_build_failures, job.work_in_output,
                         job.adjust_cfg)
+            failed = result.return_code or result.stderr
+            if failed and not self.mrproper:
+                result, request_config = self.run_commit(None, brd, work_dir,
+                            True, self.builder.fallback_mrproper,
+                            self.builder.config_only, True,
+                            self.builder.force_build_failures,
+                            job.work_in_output, job.adjust_cfg)
+
             result.commit_upto = 0
             self._write_result(result, job.keep_outputs, job.work_in_output)
             self._send_result(result)
