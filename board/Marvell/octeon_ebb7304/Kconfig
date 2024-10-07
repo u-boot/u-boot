@@ -1,11 +1,9 @@
 if TARGET_OCTEON_EBB7304
 
 config SYS_BOARD
-	string
 	default "octeon_ebb7304"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME

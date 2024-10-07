@@ -12,7 +12,6 @@
 #include <image.h>
 #include <init.h>
 #include <jffs2/load_kernel.h>
-#include <lmb.h>
 #include <log.h>
 #include <asm/global_data.h>
 #include <asm/sections.h>
@@ -31,7 +30,7 @@
 #include <soc.h>
 #include <linux/ctype.h>
 #include <linux/kernel.h>
-#include <uuid.h>
+#include <u-boot/uuid.h>
 
 #include "fru.h"
 
@@ -426,28 +425,25 @@ int board_late_init_xilinx(void)
 	struct xilinx_board_description *desc;
 	phys_size_t bootm_size = gd->ram_top - gd->ram_base;
 	u64 bootscr_flash_offset, bootscr_flash_size;
+	ulong scriptaddr;
+	u64 bootscr_address;
+	u64 bootscr_offset;
 
-	if (!IS_ENABLED(CONFIG_MICROBLAZE)) {
-		ulong scriptaddr;
-		u64 bootscr_address;
-		u64 bootscr_offset;
-
-		/* Fetch bootscr_address/bootscr_offset from DT and update */
-		if (!ofnode_read_bootscript_address(&bootscr_address,
-						    &bootscr_offset)) {
-			if (bootscr_offset)
-				ret |= env_set_hex("scriptaddr",
-						   gd->ram_base +
-						   bootscr_offset);
-			else
-				ret |= env_set_hex("scriptaddr",
-						   bootscr_address);
-		} else {
-			/* Update scriptaddr(bootscr offset) from env */
-			scriptaddr = env_get_hex("scriptaddr", 0);
+	/* Fetch bootscr_address/bootscr_offset from DT and update */
+	if (!ofnode_read_bootscript_address(&bootscr_address,
+					    &bootscr_offset)) {
+		if (bootscr_offset)
 			ret |= env_set_hex("scriptaddr",
-					   gd->ram_base + scriptaddr);
-		}
+					   gd->ram_base +
+					   bootscr_offset);
+		else
+			ret |= env_set_hex("scriptaddr",
+					   bootscr_address);
+	} else {
+		/* Update scriptaddr(bootscr offset) from env */
+		scriptaddr = env_get_hex("scriptaddr", 0);
+		ret |= env_set_hex("scriptaddr",
+				   gd->ram_base + scriptaddr);
 	}
 
 	if (!ofnode_read_bootscript_flash(&bootscr_flash_offset,
@@ -662,38 +658,6 @@ int embedded_dtb_select(void)
 		}
 	}
 	return 0;
-}
-#endif
-
-#if defined(CONFIG_LMB)
-
-#ifndef MMU_SECTION_SIZE
-#define MMU_SECTION_SIZE        (1 * 1024 * 1024)
-#endif
-
-phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
-{
-	phys_size_t size;
-	phys_addr_t reg;
-	struct lmb lmb;
-
-	if (!total_size)
-		return gd->ram_top;
-
-	if (!IS_ALIGNED((ulong)gd->fdt_blob, 0x8))
-		panic("Not 64bit aligned DT location: %p\n", gd->fdt_blob);
-
-	/* found enough not-reserved memory to relocated U-Boot */
-	lmb_init(&lmb);
-	lmb_add(&lmb, gd->ram_base, gd->ram_size);
-	boot_fdt_add_mem_rsv_regions(&lmb, (void *)gd->fdt_blob);
-	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
-	reg = lmb_alloc(&lmb, size, MMU_SECTION_SIZE);
-
-	if (!reg)
-		reg = gd->ram_top - size;
-
-	return reg + size;
 }
 #endif
 

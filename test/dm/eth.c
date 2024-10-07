@@ -166,7 +166,7 @@ static int dm_test_ip6_make_lladdr(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ip6_make_lladdr, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ip6_make_lladdr, UTF_SCAN_FDT);
 #endif
 
 static int dm_test_eth(struct unit_test_state *uts)
@@ -187,7 +187,7 @@ static int dm_test_eth(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth, UTF_SCAN_FDT);
 
 static int dm_test_eth_alias(struct unit_test_state *uts)
 {
@@ -211,7 +211,7 @@ static int dm_test_eth_alias(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_alias, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_alias, UTF_SCAN_FDT);
 
 static int dm_test_eth_prime(struct unit_test_state *uts)
 {
@@ -231,7 +231,7 @@ static int dm_test_eth_prime(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_prime, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_prime, UTF_SCAN_FDT);
 
 /**
  * This test case is trying to test the following scenario:
@@ -296,7 +296,7 @@ static int dm_test_eth_act(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_eth_act, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_act, UTF_SCAN_FDT);
 
 /* Ensure that all addresses are loaded properly */
 static int dm_test_ethaddr(struct unit_test_state *uts)
@@ -329,7 +329,7 @@ static int dm_test_ethaddr(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_ethaddr, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_ethaddr, UTF_SCAN_FDT);
 
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_eth_rotate1(struct unit_test_state *uts)
@@ -401,7 +401,7 @@ static int dm_test_eth_rotate(struct unit_test_state *uts)
 
 	return retval;
 }
-DM_TEST(dm_test_eth_rotate, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_rotate, UTF_SCAN_FDT);
 
 /* The asserts include a return on fail; cleanup in the caller */
 static int _dm_test_net_retry(struct unit_test_state *uts)
@@ -444,7 +444,7 @@ static int dm_test_net_retry(struct unit_test_state *uts)
 
 	return retval;
 }
-DM_TEST(dm_test_net_retry, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_net_retry, UTF_SCAN_FDT);
 
 static int sb_check_arp_reply(struct udevice *dev, void *packet,
 			      unsigned int len)
@@ -528,8 +528,7 @@ static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_eth_async_arp_reply, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_async_arp_reply, UTF_SCAN_FDT);
 
 static int sb_check_ping_reply(struct udevice *dev, void *packet,
 			       unsigned int len)
@@ -613,8 +612,7 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_eth_async_ping_reply, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_eth_async_ping_reply, UTF_SCAN_FDT);
 
 #if IS_ENABLED(CONFIG_IPV6_ROUTER_DISCOVERY)
 
@@ -659,7 +657,6 @@ static int dm_test_validate_ra(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_validate_ra, 0);
 
 static int dm_test_process_ra(struct unit_test_state *uts)
@@ -698,7 +695,6 @@ static int dm_test_process_ra(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_process_ra, 0);
 
 #endif

@@ -451,7 +451,7 @@ void k3_sysfw_loader(bool rom_loaded_sysfw,
 		 * the case when continuing to boot serially from the same
 		 * UART that the ROM loaded the initial bootloader from.
 		 */
-		if (!gd->have_console)
+		if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 			early_console_init();
 #endif
 		ret = spl_ymodem_load_image(&spl_image, &bootdev);

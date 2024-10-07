@@ -47,12 +47,24 @@ struct os_mem_hdr {
 
 ssize_t os_read(int fd, void *buf, size_t count)
 {
-	return read(fd, buf, count);
+	ssize_t ret;
+
+	ret = read(fd, buf, count);
+	if (ret == -1)
+		return -errno;
+
+	return ret;
 }
 
 ssize_t os_write(int fd, const void *buf, size_t count)
 {
-	return write(fd, buf, count);
+	ssize_t ret;
+
+	ret = write(fd, buf, count);
+	if (ret == -1)
+		return -errno;
+
+	return ret;
 }
 
 int os_printf(const char *fmt, ...)
@@ -69,6 +81,8 @@ int os_printf(const char *fmt, ...)
 
 off_t os_lseek(int fd, off_t offset, int whence)
 {
+	off_t ret;
+
 	if (whence == OS_SEEK_SET)
 		whence = SEEK_SET;
 	else if (whence == OS_SEEK_CUR)
@@ -77,7 +91,11 @@ off_t os_lseek(int fd, off_t offset, int whence)
 		whence = SEEK_END;
 	else
 		os_exit(1);
-	return lseek(fd, offset, whence);
+	ret = lseek(fd, offset, whence);
+	if (ret == -1)
+		return -errno;
+
+	return ret;
 }
 
 int os_open(const char *pathname, int os_flags)
@@ -808,7 +826,7 @@ static int make_exec(char *fname, const void *data, int size)
  * @count: Number of arguments in @add_args
  * Return: 0 if OK, -ENOMEM if out of memory
  */
-static int add_args(char ***argvp, char *add_args[], int count)
+static int add_args(char ***argvp, const char *add_args[], int count)
 {
 	char **argv, **ap;
 	int argc;
@@ -859,7 +877,7 @@ static int os_jump_to_file(const char *fname, bool delete_it)
 	struct sandbox_state *state = state_get_current();
 	char mem_fname[30];
 	int fd, err;
-	char *extra_args[5];
+	const char *extra_args[5];
 	char **argv = state->argv;
 	int argc;
 #ifdef DEBUG
@@ -964,7 +982,7 @@ int os_find_u_boot(char *fname, int maxlen, bool use_img,
 	p = strstr(fname, subdir);
 	if (p) {
 		if (*next_prefix)
-			/* e.g. ".../tpl/u-boot-spl"  to "../spl/u-boot-spl" */
+			/* e.g. ".../tpl/u-boot-spl"  to ".../spl/u-boot-spl" */
 			memcpy(p + 1, next_prefix, strlen(next_prefix));
 		else
 			/* e.g. ".../spl/u-boot" to ".../u-boot" */

@@ -57,3 +57,8 @@ class Entry_blob_phase(Entry_section):
         if self.no_write_symbols:
             for entry in self._entries.values():
                 entry.no_write_symbols = True
+
+        # Propagate the symbols-base property
+        if self.symbols_base is not None:
+            for entry in self._entries.values():
+                entry.symbols_base = self.symbols_base

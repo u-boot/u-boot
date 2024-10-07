@@ -18,6 +18,7 @@
 #include <dm/read.h>
 #include <power/regulator.h>
 #include <env.h>
+#include <fdt_support.h>
 #include <init.h>
 #include <linux/arm-smccc.h>
 #include <linux/bug.h>
@@ -37,9 +38,18 @@ static struct mm_region rbx_mem_map[CONFIG_NR_DRAM_BANKS + 2] = { { 0 } };
 
 struct mm_region *mem_map = rbx_mem_map;
 
+static struct {
+	phys_addr_t start;
+	phys_size_t size;
+} prevbl_ddr_banks[CONFIG_NR_DRAM_BANKS] __section(".data") = { 0 };
+
 int dram_init(void)
 {
-	return fdtdec_setup_mem_size_base();
+	/*
+	 * gd->ram_base / ram_size have been setup already
+	 * in qcom_parse_memory().
+	 */
+	return 0;
 }
 
 static int ddr_bank_cmp(const void *v1, const void *v2)
@@ -57,21 +67,69 @@ static int ddr_bank_cmp(const void *v1, const void *v2)
 	return (res1->start >> 24) - (res2->start >> 24);
 }
 
+/* This has to be done post-relocation since gd->bd isn't preserved */
+static void qcom_configure_bi_dram(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		gd->bd->bi_dram[i].start = prevbl_ddr_banks[i].start;
+		gd->bd->bi_dram[i].size = prevbl_ddr_banks[i].size;
+	}
+}
+
 int dram_init_banksize(void)
 {
-	int ret;
-
-	ret = fdtdec_setup_memory_banksize();
-	if (ret < 0)
-		return ret;
-
-	if (CONFIG_NR_DRAM_BANKS < 2)
-		return 0;
-
-	/* Sort our RAM banks -_- */
-	qsort(gd->bd->bi_dram, CONFIG_NR_DRAM_BANKS, sizeof(gd->bd->bi_dram[0]), ddr_bank_cmp);
+	qcom_configure_bi_dram();
 
 	return 0;
+}
+
+static void qcom_parse_memory(void)
+{
+	ofnode node;
+	const fdt64_t *memory;
+	int memsize;
+	phys_addr_t ram_end = 0;
+	int i, j, banks;
+
+	node = ofnode_path("/memory");
+	if (!ofnode_valid(node)) {
+		log_err("No memory node found in device tree!\n");
+		return;
+	}
+	memory = ofnode_read_prop(node, "reg", &memsize);
+	if (!memory) {
+		log_err("No memory configuration was provided by the previous bootloader!\n");
+		return;
+	}
+
+	banks = min(memsize / (2 * sizeof(u64)), (ulong)CONFIG_NR_DRAM_BANKS);
+
+	if (memsize / sizeof(u64) > CONFIG_NR_DRAM_BANKS * 2)
+		log_err("Provided more than the max of %d memory banks\n", CONFIG_NR_DRAM_BANKS);
+
+	if (banks > CONFIG_NR_DRAM_BANKS)
+		log_err("Provided more memory banks than we can handle\n");
+
+	for (i = 0, j = 0; i < banks * 2; i += 2, j++) {
+		prevbl_ddr_banks[j].start = get_unaligned_be64(&memory[i]);
+		prevbl_ddr_banks[j].size = get_unaligned_be64(&memory[i + 1]);
+		/* SM8650 boards sometimes have empty regions! */
+		if (!prevbl_ddr_banks[j].size) {
+			j--;
+			continue;
+		}
+		ram_end = max(ram_end, prevbl_ddr_banks[j].start + prevbl_ddr_banks[j].size);
+	}
+
+	/* Sort our RAM banks -_- */
+	qsort(prevbl_ddr_banks, banks, sizeof(prevbl_ddr_banks[0]), ddr_bank_cmp);
+
+	gd->ram_base = prevbl_ddr_banks[0].start;
+	gd->ram_size = ram_end - gd->ram_base;
+	debug("ram_base = %#011lx, ram_size = %#011llx, ram_end = %#011llx\n",
+	      gd->ram_base, gd->ram_size, ram_end);
 }
 
 static void show_psci_version(void)
@@ -85,26 +143,43 @@ static void show_psci_version(void)
 	      PSCI_VERSION_MINOR(res.a0));
 }
 
+/* We support booting U-Boot with an internal DT when running as a first-stage bootloader
+ * or for supporting quirky devices where it's easier to leave the downstream DT in place
+ * to improve ABL compatibility. Otherwise, we use the DT provided by ABL.
+ */
 void *board_fdt_blob_setup(int *err)
 {
-	phys_addr_t fdt;
-	/* Return DTB pointer passed by ABL */
+	struct fdt_header *fdt;
+	bool internal_valid, external_valid;
+
 	*err = 0;
-	fdt = get_prev_bl_fdt_addr();
+	fdt = (struct fdt_header *)get_prev_bl_fdt_addr();
+	external_valid = fdt && !fdt_check_header(fdt);
+	internal_valid = !fdt_check_header(gd->fdt_blob);
 
 	/*
-	 * If we bail then the board will simply not boot, instead let's
-	 * try and use the FDT built into U-Boot if there is one...
-	 * This avoids having a hard dependency on the previous stage bootloader
+	 * There is no point returning an error here, U-Boot can't do anything useful in this situation.
+	 * Bail out while we can still print a useful error message.
 	 */
+	if (!internal_valid && !external_valid)
+		panic("Internal FDT is invalid and no external FDT was provided! (fdt=%#llx)\n",
+		      (phys_addr_t)fdt);
 
-	if (IS_ENABLED(CONFIG_OF_SEPARATE) && (!fdt || fdt != ALIGN(fdt, SZ_4K) ||
-					       fdt_check_header((void *)fdt))) {
-		debug("%s: Using built in FDT, bootloader gave us %#llx\n", __func__, fdt);
-		return (void *)gd->fdt_blob;
+	if (internal_valid) {
+		debug("Using built in FDT\n");
+	} else {
+		debug("Using external FDT\n");
+		/* So we can use it before returning */
+		gd->fdt_blob = fdt;
 	}
 
-	return (void *)fdt;
+	/*
+	 * Parse the /memory node while we're here,
+	 * this makes it easy to do other things early.
+	 */
+	qcom_parse_memory();
+
+	return (void *)gd->fdt_blob;
 }
 
 void reset_cpu(void)
@@ -162,11 +237,70 @@ void __weak qcom_board_init(void)
 
 int board_init(void)
 {
-	regulators_enable_boot_on(false);
 	show_psci_version();
 	qcom_of_fixup_nodes();
 	qcom_board_init();
 	return 0;
+}
+
+/**
+ * out_len includes the trailing null space
+ */
+static int get_cmdline_option(const char *cmdline, const char *key, char *out, int out_len)
+{
+	const char *p, *p_end;
+	int len;
+
+	p = strstr(cmdline, key);
+	if (!p)
+		return -ENOENT;
+
+	p += strlen(key);
+	p_end = strstr(p, " ");
+	if (!p_end)
+		return -ENOENT;
+
+	len = p_end - p;
+	if (len > out_len)
+		len = out_len;
+
+	strncpy(out, p, len);
+	out[len] = '\0';
+
+	return 0;
+}
+
+/* The bootargs are populated by the previous stage bootloader */
+static const char *get_cmdline(void)
+{
+	ofnode node;
+	static const char *cmdline = NULL;
+
+	if (cmdline)
+		return cmdline;
+
+	node = ofnode_path("/chosen");
+	if (!ofnode_valid(node))
+		return NULL;
+
+	cmdline = ofnode_read_string(node, "bootargs");
+
+	return cmdline;
+}
+
+void qcom_set_serialno(void)
+{
+	const char *cmdline = get_cmdline();
+	char serial[32];
+
+	if (!cmdline) {
+		log_debug("Failed to get bootargs\n");
+		return;
+	}
+
+	get_cmdline_option(cmdline, "androidboot.serialno=", serial, sizeof(serial));
+	if (serial[0] != '\0')
+		env_set("serial#", serial);
 }
 
 /* Sets up the "board", and "soc" environment variables as well as constructing the devicetree
@@ -267,6 +401,8 @@ static void configure_env(void)
 	snprintf(dt_path, sizeof(dt_path), "qcom/%s-%s.dtb",
 		 env_get("soc"), env_get("board"));
 	env_set("fdtfile", dt_path);
+
+	qcom_set_serialno();
 }
 
 void __weak qcom_late_init(void)
@@ -274,28 +410,40 @@ void __weak qcom_late_init(void)
 }
 
 #define KERNEL_COMP_SIZE	SZ_64M
+#ifdef CONFIG_FASTBOOT_BUF_SIZE
+#define FASTBOOT_BUF_SIZE CONFIG_FASTBOOT_BUF_SIZE
+#else
+#define FASTBOOT_BUF_SIZE 0
+#endif
 
-#define addr_alloc(lmb, size) lmb_alloc(lmb, size, SZ_2M)
+#define addr_alloc(size) lmb_alloc(size, SZ_2M)
 
 /* Stolen from arch/arm/mach-apple/board.c */
 int board_late_init(void)
 {
-	struct lmb lmb;
 	u32 status = 0;
-
-	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
+	phys_addr_t addr;
+	struct fdt_header *fdt_blob = (struct fdt_header *)gd->fdt_blob;
 
 	/* We need to be fairly conservative here as we support boards with just 1G of TOTAL RAM */
-	status |= env_set_hex("kernel_addr_r", addr_alloc(&lmb, SZ_128M));
-	status |= env_set_hex("ramdisk_addr_r", addr_alloc(&lmb, SZ_128M));
-	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(&lmb, KERNEL_COMP_SIZE));
+	addr = addr_alloc(SZ_128M);
+	status |= env_set_hex("kernel_addr_r", addr);
+	status |= env_set_hex("loadaddr", addr);
+	status |= env_set_hex("ramdisk_addr_r", addr_alloc(SZ_128M));
+	status |= env_set_hex("kernel_comp_addr_r", addr_alloc(KERNEL_COMP_SIZE));
 	status |= env_set_hex("kernel_comp_size", KERNEL_COMP_SIZE);
-	status |= env_set_hex("scriptaddr", addr_alloc(&lmb, SZ_4M));
-	status |= env_set_hex("pxefile_addr_r", addr_alloc(&lmb, SZ_4M));
-	status |= env_set_hex("fdt_addr_r", addr_alloc(&lmb, SZ_2M));
+	if (IS_ENABLED(CONFIG_FASTBOOT))
+		status |= env_set_hex("fastboot_addr_r", addr_alloc(FASTBOOT_BUF_SIZE));
+	status |= env_set_hex("scriptaddr", addr_alloc(SZ_4M));
+	status |= env_set_hex("pxefile_addr_r", addr_alloc(SZ_4M));
+	addr = addr_alloc(SZ_2M);
+	status |= env_set_hex("fdt_addr_r", addr);
 
 	if (status)
 		log_warning("%s: Failed to set run time variables\n", __func__);
+
+	/* By default copy U-Boots FDT, it will be used as a fallback */
+	memcpy((void *)addr, (void *)gd->fdt_blob, fdt32_to_cpu(fdt_blob->totalsize));
 
 	configure_env();
 	qcom_late_init();
@@ -342,7 +490,7 @@ static void build_mem_map(void)
 
 u64 get_page_table_size(void)
 {
-	return SZ_64K;
+	return SZ_1M;
 }
 
 static int fdt_cmp_res(const void *v1, const void *v2)

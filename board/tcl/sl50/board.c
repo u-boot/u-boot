@@ -92,7 +92,7 @@ int spl_start_uboot(void)
 const struct dpll_params dpll_ddr_sl50 = {
 		400, OSC-1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	int mpu_vdd;
 

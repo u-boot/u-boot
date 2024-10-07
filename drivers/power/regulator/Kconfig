@@ -383,6 +383,15 @@ config DM_REGULATOR_TPS80031
 	features for TPS80031/TPS80032 PMICs. The driver implements
 	get/set api for: value and enable.
 
+config DM_REGULATOR_TPS6287X
+	bool "Enable driver for TPS6287x Power Regulator"
+	depends on DM_REGULATOR
+	help
+	The TPS6287X is a step down converter with a fast transient
+	response. This driver supports all four variants of the chip
+	(TPS62870, TPS62871, TPS62872, TPS62873). It implements the
+	get/set api for value only, as the power line is always on.
+
 config DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators"
 	depends on DM_REGULATOR && PMIC_STPMIC1
@@ -401,6 +410,15 @@ config DM_REGULATOR_ANATOP
 	Enable support for the Freescale i.MX on-chip ANATOP LDO
 	regulators. It is recommended that this option be enabled on
 	i.MX6 platform.
+
+config SPL_DM_REGULATOR_TPS6287X
+	bool "Enable driver for TPS6287x Power Regulator"
+	depends on SPL_DM_REGULATOR
+	help
+	The TPS6287X is a step down converter with a fast transient
+	response. This driver supports all four variants of the chip
+	(TPS62870, TPS62871, TPS62872, TPS62873). It implements the
+	get/set api for value only, as the power line is always on.
 
 config SPL_DM_REGULATOR_STPMIC1
 	bool "Enable driver for STPMIC1 regulators in SPL"

@@ -78,7 +78,7 @@
 		compatible = "mediatek,mt7986-timer";
 		reg = <0x10008000 0x1000>;
 		interrupts = <GIC_SPI 130 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg CK_INFRA_CK_F26M>;
+		clocks = <&topckgen CLK_TOP_F26M_SEL>;
 		clock-names = "gpt-clk";
 		bootph-all;
 	};
@@ -115,13 +115,6 @@
 		#clock-cells = <1>;
 	};
 
-	infracfg_ao: infracfg_ao@10001000 {
-		compatible = "mediatek,mt7986-infracfg_ao";
-		reg = <0x10001000 0x68>;
-		clock-parent = <&infracfg>;
-		#clock-cells = <1>;
-	};
-
 	infracfg: infracfg@10001040 {
 		compatible = "mediatek,mt7986-infracfg";
 		reg = <0x10001000 0x1000>;
@@ -154,18 +147,18 @@
 		#clock-cells = <1>;
 		#pwm-cells = <2>;
 		interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg CK_INFRA_PWM>,
-			 <&infracfg_ao CK_INFRA_PWM_BSEL>,
-			 <&infracfg_ao CK_INFRA_PWM1_CK>,
-			 <&infracfg_ao CK_INFRA_PWM2_CK>;
-		assigned-clocks = <&topckgen CK_TOP_PWM_SEL>,
-				  <&infracfg CK_INFRA_PWM_BSEL>,
-				  <&infracfg CK_INFRA_PWM1_SEL>,
-				  <&infracfg CK_INFRA_PWM2_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D4>,
-					 <&infracfg CK_INFRA_PWM>,
-					 <&infracfg CK_INFRA_PWM>,
-					 <&infracfg CK_INFRA_PWM>;
+		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+			 <&infracfg CLK_INFRA_PWM_BSEL>,
+			 <&infracfg CLK_INFRA_PWM1_CK>,
+			 <&infracfg CLK_INFRA_PWM2_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_PWM_SEL>,
+				  <&infracfg CLK_INFRA_PWM_BSEL>,
+				  <&infracfg CLK_INFRA_PWM1_SEL>,
+				  <&infracfg CLK_INFRA_PWM2_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_MPLL_D4>,
+					 <&topckgen CLK_TOP_PWM_SEL>,
+					 <&topckgen CLK_TOP_PWM_SEL>,
+					 <&topckgen CLK_TOP_PWM_SEL>;
 		clock-names = "top", "main", "pwm1", "pwm2";
 		status = "disabled";
 		bootph-all;
@@ -175,11 +168,11 @@
 		compatible = "mediatek,hsuart";
 		reg = <0x11002000 0x400>;
 		interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao CK_INFRA_UART0_CK>;
-		assigned-clocks = <&topckgen CK_TOP_UART_SEL>,
-				  <&infracfg_ao CK_INFRA_UART0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_CKSQ_40M>,
-					 <&infracfg CK_INFRA_UART>;
+		clocks = <&infracfg CLK_INFRA_UART0_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_UART_SEL>,
+				  <&infracfg CLK_INFRA_UART0_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_XTAL>,
+					 <&topckgen CLK_TOP_UART_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 		bootph-all;
@@ -189,9 +182,9 @@
 		compatible = "mediatek,hsuart";
 		reg = <0x11003000 0x400>;
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao CK_INFRA_UART1_CK>;
-		assigned-clocks = <&infracfg CK_INFRA_UART1_SEL>;
-		assigned-clock-parents = <&infracfg CK_INFRA_CK_F26M>;
+		clocks = <&infracfg CLK_INFRA_UART1_CK>;
+		assigned-clocks = <&infracfg CLK_INFRA_UART1_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_F26M_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 	};
@@ -200,9 +193,9 @@
 		compatible = "mediatek,hsuart";
 		reg = <0x11004000 0x400>;
 		interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&infracfg_ao CK_INFRA_UART2_CK>;
-		assigned-clocks = <&infracfg CK_INFRA_UART2_SEL>;
-		assigned-clock-parents = <&infracfg CK_INFRA_CK_F26M>;
+		clocks = <&infracfg CLK_INFRA_UART2_CK>;
+		assigned-clocks = <&infracfg CLK_INFRA_UART2_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_F26M_SEL>;
 		mediatek,force-highspeed;
 		status = "disabled";
 	};
@@ -212,14 +205,14 @@
 		reg = <0x11005000 0x1000>,
 		      <0x11006000 0x1000>;
 		reg-names = "nfi", "ecc";
-		clocks = <&infracfg_ao CK_INFRA_SPINFI1_CK>,
-			 <&infracfg_ao CK_INFRA_NFI1_CK>,
-			 <&infracfg_ao CK_INFRA_NFI_HCK_CK>;
+		clocks = <&infracfg CLK_INFRA_SPINFI1_CK>,
+			 <&infracfg CLK_INFRA_NFI1_CK>,
+			 <&infracfg CLK_INFRA_NFI_HCK_CK>;
 		clock-names = "pad_clk", "nfi_clk", "nfi_hclk";
-		assigned-clocks = <&topckgen CK_TOP_SPINFI_SEL>,
-				  <&topckgen CK_TOP_NFI1X_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D8>,
-					 <&topckgen CK_TOP_CB_M_D8>;
+		assigned-clocks = <&topckgen CLK_TOP_SPINFI_SEL>,
+				  <&topckgen CLK_TOP_NFI1X_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_MPLL_D8>,
+					 <&topckgen CLK_TOP_MPLL_D8>;
 		status = "disabled";
 	};
 
@@ -258,12 +251,12 @@
 	spi0: spi@1100a000 {
 		compatible = "mediatek,ipm-spi";
 		reg = <0x1100a000 0x100>;
-		clocks = <&infracfg_ao CK_INFRA_SPI0_CK>,
-			 <&topckgen CK_TOP_SPI_SEL>;
-		assigned-clocks = <&topckgen CK_TOP_SPI_SEL>,
-				  <&infracfg CK_INFRA_SPI0_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_D2>,
-					 <&topckgen CK_INFRA_ISPI0>;
+		clocks = <&infracfg CLK_INFRA_SPI0_CK>,
+			 <&topckgen CLK_TOP_SPI_SEL>;
+		assigned-clocks = <&topckgen CLK_TOP_SPI_SEL>,
+				  <&infracfg CLK_INFRA_SPI0_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_MPLL_D2>,
+					 <&topckgen CLK_TOP_SPI_SEL>;
 		clock-names = "sel-clk", "spi-clk";
 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
@@ -281,13 +274,13 @@
 		reg = <0x11230000 0x1000>,
 		      <0x11C20000 0x1000>;
 		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
-		clocks = <&topckgen CK_TOP_EMMC_416M>,
-			<&topckgen CK_TOP_EMMC_250M>,
-			<&infracfg_ao CK_INFRA_MSDC_CK>;
-		assigned-clocks = <&topckgen CK_TOP_EMMC_416M_SEL>,
-				  <&topckgen CK_TOP_EMMC_250M_SEL>;
-		assigned-clock-parents = <&topckgen CK_TOP_CB_M_416M>,
-					 <&topckgen CK_TOP_NET1_D5_D2>;
+		clocks = <&topckgen CLK_TOP_EMMC_416M_SEL>,
+			<&topckgen CLK_TOP_EMMC_250M_SEL>,
+			<&infracfg CLK_INFRA_MSDC_CK>;
+		assigned-clocks = <&topckgen CLK_TOP_EMMC_416M_SEL>,
+				  <&topckgen CLK_TOP_EMMC_250M_SEL>;
+		assigned-clock-parents = <&fixed_plls CLK_APMIXED_MPLL>,
+					 <&topckgen CLK_TOP_NET1PLL_D5_D2>;
 		clock-names = "source", "hclk", "source_cg";
 		status = "disabled";
 	};

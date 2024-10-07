@@ -343,9 +343,7 @@ static int spl_test_image(struct unit_test_state *uts, const char *test_name,
 	} else {
 		struct spl_load_info load;
 
-		spl_set_bl_len(&load, 1);
-		load.priv = img;
-		load.read = spl_test_read;
+		spl_load_init(&load, spl_test_read, img, 1);
 		if (type == IMX8)
 			ut_assertok(spl_load_imx_container(&info_read, &load,
 							   0));

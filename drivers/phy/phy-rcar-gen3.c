@@ -8,6 +8,7 @@
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>
+#include <dm/device_compat.h>
 #include <fdtdec.h>
 #include <generic-phy.h>
 #include <malloc.h>
@@ -31,8 +32,13 @@
 #define USB2_LINECTRL1		0x610
 #define USB2_ADPCTRL		0x630
 
+/* INT_ENABLE */
+#define USB2_INT_ENABLE_UCOM_INTEN	BIT(3)
+#define USB2_INT_ENABLE_USBH_INTB_EN	BIT(2)
+#define USB2_INT_ENABLE_USBH_INTA_EN	BIT(1)
+
 /* USBCTR */
-#define USB2_USBCTR_PLL_RST	BIT(1)
+#define USB2_USBCTR_PLL_RST		BIT(1)
 
 /* SPD_RSM_TIMSET */
 #define USB2_SPD_RSM_TIMSET_INIT	0x014e029b
@@ -43,11 +49,23 @@
 /* COMMCTRL */
 #define USB2_COMMCTRL_OTG_PERI		BIT(31)	/* 1 = Peripheral mode */
 
+/* OBINTSTA and OBINTEN */
+#define USB2_OBINT_SESSVLDCHG		BIT(12)
+#define USB2_OBINT_IDDIGCHG		BIT(11)
+
+/* VBCTRL */
+#define USB2_VBCTRL_DRVVBUSSEL		BIT(8)
+
 /* LINECTRL1 */
+#define USB2_LINECTRL1_DPRPD_EN		BIT(19)
 #define USB2_LINECTRL1_DP_RPD		BIT(18)
+#define USB2_LINECTRL1_DMRPD_EN		BIT(17)
 #define USB2_LINECTRL1_DM_RPD		BIT(16)
 
 /* ADPCTRL */
+#define USB2_ADPCTRL_OTGSESSVLD		BIT(20)
+#define USB2_ADPCTRL_IDDIG		BIT(19)
+#define USB2_ADPCTRL_IDPULLUP		BIT(5)	/* 1 = ID sampling is enabled */
 #define USB2_ADPCTRL_DRVVBUS		BIT(4)
 
 struct rcar_gen3_phy {
@@ -65,12 +83,14 @@ static int rcar_gen3_phy_phy_init(struct phy *phy)
 	writel(USB2_SPD_RSM_TIMSET_INIT, priv->regs + USB2_SPD_RSM_TIMSET);
 	writel(USB2_OC_TIMSET_INIT, priv->regs + USB2_OC_TIMSET);
 
-	setbits_le32(priv->regs + USB2_LINECTRL1,
-		     USB2_LINECTRL1_DP_RPD | USB2_LINECTRL1_DM_RPD);
+	return 0;
+}
 
-	clrbits_le32(priv->regs + USB2_COMMCTRL, USB2_COMMCTRL_OTG_PERI);
+static int rcar_gen3_phy_phy_exit(struct phy *phy)
+{
+	struct rcar_gen3_phy *priv = dev_get_priv(phy->dev);
 
-	setbits_le32(priv->regs + USB2_ADPCTRL, USB2_ADPCTRL_DRVVBUS);
+	writel(0, priv->regs + USB2_INT_ENABLE);
 
 	return 0;
 }
@@ -102,10 +122,70 @@ static int rcar_gen3_phy_phy_power_off(struct phy *phy)
 	return regulator_set_enable(priv->vbus_supply, false);
 }
 
+static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
+				      int submode)
+{
+	const u32 adpdevmask = USB2_ADPCTRL_IDDIG | USB2_ADPCTRL_OTGSESSVLD;
+	struct rcar_gen3_phy *priv = dev_get_priv(phy->dev);
+	u32 adpctrl;
+
+	if (mode == PHY_MODE_USB_OTG) {
+		if (submode) {
+			/* OTG submode is used as initialization indicator */
+			writel(USB2_INT_ENABLE_UCOM_INTEN |
+			       USB2_INT_ENABLE_USBH_INTB_EN |
+			       USB2_INT_ENABLE_USBH_INTA_EN,
+			       priv->regs + USB2_INT_ENABLE);
+			setbits_le32(priv->regs + USB2_VBCTRL,
+				     USB2_VBCTRL_DRVVBUSSEL);
+			writel(USB2_OBINT_SESSVLDCHG | USB2_OBINT_IDDIGCHG,
+			       priv->regs + USB2_OBINTSTA);
+			setbits_le32(priv->regs + USB2_OBINTEN,
+				     USB2_OBINT_SESSVLDCHG |
+				     USB2_OBINT_IDDIGCHG);
+			setbits_le32(priv->regs + USB2_ADPCTRL,
+				     USB2_ADPCTRL_IDPULLUP);
+			clrsetbits_le32(priv->regs + USB2_LINECTRL1,
+					USB2_LINECTRL1_DP_RPD |
+					USB2_LINECTRL1_DM_RPD |
+					USB2_LINECTRL1_DPRPD_EN |
+					USB2_LINECTRL1_DMRPD_EN,
+					USB2_LINECTRL1_DPRPD_EN |
+					USB2_LINECTRL1_DMRPD_EN);
+		}
+
+		adpctrl = readl(priv->regs + USB2_ADPCTRL);
+		if ((adpctrl & adpdevmask) == adpdevmask)
+			mode = PHY_MODE_USB_DEVICE;
+		else
+			mode = PHY_MODE_USB_HOST;
+	}
+
+	if (mode == PHY_MODE_USB_HOST) {
+		clrbits_le32(priv->regs + USB2_COMMCTRL, USB2_COMMCTRL_OTG_PERI);
+		setbits_le32(priv->regs + USB2_LINECTRL1,
+			     USB2_LINECTRL1_DP_RPD | USB2_LINECTRL1_DM_RPD);
+		setbits_le32(priv->regs + USB2_ADPCTRL, USB2_ADPCTRL_DRVVBUS);
+	} else if (mode == PHY_MODE_USB_DEVICE) {
+		setbits_le32(priv->regs + USB2_COMMCTRL, USB2_COMMCTRL_OTG_PERI);
+		clrsetbits_le32(priv->regs + USB2_LINECTRL1,
+				USB2_LINECTRL1_DP_RPD | USB2_LINECTRL1_DM_RPD,
+				USB2_LINECTRL1_DM_RPD);
+		clrbits_le32(priv->regs + USB2_ADPCTRL, USB2_ADPCTRL_DRVVBUS);
+	} else {
+		dev_err(phy->dev, "Unknown mode %d\n", mode);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static const struct phy_ops rcar_gen3_phy_phy_ops = {
 	.init		= rcar_gen3_phy_phy_init,
+	.exit		= rcar_gen3_phy_phy_exit,
 	.power_on	= rcar_gen3_phy_phy_power_on,
 	.power_off	= rcar_gen3_phy_phy_power_off,
+	.set_mode	= rcar_gen3_phy_phy_set_mode,
 };
 
 static int rcar_gen3_phy_probe(struct udevice *dev)

@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <irq.h>
 #include <malloc.h>
-#include <uuid.h>
+#include <u-boot/uuid.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_device.h>
 #include <acpi/acpi_table.h>
@@ -167,7 +167,7 @@ static int dm_test_acpi_interrupt(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_interrupt, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_interrupt, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting a GPIO descriptor */
 static int dm_test_acpi_gpio(struct unit_test_state *uts)
@@ -212,7 +212,7 @@ static int dm_test_acpi_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_gpio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_gpio, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting a GPIO descriptor with an interrupt */
 static int dm_test_acpi_gpio_irq(struct unit_test_state *uts)
@@ -257,7 +257,7 @@ static int dm_test_acpi_gpio_irq(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_gpio_irq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_gpio_irq, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting either a GPIO or interrupt descriptor */
 static int dm_test_acpi_interrupt_or_gpio(struct unit_test_state *uts)
@@ -296,8 +296,7 @@ static int dm_test_acpi_interrupt_or_gpio(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_interrupt_or_gpio,
-	UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_interrupt_or_gpio, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting an I2C descriptor */
 static int dm_test_acpi_i2c(struct unit_test_state *uts)
@@ -329,7 +328,7 @@ static int dm_test_acpi_i2c(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_i2c, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_i2c, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting a SPI descriptor */
 static int dm_test_acpi_spi(struct unit_test_state *uts)
@@ -365,7 +364,7 @@ static int dm_test_acpi_spi(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_spi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_spi, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test emitting a length */
 static int dm_test_acpi_len(struct unit_test_state *uts)
@@ -806,7 +805,7 @@ static int dm_test_acpi_gpio_toggle(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_gpio_toggle, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_gpio_toggle, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test writing ACPI code to output power-sequence info */
 static int dm_test_acpi_power_seq(struct unit_test_state *uts)
@@ -873,7 +872,7 @@ static int dm_test_acpi_power_seq(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_power_seq, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_power_seq, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test writing values */
 static int dm_test_acpi_write_values(struct unit_test_state *uts)
@@ -947,7 +946,7 @@ static int dm_test_acpi_scope(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_scope, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_scope, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test writing a resource template */
 static int dm_test_acpi_resource_template(struct unit_test_state *uts)

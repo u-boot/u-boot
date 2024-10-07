@@ -11,6 +11,7 @@
 #define CFG_CLK_SRC_GPLL0 (1 << 8)
 #define CFG_CLK_SRC_GPLL0_AUX2 (2 << 8)
 #define CFG_CLK_SRC_GPLL9 (2 << 8)
+#define CFG_CLK_SRC_GPLL0_ODD (3 << 8)
 #define CFG_CLK_SRC_GPLL6 (4 << 8)
 #define CFG_CLK_SRC_GPLL7 (3 << 8)
 #define CFG_CLK_SRC_GPLL4 (5 << 8)
@@ -75,6 +76,12 @@ struct msm_clk_data {
 	unsigned long			num_resets;
 	const struct gate_clk		*clks;
 	unsigned long			num_clks;
+
+	const phys_addr_t		*dbg_pll_addrs;
+	unsigned long			num_plls;
+	const phys_addr_t		*dbg_rcg_addrs;
+	unsigned long			num_rcgs;
+	const char * const		*dbg_rcg_names;
 
 	int (*enable)(struct clk *clk);
 	unsigned long (*set_rate)(struct clk *clk, unsigned long rate);

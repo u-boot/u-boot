@@ -26,12 +26,11 @@ static int font_test_base(struct unit_test_state *uts)
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO, &dev));
 	ut_assertok(uclass_first_device_err(UCLASS_VIDEO_CONSOLE, &dev));
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_command("font list", 0));
 	ut_assert_nextline("nimbus_sans_l_regular");
 	if (IS_ENABLED(CONFIG_CONSOLE_TRUETYPE_CANTORAONE))
 		ut_assert_nextline("cantoraone_regular");
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	ut_assertok(vidconsole_get_font_size(dev, &name, &size));
 	ut_asserteq_str("nimbus_sans_l_regular", name);
@@ -49,19 +48,19 @@ static int font_test_base(struct unit_test_state *uts)
 	if (max_metrics < 2) {
 		ut_asserteq(1, ret);
 		ut_assert_nextline("Failed (error -7)");
-		ut_assertok(ut_check_console_end(uts));
+		ut_assert_console_end();
 		return 0;
 	}
 
 	ut_assertok(ret);
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	ut_assertok(vidconsole_get_font_size(dev, &name, &size));
 	ut_asserteq_str("cantoraone_regular", name);
 	ut_asserteq(40, size);
 
 	ut_assertok(run_command("font size 30", 0));
-	ut_assertok(ut_check_console_end(uts));
+	ut_assert_console_end();
 
 	ut_assertok(vidconsole_get_font_size(dev, &name, &size));
 	ut_asserteq_str("cantoraone_regular", name);
@@ -69,8 +68,8 @@ static int font_test_base(struct unit_test_state *uts)
 
 	return 0;
 }
-FONT_TEST(font_test_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT |
-	  UT_TESTF_CONSOLE_REC | UT_TESTF_DM);
+FONT_TEST(font_test_base, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE |
+	  UTF_DM);
 
 int do_ut_font(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {

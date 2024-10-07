@@ -250,19 +250,11 @@ int usb_host_eth_scan(int mode);
 
 #endif
 
-#ifdef CONFIG_USB_KEYBOARD
-
 /*
  * USB Keyboard reports are 8 bytes in boot protocol.
  * Appendix B of HID Device Class Definition 1.11
  */
 #define USB_KBD_BOOT_REPORT_SIZE 8
-
-int drv_usb_kbd_init(void);
-int usb_kbd_deregister(int force);
-
-#endif
-/* routines */
 
 /*
  * usb_init() - initialize the USB Controllers
@@ -1099,5 +1091,17 @@ struct usb_generic_descriptor **usb_emul_find_descriptor(
  * each.
  */
 void usb_show_tree(void);
+
+/**
+ * usb_kbd_remove_for_test() - Remove any USB keyboard
+ *
+ * This can only be called from test_pre_run(). It removes the USB keyboard from
+ * the console system so that the USB device can be dropped
+ */
+#if CONFIG_IS_ENABLED(USB_KEYBOARD)
+int usb_kbd_remove_for_test(void);
+#else
+static inline int usb_kbd_remove_for_test(void) { return 0; }
+#endif
 
 #endif /*_USB_H_ */

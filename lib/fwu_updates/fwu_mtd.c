@@ -10,7 +10,7 @@
 #include <log.h>
 #include <malloc.h>
 #include <mtd.h>
-#include <uuid.h>
+#include <u-boot/uuid.h>
 #include <stdio.h>
 
 #include <dm/ofnode.h>
@@ -60,10 +60,7 @@ int fwu_mtd_get_alt_num(efi_guid_t *image_id, u8 *alt_num,
 	if (ret)
 		return -ENOENT;
 
-	nalt = 0;
-	list_for_each_entry(dfu, &dfu_list, list)
-		nalt++;
-
+	nalt = list_count_nodes(&dfu_list);
 	if (!nalt) {
 		log_warning("No entities in dfu_alt_info\n");
 		dfu_free_entities();

@@ -108,7 +108,7 @@ static size_t ecdsa_key_size_bytes(const EC_KEY *key)
 	const EC_GROUP *group;
 
 	group = EC_KEY_get0_group(key);
-	return EC_GROUP_order_bits(group) / 8;
+	return (EC_GROUP_order_bits(group) + 7) / 8;
 }
 
 static int default_password(char *buf, int size, int rwflag, void *u)

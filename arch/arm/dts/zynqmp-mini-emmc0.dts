@@ -41,13 +41,13 @@
 		clock-frequency = <200000000>;
 	};
 
-	amba: amba {
+	amba: axi {
 		compatible = "simple-bus";
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		sdhci0: sdhci@ff160000 {
+		sdhci0: mmc@ff160000 {
 			bootph-all;
 			compatible = "xlnx,zynqmp-8.9a", "arasan,sdhci-8.9a";
 			status = "disabled";

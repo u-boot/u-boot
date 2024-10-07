@@ -19,4 +19,4 @@ static int dm_test_firmware_probe(struct unit_test_state *uts)
 					      "sandbox-firmware", &dev));
 	return 0;
 }
-DM_TEST(dm_test_firmware_probe, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_firmware_probe, UTF_SCAN_FDT);

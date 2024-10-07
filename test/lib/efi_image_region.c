@@ -65,7 +65,6 @@ static int lib_test_efi_image_region_add(struct unit_test_state *uts)
 
 	return 0;
 }
-
 LIB_TEST(lib_test_efi_image_region_add, 0);
 
 static int lib_test_efi_image_region_sort(struct unit_test_state *uts)
@@ -158,5 +157,4 @@ static int lib_test_efi_image_region_sort(struct unit_test_state *uts)
 
 	return 0;
 }
-
 LIB_TEST(lib_test_efi_image_region_sort, 0);

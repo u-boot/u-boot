@@ -143,6 +143,6 @@ U_BOOT_LONGHELP(mfgprot,
 
 U_BOOT_CMD(
 	mfgprot, 4, 1, do_mfgprot,
-	"Manufacturing Protection\n",
+	"Manufacturing Protection",
 	mfgprot_help_text
 );

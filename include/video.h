@@ -420,4 +420,15 @@ int bmp_info(ulong addr);
  */
 int video_reserve_from_bloblist(struct video_handoff *ho);
 
+/**
+ * video_get_fb() - Get the first framebuffer address
+ *
+ * This function does not probe video devices, so can only be used after a video
+ * device has been activated.
+ *
+ * Return: address of the framebuffer of the first video device found, or 0 if
+ * there is no device
+ */
+ulong video_get_fb(void);
+
 #endif

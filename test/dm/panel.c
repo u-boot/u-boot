@@ -33,7 +33,7 @@ static int dm_test_panel(struct unit_test_state *uts)
 	ut_assertok(sandbox_pwm_get_config(pwm, 0, &period_ns, &duty_ns,
 					   &enable, &polarity));
 	ut_asserteq(false, enable);
-	ut_asserteq(false, regulator_get_enable(reg));
+	ut_asserteq(true, regulator_get_enable(reg));
 
 	ut_assertok(panel_enable_backlight(dev));
 	ut_assertok(sandbox_pwm_get_config(pwm, 0, &period_ns, &duty_ns,
@@ -76,4 +76,4 @@ static int dm_test_panel(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_panel, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_panel, UTF_SCAN_PDATA | UTF_SCAN_FDT);

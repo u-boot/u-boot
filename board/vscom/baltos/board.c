@@ -177,7 +177,7 @@ const struct dpll_params dpll_ddr_evm_sk = {
 const struct dpll_params dpll_ddr_baltos = {
 		400, OSC-1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	int sil_rev, mpu_vdd;
 	int freq;

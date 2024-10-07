@@ -32,6 +32,7 @@
 #include <imx_sip.h>
 #include <linux/bitops.h>
 #include <linux/bitfield.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -205,6 +206,14 @@ void enable_caches(void)
 	 */
 	int entry = imx8m_find_dram_entry_in_mem_map();
 	u64 attrs = imx8m_mem_map[entry].attrs;
+
+	/* Deactivate the data cache, possibly enabled in arch_cpu_init() */
+	dcache_disable();
+	/*
+	 * Force the call of setup_all_pgtables() in mmu_setup() by clearing tlb_fillptr
+	 * to update the TLB location udpated in board_f.c::reserve_mmu
+	 */
+	gd->arch.tlb_fillptr = 0;
 
 	while (i < CONFIG_NR_DRAM_BANKS &&
 	       entry < ARRAY_SIZE(imx8m_mem_map)) {
@@ -587,12 +596,50 @@ static void imx8m_setup_csu_tzasc(void)
 	}
 }
 
+/*
+ * Place early TLB into the .data section so that it will not
+ * get cleared, use 16 kiB alignment.
+ */
+#define EARLY_TLB_SIZE SZ_64K
+u8 early_tlb[EARLY_TLB_SIZE] __section(".data") __aligned(0x4000);
+
+/*
+ * Initialize the MMU and activate cache in U-Boot pre-reloc stage
+ * MMU/TLB is updated in enable_caches() for U-Boot after relocation
+ */
+static void early_enable_caches(void)
+{
+	phys_size_t sdram_size;
+	int entry, ret;
+
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return;
+
+	if (CONFIG_IS_ENABLED(SYS_ICACHE_OFF) || CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
+		return;
+
+	/* Use maximum available DRAM size in first bank. */
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return;
+
+	entry = imx8m_find_dram_entry_in_mem_map();
+	imx8m_mem_map[entry].size = max(sdram_size, (phys_size_t)0xc0000000);
+
+	gd->arch.tlb_size = EARLY_TLB_SIZE;
+	gd->arch.tlb_addr = (unsigned long)&early_tlb;
+
+	/* Enable MMU (default configuration) */
+	dcache_enable();
+}
+
 int arch_cpu_init(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
 
 #if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	icache_enable();
+	early_enable_caches();
 #endif
 
 	/*
@@ -735,6 +782,7 @@ int boot_mode_getprisec(void)
 #endif
 
 #if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+#ifdef SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 #define IMG_CNTN_SET1_OFFSET	GENMASK(22, 19)
 unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 						unsigned long raw_sect)
@@ -769,6 +817,7 @@ unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 
 	return raw_sect;
 }
+#endif /* SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION */
 #endif
 
 bool is_usb_boot(void)
@@ -955,6 +1004,7 @@ int disable_vpu_nodes(void *blob)
 		"/soc@0/video-codec@38300000",
 		"/soc@0/video-codec@38310000",
 		"/soc@0/blk-ctrl@38330000",
+		"/soc@0/blk-ctl@38330000",
 	};
 
 	if (is_imx8mq())
@@ -1135,117 +1185,6 @@ int disable_dsp_nodes(void *blob)
 	return disable_fdt_nodes(blob, nodes_path_8mp, ARRAY_SIZE(nodes_path_8mp));
 }
 
-static void disable_thermal_cpu_nodes(void *blob, u32 disabled_cores)
-{
-	static const char * const thermal_path[] = {
-		"/thermal-zones/cpu-thermal/cooling-maps/map0"
-	};
-
-	int nodeoff, cnt, i, ret, j;
-	u32 cooling_dev[12];
-
-	for (i = 0; i < ARRAY_SIZE(thermal_path); i++) {
-		nodeoff = fdt_path_offset(blob, thermal_path[i]);
-		if (nodeoff < 0)
-			continue; /* Not found, skip it */
-
-		cnt = fdtdec_get_int_array_count(blob, nodeoff, "cooling-device", cooling_dev, 12);
-		if (cnt < 0)
-			continue;
-
-		if (cnt != 12)
-			printf("Warning: %s, cooling-device count %d\n", thermal_path[i], cnt);
-
-		for (j = 0; j < cnt; j++)
-			cooling_dev[j] = cpu_to_fdt32(cooling_dev[j]);
-
-		ret = fdt_setprop(blob, nodeoff, "cooling-device", &cooling_dev,
-				  sizeof(u32) * (12 - disabled_cores * 3));
-		if (ret < 0) {
-			printf("Warning: %s, cooling-device setprop failed %d\n",
-			       thermal_path[i], ret);
-			continue;
-		}
-
-		printf("Update node %s, cooling-device prop\n", thermal_path[i]);
-	}
-}
-
-static void disable_pmu_cpu_nodes(void *blob, u32 disabled_cores)
-{
-	static const char * const pmu_path[] = {
-		"/pmu"
-	};
-
-	int nodeoff, cnt, i, ret, j;
-	u32 irq_affinity[4];
-
-	for (i = 0; i < ARRAY_SIZE(pmu_path); i++) {
-		nodeoff = fdt_path_offset(blob, pmu_path[i]);
-		if (nodeoff < 0)
-			continue; /* Not found, skip it */
-
-		cnt = fdtdec_get_int_array_count(blob, nodeoff, "interrupt-affinity",
-						 irq_affinity, 4);
-		if (cnt < 0)
-			continue;
-
-		if (cnt != 4)
-			printf("Warning: %s, interrupt-affinity count %d\n", pmu_path[i], cnt);
-
-		for (j = 0; j < cnt; j++)
-			irq_affinity[j] = cpu_to_fdt32(irq_affinity[j]);
-
-		ret = fdt_setprop(blob, nodeoff, "interrupt-affinity", &irq_affinity,
-				 sizeof(u32) * (4 - disabled_cores));
-		if (ret < 0) {
-			printf("Warning: %s, interrupt-affinity setprop failed %d\n",
-			       pmu_path[i], ret);
-			continue;
-		}
-
-		printf("Update node %s, interrupt-affinity prop\n", pmu_path[i]);
-	}
-}
-
-static int disable_cpu_nodes(void *blob, u32 disabled_cores)
-{
-	static const char * const nodes_path[] = {
-		"/cpus/cpu@1",
-		"/cpus/cpu@2",
-		"/cpus/cpu@3",
-	};
-	u32 i = 0;
-	int rc;
-	int nodeoff;
-
-	if (disabled_cores > 3)
-		return -EINVAL;
-
-	i = 3 - disabled_cores;
-
-	for (; i < 3; i++) {
-		nodeoff = fdt_path_offset(blob, nodes_path[i]);
-		if (nodeoff < 0)
-			continue; /* Not found, skip it */
-
-		debug("Found %s node\n", nodes_path[i]);
-
-		rc = fdt_del_node(blob, nodeoff);
-		if (rc < 0) {
-			printf("Unable to delete node %s, err=%s\n",
-			       nodes_path[i], fdt_strerror(rc));
-		} else {
-			printf("Delete node %s\n", nodes_path[i]);
-		}
-	}
-
-	disable_thermal_cpu_nodes(blob, disabled_cores);
-	disable_pmu_cpu_nodes(blob, disabled_cores);
-
-	return 0;
-}
-
 static int cleanup_nodes_for_efi(void *blob)
 {
 	static const char * const path[][2] = {
@@ -1272,48 +1211,6 @@ static int cleanup_nodes_for_efi(void *blob)
 		}
 
 		printf("Remove %s:%s\n", path[i][0], path[i][1]);
-	}
-
-	return 0;
-}
-
-static int fixup_thermal_trips(void *blob, const char *name)
-{
-	int minc, maxc;
-	int node, trip;
-
-	node = fdt_path_offset(blob, "/thermal-zones");
-	if (node < 0)
-		return node;
-
-	node = fdt_subnode_offset(blob, node, name);
-	if (node < 0)
-		return node;
-
-	node = fdt_subnode_offset(blob, node, "trips");
-	if (node < 0)
-		return node;
-
-	get_cpu_temp_grade(&minc, &maxc);
-
-	fdt_for_each_subnode(trip, blob, node) {
-		const char *type;
-		int temp, ret;
-
-		type = fdt_getprop(blob, trip, "type", NULL);
-		if (!type)
-			continue;
-
-		temp = 0;
-		if (!strcmp(type, "critical"))
-			temp = 1000 * maxc;
-		else if (!strcmp(type, "passive"))
-			temp = 1000 * (maxc - 10);
-		if (temp) {
-			ret = fdt_setprop_u32(blob, trip, "temperature", temp);
-			if (ret)
-				return ret;
-		}
 	}
 
 	return 0;
@@ -1397,6 +1294,13 @@ static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
+	static const char * const nodes_path[] = {
+		"/cpus/cpu@0",
+		"/cpus/cpu@1",
+		"/cpus/cpu@2",
+		"/cpus/cpu@3",
+	};
+
 #ifdef CONFIG_IMX8MQ
 	int i = 0;
 	int rc;
@@ -1440,13 +1344,6 @@ usb_modify_speed:
 
 	/* Disable the CPU idle for A0 chip since the HW does not support it */
 	if (is_soc_rev(CHIP_REV_1_0)) {
-		static const char * const nodes_path[] = {
-			"/cpus/cpu@0",
-			"/cpus/cpu@1",
-			"/cpus/cpu@2",
-			"/cpus/cpu@3",
-		};
-
 		for (i = 0; i < ARRAY_SIZE(nodes_path); i++) {
 			nodeoff = fdt_path_offset(blob, nodes_path[i]);
 			if (nodeoff < 0)
@@ -1478,16 +1375,16 @@ usb_modify_speed:
 	}
 
 	if (is_imx8md())
-		disable_cpu_nodes(blob, 2);
+		disable_cpu_nodes(blob, nodes_path, 2, 4);
 
 #elif defined(CONFIG_IMX8MM)
 	if (is_imx8mml() || is_imx8mmdl() ||  is_imx8mmsl())
 		disable_vpu_nodes(blob);
 
 	if (is_imx8mmd() || is_imx8mmdl())
-		disable_cpu_nodes(blob, 2);
+		disable_cpu_nodes(blob, nodes_path, 2, 4);
 	else if (is_imx8mms() || is_imx8mmsl())
-		disable_cpu_nodes(blob, 3);
+		disable_cpu_nodes(blob, nodes_path, 3, 4);
 
 #elif defined(CONFIG_IMX8MN)
 	if (is_imx8mnl() || is_imx8mndl() ||  is_imx8mnsl())
@@ -1504,9 +1401,9 @@ usb_modify_speed:
 #endif
 
 	if (is_imx8mnd() || is_imx8mndl() || is_imx8mnud())
-		disable_cpu_nodes(blob, 2);
+		disable_cpu_nodes(blob, nodes_path, 2, 4);
 	else if (is_imx8mns() || is_imx8mnsl() || is_imx8mnus())
-		disable_cpu_nodes(blob, 3);
+		disable_cpu_nodes(blob, nodes_path, 3, 4);
 
 #elif defined(CONFIG_IMX8MP)
 	if (is_imx8mpul()) {
@@ -1533,7 +1430,7 @@ usb_modify_speed:
 		disable_dsp_nodes(blob);
 
 	if (is_imx8mpd())
-		disable_cpu_nodes(blob, 2);
+		disable_cpu_nodes(blob, nodes_path, 2, 4);
 #endif
 
 	cleanup_nodes_for_efi(blob);

@@ -45,7 +45,7 @@ void ft_pci_setup(void *blob, struct bd_info *bd)
 			do_fixup_by_path(blob, path, "bus-range",
 				&tmp, sizeof(tmp), 1);
 
-			tmp[0] = cpu_to_be32(gd->pci_clk);
+			tmp[0] = cpu_to_be32(gd->arch.pci_clk);
 			do_fixup_by_path(blob, path, "clock-frequency",
 				&tmp, sizeof(tmp[0]), 1);
 		}
@@ -60,7 +60,7 @@ void ft_pci_setup(void *blob, struct bd_info *bd)
 			do_fixup_by_path(blob, path, "bus-range",
 				&tmp, sizeof(tmp), 1);
 
-			tmp[0] = cpu_to_be32(gd->pci_clk);
+			tmp[0] = cpu_to_be32(gd->arch.pci_clk);
 			do_fixup_by_path(blob, path, "clock-frequency",
 				&tmp, sizeof(tmp[0]), 1);
 		}

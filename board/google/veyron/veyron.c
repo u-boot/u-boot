@@ -57,10 +57,6 @@ static int veyron_init(void)
 	if (ret)
 		return log_msg_ret("s33", ret);
 
-	ret = regulators_enable_boot_on(false);
-	if (ret)
-		return log_msg_ret("boo", ret);
-
 	return 0;
 }
 #endif

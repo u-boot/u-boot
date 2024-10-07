@@ -38,7 +38,7 @@ static int dm_test_i2c_find(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_find, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_find, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_read_write(struct unit_test_state *uts)
 {
@@ -55,7 +55,7 @@ static int dm_test_i2c_read_write(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_read_write, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_read_write, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_speed(struct unit_test_state *uts)
 {
@@ -77,7 +77,7 @@ static int dm_test_i2c_speed(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_speed, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_speed, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_offset_len(struct unit_test_state *uts)
 {
@@ -94,7 +94,7 @@ static int dm_test_i2c_offset_len(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_offset_len, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_offset_len, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_probe_empty(struct unit_test_state *uts)
 {
@@ -109,7 +109,7 @@ static int dm_test_i2c_probe_empty(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_probe_empty, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_probe_empty, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_bytewise(struct unit_test_state *uts)
 {
@@ -164,7 +164,7 @@ static int dm_test_i2c_bytewise(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_bytewise, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_bytewise, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_offset(struct unit_test_state *uts)
 {
@@ -237,7 +237,7 @@ static int dm_test_i2c_offset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_offset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_offset, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
 {
@@ -301,8 +301,7 @@ static int dm_test_i2c_addr_offset(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_i2c_addr_offset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_addr_offset, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_i2c_reg_clrset(struct unit_test_state *uts)
 {
@@ -331,4 +330,4 @@ static int dm_test_i2c_reg_clrset(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_i2c_reg_clrset, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_i2c_reg_clrset, UTF_SCAN_PDATA | UTF_SCAN_FDT);

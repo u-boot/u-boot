@@ -157,6 +157,13 @@ config ASPEED_GPIO
 	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
 	  provides access to over 200 GPIOs on each chip.
 
+config ASPEED_G7_GPIO
+	bool "Aspeed G7 GPIO Driver"
+	help
+	  Say yes here to support the Aspeed G7 GPIO driver. The controller
+	  is found in the AST2700 BMC SoCs and provides access to over 200
+	  GPIOs on each chip.
+
 config DA8XX_GPIO
 	bool "DA8xx GPIO Driver"
 	help
@@ -300,6 +307,15 @@ config NPCM_GPIO
 	help
 	  Support GPIO controllers on Nuvovon NPCM SoCs.
 	  NPCM7xx/NPCM8xx contain 8 GPIO banks, each bank contains 32 pins.
+
+config NPCM_SGPIO
+	bool "Nuvoton NPCM SGPIO driver"
+	depends on DM_GPIO
+	help
+	  Support Nuvoton BMC NPCM7xx/NPCM8xx sgpio driver support.
+	  Nuvoton NPCM SGPIO module is combine serial to parallel IC (HC595)
+	  and parallel to serial IC (HC165).
+	  BMC can use this driver to increase 64 GPI pins and 64 GPO pins to use.
 
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
@@ -683,5 +699,11 @@ config RZG2L_GPIO
 	help
 	  Support the gpio functionality of the pin function controller (PFC)
 	  on the Renesas RZ/G2L SoC family.
+
+config SPL_ADP5585_GPIO
+	bool "ADP5585 GPIO driver in SPL"
+	depends on SPL_DM_GPIO && SPL_I2C
+	help
+	  Support ADP5585 GPIO expander in SPL.
 
 endif

@@ -358,7 +358,7 @@ static int mpc83xx_clk_probe(struct udevice *dev)
 	gd->mem_clk = priv->speed[MPC83XX_CLK_MEM];
 
 	if (mpc83xx_has_pci(type))
-		gd->pci_clk = priv->speed[MPC83XX_CLK_PCI];
+		gd->arch.pci_clk = priv->speed[MPC83XX_CLK_PCI];
 
 	gd->cpu_clk = priv->speed[MPC83XX_CLK_CORE];
 	gd->bus_clk = priv->speed[MPC83XX_CLK_CSB];

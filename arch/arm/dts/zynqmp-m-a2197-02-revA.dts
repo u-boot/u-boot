@@ -97,7 +97,7 @@
 };
 
 &sdhci1 { /* sd1 MIO45-51 cd in place */
-	status = "disable";
+	status = "disabled";
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio-bank = <1>;
@@ -135,9 +135,9 @@
 		  "USB1_DIR", "USB1_DATA2", "USB1_NXT", "USB1_DATA0", "USB1_DATA1", /* 65 - 69 */
 		  "USB1_STP", "USB1_DATA3", "USB1_DATA4", "USB1_DATA5", "USB1_DATA6", /* 70 - 74 */
 		  "USB1_DATA7", "ETH_MDC", "ETH_MDIO", /* 75 - 77, MIO end and EMIO start */
-		  "", "", "", "", "", /* 78 - 79 */
+		  "", "", /* 78 - 79 */
 		  "", "", "", "", "", /* 80 - 84 */
-		  "", "", "", "", "", /* 85 -89 */
+		  "", "", "", "", "", /* 85 - 89 */
 		  "", "", "", "", "", /* 90 - 94 */
 		  "", "", "", "", "", /* 95 - 99 */
 		  "", "", "", "", "", /* 100 - 104 */
@@ -288,7 +288,7 @@
 		i2c@3 { /* MEM PMBUS - FIXME bug in schematics */
 			#address-cells = <1>;
 			#size-cells = <0>;
-			/* reg = <3>; */
+			reg = <3>;
 		};
 		i2c@4 { /* LP_I2C_SM */
 			#address-cells = <1>;
@@ -367,25 +367,25 @@
 				#gpio-cells = <2>;
 				gpio-line-names = "sw4_1", "sw4_2", "sw4_3", "sw4_4",
 						  "", "", "", "";
-				gtr-sel0 {
+				gtr-sel0-hog {
 					gpio-hog;
 					gpios = <0 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_1";
 				};
-				gtr-sel1 {
+				gtr-sel1-hog {
 					gpio-hog;
 					gpios = <1 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_2";
 				};
-				gtr-sel2 {
+				gtr-sel2-hog {
 					gpio-hog;
 					gpios = <2 0>;
 					input; /* FIXME add meaning */
 					line-name = "sw4_3";
 				};
-				gtr-sel3 {
+				gtr-sel3-hog {
 					gpio-hog;
 					gpios = <3 0>;
 					input; /* FIXME add meaning */

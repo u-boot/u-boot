@@ -39,6 +39,7 @@ obj-y	+= cache.o
 obj-y	+= extable.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_CMD_KGDB) += kgdb.o
+obj-y	+= misc.o
 obj-y	+= stack.o
 obj-y	+= time.o
 obj-y	+= traps.o

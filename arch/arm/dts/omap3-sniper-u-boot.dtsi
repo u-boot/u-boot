@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2024 Paul Kocialkowski <contact@paulk.fr>
+ */
+
+#include "omap3-u-boot.dtsi"
+
+/ {
+	chosen {
+		stdout-path = &uart3;
+	};
+};
+
+&i2c1 {
+	clock-frequency = <400000>;
+};

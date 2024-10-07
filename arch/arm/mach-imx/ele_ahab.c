@@ -624,6 +624,31 @@ static int do_ahab_return_lifecycle(struct cmd_tbl *cmdtp, int flag, int argc, c
 	return CMD_RET_SUCCESS;
 }
 
+static int do_ahab_derive(struct cmd_tbl *cmdtp, int flag, int argc,
+			  char *const argv[])
+{
+	ulong key;
+	size_t key_size;
+	char seed[] = "_ELE_AHAB_SEED_";
+
+	if (argc != 3)
+		return CMD_RET_USAGE;
+
+	key = hextoul(argv[1], NULL);
+	key_size = simple_strtoul(argv[2], NULL, 10);
+	if (key_size != 16 && key_size != 32) {
+		printf("key size can only be 16 or 32\n");
+		return CMD_RET_FAILURE;
+	}
+
+	if (ele_derive_huk((u8 *)key, key_size, seed, sizeof(seed))) {
+		printf("Error in AHAB derive\n");
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static int do_ahab_commit(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
@@ -678,6 +703,12 @@ U_BOOT_CMD(ahab_return_lifecycle, CONFIG_SYS_MAXARGS, 1, do_ahab_return_lifecycl
 	   "Return lifecycle to OEM field return via signed message block",
 	   "addr\n"
 	   "addr - Return lifecycle message block signed by OEM SRK\n"
+);
+
+U_BOOT_CMD(ahab_derive, CONFIG_SYS_MAXARGS, 3, do_ahab_derive,
+	   "Derive the hardware unique key",
+	   "addr [16|32]\n"
+	   "Store at addr the derivation of the HUK on 16 or 32 bytes.\n"
 );
 
 U_BOOT_CMD(ahab_commit, CONFIG_SYS_MAXARGS, 1, do_ahab_commit,

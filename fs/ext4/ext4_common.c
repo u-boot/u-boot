@@ -2181,13 +2181,18 @@ static char *ext4fs_read_symlink(struct ext2fs_node *node)
 	struct ext2fs_node *diro = node;
 	int status;
 	loff_t actread;
+	size_t alloc_size;
 
 	if (!diro->inode_read) {
 		status = ext4fs_read_inode(diro->data, diro->ino, &diro->inode);
 		if (status == 0)
 			return NULL;
 	}
-	symlink = zalloc(le32_to_cpu(diro->inode.size) + 1);
+
+	if (__builtin_add_overflow(le32_to_cpu(diro->inode.size), 1, &alloc_size))
+		return NULL;
+
+	symlink = zalloc(alloc_size);
 	if (!symlink)
 		return NULL;
 
@@ -2383,6 +2388,20 @@ int ext4fs_mount(void)
 		fs->inodesz = 128;
 		fs->gdsize = 32;
 	} else {
+		int missing = __le32_to_cpu(data->sblock.feature_incompat) &
+			      ~(EXT4_FEATURE_INCOMPAT_SUPP |
+				EXT4_FEATURE_INCOMPAT_SUPP_LAZY_RO);
+
+		if (missing) {
+			/*
+			 * This code used to be relaxed about feature flags.
+			 * We don't stop the mount to avoid breaking existing setups.
+			 * But, incompatible features can cause serious read errors.
+			 */
+			log_err("fs uses incompatible features: %08x, ignoring\n",
+				missing);
+		}
+
 		debug("EXT4 features COMPAT: %08x INCOMPAT: %08x RO_COMPAT: %08x\n",
 		      __le32_to_cpu(data->sblock.feature_compatibility),
 		      __le32_to_cpu(data->sblock.feature_incompat),

@@ -762,8 +762,9 @@ static fdt_addr_t __ofnode_get_addr_size_index(ofnode node, int index,
 			return of_read_number(prop_val, na);
 		}
 	} else {
-		na = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
-		ns = ofnode_read_simple_size_cells(ofnode_get_parent(node));
+		ofnode parent = ofnode_get_parent(node);
+		na = ofnode_read_simple_addr_cells(parent);
+		ns = ofnode_read_simple_size_cells(parent);
 		return fdtdec_get_addr_size_fixed(ofnode_to_fdt(node),
 						  ofnode_to_offset(node), "reg",
 						  index, na, ns, size,

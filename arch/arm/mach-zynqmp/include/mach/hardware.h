@@ -42,6 +42,8 @@
 #define CRLAPB_DBG_LPD_CTRL_SETUP_CLK	0x01002002
 #define CRLAPB_RST_LPD_DBG_RESET	0
 
+#define CRL_APB_SOFT_RESET_CTRL_MASK	0x10
+
 struct crlapb_regs {
 	u32 reserved0[36];
 	u32 cpu_r5_ctrl; /* 0x90 */
@@ -51,7 +53,9 @@ struct crlapb_regs {
 	u32 timestamp_ref_ctrl; /* 0x128 */
 	u32 reserved3[53];
 	u32 boot_mode; /* 0x200 */
-	u32 reserved4_0[7];
+	u32 reserved4_0[5];
+	u32 soft_reset; /* 0x218 */
+	u32 reserved4_10;
 	u32 reset_reason; /* 0x220 */
 	u32 reserved4_1[6];
 	u32 rst_lpd_top; /* 0x23C */
@@ -62,6 +66,8 @@ struct crlapb_regs {
 };
 
 #define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
+
+#define ZYNQMP_IOU_SECURE_SLCR 0xFF240000
 
 #define ZYNQMP_IOU_SCNTR_SECURE	0xFF260000
 #define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN	0x1
@@ -125,6 +131,9 @@ struct crfapb_regs {
 };
 
 #define crfapb_base ((struct crfapb_regs *)ZYNQMP_CRF_APB_BASEADDR)
+
+#define ZYNQMP_CCI_REG_CCI_MISC_CTRL	0xFD5E0040
+#define ZYNQMP_CCI_REG_CCI_MISC_CTRL_NIDEN	BIT(1)
 
 #define ZYNQMP_APU_BASEADDR	0xFD5C0000
 

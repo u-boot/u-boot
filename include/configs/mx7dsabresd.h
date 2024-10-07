@@ -98,7 +98,4 @@
 /* DMA stuff, needed for GPMI/MXS NAND support */
 #endif
 
-/* USB Configs */
-#define CFG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
-
 #endif	/* __CONFIG_H */

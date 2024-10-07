@@ -1,15 +1,12 @@
 if TARGET_THUNDERX_88XX
 
 config SYS_CPU
-	string
 	default "armv8"
 
 config SYS_BOARD
-	string
 	default "thunderx"
 
 config SYS_VENDOR
-	string
 	default "cavium"
 
 config SYS_CONFIG_NAME

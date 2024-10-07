@@ -866,6 +866,7 @@ int ext4fs_write(const char *fname, const char *buffer,
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
 	bool store_link_in_inode = false;
 	memset(filename, 0x00, 256);
+	int missing_feat;
 
 	if (type != FILETYPE_REG && type != FILETYPE_SYMLINK)
 		return -1;
@@ -879,8 +880,15 @@ int ext4fs_write(const char *fname, const char *buffer,
 		return -1;
 	}
 
-	if (le32_to_cpu(fs->sb->feature_ro_compat) & EXT4_FEATURE_RO_COMPAT_METADATA_CSUM) {
-		printf("Unsupported feature metadata_csum found, not writing.\n");
+	missing_feat = le32_to_cpu(fs->sb->feature_incompat) & ~EXT4_FEATURE_INCOMPAT_SUPP;
+	if (missing_feat) {
+		log_err("Unsupported features found %08x, not writing.\n", missing_feat);
+		return -1;
+	}
+
+	missing_feat = le32_to_cpu(fs->sb->feature_ro_compat) & ~EXT4_FEATURE_RO_COMPAT_SUPP;
+	if (missing_feat) {
+		log_err("Unsupported RO compat features found %08x, not writing.\n", missing_feat);
 		return -1;
 	}
 

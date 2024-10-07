@@ -56,7 +56,7 @@ static int bootz_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (ret != 0)
 		return 1;
 
-	lmb_reserve(&images->lmb, images->ep, zi_end - zi_start);
+	lmb_reserve(images->ep, zi_end - zi_start);
 
 	/*
 	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not

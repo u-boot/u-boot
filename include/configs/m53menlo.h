@@ -57,8 +57,6 @@
 #define CFG_FEC_MXC_PHYADDR		0x0
 #endif
 
-#define CFG_SYS_RTC_BUS_NUM		1 /* I2C2 */
-
 /*
  * RTC
  */
@@ -70,8 +68,6 @@
  * USB
  */
 #ifdef CONFIG_CMD_USB
-#define CFG_MXC_USB_PORT		1
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CFG_MXC_USB_FLAGS		0
 #endif
 

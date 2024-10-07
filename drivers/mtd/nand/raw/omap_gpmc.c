@@ -1188,7 +1188,10 @@ static int gpmc_nand_probe(struct udevice *dev)
 		return ret;
 
 	base = devm_ioremap(dev, res.start, resource_size(&res));
-	gpmc_nand_init(nand, base);
+	ret = gpmc_nand_init(nand, base);
+	if (ret)
+		return ret;
+
 	mtd->dev = dev;
 	nand_set_flash_node(nand, dev_ofnode(dev));
 
