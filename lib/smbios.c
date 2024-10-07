@@ -8,6 +8,8 @@
 #define LOG_CATEGORY	LOGC_BOARD
 
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <env.h>
 #include <linux/stringify.h>
 #include <linux/string.h>
@@ -207,6 +209,26 @@ void get_str_from_dt(const struct map_sysinfo *nprop, char *str, size_t size)
 }
 
 /**
+ * smbios_get_val_si() - Get value from sysinfo
+ *
+ * @ctx:	context of SMBIOS
+ * @sysinfo_id: unique identifier for the value to be read
+ * Return:	0 if not found, else value from sysinfo
+ */
+static int smbios_get_val_si(struct smbios_ctx *ctx, int sysinfo_id)
+{
+	int val;
+
+	if (!sysinfo_id || !ctx->dev)
+		return 0;
+
+	if (!sysinfo_get_int(ctx->dev, sysinfo_id, &val))
+		return val;
+
+	return 0;
+}
+
+/**
  * smbios_add_prop_si() - Add a property from the devicetree or sysinfo
  *
  * Sysinfo is used if available, with a fallback to devicetree
@@ -225,8 +247,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 	if (!dval || !*dval)
 		dval = NULL;
 
-	if (!prop)
-		return smbios_add_string(ctx, dval);
+	log_debug("smbios: %s, sysinfo id: %d\n", prop, sysinfo_id);
 
 	if (sysinfo_id && ctx->dev) {
 		char val[SMBIOS_STR_MAX];
@@ -235,6 +256,9 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 		if (!ret)
 			return smbios_add_string(ctx, val);
 	}
+	if (!prop)
+		return smbios_add_string(ctx, dval);
+
 	if (IS_ENABLED(CONFIG_OF_CONTROL)) {
 		const char *str = NULL;
 		char str_dt[128] = { 0 };
@@ -246,6 +270,8 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 			str = ofnode_read_string(ctx->node, prop);
 		} else {
 			const struct map_sysinfo *nprop;
+
+			log_debug("no smbios node, try the entire DT\n");
 
 			nprop = convert_sysinfo_to_dt(ctx->subnode_name, prop);
 			get_str_from_dt(nprop, str_dt, sizeof(str_dt));
@@ -330,15 +356,18 @@ static int smbios_write_type0(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type0 *t;
-	int len = sizeof(struct smbios_type0);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type0));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->vendor = smbios_add_prop(ctx, NULL, "U-Boot");
+	t->vendor = smbios_add_prop_si(ctx, NULL, SYSINFO_ID_SMBIOS_BIOS_VENDOR,
+				       "U-Boot");
 
-	t->bios_ver = smbios_add_prop(ctx, "version", PLAIN_VERSION);
+	t->bios_ver = smbios_add_prop_si(ctx, "version",
+					 SYSINFO_ID_SMBIOS_BIOS_VER,
+					 PLAIN_VERSION);
 	if (t->bios_ver)
 		gd->smbios_version = ctx->last_str;
 	log_debug("smbios_version = %p: '%s'\n", gd->smbios_version,
@@ -347,7 +376,9 @@ static int smbios_write_type0(ulong *current, int handle,
 	print_buffer((ulong)gd->smbios_version, gd->smbios_version,
 		     1, strlen(gd->smbios_version) + 1, 0);
 #endif
-	t->bios_release_date = smbios_add_prop(ctx, NULL, U_BOOT_DMI_DATE);
+	t->bios_release_date =
+		smbios_add_prop_si(ctx, NULL, SYSINFO_ID_SMBIOS_BIOS_REL_DATE,
+				   U_BOOT_DMI_DATE);
 #ifdef CONFIG_ROM_SIZE
 	if (CONFIG_ROM_SIZE < SZ_16M) {
 		t->bios_rom_size = (CONFIG_ROM_SIZE / 65536) - 1;
@@ -374,7 +405,7 @@ static int smbios_write_type0(ulong *current, int handle,
 	t->ec_major_release = 0xff;
 	t->ec_minor_release = 0xff;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -385,16 +416,18 @@ static int smbios_write_type1(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type1 *t;
-	int len = sizeof(struct smbios_type1);
+	int len = sizeof(*t);
 	char *serial_str = env_get("serial#");
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type1));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
-					     SYSINFO_ID_SMBIOS_SYSTEM_MANUFACTURER,
-					     NULL);
+
+	t->manufacturer =
+		smbios_add_prop_si(ctx, "manufacturer",
+				   SYSINFO_ID_SMBIOS_SYSTEM_MANUFACTURER,
+				   NULL);
 	t->product_name = smbios_add_prop_si(ctx, "product",
 					     SYSINFO_ID_SMBIOS_SYSTEM_PRODUCT,
 					     NULL);
@@ -403,19 +436,21 @@ static int smbios_write_type1(ulong *current, int handle,
 					NULL);
 	if (serial_str) {
 		t->serial_number = smbios_add_prop(ctx, NULL, serial_str);
-		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
+		strlcpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
-		t->serial_number = smbios_add_prop_si(ctx, "serial",
-						      SYSINFO_ID_SMBIOS_SYSTEM_SERIAL,
-						      NULL);
+		t->serial_number =
+			smbios_add_prop_si(ctx, "serial",
+					   SYSINFO_ID_SMBIOS_SYSTEM_SERIAL,
+					   NULL);
 	}
-	t->wakeup_type = SMBIOS_WAKEUP_TYPE_UNKNOWN;
+	t->wakeup_type =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_SYSTEM_WAKEUP);
 	t->sku_number = smbios_add_prop_si(ctx, "sku",
 					   SYSINFO_ID_SMBIOS_SYSTEM_SKU, NULL);
 	t->family = smbios_add_prop_si(ctx, "family",
 				       SYSINFO_ID_SMBIOS_SYSTEM_FAMILY, NULL);
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -426,33 +461,80 @@ static int smbios_write_type2(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type2 *t;
-	int len = sizeof(struct smbios_type2);
+	int len = sizeof(*t);
+	size_t obj_hdl_size = 0;
+	u8 *obj_hdl = NULL;
+	u8 *obj_addr, *eos_addr;
+
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_BASEBOARD_OBJS_HANDLE,
+			      &obj_hdl, &obj_hdl_size))
+		len += obj_hdl_size; /* Add the dynamic part */
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type2));
-	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
-	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
-					     SYSINFO_ID_SMBIOS_BASEBOARD_MANUFACTURER,
-					     NULL);
-	t->product_name = smbios_add_prop_si(ctx, "product",
-					     SYSINFO_ID_SMBIOS_BASEBOARD_PRODUCT,
-					     NULL);
-	t->version = smbios_add_prop_si(ctx, "version",
-					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
-					NULL);
+	memset(t, 0, len);
 
-	t->serial_number = smbios_add_prop_si(ctx, "serial",
-					      SYSINFO_ID_SMBIOS_BASEBOARD_SERIAL,
-					      NULL);
-	t->asset_tag_number = smbios_add_prop_si(ctx, "asset-tag",
-						 SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
-						 NULL);
-	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
-	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
+	/* Verify the contained object handles */
+	t->number_contained_objects =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_BASEBOARD_OBJS_NUM);
+
+	if ((t->number_contained_objects * sizeof(u16) != obj_hdl_size) ||
+	    (!obj_hdl && (t->number_contained_objects || obj_hdl_size)) ||
+	    (obj_hdl && (!t->number_contained_objects || !obj_hdl_size))) {
+		/*
+		 * Error with returning 0-length when any of below rules does
+		 * not match:
+		 * 1. Contained Object Handles length must be equal to (Object
+		 *    Handle Length * Object Number).
+		 * 2. If no Contained Object Handles exist, Object Number must
+		 *    be 0, and versa vice.
+		 */
+		unmap_sysmem(t);
+		return 0;
+	}
+
+	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
+
+	obj_addr = (u8 *)t + offsetof(struct smbios_type2, eos);
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, t->eos);
+	t->manufacturer =
+		smbios_add_prop_si(ctx, "manufacturer",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_MANUFACTURER,
+				   NULL);
+	t->product_name =
+		smbios_add_prop_si(ctx, "product",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_PRODUCT,
+				   NULL);
+	t->version =
+		smbios_add_prop_si(ctx, "version",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
+				   NULL);
+	t->serial_number =
+		smbios_add_prop_si(ctx, "serial",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_SERIAL,
+				   NULL);
+	t->asset_tag_number =
+		smbios_add_prop_si(ctx, "asset-tag",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
+				   NULL);
+	t->feature_flags =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_BASEBOARD_FEATURE);
+
+	t->chassis_location =
+		smbios_add_prop_si(ctx, "chassis-location",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_CHASSIS_LOCAT,
+				   NULL);
+	t->board_type =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_BASEBOARD_TYPE);
+
+	/* Get the objs from driver */
+	if (obj_hdl)
+		memcpy(obj_addr, obj_hdl, obj_hdl_size);
+
 	t->chassis_handle = handle + 1;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -463,20 +545,94 @@ static int smbios_write_type3(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type3 *t;
-	int len = sizeof(struct smbios_type3);
+	int len = sizeof(*t);
+	u8 *elem = NULL;
+	u8 *elem_addr, *eos_addr, *sku_num_addr;
+	size_t elem_size = 0;
+
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_ENCLOSURE_ELEMENTS,
+			      &elem, &elem_size))
+		len += elem_size; /* Add the dynamic part */
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type3));
-	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
-	smbios_set_eos(ctx, t->eos);
-	t->manufacturer = smbios_add_prop(ctx, "manufacturer", NULL);
-	t->chassis_type = SMBIOS_ENCLOSURE_DESKTOP;
-	t->bootup_state = SMBIOS_STATE_SAFE;
-	t->power_supply_state = SMBIOS_STATE_SAFE;
-	t->thermal_state = SMBIOS_STATE_SAFE;
-	t->security_status = SMBIOS_SECURITY_NONE;
+	memset(t, 0, len);
 
-	len = t->length + smbios_string_table_len(ctx);
+	/* Verify the contained elements */
+	t->element_count =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_ELEMENT_CNT);
+
+	t->element_record_length =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_ELEMENT_LEN);
+
+	if ((elem_size != t->element_record_length * t->element_count) ||
+	    (!elem && (t->element_count || t->element_record_length ||
+		       elem_size)) ||
+	    (elem && (t->element_record_length < sizeof(struct elem_hdr) ||
+		       !elem_size))) {
+		/*
+		 * Error with returning 0-length when any of below rules does
+		 * not match:
+		 * 1. Contained Elements length must be equal to (Element
+		 *    Record Length * Element Count).
+		 * 2. If no Contained Elements exist, Element Count and Element
+		 *    Record Length must be 0.
+		 * 3. If Contained Elements exist, Element Record Length must
+		 *    be at least the size of the Element Record Header.
+		 */
+		unmap_sysmem(t);
+		return 0;
+	}
+
+	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
+
+	elem_addr = (u8 *)t + offsetof(struct smbios_type3, sku_number);
+	sku_num_addr = elem_addr + elem_size;
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	t->manufacturer =
+		smbios_add_prop_si(ctx, "manufacturer",
+				   SYSINFO_ID_SMBIOS_ENCLOSURE_MANUFACTURER,
+				   NULL);
+
+	t->chassis_type = smbios_get_val_si(ctx,
+					    SYSINFO_ID_SMBIOS_ENCLOSURE_TYPE);
+	t->version = smbios_add_prop_si(ctx, "version",
+					SYSINFO_ID_SMBIOS_ENCLOSURE_VERSION,
+					NULL);
+	t->serial_number =
+		smbios_add_prop_si(ctx, "serial",
+				   SYSINFO_ID_SMBIOS_ENCLOSURE_SERIAL,
+				   NULL);
+	t->asset_tag_number =
+		smbios_add_prop_si(ctx, "asset-tag",
+				   SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
+				   NULL);
+	t->bootup_state = smbios_get_val_si(ctx,
+					    SYSINFO_ID_SMBIOS_ENCLOSURE_BOOTUP);
+	t->power_supply_state =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_POW);
+	t->thermal_state =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_THERMAL);
+	t->security_status =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_SECURITY);
+	t->oem_defined = smbios_get_val_si(ctx,
+					   SYSINFO_ID_SMBIOS_ENCLOSURE_OEM);
+	t->height = smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_HEIGHT);
+	t->number_of_power_cords =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_ENCLOSURE_POWCORE_NUM);
+
+	/* Get the elements from driver */
+	if (elem)
+		memcpy(elem_addr, elem, elem_size);
+
+	*sku_num_addr =
+		smbios_add_prop_si(ctx, "sku", SYSINFO_ID_SMBIOS_ENCLOSURE_SKU,
+				   NULL);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -489,6 +645,8 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 	u16 processor_family = SMBIOS_PROCESSOR_FAMILY_UNKNOWN;
 	const char *vendor = NULL;
 	const char *name = NULL;
+	u8 *id_data = NULL;
+	size_t id_size = 0;
 
 #ifdef CONFIG_CPU
 	char processor_name[49];
@@ -511,33 +669,197 @@ static void smbios_write_type4_dm(struct smbios_type4 *t,
 	}
 #endif
 
-	t->processor_family = 0xfe;
+	if (processor_family == SMBIOS_PROCESSOR_FAMILY_UNKNOWN)
+		processor_family =
+			smbios_get_val_si(ctx,
+					  SYSINFO_ID_SMBIOS_PROCESSOR_FAMILY2);
+
+	t->processor_family = SMBIOS_PROCESSOR_FAMILY_EXT;
 	t->processor_family2 = processor_family;
-	t->processor_manufacturer = smbios_add_prop(ctx, NULL, vendor);
-	t->processor_version = smbios_add_prop(ctx, NULL, name);
+
+	t->processor_manufacturer =
+		smbios_add_prop_si(ctx, NULL,
+				   SYSINFO_ID_SMBIOS_PROCESSOR_MANUFACT,
+				   vendor);
+	t->processor_version =
+		smbios_add_prop_si(ctx, NULL,
+				   SYSINFO_ID_SMBIOS_PROCESSOR_VERSION,
+				   name);
+
+	if (t->processor_id[0] || t->processor_id[1])
+		return;
+
+	if (sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_PROCESSOR_ID,
+			     &id_data, &id_size) ||
+	    id_size != sizeof(t->processor_id))
+		return;
+	if (id_data)
+		memcpy((u8 *)t->processor_id, id_data, id_size);
+
 }
 
 static int smbios_write_type4(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type4 *t;
-	int len = sizeof(struct smbios_type4);
+	int len = sizeof(*t);
+	u8 *hdl;
+	size_t hdl_size;
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type4));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
-	t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
+	t->socket_design =
+		smbios_add_prop_si(ctx, NULL,
+				   SYSINFO_ID_SMBIOS_PROCESSOR_SOCKET,
+				   NULL);
+	t->processor_type =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_TYPE);
 	smbios_write_type4_dm(t, ctx);
-	t->status = SMBIOS_PROCESSOR_STATUS_ENABLED;
-	t->processor_upgrade = SMBIOS_PROCESSOR_UPGRADE_NONE;
-	t->l1_cache_handle = 0xffff;
-	t->l2_cache_handle = 0xffff;
-	t->l3_cache_handle = 0xffff;
 
-	len = t->length + smbios_string_table_len(ctx);
+	t->voltage =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_VOLTAGE);
+	t->external_clock =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_EXT_CLOCK);
+	t->max_speed =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_MAX_SPEED);
+	t->current_speed =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CUR_SPEED);
+	t->status =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_STATUS);
+	t->processor_upgrade =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_UPGRADE);
+
+	/* Read the cache handles */
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_CACHE_HANDLE,
+			      &hdl, &hdl_size) &&
+	    (hdl_size == SYSINFO_CACHE_LVL_MAX * sizeof(u16))) {
+		u16 *handle = (u16 *)hdl;
+
+		t->l1_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+		handle++;
+		t->l2_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+		handle++;
+		t->l3_cache_handle = *handle ? *handle :
+				     SMBIOS_CACHE_HANDLE_NONE;
+	} else {
+		t->l1_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+		t->l2_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+		t->l3_cache_handle = SMBIOS_CACHE_HANDLE_NONE;
+	}
+
+	t->serial_number = smbios_add_prop_si(ctx, NULL,
+					      SYSINFO_ID_SMBIOS_PROCESSOR_SN,
+					      NULL);
+	t->asset_tag = smbios_add_prop_si(ctx, NULL,
+					  SYSINFO_ID_SMBIOS_PROCESSOR_ASSET_TAG,
+					  NULL);
+	t->part_number = smbios_add_prop_si(ctx, NULL,
+					    SYSINFO_ID_SMBIOS_PROCESSOR_PN,
+					    NULL);
+	t->core_count =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CORE_CNT);
+	t->core_enabled =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CORE_EN);
+	t->thread_count =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_THREAD_CNT);
+	t->processor_characteristics =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CHARA);
+	t->core_count2 =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CORE_CNT2);
+	t->core_enabled2 =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_CORE_EN2);
+	t->thread_count2 =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_THREAD_CNT2);
+	t->thread_enabled =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_PROCESSOR_THREAD_EN);
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type7_1level(ulong *current, int handle,
+				     struct smbios_ctx *ctx, int level)
+{
+	struct smbios_type7 *t;
+	int len = sizeof(*t);
+	u8 *hdl;
+	size_t hdl_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+	fill_smbios_header(t, SMBIOS_CACHE_INFORMATION, len, handle);
+	smbios_set_eos(ctx, t->eos);
+
+	t->socket_design =
+		smbios_add_prop_si(ctx, "socket",
+				   SYSINFO_ID_SMBIOS_CACHE_SOCKET + level,
+				   NULL);
+	t->config.data =
+		smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_CACHE_CONFIG + level);
+	t->max_size.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_MAX_SIZE + level);
+	t->inst_size.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_INST_SIZE + level);
+	t->supp_sram_type.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_SUPSRAM_TYPE + level);
+	t->curr_sram_type.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_CURSRAM_TYPE + level);
+	t->speed = smbios_get_val_si(ctx,
+				     SYSINFO_ID_SMBIOS_CACHE_SPEED + level);
+	t->err_corr_type =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_ERRCOR_TYPE + level);
+	t->sys_cache_type =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_SCACHE_TYPE + level);
+	t->associativity =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_ASSOC + level);
+	t->max_size2.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_MAX_SIZE2 + level);
+	t->inst_size2.data =
+		smbios_get_val_si(ctx,
+				  SYSINFO_ID_SMBIOS_CACHE_INST_SIZE2 + level);
+
+	/* Save the cache handles */
+	if (!sysinfo_get_data(ctx->dev, SYSINFO_ID_SMBIOS_CACHE_HANDLE,
+			      &hdl, &hdl_size)) {
+		if (hdl_size == SYSINFO_CACHE_LVL_MAX * sizeof(u16))
+			*((u16 *)hdl + level) = handle;
+	}
+
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type7(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
+{
+	int len = 0;
+	int i, level;
+
+	/* Get the number of level */
+	level =	smbios_get_val_si(ctx, SYSINFO_ID_SMBIOS_CACHE_LEVEL);
+	if (level >= SYSINFO_CACHE_LVL_MAX) /* Error, return 0-length */
+		return 0;
+
+	for (i = 0; i <= level; i++)
+		len += smbios_write_type7_1level(current, handle++, ctx, i);
 
 	return len;
 }
@@ -546,10 +868,10 @@ static int smbios_write_type32(ulong *current, int handle,
 			       struct smbios_ctx *ctx)
 {
 	struct smbios_type32 *t;
-	int len = sizeof(struct smbios_type32);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type32));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_SYSTEM_BOOT_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 
@@ -563,10 +885,10 @@ static int smbios_write_type127(ulong *current, int handle,
 				struct smbios_ctx *ctx)
 {
 	struct smbios_type127 *t;
-	int len = sizeof(struct smbios_type127);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type127));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_END_OF_TABLE, len, handle);
 
 	*current += len;
@@ -581,6 +903,8 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type2, "baseboard", },
 	/* Type 3 must immediately follow type 2 due to chassis handle. */
 	{ smbios_write_type3, "chassis", },
+	/* Type 7 must ahead of type 4 to get cache handles. */
+	{ smbios_write_type7, },
 	{ smbios_write_type4, },
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
@@ -598,13 +922,12 @@ ulong write_smbios_table(ulong addr)
 	int i;
 
 	ctx.node = ofnode_null();
-	if (IS_ENABLED(CONFIG_OF_CONTROL) && CONFIG_IS_ENABLED(SYSINFO)) {
+	if (CONFIG_IS_ENABLED(SYSINFO)) {
 		uclass_first_device(UCLASS_SYSINFO, &ctx.dev);
 		if (ctx.dev) {
-			int ret;
+			int ret = sysinfo_detect(ctx.dev);
 
 			parent_node = dev_read_subnode(ctx.dev, "smbios");
-			ret = sysinfo_detect(ctx.dev);
 
 			/*
 			 * ignore the error since many boards don't implement
