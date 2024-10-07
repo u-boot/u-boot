@@ -191,6 +191,15 @@ config WDT_GPIO
 	  doc/device-tree-bindings/watchdog/gpio-wdt.txt for
 	  information on how to describe the watchdog in device tree.
 
+config SPL_WDT_GPIO
+	bool "External gpio watchdog support in SPL"
+	depends on SPL_WDT
+	depends on SPL_DM_GPIO
+	depends on SPL_OF_REAL
+	default WDT_GPIO
+	help
+	  Support for external watchdog fed by toggling a gpio in SPL.
+
 config WDT_MAX6370
 	bool "MAX6370 watchdog timer support"
 	depends on WDT
