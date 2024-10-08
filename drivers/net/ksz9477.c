@@ -510,14 +510,25 @@ static int ksz_i2c_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	enum uclass_id parent_id = UCLASS_INVALID;
 	int i, ret;
 	u8 data8;
 	u32 id;
 
-	ret = i2c_set_chip_offset_len(dev, 2);
-	if (ret) {
-		printf("i2c_set_chip_offset_len failed: %d\n", ret);
-		return ret;
+	parent_id = device_get_uclass_id(dev_get_parent(dev));
+	switch (parent_id) {
+	case UCLASS_I2C: {
+		ret = i2c_set_chip_offset_len(dev, 2);
+		if (ret) {
+			printf("i2c_set_chip_offset_len failed: %d\n", ret);
+			return ret;
+		}
+		break;
+	}
+	default:
+		dev_err(dev, "invalid parent bus (%s)\n",
+			uclass_get_name(parent_id));
+		return -EINVAL;
 	}
 
 	/* default config */
