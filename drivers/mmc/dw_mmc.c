@@ -214,65 +214,23 @@ static unsigned int dwmci_get_timeout(struct mmc *mmc, const unsigned int size)
 	return timeout;
 }
 
-static int dwmci_data_transfer_fifo(struct dwmci_host *host,
-				    struct mmc_data *data, u32 mask)
+static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 {
-	const u32 int_rx = mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO);
-	const u32 int_tx = mask & DWMCI_INTMSK_TXDR;
+	struct mmc *mmc = host->mmc;
 	int ret = 0;
-	u32 len = 0, size, i;
-	u32 *buf;
+	u32 timeout, mask, size, i, len = 0;
+	u32 *buf = NULL;
+	ulong start = get_timer(0);
 
-	size = (data->blocksize * data->blocks) / 4;
-	if (!host->fifo_mode || !size)
-		return 0;
-
+	size = data->blocksize * data->blocks;
 	if (data->flags == MMC_DATA_READ)
 		buf = (unsigned int *)data->dest;
 	else
 		buf = (unsigned int *)data->src;
 
-	if (data->flags == MMC_DATA_READ && int_rx) {
-		dwmci_writel(host, DWMCI_RINTSTS, int_rx);
-		while (size) {
-			ret = dwmci_fifo_ready(host, DWMCI_FIFO_EMPTY, &len);
-			if (ret < 0)
-				break;
-
-			len = (len >> DWMCI_FIFO_SHIFT) & DWMCI_FIFO_MASK;
-			len = min(size, len);
-			for (i = 0; i < len; i++)
-				*buf++ = dwmci_readl(host, DWMCI_DATA);
-			size = size > len ? (size - len) : 0;
-		}
-	} else if (data->flags == MMC_DATA_WRITE && int_tx) {
-		while (size) {
-			ret = dwmci_fifo_ready(host, DWMCI_FIFO_FULL, &len);
-			if (ret < 0)
-				break;
-
-			len = host->fifo_depth - ((len >> DWMCI_FIFO_SHIFT) &
-						  DWMCI_FIFO_MASK);
-			len = min(size, len);
-			for (i = 0; i < len; i++)
-				dwmci_writel(host, DWMCI_DATA, *buf++);
-			size = size > len ? (size - len) : 0;
-		}
-		dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_TXDR);
-	}
-
-	return ret;
-}
-
-static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
-{
-	struct mmc *mmc = host->mmc;
-	int ret = 0;
-	u32 timeout, mask, size;
-	ulong start = get_timer(0);
-
-	size = data->blocksize * data->blocks;
 	timeout = dwmci_get_timeout(mmc, size);
+
+	size /= 4;
 
 	for (;;) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
@@ -283,7 +241,50 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 			break;
 		}
 
-		ret = dwmci_data_transfer_fifo(host, data, mask);
+		if (host->fifo_mode && size) {
+			len = 0;
+			if (data->flags == MMC_DATA_READ &&
+			    (mask & (DWMCI_INTMSK_RXDR | DWMCI_INTMSK_DTO))) {
+				dwmci_writel(host, DWMCI_RINTSTS,
+					     mask & (DWMCI_INTMSK_RXDR |
+						     DWMCI_INTMSK_DTO));
+				while (size) {
+					ret = dwmci_fifo_ready(host,
+							DWMCI_FIFO_EMPTY,
+							&len);
+					if (ret < 0)
+						break;
+
+					len = (len >> DWMCI_FIFO_SHIFT) &
+						    DWMCI_FIFO_MASK;
+					len = min(size, len);
+					for (i = 0; i < len; i++)
+						*buf++ =
+						dwmci_readl(host, DWMCI_DATA);
+					size = size > len ? (size - len) : 0;
+				}
+			} else if (data->flags == MMC_DATA_WRITE &&
+				   (mask & DWMCI_INTMSK_TXDR)) {
+				while (size) {
+					ret = dwmci_fifo_ready(host,
+							DWMCI_FIFO_FULL,
+							&len);
+					if (ret < 0)
+						break;
+
+					len = host->fifo_depth - ((len >>
+						   DWMCI_FIFO_SHIFT) &
+						   DWMCI_FIFO_MASK);
+					len = min(size, len);
+					for (i = 0; i < len; i++)
+						dwmci_writel(host, DWMCI_DATA,
+							     *buf++);
+					size = size > len ? (size - len) : 0;
+				}
+				dwmci_writel(host, DWMCI_RINTSTS,
+					     DWMCI_INTMSK_TXDR);
+			}
+		}
 
 		/* Data arrived correctly */
 		if (mask & DWMCI_INTMSK_DTO) {
