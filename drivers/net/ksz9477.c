@@ -276,7 +276,7 @@ static int ksz_mdio_probe(struct udevice *dev)
 	struct ksz_mdio_priv *priv = dev_get_priv(dev);
 
 	dev_dbg(dev, "%s\n", __func__);
-	priv->ksz = dev_get_parent_priv(dev->parent);
+	priv->ksz = dev_get_priv(dev->parent);
 
 	return 0;
 }
@@ -513,8 +513,6 @@ static int ksz_i2c_probe(struct udevice *dev)
 	int i, ret;
 	u8 data8;
 	u32 id;
-
-	dev_set_parent_priv(dev, priv);
 
 	ret = i2c_set_chip_offset_len(dev, 2);
 	if (ret) {
