@@ -541,6 +541,9 @@ static int ksz_i2c_probe(struct udevice *dev)
 	case 0x00956700:
 		puts("KSZ9567R: ");
 		break;
+	case 0x00989600:
+		puts("KSZ9896C: ");
+		break;
 	case 0x00989700:
 		puts("KSZ9897S: ");
 		break;
@@ -576,6 +579,7 @@ static const struct udevice_id ksz_i2c_ids[] = {
 	{ .compatible = "microchip,ksz9477" },
 	{ .compatible = "microchip,ksz9567" },
 	{ .compatible = "microchip,ksz9893" },
+	{ .compatible = "microchip,ksz9896" },
 	{ }
 };
 
