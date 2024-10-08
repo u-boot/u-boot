@@ -27,7 +27,7 @@ def test_sleep(u_boot_console):
     if not sleep_skip:
         pytest.skip('sleep is not accurate')
 
-    if u_boot_console.config.buildconfig.get('config_cmd_misc', 'n') != 'y':
+    if u_boot_console.config.buildconfig.get('config_cmd_sleep', 'n') != 'y':
         pytest.skip('sleep command not supported')
 
     # 3s isn't too long, but is enough to cross a few second boundaries.
@@ -42,7 +42,7 @@ def test_sleep(u_boot_console):
         # margin is hopefully enough to account for any system overhead.
         assert elapsed < (sleep_time + sleep_margin)
 
-@pytest.mark.buildconfigspec("cmd_misc")
+@pytest.mark.buildconfigspec("cmd_time")
 def test_time(u_boot_console):
     """Test the time command, and validate that it gives approximately the
     correct amount of command execution time."""
