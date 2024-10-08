@@ -574,7 +574,7 @@ static int ksz_i2c_probe(struct udevice *dev)
 	return 0;
 };
 
-static const struct udevice_id ksz_i2c_ids[] = {
+static const struct udevice_id ksz_ids[] = {
 	{ .compatible = "microchip,ksz9897" },
 	{ .compatible = "microchip,ksz9477" },
 	{ .compatible = "microchip,ksz9567" },
@@ -586,7 +586,7 @@ static const struct udevice_id ksz_i2c_ids[] = {
 U_BOOT_DRIVER(ksz) = {
 	.name		= "ksz-switch",
 	.id		= UCLASS_DSA,
-	.of_match	= ksz_i2c_ids,
+	.of_match	= ksz_ids,
 	.probe		= ksz_i2c_probe,
 	.ops		= &ksz_dsa_ops,
 	.priv_auto	= sizeof(struct ksz_dsa_priv),
