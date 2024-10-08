@@ -71,15 +71,61 @@
 #define MMD_SETUP(mode, dev)		(((u16)(mode) << PORT_MMD_OP_MODE_S) | (dev))
 #define REG_PORT_PHY_MMD_INDEX_DATA	0x011C
 
+/**
+ * struct ksz_phy_ops - low-level KSZ bus operations
+ */
+struct ksz_phy_ops {
+	/* read() - Read bytes from the device
+	 *
+	 * @udev: bus device
+	 * @reg:  register offset
+	 * @val:  data read
+	 * @len:  Number of bytes to read
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*read)(struct udevice *udev, u32 reg, u8 *val, int len);
+
+	/* write() - Write bytes to the device
+	 *
+	 * @udev: bus device
+	 * @reg:  register offset
+	 * @val:  data to write
+	 * @len:  Number of bytes to write
+	 *
+	 * @return: 0 on success, negative on failure
+	 */
+	int (*write)(struct udevice *udev, u32 reg, u8 *val, int len);
+};
+
 struct ksz_dsa_priv {
 	struct udevice *dev;
+	struct ksz_phy_ops *phy_ops;
 
 	u32 features;			/* chip specific features */
 };
 
+static inline int ksz_i2c_read(struct udevice *dev, u32 reg, u8 *val, int len)
+{
+	return dm_i2c_read(dev, reg, val, len);
+}
+
+static inline int ksz_i2c_write(struct udevice *dev, u32 reg, u8 *val, int len)
+{
+	return dm_i2c_write(dev, reg, val, len);
+}
+
+static struct ksz_phy_ops phy_i2c_ops = {
+	.read = ksz_i2c_read,
+	.write = ksz_i2c_write,
+};
+
 static inline int ksz_read8(struct udevice *dev, u32 reg, u8 *val)
 {
-	int ret = dm_i2c_read(dev, reg, val, 1);
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+
+	int ret = phy_ops->read(dev, reg, val, 1);
 
 	dev_dbg(dev, "%s 0x%04x<<0x%02x\n", __func__, reg, *val);
 
@@ -93,8 +139,11 @@ static inline int ksz_pread8(struct udevice *dev, int port, int reg, u8 *val)
 
 static inline int ksz_write8(struct udevice *dev, u32 reg, u8 val)
 {
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+
 	dev_dbg(dev, "%s 0x%04x>>0x%02x\n", __func__, reg, val);
-	return dm_i2c_write(dev, reg, &val, 1);
+	return phy_ops->write(dev, reg, &val, 1);
 }
 
 static inline int ksz_pwrite8(struct udevice *dev, int port, int reg, u8 val)
@@ -104,13 +153,15 @@ static inline int ksz_pwrite8(struct udevice *dev, int port, int reg, u8 val)
 
 static inline int ksz_write16(struct udevice *dev, u32 reg, u16 val)
 {
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[2];
 
 	buf[1] = val & 0xff;
 	buf[0] = val >> 8;
 	dev_dbg(dev, "%s 0x%04x>>0x%04x\n", __func__, reg, val);
 
-	return dm_i2c_write(dev, reg, buf, 2);
+	return phy_ops->write(dev, reg, buf, 2);
 }
 
 static inline int ksz_pwrite16(struct udevice *dev, int port, int reg, u16 val)
@@ -120,10 +171,12 @@ static inline int ksz_pwrite16(struct udevice *dev, int port, int reg, u16 val)
 
 static inline int ksz_read16(struct udevice *dev, u32 reg, u16 *val)
 {
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[2];
 	int ret;
 
-	ret = dm_i2c_read(dev, reg, buf, 2);
+	ret = phy_ops->read(dev, reg, buf, 2);
 	*val = (buf[0] << 8) | buf[1];
 	dev_dbg(dev, "%s 0x%04x<<0x%04x\n", __func__, reg, *val);
 
@@ -137,7 +190,10 @@ static inline int ksz_pread16(struct udevice *dev, int port, int reg, u16 *val)
 
 static inline int ksz_read32(struct udevice *dev, u32 reg, u32 *val)
 {
-	return dm_i2c_read(dev, reg, (u8 *)val, 4);
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
+
+	return phy_ops->read(dev, reg, (u8 *)val, 4);
 }
 
 static inline int ksz_pread32(struct udevice *dev, int port, int reg, u32 *val)
@@ -147,6 +203,8 @@ static inline int ksz_pread32(struct udevice *dev, int port, int reg, u32 *val)
 
 static inline int ksz_write32(struct udevice *dev, u32 reg, u32 val)
 {
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+	struct ksz_phy_ops *phy_ops = priv->phy_ops;
 	u8 buf[4];
 
 	buf[3] = val & 0xff;
@@ -155,7 +213,7 @@ static inline int ksz_write32(struct udevice *dev, u32 reg, u32 val)
 	buf[0] = (val >> 8) & 0xff;
 	dev_dbg(dev, "%s 0x%04x>>0x%04x\n", __func__, reg, val);
 
-	return dm_i2c_write(dev, reg, buf, 4);
+	return phy_ops->write(dev, reg, buf, 4);
 }
 
 static inline int ksz_pwrite32(struct udevice *dev, int port, int reg, u32 val)
@@ -503,6 +561,21 @@ static int ksz_probe_mdio(struct udevice *dev)
 	return 0;
 }
 
+static void ksz_ops_register(struct udevice *dev, struct ksz_phy_ops *ops)
+{
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
+
+	priv->phy_ops = ops;
+}
+
+static bool dsa_ksz_check_ops(struct ksz_phy_ops *phy_ops)
+{
+	if (!phy_ops || !phy_ops->read || !phy_ops->write)
+		return false;
+
+	return true;
+}
+
 /*
  * I2C driver
  */
@@ -518,6 +591,8 @@ static int ksz_i2c_probe(struct udevice *dev)
 	parent_id = device_get_uclass_id(dev_get_parent(dev));
 	switch (parent_id) {
 	case UCLASS_I2C: {
+		ksz_ops_register(dev, &phy_i2c_ops);
+
 		ret = i2c_set_chip_offset_len(dev, 2);
 		if (ret) {
 			printf("i2c_set_chip_offset_len failed: %d\n", ret);
@@ -528,6 +603,11 @@ static int ksz_i2c_probe(struct udevice *dev)
 	default:
 		dev_err(dev, "invalid parent bus (%s)\n",
 			uclass_get_name(parent_id));
+		return -EINVAL;
+	}
+
+	if (!dsa_ksz_check_ops(priv->phy_ops)) {
+		printf("Driver bug. No bus ops defined\n");
 		return -EINVAL;
 	}
 
