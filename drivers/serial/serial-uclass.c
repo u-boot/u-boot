@@ -18,6 +18,7 @@
 #include <dm/lists.h>
 #include <dm/device-internal.h>
 #include <dm/of_access.h>
+#include <linux/build_bug.h>
 #include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -328,11 +329,15 @@ static int __serial_tstc(struct udevice *dev)
 static int _serial_tstc(struct udevice *dev)
 {
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
+	uint wr, avail;
 
-	/* Read all available chars into the RX buffer */
-	while (__serial_tstc(dev)) {
-		upriv->buf[upriv->wr_ptr++] = __serial_getc(dev);
-		upriv->wr_ptr %= CONFIG_SERIAL_RX_BUFFER_SIZE;
+	BUILD_BUG_ON_NOT_POWER_OF_2(CONFIG_SERIAL_RX_BUFFER_SIZE);
+
+	/* Read all available chars into the RX buffer while there's room */
+	avail = CONFIG_SERIAL_RX_BUFFER_SIZE - (upriv->wr_ptr - upriv->rd_ptr);
+	while (avail-- && __serial_tstc(dev)) {
+		wr = upriv->wr_ptr++ % CONFIG_SERIAL_RX_BUFFER_SIZE;
+		upriv->buf[wr] = __serial_getc(dev);
 	}
 
 	return upriv->rd_ptr != upriv->wr_ptr ? 1 : 0;
@@ -342,12 +347,13 @@ static int _serial_getc(struct udevice *dev)
 {
 	struct serial_dev_priv *upriv = dev_get_uclass_priv(dev);
 	char val;
+	uint rd;
 
 	if (upriv->rd_ptr == upriv->wr_ptr)
 		return __serial_getc(dev);
 
-	val = upriv->buf[upriv->rd_ptr++];
-	upriv->rd_ptr %= CONFIG_SERIAL_RX_BUFFER_SIZE;
+	rd = upriv->rd_ptr++ % CONFIG_SERIAL_RX_BUFFER_SIZE;
+	val = upriv->buf[rd];
 
 	return val;
 }
@@ -581,11 +587,6 @@ static int serial_post_probe(struct udevice *dev)
 	STDIO_DEV_ASSIGN_FLUSH(&sdev, serial_stub_flush);
 	sdev.getc = serial_stub_getc;
 	sdev.tstc = serial_stub_tstc;
-
-#if CONFIG_IS_ENABLED(SERIAL_RX_BUFFER)
-	/* Allocate the RX buffer */
-	upriv->buf = malloc(CONFIG_SERIAL_RX_BUFFER_SIZE);
-#endif
 
 	stdio_register_dev(&sdev, &upriv->sdev);
 #endif
