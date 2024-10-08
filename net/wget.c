@@ -248,7 +248,7 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 			wget_send(action, tcp_seq_num, tcp_ack_num, len);
 		} else {
 			debug_cond(DEBUG_WGET,
-				   "wget: Connctd pkt %p  hlen %x\n",
+				   "wget: Connected Pkt %p hlen %x\n",
 				   pkt, hlen);
 
 			pos = strstr((char *)pkt, content_len);
@@ -273,10 +273,6 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 				}
 			}
 
-			debug_cond(DEBUG_WGET,
-				   "wget: Connected Pkt %p hlen %x\n",
-				   pkt, hlen);
-
 			for (i = 0; i < pkt_q_idx; i++) {
 				int err;
 
@@ -288,7 +284,7 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 					  pkt_q[i].len);
 				unmap_sysmem(ptr1);
 				debug_cond(DEBUG_WGET,
-					   "wget: Connctd pkt Q %p len %x\n",
+					   "wget: Conncted pkt Q %p len %x\n",
 					   pkt_q[i].pkt, pkt_q[i].len);
 				if (err) {
 					wget_loop_state = NETLOOP_FAIL;
