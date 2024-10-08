@@ -576,10 +576,7 @@ static bool dsa_ksz_check_ops(struct ksz_phy_ops *phy_ops)
 	return true;
 }
 
-/*
- * I2C driver
- */
-static int ksz_i2c_probe(struct udevice *dev)
+static int ksz_probe(struct udevice *dev)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
 	struct ksz_dsa_priv *priv = dev_get_priv(dev);
@@ -678,7 +675,7 @@ U_BOOT_DRIVER(ksz) = {
 	.name		= "ksz-switch",
 	.id		= UCLASS_DSA,
 	.of_match	= ksz_ids,
-	.probe		= ksz_i2c_probe,
+	.probe		= ksz_probe,
 	.ops		= &ksz_dsa_ops,
 	.priv_auto	= sizeof(struct ksz_dsa_priv),
 };
