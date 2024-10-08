@@ -355,12 +355,12 @@ static int ksz_port_setup(struct udevice *dev, int port,
 			  phy_interface_t interface)
 {
 	struct dsa_pdata *pdata = dev_get_uclass_plat(dev);
+	struct ksz_dsa_priv *priv = dev_get_priv(dev);
 	u8 data8;
 
 	dev_dbg(dev, "%s P%d %s\n", __func__, port + 1,
 		(port == pdata->cpu_port) ? "cpu" : "");
 
-	struct ksz_dsa_priv *priv = dev_get_priv(dev);
 	if (port != pdata->cpu_port) {
 		if (priv->features & NEW_XMII)
 			/* phy port: config errata and leds */
