@@ -22,6 +22,11 @@ config TARGET_ODROID_M1_RK3568
 	help
 	  Hardkernel ODROID-M1 single board computer with a RK3568B2 SoC.
 
+config TARGET_ODROID_M1S_RK3566
+	bool "ODROID-M1S"
+	help
+	  Hardkernel ODROID-M1S single board computer with a RK3566 SoC.
+
 config TARGET_POWKIDDY_X55_RK3566
 	bool "Powkiddy X55"
 	help
@@ -62,6 +67,7 @@ config TEXT_BASE
 source "board/rockchip/evb_rk3568/Kconfig"
 source "board/anbernic/rgxx3_rk3566/Kconfig"
 source "board/hardkernel/odroid_m1/Kconfig"
+source "board/hardkernel/odroid_m1s/Kconfig"
 source "board/pine64/quartz64_rk3566/Kconfig"
 source "board/powkiddy/x55/Kconfig"
 source "board/radxa/zero3-rk3566/Kconfig"
