@@ -83,3 +83,8 @@
 	reg = <0x00 0x0fc40000 0x00 0x100>,
 	      <0x00 0x60000000 0x00 0x08000000>;
 };
+
+&main_pktdma {
+	ti,sci = <&dm_tifs>;
+	bootph-all;
+};

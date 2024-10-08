@@ -1030,6 +1030,9 @@ of the source tree, thus allowing rapid tested evolution of the code::
 
     ./tools/buildman/buildman -Pr tegra
 
+Note also the `--dtc-skip` option which uses the system device-tree compiler to
+avoid needing to build it for each board. This can save 10-20% of build time.
+An alternative is to set DTC=/path/to/dtc when running buildman.
 
 Checking configuration
 ----------------------

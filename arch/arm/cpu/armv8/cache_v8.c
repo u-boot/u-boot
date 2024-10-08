@@ -339,6 +339,31 @@ static void map_range(u64 virt, u64 phys, u64 size, int level,
 	}
 }
 
+void mmu_map_region(phys_addr_t addr, u64 size, bool emergency)
+{
+	u64 va_bits;
+	int level = 0;
+	u64 attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE;
+
+	attrs |= PTE_TYPE_BLOCK | PTE_BLOCK_AF;
+
+	get_tcr(NULL, &va_bits);
+	if (va_bits < 39)
+		level = 1;
+
+	if (emergency)
+		map_range(addr, addr, size, level,
+			  (u64 *)gd->arch.tlb_emerg, attrs);
+
+	/* Switch pagetables while we update the primary one */
+	__asm_switch_ttbr(gd->arch.tlb_emerg);
+
+	map_range(addr, addr, size, level,
+		  (u64 *)gd->arch.tlb_addr, attrs);
+
+	__asm_switch_ttbr(gd->arch.tlb_addr);
+}
+
 static void add_map(struct mm_region *map)
 {
 	u64 attrs = map->attrs | PTE_TYPE_BLOCK | PTE_BLOCK_AF;

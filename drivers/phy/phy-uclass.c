@@ -508,7 +508,8 @@ int generic_phy_power_off_bulk(struct phy_bulk *bulk)
 	return ret;
 }
 
-int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
+int generic_setup_phy(struct udevice *dev, struct phy *phy, int index,
+		      enum phy_mode mode, int submode)
 {
 	int ret;
 
@@ -520,10 +521,18 @@ int generic_setup_phy(struct udevice *dev, struct phy *phy, int index)
 	if (ret)
 		return ret;
 
+	ret = generic_phy_set_mode(phy, mode, submode);
+	if (ret)
+		goto phys_mode_err;
+
 	ret = generic_phy_power_on(phy);
 	if (ret)
-		generic_phy_exit(phy);
+		goto phys_mode_err;
 
+	return 0;
+
+phys_mode_err:
+	generic_phy_exit(phy);
 	return ret;
 }
 

@@ -234,6 +234,12 @@ static int eqos_probe_resources_stm32(struct udevice *dev)
 
 	interface = eqos->config->interface(dev);
 
+	ret = eqos_get_base_addr_dt(dev);
+	if (ret) {
+		dev_err(dev, "eqos_get_base_addr_dt failed: %d\n", ret);
+		return ret;
+	}
+
 	if (interface == PHY_INTERFACE_MODE_NA) {
 		dev_err(dev, "Invalid PHY interface\n");
 		return -EINVAL;

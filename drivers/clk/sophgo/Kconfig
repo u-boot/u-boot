@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (c) 2024, Kongyang Liu <seashell11234455@gmail.com>
+
+config CLK_SOPHGO
+	bool
+
+config CLK_SOPHGO_CV1800B
+	bool "Sophgo CV1800B clock support"
+	depends on CLK
+	select CLK_CCF
+	select CLK_SOPHGO
+	help
+	  This enables support clock driver for Sophgo CV1800B SoC.

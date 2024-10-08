@@ -31,6 +31,9 @@ def setup(fname=''):
 def add_file(data):
     settings.read_file(io.StringIO(data))
 
+def add_section(name):
+    settings.add_section(name)
+
 def get_items(section):
     """Get the items from a section of the config.
 

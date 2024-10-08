@@ -1,6 +1,6 @@
 menuconfig ASYMMETRIC_KEY_TYPE
 	bool "Asymmetric (public-key cryptographic) key Support"
-	depends on FIT_SIGNATURE
+	depends on FIT_SIGNATURE || RSA_VERIFY_WITH_PKEY
 	help
 	  This option provides support for a key type that holds the data for
 	  the asymmetric keys used for public key cryptographic operations such

@@ -393,6 +393,7 @@ config TARGET_MX6SLEVK
 	bool "mx6slevk"
 	depends on MX6SL
 	select SUPPORT_SPL
+	imply OF_UPSTREAM
 
 config TARGET_MX6SLLEVK
 	bool "mx6sll evk"
@@ -539,6 +540,16 @@ config TARGET_LITEBOARD
 	depends on MX6UL
 	select BOARD_LATE_INIT
 	select MX6UL_LITESOM
+
+config TARGET_LXR2
+	bool "Comvetia i.MX6Q LXR2"
+	depends on MX6Q
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_PCM058
 	bool "Phytec PCM058 i.MX6 Quad"
@@ -695,6 +706,7 @@ source "board/boundary/nitrogen6x/Kconfig"
 source "board/bsh/imx6ulz_smm_m2/Kconfig"
 source "board/bticino/mamoj/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
+source "board/comvetia/lxr2/Kconfig"
 source "board/dhelectronics/dh_imx6/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/engicam/imx6q/Kconfig"

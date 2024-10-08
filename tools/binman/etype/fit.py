@@ -6,8 +6,9 @@
 """Entry-type module for producing a FIT"""
 
 import glob
-import libfdt
 import os
+
+import libfdt
 
 from binman.entry import Entry, EntryArg
 from binman.etype.section import Entry_section
@@ -23,6 +24,7 @@ OPERATIONS = {
     'split-elf': OP_SPLIT_ELF,
     }
 
+# pylint: disable=invalid-name
 class Entry_fit(Entry_section):
 
     """Flat Image Tree (FIT)
@@ -94,7 +96,10 @@ class Entry_fit(Entry_section):
             can be provided as a directory. Each .dtb file in the directory is
             processed, , e.g.::
 
-                fit,fdt-list-dir = "arch/arm/dts
+                fit,fdt-list-dir = "arch/arm/dts";
+
+            In this case the input directories are ignored and all devicetree
+            files must be in that directory.
 
     Substitutions
     ~~~~~~~~~~~~~
@@ -381,31 +386,46 @@ class Entry_fit(Entry_section):
     def __init__(self, section, etype, node):
         """
         Members:
-            _fit: FIT file being built
-            _entries: dict from Entry_section:
+            _fit (str): FIT file being built
+            _fit_props (list of str): 'fit,...' properties found in the
+                top-level node
+            _fdts (list of str): Filenames of .dtb files to process
+            _fdt_dir (str): Directory to scan to find .dtb files, or None
+            _fit_list_prop (str): Name of the EntryArg containing a list of .dtb
+                files
+            _fit_default_dt (str): Name of the EntryArg containing the default
+                .dtb file
+            _entries (dict of entries): from Entry_section:
                 key: relative path to entry Node (from the base of the FIT)
                 value: Entry_section object comprising the contents of this
                     node
-            _priv_entries: Internal copy of _entries which includes 'generator'
-                entries which are used to create the FIT, but should not be
-                processed as real entries. This is set up once we have the
-                entries
-            _loadables: List of generated split-elf nodes, each a node name
+            _priv_entries (dict of entries): Internal copy of _entries which
+                includes 'generator' entries which are used to create the FIT,
+                but should not be processed as real entries. This is set up once
+                we have the entries
+            _loadables (list of str): List of generated split-elf nodes, each
+                a node name
+            _remove_props (list of str): Value of of-spl-remove-props EntryArg,
+                the list of properties to remove with fdtgrep
+            mkimage (Bintool): mkimage tool
+            fdtgrep (Bintool): fdtgrep tool
         """
         super().__init__(section, etype, node)
         self._fit = None
         self._fit_props = {}
         self._fdts = None
         self._fdt_dir = None
-        self.mkimage = None
-        self.fdtgrep = None
+        self._fit_list_prop = None
+        self._fit_default_dt = None
         self._priv_entries = {}
         self._loadables = []
         self._remove_props = []
-        props, = self.GetEntryArgsOrProps(
-            [EntryArg('of-spl-remove-props', str)], required=False)
+        props = self.GetEntryArgsOrProps(
+            [EntryArg('of-spl-remove-props', str)], required=False)[0]
         if props:
             self._remove_props = props.split()
+        self.mkimage = None
+        self.fdtgrep = None
 
     def ReadNode(self):
         super().ReadNode()
@@ -414,8 +434,8 @@ class Entry_fit(Entry_section):
                 self._fit_props[pname] = prop
         self._fit_list_prop = self._fit_props.get('fit,fdt-list')
         if self._fit_list_prop:
-            fdts, = self.GetEntryArgsOrProps(
-                [EntryArg(self._fit_list_prop.value, str)])
+            fdts = self.GetEntryArgsOrProps(
+                [EntryArg(self._fit_list_prop.value, str)])[0]
             if fdts is not None:
                 self._fdts = fdts.split()
         else:
@@ -431,7 +451,7 @@ class Entry_fit(Entry_section):
         self._fit_default_dt = self.GetEntryArgsOrProps([EntryArg('default-dt',
                                                                   str)])[0]
 
-    def _get_operation(self, base_node, node):
+    def _get_operation(self, node):
         """Get the operation referenced by a subnode
 
         Args:
@@ -550,15 +570,15 @@ class Entry_fit(Entry_section):
             phase (str): Phase to generate for ('tpl', 'vpl', 'spl')
             outfile (str): Output filename to write the grepped FDT contents to
                 (with only neceesary nodes and properties)
+
+        Returns:
+            str or bytes: Resulting stdout from fdtgrep
         """
         return self.fdtgrep.create_for_phase(infile, phase, outfile,
                                              self._remove_props)
 
     def _build_input(self):
         """Finish the FIT by adding the 'data' properties to it
-
-        Arguments:
-            fdt: FIT to update
 
         Returns:
             bytes: New fdt contents
@@ -580,13 +600,17 @@ class Entry_fit(Entry_section):
                 if val.startswith('@'):
                     if not self._fdts:
                         return
-                    if not self._fit_default_dt:
+                    default_dt = self._fit_default_dt
+                    if not default_dt:
                         self.Raise("Generated 'default' node requires default-dt entry argument")
-                    if self._fit_default_dt not in self._fdts:
-                        self.Raise(
-                            f"default-dt entry argument '{self._fit_default_dt}' "
-                            f"not found in fdt list: {', '.join(self._fdts)}")
-                    seq = self._fdts.index(self._fit_default_dt)
+                    if default_dt not in self._fdts:
+                        if self._fdt_dir:
+                            default_dt = os.path.basename(default_dt)
+                        if default_dt not in self._fdts:
+                            self.Raise(
+                                f"default-dt entry argument '{self._fit_default_dt}' "
+                                f"not found in fdt list: {', '.join(self._fdts)}")
+                    seq = self._fdts.index(default_dt)
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
                     fsw.property_string(pname, val)
                     return
@@ -634,7 +658,7 @@ class Entry_fit(Entry_section):
                     result.append(name)
             return firmware, result
 
-        def _gen_fdt_nodes(base_node, node, depth, in_images):
+        def _gen_fdt_nodes(node, depth, in_images):
             """Generate FDT nodes
 
             This creates one node for each member of self._fdts using the
@@ -654,7 +678,10 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
-                    fname = tools.get_input_filename(fdt_fname + '.dtb')
+                    if self._fdt_dir:
+                        fname = os.path.join(self._fdt_dir, fdt_fname + '.dtb')
+                    else:
+                        fname = tools.get_input_filename(fdt_fname + '.dtb')
                     fdt_phase = None
                     with fsw.add_node(node_name):
                         for pname, prop in node.props.items():
@@ -688,8 +715,9 @@ class Entry_fit(Entry_section):
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
                             if fdt_phase:
+                                leaf = os.path.basename(fdt_fname)
                                 phase_fname = tools.get_output_filename(
-                                    f'{fdt_fname}-{fdt_phase}.dtb')
+                                    f'{leaf}-{fdt_phase}.dtb')
                                 self._run_fdtgrep(fname, fdt_phase, phase_fname)
                                 data = tools.read_file(phase_fname)
                             else:
@@ -707,11 +735,10 @@ class Entry_fit(Entry_section):
                     else:
                         self.Raise("Generator node requires 'fit,fdt-list' property")
 
-        def _gen_split_elf(base_node, node, depth, segments, entry_addr):
+        def _gen_split_elf(node, depth, segments, entry_addr):
             """Add nodes for the ELF file, one per group of contiguous segments
 
             Args:
-                base_node (Node): Template node from the binman definition
                 node (Node): Node to replace (in the FIT being built)
                 depth: Current node depth (0 is the base 'fit' node)
                 segments (list): list of segments, each:
@@ -742,7 +769,7 @@ class Entry_fit(Entry_section):
                         with fsw.add_node(subnode.name):
                             _add_node(node, depth + 1, subnode)
 
-        def _gen_node(base_node, node, depth, in_images, entry):
+        def _gen_node(node, depth, in_images, entry):
             """Generate nodes from a template
 
             This creates one or more nodes depending on the fit,operation being
@@ -758,8 +785,6 @@ class Entry_fit(Entry_section):
             If the file is missing, nothing is generated.
 
             Args:
-                base_node (Node): Base Node of the FIT (with 'description'
-                    property)
                 node (Node): Generator node to process
                 depth (int): Current node depth (0 is the base 'fit' node)
                 in_images (bool): True if this is inside the 'images' node, so
@@ -767,13 +792,12 @@ class Entry_fit(Entry_section):
                 entry (entry_Section): Entry for the section containing the
                     contents of this node
             """
-            oper = self._get_operation(base_node, node)
+            oper = self._get_operation(node)
             if oper == OP_GEN_FDT_NODES:
-                _gen_fdt_nodes(base_node, node, depth, in_images)
+                _gen_fdt_nodes(node, depth, in_images)
             elif oper == OP_SPLIT_ELF:
                 # Entry_section.ObtainContents() either returns True or
                 # raises an exception.
-                data = None
                 missing_opt_list = []
                 entry.ObtainContents()
                 entry.Pack(0)
@@ -795,7 +819,7 @@ class Entry_fit(Entry_section):
                             self._raise_subnode(
                                 node, f'Failed to read ELF file: {str(exc)}')
 
-                    _gen_split_elf(base_node, node, depth, segments, entry_addr)
+                    _gen_split_elf(node, depth, segments, entry_addr)
 
         def _add_node(base_node, depth, node):
             """Add nodes to the output FIT
@@ -826,7 +850,6 @@ class Entry_fit(Entry_section):
                 fsw.property('data', bytes(data))
 
             for subnode in node.subnodes:
-                subnode_path = f'{rel_path}/{subnode.name}'
                 if has_images and not self.IsSpecialSubnode(subnode):
                     # This subnode is a content node not meant to appear in
                     # the FIT (e.g. "/images/kernel/u-boot"), so don't call
@@ -834,7 +857,7 @@ class Entry_fit(Entry_section):
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
                     entry = self._priv_entries.get(subnode.name)
-                    _gen_node(base_node, subnode, depth, in_images, entry)
+                    _gen_node(subnode, depth, in_images, entry)
                     # This is a generator (template) entry, so remove it from
                     # the list of entries used by PackEntries(), etc. Otherwise
                     # it will appear in the binman output
@@ -876,7 +899,10 @@ class Entry_fit(Entry_section):
         """
         if self.build_done:
             return
-        super().SetImagePos(image_pos)
+
+        # Skip the section processing, since we do that below. Just call the
+        # entry method
+        Entry.SetImagePos(self, image_pos)
 
         # If mkimage is missing we'll have empty data,
         # which will cause a FDT_ERR_BADMAGIC error
@@ -886,7 +912,7 @@ class Entry_fit(Entry_section):
         fdt = Fdt.FromData(self.GetData())
         fdt.Scan()
 
-        for image_name, section in self._entries.items():
+        for image_name, entry in self._entries.items():
             path = f"/images/{image_name}"
             node = fdt.GetNode(path)
 
@@ -914,10 +940,12 @@ class Entry_fit(Entry_section):
 
             # This should never happen
             else: # pragma: no cover
+                offset = None
+                size = None
                 self.Raise(f'{path}: missing data properties')
 
-            section.SetOffsetSize(offset, size)
-            section.SetImagePos(self.image_pos)
+            entry.SetOffsetSize(offset, size)
+            entry.SetImagePos(image_pos + self.offset)
 
     def AddBintools(self, btools):
         super().AddBintools(btools)
@@ -947,7 +975,7 @@ class Entry_fit(Entry_section):
         if input_fname:
             fname = input_fname
         else:
-            fname = tools.get_output_filename('%s.fit' % uniq)
+            fname = tools.get_output_filename(f'{uniq}.fit')
             tools.write_file(fname, self.GetData())
         args.append(fname)
 

@@ -137,23 +137,23 @@ struct novena_eeprom_data {
 int misc_init_r(void)
 {
 	struct novena_eeprom_data data;
-	uchar *datap = (uchar *)&data;
+	uint8_t *datap = (uint8_t *)&data;
 	const char *signature = "Novena";
+	struct udevice *eeprom;
 	int ret;
 
 	/* If 'ethaddr' is already set, do nothing. */
 	if (env_get("ethaddr"))
 		return 0;
 
-	/* EEPROM is at bus 2. */
-	ret = i2c_set_bus_num(2);
+	/* EEPROM is at bus 2, address 0x56 */
+	ret = i2c_get_chip_for_busnum(2, 0x56, 1, &eeprom);
 	if (ret) {
 		puts("Cannot select EEPROM I2C bus.\n");
 		return 0;
 	}
 
-	/* EEPROM is at address 0x56. */
-	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+	ret = dm_i2c_read(eeprom, 0, datap, sizeof(data));
 	if (ret) {
 		puts("Cannot read I2C EEPROM.\n");
 		return 0;

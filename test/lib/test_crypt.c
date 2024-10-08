@@ -59,5 +59,4 @@ static int lib_crypt(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_crypt, 0);

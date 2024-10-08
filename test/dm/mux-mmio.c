@@ -85,7 +85,7 @@ static int dm_test_mux_mmio_select(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_mux_mmio_select, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_mux_mmio_select, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test that managed API for mux work correctly */
 static int dm_test_devm_mux_mmio(struct unit_test_state *uts)
@@ -134,4 +134,4 @@ static int dm_test_devm_mux_mmio(struct unit_test_state *uts)
 	device_remove(dev_b, DM_REMOVE_NORMAL);
 	return 0;
 }
-DM_TEST(dm_test_devm_mux_mmio, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_devm_mux_mmio, UTF_SCAN_PDATA | UTF_SCAN_FDT);

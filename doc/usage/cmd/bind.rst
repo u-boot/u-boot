@@ -12,7 +12,7 @@ Synopsis
 ::
 
     bind <node path> <driver>
-    bind <class> <index> <driver>
+    bind <class> <seq> <driver>
 
 Description
 -----------
@@ -30,8 +30,8 @@ node path
 class
     device class name
 
-index
-    index of the parent device in the device class
+seq
+    sequence number of the parent device in the device class
 
 driver
     device driver name
@@ -46,7 +46,7 @@ using the two alternative bind syntaxes.
 .. code-block::
 
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...
@@ -75,13 +75,13 @@ using the two alternative bind syntaxes.
     => date
     Cannot find RTC: err=-19
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...
     => bind /pl031@9010000 rtc-pl031
     => dm tree
-     Class     Index  Probed  Driver                Name
+     Class     Seq    Probed  Driver                Name
     -----------------------------------------------------------
      root          0  [ + ]   root_driver           root_driver
     ...

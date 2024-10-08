@@ -110,5 +110,5 @@ to the ``SOFTWARE/`` directory of the SD card.
 
 .. _`Juno development board`: https://developer.arm.com/tools-and-software/development-boards/juno-development-board
 .. _`V2M-Juno TRM`: https://developer.arm.com/documentation/100113/latest
-.. _`fiptool`: https://github.com/ARM-software/arm-trusted-firmware/tree/master/tools/fiptool
+.. _`fiptool`: https://github.com/TrustedFirmware-A/trusted-firmware-a/tree/master/tools/fiptool
 .. _`SCP firmware`: https://github.com/ARM-software/SCP-firmware.git

@@ -24,7 +24,7 @@ static int log_test_filter_invalid(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_filter_invalid, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_filter_invalid, UTF_CONSOLE);
 
 /* Test adding and removing filters */
 static int log_test_filter(struct unit_test_state *uts)
@@ -38,7 +38,6 @@ static int log_test_filter(struct unit_test_state *uts)
 	ulong filt1, filt2;
 
 #define create_filter(args, filter_num) do {\
-	ut_assertok(console_record_reset_enable()); \
 	ut_assertok(run_command("log filter-add -p " args, 0)); \
 	ut_assert_skipline(); \
 	ut_assertok(strict_strtoul(uts->actual_str, 10, &(filter_num))); \
@@ -72,7 +71,6 @@ static int log_test_filter(struct unit_test_state *uts)
 	ut_asserteq(true, filt2_found);
 
 #define remove_filter(filter_num) do { \
-	ut_assertok(console_record_reset_enable()); \
 	snprintf(cmd, sizeof(cmd), "log filter-remove %lu", filter_num); \
 	ut_assertok(run_command(cmd, 0)); \
 	ut_assert_console_end(); \
@@ -95,7 +93,6 @@ static int log_test_filter(struct unit_test_state *uts)
 	create_filter("", filt1);
 	create_filter("", filt2);
 
-	ut_assertok(console_record_reset_enable());
 	ut_assertok(run_command("log filter-remove -a", 0));
 	ut_assert_console_end();
 
@@ -105,4 +102,4 @@ static int log_test_filter(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_filter, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_filter, UTF_CONSOLE);

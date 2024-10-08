@@ -110,18 +110,16 @@ int log_test_cat_allow(struct unit_test_state *uts)
 	filt = log_add_filter("console", cat_list, LOGL_MAX, NULL);
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_cat(UCLASS_MMC);
 	check_log_entries_extra();
 
-	ut_assertok(console_record_reset_enable());
 	log_run_cat(UCLASS_SPI);
 	check_log_entries_extra();
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_cat_allow, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_cat_allow, UTF_CONSOLE);
 
 /* Check a category filter that should block log entries */
 int log_test_cat_deny_implicit(struct unit_test_state *uts)
@@ -134,14 +132,13 @@ int log_test_cat_deny_implicit(struct unit_test_state *uts)
 	filt = log_add_filter("console", cat_list, LOGL_MAX, NULL);
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_cat(UCLASS_SPI);
 	check_log_entries_none();
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_cat_deny_implicit, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_cat_deny_implicit, UTF_CONSOLE);
 
 /* Check passing and failing file filters */
 int log_test_file(struct unit_test_state *uts)
@@ -151,18 +148,16 @@ int log_test_file(struct unit_test_state *uts)
 	filt = log_add_filter("console", NULL, LOGL_MAX, "file");
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file");
 	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
 	check_log_entries_none();
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_file, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file, UTF_CONSOLE);
 
 /* Check a passing file filter (second in list) */
 int log_test_file_second(struct unit_test_state *uts)
@@ -172,14 +167,13 @@ int log_test_file_second(struct unit_test_state *uts)
 	filt = log_add_filter("console", NULL, LOGL_MAX, "file,file2");
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
 	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_file_second, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file_second, UTF_CONSOLE);
 
 /* Check a passing file filter (middle of list) */
 int log_test_file_mid(struct unit_test_state *uts)
@@ -190,14 +184,13 @@ int log_test_file_mid(struct unit_test_state *uts)
 			      "file,file2,log/log_test.c");
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
 	check_log_entries_extra();
 
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_file_mid, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file_mid, UTF_CONSOLE);
 
 /* Check a log level filter */
 int log_test_level(struct unit_test_state *uts)
@@ -207,7 +200,6 @@ int log_test_level(struct unit_test_state *uts)
 	filt = log_add_filter("console", NULL, LOGL_WARNING, NULL);
 	ut_assert(filt >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run();
 	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
 				       LOGL_FIRST, LOGL_WARNING);
@@ -215,7 +207,7 @@ int log_test_level(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_level, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_level, UTF_CONSOLE);
 
 /* Check two filters, one of which passes everything */
 int log_test_double(struct unit_test_state *uts)
@@ -227,7 +219,6 @@ int log_test_double(struct unit_test_state *uts)
 	filt2 = log_add_filter("console", NULL, LOGL_MAX, NULL);
 	ut_assert(filt2 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run();
 	check_log_entries_extra();
 
@@ -235,7 +226,7 @@ int log_test_double(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_double, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_double, UTF_CONSOLE);
 
 /* Check three filters, which together pass everything */
 int log_test_triple(struct unit_test_state *uts)
@@ -249,7 +240,6 @@ int log_test_triple(struct unit_test_state *uts)
 	filt3 = log_add_filter("console", NULL, LOGL_MAX, "log/log_test.c");
 	ut_assert(filt3 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file2");
 	check_log_entries_extra();
 
@@ -258,13 +248,12 @@ int log_test_triple(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt3));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_triple, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_triple, UTF_CONSOLE);
 
 int do_log_test_helpers(struct unit_test_state *uts)
 {
 	int i;
 
-	ut_assertok(console_record_reset_enable());
 	log_err("level %d\n", LOGL_EMERG);
 	log_err("level %d\n", LOGL_ALERT);
 	log_err("level %d\n", LOGL_CRIT);
@@ -292,11 +281,10 @@ int log_test_helpers(struct unit_test_state *uts)
 	gd->log_fmt = log_get_default_format();
 	return ret;
 }
-LOG_TEST_FLAGS(log_test_helpers, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_helpers, UTF_CONSOLE);
 
 int do_log_test_disable(struct unit_test_state *uts)
 {
-	ut_assertok(console_record_reset_enable());
 	log_err("default\n");
 	ut_assert_nextline("%*s() default", CONFIG_LOGF_FUNC_PAD, __func__);
 
@@ -319,7 +307,7 @@ int log_test_disable(struct unit_test_state *uts)
 	gd->log_fmt = log_get_default_format();
 	return ret;
 }
-LOG_TEST_FLAGS(log_test_disable, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_disable, UTF_CONSOLE);
 
 /* Check denying based on category */
 int log_test_cat_deny(struct unit_test_state *uts)
@@ -335,7 +323,6 @@ int log_test_cat_deny(struct unit_test_state *uts)
 				     LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_cat(UCLASS_SPI);
 	check_log_entries_none();
 
@@ -343,7 +330,7 @@ int log_test_cat_deny(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_cat_deny, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_cat_deny, UTF_CONSOLE);
 
 /* Check denying based on file */
 int log_test_file_deny(struct unit_test_state *uts)
@@ -356,7 +343,6 @@ int log_test_file_deny(struct unit_test_state *uts)
 				     LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run_file("file");
 	check_log_entries_none();
 
@@ -364,7 +350,7 @@ int log_test_file_deny(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_file_deny, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_file_deny, UTF_CONSOLE);
 
 /* Check denying based on level */
 int log_test_level_deny(struct unit_test_state *uts)
@@ -377,17 +363,16 @@ int log_test_level_deny(struct unit_test_state *uts)
 				     LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run();
-	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
-				       LOGL_WARNING + 1,
-				       min(gd->default_log_level, LOGL_INFO));
+	check_log_entries_flags_levels(
+		EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
+		LOGL_WARNING + 1, min((int)gd->default_log_level, LOGL_INFO));
 
 	ut_assertok(log_remove_filter("console", filt1));
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_level_deny, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_level_deny, UTF_CONSOLE);
 
 /* Check matching based on minimum level */
 int log_test_min(struct unit_test_state *uts)
@@ -401,7 +386,6 @@ int log_test_min(struct unit_test_state *uts)
 				     LOGFF_DENY | LOGFF_LEVEL_MIN);
 	ut_assert(filt2 >= 0);
 
-	ut_assertok(console_record_reset_enable());
 	log_run();
 	check_log_entries_flags_levels(EXPECT_LOG | EXPECT_DIRECT | EXPECT_FORCE,
 				       LOGL_WARNING, LOGL_INFO - 1);
@@ -410,7 +394,7 @@ int log_test_min(struct unit_test_state *uts)
 	ut_assertok(log_remove_filter("console", filt2));
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_min, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_min, UTF_CONSOLE);
 
 /* Check dropped traces */
 int log_test_dropped(struct unit_test_state *uts)
@@ -418,8 +402,6 @@ int log_test_dropped(struct unit_test_state *uts)
 	/* force LOG not ready */
 	gd->flags &= ~(GD_FLG_LOG_READY);
 	gd->log_drop_count = 0;
-
-	ut_assertok(console_record_reset_enable());
 
 	log_run();
 	ut_asserteq(2 * (LOGL_COUNT - LOGL_FIRST) +
@@ -432,7 +414,7 @@ int log_test_dropped(struct unit_test_state *uts)
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_dropped, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_dropped, UTF_CONSOLE);
 
 /* Check log_buffer() */
 int log_test_buffer(struct unit_test_state *uts)
@@ -446,17 +428,18 @@ int log_test_buffer(struct unit_test_state *uts)
 	for (i = 0; i < 0x11; i++)
 		buf[i] = i * 0x11;
 
-	ut_assertok(console_record_reset_enable());
 	log_buffer(LOGC_BOOT, LOGL_INFO, 0, buf, 1, 0x12, 0);
 
 	/* This one should product no output due to the debug level */
 	log_buffer(LOGC_BOOT, LOGL_DEBUG, 0, buf, 1, 0x12, 0);
 
-	ut_assert_nextline("00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
-	ut_assert_nextline("00000010: 10 00                                            ..");
+	ut_assert_nextline(
+		"     log_test_buffer() 00000000: 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........");
+	ut_assert_nextline(
+		"     log_test_buffer() 00000010: 10 00                                            ..");
 	ut_assert_console_end();
 	free(buf);
 
 	return 0;
 }
-LOG_TEST_FLAGS(log_test_buffer, UT_TESTF_CONSOLE_REC);
+LOG_TEST_FLAGS(log_test_buffer, UTF_CONSOLE);

@@ -31,7 +31,7 @@ Get the Source and prebuild binary
 
   > mkdir ~/evb_rk3399
   > cd ~/evb_rk3399
-  > git clone https://github.com/ARM-software/arm-trusted-firmware.git
+  > git clone https://github.com/TrustedFirmware-A/trusted-firmware-a.git
   > git clone https://github.com/rockchip-linux/rkbin.git
   > git clone https://github.com/rockchip-linux/rkdeveloptool.git
 
@@ -39,7 +39,7 @@ Get the Source and prebuild binary
 Compile ATF
 ===========
 
-  > cd arm-trusted-firmware
+  > cd trusted-firmware-a
   > make realclean
   > make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
@@ -91,7 +91,7 @@ Package the image for U-Boot SPL(option 1)
 Package the image for Rockchip miniloader(option 2)
 ------------------------------------------
   > cd ..
-  > cp arm-trusted-firmware/build/rk3399/release/bl31.elf rkbin/rk33
+  > cp trusted-firmware-a/build/rk3399/release/bl31.elf rkbin/rk33
   > ./rkbin/tools/trust_merger rkbin/tools/RK3399TRUST.ini
   > ./rkbin/tools/loaderimage --pack --uboot u-boot/u-boot-dtb.bin uboot.img
 

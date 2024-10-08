@@ -63,7 +63,7 @@ static int setexpr_test_int(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_int, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_int, UTF_CONSOLE);
 
 /* Test 'setexpr' command with + operator */
 static int setexpr_test_plus(struct unit_test_state *uts)
@@ -105,7 +105,7 @@ static int setexpr_test_plus(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_plus, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_plus, UTF_CONSOLE);
 
 /* Test 'setexpr' command with other operators */
 static int setexpr_test_oper(struct unit_test_state *uts)
@@ -148,7 +148,7 @@ static int setexpr_test_oper(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_oper, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_oper, UTF_CONSOLE);
 
 /* Test 'setexpr' command with regex */
 static int setexpr_test_regex(struct unit_test_state *uts)
@@ -192,7 +192,7 @@ static int setexpr_test_regex(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_regex, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_regex, UTF_CONSOLE);
 
 /* Test 'setexpr' command with regex replacement that expands the string */
 static int setexpr_test_regex_inc(struct unit_test_state *uts)
@@ -209,7 +209,7 @@ static int setexpr_test_regex_inc(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_regex_inc, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_regex_inc, UTF_CONSOLE);
 
 /* Test setexpr_regex_sub() directly to check buffer usage */
 static int setexpr_test_sub(struct unit_test_state *uts)
@@ -249,7 +249,7 @@ static int setexpr_test_sub(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_sub, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_sub, UTF_CONSOLE);
 
 /* Test setexpr_regex_sub() with back references */
 static int setexpr_test_backref(struct unit_test_state *uts)
@@ -292,7 +292,7 @@ static int setexpr_test_backref(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_backref, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_backref, UTF_CONSOLE);
 
 /* Test 'setexpr' command with setting strings */
 static int setexpr_test_str(struct unit_test_state *uts)
@@ -327,7 +327,7 @@ static int setexpr_test_str(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_str, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_str, UTF_CONSOLE);
 
 /* Test 'setexpr' command with concatenating strings */
 static int setexpr_test_str_oper(struct unit_test_state *uts)
@@ -340,7 +340,6 @@ static int setexpr_test_str_oper(struct unit_test_state *uts)
 	strcpy(buf, "hello");
 	strcpy(buf + 0x10, " there");
 
-	ut_assertok(console_record_reset_enable());
 	start_mem = ut_check_free();
 	ut_asserteq(1, run_command("setexpr.s fred *0 * *10", 0));
 	ut_assertok(ut_check_delta(start_mem));
@@ -376,7 +375,7 @@ static int setexpr_test_str_oper(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_str_oper, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_str_oper, UTF_CONSOLE);
 
 /* Test 'setexpr' command with a string that is too long */
 static int setexpr_test_str_long(struct unit_test_state *uts)
@@ -396,7 +395,7 @@ static int setexpr_test_str_long(struct unit_test_state *uts)
 
 	return 0;
 }
-SETEXPR_TEST(setexpr_test_str_long, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_str_long, UTF_CONSOLE);
 
 #ifdef CONFIG_CMD_SETEXPR_FMT
 /* Test 'setexpr' command with simply setting integers */
@@ -478,8 +477,7 @@ static int setexpr_test_fmt(struct unit_test_state *uts)
 
 	return 0;
 }
-
-SETEXPR_TEST(setexpr_test_fmt, UT_TESTF_CONSOLE_REC);
+SETEXPR_TEST(setexpr_test_fmt, UTF_CONSOLE);
 #endif
 
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])

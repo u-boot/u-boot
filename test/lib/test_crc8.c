@@ -25,5 +25,4 @@ static int lib_crc8(struct unit_test_state *uts) {
 
 	return 0;
 }
-
 LIB_TEST(lib_crc8, 0);

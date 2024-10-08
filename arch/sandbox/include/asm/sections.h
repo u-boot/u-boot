@@ -10,6 +10,7 @@
 #define __SANDBOX_SECTIONS_H
 
 #include <asm-generic/sections.h>
+#include <linux/compiler_attributes.h>
 
 struct sandbox_cmdline_option;
 

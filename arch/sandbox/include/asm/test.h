@@ -49,6 +49,10 @@ struct unit_test_state;
 #define PCI_EA_BAR2_MAGIC		0x72727272
 #define PCI_EA_BAR4_MAGIC		0x74747474
 
+/* Used by the sandbox iommu driver */
+#define SANDBOX_IOMMU_DVA_ADDR		0x89abc000
+#define SANDBOX_IOMMU_PAGE_SIZE		SZ_4K
+
 enum {
 	SANDBOX_IRQN_PEND = 1,	/* Interrupt number for 'pending' test */
 };

@@ -45,5 +45,4 @@ static int lib_test_efi_dp_check_length(struct unit_test_state *uts)
 
 	return 0;
 }
-
 LIB_TEST(lib_test_efi_dp_check_length, 0);

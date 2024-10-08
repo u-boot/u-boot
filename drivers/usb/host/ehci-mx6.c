@@ -703,7 +703,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	usb_phy_enable(ehci, priv->phy_addr);
 #endif
 #else
-	ret = generic_setup_phy(dev, &priv->phy, 0);
+	ret = generic_setup_phy(dev, &priv->phy, 0, PHY_MODE_USB_HOST, 0);
 	if (ret)
 		goto err_regulator;
 #endif

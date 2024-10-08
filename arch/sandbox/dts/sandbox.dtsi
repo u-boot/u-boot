@@ -231,23 +231,25 @@
 	};
 
 	pinctrl {
+		bootph-some-ram;
 		compatible = "sandbox,pinctrl";
 		status = "okay";
 
 		pinctrl_i2c0: i2c0 {
-			groups = "i2c";
-			function = "i2c";
+			groups = "I2C_UART";
+			function = "I2C";
 			bias-pull-up;
 		};
 
 		pinctrl_serial0: uart0 {
-			groups = "serial_a";
-			function = "serial";
+			bootph-some-ram;
+			groups = "I2C_UART";
+			function = "UART";
 		};
 
 		pinctrl_onewire0: onewire0 {
-			groups = "w1";
-			function = "w1";
+			pins = "P8";
+			function = "ONEWIRE";
 			bias-pull-up;
 		};
 	};

@@ -78,11 +78,16 @@ int sqfs_inode_size(struct squashfs_base_inode *inode, u32 blk_size)
 
 	case SQFS_SYMLINK_TYPE:
 	case SQFS_LSYMLINK_TYPE: {
+		int size;
+
 		struct squashfs_symlink_inode *symlink =
 			(struct squashfs_symlink_inode *)inode;
 
-		return sizeof(*symlink) +
-			get_unaligned_le32(&symlink->symlink_size);
+		if (__builtin_add_overflow(sizeof(*symlink),
+		    get_unaligned_le32(&symlink->symlink_size), &size))
+			return -EINVAL;
+
+		return size;
 	}
 
 	case SQFS_BLKDEV_TYPE:

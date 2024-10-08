@@ -24,11 +24,11 @@
  * @fdt_chksum: crc8 of the device tree contents
  * @fdt_copy: Copy of the device tree
  * @fdt_size: Size of the device-tree copy
- * @other_fdt: Buffer for the other FDT (UT_TESTF_OTHER_FDT)
- * @other_fdt_size: Size of the other FDT (UT_TESTF_OTHER_FDT)
+ * @other_fdt: Buffer for the other FDT (UTF_OTHER_FDT)
+ * @other_fdt_size: Size of the other FDT (UTF_OTHER_FDT)
  * @of_other: Live tree for the other FDT
  * @runs_per_test: Number of times to run each test (typically 1)
- * @force_run: true to run tests marked with the UT_TESTF_MANUAL flag
+ * @force_run: true to run tests marked with the UTF_MANUAL flag
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
  */
@@ -55,24 +55,24 @@ struct unit_test_state {
 };
 
 /* Test flags for each test */
-enum {
-	UT_TESTF_SCAN_PDATA	= BIT(0),	/* test needs platform data */
-	UT_TESTF_PROBE_TEST	= BIT(1),	/* probe test uclass */
-	UT_TESTF_SCAN_FDT	= BIT(2),	/* scan device tree */
-	UT_TESTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
-	UT_TESTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
-	UT_TESTF_CONSOLE_REC	= BIT(5),	/* needs console recording */
+enum ut_flags {
+	UTF_SCAN_PDATA	= BIT(0),	/* test needs platform data */
+	UTF_PROBE_TEST	= BIT(1),	/* probe test uclass */
+	UTF_SCAN_FDT	= BIT(2),	/* scan device tree */
+	UTF_FLAT_TREE	= BIT(3),	/* test needs flat DT */
+	UTF_LIVE_TREE	= BIT(4),	/* needs live device tree */
+	UTF_CONSOLE	= BIT(5),	/* needs console recording */
 	/* do extra driver model init and uninit */
-	UT_TESTF_DM		= BIT(6),
-	UT_TESTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
+	UTF_DM		= BIT(6),
+	UTF_OTHER_FDT	= BIT(7),	/* read in other device tree */
 	/*
 	 * Only run if explicitly requested with 'ut -f <suite> <test>'. The
 	 * test name must end in "_norun" so that pytest detects this also,
 	 * since it cannot access the flags.
 	 */
-	UT_TESTF_MANUAL		= BIT(8),
-	UT_TESTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
-	UT_TESTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
+	UTF_MANUAL	= BIT(8),
+	UTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
+	UTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
 };
 
 /**
@@ -109,7 +109,7 @@ struct unit_test {
  * @_name:	concatenation of name of the test suite, "_test_", and the name
  *		of the test
  * @_flags:	an integer field that can be evaluated by the test suite
- *		implementation
+ *		implementation (see enum ut_flags)
  * @_suite:	name of the test suite concatenated with "_test"
  */
 #define UNIT_TEST(_name, _flags, _suite)				\

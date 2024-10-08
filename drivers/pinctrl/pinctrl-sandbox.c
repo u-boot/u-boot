@@ -42,7 +42,7 @@ static const char * const sandbox_pins_muxing[][2] = {
 	{ "GPIO0", "SPI CS0" },
 	{ "GPIO1", "SPI CS1" },
 	{ "GPIO2", "PWM0" },
-	{ "GPIO3", "PWM1" },
+	{ "GPIO3", "ONEWIRE" },
 };
 
 #define SANDBOX_GROUP_I2C_UART 0
@@ -63,6 +63,7 @@ static const char * const sandbox_functions[] = {
 	FUNC(GPIO),
 	FUNC(CS),
 	FUNC(PWM),
+	FUNC(ONEWIRE),
 #undef FUNC
 };
 
@@ -166,6 +167,7 @@ static int sandbox_pinmux_set(struct udevice *dev, unsigned pin_selector,
 		break;
 	case SANDBOX_PINMUX_CS:
 	case SANDBOX_PINMUX_PWM:
+	case SANDBOX_PINMUX_ONEWIRE:
 		mux = BIT(pin_selector);
 		break;
 	default:

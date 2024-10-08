@@ -64,7 +64,7 @@ Properties / Entry arguments:
 
 This entry holds the run-time firmware, typically started by U-Boot SPL.
 See the U-Boot README for your architecture or board for how to use it. See
-https://github.com/ARM-software/arm-trusted-firmware for more information
+https://github.com/TrustedFirmware-A/trusted-firmware-a for more information
 about ATF.
 
 
@@ -197,7 +197,7 @@ source files that the tool examples:
 
 To run the tool::
 
-    $ tools/binman/fip_util.py  -s /path/to/arm-trusted-firmware
+    $ tools/binman/fip_util.py  -s /path/to/trusted-firmware-a
     Warning: UUID 'UUID_NON_TRUSTED_WORLD_KEY_CERT' is not mentioned in tbbr_config.c file
     Existing code in 'tools/binman/fip_util.py' is up-to-date
 

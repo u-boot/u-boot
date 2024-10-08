@@ -7,7 +7,7 @@
  */
 
 #include <dm.h>
-#include <uuid.h>
+#include <u-boot/uuid.h>
 #include <acpi/acpigen.h>
 #include <acpi/acpi_dp.h>
 #include <asm/unaligned.h>
@@ -488,4 +488,4 @@ static int dm_test_acpi_dp_copy(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_acpi_dp_copy, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_acpi_dp_copy, UTF_SCAN_PDATA | UTF_SCAN_FDT);

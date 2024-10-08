@@ -24,11 +24,6 @@
 
 /* Board and environment settings */
 
-#ifdef CONFIG_USB_EHCI_HCD
-#define CFG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CFG_MXC_USB_FLAGS		0
-#endif
-
 /* GUID for capsule updatable firmware image */
 #define KONTRON_SL_MX8MM_FIT_IMAGE_GUID \
 	EFI_GUID(0xd488e45a, 0x4929, 0x4b55, 0x8c, 0x14, \

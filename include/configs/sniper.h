@@ -35,20 +35,6 @@
 #define CFG_SYS_SDRAM_BASE		0x80000000
 
 /*
- * I2C
- */
-
-#define CFG_I2C_MULTI_BUS
-
-/*
- * Input
- */
-
-/*
- * SPL
- */
-
-/*
  * Serial
  */
 

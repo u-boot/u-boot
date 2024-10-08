@@ -72,7 +72,7 @@ static const struct ctrl_ioregs ddr3_ioregs = {
 #define OSC	(V_OSCK / 1000000)
 const struct dpll_params dpll_ddr3 = { 400, OSC - 1, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
 	struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;

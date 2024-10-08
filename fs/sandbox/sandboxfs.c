@@ -28,7 +28,7 @@ int sandbox_fs_read_at(const char *filename, loff_t pos, void *buffer,
 	if (fd < 0)
 		return fd;
 	ret = os_lseek(fd, pos, OS_SEEK_SET);
-	if (ret == -1) {
+	if (ret < 0) {
 		os_close(fd);
 		return ret;
 	}
@@ -65,14 +65,14 @@ int sandbox_fs_write_at(const char *filename, loff_t pos, void *buffer,
 	if (fd < 0)
 		return fd;
 	ret = os_lseek(fd, pos, OS_SEEK_SET);
-	if (ret == -1) {
+	if (ret < 0) {
 		os_close(fd);
 		return ret;
 	}
 	size = os_write(fd, buffer, towrite);
 	os_close(fd);
 
-	if (size == -1) {
+	if (size < 0) {
 		ret = -1;
 	} else {
 		ret = 0;

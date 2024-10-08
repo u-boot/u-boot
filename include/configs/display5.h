@@ -287,5 +287,4 @@
 /* The 0x120000 value corresponds to above SPI-NOR memory MAP */
 #endif
 
-#define CFG_MXC_USB_PORTSC           (PORT_PTS_UTMI | PORT_PTS_PTW)
 #endif /* __CONFIG_H */

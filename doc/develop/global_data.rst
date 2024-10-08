@@ -51,6 +51,31 @@ U-Boot. The value of gd has to be saved every time U-Boot is left and restored
 whenever U-Boot is reentered. This is also relevant for the implementation of
 function tracing. For setting the value of gd function set_gd() can be used.
 
+Guidelines
+----------
+
+The global_data structure is placed in some memory which is available very early
+after boot to allow for a minimum set of global variables during system
+initialisation (until the memory controller is set up and RAM can be used). It
+is the primary data structure passed from pre-relocation U-Boot to
+post-relocation, i.e. ``from board_init_f()`` ``to board_init_r()``.
+
+The global_data struct exists for the lifetime of U-Boot. Since the struct is
+used by all architectures, fields added should be useful for most architectures.
+Fields which are only needed on one or two architectures can be placed in the
+architecture-specific ``struct arch_global_data``.
+
+In any case the struct should be kept small, since it uses precious SRAM on
+many boards.
+
+SPL also uses global data, as well as U-Boot proper, so take care to avoid
+adding fields to SPL which are not actually used by SPL. You can create
+access functions or macros in the header file to avoid filling the C code with
+#ifdefs.
+
+A flags word is available, which provides a convenient means to track the state
+of various initialisation phases within U-Boot.
+
 Global data structure
 ---------------------
 

@@ -12,6 +12,7 @@
 #include <net.h>
 #include <of_live.h>
 #include <os.h>
+#include <usb.h>
 #include <dm/ofnode.h>
 #include <dm/root.h>
 #include <dm/test.h>
@@ -181,7 +182,7 @@ static bool ut_test_run_on_flattree(struct unit_test *test)
 {
 	const char *fname = strrchr(test->file, '/') + 1;
 
-	if (!(test->flags & UT_TESTF_DM))
+	if (!(test->flags & UTF_DM))
 		return false;
 
 	return !strstr(fname, "video") || strstr(test->name, "video_base");
@@ -240,14 +241,14 @@ static bool test_matches(const char *prefix, const char *test_name,
  *
  * @tests: List of tests to run
  * @count: Number of tests to ru
- * Return: true if any of the tests have the UT_TESTF_DM flag
+ * Return: true if any of the tests have the UTF_DM flag
  */
 static bool ut_list_has_dm_tests(struct unit_test *tests, int count)
 {
 	struct unit_test *test;
 
 	for (test = tests; test < tests + count; test++) {
-		if (test->flags & UT_TESTF_DM)
+		if (test->flags & UTF_DM)
 			return true;
 	}
 
@@ -289,26 +290,63 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	ut_assertok(event_init());
 
-	if (test->flags & UT_TESTF_DM)
+	/*
+	 * Remove any USB keyboard, so that we can add and remove USB devices
+	 * in tests.
+	 *
+	 * For UT_TESTF_DM tests, the old driver model state is saved and
+	 * restored across each test. Within in each test there is therefore a
+	 * new driver model state, which means that any USB keyboard device in
+	 * stdio points to the old state.
+	 *
+	 * This is fine in most cases. But if a non-UT_TESTF_DM test starts up
+	 * USB (thus creating a stdio record pointing to the USB keyboard
+	 * device) then when the test finishes, the new driver model state is
+	 * freed, meaning that there is now a stale pointer in stdio.
+	 *
+	 * This means that any future UT_TESTF_DM test which uses stdin will
+	 * cause the console system to call tstc() on the stale device pointer,
+	 * causing a crash.
+	 *
+	 * We don't want to fix this by enabling UT_TESTF_DM for all tests as
+	 * this causes other problems. For example, bootflow_efi relies on
+	 * U-Boot going through a proper init - without that we don't have the
+	 * TCG measurement working and get an error
+	 * 'tcg2 measurement fails(0x8000000000000007)'. Once we tidy up how EFI
+	 * runs tests (e.g. get rid of all the restarting of U-Boot) we could
+	 * potentially make the bootstd tests set UT_TESTF_DM, but other tests
+	 * might do the same thing.
+	 *
+	 * We could add a test flag to declare that USB is being used, but that
+	 * seems unnecessary, at least for now. We could detect USB being used
+	 * in a test, but there is no obvious drawback to clearing out stale
+	 * pointers always.
+	 *
+	 * So just remove any USB keyboards from the console tables. This allows
+	 * UT_TESTF_DM and non-UT_TESTF_DM tests to coexist happily.
+	 */
+	usb_kbd_remove_for_test();
+
+	if (test->flags & UTF_DM)
 		ut_assertok(dm_test_pre_run(uts));
 
 	ut_set_skip_delays(uts, false);
 
 	uts->start = mallinfo();
 
-	if (test->flags & UT_TESTF_SCAN_PDATA)
+	if (test->flags & UTF_SCAN_PDATA)
 		ut_assertok(dm_scan_plat(false));
 
-	if (test->flags & UT_TESTF_PROBE_TEST)
+	if (test->flags & UTF_PROBE_TEST)
 		ut_assertok(do_autoprobe(uts));
 
 	if (CONFIG_IS_ENABLED(OF_REAL) &&
-	    (test->flags & UT_TESTF_SCAN_FDT)) {
+	    (test->flags & UTF_SCAN_FDT)) {
 		/*
 		 * only set this if we know the ethernet uclass will be created
 		 */
-		eth_set_enable_bootdevs(test->flags & UT_TESTF_ETH_BOOTDEV);
-		test_sf_set_enable_bootdevs(test->flags & UT_TESTF_SF_BOOTDEV);
+		eth_set_enable_bootdevs(test->flags & UTF_ETH_BOOTDEV);
+		test_sf_set_enable_bootdevs(test->flags & UTF_SF_BOOTDEV);
 		ut_assertok(dm_extended_scan(false));
 	}
 
@@ -316,10 +354,10 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	 * Do this after FDT scan since dm_scan_other() in bootstd-uclass.c
 	 * checks for the existence of bootstd
 	 */
-	if (test->flags & UT_TESTF_SCAN_PDATA)
+	if (test->flags & UTF_SCAN_PDATA)
 		ut_assertok(dm_scan_other(false));
 
-	if (IS_ENABLED(CONFIG_SANDBOX) && (test->flags & UT_TESTF_OTHER_FDT)) {
+	if (IS_ENABLED(CONFIG_SANDBOX) && (test->flags & UTF_OTHER_FDT)) {
 		/* make sure the other FDT is available */
 		ut_assertok(test_load_other_fdt(uts));
 
@@ -333,7 +371,7 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 		}
 	}
 
-	if (test->flags & UT_TESTF_CONSOLE_REC) {
+	if (test->flags & UTF_CONSOLE) {
 		int ret = console_record_reset_enable();
 
 		if (ret) {
@@ -356,7 +394,7 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 {
 	ut_unsilence_console(uts);
-	if (test->flags & UT_TESTF_DM)
+	if (test->flags & UTF_DM)
 		ut_assertok(dm_test_post_run(uts));
 	ut_assertok(cyclic_unregister_all());
 	ut_assertok(event_uninit());
@@ -403,7 +441,7 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
 	const char *note = "";
 	int ret;
 
-	if ((test->flags & UT_TESTF_DM) && !uts->of_live)
+	if ((test->flags & UTF_DM) && !uts->of_live)
 		note = " (flat tree)";
 	printf("Test: %s: %s%s\n", test_name, fname, note);
 
@@ -450,13 +488,13 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 {
 	int runs;
 
-	if ((test->flags & UT_TESTF_OTHER_FDT) && !IS_ENABLED(CONFIG_SANDBOX))
+	if ((test->flags & UTF_OTHER_FDT) && !IS_ENABLED(CONFIG_SANDBOX))
 		return skip_test(uts);
 
 	/* Run with the live tree if possible */
 	runs = 0;
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
-		if (!(test->flags & UT_TESTF_FLAT_TREE)) {
+		if (!(test->flags & UTF_FLAT_TREE)) {
 			uts->of_live = true;
 			ut_assertok(ut_run_test(uts, test, test->name));
 			runs++;
@@ -476,10 +514,10 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	 *    boards)
 	 */
 	if ((!CONFIG_IS_ENABLED(OF_LIVE) ||
-	     (test->flags & UT_TESTF_SCAN_FDT)) &&
-	    !(test->flags & UT_TESTF_LIVE_TREE) &&
+	     (test->flags & UTF_SCAN_FDT)) &&
+	    !(test->flags & UTF_LIVE_TREE) &&
 	    (CONFIG_IS_ENABLED(OFNODE_MULTI_TREE) ||
-	     !(test->flags & UT_TESTF_OTHER_FDT)) &&
+	     !(test->flags & UTF_OTHER_FDT)) &&
 	    (!runs || ut_test_run_on_flattree(test)) &&
 	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
@@ -540,7 +578,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		if (!test_matches(prefix, test_name, select_name))
 			continue;
 
-		if (test->flags & UT_TESTF_MANUAL) {
+		if (test->flags & UTF_MANUAL) {
 			int len;
 
 			/*

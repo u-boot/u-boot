@@ -14,7 +14,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int hush_test_simple_dollar(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
 	ut_assertok(run_command("echo $dollar_foo", 0));
 	ut_assert_nextline_empty();
 	ut_assert_console_end();
@@ -53,29 +52,22 @@ static int hush_test_simple_dollar(struct unit_test_state *uts)
 	ut_asserteq(1, run_command("dollar_foo='bar quux", 0));
 	/* Next line contains error message */
 	ut_assert_skipline();
-
-	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
-		/*
-		 * For some strange reasons, the console is not empty after
-		 * running above command.
-		 * So, we reset it to not have side effects for other tests.
-		 */
-		console_record_reset_enable();
-	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		ut_assert_console_end();
-	}
+	ut_assert_console_end();
 
 	ut_asserteq(1, run_command("dollar_foo=bar quux\"", 0));
-	/* Two next lines contain error message */
+	/* Next line contains error message */
 	ut_assert_skipline();
-	ut_assert_skipline();
-
-	if (gd->flags & GD_FLG_HUSH_MODERN_PARSER) {
-		/* See above comments. */
-		console_record_reset_enable();
-	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		ut_assert_console_end();
+	/*
+	 * Old parser prints the error message on two lines:
+	 * Unknown command 'quux
+	 * ' - try 'help'
+	 * While the new only prints it on one:
+	 * syntax error: unterminated \"
+	 */
+	if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
+		ut_assert_skipline();
 	}
+	ut_assert_console_end();
 
 	ut_assertok(run_command("dollar_foo='bar \"quux'", 0));
 
@@ -121,12 +113,11 @@ static int hush_test_simple_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_simple_dollar, 0);
+HUSH_TEST(hush_test_simple_dollar, UTF_CONSOLE);
 
 static int hush_test_env_dollar(struct unit_test_state *uts)
 {
 	env_set("env_foo", "bar");
-	console_record_reset_enable();
 
 	ut_assertok(run_command("echo $env_foo", 0));
 	ut_assert_nextline("bar");
@@ -154,12 +145,10 @@ static int hush_test_env_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_env_dollar, 0);
+HUSH_TEST(hush_test_env_dollar, UTF_CONSOLE);
 
 static int hush_test_command_dollar(struct unit_test_state *uts)
 {
-	console_record_reset_enable();
-
 	ut_assertok(run_command("dollar_bar=\"echo bar\"", 0));
 
 	ut_assertok(run_command("$dollar_bar", 0));
@@ -222,4 +211,4 @@ static int hush_test_command_dollar(struct unit_test_state *uts)
 
 	return 0;
 }
-HUSH_TEST(hush_test_command_dollar, 0);
+HUSH_TEST(hush_test_command_dollar, UTF_CONSOLE);

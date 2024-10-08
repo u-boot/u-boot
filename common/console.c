@@ -4,6 +4,8 @@
  * Paolo Scaffardi, AIRVENT SAM s.p.a - RIMINI(ITALY), arsenio@tin.it
  */
 
+#define LOG_CATEGORY	LOGC_CONSOLE
+
 #include <console.h>
 #include <debug_uart.h>
 #include <display_options.h>
@@ -189,6 +191,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		/* Assign the new device (leaving the existing one started) */
 		stdio_devices[file] = dev;
 
+#ifndef CONFIG_SPL_BUILD
 		/*
 		 * Update monitor functions
 		 * (to use the console stuff by other applications)
@@ -206,7 +209,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 			break;
 		}
 		break;
-
+#endif
 	default:		/* Invalid file ID */
 		error = -1;
 	}
@@ -586,7 +589,7 @@ int getchar(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return 0;
 
 	ch = console_record_getc();
@@ -607,7 +610,7 @@ int tstc(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return 0;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return 0;
 
 	if (console_record_tstc())
@@ -715,7 +718,7 @@ void putc(const char c)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return pre_console_putc(c);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -759,7 +762,7 @@ void puts(const char *s)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return pre_console_puts(s);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -793,7 +796,7 @@ void flush(void)
 	if (IS_ENABLED(CONFIG_DISABLE_CONSOLE) && (gd->flags & GD_FLG_DISABLE_CONSOLE))
 		return;
 
-	if (!gd->have_console)
+	if (!(gd->flags & GD_FLG_HAVE_CONSOLE))
 		return;
 
 	if (gd->flags & GD_FLG_DEVINIT) {
@@ -845,6 +848,8 @@ int console_record_readline(char *str, int maxlen)
 {
 	if (gd->flags & GD_FLG_RECORD_OVF)
 		return -ENOSPC;
+	if (console_record_isempty())
+		return -ENOENT;
 
 	return membuff_readline((struct membuff *)&gd->console_out, str,
 				maxlen, '\0', false);
@@ -872,7 +877,7 @@ static int ctrlc_disabled = 0;	/* see disable_ctrl() */
 static int ctrlc_was_pressed = 0;
 int ctrlc(void)
 {
-	if (!ctrlc_disabled && gd->have_console) {
+	if (!ctrlc_disabled && (gd->flags & GD_FLG_HAVE_CONSOLE)) {
 		if (tstc()) {
 			switch (getchar()) {
 			case 0x03:		/* ^C - Control C */
@@ -1011,7 +1016,7 @@ int console_announce_r(void)
 /* Called before relocation - use serial functions */
 int console_init_f(void)
 {
-	gd->have_console = 1;
+	gd->flags |= GD_FLG_HAVE_CONSOLE;
 
 	console_update_silent();
 
@@ -1239,3 +1244,37 @@ int console_init_r(void)
 }
 
 #endif /* CONFIG_IS_ENABLED(SYS_CONSOLE_IS_IN_ENV) */
+
+int console_remove_by_name(const char *name)
+{
+	int err = 0;
+
+#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+	int fnum;
+
+	log_debug("removing console device %s\n", name);
+	for (fnum = 0; fnum < MAX_FILES; fnum++) {
+		struct stdio_dev **src, **dest;
+		int i;
+
+		log_debug("file %d: %d devices: ", fnum, cd_count[fnum]);
+		src = console_devices[fnum];
+		dest = src;
+		for (i = 0; i < cd_count[fnum]; i++, src++) {
+			struct stdio_dev *sdev = *src;
+			int ret = 0;
+
+			if (!strcmp(sdev->name, name))
+				ret = stdio_deregister_dev(sdev, true);
+			else
+				*dest++ = *src;
+			if (ret && !err)
+				err = ret;
+		}
+		cd_count[fnum] = dest - console_devices[fnum];
+		log_debug("now %d\n", cd_count[fnum]);
+	}
+#endif /* CONSOLE_MUX */
+
+	return err;
+}

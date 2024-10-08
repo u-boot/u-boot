@@ -47,19 +47,13 @@ int nvmxip_probe(struct udevice *udev)
 		return ret;
 	}
 
-	log_info("[%s]: the block device %s ready for use\n", udev->name, bdev_name);
+	log_debug("[%s]: the block device %s ready for use\n", udev->name,
+		  bdev_name);
 
-	return 0;
-}
-
-static int nvmxip_post_bind(struct udevice *udev)
-{
-	dev_or_flags(udev, DM_FLAG_PROBE_AFTER_BIND);
 	return 0;
 }
 
 UCLASS_DRIVER(nvmxip) = {
 	.name	   = "nvmxip",
 	.id	   = UCLASS_NVMXIP,
-	.post_bind = nvmxip_post_bind,
 };

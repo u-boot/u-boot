@@ -401,7 +401,15 @@ int env_set_default_vars(int nvars, char * const vars[], int flags)
 	 * Special use-case: import from default environment
 	 * (and use \0 as a separator)
 	 */
-	flags |= H_NOCLEAR | H_DEFAULT;
+
+	/*
+	 * When vars are passed remove variables that are not in
+	 * the default environment.
+	 */
+	if (!nvars)
+		flags |= H_NOCLEAR;
+
+	flags |= H_DEFAULT;
 	return himport_r(&env_htab, default_environment,
 				sizeof(default_environment), '\0',
 				flags, 0, nvars, vars);

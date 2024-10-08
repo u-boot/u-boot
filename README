@@ -771,21 +771,8 @@ The following options need to be configured:
 		CFG_SYS_NUM_I2C_BUSES
 		Hold the number of i2c buses you want to use.
 
-		CFG_SYS_I2C_DIRECT_BUS
-		define this, if you don't use i2c muxes on your hardware.
-		if CFG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
-		omit this define.
-
-		CFG_SYS_I2C_MAX_HOPS
-		define how many muxes are maximal consecutively connected
-		on one i2c bus. If you not use i2c muxes, omit this
-		define.
-
 		CFG_SYS_I2C_BUSES
-		hold a list of buses you want to use, only used if
-		CFG_SYS_I2C_DIRECT_BUS is not defined, for example
-		a board with CFG_SYS_I2C_MAX_HOPS = 1 and
-		CFG_SYS_NUM_I2C_BUSES = 9:
+		hold a list of buses you want to use
 
 		 CFG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \
@@ -883,13 +870,6 @@ The following options need to be configured:
 		You should define these to the GPIO value as given directly to
 		the generic GPIO functions.
 
-		CFG_I2C_MULTI_BUS
-
-		This option allows the use of multiple I2C buses, each of which
-		must have a controller.	 At any point in time, only one bus is
-		active.	 To switch to a different bus, use the 'i2c dev' command.
-		Note that bus numbering is zero-based.
-
 		CFG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
@@ -899,11 +879,6 @@ The following options need to be configured:
 			#define CFG_SYS_I2C_NOPROBES {0x50,0x68}
 
 		will skip addresses 0x50 and 0x68 on a board with one I2C bus
-
-		CFG_SYS_RTC_BUS_NUM
-
-		If defined, then this indicates the I2C bus number for the RTC.
-		If not defined, then U-Boot assumes that RTC is on I2C bus 0.
 
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 

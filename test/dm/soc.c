@@ -115,5 +115,4 @@ static int dm_test_soc(struct unit_test_state *uts)
 
 	return 0;
 }
-
-DM_TEST(dm_test_soc, UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_soc, UTF_SCAN_FDT);

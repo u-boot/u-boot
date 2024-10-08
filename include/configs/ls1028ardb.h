@@ -10,8 +10,6 @@
 
 #define COUNTER_FREQUENCY_REAL		(get_board_sys_clk() / 4)
 
-#define CFG_SYS_RTC_BUS_NUM         0
-
 /* Store environment at top of flash */
 
 /*

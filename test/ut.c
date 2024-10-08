@@ -59,9 +59,11 @@ static int readline_check(struct unit_test_state *uts)
 		ut_fail(uts, __FILE__, __LINE__, __func__,
 			"Console record buffer too small - increase CONFIG_CONSOLE_RECORD_OUT_SIZE");
 		return ret;
+	} else if (ret == -ENOENT) {
+		strcpy(uts->actual_str, "<no-more-output>");
 	}
 
-	return 0;
+	return ret;
 }
 
 int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
@@ -79,8 +81,8 @@ int ut_check_console_line(struct unit_test_state *uts, const char *fmt, ...)
 		return -EOVERFLOW;
 	}
 	ret = readline_check(uts);
-	if (ret < 0)
-		return ret;
+	if (ret == -ENOENT)
+		return 1;
 
 	return strcmp(uts->expect_str, uts->actual_str);
 }

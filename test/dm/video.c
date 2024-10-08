@@ -42,7 +42,7 @@ static int dm_test_video_base(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_base, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /**
  * compress_frame_buffer() - Compress the frame buffer and return its size
@@ -175,7 +175,7 @@ static int dm_test_video_text(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_text, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_text, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 static int dm_test_video_text_12x22(struct unit_test_state *uts)
 {
@@ -211,7 +211,7 @@ static int dm_test_video_text_12x22(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_text_12x22, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_text_12x22, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test handling of special characters in the console */
 static int dm_test_video_chars(struct unit_test_state *uts)
@@ -228,7 +228,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_chars, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_chars, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 #ifdef CONFIG_VIDEO_ANSI
 #define ANSI_ESC "\x1b"
@@ -262,7 +262,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_ansi, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_ansi, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #endif
 
 /**
@@ -320,7 +320,7 @@ static int dm_test_video_context(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_context, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_context, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test rotated text output through the console uclass */
 static int dm_test_video_rotation1(struct unit_test_state *uts)
@@ -329,7 +329,7 @@ static int dm_test_video_rotation1(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_rotation1, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_rotation1, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test rotated text output through the console uclass */
 static int dm_test_video_rotation2(struct unit_test_state *uts)
@@ -338,7 +338,7 @@ static int dm_test_video_rotation2(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_rotation2, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_rotation2, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test rotated text output through the console uclass */
 static int dm_test_video_rotation3(struct unit_test_state *uts)
@@ -347,7 +347,7 @@ static int dm_test_video_rotation3(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_rotation3, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_rotation3, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Read a file into memory and return a pointer to it */
 static int read_file(struct unit_test_state *uts, const char *fname,
@@ -385,7 +385,7 @@ static int dm_test_video_bmp(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a bitmap file on a 8bpp display */
 static int dm_test_video_bmp8(struct unit_test_state *uts)
@@ -404,7 +404,7 @@ static int dm_test_video_bmp8(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp8, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp8, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a bitmap file on a 16bpp display */
 static int dm_test_video_bmp16(struct unit_test_state *uts)
@@ -427,7 +427,7 @@ static int dm_test_video_bmp16(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp16, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp16, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a 24bpp bitmap file on a 16bpp display */
 static int dm_test_video_bmp24(struct unit_test_state *uts)
@@ -450,7 +450,7 @@ static int dm_test_video_bmp24(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp24, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp24, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a 24bpp bitmap file on a 32bpp display */
 static int dm_test_video_bmp24_32(struct unit_test_state *uts)
@@ -473,7 +473,7 @@ static int dm_test_video_bmp24_32(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp24_32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp24_32, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a bitmap file on a 32bpp display */
 static int dm_test_video_bmp32(struct unit_test_state *uts)
@@ -491,7 +491,7 @@ static int dm_test_video_bmp32(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp32, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a compressed bitmap file */
 static int dm_test_video_bmp_comp(struct unit_test_state *uts)
@@ -507,7 +507,7 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_bmp_comp, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_bmp_comp, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a bitmap file on a 32bpp display */
 static int dm_test_video_comp_bmp32(struct unit_test_state *uts)
@@ -526,7 +526,7 @@ static int dm_test_video_comp_bmp32(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_comp_bmp32, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_comp_bmp32, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test drawing a bitmap file on a 8bpp display */
 static int dm_test_video_comp_bmp8(struct unit_test_state *uts)
@@ -545,7 +545,7 @@ static int dm_test_video_comp_bmp8(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_comp_bmp8, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_comp_bmp8, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test TrueType console */
 static int dm_test_video_truetype(struct unit_test_state *uts)
@@ -560,7 +560,7 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_truetype, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_truetype, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test scrolling TrueType console */
 static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
@@ -581,7 +581,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_truetype_scroll, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_truetype_scroll, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test TrueType backspace, within and across lines */
 static int dm_test_video_truetype_bs(struct unit_test_state *uts)
@@ -602,4 +602,4 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 
 	return 0;
 }
-DM_TEST(dm_test_video_truetype_bs, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
+DM_TEST(dm_test_video_truetype_bs, UTF_SCAN_PDATA | UTF_SCAN_FDT);

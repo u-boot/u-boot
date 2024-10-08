@@ -26,6 +26,8 @@ struct arch_global_data {
 #if defined(CONFIG_FSL_ESDHC)
 	unsigned long sdhc_per_clk;
 #endif
+	/** @pci_clk: PCI clock rate in Hz */
+	unsigned long pci_clk;
 };
 
 #include <asm-generic/global_data.h>

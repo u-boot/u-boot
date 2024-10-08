@@ -270,20 +270,15 @@ static int bloblist_test_cmd_info(struct unit_test_state *uts)
 	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
 	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
 
-	console_record_reset_enable();
-	ut_silence_console(uts);
-	console_record_reset();
 	run_command("bloblist info", 0);
 	ut_assert_nextline("base:       %lx", (ulong)map_to_sysmem(hdr));
 	ut_assert_nextline("total size: 400    1 KiB");
 	ut_assert_nextline("used size:  50     80 Bytes");
 	ut_assert_nextline("free:       3b0    944 Bytes");
-	ut_assert_console_end();
-	ut_unsilence_console(uts);
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_cmd_info, 0);
+BLOBLIST_TEST(bloblist_test_cmd_info, UTF_CONSOLE);
 
 /* Test the 'bloblist list' command */
 static int bloblist_test_cmd_list(struct unit_test_state *uts)
@@ -296,21 +291,16 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 	data = bloblist_ensure(TEST_TAG, TEST_SIZE);
 	data2 = bloblist_ensure(TEST_TAG2, TEST_SIZE2);
 
-	console_record_reset_enable();
-	ut_silence_console(uts);
-	console_record_reset();
 	run_command("bloblist list", 0);
 	ut_assert_nextline("Address       Size   Tag Name");
 	ut_assert_nextline("%08lx  %8x  fff000 SPL hand-off",
 			   (ulong)map_to_sysmem(data), TEST_SIZE);
 	ut_assert_nextline("%08lx  %8x   202 Chrome OS vboot context",
 			   (ulong)map_to_sysmem(data2), TEST_SIZE2);
-	ut_assert_console_end();
-	ut_unsilence_console(uts);
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_cmd_list, 0);
+BLOBLIST_TEST(bloblist_test_cmd_list, UTF_CONSOLE);
 
 /* Test alignment of bloblist blobs */
 static int bloblist_test_align(struct unit_test_state *uts)

@@ -687,13 +687,6 @@ int octeon_fdt_i2c_get_bus(const void *fdt, int node_offset)
 	while (node_offset > 0 &&
 	       !(found = !fdt_node_check_compatible(fdt, node_offset, compat))) {
 		node_offset = fdt_parent_offset(fdt, node_offset);
-#ifdef CONFIG_OCTEON_I2C_FDT
-		bus = i2c_get_bus_num_fdt(node_offset);
-		if (bus >= 0) {
-			debug("%s: Found bus 0x%x\n", __func__, bus);
-			return bus;
-		}
-#endif
 	}
 	if (!found) {
 		printf("Error: node %d in device tree is not a child of the I2C bus\n",

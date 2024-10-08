@@ -31,28 +31,6 @@
 
 #include "tqma6_bb.h"
 
-#define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define USDHC_CLK_PAD_CTRL (PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define GPIO_OUT_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
-
-#define GPIO_IN_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
-
-#define SPI_PAD_CTRL (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_80ohm | PAD_CTL_SRE_FAST | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_80ohm | PAD_CTL_HYS |			\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
 #if defined(CONFIG_TQMA6Q)
 
 #define IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII	0x02e0790
@@ -87,17 +65,6 @@ static void mba6_setup_iomuxc_enet(void)
 		     (void *)IOMUX_SW_PAD_CTRL_GRP_RGMII_TERM);
 	__raw_writel(IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII_1P5V,
 		     (void *)IOMUX_SW_PAD_CTRL_GRP_DDR_TYPE_RGMII);
-}
-
-static iomux_v3_cfg_t const mba6_uart2_pads[] = {
-	NEW_PAD_CTRL(MX6_PAD_SD4_DAT4__UART2_RX_DATA, UART_PAD_CTRL),
-	NEW_PAD_CTRL(MX6_PAD_SD4_DAT7__UART2_TX_DATA, UART_PAD_CTRL),
-};
-
-static void mba6_setup_iomuxc_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(mba6_uart2_pads,
-					 ARRAY_SIZE(mba6_uart2_pads));
 }
 
 int board_mmc_get_env_dev(int devno)
@@ -159,8 +126,6 @@ int board_phy_config(struct phy_device *phydev)
 
 int tqma6_bb_board_early_init_f(void)
 {
-	mba6_setup_iomuxc_uart();
-
 	return 0;
 }
 

@@ -135,7 +135,6 @@ static int lib_asn1_x509(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_asn1_x509, 0);
 #endif /* CONFIG_X509_CERTIFICATE_PARSER */
 
@@ -324,7 +323,6 @@ static int lib_asn1_pkcs7(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_asn1_pkcs7, 0);
 #endif /* CONFIG_PKCS7_MESSAGE_PARSER */
 
@@ -386,6 +384,5 @@ static int lib_asn1_pkey(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-
 LIB_TEST(lib_asn1_pkey, 0);
 #endif /* CONFIG_RSA_PUBLIC_KEY_PARSER */

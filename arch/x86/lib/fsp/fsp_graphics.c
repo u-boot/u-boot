@@ -103,7 +103,6 @@ static int fsp_video_probe(struct udevice *dev)
 	 * For IGD, it seems to be always on BAR2.
 	 */
 	vesa->phys_base_ptr = dm_pci_read_bar32(dev, 2);
-	gd->fb_base = vesa->phys_base_ptr;
 
 	ret = vesa_setup_video_priv(vesa, vesa->phys_base_ptr, uc_priv, plat);
 	if (ret)

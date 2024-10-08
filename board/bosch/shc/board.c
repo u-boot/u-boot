@@ -34,6 +34,7 @@
 #include <asm/emif.h>
 #include <asm/gpio.h>
 #include <i2c.h>
+#include <i2c_eeprom.h>
 #include <miiphy.h>
 #include <cpsw.h>
 #include <linux/delay.h>
@@ -51,21 +52,21 @@ static int shc_eeprom_valid;
 /*
  * Read header information from EEPROM into global structure.
  */
-#define EEPROM_ADDR	0x50
 static int read_eeprom(void)
 {
+	struct udevice *dev;
+	int ret;
+
 	/* Check if baseboard eeprom is available */
-	if (i2c_probe(EEPROM_ADDR)) {
-		puts("Could not probe the EEPROM; something fundamentally wrong on the I2C bus.\n");
-		return -ENODEV;
+	ret = uclass_first_device_err(UCLASS_I2C_EEPROM, &dev);
+	if (ret) {
+		puts("Could not find EEPROM.\n");
+		return ret;
 	}
 
-	/* read the eeprom using i2c */
-	if (i2c_read(EEPROM_ADDR, 0, 2, (uchar *)&header,
-		     sizeof(header))) {
-		puts("Could not read the EEPROM; something fundamentally wrong on the I2C bus.\n");
-		return -EIO;
-	}
+	ret = i2c_eeprom_read(dev, 0, (uint8_t *)&header, sizeof(header));
+	if (ret)
+		return ret;
 
 	if (header.magic != HDR_MAGIC) {
 		printf("Incorrect magic number (0x%x) in EEPROM\n",
@@ -310,7 +311,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 const struct dpll_params dpll_mpu_shc_opp100 = {
 		99, MPUPLL_N, 1, -1, -1, -1, -1};
 
-void am33xx_spl_board_init(void)
+void spl_board_init(void)
 {
 	int sil_rev;
 	int mpu_vdd;
@@ -445,7 +446,6 @@ int board_init(void)
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	if (read_eeprom() < 0)
 		puts("EEPROM Content Invalid.\n");
 

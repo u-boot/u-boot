@@ -69,7 +69,7 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
 			return ret;
 
 		if (core->type == CLK_TYPE_GEN3_MDSEL) {
-			shift = priv->cpg_mode & BIT(core->offset) ? 16 : 0;
+			shift = priv->cpg_mode & BIT(core->offset) ? 0 : 16;
 			parent->dev = clk->dev;
 			parent->id = core->parent >> shift;
 			parent->id &= 0xffff;
@@ -318,7 +318,7 @@ static u64 gen3_clk_get_rate64(struct clk *clk)
 						"FIXED");
 
 	case CLK_TYPE_GEN3_MDSEL:
-		shift = priv->cpg_mode & BIT(core->offset) ? 16 : 0;
+		shift = priv->cpg_mode & BIT(core->offset) ? 0 : 16;
 		div = (core->div >> shift) & 0xffff;
 		rate = gen3_clk_get_rate64(&parent) / div;
 		debug("%s[%i] PE clk: parent=%i div=%u => rate=%llu\n",

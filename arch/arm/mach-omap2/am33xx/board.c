@@ -337,14 +337,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-/*
- * This function is the place to do per-board things such as ramp up the
- * MPU clock frequency.
- */
-__weak void am33xx_spl_board_init(void)
-{
-}
-
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 static void rtc32k_enable(void)
 {
