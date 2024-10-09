@@ -1436,6 +1436,16 @@ struct pxe_menu *parse_pxefile(struct pxe_context *ctx, unsigned long menucfg)
 
 	buf = map_sysmem(menucfg, 0);
 	r = parse_pxefile_top(ctx, buf, menucfg, cfg, 1);
+
+	if (ctx->use_fallback) {
+		if (cfg->fallback_label) {
+			printf("Setting use of fallback\n");
+			cfg->default_label = cfg->fallback_label;
+		} else {
+			printf("Selected fallback option, but not set\n");
+		}
+	}
+
 	unmap_sysmem(buf);
 	if (r < 0) {
 		destroy_pxe_menu(cfg);
@@ -1586,7 +1596,8 @@ void handle_pxe_menu(struct pxe_context *ctx, struct pxe_menu *cfg)
 
 int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 		  pxe_getfile_func getfile, void *userdata,
-		  bool allow_abs_path, const char *bootfile, bool use_ipv6)
+		  bool allow_abs_path, const char *bootfile, bool use_ipv6,
+		  bool use_fallback)
 {
 	const char *last_slash;
 	size_t path_len = 0;
@@ -1597,6 +1608,7 @@ int pxe_setup_ctx(struct pxe_context *ctx, struct cmd_tbl *cmdtp,
 	ctx->userdata = userdata;
 	ctx->allow_abs_path = allow_abs_path;
 	ctx->use_ipv6 = use_ipv6;
+	ctx->use_fallback = use_fallback;
 
 	/* figure out the boot directory, if there is one */
 	if (bootfile && strlen(bootfile) >= MAX_TFTP_PATH_LEN)
