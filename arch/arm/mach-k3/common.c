@@ -28,6 +28,8 @@
 #include <env.h>
 #include <elf.h>
 #include <soc.h>
+#include <dm/uclass-internal.h>
+#include <dm/device-internal.h>
 
 #include <asm/arch/k3-qos.h>
 
@@ -246,12 +248,32 @@ void spl_enable_cache(void)
 #endif
 }
 
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-void spl_board_prepare_for_boot(void)
+static __maybe_unused void k3_dma_remove(void)
 {
-	dcache_disable();
+	struct udevice *dev;
+	int rc;
+
+	rc = uclass_find_device(UCLASS_DMA, 0, &dev);
+	if (!rc && dev) {
+		rc = device_remove(dev, DM_REMOVE_NORMAL);
+		if (rc)
+			pr_warn("Cannot remove dma device '%s' (err=%d)\n",
+				dev->name, rc);
+	} else
+		pr_warn("DMA Device not found (err=%d)\n", rc);
 }
 
+void spl_board_prepare_for_boot(void)
+{
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+	dcache_disable();
+#endif
+#if IS_ENABLED(CONFIG_SPL_DMA) && IS_ENABLED(CONFIG_SPL_DM_DEVICE_REMOVE)
+	k3_dma_remove();
+#endif
+}
+
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 void spl_board_prepare_for_linux(void)
 {
 	dcache_disable();
