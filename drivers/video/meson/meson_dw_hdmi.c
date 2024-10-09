@@ -418,8 +418,8 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	}
 
 	if (!ret) {
-		ret = regulator_set_enable(supply, true);
-		if (ret)
+		ret = regulator_set_enable_if_allowed(supply, true);
+		if (ret && ret != -ENOSYS)
 			return ret;
 	}
 #endif
