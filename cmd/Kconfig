@@ -438,21 +438,9 @@ config CMD_BOOTEFI_BOOTMGR
 	  This subcommand will allow you to select the UEFI binary to be booted
 	  via UEFI variables Boot####, BootOrder, and BootNext.
 
-config CMD_BOOTEFI_HELLO_COMPILE
-	bool "Compile a standard EFI hello world binary for testing"
-	default y
-	help
-	  This compiles a standard EFI hello world application with U-Boot so
-	  that it can be used with the test/py testing framework. This is useful
-	  for testing that EFI is working at a basic level, and for bringing
-	  up EFI support on a new architecture.
-
-	  No additional space will be required in the resulting U-Boot binary
-	  when this option is enabled.
-
 config CMD_BOOTEFI_HELLO
 	bool "Allow booting a standard EFI hello world for testing"
-	depends on CMD_BOOTEFI_BINARY && CMD_BOOTEFI_HELLO_COMPILE
+	depends on CMD_BOOTEFI_BINARY && BOOTEFI_HELLO_COMPILE
 	default y if CMD_BOOTEFI_SELFTEST
 	help
 	  This adds a standard EFI hello world application to U-Boot so that
@@ -1091,13 +1079,10 @@ config CMD_BIND
 	  gadget driver from the command line.
 
 config CMD_CLK
-	bool "clk - Show clock frequencies"
+	bool "clk - Show and set clock frequencies"
+	depends on CLK
 	help
-	  (deprecated)
-	  Shows clock frequences by calling a sock_clk_dump() hook function.
-	  This is depreated in favour of using the CLK uclass and accessing
-	  clock values from associated drivers. However currently no command
-	  exists for this.
+	  Show and set clock frequencies managed by CLK uclass drivers.
 
 config CMD_DEMO
 	bool "demo - Demonstration commands for driver model"
