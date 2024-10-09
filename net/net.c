@@ -1689,18 +1689,6 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 	ip->udp_xsum = 0;
 }
 
-void copy_filename(char *dst, const char *src, int size)
-{
-	if (src && *src && (*src == '"')) {
-		++src;
-		--size;
-	}
-
-	while ((--size > 0) && src && *src && (*src != '"'))
-		*dst++ = *src++;
-	*dst = '\0';
-}
-
 int is_serverip_in_cmd(void)
 {
 	return !!strchr(net_boot_file_name, ':');
