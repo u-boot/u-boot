@@ -404,6 +404,7 @@ static void wget_handler(uchar *pkt, u16 dport,
 		efi_set_bootdev("Net", "", image_url,
 				map_sysmem(image_load_addr, 0),
 				net_boot_file_size);
+		env_set_hex("filesize", net_boot_file_size);
 		break;
 	}
 }
