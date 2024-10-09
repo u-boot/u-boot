@@ -66,6 +66,8 @@
 #define CLKID_VDEC_HEVC_SEL	  154
 #define CLKID_VDEC_HEVC_DIV	  155
 
+#define CLKID_XTAL				0x10000000
+
 #define XTAL_RATE 24000000
 
 struct meson_clk {
@@ -192,6 +194,7 @@ static struct meson_gate gates[] = {
 	MESON_GATE(CLKID_VAPB_0, HHI_VAPBCLK_CNTL, 8),
 	MESON_GATE(CLKID_VAPB_1, HHI_VAPBCLK_CNTL, 24),
 	MESON_GATE(CLKID_VAPB, HHI_VAPBCLK_CNTL, 30),
+	MESON_GATE(CLKID_HDMI, HHI_HDMI_CLK_CNTL, 8),
 };
 
 static int meson_set_gate_by_id(struct clk *clk, unsigned long id, bool on)
@@ -267,6 +270,12 @@ static struct parm meson_vapb_1_div_parm = {
 
 int meson_vapb_1_div_parent = CLKID_VAPB_1_SEL;
 
+static struct parm meson_hdmi_div_parm = {
+	HHI_HDMI_CLK_CNTL, 0, 7,
+};
+
+int meson_hdmi_div_parent = CLKID_HDMI_SEL;
+
 static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
@@ -291,6 +300,10 @@ static ulong meson_div_get_rate(struct clk *clk, unsigned long id)
 	case CLKID_VAPB_1_DIV:
 		parm = &meson_vapb_1_div_parm;
 		parent = meson_vapb_1_div_parent;
+		break;
+	case CLKID_HDMI_DIV:
+		parm = &meson_hdmi_div_parm;
+		parent = meson_hdmi_div_parent;
 		break;
 	default:
 		return -ENOENT;
@@ -346,6 +359,10 @@ static ulong meson_div_set_rate(struct clk *clk, unsigned long id, ulong rate,
 	case CLKID_VAPB_1_DIV:
 		parm = &meson_vapb_1_div_parm;
 		parent = meson_vapb_1_div_parent;
+		break;
+	case CLKID_HDMI_DIV:
+		parm = &meson_hdmi_div_parm;
+		parent = meson_hdmi_div_parent;
 		break;
 	default:
 		return -ENOENT;
@@ -443,6 +460,17 @@ static int meson_vapb_0_1_mux_parents[] = {
 	CLKID_FCLK_DIV7,
 };
 
+static struct parm meson_hdmi_mux_parm = {
+	HHI_HDMI_CLK_CNTL, 9, 2,
+};
+
+static int meson_hdmi_mux_parents[] = {
+	CLKID_XTAL,
+	CLKID_FCLK_DIV4,
+	CLKID_FCLK_DIV3,
+	CLKID_FCLK_DIV5,
+};
+
 static ulong meson_mux_get_parent(struct clk *clk, unsigned long id)
 {
 	struct meson_clk *priv = dev_get_priv(clk->dev);
@@ -474,6 +502,10 @@ static ulong meson_mux_get_parent(struct clk *clk, unsigned long id)
 	case CLKID_VAPB_1_SEL:
 		parm = &meson_vapb_1_mux_parm;
 		parents = meson_vapb_0_1_mux_parents;
+		break;
+	case CLKID_HDMI_SEL:
+		parm = &meson_hdmi_mux_parm;
+		parents = meson_hdmi_mux_parents;
 		break;
 	default:
 		return -ENOENT;
@@ -532,6 +564,10 @@ static ulong meson_mux_set_parent(struct clk *clk, unsigned long id,
 		parm = &meson_vapb_1_mux_parm;
 		parents = meson_vapb_0_1_mux_parents;
 		break;
+	case CLKID_HDMI_SEL:
+		parm = &meson_hdmi_mux_parm;
+		parents = meson_hdmi_mux_parents;
+		break;
 	default:
 		/* Not a mux */
 		return -ENOENT;
@@ -572,7 +608,7 @@ static unsigned long meson_clk81_get_rate(struct clk *clk)
 	unsigned long parent_rate;
 	uint reg;
 	int parents[] = {
-		-1,
+		CLKID_XTAL,
 		-1,
 		CLKID_FCLK_DIV7,
 		CLKID_MPLL1,
@@ -727,6 +763,9 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 	ulong rate;
 
 	switch (id) {
+	case CLKID_XTAL:
+		rate = XTAL_RATE;
+		break;
 	case CLKID_FIXED_PLL:
 	case CLKID_SYS_PLL:
 		rate = meson_pll_get_rate(clk, id);
@@ -769,10 +808,14 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 	case CLKID_VAPB_1:
 		rate = meson_div_get_rate(clk, CLKID_VAPB_1_DIV);
 		break;
+	case CLKID_HDMI:
+		rate = meson_div_get_rate(clk, CLKID_HDMI_DIV);
+		break;
 	case CLKID_VPU_0_DIV:
 	case CLKID_VPU_1_DIV:
 	case CLKID_VAPB_0_DIV:
 	case CLKID_VAPB_1_DIV:
+	case CLKID_HDMI_DIV:
 		rate = meson_div_get_rate(clk, id);
 		break;
 	case CLKID_VPU:
@@ -781,6 +824,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 	case CLKID_VAPB_SEL:
 	case CLKID_VAPB_0_SEL:
 	case CLKID_VAPB_1_SEL:
+	case CLKID_HDMI_SEL:
 		rate = meson_mux_get_rate(clk, id);
 		break;
 	default:
@@ -851,7 +895,11 @@ static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned long id,
 	case CLKID_VPU_1_DIV:
 	case CLKID_VAPB_0_DIV:
 	case CLKID_VAPB_1_DIV:
+	case CLKID_HDMI_DIV:
 		return meson_div_set_rate(clk, id, rate, current_rate);
+	case CLKID_HDMI:
+		return meson_clk_set_rate_by_id(clk, CLKID_HDMI_DIV,
+						rate, current_rate);
 	default:
 		return -ENOENT;
 	}
