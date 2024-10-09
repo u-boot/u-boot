@@ -2190,36 +2190,11 @@ static int udma_transfer(struct udevice *dev, int direction,
 	/* Channel0 is reserved for memcpy */
 	struct udma_chan *uc = &ud->channels[0];
 	dma_addr_t paddr = 0;
-	int ret;
-
-	switch (ud->match_data->type) {
-	case DMA_TYPE_UDMA:
-		ret = udma_alloc_chan_resources(uc);
-		break;
-	case DMA_TYPE_BCDMA:
-		ret = bcdma_alloc_chan_resources(uc);
-		break;
-	default:
-		return -EINVAL;
-	};
-	if (ret)
-		return ret;
 
 	udma_prep_dma_memcpy(uc, dst, src, len);
 	udma_start(uc);
 	udma_poll_completion(uc, &paddr);
 	udma_stop(uc);
-
-	switch (ud->match_data->type) {
-	case DMA_TYPE_UDMA:
-		udma_free_chan_resources(uc);
-		break;
-	case DMA_TYPE_BCDMA:
-		bcdma_free_bchan_resources(uc);
-		break;
-	default:
-		return -EINVAL;
-	};
 
 	return 0;
 }
@@ -2590,6 +2565,7 @@ static int udma_probe(struct udevice *dev)
 	struct udevice *tmp;
 	struct udevice *tisci_dev = NULL;
 	struct udma_tisci_rm *tisci_rm = &ud->tisci_rm;
+	struct udma_chan *uc;
 	ofnode navss_ofnode = ofnode_get_parent(dev_ofnode(dev));
 
 	ud->match_data = (void *)dev_get_driver_data(dev);
@@ -2713,6 +2689,41 @@ static int udma_probe(struct udevice *dev)
 		 udma_read(ud->mmrs[MMR_GCFG], 0x2c));
 
 	uc_priv->supported = DMA_SUPPORTS_MEM_TO_MEM | DMA_SUPPORTS_MEM_TO_DEV;
+
+	uc = &ud->channels[0];
+	ret = 0;
+	switch (ud->match_data->type) {
+	case DMA_TYPE_UDMA:
+		ret = udma_alloc_chan_resources(uc);
+		break;
+	case DMA_TYPE_BCDMA:
+		ret = bcdma_alloc_chan_resources(uc);
+		break;
+	default:
+		break; /* Do nothing in any other case */
+	};
+
+	if (ret)
+		dev_err(dev, " Channel 0 allocation failure %d\n", ret);
+
+	return ret;
+}
+
+static int udma_remove(struct udevice *dev)
+{
+	struct udma_dev *ud = dev_get_priv(dev);
+	struct udma_chan *uc = &ud->channels[0];
+
+	switch (ud->match_data->type) {
+	case DMA_TYPE_UDMA:
+		udma_free_chan_resources(uc);
+		break;
+	case DMA_TYPE_BCDMA:
+		bcdma_free_bchan_resources(uc);
+		break;
+	default:
+		break;
+	};
 
 	return 0;
 }
@@ -2855,5 +2866,7 @@ U_BOOT_DRIVER(ti_edma3) = {
 	.of_match = udma_ids,
 	.ops	= &udma_ops,
 	.probe	= udma_probe,
+	.remove = udma_remove,
 	.priv_auto	= sizeof(struct udma_dev),
+	.flags  = DM_FLAG_OS_PREPARE,
 };
