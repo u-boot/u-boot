@@ -251,6 +251,31 @@ int bootmeth_set_order(const char *order_str)
 	return 0;
 }
 
+int bootmeth_set_property(const char *name, const char *property, const char *value)
+{
+	int ret;
+	int len;
+	struct udevice *dev;
+	const struct bootmeth_ops *ops;
+
+	len = strlen(name);
+
+	ret = uclass_find_device_by_namelen(UCLASS_BOOTMETH, name, len,
+					    &dev);
+	if (ret) {
+		printf("Unknown bootmeth '%s'\n", name);
+		return ret;
+	}
+
+	ops = bootmeth_get_ops(dev);
+	if (!ops->set_property) {
+		printf("set_property not found\n");
+		return -ENODEV;
+	}
+
+	return ops->set_property(dev, property, value);
+}
+
 int bootmeth_setup_fs(struct bootflow *bflow, struct blk_desc *desc)
 {
 	int ret;

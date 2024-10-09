@@ -103,6 +103,12 @@ provide a `read_bootflow()` method which checks whatever bootdevs it likes, then
 returns the bootflow, if found. Some of these bootmeths may be very slow, if
 they scan a lot of devices.
 
+The extlinux bootmeth also allows for bootmeth specific configuration to be
+set. A bootmeth that wishes to support this provides the `set_property()`
+method. This allows string properties and values to be passed to the bootmeth.
+It is up to the bootmeth to determine what action to take when this method is
+called.
+
 
 Boot process
 ------------
@@ -459,8 +465,8 @@ Three commands are available:
     See :doc:`/usage/cmd/bootflow`
 
 `bootmeth`
-    Allow listing of available bootmethds and setting the order in which they
-    are tried. See :doc:`/usage/cmd/bootmeth`
+    Allow listing of available bootmethds, setting the order in which they are
+    tried and bootmeth specific configuration. See :doc:`/usage/cmd/bootmeth`
 
 .. _BootflowStates:
 

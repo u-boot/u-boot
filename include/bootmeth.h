@@ -146,6 +146,22 @@ struct bootmeth_ops {
 	 *	something changes, other -ve on other error
 	 */
 	int (*boot)(struct udevice *dev, struct bootflow *bflow);
+
+	/**
+	 * set_property() - set the bootmeth property
+	 *
+	 * This allows the setting of boot method specific properties to enable
+	 * automated finer grain control of the boot process
+	 *
+	 * @name: String containing the name of the relevant boot method
+	 * @property: String containing the name of the property to set
+	 * @value: String containing the value to be set for the specified
+	 *         property
+	 * Return: 0 if OK, -ENODEV if an unknown bootmeth or property is
+	 *      provided, -ENOENT if there are no bootmeth devices
+	 */
+	int (*set_property)(struct udevice *dev, const char *property,
+			    const char *value);
 };
 
 #define bootmeth_get_ops(dev)  ((struct bootmeth_ops *)(dev)->driver->ops)
@@ -289,6 +305,21 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global);
  * out of memory, -ENOENT if there are no bootmeth devices
  */
 int bootmeth_set_order(const char *order_str);
+
+/**
+ * bootmeth_set_property() - Set the bootmeth property
+ *
+ * This allows the setting of boot method specific properties to enable
+ * automated finer grain control of the boot process
+ *
+ * @name: String containing the name of the relevant boot method
+ * @property: String containing the name of the property to set
+ * @value: String containing the value to be set for the specified property
+ * Return: 0 if OK, -ENODEV if an unknown bootmeth or property is provided,
+ * -ENOENT if there are no bootmeth devices
+ */
+int bootmeth_set_property(const char *name, const char *property,
+			  const char *value);
 
 /**
  * bootmeth_setup_fs() - Set up read to read a file
