@@ -99,12 +99,12 @@ static void smbios_print_type1(struct smbios_type1 *table)
 	smbios_print_str("Product Name", table, table->product_name);
 	smbios_print_str("Version", table, table->version);
 	smbios_print_str("Serial Number", table, table->serial_number);
-	if (table->length >= 0x19) {
+	if (table->hdr.length >= SMBIOS_TYPE1_LENGTH_V21) {
 		printf("\tUUID: %pUl\n", table->uuid);
 		printf("\tWake-up Type: %s\n",
 		       smbios_wakeup_type_str(table->wakeup_type));
 	}
-	if (table->length >= 0x1b) {
+	if (table->hdr.length >= SMBIOS_TYPE1_LENGTH_V24) {
 		smbios_print_str("SKU Number", table, table->sku_number);
 		smbios_print_str("Family", table, table->family);
 	}
