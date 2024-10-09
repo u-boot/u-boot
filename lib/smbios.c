@@ -330,10 +330,10 @@ static int smbios_write_type0(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type0 *t;
-	int len = sizeof(struct smbios_type0);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type0));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_BIOS_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->vendor = smbios_add_prop(ctx, NULL, "U-Boot");
@@ -374,7 +374,7 @@ static int smbios_write_type0(ulong *current, int handle,
 	t->ec_major_release = 0xff;
 	t->ec_minor_release = 0xff;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -385,11 +385,11 @@ static int smbios_write_type1(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type1 *t;
-	int len = sizeof(struct smbios_type1);
+	int len = sizeof(*t);
 	char *serial_str = env_get("serial#");
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type1));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
@@ -403,7 +403,7 @@ static int smbios_write_type1(ulong *current, int handle,
 					NULL);
 	if (serial_str) {
 		t->serial_number = smbios_add_prop(ctx, NULL, serial_str);
-		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
+		strlcpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
 		t->serial_number = smbios_add_prop_si(ctx, "serial",
 						      SYSINFO_ID_SMBIOS_SYSTEM_SERIAL,
@@ -415,7 +415,7 @@ static int smbios_write_type1(ulong *current, int handle,
 	t->family = smbios_add_prop_si(ctx, "family",
 				       SYSINFO_ID_SMBIOS_SYSTEM_FAMILY, NULL);
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -426,10 +426,10 @@ static int smbios_write_type2(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type2 *t;
-	int len = sizeof(struct smbios_type2);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type2));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
@@ -448,11 +448,11 @@ static int smbios_write_type2(ulong *current, int handle,
 	t->asset_tag_number = smbios_add_prop_si(ctx, "asset-tag",
 						 SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
 						 NULL);
-	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
-	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
+	t->feature_flags = SMBIOS_BOARD_FEAT_HOST_BOARD;
+	t->board_type = SMBIOS_BOARD_TYPE_MOTHERBOARD;
 	t->chassis_handle = handle + 1;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -463,10 +463,10 @@ static int smbios_write_type3(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type3 *t;
-	int len = sizeof(struct smbios_type3);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type3));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_SYSTEM_ENCLOSURE, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop(ctx, "manufacturer", NULL);
@@ -476,7 +476,7 @@ static int smbios_write_type3(ulong *current, int handle,
 	t->thermal_state = SMBIOS_STATE_SAFE;
 	t->security_status = SMBIOS_SECURITY_NONE;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -521,10 +521,10 @@ static int smbios_write_type4(ulong *current, int handle,
 			      struct smbios_ctx *ctx)
 {
 	struct smbios_type4 *t;
-	int len = sizeof(struct smbios_type4);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type4));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_PROCESSOR_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->processor_type = SMBIOS_PROCESSOR_TYPE_CENTRAL;
@@ -535,7 +535,7 @@ static int smbios_write_type4(ulong *current, int handle,
 	t->l2_cache_handle = 0xffff;
 	t->l3_cache_handle = 0xffff;
 
-	len = t->length + smbios_string_table_len(ctx);
+	len = t->hdr.length + smbios_string_table_len(ctx);
 	*current += len;
 	unmap_sysmem(t);
 
@@ -546,10 +546,10 @@ static int smbios_write_type32(ulong *current, int handle,
 			       struct smbios_ctx *ctx)
 {
 	struct smbios_type32 *t;
-	int len = sizeof(struct smbios_type32);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type32));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_SYSTEM_BOOT_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 
@@ -563,10 +563,10 @@ static int smbios_write_type127(ulong *current, int handle,
 				struct smbios_ctx *ctx)
 {
 	struct smbios_type127 *t;
-	int len = sizeof(struct smbios_type127);
+	int len = sizeof(*t);
 
 	t = map_sysmem(*current, len);
-	memset(t, 0, sizeof(struct smbios_type127));
+	memset(t, 0, len);
 	fill_smbios_header(t, SMBIOS_END_OF_TABLE, len, handle);
 
 	*current += len;
