@@ -38,6 +38,11 @@ enum {
 #define SMBIOS_INTERMEDIATE_OFFSET	16
 #define SMBIOS_STRUCT_EOS_BYTES		2
 
+struct str_lookup_table {
+	u16 idx;
+	const char *str;
+};
+
 struct __packed smbios_entry {
 	u8 anchor[4];
 	u8 checksum;
