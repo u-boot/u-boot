@@ -62,6 +62,7 @@ struct pxe_label {
  *
  * title - the name of the menu as given by a 'menu title' line.
  * default_label - the name of the default label, if any.
+ * fallback_label - the name of the fallback label, if any.
  * bmp - the bmp file name which is displayed in background
  * timeout - time in tenths of a second to wait for a user key-press before
  *           booting the default label.
@@ -73,6 +74,7 @@ struct pxe_label {
 struct pxe_menu {
 	char *title;
 	char *default_label;
+	char *fallback_label;
 	char *bmp;
 	int timeout;
 	int prompt;

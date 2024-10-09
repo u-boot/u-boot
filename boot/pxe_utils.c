@@ -781,6 +781,7 @@ enum token_type {
 	T_IPAPPEND,
 	T_BACKGROUND,
 	T_KASLRSEED,
+	T_FALLBACK,
 	T_INVALID
 };
 
@@ -814,6 +815,7 @@ static const struct token keywords[] = {
 	{"ipappend", T_IPAPPEND,},
 	{"background", T_BACKGROUND,},
 	{"kaslrseed", T_KASLRSEED,},
+	{"fallback", T_FALLBACK,},
 	{NULL, T_INVALID}
 };
 
@@ -1356,6 +1358,18 @@ static int parse_pxefile_top(struct pxe_context *ctx, char *p, unsigned long bas
 
 			break;
 
+		case T_FALLBACK:
+			err = parse_sliteral(&p, &label_name);
+
+			if (label_name) {
+				if (cfg->fallback_label)
+					free(cfg->fallback_label);
+
+				cfg->fallback_label = label_name;
+			}
+
+			break;
+
 		case T_INCLUDE:
 			err = handle_include(ctx, &p,
 					     base + ALIGN(strlen(b), 4), cfg,
@@ -1395,6 +1409,7 @@ void destroy_pxe_menu(struct pxe_menu *cfg)
 
 	free(cfg->title);
 	free(cfg->default_label);
+	free(cfg->fallback_label);
 
 	list_for_each_safe(pos, n, &cfg->labels) {
 		label = list_entry(pos, struct pxe_label, list);
