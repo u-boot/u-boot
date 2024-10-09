@@ -87,7 +87,7 @@ static int gxp_spi_xfer(struct udevice *dev, unsigned int bitlen, const void *do
 		value = readl(priv->base + OFFSET_SPIMCFG);
 		value &= ~(1 << 24);
 		/* set chipselect */
-		value |= (slave_plat->cs << 24);
+		value |= (slave_plat->cs[0] << 24);
 
 		/* addr reg and addr size */
 		if (len >= 4) {

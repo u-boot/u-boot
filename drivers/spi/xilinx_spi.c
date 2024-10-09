@@ -291,7 +291,7 @@ static void xilinx_spi_startup_block(struct udevice *dev)
 	 * Perform a dummy read as a work around for
 	 * the startup block issue.
 	 */
-	spi_cs_activate(dev, slave_plat->cs);
+	spi_cs_activate(dev, slave_plat->cs[0]);
 	txp = 0x9f;
 	start_transfer(dev, (void *)&txp, NULL, 1);
 
@@ -306,7 +306,7 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	int ret;
 
-	spi_cs_activate(dev, slave_plat->cs);
+	spi_cs_activate(dev, slave_plat->cs[0]);
 	ret = start_transfer(dev, dout, din, bitlen / 8);
 	spi_cs_deactivate(dev);
 	return ret;
@@ -331,7 +331,7 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
 		startup++;
 	}
 
-	spi_cs_activate(spi->dev, slave_plat->cs);
+	spi_cs_activate(spi->dev, slave_plat->cs[0]);
 
 	if (op->cmd.opcode) {
 		ret = start_transfer(spi->dev, (void *)&op->cmd.opcode,

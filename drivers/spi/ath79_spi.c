@@ -73,7 +73,7 @@ static int ath79_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (restbits)
 		bytes++;
 
-	out = AR71XX_SPI_IOC_CS_ALL & ~(AR71XX_SPI_IOC_CS(slave->cs));
+	out = AR71XX_SPI_IOC_CS_ALL & ~(AR71XX_SPI_IOC_CS(slave->cs[0]));
 	while (bytes > 0) {
 		bytes--;
 		curbyte = 0;

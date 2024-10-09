@@ -728,7 +728,7 @@ static int acpi_device_set_spi(const struct udevice *dev, struct acpi_spi *spi,
 
 	plat = dev_get_parent_plat(slave->dev);
 	memset(spi, '\0', sizeof(*spi));
-	spi->device_select = plat->cs;
+	spi->device_select = plat->cs[0];
 	spi->device_select_polarity = SPI_POLARITY_LOW;
 	spi->wire_mode = SPI_4_WIRE_MODE;
 	spi->speed = plat->max_hz;
