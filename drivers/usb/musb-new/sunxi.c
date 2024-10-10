@@ -505,6 +505,12 @@ static int musb_usb_remove(struct udevice *dev)
 	return 0;
 }
 
+static int musb_usb_bind(struct udevice *dev)
+{
+	dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND);
+	return 0;
+}
+
 /*
  * The Linux driver has a config struct, its fields mapping to this driver
  * like this:
@@ -560,4 +566,5 @@ U_BOOT_DRIVER(usb_musb) = {
 #endif
 	.plat_auto	= sizeof(struct usb_plat),
 	.priv_auto	= sizeof(struct sunxi_glue),
+	.bind		= musb_usb_bind,
 };
