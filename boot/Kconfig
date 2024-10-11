@@ -503,7 +503,8 @@ config BOOTMETH_ANDROID
 	select ANDROID_AB
 	select ANDROID_BOOT_IMAGE
 	select CMD_BCB
-	select CMD_FASTBOOT
+	imply CMD_FASTBOOT
+	imply FASTBOOT if !NET_LWIP
 	select PARTITION_TYPE_GUID
 	select PARTITION_UUIDS
 	help
@@ -559,6 +560,7 @@ config BOOTMETH_EXTLINUX_PXE
 config BOOTMETH_EFILOADER
 	bool "Bootdev support for EFI boot"
 	depends on EFI_BINARY_EXEC
+	imply CMD_TFTPBOOT if CMD_NET
 	default y
 	help
 	  Enables support for EFI boot using bootdevs. This makes the

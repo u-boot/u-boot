@@ -1,0 +1,49 @@
+#
+# Network configuration (with lwIP stack)
+#
+
+if NET_LWIP
+
+config LWIP_DEBUG
+	bool "Enable debug traces in the lwIP library"
+
+config LWIP_ASSERT
+	bool "Enable assertions in the lwIP library"
+
+config PROT_DHCP_LWIP
+	bool
+	select PROT_UDP_LWIP
+
+config PROT_DNS_LWIP
+	bool
+	select PROT_UDP_LWIP
+
+config PROT_RAW_LWIP
+	bool
+
+config PROT_TCP_LWIP
+	bool
+
+config PROT_TCP_SACK_LWIP
+	bool "TCP SACK support"
+	depends on PROT_TCP_LWIP
+	default y
+	help
+	  TCP protocol with selective acknowledgements. Improves
+	  file transfer speed in wget.
+
+config PROT_UDP_LWIP
+	bool
+
+config LWIP_TCP_WND
+	int "Value of TCP_WND"
+	default 8000 if ARCH_QEMU
+	default 3000000
+	help
+	  Default value for TCP_WND in the lwIP configuration
+	  Lower values result in slower wget transfer speeds in
+	  general, especially when the latency on the network is high,
+	  but QEMU with "-net user" needs no more than a few KB or the
+	  transfer will stall and eventually time out.
+
+endif # NET_LWIP
