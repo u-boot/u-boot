@@ -55,7 +55,7 @@ struct global_data {
 	 * @cur_serial_dev: current serial device
 	 */
 	struct udevice *cur_serial_dev;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	/**
 	 * @jt: jump table
 	 *

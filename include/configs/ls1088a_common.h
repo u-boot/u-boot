@@ -7,7 +7,7 @@
 #define __LS1088_COMMON_H
 
 /* SPL build */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define SPL_NO_BOARDINFO
 #define SPL_NO_QIXIS
 #define SPL_NO_PCI

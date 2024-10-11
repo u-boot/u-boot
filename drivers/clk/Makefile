@@ -4,13 +4,13 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk.o clk-divider.o clk-mux.o clk-gate.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk-fixed-factor.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_COMPOSITE_CCF) += clk-composite.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_GPIO) += clk-gpio.o
+obj-$(CONFIG_$(PHASE_)CLK) += clk-uclass.o
+obj-$(CONFIG_$(PHASE_)CLK) += clk_fixed_rate.o
+obj-$(CONFIG_$(PHASE_)CLK) += clk_fixed_factor.o
+obj-$(CONFIG_$(PHASE_)CLK_CCF) += clk.o clk-divider.o clk-mux.o clk-gate.o
+obj-$(CONFIG_$(PHASE_)CLK_CCF) += clk-fixed-factor.o
+obj-$(CONFIG_$(PHASE_)CLK_COMPOSITE_CCF) += clk-composite.o
+obj-$(CONFIG_$(PHASE_)CLK_GPIO) += clk-gpio.o
 
 obj-y += adi/
 obj-y += analogbits/
@@ -18,7 +18,7 @@ obj-y += imx/
 obj-$(CONFIG_CLK_JH7110) += starfive/
 obj-y += tegra/
 obj-y += ti/
-obj-$(CONFIG_$(SPL_TPL_)CLK_INTEL) += intel/
+obj-$(CONFIG_$(PHASE_)CLK_INTEL) += intel/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MEDIATEK) += mediatek/
 obj-$(CONFIG_ARCH_MESON) += meson/
@@ -42,7 +42,7 @@ obj-$(CONFIG_CLK_OCTEON) += clk_octeon.o
 obj-$(CONFIG_CLK_OWL) += owl/
 obj-$(CONFIG_CLK_QCOM) += qcom/
 obj-$(CONFIG_CLK_RENESAS) += renesas/
-obj-$(CONFIG_$(SPL_TPL_)CLK_SCMI) += clk_scmi.o
+obj-$(CONFIG_$(PHASE_)CLK_SCMI) += clk_scmi.o
 obj-$(CONFIG_CLK_SIFIVE) += sifive/
 obj-$(CONFIG_CLK_SOPHGO) += sophgo/
 obj-$(CONFIG_CLK_SUNXI) += sunxi/

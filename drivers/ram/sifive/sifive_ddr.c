@@ -91,7 +91,7 @@ struct sifive_ddr_info {
 	u32 *physical_filter_ctrl;
 };
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 struct sifive_ddr_params {
 	struct sifive_ddrctl pctl_regs;
 	struct sifive_ddrphy phy_regs;
@@ -337,7 +337,7 @@ static int sifive_ddr_probe(struct udevice *dev)
 	priv->info.base = gd->ram_base;
 	priv->info.size = gd->ram_size;
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	int ret;
 	u32 clock = 0;
 
@@ -404,7 +404,7 @@ U_BOOT_DRIVER(sifive_ddr) = {
 	.ops = &sifive_ddr_ops,
 	.probe = sifive_ddr_probe,
 	.priv_auto = sizeof(struct sifive_ddr_info),
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	.plat_auto = sizeof(struct sifive_dmc_plat),
 #endif
 };

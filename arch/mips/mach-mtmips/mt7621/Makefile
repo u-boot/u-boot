@@ -3,7 +3,7 @@
 obj-y += init.o
 obj-y += serial.o
 
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 ifeq ($(CONFIG_TPL_BUILD),y)
 obj-y += tpl/
 else

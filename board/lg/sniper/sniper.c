@@ -54,7 +54,7 @@ void set_muxconf_regs(void)
 	MUX_SNIPER();
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	timings->mcfg = HYNIX_V_MCFG_200(256 << 20);

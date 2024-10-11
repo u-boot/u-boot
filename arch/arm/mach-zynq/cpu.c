@@ -52,7 +52,7 @@ static const struct {
 int arch_cpu_init(void)
 {
 	zynq_slcr_unlock();
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	/* Device config APB, unlock the PCAP */
 	writel(0x757BDF0D, &devcfg_base->unlock);
 	writel(0xFFFFFFFF, &devcfg_base->rom_shadow);

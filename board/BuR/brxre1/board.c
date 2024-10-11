@@ -39,7 +39,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
@@ -134,7 +134,7 @@ void sdram_init(void)
 		   &ddr3_cmd_ctrl_data,
 		   &ddr3_emif_reg_data, 0);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */

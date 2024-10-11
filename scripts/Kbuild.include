@@ -324,18 +324,18 @@ endif
 # do not delete intermediate files automatically
 .SECONDARY:
 
-ifdef CONFIG_SPL_BUILD
-SPL_ := SPL_
+ifdef CONFIG_XPL_BUILD
+XPL_ := SPL_
 ifeq ($(CONFIG_VPL_BUILD),y)
-SPL_TPL_ := VPL_
+PHASE_ := VPL_
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
-SPL_TPL_ := TPL_
+PHASE_ := TPL_
 else
-SPL_TPL_ := SPL_
+PHASE_ := SPL_
 endif
 endif
 else
-SPL_ :=
-SPL_TPL_ :=
+XPL_ :=
+PHASE_ :=
 endif

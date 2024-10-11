@@ -3,4 +3,4 @@
 #  (C) Copyright 2021
 #  Open Surface RT
 
-obj-$(CONFIG_SPL_BUILD) += surface-rt-spl.o
+obj-$(CONFIG_XPL_BUILD) += surface-rt-spl.o

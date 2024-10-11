@@ -182,7 +182,7 @@ int do_board_detect(void)
 }
 #endif
 
-#if IS_ENABLED(CONFIG_SPL_BUILD)
+#if IS_ENABLED(CONFIG_XPL_BUILD)
 void spl_perform_fixups(struct spl_image_info *spl_image)
 {
 	u64 start[CONFIG_NR_DRAM_BANKS];

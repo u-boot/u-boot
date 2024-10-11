@@ -11,7 +11,7 @@ obj-y	+= reset.o
 ifeq ($(CONFIG_TIMER),)
 obj-y	+= timer.o
 else
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y	+= timer.o
 endif
 endif
@@ -26,7 +26,7 @@ obj-y	+= vc.o
 obj-y	+= abb.o
 endif
 
-ifeq ($(CONFIG_$(SPL_TPL_)SYS_DCACHE_OFF),)
+ifeq ($(CONFIG_$(PHASE_)SYS_DCACHE_OFF),)
 obj-y	+= omap-cache.o
 endif
 

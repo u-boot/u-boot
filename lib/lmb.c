@@ -749,9 +749,9 @@ int lmb_init(void)
 	lmb_add_memory();
 
 	/* Reserve the U-Boot image region once U-Boot has relocated */
-	if (spl_phase() == PHASE_SPL)
+	if (xpl_phase() == PHASE_SPL)
 		lmb_reserve_common_spl();
-	else if (spl_phase() == PHASE_BOARD_R)
+	else if (xpl_phase() == PHASE_BOARD_R)
 		lmb_reserve_common((void *)gd->fdt_blob);
 
 	return 0;

@@ -52,7 +52,7 @@ void lowlevel_init(void)
 	 */
 }
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_ARMADA_32BIT_SYSCON_SYSRESET)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_ARMADA_32BIT_SYSCON_SYSRESET)
 void reset_cpu(void)
 {
 	struct mvebu_system_registers *reg =
@@ -549,7 +549,7 @@ static void ahci_mvebu_mbus_config(void __iomem *base)
 	int i;
 
 	/* mbus is not initialized in SPL; keep the ROM settings */
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return;
 
 	dram = mvebu_mbus_dram_info();

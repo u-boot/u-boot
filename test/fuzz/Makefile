@@ -4,5 +4,5 @@
 # Written by Andrew Scull <ascull@google.com>
 #
 
-obj-$(CONFIG_$(SPL_)CMDLINE) += cmd_fuzz.o
+obj-$(CONFIG_$(XPL_)CMDLINE) += cmd_fuzz.o
 obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o

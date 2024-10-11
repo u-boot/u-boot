@@ -640,7 +640,7 @@ void enable_usboh3_clk(unsigned char enable)
 	}
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void dram_pll_init(ulong pll_val)
 {
 	configure_fracpll(DRAM_PLL_CLK, pll_val);
@@ -950,7 +950,7 @@ int set_clk_enet(enum enet_freq type)
 /*
  * Dump some clockes.
  */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int do_showclocks(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;

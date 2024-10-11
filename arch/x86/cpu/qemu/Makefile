@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
 
-ifndef CONFIG_$(SPL_)X86_64
+ifndef CONFIG_$(XPL_)X86_64
 obj-y += car.o
 endif
 obj-y += dram.o

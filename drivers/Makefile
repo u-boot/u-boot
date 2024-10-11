@@ -1,60 +1,60 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-obj-$(CONFIG_$(SPL_TPL_)ADC) += adc/
-obj-$(CONFIG_$(SPL_TPL_)BIOSEMU) += bios_emulator/
-obj-$(CONFIG_$(SPL_TPL_)BLK) += block/
-obj-$(CONFIG_$(SPL_TPL_)BOOTCOUNT_LIMIT) += bootcount/
-obj-$(CONFIG_$(SPL_TPL_)BUTTON) += button/
-obj-$(CONFIG_$(SPL_TPL_)CACHE) += cache/
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
-obj-$(CONFIG_$(SPL_TPL_)DM) += core/
-obj-$(CONFIG_$(SPL_TPL_)DMA) += dma/
-obj-$(CONFIG_$(SPL_TPL_)DMA_LEGACY) += dma/
-obj-$(CONFIG_$(SPL_TPL_)DFU) += dfu/
-obj-$(CONFIG_$(SPL_TPL_)EXTCON) += extcon/
-obj-$(CONFIG_$(SPL_TPL_)GPIO) += gpio/
-obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC) += misc/
-obj-$(CONFIG_$(SPL_TPL_)SYSRESET) += sysreset/
-obj-$(CONFIG_$(SPL_TPL_)FIRMWARE) +=firmware/
-obj-$(CONFIG_$(SPL_TPL_)I2C) += i2c/
-obj-$(CONFIG_$(SPL_TPL_)INPUT) += input/
-obj-$(CONFIG_$(SPL_TPL_)LED) += led/
-obj-$(CONFIG_$(SPL_TPL_)MMC) += mmc/
+obj-$(CONFIG_$(PHASE_)ADC) += adc/
+obj-$(CONFIG_$(PHASE_)BIOSEMU) += bios_emulator/
+obj-$(CONFIG_$(PHASE_)BLK) += block/
+obj-$(CONFIG_$(PHASE_)BOOTCOUNT_LIMIT) += bootcount/
+obj-$(CONFIG_$(PHASE_)BUTTON) += button/
+obj-$(CONFIG_$(PHASE_)CACHE) += cache/
+obj-$(CONFIG_$(PHASE_)CLK) += clk/
+obj-$(CONFIG_$(PHASE_)DM) += core/
+obj-$(CONFIG_$(PHASE_)DMA) += dma/
+obj-$(CONFIG_$(PHASE_)DMA_LEGACY) += dma/
+obj-$(CONFIG_$(PHASE_)DFU) += dfu/
+obj-$(CONFIG_$(PHASE_)EXTCON) += extcon/
+obj-$(CONFIG_$(PHASE_)GPIO) += gpio/
+obj-$(CONFIG_$(PHASE_)DRIVERS_MISC) += misc/
+obj-$(CONFIG_$(PHASE_)SYSRESET) += sysreset/
+obj-$(CONFIG_$(PHASE_)FIRMWARE) +=firmware/
+obj-$(CONFIG_$(PHASE_)I2C) += i2c/
+obj-$(CONFIG_$(PHASE_)INPUT) += input/
+obj-$(CONFIG_$(PHASE_)LED) += led/
+obj-$(CONFIG_$(PHASE_)MMC) += mmc/
 obj-y += mtd/
-obj-$(CONFIG_$(SPL_TPL_)ETH) += net/
-obj-$(CONFIG_$(SPL_TPL_)PCH) += pch/
-obj-$(CONFIG_$(SPL_TPL_)PCI) += pci/
-obj-$(CONFIG_$(SPL_TPL_)PHY) += phy/
-obj-$(CONFIG_$(SPL_TPL_)PINCTRL) += pinctrl/
-obj-$(CONFIG_$(SPL_TPL_)POWER) += power/
-obj-$(CONFIG_$(SPL_TPL_)RAM) += ram/
-obj-$(CONFIG_$(SPL_TPL_)RTC) += rtc/
-obj-$(CONFIG_$(SPL_TPL_)SERIAL) += serial/
-obj-$(CONFIG_$(SPL_TPL_)SPI) += spi/
-obj-$(CONFIG_$(SPL_TPL_)TIMER) += timer/
-obj-$(CONFIG_$(SPL_TPL_)VIRTIO) += virtio/
-obj-$(CONFIG_$(SPL_)DM_MAILBOX) += mailbox/
-obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
-obj-$(CONFIG_$(SPL_)SYSINFO) += sysinfo/
-obj-$(CONFIG_$(SPL_TPL_)SM) += sm/
-obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
-obj-$(CONFIG_$(SPL_)NVME) += nvme/
+obj-$(CONFIG_$(PHASE_)ETH) += net/
+obj-$(CONFIG_$(PHASE_)PCH) += pch/
+obj-$(CONFIG_$(PHASE_)PCI) += pci/
+obj-$(CONFIG_$(PHASE_)PHY) += phy/
+obj-$(CONFIG_$(PHASE_)PINCTRL) += pinctrl/
+obj-$(CONFIG_$(PHASE_)POWER) += power/
+obj-$(CONFIG_$(PHASE_)RAM) += ram/
+obj-$(CONFIG_$(PHASE_)RTC) += rtc/
+obj-$(CONFIG_$(PHASE_)SERIAL) += serial/
+obj-$(CONFIG_$(PHASE_)SPI) += spi/
+obj-$(CONFIG_$(PHASE_)TIMER) += timer/
+obj-$(CONFIG_$(PHASE_)VIRTIO) += virtio/
+obj-$(CONFIG_$(XPL_)DM_MAILBOX) += mailbox/
+obj-$(CONFIG_$(XPL_)REMOTEPROC) += remoteproc/
+obj-$(CONFIG_$(XPL_)SYSINFO) += sysinfo/
+obj-$(CONFIG_$(PHASE_)SM) += sm/
+obj-$(CONFIG_$(PHASE_)TPM) += tpm/
+obj-$(CONFIG_$(XPL_)NVME) += nvme/
 obj-$(CONFIG_XEN) += xen/
-obj-$(CONFIG_$(SPL_)FPGA) += fpga/
-obj-$(CONFIG_$(SPL_)VIDEO) += video/
+obj-$(CONFIG_$(XPL_)FPGA) += fpga/
+obj-$(CONFIG_$(XPL_)VIDEO) += video/
 
 obj-y += bus/
 
 ifndef CONFIG_TPL_BUILD
 ifndef CONFIG_VPL_BUILD
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 
 obj-$(CONFIG_SPL_CPU) += cpu/
 obj-$(CONFIG_SPL_CRYPTO) += crypto/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR) += ddr/fsl/
 obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
 obj-$(CONFIG_ARMADA_XP) += ddr/marvell/axp/
-obj-$(CONFIG_$(SPL_)ALTERA_SDRAM) += ddr/altera/
+obj-$(CONFIG_$(XPL_)ALTERA_SDRAM) += ddr/altera/
 obj-$(CONFIG_ARCH_IMX8M) += ddr/imx/imx8m/
 obj-$(CONFIG_IMX8ULP_DRAM) += ddr/imx/imx8ulp/
 obj-$(CONFIG_ARCH_IMX9) += ddr/imx/imx9/
@@ -80,7 +80,7 @@ obj-$(CONFIG_TPL_MPC8XXX_INIT_DDR) += ddr/fsl/
 
 endif
 
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
+ifeq ($(CONFIG_XPL_BUILD)$(CONFIG_TPL_BUILD),)
 
 obj-y += ata/
 obj-$(CONFIG_DM_DEMO) += demo/
@@ -126,7 +126,7 @@ obj-$(CONFIG_W1_EEPROM) += w1-eeprom/
 obj-$(CONFIG_MACH_PIC32) += ddr/microchip/
 obj-$(CONFIG_FUZZ) += fuzz/
 obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock/
-obj-$(CONFIG_$(SPL_TPL_)DM_RNG) += rng/
+obj-$(CONFIG_$(PHASE_)DM_RNG) += rng/
 endif
 
 obj-y += soc/

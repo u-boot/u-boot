@@ -36,7 +36,7 @@
 #endif /* #ifdef CONFIG_NXP_ESBC */
 
 #ifdef CONFIG_CHAIN_OF_TRUST
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /*
  * PPAACT and SPAACT table for PAMU must be placed on DDR after DDR init
  * due to space crunch on CPC and thus malloc will not work.
@@ -45,10 +45,10 @@
 #define CFG_SPL_SPAACT_ADDR		0x2f000000
 #define CFG_SPL_JR0_LIODN_S		454
 #define CFG_SPL_JR0_LIODN_NS		458
-#endif /* ifdef CONFIG_SPL_BUILD */
+#endif /* ifdef CONFIG_XPL_BUILD */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #include <config_fsl_chain_trust.h>
-#endif /* #ifndef CONFIG_SPL_BUILD */
+#endif /* #ifndef CONFIG_XPL_BUILD */
 #endif /* #ifdef CONFIG_CHAIN_OF_TRUST */
 #endif

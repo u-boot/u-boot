@@ -6,7 +6,7 @@
 obj-$(CONFIG_USB_GADGET_DOWNLOAD) += gadget.o
 obj-$(CONFIG_MISC_COMMON) += misc.o
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_BOARD_COMMON)	+= board.o sromc.o
 ifdef CONFIG_EXYNOS5_DT
 obj-y += exynos5-dt.o

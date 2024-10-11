@@ -9,7 +9,7 @@
 _start:
 	ARM_VECTORS
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	.word	0x0badc0d3;
 	.word	0x0badc0d3;
 	.word	0x0badc0d3;

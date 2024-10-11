@@ -31,7 +31,7 @@ static const char * const imx8mm_ahb_sels[] = {"clock-osc-24m", "sys_pll1_133m",
 					       "sys_pll1_400m", "sys_pll2_125m", "sys_pll3_out",
 					       "audio_pll1_out", "video_pll1_out", };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static const char * const imx8mm_enet_axi_sels[] = {"clock-osc-24m", "sys_pll1_266m", "sys_pll1_800m",
 						    "sys_pll2_250m", "sys_pll2_200m", "audio_pll1_out",
 						    "video_pll1_out", "sys_pll3_out", };
@@ -95,7 +95,7 @@ static const char * const imx8mm_pcie1_aux_sels[] = {"clock-osc-24m", "sys_pll2_
 						     "sys_pll1_160m", "sys_pll1_200m", };
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static const char * const imx8mm_pwm1_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m",
 						"sys_pll1_40m", "sys_pll3_out", "clk_ext1",
 						"sys_pll1_80m", "video_pll1_out", };
@@ -357,7 +357,7 @@ static int imx8mm_clk_probe(struct udevice *dev)
 		imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 
 	/* clks not needed in SPL stage */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	clk_dm(IMX8MM_CLK_ENET_AXI,
 	       imx8m_clk_composite("enet_axi", imx8mm_enet_axi_sels,
 				   base + 0x8880));

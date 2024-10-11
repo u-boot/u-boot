@@ -271,7 +271,7 @@ static void identify_cpu(struct cpu_device_id *cpu)
 	 * Do a quick and dirty check to save space - Intel and AMD only and
 	 * just the vendor. This is enough for most TPL code.
 	 */
-	if (spl_phase() == PHASE_TPL) {
+	if (xpl_phase() == PHASE_TPL) {
 		struct cpuid_result result;
 
 		result = cpuid(0x00000000);

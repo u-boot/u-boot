@@ -211,7 +211,7 @@ void s_init(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void board_init_f(ulong dummy)
 {
 	early_system_init();
@@ -280,7 +280,7 @@ void abort(void)
 {
 }
 
-#if defined(CONFIG_NAND_OMAP_GPMC) & !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NAND_OMAP_GPMC) & !defined(CONFIG_XPL_BUILD)
 /******************************************************************************
  * OMAP3 specific command to switch between NAND HW and SW ecc
  *****************************************************************************/
@@ -331,7 +331,7 @@ U_BOOT_CMD(
 	"nandecc sw               - Switch to NAND software ecc algorithm."
 );
 
-#endif /* CONFIG_NAND_OMAP_GPMC & !CONFIG_SPL_BUILD */
+#endif /* CONFIG_NAND_OMAP_GPMC & !CONFIG_XPL_BUILD */
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
 /**

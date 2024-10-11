@@ -92,7 +92,7 @@
 	"serial#:serialno," \
 	CFG_ENV_CALLBACK_LIST_STATIC
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 void env_callback_init(struct env_entry *var_entry);
 #else
 static inline void env_callback_init(struct env_entry *var_entry)

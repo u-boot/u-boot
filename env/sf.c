@@ -329,7 +329,7 @@ done:
 
 __weak void *env_sf_get_env_addr(void)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	return (void *)CONFIG_ENV_ADDR;
 #else
 	return NULL;

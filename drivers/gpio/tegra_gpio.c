@@ -323,7 +323,7 @@ static int gpio_tegra_bind(struct udevice *parent)
 		return 0;
 
 	/* TODO(sjg@chromium.org): Remove once SPL supports device tree */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
 	bank_count = TEGRA_GPIO_BANKS;
 #else

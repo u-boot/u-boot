@@ -327,7 +327,7 @@ struct ventana_eeprom_config econfig[] = {
 	{ /* Sentinel */ }
 };
 
-#if defined(CONFIG_CMD_EECONFIG) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_EECONFIG) && !defined(CONFIG_XPL_BUILD)
 static struct ventana_eeprom_config *get_config(const char *name)
 {
 	struct ventana_eeprom_config *cfg = econfig;

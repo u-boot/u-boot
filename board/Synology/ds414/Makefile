@@ -3,6 +3,6 @@
 # Copyright (C) 2015 Phil Sutter <phil@nwl.cc>
 
 obj-y	+= ds414.o
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y	+= cmd_syno.o
 endif

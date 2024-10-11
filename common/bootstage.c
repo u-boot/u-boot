@@ -351,7 +351,7 @@ void bootstage_report(void)
 	}
 	if (data->rec_count > RECORD_COUNT)
 		printf("Overflowed internal boot id table by %d entries\n"
-		       "Please increase CONFIG_(SPL_TPL_)BOOTSTAGE_RECORD_COUNT\n",
+		       "Please increase CONFIG_(PHASE_)BOOTSTAGE_RECORD_COUNT\n",
 		       data->rec_count - RECORD_COUNT);
 
 	puts("\nAccumulated time:\n");
@@ -473,7 +473,7 @@ int bootstage_unstash(const void *base, int size)
 
 	if (data->rec_count + hdr->count > RECORD_COUNT) {
 		debug("%s: Bootstage has %d records, we have space for %d\n"
-			"Please increase CONFIG_(SPL_)BOOTSTAGE_RECORD_COUNT\n",
+			"Please increase CONFIG_(PHASE_)BOOTSTAGE_RECORD_COUNT\n",
 		      __func__, hdr->count, RECORD_COUNT - data->rec_count);
 		return -ENOSPC;
 	}
@@ -489,7 +489,7 @@ int bootstage_unstash(const void *base, int size)
 	for (rec = data->record + data->next_id, i = 0; i < hdr->count;
 	     i++, rec++) {
 		rec->name = ptr;
-		if (spl_phase() == PHASE_SPL)
+		if (xpl_phase() == PHASE_SPL)
 			rec->name = strdup(ptr);
 
 		/* Assume no data corruption here */

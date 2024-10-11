@@ -346,7 +346,7 @@ int embedded_dtb_select(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_TI_I2C_BOARD_DETECT)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_TI_I2C_BOARD_DETECT)
 	int rc;
 
 	rc = ti_i2c_eeprom_am_get(CONFIG_EEPROM_BUS_ADDRESS,
@@ -382,7 +382,7 @@ int board_early_init_f(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_init_keystone_plls(void)
 {
 	init_plls();

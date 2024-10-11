@@ -223,7 +223,7 @@ static int rkclk_configure_ddr(struct rockchip_cru *cru, struct rk3288_grf *grf,
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define VCO_MAX_KHZ	2200000
 #define VCO_MIN_KHZ	440000
 #define FREF_MAX_KHZ	2200000
@@ -421,7 +421,7 @@ static ulong rockchip_i2s_set_clk(struct rockchip_cru *cru, uint gclk_rate,
 
 	return rockchip_i2s_get_clk(cru, gclk_rate);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 static void rkclk_init(struct rockchip_cru *cru, struct rk3288_grf *grf)
 {
@@ -819,7 +819,7 @@ static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SPI2:
 		new_rate = rockchip_spi_set_clk(cru, gclk_rate, clk->id, rate);
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case SCLK_I2S0:
 		new_rate = rockchip_i2s_set_clk(cru, gclk_rate, rate);
 		break;
@@ -973,7 +973,7 @@ static int rk3288_clk_probe(struct udevice *dev)
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	if (IS_ERR(priv->grf))
 		return PTR_ERR(priv->grf);
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3288_clk_plat *plat = dev_get_plat(dev);
 

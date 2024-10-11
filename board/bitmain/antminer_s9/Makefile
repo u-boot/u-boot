@@ -6,4 +6,4 @@ obj-y	+= ../../xilinx/common/board.o
 # Remove quotes
 hw-platform-y :=$(shell echo $(CONFIG_DEFAULT_DEVICE_TREE))
 
-obj-$(CONFIG_SPL_BUILD) += $(hw-platform-y)/ps7_init_gpl.o
+obj-$(CONFIG_XPL_BUILD) += $(hw-platform-y)/ps7_init_gpl.o

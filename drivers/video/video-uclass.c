@@ -128,7 +128,7 @@ int video_reserve(ulong *addrp)
 	struct udevice *dev;
 	ulong size;
 
-	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() == PHASE_BOARD_F)
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && xpl_phase() == PHASE_BOARD_F)
 		return 0;
 
 	gd->video_top = *addrp;
@@ -421,7 +421,7 @@ bool video_is_active(void)
 	struct udevice *dev;
 
 	/* Assume video to be active if SPL passed video hand-off to U-boot */
-	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && spl_phase() > PHASE_SPL)
+	if (IS_ENABLED(CONFIG_SPL_VIDEO_HANDOFF) && xpl_phase() > PHASE_SPL)
 		return true;
 
 	for (uclass_find_first_device(UCLASS_VIDEO, &dev);
@@ -573,7 +573,7 @@ static int video_post_probe(struct udevice *dev)
 	 * NOTE:
 	 * This assumes that reserved video memory only uses a single framebuffer
 	 */
-	if (spl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
+	if (xpl_phase() == PHASE_SPL && CONFIG_IS_ENABLED(BLOBLIST)) {
 		struct video_handoff *ho;
 
 		ho = bloblist_add(BLOBLISTT_U_BOOT_VIDEO, sizeof(*ho), 0);

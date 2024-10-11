@@ -72,7 +72,7 @@ bool android_dt_get_fdt_by_index(ulong hdr_addr, u32 index, ulong *addr,
 	return true;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 static void android_dt_print_fdt_info(const struct fdt_header *fdt)
 {
 	u32 fdt_size;

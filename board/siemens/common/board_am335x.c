@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void set_uart_mux_conf(void)
 {
 	enable_uart0_pin_mux();
@@ -52,9 +52,9 @@ void sdram_init(void)
 
 	return;
 }
-#endif /* #ifdef CONFIG_SPL_BUILD */
+#endif /* #ifdef CONFIG_XPL_BUILD */
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
@@ -78,7 +78,7 @@ int board_init(void)
 
 	return 0;
 }
-#endif /* #ifndef CONFIG_SPL_BUILD */
+#endif /* #ifndef CONFIG_XPL_BUILD */
 
 #define OSC	(V_OSCK/1000000)
 const struct dpll_params dpll_ddr = {
@@ -89,7 +89,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return &dpll_ddr;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 #define MAX_NR_LEDS	10
 #define MAX_PIN_NUMBER	128
@@ -247,4 +247,4 @@ U_BOOT_CMD(
 	"Set LEDs defined in environment",
 	"<0|1>"
 );
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */

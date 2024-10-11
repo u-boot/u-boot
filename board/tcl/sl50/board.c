@@ -249,8 +249,8 @@ int board_late_init(void)
 }
 #endif
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -303,10 +303,10 @@ static struct cpsw_platform_data cpsw_data = {
  * when we build an SPL that has neither option but full U-Boot will.
  */
 #if ((defined(CONFIG_SPL_ETH) || defined(CONFIG_SPL_USB_ETHER)) \
-		&& defined(CONFIG_SPL_BUILD)) || \
+		&& defined(CONFIG_XPL_BUILD)) || \
 	((defined(CONFIG_DRIVER_TI_CPSW) || \
 	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
-	 !defined(CONFIG_SPL_BUILD))
+	 !defined(CONFIG_XPL_BUILD))
 int board_eth_init(struct bd_info *bis)
 {
 	int rv, n = 0;
@@ -323,8 +323,8 @@ int board_eth_init(struct bd_info *bis)
 	mac_addr[4] = mac_lo & 0xFF;
 	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
 
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD))
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD))
 	if (!env_get("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
@@ -373,7 +373,7 @@ int board_eth_init(struct bd_info *bis)
 
 #endif
 #if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
+	(!defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
 	if (is_valid_ether_addr(mac_addr))
 		eth_env_set_enetaddr("usbnet_devaddr", mac_addr);
 

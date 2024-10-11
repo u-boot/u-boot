@@ -215,7 +215,7 @@ static int splash_init_virtio(void)
 	}
 }
 
-#if defined(CONFIG_CMD_UBIFS) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_UBIFS) && !defined(CONFIG_XPL_BUILD)
 static int splash_mount_ubifs(struct splash_location *location)
 {
 	int res;

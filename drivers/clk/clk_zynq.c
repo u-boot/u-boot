@@ -43,13 +43,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 enum zynq_clk_rclk {mio_clk, emio_clk};
 #endif
 
 struct zynq_clk_priv {
 	ulong ps_clk_freq;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	struct clk gem_emio_clk[2];
 #endif
 };
@@ -75,7 +75,7 @@ static void *zynq_clk_get_register(enum zynq_clk id)
 		return &slcr_base->uart_clk_ctrl;
 	case spi0_clk ... spi1_clk:
 		return &slcr_base->spi_clk_ctrl;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case dci_clk:
 		return &slcr_base->dci_clk_ctrl;
 	case gem0_clk:
@@ -150,7 +150,7 @@ static ulong zynq_clk_get_pll_rate(struct zynq_clk_priv *priv, enum zynq_clk id)
 	return priv->ps_clk_freq * mul;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static enum zynq_clk_rclk zynq_clk_get_gem_rclk(enum zynq_clk id)
 {
 	u32 clk_ctrl, srcsel;
@@ -199,7 +199,7 @@ static ulong zynq_clk_get_cpu_rate(struct zynq_clk_priv *priv, enum zynq_clk id)
 	return DIV_ROUND_CLOSEST(zynq_clk_get_pll_rate(priv, pll), div);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong zynq_clk_get_ddr2x_rate(struct zynq_clk_priv *priv)
 {
 	u32 clk_ctrl, div;
@@ -223,7 +223,7 @@ static ulong zynq_clk_get_ddr3x_rate(struct zynq_clk_priv *priv)
 	return DIV_ROUND_CLOSEST(zynq_clk_get_pll_rate(priv, ddrpll_clk), div);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong zynq_clk_get_dci_rate(struct zynq_clk_priv *priv)
 {
 	u32 clk_ctrl, div0, div1;
@@ -251,7 +251,7 @@ static ulong zynq_clk_get_peripheral_rate(struct zynq_clk_priv *priv,
 	if (!div0)
 		div0 = 1;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	if (two_divs) {
 		div1 = (clk_ctrl & CLK_CTRL_DIV1_MASK) >> CLK_CTRL_DIV1_SHIFT;
 		if (!div1)
@@ -268,7 +268,7 @@ static ulong zynq_clk_get_peripheral_rate(struct zynq_clk_priv *priv,
 			div1);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong zynq_clk_get_gem_rate(struct zynq_clk_priv *priv, enum zynq_clk id)
 {
 	struct clk *parent;
@@ -366,7 +366,7 @@ static ulong zynq_clk_set_gem_rate(struct zynq_clk_priv *priv, enum zynq_clk id,
 }
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong zynq_clk_get_rate(struct clk *clk)
 {
 	struct zynq_clk_priv *priv = dev_get_priv(clk->dev);
@@ -502,7 +502,7 @@ static void zynq_clk_dump(struct udevice *dev)
 
 static struct clk_ops zynq_clk_ops = {
 	.get_rate = zynq_clk_get_rate,
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	.set_rate = zynq_clk_set_rate,
 #endif
 	.enable = dummy_enable,
@@ -514,7 +514,7 @@ static struct clk_ops zynq_clk_ops = {
 static int zynq_clk_probe(struct udevice *dev)
 {
 	struct zynq_clk_priv *priv = dev_get_priv(dev);
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	unsigned int i;
 	char name[16];
 	int ret;

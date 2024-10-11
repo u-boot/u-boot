@@ -48,7 +48,7 @@ struct image_region *fit_region_make_list(const void *fit,
 	 * Use malloc() except in SPL (to save code size). In SPL the caller
 	 * must allocate the array.
 	 */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) && !region)
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && !region)
 		region = calloc(sizeof(*region), count);
 	if (!region)
 		return NULL;

@@ -245,7 +245,7 @@ void *hab_rvt_authenticate_image(uint8_t cid, ptrdiff_t ivt_offset,
 	return ret;
 }
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 
 #define MAX_RECORD_BYTES     (8*1024) /* 4 kbytes */
 
@@ -727,7 +727,7 @@ U_BOOT_CMD(
 		""
 	  );
 
-#endif /* !defined(CONFIG_SPL_BUILD) */
+#endif /* !defined(CONFIG_XPL_BUILD) */
 
 /* Get CSF Header length */
 static int get_hab_hdr_len(struct hab_hdr *hdr)
@@ -939,7 +939,7 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	puts("Dumping CSF Header\n");
 	print_buffer(ivt->csf, (void *)(uintptr_t)(ivt->csf), 4, 0x10, 0);
 
-#if  !defined(CONFIG_SPL_BUILD)
+#if  !defined(CONFIG_XPL_BUILD)
 	get_hab_status();
 #endif
 
@@ -989,7 +989,7 @@ int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,
 	}
 
 hab_exit_failure_print_status:
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 	get_hab_status();
 #endif
 

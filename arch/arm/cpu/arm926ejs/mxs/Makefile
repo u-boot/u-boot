@@ -3,11 +3,11 @@
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-extra-$(CONFIG_SPL_BUILD) := start.o
+extra-$(CONFIG_XPL_BUILD) := start.o
 
 obj-y	= clock.o mxs.o iomux.o timer.o
 
-ifdef	CONFIG_SPL_BUILD
+ifdef	CONFIG_XPL_BUILD
 obj-y	+= spl_boot.o spl_lradc_init.o spl_mem_init.o spl_power_init.o
 endif
 

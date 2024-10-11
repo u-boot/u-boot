@@ -10,7 +10,7 @@
 #define SY8106A_VOUT1_SEL 1
 #define SY8106A_VOUT1_SEL_ENABLE (1 << 7)
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static u8 sy8106a_mvolt_to_cfg(int mvolt, int min, int max, int div)
 {
 	if (mvolt < min)

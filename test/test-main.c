@@ -47,7 +47,7 @@ enum fdtchk_t {
 static enum fdtchk_t fdt_action(void)
 {
 	/* For sandbox SPL builds, do nothing */
-	if (IS_ENABLED(CONFIG_SANDBOX) && IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_SANDBOX) && IS_ENABLED(CONFIG_XPL_BUILD))
 		return FDTCHK_NONE;
 
 	/* Do a copy for sandbox (but only the U-Boot build, not SPL) */

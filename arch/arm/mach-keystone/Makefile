@@ -10,7 +10,7 @@ obj-y	+= psc.o
 obj-y	+= clock.o
 obj-y	+= mon.o
 CFLAGS_REMOVE_mon.o := $(LTO_CFLAGS)
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-y	+= cmd_clock.o
 obj-y	+= cmd_mon.o
 obj-y	+= cmd_poweroff.o

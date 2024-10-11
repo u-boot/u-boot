@@ -1011,7 +1011,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  * omap_nand_switch_ecc - switch the ECC operation between different engines
  * (h/w and s/w) and different algorithms (hamming and BCHx)
@@ -1072,7 +1072,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 		err = nand_scan_tail(mtd);
 	return err;
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /*
  * Board-specific NAND initialization. The following members of the

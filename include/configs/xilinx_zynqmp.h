@@ -183,7 +183,7 @@
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_DFU)
 #undef CFG_EXTRA_ENV_SETTINGS
 # define CFG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \

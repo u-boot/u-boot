@@ -2,7 +2,7 @@
 # Copyright (C) 2023 PHYTEC Messtechnik GmbH
 # Author: Teresa Remmet <t.remmet@phytec.de>
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 # necessary to create built-in.o
 obj- := __dummy__.o
 endif

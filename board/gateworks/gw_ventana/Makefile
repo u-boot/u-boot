@@ -7,4 +7,4 @@
 #
 
 obj-y  := gw_ventana.o eeprom.o common.o
-obj-$(CONFIG_SPL_BUILD) += gw_ventana_spl.o
+obj-$(CONFIG_XPL_BUILD) += gw_ventana_spl.o

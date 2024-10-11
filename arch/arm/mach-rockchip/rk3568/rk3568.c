@@ -105,7 +105,7 @@ void board_debug_uart_init(void)
 
 int arch_cpu_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * When perform idle operation, corresponding clock can
 	 * be opened or gated automatically.

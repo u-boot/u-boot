@@ -891,7 +891,7 @@ config FEC2_PHY_NORXERR
 
 config SYS_DPAA_QBMAN
 	bool "Device tree fixup for QBMan on freescale SOCs"
-	depends on (ARM || PPC) && !SPL_BUILD
+	depends on ARM || PPC
 	default y if ARCH_B4860 || \
 		     ARCH_B4420 || \
 		     ARCH_P1023 || \

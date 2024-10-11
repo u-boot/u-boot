@@ -66,7 +66,7 @@ enum cpu_attrib {
 /*
  * Default Device Address MAP BAR values
  */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #ifdef CONFIG_ARMADA_38X
 #define MBUS_PCI_MEM_BASE	0x88000000
 #define MBUS_PCI_MEM_SIZE	((3 * 128) << 20)
@@ -81,19 +81,19 @@ enum cpu_attrib {
 #define MBUS_PCI_IO_BASE	0xF1100000
 #define MBUS_PCI_IO_SIZE	((MBUS_PCI_MAX_PORTS * 64) << 10)
 #endif
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define MBUS_SPI_BASE		0xD4000000
 #define MBUS_SPI_SIZE		(64 << 20)
 #else
 #define MBUS_SPI_BASE		0xF4000000
 #define MBUS_SPI_SIZE		(8 << 20)
 #endif
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #define MBUS_DFX_BASE		0xF6000000
 #define MBUS_DFX_SIZE		(1 << 20)
 #endif
 #define MBUS_BOOTROM_BASE	0xF8000000
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define MBUS_BOOTROM_SIZE	(128 << 20)
 #else
 #define MBUS_BOOTROM_SIZE	(8 << 20)

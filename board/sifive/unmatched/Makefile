@@ -4,7 +4,7 @@
 
 obj-$(CONFIG_ID_EEPROM) += hifive-platform-i2c-eeprom.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
 else
 obj-y += unmatched.o

@@ -320,7 +320,7 @@ int upl_read_handoff(struct upl *upl, oftree tree);
 int upl_get_test_data(struct unit_test_state *uts, struct upl *upl);
 #endif /* USE_HOSTCC */
 
-#if CONFIG_IS_ENABLED(UPL) && defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(UPL) && defined(CONFIG_XPL_BUILD)
 
 /**
  * upl_set_fit_info() - Set up basic info about the FIT
@@ -367,7 +367,7 @@ int _upl_add_image(int node, ulong load_addr, ulong size, const char *desc);
 static inline int upl_add_image(const void *fit, int node, ulong load_addr,
 				ulong size)
 {
-	if (CONFIG_IS_ENABLED(UPL) && IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (CONFIG_IS_ENABLED(UPL) && IS_ENABLED(CONFIG_XPL_BUILD)) {
 		const char *desc = fdt_getprop(fit, node, FIT_DESC_PROP, NULL);
 
 		return _upl_add_image(node, load_addr, size, desc);

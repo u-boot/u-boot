@@ -504,15 +504,15 @@ int bloblist_init(void)
 	 * If U-Boot is not in the first phase, an existing bloblist must be
 	 * at a fixed address.
 	 */
-	bool from_addr = fixed && !u_boot_first_phase();
+	bool from_addr = fixed && !xpl_is_first_phase();
 	/*
 	 * If U-Boot is in the first phase that an arch custom routine should
 	 * install the bloblist passed from previous loader to this fixed
 	 * address.
 	 */
-	bool from_boot_arg = fixed && u_boot_first_phase();
+	bool from_boot_arg = fixed && xpl_is_first_phase();
 
-	if (spl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
+	if (xpl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
 		from_addr = false;
 	if (fixed)
 		addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,

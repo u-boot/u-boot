@@ -92,7 +92,7 @@
 /* SPL */
 #ifdef CONFIG_SPL
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define CFG_SYS_FSL_USDHC_NUM 2
 
 #ifdef CONFIG_SYS_BOOT_EMMC

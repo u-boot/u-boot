@@ -184,9 +184,9 @@ int arch_cpu_init(void)
 {
 	int ret = 0;
 
-	if (spl_phase() == PHASE_TPL)
+	if (xpl_phase() == PHASE_TPL)
 		ret = arch_cpu_init_tpl();
-	else if (spl_phase() == PHASE_SPL)
+	else if (xpl_phase() == PHASE_SPL)
 		ret = arch_cpu_init_spl();
 	if (ret)
 		printf("%s: Error %d\n", __func__, ret);

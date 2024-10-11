@@ -180,7 +180,7 @@ int arch_cpu_init(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int do_bridge(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {

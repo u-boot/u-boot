@@ -122,7 +122,7 @@ static struct mm_region early_map[] = {
 	{ CFG_SYS_FSL_DRAM_BASE1, CFG_SYS_FSL_DRAM_BASE1,
 	  CFG_SYS_FSL_DRAM_SIZE1,
 #if defined(CONFIG_TFABOOT) || \
-	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL) && !defined(CONFIG_XPL_BUILD))
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #else	/* Start with nGnRnE and PXN and UXN to prevent speculative access */
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_PXN | PTE_BLOCK_UXN |
@@ -181,7 +181,7 @@ static struct mm_region early_map[] = {
 	{ CFG_SYS_FSL_DRAM_BASE1, CFG_SYS_FSL_DRAM_BASE1,
 	  CFG_SYS_FSL_DRAM_SIZE1,
 #if defined(CONFIG_TFABOOT) || \
-	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD))
+	(defined(CONFIG_SPL) && !defined(CONFIG_XPL_BUILD))
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #else	/* Start with nGnRnE and PXN and UXN to prevent speculative access */
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_PXN | PTE_BLOCK_UXN |
@@ -1055,7 +1055,7 @@ int cpu_eth_init(struct bd_info *bis)
 {
 	int error = 0;
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 	error = fsl_mc_ldpaa_init(bis);
 #endif
 	return error;
@@ -1285,7 +1285,7 @@ phys_size_t board_reserve_ram_top(phys_size_t ram_size)
 {
 	phys_size_t ram_top = ram_size;
 
-#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_XPL_BUILD)
 	ram_top = mc_get_dram_block_size();
 	if (ram_top > ram_size)
 		return ram_size + ram_top;
@@ -1381,7 +1381,7 @@ static int tfa_dram_init_banksize(void)
 	if (i > 0)
 		ret = 0;
 
-#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_XPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1467,7 +1467,7 @@ int dram_init_banksize(void)
 	}
 #endif	/* CFG_SYS_MEM_RESERVE_SECURE */
 
-#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_RESV_RAM) && !defined(CONFIG_XPL_BUILD)
 	/* Assign memory for MC */
 #ifdef CONFIG_SYS_DDR_BLOCK3_BASE
 	if (gd->bd->bi_dram[2].size >=
@@ -1624,7 +1624,7 @@ __weak int dram_init(void)
 #ifdef CONFIG_SYS_FSL_DDR
 	fsl_initdram();
 #if (!defined(CONFIG_SPL) && !defined(CONFIG_TFABOOT)) || \
-	defined(CONFIG_SPL_BUILD)
+	defined(CONFIG_XPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
 #endif

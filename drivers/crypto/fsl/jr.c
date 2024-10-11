@@ -713,7 +713,7 @@ int sec_init_idx(uint8_t sec_idx)
 
 	ccsr_sec_t *sec = caam->sec;
 	uint32_t mcr = sec_in32(&sec->mcfgr);
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_IMX8M)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_IMX8M)
 	uint32_t jrdid_ms = 0;
 #endif
 #ifdef CONFIG_FSL_CORENET
@@ -745,14 +745,14 @@ int sec_init_idx(uint8_t sec_idx)
 	mcr |= (1 << MCFGR_PS_SHIFT);
 #endif
 	sec_out32(&sec->mcfgr, mcr);
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_IMX8M)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_IMX8M)
 	jrdid_ms = JRDID_MS_TZ_OWN | JRDID_MS_PRIM_TZ | JRDID_MS_PRIM_DID;
 	sec_out32(&sec->jrliodnr[caam->jrid].ms, jrdid_ms);
 #endif
 	jr_reset();
 
 #ifdef CONFIG_FSL_CORENET
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * For SPL Build, Set the Liodns in SEC JR0 for
 	 * creating PAMU entries corresponding to these.

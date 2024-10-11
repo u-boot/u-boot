@@ -57,7 +57,7 @@
 /* Could be ASPEN, BIRCH or CHESTNUT. assume CHESTNUT */
 #define BOARD_REV_UNKNOWN	BOARD_REV_CHESTNUT
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static const iomux_v3_cfg_t configure_pads[] = {
 	IMX8MQ_PAD_GPIO1_IO00__GPIO1_IO0 | MUX_PAD_CTRL(PAD_CTL_DSE6),
 	IMX8MQ_PAD_GPIO1_IO03__GPIO1_IO3 | MUX_PAD_CTRL(PAD_CTL_DSE6) | MUX_MODE_SION,
@@ -151,7 +151,7 @@ static inline void init_pinmux(void)
 	gpio_direction_output(AUDIO_EN, 1);
 	gpio_direction_output(DSI_EN, 1);
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #define USB1_BASE_ADDR         0x38100000
 #define USB2_BASE_ADDR         0x38200000

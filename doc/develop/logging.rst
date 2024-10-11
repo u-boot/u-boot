@@ -292,7 +292,7 @@ Convert debug() statements in the code to log() statements
 
 Convert error() statements in the code to log() statements
 
-Figure out what to do with BUG(), BUG_ON() and warn_non_spl()
+Figure out what to do with BUG(), BUG_ON() and warn_non_xpl()
 
 Add a way to browse log records
 

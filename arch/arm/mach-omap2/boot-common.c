@@ -173,7 +173,7 @@ void save_omap_boot_params(void)
 #endif
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 u32 spl_boot_device(void)
 {
 	return gd->arch.omap_boot_device;
@@ -208,7 +208,7 @@ void spl_boot_ipu(void)
 	int ret, size;
 	u32 loadaddr = IPU1_LOAD_ADDR;
 
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) ||
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) ||
 	    !IS_ENABLED(CONFIG_REMOTEPROC_TI_IPU))
 		return;
 
@@ -286,7 +286,7 @@ void spl_soc_init(void)
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	hw_watchdog_init();
 #endif
-	if (IS_ENABLED(CONFIG_SPL_BUILD) &&
+	if (IS_ENABLED(CONFIG_XPL_BUILD) &&
 	    IS_ENABLED(CONFIG_REMOTEPROC_TI_IPU))
 		spl_boot_ipu();
 }

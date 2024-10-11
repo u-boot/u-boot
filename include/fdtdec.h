@@ -143,7 +143,7 @@ extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 static inline u8 *dtb_dt_embedded(void)
 {
 #ifdef CONFIG_OF_EMBED
-# ifdef CONFIG_SPL_BUILD
+# ifdef CONFIG_XPL_BUILD
 	return __dtb_dt_spl_begin;
 # else
 	return __dtb_dt_begin;

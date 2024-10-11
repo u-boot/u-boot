@@ -18,7 +18,7 @@ extern char *strchr(const char *s, int c);
  * Our assembly routines do not work on in 64-bit mode and we don't do a lot of
  * copying in SPL, so code size is more important there.
  */
-#if defined(CONFIG_SPL_BUILD) || !IS_ENABLED(CONFIG_X86_32BIT_INIT)
+#if defined(CONFIG_XPL_BUILD) || !IS_ENABLED(CONFIG_X86_32BIT_INIT)
 
 #undef __HAVE_ARCH_MEMCPY
 extern void *memcpy(void *, const void *, __kernel_size_t);

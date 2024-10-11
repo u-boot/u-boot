@@ -68,7 +68,7 @@ static int dwmac_socfpga_do_setphy(struct udevice *dev, u32 modereg)
 	struct dwmac_socfpga_plat *pdata = dev_get_plat(dev);
 	u32 modemask = SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << pdata->reg_shift;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
 	u32 index = ((u64)pdata->phy_intf - socfpga_get_sysmgr_addr() -
 		     SYSMGR_SOC64_EMAC0) >> 2;
 

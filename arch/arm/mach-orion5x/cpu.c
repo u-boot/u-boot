@@ -235,7 +235,7 @@ int arch_cpu_init(void)
 	/* Enable and invalidate L2 cache in write through mode */
 	invalidate_l2_cache();
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	orion5x_config_adr_windows();
 #endif
 

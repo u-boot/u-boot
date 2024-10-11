@@ -40,7 +40,7 @@ int board_late_init(void)
 	ulong max_size;
 	u32 status = 0;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SYSRESET_MICROBLAZE)
 	int ret;
 
 	ret = device_bind_driver(gd->dm_root, "mb_soft_reset",

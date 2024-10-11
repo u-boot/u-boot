@@ -235,7 +235,7 @@ void reset_cpu(void)
 {
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /* LED's */
 static int board_led_init(void)
 {
@@ -265,7 +265,7 @@ static int board_led_init(void)
 	mdelay(1);
 	return ret;
 }
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */
 
 int checkboard(void)
 {
@@ -335,7 +335,7 @@ void board_late_mmc_env_init(void)
 	run_command(cmd, 0);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int load_parameters_from_factoryset(void)
 {
 	int ret;
@@ -443,4 +443,4 @@ U_BOOT_CMD(
 	"Reset eth phy",
 	"[print]"
 );
-#endif /* ! CONFIG_SPL_BUILD */
+#endif /* ! CONFIG_XPL_BUILD */

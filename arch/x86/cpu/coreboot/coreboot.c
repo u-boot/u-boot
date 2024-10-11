@@ -82,7 +82,7 @@ static void board_final_init(void)
 
 static int last_stage_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return 0;
 
 	board_final_init();

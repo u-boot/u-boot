@@ -179,7 +179,7 @@ void cpu_init_early_f(void *fdt)
 	invalidate_tlb(1);
 
 #if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && \
-	!(CONFIG_IS_ENABLED(INIT_MINIMAL) && defined(CONFIG_SPL_BUILD)) && \
+	!(CONFIG_IS_ENABLED(INIT_MINIMAL) && defined(CONFIG_XPL_BUILD)) && \
 	!defined(CONFIG_NAND_SPL)
 	disable_tlb(CONFIG_SYS_PPC_E500_DEBUG_TLB);
 #endif

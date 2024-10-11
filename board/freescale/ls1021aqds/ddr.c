@@ -172,14 +172,14 @@ int fsl_initdram(void)
 {
 	phys_size_t dram_size;
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_SPL)
 	puts("Initializing DDR....using SPD\n");
 	dram_size = fsl_ddr_sdram();
 #else
 	dram_size =  fsl_ddr_sdram_size();
 #endif
 
-#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_XPL_BUILD)
 	fsl_dp_resume();
 #endif
 

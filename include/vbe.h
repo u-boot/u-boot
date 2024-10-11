@@ -41,7 +41,7 @@ struct vbe_handoff {
  */
 static inline enum vbe_phase_t vbe_phase(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return VBE_PHASE_FIRMWARE;
 
 	return VBE_PHASE_OS;

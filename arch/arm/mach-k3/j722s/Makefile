@@ -4,4 +4,4 @@
 #	Jayesh Choudhary <j-choudhary@ti.com>
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += j722s_fdt.o
-obj-$(CONFIG_SPL_BUILD) += j722s_init.o
+obj-$(CONFIG_XPL_BUILD) += j722s_init.o

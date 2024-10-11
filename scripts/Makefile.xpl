@@ -20,11 +20,21 @@ _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 include $(srctree)/scripts/Kbuild.include
 
 -include include/config/auto.conf
+
+# This file contains 0, or 2 lines
+# It is empty for U-Boot proper (where $(obj) is empty)
+# For any xPL build it contains CONFIG_XPL_BUILD=y
+#    - for SPL builds it also contains CONFIG_SPL_BUILD=y
+#    - for TPL builds it also contains CONFIG_TPL_BUILD=y
+#    - for VPL builds it also contains CONFIG_VPL_BUILD=y
 -include $(obj)/include/autoconf.mk
 
 UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
 
+KBUILD_CPPFLAGS += -DCONFIG_XPL_BUILD
+ifeq ($(CONFIG_SPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
+endif
 ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
 else
@@ -48,20 +58,20 @@ endif
 
 export SPL_NAME
 
-ifdef CONFIG_SPL_BUILD
-SPL_ := SPL_
+ifdef CONFIG_XPL_BUILD
+XPL_ := SPL_
 ifeq ($(CONFIG_VPL_BUILD),y)
-SPL_TPL_ := VPL_
+PHASE_ := VPL_
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
-SPL_TPL_ := TPL_
+PHASE_ := TPL_
 else
-SPL_TPL_ := SPL_
+PHASE_ := SPL_
 endif
 endif
 else
-SPL_ :=
-SPL_TPL_ :=
+XPL_ :=
+PHASE_ :=
 endif
 
 ifeq ($(obj)$(CONFIG_SUPPORT_SPL),spl)
@@ -83,7 +93,7 @@ include $(srctree)/scripts/Makefile.lib
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
 
-ifeq ($(CONFIG_$(SPL_TPL_)STACKPROTECTOR),y)
+ifeq ($(CONFIG_$(PHASE_)STACKPROTECTOR),y)
 KBUILD_CFLAGS += -fstack-protector-strong
 else
 KBUILD_CFLAGS += -fno-stack-protector
@@ -107,8 +117,8 @@ endif
 libs-y += common/init/
 
 # Special handling for a few options which support SPL/TPL/VPL
-libs-$(CONFIG_$(SPL_TPL_)LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
-libs-$(CONFIG_$(SPL_TPL_)LIBGENERIC_SUPPORT) += lib/
+libs-$(CONFIG_$(PHASE_)LIBCOMMON_SUPPORT) += boot/ common/ cmd/ env/
+libs-$(CONFIG_$(PHASE_)LIBGENERIC_SUPPORT) += lib/
 ifdef CONFIG_SPL_FRAMEWORK
 libs-$(CONFIG_PARTITIONS) += disk/
 endif
@@ -121,7 +131,7 @@ libs-y += dts/
 libs-y += fs/
 libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
 libs-$(CONFIG_SPL_NET) += net/
-libs-$(CONFIG_$(SPL_TPL_)UNIT_TEST) += test/
+libs-$(CONFIG_$(PHASE_)UNIT_TEST) += test/
 
 head-y		:= $(addprefix $(obj)/,$(head-y))
 libs-y		:= $(addprefix $(obj)/,$(libs-y))
@@ -137,12 +147,12 @@ endif
 
 u-boot-spl-init := $(head-y)
 u-boot-spl-main := $(libs-y)
-ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA
+ifdef CONFIG_$(PHASE_)OF_PLATDATA
 platdata-hdr := include/generated/dt-structs-gen.h include/generated/dt-decl.h
 platdata-inst := $(obj)/dts/dt-uclass.o $(obj)/dts/dt-device.o
 platdata-noinst := $(obj)/dts/dt-plat.o
 
-ifdef CONFIG_$(SPL_TPL_)OF_PLATDATA_INST
+ifdef CONFIG_$(PHASE_)OF_PLATDATA_INST
 u-boot-spl-platdata := $(platdata-inst)
 u-boot-spl-old-platdata := $(platdata-noinst)
 else
@@ -159,9 +169,9 @@ endif  # OF_PLATDATA
 
 # Linker Script
 # First test whether there's a linker-script for the specific stage defined...
-ifneq ($(CONFIG_$(SPL_TPL_)LDSCRIPT),)
+ifneq ($(CONFIG_$(PHASE_)LDSCRIPT),)
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_$(SPL_TPL_)LDSCRIPT:"%"=%))
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_$(PHASE_)LDSCRIPT:"%"=%))
 else
 # ...then fall back to the generic SPL linker-script
 ifneq ($(CONFIG_SPL_LDSCRIPT),)
@@ -195,11 +205,11 @@ LDPPFLAGS += \
 
 # Turn various CONFIG symbols into IMAGE symbols for easy reuse of
 # the scripts between SPL, TPL and VPL.
-ifneq ($(CONFIG_$(SPL_TPL_)MAX_SIZE),0x0)
-LDPPFLAGS += -DIMAGE_MAX_SIZE=$(CONFIG_$(SPL_TPL_)MAX_SIZE)
+ifneq ($(CONFIG_$(PHASE_)MAX_SIZE),0x0)
+LDPPFLAGS += -DIMAGE_MAX_SIZE=$(CONFIG_$(PHASE_)MAX_SIZE)
 endif
-ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
-LDPPFLAGS += -DIMAGE_TEXT_BASE=$(CONFIG_$(SPL_TPL_)TEXT_BASE)
+ifneq ($(CONFIG_$(PHASE_)TEXT_BASE),)
+LDPPFLAGS += -DIMAGE_TEXT_BASE=$(CONFIG_$(PHASE_)TEXT_BASE)
 endif
 
 MKIMAGEOUTPUT ?= /dev/null
@@ -313,7 +323,7 @@ endif
 #   - OF_REAL is enabled
 #   - we have either OF_SEPARATE or OF_HOSTFILE
 build_dtb :=
-ifneq ($(CONFIG_$(SPL_TPL_)OF_REAL),)
+ifneq ($(CONFIG_$(PHASE_)OF_REAL),)
 ifneq ($(CONFIG_OF_SEPARATE)$(CONFIG_SANDBOX),)
 build_dtb := y
 endif
@@ -321,7 +331,7 @@ endif
 
 ifneq ($(build_dtb),)
 $(obj)/$(SPL_BIN)-dtb.bin: $(obj)/$(SPL_BIN)-nodtb.bin \
-		$(if $(CONFIG_$(SPL_TPL_)SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
+		$(if $(CONFIG_$(PHASE_)SEPARATE_BSS),,$(obj)/$(SPL_BIN)-pad.bin) \
 		$(FINAL_DTB_CONTAINER)  FORCE
 	$(call if_changed,cat)
 
@@ -345,7 +355,7 @@ pythonpath = PYTHONPATH=scripts/dtc/pylibfdt
 DTOC_ARGS := $(pythonpath) $(srctree)/tools/dtoc/dtoc \
 	-d $(obj)/$(SPL_BIN).dtb -p $(SPL_NAME)
 
-ifneq ($(CONFIG_$(SPL_TPL_)OF_PLATDATA_INST),)
+ifneq ($(CONFIG_$(PHASE_)OF_PLATDATA_INST),)
 DTOC_ARGS += -i
 endif
 
@@ -390,7 +400,7 @@ quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
 OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary \
-		$(if $(CONFIG_$(SPL_TPL_)X86_16BIT_INIT),-R .start16 -R .resetvec)
+		$(if $(CONFIG_$(PHASE_)X86_16BIT_INIT),-R .start16 -R .resetvec)
 
 $(obj)/$(SPL_BIN)-nodtb.bin: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,objcopy)
@@ -419,8 +429,8 @@ LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
 LDFLAGS_$(SPL_BIN) += --build-id=none
 
 # Pick the best match (e.g. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
-ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
-LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(SPL_TPL_)TEXT_BASE)
+ifneq ($(CONFIG_$(PHASE_)TEXT_BASE),)
+LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(PHASE_)TEXT_BASE)
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_ARRIA10

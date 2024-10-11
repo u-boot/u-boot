@@ -289,7 +289,7 @@ static inline int arasan_zynqmp_set_in_tapdelay(u32 node_id, u32 itap_delay)
 {
 	int ret;
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3) {
 		if (node_id == NODE_SD_0) {
 			ret = zynqmp_mmio_write(SD_ITAP_DLY, SD0_ITAPCHGWIN,
 						SD0_ITAPCHGWIN);
@@ -339,7 +339,7 @@ static inline int arasan_zynqmp_set_in_tapdelay(u32 node_id, u32 itap_delay)
 
 static inline int arasan_zynqmp_set_out_tapdelay(u32 node_id, u32 otap_delay)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3) {
 		if (node_id == NODE_SD_0)
 			return zynqmp_mmio_write(SD_OTAP_DLY,
 						 SD0_OTAPDLYSEL_MASK,
@@ -356,7 +356,7 @@ static inline int arasan_zynqmp_set_out_tapdelay(u32 node_id, u32 otap_delay)
 
 static inline int zynqmp_dll_reset(u32 node_id, u32 type)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD) || current_el() == 3) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD) || current_el() == 3) {
 		if (node_id == NODE_SD_0)
 			return zynqmp_mmio_write(SD_DLL_CTRL, SD0_DLL_RST,
 						 type == PM_DLL_RESET_ASSERT ?
