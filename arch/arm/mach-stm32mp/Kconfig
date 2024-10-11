@@ -39,6 +39,7 @@ choice
 
 config STM32MP13X
 	bool "Support STMicroelectronics STM32MP13x Soc"
+	select ARCH_EARLY_INIT_R
 	select ARM_SMCCC
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
@@ -57,6 +58,7 @@ config STM32MP13X
 
 config STM32MP15X
 	bool "Support STMicroelectronics STM32MP15x Soc"
+	select ARCH_EARLY_INIT_R
 	select ARCH_SUPPORT_PSCI
 	select BINMAN
 	select CPU_V7A

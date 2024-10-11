@@ -143,6 +143,11 @@ void enable_caches(void)
 {
 	/* I-cache is already enabled in start.S: icache_enable() not needed */
 
+	/* keep D-cache configuration done before relocation, wait arch_early_init_r*/
+}
+
+int arch_early_init_r(void)
+{
 	/* deactivate the data cache, early enabled in arch_cpu_init() */
 	dcache_disable();
 	/*
@@ -150,6 +155,8 @@ void enable_caches(void)
 	 * warning: the TLB location udpated in board_f.c::reserve_mmu
 	 */
 	dcache_enable();
+
+	return 0;
 }
 
 static void setup_boot_mode(void)
