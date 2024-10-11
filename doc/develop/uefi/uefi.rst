@@ -323,7 +323,7 @@ Capsule with firmware version
 
 The UEFI specification does not define the firmware versioning mechanism.
 EDK II reference implementation inserts the FMP Payload Header right before
-the payload. It coutains the fw_version and lowest supported version,
+the payload. It contains the fw_version and lowest supported version,
 EDK II reference implementation uses these information to implement the
 firmware versioning and anti-rollback protection, the firmware version and
 lowest supported version is stored into EFI non-volatile variable.
