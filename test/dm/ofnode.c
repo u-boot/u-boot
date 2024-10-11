@@ -614,6 +614,15 @@ static int dm_test_ofnode_options(struct unit_test_state *uts)
 	u64 bootscr_address, bootscr_offset;
 	u64 bootscr_flash_offset, bootscr_flash_size;
 
+	ut_assert(!ofnode_options_read_bool("missing"));
+	ut_assert(ofnode_options_read_bool("testing-bool"));
+
+	ut_asserteq(123, ofnode_options_read_int("testing-int", 0));
+	ut_asserteq(6, ofnode_options_read_int("missing", 6));
+
+	ut_assertnull(ofnode_options_read_str("missing"));
+	ut_asserteq_str("testing", ofnode_options_read_str("testing-str"));
+
 	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
 						   &bootscr_offset));
 	ut_asserteq_64(0, bootscr_address);

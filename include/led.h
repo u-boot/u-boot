@@ -9,6 +9,47 @@
 
 #include <stdbool.h>
 #include <cyclic.h>
+#include <dm/ofnode.h>
+
+/**
+ * DOC: Overview
+ *
+ * Generic LED API provided when a supported compatible is defined in DeviceTree.
+ *
+ * To enable support for LEDs, enable the `CONFIG_LED` Kconfig option.
+ *
+ * The most common implementation is for GPIO-connected LEDs. If using GPIO-connected LEDs,
+ * enable the `LED_GPIO` Kconfig option.
+ *
+ * `LED_BLINK` support requires LED driver support and is therefore optional. If LED blink
+ * functionality is needed, enable the `LED_BLINK` Kconfig option. If LED driver doesn't
+ * support HW Blink, SW Blink can be used with the Cyclic framework by enabling the
+ * CONFIG_LED_SW_BLINK.
+ *
+ * Boot and Activity LEDs are also supported. These LEDs can signal various system operations
+ * during runtime, such as boot initialization, file transfers, and flash write/erase operations.
+ *
+ * To enable a Boot LED, enable `CONFIG_LED_BOOT` and define in `/options/u-boot` root node the
+ * property `boot-led`. This will enable the specified LED to blink and turn ON when
+ * the bootloader initializes correctly.
+ *
+ * To enable an Activity LED, enable `CONFIG_LED_ACTIVITY` and define in `/options/u-boot` root
+ * node the property `activity-led`.
+ * This will enable the specified LED to blink and turn ON during file transfers or flash
+ * write/erase operations.
+ *
+ * Both Boot and Activity LEDs provide a simple API to turn the LED ON or OFF:
+ * `led_boot_on()`, `led_boot_off()`, `led_activity_on()`, and `led_activity_off()`.
+ *
+ * Both configurations can optionally define a `boot/activity-led-period` property
+ * if `CONFIG_LED_BLINK` or `CONFIG_LED_SW_BLINK` is enabled for LED blink operations, which
+ * is usually used by the Activity LED. If not defined the default value of 250 (ms) is used.
+ *
+ * When `CONFIG_LED_BLINK` or `CONFIG_LED_SW_BLINK` is enabled, additional APIs are exposed:
+ * `led_boot_blink()` and `led_activity_blink()`. Note that if `CONFIG_LED_BLINK` or
+ * `CONFIG_LED_SW_BLINK` is disabled, these APIs will behave like the `led_boot_on()` and
+ * `led_activity_on()` APIs, respectively.
+ */
 
 struct udevice;
 
@@ -40,6 +81,7 @@ struct led_sw_blink {
  *
  * @label:	LED label
  * @default_state:	LED default state
+ * @sw_blink:	LED software blink struct
  */
 struct led_uc_plat {
 	const char *label;
@@ -52,10 +94,22 @@ struct led_uc_plat {
 /**
  * struct led_uc_priv - Private data the uclass stores about each device
  *
- * @period_ms:	Flash period in milliseconds
+ * @boot_led_label:	Boot LED label
+ * @activity_led_label:	Activity LED label
+ * @boot_led_dev:	Boot LED dev
+ * @activity_led_dev:	Activity LED dev
+ * @boot_led_period:	Boot LED blink period
+ * @activity_led_period: Activity LED blink period
  */
 struct led_uc_priv {
-	int period_ms;
+#ifdef CONFIG_LED_BOOT
+	const char *boot_led_label;
+	int boot_led_period;
+#endif
+#ifdef CONFIG_LED_ACTIVITY
+	const char *activity_led_label;
+	int activity_led_period;
+#endif
 };
 
 struct led_ops {
@@ -140,5 +194,94 @@ int led_bind_generic(struct udevice *parent, const char *driver_name);
 int led_sw_set_period(struct udevice *dev, int period_ms);
 bool led_sw_is_blinking(struct udevice *dev);
 bool led_sw_on_state_change(struct udevice *dev, enum led_state_t state);
+
+#ifdef CONFIG_LED_BOOT
+
+/**
+ * led_boot_on() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_on(void);
+
+/**
+ * led_boot_off() - turn OFF the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_off(void);
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+/**
+ * led_boot_blink() - turn ON the designated LED for booting
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_boot_blink(void);
+
+#else
+/* If LED BLINK is not supported/enabled, fallback to LED ON */
+#define led_boot_blink led_boot_on
+#endif
+#else
+static inline int led_boot_on(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_boot_off(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_boot_blink(void)
+{
+	return -ENOSYS;
+}
+#endif
+
+#ifdef CONFIG_LED_ACTIVITY
+
+/**
+ * led_activity_on() - turn ON the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_on(void);
+
+/**
+ * led_activity_off() - turn OFF the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_off(void);
+
+#if defined(CONFIG_LED_BLINK) || defined(CONFIG_LED_SW_BLINK)
+/**
+ * led_activity_blink() - turn ON the designated LED for activity
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int led_activity_blink(void);
+#else
+/* If LED BLINK is not supported/enabled, fallback to LED ON */
+#define led_activity_blink led_activity_on
+#endif
+#else
+static inline int led_activity_on(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_activity_off(void)
+{
+	return -ENOSYS;
+}
+
+static inline int led_activity_blink(void)
+{
+	return -ENOSYS;
+}
+#endif
 
 #endif

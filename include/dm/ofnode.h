@@ -1588,6 +1588,47 @@ int ofnode_conf_read_int(const char *prop_name, int default_val);
 const char *ofnode_conf_read_str(const char *prop_name);
 
 /**
+ * ofnode_options_read_bool() - Read a boolean value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name:	property name to look up
+ * Return: true, if it exists, false if not
+ */
+bool ofnode_options_read_bool(const char *prop_name);
+
+/**
+ * ofnode_options_read_int() - Read an integer value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * @default_val: default value to return if the property is not found
+ * Return: integer value, if found, or @default_val if not
+ */
+int ofnode_options_read_int(const char *prop_name, int default_val);
+
+/**
+ * ofnode_options_read_str() - Read a string value from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * Return: string value, if found, or NULL if not
+ */
+const char *ofnode_options_read_str(const char *prop_name);
+
+/**
  * ofnode_read_bootscript_address() - Read bootscr-address or bootscr-ram-offset
  *
  * @bootscr_address: pointer to 64bit address where bootscr-address property value
