@@ -25,8 +25,11 @@ int optee_get_reserved_memory(u32 *start, u32 *size)
 	ofnode node;
 
 	node = ofnode_path("/reserved-memory/optee");
-	if (!ofnode_valid(node))
-		return -ENOENT;
+	if (!ofnode_valid(node)) {
+		node = ofnode_path("/reserved-memory/optee_core");
+		if (!ofnode_valid(node))
+			return -ENOENT;
+	}
 
 	fdt_start = ofnode_get_addr_size(node, "reg", &fdt_mem_size);
 	*start = fdt_start;
