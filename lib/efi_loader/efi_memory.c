@@ -810,16 +810,6 @@ static void add_u_boot_and_runtime(void)
 {
 	unsigned long runtime_start, runtime_end, runtime_pages;
 	unsigned long runtime_mask = EFI_PAGE_MASK;
-	unsigned long uboot_start, uboot_pages;
-	unsigned long uboot_stack_size = CONFIG_STACK_SIZE;
-
-	/* Add U-Boot */
-	uboot_start = ((uintptr_t)map_sysmem(gd->start_addr_sp, 0) -
-		       uboot_stack_size) & ~EFI_PAGE_MASK;
-	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
-		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
-	efi_add_memory_map_pg(uboot_start, uboot_pages, EFI_BOOT_SERVICES_CODE,
-			      true);
 
 #if defined(__aarch64__)
 	/*
