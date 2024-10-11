@@ -165,6 +165,10 @@ Pointers
 	* phys_size_t
 	* resource_size_t
 
+%pbl
+        '%pbl' outputs a bitmap as range list with field width as
+        the number of bits. e.g. '0,8-11,13-16,18-19,22-25,27,29,31'
+
 %pD
         prints a UEFI device path
 

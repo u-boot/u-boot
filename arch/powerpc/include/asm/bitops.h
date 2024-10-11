@@ -160,6 +160,7 @@ static __inline__ int ffz(unsigned int x)
 		return 32;
 	return __ilog2(x & -x);
 }
+#define PLATFORM_FFZ
 
 /*
  * fls: find last (most-significant) bit set.
@@ -234,8 +235,11 @@ static __inline__ int ffs(int x)
 #define find_first_zero_bit(addr, size) \
 	find_next_zero_bit((addr), (size), 0)
 
-static __inline__ unsigned long find_next_zero_bit(void * addr,
-	unsigned long size, unsigned long offset)
+#define find_next_zero_bit __arch_find_next_zero_bit
+
+static __inline__ unsigned long __arch_find_next_zero_bit(const unsigned long *addr,
+							  unsigned long size,
+							  unsigned long offset)
 {
 	unsigned int * p = ((unsigned int *) addr) + (offset >> 5);
 	unsigned int result = offset & ~31UL;

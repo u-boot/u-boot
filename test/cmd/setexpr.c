@@ -472,6 +472,28 @@ static int setexpr_test_fmt(struct unit_test_state *uts)
 	ut_asserteq(1, run_command("setexpr fred fmt hello% bf", 0));
 	/* Error exceeding maximum string length */
 	ut_asserteq(1, run_command("setexpr fred fmt \"%0128d\" 456", 0));
+	/* Test bitmask long string */
+	ut_assertok(run_command("setexpr fred fmt isolcpu=%64pbl 0x1F1", 0));
+	ut_asserteq_str("isolcpu=0,4-8", env_get("fred"));
+	/* Test bitmask long string (more complicated) */
+	ut_assertok(run_command("setexpr fred fmt nohz_full=%32pbl 0x55555555", 0));
+	ut_asserteq_str("nohz_full=0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30", env_get("fred"));
+	ut_assertok(run_command("setexpr fred fmt %64pbl 0xdeadbeef", 0));
+	ut_asserteq_str("0-3,5-7,9-13,15-16,18-19,21,23,25-28,30-31", env_get("fred"));
+	/* Test bitmask on 64...256 */
+	ut_assertok(run_command("setexpr fred fmt %64pbl 0xf0f0f0f0f0f0f0f0", 0));
+	ut_asserteq_str("4-7,12-15,20-23,28-31,36-39,44-47,52-55,60-63", env_get("fred"));
+	ut_assertok(run_command("setexpr fred fmt %128pbl 0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0", 0));
+	ut_asserteq_str("4-7,12-15,20-23,28-31,36-39,44-47,52-55,60-63,68-71,76-79,84-87,92-95,100-103,108-111,116-119,124-127", env_get("fred"));
+	/* clear lower bitmask, otherwise output gets truncated */
+	ut_assertok(run_command("setexpr fred fmt %256pbl 0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f000000000000000000000000000000000", 0));
+	ut_asserteq_str("132-135,140-143,148-151,156-159,164-167,172-175,180-183,188-191,196-199,204-207,212-215,220-223,228-231,236-239,244-247,252-255", env_get("fred"));
+	/* Test memory access */
+	memset(buf, 0, BUF_SIZE);
+	ut_assertok(run_command("env set myaddr 0x0;"
+							"mw.l $myaddr 0xdeadbeef 1;"
+							"setexpr fred fmt %64pbl *$myaddr", 0));
+	ut_asserteq_str("0-3,5-7,9-13,15-16,18-19,21,23,25-28,30-31", env_get("fred"));
 
 	unmap_sysmem(buf);
 

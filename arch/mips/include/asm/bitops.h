@@ -576,6 +576,7 @@ static __inline__ int test_bit(int nr, const volatile void *addr)
 
 /* Little endian versions. */
 
+#define find_first_zero_bit __arch_find_first_zero_bit
 /*
  * find_first_zero_bit - find the first zero bit in a memory region
  * @addr: The address to start the search at
@@ -584,7 +585,8 @@ static __inline__ int test_bit(int nr, const volatile void *addr)
  * Returns the bit-number of the first zero bit, not the number of the byte
  * containing a bit.
  */
-static __inline__ int find_first_zero_bit (void *addr, unsigned size)
+static __inline__ int __arch_find_first_zero_bit (const void *addr,
+						  unsigned long size)
 {
 	unsigned long dummy;
 	int res;
@@ -629,13 +631,17 @@ static __inline__ int find_first_zero_bit (void *addr, unsigned size)
 	return res;
 }
 
+#define find_next_zero_bit __arch_find_next_zero_bit
+
 /*
  * find_next_zero_bit - find the first zero bit in a memory region
  * @addr: The address to base the search on
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+static __inline__ int __arch_find_next_zero_bit(const unsigned long *addr,
+						unsigned long size,
+						unsigned long offset)
 {
 	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
 	int set = 0, bit = offset & 31, res;
@@ -704,6 +710,7 @@ static __inline__ unsigned long ffz(unsigned long word)
 
 	return __res;
 }
+#define PLATFORM_FFZ
 
 #ifdef __KERNEL__
 
@@ -721,13 +728,17 @@ static __inline__ unsigned long ffz(unsigned long word)
 #endif /* __KERNEL__ */
 
 #ifdef __MIPSEB__
+
+#define find_next_zero_bit __arch_find_next_zero_bit
 /*
  * find_next_zero_bit - find the first zero bit in a memory region
  * @addr: The address to base the search on
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-static __inline__ int find_next_zero_bit(void *addr, int size, int offset)
+static __inline__ int __arch_find_next_zero_bit(const unsigned long *addr,
+						unsigned long size,
+						unsigned long offset)
 {
 	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
 	unsigned long result = offset & ~31UL;

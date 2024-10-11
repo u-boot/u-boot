@@ -84,11 +84,13 @@
  * We try to be compatible.
  */
 
+#include <command.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <linux/bitmap.h>
 #include <vsprintf.h>
 
 #define WANT_HEX_ESCAPES 0
@@ -476,6 +478,38 @@ static int get_width_prec(const char *str)
 	return (int)v;
 }
 
+static int print_pointer(struct print_inf *inf, char *format,
+			 unsigned int fmt_length, int field_width,
+			 int precision, const char *argument)
+{
+	struct expr_arg aval;
+
+	if (setexpr_get_arg(skip_whitespace(argument), field_width >> 3, &aval))
+		return CMD_RET_FAILURE;
+
+	if (field_width > BITS_PER_LONG) {
+		printf_str(inf, format, aval.bmap);
+		free(aval.bmap);
+	} else {
+		printf_str(inf, format, &aval.ival);
+	}
+
+	switch (inf->error) {
+	case 0:
+		return 0;
+	case PRINT_SIZE_ERROR:
+		printf("printf: size error\n"); break;
+	case PRINT_CONVERSION_ERROR:
+		printf("printf: conversion error\n"); break;
+	case PRINT_TRUNCATED_ERROR:
+		printf("printf: output truncated\n"); break;
+	default:
+		printf("printf: unknown error\n");
+	}
+
+	return -1;
+}
+
 /* Print the text in FORMAT, using ARGV for arguments to any '%' directives.
  * Return advanced ARGV.
  */
@@ -517,7 +551,7 @@ static char **print_formatted(struct print_inf *inf, char *f, char **argv, int *
 					field_width = get_width_prec(*argv++);
 			} else {
 				while (isdigit(*f)) {
-					++f;
+					field_width = field_width * 10 + *(f++) - '0';
 					++direc_length;
 				}
 			}
@@ -535,6 +569,23 @@ static char **print_formatted(struct print_inf *inf, char *f, char **argv, int *
 						++direc_length;
 					}
 				}
+			}
+			if (*f == 'p') {
+				static const char ptr_format_chars[] = "bl";
+				++f;
+				++direc_length;
+				char *p = strchr(ptr_format_chars, *f);
+				/* consume whole format token */
+				while (*f != '\0' && *(p++) == *f) {
+					++f;
+					++direc_length;
+				}
+				if (print_pointer(inf, direc_start, direc_length,
+						  field_width, precision, *argv++)) {
+					return saved_argv - 1;
+				}
+				f--;
+				break;
 			}
 
 			/* Remove "lLhz" size modifiers, repeatedly.

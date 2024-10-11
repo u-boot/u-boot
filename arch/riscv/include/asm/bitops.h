@@ -137,6 +137,7 @@ static inline unsigned long ffz(unsigned long word)
 
 	return k;
 }
+#define PLATFORM_FFZ
 
 static inline int find_next_zero_bit(void *addr, int size, int offset)
 {
