@@ -545,11 +545,14 @@ void  update_fdt_from_fw(void *fdt, void *fw_fdt)
 	if (fdt == fw_fdt)
 		return;
 
-	/* The firmware provides a more precie model; so copy that */
+	/* The firmware provides a more precise model; so copy that */
 	copy_property(fdt, fw_fdt, "/", "model");
 
 	/* memory reserve as suggested by the firmware */
 	copy_property(fdt, fw_fdt, "/", "memreserve");
+
+	/* copy the CMA memory setting from the firmware DT to linux */
+	copy_property(fdt, fw_fdt, "/reserved-memory/linux,cma", "size");
 
 	/* Adjust dma-ranges for the SD card and PCI bus as they can depend on
 	 * the SoC revision
