@@ -37,16 +37,26 @@
 		"setenv loadaddr1 && "					\
 		"setenv sblkcnt && "					\
 		"setenv ublkcnt\0"					\
-	"dh_update_sd_to_sf=" /* Erase SPI NOR and install U-Boot from SD */ \
+	"dh_update_block_to_sf=" /* Erase SPI NOR and install U-Boot from block device */ \
 		"setexpr loadaddr1 ${loadaddr} + 0x1000000 && "		\
-		"load mmc 0:4 ${loadaddr1} /boot/u-boot-spl.stm32 && "	\
+		"load ${dh_update_iface} ${dh_update_dev} "		\
+			"${loadaddr1} /boot/u-boot-spl.stm32 && "	\
 		"env set filesize1 ${filesize} && "			\
-		"load mmc 0:4 ${loadaddr} /boot/u-boot.itb && "		\
+		"load ${dh_update_iface} ${dh_update_dev} "		\
+			"${loadaddr} /boot/u-boot.itb && "		\
 		"sf probe && sf erase 0 0x200000 && "			\
 		"sf update ${loadaddr1} 0 ${filesize1} && "		\
 		"sf update ${loadaddr1} 0x40000 ${filesize1} && "	\
 		"sf update ${loadaddr} 0x80000 ${filesize} && "		\
 		"env set filesize1 && env set loadaddr1\0"		\
+	"dh_update_sd_to_sf=" /* Erase SPI NOR and install U-Boot from SD */ \
+		"setenv dh_update_iface mmc && "			\
+		"setenv dh_update_dev 0:4 && "				\
+		"run dh_update_block_to_sf\0"				\
+	"dh_update_emmc_to_sf=" /* Erase SPI NOR and install U-Boot from eMMC */ \
+		"setenv dh_update_iface mmc && "			\
+		"setenv dh_update_dev 1:4 && "				\
+		"run dh_update_block_to_sf\0"				\
 	"stdin=serial\0"						\
 	"stdout=serial\0"						\
 	"stderr=serial\0"						\
