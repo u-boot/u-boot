@@ -451,6 +451,9 @@ int board_late_init(void)
 	configure_env();
 	qcom_late_init();
 
+	/* Configure the dfu_string for capsule updates */
+	qcom_configure_capsule_updates();
+
 	return 0;
 }
 

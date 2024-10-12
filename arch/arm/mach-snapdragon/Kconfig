@@ -23,6 +23,9 @@ config SPL_SYS_MALLOC_F
 config SPL_SYS_MALLOC_F_LEN
 	default 0x2000
 
+config SYS_MALLOC_LEN
+	default 0x800000
+
 config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	default 0x80000000
 
