@@ -51,6 +51,12 @@ config DRAM_SUN50I_H616
 	  Select this dram controller driver for some sun50i platforms,
 	  like H616.
 
+config DRAM_SUN50I_A100
+	bool
+	help
+	  Select this dram controller driver for some sun50i platforms,
+	  like A100.
+
 if DRAM_SUN50I_H616
 config DRAM_SUN50I_H616_DX_ODT
 	hex "H616 DRAM DX ODT parameter"
@@ -127,7 +133,8 @@ config AXP_PMIC_BUS
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
-	default 0x20000 if SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
+	default 0x20000 if SUN50I_GEN_H6 && !MACH_SUN50I_A133 || SUNXI_GEN_NCAT2 
+	default 0x28000 if MACH_SUN50I_A133
 	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
@@ -138,7 +145,8 @@ config SUNXI_SRAM_ADDRESS
 config SUNXI_RVBAR_ADDRESS
 	hex
 	depends on ARM64
-	default 0x09010040 if SUN50I_GEN_H6
+	default 0x09010040 if SUN50I_GEN_H6 && !MACH_SUN50I_A133
+	default 0x08100040 if MACH_SUN50I_A133
 	default 0x017000a0
 	---help---
 	The read-only RVBAR system register holds the address of the first
@@ -438,6 +446,14 @@ config MACH_SUN50I_H616
 	select DRAM_SUN50I_H616
 	select SUN50I_GEN_H6
 
+config MACH_SUN50I_A133
+	bool "sun50i (Allwinenr A133/R818)"
+	select ARM64
+	select DRAM_SUN50I_A100
+	select SUN50I_GEN_H6
+	select CLK_SUN50I_H616
+	select AXP_PMIC_BUS
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
@@ -592,6 +608,7 @@ endif
 config DRAM_ZQ
 	int "sunxi dram zq value"
 	depends on !MACH_SUN50I_H616
+	depends on !MACH_SUN50I_A133
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
 		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
@@ -717,6 +734,7 @@ config SYS_CONFIG_NAME
 	default "sun50i" if MACH_SUN50I
 	default "sun50i" if MACH_SUN50I_H6
 	default "sun50i" if MACH_SUN50I_H616
+	default "sun50i" if MACH_SUN50I_A133
 
 config SYS_BOARD
 	default "sunxi"

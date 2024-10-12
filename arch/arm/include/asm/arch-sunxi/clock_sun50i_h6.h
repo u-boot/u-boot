@@ -277,7 +277,7 @@ struct sunxi_ccm_reg {
 
 /* apb1 bit field */
 #define CCM_APB1_DEFAULT		0x03000102
-#elif CONFIG_MACH_SUN50I_H616				/* H616 */
+#elif defined(CONFIG_MACH_SUN50I_H616) || defined(CONFIG_MACH_SUN50I_A133)				/* H616 */
 #define CCM_PLL6_DEFAULT		0xa8003100
 
 /* psi_ahb1_ahb2 bit field */
