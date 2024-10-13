@@ -26,8 +26,6 @@
 
 #include "tegra-dc.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Holder of Tegra per-SOC DC differences */
 struct tegra_dc_soc_info {
 	bool has_timer;

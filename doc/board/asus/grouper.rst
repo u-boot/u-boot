@@ -19,14 +19,14 @@ Quick Start
 Build U-Boot
 ------------
 
-Device support is implemented by applying config fragment to a generic board
-defconfig. Valid fragments are ``tilapia.config``, ``grouper_E1565.config``
-and ``grouper_PM269.config``.
+U-Boot features ability to detect grouper board revision on which it is
+loaded. Currently are supported both TI and MAXIM based WiFi-only models
+along with cellular one.
 
 .. code-block:: bash
 
     $ export CROSS_COMPILE=arm-linux-gnueabi-
-    $ make grouper_common_defconfig grouper_E1565.config # For maxim based grouper
+    $ make grouper_defconfig # For all grouper versions and tilapia
     $ make
 
 After the build succeeds, you will obtain the final ``u-boot-dtb-tegra.bin``
