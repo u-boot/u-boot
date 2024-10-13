@@ -774,6 +774,48 @@ static const struct sunxi_pinctrl_desc __maybe_unused sun50i_h616_r_pinctrl_desc
 	.num_banks	= 1,
 };
 
+static const struct sunxi_pinctrl_function sun50i_a133_pinctrl_functions[] = {
+	{"gpio_in", 0},
+	{"gpio_out", 1},
+	{"int", 6},
+	{"emac0", 5},
+	{"ir_rx", 2},
+	{"i2c0", 4},
+	{"i2c1", 2},
+	{"i2c2", 2},
+	{"i2c3", 2},
+	{"mmc0", 2},
+	{"mmc1", 2},
+	{"mmc2", 3},
+	{"spi0", 4},
+	{"spi1", 4},
+	{"uart0", 2},
+	{"uart1", 2},
+};
+
+
+static const struct sunxi_pinctrl_function sun50i_a133_r_pinctrl_functions[] = {
+	{"s_i2c0", 2},
+	{"s_uart", 2},
+	{"s_jtag", 2},
+	{"s_i2c1", 2},
+	{"s_pwm", 2},
+};
+
+static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a133_pinctrl_desc = {
+	.functions = sun50i_a133_pinctrl_functions,
+	.num_functions = ARRAY_SIZE(sun50i_a133_pinctrl_functions),
+	.first_bank = SUNXI_GPIO_B,
+	.num_banks = 7,
+};
+
+static const struct sunxi_pinctrl_desc __maybe_unused sun50i_a133_r_pinctrl_desc = {
+	.functions = sun50i_a133_r_pinctrl_functions,
+	.num_functions = ARRAY_SIZE(sun50i_a133_r_pinctrl_functions),
+	.first_bank = SUNXI_GPIO_L,
+	.num_banks = 1,
+};
+
 static const struct udevice_id sunxi_pinctrl_ids[] = {
 #ifdef CONFIG_PINCTRL_SUNIV_F1C100S
 	{
@@ -935,6 +977,18 @@ static const struct udevice_id sunxi_pinctrl_ids[] = {
 	{
 		.compatible = "allwinner,sun50i-h616-r-pinctrl",
 		.data = (ulong)&sun50i_h616_r_pinctrl_desc,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_SUN50I_A133
+	{
+		.compatible = "allwinner,sun50i-a133-pinctrl",
+		.data = (ulong)&sun50i_a133_pinctrl_desc,
+	},
+#endif
+#ifdef CONFIG_PINCTRL_SUN50I_A133_R
+	{
+		.compatible = "allwinner,sun50i-a133-r-pinctrl",
+		.data = (ulong)&sun50i_a133_r_pinctrl_desc,
 	},
 #endif
 	{}

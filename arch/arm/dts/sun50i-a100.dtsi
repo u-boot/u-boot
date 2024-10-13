@@ -117,6 +117,12 @@
 			#reset-cells = <1>;
 		};
 
+		timer:timer@3009000 {
+			compatible = "allwinner,sun50i-a133-timer";
+			reg = <0x03009000 0x28>;
+			clocks = <&osc24M>;
+		};
+
 		watchdog: watchdog@30090a0 {
 			compatible = "allwinner,sun50i-h616-wdt",
 				     "allwinner,sun6i-a31-wdt";
@@ -167,7 +173,7 @@
 			};
 			i2c2_pins: i2c2-pins {
 				pins = "PE1","PE2";
-				function = "i2c1";
+				function = "i2c2";
 			};
 			i2c3_pins: i2c3-ph-pins {
 				pins = "PE3", "PE4";

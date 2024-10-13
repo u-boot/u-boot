@@ -144,7 +144,7 @@ bool auto_scan_dram_rank_width(struct dram_para *para)
 	para->para2 = 0;
 	if (mctl_core_init(para)) {
 out3:
-		printf("[AUTO DEBUG]32bit,1 ranks training success!\n");
+		debug("[AUTO DEBUG]32bit,1 ranks training success!\n");
 		goto out2;
 	}
 
@@ -164,7 +164,7 @@ out3:
 	para->para2 = 4097;
 	if (mctl_core_init(para)) {
 out4:
-		printf("[AUTO DEBUG]16 bit,2 ranks training success!\n");
+		debug("[AUTO DEBUG]16 bit,2 ranks training success!\n");
 		goto out2;
 	}
 
@@ -183,7 +183,7 @@ out4:
 	para->para2 = 1;
 	if (mctl_core_init(para)) {
 out5:
-		printf("[AUTO DEBUG]16 bit,1 ranks training success!\n");
+		debug("[AUTO DEBUG]16 bit,1 ranks training success!\n");
 		goto out2;
 	}
 
@@ -202,7 +202,7 @@ out5:
 	return false;
 
 out1:
-	printf("[AUTO DEBUG]32bit,2 ranks training success!\n");
+	debug("[AUTO DEBUG]32bit,2 ranks training success!\n");
 out2:
 	para2 = para->para2;
 	para->tpr13 = tpr13;
@@ -252,7 +252,7 @@ bool auto_scan_dram_config(struct dram_para *para)
 				writel(0xA0A0A0A0, 0xA0000000);
 				if (readl(0xA0000000) != 0xA0A0A0A0) {
 					para->tpr13 |= 0x10000u;
-					printf("[AUTO DEBUG]3GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
+					debug("[AUTO DEBUG]3GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
 				}
 				break;
 			case 2048:
@@ -268,7 +268,7 @@ bool auto_scan_dram_config(struct dram_para *para)
 					tpr13 = para->tpr13 |= 0x50000;
 				}
 				para->tpr13 = tpr13;
-				printf("[AUTO DEBUG]1.5GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
+				debug("[AUTO DEBUG]1.5GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
 				break;
 		}
 	}
@@ -366,11 +366,11 @@ static int dramc_simple_wr_test(uint32_t dram_size, uint32_t test_range)
 		}
 		continue;
 	fail:
-		printf("DRAM simple test FAIL----- at address %p\n", ptr);
+		debug("DRAM simple test FAIL----- at address %p\n", ptr);
 		return 1;
 	}
 
-	printf("DRAM simple test OK.\n");
+	debug("DRAM simple test OK.\n");
 	return 0;
 }
 
@@ -1618,7 +1618,7 @@ static void mctl_dfi_init(struct dram_para *para)
 
 static bool phy_write_leveling(struct dram_para *para)
 {
-	printf("!!!WARNING!!! phy_write_leveling: unimplemented\n");
+	debug("!!!WARNING!!! phy_write_leveling: unimplemented\n");
 	return true;
 }
 
@@ -1676,19 +1676,19 @@ static bool phy_read_calibration(struct dram_para *para)
 
 static bool phy_read_training(struct dram_para *para)
 {
-	printf("!!!WARNING!!! phy_read_training: unimplemented\n");
+	debug("!!!WARNING!!! phy_read_training: unimplemented\n");
 	return true;
 }
 
 static bool phy_write_training(struct dram_para *para)
 {
-	printf("!!!WARNING!!! phy_write_training: unimplemented\n");
+	debug("!!!WARNING!!! phy_write_training: unimplemented\n");
 	return true;
 }
 
 static bool	mctl_phy_dfs(struct dram_para *para, int clk)
 {
-	printf("!!!WARNING!!! mctl_phy_dfs: unimplemented\n");
+	debug("!!!WARNING!!! mctl_phy_dfs: unimplemented\n");
 	return true;
 }
 
@@ -2104,7 +2104,7 @@ LABEL_53:
 
 static bool dram_software_training(struct dram_para *para)
 {
-	printf("!!!WARNING!!! dram_software_training: unimplemented\n");
+	debug("!!!WARNING!!! dram_software_training: unimplemented\n");
 	// return dram_software_training(para);
 	return true;
 }
@@ -2155,7 +2155,7 @@ static uint32_t init_DRAM(struct dram_para *para)
 	case 3:
 		if (actual_dram_size != dram_size)
 		{
-			printf("DRAM SIZE error! auto_scan_dram_size = %d, actual_dram_size = %d\n", dram_size, actual_dram_size);
+			debug("DRAM SIZE error! auto_scan_dram_size = %d, actual_dram_size = %d\n", dram_size, actual_dram_size);
 			return false;
 		}
 		break;
@@ -2167,7 +2167,7 @@ static uint32_t init_DRAM(struct dram_para *para)
 		para->para2 |= dram_size << 16;
 		break;
 	}
-	printf("DRAM SIZE = %d MBytes, para1 = %x, para2 = %x, tpr13 = %x\n", dram_size, para->para1, para->para2, para->tpr13);
+	debug("DRAM SIZE = %d MBytes, para1 = %x, para2 = %x, tpr13 = %x\n", dram_size, para->para1, para->para2, para->tpr13);
 
 	if ((para->tpr13 & 0x1000000) != 0)
 		mctl_ctl->pwrctl |= 9;

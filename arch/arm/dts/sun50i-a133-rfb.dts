@@ -113,7 +113,7 @@
 	mmc-hs200-1_8v;
 	no-sdio;
 	// no-mmc;
-	status = "okay";
+	status = "disabled";
 };
 
 &mmc2 {
@@ -127,7 +127,7 @@
 	mmc-hs400-1_8v;
 	mmc-hs200-1_8v;
 	no-sdio;
-	status = "okay";
+	status = "disabled";
 };
 
 &ohci0 {

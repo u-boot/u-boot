@@ -354,4 +354,11 @@ config STARFIVE_TIMER
 	  Select this to enable support for the timer found on
 	  Starfive SoC.
 
+config SUNXI_TIMER
+	bool "Allwinner sunxi timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  Allwinner sunxi SoC.
+
 endmenu

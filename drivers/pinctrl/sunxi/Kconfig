@@ -129,4 +129,14 @@ config PINCTRL_SUN20I_D1
 	default MACH_SUN8I_R528
 	select PINCTRL_SUNXI
 
+config PINCTRL_SUN50I_A133
+	bool "Support for the Allwinner A133 PIO"
+	default MACH_SUN50I_A133
+	select PINCTRL_SUNXI
+
+config PINCTRL_SUN50I_A133_R
+	bool "Support for the Allwinner A133 R-PIO"
+	default MACH_SUN50I_A133
+	select PINCTRL_SUNXI
+
 endif
