@@ -7,7 +7,6 @@
  *
  */
 
-#include "configs/sunxi-common.h"
 #include <stdbool.h>
 #include <inttypes.h>
 #include <init.h>
@@ -102,7 +101,7 @@ static struct dram_timing channel_timing __section(".data") = {
 };
 
 static bool mctl_core_init(struct dram_para *para);
-bool auto_scan_dram_size(struct dram_para *para);
+static bool auto_scan_dram_size(struct dram_para *para);
 static uint32_t DRAMC_get_dram_size(struct dram_para *para);
 static bool phy_read_calibration(struct dram_para *para);
 static void mctl_sys_init(struct dram_para *para);
@@ -113,7 +112,8 @@ bool auto_scan_dram_rank_width(struct dram_para *para)
 	uint32_t tpr10 = para->tpr10;
 	uint32_t tpr13 = para->tpr13;
 	uint32_t para1 = para->para1;
-	uint32_t para2 = para->para2;
+	uint32_t para2_orig = para->para2;
+	uint32_t para2;
 	uint32_t retry = 0;
 	bool calibration;
 
@@ -208,7 +208,7 @@ out2:
 	para->tpr13 = tpr13;
 	para->para1 = para1;
 	para->tpr10 = tpr10;
-	para->para2 = (para1 << 16) | para2;
+	para->para2 = ((para2_orig + 1) << 16) | para2;
 	return true;
 }
 
@@ -377,6 +377,8 @@ static int dramc_simple_wr_test(uint32_t dram_size, uint32_t test_range)
 static uint32_t DRAMC_get_dram_size(struct dram_para *para)
 {
 	uint32_t size_bits, size;
+
+	//para1 = 30eb, para2 = 8001000, tpr13 = 6061 
 
 	size_bits = (para->para2 & 0xFFFF) >> 12;
 	size_bits += (para->para1 & 0xFFFF) >> 14;
@@ -1935,14 +1937,12 @@ static bool mctl_channel_init(struct dram_para *para)
 	return ret;
 }
 
-#if 0
-
-bool auto_scan_dram_size(struct dram_para *para)
+static bool auto_scan_dram_size(struct dram_para *para)
 {
   uint32_t tpr10; // r6
   uint32_t para1; // r5
   uint32_t v4; // r3
-  uint64_t v5; // kr00_8
+  uint32_t v5; // kr00_8
   uint16_t v6; // r9
   int result; // r0
   int v8; // r2
@@ -1963,7 +1963,7 @@ bool auto_scan_dram_size(struct dram_para *para)
   int v23; // r0
   int v24; // r10
   uint32_t v25; // r3
-  uint64_t v26; // kr08_8
+  uint32_t v26; // kr08_8
   char v27; // r11
   int v28; // r2
   int m; // r3
@@ -1984,13 +1984,13 @@ bool auto_scan_dram_size(struct dram_para *para)
   else
     v4 = 0x30EB;
   para->para1 = v4;
-  v5 = (uint64_t)para->para1;
+  v5 = para->para2;
   if ( (v5 & 0xF) != 0 )
     v6 = 1;
   else
     v6 = 2;
   if ( !mctl_core_init(para) )
-    return 0;
+    return false;
   v8 = 0x40000000;
   for ( i = 0; i != 16; ++i )
   {
@@ -1998,7 +1998,7 @@ bool auto_scan_dram_size(struct dram_para *para)
       v10 = v8;
     else
       v10 = ~v8;
-    *(uint32_t *)v8 = v10;
+    writel(v10, v8);
     v8 += 4;
   }
   v11 = 0x40000000;
@@ -2006,7 +2006,7 @@ bool auto_scan_dram_size(struct dram_para *para)
   while ( 1 )
   {
     v13 = (v12 & 1) != 0 ? v11 : ~v11;
-    if ( v13 != *(uint32_t *)(v11 + 64) )
+    if ( v13 != readl(v11 + 64) )
       break;
     ++v12;
     v11 += 4;
@@ -2029,7 +2029,7 @@ bool auto_scan_dram_size(struct dram_para *para)
   }
   v14 = para->type == SUNXI_DRAM_TYPE_DDR4 ? 2 : 0;
 LABEL_20:
-  v15 = ((uint16_t)v5 >> 14) + v6;
+  v15 = ((v5 & 0xffff) >> 14) + v6;
   for ( k = 7; k != 11; ++k )
   {
     v17 = 0x40000000;
@@ -2037,7 +2037,7 @@ LABEL_20:
     while ( 1 )
     {
       v19 = (v18 & 1) != 0 ? v17 : ~v17;
-      if ( *(uint32_t *)((1 << (v15 + k)) + v17) != v19 )
+      if (readl((1 << (v15 + k)) + v17) != v19 )
         break;
       ++v18;
       v17 += 4;
@@ -2052,7 +2052,7 @@ LABEL_27:
   while ( 1 )
   {
     v23 = (v22 & 1) != 0 ? v21 : ~v21;
-    if ( *(uint32_t *)(v20 + v21) != v23 )
+    if (readl(v20 + v21) != v23 )
       break;
     ++v22;
     v21 += 4;
@@ -2066,10 +2066,10 @@ LABEL_27:
 LABEL_34:
   v25 = para->type == SUNXI_DRAM_TYPE_DDR4 ? 0x6118 : 0x2118;
   para->para1 = v25;
-  v26 = *(uint64_t *)&para->para1;
-  v27 = (v26 & 0xF00000000LL) != 0 ? 1 : 2;
+  v26 = para->para2;
+  v27 = (v26 & 0xF) != 0 ? 1 : 2;
   if ( !mctl_core_init(para) )
-    return 0;
+    return false;
   v28 = 0x40000000;
   for ( m = 0; m != 16; ++m )
   {
@@ -2077,7 +2077,7 @@ LABEL_34:
       v30 = v28;
     else
       v30 = ~v28;
-    *(uint32_t *)v28 = v30;
+    writel(v30, v28);
     v28 += 4;
   }
   for ( n = 12; n != 17; ++n )
@@ -2087,7 +2087,7 @@ LABEL_34:
     while ( 1 )
     {
       v34 = (v33 & 1) != 0 ? v32 : ~v32;
-      if ( *(uint32_t *)((1 << (((uint16_t)v26 >> 14) + 10 + v27 + n)) + v32) != v34 )
+      if (readl((1 << (((uint16_t)v26 >> 14) + 10 + v27 + n)) + v32) != v34 )
         break;
       ++v33;
       v32 += 4;
@@ -2101,171 +2101,6 @@ LABEL_53:
   para->para1 = (para1 << 16) | (v14 << 14) | k | (v24 << 12) | (16 * n);
   return result;
 }
-
-#else
-
-bool auto_scan_dram_size(struct dram_para *para)
-{
-	uint32_t tpr10 = para->tpr10;
-	uint32_t para1_orig = para->para1;
-	uint32_t para1;
-	uint8_t v12;
-	uint32_t *dram_base, *mem_start;
-	uint32_t count, value;
-
-	para->tpr10 |= 0x10000000;
-
-	if (para->type == SUNXI_DRAM_TYPE_DDR4)
-		para->para1 = 0xb0eb;
-	else
-		para->para1 = 0x30eb;
-
-	para1 = para->para1;
-
-	if (para->para2 & 0xf)
-		v12 = 1;
-	else
-		v12 = 2;
-
-	if (!mctl_core_init(para))
-		return false;
-
-	count = 0;
-	dram_base = CFG_SYS_SDRAM_BASE;
-
-	do {
-		mem_start = dram_base;
-		value = count & 1 ? (uint32_t)dram_base : ~(uint32_t)dram_base;
-		writel(value, mem_start);
-		mem_start += 1;
-		count++;
-	}while(count < 16);
-
-	count = 0;
-
-	do {
-		mem_start = dram_base;
-		value = count & 1 ? (uint32_t)dram_base : ~(uint32_t)dram_base;
-		
-	}
-
-	return true;
-}
-
-#endif
-
-#if 0
-
-static bool auto_scan_dram_config(struct dram_para *para)
-{
-	uint32_t clk;
-	uint32_t para0;
-	uint32_t tpr11, tpr12, tpr14;
-	uint32_t dram_size;
-
-	clk = para->clk;
-
-	if ((para->tpr13 & 0x1000) && (para->clk > 360))
-		para->clk = 360;
-
-	para0 = para->tpr13 & 0x2000000;
-
-	if (para->tpr13 & 0x2000000)
-	{
-		para0 = para->para0;
-		para->para0 = 0x14151A1C;
-		tpr12 = para->tpr12;
-		tpr11 = para->tpr11;
-		tpr14 = para->tpr14;
-		para->tpr11 = 0xE131619;
-		para->tpr12 = 0x18171817;
-		para->tpr14 = 0x2A28282B;
-	}
-	else
-	{
-		tpr14 = 0;
-		tpr12 = 0;
-		tpr11 = 0;
-	}
-
-	if (!(para->tpr13 & 0x4000))
-	{
-		if (!auto_scan_dram_rank_width(para) || !auto_scan_dram_size(para))
-		{
-			return false;
-		}
-	}
-
-	if (!(para->tpr13 & 0x8000))
-		para->tpr13 |= 0x6001;
-
-	if (para->tpr13 & 0x80000)
-	{
-		uint32_t *ptr;
-
-		if (!mctl_core_init(para))
-			return false;
-
-		dram_size = DRAMC_get_dram_size(para);
-		para->tpr13 &= ~0x80000u;
-
-		switch (dram_size)
-		{
-		case 4096:
-			ptr = (uint32_t *)(CFG_SYS_SDRAM_BASE + 0x60000000u);
-			writel(0xa0a0a0a0, ptr);
-			if (readl(ptr) != 0xa0a0a0a0)
-			{
-				para->tpr13 |= 0x10000;
-				printf("[AUTO DEBUG]3GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
-			}
-			break;
-		case 2048:
-			ptr = (uint32_t *)(CFG_SYS_SDRAM_BASE + 0x30000000u);
-			writel(0x70707070, ptr);
-			if (readl(ptr) == 0x70707070)
-			{
-				ptr = (uint32_t *)(CFG_SYS_SDRAM_BASE + 0x60000000u);
-				writel(0xa0a0a0a0, ptr);
-				udelay(1);
-				if (readl(ptr) != 0xa0a0a0a0)
-					para->tpr13 |= 0x50000;
-			}
-			else
-			{
-				para->tpr13 |= 0x20000;
-			}
-			printf("[AUTO DEBUG]1.5GB autoscan enable,dram_tpr13 = %x\n", para->tpr13);
-			break;
-		default:
-			break;
-		}
-	}
-
-	if (para->tpr13 & 0x2000000)
-	{
-		if (para->para2 & 0x1000)
-		{
-			para->para0 = para0;
-			para->tpr11 = tpr11;
-			para->tpr12 = tpr12;
-			para->tpr14 = tpr14;
-		}
-		else
-		{
-			para->para0 = para->mr17;
-			para->tpr11 = para->tpr1;
-			para->tpr12 = para->tpr2;
-			para->tpr14 = para->mr22;
-		}
-	}
-
-	para->clk = clk;
-
-	return true;
-}
-
-#endif
 
 static bool dram_software_training(struct dram_para *para)
 {
