@@ -229,7 +229,7 @@ static int rockchip_sfc_ofdata_to_platdata(struct udevice *bus)
 	sfc->regbase = dev_read_addr_ptr(bus);
 	sfc->use_dma = !dev_read_bool(bus, "rockchip,sfc-no-dma");
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD) && sfc->use_dma)
+	if (IS_ENABLED(CONFIG_XPL_BUILD) && sfc->use_dma)
 		sfc->use_dma = !dev_read_bool(bus, "u-boot,spl-sfc-no-dma");
 
 #if CONFIG_IS_ENABLED(CLK)
@@ -409,7 +409,7 @@ static int rockchip_sfc_xfer_setup(struct rockchip_sfc *sfc,
 
 	/* set the Controller */
 	ctrl |= SFC_CTRL_PHASE_SEL_NEGETIVE;
-	cmd |= plat->cs << SFC_CMD_CS_SHIFT;
+	cmd |= plat->cs[0] << SFC_CMD_CS_SHIFT;
 
 	dev_dbg(sfc->dev, "sfc addr.nbytes=%x(x%d) dummy.nbytes=%x(x%d)\n",
 		op->addr.nbytes, op->addr.buswidth,

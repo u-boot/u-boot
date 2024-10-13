@@ -328,7 +328,7 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 			break;
 
 		if (status & MMC_STATUS_MASK) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			log_err("Status Error: %#08x\n", status);
 #endif
 			return -ECOMM;
@@ -341,7 +341,7 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout_ms)
 	}
 
 	if (timeout_ms <= 0) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		log_err("Timeout waiting card ready\n");
 #endif
 		return -ETIMEDOUT;
@@ -483,7 +483,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 
 	if (blkcnt > 1) {
 		if (mmc_send_stop_transmission(mmc, false)) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			log_err("mmc fail to send stop cmd\n");
 #endif
 			return 0;
@@ -534,7 +534,7 @@ ulong mmc_bread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		return 0;
 
 	if ((start + blkcnt) > block_dev->lba) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		log_err("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
 			start + blkcnt, block_dev->lba);
 #endif
@@ -2424,7 +2424,7 @@ static int mmc_startup_v4(struct mmc *mmc)
 		mmc->capacity_gp[i] <<= 19;
 	}
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	if (part_completed) {
 		mmc->enh_user_size =
 			(ext_csd[EXT_CSD_ENH_SIZE_MULT + 2] << 16) +
@@ -2723,7 +2723,7 @@ static int mmc_startup(struct mmc *mmc)
 	bdesc->blksz = mmc->read_bl_len;
 	bdesc->log2blksz = LOG2(bdesc->blksz);
 	bdesc->lba = lldiv(mmc->capacity, mmc->read_bl_len);
-#if !defined(CONFIG_SPL_BUILD) || \
+#if !defined(CONFIG_XPL_BUILD) || \
 		(defined(CONFIG_SPL_LIBCOMMON_SUPPORT) && \
 		!CONFIG_IS_ENABLED(USE_TINY_PRINTF))
 	sprintf(bdesc->vendor, "Man %06x Snr %04x%04x",
@@ -2741,7 +2741,7 @@ static int mmc_startup(struct mmc *mmc)
 	bdesc->revision[0] = 0;
 #endif
 
-#if !defined(CONFIG_DM_MMC) && (!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT))
+#if !defined(CONFIG_DM_MMC) && (!defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT))
 	part_init(bdesc);
 #endif
 
@@ -2953,7 +2953,7 @@ retry:
 		err = mmc_send_op_cond(mmc);
 
 		if (err) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			if (!quiet)
 				log_err("Card did not respond to voltage select! : %d\n",
 					err);
@@ -3008,7 +3008,7 @@ int mmc_start_init(struct mmc *mmc)
 #endif
 	if (no_card) {
 		mmc->has_init = 0;
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+#if !defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		log_err("MMC: no card present\n");
 #endif
 		return -ENOMEDIUM;
@@ -3195,7 +3195,7 @@ int mmc_initialize(struct bd_info *bis)
 	if (ret)
 		return ret;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	print_mmc_devices(',');
 #endif
 

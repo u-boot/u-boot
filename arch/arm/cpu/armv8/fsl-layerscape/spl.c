@@ -41,7 +41,7 @@ u32 spl_boot_device(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 void spl_board_init(void)
 {
@@ -136,4 +136,4 @@ int spl_start_uboot(void)
 	return 1;
 }
 #endif	/* CONFIG_SPL_OS_BOOT */
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */

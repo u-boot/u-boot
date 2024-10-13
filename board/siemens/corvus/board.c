@@ -114,7 +114,7 @@ static void corvus_nand_hw_init(void)
 	at91_set_gpio_input(CFG_SYS_NAND_READY_PIN, 1);
 }
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 #include <spl.h>
 #include <nand.h>
 

@@ -41,7 +41,7 @@ static void efi_reserve_memory(u64 addr, u64 size, bool nomap)
 }
 
 /**
- * efi_try_purge_kaslr_seed() - Remove unused kaslr-seed
+ * efi_try_purge_rng_seed() - Remove unused kaslr-seed, rng-seed
  *
  * Kernel's EFI STUB only relies on EFI_RNG_PROTOCOL for randomization
  * and completely ignores the kaslr-seed for its own randomness needs
@@ -51,8 +51,9 @@ static void efi_reserve_memory(u64 addr, u64 size, bool nomap)
  *
  * @fdt: Pointer to device tree
  */
-void efi_try_purge_kaslr_seed(void *fdt)
+void efi_try_purge_rng_seed(void *fdt)
 {
+	const char * const prop[] = {"kaslr-seed", "rng-seed"};
 	const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
 	struct efi_handler *handler;
 	efi_status_t ret;
@@ -67,9 +68,13 @@ void efi_try_purge_kaslr_seed(void *fdt)
 	if (nodeoff < 0)
 		return;
 
-	err = fdt_delprop(fdt, nodeoff, "kaslr-seed");
-	if (err < 0 && err != -FDT_ERR_NOTFOUND)
-		log_err("Error deleting kaslr-seed\n");
+	for (size_t i = 0; i < ARRAY_SIZE(prop); ++i) {
+		err = fdt_delprop(fdt, nodeoff, prop[i]);
+		if (err < 0 && err != -FDT_ERR_NOTFOUND)
+			log_err("Error deleting %s\n", prop[i]);
+		else
+			log_debug("Deleted /chosen/%s\n", prop[i]);
+	}
 }
 
 /**

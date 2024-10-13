@@ -203,7 +203,7 @@ static int npcm_fiu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	int len;
 
 	if (flags & SPI_XFER_BEGIN)
-		activate_cs(regs, slave_plat->cs);
+		activate_cs(regs, slave_plat->cs[0]);
 
 	while (bytes) {
 		len = (bytes > CHUNK_SIZE) ? CHUNK_SIZE : bytes;
@@ -222,7 +222,7 @@ static int npcm_fiu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	}
 
 	if (flags & SPI_XFER_END)
-		deactivate_cs(regs, slave_plat->cs);
+		deactivate_cs(regs, slave_plat->cs[0]);
 
 	return ret;
 }
@@ -325,9 +325,9 @@ static int npcm_fiu_exec_op(struct spi_slave *slave,
 	bytes = op->data.nbytes;
 	addr = (u32)op->addr.val;
 	if (!bytes) {
-		activate_cs(regs, slave_plat->cs);
+		activate_cs(regs, slave_plat->cs[0]);
 		ret = npcm_fiu_uma_operation(priv, op, addr, NULL, NULL, 0, false);
-		deactivate_cs(regs, slave_plat->cs);
+		deactivate_cs(regs, slave_plat->cs[0]);
 		return ret;
 	}
 
@@ -339,9 +339,9 @@ static int npcm_fiu_exec_op(struct spi_slave *slave,
 	 * Use HW-control CS for read to avoid clock and timing issues.
 	 */
 	if (op->data.dir == SPI_MEM_DATA_OUT)
-		activate_cs(regs, slave_plat->cs);
+		activate_cs(regs, slave_plat->cs[0]);
 	else
-		writel(FIELD_PREP(UMA_CTS_DEV_NUM_MASK, slave_plat->cs) | UMA_CTS_SW_CS,
+		writel(FIELD_PREP(UMA_CTS_DEV_NUM_MASK, slave_plat->cs[0]) | UMA_CTS_SW_CS,
 		       &regs->uma_cts);
 	while (bytes) {
 		len = (bytes > CHUNK_SIZE) ? CHUNK_SIZE : bytes;
@@ -361,7 +361,7 @@ static int npcm_fiu_exec_op(struct spi_slave *slave,
 			rx += len;
 	}
 	if (op->data.dir == SPI_MEM_DATA_OUT)
-		deactivate_cs(regs, slave_plat->cs);
+		deactivate_cs(regs, slave_plat->cs[0]);
 
 	return 0;
 }

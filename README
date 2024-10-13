@@ -133,96 +133,6 @@ run some of U-Boot's tests.
 
 See doc/arch/sandbox/sandbox.rst for more details.
 
-
-Board Initialisation Flow:
---------------------------
-
-This is the intended start-up flow for boards. This should apply for both
-SPL and U-Boot proper (i.e. they both follow the same rules).
-
-Note: "SPL" stands for "Secondary Program Loader," which is explained in
-more detail later in this file.
-
-At present, SPL mostly uses a separate code path, but the function names
-and roles of each function are the same. Some boards or architectures
-may not conform to this.  At least most ARM boards which use
-CONFIG_SPL_FRAMEWORK conform to this.
-
-Execution typically starts with an architecture-specific (and possibly
-CPU-specific) start.S file, such as:
-
-	- arch/arm/cpu/armv7/start.S
-	- arch/powerpc/cpu/mpc83xx/start.S
-	- arch/mips/cpu/start.S
-
-and so on. From there, three functions are called; the purpose and
-limitations of each of these functions are described below.
-
-lowlevel_init():
-	- purpose: essential init to permit execution to reach board_init_f()
-	- no global_data or BSS
-	- there is no stack (ARMv7 may have one but it will soon be removed)
-	- must not set up SDRAM or use console
-	- must only do the bare minimum to allow execution to continue to
-		board_init_f()
-	- this is almost never needed
-	- return normally from this function
-
-board_init_f():
-	- purpose: set up the machine ready for running board_init_r():
-		i.e. SDRAM and serial UART
-	- global_data is available
-	- stack is in SRAM
-	- BSS is not available, so you cannot use global/static variables,
-		only stack variables and global_data
-
-	Non-SPL-specific notes:
-	- dram_init() is called to set up DRAM. If already done in SPL this
-		can do nothing
-
-	SPL-specific notes:
-	- you can override the entire board_init_f() function with your own
-		version as needed.
-	- preloader_console_init() can be called here in extremis
-	- should set up SDRAM, and anything needed to make the UART work
-	- there is no need to clear BSS, it will be done by crt0.S
-	- for specific scenarios on certain architectures an early BSS *can*
-	  be made available (via CONFIG_SPL_EARLY_BSS by moving the clearing
-	  of BSS prior to entering board_init_f()) but doing so is discouraged.
-	  Instead it is strongly recommended to architect any code changes
-	  or additions such to not depend on the availability of BSS during
-	  board_init_f() as indicated in other sections of this README to
-	  maintain compatibility and consistency across the entire code base.
-	- must return normally from this function (don't call board_init_r()
-		directly)
-
-Here the BSS is cleared. For SPL, if CONFIG_SPL_STACK_R is defined, then at
-this point the stack and global_data are relocated to below
-CONFIG_SPL_STACK_R_ADDR. For non-SPL, U-Boot is relocated to run at the top of
-memory.
-
-board_init_r():
-	- purpose: main execution, common code
-	- global_data is available
-	- SDRAM is available
-	- BSS is available, all static/global variables can be used
-	- execution eventually continues to main_loop()
-
-	Non-SPL-specific notes:
-	- U-Boot is relocated to the top of memory and is now running from
-		there.
-
-	SPL-specific notes:
-	- stack is optionally in SDRAM, if CONFIG_SPL_STACK_R is defined and
-		CONFIG_SYS_FSL_HAS_CCI400
-
-		Defined For SoC that has cache coherent interconnect
-		CCN-400
-
-		CONFIG_SYS_FSL_HAS_CCN504
-
-		Defined for SoC that has cache coherent interconnect CCN-504
-
 The following options need to be configured:
 
 - CPU Type:	Define exactly one, e.g. CONFIG_MPC85XX.
@@ -1508,13 +1418,13 @@ Low Level (hardware related) configuration options:
 		This only takes effect if the memory commands are activated
 		globally (CONFIG_CMD_MEMORY).
 
-- CONFIG_SPL_BUILD
+- CONFIG_XPL_BUILD
 		Set when the currently running compilation is for an artifact
 		that will end up in one of the 'xPL' builds, i.e. SPL, TPL or
 		VPL. Code that needs phase-specific behaviour can check this,
-		or (where possible) use spl_phase() instead.
+		or (where possible) use xpl_phase() instead.
 
-		Note that CONFIG_SPL_BUILD *is* always defined when either
+		Note that CONFIG_XPL_BUILD *is* always defined when either
 		of CONFIG_TPL_BUILD / CONFIG_VPL_BUILD is defined. This can be
 		counter-intuitive and should perhaps be changed.
 
@@ -1522,13 +1432,13 @@ Low Level (hardware related) configuration options:
 		Set when the currently running compilation is for an artifact
 		that will end up in the TPL build (as opposed to SPL, VPL or
 		U-Boot proper). Code that needs phase-specific behaviour can
-		check this, or (where possible) use spl_phase() instead.
+		check this, or (where possible) use xpl_phase() instead.
 
 - CONFIG_VPL_BUILD
 		Set when the currently running compilation is for an artifact
 		that will end up in the VPL build (as opposed to the SPL, TPL
 		or U-Boot proper). Code that needs phase-specific behaviour can
-		check this, or (where possible) use spl_phase() instead.
+		check this, or (where possible) use xpl_phase() instead.
 
 - CONFIG_ARCH_MAP_SYSMEM
 		Generally U-Boot (and in particular the md command) uses
@@ -2515,51 +2425,6 @@ On RISC-V, the following registers are used:
 	pc:	program counter (pc)
 
     ==> U-Boot will use gp to hold a pointer to the global data
-
-Memory Management:
-------------------
-
-U-Boot runs in system state and uses physical addresses, i.e. the
-MMU is not used either for address mapping nor for memory protection.
-
-The available memory is mapped to fixed addresses using the memory
-controller. In this process, a contiguous block is formed for each
-memory type (Flash, SDRAM, SRAM), even when it consists of several
-physical memory banks.
-
-U-Boot is installed in the first 128 kB of the first Flash bank (on
-TQM8xxL modules this is the range 0x40000000 ... 0x4001FFFF). After
-booting and sizing and initializing DRAM, the code relocates itself
-to the upper end of DRAM. Immediately below the U-Boot code some
-memory is reserved for use by malloc() [see CONFIG_SYS_MALLOC_LEN
-configuration setting]. Below that, a structure with global Board
-Info data is placed, followed by the stack (growing downward).
-
-Additionally, some exception handler code is copied to the low 8 kB
-of DRAM (0x00000000 ... 0x00001FFF).
-
-So a typical memory configuration with 16 MB of DRAM could look like
-this:
-
-	0x0000 0000	Exception Vector code
-	      :
-	0x0000 1FFF
-	0x0000 2000	Free for Application Use
-	      :
-	      :
-
-	      :
-	      :
-	0x00FB FF20	Monitor Stack (Growing downward)
-	0x00FB FFAC	Board Info Data and permanent copy of global data
-	0x00FC 0000	Malloc Arena
-	      :
-	0x00FD FFFF
-	0x00FE 0000	RAM Copy of Monitor Code
-	...		eventually: LCD or video framebuffer
-	...		eventually: pRAM (Protected RAM - unchanged by reset)
-	0x00FF FFFF	[End of RAM]
-
 
 System Initialization:
 ----------------------

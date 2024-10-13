@@ -129,7 +129,7 @@ static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 }
 SANDBOX_CMDLINE_OPT_SHORT(help, 'h', 0, "Display help");
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int sandbox_main_loop_init(void)
 {
 	struct sandbox_state *state = state_get_current();
@@ -206,7 +206,7 @@ static int sandbox_cmdline_cb_test_fdt(struct sandbox_state *state,
 	char *relname;
 	int len;
 
-	if (spl_phase() <= PHASE_SPL)
+	if (xpl_phase() <= PHASE_SPL)
 		relname = "../arch/sandbox/dts/test.dtb";
 	else
 		relname = "arch/sandbox/dts/test.dtb";

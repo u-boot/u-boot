@@ -108,13 +108,13 @@ static void sifive_spi_prep_device(struct sifive_spi *spi,
 {
 	/* Update the chip select polarity */
 	if (slave_plat->mode & SPI_CS_HIGH)
-		spi->cs_inactive &= ~BIT(slave_plat->cs);
+		spi->cs_inactive &= ~BIT(slave_plat->cs[0]);
 	else
-		spi->cs_inactive |= BIT(slave_plat->cs);
+		spi->cs_inactive |= BIT(slave_plat->cs[0]);
 	writel(spi->cs_inactive, spi->regs + SIFIVE_SPI_REG_CSDEF);
 
 	/* Select the correct device */
-	writel(slave_plat->cs, spi->regs + SIFIVE_SPI_REG_CSID);
+	writel(slave_plat->cs[0], spi->regs + SIFIVE_SPI_REG_CSID);
 }
 
 static int sifive_spi_set_cs(struct sifive_spi *spi,

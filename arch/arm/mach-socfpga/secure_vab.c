@@ -120,7 +120,7 @@ int socfpga_vendor_authentication(void **p_image, size_t *p_size)
 	debug("mbox_relocate_data_addr = 0x%p\n", mbox_relocate_data_addr);
 
 	do {
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)) {
 			/* Invoke SMC call to ATF to send the VAB certificate to SDM */
 			ret  = smc_send_mailbox(MBOX_VAB_SRC_CERT, mbox_data_sz,
 						(u32 *)mbox_relocate_data_addr, 0, &resp_len,

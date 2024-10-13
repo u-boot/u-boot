@@ -77,7 +77,7 @@ static int punit_init(struct udevice *dev)
 
 static int apl_punit_probe(struct udevice *dev)
 {
-	if (spl_phase() == PHASE_SPL)
+	if (xpl_phase() == PHASE_SPL)
 		return punit_init(dev);
 
 	return 0;

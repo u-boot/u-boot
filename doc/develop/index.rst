@@ -13,6 +13,7 @@ General
    codingstyle
    designprinciples
    docstyle
+   memory
    patman
    process
    release_cycle
@@ -38,6 +39,7 @@ Implementation
    distro
    driver-model/index
    environment
+   init
    expo
    cedit
    event

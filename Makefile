@@ -624,7 +624,7 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	@# Otherwise, 'make silentoldconfig' would be invoked twice.
 	$(Q)touch include/config/auto.conf
 
-u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg:
+u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg vpl/u-boot.cfg:
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf $(@)
 
 -include include/autoconf.mk
@@ -829,7 +829,7 @@ KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
 UBOOTINCLUDE    := \
 	-Iinclude \
 	$(if $(KBUILD_SRC), -I$(srctree)/include) \
-	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
+	$(if $(CONFIG_$(XPL_)SYS_THUMB_BUILD), \
 		$(if $(CONFIG_HAS_THUMB2), \
 			$(if $(CONFIG_CPU_V7M), \
 				-I$(srctree)/arch/arm/thumb1/include), \
@@ -864,7 +864,7 @@ libs-y += disk/
 libs-y += drivers/
 libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 libs-$(CONFIG_SYS_FSL_MMDC) += drivers/ddr/fsl/
-libs-$(CONFIG_$(SPL_)ALTERA_SDRAM) += drivers/ddr/altera/
+libs-$(CONFIG_$(XPL_)ALTERA_SDRAM) += drivers/ddr/altera/
 libs-y += drivers/usb/cdns3/
 libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/common/
@@ -883,7 +883,7 @@ libs-y += drivers/usb/ulpi/
 ifdef CONFIG_POST
 libs-y += post/
 endif
-libs-$(CONFIG_$(SPL_TPL_)UNIT_TEST) += test/
+libs-$(CONFIG_$(PHASE_)UNIT_TEST) += test/
 libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_UT_OPTEE) += test/optee/
 libs-$(CONFIG_UT_OVERLAY) += test/overlay/
@@ -2104,7 +2104,7 @@ spl/u-boot-spl-dtb.hex: spl/u-boot-spl
 	@:
 
 spl/u-boot-spl: tools prepare $(if $(CONFIG_SPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.xpl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
@@ -2123,14 +2123,14 @@ tpl/u-boot-tpl.bin: tpl/u-boot-tpl
 	$(TPL_SIZE_CHECK)
 
 tpl/u-boot-tpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.xpl all
 
 vpl/u-boot-vpl.bin: vpl/u-boot-vpl
 	@:
 	$(VPL_SIZE_CHECK)
 
 vpl/u-boot-vpl: tools prepare $(if $(CONFIG_TPL_OF_CONTROL),dts/dt.dtb)
-	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.spl all
+	$(Q)$(MAKE) obj=vpl -f $(srctree)/scripts/Makefile.xpl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 

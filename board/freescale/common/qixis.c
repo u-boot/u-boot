@@ -161,7 +161,7 @@ void board_deassert_mem_reset(void)
 }
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static void qixis_reset(void)
 {
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);

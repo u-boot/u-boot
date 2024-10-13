@@ -22,7 +22,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 # if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_FLASH)
 #  include <flash.h>
 #  define CMD_SAVEENV
@@ -35,11 +35,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #if (!defined(CONFIG_MICROBLAZE) && !defined(CONFIG_ARCH_ZYNQ) && \
 	!defined(CONFIG_TARGET_MCCMON6) && !defined(CONFIG_TARGET_X600) && \
 	!defined(CONFIG_TARGET_EDMINIV2)) || \
-	!defined(CONFIG_SPL_BUILD)
+	!defined(CONFIG_XPL_BUILD)
 #define LOADENV
 #endif
 
-#if !defined(CONFIG_TARGET_X600) || !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_TARGET_X600) || !defined(CONFIG_XPL_BUILD)
 #define INITENV
 #endif
 

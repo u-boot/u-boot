@@ -582,7 +582,7 @@ static ulong rk3328_spi_set_clk(struct rk3328_cru *cru, uint hz)
 	return rk3328_spi_get_clk(cru);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong rk3328_vop_get_clk(struct rk3328_clk_priv *priv, ulong clk_id)
 {
 	struct rk3328_cru *cru = priv->cru;
@@ -746,7 +746,7 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SPI:
 		ret = rk3328_spi_set_clk(priv->cru, rate);
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case DCLK_LCDC:
 	case ACLK_VOP_PRE:
 	case ACLK_VIO_PRE:

@@ -147,7 +147,7 @@ static int coral_get_str(struct udevice *dev, int id, size_t size, char *val)
 {
 	int ret;
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		return -ENOSYS;
 
 	switch (id) {

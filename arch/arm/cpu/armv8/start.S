@@ -58,7 +58,7 @@ reset:
 .globl	save_boot_params_ret
 save_boot_params_ret:
 
-#if CONFIG_POSITION_INDEPENDENT && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_POSITION_INDEPENDENT && !defined(CONFIG_XPL_BUILD)
 	/* Verify that we're 4K aligned.  */
 	adr	x0, _start
 	ands	x0, x0, #0xfff
@@ -104,7 +104,7 @@ pie_skip_reloc:
 pie_fixup_done:
 #endif
 
-#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_XPL_BUILD)
 .macro	set_vbar, regname, reg
 	msr	\regname, \reg
 .endm
@@ -174,7 +174,7 @@ pie_fixup_done:
 	/* Processor specific initialization */
 	bl	lowlevel_init
 
-#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPIN_TABLE) && !defined(CONFIG_XPL_BUILD)
 	branch_if_master x0, master_cpu
 	b	spin_table_secondary_jump
 	/* never return */
@@ -354,7 +354,7 @@ ENDPROC(smp_kick_all_cpus)
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
-#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_XPL_BUILD)
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f

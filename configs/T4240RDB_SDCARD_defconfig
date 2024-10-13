@@ -41,7 +41,6 @@ CONFIG_OF_STDOUT_VIA_ALIAS=y
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="setenv bootargs root=/dev/ram rw console=$consoledev,$baudrate $othbootargs;setenv ramdiskaddr 0x02000000;setenv fdtaddr 0x00c00000;setenv loadaddr 0x1000000;bootm $loadaddr $ramdiskaddr $fdtaddr"
 CONFIG_SYS_PBSIZE=276
-CONFIG_ARCH_MISC_INIT=y
 CONFIG_BOARD_EARLY_INIT_R=y
 # CONFIG_SPL_FRAMEWORK is not set
 CONFIG_SPL_MAX_SIZE=0x28000

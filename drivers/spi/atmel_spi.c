@@ -125,7 +125,7 @@ static int atmel_spi_claim_bus(struct udevice *dev)
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
 	struct at91_spi *reg_base = bus_plat->regs;
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 	u32 freq = priv->freq;
 	u32 scbr, csrx, mode;
 
@@ -174,7 +174,7 @@ static void atmel_spi_cs_activate(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 
 	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
 		return;
@@ -189,7 +189,7 @@ static void atmel_spi_cs_deactivate(struct udevice *dev)
 	struct udevice *bus = dev_get_parent(dev);
 	struct atmel_spi_priv *priv = dev_get_priv(bus);
 	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
-	u32 cs = slave_plat->cs;
+	u32 cs = slave_plat->cs[0];
 
 	if (!dm_gpio_is_valid(&priv->cs_gpios[cs]))
 		return;

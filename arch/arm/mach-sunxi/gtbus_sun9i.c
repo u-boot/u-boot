@@ -11,7 +11,7 @@
 #include <asm/arch/gtbus_sun9i.h>
 #include <asm/arch/sys_proto.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 void gtbus_init(void)
 {

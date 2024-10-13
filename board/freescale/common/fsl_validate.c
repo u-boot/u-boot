@@ -396,7 +396,7 @@ static void fsl_secboot_bootscript_parse_failure(void)
  */
 void fsl_secboot_handle_error(int error)
 {
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	const struct fsl_secboot_errcode *e;
 
 	for (e = fsl_secboot_errcodes; e->errcode != ERROR_ESBC_CLIENT_MAX;
@@ -807,7 +807,7 @@ static int calculate_cmp_img_sig(struct fsl_secboot_img_priv *img)
 	prop.num_bits = key_len * 8;
 	prop.exp_len = key_len;
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 	ret = device_bind_driver(NULL, "fsl_rsa_mod_exp", "fsl_rsa_mod_exp", NULL);
 	if (ret) {
 		printf("Couldn't bind fsl_rsa_mod_exp driver (%d)\n", ret);

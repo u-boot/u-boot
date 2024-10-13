@@ -2,15 +2,15 @@
 #
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-obj-$(CONFIG_$(SPL_)DM_I2C) += i2c-uclass.o
-ifdef CONFIG_$(SPL_)ACPIGEN
-obj-$(CONFIG_$(SPL_)DM_I2C) += acpi_i2c.o
+obj-$(CONFIG_$(XPL_)DM_I2C) += i2c-uclass.o
+ifdef CONFIG_$(XPL_)ACPIGEN
+obj-$(CONFIG_$(XPL_)DM_I2C) += acpi_i2c.o
 endif
-obj-$(CONFIG_$(SPL_)DM_I2C_GPIO) += i2c-gpio.o
-obj-$(CONFIG_$(SPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
-obj-$(CONFIG_$(SPL_)I2C_CROS_EC_LDO) += cros_ec_ldo.o
+obj-$(CONFIG_$(XPL_)DM_I2C_GPIO) += i2c-gpio.o
+obj-$(CONFIG_$(XPL_)I2C_CROS_EC_TUNNEL) += cros_ec_tunnel.o
+obj-$(CONFIG_$(XPL_)I2C_CROS_EC_LDO) += cros_ec_ldo.o
 
-obj-$(CONFIG_$(SPL_)SYS_I2C_LEGACY) += i2c_core.o
+obj-$(CONFIG_$(XPL_)SYS_I2C_LEGACY) += i2c_core.o
 obj-$(CONFIG_SYS_I2C_ASPEED) += ast_i2c.o
 obj-$(CONFIG_SYS_I2C_AST2600) += ast2600_i2c.o
 obj-$(CONFIG_SYS_I2C_AT91) += at91_i2c.o
@@ -57,4 +57,4 @@ obj-$(CONFIG_SYS_I2C_VERSATILE) += i2c-versatile.o
 obj-$(CONFIG_SYS_I2C_XILINX_XIIC) += xilinx_xiic.o
 obj-$(CONFIG_TEGRA186_BPMP_I2C) += tegra186_bpmp_i2c.o
 
-obj-$(CONFIG_$(SPL_)I2C_MUX) += muxes/
+obj-$(CONFIG_$(XPL_)I2C_MUX) += muxes/

@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y	+= mux.o
 endif
 

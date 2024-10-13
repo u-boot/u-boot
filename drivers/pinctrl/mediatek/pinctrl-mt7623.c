@@ -1410,6 +1410,7 @@ U_BOOT_DRIVER(mt7623_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = mt7623_pctrl_match,
 	.ops = &mtk_pinctrl_ops,
+	.bind = mtk_pinctrl_common_bind,
 	.probe = mtk_pinctrl_mt7623_probe,
 	.priv_auto	= sizeof(struct mtk_pinctrl_priv),
 };

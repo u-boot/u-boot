@@ -239,7 +239,7 @@ static int probe_daughtercards(void)
 		printf("Detected: %s rev %s\n", ep.name, ep.version);
 		daughter_card_detect_flags[i] = true;
 
-		if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 			int j;
 			/*
 			 * Populate any MAC addresses from daughtercard into the U-Boot
@@ -257,7 +257,7 @@ static int probe_daughtercards(void)
 		}
 	}
 
-	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 		char name_overlays[1024] = { 0 };
 
 		for (i = 0; i < ARRAY_SIZE(ext_cards); i++) {

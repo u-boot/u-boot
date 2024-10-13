@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 # (C) 2022 Pali Rohár <pali@kernel.org>
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y	+= ../../freescale/p1_p2_rdb_pc/spl.o
 endif
 

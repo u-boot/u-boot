@@ -18,7 +18,7 @@ struct efi_capsule_update_info update_info = {
 
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 #if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) && IS_ENABLED(CONFIG_EFI_PARTITION)
 static bool board_is_rockpi_4b(void)
 {
@@ -55,4 +55,4 @@ void rockchip_capsule_update_board_setup(void)
 	}
 }
 #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT && CONFIG_EFI_PARTITION */
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */

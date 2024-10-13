@@ -33,7 +33,7 @@
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 
 #ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_MMC0(func)	func(MMC, mmc, 0)
@@ -129,7 +129,7 @@
 	STM32MP_EXTRA \
 	STM32MP_BOARD_EXTRA_ENV
 
-#endif /* ifndef CONFIG_SPL_BUILD */
+#endif /* ifndef CONFIG_XPL_BUILD */
 #endif /* ifdef CONFIG_DISTRO_DEFAULTS*/
 
 #endif /* __CONFIG_STM32MP15_COMMMON_H */

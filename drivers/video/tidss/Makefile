@@ -9,4 +9,4 @@
 # Author: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
 
-obj-${CONFIG_$(SPL_)VIDEO_TIDSS} = tidss_drv.o
+obj-${CONFIG_$(XPL_)VIDEO_TIDSS} = tidss_drv.o

@@ -61,7 +61,7 @@ static int socfpga_dwmci_clksel(struct dwmci_host *host)
 	debug("%s: drvsel %d smplsel %d\n", __func__,
 	      priv->drvsel, priv->smplsel);
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
 	int ret;
 
 	ret = socfpga_secure_reg_write32(SOCFPGA_SECURE_REG_SYSMGR_SOC64_SDMMC,

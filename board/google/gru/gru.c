@@ -7,7 +7,7 @@
 #include <init.h>
 #include <asm/arch-rockchip/clock.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 /* provided to defeat compiler optimisation in board_init_f() */
 void gru_dummy_function(int i)
 {
@@ -33,7 +33,7 @@ int board_early_init_f(void)
 }
 #endif
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int board_early_init_r(void)
 {
 	struct udevice *clk;

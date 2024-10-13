@@ -87,6 +87,7 @@
 #include <env_internal.h>
 #include <errno.h>
 #include <image.h>
+#include <led.h>
 #include <log.h>
 #include <net.h>
 #include <net6.h>
@@ -305,7 +306,7 @@ U_BOOT_ENV_CALLBACK(dnsip, on_dnsip);
  */
 void net_auto_load(void)
 {
-#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_XPL_BUILD)
 	const char *s = env_get("autoload");
 
 	if (s != NULL && strcmp(s, "NFS") == 0) {
@@ -559,7 +560,7 @@ restart:
 			ping6_start();
 			break;
 #endif
-#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_NFS) && !defined(CONFIG_XPL_BUILD)
 		case NFS:
 			nfs_start();
 			break;
@@ -574,7 +575,7 @@ restart:
 			cdp_start();
 			break;
 #endif
-#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_XPL_BUILD)
 		case NETCONS:
 			nc_start();
 			break;
@@ -663,6 +664,9 @@ restart:
 			eth_halt();
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
+
+			/* Turn off activity LED if triggered */
+			led_activity_off();
 
 			puts("\nAbort\n");
 			/* include a debug print as well incase the debug
@@ -1439,7 +1443,7 @@ void net_process_received_packet(uchar *in_packet, int len)
 			}
 		}
 
-#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_XPL_BUILD)
 		nc_input_packet((uchar *)ip + IP_UDP_HDR_SIZE,
 				src_ip,
 				ntohs(ip->udp_dst),

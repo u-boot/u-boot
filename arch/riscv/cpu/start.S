@@ -90,7 +90,7 @@ _start:
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
 call_board_init_f:
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_STACK)
 	li	t0, CONFIG_SPL_STACK
 #else
 	li	t0, SYS_INIT_SP_ADDR
@@ -218,7 +218,7 @@ wait_for_gd_init:
 	la	t5, board_init_f
 	jalr	t5			/* jump to board_init_f() */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 spl_clear_bss:
 	la	t0, __bss_start
 	la	t1, __bss_end
@@ -271,7 +271,7 @@ spl_call_board_init_r:
 	j	board_init_r
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 /*
  * void relocate_code(addr_sp, gd, addr_moni)
  *
@@ -420,7 +420,7 @@ call_board_init_r:
  * jump to it ...
  */
 	jr	t4			/* jump to board_init_r() */
-#endif /* !defined(CONFIG_SPL_BUILD) */
+#endif /* !defined(CONFIG_XPL_BUILD) */
 
 #if CONFIG_IS_ENABLED(SMP)
 hart_out_of_bounds_loop:

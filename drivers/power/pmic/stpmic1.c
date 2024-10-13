@@ -91,7 +91,7 @@ static int stpmic1_bind(struct udevice *dev)
 		dev_dbg(dev, "no child found\n");
 #endif /* DM_REGULATOR */
 
-	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 		ret = device_bind_driver(dev, "stpmic1-nvm",
 					 "stpmic1-nvm", NULL);
 		if (ret)
@@ -124,7 +124,7 @@ U_BOOT_DRIVER(pmic_stpmic1) = {
 	.ops = &stpmic1_ops,
 };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int stpmic1_nvm_rw(struct udevice *dev, u8 addr, u8 *buf, int buf_len,
 			  enum pmic_nvm_op op)
 {
@@ -230,7 +230,7 @@ U_BOOT_DRIVER(stpmic1_nvm) = {
 	.id = UCLASS_MISC,
 	.ops = &stpmic1_nvm_ops,
 };
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #ifdef CONFIG_SYSRESET
 static int stpmic1_sysreset_request(struct udevice *dev, enum sysreset_t type)

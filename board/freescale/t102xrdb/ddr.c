@@ -236,7 +236,7 @@ int dram_init(void)
 {
 	phys_size_t dram_size;
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
 #ifndef CONFIG_SYS_DDR_RAW_TIMING
 	puts("Initializing....using SPD\n");
 #endif
@@ -248,7 +248,7 @@ int dram_init(void)
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
 
-#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_DEEP_SLEEP) && !defined(CONFIG_XPL_BUILD)
 	fsl_dp_resume();
 #endif
 

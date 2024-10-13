@@ -73,7 +73,7 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 #define getcmd_getch()		getchar()
 #define getcmd_cbeep()		getcmd_putch('\a')
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define HIST_MAX		3
 #define HIST_SIZE		32
 #else

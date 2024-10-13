@@ -143,7 +143,7 @@ int pca953x_get_val(uint8_t chip)
 	return (int)val;
 }
 
-#if defined(CONFIG_CMD_PCA953X) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_CMD_PCA953X) && !defined(CONFIG_XPL_BUILD)
 /*
  * Display pca953x information
  */

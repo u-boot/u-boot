@@ -65,7 +65,7 @@ static struct rockchip_pll_clock rk3588_pll_clks[] = {
 		     RK3588_MODE_CON0, 0, 15, 0, rk3588_pll_rates),
 	[PPLL] = PLL(pll_rk3588, PLL_PPLL, RK3588_PMU_PLL_CON(128),
 		     RK3588_MODE_CON0, 10, 15, 0, rk3588_pll_rates),
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/*
 	 * The SPLL is part of the SBUSCRU, not the main CRU and as
 	 * such only directly accessible during the SPL stage.
@@ -76,7 +76,7 @@ static struct rockchip_pll_clock rk3588_pll_clks[] = {
 
 };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 /*
  *
  * rational_best_approximation(31415, 10000,
@@ -875,7 +875,7 @@ static ulong rk3588_mmc_set_clk(struct rk3588_clk_priv *priv,
 	return rk3588_mmc_get_clk(priv, clk_id);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong rk3588_aux16m_get_clk(struct rk3588_clk_priv *priv, ulong clk_id)
 {
 	struct rk3588_cru *cru = priv->cru;
@@ -1600,7 +1600,7 @@ static ulong rk3588_clk_get_rate(struct clk *clk)
 	case CLK_GPU:
 		rate = 200000000;
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case CLK_AUX16M_0:
 	case CLK_AUX16M_1:
 		rate = rk3588_aux16m_get_clk(priv, clk->id);
@@ -1760,7 +1760,7 @@ static ulong rk3588_clk_set_rate(struct clk *clk, ulong rate)
 	case CLK_150M_SRC:
 		ret = 0;
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case CLK_AUX16M_0:
 	case CLK_AUX16M_1:
 		ret = rk3588_aux16m_set_clk(priv, clk->id, rate);
@@ -1965,7 +1965,7 @@ static int rk3588_clk_probe(struct udevice *dev)
 
 	priv->sync_kernel = false;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	rockchip_pll_set_rate(&rk3588_pll_clks[B0PLL], priv->cru,
 			      B0PLL, LPLL_HZ);
 	rockchip_pll_set_rate(&rk3588_pll_clks[B1PLL], priv->cru,
@@ -2051,7 +2051,7 @@ U_BOOT_DRIVER(rockchip_rk3588_cru) = {
 	.probe		= rk3588_clk_probe,
 };
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define SCRU_BASE			0xfd7d0000
 #define SBUSCRU_BASE			0xfd7d8000
 

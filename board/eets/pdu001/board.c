@@ -65,7 +65,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CFG_SYS_RTC_SCRATCH0 0x60
 #define BOOT_DEVICE_SAVE_REGISTER (RTC_BASE + CFG_SYS_RTC_SCRATCH0)
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static void save_boot_device(void)
 {
 	*((u32 *)(BOOT_DEVICE_SAVE_REGISTER)) = spl_boot_device();

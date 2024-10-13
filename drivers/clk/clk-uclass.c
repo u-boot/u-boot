@@ -378,7 +378,7 @@ int clk_set_defaults(struct udevice *dev, enum clk_defaults_stage stage)
 	 * However, still set them for SPL. And still set them if explicitly
 	 * asked.
 	 */
-	if (!(IS_ENABLED(CONFIG_SPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
+	if (!(IS_ENABLED(CONFIG_XPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
 		if (stage != CLK_DEFAULTS_POST_FORCE)
 			return 0;
 

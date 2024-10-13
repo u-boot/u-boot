@@ -28,7 +28,7 @@ int dram_init(void)
 
 		return 0;
 	}
-	if (spl_phase() == PHASE_SPL) {
+	if (xpl_phase() == PHASE_SPL) {
 		bool s3wake = false;
 
 		s3wake = IS_ENABLED(CONFIG_HAVE_ACPI_RESUME) &&

@@ -4,7 +4,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 # There are many options which enable SPI, so make this library available
-ifdef CONFIG_$(SPL_TPL_)DM_SPI
+ifdef CONFIG_$(PHASE_)DM_SPI
 obj-y += spi-uclass.o
 obj-$(CONFIG_CADENCE_QSPI) += cadence_qspi.o cadence_qspi_apb.o
 obj-$(CONFIG_CADENCE_OSPI_VERSAL) += cadence_ospi_versal.o

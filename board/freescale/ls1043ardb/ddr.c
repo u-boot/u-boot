@@ -225,14 +225,14 @@ int fsl_initdram(void)
 	phys_size_t dram_size;
 
 #ifdef CONFIG_SYS_DDR_RAW_TIMING
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_SPL)
 	puts("Initializing DDR....\n");
 	dram_size = fsl_ddr_sdram();
 #else
 	dram_size =  fsl_ddr_sdram_size();
 #endif
 #else
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_SPL)
 	puts("Initialzing DDR using fixed setting\n");
 	dram_size = fixed_sdram();
 #else

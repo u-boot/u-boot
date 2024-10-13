@@ -5,6 +5,6 @@
 
 obj-y	= cpu.o
 
-ifneq ($(CONFIG_SPL_BUILD),y)
+ifneq ($(CONFIG_XPL_BUILD),y)
 obj-$(CONFIG_EFI_LOADER) += sctlr.o
 endif

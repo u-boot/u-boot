@@ -11,5 +11,5 @@ obj-$(CONFIG_CLK_TI_DIVIDER) += clk-divider.o
 obj-$(CONFIG_CLK_TI_GATE) += clk-gate.o
 obj-$(CONFIG_CLK_TI_MUX) += clk-mux.o
 obj-$(CONFIG_CLK_TI_SCI) += clk-sci.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_K3_PLL) += clk-k3-pll.o
-obj-$(CONFIG_$(SPL_TPL_)CLK_K3) += clk-k3.o
+obj-$(CONFIG_$(PHASE_)CLK_K3_PLL) += clk-k3-pll.o
+obj-$(CONFIG_$(PHASE_)CLK_K3) += clk-k3.o

@@ -170,7 +170,7 @@ def do_test_efi_helloworld_net(u_boot_console, proto):
     assert expected_text not in output
 
 @pytest.mark.buildconfigspec('of_control')
-@pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
+@pytest.mark.buildconfigspec('bootefi_hello_compile')
 @pytest.mark.buildconfigspec('cmd_tftpboot')
 def test_efi_helloworld_net_tftp(u_boot_console):
     """Run the helloworld.efi binary via TFTP.

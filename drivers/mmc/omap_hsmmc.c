@@ -59,8 +59,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* simplify defines to OMAP_HSMMC_USE_GPIO */
-#if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO))
+#if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_XPL_BUILD)) || \
+	(defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_GPIO))
 #define OMAP_HSMMC_USE_GPIO
 #else
 #undef OMAP_HSMMC_USE_GPIO

@@ -383,7 +383,7 @@ int dram_init(void)
 		return ret;
 
 	/* rom_pointer[1] contains the size of TEE occupies */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1])
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1])
 		gd->ram_size = sdram_size - rom_pointer[1];
 	else
 		gd->ram_size = sdram_size;
@@ -412,7 +412,7 @@ int dram_init_banksize(void)
 	}
 
 	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1]) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
@@ -457,7 +457,7 @@ phys_size_t get_effective_memsize(void)
 		else
 			sdram_b1_size = sdram_size;
 
-		if (!IS_ENABLED(CONFIG_SPL_BUILD) && rom_pointer[1]) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD) && rom_pointer[1]) {
 			/* We will relocate u-boot to top of dram1. TEE position has two cases:
 			 * 1. At the top of dram1,  Then return the size removed optee size.
 			 * 2. In the middle of dram1, return the size of dram1.
@@ -629,7 +629,7 @@ static int low_drive_freq_update(void *blob)
 }
 
 #ifdef CONFIG_OF_BOARD_FIXUP
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int board_fix_fdt(void *fdt)
 {
 	/* Update dtb clocks for low drive mode */
@@ -701,7 +701,7 @@ static void save_reset_cause(void)
 
 int arch_cpu_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		/* Disable wdog */
 		init_wdog();
 
@@ -745,7 +745,7 @@ EVENT_SPY_SIMPLE(EVT_DM_POST_INIT_R, imx9_probe_mu);
 
 int timer_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	struct sctr_regs *sctr = (struct sctr_regs *)SYSCNT_CTRL_BASE_ADDR;
 	unsigned long freq = readl(&sctr->cntfid0);
 

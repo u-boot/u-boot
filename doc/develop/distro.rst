@@ -189,7 +189,7 @@ TO BE UPDATED:
 
 In your board configuration file, include the following::
 
-    #ifndef CONFIG_SPL_BUILD
+    #ifndef CONFIG_XPL_BUILD
     #include <config_distro_bootcmd.h>
     #endif
 
@@ -316,7 +316,7 @@ that it supports the correct set of possible boot device types. To provide this
 configuration, simply define macro BOOT_TARGET_DEVICES prior to including
 <config_distro_bootcmd.h>. For example::
 
-    #ifndef CONFIG_SPL_BUILD
+    #ifndef CONFIG_XPL_BUILD
     #define BOOT_TARGET_DEVICES(func) \
             func(MMC, mmc, 1) \
             func(MMC, mmc, 0) \

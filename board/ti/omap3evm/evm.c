@@ -117,7 +117,7 @@ int spl_start_uboot(void)
 }
 #endif /* CONFIG_SPL_OS_BOOT */
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 /*
  * Routine: get_board_mem_timings
  * Description: If we use SPL then there is no x-loader nor config header
@@ -150,7 +150,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 	timings->mr = MICRON_V_MR_165;
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 /*
  * Routine: misc_init_r

@@ -72,7 +72,7 @@ int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 static void data_modul_imx_edm_sbc_early_init_f(const iomux_v3_cfg_t wdog_pad)
 {
 	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;

@@ -123,7 +123,7 @@ static int board_qspi_init(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
 	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
@@ -346,7 +346,7 @@ void board_preboot_os(void)
 	gpio_set_value(IMX_GPIO_NR(5, 9), 0);
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>

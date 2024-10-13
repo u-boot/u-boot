@@ -42,7 +42,7 @@ struct iotrace_record {
  */
 
 #if defined(CONFIG_IO_TRACE) && !defined(IOTRACE_IMPL) && \
-	!defined(CONFIG_SPL_BUILD)
+	!defined(CONFIG_XPL_BUILD)
 
 #undef readl
 #define readl(addr)	iotrace_readl((const void *)(addr))

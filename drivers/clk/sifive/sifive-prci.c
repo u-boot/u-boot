@@ -670,7 +670,7 @@ static int sifive_prci_probe(struct udevice *dev)
 			__prci_wrpll_read_cfg0(pd, pc->pwd);
 	}
 
-	if (IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (IS_ENABLED(CONFIG_XPL_BUILD)) {
 		if (device_is_compatible(dev, "sifive,fu740-c000-prci")) {
 			u32 prci_pll_reg;
 			unsigned long parent_rate;

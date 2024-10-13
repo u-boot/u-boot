@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
+ifeq ($(CONFIG_XPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
 CONFIG_CPU_V7A=
 CONFIG_CPU_ARM720T=y
 endif
@@ -24,7 +24,7 @@ endif
 
 # On Tegra systems we must build SPL for the armv4 core on the device
 # but otherwise we can use the value in CONFIG_SYS_ARM_ARCH
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
+ifeq ($(CONFIG_XPL_BUILD)$(CONFIG_ARCH_TEGRA),yy)
 arch-y += -D__LINUX_ARM_ARCH__=4
 else
 arch-y += -D__LINUX_ARM_ARCH__=$(CONFIG_SYS_ARM_ARCH)
@@ -106,7 +106,7 @@ libs-y += $(machdirs)
 
 head-y := arch/arm/cpu/$(CPU)/start.o
 
-ifeq ($(CONFIG_SPL_BUILD),y)
+ifeq ($(CONFIG_XPL_BUILD),y)
 ifeq ($(CONFIG_SYS_SOC)$(CONFIG_SPL_FRAMEWORK),"mxs")
 head-y := arch/arm/cpu/arm926ejs/mxs/start.o
 endif

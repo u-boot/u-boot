@@ -611,7 +611,7 @@ int ofnode_read_u32_array(ofnode node, const char *propname,
 					   out_values, sz);
 
 		/* get the error right, but space is more important in SPL */
-		if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+		if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 			if (ret == -FDT_ERR_NOTFOUND)
 				return -EINVAL;
 			else if (ret == -FDT_ERR_BADLAYOUT)
@@ -1468,7 +1468,7 @@ int ofnode_read_simple_size_cells(ofnode node)
 
 bool ofnode_pre_reloc(ofnode node)
 {
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_TPL_BUILD)
+#if defined(CONFIG_XPL_BUILD) || defined(CONFIG_TPL_BUILD)
 	/* for SPL and TPL the remaining nodes after the fdtgrep 1st pass
 	 * had property bootph-all or bootph-pre-sram/bootph-pre-ram.
 	 * They are removed in final dtb (fdtgrep 2nd pass)
@@ -1733,6 +1733,39 @@ const char *ofnode_conf_read_str(const char *prop_name)
 		return NULL;
 
 	return ofnode_read_string(node, prop_name);
+}
+
+bool ofnode_options_read_bool(const char *prop_name)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return false;
+
+	return ofnode_read_bool(uboot, prop_name);
+}
+
+int ofnode_options_read_int(const char *prop_name, int default_val)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return default_val;
+
+	return ofnode_read_u32_default(uboot, prop_name, default_val);
+}
+
+const char *ofnode_options_read_str(const char *prop_name)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return NULL;
+
+	return ofnode_read_string(uboot, prop_name);
 }
 
 int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)

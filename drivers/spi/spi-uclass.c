@@ -224,7 +224,7 @@ int spi_chip_select(struct udevice *dev)
 {
 	struct dm_spi_slave_plat *plat = dev_get_parent_plat(dev);
 
-	return plat ? plat->cs : -ENOENT;
+	return plat ? plat->cs[0] : -ENOENT;
 }
 
 int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
@@ -261,8 +261,8 @@ int spi_find_chip_select(struct udevice *bus, int cs, struct udevice **devp)
 		struct dm_spi_slave_plat *plat;
 
 		plat = dev_get_parent_plat(dev);
-		dev_dbg(bus, "%s: plat=%p, cs=%d\n", __func__, plat, plat->cs);
-		if (plat->cs == cs) {
+		dev_dbg(bus, "%s: plat=%p, cs=%d\n", __func__, plat, plat->cs[0]);
+		if (plat->cs[0] == cs) {
 			*devp = dev;
 			return 0;
 		}
@@ -415,7 +415,7 @@ int _spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 			return ret;
 		}
 		plat = dev_get_parent_plat(dev);
-		plat->cs = cs;
+		plat->cs[0] = cs;
 		if (speed) {
 			plat->max_hz = speed;
 		} else {
@@ -446,6 +446,12 @@ int _spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
 	slave = dev_get_parent_priv(dev);
 	bus_data = dev_get_uclass_priv(bus);
 
+#if CONFIG_IS_ENABLED(SPI_ADVANCE)
+	if ((dev_read_bool(dev, "parallel-memories")) && !slave->multi_cs_cap) {
+		dev_err(dev, "controller doesn't support multi CS\n");
+		return -EINVAL;
+	}
+#endif
 	/*
 	 * In case the operation speed is not yet established by
 	 * dm_spi_claim_bus() ensure the bus is configured properly.
@@ -509,7 +515,21 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 	int mode = 0;
 	int value;
 
-	plat->cs = dev_read_u32_default(dev, "reg", -1);
+#if CONFIG_IS_ENABLED(SPI_ADVANCE)
+	int ret;
+
+	ret = dev_read_u32_array(dev, "reg", plat->cs, SPI_CS_CNT_MAX);
+
+	if (ret == -EOVERFLOW || ret == -FDT_ERR_BADLAYOUT) {
+		dev_read_u32(dev, "reg", &plat->cs[0]);
+	} else {
+		dev_err(dev, "has no valid 'reg' property (%d)\n", ret);
+		return ret;
+	}
+#else
+	plat->cs[0] = dev_read_u32_default(dev, "reg", -1);
+#endif
+
 	plat->max_hz = dev_read_u32_default(dev, "spi-max-frequency",
 					    SPI_DEFAULT_SPEED_HZ);
 	if (dev_read_bool(dev, "spi-cpol"))
@@ -538,7 +558,7 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 		mode |= SPI_TX_OCTAL;
 		break;
 	default:
-		warn_non_spl("spi-tx-bus-width %d not supported\n", value);
+		warn_non_xpl("spi-tx-bus-width %d not supported\n", value);
 		break;
 	}
 
@@ -556,7 +576,7 @@ int spi_slave_of_to_plat(struct udevice *dev, struct dm_spi_slave_plat *plat)
 		mode |= SPI_RX_OCTAL;
 		break;
 	default:
-		warn_non_spl("spi-rx-bus-width %d not supported\n", value);
+		warn_non_xpl("spi-rx-bus-width %d not supported\n", value);
 		break;
 	}
 

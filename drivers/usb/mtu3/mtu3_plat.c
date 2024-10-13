@@ -266,7 +266,7 @@ U_BOOT_DRIVER(mtu3_peripheral) = {
 #endif
 
 #if defined(CONFIG_SPL_USB_HOST) || \
-	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
+	(!defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_HOST))
 static int mtu3_host_probe(struct udevice *dev)
 {
 	struct ssusb_mtk *ssusb = dev_to_ssusb(dev->parent);
@@ -334,7 +334,7 @@ static int mtu3_glue_bind(struct udevice *parent)
 #endif
 
 #if defined(CONFIG_SPL_USB_HOST) || \
-	(!defined(CONFIG_SPL_BUILD) && defined(CONFIG_USB_HOST))
+	(!defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_HOST))
 	case USB_DR_MODE_HOST:
 		dev_dbg(parent, "%s: dr_mode: host\n", __func__);
 		driver = "mtu3-host";

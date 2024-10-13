@@ -259,7 +259,7 @@ static void check_button_status(void)
 	}
 }
 
-#if defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
@@ -473,7 +473,7 @@ int board_late_init(void)
 #endif
 
 #if defined(CONFIG_USB_ETHER) && \
-	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
+	(!defined(CONFIG_XPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
 int board_eth_init(struct bd_info *bis)
 {
 	return usb_eth_initialize(bis);

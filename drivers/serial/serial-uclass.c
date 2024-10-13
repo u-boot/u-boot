@@ -101,7 +101,7 @@ static void serial_find_console_or_panic(void)
 			}
 		}
 	}
-	if (!IS_ENABLED(CONFIG_SPL_BUILD) || !CONFIG_IS_ENABLED(OF_CONTROL) ||
+	if (!IS_ENABLED(CONFIG_XPL_BUILD) || !CONFIG_IS_ENABLED(OF_CONTROL) ||
 	    !blob) {
 		/*
 		 * Try to use CONFIG_CONS_INDEX if available (it is numbered

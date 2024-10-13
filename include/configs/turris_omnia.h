@@ -31,7 +31,7 @@
 #include "mv-common.h"
 
 /* Include the common distro boot environment */
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
@@ -86,6 +86,6 @@
 	"bootcmd_rescue=" TURRIS_OMNIA_BOOTCMD_RESCUE "\0" \
 	BOOTENV
 
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_XPL_BUILD */
 
 #endif /* _CONFIG_TURRIS_OMNIA_H */

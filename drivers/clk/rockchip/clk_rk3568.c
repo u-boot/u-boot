@@ -91,7 +91,7 @@ static struct rockchip_pll_clock rk3568_pll_clks[] = {
 		     RK3568_PMU_MODE, 2, 10, 0, rk3568_pll_rates),
 };
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong
 rk3568_pmu_pll_set_rate(struct rk3568_clk_priv *priv,
 			ulong pll_id, ulong rate)
@@ -1707,7 +1707,7 @@ static ulong rk3568_emmc_set_bclk(struct rk3568_clk_priv *priv, ulong rate)
 	return rk3568_emmc_get_bclk(priv);
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static ulong rk3568_aclk_vop_get_clk(struct rk3568_clk_priv *priv)
 {
 	struct rk3568_cru *cru = priv->cru;
@@ -2413,7 +2413,7 @@ static ulong rk3568_clk_get_rate(struct clk *clk)
 	case TCLK_EMMC:
 		rate = OSC_HZ;
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case ACLK_VOP:
 		rate = rk3568_aclk_vop_get_clk(priv);
 		break;
@@ -2594,7 +2594,7 @@ static ulong rk3568_clk_set_rate(struct clk *clk, ulong rate)
 	case TCLK_EMMC:
 		ret = OSC_HZ;
 		break;
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	case ACLK_VOP:
 		ret = rk3568_aclk_vop_set_clk(priv, rate);
 		break;
@@ -2894,7 +2894,7 @@ static void rk3568_clk_init(struct rk3568_clk_priv *priv)
 			priv->gpll_hz = GPLL_HZ;
 	}
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	ret = rk3568_bus_set_clk(priv, ACLK_BUS, 150000000);
 	if (ret < 0)
 		printf("Fail to set the ACLK_BUS clock.\n");

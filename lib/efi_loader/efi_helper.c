@@ -522,7 +522,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	/* Create memory reservations as indicated by the device tree */
 	efi_carve_out_dt_rsv(fdt);
 
-	efi_try_purge_kaslr_seed(fdt);
+	efi_try_purge_rng_seed(fdt);
 
 	if (CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL_MEASURE_DTB)) {
 		ret = efi_tcg2_measure_dtb(fdt);

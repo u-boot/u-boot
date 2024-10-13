@@ -608,7 +608,7 @@ int fdtdec_get_chosen_node(const void *blob, const char *name)
 static int fdtdec_prepare_fdt(const void *blob)
 {
 	if (!blob || ((uintptr_t)blob & 3) || fdt_check_header(blob)) {
-		if (spl_phase() <= PHASE_SPL) {
+		if (xpl_phase() <= PHASE_SPL) {
 			puts("Missing DTB\n");
 		} else {
 			printf("No valid device tree binary found at %p\n",
@@ -1230,7 +1230,7 @@ static void *fdt_find_separate(void)
 	if (IS_ENABLED(CONFIG_SANDBOX))
 		return NULL;
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 	/* FDT is at end of BSS unless it is in a different memory region */
 	if (CONFIG_IS_ENABLED(SEPARATE_BSS))
 		fdt_blob = (ulong *)_image_binary_end;
@@ -1676,7 +1676,7 @@ int fdtdec_setup(void)
 	 * not whether this phase creates one.
 	 */
 	if (CONFIG_IS_ENABLED(BLOBLIST) &&
-	    (spl_prev_phase() != PHASE_TPL ||
+	    (xpl_prev_phase() != PHASE_TPL ||
 	     !IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
 		ret = bloblist_maybe_init();
 		if (!ret) {
@@ -1714,7 +1714,7 @@ int fdtdec_setup(void)
 	}
 
 	/* Allow the early environment to override the fdt address */
-	if (!IS_ENABLED(CONFIG_SPL_BUILD)) {
+	if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
 		ulong addr;
 
 		addr = env_get_hex("fdtcontroladdr", 0);

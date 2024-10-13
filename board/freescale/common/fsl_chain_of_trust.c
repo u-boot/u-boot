@@ -15,7 +15,7 @@
 #include <dm/root.h>
 #include <asm/fsl_secure_boot.h>
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_FRAMEWORK)
 #include <spl.h>
 #endif
 
@@ -67,7 +67,7 @@ int fsl_check_boot_mode_secure(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 int fsl_setenv_chain_of_trust(void)
 {
 	/* Check Boot Mode
@@ -92,7 +92,7 @@ int fsl_setenv_chain_of_trust(void)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_validate_uboot(uint32_t hdr_addr, uintptr_t img_addr)
 {
 	int res;
@@ -157,4 +157,4 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry();
 }
 #endif /* ifdef CONFIG_SPL_FRAMEWORK */
-#endif /* ifdef CONFIG_SPL_BUILD */
+#endif /* ifdef CONFIG_XPL_BUILD */

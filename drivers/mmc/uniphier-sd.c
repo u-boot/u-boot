@@ -36,7 +36,7 @@ static ulong uniphier_sd_clk_get_rate(struct tmio_sd_priv *priv)
 {
 #if CONFIG_IS_ENABLED(CLK)
 	return clk_get_rate(&priv->clk);
-#elif CONFIG_SPL_BUILD
+#elif CONFIG_XPL_BUILD
 	return 100000000;
 #else
 	return 0;
@@ -50,7 +50,7 @@ static int uniphier_sd_probe(struct udevice *dev)
 	priv->clk_get_rate = uniphier_sd_clk_get_rate;
 	priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD2;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 	int ret;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);

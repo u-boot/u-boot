@@ -1,1 +1,1 @@
-obj-$(CONFIG_$(SPL_)ECDSA_VERIFY) += ecdsa-verify.o
+obj-$(CONFIG_$(XPL_)ECDSA_VERIFY) += ecdsa-verify.o

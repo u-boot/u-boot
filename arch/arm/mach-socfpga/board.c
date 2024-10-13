@@ -102,7 +102,7 @@ u8 socfpga_get_board_id(void)
 	u32 jtag_usercode;
 	int err;
 
-#if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)
+#if !IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_SPL_ATF)
 	err = smc_get_usercode(&jtag_usercode);
 #else
 	u32 resp_len = 1;
@@ -130,7 +130,7 @@ u8 socfpga_get_board_id(void)
 	return board_id;
 }
 
-#if IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_SOC64)
+#if IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_SOC64)
 int board_fit_config_name_match(const char *name)
 {
 	char board_name[10];
@@ -154,7 +154,7 @@ void board_fit_image_post_process(const void *fit, int node, void **p_image,
 }
 #endif
 
-#if !IS_ENABLED(CONFIG_SPL_BUILD) && IS_ENABLED(CONFIG_FIT)
+#if !IS_ENABLED(CONFIG_XPL_BUILD) && IS_ENABLED(CONFIG_FIT)
 void board_prep_linux(struct bootm_headers *images)
 {
 	bool use_fit = false;

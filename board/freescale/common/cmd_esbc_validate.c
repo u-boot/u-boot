@@ -23,7 +23,7 @@ loop:
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 static int do_esbc_validate(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {

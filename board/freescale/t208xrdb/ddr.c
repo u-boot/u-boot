@@ -102,7 +102,7 @@ int dram_init(void)
 {
 	phys_size_t dram_size;
 
-#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
+#if defined(CONFIG_XPL_BUILD) || !defined(CONFIG_RAMBOOT_PBL)
 	puts("Initializing....using SPD\n");
 	dram_size = fsl_ddr_sdram();
 #else

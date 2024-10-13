@@ -16,7 +16,7 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"scriptaddr=0x80000000\0" \
@@ -70,7 +70,7 @@
 		"setenv boot_syslinux_conf \"extlinux/extlinux.conf\"; " \
 		"run bootcmd_ubifs0;\0"
 
-#endif /* ! CONFIG_SPL_BUILD */
+#endif /* ! CONFIG_XPL_BUILD */
 
 #define SPLASH_SCREEN_NAND_PART "nand0,10"
 #define SPLASH_SCREEN_BMP_FILE_SIZE 0x26000

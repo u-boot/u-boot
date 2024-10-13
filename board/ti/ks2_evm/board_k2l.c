@@ -104,7 +104,7 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_init_keystone_plls(void)
 {
 	init_plls();

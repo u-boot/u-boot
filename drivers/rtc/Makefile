@@ -4,7 +4,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #ccflags-y += -DDEBUG
 
-obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
+obj-$(CONFIG_$(PHASE_)DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_ARMADA38X) += armada38x.o
 obj-$(CONFIG_RTC_DAVINCI) += davinci.o
@@ -17,7 +17,7 @@ obj-$(CONFIG_RTC_DS3232) += ds3232.o
 obj-$(CONFIG_RTC_EMULATION) += emul_rtc.o
 obj-$(CONFIG_RTC_GOLDFISH) += goldfish_rtc.o
 obj-$(CONFIG_RTC_HT1380) += ht1380.o
-obj-$(CONFIG_$(SPL_TPL_)RTC_SANDBOX) += i2c_rtc_emul.o
+obj-$(CONFIG_$(PHASE_)RTC_SANDBOX) += i2c_rtc_emul.o
 obj-$(CONFIG_RTC_ISL1208) += isl1208.o
 obj-$(CONFIG_RTC_M41T62) += m41t62.o
 obj-$(CONFIG_RTC_MAX313XX) += max313xx.o
@@ -37,6 +37,6 @@ obj-$(CONFIG_RTC_RX8025) += rx8025.o
 obj-$(CONFIG_RTC_RX8010SJ) += rx8010sj.o
 obj-$(CONFIG_RTC_S35392A) += s35392a.o
 obj-$(CONFIG_RTC_STM32) += stm32_rtc.o
-obj-$(CONFIG_$(SPL_TPL_)RTC_SANDBOX) += sandbox_rtc.o
+obj-$(CONFIG_$(PHASE_)RTC_SANDBOX) += sandbox_rtc.o
 obj-$(CONFIG_RTC_ABX80X) += abx80x.o
 obj-$(CONFIG_RTC_ZYNQMP) += zynqmp_rtc.o

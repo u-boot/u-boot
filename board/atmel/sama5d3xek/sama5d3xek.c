@@ -194,7 +194,7 @@ int board_late_init(void)
 #endif
 
 /* SPL */
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 void spl_board_init(void)
 {
 #if CONFIG_NAND_BOOT

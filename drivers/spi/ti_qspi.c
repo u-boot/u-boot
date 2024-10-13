@@ -163,7 +163,7 @@ static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
 	uchar *rxp = din;
 	uint status;
 	int timeout;
-	unsigned int cs = slave->cs;
+	unsigned int cs = slave->cs[0];
 
 	bus = dev->parent;
 	priv = dev_get_priv(bus);
@@ -344,7 +344,7 @@ static int ti_qspi_exec_mem_op(struct spi_slave *slave,
 	if (from + op->data.nbytes > priv->mmap_size)
 		return -ENOTSUPP;
 
-	ti_qspi_setup_mmap_read(priv, slave_plat->cs, op->cmd.opcode,
+	ti_qspi_setup_mmap_read(priv, slave_plat->cs[0], op->cmd.opcode,
 				op->data.buswidth, op->addr.nbytes,
 				op->dummy.nbytes);
 
@@ -363,7 +363,7 @@ static int ti_qspi_claim_bus(struct udevice *dev)
 	bus = dev->parent;
 	priv = dev_get_priv(bus);
 
-	if (slave_plat->cs > priv->num_cs) {
+	if (slave_plat->cs[0] > priv->num_cs) {
 		debug("invalid qspi chip select\n");
 		return -EINVAL;
 	}
@@ -371,13 +371,13 @@ static int ti_qspi_claim_bus(struct udevice *dev)
 	writel(MM_SWITCH, &priv->base->memswitch);
 	if (priv->ctrl_mod_mmap)
 		ti_qspi_ctrl_mode_mmap(priv->ctrl_mod_mmap,
-				       slave_plat->cs, true);
+				       slave_plat->cs[0], true);
 
 	writel(priv->dc, &priv->base->dc);
 	writel(0, &priv->base->cmd);
 	writel(0, &priv->base->data);
 
-	priv->dc <<= slave_plat->cs * 8;
+	priv->dc <<= slave_plat->cs[0] * 8;
 	writel(priv->dc, &priv->base->dc);
 
 	return 0;
@@ -395,12 +395,12 @@ static int ti_qspi_release_bus(struct udevice *dev)
 	writel(~MM_SWITCH, &priv->base->memswitch);
 	if (priv->ctrl_mod_mmap)
 		ti_qspi_ctrl_mode_mmap(priv->ctrl_mod_mmap,
-				       slave_plat->cs, false);
+				       slave_plat->cs[0], false);
 
 	writel(0, &priv->base->dc);
 	writel(0, &priv->base->cmd);
 	writel(0, &priv->base->data);
-	writel(0, TI_QSPI_SETUP_REG(priv, slave_plat->cs));
+	writel(0, TI_QSPI_SETUP_REG(priv, slave_plat->cs[0]));
 
 	return 0;
 }

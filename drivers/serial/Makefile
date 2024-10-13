@@ -3,7 +3,7 @@
 # (C) Copyright 2006-2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifeq ($(CONFIG_$(SPL_TPL_)DM_SERIAL),y)
+ifeq ($(CONFIG_$(PHASE_)DM_SERIAL),y)
 obj-y += serial-uclass.o
 else
 obj-y += serial.o
@@ -11,7 +11,7 @@ endif
 
 obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
-obj-$(CONFIG_$(SPL_)SYS_NS16550_SERIAL) += serial_ns16550.o
+obj-$(CONFIG_$(XPL_)SYS_NS16550_SERIAL) += serial_ns16550.o
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
@@ -63,7 +63,7 @@ obj-$(CONFIG_XEN_SERIAL) += serial_xen.o
 obj-$(CONFIG_XTENSA_SEMIHOSTING_SERIAL) += serial_xtensa_semihosting.o
 obj-$(CONFIG_S5P4418_PL011_SERIAL) += serial_s5p4418_pl011.o
 
-ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o
 endif
 obj-$(CONFIG_UART4_SERIAL) += serial_adi_uart4.o

@@ -246,12 +246,12 @@ static int dwc3_generic_host_probe(struct udevice *dev)
 		return rc;
 
 	rc = device_get_supply_regulator(dev, "vbus-supply", &priv->vbus_supply);
-	if (rc)
+	if (rc && rc != -ENOSYS)
 		debug("%s: No vbus regulator found: %d\n", dev->name, rc);
 
-	/* Only returns an error if regulator is valid and failed to enable due to a driver issue */
+	/* Does not return an error if regulator is invalid - but does so when DM_REGULATOR is disabled */
 	rc = regulator_set_enable_if_allowed(priv->vbus_supply, true);
-	if (rc)
+	if (rc && rc != -ENOSYS)
 		return rc;
 
 	hccr = (struct xhci_hccr *)priv->gen_priv.base;

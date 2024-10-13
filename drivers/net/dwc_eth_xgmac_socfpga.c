@@ -37,7 +37,7 @@ static int dwxgmac_socfpga_do_setphy(struct udevice *dev, u32 modereg)
 	u32 modemask = SYSMGR_EMACGRP_CTRL_PHYSEL_MASK <<
 		       xgmac->syscon_phy_regshift;
 
-	if (!(IS_ENABLED(CONFIG_SPL_BUILD)) && IS_ENABLED(CONFIG_SPL_ATF)) {
+	if (!(IS_ENABLED(CONFIG_XPL_BUILD)) && IS_ENABLED(CONFIG_SPL_ATF)) {
 		u32 index = ((u64)xgmac->syscon_phy - socfpga_get_sysmgr_addr() -
 			     SYSMGR_SOC64_EMAC0) >> 2;
 

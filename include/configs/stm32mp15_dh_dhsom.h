@@ -10,7 +10,7 @@
 
 /* PHY needs a longer autoneg timeout */
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 #define CFG_EXTRA_ENV_SETTINGS						\
 	"dfu_alt_info_ram=u-boot.itb ram "				\
 			__stringify(CONFIG_SPL_LOAD_FIT_ADDRESS)	\

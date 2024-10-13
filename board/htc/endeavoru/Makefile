@@ -6,6 +6,6 @@
 #  (C) Copyright 2021
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
-obj-$(CONFIG_SPL_BUILD) += endeavoru-spl.o
+obj-$(CONFIG_XPL_BUILD) += endeavoru-spl.o
 
 obj-y += endeavoru.o

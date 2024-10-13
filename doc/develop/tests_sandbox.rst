@@ -278,7 +278,7 @@ Whatever sandbox build is used, which tests are present is determined by which
 source files are built. For sandbox_spl, the of_platdata tests are built
 because of the build rule in test/dm/Makefile::
 
-   ifeq ($(CONFIG_SPL_BUILD),y)
+   ifeq ($(CONFIG_XPL_BUILD),y)
    obj-$(CONFIG_SPL_OF_PLATDATA) += of_platdata.o
    else
    ...other tests for non-spl

@@ -54,7 +54,7 @@ struct spi_flash *spi_flash_probe(unsigned int busnum, unsigned int cs,
 	struct udevice *bus;
 	char *str;
 
-#if defined(CONFIG_SPL_BUILD) && CONFIG_IS_ENABLED(USE_TINY_PRINTF)
+#if defined(CONFIG_XPL_BUILD) && CONFIG_IS_ENABLED(USE_TINY_PRINTF)
 	str = "spi_flash";
 #else
 	char name[30];

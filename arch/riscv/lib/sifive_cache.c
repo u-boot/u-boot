@@ -10,7 +10,7 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 void enable_caches(void)
 {
 	struct udevice *dev;
@@ -45,4 +45,4 @@ void enable_caches(void)
 
 	probe_cache_device(DM_DRIVER_GET(sifive_pl2), dev);
 }
-#endif /* !CONFIG_SPL_BUILD */
+#endif /* !CONFIG_XPL_BUILD */

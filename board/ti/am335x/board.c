@@ -569,8 +569,8 @@ void sdram_init(void)
 }
 #endif
 
-#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD)))
+#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_XPL_BUILD) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD)))
 static void request_and_set_gpio(int gpio, char *name, int val)
 {
 	int ret;
@@ -707,8 +707,8 @@ int board_init(void)
 	gpmc_init();
 #endif
 
-#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_SPL_ETH) && defined(CONFIG_SPL_BUILD)))
+#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_XPL_BUILD) || \
+	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD)))
 	if (board_is_icev2()) {
 		int rv;
 		u32 reg;
@@ -798,7 +798,7 @@ int board_init(void)
 int board_late_init(void)
 {
 	struct udevice *dev;
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 #endif
@@ -847,7 +847,7 @@ int board_late_init(void)
 		env_set("boot_fit", "1");
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_XPL_BUILD)
 	/* try reading mac address from efuse */
 	mac_lo = readl(&cdev->macid0l);
 	mac_hi = readl(&cdev->macid0h);

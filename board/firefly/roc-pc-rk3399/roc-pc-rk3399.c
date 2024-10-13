@@ -13,7 +13,7 @@
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 
 #define PMUGRF_BASE	0xff320000
 #define GPIO0_BASE	0xff720000

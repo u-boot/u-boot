@@ -315,7 +315,7 @@ static struct serial_device *get_current(void)
 
 	/* We must have a console device */
 	if (!dev) {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_XPL_BUILD
 		puts("Cannot find console\n");
 		hang();
 #else

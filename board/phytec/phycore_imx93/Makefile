@@ -9,6 +9,6 @@
 
 obj-y += phycore-imx93.o
 
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-y += spl.o lpddr4_timing.o
 endif

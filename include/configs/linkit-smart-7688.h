@@ -15,7 +15,7 @@
 #define CFG_SYS_UBOOT_BASE		0
 
 /* Serial SPL */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_SERIAL)
 #define CFG_SYS_NS16550_CLK		40000000
 #define CFG_SYS_NS16550_COM3		0xb0000e00
 

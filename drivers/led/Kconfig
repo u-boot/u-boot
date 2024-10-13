@@ -9,6 +9,30 @@ config LED
 	  can provide access to board-specific LEDs. Use of the device tree
 	  for configuration is encouraged.
 
+config LED_BOOT
+	bool "Enable LED boot support"
+	help
+	  Enable LED boot support.
+
+	  LED boot is a specific LED assigned to signal boot operation status.
+	  Defined in Device Tree /options/u-boot node. Refer here for the supported
+	  options [1].
+
+	  [1] dtschema/schemas/options/u-boot.yaml
+
+config LED_ACTIVITY
+	bool "Enable LED activity support"
+	help
+	  Enable LED activity support.
+
+	  LED activity is a specific LED assigned to signal activity operation
+	  like file trasnfer, flash write/erase...
+
+	  Defined in Device Tree /options/u-boot node. Refer here for the supported
+	  options [1].
+
+	  [1] dtschema/schemas/options/u-boot.yaml
+
 config LED_BCM6328
 	bool "LED Support for BCM6328"
 	depends on LED && ARCH_BMIPS

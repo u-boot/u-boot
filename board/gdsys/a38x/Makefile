@@ -6,6 +6,6 @@
 
 obj-$(CONFIG_TARGET_CONTROLCENTERDC) += controlcenterdc.o hre.o keyprogram.o dt_helpers.o
 
-ifeq ($(CONFIG_SPL_BUILD),)
+ifeq ($(CONFIG_XPL_BUILD),)
 obj-$(CONFIG_TARGET_CONTROLCENTERDC) += hydra.o ihs_phys.o
 endif

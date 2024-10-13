@@ -12,6 +12,7 @@ CONFIG_EMIF4=y
 CONFIG_SPL_SYS_MALLOC_F_LEN=0x2500
 CONFIG_SPL=y
 CONFIG_LTO=y
+# CONFIG_EFI_LOADER is not set
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=10
 CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then echo SD/MMC found on device $mmcdev; if run loadbootenv; then run importbootenv; fi; echo Checking if uenvcmd is set ...; if test -n $uenvcmd; then echo Running uenvcmd ...; run uenvcmd; fi; echo Running default loadimage ...; setenv bootfile zImage; if run loadimage; then run loadfdt; run mmcboot; fi; else run nandboot; fi"
@@ -19,7 +20,6 @@ CONFIG_SYS_PBSIZE=1054
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
 CONFIG_SPL_SYS_MALLOC=y
 CONFIG_SPL_SYS_MALLOC_SIZE=0x800000
-# CONFIG_SPL_SYS_MMCSD_RAW_MODE is not set
 # CONFIG_SPL_FS_EXT4 is not set
 # CONFIG_SPL_I2C is not set
 CONFIG_SPL_MTD=y
@@ -96,4 +96,3 @@ CONFIG_USB_MUSB_HOST=y
 CONFIG_USB_MUSB_AM35X=y
 CONFIG_BCH=y
 CONFIG_SPL_TINY_MEMSET=y
-# CONFIG_EFI_LOADER is not set

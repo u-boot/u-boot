@@ -6,6 +6,6 @@
 #  (C) Copyright 2021
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
-obj-$(CONFIG_SPL_BUILD) += x3-t30-spl.o
+obj-$(CONFIG_XPL_BUILD) += x3-t30-spl.o
 
 obj-y += x3-t30.o

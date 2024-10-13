@@ -27,7 +27,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_DEBUG_UART_BOARD_INIT)
 void board_debug_uart_init(void)
 {
 	/* Add initialization sequence if UART is not configured */
@@ -36,7 +36,7 @@ void board_debug_uart_init(void)
 
 int board_init(void)
 {
-	if (IS_ENABLED(CONFIG_SPL_BUILD))
+	if (IS_ENABLED(CONFIG_XPL_BUILD))
 		printf("Silicon version:\t%d\n", zynq_get_silicon_version());
 
 	if (CONFIG_IS_ENABLED(DM_I2C) && CONFIG_IS_ENABLED(I2C_EEPROM))

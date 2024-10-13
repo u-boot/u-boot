@@ -11,7 +11,7 @@ endif
 
 obj-y	+= sys_info.o
 obj-y	+= ddr.o
-ifeq ($(CONFIG_$(SPL_)SKIP_LOWLEVEL_INIT),)
+ifeq ($(CONFIG_$(XPL_)SKIP_LOWLEVEL_INIT),)
 obj-y	+= emif4.o
 endif
 obj-y	+= board.o

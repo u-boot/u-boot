@@ -15,7 +15,7 @@ obj-y	+= clock.o
 obj-y	+= sys_info.o
 obj-y	+= prcm-regs.o
 obj-y	+= hw_data.o
-ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_OMAP3_ID_NAND)	+= spl_id_nand.o
 endif
 

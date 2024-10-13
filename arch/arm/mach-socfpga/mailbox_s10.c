@@ -400,7 +400,7 @@ error:
 
 int mbox_reset_cold(void)
 {
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_ATF)
+#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_ATF)
 	psci_system_reset();
 #else
 	int ret;

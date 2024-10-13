@@ -191,7 +191,7 @@ static int console_setfile(int file, struct stdio_dev * dev)
 		/* Assign the new device (leaving the existing one started) */
 		stdio_devices[file] = dev;
 
-#ifndef CONFIG_SPL_BUILD
+#ifndef CONFIG_XPL_BUILD
 		/*
 		 * Update monitor functions
 		 * (to use the console stuff by other applications)

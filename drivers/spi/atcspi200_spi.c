@@ -319,7 +319,7 @@ static int atcspi200_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct nds_spi_slave *ns = dev_get_priv(bus);
 
-	if (slave_plat->cs >= ns->num_cs) {
+	if (slave_plat->cs[0] >= ns->num_cs) {
 		printf("Invalid SPI chipselect\n");
 		return -EINVAL;
 	}

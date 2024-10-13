@@ -9,6 +9,6 @@ obj-y	+= cpu.o
 
 # some files can only build in ARM mode
 
-ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD
+ifdef CONFIG_$(XPL_)SYS_THUMB_BUILD
 CFLAGS_cpu.o := -marm
 endif

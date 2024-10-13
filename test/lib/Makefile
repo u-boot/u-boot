@@ -2,7 +2,7 @@
 #
 # (C) Copyright 2018
 # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
-ifeq ($(CONFIG_SPL_BUILD),)
+ifeq ($(CONFIG_XPL_BUILD),)
 obj-y += cmd_ut_lib.o
 obj-y += abuf.o
 obj-y += alist.o

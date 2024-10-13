@@ -382,6 +382,7 @@ U_BOOT_DRIVER(mt8512_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = mt8512_pctrl_match,
 	.ops = &mtk_pinctrl_ops,
+	.bind = mtk_pinctrl_common_bind,
 	.probe = mtk_pinctrl_mt8512_probe,
 	.priv_auto	= sizeof(struct mtk_pinctrl_priv),
 };
