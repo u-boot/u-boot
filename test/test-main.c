@@ -294,27 +294,27 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	 * Remove any USB keyboard, so that we can add and remove USB devices
 	 * in tests.
 	 *
-	 * For UT_TESTF_DM tests, the old driver model state is saved and
+	 * For UTF_DM tests, the old driver model state is saved and
 	 * restored across each test. Within in each test there is therefore a
 	 * new driver model state, which means that any USB keyboard device in
 	 * stdio points to the old state.
 	 *
-	 * This is fine in most cases. But if a non-UT_TESTF_DM test starts up
+	 * This is fine in most cases. But if a non-UTF_DM test starts up
 	 * USB (thus creating a stdio record pointing to the USB keyboard
 	 * device) then when the test finishes, the new driver model state is
 	 * freed, meaning that there is now a stale pointer in stdio.
 	 *
-	 * This means that any future UT_TESTF_DM test which uses stdin will
+	 * This means that any future UTF_DM test which uses stdin will
 	 * cause the console system to call tstc() on the stale device pointer,
 	 * causing a crash.
 	 *
-	 * We don't want to fix this by enabling UT_TESTF_DM for all tests as
+	 * We don't want to fix this by enabling UTF_DM for all tests as
 	 * this causes other problems. For example, bootflow_efi relies on
 	 * U-Boot going through a proper init - without that we don't have the
 	 * TCG measurement working and get an error
 	 * 'tcg2 measurement fails(0x8000000000000007)'. Once we tidy up how EFI
 	 * runs tests (e.g. get rid of all the restarting of U-Boot) we could
-	 * potentially make the bootstd tests set UT_TESTF_DM, but other tests
+	 * potentially make the bootstd tests set UTF_DM, but other tests
 	 * might do the same thing.
 	 *
 	 * We could add a test flag to declare that USB is being used, but that
@@ -323,7 +323,7 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 	 * pointers always.
 	 *
 	 * So just remove any USB keyboards from the console tables. This allows
-	 * UT_TESTF_DM and non-UT_TESTF_DM tests to coexist happily.
+	 * UTF_DM and non-UTF_DM tests to coexist happily.
 	 */
 	usb_kbd_remove_for_test();
 
