@@ -61,6 +61,22 @@ struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
 	return NULL;
 }
 
+struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
+					      int val)
+{
+	struct scene_menitem *item;
+	uint i;
+
+	i = 0;
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		if (item->value == val)
+			return item;
+		i++;
+	}
+
+	return NULL;
+}
+
 /**
  * update_pointers() - Update the pointer object and handle highlights
  *
@@ -416,6 +432,7 @@ int scene_menuitem(struct scene *scn, uint menu_id, const char *name, uint id,
 	item->desc_id = desc_id;
 	item->preview_id = preview_id;
 	item->flags = flags;
+	item->value = INT_MAX;
 	list_add_tail(&item->sibling, &menu->item_head);
 
 	if (itemp)

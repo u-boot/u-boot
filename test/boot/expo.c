@@ -717,6 +717,7 @@ static int expo_test_build(struct unit_test_state *uts)
 	ut_asserteq(0, item->desc_id);
 	ut_asserteq(0, item->preview_id);
 	ut_asserteq(0, item->flags);
+	ut_asserteq(0, item->value);
 
 	txt = scene_obj_find(scn, item->label_id, SCENEOBJT_NONE);
 	ut_asserteq_str("2 GHz", expo_get_str(exp, txt->str_id));

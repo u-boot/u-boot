@@ -330,6 +330,7 @@ enum scene_menuitem_flags_t {
  * @desc_id: ID of text object to use as the description text
  * @preview_id: ID of the preview object, or 0 if none
  * @flags: Flags for this item
+ * @value: Value for this item, or INT_MAX to use sequence
  * @sibling: Node to link this item to its siblings
  */
 struct scene_menitem {
@@ -340,6 +341,7 @@ struct scene_menitem {
 	uint desc_id;
 	uint preview_id;
 	uint flags;
+	int value;
 	struct list_head sibling;
 };
 

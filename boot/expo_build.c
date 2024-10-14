@@ -227,10 +227,10 @@ static void list_strings(struct build_info *info)
 static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 		      uint id, struct scene_obj **objp)
 {
+	const u32 *item_ids, *item_values;
 	struct scene_obj_menu *menu;
+	int ret, size, i, num_items;
 	uint title_id, menu_id;
-	const u32 *item_ids;
-	int ret, size, i;
 	const char *name;
 
 	name = ofnode_get_name(node);
@@ -254,9 +254,15 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 		return log_msg_ret("itm", -EINVAL);
 	if (!size || size % sizeof(u32))
 		return log_msg_ret("isz", -EINVAL);
-	size /= sizeof(u32);
+	num_items = size / sizeof(u32);
 
-	for (i = 0; i < size; i++) {
+	item_values = ofnode_read_prop(node, "item-value", &size);
+	if (item_values) {
+		if (size != num_items * sizeof(u32))
+			return log_msg_ret("vsz", -EINVAL);
+	}
+
+	for (i = 0; i < num_items; i++) {
 		struct scene_menitem *item;
 		uint label, key, desc;
 
@@ -280,6 +286,8 @@ static int menu_build(struct build_info *info, ofnode node, struct scene *scn,
 				     desc, 0, 0, &item);
 		if (ret < 0)
 			return log_msg_ret("mi", ret);
+		if (item_values)
+			item->value = fdt32_to_cpu(item_values[i]);
 	}
 	*objp = &menu->obj;
 

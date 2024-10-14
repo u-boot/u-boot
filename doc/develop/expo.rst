@@ -361,6 +361,13 @@ item-id
     Specifies the ID for each menu item. These are used for checking which item
     has been selected.
 
+item-value
+    type: u32 list, optional
+
+    Specifies the value for each menu item. These are used for saving and
+    loading. If this is omitted the value is its position in the menu (0..n-1).
+    Valid values are positive and negative integers INT_MIN...(INT_MAX - 1).
+
 item-label / item-label-id
     type: string list / u32 list, required
 
@@ -474,6 +481,9 @@ strings are provided inline in the nodes where they are used.
                     /* IDs for the menu items */
                     item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
                         ID_CPU_SPEED_3>;
+
+                    /* values for the menu items */
+                    item-value = <(-1) 3 6>;
                 };
 
                 power-loss {

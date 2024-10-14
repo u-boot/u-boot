@@ -39,6 +39,9 @@
 				item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
 					ID_CPU_SPEED_3>;
 
+				/* values for the menu items */
+				item-value = <(-1) 3 6>;
+
 				start-bit = <0x400>;
 				bit-length = <2>;
 			};

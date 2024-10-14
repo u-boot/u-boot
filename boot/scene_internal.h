@@ -282,6 +282,16 @@ struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
 					      uint seq);
 
 /**
+ * scene_menuitem_find_val() - Find the menu item with a given value
+ *
+ * @menu: Menu to check
+ * @find_val: Value to look for
+ * Return: menu item if found, else NULL
+ */
+struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
+					      int val);
+
+/**
  * scene_bbox_union() - update bouding box with the demensions of an object
  *
  * Updates @bbox so that it encompasses the bounding box of object @id
