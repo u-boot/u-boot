@@ -23,7 +23,7 @@ void mctl_set_timing_params(const struct dram_para *para)
 	u8 trcd		= max(ns_to_t(18), 2);
 	u8 trc		= ns_to_t(65);
 	u8 txp		= max(ns_to_t(8), 2);
-	u8 trtp		= max(ns_to_t(8), 4);
+	u8 trtp		= 4;
 	u8 trp		= ns_to_t(21);
 	u8 tras		= ns_to_t(42);
 	u16 trefi	= ns_to_t(3904) / 32;

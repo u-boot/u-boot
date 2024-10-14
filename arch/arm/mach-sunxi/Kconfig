@@ -108,6 +108,23 @@ config DRAM_SUN50I_H616_TPR12
 	default 0x0
 	help
 	  TPR12 value from vendor DRAM settings.
+
+choice
+	prompt "H616 PHY pin mapping selection"
+	default DRAM_SUN50I_H616_PHY_ADDR_MAP_0
+
+config DRAM_SUN50I_H616_PHY_ADDR_MAP_0
+	bool "H313/H616/H618"
+	help
+	  The pin mapping selection used by the H313, H616, H618, and
+	  possibly other dies which use the H616 DRAM controller.
+
+config DRAM_SUN50I_H616_PHY_ADDR_MAP_1
+	bool "H700"
+	help
+	  The pin mapping selection used by the H700 and possibly other
+	  dies which use the H616 DRAM controller.
+endchoice
 endif
 
 config SUN6I_PRCM
@@ -437,6 +454,7 @@ config MACH_SUN50I_H616
 	select ARM64
 	select DRAM_SUN50I_H616
 	select SUN50I_GEN_H6
+	imply OF_UPSTREAM
 
 endchoice
 
