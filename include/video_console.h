@@ -27,6 +27,14 @@ enum {
  * Drivers must set up @rows, @cols, @x_charsize, @y_charsize in their probe()
  * method. Drivers may set up @xstart_frac if desired.
  *
+ * Note that these values relate to the rotated console, so that an 80x25
+ * console which is rotated 90 degrees will have rows=80 and cols=25
+ *
+ * The xcur_frac and ycur values refer to the unrotated coordinates, that is
+ * xcur_frac always advances with each character, even if its limit might be
+ * vid_priv->ysize instead of vid_priv->xsize if the console is rotated 90 or
+ * 270 degrees.
+ *
  * @sdev:		stdio device, acting as an output sink
  * @xcur_frac:		Current X position, in fractional units (VID_TO_POS(x))
  * @ycur:		Current Y position in pixels (0=top)
