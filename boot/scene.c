@@ -339,7 +339,7 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 
 	/* draw a background for the object */
 	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
-		fore = VID_BLACK;
+		fore = VID_DARK_GREY;
 		back = VID_WHITE;
 	} else {
 		fore = VID_LIGHT_GRAY;
