@@ -541,15 +541,6 @@ void scene_set_highlight_id(struct scene *scn, uint id);
 int scene_set_open(struct scene *scn, uint id, bool open);
 
 /**
- * scene_title_set() - set the scene title
- *
- * @scn: Scene to update
- * @title_id: Title ID to set
- * Returns: 0 if OK
- */
-int scene_title_set(struct scene *scn, uint title_id);
-
-/**
  * scene_obj_count() - Count the number of objects in a scene
  *
  * @scn: Scene to check

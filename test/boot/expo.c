@@ -151,7 +151,7 @@ static int expo_scene(struct unit_test_state *uts)
 	scn = NULL;
 	id = scene_new(exp, SCENE_NAME2, 0, &scn);
 	ut_assertnonnull(scn);
-	ut_assertok(scene_title_set(scn, title_id));
+	scn->title_id = title_id;
 	ut_asserteq(STR_SCENE_TITLE + 1, id);
 	ut_asserteq(STR_SCENE_TITLE + 2, exp->next_id);
 	ut_asserteq_ptr(exp, scn->expo);

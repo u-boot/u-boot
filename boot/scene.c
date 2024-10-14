@@ -70,13 +70,6 @@ void scene_destroy(struct scene *scn)
 	free(scn);
 }
 
-int scene_title_set(struct scene *scn, uint id)
-{
-	scn->title_id = id;
-
-	return 0;
-}
-
 int scene_obj_count(struct scene *scn)
 {
 	return list_count_nodes(&scn->obj_head);
