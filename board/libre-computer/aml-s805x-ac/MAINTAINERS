@@ -1,0 +1,8 @@
+LIBRE-COMPUTER AML-S805X-AC
+M:	Neil Armstrong <neil.armstrong@linaro.org>
+S:	Maintained
+L:	u-boot-amlogic@groups.io
+F:	board/amlogic/aml-s805x-ac/
+F:	include/configs/libretech-ac.h
+F:	configs/libretech-ac_defconfig
+F:	doc/board/amlogic/libretech-ac.rst
