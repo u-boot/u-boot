@@ -40,3 +40,6 @@ CMOS RAM::
     Checksum 6600 written
     => cbc check
     =>
+
+See also :ref:`cedit_cb_load` which shows an example that includes the
+configuration editor.

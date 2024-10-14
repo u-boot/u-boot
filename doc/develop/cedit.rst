@@ -172,4 +172,4 @@ Cedit provides several options for persistent settings:
 
 For now, reading and writing settings is not automatic. See the
 :doc:`../usage/cmd/cedit` for how to do this on the command line or in a
-script.
+script. For x86 devices, see :ref:`cedit_cb_load`.

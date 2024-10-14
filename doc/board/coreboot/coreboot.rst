@@ -182,3 +182,9 @@ CI runs tests using a pre-built coreboot image. This ensures that U-Boot can
 boot as a coreboot payload, based on a known-good build of coreboot.
 
 To update the `coreboot.rom` file which is used, see ``tools/Dockerfile``
+
+Editing CMOS RAM settings
+-------------------------
+
+U-Boot supports creating a configuration editor to edit coreboot CMOS-RAM
+settings. See :ref:`cedit_cb_load`.

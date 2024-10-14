@@ -59,6 +59,9 @@ obj-$(CONFIG_$(PHASE_)LOAD_FIT) += common_fit.o
 
 obj-$(CONFIG_$(PHASE_)EXPO) += expo.o scene.o expo_build.o
 obj-$(CONFIG_$(PHASE_)EXPO) += scene_menu.o scene_textline.o
+ifdef CONFIG_COREBOOT_SYSINFO
+obj-$(CONFIG_$(SPL_TPL_)EXPO) += expo_build_cb.o
+endif
 
 obj-$(CONFIG_$(PHASE_)BOOTMETH_VBE) += vbe.o
 obj-$(CONFIG_$(PHASE_)BOOTMETH_VBE_REQUEST) += vbe_request.o
