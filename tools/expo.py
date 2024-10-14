@@ -20,17 +20,22 @@ from u_boot_pylib import tools
 
 # Parse:
 #	SCENE1		= 7,
+# or    SCENE1		= EXPOID_BASE_ID,
 # or	SCENE2,
-RE_ENUM = re.compile(r'(\S*)(\s*= (\d))?,')
+RE_ENUM = re.compile(r'(\S*)(\s*= ([0-9A-Z_]+))?,')
 
 # Parse #define <name>  "string"
 RE_DEF = re.compile(r'#define (\S*)\s*"(.*)"')
 
-def calc_ids(fname):
+# Parse EXPOID_BASE_ID = 5,
+RE_BASE_ID = re.compile(r'\s*EXPOID_BASE_ID\s*= (\d+),')
+
+def calc_ids(fname, base_id):
     """Figure out the value of the enums in a C file
 
     Args:
         fname (str): Filename to parse
+        base_id (int): Base ID (value of EXPOID_BASE_ID)
 
     Returns:
         OrderedDict():
@@ -55,8 +60,12 @@ def calc_ids(fname):
                 if not line or line.startswith('/*'):
                     continue
                 m_enum = RE_ENUM.match(line)
-                if m_enum.group(3):
-                    cur_id = int(m_enum.group(3))
+                enum_name = m_enum.group(3)
+                if enum_name:
+                    if enum_name == 'EXPOID_BASE_ID':
+                        cur_id = base_id
+                    else:
+                        cur_id = int(enum_name)
                 vals[m_enum.group(1)] = cur_id
                 cur_id += 1
             else:
@@ -67,10 +76,24 @@ def calc_ids(fname):
     return vals
 
 
+def find_base_id():
+    fname = 'include/expo.h'
+    base_id = None
+    with open(fname, 'r', encoding='utf-8') as inf:
+        for line in inf.readlines():
+            m_base_id = RE_BASE_ID.match(line)
+            if m_base_id:
+                base_id = int(m_base_id.group(1))
+    if base_id is None:
+        raise ValueError('EXPOID_BASE_ID not found in expo.h')
+    #print(f'EXPOID_BASE_ID={base_id}')
+    return base_id
+
 def run_expo(args):
     """Run the expo program"""
+    base_id = find_base_id()
     fname = args.enum_fname or args.layout
-    ids = calc_ids(fname)
+    ids = calc_ids(fname, base_id)
     if not ids:
         print(f"Warning: No enum ID values found in file '{fname}'")
 

@@ -154,7 +154,7 @@ int cedit_run(struct expo *exp)
 	struct video_priv *vid_priv;
 	uint scene_id;
 	struct scene *scn;
-	bool done;
+	bool done, save;
 	int ret;
 
 	cli_ch_init(cch);
@@ -164,6 +164,7 @@ int cedit_run(struct expo *exp)
 	scene_id = ret;
 
 	done = false;
+	save = false;
 	do {
 		struct expo_action act;
 		int ichar, key;
@@ -208,6 +209,15 @@ int cedit_run(struct expo *exp)
 			case EXPOACT_OPEN:
 				scene_set_open(scn, act.select.id, true);
 				cedit_arange(exp, vid_priv, scene_id);
+				switch (scn->highlight_id) {
+				case EXPOID_SAVE:
+					done = true;
+					save = true;
+					break;
+				case EXPOID_DISCARD:
+					done = true;
+					break;
+				}
 				break;
 			case EXPOACT_CLOSE:
 				scene_set_open(scn, act.select.id, false);
@@ -229,6 +239,8 @@ int cedit_run(struct expo *exp)
 
 	if (ret)
 		return log_msg_ret("end", ret);
+	if (!save)
+		return -EACCES;
 
 	return 0;
 }
@@ -477,6 +489,9 @@ static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
 	const char *str;
 	int val, ret;
 
+	if (obj->id < EXPOID_BASE_ID)
+		return 0;
+
 	snprintf(var, sizeof(var), "c.%s", obj->name);
 
 	switch (obj->type) {
@@ -548,6 +563,9 @@ static int h_read_settings_env(struct scene_obj *obj, void *vpriv)
 	struct scene_obj_menu *menu;
 	char var[60];
 	int val;
+
+	if (obj->id < EXPOID_BASE_ID)
+		return 0;
 
 	snprintf(var, sizeof(var), "c.%s", obj->name);
 
@@ -644,7 +662,7 @@ static int h_write_settings_cmos(struct scene_obj *obj, void *vpriv)
 	int val, ret;
 	uint i, seq;
 
-	if (obj->type != SCENEOBJT_MENU)
+	if (obj->type != SCENEOBJT_MENU || obj->id < EXPOID_BASE_ID)
 		return 0;
 
 	menu = (struct scene_obj_menu *)obj;
@@ -734,7 +752,7 @@ static int h_read_settings_cmos(struct scene_obj *obj, void *vpriv)
 	int val, ret;
 	uint i;
 
-	if (obj->type != SCENEOBJT_MENU)
+	if (obj->type != SCENEOBJT_MENU || obj->id < EXPOID_BASE_ID)
 		return 0;
 
 	menu = (struct scene_obj_menu *)obj;

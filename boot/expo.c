@@ -29,7 +29,7 @@ int expo_new(const char *name, void *priv, struct expo **expp)
 	exp->priv = priv;
 	INIT_LIST_HEAD(&exp->scene_head);
 	INIT_LIST_HEAD(&exp->str_head);
-	exp->next_id = 1;
+	exp->next_id = EXPOID_BASE_ID;
 
 	*expp = exp;
 

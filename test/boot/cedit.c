@@ -31,9 +31,11 @@ static int cedit_base(struct unit_test_state *uts)
 	 * ^N  Move down to second item
 	 * ^M  Select item
 	 * \e  Quit
+	 *
+	 * cedit_run() returns -EACCESS so this command returns CMD_RET_FAILURE
 	 */
 	console_in_puts("\x0e\x0d\x0e\x0d\e");
-	ut_assertok(run_command("cedit run", 0));
+	ut_asserteq(1, run_command("cedit run", 0));
 
 	exp = cur_exp;
 	scn = expo_lookup_scene_id(exp, exp->scene_id);
@@ -147,14 +149,14 @@ static int cedit_env(struct unit_test_state *uts)
 	strcpy(str, "my-machine");
 
 	ut_assertok(run_command("cedit write_env -v", 0));
-	ut_assert_nextlinen("c.cpu-speed=7");
+	ut_assert_nextlinen("c.cpu-speed=11");
 	ut_assert_nextlinen("c.cpu-speed-str=2.5 GHz");
-	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_nextlinen("c.power-loss=14");
 	ut_assert_nextlinen("c.power-loss-str=Always Off");
 	ut_assert_nextlinen("c.machine-name=my-machine");
 	ut_assert_console_end();
 
-	ut_asserteq(7, env_get_ulong("c.cpu-speed", 10, 0));
+	ut_asserteq(11, env_get_ulong("c.cpu-speed", 10, 0));
 	ut_asserteq_str("2.5 GHz", env_get("c.cpu-speed-str"));
 	ut_asserteq_str("my-machine", env_get("c.machine-name"));
 
@@ -163,8 +165,8 @@ static int cedit_env(struct unit_test_state *uts)
 	*str = '\0';
 
 	ut_assertok(run_command("cedit read_env -v", 0));
-	ut_assert_nextlinen("c.cpu-speed=7");
-	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_nextlinen("c.cpu-speed=11");
+	ut_assert_nextlinen("c.power-loss=14");
 	ut_assert_nextlinen("c.machine-name=my-machine");
 	ut_assert_console_end();
 
