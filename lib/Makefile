@@ -50,7 +50,6 @@ obj-$(CONFIG_XXHASH) += xxhash.o
 obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
 obj-y += rc4.o
-obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
@@ -71,16 +70,18 @@ obj-$(CONFIG_$(PHASE_)CRC16) += crc16.o
 obj-y += crypto/
 
 obj-$(CONFIG_$(PHASE_)ACPI) += acpi/
-obj-$(CONFIG_$(XPL_)MD5) += md5.o
 obj-$(CONFIG_ECDSA) += ecdsa/
 obj-$(CONFIG_$(XPL_)RSA) += rsa/
 obj-$(CONFIG_HASH) += hash-checksum.o
 obj-$(CONFIG_BLAKE2) += blake2/blake2b.o
-obj-$(CONFIG_$(XPL_)SHA1) += sha1.o
-obj-$(CONFIG_$(XPL_)SHA256) += sha256.o
-obj-$(CONFIG_$(XPL_)SHA512) += sha512.o
+
+obj-$(CONFIG_$(XPL_)MD5_LEGACY) += md5.o
+obj-$(CONFIG_$(XPL_)SHA1_LEGACY) += sha1.o
+obj-$(CONFIG_$(XPL_)SHA256_LEGACY) += sha256.o
+obj-$(CONFIG_$(XPL_)SHA512_LEGACY) += sha512.o
+
 obj-$(CONFIG_CRYPT_PW) += crypt/
-obj-$(CONFIG_$(XPL_)ASN1_DECODER) += asn1_decoder.o
+obj-$(CONFIG_$(XPL_)ASN1_DECODER_LEGACY) += asn1_decoder.o
 
 obj-$(CONFIG_$(XPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(XPL_)ZSTD) += zstd/
@@ -95,6 +96,8 @@ obj-$(CONFIG_LIBAVB) += libavb/
 
 obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += libfdt/
 obj-$(CONFIG_$(PHASE_)OF_REAL) += fdtdec_common.o fdtdec.o
+
+obj-$(CONFIG_MBEDTLS_LIB) += mbedtls/
 
 ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16-ccitt.o
