@@ -293,14 +293,84 @@ static int get_cur_menuitem_text(const struct scene_obj_menu *menu,
 	return 0;
 }
 
+/**
+ * get_cur_menuitem_val() - Get the value of a menu's current item
+ *
+ * Obtains the value of the current item in the menu. If no value, then
+ * enumerates the items of a menu (0, 1, 2) and returns the sequence number of
+ * the currently selected item. If the first item is selected, this returns 0;
+ * if the second, 1; etc.
+ *
+ * @menu: Menu to check
+ * @valp: Returns current-item value / sequence number
+ * Return: 0 on success, else -ve error value
+ */
+static int get_cur_menuitem_val(const struct scene_obj_menu *menu, int *valp)
+{
+	const struct scene_menitem *mi;
+	int seq;
+
+	seq = 0;
+	list_for_each_entry(mi, &menu->item_head, sibling) {
+		if (mi->id == menu->cur_item_id) {
+			*valp = mi->value == INT_MAX ? seq : mi->value;
+			return 0;
+		}
+		seq++;
+	}
+
+	return log_msg_ret("nf", -ENOENT);
+}
+
+/**
+ * write_dt_string() - Write a string to the devicetree, expanding if needed
+ *
+ * If this fails, it tries again after expanding the devicetree a little
+ *
+ * @buf: Buffer containing the devicetree
+ * @name: Property name to use
+ * @str: String value
+ * Return: 0 if OK, -EFAULT if something went horribly wrong
+ */
 static int write_dt_string(struct abuf *buf, const char *name, const char *str)
+{
+	int ret, i;
+
+	ret = -EAGAIN;
+	for (i = 0; ret && i < 2; i++) {
+		ret = fdt_property_string(abuf_data(buf), name, str);
+		if (!i) {
+			ret = check_space(ret, buf);
+			if (ret)
+				return log_msg_ret("rs2", -ENOMEM);
+		}
+	}
+
+	/* this should not happen */
+	if (ret)
+		return log_msg_ret("str", -EFAULT);
+
+	return 0;
+}
+
+/**
+ * write_dt_u32() - Write an int to the devicetree, expanding if needed
+ *
+ * If this fails, it tries again after expanding the devicetree a little
+ *
+ * @buf: Buffer containing the devicetree
+ * @name: Property name to use
+ * @lva: Integer value
+ * Return: 0 if OK, -EFAULT if something went horribly wrong
+ */
+static int write_dt_u32(struct abuf *buf, const char *name, uint val)
 {
 	int ret, i;
 
 	/* write the text of the current item */
 	ret = -EAGAIN;
 	for (i = 0; ret && i < 2; i++) {
-		ret = fdt_property_string(abuf_data(buf), name, str);
+		ret = fdt_property_u32(abuf_data(buf), name, val);
 		if (!i) {
 			ret = check_space(ret, buf);
 			if (ret)
@@ -339,23 +409,21 @@ static int h_write_settings(struct scene_obj *obj, void *vpriv)
 		const struct scene_obj_menu *menu;
 		const char *str;
 		char name[80];
-		int i;
+		int val;
 
 		/* write the ID of the current item */
 		menu = (struct scene_obj_menu *)obj;
-		ret = -EAGAIN;
-		for (i = 0; ret && i < 2; i++) {
-			ret = fdt_property_u32(abuf_data(buf), obj->name,
-					       menu->cur_item_id);
-			if (!i) {
-				ret = check_space(ret, buf);
-				if (ret)
-					return log_msg_ret("res", -ENOMEM);
-			}
-		}
-		/* this should not happen */
+		ret = write_dt_u32(buf, obj->name, menu->cur_item_id);
 		if (ret)
-			return log_msg_ret("wrt", -EFAULT);
+			return log_msg_ret("wrt", ret);
+
+		snprintf(name, sizeof(name), "%s-value", obj->name);
+		ret = get_cur_menuitem_val(menu, &val);
+		if (ret < 0)
+			return log_msg_ret("cur", ret);
+		ret = write_dt_u32(buf, name, val);
+		if (ret)
+			return log_msg_ret("wr2", ret);
 
 		ret = get_cur_menuitem_text(menu, &str);
 		if (ret)
@@ -521,6 +589,14 @@ static int h_write_settings_env(struct scene_obj *obj, void *vpriv)
 		ret = env_set(name, str);
 		if (ret)
 			return log_msg_ret("st2", ret);
+
+		ret = get_cur_menuitem_val(menu, &val);
+		if (ret < 0)
+			return log_msg_ret("cur", ret);
+		snprintf(name, sizeof(name), "c.%s-value", obj->name);
+		if (priv->verbose)
+			printf("%s=%d\n", name, val);
+
 		break;
 	case SCENEOBJT_TEXTLINE: {
 		const struct scene_obj_textline *tline;
@@ -624,43 +700,12 @@ int cedit_read_settings_env(struct expo *exp, bool verbose)
 	return 0;
 }
 
-/**
- * get_cur_menuitem_seq() - Get the sequence number of a menu's current item
- *
- * Enumerates the items of a menu (0, 1, 2) and returns the sequence number of
- * the currently selected item. If the first item is selected, this returns 0;
- * if the second, 1; etc.
- *
- * @menu: Menu to check
- * Return: Sequence number on success, else -ve error value
- */
-static int get_cur_menuitem_seq(const struct scene_obj_menu *menu)
-{
-	const struct scene_menitem *mi;
-	int seq, found;
-
-	seq = 0;
-	found = -1;
-	list_for_each_entry(mi, &menu->item_head, sibling) {
-		if (mi->id == menu->cur_item_id) {
-			found = seq;
-			break;
-		}
-		seq++;
-	}
-
-	if (found == -1)
-		return log_msg_ret("nf", -ENOENT);
-
-	return found;
-}
-
 static int h_write_settings_cmos(struct scene_obj *obj, void *vpriv)
 {
 	const struct scene_obj_menu *menu;
 	struct cedit_iter_priv *priv = vpriv;
 	int val, ret;
-	uint i, seq;
+	uint i;
 
 	if (obj->type != SCENEOBJT_MENU || obj->id < EXPOID_BASE_ID)
 		return 0;
@@ -668,11 +713,10 @@ static int h_write_settings_cmos(struct scene_obj *obj, void *vpriv)
 	menu = (struct scene_obj_menu *)obj;
 	val = menu->cur_item_id;
 
-	ret = get_cur_menuitem_seq(menu);
+	ret = get_cur_menuitem_val(menu, &val);
 	if (ret < 0)
 		return log_msg_ret("cur", ret);
-	seq = ret;
-	log_debug("%s: seq=%d\n", menu->obj.name, seq);
+	log_debug("%s: val=%d\n", menu->obj.name, val);
 
 	/* figure out where to place this item */
 	if (!obj->bit_length)
@@ -680,11 +724,11 @@ static int h_write_settings_cmos(struct scene_obj *obj, void *vpriv)
 	if (obj->start_bit + obj->bit_length > CMOS_MAX_BITS)
 		return log_msg_ret("bit", -E2BIG);
 
-	for (i = 0; i < obj->bit_length; i++, seq >>= 1) {
+	for (i = 0; i < obj->bit_length; i++, val >>= 1) {
 		uint bitnum = obj->start_bit + i;
 
 		priv->mask[CMOS_BYTE(bitnum)] |= 1 << CMOS_BIT(bitnum);
-		if (seq & 1)
+		if (val & 1)
 			priv->value[CMOS_BYTE(bitnum)] |= BIT(CMOS_BIT(bitnum));
 		log_debug("bit %x %x %x\n", bitnum,
 			  priv->mask[CMOS_BYTE(bitnum)],
@@ -787,7 +831,7 @@ static int h_read_settings_cmos(struct scene_obj *obj, void *vpriv)
 
 	/* update the current item */
 	log_debug("look for menuitem value %d in menu %d\n", val, menu->obj.id);
-	mi = scene_menuitem_find_seq(menu, val);
+	mi = scene_menuitem_find_val(menu, val);
 	if (!mi)
 		return log_msg_ret("seq", -ENOENT);
 

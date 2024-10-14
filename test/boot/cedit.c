@@ -96,14 +96,16 @@ static int cedit_fdt(struct unit_test_state *uts)
 
 	ut_asserteq(ID_CPU_SPEED_2,
 		    ofnode_read_u32_default(node, "cpu-speed", 0));
+	ut_asserteq(3,
+		    ofnode_read_u32_default(node, "cpu-speed-value", 0));
 	ut_asserteq_str("2.5 GHz", ofnode_read_string(node, "cpu-speed-str"));
 	ut_asserteq_str("my-machine", ofnode_read_string(node, "machine-name"));
 
-	/* There should only be 5 properties */
+	/* There should only be 7 properties */
 	for (i = 0, ofnode_first_property(node, &prop); ofprop_valid(&prop);
 	     i++, ofnode_next_property(&prop))
 		;
-	ut_asserteq(5, i);
+	ut_asserteq(7, i);
 
 	ut_assert_console_end();
 
@@ -151,8 +153,10 @@ static int cedit_env(struct unit_test_state *uts)
 	ut_assertok(run_command("cedit write_env -v", 0));
 	ut_assert_nextlinen("c.cpu-speed=11");
 	ut_assert_nextlinen("c.cpu-speed-str=2.5 GHz");
+	ut_assert_nextlinen("c.cpu-speed-value=3");
 	ut_assert_nextlinen("c.power-loss=14");
 	ut_assert_nextlinen("c.power-loss-str=Always Off");
+	ut_assert_nextlinen("c.power-loss-value=0");
 	ut_assert_nextlinen("c.machine-name=my-machine");
 	ut_assert_console_end();
 

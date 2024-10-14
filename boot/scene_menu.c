@@ -69,7 +69,7 @@ struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
 
 	i = 0;
 	list_for_each_entry(item, &menu->item_head, sibling) {
-		if (item->value == val)
+		if (item->value == INT_MAX ? val == i : item->value == val)
 			return item;
 		i++;
 	}

@@ -107,8 +107,10 @@ That results in::
     / {
         cedit-values {
             cpu-speed = <0x00000006>;
+            cpu-speed-value = <0x00000003>;
             cpu-speed-str = "2 GHz";
             power-loss = <0x0000000a>;
+            power-loss-value = <0x00000000>;
             power-loss-str = "Always Off";
         };
     }
@@ -118,16 +120,23 @@ That results in::
 This shows settings being stored in the environment::
 
     => cedit write_env -v
-    c.cpu-speed=7
+    c.cpu-speed=11
     c.cpu-speed-str=2.5 GHz
-    c.power-loss=12
-    c.power-loss-str=Memory
+    c.cpu-speed-value=3
+    c.power-loss=14
+    c.power-loss-str=Always Off
+    c.power-loss-value=0
+    c.machine-name=my-machine
+    c.cpu-speed=11
+    c.power-loss=14
+    c.machine-name=my-machine
     => print
     ...
     c.cpu-speed=6
     c.cpu-speed-str=2 GHz
     c.power-loss=10
     c.power-loss-str=Always Off
+    c.machine-name=my-machine
     ...
 
     => cedit read_env -v
