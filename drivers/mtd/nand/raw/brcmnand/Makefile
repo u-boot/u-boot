@@ -6,6 +6,7 @@ obj-$(CONFIG_NAND_BRCMNAND_6753) += bcm6753_nand.o
 obj-$(CONFIG_NAND_BRCMNAND_68360) += bcm68360_nand.o
 obj-$(CONFIG_NAND_BRCMNAND_6838) += bcm6838_nand.o
 obj-$(CONFIG_NAND_BRCMNAND_6858) += bcm6858_nand.o
+obj-$(CONFIG_NAND_BRCMNAND_BCMBCA) += bcmbca_nand.o
 obj-$(CONFIG_NAND_BRCMNAND_IPROC) += iproc_nand.o
 obj-$(CONFIG_NAND_BRCMNAND) += brcmnand.o
 obj-$(CONFIG_NAND_BRCMNAND) += brcmnand_compat.o

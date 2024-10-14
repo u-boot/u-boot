@@ -8,6 +8,10 @@ if BCM6846
 config TARGET_BCM96846
 	bool "Broadcom 6846 Reference Board"
 	depends on ARCH_BCMBCA
+	imply OF_UPSTREAM
+	imply MTD_RAW_NAND
+	imply NAND_BRCMNAND
+	imply NAND_BRCMNAND_BCMBCA
 
 config SYS_SOC
 	default "bcm6846"
