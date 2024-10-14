@@ -14,6 +14,7 @@ obj-$(CONFIG_PCI) += pci_auto_common.o pci_common.o
 obj-$(CONFIG_PCIE_ECAM_GENERIC) += pcie_ecam_generic.o
 obj-$(CONFIG_PCIE_ECAM_SYNQUACER) += pcie_ecam_synquacer.o
 obj-$(CONFIG_PCIE_APPLE) += pcie_apple.o
+obj-$(CONFIG_PCIE_CDNS_TI) += pcie_cdns_ti.o
 obj-$(CONFIG_PCI_FTPCI100) += pci_ftpci100.o
 obj-$(CONFIG_PCI_GT64120) += pci_gt64120.o
 obj-$(CONFIG_PCI_MPC85XX) += pci_mpc85xx.o

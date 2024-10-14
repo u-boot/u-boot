@@ -748,6 +748,7 @@ F:	drivers/gpio/omap_gpio.c
 F:	drivers/memory/ti-aemif.c
 F:	drivers/misc/k3_avs.c
 F:	drivers/mailbox/k3-sec-procy.c
+F:	drivers/pci/pcie_cdns_ti.c
 F:	drivers/pci/pcie_dw_ti.c
 F:	drivers/phy/keystone-usb-phy.c
 F:	drivers/phy/omap-usb2-phy.c

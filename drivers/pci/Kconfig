@@ -137,6 +137,12 @@ config PCI_GT64120
 	bool "GT64120 PCI support"
 	depends on MIPS
 
+config PCIE_CDNS_TI
+	bool "TI K3 PCIe support"
+	help
+	  Say Y here to enable support for the Cadence PCIe Controller
+	  on TI's K3 SoCs.
+
 config PCI_PHYTIUM
 	bool "Phytium PCIe support"
 	help
