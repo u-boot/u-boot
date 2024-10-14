@@ -22,6 +22,13 @@ static int test_cmd_cbsysinfo(struct unit_test_state *uts)
 	ut_assertok(run_command("cbsysinfo", 0));
 	ut_assert_nextlinen("Coreboot table at");
 
+	/* Make sure CMOS options are enabled */
+	ut_assert_skip_to_line(
+		" 1c0    1    e   1  power_on_after_fail    0:Disable 1:Enable");
+	ut_assert_skip_to_line("CMOS start  : 1c0");
+	ut_assert_nextline("   CMOS end    : 1cf");
+	ut_assert_nextline("   CMOS csum loc: 3f0");
+
 	/* Make sure the linear frame buffer is enabled */
 	ut_assert_skip_to_linen("Framebuffer");
 	ut_assert_nextlinen("   Phys addr");
