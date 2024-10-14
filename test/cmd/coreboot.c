@@ -7,9 +7,15 @@
  */
 
 #include <command.h>
+#include <dm.h>
+#include <rtc.h>
 #include <test/cmd.h>
 #include <test/test.h>
 #include <test/ut.h>
+
+enum {
+	CSUM_LOC	= 0x3f0 / 8,
+};
 
 /**
  * test_cmd_cbsysinfo() - test the cbsysinfo command produces expected output
@@ -41,3 +47,38 @@ static int test_cmd_cbsysinfo(struct unit_test_state *uts)
 	return 0;
 }
 CMD_TEST(test_cmd_cbsysinfo, UTF_CONSOLE);
+
+/* test cbcmos command */
+static int test_cmd_cbcmos(struct unit_test_state *uts)
+{
+	u16 old_csum, new_csum;
+	struct udevice *dev;
+
+	/* initially the checksum should be correct */
+	ut_assertok(run_command("cbcmos check", 0));
+	ut_assert_console_end();
+
+	/* make a change to the checksum */
+	ut_assertok(uclass_first_device_err(UCLASS_RTC, &dev));
+	ut_assertok(rtc_read16(dev, CSUM_LOC, &old_csum));
+	ut_assertok(rtc_write16(dev, CSUM_LOC, old_csum + 1));
+
+	/* now the command should fail */
+	ut_asserteq(1, run_command("cbcmos check", 0));
+	ut_assert_nextline("Checksum %04x error: calculated %04x",
+			   old_csum + 1, old_csum);
+	ut_assert_console_end();
+
+	/* now get it to fix the checksum */
+	ut_assertok(run_command("cbcmos update", 0));
+	ut_assert_nextline("Checksum %04x written", old_csum);
+	ut_assert_console_end();
+
+	/* check the RTC looks right */
+	ut_assertok(rtc_read16(dev, CSUM_LOC, &new_csum));
+	ut_asserteq(old_csum, new_csum);
+	ut_assert_console_end();
+
+	return 0;
+}
+CMD_TEST(test_cmd_cbcmos, UTF_CONSOLE);
