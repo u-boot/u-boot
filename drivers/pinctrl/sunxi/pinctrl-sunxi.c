@@ -169,6 +169,51 @@ static int sunxi_pinctrl_get_pin_muxing(struct udevice *dev, uint pin_selector,
 	return 0;
 }
 
+static int sunxi_pinctrl_set_state(struct udevice *dev, struct udevice *config)
+{
+	int count, ret, i;
+	const char *name, *func_name;
+	const struct sunxi_pinctrl_function *func;
+	struct udevice *pinctrl_dev = dev_get_parent(config);
+	struct sunxi_pinctrl_plat *plat = dev_get_plat(pinctrl_dev);
+	struct sunxi_pinctrl_desc *desc = (void *)dev_get_driver_data(dev);
+	int bank, pin;
+
+	count = dev_read_string_count(config, "pins");
+	if (count < 0)
+		return -ENOENT;
+
+	ret = dev_read_string_index(config, "function", 0, &func_name);
+	if (ret) {
+		printf("function not found\n");
+		return -EINVAL;
+	}
+
+	for (i = 0, func = desc->functions; i < desc->num_functions; i++, func++ ) {
+		if (strcmp(func_name, func->name) == 0)
+			goto found;
+	}
+
+	printf("%s: %s function not found\n", dev->name, func_name);
+
+	return -EINVAL;
+
+found:
+
+	for (i = 0; i < count; i++) {
+		ret = dev_read_string_index(config, "pins", i, &name);
+		if (ret < 0)
+			return -EINVAL;
+
+		bank = name[1] - 'A';
+		pin = strtoul(name+2, NULL, 0);
+
+		sunxi_gpio_set_cfgbank(plat->base + bank * SUNXI_PINCTRL_BANK_SIZE, pin, func->mux);
+	}
+
+	return 0;
+}
+
 static const struct pinctrl_ops sunxi_pinctrl_ops = {
 	.get_pins_count		= sunxi_pinctrl_get_pins_count,
 	.get_pin_name		= sunxi_pinctrl_get_pin_name,
@@ -178,7 +223,7 @@ static const struct pinctrl_ops sunxi_pinctrl_ops = {
 	.pinconf_num_params	= ARRAY_SIZE(sunxi_pinctrl_pinconf_params),
 	.pinconf_params		= sunxi_pinctrl_pinconf_params,
 	.pinconf_set		= sunxi_pinctrl_pinconf_set,
-	.set_state		= pinctrl_generic_set_state,
+	.set_state			= sunxi_pinctrl_set_state,
 	.get_pin_muxing		= sunxi_pinctrl_get_pin_muxing,
 };
 
