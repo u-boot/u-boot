@@ -181,16 +181,4 @@ coreboot in CI
 CI runs tests using a pre-built coreboot image. This ensures that U-Boot can
 boot as a coreboot payload, based on a known-good build of coreboot.
 
-To update the `coreboot.rom` file which is used:
-
-#. Build coreboot with `CONFIG_GENERIC_LINEAR_FRAMEBUFFER=y`. If using
-   `make menuconfig`, this is under
-   `Devices->Display->Framebuffer mode->Linear "high resolution" framebuffer`.
-
-#. Compress the resulting `coreboot.rom`::
-
-      xz -c /path/to/coreboot/build/coreboot.rom > coreboot.rom.xz
-
-#. Upload the file to Google drive
-
-#. Send a patch to change the file ID used by wget in the CI yaml files.
+To update the `coreboot.rom` file which is used, see ``tools/Dockerfile``
