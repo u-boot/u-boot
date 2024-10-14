@@ -839,8 +839,6 @@ struct phy_device *phy_find_by_mask(struct mii_dev *bus, uint phy_mask)
 static void phy_connect_dev(struct phy_device *phydev, struct udevice *dev,
 			    phy_interface_t interface)
 {
-	/* Soft Reset the PHY */
-	phy_reset(phydev);
 	if (phydev->dev && phydev->dev != dev) {
 		printf("%s:%d is connected to %s.  Reconnecting to %s\n",
 		       phydev->bus->name, phydev->addr,
