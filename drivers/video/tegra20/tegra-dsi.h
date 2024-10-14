@@ -98,9 +98,9 @@ struct dsi_timeout_reg {
 	uint dsi_to_tally;		/* _DSI_TO_TALLY_0 */
 };
 
-/* DSI PAD control register 0x04b ~ 0x04e */
+/* DSI PAD control register 0x04b ~ 0x052 */
 struct dsi_pad_ctrl_reg {
-	/* Address 0x04b ~ 0x04e */
+	/* Address 0x04b ~ 0x052 */
 	uint pad_ctrl;			/* _PAD_CONTROL_0 */
 	uint pad_ctrl_cd;		/* _PAD_CONTROL_CD_0 */
 	uint pad_cd_status;		/* _PAD_CD_STATUS_0 */
@@ -109,6 +109,14 @@ struct dsi_pad_ctrl_reg {
 	uint pad_ctrl_2;		/* _PAD_CONTROL_2 */
 	uint pad_ctrl_3;		/* _PAD_CONTROL_3 */
 	uint pad_ctrl_4;		/* _PAD_CONTROL_4 */
+};
+
+/* DSI ganged mode register 0x053 ~ 0x04e */
+struct dsi_ganged_mode_reg {
+	/* Address 0x053 ~ 0x055 */
+	uint ganged_mode_ctrl;		/* _DSI_GANGED_MODE_CONTROL_0 */
+	uint ganged_mode_start;		/* _DSI_GANGED_MODE_START_0 */
+	uint ganged_mode_size;		/* _DSI_GANGED_MODE_SIZE_0 */
 };
 
 /* Display Serial Interface (DSI_) regs */
@@ -133,6 +141,7 @@ struct dsi_ctlr {
 	uint reserved5[4];		/* reserved_5[4] */
 
 	struct dsi_pad_ctrl_reg pad;	/* PAD registers 0x04b ~ 0x04e */
+	struct dsi_ganged_mode_reg ganged; /* GANGED registers 0x053 ~ 0x055 */
 };
 
 #define DSI_POWER_CONTROL_ENABLE	BIT(0)
@@ -201,6 +210,8 @@ struct dsi_ctlr {
 #define DSI_PAD_PREEMP_PU_CLK(x)	(((x) & 0x3) << 8)
 #define DSI_PAD_PREEMP_PD(x)		(((x) & 0x3) << 4)
 #define DSI_PAD_PREEMP_PU(x)		(((x) & 0x3) << 0)
+
+#define DSI_GANGED_MODE_CONTROL_ENABLE	BIT(0)
 
 /*
  * pixel format as used in the DSI_CONTROL_FORMAT field

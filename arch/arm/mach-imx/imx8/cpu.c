@@ -48,7 +48,7 @@ static char *get_reset_cause(void)
 {
 	sc_pm_reset_reason_t reason;
 
-	if (sc_pm_reset_reason(-1, &reason) != SC_ERR_NONE)
+	if (sc_pm_reset_reason(-1, &reason))
 		return "Unknown reset";
 
 	switch (reason) {
@@ -160,6 +160,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 	sc_faddr_t tcml_addr;
 	u32 tcml_size = SZ_128K;
 	ulong addr;
+	int ret;
 
 	switch (core_id) {
 	case 0:
@@ -187,10 +188,12 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 
 	printf("Power on M4 and MU\n");
 
-	if (sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
-		return -EIO;
+	ret = sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON);
+	if (ret)
+		return ret;
 
-	if (sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+	ret = sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON);
+	if (ret)
 		return -EIO;
 
 	printf("Copy M4 image from 0x%lx to TCML 0x%lx\n", addr, (ulong)tcml_addr);
@@ -199,7 +202,8 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 		memcpy((void *)tcml_addr, (void *)addr, tcml_size);
 
 	printf("Start M4 %u\n", core_id);
-	if (sc_pm_cpu_start(-1, core_rsrc, true, tcml_addr) != SC_ERR_NONE)
+	ret = sc_pm_cpu_start(-1, core_rsrc, true, tcml_addr);
+	if (ret)
 		return -EIO;
 
 	printf("bootaux complete\n");
@@ -214,6 +218,7 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 	sc_faddr_t aux_core_ram;
 	u32 size;
 	ulong addr;
+	int ret;
 
 	switch (core_id) {
 	case 0:
@@ -242,20 +247,23 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 
 	printf("Power on aux core %d\n", core_id);
 
-	if (sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
-		return -EIO;
+	ret = sc_pm_set_resource_power_mode(-1, core_rsrc, SC_PM_PW_MODE_ON);
+	if (ret)
+		return ret;
 
 	if (mu_rsrc != SC_R_NONE) {
-		if (sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON) != SC_ERR_NONE)
+		ret = sc_pm_set_resource_power_mode(-1, mu_rsrc, SC_PM_PW_MODE_ON);
+		if (ret)
 			return -EIO;
 	}
 
 	if (core_id == 1) {
 		struct power_domain pd;
 
-		if (sc_pm_clock_enable(-1, core_rsrc, SC_PM_CLK_PER, true, false) != SC_ERR_NONE) {
+		ret = sc_pm_clock_enable(-1, core_rsrc, SC_PM_CLK_PER, true, false);
+		if (ret) {
 			printf("Error enable clock\n");
-			return -EIO;
+			return ret;
 		}
 
 		if (!imx8_power_domain_lookup_name("audio_sai0", &pd)) {
@@ -286,8 +294,9 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 
 	printf("Start %s\n", core_id == 0 ? "M4" : "HIFI");
 
-	if (sc_pm_cpu_start(-1, core_rsrc, true, aux_core_ram) != SC_ERR_NONE)
-		return -EIO;
+	ret = sc_pm_cpu_start(-1, core_rsrc, true, aux_core_ram);
+	if (ret)
+		return ret;
 
 	printf("bootaux complete\n");
 	return 0;
@@ -313,7 +322,7 @@ int arch_auxiliary_core_check_up(u32 core_id)
 		return 0;
 	}
 
-	if (sc_pm_get_resource_power_mode(-1, core_rsrc, &power_mode) != SC_ERR_NONE)
+	if (sc_pm_get_resource_power_mode(-1, core_rsrc, &power_mode))
 		return 0;
 
 	if (power_mode != SC_PM_PW_MODE_OFF)

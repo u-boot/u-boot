@@ -6,6 +6,7 @@
 #  (C) Copyright 2021
 #  Svyatoslav Ryhel <clamor95@gmail.com>
 
-obj-$(CONFIG_XPL_BUILD) += transformer-t30-spl.o
+obj-$(CONFIG_SPL_BUILD) += transformer-t30-spl.o
+obj-$(CONFIG_MULTI_DTB_FIT) += board-info.o
 
 obj-y += transformer-t30.o

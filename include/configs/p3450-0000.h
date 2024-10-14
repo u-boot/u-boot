@@ -15,19 +15,6 @@
 
 /* Board-specific serial config */
 
-/* Only MMC/PXE/DHCP for now, add USB back in later when supported */
-#define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 1) \
-	func(MMC, mmc, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
-
-#define BOARD_EXTRA_ENV_SETTINGS \
-	"preboot=if test -e mmc 1:1 /u-boot-preboot.scr; then " \
-		"load mmc 1:1 ${scriptaddr} /u-boot-preboot.scr; " \
-		"source ${scriptaddr}; " \
-	"fi\0"
-
 /* General networking support */
 #include "tegra-common-post.h"
 

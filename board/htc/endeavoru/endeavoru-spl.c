@@ -9,13 +9,12 @@
  *  Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
-#include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/tegra.h>
-#include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/tegra_i2c.h>
+#include <spl_gpio.h>
 #include <linux/delay.h>
 
 /*
@@ -35,24 +34,6 @@
 #define TPS80032_SMPS1_CFG_STATE_DATA		(0x0100 | TPS80032_SMPS1_CFG_STATE_REG)
 #define TPS80032_SMPS2_CFG_STATE_DATA		(0x0100 | TPS80032_SMPS2_CFG_STATE_REG)
 
-#define TEGRA_GPIO_PS0				144
-
-void pmic_enable_cpu_vdd(void)
-{
-	/* Set VDD_CORE to 1.200V. */
-	tegra_i2c_ll_write(TPS80032_DVS_I2C_ADDR, TPS80032_SMPS2_CFG_VOLTAGE_DATA);
-	udelay(1000);
-	tegra_i2c_ll_write(TPS80032_CTL1_I2C_ADDR, TPS80032_SMPS2_CFG_STATE_DATA);
-
-	udelay(1000);
-
-	/* Bring up VDD_CPU to 1.0125V. */
-	tegra_i2c_ll_write(TPS80032_DVS_I2C_ADDR, TPS80032_SMPS1_CFG_VOLTAGE_DATA);
-	udelay(1000);
-	tegra_i2c_ll_write(TPS80032_CTL1_I2C_ADDR, TPS80032_SMPS1_CFG_STATE_DATA);
-	udelay(10 * 1000);
-}
-
 /*
  * Unlike all other supported Tegra devices and most known Tegra devices, the
  * HTC One X has no hardware way to enter APX/RCM mode, which may lead to a
@@ -65,15 +46,13 @@ void pmic_enable_cpu_vdd(void)
  * proposed to add the RCM rebooting hook as early into SPL as possible since
  * SPL is much more robust and has minimal changes that can break bootflow.
  *
- * gpio_early_init_uart() function was chosen as it is the earliest function
+ * pmic_enable_cpu_vdd() function was chosen as it is the earliest function
  * exposed for setup by the device. Hook performs a check for volume up
  * button state and triggers RCM if it is pressed.
  */
-void gpio_early_init_uart(void)
+void apx_hook(void)
 {
-	struct gpio_ctlr *ctlr = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &ctlr->gpio_bank[GPIO_BANK(TEGRA_GPIO_PS0)];
-	u32 value;
+	int value;
 
 	/* Configure pinmux */
 	pinmux_set_func(PMUX_PINGRP_KB_ROW8_PS0, PMUX_FUNC_KBC);
@@ -81,23 +60,31 @@ void gpio_early_init_uart(void)
 	pinmux_tristate_disable(PMUX_PINGRP_KB_ROW8_PS0);
 	pinmux_set_io(PMUX_PINGRP_KB_ROW8_PS0, PMUX_PIN_INPUT);
 
-	/* Configure GPIO direction as input. */
-	value = readl(&bank->gpio_dir_out[GPIO_PORT(TEGRA_GPIO_PS0)]);
-	value &= ~(1 << GPIO_BIT(TEGRA_GPIO_PS0));
-	writel(value, &bank->gpio_dir_out[GPIO_PORT(TEGRA_GPIO_PS0)]);
-
-	/* Enable the pin as a GPIO */
-	value = readl(&bank->gpio_config[GPIO_PORT(TEGRA_GPIO_PS0)]);
-	value |= 1 << GPIO_BIT(TEGRA_GPIO_PS0);
-	writel(value, &bank->gpio_config[GPIO_PORT(TEGRA_GPIO_PS0)]);
-
-	/* Get GPIO value */
-	value = readl(&bank->gpio_in[GPIO_PORT(TEGRA_GPIO_PS0)]);
-	value = (value >> GPIO_BIT(TEGRA_GPIO_PS0)) & 1;
+	spl_gpio_input(NULL, TEGRA_GPIO(S, 0));
+	value = spl_gpio_get_value(NULL, TEGRA_GPIO(S, 0));
 
 	/* Enter RCM if button is pressed */
 	if (!value) {
 		tegra_pmc_writel(2, PMC_SCRATCH0);
 		tegra_pmc_writel(PMC_CNTRL_MAIN_RST, PMC_CNTRL);
 	}
+}
+
+void pmic_enable_cpu_vdd(void)
+{
+	/* Check if RCM request is active */
+	apx_hook();
+
+	/* Set VDD_CORE to 1.200V. */
+	tegra_i2c_ll_write(TPS80032_DVS_I2C_ADDR, TPS80032_SMPS2_CFG_VOLTAGE_DATA);
+	udelay(1000);
+	tegra_i2c_ll_write(TPS80032_CTL1_I2C_ADDR, TPS80032_SMPS2_CFG_STATE_DATA);
+
+	udelay(1000);
+
+	/* Bring up VDD_CPU to 1.0125V. */
+	tegra_i2c_ll_write(TPS80032_DVS_I2C_ADDR, TPS80032_SMPS1_CFG_VOLTAGE_DATA);
+	udelay(1000);
+	tegra_i2c_ll_write(TPS80032_CTL1_I2C_ADDR, TPS80032_SMPS1_CFG_STATE_DATA);
+	udelay(10 * 1000);
 }

@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <dm.h>
+#include <dm/root.h>
 #include <env.h>
 #include <errno.h>
 #include <init.h>
@@ -457,3 +458,18 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 	return CFG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
 }
+
+#if IS_ENABLED(CONFIG_DTB_RESELECT)
+int embedded_dtb_select(void)
+{
+	int ret, rescan;
+
+	ret = fdtdec_resetup(&rescan);
+	if (!ret && rescan) {
+		dm_uninit();
+		dm_init_and_scan(true);
+	}
+
+	return 0;
+}
+#endif

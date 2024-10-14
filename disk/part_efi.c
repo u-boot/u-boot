@@ -318,6 +318,17 @@ static int part_test_efi(struct blk_desc *desc)
 	/* Read legacy MBR from block 0 and validate it */
 	if ((blk_dread(desc, 0, 1, (ulong *)legacymbr) != 1)
 		|| (is_pmbr_valid(legacymbr) != 1)) {
+		/*
+		 * TegraPT is compatible with EFI part, but it
+		 * cannot pass the Protective MBR check. Skip it
+		 * if CONFIG_TEGRA_PARTITION is enabled and the
+		 * device in question is eMMC.
+		 */
+		if (IS_ENABLED(CONFIG_TEGRA_PARTITION))
+			if (!is_pmbr_valid(legacymbr) &&
+			    desc->uclass_id == UCLASS_MMC &&
+			    !desc->devnum)
+				return 0;
 		return -1;
 	}
 	return 0;

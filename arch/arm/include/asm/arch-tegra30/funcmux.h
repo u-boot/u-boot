@@ -16,5 +16,6 @@ enum {
 
 	/* UART configs */
 	FUNCMUX_UART1_ULPI = 0,
+	FUNCMUX_UART5_SDMMC1 = 1,
 };
 #endif	/* _TEGRA30_FUNCMUX_H_ */

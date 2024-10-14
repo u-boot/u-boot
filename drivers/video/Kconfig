@@ -599,6 +599,15 @@ config VIDEO_LCD_SAMSUNG_LTL106HL02
 	  LCD module found in Microsoft Surface 2. The panel has a FullHD
 	  resolution (1920x1080).
 
+config VIDEO_LCD_SHARP_LQ101R1SX01
+	tristate "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for Sharp LQ101R1SX01
+	  LCD module found in ASUS Transformer TF701T. The panel has a
+	  WQXGA resolution (2560x1600).
+
 config VIDEO_LCD_SSD2828
 	bool "SSD2828 bridge chip"
 	---help---

@@ -181,7 +181,7 @@ static int uart_configs[] = {
 	-1,
 	-1,
 	-1,
-	-1,
+	FUNCMUX_UART5_SDMMC1,  /* UARTE */
 #elif defined(CONFIG_TEGRA114)
 	-1,
 	-1,
