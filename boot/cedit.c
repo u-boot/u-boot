@@ -51,10 +51,11 @@ struct cedit_iter_priv {
 
 int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 {
+	struct expo_arrange_info arr;
 	struct scene_obj_txt *txt;
 	struct scene_obj *obj;
 	struct scene *scn;
-	int y;
+	int y, ret;
 
 	scn = expo_lookup_scene_id(exp, scene_id);
 	if (!scn)
@@ -68,6 +69,11 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 	if (txt)
 		scene_obj_set_pos(scn, txt->obj.id, 200, 10);
 
+	memset(&arr, '\0', sizeof(arr));
+	ret = scene_calc_arrange(scn, &arr);
+	if (ret < 0)
+		return log_msg_ret("arr", ret);
+
 	y = 100;
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
 		switch (obj->type) {
@@ -77,12 +83,13 @@ int cedit_arange(struct expo *exp, struct video_priv *vpriv, uint scene_id)
 			break;
 		case SCENEOBJT_MENU:
 			scene_obj_set_pos(scn, obj->id, 50, y);
-			scene_menu_arrange(scn, (struct scene_obj_menu *)obj);
+			scene_menu_arrange(scn, &arr,
+					   (struct scene_obj_menu *)obj);
 			y += 50;
 			break;
 		case SCENEOBJT_TEXTLINE:
 			scene_obj_set_pos(scn, obj->id, 50, y);
-			scene_textline_arrange(scn,
+			scene_textline_arrange(scn, &arr,
 					(struct scene_obj_textline *)obj);
 			y += 50;
 			break;

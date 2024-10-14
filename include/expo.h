@@ -59,11 +59,14 @@ struct expo_action {
  * @font_size: Default font size for all text
  * @menu_inset: Inset width (on each side and top/bottom) for menu items
  * @menuitem_gap_y: Gap between menu items in pixels
+ * @menu_title_margin_x: Gap between right side of menu title and left size of
+ *	menu label
  */
 struct expo_theme {
 	u32 font_size;
 	u32 menu_inset;
 	u32 menuitem_gap_y;
+	u32 menu_title_margin_x;
 };
 
 /**
@@ -339,6 +342,15 @@ struct scene_obj_textline {
 	uint max_chars;
 	struct abuf buf;
 	uint pos;
+};
+
+/**
+ * struct expo_arrange_info - Information used when arranging a scene
+ *
+ * @label_width: Maximum width of labels in scene
+ */
+struct expo_arrange_info {
+	int label_width;
 };
 
 /**

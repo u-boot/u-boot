@@ -176,6 +176,10 @@ menu-inset
 menuitem-gap-y
     Number of pixels between menu items
 
+menu-title-margin-x
+    Number of pixels between right side of menu title to the left size of the
+    menu labels
+
 Pop-up mode
 -----------
 

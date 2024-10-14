@@ -168,7 +168,8 @@ int scene_menu_calc_dims(struct scene_obj_menu *menu)
 	return 0;
 }
 
-int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
+int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
+		       struct scene_obj_menu *menu)
 {
 	const bool open = menu->obj.flags & SCENEOF_OPEN;
 	struct expo *exp = scn->expo;
@@ -182,16 +183,18 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 	x = menu->obj.dim.x;
 	y = menu->obj.dim.y;
 	if (menu->title_id) {
+		int width;
+
 		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.dim.x, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
-		ret = scene_obj_get_hw(scn, menu->title_id, NULL);
+		ret = scene_obj_get_hw(scn, menu->title_id, &width);
 		if (ret < 0)
 			return log_msg_ret("hei", ret);
 
 		if (stack)
-			x += 200;
+			x += arr->label_width + theme->menu_title_margin_x;
 		else
 			y += ret * 2;
 	}
