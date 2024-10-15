@@ -496,7 +496,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return 0;
 }
 
-static long __lmb_free(phys_addr_t base, phys_size_t size)
+static long _lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
@@ -562,7 +562,7 @@ long lmb_free_flags(phys_addr_t base, phys_size_t size,
 {
 	long ret;
 
-	ret = __lmb_free(base, size);
+	ret = _lmb_free(base, size);
 	if (ret < 0)
 		return ret;
 
@@ -618,7 +618,7 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
-static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
+static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 				    phys_addr_t max_addr, enum lmb_flags flags)
 {
 	u8 op;
@@ -692,15 +692,15 @@ phys_addr_t lmb_alloc(phys_size_t size, ulong align)
  */
 phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags)
 {
-	return __lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
-				flags);
+	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
+			       flags);
 }
 
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	phys_addr_t alloc;
 
-	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NONE);
+	alloc = _lmb_alloc_base(size, align, max_addr, LMB_NONE);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -727,7 +727,7 @@ phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 {
 	phys_addr_t alloc;
 
-	alloc = __lmb_alloc_base(size, align, max_addr, flags);
+	alloc = _lmb_alloc_base(size, align, max_addr, flags);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -736,7 +736,7 @@ phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 	return alloc;
 }
 
-static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
+static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				    enum lmb_flags flags)
 {
 	long rgn;
@@ -767,7 +767,7 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
  */
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 {
-	return __lmb_alloc_addr(base, size, LMB_NONE);
+	return _lmb_alloc_addr(base, size, LMB_NONE);
 }
 
 /**
@@ -785,7 +785,7 @@ phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
 				 uint flags)
 {
-	return __lmb_alloc_addr(base, size, flags);
+	return _lmb_alloc_addr(base, size, flags);
 }
 
 /* Return number of bytes from a given address that are free */
