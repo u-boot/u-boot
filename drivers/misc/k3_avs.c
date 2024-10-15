@@ -391,7 +391,10 @@ static int k3_avs_probe(struct udevice *dev)
 		if (vd->flags & VD_FLAG_INIT_DONE)
 			continue;
 
-		k3_avs_program_voltage(priv, vd, vd->opp);
+		ret = k3_avs_program_voltage(priv, vd, vd->opp);
+		if (ret)
+			dev_warn(dev, "Could not program AVS voltage for VD%d, vd->opp=%d, ret=%d\n",
+				 vd->id, vd->opp, ret);
 	}
 
 	if (!device_is_compatible(priv->dev, "ti,am654-avs"))
