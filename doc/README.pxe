@@ -120,6 +120,11 @@ Unrecognized commands are ignored.
 default <label>	    - the label named here is treated as the default and is
 		      the first label 'pxe boot' attempts to boot.
 
+fallback <label>    - the label named here is treated as a fallback option that
+		      may be attempted should it be detected that booting of
+		      the default has failed to complete, for example via
+		      U-Boot's boot count limit functionality.
+
 menu title <string> - sets a title for the menu of labels being displayed.
 
 menu include <path> - use tftp to retrieve the pxe file at <path>, which
