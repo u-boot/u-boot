@@ -182,14 +182,14 @@
 /* Status Register 2 bits. */
 #define SR2_QUAD_EN_BIT7	BIT(7)
 
+/* Status Register 3 bits. */
+#define SR3_WPS			BIT(2)
+
 /*
  * Maximum number of flashes that can be connected
  * in stacked/parallel configuration
  */
 #define SNOR_FLASH_CNT_MAX	2
-
-/* Status Register 3 bits. */
-#define SR3_WPS			BIT(2)
 
 /* For Cypress flash. */
 #define SPINOR_OP_RD_ANY_REG			0x65	/* Read any register */
