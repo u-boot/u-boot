@@ -18,11 +18,14 @@
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request
  * @LMB_NOMAP: don't add to mmu configuration
+ * @LMB_NOOVERWRITE: the memory region cannot be overwritten/re-reserved
+ * @LMB_NONOTIFY: do not notify other modules of changes to this memory region
  */
 enum lmb_flags {
 	LMB_NONE		= 0,
 	LMB_NOMAP		= BIT(1),
 	LMB_NOOVERWRITE		= BIT(2),
+	LMB_NONOTIFY		= BIT(3),
 };
 
 /**
@@ -43,10 +46,12 @@ struct lmb_region {
  *
  * @free_mem:	List of free memory regions
  * @used_mem:	List of used/reserved memory regions
+ * @test:	Is structure being used for LMB tests
  */
 struct lmb {
 	struct alist free_mem;
 	struct alist used_mem;
+	bool test;
 };
 
 /**
@@ -91,6 +96,50 @@ phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
 
 /**
+ * lmb_alloc_flags() - Allocate memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags);
+
+/**
+ * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @max_addr: Maximum address of the requested region
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The max_addr parameter is used to specify the maximum address
+ * below which the requested region should be allocated.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
+				 phys_addr_t max_addr, uint flags);
+
+/**
+ * lmb_alloc_addr_flags() - Allocate specified memory address with specified attributes
+ * @base: Base Address requested
+ * @size: Size of the region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The base parameter is used to specify the base address
+ * of the requested region.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
+				 uint flags);
+
+/**
  * lmb_is_reserved_flags() - test if address is in reserved region with flag bits set
  *
  * The function checks if a reserved region comprising @addr exists which has
@@ -102,10 +151,24 @@ phys_size_t lmb_get_free_size(phys_addr_t addr);
  */
 int lmb_is_reserved_flags(phys_addr_t addr, int flags);
 
+/**
+ * lmb_free_flags() - Free up a region of memory
+ * @base: Base Address of region to be freed
+ * @size: Size of the region to be freed
+ * @flags: Memory region attributes
+ *
+ * Free up a region of memory.
+ *
+ * Return: 0 if successful, -1 on failure
+ */
+long lmb_free_flags(phys_addr_t base, phys_size_t size, uint flags);
+
 long lmb_free(phys_addr_t base, phys_size_t size);
 
 void lmb_dump_all(void);
 void lmb_dump_all_force(void);
+
+void lmb_arch_add_memory(void);
 
 struct lmb *lmb_get(void);
 int lmb_push(struct lmb *store);

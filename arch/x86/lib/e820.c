@@ -4,6 +4,7 @@
  */
 
 #include <efi_loader.h>
+#include <lmb.h>
 #include <asm/e820.h>
 #include <asm/global_data.h>
 
@@ -41,14 +42,10 @@ void efi_add_known_memory(void)
 {
 	struct e820_entry e820[E820MAX];
 	unsigned int i, num;
-	u64 start, ram_top;
+	u64 start;
 	int type;
 
 	num = install_e820_map(ARRAY_SIZE(e820), e820);
-
-	ram_top = (u64)gd->ram_top & ~EFI_PAGE_MASK;
-	if (!ram_top)
-		ram_top = 0x100000000ULL;
 
 	for (i = 0; i < num; ++i) {
 		start = e820[i].addr;
@@ -72,13 +69,41 @@ void efi_add_known_memory(void)
 			break;
 		}
 
-		if (type == EFI_CONVENTIONAL_MEMORY) {
-			efi_add_conventional_memory_map(start,
-							start + e820[i].size,
-							ram_top);
-		} else {
+		if (type != EFI_CONVENTIONAL_MEMORY)
 			efi_add_memory_map(start, e820[i].size, type);
-		}
 	}
 }
 #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
+
+#if CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP)
+void lmb_arch_add_memory(void)
+{
+	struct e820_entry e820[E820MAX];
+	unsigned int i, num;
+	u64 ram_top;
+
+	num = install_e820_map(ARRAY_SIZE(e820), e820);
+
+	ram_top = (u64)gd->ram_top & ~EFI_PAGE_MASK;
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
+
+	for (i = 0; i < num; ++i) {
+		if (e820[i].type == E820_RAM) {
+			u64 start, size, rgn_top;
+
+			start = e820[i].addr;
+			size = e820[i].size;
+			rgn_top = start + size;
+
+			if (start > ram_top)
+				continue;
+
+			if (rgn_top > ram_top)
+				size -= rgn_top - ram_top;
+
+			lmb_add(start, size);
+		}
+	}
+}
+#endif /* CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP) */

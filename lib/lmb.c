@@ -8,6 +8,7 @@
 
 #include <alist.h>
 #include <efi_loader.h>
+#include <event.h>
 #include <image.h>
 #include <mapmem.h>
 #include <lmb.h>
@@ -22,15 +23,56 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define MAP_OP_RESERVE		(u8)0x1
+#define MAP_OP_FREE		(u8)0x2
+#define MAP_OP_ADD		(u8)0x3
+
 #define LMB_ALLOC_ANYWHERE	0
 #define LMB_ALIST_INITIAL_SIZE	4
 
 static struct lmb lmb;
 
+static bool lmb_should_notify(enum lmb_flags flags)
+{
+	return !lmb.test && !(flags & LMB_NONOTIFY) &&
+		CONFIG_IS_ENABLED(EFI_LOADER);
+}
+
+static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
+						phys_size_t size,
+						u8 op)
+{
+	u64 efi_addr;
+	u64 pages;
+	efi_status_t status;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE && op != MAP_OP_ADD) {
+		log_err("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	efi_addr = (uintptr_t)map_sysmem(addr, 0);
+	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
+	efi_addr &= ~EFI_PAGE_MASK;
+
+	status = efi_add_memory_map_pg(efi_addr, pages,
+				       op == MAP_OP_RESERVE ?
+				       EFI_BOOT_SERVICES_DATA :
+				       EFI_CONVENTIONAL_MEMORY,
+				       false);
+	if (status != EFI_SUCCESS) {
+		log_err("%s: LMB Map notify failure %lu\n", __func__,
+			status & ~EFI_ERROR_MASK);
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
 	u64 bitpos;
-	const char *flag_str[] = { "none", "no-map", "no-overwrite" };
+	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
 
 	do {
 		bitpos = flags ? fls(flags) - 1 : 0;
@@ -162,38 +204,6 @@ static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
-/**
- * efi_lmb_reserve() - add reservations for EFI memory
- *
- * Add reservations for all EFI memory areas that are not
- * EFI_CONVENTIONAL_MEMORY.
- *
- * Return:	0 on success, 1 on failure
- */
-static __maybe_unused int efi_lmb_reserve(void)
-{
-	struct efi_mem_desc *memmap = NULL, *map;
-	efi_uintn_t i, map_size = 0;
-	efi_status_t ret;
-
-	ret = efi_get_memory_map_alloc(&map_size, &memmap);
-	if (ret != EFI_SUCCESS)
-		return 1;
-
-	for (i = 0, map = memmap; i < map_size / sizeof(*map); ++map, ++i) {
-		if (map->type != EFI_CONVENTIONAL_MEMORY) {
-			lmb_reserve_flags(map_to_sysmem((void *)(uintptr_t)
-							map->physical_start),
-					  map->num_pages * EFI_PAGE_SIZE,
-					  map->type == EFI_RESERVED_MEMORY_TYPE
-					      ? LMB_NOMAP : LMB_NONE);
-		}
-	}
-	efi_free_pool(memmap);
-
-	return 0;
-}
-
 static void lmb_reserve_uboot_region(void)
 {
 	int bank;
@@ -240,9 +250,6 @@ static void lmb_reserve_common(void *fdt_blob)
 
 	if (CONFIG_IS_ENABLED(OF_LIBFDT) && fdt_blob)
 		boot_fdt_add_mem_rsv_regions(fdt_blob);
-
-	if (CONFIG_IS_ENABLED(EFI_LOADER))
-		efi_lmb_reserve();
 }
 
 static __maybe_unused void lmb_reserve_common_spl(void)
@@ -281,9 +288,11 @@ void lmb_add_memory(void)
 {
 	int i;
 	phys_size_t size;
-	phys_addr_t rgn_top;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
+
+	if (CONFIG_IS_ENABLED(LMB_ARCH_MEM_MAP))
+		return lmb_arch_add_memory();
 
 	/* Assume a 4GB ram_top if not defined */
 	if (!ram_top)
@@ -292,16 +301,16 @@ void lmb_add_memory(void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size = bd->bi_dram[i].size;
 		if (size) {
-			if (bd->bi_dram[i].start > ram_top)
-				continue;
-
-			rgn_top = bd->bi_dram[i].start +
-				bd->bi_dram[i].size;
-
-			if (rgn_top > ram_top)
-				size -= rgn_top - ram_top;
-
 			lmb_add(bd->bi_dram[i].start, size);
+
+			/*
+			 * Reserve memory above ram_top as
+			 * no-overwrite so that it cannot be
+			 * allocated
+			 */
+			if (bd->bi_dram[i].start >= ram_top)
+				lmb_reserve_flags(bd->bi_dram[i].start, size,
+						  LMB_NOOVERWRITE);
 		}
 	}
 }
@@ -474,12 +483,20 @@ static long lmb_add_region(struct alist *lmb_rgn_lst, phys_addr_t base,
 /* This routine may be called with relocation disabled. */
 long lmb_add(phys_addr_t base, phys_size_t size)
 {
+	long ret;
 	struct alist *lmb_rgn_lst = &lmb.free_mem;
 
-	return lmb_add_region(lmb_rgn_lst, base, size);
+	ret = lmb_add_region(lmb_rgn_lst, base, size);
+	if (ret)
+		return ret;
+
+	if (lmb_should_notify(LMB_NONE))
+		return lmb_map_update_notify(base, size, MAP_OP_ADD);
+
+	return 0;
 }
 
-long lmb_free(phys_addr_t base, phys_size_t size)
+static long _lmb_free(phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
@@ -530,11 +547,49 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 				    rgn[i].flags);
 }
 
+/**
+ * lmb_free_flags() - Free up a region of memory
+ * @base: Base Address of region to be freed
+ * @size: Size of the region to be freed
+ * @flags: Memory region attributes
+ *
+ * Free up a region of memory.
+ *
+ * Return: 0 if successful, -1 on failure
+ */
+long lmb_free_flags(phys_addr_t base, phys_size_t size,
+		    uint flags)
+{
+	long ret;
+
+	ret = _lmb_free(base, size);
+	if (ret < 0)
+		return ret;
+
+	if (lmb_should_notify(flags))
+		return lmb_map_update_notify(base, size, MAP_OP_FREE);
+
+	return ret;
+}
+
+long lmb_free(phys_addr_t base, phys_size_t size)
+{
+	return lmb_free_flags(base, size, LMB_NONE);
+}
+
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 {
+	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
 
-	return lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
+	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
+	if (ret < 0)
+		return -1;
+
+	if (lmb_should_notify(flags))
+		return lmb_map_update_notify(base, size, MAP_OP_RESERVE);
+
+	return ret;
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -563,9 +618,11 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
-static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
+static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 				    phys_addr_t max_addr, enum lmb_flags flags)
 {
+	u8 op;
+	int ret;
 	long i, rgn;
 	phys_addr_t base = 0;
 	phys_addr_t res_base;
@@ -596,6 +653,15 @@ static phys_addr_t __lmb_alloc_base(phys_size_t size, ulong align,
 				if (lmb_add_region_flags(&lmb.used_mem, base,
 							 size, flags) < 0)
 					return 0;
+
+				if (lmb_should_notify(flags)) {
+					op = MAP_OP_RESERVE;
+					ret = lmb_map_update_notify(base, size,
+								    op);
+					if (ret)
+						return ret;
+				}
+
 				return base;
 			}
 
@@ -613,11 +679,28 @@ phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
 }
 
+/**
+ * lmb_alloc_flags() - Allocate memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags)
+{
+	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
+			       flags);
+}
+
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	phys_addr_t alloc;
 
-	alloc = __lmb_alloc_base(size, align, max_addr, LMB_NONE);
+	alloc = _lmb_alloc_base(size, align, max_addr, LMB_NONE);
 
 	if (alloc == 0)
 		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
@@ -626,7 +709,34 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 	return alloc;
 }
 
-static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
+/**
+ * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
+ * @size: Size of the region requested
+ * @align: Alignment of the memory region requested
+ * @max_addr: Maximum address of the requested region
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The max_addr parameter is used to specify the maximum address
+ * below which the requested region should be allocated.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
+				 phys_addr_t max_addr, uint flags)
+{
+	phys_addr_t alloc;
+
+	alloc = _lmb_alloc_base(size, align, max_addr, flags);
+
+	if (alloc == 0)
+		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
+		       (ulong)size, (ulong)max_addr);
+
+	return alloc;
+}
+
+static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				    enum lmb_flags flags)
 {
 	long rgn;
@@ -657,7 +767,25 @@ static phys_addr_t __lmb_alloc_addr(phys_addr_t base, phys_size_t size,
  */
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 {
-	return __lmb_alloc_addr(base, size, LMB_NONE);
+	return _lmb_alloc_addr(base, size, LMB_NONE);
+}
+
+/**
+ * lmb_alloc_addr_flags() - Allocate specified memory address with specified attributes
+ * @base: Base Address requested
+ * @size: Size of the region requested
+ * @flags: Memory region attributes to be set
+ *
+ * Allocate a region of memory with the attributes specified through the
+ * parameter. The base parameter is used to specify the base address
+ * of the requested region.
+ *
+ * Return: base address on success, 0 on error
+ */
+phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
+				 uint flags)
+{
+	return _lmb_alloc_addr(base, size, flags);
 }
 
 /* Return number of bytes from a given address that are free */
@@ -703,7 +831,7 @@ int lmb_is_reserved_flags(phys_addr_t addr, int flags)
 	return 0;
 }
 
-static int lmb_setup(void)
+static int lmb_setup(bool test)
 {
 	bool ret;
 
@@ -720,6 +848,8 @@ static int lmb_setup(void)
 		log_debug("Unable to initialise the list for LMB used memory\n");
 		return -ENOMEM;
 	}
+
+	lmb.test = test;
 
 	return 0;
 }
@@ -740,7 +870,7 @@ int lmb_init(void)
 {
 	int ret;
 
-	ret = lmb_setup();
+	ret = lmb_setup(false);
 	if (ret) {
 		log_info("Unable to init LMB\n");
 		return ret;
@@ -768,7 +898,7 @@ int lmb_push(struct lmb *store)
 	int ret;
 
 	*store = lmb;
-	ret = lmb_setup();
+	ret = lmb_setup(true);
 	if (ret)
 		return ret;
 
