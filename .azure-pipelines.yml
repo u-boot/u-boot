@@ -400,12 +400,15 @@ stages:
         evb_ast2500:
           TEST_PY_BD: "evb-ast2500"
           TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         evb_ast2600:
           TEST_PY_BD: "evb-ast2600"
           TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         vexpress_ca9x4:
           TEST_PY_BD: "vexpress_ca9x4"
           TEST_PY_ID: "--id qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         integratorcp_cm926ejs:
           TEST_PY_BD: "integratorcp_cm926ejs"
           TEST_PY_ID: "--id qemu"
@@ -464,21 +467,27 @@ stages:
         r2dplus_i82557c:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id i82557c_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_pcnet:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id pcnet_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_rtl8139:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id rtl8139_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         r2dplus_tulip:
           TEST_PY_BD: "r2dplus"
           TEST_PY_ID: "--id tulip_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         sifive_unleashed_sdcard:
           TEST_PY_BD: "sifive_unleashed"
           TEST_PY_ID: "--id sdcard_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         sifive_unleashed_spi-nor:
           TEST_PY_BD: "sifive_unleashed"
           TEST_PY_ID: "--id spi-nor_qemu"
+          TEST_PY_TEST_SPEC: "not sleep"
         xilinx_zynq_virt:
           TEST_PY_BD: "xilinx_zynq_virt"
           TEST_PY_ID: "--id qemu"

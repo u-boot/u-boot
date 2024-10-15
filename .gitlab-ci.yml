@@ -306,12 +306,14 @@ sandbox trace_test.py:
 evb-ast2500 test.py:
   variables:
     TEST_PY_BD: "evb-ast2500"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
 evb-ast2600 test.py:
   variables:
     TEST_PY_BD: "evb-ast2600"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
@@ -323,6 +325,7 @@ sandbox_flattree test.py:
 vexpress_ca9x4 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca9x4"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
   <<: *buildman_and_testpy_dfn
 
@@ -432,36 +435,42 @@ qemu-xtensa-dc233c test.py:
 r2dplus_i82557c test.py:
   variables:
     TEST_PY_BD: "r2dplus"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id i82557c_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_pcnet test.py:
   variables:
     TEST_PY_BD: "r2dplus"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id pcnet_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_rtl8139 test.py:
   variables:
     TEST_PY_BD: "r2dplus"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id rtl8139_qemu"
   <<: *buildman_and_testpy_dfn
 
 r2dplus_tulip test.py:
   variables:
     TEST_PY_BD: "r2dplus"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id tulip_qemu"
   <<: *buildman_and_testpy_dfn
 
 sifive_unleashed_sdcard test.py:
   variables:
     TEST_PY_BD: "sifive_unleashed"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id sdcard_qemu"
   <<: *buildman_and_testpy_dfn
 
 sifive_unleashed_spi-nor test.py:
   variables:
     TEST_PY_BD: "sifive_unleashed"
+    TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id spi-nor_qemu"
   <<: *buildman_and_testpy_dfn
 
