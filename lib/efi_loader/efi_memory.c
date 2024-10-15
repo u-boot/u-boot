@@ -173,17 +173,19 @@ static void efi_mem_sort(void)
 /**
  * efi_mem_carve_out() - unmap memory region
  *
- * @map:		memory map
- * @carve_desc:		memory region to unmap
- * @overlap_only_ram:	the carved out region may only overlap RAM
- * Return:		the number of overlapping pages which have been
- *			removed from the map,
- *			EFI_CARVE_NO_OVERLAP, if the regions don't overlap,
- *			EFI_CARVE_OVERLAPS_NONRAM, if the carve and map overlap,
- *			and the map contains anything but free ram
- *			(only when overlap_only_ram is true),
- *			EFI_CARVE_LOOP_AGAIN, if the mapping list should be
- *			traversed again, as it has been altered.
+ * @map:			memory map
+ * @carve_desc:			memory region to unmap
+ * @overlap_conventional:	the carved out region may only overlap free,
+ *				or conventional memory
+ * Return:			the number of overlapping pages which have been
+ *				removed from the map,
+ *				EFI_CARVE_NO_OVERLAP, if the regions don't
+ *				overlap, EFI_CARVE_OVERLAPS_NONRAM, if the carve
+ *				and map overlap, and the map contains anything
+ *				but free ram(only when overlap_conventional is
+ *				true),
+ *				EFI_CARVE_LOOP_AGAIN, if the mapping list should
+ *				be traversed again, as it has been altered.
  *
  * Unmaps all memory occupied by the carve_desc region from the list entry
  * pointed to by map.
@@ -193,7 +195,7 @@ static void efi_mem_sort(void)
  */
 static s64 efi_mem_carve_out(struct efi_mem_list *map,
 			     struct efi_mem_desc *carve_desc,
-			     bool overlap_only_ram)
+			     bool overlap_conventional)
 {
 	struct efi_mem_list *newmap;
 	struct efi_mem_desc *map_desc = &map->desc;
@@ -208,7 +210,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 		return EFI_CARVE_NO_OVERLAP;
 
 	/* We're overlapping with non-RAM, warn the caller if desired */
-	if (overlap_only_ram && (map_desc->type != EFI_CONVENTIONAL_MEMORY))
+	if (overlap_conventional && (map_desc->type != EFI_CONVENTIONAL_MEMORY))
 		return EFI_CARVE_OVERLAPS_NONRAM;
 
 	/* Sanitize carve_start and carve_end to lie within our bounds */
@@ -258,15 +260,17 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 /**
  * efi_add_memory_map_pg() - add pages to the memory map
  *
- * @start:		start address, must be a multiple of EFI_PAGE_SIZE
- * @pages:		number of pages to add
- * @memory_type:	type of memory added
- * @overlap_only_ram:	region may only overlap RAM
- * Return:		status code
+ * @start:			start address, must be a multiple of
+ *				EFI_PAGE_SIZE
+ * @pages:			number of pages to add
+ * @memory_type:		type of memory added
+ * @overlap_conventional:	region may only overlap free(conventional)
+ *				memory
+ * Return:			status code
  */
 efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
-					  int memory_type,
-					  bool overlap_only_ram)
+				   int memory_type,
+				   bool overlap_conventional)
 {
 	struct efi_mem_list *lmem;
 	struct efi_mem_list *newlist;
@@ -275,7 +279,8 @@ efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 	struct efi_event *evt;
 
 	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
-		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+		  start, pages, memory_type, overlap_conventional ?
+		  "yes" : "no");
 
 	if (memory_type >= EFI_MAX_MEMORY_TYPE)
 		return EFI_INVALID_PARAMETER;
@@ -312,7 +317,7 @@ efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 			s64 r;
 
 			r = efi_mem_carve_out(lmem, &newlist->desc,
-					      overlap_only_ram);
+					      overlap_conventional);
 			switch (r) {
 			case EFI_CARVE_OUT_OF_RESOURCES:
 				free(newlist);
@@ -348,7 +353,7 @@ efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 		}
 	} while (carve_again);
 
-	if (overlap_only_ram && (carved_pages != pages)) {
+	if (overlap_conventional && (carved_pages != pages)) {
 		/*
 		 * The payload wanted to have RAM overlaps, but we overlapped
 		 * with an unallocated region. Error out.

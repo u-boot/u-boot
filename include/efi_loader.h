@@ -788,15 +788,17 @@ efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type);
 /**
  * efi_add_memory_map_pg() - add pages to the memory map
  *
- * @start:		start address, must be a multiple of EFI_PAGE_SIZE
- * @pages:		number of pages to add
- * @memory_type:	type of memory added
- * @overlap_only_ram:	region may only overlap RAM
- * Return:		status code
+ * @start:			start address, must be a multiple of
+ *				EFI_PAGE_SIZE
+ * @pages:			number of pages to add
+ * @memory_type:		type of memory added
+ * @overlap_conventional:	region may only overlap free(conventional)
+ *				memory
+ * Return:			status code
  */
 efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
-					  int memory_type,
-					  bool overlap_only_ram);
+				   int memory_type,
+				   bool overlap_conventional);
 
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
