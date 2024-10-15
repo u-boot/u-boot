@@ -418,7 +418,7 @@ def usb_ext4load_ext4write(u_boot_console, fs, x, part):
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_ext4')
-@pytest.mark.buildconfigspec('ext4_write')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_usb_ext4load_ext4write(u_boot_console):
     devices, controllers, storage_device = test_usb_part(u_boot_console)
@@ -475,7 +475,7 @@ def test_usb_ext2ls(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_ext2')
 @pytest.mark.buildconfigspec('cmd_ext4')
-@pytest.mark.buildconfigspec('ext4_write')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_usb_ext2load(u_boot_console):
     devices, controllers, storage_device = test_usb_part(u_boot_console)
@@ -545,6 +545,7 @@ def test_usb_ls(u_boot_console):
         pytest.skip('No partition detected')
 
 @pytest.mark.buildconfigspec('cmd_usb')
+@pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
 def test_usb_load(u_boot_console):
     devices, controllers, storage_device = test_usb_part(u_boot_console)
