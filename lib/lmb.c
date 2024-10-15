@@ -281,7 +281,6 @@ void lmb_add_memory(void)
 {
 	int i;
 	phys_size_t size;
-	phys_addr_t rgn_top;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
 
@@ -292,16 +291,16 @@ void lmb_add_memory(void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size = bd->bi_dram[i].size;
 		if (size) {
-			if (bd->bi_dram[i].start > ram_top)
-				continue;
-
-			rgn_top = bd->bi_dram[i].start +
-				bd->bi_dram[i].size;
-
-			if (rgn_top > ram_top)
-				size -= rgn_top - ram_top;
-
 			lmb_add(bd->bi_dram[i].start, size);
+
+			/*
+			 * Reserve memory above ram_top as
+			 * no-overwrite so that it cannot be
+			 * allocated
+			 */
+			if (bd->bi_dram[i].start >= ram_top)
+				lmb_reserve_flags(bd->bi_dram[i].start, size,
+						  LMB_NOOVERWRITE);
 		}
 	}
 }
