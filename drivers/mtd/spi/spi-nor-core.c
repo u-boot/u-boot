@@ -195,11 +195,10 @@ struct sfdp_bfpt {
 /**
  * struct spi_nor_fixups - SPI NOR fixup hooks
  * @post_bfpt: called after the BFPT table has been parsed
- * @post_sfdp: called after SFDP has been parsed (is also called for SPI NORs
- *             that do not support RDSFDP). Typically used to tweak various
- *             parameters that could not be extracted by other means (i.e.
- *             when information provided by the SFDP/flash_info tables are
- *             incomplete or wrong).
+ * @post_sfdp: called after SFDP has been parsed. Typically used to tweak
+ *             various parameters that could not be extracted by other means
+ *             (i.e. when information provided by the SFDP tables are incomplete
+ *             or wrong).
  * @late_init: used to initialize flash parameters that are not declared in the
  *             JESD216 SFDP standard, or where SFDP tables not defined at all.
  *
@@ -3045,13 +3044,12 @@ static int spi_nor_parse_sfdp(struct spi_nor *nor,
 
 /**
  * spi_nor_post_sfdp_fixups() - Updates the flash's parameters and settings
- * after SFDP has been parsed (is also called for SPI NORs that do not
- * support RDSFDP).
+ * after SFDP has been parsed.
  * @nor:	pointer to a 'struct spi_nor'
  *
  * Typically used to tweak various parameters that could not be extracted by
- * other means (i.e. when information provided by the SFDP/flash_info tables
- * are incomplete or wrong).
+ * other means (i.e. when information provided by the SFDP tables are incomplete
+ * or wrong).
  */
 static void spi_nor_post_sfdp_fixups(struct spi_nor *nor,
 				     struct spi_nor_flash_parameter *params)
@@ -3193,6 +3191,8 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		} else {
 			memcpy(params, &sfdp_params, sizeof(*params));
 		}
+
+		spi_nor_post_sfdp_fixups(nor, params);
 	}
 #if CONFIG_IS_ENABLED(DM_SPI) && CONFIG_IS_ENABLED(SPI_ADVANCE)
 	/*
@@ -3250,7 +3250,6 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		params->page_size <<= 1;
 	}
 #endif
-	spi_nor_post_sfdp_fixups(nor, params);
 	spi_nor_late_init_fixups(nor, params);
 
 	return 0;
