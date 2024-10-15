@@ -46,10 +46,12 @@ struct lmb_region {
  *
  * @free_mem:	List of free memory regions
  * @used_mem:	List of used/reserved memory regions
+ * @test:	Is structure being used for LMB tests
  */
 struct lmb {
 	struct alist free_mem;
 	struct alist used_mem;
+	bool test;
 };
 
 /**
