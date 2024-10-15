@@ -1119,6 +1119,24 @@ config SPL_LMB
 	  SPL. This will require a malloc() implementation for defining
 	  the data structures needed for maintaining the LMB memory map.
 
+config LMB_ARCH_MEM_MAP
+	bool "Add an architecture specific memory map"
+	depends on LMB
+	help
+	  Some architectures have special or unique aspects which need
+	  consideration when adding memory ranges to the list of available
+	  memory map. Enable this config in such scenarios which allow
+	  architectures and boards to define their own memory map.
+
+config SPL_LMB_ARCH_MEM_MAP
+	bool "Add an architecture specific memory map"
+	depends on SPL_LMB
+	help
+	  Some architectures have special or unique scenarios which need
+	  consideration when adding memory ranges to the list of available
+	  memory map. Enable this config in such scenarios which allow
+	  architectures and boards to define their own memory map.
+
 config PHANDLE_CHECK_SEQ
 	bool "Enable phandle check while getting sequence number"
 	help
