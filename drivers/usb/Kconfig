@@ -85,6 +85,8 @@ source "drivers/usb/emul/Kconfig"
 
 source "drivers/usb/phy/Kconfig"
 
+source "drivers/usb/tcpm/Kconfig"
+
 source "drivers/usb/ulpi/Kconfig"
 
 if USB_HOST
