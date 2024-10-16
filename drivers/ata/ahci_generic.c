@@ -16,7 +16,7 @@ __weak int board_ahci_enable(void)
 	return 0;
 }
 
-static int mvebu_ahci_bind(struct udevice *dev)
+static int generic_ahci_bind(struct udevice *dev)
 {
 	struct udevice *scsi_dev;
 	int ret;
@@ -30,7 +30,7 @@ static int mvebu_ahci_bind(struct udevice *dev)
 	return 0;
 }
 
-static int mvebu_ahci_probe(struct udevice *dev)
+static int generic_ahci_probe(struct udevice *dev)
 {
 	/*
 	 * Board specific SATA / AHCI enable code, e.g. enable the
@@ -43,18 +43,19 @@ static int mvebu_ahci_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id mvebu_ahci_ids[] = {
+static const struct udevice_id generic_ahci_ids[] = {
 	{ .compatible = "marvell,armada-380-ahci" },
 	{ .compatible = "marvell,armada-3700-ahci" },
 	{ .compatible = "marvell,armada-8k-ahci" },
 	{ .compatible = "cavium,octeon-7130-ahci" },
+	{ .compatible = "generic-ahci" },
 	{ }
 };
 
-U_BOOT_DRIVER(ahci_mvebu_drv) = {
-	.name		= "ahci_mvebu",
+U_BOOT_DRIVER(ahci_generic_drv) = {
+	.name		= "ahci_generic",
 	.id		= UCLASS_AHCI,
-	.of_match	= mvebu_ahci_ids,
-	.bind		= mvebu_ahci_bind,
-	.probe		= mvebu_ahci_probe,
+	.of_match	= generic_ahci_ids,
+	.bind		= generic_ahci_bind,
+	.probe		= generic_ahci_probe,
 };
