@@ -46,6 +46,4 @@ obj-$(CONFIG_XEN) += xen/
 obj-$(CONFIG_ARMV8_CE_SHA1) += sha1_ce_glue.o sha1_ce_core.o
 obj-$(CONFIG_ARMV8_CE_SHA256) += sha256_ce_glue.o sha256_ce_core.o
 
-ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_SYSINFO_SMBIOS) += sysinfo.o
-endif
