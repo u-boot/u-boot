@@ -734,7 +734,7 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-bool update_stripe(const struct spi_mem_op *op)
+static bool update_stripe(const struct spi_mem_op *op)
 {
 	if (op->cmd.opcode == SPINOR_OP_BE_4K ||
 	    op->cmd.opcode == SPINOR_OP_CHIP_ERASE ||
