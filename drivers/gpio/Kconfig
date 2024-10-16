@@ -157,6 +157,13 @@ config ASPEED_GPIO
 	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
 	  provides access to over 200 GPIOs on each chip.
 
+config ASPEED_SGPIO
+	bool "Aspeed SGPIO Driver"
+	help
+	  Say yes here to support the Aspeed serial GPIO driver. The controller
+	  is found in the AST2400, AST2500 and AST2600 BMC SoCs and
+	  provides access to generate serial GPIO signal.
+
 config ASPEED_G7_GPIO
 	bool "Aspeed G7 GPIO Driver"
 	help
