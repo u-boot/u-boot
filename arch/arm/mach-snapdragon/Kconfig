@@ -11,6 +11,9 @@ config SYS_VENDOR
 	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD>
 	  will be used as the custom board directory.
 
+config SYS_MALLOC_LEN
+	default 0x10000000
+
 config SYS_MALLOC_F_LEN
 	default 0x2000
 
