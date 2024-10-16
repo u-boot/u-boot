@@ -48,6 +48,7 @@ config DM_DSA
 	bool "Enable Driver Model for DSA switches"
 	depends on DM_MDIO
 	depends on PHY_FIXED
+	depends on !NET_LWIP
 	help
 	  Enable driver model for DSA switches
 
@@ -342,6 +343,7 @@ config ESSEDMA
 
 config ETH_SANDBOX
 	depends on SANDBOX
+	depends on NET
 	default y
 	bool "Sandbox: Mocked Ethernet driver"
 	help
@@ -363,6 +365,7 @@ config ETH_SANDBOX_LWIP
 
 config ETH_SANDBOX_RAW
 	depends on SANDBOX
+	depends on NET
 	default y
 	bool "Sandbox: Bridge to Linux Raw Sockets"
 	help
