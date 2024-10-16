@@ -99,6 +99,8 @@ obj-$(CONFIG_$(PHASE_)OF_REAL) += fdtdec_common.o fdtdec.o
 
 obj-$(CONFIG_MBEDTLS_LIB) += mbedtls/
 
+obj-$(CONFIG_NET_LWIP) += lwip/
+
 ifdef CONFIG_XPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16-ccitt.o
 obj-$(CONFIG_$(PHASE_)HASH) += crc16-ccitt.o

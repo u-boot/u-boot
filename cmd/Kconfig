@@ -1653,6 +1653,7 @@ config CMD_USB
 
 config CMD_USB_SDP
 	bool "sdp"
+	depends on USB_GADGET_DOWNLOAD
 	select USB_FUNCTION_SDP
 	help
 	  Enables the command "sdp" which is used to have U-Boot emulating the
@@ -1788,11 +1789,15 @@ config CMD_AB_SELECT
 
 endmenu
 
-if NET
+if NET || NET_LWIP
 
 menuconfig CMD_NET
 	bool "Network commands"
 	default y
+
+endif
+
+if NET
 
 if CMD_NET
 
@@ -1801,12 +1806,6 @@ config CMD_BOOTP
 	default y
 	help
 	  bootp - boot image via network using BOOTP/TFTP protocol
-
-config CMD_DHCP
-	bool "dhcp"
-	depends on CMD_BOOTP
-	help
-	  Boot image via network using DHCP/TFTP protocol
 
 config CMD_DHCP6
 	bool "dhcp6"
@@ -1951,12 +1950,6 @@ config BOOTP_VCI_STRING
 	default "U-Boot.arm" if ARM
 	default "U-Boot"
 
-config CMD_TFTPBOOT
-	bool "tftpboot"
-	default y
-	help
-	  tftpboot - load file via network using TFTP protocol
-
 config CMD_TFTPPUT
 	bool "tftp put"
 	depends on CMD_TFTPBOOT
@@ -2008,13 +2001,76 @@ config SYS_DISABLE_AUTOLOAD
 	  is complete.  Enable this option to disable this behavior and instead
 	  require files to be loaded over the network by subsequent commands.
 
-config CMD_WGET
-	bool "wget"
-	select PROT_TCP
-	default y if SANDBOX
+config CMD_PING6
+	bool "ping6"
+	depends on IPV6
+	default y if (CMD_PING && IPV6)
 	help
-	  wget is a simple command to download kernel, or other files,
-	  from a http server over TCP.
+	  Send ICMPv6 ECHO_REQUEST to network host
+
+config CMD_CDP
+	bool "cdp"
+	help
+	  Perform CDP network configuration
+
+config CMD_SNTP
+	bool "sntp"
+	select PROT_UDP
+	help
+	  Synchronize RTC via network
+
+config CMD_LINK_LOCAL
+	bool "linklocal"
+	select LIB_RAND
+	help
+	  Acquire a network IP address using the link-local protocol
+
+config CMD_NCSI
+	bool "ncsi"
+	depends on PHY_NCSI
+	help
+	  Manually configure the attached NIC via NC-SI.
+	  Normally this happens automatically before other network
+	  operations.
+
+config IPV6_ROUTER_DISCOVERY
+	bool "Do IPv6 router discovery"
+	depends on IPV6
+	help
+	  Will automatically perform router solicitation on first IPv6
+	  network operation
+endif  # if CMD_NET
+
+config CMD_ETHSW
+	bool "ethsw"
+	help
+	  Allow control of L2 Ethernet switch commands. These are supported
+	  by the vsc9953 Ethernet driver at present. Sub-commands allow
+	  operations such as enabling / disabling a port and
+	  viewing/maintaining the filtering database (FDB)
+
+config CMD_WOL
+	bool "wol"
+	help
+	  Wait for wake-on-lan Magic Packet
+
+endif  # if NET
+
+if NET || NET_LWIP
+
+if CMD_NET
+
+config CMD_DHCP
+	bool "dhcp"
+	select PROT_DHCP_LWIP if NET_LWIP
+	help
+	  Boot image via network using DHCP/TFTP protocol
+
+config CMD_DNS
+	bool "dns"
+	select PROT_DNS_LWIP if NET_LWIP
+	help
+	  Lookup the IP of a hostname
 
 config CMD_MII
 	bool "mii"
@@ -2041,61 +2097,28 @@ config CMD_MDIO
 
 config CMD_PING
 	bool "ping"
+	select PROT_RAW_LWIP if NET_LWIP
 	help
 	  Send ICMP ECHO_REQUEST to network host
 
-config CMD_PING6
-	bool "ping6"
-	depends on IPV6
-	default y if (CMD_PING && IPV6)
+config CMD_TFTPBOOT
+	bool "tftp"
+	select PROT_UDP_LWIP if NET_LWIP
+	default y
 	help
-	  Send ICMPv6 ECHO_REQUEST to network host
+	  tftpboot - load file via network using TFTP protocol
 
-config CMD_CDP
-	bool "cdp"
+config CMD_WGET
+	bool "wget"
+	default y if SANDBOX
+	select PROT_TCP if NET
+	select PROT_TCP_LWIP if NET_LWIP
+	select PROT_DNS_LWIP if NET_LWIP
 	help
-	  Perform CDP network configuration
+	  wget is a simple command to download kernel, or other files,
+	  from a http server over TCP.
 
-config CMD_SNTP
-	bool "sntp"
-	select PROT_UDP
-	help
-	  Synchronize RTC via network
-
-config CMD_DNS
-	bool "dns"
-	help
-	  Lookup the IP of a hostname
-
-config CMD_LINK_LOCAL
-	bool "linklocal"
-	select LIB_RAND
-	help
-	  Acquire a network IP address using the link-local protocol
-
-config CMD_NCSI
-	bool "ncsi"
-	depends on PHY_NCSI
-	help
-	  Manually configure the attached NIC via NC-SI.
-	  Normally this happens automatically before other network
-	  operations.
-
-config IPV6_ROUTER_DISCOVERY
-	bool "Do IPv6 router discovery"
-	depends on IPV6
-	help
-	  Will automatically perform router solicitation on first IPv6
-	  network operation
-endif
-
-config CMD_ETHSW
-	bool "ethsw"
-	help
-	  Allow control of L2 Ethernet switch commands. These are supported
-	  by the vsc9953 Ethernet driver at present. Sub-commands allow
-	  operations such as enabling / disabling a port and
-	  viewing/maintaining the filtering database (FDB)
+endif  # if CMD_NET
 
 config CMD_PXE
 	bool "pxe"
@@ -2104,12 +2127,7 @@ config CMD_PXE
 	help
 	  Boot image via network using PXE protocol
 
-config CMD_WOL
-	bool "wol"
-	help
-	  Wait for wake-on-lan Magic Packet
-
-endif
+endif  # if NET || NET_LWIP
 
 menu "Misc commands"
 

@@ -109,9 +109,17 @@ static int bootflow_cmd_label(struct unit_test_state *uts)
 	 * 8   [   ]      OK  mmc       mmc2.bootdev
 	 * 9   [ + ]      OK  mmc       mmc1.bootdev
 	 * a   [   ]      OK  mmc       mmc0.bootdev
+	 *
+	 * However with CONFIG_DSA_SANDBOX=n we have two fewer (dsa-test@0 and
+	 * dsa-test@1).
 	 */
-	ut_assertok(run_command("bootflow scan -lH 9", 0));
-	ut_assert_nextline("Scanning for bootflows with label '9'");
+	if (CONFIG_IS_ENABLED(DSA_SANDBOX)) {
+		ut_assertok(run_command("bootflow scan -lH 9", 0));
+		ut_assert_nextline("Scanning for bootflows with label '9'");
+	} else {
+		ut_assertok(run_command("bootflow scan -lH 7", 0));
+		ut_assert_nextline("Scanning for bootflows with label '7'");
+	}
 	ut_assert_skip_to_line("(1 bootflow, 1 valid)");
 
 	ut_assertok(run_command("bootflow scan -lH 0", 0));
