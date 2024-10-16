@@ -66,7 +66,7 @@ time64_t x509_get_timestamp(const mbedtls_x509_time *x509_time)
 static char *x509_populate_dn_name_string(const mbedtls_x509_name *name)
 {
 	size_t len = 256;
-	size_t wb;
+	int wb;
 	char *name_str;
 
 	do {
