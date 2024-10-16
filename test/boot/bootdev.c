@@ -128,6 +128,7 @@ BOOTSTD_TEST(bootdev_test_labels, UTF_DM | UTF_SCAN_FDT | UTF_ETH_BOOTDEV);
 static int bootdev_test_any(struct unit_test_state *uts)
 {
 	struct udevice *dev, *media;
+	char *seq;
 	int mflags;
 
 	/*
@@ -147,8 +148,16 @@ static int bootdev_test_any(struct unit_test_state *uts)
 	 * 8   [   ]      OK  mmc       mmc2.bootdev
 	 * 9   [ + ]      OK  mmc       mmc1.bootdev
 	 * a   [   ]      OK  mmc       mmc0.bootdev
+	 *
+	 * However if DSA_SANDBOX is disabled the dsa-test@{0,1} devices
+	 * are not there.
 	 */
-	ut_assertok(bootdev_find_by_any("8", &dev, &mflags));
+	if (CONFIG_IS_ENABLED(DSA_SANDBOX))
+		seq = "8";
+	else
+		seq = "6";
+
+	ut_assertok(bootdev_find_by_any(seq, &dev, &mflags));
 	ut_asserteq(UCLASS_BOOTDEV, device_get_uclass_id(dev));
 	ut_asserteq(BOOTFLOW_METHF_SINGLE_DEV, mflags);
 	media = dev_get_parent(dev);
