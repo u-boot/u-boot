@@ -842,7 +842,9 @@ UBOOTINCLUDE    := \
 			-I$(srctree)/arch/arm/thumb1/include)) \
 	-I$(srctree)/arch/$(ARCH)/include \
 	-include $(srctree)/include/linux/kconfig.h \
-	-I$(srctree)/dts/upstream/include
+	-I$(srctree)/dts/upstream/include \
+	$(if $(CONFIG_NET_LWIP), -I$(srctree)/lib/lwip/lwip/src/include \
+		-I$(srctree)/lib/lwip/u-boot)
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
