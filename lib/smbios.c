@@ -217,7 +217,7 @@ void get_str_from_dt(const struct map_sysinfo *nprop, char *str, size_t size)
 static int smbios_get_val_si(struct smbios_ctx *ctx, const char *prop,
 			     int sysinfo_id)
 {
-	int val = 0;
+	int val;
 
 	if (!sysinfo_id || !ctx->dev)
 		return 0;
@@ -225,12 +225,11 @@ static int smbios_get_val_si(struct smbios_ctx *ctx, const char *prop,
 	if (!sysinfo_get_int(ctx->dev, sysinfo_id, &val))
 		return val;
 
-	if (IS_ENABLED(CONFIG_OF_CONTROL) && prop) {
-		if (ofnode_valid(ctx->node)) {
-			ofnode_read_u32(ctx->node, prop, &val);
-			return val;
-		}
-	}
+	if (!IS_ENABLED(CONFIG_OF_CONTROL) || !prop || !ofnode_valid(ctx->node))
+		return 0;
+
+	if (!ofnode_read_u32(ctx->node, prop, &val))
+		return val;
 
 	return 0;
 }
