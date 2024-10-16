@@ -472,8 +472,17 @@ __weak int misc_init_r(void)
 __weak int board_rng_seed(struct abuf *buf)
 {
 	struct udevice *dev;
-	size_t len = 0x8;
+	ulong len = env_get_ulong("rng_seed_size", 10, 64);
 	u64 *data;
+
+	if (len < 64) {
+		/*
+		 * rng_seed_size should be at least 32 bytes for Linux 5.19+,
+		 * or 64 for older Linux kernel versions
+		 */
+		log_warning("Value for rng_seed_size (%lu) too low, Linux kernel RNG may fail to initialize early\n",
+			    len);
+	}
 
 	data = malloc(len);
 	if (!data) {
