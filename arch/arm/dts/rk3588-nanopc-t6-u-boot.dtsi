@@ -11,6 +11,11 @@
 	bootph-some-ram;
 };
 
+&saradc {
+	bootph-pre-ram;
+	vdd-microvolts = <1800000>;
+};
+
 &sfc {
 	flash@0 {
 		bootph-pre-ram;
