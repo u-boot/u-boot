@@ -18,7 +18,10 @@ struct disk_partition;
 #define NUM_SLOTS 2
 
 /**
- * Select the slot where to boot from.
+ * ab_select_slot() - Select the slot where to boot from.
+ *
+ * @dev_desc: Place to store the device description pointer
+ * @part_info: Place to store the partition information
  *
  * On Android devices with more than one boot slot (multiple copies of the
  * kernel and system images) selects which slot should be used to boot from and
@@ -28,8 +31,6 @@ struct disk_partition;
  * registered before returning from this function so it isn't selected
  * indefinitely.
  *
- * @param[in] dev_desc Place to store the device description pointer
- * @param[in] part_info Place to store the partition information
  * Return: The slot number (>= 0) on success, or a negative on error
  */
 int ab_select_slot(struct blk_desc *dev_desc, struct disk_partition *part_info,
