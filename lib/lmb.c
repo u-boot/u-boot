@@ -76,6 +76,7 @@ static void lmb_print_region_flags(enum lmb_flags flags)
 
 	do {
 		bitpos = flags ? fls(flags) - 1 : 0;
+		assert_noisy(bitpos < ARRAY_SIZE(flag_str));
 		printf("%s", flag_str[bitpos]);
 		flags &= ~(1ull << bitpos);
 		puts(flags ? ", " : "\n");
