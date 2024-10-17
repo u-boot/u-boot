@@ -348,7 +348,7 @@ struct andr_image_data {
 	ulong bootconfig_addr;  /* bootconfig image address */
 	ulong bootconfig_size;  /* bootconfig image size */
 
-	u32 kernel_addr;  /* physical load addr */
+	ulong kernel_addr;  /* physical load addr */
 	ulong ramdisk_addr;  /* physical load addr */
 	ulong ramdisk_ptr;  /* ramdisk address */
 	ulong dtb_load_addr;  /* physical load address for DTB image */
