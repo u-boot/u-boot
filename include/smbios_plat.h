@@ -6,6 +6,7 @@
 #ifndef __SMBIOS_PLAT_H
 #define __SMBIOS_PLAT_H
 
+#include <linux/kconfig.h>
 #include <smbios.h>
 
 struct cache_info {
