@@ -12,6 +12,7 @@
 #include "stm32mp15-ddr3-dhsom-2x1Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15xx-dhsom-u-boot.dtsi"
 
 / {
 	bootph-all;

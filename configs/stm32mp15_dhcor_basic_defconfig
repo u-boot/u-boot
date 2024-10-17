@@ -7,7 +7,7 @@ CONFIG_SF_DEFAULT_SPEED=50000000
 CONFIG_ENV_SIZE=0x4000
 CONFIG_ENV_SECT_SIZE=0x1000
 CONFIG_SPL_DM_SPI=y
-CONFIG_DEFAULT_DEVICE_TREE="stm32mp15xx-dhcor-avenger96"
+CONFIG_DEFAULT_DEVICE_TREE="st/stm32mp157a-dhcor-avenger96"
 CONFIG_SPL_TEXT_BASE=0x2FFC2500
 CONFIG_SPL_MMC=y
 CONFIG_BOOTCOUNT_BOOTLIMIT=3
@@ -30,7 +30,6 @@ CONFIG_BOARD_SIZE_LIMIT=1441792
 CONFIG_FIT=y
 CONFIG_SPL_LOAD_FIT=y
 CONFIG_SPL_LOAD_FIT_ADDRESS=0xc1000000
-CONFIG_SPL_FIT_SOURCE="board/dhelectronics/dh_stm32mp1/u-boot-dhcor.its"
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=1
 CONFIG_BOOTCOMMAND="run bootcmd_stm32mp"
@@ -54,7 +53,6 @@ CONFIG_SPL_POWER=y
 CONFIG_SPL_RAM_DEVICE=y
 CONFIG_SPL_SPI_FLASH_MTD=y
 CONFIG_SYS_SPI_U_BOOT_OFFS=0x80000
-CONFIG_SPL_TARGET="u-boot.itb"
 CONFIG_SYS_PROMPT="STM32MP> "
 # CONFIG_CMD_ELF is not set
 # CONFIG_CMD_EXPORTENV is not set
@@ -90,7 +88,8 @@ CONFIG_CMD_EXT4_WRITE=y
 # CONFIG_ISO_PARTITION is not set
 # CONFIG_SPL_PARTITION_UUIDS is not set
 CONFIG_OF_LIVE=y
-CONFIG_OF_LIST="stm32mp15xx-dhcor-avenger96 stm32mp15xx-dhcor-testbench stm32mp15xx-dhcor-drc-compact"
+CONFIG_OF_UPSTREAM=y
+CONFIG_OF_LIST="st/stm32mp157a-dhcor-avenger96 st/stm32mp151a-dhcor-testbench st/stm32mp153c-dhcor-drc-compact"
 CONFIG_OF_SPL_REMOVE_PROPS="interrupts interrupt-names interrupts-extended interrupt-controller \\\#interrupt-cells interrupt-parent dmas dma-names assigned-clocks assigned-clock-rates assigned-clock-parents hwlocks"
 CONFIG_ENV_IS_IN_SPI_FLASH=y
 CONFIG_SYS_REDUNDAND_ENVIRONMENT=y

@@ -276,15 +276,26 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
+	char *cdevice, *ndevice;
 	const char *compat;
-	char test[128];
 
 	compat = ofnode_get_property(ofnode_root(), "compatible", NULL);
+	if (!compat)
+		return -EINVAL;
 
-	snprintf(test, sizeof(test), "%s_somrev%d_boardrev%d",
-		compat, somcode, brdcode);
+	cdevice = strchr(compat, ',');
+	if (!cdevice)
+		return -ENODEV;
 
-	if (!strcmp(name, test))
+	cdevice++;	/* Move past the comma right after vendor prefix. */
+
+	ndevice = strchr(name, '/');
+	if (!ndevice)
+		return -ENODEV;
+
+	ndevice++;	/* Move past the last slash in DT path */
+
+	if (!strcmp(cdevice, ndevice))
 		return 0;
 
 	return -EINVAL;
