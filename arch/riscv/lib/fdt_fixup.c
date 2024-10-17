@@ -142,7 +142,7 @@ int arch_fixup_fdt(void *blob)
 	size = fdt_totalsize(blob);
 	err  = fdt_open_into(blob, blob, size + 32);
 	if (err < 0) {
-		log_err("Device Tree can't be expanded to accommodate new node");
+		log_err("Device-tree can't be expanded to accommodate new node\n");
 		return err;
 	}
 	chosen_offset = fdt_path_offset(blob, "/chosen");
