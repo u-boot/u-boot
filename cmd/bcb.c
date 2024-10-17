@@ -419,6 +419,32 @@ __maybe_unused static int do_bcb_ab_select(struct cmd_tbl *cmdtp,
 	return CMD_RET_SUCCESS;
 }
 
+__maybe_unused static int do_bcb_ab_dump(struct cmd_tbl *cmdtp,
+					 int flag, int argc,
+					 char *const argv[])
+{
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if (part_get_info_by_dev_and_name_or_num(argv[1], argv[2],
+						 &dev_desc, &part_info,
+						 false) < 0) {
+		return CMD_RET_FAILURE;
+	}
+
+	ret = ab_dump_abc(dev_desc, &part_info);
+	if (ret < 0) {
+		printf("Cannot dump ABC data, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 U_BOOT_LONGHELP(bcb,
 	"load <interface> <dev> <part>  - load  BCB from <interface> <dev>:<part>\n"
 	"load <dev> <part>              - load  BCB from mmc <dev>:<part>\n"
@@ -444,6 +470,10 @@ U_BOOT_LONGHELP(bcb,
 	"    - If '--no-dec' is set, the number of tries remaining will not\n"
 	"      decremented for the selected boot slot\n"
 	"\n"
+	"bcb ab_dump -\n"
+	"    Dump boot_control information from specific partition.\n"
+	"    <interface> <dev[:part|#part_name]>\n"
+	"\n"
 #endif
 	"Legend:\n"
 	"<interface> - storage device interface (virtio, mmc, etc)\n"
@@ -468,5 +498,6 @@ U_BOOT_CMD_WITH_SUBCMDS(bcb,
 	U_BOOT_SUBCMD_MKENT(store, 1, 1, do_bcb_store),
 #if IS_ENABLED(CONFIG_ANDROID_AB)
 	U_BOOT_SUBCMD_MKENT(ab_select, 5, 1, do_bcb_ab_select),
+	U_BOOT_SUBCMD_MKENT(ab_dump, 3, 1, do_bcb_ab_dump),
 #endif
 );
