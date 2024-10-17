@@ -221,6 +221,13 @@ config CMD_REGINFO
 	help
 	  Register dump
 
+config CMD_TCPM
+	bool "tcpm"
+	depends on TYPEC_TCPM
+	help
+	  Show voltage and current negotiated via USB PD as well as the
+	  current state of the Type C Port Manager (TCPM) state machine.
+
 config CMD_TLV_EEPROM
 	bool "tlv_eeprom"
 	depends on I2C_EEPROM

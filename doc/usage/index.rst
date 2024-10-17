@@ -112,6 +112,7 @@ Shell commands
    cmd/smbios
    cmd/sound
    cmd/source
+   cmd/tcpm
    cmd/temperature
    cmd/tftpput
    cmd/trace
