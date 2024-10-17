@@ -652,7 +652,7 @@ void *efi_alloc(size_t size)
 
 	if (efi_allocate_pool(EFI_BOOT_SERVICES_DATA, size, &buf) !=
 	    EFI_SUCCESS) {
-		log_err("out of memory");
+		log_err("out of memory\n");
 		return NULL;
 	}
 	memset(buf, 0, size);
