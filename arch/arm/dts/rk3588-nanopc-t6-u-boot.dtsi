@@ -12,19 +12,8 @@
 };
 
 &sfc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&fspim1_pins>;
-	#address-cells = <1>;
-	#size-cells = <0>;
-	status = "okay";
-
 	flash@0 {
-		compatible = "jedec,spi-nor";
-		reg = <0>;
 		bootph-pre-ram;
 		bootph-some-ram;
-		spi-max-frequency = <24000000>;
-		spi-rx-bus-width = <4>;
-		spi-tx-bus-width = <1>;
 	};
 };
