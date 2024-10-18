@@ -487,7 +487,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	struct alist *lmb_rgn_lst = &lmb.free_mem;
 
 	ret = lmb_add_region(lmb_rgn_lst, base, size);
-	if (ret)
+	if (ret < 0)
 		return ret;
 
 	if (lmb_should_notify(LMB_NONE))
