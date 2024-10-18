@@ -267,7 +267,20 @@ u32 cpu_get_family_model(void);
  */
 u32 cpu_get_stepping(void);
 
+/**
+ * board_final_init() - Final initialization hook (optional)
+ *
+ * Implements a custom initialization for boards that need to do it
+ * before the system is ready.
+ */
 void board_final_init(void);
+
+/**
+ * board_final_cleanup() - Final cleanup hook (optional)
+ *
+ * Implements a custom cleanup for boards that need to do it before
+ * booting the OS.
+ */
 void board_final_cleanup(void);
 
 #ifndef CONFIG_EFI_STUB
