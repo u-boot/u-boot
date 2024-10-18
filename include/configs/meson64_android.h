@@ -47,13 +47,13 @@
 #define AVB_VERIFY_CMD ""
 #endif
 
-#if defined(CONFIG_CMD_AB_SELECT)
+#if defined(CONFIG_CMD_BCB) && defined(CONFIG_ANDROID_AB)
 #define ANDROIDBOOT_GET_CURRENT_SLOT_CMD "get_current_slot=" \
 	"if part number mmc ${mmcdev} " CONTROL_PARTITION " control_part_number; " \
 	"then " \
 		"echo " CONTROL_PARTITION \
 			" partition number:${control_part_number};" \
-		"ab_select current_slot mmc ${mmcdev}:${control_part_number};" \
+		"bcb ab_select current_slot mmc ${mmcdev}:${control_part_number};" \
 	"else " \
 		"echo " CONTROL_PARTITION " partition not found;" \
 	"fi;\0"
