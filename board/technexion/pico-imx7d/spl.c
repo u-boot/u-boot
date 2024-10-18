@@ -89,11 +89,11 @@ static struct ddr_phy ddr_phy_regs_val = {
 static struct mx7_calibration calib_param = {
 	.num_val	= 5,
 	.values		= {
-		0x0E407304,
-		0x0E447304,
-		0x0E447306,
-		0x0E447304,
-		0x0E447304,
+		0x0E207304,
+		0x0E247304,
+		0x0E247306,
+		0x0E247304,
+		0x0E207304,
 	},
 };
 
