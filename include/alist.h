@@ -275,6 +275,13 @@ bool alist_chk_ptr(const struct alist *lst, const void *ptr);
 	     _pos++)
 
 /**
+ * alist_empty() - Empty an alist
+ *
+ * This removes all entries from the list, without changing the allocated size
+ */
+void alist_empty(struct alist *lst);
+
+/**
  * alist_init() - Set up a new object list
  *
  * Sets up a list of objects, initially empty
