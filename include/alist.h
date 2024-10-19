@@ -116,7 +116,12 @@ static inline const void *alist_getd(struct alist *lst, uint index)
 	return lst->data + index * lst->obj_size;
 }
 
-/** get an entry as a constant */
+/**
+ * alist_get() - get an entry as a constant
+ *
+ * Use as (to obtain element 2 of the list):
+ *	const struct my_struct *ptr = alist_get(lst, 2, struct my_struct)
+ */
 #define alist_get(_lst, _index, _struct)	\
 	((const _struct *)alist_get_ptr(_lst, _index))
 
