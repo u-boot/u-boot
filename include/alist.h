@@ -198,6 +198,12 @@ bool alist_expand_by(struct alist *lst, uint inc_by);
  */
 bool alist_init(struct alist *lst, uint obj_size, uint alloc_size);
 
+/**
+ * alist_init_struct() - Typed version of alist_init()
+ *
+ * Use as:
+ *	alist_init(&lst, struct my_struct);
+ */
 #define alist_init_struct(_lst, _struct)	\
 	alist_init(_lst, sizeof(_struct), 0)
 
