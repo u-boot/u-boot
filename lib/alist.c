@@ -106,6 +106,27 @@ const void *alist_get_ptr(const struct alist *lst, uint index)
 	return lst->data + index * lst->obj_size;
 }
 
+int alist_calc_index(const struct alist *lst, const void *ptr)
+{
+	uint index;
+
+	if (!lst->count || ptr < lst->data)
+		return -1;
+
+	index = (ptr - lst->data) / lst->obj_size;
+
+	return index;
+}
+
+const void *alist_next_ptrd(const struct alist *lst, const void *ptr)
+{
+	int index = alist_calc_index(lst, ptr);
+
+	assert(index != -1);
+
+	return alist_get_ptr(lst, index + 1);
+}
+
 void *alist_ensure_ptr(struct alist *lst, uint index)
 {
 	uint minsize = index + 1;

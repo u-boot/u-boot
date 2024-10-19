@@ -240,3 +240,55 @@ static int lib_test_alist_add(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_alist_add, 0);
+
+/* Test alist_next()  */
+static int lib_test_alist_next(struct unit_test_state *uts)
+{
+	const struct my_struct *ptr;
+	struct my_struct data, *ptr2;
+	struct alist lst;
+	ulong start;
+
+	start = ut_check_free();
+
+	ut_assert(alist_init_struct(&lst, struct my_struct));
+	data.val = 123;
+	data.other_val = 0;
+	alist_add(&lst, data);
+
+	data.val = 321;
+	alist_add(&lst, data);
+
+	data.val = 789;
+	alist_add(&lst, data);
+
+	ptr = alist_get(&lst, 0, struct my_struct);
+	ut_assertnonnull(ptr);
+	ut_asserteq(123, ptr->val);
+
+	ptr = alist_next(&lst, ptr);
+	ut_assertnonnull(ptr);
+	ut_asserteq(321, ptr->val);
+
+	ptr2 = (struct my_struct *)ptr;
+	ptr2 = alist_nextw(&lst, ptr2);
+	ut_assertnonnull(ptr2);
+
+	ptr = alist_next(&lst, ptr);
+	ut_assertnonnull(ptr);
+	ut_asserteq(789, ptr->val);
+	ut_asserteq_ptr(ptr, ptr2);
+	ptr2->val = 89;
+	ut_asserteq(89, ptr->val);
+
+	ptr = alist_next(&lst, ptr);
+	ut_assertnull(ptr);
+
+	alist_uninit(&lst);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_alist_next, 0);
