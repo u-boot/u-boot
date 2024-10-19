@@ -403,7 +403,8 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		puts("(none)");
 	putc('\n');
 	if (bflow->x86_setup)
-		printf("X86 setup: %p\n", bflow->x86_setup);
+		printf("X86 setup: %lx\n",
+		       (ulong)map_to_sysmem(bflow->x86_setup));
 	printf("Logo:      %s\n", bflow->logo ?
 	       simple_xtoa((ulong)map_to_sysmem(bflow->logo)) : "(none)");
 	if (bflow->logo) {
