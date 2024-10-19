@@ -225,6 +225,56 @@ bool alist_expand_by(struct alist *lst, uint inc_by);
 const void *alist_next_ptrd(const struct alist *lst, const void *ptr);
 
 /**
+ * alist_chk_ptr() - Check whether a pointer is within a list
+ *
+ * Checks if the pointer points to an existing element of the list. The pointer
+ * must point to the start of an element, either in the list, or just outside of
+ * it. This function is only useful for handling for() loops
+ *
+ * Return: true if @ptr is within the list (0..count-1), else false
+ */
+bool alist_chk_ptr(const struct alist *lst, const void *ptr);
+
+/**
+ * alist_start() - Get the start of the list (first element)
+ *
+ * Note that this will always return ->data even if it is not NULL
+ *
+ * Usage:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_start(&lst, struct my_struct)
+ */
+#define alist_start(_lst, _struct) \
+	((_struct *)(_lst)->data)
+
+/**
+ * alist_end() - Get the end of the list (just after last element)
+ *
+ * Usage:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_end(&lst, struct my_struct)
+ */
+#define alist_end(_lst, _struct) \
+	((_struct *)(_lst)->data + (_lst)->count)
+
+/**
+ * alist_for_each() - Iterate over an alist (with constant pointer)
+ *
+ * Use as:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_for_each(obj, &lst) {
+ *		obj->...
+ *	}
+ */
+#define alist_for_each(_pos, _lst) \
+	for (_pos = alist_start(_lst, typeof(*(_pos))); \
+	     _pos < alist_end(_lst, typeof(*(_pos))); \
+	     _pos++)
+
+/**
  * alist_init() - Set up a new object list
  *
  * Sets up a list of objects, initially empty
