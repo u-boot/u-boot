@@ -545,6 +545,8 @@ config EFI_BOOTMGR
 
 config EFI_HTTP_BOOT
 	bool "EFI HTTP Boot support"
+	depends on NET || NET_LWIP
+	select CMD_NET
 	select CMD_DNS
 	select CMD_WGET
 	select BLKMAP
