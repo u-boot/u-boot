@@ -436,6 +436,17 @@ int uclass_first_device_drvdata(enum uclass_id id, ulong driver_data,
 				struct udevice **devp);
 
 /**
+ * uclass_try_first_device()- See if there is a device for a uclass
+ *
+ * If the uclass exists, this returns the first device on that uclass, without
+ * probing it. If the uclass does not exist, it gives up
+ *
+ * @id: Uclass ID to check
+ * Return: Pointer to device, if found, else NULL
+ */
+struct udevice *uclass_try_first_device(enum uclass_id id);
+
+/**
  * uclass_probe_all() - Probe all devices based on an uclass ID
  *
  * This function probes all devices associated with a uclass by
