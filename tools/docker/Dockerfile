@@ -244,11 +244,14 @@ RUN mkdir /tmp/trace && \
     rm -rf /tmp/trace
 
 # Build coreboot
-RUN wget -O - https://coreboot.org/releases/coreboot-4.22.01.tar.xz | tar -C /tmp -xJ && \
-    cd /tmp/coreboot-4.22.01 && \
+RUN wget -O - https://coreboot.org/releases/coreboot-24.08.tar.xz | tar -C /tmp -xJ && \
+    cd /tmp/coreboot-24.08 && \
     make crossgcc-i386 CPUS=$(nproc) && \
     make -C payloads/coreinfo olddefconfig && \
     make -C payloads/coreinfo && \
+    make olddefconfig && \
+    echo CONFIG_GENERIC_LINEAR_FRAMEBUFFER=y | tee -a .config && \
+    echo CONFIG_USE_OPTION_TABLE=y | tee -a .config && \
     make olddefconfig && \
     make -j $(nproc) && \
     sudo mkdir /opt/coreboot && \

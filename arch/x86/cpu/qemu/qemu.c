@@ -109,12 +109,6 @@ int checkcpu(void)
 {
 	return 0;
 }
-
-int print_cpuinfo(void)
-{
-	post_code(POST_CPU_INFO);
-	return default_print_cpuinfo();
-}
 #endif
 
 int arch_early_init_r(void)

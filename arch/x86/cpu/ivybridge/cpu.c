@@ -182,20 +182,6 @@ int checkcpu(void)
 	return 0;
 }
 
-int print_cpuinfo(void)
-{
-	char processor_name[CPU_MAX_NAME_LEN];
-	const char *name;
-
-	/* Print processor name */
-	name = cpu_get_name(processor_name);
-	printf("CPU:   %s\n", name);
-
-	post_code(POST_CPU_INFO);
-
-	return 0;
-}
-
 void board_debug_uart_init(void)
 {
 	/* This enables the debug UART */

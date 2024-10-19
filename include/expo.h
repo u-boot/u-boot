@@ -16,6 +16,26 @@ struct udevice;
 #include <cli.h>
 
 /**
+ * enum expo_id_t - standard expo IDs
+ *
+ * These are assumed to be in use at all times. Expos should use IDs starting
+ * from EXPOID_BASE_ID,
+ *
+ * @EXPOID_NONE: Not used, invalid ID 0
+ * @EXPOID_SAVE: User has requested that the expo data be saved
+ * @EXPOID_DISCARD: User has requested that the expo data be discarded
+ * @EXPOID_BASE_ID: First ID which can be used for expo objects
+ */
+enum expo_id_t {
+	EXPOID_NONE,
+
+	EXPOID_SAVE,
+	EXPOID_DISCARD,
+
+	EXPOID_BASE_ID = 5,
+};
+
+/**
  * enum expoact_type - types of actions reported by the expo
  *
  * @EXPOACT_NONE: no action
@@ -59,11 +79,14 @@ struct expo_action {
  * @font_size: Default font size for all text
  * @menu_inset: Inset width (on each side and top/bottom) for menu items
  * @menuitem_gap_y: Gap between menu items in pixels
+ * @menu_title_margin_x: Gap between right side of menu title and left size of
+ *	menu label
  */
 struct expo_theme {
 	u32 font_size;
 	u32 menu_inset;
 	u32 menuitem_gap_y;
+	u32 menu_title_margin_x;
 };
 
 /**
@@ -307,6 +330,7 @@ enum scene_menuitem_flags_t {
  * @desc_id: ID of text object to use as the description text
  * @preview_id: ID of the preview object, or 0 if none
  * @flags: Flags for this item
+ * @value: Value for this item, or INT_MAX to use sequence
  * @sibling: Node to link this item to its siblings
  */
 struct scene_menitem {
@@ -317,6 +341,7 @@ struct scene_menitem {
 	uint desc_id;
 	uint preview_id;
 	uint flags;
+	int value;
 	struct list_head sibling;
 };
 
@@ -339,6 +364,15 @@ struct scene_obj_textline {
 	uint max_chars;
 	struct abuf buf;
 	uint pos;
+};
+
+/**
+ * struct expo_arrange_info - Information used when arranging a scene
+ *
+ * @label_width: Maximum width of labels in scene
+ */
+struct expo_arrange_info {
+	int label_width;
 };
 
 /**
@@ -505,15 +539,6 @@ void scene_set_highlight_id(struct scene *scn, uint id);
  * Returns: 0 if OK, -ENOENT if @id is invalid
  */
 int scene_set_open(struct scene *scn, uint id, bool open);
-
-/**
- * scene_title_set() - set the scene title
- *
- * @scn: Scene to update
- * @title_id: Title ID to set
- * Returns: 0 if OK
- */
-int scene_title_set(struct scene *scn, uint title_id);
 
 /**
  * scene_obj_count() - Count the number of objects in a scene

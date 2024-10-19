@@ -55,9 +55,10 @@ void board_init_f(ulong flag)
 
 void board_boot_order(u32 *spl_boot_list)
 {
+	struct sandbox_state *state = state_get_current();
+
 	spl_boot_list[0] = BOOT_DEVICE_VBE;
-	spl_boot_list[1] = BOOT_DEVICE_UPL;
-	spl_boot_list[2] = BOOT_DEVICE_BOARD;
+	spl_boot_list[1] = state->upl ? BOOT_DEVICE_UPL : BOOT_DEVICE_BOARD;
 }
 
 static int spl_board_load_file(struct spl_image_info *spl_image,

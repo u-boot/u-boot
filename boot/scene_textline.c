@@ -87,7 +87,8 @@ int scene_textline_calc_dims(struct scene_obj_textline *tline)
 	return 0;
 }
 
-int scene_textline_arrange(struct scene *scn, struct scene_obj_textline *tline)
+int scene_textline_arrange(struct scene *scn, struct expo_arrange_info *arr,
+			   struct scene_obj_textline *tline)
 {
 	const bool open = tline->obj.flags & SCENEOF_OPEN;
 	bool point;

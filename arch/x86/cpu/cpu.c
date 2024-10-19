@@ -163,8 +163,11 @@ char *cpu_get_name(char *name)
 	return ptr;
 }
 
-int default_print_cpuinfo(void)
+#if !CONFIG_IS_ENABLED(CPU)
+int print_cpuinfo(void)
 {
+	post_code(POST_CPU_INFO);
+
 	printf("CPU: %s, vendor %s, device %xh\n",
 	       cpu_has_64bit() ? "x86_64" : "x86",
 	       cpu_vendor_name(gd->arch.x86_vendor), gd->arch.x86_device);
@@ -176,6 +179,7 @@ int default_print_cpuinfo(void)
 
 	return 0;
 }
+#endif
 
 #if CONFIG_IS_ENABLED(SHOW_BOOT_PROGRESS)
 void show_boot_progress(int val)
@@ -336,7 +340,7 @@ int reserve_arch(void)
 }
 #endif
 
-long detect_coreboot_table_at(ulong start, ulong size)
+static long detect_coreboot_table_at(ulong start, ulong size)
 {
 	u32 *ptr, *end;
 

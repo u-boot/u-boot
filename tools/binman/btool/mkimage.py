@@ -22,7 +22,7 @@ class Bintoolmkimage(bintool.Bintool):
 
     # pylint: disable=R0913
     def run(self, reset_timestamp=False, output_fname=None, external=False,
-            pad=None, align=None):
+            pad=None, align=None, priv_keys_dir=None):
         """Run mkimage
 
         Args:
@@ -34,6 +34,7 @@ class Bintoolmkimage(bintool.Bintool):
                 other things to be easily added later, if required, such as
                 signatures
             align: Bytes to use for alignment of the FIT and its external data
+            priv_keys_dir: Path to directory containing private keys
             version: True to get the mkimage version
         """
         args = []
@@ -45,6 +46,8 @@ class Bintoolmkimage(bintool.Bintool):
             args += ['-B', f'{align:x}']
         if reset_timestamp:
             args.append('-t')
+        if priv_keys_dir:
+            args += ['-k', f'{priv_keys_dir}']
         if output_fname:
             args += ['-F', output_fname]
         return self.run_cmd(*args)

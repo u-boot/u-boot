@@ -916,6 +916,7 @@ BINMAN
 M:	Simon Glass <sjg@chromium.org>
 M:	Alper Nebi Yasak <alpernebiyasak@gmail.com>
 S:	Maintained
+F:	doc/develop/binman_tests.rst
 F:	tools/binman/
 
 BLKMAP

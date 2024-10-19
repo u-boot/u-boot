@@ -144,11 +144,6 @@ int checkcpu(void)
 	return 0;
 }
 
-int print_cpuinfo(void)
-{
-	return default_print_cpuinfo();
-}
-
 /* Find any available tables and copy them to a safe place */
 int reserve_arch(void)
 {

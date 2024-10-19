@@ -61,6 +61,22 @@ struct scene_menitem *scene_menuitem_find_seq(const struct scene_obj_menu *menu,
 	return NULL;
 }
 
+struct scene_menitem *scene_menuitem_find_val(const struct scene_obj_menu *menu,
+					      int val)
+{
+	struct scene_menitem *item;
+	uint i;
+
+	i = 0;
+	list_for_each_entry(item, &menu->item_head, sibling) {
+		if (item->value == INT_MAX ? val == i : item->value == val)
+			return item;
+		i++;
+	}
+
+	return NULL;
+}
+
 /**
  * update_pointers() - Update the pointer object and handle highlights
  *
@@ -168,7 +184,8 @@ int scene_menu_calc_dims(struct scene_obj_menu *menu)
 	return 0;
 }
 
-int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
+int scene_menu_arrange(struct scene *scn, struct expo_arrange_info *arr,
+		       struct scene_obj_menu *menu)
 {
 	const bool open = menu->obj.flags & SCENEOF_OPEN;
 	struct expo *exp = scn->expo;
@@ -182,16 +199,18 @@ int scene_menu_arrange(struct scene *scn, struct scene_obj_menu *menu)
 	x = menu->obj.dim.x;
 	y = menu->obj.dim.y;
 	if (menu->title_id) {
+		int width;
+
 		ret = scene_obj_set_pos(scn, menu->title_id, menu->obj.dim.x, y);
 		if (ret < 0)
 			return log_msg_ret("tit", ret);
 
-		ret = scene_obj_get_hw(scn, menu->title_id, NULL);
+		ret = scene_obj_get_hw(scn, menu->title_id, &width);
 		if (ret < 0)
 			return log_msg_ret("hei", ret);
 
 		if (stack)
-			x += 200;
+			x += arr->label_width + theme->menu_title_margin_x;
 		else
 			y += ret * 2;
 	}
@@ -413,6 +432,7 @@ int scene_menuitem(struct scene *scn, uint menu_id, const char *name, uint id,
 	item->desc_id = desc_id;
 	item->preview_id = preview_id;
 	item->flags = flags;
+	item->value = INT_MAX;
 	list_add_tail(&item->sibling, &menu->item_head);
 
 	if (itemp)

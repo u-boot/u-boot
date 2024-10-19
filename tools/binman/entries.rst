@@ -864,6 +864,13 @@ The top-level 'fit' node supports the following special properties:
 
             fit,fdt-list-dir = "arch/arm/dts
 
+    fit,sign
+        Enable signing FIT images via mkimage as described in
+        verified-boot.rst. If the property is found, the private keys path is
+        detected among binman include directories and passed to mkimage via
+        -k flag. All the keys required for signing FIT must be available at
+        time of signing and must be located in single include directory.
+
 Substitutions
 ~~~~~~~~~~~~~
 

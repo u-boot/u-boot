@@ -70,13 +70,6 @@ void scene_destroy(struct scene *scn)
 	free(scn);
 }
 
-int scene_title_set(struct scene *scn, uint id)
-{
-	scn->title_id = id;
-
-	return 0;
-}
-
 int scene_obj_count(struct scene *scn)
 {
 	return list_count_nodes(&scn->obj_head);
@@ -339,7 +332,7 @@ static void scene_render_background(struct scene_obj *obj, bool box_only)
 
 	/* draw a background for the object */
 	if (CONFIG_IS_ENABLED(SYS_WHITE_ON_BLACK)) {
-		fore = VID_BLACK;
+		fore = VID_DARK_GREY;
 		back = VID_WHITE;
 	} else {
 		fore = VID_LIGHT_GRAY;
@@ -471,10 +464,58 @@ static int scene_obj_render(struct scene_obj *obj, bool text_mode)
 	return 0;
 }
 
-int scene_arrange(struct scene *scn)
+int scene_calc_arrange(struct scene *scn, struct expo_arrange_info *arr)
 {
 	struct scene_obj *obj;
+
+	arr->label_width = 0;
+	list_for_each_entry(obj, &scn->obj_head, sibling) {
+		uint label_id = 0;
+		int width;
+
+		switch (obj->type) {
+		case SCENEOBJT_NONE:
+		case SCENEOBJT_IMAGE:
+		case SCENEOBJT_TEXT:
+			break;
+		case SCENEOBJT_MENU: {
+			struct scene_obj_menu *menu;
+
+			menu = (struct scene_obj_menu *)obj,
+			label_id = menu->title_id;
+			break;
+		}
+		case SCENEOBJT_TEXTLINE: {
+			struct scene_obj_textline *tline;
+
+			tline = (struct scene_obj_textline *)obj,
+			label_id = tline->label_id;
+			break;
+		}
+		}
+
+		if (label_id) {
+			int ret;
+
+			ret = scene_obj_get_hw(scn, label_id, &width);
+			if (ret < 0)
+				return log_msg_ret("hei", ret);
+			arr->label_width = max(arr->label_width, width);
+		}
+	}
+
+	return 0;
+}
+
+int scene_arrange(struct scene *scn)
+{
+	struct expo_arrange_info arr;
+	struct scene_obj *obj;
 	int ret;
+
+	ret = scene_calc_arrange(scn, &arr);
+	if (ret < 0)
+		return log_msg_ret("arr", ret);
 
 	list_for_each_entry(obj, &scn->obj_head, sibling) {
 		switch (obj->type) {
@@ -486,7 +527,7 @@ int scene_arrange(struct scene *scn)
 			struct scene_obj_menu *menu;
 
 			menu = (struct scene_obj_menu *)obj,
-			ret = scene_menu_arrange(scn, menu);
+			ret = scene_menu_arrange(scn, &arr, menu);
 			if (ret)
 				return log_msg_ret("arr", ret);
 			break;
@@ -495,7 +536,7 @@ int scene_arrange(struct scene *scn)
 			struct scene_obj_textline *tline;
 
 			tline = (struct scene_obj_textline *)obj,
-			ret = scene_textline_arrange(scn, tline);
+			ret = scene_textline_arrange(scn, &arr, tline);
 			if (ret)
 				return log_msg_ret("arr", ret);
 			break;

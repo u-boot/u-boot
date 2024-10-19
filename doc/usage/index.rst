@@ -52,6 +52,7 @@ Shell commands
    cmd/conitrace
    cmd/cp
    cmd/cpu
+   cmd/cpuid
    cmd/cyclic
    cmd/dm
    cmd/ebtupdate
@@ -86,6 +87,7 @@ Shell commands
    cmd/mbr
    cmd/md
    cmd/mmc
+   cmd/msr
    cmd/mtest
    cmd/mtrr
    cmd/panic
