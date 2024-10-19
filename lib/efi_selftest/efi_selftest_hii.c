@@ -913,7 +913,7 @@ static int test_hii_string_get_languages(void)
 		goto out;
 	}
 
-	efi_st_printf("got languages are %s\n", languages);
+	efi_st_printf("Available languages: %s\n", languages);
 
 	result = EFI_ST_SUCCESS;
 
