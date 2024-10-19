@@ -240,15 +240,22 @@ static bool test_matches(const char *prefix, const char *test_name,
  * ut_list_has_dm_tests() - Check if a list of tests has driver model ones
  *
  * @tests: List of tests to run
- * @count: Number of tests to ru
+ * @count: Number of tests to run
+ * @prefix: String prefix for the tests. Any tests that have this prefix will be
+ *	printed without the prefix, so that it is easier to see the unique part
+ *	of the test name. If NULL, no prefix processing is done
+ * @select_name: Name of a single test being run (from the list provided). If
+ *	NULL all tests are being run
  * Return: true if any of the tests have the UTF_DM flag
  */
-static bool ut_list_has_dm_tests(struct unit_test *tests, int count)
+static bool ut_list_has_dm_tests(struct unit_test *tests, int count,
+				 const char *prefix, const char *select_name)
 {
 	struct unit_test *test;
 
 	for (test = tests; test < tests + count; test++) {
-		if (test->flags & UTF_DM)
+		if (test_matches(prefix, test->name, select_name) &&
+		    (test->flags & UTF_DM))
 			return true;
 	}
 
@@ -550,6 +557,9 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
  * @count: Number of tests to run
  * @select_name: Name of a single test to run (from the list provided). If NULL
  *	then all tests are run
+ * @test_insert: String describing a test to run after n other tests run, in the
+ * format n:name where n is the number of tests to run before this one and
+ * name is the name of the test to run
  * Return: 0 if all tests passed, -ENOENT if test @select_name was not found,
  *	-EBADF if any failed
  */
@@ -646,7 +656,7 @@ int ut_run_list(const char *category, const char *prefix,
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
-	    ut_list_has_dm_tests(tests, count)) {
+	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
 		/*
 		 * If we have no device tree, or it only has a root node, then
