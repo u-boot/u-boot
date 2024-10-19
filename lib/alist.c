@@ -123,6 +123,14 @@ int alist_calc_index(const struct alist *lst, const void *ptr)
 	return index;
 }
 
+void alist_update_end(struct alist *lst, const void *ptr)
+{
+	int index;
+
+	index = alist_calc_index(lst, ptr);
+	lst->count = index == -1 ? 0 : index;
+}
+
 bool alist_chk_ptr(const struct alist *lst, const void *ptr)
 {
 	int index = alist_calc_index(lst, ptr);

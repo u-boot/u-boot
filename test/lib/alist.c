@@ -408,3 +408,88 @@ static int lib_test_alist_empty(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_alist_empty, 0);
+
+static int lib_test_alist_filter(struct unit_test_state *uts)
+{
+	struct my_struct *from, *to, *ptr;
+	struct my_struct data;
+	struct alist lst;
+	ulong start;
+	int count;
+
+	start = ut_check_free();
+
+	ut_assert(alist_init_struct(&lst, struct my_struct));
+	data.val = 1;
+	data.other_val = 0;
+	alist_add(&lst, data);
+
+	data.val = 2;
+	alist_add(&lst, data);
+
+	data.val = 3;
+	alist_add(&lst, data);
+	ptr = lst.data;
+
+	/* filter out all values except 2 */
+	alist_for_each_filter(from, to, &lst) {
+		if (from->val != 2)
+			*to++ = *from;
+	}
+	alist_update_end(&lst, to);
+
+	ut_asserteq(2, lst.count);
+	ut_assertnonnull(lst.data);
+
+	ut_asserteq(1, alist_get(&lst, 0, struct my_struct)->val);
+	ut_asserteq(3, alist_get(&lst, 1, struct my_struct)->val);
+	ut_asserteq_ptr(ptr + 3, from);
+	ut_asserteq_ptr(ptr + 2, to);
+
+	/* filter out nothing */
+	alist_for_each_filter(from, to, &lst) {
+		if (from->val != 2)
+			*to++ = *from;
+	}
+	alist_update_end(&lst, to);
+	ut_asserteq_ptr(ptr + 2, from);
+	ut_asserteq_ptr(ptr + 2, to);
+
+	ut_asserteq(2, lst.count);
+	ut_assertnonnull(lst.data);
+
+	ut_asserteq(1, alist_get(&lst, 0, struct my_struct)->val);
+	ut_asserteq(3, alist_get(&lst, 1, struct my_struct)->val);
+
+	/* filter out everything */
+	alist_for_each_filter(from, to, &lst) {
+		if (from->val == 2)
+			*to++ = *from;
+	}
+	alist_update_end(&lst, to);
+	ut_asserteq_ptr(ptr + 2, from);
+	ut_asserteq_ptr(ptr, to);
+
+	/* filter out everything (nop) */
+	count = 0;
+	alist_for_each_filter(from, to, &lst) {
+		if (from->val == 2)
+			*to++ = *from;
+		count++;
+	}
+	alist_update_end(&lst, to);
+	ut_asserteq_ptr(ptr, from);
+	ut_asserteq_ptr(ptr, to);
+	ut_asserteq(0, count);
+
+	ut_asserteq(0, lst.count);
+	ut_assertnonnull(lst.data);
+
+	alist_uninit(&lst);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_alist_filter, 0);
