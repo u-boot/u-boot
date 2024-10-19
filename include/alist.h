@@ -72,6 +72,21 @@ static inline bool alist_has(struct alist *lst, uint index)
 }
 
 /**
+ * alist_calc_index() - Calculate the index of an item in the list
+ *
+ * The returned element number will be -1 if the list is empty or the pointer
+ * pointers to before the list starts.
+ *
+ * If the pointer points to after the last item, the calculated element-number
+ * will be returned, even though it is greater than lst->count
+ *
+ * @lst: alist to check
+ * @ptr: pointer to check
+ * Return: element number of the pointer
+ */
+int alist_calc_index(const struct alist *lst, const void *ptr);
+
+/**
  * alist_err() - Check if the alist is still valid
  *
  * @lst: List to check
@@ -189,6 +204,25 @@ bool alist_expand_by(struct alist *lst, uint inc_by);
  */
 #define alist_add(_lst, _obj)	\
 	((typeof(_obj) *)alist_add_ptr(_lst, &(_obj)))
+
+/** get next entry as a constant */
+#define alist_next(_lst, _objp)	\
+	((const typeof(_objp))alist_next_ptrd(_lst, _objp))
+
+/** get next entry, which can be written to */
+#define alist_nextw(_lst, _objp)	\
+	((typeof(_objp))alist_next_ptrd(_lst, _objp))
+
+/**
+ * alist_next_ptrd() - Get a pointer to the next list element
+ *
+ * This returns NULL if the requested element is beyond lst->count
+ *
+ * @lst: List to check
+ * @ptr: Pointer to current element (must be valid)
+ * Return: Pointer to next element, or NULL if @ptr is the last
+ */
+const void *alist_next_ptrd(const struct alist *lst, const void *ptr);
 
 /**
  * alist_init() - Set up a new object list
