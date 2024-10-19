@@ -151,8 +151,9 @@ void *alist_ensure_ptr(struct alist *lst, uint index);
  * alist_add_placeholder() - Add a new item to the end of the list
  *
  * @lst: alist to add to
- * Return: Pointer to the newly added position. Note that this is not inited so
- * the caller must copy the requested struct to the returned pointer
+ * Return: Pointer to the newly added position, or NULL if out of memory. Note
+ * that this is not inited so the caller must copy the requested struct to the
+ * returned pointer
  */
 void *alist_add_placeholder(struct alist *lst);
 
