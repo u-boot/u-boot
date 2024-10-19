@@ -41,6 +41,11 @@ void alist_uninit(struct alist *lst)
 	memset(lst, '\0', sizeof(struct alist));
 }
 
+void alist_empty(struct alist *lst)
+{
+	lst->count = 0;
+}
+
 /**
  * alist_expand_to() - Expand a list to the given size
  *
