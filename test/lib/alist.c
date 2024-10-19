@@ -292,3 +292,77 @@ static int lib_test_alist_next(struct unit_test_state *uts)
 	return 0;
 }
 LIB_TEST(lib_test_alist_next, 0);
+
+/* Test alist_for_each()  */
+static int lib_test_alist_for_each(struct unit_test_state *uts)
+{
+	const struct my_struct *ptr;
+	struct my_struct data, *ptr2;
+	struct alist lst;
+	ulong start;
+	int sum;
+
+	start = ut_check_free();
+
+	ut_assert(alist_init_struct(&lst, struct my_struct));
+	ut_asserteq_ptr(NULL, alist_end(&lst, struct my_struct));
+
+	sum = 0;
+	alist_for_each(ptr, &lst)
+		sum++;
+	ut_asserteq(0, sum);
+
+	alist_for_each(ptr, &lst)
+		sum++;
+	ut_asserteq(0, sum);
+
+	/* add three items */
+	data.val = 1;
+	data.other_val = 0;
+	alist_add(&lst, data);
+
+	ptr = lst.data;
+	ut_asserteq_ptr(ptr + 1, alist_end(&lst, struct my_struct));
+
+	data.val = 2;
+	alist_add(&lst, data);
+	ut_asserteq_ptr(ptr + 2, alist_end(&lst, struct my_struct));
+
+	data.val = 3;
+	alist_add(&lst, data);
+	ut_asserteq_ptr(ptr + 3, alist_end(&lst, struct my_struct));
+
+	/* check alist_chk_ptr() */
+	ut_asserteq(true, alist_chk_ptr(&lst, ptr + 2));
+	ut_asserteq(false, alist_chk_ptr(&lst, ptr + 3));
+	ut_asserteq(false, alist_chk_ptr(&lst, ptr + 4));
+	ut_asserteq(true, alist_chk_ptr(&lst, ptr));
+	ut_asserteq(false, alist_chk_ptr(&lst, ptr - 1));
+
+	/* sum all items */
+	sum = 0;
+	alist_for_each(ptr, &lst)
+		sum += ptr->val;
+	ut_asserteq(6, sum);
+
+	/* increment all items */
+	alist_for_each(ptr2, &lst)
+		ptr2->val += 1;
+
+	/* sum all items again */
+	sum = 0;
+	alist_for_each(ptr, &lst)
+		sum += ptr->val;
+	ut_asserteq(9, sum);
+
+	ptr = lst.data;
+	ut_asserteq_ptr(ptr + 3, alist_end(&lst, struct my_struct));
+
+	alist_uninit(&lst);
+
+	/* Check for memory leaks */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_alist_for_each, 0);
