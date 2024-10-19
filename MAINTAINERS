@@ -58,6 +58,13 @@ F:	cmd/acpi.c
 F:	include/acpi/
 F:	lib/acpi/
 
+ALIST:
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	include/alist.h
+F:	lib/alist.c
+F:	test/lib/alist.c
+
 ANDROID AB
 M:	Igor Opaniuk <igor.opaniuk@gmail.com>
 M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
