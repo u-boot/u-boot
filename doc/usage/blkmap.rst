@@ -54,7 +54,7 @@ downloaded file, in blocks:
 ::
 
    setexpr fileblks ${filesize} + 0x1ff
-   setexpr fileblks ${filesize} / 0x200
+   setexpr fileblks ${fileblks} / 0x200
 
 Then we can add a mapping to the start of our device, backed by the
 memory at `${loadaddr}`:

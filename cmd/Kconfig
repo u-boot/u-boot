@@ -2117,6 +2117,7 @@ config CMD_TFTPBOOT
 
 config CMD_WGET
 	bool "wget"
+	depends on CMD_NET
 	default y if SANDBOX
 	select PROT_TCP if NET
 	select PROT_TCP_LWIP if NET_LWIP

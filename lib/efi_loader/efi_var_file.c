@@ -37,18 +37,16 @@ static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 	char part_str[PART_STR_LEN];
 	int r;
 
-	if (efi_system_partition.uclass_id == UCLASS_INVALID) {
-		log_err("No EFI system partition\n");
+	if (efi_system_partition.uclass_id == UCLASS_INVALID)
 		return EFI_DEVICE_ERROR;
-	}
+
 	snprintf(part_str, PART_STR_LEN, "%x:%x",
 		 efi_system_partition.devnum, efi_system_partition.part);
 	r = fs_set_blk_dev(blk_get_uclass_name(efi_system_partition.uclass_id),
 			   part_str, FS_TYPE_ANY);
-	if (r) {
-		log_err("Cannot read EFI system partition\n");
+	if (r)
 		return EFI_DEVICE_ERROR;
-	}
+
 	return EFI_SUCCESS;
 }
 
@@ -67,14 +65,21 @@ efi_status_t efi_var_to_file(void)
 	loff_t len;
 	loff_t actlen;
 	int r;
+	static bool once;
 
 	ret = efi_var_collect(&buf, &len, EFI_VARIABLE_NON_VOLATILE);
 	if (ret != EFI_SUCCESS)
 		goto error;
 
 	ret = efi_set_blk_dev_to_system_partition();
-	if (ret != EFI_SUCCESS)
-		goto error;
+	if (ret != EFI_SUCCESS) {
+		if (!once) {
+			log_warning("Cannot persist EFI variables without system partition\n");
+			once = true;
+		}
+		goto out;
+	}
+	once = false;
 
 	r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
 	if (r || len != actlen)
@@ -83,6 +88,7 @@ efi_status_t efi_var_to_file(void)
 error:
 	if (ret != EFI_SUCCESS)
 		log_err("Failed to persist EFI variables\n");
+out:
 	free(buf);
 	return ret;
 #else
