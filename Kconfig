@@ -648,6 +648,7 @@ config TEXT_BASE
 	depends on HAVE_TEXT_BASE
 	default 0x0 if POSITION_INDEPENDENT
 	default 0x17800000 if ARCH_MX6
+	default 0x87800000 if ARCH_MX7
 	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
 	default 0x81700000 if MACH_SUNIV
 	default 0x2a000000 if MACH_SUN9I
