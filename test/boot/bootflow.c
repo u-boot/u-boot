@@ -857,6 +857,9 @@ static int bootflow_menu_theme(struct unit_test_state *uts)
 	ofnode node;
 	int i;
 
+	if (!CONFIG_IS_ENABLED(BOOTSTD_MENU))
+		return -EAGAIN;
+
 	ut_assertok(scan_mmc4_bootdev(uts));
 
 	ut_assertok(bootflow_menu_new(&exp));

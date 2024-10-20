@@ -469,6 +469,13 @@ config BOOTSTD_BOOTCOMMAND
 	  standard boot does not support all of the features of distro boot
 	  yet.
 
+config BOOTSTD_MENU
+	bool "Provide a menu of available bootflows for standard boot"
+	depends on BOOTSTD_FULL && EXPO
+	default y
+	help
+	  Provide a menu of available bootflows and related options.
+
 config BOOTSTD_PROG
 	bool "Use programmatic boot"
 	depends on !CMDLINE

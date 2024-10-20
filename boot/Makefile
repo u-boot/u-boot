@@ -24,6 +24,7 @@ obj-$(CONFIG_$(PHASE_)BOOTSTD) += bootflow.o
 obj-$(CONFIG_$(PHASE_)BOOTSTD) += bootmeth-uclass.o
 obj-$(CONFIG_$(PHASE_)BOOTSTD) += bootstd-uclass.o
 
+obj-$(CONFIG_$(PHASE_)BOOTSTD_MENU) += bootflow_menu.o
 obj-$(CONFIG_$(PHASE_)BOOTSTD_PROG) += prog_boot.o
 
 obj-$(CONFIG_$(PHASE_)BOOTMETH_EXTLINUX) += bootmeth_extlinux.o
@@ -35,10 +36,6 @@ obj-$(CONFIG_$(PHASE_)BOOTMETH_SANDBOX) += bootmeth_sandbox.o
 obj-$(CONFIG_$(PHASE_)BOOTMETH_SCRIPT) += bootmeth_script.o
 obj-$(CONFIG_$(PHASE_)CEDIT) += cedit.o
 obj-$(CONFIG_$(PHASE_)BOOTMETH_EFI_BOOTMGR) += bootmeth_efi_mgr.o
-ifdef CONFIG_$(PHASE_)BOOTSTD_FULL
-obj-$(CONFIG_$(PHASE_)EXPO) += bootflow_menu.o
-obj-$(CONFIG_$(PHASE_)BOOTSTD) += bootflow_menu.o
-endif
 
 obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += fdt_support.o
 obj-$(CONFIG_$(PHASE_)FDT_SIMPLEFB) += fdt_simplefb.o
