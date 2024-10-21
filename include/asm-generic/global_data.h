@@ -544,6 +544,36 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 #define gd_set_upl(val)
 #endif
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
+#define gd_bloblist()		gd->bloblist
+#else
+#define gd_bloblist()		NULL
+#endif
+
+#if CONFIG_IS_ENABLED(BOOTSTAGE)
+#define gd_bootstage()		gd->bootstage
+#else
+#define gd_bootstage()		NULL
+#endif
+
+#if CONFIG_IS_ENABLED(TRACE)
+#define gd_trace_buff()		gd->trace_buff
+#define gd_trace_size()		CONFIG_TRACE_BUFFER_SIZE
+#else
+#define gd_trace_buff()		NULL
+#define gd_trace_size()		0
+#endif
+
+#if CONFIG_IS_ENABLED(VIDEO)
+#define gd_video_top()		gd->video_top
+#define gd_video_bottom()	gd->video_bottom
+#define gd_video_size()		(gd->video_top - gd->video_bottom)
+#else
+#define gd_video_top()		0
+#define gd_video_bottom()	0
+#define gd_video_size()		0
+#endif
+
 /**
  * enum gd_flags - global data flags
  *
