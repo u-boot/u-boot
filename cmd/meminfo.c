@@ -8,6 +8,7 @@
 #include <bootstage.h>
 #include <command.h>
 #include <display_options.h>
+#include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/global_data.h>
@@ -23,6 +24,27 @@ static void print_region(const char *name, ulong base, ulong size, ulong *uptop)
 		printf(" %8lx", *uptop - end);
 	putc('\n');
 	*uptop = base;
+}
+
+static void show_lmb(const struct lmb *lmb, ulong *uptop)
+{
+	int i;
+
+	for (i = lmb->used_mem.count - 1; i >= 0; i--) {
+		const struct lmb_region *rgn = alist_get(&lmb->used_mem, i,
+							 struct lmb_region);
+
+		/*
+		 * Assume that the top lmb region is the U-Boot region, so just
+		 * take account of the memory not already reported
+		 */
+		if (lmb->used_mem.count - 1)
+			print_region("lmb", rgn->base, *uptop - rgn->base,
+				     uptop);
+		else
+			print_region("lmb", rgn->base, rgn->size, uptop);
+		*uptop = rgn->base;
+	}
 }
 
 static int do_meminfo(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -63,7 +85,9 @@ static int do_meminfo(struct cmd_tbl *cmdtp, int flag, int argc,
 			     bloblist_get_total_size(), &upto);
 	stk_bot = gd->start_addr_sp - CONFIG_STACK_SIZE;
 	print_region("stack", stk_bot, CONFIG_STACK_SIZE, &upto);
-	print_region("free", gd->ram_base, stk_bot, &upto);
+	if (IS_ENABLED(CONFIG_LMB))
+		show_lmb(lmb_get(), &upto);
+	print_region("free", gd->ram_base, upto, &upto);
 
 	return 0;
 }
