@@ -52,78 +52,76 @@ config DRAM_SUN50I_H616
 	  like H616.
 
 if DRAM_SUN50I_H616
-config DRAM_SUN50I_H616_DX_ODT
-	hex "H616 DRAM DX ODT parameter"
+config DRAM_SUNXI_DX_ODT
+	hex "DRAM DX ODT parameter"
 	help
 	  DX ODT value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_DX_DRI
-	hex "H616 DRAM DX DRI parameter"
+config DRAM_SUNXI_DX_DRI
+	hex "DRAM DX DRI parameter"
 	help
 	  DX DRI value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_CA_DRI
-	hex "H616 DRAM CA DRI parameter"
+config DRAM_SUNXI_CA_DRI
+	hex "DRAM CA DRI parameter"
 	help
 	  CA DRI value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_ODT_EN
-	hex "H616 DRAM ODT EN parameter"
+config DRAM_SUNXI_ODT_EN
+	hex "DRAM ODT EN parameter"
 	default 0x1
 	help
 	  ODT EN value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_TPR0
-	hex "H616 DRAM TPR0 parameter"
+config DRAM_SUNXI_TPR0
+	hex "DRAM TPR0 parameter"
 	default 0x0
 	help
 	  TPR0 value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_TPR2
-	hex "H616 DRAM TPR2 parameter"
+config DRAM_SUNXI_TPR2
+	hex "DRAM TPR2 parameter"
 	default 0x0
 	help
 	  TPR2 value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_TPR6
-	hex "H616 DRAM TPR6 parameter"
+config DRAM_SUNXI_TPR6
+	hex "DRAM TPR6 parameter"
 	default 0x3300c080
 	help
 	  TPR6 value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_TPR10
-	hex "H616 DRAM TPR10 parameter"
+config DRAM_SUNXI_TPR10
+	hex "DRAM TPR10 parameter"
 	help
 	  TPR10 value from vendor DRAM settings. It tells which features
 	  should be configured, like write leveling, read calibration, etc.
 
-config DRAM_SUN50I_H616_TPR11
-	hex "H616 DRAM TPR11 parameter"
+config DRAM_SUNXI_TPR11
+	hex "DRAM TPR11 parameter"
 	default 0x0
 	help
 	  TPR11 value from vendor DRAM settings.
 
-config DRAM_SUN50I_H616_TPR12
-	hex "H616 DRAM TPR12 parameter"
+config DRAM_SUNXI_TPR12
+	hex "DRAM TPR12 parameter"
 	default 0x0
 	help
 	  TPR12 value from vendor DRAM settings.
 
 choice
-	prompt "H616 PHY pin mapping selection"
-	default DRAM_SUN50I_H616_PHY_ADDR_MAP_0
+	prompt "DRAM PHY pin mapping selection"
+	default DRAM_SUNXI_PHY_ADDR_MAP_0
 
-config DRAM_SUN50I_H616_PHY_ADDR_MAP_0
-	bool "H313/H616/H618"
+config DRAM_SUNXI_PHY_ADDR_MAP_0
+	bool "DRAM PHY address map 0"
 	help
-	  The pin mapping selection used by the H313, H616, H618, and
-	  possibly other dies which use the H616 DRAM controller.
+	  This pin mapping selection should be used by the H313, H616, H618.
 
-config DRAM_SUN50I_H616_PHY_ADDR_MAP_1
-	bool "H700"
+config DRAM_SUNXI_PHY_ADDR_MAP_1
+	bool "DRAM PHY address map 1"
 	help
-	  The pin mapping selection used by the H700 and possibly other
-	  dies which use the H616 DRAM controller.
+	  This pin mapping selection should be used by the H700.
 endchoice
 endif
 

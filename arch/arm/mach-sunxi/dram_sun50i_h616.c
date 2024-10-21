@@ -226,7 +226,7 @@ static void mctl_set_addrmap(const struct dram_config *config)
 	mctl_ctl->addrmap[8] = 0x3F3F;
 }
 
-#ifdef CONFIG_DRAM_SUN50I_H616_PHY_ADDR_MAP_1
+#ifdef CONFIG_DRAM_SUNXI_PHY_ADDR_MAP_1
 static const u8 phy_init[] = {
 #ifdef CONFIG_SUNXI_DRAM_H616_DDR3_1333
 	0x08, 0x02, 0x12, 0x05, 0x15, 0x17, 0x18, 0x0b,
@@ -245,7 +245,7 @@ static const u8 phy_init[] = {
 	0x18, 0x04, 0x1a
 #endif
 };
-#else /* CONFIG_DRAM_SUN50I_H616_PHY_ADDR_MAP_0 */
+#else /* CONFIG_DRAM_SUNXI_PHY_ADDR_MAP_0 */
 static const u8 phy_init[] = {
 #ifdef CONFIG_SUNXI_DRAM_H616_DDR3_1333
 	0x07, 0x0b, 0x02, 0x16, 0x0d, 0x0e, 0x14, 0x19,
@@ -264,7 +264,7 @@ static const u8 phy_init[] = {
 	0x18, 0x03, 0x1a
 #endif
 };
-#endif /* CONFIG_DRAM_SUN50I_H616_PHY_ADDR_MAP_0 */
+#endif /* CONFIG_DRAM_SUNXI_PHY_ADDR_MAP_0 */
 #define MASK_BYTE(reg, nr) (((reg) >> ((nr) * 8)) & 0x1f)
 static void mctl_phy_configure_odt(const struct dram_para *para)
 {
@@ -1409,16 +1409,16 @@ static const struct dram_para para = {
 #elif defined(CONFIG_SUNXI_DRAM_H616_LPDDR4)
 	.type = SUNXI_DRAM_TYPE_LPDDR4,
 #endif
-	.dx_odt = CONFIG_DRAM_SUN50I_H616_DX_ODT,
-	.dx_dri = CONFIG_DRAM_SUN50I_H616_DX_DRI,
-	.ca_dri = CONFIG_DRAM_SUN50I_H616_CA_DRI,
-	.odt_en = CONFIG_DRAM_SUN50I_H616_ODT_EN,
-	.tpr0 = CONFIG_DRAM_SUN50I_H616_TPR0,
-	.tpr2 = CONFIG_DRAM_SUN50I_H616_TPR2,
-	.tpr6 = CONFIG_DRAM_SUN50I_H616_TPR6,
-	.tpr10 = CONFIG_DRAM_SUN50I_H616_TPR10,
-	.tpr11 = CONFIG_DRAM_SUN50I_H616_TPR11,
-	.tpr12 = CONFIG_DRAM_SUN50I_H616_TPR12,
+	.dx_odt = CONFIG_DRAM_SUNXI_DX_ODT,
+	.dx_dri = CONFIG_DRAM_SUNXI_DX_DRI,
+	.ca_dri = CONFIG_DRAM_SUNXI_CA_DRI,
+	.odt_en = CONFIG_DRAM_SUNXI_ODT_EN,
+	.tpr0 = CONFIG_DRAM_SUNXI_TPR0,
+	.tpr2 = CONFIG_DRAM_SUNXI_TPR2,
+	.tpr6 = CONFIG_DRAM_SUNXI_TPR6,
+	.tpr10 = CONFIG_DRAM_SUNXI_TPR10,
+	.tpr11 = CONFIG_DRAM_SUNXI_TPR11,
+	.tpr12 = CONFIG_DRAM_SUNXI_TPR12,
 };
 
 unsigned long sunxi_dram_init(void)
