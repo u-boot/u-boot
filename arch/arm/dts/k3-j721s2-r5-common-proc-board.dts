@@ -10,3 +10,12 @@
 #include "k3-j721s2-ddr.dtsi"
 #include "k3-j721s2-common-proc-board-u-boot.dtsi"
 #include "k3-j721s2-r5.dtsi"
+
+&tps659411 {
+	bootph-pre-ram;
+};
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+	vdd-supply-2 = <&bucka1234>;
+};

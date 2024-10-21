@@ -26,7 +26,8 @@
 			<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>,
 			<&k3_pds 166 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 135 0>;
-		clocks = <&k3_clks 61 0>;
+		clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
+		clock-names = "gtc", "core";
 		assigned-clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
 		assigned-clock-parents = <&k3_clks 61 2>;
 		assigned-clock-rates = <200000000>, <1200000000>;
