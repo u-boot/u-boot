@@ -9,10 +9,10 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/ti-aemif.h>
 
-#define AEMIF_WAITCYCLE_CONFIG		(KS2_AEMIF_CNTRL_BASE + 0x4)
-#define AEMIF_NAND_CONTROL		(KS2_AEMIF_CNTRL_BASE + 0x60)
-#define AEMIF_ONENAND_CONTROL		(KS2_AEMIF_CNTRL_BASE + 0x5c)
-#define AEMIF_CONFIG(cs)		(KS2_AEMIF_CNTRL_BASE + 0x10 + ((cs) * 4))
+#define AEMIF_WAITCYCLE_CONFIG		(0x4)
+#define AEMIF_NAND_CONTROL		(0x60)
+#define AEMIF_ONENAND_CONTROL		(0x5c)
+#define AEMIF_CONFIG(cs)		(0x10 + ((cs) * 4))
 
 #define AEMIF_CFG_SELECT_STROBE(v)	((v) ? 1 << 31 : 0)
 #define AEMIF_CFG_EXTEND_WAIT(v)	((v) ? 1 << 30 : 0)
@@ -38,17 +38,17 @@ static void aemif_configure(int cs, struct aemif_config *cfg)
 	unsigned long tmp;
 
 	if (cfg->mode == AEMIF_MODE_NAND) {
-		tmp = __raw_readl(AEMIF_NAND_CONTROL);
+		tmp = __raw_readl(cfg->base + AEMIF_NAND_CONTROL);
 		tmp |= (1 << cs);
-		__raw_writel(tmp, AEMIF_NAND_CONTROL);
+		__raw_writel(tmp, cfg->base + AEMIF_NAND_CONTROL);
 
 	} else if (cfg->mode == AEMIF_MODE_ONENAND) {
-		tmp = __raw_readl(AEMIF_ONENAND_CONTROL);
+		tmp = __raw_readl(cfg->base + AEMIF_ONENAND_CONTROL);
 		tmp |= (1 << cs);
-		__raw_writel(tmp, AEMIF_ONENAND_CONTROL);
+		__raw_writel(tmp, cfg->base + AEMIF_ONENAND_CONTROL);
 	}
 
-	tmp = __raw_readl(AEMIF_CONFIG(cs));
+	tmp = __raw_readl(cfg->base + AEMIF_CONFIG(cs));
 
 	set_config_field(tmp, SELECT_STROBE,	cfg->select_strobe);
 	set_config_field(tmp, EXTEND_WAIT,	cfg->extend_wait);
@@ -61,7 +61,7 @@ static void aemif_configure(int cs, struct aemif_config *cfg)
 	set_config_field(tmp, TURN_AROUND,	cfg->turn_around);
 	set_config_field(tmp, WIDTH,		cfg->width);
 
-	__raw_writel(tmp, AEMIF_CONFIG(cs));
+	__raw_writel(tmp, cfg->base + AEMIF_CONFIG(cs));
 }
 
 void aemif_init(int num_cs, struct aemif_config *config)
