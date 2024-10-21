@@ -110,7 +110,7 @@ void boot_fdt_add_mem_rsv_regions(void *fdt_blob)
 	for (i = 0; i < total; i++) {
 		if (fdt_get_mem_rsv(fdt_blob, i, &addr, &size) != 0)
 			continue;
-		boot_fdt_reserve_region(addr, size, LMB_NONE);
+		boot_fdt_reserve_region(addr, size, LMB_NOOVERWRITE);
 	}
 
 	/* process reserved-memory */
@@ -122,7 +122,7 @@ void boot_fdt_add_mem_rsv_regions(void *fdt_blob)
 			ret = fdt_get_resource(fdt_blob, subnode, "reg", 0,
 					       &res);
 			if (!ret && fdtdec_get_is_enabled(fdt_blob, subnode)) {
-				flags = LMB_NONE;
+				flags = LMB_NOOVERWRITE;
 				if (fdtdec_get_bool(fdt_blob, subnode,
 						    "no-map"))
 					flags = LMB_NOMAP;
