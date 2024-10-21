@@ -34,20 +34,9 @@
 		}						\
 	} while (0)
 
-static void aemif_configure(int cs, struct aemif_config *cfg)
+static void aemif_cs_configure(int cs, struct aemif_config *cfg)
 {
 	unsigned long tmp;
-
-	if (cfg->mode == AEMIF_MODE_NAND) {
-		tmp = __raw_readl(cfg->base + AEMIF_NAND_CONTROL);
-		tmp |= (1 << cs);
-		__raw_writel(tmp, cfg->base + AEMIF_NAND_CONTROL);
-
-	} else if (cfg->mode == AEMIF_MODE_ONENAND) {
-		tmp = __raw_readl(cfg->base + AEMIF_ONENAND_CONTROL);
-		tmp |= (1 << cs);
-		__raw_writel(tmp, cfg->base + AEMIF_ONENAND_CONTROL);
-	}
 
 	tmp = __raw_readl(cfg->base + AEMIF_CONFIG(cs));
 
@@ -63,6 +52,24 @@ static void aemif_configure(int cs, struct aemif_config *cfg)
 	set_config_field(tmp, WIDTH,		cfg->width);
 
 	__raw_writel(tmp, cfg->base + AEMIF_CONFIG(cs));
+}
+
+static void aemif_configure(int cs, struct aemif_config *cfg)
+{
+	unsigned long tmp;
+
+	if (cfg->mode == AEMIF_MODE_NAND) {
+		tmp = __raw_readl(cfg->base + AEMIF_NAND_CONTROL);
+		tmp |= (1 << cs);
+		__raw_writel(tmp, cfg->base + AEMIF_NAND_CONTROL);
+
+	} else if (cfg->mode == AEMIF_MODE_ONENAND) {
+		tmp = __raw_readl(cfg->base + AEMIF_ONENAND_CONTROL);
+		tmp |= (1 << cs);
+		__raw_writel(tmp, cfg->base + AEMIF_ONENAND_CONTROL);
+	}
+
+	aemif_cs_configure(cs, cfg);
 }
 
 void aemif_init(int num_cs, struct aemif_config *config)
