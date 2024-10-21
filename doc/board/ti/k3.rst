@@ -32,18 +32,21 @@ K3 Based SoCs
 
    am62ax_sk
    am62x_sk
-   ../beagle/am62x_beagleplay
-   ../phytec/phycore-am62x
-   ../toradex/verdin-am62
    am62px_sk
    am64x_evm
    am65x_evm
    j7200_evm
-   ../beagle/j721e_beagleboneai64
    j721e_evm
    j721s2_evm
    j722s_evm
    j784s4_evm
+
+K3 SoC based boards in other sections
+
+* :doc:`../beagle/am62x_beagleplay`
+* :doc:`../beagle/j721e_beagleboneai64`
+* :doc:`../phytec/phycore-am62x`
+* :doc:`../toradex/verdin-am62`
 
 Boot Flow Overview
 ------------------
