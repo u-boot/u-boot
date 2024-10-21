@@ -36,6 +36,11 @@ config I2C_MUX_PCA954x
 	  device. Supported chips are PCA9543, PCA9544, PCA9546, PCA9547,
 	  PCA9548 and PCA9646.
 
+	  It's also compatible to Maxims MAX735x I2C switch chips, which are controlled
+	  as the NXP PCA9548 and the MAX736x chips that act like the PCA9544.
+	  This includes the:
+		MAX7356, MAX7357, MAX7358, MAX7367, MAX7368 and MAX7369
+
 config I2C_MUX_GPIO
         tristate "GPIO-based I2C multiplexer"
 	depends on I2C_MUX && DM_GPIO

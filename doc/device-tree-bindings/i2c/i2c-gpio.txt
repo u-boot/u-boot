@@ -20,6 +20,8 @@ Optional:
    Run deblocking sequence when the driver gets probed.
 * i2c-gpio,scl-output-only;
    Set if SCL is an output only
+* i2c-gpio,sda-output-only;
+   Set if SDA is an output only
 
 Example:
 
