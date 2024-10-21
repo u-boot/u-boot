@@ -371,9 +371,10 @@ int bootstage_unstash(const void *base, int size);
 /**
  * bootstage_get_size() - Get the size of the bootstage data
  *
+ * @add_strings: true to add the size of attached strings (for stashing)
  * Return: size of boostage data in bytes
  */
-int bootstage_get_size(void);
+int bootstage_get_size(bool add_strings);
 
 /**
  * bootstage_init() - Prepare bootstage for use
@@ -444,7 +445,7 @@ static inline int bootstage_unstash(const void *base, int size)
 	return 0;	/* Pretend to succeed */
 }
 
-static inline int bootstage_get_size(void)
+static inline int bootstage_get_size(bool add_strings)
 {
 	return 0;
 }
