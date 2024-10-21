@@ -705,6 +705,9 @@ static int _dm_gpio_set_flags(struct gpio_desc *desc, ulong flags)
 	if (ops->set_flags) {
 		ret = ops->set_flags(dev, desc->offset, flags);
 	} else {
+		if (flags & GPIOD_MASK_PULL)
+			return -EINVAL;
+
 		if (flags & GPIOD_IS_OUT) {
 			bool value = flags & GPIOD_IS_OUT_ACTIVE;
 
