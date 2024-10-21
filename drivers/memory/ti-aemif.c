@@ -7,6 +7,7 @@
  */
 
 #include <asm/arch/hardware.h>
+#include <asm/io.h>
 #include <asm/ti-common/ti-aemif.h>
 
 #define AEMIF_WAITCYCLE_CONFIG		(0x4)
