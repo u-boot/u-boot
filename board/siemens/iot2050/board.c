@@ -174,6 +174,14 @@ static bool board_is_m2(void)
 		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
 }
 
+static bool board_is_sm(void)
+{
+	struct iot2050_info *info = IOT2050_INFO_DATA;
+
+	return info->magic == IOT2050_INFO_MAGIC &&
+		strcmp((char *)info->name, "IOT2050-ADVANCED-SM") == 0;
+}
+
 static void remove_mmc1_target(void)
 {
 	char *boot_targets = strdup(env_get("boot_targets"));
@@ -189,7 +197,10 @@ static void remove_mmc1_target(void)
 
 static void enable_pcie_connector_power(void)
 {
-	set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
+	if (board_is_sm())
+		set_pinvalue("gpio@601000_22", "P3V3_PCIE_CON_EN", 1);
+	else
+		set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
 	udelay(4 * 100);
 }
 
@@ -230,6 +241,8 @@ void set_board_info_env(void)
 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
 		else if (board_is_m2())
 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
+		else if (board_is_sm())
+			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
 		else
 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
 	} else {

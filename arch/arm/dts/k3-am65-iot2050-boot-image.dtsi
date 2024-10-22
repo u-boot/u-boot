@@ -229,7 +229,10 @@
 		};
 
 		fit@380000 {
-			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic-pg2", "ti/k3-am6548-iot2050-advanced-pg2", "ti/k3-am6548-iot2050-advanced-m2";
+			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic-pg2",
+					   "ti/k3-am6548-iot2050-advanced-pg2",
+					   "ti/k3-am6548-iot2050-advanced-m2",
+					   "ti/k3-am6548-iot2050-advanced-sm";
 
 			images {
 				bkey-usb3-overlay {
