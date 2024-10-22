@@ -38,6 +38,8 @@ struct iot2050_info {
 	u8 mac_addr_cnt;
 	u8 mac_addr[8][ARP_HLEN];
 	char seboot_version[40 + 1];
+	u8 padding[3];
+	u32 ddr_size_mb;
 } __packed;
 
 /*
@@ -341,25 +343,42 @@ int board_init(void)
 
 int dram_init(void)
 {
-	if (board_is_advanced())
-		gd->ram_size = SZ_2G;
-	else
-		gd->ram_size = SZ_1G;
+	struct iot2050_info *info = IOT2050_INFO_DATA;
+	gd->ram_size = ((phys_size_t)(info->ddr_size_mb)) << 20;
 
 	return 0;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	/* Limit RAM used by U-Boot to the DDR low region */
+	if (gd->ram_top > 0x100000000)
+		return 0x100000000;
+
+	return gd->ram_top;
 }
 
 int dram_init_banksize(void)
 {
 	dram_init();
 
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	if (gd->ram_size > SZ_2G) {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = SZ_2G;
 
-	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = 0;
-	gd->bd->bi_dram[1].size = 0;
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
+		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+	} else {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = gd->ram_size;
+
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = 0;
+		gd->bd->bi_dram[1].size = 0;
+	}
 
 	return 0;
 }

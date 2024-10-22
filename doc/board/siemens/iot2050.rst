@@ -29,6 +29,9 @@ The following binaries from that source need to be present in the build folder:
  - seboot_pg1.bin
  - seboot_pg2.bin
 
+Note that SE-Boot D/V01.04.01.02 or greater is required, otherwise the DDR size
+will not be picked up correctly by U-Boot.
+
 When using the watchdog, a related firmware for the R5 core(s) is needed, e.g.
 https://github.com/siemens/k3-rti-wdt. The name and location of the image is
 configured via CONFIG_WDT_K3_RTI_FW_FILE.

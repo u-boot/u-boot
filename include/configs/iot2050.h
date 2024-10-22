@@ -24,6 +24,9 @@
 	func(USB, usb, 2)
 #endif
 
+/* DDR Configuration */
+#define CFG_SYS_SDRAM_BASE1		0x880000000
+
 /*
  * This defines all MMC devices, even if the basic variant has no mmc1.
  * The non-supported device will be removed from the boot targets during
