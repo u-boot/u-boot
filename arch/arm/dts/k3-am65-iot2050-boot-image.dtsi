@@ -84,12 +84,12 @@
 				};
 
 				fdt-0 {
-					description = "k3-am6528-iot2050-basic.dtb";
+					description = "ti/k3-am6528-iot2050-basic.dtb";
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
 					blob-ext {
-						filename = "spl/dts/k3-am6528-iot2050-basic.dtb";
+						filename = "spl/dts/ti/k3-am6528-iot2050-basic.dtb";
 					};
 				};
 			};
@@ -205,10 +205,10 @@
 		};
 
 		fit@380000 {
-			fit,fdt-list-val = "k3-am6528-iot2050-basic", "k3-am6548-iot2050-advanced";
+			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic", "ti/k3-am6548-iot2050-advanced";
 
 			configurations {
-				default = "k3-am6528-iot2050-basic";
+				default = "ti/k3-am6528-iot2050-basic";
 				@config-SEQ {
 					loadables =
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE
@@ -229,7 +229,7 @@
 		};
 
 		fit@380000 {
-			fit,fdt-list-val = "k3-am6528-iot2050-basic-pg2", "k3-am6548-iot2050-advanced-pg2", "k3-am6548-iot2050-advanced-m2";
+			fit,fdt-list-val = "ti/k3-am6528-iot2050-basic-pg2", "ti/k3-am6548-iot2050-advanced-pg2", "ti/k3-am6548-iot2050-advanced-m2";
 
 			images {
 				bkey-usb3-overlay {
@@ -239,7 +239,7 @@
 					arch = "arm64";
 					compression = "none";
 					blob-ext {
-						filename = "k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo";
+						filename = "ti/k3-am6548-iot2050-advanced-m2-bkey-usb3.dtbo";
 					};
 					hash {
 						algo = "sha256";
@@ -253,7 +253,7 @@
 					arch = "arm64";
 					compression = "none";
 					blob-ext {
-						filename = "k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo";
+						filename = "ti/k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie.dtbo";
 					};
 					hash {
 						algo = "sha256";
@@ -262,7 +262,7 @@
 			};
 
 			configurations {
-				default = "k3-am6528-iot2050-basic-pg2";
+				default = "ti/k3-am6528-iot2050-basic-pg2";
 				@config-SEQ {
 					loadables =
 #ifdef CONFIG_WDT_K3_RTI_FW_FILE

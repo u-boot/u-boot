@@ -1163,13 +1163,6 @@ dtb-$(CONFIG_STM32MP25X) += \
 dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
-	k3-am6528-iot2050-basic.dtb \
-	k3-am6528-iot2050-basic-pg2.dtb \
-	k3-am6548-iot2050-advanced.dtb \
-	k3-am6548-iot2050-advanced-pg2.dtb \
-	k3-am6548-iot2050-advanced-m2.dtb \
-	k3-am6548-iot2050-advanced-m2-bkey-usb3-overlay.dtbo \
-	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo \
 	k3-am654-icssg2.dtbo
 
 dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-r5-common-proc-board.dtb \

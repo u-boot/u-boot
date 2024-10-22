@@ -395,8 +395,8 @@ int board_fit_config_name_match(const char *name)
 	struct iot2050_info *info = IOT2050_INFO_DATA;
 	char upper_name[32];
 
-	/* skip the prefix "k3-am65x8-" */
-	name += 10;
+	/* skip the prefix "ti/k3-am65x8-" */
+	name += 13;
 
 	if (info->magic != IOT2050_INFO_MAGIC ||
 	    strlen(name) >= sizeof(upper_name))
