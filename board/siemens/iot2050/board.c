@@ -220,7 +220,7 @@ void set_board_info_env(void)
 	if (board_is_advanced()) {
 		if (board_is_pg1())
 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
-		else if(board_is_m2())
+		else if (board_is_m2())
 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
 		else
 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
