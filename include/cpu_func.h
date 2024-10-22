@@ -80,6 +80,7 @@ void invalidate_icache_all(void);
  * Return: 0 if OK
  */
 int noncached_init(void);
+void noncached_set_region(void);
 
 phys_addr_t noncached_alloc(size_t size, size_t align);
 
