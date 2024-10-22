@@ -1163,7 +1163,6 @@ dtb-$(CONFIG_STM32MP25X) += \
 dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am654-base-board.dtb \
 	k3-am654-r5-base-board.dtb \
-	k3-am65-iot2050-spl.dtb \
 	k3-am6528-iot2050-basic.dtb \
 	k3-am6528-iot2050-basic-pg2.dtb \
 	k3-am6548-iot2050-advanced.dtb \

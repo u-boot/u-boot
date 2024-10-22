@@ -84,12 +84,12 @@
 				};
 
 				fdt-0 {
-					description = "k3-am65-iot2050-spl.dtb";
+					description = "k3-am6528-iot2050-basic.dtb";
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
 					blob-ext {
-						filename = "spl/dts/k3-am65-iot2050-spl.dtb";
+						filename = "spl/dts/k3-am6528-iot2050-basic.dtb";
 					};
 				};
 			};
