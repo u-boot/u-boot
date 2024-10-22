@@ -280,8 +280,6 @@ static int pl01x_serial_getinfo(struct udevice *dev,
 	struct pl01x_serial_plat *plat = dev_get_plat(dev);
 
 	/* save code size */
-	if (!spl_in_proper())
-		return -ENOSYS;
 
 	info->type = SERIAL_CHIP_PL01X;
 	info->addr_space = SERIAL_ADDRESS_SPACE_MEMORY;
