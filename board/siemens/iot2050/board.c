@@ -185,6 +185,12 @@ static void remove_mmc1_target(void)
 	free(boot_targets);
 }
 
+static void enable_pcie_connector_power(void)
+{
+	set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
+	udelay(4 * 100);
+}
+
 void set_board_info_env(void)
 {
 	struct iot2050_info *info = IOT2050_INFO_DATA;
@@ -287,10 +293,6 @@ static void m2_connector_setup(void)
 	const char *mode_info = "";
 	struct m2_config_pins config_pins;
 	unsigned int n;
-
-	/* enable M.2 connector power */
-	set_pinvalue("gpio@601000_17", "P3V3_M2_EN", 1);
-	udelay(4 * 100);
 
 	if (m2_manual_config < CONNECTOR_MODE_INVALID) {
 		mode_info = " [manual mode]";
@@ -428,6 +430,8 @@ int board_late_init(void)
 {
 	/* change CTRL_MMR register to let serdes0 not output USB3.0 signals. */
 	writel(0x3, SERDES0_LANE_SELECT);
+
+	enable_pcie_connector_power();
 
 	if (board_is_m2())
 		m2_connector_setup();
