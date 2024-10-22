@@ -245,22 +245,13 @@ void set_board_info_env(void)
 	env_save();
 }
 
-static void m2_overlay_prepare(void)
+static void do_overlay_prepare(const char *overlay_path)
 {
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-	const char *overlay_path;
 	void *overlay;
 	u64 loadaddr;
 	ofnode node;
 	int ret;
-
-	if (connector_mode == BKEY_PCIEX2)
-		return;
-
-	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
-		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
-	else
-		overlay_path = "/fit-images/bkey-usb3-overlay";
 
 	node = ofnode_path(overlay_path);
 	if (!ofnode_valid(node))
@@ -286,6 +277,21 @@ static void m2_overlay_prepare(void)
 fit_error:
 	pr_err("M.2 device tree overlay %s not available,\n", overlay_path);
 #endif
+}
+
+static void m2_overlay_prepare(void)
+{
+	const char *overlay_path;
+
+	if (connector_mode == BKEY_PCIEX2)
+		return;
+
+	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
+		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
+	else
+		overlay_path = "/fit-images/bkey-usb3-overlay";
+
+	do_overlay_prepare(overlay_path);
 }
 
 static void m2_connector_setup(void)
@@ -466,7 +472,7 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-static void m2_fdt_fixup(void *blob)
+static void variants_fdt_fixup(void *blob)
 {
 	void *overlay_copy = NULL;
 	void *fdt_copy = NULL;
@@ -506,14 +512,14 @@ cleanup:
 	return;
 
 fixup_error:
-	pr_err("Could not apply M.2 device tree overlay\n");
+	pr_err("Could not apply device tree overlay\n");
 	goto cleanup;
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	if (board_is_m2())
-		m2_fdt_fixup(blob);
+		variants_fdt_fixup(blob);
 
 	return 0;
 }
