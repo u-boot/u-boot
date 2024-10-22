@@ -39,7 +39,7 @@
 #define CFG_ENV_FLAGS_LIST_STATIC					\
 	"board_uuid:sw,board_name:sw,board_serial:sw,board_a5e:sw,"	\
 	"mlfb:sw,fw_version:sw,seboot_version:sw,"			\
-	"m2_manuel_config:sw,"						\
+	"m2_manual_config:sw,"						\
 	"eth1addr:mw,eth2addr:mw,watchdog_timeout_ms:dw,boot_targets:sw"
 #endif
 
