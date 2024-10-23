@@ -27,9 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAP_OP_FREE		(u8)0x2
 #define MAP_OP_ADD		(u8)0x3
 
-#define LMB_ALLOC_ANYWHERE	0
-#define LMB_ALIST_INITIAL_SIZE	4
-
 static struct lmb lmb;
 
 static bool lmb_should_notify(enum lmb_flags flags)
@@ -669,23 +666,6 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 {
 	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
-}
-
-/**
- * lmb_alloc_flags() - Allocate memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter.
- *
- * Return: base address on success, 0 on error
- */
-phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags)
-{
-	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
-			       flags);
 }
 
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)

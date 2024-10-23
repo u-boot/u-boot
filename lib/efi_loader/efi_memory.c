@@ -472,7 +472,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = (u64)lmb_alloc_flags(len, EFI_PAGE_SIZE, flags);
+		addr = (u64)lmb_alloc_base_flags(len, EFI_PAGE_SIZE,
+						 LMB_ALLOC_ANYWHERE, flags);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
