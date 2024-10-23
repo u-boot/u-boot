@@ -169,18 +169,6 @@ int acpi_create_dmar_ds_msi_hpet(struct acpi_ctx *ctx, uint enumeration_id,
 				 pci_dev_t bdf);
 
 /**
- * acpi_fadt_common() - Handle common parts of filling out an FADT
- *
- * This sets up the Fixed ACPI Description Table
- *
- * @fadt: Pointer to place to put FADT
- * @facs: Pointer to the FACS
- * @dsdt: Pointer to the DSDT
- */
-void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt);
-
-/**
  * intel_acpi_fill_fadt() - Set up the contents of the FADT
  *
  * This sets up parts of the Fixed ACPI Description Table that are common to

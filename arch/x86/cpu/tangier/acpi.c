@@ -16,21 +16,8 @@
 #include <asm/arch/iomap.h>
 #include <dm/uclass-internal.h>
 
-static int tangier_write_fadt(struct acpi_ctx *ctx,
-			      const struct acpi_writer *entry)
+void acpi_fill_fadt(struct acpi_fadt *fadt)
 {
-	struct acpi_table_header *header;
-	struct acpi_fadt *fadt;
-
-	fadt = ctx->current;
-	header = &fadt->header;
-
-	memset(fadt, '\0', sizeof(struct acpi_fadt));
-
-	acpi_fill_header(header, "FACP");
-	header->length = sizeof(struct acpi_fadt);
-	header->revision = 6;
-
 	fadt->preferred_pm_profile = ACPI_PM_UNSPECIFIED;
 
 	fadt->iapc_boot_arch = ACPI_FADT_VGA_NOT_PRESENT |
@@ -40,17 +27,9 @@ static int tangier_write_fadt(struct acpi_ctx *ctx,
 		ACPI_FADT_POWER_BUTTON | ACPI_FADT_SLEEP_BUTTON |
 		ACPI_FADT_SEALED_CASE | ACPI_FADT_HEADLESS |
 		ACPI_FADT_HW_REDUCED_ACPI;
-
+	fadt->header.revision = 6;
 	fadt->minor_revision = 2;
-
-	fadt->x_firmware_ctrl = map_to_sysmem(ctx->facs);
-	fadt->x_dsdt = map_to_sysmem(ctx->dsdt);
-
-	header->checksum = table_compute_checksum(fadt, header->length);
-
-	return acpi_add_fadt(ctx, fadt);
 }
-ACPI_WRITER(5fadt, "FADT", tangier_write_fadt, 0);
 
 u32 acpi_fill_madt(u32 current)
 {

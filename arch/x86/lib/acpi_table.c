@@ -381,29 +381,6 @@ int acpi_write_hpet(struct acpi_ctx *ctx)
 	return 0;
 }
 
-void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt)
-{
-	struct acpi_table_header *header = &fadt->header;
-
-	memset((void *)fadt, '\0', sizeof(struct acpi_fadt));
-
-	acpi_fill_header(header, "FACP");
-	header->length = sizeof(struct acpi_fadt);
-	header->revision = 4;
-	memcpy(header->oem_id, OEM_ID, 6);
-	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
-	memcpy(header->creator_id, ASLC_ID, 4);
-
-	fadt->x_firmware_ctrl = map_to_sysmem(facs);
-	fadt->x_dsdt = map_to_sysmem(dsdt);
-
-	fadt->preferred_pm_profile = ACPI_PM_MOBILE;
-
-	/* Use ACPI 3.0 revision */
-	fadt->header.revision = 4;
-}
-
 void acpi_create_dmar_drhd(struct acpi_ctx *ctx, uint flags, uint segment,
 			   u64 bar)
 {
