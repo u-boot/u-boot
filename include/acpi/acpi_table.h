@@ -964,6 +964,17 @@ int acpi_fill_csrt(struct acpi_ctx *ctx);
 void acpi_fill_fadt(struct acpi_fadt *fadt);
 
 /**
+ * acpi_fill_madt() - Fill out the body of the MADT
+ *
+ * Must be implemented in SoC specific code.
+ *
+ * @madt: The MADT to update
+ * @ctx: ACPI context to write MADT sub-tables to
+ * @return Pointer to the end of tables, where the next tables can be written
+ */
+void *acpi_fill_madt(struct acpi_madt *madt, struct acpi_ctx *ctx);
+
+/**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address
  *
  * This routine returns the ACPI RSDP table address in the system memory.
