@@ -18,6 +18,8 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <asm/unaligned.h>
+#include <linux/kernel.h>
+#include <linux/sizes.h>
 
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
@@ -362,13 +364,16 @@ static efi_status_t prepare_loaded_image(u16 *label, ulong addr, ulong size,
 	}
 
 	/*
-	 * TODO: expose the ramdisk to OS.
-	 * Need to pass the ramdisk information by the architecture-specific
-	 * methods such as 'pmem' device-tree node.
+	 * Linux supports 'pmem' which allows OS installers to find, reclaim
+	 * the mounted images and continue the installation since the contents
+	 * of the pmem region are treated as local media.
+	 *
+	 * The memory regions used for it needs to be carved out of the EFI
+	 * memory map.
 	 */
-	ret = efi_add_memory_map(addr, size, EFI_RESERVED_MEMORY_TYPE);
+	ret = efi_remove_memory_map(addr, size, EFI_CONVENTIONAL_MEMORY);
 	if (ret != EFI_SUCCESS) {
-		log_err("Memory reservation failed\n");
+		log_err("Failed to reserve memory\n");
 		goto err;
 	}
 
@@ -490,6 +495,13 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 		ret = EFI_INVALID_PARAMETER;
 		goto err;
 	}
+	/*
+	 * Depending on the kernel configuration, pmem memory area must be page
+	 * aligned or 2MB aligned. PowerPC is an exception here and requires
+	 * 16MB alignment, but since we don't have EFI support for it, limit
+	 * the alignment to 2MB.
+	 */
+	image_size = ALIGN(image_size, SZ_2M);
 
 	/*
 	 * If the file extension is ".iso" or ".img", mount it and try to load
