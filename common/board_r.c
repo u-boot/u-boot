@@ -32,6 +32,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
@@ -63,10 +64,8 @@
 #include <dm/ofnode.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
-#include <efi_loader.h>
 #include <wdt.h>
 #include <asm-generic/gpio.h>
-#include <efi_loader.h>
 #include <relocate.h>
 
 DECLARE_GLOBAL_DATA_PTR;
