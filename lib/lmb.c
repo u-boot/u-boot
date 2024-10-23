@@ -40,7 +40,7 @@ static bool lmb_should_notify(enum lmb_flags flags)
 
 static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
 						phys_size_t size,
-						u8 op)
+						u8 op, enum lmb_flags flags)
 {
 	u64 efi_addr;
 	u64 pages;
@@ -50,6 +50,9 @@ static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
 		log_err("Invalid map update op received (%d)\n", op);
 		return -1;
 	}
+
+	if (!lmb_should_notify(flags))
+		return 0;
 
 	efi_addr = (uintptr_t)map_sysmem(addr, 0);
 	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
@@ -64,9 +67,9 @@ static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
 		log_err("%s: LMB Map notify failure %lu\n", __func__,
 			status & ~EFI_ERROR_MASK);
 		return -1;
-	} else {
-		return 0;
 	}
+
+	return 0;
 }
 
 static void lmb_print_region_flags(enum lmb_flags flags)
@@ -491,10 +494,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	if (ret)
 		return ret;
 
-	if (lmb_should_notify(LMB_NONE))
-		return lmb_map_update_notify(base, size, MAP_OP_ADD);
-
-	return 0;
+	return lmb_map_update_notify(base, size, MAP_OP_ADD, LMB_NONE);
 }
 
 static long _lmb_free(phys_addr_t base, phys_size_t size)
@@ -567,10 +567,7 @@ long lmb_free_flags(phys_addr_t base, phys_size_t size,
 	if (ret < 0)
 		return ret;
 
-	if (lmb_should_notify(flags))
-		return lmb_map_update_notify(base, size, MAP_OP_FREE);
-
-	return ret;
+	return lmb_map_update_notify(base, size, MAP_OP_FREE, flags);
 }
 
 long lmb_free(phys_addr_t base, phys_size_t size)
@@ -587,10 +584,7 @@ long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 	if (ret)
 		return ret;
 
-	if (lmb_should_notify(flags))
-		return lmb_map_update_notify(base, size, MAP_OP_RESERVE);
-
-	return ret;
+	return lmb_map_update_notify(base, size, MAP_OP_RESERVE, flags);
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -622,7 +616,6 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 				    phys_addr_t max_addr, enum lmb_flags flags)
 {
-	u8 op;
 	int ret;
 	long i, rgn;
 	phys_addr_t base = 0;
@@ -655,13 +648,11 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 							 size, flags))
 					return 0;
 
-				if (lmb_should_notify(flags)) {
-					op = MAP_OP_RESERVE;
-					ret = lmb_map_update_notify(base, size,
-								    op);
-					if (ret)
-						return ret;
-				}
+				ret = lmb_map_update_notify(base, size,
+							    MAP_OP_RESERVE,
+							    flags);
+				if (ret)
+					return ret;
 
 				return base;
 			}
