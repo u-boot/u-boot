@@ -22,7 +22,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct imx_pinctrl_soc_info *info = priv->info;
-	int node = dev_of_offset(config);
+	ofnode node = dev_ofnode(config);
 	const struct fdt_property *prop;
 	u32 *pin_data;
 	int npins, size, pin_size;
@@ -40,7 +40,7 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	else
 		pin_size = FSL_PIN_SIZE;
 
-	prop = fdt_getprop(gd->fdt_blob, node, "fsl,pins", &size);
+	prop = ofnode_get_property(node, "fsl,pins", &size);
 	if (!prop) {
 		dev_err(dev, "No fsl,pins property in node %s\n", config->name);
 		return -EINVAL;
@@ -56,8 +56,8 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	if (!pin_data)
 		return -ENOMEM;
 
-	if (fdtdec_get_int_array(gd->fdt_blob, node, "fsl,pins",
-				 pin_data, size >> 2)) {
+	if (ofnode_read_u32_array(node, "fsl,pins",
+				  pin_data, size >> 2)) {
 		dev_err(dev, "Error reading pin data.\n");
 		devm_kfree(dev, pin_data);
 		return -EINVAL;
@@ -202,10 +202,11 @@ int imx_pinctrl_probe(struct udevice *dev,
 		      struct imx_pinctrl_soc_info *info)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
-	int node = dev_of_offset(dev), ret;
-	struct fdtdec_phandle_args arg;
+	struct ofnode_phandle_args arg;
+	ofnode node = dev_ofnode(dev);
 	fdt_addr_t addr;
 	fdt_size_t size;
+	int ret;
 
 	if (!info) {
 		dev_err(dev, "wrong pinctrl info\n");
@@ -218,7 +219,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 	if (info->flags & IMX8_USE_SCU)
 		return 0;
 
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
+	addr = ofnode_get_addr_size_index(dev_ofnode(dev), 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -227,22 +228,20 @@ int imx_pinctrl_probe(struct udevice *dev,
 		return -ENOMEM;
 	priv->info = info;
 
-	info->mux_mask = fdtdec_get_int(gd->fdt_blob, node, "fsl,mux_mask", 0);
+	info->mux_mask = ofnode_read_u32(node, "fsl,mux_mask", 0);
 	/*
 	 * Refer to linux documentation for details:
 	 * Documentation/devicetree/bindings/pinctrl/fsl,imx7d-pinctrl.txt
 	 */
-	if (fdtdec_get_bool(gd->fdt_blob, node, "fsl,input-sel")) {
-		ret = fdtdec_parse_phandle_with_args(gd->fdt_blob,
-						     node, "fsl,input-sel",
+	if (ofnode_read_bool(node, "fsl,input-sel")) {
+		ret = ofnode_parse_phandle_with_args(node, "fsl,input-sel",
 						     NULL, 0, 0, &arg);
 		if (ret) {
 			dev_err(dev, "iomuxc fsl,input-sel property not found\n");
 			return -EINVAL;
 		}
 
-		addr = fdtdec_get_addr_size(gd->fdt_blob, arg.node, "reg",
-					    &size);
+		addr = ofnode_get_addr_size(arg.node, "reg", &size);
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 
