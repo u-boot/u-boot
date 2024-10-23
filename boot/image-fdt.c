@@ -73,7 +73,7 @@ static void boot_fdt_reserve_region(u64 addr, u64 size, enum lmb_flags flags)
 	long ret;
 
 	ret = lmb_reserve_flags(addr, size, flags);
-	if (ret >= 0) {
+	if (!ret) {
 		debug("   reserving fdt memory region: addr=%llx size=%llx flags=%x\n",
 		      (unsigned long long)addr,
 		      (unsigned long long)size, flags);

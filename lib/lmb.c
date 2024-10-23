@@ -451,7 +451,7 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 	}
 
 	if (coalesced)
-		return coalesced;
+		return 0;
 
 	if (alist_full(lmb_rgn_lst) &&
 	    !alist_expand_by(lmb_rgn_lst, lmb_rgn_lst->alloc))
@@ -488,7 +488,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	struct alist *lmb_rgn_lst = &lmb.free_mem;
 
 	ret = lmb_add_region(lmb_rgn_lst, base, size);
-	if (ret < 0)
+	if (ret)
 		return ret;
 
 	if (lmb_should_notify(LMB_NONE))
@@ -584,8 +584,8 @@ long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
 
 	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
-	if (ret < 0)
-		return -1;
+	if (ret)
+		return ret;
 
 	if (lmb_should_notify(flags))
 		return lmb_map_update_notify(base, size, MAP_OP_RESERVE);
@@ -652,7 +652,7 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region_flags(&lmb.used_mem, base,
-							 size, flags) < 0)
+							 size, flags))
 					return 0;
 
 				if (lmb_should_notify(flags)) {
