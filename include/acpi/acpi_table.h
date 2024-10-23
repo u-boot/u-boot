@@ -290,7 +290,8 @@ struct __packed acpi_fadt {
 #define ACPI_MADT_REV_ACPI_3_0		2
 #define ACPI_MADT_REV_ACPI_4_0		3
 #define ACPI_MADT_REV_ACPI_5_0		3
-#define ACPI_MADT_REV_ACPI_6_0		5
+#define ACPI_MADT_REV_ACPI_6_2		4
+#define ACPI_MADT_REV_ACPI_6_3		5
 
 #define ACPI_MCFG_REV_ACPI_3_0		1
 
@@ -342,7 +343,10 @@ enum acpi_apic_types {
 	ACPI_APIC_LX2APIC,		/* Processor local x2APIC */
 	ACPI_APIC_LX2APIC_NMI,		/* Local x2APIC NMI */
 	ACPI_APIC_GICC,			/* Generic Interrupt Ctlr CPU i/f */
-	ACPI_APIC_GICD			/* Generic Interrupt Ctlr Distributor */
+	ACPI_APIC_GICD,			/* Generic Interrupt Ctlr Distributor */
+	ACPI_APIC_MSI_FRAME,		/* Generic Interrupt MSI Frame */
+	ACPI_APIC_GICR,			/* Generic Interrupt Ctlr Redistributor */
+	ACPI_APIC_ITS,			/* Interrupt Translation Service */
 };
 
 /* MADT: Processor Local APIC Structure */
@@ -386,20 +390,20 @@ struct __packed acpi_madt_lapic_nmi {
 	u8 lint;		/* Local APIC LINT# */
 };
 
-/* flags for acpi_madr_gicc flags word */
+/* flags for acpi_madt_gicc flags word */
 enum {
-	ACPI_MADRF_ENABLED	= BIT(0),
-	ACPI_MADRF_PERF		= BIT(1),
-	ACPI_MADRF_VGIC		= BIT(2),
+	ACPI_MADTF_ENABLED	= BIT(0),
+	ACPI_MADTF_PERF		= BIT(1),
+	ACPI_MADTF_VGIC		= BIT(2),
 };
 
 /**
- * struct __packed acpi_madr_gicc - GIC CPU interface (type 0xb)
+ * struct __packed acpi_madt_gicc - GIC CPU interface (type 0xb)
  *
  * This holds information about the Generic Interrupt Controller (GIC) CPU
  * interface. See ACPI Spec v6.3 section 5.2.12.14
  */
-struct acpi_madr_gicc {
+struct acpi_madt_gicc {
 	u8 type;
 	u8 length;
 	u16 reserved;
@@ -421,12 +425,12 @@ struct acpi_madr_gicc {
 } __packed;
 
 /**
- * struct __packed acpi_madr_gicc - GIC distributor (type 0xc)
+ * struct __packed acpi_madt_gicc - GIC distributor (type 0xc)
  *
  * This holds information about the Generic Interrupt Controller (GIC)
  * Distributor interface. See ACPI Spec v6.3 section 5.2.12.15
  */
-struct acpi_madr_gicd {
+struct acpi_madt_gicd {
 	u8 type;
 	u8 length;
 	u16 reserved;
@@ -435,6 +439,35 @@ struct acpi_madr_gicd {
 	u32 reserved2;
 	u8 gic_version;
 	u8 reserved3[3];
+} __packed;
+
+/**
+ * struct __packed acpi_madt_gicr - GIC Redistributor (type 0xe)
+ *
+ * This holds information about the Generic Interrupt Controller (GIC)
+ * Redistributor interface. See ACPI Spec v6.3 section 5.2.12.17
+ */
+struct acpi_madt_gicr {
+	u8 type;
+	u8 length;
+	u16 reserved;
+	u64 discovery_range_base_address;
+	u32 discovery_range_length;
+} __packed;
+
+/**
+ * struct __packed acpi_madt_its - GIC Interrupt Translation Service (type 0xf)
+ *
+ * This holds information about the Interrupt Translation Service (ITS)
+ * Structure. See ACPI Spec v6.3 section 5.2.12.18
+ */
+struct acpi_madt_its {
+	u8 type;
+	u8 length;
+	u16 reserved;
+	u32 gic_its_id;
+	u64 physical_base_address;
+	u32 reserved2;
 } __packed;
 
 /* MCFG (PCI Express MMIO config space BAR description table) */
@@ -707,6 +740,8 @@ struct acpi_gtdt {
 	u32 virt_el2_flags;
 } __packed;
 
+#define GTDT_FLAG_INT_ACTIVE_LOW	BIT(1)
+
 /**
  * struct acpi_bgrt -  Boot Graphics Resource Table (BGRT)
  *
@@ -797,6 +832,117 @@ struct acpi_pptt_cache {
 	u16 line_size;
 } __packed;
 
+/** IORT - IO Remapping Table revision 6
+ * Document number: ARM DEN 0049E.e, Sep 2022
+ */
+struct acpi_table_iort {
+	struct acpi_table_header header;
+	u32 node_count;
+	u32 node_offset;
+	u32 reserved;
+} __packed;
+
+/*
+ * IORT subtables
+ */
+struct acpi_iort_node {
+	u8 type;
+	u16 length;
+	u8 revision;
+	u32 identifier;
+	u32 mapping_count;
+	u32 mapping_offset;
+	char node_data[];
+} __packed;
+
+/* Values for subtable Type above */
+enum acpi_iort_node_type {
+	ACPI_IORT_NODE_ITS_GROUP = 0x00,
+	ACPI_IORT_NODE_NAMED_COMPONENT = 0x01,
+	ACPI_IORT_NODE_PCI_ROOT_COMPLEX = 0x02,
+	ACPI_IORT_NODE_SMMU = 0x03,
+	ACPI_IORT_NODE_SMMU_V3 = 0x04,
+	ACPI_IORT_NODE_PMCG = 0x05,
+	ACPI_IORT_NODE_RMR = 0x06,
+};
+
+/* ITS Group revision 1 */
+struct acpi_iort_its_group {
+	u32 its_count;
+	u32 identifiers[];	/* GIC ITS identifier array */
+} __packed;
+
+/* PCI root complex node revision 2 */
+struct acpi_iort_rc {
+	u64 mem_access_properties;
+	u32 ats_attributes;
+	u32 pci_segment_number;
+	u8 memory_address_size_limit;
+	u8 reserved[3];
+} __packed;
+
+/* SMMUv3 revision 5 */
+struct acpi_iort_smmu_v3 {
+	u64 base_address;	/* SMMUv3 base address */
+	u32 flags;
+	u32 reserved;
+	u64 vatos_address;
+	u32 model;
+	u32 event_gsiv;
+	u32 pri_gsiv;
+	u32 gerr_gsiv;
+	u32 sync_gsiv;
+	u32 pxm;
+	u32 id_mapping_index;
+} __packed;
+
+/* Masks for Flags field above */
+#define ACPI_IORT_SMMU_V3_COHACC_OVERRIDE   (1)
+#define ACPI_IORT_SMMU_V3_HTTU_OVERRIDE     (3 << 1)
+#define ACPI_IORT_SMMU_V3_PXM_VALID         (1 << 3)
+#define ACPI_IORT_SMMU_V3_DEVICEID_VALID    (1 << 4)
+
+struct acpi_iort_id_mapping {
+	u32 input_base;		/* Lowest value in input range */
+	u32 id_count;		/* Number of IDs */
+	u32 output_base;	/* Lowest value in output range */
+	u32 output_reference;	/* A reference to the output node */
+	u32 flags;
+} __packed;
+
+/* Masks for Flags field above for IORT subtable */
+#define ACPI_IORT_ID_SINGLE_MAPPING (1)
+
+/* Named Component revision 4 */
+struct acpi_iort_named_component {
+	u32 node_flags;
+	u64 memory_properties;	/* Memory access properties */
+	u8 memory_address_limit;	/* Memory address size limit */
+	char device_name[];	/* Path of namespace object */
+} __packed;
+
+/* Masks for Flags field above */
+#define ACPI_IORT_NC_STALL_SUPPORTED    (1)
+#define ACPI_IORT_NC_PASID_BITS         (31 << 1)
+
+struct acpi_iort_root_complex {
+	u64 memory_properties;	/* Memory access properties */
+	u32 ats_attribute;
+	u32 pci_segment_number;
+	u8 memory_address_limit;/* Memory address size limit */
+	u16 pasid_capabilities;	/* PASID Capabilities */
+	u8 reserved;		/* Reserved, must be zero */
+	u32 flags;		/* Flags */
+} __packed;
+
+/* Masks for ats_attribute field above */
+#define ACPI_IORT_ATS_SUPPORTED         (1)		/* The root complex ATS support */
+#define ACPI_IORT_PRI_SUPPORTED         (1 << 1)	/* The root complex PRI support */
+#define ACPI_IORT_PASID_FWD_SUPPORTED   (1 << 2)	/* The root complex PASID forward support */
+
+/* Masks for pasid_capabilities field above */
+#define ACPI_IORT_PASID_MAX_WIDTH       (0x1F)	/* Bits 0-4 */
+
 /* Tables defined/reserved by ACPI and generated by U-Boot */
 enum acpi_tables {
 	ACPITAB_BERT,
@@ -806,12 +952,14 @@ enum acpi_tables {
 	ACPITAB_ECDT,
 	ACPITAB_FACS,
 	ACPITAB_FADT,
+	ACPITAB_GTDT,
 	ACPITAB_HEST,
 	ACPITAB_HPET,
 	ACPITAB_IVRS,
 	ACPITAB_MADT,
 	ACPITAB_MCFG,
 	ACPITAB_NHLT,
+	ACPITAB_PPTT,
 	ACPITAB_RSDP,
 	ACPITAB_RSDT,
 	ACPITAB_SLIT,
@@ -845,6 +993,19 @@ int acpi_get_table_revision(enum acpi_tables table);
  * Return: 0 if OK, -ve on error
  */
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
+
+/**
+ * acpi_create_mcfg_mmconfig() - Create a MCFG table entry
+ *
+ * @mmconfig: Place to put the table
+ * @base: Base address of the ECAM space
+ * @seg_nr: PCI segment number
+ * @start: PCI bus start number
+ * @end: PCI bus end number
+ * Return: size of data written in bytes
+ */
+int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
+			      u16 seg_nr, u8 start, u8 end);
 
 /**
  * acpi_create_dbg2() - Create a DBG2 table
@@ -914,6 +1075,17 @@ static inline int acpi_add_fadt(struct acpi_ctx *ctx, struct acpi_fadt *fadt)
 }
 
 /**
+ * acpi_write_dbg2_pci_uart() - Write out a DBG2 table
+ *
+ * @ctx: Current ACPI context
+ * @dev: Debug UART device to describe
+ * @access_size: Access size for UART (e.g. ACPI_ACCESS_SIZE_DWORD_ACCESS)
+ * Return: 0 if OK, -ve on error
+ */
+int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
+			     uint access_size);
+
+/**
  * acpi_write_rsdp() - Write out an RSDP indicating where the ACPI tables are
  *
  * @rsdp: Address to write RSDP
@@ -942,6 +1114,138 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature);
  * @return 0 if OK, -ve on error
  */
 int acpi_fill_csrt(struct acpi_ctx *ctx);
+
+/**
+ * acpi_fill_fadt() - Fill out the body of the FADT
+ *
+ * Must be implemented in SoC specific code or in mainboard code.
+ *
+ * @fadt: Pointer to FADT to update
+ */
+void acpi_fill_fadt(struct acpi_fadt *fadt);
+
+/**
+ * acpi_fill_iort() - Fill out the body of the IORT table
+ *
+ * Should be implemented in SoC specific code.
+ *
+ * @ctx: ACPI context to write to
+ * @offset: Offset from the start of the IORT
+ */
+int acpi_fill_iort(struct acpi_ctx *ctx);
+
+/**
+ * acpi_iort_add_its_group() - Add ITS group node to IORT table
+ *
+ * Called by SoC specific code within acpi_fill_iort().
+ *
+ * @ctx: ACPI context to write to
+ * @its_count: Elements in identifiers
+ * @identifiers: The array of ITS identifiers. These IDs must match the value
+ *               used in the Multiple APIC Description Table (MADT) GIC ITS
+ *               structure for each relevant ITS unit.
+ * @return Offset of table within parent
+ */
+int acpi_iort_add_its_group(struct acpi_ctx *ctx,
+			    const u32 its_count,
+			    const u32 *identifiers);
+
+/**
+ * acpi_iort_add_named_component() - Add named component to IORT table
+ *
+ * Called by SoC specific code within acpi_fill_iort().
+ *
+ * @ctx: ACPI context to write to
+ * @node_flags: Node flags
+ * @memory_properties: Memory properties
+ * @memory_address_limit: Memory address limit
+ * @device_name: ACPI device path
+ * @return Offset of table within parent
+ */
+int acpi_iort_add_named_component(struct acpi_ctx *ctx,
+				  const u32 node_flags,
+				  const u64 memory_properties,
+				  const u8 memory_address_limit,
+				  const char *device_name);
+
+/**
+ * acpi_iort_add_rc() - Add PCI root complex node to IORT table
+ *
+ * Called by SoC specific code within acpi_fill_iort().
+ *
+ * @ctx: ACPI context to write to
+ * @mem_access_properties: Memory access properties
+ * @ats_attributes: Support for ATS and its ancillary feature
+ * @pci_segment_number: The PCI segment number, as in MCFG
+ * @memory_address_size_limit: The number of address bits, starting from LSB
+ * @num_mappings: Number of elements in map
+ * @map: ID mappings for this node
+ * @return Offset of table within parent
+ */
+int acpi_iort_add_rc(struct acpi_ctx *ctx,
+		     const u64 mem_access_properties,
+		     const u32 ats_attributes,
+		     const u32 pci_segment_number,
+		     const u8 memory_address_size_limit,
+		     const int num_mappings,
+		     const struct acpi_iort_id_mapping *map);
+
+/**
+ * acpi_iort_add_smmu_v3() - Add PCI root complex node to IORT table
+ *
+ * Called by SoC specific code within acpi_fill_iort().
+ *
+ * @ctx: ACPI context to write to
+ * @base_address: Base address of SMMU
+ * @flags: SMMUv3 flags
+ * @vatos_address: Optional, set to zero if not supported
+ * @model: Model ID
+ * @event_gsiv: GSIV of the Event interrupt if SPI based
+ * @pri_gsiv: GSIV of the PRI interrupt if SPI based
+ * @gerr_gsiv: GSIV of the GERR interrupt if GSIV based
+ * @sync_gsiv: TGSIV of the Sync interrupt if GSIV based
+ * @pxm: Proximity Domain
+ * @id_mapping_index: If all the SMMU control interrupts are GSIV based,
+ *                    this field is ignored. Index into the array of ID
+ *                    mapping otherwise.
+ * @num_mappings: Number of elements in map
+ * @map: ID mappings for this node
+ * @return Offset of table within parent
+ */
+int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
+			  const u64 base_address,
+			  const u32 flags,
+			  const u64 vatos_address,
+			  const u32 model,
+			  const u32 event_gsiv,
+			  const u32 pri_gsiv,
+			  const u32 gerr_gsiv,
+			  const u32 sync_gsiv,
+			  const u32 pxm,
+			  const u32 id_mapping_index,
+			  const int num_mappings,
+			  const struct acpi_iort_id_mapping *map);
+
+/**
+ * acpi_fill_madt() - Fill out the body of the MADT
+ *
+ * Must be implemented in SoC specific code.
+ *
+ * @madt: The MADT to update
+ * @ctx: ACPI context to write MADT sub-tables to
+ * @return Pointer to the end of tables, where the next tables can be written
+ */
+void *acpi_fill_madt(struct acpi_madt *madt, struct acpi_ctx *ctx);
+
+/**
+ * acpi_write_park() - Installs the ACPI parking protocol.
+ *
+ * Sets up the ACPI parking protocol and installs the spinning code for
+ * secondary CPUs.
+ *
+ * @madt: The MADT to update
+ */
+void acpi_write_park(struct acpi_madt *madt);
 
 /**
  * acpi_get_rsdp_addr() - get ACPI RSDP table address

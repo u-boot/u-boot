@@ -147,6 +147,22 @@ struct acpi_ops {
 	int (*write_tables)(const struct udevice *dev, struct acpi_ctx *ctx);
 
 	/**
+	 * fill_madt() - Generate MADT sub-tables for a device
+	 *
+	 * This is called to create the MADT table. The method should write out
+	 * whatever sub-table is needed by this device. It will end up in the
+	 * MADT table.
+	 *
+	 * Note that this is called 'fill' because the entire contents of the
+	 * MADT is build by calling this method on all devices.
+	 *
+	 * @dev: Device to write
+	 * @ctx: ACPI context to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*fill_madt)(const struct udevice *dev, struct acpi_ctx *ctx);
+
+	/**
 	 * fill_ssdt() - Generate SSDT code for a device
 	 *
 	 * This is called to create the SSDT code. The method should write out
@@ -230,6 +246,16 @@ int acpi_copy_name(char *out_name, const char *name);
  * Return: 0 if OK, -ve if any device returned an error
  */
 int acpi_write_dev_tables(struct acpi_ctx *ctx);
+
+/**
+ * acpi_fill_madt_subtbl() - Generate ACPI tables for MADT
+ *
+ * This is called to create the MADT sub-tables for all devices.
+ *
+ * @ctx: ACPI context to use
+ * Return: 0 if OK, -ve on error
+ */
+int acpi_fill_madt_subtbl(struct acpi_ctx *ctx);
 
 /**
  * acpi_fill_ssdt() - Generate ACPI tables for SSDT

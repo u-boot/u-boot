@@ -24,16 +24,13 @@ struct acpi_table_header;
 
 /* These can be used by the target port */
 
-int acpi_create_madt_lapics(u32 current);
+int acpi_create_madt_lapics(void *current);
 int acpi_create_madt_ioapic(struct acpi_madt_ioapic *ioapic, u8 id,
 			    u32 addr, u32 gsi_base);
 int acpi_create_madt_irqoverride(struct acpi_madt_irqoverride *irqoverride,
 				 u8 bus, u8 source, u32 gsirq, u16 flags);
 int acpi_create_madt_lapic_nmi(struct acpi_madt_lapic_nmi *lapic_nmi,
 			       u8 cpu, u16 flags, u8 lint);
-u32 acpi_fill_madt(u32 current);
-int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
-			      u16 seg_nr, u8 start, u8 end);
 
 /**
  * acpi_write_hpet() - Write out a HPET table
@@ -44,17 +41,6 @@ int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
  * Return: 0 if OK, -ve on error
  */
 int acpi_write_hpet(struct acpi_ctx *ctx);
-
-/**
- * acpi_write_dbg2_pci_uart() - Write out a DBG2 table
- *
- * @ctx: Current ACPI context
- * @dev: Debug UART device to describe
- * @access_size: Access size for UART (e.g. ACPI_ACCESS_SIZE_DWORD_ACCESS)
- * Return: 0 if OK, -ve on error
- */
-int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
-			     uint access_size);
 
 /**
  * acpi_create_gnvs() - Create a GNVS (Global Non Volatile Storage) table
@@ -178,18 +164,6 @@ int acpi_create_dmar_ds_ioapic(struct acpi_ctx *ctx, uint enumeration_id,
  */
 int acpi_create_dmar_ds_msi_hpet(struct acpi_ctx *ctx, uint enumeration_id,
 				 pci_dev_t bdf);
-
-/**
- * acpi_fadt_common() - Handle common parts of filling out an FADT
- *
- * This sets up the Fixed ACPI Description Table
- *
- * @fadt: Pointer to place to put FADT
- * @facs: Pointer to the FACS
- * @dsdt: Pointer to the DSDT
- */
-void acpi_fadt_common(struct acpi_fadt *fadt, struct acpi_facs *facs,
-		      void *dsdt);
 
 /**
  * intel_acpi_fill_fadt() - Set up the contents of the FADT
