@@ -520,3 +520,216 @@ static int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry
 }
 
 ACPI_WRITER(5spcr, "SPCR", acpi_write_spcr, 0);
+
+__weak int acpi_fill_iort(struct acpi_ctx *ctx)
+{
+	return 0;
+}
+
+int acpi_iort_add_its_group(struct acpi_ctx *ctx,
+			    const u32 its_count,
+			    const u32 *identifiers)
+{
+	struct acpi_iort_node *node;
+	struct acpi_iort_its_group *group;
+	int offset;
+
+	offset = ctx->current - ctx->tab_start;
+
+	node = ctx->current;
+	memset(node, '\0', sizeof(struct acpi_iort_node));
+
+	node->type = ACPI_IORT_NODE_ITS_GROUP;
+	node->revision = 1;
+
+	node->length = sizeof(struct acpi_iort_node);
+	node->length += sizeof(struct acpi_iort_its_group);
+	node->length += sizeof(u32) * its_count;
+
+	group = (struct acpi_iort_its_group *)node->node_data;
+	group->its_count = its_count;
+	memcpy(&group->identifiers, identifiers, sizeof(u32) * its_count);
+
+	ctx->current += node->length;
+
+	return offset;
+}
+
+int acpi_iort_add_named_component(struct acpi_ctx *ctx,
+				  const u32 node_flags,
+				  const u64 memory_properties,
+				  const u8 memory_address_limit,
+				  const char *device_name)
+{
+	struct acpi_iort_node *node;
+	struct acpi_iort_named_component *comp;
+	int offset;
+
+	offset = ctx->current - ctx->tab_start;
+
+	node = ctx->current;
+	memset(node, '\0', sizeof(struct acpi_iort_node));
+
+	node->type = ACPI_IORT_NODE_NAMED_COMPONENT;
+	node->revision = 4;
+	node->length = sizeof(struct acpi_iort_node);
+	node->length += sizeof(struct acpi_iort_named_component);
+	node->length += strlen(device_name) + 1;
+
+	comp = (struct acpi_iort_named_component *)node->node_data;
+
+	comp->node_flags = node_flags;
+	comp->memory_properties = memory_properties;
+	comp->memory_address_limit = memory_address_limit;
+	memcpy(comp->device_name, device_name, strlen(device_name) + 1);
+
+	ctx->current += node->length;
+
+	return offset;
+}
+
+int acpi_iort_add_rc(struct acpi_ctx *ctx,
+		     const u64 mem_access_properties,
+		     const u32 ats_attributes,
+		     const u32 pci_segment_number,
+		     const u8 memory_address_size_limit,
+		     const int num_mappings,
+		     const struct acpi_iort_id_mapping *map)
+{
+	struct acpi_iort_id_mapping *mapping;
+	struct acpi_iort_node *node;
+	struct acpi_iort_rc *rc;
+	int offset;
+
+	offset = ctx->current - ctx->tab_start;
+
+	node = ctx->current;
+	memset(node, '\0', sizeof(struct acpi_iort_node));
+
+	node->type = ACPI_IORT_NODE_PCI_ROOT_COMPLEX;
+	node->revision = 2;
+
+	node->length = sizeof(struct acpi_iort_node);
+	node->length += sizeof(struct acpi_iort_rc);
+	node->length += sizeof(struct acpi_iort_id_mapping) * num_mappings;
+
+	rc = (struct acpi_iort_rc *)node->node_data;
+	rc->mem_access_properties = mem_access_properties;
+	rc->ats_attributes = ats_attributes;
+	rc->pci_segment_number = pci_segment_number;
+	rc->memory_address_size_limit = memory_address_size_limit;
+
+	mapping = (struct acpi_iort_id_mapping *)(rc + 1);
+	for (int i = 0; i < num_mappings; i++) {
+		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
+		mapping++;
+	}
+
+	ctx->current += node->length;
+
+	return offset;
+}
+
+int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
+			  const u64 base_address,
+			  const u32 flags,
+			  const u64 vatos_address,
+			  const u32 model,
+			  const u32 event_gsiv,
+			  const u32 pri_gsiv,
+			  const u32 gerr_gsiv,
+			  const u32 sync_gsiv,
+			  const u32 pxm,
+			  const u32 id_mapping_index,
+			  const int num_mappings,
+			  const struct acpi_iort_id_mapping *map)
+{
+	struct acpi_iort_node *node;
+	struct acpi_iort_smmu_v3 *smmu;
+	struct acpi_iort_id_mapping *mapping;
+	int offset;
+
+	offset = ctx->current - ctx->tab_start;
+
+	node = ctx->current;
+	memset(node, '\0', sizeof(struct acpi_iort_node));
+
+	node->type = ACPI_IORT_NODE_SMMU_V3;
+	node->revision = 5;
+	node->mapping_count = num_mappings;
+	node->mapping_offset = sizeof(struct acpi_iort_node) + sizeof(struct acpi_iort_smmu_v3);
+
+	node->length = sizeof(struct acpi_iort_node);
+	node->length += sizeof(struct acpi_iort_smmu_v3);
+	node->length += sizeof(struct acpi_iort_id_mapping) * num_mappings;
+
+	smmu = (struct acpi_iort_smmu_v3 *)node->node_data;
+
+	smmu->base_address = base_address;
+	smmu->flags = flags;
+	smmu->vatos_address = vatos_address;
+	smmu->model = model;
+	smmu->event_gsiv = event_gsiv;
+	smmu->pri_gsiv = pri_gsiv;
+	smmu->gerr_gsiv = gerr_gsiv;
+	smmu->sync_gsiv = sync_gsiv;
+	smmu->pxm = pxm;
+	smmu->id_mapping_index = id_mapping_index;
+
+	mapping = (struct acpi_iort_id_mapping *)(smmu + 1);
+	for (int i = 0; i < num_mappings; i++) {
+		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
+		mapping++;
+	}
+
+	ctx->current += node->length;
+
+	return offset;
+}
+
+static int acpi_write_iort(struct acpi_ctx *ctx, const struct acpi_writer *entry)
+{
+	struct acpi_table_iort *iort;
+	struct acpi_iort_node *node;
+	u32 offset;
+	int ret;
+
+	iort = ctx->current;
+	ctx->tab_start = ctx->current;
+	memset(iort, '\0', sizeof(struct acpi_table_iort));
+
+	acpi_fill_header(&iort->header, "IORT");
+	iort->header.revision = 1;
+	iort->header.creator_revision = 1;
+	iort->header.length = sizeof(struct acpi_table_iort);
+	iort->node_offset = sizeof(struct acpi_table_iort);
+
+	acpi_inc(ctx, sizeof(struct acpi_table_iort));
+
+	offset = sizeof(struct acpi_table_iort);
+	ret = acpi_fill_iort(ctx);
+	if (ret) {
+		ctx->current = iort;
+		return log_msg_ret("fill", ret);
+	}
+
+	/* Count nodes filled in */
+	for (node = (void *)iort + iort->node_offset;
+	     node->length > 0 && (void *)node < ctx->current;
+	     node = (void *)node + node->length)
+		iort->node_count++;
+
+	/* (Re)calculate length and checksum */
+	iort->header.length = ctx->current - (void *)iort;
+	iort->header.checksum = table_compute_checksum((void *)iort, iort->header.length);
+	log_debug("IORT at %p, length %x\n", iort, iort->header.length);
+
+	/* Drop the table if it is empty */
+	if (iort->header.length == sizeof(struct acpi_table_iort))
+		return log_msg_ret("fill", -ENOENT);
+	acpi_add_table(ctx, iort);
+
+	return 0;
+}
+
+ACPI_WRITER(5iort, "IORT", acpi_write_iort, 0);
