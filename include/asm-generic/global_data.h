@@ -21,7 +21,6 @@
 
 #ifndef __ASSEMBLY__
 #include <board_f.h>
-#include <cyclic.h>
 #include <event_internal.h>
 #include <fdtdec.h>
 #include <membuff.h>

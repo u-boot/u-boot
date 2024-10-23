@@ -6,7 +6,7 @@
  */
 
 #ifndef USE_HOSTCC
-#include <cyclic.h>
+#include <u-boot/schedule.h>
 #endif /* USE_HOSTCC */
 #include <string.h>
 #include <u-boot/sha256.h>

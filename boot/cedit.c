@@ -20,6 +20,7 @@
 #include <video.h>
 #include <linux/delay.h>
 #include "scene_internal.h"
+#include <u-boot/schedule.h>
 
 enum {
 	CMOS_MAX_BITS	= 2048,
