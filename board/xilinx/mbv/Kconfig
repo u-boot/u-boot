@@ -10,14 +10,14 @@ config SYS_CPU
 	default "generic"
 
 config TEXT_BASE
-	default 0x21200000
+	default 0x81200000
 
 config SPL_TEXT_BASE
-	default 0x20000000
+	default 0x80000000
 
 config SPL_OPENSBI_LOAD_ADDR
 	hex
-	default 0x20200000
+	default 0x80200000
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
