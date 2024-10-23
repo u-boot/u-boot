@@ -995,6 +995,19 @@ int acpi_get_table_revision(enum acpi_tables table);
 int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags);
 
 /**
+ * acpi_create_mcfg_mmconfig() - Create a MCFG table entry
+ *
+ * @mmconfig: Place to put the table
+ * @base: Base address of the ECAM space
+ * @seg_nr: PCI segment number
+ * @start: PCI bus start number
+ * @end: PCI bus end number
+ * Return: size of data written in bytes
+ */
+int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
+			      u16 seg_nr, u8 start, u8 end);
+
+/**
  * acpi_create_dbg2() - Create a DBG2 table
  *
  * This table describes how to access the debug UART
