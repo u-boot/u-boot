@@ -521,7 +521,6 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	u64 len;
-	uint flags;
 	long status;
 	efi_status_t ret;
 
@@ -536,16 +535,15 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	flags = LMB_NOOVERWRITE | LMB_NONOTIFY;
 	len = (u64)pages << EFI_PAGE_SHIFT;
+	/*
+	 * The 'memory' variable for sandbox holds a pointer which has already
+	 * been mapped with map_sysmem() from efi_allocate_pages(). Convert
+	 * it back to an address LMB understands
+	 */
 	status = lmb_free_flags(map_to_sysmem((void *)(uintptr_t)memory), len,
-				flags);
+				LMB_NOOVERWRITE);
 	if (status)
-		return EFI_NOT_FOUND;
-
-	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
-				    false);
-	if (ret != EFI_SUCCESS)
 		return EFI_NOT_FOUND;
 
 	return ret;
