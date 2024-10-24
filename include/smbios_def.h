@@ -60,7 +60,7 @@
 /*
  * System Enclosure or Chassis
  */
-
+#define SMBIOS_ENCLOSURE_UNKNOWN	2
 #define SMBIOS_ENCLOSURE_DESKTOP	3
 
 #define SMBIOS_STATE_OTHER		1
@@ -141,6 +141,9 @@
 
 /* Cache Speed */
 #define SMBIOS_CACHE_SPEED_UNKNOWN	0
+
+/* SRAM Type */
+#define SMBIOS_CACHE_SRAM_TYPE_UNKNOWN	2 /* BIT(1) */
 
 /* Error Correction Type */
 #define SMBIOS_CACHE_ERRCORR_OTHER	1
