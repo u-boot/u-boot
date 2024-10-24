@@ -65,6 +65,7 @@ static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
 			status & ~EFI_ERROR_MASK);
 		return -1;
 	}
+	unmap_sysmem((void *)(uintptr_t)efi_addr);
 
 	return 0;
 }
