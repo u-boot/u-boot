@@ -12,6 +12,7 @@ U-Boot API documentation
    dm
    efi
    event
+   fs
    getopt
    interrupt
    led
