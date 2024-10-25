@@ -16,6 +16,8 @@
 #include <asm/global_data.h>
 
 #include <malloc.h>
+#include <mapmem.h>
+#include <string.h>
 #include <asm/io.h>
 #include <valgrind/memcheck.h>
 
@@ -598,9 +600,9 @@ void *sbrk(ptrdiff_t increment)
 
 void mem_malloc_init(ulong start, ulong size)
 {
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
+	mem_malloc_start = (ulong)map_sysmem(start, size);
+	mem_malloc_end = mem_malloc_start + size;
+	mem_malloc_brk = mem_malloc_start;
 
 #ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
 	malloc_init();

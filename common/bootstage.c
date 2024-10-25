@@ -520,17 +520,19 @@ int _bootstage_unstash_default(void)
 }
 #endif
 
-int bootstage_get_size(void)
+int bootstage_get_size(bool add_strings)
 {
-	struct bootstage_data *data = gd->bootstage;
-	struct bootstage_record *rec;
 	int size;
-	int i;
 
 	size = sizeof(struct bootstage_data);
-	for (rec = data->record, i = 0; i < data->rec_count;
-	     i++, rec++)
-		size += strlen(rec->name) + 1;
+	if (add_strings) {
+		struct bootstage_data *data = gd->bootstage;
+		struct bootstage_record *rec;
+		int i;
+
+		for (rec = data->record, i = 0; i < data->rec_count; i++, rec++)
+			size += strlen(rec->name) + 1;
+	}
 
 	return size;
 }

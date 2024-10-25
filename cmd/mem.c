@@ -1379,17 +1379,6 @@ U_BOOT_CMD(
 
 #endif
 
-#ifdef CONFIG_CMD_MEMINFO
-static int do_mem_info(struct cmd_tbl *cmdtp, int flag, int argc,
-		       char *const argv[])
-{
-	puts("DRAM:  ");
-	print_size(gd->ram_size, "\n");
-
-	return 0;
-}
-#endif
-
 U_BOOT_CMD(
 	base,	2,	1,	do_mem_base,
 	"print or set address offset",
@@ -1432,14 +1421,6 @@ U_BOOT_CMD(
 	"[.b, .w, .l" HELP_Q "] address value delay(ms)"
 );
 #endif /* CONFIG_CMD_MX_CYCLIC */
-
-#ifdef CONFIG_CMD_MEMINFO
-U_BOOT_CMD(
-	meminfo,	3,	1,	do_mem_info,
-	"display memory information",
-	""
-);
-#endif
 
 #ifdef CONFIG_CMD_RANDOM
 U_BOOT_CMD(
