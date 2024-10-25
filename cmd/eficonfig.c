@@ -963,7 +963,7 @@ static efi_status_t eficonfig_boot_add_enter_description(void *data)
 	return handle_user_input(bo->description, EFICONFIG_DESCRIPTION_MAX, 22,
 				 "\n  ** Edit Description **\n"
 				 "\n"
-				 "  enter description: ");
+				 "  Enter description: ");
 }
 
 /**
