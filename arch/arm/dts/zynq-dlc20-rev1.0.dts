@@ -83,6 +83,9 @@
 	bootph-all;
 	status = "okay"; /* EMMC MTFC4GACAJCN - MIO40-MIO45 */
 	non-removable;
+	no-sd;
+	no-sdio;
+	cap-mmc-hw-reset;
 	bus-width = <4>;
 };
 

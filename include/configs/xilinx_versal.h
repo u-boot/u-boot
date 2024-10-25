@@ -48,6 +48,12 @@
 # define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
+#if defined(CONFIG_USB_STORAGE)
+# define BOOT_TARGET_DEVICES_USB(func)	func(USB, usb, 0)
+#else
+# define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
 #if defined(CONFIG_CMD_PXE) && defined(CONFIG_CMD_DHCP)
 # define BOOT_TARGET_DEVICES_PXE(func)	func(PXE, pxe, na)
 #else
@@ -85,7 +91,7 @@
 	"jtag "
 
 #define BOOT_TARGET_DEVICES_USB_DFU(func) \
-	func(USB_DFU, usb_dfu, 0) func(USB_DFU, usb_dfu, 1)
+	func(USB_DFU, usb_dfu, 0)
 
 #define BOOTENV_DEV_USB_DFU(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
@@ -99,7 +105,7 @@
 	""
 
 #define BOOT_TARGET_DEVICES_USB_THOR(func) \
-	func(USB_THOR, usb_thor, 0) func(USB_THOR, usb_thor, 1)
+	func(USB_THOR, usb_thor, 0)
 
 #define BOOTENV_DEV_USB_THOR(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=setenv dfu_alt_info boot.scr ram " \
@@ -118,6 +124,7 @@
 	BOOT_TARGET_DEVICES_XSPI(func) \
 	BOOT_TARGET_DEVICES_USB_DFU(func) \
 	BOOT_TARGET_DEVICES_USB_THOR(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
 

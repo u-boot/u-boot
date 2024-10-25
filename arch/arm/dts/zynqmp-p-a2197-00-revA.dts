@@ -60,6 +60,9 @@
 	status = "okay";
 	non-removable;
 	disable-wp;
+	no-sd;
+	no-sdio;
+	cap-mmc-hw-reset;
 	bus-width = <8>;
 	xlnx,mio-bank = <0>;
 };
@@ -155,7 +158,7 @@
 			reg = <0>;
 			/* On connector J98 */
 			reg_vcc_fmc: tps544@7 { /* u80 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x7>;
 				regulator-name = "reg_vcc_fmc";
 				regulator-min-microvolt = <1800000>;
@@ -163,15 +166,15 @@
 				/* enable-gpio = <&gpio0 23 0x4>; optional */
 			};
 			reg_vcc_ram: tps544@8 { /* u83 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x8>;
 			};
 			reg_vcc_pslp: tps544@9 { /* u85 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x9>;
 			};
 			reg_vcc_psfp: tps544@a { /* u86 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0xa>;
 			};
 			reg_vccint: tps53681@60 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
@@ -212,75 +215,75 @@
 			reg = <2>;
 			/* On connector J104 */
 			reg_vccaus: tps544@d { /* u88 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0xd>;
 			};
 			reg_vccaux_fmc: tps544@e { /* u90 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0xe>;
 			};
 			reg_vcco_500: tps544@f { /* u93 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0xf>;
 			};
 			reg_vcco_501: tps544@10 { /* u95 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x10>;
 			};
 			reg_vcco_502: tps544@11 { /* u97 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x11>;
 			};
 			reg_vcco_503: tps544@12 { /* u99 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x12>;
 			};
 			reg_vcc1v8: tps544@13 { /* u101 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x13>;
 			};
 			reg_vcc3v3: tps544@14 { /* u102 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x14>;
 			};
 			reg_vcc1v2_ddr4: tps544@15 { /* u104 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x15>;
 			};
 			reg_vcc1v1_lp4: tps544@16 { /* u106 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x16>;
 			};
 			reg_vcc1_1V8_lp4: tps544@17 { /* u108 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x17>;
 			};
 			reg_vadj_fmc: tps544@19 { /* u109 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x19>;
 			};
 			reg_mgtyavcc: tps544@1a { /* u111 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1a>;
 			};
 			reg_mgtyavtt: tps544@1b { /* u114 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1b>;
 			};
 			reg_mgtyvccaux: tps544@1c { /* u115 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1c>;
 			};
 			reg_util_1v13: tps544@1d { /* u117 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1d>;
 			};
 			reg_util_1v8: tps544@1e { /* u118 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1e>;
 			};
 			reg_util_2v5: tps544@1f { /* u119 - FIXME name - don't know what it does */
-				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
+				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus.rst - wiring is missing */
 				reg = <0x1f>;
 			};
 		};
