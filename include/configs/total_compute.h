@@ -12,7 +12,6 @@
 /* Link Definitions */
 
 #define CFG_EXTRA_ENV_SETTINGS	\
-				"bootm_size=0x20000000\0"	\
 				"load_addr=0xa0000000\0"	\
 				"initrd_addr_r=0x88000000\0"
 /*
