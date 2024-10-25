@@ -144,6 +144,9 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 	clk_dm(IMXRT1050_CLK_AHB_PODF,
 	       imx_clk_divider("ahb_podf", "periph_sel",
 			       base + 0x14, 10, 3));
+	clk_dm(IMXRT1050_CLK_IPG_PDOF,
+	       imx_clk_divider("ipg_podf", "ahb_podf",
+			       base + 0x14, 8, 2));
 	clk_dm(IMXRT1050_CLK_USDHC1_PODF,
 	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
