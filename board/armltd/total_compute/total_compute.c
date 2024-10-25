@@ -7,19 +7,10 @@
 #include <config.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <env.h>
 #include <asm/armv8/mmu.h>
 #include <asm/global_data.h>
-
-static const struct pl01x_serial_plat serial_plat = {
-	.base = UART0_BASE,
-	.type = TYPE_PL011,
-	.clock = CFG_PL011_CLOCK,
-};
-
-U_BOOT_DRVINFO(total_compute_serials) = {
-	.name = "serial_pl01x",
-	.plat = &serial_plat,
-};
+#include <asm/system.h>
 
 static struct mm_region total_compute_mem_map[] = {
 	{
@@ -43,6 +34,23 @@ static struct mm_region total_compute_mem_map[] = {
 
 struct mm_region *mem_map = total_compute_mem_map;
 
+/*
+ * Push the variable into the .data section so that it
+ * does not get cleared later.
+ */
+unsigned long __section(".data") fw_dtb_pointer;
+
+void *board_fdt_blob_setup(int *err)
+{
+	*err = 0;
+	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC) {
+		*err = -ENXIO;
+		return NULL;
+	}
+
+	return (void *)fw_dtb_pointer;
+}
+
 int board_init(void)
 {
 	return 0;
@@ -50,19 +58,12 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = PHYS_SDRAM_1_SIZE;
-	return 0;
+	return fdtdec_setup_mem_size_base();
 }
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
 
 /* Nothing to be done here as handled by PSCI interface */

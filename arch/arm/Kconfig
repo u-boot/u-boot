@@ -1390,6 +1390,7 @@ config TARGET_TOTAL_COMPUTE
 	select DM_SERIAL
 	select DM_MMC
 	select DM_GPIO
+	imply OF_HAS_PRIOR_STAGE
 
 config TARGET_LS2080A_EMU
 	bool "Support ls2080a_emu"

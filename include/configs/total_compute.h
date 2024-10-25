@@ -11,24 +11,6 @@
 
 /* Link Definitions */
 
-/* AP non-secure UART base address */
-#define UART0_BASE		0x2A400000
-
-/* PL011 Serial Configuration */
-#define CFG_PL011_CLOCK	7372800
-
-/* Miscellaneous configurable options */
-
-/* Physical Memory Map */
-#define PHYS_SDRAM_1		0x80000000
-/* Top 48MB reserved for secure world use */
-#define DRAM_SEC_SIZE		0x03000000
-#define PHYS_SDRAM_1_SIZE	0x80000000 - DRAM_SEC_SIZE
-#define CFG_SYS_SDRAM_BASE	PHYS_SDRAM_1
-
-#define PHYS_SDRAM_2		0x8080000000
-#define PHYS_SDRAM_2_SIZE	0x180000000
-
 #define CFG_EXTRA_ENV_SETTINGS	\
 				"bootm_size=0x20000000\0"	\
 				"load_addr=0xa0000000\0"	\
