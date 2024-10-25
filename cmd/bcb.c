@@ -8,6 +8,7 @@
 #include <android_bootloader_message.h>
 #include <bcb.h>
 #include <command.h>
+#include <android_ab.h>
 #include <display_options.h>
 #include <log.h>
 #include <part.h>
@@ -15,15 +16,6 @@
 #include <memalign.h>
 #include <vsprintf.h>
 #include <linux/err.h>
-
-enum bcb_cmd {
-	BCB_CMD_LOAD,
-	BCB_CMD_FIELD_SET,
-	BCB_CMD_FIELD_CLEAR,
-	BCB_CMD_FIELD_TEST,
-	BCB_CMD_FIELD_DUMP,
-	BCB_CMD_STORE,
-};
 
 static const char * const fields[] = {
 	"command",
@@ -38,67 +30,9 @@ static struct disk_partition partition_data;
 static struct blk_desc *block;
 static struct disk_partition *partition = &partition_data;
 
-static int bcb_cmd_get(char *cmd)
+static int bcb_not_loaded(void)
 {
-	if (!strcmp(cmd, "load"))
-		return BCB_CMD_LOAD;
-	if (!strcmp(cmd, "set"))
-		return BCB_CMD_FIELD_SET;
-	if (!strcmp(cmd, "clear"))
-		return BCB_CMD_FIELD_CLEAR;
-	if (!strcmp(cmd, "test"))
-		return BCB_CMD_FIELD_TEST;
-	if (!strcmp(cmd, "store"))
-		return BCB_CMD_STORE;
-	if (!strcmp(cmd, "dump"))
-		return BCB_CMD_FIELD_DUMP;
-	else
-		return -1;
-}
-
-static int bcb_is_misused(int argc, char *const argv[])
-{
-	int cmd = bcb_cmd_get(argv[0]);
-
-	switch (cmd) {
-	case BCB_CMD_LOAD:
-		if (argc != 3 && argc != 4)
-			goto err;
-		break;
-	case BCB_CMD_FIELD_SET:
-		if (argc != 3)
-			goto err;
-		break;
-	case BCB_CMD_FIELD_TEST:
-		if (argc != 4)
-			goto err;
-		break;
-	case BCB_CMD_FIELD_CLEAR:
-		if (argc != 1 && argc != 2)
-			goto err;
-		break;
-	case BCB_CMD_STORE:
-		if (argc != 1)
-			goto err;
-		break;
-	case BCB_CMD_FIELD_DUMP:
-		if (argc != 2)
-			goto err;
-		break;
-	default:
-		printf("Error: 'bcb %s' not supported\n", argv[0]);
-		return -1;
-	}
-
-	if (cmd != BCB_CMD_LOAD && !block) {
-		printf("Error: Please, load BCB first!\n");
-		return -1;
-	}
-
-	return 0;
-err:
-	printf("Error: Bad usage of 'bcb %s'\n", argv[0]);
-
+	printf("Error: Please, load BCB first!\n");
 	return -1;
 }
 
@@ -216,6 +150,9 @@ static int do_bcb_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *endp;
 	char *iface = "mmc";
 
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
 	if (argc == 4) {
 		iface = argv[1];
 		argc--;
@@ -270,6 +207,12 @@ static int __bcb_set(const char *fieldp, const char *valp)
 static int do_bcb_set(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char * const argv[])
 {
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if (!block)
+		return bcb_not_loaded();
+
 	return __bcb_set(argv[1], argv[2]);
 }
 
@@ -278,6 +221,9 @@ static int do_bcb_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int size;
 	char *field;
+
+	if (!block)
+		return bcb_not_loaded();
 
 	if (argc == 1) {
 		memset(&bcb, 0, sizeof(bcb));
@@ -297,7 +243,15 @@ static int do_bcb_test(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int size;
 	char *field;
-	char *op = argv[2];
+	char *op;
+
+	if (argc < 4)
+		return CMD_RET_USAGE;
+
+	if (!block)
+		return bcb_not_loaded();
+
+	op = argv[2];
 
 	if (bcb_field_get(argv[1], &field, &size))
 		return CMD_RET_FAILURE;
@@ -324,6 +278,12 @@ static int do_bcb_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int size;
 	char *field;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	if (!block)
+		return bcb_not_loaded();
 
 	if (bcb_field_get(argv[1], &field, &size))
 		return CMD_RET_FAILURE;
@@ -356,6 +316,9 @@ err:
 static int do_bcb_store(struct cmd_tbl *cmdtp, int flag, int argc,
 			char * const argv[])
 {
+	if (!block)
+		return bcb_not_loaded();
+
 	return __bcb_store();
 }
 
@@ -414,44 +377,75 @@ void bcb_reset(void)
 	__bcb_reset();
 }
 
-static struct cmd_tbl cmd_bcb_sub[] = {
-	U_BOOT_CMD_MKENT(load, CONFIG_SYS_MAXARGS, 1, do_bcb_load, "", ""),
-	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 1, do_bcb_set, "", ""),
-	U_BOOT_CMD_MKENT(clear, CONFIG_SYS_MAXARGS, 1, do_bcb_clear, "", ""),
-	U_BOOT_CMD_MKENT(test, CONFIG_SYS_MAXARGS, 1, do_bcb_test, "", ""),
-	U_BOOT_CMD_MKENT(dump, CONFIG_SYS_MAXARGS, 1, do_bcb_dump, "", ""),
-	U_BOOT_CMD_MKENT(store, CONFIG_SYS_MAXARGS, 1, do_bcb_store, "", ""),
-};
-
-static int do_bcb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+__maybe_unused static int do_bcb_ab_select(struct cmd_tbl *cmdtp,
+					   int flag, int argc,
+					   char * const argv[])
 {
-	struct cmd_tbl *c;
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+	char slot[2];
+	bool dec_tries = true;
 
-	if (argc < 2)
+	if (argc < 4)
 		return CMD_RET_USAGE;
 
-	argc--;
-	argv++;
+	for (int i = 4; i < argc; i++) {
+		if (!strcmp(argv[i], "--no-dec"))
+			dec_tries = false;
+		else
+			return CMD_RET_USAGE;
+	}
 
-	c = find_cmd_tbl(argv[0], cmd_bcb_sub, ARRAY_SIZE(cmd_bcb_sub));
-	if (!c)
-		return CMD_RET_USAGE;
-
-	if (bcb_is_misused(argc, argv)) {
-		/*
-		 * We try to improve the user experience by reporting the
-		 * root-cause of misusage, so don't return CMD_RET_USAGE,
-		 * since the latter prints out the full-blown help text
-		 */
+	/* Lookup the "misc" partition from argv[2] and argv[3] */
+	if (part_get_info_by_dev_and_name_or_num(argv[2], argv[3],
+						 &dev_desc, &part_info,
+						 false) < 0) {
 		return CMD_RET_FAILURE;
 	}
 
-	return c->cmd(cmdtp, flag, argc, argv);
+	ret = ab_select_slot(dev_desc, &part_info, dec_tries);
+	if (ret < 0) {
+		printf("Android boot failed, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	/* Android standard slot names are 'a', 'b', ... */
+	slot[0] = BOOT_SLOT_NAME(ret);
+	slot[1] = '\0';
+	env_set(argv[1], slot);
+	printf("ANDROID: Booting slot: %s\n", slot);
+
+	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(
-	bcb, CONFIG_SYS_MAXARGS, 1, do_bcb,
-	"Load/set/clear/test/dump/store Android BCB fields",
+__maybe_unused static int do_bcb_ab_dump(struct cmd_tbl *cmdtp,
+					 int flag, int argc,
+					 char *const argv[])
+{
+	int ret;
+	struct blk_desc *dev_desc;
+	struct disk_partition part_info;
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	if (part_get_info_by_dev_and_name_or_num(argv[1], argv[2],
+						 &dev_desc, &part_info,
+						 false) < 0) {
+		return CMD_RET_FAILURE;
+	}
+
+	ret = ab_dump_abc(dev_desc, &part_info);
+	if (ret < 0) {
+		printf("Cannot dump ABC data, error %d.\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_LONGHELP(bcb,
 	"load <interface> <dev> <part>  - load  BCB from <interface> <dev>:<part>\n"
 	"load <dev> <part>              - load  BCB from mmc <dev>:<part>\n"
 	"bcb set   <field> <val>        - set   BCB <field> to <val>\n"
@@ -460,6 +454,27 @@ U_BOOT_CMD(
 	"bcb dump  <field>              - dump  BCB <field>\n"
 	"bcb store                      - store BCB back to <interface>\n"
 	"\n"
+#if IS_ENABLED(CONFIG_ANDROID_AB)
+	"bcb ab_select -\n"
+	"    Select the slot used to boot from and register the boot attempt.\n"
+	"    <slot_var_name> <interface> <dev[:part|#part_name]> [--no-dec]\n"
+	"    - Load the slot metadata from the partition 'part' on\n"
+	"      device type 'interface' instance 'dev' and store the active\n"
+	"      slot in the 'slot_var_name' variable. This also updates the\n"
+	"      Android slot metadata with a boot attempt, which can cause\n"
+	"      successive calls to this function to return a different result\n"
+	"      if the returned slot runs out of boot attempts.\n"
+	"    - If 'part_name' is passed, preceded with a # instead of :, the\n"
+	"      partition name whose label is 'part_name' will be looked up in\n"
+	"      the partition table. This is commonly the \"misc\" partition.\n"
+	"    - If '--no-dec' is set, the number of tries remaining will not\n"
+	"      decremented for the selected boot slot\n"
+	"\n"
+	"bcb ab_dump -\n"
+	"    Dump boot_control information from specific partition.\n"
+	"    <interface> <dev[:part|#part_name]>\n"
+	"\n"
+#endif
 	"Legend:\n"
 	"<interface> - storage device interface (virtio, mmc, etc)\n"
 	"<dev>       - storage device index containing the BCB partition\n"
@@ -471,4 +486,18 @@ U_BOOT_CMD(
 	"<val>       - string/text provided as input to bcb {set,test}\n"
 	"              NOTE: any ':' character in <val> will be replaced by line feed\n"
 	"              during 'bcb set' and used as separator by upper layers\n"
+);
+
+U_BOOT_CMD_WITH_SUBCMDS(bcb,
+	"Load/set/clear/test/dump/store Android BCB fields", bcb_help_text,
+	U_BOOT_SUBCMD_MKENT(load, 4, 1, do_bcb_load),
+	U_BOOT_SUBCMD_MKENT(set, 3, 1, do_bcb_set),
+	U_BOOT_SUBCMD_MKENT(clear, 2, 1, do_bcb_clear),
+	U_BOOT_SUBCMD_MKENT(test, 4, 1, do_bcb_test),
+	U_BOOT_SUBCMD_MKENT(dump, 2, 1, do_bcb_dump),
+	U_BOOT_SUBCMD_MKENT(store, 1, 1, do_bcb_store),
+#if IS_ENABLED(CONFIG_ANDROID_AB)
+	U_BOOT_SUBCMD_MKENT(ab_select, 5, 1, do_bcb_ab_select),
+	U_BOOT_SUBCMD_MKENT(ab_dump, 3, 1, do_bcb_ab_dump),
+#endif
 );

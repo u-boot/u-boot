@@ -14,6 +14,7 @@
 #include <linux/libfdt.h>
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
+#define ANDROID_IMAGE_DEFAULT_RAMDISK_ADDR	0x11000000
 
 static char andr_tmp_str[ANDR_BOOT_ARGS_SIZE + 1];
 
@@ -208,7 +209,8 @@ bool android_image_get_data(const void *boot_hdr, const void *vendor_boot_hdr,
 	return true;
 }
 
-static ulong android_image_get_kernel_addr(struct andr_image_data *img_data)
+static ulong android_image_get_kernel_addr(struct andr_image_data *img_data,
+					   ulong comp)
 {
 	/*
 	 * All the Android tools that generate a boot.img use this
@@ -221,8 +223,11 @@ static ulong android_image_get_kernel_addr(struct andr_image_data *img_data)
 	 *
 	 * Otherwise, we will return the actual value set by the user.
 	 */
-	if (img_data->kernel_addr  == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR)
-		return img_data->kernel_ptr;
+	if (img_data->kernel_addr  == ANDROID_IMAGE_DEFAULT_KERNEL_ADDR) {
+		if (comp == IH_COMP_NONE)
+			return img_data->kernel_ptr;
+		return env_get_ulong("kernel_addr_r", 16, 0);
+	}
 
 	/*
 	 * abootimg creates images where all load addresses are 0
@@ -256,13 +261,16 @@ int android_image_get_kernel(const void *hdr,
 			     ulong *os_data, ulong *os_len)
 {
 	struct andr_image_data img_data = {0};
-	u32 kernel_addr;
+	ulong kernel_addr;
 	const struct legacy_img_hdr *ihdr;
+	ulong comp;
 
 	if (!android_image_get_data(hdr, vendor_boot_img, &img_data))
 		return -EINVAL;
 
-	kernel_addr = android_image_get_kernel_addr(&img_data);
+	comp = android_image_get_kcomp(hdr, vendor_boot_img);
+
+	kernel_addr = android_image_get_kernel_addr(&img_data, comp);
 	ihdr = (const struct legacy_img_hdr *)img_data.kernel_ptr;
 
 	/*
@@ -275,7 +283,7 @@ int android_image_get_kernel(const void *hdr,
 	if (strlen(andr_tmp_str))
 		printf("Android's image name: %s\n", andr_tmp_str);
 
-	printf("Kernel load addr 0x%08x size %u KiB\n",
+	printf("Kernel load addr 0x%08lx size %u KiB\n",
 	       kernel_addr, DIV_ROUND_UP(img_data.kernel_size, 1024));
 
 	int len = 0;
@@ -359,11 +367,14 @@ ulong android_image_get_kload(const void *hdr,
 			      const void *vendor_boot_img)
 {
 	struct andr_image_data img_data;
+	ulong comp;
 
 	if (!android_image_get_data(hdr, vendor_boot_img, &img_data))
 		return -EINVAL;
 
-	return android_image_get_kernel_addr(&img_data);
+	comp = android_image_get_kcomp(hdr, vendor_boot_img);
+
+	return android_image_get_kernel_addr(&img_data, comp);
 }
 
 ulong android_image_get_kcomp(const void *hdr,
@@ -395,9 +406,25 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 
 	if (!img_data.ramdisk_size)
 		return -ENOENT;
-
+	/*
+	 * Android tools can generate a boot.img with default load address
+	 * or 0, even though it doesn't really make a lot of sense, and it
+	 * might be valid on some platforms, we treat that address as
+	 * the default value for this field, and try to pass ramdisk
+	 * in place if possible.
+	 */
 	if (img_data.header_version > 2) {
-		ramdisk_ptr = img_data.ramdisk_addr;
+		/* Ramdisk can't be used in-place, copy it to ramdisk_addr_r */
+		if (img_data.ramdisk_addr == ANDROID_IMAGE_DEFAULT_RAMDISK_ADDR) {
+			ramdisk_ptr = env_get_ulong("ramdisk_addr_r", 16, 0);
+			if (!ramdisk_ptr) {
+				printf("Invalid ramdisk_addr_r to copy ramdisk into\n");
+				return -EINVAL;
+			}
+		} else {
+			ramdisk_ptr = img_data.ramdisk_addr;
+		}
+		*rd_data = ramdisk_ptr;
 		memcpy((void *)(ramdisk_ptr), (void *)img_data.vendor_ramdisk_ptr,
 		       img_data.vendor_ramdisk_size);
 		ramdisk_ptr += img_data.vendor_ramdisk_size;
@@ -410,15 +437,20 @@ int android_image_get_ramdisk(const void *hdr, const void *vendor_boot_img,
 			       img_data.bootconfig_size);
 		}
 	} else {
-		ramdisk_ptr = img_data.ramdisk_addr;
-		memcpy((void *)(ramdisk_ptr), (void *)img_data.ramdisk_ptr,
-		       img_data.ramdisk_size);
+		/* Ramdisk can be used in-place, use current ptr */
+		if (img_data.ramdisk_addr == 0 ||
+		    img_data.ramdisk_addr == ANDROID_IMAGE_DEFAULT_RAMDISK_ADDR) {
+			*rd_data = img_data.ramdisk_ptr;
+		} else {
+			ramdisk_ptr = img_data.ramdisk_addr;
+			*rd_data = ramdisk_ptr;
+			memcpy((void *)(ramdisk_ptr), (void *)img_data.ramdisk_ptr,
+			       img_data.ramdisk_size);
+		}
 	}
 
 	printf("RAM disk load addr 0x%08lx size %u KiB\n",
-	       img_data.ramdisk_addr, DIV_ROUND_UP(img_data.ramdisk_size, 1024));
-
-	*rd_data = img_data.ramdisk_addr;
+	       *rd_data, DIV_ROUND_UP(img_data.ramdisk_size, 1024));
 
 	*rd_len = img_data.ramdisk_size;
 	return 0;
