@@ -7,6 +7,7 @@
 #include <config.h>
 #include <dm.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <cpu_func.h>
 #include <env.h>
 #include <linux/sizes.h>
 
@@ -14,7 +15,10 @@
 #include <asm/global_data.h>
 #include <asm/system.h>
 
-static struct mm_region total_compute_mem_map[] = {
+/* +1 is end of list which needs to be empty */
+#define TC_MEM_MAP_MAX		(1 + CONFIG_NR_DRAM_BANKS + 1)
+
+static struct mm_region total_compute_mem_map[TC_MEM_MAP_MAX] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
@@ -22,15 +26,6 @@ static struct mm_region total_compute_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0xff80000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		/* List terminator */
-		0,
 	}
 };
 
@@ -87,6 +82,36 @@ int dram_init(void)
 int dram_init_banksize(void)
 {
 	return fdtdec_setup_memory_banksize();
+}
+
+void build_mem_map(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		/*
+		 * The first node is for I/O device, start from node 1 for
+		 * updating DRAM info.
+		 */
+		mem_map[i + 1].virt = gd->bd->bi_dram[i].start;
+		mem_map[i + 1].phys = gd->bd->bi_dram[i].start;
+		mem_map[i + 1].size = gd->bd->bi_dram[i].size;
+		mem_map[i + 1].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+				       PTE_BLOCK_INNER_SHARE;
+	}
+}
+
+void enable_caches(void)
+{
+	build_mem_map();
+
+	icache_enable();
+	dcache_enable();
+}
+
+u64 get_page_table_size(void)
+{
+	return SZ_256K;
 }
 
 /* Nothing to be done here as handled by PSCI interface */
