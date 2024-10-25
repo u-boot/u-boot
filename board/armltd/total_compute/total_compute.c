@@ -8,6 +8,8 @@
 #include <dm.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <env.h>
+#include <linux/sizes.h>
+
 #include <asm/armv8/mmu.h>
 #include <asm/global_data.h>
 #include <asm/system.h>
@@ -49,6 +51,27 @@ void *board_fdt_blob_setup(int *err)
 	}
 
 	return (void *)fw_dtb_pointer;
+}
+
+int misc_init_r(void)
+{
+	size_t base;
+
+	if (!env_get("fdt_addr_r"))
+		env_set_hex("fdt_addr_r", fw_dtb_pointer);
+
+	if (!env_get("kernel_addr_r")) {
+		/*
+		 * The kernel has to be 2M aligned and the first 64K at the
+		 * start of SDRAM is reserved for DTB.
+		 */
+		base = gd->ram_base + SZ_2M;
+		assert(IS_ALIGNED(base, SZ_2M));
+
+		env_set_hex("kernel_addr_r", base);
+	}
+
+	return 0;
 }
 
 int board_init(void)

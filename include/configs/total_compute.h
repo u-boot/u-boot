@@ -14,9 +14,7 @@
 #define CFG_EXTRA_ENV_SETTINGS	\
 				"bootm_size=0x20000000\0"	\
 				"load_addr=0xa0000000\0"	\
-				"kernel_addr_r=0x80080000\0"	\
-				"initrd_addr_r=0x88000000\0"	\
-				"fdt_addr_r=0x83000000\0"
+				"initrd_addr_r=0x88000000\0"
 /*
  * If vbmeta partition is present, boot Android with verification using AVB.
  * Else if system partition is present (no vbmeta partition), boot Android
