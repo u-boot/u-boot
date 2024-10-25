@@ -182,7 +182,7 @@ def test_efi_helloworld_net_tftp(u_boot_console):
     do_test_efi_helloworld_net(u_boot_console, PROTO_TFTP);
 
 @pytest.mark.buildconfigspec('of_control')
-@pytest.mark.buildconfigspec('cmd_bootefi_hello_compile')
+@pytest.mark.buildconfigspec('bootefi_hello_compile')
 @pytest.mark.buildconfigspec('cmd_wget')
 def test_efi_helloworld_net_http(u_boot_console):
     """Run the helloworld.efi binary via HTTP.
