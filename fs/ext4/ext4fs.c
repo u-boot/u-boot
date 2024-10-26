@@ -209,12 +209,17 @@ int ext4fs_exists(const char *filename)
 {
 	struct ext2fs_node *dirnode = NULL;
 	int filetype;
+	int ret;
 
 	if (!filename)
 		return 0;
 
-	return ext4fs_find_file1(filename, &ext4fs_root->diropen, &dirnode,
-				 &filetype);
+	ret = ext4fs_find_file1(filename, &ext4fs_root->diropen, &dirnode,
+				&filetype);
+	if (dirnode)
+		ext4fs_free_node(dirnode, &ext4fs_root->diropen);
+
+	return ret;
 }
 
 int ext4fs_size(const char *filename, loff_t *size)
