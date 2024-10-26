@@ -232,7 +232,9 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 #endif
 		.uuid = ext4fs_uuid,
-		.opendir = fs_opendir_unsupported,
+		.opendir = ext4fs_opendir,
+		.readdir = ext4fs_readdir,
+		.closedir = ext4fs_closedir,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 	},
