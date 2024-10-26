@@ -216,7 +216,7 @@ int get_disk_guid(struct blk_desc *desc, char *guid)
 	return 0;
 }
 
-void part_print_efi(struct blk_desc *desc)
+static void __maybe_unused part_print_efi(struct blk_desc *desc)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
 	gpt_entry *gpt_pte = NULL;
@@ -258,8 +258,8 @@ void part_print_efi(struct blk_desc *desc)
 	return;
 }
 
-int part_get_info_efi(struct blk_desc *desc, int part,
-		      struct disk_partition *info)
+static int __maybe_unused part_get_info_efi(struct blk_desc *desc, int part,
+					    struct disk_partition *info)
 {
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, desc->blksz);
 	gpt_entry *gpt_pte = NULL;
