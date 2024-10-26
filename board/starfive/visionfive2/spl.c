@@ -68,9 +68,7 @@ static const struct starfive_vf2_pro starfive_verb[] = {
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"motorcomm,rx-data-drv-microamp", "2910"},
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
-		"rx-internal-delay-ps", "1900"},
-	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
-		"tx-internal-delay-ps", "1500"},
+		"rx-internal-delay-ps", "1500"},
 
 	{"/soc/ethernet@16040000/mdio/ethernet-phy@1",
 		"motorcomm,tx-clk-adj-enabled", NULL},
