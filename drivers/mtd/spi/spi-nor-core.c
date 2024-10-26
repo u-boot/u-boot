@@ -1595,16 +1595,14 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 	}
 
 	while (len) {
-		if (nor->addr_width == 3) {
-			if (nor->flags & SNOR_F_HAS_PARALLEL) {
-				bank = (u32)from / (SZ_16M << 0x01);
-				rem_bank_len = ((SZ_16M << 0x01) *
-					(bank + 1)) - from;
-			} else {
-				bank = (u32)from / SZ_16M;
-				rem_bank_len = (SZ_16M * (bank + 1)) - from;
-			}
+		if (nor->flags & SNOR_F_HAS_PARALLEL) {
+			bank = (u32)from / (SZ_16M << 0x01);
+			rem_bank_len = ((SZ_16M << 0x01) * (bank + 1)) - from;
+		} else {
+			bank = (u32)from / SZ_16M;
+			rem_bank_len = (SZ_16M * (bank + 1)) - from;
 		}
+
 		offset = from;
 
 		if (nor->flags & SNOR_F_HAS_STACKED) {
@@ -1619,13 +1617,11 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 		if (nor->flags & SNOR_F_HAS_PARALLEL)
 			offset /= 2;
 
-		if (nor->addr_width == 3) {
 #ifdef CONFIG_SPI_FLASH_BAR
-			ret = write_bar(nor, offset);
-			if (ret < 0)
-				return log_ret(ret);
+		ret = write_bar(nor, offset);
+		if (ret < 0)
+			return log_ret(ret);
 #endif
-		}
 
 		if (len < rem_bank_len)
 			read_len = len;
@@ -2012,13 +2008,12 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 			}
 		}
 
-		if (nor->addr_width == 3) {
 #ifdef CONFIG_SPI_FLASH_BAR
-			ret = write_bar(nor, offset);
-			if (ret < 0)
-				return ret;
+		ret = write_bar(nor, offset);
+		if (ret < 0)
+			return ret;
 #endif
-		}
+
 		/* the size of data remaining on the first page */
 		page_remain = min_t(size_t,
 				    nor->page_size - page_offset, len - i);
