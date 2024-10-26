@@ -385,7 +385,7 @@ err:
  * @ctx:	event context
  * Return:	status code
  */
-efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
+static efi_status_t efi_bootmgr_release_uridp(struct uridp_context *ctx)
 {
 	efi_status_t ret = EFI_SUCCESS;
 	efi_status_t ret2 = EFI_SUCCESS;
