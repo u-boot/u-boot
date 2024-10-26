@@ -2046,24 +2046,23 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 	unsigned int fpos = 0;
 	int status;
 	loff_t actread;
-	struct ext2fs_node *diro = (struct ext2fs_node *) dir;
 
 #ifdef DEBUG
 	if (name != NULL)
 		printf("Iterate dir %s\n", name);
 #endif /* of DEBUG */
-	if (!diro->inode_read) {
-		status = ext4fs_read_inode(diro->data, diro->ino, &diro->inode);
+	if (!dir->inode_read) {
+		status = ext4fs_read_inode(dir->data, dir->ino, &dir->inode);
 		if (status == 0)
 			return 0;
 	}
 	/* Search the file.  */
-	while (fpos < le32_to_cpu(diro->inode.size)) {
+	while (fpos < le32_to_cpu(dir->inode.size)) {
 		struct ext2_dirent dirent;
 
-		status = ext4fs_read_file(diro, fpos,
-					   sizeof(struct ext2_dirent),
-					   (char *)&dirent, &actread);
+		status = ext4fs_read_file(dir, fpos,
+					  sizeof(struct ext2_dirent),
+					  (char *)&dirent, &actread);
 		if (status < 0)
 			return 0;
 
@@ -2077,7 +2076,7 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			struct ext2fs_node *fdiro;
 			int type = FILETYPE_UNKNOWN;
 
-			status = ext4fs_read_file(diro,
+			status = ext4fs_read_file(dir,
 						  fpos +
 						  sizeof(struct ext2_dirent),
 						  dirent.namelen, filename,
@@ -2089,7 +2088,7 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 			if (!fdiro)
 				return 0;
 
-			fdiro->data = diro->data;
+			fdiro->data = dir->data;
 			fdiro->ino = le32_to_cpu(dirent.inode);
 
 			filename[dirent.namelen] = '\0';
@@ -2104,7 +2103,7 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 				else if (dirent.filetype == FILETYPE_REG)
 					type = FILETYPE_REG;
 			} else {
-				status = ext4fs_read_inode(diro->data,
+				status = ext4fs_read_inode(dir->data,
 							   le32_to_cpu
 							   (dirent.inode),
 							   &fdiro->inode);
@@ -2140,10 +2139,10 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 				}
 			} else {
 				if (fdiro->inode_read == 0) {
-					status = ext4fs_read_inode(diro->data,
-								 le32_to_cpu(
-								 dirent.inode),
-								 &fdiro->inode);
+					status = ext4fs_read_inode(dir->data,
+								   le32_to_cpu(
+								   dirent.inode),
+								   &fdiro->inode);
 					if (status == 0) {
 						free(fdiro);
 						return 0;
