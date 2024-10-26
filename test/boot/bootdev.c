@@ -630,7 +630,7 @@ static int bootdev_test_next_label(struct unit_test_state *uts)
 	ut_assertok(bootdev_next_label(&iter, &dev, &mflags));
 	ut_assert_nextline("scanning bus for devices...");
 	ut_assert_skip_to_line(
-		"            Capacity: 1.9 MB = 0.0 GB (4095 x 512)");
+		"            Capacity: 2.0 MB = 0.0 GB (4096 x 512)");
 	ut_assert_console_end();
 	ut_assertnonnull(dev);
 	ut_asserteq_str("scsi.id0lun0.bootdev", dev->name);
