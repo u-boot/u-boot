@@ -1593,13 +1593,14 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 	}
 
 	while (len) {
-		if (nor->flags & SNOR_F_HAS_PARALLEL) {
-			bank = (u32)from / (SZ_16M << 0x01);
-			rem_bank_len = ((SZ_16M << 0x01) * (bank + 1)) - from;
-		} else {
-			bank = (u32)from / SZ_16M;
-			rem_bank_len = (SZ_16M * (bank + 1)) - from;
-		}
+		bank = (u32)from / SZ_16M;
+		if (nor->flags & SNOR_F_HAS_PARALLEL)
+			bank /= 2;
+
+		rem_bank_len = SZ_16M * (bank + 1);
+		if (nor->flags & SNOR_F_HAS_PARALLEL)
+			rem_bank_len *= 2;
+		rem_bank_len -= from;
 
 		offset = from;
 
