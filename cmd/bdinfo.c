@@ -140,10 +140,6 @@ static int bdinfo_print_all(struct bd_info *bd)
 #endif
 	bdinfo_print_num_l("boot_params", (ulong)bd->bi_boot_params);
 	print_bi_dram(bd);
-	if (IS_ENABLED(CONFIG_SYS_HAS_SRAM)) {
-		bdinfo_print_num_l("sramstart", (ulong)bd->bi_sramstart);
-		bdinfo_print_num_l("sramsize", (ulong)bd->bi_sramsize);
-	}
 	bdinfo_print_num_l("flashstart", (ulong)bd->bi_flashstart);
 	bdinfo_print_num_l("flashsize", (ulong)bd->bi_flashsize);
 	bdinfo_print_num_l("flashoffset", (ulong)bd->bi_flashoffset);
