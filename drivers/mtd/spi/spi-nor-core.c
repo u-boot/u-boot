@@ -1631,10 +1631,6 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 		if (read_len == 0)
 			return -EIO;
 
-		ret = spi_nor_wait_till_ready(nor);
-		if (ret)
-			goto read_err;
-
 		ret = nor->read(nor, offset, read_len, buf);
 		if (ret == 0) {
 			/* We shouldn't see 0-length reads */
@@ -2017,10 +2013,6 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 		/* the size of data remaining on the first page */
 		page_remain = min_t(size_t,
 				    nor->page_size - page_offset, len - i);
-
-		ret = spi_nor_wait_till_ready(nor);
-		if (ret)
-			goto write_err;
 
 		write_enable(nor);
 		/*
