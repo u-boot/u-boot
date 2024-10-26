@@ -1134,12 +1134,10 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 			offset /= 2;
 
 		if (nor->flags & SNOR_F_HAS_STACKED) {
-			if (offset >= (mtd->size / 2)) {
-				offset = offset - (mtd->size / 2);
+			if (offset >= (mtd->size / 2))
 				nor->spi->flags |= SPI_XFER_U_PAGE;
-			} else {
+			else
 				nor->spi->flags &= ~SPI_XFER_U_PAGE;
-			}
 		}
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(nor, addr);
@@ -1588,7 +1586,7 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 	dev_dbg(nor->dev, "from 0x%08x, len %zd\n", (u32)from, len);
 
 	if ((nor->flags & SNOR_F_HAS_PARALLEL) && (offset & 1)) {
-	    /* We can hit this case when we use file system like ubifs */
+		/* We can hit this case when we use file system like ubifs */
 		from--;
 		len++;
 		is_ofst_odd = true;
@@ -1969,9 +1967,9 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 			return ret;
 
 		*retlen += 1; /* We've written only one actual byte */
-		++buf;
-		--len;
-		++to;
+		buf++;
+		len--;
+		to++;
 	}
 
 	for (i = 0; i < len; ) {
@@ -1991,7 +1989,7 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 			page_offset = do_div(aux, nor->page_size);
 		}
-		offset = (to + i);
+		offset = to + i;
 		if (nor->flags & SNOR_F_HAS_PARALLEL)
 			offset /= 2;
 
