@@ -20,6 +20,8 @@
 	};
 
 	memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
 		device_type = "memory";
 		reg = <0x20240000 0xf0000 0x80000000 0x4000000>;
 

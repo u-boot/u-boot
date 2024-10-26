@@ -31,8 +31,6 @@
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../common/pfuze.h"
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -155,49 +153,6 @@ int board_mmc_init(struct bd_info *bis)
 }
 #endif
 
-#ifdef CONFIG_USB_EHCI_MX6
-#ifndef CONFIG_DM_USB
-
-#define USB_OTHERREGS_OFFSET	0x800
-#define UCTRL_PWR_POL		(1 << 9)
-
-static iomux_v3_cfg_t const usb_otg_pads[] = {
-	MX6_PAD_GPIO1_IO00__ANATOP_OTG1_ID | MUX_PAD_CTRL(OTG_ID_PAD_CTRL),
-};
-
-/* At default the 3v3 enables the MIC2026 for VBUS power */
-static void setup_usb(void)
-{
-	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
-					 ARRAY_SIZE(usb_otg_pads));
-}
-
-int board_usb_phy_mode(int port)
-{
-	if (port == 1)
-		return USB_INIT_HOST;
-	else
-		return usb_phy_mode(port);
-}
-
-int board_ehci_hcd_init(int port)
-{
-	u32 *usbnc_usb_ctrl;
-
-	if (port > 1)
-		return -EINVAL;
-
-	usbnc_usb_ctrl = (u32 *)(USB_BASE_ADDR + USB_OTHERREGS_OFFSET +
-				 port * 4);
-
-	/* Set Power polarity */
-	setbits_le32(usbnc_usb_ctrl, UCTRL_PWR_POL);
-
-	return 0;
-}
-#endif
-#endif
-
 #ifdef CONFIG_FEC_MXC
 static int setup_fec(int fec_id)
 {
@@ -282,12 +237,6 @@ int board_init(void)
 
 #ifdef	CONFIG_FEC_MXC
 	setup_fec(CFG_FEC_ENET_DEV);
-#endif
-
-#ifdef CONFIG_USB_EHCI_MX6
-#ifndef CONFIG_DM_USB
-	setup_usb();
-#endif
 #endif
 
 #ifdef CONFIG_FSL_QSPI

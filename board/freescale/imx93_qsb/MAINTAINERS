@@ -1,0 +1,7 @@
+i.MX93 QSB BOARD
+M:	Peng Fan <peng.fan@nxp.com>
+S:	Maintained
+F:	board/freescale/imx93_qsb/
+F:	include/configs/imx93_qsb.h
+F:	configs/imx93_9x9_qsb_defconfig
+F:	configs/imx93_9x9_qsb_inline_ecc_defconfig

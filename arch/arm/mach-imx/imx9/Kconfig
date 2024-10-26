@@ -23,6 +23,13 @@ choice
 	prompt  "NXP i.MX9 board select"
 	optional
 
+config TARGET_IMX93_9X9_QSB
+	bool "imx93_qsb"
+	select OF_BOARD_FIXUP
+	select IMX93
+	select IMX9_LPDDR4X
+	imply OF_UPSTREAM
+
 config TARGET_IMX93_11X11_EVK
 	bool "imx93_11x11_evk"
 	select OF_BOARD_FIXUP
@@ -42,6 +49,7 @@ config TARGET_PHYCORE_IMX93
 endchoice
 
 source "board/freescale/imx93_evk/Kconfig"
+source "board/freescale/imx93_qsb/Kconfig"
 source "board/phytec/phycore_imx93/Kconfig"
 source "board/variscite/imx93_var_som/Kconfig"
 
