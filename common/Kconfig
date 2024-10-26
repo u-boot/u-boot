@@ -928,6 +928,9 @@ config BOARD_RNG_SEED
 	  new seed for use on subsequent boots, and whether or not the
 	  kernel should account any entropy from the given seed.
 
+	  Default seed size (64 bytes) can be overridden by a decimal
+	  environment variable rng_seed_size.
+
 endmenu
 
 menu "Update support"

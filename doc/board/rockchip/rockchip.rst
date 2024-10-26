@@ -98,6 +98,7 @@ List of mainline supported Rockchip boards:
 
 * rk3566
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
+     - Hardkernel ODROID-M1S (odroid-m1s-rk3566)
      - Pine64 PineTab2 (pinetab2-rk3566)
      - Pine64 Quartz64-A Board (quartz64-a-rk3566)
      - Pine64 Quartz64-B Board (quartz64-b-rk3566)
@@ -132,6 +133,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R6C (nanopi-r6c-rk3588s)
      - FriendlyElec NanoPi R6S (nanopi-r6s-rk3588s)
      - Generic RK3588S/RK3588 (generic-rk3588)
+     - Hardkernel ODROID-M2 (odroid-m2-rk3588s)
      - Indiedroid Nova (nova-rk3588s)
      - Pine64 QuartzPro64 (quartzpro64-rk3588)
      - Radxa ROCK 5 ITX (rock-5-itx-rk3588)

@@ -5,6 +5,14 @@
 
 #include "rk356x-u-boot.dtsi"
 
+/ {
+	leds {
+		led-1 {
+			default-state = "on";
+		};
+	};
+};
+
 &sdhci {
 	cap-mmc-highspeed;
 };

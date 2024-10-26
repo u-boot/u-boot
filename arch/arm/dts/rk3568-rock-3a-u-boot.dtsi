@@ -6,6 +6,14 @@
 
 #include "rk356x-u-boot.dtsi"
 
+/ {
+	leds {
+		led-0 {
+			default-state = "on";
+		};
+	};
+};
+
 &pcie3x2 {
 	pinctrl-0 = <&pcie3x2_reset_h>;
 };

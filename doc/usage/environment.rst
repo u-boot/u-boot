@@ -323,6 +323,11 @@ netretry
     Useful on scripts which control the retry operation
     themselves.
 
+rng_seed_size
+    Size of random value added to device-tree node /chosen/rng-seed.
+    This variable is given as a decimal number.
+    If unset, 64 bytes is used as the default.
+
 silent_linux
     If set then Linux will be told to boot silently, by
     adding 'console=' to its command line. If "yes" it will be
