@@ -2073,10 +2073,6 @@ static int spi_nor_write(struct mtd_info *mtd, loff_t to, size_t len,
 		if (ret)
 			goto write_err;
 
-		ret = write_disable(nor);
-		if (ret)
-			goto write_err;
-
 		*retlen += written;
 		i += written;
 	}
@@ -2114,10 +2110,6 @@ static int macronix_quad_enable(struct spi_nor *nor)
 	write_sr(nor, val | SR_QUAD_EN_MX);
 
 	ret = spi_nor_wait_till_ready(nor);
-	if (ret)
-		return ret;
-
-	ret = write_disable(nor);
 	if (ret)
 		return ret;
 
@@ -2182,7 +2174,7 @@ static int spansion_quad_enable_volatile(struct spi_nor *nor, u32 addr_base,
 		return -EINVAL;
 	}
 
-	return write_disable(nor);
+	return 0;
 }
 #endif
 
