@@ -41,7 +41,7 @@ static const struct starfive_vf2_pro milk_v_mars[] = {
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"motorcomm,rx-data-drv-microamp", "2910"},
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
-		"rx-internal-delay-ps", "1900"},
+		"rx-internal-delay-ps", "1500"},
 	{"/soc/ethernet@16030000/mdio/ethernet-phy@0",
 		"tx-internal-delay-ps", "1500"},
 };
