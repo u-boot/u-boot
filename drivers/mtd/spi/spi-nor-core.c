@@ -3047,13 +3047,6 @@ static int spi_nor_init_params(struct spi_nor *nor,
 			       const struct flash_info *info,
 			       struct spi_nor_flash_parameter *params)
 {
-#if CONFIG_IS_ENABLED(DM_SPI) && CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
-	struct udevice *dev = nor->spi->dev;
-	u64 flash_size[SNOR_FLASH_CNT_MAX] = {0};
-	u32 idx = 0, i = 0;
-	int rc;
-#endif
-
 	/* Set legacy flash parameters as default. */
 	memset(params, 0, sizeof(*params));
 
@@ -3172,62 +3165,69 @@ static int spi_nor_init_params(struct spi_nor *nor,
 
 		spi_nor_post_sfdp_fixups(nor, params);
 	}
-#if CONFIG_IS_ENABLED(DM_SPI) && CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)
-	/*
-	 * The flashes that are connected in stacked mode should be of same make.
-	 * Except the flash size all other properties are identical for all the
-	 * flashes connected in stacked mode.
-	 * The flashes that are connected in parallel mode should be identical.
-	 */
-	while (i < SNOR_FLASH_CNT_MAX) {
-		rc = ofnode_read_u64_index(dev_ofnode(dev), "stacked-memories",
-					   idx, &flash_size[i]);
-		if (rc == -EINVAL) {
-			break;
-		} else if (rc == -EOVERFLOW) {
-			idx++;
-		} else {
-			idx++;
-			i++;
-			if (!(nor->flags & SNOR_F_HAS_STACKED))
-				nor->flags |= SNOR_F_HAS_STACKED;
-			if (!(nor->spi->flags & SPI_XFER_STACKED))
-				nor->spi->flags |= SPI_XFER_STACKED;
+
+	if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+		u64 flash_size[SNOR_FLASH_CNT_MAX] = { 0 };
+		struct udevice *dev = nor->spi->dev;
+		u32 idx = 0, i = 0;
+		int rc;
+
+		/*
+		 * The flashes that are connected in stacked mode should be of same make.
+		 * Except the flash size all other properties are identical for all the
+		 * flashes connected in stacked mode.
+		 * The flashes that are connected in parallel mode should be identical.
+		 */
+		while (i < SNOR_FLASH_CNT_MAX) {
+			rc = ofnode_read_u64_index(dev_ofnode(dev), "stacked-memories",
+						   idx, &flash_size[i]);
+			if (rc == -EINVAL) {
+				break;
+			} else if (rc == -EOVERFLOW) {
+				idx++;
+			} else {
+				idx++;
+				i++;
+				if (!(nor->flags & SNOR_F_HAS_STACKED))
+					nor->flags |= SNOR_F_HAS_STACKED;
+				if (!(nor->spi->flags & SPI_XFER_STACKED))
+					nor->spi->flags |= SPI_XFER_STACKED;
+			}
+		}
+
+		i = 0;
+		idx = 0;
+		while (i < SNOR_FLASH_CNT_MAX) {
+			rc = ofnode_read_u64_index(dev_ofnode(dev), "parallel-memories",
+						   idx, &flash_size[i]);
+			if (rc == -EINVAL) {
+				break;
+			} else if (rc == -EOVERFLOW) {
+				idx++;
+			} else {
+				idx++;
+				i++;
+				if (!(nor->flags & SNOR_F_HAS_PARALLEL))
+					nor->flags |= SNOR_F_HAS_PARALLEL;
+			}
+		}
+
+		if (nor->flags & (SNOR_F_HAS_STACKED | SNOR_F_HAS_PARALLEL)) {
+			params->size = 0;
+			for (idx = 0; idx < SNOR_FLASH_CNT_MAX; idx++)
+				params->size += flash_size[idx];
+		}
+		/*
+		 * In parallel-memories the erase operation is
+		 * performed on both the flashes simultaneously
+		 * so, double the erasesize.
+		 */
+		if (nor->flags & SNOR_F_HAS_PARALLEL) {
+			nor->mtd.erasesize <<= 1;
+			params->page_size <<= 1;
 		}
 	}
 
-	i = 0;
-	idx = 0;
-	while (i < SNOR_FLASH_CNT_MAX) {
-		rc = ofnode_read_u64_index(dev_ofnode(dev), "parallel-memories",
-					   idx, &flash_size[i]);
-		if (rc == -EINVAL) {
-			break;
-		} else if (rc == -EOVERFLOW) {
-			idx++;
-		} else {
-			idx++;
-			i++;
-			if (!(nor->flags & SNOR_F_HAS_PARALLEL))
-				nor->flags |= SNOR_F_HAS_PARALLEL;
-		}
-	}
-
-	if (nor->flags & (SNOR_F_HAS_STACKED | SNOR_F_HAS_PARALLEL)) {
-		params->size = 0;
-		for (idx = 0; idx < SNOR_FLASH_CNT_MAX; idx++)
-			params->size += flash_size[idx];
-	}
-	/*
-	 * In parallel-memories the erase operation is
-	 * performed on both the flashes simultaneously
-	 * so, double the erasesize.
-	 */
-	if (nor->flags & SNOR_F_HAS_PARALLEL) {
-		nor->mtd.erasesize <<= 1;
-		params->page_size <<= 1;
-	}
-#endif
 	spi_nor_late_init_fixups(nor, params);
 
 	return 0;
