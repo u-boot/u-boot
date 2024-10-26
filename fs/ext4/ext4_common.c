@@ -2137,35 +2137,6 @@ int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
 					*fnode = fdiro;
 					return 1;
 				}
-			} else {
-				if (fdiro->inode_read == 0) {
-					status = ext4fs_read_inode(dir->data,
-								   le32_to_cpu(
-								   dirent.inode),
-								   &fdiro->inode);
-					if (status == 0) {
-						free(fdiro);
-						return 0;
-					}
-					fdiro->inode_read = 1;
-				}
-				switch (type) {
-				case FILETYPE_DIRECTORY:
-					printf("<DIR> ");
-					break;
-				case FILETYPE_SYMLINK:
-					printf("<SYM> ");
-					break;
-				case FILETYPE_REG:
-					printf("      ");
-					break;
-				default:
-					printf("< ? > ");
-					break;
-				}
-				printf("%10u %s\n",
-				       le32_to_cpu(fdiro->inode.size),
-					filename);
 			}
 			free(fdiro);
 		}

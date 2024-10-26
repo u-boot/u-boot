@@ -201,29 +201,6 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	return 0;
 }
 
-int ext4fs_ls(const char *dirname)
-{
-	struct ext2fs_node *dirnode = NULL;
-	int status;
-
-	if (dirname == NULL)
-		return 0;
-
-	status = ext4fs_find_file(dirname, &ext4fs_root->diropen, &dirnode,
-				  FILETYPE_DIRECTORY);
-	if (status != 1) {
-		printf("** Can not find directory. **\n");
-		if (dirnode)
-			ext4fs_free_node(dirnode, &ext4fs_root->diropen);
-		return 1;
-	}
-
-	ext4fs_iterate_dir(dirnode, NULL, NULL, NULL);
-	ext4fs_free_node(dirnode, &ext4fs_root->diropen);
-
-	return 0;
-}
-
 int ext4fs_opendir(const char *dirname, struct fs_dir_stream **dirsp)
 {
 	struct ext4_dir_stream *dirs;

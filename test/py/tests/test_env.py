@@ -488,7 +488,7 @@ def test_env_ext4(state_test_env):
         assert 'Loading Environment from EXT4... OK' in response
 
         response = c.run_command('ext4ls host 0:0')
-        assert '8192 uboot.env' in response
+        assert '8192   uboot.env' in response
 
         response = c.run_command('env info')
         assert 'env_valid = valid' in response

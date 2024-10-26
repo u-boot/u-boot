@@ -33,10 +33,7 @@ class TestFsBasic(object):
             # In addition, test with a nonexistent directory to see if we crash.
             output = u_boot_console.run_command(
                 '%sls host 0:0 invalid_d' % fs_type)
-            if fs_type == 'ext4':
-                assert('Can not find directory' in output)
-            else:
-                assert('' == output)
+            assert('' == output)
 
     def test_fs2(self, u_boot_console, fs_obj_basic):
         """
