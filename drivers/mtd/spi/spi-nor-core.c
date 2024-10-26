@@ -3578,19 +3578,6 @@ static int spi_nor_select_erase(struct spi_nor *nor,
 			mtd->erasesize = info->sector_size;
 	}
 
-	if ((JEDEC_MFR(info) == SNOR_MFR_SST) && info->flags & SECT_4K) {
-		nor->erase_opcode = SPINOR_OP_BE_4K;
-		/*
-		 * In parallel-memories the erase operation is
-		 * performed on both the flashes simultaneously
-		 * so, double the erasesize.
-		 */
-		if (nor->flags & SNOR_F_HAS_PARALLEL)
-			mtd->erasesize = 4096 * 2;
-		else
-			mtd->erasesize = 4096;
-	}
-
 	return 0;
 }
 
