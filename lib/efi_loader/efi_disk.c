@@ -561,11 +561,9 @@ static int efi_disk_create_raw(struct udevice *dev, efi_handle_t agent_handle)
 {
 	struct efi_disk_obj *disk;
 	struct blk_desc *desc;
-	int diskid;
 	efi_status_t ret;
 
 	desc = dev_get_uclass_plat(dev);
-	diskid = desc->devnum;
 
 	ret = efi_disk_add_dev(NULL, NULL, desc,
 			       NULL, 0, &disk, agent_handle);
@@ -608,7 +606,6 @@ static int efi_disk_create_part(struct udevice *dev, efi_handle_t agent_handle)
 	struct disk_part *part_data;
 	struct disk_partition *info;
 	unsigned int part;
-	int diskid;
 	struct efi_handler *handler;
 	struct efi_device_path *dp_parent;
 	struct efi_disk_obj *disk;
@@ -618,7 +615,6 @@ static int efi_disk_create_part(struct udevice *dev, efi_handle_t agent_handle)
 		return -1;
 
 	desc = dev_get_uclass_plat(dev_get_parent(dev));
-	diskid = desc->devnum;
 
 	part_data = dev_get_uclass_plat(dev);
 	part = part_data->partnum;
