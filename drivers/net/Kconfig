@@ -762,6 +762,38 @@ config TULIP
 	help
 	  This driver supports DEC DC2114x Fast ethernet chips.
 
+config TULIP_SUPPORT_NON_PCI
+	bool "No PCI controller"
+	depends on TULIP
+	default n
+	help
+	  Say Y to this and you can run this driver on platforms that do not
+	  have PCI controllers.
+
+config TULIP_IGNORE_TX_NO_CARRIER
+	bool "Ignore tx no carrier error"
+	depends on TULIP
+	default n
+	help
+	  Some IP cores of dc2114x or its variants do not comply so well with
+	  the behaviors described by the official document. A packet could be
+	  sent successfully but reported with No Carrier error. Latest drivers
+	  of this IP core do not detect this error anymore. Say Y to this could
+	  disable handling of this error.
+
+config TULIP_MULTIPLE_TX_DESC
+	bool "Use multiple tx descriptors"
+	depends on TULIP
+	default n
+	help
+	  Some IP cores of dc2114x or its variants do not comply so well with
+	  the behaviors described by the official document. Originally this
+	  driver uses only one tx descriptor and organizes it as a ring buffer,
+	  which would lead to a problem that one packet would be sent twice.
+	  Say Y to this could prevent this bug if you are using IP cores with
+	  this issue, by using multiple tx descriptors and organizing them as
+	  a real well-defined ring buffer.
+
 config XILINX_AXIEMAC
 	select PHYLIB
 	select MII
