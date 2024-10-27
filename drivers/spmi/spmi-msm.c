@@ -57,6 +57,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPMI_STATUS_DONE 0x1
 
 #define SPMI_MAX_CHANNELS 128
+#define SPMI_MAX_CHANNELS_V3	512
 #define SPMI_MAX_CHANNELS_V5	512
 #define SPMI_MAX_CHANNELS_V7	1024
 #define SPMI_MAX_SLAVES 16
@@ -136,6 +137,7 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 		break;
 
 	case V2:
+	case V3:
 		ch_offset = SPMI_CH_OFFSET(channel);
 
 		reg = pmic_arb_fmt_cmd_v2(SPMI_CMD_EXT_REG_WRITE_LONG, off);
@@ -206,6 +208,7 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 		break;
 
 	case V2:
+	case V3:
 		ch_offset = SPMI_CH_OFFSET(channel);
 
 		/* Prepare read command */
@@ -301,7 +304,7 @@ static int msm_spmi_probe(struct udevice *dev)
 	} else if (hw_ver < PMIC_ARB_VERSION_V5_MIN) {
 		priv->arb_ver = V3;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V1_V2_V3;
-		priv->max_channels = SPMI_MAX_CHANNELS;
+		priv->max_channels = SPMI_MAX_CHANNELS_V3;
 	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
