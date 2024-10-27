@@ -3,12 +3,6 @@ if ARCH_QEMU
 config SYS_VENDOR
 	default "emulation"
 
-config SYS_BOARD
-	default "qemu-arm"
-
-config SYS_CONFIG_NAME
-	default "qemu-arm"
-
 choice
 	prompt "QEMU ARM architecture"
 	default TARGET_QEMU_ARM_64BIT
@@ -25,6 +19,36 @@ config TARGET_QEMU_ARM_64BIT
 	select ARM64
 	select BOARD_LATE_INIT
 
+config TARGET_QEMU_ARM_SBSA
+	bool "SBSA Reference"
+	select ARM64
+	select BINMAN
+	select BOARD_LATE_INIT
+	select ENABLE_ARM_SOC_BOOT0_HOOK
+	select MISC_INIT_R
 endchoice
+
+if TARGET_QEMU_ARM_32BIT || TARGET_QEMU_ARM_64BIT
+
+config SYS_BOARD
+	default "qemu-arm"
+
+config SYS_CONFIG_NAME
+	default "qemu-arm"
+
+endif
+
+if TARGET_QEMU_ARM_SBSA
+
+config SYS_BOARD
+	default "qemu-sbsa"
+
+config SYS_CONFIG_NAME
+	default "qemu-sbsa"
+
+config SYS_SOC
+	default "qemu-sbsa"
+
+endif
 
 endif

@@ -355,7 +355,7 @@ S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
-F:	drivers/ata/ahci_mvebu.c
+F:	drivers/ata/ahci_generic.c
 F:	drivers/clk/mvebu/
 F:	drivers/ddr/marvell/
 F:	drivers/gpio/mvebu_gpio.c

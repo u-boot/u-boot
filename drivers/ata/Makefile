@@ -14,6 +14,6 @@ obj-$(CONFIG_SATA) += sata.o sata_bootdev.o
 obj-$(CONFIG_SATA_CEVA) += sata_ceva.o
 obj-$(CONFIG_SATA_MV) += sata_mv.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
-obj-$(CONFIG_AHCI_MVEBU) += ahci_mvebu.o
+obj-$(CONFIG_AHCI_GENERIC) += ahci_generic.o
 obj-$(CONFIG_SUNXI_AHCI) += ahci_sunxi.o
 obj-$(CONFIG_MTK_AHCI) += mtk_ahci.o
