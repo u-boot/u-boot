@@ -525,11 +525,11 @@ config KS8851_MLL
 	  The Microchip KS8851 parallel bus external ethernet interface chip.
 
 config KSZ9477
-	bool "Microchip KSZ9477 I2C controller driver"
-	depends on DM_DSA && DM_I2C
+	bool "Microchip KSZ9477 controller driver"
+	depends on DM_DSA && (DM_I2C || DM_SPI)
 	help
 	  This driver implements a DSA switch driver for the KSZ9477 family
-	  of GbE switches using the I2C interface.
+	  of GbE switches using the I2C or SPI interface.
 
 config LITEETH
 	bool "LiteX LiteEth Ethernet MAC"
