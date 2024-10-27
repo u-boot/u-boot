@@ -1,0 +1,8 @@
+Emcraft Systems NavQ+ board (i.MX8M Plus)
+M:	Gilles Talis <gilles.talis@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/imx8mp-navqp-u-boot.dtsi
+F:	board/emcraft/imx8mp_navqp/
+F:	configs/imx8mp_navqp_defconfig
+F:	doc/board/emcraft/
+F:	include/configs/imx8mp_navqp.h
