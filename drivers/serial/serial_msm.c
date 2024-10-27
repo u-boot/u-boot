@@ -29,8 +29,8 @@
 #define UARTDM_RXFS             0x50 /* RX channel status register */
 #define UARTDM_RXFS_BUF_SHIFT   0x7  /* Number of bytes in the packing buffer */
 #define UARTDM_RXFS_BUF_MASK    0x7
-#define UARTDM_MR1				 0x00
-#define UARTDM_MR2				 0x04
+#define UARTDM_MR1		0x00 /* Operational Mode Register */
+#define UARTDM_MR2		0x04
 /*
  * This is documented on page 1817 of the apq8016e technical reference manual.
  * section 6.2.5.3.26
@@ -41,7 +41,7 @@
  * The baud rate is the core clock frequency divided by the fixed divider value
  * programmed into this register (defined in calc_csr_bitrate()).
  */
-#define UARTDM_CSR				 0xA0
+#define UARTDM_CSR		0xA0 /* Clock Selection Register */
 
 #define UARTDM_SR                0xA4 /* Status register */
 #define UARTDM_SR_RX_READY       (1 << 0) /* Word is the receiver FIFO */
@@ -66,6 +66,32 @@
 #define MSM_BOOT_UART_DM_CMD_RESET_RX	0x10
 #define MSM_BOOT_UART_DM_CMD_RESET_TX	0x20
 #define MSM_UART_MR1_RX_RDY_CTL		BIT(7)
+
+/* The name PERIPH_BLK_BLSP is taken from qcom lk uart_dm driver */
+/* This is related to some "newer" DMA mode. */
+/* See Linux commit ec8f29e70edceb93c021148a99a5c3889cdc1b08 */
+#define PERIPH_BLK_NOT_BLSP
+#ifdef PERIPH_BLK_NOT_BLSP
+/* If UART Data Mover is part of BLSP peripheral block, some register 
+ * offsets are different */
+#undef UARTDM_CSR
+#define UARTDM_CSR			0x08
+
+#undef UARTDM_TF
+#define UARTDM_TF			0x70
+
+#undef UARTDM_CR
+#define UARTDM_CR			0x10
+
+#undef UARTDM_SR
+#define UARTDM_SR			0x08
+
+#undef UARTDM_RF
+#define UARTDM_RF			0x70
+
+#undef UARTDM_ISR
+#define UARTDM_ISR			0x14
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -205,7 +231,7 @@ static int calc_csr_bitrate(struct msm_serial_data *priv)
 	return -EINVAL;
 }
 
-static void uart_dm_init(struct msm_serial_data *priv)
+static void __maybe_unused uart_dm_init(struct msm_serial_data *priv)
 {
 	/* Delay initialization for a bit to let pins stabilize if necessary */
 	mdelay(5);
@@ -251,7 +277,7 @@ static int msm_serial_probe(struct udevice *dev)
 	 */
 	priv->clk_rate = rate;
 
-	uart_dm_init(priv);
+	//uart_dm_init(priv);
 
 	return 0;
 }
@@ -305,6 +331,9 @@ static struct msm_serial_data init_serial_data = {
 
 static inline void _debug_uart_init(void)
 {
+	if (IS_ENABLED(CONFIG_DEBUG_UART_SKIP_INIT))
+		return;
+
 	/*
 	 * Uncomment to turn on UART clocks when debugging U-Boot as aboot
 	 * on MSM8916. Supported debug UART clock IDs:
