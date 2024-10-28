@@ -5,6 +5,8 @@
 
 obj-y += cmd_ut_hush.o
 obj-y += if.o
+ifdef CONFIG_CONSOLE_RECORD
 obj-y += dollar.o
+endif
 obj-y += list.o
 obj-y += loop.o
