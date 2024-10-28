@@ -47,10 +47,6 @@
 #include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#ifdef CONFIG_ARCH_IMX8M
-#include <asm/arch/clock.h>
-#include <asm/mach-imx/sys_proto.h>
-#endif
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
