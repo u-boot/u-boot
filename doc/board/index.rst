@@ -43,6 +43,7 @@ Board-specific doc
    phytec/index
    purism/index
    qualcomm/index
+   qnap/index
    renesas/index
    rockchip/index
    samsung/index
