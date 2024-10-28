@@ -220,8 +220,6 @@ static void lmb_reserve_uboot_region(void)
 	 */
 	debug("## Current stack ends at 0x%08lx ", (ulong)rsv_start);
 
-	/* adjust sp by 16K to be safe */
-	rsv_start -= SZ_16K;
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (!gd->bd->bi_dram[bank].size ||
 		    rsv_start < gd->bd->bi_dram[bank].start)
