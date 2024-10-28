@@ -1699,7 +1699,7 @@ config FDT_SIMPLEFB
 	  memory
 
 config ARCH_FIXUP_FDT_MEMORY
-	bool "Enable arch_fixup_memory_banks() call"
+	bool "Enable fdt_fixup_memory_banks() call"
 	default y
 	help
 	  Enable FDT memory map syncup before OS boot. This feature can be
