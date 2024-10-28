@@ -104,6 +104,7 @@ Shell commands
    cmd/reset
    cmd/rng
    cmd/saves
+   cmd/sb
    cmd/sbi
    cmd/scmi
    cmd/scp03
