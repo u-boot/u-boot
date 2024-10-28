@@ -248,6 +248,7 @@ struct eqos_ops {
 	int (*eqos_set_tx_clk_speed)(struct udevice *dev);
 	int (*eqos_get_enetaddr)(struct udevice *dev);
 	ulong (*eqos_get_tick_clk_rate)(struct udevice *dev);
+	void (*eqos_fix_soc_reset)(struct udevice *dev);
 };
 
 struct eqos_priv {
