@@ -7,6 +7,7 @@
 #include <command.h>
 #include <dm.h>
 #include <spl.h>
+#include <asm/cpu.h>
 #include <asm/global_data.h>
 #include <asm/state.h>
 
@@ -29,6 +30,14 @@ static int do_sb_handoff(struct cmd_tbl *cmdtp, int flag, int argc,
 #endif
 }
 
+static int do_sb_map(struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
+{
+	sandbox_map_list();
+
+	return 0;
+}
+
 static int do_sb_state(struct cmd_tbl *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
@@ -42,8 +51,10 @@ static int do_sb_state(struct cmd_tbl *cmdtp, int flag, int argc,
 
 U_BOOT_LONGHELP(sb,
 	"handoff     - Show handoff data received from SPL\n"
+	"sb map         - Show mapped memory\n"
 	"sb state       - Show sandbox state");
 
 U_BOOT_CMD_WITH_SUBCMDS(sb, "Sandbox status commands", sb_help_text,
 	U_BOOT_SUBCMD_MKENT(handoff, 1, 1, do_sb_handoff),
+	U_BOOT_SUBCMD_MKENT(map, 1, 1, do_sb_map),
 	U_BOOT_SUBCMD_MKENT(state, 1, 1, do_sb_state));

@@ -12,6 +12,7 @@ Synopsis
 ::
 
     sb handoff
+    sb map
     sb state
 
 Description
@@ -25,6 +26,24 @@ sb handoff
 
 This shows information about any handoff information received from SPL. If
 U-Boot is started from an SPL build, it shows a valid magic number.
+
+sb map
+~~~~~~
+
+This shows any mappings between sandbox's emulated RAM and the underlying host
+address-space.
+
+Fields shown are:
+
+Addr
+    Address in emulated RAM
+
+Mapping
+    Equivalent address in the host address-space. While sandbox requests address
+    ``0x10000000`` from the OS, this is not always available.
+
+Refcnt
+    Shows the number of references to this mapping.
 
 sb state
 ~~~~~~~~
@@ -41,6 +60,12 @@ as ``sandbox_spl``::
 
     => sb handoff
     SPL handoff magic 14f93c7b
+
+This shows output from the *sb map* subcommand, with a single mapping::
+
+    Sandbox memory-mapping
+        Addr           Mapping  Refcnt
+    ff000000  000056185b46d6d0       2
 
 This shows output from the *sb state* subcommand::
 
