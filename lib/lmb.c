@@ -35,9 +35,8 @@ static bool lmb_should_notify(enum lmb_flags flags)
 		CONFIG_IS_ENABLED(EFI_LOADER);
 }
 
-static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
-						phys_size_t size,
-						u8 op, enum lmb_flags flags)
+static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
+				 enum lmb_flags flags)
 {
 	u64 efi_addr;
 	u64 pages;
