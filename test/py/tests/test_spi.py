@@ -693,4 +693,16 @@ def test_spi_negative(u_boot_console):
             u_boot_console, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
         )
 
+        # Read to relocation address
+        output = u_boot_console.run_command('bdinfo')
+        m = re.search('relocaddr\s*= (.+)', output)
+        res_area = int(m.group(1), 16)
+
+        start = 0
+        size = 0x2000
+        error_msg = 'ERROR: trying to overwrite reserved memory'
+        flash_ops(
+            u_boot_console, 'read', start, size, res_area, 1, error_msg, EXPECTED_READ
+        )
+
         i = i + 1
