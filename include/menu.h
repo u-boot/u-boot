@@ -40,6 +40,7 @@ int menu_show(int bootdelay);
 struct bootmenu_data {
 	int delay;			/* delay for autoboot */
 	int active;			/* active menu entry */
+	int last_active;		/* last active menu entry */
 	int count;			/* total count of menu entries */
 	struct bootmenu_entry *first;	/* first menu entry */
 };
