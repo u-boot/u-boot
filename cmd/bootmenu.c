@@ -506,7 +506,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 
 	menu = menu_create(NULL, bootmenu->delay, 1, menu_display_statusline,
 			   bootmenu_print_entry, bootmenu_choice_entry,
-			   bootmenu);
+			   NULL, bootmenu);
 	if (!menu) {
 		bootmenu_destroy(bootmenu);
 		return BOOTMENU_RET_FAIL;

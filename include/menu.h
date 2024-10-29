@@ -13,6 +13,7 @@ struct menu *menu_create(char *title, int timeout, int prompt,
 				void (*display_statusline)(struct menu *),
 				void (*item_data_print)(void *),
 				char *(*item_choice)(void *),
+				bool (*need_reprint)(void *),
 				void *item_choice_data);
 int menu_default_set(struct menu *m, char *item_key);
 int menu_get_choice(struct menu *m, void **choice);
