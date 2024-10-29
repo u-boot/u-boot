@@ -420,7 +420,7 @@ int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
 static int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
 	struct serial_device_info serial_info = {0};
-	u64 serial_address, serial_offset;
+	ulong serial_address, serial_offset;
 	struct acpi_table_header *header;
 	struct acpi_spcr *spcr;
 	struct udevice *dev;
@@ -473,7 +473,7 @@ static int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry
 	}
 
 	serial_width = serial_info.reg_width * 8;
-	serial_offset = ((u64)serial_info.reg_offset) << serial_info.reg_shift;
+	serial_offset = serial_info.reg_offset << serial_info.reg_shift;
 	serial_address = serial_info.addr + serial_offset;
 
 	/* Encode register access size */
