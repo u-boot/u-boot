@@ -3,6 +3,7 @@
  * Copyright (C) 2021 Mark Kettenis <kettenis@openbsd.org>
  */
 
+#include <alist.h>
 #include <cpu_func.h>
 #include <dm.h>
 #include <iommu.h>
@@ -70,6 +71,8 @@
 
 struct apple_dart_priv {
 	void *base;
+	struct lmb apple_dart_lmb;
+	struct lmb ram_lmb;
 	u64 *l1, *l2;
 	int bypass, shift;
 
@@ -86,6 +89,56 @@ struct apple_dart_priv {
 	u32 ttbr_valid;
 	void (*flush_tlb)(struct apple_dart_priv *priv);
 };
+
+static int apple_dart_lmb_init(struct apple_dart_priv *priv)
+{
+	bool ret;
+	struct lmb *almb = &priv->apple_dart_lmb;
+
+	ret = alist_init(&almb->free_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB free memory\n");
+		return -ENOMEM;
+	}
+
+	ret = alist_init(&almb->used_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB used memory\n");
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+
+static void apple_dart_lmb_uninit(struct apple_dart_priv *priv)
+{
+	struct lmb *almb = &priv->apple_dart_lmb;
+
+	alist_uninit(&almb->free_mem);
+	alist_uninit(&almb->used_mem);
+}
+
+static void apple_dart_lmb_setup(struct apple_dart_priv *priv)
+{
+	struct lmb *almb = &priv->apple_dart_lmb;
+	struct lmb *rlmb = &priv->ram_lmb;
+
+	lmb_push(rlmb);
+
+	lmb_pop(almb);
+}
+
+static void apple_dart_lmb_pop(struct apple_dart_priv *priv)
+{
+	struct lmb *almb = &priv->apple_dart_lmb;
+	struct lmb *rlmb = &priv->ram_lmb;
+
+	lmb_push(almb);
+
+	lmb_pop(rlmb);
+}
 
 static void apple_dart_t8020_flush_tlb(struct apple_dart_priv *priv)
 {
@@ -123,7 +176,9 @@ static dma_addr_t apple_dart_map(struct udevice *dev, void *addr, size_t size)
 	off = (phys_addr_t)addr - paddr;
 	psize = ALIGN(size + off, DART_PAGE_SIZE);
 
+	apple_dart_lmb_setup(priv);
 	dva = lmb_alloc(psize, DART_PAGE_SIZE);
+	apple_dart_lmb_pop(priv);
 
 	idx = dva / DART_PAGE_SIZE;
 	for (i = 0; i < psize / DART_PAGE_SIZE; i++) {
@@ -159,7 +214,9 @@ static void apple_dart_unmap(struct udevice *dev, dma_addr_t addr, size_t size)
 			   (unsigned long)&priv->l2[idx + i]);
 	priv->flush_tlb(priv);
 
+	apple_dart_lmb_setup(priv);
 	lmb_free(dva, psize);
+	apple_dart_lmb_pop(priv);
 }
 
 static struct iommu_ops apple_dart_ops = {
@@ -173,7 +230,7 @@ static int apple_dart_probe(struct udevice *dev)
 	dma_addr_t addr;
 	phys_addr_t l2;
 	int ntte, nl1, nl2;
-	int sid, i;
+	int sid, i, ret;
 	u32 params2, params4;
 
 	priv->base = dev_read_addr_ptr(dev);
@@ -212,7 +269,13 @@ static int apple_dart_probe(struct udevice *dev)
 	priv->dvabase = DART_PAGE_SIZE;
 	priv->dvaend = SZ_4G - DART_PAGE_SIZE;
 
+	ret = apple_dart_lmb_init(priv);
+	if (ret)
+		return ret;
+
+	apple_dart_lmb_setup(priv);
 	lmb_add(priv->dvabase, priv->dvaend - priv->dvabase);
+	apple_dart_lmb_pop(priv);
 
 	/* Disable translations. */
 	for (sid = 0; sid < priv->nsid; sid++)
@@ -293,6 +356,8 @@ static int apple_dart_remove(struct udevice *dev)
 			writel(0, priv->base + DART_TTBR(priv, sid, i));
 	}
 	priv->flush_tlb(priv);
+
+	apple_dart_lmb_uninit(priv);
 
 	return 0;
 }

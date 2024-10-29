@@ -28,7 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAP_OP_ADD		(u8)0x3
 
 #define LMB_ALLOC_ANYWHERE	0
-#define LMB_ALIST_INITIAL_SIZE	4
 
 static struct lmb lmb;
 

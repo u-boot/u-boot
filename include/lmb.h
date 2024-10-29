@@ -14,6 +14,8 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
+#define LMB_ALIST_INITIAL_SIZE	4
+
 /**
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request
