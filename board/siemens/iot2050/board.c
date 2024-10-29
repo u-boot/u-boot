@@ -38,6 +38,8 @@ struct iot2050_info {
 	u8 mac_addr_cnt;
 	u8 mac_addr[8][ARP_HLEN];
 	char seboot_version[40 + 1];
+	u8 padding[3];
+	u32 ddr_size_mb;
 } __packed;
 
 /*
@@ -172,6 +174,14 @@ static bool board_is_m2(void)
 		strcmp((char *)info->name, "IOT2050-ADVANCED-M2") == 0;
 }
 
+static bool board_is_sm(void)
+{
+	struct iot2050_info *info = IOT2050_INFO_DATA;
+
+	return info->magic == IOT2050_INFO_MAGIC &&
+		strcmp((char *)info->name, "IOT2050-ADVANCED-SM") == 0;
+}
+
 static void remove_mmc1_target(void)
 {
 	char *boot_targets = strdup(env_get("boot_targets"));
@@ -183,6 +193,15 @@ static void remove_mmc1_target(void)
 	}
 
 	free(boot_targets);
+}
+
+static void enable_pcie_connector_power(void)
+{
+	if (board_is_sm())
+		set_pinvalue("gpio@601000_22", "P3V3_PCIE_CON_EN", 1);
+	else
+		set_pinvalue("gpio@601000_17", "P3V3_PCIE_CON_EN", 1);
+	udelay(4 * 100);
 }
 
 void set_board_info_env(void)
@@ -220,8 +239,10 @@ void set_board_info_env(void)
 	if (board_is_advanced()) {
 		if (board_is_pg1())
 			fdtfile = "ti/k3-am6548-iot2050-advanced.dtb";
-		else if(board_is_m2())
+		else if (board_is_m2())
 			fdtfile = "ti/k3-am6548-iot2050-advanced-m2.dtb";
+		else if (board_is_sm())
+			fdtfile = "ti/k3-am6548-iot2050-advanced-sm.dtb";
 		else
 			fdtfile = "ti/k3-am6548-iot2050-advanced-pg2.dtb";
 	} else {
@@ -237,22 +258,13 @@ void set_board_info_env(void)
 	env_save();
 }
 
-static void m2_overlay_prepare(void)
+static void do_overlay_prepare(const char *overlay_path)
 {
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-	const char *overlay_path;
 	void *overlay;
 	u64 loadaddr;
 	ofnode node;
 	int ret;
-
-	if (connector_mode == BKEY_PCIEX2)
-		return;
-
-	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
-		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
-	else
-		overlay_path = "/fit-images/bkey-usb3-overlay";
 
 	node = ofnode_path(overlay_path);
 	if (!ofnode_valid(node))
@@ -280,6 +292,21 @@ fit_error:
 #endif
 }
 
+static void m2_overlay_prepare(void)
+{
+	const char *overlay_path;
+
+	if (connector_mode == BKEY_PCIEX2)
+		return;
+
+	if (connector_mode == BKEY_PCIE_EKEY_PCIE)
+		overlay_path = "/fit-images/bkey-ekey-pcie-overlay";
+	else
+		overlay_path = "/fit-images/bkey-usb3-overlay";
+
+	do_overlay_prepare(overlay_path);
+}
+
 static void m2_connector_setup(void)
 {
 	ulong m2_manual_config = env_get_ulong("m2_manual_config", 10,
@@ -287,10 +314,6 @@ static void m2_connector_setup(void)
 	const char *mode_info = "";
 	struct m2_config_pins config_pins;
 	unsigned int n;
-
-	/* enable M.2 connector power */
-	set_pinvalue("gpio@601000_17", "P3V3_M2_EN", 1);
-	udelay(4 * 100);
 
 	if (m2_manual_config < CONNECTOR_MODE_INVALID) {
 		mode_info = " [manual mode]";
@@ -339,25 +362,42 @@ int board_init(void)
 
 int dram_init(void)
 {
-	if (board_is_advanced())
-		gd->ram_size = SZ_2G;
-	else
-		gd->ram_size = SZ_1G;
+	struct iot2050_info *info = IOT2050_INFO_DATA;
+	gd->ram_size = ((phys_size_t)(info->ddr_size_mb)) << 20;
 
 	return 0;
+}
+
+ulong board_get_usable_ram_top(ulong total_size)
+{
+	/* Limit RAM used by U-Boot to the DDR low region */
+	if (gd->ram_top > 0x100000000)
+		return 0x100000000;
+
+	return gd->ram_top;
 }
 
 int dram_init_banksize(void)
 {
 	dram_init();
 
-	/* Bank 0 declares the memory available in the DDR low region */
-	gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = gd->ram_size;
+	if (gd->ram_size > SZ_2G) {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = SZ_2G;
 
-	/* Bank 1 declares the memory available in the DDR high region */
-	gd->bd->bi_dram[1].start = 0;
-	gd->bd->bi_dram[1].size = 0;
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = CFG_SYS_SDRAM_BASE1;
+		gd->bd->bi_dram[1].size = gd->ram_size - SZ_2G;
+	} else {
+		/* Bank 0 declares the memory available in the DDR low region */
+		gd->bd->bi_dram[0].start = CFG_SYS_SDRAM_BASE;
+		gd->bd->bi_dram[0].size = gd->ram_size;
+
+		/* Bank 1 declares the memory available in the DDR high region */
+		gd->bd->bi_dram[1].start = 0;
+		gd->bd->bi_dram[1].size = 0;
+	}
 
 	return 0;
 }
@@ -368,8 +408,8 @@ int board_fit_config_name_match(const char *name)
 	struct iot2050_info *info = IOT2050_INFO_DATA;
 	char upper_name[32];
 
-	/* skip the prefix "k3-am65x8-" */
-	name += 10;
+	/* skip the prefix "ti/k3-am65x8-" */
+	name += 13;
 
 	if (info->magic != IOT2050_INFO_MAGIC ||
 	    strlen(name) >= sizeof(upper_name))
@@ -429,6 +469,8 @@ int board_late_init(void)
 	/* change CTRL_MMR register to let serdes0 not output USB3.0 signals. */
 	writel(0x3, SERDES0_LANE_SELECT);
 
+	enable_pcie_connector_power();
+
 	if (board_is_m2())
 		m2_connector_setup();
 
@@ -443,7 +485,7 @@ int board_late_init(void)
 }
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-static void m2_fdt_fixup(void *blob)
+static void variants_fdt_fixup(void *blob)
 {
 	void *overlay_copy = NULL;
 	void *fdt_copy = NULL;
@@ -483,14 +525,14 @@ cleanup:
 	return;
 
 fixup_error:
-	pr_err("Could not apply M.2 device tree overlay\n");
+	pr_err("Could not apply device tree overlay\n");
 	goto cleanup;
 }
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	if (board_is_m2())
-		m2_fdt_fixup(blob);
+		variants_fdt_fixup(blob);
 
 	return 0;
 }

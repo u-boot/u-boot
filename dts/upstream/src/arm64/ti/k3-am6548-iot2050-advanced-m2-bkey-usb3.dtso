@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * IOT2050 M.2 variant, overlay for B-key USB3.0 + E-key PCIE1_LANE0
- * Copyright (c) Siemens AG, 2022
+ * Copyright (c) Siemens AG, 2022-2024
  *
  * Authors:
  *   Chao Zeng <chao.zeng@siemens.com>
