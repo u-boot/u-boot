@@ -525,14 +525,15 @@ enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
 				struct cli_ch_state *cch)
 {
 	enum bootmenu_key key;
-	int c;
+	int c, errchar = 0;
 
 	c = cli_ch_process(cch, 0);
 	if (!c) {
 		while (!c && !tstc()) {
 			schedule();
 			mdelay(10);
-			c = cli_ch_process(cch, -ETIMEDOUT);
+			c = cli_ch_process(cch, errchar);
+			errchar = -ETIMEDOUT;
 		}
 		if (!c) {
 			c = getchar();
