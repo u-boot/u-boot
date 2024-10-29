@@ -9,6 +9,7 @@
 #include <dm/device.h>
 #include <dm/devres.h>
 #include <dm/uclass.h>
+#include <regmap.h>
 #include <dt-bindings/clock/microchip-mpfs-clock.h>
 #include <linux/err.h>
 
@@ -50,7 +51,7 @@ struct mpfs_periph_clock {
  */
 struct mpfs_periph_hw_clock {
 	struct mpfs_periph_clock periph;
-	void __iomem *sys_base;
+	struct regmap *regmap;
 	u32 prate;
 	struct clk hw;
 };
@@ -61,17 +62,16 @@ static int mpfs_periph_clk_enable(struct clk *hw)
 {
 	struct mpfs_periph_hw_clock *periph_hw = to_mpfs_periph_clk(hw);
 	struct mpfs_periph_clock *periph = &periph_hw->periph;
-	void __iomem *base_addr = periph_hw->sys_base;
-	u32 reg, val;
+	u32 reg;
 
 	if (periph->flags != CLK_IS_CRITICAL) {
-		reg = readl(base_addr + REG_SUBBLK_RESET_CR);
-		val = reg & ~(1u << periph->shift);
-		writel(val, base_addr + REG_SUBBLK_RESET_CR);
+		regmap_read(periph_hw->regmap, REG_SUBBLK_RESET_CR, &reg);
+		reg &= ~(1u << periph->shift);
+		regmap_write(periph_hw->regmap, REG_SUBBLK_RESET_CR, reg);
 
-		reg = readl(base_addr + REG_SUBBLK_CLOCK_CR);
-		val = reg | (1u << periph->shift);
-		writel(val, base_addr + REG_SUBBLK_CLOCK_CR);
+		regmap_read(periph_hw->regmap, REG_SUBBLK_CLOCK_CR, &reg);
+		reg |= (1u << periph->shift);
+		regmap_write(periph_hw->regmap, REG_SUBBLK_CLOCK_CR, reg);
 	}
 
 	return 0;
@@ -81,17 +81,16 @@ static int mpfs_periph_clk_disable(struct clk *hw)
 {
 	struct mpfs_periph_hw_clock *periph_hw = to_mpfs_periph_clk(hw);
 	struct mpfs_periph_clock *periph = &periph_hw->periph;
-	void __iomem *base_addr = periph_hw->sys_base;
-	u32 reg, val;
+	u32 reg;
 
 	if (periph->flags != CLK_IS_CRITICAL) {
-		reg = readl(base_addr + REG_SUBBLK_RESET_CR);
-		val = reg | (1u << periph->shift);
-		writel(val, base_addr + REG_SUBBLK_RESET_CR);
+		regmap_read(periph_hw->regmap, REG_SUBBLK_RESET_CR, &reg);
+		reg |= (1u << periph->shift);
+		regmap_write(periph_hw->regmap, REG_SUBBLK_RESET_CR, reg);
 
-		reg = readl(base_addr + REG_SUBBLK_CLOCK_CR);
-		val = reg & ~(1u << periph->shift);
-		writel(val, base_addr + REG_SUBBLK_CLOCK_CR);
+		regmap_read(periph_hw->regmap, REG_SUBBLK_CLOCK_CR, &reg);
+		reg &= ~(1u << periph->shift);
+		regmap_write(periph_hw->regmap, REG_SUBBLK_CLOCK_CR, reg);
 	}
 
 	return 0;
@@ -159,7 +158,7 @@ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
 	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", CLK_AHB, 29, 0),
 };
 
-int mpfs_clk_register_periphs(void __iomem *base, struct udevice *dev)
+int mpfs_clk_register_periphs(struct udevice *dev, struct regmap *regmap)
 {
 	int ret;
 	int i, id, num_clks;
@@ -172,7 +171,7 @@ int mpfs_clk_register_periphs(void __iomem *base, struct udevice *dev)
 
 		clk_request(dev, &parent);
 		hw = &mpfs_periph_clks[i].hw;
-		mpfs_periph_clks[i].sys_base = base;
+		mpfs_periph_clks[i].regmap = regmap;
 		mpfs_periph_clks[i].prate = clk_get_rate(&parent);
 		name = mpfs_periph_clks[i].periph.name;
 		ret = clk_register(hw, MPFS_PERIPH_CLOCK, name, parent.dev->name);

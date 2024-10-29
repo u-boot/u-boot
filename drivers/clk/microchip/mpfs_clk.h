@@ -7,6 +7,7 @@
 #define __MICROCHIP_MPFS_CLK_H
 
 #include <linux/clk-provider.h>
+#include <regmap.h>
 /**
  * mpfs_clk_register_cfgs() - register configuration clocks
  *
@@ -14,7 +15,7 @@
  * @parent: a pointer to parent clock.
  * Return: zero on success, or a negative error code.
  */
-int mpfs_clk_register_cfgs(void __iomem *base, struct clk *parent);
+int mpfs_clk_register_cfgs(struct clk *parent, struct regmap *regmap);
 /**
  * mpfs_clk_register_msspll() - register the mss pll
  *
@@ -30,7 +31,7 @@ int mpfs_clk_register_msspll(void __iomem *base, struct clk *parent);
  * @dev: udevice representing the clock controller.
  * Return: zero on success, or a negative error code.
  */
-int mpfs_clk_register_periphs(void __iomem *base, struct udevice *dev);
+int mpfs_clk_register_periphs(struct udevice *dev, struct regmap *regmap);
 /**
  * divider_get_val() - get the clock divider value
  *
