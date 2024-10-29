@@ -892,12 +892,23 @@ struct lmb *lmb_get(void)
 	return &lmb;
 }
 
+void lmb_push(struct lmb *store)
+{
+	*store = lmb;
+}
+
+void lmb_pop(struct lmb *store)
+{
+	lmb = *store;
+}
+
 #if CONFIG_IS_ENABLED(UNIT_TEST)
-int lmb_push(struct lmb *store)
+int lmb_test_push(struct lmb *store)
 {
 	int ret;
 
-	*store = lmb;
+	lmb_push(store);
+
 	ret = lmb_setup(true);
 	if (ret)
 		return ret;
@@ -905,10 +916,11 @@ int lmb_push(struct lmb *store)
 	return 0;
 }
 
-void lmb_pop(struct lmb *store)
+void lmb_test_pop(struct lmb *store)
 {
 	alist_uninit(&lmb.free_mem);
 	alist_uninit(&lmb.used_mem);
-	lmb = *store;
+
+	lmb_pop(store);
 }
 #endif /* UNIT_TEST */

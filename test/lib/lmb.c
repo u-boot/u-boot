@@ -63,7 +63,7 @@ static int setup_lmb_test(struct unit_test_state *uts, struct lmb *store,
 {
 	struct lmb *lmb;
 
-	ut_assertok(lmb_push(store));
+	ut_assertok(lmb_test_push(store));
 	lmb = lmb_get();
 	*mem_lstp = &lmb->free_mem;
 	*used_lstp = &lmb->used_mem;
@@ -194,7 +194,7 @@ static int test_multi_alloc(struct unit_test_state *uts, const phys_addr_t ram,
 		ut_asserteq(mem[0].size, ram_size);
 	}
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -293,7 +293,7 @@ static int test_bigblock(struct unit_test_state *uts, const phys_addr_t ram)
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, alloc_64k_addr, 0x10000,
 		   0, 0, 0, 0);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -373,7 +373,7 @@ static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram,
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 0, 0, 0, 0, 0, 0, 0);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -446,7 +446,7 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 0, 0, 0, 0, 0, 0, 0);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -499,7 +499,7 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40000000, 0x40000,
 		   0, 0, 0, 0);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -619,7 +619,7 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 		ut_asserteq(ret, 0);
 	}
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -691,7 +691,7 @@ static int test_get_unreserved_size(struct unit_test_state *uts,
 	s = lmb_get_free_size(ram_end - 4);
 	ut_asserteq(s, 4);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }
@@ -797,7 +797,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 	ut_asserteq(lmb_is_nomap(&used[1]), 0);
 	ut_asserteq(lmb_is_nomap(&used[2]), 1);
 
-	lmb_pop(&store);
+	lmb_test_pop(&store);
 
 	return 0;
 }

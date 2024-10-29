@@ -171,8 +171,10 @@ void lmb_dump_all_force(void);
 void lmb_arch_add_memory(void);
 
 struct lmb *lmb_get(void);
-int lmb_push(struct lmb *store);
+void lmb_push(struct lmb *store);
 void lmb_pop(struct lmb *store);
+int lmb_test_push(struct lmb *store);
+void lmb_test_pop(struct lmb *store);
 
 static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 {
