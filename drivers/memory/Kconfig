@@ -39,7 +39,7 @@ config STM32_FMC2_EBI
 
 config TI_AEMIF
 	tristate "Texas Instruments AEMIF driver"
-	depends on ARCH_KEYSTONE
+	depends on ARCH_KEYSTONE || ARCH_DAVINCI
 	help
 	  This driver is for the AEMIF module available in Texas Instruments
 	  SoCs. AEMIF stands for Asynchronous External Memory Interface and
