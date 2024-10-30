@@ -24,6 +24,7 @@ Board-specific doc
    cloos/index
    congatec/index
    coreboot/index
+   emcraft/index
    emulation/index
    gateworks/index
    google/index
