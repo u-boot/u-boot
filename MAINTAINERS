@@ -1604,6 +1604,7 @@ F:	drivers/mtd/nand/spi/
 SPI-NOR
 M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Vignesh R <vigneshr@ti.com>
+R:	Tudor Ambarus <tudor.ambarus@linaro.org>
 S:	Maintained
 F:	drivers/mtd/spi/
 F:	include/spi_flash.h
