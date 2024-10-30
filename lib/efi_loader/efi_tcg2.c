@@ -789,7 +789,7 @@ static const struct efi_tcg2_protocol efi_tcg2_protocol = {
 /**
  * tcg2_uninit - remove the final event table and free efi memory on failures
  */
-void tcg2_uninit(void)
+static void tcg2_uninit(void)
 {
 	efi_status_t ret;
 
