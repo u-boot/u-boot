@@ -14,22 +14,21 @@ static int env_test_env_cmd(struct unit_test_state *uts)
 	ut_assertok(run_command("setenv non_default_var1 1", 0));
 	ut_assert_console_end();
 
-	ut_assertok(run_command("setenv non_default_var2 1", 0));
+	ut_assertok(run_command("setenv non_default_var2 2", 0));
 	ut_assert_console_end();
 
 	ut_assertok(run_command("env print non_default_var1", 0));
 	ut_assert_nextline("non_default_var1=1");
 	ut_assert_console_end();
 
-	ut_assertok(run_command("env default non_default_var1 non_default_var2", 0));
+	ut_assertok(run_command("env default non_default_var1", 0));
 	ut_assert_nextline("WARNING: 'non_default_var1' not in imported env, deleting it!");
-	ut_assert_nextline("WARNING: 'non_default_var2' not in imported env, deleting it!");
 	ut_assert_console_end();
 
 	ut_asserteq(1, run_command("env exists non_default_var1", 0));
 	ut_assert_console_end();
 
-	ut_asserteq(1, run_command("env exists non_default_var2", 0));
+	ut_asserteq(0, run_command("env exists non_default_var2", 0));
 	ut_assert_console_end();
 
 	return 0;
