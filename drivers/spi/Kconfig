@@ -20,12 +20,6 @@ menuconfig SPI
 
 if SPI
 
-config SPI_ADVANCE
-	bool "Enable the advance feature"
-	help
-	 Enable the SPI advance feature support. By default this is disabled.
-	 If you intend to use the advance feature support you should enable.
-
 config DM_SPI
 	bool "Enable Driver Model for SPI drivers"
 	depends on DM
@@ -614,6 +608,12 @@ config ZYNQMP_GQSPI
 	help
 	  This option is used to enable ZynqMP QSPI controller driver which
 	  is used to communicate with qspi flash devices.
+
+config SPI_STACKED_PARALLEL
+	bool "Enable support for stacked or parallel memories"
+	help
+	 Enable support for stacked/or parallel memories. This functionality
+	 may appear on Xilinx hardware. By default this is disabled.
 
 endif # if DM_SPI
 
