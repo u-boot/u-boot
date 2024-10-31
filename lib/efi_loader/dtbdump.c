@@ -225,7 +225,7 @@ static u32 f2h(fdt32_t val)
  * @systable:	system table
  * Return:	device tree or NULL
  */
-void *get_dtb(struct efi_system_table *systable)
+static void *get_dtb(struct efi_system_table *systable)
 {
 	void *dtb = NULL;
 	efi_uintn_t i;
@@ -246,7 +246,7 @@ void *get_dtb(struct efi_system_table *systable)
  * @pos:	UTF-16 string
  * Return:	pointer to first non-whitespace
  */
-u16 *skip_whitespace(u16 *pos)
+static u16 *skip_whitespace(u16 *pos)
 {
 	for (; *pos && *pos <= 0x20; ++pos)
 		;
@@ -260,7 +260,7 @@ u16 *skip_whitespace(u16 *pos)
  * @keyword:	keyword to be searched
  * Return:	true fi @string starts with the keyword
  */
-bool starts_with(u16 *string, u16 *keyword)
+static bool starts_with(u16 *string, u16 *keyword)
 {
 	for (; *keyword; ++string, ++keyword) {
 		if (*string != *keyword)
@@ -272,7 +272,7 @@ bool starts_with(u16 *string, u16 *keyword)
 /**
  * do_help() - print help
  */
-void do_help(void)
+static void do_help(void)
 {
 	error(u"dump       - print device-tree\r\n");
 	error(u"load <dtb> - load device-tree from file\r\n");
@@ -332,7 +332,7 @@ open_file_system(struct efi_simple_file_system_protocol **file_system)
  * @filename:	file name
  * Return:	status code
  */
-efi_status_t do_load(u16 *filename)
+static efi_status_t do_load(u16 *filename)
 {
 	struct efi_dt_fixup_protocol *dt_fixup_prot;
 	struct efi_simple_file_system_protocol *file_system;
@@ -469,7 +469,7 @@ out:
  * @filename:	file name
  * Return:	status code
  */
-efi_status_t do_save(u16 *filename)
+static efi_status_t do_save(u16 *filename)
 {
 	struct efi_simple_file_system_protocol *file_system;
 	efi_uintn_t dtb_size;

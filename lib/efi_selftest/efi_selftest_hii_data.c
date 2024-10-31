@@ -39,7 +39,7 @@
 /* HII keyboard layout */
 #define EFI_NULL_MODIFIER		0x0000
 
-u8 packagelist1[] = {
+static u8 packagelist1[] = {
 	// EFI_HII_PACKAGE_LIST_HEADER, length = 20
 	// SimpleFont, Font, GUID, Form, String, Image, DevicePath,
 	// (74)        (110) 20    (8)   78      (67)   (8)
@@ -262,7 +262,7 @@ u8 packagelist1[] = {
 	EFI_HII_PACKAGE_END
 };
 
-u8 packagelist2[] = {
+static u8 packagelist2[] = {
 	// EFI_HII_PACKAGE_LIST_HEADER, length = 20
 	// SimpleFont, Font, GUID, KeyboardLayout, Form, End
 	// (74)        (122) 20    192             (8)   4
@@ -424,30 +424,10 @@ u8 packagelist2[] = {
 	EFI_HII_PACKAGE_END			// 1
 };
 
-efi_guid_t packagelist_guid1 =
-	EFI_GUID(0x03abcd89, 0x03f4, 0x7044,
-		 0x81, 0xde, 0x99, 0xb1, 0x81, 0x20, 0xf7, 0x68);
-
-efi_guid_t packagelist_guid2 =
-	EFI_GUID(0x8685ded3, 0x1bce, 0x43f3,
-		 0xa2, 0x0c, 0xa3, 0x06, 0xec, 0x69, 0x72, 0xdd);
-
-efi_guid_t kb_layout_guid11 =
+static efi_guid_t kb_layout_guid11 =
 	EFI_GUID(0x8d40e495, 0xe2aa, 0x4c6f,
 		 0x89, 0x70, 0x68, 0x85, 0x09, 0xee, 0xc7, 0xd2);
 
-efi_guid_t kb_layout_guid12 =
-	EFI_GUID(0x2ae60b3e, 0xb9d6, 0x49d8,
-		 0x9a, 0x16, 0xc2, 0x48, 0xf1, 0xeb, 0xa8, 0xdb);
-
-efi_guid_t kb_layout_guid21 =
-	EFI_GUID(0xe0f56a1f, 0xdf6b, 0x4a7e,
-		 0xa3, 0x9a, 0xe7, 0xa5, 0x19, 0x15, 0x45, 0xd6);
-
-efi_guid_t kb_layout_guid22 =
-	EFI_GUID(0x47be6ac9, 0x54cc, 0x46f9,
-		 0xa2, 0x62, 0xd5, 0x3b, 0x25, 0x6a, 0x0c, 0x34);
-
-efi_guid_t package_guid =
+static efi_guid_t package_guid =
 	EFI_GUID(0x0387c95a, 0xd703, 0x2346,
 		 0xb2, 0xab, 0xd0, 0xc7, 0xdd, 0x90, 0x44, 0xf8);

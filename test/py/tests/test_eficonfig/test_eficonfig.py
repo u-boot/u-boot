@@ -117,7 +117,7 @@ def test_efi_eficonfig(u_boot_console, efi_eficonfig_data):
         press_up_down_enter_and_wait(0, 0, True, 'Quit')
 
         # Press the enter key to select 'Description:' entry, then enter Description
-        press_up_down_enter_and_wait(0, 0, True, 'enter description:')
+        press_up_down_enter_and_wait(0, 0, True, 'Enter description:')
         # Send Description user input, press ENTER key to complete
         send_user_input_and_wait('test 1', 'Quit')
 
@@ -166,7 +166,7 @@ def test_efi_eficonfig(u_boot_console, efi_eficonfig_data):
         press_up_down_enter_and_wait(0, 0, True, 'Quit')
 
         # Press the enter key to select 'Description:' entry, then enter Description
-        press_up_down_enter_and_wait(0, 0, True, 'enter description:')
+        press_up_down_enter_and_wait(0, 0, True, 'Enter description:')
         # Send Description user input, press ENTER key to complete
         send_user_input_and_wait('test 2', 'Quit')
 
@@ -278,7 +278,7 @@ def test_efi_eficonfig(u_boot_console, efi_eficonfig_data):
             u_boot_console.p.expect([i])
 
         # Press the enter key to select 'Description:' entry, then enter Description
-        press_up_down_enter_and_wait(0, 0, True, 'enter description:')
+        press_up_down_enter_and_wait(0, 0, True, 'Enter description:')
         # Send Description user input, press ENTER key to complete
         send_user_input_and_wait('test 3', 'Quit')
 
