@@ -29,9 +29,9 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	sandbox_gpio_set_flags(gpio, 16, GPIOD_EXT_PULL_DOWN);
 	sandbox_gpio_set_flags(gpio, 17, 0);
 	ut_assertok(sysinfo_detect(sysinfo));
-	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
+	ut_assertok(sysinfo_get_int(sysinfo, SYSID_BOARD_MODEL, &val));
 	ut_asserteq(19, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+	ut_assertok(sysinfo_get_str(sysinfo, SYSID_BOARD_MODEL, sizeof(buf),
 				    buf));
 	ut_asserteq_str("rev_a", buf);
 
@@ -43,9 +43,9 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	sandbox_gpio_set_flags(gpio, 16, GPIOD_EXT_PULL_UP);
 	sandbox_gpio_set_flags(gpio, 17, GPIOD_EXT_PULL_DOWN);
 	ut_assertok(sysinfo_detect(sysinfo));
-	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
+	ut_assertok(sysinfo_get_int(sysinfo, SYSID_BOARD_MODEL, &val));
 	ut_asserteq(5, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+	ut_assertok(sysinfo_get_str(sysinfo, SYSID_BOARD_MODEL, sizeof(buf),
 				    buf));
 	ut_asserteq_str("foo", buf);
 
@@ -57,9 +57,9 @@ static int dm_test_sysinfo_gpio(struct unit_test_state *uts)
 	sandbox_gpio_set_flags(gpio, 16, 0);
 	sandbox_gpio_set_flags(gpio, 17, GPIOD_EXT_PULL_UP);
 	ut_assertok(sysinfo_detect(sysinfo));
-	ut_assertok(sysinfo_get_int(sysinfo, SYSINFO_ID_BOARD_MODEL, &val));
+	ut_assertok(sysinfo_get_int(sysinfo, SYSID_BOARD_MODEL, &val));
 	ut_asserteq(15, val);
-	ut_assertok(sysinfo_get_str(sysinfo, SYSINFO_ID_BOARD_MODEL, sizeof(buf),
+	ut_assertok(sysinfo_get_str(sysinfo, SYSID_BOARD_MODEL, sizeof(buf),
 				    buf));
 	ut_asserteq_str("unknown", buf);
 

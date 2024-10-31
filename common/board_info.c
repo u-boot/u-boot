@@ -18,9 +18,9 @@ static const struct to_show {
 	const char *name;
 	enum sysinfo_id id;
 } to_show[] = {
-	{ "Manufacturer", SYSINFO_ID_BOARD_MANUFACTURER},
-	{ "Prior-stage version", SYSINFO_ID_PRIOR_STAGE_VERSION },
-	{ "Prior-stage date", SYSINFO_ID_PRIOR_STAGE_DATE },
+	{ "Manufacturer", SYSID_BOARD_MANUFACTURER},
+	{ "Prior-stage version", SYSID_PRIOR_STAGE_VERSION },
+	{ "Prior-stage date", SYSID_PRIOR_STAGE_DATE },
 	{ /* sentinel */ }
 };
 
@@ -39,7 +39,7 @@ static int try_sysinfo(void)
 	if (ret)
 		return ret;
 
-	ret = sysinfo_get_str(dev, SYSINFO_ID_BOARD_MODEL, sizeof(str), str);
+	ret = sysinfo_get_str(dev, SYSID_BOARD_MODEL, sizeof(str), str);
 	if (ret)
 		return ret;
 	printf("Model: %s\n", str);

@@ -193,7 +193,7 @@ static int tdx_get_str(struct udevice *dev, int id, size_t size, char *val)
 	int ret = -ENOTSUPP;
 
 	switch (id) {
-	case SYSINFO_ID_BOARD_MODEL:
+	case SYSID_BOARD_MODEL:
 		snprintf(val, size,
 			 "Toradex %04d %s %s",
 			 tdx_hw_tag.prodid,

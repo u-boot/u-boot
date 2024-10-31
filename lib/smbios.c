@@ -270,7 +270,7 @@ static int smbios_add_prop_si(struct smbios_ctx *ctx, const char *prop,
 static int smbios_add_prop(struct smbios_ctx *ctx, const char *prop,
 			   const char *dval)
 {
-	return smbios_add_prop_si(ctx, prop, SYSINFO_ID_NONE, dval);
+	return smbios_add_prop_si(ctx, prop, SYSID_NONE, dval);
 }
 
 static void smbios_set_eos(struct smbios_ctx *ctx, char *eos)
@@ -393,27 +393,27 @@ static int smbios_write_type1(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_SYSTEM_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
-					     SYSINFO_ID_SMBIOS_SYSTEM_MANUFACTURER,
+					     SYSID_SM_SYSTEM_MANUFACTURER,
 					     NULL);
 	t->product_name = smbios_add_prop_si(ctx, "product",
-					     SYSINFO_ID_SMBIOS_SYSTEM_PRODUCT,
+					     SYSID_SM_SYSTEM_PRODUCT,
 					     NULL);
 	t->version = smbios_add_prop_si(ctx, "version",
-					SYSINFO_ID_SMBIOS_SYSTEM_VERSION,
+					SYSID_SM_SYSTEM_VERSION,
 					NULL);
 	if (serial_str) {
 		t->serial_number = smbios_add_prop(ctx, NULL, serial_str);
 		strncpy((char *)t->uuid, serial_str, sizeof(t->uuid));
 	} else {
 		t->serial_number = smbios_add_prop_si(ctx, "serial",
-						      SYSINFO_ID_SMBIOS_SYSTEM_SERIAL,
+						      SYSID_SM_SYSTEM_SERIAL,
 						      NULL);
 	}
 	t->wakeup_type = SMBIOS_WAKEUP_TYPE_UNKNOWN;
 	t->sku_number = smbios_add_prop_si(ctx, "sku",
-					   SYSINFO_ID_SMBIOS_SYSTEM_SKU, NULL);
+					   SYSID_SM_SYSTEM_SKU, NULL);
 	t->family = smbios_add_prop_si(ctx, "family",
-				       SYSINFO_ID_SMBIOS_SYSTEM_FAMILY, NULL);
+				       SYSID_SM_SYSTEM_FAMILY, NULL);
 
 	len = t->length + smbios_string_table_len(ctx);
 	*current += len;
@@ -433,20 +433,20 @@ static int smbios_write_type2(ulong *current, int handle,
 	fill_smbios_header(t, SMBIOS_BOARD_INFORMATION, len, handle);
 	smbios_set_eos(ctx, t->eos);
 	t->manufacturer = smbios_add_prop_si(ctx, "manufacturer",
-					     SYSINFO_ID_SMBIOS_BASEBOARD_MANUFACTURER,
+					     SYSID_SM_BASEBOARD_MANUFACTURER,
 					     NULL);
 	t->product_name = smbios_add_prop_si(ctx, "product",
-					     SYSINFO_ID_SMBIOS_BASEBOARD_PRODUCT,
+					     SYSID_SM_BASEBOARD_PRODUCT,
 					     NULL);
 	t->version = smbios_add_prop_si(ctx, "version",
-					SYSINFO_ID_SMBIOS_BASEBOARD_VERSION,
+					SYSID_SM_BASEBOARD_VERSION,
 					NULL);
 
 	t->serial_number = smbios_add_prop_si(ctx, "serial",
-					      SYSINFO_ID_SMBIOS_BASEBOARD_SERIAL,
+					      SYSID_SM_BASEBOARD_SERIAL,
 					      NULL);
 	t->asset_tag_number = smbios_add_prop_si(ctx, "asset-tag",
-						 SYSINFO_ID_SMBIOS_BASEBOARD_ASSET_TAG,
+						 SYSID_SM_BASEBOARD_ASSET_TAG,
 						 NULL);
 	t->feature_flags = SMBIOS_BOARD_FEATURE_HOSTING;
 	t->board_type = SMBIOS_BOARD_MOTHERBOARD;
