@@ -3166,6 +3166,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
 		spi_nor_post_sfdp_fixups(nor, params);
 	}
 
+#if CONFIG_IS_ENABLED(DM_SPI)
 	if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
 		u64 flash_size[SNOR_FLASH_CNT_MAX] = { 0 };
 		struct udevice *dev = nor->spi->dev;
@@ -3227,6 +3228,7 @@ static int spi_nor_init_params(struct spi_nor *nor,
 			params->page_size <<= 1;
 		}
 	}
+#endif
 
 	spi_nor_late_init_fixups(nor, params);
 
