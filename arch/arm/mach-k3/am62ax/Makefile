@@ -5,3 +5,4 @@
 
 obj-$(CONFIG_OF_SYSTEM_SETUP) += am62a7_fdt.o
 obj-$(CONFIG_XPL_BUILD) += am62a7_init.o
+obj-y += boot.o
