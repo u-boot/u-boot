@@ -131,6 +131,11 @@ struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 1,
 	.word = 3,
 };
+
+struct imx_fuse const imx_field_return_fuse = {
+	.bank = 8,
+	.word = 3,
+};
 #endif
 
 static bool is_mx7d(void)

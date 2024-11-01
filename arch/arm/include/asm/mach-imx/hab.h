@@ -139,6 +139,7 @@ struct imx_fuse {
 
 #if defined(CONFIG_IMX_HAB)
 extern struct imx_fuse const imx_sec_config_fuse;
+extern struct imx_fuse const imx_field_return_fuse;
 #endif
 
 /*Function prototype description*/

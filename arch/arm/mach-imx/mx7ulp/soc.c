@@ -42,6 +42,11 @@ struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 29,
 	.word = 6,
 };
+
+struct imx_fuse const imx_field_return_fuse = {
+	.bank = 9,
+	.word = 6,
+};
 #endif
 
 #define ROM_VERSION_ADDR 0x80

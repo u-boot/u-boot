@@ -55,6 +55,11 @@ struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 0,
 	.word = 6,
 };
+
+struct imx_fuse const imx_field_return_fuse = {
+	.bank = 5,
+	.word = 6,
+};
 #endif
 
 u32 get_nr_cpus(void)
