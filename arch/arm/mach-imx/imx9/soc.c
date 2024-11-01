@@ -42,11 +42,17 @@ DECLARE_GLOBAL_DATA_PTR;
 
 struct rom_api *g_rom_api = (struct rom_api *)0x1980;
 
-#ifdef CONFIG_ENV_IS_IN_MMC
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC) || CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
 __weak int board_mmc_get_env_dev(int devno)
 {
 	return devno;
 }
+
+#ifdef CONFIG_SYS_MMC_ENV_DEV
+#define IMX9_MMC_ENV_DEV CONFIG_SYS_MMC_ENV_DEV
+#else
+#define IMX9_MMC_ENV_DEV 0
+#endif
 
 int mmc_get_env_dev(void)
 {
@@ -59,7 +65,7 @@ int mmc_get_env_dev(void)
 
 	if (ret != ROM_API_OKAY) {
 		puts("ROMAPI: failure at query_boot_info\n");
-		return CONFIG_SYS_MMC_ENV_DEV;
+		return IMX9_MMC_ENV_DEV;
 	}
 
 	boot_type = boot >> 16;
@@ -69,7 +75,7 @@ int mmc_get_env_dev(void)
 
 	/* If not boot from sd/mmc, use default value */
 	if (boot_type != BOOT_TYPE_SD && boot_type != BOOT_TYPE_MMC)
-		return env_get_ulong("mmcdev", 10, CONFIG_SYS_MMC_ENV_DEV);
+		return env_get_ulong("mmcdev", 10, IMX9_MMC_ENV_DEV);
 
 	return board_mmc_get_env_dev(boot_instance);
 }
