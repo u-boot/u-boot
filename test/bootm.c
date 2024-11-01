@@ -27,11 +27,11 @@ static int bootm_test_nop(struct unit_test_state *uts)
 	char buf[BUF_SIZE];
 
 	*buf = '\0';
-	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 	ut_asserteq_str("", buf);
 
 	strcpy(buf, "test");
-	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 	ut_asserteq_str("test", buf);
 
 	return 0;
@@ -45,21 +45,21 @@ static int bootm_test_nospace(struct unit_test_state *uts)
 
 	/* Zero buffer size */
 	*buf = '\0';
-	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 0, true));
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, 0, BOOTM_CL_ALL));
 
 	/* Buffer string not terminated */
 	memset(buf, 'a', BUF_SIZE);
-	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 
 	/* Not enough space to copy string */
 	memset(buf, '\0', BUF_SIZE);
 	memset(buf, 'a', BUF_SIZE / 2);
-	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_asserteq(-ENOSPC, bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 
 	/* Just enough space */
 	memset(buf, '\0', BUF_SIZE);
 	memset(buf, 'a', BUF_SIZE / 2 - 1);
-	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, true));
+	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 
 	return 0;
 }
