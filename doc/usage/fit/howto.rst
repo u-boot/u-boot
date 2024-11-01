@@ -57,10 +57,6 @@ own subnode under the /images node, which should then be referenced from one or
 multiple /configurations subnodes. The required images must be enumerated in
 the "loadables" property as a list of strings.
 
-CONFIG_SPL_FIT_GENERATOR can point to a script which generates this image source
-file during the build process. It gets passed a list of device tree files (taken
-from the CONFIG_OF_LIST symbol).
-
 The SPL also records to a DT all additional images (called loadables) which are
 loaded. The information about loadables locations is passed via the DT node with
 fit-images name.
