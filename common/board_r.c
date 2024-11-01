@@ -287,12 +287,9 @@ static int initr_announce(void)
 	return 0;
 }
 
-static int initr_binman(void)
+static int __maybe_unused initr_binman(void)
 {
 	int ret;
-
-	if (!CONFIG_IS_ENABLED(BINMAN_FDT))
-		return 0;
 
 	ret = binman_init();
 	if (ret)
@@ -635,7 +632,9 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_EFI_LOADER
 	efi_memory_init,
 #endif
+#ifdef CONFIG_BINMAN_FDT
 	initr_binman,
+#endif
 #ifdef CONFIG_FSP_VERSION2
 	arch_fsp_init_r,
 #endif
