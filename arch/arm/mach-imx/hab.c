@@ -870,8 +870,8 @@ static int validate_ivt(struct ivt *ivt_initial)
 
 bool imx_hab_is_enabled(void)
 {
-	struct imx_sec_config_fuse_t *fuse =
-		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	struct imx_fuse *fuse =
+		(struct imx_fuse *)&imx_sec_config_fuse;
 	uint32_t reg;
 	int ret;
 

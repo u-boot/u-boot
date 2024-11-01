@@ -38,7 +38,7 @@
 static char *get_reset_cause(char *);
 
 #if defined(CONFIG_IMX_HAB)
-struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 29,
 	.word = 6,
 };

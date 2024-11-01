@@ -132,13 +132,13 @@ enum hab_target {
 	HAB_TGT_ANY		= 0x55,
 };
 
-struct imx_sec_config_fuse_t {
+struct imx_fuse {
 	int bank;
 	int word;
 };
 
 #if defined(CONFIG_IMX_HAB)
-extern struct imx_sec_config_fuse_t const imx_sec_config_fuse;
+extern struct imx_fuse const imx_sec_config_fuse;
 #endif
 
 /*Function prototype description*/

@@ -127,7 +127,7 @@ static void isolate_resource(void)
 #endif
 
 #if defined(CONFIG_IMX_HAB)
-struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 1,
 	.word = 3,
 };
