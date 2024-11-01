@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx ZynqMP platforms
+ *
+ * (C) Copyright 2024, Advanced Micro Devices, Inc.
+ *
+ * Michal Simek <michal.simek@amd.com>
+ */
+
+#include <config.h>
+
+/dts-v1/;
+/ {
+	binman: binman {
+		multiple-images;
+
+		/* u-boot.itb generation in a static way */
+		itb {
+			filename = "u-boot.itb";
+			pad-byte = <0>;
+
+			fit {
+				description = "Configuration for Xilinx ZynqMP SoC";
+				fit,align = <0x8>;
+				fit,external-offset = <0x0>;
+				fit,fdt-list = "of-list";
+				images {
+					uboot {
+						description = "U-Boot (64-bit)";
+						type = "firmware";
+						os = "u-boot";
+						arch = "arm64";
+						compression = "none";
+						load = /bits/ 64 <CONFIG_TEXT_BASE>;
+						entry = /bits/ 64 <CONFIG_TEXT_BASE>;
+						hash {
+							algo = "md5";
+						};
+						u-boot-nodtb {
+						};
+					};
+					atf {
+						description = "Trusted Firmware-A";
+						type = "firmware";
+						os = "arm-trusted-firmware";
+						arch = "arm64";
+						compression = "none";
+						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
+						atf-bl31 {
+							optional;
+						};
+					};
+					tee {
+						description = "OP-TEE";
+						type = "tee";
+						arch = "arm64";
+						compression = "none";
+						os = "tee";
+						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						tee-os {
+							optional;
+						};
+					};
+					@fdt-SEQ {
+						description = "NAME";
+						type = "flat_dt";
+						arch = "arm64";
+						compression = "none";
+						load = <0x0 0x100000>;
+						hash-1 {
+							algo = "md5";
+						};
+					};
+				};
+				configurations {
+					default = "@conf-DEFAULT-SEQ";
+					@conf-SEQ {
+						description = "NAME";
+						firmware = "atf";
+						loadables = "tee", "uboot";
+						fdt = "fdt-SEQ";
+					};
+				};
+			};
+		};
+
+#ifdef CONFIG_SYS_SPI_U_BOOT_OFFS
+		/* QSPI image for testing QSPI boot mode */
+		image {
+			filename = "qspi.bin";
+			pad-byte = <0>;
+
+			blob-ext@1 {
+				offset = <0x0>;
+				filename = "spl/boot.bin";
+			};
+			blob-ext@2 {
+				offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
+				filename = "u-boot.itb";
+			};
+			fdtmap {
+			};
+		};
+#endif
+	};
+};
