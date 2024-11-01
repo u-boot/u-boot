@@ -26,6 +26,9 @@ static int bootm_test_nop(struct unit_test_state *uts)
 {
 	char buf[BUF_SIZE];
 
+	/* This tests relies on GD_FLG_SILENT not being set */
+	gd->flags &= ~GD_FLG_SILENT;
+
 	*buf = '\0';
 	ut_assertok(bootm_process_cmdline(buf, BUF_SIZE, BOOTM_CL_ALL));
 	ut_asserteq_str("", buf);
@@ -42,6 +45,9 @@ BOOTM_TEST(bootm_test_nop, 0);
 static int bootm_test_nospace(struct unit_test_state *uts)
 {
 	char buf[BUF_SIZE];
+
+	/* This tests relies on GD_FLG_SILENT not being set */
+	gd->flags &= ~GD_FLG_SILENT;
 
 	/* Zero buffer size */
 	*buf = '\0';
@@ -69,6 +75,9 @@ BOOTM_TEST(bootm_test_nospace, 0);
 static int bootm_test_silent(struct unit_test_state *uts)
 {
 	char buf[BUF_SIZE];
+
+	/* This tests relies on GD_FLG_SILENT not being set */
+	gd->flags &= ~GD_FLG_SILENT;
 
 	/* 'silent_linux' not set should do nothing */
 	env_set("silent_linux", NULL);
