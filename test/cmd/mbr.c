@@ -277,7 +277,7 @@ static int mbr_test_run(struct unit_test_state *uts)
 				 (ulong)0xbffe00 / BLKSZ));
 
 	/* Test one MBR partition */
-	init_write_buffers(mbr_wbuf, sizeof(mbr_wbuf), ebr_wbuf, sizeof(ebr_wbuf), __LINE__);
+	init_write_buffers(mbr_wbuf, BLKSZ, ebr_wbuf, BLKSZ, __LINE__);
 	ut_assertok(build_mbr_parts(mbr_parts_buf, sizeof(mbr_parts_buf), 1));
 	ut_assertok(run_commandf("write mmc 6:0 %lx 0 1", mbr_wa));
 	memset(rbuf, '\0', BLKSZ);
