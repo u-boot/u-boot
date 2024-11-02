@@ -102,9 +102,6 @@ static struct cmd_tbl cmd_ut_sub[] = {
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
-#if CONFIG_IS_ENABLED(UT_UNICODE) && !defined(API_BUILD)
-	U_BOOT_CMD_MKENT(unicode, CONFIG_SYS_MAXARGS, 1, do_ut_unicode, "", ""),
-#endif
 #ifdef CONFIG_MEASURED_BOOT
 	U_BOOT_CMD_MKENT(measurement, CONFIG_SYS_MAXARGS, 1, do_ut_measurement,
 			 "", ""),
@@ -244,10 +241,6 @@ U_BOOT_LONGHELP(ut,
 #endif
 #ifdef CONFIG_UT_TIME
 	"\ntime - very basic test of time functions"
-#endif
-#if defined(CONFIG_UT_UNICODE) && \
-	!defined(CONFIG_XPL_BUILD) && !defined(API_BUILD)
-	"\nunicode - Unicode functions"
 #endif
 	);
 

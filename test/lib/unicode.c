@@ -11,12 +11,9 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
+#include <test/lib.h>
 #include <test/test.h>
-#include <test/suites.h>
 #include <test/ut.h>
-
-/* Linker list entry for a Unicode test */
-#define UNICODE_TEST(_name) UNIT_TEST(_name, 0, unicode_test)
 
 /* Constants c1-c4 and d1-d4 encode the same letters */
 
@@ -64,7 +61,7 @@ static int unicode_test_u16_strlen(struct unit_test_state *uts)
 	ut_asserteq(6, u16_strlen(c4));
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strlen);
+LIB_TEST(unicode_test_u16_strlen, 0);
 
 static int unicode_test_u16_strnlen(struct unit_test_state *uts)
 {
@@ -75,7 +72,7 @@ static int unicode_test_u16_strnlen(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strnlen);
+LIB_TEST(unicode_test_u16_strnlen, 0);
 
 static int unicode_test_u16_strdup(struct unit_test_state *uts)
 {
@@ -87,7 +84,7 @@ static int unicode_test_u16_strdup(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strdup);
+LIB_TEST(unicode_test_u16_strdup, 0);
 
 static int unicode_test_u16_strcpy(struct unit_test_state *uts)
 {
@@ -100,7 +97,7 @@ static int unicode_test_u16_strcpy(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strcpy);
+LIB_TEST(unicode_test_u16_strcpy, 0);
 
 /* U-Boot uses UTF-16 strings in the EFI context only. */
 #if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
@@ -173,7 +170,7 @@ static int unicode_test_string16(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_string16);
+LIB_TEST(unicode_test_string16, 0);
 #endif
 
 static int unicode_test_utf8_get(struct unit_test_state *uts)
@@ -218,7 +215,7 @@ static int unicode_test_utf8_get(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_get);
+LIB_TEST(unicode_test_utf8_get, 0);
 
 static int unicode_test_utf8_put(struct unit_test_state *uts)
 {
@@ -256,7 +253,7 @@ static int unicode_test_utf8_put(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_put);
+LIB_TEST(unicode_test_utf8_put, 0);
 
 static int unicode_test_utf8_utf16_strlen(struct unit_test_state *uts)
 {
@@ -272,7 +269,7 @@ static int unicode_test_utf8_utf16_strlen(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_utf16_strlen);
+LIB_TEST(unicode_test_utf8_utf16_strlen, 0);
 
 static int unicode_test_utf8_utf16_strnlen(struct unit_test_state *uts)
 {
@@ -290,7 +287,7 @@ static int unicode_test_utf8_utf16_strnlen(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_utf16_strnlen);
+LIB_TEST(unicode_test_utf8_utf16_strnlen, 0);
 
 /**
  * ut_u16_strcmp() - Compare to u16 strings.
@@ -354,7 +351,7 @@ static int unicode_test_utf8_utf16_strcpy(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_utf16_strcpy);
+LIB_TEST(unicode_test_utf8_utf16_strcpy, 0);
 
 static int unicode_test_utf8_utf16_strncpy(struct unit_test_state *uts)
 {
@@ -398,7 +395,7 @@ static int unicode_test_utf8_utf16_strncpy(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_utf16_strncpy);
+LIB_TEST(unicode_test_utf8_utf16_strncpy, 0);
 
 static int unicode_test_utf16_get(struct unit_test_state *uts)
 {
@@ -424,7 +421,7 @@ static int unicode_test_utf16_get(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_get);
+LIB_TEST(unicode_test_utf16_get, 0);
 
 static int unicode_test_utf16_put(struct unit_test_state *uts)
 {
@@ -452,7 +449,7 @@ static int unicode_test_utf16_put(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_put);
+LIB_TEST(unicode_test_utf16_put, 0);
 
 static int unicode_test_utf16_strnlen(struct unit_test_state *uts)
 {
@@ -470,7 +467,7 @@ static int unicode_test_utf16_strnlen(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_strnlen);
+LIB_TEST(unicode_test_utf16_strnlen, 0);
 
 static int unicode_test_utf16_utf8_strlen(struct unit_test_state *uts)
 {
@@ -486,7 +483,7 @@ static int unicode_test_utf16_utf8_strlen(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_utf8_strlen);
+LIB_TEST(unicode_test_utf16_utf8_strlen, 0);
 
 static int unicode_test_utf16_utf8_strnlen(struct unit_test_state *uts)
 {
@@ -498,7 +495,7 @@ static int unicode_test_utf16_utf8_strnlen(struct unit_test_state *uts)
 	ut_asserteq(12, utf16_utf8_strnlen(c4, 3));
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_utf8_strnlen);
+LIB_TEST(unicode_test_utf16_utf8_strnlen, 0);
 
 static int unicode_test_utf16_utf8_strcpy(struct unit_test_state *uts)
 {
@@ -543,7 +540,7 @@ static int unicode_test_utf16_utf8_strcpy(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_utf8_strcpy);
+LIB_TEST(unicode_test_utf16_utf8_strcpy, 0);
 
 static int unicode_test_utf16_utf8_strncpy(struct unit_test_state *uts)
 {
@@ -587,7 +584,7 @@ static int unicode_test_utf16_utf8_strncpy(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf16_utf8_strncpy);
+LIB_TEST(unicode_test_utf16_utf8_strncpy, 0);
 
 static int unicode_test_utf_to_lower(struct unit_test_state *uts)
 {
@@ -604,7 +601,7 @@ static int unicode_test_utf_to_lower(struct unit_test_state *uts)
 #endif
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf_to_lower);
+LIB_TEST(unicode_test_utf_to_lower, 0);
 
 static int unicode_test_utf_to_upper(struct unit_test_state *uts)
 {
@@ -621,7 +618,7 @@ static int unicode_test_utf_to_upper(struct unit_test_state *uts)
 #endif
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf_to_upper);
+LIB_TEST(unicode_test_utf_to_upper, 0);
 
 static int unicode_test_u16_strcasecmp(struct unit_test_state *uts)
 {
@@ -646,7 +643,7 @@ static int unicode_test_u16_strcasecmp(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strcasecmp);
+LIB_TEST(unicode_test_u16_strcasecmp, 0);
 
 static int unicode_test_u16_strncmp(struct unit_test_state *uts)
 {
@@ -659,7 +656,7 @@ static int unicode_test_u16_strncmp(struct unit_test_state *uts)
 	ut_assert(u16_strcmp(u"deghi", u"abcdef") > 0);
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strncmp);
+LIB_TEST(unicode_test_u16_strncmp, 0);
 
 static int unicode_test_u16_strsize(struct unit_test_state *uts)
 {
@@ -669,7 +666,7 @@ static int unicode_test_u16_strsize(struct unit_test_state *uts)
 	ut_asserteq_64(u16_strsize(c4), 14);
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strsize);
+LIB_TEST(unicode_test_u16_strsize, 0);
 
 static int unicode_test_utf_to_cp(struct unit_test_state *uts)
 {
@@ -698,7 +695,7 @@ static int unicode_test_utf_to_cp(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf_to_cp);
+LIB_TEST(unicode_test_utf_to_cp, 0);
 
 static void utf8_to_cp437_stream_helper(const char *in, char *out)
 {
@@ -729,7 +726,7 @@ static int unicode_test_utf8_to_cp437_stream(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_to_cp437_stream);
+LIB_TEST(unicode_test_utf8_to_cp437_stream, 0);
 
 static void utf8_to_utf32_stream_helper(const char *in, s32 *out)
 {
@@ -778,7 +775,7 @@ static int unicode_test_utf8_to_utf32_stream(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_utf8_to_utf32_stream);
+LIB_TEST(unicode_test_utf8_to_utf32_stream, 0);
 
 #ifdef CONFIG_EFI_LOADER
 static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
@@ -795,7 +792,7 @@ static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_efi_create_indexed_name);
+LIB_TEST(unicode_test_efi_create_indexed_name, 0);
 #endif
 
 static int unicode_test_u16_strlcat(struct unit_test_state *uts)
@@ -846,13 +843,4 @@ static int unicode_test_u16_strlcat(struct unit_test_state *uts)
 
 	return 0;
 }
-UNICODE_TEST(unicode_test_u16_strlcat);
-
-int do_ut_unicode(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(unicode_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(unicode_test);
-
-	return cmd_ut_category("Unicode", "unicode_test_",
-			       tests, n_ents, argc, argv);
-}
+LIB_TEST(unicode_test_u16_strlcat, 0);
