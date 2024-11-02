@@ -21,7 +21,6 @@ ifeq ($(CONFIG_XPL_BUILD),)
 obj-y += boot/
 obj-$(CONFIG_UNIT_TEST) += common/
 obj-y += log/
-obj-$(CONFIG_$(XPL_)UT_UNICODE) += unicode_ut.o
 else
 obj-$(CONFIG_SPL_UT_LOAD) += image/
 endif
