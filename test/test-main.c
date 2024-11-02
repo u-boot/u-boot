@@ -622,7 +622,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		for (i = 0; i < uts->runs_per_test; i++)
 			ret = ut_run_test_live_flat(uts, test);
 		if (uts->fail_count != old_fail_count) {
-			printf("Test %s failed %d times\n", select_name,
+			printf("Test %s failed %d times\n", test_name,
 			       uts->fail_count - old_fail_count);
 		}
 		found++;
