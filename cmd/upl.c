@@ -50,7 +50,7 @@ static int do_upl_write(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	struct upl s_upl, *upl = &s_upl;
-	struct unit_test_state uts;
+	struct unit_test_state uts = { 0 };
 	struct abuf buf;
 	oftree tree;
 	ulong addr;
