@@ -26,16 +26,16 @@ static int command_test(struct unit_test_state *uts)
 
 	/* commands separated by \n */
 	run_command_list("setenv list 1\n setenv list ${list}1", -1, 0);
-	assert(!strcmp("11", env_get("list")));
+	ut_assert(!strcmp("11", env_get("list")));
 
 	/* command followed by \n and nothing else */
 	run_command_list("setenv list 1${list}\n", -1, 0);
-	assert(!strcmp("111", env_get("list")));
+	ut_assert(!strcmp("111", env_get("list")));
 
 	/* a command string with \0 in it. Stuff after \0 should be ignored */
 	run_command("setenv list", 0);
 	run_command_list(test_cmd, sizeof(test_cmd), 0);
-	assert(!strcmp("123", env_get("list")));
+	ut_assert(!strcmp("123", env_get("list")));
 
 	/*
 	 * a command list where we limit execution to only the first command
@@ -43,60 +43,61 @@ static int command_test(struct unit_test_state *uts)
 	 */
 	run_command_list("setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3", strlen("setenv list 1"), 0);
-	assert(!strcmp("1", env_get("list")));
+	ut_assert(!strcmp("1", env_get("list")));
 
-	assert(run_command("false", 0) == 1);
-	assert(run_command("echo", 0) == 0);
-	assert(run_command_list("false", -1, 0) == 1);
-	assert(run_command_list("echo", -1, 0) == 0);
+	ut_asserteq(1, run_command("false", 0));
+	ut_assertok(run_command("echo", 0));
+	ut_asserteq(1, run_command_list("false", -1, 0));
+	ut_assertok(run_command_list("echo", -1, 0));
 
 #ifdef CONFIG_HUSH_PARSER
 	run_command("setenv foo 'setenv black 1\nsetenv adder 2'", 0);
 	run_command("run foo", 0);
-	assert(env_get("black") != NULL);
-	assert(!strcmp("1", env_get("black")));
-	assert(env_get("adder") != NULL);
-	assert(!strcmp("2", env_get("adder")));
+	ut_assertnonnull(env_get("black"));
+	ut_asserteq(0, strcmp("1", env_get("black")));
+	ut_assertnonnull(env_get("adder"));
+	ut_asserteq(0, strcmp("2", env_get("adder")));
 #endif
 
-	assert(run_command("", 0) == 0);
-	assert(run_command(" ", 0) == 0);
+	ut_assertok(run_command("", 0));
+	ut_assertok(run_command(" ", 0));
 
-	assert(run_command("'", 0) == 1);
+	ut_asserteq(1, run_command("'", 0));
 
 	/* Variadic function test-cases */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
-	assert(run_commandf("") == 0);
+	ut_assertok(run_commandf(""));
 #pragma GCC diagnostic pop
-	assert(run_commandf(" ") == 0);
-	assert(run_commandf("'") == 1);
+	ut_assertok(run_commandf(" "));
+	ut_asserteq(1, run_commandf("'"));
 
-	assert(run_commandf("env %s %s", "delete -f", "list") == 0);
+	ut_assertok(run_commandf("env %s %s", "delete -f", "list"));
 	/*
 	 * Expected: "## Error: "list" not defined"
 	 * (disabled to avoid pytest bailing out)
 	 *
-	 * assert(run_commandf("printenv list") == 1);
+	 * ut_asserteq(1, run_commandf("printenv list"));
 	 */
 
 	memset(long_str, 'x', sizeof(long_str));
-	assert(run_commandf("Truncation case: %s", long_str) == -ENOSPC);
+	ut_asserteq(-ENOSPC, run_commandf("Truncation case: %s", long_str));
 
 	if (IS_ENABLED(CONFIG_HUSH_PARSER)) {
-		assert(run_commandf("env %s %s %s %s", "delete -f", "adder",
-				    "black", "foo") == 0);
-		assert(run_commandf("setenv foo 'setenv %s 1\nsetenv %s 2'",
-				    "black", "adder") == 0);
-		run_command("run foo", 0);
-		assert(env_get("black"));
-		assert(!strcmp("1", env_get("black")));
-		assert(env_get("adder"));
-		assert(!strcmp("2", env_get("adder")));
+		ut_assertok(run_commandf("env %s %s %s %s", "delete -f",
+					 "adder", "black", "foo"));
+		ut_assertok(run_commandf(
+			"setenv foo 'setenv %s 1\nsetenv %s 2'",
+			"black", "adder"));
+		ut_assertok(run_command("run foo", 0));
+		ut_assertnonnull(env_get("black"));
+		ut_asserteq(0, strcmp("1", env_get("black")));
+		ut_assertnonnull(env_get("adder"));
+		ut_asserteq(0, strcmp("2", env_get("adder")));
 	}
 
 	/* Clean up before exit */
-	run_command("env default -f -a", 0);
+	ut_assertok(run_command("env default -f -a", 0));
 
 	/* put back the FDT environment */
 	ut_assertok(env_set("from_fdt", "yes"));
