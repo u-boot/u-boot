@@ -2,6 +2,9 @@
 #
 # (C) Copyright 2018
 # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
+
+obj-$(CONFIG_$(XPL_)UT_COMPRESSION) += compression.o
+
 ifeq ($(CONFIG_XPL_BUILD),)
 obj-y += cmd_ut_lib.o
 obj-y += abuf.o
