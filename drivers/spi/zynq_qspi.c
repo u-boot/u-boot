@@ -813,7 +813,7 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 
 	priv->is_parallel = false;
 	priv->is_stacked = false;
-	slave->flags &= ~SPI_XFER_MASK;
+	slave->flags &= ~SPI_XFER_LOWER;
 	spi_release_bus(slave);
 
 	return 0;
