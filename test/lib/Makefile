@@ -17,6 +17,7 @@ obj-y += lmb.o
 obj-y += longjmp.o
 obj-$(CONFIG_CONSOLE_RECORD) += test_print.o
 obj-$(CONFIG_SSCANF) += sscanf.o
+obj-$(CONFIG_$(XPL_)CMDLINE) += str.o
 obj-y += string.o
 obj-y += strlcat.o
 obj-$(CONFIG_ERRNO_STR) += test_errno_str.o
