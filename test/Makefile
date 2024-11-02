@@ -4,9 +4,6 @@
 
 obj-y += test-main.o
 
-ifneq ($(CONFIG_$(XPL_)BLOBLIST),)
-obj-$(CONFIG_$(XPL_)CMDLINE) += bootm.o
-endif
 obj-$(CONFIG_$(XPL_)CMDLINE) += cmd/
 obj-$(CONFIG_$(XPL_)CMDLINE) += cmd_ut.o
 obj-y += dm/

@@ -10,6 +10,9 @@ obj-$(CONFIG_EXPO) += expo.o
 obj-$(CONFIG_CEDIT) += cedit.o
 endif
 
+ifdef CONFIG_SANDBOX
+obj-$(CONFIG_$(XPL_)CMDLINE) += bootm.o
+endif
 obj-$(CONFIG_MEASURED_BOOT) += measurement.o
 
 ifdef CONFIG_OF_LIVE
