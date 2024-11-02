@@ -821,7 +821,7 @@ u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
 	if (*recv_size < 12)
 		return -ENODATA;
 	*recv_size -= 12;
-	memcpy(recvbuf, recvbuf + 12, *recv_size);
+	memmove(recvbuf, recvbuf + 12, *recv_size);
 
 	return 0;
 }
