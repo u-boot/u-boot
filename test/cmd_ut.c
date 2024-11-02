@@ -99,7 +99,6 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
 			 ""),
 #endif
-	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_ut_print, "", ""),
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
@@ -205,6 +204,7 @@ U_BOOT_LONGHELP(ut,
 #ifdef CONFIG_CMDLINE
 	"\ncmd - test various commands"
 #endif
+	"\ncommon   - tests for common/ directory"
 #ifdef CONFIG_UT_DM
 	"\ndm - driver model"
 #endif
@@ -239,7 +239,6 @@ U_BOOT_LONGHELP(ut,
 #ifdef CONFIG_CMD_PCI_MPS
 	"\npci_mps - PCI Express Maximum Payload Size"
 #endif
-	"\nprint  - printing things to the console"
 	"\nsetexpr - setexpr command"
 #ifdef CONFIG_SANDBOX
 	"\nstr - basic test of string functions"

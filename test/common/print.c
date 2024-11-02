@@ -11,7 +11,7 @@
 #include <version_string.h>
 #include <stdio.h>
 #include <vsprintf.h>
-#include <test/suites.h>
+#include <test/common.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -19,9 +19,6 @@
 
 #define FAKE_BUILD_TAG	"jenkins-u-boot-denx_uboot_dm-master-build-aarch64" \
 			"and a lot more text to come"
-
-/* Declare a new print test */
-#define PRINT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, print_test)
 
 #if CONFIG_IS_ENABLED(LIB_UUID)
 /* Test printing GUIDs */
@@ -59,7 +56,7 @@ static int print_guid(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_guid, 0);
+COMMON_TEST(print_guid, 0);
 #endif
 
 #if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
@@ -95,7 +92,7 @@ static int print_efi_ut(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_efi_ut, 0);
+COMMON_TEST(print_efi_ut, 0);
 #endif
 
 static int print_printf(struct unit_test_state *uts)
@@ -163,7 +160,7 @@ static int print_printf(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_printf, 0);
+COMMON_TEST(print_printf, 0);
 
 static int print_display_buffer(struct unit_test_state *uts)
 {
@@ -238,7 +235,7 @@ static int print_display_buffer(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_display_buffer, UTF_CONSOLE);
+COMMON_TEST(print_display_buffer, UTF_CONSOLE);
 
 static int print_hexdump_line(struct unit_test_state *uts)
 {
@@ -264,7 +261,7 @@ static int print_hexdump_line(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_hexdump_line, UTF_CONSOLE);
+COMMON_TEST(print_hexdump_line, UTF_CONSOLE);
 
 static int print_do_hex_dump(struct unit_test_state *uts)
 {
@@ -350,7 +347,7 @@ static int print_do_hex_dump(struct unit_test_state *uts)
 
 	return 0;
 }
-PRINT_TEST(print_do_hex_dump, UTF_CONSOLE);
+COMMON_TEST(print_do_hex_dump, UTF_CONSOLE);
 
 static int snprint(struct unit_test_state *uts)
 {
@@ -376,12 +373,4 @@ static int snprint(struct unit_test_state *uts)
 	ut_asserteq(8, ret);
 	return 0;
 }
-PRINT_TEST(snprint, 0);
-
-int do_ut_print(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(print_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(print_test);
-
-	return cmd_ut_category("print", "print_", tests, n_ents, argc, argv);
-}
+COMMON_TEST(snprint, 0);
