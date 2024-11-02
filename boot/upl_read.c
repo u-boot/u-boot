@@ -520,7 +520,7 @@ static int decode_upl_graphics(struct upl *upl, ofnode node)
 		return log_msg_ret("reg", -EINVAL);
 	}
 
-	len = decode_addr_size(upl, buf, sizeof(buf), &gra->reg);
+	len = decode_addr_size(upl, buf, size, &gra->reg);
 	if (len < 0)
 		return log_msg_ret("buf", len);
 
