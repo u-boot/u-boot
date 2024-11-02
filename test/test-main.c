@@ -594,14 +594,14 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			 */
 			len = strlen(test_name);
 			if (len < 6 || strcmp(test_name + len - 6, "_norun")) {
-				printf("Test %s is manual so must have a name ending in _norun\n",
+				printf("Test '%s' is manual so must have a name ending in _norun\n",
 				       test_name);
 				uts->fail_count++;
 				return -EBADF;
 			}
 			if (!uts->force_run) {
 				if (select_name) {
-					printf("Test %s skipped as it is manual (use -f to run it)\n",
+					printf("Test '%s' skipped as it is manual (use -f to run it)\n",
 					       test_name);
 				}
 				continue;
@@ -612,7 +612,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		if (one && upto == pos) {
 			ret = ut_run_test_live_flat(uts, one);
 			if (uts->fail_count != old_fail_count) {
-				printf("Test %s failed %d times (position %d)\n",
+				printf("Test '%s' failed %d times (position %d)\n",
 				       one->name,
 				       uts->fail_count - old_fail_count, pos);
 			}
@@ -622,7 +622,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		for (i = 0; i < uts->runs_per_test; i++)
 			ret = ut_run_test_live_flat(uts, test);
 		if (uts->fail_count != old_fail_count) {
-			printf("Test %s failed %d times\n", test_name,
+			printf("Test '%s' failed %d times\n", test_name,
 			       uts->fail_count - old_fail_count);
 		}
 		found++;
