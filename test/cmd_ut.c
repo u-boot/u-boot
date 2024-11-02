@@ -114,7 +114,6 @@ static struct cmd_tbl cmd_ut_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
 #endif
-	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str, "", ""),
 #ifdef CONFIG_CMD_ADDRMAP
 	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
 #endif
@@ -240,9 +239,6 @@ U_BOOT_LONGHELP(ut,
 	"\npci_mps - PCI Express Maximum Payload Size"
 #endif
 	"\nsetexpr - setexpr command"
-#ifdef CONFIG_SANDBOX
-	"\nstr - basic test of string functions"
-#endif
 #ifdef CONFIG_CMD_SEAMA
 	"\nseama - seama command parameters loading and decoding"
 #endif
