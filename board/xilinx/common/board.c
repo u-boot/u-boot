@@ -358,17 +358,17 @@ __maybe_unused int xilinx_read_eeprom(void)
 }
 
 #if defined(CONFIG_OF_BOARD)
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
 	void *fdt_blob;
-
-	*err = 0;
 
 	if (IS_ENABLED(CONFIG_TARGET_XILINX_MBV)) {
 		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-		if (fdt_magic(fdt_blob) == FDT_MAGIC)
-			return fdt_blob;
+		if (fdt_magic(fdt_blob) == FDT_MAGIC) {
+			*fdtp = fdt_blob;
+			return 0;
+		}
 	}
 
 	if (!IS_ENABLED(CONFIG_XPL_BUILD) &&
@@ -376,8 +376,10 @@ void *board_fdt_blob_setup(int *err)
 	    !IS_ENABLED(CONFIG_ZYNQMP_NO_DDR)) {
 		fdt_blob = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-		if (fdt_magic(fdt_blob) == FDT_MAGIC)
-			return fdt_blob;
+		if (fdt_magic(fdt_blob) == FDT_MAGIC) {
+			*fdtp = fdt_blob;
+			return 0;
+		}
 
 		debug("DTB is not passed via %p\n", fdt_blob);
 	}
@@ -396,13 +398,15 @@ void *board_fdt_blob_setup(int *err)
 		fdt_blob = (ulong *)_end;
 	}
 
-	if (fdt_magic(fdt_blob) == FDT_MAGIC)
-		return fdt_blob;
+	if (fdt_magic(fdt_blob) == FDT_MAGIC) {
+		*fdtp = fdt_blob;
+
+		return 0;
+	}
 
 	debug("DTB is also not passed via %p\n", fdt_blob);
 
-	*err = -EINVAL;
-	return NULL;
+	return -EINVAL;
 }
 #endif
 

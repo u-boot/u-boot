@@ -368,7 +368,7 @@ static int setup_auto_tree(void *blob)
 	return 0;
 }
 
-void *board_fdt_blob_setup(int *ret)
+int board_fdt_blob_setup(void **fdtp)
 {
 	struct sandbox_state *state = state_get_current();
 	const char *fname = state->fdt_fname;
@@ -378,43 +378,41 @@ void *board_fdt_blob_setup(int *ret)
 	int fd;
 
 	if (gd->fdt_blob)
-		return (void *)gd->fdt_blob;
+		return -EEXIST;
 	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
-	*ret = 0;
 	if (!state->fdt_fname) {
 		err = setup_auto_tree(blob);
-		if (!err)
-			goto done;
-		os_printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
-		*ret = -EINVAL;
-		goto fail;
+		if (err) {
+			os_printf("Unable to create empty FDT: %s\n",
+				  fdt_strerror(err));
+			return -EINVAL;
+		}
+		*fdtp = blob;
+
+		return 0;
 	}
 
 	err = os_get_filesize(fname, &size);
 	if (err < 0) {
 		os_printf("Failed to find FDT file '%s'\n", fname);
-		*ret = err;
-		goto fail;
+		return err;
 	}
 	fd = os_open(fname, OS_O_RDONLY);
 	if (fd < 0) {
 		os_printf("Failed to open FDT file '%s'\n", fname);
-		*ret = -EACCES;
-		goto fail;
+		return -EACCES;
 	}
 
 	if (os_read(fd, blob, size) != size) {
 		os_close(fd);
 		os_printf("Failed to read FDT file '%s'\n", fname);
-		*ret =  -EIO;
-		goto fail;
+		return -EIO;
 	}
 	os_close(fd);
 
-done:
-	return blob;
-fail:
-	return NULL;
+	*fdtp = blob;
+
+	return 0;
 }
 
 ulong timer_get_boot_us(void)

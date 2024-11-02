@@ -168,42 +168,37 @@ static bool is_valid_dtb(uintptr_t dtb_ptr)
 	return fdt_subnode_offset((void *)dtb_ptr, 0, "memory") >= 0;
 }
 
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
 	phys_addr_t fdt_rom_addr = find_dtb_in_nor_flash(CONFIG_JUNO_DTB_PART);
 
-	*err = 0;
-	if (fdt_rom_addr == ~0UL) {
-		*err = -ENXIO;
-		return NULL;
-	}
+	if (fdt_rom_addr == ~0UL)
+		return -ENXIO;
 
-	return (void *)fdt_rom_addr;
+	*fdtp = (void *)fdt_rom_addr;
+	return 0;
 #endif
 
 #ifdef VEXPRESS_FDT_ADDR
 	if (fdt_magic(VEXPRESS_FDT_ADDR) == FDT_MAGIC) {
-		*err = 0;
-		return (void *)VEXPRESS_FDT_ADDR;
+		*fdtp = (void *)VEXPRESS_FDT_ADDR;
+		return 0;
 	}
 #endif
 
 	if (is_valid_dtb(prior_stage_fdt_address[1])) {
-		*err = 0;
-		return (void *)prior_stage_fdt_address[1];
+		*fdtp = (void *)prior_stage_fdt_address[1];
+		return 0;
 	} else if (is_valid_dtb(prior_stage_fdt_address[0])) {
-		*err = 0;
-		return (void *)prior_stage_fdt_address[0];
+		*fdtp = (void *)prior_stage_fdt_address[0];
+		return 0;
 	}
 
-	if (fdt_magic(gd->fdt_blob) == FDT_MAGIC) {
-		*err = 0;
-		return (void *)gd->fdt_blob;
-	}
+	if (fdt_magic(*fdtp) == FDT_MAGIC)
+		return 0;
 
-	*err = -ENXIO;
-	return NULL;
+	return -ENXIO;
 }
 #endif
 
