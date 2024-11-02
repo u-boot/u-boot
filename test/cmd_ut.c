@@ -99,9 +99,6 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
 			 ""),
 #endif
-#ifdef CONFIG_UT_TIME
-	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
-#endif
 #ifdef CONFIG_MEASURED_BOOT
 	U_BOOT_CMD_MKENT(measurement, CONFIG_SYS_MAXARGS, 1, do_ut_measurement,
 			 "", ""),
@@ -238,9 +235,6 @@ U_BOOT_LONGHELP(ut,
 	"\nsetexpr - setexpr command"
 #ifdef CONFIG_CMD_SEAMA
 	"\nseama - seama command parameters loading and decoding"
-#endif
-#ifdef CONFIG_UT_TIME
-	"\ntime - very basic test of time functions"
 #endif
 	);
 
