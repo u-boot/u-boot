@@ -481,16 +481,22 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
-	u64 bitpos;
 	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
+	unsigned int pflags = flags &
+			      (LMB_NOMAP | LMB_NOOVERWRITE | LMB_NONOTIFY);
+
+	if (flags != pflags) {
+		printf("invalid %#x\n", flags);
+		return;
+	}
 
 	do {
-		bitpos = flags ? fls(flags) - 1 : 0;
-		assert_noisy(bitpos < ARRAY_SIZE(flag_str));
+		int bitpos = pflags ? fls(pflags) - 1 : 0;
+
 		printf("%s", flag_str[bitpos]);
-		flags &= ~(1ull << bitpos);
-		puts(flags ? ", " : "\n");
-	} while (flags);
+		pflags &= ~(1u << bitpos);
+		puts(pflags ? ", " : "\n");
+	} while (pflags);
 }
 
 static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
