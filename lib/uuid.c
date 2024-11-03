@@ -313,7 +313,7 @@ int uuid_str_to_bin(const char *uuid_str, unsigned char *uuid_bin,
 	tmp16 = cpu_to_be16(hextoul(uuid_str + 19, NULL));
 	memcpy(uuid_bin + 8, &tmp16, 2);
 
-	tmp64 = cpu_to_be64(hextoul(uuid_str + 24, NULL));
+	tmp64 = cpu_to_be64(hextoull(uuid_str + 24, NULL));
 	memcpy(uuid_bin + 10, (char *)&tmp64 + 2, 6);
 
 	return 0;
