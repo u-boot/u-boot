@@ -94,7 +94,7 @@ static int bloblist_test_init(struct unit_test_state *uts)
 
 	return 1;
 }
-BLOBLIST_TEST(bloblist_test_init, 0);
+BLOBLIST_TEST(bloblist_test_init, UFT_BLOBLIST);
 
 static int bloblist_test_blob(struct unit_test_state *uts)
 {
@@ -134,7 +134,7 @@ static int bloblist_test_blob(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_blob, 0);
+BLOBLIST_TEST(bloblist_test_blob, UFT_BLOBLIST);
 
 /* Check bloblist_ensure_size_ret() */
 static int bloblist_test_blob_ensure(struct unit_test_state *uts)
@@ -168,7 +168,7 @@ static int bloblist_test_blob_ensure(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_blob_ensure, 0);
+BLOBLIST_TEST(bloblist_test_blob_ensure, UFT_BLOBLIST);
 
 static int bloblist_test_bad_blob(struct unit_test_state *uts)
 {
@@ -184,7 +184,7 @@ static int bloblist_test_bad_blob(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_bad_blob, 0);
+BLOBLIST_TEST(bloblist_test_bad_blob, UFT_BLOBLIST);
 
 static int bloblist_test_checksum(struct unit_test_state *uts)
 {
@@ -257,7 +257,7 @@ static int bloblist_test_checksum(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_checksum, 0);
+BLOBLIST_TEST(bloblist_test_checksum, UFT_BLOBLIST);
 
 /* Test the 'bloblist info' command */
 static int bloblist_test_cmd_info(struct unit_test_state *uts)
@@ -278,7 +278,7 @@ static int bloblist_test_cmd_info(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_cmd_info, UTF_CONSOLE);
+BLOBLIST_TEST(bloblist_test_cmd_info, UFT_BLOBLIST | UTF_CONSOLE);
 
 /* Test the 'bloblist list' command */
 static int bloblist_test_cmd_list(struct unit_test_state *uts)
@@ -300,7 +300,7 @@ static int bloblist_test_cmd_list(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_cmd_list, UTF_CONSOLE);
+BLOBLIST_TEST(bloblist_test_cmd_list, UFT_BLOBLIST | UTF_CONSOLE);
 
 /* Test alignment of bloblist blobs */
 static int bloblist_test_align(struct unit_test_state *uts)
@@ -358,7 +358,7 @@ static int bloblist_test_align(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_align, 0);
+BLOBLIST_TEST(bloblist_test_align, UFT_BLOBLIST);
 
 /* Test relocation of a bloblist */
 static int bloblist_test_reloc(struct unit_test_state *uts)
@@ -392,7 +392,7 @@ static int bloblist_test_reloc(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_reloc, 0);
+BLOBLIST_TEST(bloblist_test_reloc, UFT_BLOBLIST);
 
 /* Test expansion of a blob */
 static int bloblist_test_grow(struct unit_test_state *uts)
@@ -445,7 +445,7 @@ static int bloblist_test_grow(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_grow, 0);
+BLOBLIST_TEST(bloblist_test_grow, UFT_BLOBLIST);
 
 /* Test shrinking of a blob */
 static int bloblist_test_shrink(struct unit_test_state *uts)
@@ -495,7 +495,7 @@ static int bloblist_test_shrink(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_shrink, 0);
+BLOBLIST_TEST(bloblist_test_shrink, UFT_BLOBLIST);
 
 /* Test failing to adjust a blob size */
 static int bloblist_test_resize_fail(struct unit_test_state *uts)
@@ -530,7 +530,7 @@ static int bloblist_test_resize_fail(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_resize_fail, 0);
+BLOBLIST_TEST(bloblist_test_resize_fail, UFT_BLOBLIST);
 
 /* Test expanding the last blob in a bloblist */
 static int bloblist_test_resize_last(struct unit_test_state *uts)
@@ -581,7 +581,7 @@ static int bloblist_test_resize_last(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_resize_last, 0);
+BLOBLIST_TEST(bloblist_test_resize_last, UFT_BLOBLIST);
 
 /* Check a completely full bloblist */
 static int bloblist_test_blob_maxsize(struct unit_test_state *uts)
@@ -604,7 +604,7 @@ static int bloblist_test_blob_maxsize(struct unit_test_state *uts)
 
 	return 0;
 }
-BLOBLIST_TEST(bloblist_test_blob_maxsize, 0);
+BLOBLIST_TEST(bloblist_test_blob_maxsize, UFT_BLOBLIST);
 
 int do_ut_bloblist(struct cmd_tbl *cmdtp, int flag, int argc,
 		   char *const argv[])

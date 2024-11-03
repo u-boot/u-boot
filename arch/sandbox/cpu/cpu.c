@@ -253,6 +253,19 @@ phys_addr_t map_to_sysmem(const void *ptr)
 	return mentry->tag;
 }
 
+void sandbox_map_list(void)
+{
+	struct sandbox_mapmem_entry *mentry;
+	struct sandbox_state *state = state_get_current();
+
+	printf("Sandbox memory-mapping\n");
+	printf("%8s  %16s  %6s\n", "Addr", "Mapping", "Refcnt");
+	list_for_each_entry(mentry, &state->mapmem_head, sibling_node) {
+		printf("%8lx  %p  %6d\n", mentry->tag, mentry->ptr,
+		       mentry->refcnt);
+	}
+}
+
 unsigned long sandbox_read(const void *addr, enum sandboxio_size_t size)
 {
 	struct sandbox_state *state = state_get_current();

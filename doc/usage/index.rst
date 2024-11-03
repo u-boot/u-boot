@@ -43,6 +43,7 @@ Shell commands
    cmd/bootz
    cmd/button
    cmd/cat
+   cmd/cbcmos
    cmd/cbsysinfo
    cmd/cedit
    cmd/cli
@@ -103,6 +104,7 @@ Shell commands
    cmd/reset
    cmd/rng
    cmd/saves
+   cmd/sb
    cmd/sbi
    cmd/scmi
    cmd/scp03

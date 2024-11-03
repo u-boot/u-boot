@@ -304,6 +304,17 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return uclass_find_device_by_namelen(id, name, strlen(name), devp);
 }
 
+struct udevice *uclass_try_first_device(enum uclass_id id)
+{
+	struct uclass *uc;
+
+	uc = uclass_find(id);
+	if (!uc || list_empty(&uc->dev_head))
+		return NULL;
+
+	return list_first_entry(&uc->dev_head, struct udevice, uclass_node);
+}
+
 int uclass_find_next_free_seq(struct uclass *uc)
 {
 	struct udevice *dev;

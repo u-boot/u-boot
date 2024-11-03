@@ -370,7 +370,7 @@ static int bootflow_iter(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootflow_iter, UTF_DM | UTF_SCAN_FDT);
+BOOTSTD_TEST(bootflow_iter, UTF_DM | UTF_SCAN_FDT | UTF_CONSOLE);
 
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_BOOTMETH_GLOBAL)
 /* Check using the system bootdev */
@@ -542,7 +542,7 @@ static int prep_mmc_bootdev(struct unit_test_state *uts, const char *mmc_dev,
 	/* Enable the script bootmeth too */
 	ut_assertok(uclass_first_device_err(UCLASS_BOOTSTD, &bootstd));
 	ut_assertok(device_bind(bootstd, DM_DRIVER_REF(bootmeth_2script),
-				"bootmeth_script", 0, ofnode_null(), &dev));
+				"script", 0, ofnode_null(), &dev));
 
 	/* Enable the cros bootmeth if needed */
 	if (IS_ENABLED(CONFIG_BOOTMETH_CROS) && bind_cros_android) {

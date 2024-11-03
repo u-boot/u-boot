@@ -67,6 +67,28 @@ static int do_cedit_load(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+#ifdef CONFIG_COREBOOT_SYSINFO
+static int do_cedit_cb_load(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+	struct expo *exp;
+	int ret;
+
+	if (argc > 1)
+		return CMD_RET_USAGE;
+
+	ret = cb_expo_build(&exp);
+	if (ret) {
+		printf("Failed to build expo: %dE\n", ret);
+		return CMD_RET_FAILURE;
+	}
+
+	cur_exp = exp;
+
+	return 0;
+}
+#endif /* CONFIG_COREBOOT_SYSINFO */
+
 static int do_cedit_write_fdt(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
@@ -271,6 +293,9 @@ static int do_cedit_run(struct cmd_tbl *cmdtp, int flag, int argc,
 
 U_BOOT_LONGHELP(cedit,
 	"load <interface> <dev[:part]> <filename>   - load config editor\n"
+#ifdef CONFIG_COREBOOT_SYSINFO
+	"cb_load                                          - load coreboot CMOS editor\n"
+#endif
 	"cedit read_fdt <i/f> <dev[:part]> <filename>     - read settings\n"
 	"cedit write_fdt <i/f> <dev[:part]> <filename>    - write settings\n"
 	"cedit read_env [-v]                              - read settings from env vars\n"
@@ -281,6 +306,9 @@ U_BOOT_LONGHELP(cedit,
 
 U_BOOT_CMD_WITH_SUBCMDS(cedit, "Configuration editor", cedit_help_text,
 	U_BOOT_SUBCMD_MKENT(load, 5, 1, do_cedit_load),
+#ifdef CONFIG_COREBOOT_SYSINFO
+	U_BOOT_SUBCMD_MKENT(cb_load, 5, 1, do_cedit_cb_load),
+#endif
 	U_BOOT_SUBCMD_MKENT(read_fdt, 5, 1, do_cedit_read_fdt),
 	U_BOOT_SUBCMD_MKENT(write_fdt, 5, 1, do_cedit_write_fdt),
 	U_BOOT_SUBCMD_MKENT(read_env, 2, 1, do_cedit_read_env),

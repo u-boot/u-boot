@@ -545,8 +545,10 @@ static_assert(sizeof(struct global_data) == GD_SIZE);
 
 #if CONFIG_IS_ENABLED(BLOBLIST)
 #define gd_bloblist()		gd->bloblist
+#define gd_set_bloblist(_val)	gd->bloblist = (_val)
 #else
 #define gd_bloblist()		NULL
+#define gd_set_bloblist(_val)
 #endif
 
 #if CONFIG_IS_ENABLED(BOOTSTAGE)

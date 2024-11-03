@@ -1351,3 +1351,25 @@ static int dm_test_dev_get_mem(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_dev_get_mem, UTF_SCAN_FDT);
+
+/* Test uclass_try_first_device() */
+static int dm_test_try_first_device(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+
+	/* Check that it doesn't create a device or uclass */
+	ut_assertnull(uclass_find(UCLASS_TEST));
+	ut_assertnull(uclass_try_first_device(UCLASS_TEST));
+	ut_assertnull(uclass_try_first_device(UCLASS_TEST));
+	ut_assertnull(uclass_find(UCLASS_TEST));
+
+	/* Create a test device */
+	ut_assertok(device_bind_by_name(uts->root, false, &driver_info_manual,
+					&dev));
+	dev = uclass_try_first_device(UCLASS_TEST);
+	ut_assertnonnull(dev);
+	ut_asserteq(UCLASS_TEST, device_get_uclass_id(dev));
+
+	return 0;
+}
+DM_TEST(dm_test_try_first_device, 0);

@@ -2871,6 +2871,17 @@ config CMD_CBSYSINFO
 	  memory by coreboot before jumping to U-Boot. It can be useful for
 	  debugging the beaaviour of coreboot or U-Boot.
 
+config CMD_CBCMOS
+	bool "cbcmos"
+	depends on X86
+	default y if SYS_COREBOOT
+	help
+	  This provides information options to check the CMOS RAM checksum,
+	  if present, as well as to update it.
+
+	  It is useful when coreboot CMOS-RAM settings must be examined or
+	  updated.
+
 config CMD_CYCLIC
 	bool "cyclic - Show information about cyclic functions"
 	depends on CYCLIC

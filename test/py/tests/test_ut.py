@@ -208,8 +208,6 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
             cons, f'echo here {kernel} {symlink}')
         os.symlink(kernel, symlink)
 
-        u_boot_utils.run_and_log(
-            cons, f'mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
         complete = True
 
     except ValueError as exc:

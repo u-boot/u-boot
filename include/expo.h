@@ -762,4 +762,12 @@ int expo_apply_theme(struct expo *exp, ofnode node);
  */
 int expo_build(ofnode root, struct expo **expp);
 
+/**
+ * cb_expo_build() - Build an expo for coreboot CMOS RAM
+ *
+ * @expp: Returns the expo created
+ * Return: 0 if OK, -ve on error
+ */
+int cb_expo_build(struct expo **expp);
+
 #endif /*__EXPO_H */
