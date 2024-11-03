@@ -257,8 +257,8 @@ static int mbr_test_run(struct unit_test_state *uts)
 		strlen(mbr_parts_p3) +
 		max(strlen(mbr_parts_p4), strlen(mbr_parts_p5)) +
 		strlen(mbr_parts_tail);
-	ut_assertf(sizeof(mbr_parts_buf) >= mbr_parts_max, "Buffer avail: %ld; buffer req: %ld\n",
-		sizeof(mbr_parts_buf), mbr_parts_max);
+	ut_assertf(sizeof(mbr_parts_buf) >= mbr_parts_max, "Buffer avail: %zd; buffer req: %ld\n",
+		   sizeof(mbr_parts_buf), mbr_parts_max);
 
 	mbr_wbuf = map_sysmem(mbr_wa, BLKSZ);
 	ebr_wbuf = map_sysmem(ebr_wa, BLKSZ);
