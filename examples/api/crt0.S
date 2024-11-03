@@ -24,7 +24,7 @@ syscall:
 	mtctr	%r11
 	bctr
 
-#elif defined(CONFIG_ARM)
+#elif defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
 
 	.text
 	.globl _start
@@ -33,26 +33,27 @@ _start:
 	str	sp, [ip]
 	b	main
 
-#elif defined(CONFIG_ARM64)
-
-              .text
-              .globl _start
-_start:
-              ldr           ip0, =search_hint
-              str           sp_el2, [ip0]
-              b             main
-
-
-              .globl syscall
-syscall:
-              ldr           ip0, =syscall_ptr
-              ldr           pc_el2, [ip0]
-
 
 	.globl syscall
 syscall:
 	ldr	ip, =syscall_ptr
 	ldr	pc, [ip]
+
+#elif defined(CONFIG_ARM64)
+
+	.text
+	.globl _start
+_start:
+	ldr	x17, =search_hint
+	mov	x16, sp
+	str	x16, [x17]
+	b	main
+
+	.globl syscall
+syscall:
+	ldr	x16, =syscall_ptr
+	ldr	x16, [x16]
+	br	x16
 
 #elif defined(CONFIG_MIPS)
 #include <asm/asm.h>
@@ -83,6 +84,8 @@ return_addr:
 #error No support for this arch!
 #endif
 
+.section .data
+
 	.globl syscall_ptr
 syscall_ptr:
 	.align	8
@@ -90,4 +93,4 @@ syscall_ptr:
 
 	.globl search_hint
 search_hint:
-	.long   0
+	.long	0
