@@ -115,8 +115,10 @@ static int print_printf(struct unit_test_state *uts)
 	snprintf(str, 0, "testing none");
 	ut_asserteq('x', *str);
 
-	sprintf(big_str, "_%ls_", u"foo");
-	ut_assertok(strcmp("_foo_", big_str));
+	if (CONFIG_IS_ENABLED(EFI_LOADER) || IS_ENABLED(CONFIG_EFI_APP)) {
+		sprintf(big_str, "_%ls_", u"foo");
+		ut_assertok(strcmp("_foo_", big_str));
+	}
 
 	/* Test the banner function */
 	s = display_options_get_banner(true, str, sizeof(str));
