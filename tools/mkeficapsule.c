@@ -866,12 +866,12 @@ static struct fdt_header *load_dtb(const char *path)
 
 	dtb = malloc(dtb_size);
 	if (!dtb) {
-		fprintf(stderr, "Can't allocated %ld\n", dtb_size);
+		fprintf(stderr, "Can't allocated %zd\n", dtb_size);
 		return NULL;
 	}
 
 	if (fread(dtb, dtb_size, 1, f) != 1) {
-		fprintf(stderr, "Can't read %ld bytes from %s\n",
+		fprintf(stderr, "Can't read %zd bytes from %s\n",
 			dtb_size, path);
 		free(dtb);
 		return NULL;
