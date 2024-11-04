@@ -14,6 +14,7 @@ static soc_type_t soc;
 static int container = -1;
 static int32_t core_type = CFG_CORE_INVALID;
 static bool emmc_fastboot;
+static bool dcd_skip;
 static image_t param_stack[IMG_STACK_SIZE];
 static uint8_t fuse_version;
 static uint16_t sw_version;
@@ -41,6 +42,7 @@ static int imx8image_check_image_types(uint8_t type)
 
 static table_entry_t imx8image_cmds[] = {
 	{CMD_BOOT_FROM,         "BOOT_FROM",            "boot command",	      },
+	{CMD_DCD_SKIP,          "DCD_SKIP",             "skip DCD init",      },
 	{CMD_FUSE_VERSION,      "FUSE_VERSION",         "fuse version",	      },
 	{CMD_SW_VERSION,        "SW_VERSION",           "sw version",	      },
 	{CMD_MSG_BLOCK,         "MSG_BLOCK",            "msg block",	      },
@@ -88,6 +90,9 @@ static void parse_cfg_cmd(image_t *param_stack, int32_t cmd, char *token,
 		if (!strncmp("emmc_fastboot", token, 13))
 			emmc_fastboot = true;
 		break;
+	case CMD_DCD_SKIP:
+		if (!strncmp("true", token, 4))
+			dcd_skip = true;
 	case CMD_FUSE_VERSION:
 		fuse_version = (uint8_t)(strtoll(token, NULL, 0) & 0xFF);
 		break;
@@ -1024,7 +1029,7 @@ int imx8image_copy_image(int outfd, struct image_tool_params *mparams)
 	fprintf(stdout, "CONTAINER SW VERSION:\t0x%04x\n", sw_version);
 
 	build_container(soc, sector_size, emmc_fastboot,
-			img_sp, false, fuse_version, sw_version, outfd);
+			img_sp, dcd_skip, fuse_version, sw_version, outfd);
 
 	return 0;
 }
