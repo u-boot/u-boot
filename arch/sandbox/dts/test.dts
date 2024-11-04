@@ -101,8 +101,8 @@
 			bootscr-ram-offset = /bits/ 64 <0x12345678>;
 			bootscr-flash-offset = /bits/ 64 <0>;
 			bootscr-flash-size = /bits/ 64 <0x2000>;
-			boot-led = "sandbox:green";
-			activity-led = "sandbox:red";
+			boot-led = <&sandbox_led_green>;
+			activity-led = <&sandbox_led_red>;
 			testing-bool;
 			testing-int = <123>;
 			testing-str = "testing";
@@ -988,12 +988,12 @@
 	leds {
 		compatible = "gpio-leds";
 
-		iracibble {
+		sandbox_led_red: iracibble {
 			gpios = <&gpio_a 1 0>;
 			label = "sandbox:red";
 		};
 
-		martinet {
+		sandbox_led_green: martinet {
 			gpios = <&gpio_a 2 0>;
 			label = "sandbox:green";
 		};
