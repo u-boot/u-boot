@@ -23,6 +23,7 @@ Board-specific doc
    bsh/index
    cloos/index
    congatec/index
+   coolpi/index
    coreboot/index
    emcraft/index
    emulation/index
