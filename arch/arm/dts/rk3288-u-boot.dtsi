@@ -119,11 +119,11 @@
 };
 
 &vopb {
-	bootph-all;
+	bootph-some-ram;
 };
 
 &vopl {
-	bootph-all;
+	bootph-some-ram;
 };
 
 &xin24m {
