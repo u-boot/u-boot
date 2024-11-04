@@ -858,7 +858,7 @@ struct efi_device_path *efi_dp_from_file(const struct efi_device_path *dp,
 struct efi_device_path *efi_dp_from_eth(void);
 struct efi_device_path *efi_dp_from_mem(uint32_t mem_type,
 					uint64_t start_address,
-					uint64_t end_address);
+					size_t size);
 /* Determine the last device path node that is not the end node. */
 const struct efi_device_path *efi_dp_last_node(
 			const struct efi_device_path *dp);
