@@ -106,6 +106,7 @@
 			testing-bool;
 			testing-int = <123>;
 			testing-str = "testing";
+			testing-phandle = <&phandle_node_1>;
 		};
 	};
 

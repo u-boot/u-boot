@@ -704,6 +704,10 @@ static int dm_test_ofnode_options(struct unit_test_state *uts)
 {
 	u64 bootscr_address, bootscr_offset;
 	u64 bootscr_flash_offset, bootscr_flash_size;
+	ofnode node, phandle_node, target;
+
+	node = ofnode_path("/options/u-boot");
+	ut_assert(ofnode_valid(node));
 
 	ut_assert(!ofnode_options_read_bool("missing"));
 	ut_assert(ofnode_options_read_bool("testing-bool"));
@@ -713,6 +717,13 @@ static int dm_test_ofnode_options(struct unit_test_state *uts)
 
 	ut_assertnull(ofnode_options_read_str("missing"));
 	ut_asserteq_str("testing", ofnode_options_read_str("testing-str"));
+
+	ut_asserteq(-EINVAL, ofnode_options_get_by_phandle("missing", &phandle_node));
+
+	target = ofnode_path("/phandle-node-1");
+	ut_assert(ofnode_valid(target));
+	ut_assertok(ofnode_options_get_by_phandle("testing-phandle", &phandle_node));
+	ut_assert(ofnode_equal(target, phandle_node));
 
 	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
 						   &bootscr_offset));
