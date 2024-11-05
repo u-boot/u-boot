@@ -18,7 +18,6 @@
 
 &gpio7 {
 	/delete-property/ bootph-all;
-	bootph-pre-ram;
 };
 
 &i2c2 {
@@ -64,19 +63,11 @@
 	bootph-pre-ram;
 };
 
-&sdmmc_pwr {
-	bootph-pre-ram;
-};
-
 &uart2 {
 	bootph-all;
 };
 
 &uart2_xfer {
 	bootph-pre-sram;
-	bootph-pre-ram;
-};
-
-&vcc_sd {
 	bootph-pre-ram;
 };
