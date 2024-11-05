@@ -32,6 +32,7 @@
 			<&other_gpio_b 5 GPIO_ACTIVE_HIGH 3 2 1>,
 			<0>, <&other_gpio_a 12>;
 		other-phandle-value = <&other_gpio_c 10>, <0xFFFFFFFF 20>, <&other_gpio_a 30>;
+		other-phandle-nodes = <&other_phandle_node_1>, <&other_phandle_node_2>;
 	};
 
 	other_gpio_a: other-gpio-a {
@@ -44,6 +45,12 @@
 
 	other_gpio_c: other-gpio-c {
 		#gpio-cells = <2>;
+	};
+
+	other_phandle_node_1: other-phandle-node-1 {
+	};
+
+	other_phandle_node_2: other-phandle-node-2 {
 	};
 
 	target: target {
