@@ -4,15 +4,6 @@
  */
 
 #include "rk3288-u-boot.dtsi"
-/ {
-	leds {
-		bootph-all;
-
-		work {
-			bootph-all;
-		};
-	};
-};
 
 &dmc {
 	rockchip,pctl-timing = <0x29a 0xc8 0x1f8 0x42 0x4e 0x4 0xea 0xa
