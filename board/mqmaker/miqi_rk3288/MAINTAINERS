@@ -1,7 +1,6 @@
 MIQI
 M:	Jernej Skrabec <jernej.skrabec@siol.net>
 S:	Maintained
-F:	arch/arm/dts/rk3288-miqi.dts
 F:	arch/arm/dts/rk3288-miqi-u-boot.dtsi
 F:	board/mqmaker/miqi_rk3288
 F:	include/configs/miqi_rk3288.h
