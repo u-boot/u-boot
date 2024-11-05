@@ -86,6 +86,8 @@ config TARGET_FIREFLY_RK3288
 config TARGET_MIQI_RK3288
 	bool "MiQi-RK3288"
 	select BOARD_LATE_INIT
+	select ROCKCHIP_COMMON_STACK_ADDR
+	select TPL
 	help
 	  MiQi-RK3288 is a RK3288-based development board with 4 USB 2.0
 	  ports, HDMI, micro-SD card, 16 GB eMMC and Gigabit Ethernet. It
