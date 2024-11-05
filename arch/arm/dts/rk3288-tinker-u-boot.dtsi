@@ -17,6 +17,10 @@
 	rockchip,sdram-params = <0x20d266a4 0x5b6 2 533000000 6 9 0>;
 };
 
+&gpio7 {
+	bootph-pre-ram;
+};
+
 &i2c2 {
 	m24c08@50 {
 		compatible = "at,24c08", "i2c-eeprom";
@@ -24,27 +28,7 @@
 	};
 };
 
-&pinctrl {
-	bootph-all;
-};
-
-&uart2 {
-	bootph-all;
-};
-
-&uart2_xfer {
-	bootph-all;
-};
-
-&sdmmc {
-	bootph-pre-ram;
-};
-
-&gpio7 {
-	bootph-pre-ram;
-};
-
-&vcc_sd {
+&pcfg_pull_none {
 	bootph-pre-ram;
 };
 
@@ -52,15 +36,19 @@
 	bootph-pre-ram;
 };
 
+&pcfg_pull_up {
+	bootph-pre-ram;
+};
+
 &pcfg_pull_up_drv_8ma {
 	bootph-pre-ram;
 };
 
-&pcfg_pull_none {
-	bootph-pre-ram;
+&pinctrl {
+	bootph-all;
 };
 
-&pcfg_pull_up {
+&sdmmc {
 	bootph-pre-ram;
 };
 
@@ -81,5 +69,17 @@
 };
 
 &sdmmc_pwr {
+	bootph-pre-ram;
+};
+
+&uart2 {
+	bootph-all;
+};
+
+&uart2_xfer {
+	bootph-all;
+};
+
+&vcc_sd {
 	bootph-pre-ram;
 };

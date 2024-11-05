@@ -17,6 +17,10 @@
 	bootph-pre-ram;
 };
 
+&emmc_bus8 {
+	bootph-pre-ram;
+};
+
 &emmc_clk {
 	bootph-pre-ram;
 };
@@ -26,9 +30,5 @@
 };
 
 &emmc_pwr {
-	bootph-pre-ram;
-};
-
-&emmc_bus8 {
 	bootph-pre-ram;
 };
