@@ -1,5 +1,6 @@
 TINKER-RK3288
 M:	Lin Huang <hl@rock-chips.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	arch/arm/dts/rk3288-tinker.dts
 F:	arch/arm/dts/rk3288-tinker.dtsi
@@ -12,6 +13,7 @@ F:	configs/tinker-rk3288_defconfig
 
 TINKER-S-RK3288
 M:	Michael Trimarchi <michael@amarulasolutions.com>
+R:	Jonas Karlman <jonas@kwiboo.se>
 S:	Maintained
 F:	board/rockchip/tinker_rk3288
 F:	include/configs/tinker_rk3288.h
