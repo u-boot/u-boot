@@ -25,19 +25,15 @@
 	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 9 1>;
 };
 
+&emmc {
+	bootph-all;
+};
+
 &pinctrl {
 	bootph-all;
 };
 
-&uart2 {
-	bootph-all;
-};
-
 &sdmmc {
-	bootph-all;
-};
-
-&emmc {
 	bootph-all;
 };
 
@@ -55,4 +51,8 @@
 
 &sdmmc_pwr {
 	bootph-pre-ram;
+};
+
+&uart2 {
+	bootph-all;
 };
