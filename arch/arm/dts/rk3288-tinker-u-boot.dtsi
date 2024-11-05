@@ -16,6 +16,10 @@
 	rockchip,sdram-params = <0x20d266a4 0x5b6 2 533000000 6 9 0>;
 };
 
+&gmac {
+	snps,reset-delays-us = <0 10000 80000>;
+};
+
 &gpio7 {
 	/delete-property/ bootph-all;
 };
