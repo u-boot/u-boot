@@ -26,7 +26,6 @@ static const char bootfile1[] = "GET ";
 static const char bootfile3[] = " HTTP/1.0\r\n\r\n";
 static const char http_eom[] = "\r\n\r\n";
 static const char http_ok[] = "200";
-static const char content_len[] = "Content-Length";
 static const char linefeed[] = "\r\n";
 static struct in_addr web_server_ip;
 static int our_port;
@@ -46,7 +45,6 @@ struct pkt_qd {
 #define PKTQ_SZ (PKTBUFSRX / 4)
 static struct pkt_qd pkt_q[PKTQ_SZ];
 static int pkt_q_idx;
-static unsigned long content_length;
 static unsigned int packets;
 
 static unsigned int initial_data_seq_num;
@@ -250,17 +248,6 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 			debug_cond(DEBUG_WGET,
 				   "wget: Connected Pkt %p hlen %x\n",
 				   pkt, hlen);
-
-			pos = strstr((char *)pkt, content_len);
-			if (!pos) {
-				content_length = -1;
-			} else {
-				pos += sizeof(content_len) + 2;
-				strict_strtoul(pos, 10, &content_length);
-				debug_cond(DEBUG_WGET,
-					   "wget: Connected Len %lu\n",
-					   content_length);
-			}
 
 			net_boot_file_size = 0;
 
