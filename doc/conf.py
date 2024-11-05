@@ -560,13 +560,9 @@ epub_exclude_files = ['search.html']
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author, options).
 #
-# See the Sphinx chapter of https://ralsina.me/static/manual.pdf
-#
-# FIXME: Do not add the index file here; the result will be too big. Adding
-# multiple PDF files here actually tries to get the cross-referencing right
-# *between* PDF files.
+# See https://rst2pdf.org/static/manual.html#sphinx
 pdf_documents = [
-    ('uboot-documentation', u'U-Boot', u'U-Boot', u'J. Random Bozo'),
+    ('index', u'U-Boot', u'Das U-Boot', u'The U-Boot development community'),
 ]
 
 # kernel-doc extension configuration for running Sphinx directly (e.g. by Read
