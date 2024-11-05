@@ -164,6 +164,13 @@ config DM_BOOTCOUNT_SYSCON
 
 	  Accessing the backend is done using the regmap interface.
 
+config DM_BOOTCOUNT_ZYNQMP
+	bool "Support ZynqMP PMUFW as a backing store for bootcount"
+	depends on ARCH_ZYNQMP
+	help
+	  Enable support for the bootcount API by utilising the Persistent
+	  Global General Storage Register 2 of the PMU.
+
 endmenu
 
 endif
