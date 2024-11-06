@@ -21,6 +21,10 @@
 #include <timestamp.h>
 #endif
 
+__weak void tpl_board_init(void)
+{
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -53,6 +57,8 @@ void board_init_f(ulong dummy)
 	/* Init ARM arch timer */
 	if (IS_ENABLED(CONFIG_SYS_ARCH_TIMER))
 		timer_init();
+
+	tpl_board_init();
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
