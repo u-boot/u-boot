@@ -169,7 +169,8 @@ void board_debug_uart_init(void)
 }
 #endif
 
-#if defined(CONFIG_XPL_BUILD) && !defined(CONFIG_TPL_BUILD)
+#if defined(CONFIG_XPL_BUILD)
+#if defined(CONFIG_TPL_BUILD)
 static void rk3399_force_power_on_reset(void)
 {
 	const struct rockchip_cru *cru = rockchip_get_cru();
@@ -195,9 +196,9 @@ static void rk3399_force_power_on_reset(void)
 	if (cru->glb_rst_st == 0)
 		return;
 
-	if (!IS_ENABLED(CONFIG_SPL_GPIO)) {
+	if (!IS_ENABLED(CONFIG_TPL_GPIO)) {
 		debug("%s: trying to force a power-on reset but no GPIO "
-		      "support in SPL!\n", __func__);
+		      "support in TPL!\n", __func__);
 		return;
 	}
 
@@ -218,6 +219,11 @@ static void rk3399_force_power_on_reset(void)
 	dm_gpio_set_value(&sysreset_gpio, 1);
 }
 
+void tpl_board_init(void)
+{
+	rk3399_force_power_on_reset();
+}
+# else
 void __weak led_setup(void)
 {
 }
@@ -225,7 +231,6 @@ void __weak led_setup(void)
 void spl_board_init(void)
 {
 	led_setup();
-
-	rk3399_force_power_on_reset();
 }
+#endif
 #endif
