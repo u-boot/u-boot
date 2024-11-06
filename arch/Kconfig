@@ -38,6 +38,9 @@ config 32BIT
 config 64BIT
 	bool
 
+config SPL_64BIT
+	bool
+
 config SYS_CACHELINE_SIZE
 	int
 	default 128 if SYS_CACHE_SHIFT_7
