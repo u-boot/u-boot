@@ -678,6 +678,21 @@ void efi_show_tables(struct efi_system_table *systab);
  */
 const char *efi_get_basename(void);
 
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
+#endif
+
+static inline bool efi_use_host_arch(void)
+{
+#ifdef CONFIG_SANDBOX
+	struct sandbox_state *state = state_get_current();
+
+	return state->native;
+#else
+	return false;
+#endif
+}
+
 /**
  * efi_get_pxe_arch() - Get the architecture value for PXE
  *
