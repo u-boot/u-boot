@@ -21,6 +21,8 @@
 #include <linux/libfdt.h>
 #include <linux/list.h>
 
+#undef BOOTEFI_NAME
+
 #ifdef CONFIG_SANDBOX
 
 #if HOST_ARCH == HOST_ARCH_X86_64
@@ -67,6 +69,27 @@ const efi_guid_t efi_lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
 const char *efi_get_basename(void)
 {
 	return BOOTEFI_NAME;
+}
+
+int efi_get_pxe_arch(void)
+{
+	/* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
+	if (IS_ENABLED(CONFIG_ARM64))
+		return 0xb;
+	else if (IS_ENABLED(CONFIG_ARM))
+		return 0xa;
+	else if (IS_ENABLED(CONFIG_X86_64))
+		return 0x6;
+	else if (IS_ENABLED(CONFIG_X86))
+		return 0x7;
+	else if (IS_ENABLED(CONFIG_ARCH_RV32I))
+		return 0x19;
+	else if (IS_ENABLED(CONFIG_ARCH_RV64I))
+		return 0x1b;
+	else if (IS_ENABLED(CONFIG_SANDBOX))
+		return 0;	/* not used */
+
+	return -EINVAL;
 }
 
 /**
