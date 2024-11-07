@@ -213,7 +213,7 @@ int ext4fs_opendir(const char *dirname, struct fs_dir_stream **dirsp)
 	if (!dirs)
 		return -ENOMEM;
 	dirs->dirname = strdup(dirname);
-	if (!dirs) {
+	if (!dirs->dirname) {
 		free(dirs);
 		return -ENOMEM;
 	}
@@ -224,6 +224,8 @@ int ext4fs_opendir(const char *dirname, struct fs_dir_stream **dirsp)
 		ret = 0;
 		*dirsp = (struct fs_dir_stream *)dirs;
 	} else {
+		free(dirs->dirname);
+		free(dirs);
 		ret = -ENOENT;
 	}
 
