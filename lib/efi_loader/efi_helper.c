@@ -12,17 +12,62 @@
 #include <mapmem.h>
 #include <dm.h>
 #include <fs.h>
+#include <efi.h>
 #include <efi_api.h>
 #include <efi_load_initrd.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <host_arch.h>
 #include <linux/libfdt.h>
 #include <linux/list.h>
+
+#ifdef CONFIG_SANDBOX
+
+#if HOST_ARCH == HOST_ARCH_X86_64
+#define BOOTEFI_NAME "BOOTX64.EFI"
+#elif HOST_ARCH == HOST_ARCH_X86
+#define BOOTEFI_NAME "BOOTIA32.EFI"
+#elif HOST_ARCH == HOST_ARCH_AARCH64
+#define BOOTEFI_NAME "BOOTAA64.EFI"
+#elif HOST_ARCH == HOST_ARCH_ARM
+#define BOOTEFI_NAME "BOOTARM.EFI"
+#elif HOST_ARCH == HOST_ARCH_RISCV32
+#define BOOTEFI_NAME "BOOTRISCV32.EFI"
+#elif HOST_ARCH == HOST_ARCH_RISCV64
+#define BOOTEFI_NAME "BOOTRISCV64.EFI"
+#else
+#error Unsupported UEFI architecture
+#endif
+
+#else
+
+#if defined(CONFIG_ARM64)
+#define BOOTEFI_NAME "BOOTAA64.EFI"
+#elif defined(CONFIG_ARM)
+#define BOOTEFI_NAME "BOOTARM.EFI"
+#elif defined(CONFIG_X86_64)
+#define BOOTEFI_NAME "BOOTX64.EFI"
+#elif defined(CONFIG_X86)
+#define BOOTEFI_NAME "BOOTIA32.EFI"
+#elif defined(CONFIG_ARCH_RV32I)
+#define BOOTEFI_NAME "BOOTRISCV32.EFI"
+#elif defined(CONFIG_ARCH_RV64I)
+#define BOOTEFI_NAME "BOOTRISCV64.EFI"
+#else
+#error Unsupported UEFI architecture
+#endif
+
+#endif
 
 #if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_LOAD_FILE2_INITRD)
 /* GUID used by Linux to identify the LoadFile2 protocol with the initrd */
 const efi_guid_t efi_lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
 #endif
+
+const char *efi_get_basename(void)
+{
+	return BOOTEFI_NAME;
+}
 
 /**
  * efi_create_current_boot_var() - Return Boot#### name were #### is replaced by
