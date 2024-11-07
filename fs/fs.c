@@ -23,6 +23,7 @@
 #include <time.h>
 #include <ubifs_uboot.h>
 #include <btrfs.h>
+#include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <div64.h>
@@ -1000,6 +1001,9 @@ int fs_read_alloc(const char *fname, ulong size, uint align, void **bufp)
 	ulong addr;
 	char *buf;
 	int ret;
+
+	if (!align)
+		align = ARCH_DMA_MINALIGN;
 
 	buf = memalign(align, size + 1);
 	if (!buf)
