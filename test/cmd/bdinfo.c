@@ -107,7 +107,7 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 	enum lmb_flags flags;
 	int i;
 
-	ut_assert_nextline(" %s.count = 0x%hx", name, lmb_rgn_lst->count);
+	ut_assert_nextline(" %s.count = %#x", name, lmb_rgn_lst->count);
 
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		base = rgn[i].base;
@@ -119,7 +119,7 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 			ut_assert_nextlinen(" %s[%d]\t[", name, i);
 			continue;
 		}
-		ut_assert_nextlinen(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+		ut_assert_nextlinen(" %s[%d]\t[%#llx-%#llx], %#llx bytes, flags: ",
 				    name, i, base, end, size);
 	}
 

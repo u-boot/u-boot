@@ -506,7 +506,7 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 	enum lmb_flags flags;
 	int i;
 
-	printf(" %s.count = 0x%x\n", name, lmb_rgn_lst->count);
+	printf(" %s.count = %#x\n", name, lmb_rgn_lst->count);
 
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		base = rgn[i].base;
@@ -514,7 +514,7 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 		end = base + size - 1;
 		flags = rgn[i].flags;
 
-		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+		printf(" %s[%d]\t[%#llx-%#llx], %#llx bytes, flags: ",
 		       name, i, base, end, size);
 		lmb_print_region_flags(flags);
 	}
