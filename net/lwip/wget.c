@@ -21,9 +21,9 @@
 #define PROGRESS_PRINT_STEP_BYTES (100 * 1024)
 
 enum done_state {
-        NOT_DONE = 0,
-        SUCCESS = 1,
-        FAILURE = 2
+	NOT_DONE = 0,
+	SUCCESS = 1,
+	FAILURE = 2
 };
 
 struct wget_ctx {
@@ -163,7 +163,7 @@ static int parse_legacy_arg(char *arg, char *nurl, size_t rem)
 
 	if (rem < n)
 		return -1;
-	strncpy(p, server, n);
+	strlcpy(p, server, n);
 	p += n;
 	rem -= n;
 	if (rem < 1)
@@ -174,7 +174,7 @@ static int parse_legacy_arg(char *arg, char *nurl, size_t rem)
 	n = strlen(path);
 	if (rem < n)
 		return -1;
-	strncpy(p, path, n);
+	strlcpy(p, path, n);
 	p += n;
 	rem -= n;
 	if (rem < 1)
@@ -334,7 +334,7 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 
 	dst_addr = hextoul(argv[1], &end);
-        if (end == (argv[1] + strlen(argv[1]))) {
+	if (end == (argv[1] + strlen(argv[1]))) {
 		if (argc < 3)
 			return CMD_RET_USAGE;
 		url = argv[2];
@@ -344,7 +344,7 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (parse_legacy_arg(url, nurl, sizeof(nurl)))
-	    return CMD_RET_FAILURE;
+		return CMD_RET_FAILURE;
 
 	if (wget_with_dns(dst_addr, nurl))
 		return CMD_RET_FAILURE;

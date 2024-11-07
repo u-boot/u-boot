@@ -43,9 +43,9 @@ struct udevice;
  * @param sport  source UDP port
  * @param len    packet length
  */
-typedef void rxhand_f(uchar *pkt, unsigned dport,
-		      struct in_addr sip, unsigned sport,
-		      unsigned len);
+typedef void rxhand_f(uchar *pkt, unsigned int dport,
+		      struct in_addr sip, unsigned int sport,
+		      unsigned int len);
 
 /**
  * An incoming ICMP packet handler.
@@ -57,8 +57,9 @@ typedef void rxhand_f(uchar *pkt, unsigned dport,
  * @param pkt	pointer to the ICMP packet data
  * @param len	packet length
  */
-typedef void rxhand_icmp_f(unsigned type, unsigned code, unsigned dport,
-		struct in_addr sip, unsigned sport, uchar *pkt, unsigned len);
+typedef void rxhand_icmp_f(unsigned type, unsigned int code, unsigned int dport,
+			   struct in_addr sip, unsigned int sport, uchar *pkt,
+			   unsigned int len);
 
 /*
  *	A timeout handler.  Called after time interval has expired.
@@ -87,7 +88,7 @@ void eth_halt_state_only(void); /* Set passive state */
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr);
+				  uchar *enetaddr);
 
 /*
  * Get the hardware address for an ethernet interface .
@@ -99,7 +100,7 @@ int eth_env_set_enetaddr_by_index(const char *base_name, int index,
  *	Return true if the address is valid.
  */
 int eth_env_get_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr);
+				  uchar *enetaddr);
 
 int eth_send(void *packet, int length);	   /* Send a packet */
 
@@ -127,7 +128,7 @@ struct e802_hdr {
 	u8		et_snap2;
 	u8		et_snap3;
 	u16		et_prot;		/* 802 protocol		*/
-} __attribute__((packed));
+} __packed;
 
 /* 802 + SNAP + ethernet header size */
 #define E802_HDR_SIZE	(sizeof(struct e802_hdr))
@@ -141,7 +142,7 @@ struct vlan_ethernet_hdr {
 	u16		vet_vlan_type;		/* PROT_VLAN		*/
 	u16		vet_tag;		/* TAG of VLAN		*/
 	u16		vet_type;		/* protocol type	*/
-} __attribute__((packed));
+} __packed;
 
 /* VLAN Ethernet header size */
 #define VLAN_ETHER_HDR_SIZE	(sizeof(struct vlan_ethernet_hdr))
@@ -160,7 +161,7 @@ struct ip_hdr {
 	u16		ip_sum;		/* checksum			*/
 	struct in_addr	ip_src;		/* Source IP address		*/
 	struct in_addr	ip_dst;		/* Destination IP address	*/
-} __attribute__((packed));
+} __packed;
 
 #define IP_OFFS		0x1fff /* ip offset *= 8 */
 #define IP_FLAGS	0xe000 /* first 3 bits */
@@ -205,8 +206,7 @@ struct arp_hdr {
 	u8		ar_tha[];	/* Target hardware address	*/
 	u8		ar_tpa[];	/* Target protocol address	*/
 #endif /* 0 */
-} __attribute__((packed));
-
+} __packed;
 
 /*
  * ICMP stuff (just enough to handle (host) redirect messages)
@@ -239,14 +239,14 @@ struct icmp_hdr {
 		} frag;
 		u8 data[0];
 	} un;
-} __attribute__((packed));
+} __packed;
 
 #define ICMP_HDR_SIZE		(sizeof(struct icmp_hdr))
 #define IP_ICMP_HDR_SIZE	(IP_HDR_SIZE + ICMP_HDR_SIZE)
 
 /*
  * Maximum packet size; used to allocate packet storage. Use
- * the maxium Ethernet frame size as specified by the Ethernet
+ * the maximum Ethernet frame size as specified by the Ethernet
  * standard including the 802.1Q tag (VLAN tagging).
  * maximum packet size =  1522
  * maximum packet size and multiple of 32 bytes =  1536
@@ -307,6 +307,7 @@ enum proto_t {
 	NETCONS, SNTP, TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT_UDP, FASTBOOT_TCP,
 	WOL, UDP, NCSI, WGET, RS
 };
+
 /* Indicates whether the file name was specified on the command line */
 extern bool	net_boot_file_name_explicit;
 /* The actual transferred size of the bootfile (in bytes) */
@@ -360,16 +361,16 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot);
 void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source,
 		       u16 pkt_len, u8 proto);
 void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport,
-				int sport, int len);
+			int sport, int len);
 
 /* Callbacks */
 rxhand_f *net_get_udp_handler(void);	/* Get UDP RX packet handler */
-void net_set_udp_handler(rxhand_f *);	/* Set UDP RX packet handler */
+void net_set_udp_handler(rxhand_f *f);	/* Set UDP RX packet handler */
 rxhand_f *net_get_arp_handler(void);	/* Get ARP RX packet handler */
-void net_set_arp_handler(rxhand_f *);	/* Set ARP RX packet handler */
+void net_set_arp_handler(rxhand_f *f);	/* Set ARP RX packet handler */
 bool arp_is_waiting(void);		/* Waiting for ARP reply? */
 void net_set_icmp_handler(rxhand_icmp_f *f); /* Set ICMP RX handler */
-void net_set_timeout_handler(ulong, thand_f *);/* Set timeout handler */
+void net_set_timeout_handler(ulong t, thand_f *f);/* Set timeout handler */
 
 /* Network loop state */
 enum net_loop_state {
@@ -378,6 +379,7 @@ enum net_loop_state {
 	NETLOOP_SUCCESS,
 	NETLOOP_FAIL
 };
+
 extern enum net_loop_state net_state;
 
 static inline void net_set_state(enum net_loop_state state)
@@ -429,8 +431,8 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport,
 
 #if defined(CONFIG_NETCONSOLE) && !defined(CONFIG_XPL_BUILD)
 void nc_start(void);
-int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned dest_port,
-	unsigned src_port, unsigned len);
+int nc_input_packet(uchar *pkt, struct in_addr src_ip, unsigned int dest_port,
+		    unsigned int src_port, unsigned int len);
 #endif
 
 static __always_inline int eth_is_on_demand_init(void)
@@ -522,7 +524,7 @@ void vlan_to_string(ushort x, char *s);
 ushort string_to_vlan(const char *s);
 
 /* read a VLAN id from an environment variable */
-ushort env_get_vlan(char *);
+ushort env_get_vlan(char *var);
 
 /* check if serverip is specified in filename from the command line */
 int is_serverip_in_cmd(void);

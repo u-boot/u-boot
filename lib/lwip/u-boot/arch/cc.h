@@ -29,8 +29,9 @@
 
 #define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS
 
-#define LWIP_PLATFORM_ASSERT(x) do {printf("Assertion \"%s\" failed at line %d in %s\n", \
-				    x, __LINE__, __FILE__); } while (0)
+#define LWIP_PLATFORM_ASSERT(x) do { \
+	printf("Assertion \"%s\" failed at line %d in %s\n", \
+	       x, __LINE__, __FILE__); } while (0)
 
 #define atoi(str) (int)dectoul(str, NULL)
 #define lwip_strnstr(a, b, c)  strstr(a, b)

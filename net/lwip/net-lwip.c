@@ -203,7 +203,6 @@ struct netif *net_lwip_new_netif(struct udevice *udev)
 
 struct netif *net_lwip_new_netif_noip(struct udevice *udev)
 {
-
 	return new_netif(udev, false);
 }
 
@@ -224,24 +223,24 @@ int net_init(void)
 
 static struct pbuf *alloc_pbuf_and_copy(uchar *data, int len)
 {
-        struct pbuf *p, *q;
+	struct pbuf *p, *q;
 
-        /* We allocate a pbuf chain of pbufs from the pool. */
-        p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
-        if (!p) {
-                LINK_STATS_INC(link.memerr);
-                LINK_STATS_INC(link.drop);
-                return NULL;
-        }
+	/* We allocate a pbuf chain of pbufs from the pool. */
+	p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
+	if (!p) {
+		LINK_STATS_INC(link.memerr);
+		LINK_STATS_INC(link.drop);
+		return NULL;
+	}
 
-        for (q = p; q != NULL; q = q->next) {
-                memcpy(q->payload, data, q->len);
-                data += q->len;
-        }
+	for (q = p; q != NULL; q = q->next) {
+		memcpy(q->payload, data, q->len);
+		data += q->len;
+	}
 
-        LINK_STATS_INC(link.recv);
+	LINK_STATS_INC(link.recv);
 
-        return p;
+	return p;
 }
 
 int net_lwip_rx(struct udevice *udev, struct netif *netif)
