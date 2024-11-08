@@ -745,11 +745,7 @@ void puts(const char *s)
 	}
 
 	if (IS_ENABLED(CONFIG_DEBUG_UART) && !(gd->flags & GD_FLG_SERIAL_READY)) {
-		while (*s) {
-			int ch = *s++;
-
-			printch(ch);
-		}
+		printascii(s);
 		return;
 	}
 
