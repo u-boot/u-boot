@@ -173,7 +173,7 @@
 #define USB_BULK_SEND_TIMEOUT 5000
 #define USB_BULK_RECV_TIMEOUT 5000
 
-#define AX_RX_URB_SIZE 1024 * 0x12
+#define AX_RX_URB_SIZE 1024 * 0x1a
 #define BLK_FRAME_SIZE 0x200
 #define PHY_CONNECT_TIMEOUT 5000
 #define PHY_RESET_TIMEOUT 500
@@ -193,10 +193,10 @@
 static const struct {
 	unsigned char ctrl, timer_l, timer_h, size, ifg;
 } AX88179_BULKIN_SIZE[] =	{
-	{7, 0x4f, 0,	0x02, 0xff},
-	{7, 0x20, 3,	0x03, 0xff},
-	{7, 0xae, 7,	0x04, 0xff},
-	{7, 0xcc, 0x4c, 0x04, 8},
+	{7, 0x4f, 0,	0x12, 0xff},
+	{7, 0x20, 3,	0x16, 0xff},
+	{7, 0xae, 7,	0x18, 0xff},
+	{7, 0xcc, 0x4c, 0x18, 8},
 };
 
 /* driver private */
@@ -332,7 +332,7 @@ static int asix_basic_reset(struct ueth_data *dev,
 	memcpy(tmp, &AX88179_BULKIN_SIZE[0], 5);
 	asix_write_cmd(dev, AX_ACCESS_MAC, AX_RX_BULKIN_QCTRL, 5, 5, tmp);
 
-	dev_priv->rx_urb_size = 128 * 20;
+	dev_priv->rx_urb_size = 1024 * 20;
 
 	/* Water Level configuration */
 	*tmp = 0x34;
