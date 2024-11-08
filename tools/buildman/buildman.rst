@@ -933,6 +933,12 @@ a set of (tag, value) pairs.
     For example powerpc-linux-gcc will be noted as a toolchain for 'powerpc'
     and CROSS_COMPILE will be set to powerpc-linux- when using it.
 
+'[toolchain-prefix]' section
+    This can be used to provide the full toolchain-prefix for one or more
+    architectures. The full CROSS_COMPILE prefix must be provided. These
+    typically have a higher priority than matches in the '[toolchain]', due to
+    this prefix.
+
 '[toolchain-alias]' section
     This converts toolchain architecture names to U-Boot names. For example,
     if an x86 toolchains is called i386-linux-gcc it will not normally be
