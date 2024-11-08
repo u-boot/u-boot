@@ -125,49 +125,8 @@ int cadence_qspi_apb_wait_for_dma_cmplt(struct cadence_spi_priv *priv)
 	return 0;
 }
 
-#if defined(CONFIG_DM_GPIO)
-int cadence_qspi_versal_flash_reset(struct udevice *dev)
-{
-	struct gpio_desc gpio;
-	u32 reset_gpio;
-	int ret;
-
-	/* request gpio and set direction as output set to 1 */
-	ret = gpio_request_by_name(dev, "reset-gpios", 0, &gpio,
-				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	if (ret) {
-		printf("%s: unable to reset ospi flash device", __func__);
-		return ret;
-	}
-
-	reset_gpio = PMIO_NODE_ID_BASE + gpio.offset;
-
-	/* Request for pin */
-	xilinx_pm_request(PM_PINCTRL_REQUEST, reset_gpio, 0, 0, 0, NULL);
-
-	/* Enable hysteresis in cmos receiver */
-	xilinx_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
-			  PM_PINCTRL_CONFIG_SCHMITT_CMOS,
-			  PM_PINCTRL_INPUT_TYPE_SCHMITT, 0, NULL);
-
-	/* Disable Tri-state */
-	xilinx_pm_request(PM_PINCTRL_CONFIG_PARAM_SET, reset_gpio,
-			  PM_PINCTRL_CONFIG_TRI_STATE,
-			  PM_PINCTRL_TRI_STATE_DISABLE, 0, NULL);
-	udelay(1);
-
-	/* Set value 0 to pin */
-	dm_gpio_set_value(&gpio, 0);
-	udelay(1);
-
-	/* Set value 1 to pin */
-	dm_gpio_set_value(&gpio, 1);
-	udelay(1);
-
-	return 0;
-}
-#else
-int cadence_qspi_versal_flash_reset(struct udevice *dev)
+#if !CONFIG_IS_ENABLED(DM_GPIO)
+int cadence_qspi_flash_reset(struct udevice *dev)
 {
 	/* CRP WPROT */
 	writel(0, WPROT_CRP);
