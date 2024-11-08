@@ -186,23 +186,22 @@ Setting up
 #. Create ~/.buildman to tell buildman where to find tool chains (see
    buildman_settings_ for details). As an example::
 
-   # Buildman settings file
+      # Buildman settings file
 
-   [toolchain]
-   root: /
-   rest: /toolchains/*
-   eldk: /opt/eldk-4.2
-   arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
-   aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
+      [toolchain]
+      root: /
+      rest: /toolchains/*
+      eldk: /opt/eldk-4.2
+      arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+      aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 
-   [toolchain-prefix]
-   arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
+      [toolchain-prefix]
+      arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
 
-   [toolchain-alias]
-   riscv = riscv32
-   sh = sh4
-   x86: i386
-
+      [toolchain-alias]
+      riscv = riscv32
+      sh = sh4
+      x86: i386
 
    This selects the available toolchain paths. Add the base directory for
    each of your toolchains here. Buildman will search inside these directories
