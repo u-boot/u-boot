@@ -327,16 +327,17 @@ class Toolchains:
         toolchain = Toolchain(fname, test, verbose, priority, arch,
                               self.override_toolchain)
         add_it = toolchain.ok
-        if toolchain.arch in self.toolchains:
-            add_it = (toolchain.priority <
-                        self.toolchains[toolchain.arch].priority)
         if add_it:
-            self.toolchains[toolchain.arch] = toolchain
-        elif verbose:
-            print(("Toolchain '%s' at priority %d will be ignored because "
-                   "another toolchain for arch '%s' has priority %d" %
-                   (toolchain.gcc, toolchain.priority, toolchain.arch,
-                    self.toolchains[toolchain.arch].priority)))
+            if toolchain.arch in self.toolchains:
+                add_it = (toolchain.priority <
+                          self.toolchains[toolchain.arch].priority)
+            if add_it:
+                self.toolchains[toolchain.arch] = toolchain
+            elif verbose:
+                print(("Toolchain '%s' at priority %d will be ignored because "
+                       "another toolchain for arch '%s' has priority %d" %
+                       (toolchain.gcc, toolchain.priority, toolchain.arch,
+                        self.toolchains[toolchain.arch].priority)))
 
     def ScanPath(self, path, verbose):
         """Scan a path for a valid toolchain
