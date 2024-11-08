@@ -15,7 +15,7 @@
 #include <time.h>
 #include <dm/uclass.h>
 
-#define SERVER_NAME_SIZE 200
+#define SERVER_NAME_SIZE 254
 #define HTTP_PORT_DEFAULT 80
 #define HTTPS_PORT_DEFAULT 443
 #define PROGRESS_PRINT_STEP_BYTES (100 * 1024)
