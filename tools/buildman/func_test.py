@@ -1067,3 +1067,54 @@ endif
             result = self._RunControl('--print-arch', 'board0')
         self.assertEqual('arm\n', stdout.getvalue())
         self.assertEqual('', stderr.getvalue())
+
+    def test_kconfig_scanner(self):
+        """Test using the kconfig scanner to determine important values
+
+        Note that there is already a test_scan_defconfigs() which checks the
+        higher-level scan_defconfigs() function. This test checks just the
+        scanner itself
+        """
+        src = self._git_dir
+        scanner = boards.KconfigScanner(src)
+
+        # First do a simple sanity check
+        norm = os.path.join(src, 'board0_defconfig')
+        tools.write_file(norm, 'CONFIG_TARGET_BOARD0=y', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': 'arm',
+            'cpu': 'armv7',
+            'soc': '-',
+            'vendor': 'Tester',
+            'board': 'ARM Board 0',
+            'config': 'config0',
+            'target': 'board0'}, []), res)
+
+        # Check that the SoC cannot be changed and the filename does not affect
+        # the resulting board
+        tools.write_file(norm, '''CONFIG_TARGET_BOARD2=y
+CONFIG_SOC="fred"
+''', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': 'powerpc',
+            'cpu': 'ppc',
+            'soc': 'mpc85xx',
+            'vendor': 'Tester',
+            'board': 'PowerPC board 1',
+            'config': 'config2',
+            'target': 'board0'}, []), res)
+
+        # Check handling of missing information
+        tools.write_file(norm, '', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': '-',
+            'cpu': '-',
+            'soc': '-',
+            'vendor': '-',
+            'board': '-',
+            'config': '-',
+            'target': 'board0'},
+            ['WARNING: board0_defconfig: No TARGET_BOARD0 enabled']), res)
