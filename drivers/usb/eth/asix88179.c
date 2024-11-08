@@ -176,6 +176,7 @@
 #define AX_RX_URB_SIZE 1024 * 0x12
 #define BLK_FRAME_SIZE 0x200
 #define PHY_CONNECT_TIMEOUT 5000
+#define PHY_RESET_TIMEOUT 500
 
 #define TIMEOUT_RESOLUTION 50	/* ms */
 
@@ -285,6 +286,26 @@ static int asix_write_mac(struct ueth_data *dev, uint8_t *enetaddr)
 	return ret;
 }
 
+static int asix_reset_phy(struct ueth_data *dev)
+{
+	u16 bmcr;
+	u32 t;
+
+	/* Reset the PHY */
+	bmcr = BMCR_RESET;
+	asix_write_cmd(dev, AX_ACCESS_PHY, 0x03, MII_BMCR, 2, &bmcr);
+
+	for (t = 0; t < PHY_RESET_TIMEOUT; t += TIMEOUT_RESOLUTION) {
+		asix_read_cmd(dev, AX_ACCESS_PHY, 0x03, MII_BMCR, 2, &bmcr);
+		if (!(bmcr & BMCR_RESET))
+			return 0;
+		mdelay(TIMEOUT_RESOLUTION);
+	}
+
+	debug("Reset PHY timeout\n");
+	return -ETIMEDOUT;
+}
+
 static int asix_basic_reset(struct ueth_data *dev,
 			struct asix_private *dev_priv)
 {
@@ -344,13 +365,21 @@ static int asix_basic_reset(struct ueth_data *dev,
 		 AX_MEDIUM_GIGAMODE | AX_MEDIUM_JUMBO_EN;
 	asix_write_cmd(dev, AX_ACCESS_MAC, AX_MEDIUM_STATUS_MODE, 2, 2, tmp16);
 
+	asix_reset_phy(dev);
+
 	u16 adv = 0;
-	adv = ADVERTISE_ALL | ADVERTISE_CSMA | ADVERTISE_LPACK |
-	      ADVERTISE_NPAGE | ADVERTISE_PAUSE_ASYM | ADVERTISE_PAUSE_CAP;
+	adv = ADVERTISE_ALL | ADVERTISE_CSMA |
+	      ADVERTISE_PAUSE_ASYM | ADVERTISE_PAUSE_CAP;
 	asix_write_cmd(dev, AX_ACCESS_PHY, 0x03, MII_ADVERTISE, 2, &adv);
 
 	adv = ADVERTISE_1000FULL;
 	asix_write_cmd(dev, AX_ACCESS_PHY, 0x03, MII_CTRL1000, 2, &adv);
+
+	/* Restart auto-negotiation */
+	u16 bmcr = 0;
+	asix_read_cmd(dev, AX_ACCESS_PHY, 0x03, MII_BMCR, 2, &bmcr);
+	bmcr |= BMCR_ANENABLE | BMCR_ANRESTART;
+	asix_write_cmd(dev, AX_ACCESS_PHY, 0x03, MII_BMCR, 2, &bmcr);
 
 	return 0;
 }
