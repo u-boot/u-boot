@@ -1112,6 +1112,30 @@ The -U option uses the u-boot.env files which are produced by a build.
 Internally, buildman writes out an out-env file into the build directory for
 later comparison.
 
+defconfig fragments
+-------------------
+
+Buildman provides some initial support for configuration fragments. It can scan
+these when present in defconfig files and handle the resuiting Kconfig
+correctly. Thus it is possible to build a board which has a ``#include`` in the
+defconfig file.
+
+For now, Buildman simply includes the files to produce a single output file,
+using the C preprocessor. It does not call the ``merge_config.sh`` script. The
+redefined/redundant logic in that script could fairly easily be repeated in
+Buildman, to detect potential problems. For now it is not clear that this is
+useful.
+
+To specify the C preprocessor to use, set the ``CPP`` environment variable. The
+default is ``cpp``.
+
+Note that Buildman does not support adding fragments to existing boards, e.g.
+like::
+
+    make qemu_riscv64_defconfig acpi.config
+
+This is partly because there is no way for Buildman to know which fragments are
+valid on which boards.
 
 Building with clang
 -------------------
