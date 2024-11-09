@@ -26,6 +26,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IS_HAB_ENABLED_BIT \
 	(is_soc_type(MXC_SOC_MX7ULP) ? 0x80000000 :	\
 	 ((is_soc_type(MXC_SOC_MX7) || is_soc_type(MXC_SOC_IMX8M)) ? 0x2000000 : 0x2))
+#define FIELD_RETURN_FUSE_MASK \
+	(is_imx8mp() ? 0xFFFFFFFF : 0x00000001)
+/*
+ * The fuse pattern for i.MX8M Plus is 0x28001401, but bit 2 is already set from factory.
+ * This means when field return is set, the fuse word value reads 0x28001405
+ */
+#define FIELD_RETURN_PATTERN \
+	(is_imx8mp() ? 0x28001405 : 0x00000001)
 
 #ifdef CONFIG_MX7ULP
 #define HAB_M4_PERSISTENT_START	((soc_rev() >= CHIP_REV_2_0) ? 0x20008040 : \
@@ -870,18 +878,30 @@ static int validate_ivt(struct ivt *ivt_initial)
 
 bool imx_hab_is_enabled(void)
 {
-	struct imx_sec_config_fuse_t *fuse =
-		(struct imx_sec_config_fuse_t *)&imx_sec_config_fuse;
+	struct imx_fuse *sec_config =
+		(struct imx_fuse *)&imx_sec_config_fuse;
+	struct imx_fuse *field_return =
+		(struct imx_fuse *)&imx_field_return_fuse;
 	uint32_t reg;
+	bool is_enabled;
 	int ret;
 
-	ret = fuse_read(fuse->bank, fuse->word, &reg);
+	ret = fuse_read(sec_config->bank, sec_config->word, &reg);
 	if (ret) {
-		puts("\nSecure boot fuse read error\n");
+		puts("Secure boot fuse read error\n");
 		return ret;
 	}
+	is_enabled = reg & IS_HAB_ENABLED_BIT;
+	if (is_enabled) {
+		ret = fuse_read(field_return->bank, field_return->word, &reg);
+		if (ret) {
+			puts("Field return fuse read error\n");
+			return ret;
+		}
+		is_enabled = (reg & FIELD_RETURN_FUSE_MASK) != FIELD_RETURN_PATTERN;
+	}
 
-	return (reg & IS_HAB_ENABLED_BIT) == IS_HAB_ENABLED_BIT;
+	return is_enabled;
 }
 
 int imx_hab_authenticate_image(uint32_t ddr_start, uint32_t image_size,

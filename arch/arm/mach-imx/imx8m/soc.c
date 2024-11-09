@@ -34,11 +34,18 @@
 #include <linux/bitfield.h>
 #include <linux/sizes.h>
 
+#include "../snvs.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_IMX_HAB)
-struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
+struct imx_fuse const imx_sec_config_fuse = {
 	.bank = 1,
+	.word = 3,
+};
+
+struct imx_fuse const imx_field_return_fuse = {
+	.bank = 8,
 	.word = 3,
 };
 #endif
@@ -571,6 +578,8 @@ static void imx8m_setup_snvs(void)
 	writel(SNVS_LPPGDR_INIT, SNVS_BASE_ADDR + SNVS_LPLVDR);
 	/* Clear interrupt status */
 	writel(0xffffffff, SNVS_BASE_ADDR + SNVS_LPSR);
+
+	init_snvs();
 }
 
 static void imx8m_setup_csu_tzasc(void)

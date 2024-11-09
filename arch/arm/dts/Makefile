@@ -778,8 +778,6 @@ dtb-y += \
 	imx6dl-cubox-i.dtb \
 	imx6dl-cubox-i-emmc-som-v15.dtb \
 	imx6dl-cubox-i-som-v15.dtb \
-	imx6dl-dhcom-pdk2.dtb \
-	imx6dl-dhcom-picoitx.dts \
 	imx6dl-gw51xx.dtb \
 	imx6dl-gw52xx.dtb \
 	imx6dl-gw53xx.dtb \
@@ -811,8 +809,7 @@ dtb-y += \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-sielaff.dtb \
-	imx6dl-wandboard-revd1.dtb \
-	imx6s-dhcom-drc02.dtb
+	imx6dl-wandboard-revd1.dtb
 
 endif
 
@@ -824,7 +821,6 @@ dtb-y += \
 	imx6q-cubox-i.dtb \
 	imx6q-cubox-i-emmc-som-v15.dtb \
 	imx6q-cubox-i-som-v15.dtb \
-	imx6q-dhcom-pdk2.dtb \
 	imx6q-display5.dtb \
 	imx6q-gw51xx.dtb \
 	imx6q-gw52xx.dtb \
