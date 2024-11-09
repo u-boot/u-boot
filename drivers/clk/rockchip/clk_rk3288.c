@@ -903,11 +903,11 @@ static int __maybe_unused rk3288_gmac_set_parent(struct clk *clk, struct clk *pa
 	int ret;
 
 	/*
-	 * If the requested parent is in the same clock-controller and
-	 * the id is SCLK_MAC_PLL ("mac_pll_src"), switch to the internal
-	 * clock.
+	 * If the requested parent is in the same clock-controller the
+	 * likely parent is the unexported SCLK_MAC_PLL ("mac_pll_src"),
+	 * switch to the internal clock.
 	 */
-	if ((parent->dev == clk->dev) && (parent->id == SCLK_MAC_PLL)) {
+	if (parent->dev == clk->dev) {
 		debug("%s: switching GAMC to SCLK_MAC_PLL\n", __func__);
 		rk_clrsetreg(&cru->cru_clksel_con[21], RMII_EXTCLK_MASK, 0);
 		return 0;
