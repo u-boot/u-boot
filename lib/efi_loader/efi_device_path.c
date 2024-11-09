@@ -977,7 +977,7 @@ struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
 /* Construct a device-path for memory-mapped image */
 struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 					uint64_t start_address,
-					uint64_t end_address)
+					size_t size)
 {
 	struct efi_device_path_memory *mdp;
 	void *buf, *start;
@@ -992,7 +992,7 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	mdp->dp.length = sizeof(*mdp);
 	mdp->memory_type = memory_type;
 	mdp->start_address = start_address;
-	mdp->end_address = end_address;
+	mdp->end_address = start_address + size;
 	buf = &mdp[1];
 
 	*((struct efi_device_path *)buf) = END;
@@ -1073,8 +1073,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 		efi_get_image_parameters(&image_addr, &image_size);
 
 		dp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-				     (uintptr_t)image_addr,
-				     (uintptr_t)image_addr + image_size);
+				     (uintptr_t)image_addr, image_size);
 	} else if (IS_ENABLED(CONFIG_NETDEVICES) && !strcmp(dev, "Net")) {
 		dp = efi_dp_from_eth();
 	} else if (!strcmp(dev, "Uart")) {
