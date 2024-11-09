@@ -36,6 +36,7 @@ obj-$(CONFIG_$(SPL_)SYSINFO) += sysinfo/
 obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 obj-$(CONFIG_XEN) += xen/
 obj-$(CONFIG_$(SPL_)FPGA) += fpga/
+obj-$(CONFIG_$(SPL_TPL_)DEMO_LED) += demo_led/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD

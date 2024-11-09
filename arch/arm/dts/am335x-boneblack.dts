@@ -11,6 +11,27 @@
 / {
 	model = "TI AM335x BeagleBone Black";
 	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+
+	demo_leds {
+		pinctrl-names = "default";
+		pinctrl-0 = <&demo_leds>;
+
+		compatible = "demo-uboot-leds";
+
+		used_led@1 {
+				label = "led-1_14";
+				gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+				default-state = "off";
+		};
+	};
+};
+
+&am33xx_pinmux {
+	demo_leds: demo_leds {
+		pinctrl-single,pins = <
+			0x38 (PIN_OUTPUT_PULLDOWN | MUX_MODE7) /* gpmc_ad14.gpio1_14 */
+		>;
+	};
 };
 
 &cpu0_opp_table {

@@ -2445,4 +2445,11 @@ config MMC_SPEED_MODE_SET
 	  and is indicated using the index from enum bus_mode in
 	  include/mmc.h. A speed mode can be set only if it has already
 	  been enabled in the device tree.
+
+config CMD_DEMO_LED
+    bool "demo_led"
+    help
+      Enable the 'demo_led' command which allows for control of LEDs. In
+	  this case, it is P1.14.
+
 endmenu
