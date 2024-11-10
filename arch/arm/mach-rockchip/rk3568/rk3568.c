@@ -3,7 +3,10 @@
  * (C) Copyright 2021 Rockchip Electronics Co., Ltd
  */
 
+#define LOG_CATEGORY LOGC_ARCH
+
 #include <dm.h>
+#include <misc.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk3568.h>
@@ -137,5 +140,63 @@ int arch_cpu_init(void)
 	writel((PMU_PD_VO_DWN_ENA << 16),
 	       PMU_BASE_ADDR + PMU_PWR_GATE_SFTCON);
 #endif
+	return 0;
+}
+
+#define RK3568_OTP_CPU_CODE_OFFSET		0x02
+#define RK3568_OTP_SPECIFICATION_OFFSET		0x07
+#define RK3568_OTP_PERFORMANCE_OFFSET		0x22
+
+int checkboard(void)
+{
+	u8 cpu_code[2], specification, package, performance;
+	struct udevice *dev;
+	char suffix[3];
+	int ret;
+
+	if (!IS_ENABLED(CONFIG_ROCKCHIP_OTP) || !CONFIG_IS_ENABLED(MISC))
+		return 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_DRIVER_GET(rockchip_otp), &dev);
+	if (ret) {
+		log_debug("Could not find otp device, ret=%d\n", ret);
+		return 0;
+	}
+
+	/* cpu-code: SoC model, e.g. 0x35 0x66 or 0x35 0x68 */
+	ret = misc_read(dev, RK3568_OTP_CPU_CODE_OFFSET, cpu_code, 2);
+	if (ret < 0) {
+		log_debug("Could not read cpu-code, ret=%d\n", ret);
+		return 0;
+	}
+
+	/* specification: SoC variant, e.g. 0x2 for RK3568B2 and 0xA for RK3568J */
+	ret = misc_read(dev, RK3568_OTP_SPECIFICATION_OFFSET, &specification, 1);
+	if (ret < 0) {
+		log_debug("Could not read specification, ret=%d\n", ret);
+		return 0;
+	}
+	/* package: likely SoC variant revision, 0x2 for RK3568B2 */
+	package = specification >> 5;
+	specification &= 0x1f;
+
+	/* performance: used to identify RK3566T SoC variant */
+	ret = misc_read(dev, RK3568_OTP_PERFORMANCE_OFFSET, &performance, 1);
+	if (ret < 0) {
+		log_debug("Could not read performance, ret=%d\n", ret);
+		return 0;
+	}
+	if (performance & 0x0f)
+		specification = 0x14; /* T-variant */
+
+	/* for RK3568J i.e. '@' + 0xA = 'J' */
+	suffix[0] = specification > 1 ? '@' + specification : '\0';
+	/* for RK3568B2 i.e. '0' + 0x2 = '2' */
+	suffix[1] = package > 1 ? '0' + package : '\0';
+	suffix[2] = '\0';
+
+	printf("SoC:   RK%02x%02x%s\n", cpu_code[0], cpu_code[1], suffix);
+
 	return 0;
 }
