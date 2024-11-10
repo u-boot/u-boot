@@ -232,16 +232,24 @@ int led_activity_blink(void)
 #endif
 #endif
 
+static const char *led_get_label(ofnode node)
+{
+	const char *label;
+
+	label = ofnode_read_string(node, "label");
+	if (!label && !ofnode_read_string(node, "compatible"))
+		label = ofnode_get_name(node);
+
+	return label;
+}
+
 static int led_post_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 	const char *default_state;
 
 	if (!uc_plat->label)
-		uc_plat->label = dev_read_string(dev, "label");
-
-	if (!uc_plat->label && !dev_read_string(dev, "compatible"))
-		uc_plat->label = ofnode_get_name(dev_ofnode(dev));
+		uc_plat->label = led_get_label(dev_ofnode(dev));
 
 	uc_plat->default_state = LEDST_COUNT;
 
@@ -300,15 +308,21 @@ static int led_post_probe(struct udevice *dev)
 static int led_init(struct uclass *uc)
 {
 	struct led_uc_priv *priv = uclass_get_priv(uc);
+	ofnode led_node;
+	int ret;
 
 #ifdef CONFIG_LED_BOOT
-	priv->boot_led_label = ofnode_options_read_str("boot-led");
-	priv->boot_led_period = ofnode_options_read_int("boot-led-period", 250);
+	ret = ofnode_options_get_by_phandle("boot-led", &led_node);
+	if (!ret)
+		priv->boot_led_label = led_get_label(led_node);
+	priv->boot_led_period = ofnode_options_read_int("boot-led-period-ms", 250);
 #endif
 
 #ifdef CONFIG_LED_ACTIVITY
-	priv->activity_led_label = ofnode_options_read_str("activity-led");
-	priv->activity_led_period = ofnode_options_read_int("activity-led-period",
+	ret = ofnode_options_get_by_phandle("activity-led", &led_node);
+	if (!ret)
+		priv->activity_led_label = led_get_label(led_node);
+	priv->activity_led_period = ofnode_options_read_int("activity-led-period-ms",
 							    250);
 #endif
 
