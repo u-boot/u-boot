@@ -7,13 +7,17 @@
 #include <efi_loader.h>
 #include <image.h>
 #include <lwip/apps/http_client.h>
+#include "lwip/altcp_tls.h"
 #include <lwip/timeouts.h>
+#include <rng.h>
 #include <mapmem.h>
 #include <net.h>
 #include <time.h>
+#include <dm/uclass.h>
 
 #define SERVER_NAME_SIZE 200
 #define HTTP_PORT_DEFAULT 80
+#define HTTPS_PORT_DEFAULT 443
 #define PROGRESS_PRINT_STEP_BYTES (100 * 1024)
 
 enum done_state {
@@ -32,18 +36,56 @@ struct wget_ctx {
 	enum done_state done;
 };
 
-static int parse_url(char *url, char *host, u16 *port, char **path)
+bool wget_validate_uri(char *uri);
+
+int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len,
+			  size_t *olen)
+{
+	struct udevice *dev;
+	u64 rng = 0;
+	int ret;
+
+	*olen = 0;
+
+	ret = uclass_get_device(UCLASS_RNG, 0, &dev);
+	if (ret) {
+		log_err("Failed to get an rng: %d\n", ret);
+		return ret;
+	}
+	ret = dm_rng_read(dev, &rng, sizeof(rng));
+	if (ret)
+		return ret;
+
+	memcpy(output, &rng, len);
+	*olen = sizeof(rng);
+
+	return 0;
+}
+
+static int parse_url(char *url, char *host, u16 *port, char **path,
+		     bool *is_https)
 {
 	char *p, *pp;
 	long lport;
+	size_t prefix_len = 0;
 
-	p = strstr(url, "http://");
-	if (!p) {
-		log_err("only http:// is supported\n");
+	if (!wget_validate_uri(url)) {
+		log_err("Invalid URL. Use http(s)://\n");
 		return -EINVAL;
 	}
 
-	p += strlen("http://");
+	*is_https = false;
+	*port = HTTP_PORT_DEFAULT;
+	prefix_len = strlen("http://");
+	p = strstr(url, "http://");
+	if (!p) {
+		p = strstr(url, "https://");
+		prefix_len = strlen("https://");
+		*port = HTTPS_PORT_DEFAULT;
+		*is_https = true;
+	}
+
+	p += prefix_len;
 
 	/* Parse hostname */
 	pp = strchr(p, ':');
@@ -67,9 +109,8 @@ static int parse_url(char *url, char *host, u16 *port, char **path)
 		if (lport > 65535)
 			return -EINVAL;
 		*port = (u16)lport;
-	} else {
-		*port = HTTP_PORT_DEFAULT;
 	}
+
 	if (*pp != '/')
 		return -EINVAL;
 	*path = pp;
@@ -210,12 +251,16 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
 	char server_name[SERVER_NAME_SIZE];
+#if defined CONFIG_WGET_HTTPS
+	altcp_allocator_t tls_allocator;
+#endif
 	httpc_connection_t conn;
 	httpc_state_t *state;
 	struct netif *netif;
 	struct wget_ctx ctx;
 	char *path;
 	u16 port;
+	bool is_https;
 
 	ctx.daddr = dst_addr;
 	ctx.saved_daddr = dst_addr;
@@ -224,7 +269,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	ctx.prevsize = 0;
 	ctx.start_time = 0;
 
-	if (parse_url(uri, server_name, &port, &path))
+	if (parse_url(uri, server_name, &port, &path, &is_https))
 		return CMD_RET_USAGE;
 
 	netif = net_lwip_new_netif(udev);
@@ -232,6 +277,22 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 		return -1;
 
 	memset(&conn, 0, sizeof(conn));
+#if defined CONFIG_WGET_HTTPS
+	if (is_https) {
+		tls_allocator.alloc = &altcp_tls_alloc;
+		tls_allocator.arg =
+			altcp_tls_create_config_client(NULL, 0, server_name);
+
+		if (!tls_allocator.arg) {
+			log_err("error: Cannot create a TLS connection\n");
+			net_lwip_remove_netif(netif);
+			return -1;
+		}
+
+		conn.altcp_allocator = &tls_allocator;
+	}
+#endif
+
 	conn.result_fn = httpc_result_cb;
 	ctx.path = path;
 	if (httpc_get_file_dns(server_name, port, path, &conn, httpc_recv_cb,
@@ -316,6 +377,7 @@ bool wget_validate_uri(char *uri)
 	char c;
 	bool ret = true;
 	char *str_copy, *s, *authority;
+	size_t prefix_len = 0;
 
 	for (c = 0x1; c < 0x21; c++) {
 		if (strchr(uri, c)) {
@@ -323,15 +385,21 @@ bool wget_validate_uri(char *uri)
 			return false;
 		}
 	}
+
 	if (strchr(uri, 0x7f)) {
 		log_err("invalid character is used\n");
 		return false;
 	}
 
-	if (strncmp(uri, "http://", 7)) {
-		log_err("only http:// is supported\n");
+	if (!strncmp(uri, "http://", strlen("http://"))) {
+		prefix_len = strlen("http://");
+	} else if (!strncmp(uri, "https://", strlen("https://"))) {
+		prefix_len = strlen("https://");
+	} else {
+		log_err("only http(s):// is supported\n");
 		return false;
 	}
+
 	str_copy = strdup(uri);
 	if (!str_copy)
 		return false;

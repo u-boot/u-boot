@@ -2124,6 +2124,25 @@ config CMD_WGET
 	  wget is a simple command to download kernel, or other files,
 	  from a http server over TCP.
 
+config WGET_HTTPS
+	bool "wget https"
+	depends on CMD_WGET
+	depends on PROT_TCP_LWIP
+	depends on MBEDTLS_LIB
+        select SHA256
+        select RSA
+        select ASYMMETRIC_KEY_TYPE
+        select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+        select X509_CERTIFICATE_PARSER
+        select PKCS7_MESSAGE_PARSER
+	select MBEDTLS_LIB_CRYPTO
+	select MBEDTLS_LIB_TLS
+	select RSA_VERIFY_WITH_PKEY
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
+	help
+	  Enable TLS over http for wget.
+
 endif  # if CMD_NET
 
 config CMD_PXE

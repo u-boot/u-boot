@@ -37,7 +37,7 @@ config PROT_UDP_LWIP
 
 config LWIP_TCP_WND
 	int "Value of TCP_WND"
-	default 8000 if ARCH_QEMU
+	default 32768 if ARCH_QEMU
 	default 3000000
 	help
 	  Default value for TCP_WND in the lwIP configuration
