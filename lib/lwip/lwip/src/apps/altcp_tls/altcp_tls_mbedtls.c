@@ -3,7 +3,7 @@
  * Application layered TCP/TLS connection API (to be used from TCPIP thread)
  *
  * This file provides a TLS layer using mbedTLS
- *
+ * 
  * This version is currently compatible with the 2.x.x branch (current LTS).
  */
 
@@ -106,6 +106,7 @@ struct altcp_tls_config {
   u8_t pkey_count;
   u8_t pkey_max;
   mbedtls_x509_crt *ca;
+  char host[256];
 #if defined(MBEDTLS_SSL_CACHE_C) && ALTCP_MBEDTLS_USE_SESSION_CACHE
   /** Inter-connection cache for fast connection startup */
   struct mbedtls_ssl_cache_context cache;
@@ -642,6 +643,7 @@ altcp_mbedtls_setup(void *conf, struct altcp_pcb *conn, struct altcp_pcb *inner_
   /* tell mbedtls about our I/O functions */
   mbedtls_ssl_set_bio(&state->ssl_context, conn, altcp_mbedtls_bio_send, altcp_mbedtls_bio_recv, NULL);
 
+  mbedtls_ssl_set_hostname(&state->ssl_context, config->host);
   altcp_mbedtls_setup_callbacks(conn, inner_conn);
   conn->inner_conn = inner_conn;
   conn->fns = &altcp_mbedtls_functions;
@@ -951,7 +953,7 @@ altcp_tls_create_config_server_privkey_cert(const u8_t *privkey, size_t privkey_
 }
 
 static struct altcp_tls_config *
-altcp_tls_create_config_client_common(const u8_t *ca, size_t ca_len, int is_2wayauth)
+altcp_tls_create_config_client_common(const u8_t *ca, size_t ca_len, int is_2wayauth, char *host)
 {
   int ret;
   struct altcp_tls_config *conf = altcp_tls_create_config(0, (is_2wayauth) ? 1 : 0, (is_2wayauth) ? 1 : 0, ca != NULL);
@@ -973,13 +975,15 @@ altcp_tls_create_config_client_common(const u8_t *ca, size_t ca_len, int is_2way
 
     mbedtls_ssl_conf_ca_chain(&conf->conf, conf->ca, NULL);
   }
+  strlcpy(conf->host, host, sizeof(conf->host));
+
   return conf;
 }
 
 struct altcp_tls_config *
-altcp_tls_create_config_client(const u8_t *ca, size_t ca_len)
+altcp_tls_create_config_client(const u8_t *ca, size_t ca_len, char *host)
 {
-  return altcp_tls_create_config_client_common(ca, ca_len, 0);
+  return altcp_tls_create_config_client_common(ca, ca_len, 0, host);
 }
 
 struct altcp_tls_config *
@@ -995,7 +999,7 @@ altcp_tls_create_config_client_2wayauth(const u8_t *ca, size_t ca_len, const u8_
     return NULL;
   }
 
-  conf = altcp_tls_create_config_client_common(ca, ca_len, 1);
+  conf = altcp_tls_create_config_client_common(ca, ca_len, 1, NULL);
   if (conf == NULL) {
     return NULL;
   }
