@@ -216,3 +216,19 @@ int arch_cpu_init(void)
 	return 0;
 }
 #endif
+
+#define RK3308_GRF_CHIP_ID	0xFF000800
+
+int checkboard(void)
+{
+	u32 chip_id = readl(RK3308_GRF_CHIP_ID);
+
+	if (chip_id == 0x3308)
+		printf("SoC:   RK3308B\n");
+	else if (chip_id == 0x3308c)
+		printf("SoC:   RK3308B-S\n");
+	else
+		printf("SoC:   RK3308\n");
+
+	return 0;
+}
