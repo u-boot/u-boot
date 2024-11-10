@@ -296,6 +296,12 @@
 		compatible = "sandbox,dsi-host";
 	};
 
+	phandle_node_1: phandle-node-1 {
+	};
+
+	phandle_node_2: phandle-node-2 {
+	};
+
 	a-test {
 		reg = <0 1>;
 		compatible = "denx,u-boot-fdt-test";
@@ -334,6 +340,7 @@
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
 		phandle-value = <&gpio_c 10>, <0xFFFFFFFF 20>, <&gpio_a 30>;
+		phandle-nodes = <&phandle_node_1>, <&phandle_node_2>;
 
 		mux-controls = <&muxcontroller0 0>, <&muxcontroller0 1>,
 			       <&muxcontroller0 2>, <&muxcontroller0 3>,
