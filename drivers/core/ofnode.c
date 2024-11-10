@@ -879,11 +879,11 @@ int ofnode_read_string_list(ofnode node, const char *property,
 	return count;
 }
 
-static void ofnode_from_fdtdec_phandle_args(struct fdtdec_phandle_args *in,
+static void ofnode_from_fdtdec_phandle_args(ofnode node, struct fdtdec_phandle_args *in,
 					    struct ofnode_phandle_args *out)
 {
 	assert(OF_MAX_PHANDLE_ARGS == MAX_PHANDLE_ARGS);
-	out->node = offset_to_ofnode(in->node);
+	out->node = noffset_to_ofnode(node, in->node);
 	out->args_count = in->args_count;
 	memcpy(out->args, in->args, sizeof(out->args));
 }
@@ -923,7 +923,40 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 						     cell_count, index, &args);
 		if (ret)
 			return ret;
-		ofnode_from_fdtdec_phandle_args(&args, out_args);
+		ofnode_from_fdtdec_phandle_args(node, &args, out_args);
+	}
+
+	return 0;
+}
+
+int oftree_parse_phandle_with_args(oftree tree, ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count,
+				   int index,
+				   struct ofnode_phandle_args *out_args)
+{
+	if (ofnode_is_np(node)) {
+		struct of_phandle_args args;
+		int ret;
+
+		ret = of_root_parse_phandle_with_args(tree.np,
+						      ofnode_to_np(node),
+						      list_name, cells_name,
+						      cell_count, index,
+						      &args);
+		if (ret)
+			return ret;
+		ofnode_from_of_phandle_args(&args, out_args);
+	} else {
+		struct fdtdec_phandle_args args;
+		int ret;
+
+		ret = fdtdec_parse_phandle_with_args(tree.fdt,
+						     ofnode_to_offset(node),
+						     list_name, cells_name,
+						     cell_count, index, &args);
+		if (ret)
+			return ret;
+		ofnode_from_fdtdec_phandle_args(node, &args, out_args);
 	}
 
 	return 0;
@@ -937,6 +970,18 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 				list_name, cells_name, cell_count);
 	else
 		return fdtdec_parse_phandle_with_args(ofnode_to_fdt(node),
+				ofnode_to_offset(node), list_name, cells_name,
+				cell_count, -1, NULL);
+}
+
+int oftree_count_phandle_with_args(oftree tree, ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count)
+{
+	if (ofnode_is_np(node))
+		return of_root_count_phandle_with_args(tree.np, ofnode_to_np(node),
+				list_name, cells_name, cell_count);
+	else
+		return fdtdec_parse_phandle_with_args(tree.fdt,
 				ofnode_to_offset(node), list_name, cells_name,
 				cell_count, -1, NULL);
 }
