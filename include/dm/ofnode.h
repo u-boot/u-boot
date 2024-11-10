@@ -1721,6 +1721,21 @@ int ofnode_options_read_int(const char *prop_name, int default_val);
 const char *ofnode_options_read_str(const char *prop_name);
 
 /**
+ * ofnode_options_get_by_phandle() - Get a ofnode from phandle from the U-Boot options
+ *
+ * This reads a property from the /options/u-boot/ node of the devicetree.
+ *
+ * This only works with the control FDT.
+ *
+ * See dtschema/schemas/options/u-boot.yaml in dt-schema project for bindings
+ *
+ * @prop_name: property name to look up
+ * @nodep: pointer to ofnode where node is stored
+ * Return: 0, if found, or negative error if not
+ */
+int ofnode_options_get_by_phandle(const char *prop_name, ofnode *nodep);
+
+/**
  * ofnode_read_bootscript_address() - Read bootscr-address or bootscr-ram-offset
  *
  * @bootscr_address: pointer to 64bit address where bootscr-address property value
