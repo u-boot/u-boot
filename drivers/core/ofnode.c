@@ -879,6 +879,64 @@ int ofnode_read_string_list(ofnode node, const char *property,
 	return count;
 }
 
+ofnode ofnode_parse_phandle(ofnode node, const char *phandle_name,
+			    int index)
+{
+	ofnode phandle;
+
+	if (ofnode_is_np(node)) {
+		struct device_node *np;
+
+		np = of_parse_phandle(ofnode_to_np(node), phandle_name,
+				      index);
+		if (!np)
+			return ofnode_null();
+
+		phandle = np_to_ofnode(np);
+	} else {
+		struct fdtdec_phandle_args args;
+
+		if (fdtdec_parse_phandle_with_args(ofnode_to_fdt(node),
+						   ofnode_to_offset(node),
+						   phandle_name, NULL,
+						   0, index, &args))
+			return ofnode_null();
+
+		phandle = offset_to_ofnode(args.node);
+	}
+
+	return phandle;
+}
+
+ofnode oftree_parse_phandle(oftree tree, ofnode node, const char *phandle_name,
+			    int index)
+{
+	ofnode phandle;
+
+	if (ofnode_is_np(node)) {
+		struct device_node *np;
+
+		np = of_root_parse_phandle(tree.np, ofnode_to_np(node),
+					   phandle_name, index);
+		if (!np)
+			return ofnode_null();
+
+		phandle = np_to_ofnode(np);
+	} else {
+		struct fdtdec_phandle_args args;
+
+		if (fdtdec_parse_phandle_with_args(tree.fdt,
+						   ofnode_to_offset(node),
+						   phandle_name, NULL,
+						   0, index, &args))
+			return ofnode_null();
+
+		phandle = noffset_to_ofnode(node, args.node);
+	}
+
+	return phandle;
+}
+
 static void ofnode_from_fdtdec_phandle_args(ofnode node, struct fdtdec_phandle_args *in,
 					    struct ofnode_phandle_args *out)
 {

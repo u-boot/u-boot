@@ -848,6 +848,18 @@ int ofnode_read_string_list(ofnode node, const char *property,
 			    const char ***listp);
 
 /**
+ * ofnode_parse_phandle() - Resolve a phandle property to an ofnode
+ *
+ * @node: node to check
+ * @phandle_name: Name of property holding a phandle value
+ * @index: For properties holding a table of phandles, this is the index into
+ *         the table
+ * Return: ofnode that the phandle points to or ofnode_null() on error.
+ */
+ofnode ofnode_parse_phandle(ofnode node, const char *phandle_name,
+			    int index);
+
+/**
  * ofnode_parse_phandle_with_args() - Find a node pointed by phandle in a list
  *
  * This function is useful to parse lists of phandles and their arguments.
@@ -908,6 +920,20 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
  */
 int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 				   const char *cells_name, int cell_count);
+
+/**
+ * oftree_parse_phandle() - Resolve a phandle property to an ofnode
+ *			    from a root node
+ *
+ * @tree: device tree to use
+ * @node: node to check
+ * @phandle_name: Name of property holding a phandle value
+ * @index: For properties holding a table of phandles, this is the index into
+ *         the table
+ * Return: ofnode that the phandle points to or ofnode_null() on error.
+ */
+ofnode oftree_parse_phandle(oftree tree, ofnode node, const char *phandle_name,
+			    int index);
 
 /**
  * oftree_parse_phandle_with_args() - Find a node pointed by phandle in a list
