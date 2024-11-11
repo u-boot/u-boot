@@ -156,6 +156,57 @@ static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 	return lmb_alloc_addr(addr, len) == addr ? 0 : -1;
 }
 
+/**
+ * io_lmb_setup() - Initialize LMB struct
+ * @lmb: IO LMB to initialize
+ *
+ * Returns: 0 on success, negative error code on failure
+ */
+int io_lmb_setup(struct lmb *io_lmb);
+
+/**
+ * io_lmb_teardown() - Tear LMB struct down
+ * @lmb: IO LMB to teardown
+ */
+void io_lmb_teardown(struct lmb *io_lmb);
+
+/**
+ * io_lmb_add() - Add an IOVA range for allocations
+ * @io_lmb: LMB to add the space to
+ * @base: Base Address of region to add
+ * @size: Size of the region to add
+ *
+ * Add the IOVA space [base, base + size] to be managed by io_lmb.
+ *
+ * Returns: 0 if the region addition was successful, -1 on failure
+ */
+long io_lmb_add(struct lmb *io_lmb, phys_addr_t base, phys_size_t size);
+
+/**
+ * io_lmb_alloc() - Allocate specified IO memory address with specified alignment
+ * @io_lmb: LMB to alloc from
+ * @size: Size of the region requested
+ * @align: Required address and size alignment
+ *
+ * Allocate a region of IO memory. The base parameter is used to specify the
+ * base address of the requested region.
+ *
+ * Return: base IO address on success, 0 on error
+ */
+phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align);
+
+/**
+ * io_lmb_free() - Free up a region of IOVA space
+ * @io_lmb: LMB to return the IO address space to
+ * @base: Base Address of region to be freed
+ * @size: Size of the region to be freed
+ *
+ * Free up a region of IOVA space.
+ *
+ * Return: 0 if successful, -1 on failure
+ */
+long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size);
+
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_LMB_H */

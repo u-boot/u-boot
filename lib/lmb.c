@@ -352,6 +352,86 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 }
 
 /*
+ * IOVA LMB memory maps using lmb pointers instead of the global LMB memory map.
+ */
+
+int io_lmb_setup(struct lmb *io_lmb)
+{
+	int ret;
+
+	ret = alist_init(&io_lmb->free_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB free IOVA\n");
+		return -ENOMEM;
+	}
+
+	ret = alist_init(&io_lmb->used_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB used IOVA\n");
+		return -ENOMEM;
+	}
+
+	io_lmb->test = false;
+
+	return 0;
+}
+
+void io_lmb_teardown(struct lmb *io_lmb)
+{
+	alist_uninit(&io_lmb->free_mem);
+	alist_uninit(&io_lmb->used_mem);
+}
+
+long io_lmb_add(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
+{
+	return lmb_add_region_flags(&io_lmb->free_mem, base, size, LMB_NONE);
+}
+
+/* derived and simplified from _lmb_alloc_base() */
+phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align)
+{
+	long i, rgn;
+	phys_addr_t base = 0;
+	phys_addr_t res_base;
+	struct lmb_region *lmb_used = io_lmb->used_mem.data;
+	struct lmb_region *lmb_memory = io_lmb->free_mem.data;
+
+	for (i = io_lmb->free_mem.count - 1; i >= 0; i--) {
+		phys_addr_t lmbbase = lmb_memory[i].base;
+		phys_size_t lmbsize = lmb_memory[i].size;
+
+		if (lmbsize < size)
+			continue;
+		base = lmb_align_down(lmbbase + lmbsize - size, align);
+
+		while (base && lmbbase <= base) {
+			rgn = lmb_overlaps_region(&io_lmb->used_mem, base, size);
+			if (rgn < 0) {
+				/* This area isn't reserved, take it */
+				if (lmb_add_region_flags(&io_lmb->used_mem, base,
+							 size, LMB_NONE) < 0)
+					return 0;
+
+				return base;
+			}
+
+			res_base = lmb_used[rgn].base;
+			if (res_base < size)
+				break;
+			base = lmb_align_down(res_base - size, align);
+		}
+	}
+	return 0;
+}
+
+long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
+{
+	return _lmb_free(&io_lmb->used_mem, base, size);
+}
+
+/*
  * Low level LMB functions are used to manage IOVA memory maps for the Apple
  * dart iommu. They must not access the global LMB memory map.
  * So keep the global LMB variable declaration unreachable from them.
