@@ -73,6 +73,8 @@ struct apple_dart_priv {
 	u64 *l1, *l2;
 	int bypass, shift;
 
+	struct lmb io_lmb;
+
 	dma_addr_t dvabase;
 	dma_addr_t dvaend;
 
@@ -123,7 +125,7 @@ static dma_addr_t apple_dart_map(struct udevice *dev, void *addr, size_t size)
 	off = (phys_addr_t)addr - paddr;
 	psize = ALIGN(size + off, DART_PAGE_SIZE);
 
-	dva = lmb_alloc(psize, DART_PAGE_SIZE);
+	dva = io_lmb_alloc(&priv->io_lmb, psize, DART_PAGE_SIZE);
 
 	idx = dva / DART_PAGE_SIZE;
 	for (i = 0; i < psize / DART_PAGE_SIZE; i++) {
@@ -159,7 +161,7 @@ static void apple_dart_unmap(struct udevice *dev, dma_addr_t addr, size_t size)
 			   (unsigned long)&priv->l2[idx + i]);
 	priv->flush_tlb(priv);
 
-	lmb_free(dva, psize);
+	io_lmb_free(&priv->io_lmb, dva, psize);
 }
 
 static struct iommu_ops apple_dart_ops = {
@@ -173,7 +175,7 @@ static int apple_dart_probe(struct udevice *dev)
 	dma_addr_t addr;
 	phys_addr_t l2;
 	int ntte, nl1, nl2;
-	int sid, i;
+	int ret, sid, i;
 	u32 params2, params4;
 
 	priv->base = dev_read_addr_ptr(dev);
@@ -212,7 +214,13 @@ static int apple_dart_probe(struct udevice *dev)
 	priv->dvabase = DART_PAGE_SIZE;
 	priv->dvaend = SZ_4G - DART_PAGE_SIZE;
 
-	lmb_add(priv->dvabase, priv->dvaend - priv->dvabase);
+	ret = io_lmb_setup(&priv->io_lmb);
+	if (ret)
+		return ret;
+	ret = io_lmb_add(&priv->io_lmb, priv->dvabase,
+			 priv->dvaend - priv->dvabase);
+	if (ret)
+		return -EINVAL;
 
 	/* Disable translations. */
 	for (sid = 0; sid < priv->nsid; sid++)
@@ -293,6 +301,8 @@ static int apple_dart_remove(struct udevice *dev)
 			writel(0, priv->base + DART_TTBR(priv, sid, i));
 	}
 	priv->flush_tlb(priv);
+
+	io_lmb_teardown(&priv->io_lmb);
 
 	return 0;
 }
