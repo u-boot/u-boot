@@ -462,6 +462,7 @@ config SPL_CUSTOM_SYS_MALLOC_ADDR
 config SPL_SYS_MALLOC_SIZE
 	hex "Size of the SPL malloc pool"
 	depends on SPL_SYS_MALLOC
+	default 0x180000 if BIOSEMU && RISCV
 	default 0x100000
 
 config SPL_READ_ONLY
