@@ -8,6 +8,7 @@
 #include <env.h>
 #include <hexdump.h>
 #include <linux/if_ether.h>
+#include <linux/sizes.h>
 #include <linux/types.h>
 #include <rand.h>
 #include <time.h>
@@ -505,5 +506,52 @@ int wget_with_dns(ulong dst_addr, char *uri);
  */
 bool wget_validate_uri(char *uri);
 //int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
+
+/**
+ * enum wget_http_method - http method
+ */
+enum wget_http_method {
+	WGET_HTTP_METHOD_GET,
+	WGET_HTTP_METHOD_POST,
+	WGET_HTTP_METHOD_PATCH,
+	WGET_HTTP_METHOD_OPTIONS,
+	WGET_HTTP_METHOD_CONNECT,
+	WGET_HTTP_METHOD_HEAD,
+	WGET_HTTP_METHOD_PUT,
+	WGET_HTTP_METHOD_DELETE,
+	WGET_HTTP_METHOD_TRACE,
+	WGET_HTTP_METHOD_MAX
+};
+
+/**
+ * define MAX_HTTP_HEADERS_SIZE - maximum headers buffer size
+ *
+ * When receiving http headers, wget fills a buffer with up
+ * to MAX_HTTP_HEADERS_SIZE bytes of header information.
+ */
+#define MAX_HTTP_HEADERS_SIZE SZ_64K
+
+/**
+ * struct wget_http_info - wget parameters
+ * @method:		HTTP Method. Filled by client.
+ * @status_code:	HTTP status code. Filled by wget.
+ * @file_size:		download size. Filled by wget.
+ * @buffer_size:	size of client-provided buffer. Filled by client.
+ * @set_bootdev:	set boot device with download. Filled by client.
+ * @check_buffer_size:	check download does not exceed buffer size.
+ *			Filled by client.
+ * @hdr_cont_len:	content length according to headers. Filled by wget
+ * @headers:		buffer for headers. Filled by wget.
+ */
+struct wget_http_info {
+	enum wget_http_method method;
+	u32 status_code;
+	ulong file_size;
+	ulong buffer_size;
+	bool set_bootdev;
+	bool check_buffer_size;
+	u32 hdr_cont_len;
+	char *headers;
+};
 
 #endif /* __NET_COMMON_H__ */
