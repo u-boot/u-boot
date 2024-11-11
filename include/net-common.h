@@ -554,4 +554,8 @@ struct wget_http_info {
 	char *headers;
 };
 
+extern struct wget_http_info default_wget_info;
+extern struct wget_http_info *wget_info;
+int wget_request(ulong dst_addr, char *uri, struct wget_http_info *info);
+
 #endif /* __NET_COMMON_H__ */
