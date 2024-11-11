@@ -579,7 +579,7 @@ int wget_with_dns(ulong dst_addr, char *uri)
 out:
 	free(str_copy);
 
-	return ret;
+	return ret < 0 ? ret : 0;
 }
 #endif
 

@@ -495,7 +495,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  *
  * @dst_addr:	destination address to download the file
  * @uri:	uri string of target file of wget
- * Return:	downloaded file size, negative if failed
+ * Return:	zero on success, negative if failed
  */
 int wget_with_dns(ulong dst_addr, char *uri);
 /**
