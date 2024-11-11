@@ -22,10 +22,10 @@ DECLARE_GLOBAL_DATA_PTR;
 /* The default, change with environment variable 'httpdstp' */
 #define SERVER_PORT		80
 
-static const char bootfile1[] = "GET ";
+static const char bootfileGET[] = "GET ";
+static const char bootfileHEAD[] = "HEAD ";
 static const char bootfile3[] = " HTTP/1.0\r\n\r\n";
 static const char http_eom[] = "\r\n\r\n";
-static const char http_ok[] = "200";
 static const char content_len[] = "Content-Length";
 static const char linefeed[] = "\r\n";
 static struct in_addr web_server_ip;
@@ -77,7 +77,7 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	ulong newsize = offset + len;
 	uchar *ptr;
 
-	if (CONFIG_IS_ENABLED(LMB)) {
+	if (CONFIG_IS_ENABLED(LMB) && wget_info->set_bootdev) {
 		if (store_addr < image_load_addr ||
 		    lmb_read_check(store_addr, len)) {
 			printf("\nwget error: ");
@@ -132,8 +132,17 @@ static void wget_send_stored(void)
 			IP_TCP_HDR_SIZE + TCP_TSOPT_SIZE + 2;
 		offset = ptr;
 
-		memcpy(offset, &bootfile1, strlen(bootfile1));
-		offset += strlen(bootfile1);
+		switch (wget_info->method) {
+		case WGET_HTTP_METHOD_HEAD:
+			memcpy(offset, &bootfileHEAD, strlen(bootfileHEAD));
+			offset += strlen(bootfileHEAD);
+			break;
+		case WGET_HTTP_METHOD_GET:
+		default:
+			memcpy(offset, &bootfileGET, strlen(bootfileGET));
+			offset += strlen(bootfileGET);
+			break;
+		}
 
 		memcpy(offset, image_url, strlen(image_url));
 		offset += strlen(image_url);
@@ -193,6 +202,47 @@ static void wget_timeout_handler(void)
 #define PKT_QUEUE_OFFSET 0x20000
 #define PKT_QUEUE_PACKET_SIZE 0x800
 
+static void wget_fill_info(const uchar *pkt, int hlen)
+{
+	const char *first_space;
+	const char *second_space;
+	char *pos, *end;
+
+	if (wget_info->headers && hlen < MAX_HTTP_HEADERS_SIZE)
+		strncpy(wget_info->headers, pkt, hlen);
+
+	//Get status code
+	first_space = strchr(pkt, ' ');
+	if (!first_space) {
+		wget_info->status_code = -1;
+		return;
+	}
+
+	second_space = strchr(first_space + 1, ' ');
+	if (!second_space) {
+		wget_info->status_code = -1;
+		return;
+	}
+
+	wget_info->status_code = (u32)simple_strtoul(first_space + 1, &end, 10);
+
+	if (second_space != end)
+		wget_info->status_code = -1;
+
+	pos = strstr((char *)pkt, content_len);
+
+	if (pos) {
+		pos += sizeof(content_len) + 1;
+		while (*pos == ' ')
+			pos++;
+		content_length = simple_strtoul(pos, &end, 10);
+		debug_cond(DEBUG_WGET,
+			   "wget: Connected Len %lu\n",
+			   content_length);
+		wget_info->hdr_cont_len = content_length;
+	}
+}
+
 static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 			   u8 action, unsigned int tcp_ack_num, unsigned int len)
 {
@@ -241,7 +291,11 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 		initial_data_seq_num = tcp_seq_num + hlen;
 		next_data_seq_num    = tcp_seq_num + len;
 
-		if (strstr((char *)pkt, http_ok) == 0) {
+		wget_fill_info(pkt, hlen);
+		debug_cond(DEBUG_WGET,
+			   "wget: HTTP Status Code %d\n", wget_info->status_code);
+
+		if (wget_info->status_code != 200) {
 			debug_cond(DEBUG_WGET,
 				   "wget: Connected Bad Xfer\n");
 			wget_loop_state = NETLOOP_FAIL;
@@ -250,17 +304,6 @@ static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
 			debug_cond(DEBUG_WGET,
 				   "wget: Connected Pkt %p hlen %x\n",
 				   pkt, hlen);
-
-			pos = strstr((char *)pkt, content_len);
-			if (!pos) {
-				content_length = -1;
-			} else {
-				pos += sizeof(content_len) + 2;
-				strict_strtoul(pos, 10, &content_length);
-				debug_cond(DEBUG_WGET,
-					   "wget: Connected Len %lu\n",
-					   content_length);
-			}
 
 			net_boot_file_size = 0;
 
@@ -397,10 +440,13 @@ static void wget_handler(uchar *pkt, u16 dport,
 	case WGET_TRANSFERRED:
 		printf("Packets received %d, Transfer Successful\n", packets);
 		net_set_state(wget_loop_state);
-		efi_set_bootdev("Net", "", image_url,
-				map_sysmem(image_load_addr, 0),
-				net_boot_file_size);
-		env_set_hex("filesize", net_boot_file_size);
+		wget_info->file_size = net_boot_file_size;
+		if (wget_info->method == WGET_HTTP_METHOD_GET && wget_info->set_bootdev) {
+			efi_set_bootdev("Net", "", image_url,
+					map_sysmem(image_load_addr, 0),
+					net_boot_file_size);
+			env_set_hex("filesize", net_boot_file_size);
+		}
 		break;
 	}
 }
@@ -425,6 +471,9 @@ static unsigned int random_port(void)
 
 void wget_start(void)
 {
+	if (!wget_info)
+		wget_info = &default_wget_info;
+
 	image_url = strchr(net_boot_file_name, ':');
 	if (image_url > 0) {
 		web_server_ip = string_to_ip(net_boot_file_name);
