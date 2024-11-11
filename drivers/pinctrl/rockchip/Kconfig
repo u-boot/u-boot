@@ -14,4 +14,11 @@ config SPL_PINCTRL_ROCKCHIP
 	help
 	  This option is an SPL-variant of the PINCTRL_ROCKCHIP option.
 
+config TPL_PINCTRL_ROCKCHIP
+	bool "Support Rockchip pin controllers in TPL"
+	depends on ARCH_ROCKCHIP && TPL_PINCTRL_GENERIC
+	default y
+	help
+	  This option is a TPL-variant of the PINCTRL_ROCKCHIP option.
+
 endif

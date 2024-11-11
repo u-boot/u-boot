@@ -1,0 +1,12 @@
+if TARGET_QNAP_TS433_RK3568
+
+config SYS_BOARD
+	default "qnap_ts433"
+
+config SYS_VENDOR
+	default "qnap"
+
+config SYS_CONFIG_NAME
+	default "qnap_ts433"
+
+endif

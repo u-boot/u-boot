@@ -65,6 +65,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R2C (nanopi-r2c-rk3328)
      - FriendlyElec NanoPi R2C Plus (nanopi-r2c-plus-rk3328)
      - FriendlyElec NanoPi R2S (nanopi-r2s-rk3328)
+     - FriendlyElec NanoPi R2S Plus (nanopi-r2s-plus-rk3328)
      - Pine64 Rock64 (rock64-rk3328)
      - Radxa ROCK Pi E (rock-pi-e-rk3328)
      - Xunlong Orange Pi R1 Plus (orangepi-r1-plus-rk3328)
@@ -119,6 +120,7 @@ List of mainline supported Rockchip boards:
      - FriendlyElec NanoPi R5S (nanopi-r5s-rk3568)
      - Generic RK3566/RK3568 (generic-rk3568)
      - Hardkernel ODROID-M1 (odroid-m1-rk3568)
+     - QNAP TS-433 (qnap-ts433-rk3568)
      - Radxa E25 Carrier Board (radxa-e25-rk3568)
      - Radxa ROCK 3A (rock-3a-rk3568)
      - Radxa ROCK 3B (rock-3b-rk3568)
@@ -147,6 +149,7 @@ List of mainline supported Rockchip boards:
      - Xunlong Orange Pi 5 Plus (orangepi-5-plus-rk3588)
      - Yanyi Tech CoolPi 4 Model B (coolpi-4b-rk3588s)
      - Yanyi Tech CoolPi CM5 EVB (coolpi-cm5-evb-rk3588)
+     - Yanyi Tech CoolPi CM5 GenBook (coolpi-cm5-genbook-rk3588)
 
 * rv1108
      - Rockchip Evb-rv1108 (evb-rv1108)

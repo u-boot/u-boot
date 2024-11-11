@@ -127,6 +127,14 @@ config SPL_PINCTRL_GENERIC
 	  This option is an SPL-variant of the PINCTRL_GENERIC option.
 	  See the help of PINCTRL_GENERIC for details.
 
+config TPL_PINCTRL_GENERIC
+	bool "Support generic pin controllers in TPL"
+	depends on TPL_PINCTRL_FULL
+	default y
+	help
+	  This option is a TPL-variant of the PINCTRL_GENERIC option.
+	  See the help of PINCTRL_GENERIC for details.
+
 config SPL_PINMUX
 	bool "Support pin multiplexing controllers in SPL"
 	depends on SPL_PINCTRL_GENERIC
