@@ -23,6 +23,8 @@ enum done_state {
 };
 
 struct wget_ctx {
+	char server_name[SERVER_NAME_SIZE];
+	u16 port;
 	char *path;
 	ulong daddr;
 	ulong saved_daddr;
@@ -209,13 +211,11 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
-	char server_name[SERVER_NAME_SIZE];
 	httpc_connection_t conn;
 	httpc_state_t *state;
 	struct netif *netif;
 	struct wget_ctx ctx;
 	char *path;
-	u16 port;
 
 	ctx.daddr = dst_addr;
 	ctx.saved_daddr = dst_addr;
@@ -224,7 +224,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	ctx.prevsize = 0;
 	ctx.start_time = 0;
 
-	if (parse_url(uri, server_name, &port, &path))
+	if (parse_url(uri, ctx.server_name, &ctx.port, &path))
 		return CMD_RET_USAGE;
 
 	netif = net_lwip_new_netif(udev);
@@ -234,7 +234,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	memset(&conn, 0, sizeof(conn));
 	conn.result_fn = httpc_result_cb;
 	ctx.path = path;
-	if (httpc_get_file_dns(server_name, port, path, &conn, httpc_recv_cb,
+	if (httpc_get_file_dns(ctx.server_name, ctx.port, path, &conn, httpc_recv_cb,
 			       &ctx, &state)) {
 		net_lwip_remove_netif(netif);
 		return CMD_RET_FAILURE;
