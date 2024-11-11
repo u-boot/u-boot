@@ -241,6 +241,10 @@ int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	struct acpi_table_header *header;
 	struct acpi_fadt *fadt;
 
+	/* On QFW ACPI enabled platforms this is never called */
+	if (IS_ENABLED(CONFIG_QFW_ACPI))
+		return 0;
+
 	fadt = ctx->current;
 	header = &fadt->header;
 
@@ -280,6 +284,10 @@ int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	struct acpi_table_header *header;
 	struct acpi_madt *madt;
 	void *current;
+
+	/* On QFW ACPI enabled platforms this is never called */
+	if (IS_ENABLED(CONFIG_QFW_ACPI))
+		return 0;
 
 	madt = ctx->current;
 
