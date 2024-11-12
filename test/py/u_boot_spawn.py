@@ -5,12 +5,15 @@
 Logic to spawn a sub-process and interact with its stdio.
 """
 
+import io
 import os
 import re
 import pty
 import pytest
 import signal
 import select
+import sys
+import termios
 import time
 import traceback
 
@@ -115,11 +118,30 @@ class Spawn:
             finally:
                 os._exit(255)
 
+        old = None
         try:
+            isatty = False
+            try:
+                isatty = os.isatty(sys.stdout.fileno())
+
+            # with --capture=tee-sys we cannot call fileno()
+            except io.UnsupportedOperation as exc:
+                pass
+            if isatty:
+                new = termios.tcgetattr(self.fd)
+                old = new
+                new[3] = new[3] & ~(termios.ICANON | termios.ISIG)
+                new[3] = new[3] & ~termios.ECHO
+                new[6][termios.VMIN] = 0
+                new[6][termios.VTIME] = 0
+                termios.tcsetattr(self.fd, termios.TCSANOW, new)
+
             self.poll = select.poll()
             self.poll.register(self.fd, select.POLLIN | select.POLLPRI | select.POLLERR |
                                select.POLLHUP | select.POLLNVAL)
         except:
+            if old:
+                termios.tcsetattr(self.fd, termios.TCSANOW, old)
             self.close()
             raise
 
