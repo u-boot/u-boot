@@ -18,6 +18,8 @@
 #endif
 
 #define STM32MP_BOARD_EXTRA_ENV						\
+	"dh_preboot="							\
+		"run dh_testbench_backward_compat\0"			\
 	"dh_update_sd_to_emmc=" /* Install U-Boot from SD to eMMC */	\
 		"setexpr loadaddr1 ${loadaddr} + 0x1000000 && "		\
 		"load mmc 0:4 ${loadaddr1} boot/u-boot-spl.stm32 && "	\
@@ -61,7 +63,20 @@
 	"stdout=serial\0"						\
 	"stderr=serial\0"						\
 	"update_sf=run dh_update_sd_to_sf\0"				\
-	"usb_pgood_delay=1000\0"
+	"usb_pgood_delay=1000\0"					\
+	/* Old testbench-only backward compatibility environment */	\
+	"dh_testbench_backward_compat="					\
+		"test ${board_name} = \"dh,stm32mp15xx-dhcor-testbench\" && " \
+		"run load_bootenv importbootenv\0"			\
+	"importbootenv="						\
+		"echo Importing environment from DHupdate.ini...;"	\
+		"env import -t ${loadaddr} ${filesize}\0"		\
+	"load_bootenv="							\
+		"usb reset && "						\
+		"load usb ${usbdev}:${usbpart} ${loadaddr} DHupdate.ini && " \
+		"echo \"--> Update: found DHupdate.ini (${filesize} bytes)\"\0" \
+	"usbdev=0\0"							\
+	"usbpart=1\0"
 
 #include <configs/stm32mp15_common.h>
 
