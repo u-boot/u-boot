@@ -6,9 +6,16 @@ if NET_LWIP
 
 config LWIP_DEBUG
 	bool "Enable debug traces in the lwIP library"
+	help
+	  Prints messages to the console regarding network packets that go in
+          and out of the lwIP library.
 
 config LWIP_ASSERT
 	bool "Enable assertions in the lwIP library"
+	help
+	  Compiles additional error checking code into the lwIP library. These
+	  checks are related to conditions that should not happen in typical
+	  use, but may be helpful to debug new features.
 
 config PROT_DHCP_LWIP
 	bool
