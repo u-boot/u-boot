@@ -148,7 +148,8 @@ def test_mmc_part(u_boot_console):
 
             lines = output.split('\n')
             part_fat = []
-            part_ext = []
+            part_ext2 = []
+            part_ext4 = []
             for line in lines:
                 obj = re.search(
                         r'(\d)\s+\d+\s+\d+\s+\w+\d+\w+-\d+\s+(\d+\w+)', line)
@@ -161,15 +162,21 @@ def test_mmc_part(u_boot_console):
                         print('Fat detected')
                         part_fat.append(part_id)
                     elif part_type == '83':
-                        print('ext detected')
-                        part_ext.append(part_id)
+                        print('ext(2/4) detected')
+                        output = u_boot_console.run_command(
+                            'fstype mmc %d:%d' % x, part_id
+                        )
+                        if 'ext2' in output:
+                            part_ext2.append(part_id)
+                        elif 'ext4' in output:
+                            part_ext4.append(part_id)
                     else:
                         pytest.fail('Unsupported Filesystem on device %d' % x)
-            devices[x]['ext4'] = part_ext
-            devices[x]['ext2'] = part_ext
+            devices[x]['ext4'] = part_ext4
+            devices[x]['ext2'] = part_ext2
             devices[x]['fat'] = part_fat
 
-            if not part_ext and not part_fat:
+            if not part_ext2 and not part_ext4 and not part_fat:
                 pytest.fail('No partition detected on device %d' % x)
 
 @pytest.mark.buildconfigspec('cmd_mmc')
@@ -463,7 +470,7 @@ def test_mmc_ls(u_boot_console):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('mmc dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext4', 'ext2']:
                 try:
                     partitions = devices[x][fs]
                 except:
@@ -494,7 +501,7 @@ def test_mmc_load(u_boot_console):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('mmc dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext4', 'ext2']:
                 try:
                     partitions = devices[x][fs]
                 except:
@@ -536,7 +543,7 @@ def test_mmc_save(u_boot_console):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('mmc dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext4', 'ext2']:
                 try:
                     partitions = devices[x][fs]
                 except:
