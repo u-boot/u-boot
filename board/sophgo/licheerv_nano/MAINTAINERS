@@ -1,0 +1,5 @@
+LicheeRV Nano
+M:	Thomas Bonnefille <thomas.bonnefille@bootlin.com>
+S:	Maintained
+F:	board/sophgo/licheerv_nano/
+F:	configs/sipeed_licheerv_nano_defconfig
