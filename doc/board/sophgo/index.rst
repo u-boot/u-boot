@@ -6,3 +6,4 @@ Sophgo
    :maxdepth: 1
 
    milkv_duo
+   licheerv_nano
