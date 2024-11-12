@@ -695,7 +695,7 @@ def test_spi_negative(u_boot_console):
 
         # Read to relocation address
         output = u_boot_console.run_command('bdinfo')
-        m = re.search('relocaddr\s*= (.+)', output)
+        m = re.search(r'relocaddr\s*= (.+)', output)
         res_area = int(m.group(1), 16)
 
         start = 0
