@@ -91,6 +91,8 @@ struct qcom_smmu_priv {
 	phys_addr_t base;
 	struct list_head devices;
 	struct udevice *dev;
+	/* SMMU is not needed when running in EL2 */
+	bool disable;
 
 	/* Read-once config */
 	int num_cb;
@@ -277,6 +279,9 @@ static int qcom_smmu_connect(struct udevice *dev)
 	if (WARN_ON(!priv))
 		return -EINVAL;
 
+	if (priv->disable)
+		return 0;
+
 	mdev = alloc_dev(dev);
 	if (IS_ERR(mdev) && PTR_ERR(mdev) != -EEXIST) {
 		printf("%s: %s Couldn't create mmu context\n", __func__,
@@ -347,6 +352,8 @@ static int qcom_smmu_probe(struct udevice *dev)
 	priv->dev = dev;
 	priv->base = dev_read_addr(dev);
 	INIT_LIST_HEAD(&priv->devices);
+
+	priv->disable = current_el() > 1;
 
 	/* Read SMMU config */
 	val = gr0_readl(priv, ARM_SMMU_GR0_ID0);
