@@ -2793,9 +2793,17 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 	nand_hw_control_init(&ctrl->controller);
 	INIT_LIST_HEAD(&ctrl->host_list);
 
+#ifdef CONFIG_NAND_BRCMNAND_BCMBCA
+	/*
+	 * BCMBCA platform does not use non-linux parameter-page-big-endian dts property,
+	 * param page data is little endian
+	 */
+	ctrl->parameter_page_big_endian = 0;
+#else
 	/* Is parameter page in big endian ? */
 	ctrl->parameter_page_big_endian =
 	    dev_read_u32_default(dev, "parameter-page-big-endian", 1);
+#endif
 
 	/* NAND register range */
 #ifndef __UBOOT__
