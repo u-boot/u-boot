@@ -219,6 +219,15 @@ static bool at91_get_port_output(struct at91_port *at91_port, int offset)
 	val = readl(&at91_port->osr);
 	return val & mask;
 }
+
+static bool at91_is_port_gpio(struct at91_port *at91_port, int offset)
+{
+	u32 mask, val;
+
+	mask = 1 << offset;
+	val = readl(&at91_port->psr);
+	return !!(val & mask);
+}
 #endif
 
 static void at91_set_port_input(struct at91_port *at91_port, int offset,
@@ -549,7 +558,9 @@ static int at91_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	struct at91_port_priv *port = dev_get_priv(dev);
 
-	/* GPIOF_FUNC is not implemented yet */
+	if (!at91_is_port_gpio(port->regs, offset))
+		return GPIOF_FUNC;
+
 	if (at91_get_port_output(port->regs, offset))
 		return GPIOF_OUTPUT;
 	else
