@@ -134,7 +134,7 @@ static int get_stream_id(struct udevice *dev)
 	int count = ofnode_parse_phandle_with_args(node, "iommus",
 						   "#iommu-cells", 0, 0, &args);
 
-	if (count < 0 || args.args[0] == 0) {
+	if (count < 0) {
 		printf("Error: %s: iommus property not found or wrong number of cells\n",
 		       __func__);
 		return -EINVAL;
