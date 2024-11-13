@@ -228,6 +228,17 @@ static bool at91_is_port_gpio(struct at91_port *at91_port, int offset)
 	val = readl(&at91_port->psr);
 	return !!(val & mask);
 }
+
+static void at91_set_port_multi_drive(struct at91_port *at91_port, int offset, int is_on)
+{
+	u32 mask;
+
+	mask = 1 << offset;
+	if (is_on)
+		writel(mask, &at91_port->mder);
+	else
+		writel(mask, &at91_port->mddr);
+}
 #endif
 
 static void at91_set_port_input(struct at91_port *at91_port, int offset,
@@ -567,6 +578,33 @@ static int at91_gpio_get_function(struct udevice *dev, unsigned offset)
 		return GPIOF_INPUT;
 }
 
+static int at91_gpio_set_flags(struct udevice *dev, unsigned int offset,
+			       ulong flags)
+{
+	struct at91_port_priv *port = dev_get_priv(dev);
+	ulong supported_mask;
+
+	supported_mask = GPIOD_OPEN_DRAIN | GPIOD_MASK_DIR | GPIOD_PULL_UP;
+	if (flags & ~supported_mask)
+		return -ENOTSUPP;
+
+	if (flags & GPIOD_IS_OUT) {
+		if (flags & GPIOD_OPEN_DRAIN)
+			at91_set_port_multi_drive(port->regs, offset, true);
+		else
+			at91_set_port_multi_drive(port->regs, offset, false);
+
+		at91_set_port_output(port->regs, offset, flags & GPIOD_IS_OUT_ACTIVE);
+
+	} else if (flags & GPIOD_IS_IN) {
+		at91_set_port_input(port->regs, offset, false);
+	}
+	if (flags & GPIOD_PULL_UP)
+		at91_set_port_pullup(port->regs, offset, true);
+
+	return 0;
+}
+
 static const char *at91_get_bank_name(uint32_t base_addr)
 {
 	switch (base_addr) {
@@ -595,6 +633,7 @@ static const struct dm_gpio_ops gpio_at91_ops = {
 	.get_value		= at91_gpio_get_value,
 	.set_value		= at91_gpio_set_value,
 	.get_function		= at91_gpio_get_function,
+	.set_flags		= at91_gpio_set_flags,
 };
 
 static int at91_gpio_probe(struct udevice *dev)
