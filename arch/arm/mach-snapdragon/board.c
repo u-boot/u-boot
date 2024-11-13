@@ -6,7 +6,9 @@
  * Author: Caleb Connolly <caleb.connolly@linaro.org>
  */
 
-#include "time.h"
+#define LOG_CATEGORY LOGC_BOARD
+#define pr_fmt(fmt) "QCOM: " fmt
+
 #include <asm/armv8/mmu.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -29,6 +31,7 @@
 #include <fdt_support.h>
 #include <usb.h>
 #include <sort.h>
+#include <time.h>
 
 #include "qcom-priv.h"
 
