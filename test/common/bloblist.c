@@ -6,12 +6,9 @@
 #include <bloblist.h>
 #include <log.h>
 #include <mapmem.h>
-#include <asm/global_data.h>
 #include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Declare a new bloblist test */
 #define BLOBLIST_TEST(_name, _flags) \

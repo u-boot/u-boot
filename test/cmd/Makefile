@@ -5,6 +5,7 @@
 
 obj-y += cmd_ut_cmd.o
 
+obj-$(CONFIG_$(XPL_)CMDLINE) += command.o
 ifdef CONFIG_HUSH_PARSER
 obj-$(CONFIG_CONSOLE_RECORD) += test_echo.o
 endif

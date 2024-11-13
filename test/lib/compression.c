@@ -23,8 +23,7 @@
 
 #include <linux/lzo.h>
 #include <linux/zstd.h>
-#include <test/compression.h>
-#include <test/suites.h>
+#include <test/lib.h>
 #include <test/ut.h>
 
 static const char plain[] =
@@ -471,40 +470,40 @@ static int compression_test_gzip(struct unit_test_state *uts)
 	return run_test(uts, "gzip", compress_using_gzip,
 			uncompress_using_gzip);
 }
-COMPRESSION_TEST(compression_test_gzip, 0);
+LIB_TEST(compression_test_gzip, 0);
 
 static int compression_test_bzip2(struct unit_test_state *uts)
 {
 	return run_test(uts, "bzip2", compress_using_bzip2,
 			uncompress_using_bzip2);
 }
-COMPRESSION_TEST(compression_test_bzip2, 0);
+LIB_TEST(compression_test_bzip2, 0);
 
 static int compression_test_lzma(struct unit_test_state *uts)
 {
 	return run_test(uts, "lzma", compress_using_lzma,
 			uncompress_using_lzma);
 }
-COMPRESSION_TEST(compression_test_lzma, 0);
+LIB_TEST(compression_test_lzma, 0);
 
 static int compression_test_lzo(struct unit_test_state *uts)
 {
 	return run_test(uts, "lzo", compress_using_lzo, uncompress_using_lzo);
 }
-COMPRESSION_TEST(compression_test_lzo, 0);
+LIB_TEST(compression_test_lzo, 0);
 
 static int compression_test_lz4(struct unit_test_state *uts)
 {
 	return run_test(uts, "lz4", compress_using_lz4, uncompress_using_lz4);
 }
-COMPRESSION_TEST(compression_test_lz4, 0);
+LIB_TEST(compression_test_lz4, 0);
 
 static int compression_test_zstd(struct unit_test_state *uts)
 {
 	return run_test(uts, "zstd", compress_using_zstd,
 			uncompress_using_zstd);
 }
-COMPRESSION_TEST(compression_test_zstd, 0);
+LIB_TEST(compression_test_zstd, 0);
 
 static int compress_using_none(struct unit_test_state *uts,
 			       void *in, unsigned long in_size,
@@ -570,50 +569,40 @@ static int compression_test_bootm_gzip(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_GZIP, compress_using_gzip);
 }
-COMPRESSION_TEST(compression_test_bootm_gzip, 0);
+LIB_TEST(compression_test_bootm_gzip, 0);
 
 static int compression_test_bootm_bzip2(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_BZIP2, compress_using_bzip2);
 }
-COMPRESSION_TEST(compression_test_bootm_bzip2, 0);
+LIB_TEST(compression_test_bootm_bzip2, 0);
 
 static int compression_test_bootm_lzma(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_LZMA, compress_using_lzma);
 }
-COMPRESSION_TEST(compression_test_bootm_lzma, 0);
+LIB_TEST(compression_test_bootm_lzma, 0);
 
 static int compression_test_bootm_lzo(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_LZO, compress_using_lzo);
 }
-COMPRESSION_TEST(compression_test_bootm_lzo, 0);
+LIB_TEST(compression_test_bootm_lzo, 0);
 
 static int compression_test_bootm_lz4(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_LZ4, compress_using_lz4);
 }
-COMPRESSION_TEST(compression_test_bootm_lz4, 0);
+LIB_TEST(compression_test_bootm_lz4, 0);
 
 static int compression_test_bootm_zstd(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_ZSTD, compress_using_zstd);
 }
-COMPRESSION_TEST(compression_test_bootm_zstd, 0);
+LIB_TEST(compression_test_bootm_zstd, 0);
 
 static int compression_test_bootm_none(struct unit_test_state *uts)
 {
 	return run_bootm_test(uts, IH_COMP_NONE, compress_using_none);
 }
-COMPRESSION_TEST(compression_test_bootm_none, 0);
-
-int do_ut_compression(struct cmd_tbl *cmdtp, int flag, int argc,
-		      char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(compression_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(compression_test);
-
-	return cmd_ut_category("compression", "compression_test_",
-			       tests, n_ents, argc, argv);
-}
+LIB_TEST(compression_test_bootm_none, 0);

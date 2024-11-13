@@ -99,25 +99,15 @@ static struct cmd_tbl cmd_ut_sub[] = {
 	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
 			 ""),
 #endif
-	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_ut_print, "", ""),
-#ifdef CONFIG_UT_TIME
-	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
-#endif
-#if CONFIG_IS_ENABLED(UT_UNICODE) && !defined(API_BUILD)
-	U_BOOT_CMD_MKENT(unicode, CONFIG_SYS_MAXARGS, 1, do_ut_unicode, "", ""),
-#endif
 #ifdef CONFIG_MEASURED_BOOT
 	U_BOOT_CMD_MKENT(measurement, CONFIG_SYS_MAXARGS, 1, do_ut_measurement,
 			 "", ""),
 #endif
 #ifdef CONFIG_SANDBOX
-	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
-			 "", ""),
 	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
 			 "", ""),
 	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
 #endif
-	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str, "", ""),
 #ifdef CONFIG_CMD_ADDRMAP
 	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
 #endif
@@ -207,9 +197,7 @@ U_BOOT_LONGHELP(ut,
 #ifdef CONFIG_CMDLINE
 	"\ncmd - test various commands"
 #endif
-#ifdef CONFIG_SANDBOX
-	"\ncompression - compressors and bootm decompression"
-#endif
+	"\ncommon   - tests for common/ directory"
 #ifdef CONFIG_UT_DM
 	"\ndm - driver model"
 #endif
@@ -244,20 +232,9 @@ U_BOOT_LONGHELP(ut,
 #ifdef CONFIG_CMD_PCI_MPS
 	"\npci_mps - PCI Express Maximum Payload Size"
 #endif
-	"\nprint  - printing things to the console"
 	"\nsetexpr - setexpr command"
-#ifdef CONFIG_SANDBOX
-	"\nstr - basic test of string functions"
-#endif
 #ifdef CONFIG_CMD_SEAMA
 	"\nseama - seama command parameters loading and decoding"
-#endif
-#ifdef CONFIG_UT_TIME
-	"\ntime - very basic test of time functions"
-#endif
-#if defined(CONFIG_UT_UNICODE) && \
-	!defined(CONFIG_XPL_BUILD) && !defined(API_BUILD)
-	"\nunicode - Unicode functions"
 #endif
 	);
 
