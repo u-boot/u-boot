@@ -9,7 +9,11 @@ ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
 endif
 ifeq ($(ARCH),arm)
+ifdef CONFIG_64BIT
+LOAD_ADDR = 0x40400000
+else
 LOAD_ADDR = 0x1000000
+endif
 endif
 ifeq ($(ARCH),mips)
 ifdef CONFIG_64BIT
