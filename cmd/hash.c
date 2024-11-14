@@ -25,7 +25,7 @@ static int do_hash(struct cmd_tbl *cmdtp, int flag, int argc,
 	char *s;
 	int flags = HASH_FLAG_ENV;
 
-	if (argc < (HARGS - 1))
+	if (argc < 4)
 		return CMD_RET_USAGE;
 
 #if IS_ENABLED(CONFIG_HASH_VERIFY)
