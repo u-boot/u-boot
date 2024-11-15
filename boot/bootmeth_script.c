@@ -107,8 +107,8 @@ static int script_read_bootflow_file(struct udevice *bootstd,
 	if (ret)
 		return log_msg_ret("inf", ret);
 
-	ret = bootmeth_alloc_other(bflow, "boot.bmp", &bflow->logo,
-				   &bflow->logo_size);
+	ret = bootmeth_alloc_other(bflow, "boot.bmp", BFI_LOGO,
+				   &bflow->logo, &bflow->logo_size);
 	/* ignore error */
 
 	return 0;
