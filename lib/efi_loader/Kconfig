@@ -2,7 +2,7 @@ menu "UEFI Support"
 
 config EFI_LOADER
 	bool "Support running UEFI applications"
-	depends on OF_LIBFDT && ( \
+	depends on ( \
 		ARM && (SYS_CPU = arm1136 || \
 			SYS_CPU = arm1176 || \
 			SYS_CPU = armv7   || \
@@ -21,6 +21,7 @@ config EFI_LOADER
 	select EVENT_DYNAMIC
 	select LIB_UUID
 	select LMB
+	select OF_LIBFDT
 	imply PARTITION_UUIDS
 	select REGEX
 	imply FAT
