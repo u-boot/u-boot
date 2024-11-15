@@ -402,6 +402,15 @@ static int bootdev_setup_for_sibling_blk(struct udevice *blk,
 int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp);
 
 /**
+ * bootdev_get_from_blk() - Get the bootdev given a block device
+ *
+ * @blk: Block device to check
+ * @bootdebp: Returns the bootdev found, if any
+ * Return 0 if OK, -ve on error
+ */
+int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp);
+
+/**
  * bootdev_unbind_dev() - Unbind a bootdev device
  *
  * Remove and unbind a bootdev device which is a child of @parent. This should
