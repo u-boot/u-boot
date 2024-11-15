@@ -75,7 +75,7 @@ def get_params_spi(u_boot_console):
     ''' Get SPI device test parameters from boardenv file '''
     f = u_boot_console.config.env.get('env__spi_device_test', None)
     if not f:
-        pytest.skip('No env file to read for SPI family device test')
+        pytest.skip('No SPI test device configured')
 
     bus = f.get('bus', 0)
     cs = f.get('chip_select', 0)
@@ -84,7 +84,7 @@ def get_params_spi(u_boot_console):
     timeout = f.get('timeout', None)
 
     if not part_name:
-        pytest.skip('No env file to read SPI family flash part name')
+        pytest.skip('No SPI test device configured')
 
     return bus, cs, mode, part_name, timeout
 
@@ -92,7 +92,7 @@ def spi_find_freq_range(u_boot_console):
     '''Find out minimum and maximum frequnecies that SPI device can operate'''
     f = u_boot_console.config.env.get('env__spi_device_test', None)
     if not f:
-        pytest.skip('No env file to read for SPI family device test')
+        pytest.skip('No SPI test device configured')
 
     min_f = f.get('min_freq', None)
     max_f = f.get('max_freq', None)
@@ -116,21 +116,21 @@ def spi_pre_commands(u_boot_console, freq):
         pytest.fail('No SPI device available')
 
     if not part_name in output:
-        pytest.fail('SPI flash part name not recognized')
+        pytest.fail('Not recognized the SPI flash part name')
 
     m = re.search('page size (.+?) Bytes', output)
     if m:
         try:
             page_size = int(m.group(1))
         except ValueError:
-            pytest.fail('SPI page size not recognized')
+            pytest.fail('Not recognized the SPI page size')
 
     m = re.search('erase size (.+?) KiB', output)
     if m:
         try:
             erase_size = int(m.group(1))
         except ValueError:
-            pytest.fail('SPI erase size not recognized')
+            pytest.fail('Not recognized the SPI erase size')
 
         erase_size *= 1024
 
@@ -139,7 +139,7 @@ def spi_pre_commands(u_boot_console, freq):
         try:
             total_size = int(m.group(1))
         except ValueError:
-            pytest.fail('SPI total size not recognized')
+            pytest.fail('Not recognized the SPI total size')
 
         total_size *= 1024 * 1024
 
@@ -149,7 +149,7 @@ def spi_pre_commands(u_boot_console, freq):
             flash_part = m.group(1)
             assert flash_part == part_name
         except ValueError:
-            pytest.fail('SPI flash part not recognized')
+            pytest.fail('Not recognized the SPI flash part')
 
     global SPI_DATA
     SPI_DATA = {
@@ -574,7 +574,7 @@ def test_spi_lock_unlock(u_boot_console):
     min_f, max_f, loop = spi_find_freq_range(u_boot_console)
     flashes = u_boot_console.config.env.get('env__spi_lock_unlock', False)
     if not flashes:
-        pytest.skip('No supported flash list for lock/unlock provided')
+        pytest.skip('No SPI test device configured for lock/unlock')
 
     i = 0
     while i < loop:
