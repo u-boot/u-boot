@@ -574,6 +574,17 @@ int bloblist_maybe_init(void)
 	return 0;
 }
 
+bool bloblist_of_isvalid(void)
+{
+	if (!CONFIG_IS_ENABLED(BLOBLIST) ||
+	    (xpl_prev_phase() == PHASE_TPL &&
+	    !IS_ENABLED(CONFIG_TPL_BLOBLIST)) ||
+	    bloblist_maybe_init())
+		return false;
+
+	return true;
+}
+
 int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig)
 {
 	ulong version = BLOBLIST_REGCONV_VER;
