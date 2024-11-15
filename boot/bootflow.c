@@ -23,6 +23,13 @@ enum {
 	BF_NO_MORE_DEVICES	= -ENODEV,
 };
 
+static const char *const bootflow_img[BFI_COUNT - BFI_FIRST] = {
+	"extlinux_cfg",
+	"logo",
+	"efi",
+	"cmdline",
+};
+
 /**
  * bootflow_state - name for each state
  *
@@ -455,10 +462,13 @@ void bootflow_init(struct bootflow *bflow, struct udevice *bootdev,
 	bflow->dev = bootdev;
 	bflow->method = meth;
 	bflow->state = BOOTFLOWST_BASE;
+	alist_init_struct(&bflow->images, struct bootflow_img);
 }
 
 void bootflow_free(struct bootflow *bflow)
 {
+	struct bootflow_img *img;
+
 	free(bflow->name);
 	free(bflow->subdir);
 	free(bflow->fname);
@@ -467,6 +477,10 @@ void bootflow_free(struct bootflow *bflow)
 	free(bflow->os_name);
 	free(bflow->fdt_fname);
 	free(bflow->bootmeth_priv);
+
+	alist_for_each(img, &bflow->images)
+		free(img->fname);
+	alist_empty(&bflow->images);
 }
 
 void bootflow_remove(struct bootflow *bflow)
@@ -949,4 +963,16 @@ int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg)
 		return ret;
 
 	return 0;
+}
+
+const char *bootflow_img_type_name(enum bootflow_img_t type)
+{
+	const char *name;
+
+	if (type >= BFI_FIRST && type < BFI_COUNT)
+		name = bootflow_img[type - BFI_FIRST];
+	else
+		name = genimg_get_type_short_name(type);
+
+	return name;
 }

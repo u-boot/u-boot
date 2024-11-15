@@ -7,7 +7,9 @@
 #ifndef __bootflow_h
 #define __bootflow_h
 
+#include <alist.h>
 #include <bootdev.h>
+#include <image.h>
 #include <dm/ofnode_decl.h>
 #include <linux/list.h>
 
@@ -85,6 +87,7 @@ enum bootflow_flags_t {
  * @cmdline: OS command line, or NULL if not known (allocated)
  * @x86_setup: Pointer to x86 setup block inside @buf, NULL if not present
  * @bootmeth_priv: Private data for the bootmeth
+ * @images: List of loaded images (struct bootstd_img)
  */
 struct bootflow {
 	struct udevice *dev;
@@ -109,6 +112,44 @@ struct bootflow {
 	char *cmdline;
 	void *x86_setup;
 	void *bootmeth_priv;
+	struct alist images;
+};
+
+/**
+ * bootflow_img_t: Supported image types
+ *
+ * This uses image_type_t for most types, but extends it
+ *
+ * @BFI_EXTLINUX_CFG: extlinux configuration-file
+ * @BFI_LOGO: logo image
+ * @BFI_EFI: EFI PE image
+ * @BFI_CMDLINE: OS command-line string
+ */
+enum bootflow_img_t {
+	BFI_FIRST = IH_TYPE_COUNT,
+	BFI_EXTLINUX_CFG = BFI_FIRST,
+	BFI_LOGO,
+	BFI_EFI,
+	BFI_CMDLINE,
+
+	BFI_COUNT,
+};
+
+/**
+ * struct bootflow_img - Information about an image which has been loaded
+ *
+ * This keeps track of a single, loaded image.
+ *
+ * @fname: Filename used to load the image (allocated)
+ * @type: Image type (IH_TYPE_...)
+ * @addr: Address to which the image was loaded, 0 if not yet loaded
+ * @size: Size of the image
+ */
+struct bootflow_img {
+	char *fname;
+	enum bootflow_img_t type;
+	ulong addr;
+	ulong size;
 };
 
 /**
@@ -565,4 +606,11 @@ int bootflow_cmdline_get_arg(struct bootflow *bflow, const char *arg,
  */
 int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg);
 
+/**
+ * bootflow_img_type_name() - Get the name for an image type
+ *
+ * @type: Type to check (either enum bootflow_img_t or enum image_type_t
+ * Return: Image name, or "unknown" if not known
+ */
+const char *bootflow_img_type_name(enum bootflow_img_t type);
 #endif
