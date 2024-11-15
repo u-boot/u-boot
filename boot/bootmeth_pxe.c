@@ -135,6 +135,9 @@ static int extlinux_pxe_read_file(struct udevice *dev, struct bootflow *bflow,
 		return log_msg_ret("spc", -ENOSPC);
 	*sizep = size;
 
+	if (!bootflow_img_add(bflow, file_path, type, addr, size))
+		return log_msg_ret("pxi", -ENOMEM);
+
 	return 0;
 }
 
