@@ -193,7 +193,7 @@ int btrfs_size(const char *file, loff_t *size)
 	ret = btrfs_lookup_path(fs_info->fs_root, BTRFS_FIRST_FREE_OBJECTID,
 				file, &root, &ino, &type, 40);
 	if (ret < 0) {
-		printf("Cannot lookup file %s\n", file);
+		debug("Cannot lookup file %s\n", file);
 		return ret;
 	}
 	if (type != BTRFS_FT_REG_FILE) {
