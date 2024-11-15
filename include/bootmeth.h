@@ -8,7 +8,6 @@
 #define __bootmeth_h
 
 #include <bootflow.h>
-#include <image.h>
 #include <linux/bitops.h>
 
 struct blk_desc;
@@ -117,13 +116,15 @@ struct bootmeth_ops {
 	 * @bflow:	Bootflow providing info on where to read from
 	 * @file_path:	Path to file (may be absolute or relative)
 	 * @addr:	Address to load file
+	 * @type:	File type (IH_TYPE_...)
 	 * @sizep:	On entry provides the maximum permitted size; on exit
 	 *		returns the size of the file
 	 * Return: 0 if OK, -ENOSPC if the file is too large for @sizep, other
 	 *	-ve value if something else goes wrong
 	 */
 	int (*read_file)(struct udevice *dev, struct bootflow *bflow,
-			 const char *file_path, ulong addr, ulong *sizep);
+			 const char *file_path, ulong addr,
+			 enum bootflow_img_t type, ulong *sizep);
 #if CONFIG_IS_ENABLED(BOOTSTD_FULL)
 	/**
 	 * readall() - read all files for a bootflow
@@ -245,13 +246,15 @@ int bootmeth_set_bootflow(struct udevice *dev, struct bootflow *bflow,
  * @bflow:	Bootflow providing info on where to read from
  * @file_path:	Path to file (may be absolute or relative)
  * @addr:	Address to load file
+ * @type:	File type (IH_TYPE_...)
  * @sizep:	On entry provides the maximum permitted size; on exit
  *		returns the size of the file
  * Return: 0 if OK, -ENOSPC if the file is too large for @sizep, other
  *	-ve value if something else goes wrong
  */
 int bootmeth_read_file(struct udevice *dev, struct bootflow *bflow,
-		       const char *file_path, ulong addr, ulong *sizep);
+		       const char *file_path, ulong addr,
+		       enum bootflow_img_t type, ulong *sizep);
 
 /**
  * bootmeth_read_all() - read all bootflow files
@@ -397,11 +400,13 @@ int bootmeth_alloc_other(struct bootflow *bflow, const char *fname,
  * @bflow: Bootflow information
  * @file_path: Path to file
  * @addr: Address to load file to
+ * @type: File type (IH_TYPE_...)
  * @sizep: On entry, the maximum file size to accept, on exit the actual file
  *	size read
  */
 int bootmeth_common_read_file(struct udevice *dev, struct bootflow *bflow,
-			      const char *file_path, ulong addr, ulong *sizep);
+			      const char *file_path, ulong addr,
+			      enum bootflow_img_t type, ulong *sizep);
 
 /**
  * bootmeth_get_bootflow() - Get a bootflow from a global bootmeth

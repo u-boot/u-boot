@@ -298,7 +298,8 @@ static int android_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 }
 
 static int android_read_file(struct udevice *dev, struct bootflow *bflow,
-			     const char *file_path, ulong addr, ulong *sizep)
+			     const char *file_path, ulong addr,
+			     enum bootflow_img_t type, ulong *sizep)
 {
 	/*
 	 * Reading individual files is not supported since we only

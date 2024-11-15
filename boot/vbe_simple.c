@@ -160,13 +160,14 @@ static int vbe_simple_read_bootflow(struct udevice *dev, struct bootflow *bflow)
 }
 
 static int vbe_simple_read_file(struct udevice *dev, struct bootflow *bflow,
-				const char *file_path, ulong addr, ulong *sizep)
+				const char *file_path, ulong addr,
+				enum bootflow_img_t type, ulong *sizep)
 {
 	int ret;
 
 	if (vbe_phase() == VBE_PHASE_OS) {
 		ret = bootmeth_common_read_file(dev, bflow, file_path, addr,
-						sizep);
+						type, sizep);
 		if (ret)
 			return log_msg_ret("os", ret);
 	}

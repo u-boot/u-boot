@@ -79,7 +79,7 @@ static int extlinux_getfile(struct pxe_context *ctx, const char *file_path,
 	/* Allow up to 1GB */
 	*sizep = 1 << 30;
 	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
-				 sizep);
+				 (enum bootflow_img_t)IH_TYPE_INVALID, sizep);
 	if (ret)
 		return log_msg_ret("read", ret);
 
