@@ -32,41 +32,17 @@ enum {
 	BOOT_TARGETS_MAX_LEN	= 100,
 };
 
-struct bootflow *bootdev_next_bootflow_(struct bootstd_priv *std,
-					struct udevice *dev,
-					struct bootflow *prev)
-{
-	struct bootflow *bflow = prev;
-
-	if (bflow) {
-		if (list_is_last(&bflow->glob_node, &std->glob_head))
-			return NULL;
-		bflow = list_entry(bflow->glob_node.next, struct bootflow,
-				   glob_node);
-	} else {
-		if (list_empty(&std->glob_head))
-			return NULL;
-
-		bflow = list_first_entry(&std->glob_head, struct bootflow,
-					 glob_node);
-	}
-
-	while (bflow->dev != dev) {
-		if (list_is_last(&bflow->glob_node, &std->glob_head))
-			return NULL;
-		bflow = list_entry(bflow->glob_node.next, struct bootflow,
-				   glob_node);
-	}
-
-	return bflow;
-}
-
 int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
 {
-	struct bootstd_priv *std = bootstd_try_priv();
+	struct bootstd_priv *std;
 	struct bootflow *bflow;
+	int ret;
 
-	bflow = bootdev_next_bootflow_(std, dev, NULL);
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return log_msg_ret("bff", ret);
+
+	bflow = alist_getw(&std->bootflows, 0, struct bootflow);
 	if (!bflow)
 		return -ENOENT;
 	*bflowp = bflow;
@@ -76,10 +52,15 @@ int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
 
 int bootdev_next_bootflow(struct bootflow **bflowp)
 {
-	struct bootstd_priv *std = bootstd_try_priv();
+	struct bootstd_priv *std;
 	struct bootflow *bflow;
+	int ret;
 
-	bflow = bootdev_next_bootflow_(std, (*bflowp)->dev, *bflowp);
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return log_msg_ret("bff", ret);
+
+	bflow = alist_nextw(&std->bootflows, *bflowp);
 	if (!bflow)
 		return -ENOENT;
 	*bflowp = bflow;

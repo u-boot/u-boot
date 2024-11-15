@@ -6,6 +6,7 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#include <alist.h>
 #include <bootflow.h>
 #include <bootstd.h>
 #include <dm.h>
@@ -42,13 +43,11 @@ static int bootstd_of_to_plat(struct udevice *dev)
 
 static void bootstd_clear_glob_(struct bootstd_priv *priv)
 {
-	while (!list_empty(&priv->glob_head)) {
-		struct bootflow *bflow;
+	struct bootflow *bflow;
 
-		bflow = list_first_entry(&priv->glob_head, struct bootflow,
-					 glob_node);
+	alist_for_each(bflow, &priv->bootflows)
 		bootflow_remove(bflow);
-	}
+	alist_empty(&priv->bootflows);
 }
 
 void bootstd_clear_glob(void)
@@ -64,36 +63,37 @@ void bootstd_clear_glob(void)
 int bootstd_add_bootflow(struct bootflow *bflow)
 {
 	struct bootstd_priv *std;
-	struct bootflow *new;
 	int ret;
 
 	ret = bootstd_get_priv(&std);
 	if (ret)
 		return ret;
 
-	new = malloc(sizeof(*bflow));
-	if (!new)
-		return log_msg_ret("bflow", -ENOMEM);
-	memcpy(new, bflow, sizeof(*bflow));
+	ret = std->bootflows.count;
+	bflow = alist_add(&std->bootflows, *bflow);
+	if (!bflow)
+		return log_msg_ret("bf2", -ENOMEM);
 
-	list_add_tail(&new->glob_node, &std->glob_head);
-
-	return 0;
+	return ret;
 }
 
 int bootstd_clear_bootflows_for_bootdev(struct udevice *dev)
 {
 	struct bootstd_priv *std = bootstd_try_priv();
+	struct bootflow *from, *to;
 
-	if (std) {
-		struct bootflow *bflow;
-		struct list_head *pos;
+	/* if bootstd does not exist we cannot have any bootflows */
+	if (!std)
+		return 0;
 
-		list_for_each(pos, &std->glob_head) {
-			bflow = list_entry(pos, struct bootflow, glob_node);
-			bootflow_remove(bflow);
-		}
+	/* Drop any bootflows that mention this dev */
+	alist_for_each_filter(from, to, &std->bootflows) {
+		if (from->dev == dev)
+			bootflow_remove(from);
+		else
+			*to++ = *from;
 	}
+	alist_update_end(&std->bootflows, to);
 
 	return 0;
 }
@@ -165,7 +165,7 @@ static int bootstd_probe(struct udevice *dev)
 {
 	struct bootstd_priv *std = dev_get_priv(dev);
 
-	INIT_LIST_HEAD(&std->glob_head);
+	alist_init_struct(&std->bootflows, struct bootflow);
 
 	return 0;
 }

@@ -208,7 +208,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (!ret)
 			num_valid++;
 		ret = bootstd_add_bootflow(&bflow);
-		if (ret) {
+		if (ret < 0) {
 			printf("Out of memory\n");
 			return CMD_RET_FAILURE;
 		}
