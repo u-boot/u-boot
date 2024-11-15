@@ -32,30 +32,57 @@ enum {
 	BOOT_TARGETS_MAX_LEN	= 100,
 };
 
+struct bootflow *bootdev_next_bootflow_(struct bootstd_priv *std,
+					struct udevice *dev,
+					struct bootflow *prev)
+{
+	struct bootflow *bflow = prev;
+
+	if (bflow) {
+		if (list_is_last(&bflow->glob_node, &std->glob_head))
+			return NULL;
+		bflow = list_entry(bflow->glob_node.next, struct bootflow,
+				   glob_node);
+	} else {
+		if (list_empty(&std->glob_head))
+			return NULL;
+
+		bflow = list_first_entry(&std->glob_head, struct bootflow,
+					 glob_node);
+	}
+
+	while (bflow->dev != dev) {
+		if (list_is_last(&bflow->glob_node, &std->glob_head))
+			return NULL;
+		bflow = list_entry(bflow->glob_node.next, struct bootflow,
+				   glob_node);
+	}
+
+	return bflow;
+}
+
 int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
 {
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+	struct bootstd_priv *std = bootstd_try_priv();
+	struct bootflow *bflow;
 
-	if (list_empty(&ucp->bootflow_head))
+	bflow = bootdev_next_bootflow_(std, dev, NULL);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_first_entry(&ucp->bootflow_head, struct bootflow,
-				   bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
 
 int bootdev_next_bootflow(struct bootflow **bflowp)
 {
-	struct bootflow *bflow = *bflowp;
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
+	struct bootstd_priv *std = bootstd_try_priv();
+	struct bootflow *bflow;
 
-	*bflowp = NULL;
-
-	if (list_is_last(&bflow->bm_node, &ucp->bootflow_head))
+	bflow = bootdev_next_bootflow_(std, (*bflowp)->dev, *bflowp);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_entry(bflow->bm_node.next, struct bootflow, bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
@@ -911,15 +938,6 @@ void bootdev_list_hunters(struct bootstd_priv *std)
 	printf("(total hunters: %d)\n", n_ent);
 }
 
-static int bootdev_post_bind(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	INIT_LIST_HEAD(&ucp->bootflow_head);
-
-	return 0;
-}
-
 static int bootdev_pre_unbind(struct udevice *dev)
 {
 	int ret;
@@ -936,6 +954,5 @@ UCLASS_DRIVER(bootdev) = {
 	.name		= "bootdev",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_plat_auto	= sizeof(struct bootdev_uc_plat),
-	.post_bind	= bootdev_post_bind,
 	.pre_unbind	= bootdev_pre_unbind,
 };

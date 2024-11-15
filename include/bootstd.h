@@ -123,7 +123,7 @@ void bootstd_clear_glob(void);
 int bootstd_prog_boot(void);
 
 /**
- * bootstd_add_bootflow() - Add a bootflow to the bootdev's and global list
+ * bootstd_add_bootflow() - Add a bootflow to the global list
  *
  * All fields in @bflow must be set up. Note that @bflow->dev is used to add the
  * bootflow to that device.

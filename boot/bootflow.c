@@ -476,8 +476,6 @@ void bootflow_free(struct bootflow *bflow)
 
 void bootflow_remove(struct bootflow *bflow)
 {
-	if (bflow->dev)
-		list_del(&bflow->bm_node);
 	list_del(&bflow->glob_node);
 
 	bootflow_free(bflow);

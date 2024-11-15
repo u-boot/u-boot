@@ -56,12 +56,10 @@ enum bootflow_flags_t {
 /**
  * struct bootflow - information about a bootflow
  *
- * This is connected into two separate linked lists:
+ * This is connected into a linked list:
  *
- *   bm_sibling - links all bootflows in the same bootdev
  *   glob_sibling - links all bootflows in all bootdevs
  *
- * @bm_node: Points to siblings in the same bootdev
  * @glob_node: Points to siblings in the global list (all bootdev)
  * @dev: Bootdev device which produced this bootflow, NULL for flows created by
  *      BOOTMETHF_GLOBAL bootmeths
@@ -92,7 +90,6 @@ enum bootflow_flags_t {
  * @bootmeth_priv: Private data for the bootmeth
  */
 struct bootflow {
-	struct list_head bm_node;
 	struct list_head glob_node;
 	struct udevice *dev;
 	struct udevice *blk;

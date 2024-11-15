@@ -77,25 +77,22 @@ int bootstd_add_bootflow(struct bootflow *bflow)
 	memcpy(new, bflow, sizeof(*bflow));
 
 	list_add_tail(&new->glob_node, &std->glob_head);
-	if (bflow->dev) {
-		struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
-
-		list_add_tail(&new->bm_node, &ucp->bootflow_head);
-	}
 
 	return 0;
 }
 
 int bootstd_clear_bootflows_for_bootdev(struct udevice *dev)
 {
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+	struct bootstd_priv *std = bootstd_try_priv();
 
-	while (!list_empty(&ucp->bootflow_head)) {
+	if (std) {
 		struct bootflow *bflow;
+		struct list_head *pos;
 
-		bflow = list_first_entry(&ucp->bootflow_head, struct bootflow,
-					 bm_node);
-		bootflow_remove(bflow);
+		list_for_each(pos, &std->glob_head) {
+			bflow = list_entry(pos, struct bootflow, glob_node);
+			bootflow_remove(bflow);
+		}
 	}
 
 	return 0;

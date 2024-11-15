@@ -109,11 +109,9 @@ struct bootdev_hunter {
  * This is attached to each device in the bootdev uclass and accessible via
  * dev_get_uclass_plat(dev)
  *
- * @bootflows: List of available bootflows for this bootdev
  * @piro: Priority of this bootdev
  */
 struct bootdev_uc_plat {
-	struct list_head bootflow_head;
 	enum bootdev_prio_t prio;
 };
 
