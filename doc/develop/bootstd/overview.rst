@@ -453,7 +453,7 @@ drivers are bound automatically.
 Command interface
 -----------------
 
-Three commands are available:
+Four commands are available:
 
 `bootdev`
     Allows listing of available bootdevs, selecting a particular one and
@@ -467,6 +467,25 @@ Three commands are available:
 `bootmeth`
     Allow listing of available bootmethds, setting the order in which they are
     tried and bootmeth specific configuration. See :doc:`/usage/cmd/bootmeth`
+
+`bootstd`
+    Allow access to standard boot itself, so far only for listing images across
+    all bootflows. See :doc:`/usage/cmd/bootstd`
+
+Images
+------
+
+Standard boot keeps track of images which can or have been loaded. These are
+kept in a list attached to each bootflow. They can be listed using the
+``bootstd images`` command (see :doc:`/usage/cmd/bootstd`).
+
+For now most bootmeths load their images when scanning. Over time, some may
+adjust to load them only when needed, but in this case the images will still
+be visible.
+
+Once a bootflow has been selected, images for those that are not selected can
+potentially be dropped from the memory map. For now, this is not implemented.
+
 
 .. _BootflowStates:
 

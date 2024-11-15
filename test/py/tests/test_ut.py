@@ -402,9 +402,10 @@ def setup_cros_image(cons):
         start, size, num, name = line.split(maxsplit=3)
         parts[int(num)] = Partition(int(start), int(size), name)
 
+    # Set up the kernel command-line
     dummy = os.path.join(cons.config.result_dir, 'dummy.txt')
     with open(dummy, 'wb') as outf:
-        outf.write(b'dummy\n')
+        outf.write(b'BOOT_IMAGE=/vmlinuz-5.15.0-121-generic root=/dev/nvme0n1p1 ro quiet splash vt.handoff=7')
 
     # For now we just use dummy kernels. This limits testing to just detecting
     # a signed kernel. We could add support for the x86 data structures so that

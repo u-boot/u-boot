@@ -997,3 +997,15 @@ struct bootflow_img *bootflow_img_add(struct bootflow *bflow, const char *fname,
 
 	return ptr;
 }
+
+int bootflow_get_seq(const struct bootflow *bflow)
+{
+	struct bootstd_priv *std;
+	int ret;
+
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return ret;
+
+	return alist_calc_index(&std->bootflows, bflow);
+}
