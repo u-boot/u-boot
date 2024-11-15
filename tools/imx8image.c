@@ -93,6 +93,7 @@ static void parse_cfg_cmd(image_t *param_stack, int32_t cmd, char *token,
 	case CMD_DCD_SKIP:
 		if (!strncmp("true", token, 4))
 			dcd_skip = true;
+		break;
 	case CMD_FUSE_VERSION:
 		fuse_version = (uint8_t)(strtoll(token, NULL, 0) & 0xFF);
 		break;
