@@ -19,6 +19,7 @@
 #include <linux/unaligned/generic.h>
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
+#include <bloblist.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
 		      u32 *bank_num)
@@ -672,21 +673,42 @@ void tcg2_measurement_term(struct udevice *dev, struct tcg2_event_log *elog,
 
 __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 {
-	const __be32 *addr_prop;
-	const __be32 *size_prop;
+	const __be32 *addr_prop = NULL;
+	const __be32 *size_prop = NULL;
 	int asize;
 	int ssize;
+	struct ofnode_phandle_args args;
+	phys_addr_t a;
+	fdt_size_t s;
 
 	*addr = NULL;
 	*size = 0;
 
-	addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
-	if (!addr_prop)
-		addr_prop = dev_read_prop(dev, "linux,sml-base", &asize);
+	*addr = bloblist_get_blob(BLOBLISTT_TPM_EVLOG, size);
+	if (*addr && *size) {
+		*addr = map_physmem((uintptr_t)(*addr), *size, MAP_NOCACHE);
+		return 0;
+	}
 
-	size_prop = dev_read_prop(dev, "tpm_event_log_size", &ssize);
-	if (!size_prop)
+	/*
+	 * TODO:
+	 * Replace BLOBLIST with a new kconfig for handoff all components
+	 * (fdt, tpm event log, etc...) from previous boot stage via bloblist
+	 * mandatorily following Firmware Handoff spec.
+	 */
+	if (!CONFIG_IS_ENABLED(BLOBLIST)) {
+		addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
+		size_prop = dev_read_prop(dev, "tpm_event_log_size", &ssize);
+	}
+
+	/*
+	 * If no eventlog was observed, a sml buffer is required for the kernel
+	 * to discover the eventlog.
+	 */
+	if (!addr_prop || !size_prop) {
+		addr_prop = dev_read_prop(dev, "linux,sml-base", &asize);
 		size_prop = dev_read_prop(dev, "linux,sml-size", &ssize);
+	}
 
 	if (addr_prop && size_prop) {
 		u64 a = of_read_number(addr_prop, asize / sizeof(__be32));
@@ -694,22 +716,19 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 
 		*addr = map_physmem(a, s, MAP_NOCACHE);
 		*size = (u32)s;
-	} else {
-		struct ofnode_phandle_args args;
-		phys_addr_t a;
-		fdt_size_t s;
 
-		if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0,
-					       0, &args))
-			return -ENODEV;
-
-		a = ofnode_get_addr_size(args.node, "reg", &s);
-		if (a == FDT_ADDR_T_NONE)
-			return -ENOMEM;
-
-		*addr = map_physmem(a, s, MAP_NOCACHE);
-		*size = (u32)s;
+		return 0;
 	}
+
+	if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0, 0, &args))
+		return -ENODEV;
+
+	a = ofnode_get_addr_size(args.node, "reg", &s);
+	if (a == FDT_ADDR_T_NONE)
+		return -ENOMEM;
+
+	*addr = map_physmem(a, s, MAP_NOCACHE);
+	*size = (u32)s;
 
 	return 0;
 }
