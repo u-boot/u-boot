@@ -19,6 +19,7 @@
 #include <linux/unaligned/generic.h>
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
+#include <bloblist.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 		      u32 *pcr_banks)
@@ -657,6 +658,12 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 
 	*addr = NULL;
 	*size = 0;
+
+	if (bloblist_of_isvalid()) {
+		*addr = bloblist_get_blob(BLOBLISTT_TPM_EVLOG, size);
+		if (*addr && *size)
+			return 0;
+	}
 
 	addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
 	if (!addr_prop)
