@@ -122,4 +122,14 @@ int bootstd_prog_boot(void);
  */
 int bootstd_add_bootflow(struct bootflow *bflow);
 
+/**
+ * bootstd_clear_bootflows_for_bootdev() - Clear bootflows from a bootdev
+ *
+ * Each bootdev maintains a list of discovered bootflows. This provides a
+ * way to clear it. These bootflows are removed from the global list too.
+ *
+ * @dev: bootdev device to update
+ */
+int bootstd_clear_bootflows_for_bootdev(struct udevice *dev);
+
 #endif

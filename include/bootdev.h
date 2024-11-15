@@ -186,16 +186,6 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
 void bootdev_list(bool probe);
 
 /**
- * bootdev_clear_bootflows() - Clear bootflows from a bootdev
- *
- * Each bootdev maintains a list of discovered bootflows. This provides a
- * way to clear it. These bootflows are removed from the global list too.
- *
- * @dev: bootdev device to update
- */
-void bootdev_clear_bootflows(struct udevice *dev);
-
-/**
  * bootdev_first_bootflow() - Get the first bootflow from a bootdev
  *
  * Returns the first bootflow attached to a bootdev

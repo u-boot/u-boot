@@ -86,6 +86,21 @@ int bootstd_add_bootflow(struct bootflow *bflow)
 	return 0;
 }
 
+int bootstd_clear_bootflows_for_bootdev(struct udevice *dev)
+{
+	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
+
+	while (!list_empty(&ucp->bootflow_head)) {
+		struct bootflow *bflow;
+
+		bflow = list_first_entry(&ucp->bootflow_head, struct bootflow,
+					 bm_node);
+		bootflow_remove(bflow);
+	}
+
+	return 0;
+}
+
 static int bootstd_remove(struct udevice *dev)
 {
 	struct bootstd_priv *priv = dev_get_priv(dev);

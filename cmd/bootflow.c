@@ -197,7 +197,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 		show_header();
 	}
 	if (dev)
-		bootdev_clear_bootflows(dev);
+		bootstd_clear_bootflows_for_bootdev(dev);
 	else
 		bootstd_clear_glob();
 	for (i = 0,

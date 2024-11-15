@@ -557,19 +557,6 @@ int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 	return ops->get_bootflow(dev, iter, bflow);
 }
 
-void bootdev_clear_bootflows(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	while (!list_empty(&ucp->bootflow_head)) {
-		struct bootflow *bflow;
-
-		bflow = list_first_entry(&ucp->bootflow_head, struct bootflow,
-					 bm_node);
-		bootflow_remove(bflow);
-	}
-}
-
 int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 		       int *method_flagsp)
 {
@@ -935,7 +922,11 @@ static int bootdev_post_bind(struct udevice *dev)
 
 static int bootdev_pre_unbind(struct udevice *dev)
 {
-	bootdev_clear_bootflows(dev);
+	int ret;
+
+	ret = bootstd_clear_bootflows_for_bootdev(dev);
+	if (ret)
+		return log_msg_ret("bun", ret);
 
 	return 0;
 }
