@@ -243,7 +243,16 @@ static int cros_read_buf(struct bootflow *bflow, void *buf, ulong size,
 	ret = copy_cmdline(map_sysmem(cmdline, 0), uuid, &bflow->cmdline);
 	if (ret)
 		return log_msg_ret("cmd", ret);
+
+	if (!bootflow_img_add(bflow, "setup",
+			      (enum bootflow_img_t)IH_TYPE_X86_SETUP,
+			      setup, 0x3000))
+		return log_msg_ret("cri", -ENOMEM);
+
 	bflow->x86_setup = map_sysmem(setup, 0);
+
+	if (!bootflow_img_add(bflow, "cmdline", BFI_CMDLINE, cmdline, 0x1000))
+		return log_msg_ret("crc", -ENOMEM);
 
 	return 0;
 }
@@ -305,6 +314,11 @@ static int cros_read_info(struct bootflow *bflow, const char *uuid,
 		return log_msg_ret("pro", ret);
 	}
 	priv->info_buf = buf;
+
+	if (!bootflow_img_add(bflow, "kernel",
+			      (enum bootflow_img_t)IH_TYPE_KERNEL, 0,
+			      priv->body_size))
+		return log_msg_ret("crk", -ENOMEM);
 
 	return 0;
 }
