@@ -678,6 +678,8 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 }
 #endif
 
+#ifndef CONFIG_XILINX_MINI
+
 #ifndef MMU_SECTION_SIZE
 #define MMU_SECTION_SIZE        (1 * 1024 * 1024)
 #endif
@@ -701,3 +703,5 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 
 	return reg + size;
 }
+
+#endif
