@@ -468,6 +468,20 @@ static inline int bloblist_maybe_init(void)
 }
 #endif /* BLOBLIST */
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_of_isvalid() - Check if the bloblist from previous stage valid
+ *
+ * Return: true if valid, else false
+ */
+bool bloblist_of_isvalid(void);
+#else
+static inline bool bloblist_of_isvalid(void)
+{
+	return false;
+}
+#endif
+
 /**
  * bloblist_check_reg_conv() - Check whether the bloblist is compliant to
  *			       the register conventions according to the
