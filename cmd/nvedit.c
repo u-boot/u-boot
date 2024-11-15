@@ -523,6 +523,9 @@ static int do_env_default(struct cmd_tbl *cmdtp, int flag,
 			case 'f':		/* force */
 				env_flag |= H_FORCE;
 				break;
+			case 'k':
+				env_flag |= H_NOCLEAR;
+				break;
 			default:
 				return cmd_usage(cmdtp);
 			}
@@ -1133,8 +1136,9 @@ U_BOOT_LONGHELP(env,
 #if defined(CONFIG_CMD_ENV_CALLBACK)
 	"callbacks - print callbacks and their associated variables\nenv "
 #endif
-	"default [-f] -a - [forcibly] reset default environment\n"
-	"env default [-f] var [...] - [forcibly] reset variable(s) to their default values\n"
+	"default [-k] [-f] -a - [forcibly] reset default environment\n"
+	"env default [-k] [-f] var [...] - [forcibly] reset variable(s) to their default values\n"
+	"      \"-k\": keep variables not defined in default environment\n"
 	"env delete [-f] var [...] - [forcibly] delete variable(s)\n"
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
