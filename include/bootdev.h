@@ -196,21 +196,6 @@ void bootdev_list(bool probe);
 void bootdev_clear_bootflows(struct udevice *dev);
 
 /**
- * bootdev_add_bootflow() - Add a bootflow to the bootdev's list
- *
- * All fields in @bflow must be set up. Note that @bflow->dev is used to add the
- * bootflow to that device.
- *
- * @dev: Bootdev device to add to
- * @bflow: Bootflow to add. Note that fields within bflow must be allocated
- *	since this function takes over ownership of these. This functions makes
- *	a copy of @bflow itself (without allocating its fields again), so the
- *	caller must dispose of the memory used by the @bflow pointer itself
- * Return: 0 if OK, -ENOMEM if out of memory
- */
-int bootdev_add_bootflow(struct bootflow *bflow);
-
-/**
  * bootdev_first_bootflow() - Get the first bootflow from a bootdev
  *
  * Returns the first bootflow attached to a bootdev
