@@ -613,4 +613,19 @@ int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg);
  * Return: Image name, or "unknown" if not known
  */
 const char *bootflow_img_type_name(enum bootflow_img_t type);
+
+/**
+ * bootflow_img_add() - Add a new image to a bootflow
+ *
+ * @bflow: Bootflow to add to
+ * @fname: Image filename (will be allocated)
+ * @type: Image type
+ * @addr: Address the image was loaded to, or 0 if not loaded
+ * @size: Image size
+ * Return: pointer to the added image, or NULL if out of memory
+ */
+struct bootflow_img *bootflow_img_add(struct bootflow *bflow, const char *fname,
+				      enum bootflow_img_t type, ulong addr,
+				      ulong size);
+
 #endif
