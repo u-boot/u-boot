@@ -23,7 +23,8 @@
 #include <pxe_utils.h>
 
 static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
-					char *file_addr, ulong *sizep)
+				char *file_addr, enum bootflow_img_t type,
+				ulong *sizep)
 {
 	struct extlinux_info *info = ctx->userdata;
 	ulong addr;
@@ -34,7 +35,7 @@ static int extlinux_pxe_getfile(struct pxe_context *ctx, const char *file_path,
 	/* Allow up to 1GB */
 	*sizep = 1 << 30;
 	ret = bootmeth_read_file(info->dev, info->bflow, file_path, addr,
-				 IH_TYPE_INVALID, sizep);
+				 type, sizep);
 	if (ret)
 		return log_msg_ret("read", ret);
 
