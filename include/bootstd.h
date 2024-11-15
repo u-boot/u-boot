@@ -90,6 +90,23 @@ const char *const *const bootstd_get_prefixes(struct udevice *dev);
 int bootstd_get_priv(struct bootstd_priv **stdp);
 
 /**
+ * bootstd_try_priv() - Try to get the (single) state for the bootstd system
+ *
+ * The state holds a global list of all bootflows that have been found. This
+ * function returns the state if available, but takes care not to create the
+ * device (or uclass) if it doesn't exist.
+ *
+ * This function is safe to use in the 'unbind' path. It will always return NULL
+ * unless the bootstd device is probed and ready, e.g. bootstd_get_priv() has
+ * previously been called.
+ *
+ * TODO(sjg@chromium.org): Consider adding a bootstd pointer to global_data
+ *
+ * Return: pointer if the device exists, else NULL
+ */
+struct bootstd_priv *bootstd_try_priv(void);
+
+/**
  * bootstd_clear_glob() - Clear the global list of bootflows
  *
  * This removes all bootflows globally and across all bootdevs.

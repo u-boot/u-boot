@@ -140,6 +140,17 @@ const char *const *const bootstd_get_prefixes(struct udevice *dev)
 	return std->prefixes ? std->prefixes : default_prefixes;
 }
 
+struct bootstd_priv *bootstd_try_priv(void)
+{
+	struct udevice *dev;
+
+	dev = uclass_try_first_device(UCLASS_BOOTSTD);
+	if (!dev || !device_active(dev))
+		return NULL;
+
+	return dev_get_priv(dev);
+}
+
 int bootstd_get_priv(struct bootstd_priv **stdp)
 {
 	struct udevice *dev;
