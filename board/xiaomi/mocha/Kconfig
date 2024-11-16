@@ -1,0 +1,12 @@
+if TARGET_MOCHA
+
+config SYS_BOARD
+	default "mocha"
+
+config SYS_VENDOR
+	default "xiaomi"
+
+config SYS_CONFIG_NAME
+	default "mocha"
+
+endif
