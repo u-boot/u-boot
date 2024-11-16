@@ -1698,6 +1698,7 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-tpm.git
 F:	cmd/tpm*
 F:	drivers/tpm/
 F:	include/tpm*
+F:	lib/tpm*
 
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>
