@@ -23,6 +23,8 @@ enum done_state {
 };
 
 struct wget_ctx {
+	char server_name[SERVER_NAME_SIZE];
+	u16 port;
 	char *path;
 	ulong daddr;
 	ulong saved_daddr;
@@ -31,6 +33,18 @@ struct wget_ctx {
 	ulong start_time;
 	enum done_state done;
 };
+
+static void wget_lwip_fill_info(struct pbuf *hdr, u16_t hdr_len, u32_t hdr_cont_len)
+{
+	if (wget_info->headers && hdr_len < MAX_HTTP_HEADERS_SIZE)
+		pbuf_copy_partial(hdr, (void *)wget_info->headers, hdr_len, 0);
+	wget_info->hdr_cont_len = (u32)hdr_cont_len;
+}
+
+static void wget_lwip_set_file_size(u32_t rx_content_len)
+{
+	wget_info->file_size = (ulong)rx_content_len;
+}
 
 static int parse_url(char *url, char *host, u16 *port, char **path)
 {
@@ -176,6 +190,13 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	struct wget_ctx *ctx = arg;
 	ulong elapsed;
 
+	wget_info->status_code = (u32)srv_res;
+
+	if (err == ERR_BUF) {
+		ctx->done = FAILURE;
+		return;
+	}
+
 	if (httpc_result != HTTPC_RESULT_OK) {
 		log_err("\nHTTP client error %d\n", httpc_result);
 		ctx->done = FAILURE;
@@ -195,8 +216,11 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	printf("%u bytes transferred in %lu ms (", rx_content_len, elapsed);
 	print_size(rx_content_len / elapsed * 1000, "/s)\n");
 	printf("Bytes transferred = %lu (%lx hex)\n", ctx->size, ctx->size);
-	efi_set_bootdev("Net", "", ctx->path, map_sysmem(ctx->saved_daddr, 0),
-			rx_content_len);
+	if (wget_info->set_bootdev) {
+		efi_set_bootdev("Net", "", ctx->path, map_sysmem(ctx->saved_daddr, 0),
+				rx_content_len);
+	}
+	wget_lwip_set_file_size(rx_content_len);
 	if (env_set_hex("filesize", rx_content_len) ||
 	    env_set_hex("fileaddr", ctx->saved_daddr)) {
 		log_err("Could not set filesize or fileaddr\n");
@@ -207,15 +231,24 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	ctx->done = SUCCESS;
 }
 
+static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct pbuf *hdr,
+				   u16_t hdr_len, u32_t content_len)
+{
+	wget_lwip_fill_info(hdr, hdr_len, content_len);
+
+	if (wget_info->check_buffer_size && (ulong)content_len > wget_info->buffer_size)
+		return ERR_BUF;
+
+	return ERR_OK;
+}
+
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
-	char server_name[SERVER_NAME_SIZE];
 	httpc_connection_t conn;
 	httpc_state_t *state;
 	struct netif *netif;
 	struct wget_ctx ctx;
 	char *path;
-	u16 port;
 
 	ctx.daddr = dst_addr;
 	ctx.saved_daddr = dst_addr;
@@ -224,7 +257,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	ctx.prevsize = 0;
 	ctx.start_time = 0;
 
-	if (parse_url(uri, server_name, &port, &path))
+	if (parse_url(uri, ctx.server_name, &ctx.port, &path))
 		return CMD_RET_USAGE;
 
 	netif = net_lwip_new_netif(udev);
@@ -233,8 +266,9 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 
 	memset(&conn, 0, sizeof(conn));
 	conn.result_fn = httpc_result_cb;
+	conn.headers_done_fn = httpc_headers_done_cb;
 	ctx.path = path;
-	if (httpc_get_file_dns(server_name, port, path, &conn, httpc_recv_cb,
+	if (httpc_get_file_dns(ctx.server_name, ctx.port, path, &conn, httpc_recv_cb,
 			       &ctx, &state)) {
 		net_lwip_remove_netif(netif);
 		return CMD_RET_FAILURE;
@@ -258,6 +292,9 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 int wget_with_dns(ulong dst_addr, char *uri)
 {
 	eth_set_current();
+
+	if (!wget_info)
+		wget_info = &default_wget_info;
 
 	return wget_loop(eth_get_dev(), dst_addr, uri);
 }
@@ -285,6 +322,7 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 	if (parse_legacy_arg(url, nurl, sizeof(nurl)))
 	    return CMD_RET_FAILURE;
 
+	wget_info = &default_wget_info;
 	if (wget_with_dns(dst_addr, nurl))
 		return CMD_RET_FAILURE;
 
