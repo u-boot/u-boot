@@ -1118,6 +1118,7 @@ static const struct panel_ops tegra_dsi_bridge_ops = {
 static const struct udevice_id tegra_dsi_bridge_ids[] = {
 	{ .compatible = "nvidia,tegra30-dsi", .data = DSI_V0 },
 	{ .compatible = "nvidia,tegra114-dsi", .data = DSI_V1 },
+	{ .compatible = "nvidia,tegra124-dsi", .data = DSI_V1 },
 	{ }
 };
 

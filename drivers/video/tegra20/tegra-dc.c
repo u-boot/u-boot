@@ -554,6 +554,9 @@ static const struct udevice_id tegra_lcd_ids[] = {
 		.compatible = "nvidia,tegra114-dc",
 		.data = (ulong)&tegra114_dc_soc_info
 	}, {
+		.compatible = "nvidia,tegra124-dc",
+		.data = (ulong)&tegra114_dc_soc_info
+	}, {
 		/* sentinel */
 	}
 };
