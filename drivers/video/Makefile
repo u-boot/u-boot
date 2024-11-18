@@ -30,6 +30,7 @@ obj-$(CONFIG_$(PHASE_)BMP) += bmp.o
 endif
 
 obj-$(CONFIG_BACKLIGHT_LM3533) += lm3533_backlight.o
+obj-$(CONFIG_BACKLIGHT_LP855x) += lp855x_backlight.o
 obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 obj-${CONFIG_VIDEO_STM32} += stm32/
