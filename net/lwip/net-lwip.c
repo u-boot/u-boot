@@ -91,9 +91,9 @@ struct netif *net_lwip_get_netif(void)
 static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 			      ip4_addr_t *mask, ip4_addr_t *gw)
 {
-	char *ipstr = "ipaddr\0\0";
-	char *maskstr = "netmask\0\0";
-	char *gwstr = "gatewayip\0\0";
+	char ipstr[] = "ipaddr\0\0";
+	char maskstr[] = "netmask\0\0";
+	char gwstr[] = "gatewayip\0\0";
 	int idx = dev_seq(dev);
 	char *env;
 
