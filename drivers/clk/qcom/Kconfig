@@ -47,6 +47,14 @@ config CLK_QCOM_QCS404
 	  on the Snapdragon QCS404 SoC. This driver supports the clocks
 	  and resets exposed by the GCC hardware block.
 
+config CLK_QCOM_SA8775P
+	bool "Qualcomm SA8775 GCC"
+	select CLK_QCOM
+	help
+	  Say Y here to enable support for the Global Clock Controller
+	  on the Snapdragon SA8775 SoC. This driver supports the clocks
+	  and resets exposed by the GCC hardware block.
+
 config CLK_QCOM_SDM845
 	bool "Qualcomm SDM845 GCC"
 	select CLK_QCOM
@@ -103,13 +111,13 @@ config CLK_QCOM_SC7280
 	  on the Snapdragon SC7280 SoC. This driver supports the clocks
 	  and resets exposed by the GCC hardware block.
 
-config CLK_QCOM_SA8775P
-        bool "Qualcomm SA8775 GCC"
-        select CLK_QCOM
-        help
-          Say Y here to enable support for the Global Clock Controller
-          on the Snapdragon SA8775 SoC. This driver supports the clocks
-          and resets exposed by the GCC hardware block.
+config CLK_QCOM_X1E80100
+	bool "Qualcomm X1E80100 GCC"
+	select CLK_QCOM
+	help
+	  Say Y here to enable support for the Global Clock Controller
+	  on the Snapdragon X1E80100 SoC. This driver supports the clocks
+	  and resets exposed by the GCC hardware block.
 
 endmenu
 
