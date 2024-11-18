@@ -9,6 +9,7 @@ PHYTEC
    imx8mm-phygate-tauri-l
    imx93-phyboard-segin
    phycore-am62x
+   phycore-am62ax
    phycore-am64x
    phycore-imx8mm
    phycore-imx8mp
