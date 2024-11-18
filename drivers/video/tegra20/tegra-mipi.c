@@ -10,9 +10,10 @@
 #include <linux/delay.h>
 #include <linux/iopoll.h>
 
+#include <asm/arch/clock.h>
 #include <asm/io.h>
 
-/* MIPI control registers 0x00 ~ 0x60 */
+/* MIPI control registers 0x00 ~ 0x74 */
 struct mipi_ctlr {
 	uint mipi_cal_ctrl;
 	uint mipi_cal_autocal_ctrl;
@@ -38,7 +39,16 @@ struct mipi_ctlr {
 	uint mipi_cal_bias_pad_cfg0;
 	uint mipi_cal_bias_pad_cfg1;
 	uint mipi_cal_bias_pad_cfg2;
+
+	uint mipi_cal_dsia_config_2;
+	uint mipi_cal_dsib_config_2;
+	uint mipi_cal_cilc_config_2;
+	uint mipi_cal_cild_config_2;
+	uint mipi_cal_csie_config_2;
 };
+
+#define MIPI_DSIA_PADS			0x60
+#define MIPI_DSIB_PADS			0x180
 
 #define MIPI_CAL_CTRL_NOISE_FILTER(x)	(((x) & 0xf) << 26)
 #define MIPI_CAL_CTRL_PRESCALE(x)	(((x) & 0x3) << 24)
@@ -64,25 +74,24 @@ struct mipi_ctlr {
 #define MIPI_CAL_BIAS_PAD_VAUXP(x)	(((x) & 0x7) << 4)
 #define MIPI_CAL_BIAS_PAD_PDVREG	BIT(1)
 
+#define MIPI_CAL_HSCLKPDOSDSI(x)	(((x) & 0x1f) << 8)
+#define MIPI_CAL_HSCLKPUOSDSI(x)	(((x) & 0x1f) << 0)
+
 struct tegra_mipi_priv {
 	struct mipi_ctlr	*mipi;
 	struct clk		*mipi_cal;
+	u32 version;
 };
 
-static int tegra_mipi_calibrate(struct udevice *dev, int offset, const void *buf,
-				int size)
+enum {
+	T114,
+	T124,
+};
+
+static void tegra114_mipi_pads_cal(struct tegra_mipi_priv *priv,
+				   int calibration_pads)
 {
-	struct tegra_mipi_priv *priv = dev_get_priv(dev);
 	u32 value;
-
-	value = MIPI_CAL_BIAS_PAD_DRV_DN_REF(0x2) |
-		MIPI_CAL_BIAS_PAD_DRV_UP_REF(0x0);
-	writel(value, &priv->mipi->mipi_cal_bias_pad_cfg1);
-
-	value = readl(&priv->mipi->mipi_cal_bias_pad_cfg2);
-	value &= ~MIPI_CAL_BIAS_PAD_VCLAMP(0x7);
-	value &= ~MIPI_CAL_BIAS_PAD_VAUXP(0x7);
-	writel(value, &priv->mipi->mipi_cal_bias_pad_cfg2);
 
 	value = MIPI_CAL_OVERIDE(0x0) | MIPI_CAL_SEL(0x1) |
 		MIPI_CAL_HSPDOS(0x0) | MIPI_CAL_HSPUOS(0x4) |
@@ -99,6 +108,95 @@ static int tegra_mipi_calibrate(struct udevice *dev, int offset, const void *buf
 	value = readl(&priv->mipi->mipi_cal_config_dsid);
 	value &= ~(MIPI_CAL_SEL(0x1));
 	writel(value, &priv->mipi->mipi_cal_config_dsid);
+}
+
+static void tegra124_mipi_pads_cal(struct tegra_mipi_priv *priv,
+				   int calibration_pads)
+{
+	u32 value;
+
+	/* Calibrate DSI-A */
+	if (calibration_pads == MIPI_DSIA_PADS) {
+		printf("Calibrating DSI-A pads\n");
+
+		value = MIPI_CAL_OVERIDE(0x0) | MIPI_CAL_SEL(0x1) |
+			MIPI_CAL_HSPDOS(0x0) | MIPI_CAL_HSPUOS(0x0) |
+			MIPI_CAL_TERMOS(0x0);
+		writel(value, &priv->mipi->mipi_cal_config_dsia);
+		writel(value, &priv->mipi->mipi_cal_config_dsib);
+
+		value = MIPI_CAL_SEL(0x1) |
+			MIPI_CAL_HSCLKPDOSDSI(0x1) |
+			MIPI_CAL_HSCLKPUOSDSI(0x2);
+		writel(value, &priv->mipi->mipi_cal_dsia_config_2);
+		writel(value, &priv->mipi->mipi_cal_dsib_config_2);
+
+		/* Deselect PAD C */
+		value = readl(&priv->mipi->mipi_cal_cilc_config_2);
+		value &= ~(MIPI_CAL_SEL(0x1));
+		writel(value, &priv->mipi->mipi_cal_cilc_config_2);
+
+		/* Deselect PAD D */
+		value = readl(&priv->mipi->mipi_cal_cild_config_2);
+		value &= ~(MIPI_CAL_SEL(0x1));
+		writel(value, &priv->mipi->mipi_cal_cild_config_2);
+	}
+
+	/* Calibrate DSI-B */
+	if (calibration_pads == MIPI_DSIB_PADS) {
+		printf("Calibrating DSI-B pads\n");
+
+		value = MIPI_CAL_OVERIDE(0x0) | MIPI_CAL_SEL(0x1) |
+			MIPI_CAL_HSPDOS(0x0) | MIPI_CAL_HSPUOS(0x0) |
+			MIPI_CAL_TERMOS(0x0);
+		writel(value, &priv->mipi->mipi_cal_config_csic);
+		writel(value, &priv->mipi->mipi_cal_config_csid);
+
+		value = MIPI_CAL_SEL(0x1) |
+			MIPI_CAL_HSCLKPDOSDSI(0x1) |
+			MIPI_CAL_HSCLKPUOSDSI(0x2);
+		writel(value, &priv->mipi->mipi_cal_cilc_config_2);
+		writel(value, &priv->mipi->mipi_cal_cild_config_2);
+
+		/* Deselect PAD A */
+		value = readl(&priv->mipi->mipi_cal_dsia_config_2);
+		value &= ~(MIPI_CAL_SEL(0x1));
+		writel(value, &priv->mipi->mipi_cal_dsia_config_2);
+
+		/* Deselect PAD B */
+		value = readl(&priv->mipi->mipi_cal_dsib_config_2);
+		value &= ~(MIPI_CAL_SEL(0x1));
+		writel(value, &priv->mipi->mipi_cal_dsib_config_2);
+	}
+}
+
+static int tegra_mipi_calibrate(struct udevice *dev, int offset, const void *buf,
+				int size)
+{
+	struct tegra_mipi_priv *priv = dev_get_priv(dev);
+	u32 value;
+
+	value = MIPI_CAL_BIAS_PAD_DRV_DN_REF(0x2) |
+		MIPI_CAL_BIAS_PAD_DRV_UP_REF(0x0);
+	writel(value, &priv->mipi->mipi_cal_bias_pad_cfg1);
+
+	value = readl(&priv->mipi->mipi_cal_bias_pad_cfg2);
+	value &= ~MIPI_CAL_BIAS_PAD_VCLAMP(0x7);
+	value &= ~MIPI_CAL_BIAS_PAD_VAUXP(0x7);
+	writel(value, &priv->mipi->mipi_cal_bias_pad_cfg2);
+
+	switch (priv->version) {
+	case T114:
+		tegra114_mipi_pads_cal(priv, offset);
+		break;
+
+	case T124:
+		tegra124_mipi_pads_cal(priv, offset);
+		break;
+
+	default:
+		return -EINVAL;
+	}
 
 	value = readl(&priv->mipi->mipi_cal_ctrl);
 	value &= ~MIPI_CAL_CTRL_NOISE_FILTER(0xf);
@@ -134,6 +232,11 @@ static int tegra_mipi_enable(struct udevice *dev, bool val)
 	struct tegra_mipi_priv *priv = dev_get_priv(dev);
 	u32 value;
 
+	reset_set_enable(priv->mipi_cal->id, 1);
+	mdelay(100);
+	reset_set_enable(priv->mipi_cal->id, 0);
+	mdelay(1);
+
 	clk_enable(priv->mipi_cal);
 
 	value = readl(&priv->mipi->mipi_cal_bias_pad_cfg0);
@@ -157,6 +260,8 @@ static int tegra_mipi_probe(struct udevice *dev)
 {
 	struct tegra_mipi_priv *priv = dev_get_priv(dev);
 
+	priv->version = dev_get_driver_data(dev);
+
 	priv->mipi = (struct mipi_ctlr *)dev_read_addr_ptr(dev);
 	if (!priv->mipi) {
 		log_debug("%s: no MIPI controller address\n", __func__);
@@ -174,7 +279,8 @@ static int tegra_mipi_probe(struct udevice *dev)
 }
 
 static const struct udevice_id tegra_mipi_ids[] = {
-	{ .compatible = "nvidia,tegra114-mipi" },
+	{ .compatible = "nvidia,tegra114-mipi", .data = T114 },
+	{ .compatible = "nvidia,tegra124-mipi", .data = T124 },
 	{ }
 };
 

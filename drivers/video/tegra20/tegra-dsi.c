@@ -53,6 +53,7 @@ struct tegra_dsi_priv {
 	int video_fifo_depth;
 	int host_fifo_depth;
 
+	u32 calibration_pads;
 	u32 version;
 
 	/* for ganged-mode support */
@@ -549,7 +550,7 @@ static void tegra_dsi_mipi_calibrate(struct udevice *dev)
 		DSI_PAD_PREEMP_PD(0x03) | DSI_PAD_PREEMP_PU(0x3);
 	writel(value, &pad->pad_ctrl_3);
 
-	ret = misc_write(priv->mipi, 0, NULL, 0);
+	ret = misc_write(priv->mipi, priv->calibration_pads, NULL, 0);
 	if (ret)
 		log_debug("%s: MIPI calibration failed %d\n", __func__, ret);
 
@@ -1076,6 +1077,14 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 						   &priv->mipi);
 		if (ret) {
 			log_debug("%s: cannot get MIPI: error %d\n", __func__, ret);
+			return ret;
+		}
+
+		ret = dev_read_u32_index(dev, "nvidia,mipi-calibrate", 1,
+					 &priv->calibration_pads);
+		if (ret) {
+			log_debug("%s: cannot get calibration pads: error %d\n",
+				  __func__, ret);
 			return ret;
 		}
 	}
