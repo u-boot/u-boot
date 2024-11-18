@@ -104,3 +104,9 @@
 &mcu_udmap {
 	ti,sci = <&dm_tifs>;
 };
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+	vdd-supply-2 = <&tps62873a>;
+};
+
