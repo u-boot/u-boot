@@ -352,7 +352,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 		 */
 		flush_dcache_all();
 
-		if (!strncmp(argv[1], "lockstep", 8)) {
+		if (!strcmp(argv[1], "lockstep") || !strcmp(argv[1], "0")) {
 			if (nr != ZYNQMP_CORE_RPU0) {
 				printf("Lockstep mode should run on ZYNQMP_CORE_RPU0\n");
 				return 1;
@@ -369,7 +369,7 @@ int cpu_release(u32 nr, int argc, char *const argv[])
 			dcache_enable();
 			set_r5_halt_mode(nr, RELEASE, LOCK);
 			mark_r5_used(nr, LOCK);
-		} else if (!strncmp(argv[1], "split", 5)) {
+		} else if (!strcmp(argv[1], "split") || !strcmp(argv[1], "1")) {
 			printf("R5 split mode\n");
 			set_r5_reset(nr, SPLIT);
 			set_r5_tcm_mode(SPLIT);

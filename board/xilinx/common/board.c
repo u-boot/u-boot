@@ -19,6 +19,7 @@
 #include <i2c.h>
 #include <linux/sizes.h>
 #include <malloc.h>
+#include <memtop.h>
 #include <mtd_node.h>
 #include "board.h"
 #include <dm.h>
@@ -675,4 +676,32 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+#endif
+
+#ifndef CONFIG_XILINX_MINI
+
+#ifndef MMU_SECTION_SIZE
+#define MMU_SECTION_SIZE        (1 * 1024 * 1024)
+#endif
+
+phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
+{
+	phys_size_t size;
+	phys_addr_t reg;
+
+	if (!total_size)
+		return gd->ram_top;
+
+	if (!IS_ALIGNED((ulong)gd->fdt_blob, 0x8))
+		panic("Not 64bit aligned DT location: %p\n", gd->fdt_blob);
+
+	size = ALIGN(CONFIG_SYS_MALLOC_LEN + total_size, MMU_SECTION_SIZE);
+	reg = get_mem_top(gd->ram_base, gd->ram_size, size,
+			  (void *)gd->fdt_blob);
+	if (!reg)
+		reg = gd->ram_top - size;
+
+	return reg + size;
+}
+
 #endif

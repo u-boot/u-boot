@@ -387,6 +387,7 @@
 
 &rtc {
 	status = "okay";
+	calibration = <0x7fff>;
 };
 
 &lpd_dma_chan1 {
