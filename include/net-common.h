@@ -427,7 +427,7 @@ void string_to_enetaddr(const char *addr, uint8_t *enetaddr);
 struct in_addr string_to_ip(const char *s);
 
 /**
- * ip_to_string() - Convert a string to ip address
+ * ip_to_string() - Convert an IPv4 address to a string
  *
  * Implemented in lib/net_utils.c (built unconditionally)
  *
