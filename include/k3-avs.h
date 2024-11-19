@@ -20,6 +20,7 @@
 
 #define NUM_OPPS		4
 
+#define AM6_OPP_LOW		0
 #define AM6_OPP_NOM		1
 #define AM6_OPP_OD		2
 #define AM6_OPP_TURBO		3
