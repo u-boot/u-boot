@@ -22,7 +22,11 @@ static int test_get_timer(struct unit_test_state *uts)
 			next = get_timer(0);
 		} while (start == next);
 
-		ut_asserteq(start + 1, next);
+		if (start + 1 != next) {
+			printf("%s: iter=%d, start=%lu, next=%lu, expected a difference of 1\n",
+			       __func__, iter, start, next);
+			return -EINVAL;
+		}
 		start++;
 	}
 
@@ -31,7 +35,11 @@ static int test_get_timer(struct unit_test_state *uts)
 	 * an extra millisecond may have passed.
 	 */
 	diff = get_timer(base);
-	ut_assert(diff == iter || diff == iter + 1);
+	if (diff != iter && diff != iter + 1) {
+		printf("%s: expected get_timer(base) to match elapsed time: diff=%lu, expected=%d\n",
+		       __func__, diff, iter);
+			return -EINVAL;
+	}
 
 	return 0;
 }
@@ -49,8 +57,11 @@ static int test_timer_get_us(struct unit_test_state *uts)
 		next = timer_get_us();
 		if (next != prev) {
 			delta = next - prev;
-			ut_assert(delta >= 0);
-			if (delta) {
+			if (delta < 0) {
+				printf("%s: timer_get_us() went backwards from %lu to %lu\n",
+				       __func__, prev, next);
+				return -EINVAL;
+			} else if (delta != 0) {
 				if (delta < min)
 					min = delta;
 				prev = next;
@@ -59,7 +70,11 @@ static int test_timer_get_us(struct unit_test_state *uts)
 		}
 	}
 
-	ut_asserteq(1, min);
+	if (min != 1) {
+		printf("%s: Minimum microsecond delta should be 1 but is %lu\n",
+		       __func__, min);
+		return -EINVAL;
+	}
 
 	return 0;
 }
@@ -80,7 +95,8 @@ static int test_time_comparison(struct unit_test_state *uts)
 	error = delta_us - 1000000;
 	printf("%s: Microsecond time for 1 second: %lu, error = %ld\n",
 	       __func__, delta_us, error);
-	ut_assert(abs(error) <= 1000);
+	if (abs(error) > 1000)
+		return -EINVAL;
 
 	return 0;
 }
@@ -99,7 +115,8 @@ static int test_udelay(struct unit_test_state *uts)
 	error = delta - 1000;
 	printf("%s: Delay time for 1000 udelay(1000): %lu ms, error = %ld\n",
 	       __func__, delta, error);
-	ut_assert(abs(error) <= 100);
+	if (abs(error) > 100)
+		return -EINVAL;
 
 	return 0;
 }
