@@ -27,5 +27,6 @@
 
 int k3_avs_set_opp(struct udevice *dev, int vdd_id, int opp_id);
 int k3_avs_notify_freq(int dev_id, int clk_id, u32 freq);
+int k3_avs_check_opp(struct udevice *dev, int vdd_id, int opp_id);
 
 #endif
