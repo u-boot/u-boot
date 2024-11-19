@@ -74,6 +74,28 @@ config TARGET_JAGUAR_RK3588
 	      - fan controller (AMC6821 emulation)
 	    * 80-pin Mezzanine connector
 
+config TARGET_KHADAS_EDGE2_RK3588
+	bool "Khadas Edge2 RK3588 board"
+	select BOARD_LATE_INIT
+	help
+	  Khadas Edge2 is a Rockchip RK3588S based SBC (Single Board Computer)
+	  by Khadas.
+
+	  There are tree variants depending on the DRAM size : 8G and 16G.
+
+	  Specification:
+
+	  Rockchip RK3588S SoC
+	  4x ARM Cortex-A76, 4x ARM Cortex-A55
+	  8/16GB memory LPDDR4x
+	  Mali G610MP4 GPU
+	  3x MIPI CSI 4x lanes
+	  2x MIPI-DSI DPHY 4x lanes
+	  32/64GB eMMC
+	  1x USB 2.0, 1x USB 3.0, 2x USB-Type-C
+	  1x HDMI 2.1 output, 1x DP 1.4 output
+	  USB PD over USB Type-C
+
 config TARGET_NANOPCT6_RK3588
 	bool "FriendlyElec NanoPC-T6 RK3588 board"
 	select BOARD_LATE_INIT
@@ -393,6 +415,7 @@ source "board/friendlyelec/nanopi-r6c-rk3588s/Kconfig"
 source "board/friendlyelec/nanopi-r6s-rk3588s/Kconfig"
 source "board/hardkernel/odroid_m2/Kconfig"
 source "board/indiedroid/nova/Kconfig"
+source "board/khadas/khadas-edge2-rk3588s/Kconfig"
 source "board/pine64/quartzpro64-rk3588/Kconfig"
 source "board/turing/turing-rk1-rk3588/Kconfig"
 source "board/radxa/rock5a-rk3588s/Kconfig"
