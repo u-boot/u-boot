@@ -69,7 +69,15 @@ static int rzg2l_cpg_clk_set(struct clk *clk, bool enable)
 
 	dev_dbg(clk->dev, "%s %s clock %u\n", enable ? "enable" : "disable",
 		is_mod_clk(clk->id) ? "module" : "core", cpg_clk_id);
+
 	if (!is_mod_clk(clk->id)) {
+		/*
+		 * Non-module clocks are always on. Ignore attempts to enable
+		 * them and reject attempts to disable them.
+		 */
+		if (enable)
+			return 0;
+
 		dev_err(clk->dev, "ID %lu is not a module clock\n", clk->id);
 		return -EINVAL;
 	}
