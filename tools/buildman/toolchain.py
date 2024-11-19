@@ -65,12 +65,13 @@ class Toolchain:
         """Create a new toolchain object.
 
         Args:
-            fname: Filename of the gcc component
+            fname: Filename of the gcc component, possibly with ~ or $HOME in it
             test: True to run the toolchain to test it
             verbose: True to print out the information
             priority: Priority to use for this toolchain, or PRIORITY_CALC to
                 calculate it
         """
+        fname = os.path.expanduser(fname)
         self.gcc = fname
         self.path = os.path.dirname(fname)
         self.override_toolchain = override_toolchain
@@ -109,7 +110,7 @@ class Toolchain:
                                                           self.priority))
                 else:
                     print('BAD')
-                    print('Command: ', cmd)
+                    print(f"Command: {' '.join(cmd)}")
                     print(result.stdout)
                     print(result.stderr)
         else:
@@ -296,10 +297,11 @@ class Toolchains:
 
         paths = []
         for name, value in toolchains:
+            fname = os.path.expanduser(value)
             if '*' in value:
-                paths += glob.glob(value)
+                paths += glob.glob(fname)
             else:
-                paths.append(value)
+                paths.append(fname)
         return paths
 
     def GetSettings(self, show_warning=True):
@@ -327,16 +329,17 @@ class Toolchains:
         toolchain = Toolchain(fname, test, verbose, priority, arch,
                               self.override_toolchain)
         add_it = toolchain.ok
-        if toolchain.arch in self.toolchains:
-            add_it = (toolchain.priority <
-                        self.toolchains[toolchain.arch].priority)
         if add_it:
-            self.toolchains[toolchain.arch] = toolchain
-        elif verbose:
-            print(("Toolchain '%s' at priority %d will be ignored because "
-                   "another toolchain for arch '%s' has priority %d" %
-                   (toolchain.gcc, toolchain.priority, toolchain.arch,
-                    self.toolchains[toolchain.arch].priority)))
+            if toolchain.arch in self.toolchains:
+                add_it = (toolchain.priority <
+                          self.toolchains[toolchain.arch].priority)
+            if add_it:
+                self.toolchains[toolchain.arch] = toolchain
+            elif verbose:
+                print(("Toolchain '%s' at priority %d will be ignored because "
+                       "another toolchain for arch '%s' has priority %d" %
+                       (toolchain.gcc, toolchain.priority, toolchain.arch,
+                        self.toolchains[toolchain.arch].priority)))
 
     def ScanPath(self, path, verbose):
         """Scan a path for a valid toolchain
@@ -372,7 +375,7 @@ class Toolchains:
                 pathname_list.append(pathname)
         return pathname_list
 
-    def Scan(self, verbose):
+    def Scan(self, verbose, raise_on_error=True):
         """Scan for available toolchains and select the best for each arch.
 
         We look for all the toolchains we can file, figure out the
@@ -384,11 +387,12 @@ class Toolchains:
         """
         if verbose: print('Scanning for tool chains')
         for name, value in self.prefixes:
-            if verbose: print("   - scanning prefix '%s'" % value)
-            if os.path.exists(value):
-                self.Add(value, True, verbose, PRIORITY_FULL_PREFIX, name)
+            fname = os.path.expanduser(value)
+            if verbose: print("   - scanning prefix '%s'" % fname)
+            if os.path.exists(fname):
+                self.Add(fname, True, verbose, PRIORITY_FULL_PREFIX, name)
                 continue
-            fname = value + 'gcc'
+            fname += 'gcc'
             if os.path.exists(fname):
                 self.Add(fname, True, verbose, PRIORITY_PREFIX_GCC, name)
                 continue
@@ -396,8 +400,11 @@ class Toolchains:
             for f in fname_list:
                 self.Add(f, True, verbose, PRIORITY_PREFIX_GCC_PATH, name)
             if not fname_list:
-                raise ValueError("No tool chain found for prefix '%s'" %
-                                   value)
+                msg = f"No tool chain found for prefix '{fname}'"
+                if raise_on_error:
+                    raise ValueError(msg)
+                else:
+                    print(f'Error: {msg}')
         for path in self.paths:
             if verbose: print("   - scanning path '%s'" % path)
             fnames = self.ScanPath(path, verbose)

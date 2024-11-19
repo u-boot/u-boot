@@ -2,8 +2,10 @@
 # Copyright (c) 2014 Google, Inc
 #
 
+import io
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -373,6 +375,22 @@ class TestFunctional(unittest.TestCase):
     def _HandleCommandSize(self, args):
         return command.CommandResult(return_code=0)
 
+    def _HandleCommandCpp(self, args):
+        # args ['-nostdinc', '-P', '-I', '/tmp/tmp7f17xk_o/src', '-undef',
+        # '-x', 'assembler-with-cpp', fname]
+        fname = args[7]
+        buf = io.StringIO()
+        for line in tools.read_file(fname, False).splitlines():
+            if line.startswith('#include'):
+                # Example: #include <configs/renesas_rcar2.config>
+                m_incfname = re.match('#include <(.*)>', line)
+                data = tools.read_file(m_incfname.group(1), False)
+                for line in data.splitlines():
+                    print(line, file=buf)
+            else:
+                print(line, file=buf)
+        return command.CommandResult(stdout=buf.getvalue(), return_code=0)
+
     def _HandleCommand(self, **kwargs):
         """Handle a command execution.
 
@@ -406,6 +424,8 @@ class TestFunctional(unittest.TestCase):
             return self._HandleCommandObjcopy(args)
         elif cmd.endswith( 'size'):
             return self._HandleCommandSize(args)
+        elif cmd.endswith( 'cpp'):
+            return self._HandleCommandCpp(args)
 
         if not result:
             # Not handled, so abort
@@ -1067,3 +1087,68 @@ endif
             result = self._RunControl('--print-arch', 'board0')
         self.assertEqual('arm\n', stdout.getvalue())
         self.assertEqual('', stderr.getvalue())
+
+    def test_kconfig_scanner(self):
+        """Test using the kconfig scanner to determine important values
+
+        Note that there is already a test_scan_defconfigs() which checks the
+        higher-level scan_defconfigs() function. This test checks just the
+        scanner itself
+        """
+        src = self._git_dir
+        scanner = boards.KconfigScanner(src)
+
+        # First do a simple sanity check
+        norm = os.path.join(src, 'board0_defconfig')
+        tools.write_file(norm, 'CONFIG_TARGET_BOARD0=y', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': 'arm',
+            'cpu': 'armv7',
+            'soc': '-',
+            'vendor': 'Tester',
+            'board': 'ARM Board 0',
+            'config': 'config0',
+            'target': 'board0'}, []), res)
+
+        # Check that the SoC cannot be changed and the filename does not affect
+        # the resulting board
+        tools.write_file(norm, '''CONFIG_TARGET_BOARD2=y
+CONFIG_SOC="fred"
+''', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': 'powerpc',
+            'cpu': 'ppc',
+            'soc': 'mpc85xx',
+            'vendor': 'Tester',
+            'board': 'PowerPC board 1',
+            'config': 'config2',
+            'target': 'board0'}, []), res)
+
+        # Check handling of missing information
+        tools.write_file(norm, '', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': '-',
+            'cpu': '-',
+            'soc': '-',
+            'vendor': '-',
+            'board': '-',
+            'config': '-',
+            'target': 'board0'},
+            ['WARNING: board0_defconfig: No TARGET_BOARD0 enabled']), res)
+
+        # check handling of #include files; see _HandleCommandCpp()
+        inc = os.path.join(src, 'common')
+        tools.write_file(inc, b'CONFIG_TARGET_BOARD0=y\n')
+        tools.write_file(norm, f'#include <{inc}>', False)
+        res = scanner.scan(norm, True)
+        self.assertEqual(({
+            'arch': 'arm',
+            'cpu': 'armv7',
+            'soc': '-',
+            'vendor': 'Tester',
+            'board': 'ARM Board 0',
+            'config': 'config0',
+            'target': 'board0'}, []), res)

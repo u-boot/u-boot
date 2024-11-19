@@ -19,7 +19,10 @@ import time
 from buildman import board
 from buildman import kconfiglib
 
+from u_boot_pylib import command
 from u_boot_pylib.terminal import print_clear, tprint
+from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 ### constant variables ###
 OUTPUT_FILE = 'boards.cfg'
@@ -202,6 +205,7 @@ class KconfigScanner:
         os.environ['KCONFIG_OBJDIR'] = ''
         self._tmpfile = None
         self._conf = kconfiglib.Kconfig(warn=False)
+        self._srctree = srctree
 
     def __del__(self):
         """Delete a leftover temporary file before exit.
@@ -239,7 +243,26 @@ class KconfigScanner:
         expect_target, match, rear = leaf.partition('_defconfig')
         assert match and not rear, f'{leaf} : invalid defconfig'
 
-        self._conf.load_config(defconfig)
+        temp = None
+        if b'#include' in tools.read_file(defconfig):
+            cmd = [
+                os.getenv('CPP', 'cpp'),
+                '-nostdinc', '-P',
+                '-I', self._srctree,
+                '-undef',
+                '-x', 'assembler-with-cpp',
+                defconfig]
+            result = command.run_pipe([cmd], capture=True, capture_stderr=True)
+            temp = tempfile.NamedTemporaryFile(prefix='buildman-')
+            tools.write_file(temp.name, result.stdout, False)
+            fname = temp.name
+            tout.info(f'Processing #include to produce {defconfig}')
+        else:
+            fname = defconfig
+
+        self._conf.load_config(fname)
+        if temp:
+            del temp
         self._tmpfile = None
 
         params = {}
