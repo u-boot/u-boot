@@ -288,6 +288,15 @@ void *dm_priv_to_rw(void *priv)
 }
 #endif
 
+/**
+ * dm_probe_devices() - Check whether to probe a device and all children
+ *
+ * Probes the device if DM_FLAG_PROBE_AFTER_BIND is enabled for it. Then scans
+ * all its children recursively to do the same.
+ *
+ * @dev: Device to (maybe) probe
+ * Return 0 if OK, -ve on error
+ */
 static int dm_probe_devices(struct udevice *dev)
 {
 	struct udevice *child;
@@ -302,6 +311,17 @@ static int dm_probe_devices(struct udevice *dev)
 
 	list_for_each_entry(child, &dev->child_head, sibling_node)
 		dm_probe_devices(child);
+
+	return 0;
+}
+
+int dm_autoprobe(void)
+{
+	int ret;
+
+	ret = dm_probe_devices(gd->dm_root);
+	if (ret)
+		return log_msg_ret("pro", ret);
 
 	return 0;
 }
@@ -338,7 +358,7 @@ static int dm_scan(bool pre_reloc_only)
 	if (ret)
 		return ret;
 
-	return dm_probe_devices(gd->dm_root);
+	return 0;
 }
 
 int dm_init_and_scan(bool pre_reloc_only)

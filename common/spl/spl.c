@@ -500,6 +500,10 @@ static int spl_common_init(bool setup_malloc)
 			debug("dm_init_and_scan() returned error %d\n", ret);
 			return ret;
 		}
+
+		ret = dm_autoprobe();
+		if (ret)
+			return ret;
 	}
 
 	return 0;

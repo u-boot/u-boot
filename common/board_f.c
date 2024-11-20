@@ -826,6 +826,10 @@ static int initf_dm(void)
 	if (ret)
 		return ret;
 
+	ret = dm_autoprobe();
+	if (ret)
+		return ret;
+
 	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
 		ret = dm_timer_init();
 		if (ret)
