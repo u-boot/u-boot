@@ -45,6 +45,8 @@ config TARGET_PHYCORE_IMX93
 	bool "phycore_imx93"
 	select IMX93
 	select IMX9_LPDDR4X
+	select OF_BOARD_FIXUP
+	select OF_BOARD_SETUP
 
 endchoice
 
