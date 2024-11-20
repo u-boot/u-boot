@@ -381,7 +381,7 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	}
 
 	switch (param) {
-	case PIN_CONFIG_INPUT_ENABLE: {
+	case PIN_CONFIG_INPUT_ENABLE:
 		if (!(cfg & PIN_CFG_IEN)) {
 			dev_err(dev, "pin does not support IEN\n");
 			return -EINVAL;
@@ -391,7 +391,6 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			port_offset, pin, argument);
 		rzg2l_rmw_pin_config(data, IEN(port_offset), pin, IEN_MASK, !!argument);
 		break;
-	}
 
 	case PIN_CONFIG_POWER_SOURCE: {
 		bool support_2500 = false;
