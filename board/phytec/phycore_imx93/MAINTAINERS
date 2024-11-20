@@ -9,5 +9,5 @@ F:      arch/arm/dts/imx93-phyboard-segin-u-boot.dtsi
 F:      board/phytec/phycore_imx93/
 F:      board/phytec/common/imx93_som_detection.c
 F:      board/phytec/common/imx93_som_detection.h
-F:      configs/imx93-phyboard-segin_defconfig
+F:      configs/imx93-phycore_defconfig
 F:      include/configs/phycore_imx93.h

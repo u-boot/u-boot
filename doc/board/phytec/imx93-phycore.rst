@@ -1,9 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-phyBOARD-Segin-i.MX93
-=====================
+phyCORE-i.MX 93
+===============
 
-U-Boot for the phyBOARD-Segin-i.MX93.
+U-Boot for the phyCORE-i.MX 93.
 
 Quick Start
 -----------
@@ -51,7 +51,7 @@ Build U-Boot
 
 .. code-block:: bash
 
-   $ make imx93-phyboard-segin_defconfig
+   $ make imx93-phycore_defconfig
    $ make
 
 Burn the flash.bin to MicroSD card offset 32KB:
