@@ -189,6 +189,12 @@ int boot_linux_kernel(ulong setup_base, ulong entry, bool image_64bit)
 		if (CONFIG_IS_ENABLED(X86_64)) {
 			typedef void (*h_func)(ulong zero, ulong setup);
 			h_func func;
+			struct setup_header *hdr = &(((struct boot_params *)(setup_base))->hdr);
+
+			/* Handle kernel with legacy 64-bit entry point at 0x200 */
+			if (hdr->xloadflags & XLF_KERNEL_64) {
+				entry += 0x200;
+			}
 
 			/* jump to Linux with rdi=0, rsi=setup_base */
 			func = (h_func)entry;
