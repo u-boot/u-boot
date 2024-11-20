@@ -22,6 +22,7 @@
 #define PIN_CFG_FILONOFF		BIT(10)
 #define PIN_CFG_FILNUM			BIT(11)
 #define PIN_CFG_FILCLKSEL		BIT(12)
+#define PIN_CFG_OEN			BIT(13)
 
 #define RZG2L_MPXED_PIN_FUNCS		(PIN_CFG_IOLH_A | \
 					 PIN_CFG_SR | \
@@ -79,6 +80,7 @@
 #define SD_CH(n)		(0x3000 + (n) * 4)
 #define ETH_POC(ch)		(0x300c + (ch) * 4)
 #define QSPI			0x3008
+#define ETH_MODE		0x3018
 
 #define PVDD_1800		1	/* I/O domain voltage <= 1.8V */
 #define PVDD_2500		2	/* I/O domain voltage 2.5V */

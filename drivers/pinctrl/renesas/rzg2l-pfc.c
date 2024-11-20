@@ -180,7 +180,7 @@ static const u32 r9a07g044_gpio_configs[] = {
 	RZG2L_GPIO_PORT_PACK(3, 0x21, RZG2L_MPXED_PIN_FUNCS),
 	RZG2L_GPIO_PORT_PACK(2, 0x22, RZG2L_MPXED_PIN_FUNCS),
 	RZG2L_GPIO_PORT_PACK(2, 0x23, RZG2L_MPXED_PIN_FUNCS),
-	RZG2L_GPIO_PORT_PACK(3, 0x24, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
+	RZG2L_GPIO_PORT_PACK(3, 0x24, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0) | PIN_CFG_OEN),
 	RZG2L_GPIO_PORT_PACK(2, 0x25, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x26, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x27, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
@@ -189,7 +189,7 @@ static const u32 r9a07g044_gpio_configs[] = {
 	RZG2L_GPIO_PORT_PACK(2, 0x2a, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2b, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2c, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH0)),
-	RZG2L_GPIO_PORT_PACK(2, 0x2d, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
+	RZG2L_GPIO_PORT_PACK(2, 0x2d, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1) | PIN_CFG_OEN),
 	RZG2L_GPIO_PORT_PACK(2, 0x2e, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
 	RZG2L_GPIO_PORT_PACK(2, 0x2f, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
 	RZG2L_GPIO_PORT_PACK(2, 0x30, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IO_VMC_ETH1)),
@@ -449,6 +449,32 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 		break;
 	}
 
+	case PIN_CONFIG_OUTPUT_ENABLE: {
+		u8 ch;
+
+		if (!(cfg & PIN_CFG_OEN)) {
+			dev_err(dev, "pin does not support OEN\n");
+			return -EINVAL;
+		}
+
+		/*
+		 * We can determine which Ethernet interface we're dealing with from
+		 * the caps.
+		 */
+		if (cfg & PIN_CFG_IO_VMC_ETH0)
+			ch = 0;
+		else /* PIN_CFG_IO_VMC_ETH1 */
+			ch = 1;
+
+		dev_dbg(dev, "set ETH%u TXC OEN=%u\n", ch, argument);
+		if (argument)
+			clrbits_8(data->base + ETH_MODE, BIT(ch));
+		else
+			setbits_8(data->base + ETH_MODE, BIT(ch));
+
+		break;
+	}
+
 	default:
 		dev_err(dev, "Invalid pinconf parameter\n");
 		return -EOPNOTSUPP;
@@ -542,6 +568,7 @@ static int rzg2l_get_pin_muxing(struct udevice *dev, unsigned int selector,
 
 static const struct pinconf_param rzg2l_pinconf_params[] = {
 	{ "input-enable",	PIN_CONFIG_INPUT_ENABLE,	1 },
+	{ "output-enable",	PIN_CONFIG_OUTPUT_ENABLE,	1 },
 	{ "power-source",	PIN_CONFIG_POWER_SOURCE,	3300 /* mV */ },
 };
 
