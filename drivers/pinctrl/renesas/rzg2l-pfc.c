@@ -394,18 +394,10 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 	}
 
 	case PIN_CONFIG_POWER_SOURCE: {
-		u32 pwr_reg = 0x0;
+		bool support_2500 = false;
+		u32 pwr_reg;
+		u32 value;
 
-		/* argument is in mV */
-		if (argument != 1800 && argument != 3300) {
-			dev_err(dev, "Invalid mV %u\n", argument);
-			return -EINVAL;
-		}
-
-		/*
-		 * TODO: PIN_CFG_IO_VMC_ETH0 & PIN_CFG_IO_VMC_ETH1 will be
-		 * handled when the RZ/G2L Ethernet driver is added.
-		 */
 		if (cfg & PIN_CFG_IO_VMC_SD0) {
 			dev_dbg(dev, "port off %u:%u set SD_CH 0 PVDD=%u\n",
 				port_offset, pin, argument);
@@ -418,13 +410,42 @@ static int rzg2l_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			dev_dbg(dev, "port off %u:%u set QSPI PVDD=%u\n",
 				port_offset, pin, argument);
 			pwr_reg = QSPI;
+		} else if (cfg & PIN_CFG_IO_VMC_ETH0) {
+			dev_dbg(dev, "port off %u:%u set ETH0 PVDD=%u\n",
+				port_offset, pin, argument);
+			pwr_reg = ETH_POC(0);
+			support_2500 = true;
+		} else if (cfg & PIN_CFG_IO_VMC_ETH1) {
+			dev_dbg(dev, "port off %u:%u set ETH1 PVDD=%u\n",
+				port_offset, pin, argument);
+			pwr_reg = ETH_POC(1);
+			support_2500 = true;
 		} else {
-			dev_dbg(dev, "pin power source is not selectable\n");
+			dev_dbg(dev, "port off %u:%u PVDD is not selectable\n",
+				port_offset, pin);
 			return -EINVAL;
 		}
 
-		writel((argument == 1800) ? PVDD_1800 : PVDD_3300,
-		       data->base + pwr_reg);
+		/* argument is in mV */
+		switch (argument) {
+		case 1800:
+			value = PVDD_1800;
+			break;
+		case 3300:
+			value = PVDD_3300;
+			break;
+		case 2500:
+			if (support_2500) {
+				value = PVDD_2500;
+				break;
+			}
+			fallthrough;
+		default:
+			dev_err(dev, "Invalid mV %u\n", argument);
+			return -EINVAL;
+		}
+
+		writel(value, data->base + pwr_reg);
 		break;
 	}
 
