@@ -3,6 +3,12 @@
 #ifndef __QCOM_PRIV_H__
 #define __QCOM_PRIV_H__
 
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+void qcom_configure_capsule_updates(void);
+#else
+void qcom_configure_capsule_updates(void) {}
+#endif /* EFI_HAVE_CAPSULE_SUPPORT */
+
 #if CONFIG_IS_ENABLED(OF_LIVE)
 /**
  * qcom_of_fixup_nodes() - Fixup Qualcomm DT nodes

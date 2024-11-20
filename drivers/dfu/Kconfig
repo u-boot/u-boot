@@ -89,6 +89,13 @@ config DFU_VIRT
 	  used at board level to manage specific behavior
 	  (OTP update for example).
 
+config DFU_SCSI
+	bool "SCSI flash back end for DFU"
+	help
+	  This option enables using DFU to read and write to SCSI devices
+	  used at board level to manage specific behavior
+	  (OTP update for example).
+
 config SET_DFU_ALT_INFO
 	bool "Dynamic set of DFU alternate information"
 	help

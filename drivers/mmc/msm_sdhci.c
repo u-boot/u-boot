@@ -15,6 +15,7 @@
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <power/regulator.h>
 
 /* Non-standard registers needed for SDHCI startup */
 #define SDCC_MCI_POWER   0x0
@@ -43,6 +44,7 @@ struct msm_sdhc {
 	struct sdhci_host host;
 	void *base;
 	struct clk_bulk clks;
+	struct udevice *vqmmc;
 };
 
 struct msm_sdhc_variant_info {
@@ -162,6 +164,16 @@ static int msm_sdc_probe(struct udevice *dev)
 	ret = msm_sdc_clk_init(dev);
 	if (ret)
 		return ret;
+
+	/* Get the vqmmc regulator and enable it if available */
+	device_get_supply_regulator(dev, "vqmmc-supply", &prv->vqmmc);
+	if (prv->vqmmc) {
+		ret = regulator_set_enable_if_allowed(prv->vqmmc, true);
+		if (ret) {
+			printf("Failed to enable the VQMMC regulator\n");
+			return ret;
+		}
+	}
 
 	var_info = (void *)dev_get_driver_data(dev);
 	if (!var_info->mci_removed) {
