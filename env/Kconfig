@@ -21,6 +21,19 @@ config ENV_SOURCE_FILE
 	  environment is assumed to come from the ad-hoc
 	  CFG_EXTRA_ENV_SETTINGS #define
 
+config ENV_CALLBACK_LIST_STATIC
+	string "Static callbacks list"
+	default ""
+	help
+	  The environment callbacks are associated with variables in a
+	  static list. Define this list in the following format:
+
+	  entry = variable_name[:callback_name]
+	  list = entry[,list]
+
+	  If the callback name is not specified, then the callback is deleted.
+	  Spaces are also allowed anywhere in the list.
+
 config SAVEENV
 	def_bool y if CMD_SAVEENV
 
