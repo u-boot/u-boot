@@ -288,26 +288,20 @@ void *dm_priv_to_rw(void *priv)
 }
 #endif
 
-static int dm_probe_devices(struct udevice *dev, bool pre_reloc_only)
+static int dm_probe_devices(struct udevice *dev)
 {
-	ofnode node = dev_ofnode(dev);
 	struct udevice *child;
-	int ret;
-
-	if (pre_reloc_only &&
-	    (!ofnode_valid(node) || !ofnode_pre_reloc(node)) &&
-	    !(dev->driver->flags & DM_FLAG_PRE_RELOC))
-		goto probe_children;
 
 	if (dev_get_flags(dev) & DM_FLAG_PROBE_AFTER_BIND) {
+		int ret;
+
 		ret = device_probe(dev);
 		if (ret)
 			return ret;
 	}
 
-probe_children:
 	list_for_each_entry(child, &dev->child_head, sibling_node)
-		dm_probe_devices(child, pre_reloc_only);
+		dm_probe_devices(child);
 
 	return 0;
 }
@@ -344,7 +338,7 @@ static int dm_scan(bool pre_reloc_only)
 	if (ret)
 		return ret;
 
-	return dm_probe_devices(gd->dm_root, pre_reloc_only);
+	return dm_probe_devices(gd->dm_root);
 }
 
 int dm_init_and_scan(bool pre_reloc_only)
