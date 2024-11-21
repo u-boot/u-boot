@@ -71,6 +71,35 @@ static const struct map_sysinfo sysinfo_to_dt[] = {
 	{ .si_node = "baseboard", .si_str = "manufacturer", .dt_str = "compatible", 1 },
 };
 
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+static const struct pci_attr_lookup_table pci_attr[] = {
+	{ "pci-host-ecam-generic", SMBIOS_SYSSLOT_TYPE_PCIE,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V, SMBIOS_SYSSLOT_CHAR_PCIPME },
+	{ "pci-host-cam-generic", SMBIOS_SYSSLOT_TYPE_PCI,
+	  SMBIOS_SYSSLOT_WIDTH_32BIT, SMBIOS_SYSSLOT_LENG_SHORT,
+	  SMBIOS_SYSSLOT_CHAR_5V | SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME },
+	{ "pci-host-thunder-ecam", SMBIOS_SYSSLOT_TYPE_PCIEGEN3,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-octeontx-ecam", SMBIOS_SYSSLOT_TYPE_PCIEGEN3X16,
+	  SMBIOS_SYSSLOT_WIDTH_16X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-thunder-pem", SMBIOS_SYSSLOT_TYPE_PCIEGEN4X8,
+	  SMBIOS_SYSSLOT_WIDTH_8X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG },
+	{ "pci-host-octeontx2-pem", SMBIOS_SYSSLOT_TYPE_PCIEGEN4X16,
+	  SMBIOS_SYSSLOT_WIDTH_16X, SMBIOS_SYSSLOT_LENG_LONG,
+	  SMBIOS_SYSSLOT_CHAR_3_3V,
+	  SMBIOS_SYSSLOT_CHAR_PCIPME | SMBIOS_SYSSLOT_CHAR_HOTPLUG |
+	  SMBIOS_SYSSLOT_CHAR_PCIBIF },
+};
+#endif
+
 /**
  * struct smbios_ctx - context for writing SMBIOS tables
  *
@@ -850,6 +879,220 @@ static int smbios_write_type7(ulong *current, int handle,
 	return len;
 }
 
+static void smbios_lookup_pci_attr(ofnode node, struct smbios_type9 *t)
+{
+	const char *compatible;
+	u32 pci_domain, addr_cells, size_cells, total_cells;
+	const fdt32_t *reg;
+	int reglen;
+	int i;
+
+	/* default attributes */
+	t->slot_type = SMBIOS_SYSSLOT_TYPE_PCI;
+	t->slot_data_bus_width = SMBIOS_SYSSLOT_WIDTH_UNKNOWN;
+	t->slot_characteristics_1 = SMBIOS_SYSSLOT_CHAR_UND;
+	t->current_usage = SMBIOS_SYSSLOT_USAGE_UNKNOWN;
+	t->slot_length = SMBIOS_SYSSLOT_LENG_UNKNOWN;
+
+	/* Read 'linux,pci-domain' property for segment group number */
+	if (!ofnode_read_u32(node, "linux,pci-domain", &pci_domain))
+		t->segment_group_number = (u16)pci_domain;
+
+	/*
+	 * Get #address-cells and #size-cells dynamically
+	 * Default 3 for #address-cells and 2 for #size-cells
+	 */
+	addr_cells = ofnode_read_u32_default(node, "#address-cells", 3);
+	size_cells = ofnode_read_u32_default(node, "#size-cells", 2);
+	total_cells = addr_cells + size_cells;
+
+	/* Read property 'reg' from the node */
+	reg = ofnode_read_prop(node, "reg", &reglen);
+	if (reg && reglen > addr_cells * sizeof(*reg)) {
+		/* First address-cell: Bus Number */
+		if (addr_cells >= 1)
+			t->bus_number = fdt32_to_cpu(reg[0]);
+		/* Second address-cell: Device/Function */
+		if (addr_cells >= 2)
+			t->device_function_number.data = fdt32_to_cpu(reg[1]);
+		/*
+		 * Third address-cell 'Register Offset' and the following
+		 * size-cell bytes are not useful for SMBIOS type 9, just
+		 * ignore them.
+		 */
+		/*
+		 * As neither PCI IRQ Routing Table ($PIRQ) nor FDT
+		 * property to represent a Slot ID, try to derive a
+		 * Slot ID programmatically.
+		 */
+		t->slot_id = t->device_function_number.fields.dev_num |
+			     (t->bus_number << 5);
+	}
+
+	/* Read 'compatible' property */
+	compatible = ofnode_read_string(node, "compatible");
+	if (!compatible)
+		return;
+
+	for (i = 0; i < ARRAY_SIZE(pci_attr); i++) {
+		if (strstr(compatible, pci_attr[i].str)) {
+			t->slot_type = pci_attr[i].slot_type;
+			t->slot_data_bus_width = pci_attr[i].data_bus_width;
+			t->slot_length = pci_attr[i].slot_length;
+			t->slot_characteristics_1 = pci_attr[i].chara1;
+			t->slot_characteristics_2 = pci_attr[i].chara2;
+			/* mark it as in-use arbitrarily */
+			t->current_usage = SMBIOS_SYSSLOT_USAGE_INUSE;
+			return;
+		}
+	}
+}
+
+static void smbios_write_type9_fields(struct smbios_ctx *ctx,
+				      struct smbios_type9 *t)
+{
+	t->slot_type = smbios_get_val_si(ctx, "slot-type", SYSID_NONE,
+					 SMBIOS_SYSSLOT_TYPE_UNKNOWN);
+	t->slot_data_bus_width =
+		smbios_get_val_si(ctx, "data-bus-width",
+				  SYSID_NONE, SMBIOS_SYSSLOT_WIDTH_UNKNOWN);
+	t->current_usage = smbios_get_val_si(ctx, "current-usage", SYSID_NONE,
+					     SMBIOS_SYSSLOT_USAGE_UNKNOWN);
+	t->slot_length = smbios_get_val_si(ctx, "slot-length", SYSID_NONE,
+					   SMBIOS_SYSSLOT_LENG_UNKNOWN);
+	t->slot_id = smbios_get_val_si(ctx, "slot-id", SYSID_NONE, 0);
+	t->slot_characteristics_1 =
+		smbios_get_val_si(ctx, "slot-characteristics-1", SYSID_NONE,
+				  SMBIOS_SYSSLOT_CHAR_UND);
+	t->slot_characteristics_2 = smbios_get_val_si(ctx,
+						      "slot-characteristics-2",
+						      SYSID_NONE, 0);
+	t->segment_group_number = smbios_get_val_si(ctx, "segment-group-number",
+						    SYSID_NONE, 0);
+	t->bus_number = smbios_get_val_si(ctx, "bus-number", SYSID_NONE, 0);
+	t->device_function_number.data =
+		smbios_get_val_si(ctx, "device-function-number", SYSID_NONE, 0);
+}
+
+static int smbios_write_type9_1slot(ulong *current, int handle,
+				    struct smbios_ctx *ctx, u8 devtype)
+{
+	struct smbios_type9 *t;
+	int len = sizeof(*t);
+	u8 pgroups_cnt;
+	u8 *eos_addr;
+	size_t pgroups_size;
+	void *wp;
+
+	pgroups_cnt = smbios_get_val_si(ctx, "peer-grouping-count",
+					SYSID_NONE, 0);
+	pgroups_size = pgroups_cnt * SMBIOS_TYPE9_PGROUP_SIZE;
+
+	/*
+	 * reserve the space for the dynamic bytes of peer_groups.
+	 * TODO:
+	 * peer_groups = <peer_grouping_count> * SMBIOS_TYPE9_PGROUP_SIZE
+	 */
+	len += pgroups_size;
+
+	t = map_sysmem(*current, len);
+	memset(t, 0, len);
+
+	fill_smbios_header(t, SMBIOS_SYSTEM_SLOTS, len, handle);
+
+	/* eos is at the end of the structure */
+	eos_addr = (u8 *)t + len - sizeof(t->eos);
+	smbios_set_eos(ctx, eos_addr);
+
+	/* Write the general fields */
+	t->peer_grouping_count = pgroups_cnt;
+	t->socket_design = smbios_add_prop_si(ctx, "socket-design", SYSID_NONE,
+					      NULL);
+	t->electrical_bus_width = smbios_get_val_si(ctx, "data-bus-width",
+						    SYSID_NONE, 0);
+
+	/* skip the reserved peer groups and write the following fields from eos */
+	/* t->slot_height */
+	wp = eos_addr - sizeof(t->slot_height);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-height", SYSID_NONE, 0);
+	/* t->slot_pitch */
+	wp -= sizeof(t->slot_pitch);
+	*((u16 *)wp) = smbios_get_val_si(ctx, "slot-pitch", SYSID_NONE, 0);
+	/* t->slot_physical_width */
+	wp -= sizeof(t->slot_physical_width);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-physical-width", SYSID_NONE, 0);
+	/* t->slot_information */
+	wp -= sizeof(t->slot_information);
+	*((u8 *)wp) = smbios_get_val_si(ctx, "slot-information", SYSID_NONE, 0);
+
+	/* For PCI, some fields can be extracted from FDT node */
+	if (devtype == SMBIOS_SYSSLOT_TYPE_PCI)
+		/* Populate PCI attributes from existing PCI properties */
+		smbios_lookup_pci_attr(ctx->node, t);
+	else if (devtype == SMBIOS_SYSSLOT_TYPE_UNKNOWN) {
+		/* Properties that expected in smbios subnode 'system-slot' */
+		smbios_write_type9_fields(ctx, t);
+	}
+	len = t->hdr.length + smbios_string_table_len(ctx);
+	*current += len;
+	unmap_sysmem(t);
+
+	return len;
+}
+
+static int smbios_write_type9(ulong *current, int handle,
+			      struct smbios_ctx *ctx)
+{
+	int len = 0;
+	struct smbios_ctx ctx_bak;
+	ofnode child;
+
+	/* TODO: Get system slot information via pci subsystem */
+	if (!IS_ENABLED(CONFIG_OF_CONTROL))
+		return 0;	/* Error, return 0-length */
+
+	memcpy(&ctx_bak, ctx, sizeof(ctx_bak));
+
+	/* write the properties if any subnode exists under 'system-slot' */
+	for (child = ofnode_first_subnode(ctx->node); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		ctx->node = child;
+		len += smbios_write_type9_1slot(current, handle++, ctx,
+						SMBIOS_SYSSLOT_TYPE_UNKNOWN);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	if (len)
+		return len;
+
+	/* if no subnode of 'system-slot', try scan the entire FDT */
+	for (child = ofnode_first_subnode(ofnode_root()); ofnode_valid(child);
+	     child = ofnode_next_subnode(child)) {
+		const char *dev_type_str;
+		u8 dev_type = SMBIOS_SYSSLOT_TYPE_UNKNOWN;
+
+		dev_type_str = ofnode_read_string(child, "device_type");
+		if (!dev_type_str)
+			continue;
+
+		if (!strcmp(dev_type_str, "pci"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_PCI;
+		else if (!strcmp(dev_type_str, "isa"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_ISA;
+		else if (!strcmp(dev_type_str, "pcmcia"))
+			dev_type = SMBIOS_SYSSLOT_TYPE_PCMCIA;
+		else
+			continue;
+
+		ctx->node = child;
+		len += smbios_write_type9_1slot(current, handle++, ctx,
+						dev_type);
+		memcpy(ctx, &ctx_bak, sizeof(*ctx));
+	}
+
+	return len;
+}
+
 #endif /* #if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE) */
 
 static int smbios_write_type32(ulong *current, int handle,
@@ -896,6 +1139,9 @@ static struct smbios_write_method smbios_write_funcs[] = {
 	{ smbios_write_type7, "cache", },
 #endif
 	{ smbios_write_type4, "processor"},
+#if IS_ENABLED(CONFIG_GENERATE_SMBIOS_TABLE_VERBOSE)
+	{ smbios_write_type9, "system-slot"},
+#endif
 	{ smbios_write_type32, },
 	{ smbios_write_type127 },
 };
