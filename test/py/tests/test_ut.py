@@ -540,8 +540,8 @@ def test_ut_dm_init(u_boot_console):
         u_boot_utils.run_and_log(
             u_boot_console, f'sfdisk {fn}', stdin=b'type=83')
 
-    fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB')
-    fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB')
+    fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB', None)
+    fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB', None)
 
     mmc_dev = 6
     fn = os.path.join(u_boot_console.config.source_dir, f'mmc{mmc_dev}.img')

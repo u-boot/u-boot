@@ -9,7 +9,7 @@ import re
 import os
 from subprocess import call, check_call, check_output, CalledProcessError
 
-def mk_fs(config, fs_type, size, prefix, size_gran = 0x100000):
+def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
     """Create a file system volume
 
     Args:
@@ -17,6 +17,7 @@ def mk_fs(config, fs_type, size, prefix, size_gran = 0x100000):
         fs_type (str): File system type, e.g. 'ext4'
         size (int): Size of file system in bytes
         prefix (str): Prefix string of volume's file name
+        src_dir (str): Root directory to use, or None for none
         size_gran (int): Size granularity of file system image in bytes
 
     Raises:
@@ -39,6 +40,12 @@ def mk_fs(config, fs_type, size, prefix, size_gran = 0x100000):
     else:
         fs_lnxtype = fs_type
 
+    if src_dir:
+        if fs_lnxtype == 'ext4':
+            mkfs_opt = mkfs_opt + ' -d ' + src_dir
+        elif fs_lnxtype != 'vfat':
+            raise ValueError(f'src_dir not implemented for fs {fs_lnxtype}')
+
     count = (size + size_gran - 1) // size_gran
 
     # Some distributions do not add /sbin to the default PATH, where mkfs lives
@@ -55,6 +62,8 @@ def mk_fs(config, fs_type, size, prefix, size_gran = 0x100000):
                                       shell=True).decode()
             if 'metadata_csum' in sb_content:
                 check_call(f'tune2fs -O ^metadata_csum {fs_img}', shell=True)
+        elif fs_lnxtype == 'vfat' and src_dir:
+            check_call(f'mcopy -i {fs_img} -vsmpQ {src_dir}/* ::/', shell=True)
         return fs_img
     except CalledProcessError:
         call(f'rm -f {fs_img}', shell=True)
