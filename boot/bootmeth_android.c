@@ -45,6 +45,8 @@ struct android_priv {
 	enum android_boot_mode boot_mode;
 	char *slot;
 	u32 header_version;
+	u32 boot_img_size;
+	u32 vendor_boot_img_size;
 };
 
 static int android_check(struct udevice *dev, struct bootflow_iter *iter)
@@ -98,7 +100,13 @@ static int scan_boot_part(struct udevice *blk, struct android_priv *priv)
 		return log_msg_ret("header", -ENOENT);
 	}
 
+	if (!android_image_get_bootimg_size(buf, &priv->boot_img_size)) {
+		free(buf);
+		return log_msg_ret("get bootimg size", -EINVAL);
+	}
+
 	priv->header_version = ((struct andr_boot_img_hdr_v0 *)buf)->header_version;
+
 	free(buf);
 
 	return 0;
@@ -138,6 +146,12 @@ static int scan_vendor_boot_part(struct udevice *blk, struct android_priv *priv)
 		free(buf);
 		return log_msg_ret("header", -ENOENT);
 	}
+
+	if (!android_image_get_vendor_bootimg_size(buf, &priv->vendor_boot_img_size)) {
+		free(buf);
+		return log_msg_ret("get vendor bootimg size", -EINVAL);
+	}
+
 	free(buf);
 
 	return 0;
@@ -330,15 +344,17 @@ static int android_read_file(struct udevice *dev, struct bootflow *bflow,
  * @blk: Block device to read
  * @name: Partition name to read
  * @slot: Nul-terminated slot suffixed to partition name ("a\0" or "b\0")
+ * @image_size: Image size in bytes used when reading the partition
  * @addr: Address where the partition content is loaded into
  * Return: 0 if OK, negative errno on failure.
  */
 static int read_slotted_partition(struct blk_desc *desc, const char *const name,
-				  const char slot[2], ulong addr)
+				  const char slot[2], ulong image_size, ulong addr)
 {
 	struct disk_partition partition;
 	char partname[PART_NAME_LEN];
 	size_t partname_len;
+	ulong num_blks = DIV_ROUND_UP(image_size, desc->blksz);
 	int ret;
 	u32 n;
 
@@ -364,8 +380,8 @@ static int read_slotted_partition(struct blk_desc *desc, const char *const name,
 	if (ret < 0)
 		return log_msg_ret("part", ret);
 
-	n = blk_dread(desc, partition.start, partition.size, map_sysmem(addr, 0));
-	if (n < partition.size)
+	n = blk_dread(desc, partition.start, num_blks, map_sysmem(addr, 0));
+	if (n < num_blks)
 		return log_msg_ret("part read", -EIO);
 
 	return 0;
@@ -498,12 +514,14 @@ static int boot_android_normal(struct bootflow *bflow)
 	if (ret < 0)
 		return log_msg_ret("read slot", ret);
 
-	ret = read_slotted_partition(desc, "boot", priv->slot, loadaddr);
+	ret = read_slotted_partition(desc, "boot", priv->slot, priv->boot_img_size,
+				     loadaddr);
 	if (ret < 0)
 		return log_msg_ret("read boot", ret);
 
 	if (priv->header_version >= 3) {
-		ret = read_slotted_partition(desc, "vendor_boot", priv->slot, vloadaddr);
+		ret = read_slotted_partition(desc, "vendor_boot", priv->slot,
+					     priv->vendor_boot_img_size, vloadaddr);
 		if (ret < 0)
 			return log_msg_ret("read vendor_boot", ret);
 		set_avendor_bootimg_addr(vloadaddr);
