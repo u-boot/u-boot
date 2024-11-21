@@ -187,14 +187,6 @@ static int rti_wdt_probe(struct udevice *dev)
 
 	priv->clk_hz = clk_get_rate(&clk);
 
-	/*
-	 * If watchdog is running at 32k clock, it is not accurate.
-	 * Adjust frequency down in this case so that it does not expire
-	 * earlier than expected.
-	 */
-	if (priv->clk_hz < 32768)
-		priv->clk_hz = priv->clk_hz * 9 / 10;
-
 	return 0;
 }
 
