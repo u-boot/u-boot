@@ -167,8 +167,9 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
         cons,
         ['sh', '-c', f'xz -dc {infname} >{bmp_file}'])
 
+    mkimage = cons.config.build_dir + '/tools/mkimage'
     u_boot_utils.run_and_log(
-        cons, f'mkimage -C none -A arm -T script -d {cmd_fname} {scr_fname}')
+        cons, f'{mkimage} -C none -A arm -T script -d {cmd_fname} {scr_fname}')
 
     kernel = 'vmlinuz-5.15.63-rockchip64'
     target = os.path.join(bootdir, kernel)
@@ -225,8 +226,9 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
     inf = os.path.join(cons.config.persistent_data_dir, 'inf')
     with open(inf, 'wb') as fd:
         fd.write(gzip.compress(b'vmlinux'))
+    mkimage = cons.config.build_dir + '/tools/mkimage'
     u_boot_utils.run_and_log(
-        cons, f'mkimage -f auto -d {inf} {os.path.join(mnt, vmlinux)}')
+        cons, f'{mkimage} -f auto -d {inf} {os.path.join(mnt, vmlinux)}')
 
     with open(os.path.join(mnt, initrd), 'w', encoding='ascii') as fd:
         print('initrd', file=fd)
