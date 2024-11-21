@@ -28,13 +28,15 @@ def mkdir_cond(dirname):
     if not os.path.exists(dirname):
         os.mkdir(dirname)
 
-def setup_image(cons, devnum, part_type, second_part=False, basename='mmc'):
-    """Create a 20MB disk image with a single partition
+def setup_image(cons, devnum, part_type, img_size=20, second_part=False,
+                basename='mmc'):
+    """Create a disk image with a single partition
 
     Args:
         cons (ConsoleBase): Console to use
         devnum (int): Device number to use, e.g. 1
         part_type (int): Partition type, e.g. 0xc for FAT32
+        img_size (int): Image size in MiB
         second_part (bool): True to contain a small second partition
         basename (str): Base name to use in the filename, e.g. 'mmc'
 
@@ -47,11 +49,11 @@ def setup_image(cons, devnum, part_type, second_part=False, basename='mmc'):
     mnt = os.path.join(cons.config.persistent_data_dir, 'mnt')
     mkdir_cond(mnt)
 
-    spec = f'type={part_type:x}, size=18M, bootable'
+    spec = f'type={part_type:x}, size={img_size - 2}M, start=1M, bootable'
     if second_part:
         spec += '\ntype=c'
 
-    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} 20M')
+    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} {img_size}M')
     u_boot_utils.run_and_log(cons, f'sudo sfdisk {fname}',
                              stdin=spec.encode('utf-8'))
     return fname, mnt
