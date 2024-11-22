@@ -1197,7 +1197,7 @@ static int bootflow_cros(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootflow_cros, UTF_CONSOLE);
+BOOTSTD_TEST(bootflow_cros, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
 /* Test Android bootmeth  */
 static int bootflow_android(struct unit_test_state *uts)
@@ -1220,7 +1220,7 @@ static int bootflow_android(struct unit_test_state *uts)
 
 	return 0;
 }
-BOOTSTD_TEST(bootflow_android, UTF_CONSOLE);
+BOOTSTD_TEST(bootflow_android, UTF_CONSOLE | UTF_DM | UTF_SCAN_FDT);
 
 /* Test EFI bootmeth */
 static int bootflow_efi(struct unit_test_state *uts)
