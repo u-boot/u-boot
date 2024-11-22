@@ -218,6 +218,7 @@ config TARGET_X530
 config TARGET_X240
 	bool "Support Allied Telesis x240"
 	select ALLEYCAT_5
+	imply BOOTSTD_DEFAULTS
 
 config TARGET_DB_XC3_24G4XG
 	bool "Support DB-XC3-24G4XG"
