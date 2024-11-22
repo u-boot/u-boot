@@ -42,7 +42,6 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len,
 			  size_t *olen)
 {
 	struct udevice *dev;
-	u64 rng = 0;
 	int ret;
 
 	*olen = 0;
@@ -52,12 +51,11 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len,
 		log_err("Failed to get an rng: %d\n", ret);
 		return ret;
 	}
-	ret = dm_rng_read(dev, &rng, sizeof(rng));
+	ret = dm_rng_read(dev, output, len);
 	if (ret)
 		return ret;
 
-	memcpy(output, &rng, len);
-	*olen = sizeof(rng);
+	*olen = len;
 
 	return 0;
 }

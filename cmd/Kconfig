@@ -2016,7 +2016,9 @@ config CMD_PING6
 config CMD_CDP
 	bool "cdp"
 	help
-	  Perform CDP network configuration
+	  The cdp command is used to announce the U-Boot device in the network
+	  and to retrieve configuration data including the VLAN id using the
+	  proprietary Cisco Discovery Protocol (CDP).
 
 config CMD_SNTP
 	bool "sntp"
