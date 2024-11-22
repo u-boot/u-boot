@@ -27,9 +27,9 @@ static void call_lwip_dhcp_fine_tmr(void *ctx)
 
 static int dhcp_loop(struct udevice *udev)
 {
-	char *ipstr = "ipaddr\0\0";
-	char *maskstr = "netmask\0\0";
-	char *gwstr = "gatewayip\0\0";
+	char ipstr[] = "ipaddr\0\0";
+	char maskstr[] = "netmask\0\0";
+	char gwstr[] = "gatewayip\0\0";
 	unsigned long start;
 	struct netif *netif;
 	struct dhcp *dhcp;
