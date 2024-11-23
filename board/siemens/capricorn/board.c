@@ -26,6 +26,7 @@
 #include <asm/arch-imx8/clock.h>
 #endif
 #include <linux/delay.h>
+#include "../common/board.h"
 #include "../common/eeprom.h"
 #include "../common/factoryset.h"
 
@@ -278,6 +279,26 @@ int checkboard(void)
 
 int board_init(void)
 {
+	struct chip_data eeprom_data = {};
+	int ret;
+
+	ret = siemens_ee_setup();
+	if (ret) {
+		printf("'siemens_ee_setup' failed, ret: %d\n", ret);
+		goto skip;
+	}
+
+	ret = siemens_ee_read_data(SIEMENS_EE_ADDR_CHIP,
+				   (uchar *)&eeprom_data,
+				   sizeof(eeprom_data));
+	if (ret) {
+		printf("'siemens_ee_read_data' failed, ret: %d\n", ret);
+		goto skip;
+	}
+
+	printf("HW Version: %s\n", eeprom_data.shwver);
+skip:
+
 	setup_fec();
 	return 0;
 }
