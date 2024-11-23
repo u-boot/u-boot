@@ -120,6 +120,7 @@
 		};
 	};
 
+#ifdef CONFIG_XPL_BUILD
 	imx-boot {
 		filename = "flash.bin";
 		pad-byte = <0x00>;
@@ -130,4 +131,5 @@
 			type = "blob-ext";
 		};
 	};
+#endif
 };
