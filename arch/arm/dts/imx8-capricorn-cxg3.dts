@@ -1,0 +1,129 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2019 Siemens AG
+ */
+
+#include "imx8-capricorn.dtsi"
+
+/ {
+	model = "Siemens CXG3";
+
+	leds_default: leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_leds>;
+
+		run {
+			label = "run";
+			gpios = <&gpio5 0 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		flt {
+			label = "flt";
+			gpios = <&gpio3 18 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		svc {
+			label = "svc";
+			gpios = <&gpio5 1 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		com1_tx {
+			label = "com1-tx";
+			gpios = <&gpio1 17 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		com1_rx {
+			label = "com1-rx";
+			gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		com2_tx {
+			label = "com2-tx";
+			gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		com2_rx {
+			label = "com2-rx";
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		cloud {
+			label = "cloud";
+			gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		wlan {
+			label = "wlan";
+			gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		apps {
+			label = "apps";
+			gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		dbg2 {
+			label = "dbg2";
+			gpios = <&gpio3 17 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		dbg3 {
+			label = "dbg3";
+			gpios = <&gpio4 3 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+
+		dbg4 {
+			label = "dbg4";
+			gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		gpios = <&gpio1 31 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&iomuxc {
+	pinctrl-0 = <&pinctrl_gpio_keys>;
+
+	muxcgrp: imx8qxp-som {
+		pinctrl_gpio_leds: gpioledsgrp {
+			fsl,pins = <
+			SC_P_ESAI0_FST_LSIO_GPIO0_IO01		0x06000021
+			SC_P_ESAI0_TX0_LSIO_GPIO0_IO04		0x06000021
+			SC_P_SAI0_TXC_LSIO_GPIO0_IO26		0x06000021
+			SC_P_SAI1_RXD_LSIO_GPIO0_IO29		0x06000021
+			SC_P_FLEXCAN1_RX_LSIO_GPIO1_IO17	0x06000021
+			SC_P_FLEXCAN1_TX_LSIO_GPIO1_IO18	0x06000021
+			SC_P_QSPI0B_SCLK_LSIO_GPIO3_IO17	0x06000021
+			SC_P_QSPI0B_DATA0_LSIO_GPIO3_IO18	0x06000021
+			SC_P_QSPI0B_DATA1_LSIO_GPIO3_IO19	0x06000021
+			SC_P_USB_SS3_TC0_LSIO_GPIO4_IO03	0x06000021
+			SC_P_ENET0_RGMII_TXD1_LSIO_GPIO5_IO00	0x06000021
+			SC_P_ENET0_RGMII_TXD2_LSIO_GPIO5_IO01	0x06000021
+			SC_P_ENET0_REFCLK_125M_25M_LSIO_GPIO5_IO09	0x06000021
+			>;
+		};
+	};
+
+	pinctrl_gpio_keys: gpiokeysgrp {
+		fsl,pins = <
+		SC_P_MIPI_DSI1_GPIO0_00_LSIO_GPIO1_IO31 0x06000021
+		>;
+	};
+};
