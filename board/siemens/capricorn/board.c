@@ -63,8 +63,7 @@ int board_early_init_f(void)
 	sc_pm_clock_rate_t rate = SC_80MHZ;
 	int ret;
 
-	ret = sc_pm_setup_uart(SC_R_UART_0, rate);
-	ret |= sc_pm_setup_uart(SC_R_UART_2, rate);
+	ret = sc_pm_setup_uart(SC_R_UART_2, rate);
 	if (ret)
 		return ret;
 
@@ -271,11 +270,7 @@ int checkboard(void)
 {
 	puts("Board: Capricorn\n");
 
-	/*
-	 * Running build_info() doesn't work with current SCFW blob.
-	 * Uncomment below call when new blob is available.
-	 */
-	/*build_info();*/
+	build_info();
 
 	print_bootinfo();
 	return 0;
