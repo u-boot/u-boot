@@ -21,3 +21,5 @@ config SPL_CMT
 	depends on SPL
 	help
 	  Enable SIemens SPL RAM test.
+
+source "board/siemens/common/Kconfig"
