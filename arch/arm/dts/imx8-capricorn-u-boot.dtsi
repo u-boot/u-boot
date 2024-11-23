@@ -6,130 +6,133 @@
 #include "imx8qxp-u-boot.dtsi"
 
 &{/imx8qx-pm} {
+	bootph-all;
+};
 
-	bootph-pre-ram;
+&A35_0 {
+        bootph-all;
 };
 
 &mu {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &clk {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &iomuxc {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio3 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio4 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio5 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio6 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_lsio_gpio7 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_dma {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_dma_lpuart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_dma_lpuart2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_conn {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_conn_sdch0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_conn_sdch1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &pd_conn_sdch2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio3 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio4 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio5 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio6 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &gpio7 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &lpuart0 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &lpuart2 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc1 {
-	bootph-pre-ram;
+	bootph-all;
 };
 
 &usdhc2 {
-	bootph-pre-ram;
+	bootph-all;
 };
