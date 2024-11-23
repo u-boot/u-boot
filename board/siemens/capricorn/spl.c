@@ -15,11 +15,29 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 
+#include <firmware/imx/sci/sci.h>
+#include <asm/arch/imx8-pins.h>
+#include <asm/arch/iomux.h>
+#include <asm/gpio.h>
+#include <asm/arch/sys_proto.h>
+
 DECLARE_GLOBAL_DATA_PTR;
+
+#define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
+			(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			(SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
+			(SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
+
+#define USDHC2_SD_PWR IMX_GPIO_NR(4, 19)
+static iomux_cfg_t usdhc2_sd_pwr[] = {
+	SC_P_USDHC1_RESET_B | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
 
 void spl_board_init(void)
 {
 	struct udevice *dev;
+
+	uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(imx8_scu), &dev);
 
 	uclass_find_first_device(UCLASS_MISC, &dev);
 
@@ -34,8 +52,28 @@ void spl_board_init(void)
 
 	timer_init();
 
+	imx8_iomux_setup_multiple_pads(usdhc2_sd_pwr, ARRAY_SIZE(usdhc2_sd_pwr));
+	gpio_direction_output(USDHC2_SD_PWR, 0);
+
 	preloader_console_init();
+
+	puts("Normal Boot\n");
 }
+
+void spl_board_prepare_for_boot(void)
+{
+	imx8_power_off_pd_devices(NULL, 0);
+}
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* Just empty function now - can't decide what to choose */
+	debug("%s: %s\n", __func__, name);
+
+	return 0;
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
