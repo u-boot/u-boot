@@ -342,8 +342,8 @@ class ConsoleBase(object):
             # indentation.
             return self.p.before.strip('\r\n')
         except Timeout as exc:
-            handle_exception(self.config, self, self.log, exc, 'Lab failure',
-                             True)
+            handle_exception(self.config, self, self.log, exc,
+                             f"Lab failure: Timeout executing '{cmd}'", True)
             raise
         except BootFail as exc:
             handle_exception(self.config, self, self.log, exc, 'Boot fail',
