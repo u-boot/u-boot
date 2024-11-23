@@ -346,7 +346,8 @@ class ConsoleBase(object):
                              f"Lab failure: Timeout executing '{cmd}'", True)
             raise
         except BootFail as exc:
-            handle_exception(self.config, self, self.log, exc, 'Boot fail',
+            handle_exception(self.config, self, self.log, exc,
+                             f"'Boot fail '{cmd}'",
                              True, self.get_spawn_output())
             raise
         finally:
