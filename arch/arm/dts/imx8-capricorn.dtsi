@@ -17,6 +17,11 @@
 		stdout-path = &lpuart2;
 	};
 
+	/* create device for u-boot wdt command */
+	scu-wdt {
+		compatible = "siemens,scu-wdt";
+	};
+
 };
 
 &iomuxc {
