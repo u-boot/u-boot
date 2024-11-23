@@ -95,7 +95,9 @@
 #define CFG_SYS_SDRAM_BASE		0x80000000
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_2			0x880000000
-/* DDR3 board total DDR is 1 GB */
+/* Set default values to the smallest DDR we have in capricorn modules
+ * Use it in case the system controller would return an error
+ */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1 GB */
 #define PHYS_SDRAM_2_SIZE		0x00000000	/* 0 GB */
 
