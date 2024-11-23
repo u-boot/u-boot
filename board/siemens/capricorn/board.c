@@ -314,6 +314,7 @@ int checkboard(void)
 int board_init(void)
 {
 	struct chip_data eeprom_data = {};
+	char module_name[16];
 	int ret;
 
 	ret = siemens_ee_setup();
@@ -321,6 +322,11 @@ int board_init(void)
 		printf("'siemens_ee_setup' failed, ret: %d\n", ret);
 		goto skip;
 	}
+
+	/* Get module name from EEPROM */
+	siemens_ee_read_data(SIEMENS_EE_ADDR_DDR3, module_name,
+			     sizeof(module_name));
+	printf("CPU module: %s\n", module_name);
 
 	ret = siemens_ee_read_data(SIEMENS_EE_ADDR_CHIP,
 				   (uchar *)&eeprom_data,
