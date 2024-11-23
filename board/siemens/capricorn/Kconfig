@@ -14,3 +14,10 @@ config IMX_CONFIG
 	default "board/siemens/capricorn/imximage.cfg"
 
 endif
+
+
+config SPL_CMT
+	bool "Enable Siemens SPL RAM test"
+	depends on SPL
+	help
+	  Enable SIemens SPL RAM test.

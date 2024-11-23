@@ -8,6 +8,7 @@ obj-y += ../common/eeprom.o
 
 ifdef CONFIG_XPL_BUILD
 obj-y += spl.o
+obj-$(CONFIG_SPL_CMT) += spl_memory_test.o
 else
 obj-y += ../common/factoryset.o
 endif

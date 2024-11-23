@@ -20,6 +20,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
+#include "spl_memory_test.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,6 +59,10 @@ void spl_board_init(void)
 	preloader_console_init();
 
 	puts("Normal Boot\n");
+
+#if IS_ENABLED(CONFIG_SPL_CMT)
+	spl_siemens_memory_full_test();
+#endif
 }
 
 void spl_board_prepare_for_boot(void)
