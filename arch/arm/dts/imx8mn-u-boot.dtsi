@@ -68,6 +68,11 @@
 	bootph-all;
 };
 
+&osc_32k {
+	bootph-pre-ram;
+	bootph-all;
+};
+
 #ifdef CONFIG_FSL_CAAM
 &sec_jr0 {
 	bootph-pre-ram;
