@@ -451,7 +451,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
-	u64 len;
+	u64 efi_addr, len;
 	uint flags;
 	efi_status_t ret;
 	phys_addr_t addr;
@@ -499,14 +499,17 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		return EFI_INVALID_PARAMETER;
 	}
 
-	addr = (u64)(uintptr_t)map_sysmem(addr, 0);
+	efi_addr = (u64)(uintptr_t)map_sysmem(addr, 0);
 	/* Reserve that map in our memory maps */
-	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
-	if (ret != EFI_SUCCESS)
+	ret = efi_add_memory_map_pg(efi_addr, pages, memory_type, true);
+	if (ret != EFI_SUCCESS) {
 		/* Map would overlap, bail out */
+		lmb_free_flags(addr, (u64)pages << EFI_PAGE_SHIFT, flags);
+		unmap_sysmem((void *)(uintptr_t)efi_addr);
 		return  EFI_OUT_OF_RESOURCES;
+	}
 
-	*memory = addr;
+	*memory = efi_addr;
 
 	return EFI_SUCCESS;
 }
@@ -545,6 +548,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 				LMB_NOOVERWRITE);
 	if (status)
 		return EFI_NOT_FOUND;
+
+	unmap_sysmem((void *)(uintptr_t)memory);
 
 	return ret;
 }
