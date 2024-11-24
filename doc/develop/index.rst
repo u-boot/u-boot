@@ -13,6 +13,7 @@ General
    codingstyle
    designprinciples
    docstyle
+   kconfig
    memory
    patman
    process
