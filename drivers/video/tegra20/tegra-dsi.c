@@ -5,6 +5,7 @@
  */
 
 #include <dm.h>
+#include <clk.h>
 #include <log.h>
 #include <misc.h>
 #include <mipi_display.h>
@@ -46,7 +47,9 @@ struct tegra_dsi_priv {
 
 	enum tegra_dsi_format format;
 
-	int dsi_clk;
+	struct clk *clk;
+	struct clk *clk_parent;
+
 	int video_fifo_depth;
 	int host_fifo_depth;
 
@@ -862,12 +865,26 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 	unsigned int mul, div;
 	unsigned long bclk, plld;
 
-	if (!priv->slave) {
+	/* Switch parents of DSI clocks in case of not standard parent */
+	if (priv->clk->id == PERIPH_ID_DSI &&
+	    priv->clk_parent->id == CLOCK_ID_DISPLAY2) {
+		/* Change DSIA clock parent to PLLD2 */
+		struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+
+		/* DSIA_CLK_SRC */
+		setbits_le32(&clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_base,
+			     BIT(25));
+	}
+
+	if (priv->clk->id == PERIPH_ID_DSIB &&
+	    priv->clk_parent->id == CLOCK_ID_DISPLAY) {
 		/* Change DSIB clock parent to match DSIA */
 		struct clk_rst_ctlr *clkrst =
 			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
-		clrbits_le32(&clkrst->plld2.pll_base, BIT(25)); /* DSIB_CLK_SRC */
+		/* DSIB_CLK_SRC */
+		clrbits_le32(&clkrst->plld2.pll_base, BIT(25));
 	}
 
 	tegra_dsi_get_muldiv(device->format, &mul, &div);
@@ -893,16 +910,16 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
 	case CLOCK_OSC_FREQ_48_0: /* OSC is 48Mhz */
-		clock_set_rate(CLOCK_ID_DISPLAY, plld, 12, 0, 8);
+		clock_set_rate(priv->clk_parent->id, plld, 12, 0, 8);
 		break;
 
 	case CLOCK_OSC_FREQ_26_0: /* OSC is 26Mhz */
-		clock_set_rate(CLOCK_ID_DISPLAY, plld, 26, 0, 8);
+		clock_set_rate(priv->clk_parent->id, plld, 26, 0, 8);
 		break;
 
 	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
 	case CLOCK_OSC_FREQ_16_8: /* OSC is 16.8Mhz */
-		clock_set_rate(CLOCK_ID_DISPLAY, plld, 13, 0, 8);
+		clock_set_rate(priv->clk_parent->id, plld, 13, 0, 8);
 		break;
 
 	case CLOCK_OSC_FREQ_19_2:
@@ -914,11 +931,7 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 		break;
 	}
 
-	priv->dsi_clk = clock_decode_periph_id(dev);
-
-	clock_enable(priv->dsi_clk);
-	udelay(2);
-	reset_set_enable(priv->dsi_clk, 0);
+	clk_enable(priv->clk);
 }
 
 static int tegra_dsi_ganged_probe(struct udevice *dev)
@@ -953,6 +966,20 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 	if (!priv->dsi) {
 		printf("%s: No display controller address\n", __func__);
 		return -EINVAL;
+	}
+
+	priv->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(priv->clk)) {
+		log_debug("%s: Could not get DSI clock: %ld\n",
+			  __func__, PTR_ERR(priv->clk));
+		return PTR_ERR(priv->clk);
+	}
+
+	priv->clk_parent = devm_clk_get(dev, "parent");
+	if (IS_ERR(priv->clk_parent)) {
+		log_debug("%s: Could not get DSI clock parent: %ld\n",
+			  __func__, PTR_ERR(priv->clk_parent));
+		return PTR_ERR(priv->clk_parent);
 	}
 
 	priv->video_fifo_depth = 1920;
