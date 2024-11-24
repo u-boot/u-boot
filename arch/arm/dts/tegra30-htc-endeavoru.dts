@@ -48,7 +48,17 @@
 
 			avdd-dsi-csi-supply = <&avdd_dsi_csi>;
 
-			panel = <&panel>;
+			panel@0 {
+				compatible = "htc,edge-panel";
+				reg = <0>;
+
+				reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
+
+				vdd-supply = <&vdd_3v3_panel>;
+				vddio-supply = <&vdd_1v8_panel>;
+
+				backlight = <&backlight>;
+			};
 		};
 	};
 
@@ -1290,17 +1300,6 @@
 			gpios = <&gpio TEGRA_GPIO(W, 3) GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_DOWN>;
 		};
-	};
-
-	panel: panel {
-		compatible = "htc,edge-panel";
-
-		reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
-
-		vdd-supply = <&vdd_3v3_panel>;
-		vddio-supply = <&vdd_1v8_panel>;
-
-		backlight = <&backlight>;
 	};
 
 	vcore_emmc: regulator-emmc {
