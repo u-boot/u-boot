@@ -5,6 +5,7 @@
 
 #include <backlight.h>
 #include <cpu_func.h>
+#include <clk.h>
 #include <dm.h>
 #include <fdtdec.h>
 #include <log.h>
@@ -44,7 +45,8 @@ struct tegra_lcd_priv {
 	const struct tegra_dc_soc_info *soc;
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
 	unsigned pixel_clock;		/* Pixel clock in Hz */
-	int dc_clk[2];			/* Contains clk and its parent */
+	struct clk *clk;
+	struct clk *clk_parent;
 	ulong scdiv;			/* Clock divider used by disp_clk_ctrl */
 	bool rotation;			/* 180 degree panel turn */
 	int pipe;			/* DC controller: 0 for A, 1 for B */
@@ -301,7 +303,7 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 			       void *default_lcd_base)
 {
 	struct disp_ctl_win window;
-	unsigned long rate = clock_get_rate(priv->dc_clk[1]);
+	unsigned long rate = clk_get_rate(priv->clk_parent);
 
 	priv->frame_buffer = (u32)default_lcd_base;
 
@@ -309,12 +311,12 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 	 * We halve the rate if DISP1 parent is PLLD, since actual parent
 	 * is plld_out0 which is PLLD divided by 2.
 	 */
-	if (priv->dc_clk[1] == CLOCK_ID_DISPLAY)
+	if (priv->clk_parent->id == CLOCK_ID_DISPLAY)
 		rate /= 2;
 
 #ifndef CONFIG_TEGRA20
 	/* PLLD2 obeys same rules as PLLD but it is present only on T30+ */
-	if (priv->dc_clk[1] == CLOCK_ID_DISPLAY2)
+	if (priv->clk_parent->id == CLOCK_ID_DISPLAY2)
 		rate /= 2;
 #endif
 
@@ -334,7 +336,7 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 	 */
 	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_CGENERAL,
 			       150 * 1000000);
-	clock_start_periph_pll(priv->dc_clk[0], priv->dc_clk[1],
+	clock_start_periph_pll(priv->clk->id, priv->clk_parent->id,
 			       rate);
 
 	basic_init(&priv->dc->cmd);
@@ -383,7 +385,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 		}
 
 		ret = tegra_powergate_sequence_power_up(powergate,
-							priv->dc_clk[0]);
+							priv->clk->id);
 		if (ret < 0) {
 			log_err("failed to power up DISP gate: %d", ret);
 			return ret;
@@ -451,11 +453,18 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 
 	priv->soc = (struct tegra_dc_soc_info *)dev_get_driver_data(dev);
 
-	ret = clock_decode_pair(dev, priv->dc_clk);
-	if (ret < 0) {
-		debug("%s: Cannot decode clocks for '%s' (ret = %d)\n",
-		      __func__, dev->name, ret);
-		return -EINVAL;
+	priv->clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(priv->clk)) {
+		log_debug("%s: Could not get DC clock: %ld\n",
+			  __func__, PTR_ERR(priv->clk));
+		return PTR_ERR(priv->clk);
+	}
+
+	priv->clk_parent = devm_clk_get(dev, "parent");
+	if (IS_ERR(priv->clk_parent)) {
+		log_debug("%s: Could not get DC clock parent: %ld\n",
+			  __func__, PTR_ERR(priv->clk_parent));
+		return PTR_ERR(priv->clk_parent);
 	}
 
 	priv->rotation = dev_read_bool(dev, "nvidia,180-rotation");
