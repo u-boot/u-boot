@@ -973,10 +973,22 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 		debug("%s: Cannot get avdd-dsi-csi-supply: error %d\n",
 		      __func__, ret);
 
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev,
-					   "panel", &priv->panel);
+	/* Check all DSI children */
+	device_foreach_child(priv->panel, dev) {
+		if (device_get_uclass_id(priv->panel) == UCLASS_PANEL)
+			break;
+	}
+
+	/* if loop exits without panel device return error */
+	if (device_get_uclass_id(priv->panel) != UCLASS_PANEL) {
+		log_debug("%s: panel not found, ret %d\n", __func__, ret);
+		return -EINVAL;
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_PANEL, dev_ofnode(priv->panel),
+					  &priv->panel);
 	if (ret) {
-		printf("%s: Cannot get panel: error %d\n", __func__, ret);
+		log_debug("%s: Cannot get panel: error %d\n", __func__, ret);
 		return log_ret(ret);
 	}
 
@@ -1036,6 +1048,7 @@ U_BOOT_DRIVER(tegra_dsi) = {
 	.id		= UCLASS_PANEL,
 	.of_match	= tegra_dsi_bridge_ids,
 	.ops		= &tegra_dsi_bridge_ops,
+	.bind		= dm_scan_fdt_dev,
 	.probe		= tegra_dsi_bridge_probe,
 	.plat_auto	= sizeof(struct tegra_dc_plat),
 	.priv_auto	= sizeof(struct tegra_dsi_priv),
