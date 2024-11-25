@@ -55,7 +55,7 @@ def fdt_cells_to_cpu(val, cells):
         out = out << 32 | fdt32_to_cpu(val[1])
     return out
 
-def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
+def EnsureCompiled(fname, tmpdir=None, capture_stderr=False, indir=None):
     """Compile an fdt .dts source file into a .dtb binary blob if needed.
 
     Args:
@@ -63,6 +63,7 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
             left alone
         tmpdir: Temporary directory for output files, or None to use the
             tools-module output directory
+        indir: List of directories where input files can be found
 
     Returns:
         Filename of resulting .dtb file
@@ -79,6 +80,8 @@ def EnsureCompiled(fname, tmpdir=None, capture_stderr=False):
         dtb_output = tools.get_output_filename('source.dtb')
 
     search_paths = [os.path.join(os.getcwd(), 'include')]
+    if indir is not None:
+        search_paths += indir
     root, _ = os.path.splitext(fname)
     cc, args = tools.get_target_compile_tool('cc')
     args += ['-E', '-P', '-x', 'assembler-with-cpp', '-D__ASSEMBLY__']
