@@ -15,6 +15,11 @@ static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 
 static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"qup2_se5", 1},
+	{"pcie3_clk", 1},
+	{"pcie4_clk", 1},
+	{"pcie5_clk", 1},
+	{"pcie6a_clk", 1},
+	{"pcie6b_clk", 1},
 	{"gpio", 0},
 };
 
