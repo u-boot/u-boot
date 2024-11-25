@@ -47,6 +47,7 @@ obj-$(CONFIG_PCIE_MEDIATEK_GEN3) += pcie_mediatek_gen3.o
 obj-$(CONFIG_PCIE_ROCKCHIP) += pcie_rockchip.o
 obj-$(CONFIG_PCIE_DW_ROCKCHIP) += pcie_dw_rockchip.o
 obj-$(CONFIG_PCIE_DW_MESON) += pcie_dw_meson.o
+obj-$(CONFIG_PCIE_DW_QCOM) += pcie_dw_qcom.o
 obj-$(CONFIG_PCI_BRCMSTB) += pcie_brcmstb.o
 obj-$(CONFIG_PCI_OCTEONTX) += pci_octeontx.o
 obj-$(CONFIG_PCIE_OCTEON) += pcie_octeon.o
