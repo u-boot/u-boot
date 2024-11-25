@@ -16,6 +16,7 @@ static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
 static const struct pinctrl_function msm_pinctrl_functions[] = {
 	{"qup1_se7", 1},
 	{"gpio", 0},
+	{"pcie1_clk_req_n", 1},
 };
 
 #define SDC_QDSD_PINGROUP(pg_name, ctl, pull, drv)	\
