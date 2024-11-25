@@ -191,13 +191,16 @@ static int tdx_detect(struct udevice *dev)
 static int tdx_get_str(struct udevice *dev, int id, size_t size, char *val)
 {
 	int ret = -ENOTSUPP;
+	int idx;
 
 	switch (id) {
 	case SYSID_BOARD_MODEL:
+		idx = get_toradex_modules_idx(tdx_hw_tag.prodid);
+
 		snprintf(val, size,
 			 "Toradex %04d %s %s",
 			 tdx_hw_tag.prodid,
-			 toradex_modules[tdx_hw_tag.prodid].name,
+			 toradex_modules[idx].name,
 			 tdx_board_rev_str);
 
 		ret = 0;

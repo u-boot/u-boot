@@ -21,6 +21,7 @@ struct toradex_eth_addr {
 } __attribute__((__packed__));
 
 struct toradex_som {
+	int pid4;
 	const char *name;
 	int is_enabled;
 };
@@ -139,6 +140,7 @@ extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
+int get_toradex_modules_idx(int pid4);
 const char * const get_toradex_carrier_boards(int pid4);
 const char * const get_toradex_display_adapters(int pid4);
 int try_migrate_tdx_cfg_block_carrier(void);
