@@ -123,6 +123,22 @@ def set_input_dirs(dirname):
     indir = dirname
     tout.debug("Using input directories %s" % indir)
 
+def append_input_dirs(dirname):
+    """Append a list of input directories to the current list of input
+    directories
+
+    Args:
+        dirname: a list of paths to input directories to use for obtaining
+                files needed by binman to place in the image.
+    """
+    global indir
+
+    for dir in dirname:
+        if dirname not in indir:
+            indir.append(dirname)
+
+    tout.debug("Updated input directories %s" % indir)
+
 def get_input_filename(fname, allow_missing=False):
     """Return a filename for use as input.
 
