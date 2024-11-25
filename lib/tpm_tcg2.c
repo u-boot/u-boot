@@ -468,8 +468,19 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	}
 
 	/* Ensure the previous firmware extended all the PCRs. */
-	if (log_active != active)
+	if (log_active & ~active) {
+		log_err("Missing active banks in U-Boot: 0x%08x\n",
+			log_active & ~active);
+		panic("U-Boot is missing hash algorithms required by the TPM "
+		      "event log to continue booting.\n");
+	} else if (active & ~log_active) {
+		log_warning("Missing active banks in event log: 0x%08x\n",
+			    active & ~log_active);
+		log_warning("TPM event log is missing hash algorithms which is "
+			    "configurated within U-Boot, skip replaying and "
+			    "continue booting.\n");
 		return 0;
+	}
 
 	/* Read PCR0 to check if previous firmware extended the PCRs or not. */
 	rc = tcg2_pcr_read(dev, 0, &digest_list);
