@@ -54,6 +54,16 @@ static const struct freq_tbl ftbl_gcc_usb30_prim_master_clk_src[] = {
 	{ }
 };
 
+static const struct freq_tbl ftbl_gcc_pcie_0_aux_clk_src[] = {
+	F(19200000, CFG_CLK_SRC_CXO, 1, 0, 0),
+	{ }
+};
+
+static const struct freq_tbl ftbl_gcc_pcie_0_phy_rchng_clk_src[] = {
+	F(100000000, CFG_CLK_SRC_GPLL0_EVEN, 3, 0, 0),
+	{ }
+};
+
 static ulong x1e80100_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -78,6 +88,24 @@ static ulong x1e80100_set_rate(struct clk *clk, ulong rate)
 	case GCC_USB30_PRIM_MOCK_UTMI_CLK:
 		clk_rcg_set_rate(priv->base, 0x39044, 0, 0);
 		return TCXO_DIV2_RATE;
+	case GCC_PCIE_4_AUX_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_aux_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, 0x6b080,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
+	case GCC_PCIE_4_PHY_RCHNG_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_phy_rchng_clk_src, rate);
+		clk_rcg_set_rate(priv->base, 0x6b064, freq->pre_div, freq->src);
+		return freq->freq;
+	case GCC_PCIE_6A_AUX_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_aux_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, 0x3108c,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
+	case GCC_PCIE_6A_PHY_RCHNG_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_phy_rchng_clk_src, rate);
+		clk_rcg_set_rate(priv->base, 0x31070, freq->pre_div, freq->src);
+		return freq->freq;
 	default:
 		return 0;
 	}
@@ -86,6 +114,24 @@ static ulong x1e80100_set_rate(struct clk *clk, ulong rate)
 static const struct gate_clk x1e80100_clks[] = {
 	GATE_CLK(GCC_AGGRE_UFS_PHY_AXI_CLK,		0x770e4, BIT(0)),
 	GATE_CLK(GCC_CFG_NOC_USB3_PRIM_AXI_CLK,		0x3908c, BIT(0)),
+	GATE_CLK(GCC_CFG_NOC_PCIE_ANOC_SOUTH_AHB_CLK,	0x52000, BIT(20)),
+	GATE_CLK(GCC_CFG_NOC_PCIE_ANOC_NORTH_AHB_CLK,	0x52028, BIT(22)),
+	GATE_CLK(GCC_CNOC_PCIE_SOUTH_SF_AXI_CLK,	0x52028, BIT(12)),
+	GATE_CLK(GCC_CNOC_PCIE_NORTH_SF_AXI_CLK,	0x52008, BIT(6)),
+	GATE_CLK(GCC_PCIE_4_AUX_CLK,			0x52008, BIT(3)),
+	GATE_CLK(GCC_PCIE_4_CFG_AHB_CLK,		0x52008, BIT(2)),
+	GATE_CLK(GCC_PCIE_4_MSTR_AXI_CLK,		0x52008, BIT(1)),
+	GATE_CLK(GCC_PCIE_4_PHY_RCHNG_CLK,		0x52000, BIT(22)),
+	GATE_CLK(GCC_PCIE_4_PIPE_CLK,			0x52008, BIT(4)),
+	GATE_CLK(GCC_PCIE_4_SLV_AXI_CLK,		0x52008, BIT(0)),
+	GATE_CLK(GCC_PCIE_4_SLV_Q2A_AXI_CLK,		0x52008, BIT(5)),
+	GATE_CLK(GCC_PCIE_6A_AUX_CLK,			0x52018, BIT(24)),
+	GATE_CLK(GCC_PCIE_6A_CFG_AHB_CLK,		0x52018, BIT(23)),
+	GATE_CLK(GCC_PCIE_6A_MSTR_AXI_CLK,		0x52018, BIT(22)),
+	GATE_CLK(GCC_PCIE_6A_PHY_RCHNG_CLK,		0x52018, BIT(27)),
+	GATE_CLK(GCC_PCIE_6A_PIPE_CLK,			0x52018, BIT(26)),
+	GATE_CLK(GCC_PCIE_6A_SLV_AXI_CLK,		0x52018, BIT(21)),
+	GATE_CLK(GCC_PCIE_6A_SLV_Q2A_AXI_CLK,		0x52018, BIT(20)),
 	GATE_CLK(GCC_QUPV3_WRAP2_CORE_2X_CLK,		0x52010, BIT(3)),
 	GATE_CLK(GCC_QUPV3_WRAP2_CORE_CLK,		0x52010, BIT(0)),
 	GATE_CLK(GCC_QUPV3_WRAP2_S0_CLK,		0x52010, BIT(4)),
@@ -117,6 +163,14 @@ static int x1e80100_enable(struct clk *clk)
 	case GCC_USB30_PRIM_MASTER_CLK:
 		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_AUX_CLK);
 		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_COM_AUX_CLK);
+		break;
+	case GCC_PCIE_4_PIPE_CLK:
+		// GCC_PCIE_4_PIPE_CLK_SRC
+		clk_phy_mux_enable(priv->base, 0x6b07c, true);
+		break;
+	case GCC_PCIE_6A_PIPE_CLK:
+		// GCC_PCIE_6A_PIPE_CLK_SRC
+		clk_phy_mux_enable(priv->base, 0x31088, true);
 		break;
 	}
 
