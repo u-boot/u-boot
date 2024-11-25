@@ -4,12 +4,13 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <command.h>
 #include <errno.h>
 #include <time.h>
 #include <linux/delay.h>
+#include <test/lib.h>
+#include <test/ut.h>
 
-static int test_get_timer(void)
+static int test_get_timer(struct unit_test_state *uts)
 {
 	ulong base, start, next, diff;
 	int iter;
@@ -42,8 +43,9 @@ static int test_get_timer(void)
 
 	return 0;
 }
+LIB_TEST(test_get_timer, 0);
 
-static int test_timer_get_us(void)
+static int test_timer_get_us(struct unit_test_state *uts)
 {
 	ulong prev, next, min = 1000000;
 	long delta;
@@ -76,8 +78,9 @@ static int test_timer_get_us(void)
 
 	return 0;
 }
+LIB_TEST(test_timer_get_us, 0);
 
-static int test_time_comparison(void)
+static int test_time_comparison(struct unit_test_state *uts)
 {
 	ulong start_us, end_us, delta_us;
 	long error;
@@ -97,8 +100,9 @@ static int test_time_comparison(void)
 
 	return 0;
 }
+LIB_TEST(test_time_comparison, 0);
 
-static int test_udelay(void)
+static int test_udelay(struct unit_test_state *uts)
 {
 	long error;
 	ulong start, delta;
@@ -116,17 +120,4 @@ static int test_udelay(void)
 
 	return 0;
 }
-
-int do_ut_time(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	int ret = 0;
-
-	ret |= test_get_timer();
-	ret |= test_timer_get_us();
-	ret |= test_time_comparison();
-	ret |= test_udelay();
-
-	printf("Test %s\n", ret ? "failed" : "passed");
-
-	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
-}
+LIB_TEST(test_udelay, 0);

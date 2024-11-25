@@ -43,12 +43,11 @@ int main(int argc, char *const argv[])
 	if (sig->version > API_SIG_VERSION)
 		return -3;
 
-	printf("API signature found @%x\n", (unsigned int)sig);
+	printf("API signature found @%p\n", sig);
 	test_dump_sig(sig);
 
 	printf("\n*** Consumer API test ***\n");
-	printf("syscall ptr 0x%08x@%08x\n", (unsigned int)syscall_ptr,
-		(unsigned int)&syscall_ptr);
+	printf("syscall ptr 0x%p@%p\n", syscall_ptr, &syscall_ptr);
 
 	/* console activities */
 	ub_putc('B');
@@ -203,7 +202,7 @@ void test_dump_sig(struct api_signature *sig)
 	printf("signature:\n");
 	printf("  version\t= %d\n", sig->version);
 	printf("  checksum\t= 0x%08x\n", sig->checksum);
-	printf("  sc entry\t= 0x%08x\n", (unsigned int)sig->syscall);
+	printf("  sc entry\t= 0x%p\n", sig->syscall);
 }
 
 void test_dump_si(struct sys_info *si)
@@ -296,7 +295,7 @@ void test_dump_di(int handle)
 	struct device_info *di = ub_dev_get(handle);
 
 	printf("device info (%d):\n", handle);
-	printf("  cookie\t= 0x%08x\n", (uint32_t)di->cookie);
+	printf("  cookie\t= 0x%p\n", di->cookie);
 	printf("  type\t\t= 0x%08x\n", di->type);
 
 	if (di->type == DEV_TYP_NET) {

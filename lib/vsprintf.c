@@ -308,7 +308,7 @@ static __maybe_unused char *string16(char *buf, char *end, u16 *s,
 	return buf;
 }
 
-#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT)
+#if CONFIG_IS_ENABLED(EFI_DEVICE_PATH_TO_TEXT) && !defined(API_BUILD)
 static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 				int precision, int flags)
 {

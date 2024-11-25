@@ -101,9 +101,6 @@ static int do_net(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	return cp->cmd(cmdtp, flag, argc, argv);
 }
 
-U_BOOT_CMD(
-	net, 3, 1, do_net,
-	"NET sub-system",
-	"list - list available devices\n"
-	"stats <device> - dump statistics for specified device\n"
-);
+U_BOOT_CMD(net, 3, 1, do_net, "NET sub-system",
+	   "list - list available devices\n"
+	   "stats <device> - dump statistics for specified device\n");

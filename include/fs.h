@@ -325,7 +325,7 @@ int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
  *
  * @fname: Filename to read
  * @size: Size of file to read (must be correct!)
- * @align: Alignment to use for memory allocation (0 for default)
+ * @align: Alignment to use for memory allocation (0 for default: ARCH_DMA_MINALIGN)
  * @bufp: On success, returns the allocated buffer with the nul-terminated file
  *	in it
  * Return: 0 if OK, -ENOMEM if out of memory, -EIO if read failed

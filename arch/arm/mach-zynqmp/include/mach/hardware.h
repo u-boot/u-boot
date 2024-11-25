@@ -188,6 +188,8 @@ struct pmu_regs {
 	u32 gen_storage4; /* 0x40 */
 	u32 reserved1[1];
 	u32 gen_storage6; /* 0x48 */
+	u32 reserved2[3];
+	u32 pers_gen_storage2; /* 0x58 */
 };
 
 #define pmu_base ((struct pmu_regs *)ZYNQMP_PMU_BASEADDR)

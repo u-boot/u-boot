@@ -481,16 +481,22 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
-	u64 bitpos;
 	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
+	unsigned int pflags = flags &
+			      (LMB_NOMAP | LMB_NOOVERWRITE | LMB_NONOTIFY);
+
+	if (flags != pflags) {
+		printf("invalid %#x\n", flags);
+		return;
+	}
 
 	do {
-		bitpos = flags ? fls(flags) - 1 : 0;
-		assert_noisy(bitpos < ARRAY_SIZE(flag_str));
+		int bitpos = pflags ? fls(pflags) - 1 : 0;
+
 		printf("%s", flag_str[bitpos]);
-		flags &= ~(1ull << bitpos);
-		puts(flags ? ", " : "\n");
-	} while (flags);
+		pflags &= ~(1u << bitpos);
+		puts(pflags ? ", " : "\n");
+	} while (pflags);
 }
 
 static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
@@ -500,7 +506,7 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 	enum lmb_flags flags;
 	int i;
 
-	printf(" %s.count = 0x%x\n", name, lmb_rgn_lst->count);
+	printf(" %s.count = %#x\n", name, lmb_rgn_lst->count);
 
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		base = rgn[i].base;
@@ -508,7 +514,7 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 		end = base + size - 1;
 		flags = rgn[i].flags;
 
-		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
+		printf(" %s[%d]\t[%#llx-%#llx], %#llx bytes, flags: ",
 		       name, i, base, end, size);
 		lmb_print_region_flags(flags);
 	}

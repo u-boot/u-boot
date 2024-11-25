@@ -322,5 +322,5 @@ U_BOOT_DRIVER(apple_dart) = {
 	.ops = &apple_dart_ops,
 	.probe = apple_dart_probe,
 	.remove = apple_dart_remove,
-	.flags	= DM_FLAG_OS_PREPARE
+	.flags	= DM_FLAG_OS_PREPARE | DM_FLAG_VITAL
 };

@@ -744,10 +744,15 @@ choice
 
 config NO_NET
 	bool "No networking support"
+	help
+	  Do not include networking support
 
 config NET
 	bool "Legacy U-Boot networking stack"
 	imply NETDEVICES
+	help
+	  Include networking support with U-Boot's internal implementation of
+	  the TCP/IP protocol stack.
 
 config NET_LWIP
 	bool "Use lwIP for networking stack"

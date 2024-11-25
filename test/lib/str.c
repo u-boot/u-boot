@@ -4,7 +4,7 @@
  */
 
 #include <vsprintf.h>
-#include <test/suites.h>
+#include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -18,9 +18,8 @@ static const char str4[] = "1234567890123 I lost closer friends";
 static const char str5[] = "0x9876543210the last time I was deloused";
 static const char str6[] = "0778octal is seldom used";
 static const char str7[] = "707it is a piece of computing history";
-
-/* Declare a new str test */
-#define STR_TEST(_name, _flags)		UNIT_TEST(_name, _flags, str_test)
+static const char str8[] = "0x887e2561352d80fa";
+static const char str9[] = "614FF7EAA63009DA";
 
 static int str_upper(struct unit_test_state *uts)
 {
@@ -58,7 +57,7 @@ static int str_upper(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_upper, 0);
+LIB_TEST(str_upper, 0);
 
 static int run_strtoul(struct unit_test_state *uts, const char *str, int base,
 		       ulong expect_val, int expect_endp_offset, bool upper)
@@ -112,7 +111,7 @@ static int str_simple_strtoul(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_simple_strtoul, 0);
+LIB_TEST(str_simple_strtoul, 0);
 
 static int run_strtoull(struct unit_test_state *uts, const char *str, int base,
 			unsigned long long expect_val, int expect_endp_offset,
@@ -175,7 +174,7 @@ static int str_simple_strtoull(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_simple_strtoull, 0);
+LIB_TEST(str_simple_strtoull, 0);
 
 static int str_hextoul(struct unit_test_state *uts)
 {
@@ -187,7 +186,23 @@ static int str_hextoul(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_hextoul, 0);
+LIB_TEST(str_hextoul, 0);
+
+static int str_hextoull(struct unit_test_state *uts)
+{
+	char *endp;
+
+	/* Just a simple test, since we know this uses simple_strtoull() */
+	ut_asserteq_64(0x887e2561352d80faULL, hextoull(str8, &endp));
+	ut_asserteq_64(0x12, endp - str8);
+	ut_asserteq_64(0x614ff7eaa63009daULL, hextoull(str9, &endp));
+	ut_asserteq_64(0x10, endp - str9);
+	ut_asserteq_64(0x887e2561352d80faULL, hextoull(str8, NULL));
+	ut_asserteq_64(0x614ff7eaa63009daULL, hextoull(str9, NULL));
+
+	return 0;
+}
+LIB_TEST(str_hextoull, 0);
 
 static int str_dectoul(struct unit_test_state *uts)
 {
@@ -199,7 +214,7 @@ static int str_dectoul(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_dectoul, 0);
+LIB_TEST(str_dectoul, 0);
 
 static int str_itoa(struct unit_test_state *uts)
 {
@@ -219,7 +234,7 @@ static int str_itoa(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_itoa, 0);
+LIB_TEST(str_itoa, 0);
 
 static int str_xtoa(struct unit_test_state *uts)
 {
@@ -239,7 +254,7 @@ static int str_xtoa(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_xtoa, 0);
+LIB_TEST(str_xtoa, 0);
 
 static int str_trailing(struct unit_test_state *uts)
 {
@@ -271,7 +286,7 @@ static int str_trailing(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(str_trailing, 0);
+LIB_TEST(str_trailing, 0);
 
 static int test_str_to_list(struct unit_test_state *uts)
 {
@@ -351,12 +366,4 @@ static int test_str_to_list(struct unit_test_state *uts)
 
 	return 0;
 }
-STR_TEST(test_str_to_list, 0);
-
-int do_ut_str(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(str_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(str_test);
-
-	return cmd_ut_category("str", "str_", tests, n_ents, argc, argv);
-}
+LIB_TEST(test_str_to_list, 0);

@@ -69,7 +69,7 @@ struct ip_udp_hdr {
 	u16		udp_dst;	/* UDP destination port		*/
 	u16		udp_len;	/* Length of UDP packet		*/
 	u16		udp_xsum;	/* Checksum			*/
-} __attribute__((packed));
+} __packed;
 
 #define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
 #define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE)
@@ -85,13 +85,13 @@ struct ip_udp_hdr {
  */
 #define ARP_HLEN_ASCII (ARP_HLEN * 2) + (ARP_HLEN - 1)
 
-#define ARP_HDR_SIZE	(8+20)		/* Size assuming ethernet	*/
+#define ARP_HDR_SIZE	(8 + 20)	/* Size assuming ethernet	*/
 
 #   define ARP_ETHER	    1		/* Ethernet  hardware address	*/
 
 /*
  * Maximum packet size; used to allocate packet storage. Use
- * the maxium Ethernet frame size as specified by the Ethernet
+ * the maximum Ethernet frame size as specified by the Ethernet
  * standard including the 802.1Q tag (VLAN tagging).
  * maximum packet size =  1522
  * maximum packet size and multiple of 32 bytes =  1536
@@ -130,7 +130,7 @@ extern char *pxelinux_configfile;
  * @nbytes:	Number of bytes to check (normally a multiple of 2)
  * Return: 16-bit IP checksum
  */
-unsigned compute_ip_checksum(const void *addr, unsigned nbytes);
+unsigned compute_ip_checksum(const void *addr, unsigned int nbytes);
 
 /**
  * ip_checksum_ok() - check if a checksum is correct
@@ -141,7 +141,7 @@ unsigned compute_ip_checksum(const void *addr, unsigned nbytes);
  * @nbytes:	Number of bytes to check (normally a multiple of 2)
  * Return: true if the checksum matches, false if not
  */
-int ip_checksum_ok(const void *addr, unsigned nbytes);
+int ip_checksum_ok(const void *addr, unsigned int nbytes);
 
 /**
  * add_ip_checksums() - add two IP checksums
@@ -151,7 +151,7 @@ int ip_checksum_ok(const void *addr, unsigned nbytes);
  * @new_sum:	New checksum to add
  * Return: updated 16-bit IP checksum
  */
-unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned new_sum);
+unsigned add_ip_checksums(unsigned offset, unsigned sum, unsigned int new_sum);
 
 /*
  * The devname can be either an exact name given by the driver or device tree
@@ -186,7 +186,7 @@ int eth_env_get_enetaddr_by_index(const char *base_name, int index,
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr);
+				  uchar *enetaddr);
 
 /*
  * Initialize USB ethernet device with CONFIG_DM_ETH
@@ -232,7 +232,7 @@ static inline void net_send_packet(uchar *pkt, int len)
 	if (DEBUG_NET_PKT_TRACE)
 		print_hex_dump_bytes("tx: ", DUMP_PREFIX_OFFSET, pkt, len);
 	/* Currently no way to return errors from eth_send() */
-	(void) eth_send(pkt, len);
+	(void)eth_send(pkt, len);
 }
 
 enum eth_recv_flags {
@@ -328,7 +328,7 @@ struct ethernet_hdr {
 	u8		et_dest[ARP_HLEN];	/* Destination node	*/
 	u8		et_src[ARP_HLEN];	/* Source node		*/
 	u16		et_protlen;		/* Protocol or length	*/
-} __attribute__((packed));
+} __packed;
 
 /* Ethernet header size */
 #define ETHER_HDR_SIZE	(sizeof(struct ethernet_hdr))
@@ -456,10 +456,10 @@ void net_process_received_packet(uchar *in_packet, int len);
 int update_tftp(ulong addr, char *interface, char *devstring);
 
 /**
- * env_get_ip() - Convert an environment value to to an ip address
+ * env_get_ip() - Convert an environment value to an ip address
  *
  * @var: Environment variable to convert. The value of this variable must be
- *	in the format format a.b.c.d, where each value is a decimal number from
+ *	in the format a.b.c.d, where each value is a decimal number from
  *	0 to 255
  * Return: IP address, or 0 if invalid
  */

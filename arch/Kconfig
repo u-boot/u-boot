@@ -8,6 +8,11 @@ config CREATE_ARCH_SYMLINK
 config HAVE_ARCH_IOREMAP
 	bool
 
+config HAVE_SETJMP
+	bool
+	help
+	 The architecture supports setjmp() and longjmp().
+
 config SUPPORT_BIG_ENDIAN
 	bool
 
@@ -73,6 +78,7 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
+	select HAVE_SETJMP
 	select ARCH_SUPPORTS_LTO
 	select CREATE_ARCH_SYMLINK
 	select HAVE_PRIVATE_LIBGCC if !ARM64
@@ -129,6 +135,7 @@ config PPC
 config RISCV
 	bool "RISC-V architecture"
 	select CREATE_ARCH_SYMLINK
+	select HAVE_SETJMP
 	select SUPPORT_ACPI
 	select SUPPORT_LITTLE_ENDIAN
 	select SUPPORT_OF_CONTROL
@@ -154,6 +161,7 @@ config RISCV
 
 config SANDBOX
 	bool "Sandbox"
+	select HAVE_SETJMP
 	select ARCH_SUPPORTS_LTO
 	select BOARD_LATE_INIT
 	select BZIP2
@@ -249,6 +257,7 @@ config SH
 
 config X86
 	bool "x86 architecture"
+	select HAVE_SETJMP
 	select SUPPORT_SPL
 	select SUPPORT_TPL
 	select SUPPORT_LITTLE_ENDIAN

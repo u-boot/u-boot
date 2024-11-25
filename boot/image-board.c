@@ -624,9 +624,10 @@ int boot_get_fpga(struct bootm_headers *images)
 	void *buf;
 	int conf_noffset;
 	int fit_img_result;
-	const char *uname, *name;
+	const char *uname, *name, *compatible;
 	int err;
 	int devnum = 0; /* TODO support multi fpga platforms */
+	int flags = 0;
 
 	if (!IS_ENABLED(CONFIG_FPGA))
 		return -ENOSYS;
@@ -674,20 +675,29 @@ int boot_get_fpga(struct bootm_headers *images)
 			return fit_img_result;
 		}
 
+		conf_noffset = fit_image_get_node(buf, uname);
+		compatible = fdt_getprop(buf, conf_noffset, "compatible", NULL);
+		if (!compatible) {
+			printf("'fpga' image without 'compatible' property\n");
+		} else {
+			if (CONFIG_IS_ENABLED(FPGA_LOAD_SECURE))
+				flags = fpga_compatible2flag(devnum, compatible);
+		}
+
 		if (!fpga_is_partial_data(devnum, img_len)) {
 			name = "full";
 			err = fpga_loadbitstream(devnum, (char *)img_data,
 						 img_len, BIT_FULL);
 			if (err)
 				err = fpga_load(devnum, (const void *)img_data,
-						img_len, BIT_FULL, 0);
+						img_len, BIT_FULL, flags);
 		} else {
 			name = "partial";
 			err = fpga_loadbitstream(devnum, (char *)img_data,
 						 img_len, BIT_PARTIAL);
 			if (err)
 				err = fpga_load(devnum, (const void *)img_data,
-						img_len, BIT_PARTIAL, 0);
+						img_len, BIT_PARTIAL, flags);
 		}
 
 		if (err)
