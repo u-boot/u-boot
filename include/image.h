@@ -1788,6 +1788,21 @@ struct cipher_algo {
 		       const unsigned char *data, int data_len,
 		       unsigned char **cipher, int *cipher_len);
 
+	/**
+	 * add_cipher_data() - Add cipher data to the FIT and device tree
+	 *
+	 * This is used to add the ciphered data to the FIT and other cipher
+	 * related information (key and initialization vector) to a device tree.
+	 *
+	 * @info: Pointer to image cipher information.
+	 * @keydest: Pointer to a device tree where the key and IV can be
+	 *           stored. keydest can be NULL when the key is retrieved at
+	 *           runtime by another mean.
+	 * @fit: Pointer to the FIT image.
+	 * @node_noffset: Offset where the cipher information are stored in the
+	 *                FIT.
+	 * return: 0 on success, a negative error code otherwise.
+	 */
 	int (*add_cipher_data)(struct image_cipher_info *info,
 			       void *keydest, void *fit, int node_noffset);
 
