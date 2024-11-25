@@ -166,6 +166,25 @@ void clk_rcg_set_rate(phys_addr_t base, uint32_t cmd_rcgr, int div,
 	clk_bcr_update(base + cmd_rcgr);
 }
 
+#define PHY_MUX_MASK		GENMASK(1, 0)
+#define PHY_MUX_PHY_SRC		0
+#define PHY_MUX_REF_SRC		2
+
+void clk_phy_mux_enable(phys_addr_t base, uint32_t cmd_rcgr, bool enabled)
+{
+	u32 cfg;
+
+	/* setup src select and divider */
+	cfg  = readl(base + cmd_rcgr);
+	cfg &= ~(PHY_MUX_MASK);
+	if (enabled)
+		cfg |= FIELD_PREP(PHY_MUX_MASK, PHY_MUX_PHY_SRC);
+	else
+		cfg |= FIELD_PREP(PHY_MUX_MASK, PHY_MUX_REF_SRC);
+
+	writel(cfg, base + cmd_rcgr);
+}
+
 const struct freq_tbl *qcom_find_freq(const struct freq_tbl *f, uint rate)
 {
 	if (!f)
