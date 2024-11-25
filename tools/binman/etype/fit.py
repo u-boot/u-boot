@@ -477,6 +477,8 @@ class Entry_fit(Entry_section):
             self._fdt_dir = fdt_util.GetString(self._node, 'fit,fdt-list-dir')
             if self._fdt_dir:
                 indir = tools.get_input_filename(self._fdt_dir)
+                if indir:
+                    tools.append_input_dirs(indir)
                 fdts = glob.glob('*.dtb', root_dir=indir)
                 self._fdts = [os.path.splitext(f)[0] for f in sorted(fdts)]
             else:

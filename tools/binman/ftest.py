@@ -4285,14 +4285,17 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'default-dt': 'test-fdt2',
         }
+        extra_indirs = None
         if use_fdt_list:
             entry_args['of-list'] = 'test-fdt1 test-fdt2'
         if default_dt:
             entry_args['default-dt'] = default_dt
+        if use_fdt_list:
+            extra_indirs = [os.path.join(self._indir, TEST_FDT_SUBDIR)]
         data = self._DoReadFileDtb(
             dts,
             entry_args=entry_args,
-            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+            extra_indirs=extra_indirs)[0]
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
 
