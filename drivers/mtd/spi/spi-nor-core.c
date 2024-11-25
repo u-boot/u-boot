@@ -4136,6 +4136,12 @@ static void mt35xu512aba_post_sfdp_fixup(struct spi_nor *nor,
 	params->rdsr_addr_nbytes = 0;
 
 	/*
+	 * SCCR Map 22nd DWORD does not indicate DTR Octal Mode Enable
+	 * for MT35XU512ABA but is actually supported by device.
+	 */
+	nor->flags |= SNOR_F_IO_MODE_EN_VOLATILE;
+
+	/*
 	 * The BFPT quad enable field is set to a reserved value so the quad
 	 * enable function is ignored by spi_nor_parse_bfpt(). Make sure we
 	 * disable it.
