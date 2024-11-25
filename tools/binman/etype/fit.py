@@ -138,6 +138,9 @@ class Entry_fit(Entry_section):
         Sequence number of the default fdt, as provided by the 'default-dt'
         entry argument
 
+    DEFAULT-NAME:
+        Name of the default fdt, as provided by the 'default-dt' entry argument
+
     Available operations
     ~~~~~~~~~~~~~~~~~~~~
 
@@ -198,6 +201,21 @@ class Entry_fit(Entry_section):
 
     This tells binman to create nodes `config-1` and `config-2`, i.e. a config
     for each of your two files.
+
+    It is also possible to use NAME in the node names so that the FDT files name
+    will be used instead of the sequence number. This can be useful to identify
+    easily at runtime in U-Boot, the config to be used::
+
+        configurations {
+            default = "@config-DEFAULT-NAME";
+            @config-NAME {
+                description = "NAME";
+                firmware = "atf";
+                loadables = "uboot";
+                fdt = "fdt-NAME";
+                fit,compatible;    // optional
+            };
+        };
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
@@ -674,6 +692,7 @@ class Entry_fit(Entry_section):
                                 f"not found in fdt list: {', '.join(self._fdts)}")
                     seq = self._fdts.index(default_dt)
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
+                    val = val.replace('DEFAULT-NAME', self._fit_default_dt)
                     fsw.property_string(pname, val)
                     return
             elif pname.startswith('fit,'):
@@ -740,6 +759,7 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
+                    node_name = node_name.replace('NAME', fdt_fname)
                     if self._fdt_dir:
                         fname = os.path.join(self._fdt_dir, fdt_fname + '.dtb')
                     else:

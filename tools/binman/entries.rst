@@ -899,6 +899,9 @@ DEFAULT-SEQ:
     Sequence number of the default fdt, as provided by the 'default-dt'
     entry argument
 
+DEFAULT-NAME:
+    Name of the default fdt, as provided by the 'default-dt' entry argument
+
 Available operations
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -959,6 +962,21 @@ You can create config nodes in a similar way::
 
 This tells binman to create nodes `config-1` and `config-2`, i.e. a config
 for each of your two files.
+
+It is also possible to use NAME in the node names so that the FDT files name
+will be used instead of the sequence number. This can be useful to identify
+easily at runtime in U-Boot, the config to be used::
+
+    configurations {
+        default = "@config-DEFAULT-NAME";
+        @config-NAME {
+            description = "NAME";
+            firmware = "atf";
+            loadables = "uboot";
+            fdt = "fdt-NAME";
+            fit,compatible;    // optional
+        };
+    };
 
 Note that if no devicetree files are provided (with '-a of-list' as above)
 then no nodes will be generated.
