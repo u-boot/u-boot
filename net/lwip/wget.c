@@ -40,8 +40,13 @@ struct wget_ctx {
 
 static void wget_lwip_fill_info(struct pbuf *hdr, u16_t hdr_len, u32_t hdr_cont_len)
 {
-	if (wget_info->headers && hdr_len < MAX_HTTP_HEADERS_SIZE)
-		pbuf_copy_partial(hdr, (void *)wget_info->headers, hdr_len, 0);
+	if (wget_info->headers) {
+		if (hdr_len < MAX_HTTP_HEADERS_SIZE)
+			pbuf_copy_partial(hdr, (void *)wget_info->headers, hdr_len, 0);
+		else
+			hdr_len = 0;
+		wget_info->headers[hdr_len] = 0;
+	}
 	wget_info->hdr_cont_len = (u32)hdr_cont_len;
 }
 
