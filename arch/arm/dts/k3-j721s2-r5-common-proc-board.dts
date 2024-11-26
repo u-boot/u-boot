@@ -13,6 +13,10 @@
 
 &tps659411 {
 	bootph-pre-ram;
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
 };
 
 &wkup_vtm0 {
