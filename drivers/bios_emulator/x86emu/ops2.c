@@ -1280,7 +1280,7 @@ void x86emuOp2_bsf(u8 X86EMU_UNUSED(op2))
     uint srcoffset;
 
     START_OF_INSTR();
-    DECODE_PRINTF("BSF\n");
+    DECODE_PRINTF("BSF\t");
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (mod < 3) {
 	srcoffset = decode_rmXX_address(mod, rl);
@@ -1341,7 +1341,7 @@ void x86emuOp2_bsr(u8 X86EMU_UNUSED(op2))
     uint srcoffset;
 
     START_OF_INSTR();
-    DECODE_PRINTF("BSF\n");
+    DECODE_PRINTF("BSF\t");
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (mod < 3) {
 	srcoffset = decode_rmXX_address(mod, rl);
