@@ -14,6 +14,10 @@ for f in $blobs; do
 		continue
 	fi
 
+	if [ $f = "spl/u-boot-spl.bin" ]; then
+		continue
+	fi
+
 	if [ -f $f ]; then
 		continue
 	fi

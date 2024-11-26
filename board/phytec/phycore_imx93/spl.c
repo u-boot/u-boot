@@ -3,6 +3,7 @@
  * Copyright (C) 2023 PHYTEC Messtechnik GmbH
  * Author: Christoph Stoidner <c.stoidner@phytec.de>
  * Copyright (C) 2024 Mathieu Othacehe <m.othacehe@gmail.com>
+ * Copyright (C) 2024 PHYTEC Messtechnik GmbH
  */
 
 #include <asm/arch/clock.h>
@@ -20,6 +21,8 @@
 #include <power/pca9450.h>
 #include <spl.h>
 
+#include "../common/imx93_som_detection.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -27,6 +30,13 @@ DECLARE_GLOBAL_DATA_PTR;
  * when pca9451a support is added.
  */
 #define PCA9450_REG_PWRCTRL_TOFF_DEB    BIT(5)
+#define EEPROM_ADDR            0x50
+
+/*
+ * Prototypes of automatically generated ram config file
+ */
+void set_dram_timings_2gb_lpddr4x(void);
+void set_dram_timings_1gb_lpddr4x_900mhz(void);
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -46,6 +56,44 @@ void spl_board_init(void)
 
 void spl_dram_init(void)
 {
+	int ret;
+	enum phytec_imx93_ddr_eeprom_code ddr_opt = PHYTEC_IMX93_DDR_INVALID;
+
+	/* NOTE: In SPL lpi2c3 is mapped to bus 0 */
+	ret = phytec_eeprom_data_setup(NULL, 0, EEPROM_ADDR);
+	if (ret && !IS_ENABLED(CONFIG_PHYCORE_IMX93_RAM_TYPE_FIX))
+		goto out;
+
+	ret = phytec_imx93_detect(NULL);
+	if (!ret)
+		phytec_print_som_info(NULL);
+
+	if (IS_ENABLED(CONFIG_PHYCORE_IMX93_RAM_TYPE_FIX)) {
+		if (IS_ENABLED(CONFIG_PHYCORE_IMX93_RAM_TYPE_LPDDR4X_1GB))
+			ddr_opt = PHYTEC_IMX93_LPDDR4X_1GB;
+		else if (IS_ENABLED(CONFIG_PHYCORE_IMX93_RAM_TYPE_LPDDR4X_2GB))
+			ddr_opt = PHYTEC_IMX93_LPDDR4X_2GB;
+	} else {
+		ddr_opt = phytec_imx93_get_opt(NULL, PHYTEC_IMX93_OPT_DDR);
+	}
+
+	switch (ddr_opt) {
+	case PHYTEC_IMX93_LPDDR4X_1GB:
+		if (is_voltage_mode(VOLT_LOW_DRIVE))
+			set_dram_timings_1gb_lpddr4x_900mhz();
+		break;
+	case PHYTEC_IMX93_LPDDR4X_2GB:
+		set_dram_timings_2gb_lpddr4x();
+		break;
+	default:
+		goto out;
+	}
+	ddr_init(&dram_timing);
+	return;
+out:
+	puts("Could not detect correct RAM type and size. Fall back to default.\n");
+	if (is_voltage_mode(VOLT_LOW_DRIVE))
+		set_dram_timings_1gb_lpddr4x_900mhz();
 	ddr_init(&dram_timing);
 }
 

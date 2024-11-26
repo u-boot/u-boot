@@ -281,7 +281,7 @@ int board_eth_init(struct bd_info *bis)
 	setup_iomux_enet();
 
 #ifdef CONFIG_FEC_MXC
-	bus = fec_get_miibus(base, -1);
+	bus = fec_get_miibus(NULL, base, -1);
 	if (!bus)
 		return -EINVAL;
 	/* scan phy 4,5,6,7 */
