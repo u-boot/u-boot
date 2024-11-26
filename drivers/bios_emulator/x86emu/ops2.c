@@ -245,10 +245,12 @@ void x86emuOp2_set_byte(u8 op2)
     FETCH_DECODE_MODRM(mod, rh, rl);
     if (mod < 3) {
 	destoffset = decode_rmXX_address(mod, rl);
+	DECODE_PRINTF("\n");
 	TRACE_AND_STEP();
 	store_data_byte(destoffset, cond ? 0x01 : 0x00);
     } else {			 /* register to register */
 	destreg = DECODE_RM_BYTE_REGISTER(rl);
+	DECODE_PRINTF("\n");
 	TRACE_AND_STEP();
 	*destreg = cond ? 0x01 : 0x00;
     }
