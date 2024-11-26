@@ -208,8 +208,13 @@ static void wget_fill_info(const uchar *pkt, int hlen)
 	const char *second_space;
 	char *pos, *end;
 
-	if (wget_info->headers && hlen < MAX_HTTP_HEADERS_SIZE)
-		strncpy(wget_info->headers, pkt, hlen);
+	if (wget_info->headers) {
+		if (hlen < MAX_HTTP_HEADERS_SIZE)
+			strncpy(wget_info->headers, pkt, hlen);
+		else
+			hlen = 0;
+		wget_info->headers[hlen] = 0;
+	}
 
 	//Get status code
 	first_space = strchr(pkt, ' ');
