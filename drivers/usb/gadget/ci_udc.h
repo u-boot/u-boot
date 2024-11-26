@@ -105,6 +105,7 @@ struct ci_drv {
 	struct ept_queue_head		*epts;
 	uint8_t				*items_mem;
 	struct ci_ep			ep[NUM_ENDPOINTS];
+	u8				next_device_address;
 };
 
 struct ept_queue_head {
