@@ -4,3 +4,4 @@
 
 obj-y += clk-data.o
 obj-y += dev-data.o
+obj-y += am62p_qos_uboot.o
