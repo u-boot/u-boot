@@ -3495,10 +3495,9 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
 			ret = efi_tcg2_measure_efi_app_exit();
-			if (ret != EFI_SUCCESS) {
-				log_warning("tcg2 measurement fails(0x%lx)\n",
-					    ret);
-			}
+			if (ret != EFI_SUCCESS)
+				log_debug("tcg2 measurement fails (0x%lx)\n",
+					  ret);
 		}
 	}
 
