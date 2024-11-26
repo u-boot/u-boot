@@ -178,6 +178,51 @@ static void android_boot_image_v0_v1_v2_parse_hdr(const struct andr_boot_img_hdr
 	data->boot_img_total_size = end - (ulong)hdr;
 }
 
+bool android_image_get_bootimg_size(const void *hdr, u32 *boot_img_size)
+{
+	struct andr_image_data data;
+
+	if (!hdr || !boot_img_size) {
+		printf("hdr or boot_img_size can't be NULL\n");
+		return false;
+	}
+
+	if (!is_android_boot_image_header(hdr)) {
+		printf("Incorrect boot image header\n");
+		return false;
+	}
+
+	if (((struct andr_boot_img_hdr_v0 *)hdr)->header_version <= 2)
+		android_boot_image_v0_v1_v2_parse_hdr(hdr, &data);
+	else
+		android_boot_image_v3_v4_parse_hdr(hdr, &data);
+
+	*boot_img_size = data.boot_img_total_size;
+
+	return true;
+}
+
+bool android_image_get_vendor_bootimg_size(const void *hdr, u32 *vendor_boot_img_size)
+{
+	struct andr_image_data data;
+
+	if (!hdr || !vendor_boot_img_size) {
+		printf("hdr or vendor_boot_img_size can't be NULL\n");
+		return false;
+	}
+
+	if (!is_android_vendor_boot_image_header(hdr)) {
+		printf("Incorrect vendor boot image header\n");
+		return false;
+	}
+
+	android_vendor_boot_image_v3_v4_parse_hdr(hdr, &data);
+
+	*vendor_boot_img_size = data.vendor_boot_img_total_size;
+
+	return true;
+}
+
 bool android_image_get_data(const void *boot_hdr, const void *vendor_boot_hdr,
 			    struct andr_image_data *data)
 {
