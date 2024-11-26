@@ -214,6 +214,7 @@ config AXP_PMIC_BUS
 config SUNXI_SRAM_ADDRESS
 	hex
 	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
+	default 0x44000 if MACH_SUN55I_A523
 	default 0x20000 if SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
 	default 0x0
 	---help---
@@ -226,6 +227,7 @@ config SUNXI_RVBAR_ADDRESS
 	hex
 	depends on ARM64
 	default 0x08100040 if MACH_SUN50I_A133
+	default 0x08000040 if MACH_SUN55I_A523
 	default 0x09010040 if SUN50I_GEN_H6
 	default 0x017000a0
 	---help---
@@ -254,6 +256,7 @@ config SUNXI_BL31_BASE
 	default 0x00044000 if MACH_SUN50I || MACH_SUN50I_H5
 	default 0x40000000 if MACH_SUN50I_H616
 	default 0x00104000 if SUN50I_GEN_H6
+	default 0x00054000 if MACH_SUN55I_A523
 	default 0x0
 	help
 	  Address where BL31 (TF-A) is loaded, or zero if BL31 is not used.
@@ -335,7 +338,7 @@ config MACH_SUNXI_H3_H5
 # TODO: try out A80's 8GiB DRAM space
 config SUNXI_DRAM_MAX_SIZE
 	hex
-	default 0x100000000 if MACH_SUN50I_H616 || MACH_SUN50I_A133
+	default 0x100000000 if MACH_SUN50I_H616 || MACH_SUN50I_A133 || MACH_SUN55I_A523
 	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
 	default 0x80000000
 
@@ -537,6 +540,16 @@ config MACH_SUN50I_A133
 	select SUN50I_GEN_H6
 	imply OF_UPSTREAM
 
+config MACH_SUN55I_A523
+	bool "sun55i (Allwinner A523/A527/T527/H728)"
+	select ARM64
+	select SUNXI_GEN_NCAT2
+	select SUNXI_NEW_PINCTRL
+	select DRAM_SUN55I_A523
+	select FIT
+	select SPL_LOAD_FIT if SPL
+	imply OF_UPSTREAM
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
@@ -728,7 +741,9 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
-	depends on !MACH_SUN50I_H616 && !MACH_SUN50I_A133
+	depends on !MACH_SUN50I_H616
+	depends on !MACH_SUN50I_A133
+	depends on !MACH_SUN55I_A523
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
 		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
@@ -742,6 +757,7 @@ config DRAM_ZQ
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
 	depends on !MACH_SUN50I_H616
+	depends on !MACH_SUN55I_A523
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUNXI_H3_H5
 	default y if MACH_SUN8I_R40
@@ -831,6 +847,7 @@ endif
 
 config SYS_CLK_FREQ
 	default 408000000 if MACH_SUNIV
+	default 792000000 if MACH_SUN55I_A523
 	default 816000000 if MACH_SUN50I || MACH_SUN50I_H5
 	default 888000000 if MACH_SUN50I_H6
 	default 912000000 if MACH_SUN7I
@@ -849,6 +866,7 @@ config SYS_CONFIG_NAME
 	default "sun50i" if MACH_SUN50I_H6
 	default "sun50i" if MACH_SUN50I_H616
 	default "sun50i" if MACH_SUN50I_A133
+	default "sun55i" if MACH_SUN55I_A523
 
 config SYS_BOARD
 	default "sunxi"
@@ -915,7 +933,7 @@ config I2C1_ENABLE
 	---help---
 	See I2C0_ENABLE help text.
 
-if SUNXI_GEN_SUN6I || SUN50I_GEN_H6
+if SUNXI_GEN_SUN6I || SUN50I_GEN_H6 || SUNXI_GEN_NCAT2
 config R_I2C_ENABLE
 	bool "Enable the PRCM I2C/TWI controller"
 	# This is used for the pmic on H3
