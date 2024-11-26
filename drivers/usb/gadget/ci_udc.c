@@ -649,11 +649,29 @@ static void flip_ep0_direction(void)
 	}
 }
 
+/*
+ * This function explicitly sets the address, without the "USBADRA" (advance)
+ * feature, which is not supported by older versions of the controller.
+ */
+static void ci_set_address(struct ci_udc *udc, u8 address)
+{
+	DBG("%s %x\n", __func__, address);
+	writel(address << 25, &udc->devaddr);
+}
+
 static void handle_ep_complete(struct ci_ep *ci_ep)
 {
 	struct ept_queue_item *item, *next_td;
 	int num, in, len, j;
 	struct ci_req *ci_req;
+
+	/* Set the device address that was previously sent by SET_ADDRESS */
+	if (controller.next_device_address != 0) {
+		struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+
+		ci_set_address(udc, controller.next_device_address);
+		controller.next_device_address = 0;
+	}
 
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
@@ -783,7 +801,7 @@ static void handle_setup(void)
 		 * write address delayed (will take effect
 		 * after the next IN txn)
 		 */
-		writel((r.wValue << 25) | (1 << 24), &udc->devaddr);
+		controller.next_device_address = r.wValue;
 		req->length = 0;
 		usb_ep_queue(controller.gadget.ep0, req, 0);
 		return;
@@ -814,6 +832,9 @@ static void stop_activity(void)
 	int i, num, in;
 	struct ept_queue_head *head;
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+
+	ci_set_address(udc, 0);
+
 	writel(readl(&udc->epcomp), &udc->epcomp);
 #ifdef CONFIG_CI_UDC_HAS_HOSTPC
 	writel(readl(&udc->epsetupstat), &udc->epsetupstat);
@@ -934,6 +955,7 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	if (is_on) {
 		/* RESET */
+		controller.next_device_address = 0;
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
 		udelay(200);
 
