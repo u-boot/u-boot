@@ -4,6 +4,7 @@ variables:
   DEFAULT_TAG: ""
   MIRROR_DOCKER: docker.io
   SJG_LAB: ""
+  PLATFORM: linux/amd64,linux/arm64
 
 default:
   tags:
