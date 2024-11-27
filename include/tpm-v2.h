@@ -748,4 +748,11 @@ bool tpm2_allow_extend(struct udevice *dev);
  */
 bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection);
 
+/**
+ * tpm2_print_active_pcrs() - Print the active TPM PCRs
+ *
+ * @dev: TPM device
+ */
+void tpm2_print_active_pcrs(struct udevice *dev);
+
 #endif /* __TPM_V2_H */
