@@ -55,6 +55,7 @@ RUN apt-get update && apt-get install -y \
 	flex \
 	gawk \
 	gdisk \
+	gettext \
 	git \
 	gnu-efi \
 	gnutls-dev \
@@ -128,11 +129,9 @@ RUN chmod +r /boot/vmlinu*
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
 RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	cd /tmp/grub && \
-	git checkout grub-2.06 && \
+	git checkout grub-2.12 && \
 	git config --global user.name "GitLab CI Runner" && \
 	git config --global user.email trini@konsulko.com && \
-	git cherry-pick 049efdd72eb7baa7b2bf8884391ee7fe650da5a0 && \
-	git cherry-pick 403d6540cd608b2706cfa0cb4713f7e4b490ff45 && \
 	./bootstrap && \
 	mkdir -p /opt/grub && \
 	./configure --target=aarch64 --with-platform=efi \
