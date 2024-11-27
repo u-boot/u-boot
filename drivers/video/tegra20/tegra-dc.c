@@ -137,10 +137,9 @@ static int update_display_mode(struct tegra_lcd_priv *priv)
 		val |= DATA_ALIGNMENT_MSB << DATA_ALIGNMENT_SHIFT;
 		val |= DATA_ORDER_RED_BLUE << DATA_ORDER_SHIFT;
 		writel(val, &disp->disp_interface_ctrl);
-	}
 
-	if (priv->soc->has_rgb)
 		writel(0x00010001, &disp->shift_clk_opt);
+	}
 
 	val = PIXEL_CLK_DIVIDER_PCD1 << PIXEL_CLK_DIVIDER_SHIFT;
 	val |= priv->scdiv << SHIFT_CLK_DIVIDER_SHIFT;
@@ -260,7 +259,9 @@ static int setup_window(struct tegra_lcd_priv *priv,
 	win->out_h = priv->height;
 	win->phys_addr = priv->frame_buffer;
 	win->stride = priv->width * (1 << priv->log2_bpp) / 8;
-	debug("%s: depth = %d\n", __func__, priv->log2_bpp);
+
+	log_debug("%s: depth = %d\n", __func__, priv->log2_bpp);
+
 	switch (priv->log2_bpp) {
 	case VIDEO_BPP32:
 		win->fmt = COLOR_DEPTH_R8G8B8A8;
@@ -272,7 +273,7 @@ static int setup_window(struct tegra_lcd_priv *priv,
 		break;
 
 	default:
-		debug("Unsupported LCD bit depth");
+		log_debug("Unsupported LCD bit depth\n");
 		return -1;
 	}
 
@@ -295,6 +296,7 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 {
 	struct disp_ctl_win window;
 	unsigned long rate = clk_get_rate(priv->clk_parent);
+	int ret;
 
 	priv->frame_buffer = (u32)default_lcd_base;
 
@@ -315,7 +317,7 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 	if (!priv->scdiv)
 		priv->scdiv = ((rate * 2 + priv->pixel_clock / 2)
 						/ priv->pixel_clock) - 2;
-	debug("Display clock %lu, divider %lu\n", rate, priv->scdiv);
+	log_debug("Display clock %lu, divider %lu\n", rate, priv->scdiv);
 
 	/*
 	 * HOST1X is init by default at 150MHz with PLLC as parent
@@ -336,8 +338,9 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 	if (priv->pixel_clock)
 		update_display_mode(priv);
 
-	if (setup_window(priv, &window))
-		return -1;
+	ret = setup_window(priv, &window);
+	if (ret)
+		return ret;
 
 	update_window(priv, &window);
 
@@ -362,14 +365,14 @@ static int tegra_lcd_probe(struct udevice *dev)
 
 		ret = tegra_powergate_power_off(powergate);
 		if (ret < 0) {
-			log_err("failed to power off DISP gate: %d", ret);
+			log_debug("failed to power off DISP gate: %d", ret);
 			return ret;
 		}
 
 		ret = tegra_powergate_sequence_power_up(powergate,
 							priv->clk->id);
 		if (ret < 0) {
-			log_err("failed to power up DISP gate: %d", ret);
+			log_debug("failed to power up DISP gate: %d", ret);
 			return ret;
 		}
 	}
@@ -386,14 +389,15 @@ static int tegra_lcd_probe(struct udevice *dev)
 	memset((u8 *)plat->base, 0, plat->size);
 	flush_dcache_all();
 
-	if (tegra_display_probe(priv, (void *)plat->base)) {
-		debug("%s: Failed to probe display driver\n", __func__);
-		return -1;
+	ret = tegra_display_probe(priv, (void *)plat->base);
+	if (ret) {
+		log_debug("%s: Failed to probe display driver\n", __func__);
+		return ret;
 	}
 
 	ret = panel_enable_backlight(priv->panel);
 	if (ret) {
-		debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
+		log_debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
 		return ret;
 	}
 
@@ -406,8 +410,8 @@ static int tegra_lcd_probe(struct udevice *dev)
 	uc_priv->xsize = priv->width;
 	uc_priv->ysize = priv->height;
 	uc_priv->bpix = priv->log2_bpp;
-	debug("LCD frame buffer at %08x, size %x\n", priv->frame_buffer,
-	      plat->size);
+	log_debug("LCD frame buffer at %08x, size %x\n", priv->frame_buffer,
+		  plat->size);
 
 	return panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
 }
@@ -424,7 +428,7 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 
 	priv->dc = (struct dc_ctlr *)dev_read_addr_ptr(dev);
 	if (!priv->dc) {
-		debug("%s: No display controller address\n", __func__);
+		log_debug("%s: No display controller address\n", __func__);
 		return -EINVAL;
 	}
 
@@ -449,8 +453,8 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 	if (rgb < 0) {
-		debug("%s: Cannot find rgb subnode for '%s' (ret=%d)\n",
-		      __func__, dev->name, rgb);
+		log_debug("%s: Cannot find rgb subnode for '%s' (ret=%d)\n",
+			  __func__, dev->name, rgb);
 		return -EINVAL;
 	}
 
@@ -460,15 +464,15 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	 */
 	panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
 	if (panel_node < 0) {
-		debug("%s: Cannot find panel information\n", __func__);
+		log_debug("%s: Cannot find panel information\n", __func__);
 		return -EINVAL;
 	}
 
 	ret = uclass_get_device_by_of_offset(UCLASS_PANEL, panel_node,
 					     &priv->panel);
 	if (ret) {
-		debug("%s: Cannot find panel for '%s' (ret=%d)\n", __func__,
-		      dev->name, ret);
+		log_debug("%s: Cannot find panel for '%s' (ret=%d)\n", __func__,
+			  dev->name, ret);
 		return ret;
 	}
 
@@ -486,8 +490,8 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	if (ret) {
 		ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
 		if (ret) {
-			debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
-			      __func__, dev->name, ret);
+			log_debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
+				  __func__, dev->name, ret);
 			return -EINVAL;
 		}
 	}
