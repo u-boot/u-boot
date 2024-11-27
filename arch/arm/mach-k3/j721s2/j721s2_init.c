@@ -407,7 +407,7 @@ u32 spl_boot_device(void)
 	u32 wkup_devstat = readl(CTRLMMR_WKUP_DEVSTAT);
 	u32 main_devstat;
 
-	if (wkup_devstat & WKUP_DEVSTAT_MCU_OMLY_MASK) {
+	if (wkup_devstat & WKUP_DEVSTAT_MCU_ONLY_MASK) {
 		printf("ERROR: MCU only boot is not yet supported\n");
 		return BOOT_DEVICE_RAM;
 	}
