@@ -44,7 +44,7 @@ int bounce_buffer_start_extalign(struct bounce_buffer *state, void *data,
 	state->len_aligned = roundup(len, alignment);
 	state->flags = flags;
 
-	if (!addr_is_aligned(state)) {
+	if (CONFIG_IS_ENABLED(BOUNCE_BUFFER_ALLOC) || !addr_is_aligned(state)) {
 		state->bounce_buffer = memalign(alignment,
 						state->len_aligned);
 		if (!state->bounce_buffer)

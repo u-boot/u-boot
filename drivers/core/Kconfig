@@ -476,4 +476,11 @@ config BOUNCE_BUFFER
 	  A second possible use of bounce buffers is their ability to
 	  provide aligned buffers for DMA operations.
 
+config BOUNCE_BUFFER_ALLOC
+	bool "Allocate memory for bounce buffer"
+	depends on BOUNCE_BUFFER
+	help
+	  Certain platforms have IP's which are unable to access addresses above
+	  a certain value. This symbol forces the bounce buffer to be allocated
+	  from within the U-Boot image area for such platforms.
 endmenu
