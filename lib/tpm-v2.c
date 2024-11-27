@@ -31,7 +31,9 @@ u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 		tpm_u32(TPM2_CC_STARTUP),
 		tpm_u16(mode),
 	};
-	int ret;
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+	struct tpml_pcr_selection pcrs;
+	int ret, i;
 
 	/*
 	 * Note TPM2_Startup command will return RC_SUCCESS the first time,
@@ -40,6 +42,18 @@ u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
 	if (ret && ret != TPM2_RC_INITIALIZE)
 		return ret;
+
+	ret = tpm2_get_pcr_info(dev, &pcrs);
+	if (ret)
+		return ret;
+
+	priv->active_pcr_count = 0;
+	for (i = 0; i < pcrs.count; i++) {
+		if (!tpm2_is_active_pcr(&pcrs.selection[i]))
+			continue;
+		priv->active_pcr[priv->active_pcr_count] = pcrs.selection[i].hash;
+		priv->active_pcr_count++;
+	}
 
 	return 0;
 }
