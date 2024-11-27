@@ -15,22 +15,4 @@
 
 #include "mv-common.h"
 
-/*
- *  Environment variables configurations
- */
-/*
- * max 4k env size is enough, but in case of nand
- * it has to be rounded to sector size
- */
-
-/*
- * Default environment variables
- */
-
-#define CFG_EXTRA_ENV_SETTINGS	"x_bootargs=console=ttyS0,115200 " \
-	CONFIG_MTDPARTS_DEFAULT " rw ubi.mtd=2,2048\0" \
-	"x_bootcmd_kernel=nand read 0x6400000 0x100000 0x300000\0"	\
-	"x_bootcmd_usb=usb start\0"					\
-	"x_bootargs_root=root=ubi0:rootfs rootfstype=ubifs\0"
-
 #endif /* _CONFIG_OPENRD_BASE_H */
