@@ -10,7 +10,9 @@ LABEL org.opencontainers.image.description=" This image is for building U-Boot i
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Add LLVM repository
-RUN apt-get update && apt-get install -y gnupg2 wget xz-utils && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y gnupg2 wget xz-utils
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main | tee /etc/apt/sources.list.d/llvm.list
 
@@ -33,7 +35,9 @@ RUN wget -O - https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_
 RUN wget -O - https://github.com/foss-xtensa/toolchain/releases/download/2020.07/x86_64-2020.07-xtensa-dc233c-elf.tar.gz | tar -C /opt -xz
 
 # Update and install things from apt now
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y \
 	automake \
 	autopoint \
 	bc \
@@ -118,8 +122,7 @@ RUN apt-get update && apt-get install -y \
 	vboot-utils \
 	xilinx-bootgen \
 	xxd \
-	zip \
-	&& rm -rf /var/lib/apt/lists/*
+	zip
 
 # Make kernels readable for libguestfs tools to work correctly
 RUN chmod +r /boot/vmlinu*
