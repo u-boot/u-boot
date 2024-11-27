@@ -23,6 +23,27 @@
 
 #include "tpm-utils.h"
 
+static int tpm2_update_active_banks(struct udevice *dev)
+{
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+	struct tpml_pcr_selection pcrs;
+	int ret, i;
+
+	ret = tpm2_get_pcr_info(dev, &pcrs);
+	if (ret)
+		return ret;
+
+	priv->active_bank_count = 0;
+	for (i = 0; i < pcrs.count; i++) {
+		if (!tpm2_is_active_pcr(&pcrs.selection[i]))
+			continue;
+		priv->active_banks[priv->active_bank_count] = pcrs.selection[i].hash;
+		priv->active_bank_count++;
+	}
+
+	return 0;
+}
+
 u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 {
 	const u8 command_v2[12] = {
@@ -41,7 +62,7 @@ u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 	if (ret && ret != TPM2_RC_INITIALIZE)
 		return ret;
 
-	return 0;
+	return tpm2_update_active_banks(dev);
 }
 
 u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test)
@@ -69,8 +90,10 @@ u32 tpm2_auto_start(struct udevice *dev)
 
 		rc = tpm2_self_test(dev, TPMI_YES);
 	}
+	if (rc)
+		return rc;
 
-	return rc;
+	return tpm2_update_active_banks(dev);
 }
 
 u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
