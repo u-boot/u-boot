@@ -142,7 +142,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-strip \
 	TARGET_NM=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-nm \
 	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-ranlib && \
-	make && \
+	make -j$(nproc) && \
 	./grub-mkimage -O arm64-efi -o /opt/grub/grubaa64.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
 	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
@@ -156,7 +156,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip \
 	TARGET_NM=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm \
 	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib && \
-	make && \
+	make -j$(nproc) && \
 	./grub-mkimage -O arm-efi -o /opt/grub/grubarm.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
 	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
@@ -170,7 +170,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-strip \
 	TARGET_NM=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-nm \
 	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib && \
-	make && \
+	make -j$(nproc) && \
 	./grub-mkimage -O riscv64-efi -o /opt/grub/grubriscv64.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
 	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
@@ -196,7 +196,7 @@ RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/t
 	cd /tmp/tf-a/ && \
 	git checkout v2.10.0 && \
 	cd tools/fiptool && \
-	make && \
+	make -j$(nproc) && \
 	mkdir -p /usr/local/bin && \
 	cp fiptool /usr/local/bin && \
 	rm -rf /tmp/tf-a
