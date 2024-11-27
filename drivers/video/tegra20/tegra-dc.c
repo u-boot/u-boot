@@ -10,20 +10,11 @@
 #include <fdtdec.h>
 #include <log.h>
 #include <panel.h>
-#include <part.h>
-#include <pwm.h>
 #include <video.h>
-#include <asm/cache.h>
-#include <asm/global_data.h>
 #include <asm/system.h>
-#include <asm/gpio.h>
 #include <asm/io.h>
-
 #include <asm/arch/clock.h>
-#include <asm/arch/funcmux.h>
-#include <asm/arch/pinmux.h>
 #include <asm/arch/powergate.h>
-#include <asm/arch/pwm.h>
 
 #include "tegra-dc.h"
 
