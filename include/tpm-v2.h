@@ -732,12 +732,13 @@ u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo);
  */
 
 /**
- * tpm2_allow_extend() - Check if extending PCRs is allowed and safe
+ * tpm2_check_active_pcrs() - Check if the active PCRs are supported by our
+ *                            configuration
  *
  * @dev: TPM device
  * Return: true if allowed
  */
-bool tpm2_allow_extend(struct udevice *dev);
+bool tpm2_check_active_pcrs(struct udevice *dev);
 
 /**
  * tpm2_is_active_pcr() - check the pcr_select. If at least one of the PCRs

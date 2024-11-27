@@ -197,7 +197,7 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	if (!digest)
 		return -EINVAL;
 
-	if (!tpm2_allow_extend(dev)) {
+	if (!tpm2_check_active_pcrs(dev)) {
 		log_err("Cannot extend PCRs if all the TPM enabled algorithms are not supported\n");
 		return -EINVAL;
 	}
@@ -896,7 +896,7 @@ u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo)
 	return 0;
 }
 
-bool tpm2_allow_extend(struct udevice *dev)
+bool tpm2_check_active_pcrs(struct udevice *dev)
 {
 	struct tpml_pcr_selection pcrs;
 	size_t i;
