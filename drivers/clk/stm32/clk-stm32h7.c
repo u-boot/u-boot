@@ -18,6 +18,9 @@
 
 #include <dt-bindings/clock/stm32h7-clks.h>
 
+/* must be equal to last peripheral clock index */
+#define LAST_PERIF_BANK SYSCFG_CK
+
 /* RCC CR specific definitions */
 #define RCC_CR_HSION			BIT(0)
 #define RCC_CR_HSIRDY			BIT(2)
