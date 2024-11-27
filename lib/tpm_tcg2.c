@@ -568,10 +568,35 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 			    bool ignore_existing_log)
 {
 	struct tcg2_event_log log;
-	int rc;
+	int rc, i;
 
 	elog->log_position = 0;
 	elog->found = false;
+
+	/*
+	 * Make sure U-Boot is compiled with all the active PCRs
+	 * since we are about to create an EventLog and we won't
+	 * measure anything if the PCR banks don't match
+	 */
+	if (!tpm2_check_active_banks(dev)) {
+		log_err("Cannot create EventLog\n");
+		log_err("Mismatch between U-Boot and TPM hash algos\n");
+		log_info("TPM:\n");
+		tpm2_print_active_banks(dev);
+		log_info("U-Boot:\n");
+		for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+			const struct digest_info *algo = &hash_algo_list[i];
+			const char *str;
+
+			if (!algo->supported)
+				continue;
+
+			str = tpm2_algorithm_name(algo->hash_alg);
+			if (str)
+				log_info("%s\n", str);
+		}
+		return -EINVAL;
+	}
 
 	rc = tcg2_platform_get_log(dev, (void **)&log.log, &log.log_size);
 	if (!rc) {
