@@ -60,8 +60,6 @@ RUN apt-get update && apt-get install -y \
 	gnu-efi \
 	gnutls-dev \
 	graphviz \
-	grub-efi-amd64-bin \
-	grub-efi-ia32-bin \
 	help2man \
 	iasl \
 	imagemagick \
@@ -175,6 +173,28 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	lsefisystab loadenv lvm minicmd normal part_msdos part_gpt reboot \
 	search search_fs_file search_fs_uuid search_label serial sleep test \
 	true && \
+	make clean && \
+	./configure --target=i386 --with-platform=efi \
+	CC=gcc \
+	TARGET_CC=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-strip \
+	TARGET_NM=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-nm \
+	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-ranlib && \
+	make -j$(nproc) && \
+	./grub-mkimage -O i386-efi -o /opt/grub/grub_x86.efi --prefix= -d \
+	grub-core normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd && \
+	make clean && \
+	./configure --target=x86_64 --with-platform=efi \
+	CC=gcc \
+	TARGET_CC=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-strip \
+	TARGET_NM=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-nm \
+	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-ranlib && \
+	make -j$(nproc) && \
+	./grub-mkimage -O x86_64-efi -o /opt/grub/grub_x64.efi --prefix= -d \
+	grub-core normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd && \
 	rm -rf /tmp/grub
 
 RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
