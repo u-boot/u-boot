@@ -580,7 +580,7 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 	 * since we are about to create an EventLog and we won't
 	 * measure anything if the PCR banks don't match
 	 */
-	if (!tpm2_allow_extend(dev)) {
+	if (!tpm2_check_active_banks(dev)) {
                 log_err("Cannot create EventLog\n");
                 log_err("Mismatch between U-Boot and TPM hash algos\n");
                 log_err("TPM:\n");
