@@ -926,3 +926,26 @@ bool tpm2_check_active_banks(struct udevice *dev)
 
 	return true;
 }
+
+void tpm2_print_active_banks(struct udevice *dev)
+{
+	struct tpml_pcr_selection pcrs;
+	size_t i;
+	int rc;
+
+	rc = tpm2_get_pcr_info(dev, &pcrs);
+	if (rc) {
+		log_err("Can't retrieve active PCRs\n");
+		return;
+	}
+
+	for (i = 0; i < pcrs.count; i++) {
+		if (tpm2_is_active_bank(&pcrs.selection[i])) {
+			const char *str;
+
+			str = tpm2_algorithm_name(pcrs.selection[i].hash);
+			if (str)
+				log_info("%s\n", str);
+		}
+	}
+}
