@@ -77,7 +77,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	iasl \
 	imagemagick \
 	iputils-ping \
-	libc6-i386 \
 	libconfuse-dev \
 	libgit2-dev \
 	libjson-glib-dev \
@@ -95,7 +94,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libtool \
 	libudev-dev \
 	libusb-1.0-0-dev \
-	linux-image-kvm \
+	linux-image-generic \
 	lzma-alone \
 	lzop \
 	mount \
