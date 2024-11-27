@@ -311,14 +311,9 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 	 * We halve the rate if DISP1 parent is PLLD, since actual parent
 	 * is plld_out0 which is PLLD divided by 2.
 	 */
-	if (priv->clk_parent->id == CLOCK_ID_DISPLAY)
+	if (priv->clk_parent->id == CLOCK_ID_DISPLAY ||
+	    priv->clk_parent->id == CLOCK_ID_DISPLAY2)
 		rate /= 2;
-
-#ifndef CONFIG_TEGRA20
-	/* PLLD2 obeys same rules as PLLD but it is present only on T30+ */
-	if (priv->clk_parent->id == CLOCK_ID_DISPLAY2)
-		rate /= 2;
-#endif
 
 	/*
 	 * The pixel clock divider is in 7.1 format (where the bottom bit
@@ -366,10 +361,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 	int ret;
 
 	/* Initialize the Tegra display controller */
-#ifdef CONFIG_TEGRA20
-	funcmux_select(PERIPH_ID_DISP1, FUNCMUX_DEFAULT);
-#endif
-
 	if (priv->soc->has_pgate) {
 		uint powergate;
 
@@ -408,11 +399,6 @@ static int tegra_lcd_probe(struct udevice *dev)
 		debug("%s: Failed to probe display driver\n", __func__);
 		return -1;
 	}
-
-#ifdef CONFIG_TEGRA20
-	pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
-	pinmux_tristate_disable(PMUX_PINGRP_GPU);
-#endif
 
 	ret = panel_enable_backlight(priv->panel);
 	if (ret) {
