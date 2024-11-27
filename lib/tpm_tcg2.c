@@ -210,37 +210,17 @@ static int tcg2_log_append_check(struct tcg2_event_log *elog, u32 pcr_index,
 
 static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 {
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	struct tcg_efi_spec_id_event *ev;
 	struct tcg_pcr_event *log;
 	u32 event_size;
 	u32 count = 0;
 	u32 log_size;
-	u32 active;
 	size_t i;
 	u16 len;
-	int rc;
 
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
-
+	count = priv->active_bank_count;
 	event_size = offsetof(struct tcg_efi_spec_id_event, digest_sizes);
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
-
-		switch (hash_algo_list[i].hash_alg) {
-		case TPM2_ALG_SHA1:
-		case TPM2_ALG_SHA256:
-		case TPM2_ALG_SHA384:
-		case TPM2_ALG_SHA512:
-			count++;
-			break;
-		default:
-			continue;
-		}
-	}
-
 	event_size += 1 +
 		(sizeof(struct tcg_efi_spec_id_event_algorithm_size) * count);
 	log_size = offsetof(struct tcg_pcr_event, event) + event_size;
@@ -267,19 +247,11 @@ static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 	ev->uintn_size = sizeof(size_t) / sizeof(u32);
 	put_unaligned_le32(count, &ev->number_of_algorithms);
 
-	count = 0;
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
-
-		len = hash_algo_list[i].hash_len;
-		if (!len)
-			continue;
-
-		put_unaligned_le16(hash_algo_list[i].hash_alg,
-				   &ev->digest_sizes[count].algorithm_id);
-		put_unaligned_le16(len, &ev->digest_sizes[count].digest_size);
-		count++;
+	for (i = 0; i < count; ++i) {
+		len = tpm2_algorithm_to_len(priv->active_banks[i]);
+		put_unaligned_le16(priv->active_banks[i],
+				   &ev->digest_sizes[i].algorithm_id);
+		put_unaligned_le16(len, &ev->digest_sizes[i].digest_size);
 	}
 
 	*((u8 *)ev + (event_size - 1)) = 0;
