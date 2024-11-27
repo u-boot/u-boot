@@ -11,7 +11,7 @@ Synopsis
 --------
 ::
 
-    bootmenu [delay]
+    bootmenu [-e] [delay]
 
 Description
 -----------
@@ -28,6 +28,14 @@ The "bootmenu" command interprets ANSI escape sequences, so
 an ANSI terminal is required for proper menu rendering and item
 selection.
 
+-e
+    show menu entries based on UEFI boot options
+
+delay
+    is the autoboot delay in seconds, after which the first
+    menu entry will be selected automatically
+
+
 The assembling of the menu is done via a set of environment variables
 "bootmenu_<num>" and "bootmenu_delay", i.e.::
 
@@ -35,8 +43,7 @@ The assembling of the menu is done via a set of environment variables
     bootmenu_<num>="<title>=<commands>"
 
 <delay>
-    is the autoboot delay in seconds, after which the first
-    menu entry will be selected automatically
+    autostart delay in seconds
 
 <num>
     is the boot menu entry number, starting from zero
