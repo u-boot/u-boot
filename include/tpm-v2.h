@@ -34,16 +34,6 @@ struct udevice;
 
 #define TPM2_HDR_LEN		10
 
-/*
- *  We deviate from this draft of the specification by increasing the value of
- *  TPM2_NUM_PCR_BANKS from 3 to 16 to ensure compatibility with TPM2
- *  implementations that have enabled a larger than typical number of PCR
- *  banks. This larger value for TPM2_NUM_PCR_BANKS is expected to be included
- *  in a future revision of the specification.
- */
-#define TPM2_NUM_PCR_BANKS 16
-
-/* Definition of (UINT32) TPM2_CAP Constants */
 #define TPM2_CAP_PCRS 0x00000005U
 #define TPM2_CAP_TPM_PROPERTIES 0x00000006U
 
