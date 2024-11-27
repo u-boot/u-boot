@@ -94,25 +94,18 @@ u32 tcg2_event_get_size(struct tpml_digest_values *digest_list)
 int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 		       struct tpml_digest_values *digest_list)
 {
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	u8 final[sizeof(union tpmu_ha)];
 	sha256_context ctx_256;
 	sha512_context ctx_512;
 	sha1_context ctx;
-	u32 active;
 	size_t i;
 	u32 len;
-	int rc;
-
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
 
 	digest_list->count = 0;
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
+	for (i = 0; i < priv->active_bank_count; i++) {
 
-		switch (hash_algo_list[i].hash_alg) {
+		switch (priv->active_banks[i]) {
 		case TPM2_ALG_SHA1:
 			sha1_starts(&ctx);
 			sha1_update(&ctx, input, length);
@@ -139,12 +132,12 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 			break;
 		default:
 			printf("%s: unsupported algorithm %x\n", __func__,
-			       hash_algo_list[i].hash_alg);
+			       priv->active_banks[i]);
 			continue;
 		}
 
 		digest_list->digests[digest_list->count].hash_alg =
-			hash_algo_list[i].hash_alg;
+			priv->active_banks[i];
 		memcpy(&digest_list->digests[digest_list->count].digest, final,
 		       len);
 		digest_list->count++;
