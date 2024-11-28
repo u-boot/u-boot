@@ -64,9 +64,23 @@ static int eth_bootdev_bind(struct udevice *dev)
 	return 0;
 }
 
+/**
+ * eth_bootdev_hunt() - probe all network devices
+ *
+ * Network devices can also come from USB, but that is a higher
+ * priority (BOOTDEVP_5_SCAN_SLOW) than network, so it should have been
+ * enumerated already. If something like 'bootflow scan dhcp' is used,
+ * then the user will need to run 'usb start' first.
+ *
+ * @info:	info structure describing this hunter
+ * @show:	true to show information from the hunter
+ *
+ * Return:	0 if device found, -EINVAL otherwise
+ */
 static int eth_bootdev_hunt(struct bootdev_hunter *info, bool show)
 {
 	int ret;
+	struct udevice *dev = NULL;
 
 	if (!test_eth_enabled())
 		return 0;
@@ -78,19 +92,11 @@ static int eth_bootdev_hunt(struct bootdev_hunter *info, bool show)
 			log_warning("Failed to init PCI (%dE)\n", ret);
 	}
 
-	/*
-	 * Ethernet devices can also come from USB, but that is a higher
-	 * priority (BOOTDEVP_5_SCAN_SLOW) than ethernet, so it should have been
-	 * enumerated already. If something like 'bootflow scan dhcp' is used
-	 * then the user will need to run 'usb start' first.
-	 */
-	if (IS_ENABLED(CONFIG_CMD_DHCP)) {
-		ret = dhcp_run(0, NULL, false);
-		if (ret)
-			return -EINVAL;
-	}
+	ret = -EINVAL;
+	uclass_foreach_dev_probe(UCLASS_ETH, dev)
+		ret = 0;
 
-	return 0;
+	return ret;
 }
 
 struct bootdev_ops eth_bootdev_ops = {

@@ -330,7 +330,13 @@ static int prepare_uefi_bootorder_entry(struct bootmenu_data *menu,
 }
 #endif
 
-static struct bootmenu_data *bootmenu_create(int delay)
+/**
+ * bootmenu_create() - create boot menu entries
+ *
+ * @uefi:	consider UEFI boot options
+ * @delay:	autostart delay in seconds
+ */
+static struct bootmenu_data *bootmenu_create(int uefi, int delay)
 {
 	int ret;
 	unsigned short int i = 0;
@@ -357,7 +363,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 		goto cleanup;
 
 #if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR)) && (IS_ENABLED(CONFIG_CMD_EFICONFIG))
-	if (i < MAX_COUNT - 1) {
+	if (uefi && i < MAX_COUNT - 1) {
 		efi_status_t efi_ret;
 
 		/*
@@ -481,7 +487,13 @@ static void handle_uefi_bootnext(void)
 		run_command("bootefi bootmgr", 0);
 }
 
-static enum bootmenu_ret bootmenu_show(int delay)
+/**
+ * bootmenu_show - display boot menu
+ *
+ * @uefi:	generated entries for UEFI boot options
+ * @delay:	autoboot delay in seconds
+ */
+static enum bootmenu_ret bootmenu_show(int uefi, int delay)
 {
 	int cmd_ret;
 	int init = 0;
@@ -495,7 +507,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 	efi_status_t efi_ret = EFI_SUCCESS;
 	char *option, *sep;
 
-	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR))
+	if (IS_ENABLED(CONFIG_CMD_BOOTEFI_BOOTMGR) && uefi)
 		handle_uefi_bootnext();
 
 	/* If delay is 0 do not create menu, just run first entry */
@@ -514,7 +526,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 		return (cmd_ret == CMD_RET_SUCCESS ? BOOTMENU_RET_SUCCESS : BOOTMENU_RET_FAIL);
 	}
 
-	bootmenu = bootmenu_create(delay);
+	bootmenu = bootmenu_create(uefi, delay);
 	if (!bootmenu)
 		return BOOTMENU_RET_FAIL;
 
@@ -609,7 +621,7 @@ int menu_show(int bootdelay)
 	int ret;
 
 	while (1) {
-		ret = bootmenu_show(bootdelay);
+		ret = bootmenu_show(1, bootdelay);
 		bootdelay = -1;
 		if (ret == BOOTMENU_RET_UPDATED)
 			continue;
@@ -635,11 +647,19 @@ int do_bootmenu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	char *delay_str = NULL;
 	int delay = 10;
+	int uefi = 0;
 
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 	delay = CONFIG_BOOTDELAY;
 #endif
 
+	if (argc >= 2) {
+		if (!strcmp("-e", argv[1])) {
+			uefi = 1;
+			--argc;
+			++argv;
+		}
+	}
 	if (argc >= 2)
 		delay_str = argv[1];
 
@@ -649,13 +669,14 @@ int do_bootmenu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (delay_str)
 		delay = (int)simple_strtol(delay_str, NULL, 10);
 
-	bootmenu_show(delay);
+	bootmenu_show(uefi, delay);
 	return 0;
 }
 
 U_BOOT_CMD(
 	bootmenu, 2, 1, do_bootmenu,
 	"ANSI terminal bootmenu",
-	"[delay]\n"
-	"    - show ANSI terminal bootmenu with autoboot delay"
+	"[-e] [delay]\n"
+	"-e    - show UEFI entries\n"
+	"delay - show ANSI terminal bootmenu with autoboot delay"
 );
