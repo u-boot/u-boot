@@ -19,7 +19,7 @@
 #include <dm/test.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
-#include <test/lib.h>
+#include <test/cmd.h>
 #include <test/test.h>
 #include <test/ut.h>
 
@@ -206,6 +206,10 @@ static int sb_http_handler(struct udevice *dev, void *packet,
 
 static int net_test_wget(struct unit_test_state *uts)
 {
+	char *prev_ethact = env_get("ethact");
+	char *prev_ethrotate = env_get("ethrotate");
+	char *prev_loadaddr = env_get("loadaddr");
+
 	sandbox_eth_set_tx_handler(0, sb_http_handler);
 	sandbox_eth_set_priv(0, uts);
 
@@ -223,6 +227,10 @@ static int net_test_wget(struct unit_test_state *uts)
 	ut_assert_nextline("md5 for 00020000 ... 0002001f ==> 234af48e94b0085060249ecb5942ab57");
 	ut_assert_console_end();
 
+	env_set("ethact", prev_ethact);
+	env_set("ethrotate", prev_ethrotate);
+	env_set("loadaddr", prev_loadaddr);
+
 	return 0;
 }
-LIB_TEST(net_test_wget, UTF_CONSOLE);
+CMD_TEST(net_test_wget, UTF_CONSOLE);
