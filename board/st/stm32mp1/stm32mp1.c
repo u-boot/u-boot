@@ -751,8 +751,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case BOOT_FLASH_EMMC:
 		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
 			return ENVL_MMC;
-		else if (CONFIG_IS_ENABLED(ENV_IS_IN_EXT4))
-			return ENVL_EXT4;
 		else
 			return ENVL_NOWHERE;
 
