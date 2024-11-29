@@ -312,7 +312,7 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 
 			*info->bf = 0;
 			info->bf = p;
-			while (*info->bf++ && width > 0)
+			while (width > 0 && info->bf && *info->bf++)
 				width--;
 			while (width-- > 0)
 				info->putc(info, lz ? '0' : ' ');

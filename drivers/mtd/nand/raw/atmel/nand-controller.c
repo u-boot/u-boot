@@ -2205,17 +2205,10 @@ static const struct udevice_id atmel_nand_controller_of_ids[] = {
 static int atmel_nand_controller_probe(struct udevice *dev)
 {
 	const struct atmel_nand_controller_caps *caps;
-	struct udevice *pmecc_dev;
 
 	caps = (struct atmel_nand_controller_caps *)dev_get_driver_data(dev);
 	if (!caps) {
 		printf("Could not retrieve NFC caps\n");
-		return -EINVAL;
-	}
-
-	/* Probe pmecc driver */
-	if (uclass_get_device(UCLASS_MTD, 1, &pmecc_dev)) {
-		printf("%s: get device fail\n", __func__);
 		return -EINVAL;
 	}
 
