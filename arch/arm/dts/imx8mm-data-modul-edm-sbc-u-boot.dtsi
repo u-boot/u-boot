@@ -77,6 +77,7 @@
 
 &gpio2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 
 	dsi-reset-hog {
 		bootph-pre-ram;
