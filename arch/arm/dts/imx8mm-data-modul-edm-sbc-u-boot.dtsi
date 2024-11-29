@@ -145,8 +145,17 @@
 	bootph-pre-ram;
 };
 
+&usbmisc1 {
+	bootph-pre-ram;
+};
+
+&usbphynop1 {
+	bootph-pre-ram;
+};
+
 &usbotg1 {
 	dr_mode = "peripheral";
+	bootph-pre-ram;
 };
 
 &usdhc2 {
