@@ -1229,7 +1229,10 @@ static int stm32prog_alt_add(struct stm32prog_data *data,
 	char multiplier,  type;
 
 	/* max 3 digit for sector size */
-	if (part->size > SZ_1M) {
+	if (part->size > SZ_1G) {
+		size = (u32)(part->size / SZ_1G);
+		multiplier = 'G';
+	} else if (part->size > SZ_1M) {
 		size = (u32)(part->size / SZ_1M);
 		multiplier = 'M';
 	} else if (part->size > SZ_1K) {
