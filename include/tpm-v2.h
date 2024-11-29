@@ -202,6 +202,7 @@ enum tpm2_command_codes {
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
+	TPM2_CC_PCR_ALLOCATE    = 0x012B,
 };
 
 /**
@@ -660,6 +661,19 @@ u32 tpm2_report_state(struct udevice *dev, uint vendor_cmd, uint vendor_subcmd,
 u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 			  uint vendor_subcmd);
 
+/**
+ * tpm2_pcr_config_algo() - Allocate the active PCRs. Requires reboot
+ *
+ * @param dev      TPM device
+ * @pw_sz  Length of the password
+ *
+ * Return: code of the operation
+ */
+
+u32 tpm2_pcr_allocate(struct udevice *dev, const char *pw, const ssize_t pw_sz,
+		      struct tpml_pcr_selection *pcr, u32 pcr_len);
+u32 tpm2_pcr_config_algo(struct udevice *dev, u32 bankidx, u16 algo,
+			 struct tpml_pcr_selection *pcr, u32 *pcr_len);
 /**
  * tpm2_auto_start() - start up the TPM and perform selftests.
  *                     If a testable function has not been tested and is
