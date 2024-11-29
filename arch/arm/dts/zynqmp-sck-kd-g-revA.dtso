@@ -80,7 +80,10 @@
 				  "", "";
 	};
 
-	/* usb5744@2d */
+	hub: usb-hub@2d { /* u36 */
+		compatible = "microchip,usb5744";
+		reg = <0x2d>;
+	};
 };
 
 /* USB 3.0 */
@@ -99,18 +102,6 @@
 	phys = <&psgtr 2 PHY_TYPE_USB3 0 2>;
 	reset-gpios = <&slg7xl45106 0 GPIO_ACTIVE_LOW>;
 	assigned-clock-rates = <250000000>, <20000000>;
-#if 0
-	usbhub0: usb-hub { /* u36 */
-		i2c-bus = <&i2c1>;
-		compatible = "microchip,usb5744";
-		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_LOW>;
-	};
-
-	usb2244: usb-sd { /* u41 */
-		compatible = "microchip,usb2244";
-		reset-gpios = <&slg7xl45106 2 GPIO_ACTIVE_LOW>;
-	};
-#endif
 };
 
 &dwc3_0 {
@@ -118,6 +109,26 @@
 	dr_mode = "host";
 	snps,usb3_lpm_capable;
 	maximum-speed = "super-speed";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* 2.0 hub on port 1 */
+	hub_2_0: hub@1 {
+		compatible = "usb424,2744";
+		reg = <1>;
+		peer-hub = <&hub_3_0>;
+		i2c-bus = <&hub>;
+		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_LOW>;
+	};
+
+	/* 3.0 hub on port 2 */
+	hub_3_0: hub@2 {
+		compatible = "usb424,5744";
+		reg = <2>;
+		peer-hub = <&hub_2_0>;
+		i2c-bus = <&hub>;
+		reset-gpios = <&slg7xl45106 3 GPIO_ACTIVE_LOW>;
+	};
 };
 
 &gem1 { /* mdio mio50/51 */
