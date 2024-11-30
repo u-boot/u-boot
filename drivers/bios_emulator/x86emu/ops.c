@@ -4200,7 +4200,7 @@ void x86emuOp_call_near_IMM(u8 X86EMU_UNUSED(op1))
 	DECODE_PRINTF("CALL\t");
 	ip = (s16) fetch_word_imm();
 	ip += (s16) M.x86.R_IP;	   /* CHECK SIGN */
-	DECODE_PRINTF2("%04x\n", ip);
+	DECODE_PRINTF2("%04x\n", (u16)ip);
 	CALL_TRACE(M.x86.saved_cs, M.x86.saved_ip, M.x86.R_CS, ip, "");
     TRACE_AND_STEP();
     push_word(M.x86.R_IP);
