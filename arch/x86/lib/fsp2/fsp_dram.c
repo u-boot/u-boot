@@ -59,7 +59,7 @@ int dram_init(void)
 #endif
 	} else {
 #if CONFIG_IS_ENABLED(HANDOFF)
-		struct spl_handoff *ho = handoff_get();
+		struct spl_handoff *ho = gd->spl_handoff;
 
 		if (!ho) {
 			log_debug("No SPL handoff found\n");
@@ -82,7 +82,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 		return gd->ram_size;
 
 #if CONFIG_IS_ENABLED(HANDOFF)
-	struct spl_handoff *ho = handoff_get();
+	struct spl_handoff *ho = gd->spl_handoff;
 
 	log_debug("usable_ram_top = %lx\n", ho->arch.usable_ram_top);
 

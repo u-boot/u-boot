@@ -5,7 +5,6 @@
  * Copyright 2018 Google, Inc
  */
 
-#include <bloblist.h>
 #include <handoff.h>
 #include <asm/global_data.h>
 
@@ -38,15 +37,4 @@ void handoff_load_dram_banks(struct spl_handoff *ho)
 		bd->bi_dram[i].start = ho->ram_bank[i].start;
 		bd->bi_dram[i].size = ho->ram_bank[i].size;
 	}
-}
-
-struct spl_handoff *handoff_get(void)
-{
-	struct spl_handoff *handoff;
-
-	handoff = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF,
-				sizeof(struct spl_handoff));
-	debug("Found SPL hand-off info %p\n", handoff);
-
-	return handoff;
 }
