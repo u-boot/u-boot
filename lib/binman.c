@@ -137,7 +137,6 @@ int binman_init(void)
 {
 	int ret;
 
-	return 0;
 	binman = malloc(sizeof(struct binman_info));
 	if (!binman)
 		return log_msg_ret("space for binman", -ENOMEM);
