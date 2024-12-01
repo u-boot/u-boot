@@ -4221,7 +4221,7 @@ void x86emuOp_jump_near_IMM(u8 X86EMU_UNUSED(op1))
     DECODE_PRINTF("JMP\t");
     ip = (s16)fetch_word_imm();
     ip += (s16)M.x86.R_IP;
-    DECODE_PRINTF2("%04x\n", ip);
+    DECODE_PRINTF2("%04x\n", (u16)ip);
     TRACE_AND_STEP();
     M.x86.R_IP = (u16)ip;
     DECODE_CLEAR_SEGOVR();
