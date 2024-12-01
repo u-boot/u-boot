@@ -8,3 +8,4 @@ Samsung
 
    axy17lte
    e850-96
+   n1

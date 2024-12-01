@@ -92,6 +92,8 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra20-motorola-olympus.dtb \
 	tegra20-paz00.dtb \
 	tegra20-plutux.dtb \
+	tegra20-samsung-bose.dtb \
+	tegra20-samsung-n1.dtb \
 	tegra20-seaboard.dtb \
 	tegra20-tec.dtb \
 	tegra20-trimslice.dtb \
