@@ -540,9 +540,6 @@ coreboot test.py:
   dependencies: []
   tags: [ 'lab' ]
   script:
-    - if [[ -z "${SJG_LAB}" ]]; then
-        exit 0;
-      fi
     # Environment:
     #   SRC  - source tree
     #   OUT  - output directory for builds
