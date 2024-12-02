@@ -8,6 +8,7 @@ connector) system-on-module from Theobroma Systems, featuring the
 Rockchip RK3588.
 
 It provides the following feature set:
+
  * up to 16GB LPDDR4x
  * on-module eMMC
  * SD card (on a baseboard) via edge connector
@@ -18,14 +19,20 @@ It provides the following feature set:
  * HDMI input over FPC connector
  * CAN
  * USB
+
    - 1x USB 3.0 dual-role (direct connection)
    - 2x USB 3.0 host + 1x USB 2.0 host
+
  * PCIe
+
    - 1x PCIe 2.1 Gen3, 4 lanes
    - 2xSATA / 2x PCIe 2.1 Gen1, 2 lanes
+
  * on-module ATtiny816 companion controller, implementing:
+
    - low-power RTC functionality (ISL1208 emulation)
    - fan controller (AMC6821 emulation)
+
  * on-module Secure Element with Global Platform 2.2.1 compliant
    JavaCard environment
 
