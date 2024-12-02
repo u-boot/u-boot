@@ -606,6 +606,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 void lmb_add_memory(void)
 {
 	int i;
+	phys_addr_t bank_end;
 	phys_size_t size;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
@@ -619,6 +620,8 @@ void lmb_add_memory(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size = bd->bi_dram[i].size;
+		bank_end = bd->bi_dram[i].start + size;
+
 		if (size) {
 			lmb_add(bd->bi_dram[i].start, size);
 
@@ -629,6 +632,9 @@ void lmb_add_memory(void)
 			 */
 			if (bd->bi_dram[i].start >= ram_top)
 				lmb_reserve_flags(bd->bi_dram[i].start, size,
+						  LMB_NOOVERWRITE);
+			else if (bank_end > ram_top)
+				lmb_reserve_flags(ram_top, bank_end - ram_top,
 						  LMB_NOOVERWRITE);
 		}
 	}
