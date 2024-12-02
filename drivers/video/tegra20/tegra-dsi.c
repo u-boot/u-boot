@@ -697,11 +697,18 @@ static void tegra_dsi_configure(struct udevice *dev,
 		/* horizontal back porch */
 		hbp = timing->hback_porch.typ * mul / div;
 
-		if ((mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE) == 0)
-			hbp += hsw;
-
 		/* horizontal front porch */
 		hfp = timing->hfront_porch.typ * mul / div;
+
+		if (priv->master || priv->slave) {
+			hact /= 2;
+			hsw /= 2;
+			hbp = hbp / 2 - 1;
+			hfp /= 2;
+		}
+
+		if ((mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE) == 0)
+			hbp += hsw;
 
 		/* subtract packet overhead */
 		hsw -= 10;
