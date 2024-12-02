@@ -712,9 +712,6 @@ static void tegra_dsi_configure(struct udevice *dev,
 		writel(hact << 16 | hbp, &len->dsi_pkt_len_2_3);
 		writel(hfp, &len->dsi_pkt_len_4_5);
 		writel(0x0f0f << 16, &len->dsi_pkt_len_6_7);
-
-		/* set SOL delay (for non-burst mode only) */
-		writel(8 * mul / div, &misc->dsi_sol_delay);
 	} else {
 		if (priv->master || priv->slave) {
 			/*
@@ -734,30 +731,30 @@ static void tegra_dsi_configure(struct udevice *dev,
 		value = MIPI_DCS_WRITE_MEMORY_START << 8 |
 			MIPI_DCS_WRITE_MEMORY_CONTINUE;
 		writel(value, &len->dsi_dcs_cmds);
-
-		/* set SOL delay */
-		if (priv->master || priv->slave) {
-			unsigned long delay, bclk, bclk_ganged;
-			unsigned int lanes = device->lanes;
-			unsigned long htotal = timing->hactive.typ + timing->hfront_porch.typ +
-					       timing->hback_porch.typ + timing->hsync_len.typ;
-
-			/* SOL to valid, valid to FIFO and FIFO write delay */
-			delay = 4 + 4 + 2;
-			delay = DIV_ROUND_UP(delay * mul, div * lanes);
-			/* FIFO read delay */
-			delay = delay + 6;
-
-			bclk = DIV_ROUND_UP(htotal * mul, div * lanes);
-			bclk_ganged = DIV_ROUND_UP(bclk * lanes / 2, lanes);
-			value = bclk - bclk_ganged + delay + 20;
-		} else {
-			/* TODO: revisit for non-ganged mode */
-			value = 8 * mul / div;
-		}
-
-		writel(value, &misc->dsi_sol_delay);
 	}
+
+	/* set SOL delay */
+	if (priv->master || priv->slave) {
+		unsigned long delay, bclk, bclk_ganged;
+		unsigned int lanes = device->lanes;
+		unsigned long htotal = timing->hactive.typ + timing->hfront_porch.typ +
+				       timing->hback_porch.typ + timing->hsync_len.typ;
+
+		/* SOL to valid, valid to FIFO and FIFO write delay */
+		delay = 4 + 4 + 2;
+		delay = DIV_ROUND_UP(delay * mul, div * lanes);
+		/* FIFO read delay */
+		delay = delay + 6;
+
+		bclk = DIV_ROUND_UP(htotal * mul, div * lanes);
+		bclk_ganged = DIV_ROUND_UP(bclk * lanes / 2, lanes);
+		value = bclk - bclk_ganged + delay + 20;
+	} else {
+		/* set SOL delay (for non-burst mode only) */
+		value = 8 * mul / div;
+	}
+
+	writel(value, &misc->dsi_sol_delay);
 
 	if (priv->slave) {
 		tegra_dsi_configure(priv->slave, mode_flags);
