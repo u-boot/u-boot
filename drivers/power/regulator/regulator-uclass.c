@@ -446,7 +446,7 @@ static int regulator_post_bind(struct udevice *dev)
 	}
 
 	if (!regulator_name_is_unique(dev, uc_pdata->name)) {
-		dev_dbg(dev, "'%s' has nonunique value: '%s\n",
+		dev_err(dev, "'%s' has nonunique value: '%s\n",
 			property, uc_pdata->name);
 		return -EINVAL;
 	}
