@@ -415,7 +415,7 @@ int generic_phy_get_bulk(struct udevice *dev, struct phy_bulk *bulk)
 	if (!dev_read_prop(dev, "phys", NULL)) {
 		phydev = dev->parent;
 		if (!dev_read_prop(phydev, "phys", NULL)) {
-			pr_err("%s : no phys property\n", __func__);
+			pr_debug("%s : no phys property\n", __func__);
 			return 0;
 		}
 	}
