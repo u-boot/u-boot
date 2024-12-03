@@ -1,0 +1,7 @@
+i.MX91 11x11 EVK BOARD
+M:	Peng Fan <peng.fan@nxp.com>
+S:	Maintained
+F:	board/freescale/imx91_evk/
+F:	include/configs/imx91_evk.h
+F:	configs/imx91_11x11_evk_defconfig
+F:	configs/imx91_11x11_evk_inline_ecc_defconfig
