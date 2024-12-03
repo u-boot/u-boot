@@ -283,7 +283,6 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
-	char server_name[SERVER_NAME_SIZE];
 #if defined CONFIG_WGET_HTTPS
 	altcp_allocator_t tls_allocator;
 #endif
@@ -292,7 +291,6 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	struct netif *netif;
 	struct wget_ctx ctx;
 	char *path;
-	u16 port;
 	bool is_https;
 
 	ctx.daddr = dst_addr;
@@ -302,7 +300,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	ctx.prevsize = 0;
 	ctx.start_time = 0;
 
-	if (parse_url(uri, server_name, &port, &path, &is_https))
+	if (parse_url(uri, ctx.server_name, &ctx.port, &path, &is_https))
 		return CMD_RET_USAGE;
 
 	netif = net_lwip_new_netif(udev);
@@ -314,7 +312,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	if (is_https) {
 		tls_allocator.alloc = &altcp_tls_alloc;
 		tls_allocator.arg =
-			altcp_tls_create_config_client(NULL, 0, server_name);
+			altcp_tls_create_config_client(NULL, 0, ctx.server_name);
 
 		if (!tls_allocator.arg) {
 			log_err("error: Cannot create a TLS connection\n");
