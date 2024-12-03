@@ -3,17 +3,6 @@
  * Copyright (c) 2023 Linaro Ltd.
  */
 
-&soc {
-	/* TODO: Remove this node once it appears in upstream dts */
-	trng: rng@12081400 {
-		compatible = "samsung,exynos850-trng";
-		reg = <0x12081400 0x100>;
-		clocks = <&cmu_core CLK_GOUT_SSS_ACLK>,
-			 <&cmu_core CLK_GOUT_SSS_PCLK>;
-		clock-names = "secss", "pclk";
-	};
-};
-
 &pmu_system_controller {
 	bootph-all;
 	samsung,uart-debug-1;
