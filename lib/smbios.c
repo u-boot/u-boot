@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY	LOGC_BOARD
 
+#include <display_options.h>
 #include <dm.h>
 #include <env.h>
 #include <linux/stringify.h>
