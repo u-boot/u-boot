@@ -16,6 +16,12 @@ config IMX93
 	select IMX9
 	select ARMV8_SPL_EXCEPTION_VECTORS
 
+config IMX91
+	bool
+	select IMX9
+	select ARMV8_SPL_EXCEPTION_VECTORS
+
+
 config SYS_SOC
 	default "imx9"
 

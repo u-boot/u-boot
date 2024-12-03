@@ -118,6 +118,8 @@ u32 get_cpu_speed_grade_hz(void)
 
 	if (is_imx93())
 		max_speed = MHZ(1700);
+	else if (is_imx91())
+		max_speed = MHZ(1400);
 
 	/* In case the fuse of speed grade not programmed */
 	if (speed > max_speed)
@@ -196,6 +198,29 @@ static u32 get_cpu_variant_type(u32 type)
 	bool npu_disable = !!(val & BIT(13));
 	bool core1_disable = !!(val & BIT(15));
 	u32 pack_9x9_fused = BIT(4) | BIT(5) | BIT(17) | BIT(19) | BIT(24);
+	u32 nxp_recog = (val & GENMASK(23, 16)) >> 16;
+
+	/* For iMX91 */
+	if (type == MXC_CPU_IMX91) {
+		switch (nxp_recog) {
+		case 0x9:
+		case 0xA:
+			type = MXC_CPU_IMX9111;
+			break;
+		case 0xD:
+		case 0xE:
+			type = MXC_CPU_IMX9121;
+			break;
+		case 0xF:
+		case 0x10:
+			type = MXC_CPU_IMX9101;
+			break;
+		default:
+			break;	/* 9131 as default */
+		}
+
+		return type;
+	}
 
 	/* Low performance 93 part */
 	if (((val >> 6) & 0x3F) == 0xE && npu_disable)
@@ -217,8 +242,14 @@ static u32 get_cpu_variant_type(u32 type)
 u32 get_cpu_rev(void)
 {
 	u32 rev = (gd->arch.soc_rev >> 24) - 0xa0;
+	u32 type;
 
-	return (get_cpu_variant_type(MXC_CPU_IMX93) << 12) |
+	if ((gd->arch.soc_rev & 0xFFFF) == 0x9300)
+		type = MXC_CPU_IMX93;
+	else
+		type = MXC_CPU_IMX91;
+
+	return (get_cpu_variant_type(type) << 12) |
 		(CHIP_REV_1_0 + rev);
 }
 
@@ -539,7 +570,8 @@ int print_cpuinfo(void)
 
 	cpurev = get_cpu_rev();
 
-	printf("CPU:   i.MX93 rev%d.%d\n", (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0);
+	printf("CPU:   i.MX%s rev%d.%d\n", is_imx93() ? "93" : "91",
+	       (cpurev & 0x000F0) >> 4, (cpurev & 0x0000F) >> 0);
 
 	return 0;
 }
@@ -893,7 +925,9 @@ void disable_isolation(void)
 void soc_power_init(void)
 {
 	mix_power_init(MIX_PD_MEDIAMIX);
-	mix_power_init(MIX_PD_MLMIX);
+
+	if (is_imx93())
+		mix_power_init(MIX_PD_MLMIX);
 
 	disable_isolation();
 }
@@ -918,6 +952,9 @@ int m33_prepare(void)
 	struct blk_ctrl_s_aonmix_regs *s_regs =
 			(struct blk_ctrl_s_aonmix_regs *)BLK_CTRL_S_ANOMIX_BASE_ADDR;
 	u32 val, i;
+
+	if (is_imx91())
+		return -ENODEV;
 
 	if (m33_is_rom_kicked())
 		return -EPERM;
@@ -1007,7 +1044,7 @@ enum imx9_soc_voltage_mode soc_target_voltage_mode(void)
 	u32 speed = get_cpu_speed_grade_hz();
 	enum imx9_soc_voltage_mode voltage = VOLT_OVER_DRIVE;
 
-	if (is_imx93()) {
+	if (is_imx93() || is_imx91()) {
 		if (speed == 1700000000)
 			voltage = VOLT_OVER_DRIVE;
 		else if (speed == 1400000000)

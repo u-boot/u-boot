@@ -65,6 +65,14 @@ static const char *get_imx_type_str(u32 imxtype)
 		return "93(02)";/* iMX93 900Mhz Low performance Dual core without NPU */
 	case MXC_CPU_IMX9301:
 		return "93(01)";/* iMX93 900Mhz Low performance Single core without NPU */
+	case MXC_CPU_IMX91:
+		return "91(31)";/* iMX91 11x11 Full feature */
+	case MXC_CPU_IMX9121:
+		return "91(21)";/* iMX91 11x11 Low drive mode */
+	case MXC_CPU_IMX9111:
+		return "91(11)";/* iMX91 9x9 Reduced feature */
+	case MXC_CPU_IMX9101:
+		return "91(01)";/* iMX91 9x9 Specific feature */
 	default:
 		return "??";
 	}
@@ -127,6 +135,8 @@ static int cpu_imx_get_temp(struct cpu_imx_plat *plat)
 	if (IS_ENABLED(CONFIG_IMX8)) {
 		if (plat->cpu_rsrc == SC_R_A72)
 			idx = 2; /* use "cpu-thermal1" device */
+	} else if (IS_ENABLED(CONFIG_IMX91)) {
+		idx = 0;
 	} else {
 		idx = 1;
 	}
