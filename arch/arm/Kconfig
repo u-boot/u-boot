@@ -1324,6 +1324,7 @@ config ARCH_ZYNQMP_R5
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
 	select ARM64
+	select BINMAN
 	select CLK
 	select DM
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART

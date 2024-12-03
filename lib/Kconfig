@@ -45,6 +45,15 @@ config BINMAN_FDT
 	  locate entries in the firmware image. See binman.h for the available
 	  functionality.
 
+config BINMAN_DTB
+	string "binman DTB description"
+	depends on BINMAN
+	help
+	  This enables option to point to different DTB file with binman node which
+	  is outside of DTB used by the firmware. Use this option if information
+	  about generated images shouldn't be the part of target binary. Or on system
+	  with limited storage.
+
 config CC_OPTIMIZE_LIBS_FOR_SPEED
 	bool "Optimize libraries for speed"
 	help

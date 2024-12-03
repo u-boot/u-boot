@@ -1,0 +1,225 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx ZynqMP SOMs (k24/k26)
+ *
+ * (C) Copyright 2024, Advanced Micro Devices, Inc.
+ *
+ * Michal Simek <michal.simek@amd.com>
+ */
+
+#include <config.h>
+
+/dts-v1/;
+/ {
+	binman: binman {
+		multiple-images;
+		fit-dtb.blob {
+			filename = "fit-dtb.blob";
+			pad-byte = <0>;
+			fit {
+				fit,align = <0x8>;
+				fit,external-offset = <0x0>;
+				description = "DTBs for SOMs+CCs";
+				fit,fdt-list-val = "zynqmp-smk-k26-revA", "zynqmp-smk-k26-revA-sck-kr-g-revA",
+						"zynqmp-smk-k26-revA-sck-kr-g-revB", "zynqmp-smk-k26-revA-sck-kv-g-revA",
+						"zynqmp-smk-k26-revA-sck-kv-g-revB", "zynqmp-sm-k26-revA-sck-kv-g-revA",
+						"zynqmp-sm-k26-revA-sck-kv-g-revB", "zynqmp-sm-k26-revA-sck-kr-g-revB",
+						"zynqmp-smk-k24-revA-sck-kd-g-revA", "zynqmp-smk-k24-revA-sck-kv-g-revB",
+						"zynqmp-smk-k24-revA-sck-kr-g-revB", "zynqmp-sm-k24-revA-sck-kd-g-revA",
+						"zynqmp-sm-k24-revA-sck-kv-g-revB", "zynqmp-sm-k24-revA-sck-kr-g-revB";
+
+				images {
+					@fdt-SEQ {
+						description = "NAME";
+						type = "flat_dt";
+						arch = "arm64";
+						compression = "none";
+						hash-1 {
+							algo = "md5";
+						};
+					};
+				};
+				configurations {
+					default = "conf-1";
+					conf-1 {
+						description = "SOM itself";
+						fdt = "fdt-1";
+					};
+					conf-2 {
+						description = "zynqmp-smk-k26-.*-sck-kr-g-revA";
+						fdt = "fdt-2";
+					};
+					conf-3 {
+						description = "zynqmp-smk-k26-.*-sck-kr-g-.*";
+						fdt = "fdt-3";
+					};
+					conf-4 {
+						description = "zynqmp-smk-k26-.*-sck-kv-g-rev[AZ]";
+						fdt = "fdt-4";
+					};
+					conf-5 {
+						description = "zynqmp-smk-k26-.*-sck-kv-g-.*";
+						fdt = "fdt-5";
+					};
+					conf-6 {
+						description = "zynqmp-sm-k26-.*-sck-kv-g-rev[AZ]";
+						fdt = "fdt-6";
+					};
+					conf-7 {
+						description = "zynqmp-sm-k26-.*-sck-kv-g-.*";
+						fdt = "fdt-7";
+					};
+					conf-8 {
+						description = "zynqmp-sm-k26-.*-sck-kr-g-.*";
+						fdt = "fdt-8";
+					};
+					conf-9 {
+						description = "zynqmp-smk-k24-.*-sck-kd-g-.*";
+						fdt = "fdt-9";
+					};
+					conf-10 {
+						description = "zynqmp-smk-k24-.*-sck-kv-g-.*";
+						fdt = "fdt-10";
+					};
+					conf-11 {
+						description = "zynqmp-smk-k24-.*-sck-kr-g-.*";
+						fdt = "fdt-11";
+					};
+					conf-12 {
+						description = "zynqmp-sm-k24-.*-sck-kd-g-.*";
+						fdt = "fdt-12";
+					};
+					conf-13 {
+						description = "zynqmp-sm-k24-.*-sck-kv-g-.*";
+						fdt = "fdt-13";
+					};
+					conf-14 {
+						description = "zynqmp-sm-k24-.*-sck-kr-g-.*";
+						fdt = "fdt-14";
+					};
+				};
+			};
+		};
+
+		/* u-boot.itb generation in a static way */
+		itb {
+			filename = "u-boot.itb";
+			pad-byte = <0>;
+
+			fit {
+				description = "Configuration for Xilinx ZynqMP SoC";
+				fit,align = <0x8>;
+				fit,external-offset = <0x0>;
+				images {
+					uboot {
+						description = "U-Boot (64-bit)";
+						type = "firmware";
+						os = "u-boot";
+						arch = "arm64";
+						compression = "none";
+						load = /bits/ 64 <CONFIG_TEXT_BASE>;
+						entry = /bits/ 64 <CONFIG_TEXT_BASE>;
+						hash {
+							algo = "md5";
+						};
+						u-boot-nodtb {
+						};
+					};
+					atf {
+						description = "Trusted Firmware-A";
+						type = "firmware";
+						os = "arm-trusted-firmware";
+						arch = "arm64";
+						compression = "none";
+						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
+						atf-bl31 {
+							optional;
+						};
+					};
+					tee {
+						description = "OP-TEE";
+						type = "tee";
+						arch = "arm64";
+						compression = "none";
+						os = "tee";
+						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						tee-os {
+							optional;
+						};
+					};
+					fdt {
+						description = "Multi DTB fit image";
+						type = "flat_dt";
+						arch = "arm64";
+						compression = "none";
+						load = <0x0 0x100000>;
+						hash {
+							algo = "md5";
+						};
+						fdt-blob {
+							filename = "fit-dtb.blob";
+							type = "blob-ext";
+						};
+					};
+				};
+				configurations {
+					default = "conf-1";
+					conf-1 {
+						description = "Multi DTB with TF-A/TEE";
+						firmware = "atf";
+						loadables = "tee", "uboot", "fdt";
+					};
+				};
+			};
+		};
+
+		/* boot.bin generated with version string inside */
+		bootimage {
+			filename = "boot.bin";
+			pad-byte = <0>;
+
+			blob-ext@1 {
+				offset = <0x0>;
+				filename = "spl/boot.bin";
+			};
+			/* Optional version string at offset 0x70 */
+			blob-ext@2 {
+				offset = <0x70>;
+				filename = "version.bin";
+				overlap;
+				optional;
+			};
+			/* Optional version string at offset 0x94 */
+			blob-ext@3 {
+				offset = <0x94>;
+				filename = "version.bin";
+				overlap;
+				optional;
+			};
+		};
+
+#ifdef CONFIG_SYS_SPI_U_BOOT_OFFS
+		/* Full QSPI image for recovery app */
+		image {
+			filename = "qspi.bin";
+			pad-byte = <0>;
+
+			blob-ext@1 {
+				offset = <0x0>;
+				filename = "boot.bin";
+			};
+			blob-ext@2 {
+				offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
+				filename = "u-boot.itb";
+			};
+			fdtmap {
+			};
+		};
+#endif
+	};
+};
