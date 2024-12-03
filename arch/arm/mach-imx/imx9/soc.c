@@ -195,7 +195,7 @@ static u32 get_cpu_variant_type(u32 type)
 
 	bool npu_disable = !!(val & BIT(13));
 	bool core1_disable = !!(val & BIT(15));
-	u32 pack_9x9_fused = BIT(4) | BIT(17) | BIT(19) | BIT(24);
+	u32 pack_9x9_fused = BIT(4) | BIT(5) | BIT(17) | BIT(19) | BIT(24);
 
 	/* Low performance 93 part */
 	if (((val >> 6) & 0x3F) == 0xE && npu_disable)
