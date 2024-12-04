@@ -974,6 +974,53 @@ struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
 	return start;
 }
 
+/**
+ * efi_dp_from_ipv4() - set device path from IPv4 address
+ *
+ * Set the device path to an ethernet device path as provided by
+ * efi_dp_from_eth() concatenated with a device path of subtype
+ * DEVICE_PATH_SUB_TYPE_MSG_IPV4, and an END node.
+ *
+ * @ip:		IPv4 local address
+ * @mask:	network mask
+ * @srv:	IPv4 remote/server address
+ * Return:	pointer to device path, NULL on error
+ */
+static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
+					 struct efi_ipv4_address *mask,
+					 struct efi_ipv4_address *srv)
+{
+	struct efi_device_path *dp1, *dp2, *pos;
+	struct {
+		struct efi_device_path_ipv4 ipv4dp;
+		struct efi_device_path end;
+	} dp;
+
+	memset(&dp.ipv4dp, 0, sizeof(dp.ipv4dp));
+	dp.ipv4dp.dp.type = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
+	dp.ipv4dp.dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_IPV4;
+	dp.ipv4dp.dp.length = sizeof(dp.ipv4dp);
+	dp.ipv4dp.protocol = 6;
+	if (ip)
+		memcpy(&dp.ipv4dp.local_ip_address, ip, sizeof(*ip));
+	if (mask)
+		memcpy(&dp.ipv4dp.subnet_mask, mask, sizeof(*mask));
+	if (srv)
+		memcpy(&dp.ipv4dp.remote_ip_address, srv, sizeof(*srv));
+	pos = &dp.end;
+	memcpy(pos, &END, sizeof(END));
+
+	dp1 = efi_dp_from_eth();
+	if (!dp1)
+		return NULL;
+
+	dp2 = efi_dp_concat(dp1, (const struct efi_device_path *)&dp, 0);
+
+	efi_free_pool(dp1);
+
+	return dp2;
+}
+
 /* Construct a device-path for memory-mapped image */
 struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 					uint64_t start_address,
