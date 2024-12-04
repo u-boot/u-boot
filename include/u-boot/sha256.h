@@ -48,4 +48,9 @@ void sha256_hmac(const unsigned char *key, int keylen,
 		 const unsigned char *input, unsigned int ilen,
 		 unsigned char *output);
 
+int sha256_hkdf(const unsigned char *salt, int saltlen,
+		const unsigned char *ikm, int ikmlen,
+		const unsigned char *info, int infolen,
+		unsigned char *output, int outputlen);
+
 #endif /* _SHA256_H */

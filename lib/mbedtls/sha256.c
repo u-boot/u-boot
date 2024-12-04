@@ -11,6 +11,9 @@
 #include <string.h>
 #include <u-boot/sha256.h>
 
+#include <mbedtls/md.h>
+#include <mbedtls/hkdf.h>
+
 const u8 sha256_der_prefix[SHA256_DER_LEN] = {
 	0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
 	0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05,
@@ -97,4 +100,19 @@ void sha256_hmac(const unsigned char *key, int keylen,
 	memset(k_opad, 0, sizeof(k_opad));
 	memset(tmpbuf, 0, sizeof(tmpbuf));
 	memset(&ctx, 0, sizeof(sha256_context));
+}
+
+int sha256_hkdf(const unsigned char *salt, int saltlen,
+		const unsigned char *ikm, int ikmlen,
+		const unsigned char *info, int infolen,
+		unsigned char *output, int outputlen)
+{
+	const mbedtls_md_info_t *md;
+
+	md = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+
+	return mbedtls_hkdf(md, salt, saltlen,
+			    ikm, ikmlen,
+			    info, infolen,
+			    output, outputlen);
 }
