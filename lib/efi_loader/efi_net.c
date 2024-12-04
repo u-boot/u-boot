@@ -16,6 +16,7 @@
  */
 
 #include <efi_loader.h>
+#include <dm.h>
 #include <malloc.h>
 #include <vsprintf.h>
 #include <net.h>
@@ -31,6 +32,13 @@ static size_t *receive_lengths;
 static int rx_packet_idx;
 static int rx_packet_num;
 static struct efi_net_obj *netobj;
+
+/*
+ * The current network device path. This device path is updated when a new
+ * bootfile is downloaded from the network. If then the bootfile is loaded
+ * as an efi image, net_dp is passed as the device path of the loaded image.
+ */
+static struct efi_device_path *net_dp;
 
 /*
  * The notification function of this event is called in every timer cycle
@@ -902,8 +910,10 @@ efi_status_t efi_net_register(void)
 			     &netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
+	if (!net_dp)
+		efi_net_set_dp("Net", NULL);
 	r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
-			     efi_dp_from_eth());
+			     net_dp);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 	r = efi_add_protocol(&netobj->header, &efi_pxe_base_code_protocol_guid,
@@ -997,6 +1007,49 @@ out_of_resources:
 	free(receive_lengths);
 	printf("ERROR: Out of memory\n");
 	return EFI_OUT_OF_RESOURCES;
+}
+
+/**
+ * efi_net_set_dp() - set device path of efi net device
+ *
+ * This gets called to update the device path when a new boot
+ * file is downloaded
+ *
+ * @dev:	dev to set the device path from
+ * @server:	remote server address
+ * Return:	status code
+ */
+efi_status_t efi_net_set_dp(const char *dev, const char *server)
+{
+	efi_free_pool(net_dp);
+
+	net_dp = NULL;
+	if (!strcmp(dev, "Net"))
+		net_dp = efi_dp_from_eth();
+	else if (!strcmp(dev, "Http"))
+		net_dp = efi_dp_from_http(server);
+
+	if (!net_dp)
+		return EFI_OUT_OF_RESOURCES;
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_net_get_dp() - get device path of efi net device
+ *
+ * Produce a copy of the current device path
+ *
+ * @dp:		copy of the current device path, or NULL on error
+ */
+void efi_net_get_dp(struct efi_device_path **dp)
+{
+	if (!dp)
+		return;
+	if (!net_dp)
+		efi_net_set_dp("Net", NULL);
+	if (net_dp)
+		*dp = efi_dp_dup(net_dp);
 }
 
 /**

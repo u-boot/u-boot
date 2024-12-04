@@ -260,10 +260,9 @@ static void httpc_result_cb(void *arg, httpc_result_t httpc_result,
 	printf("%u bytes transferred in %lu ms (", rx_content_len, elapsed);
 	print_size(rx_content_len / elapsed * 1000, "/s)\n");
 	printf("Bytes transferred = %lu (%lx hex)\n", ctx->size, ctx->size);
-	if (wget_info->set_bootdev) {
-		efi_set_bootdev("Net", "", ctx->path, map_sysmem(ctx->saved_daddr, 0),
+	if (wget_info->set_bootdev)
+		efi_set_bootdev("Http", ctx->server_name, ctx->path, map_sysmem(ctx->saved_daddr, 0),
 				rx_content_len);
-	}
 	wget_lwip_set_file_size(rx_content_len);
 	if (env_set_hex("filesize", rx_content_len) ||
 	    env_set_hex("fileaddr", ctx->saved_daddr)) {

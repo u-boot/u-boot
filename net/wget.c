@@ -447,7 +447,7 @@ static void wget_handler(uchar *pkt, u16 dport,
 		net_set_state(wget_loop_state);
 		wget_info->file_size = net_boot_file_size;
 		if (wget_info->method == WGET_HTTP_METHOD_GET && wget_info->set_bootdev) {
-			efi_set_bootdev("Net", "", image_url,
+			efi_set_bootdev("Http", NULL, image_url,
 					map_sysmem(image_load_addr, 0),
 					net_boot_file_size);
 			env_set_hex("filesize", net_boot_file_size);
