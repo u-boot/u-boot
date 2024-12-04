@@ -44,4 +44,8 @@ void sha256_finish(sha256_context * ctx, uint8_t digest[SHA256_SUM_LEN]);
 void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
 		unsigned char *output, unsigned int chunk_sz);
 
+void sha256_hmac(const unsigned char *key, int keylen,
+		 const unsigned char *input, unsigned int ilen,
+		 unsigned char *output);
+
 #endif /* _SHA256_H */
