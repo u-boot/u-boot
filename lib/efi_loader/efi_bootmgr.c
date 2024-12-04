@@ -479,7 +479,7 @@ static efi_status_t try_load_from_uri_path(struct efi_device_path_uri *uridp,
 	}
 
 	image_addr = hextoul(s, NULL);
-	err = wget_with_dns(image_addr, uridp->uri);
+	err = wget_do_request(image_addr, uridp->uri);
 	if (err < 0) {
 		ret = EFI_INVALID_PARAMETER;
 		goto err;

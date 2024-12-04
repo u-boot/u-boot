@@ -208,8 +208,13 @@ static void wget_fill_info(const uchar *pkt, int hlen)
 	const char *second_space;
 	char *pos, *end;
 
-	if (wget_info->headers && hlen < MAX_HTTP_HEADERS_SIZE)
-		strncpy(wget_info->headers, pkt, hlen);
+	if (wget_info->headers) {
+		if (hlen < MAX_HTTP_HEADERS_SIZE)
+			strncpy(wget_info->headers, pkt, hlen);
+		else
+			hlen = 0;
+		wget_info->headers[hlen] = 0;
+	}
 
 	//Get status code
 	first_space = strchr(pkt, ' ');
@@ -442,7 +447,7 @@ static void wget_handler(uchar *pkt, u16 dport,
 		net_set_state(wget_loop_state);
 		wget_info->file_size = net_boot_file_size;
 		if (wget_info->method == WGET_HTTP_METHOD_GET && wget_info->set_bootdev) {
-			efi_set_bootdev("Net", "", image_url,
+			efi_set_bootdev("Http", NULL, image_url,
 					map_sysmem(image_load_addr, 0),
 					net_boot_file_size);
 			env_set_hex("filesize", net_boot_file_size);
@@ -530,8 +535,7 @@ void wget_start(void)
 	wget_send(TCP_SYN, 0, 0, 0);
 }
 
-#if (IS_ENABLED(CONFIG_CMD_DNS))
-int wget_with_dns(ulong dst_addr, char *uri)
+int wget_do_request(ulong dst_addr, char *uri)
 {
 	int ret;
 	char *s, *host_name, *file_name, *str_copy;
@@ -550,24 +554,32 @@ int wget_with_dns(ulong dst_addr, char *uri)
 	s = str_copy + strlen("http://");
 	host_name = strsep(&s, "/");
 	if (!s) {
-		log_err("Error: invalied uri, no file path\n");
 		ret = -EINVAL;
 		goto out;
 	}
 	file_name = s;
 
-	/* TODO: If the given uri has ip address for the http server, skip dns */
-	net_dns_resolve = host_name;
-	net_dns_env_var = "httpserverip";
-	if (net_loop(DNS) < 0) {
-		log_err("Error: dns lookup of %s failed, check setup\n", net_dns_resolve);
+	host_name = strsep(&host_name, ":");
+
+	if (string_to_ip(host_name).s_addr) {
+		s = host_name;
+	} else {
+#if IS_ENABLED(CONFIG_CMD_DNS)
+		net_dns_resolve = host_name;
+		net_dns_env_var = "httpserverip";
+		if (net_loop(DNS) < 0) {
+			ret = -EINVAL;
+			goto out;
+		}
+		s = env_get("httpserverip");
+		if (!s) {
+			ret = -EINVAL;
+			goto out;
+		}
+#else
 		ret = -EINVAL;
 		goto out;
-	}
-	s = env_get("httpserverip");
-	if (!s) {
-		ret = -EINVAL;
-		goto out;
+#endif
 	}
 
 	strlcpy(net_boot_file_name, s, sizeof(net_boot_file_name));
@@ -581,7 +593,6 @@ out:
 
 	return ret < 0 ? ret : 0;
 }
-#endif
 
 /**
  * wget_validate_uri() - validate the uri for wget
