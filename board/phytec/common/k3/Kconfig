@@ -46,3 +46,10 @@ config PHYTEC_K3_EMBED_RAUC_ENV
 	   Provides logic to select a boot partition based on environment variables
 	   and switch to the other if the boot fails.
 	   Includes include/env/phytec/rauc.env.
+
+config PHYTEC_K3_DOFITBOOT_DEFAULT
+	bool "Boot from a fit image"
+	default n
+	help
+	   When set to 0, the system follows the standard K3 MMC boot flow.
+	   When set to 1, it attempts to boot from a FIT image.
