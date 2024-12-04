@@ -353,7 +353,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	return -1;
 }
 
-int wget_with_dns(ulong dst_addr, char *uri)
+int wget_do_request(ulong dst_addr, char *uri)
 {
 	eth_set_current();
 
@@ -387,7 +387,7 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_FAILURE;
 
 	wget_info = &default_wget_info;
-	if (wget_with_dns(dst_addr, nurl))
+	if (wget_do_request(dst_addr, nurl))
 		return CMD_RET_FAILURE;
 
 	return CMD_RET_SUCCESS;

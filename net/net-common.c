@@ -23,5 +23,5 @@ struct wget_http_info *wget_info;
 int wget_request(ulong dst_addr, char *uri, struct wget_http_info *info)
 {
 	wget_info = info ? info : &default_wget_info;
-	return wget_with_dns(dst_addr, uri);
+	return wget_do_request(dst_addr, uri);
 }
