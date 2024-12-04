@@ -106,6 +106,9 @@ static int dwmac_socfpga_probe(struct udevice *dev)
 		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
 		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
 		break;
 	default:
