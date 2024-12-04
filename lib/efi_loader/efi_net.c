@@ -66,6 +66,7 @@ static struct efi_event *wait_for_packet;
  * @pxe:			PXE base code protocol interface
  * @pxe_mode:			status of the PXE base code protocol
  * @ip4_config2:		IP4 Config2 protocol interface
+ * @http_service_binding:	Http service binding protocol interface
  */
 struct efi_net_obj {
 	struct efi_object header;
@@ -75,6 +76,9 @@ struct efi_net_obj {
 	struct efi_pxe_mode pxe_mode;
 #if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
 	struct efi_ip4_config2_protocol ip4_config2;
+#endif
+#if IS_ENABLED(CONFIG_EFI_HTTP_PROTOCOL)
+	struct efi_service_binding_protocol http_service_binding;
 #endif
 };
 
@@ -1009,6 +1013,19 @@ efi_status_t efi_net_register(void)
 		goto failure_to_add_protocol;
 #endif
 
+#ifdef CONFIG_EFI_HTTP_PROTOCOL
+	r = efi_http_register(&netobj->header, &netobj->http_service_binding);
+	if (r != EFI_SUCCESS)
+		goto failure_to_add_protocol;
+	/*
+	 * No harm on doing the following. If the PXE handle is present, the client could
+	 * find it and try to get its IP address from it. In here the PXE handle is present
+	 * but the PXE protocol is not yet implmenented, so we add this in the meantime.
+	 */
+	efi_net_get_addr((struct efi_ipv4_address *)&netobj->pxe_mode.station_ip,
+			 (struct efi_ipv4_address *)&netobj->pxe_mode.subnet_mask, NULL);
+#endif
+
 	return EFI_SUCCESS;
 failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
@@ -1207,8 +1224,6 @@ static efi_status_t efi_net_set_buffer(void **buffer, size_t size)
 	if (size < SZ_64K)
 		size = SZ_64K;
 
-	efi_free_pool(*buffer);
-
 	*buffer = efi_alloc(size);
 	if (!*buffer)
 		ret = EFI_OUT_OF_RESOURCES;
@@ -1305,6 +1320,7 @@ efi_status_t efi_net_do_request(u8 *url, enum efi_http_method method, void **buf
 		wget_ret = wget_request((ulong)*buffer, url, &efi_wget_info);
 		if ((ulong)efi_wget_info.hdr_cont_len > efi_wget_info.buffer_size) {
 			// Try again with updated buffer size
+			efi_free_pool(*buffer);
 			ret = efi_net_set_buffer(buffer, (size_t)efi_wget_info.hdr_cont_len);
 			if (ret != EFI_SUCCESS)
 				goto out;
