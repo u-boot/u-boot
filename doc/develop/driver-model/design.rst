@@ -312,7 +312,7 @@ drivers/demo/demo-shape.c):
 		.name	= "demo_shape_drv",
 		.id	= UCLASS_DEMO,
 		.ops	= &shape_ops,
-		.priv_data_size = sizeof(struct shape_data),
+		.priv_auto = sizeof(struct shape_data),
 	};
 
 
