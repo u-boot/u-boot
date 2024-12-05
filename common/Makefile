@@ -101,3 +101,5 @@ obj-$(CONFIG_$(PHASE_)STACKPROTECTOR) += stackprot.o
 obj-$(CONFIG_SCP03) += scp03.o
 
 obj-$(CONFIG_QFW) += qfw.o
+
+obj-$(CONFIG_CONSOLE_RAMOOPS) += console_ramoops.o

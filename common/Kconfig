@@ -331,6 +331,15 @@ config SYS_DEVICE_NULLDEV
 	  operation of the console by setting stdout to "nulldev". Enable
 	  this to use a serial console under board control.
 
+config CONSOLE_RAMOOPS
+	bool "Enable console output of U-Boot to pstore-ramoops"
+	depends on DM_STDIO
+	help
+	  Select this driver to bind to "ramoops" reserved memory node
+	  if that is present in your device tree, to be able to store
+	  U-Boot messages there in console log.
+
+
 endmenu
 
 menu "Logging"
