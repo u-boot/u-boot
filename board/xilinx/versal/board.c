@@ -36,9 +36,15 @@ static xilinx_desc versalpl = {
 };
 #endif
 
+static u32 versal_multi_boot(void)
+{
+	return readl(0xF1110004);
+}
+
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+	printf("Multiboot:\t%d\n", versal_multi_boot());
 
 #if defined(CONFIG_FPGA_VERSALPL)
 	fpga_init();
@@ -375,6 +381,7 @@ static void mtd_found_part(u32 *base, u32 *size)
 void set_dfu_alt_info(char *interface, char *devstr)
 {
 	int bootseq = 0, len = 0;
+	u32 multiboot = versal_multi_boot();
 	u32 bootmode = versal_get_bootmode();
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
@@ -383,6 +390,8 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		return;
 
 	memset(buf, 0, sizeof(buf));
+
+	multiboot = env_get_hex("multiboot", multiboot);
 
 	switch (bootmode) {
 	case EMMC_MODE:
@@ -394,6 +403,10 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, "mmc %d=boot",
 			       bootseq);
 
+		if (multiboot)
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"%04d", multiboot);
+
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
 			       bootseq);
 		break;
@@ -401,7 +414,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	case QSPI_MODE_32BIT:
 	case OSPI_MODE:
 		{
-			u32 base = 0;
+			u32 base = multiboot * SZ_32K;
 			u32 size = 0x1500000;
 			u32 limit = size;
 
