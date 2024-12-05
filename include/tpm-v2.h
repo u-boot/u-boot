@@ -731,13 +731,13 @@ u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo);
 bool tpm2_check_active_banks(struct udevice *dev);
 
 /**
- * tpm2_is_active_pcr() - check the pcr_select. If at least one of the PCRs
- *			  supports the algorithm add it on the active ones
+ * tpm2_is_active_bank() - check the pcr_select. If at least one of the PCRs
+ *			   supports the algorithm add it on the active ones
  *
  * @selection: PCR selection structure
  * Return: True if the algorithm is active
  */
-bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection);
+bool tpm2_is_active_bank(struct tpms_pcr_selection *selection);
 
 /**
  * tpm2_print_active_banks() - Print the active TPM PCRs

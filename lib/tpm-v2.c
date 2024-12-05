@@ -35,7 +35,7 @@ static int tpm2_update_active_banks(struct udevice *dev)
 
 	priv->active_bank_count = 0;
 	for (i = 0; i < pcrs.count; i++) {
-		if (!tpm2_is_active_pcr(&pcrs.selection[i]))
+		if (!tpm2_is_active_bank(&pcrs.selection[i]))
 			continue;
 		priv->active_banks[priv->active_bank_count] = pcrs.selection[i].hash;
 		priv->active_bank_count++;
@@ -870,7 +870,7 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 	return 0;
 }
 
-bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection)
+bool tpm2_is_active_bank(struct tpms_pcr_selection *selection)
 {
 	int i;
 
@@ -930,7 +930,7 @@ bool tpm2_check_active_banks(struct udevice *dev)
 		return false;
 
 	for (i = 0; i < pcrs.count; i++) {
-		if (tpm2_is_active_pcr(&pcrs.selection[i]) &&
+		if (tpm2_is_active_bank(&pcrs.selection[i]) &&
 		    !tpm2_algorithm_to_len(pcrs.selection[i].hash))
 			return false;
 	}
@@ -951,7 +951,7 @@ void tpm2_print_active_banks(struct udevice *dev)
 	}
 
 	for (i = 0; i < pcrs.count; i++) {
-		if (tpm2_is_active_pcr(&pcrs.selection[i]))
+		if (tpm2_is_active_bank(&pcrs.selection[i]))
 			log_info("0x%x\n", pcrs.selection[i].hash);
 	}
 }
