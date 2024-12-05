@@ -12,6 +12,10 @@
 #include <power-domain-uclass.h>
 #include <dm/device-internal.h>
 
+struct power_domain_priv {
+	int on_count;
+};
+
 static inline struct power_domain_ops *power_domain_dev_ops(struct udevice *dev)
 {
 	return (struct power_domain_ops *)dev->driver->ops;
@@ -110,19 +114,47 @@ int power_domain_free(struct power_domain *power_domain)
 int power_domain_on(struct power_domain *power_domain)
 {
 	struct power_domain_ops *ops = power_domain_dev_ops(power_domain->dev);
+	struct power_domain_priv *priv = dev_get_uclass_priv(power_domain->dev);
+	int ret;
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->on ? ops->on(power_domain) : 0;
+	if (priv->on_count++ > 0)
+		return 0;
+
+	ret = ops->on ? ops->on(power_domain) : 0;
+	if (ret) {
+		priv->on_count--;
+		return ret;
+	}
+
+	return 0;
 }
 
 int power_domain_off(struct power_domain *power_domain)
 {
 	struct power_domain_ops *ops = power_domain_dev_ops(power_domain->dev);
+	struct power_domain_priv *priv = dev_get_uclass_priv(power_domain->dev);
+	int ret;
 
 	debug("%s(power_domain=%p)\n", __func__, power_domain);
 
-	return ops->off ? ops->off(power_domain) : 0;
+	if (priv->on_count <= 0) {
+		debug("Power domain %s already off.\n", power_domain->dev->name);
+		priv->on_count--;
+		return 0;
+	}
+
+	if (priv->on_count-- > 1)
+		return 0;
+
+	ret = ops->off ? ops->off(power_domain) : 0;
+	if (ret) {
+		priv->on_count++;
+		return ret;
+	}
+
+	return 0;
 }
 
 #if CONFIG_IS_ENABLED(OF_REAL)
@@ -180,4 +212,5 @@ int dev_power_domain_off(struct udevice *dev)
 UCLASS_DRIVER(power_domain) = {
 	.id		= UCLASS_POWER_DOMAIN,
 	.name		= "power_domain",
+	.per_device_auto = sizeof(struct power_domain_priv),
 };
