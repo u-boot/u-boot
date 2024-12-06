@@ -226,6 +226,50 @@ unmap_data:
 	return report_return_code(rc);
 }
 
+static int do_tpm_reconfig(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[])
+{
+	struct udevice *dev;
+	int ret;
+	u16 algo;
+	const char *pw = (argc < 4) ? NULL : argv[3];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+	u32 bankidx = strtoul(argv[1], NULL, 10);
+	struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+
+	/* argv[1]: bank index, argv[2]: bank algorithm */
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp("TPM2_ALG_SHA1", argv[2])) {
+		algo = TPM2_ALG_SHA1;
+	} else if (!strcasecmp("TPM2_ALG_XOR", argv[2])) {
+		algo = TPM2_ALG_XOR;
+	} else if (!strcasecmp("TPM2_ALG_SHA256", argv[2])) {
+		algo = TPM2_ALG_SHA256;
+	} else if (!strcasecmp("TPM2_ALG_SHA384", argv[2])) {
+		algo = TPM2_ALG_SHA384;
+	} else if (!strcasecmp("TPM2_ALG_SHA512", argv[2])) {
+		algo = TPM2_ALG_SHA512;
+	} else if (!strcasecmp("TPM2_ALG_SM3_256", argv[2])) {
+		algo = TPM2_ALG_SM3_256;
+	} else {
+		printf("Couldn't recognize algorithm string: %s\n", argv[2]);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = get_tpm(&dev);
+	if (ret)
+		return ret;
+
+	ret = tpm2_pcr_config_algo(dev, bankidx, algo, &pcr, &pcr_len);
+	if (ret)
+		return ret;
+
+	return tpm2_pcr_allocate(dev, pw, pw_sz, &pcr, pcr_len);
+}
+
 static int do_tpm_dam_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
@@ -395,6 +439,7 @@ static struct cmd_tbl tpm2_commands[] = {
 			 do_tpm_pcr_setauthpolicy, "", ""),
 	U_BOOT_CMD_MKENT(pcr_setauthvalue, 0, 1,
 			 do_tpm_pcr_setauthvalue, "", ""),
+	U_BOOT_CMD_MKENT(reconfig, 0, 1, do_tpm_reconfig, "", ""),
 };
 
 struct cmd_tbl *get_tpm2_commands(unsigned int *size)
@@ -473,4 +518,15 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <pcr>: index of the PCR\n"
 "    <key>: secret to protect the access of PCR #<pcr>\n"
 "    <password>: optional password of the PLATFORM hierarchy\n"
+"reconfig [<password>]\n"
+"    Issue a TPM2_PCR_Allocate Command to reconfig PCR bank algorithm.\n"
+"    <bankIndex>: PCR Bank index to reconfig [0...<TPM2_NUM_PCR_BANKS>]\n"
+"    <algorithm>: Algorithm to be associated with the PCR bank\n"
+"                 TPM2_ALG_SHA1\n"
+"                 TPM2_ALG_XOR\n"
+"                 TPM2_ALG_SHA256\n"
+"                 TPM2_ALG_SHA384\n"
+"                 TPM2_ALG_SHA512\n"
+"                 TPM2_ALG_SM3_256\n"
+"    <password>: optional password\n"
 );
