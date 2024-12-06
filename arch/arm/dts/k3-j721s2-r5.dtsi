@@ -43,6 +43,10 @@
 };
 
 &mcu_timer0 {
+	/delete-property/ clocks;
+	/delete-property/ clocks-names;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
 	clock-frequency = <250000000>;
 	bootph-pre-ram;
 };
