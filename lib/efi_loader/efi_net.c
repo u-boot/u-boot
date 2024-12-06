@@ -954,7 +954,7 @@ efi_status_t efi_net_register(void)
 		r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
 			       net_dp);
 	else
-		r = efi_net_set_dp("Net", NULL);
+		r = efi_net_set_dp("Net", NULL, eth_get_dev());
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 
@@ -1071,9 +1071,10 @@ out_of_resources:
  *
  * @dev:	dev to set the device path from
  * @server:	remote server address
+ * @udev:	net udevice
  * Return:	status code
  */
-efi_status_t efi_net_set_dp(const char *dev, const char *server)
+efi_status_t efi_net_set_dp(const char *dev, const char *server, struct udevice *udev)
 {
 	efi_status_t ret;
 	struct efi_handler *phandler;
@@ -1082,9 +1083,9 @@ efi_status_t efi_net_set_dp(const char *dev, const char *server)
 	old_net_dp = net_dp;
 	new_net_dp = NULL;
 	if (!strcmp(dev, "Net"))
-		new_net_dp = efi_dp_from_eth();
+		new_net_dp = efi_dp_from_eth(udev);
 	else if (!strcmp(dev, "Http"))
-		new_net_dp = efi_dp_from_http(server);
+		new_net_dp = efi_dp_from_http(server, udev);
 
 	if (!new_net_dp) {
 		return EFI_OUT_OF_RESOURCES;
@@ -1134,14 +1135,15 @@ error:
  *
  * Produce a copy of the current device path
  *
- * @dp:		copy of the current device path, or NULL on error
+ * @dp:		copy of the current device path
+ * @udev:	net udevice
  */
-void efi_net_get_dp(struct efi_device_path **dp)
+void efi_net_get_dp(struct efi_device_path **dp, struct udevice *udev)
 {
 	if (!dp)
 		return;
 	if (!net_dp)
-		efi_net_set_dp("Net", NULL);
+		efi_net_set_dp("Net", NULL, udev);
 	if (net_dp)
 		*dp = efi_dp_dup(net_dp);
 }
