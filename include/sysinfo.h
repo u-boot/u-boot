@@ -116,6 +116,18 @@ struct sysinfo_ops {
 	int (*get_str)(struct udevice *dev, int id, size_t size, char *val);
 
 	/**
+	 * get_data() - Read a specific string data value that describes the
+	 *	       hardware setup.
+	 * @dev:	The sysinfo instance to gather the data.
+	 * @id:		A unique identifier for the data area to be get.
+	 * @data:	Pointer to the address of the data area.
+	 * @size:	Pointer to the size of the data area.
+	 *
+	 * Return: 0 if OK, -ve on error.
+	 */
+	int (*get_data)(struct udevice *dev, int id, void **data, size_t *size);
+
+	/**
 	 * get_fit_loadable - Get the name of an image to load from FIT
 	 * This function can be used to provide the image names based on runtime
 	 * detection. A classic use-case would when DTBOs are used to describe
@@ -187,6 +199,18 @@ int sysinfo_get_int(struct udevice *dev, int id, int *val);
 int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 
 /**
+ * sysinfo_get_data() - Get a data area from the platform.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the data area to be get.
+ * @data:	Pointer to the address of the data area.
+ * @size:	Pointer to the size of the data area.
+ *
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
+ */
+int sysinfo_get_data(struct udevice *dev, int id, void **data, size_t *size);
+
+/**
  * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
  * @devp: Pointer to structure to receive the sysinfo device.
  *
@@ -237,6 +261,12 @@ static inline int sysinfo_get_int(struct udevice *dev, int id, int *val)
 
 static inline int sysinfo_get_str(struct udevice *dev, int id, size_t size,
 				  char *val)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_data(struct udevice *dev, int id, void **data,
+				   size_t *size)
 {
 	return -ENOSYS;
 }
