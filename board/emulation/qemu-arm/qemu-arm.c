@@ -48,7 +48,7 @@ struct efi_fw_image fw_images[] = {
 };
 
 struct efi_capsule_update_info update_info = {
-	.num_images = ARRAY_SIZE(fw_images)
+	.num_images = ARRAY_SIZE(fw_images),
 	.images = fw_images,
 };
 
