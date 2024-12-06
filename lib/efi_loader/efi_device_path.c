@@ -1048,7 +1048,7 @@ struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev
 	    (!server && IS_ENABLED(CONFIG_NET_LWIP)))
 		return NULL;
 
-	efi_net_get_addr(&ip, &mask, NULL);
+	efi_net_get_addr(&ip, &mask, NULL, dev);
 
 	dp1 = efi_dp_from_ipv4(&ip, &mask, NULL, dev);
 	if (!dp1)
@@ -1190,7 +1190,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 				     (uintptr_t)image_addr, image_size);
 	} else if (IS_ENABLED(CONFIG_NETDEVICES) &&
 	           (!strcmp(dev, "Net") || !strcmp(dev, "Http"))) {
-		efi_net_get_dp(&dp, eth_get_dev());
+		efi_net_get_dp(&dp, eth_get_dev(), false);
 	} else if (!strcmp(dev, "Uart")) {
 		dp = efi_dp_from_uart();
 	} else {

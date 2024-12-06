@@ -58,7 +58,7 @@ static efi_status_t EFIAPI efi_ip4_config2_set_data(struct efi_ip4_config2_proto
 			memcpy((void *)&current_http_ip, data,
 			       sizeof(struct efi_ip4_config2_manual_address));
 			efi_net_set_addr(&current_http_ip.address,
-					 &current_http_ip.subnet_mask, NULL);
+					 &current_http_ip.subnet_mask, NULL, NULL);
 			return EFI_EXIT(EFI_SUCCESS);
 		}
 		return EFI_EXIT(EFI_BAD_BUFFER_SIZE);
@@ -131,7 +131,7 @@ static efi_status_t EFIAPI efi_ip4_config2_get_data(struct efi_ip4_config2_proto
 			return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
 		}
 
-		efi_net_get_addr(&current_http_ip.address, &current_http_ip.subnet_mask, NULL);
+		efi_net_get_addr(&current_http_ip.address, &current_http_ip.subnet_mask, NULL, NULL);
 		memcpy(data, (void *)&current_http_ip,
 		       sizeof(struct efi_ip4_config2_manual_address));
 
