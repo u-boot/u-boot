@@ -141,9 +141,16 @@ static int dm_test_ofnode_get_by_phandle_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
 	ofnode node;
+	u32 idx;
+	int ret;
 
-	ut_assert(ofnode_valid(oftree_get_by_phandle(oftree_default(), 1)));
-	node = oftree_get_by_phandle(otree, 1);
+	node = oftree_path(otree, "/node");
+	ut_assert(ofnode_valid(node));
+
+	ret = ofnode_read_u32(node, "other-phandle", &idx);
+	ut_assertok(ret);
+
+	node = oftree_get_by_phandle(otree, idx);
 	ut_assert(ofnode_valid(node));
 	ut_asserteq_str("target", ofnode_get_name(node));
 
@@ -273,15 +280,16 @@ static int dm_test_ofnode_read_ot(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_read_ot, UTF_SCAN_FDT | UTF_OTHER_FDT);
 
-/* test ofnode_count_/parse_phandle_with_args() */
+/* test ofnode_count_/parse/_phandle_with_args() */
 static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 {
 	struct ofnode_phandle_args args;
-	ofnode node;
+	ofnode node, phandle, target;
 	int ret;
 	const char prop[] = "test-gpios";
 	const char cell[] = "#gpio-cells";
 	const char prop2[] = "phandle-value";
+	const char prop3[] = "phandle-nodes";
 
 	node = ofnode_path("/a-test");
 	ut_assert(ofnode_valid(node));
@@ -345,34 +353,117 @@ static int dm_test_ofnode_phandle(struct unit_test_state *uts)
 	ret = ofnode_parse_phandle_with_args(node, prop2, NULL, 1, 3, &args);
 	ut_asserteq(-ENOENT, ret);
 
+	/* Test ofnode_parse_phandle */
+	phandle = ofnode_parse_phandle(node, "missing", 0);
+	ut_assert(ofnode_equal(ofnode_null(), phandle));
+
+	target = ofnode_path("/phandle-node-1");
+	ut_assert(ofnode_valid(target));
+	phandle = ofnode_parse_phandle(node, prop3, 0);
+	ut_assert(ofnode_equal(target, phandle));
+
+	target = ofnode_path("/phandle-node-2");
+	ut_assert(ofnode_valid(target));
+	phandle = ofnode_parse_phandle(node, prop3, 1);
+	ut_assert(ofnode_equal(target, phandle));
+
+	phandle = ofnode_parse_phandle(node, prop3, 3);
+	ut_assert(ofnode_equal(ofnode_null(), phandle));
+
 	return 0;
 }
 DM_TEST(dm_test_ofnode_phandle, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
-/* test ofnode_count_/parse_phandle_with_args() with 'other' tree */
+/* test oftree_count_/parse/_phandle_with_args() with 'other' tree */
 static int dm_test_ofnode_phandle_ot(struct unit_test_state *uts)
 {
 	oftree otree = get_other_oftree(uts);
 	struct ofnode_phandle_args args;
-	ofnode node;
+	ofnode node, phandle, target;
 	int ret;
+	const char prop[] = "other-test-gpios";
+	const char cell[] = "#gpio-cells";
+	const char prop2[] = "other-phandle-value";
+	const char prop3[] = "other-phandle-nodes";
 
-	node = oftree_path(otree, "/node");
+	node = oftree_path(otree, "/other-a-test");
+	ut_assert(ofnode_valid(node));
 
-	/* Test ofnode_count_phandle_with_args with cell name */
-	ret = ofnode_count_phandle_with_args(node, "missing", "#gpio-cells", 0);
+	/* Test oftree_count_phandle_with_args with cell name */
+	ret = oftree_count_phandle_with_args(otree, node, "missing", cell, 0);
 	ut_asserteq(-ENOENT, ret);
-	ret = ofnode_count_phandle_with_args(node, "target", "#invalid", 0);
+	ret = oftree_count_phandle_with_args(otree, node, prop, "#invalid", 0);
 	ut_asserteq(-EINVAL, ret);
-	ret = ofnode_count_phandle_with_args(node, "target", "#gpio-cells", 0);
-	ut_asserteq(1, ret);
+	ret = oftree_count_phandle_with_args(otree, node, prop, cell, 0);
+	ut_asserteq(5, ret);
 
-	ret = ofnode_parse_phandle_with_args(node, "target", "#gpio-cells", 0,
-					     0, &args);
+	/* Test oftree_parse_phandle_with_args with cell name */
+	ret = oftree_parse_phandle_with_args(otree, node, "missing", cell, 0, 0,
+					     &args);
+	ut_asserteq(-ENOENT, ret);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, "#invalid", 0, 0,
+					     &args);
+	ut_asserteq(-EINVAL, ret);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 0, &args);
 	ut_assertok(ret);
-	ut_asserteq(2, args.args_count);
-	ut_asserteq(3, args.args[0]);
-	ut_asserteq(4, args.args[1]);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(1, args.args[0]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 1, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(4, args.args[0]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 2, &args);
+	ut_assertok(ret);
+	ut_asserteq(5, args.args_count);
+	ut_asserteq(5, args.args[0]);
+	ut_asserteq(1, args.args[4]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 4, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(12, args.args[0]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop, cell, 0, 5, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	/* Test oftree_count_phandle_with_args with cell count */
+	ret = oftree_count_phandle_with_args(otree, node, "missing", NULL, 2);
+	ut_asserteq(-ENOENT, ret);
+	ret = oftree_count_phandle_with_args(otree, node, prop2, NULL, 1);
+	ut_asserteq(3, ret);
+
+	/* Test oftree_parse_phandle_with_args with cell count */
+	ret = oftree_parse_phandle_with_args(otree, node, prop2, NULL, 1, 0, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(10, args.args[0]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop2, NULL, 1, 1, &args);
+	ut_asserteq(-EINVAL, ret);
+	ret = oftree_parse_phandle_with_args(otree, node, prop2, NULL, 1, 2, &args);
+	ut_assertok(ret);
+	ut_asserteq(1, ofnode_valid(args.node));
+	ut_asserteq(1, args.args_count);
+	ut_asserteq(30, args.args[0]);
+	ret = oftree_parse_phandle_with_args(otree, node, prop2, NULL, 1, 3, &args);
+	ut_asserteq(-ENOENT, ret);
+
+	/* Test oftree_parse_phandle */
+	phandle = oftree_parse_phandle(otree, node, "missing", 0);
+	ut_assert(ofnode_equal(ofnode_null(), phandle));
+
+	target = oftree_path(otree, "/other-phandle-node-1");
+	ut_assert(ofnode_valid(target));
+	phandle = oftree_parse_phandle(otree, node, prop3, 0);
+	ut_assert(ofnode_equal(target, phandle));
+
+	target = oftree_path(otree, "/other-phandle-node-2");
+	ut_assert(ofnode_valid(target));
+	phandle = oftree_parse_phandle(otree, node, prop3, 1);
+	ut_assert(ofnode_equal(target, phandle));
+
+	phandle = oftree_parse_phandle(otree, node, prop3, 3);
+	ut_assert(ofnode_equal(ofnode_null(), phandle));
 
 	return 0;
 }
@@ -613,6 +704,10 @@ static int dm_test_ofnode_options(struct unit_test_state *uts)
 {
 	u64 bootscr_address, bootscr_offset;
 	u64 bootscr_flash_offset, bootscr_flash_size;
+	ofnode node, phandle_node, target;
+
+	node = ofnode_path("/options/u-boot");
+	ut_assert(ofnode_valid(node));
 
 	ut_assert(!ofnode_options_read_bool("missing"));
 	ut_assert(ofnode_options_read_bool("testing-bool"));
@@ -622,6 +717,13 @@ static int dm_test_ofnode_options(struct unit_test_state *uts)
 
 	ut_assertnull(ofnode_options_read_str("missing"));
 	ut_asserteq_str("testing", ofnode_options_read_str("testing-str"));
+
+	ut_asserteq(-EINVAL, ofnode_options_get_by_phandle("missing", &phandle_node));
+
+	target = ofnode_path("/phandle-node-1");
+	ut_assert(ofnode_valid(target));
+	ut_assertok(ofnode_options_get_by_phandle("testing-phandle", &phandle_node));
+	ut_assert(ofnode_equal(target, phandle_node));
 
 	ut_assertok(ofnode_read_bootscript_address(&bootscr_address,
 						   &bootscr_offset));

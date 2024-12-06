@@ -879,11 +879,69 @@ int ofnode_read_string_list(ofnode node, const char *property,
 	return count;
 }
 
-static void ofnode_from_fdtdec_phandle_args(struct fdtdec_phandle_args *in,
+ofnode ofnode_parse_phandle(ofnode node, const char *phandle_name,
+			    int index)
+{
+	ofnode phandle;
+
+	if (ofnode_is_np(node)) {
+		struct device_node *np;
+
+		np = of_parse_phandle(ofnode_to_np(node), phandle_name,
+				      index);
+		if (!np)
+			return ofnode_null();
+
+		phandle = np_to_ofnode(np);
+	} else {
+		struct fdtdec_phandle_args args;
+
+		if (fdtdec_parse_phandle_with_args(ofnode_to_fdt(node),
+						   ofnode_to_offset(node),
+						   phandle_name, NULL,
+						   0, index, &args))
+			return ofnode_null();
+
+		phandle = offset_to_ofnode(args.node);
+	}
+
+	return phandle;
+}
+
+ofnode oftree_parse_phandle(oftree tree, ofnode node, const char *phandle_name,
+			    int index)
+{
+	ofnode phandle;
+
+	if (ofnode_is_np(node)) {
+		struct device_node *np;
+
+		np = of_root_parse_phandle(tree.np, ofnode_to_np(node),
+					   phandle_name, index);
+		if (!np)
+			return ofnode_null();
+
+		phandle = np_to_ofnode(np);
+	} else {
+		struct fdtdec_phandle_args args;
+
+		if (fdtdec_parse_phandle_with_args(tree.fdt,
+						   ofnode_to_offset(node),
+						   phandle_name, NULL,
+						   0, index, &args))
+			return ofnode_null();
+
+		phandle = noffset_to_ofnode(node, args.node);
+	}
+
+	return phandle;
+}
+
+static void ofnode_from_fdtdec_phandle_args(ofnode node, struct fdtdec_phandle_args *in,
 					    struct ofnode_phandle_args *out)
 {
 	assert(OF_MAX_PHANDLE_ARGS == MAX_PHANDLE_ARGS);
-	out->node = offset_to_ofnode(in->node);
+	out->node = noffset_to_ofnode(node, in->node);
 	out->args_count = in->args_count;
 	memcpy(out->args, in->args, sizeof(out->args));
 }
@@ -923,7 +981,40 @@ int ofnode_parse_phandle_with_args(ofnode node, const char *list_name,
 						     cell_count, index, &args);
 		if (ret)
 			return ret;
-		ofnode_from_fdtdec_phandle_args(&args, out_args);
+		ofnode_from_fdtdec_phandle_args(node, &args, out_args);
+	}
+
+	return 0;
+}
+
+int oftree_parse_phandle_with_args(oftree tree, ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count,
+				   int index,
+				   struct ofnode_phandle_args *out_args)
+{
+	if (ofnode_is_np(node)) {
+		struct of_phandle_args args;
+		int ret;
+
+		ret = of_root_parse_phandle_with_args(tree.np,
+						      ofnode_to_np(node),
+						      list_name, cells_name,
+						      cell_count, index,
+						      &args);
+		if (ret)
+			return ret;
+		ofnode_from_of_phandle_args(&args, out_args);
+	} else {
+		struct fdtdec_phandle_args args;
+		int ret;
+
+		ret = fdtdec_parse_phandle_with_args(tree.fdt,
+						     ofnode_to_offset(node),
+						     list_name, cells_name,
+						     cell_count, index, &args);
+		if (ret)
+			return ret;
+		ofnode_from_fdtdec_phandle_args(node, &args, out_args);
 	}
 
 	return 0;
@@ -937,6 +1028,18 @@ int ofnode_count_phandle_with_args(ofnode node, const char *list_name,
 				list_name, cells_name, cell_count);
 	else
 		return fdtdec_parse_phandle_with_args(ofnode_to_fdt(node),
+				ofnode_to_offset(node), list_name, cells_name,
+				cell_count, -1, NULL);
+}
+
+int oftree_count_phandle_with_args(oftree tree, ofnode node, const char *list_name,
+				   const char *cells_name, int cell_count)
+{
+	if (ofnode_is_np(node))
+		return of_root_count_phandle_with_args(tree.np, ofnode_to_np(node),
+				list_name, cells_name, cell_count);
+	else
+		return fdtdec_parse_phandle_with_args(tree.fdt,
 				ofnode_to_offset(node), list_name, cells_name,
 				cell_count, -1, NULL);
 }
@@ -1766,6 +1869,21 @@ const char *ofnode_options_read_str(const char *prop_name)
 		return NULL;
 
 	return ofnode_read_string(uboot, prop_name);
+}
+
+int ofnode_options_get_by_phandle(const char *prop_name, ofnode *nodep)
+{
+	ofnode uboot;
+
+	uboot = ofnode_path("/options/u-boot");
+	if (!ofnode_valid(uboot))
+		return -EINVAL;
+
+	*nodep = ofnode_parse_phandle(uboot, prop_name, 0);
+	if (!ofnode_valid(*nodep))
+		return -EINVAL;
+
+	return 0;
 }
 
 int ofnode_read_bootscript_address(u64 *bootscr_address, u64 *bootscr_offset)
