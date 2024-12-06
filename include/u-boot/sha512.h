@@ -1,9 +1,10 @@
 #ifndef _SHA512_H
 #define _SHA512_H
 
+#include <linux/kconfig.h>
 #include <linux/types.h>
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 #include <mbedtls/sha512.h>
 #endif
 
@@ -16,7 +17,7 @@
 #define CHUNKSZ_SHA384	(16 * 1024)
 #define CHUNKSZ_SHA512	(16 * 1024)
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 typedef mbedtls_sha512_context sha384_context;
 typedef mbedtls_sha512_context sha512_context;
 #else
