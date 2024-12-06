@@ -97,9 +97,9 @@ static int tegra_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		 * then actual pins setup (with node name prefix
 		 * conf_*) and then drive setup.
 		 */
-		if (!strncmp(child->name, "conf_", 5))
+		if (!strncmp(child->name, "conf", 4))
 			tegra_pinctrl_set_pin(child);
-		else if (!strncmp(child->name, "drive_", 6))
+		else if (!strncmp(child->name, "drive", 5))
 			debug("%s: drive configuration is not supported\n", __func__);
 		else
 			tegra_pinctrl_set_func(child);
