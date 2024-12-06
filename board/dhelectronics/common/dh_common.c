@@ -11,6 +11,23 @@
 
 #include "dh_common.h"
 
+static int on_dh_som_serial_number(const char *name, const char *value, enum env_op op,
+				   int flags)
+{
+	env_set("SN", value);
+	return 0;
+}
+
+U_BOOT_ENV_CALLBACK(dh_som_serial_number, on_dh_som_serial_number);
+
+static int on_SN(const char *name, const char *value, enum env_op op, int flags)
+{
+	env_set("dh_som_serial_number", value);
+	return 0;
+}
+
+U_BOOT_ENV_CALLBACK(SN, on_SN);
+
 bool dh_mac_is_in_env(const char *env)
 {
 	unsigned char enetaddr[6];
