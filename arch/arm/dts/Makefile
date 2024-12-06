@@ -1158,9 +1158,7 @@ dtb-$(CONFIG_STM32MP25X) += \
 	stm32mp257f-ev1.dtb
 
 dtb-$(CONFIG_SOC_K3_AM654) += \
-	k3-am654-base-board.dtb \
-	k3-am654-r5-base-board.dtb \
-	k3-am654-icssg2.dtbo
+	k3-am654-r5-base-board.dtb
 
 dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-r5-common-proc-board.dtb \
