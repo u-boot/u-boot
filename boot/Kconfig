@@ -719,6 +719,8 @@ config SPL_BOOTMETH_VBE_REQUEST
 config BOOTMETH_VBE_SIMPLE
 	bool "Bootdev support for VBE 'simple' method"
 	default y
+	imply SPL_CRC8 if SPL
+	imply VPL_CRC8 if VPL
 	help
 	  Enables support for VBE 'simple' boot. This allows updating a single
 	  firmware image in boot media such as MMC. It does not support any sort
