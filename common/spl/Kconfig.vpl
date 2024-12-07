@@ -222,6 +222,15 @@ config VPL_SPI_FLASH_SUPPORT
 	  lines). This enables the drivers in drivers/mtd/spi as part of a
 	  VPL build. This normally requires VPL_SPI_SUPPORT.
 
+config VPL_SYS_MALLOC_SIMPLE
+	bool "Only use malloc_simple functions in the VPL"
+	default y
+	help
+	  Say Y here to only use the *_simple malloc functions from
+	  malloc_simple.c, rather then using the versions from dlmalloc.c;
+	  this will make the VPL binary smaller at the cost of more heap
+	  usage as the *_simple malloc functions do not re-use free-ed mem.
+
 config VPL_TEXT_BASE
 	hex "VPL Text Base"
 	default 0x0
