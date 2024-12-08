@@ -111,6 +111,7 @@ stages:
 
 build all platforms in a single job:
   stage: world build
+  dependencies: []
   rules:
     - when: always
   parallel:
@@ -521,6 +522,7 @@ coreboot test.py:
     - if: $SJG_LAB != "1"
       when: manual
       allow_failure: true
+  dependencies: []
   tags: [ 'lab' ]
   script:
     - if [[ -z "${SJG_LAB}" ]]; then
