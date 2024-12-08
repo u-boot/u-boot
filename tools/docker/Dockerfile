@@ -318,8 +318,8 @@ RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
 	rm -rf /tmp/venv /tmp/*-requirements.txt
 
 # Create the buildman config file
-RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman
-RUN /bin/echo -e "kernelorg = /opt/gcc-${TCVER}-nolibc/*" >> ~/.buildman
+RUN /bin/echo -e "[toolchain]\nkernelorg = /opt/gcc-${TCVER}-nolibc/*" > ~/.buildman
+RUN /bin/echo -e "root = /usr" >> ~/.buildman
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         /bin/echo -e "\n[toolchain-prefix]\nxtensa = /opt/2020.07/xtensa-dc233c-elf/bin/xtensa-dc233c-elf-" >> ~/.buildman; \
     fi
