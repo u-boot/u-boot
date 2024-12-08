@@ -156,11 +156,11 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	mkdir -p /opt/grub && \
 	./configure --target=aarch64 --with-platform=efi \
 	CC=gcc \
-	TARGET_CC=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc \
-	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-objcopy \
-	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-strip \
-	TARGET_NM=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-nm \
-	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/aarch64-linux/bin/aarch64-linux-ranlib && \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O arm64-efi -o /opt/grub/grubaa64.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
@@ -170,11 +170,11 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	make clean && \
 	./configure --target=arm --with-platform=efi \
 	CC=gcc \
-	TARGET_CC=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-gcc \
-	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-objcopy \
-	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip \
-	TARGET_NM=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm \
-	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib && \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O arm-efi -o /opt/grub/grubarm.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
@@ -184,11 +184,11 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	make clean && \
 	./configure --target=riscv64 --with-platform=efi \
 	CC=gcc \
-	TARGET_CC=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-gcc \
-	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-objcopy \
-	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-strip \
-	TARGET_NM=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-nm \
-	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/riscv64-linux/bin/riscv64-linux-ranlib && \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O riscv64-efi -o /opt/grub/grubriscv64.efi --prefix= -d \
 	grub-core cat chain configfile echo efinet ext2 fat halt help linux \
@@ -198,22 +198,22 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	make clean && \
 	./configure --target=i386 --with-platform=efi \
 	CC=gcc \
-	TARGET_CC=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-gcc \
-	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-objcopy \
-	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-strip \
-	TARGET_NM=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-nm \
-	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/i386-linux/bin/i386-linux-ranlib && \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/i386-linux/bin/i386-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/i386-linux/bin/i386-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/i386-linux/bin/i386-linux-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/i386-linux/bin/i386-linux-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/i386-linux/bin/i386-linux-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O i386-efi -o /opt/grub/grub_x86.efi --prefix= -d \
 	grub-core normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd && \
 	make clean && \
 	./configure --target=x86_64 --with-platform=efi \
 	CC=gcc \
-	TARGET_CC=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-gcc \
-	TARGET_OBJCOPY=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-objcopy \
-	TARGET_STRIP=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-strip \
-	TARGET_NM=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-nm \
-	TARGET_RANLIB=/opt/gcc-13.2.0-nolibc/x86_64-linux/bin/x86_64-linux-ranlib && \
+	TARGET_CC=/opt/gcc-${TCVER}-nolibc/x86_64-linux/bin/x86_64-linux-gcc \
+	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/x86_64-linux/bin/x86_64-linux-objcopy \
+	TARGET_STRIP=/opt/gcc-${TCVER}-nolibc/x86_64-linux/bin/x86_64-linux-strip \
+	TARGET_NM=/opt/gcc-${TCVER}-nolibc/x86_64-linux/bin/x86_64-linux-nm \
+	TARGET_RANLIB=/opt/gcc-${TCVER}-nolibc/x86_64-linux/bin/x86_64-linux-ranlib && \
 	make -j$(nproc) && \
 	./grub-mkimage -O x86_64-efi -o /opt/grub/grub_x64.efi --prefix= -d \
 	grub-core normal echo lsefimmap lsefi lsefisystab efinet tftp minicmd && \
@@ -319,7 +319,7 @@ RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
 
 # Create the buildman config file
 RUN /bin/echo -e "[toolchain]\nroot = /usr" > ~/.buildman
-RUN /bin/echo -e "kernelorg = /opt/gcc-13.2.0-nolibc/*" >> ~/.buildman
+RUN /bin/echo -e "kernelorg = /opt/gcc-${TCVER}-nolibc/*" >> ~/.buildman
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         /bin/echo -e "\n[toolchain-prefix]\nxtensa = /opt/2020.07/xtensa-dc233c-elf/bin/xtensa-dc233c-elf-" >> ~/.buildman; \
     fi
