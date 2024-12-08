@@ -323,6 +323,9 @@ RUN /bin/echo -e "kernelorg = /opt/gcc-${TCVER}-nolibc/*" >> ~/.buildman
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         /bin/echo -e "\n[toolchain-prefix]\nxtensa = /opt/2020.07/xtensa-dc233c-elf/bin/xtensa-dc233c-elf-" >> ~/.buildman; \
     fi
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        /bin/echo -e "\n[toolchain-prefix]\naarch64 = /opt/gcc-${TCVER}-nolibc/aarch64-linux/bin/aarch64-linux-" >> ~/.buildman; \
+    fi
 RUN /bin/echo -e "\n[toolchain-alias]\nsh = sh2" >> ~/.buildman
 RUN /bin/echo -e "\nx86 = i386" >> ~/.buildman;
 
