@@ -13,6 +13,10 @@ default:
   tags:
     - ${DEFAULT_ALL_TAG}
 
+workflow:
+  rules:
+    - when: always
+
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
 image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20240808-03Dec2024
