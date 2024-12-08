@@ -109,20 +109,74 @@
 	itb {
 		fit {
 			images {
-				fdt-1 {
-					description = "NAME";
+				fdt-jh7110-milkv-mars {
+					description = "jh7110-milkv-mars";
 					load = <0x40400000>;
 					compression = "none";
 
-					uboot_fdt_blob: blob-ext {
-						filename = "u-boot.dtb";
+					blob-ext {
+						filename = "dts/upstream/src/riscv/starfive/jh7110-milkv-mars.dtb";
+					};
+				};
+
+				fdt-jh7110-pine64-star64 {
+					description = "jh7110-pine64-star64";
+					load = <0x40400000>;
+					compression = "none";
+
+					blob-ext {
+						filename = "dts/upstream/src/riscv/starfive/jh7110-pine64-star64.dtb";
+					};
+				};
+
+				fdt-jh7110-starfive-visionfive-2-v1.2a {
+					description = "jh7110-starfive-visionfive-2-v1.2a";
+					load = <0x40400000>;
+					compression = "none";
+
+					blob-ext {
+						filename = "dts/upstream/src/riscv/starfive/jh7110-starfive-visionfive-2-v1.2a.dtb";
+					};
+				};
+
+				fdt-jh7110-starfive-visionfive-2-v1.3b {
+					description = "jh7110-starfive-visionfive-2-v1.3b";
+					load = <0x40400000>;
+					compression = "none";
+
+					blob-ext {
+						filename = "dts/upstream/src/riscv/starfive/jh7110-starfive-visionfive-2-v1.3b.dtb";
 					};
 				};
 			};
 
 			configurations {
-				conf-1 {
-					fdt = "fdt-1";
+				conf-jh7110-milkv-mars {
+					description = "jh7110-milkv-mars";
+					firmware = "opensbi";
+					loadables = "uboot";
+					fdt = "fdt-jh7110-milkv-mars";
+				};
+
+				conf-jh7110-pine64-star64 {
+					description = "jh7110-pine64-star64";
+					firmware = "opensbi";
+					loadables = "uboot";
+					fdt = "fdt-jh7110-pine64-star64";
+				};
+
+				conf-jh7110-starfive-visionfive-2-v1.2a {
+					description = "jh7110-starfive-visionfive-2-v1.2a";
+					firmware = "opensbi";
+					loadables = "uboot";
+					fdt = "fdt-jh7110-starfive-visionfive-2-v1.2a";
+				};
+
+				conf-jh7110-starfive-visionfive-2-v1.3b {
+					description = "jh7110-starfive-visionfive-2-v1.3b";
+					firmware = "opensbi";
+					loadables = "uboot";
+					fdt = "fdt-jh7110-starfive-visionfive-2-v1.3b";
 				};
 			};
 		};
