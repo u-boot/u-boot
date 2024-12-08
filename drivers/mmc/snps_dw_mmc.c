@@ -186,6 +186,7 @@ static int snps_dwmmc_bind(struct udevice *dev)
 
 static const struct udevice_id snps_dwmmc_ids[] = {
 	{ .compatible = "snps,dw-mshc" },
+	{ .compatible = "starfive,jh7110-mmc" },
 	{ }
 };
 
