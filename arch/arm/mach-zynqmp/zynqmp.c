@@ -349,7 +349,7 @@ static int do_zynqmp_reboot(struct cmd_tbl *cmdtp, int flag,
 
 	multiboot = hextoul(argv[2], NULL);
 
-	ret = zynqmp_mmio_write(0xFFCA0010, 0xfff, multiboot);
+	ret = zynqmp_mmio_write((ulong)&csu_base->multi_boot, 0xfff, multiboot);
 	if (ret != 0) {
 		printf("Failed: mmio write\n");
 		return ret;
