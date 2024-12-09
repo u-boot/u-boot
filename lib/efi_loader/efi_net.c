@@ -1080,10 +1080,23 @@ efi_status_t efi_netobj_start(struct efi_net_obj *netobj)
 		return r;
 
 	efi_net_get_dp(&net_dp, netobj->dev, true);
-	if (net_dp)
-		r = efi_netobj_set_dp(netobj, net_dp);
+	// If no dp cache entry applies and there already
+	// is a device path installed, continue
+	if (!net_dp) {
+		if (efi_netobj_get_dp(netobj))
+			goto set_addr;
+		else
+			net_dp = efi_dp_from_eth(netobj->dev);
+
+	}
+
+	if (!net_dp)
+		return EFI_OUT_OF_RESOURCES;
+
+	r = efi_netobj_set_dp(netobj, net_dp);
 	if (r != EFI_SUCCESS)
 		return r;
+set_addr:
 #ifdef CONFIG_EFI_HTTP_PROTOCOL
 	/*
 	 * No harm on doing the following. If the PXE handle is present, the client could
