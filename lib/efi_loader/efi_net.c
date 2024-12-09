@@ -859,6 +859,11 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 	nt = efi_netobj_from_snp(this);
 	curr_efi_net_obj = nt->efi_seq_num;
 
+	// The following only happens if the net obj was removed but the event
+	// was not successfully removed.
+	if (!net_objs[curr_efi_net_obj] || !efi_netobj_is_active(nt))
+		goto out;
+
 	if (!nt->rx_packet_num) {
 		eth_set_dev(nt->dev);
 		env_set("ethact", eth_get_name());
@@ -1059,32 +1064,22 @@ static struct efi_device_path *efi_netobj_get_dp(struct efi_net_obj *netobj)
 }
 
 /**
- * efi_net_do_start() - start the efi network stack
+ * efi_netobj_start() - start an efi net device
  *
- * This gets called from do_bootefi_exec() each time a payload gets executed.
  *
- * @dev:	net udevice
+ * @netobj:	efi_net_obj
  * Return:	status code
  */
-efi_status_t efi_net_do_start(struct udevice *dev)
+efi_status_t efi_netobj_start(struct efi_net_obj *netobj)
 {
 	efi_status_t r = EFI_SUCCESS;
-	struct efi_net_obj *netobj;
 	struct efi_device_path *net_dp;
 	int i;
-
-	netobj = NULL;
-	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && net_objs[i]->dev == dev) {
-			netobj = net_objs[i];
-			break;
-		}
-	}
 
 	if (!efi_netobj_is_active(netobj))
 		return r;
 
-	efi_net_get_dp(&net_dp, dev, true);
+	efi_net_get_dp(&net_dp, netobj->dev, true);
 	if (net_dp)
 		r = efi_netobj_set_dp(netobj, net_dp);
 	if (r != EFI_SUCCESS)
@@ -1096,56 +1091,57 @@ efi_status_t efi_net_do_start(struct udevice *dev)
 	 * but the PXE protocol is not yet implmenented, so we add this in the meantime.
 	 */
 	efi_net_get_addr((struct efi_ipv4_address *)&netobj->pxe_mode.station_ip,
-			 (struct efi_ipv4_address *)&netobj->pxe_mode.subnet_mask, NULL, dev);
+			 (struct efi_ipv4_address *)&netobj->pxe_mode.subnet_mask, NULL, netobj->dev);
 #endif
 
-	return r;
+	return 0;
 }
 
 /**
- * efi_net_register() - register the simple network protocol
+ * efi_net_do_start() - start the efi network stack
  *
- * This gets called from do_bootefi_exec().
- * @dev:	net udevice
+ * This gets called from do_bootefi_exec() each time a payload gets executed.
+ *
+ * Return:	status code
  */
-efi_status_t efi_net_register(struct udevice *dev)
+efi_status_t efi_net_do_start()
+{
+	int i, r;
+
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (net_objs[i]) {
+			r = efi_netobj_start(net_objs[i]);
+			if (r)
+				return EFI_DEVICE_ERROR;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_netobj_init() - initialize an efi_net_obj
+ *
+ * @netobj:	efi net object
+ * Return:	0 on success, negative on error
+ */
+static int efi_netobj_init(struct efi_net_obj *netobj)
 {
 	efi_status_t r;
-	int seq_num;
-	struct efi_net_obj *netobj;
+	struct udevice *dev;
 	void *transmit_buffer;
 	uchar **receive_buffer;
 	size_t *receive_lengths;
 	int i, j;
 
+	if (!netobj || efi_netobj_is_active(netobj))
+		return 0;
+
+	dev = netobj->dev;
 	if (!dev) {
 		/* No network device active, don't expose any */
-		return EFI_SUCCESS;
+		return 0;
 	}
-
-	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && net_objs[i]->dev == dev) {
-			// Do not register duplicate devices
-			return EFI_SUCCESS;
-		}
-	}
-
-	seq_num = -1;
-	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (!net_objs[i]) {
-			seq_num = i;
-			break;
-		}
-	}
-	if (seq_num < 0)
-		return EFI_OUT_OF_RESOURCES;
-
-	/* We only expose the "active" network device, so one is enough */
-	netobj = calloc(1, sizeof(*netobj));
-	if (!netobj)
-		goto out_of_resources;
-
-	netobj->dev = dev;
 
 	/* Allocate an aligned transmit buffer */
 	transmit_buffer = calloc(1, PKTSIZE_ALIGN + PKTALIGN);
@@ -1245,7 +1241,7 @@ efi_status_t efi_net_register(struct udevice *dev)
 			     &netobj->wait_for_packet);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register network event\n");
-		return r;
+		return -1;
 	}
 
 	/*
@@ -1261,13 +1257,13 @@ efi_status_t efi_net_register(struct udevice *dev)
 			     &netobj->network_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register network event\n");
-		return r;
+		return -1;
 	}
 	/* Network is time critical, create event in every timer cycle */
 	r = efi_set_timer(netobj->network_timer_event, EFI_TIMER_PERIODIC, 0);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to set network timer\n");
-		return r;
+		return -1;
 	}
 
 #if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
@@ -1281,15 +1277,12 @@ efi_status_t efi_net_register(struct udevice *dev)
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 #endif
-	netobj->efi_seq_num = seq_num;
-	net_objs[seq_num] = netobj;
-	return EFI_SUCCESS;
+	printf("efi_net init device number %d\n", netobj->efi_seq_num);
+	return 0;
 failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
-	return r;
+	return -1;
 out_of_resources:
-	free(netobj);
-	netobj = NULL;
 	free(transmit_buffer);
 	if (receive_buffer)
 		for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
@@ -1297,7 +1290,161 @@ out_of_resources:
 	free(receive_buffer);
 	free(receive_lengths);
 	printf("ERROR: Out of memory\n");
-	return EFI_OUT_OF_RESOURCES;
+	return -1;
+}
+
+/**
+ * efi_net_init() - initialize registered efi objects
+ *
+ * Return:	status code
+ */
+efi_status_t efi_net_init() {
+	int i, r;
+
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (net_objs[i]) {
+			r = efi_netobj_init(net_objs[i]);
+			if (r)
+				return EFI_DEVICE_ERROR;
+		}
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_net_register() - register a net device
+ *
+ * This function is called when the device is probed
+ *
+ * @ctx:	context set at registration time
+ * @event:	event
+ * Return:	0 on success, negative on error
+ */
+int efi_net_register(void *ctx, struct event *event)
+{
+	struct udevice *dev;
+	int seq_num;
+	enum uclass_id id;
+	struct efi_net_obj *netobj;
+	int i;
+
+	dev = event->data.dm.dev;
+	if (!dev) {
+		/* No network device active, don't expose any */
+		return 0;
+	}
+
+	id = device_get_uclass_id(dev);
+	if (id != UCLASS_ETH)
+		return 0;
+
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (net_objs[i] && net_objs[i]->dev == dev) {
+			// Do not register duplicate devices
+			return 0;
+		}
+	}
+
+	// Find a slot for this efi_net_obj
+	seq_num = -1;
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (!net_objs[i]) {
+			seq_num = i;
+			break;
+		}
+	}
+	if (seq_num < 0)
+		return -1;
+
+	netobj = calloc(1, sizeof(*netobj));
+	if (!netobj)
+		goto out_of_resources;
+
+	netobj->dev = dev;
+	netobj->efi_seq_num = seq_num;
+	net_objs[seq_num] = netobj;
+	printf("efi_net registered device number %d\n", netobj->efi_seq_num);
+	return 0;
+out_of_resources:
+	printf("ERROR: Out of memory\n");
+	return -1;
+}
+
+/**
+ * efi_net_unregister() - unregister a net device
+ *
+ *
+ * @ctx:	context set at registration time
+ * @event:	event
+ * Return:	0 on success, negative on error
+ */
+int efi_net_unregister(void *ctx, struct event *event)
+{
+	efi_status_t ret = EFI_SUCCESS;
+	struct udevice *dev;
+	enum uclass_id id;
+	struct efi_net_obj *netobj;
+	struct efi_handler *phandler;
+	void *interface;
+	int i;
+
+	dev = event->data.dm.dev;
+	if (!dev) {
+		/* No network device active, don't expose any */
+		return 0;
+	}
+
+	id = device_get_uclass_id(dev);
+	if (id != UCLASS_ETH)
+		return 0;
+
+	netobj = NULL;
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (net_objs[i] && net_objs[i]->dev == dev) {
+			netobj = net_objs[i];
+			break;
+		}
+	}
+
+	if (!netobj)
+		return 0;
+
+	// Remove from the list
+	net_objs[i] = NULL;
+
+	if (efi_netobj_is_active(netobj)) {
+		free(netobj->transmit_buffer);
+		if (netobj->receive_buffer)
+			for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
+				free(netobj->receive_buffer[i]);
+		free(netobj->receive_buffer);
+		free(netobj->receive_lengths);
+
+		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
+		if (ret != EFI_SUCCESS)
+			return -1;
+
+		ret = EFI_CALL(efi_close_event(netobj->network_timer_event));
+		if (ret != EFI_SUCCESS)
+			return -1;
+
+		phandler = NULL;
+		efi_search_protocol(&netobj->header, &efi_guid_device_path, &phandler);
+		if (phandler && phandler->protocol_interface)
+			interface = phandler->protocol_interface;
+
+		ret = efi_delete_handle(&netobj->header);
+		if (ret != EFI_SUCCESS)
+			return -1;
+
+		efi_free_pool(interface);
+	}
+
+	// Free the efi_net_obj
+	free(netobj);
+
+	return 0;
 }
 
 /**

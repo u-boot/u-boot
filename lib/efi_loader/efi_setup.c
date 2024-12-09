@@ -220,7 +220,7 @@ static efi_status_t efi_start_obj_list(void)
 	efi_status_t ret = EFI_SUCCESS;
 
 	if (IS_ENABLED(CONFIG_NETDEVICES))
-		ret = efi_net_do_start(eth_get_dev());
+		ret = efi_net_do_start();
 
 	return ret;
 }
@@ -337,7 +337,7 @@ efi_status_t efi_init_obj_list(void)
 			goto out;
 	}
 	if (IS_ENABLED(CONFIG_NETDEVICES)) {
-		ret = efi_net_register(eth_get_dev());
+		ret = efi_net_init();
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
