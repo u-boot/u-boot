@@ -529,6 +529,26 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	ret = lmb_add(ram, ram_size);
 	ut_asserteq(ret, 0);
 
+	/* Try to allocate a page twice */
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x2000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	ret = lmb_free(alloc_addr_a, 0x2000);
+	ut_asserteq(ret, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	ret = lmb_free(alloc_addr_a, 0x1000);
+	ut_asserteq(ret, 0);
+
 	/*  reserve 3 blocks */
 	ret = lmb_reserve(alloc_addr_a, 0x10000);
 	ut_asserteq(ret, 0);
@@ -734,7 +754,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* reserve again, same flag */
 	ret = lmb_reserve_flags(0x40010000, 0x10000, LMB_NOMAP);
-	ut_asserteq(ret, 0);
+	ut_asserteq(ret, -1L);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x10000,
 		   0, 0, 0, 0);
 

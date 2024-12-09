@@ -1071,8 +1071,8 @@ static int bcmnand_ctrl_poll_status(struct brcmnand_controller *ctrl,
 	if ((val & mask) == expected_val)
 		return 0;
 
-	dev_warn(ctrl->dev, "timeout on status poll (expected %x got %x)\n",
-		 expected_val, val & mask);
+	dev_err(ctrl->dev, "timeout on status poll (expected %x got %x)\n",
+		expected_val, val & mask);
 
 	return -ETIMEDOUT;
 }
@@ -2032,7 +2032,7 @@ try_dmaread:
 				return err;
 		}
 
-		dev_dbg(ctrl->dev, "uncorrectable error at 0x%llx\n",
+		dev_err(ctrl->dev, "uncorrectable error at 0x%llx\n",
 			(unsigned long long)err_addr);
 		mtd->ecc_stats.failed++;
 		/* NAND layer expects zero on ECC errors */
@@ -2793,9 +2793,17 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 	nand_hw_control_init(&ctrl->controller);
 	INIT_LIST_HEAD(&ctrl->host_list);
 
+#ifdef CONFIG_NAND_BRCMNAND_BCMBCA
+	/*
+	 * BCMBCA platform does not use non-linux parameter-page-big-endian dts property,
+	 * param page data is little endian
+	 */
+	ctrl->parameter_page_big_endian = 0;
+#else
 	/* Is parameter page in big endian ? */
 	ctrl->parameter_page_big_endian =
 	    dev_read_u32_default(dev, "parameter-page-big-endian", 1);
+#endif
 
 	/* NAND register range */
 #ifndef __UBOOT__

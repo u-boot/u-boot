@@ -305,6 +305,17 @@ static int setup_mon_len(void)
 	return 0;
 }
 
+static int setup_spl_handoff(void)
+{
+#if CONFIG_IS_ENABLED(HANDOFF)
+	gd->spl_handoff = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF,
+					sizeof(struct spl_handoff));
+	debug("Found SPL hand-off info %p\n", gd->spl_handoff);
+#endif
+
+	return 0;
+}
+
 __weak int arch_cpu_init(void)
 {
 	return 0;
@@ -873,6 +884,7 @@ static const init_fnc_t init_sequence_f[] = {
 	initf_bootstage,	/* uses its own timer, so does not need DM */
 	event_init,
 	bloblist_maybe_init,
+	setup_spl_handoff,
 #if defined(CONFIG_CONSOLE_RECORD_INIT_F)
 	console_record_init,
 #endif

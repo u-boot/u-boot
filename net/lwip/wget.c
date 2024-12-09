@@ -180,7 +180,7 @@ static int parse_legacy_arg(char *arg, char *nurl, size_t rem)
 
 	if (rem < n)
 		return -1;
-	strlcpy(p, server, n);
+	strncpy(p, server, n);
 	p += n;
 	rem -= n;
 	if (rem < 1)
@@ -191,7 +191,7 @@ static int parse_legacy_arg(char *arg, char *nurl, size_t rem)
 	n = strlen(path);
 	if (rem < n)
 		return -1;
-	strlcpy(p, path, n);
+	strncpy(p, path, n);
 	p += n;
 	rem -= n;
 	if (rem < 1)

@@ -97,7 +97,7 @@ obj-$(CONFIG_LIBAVB) += libavb/
 obj-$(CONFIG_$(PHASE_)OF_LIBFDT) += libfdt/
 obj-$(CONFIG_$(PHASE_)OF_REAL) += fdtdec_common.o fdtdec.o
 
-obj-$(CONFIG_MBEDTLS_LIB) += mbedtls/
+obj-$(CONFIG_$(XPL_)MBEDTLS_LIB) += mbedtls/
 
 obj-$(CONFIG_NET_LWIP) += lwip/
 

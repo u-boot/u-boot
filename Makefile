@@ -3,7 +3,7 @@
 VERSION = 2025
 PATCHLEVEL = 01
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION = -rc4
 NAME =
 
 # *DOCUMENTATION*
@@ -21,7 +21,7 @@ include include/host_arch.h
 ifeq ("", "$(CROSS_COMPILE)")
   MK_ARCH="${shell uname -m}"
 else
-  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\(ccache\)\?[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\3/p'}"
+  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\(ccache\)\{0,1\}[[:space:]]*\([^\/]*\/\)*\([^-]*\)-[^[:space:]]*/\3/p'}"
 endif
 unexport HOST_ARCH
 ifeq ("x86_64", $(MK_ARCH))

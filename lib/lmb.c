@@ -201,15 +201,6 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 		phys_addr_t rgnbase = rgn[i].base;
 		phys_size_t rgnsize = rgn[i].size;
 		phys_size_t rgnflags = rgn[i].flags;
-		phys_addr_t end = base + size - 1;
-		phys_addr_t rgnend = rgnbase + rgnsize - 1;
-		if (rgnbase <= base && end <= rgnend) {
-			if (flags == rgnflags)
-				/* Already have this region, so we're done */
-				return 0;
-			else
-				return -1; /* regions with new flags */
-		}
 
 		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
 		if (ret > 0) {
@@ -615,6 +606,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 void lmb_add_memory(void)
 {
 	int i;
+	phys_addr_t bank_end;
 	phys_size_t size;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
@@ -628,6 +620,8 @@ void lmb_add_memory(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size = bd->bi_dram[i].size;
+		bank_end = bd->bi_dram[i].start + size;
+
 		if (size) {
 			lmb_add(bd->bi_dram[i].start, size);
 
@@ -638,6 +632,9 @@ void lmb_add_memory(void)
 			 */
 			if (bd->bi_dram[i].start >= ram_top)
 				lmb_reserve_flags(bd->bi_dram[i].start, size,
+						  LMB_NOOVERWRITE);
+			else if (bank_end > ram_top)
+				lmb_reserve_flags(ram_top, bank_end - ram_top,
 						  LMB_NOOVERWRITE);
 		}
 	}

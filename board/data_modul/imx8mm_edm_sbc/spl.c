@@ -61,8 +61,10 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
 	if (boot_dev_spl == MMC3_BOOT)
 		return BOOT_DEVICE_MMC2;	/* eMMC */
-	else
+	else if (boot_dev_spl == MMC2_BOOT)
 		return BOOT_DEVICE_MMC1;	/* SD */
+	else
+		return BOOT_DEVICE_BOARD;
 }
 
 void board_boot_order(u32 *spl_boot_list)
@@ -76,7 +78,7 @@ void board_boot_order(u32 *spl_boot_list)
 	else
 		spl_boot_list[1] = BOOT_DEVICE_MMC1;	/* SD */
 
-	spl_boot_list[2] = BOOT_DEVICE_UART;	/* YModem */
+	spl_boot_list[2] = BOOT_DEVICE_BOARD;	/* SDP */
 	spl_boot_list[3] = BOOT_DEVICE_NONE;
 }
 

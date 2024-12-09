@@ -692,7 +692,9 @@ altcp_tls_set_session(struct altcp_pcb *conn, struct altcp_tls_session *session)
   if (session && conn && conn->state) {
     altcp_mbedtls_state_t *state = (altcp_mbedtls_state_t *)conn->state;
     int ret = -1;
+#ifdef MBEDTLS_HAVE_TIME
     if (session->data.MBEDTLS_PRIVATE(start))
+#endif
       ret = mbedtls_ssl_set_session(&state->ssl_context, &session->data);
     return ret < 0 ? ERR_VAL : ERR_OK;
   }

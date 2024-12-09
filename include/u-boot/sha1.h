@@ -14,9 +14,10 @@
 #ifndef _SHA1_H
 #define _SHA1_H
 
+#include <linux/kconfig.h>
 #include <linux/types.h>
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 /*
  * FIXME:
  * MbedTLS define the members of "mbedtls_sha256_context" as private,
@@ -47,7 +48,7 @@ extern "C" {
 
 extern const uint8_t sha1_der_prefix[];
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 typedef mbedtls_sha1_context sha1_context;
 #else
 /**

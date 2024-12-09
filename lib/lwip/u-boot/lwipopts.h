@@ -5,6 +5,8 @@
 #ifndef LWIP_UBOOT_LWIPOPTS_H
 #define LWIP_UBOOT_LWIPOPTS_H
 
+#include <linux/kconfig.h>
+
 #if defined(CONFIG_LWIP_DEBUG)
 #define LWIP_DEBUG 1
 #define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL
@@ -154,7 +156,7 @@
 #define MEMP_MEM_INIT			1
 #define MEM_LIBC_MALLOC			1
 
-#if defined(CONFIG_MBEDTLS_LIB_TLS)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_TLS)
 #define LWIP_ALTCP                      1
 #define LWIP_ALTCP_TLS                  1
 #define LWIP_ALTCP_TLS_MBEDTLS          1

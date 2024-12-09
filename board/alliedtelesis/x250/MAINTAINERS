@@ -1,0 +1,7 @@
+X250 BOARD
+M:	Chris Packham <chris.packham@alliedtelesis.co.nz>
+S:	Maintained
+F:	board/alliedtelesis/x250/
+F:	arch/arm/dts/cn9130-atl-x250.dts
+F:	include/configs/x250.h
+F:	configs/x250_defconfig

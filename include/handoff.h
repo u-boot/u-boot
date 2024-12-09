@@ -32,13 +32,6 @@ void handoff_load_dram_size(struct spl_handoff *ho);
 void handoff_load_dram_banks(struct spl_handoff *ho);
 
 /**
- * handoff_get() - Get the SPL handoff information
- *
- * Return: Pointer to SPL handoff if received, else NULL
- */
-struct spl_handoff *handoff_get(void);
-
-/**
  * handoff_arch_save() - Save arch-specific info into the handoff area
  *
  * This is defined to an empty function by default, but arch-specific code can
