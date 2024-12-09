@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2020 MediaTek Inc.
+ *
+ * Author: Weijie Gao <weijie.gao@mediatek.com>
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include "mt7620.dtsi"
+
+/ {
+	compatible = "mediatek,edup_ep-2913", "mediatek,mt7620-soc";
+	model = "EDUP EP-2913";
+
+	aliases {
+		serial0 = &uartlite;
+		spi0 = &spi0;
+	};
+
+	chosen {
+		stdout-path = &uartlite;
+	};
+};
+
+&uartlite {
+	status = "okay";
+};
+
+&pinctrl {
+	state_default: pin_state {
+		pleds {
+			groups = "ephy led", "wled";
+			function = "led";
+		};
+
+		gpios {
+			groups = "uartf";
+			function = "gpio";
+		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+	num-cs = <2>;
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <48000000>;
+		reg = <0>;
+	};
+};
+
+&eth {
+	status = "okay";
+
+	port4 {
+		phy-addr = <4>;
+	};
+};
