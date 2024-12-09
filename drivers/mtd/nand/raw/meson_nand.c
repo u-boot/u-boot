@@ -1118,7 +1118,7 @@ static int meson_nfc_nand_chip_init(struct udevice *dev, struct meson_nfc *nfc,
 	nand->ecc.read_oob_raw = meson_nfc_read_oob_raw;
 	nand->ecc.write_oob_raw = meson_nfc_write_oob_raw;
 
-	nand->ecc.algo = NAND_ECC_BCH;
+	nand->ecc.algo = NAND_ECC_ALGO_BCH;
 
 	mtd = nand_to_mtd(nand);
 
