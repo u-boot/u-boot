@@ -649,7 +649,6 @@ static const struct eth_ops ravb_ops = {
 int ravb_of_to_plat(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
-	const fdt32_t *cell;
 
 	pdata->iobase = dev_read_addr(dev);
 
@@ -657,10 +656,7 @@ int ravb_of_to_plat(struct udevice *dev)
 	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
 		return -EINVAL;
 
-	pdata->max_speed = 1000;
-	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
-	if (cell)
-		pdata->max_speed = fdt32_to_cpu(*cell);
+	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 1000);
 
 	sprintf(bb_miiphy_buses[0].name, dev->name);
 

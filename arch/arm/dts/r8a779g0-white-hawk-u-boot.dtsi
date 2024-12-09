@@ -13,6 +13,14 @@
 	};
 };
 
+&avb1 {
+	status = "disabled";
+};
+
+&avb2 {
+	status = "disabled";
+};
+
 &rpc {
 	flash@0 {
 		spi-tx-bus-width = <1>;
