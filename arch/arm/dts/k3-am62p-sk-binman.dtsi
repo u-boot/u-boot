@@ -57,6 +57,55 @@
 			type = "blob-ext";
 		};
 	};
+
+	tiboot3-am62px-hs-evm.bin {
+		filename = "tiboot3-am62px-hs-evm.bin";
+
+		ti-secure-rom {
+			content = <&u_boot_spl_hs>, <&ti_fs_enc_hs>, <&combined_tifs_cfg_hs>,
+				  <&combined_dm_cfg_hs>, <&sysfw_inner_cert_hs>;
+			combined;
+			dm-data;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl_hs>;
+			content-sysfw = <&ti_fs_enc_hs>;
+			content-sysfw-data = <&combined_tifs_cfg_hs>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert_hs>;
+			content-dm-data = <&combined_dm_cfg_hs>;
+			load = <0x43c00000>;
+			load-sysfw = <0x40000>;
+			load-sysfw-data = <0x67000>;
+			load-dm-data = <0x43c4a800>;
+		};
+
+		u_boot_spl_hs: u-boot-spl {
+			no-expanded;
+		};
+
+		ti_fs_enc_hs: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_tifs_cfg_hs: combined-tifs-cfg.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+
+		sysfw_inner_cert_hs: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-fs-firmware-am62px-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_dm_cfg_hs: combined-dm-cfg.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
 };
 
 #include "k3-binman-capsule-r5.dtsi"
