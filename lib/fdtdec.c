@@ -99,15 +99,15 @@ extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
 /* Get a pointer to the embedded devicetree, if there is one, else NULL */
 static u8 *dtb_dt_embedded(void)
 {
-#ifdef CONFIG_OF_EMBED
-# ifdef CONFIG_XPL_BUILD
-	return __dtb_dt_spl_begin;
-# else
-	return __dtb_dt_begin;
-# endif
-#else
-	return NULL;
-#endif
+	u8 *addr = NULL;
+
+	if (IS_ENABLED(CONFIG_OF_EMBED)) {
+		addr = __dtb_dt_begin;
+
+		if (IS_ENABLED(CONFIG_XPL_BUILD))
+			addr = __dtb_dt_spl_begin;
+	}
+	return addr;
 }
 
 const char *fdtdec_get_srcname(void)
