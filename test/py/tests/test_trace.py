@@ -70,6 +70,32 @@ def collect_trace(cons):
     return fname, int(dm_f_time[0])
 
 
+def clear_and_collect_trace(cons):
+    """Pause and clear traces, return the number of calls (should be zero)
+
+    Args:
+        cons (ConsoleBase): U-Boot console
+
+    Returns:
+        int: the number of traced function calls reported by 'trace stats'
+    """
+    cons.run_command('trace pause')
+    cons.run_command('trace clear')
+    out = cons.run_command('trace stats')
+
+    # The output is something like this:
+    # 117,221 function sites
+    #       0 function calls
+    #       0 untracked function calls
+    #       0 traced function calls
+
+    # Get a dict of values from the output
+    lines = [line.split(maxsplit=1) for line in out.splitlines() if line]
+    vals = {key: val.replace(',', '') for val, key in lines}
+
+    return int(vals['traced function calls'])
+
+
 def check_function(cons, fname, proftool, map_fname, trace_dat):
     """Check that the 'function' output works
 
@@ -304,3 +330,7 @@ def test_trace(u_boot_console):
     # This allows for CI being slow to run
     diff = abs(fg_time - dm_f_time)
     assert diff / dm_f_time < 0.3
+
+    # Check that the trace buffer can be cleared
+    numcalls = clear_and_collect_trace(cons)
+    assert numcalls == 0

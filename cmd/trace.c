@@ -87,8 +87,18 @@ int do_trace(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		trace_set_enabled(0);
 		break;
 	case 'c':
-		if (create_call_list(argc, argv))
+		switch (*(cmd + 1)) {
+		case 'a':
+			if (create_call_list(argc, argv))
+				return cmd_usage(cmdtp);
+			break;
+		case 'l':
+			if (trace_clear())
+				return CMD_RET_FAILURE;
+			break;
+		default:
 			return cmd_usage(cmdtp);
+		}
 		break;
 	case 'r':
 		trace_set_enabled(1);
@@ -113,6 +123,7 @@ U_BOOT_CMD(
 	"stats                        - display tracing statistics\n"
 	"trace pause                        - pause tracing\n"
 	"trace resume                       - resume tracing\n"
+	"trace clear                        - clear traces\n"
 	"trace funclist [<addr> <size>]     - dump function list into buffer\n"
 	"trace calls  [<addr> <size>]       "
 		"- dump function call trace into buffer"
