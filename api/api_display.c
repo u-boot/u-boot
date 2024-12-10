@@ -11,6 +11,8 @@
 
 int display_get_info(int type, struct display_info *di)
 {
+
+	
 	if (!di)
 		return API_EINVAL;
 
