@@ -1007,6 +1007,12 @@ config FSL_ENETC
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.
 
+config MDIO_GPIO_BITBANG
+	bool "GPIO bitbanging MDIO driver"
+	depends on DM_MDIO && DM_GPIO
+	help
+	 Driver for bitbanging MDIO
+
 config MDIO_MUX_I2CREG
 	bool "MDIO MUX accessed as a register over I2C"
 	depends on DM_MDIO_MUX && DM_I2C
