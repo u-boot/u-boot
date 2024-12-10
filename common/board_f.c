@@ -872,12 +872,8 @@ static int initf_upl(void)
 
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
-#ifdef CONFIG_OF_CONTROL
-	fdtdec_setup,
-#endif
-#ifdef CONFIG_TRACE_EARLY
-	trace_early_init,
-#endif
+	CONFIG_IS_ENABLED(OF_CONTROL, (fdtdec_setup,))
+	CONFIG_IS_ENABLED(TRACE_EARLY, (trace_early_init,))
 	initf_malloc,
 	initf_upl,
 	log_init,
@@ -885,16 +881,12 @@ static const init_fnc_t init_sequence_f[] = {
 	event_init,
 	bloblist_maybe_init,
 	setup_spl_handoff,
-#if defined(CONFIG_CONSOLE_RECORD_INIT_F)
-	console_record_init,
-#endif
+	CONFIG_IS_ENABLED(CONSOLE_RECORD_INIT_F, (console_record_init,))
 	INITCALL_EVENT(EVT_FSP_INIT_F),
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 	mach_cpu_init,		/* SoC/machine dependent CPU setup */
 	initf_dm,
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-	board_early_init_f,
-#endif
+	CONFIG_IS_ENABLED(BOARD_EARLY_INIT_F, (board_early_init_f,))
 #if defined(CONFIG_PPC) || defined(CONFIG_SYS_FSL_CLK) || defined(CONFIG_M68K)
 	/* get CPU and bus clocks according to the environment variable */
 	get_clocks,		/* get CPU and bus clocks (etc.) */
@@ -902,9 +894,7 @@ static const init_fnc_t init_sequence_f[] = {
 #if !defined(CONFIG_M68K) || (defined(CONFIG_M68K) && !defined(CONFIG_MCFTMR))
 	timer_init,		/* initialize timer */
 #endif
-#if defined(CONFIG_BOARD_POSTCLK_INIT)
-	board_postclk_init,
-#endif
+	CONFIG_IS_ENABLED(BOARD_POSTCLK_INIT, (board_postclk_init,))
 	env_init,		/* initialize environment */
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
@@ -912,38 +902,25 @@ static const init_fnc_t init_sequence_f[] = {
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
 	checkcpu,
-#if defined(CONFIG_SYSRESET)
-	print_resetinfo,
-#endif
-#if defined(CONFIG_DISPLAY_CPUINFO)
-	print_cpuinfo,		/* display cpu info (and speed) */
-#endif
-#if defined(CONFIG_DTB_RESELECT)
-	embedded_dtb_select,
-#endif
-#if defined(CONFIG_DISPLAY_BOARDINFO)
-	show_board_info,
-#endif
+	CONFIG_IS_ENABLED(SYSRESET, (print_resetinfo,))
+	/* display cpu info (and speed) */
+	CONFIG_IS_ENABLED(DISPLAY_CPUINFO, (print_cpuinfo,))
+	CONFIG_IS_ENABLED(DTB_RESELECT, (embedded_dtb_select,))
+	CONFIG_IS_ENABLED(DISPLAY_BOARDINFO, (show_board_info,))
 	INIT_FUNC_WATCHDOG_INIT
 	INITCALL_EVENT(EVT_MISC_INIT_F),
 	INIT_FUNC_WATCHDOG_RESET
-#if CONFIG_IS_ENABLED(SYS_I2C_LEGACY)
-	init_func_i2c,
-#endif
+	CONFIG_IS_ENABLED(SYS_I2C_LEGACY, (init_func_i2c,))
 	announce_dram_init,
 	dram_init,		/* configure available RAM banks */
-#ifdef CONFIG_POST
-	post_init_f,
-#endif
+	CONFIG_IS_ENABLED(POST, (post_init_f,))
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CFG_SYS_DRAM_TEST)
 	testdram,
 #endif /* CFG_SYS_DRAM_TEST */
 	INIT_FUNC_WATCHDOG_RESET
 
-#ifdef CONFIG_POST
-	init_post,
-#endif
+	CONFIG_IS_ENABLED(POST, (init_post,))
 	INIT_FUNC_WATCHDOG_RESET
 	/*
 	 * Now that we have DRAM mapped and working, we can

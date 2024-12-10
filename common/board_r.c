@@ -612,19 +612,11 @@ static init_fnc_t init_sequence_r[] = {
 	initr_malloc,
 	log_init,
 	initr_bootstage,	/* Needs malloc() but has its own timer */
-#if defined(CONFIG_CONSOLE_RECORD)
-	console_record_init,
-#endif
-#ifdef CONFIG_SYS_NONCACHED_MEMORY
-	noncached_init,
-#endif
+	CONFIG_IS_ENABLED(CONSOLE_RECORD, (console_record_init,))
+	CONFIG_IS_ENABLED(SYS_NONCACHED_MEMORY, (noncached_init,))
 	initr_of_live,
-#ifdef CONFIG_DM
-	initr_dm,
-#endif
-#ifdef CONFIG_ADDR_MAP
-	init_addr_map,
-#endif
+	CONFIG_IS_ENABLED(DM, (initr_dm,))
+	CONFIG_IS_ENABLED(ADDR_MAP, (init_addr_map,))
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV) || defined(CONFIG_SANDBOX)
 	board_init,	/* Setup chipselects */
 #endif
@@ -634,36 +626,22 @@ static init_fnc_t init_sequence_r[] = {
 	 * davinci SOC's is added. Remove this check once all the board
 	 * implement this.
 	 */
-#ifdef CONFIG_CLOCKS
-	set_cpu_clk_info, /* Setup clock information */
-#endif
+	CONFIG_IS_ENABLED(CLOCKS, (set_cpu_clk_info,)) /* Setup clock information */
 	initr_lmb,
-#ifdef CONFIG_EFI_LOADER
-	efi_memory_init,
-#endif
-#ifdef CONFIG_BINMAN_FDT
-	initr_binman,
-#endif
-#ifdef CONFIG_FSP_VERSION2
-	arch_fsp_init_r,
-#endif
+	CONFIG_IS_ENABLED(EFI_LOADER, (efi_memory_init,))
+	CONFIG_IS_ENABLED(BINMAN_FDT, (initr_binman,))
+	CONFIG_IS_ENABLED(FSP_VERSION2, (arch_fsp_init_r,))
 	initr_dm_devices,
 	stdio_init_tables,
 	serial_initialize,
 	initr_announce,
 	dm_announce,
-#if CONFIG_IS_ENABLED(WDT)
-	initr_watchdog,
-#endif
+	CONFIG_IS_ENABLED(WDT, (initr_watchdog,))
 	INIT_FUNC_WATCHDOG_RESET
 	arch_initr_trap,
-#if defined(CONFIG_BOARD_EARLY_INIT_R)
-	board_early_init_r,
-#endif
+	CONFIG_IS_ENABLED(BOARD_EARLY_INIT_R, (board_early_init_r,))
 	INIT_FUNC_WATCHDOG_RESET
-#ifdef CONFIG_POST
-	post_output_backlog,
-#endif
+	CONFIG_IS_ENABLED(POST, (post_output_backlog,))
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI_INIT_R) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
@@ -672,45 +650,25 @@ static init_fnc_t init_sequence_r[] = {
 	 */
 	pci_init,
 #endif
-#ifdef CONFIG_ARCH_EARLY_INIT_R
-	arch_early_init_r,
-#endif
+	CONFIG_IS_ENABLED(ARCH_EARLY_INIT_R, (arch_early_init_r,))
 	power_init_board,
-#ifdef CONFIG_MTD_NOR_FLASH
-	initr_flash,
-#endif
+	CONFIG_IS_ENABLED(MTD_NOR_FLASH, (initr_flash,))
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
 #endif
-#ifdef CONFIG_EFI_LOADER
-	efi_init_early,
-#endif
-#ifdef CONFIG_CMD_NAND
-	initr_nand,
-#endif
-#ifdef CONFIG_CMD_ONENAND
-	initr_onenand,
-#endif
-#ifdef CONFIG_MMC
-	initr_mmc,
-#endif
-#ifdef CONFIG_XEN
-	xen_init,
-#endif
-#ifdef CONFIG_PVBLOCK
-	initr_pvblock,
-#endif
+	CONFIG_IS_ENABLED(EFI_LOADER, (efi_init_early,))
+	CONFIG_IS_ENABLED(CMD_NAND, (initr_nand,))
+	CONFIG_IS_ENABLED(CMD_ONENAND, (initr_onenand,))
+	CONFIG_IS_ENABLED(MMC, (initr_mmc,))
+	CONFIG_IS_ENABLED(XEN, (xen_init,))
+	CONFIG_IS_ENABLED(PVBLOCK, (initr_pvblock,))
 	initr_env,
-#ifdef CONFIG_SYS_MALLOC_BOOTPARAMS
-	initr_malloc_bootparams,
-#endif
+	CONFIG_IS_ENABLED(SYS_MALLOC_BOOTPARAMS, (initr_malloc_bootparams,))
 	INIT_FUNC_WATCHDOG_RESET
 	cpu_secondary_init_r,
-#if defined(CONFIG_ID_EEPROM)
-	mac_read_from_eeprom,
-#endif
+	CONFIG_IS_ENABLED(ID_EEPROM, (mac_read_from_eeprom,))
 	INITCALL_EVENT(EVT_SETTINGS_R),
 	INIT_FUNC_WATCHDOG_RESET
 #if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
@@ -721,24 +679,15 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 	stdio_add_devices,
 	jumptable_init,
-#ifdef CONFIG_API
-	api_init,
-#endif
+	CONFIG_IS_ENABLED(API, (api_init,))
 	console_init_r,		/* fully init console as a device */
-#ifdef CONFIG_DISPLAY_BOARDINFO_LATE
-	console_announce_r,
-	show_board_info,
-#endif
-#ifdef CONFIG_ARCH_MISC_INIT
-	arch_misc_init,		/* miscellaneous arch-dependent init */
-#endif
-#ifdef CONFIG_MISC_INIT_R
-	misc_init_r,		/* miscellaneous platform-dependent init */
-#endif
+	CONFIG_IS_ENABLED(DISPLAY_BOARDINFO_LATE, (console_announce_r, show_board_info,))
+	/* miscellaneous arch-dependent init */
+	CONFIG_IS_ENABLED(ARCH_MISC_INIT, (arch_misc_init,))
+	/* miscellaneous platform-dependent init */
+	CONFIG_IS_ENABLED(MISC_INIT_R, (misc_init_r,))
 	INIT_FUNC_WATCHDOG_RESET
-#ifdef CONFIG_CMD_KGDB
-	kgdb_init,
-#endif
+	CONFIG_IS_ENABLED(CMD_KGDB, (kgdb_init,))
 	interrupt_init,
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
 	timer_init,		/* initialize timer */
@@ -746,22 +695,11 @@ static init_fnc_t init_sequence_r[] = {
 	initr_status_led,
 	initr_boot_led_blink,
 	/* PPC has a udelay(20) here dating from 2002. Why? */
-#ifdef CONFIG_BOARD_LATE_INIT
-	board_late_init,
-#endif
-#ifdef CONFIG_BITBANGMII
-	bb_miiphy_init,
-#endif
-#ifdef CONFIG_PCI_ENDPOINT
-	pci_ep_init,
-#endif
-#if defined(CONFIG_CMD_NET)
-	INIT_FUNC_WATCHDOG_RESET
-	initr_net,
-#endif
-#ifdef CONFIG_POST
-	initr_post,
-#endif
+	CONFIG_IS_ENABLED(BOARD_LATE_INIT, (board_late_init,))
+	CONFIG_IS_ENABLED(BITBANGMII, (bb_miiphy_init,))
+	CONFIG_IS_ENABLED(PCI_ENDPOINT, (pci_ep_init,))
+	CONFIG_IS_ENABLED(CMD_NET, (INIT_FUNC_WATCHDOG_RESET initr_net,))
+	CONFIG_IS_ENABLED(POST, (initr_post,))
 	INIT_FUNC_WATCHDOG_RESET
 	INITCALL_EVENT(EVT_LAST_STAGE_INIT),
 #if defined(CFG_PRAM)
