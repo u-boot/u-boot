@@ -704,6 +704,18 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 			  uint vendor_subcmd);
 
 /**
+ * tpm2_scan_masks - Scan the bitmask of algorithms based on the
+ *		     active/supported banks and the one from eventlog.
+ *
+ * @dev		TPM device
+ * @log_active	Active algorithm bitmask
+ * @mask	Bitmask to set
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask);
+
+/**
  * tpm2_pcr_config_algo() - Allocate the active PCRs. Requires reboot
  *
  * @dev		TPM device
@@ -730,6 +742,15 @@ u32 tpm2_pcr_config_algo(struct udevice *dev, u32 algo_mask,
 u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 			   const ssize_t pw_sz, struct tpml_pcr_selection *pcr,
 			   u32 pcr_len);
+/**
+ * tpm2_activate_banks() - Activate PCR banks
+ *
+ * @param dev   TPM device
+ * @log_active	Bitmask of eventlog algorithms
+ *
+ * Return: code of the operation
+ */
+int tpm2_activate_banks(struct udevice *dev, u32 log_active);
 
 /**
  * tpm2_auto_start() - start up the TPM and perform selftests.
