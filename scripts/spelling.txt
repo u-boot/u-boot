@@ -1584,6 +1584,7 @@ virtaul||virtual
 virtiual||virtual
 visiters||visitors
 vitual||virtual
+volatge||voltage
 vunerable||vulnerable
 wakeus||wakeups
 wathdog||watchdog
