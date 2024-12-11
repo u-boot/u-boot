@@ -44,12 +44,13 @@ static int tpm2_update_active_banks(struct udevice *dev)
 	return 0;
 }
 
-u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
+u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
 {
+	int op = bon ? TPM2_CC_STARTUP : TPM2_CC_SHUTDOWN;
 	const u8 command_v2[12] = {
 		tpm_u16(TPM2_ST_NO_SESSIONS),
 		tpm_u32(12),
-		tpm_u32(TPM2_CC_STARTUP),
+		tpm_u32(op),
 		tpm_u16(mode),
 	};
 	int ret;
@@ -59,7 +60,7 @@ u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 	 * but will return RC_INITIALIZE otherwise.
 	 */
 	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
-	if (ret && ret != TPM2_RC_INITIALIZE)
+	if ((ret && ret != TPM2_RC_INITIALIZE) || !bon)
 		return ret;
 
 	return tpm2_update_active_banks(dev);
@@ -84,7 +85,7 @@ u32 tpm2_auto_start(struct udevice *dev)
 	rc = tpm2_self_test(dev, TPMI_YES);
 
 	if (rc == TPM2_RC_INITIALIZE) {
-		rc = tpm2_startup(dev, TPM2_SU_CLEAR);
+		rc = tpm2_startup(dev, true, TPM2_SU_CLEAR);
 		if (rc)
 			return rc;
 

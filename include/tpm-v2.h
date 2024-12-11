@@ -202,6 +202,7 @@ enum tpm2_command_codes {
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
+	TPM2_CC_SHUTDOWN	= 0x0145,
 };
 
 /**
@@ -389,7 +390,7 @@ enum {
  *
  * Return: code of the operation
  */
-u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode);
+u32 tpm2_startup(struct udevice *dev, bool onoff, enum tpm2_startup_types mode);
 
 /**
  * Issue a TPM2_SelfTest command.
