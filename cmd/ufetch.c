@@ -89,7 +89,7 @@ enum output_lines {
 static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	int num_lines = max(LAST_LINE + 1, ARRAY_SIZE(logo_lines));
+	int num_lines = max((size_t)LAST_LINE + 1, ARRAY_SIZE(logo_lines));
 	const char *model, *compatible;
 	char *ipaddr;
 	int n_cmds, n_cpus = 0, ret, compatlen;
