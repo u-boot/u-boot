@@ -472,7 +472,8 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
-	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
+	const char * const flag_str[] = { "none", "no-map", "no-overwrite",
+					  "no-notify" };
 	unsigned int pflags = flags &
 			      (LMB_NOMAP | LMB_NOOVERWRITE | LMB_NONOTIFY);
 
