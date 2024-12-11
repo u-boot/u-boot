@@ -224,13 +224,13 @@ static int str_itoa(struct unit_test_state *uts)
 	ut_asserteq_str("4294967295", simple_itoa(0xffffffff));
 
 	/* Use #ifdef here to avoid a compiler warning on 32-bit machines */
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_64BIT
 	if (sizeof(ulong) == 8) {
 		ut_asserteq_str("9223372036854775807",
 				simple_itoa((1UL << 63) - 1));
 		ut_asserteq_str("18446744073709551615", simple_itoa(-1));
 	}
-#endif /* CONFIG_PHYS_64BIT */
+#endif /* CONFIG_64BIT */
 
 	return 0;
 }
@@ -244,13 +244,13 @@ static int str_xtoa(struct unit_test_state *uts)
 	ut_asserteq_str("ffffffff", simple_xtoa(0xffffffff));
 
 	/* Use #ifdef here to avoid a compiler warning on 32-bit machines */
-#ifdef CONFIG_PHYS_64BIT
+#ifdef CONFIG_64BIT
 	if (sizeof(ulong) == 8) {
 		ut_asserteq_str("7fffffffffffffff",
 				simple_xtoa((1UL << 63) - 1));
 		ut_asserteq_str("ffffffffffffffff", simple_xtoa(-1));
 	}
-#endif /* CONFIG_PHYS_64BIT */
+#endif /* CONFIG_64BIT */
 
 	return 0;
 }

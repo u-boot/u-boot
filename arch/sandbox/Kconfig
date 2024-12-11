@@ -46,6 +46,8 @@ config HOST_32BIT
 
 config HOST_64BIT
 	def_bool $(cc-define,_LP64)
+	select 64BIT
+	select SPL_64BIT if SPL
 
 config HOST_HAS_SDL
 	def_bool $(success,sdl2-config --version)
