@@ -601,14 +601,6 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	}
 }
 
-/**
- * lmb_add_memory() - Add memory range for LMB allocations
- *
- * Add the entire available memory range to the pool of memory that
- * can be used by the LMB module for allocations.
- *
- * Return: None
- */
 void lmb_add_memory(void)
 {
 	int i;
@@ -665,16 +657,6 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_map_update_notify(base, size, MAP_OP_ADD, LMB_NONE);
 }
 
-/**
- * lmb_free_flags() - Free up a region of memory
- * @base: Base Address of region to be freed
- * @size: Size of the region to be freed
- * @flags: Memory region attributes
- *
- * Free up a region of memory.
- *
- * Return: 0 if successful, negative error code on failure
- */
 long lmb_free_flags(phys_addr_t base, phys_size_t size,
 		    uint flags)
 {
@@ -782,19 +764,6 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 	return alloc;
 }
 
-/**
- * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @max_addr: Maximum address of the requested region
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The max_addr parameter is used to specify the maximum address
- * below which the requested region should be allocated.
- *
- * Return: base address on success, 0 on error
- */
 phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 				 phys_addr_t max_addr, uint flags)
 {
@@ -843,18 +812,6 @@ phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 	return _lmb_alloc_addr(base, size, LMB_NONE);
 }
 
-/**
- * lmb_alloc_addr_flags() - Allocate specified memory address with specified attributes
- * @base: Base Address requested
- * @size: Size of the region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The base parameter is used to specify the base address
- * of the requested region.
- *
- * Return: base address on success, 0 on error
- */
 phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
 				 uint flags)
 {
@@ -927,18 +884,6 @@ static int lmb_setup(bool test)
 	return 0;
 }
 
-/**
- * lmb_init() - Initialise the LMB module
- *
- * Initialise the LMB lists needed for keeping the memory map. There
- * are two lists, in form of alloced list data structure. One for the
- * available memory, and one for the used memory. Initialise the two
- * lists as part of board init. Add memory to the available memory
- * list and reserve common areas by adding them to the used memory
- * list.
- *
- * Return: 0 on success, -ve on error
- */
 int lmb_init(void)
 {
 	int ret;
