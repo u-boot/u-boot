@@ -28,7 +28,7 @@ u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 		case TPM_ST_DEACTIVATED:
 			return -EINVAL;
 		}
-		return tpm2_startup(dev, type);
+		return tpm2_startup(dev, true, type);
 	} else {
 		return -ENOSYS;
 	}
@@ -60,7 +60,7 @@ u32 tpm_resume(struct udevice *dev)
 	if (tpm_is_v1(dev))
 		return tpm1_startup(dev, TPM_ST_STATE);
 	else if (tpm_is_v2(dev))
-		return tpm2_startup(dev, TPM2_SU_STATE);
+		return tpm2_startup(dev, true, TPM2_SU_STATE);
 	else
 		return -ENOSYS;
 }
