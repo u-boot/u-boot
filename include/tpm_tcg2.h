@@ -217,6 +217,17 @@ void tcg2_log_append(u32 pcr_index, u32 event_type,
 		     const u8 *event, u8 *log);
 
 /**
+ * tcg2_pcr_allocate_mask - Get algorithm bitmask for PCR allocate
+ *
+ * @dev		TPM device
+ * @log_active	Active algorithm bitmask
+ * @mask	Bitmask for PCR allocate
+ *
+ * Return: zero on success, negative errno otherwise
+ */
+int tcg2_pcr_allocate_mask(struct udevice *dev, u32 log_active, u32 *mask);
+
+/**
  * Extend the PCR with specified digests
  *
  * @dev		TPM device

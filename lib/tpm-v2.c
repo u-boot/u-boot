@@ -44,6 +44,55 @@ static int tpm2_update_active_banks(struct udevice *dev)
 	return 0;
 }
 
+static int tpm2_proceed_pcr_allocate(struct udevice *dev, u32 algo_mask)
+{
+	struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+	int rc;
+
+	rc = tpm2_get_pcr_info(dev, &pcr);
+	if (rc)
+		return rc;
+
+	rc = tpm2_pcr_config_algo(dev, algo_mask, &pcr, &pcr_len);
+	if (rc)
+		return rc;
+
+	/* Assume no password */
+	rc = tpm2_send_pcr_allocate(dev, NULL, 0, &pcr, pcr_len);
+	if (rc)
+		return rc;
+
+	/* Send TPM2_Shutdown, assume mode = TPM2_SU_CLEAR */
+	return tpm2_startup(dev, false, TPM2_SU_CLEAR);
+}
+
+int tpm2_pcr_allocate(struct udevice *dev, u32 log_active)
+{
+	u32 algo_mask = 0;
+	int rc;
+
+	rc = tcg2_pcr_allocate_mask(dev, log_active, &algo_mask);
+	if (rc)
+		return rc;
+
+	if (!IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+		return -1;
+
+	if (algo_mask) {
+		rc = tpm2_proceed_pcr_allocate(dev, algo_mask);
+		if (rc)
+			return rc;
+
+		log_info("PCR allocate done, shutdown TPM and reboot\n");
+		do_reset(NULL, 0, 0, NULL);
+		log_err("reset does not work!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
 {
 	int op = bon ? TPM2_CC_STARTUP : TPM2_CC_SHUTDOWN;

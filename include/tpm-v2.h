@@ -698,6 +698,15 @@ u32 tpm2_pcr_config_algo(struct udevice *dev, u32 algo_mask,
 u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
 			   const ssize_t pw_sz, struct tpml_pcr_selection *pcr,
 			   u32 pcr_len);
+/**
+ * tpm2_pcr_allocate() - Allocate the PCRs
+ *
+ * @param dev   TPM device
+ * @log_active	Bitmask of eventlog algorithms
+ *
+ * Return: code of the operation
+ */
+int tpm2_pcr_allocate(struct udevice *dev, u32 log_active);
 
 /**
  * tpm2_auto_start() - start up the TPM and perform selftests.

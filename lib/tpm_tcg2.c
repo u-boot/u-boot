@@ -480,6 +480,37 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 				    evsz);
 }
 
+int tcg2_pcr_allocate_mask(struct udevice *dev, u32 log_active, u32 *mask)
+{
+	u32 active, supported, /*disabled,*/ pcr_banks;
+	int rc;
+
+	*mask = 0;
+
+	rc = tcg2_get_pcr_info(dev, &supported, &active, &pcr_banks);
+	if (rc)
+		return rc;
+
+	/* All eventlog algorithm(s) must be supported */
+	if ((log_active & supported) != log_active) {
+		log_err("EventLog contains unsupported algorithm(s)\n");
+		return -1;
+	}
+	if (log_active && log_active != active) {
+		log_warning("EventLog and TPM active algorithms don't match\n");
+		*mask = log_active;
+		return 0;
+	}
+
+	/* Any active algorithm(s) which are not supported must be removed */
+	if (active & ~supported) {
+		log_warning("TPM active algorithm(s) unsupported by u-boot\n");
+		*mask = active & supported;
+	}
+
+	return 0;
+}
+
 int tcg2_pcr_extend(struct udevice *dev, u32 pcr_index,
 		    struct tpml_digest_values *digest_list)
 {
