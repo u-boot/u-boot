@@ -76,10 +76,10 @@ int tpm2_pcr_allocate(struct udevice *dev, u32 log_active)
 	if (rc)
 		return rc;
 
-	if (!IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
-		return -1;
-
 	if (algo_mask) {
+		if (!IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+			return -1;
+
 		rc = tpm2_proceed_pcr_allocate(dev, algo_mask);
 		if (rc)
 			return rc;
