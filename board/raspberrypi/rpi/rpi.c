@@ -68,6 +68,19 @@ struct msg_get_clock_rate {
 	u32 end_tag;
 };
 
+struct efi_fw_image fw_images[] = {
+	{
+		.fw_name = u"RPI_UBOOT",
+		.image_index = 1,
+	},
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = "mmc 0=u-boot.bin fat 0 1",
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+
 #ifdef CONFIG_ARM64
 #define DTB_DIR "broadcom/"
 #else
@@ -545,11 +558,14 @@ void  update_fdt_from_fw(void *fdt, void *fw_fdt)
 	if (fdt == fw_fdt)
 		return;
 
-	/* The firmware provides a more precie model; so copy that */
+	/* The firmware provides a more precise model; so copy that */
 	copy_property(fdt, fw_fdt, "/", "model");
 
 	/* memory reserve as suggested by the firmware */
 	copy_property(fdt, fw_fdt, "/", "memreserve");
+
+	/* copy the CMA memory setting from the firmware DT to linux */
+	copy_property(fdt, fw_fdt, "/reserved-memory/linux,cma", "size");
 
 	/* Adjust dma-ranges for the SD card and PCI bus as they can depend on
 	 * the SoC revision
