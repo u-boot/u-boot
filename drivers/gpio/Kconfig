@@ -358,10 +358,10 @@ config PCF8575_GPIO
 	 chips are from NXP and TI.
 
 config RCAR_GPIO
-	bool "Renesas RCar GPIO driver"
+	bool "Renesas R-Car GPIO driver"
 	depends on DM_GPIO && ARCH_RENESAS
 	help
-	  This driver supports the GPIO banks on Renesas RCar SoCs.
+	  This driver supports the GPIO banks on Renesas R-Car SoCs.
 
 config RZA1_GPIO
 	bool "Renesas RZ/A1 GPIO driver"

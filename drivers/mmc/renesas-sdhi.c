@@ -571,7 +571,7 @@ int renesas_sdhi_execute_tuning(struct udevice *dev, uint opcode)
 	int i, ret = 0, sret;
 	u32 caps, reg;
 
-	/* Only supported on Renesas RCar */
+	/* Only supported on Renesas R-Car */
 	if (!(priv->caps & TMIO_SD_CAP_RCAR_UHS))
 		return -EINVAL;
 

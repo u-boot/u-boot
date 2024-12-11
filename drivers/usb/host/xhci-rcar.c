@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
- * Renesas RCar USB HOST xHCI Controller
+ * Renesas R-Car USB HOST xHCI Controller
  */
 
 #include <clk.h>

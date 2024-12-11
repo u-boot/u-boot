@@ -920,7 +920,7 @@ config SCIF_CONSOLE
 	depends on SH || ARCH_RENESAS
 	help
 	  Select this to enable Renesas SCIF UART. To operate serial ports
-	  on systems with RCar or SH SoCs, say Y to this option. If unsure,
+	  on systems with R-Car or SH SoCs, say Y to this option. If unsure,
 	  say N.
 
 choice

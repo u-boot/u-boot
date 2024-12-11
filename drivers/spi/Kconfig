@@ -420,7 +420,7 @@ config RENESAS_RPC_SPI
 	imply SPI_FLASH_SFDP_SUPPORT
 	help
 	  Enable the Renesas RPC SPI driver, used to access SPI NOR flash
-	  on Renesas RCar Gen3 SoCs. This uses driver model and requires a
+	  on Renesas R-Car Gen3 SoCs. This uses driver model and requires a
 	  device tree binding to operate.
 
 config ROCKCHIP_SFC
