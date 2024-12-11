@@ -661,6 +661,15 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 			  uint vendor_subcmd);
 
 /**
+ * tpm2_algo_get_mask_from_hash()
+ *
+ * @hash	Hash value of algorithm
+ *
+ * Return: Bitmask of algorithm
+ */
+u32 tpm2_algo_get_mask_from_hash(enum tpm2_algorithms hash);
+
+/**
  * tpm2_auto_start() - start up the TPM and perform selftests.
  *                     If a testable function has not been tested and is
  *                     requested the TPM2  will return TPM_RC_NEEDS_TEST.

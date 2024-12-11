@@ -399,6 +399,23 @@ u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
 	return 0;
 }
 
+u32 tpm2_algo_get_mask_from_hash(enum tpm2_algorithms hash)
+{
+	switch (hash) {
+	case TPM2_ALG_SHA1:
+		return TCG2_BOOT_HASH_ALG_SHA1;
+	case TPM2_ALG_SHA256:
+		return TCG2_BOOT_HASH_ALG_SHA256;
+	case TPM2_ALG_SHA384:
+		return TCG2_BOOT_HASH_ALG_SHA384;
+	case TPM2_ALG_SHA512:
+		return TCG2_BOOT_HASH_ALG_SHA512;
+	default:
+		break;
+	}
+	return 0;
+}
+
 static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
 {
 	u8 response[(sizeof(struct tpms_capability_data) -
