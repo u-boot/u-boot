@@ -18,11 +18,14 @@ static int do_tpm2_startup(struct cmd_tbl *cmdtp, int flag, int argc,
 	enum tpm2_startup_types mode;
 	struct udevice *dev;
 	int ret;
+	bool bon = true;
 
 	ret = get_tpm(&dev);
 	if (ret)
 		return ret;
-	if (argc != 2)
+
+	/* argv[2] is optional to perform a TPM2_CC_SHUTDOWN */
+	if (argc > 3 || (argc == 3 && strcasecmp("off", argv[2])))
 		return CMD_RET_USAGE;
 
 	if (!strcasecmp("TPM2_SU_CLEAR", argv[1])) {
@@ -34,7 +37,10 @@ static int do_tpm2_startup(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	return report_return_code(tpm2_startup(dev, mode));
+	if (argv[2])
+		bon = false;
+
+	return report_return_code(tpm2_startup(dev, bon, mode));
 }
 
 static int do_tpm2_self_test(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -420,11 +426,13 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Initialize the software stack. Always the first command to issue.\n"
 "    'tpm startup' is the only acceptable command after a 'tpm init' has been\n"
 "    issued\n"
-"startup <mode>\n"
+"startup <mode> [<op>]\n"
 "    Issue a TPM2_Startup command.\n"
 "    <mode> is one of:\n"
 "        * TPM2_SU_CLEAR (reset state)\n"
 "        * TPM2_SU_STATE (preserved state)\n"
+"    <op>:\n"
+"        * off - To shutdown the TPM\n"
 "self_test <type>\n"
 "    Test the TPM capabilities.\n"
 "    <type> is one of:\n"
