@@ -320,7 +320,7 @@ config DEBUG_UART_S5P
 	  be available until the real driver-model serial is running.
 
 config DEBUG_UART_MSM
-	bool "Qualcomm QUP UART debug"
+	bool "Qualcomm QUP UART_DM"
 	depends on ARCH_SNAPDRAGON || ARCH_IPQ40XX
 	help
 	  Select this to enable a debug UART using the serial_msm driver. You
@@ -328,12 +328,12 @@ config DEBUG_UART_MSM
 	  be available until the real driver-model serial is running.
 
 config DEBUG_UART_MSM_GENI
-	bool "Qualcomm snapdragon"
+	bool "Qualcomm snapdragon GENI UART"
 	depends on ARCH_SNAPDRAGON
 	help
-	  Select this to enable a debug UART using the serial_msm driver. You
-	  will need to provide parameters to make this work. The driver will
-	  be available until the real driver-model serial is running.
+	  Select this to enable a debug UART using the serial_msm_geni driver.
+	  You will need to provide parameters to make this work. The driver
+	  will be available until the real driver-model serial is running.
 
 config DEBUG_UART_MESON
 	bool "Amlogic Meson"
