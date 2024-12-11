@@ -21,8 +21,8 @@
 #include "tpm-utils.h"
 #include <bloblist.h>
 
-int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks)
+int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
+		      u32 *bank_num)
 {
 	u8 response[(sizeof(struct tpms_capability_data) -
 		offsetof(struct tpms_capability_data, data))];
@@ -30,9 +30,9 @@ int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 	size_t i;
 	u32 ret;
 
-	*supported_pcr = 0;
-	*active_pcr = 0;
-	*pcr_banks = 0;
+	*supported_bank = 0;
+	*active_bank = 0;
+	*bank_num = 0;
 	memset(response, 0, sizeof(response));
 
 	ret = tpm2_get_pcr_info(dev, &pcrs);
@@ -40,19 +40,20 @@ int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 		return ret;
 
 	for (i = 0; i < pcrs.count; i++) {
-		u32 hash_mask = tcg2_algorithm_to_mask(pcrs.selection[i].hash);
+		struct tpms_pcr_selection *sel = &pcrs.selection[i];
+		u32 hash_mask = tcg2_algorithm_to_mask(sel->hash);
 
-		if (hash_mask) {
-			*supported_pcr |= hash_mask;
-			if (tpm2_is_active_bank(&pcrs.selection[i]))
-				*active_pcr |= hash_mask;
-		} else {
-			printf("%s: unknown algorithm %x\n", __func__,
-			       pcrs.selection[i].hash);
-		}
+		if (hash_mask)
+			*supported_bank |= hash_mask;
+		else
+			log_warning("%s: unknown algorithm %x\n", __func__,
+				    pcrs.selection[i].hash);
+
+		if (tpm2_is_active_bank(sel))
+			*active_bank |= tpm2_algo_get_mask_from_hash(sel->hash);
 	}
 
-	*pcr_banks = pcrs.count;
+	*bank_num = pcrs.count;
 
 	return 0;
 }
