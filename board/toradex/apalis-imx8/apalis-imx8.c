@@ -251,12 +251,17 @@ static void select_dt_from_module_version(void)
 	case APALIS_IMX8QM_IT:
 	case APALIS_IMX8QM_WIFI_BT_IT:
 	case APALIS_IMX8QM_8GB_WIFI_BT_IT:
+	case APALIS_IMX8QM_IT_1300MHZ:
+	case APALIS_IMX8QM_WIFI_BT_IT_1300MHZ:
+	case APALIS_IMX8QM_8GB_WIFI_BT_IT_1300MHZ:
 		if (get_pcb_revision() == PCB_VERSION_1_0)
 			env_set("variant", "");
 		break;
 	/* Select Apalis iMX8QP device trees */
 	case APALIS_IMX8QP_WIFI_BT:
 	case APALIS_IMX8QP:
+	case APALIS_IMX8QP_WIFI_BT_1300MHZ:
+	case APALIS_IMX8QP_1300MHZ:
 		env_set("soc", "imx8qp");
 		break;
 	default:
