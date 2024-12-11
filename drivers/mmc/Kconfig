@@ -732,6 +732,18 @@ config MMC_SDHCI_S5P
 
 	  If unsure, say N.
 
+config MMC_SDHCI_SNPS
+	bool "Synopsys DesignWare SDHCI controller"
+	depends on MMC_SDHCI
+	depends on DM_MMC
+	help
+	  Support for DesignWare SDHCI host controller on Alibaba TH1520 SoC.
+	  This is a highly configurable and programmable, high performance
+	  Mobile Storage Host Controller (MSHC) with AXI as the bus interface
+	  for data transfer.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_STI
 	bool "SDHCI support for STMicroelectronics SoC"
 	depends on MMC_SDHCI && OF_CONTROL
