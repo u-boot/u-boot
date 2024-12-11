@@ -232,6 +232,86 @@ unmap_data:
 	return report_return_code(rc);
 }
 
+static u32 select_mask(u32 mask, enum tpm2_algorithms algo, bool select)
+{
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+		if (hash_algo_list[i].hash_alg != algo)
+			continue;
+
+		if (select)
+			mask |= hash_algo_list[i].hash_mask;
+		else
+			mask &= ~hash_algo_list[i].hash_mask;
+
+		break;
+	}
+
+	return mask;
+}
+
+static int do_tpm2_pcrallocate(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
+{
+	struct udevice *dev;
+	int ret;
+	enum tpm2_algorithms algo;
+	const char *pw = (argc < 4) ? NULL : argv[3];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+	static struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+	bool bon = false;
+	static u32 mask;
+	int i;
+
+	/* argv[1]: algorithm (bank), argv[2]: on/off */
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp("on", argv[2]))
+		bon = true;
+	else if (strcasecmp("off", argv[2]))
+		return CMD_RET_USAGE;
+
+	algo = tpm2_name_to_algorithm(argv[1]);
+	if (algo == -EINVAL)
+		return CMD_RET_USAGE;
+
+	ret = get_tpm(&dev);
+	if (ret)
+		return ret;
+
+	if (!pcr.count) {
+		/*
+		 * Get current in-use algorithms (banks), PCRs and mask via the
+		 * first call
+		 */
+		ret = tpm2_get_pcr_info(dev, &pcr);
+		if (ret)
+			return ret;
+
+		for (i = 0; i < pcr.count; i++) {
+			struct tpms_pcr_selection *sel = &pcr.selection[i];
+
+			if (!tpm2_is_active_bank(sel))
+				continue;
+
+			mask = select_mask(mask, sel->hash, true);
+			printf("Active bank[%d] with algo[%#x]\n", i,
+				sel->hash);
+		}
+	}
+
+	mask = select_mask(mask, algo, bon);
+	ret = tpm2_pcr_config_algo(dev, mask, &pcr, &pcr_len);
+	if (ret)
+		return ret;
+
+	return report_return_code(tpm2_send_pcr_allocate(dev, pw, pw_sz, &pcr,
+							 pcr_len));
+}
+
 static int do_tpm_dam_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
@@ -401,6 +481,7 @@ static struct cmd_tbl tpm2_commands[] = {
 			 do_tpm_pcr_setauthpolicy, "", ""),
 	U_BOOT_CMD_MKENT(pcr_setauthvalue, 0, 1,
 			 do_tpm_pcr_setauthvalue, "", ""),
+	U_BOOT_CMD_MKENT(pcr_allocate, 0, 1, do_tpm2_pcrallocate, "", ""),
 };
 
 struct cmd_tbl *get_tpm2_commands(unsigned int *size)
@@ -481,4 +562,17 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <pcr>: index of the PCR\n"
 "    <key>: secret to protect the access of PCR #<pcr>\n"
 "    <password>: optional password of the PLATFORM hierarchy\n"
+"pcr_allocate <algorithm> <on/off> [<password>]\n"
+"    Issue a TPM2_PCR_Allocate Command to reconfig PCR bank algorithm.\n"
+"    <algorithm> is one of:\n"
+"        * sha1\n"
+"        * sha256\n"
+"        * sha384\n"
+"        * sha512\n"
+"    <on|off> is one of:\n"
+"        * on  - Select all available PCRs associated with the specified\n"
+"                algorithm (bank)\n"
+"        * off - Clear all available PCRs associated with the specified\n"
+"                algorithm (bank)\n"
+"    <password>: optional password\n"
 );
