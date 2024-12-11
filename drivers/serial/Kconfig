@@ -510,7 +510,84 @@ config DEBUG_UART_XTENSA_SEMIHOSTING
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
 
+config DEBUG_UART_RAMOOPS
+	bool "Use console-ramoops as debug uart"
+	depends on CONSOLE_RAMOOPS
+	help
+	  Select this option to redirect debug uart output to console
+	  ramoops region.
+
 endchoice
+
+
+config DEBUG_UART_RAMOOPS_BASE
+	hex "Base address of ramoops memory region"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is the base address of ramoops region. Mandatory.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
+config DEBUG_UART_RAMOOPS_SIZE
+	hex "Size of ramoops memory region"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is the size of whole ramoops region. Mandatory.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
+config DEBUG_UART_RAMOOPS_CONSOLE_SIZE
+	hex "Size of ramoops console region"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is the size of ramoops console partition inside ramoops region.
+	  This is where driver will actually store its logs, so it needs to
+	  be > 0.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
+config DEBUG_UART_RAMOOPS_FTRACE_SIZE
+	hex "Size of ramoops ftrace region"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is the size of ramoops ftrace partition inside ramoops region.
+	  This region is not used by debug uart ramoops driver, but has to be
+	  defined. Can be 0x0.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
+config DEBUG_UART_RAMOOPS_RECORD_SIZE
+	hex "Size of ramoops single panic record"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is size of a single ramoops panic dump record in common dumps
+	  area. This is not used by debug uart ramoops driver, but has to be
+	  defined. Usually can't be 0x0.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
+config DEBUG_UART_RAMOOPS_PMSG_SIZE
+	hex "Size of ramoops pmsg region"
+	depends on DEBUG_UART && DEBUG_UART_RAMOOPS
+	default 0x0
+	help
+	  This is the size of ramoops pmsg partition inside ramoops region.
+	  This is not used by debug uart ramoops driver, but has to be defined.
+	  Can be 0x0.
+
+	  For base console-ramoops stdio driver it is read from devicetree, but
+	  for debug_uart it needs to be known at compile time.
+
 
 config DEBUG_UART_BASE
 	hex "Base address of UART"
