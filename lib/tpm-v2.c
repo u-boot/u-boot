@@ -322,7 +322,10 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 
 	if (!tpm2_check_active_banks(dev)) {
 		log_err("Cannot extend PCRs if all the TPM enabled algorithms are not supported\n");
-		return -EINVAL;
+
+		ret = tpm2_pcr_allocate(dev, 0);
+		if (ret)
+			return -EINVAL;
 	}
 	/*
 	 * Fill the command structure starting from the first buffer:
