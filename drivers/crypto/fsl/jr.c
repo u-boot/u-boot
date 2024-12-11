@@ -654,7 +654,7 @@ static int rng_init(uint8_t sec_idx, ccsr_sec_t *sec)
 		ret = instantiate_rng(sec_idx, sec, gen_sk);
 		/*
 		 * entropy delay is calculated via self-test method.
-		 * self-test are run across different volatge, temp.
+		 * self-test are run across different voltage, temp.
 		 * if worst case value for ent_dly is identified,
 		 * loop can be skipped for that platform.
 		 */
