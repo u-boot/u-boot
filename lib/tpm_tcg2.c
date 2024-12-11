@@ -98,9 +98,15 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 {
 	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	u8 final[sizeof(union tpmu_ha)];
+#if IS_ENABLED(CONFIG_SHA256)
 	sha256_context ctx_256;
+#endif
+#if IS_ENABLED(CONFIG_SHA512)
 	sha512_context ctx_512;
+#endif
+#if IS_ENABLED(CONFIG_SHA1)
 	sha1_context ctx;
+#endif
 	size_t i;
 	u32 len;
 
@@ -108,30 +114,38 @@ int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 	for (i = 0; i < priv->active_bank_count; i++) {
 
 		switch (priv->active_banks[i]) {
+#if IS_ENABLED(CONFIG_SHA1)
 		case TPM2_ALG_SHA1:
 			sha1_starts(&ctx);
 			sha1_update(&ctx, input, length);
 			sha1_finish(&ctx, final);
 			len = TPM2_SHA1_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA256)
 		case TPM2_ALG_SHA256:
 			sha256_starts(&ctx_256);
 			sha256_update(&ctx_256, input, length);
 			sha256_finish(&ctx_256, final);
 			len = TPM2_SHA256_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA384)
 		case TPM2_ALG_SHA384:
 			sha384_starts(&ctx_512);
 			sha384_update(&ctx_512, input, length);
 			sha384_finish(&ctx_512, final);
 			len = TPM2_SHA384_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA512)
 		case TPM2_ALG_SHA512:
 			sha512_starts(&ctx_512);
 			sha512_update(&ctx_512, input, length);
 			sha512_finish(&ctx_512, final);
 			len = TPM2_SHA512_DIGEST_SIZE;
 			break;
+#endif
 		default:
 			printf("%s: unsupported algorithm %x\n", __func__,
 			       priv->active_banks[i]);
