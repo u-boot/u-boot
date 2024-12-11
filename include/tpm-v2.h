@@ -202,6 +202,7 @@ enum tpm2_command_codes {
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
+	TPM2_CC_PCR_ALLOCATE    = 0x012B,
 	TPM2_CC_SHUTDOWN	= 0x0145,
 };
 
@@ -669,6 +670,34 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
  * Return: Bitmask of algorithm
  */
 u32 tpm2_algo_get_mask_from_hash(enum tpm2_algorithms hash);
+
+/**
+ * tpm2_pcr_config_algo() - Allocate the active PCRs. Requires reboot
+ *
+ * @dev		TPM device
+ * @algo_mask	Mask of the algorithms
+ * @pcr		PCR structure for allocation
+ * @pcr_len	Actual PCR data length
+ *
+ * Return: code of the operation
+ */
+u32 tpm2_pcr_config_algo(struct udevice *dev, u32 algo_mask,
+			 struct tpml_pcr_selection *pcr, u32 *pcr_len);
+
+/**
+ * tpm2_send_pcr_allocate() - Send PCR allocate command. Requires reboot
+ *
+ * @dev		TPM device
+ * @pw		Platform password
+ * @pw_sz	Length of the password
+ * @pcr		PCR structure for allocation
+ * @pcr_len	Actual PCR data length
+ *
+ * Return: code of the operation
+ */
+u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
+			   const ssize_t pw_sz, struct tpml_pcr_selection *pcr,
+			   u32 pcr_len);
 
 /**
  * tpm2_auto_start() - start up the TPM and perform selftests.
