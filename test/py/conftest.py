@@ -144,6 +144,9 @@ def get_details(config):
     # Get a few provided parameters
     build_dir = config.getoption('build_dir')
     build_dir_extra = config.getoption('build_dir_extra')
+
+    # The source tree must be the current directory
+    source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
     if role:
         # When using a role, build_dir and build_dir_extra are normally not set,
         # since they are picked up from Labgrid-sjg via the u-boot-test-getrole
@@ -172,15 +175,13 @@ def get_details(config):
         # Read the build directories here, in case none were provided in the
         # command-line arguments
         (board_type, board_type_extra, default_build_dir,
-         default_build_dir_extra, source_dir) = (vals['board'],
-            vals['board_extra'], vals['build_dir'], vals['build_dir_extra'],
-            vals['source_dir'])
+         default_build_dir_extra) = (vals['board'],
+            vals['board_extra'], vals['build_dir'], vals['build_dir_extra'])
     else:
         board_type = config.getoption('board_type')
         board_type_extra = config.getoption('board_type_extra')
         board_identity = config.getoption('board_identity')
 
-        source_dir = os.path.dirname(os.path.dirname(TEST_PY_DIR))
         default_build_dir = source_dir + '/build-' + board_type
         default_build_dir_extra = source_dir + '/build-' + board_type_extra
 
