@@ -1038,6 +1038,12 @@ config GENERATE_SMBIOS_TABLE
 	  See also SYSINFO_SMBIOS which allows SMBIOS values to be provided in
 	  the devicetree.
 
+config GENERATE_SMBIOS_TABLE_VERBOSE
+	bool "Generate a verbose SMBIOS (System Management BIOS) table"
+	depends on GENERATE_SMBIOS_TABLE
+	help
+	  Provide verbose SMBIOS information.
+
 endmenu
 
 config LIB_RATIONAL
