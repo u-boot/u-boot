@@ -1,11 +1,11 @@
 if RCAR_32
 
 config ARCH_RENESAS_BOARD_STRING
-	string "Renesas RCar Gen2 board name"
+	string "Renesas R-Car Gen2 board name"
 	default "Board"
 
 config RCAR_GEN2
-	bool "Renesas RCar Gen2"
+	bool "Renesas R-Car Gen2"
 	select PHY
 	select PHY_RCAR_GEN2
 	select TMU_TIMER
