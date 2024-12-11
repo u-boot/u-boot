@@ -19,6 +19,7 @@
 #include <linux/bitops.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
+#include <linux/mtd/nand.h>
 #include <linux/mtd/flashchip.h>
 #include <linux/mtd/bbm.h>
 #include <asm/cache.h>
@@ -142,12 +143,6 @@ typedef enum {
 	NAND_ECC_HW_OOB_FIRST,
 	NAND_ECC_SOFT_BCH,
 } nand_ecc_modes_t;
-
-enum nand_ecc_algo {
-	NAND_ECC_UNKNOWN,
-	NAND_ECC_HAMMING,
-	NAND_ECC_BCH,
-};
 
 /*
  * Constants for Hardware ECC
