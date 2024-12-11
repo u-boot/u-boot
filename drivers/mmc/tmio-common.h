@@ -64,7 +64,7 @@
 #define   TMIO_SD_CLKCTL_DIV4		BIT(0)	/* SDCLK = CLK / 4 */
 #define   TMIO_SD_CLKCTL_DIV2		0	/* SDCLK = CLK / 2 */
 #define   TMIO_SD_CLKCTL_DIV1		BIT(10)	/* SDCLK = CLK */
-#define   TMIO_SD_CLKCTL_RCAR_DIV1	0xff	/* SDCLK = CLK (RCar ver.) */
+#define   TMIO_SD_CLKCTL_RCAR_DIV1	0xff	/* SDCLK = CLK (R-Car ver.) */
 #define   TMIO_SD_CLKCTL_OFFEN		BIT(9)	/* stop SDCLK when unused */
 #define   TMIO_SD_CLKCTL_SCLKEN	BIT(8)	/* SDCLK output enable */
 #define TMIO_SD_SIZE			0x04c	/* block size */
@@ -90,7 +90,7 @@
 #define   TMIO_SD_VOLT_180		(2 << 0)/* 1.8V signal */
 #define TMIO_SD_DMA_MODE		0x410
 #define   TMIO_SD_DMA_MODE_DIR_RD	BIT(16)	/* 1: from device, 0: to dev */
-#define   TMIO_SD_DMA_MODE_BUS_WIDTH	(BIT(5) | BIT(4)) /* RCar, 64bit */
+#define   TMIO_SD_DMA_MODE_BUS_WIDTH	(BIT(5) | BIT(4)) /* R-Car, 64bit */
 #define   TMIO_SD_DMA_MODE_ADDR_INC	BIT(0)	/* 1: address inc, 0: fixed */
 #define TMIO_SD_DMA_CTL		0x414
 #define   TMIO_SD_DMA_CTL_START	BIT(0)	/* start DMA (auto cleared) */
@@ -128,9 +128,9 @@ struct tmio_sd_priv {
 #define TMIO_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */
 #define TMIO_SD_CAP_64BIT		BIT(3)	/* Controller is 64bit */
 #define TMIO_SD_CAP_16BIT		BIT(4)	/* Controller is 16bit */
-#define TMIO_SD_CAP_RCAR_GEN2		BIT(5)	/* Renesas RCar version of IP */
-#define TMIO_SD_CAP_RCAR_GEN3		BIT(6)	/* Renesas RCar version of IP */
-#define TMIO_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas RCar UHS/SDR modes */
+#define TMIO_SD_CAP_RCAR_GEN2		BIT(5)	/* Renesas R-Car version of IP */
+#define TMIO_SD_CAP_RCAR_GEN3		BIT(6)	/* Renesas R-Car version of IP */
+#define TMIO_SD_CAP_RCAR_UHS		BIT(7)	/* Renesas R-Car UHS/SDR modes */
 #define TMIO_SD_CAP_RCAR		\
 	(TMIO_SD_CAP_RCAR_GEN2 | TMIO_SD_CAP_RCAR_GEN3)
 	struct udevice *vqmmc_dev;
