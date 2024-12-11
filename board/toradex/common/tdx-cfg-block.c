@@ -122,7 +122,7 @@ const struct toradex_som toradex_modules[] = {
 	{ COLIBRI_IMX8DX_WIFI_BT,            "Colibri iMX8DX 1GB WB",                TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
 	{ COLIBRI_IMX8DX,                    "Colibri iMX8DX 1GB",                   TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
 	{ APALIS_IMX8QXP,                    "Apalis iMX8QXP 2GB ECC IT",            0                                  },
-	{ APALIS_IMX8DXP,                    "Apalis iMX8DXP 1GB",                   TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8DXP,                    "Apalis iMX8DXP 1GB",                   0                                  },
 	{ VERDIN_IMX8MMQ_WIFI_BT_IT,         "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
 	{ VERDIN_IMX8MNQ_WIFI_BT,            "Verdin iMX8M Nano Quad 1GB WB",        0                                  },
 	{ VERDIN_IMX8MMDL,                   "Verdin iMX8M Mini DualLite 1GB",       TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
