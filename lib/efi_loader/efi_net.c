@@ -1144,29 +1144,35 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	}
 
 	/* Allocate an aligned transmit buffer */
-	transmit_buffer = calloc(1, PKTSIZE_ALIGN + PKTALIGN);
-	if (!transmit_buffer)
-		goto out_of_resources;
-	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
-	netobj->transmit_buffer = transmit_buffer;
+	if (!netobj->transmit_buffer) {
+		transmit_buffer = calloc(1, PKTSIZE_ALIGN + PKTALIGN);
+		if (!transmit_buffer)
+			goto out_of_resources;
+		transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
+		netobj->transmit_buffer = transmit_buffer;
+	}
 
 	/* Allocate a number of receive buffers */
-	receive_buffer = calloc(ETH_PACKETS_BATCH_RECV,
-				sizeof(*receive_buffer));
-	if (!receive_buffer)
-		goto out_of_resources;
-	for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
-		receive_buffer[i] = malloc(PKTSIZE_ALIGN);
-		if (!receive_buffer[i])
+	if (!netobj->receive_buffer){
+		receive_buffer = calloc(ETH_PACKETS_BATCH_RECV,
+					sizeof(*receive_buffer));
+		if (!receive_buffer)
 			goto out_of_resources;
+		for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++) {
+			receive_buffer[i] = malloc(PKTSIZE_ALIGN);
+			if (!receive_buffer[i])
+				goto out_of_resources;
+		}
+		netobj->receive_buffer = receive_buffer;
 	}
-	netobj->receive_buffer = receive_buffer;
 
-	receive_lengths = calloc(ETH_PACKETS_BATCH_RECV,
-				 sizeof(*receive_lengths));
-	if (!receive_lengths)
-		goto out_of_resources;
-	netobj->receive_lengths = receive_lengths;
+	if (!netobj->receive_lengths) {
+		receive_lengths = calloc(ETH_PACKETS_BATCH_RECV,
+					sizeof(*receive_lengths));
+		if (!receive_lengths)
+			goto out_of_resources;
+		netobj->receive_lengths = receive_lengths;
+	}
 
 	/* Hook net up to the device list */
 	efi_add_handle(&netobj->header);
@@ -1283,12 +1289,6 @@ failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
 	return -1;
 out_of_resources:
-	free(transmit_buffer);
-	if (receive_buffer)
-		for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
-			free(receive_buffer[i]);
-	free(receive_buffer);
-	free(receive_lengths);
 	printf("ERROR: Out of memory\n");
 	return -1;
 }
@@ -1348,22 +1348,35 @@ int efi_net_register(void *ctx, struct event *event)
 
 	// Find a slot for this efi_net_obj
 	seq_num = -1;
+	// Try to recycle
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (!net_objs[i]) {
+		if (net_objs[i] && !net_objs[i]->dev) {
 			seq_num = i;
 			break;
+		}
+	}
+	if (seq_num < 0) {
+		for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+			if (!net_objs[i]) {
+				seq_num = i;
+				break;
+			}
 		}
 	}
 	if (seq_num < 0)
 		return -1;
 
-	netobj = calloc(1, sizeof(*netobj));
+	if (!net_objs[seq_num]) {
+		netobj = calloc(1, sizeof(*netobj));
+		net_objs[seq_num] = netobj;
+	} else {
+		netobj = net_objs[seq_num];
+	}
 	if (!netobj)
 		goto out_of_resources;
 
 	netobj->dev = dev;
 	netobj->efi_seq_num = seq_num;
-	net_objs[seq_num] = netobj;
 	printf("efi_net registered device number %d\n", netobj->efi_seq_num);
 	return 0;
 out_of_resources:
@@ -1410,17 +1423,10 @@ int efi_net_unregister(void *ctx, struct event *event)
 	if (!netobj)
 		return 0;
 
-	// Remove from the list
-	net_objs[i] = NULL;
+	// Mark as free in the list
+	netobj->dev = NULL;
 
 	if (efi_netobj_is_active(netobj)) {
-		free(netobj->transmit_buffer);
-		if (netobj->receive_buffer)
-			for (i = 0; i < ETH_PACKETS_BATCH_RECV; i++)
-				free(netobj->receive_buffer[i]);
-		free(netobj->receive_buffer);
-		free(netobj->receive_lengths);
-
 		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
 		if (ret != EFI_SUCCESS)
 			return -1;
@@ -1440,9 +1446,6 @@ int efi_net_unregister(void *ctx, struct event *event)
 
 		efi_free_pool(interface);
 	}
-
-	// Free the efi_net_obj
-	free(netobj);
 
 	return 0;
 }
