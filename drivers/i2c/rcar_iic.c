@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Renesas RCar IIC driver
+ * Renesas R-Car IIC driver
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
