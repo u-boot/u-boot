@@ -44,6 +44,127 @@ static int tpm2_update_active_banks(struct udevice *dev)
 	return 0;
 }
 
+static void tpm2_print_selected_algorithm_name(u32 selected)
+{
+	size_t i;
+	const char *str;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+		const struct digest_info *algo = &hash_algo_list[i];
+
+		if (!(selected & algo->hash_mask))
+			continue;
+
+		str = tpm2_algorithm_name(algo->hash_alg);
+		if (str)
+			log_info("%s\n", str);
+	}
+}
+
+int tpm2_pcr_allocate_get_mask(struct udevice *dev, u32 log_active, u32 *mask)
+{
+	struct tpml_pcr_selection pcrs;
+	u32 active = 0;
+	u32 supported = 0;
+	int rc, i;
+
+	*mask = 0;
+
+	rc = tpm2_get_pcr_info(dev, &pcrs);
+	if (rc)
+		return rc;
+
+	for (i = 0; i < pcrs.count; i++) {
+		struct tpms_pcr_selection *sel = &pcrs.selection[i];
+		size_t j;
+		u32 hash_mask = 0;
+
+		for (j = 0; j < ARRAY_SIZE(hash_algo_list); j++) {
+			if (hash_algo_list[j].hash_alg == sel->hash)
+				hash_mask = hash_algo_list[j].hash_mask;
+		}
+
+		if (tpm2_algorithm_supported(sel->hash))
+			supported |= hash_mask;
+
+		if (tpm2_is_active_bank(sel))
+			active |= hash_mask;
+	}
+
+	/* All eventlog algorithm(s) must be supported */
+	if (log_active & ~supported) {
+		log_err("EventLog contains U-Boot unsupported algorithm(s)\n");
+		tpm2_print_selected_algorithm_name(log_active & ~supported);
+		rc = -1;
+	}
+	if (log_active && active & ~log_active) {
+		log_warning("TPM active algorithm(s) not exist in eventlog\n");
+		tpm2_print_selected_algorithm_name(active & ~log_active);
+		*mask = log_active;
+	}
+
+	/* Any active algorithm(s) which are not supported must be removed */
+	if (active & ~supported) {
+		log_warning("TPM active algorithm(s) unsupported by u-boot\n");
+		tpm2_print_selected_algorithm_name(active & ~supported);
+		if (*mask)
+			*mask = active & supported & *mask;
+		else
+			*mask = active & supported;
+	}
+
+	return rc;
+}
+
+static int tpm2_proceed_pcr_allocate(struct udevice *dev, u32 algo_mask)
+{
+	struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+	int rc;
+
+	rc = tpm2_get_pcr_info(dev, &pcr);
+	if (rc)
+		return rc;
+
+	rc = tpm2_pcr_config_algo(dev, algo_mask, &pcr, &pcr_len);
+	if (rc)
+		return rc;
+
+	/* Assume no password */
+	rc = tpm2_send_pcr_allocate(dev, NULL, 0, &pcr, pcr_len);
+	if (rc)
+		return rc;
+
+	/* Send TPM2_Shutdown, assume mode = TPM2_SU_CLEAR */
+	return tpm2_startup(dev, false, TPM2_SU_CLEAR);
+}
+
+int tpm2_pcr_allocate(struct udevice *dev, u32 log_active)
+{
+	u32 algo_mask = 0;
+	int rc;
+
+	rc = tpm2_pcr_allocate_get_mask(dev, log_active, &algo_mask);
+	if (rc)
+		return rc;
+
+	if (algo_mask) {
+		if (!IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+			return -1;
+
+		rc = tpm2_proceed_pcr_allocate(dev, algo_mask);
+		if (rc)
+			return rc;
+
+		log_info("PCR allocate done, shutdown TPM and reboot\n");
+		do_reset(NULL, 0, 0, NULL);
+		log_err("reset does not work!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
 {
 	int op = bon ? TPM2_CC_STARTUP : TPM2_CC_SHUTDOWN;
