@@ -31,6 +31,7 @@ stages:
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
   stage: test.py
   retry: 2 # QEMU may be too slow, etc.
+  needs: [ "Run binman, buildman, dtoc, Kconfig and patman testsuites" ]
   rules:
     - when: always
   before_script:
