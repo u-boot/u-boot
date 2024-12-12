@@ -32,8 +32,6 @@ stages:
   stage: test.py
   retry: 2 # QEMU may be too slow, etc.
   needs: [ "Run binman, buildman, dtoc, Kconfig and patman testsuites" ]
-  rules:
-    - when: always
   before_script:
     # Clone uboot-test-hooks
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -113,8 +111,6 @@ stages:
 build all platforms in a single job:
   stage: world build
   dependencies: []
-  rules:
-    - when: always
   parallel:
     matrix:
       - HOST: "arm64"
@@ -133,8 +129,6 @@ build all platforms in a single job:
 
 .testsuites:
   stage: testsuites
-  rules:
-    - when: always
 
 check for new CONFIG symbols outside Kconfig:
   extends: .testsuites
