@@ -7,12 +7,160 @@
 
 #include "r8a779x-u-boot.dtsi"
 
+/ {
+	binman: binman {
+		multiple-images;
+
+		section {
+			filename = "flash.bin";
+			pad-byte = <0xff>;
+
+			/* Offset 0x0000 set to 0x0000_0000 */
+			fill@0 {
+				offset = <0x0>;
+				size = <0x4>;
+				fill-byte = [00];
+			};
+
+			/* Offset 0x300c set to 0x0000_0000 */
+			fill@300c {
+				offset = <0x300c>;
+				size = <0x4>;
+				fill-byte = [00];
+			};
+
+			/* Offset 0x3154 set to 0xeb21_0000 */
+			fill@3154 {
+				offset = <0x3154>;
+				size = <0x2>;
+				fill-byte = [00];
+			};
+
+			fill@3156 {
+				offset = <0x3156>;
+				size = <0x1>;
+				fill-byte = [21];
+			};
+
+			fill@3157 {
+				offset = <0x3157>;
+				size = <0x1>;
+				fill-byte = [eb];
+			};
+
+			/* Offset 0x3264 set to 0x0003_b000 */
+			fill@3264 {
+				offset = <0x3264>;
+				size = <0x1>;
+				fill-byte = [00];
+			};
+
+			fill@3265 {
+				offset = <0x3265>;
+				size = <0x1>;
+				fill-byte = [b0];
+			};
+
+			fill@3266 {
+				offset = <0x3266>;
+				size = <0x1>;
+				fill-byte = [03];
+			};
+
+			fill@3267 {
+				offset = <0x3267>;
+				size = <0x1>;
+				fill-byte = [00];
+			};
+
+			u-boot-spl {
+				offset = <0x40000>;
+				align-end = <4>;
+			};
+
+			u-boot {
+				offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
+				filename = "u-boot.itb";
+
+				fit {
+					description = "U-Boot mainline";
+					fit,fdt-list = "of-list";
+					#address-cells = <1>;
+
+					images {
+						uboot {
+							arch = "arm64";
+							compression = "none";
+							description = "U-Boot (64-bit)";
+							type = "standalone";
+							/*
+							 * This is in DRAM. We cannot
+							 * use TEXT_BASE here because
+							 * this system uses PIE build
+							 * and TEXT_BASE=0x0 .
+							 */
+							entry = <0x44100000>;
+							load = <0x44100000>;
+
+							uboot-blob {
+								filename = "u-boot-nodtb.bin";
+								type = "blob-ext";
+							};
+						};
+
+						@fdt-SEQ {
+							compression = "none";
+							description = "NAME";
+							type = "flat_dt";
+
+							uboot-fdt-blob {
+								filename = "u-boot.dtb";
+								type = "blob-ext";
+							};
+						};
+					};
+
+					configurations {
+						default = "@config-DEFAULT-SEQ";
+
+						@config-SEQ {
+							description = "NAME";
+							fdt = "fdt-SEQ";
+							firmware = "uboot";
+						};
+					};
+				};
+			};
+		};
+	};
+};
+
+&cpg {
+	bootph-all;
+};
+
+&extalr_clk {
+	bootph-all;
+};
+
+&hscif0 {
+	bootph-all;
+};
+
+&hscif0_pins {
+	bootph-all;
+};
+
+&pfc {
+	bootph-all;
+};
+
 &rpc {
 	bank-width = <2>;
 	num-cs = <1>;
 };
 
-&extalr_clk {
+&rst {
 	bootph-all;
 };
 
