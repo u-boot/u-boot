@@ -6,10 +6,8 @@
 #include "rk3288-u-boot.dtsi"
 
 / {
-	leds {
-		power {
-			default-state = "on";
-		};
+	chosen {
+		stdout-path = "serial2:115200n8";
 	};
 };
 
@@ -71,6 +69,10 @@
 &pcfg_pull_up_drv_12ma {
 	bootph-pre-ram;
 	bootph-some-ram;
+};
+
+&power_led {
+	default-state = "on";
 };
 
 &sdmmc {
