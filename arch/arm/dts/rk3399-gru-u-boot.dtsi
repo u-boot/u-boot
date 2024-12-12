@@ -29,6 +29,11 @@
 	rockchip,panel = <&edp_panel>;
 };
 
+&emmc_phy {
+	/delete-property/ bootph-pre-ram;
+};
+
+
 &pp1800_audio {
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <1800000>;
@@ -80,7 +85,8 @@
 
 &spi1 {
 	spi_flash: flash@0 {
-		bootph-all;
+		bootph-pre-ram;
+		bootph-some-ram;
 	};
 };
 
