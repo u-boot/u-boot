@@ -48,6 +48,10 @@
 	bootph-some-ram;
 };
 
+&gmac {
+	snps,reset-delays-us = <0 10000 80000>;
+};
+
 &gpio7 {
 	/delete-property/ bootph-all;
 	bootph-pre-ram;
