@@ -11,7 +11,7 @@
 	};
 
 	config {
-		u-boot,spl-payload-offset = <0x40000>;
+		u-boot,spl-payload-offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
 	};
 };
 
