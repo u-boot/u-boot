@@ -1497,6 +1497,11 @@ config CMD_NAND_TORTURE
 	help
 	  NAND torture support.
 
+config CMD_NAND_WATCH
+	bool "nand watch"
+	help
+	  NAND watch bitflip support.
+
 endif # CMD_NAND
 
 config CMD_NVME

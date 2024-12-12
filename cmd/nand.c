@@ -231,6 +231,54 @@ free_dat:
 	return ret;
 }
 
+#ifdef CONFIG_CMD_NAND_WATCH
+static int nand_watch_bf(struct mtd_info *mtd, ulong off, ulong size, bool quiet)
+{
+	unsigned int max_bf = 0, pages_wbf = 0;
+	unsigned int first_page, pages, i;
+	struct mtd_oob_ops ops = {};
+	u_char *buf;
+	int ret;
+
+	buf = memalign(ARCH_DMA_MINALIGN, mtd->writesize);
+	if (!buf) {
+		puts("No memory for page buffer\n");
+		return 1;
+	}
+
+	first_page = off / mtd->writesize;
+	pages = size / mtd->writesize;
+
+	ops.datbuf = buf;
+	ops.len = mtd->writesize;
+	for (i = first_page; i < first_page + pages; i++) {
+		ulong addr = mtd->writesize * i;
+		ret = mtd_read_oob_bf(mtd, addr, &ops);
+		if (ret < 0) {
+			if (quiet)
+				continue;
+
+			printf("Page %7d (0x%08lx) -> error %d\n",
+			       i, addr, ret);
+		} else if (ret) {
+			max_bf = max(max_bf, (unsigned int)ret);
+			pages_wbf++;
+			if (quiet)
+				continue;
+			printf("Page %7d (0x%08lx) -> up to %2d bf/chunk\n",
+			       i, addr, ret);
+		}
+	}
+
+	printf("Maximum number of bitflips: %u\n", max_bf);
+	printf("Pages with bitflips: %u/%u\n", pages_wbf, pages);
+
+	free(buf);
+
+	return 0;
+}
+#endif
+
 /* ------------------------------------------------------------------------- */
 
 static int set_dev(int dev)
@@ -781,6 +829,55 @@ static int do_nand(struct cmd_tbl *cmdtp, int flag, int argc,
 		return ret == 0 ? 0 : 1;
 	}
 
+#ifdef CONFIG_CMD_NAND_WATCH
+	if (strncmp(cmd, "watch", 5) == 0) {
+		int args = 2;
+
+		if (cmd[5]) {
+			if (!strncmp(&cmd[5], ".part", 5)) {
+				args = 1;
+			} else if (!strncmp(&cmd[5], ".chip", 5)) {
+				args = 0;
+			} else {
+				goto usage;
+			}
+		}
+
+		if (cmd[10])
+			if (!strncmp(&cmd[10], ".quiet", 6))
+				quiet = true;
+
+		if (argc != 2 + args)
+			goto usage;
+
+		ret = mtd_arg_off_size(argc - 2, argv + 2, &dev, &off, &size,
+				       &maxsize, MTD_DEV_TYPE_NAND, mtd->size);
+		if (ret)
+			return ret;
+
+		/* size is unspecified */
+		if (argc < 4)
+			adjust_size_for_badblocks(&size, off, dev);
+
+		if ((off & (mtd->writesize - 1)) ||
+		    (size & (mtd->writesize - 1))) {
+			printf("Attempt to read non page-aligned data\n");
+			return -EINVAL;
+		}
+
+		ret = set_dev(dev);
+		if (ret)
+			return ret;
+
+		mtd = get_nand_dev_by_index(dev);
+
+		printf("\nNAND watch for bitflips in area 0x%llx-0x%llx:\n",
+		       off, off + size);
+
+		return nand_watch_bf(mtd, off, size, quiet);
+	}
+#endif
+
 #ifdef CONFIG_CMD_NAND_TORTURE
 	if (strcmp(cmd, "torture") == 0) {
 		loff_t endoff;
@@ -946,6 +1043,12 @@ U_BOOT_LONGHELP(nand,
 	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
 	"nand dump[.oob] off - dump page\n"
+#ifdef CONFIG_CMD_NAND_WATCH
+	"nand watch <off> <size> - check an area for bitflips\n"
+	"nand watch.part <part> - check a partition for bitflips\n"
+	"nand watch.chip - check the whole device for bitflips\n"
+	"\t\t.quiet - Query only the summary, not the details\n"
+#endif
 #ifdef CONFIG_CMD_NAND_TORTURE
 	"nand torture off - torture one block at offset\n"
 	"nand torture off [size] - torture blocks from off to off+size\n"
