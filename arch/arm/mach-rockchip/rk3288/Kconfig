@@ -75,6 +75,7 @@ config TARGET_FENNEC_RK3288
 config TARGET_FIREFLY_RK3288
 	bool "Firefly-RK3288"
 	select BOARD_LATE_INIT
+	select ROCKCHIP_COMMON_STACK_ADDR
 	select TPL
 	help
 	  Firefly is a RK3288-based development board with 2 USB ports,
