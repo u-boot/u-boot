@@ -39,6 +39,14 @@
 
 		mkimage {
 			args = "-n rk3399 -T rkspi";
+			multiple-data-files;
+#ifdef CONFIG_ROCKCHIP_EXTERNAL_TPL
+			rockchip-tpl {
+			};
+#elif defined(CONFIG_TPL)
+			u-boot-tpl {
+			};
+#endif
 			u-boot-spl {
 			};
 		};
