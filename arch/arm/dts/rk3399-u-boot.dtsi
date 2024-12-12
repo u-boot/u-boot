@@ -50,7 +50,9 @@
 			u-boot-spl {
 			};
 		};
-		u-boot-img {
+		fit {
+			type = "blob";
+			filename = "u-boot.itb";
 			offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
 		};
 		u-boot {
