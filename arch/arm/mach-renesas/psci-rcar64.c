@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * This file implements basic PSCI support for Renesas r8a779a0 SoC
+ * This file implements basic PSCI support for Renesas R-Car 64bit SoCs
  *
  * Copyright (C) 2020 Renesas Electronics Corp.
- *
  */
 
 #include <asm/io.h>

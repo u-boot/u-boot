@@ -15,8 +15,8 @@ obj-$(CONFIG_RCAR_GEN4) += cpu_info-rcar.o memmap-gen3.o
 obj-$(CONFIG_RZ_G2) += cpu_info-rzg.o
 obj-$(CONFIG_RZG2L) += cpu_info-rzg2l.o memmap-rzg2l.o
 
-ifneq ($(CONFIG_R8A779A0),)
-obj-$(CONFIG_ARMV8_PSCI) += psci-r8a779a0.o
+ifneq ($(CONFIG_RCAR_64),)
+obj-$(CONFIG_ARMV8_PSCI) += psci-rcar64.o
 endif
 
 OBJCOPYFLAGS_u-boot-spl.srec := -O srec
