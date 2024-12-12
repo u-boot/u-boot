@@ -52,6 +52,7 @@
 
 &gpio7 {
 	/delete-property/ bootph-all;
+	bootph-pre-ram;
 };
 
 &pcfg_pull_none {
@@ -107,5 +108,9 @@
 
 &uart2_xfer {
 	bootph-pre-sram;
+	bootph-pre-ram;
+};
+
+&vcc_sd {
 	bootph-pre-ram;
 };
