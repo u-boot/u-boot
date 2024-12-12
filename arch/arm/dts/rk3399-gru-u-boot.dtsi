@@ -33,10 +33,29 @@
 	/delete-property/ bootph-pre-ram;
 };
 
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&pp1500_ap_io {
+	bootph-pre-ram;
+};
 
 &pp1800_audio {
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <1800000>;
+};
+
+&pp1500_en {
+	bootph-pre-ram;
+};
+
+&pp3000 {
+	bootph-pre-ram;
+};
+
+&pp3000_en {
+	bootph-pre-ram;
 };
 
 &ppvar_bigcpu_pwm {
