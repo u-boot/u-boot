@@ -6,20 +6,9 @@
 #include "rk3288-u-boot.dtsi"
 
 / {
-	config {
-		bootph-all;
-		u-boot,boot-led = "firefly:green:power";
-	};
-
 	leds {
-		bootph-all;
-
-		work {
-			bootph-all;
-		};
-
 		power {
-			bootph-all;
+			default-state = "on";
 		};
 	};
 };
@@ -53,10 +42,6 @@
 };
 
 &gpio3 {
-	bootph-all;
-};
-
-&gpio8 {
 	bootph-all;
 };
 
