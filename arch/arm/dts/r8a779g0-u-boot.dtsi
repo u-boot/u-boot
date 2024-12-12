@@ -15,3 +15,21 @@
 &extalr_clk {
 	bootph-all;
 };
+
+&soc {
+	ram@e6780000 {	/* DBSC5 */
+		compatible = "renesas,r8a779g0-dbsc";
+		reg = <0 0xe6780000 0 0x80000>;
+		power-domains = <&sysc R8A779G0_PD_ALWAYS_ON>;
+		status = "okay";
+		bootph-all;
+	};
+
+	ram@ffec0000 {	/* RT-VRAM */
+		compatible = "renesas,r8a779g0-rtvram";
+		reg = <0 0xffec0000 0 0xf000>;
+		power-domains = <&sysc R8A779G0_PD_ALWAYS_ON>;
+		status = "okay";
+		bootph-all;
+	};
+};
