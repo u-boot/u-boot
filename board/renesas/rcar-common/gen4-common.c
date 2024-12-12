@@ -74,3 +74,17 @@ int board_init(void)
 
 	return 0;
 }
+
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_SRESCR0	(RST_BASE + 0x18)
+#define RST_SPRES	0x5AA58000
+
+void __weak reset_cpu(void)
+{
+	writel(RST_SPRES, RST_SRESCR0);
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
+	return 0;
+}
