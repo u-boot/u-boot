@@ -250,6 +250,24 @@ static inline void *bloblist_check_magic(ulong addr)
 	return ptr;
 }
 
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_get_blob() - Find a blob and get the size of it
+ *
+ * Searches the bloblist and returns the blob with the matching tag
+ *
+ * @tag:	Tag to search for (enum bloblist_tag_t)
+ * @size:	Size of the blob found
+ * Return: pointer to bloblist if found, or NULL if not found
+ */
+void *bloblist_get_blob(uint tag, int *size);
+#else
+static inline void *bloblist_get_blob(uint tag, int *size)
+{
+	return NULL;
+}
+#endif
+
 /**
  * bloblist_find() - Find a blob
  *
@@ -467,6 +485,20 @@ static inline int bloblist_maybe_init(void)
 	return 0;
 }
 #endif /* BLOBLIST */
+
+#if CONFIG_IS_ENABLED(BLOBLIST)
+/**
+ * bloblist_of_isvalid() - Check if the bloblist from previous stage valid
+ *
+ * Return: true if valid, else false
+ */
+bool bloblist_of_isvalid(void);
+#else
+static inline bool bloblist_of_isvalid(void)
+{
+	return false;
+}
+#endif
 
 /**
  * bloblist_check_reg_conv() - Check whether the bloblist is compliant to

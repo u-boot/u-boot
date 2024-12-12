@@ -9,7 +9,7 @@
 #include <log.h>
 #include <mapmem.h>
 #include <tpm-common.h>
-#include <tpm-v2.h>
+#include <tpm_tcg2.h>
 #include "tpm-user-utils.h"
 
 static int do_tpm2_startup(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -18,11 +18,14 @@ static int do_tpm2_startup(struct cmd_tbl *cmdtp, int flag, int argc,
 	enum tpm2_startup_types mode;
 	struct udevice *dev;
 	int ret;
+	bool bon = true;
 
 	ret = get_tpm(&dev);
 	if (ret)
 		return ret;
-	if (argc != 2)
+
+	/* argv[2] is optional to perform a TPM2_CC_SHUTDOWN */
+	if (argc > 3 || (argc == 3 && strcasecmp("off", argv[2])))
 		return CMD_RET_USAGE;
 
 	if (!strcasecmp("TPM2_SU_CLEAR", argv[1])) {
@@ -34,7 +37,10 @@ static int do_tpm2_startup(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	return report_return_code(tpm2_startup(dev, mode));
+	if (argv[2])
+		bon = false;
+
+	return report_return_code(tpm2_startup(dev, bon, mode));
 }
 
 static int do_tpm2_self_test(struct cmd_tbl *cmdtp, int flag, int argc,
@@ -226,6 +232,84 @@ unmap_data:
 	return report_return_code(rc);
 }
 
+static int do_tpm2_pcrallocate(struct cmd_tbl *cmdtp, int flag, int argc,
+			       char *const argv[])
+{
+	struct udevice *dev;
+	int ret;
+	u16 algo;
+	const char *pw = (argc < 4) ? NULL : argv[3];
+	const ssize_t pw_sz = pw ? strlen(pw) : 0;
+	static struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+	bool bon = false;
+	static u32 mask;
+
+	/* argv[1]: algorithm (bank), argv[2]: on/off */
+	if (argc < 3 || argc > 4)
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp("on", argv[2]))
+		bon = true;
+	else if (strcasecmp("off", argv[2]))
+		return CMD_RET_USAGE;
+
+	if (!strcasecmp("TPM2_ALG_SHA1", argv[1])) {
+		algo = TPM2_ALG_SHA1;
+	} else if (!strcasecmp("TPM2_ALG_XOR", argv[1])) {
+		algo = TPM2_ALG_XOR;
+	} else if (!strcasecmp("TPM2_ALG_SHA256", argv[1])) {
+		algo = TPM2_ALG_SHA256;
+	} else if (!strcasecmp("TPM2_ALG_SHA384", argv[1])) {
+		algo = TPM2_ALG_SHA384;
+	} else if (!strcasecmp("TPM2_ALG_SHA512", argv[1])) {
+		algo = TPM2_ALG_SHA512;
+	} else if (!strcasecmp("TPM2_ALG_SM3_256", argv[1])) {
+		algo = TPM2_ALG_SM3_256;
+	} else {
+		printf("Couldn't recognize algorithm string: %s\n", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = get_tpm(&dev);
+	if (ret)
+		return ret;
+
+	if (!pcr.count) {
+		int i;
+
+		/*
+		 * Get current in-use algorithms (banks) and mask by the
+		 * initial call
+		 */
+		ret = tpm2_get_pcr_info(dev, &pcr);
+		if (ret)
+			return ret;
+
+		ret = tcg2_get_active_pcr_banks(dev, &mask);
+		if (ret)
+			return ret;
+
+		for (i = 0; i < pcr.count; i++) {
+			if (tpm2_is_active_bank(&pcr.selection[i]))
+				printf("Active bank[%d] with algo[%#x]\n", i,
+				       pcr.selection[i].hash);
+		}
+	}
+
+	if (bon)
+		mask |= tcg2_algorithm_to_mask(algo);
+	else
+		mask &= ~tcg2_algorithm_to_mask(algo);
+
+	ret = tpm2_pcr_config_algo(dev, mask, &pcr, &pcr_len);
+	if (ret)
+		return ret;
+
+	return report_return_code(tpm2_send_pcr_allocate(dev, pw, pw_sz, &pcr,
+							 pcr_len));
+}
+
 static int do_tpm_dam_reset(struct cmd_tbl *cmdtp, int flag, int argc,
 			    char *const argv[])
 {
@@ -395,6 +479,7 @@ static struct cmd_tbl tpm2_commands[] = {
 			 do_tpm_pcr_setauthpolicy, "", ""),
 	U_BOOT_CMD_MKENT(pcr_setauthvalue, 0, 1,
 			 do_tpm_pcr_setauthvalue, "", ""),
+	U_BOOT_CMD_MKENT(pcr_allocate, 0, 1, do_tpm2_pcrallocate, "", ""),
 };
 
 struct cmd_tbl *get_tpm2_commands(unsigned int *size)
@@ -420,11 +505,13 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    Initialize the software stack. Always the first command to issue.\n"
 "    'tpm startup' is the only acceptable command after a 'tpm init' has been\n"
 "    issued\n"
-"startup <mode>\n"
+"startup <mode> [<op>]\n"
 "    Issue a TPM2_Startup command.\n"
 "    <mode> is one of:\n"
 "        * TPM2_SU_CLEAR (reset state)\n"
 "        * TPM2_SU_STATE (preserved state)\n"
+"    <op>:\n"
+"        * off - To shutdown the TPM\n"
 "self_test <type>\n"
 "    Test the TPM capabilities.\n"
 "    <type> is one of:\n"
@@ -473,4 +560,19 @@ U_BOOT_CMD(tpm2, CONFIG_SYS_MAXARGS, 1, do_tpm, "Issue a TPMv2.x command",
 "    <pcr>: index of the PCR\n"
 "    <key>: secret to protect the access of PCR #<pcr>\n"
 "    <password>: optional password of the PLATFORM hierarchy\n"
+"pcr_allocate <algorithm> <on/off> [<password>]\n"
+"    Issue a TPM2_PCR_Allocate Command to reconfig PCR bank algorithm.\n"
+"    <algorithm> is one of:\n"
+"        * TPM2_ALG_SHA1\n"
+"        * TPM2_ALG_XOR\n"
+"        * TPM2_ALG_SHA256\n"
+"        * TPM2_ALG_SHA384\n"
+"        * TPM2_ALG_SHA512\n"
+"        * TPM2_ALG_SM3_256\n"
+"    <on/off> is one of:\n"
+"        * on  - Select all available PCRs associated with the specified\n"
+"                algorithm (bank)\n"
+"        * off - Clear all available PCRs associated with the specified\n"
+"                algorithm (bank)\n"
+"    <password>: optional password\n"
 );
