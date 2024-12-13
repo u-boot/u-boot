@@ -555,18 +555,19 @@ static const struct efi_mem_attrs {
 	const char *text;
 } efi_mem_attrs[] = {
 	{EFI_MEMORY_UC, "UC"},
-	{EFI_MEMORY_UC, "UC"},
 	{EFI_MEMORY_WC, "WC"},
 	{EFI_MEMORY_WT, "WT"},
 	{EFI_MEMORY_WB, "WB"},
 	{EFI_MEMORY_UCE, "UCE"},
 	{EFI_MEMORY_WP, "WP"},
 	{EFI_MEMORY_RP, "RP"},
-	{EFI_MEMORY_XP, "WP"},
+	{EFI_MEMORY_XP, "XP"},
 	{EFI_MEMORY_NV, "NV"},
 	{EFI_MEMORY_MORE_RELIABLE, "REL"},
 	{EFI_MEMORY_RO, "RO"},
 	{EFI_MEMORY_SP, "SP"},
+	{EFI_MEMORY_CPU_CRYPTO, "CRYPT"},
+	{EFI_MEMORY_HOT_PLUGGABLE, "HOTPL"},
 	{EFI_MEMORY_RUNTIME, "RT"},
 };
 
