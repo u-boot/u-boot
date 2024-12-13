@@ -223,13 +223,26 @@ static int bloblist_ensurerec(uint tag, struct bloblist_rec **recp, int size,
 
 void *bloblist_find(uint tag, int size)
 {
+	void *blob = NULL;
+	int blob_size;
+
+	blob = bloblist_get_blob(tag, &blob_size);
+
+	if (size && size != blob_size)
+		return NULL;
+
+	return blob;
+}
+
+void *bloblist_get_blob(uint tag, int *size)
+{
 	struct bloblist_rec *rec;
 
 	rec = bloblist_findrec(tag);
 	if (!rec)
 		return NULL;
-	if (size && size != rec->size)
-		return NULL;
+
+	*size = rec->size;
 
 	return (void *)rec + rec_hdr_size(rec);
 }
@@ -572,6 +585,17 @@ int bloblist_maybe_init(void)
 		return bloblist_init();
 
 	return 0;
+}
+
+bool bloblist_of_isvalid(void)
+{
+	if (!CONFIG_IS_ENABLED(BLOBLIST) ||
+	    (xpl_prev_phase() == PHASE_TPL &&
+	    !IS_ENABLED(CONFIG_TPL_BLOBLIST)) ||
+	    bloblist_maybe_init())
+		return false;
+
+	return true;
 }
 
 int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig)

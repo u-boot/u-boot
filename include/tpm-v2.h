@@ -34,16 +34,6 @@ struct udevice;
 
 #define TPM2_HDR_LEN		10
 
-/*
- *  We deviate from this draft of the specification by increasing the value of
- *  TPM2_NUM_PCR_BANKS from 3 to 16 to ensure compatibility with TPM2
- *  implementations that have enabled a larger than typical number of PCR
- *  banks. This larger value for TPM2_NUM_PCR_BANKS is expected to be included
- *  in a future revision of the specification.
- */
-#define TPM2_NUM_PCR_BANKS 16
-
-/* Definition of (UINT32) TPM2_CAP Constants */
 #define TPM2_CAP_PCRS 0x00000005U
 #define TPM2_CAP_TPM_PROPERTIES 0x00000006U
 
@@ -212,6 +202,7 @@ enum tpm2_command_codes {
 	TPM2_CC_PCR_READ	= 0x017E,
 	TPM2_CC_PCR_EXTEND	= 0x0182,
 	TPM2_CC_PCR_SETAUTHVAL	= 0x0183,
+	TPM2_CC_PCR_ALLOCATE    = 0x012B,
 };
 
 /**
@@ -671,6 +662,19 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 			  uint vendor_subcmd);
 
 /**
+ * tpm2_pcr_config_algo() - Allocate the active PCRs. Requires reboot
+ *
+ * @param dev      TPM device
+ * @pw_sz  Length of the password
+ *
+ * Return: code of the operation
+ */
+
+u32 tpm2_pcr_allocate(struct udevice *dev, const char *pw, const ssize_t pw_sz,
+		      struct tpml_pcr_selection *pcr, u32 pcr_len);
+u32 tpm2_pcr_config_algo(struct udevice *dev, u32 bankidx, u16 algo,
+			 struct tpml_pcr_selection *pcr, u32 *pcr_len);
+/**
  * tpm2_auto_start() - start up the TPM and perform selftests.
  *                     If a testable function has not been tested and is
  *                     requested the TPM2  will return TPM_RC_NEEDS_TEST.
@@ -732,12 +736,13 @@ u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo);
  */
 
 /**
- * tpm2_allow_extend() - Check if extending PCRs is allowed and safe
+ * tpm2_check_active_pcrs() - Check if the active PCRs are supported by our
+ *                            configuration
  *
  * @dev: TPM device
  * Return: true if allowed
  */
-bool tpm2_allow_extend(struct udevice *dev);
+bool tpm2_check_active_pcrs(struct udevice *dev);
 
 /**
  * tpm2_is_active_pcr() - check the pcr_select. If at least one of the PCRs
@@ -747,5 +752,12 @@ bool tpm2_allow_extend(struct udevice *dev);
  * Return: True if the algorithm is active
  */
 bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection);
+
+/**
+ * tpm2_print_active_pcrs() - Print the active TPM PCRs
+ *
+ * @dev: TPM device
+ */
+void tpm2_print_active_pcrs(struct udevice *dev);
 
 #endif /* __TPM_V2_H */
