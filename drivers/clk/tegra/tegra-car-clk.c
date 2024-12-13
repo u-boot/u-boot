@@ -112,6 +112,9 @@ static int tegra_car_clk_probe(struct udevice *dev)
 {
 	debug("%s(dev=%p)\n", __func__, dev);
 
+	clock_init();
+	clock_verify();
+
 	return 0;
 }
 
