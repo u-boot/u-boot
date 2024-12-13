@@ -118,6 +118,19 @@
 	};
 };
 
+#include "k3-binman-capsule-r5.dtsi"
+
+&capsule_tiboot3 {
+	efi-capsule {
+		/*
+		 * The GUID is generated dynamically by taking a namespace UUID and hashing
+		 * it with the board compatible and fw_image name:
+		 * mkeficapsule guidgen k3-am642-r5-phycore-som-2gb.dtb PHYCORE_AM64X_TIBOOT3
+		 */
+		image-guid = "B0A6B4FA-5DF0-5CD1-90EC-B60BDE798486";
+	};
+};
+
 #endif
 
 #ifdef CONFIG_TARGET_PHYCORE_AM64X_A53
@@ -502,4 +515,29 @@
 		};
 	};
 };
+
+#include "k3-binman-capsule.dtsi"
+
+&capsule_tispl {
+	efi-capsule {
+		/*
+		 * The GUID is generated dynamically by taking a namespace UUID and hashing
+		 * it with the board compatible and fw_image name:
+		 * mkeficapsule guidgen k3-am642-phyboard-electra-rdk.dtb PHYCORE_AM64X_SPL
+		 */
+		image-guid = "D0F34382-C2C4-509C-A1D4-BC1CB1B992A8";
+	};
+};
+
+&capsule_uboot {
+	efi-capsule {
+		/*
+		 * The GUID is generated dynamically by taking a namespace UUID and hashing
+		 * it with the board compatible and fw_image name:
+		 * mkeficapsule guidgen k3-am642-phyboard-electra-rdk.dtb PHYCORE_AM64X_UBOOT
+		 */
+		image-guid = "0BB40539-DB41-5407-B4D4-EAD057FE10F4";
+	};
+};
+
 #endif /* CONFIG_TARGET_PHYCORE_AM64X_A53 */
