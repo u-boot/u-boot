@@ -678,3 +678,8 @@ nyan-big:
   variables:
     ROLE: nyan-big
   <<: *lab_dfn
+
+rpi:
+  variables:
+    ROLE: rpi
+  <<: *lab_dfn
