@@ -165,6 +165,7 @@ void board_init_f(ulong dummy)
 {
 	k3_spl_init();
 	k3_mem_init();
+	setup_qos();
 }
 
 static u32 __get_backup_bootmedia(u32 devstat)
