@@ -19,6 +19,7 @@
 #include <linux/unaligned/generic.h>
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
+#include <bloblist.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 		      u32 *pcr_banks)
@@ -467,8 +468,19 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	}
 
 	/* Ensure the previous firmware extended all the PCRs. */
-	if (log_active != active)
+	if (log_active & ~active) {
+		log_err("Missing active banks in U-Boot: 0x%08x\n",
+			log_active & ~active);
+		panic("U-Boot is missing hash algorithms required by the TPM "
+		      "event log to continue booting.\n");
+	} else if (active & ~log_active) {
+		log_warning("Missing active banks in event log: 0x%08x\n",
+			    active & ~log_active);
+		log_warning("TPM event log is missing hash algorithms which is "
+			    "configurated within U-Boot, skip replaying and "
+			    "continue booting.\n");
 		return 0;
+	}
 
 	/* Read PCR0 to check if previous firmware extended the PCRs or not. */
 	rc = tcg2_pcr_read(dev, 0, &digest_list);
@@ -671,6 +683,12 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 
 	*addr = NULL;
 	*size = 0;
+
+	if (bloblist_of_isvalid()) {
+		*addr = bloblist_get_blob(BLOBLISTT_TPM_EVLOG, size);
+		if (*addr && *size)
+			return 0;
+	}
 
 	addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
 	if (!addr_prop)
