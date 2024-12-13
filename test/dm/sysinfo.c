@@ -19,6 +19,9 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 	bool called_detect = false;
 	char str[64];
 	int i;
+	void *data = NULL;
+	size_t data_size = 0;
+	u32 gdata[] = {0xabcdabcd, 0xdeadbeef};
 
 	ut_assertok(sysinfo_get(&sysinfo));
 	ut_assert(sysinfo);
@@ -56,6 +59,9 @@ static int dm_test_sysinfo(struct unit_test_state *uts)
 	ut_assertok(sysinfo_get_str(sysinfo, STR_VACATIONSPOT, sizeof(str),
 				    str));
 	ut_assertok(strcmp(str, "Yuggoth"));
+
+	ut_assertok(sysinfo_get_data(sysinfo, DATA_TEST, &data, &data_size));
+	ut_assertok(memcmp(gdata, data, data_size));
 
 	return 0;
 }
