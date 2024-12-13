@@ -171,8 +171,9 @@ int board_late_init(void)
 		}
 	}
 
-	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
-		configure_capsule_updates();
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+	configure_capsule_updates();
+#endif
 
 	return 0;
 }

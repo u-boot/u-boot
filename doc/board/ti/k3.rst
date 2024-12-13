@@ -46,6 +46,7 @@ K3 SoC based boards in other sections
 * :doc:`../beagle/am62x_beagleplay`
 * :doc:`../beagle/j721e_beagleboneai64`
 * :doc:`../phytec/phycore-am62x`
+* :doc:`../phytec/phycore-am62ax`
 * :doc:`../toradex/verdin-am62`
 
 Boot Flow Overview
