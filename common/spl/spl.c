@@ -631,13 +631,10 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 					     "Unsupported Boot Device!\n");
 				}
 			}
-			if (loader) {
-				ret = spl_load_image(spl_image, loader);
-				if (!ret) {
-					spl_image->boot_device = bootdev;
-					return 0;
-				}
-				printf("Error: %d\n", ret);
+			if (loader &&
+				!spl_load_image(spl_image, loader)) {
+				spl_image->boot_device = bootdev;
+				return 0;
 			}
 		}
 	}
@@ -836,7 +833,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
  */
 void preloader_console_init(void)
 {
-#if CONFIG_IS_ENABLED(SERIAL)
+#ifdef CONFIG_SPL_SERIAL
 	gd->baudrate = CONFIG_BAUDRATE;
 
 	serial_init();		/* serial communications setup */
@@ -895,7 +892,7 @@ __weak void spl_relocate_stack_check(void)
  */
 ulong spl_relocate_stack_gd(void)
 {
-#if CONFIG_IS_ENABLED(STACK_R)
+#ifdef CONFIG_SPL_STACK_R
 	gd_t *new_gd;
 	ulong ptr = CONFIG_SPL_STACK_R_ADDR;
 

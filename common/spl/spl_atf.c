@@ -41,9 +41,9 @@ struct bl2_to_bl31_params_mem_v2 {
 	struct entry_point_info bl31_ep_info;
 };
 
-struct bl31_params *bl2_plat_get_bl31_params_default(ulong bl32_entry,
-						     ulong bl33_entry,
-						     ulong fdt_addr)
+struct bl31_params *bl2_plat_get_bl31_params_default(uintptr_t bl32_entry,
+						     uintptr_t bl33_entry,
+						     uintptr_t fdt_addr)
 {
 	static struct bl2_to_bl31_params_mem bl31_params_mem;
 	struct bl31_params *bl2_to_bl31_params;
@@ -100,17 +100,17 @@ struct bl31_params *bl2_plat_get_bl31_params_default(ulong bl32_entry,
 	return bl2_to_bl31_params;
 }
 
-__weak struct bl31_params *bl2_plat_get_bl31_params(ulong bl32_entry,
-						    ulong bl33_entry,
-						    ulong fdt_addr)
+__weak struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl32_entry,
+						    uintptr_t bl33_entry,
+						    uintptr_t fdt_addr)
 {
 	return bl2_plat_get_bl31_params_default(bl32_entry, bl33_entry,
 						fdt_addr);
 }
 
-struct bl_params *bl2_plat_get_bl31_params_v2_default(ulong bl32_entry,
-						      ulong bl33_entry,
-						      ulong fdt_addr)
+struct bl_params *bl2_plat_get_bl31_params_v2_default(uintptr_t bl32_entry,
+						      uintptr_t bl33_entry,
+						      uintptr_t fdt_addr)
 {
 	static struct bl2_to_bl31_params_mem_v2 bl31_params_mem;
 	struct bl_params *bl_params;
@@ -173,9 +173,9 @@ struct bl_params *bl2_plat_get_bl31_params_v2_default(ulong bl32_entry,
 	return bl_params;
 }
 
-__weak struct bl_params *bl2_plat_get_bl31_params_v2(ulong bl32_entry,
-						     ulong bl33_entry,
-						     ulong fdt_addr)
+__weak struct bl_params *bl2_plat_get_bl31_params_v2(uintptr_t bl32_entry,
+						     uintptr_t bl33_entry,
+						     uintptr_t fdt_addr)
 {
 	return bl2_plat_get_bl31_params_v2_default(bl32_entry, bl33_entry,
 						   fdt_addr);
@@ -188,8 +188,8 @@ static inline void raw_write_daif(unsigned int daif)
 
 typedef void __noreturn (*atf_entry_t)(struct bl31_params *params, void *plat_params);
 
-static void __noreturn bl31_entry(ulong bl31_entry, ulong bl32_entry,
-				  ulong bl33_entry, ulong fdt_addr)
+static void __noreturn bl31_entry(uintptr_t bl31_entry, uintptr_t bl32_entry,
+				  uintptr_t bl33_entry, uintptr_t fdt_addr)
 {
 	atf_entry_t  atf_entry = (atf_entry_t)bl31_entry;
 	void *bl31_params;
@@ -238,7 +238,7 @@ static int spl_fit_images_find(void *blob, int os)
 	return -FDT_ERR_NOTFOUND;
 }
 
-ulong spl_fit_images_get_entry(void *blob, int node)
+uintptr_t spl_fit_images_get_entry(void *blob, int node)
 {
 	ulong  val;
 	int ret;
@@ -253,10 +253,10 @@ ulong spl_fit_images_get_entry(void *blob, int node)
 
 void __noreturn spl_invoke_atf(struct spl_image_info *spl_image)
 {
-	ulong  bl32_entry = 0;
-	ulong  bl33_entry = CONFIG_TEXT_BASE;
+	uintptr_t  bl32_entry = 0;
+	uintptr_t  bl33_entry = CONFIG_TEXT_BASE;
 	void *blob = spl_image->fdt_addr;
-	ulong platform_param = (ulong)blob;
+	uintptr_t platform_param = (uintptr_t)blob;
 	int node;
 
 	/*

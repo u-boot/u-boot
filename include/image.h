@@ -1172,18 +1172,6 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
 				const void **data, size_t *size);
 
 /**
- * fit_image_get_phase() - Get the phase from a FIT image
- *
- * @fit: FIT to read from
- * @offset: offset node to read
- * @phasep: Returns phase, if any
- * Return: 0 if read OK and *phasep is value, -ENOENT if there was no phase
- * property in the node, other -ve value on other error
- */
-int fit_image_get_phase(const void *fit, int offset,
-			enum image_phase_t *phasep);
-
-/**
  * fit_get_data_node() - Get verified image data for an image
  * @fit: Pointer to the FIT format image header
  * @image_uname: The name of the image node
@@ -1411,9 +1399,7 @@ int fit_check_format(const void *fit, ulong size);
  * copied into the configuration node in the FIT image. This is required to
  * match configurations with compressed FDTs.
  *
- * Returns: offset to the configuration to use if one was found, -EINVAL if
- * there a /configurations or /images node is missing, -ENOENT if no match was
- * found, -ENXIO if the FDT node has no compatible string
+ * Returns: offset to the configuration to use if one was found, -1 otherwise
  */
 int fit_conf_find_compat(const void *fit, const void *fdt);
 

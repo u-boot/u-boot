@@ -304,14 +304,6 @@ static struct hash_algo hash_algo[] = {
 		.hash_update	= hash_update_crc16_ccitt,
 		.hash_finish	= hash_finish_crc16_ccitt,
 	},
-#if CONFIG_IS_ENABLED(CRC8)
-	{
-		.name		= "crc8",
-		.digest_size	= 1,
-		.chunk_size	= CHUNKSZ_CRC32,
-		.hash_func_ws	= crc8_wd_buf,
-	},
-#endif
 #if CONFIG_IS_ENABLED(CRC32)
 	{
 		.name		= "crc32",
