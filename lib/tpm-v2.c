@@ -23,12 +23,133 @@
 
 #include "tpm-utils.h"
 
-u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
+static int tpm2_update_active_banks(struct udevice *dev)
 {
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+	struct tpml_pcr_selection pcrs;
+	int ret, i;
+
+	ret = tpm2_get_pcr_info(dev, &pcrs);
+	if (ret)
+		return ret;
+
+	priv->active_bank_count = 0;
+	for (i = 0; i < pcrs.count; i++) {
+		if (!tpm2_is_active_bank(&pcrs.selection[i]))
+			continue;
+		priv->active_banks[priv->active_bank_count] = pcrs.selection[i].hash;
+		priv->active_bank_count++;
+	}
+
+	return 0;
+}
+
+int tpm2_pcr_allocate_get_mask(struct udevice *dev, u32 log_active, u32 *mask)
+{
+	struct tpml_pcr_selection pcrs;
+	u32 active = 0;
+	u32 supported = 0;
+	int rc, i;
+
+	*mask = 0;
+
+	rc = tpm2_get_pcr_info(dev, &pcrs);
+	if (rc)
+		return rc;
+
+	for (i = 0; i < pcrs.count; i++) {
+		struct tpms_pcr_selection *sel = &pcrs.selection[i];
+		size_t j;
+		u32 hash_mask = 0;
+
+		for (j = 0; j < ARRAY_SIZE(hash_algo_list); j++) {
+			if (hash_algo_list[j].hash_alg == sel->hash)
+				hash_mask = hash_algo_list[j].hash_mask;
+		}
+
+		if (hash_mask)
+			supported |= hash_mask;
+
+		if (tpm2_is_active_bank(sel))
+			active |= tpm2_algo_get_mask_from_hash(sel->hash);
+	}
+
+	/* All eventlog algorithm(s) must be supported */
+	if ((log_active & supported) != log_active) {
+		log_err("EventLog contains unsupported algorithm(s)\n");
+		return -1;
+	}
+	if (log_active && log_active != active) {
+		log_warning("EventLog and TPM active algorithms don't match\n");
+		*mask = log_active;
+		return 0;
+	}
+
+	/* Any active algorithm(s) which are not supported must be removed */
+	if (active & ~supported) {
+		log_warning("TPM active algorithm(s) unsupported by u-boot\n");
+		*mask = active & supported;
+	}
+
+	return 0;
+}
+
+static int tpm2_proceed_pcr_allocate(struct udevice *dev, u32 algo_mask)
+{
+	struct tpml_pcr_selection pcr = { 0 };
+	u32 pcr_len = 0;
+	int rc;
+
+	rc = tpm2_get_pcr_info(dev, &pcr);
+	if (rc)
+		return rc;
+
+	rc = tpm2_pcr_config_algo(dev, algo_mask, &pcr, &pcr_len);
+	if (rc)
+		return rc;
+
+	/* Assume no password */
+	rc = tpm2_send_pcr_allocate(dev, NULL, 0, &pcr, pcr_len);
+	if (rc)
+		return rc;
+
+	/* Send TPM2_Shutdown, assume mode = TPM2_SU_CLEAR */
+	return tpm2_startup(dev, false, TPM2_SU_CLEAR);
+}
+
+int tpm2_pcr_allocate(struct udevice *dev, u32 log_active)
+{
+	u32 algo_mask = 0;
+	int rc;
+
+	rc = tpm2_pcr_allocate_get_mask(dev, log_active, &algo_mask);
+	if (rc)
+		return rc;
+
+	if (algo_mask) {
+		if (!IS_ENABLED(CONFIG_TPM_PCR_ALLOCATE))
+			return -1;
+
+		rc = tpm2_proceed_pcr_allocate(dev, algo_mask);
+		if (rc)
+			return rc;
+
+		log_info("PCR allocate done, shutdown TPM and reboot\n");
+		do_reset(NULL, 0, 0, NULL);
+		log_err("reset does not work!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+u32 tpm2_startup(struct udevice *dev, bool bon, enum tpm2_startup_types mode)
+{
+	int op = bon ? TPM2_CC_STARTUP : TPM2_CC_SHUTDOWN;
 	const u8 command_v2[12] = {
 		tpm_u16(TPM2_ST_NO_SESSIONS),
 		tpm_u32(12),
-		tpm_u32(TPM2_CC_STARTUP),
+		tpm_u32(op),
 		tpm_u16(mode),
 	};
 	int ret;
@@ -38,10 +159,10 @@ u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode)
 	 * but will return RC_INITIALIZE otherwise.
 	 */
 	ret = tpm_sendrecv_command(dev, command_v2, NULL, NULL);
-	if (ret && ret != TPM2_RC_INITIALIZE)
+	if ((ret && ret != TPM2_RC_INITIALIZE) || !bon)
 		return ret;
 
-	return 0;
+	return tpm2_update_active_banks(dev);
 }
 
 u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test)
@@ -63,14 +184,16 @@ u32 tpm2_auto_start(struct udevice *dev)
 	rc = tpm2_self_test(dev, TPMI_YES);
 
 	if (rc == TPM2_RC_INITIALIZE) {
-		rc = tpm2_startup(dev, TPM2_SU_CLEAR);
+		rc = tpm2_startup(dev, true, TPM2_SU_CLEAR);
 		if (rc)
 			return rc;
 
 		rc = tpm2_self_test(dev, TPMI_YES);
 	}
+	if (rc)
+		return rc;
 
-	return rc;
+	return tpm2_update_active_banks(dev);
 }
 
 u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
@@ -197,9 +320,12 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
 	if (!digest)
 		return -EINVAL;
 
-	if (!tpm2_allow_extend(dev)) {
+	if (!tpm2_check_active_banks(dev)) {
 		log_err("Cannot extend PCRs if all the TPM enabled algorithms are not supported\n");
-		return -EINVAL;
+
+		ret = tpm2_pcr_allocate(dev, 0);
+		if (ret)
+			return -EINVAL;
 	}
 	/*
 	 * Fill the command structure starting from the first buffer:
@@ -374,6 +500,141 @@ u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
 	memcpy(buf, &response[properties_off], response_len - properties_off);
 
 	return 0;
+}
+
+u32 tpm2_algo_get_mask_from_hash(enum tpm2_algorithms hash)
+{
+	switch (hash) {
+	case TPM2_ALG_SHA1:
+		return TCG2_BOOT_HASH_ALG_SHA1;
+	case TPM2_ALG_SHA256:
+		return TCG2_BOOT_HASH_ALG_SHA256;
+	case TPM2_ALG_SHA384:
+		return TCG2_BOOT_HASH_ALG_SHA384;
+	case TPM2_ALG_SHA512:
+		return TCG2_BOOT_HASH_ALG_SHA512;
+	default:
+		break;
+	}
+	return 0;
+}
+
+u32 tpm2_pcr_config_algo(struct udevice *dev, u32 algo_mask,
+			 struct tpml_pcr_selection *pcr, u32 *pcr_len)
+{
+	int i;
+
+	if (pcr->count > TPM2_NUM_PCR_BANKS)
+		return TPM_LIB_ERROR;
+
+	*pcr_len = sizeof(pcr->count);
+
+	for (i = 0; i < pcr->count; i++) {
+		struct tpms_pcr_selection *sel = &pcr->selection[i];
+		u8 pad = 0;
+		int j;
+
+		if (sel->size_of_select > TPM2_PCR_SELECT_MAX)
+			return TPM_LIB_ERROR;
+
+		/*
+		 * Found the algorithm (bank) that matches, and enable all PCR
+		 * bits.
+		 * TODO: only select the bits needed
+		 */
+		if (algo_mask & tpm2_algo_get_mask_from_hash(sel->hash))
+			pad = 0xff;
+
+		for (j = 0; j < sel->size_of_select; j++)
+			sel->pcr_select[j] = pad;
+
+		log_info("set bank[%d] (algorithm[%#x]) %s\n", i, sel->hash,
+			 tpm2_is_active_bank(sel) ? "on" : "off");
+
+		*pcr_len += sizeof(sel->hash) + sizeof(sel->size_of_select) +
+			    sel->size_of_select;
+	}
+
+	return 0;
+}
+
+u32 tpm2_send_pcr_allocate(struct udevice *dev, const char *pw,
+			   const ssize_t pw_sz, struct tpml_pcr_selection *pcr,
+			   u32 pcr_len)
+{
+	/* Length of the message header, up to start of password */
+	uint offset = 27;
+	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+		tpm_u16(TPM2_ST_SESSIONS),   /* TAG */
+		tpm_u32(offset + pw_sz + pcr_len), /* Length */
+		tpm_u32(TPM2_CC_PCR_ALLOCATE),  /* Command code */
+
+		/* handles 4 bytes */
+		tpm_u32(TPM2_RH_PLATFORM),	/* Primary platform seed */
+
+		/* AUTH_SESSION */
+		tpm_u32(9 + pw_sz),		/* Authorization size */
+		tpm_u32(TPM2_RS_PW),		/* Session handle */
+		tpm_u16(0),			/* Size of <nonce> */
+						/* <nonce> (if any) */
+		0,				/* Attributes: Cont/Excl/Rst */
+		tpm_u16(pw_sz),			/* Size of <hmac/password> */
+		/* STRING(pw)			   <hmac/password> (if any) */
+
+		/* TPML_PCR_SELECTION */
+	};
+	u8 response[COMMAND_BUFFER_SIZE];
+	size_t response_len = COMMAND_BUFFER_SIZE;
+	u32 i;
+	int ret;
+
+	/*
+	 * Fill the command structure starting from the first buffer:
+	 * the password (if any)
+	 */
+	if (pack_byte_string(command_v2, sizeof(command_v2), "s", offset, pw,
+			     pw_sz))
+		return TPM_LIB_ERROR;
+
+	offset += pw_sz;
+
+	/* Pack the count field */
+	if (pack_byte_string(command_v2, sizeof(command_v2), "d", offset, pcr->count))
+		return TPM_LIB_ERROR;
+
+	offset += sizeof(pcr->count);
+
+	/* Pack each tpms_pcr_selection */
+	for (i = 0; i < pcr->count; i++) {
+		struct tpms_pcr_selection *sel = &pcr->selection[i];
+
+		/* Pack hash (16-bit) */
+		if (pack_byte_string(command_v2, sizeof(command_v2), "w", offset,
+				     sel->hash))
+			return TPM_LIB_ERROR;
+
+		offset += sizeof(sel->hash);
+
+		/* Pack size_of_select (8-bit) */
+		if (pack_byte_string(command_v2, sizeof(command_v2), "b", offset,
+				     sel->size_of_select))
+			return TPM_LIB_ERROR;
+
+		offset += sizeof(sel->size_of_select);
+
+		/* Pack pcr_select array */
+		if (pack_byte_string(command_v2, sizeof(command_v2), "s", offset,
+				     sel->pcr_select, sel->size_of_select))
+			return TPM_LIB_ERROR;
+
+		offset += sel->size_of_select;
+	}
+
+	ret = tpm_sendrecv_command(dev, command_v2, response, &response_len);
+	if (!ret)
+		tpm_init(dev);
+
+	return ret;
 }
 
 static int tpm2_get_num_pcr(struct udevice *dev, u32 *num_pcr)
@@ -847,7 +1108,7 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 	return 0;
 }
 
-bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection)
+bool tpm2_is_active_bank(struct tpms_pcr_selection *selection)
 {
 	int i;
 
@@ -896,7 +1157,7 @@ u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo)
 	return 0;
 }
 
-bool tpm2_allow_extend(struct udevice *dev)
+bool tpm2_check_active_banks(struct udevice *dev)
 {
 	struct tpml_pcr_selection pcrs;
 	size_t i;
@@ -907,10 +1168,28 @@ bool tpm2_allow_extend(struct udevice *dev)
 		return false;
 
 	for (i = 0; i < pcrs.count; i++) {
-		if (tpm2_is_active_pcr(&pcrs.selection[i]) &&
+		if (tpm2_is_active_bank(&pcrs.selection[i]) &&
 		    !tpm2_algorithm_to_len(pcrs.selection[i].hash))
 			return false;
 	}
 
 	return true;
+}
+
+void tpm2_print_active_banks(struct udevice *dev)
+{
+	struct tpml_pcr_selection pcrs;
+	size_t i;
+	int rc;
+
+	rc = tpm2_get_pcr_info(dev, &pcrs);
+	if (rc) {
+		log_err("Can't retrieve active PCRs\n");
+		return;
+	}
+
+	for (i = 0; i < pcrs.count; i++) {
+		if (tpm2_is_active_bank(&pcrs.selection[i]))
+			log_info("0x%x\n", pcrs.selection[i].hash);
+	}
 }

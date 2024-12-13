@@ -791,7 +791,7 @@ static void tcg2_uninit(void)
 	efi_status_t ret;
 
 	ret = efi_install_configuration_table(&efi_guid_final_events, NULL);
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS && ret != EFI_NOT_FOUND)
 		log_err("Failed to delete final events config table\n");
 
 	efi_free_pool(event_log.buffer);
