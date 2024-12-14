@@ -161,6 +161,10 @@ def get_details(config):
             env['U_BOOT_BUILD_DIR'] = build_dir
         if build_dir_extra:
             env['U_BOOT_BUILD_DIR_EXTRA'] = build_dir_extra
+
+	# Make sure the script sees that it is being run from pytest
+        env['U_BOOT_SOURCE_DIR'] = source_dir
+
         proc = subprocess.run(cmd, capture_output=True, encoding='utf-8',
                               env=env)
         if proc.returncode:
