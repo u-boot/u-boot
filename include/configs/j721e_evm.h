@@ -15,11 +15,14 @@
 #define CFG_SYS_FLASH_BASE		0x000000000
 
 /* SPL Loader Configuration */
-#if defined(CONFIG_TARGET_J721E_A72_EVM) || defined(CONFIG_TARGET_J7200_A72_EVM)
+#if defined(CONFIG_TARGET_J721E_A72_EVM)
 #define CFG_SYS_UBOOT_BASE		0x50280000
-/* Image load address in RAM for DFU boot*/
-#else
+#elif defined(CONFIG_TARGET_J7200_A72_EVM)
+#define CFG_SYS_UBOOT_BASE		0x50300000
+#elif defined(CONFIG_TARGET_J721E_R5_EVM)
 #define CFG_SYS_UBOOT_BASE		0x50080000
+#else
+#define CFG_SYS_UBOOT_BASE		0x50100000
 #endif
 
 /**
