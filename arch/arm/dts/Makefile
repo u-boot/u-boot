@@ -978,10 +978,6 @@ dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
 
-ifdef CONFIG_RCAR_64
-DTC_FLAGS += -R 4 -p 0x1000
-endif
-
 dtb-$(CONFIG_RZA1) += \
 	r7s72100-gr-peach.dtb
 
