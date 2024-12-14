@@ -165,10 +165,11 @@ def get_details(config):
 	# Make sure the script sees that it is being run from pytest
         env['U_BOOT_SOURCE_DIR'] = source_dir
 
-        proc = subprocess.run(cmd, capture_output=True, encoding='utf-8',
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT, encoding='utf-8',
                               env=env)
         if proc.returncode:
-            raise ValueError(proc.stderr)
+            raise ValueError(f"Error {proc.returncode} running {cmd}: '{proc.stderr} '{proc.stdout}'")
         # For debugging
         # print('conftest: lab:', proc.stdout)
         vals = {}
