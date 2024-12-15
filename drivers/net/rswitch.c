@@ -48,48 +48,47 @@
 #define TARO    0
 #define RMRO    0x1000
 
-enum rswitch_reg {
-	EAMC		= TARO + 0x0000,
-	EAMS		= TARO + 0x0004,
-	EATDQDC		= TARO + 0x0060,
-	EATTFC          = TARO + 0x0138,
-	EATASRIRM	= TARO + 0x03E4,
-
-	GWMC		= GWRO + 0x0000,
-	GWMS		= GWRO + 0x0004,
-	GWMTIRM		= GWRO + 0x0100,
-	GWVCC		= GWRO + 0x0130,
-	GWTTFC		= GWRO + 0x0138,
-	GWDCBAC0	= GWRO + 0x0194,
-	GWDCBAC1	= GWRO + 0x0198,
-	GWTRC		= GWRO + 0x0200,
-	GWARIRM		= GWRO + 0x0380,
-	GWDCC		= GWRO + 0x0400,
-
-	RRC		= CARO + 0x0004,
-	RCEC		= CARO + 0x0008,
-	RCDC		= CARO + 0x000C,
-	CABPIRM		= CARO + 0x0140,
-
-	FWPC0		= FWRO + 0x0100,
-	FWPBFC		= FWRO + 0x4A00,
-	FWPBFCSDC	= FWRO + 0x4A04,
-
-	MPSM		= RMRO + 0x0000,
-	MPIC		= RMRO + 0x0004,
-	MRMAC0		= RMRO + 0x0084,
-	MRMAC1		= RMRO + 0x0088,
-	MRAFC		= RMRO + 0x008C,
-	MRSCE		= RMRO + 0x0090,
-	MRSCP		= RMRO + 0x0094,
-	MLVC		= RMRO + 0x0180,
-	MLBC		= RMRO + 0x0188,
-	MXGMIIC		= RMRO + 0x0190,
-	MPCH		= RMRO + 0x0194,
-	MANM		= RMRO + 0x019C,
-	MMIS0		= RMRO + 0x0210,
-	MMIS1		= RMRO + 0x0220,
-};
+/* List of TSNA registers (ETHA) */
+#define EAMC		(TARO + 0x0000)
+#define EAMS		(TARO + 0x0004)
+#define EATDQDCR	(TARO + 0x0060)
+#define EATTFC		(TARO + 0x0138)
+#define EATASRIRM	(TARO + 0x03e4)
+/* Gateway CPU agent block (GWCA) */
+#define GWMC		(GWRO + 0x0000)
+#define GWMS		(GWRO + 0x0004)
+#define GWMTIRM		(GWRO + 0x0100)
+#define GWVCC		(GWRO + 0x0130)
+#define GWTTFC		(GWRO + 0x0138)
+#define GWDCBAC0	(GWRO + 0x0194)
+#define GWDCBAC1	(GWRO + 0x0198)
+#define GWTRCR		(GWRO + 0x0200)
+#define GWARIRM		(GWRO + 0x0380)
+#define GWDCCR		(GWRO + 0x0400)
+/* List of Common Agent registers (COMA) */
+#define RRC		(CARO + 0x0004)
+#define RCEC		(CARO + 0x0008)
+#define RCDC		(CARO + 0x000c)
+#define CABPIRM		(CARO + 0x0140)
+/* List of MFWD registers */
+#define FWPC		(FWRO + 0x0100)
+#define FWPBFCR		(FWRO + 0x4a00)
+#define FWPBFCSDCR	(FWRO + 0x4a04)
+/* List of RMAC registers (RMAC) */
+#define MPSM		(RMRO + 0x0000)
+#define MPIC		(RMRO + 0x0004)
+#define MRMAC0		(RMRO + 0x0084)
+#define MRMAC1		(RMRO + 0x0088)
+#define MRAFC		(RMRO + 0x008c)
+#define MRSCE		(RMRO + 0x0090)
+#define MRSCP		(RMRO + 0x0094)
+#define MLVC		(RMRO + 0x0180)
+#define MLBC		(RMRO + 0x0188)
+#define MXGMIIC		(RMRO + 0x0190)
+#define MPCH		(RMRO + 0x0194)
+#define MANM		(RMRO + 0x019c)
+#define MMIS0		(RMRO + 0x0210)
+#define MMIS1		(RMRO + 0x0220)
 
 /* COMA */
 #define RRC_RR		BIT(0)
@@ -99,7 +98,7 @@ enum rswitch_reg {
 #define CABPIRM_BPR	BIT(1)
 
 /* MFWD */
-#define FWPC0(i)	(FWPC0 + (i) * 0x10)
+#define FWPC0(i)	(FWPC + (i) * 0x10)
 #define FWPC0_LTHTA     BIT(0)
 #define FWPC0_IP4UE     BIT(3)
 #define FWPC0_IP4TE     BIT(4)
@@ -118,13 +117,13 @@ enum rswitch_reg {
 			 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
 			 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
 
-#define FWPBFC(i)	(FWPBFC + (i) * 0x10)
-#define FWPBFCSDC(j, i)	(FWPBFCSDC + (i) * 0x10 + (j) * 0x04)
+#define FWPBFC(i)	(FWPBFCR + (i) * 0x10)
+#define FWPBFCSDC(j, i)	(FWPBFCSDCR + (i) * 0x10 + (j) * 0x04)
 
 /* ETHA */
 #define EATASRIRM_TASRIOG	BIT(0)
 #define EATASRIRM_TASRR		BIT(1)
-#define EATDQDC(q)		(EATDQDC + (q) * 0x04)
+#define EATDQDC(q)		(EATDQDCR + (q) * 0x04)
 #define EATDQDC_DQD		(0xff)
 
 /* RMAC */
@@ -189,8 +188,8 @@ enum rswitch_gwca_mode {
 #define GWARIRM_ARR		BIT(1)
 #define GWVCC_VEM_SC_TAG	(0x3 << 16)
 #define GWDCBAC0_DCBAUP		(0xff)
-#define GWTRC(i)		(GWTRC + (i) * 0x04)
-#define GWDCC(i)		(GWDCC + (i) * 0x04)
+#define GWTRC(i)		(GWTRCR + (i) * 0x04)
+#define GWDCC(i)		(GWDCCR + (i) * 0x04)
 #define	GWDCC_DQT		BIT(11)
 #define GWDCC_BALR		BIT(24)
 
