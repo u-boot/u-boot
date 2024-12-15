@@ -36,86 +36,86 @@
 #define RSWITCH_MAX_CTAG_PCP	7
 
 /* Registers */
-#define RSWITCH_COMA_OFFSET     0x00009000
-#define RSWITCH_ETHA_OFFSET     0x0000a000      /* with RMAC */
-#define RSWITCH_ETHA_SIZE       0x00002000      /* with RMAC */
+#define RSWITCH_COMA_OFFSET	0x00009000
+#define RSWITCH_ETHA_OFFSET	0x0000a000	/* with RMAC */
+#define RSWITCH_ETHA_SIZE	0x00002000	/* with RMAC */
 #define RSWITCH_GWCA_OFFSET	0x00010000
 #define RSWITCH_GWCA_SIZE	0x00002000
 
-#define FWRO    0
-#define CARO    RSWITCH_COMA_OFFSET
-#define GWRO    0
-#define TARO    0
-#define RMRO    0x1000
+#define FWRO			0
+#define CARO			RSWITCH_COMA_OFFSET
+#define GWRO			0
+#define TARO			0
+#define RMRO			0x1000
 
 /* List of TSNA registers (ETHA) */
-#define EAMC		(TARO + 0x0000)
-#define EAMS		(TARO + 0x0004)
-#define EATDQDCR	(TARO + 0x0060)
-#define EATTFC		(TARO + 0x0138)
-#define EATASRIRM	(TARO + 0x03e4)
+#define EAMC			(TARO + 0x0000)
+#define EAMS			(TARO + 0x0004)
+#define EATDQDCR		(TARO + 0x0060)
+#define EATTFC			(TARO + 0x0138)
+#define EATASRIRM		(TARO + 0x03e4)
 /* Gateway CPU agent block (GWCA) */
-#define GWMC		(GWRO + 0x0000)
-#define GWMS		(GWRO + 0x0004)
-#define GWMTIRM		(GWRO + 0x0100)
-#define GWVCC		(GWRO + 0x0130)
-#define GWTTFC		(GWRO + 0x0138)
-#define GWDCBAC0	(GWRO + 0x0194)
-#define GWDCBAC1	(GWRO + 0x0198)
-#define GWTRCR		(GWRO + 0x0200)
-#define GWARIRM		(GWRO + 0x0380)
-#define GWDCCR		(GWRO + 0x0400)
+#define GWMC			(GWRO + 0x0000)
+#define GWMS			(GWRO + 0x0004)
+#define GWMTIRM			(GWRO + 0x0100)
+#define GWVCC			(GWRO + 0x0130)
+#define GWTTFC			(GWRO + 0x0138)
+#define GWDCBAC0		(GWRO + 0x0194)
+#define GWDCBAC1		(GWRO + 0x0198)
+#define GWTRCR			(GWRO + 0x0200)
+#define GWARIRM			(GWRO + 0x0380)
+#define GWDCCR			(GWRO + 0x0400)
 /* List of Common Agent registers (COMA) */
-#define RRC		(CARO + 0x0004)
-#define RCEC		(CARO + 0x0008)
-#define RCDC		(CARO + 0x000c)
-#define CABPIRM		(CARO + 0x0140)
+#define RRC			(CARO + 0x0004)
+#define RCEC			(CARO + 0x0008)
+#define RCDC			(CARO + 0x000c)
+#define CABPIRM			(CARO + 0x0140)
 /* List of MFWD registers */
-#define FWPC		(FWRO + 0x0100)
-#define FWPBFCR		(FWRO + 0x4a00)
-#define FWPBFCSDCR	(FWRO + 0x4a04)
+#define FWPC			(FWRO + 0x0100)
+#define FWPBFCR			(FWRO + 0x4a00)
+#define FWPBFCSDCR		(FWRO + 0x4a04)
 /* List of RMAC registers (RMAC) */
-#define MPSM		(RMRO + 0x0000)
-#define MPIC		(RMRO + 0x0004)
-#define MRMAC0		(RMRO + 0x0084)
-#define MRMAC1		(RMRO + 0x0088)
-#define MRAFC		(RMRO + 0x008c)
-#define MRSCE		(RMRO + 0x0090)
-#define MRSCP		(RMRO + 0x0094)
-#define MLVC		(RMRO + 0x0180)
-#define MLBC		(RMRO + 0x0188)
-#define MXGMIIC		(RMRO + 0x0190)
-#define MPCH		(RMRO + 0x0194)
-#define MANM		(RMRO + 0x019c)
-#define MMIS0		(RMRO + 0x0210)
-#define MMIS1		(RMRO + 0x0220)
+#define MPSM			(RMRO + 0x0000)
+#define MPIC			(RMRO + 0x0004)
+#define MRMAC0			(RMRO + 0x0084)
+#define MRMAC1			(RMRO + 0x0088)
+#define MRAFC			(RMRO + 0x008c)
+#define MRSCE			(RMRO + 0x0090)
+#define MRSCP			(RMRO + 0x0094)
+#define MLVC			(RMRO + 0x0180)
+#define MLBC			(RMRO + 0x0188)
+#define MXGMIIC			(RMRO + 0x0190)
+#define MPCH			(RMRO + 0x0194)
+#define MANM			(RMRO + 0x019c)
+#define MMIS0			(RMRO + 0x0210)
+#define MMIS1			(RMRO + 0x0220)
 
 /* COMA */
-#define RRC_RR		BIT(0)
-#define RCEC_RCE	BIT(16)
+#define RRC_RR			BIT(0)
+#define RCEC_RCE		BIT(16)
 
-#define CABPIRM_BPIOG	BIT(0)
-#define CABPIRM_BPR	BIT(1)
+#define CABPIRM_BPIOG		BIT(0)
+#define CABPIRM_BPR		BIT(1)
 
 /* MFWD */
-#define FWPC0(i)	(FWPC + (i) * 0x10)
-#define FWPC0_LTHTA     BIT(0)
-#define FWPC0_IP4UE     BIT(3)
-#define FWPC0_IP4TE     BIT(4)
-#define FWPC0_IP4OE     BIT(5)
-#define FWPC0_L2SE      BIT(9)
-#define FWPC0_IP4EA     BIT(10)
-#define FWPC0_IPDSA     BIT(12)
-#define FWPC0_IPHLA     BIT(18)
-#define FWPC0_MACSDA    BIT(20)
-#define FWPC0_MACHLA    BIT(26)
-#define FWPC0_MACHMA    BIT(27)
-#define FWPC0_VLANSA    BIT(28)
+#define FWPC0(i)		(FWPC + (i) * 0x10)
+#define FWPC0_LTHTA		BIT(0)
+#define FWPC0_IP4UE		BIT(3)
+#define FWPC0_IP4TE		BIT(4)
+#define FWPC0_IP4OE		BIT(5)
+#define FWPC0_L2SE		BIT(9)
+#define FWPC0_IP4EA		BIT(10)
+#define FWPC0_IPDSA		BIT(12)
+#define FWPC0_IPHLA		BIT(18)
+#define FWPC0_MACSDA		BIT(20)
+#define FWPC0_MACHLA		BIT(26)
+#define FWPC0_MACHMA		BIT(27)
+#define FWPC0_VLANSA		BIT(28)
 
-#define FWPC0_DEFAULT   (FWPC0_LTHTA | FWPC0_IP4UE | FWPC0_IP4TE | \
-			 FWPC0_IP4OE | FWPC0_L2SE | FWPC0_IP4EA | \
-			 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
-			 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
+#define FWPC0_DEFAULT		(FWPC0_LTHTA | FWPC0_IP4UE | FWPC0_IP4TE | \
+				 FWPC0_IP4OE | FWPC0_L2SE | FWPC0_IP4EA | \
+				 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
+				 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
 
 #define FWPBFC(i)	(FWPBFCR + (i) * 0x10)
 #define FWPBFCSDC(j, i)	(FWPBFCSDCR + (i) * 0x10 + (j) * 0x04)
@@ -148,8 +148,8 @@
 #define MDIO_WRITE_C45		0x01
 #define MDIO_ADDR_C45		0x00
 
-#define MDIO_READ_C22           0x02
-#define MDIO_WRITE_C22          0x01
+#define MDIO_READ_C22		0x02
+#define MDIO_WRITE_C22		0x01
 
 #define MPSM_POP_MASK		(0x03 << 13)
 #define MPSM_PRA_MASK		(0x1f << 8)
