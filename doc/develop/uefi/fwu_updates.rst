@@ -170,7 +170,7 @@ build the tool, enable::
 
     CONFIG_TOOLS_MKEFICAPSULE=y
 
-Run the following commands to generate the accept/revert capsules::
+Run the following commands to generate the accept/revert capsules:
 
 .. code-block:: bash
 
@@ -180,7 +180,7 @@ Run the following commands to generate the accept/revert capsules::
       <capsule_file_name>
 
 Some examples of using the mkeficapsule tool for generation of the
-empty capsule would be::
+empty capsule would be:
 
 .. code-block:: bash
 

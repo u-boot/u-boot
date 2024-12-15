@@ -6,6 +6,7 @@ Cool Pi GenBook is a laptop powered by RK3588, it works with a
 carrier board connect with CM5.
 
 Specification:
+
 * Rockchip RK3588
 * LPDDR5X 8/32 GB
 * eMMC 64 GB
@@ -24,11 +25,11 @@ Get the TF-A and DDR init (TPL) binaries
 
 .. prompt:: bash
 
-   > cd u-boot
-   > export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.17.bin
-   > export BL31=../rkbin/bin/rk35/rk3588_bl31_v1.46.elf
-   > make coolpi-genbook-cm5-rk3588_defconfig
-   > make CROSS_COMPILE=aarch64-linux-gnu-
+   cd u-boot
+   export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.17.bin
+   export BL31=../rkbin/bin/rk35/rk3588_bl31_v1.46.elf
+   make coolpi-genbook-cm5-rk3588_defconfig
+   make CROSS_COMPILE=aarch64-linux-gnu-
 
 This will build ``u-boot-rockchip.bin`` for eMMC and ``u-boot-rockchip-spi.bin`` for SPI Nor.
 
