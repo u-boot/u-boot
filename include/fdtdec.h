@@ -136,23 +136,6 @@ struct fdt_pci_addr {
 	u32	phys_lo;
 };
 
-extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
-extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
-
-/* Get a pointer to the embedded devicetree, if there is one, else NULL */
-static inline u8 *dtb_dt_embedded(void)
-{
-#ifdef CONFIG_OF_EMBED
-# ifdef CONFIG_XPL_BUILD
-	return __dtb_dt_spl_begin;
-# else
-	return __dtb_dt_begin;
-# endif
-#else
-	return NULL;
-#endif
-}
-
 /**
  * Compute the size of a resource.
  *
@@ -1154,6 +1137,13 @@ int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
 			unsigned int index, const struct fdt_memory *carveout,
 			const char *name, const char **compatibles,
 			unsigned int count, unsigned long flags);
+
+/**
+ * fdtdec_setup_embed - pick up embedded DTS
+ *
+ * Should be invoked under CONFIG_OF_EMBED guard.
+ */
+void fdtdec_setup_embed(void);
 
 /**
  * Set up the device tree ready for use
