@@ -582,21 +582,22 @@ static int run_main_loop(void)
 }
 
 /*
- * Over time we hope to remove these functions with code fragments and
- * stub functions, and instead call the relevant function directly.
- *
- * We also hope to remove most of the driver-related init and do it if/when
- * the driver is later used.
+ * Over time we hope to remove most of the driver-related init and do it
+ * if/when the driver is later used.
  *
  * TODO: perhaps reset the watchdog in the initcall function after each call?
  */
-static init_fnc_t init_sequence_r[] = {
-	initr_trace,
-	initr_reloc,
-	event_init,
+
+static int initcall_run_r(void)
+{
+	int ret = 0;
+
+	INITCALL(initr_trace);
+	INITCALL(initr_reloc);
+	INITCALL(event_init);
 	/* TODO: could x86/PPC have this also perhaps? */
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV)
-	initr_caches,
+	INITCALL(initr_caches);
 	/* Note: For Freescale LS2 SoCs, new MMU table is created in DDR.
 	 *	 A temporary mapping of IFC high region is since removed,
 	 *	 so environmental variables in NOR flash is not available
@@ -604,21 +605,21 @@ static init_fnc_t init_sequence_r[] = {
 	 *	 region.
 	 */
 #endif
-	initr_reloc_global_data,
+	INITCALL(initr_reloc_global_data);
 #if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
-	initr_unlock_ram_in_cache,
+	INITCALL(initr_unlock_ram_in_cache);
 #endif
-	initr_barrier,
-	initr_malloc,
-	log_init,
-	initr_bootstage,	/* Needs malloc() but has its own timer */
-	CONFIG_IS_ENABLED(CONSOLE_RECORD, (console_record_init,))
-	CONFIG_IS_ENABLED(SYS_NONCACHED_MEMORY, (noncached_init,))
-	initr_of_live,
-	CONFIG_IS_ENABLED(DM, (initr_dm,))
-	CONFIG_IS_ENABLED(ADDR_MAP, (init_addr_map,))
+	INITCALL(initr_barrier);
+	INITCALL(initr_malloc);
+	INITCALL(log_init);
+	INITCALL(initr_bootstage); /* Needs malloc() but has its own timer */
+	CONFIG_IS_ENABLED(CONSOLE_RECORD, (INITCALL(console_record_init);))
+	CONFIG_IS_ENABLED(SYS_NONCACHED_MEMORY, (INITCALL(noncached_init);))
+	INITCALL(initr_of_live);
+	CONFIG_IS_ENABLED(DM, (INITCALL(initr_dm);))
+	CONFIG_IS_ENABLED(ADDR_MAP, (INITCALL(init_addr_map);))
 #if defined(CONFIG_ARM) || defined(CONFIG_RISCV) || defined(CONFIG_SANDBOX)
-	board_init,	/* Setup chipselects */
+	INITCALL(board_init);	/* Setup chipselects */
 #endif
 	/*
 	 * TODO: printing of the clock inforamtion of the board is now
@@ -626,88 +627,93 @@ static init_fnc_t init_sequence_r[] = {
 	 * davinci SOC's is added. Remove this check once all the board
 	 * implement this.
 	 */
-	CONFIG_IS_ENABLED(CLOCKS, (set_cpu_clk_info,)) /* Setup clock information */
-	initr_lmb,
-	CONFIG_IS_ENABLED(EFI_LOADER, (efi_memory_init,))
-	CONFIG_IS_ENABLED(BINMAN_FDT, (initr_binman,))
-	CONFIG_IS_ENABLED(FSP_VERSION2, (arch_fsp_init_r,))
-	initr_dm_devices,
-	stdio_init_tables,
-	serial_initialize,
-	initr_announce,
-	dm_announce,
-	CONFIG_IS_ENABLED(WDT, (initr_watchdog,))
-	INIT_FUNC_WATCHDOG_RESET
-	arch_initr_trap,
-	CONFIG_IS_ENABLED(BOARD_EARLY_INIT_R, (board_early_init_r,))
-	INIT_FUNC_WATCHDOG_RESET
-	CONFIG_IS_ENABLED(POST, (post_output_backlog,))
-	INIT_FUNC_WATCHDOG_RESET
+	CONFIG_IS_ENABLED(CLOCKS, (INITCALL(set_cpu_clk_info);))
+	INITCALL(initr_lmb);
+	CONFIG_IS_ENABLED(EFI_LOADER, (INITCALL(efi_memory_init);))
+	CONFIG_IS_ENABLED(BINMAN_FDT, (INITCALL(initr_binman);))
+	CONFIG_IS_ENABLED(FSP_VERSION2, (INITCALL(arch_fsp_init_r);))
+	INITCALL(initr_dm_devices);
+	INITCALL(stdio_init_tables);
+	INITCALL(serial_initialize);
+	INITCALL(initr_announce);
+	INITCALL(dm_announce);
+	CONFIG_IS_ENABLED(WDT, (INITCALL(initr_watchdog);))
+	WATCHDOG_RESET();
+	INITCALL(arch_initr_trap);
+	CONFIG_IS_ENABLED(BOARD_EARLY_INIT_R, (INITCALL(board_early_init_r);))
+	WATCHDOG_RESET();
+	CONFIG_IS_ENABLED(POST, (INITCALL(post_output_backlog);))
+	WATCHDOG_RESET();
 #if defined(CONFIG_PCI_INIT_R) && defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do early PCI configuration _before_ the flash gets initialised,
 	 * because PCU resources are crucial for flash access on some boards.
 	 */
-	pci_init,
+	INITCALL(pci_init);
 #endif
-	CONFIG_IS_ENABLED(ARCH_EARLY_INIT_R, (arch_early_init_r,))
-	power_init_board,
-	CONFIG_IS_ENABLED(MTD_NOR_FLASH, (initr_flash,))
-	INIT_FUNC_WATCHDOG_RESET
+	CONFIG_IS_ENABLED(ARCH_EARLY_INIT_R, (INITCALL(arch_early_init_r);))
+	INITCALL(power_init_board);
+	CONFIG_IS_ENABLED(MTD_NOR_FLASH, (INITCALL(initr_flash);))
+	WATCHDOG_RESET();
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
-	cpu_init_r,
+	INITCALL(cpu_init_r);
 #endif
-	CONFIG_IS_ENABLED(EFI_LOADER, (efi_init_early,))
-	CONFIG_IS_ENABLED(CMD_NAND, (initr_nand,))
-	CONFIG_IS_ENABLED(CMD_ONENAND, (initr_onenand,))
-	CONFIG_IS_ENABLED(MMC, (initr_mmc,))
-	CONFIG_IS_ENABLED(XEN, (xen_init,))
-	CONFIG_IS_ENABLED(PVBLOCK, (initr_pvblock,))
-	initr_env,
-	CONFIG_IS_ENABLED(SYS_MALLOC_BOOTPARAMS, (initr_malloc_bootparams,))
-	INIT_FUNC_WATCHDOG_RESET
-	cpu_secondary_init_r,
-	CONFIG_IS_ENABLED(ID_EEPROM, (mac_read_from_eeprom,))
-	INITCALL_EVENT(EVT_SETTINGS_R),
-	INIT_FUNC_WATCHDOG_RESET
+	CONFIG_IS_ENABLED(EFI_LOADER, (INITCALL(efi_init_early);))
+	CONFIG_IS_ENABLED(CMD_NAND, (INITCALL(initr_nand);))
+	CONFIG_IS_ENABLED(CMD_ONENAND, (INITCALL(initr_onenand);))
+	CONFIG_IS_ENABLED(MMC, (INITCALL(initr_mmc);))
+	CONFIG_IS_ENABLED(XEN, (INITCALL(xen_init);))
+	CONFIG_IS_ENABLED(PVBLOCK, (INITCALL(initr_pvblock);))
+	INITCALL(initr_env);
+	CONFIG_IS_ENABLED(SYS_MALLOC_BOOTPARAMS,
+			  (INITCALL(initr_malloc_bootparams);))
+	WATCHDOG_RESET();
+	INITCALL(cpu_secondary_init_r);
+	CONFIG_IS_ENABLED(ID_EEPROM, (INITCALL(mac_read_from_eeprom);))
+	INITCALL_EVT(EVT_SETTINGS_R);
+	WATCHDOG_RESET();
 #if defined(CONFIG_PCI_INIT_R) && !defined(CONFIG_SYS_EARLY_PCI_INIT)
 	/*
 	 * Do pci configuration
 	 */
-	pci_init,
+	INITCALL(pci_init);
 #endif
-	stdio_add_devices,
-	jumptable_init,
-	CONFIG_IS_ENABLED(API, (api_init,))
-	console_init_r,		/* fully init console as a device */
-	CONFIG_IS_ENABLED(DISPLAY_BOARDINFO_LATE, (console_announce_r, show_board_info,))
+	INITCALL(stdio_add_devices);
+	INITCALL(jumptable_init);
+	CONFIG_IS_ENABLED(API, (INITCALL(api_init);))
+	INITCALL(console_init_r);	/* fully init console as a device */
+	CONFIG_IS_ENABLED(DISPLAY_BOARDINFO_LATE,
+			  (INITCALL(console_announce_r);
+			   INITCALL(show_board_info);))
 	/* miscellaneous arch-dependent init */
-	CONFIG_IS_ENABLED(ARCH_MISC_INIT, (arch_misc_init,))
+	CONFIG_IS_ENABLED(ARCH_MISC_INIT, (INITCALL(arch_misc_init);))
 	/* miscellaneous platform-dependent init */
-	CONFIG_IS_ENABLED(MISC_INIT_R, (misc_init_r,))
-	INIT_FUNC_WATCHDOG_RESET
-	CONFIG_IS_ENABLED(CMD_KGDB, (kgdb_init,))
-	interrupt_init,
+	CONFIG_IS_ENABLED(MISC_INIT_R, (INITCALL(misc_init_r);))
+	WATCHDOG_RESET();
+	CONFIG_IS_ENABLED(CMD_KGDB, (INITCALL(kgdb_init);))
+	INITCALL(interrupt_init);
 #if defined(CONFIG_MICROBLAZE) || defined(CONFIG_M68K)
-	timer_init,		/* initialize timer */
+	INITCALL(timer_init);		/* initialize timer */
 #endif
-	initr_status_led,
-	initr_boot_led_blink,
+	INITCALL(initr_status_led);
+	INITCALL(initr_boot_led_blink);
 	/* PPC has a udelay(20) here dating from 2002. Why? */
-	CONFIG_IS_ENABLED(BOARD_LATE_INIT, (board_late_init,))
-	CONFIG_IS_ENABLED(BITBANGMII, (bb_miiphy_init,))
-	CONFIG_IS_ENABLED(PCI_ENDPOINT, (pci_ep_init,))
-	CONFIG_IS_ENABLED(CMD_NET, (INIT_FUNC_WATCHDOG_RESET initr_net,))
-	CONFIG_IS_ENABLED(POST, (initr_post,))
-	INIT_FUNC_WATCHDOG_RESET
-	INITCALL_EVENT(EVT_LAST_STAGE_INIT),
+	CONFIG_IS_ENABLED(BOARD_LATE_INIT, (INITCALL(board_late_init);))
+	CONFIG_IS_ENABLED(BITBANGMII, (INITCALL(bb_miiphy_init);))
+	CONFIG_IS_ENABLED(PCI_ENDPOINT, (INITCALL(pci_ep_init);))
+	CONFIG_IS_ENABLED(CMD_NET, (WATCHDOG_RESET(); INITCALL(initr_net);))
+	CONFIG_IS_ENABLED(POST, (INITCALL(initr_post);))
+	WATCHDOG_RESET();
+	INITCALL_EVT(EVT_LAST_STAGE_INIT);
 #if defined(CFG_PRAM)
-	initr_mem,
+	INITCALL(initr_mem);
 #endif
-	initr_boot_led_on,
-	run_main_loop,
-};
+	INITCALL(initr_boot_led_on);
+	INITCALL(run_main_loop);
+
+	return ret;
+}
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
@@ -734,7 +740,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
 
-	if (initcall_run_list(init_sequence_r))
+	if (initcall_run_r())
 		hang();
 
 	/* NOTREACHED - run_main_loop() does not return */
