@@ -9,7 +9,8 @@
 #define UINT32_MAX  0xffffffffU
 #define UINT64_MAX  0xffffffffffffffffULL
 
-#ifdef CONFIG_64BIT
+#if (defined(CONFIG_64BIT) && !defined(CONFIG_SPL_BUILD)) || \
+	(defined(CONFIG_SPL_64BIT) && defined(CONFIG_SPL_BUILD))
     #define UINTPTR_MAX UINT64_MAX
 #else
     #define UINTPTR_MAX UINT32_MAX
