@@ -216,9 +216,10 @@ int board_rng_seed(struct abuf *buf);
  * This is used for late modification of kernel command line arguments just
  * before they are added into the /chosen node in flat device tree.
  *
+ * @param fdt_ba FDT chosen/bootargs from the kernel image if available
  * @return: pointer to kernel command line arguments in memory
  */
-const char *board_fdt_chosen_bootargs(void);
+const char *board_fdt_chosen_bootargs(const struct fdt_property *fdt_ba);
 
 /*
  * The keystone2 SOC requires all 32 bit aliased addresses to be converted
