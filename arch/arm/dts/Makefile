@@ -55,14 +55,8 @@ dtb-$(CONFIG_MACH_S700) += \
 dtb-$(CONFIG_ROCKCHIP_RK3036) += \
 	rk3036-sdk.dtb
 
-dtb-$(CONFIG_ROCKCHIP_RK3066) += \
-	rk3066a-mk808.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3128) += \
 	rk3128-evb.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RK3188) += \
-	rk3188-radxarock.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK322X) += \
 	rk3229-evb.dtb
