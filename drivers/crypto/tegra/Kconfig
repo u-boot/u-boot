@@ -1,0 +1,7 @@
+config TEGRA_AES
+	bool "Support the Tegra AES"
+	depends on DM_AES
+	help
+	  This provides a means to encrypt and decrypt data using the Tegra
+	  Bit Stream Engine for Video/Audio. Also may provide a mean to
+	  encrypt/decrypt/sign using already loaded device SBK.

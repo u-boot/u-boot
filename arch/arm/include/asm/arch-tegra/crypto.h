@@ -7,6 +7,8 @@
 #ifndef _CRYPTO_H_
 #define _CRYPTO_H_
 
+#define TEGRA_AES_SLOT_SBK		0
+
 /**
  * Sign a block of data
  *
