@@ -7,6 +7,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <bootdev.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <log.h>
@@ -228,6 +229,13 @@ efi_status_t efi_init_obj_list(void)
 	 * Probe block devices to find the ESP.
 	 * efi_disks_register() must be called before efi_init_variables().
 	 */
+	if (CONFIG_IS_ENABLED(BOOTSTD)) {
+		int r;
+
+		r = bootdev_hunt(NULL, 0);
+		if (r)
+			log_debug("No boot device available\n");
+	}
 	ret = efi_disks_register();
 	if (ret != EFI_SUCCESS)
 		goto out;
