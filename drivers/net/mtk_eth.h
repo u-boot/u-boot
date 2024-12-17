@@ -23,6 +23,7 @@ enum mkt_eth_capabilities {
 	/* PATH BITS */
 	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
 	MTK_ETH_PATH_GMAC2_SGMII_BIT,
+	MTK_ETH_PATH_MT7622_SGMII_BIT,
 };
 
 #define MTK_TRGMII			BIT(MTK_TRGMII_BIT)
@@ -36,6 +37,7 @@ enum mkt_eth_capabilities {
 #define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
 
 #define MTK_ETH_PATH_GMAC2_SGMII	BIT(MTK_ETH_PATH_GMAC2_SGMII_BIT)
+#define MTK_ETH_PATH_MT7622_SGMII	BIT(MTK_ETH_PATH_MT7622_SGMII_BIT)
 
 #define MTK_GMAC1_TRGMII	(MTK_ETH_PATH_GMAC1_TRGMII | MTK_TRGMII)
 
@@ -44,6 +46,8 @@ enum mkt_eth_capabilities {
 #define MTK_HAS_CAPS(caps, _x)		(((caps) & (_x)) == (_x))
 
 #define MT7621_CAPS  (MTK_GMAC1_TRGMII | MTK_TRGMII_MT7621_CLK)
+
+#define MT7622_CAPS  (MTK_ETH_PATH_MT7622_SGMII)
 
 #define MT7623_CAPS  (MTK_GMAC1_TRGMII)
 
@@ -68,8 +72,8 @@ enum mkt_eth_capabilities {
 #define ETHSYS_SYSCFG1_REG		0x14
 #define SYSCFG1_GE_MODE_S(n)		(12 + ((n) * 2))
 #define SYSCFG1_GE_MODE_M		0x3
-#define SYSCFG1_SGMII_SEL_M		(0x3 << 8)
-#define SYSCFG1_SGMII_SEL(gmac)		((!(gmac)) ? BIT(9) : BIT(8))
+#define SYSCFG1_SGMII_SEL_M		GENMASK(9, 8)
+#define SYSCFG1_SGMII_SEL(gmac)		BIT(9 - (gmac))
 
 #define ETHSYS_CLKCFG0_REG		0x2c
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)

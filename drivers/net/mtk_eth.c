@@ -1434,7 +1434,7 @@ static void mtk_usxgmii_an_init(struct mtk_eth_priv *priv)
 
 static void mtk_mac_init(struct mtk_eth_priv *priv)
 {
-	int i, ge_mode = 0;
+	int i, sgmii_sel_mask = 0, ge_mode = 0;
 	u32 mcr;
 
 	switch (priv->phy_interface) {
@@ -1450,8 +1450,13 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		}
 
 		ge_mode = GE_MODE_RGMII;
-		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG, SYSCFG1_SGMII_SEL_M,
+
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_ETH_PATH_MT7622_SGMII))
+			sgmii_sel_mask = SYSCFG1_SGMII_SEL_M;
+
+		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG, sgmii_sel_mask,
 			       SYSCFG1_SGMII_SEL(priv->gmac_id));
+
 		if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII)
 			mtk_sgmii_an_init(priv);
 		else
@@ -2112,6 +2117,7 @@ static const struct mtk_soc_data mt7623_data = {
 };
 
 static const struct mtk_soc_data mt7622_data = {
+	.caps = MT7622_CAPS,
 	.ana_rgc3 = 0x2028,
 	.gdma_count = 2,
 	.pdma_base = PDMA_V1_BASE,
