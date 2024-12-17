@@ -1437,6 +1437,11 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 	int i, sgmii_sel_mask = 0, ge_mode = 0;
 	u32 mcr;
 
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_ETH_PATH_MT7629_GMAC2)) {
+		mtk_infra_rmw(priv, MT7629_INFRA_MISC2_REG,
+			      INFRA_MISC2_BONDING_OPTION, priv->gmac_id);
+	}
+
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII_RXID:
 	case PHY_INTERFACE_MODE_RGMII:
@@ -2101,6 +2106,7 @@ static const struct mtk_soc_data mt7981_data = {
 };
 
 static const struct mtk_soc_data mt7629_data = {
+	.caps = MT7629_CAPS,
 	.ana_rgc3 = 0x128,
 	.gdma_count = 2,
 	.pdma_base = PDMA_V1_BASE,
