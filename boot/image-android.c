@@ -287,37 +287,40 @@ int android_image_get_kernel(const void *hdr,
 	       kernel_addr, DIV_ROUND_UP(img_data.kernel_size, 1024));
 
 	int len = 0;
+	char *bootargs = env_get("bootargs");
+
+	if (bootargs)
+		len += strlen(bootargs);
+
 	if (*img_data.kcmdline) {
 		printf("Kernel command line: %s\n", img_data.kcmdline);
-		len += strlen(img_data.kcmdline);
+		len += strlen(img_data.kcmdline) + (len ? 1 : 0); /* +1 for extra space */
 	}
 
 	if (*img_data.kcmdline_extra) {
 		printf("Kernel extra command line: %s\n", img_data.kcmdline_extra);
-		len += strlen(img_data.kcmdline_extra);
+		len += strlen(img_data.kcmdline_extra) + (len ? 1 : 0); /* +1 for extra space */
 	}
 
-	char *bootargs = env_get("bootargs");
-	if (bootargs)
-		len += strlen(bootargs);
-
-	char *newbootargs = malloc(len + 2);
+	char *newbootargs = malloc(len + 1); /* +1 for the '\0' */
 	if (!newbootargs) {
 		puts("Error: malloc in android_image_get_kernel failed!\n");
 		return -ENOMEM;
 	}
-	*newbootargs = '\0';
+	*newbootargs = '\0'; /* set to Null in case no components below are present */
 
-	if (bootargs) {
+	if (bootargs)
 		strcpy(newbootargs, bootargs);
-		strcat(newbootargs, " ");
+
+	if (*img_data.kcmdline) {
+		if (*newbootargs) /* If there is something in newbootargs, a space is needed */
+			strcat(newbootargs, " ");
+		strcat(newbootargs, img_data.kcmdline);
 	}
 
-	if (*img_data.kcmdline)
-		strcat(newbootargs, img_data.kcmdline);
-
 	if (*img_data.kcmdline_extra) {
-		strcat(newbootargs, " ");
+		if (*newbootargs) /* If there is something in newbootargs, a space is needed */
+			strcat(newbootargs, " ");
 		strcat(newbootargs, img_data.kcmdline_extra);
 	}
 
