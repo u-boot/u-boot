@@ -1162,6 +1162,7 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 {
 	struct phy_device *phydev = NULL;
 	int addr;
+	int ret;
 
 	addr = device_get_phy_addr(priv, dev);
 #ifdef CFG_FEC_MXC_PHYADDR
@@ -1174,6 +1175,17 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 		phydev = phy_connect(priv->bus, addr, dev, priv->interface);
 	if (!phydev)
 		return -ENODEV;
+
+	switch (priv->interface) {
+	case PHY_INTERFACE_MODE_MII:
+	case PHY_INTERFACE_MODE_RMII:
+		ret = phy_set_supported(phydev, SPEED_100);
+		if (ret)
+			return ret;
+		break;
+	default:
+		break;
+	}
 
 	priv->phydev = phydev;
 	priv->phydev->node = priv->phy_of_node;

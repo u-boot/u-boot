@@ -11,6 +11,8 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <linux/printk.h>
+#include <cpu.h>
+#include <dm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -279,6 +281,134 @@ static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 	return 0;
 }
 
+static int delete_node(void *blob, const char *node)
+{
+	int nodeoffset;
+	int err;
+
+	nodeoffset = fdt_path_offset(blob, node);
+	if (nodeoffset < 0)
+		return -ENXIO;
+
+	err = fdt_del_node(blob, nodeoffset);
+	if (err)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int change_property(void *blob, const char *node, const char *property,
+			   const void *value, int len)
+{
+	int nodeoffset;
+	int err;
+
+	nodeoffset = fdt_path_offset(blob, node);
+	if (nodeoffset < 0)
+		return -ENXIO;
+
+	err = fdt_setprop(blob, nodeoffset, property, value, len);
+	if (err)
+		return -EINVAL;
+
+	return 0;
+}
+
+static void update_fdt_gpu_industrial_frequencies(void *blob)
+{
+	u32 gpu_opp_table[6];
+	u32 gpu_assigned_clocks[2];
+	int err;
+
+	gpu_opp_table[0] = cpu_to_fdt32(625000); /* Normal Core Clock */
+	gpu_opp_table[1] = cpu_to_fdt32(0);
+	gpu_opp_table[2] = cpu_to_fdt32(625000); /* Normal Shader Clock */
+	gpu_opp_table[3] = cpu_to_fdt32(0);
+	gpu_opp_table[4] = cpu_to_fdt32(400000); /* Low Shader and Core Clock */
+	gpu_opp_table[5] = cpu_to_fdt32(0);
+
+	gpu_assigned_clocks[0] = cpu_to_fdt32(625000000); /* Core Clock */
+	gpu_assigned_clocks[1] = cpu_to_fdt32(625000000); /* Shader Clock */
+
+	err = change_property(blob, "/bus@53100000/gpu@53100000",
+			      "assigned-clock-rates", gpu_assigned_clocks,
+			      sizeof(gpu_assigned_clocks));
+	if (err && err != ENXIO)
+		printf("Failed to set assigned-clock-rates for GPU0: %s\n",
+		       fdt_strerror(err));
+
+	err = change_property(blob, "/bus@54100000/gpu@54100000",
+			      "assigned-clock-rates", gpu_assigned_clocks,
+			      sizeof(gpu_assigned_clocks));
+	if (err && err != ENXIO)
+		printf("Failed to set assigned-clock-rates for GPU1: %s\n",
+		       fdt_strerror(err));
+
+	err = change_property(blob, "/bus@54100000/imx8_gpu1_ss@80000000",
+			      "operating-points", &gpu_opp_table,
+			      sizeof(gpu_opp_table));
+	if (err && err != ENXIO)
+		printf("Failed to set operating-points for GPU: %s\n",
+		       fdt_strerror(err));
+}
+
+static void update_fdt_cpu_industrial_frequencies(void *blob)
+{
+	int err;
+
+	err = delete_node(blob, "/opp-table-0/opp-1200000000");
+	if (err && err != -ENXIO)
+		printf("Failed to delete 1.2 GHz node on A53: %s\n",
+		       fdt_strerror(err));
+
+	err = delete_node(blob, "/opp-table-1/opp-1596000000");
+	if (err && err != -ENXIO)
+		printf("Failed to delete 1.596 GHz node on A72: %s\n",
+		       fdt_strerror(err));
+}
+
+static void update_fdt_frequencies(void *blob)
+{
+	struct cpu_info cpu;
+	struct udevice *dev;
+	int err;
+
+	uclass_first_device(UCLASS_CPU, &dev);
+
+	err = cpu_get_info(dev, &cpu);
+	if (err) {
+		printf("Failed to get CPU info\n");
+		return;
+	}
+
+	/*
+	 * Differentiate between the automotive and industrial variants of the
+	 * i.MX8. The difference of these two CPUs is the maximum frequencies
+	 * for the CPU and GPU.
+	 * Core			Automotive [max. MHz]	Industrial [max. MHz]
+	 * A53			1200			1104
+	 * A72			1596			1296
+	 * GPU Core		800			625
+	 * GPU Shader		1000			625
+	 *
+	 * While the SCFW enforces these limits for the CPU, the OS cpufreq
+	 * driver remains unaware, causing a mismatch between reported and
+	 * actual frequencies. This is resolved by removing the unsupprted
+	 * frequencies from the device tree.
+	 *
+	 * The GPU frequencies are not enforced by the SCFW, therefore without
+	 * updating the device tree we overclock the GPU.
+	 *
+	 * Using the cpu_freq variable is the only know way to differentiate
+	 * between the automotive and industrial variants of the i.MX8.
+	 */
+	if (cpu.cpu_freq != 1104000000)
+		return;
+
+	update_fdt_cpu_industrial_frequencies(blob);
+	update_fdt_gpu_industrial_frequencies(blob);
+}
+
 int ft_system_setup(void *blob, struct bd_info *bd)
 {
 	int ret;
@@ -293,6 +423,8 @@ int ft_system_setup(void *blob, struct bd_info *bd)
 	}
 
 	update_fdt_with_owned_resources(blob);
+
+	update_fdt_frequencies(blob);
 
 	if (is_imx8qm()) {
 		ret = config_smmu_fdt(blob);
