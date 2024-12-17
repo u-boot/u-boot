@@ -322,6 +322,7 @@ int android_image_get_kernel(const void *hdr,
 	}
 
 	env_set("bootargs", newbootargs);
+	free(newbootargs);
 
 	if (os_data) {
 		if (image_get_magic(ihdr) == IH_MAGIC) {
