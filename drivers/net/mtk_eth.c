@@ -1762,10 +1762,16 @@ static int mtk_eth_start(struct udevice *dev)
 		if (priv->sw == SW_MT7988 && priv->gmac_id == 0) {
 			mtk_gdma_write(priv, priv->gmac_id, GDMA_IG_CTRL_REG,
 				       GDMA_BRIDGE_TO_CPU);
-		}
 
-		mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
-			       GDMA_CPU_BRIDGE_EN);
+			mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
+				       GDMA_CPU_BRIDGE_EN);
+		} else if ((priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+			    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER ||
+			    priv->phy_interface == PHY_INTERFACE_MODE_XGMII) &&
+			   priv->gmac_id != 0) {
+			mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
+				       GDMA_CPU_BRIDGE_EN);
+		}
 	}
 
 	udelay(500);
