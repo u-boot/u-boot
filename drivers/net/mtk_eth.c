@@ -835,8 +835,8 @@ static int mt7531_port_sgmii_init(struct mtk_eth_priv *priv,
 	}
 
 	/* Set SGMII GEN2 speed(2.5G) */
-	mt753x_reg_rmw(priv, MT7531_PHYA_CTRL_SIGNAL3(port),
-		       SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
+	mt753x_reg_rmw(priv, MT7531_PHYA_CTRL_SIGNAL3(port), SGMSYS_SPEED_MASK,
+		       FIELD_PREP(SGMSYS_SPEED_MASK, SGMSYS_SPEED_2500));
 
 	/* Disable SGMII AN */
 	mt753x_reg_rmw(priv, MT7531_PCS_CONTROL_1(port),
@@ -1281,8 +1281,7 @@ static int mtk_phy_probe(struct udevice *dev)
 static void mtk_sgmii_an_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN1 speed(1G) */
-	clrsetbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
-			SGMSYS_SPEED_2500, 0);
+	clrbits_le32(priv->sgmii_base + priv->soc->ana_rgc3, SGMSYS_SPEED_MASK);
 
 	/* Enable SGMII AN */
 	setbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
@@ -1305,8 +1304,9 @@ static void mtk_sgmii_an_init(struct mtk_eth_priv *priv)
 static void mtk_sgmii_force_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN2 speed(2.5G) */
-	setbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
-		     SGMSYS_SPEED_2500);
+	clrsetbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
+			SGMSYS_SPEED_MASK,
+			FIELD_PREP(SGMSYS_SPEED_MASK, SGMSYS_SPEED_2500));
 
 	/* Disable SGMII AN */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
