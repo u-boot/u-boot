@@ -1505,7 +1505,7 @@ static void mtk_10gbaser_init(struct mtk_eth_priv *priv)
 	mtk_usxgmii_setup_phya_force_10000(priv);
 }
 
-static void mtk_mac_init(struct mtk_eth_priv *priv)
+static int mtk_mac_init(struct mtk_eth_priv *priv)
 {
 	int i, sgmii_sel_mask = 0, ge_mode = 0;
 	u32 mcr;
@@ -1522,12 +1522,15 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		break;
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
+		if (!IS_ENABLED(CONFIG_MTK_ETH_SGMII)) {
+			printf("Error: SGMII is not supported on this platform\n");
+			return -ENOTSUPP;
+		}
+
 		if (MTK_HAS_CAPS(priv->soc->caps, MTK_GMAC2_U3_QPHY)) {
 			mtk_infra_rmw(priv, USB_PHY_SWITCH_REG, QPHY_SEL_MASK,
 				      SGMII_QPHY_SEL);
 		}
-
-		ge_mode = GE_MODE_RGMII;
 
 		if (MTK_HAS_CAPS(priv->soc->caps, MTK_ETH_PATH_MT7622_SGMII))
 			sgmii_sel_mask = SYSCFG1_SGMII_SEL_M;
@@ -1539,6 +1542,8 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 			mtk_sgmii_an_init(priv);
 		else
 			mtk_sgmii_force_init(priv);
+
+		ge_mode = GE_MODE_RGMII;
 		break;
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_GMII:
@@ -1595,11 +1600,18 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 			     RX_RST | RXC_DQSISEL);
 		mtk_gmac_rmw(priv, GMAC_TRGMII_RCK_CTRL, RX_RST, 0);
 	}
+
+	return 0;
 }
 
-static void mtk_xmac_init(struct mtk_eth_priv *priv)
+static int mtk_xmac_init(struct mtk_eth_priv *priv)
 {
 	u32 force_link = 0;
+
+	if (!IS_ENABLED(CONFIG_MTK_ETH_XGMII)) {
+		printf("Error: 10Gb interface is not supported on this platform\n");
+		return -ENOTSUPP;
+	}
 
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_USXGMII:
@@ -1633,6 +1645,8 @@ static void mtk_xmac_init(struct mtk_eth_priv *priv)
 
 	/* Force GMAC link down */
 	mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), FORCE_MODE);
+
+	return 0;
 }
 
 static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
@@ -1922,9 +1936,12 @@ static int mtk_eth_probe(struct udevice *dev)
 	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
 	    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER ||
 	    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
-		mtk_xmac_init(priv);
+		ret = mtk_xmac_init(priv);
 	else
-		mtk_mac_init(priv);
+		ret = mtk_mac_init(priv);
+
+	if (ret)
+		return ret;
 
 	/* Probe phy if switch is not specified */
 	if (priv->sw == SW_NONE)
@@ -2032,8 +2049,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		}
 	}
 
-	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII ||
-	    priv->phy_interface == PHY_INTERFACE_MODE_2500BASEX) {
+	if ((priv->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	     priv->phy_interface == PHY_INTERFACE_MODE_2500BASEX) &&
+	    IS_ENABLED(CONFIG_MTK_ETH_SGMII)) {
 		/* get corresponding sgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,sgmiisys",
 						 NULL, 0, 0, &args);
@@ -2055,8 +2073,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		/* Upstream linux use mediatek,pnswap instead of pn_swap */
 		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap") ||
 				ofnode_read_bool(args.node, "mediatek,pnswap");
-	} else if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
-		   priv->phy_interface == PHY_INTERFACE_MODE_10GBASER) {
+	} else if ((priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+		    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER) &&
+		   IS_ENABLED(CONFIG_MTK_ETH_XGMII)) {
 		/* get corresponding usxgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,usxgmiisys",
 						 NULL, 0, 0, &args);
