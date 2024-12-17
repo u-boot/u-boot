@@ -65,11 +65,11 @@ enum mkt_eth_capabilities {
 
 /* Ethernet subsystem registers */
 
-#define ETHSYS_SYSCFG0_REG		0x14
-#define SYSCFG0_GE_MODE_S(n)		(12 + ((n) * 2))
-#define SYSCFG0_GE_MODE_M		0x3
-#define SYSCFG0_SGMII_SEL_M		(0x3 << 8)
-#define SYSCFG0_SGMII_SEL(gmac)		((!(gmac)) ? BIT(9) : BIT(8))
+#define ETHSYS_SYSCFG1_REG		0x14
+#define SYSCFG1_GE_MODE_S(n)		(12 + ((n) * 2))
+#define SYSCFG1_GE_MODE_M		0x3
+#define SYSCFG1_SGMII_SEL_M		(0x3 << 8)
+#define SYSCFG1_SGMII_SEL(gmac)		((!(gmac)) ? BIT(9) : BIT(8))
 
 #define ETHSYS_CLKCFG0_REG		0x2c
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)
@@ -84,7 +84,7 @@ enum mkt_eth_capabilities {
 #define QPHY_SEL_MASK			0x3
 #define SGMII_QPHY_SEL			0x2
 
-/* SYSCFG0_GE_MODE: GE Modes */
+/* SYSCFG1_GE_MODE: GE Modes */
 #define GE_MODE_RGMII			0
 #define GE_MODE_MII			1
 #define GE_MODE_MII_PHY			2

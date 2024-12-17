@@ -1450,8 +1450,8 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		}
 
 		ge_mode = GE_MODE_RGMII;
-		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG, SYSCFG0_SGMII_SEL_M,
-			       SYSCFG0_SGMII_SEL(priv->gmac_id));
+		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG, SYSCFG1_SGMII_SEL_M,
+			       SYSCFG1_SGMII_SEL(priv->gmac_id));
 		if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII)
 			mtk_sgmii_an_init(priv);
 		else
@@ -1469,9 +1469,9 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 	}
 
 	/* set the gmac to the right mode */
-	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG,
-		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
-		       ge_mode << SYSCFG0_GE_MODE_S(priv->gmac_id));
+	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG,
+		       SYSCFG1_GE_MODE_M << SYSCFG1_GE_MODE_S(priv->gmac_id),
+		       ge_mode << SYSCFG1_GE_MODE_S(priv->gmac_id));
 
 	if (priv->force_mode) {
 		mcr = (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
@@ -1527,8 +1527,8 @@ static void mtk_xmac_init(struct mtk_eth_priv *priv)
 	}
 
 	/* Set GMAC to the correct mode */
-	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG,
-		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
+	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG,
+		       SYSCFG1_GE_MODE_M << SYSCFG1_GE_MODE_S(priv->gmac_id),
 		       0);
 
 	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII &&
