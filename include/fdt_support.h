@@ -218,7 +218,7 @@ int board_rng_seed(struct abuf *buf);
  *
  * @return: pointer to kernel command line arguments in memory
  */
-char *board_fdt_chosen_bootargs(void);
+const char *board_fdt_chosen_bootargs(void);
 
 /*
  * The keystone2 SOC requires all 32 bit aliased addresses to be converted
