@@ -122,13 +122,11 @@ static void mtd_show_device(struct mtd_info *mtd)
 {
 	/* Device */
 	printf("* %s\n", mtd->name);
-#if defined(CONFIG_DM)
 	if (mtd->dev) {
 		printf("  - device: %s\n", mtd->dev->name);
 		printf("  - parent: %s\n", mtd->dev->parent->name);
 		printf("  - driver: %s\n", mtd->dev->driver->name);
 	}
-#endif
 	if (IS_ENABLED(CONFIG_OF_CONTROL) && mtd->dev) {
 		char buf[256];
 		int res;
