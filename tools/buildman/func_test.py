@@ -1152,3 +1152,13 @@ CONFIG_SOC="fred"
             'board': 'ARM Board 0',
             'config': 'config0',
             'target': 'board0'}, []), res)
+
+    def testTarget(self):
+        """Test that the --target flag works"""
+        lines = self.check_command('--target', 'u-boot.dtb')[0]
+
+        # It should not affect the defconfig line
+        self.assertNotIn(b'u-boot.dtb', lines[0])
+
+        # It should appear at the end of the build line
+        self.assertEqual(b'u-boot.dtb', lines[1].split()[-1])

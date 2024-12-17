@@ -785,6 +785,9 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
                      args.verbose)
         return 0
 
+    if args.config_only and args.target:
+        raise ValueError('Cannot use --config-only with --target')
+
     # Create a new builder with the selected args
     builder = Builder(toolchains, output_dir, git_dir,
             args.threads, args.jobs, checkout=True,
@@ -810,7 +813,7 @@ def do_buildman(args, toolchains=None, make_func=None, brds=None,
             force_build_failures = args.force_build_failures,
             force_reconfig = args.force_reconfig, in_tree = args.in_tree,
             force_config_on_failure=not args.quick, make_func=make_func,
-            dtc_skip=args.dtc_skip)
+            dtc_skip=args.dtc_skip, build_target=args.target)
 
     TEST_BUILDER = builder
 
