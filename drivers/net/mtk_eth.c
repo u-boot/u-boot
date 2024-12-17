@@ -29,8 +29,8 @@
 
 #include "mtk_eth.h"
 
-#define NUM_TX_DESC		24
-#define NUM_RX_DESC		24
+#define NUM_TX_DESC		32
+#define NUM_RX_DESC		32
 #define TX_TOTAL_BUF_SIZE	(NUM_TX_DESC * PKTSIZE_ALIGN)
 #define RX_TOTAL_BUF_SIZE	(NUM_RX_DESC * PKTSIZE_ALIGN)
 #define TOTAL_PKT_BUF_SIZE	(TX_TOTAL_BUF_SIZE + RX_TOTAL_BUF_SIZE)
@@ -1896,6 +1896,9 @@ static int mtk_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 	struct mtk_rx_dma_v2 *rxd;
 
 	rxd = priv->rx_ring_noc + idx * priv->soc->rxd_size;
+
+	invalidate_dcache_range((ulong)rxd->rxd1,
+				(ulong)rxd->rxd1 + PKTSIZE_ALIGN);
 
 	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2) ||
 	    MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V3))
