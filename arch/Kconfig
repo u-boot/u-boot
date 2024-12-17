@@ -37,6 +37,14 @@ config 32BIT
 
 config 64BIT
 	bool
+	help
+	  Indicates that U-Boot proper will be built for a 64 bit
+	  architecture.
+
+config SPL_64BIT
+	bool
+	help
+	  Indicates that SPL will be built for a 64 bit architecture.
 
 config SYS_CACHELINE_SIZE
 	int

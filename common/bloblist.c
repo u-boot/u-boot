@@ -576,14 +576,17 @@ int bloblist_maybe_init(void)
 
 int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig)
 {
-	ulong version = BLOBLIST_REGCONV_VER;
+	u64 version = BLOBLIST_REGCONV_VER;
 	ulong sigval;
 
-	sigval = (IS_ENABLED(CONFIG_64BIT)) ?
-			((BLOBLIST_MAGIC & ((1UL << BLOBLIST_REGCONV_SHIFT_64) - 1)) |
-			 ((version  & BLOBLIST_REGCONV_MASK) << BLOBLIST_REGCONV_SHIFT_64)) :
-			((BLOBLIST_MAGIC & ((1UL << BLOBLIST_REGCONV_SHIFT_32) - 1)) |
+	if ((IS_ENABLED(CONFIG_64BIT) && !IS_ENABLED(CONFIG_SPL_BUILD)) ||
+			(IS_ENABLED(CONFIG_SPL_64BIT) && IS_ENABLED(CONFIG_SPL_BUILD))) {
+		sigval = ((BLOBLIST_MAGIC & ((1ULL << BLOBLIST_REGCONV_SHIFT_64) - 1)) |
+			 ((version  & BLOBLIST_REGCONV_MASK) << BLOBLIST_REGCONV_SHIFT_64));
+	} else {
+		sigval = ((BLOBLIST_MAGIC & ((1UL << BLOBLIST_REGCONV_SHIFT_32) - 1)) |
 			 ((version  & BLOBLIST_REGCONV_MASK) << BLOBLIST_REGCONV_SHIFT_32));
+	}
 
 	if (rzero || rsig != sigval ||
 	    rfdt != (ulong)bloblist_find(BLOBLISTT_CONTROL_FDT, 0)) {
