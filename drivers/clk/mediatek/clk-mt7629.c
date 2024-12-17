@@ -186,7 +186,7 @@ static const int pwm_parents[] = {
 	CLK_TOP_UNIVPLL2_D4
 };
 
-static const int f10m_ref_parents[] = {
+static const int sgmii_ref_1_parents[] = {
 	CLK_XTAL,
 	CLK_TOP_SGMIIPLL_D2
 };
@@ -369,7 +369,7 @@ static const struct mtk_composite top_muxes[] = {
 
 	/* CLK_CFG_1 */
 	MUX_GATE(CLK_TOP_PWM_SEL, pwm_parents, 0x50, 0, 2, 7),
-	MUX_GATE(CLK_TOP_F10M_REF_SEL, f10m_ref_parents, 0x50, 8, 1, 15),
+	MUX_GATE(CLK_TOP_F10M_REF_SEL, irrx_parents, 0x50, 8, 1, 15),
 	MUX_GATE(CLK_TOP_NFI_INFRA_SEL, nfi_infra_parents, 0x50, 16, 4, 23),
 	MUX_GATE(CLK_TOP_FLASH_SEL, flash_parents, 0x50, 24, 3, 31),
 
@@ -412,7 +412,7 @@ static const struct mtk_composite top_muxes[] = {
 
 	/* CLK_CFG_8 */
 	MUX_GATE(CLK_TOP_CRYPTO_SEL, crypto_parents, 0xC0, 0, 3, 7),
-	MUX_GATE(CLK_TOP_SGMII_REF_1_SEL, f10m_ref_parents, 0xC0, 8, 1, 15),
+	MUX_GATE(CLK_TOP_SGMII_REF_1_SEL, sgmii_ref_1_parents, 0xC0, 8, 1, 15),
 	MUX_GATE(CLK_TOP_10M_SEL, gpt10m_parents, 0xC0, 16, 1, 23),
 };
 
