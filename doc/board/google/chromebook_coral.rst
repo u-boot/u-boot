@@ -243,7 +243,7 @@ board_init_r(), as per the rules, and DRAM is available then.
 SPL sets up a bloblist and passes the SPL hand-off information to U-Boot proper.
 This includes a pointer to the HOB list as well as DRAM information. See
 struct arch_spl_handoff. The bloblist address is set by CONFIG_BLOBLIST_ADDR,
-normally 100000.
+normally fef10000.
 
 SPL uses SPI flash to update the MRC caches in ROM. This speeds up subsequent
 boots. Be warned that SPL can take 30 seconds without this cache! This is a
