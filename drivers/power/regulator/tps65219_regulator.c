@@ -250,7 +250,7 @@ static int tps65219_ldo_probe(struct udevice *dev)
 	/* idx must be in 1..TPS65219_LDO_NUM */
 	idx = dev->driver_data;
 	if (idx < 1 || idx > TPS65219_LDO_NUM) {
-		printf("Wrong ID for regulator\n");
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
@@ -271,7 +271,7 @@ static int tps65219_buck_probe(struct udevice *dev)
 	/* idx must be in 1..TPS65219_BUCK_NUM */
 	idx = dev->driver_data;
 	if (idx < 1 || idx > TPS65219_BUCK_NUM) {
-		printf("Wrong ID for regulator\n");
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
