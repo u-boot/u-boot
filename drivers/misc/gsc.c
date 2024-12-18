@@ -310,6 +310,7 @@ static int gsc_hwmon(struct udevice *dev)
 			printf("%-8s: %d.%ldC\n", label, val / 10, abs(val % 10));
 			break;
 		case 1: /* prescaled voltage */
+		case 3:
 			if (val != 0xffff)
 				printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
 			break;
