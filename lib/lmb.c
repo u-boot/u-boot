@@ -553,12 +553,11 @@ static void lmb_reserve_uboot_region(void)
 		if (bank_end > end)
 			bank_end = end - 1;
 
-		lmb_reserve_flags(rsv_start, bank_end - rsv_start + 1,
-				  LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, bank_end - rsv_start + 1, LMB_NOOVERWRITE);
 
 		if (gd->flags & GD_FLG_SKIP_RELOC)
-			lmb_reserve_flags((phys_addr_t)(uintptr_t)_start,
-					  gd->mon_len, LMB_NOOVERWRITE);
+			lmb_reserve((phys_addr_t)(uintptr_t)_start,
+				    gd->mon_len, LMB_NOOVERWRITE);
 
 		break;
 	}
@@ -584,7 +583,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	if (IS_ENABLED(CONFIG_SPL_STACK_R_ADDR)) {
 		rsv_start = gd->start_addr_sp - 16384;
 		rsv_size = 16384;
-		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, rsv_size, LMB_NOOVERWRITE);
 	}
 
 	if (IS_ENABLED(CONFIG_SPL_SEPARATE_BSS)) {
@@ -592,7 +591,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 		rsv_start = (phys_addr_t)(uintptr_t)__bss_start;
 		rsv_size = (phys_addr_t)(uintptr_t)__bss_end -
 			(phys_addr_t)(uintptr_t)__bss_start;
-		lmb_reserve_flags(rsv_start, rsv_size, LMB_NOOVERWRITE);
+		lmb_reserve(rsv_start, rsv_size, LMB_NOOVERWRITE);
 	}
 }
 
@@ -624,11 +623,11 @@ void lmb_add_memory(void)
 			 * allocated
 			 */
 			if (bd->bi_dram[i].start >= ram_top)
-				lmb_reserve_flags(bd->bi_dram[i].start, size,
-						  LMB_NOOVERWRITE);
+				lmb_reserve(bd->bi_dram[i].start, size,
+					    LMB_NOOVERWRITE);
 			else if (bank_end > ram_top)
-				lmb_reserve_flags(ram_top, bank_end - ram_top,
-						  LMB_NOOVERWRITE);
+				lmb_reserve(ram_top, bank_end - ram_top,
+					    LMB_NOOVERWRITE);
 		}
 	}
 }
@@ -669,7 +668,7 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 	return lmb_free_flags(base, size, LMB_NONE);
 }
 
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size, u32 flags)
+long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
@@ -679,11 +678,6 @@ long lmb_reserve_flags(phys_addr_t base, phys_size_t size, u32 flags)
 		return ret;
 
 	return lmb_map_update_notify(base, size, MAP_OP_RESERVE, flags);
-}
-
-long lmb_reserve(phys_addr_t base, phys_size_t size)
-{
-	return lmb_reserve_flags(base, size, LMB_NONE);
 }
 
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
@@ -790,7 +784,7 @@ static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				      lmb_memory[rgn].size,
 				      base + size - 1, 1)) {
 			/* ok, reserve the memory */
-			if (!lmb_reserve_flags(base, size, flags))
+			if (!lmb_reserve(base, size, flags))
 				return base;
 		}
 	}

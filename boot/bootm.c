@@ -696,7 +696,8 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 	}
 
 	if (CONFIG_IS_ENABLED(LMB))
-		lmb_reserve(images->os.load, (load_end - images->os.load));
+		lmb_reserve(images->os.load, (load_end - images->os.load),
+			    LMB_NONE);
 
 	return 0;
 }

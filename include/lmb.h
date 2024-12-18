@@ -80,16 +80,7 @@ void lmb_add_memory(void);
 long lmb_add(phys_addr_t base, phys_size_t size);
 
 /**
- * lmb_reserve() - Reserve a memory region (with no special flags)
- * @base: Base address of the memory region
- * @size: Size of the memory region
- *
- * Return: 0 on success, negative error code on failure.
- */
-long lmb_reserve(phys_addr_t base, phys_size_t size);
-
-/**
- * lmb_reserve_flags() - Reserve one region with a specific flags bitfield
+ * lmb_reserve() - Reserve one region with a specific flags bitfield
  * @base: Base address of the memory region
  * @size: Size of the memory region
  * @flags: Flags for the memory region
@@ -99,8 +90,7 @@ long lmb_reserve(phys_addr_t base, phys_size_t size);
  * * %-EEXIST	- The region is already added, and flags != LMB_NONE
  * * %-1	- Failure
  */
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size,
-		       u32 flags);
+long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags);
 
 phys_addr_t lmb_alloc(phys_size_t size, ulong align);
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);
