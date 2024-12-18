@@ -565,9 +565,11 @@ int boot_ramdisk_high(ulong rd_data, ulong rd_len, ulong *initrd_start,
 			lmb_reserve(rd_data, rd_len, LMB_NONE);
 		} else {
 			if (initrd_high)
-				*initrd_start = (ulong)lmb_alloc_base(rd_len,
-								      0x1000,
-								      initrd_high);
+				*initrd_start =
+					(ulong)lmb_alloc_base(rd_len,
+								    0x1000,
+								    initrd_high,
+								    LMB_NONE);
 			else
 				*initrd_start = (ulong)lmb_alloc(rd_len,
 								 0x1000);
@@ -839,7 +841,8 @@ int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
 
 	barg = IF_ENABLED_INT(CONFIG_SYS_BOOT_GET_CMDLINE, CONFIG_SYS_BARGSIZE);
 	cmdline = (char *)(ulong)lmb_alloc_base(barg, 0xf,
-				env_get_bootm_mapsize() + env_get_bootm_low());
+				env_get_bootm_mapsize() + env_get_bootm_low(),
+				LMB_NONE);
 	if (!cmdline)
 		return -1;
 
@@ -872,9 +875,10 @@ int boot_get_cmdline(ulong *cmd_start, ulong *cmd_end)
 int boot_get_kbd(struct bd_info **kbd)
 {
 	*kbd = (struct bd_info *)(ulong)lmb_alloc_base(sizeof(struct bd_info),
-						       0xf,
-						       env_get_bootm_mapsize() +
-						       env_get_bootm_low());
+							     0xf,
+							     env_get_bootm_mapsize() +
+							     env_get_bootm_low(),
+							     LMB_NONE);
 	if (!*kbd)
 		return -1;
 
