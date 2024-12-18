@@ -342,11 +342,6 @@ static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
 	return (i < lmb_rgn_lst->count) ? i : -1;
 }
 
-static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
-{
-	return addr & ~(size - 1);
-}
-
 /*
  * IOVA LMB memory maps using lmb pointers instead of the global LMB memory map.
  */
@@ -400,7 +395,7 @@ phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align)
 
 		if (lmbsize < size)
 			continue;
-		base = lmb_align_down(lmbbase + lmbsize - size, align);
+		base = ALIGN_DOWN(lmbbase + lmbsize - size, align);
 
 		while (base && lmbbase <= base) {
 			rgn = lmb_overlaps_region(&io_lmb->used_mem, base, size);
@@ -416,7 +411,7 @@ phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align)
 			res_base = lmb_used[rgn].base;
 			if (res_base < size)
 				break;
-			base = lmb_align_down(res_base - size, align);
+			base = ALIGN_DOWN(res_base - size, align);
 		}
 	}
 	return 0;
@@ -709,13 +704,13 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 			continue;
 
 		if (max_addr == LMB_ALLOC_ANYWHERE) {
-			base = lmb_align_down(lmbbase + lmbsize - size, align);
+			base = ALIGN_DOWN(lmbbase + lmbsize - size, align);
 		} else if (lmbbase < max_addr) {
 			base = lmbbase + lmbsize;
 			if (base < lmbbase)
 				base = -1;
 			base = min(base, max_addr);
-			base = lmb_align_down(base - size, align);
+			base = ALIGN_DOWN(base - size, align);
 		} else {
 			continue;
 		}
@@ -740,7 +735,7 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 			res_base = lmb_used[rgn].base;
 			if (res_base < size)
 				break;
-			base = lmb_align_down(res_base - size, align);
+			base = ALIGN_DOWN(res_base - size, align);
 		}
 	}
 	return 0;
