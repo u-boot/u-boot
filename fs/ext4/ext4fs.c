@@ -21,16 +21,35 @@
  */
 
 #include <blk.h>
+#include <div64.h>
+#include <errno.h>
 #include <ext_common.h>
 #include <ext4fs.h>
-#include "ext4_common.h"
-#include <div64.h>
 #include <malloc.h>
 #include <part.h>
 #include <u-boot/uuid.h>
+#include "ext4_common.h"
 
 int ext4fs_symlinknest;
 struct ext_filesystem ext_fs;
+
+/**
+ * struct ext4_dir_stream - ext4 directory stream
+ *
+ * @parent: partition data used by fs layer.
+ * This field must be at the beginning of the structure.
+ * All other fields are private to the ext4 driver.
+ * @root:	root directory node
+ * @dir:	directory node
+ * @dirent:	directory stream entry
+ * @fpos:	file position in directory
+ */
+struct ext4_dir_stream {
+	struct fs_dir_stream parent;
+	char *dirname;
+	struct fs_dirent dirent;
+	unsigned int fpos;
+};
 
 struct ext_filesystem *get_fs(void)
 {
@@ -182,39 +201,161 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	return 0;
 }
 
-int ext4fs_ls(const char *dirname)
+int ext4fs_opendir(const char *dirname, struct fs_dir_stream **dirsp)
 {
-	struct ext2fs_node *dirnode = NULL;
-	int status;
+	struct ext4_dir_stream *dirs;
+	struct ext2fs_node *dir = NULL;
+	int ret;
 
-	if (dirname == NULL)
-		return 0;
+	*dirsp = NULL;
 
-	status = ext4fs_find_file(dirname, &ext4fs_root->diropen, &dirnode,
-				  FILETYPE_DIRECTORY);
-	if (status != 1) {
-		printf("** Can not find directory. **\n");
-		if (dirnode)
-			ext4fs_free_node(dirnode, &ext4fs_root->diropen);
-		return 1;
+	dirs = calloc(1, sizeof(struct ext4_dir_stream));
+	if (!dirs)
+		return -ENOMEM;
+	dirs->dirname = strdup(dirname);
+	if (!dirs->dirname) {
+		free(dirs);
+		return -ENOMEM;
 	}
 
-	ext4fs_iterate_dir(dirnode, NULL, NULL, NULL);
-	ext4fs_free_node(dirnode, &ext4fs_root->diropen);
+	ret = ext4fs_find_file(dirname, &ext4fs_root->diropen, &dir,
+			       FILETYPE_DIRECTORY);
+	if (ret == 1) {
+		ret = 0;
+		*dirsp = (struct fs_dir_stream *)dirs;
+	} else {
+		free(dirs->dirname);
+		free(dirs);
+		ret = -ENOENT;
+	}
 
-	return 0;
+	if (dir)
+		ext4fs_free_node(dir, &ext4fs_root->diropen);
+
+	return ret;
+}
+
+int ext4fs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
+{
+	struct ext4_dir_stream *dirs = (struct ext4_dir_stream *)fs_dirs;
+	struct fs_dirent *dent = &dirs->dirent;
+	struct ext2fs_node *dir = NULL;
+	int ret;
+	loff_t actread;
+	struct ext2fs_node fdiro;
+	int len;
+	struct ext2_dirent dirent;
+
+	*dentp = NULL;
+
+	ret = ext4fs_find_file(dirs->dirname, &ext4fs_root->diropen, &dir,
+			       FILETYPE_DIRECTORY);
+	if (ret != 1) {
+		ret = -ENOENT;
+		goto out;
+	}
+	if (!dir->inode_read) {
+		ret = ext4fs_read_inode(dir->data, dir->ino, &dir->inode);
+		if (!ret) {
+			ret = -EIO;
+			goto out;
+		}
+	}
+
+	if (dirs->fpos >= le32_to_cpu(dir->inode.size))
+		return -ENOENT;
+
+	memset(dent, 0, sizeof(struct fs_dirent));
+
+	while (dirs->fpos < le32_to_cpu(dir->inode.size)) {
+		ret = ext4fs_read_file(dir, dirs->fpos,
+				       sizeof(struct ext2_dirent),
+				       (char *)&dirent, &actread);
+		if (ret < 0)
+			return -ret;
+
+		if (!dirent.direntlen)
+			return -EIO;
+
+		if (dirent.namelen)
+			break;
+
+		dirs->fpos += le16_to_cpu(dirent.direntlen);
+	}
+
+	len = min(FS_DIRENT_NAME_LEN - 1, (int)dirent.namelen);
+
+	ret = ext4fs_read_file(dir, dirs->fpos + sizeof(struct ext2_dirent),
+			       len, dent->name, &actread);
+	if (ret < 0)
+		goto out;
+	dent->name[len] = '\0';
+
+	fdiro.data = dir->data;
+	fdiro.ino = le32_to_cpu(dirent.inode);
+
+	ret = ext4fs_read_inode(dir->data, fdiro.ino, &fdiro.inode);
+	if (!ret) {
+		ret = -EIO;
+		goto out;
+	}
+
+	switch (le16_to_cpu(fdiro.inode.mode) & FILETYPE_INO_MASK) {
+	case FILETYPE_INO_DIRECTORY:
+		dent->type = FS_DT_DIR;
+		break;
+	case FILETYPE_INO_SYMLINK:
+		dent->type = FS_DT_LNK;
+		break;
+	case FILETYPE_INO_REG:
+		dent->type = FS_DT_REG;
+		break;
+	default:
+		dent->type = FILETYPE_UNKNOWN;
+	}
+
+	rtc_to_tm(fdiro.inode.atime, &dent->access_time);
+	rtc_to_tm(fdiro.inode.ctime, &dent->create_time);
+	rtc_to_tm(fdiro.inode.mtime, &dent->change_time);
+
+	dirs->fpos += le16_to_cpu(dirent.direntlen);
+	dent->size = fdiro.inode.size;
+	*dentp = dent;
+	ret = 0;
+
+out:
+	if (dir)
+		ext4fs_free_node(dir, &ext4fs_root->diropen);
+
+	return ret;
+}
+
+void ext4fs_closedir(struct fs_dir_stream *fs_dirs)
+{
+	struct ext4_dir_stream *dirs = (struct ext4_dir_stream *)fs_dirs;
+
+	if (!dirs)
+		return;
+
+	free(dirs->dirname);
+	free(dirs);
 }
 
 int ext4fs_exists(const char *filename)
 {
 	struct ext2fs_node *dirnode = NULL;
 	int filetype;
+	int ret;
 
 	if (!filename)
 		return 0;
 
-	return ext4fs_find_file1(filename, &ext4fs_root->diropen, &dirnode,
-				 &filetype);
+	ret = ext4fs_find_file1(filename, &ext4fs_root->diropen, &dirnode,
+				&filetype);
+	if (dirnode)
+		ext4fs_free_node(dirnode, &ext4fs_root->diropen);
+
+	return ret;
 }
 
 int ext4fs_size(const char *filename, loff_t *size)

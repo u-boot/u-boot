@@ -47,10 +47,6 @@
 #include <asm/cache.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#ifdef CONFIG_ARCH_IMX8M
-#include <asm/arch/clock.h>
-#include <asm/mach-imx/sys_proto.h>
-#endif
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/printk.h>
@@ -711,6 +707,9 @@ static int eqos_start(struct udevice *dev)
 	 * e.g. i.MX8M Plus GPR[1] content, which selects interface mode.
 	 */
 	setbits_le32(&eqos->dma_regs->mode, EQOS_DMA_MODE_SWR);
+
+	if (eqos->config->ops->eqos_fix_soc_reset)
+		eqos->config->ops->eqos_fix_soc_reset(dev);
 
 	ret = wait_for_bit_le32(&eqos->dma_regs->mode,
 				EQOS_DMA_MODE_SWR, false,

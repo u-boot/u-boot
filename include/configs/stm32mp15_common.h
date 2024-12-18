@@ -21,10 +21,6 @@
  */
 #define CFG_SYS_BOOTMAPSZ		SZ_256M
 
-/* NAND support */
-
-/* Ethernet need */
-
 #define STM32MP_FIP_IMAGE_GUID \
 	EFI_GUID(0x19d5df83, 0x11b0, 0x457b, 0xbe, 0x2c, \
 		 0x75, 0x59, 0xc1, 0x31, 0x42, 0xa5)

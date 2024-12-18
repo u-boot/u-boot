@@ -32,6 +32,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <env.h>
 #include <env_internal.h>
 #include <fdtdec.h>
@@ -63,10 +64,8 @@
 #include <dm/ofnode.h>
 #include <linux/compiler.h>
 #include <linux/err.h>
-#include <efi_loader.h>
 #include <wdt.h>
 #include <asm-generic/gpio.h>
-#include <efi_loader.h>
 #include <relocate.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -153,6 +152,15 @@ static int initr_reloc_global_data(void)
 	 */
 	gd->env_addr += gd->reloc_off;
 #endif
+
+	/*
+	 * For CONFIG_OF_EMBED case the FDT is embedded into ELF, available by
+	 * __dtb_dt_begin. After U-boot ELF self-relocation to RAM top address
+	 * it is worth to update fdt_blob in global_data
+	 */
+	if (IS_ENABLED(CONFIG_OF_EMBED))
+		gd->fdt_blob = dtb_dt_embedded();
+
 #ifdef CONFIG_EFI_LOADER
 	/*
 	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
@@ -204,8 +212,7 @@ static int initr_malloc(void)
 	 */
 	start = gd->relocaddr - TOTAL_MALLOC_LEN;
 	gd_set_malloc_start(start);
-	mem_malloc_init((ulong)map_sysmem(start, TOTAL_MALLOC_LEN),
-			TOTAL_MALLOC_LEN);
+	mem_malloc_init(start, TOTAL_MALLOC_LEN);
 	return 0;
 }
 

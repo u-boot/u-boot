@@ -45,14 +45,32 @@ static int gpio_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 	if (priv->always_running)
 		return 0;
 
-	return -ENOSYS;
+	dm_gpio_set_dir_flags(&priv->gpio, GPIOD_IS_OUT);
+	gpio_wdt_reset(dev);
+
+	return 0;
+}
+
+static int gpio_wdt_stop(struct udevice *dev)
+{
+	struct gpio_wdt_priv *priv = dev_get_priv(dev);
+
+	if (priv->always_running)
+		return -EOPNOTSUPP;
+
+	if (priv->hw_algo == HW_ALGO_TOGGLE)
+		dm_gpio_set_dir_flags(&priv->gpio, GPIOD_IS_IN);
+	else
+		dm_gpio_set_value(&priv->gpio, 1);
+
+	return 0;
 }
 
 static int dm_probe(struct udevice *dev)
 {
 	struct gpio_wdt_priv *priv = dev_get_priv(dev);
-	int ret;
 	const char *algo = dev_read_string(dev, "hw_algo");
+	int ret, flags;
 
 	if (!algo)
 		return -EINVAL;
@@ -64,7 +82,9 @@ static int dm_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->always_running = dev_read_bool(dev, "always-running");
-	ret = gpio_request_by_name(dev, "gpios", 0, &priv->gpio, GPIOD_IS_OUT);
+	flags = priv->always_running || priv->hw_algo == HW_ALGO_LEVEL ?
+		GPIOD_IS_OUT : GPIOD_IS_IN;
+	ret = gpio_request_by_name(dev, "gpios", 0, &priv->gpio, flags);
 	if (ret < 0) {
 		dev_err(dev, "Request for wdt gpio failed: %d\n", ret);
 		return ret;
@@ -78,6 +98,7 @@ static int dm_probe(struct udevice *dev)
 
 static const struct wdt_ops gpio_wdt_ops = {
 	.start = gpio_wdt_start,
+	.stop  = gpio_wdt_stop,
 	.reset = gpio_wdt_reset,
 };
 

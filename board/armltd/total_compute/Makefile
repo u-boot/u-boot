@@ -4,3 +4,4 @@
 # Usama Arif <usama.arif@arm.com>
 
 obj-y	:= total_compute.o
+obj-y	+= lowlevel_init.o

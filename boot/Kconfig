@@ -233,6 +233,7 @@ config SPL_LOAD_FIT
 config SPL_LOAD_FIT_ADDRESS
 	hex "load address of fit image"
 	depends on SPL_LOAD_FIT
+	default 0x44000000 if ARCH_IMX8M
 	default 0x0
 	help
 	  Specify the load address of the fit image that will be loaded
@@ -281,14 +282,6 @@ config SPL_FIT_IMAGE_POST_PROCESS
 	  need to be comprehended in how the images were prepared before being
 	  injected into the FIT creation (i.e. the blobs would have been pre-
 	  processed before being added to the FIT image).
-
-config SPL_FIT_SOURCE
-	string ".its source file for U-Boot FIT image"
-	depends on SPL_FIT
-	help
-	  Specifies a (platform specific) FIT source file to generate the
-	  U-Boot FIT image. This could specify further image to load and/or
-	  execute.
 
 config USE_SPL_FIT_GENERATOR
 	bool "Use a script to generate the .its script"
@@ -476,6 +469,13 @@ config BOOTSTD_BOOTCOMMAND
 	  For now this is only selected if distro boot is NOT used, since
 	  standard boot does not support all of the features of distro boot
 	  yet.
+
+config BOOTSTD_MENU
+	bool "Provide a menu of available bootflows for standard boot"
+	depends on BOOTSTD_FULL && EXPO
+	default y
+	help
+	  Provide a menu of available bootflows and related options.
 
 config BOOTSTD_PROG
 	bool "Use programmatic boot"
@@ -1691,6 +1691,7 @@ config FDT_FIXUP_PARTITIONS
 
 config FDT_SIMPLEFB
 	bool "FDT tools for simplefb support"
+	depends on VIDEO
 	help
 	  Enable the fdt tools to manage the simple fb nodes in device tree.
 	  These functions can be used by board to indicate to the OS
@@ -1698,7 +1699,7 @@ config FDT_SIMPLEFB
 	  memory
 
 config ARCH_FIXUP_FDT_MEMORY
-	bool "Enable arch_fixup_memory_banks() call"
+	bool "Enable fdt_fixup_memory_banks() call"
 	default y
 	help
 	  Enable FDT memory map syncup before OS boot. This feature can be

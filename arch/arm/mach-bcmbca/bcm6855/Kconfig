@@ -8,6 +8,7 @@ if BCM6855
 config TARGET_BCM96855
 	bool "Broadcom 6855 Reference Board"
 	depends on ARCH_BCMBCA
+	imply OF_UPSTREAM
 
 config SYS_SOC
 	default "bcm6855"

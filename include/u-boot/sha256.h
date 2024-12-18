@@ -1,9 +1,10 @@
 #ifndef _SHA256_H
 #define _SHA256_H
 
+#include <linux/kconfig.h>
 #include <linux/types.h>
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 /*
  * FIXME:
  * MbedTLS define the members of "mbedtls_sha256_context" as private,
@@ -27,7 +28,7 @@ extern const uint8_t sha256_der_prefix[];
 /* Reset watchdog each time we process this many bytes */
 #define CHUNKSZ_SHA256	(64 * 1024)
 
-#if defined(CONFIG_MBEDTLS_LIB_CRYPTO)
+#if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
 typedef mbedtls_sha256_context sha256_context;
 #else
 typedef struct {

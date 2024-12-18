@@ -8,10 +8,14 @@ Emulation
 
    acpi
    blkdev
-   ../../usage/semihosting
    qemu-arm
    qemu-mips
    qemu-ppce500
    qemu-riscv
+   qemu-sbsa
    qemu-x86
    qemu-xtensa
+
+Also see
+
+* :doc:`../../usage/semihosting`

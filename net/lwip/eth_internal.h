@@ -25,7 +25,7 @@ void eth_common_init(void);
  * Return: 0 if OK, other value on error
  */
 int eth_env_set_enetaddr_by_index(const char *base_name, int index,
-				 uchar *enetaddr);
+				  uchar *enetaddr);
 
 int eth_mac_skip(int index);
 void eth_current_changed(void);

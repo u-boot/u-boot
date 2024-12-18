@@ -25,7 +25,7 @@ struct blk_desc;
  * do_fat_fsload - Run the fatload command
  *
  * @cmdtp: Command information for fatload
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -37,7 +37,7 @@ int do_fat_fsload(struct cmd_tbl *cmdtp, int flag, int argc,
  * do_ext2load - Run the ext2load command
  *
  * @cmdtp: Command information for ext2load
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -145,7 +145,7 @@ int fs_size(const char *filename, loff_t *size);
  * @offset:	offset in the file from where to start reading
  * @len:	the number of bytes to read. Use 0 to read entire file.
  * @actread:	returns the actual number of bytes read
- * Return:	0 if OK with valid *actread, -1 on error conditions
+ * Return:	0 if OK with valid @actread, -1 on error conditions
  */
 int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
 	    loff_t *actread);
@@ -160,7 +160,7 @@ int fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
  * @offset:	offset in the file from where to start writing
  * @len:	the number of bytes to write
  * @actwrite:	returns the actual number of bytes written
- * Return:	0 if OK with valid *actwrite, -1 on error conditions
+ * Return:	0 if OK with valid @actwrite, -1 on error conditions
  */
 int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 	     loff_t *actwrite);
@@ -186,57 +186,73 @@ struct fs_dirent {
 	unsigned int type;
 	/** @size:		file size */
 	loff_t size;
-	/** @flags:		attribute flags (FS_ATTR_*) */
+	/** @attr:		attribute flags (FS_ATTR_*) */
 	u32 attr;
-	/** create_time:	time of creation */
+	/** @create_time:	time of creation */
 	struct rtc_time create_time;
-	/** access_time:	time of last access */
+	/** @access_time:	time of last access */
 	struct rtc_time access_time;
-	/** change_time:	time of last modification */
+	/** @change_time:	time of last modification */
 	struct rtc_time change_time;
-	/** name:		file name */
+	/** @name:		file name */
 	char name[FS_DIRENT_NAME_LEN];
 };
 
-/* Note: fs_dir_stream should be treated as opaque to the user of fs layer */
+/**
+ * struct fs_dir_stream - Structure representing an opened directory
+ *
+ * Struct fs_dir_stream should be treated opaque to the user of fs layer.
+ * The fields @desc and @part are used by the fs layer.
+ * File system drivers pass additional private fields with the pointers
+ * to this structure.
+ *
+ * @desc:	block device descriptor
+ * @part:	partition number
+ */
 struct fs_dir_stream {
-	/* private to fs. layer: */
 	struct blk_desc *desc;
 	int part;
 };
 
-/*
+/**
  * fs_opendir - Open a directory
  *
- * @filename: the path to directory to open
- * Return: a pointer to the directory stream or NULL on error and errno
- *    set appropriately
+ * .. note::
+ *    The returned struct fs_dir_stream should be treated opaque to the
+ *    user of the fs layer.
+ *
+ * @filename: path to the directory to open
+ * Return:
+ * A pointer to the directory stream or NULL on error and errno set
+ * appropriately
  */
 struct fs_dir_stream *fs_opendir(const char *filename);
 
-/*
+/**
  * fs_readdir - Read the next directory entry in the directory stream.
  *
- * Works in an analogous way to posix readdir().  The previously returned
- * directory entry is no longer valid after calling fs_readdir() again.
+ * fs_readir works in an analogous way to posix readdir().
+ * The previously returned directory entry is no longer valid after calling
+ * fs_readdir() again.
  * After fs_closedir() is called, the returned directory entry is no
  * longer valid.
  *
  * @dirs: the directory stream
- * Return: the next directory entry (only valid until next fs_readdir() or
- *    fs_closedir() call, do not attempt to free()) or NULL if the end of
- *    the directory is reached.
+ * Return:
+ * the next directory entry (only valid until next fs_readdir() or
+ * fs_closedir() call, do not attempt to free()) or NULL if the end of
+ * the directory is reached.
  */
 struct fs_dirent *fs_readdir(struct fs_dir_stream *dirs);
 
-/*
+/**
  * fs_closedir - close a directory stream
  *
  * @dirs: the directory stream
  */
 void fs_closedir(struct fs_dir_stream *dirs);
 
-/*
+/**
  * fs_unlink - delete a file or directory
  *
  * If a given name is a directory, it will be deleted only if it's empty
@@ -246,7 +262,7 @@ void fs_closedir(struct fs_dir_stream *dirs);
  */
 int fs_unlink(const char *filename);
 
-/*
+/**
  * fs_mkdir - Create a directory
  *
  * @filename: Name of directory to create
@@ -292,7 +308,7 @@ int do_fs_type(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  * do_fs_types - List supported filesystems.
  *
  * @cmdtp: Command information for fstypes
- * @flag: Command flags (CMD_FLAG_...)
+ * @flag: Command flags (CMD_FLAG\_...)
  * @argc: Number of arguments
  * @argv: List of arguments
  * Return: result (see enum command_ret_t)
@@ -309,7 +325,7 @@ int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
  *
  * @fname: Filename to read
  * @size: Size of file to read (must be correct!)
- * @align: Alignment to use for memory allocation (0 for default)
+ * @align: Alignment to use for memory allocation (0 for default: ARCH_DMA_MINALIGN)
  * @bufp: On success, returns the allocated buffer with the nul-terminated file
  *	in it
  * Return: 0 if OK, -ENOMEM if out of memory, -EIO if read failed

@@ -504,16 +504,16 @@ config SYS_I2C_OMAP24XX
 	  Add support for the OMAP2+ I2C driver.
 
 config SYS_I2C_RCAR_I2C
-	bool "Renesas RCar I2C driver"
+	bool "Renesas R-Car I2C driver"
 	depends on (RCAR_GEN2 || RCAR_64) && DM_I2C
 	help
-	  Support for Renesas RCar I2C controller.
+	  Support for Renesas R-Car I2C controller.
 
 config SYS_I2C_RCAR_IIC
-	bool "Renesas RCar Gen3 IIC driver"
+	bool "Renesas R-Car Gen3 IIC driver"
 	depends on (RCAR_GEN2 || RCAR_GEN3) && DM_I2C
 	help
-	  Support for Renesas RCar Gen3 IIC controller.
+	  Support for Renesas R-Car Gen3 IIC controller.
 
 config SYS_I2C_ROCKCHIP
 	bool "Rockchip I2C driver"

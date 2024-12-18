@@ -481,7 +481,6 @@ endmenu
 menu "Misc options"
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"
-	depends on ARM64
 	help
 	  Some hardware does not support DMA to full 64bit addresses. For this
 	  hardware we can create a bounce buffer so that payloads don't have to
@@ -545,6 +544,8 @@ config EFI_BOOTMGR
 
 config EFI_HTTP_BOOT
 	bool "EFI HTTP Boot support"
+	depends on NET || NET_LWIP
+	select CMD_NET
 	select CMD_DNS
 	select CMD_WGET
 	select BLKMAP
@@ -561,6 +562,16 @@ config BOOTEFI_HELLO_COMPILE
 	  that it can be used with the test/py testing framework. This is useful
 	  for testing that EFI is working at a basic level, and for bringing
 	  up EFI support on a new architecture.
+
+	  No additional space will be required in the resulting U-Boot binary
+	  when this option is enabled.
+
+config BOOTEFI_TESTAPP_COMPILE
+	bool "Compile an EFI test app for testing"
+	default y
+	help
+	  This compiles an app designed for testing. It is packed into an image
+	  by the test.py testing frame in the setup_efi_image() function.
 
 	  No additional space will be required in the resulting U-Boot binary
 	  when this option is enabled.

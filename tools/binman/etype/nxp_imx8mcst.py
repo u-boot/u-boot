@@ -165,6 +165,8 @@ class Entry_nxp_imx8mcst(Entry_mkimage):
         args = ['-i', cfg_fname, '-o', output_fname]
         if self.cst.run_cmd(*args) is not None:
             outdata = tools.read_file(output_fname)
+            # fixme: 0x2000 should be CONFIG_CSF_SIZE
+            outdata += tools.get_bytes(0, 0x2000 - 0x20 - len(outdata))
             return data + outdata
         else:
             # Bintool is missing; just use the input data as the output

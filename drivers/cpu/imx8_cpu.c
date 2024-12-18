@@ -20,10 +20,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define IMX_REV_LEN	4
 struct cpu_imx_plat {
 	const char *name;
-	const char *rev;
 	const char *type;
+	char rev[IMX_REV_LEN];
 	u32 cpu_rsrc;
 	u32 cpurev;
 	u32 freq_mhz;
@@ -69,28 +70,29 @@ static const char *get_imx_type_str(u32 imxtype)
 	}
 }
 
-static const char *get_imx_rev_str(u32 rev)
+static void get_imx_rev_str(struct cpu_imx_plat *plat, u32 rev)
 {
-	static char revision[4];
-
 	if (IS_ENABLED(CONFIG_IMX8)) {
 		switch (rev) {
 		case CHIP_REV_A:
-			return "A";
+			plat->rev[0] = 'A';
+			break;
 		case CHIP_REV_B:
-			return "B";
+			plat->rev[0] = 'B';
+			break;
 		case CHIP_REV_C:
-			return "C";
+			plat->rev[0] = 'C';
+			break;
 		default:
-			return "?";
+			plat->rev[0] = '?';
+			break;
 		}
+		plat->rev[1] = '\0';
 	} else {
-		revision[0] = '1' + (((rev & 0xf0) - CHIP_REV_1_0) >> 4);
-		revision[1] = '.';
-		revision[2] = '0' + (rev & 0xf);
-		revision[3] = '\0';
-
-		return revision;
+		plat->rev[0] = '1' + (((rev & 0xf0) - CHIP_REV_1_0) >> 4);
+		plat->rev[1] = '.';
+		plat->rev[2] = '0' + (rev & 0xf);
+		plat->rev[3] = '\0';
 	}
 }
 
@@ -318,7 +320,7 @@ static int imx_cpu_probe(struct udevice *dev)
 	set_core_data(dev);
 	cpurev = get_cpu_rev();
 	plat->cpurev = cpurev;
-	plat->rev = get_imx_rev_str(cpurev & 0xFFF);
+	get_imx_rev_str(plat, cpurev & 0xFFF);
 	plat->type = get_imx_type_str((cpurev & 0x1FF000) >> 12);
 	plat->freq_mhz = imx_get_cpu_rate(dev) / 1000000;
 	plat->mpidr = dev_read_addr(dev);

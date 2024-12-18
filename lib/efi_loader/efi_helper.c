@@ -12,17 +12,88 @@
 #include <mapmem.h>
 #include <dm.h>
 #include <fs.h>
+#include <efi.h>
 #include <efi_api.h>
 #include <efi_load_initrd.h>
 #include <efi_loader.h>
 #include <efi_variable.h>
+#include <host_arch.h>
 #include <linux/libfdt.h>
 #include <linux/list.h>
+
+#undef BOOTEFI_NAME
+
+#if HOST_ARCH == HOST_ARCH_X86_64
+#define HOST_BOOTEFI_NAME "BOOTX64.EFI"
+#define HOST_PXE_ARCH 0x6
+#elif HOST_ARCH == HOST_ARCH_X86
+#define HOST_BOOTEFI_NAME "BOOTIA32.EFI"
+#define HOST_PXE_ARCH 0x7
+#elif HOST_ARCH == HOST_ARCH_AARCH64
+#define HOST_BOOTEFI_NAME "BOOTAA64.EFI"
+#define HOST_PXE_ARCH 0xb
+#elif HOST_ARCH == HOST_ARCH_ARM
+#define HOST_BOOTEFI_NAME "BOOTARM.EFI"
+#define HOST_PXE_ARCH 0xa
+#elif HOST_ARCH == HOST_ARCH_RISCV32
+#define HOST_BOOTEFI_NAME "BOOTRISCV32.EFI"
+#define HOST_PXE_ARCH 0x19
+#elif HOST_ARCH == HOST_ARCH_RISCV64
+#define HOST_BOOTEFI_NAME "BOOTRISCV64.EFI"
+#define HOST_PXE_ARCH 0x1b
+#else
+#error Unsupported Host architecture
+#endif
+
+#if defined(CONFIG_SANDBOX)
+#define BOOTEFI_NAME "BOOTSBOX.EFI"
+#elif defined(CONFIG_ARM64)
+#define BOOTEFI_NAME "BOOTAA64.EFI"
+#elif defined(CONFIG_ARM)
+#define BOOTEFI_NAME "BOOTARM.EFI"
+#elif defined(CONFIG_X86_64)
+#define BOOTEFI_NAME "BOOTX64.EFI"
+#elif defined(CONFIG_X86)
+#define BOOTEFI_NAME "BOOTIA32.EFI"
+#elif defined(CONFIG_ARCH_RV32I)
+#define BOOTEFI_NAME "BOOTRISCV32.EFI"
+#elif defined(CONFIG_ARCH_RV64I)
+#define BOOTEFI_NAME "BOOTRISCV64.EFI"
+#else
+#error Unsupported UEFI architecture
+#endif
 
 #if defined(CONFIG_CMD_EFIDEBUG) || defined(CONFIG_EFI_LOAD_FILE2_INITRD)
 /* GUID used by Linux to identify the LoadFile2 protocol with the initrd */
 const efi_guid_t efi_lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
 #endif
+
+const char *efi_get_basename(void)
+{
+	return efi_use_host_arch() ? HOST_BOOTEFI_NAME : BOOTEFI_NAME;
+}
+
+int efi_get_pxe_arch(void)
+{
+	if (efi_use_host_arch())
+		return HOST_PXE_ARCH;
+
+	/* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
+	if (IS_ENABLED(CONFIG_ARM64))
+		return 0xb;
+	else if (IS_ENABLED(CONFIG_ARM))
+		return 0xa;
+	else if (IS_ENABLED(CONFIG_X86_64))
+		return 0x6;
+	else if (IS_ENABLED(CONFIG_X86))
+		return 0x7;
+	else if (IS_ENABLED(CONFIG_ARCH_RV32I))
+		return 0x19;
+	else if (IS_ENABLED(CONFIG_ARCH_RV64I))
+		return 0x1b;
+
+	return -EINVAL;
+}
 
 /**
  * efi_create_current_boot_var() - Return Boot#### name were #### is replaced by
@@ -412,7 +483,7 @@ static efi_status_t copy_fdt(void **fdtp)
 				 EFI_ACPI_RECLAIM_MEMORY, fdt_pages,
 				 &new_fdt_addr);
 	if (ret != EFI_SUCCESS) {
-		log_err("ERROR: Failed to reserve space for FDT\n");
+		log_err("Failed to reserve space for FDT\n");
 		goto done;
 	}
 	new_fdt = (void *)(uintptr_t)new_fdt_addr;
@@ -468,7 +539,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	 * but not both.
 	 */
 	if (CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE) && fdt)
-		log_warning("WARNING: Can't have ACPI table and device tree - ignoring DT.\n");
+		log_warning("Can't have ACPI table and device tree - ignoring DT.\n");
 
 	if (fdt == EFI_FDT_USE_INTERNAL) {
 		const char *fdt_opt;
@@ -483,13 +554,13 @@ efi_status_t efi_install_fdt(void *fdt)
 		if (!fdt_opt) {
 			fdt_opt = env_get("fdtcontroladdr");
 			if (!fdt_opt) {
-				log_err("ERROR: need device tree\n");
+				log_err("need device tree\n");
 				return EFI_NOT_FOUND;
 			}
 		}
 		fdt_addr = hextoul(fdt_opt, NULL);
 		if (!fdt_addr) {
-			log_err("ERROR: invalid $fdt_addr or $fdtcontroladdr\n");
+			log_err("invalid $fdt_addr or $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
 		}
 		fdt = map_sysmem(fdt_addr, 0);
@@ -497,7 +568,7 @@ efi_status_t efi_install_fdt(void *fdt)
 
 	/* Install device tree */
 	if (fdt_check_header(fdt)) {
-		log_err("ERROR: invalid device tree\n");
+		log_err("invalid device tree\n");
 		return EFI_LOAD_ERROR;
 	}
 
@@ -510,12 +581,12 @@ efi_status_t efi_install_fdt(void *fdt)
 	/* Prepare device tree for payload */
 	ret = copy_fdt(&fdt);
 	if (ret) {
-		log_err("ERROR: out of memory\n");
+		log_err("out of memory\n");
 		return EFI_OUT_OF_RESOURCES;
 	}
 
 	if (image_setup_libfdt(&img, fdt, false)) {
-		log_err("ERROR: failed to process device tree\n");
+		log_err("failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
 
@@ -527,7 +598,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	if (CONFIG_IS_ENABLED(EFI_TCG2_PROTOCOL_MEASURE_DTB)) {
 		ret = efi_tcg2_measure_dtb(fdt);
 		if (ret == EFI_SECURITY_VIOLATION) {
-			log_err("ERROR: failed to measure DTB\n");
+			log_err("failed to measure DTB\n");
 			return ret;
 		}
 	}
@@ -535,7 +606,7 @@ efi_status_t efi_install_fdt(void *fdt)
 	/* Install device tree as UEFI table */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
 	if (ret != EFI_SUCCESS) {
-		log_err("ERROR: failed to install device tree\n");
+		log_err("failed to install device tree\n");
 		return ret;
 	}
 
@@ -574,7 +645,7 @@ efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	 */
 	ret = efi_set_watchdog(300);
 	if (ret != EFI_SUCCESS) {
-		log_err("ERROR: Failed to set watchdog timer\n");
+		log_err("failed to set watchdog timer\n");
 		goto out;
 	}
 

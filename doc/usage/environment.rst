@@ -323,6 +323,11 @@ netretry
     Useful on scripts which control the retry operation
     themselves.
 
+rng_seed_size
+    Size of random value added to device-tree node /chosen/rng-seed.
+    This variable is given as a decimal number.
+    If unset, 64 bytes is used as the default.
+
 silent_linux
     If set then Linux will be told to boot silently, by
     adding 'console=' to its command line. If "yes" it will be
@@ -494,12 +499,12 @@ Automatically updated variables
 -------------------------------
 
 The following environment variables may be used and automatically
-updated by the network boot commands ("bootp" and "rarpboot"),
+updated by the network boot commands ("bootp", "dhcp" and "rarpboot"),
 depending the information provided by your boot server:
 
-=========  ===================================================
+========== ===================================================================
 Variable   Notes
-=========  ===================================================
+========== ===================================================================
 bootfile   see above
 dnsip      IP address of your Domain Name Server
 dnsip2     IP address of your secondary Domain Name Server
@@ -509,7 +514,10 @@ ipaddr     See above
 netmask    Subnet Mask
 rootpath   Pathname of the root filesystem on the NFS server
 serverip   see above
-=========  ===================================================
+ipaddrN    IP address for interface N (>0) (NET_LWIP dhcp only)
+netmaskN   Subnet mask for interface N (>0) (NET_LWIP dhcp only)
+gatewayipN IP address of the Gateway for interface N (>0) (NET_LWIP dhcp only)
+========== ===================================================================
 
 
 Special environment variables

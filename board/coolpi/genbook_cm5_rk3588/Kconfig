@@ -1,0 +1,12 @@
+if TARGET_GENBOOK_CM5_RK3588
+
+config SYS_BOARD
+	default "genbook_cm5_rk3588"
+
+config SYS_VENDOR
+	default "coolpi"
+
+config SYS_CONFIG_NAME
+	default "genbook-cm5-rk3588"
+
+endif

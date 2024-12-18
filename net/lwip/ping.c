@@ -39,8 +39,8 @@ static u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p,
 	    pbuf_remove_header(p, IP_HLEN) == 0) {
 		iecho = (struct icmp_echo_hdr *)p->payload;
 
-		if ((iecho->id == PING_ID) &&
-		    (iecho->seqno == lwip_htons(ctx->seq_num))) {
+		if (iecho->id == PING_ID &&
+		    iecho->seqno == lwip_htons(ctx->seq_num)) {
 			ctx->alive = true;
 			printf("host %s is alive\n", ipaddr_ntoa(addr));
 			pbuf_free(p);
@@ -93,7 +93,7 @@ static void ping_send_icmp(struct ping_ctx *ctx)
 	if (!p)
 		return;
 
-	if ((p->len == p->tot_len) && !p->next) {
+	if (p->len == p->tot_len && !p->next) {
 		ctx->iecho = (struct icmp_echo_hdr *)p->payload;
 		ping_prepare_echo(ctx);
 		raw_sendto(ctx->pcb, p, &ctx->target);
@@ -113,7 +113,7 @@ static void ping_send(void *arg)
 	}
 }
 
-static int ping_loop(struct udevice *udev, const ip_addr_t* addr)
+static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 {
 	struct ping_ctx ctx = {};
 	struct netif *netif;

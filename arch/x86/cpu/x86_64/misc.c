@@ -32,9 +32,4 @@ int checkcpu(void)
 {
 	return 0;
 }
-
-int print_cpuinfo(void)
-{
-	return 0;
-}
 #endif

@@ -68,6 +68,14 @@ config USB_XHCI_MVEBU
 	  SoCs, which includes Armada8K, Armada3700 and other Armada
 	  family SoCs.
 
+config USB_XHCI_GENERIC
+	bool "Generic SoC USB 3.0 support"
+	depends on OF_CONTROL
+	default n
+	help
+	  Choose this option to add support for USB 3.0 driver for SoCs
+	  that do not need platform specific code, like on emulated targets.
+
 config USB_XHCI_OCTEON
 	bool "Support for Marvell Octeon family on-chip xHCI USB controller"
 	depends on ARCH_OCTEON
@@ -95,12 +103,12 @@ config USB_XHCI_PCI
 	  Enables support for the PCI-based xHCI controller.
 
 config USB_XHCI_RCAR
-	bool "Renesas RCar USB 3.0 support"
+	bool "Renesas R-Car USB 3.0 support"
 	default y
 	depends on ARCH_RENESAS
 	help
 	  Choose this option to add support for USB 3.0 driver on Renesas
-	  RCar Gen3 SoCs.
+	  R-Car Gen3 SoCs.
 
 config USB_XHCI_STI
 	bool "Support for STMicroelectronics STiH407 family on-chip xHCI USB controller"

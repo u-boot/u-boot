@@ -27,6 +27,7 @@
 #ifndef __EXT4__
 #define __EXT4__
 #include <ext_common.h>
+#include <fs.h>
 
 struct disk_partition;
 
@@ -218,4 +219,7 @@ int ext4fs_uuid(char *uuid_str);
 void ext_cache_init(struct ext_block_cache *cache);
 void ext_cache_fini(struct ext_block_cache *cache);
 int ext_cache_read(struct ext_block_cache *cache, lbaint_t block, int size);
+int ext4fs_opendir(const char *dirname, struct fs_dir_stream **dirsp);
+int ext4fs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+void ext4fs_closedir(struct fs_dir_stream *dirs);
 #endif

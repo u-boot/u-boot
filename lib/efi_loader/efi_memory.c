@@ -451,7 +451,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 				enum efi_memory_type memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
-	u64 len;
+	u64 efi_addr, len;
 	uint flags;
 	efi_status_t ret;
 	phys_addr_t addr;
@@ -472,7 +472,8 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = (u64)lmb_alloc_flags(len, EFI_PAGE_SIZE, flags);
+		addr = (u64)lmb_alloc_base_flags(len, EFI_PAGE_SIZE,
+						 LMB_ALLOC_ANYWHERE, flags);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
 		break;
@@ -498,14 +499,17 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 		return EFI_INVALID_PARAMETER;
 	}
 
-	addr = (u64)(uintptr_t)map_sysmem(addr, 0);
+	efi_addr = (u64)(uintptr_t)map_sysmem(addr, 0);
 	/* Reserve that map in our memory maps */
-	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
-	if (ret != EFI_SUCCESS)
+	ret = efi_add_memory_map_pg(efi_addr, pages, memory_type, true);
+	if (ret != EFI_SUCCESS) {
 		/* Map would overlap, bail out */
+		lmb_free_flags(addr, (u64)pages << EFI_PAGE_SHIFT, flags);
+		unmap_sysmem((void *)(uintptr_t)efi_addr);
 		return  EFI_OUT_OF_RESOURCES;
+	}
 
-	*memory = addr;
+	*memory = efi_addr;
 
 	return EFI_SUCCESS;
 }
@@ -520,7 +524,6 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	u64 len;
-	uint flags;
 	long status;
 	efi_status_t ret;
 
@@ -535,17 +538,18 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	flags = LMB_NOOVERWRITE | LMB_NONOTIFY;
 	len = (u64)pages << EFI_PAGE_SHIFT;
+	/*
+	 * The 'memory' variable for sandbox holds a pointer which has already
+	 * been mapped with map_sysmem() from efi_allocate_pages(). Convert
+	 * it back to an address LMB understands
+	 */
 	status = lmb_free_flags(map_to_sysmem((void *)(uintptr_t)memory), len,
-				flags);
+				LMB_NOOVERWRITE);
 	if (status)
 		return EFI_NOT_FOUND;
 
-	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
-				    false);
-	if (ret != EFI_SUCCESS)
-		return EFI_NOT_FOUND;
+	unmap_sysmem((void *)(uintptr_t)memory);
 
 	return ret;
 }
@@ -652,7 +656,7 @@ void *efi_alloc(size_t size)
 
 	if (efi_allocate_pool(EFI_BOOT_SERVICES_DATA, size, &buf) !=
 	    EFI_SUCCESS) {
-		log_err("out of memory");
+		log_err("out of memory\n");
 		return NULL;
 	}
 	memset(buf, 0, size);
@@ -810,7 +814,16 @@ static void add_u_boot_and_runtime(void)
 {
 	unsigned long runtime_start, runtime_end, runtime_pages;
 	unsigned long runtime_mask = EFI_PAGE_MASK;
+	unsigned long uboot_start, uboot_pages;
+	unsigned long uboot_stack_size = CONFIG_STACK_SIZE;
 
+	/* Add U-Boot */
+	uboot_start = ((uintptr_t)map_sysmem(gd->start_addr_sp, 0) -
+		       uboot_stack_size) & ~EFI_PAGE_MASK;
+	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
+		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+	efi_add_memory_map_pg(uboot_start, uboot_pages, EFI_BOOT_SERVICES_CODE,
+			      false);
 #if defined(__aarch64__)
 	/*
 	 * Runtime Services must be 64KiB aligned according to the

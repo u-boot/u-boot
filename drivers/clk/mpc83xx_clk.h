@@ -321,7 +321,7 @@ static inline u32 get_pci_sync_in(immap_t *im)
 }
 
 /**
- * get_csb_clk() - Read the CSB (Coheren System Bus) clock speed
+ * get_csb_clk() - Read the CSB (Coherent System Bus) clock speed
  * @im: Pointer to the MPC83xx main register map in question
  *
  * Return: The CSB clock speed value as a 32-bit number.

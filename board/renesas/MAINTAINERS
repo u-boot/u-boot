@@ -1,0 +1,17 @@
+RENESAS BOARDS
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+N:	grpeach
+N:	r2dplus
+N:	r7s72100
+N:	r8a66597
+N:	r8a77
+N:	r9a0[0-9]g
+N:	rcar
+N:	renesas
+N:	rza1
+N:	rzg2l
+N:	serial_sh
+N:	sh77
+N:	sh_eth

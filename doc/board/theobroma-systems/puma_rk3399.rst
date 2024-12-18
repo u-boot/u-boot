@@ -27,6 +27,7 @@ RK3399-Q7 features:
  * Camera: 2x CSI (one on the edge connector, one on the Q7 specified CSI ZIF)
  * NOR Flash: onboard SPI NOR
  * Companion Controller: onboard additional Cortex-M0 microcontroller
+
    * RTC
    * fan controller
    * CAN

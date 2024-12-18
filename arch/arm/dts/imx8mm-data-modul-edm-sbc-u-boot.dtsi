@@ -16,6 +16,12 @@
 		dmo,ram-coding-gpios = <&gpio2 8 0>, <&gpio2 1 0>, <&gpio2 0 0>;
 	};
 
+	clk_pcie100: clk-pcie100 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+	};
+
 	wdt-reboot {
 		compatible = "wdt-reboot";
 		wdt = <&wdog1>;
@@ -33,6 +39,15 @@
 
 &i2c1 {
 	bootph-pre-ram;
+};
+
+&pcie_phy {
+	clocks = <&clk_pcie100>;
+};
+
+&pcie0 {
+	clocks = <&clk IMX8MM_CLK_PCIE1_ROOT>, <&clk IMX8MM_CLK_PCIE1_AUX>,
+		 <&clk_pcie100>;
 };
 
 &pinctrl_hog_sbc {
@@ -77,6 +92,7 @@
 
 &gpio2 {
 	bootph-pre-ram;
+	bootph-some-ram;
 
 	dsi-reset-hog {
 		bootph-pre-ram;
@@ -144,8 +160,17 @@
 	bootph-pre-ram;
 };
 
+&usbmisc1 {
+	bootph-pre-ram;
+};
+
+&usbphynop1 {
+	bootph-pre-ram;
+};
+
 &usbotg1 {
 	dr_mode = "peripheral";
+	bootph-pre-ram;
 };
 
 &usdhc2 {

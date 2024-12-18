@@ -1,0 +1,7 @@
+GENBOOK-CM5-RK3588
+M:	Andy Yan <andyshrk@163.com>
+S:	Maintained
+F:	board/coolpi/genbook-cm5-rk3588
+F:	include/configs/genbook-cm5-rk3588.h
+F:	configs/coolpi-cm5-genbook-rk3588_defconfig
+F:	arch/arm/dts/rk3588-coolpi-cm5-genbook-u-boot.dtsi

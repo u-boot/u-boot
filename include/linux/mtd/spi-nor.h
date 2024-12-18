@@ -182,14 +182,14 @@
 /* Status Register 2 bits. */
 #define SR2_QUAD_EN_BIT7	BIT(7)
 
+/* Status Register 3 bits. */
+#define SR3_WPS			BIT(2)
+
 /*
  * Maximum number of flashes that can be connected
  * in stacked/parallel configuration
  */
 #define SNOR_FLASH_CNT_MAX	2
-
-/* Status Register 3 bits. */
-#define SR3_WPS			BIT(2)
 
 /* For Cypress flash. */
 #define SPINOR_OP_RD_ANY_REG			0x65	/* Read any register */
@@ -308,7 +308,7 @@ enum spi_nor_option_flags {
 	SNOR_F_BROKEN_RESET	= BIT(6),
 	SNOR_F_SOFT_RESET	= BIT(7),
 	SNOR_F_IO_MODE_EN_VOLATILE = BIT(8),
-#if defined(CONFIG_SPI_ADVANCE)
+#if defined(CONFIG_SPI_STACKED_PARALLEL)
 	SNOR_F_HAS_STACKED	= BIT(9),
 	SNOR_F_HAS_PARALLEL	= BIT(10),
 #else

@@ -8,9 +8,11 @@
 #include "stm32mp15-ddr3-dhsom-2x1Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x2Gb-1066-binG.dtsi"
 #include "stm32mp15-ddr3-dhsom-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15xx-dhsom-u-boot.dtsi"
 
 / {
 	aliases {
+		eeprom0 = &eeprom0;
 		i2c1 = &i2c2;
 		i2c3 = &i2c4;
 		i2c4 = &i2c5;
@@ -18,32 +20,20 @@
 		mmc1 = &sdmmc2;
 		spi0 = &qspi;
 		usb0 = &usbotg_hs;
-		eeprom0 = &eeprom0;
 	};
 
 	config {
-		u-boot,boot-led = "heartbeat";
-		u-boot,error-led = "error";
-		dh,som-coding-gpios = <&gpiof 12 0>, <&gpiof 13 0>, <&gpiof 15 0>;
 		dh,ddr3-coding-gpios = <&gpioz 6 0>, <&gpioz 7 0>;
 		dh,mac-coding-gpios = <&gpioc 3 0>;
+		dh,som-coding-gpios = <&gpiof 12 0>, <&gpiof 13 0>, <&gpiof 15 0>;
+		u-boot,boot-led = "heartbeat";
+		u-boot,error-led = "error";
 	};
 };
 
 &ethernet0 {
 	phy-reset-gpios = <&gpioh 3 GPIO_ACTIVE_LOW>;
 	/delete-property/ st,eth-ref-clk-sel;
-};
-
-&ethernet0_rmii_pins_a {
-	pins1 {
-		pinmux = <STM32_PINMUX('G', 13, AF11)>, /* ETH1_RMII_TXD0 */
-			 <STM32_PINMUX('G', 14, AF11)>, /* ETH1_RMII_TXD1 */
-			 <STM32_PINMUX('B', 11, AF11)>, /* ETH1_RMII_TX_EN */
-			 <STM32_PINMUX('A', 1, AF11)>,  /* ETH1_RMII_REF_CLK */
-			 <STM32_PINMUX('A', 2, AF11)>,  /* ETH1_MDIO */
-			 <STM32_PINMUX('C', 1, AF11)>;  /* ETH1_MDC */
-	};
 };
 
 &i2c4 {
@@ -58,36 +48,6 @@
 	bootph-all;
 	pins {
 		bootph-all;
-	};
-};
-
-&phy0 {
-	/delete-property/ reset-gpios;
-};
-
-&pinctrl {
-	mco2_pins_a: mco2-0 {
-		pins {
-			pinmux = <STM32_PINMUX('G', 2, AF1)>; /* MCO2 */
-			bias-disable;
-			drive-push-pull;
-			slew-rate = <2>;
-		};
-	};
-
-	mco2_sleep_pins_a: mco2-sleep-0 {
-		pins {
-			pinmux = <STM32_PINMUX('G', 2, ANALOG)>; /* MCO2 */
-		};
-	};
-};
-
-&pmic {
-	bootph-all;
-	bootph-pre-ram;
-
-	regulators {
-		bootph-pre-ram;
 	};
 };
 
@@ -119,6 +79,19 @@
 			label = "env2";
 			reg = <0x001F0000 0x00010000>;
 		};
+	};
+};
+
+&phy0 {
+	/delete-property/ reset-gpios;
+};
+
+&pmic {
+	bootph-all;
+	bootph-pre-ram;
+
+	regulators {
+		bootph-pre-ram;
 	};
 };
 
@@ -268,6 +241,14 @@
 	};
 };
 
+&reg11 {
+	bootph-pre-ram;
+};
+
+&reg18 {
+	bootph-pre-ram;
+};
+
 &sdmmc1 {
 	bootph-pre-ram;
 	st,use-ckin;
@@ -328,14 +309,6 @@
 		/* pull-up on rx to avoid floating level */
 		bias-pull-up;
 	};
-};
-
-&reg11 {
-	bootph-pre-ram;
-};
-
-&reg18 {
-	bootph-pre-ram;
 };
 
 &usb33 {

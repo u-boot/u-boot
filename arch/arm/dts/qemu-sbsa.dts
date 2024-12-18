@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: GPL-2.0+ OR MIT
+/*
+ * Devicetree with onboard devices for qemu_sbsa-ref for internal use only!
+ * DO NOT PASS TO THE OS!
+ *
+ * As QEMU provides only a minimal devicetree this one is merged with
+ * it and then fixed at runtime.
+ *
+ * Copyright 2024 9elements GmbH
+ */
+#include "configs/qemu-sbsa.h"
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+/dts-v1/;
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	interrupt-parent = <&intc>;
+	compatible = "linux,sbsa-ref";
+
+	binman: binman {
+		multiple-images;
+	};
+
+	cpus {
+		/* Filled by fdtdec_board_setup() */
+	};
+
+	memory {
+		/* Filled by fdtdec_board_setup() */
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cfi_flash {
+			compatible = "cfi-flash";
+			reg = /bits/ 64 <SBSA_FLASH_BASE_ADDR
+					 SBSA_FLASH_LENGTH>;
+			status = "okay";
+		};
+
+		uart0 {
+			compatible = "arm,pl011";
+			status = "okay";
+			reg = /bits/ 64 <SBSA_UART_BASE_ADDR
+					 SBSA_UART_LENGTH>;
+		};
+
+		ahci {
+			compatible = "generic-ahci";
+			status = "okay";
+			reg = /bits/ 64 <0x60100000 0x00010000>;
+		};
+
+		xhci {
+			compatible = "generic-xhci";
+			status = "okay";
+			reg = /bits/ 64 <0x60110000 0x00010000>;
+		};
+
+		pci {
+			#address-cells = <3>;
+			#size-cells = <2>;
+			compatible = "pci-host-ecam-generic";
+			device_type = "pci";
+			status = "okay";
+			reg = /bits/ 64 <0xf0000000 0x10000000>;
+			bus-range = <0 0xff>;
+			ranges = /bits/ 32 <0x01000000>,
+				 /bits/ 64 <0
+					    SBSA_PIO_BASE_ADDR
+					    SBSA_PIO_LENGTH>,
+				 /bits/ 32 <0x02000000>,
+				 /bits/ 64 <SBSA_PCIE_MMIO_BASE_ADDR
+					    SBSA_PCIE_MMIO_BASE_ADDR
+					    SBSA_PCIE_MMIO_LENGTH>,
+				 /bits/ 32 <0x43000000>,
+				 /bits/ 64 <SBSA_PCIE_MMIO_HIGH_BASE_ADDR
+					    SBSA_PCIE_MMIO_HIGH_BASE_ADDR
+					    SBSA_PCIE_MMIO_HIGH_LENGTH>;
+		};
+	};
+
+	intc: interrupt-controller {
+		compatible = "arm,gic-v3";
+		#interrupt-cells = <3>;
+		status = "okay";
+		interrupt-controller;
+		interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
+		reg = /bits/ 64 <SBSA_GIC_DIST_BASE_ADDR SBSA_GIC_DIST_LENGTH>,
+		      /bits/ 64 <SBSA_GIC_REDIST_BASE_ADDR SBSA_GIC_REDIST_LENGTH>,
+		      /bits/ 64 <0 0>,
+		      /bits/ 64 <SBSA_GIC_HBASE_ADDR SBSA_GIC_HBASE_LENGTH>,
+		      /bits/ 64 <SBSA_GIC_VBASE_ADDR SBSA_GIC_VBASE_LENGTH>;
+	};
+
+	its {
+		compatible = "arm,gic-v3-its";
+		status = "disabled";
+	};
+};
+
+&binman {
+	secure-world {
+		filename = "secure-world.rom";
+		size = <SBSA_SECURE_FLASH_LENGTH>;
+
+		bl1 {
+			offset = <0x0>;
+			description = "ARM Trusted Firmware BL1";
+			filename = "bl1.bin";
+			type = "blob-ext";
+		};
+
+		fip {
+			offset = <0x12000>;
+			description = "ARM Trusted Firmware FIP";
+			filename = "fip.bin";
+			type = "blob-ext";
+		};
+	};
+
+	unsecure-world {
+		filename = "unsecure-world.rom";
+		size = <SBSA_FLASH_LENGTH>;
+
+		u-boot {
+		};
+		u-boot-dtb {
+			compress = "lz4";
+		};
+	};
+};

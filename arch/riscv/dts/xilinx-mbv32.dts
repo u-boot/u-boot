@@ -20,7 +20,7 @@
 	cpus: cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		timebase-frequency = <102000000>;
+		timebase-frequency = <100000000>;
 		cpu_0: cpu@0 {
 			compatible = "amd,mbv32", "riscv";
 			device_type = "cpu";
@@ -28,7 +28,7 @@
 			riscv,isa = "rv32imafdc";
 			i-cache-size = <32768>;
 			d-cache-size = <32768>;
-			clock-frequency = <102000000>;
+			clock-frequency = <100000000>;
 			cpu0_intc: interrupt-controller {
 				compatible = "riscv,cpu-intc";
 				interrupt-controller;
@@ -46,15 +46,15 @@
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory@20000000 {
+	memory@80000000 {
 		device_type = "memory";
-		reg = <0x20000000 0x20000000>;
+		reg = <0x80000000 0x40000000>;
 	};
 
-	clk102: clock {
+	clk100: clock {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <102000000>;
+		clock-frequency = <100000000>;
 	};
 
 	axi: axi {
@@ -77,30 +77,20 @@
 			compatible = "xlnx,xps-timer-1.00.a";
 			reg = <0x41c00000 0x1000>;
 			interrupt-parent = <&axi_intc>;
-			interrupts = <1 2>;
+			interrupts = <0 2>;
 			bootph-all;
 			xlnx,one-timer-only = <0>;
 			clock-names = "s_axi_aclk";
-			clocks = <&clk102>;
-		};
-
-		xlnx_timer1: timer@41c20000 {
-			compatible = "xlnx,xps-timer-1.00.a";
-			reg = <0x41c20000 0x1000>;
-			interrupt-parent = <&axi_intc>;
-			interrupts = <0 2>;
-			xlnx,one-timer-only = <0>;
-			clock-names = "s_axi_aclk";
-			clocks = <&clk102>;
+			clocks = <&clk100>;
 		};
 
 		uart0: serial@40600000 {
 			compatible = "xlnx,xps-uartlite-1.00.a";
 			reg = <0x40600000 0x1000>;
 			interrupt-parent = <&axi_intc>;
-			interrupts = <2 2>;
+			interrupts = <1 2>;
 			bootph-all;
-			clocks = <&clk102>;
+			clocks = <&clk100>;
 			current-speed = <115200>;
 			xlnx,data-bits = <8>;
 			xlnx,use-parity = <0>;

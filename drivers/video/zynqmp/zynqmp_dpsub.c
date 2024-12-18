@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <generic-phy.h>
+#include <reset.h>
 #include <stdlib.h>
 #include <video.h>
 #include <wait_bit.h>
@@ -2093,9 +2094,14 @@ static int zynqmp_dpsub_probe(struct udevice *dev)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct zynqmp_dpsub_priv *priv = dev_get_priv(dev);
+	struct reset_ctl_bulk resets;
 	struct clk clk;
 	int ret;
 	int mode = RGBA8888;
+
+	ret = reset_get_bulk(dev, &resets);
+	if (!ret)
+		reset_deassert_bulk(&resets);
 
 	ret = clk_get_by_name(dev, "dp_apb_clk", &clk);
 	if (ret < 0) {

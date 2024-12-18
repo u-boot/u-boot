@@ -6,7 +6,9 @@
 
 #include <env_internal.h>
 #include <fdt_support.h>
+#include <dm/ofnode.h>
 #include <spl.h>
+#include <malloc.h>
 #include <asm/arch/hardware.h>
 
 #include "../am6_som_detection.h"
@@ -97,8 +99,79 @@ int board_late_init(void)
 #endif
 
 #if IS_ENABLED(CONFIG_OF_LIBFDT) && IS_ENABLED(CONFIG_OF_BOARD_SETUP)
+static int fdt_apply_overlay_from_fit(const char *overlay_path, void *fdt)
+{
+	u64 loadaddr;
+	ofnode node;
+	int ret;
+
+	node = ofnode_path(overlay_path);
+	if (!ofnode_valid(node))
+		return -FDT_ERR_NOTFOUND;
+
+	ret = ofnode_read_u64(node, "load", &loadaddr);
+	if (ret)
+		return ret;
+
+	return fdt_overlay_apply_verbose(fdt, (void *)loadaddr);
+}
+
+static void fdt_apply_som_overlays(void *blob)
+{
+	void *fdt_copy;
+	u32 fdt_size;
+	struct phytec_eeprom_data data;
+	int err;
+
+	fdt_size = fdt_totalsize(blob);
+	fdt_copy = malloc(fdt_size);
+	if (!fdt_copy)
+		goto fixup_error;
+
+	memcpy(fdt_copy, blob, fdt_size);
+
+	err = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	if (err)
+		goto fixup_error;
+
+	if (phytec_get_am6_rtc(&data) == 0) {
+		err = fdt_apply_overlay_from_fit("/fit-images/som-no-rtc", fdt_copy);
+		if (err)
+			goto fixup_error;
+	}
+
+	if (phytec_get_am6_spi(&data) == PHYTEC_EEPROM_VALUE_X) {
+		err = fdt_apply_overlay_from_fit("/fit-images/som-no-spi", fdt_copy);
+		if (err)
+			goto fixup_error;
+	}
+
+	if (phytec_get_am6_eth(&data) == 0) {
+		err = fdt_apply_overlay_from_fit("/fit-images/som-no-eth", fdt_copy);
+		if (err)
+			goto fixup_error;
+	}
+
+	if (phytec_am6_is_qspi(&data)) {
+		err = fdt_apply_overlay_from_fit("/fit-images/som-qspi-nor", fdt_copy);
+		if (err)
+			goto fixup_error;
+	}
+
+	memcpy(blob, fdt_copy, fdt_size);
+
+cleanup:
+	free(fdt_copy);
+	return;
+
+fixup_error:
+	pr_err("Failed to apply SoM overlays\n");
+	goto cleanup;
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	fdt_apply_som_overlays(blob);
 	fdt_copy_fixed_partitions(blob);
 
 	return 0;

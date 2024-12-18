@@ -352,6 +352,9 @@ static int k3_avs_probe(struct udevice *dev)
 	struct k3_avs_privdata *priv;
 	struct vd_data *vd;
 	int ret;
+	ofnode node;
+	struct ofnode_phandle_args phandle_args;
+	int i = 0;
 
 	priv = dev_get_priv(dev);
 	priv->dev = dev;
@@ -367,6 +370,32 @@ static int k3_avs_probe(struct udevice *dev)
 		return -ENODEV;
 
 	for (vd = priv->vd_config->vds; vd->id >= 0; vd++) {
+		/* Get the clock and dev id for Jacinto platforms */
+		if (vd->id == J721E_VDD_MPU) {
+			node = ofnode_by_compatible(ofnode_null(), "ti,am654-rproc");
+			if (!ofnode_valid(node))
+				return -ENODEV;
+
+			i = ofnode_stringlist_search(node, "clock-names", "core");
+			if (i < 0)
+				return -ENODEV;
+
+			ret = ofnode_parse_phandle_with_args(node, "clocks",
+							     "#clock-cells",
+							     0, i,
+							     &phandle_args);
+			if (ret) {
+				printf("Couldn't get the clock node, ret = %d\n", ret);
+				return ret;
+			}
+
+			vd->dev_id = phandle_args.args[0];
+			vd->clk_id = phandle_args.args[1];
+
+			debug("%s: MPU dev_id: %d, clk_id: %d", __func__,
+			      vd->dev_id, vd->clk_id);
+		}
+
 		if (!(readl(AM6_VTM_DEVINFO(vd->id)) &
 		      AM6_VTM_AVS0_SUPPORTED)) {
 			dev_warn(dev, "AVS-class 0 not supported for VD%d\n",
@@ -391,7 +420,10 @@ static int k3_avs_probe(struct udevice *dev)
 		if (vd->flags & VD_FLAG_INIT_DONE)
 			continue;
 
-		k3_avs_program_voltage(priv, vd, vd->opp);
+		ret = k3_avs_program_voltage(priv, vd, vd->opp);
+		if (ret)
+			dev_warn(dev, "Could not program AVS voltage for VD%d, vd->opp=%d, ret=%d\n",
+				 vd->id, vd->opp, ret);
 	}
 
 	if (!device_is_compatible(priv->dev, "ti,am654-avs"))
@@ -460,6 +492,12 @@ static struct vd_data j721e_vd_data[] = {
 	{
 		.id = J721E_VDD_MPU,
 		.opp = AM6_OPP_NOM,
+		/*
+		 * XXX: DEPRECATION WARNING: Around 2 u-boot versions
+		 *
+		 * These values will be picked up from DT, kept for backward
+		 * compatibility
+		 */
 		.dev_id = 202, /* J721E_DEV_A72SS0_CORE0 */
 		.clk_id = 2, /* ARM clock */
 		.opps = {

@@ -794,35 +794,18 @@ int rkmtd_init_plat(struct udevice *dev)
 	return 0;
 }
 
-static void rkmtd_blk_kmalloc_release(struct udevice *dev, void *res)
-{
-	/* noop */
-}
-
 static int rkmtd_bind(struct udevice *dev)
 {
 	struct rkmtd_dev *plat = dev_get_plat(dev);
-	char dev_name[30], *str;
 	struct blk_desc *desc;
 	struct udevice *bdev;
 	int ret;
 
-	snprintf(dev_name, sizeof(dev_name), "%s.%s", dev->name, "blk");
-
-	str = devres_alloc(rkmtd_blk_kmalloc_release, strlen(dev_name) + 1, GFP_KERNEL);
-	if (unlikely(!str))
-		return -ENOMEM;
-
-	strcpy(str, dev_name);
-
-	ret = blk_create_device(dev, "rkmtd_blk", str, UCLASS_RKMTD,
-				-1, 512, LBA, &bdev);
+	ret = blk_create_devicef(dev, "rkmtd_blk", "blk", UCLASS_RKMTD,
+				 -1, 512, LBA, &bdev);
 	if (ret) {
-		free(str);
 		return log_msg_ret("blk", ret);
 	}
-
-	devres_add(dev, str);
 
 	desc = dev_get_uclass_plat(bdev);
 	sprintf(desc->vendor, "0x%.4x", 0x2207);

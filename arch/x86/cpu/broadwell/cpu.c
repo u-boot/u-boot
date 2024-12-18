@@ -88,18 +88,6 @@ int checkcpu(void)
 	return 0;
 }
 
-int print_cpuinfo(void)
-{
-	char processor_name[CPU_MAX_NAME_LEN];
-	const char *name;
-
-	/* Print processor name */
-	name = cpu_get_name(processor_name);
-	printf("CPU:   %s\n", name);
-
-	return 0;
-}
-
 void board_debug_uart_init(void)
 {
 	/* com1 / com2 decode range */

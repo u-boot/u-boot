@@ -28,3 +28,13 @@ config ASPEED_CPTRA_SHA
 
 	  Enabling this allows the use of SHA operations in hardware. Note that only
 	  SHA384 and SHA512 are supported by Caliptra 1.0.
+
+config ASPEED_CPTRA_ECDSA
+	bool "Caliptra ECDSA384 signature verifier for Aspeed SoCs"
+	depends on ECDSA_VERIFY || SPL_ECDSA_VERIFY
+	help
+	  Select this option to enable a driver for using the ECDSA384_SIGNATURE_VERIFY
+	  feature of Caliptra, which is integrated in AST27xx BMC SoCs.
+
+	  Enabling this allows the use of ECDSA384 signature verification in hardware.
+	  Note that only ECDSA384 is supported by Caliptra.

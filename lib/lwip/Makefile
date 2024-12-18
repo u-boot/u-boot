@@ -53,3 +53,6 @@ obj-y += \
 	lwip/src/core/timeouts.o \
 	lwip/src/core/udp.o \
 	lwip/src/netif/ethernet.o
+
+obj-$(CONFIG_$(XPL_)MBEDTLS_LIB_TLS) += lwip/src/apps/altcp_tls/altcp_tls_mbedtls.o \
+	lwip/src/apps/altcp_tls/altcp_tls_mbedtls_mem.o

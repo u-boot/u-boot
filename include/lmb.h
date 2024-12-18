@@ -14,6 +14,9 @@
  * Copyright (C) 2001 Peter Bergner, IBM Corp.
  */
 
+#define LMB_ALLOC_ANYWHERE      0
+#define LMB_ALIST_INITIAL_SIZE  4
+
 /**
  * enum lmb_flags - definition of memory region attributes
  * @LMB_NONE: no special request
@@ -95,32 +98,6 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
 
-/**
- * lmb_alloc_flags() - Allocate memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter.
- *
- * Return: base address on success, 0 on error
- */
-phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags);
-
-/**
- * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @max_addr: Maximum address of the requested region
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The max_addr parameter is used to specify the maximum address
- * below which the requested region should be allocated.
- *
- * Return: base address on success, 0 on error
- */
 phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 				 phys_addr_t max_addr, uint flags);
 
@@ -178,6 +155,57 @@ static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 {
 	return lmb_alloc_addr(addr, len) == addr ? 0 : -1;
 }
+
+/**
+ * io_lmb_setup() - Initialize LMB struct
+ * @io_lmb: IO LMB to initialize
+ *
+ * Returns: 0 on success, negative error code on failure
+ */
+int io_lmb_setup(struct lmb *io_lmb);
+
+/**
+ * io_lmb_teardown() - Tear LMB struct down
+ * @io_lmb: IO LMB to teardown
+ */
+void io_lmb_teardown(struct lmb *io_lmb);
+
+/**
+ * io_lmb_add() - Add an IOVA range for allocations
+ * @io_lmb: LMB to add the space to
+ * @base: Base Address of region to add
+ * @size: Size of the region to add
+ *
+ * Add the IOVA space [base, base + size] to be managed by io_lmb.
+ *
+ * Returns: 0 if the region addition was successful, -1 on failure
+ */
+long io_lmb_add(struct lmb *io_lmb, phys_addr_t base, phys_size_t size);
+
+/**
+ * io_lmb_alloc() - Allocate specified IO memory address with specified alignment
+ * @io_lmb: LMB to alloc from
+ * @size: Size of the region requested
+ * @align: Required address and size alignment
+ *
+ * Allocate a region of IO memory. The base parameter is used to specify the
+ * base address of the requested region.
+ *
+ * Return: base IO address on success, 0 on error
+ */
+phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align);
+
+/**
+ * io_lmb_free() - Free up a region of IOVA space
+ * @io_lmb: LMB to return the IO address space to
+ * @base: Base Address of region to be freed
+ * @size: Size of the region to be freed
+ *
+ * Free up a region of IOVA space.
+ *
+ * Return: 0 if successful, -1 on failure
+ */
+long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size);
 
 #endif /* __KERNEL__ */
 

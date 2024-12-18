@@ -54,6 +54,13 @@
 			menu-inset = <3>;
 			menuitem-gap-y = <1>;
 		};
+
+		cedit-theme {
+			font-size = <30>;
+			menu-inset = <3>;
+			menuitem-gap-y = <1>;
+			menu-title-margin-x = <30>;
+		};
 	};
 
 	sysinfo {

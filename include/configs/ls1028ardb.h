@@ -53,6 +53,7 @@
 #define CFG_EXTRA_ENV_SETTINGS		\
 	"board=ls1028ardb\0"			\
 	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
+	"fdtfile=fsl-ls1028a-rdb.dtb\0"         \
 	"ramdisk_addr=0x800000\0"		\
 	"ramdisk_size=0x2000000\0"		\
 	"bootm_size=0x10000000\0"		\

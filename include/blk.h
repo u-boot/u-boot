@@ -197,7 +197,6 @@ static inline void blkcache_free(void) {}
 
 #endif
 
-#if CONFIG_IS_ENABLED(BLK)
 struct udevice;
 
 /* Operations on block devices */
@@ -278,6 +277,8 @@ struct blk_ops {
 #endif	/* CONFIG_BOUNCE_BUFFER */
 };
 
+#if CONFIG_IS_ENABLED(BLK)
+
 /*
  * These functions should take struct udevice instead of struct blk_desc,
  * but this is convenient for migration to driver model. Add a 'd' prefix
@@ -290,6 +291,8 @@ unsigned long blk_dwrite(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt, const void *buffer);
 unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 			 lbaint_t blkcnt);
+
+#endif /* BLK */
 
 /**
  * blk_read() - Read from a block device
@@ -375,23 +378,6 @@ int blk_first_device(int uclass_id, struct udevice **devp);
  * Return: 0 if found, -ENODEV if no device, or other -ve error value
  */
 int blk_next_device(struct udevice **devp);
-
-/**
- * blk_create_device() - Create a new block device
- *
- * @parent:	Parent of the new device
- * @drv_name:	Driver name to use for the block device
- * @name:	Name for the device
- * @uclass_id:	Interface type (enum uclass_id_t)
- * @devnum:	Device number, specific to the interface type, or -1 to
- *		allocate the next available number
- * @blksz:	Block size of the device in bytes (typically 512)
- * @lba:	Total number of blocks of the device
- * @devp:	the new device (which has not been probed)
- */
-int blk_create_device(struct udevice *parent, const char *drv_name,
-		      const char *name, int uclass_id, int devnum, int blksz,
-		      lbaint_t lba, struct udevice **devp);
 
 /**
  * blk_create_devicef() - Create a new named block device
@@ -528,8 +514,10 @@ struct blk_desc *blk_get_by_device(struct udevice *dev);
  */
 int blk_get_desc(enum uclass_id uclass_id, int devnum, struct blk_desc **descp);
 
-#else
+#if !CONFIG_IS_ENABLED(BLK)
+
 #include <errno.h>
+
 /*
  * These functions should take struct udevice instead of struct blk_desc,
  * but this is convenient for migration to driver model. Add a 'd' prefix

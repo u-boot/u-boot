@@ -734,7 +734,7 @@ static int zynq_qspi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
-bool update_stripe(const struct spi_mem_op *op)
+static bool update_stripe(const struct spi_mem_op *op)
 {
 	if (op->cmd.opcode == SPINOR_OP_BE_4K ||
 	    op->cmd.opcode == SPINOR_OP_CHIP_ERASE ||
@@ -813,7 +813,7 @@ static int zynq_qspi_exec_op(struct spi_slave *slave,
 
 	priv->is_parallel = false;
 	priv->is_stacked = false;
-	slave->flags &= ~SPI_XFER_MASK;
+	slave->flags &= ~SPI_XFER_LOWER;
 	spi_release_bus(slave);
 
 	return 0;

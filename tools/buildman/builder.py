@@ -34,7 +34,7 @@ from u_boot_pylib.terminal import tprint
 # Error in reading or end of file.
 # <<
 # which indicates that BREAK_ME has an empty default
-RE_NO_DEFAULT = re.compile(b'\((\w+)\) \[] \(NEW\)')
+RE_NO_DEFAULT = re.compile(br'\((\w+)\) \[] \(NEW\)')
 
 # Symbol types which appear in the bloat feature (-B). Others are silently
 # dropped when reading in the 'nm' output
@@ -374,9 +374,9 @@ class Builder:
 
         self._re_function = re.compile('(.*): In function.*')
         self._re_files = re.compile('In file included from.*')
-        self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
+        self._re_warning = re.compile(r'(.*):(\d*):(\d*): warning: .*')
         self._re_dtb_warning = re.compile('(.*): Warning .*')
-        self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
+        self._re_note = re.compile(r'(.*):(\d*):(\d*): note: this is the location of the previous.*')
         self._re_migration_warning = re.compile(r'^={21} WARNING ={22}\n.*\n=+\n',
                                                 re.MULTILINE | re.DOTALL)
 

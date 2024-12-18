@@ -382,7 +382,7 @@ static int adc_vdd_plat_set(struct udevice *dev)
 	if (!ret)
 		return adc_vdd_plat_update(dev);
 
-	if (ret != -ENOENT)
+	if (ret != -ENOSYS && ret != -ENOENT)
 		return ret;
 
 	/* No vdd-supply phandle. */
@@ -406,7 +406,7 @@ static int adc_vss_plat_set(struct udevice *dev)
 	if (!ret)
 		return adc_vss_plat_update(dev);
 
-	if (ret != -ENOENT)
+	if (ret != -ENOSYS && ret != -ENOENT)
 		return ret;
 
 	/* No vss-supply phandle. */

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Renesas RCar Gen3 CPG MSSR driver
+ * Renesas R-Car Gen3 CPG MSSR driver
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
@@ -579,23 +579,24 @@ int gen3_cpg_bind(struct udevice *parent)
 	struct cpg_mssr_info *info =
 		(struct cpg_mssr_info *)dev_get_driver_data(parent);
 	struct udevice *cdev, *rdev;
-	struct driver *drv;
+	struct driver *cdrv, *rdrv;
 	int ret;
 
-	drv = lists_driver_lookup_name("clk_gen3");
-	if (!drv)
+	cdrv = lists_driver_lookup_name("clk_gen3");
+	if (!cdrv)
 		return -ENOENT;
 
-	ret = device_bind_with_driver_data(parent, drv, "clk_gen3", (ulong)info,
+
+	rdrv = lists_driver_lookup_name("rst_gen3");
+	if (!rdrv)
+		return -ENOENT;
+
+	ret = device_bind_with_driver_data(parent, cdrv, "clk_gen3", (ulong)info,
 					   dev_ofnode(parent), &cdev);
 	if (ret)
 		return ret;
 
-	drv = lists_driver_lookup_name("rst_gen3");
-	if (!drv)
-		return -ENOENT;
-
-	ret = device_bind_with_driver_data(parent, drv, "rst_gen3", (ulong)cdev,
+	ret = device_bind_with_driver_data(parent, rdrv, "rst_gen3", (ulong)cdev,
 					   dev_ofnode(parent), &rdev);
 	if (ret)
 		device_unbind(cdev);

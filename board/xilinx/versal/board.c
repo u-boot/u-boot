@@ -12,12 +12,15 @@
 #include <env_internal.h>
 #include <log.h>
 #include <malloc.h>
+#include <memalign.h>
+#include <mmc.h>
 #include <time.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <linux/sizes.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <versalpl.h>
@@ -301,9 +304,11 @@ int dram_init(void)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(SYSRESET)
 void reset_cpu(void)
 {
 }
+#endif
 
 #if defined(CONFIG_ENV_IS_NOWHERE)
 enum env_location env_get_location(enum env_operation op, int prio)
@@ -334,5 +339,43 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	default:
 		return ENVL_NOWHERE;
 	}
+}
+#endif
+
+#if defined(CONFIG_SET_DFU_ALT_INFO)
+
+#define DFU_ALT_BUF_LEN		SZ_1K
+
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	int bootseq = 0, len = 0;
+	u32 bootmode = versal_get_bootmode();
+
+	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
+
+	if (env_get("dfu_alt_info"))
+		return;
+
+	memset(buf, 0, sizeof(buf));
+
+	switch (bootmode) {
+	case EMMC_MODE:
+	case SD_MODE:
+	case SD1_LSHFT_MODE:
+	case SD_MODE1:
+		bootseq = mmc_get_env_dev();
+
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN, "mmc %d=boot",
+			       bootseq);
+
+		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
+			       bootseq);
+		break;
+	default:
+		return;
+	}
+
+	env_set("dfu_alt_info", buf);
+	puts("DFU alt info setting: done\n");
 }
 #endif

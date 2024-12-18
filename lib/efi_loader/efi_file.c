@@ -864,8 +864,16 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		}
 
 		ret = efi_get_file_size(fh, &file_size);
-		if (ret != EFI_SUCCESS)
-			goto error;
+		if (ret != EFI_SUCCESS) {
+			if (!fh->isdir)
+				goto error;
+			/*
+			 * Some file drivers don't implement fs_size() for
+			 * directories. Use a dummy non-zero value.
+			 */
+			file_size = 4096;
+			ret = EFI_SUCCESS;
+		}
 
 		memset(info, 0, required_size);
 
@@ -976,14 +984,16 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		}
 		free(new_file_name);
 		/* Check for truncation */
-		ret = efi_get_file_size(fh, &file_size);
-		if (ret != EFI_SUCCESS)
-			goto out;
-		if (file_size != info->file_size) {
-			/* TODO: we do not support truncation */
-			EFI_PRINT("Truncation not supported\n");
-			ret = EFI_ACCESS_DENIED;
-			goto out;
+		if (!fh->isdir) {
+			ret = efi_get_file_size(fh, &file_size);
+			if (ret != EFI_SUCCESS)
+				goto out;
+			if (file_size != info->file_size) {
+				/* TODO: we do not support truncation */
+				EFI_PRINT("Truncation not supported\n");
+				ret = EFI_ACCESS_DENIED;
+				goto out;
+			}
 		}
 		/*
 		 * We do not care for the other attributes

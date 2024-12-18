@@ -23,6 +23,7 @@
 #include <time.h>
 #include <ubifs_uboot.h>
 #include <btrfs.h>
+#include <asm/cache.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <div64.h>
@@ -220,7 +221,7 @@ static struct fstype_info fstypes[] = {
 		.null_dev_desc_ok = false,
 		.probe = ext4fs_probe,
 		.close = ext4fs_close,
-		.ls = ext4fs_ls,
+		.ls = fs_ls_generic,
 		.exists = ext4fs_exists,
 		.size = ext4fs_size,
 		.read = ext4_read_file,
@@ -232,7 +233,9 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 #endif
 		.uuid = ext4fs_uuid,
-		.opendir = fs_opendir_unsupported,
+		.opendir = ext4fs_opendir,
+		.readdir = ext4fs_readdir,
+		.closedir = ext4fs_closedir,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 	},
@@ -998,6 +1001,9 @@ int fs_read_alloc(const char *fname, ulong size, uint align, void **bufp)
 	ulong addr;
 	char *buf;
 	int ret;
+
+	if (!align)
+		align = ARCH_DMA_MINALIGN;
 
 	buf = memalign(align, size + 1);
 	if (!buf)

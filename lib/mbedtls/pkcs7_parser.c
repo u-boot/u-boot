@@ -206,9 +206,6 @@ static int authattrs_parse(struct pkcs7_message *msg, void *aa, size_t aa_len,
 		p += seq_len;
 	}
 
-	if (ret && ret !=  MBEDTLS_ERR_ASN1_OUT_OF_DATA)
-		return ret;
-
 	msg->have_authattrs = true;
 
 	/*
@@ -361,8 +358,10 @@ static int x509_populate_sinfo(struct pkcs7_message *msg,
 	signed_info->sig = s;
 
 	/* Save the Authenticate Attributes data if exists */
-	if (!mb_sinfo->authattrs.data || !mb_sinfo->authattrs.data_len)
+	if (!mb_sinfo->authattrs.data || !mb_sinfo->authattrs.data_len) {
+		kfree(mctx);
 		goto no_authattrs;
+	}
 
 	mctx->authattrs_data = kmemdup(mb_sinfo->authattrs.data,
 				       mb_sinfo->authattrs.data_len,

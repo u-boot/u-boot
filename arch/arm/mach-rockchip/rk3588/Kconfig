@@ -29,6 +29,24 @@ config TARGET_CM3588_NAS_RK3588
 	  - 3.5mm Headphone out, 2.0mm PH-2A Mic in
 	  - 5V Fan connector, PWM beeper, IR receiver, RTC battery connector
 
+config TARGET_GENBOOK_CM5_RK3588
+	bool "Cool Pi CM5 GenBook"
+	select BOARD_LATE_INIT
+	help
+	  GeenBook is a notebook based on Rockchip RK3588, and works as a carrier
+	  board connect with CM5 SOM.
+
+	  Specification:
+	  - Rockchip RK3588
+	  - LPDDR5X 8/32 GB
+	  - eMMC 64 GB
+	  - HDMI Type A out x 1
+	  - USB 3.0 Host x 1
+	  - USB-C 3.0 with DisplayPort AltMode
+	  - PCIE M.2 E Key for RTL8852BE Wireless connection
+	  - PCIE M.2 M Key for NVME connection
+	  - eDP panel with 1920x1080
+
 config TARGET_JAGUAR_RK3588
 	bool "Theobroma Systems SBC-RK3588-AMR (Jaguar)"
 	select BOARD_LATE_INIT
@@ -133,6 +151,12 @@ config TARGET_NOVA_RK3588
 	  It comes in configurations from 4GB of RAM to 16GB of RAM,
 	  includes socket for eMMC storage, an SDMMC slot, and a 40-pin
 	  GPIO header for expansion.
+
+config TARGET_ODROID_M2_RK3588S
+	bool "Hardkernel ODROID-M2"
+	select BOARD_LATE_INIT
+	help
+	  Hardkernel ODROID-M2 single board computer with a RK3588S2 SoC.
 
 config TARGET_RK3588_NEU6
 	bool "Edgeble Neural Compute Module 6(Neu6) SoM"
@@ -361,11 +385,13 @@ config TEXT_BASE
 	default 0x00a00000
 
 source "board/armsom/sige7-rk3588/Kconfig"
+source "board/coolpi/genbook_cm5_rk3588/Kconfig"
 source "board/edgeble/neural-compute-module-6/Kconfig"
 source "board/friendlyelec/cm3588-nas-rk3588/Kconfig"
 source "board/friendlyelec/nanopc-t6-rk3588/Kconfig"
 source "board/friendlyelec/nanopi-r6c-rk3588s/Kconfig"
 source "board/friendlyelec/nanopi-r6s-rk3588s/Kconfig"
+source "board/hardkernel/odroid_m2/Kconfig"
 source "board/indiedroid/nova/Kconfig"
 source "board/pine64/quartzpro64-rk3588/Kconfig"
 source "board/turing/turing-rk1-rk3588/Kconfig"

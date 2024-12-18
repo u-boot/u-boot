@@ -7,7 +7,7 @@
 #include "k3-j722s-evm.dts"
 #include "k3-j722s-evm-u-boot.dtsi"
 
-#include "k3-j722s-ddr-lp4-50-3733.dtsi"
+#include "k3-j722s-ddr-lp4-50-4000.dtsi"
 #include "k3-am62a-ddr.dtsi"
 
 / {
@@ -25,10 +25,11 @@
 			<&k3_pds 135 TI_SCI_PD_EXCLUSIVE>,
 			<&k3_pds 166 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 135 0>;
-		clocks = <&k3_clks 61 0>;
+		clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
+		clock-names = "gtc", "core";
 		assigned-clocks = <&k3_clks 61 0>, <&k3_clks 135 0>;
 		assigned-clock-parents = <&k3_clks 61 2>;
-		assigned-clock-rates = <200000000>, <1200000000>;
+		assigned-clock-rates = <200000000>, <1400000000>;
 		ti,sci = <&dmsc>;
 		ti,sci-proc-id = <32>;
 		ti,sci-host-id = <10>;

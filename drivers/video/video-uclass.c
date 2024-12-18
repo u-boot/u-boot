@@ -294,6 +294,9 @@ static const struct vid_rgb colours[VID_COLOUR_COUNT] = {
 	{ 0xff, 0x00, 0xff },  /* bright magenta */
 	{ 0x00, 0xff, 0xff },  /* bright cyan */
 	{ 0xff, 0xff, 0xff },  /* white */
+
+	/* an extra one for menus */
+	{ 0x40, 0x40, 0x40 },  /* dark gray */
 };
 
 u32 video_index_to_colour(struct video_priv *priv, enum colour_idx idx)

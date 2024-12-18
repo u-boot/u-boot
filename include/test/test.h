@@ -29,6 +29,7 @@
  * @of_other: Live tree for the other FDT
  * @runs_per_test: Number of times to run each test (typically 1)
  * @force_run: true to run tests marked with the UTF_MANUAL flag
+ * @old_bloblist: stores the old gd->bloblist pointer
  * @expect_str: Temporary string used to hold expected string value
  * @actual_str: Temporary string used to hold actual string value
  */
@@ -50,6 +51,7 @@ struct unit_test_state {
 	struct device_node *of_other;
 	int runs_per_test;
 	bool force_run;
+	void *old_bloblist;
 	char expect_str[512];
 	char actual_str[512];
 };
@@ -73,6 +75,7 @@ enum ut_flags {
 	UTF_MANUAL	= BIT(8),
 	UTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
 	UTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
+	UFT_BLOBLIST	= BIT(11),	/* test changes gd->bloblist */
 };
 
 /**

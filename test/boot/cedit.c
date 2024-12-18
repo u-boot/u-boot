@@ -31,9 +31,11 @@ static int cedit_base(struct unit_test_state *uts)
 	 * ^N  Move down to second item
 	 * ^M  Select item
 	 * \e  Quit
+	 *
+	 * cedit_run() returns -EACCESS so this command returns CMD_RET_FAILURE
 	 */
 	console_in_puts("\x0e\x0d\x0e\x0d\e");
-	ut_assertok(run_command("cedit run", 0));
+	ut_asserteq(1, run_command("cedit run", 0));
 
 	exp = cur_exp;
 	scn = expo_lookup_scene_id(exp, exp->scene_id);
@@ -94,14 +96,16 @@ static int cedit_fdt(struct unit_test_state *uts)
 
 	ut_asserteq(ID_CPU_SPEED_2,
 		    ofnode_read_u32_default(node, "cpu-speed", 0));
+	ut_asserteq(3,
+		    ofnode_read_u32_default(node, "cpu-speed-value", 0));
 	ut_asserteq_str("2.5 GHz", ofnode_read_string(node, "cpu-speed-str"));
 	ut_asserteq_str("my-machine", ofnode_read_string(node, "machine-name"));
 
-	/* There should only be 5 properties */
+	/* There should only be 7 properties */
 	for (i = 0, ofnode_first_property(node, &prop); ofprop_valid(&prop);
 	     i++, ofnode_next_property(&prop))
 		;
-	ut_asserteq(5, i);
+	ut_asserteq(7, i);
 
 	ut_assert_console_end();
 
@@ -147,14 +151,16 @@ static int cedit_env(struct unit_test_state *uts)
 	strcpy(str, "my-machine");
 
 	ut_assertok(run_command("cedit write_env -v", 0));
-	ut_assert_nextlinen("c.cpu-speed=7");
+	ut_assert_nextlinen("c.cpu-speed=11");
 	ut_assert_nextlinen("c.cpu-speed-str=2.5 GHz");
-	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_nextlinen("c.cpu-speed-value=3");
+	ut_assert_nextlinen("c.power-loss=14");
 	ut_assert_nextlinen("c.power-loss-str=Always Off");
+	ut_assert_nextlinen("c.power-loss-value=0");
 	ut_assert_nextlinen("c.machine-name=my-machine");
 	ut_assert_console_end();
 
-	ut_asserteq(7, env_get_ulong("c.cpu-speed", 10, 0));
+	ut_asserteq(11, env_get_ulong("c.cpu-speed", 10, 0));
 	ut_asserteq_str("2.5 GHz", env_get("c.cpu-speed-str"));
 	ut_asserteq_str("my-machine", env_get("c.machine-name"));
 
@@ -163,8 +169,8 @@ static int cedit_env(struct unit_test_state *uts)
 	*str = '\0';
 
 	ut_assertok(run_command("cedit read_env -v", 0));
-	ut_assert_nextlinen("c.cpu-speed=7");
-	ut_assert_nextlinen("c.power-loss=10");
+	ut_assert_nextlinen("c.cpu-speed=11");
+	ut_assert_nextlinen("c.power-loss=14");
 	ut_assert_nextlinen("c.machine-name=my-machine");
 	ut_assert_console_end();
 

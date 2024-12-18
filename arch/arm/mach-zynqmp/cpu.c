@@ -112,19 +112,32 @@ u64 get_page_table_size(void)
 	return 0x14000;
 }
 
-#if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
+#if defined(CONFIG_DEFINE_TCM_OCM_MMAP)
 void tcm_init(u8 mode)
 {
-	puts("WARNING: Initializing TCM overwrites TCM content\n");
-	initialize_tcm(mode);
-	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+	int ret;
+
+	ret = check_tcm_mode(mode);
+	if (!ret) {
+		puts("WARNING: Initializing TCM overwrites TCM content\n");
+		initialize_tcm(mode);
+		memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+	}
+
+	if (ret == -EACCES)
+		printf("ERROR: Split to lockstep mode required reset/disable cpu\n");
+
+	/* Ignore if ret is -EAGAIN, trying to initialize same mode again */
 }
 #endif
 
 #ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
 int arm_reserve_mmu(void)
 {
-	tcm_init(TCM_LOCK);
+	puts("WARNING: Initializing TCM overwrites TCM content\n");
+	initialize_tcm(TCM_LOCK);
+	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+
 	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->arch.tlb_addr = ZYNQMP_TCM_BASE_ADDR;
 

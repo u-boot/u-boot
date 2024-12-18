@@ -69,6 +69,20 @@ void flush_dcache_range(unsigned long start, unsigned long stop);
 void invalidate_dcache_range(unsigned long start, unsigned long stop);
 void invalidate_dcache_all(void);
 void invalidate_icache_all(void);
+/**
+ * noncached_init() - Initialize non-cached memory region
+ *
+ * Initialize non-cached memory area. This memory region will be typically
+ * located right below the malloc() area and mapped uncached in the MMU.
+ *
+ * It is called during the generic post-relocation init sequence.
+ *
+ * Return: 0 if OK
+ */
+int noncached_init(void);
+void noncached_set_region(void);
+
+phys_addr_t noncached_alloc(size_t size, size_t align);
 
 enum {
 	/* Disable caches (else flush caches but leave them active) */

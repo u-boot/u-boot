@@ -72,6 +72,21 @@ static inline bool alist_has(struct alist *lst, uint index)
 }
 
 /**
+ * alist_calc_index() - Calculate the index of an item in the list
+ *
+ * The returned element number will be -1 if the list is empty or the pointer
+ * pointers to before the list starts.
+ *
+ * If the pointer points to after the last item, the calculated element-number
+ * will be returned, even though it is greater than lst->count
+ *
+ * @lst: alist to check
+ * @ptr: pointer to check
+ * Return: element number of the pointer
+ */
+int alist_calc_index(const struct alist *lst, const void *ptr);
+
+/**
  * alist_err() - Check if the alist is still valid
  *
  * @lst: List to check
@@ -116,7 +131,12 @@ static inline const void *alist_getd(struct alist *lst, uint index)
 	return lst->data + index * lst->obj_size;
 }
 
-/** get an entry as a constant */
+/**
+ * alist_get() - get an entry as a constant
+ *
+ * Use as (to obtain element 2 of the list):
+ *	const struct my_struct *ptr = alist_get(lst, 2, struct my_struct)
+ */
 #define alist_get(_lst, _index, _struct)	\
 	((const _struct *)alist_get_ptr(_lst, _index))
 
@@ -151,8 +171,9 @@ void *alist_ensure_ptr(struct alist *lst, uint index);
  * alist_add_placeholder() - Add a new item to the end of the list
  *
  * @lst: alist to add to
- * Return: Pointer to the newly added position. Note that this is not inited so
- * the caller must copy the requested struct to the returned pointer
+ * Return: Pointer to the newly added position, or NULL if out of memory. Note
+ * that this is not inited so the caller must copy the requested struct to the
+ * returned pointer
  */
 void *alist_add_placeholder(struct alist *lst);
 
@@ -184,6 +205,112 @@ bool alist_expand_by(struct alist *lst, uint inc_by);
 #define alist_add(_lst, _obj)	\
 	((typeof(_obj) *)alist_add_ptr(_lst, &(_obj)))
 
+/** get next entry as a constant */
+#define alist_next(_lst, _objp)	\
+	((const typeof(_objp))alist_next_ptrd(_lst, _objp))
+
+/** get next entry, which can be written to */
+#define alist_nextw(_lst, _objp)	\
+	((typeof(_objp))alist_next_ptrd(_lst, _objp))
+
+/**
+ * alist_next_ptrd() - Get a pointer to the next list element
+ *
+ * This returns NULL if the requested element is beyond lst->count
+ *
+ * @lst: List to check
+ * @ptr: Pointer to current element (must be valid)
+ * Return: Pointer to next element, or NULL if @ptr is the last
+ */
+const void *alist_next_ptrd(const struct alist *lst, const void *ptr);
+
+/**
+ * alist_chk_ptr() - Check whether a pointer is within a list
+ *
+ * Checks if the pointer points to an existing element of the list. The pointer
+ * must point to the start of an element, either in the list, or just outside of
+ * it. This function is only useful for handling for() loops
+ *
+ * Return: true if @ptr is within the list (0..count-1), else false
+ */
+bool alist_chk_ptr(const struct alist *lst, const void *ptr);
+
+/**
+ * alist_start() - Get the start of the list (first element)
+ *
+ * Note that this will always return ->data even if it is not NULL
+ *
+ * Usage:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_start(&lst, struct my_struct)
+ */
+#define alist_start(_lst, _struct) \
+	((_struct *)(_lst)->data)
+
+/**
+ * alist_end() - Get the end of the list (just after last element)
+ *
+ * Usage:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_end(&lst, struct my_struct)
+ */
+#define alist_end(_lst, _struct) \
+	((_struct *)(_lst)->data + (_lst)->count)
+
+/**
+ * alist_for_each() - Iterate over an alist (with constant pointer)
+ *
+ * Use as:
+ *	const struct my_struct *obj;    # 'const' is optional
+ *
+ *	alist_for_each(obj, &lst) {
+ *		obj->...
+ *	}
+ */
+#define alist_for_each(_pos, _lst) \
+	for (_pos = alist_start(_lst, typeof(*(_pos))); \
+	     _pos < alist_end(_lst, typeof(*(_pos))); \
+	     _pos++)
+
+/**
+ * alist_for_each_filter() - version which sets up a 'from' pointer too
+ *
+ * This is used for filtering out information in the list. It works by iterating
+ * through the list, copying elements down over the top of elements to be
+ * deleted.
+ *
+ * In this example, 'from' iterates through the list from start to end,, 'to'
+ * also begins at the start, but only increments if the element at 'from' should
+ * be kept. This provides an O(n) filtering operation. Note that
+ * alist_update_end() must be called after the loop, to update the count.
+ *
+ *	alist_for_each_filter(from, to, &lst) {
+ *		if (from->val != 2)
+ *			*to++ = *from;
+ *	}
+ *	alist_update_end(&lst, to);
+ */
+#define alist_for_each_filter(_pos, _from, _lst) \
+	for (_pos = _from = alist_start(_lst, typeof(*(_pos))); \
+	     _pos < alist_end(_lst, typeof(*(_pos))); \
+	     _pos++)
+
+/**
+ * alist_update_end() - Set the element count based on a given pointer
+ *
+ * Set the given element as the final one
+ */
+void alist_update_end(struct alist *lst, const void *end);
+
+/**
+ * alist_empty() - Empty an alist
+ *
+ * This removes all entries from the list, without changing the allocated size
+ */
+void alist_empty(struct alist *lst);
+
 /**
  * alist_init() - Set up a new object list
  *
@@ -197,6 +324,12 @@ bool alist_expand_by(struct alist *lst, uint inc_by);
  */
 bool alist_init(struct alist *lst, uint obj_size, uint alloc_size);
 
+/**
+ * alist_init_struct() - Typed version of alist_init()
+ *
+ * Use as:
+ *	alist_init(&lst, struct my_struct);
+ */
 #define alist_init_struct(_lst, _struct)	\
 	alist_init(_lst, sizeof(_struct), 0)
 

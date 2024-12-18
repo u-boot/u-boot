@@ -315,7 +315,7 @@ int ofnode_read_u8(ofnode node, const char *propname, u8 *outp)
 	int len;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node))
 		return of_read_u8(ofnode_to_np(node), propname, outp);
@@ -323,11 +323,11 @@ int ofnode_read_u8(ofnode node, const char *propname, u8 *outp)
 	cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
 			   &len);
 	if (!cell || len < sizeof(*cell)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return -EINVAL;
 	}
 	*outp = *cell;
-	dm_warn("%#x (%u)\n", *outp, *outp);
+	log_debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -346,7 +346,7 @@ int ofnode_read_u16(ofnode node, const char *propname, u16 *outp)
 	int len;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node))
 		return of_read_u16(ofnode_to_np(node), propname, outp);
@@ -354,11 +354,11 @@ int ofnode_read_u16(ofnode node, const char *propname, u16 *outp)
 	cell = fdt_getprop(gd->fdt_blob, ofnode_to_offset(node), propname,
 			   &len);
 	if (!cell || len < sizeof(*cell)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return -EINVAL;
 	}
 	*outp = be16_to_cpup(cell);
-	dm_warn("%#x (%u)\n", *outp, *outp);
+	log_debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -391,7 +391,7 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 	int len;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node))
 		return of_read_u32_index(ofnode_to_np(node), propname, index,
@@ -400,17 +400,17 @@ int ofnode_read_u32_index(ofnode node, const char *propname, int index,
 	cell = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node),
 			   propname, &len);
 	if (!cell) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return -EINVAL;
 	}
 
 	if (len < (sizeof(int) * (index + 1))) {
-		dm_warn("(not large enough)\n");
+		log_debug("(not large enough)\n");
 		return -EOVERFLOW;
 	}
 
 	*outp = fdt32_to_cpu(cell[index]);
-	dm_warn("%#x (%u)\n", *outp, *outp);
+	log_debug("%#x (%u)\n", *outp, *outp);
 
 	return 0;
 }
@@ -430,17 +430,17 @@ int ofnode_read_u64_index(ofnode node, const char *propname, int index,
 	cell = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node),
 			   propname, &len);
 	if (!cell) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return -EINVAL;
 	}
 
 	if (len < (sizeof(u64) * (index + 1))) {
-		dm_warn("(not large enough)\n");
+		log_debug("(not large enough)\n");
 		return -EOVERFLOW;
 	}
 
 	*outp = fdt64_to_cpu(cell[index]);
-	dm_warn("%#llx (%llu)\n", *outp, *outp);
+	log_debug("%#llx (%llu)\n", *outp, *outp);
 
 	return 0;
 }
@@ -468,7 +468,7 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp)
 	int len;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node))
 		return of_read_u64(ofnode_to_np(node), propname, outp);
@@ -476,12 +476,12 @@ int ofnode_read_u64(ofnode node, const char *propname, u64 *outp)
 	cell = fdt_getprop(ofnode_to_fdt(node), ofnode_to_offset(node),
 			   propname, &len);
 	if (!cell || len < sizeof(*cell)) {
-		dm_warn("(not found)\n");
+		log_debug("(not found)\n");
 		return -EINVAL;
 	}
 	*outp = fdt64_to_cpu(cell[0]);
-	dm_warn("%#llx (%llu)\n", (unsigned long long)*outp,
-		(unsigned long long)*outp);
+	log_debug("%#llx (%llu)\n", (unsigned long long)*outp,
+		  (unsigned long long)*outp);
 
 	return 0;
 }
@@ -499,11 +499,11 @@ bool ofnode_read_bool(ofnode node, const char *propname)
 	bool prop;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	prop = ofnode_has_property(node, propname);
 
-	dm_warn("%s\n", prop ? "true" : "false");
+	log_debug("%s\n", prop ? "true" : "false");
 
 	return prop ? true : false;
 }
@@ -514,7 +514,7 @@ const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep)
 	int len;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node)) {
 		struct property *prop = of_find_property(
@@ -529,7 +529,7 @@ const void *ofnode_read_prop(ofnode node, const char *propname, int *sizep)
 				  propname, &len);
 	}
 	if (!val) {
-		dm_warn("<not found>\n");
+		log_debug("<not found>\n");
 		if (sizep)
 			*sizep = -FDT_ERR_NOTFOUND;
 		return NULL;
@@ -553,7 +553,7 @@ const char *ofnode_read_string(ofnode node, const char *propname)
 		dm_warn("<invalid>\n");
 		return NULL;
 	}
-	dm_warn("%s\n", str);
+	log_debug("%s\n", str);
 
 	return str;
 }
@@ -573,7 +573,7 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 	ofnode subnode;
 
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, subnode_name);
+	log_debug("%s: %s: ", __func__, subnode_name);
 
 	if (ofnode_is_np(node)) {
 		struct device_node *np = ofnode_to_np(node);
@@ -588,8 +588,8 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 				ofnode_to_offset(node), subnode_name);
 		subnode = noffset_to_ofnode(node, ooffset);
 	}
-	dm_warn("%s\n", ofnode_valid(subnode) ?
-		ofnode_get_name(subnode) : "<none>");
+	log_debug("%s\n", ofnode_valid(subnode) ?
+		  ofnode_get_name(subnode) : "<none>");
 
 	return subnode;
 }
@@ -598,7 +598,7 @@ int ofnode_read_u32_array(ofnode node, const char *propname,
 			  u32 *out_values, size_t sz)
 {
 	assert(ofnode_valid(node));
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node)) {
 		return of_read_u32_array(ofnode_to_np(node), propname,
@@ -1032,7 +1032,7 @@ ofnode ofnode_get_aliases_node(const char *name)
 	if (!prop)
 		return ofnode_null();
 
-	dm_warn("%s: node_path: %s\n", __func__, prop);
+	log_debug("%s: node_path: %s\n", __func__, prop);
 
 	return ofnode_path(prop);
 }
@@ -1301,7 +1301,7 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 	int len;
 	int ret = -ENOENT;
 
-	dm_warn("%s: %s: ", __func__, propname);
+	log_debug("%s: %s: ", __func__, propname);
 
 	/*
 	 * If we follow the pci bus bindings strictly, we should check
@@ -1318,10 +1318,10 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 		int i;
 
 		for (i = 0; i < num; i++) {
-			dm_warn("pci address #%d: %08lx %08lx %08lx\n", i,
-				(ulong)fdt32_to_cpu(cell[0]),
-			      (ulong)fdt32_to_cpu(cell[1]),
-			      (ulong)fdt32_to_cpu(cell[2]));
+			log_debug("pci address #%d: %08lx %08lx %08lx\n", i,
+				  (ulong)fdt32_to_cpu(cell[0]),
+				  (ulong)fdt32_to_cpu(cell[1]),
+				  (ulong)fdt32_to_cpu(cell[2]));
 			if ((fdt32_to_cpu(*cell) & type) == type) {
 				const unaligned_fdt64_t *ptr;
 
@@ -1348,7 +1348,7 @@ int ofnode_read_pci_addr(ofnode node, enum fdt_pci_space type,
 	ret = -EINVAL;
 
 fail:
-	dm_warn("(not found)\n");
+	log_debug("(not found)\n");
 	return ret;
 }
 
@@ -1632,7 +1632,7 @@ int ofnode_write_string(ofnode node, const char *propname, const char *value)
 {
 	assert(ofnode_valid(node));
 
-	dm_warn("%s: %s = %s", __func__, propname, value);
+	log_debug("%s: %s = %s", __func__, propname, value);
 
 	return ofnode_write_prop(node, propname, value, strlen(value) + 1,
 				 false);

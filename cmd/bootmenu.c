@@ -103,11 +103,13 @@ static char *bootmenu_choice_entry(void *data)
 
 		switch (key) {
 		case BKEY_UP:
+			menu->last_active = menu->active;
 			if (menu->active > 0)
 				--menu->active;
 			/* no menu key selected, regenerate menu */
 			return NULL;
 		case BKEY_DOWN:
+			menu->last_active = menu->active;
 			if (menu->active < menu->count - 1)
 				++menu->active;
 			/* no menu key selected, regenerate menu */
@@ -131,6 +133,17 @@ static char *bootmenu_choice_entry(void *data)
 	/* never happens */
 	debug("bootmenu: this should not happen");
 	return NULL;
+}
+
+static bool bootmenu_need_reprint(void *data)
+{
+	struct bootmenu_data *menu = data;
+	bool need_reprint;
+
+	need_reprint = menu->last_active != menu->active;
+	menu->last_active = menu->active;
+
+	return need_reprint;
 }
 
 static void bootmenu_destroy(struct bootmenu_data *menu)
@@ -332,6 +345,7 @@ static struct bootmenu_data *bootmenu_create(int delay)
 
 	menu->delay = delay;
 	menu->active = 0;
+	menu->last_active = -1;
 	menu->first = NULL;
 
 	default_str = env_get("bootmenu_default");
@@ -506,7 +520,7 @@ static enum bootmenu_ret bootmenu_show(int delay)
 
 	menu = menu_create(NULL, bootmenu->delay, 1, menu_display_statusline,
 			   bootmenu_print_entry, bootmenu_choice_entry,
-			   bootmenu);
+			   bootmenu_need_reprint, bootmenu);
 	if (!menu) {
 		bootmenu_destroy(bootmenu);
 		return BOOTMENU_RET_FAIL;

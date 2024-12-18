@@ -8,7 +8,6 @@
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
-#include <handoff.h>
 #include <log.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -1468,7 +1467,7 @@ static int rk3399_clk_probe(struct udevice *dev)
 	init_clocks = true;
 #elif CONFIG_IS_ENABLED(HANDOFF)
 	if (!(gd->flags & GD_FLG_RELOC)) {
-		if (!handoff_get())
+		if (!(gd->spl_handoff))
 			init_clocks = true;
 	}
 #endif

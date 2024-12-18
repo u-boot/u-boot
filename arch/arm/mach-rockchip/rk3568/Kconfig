@@ -22,10 +22,28 @@ config TARGET_ODROID_M1_RK3568
 	help
 	  Hardkernel ODROID-M1 single board computer with a RK3568B2 SoC.
 
+config TARGET_ODROID_M1S_RK3566
+	bool "ODROID-M1S"
+	help
+	  Hardkernel ODROID-M1S single board computer with a RK3566 SoC.
+
 config TARGET_POWKIDDY_X55_RK3566
 	bool "Powkiddy X55"
 	help
 	  Powkiddy X55 handheld gaming console with an RK3566 SoC.
+
+config TARGET_QNAP_TS433_RK3568
+	bool "QNAP-TS433"
+	help
+	  Qnap TS433 4-bay NAS with a RK3568 SoC.
+
+	  It provides the following featureset:
+	   * 4GB LPDDR4
+	   * 4GB eMMC
+	   * 2 SATA ports connected to two RK3568's SATA controllers
+	   * 2 SATA ports connected to a JMicron JMB58x AHCI SATA controller
+	   * 1 1G network controller
+	   * 1 2.5G Realtek RTL8125 network controller
 
 config TARGET_QUARTZ64_RK3566
 	bool "Pine64 Quartz64"
@@ -62,8 +80,10 @@ config TEXT_BASE
 source "board/rockchip/evb_rk3568/Kconfig"
 source "board/anbernic/rgxx3_rk3566/Kconfig"
 source "board/hardkernel/odroid_m1/Kconfig"
+source "board/hardkernel/odroid_m1s/Kconfig"
 source "board/pine64/quartz64_rk3566/Kconfig"
 source "board/powkiddy/x55/Kconfig"
+source "board/qnap/ts433/Kconfig"
 source "board/radxa/zero3-rk3566/Kconfig"
 source "board/xunlong/orangepi-3b-rk3566/Kconfig"
 

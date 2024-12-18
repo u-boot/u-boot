@@ -39,6 +39,9 @@
 				/* IDs for the menu items */
 				item-id = <ID_CPU_SPEED_1 ID_CPU_SPEED_2
 					ID_CPU_SPEED_3>;
+
+				/* values for the menu items */
+				item-value = <0 3 6>;
 			};
 
 			power-loss {

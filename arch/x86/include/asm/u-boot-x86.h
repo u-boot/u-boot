@@ -44,12 +44,29 @@ int x86_cpu_reinit_f(void);
 int x86_cpu_init_tpl(void);
 
 /**
+ * x86_get_identity_for_timer() - Set up CPU identity for use by the early timer
+ *
+ * The timer can be needed early in board_f if bootstage is enabled. This
+ * function can be called from the TSC timer to make sure that the CPU-identity
+ * info has been set up
+ */
+void x86_get_identity_for_timer(void);
+
+/**
  * cpu_reinit_fpu() - Reinit the FPU if something is wrong with it
  *
  * The FSP-M code can leave registers in use in the FPU. This functions reinits
  * it so that the FPU can be used safely
  */
 void cpu_reinit_fpu(void);
+
+/**
+ * x86_cpu_vendor_info() - Get the CPU-vendor name and device number
+ *
+ * @name: 13-byte area to hold the returned string
+ * Return: CPU device number read from cpuid
+ */
+int x86_cpu_vendor_info(char *name);
 
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
@@ -78,7 +95,6 @@ void x86_enable_caches(void);
 void x86_disable_caches(void);
 int x86_init_cache(void);
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size);
-int default_print_cpuinfo(void);
 
 /* Set up a UART which can be used with printch(), printhex8(), etc. */
 int setup_internal_uart(int enable);

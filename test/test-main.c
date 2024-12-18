@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY	LOGC_TEST
+
 #include <blk.h>
 #include <console.h>
 #include <cyclic.h>
@@ -240,15 +242,22 @@ static bool test_matches(const char *prefix, const char *test_name,
  * ut_list_has_dm_tests() - Check if a list of tests has driver model ones
  *
  * @tests: List of tests to run
- * @count: Number of tests to ru
+ * @count: Number of tests to run
+ * @prefix: String prefix for the tests. Any tests that have this prefix will be
+ *	printed without the prefix, so that it is easier to see the unique part
+ *	of the test name. If NULL, no prefix processing is done
+ * @select_name: Name of a single test being run (from the list provided). If
+ *	NULL all tests are being run
  * Return: true if any of the tests have the UTF_DM flag
  */
-static bool ut_list_has_dm_tests(struct unit_test *tests, int count)
+static bool ut_list_has_dm_tests(struct unit_test *tests, int count,
+				 const char *prefix, const char *select_name)
 {
 	struct unit_test *test;
 
 	for (test = tests; test < tests + count; test++) {
-		if (test->flags & UTF_DM)
+		if (test_matches(prefix, test->name, select_name) &&
+		    (test->flags & UTF_DM))
 			return true;
 	}
 
@@ -379,6 +388,12 @@ static int test_pre_run(struct unit_test_state *uts, struct unit_test *test)
 			return -EAGAIN;
 		}
 	}
+	if (test->flags & UFT_BLOBLIST) {
+		log_debug("save bloblist %p\n", gd_bloblist());
+		uts->old_bloblist = gd_bloblist();
+		gd_set_bloblist(NULL);
+	}
+
 	ut_silence_console(uts);
 
 	return 0;
@@ -401,6 +416,11 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
 
 	free(uts->of_other);
 	uts->of_other = NULL;
+
+	if (test->flags & UFT_BLOBLIST) {
+		gd_set_bloblist(uts->old_bloblist);
+		log_debug("restore bloblist %p\n", gd_bloblist());
+	}
 
 	blkcache_free();
 
@@ -550,6 +570,9 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
  * @count: Number of tests to run
  * @select_name: Name of a single test to run (from the list provided). If NULL
  *	then all tests are run
+ * @test_insert: String describing a test to run after n other tests run, in the
+ * format n:name where n is the number of tests to run before this one and
+ * name is the name of the test to run
  * Return: 0 if all tests passed, -ENOENT if test @select_name was not found,
  *	-EBADF if any failed
  */
@@ -594,14 +617,14 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			 */
 			len = strlen(test_name);
 			if (len < 6 || strcmp(test_name + len - 6, "_norun")) {
-				printf("Test %s is manual so must have a name ending in _norun\n",
+				printf("Test '%s' is manual so must have a name ending in _norun\n",
 				       test_name);
 				uts->fail_count++;
 				return -EBADF;
 			}
 			if (!uts->force_run) {
 				if (select_name) {
-					printf("Test %s skipped as it is manual (use -f to run it)\n",
+					printf("Test '%s' skipped as it is manual (use -f to run it)\n",
 					       test_name);
 				}
 				continue;
@@ -612,7 +635,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		if (one && upto == pos) {
 			ret = ut_run_test_live_flat(uts, one);
 			if (uts->fail_count != old_fail_count) {
-				printf("Test %s failed %d times (position %d)\n",
+				printf("Test '%s' failed %d times (position %d)\n",
 				       one->name,
 				       uts->fail_count - old_fail_count, pos);
 			}
@@ -622,7 +645,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		for (i = 0; i < uts->runs_per_test; i++)
 			ret = ut_run_test_live_flat(uts, test);
 		if (uts->fail_count != old_fail_count) {
-			printf("Test %s failed %d times\n", select_name,
+			printf("Test '%s' failed %d times\n", test_name,
 			       uts->fail_count - old_fail_count);
 		}
 		found++;
@@ -646,7 +669,7 @@ int ut_run_list(const char *category, const char *prefix,
 	int ret;
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
-	    ut_list_has_dm_tests(tests, count)) {
+	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
 		/*
 		 * If we have no device tree, or it only has a root node, then

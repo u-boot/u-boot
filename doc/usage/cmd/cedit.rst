@@ -18,6 +18,7 @@ Synopsis
     cedit write_env [-v]
     cedit read_env [-v]
     cedit write_cmos [-v] [dev]
+    cedit cb_load
 
 Description
 -----------
@@ -92,6 +93,13 @@ updated.
 Normally the first RTC device is used to hold the data. You can specify a
 different device by name using the `dev` parameter.
 
+.. _cedit_cb_load:
+
+cedit cb_load
+~~~~~~~~~~~~~
+
+This is supported only on x86 devices booted from coreboot. It creates a new
+configuration editor which can be used to edit CMOS settings.
 
 Example
 -------
@@ -107,8 +115,10 @@ That results in::
     / {
         cedit-values {
             cpu-speed = <0x00000006>;
+            cpu-speed-value = <0x00000003>;
             cpu-speed-str = "2 GHz";
             power-loss = <0x0000000a>;
+            power-loss-value = <0x00000000>;
             power-loss-str = "Always Off";
         };
     }
@@ -118,16 +128,23 @@ That results in::
 This shows settings being stored in the environment::
 
     => cedit write_env -v
-    c.cpu-speed=7
+    c.cpu-speed=11
     c.cpu-speed-str=2.5 GHz
-    c.power-loss=12
-    c.power-loss-str=Memory
+    c.cpu-speed-value=3
+    c.power-loss=14
+    c.power-loss-str=Always Off
+    c.power-loss-value=0
+    c.machine-name=my-machine
+    c.cpu-speed=11
+    c.power-loss=14
+    c.machine-name=my-machine
     => print
     ...
     c.cpu-speed=6
     c.cpu-speed-str=2 GHz
     c.power-loss=10
     c.power-loss-str=Always Off
+    c.machine-name=my-machine
     ...
 
     => cedit read_env -v
@@ -148,4 +165,72 @@ This shows writing to CMOS RAM. Notice that the bytes at 80 and 84 change::
 Here is an example with the device specified::
 
     => cedit write_cmos rtc@43
+    =>
+
+This example shows editing coreboot CMOS-RAM settings. A script could be used
+to automate this::
+
+    => cbsysinfo
+    Coreboot table at 500, size 5c4, records 1d (dec 29), decoded to 000000007dce3f40, forwarded to 000000007ff9a000
+
+    CPU KHz     : 0
+    Serial I/O port: 00000000
+       base        : 00000000
+       pointer     : 000000007ff9a370
+       type        : 1
+       base        : 000003f8
+       baud        : 0d115200
+       regwidth    : 1
+       input_hz    : 0d1843200
+       PCI addr    : 00000010
+    Mem ranges  : 7
+              id: type               ||   base        ||   size
+               0: 10:table    0000000000000000 0000000000001000
+               1: 01:ram      0000000000001000 000000000009f000
+               2: 02:reserved 00000000000a0000 0000000000060000
+               3: 01:ram      0000000000100000 000000007fe6d000
+               4: 10:table    000000007ff6d000 0000000000093000
+               5: 02:reserved 00000000fec00000 0000000000001000
+               6: 02:reserved 00000000ff800000 0000000000800000
+    option_table: 000000007ff9a018
+     Bit  Len  Cfg  ID  Name
+       0  180    r   0  reserved_memory
+     180    1    e   4  boot_option            0:Fallback 1:Normal
+     184    4    h   0  reboot_counter
+     190    8    r   0  reserved_century
+     1b8    8    r   0  reserved_ibm_ps2_century
+     1c0    1    e   1  power_on_after_fail    0:Disable 1:Enable
+     1c4    4    e   6  debug_level            5:Notice 6:Info 7:Debug 8:Spew
+     1d0   80    r   0  vbnv
+     3f0   10    h   0  check_sum
+    CMOS start  : 1c0
+       CMOS end    : 1cf
+       CMOS csum loc: 3f0
+    VBNV start  : ffffffff
+    VBNV size   : ffffffff
+    ...
+    Unimpl.     : 10 37 40
+
+Check that the CMOS RAM checksum is correct, then create a configuration editor
+and load the settings from CMOS RAM::
+
+    => cbcmos check
+    => cedit cb
+    => cedit read_cmos
+
+Now run the cedit. In this case the user selected 'save' so `cedit run` returns
+success::
+
+    => if cedit run; then cedit write_cmos -v; fi
+    Write 2 bytes from offset 30 to 38
+    => echo $?
+    0
+
+Update the checksum in CMOS RAM::
+
+    => cbcmos check
+    Checksum 6100 error: calculated 7100
+    => cbcmos update
+    Checksum 7100 written
+    => cbcmos check
     =>

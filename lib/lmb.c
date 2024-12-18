@@ -27,95 +27,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MAP_OP_FREE		(u8)0x2
 #define MAP_OP_ADD		(u8)0x3
 
-#define LMB_ALLOC_ANYWHERE	0
-#define LMB_ALIST_INITIAL_SIZE	4
-
-static struct lmb lmb;
-
-static bool lmb_should_notify(enum lmb_flags flags)
-{
-	return !lmb.test && !(flags & LMB_NONOTIFY) &&
-		CONFIG_IS_ENABLED(EFI_LOADER);
-}
-
-static int __maybe_unused lmb_map_update_notify(phys_addr_t addr,
-						phys_size_t size,
-						u8 op)
-{
-	u64 efi_addr;
-	u64 pages;
-	efi_status_t status;
-
-	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE && op != MAP_OP_ADD) {
-		log_err("Invalid map update op received (%d)\n", op);
-		return -1;
-	}
-
-	efi_addr = (uintptr_t)map_sysmem(addr, 0);
-	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
-	efi_addr &= ~EFI_PAGE_MASK;
-
-	status = efi_add_memory_map_pg(efi_addr, pages,
-				       op == MAP_OP_RESERVE ?
-				       EFI_BOOT_SERVICES_DATA :
-				       EFI_CONVENTIONAL_MEMORY,
-				       false);
-	if (status != EFI_SUCCESS) {
-		log_err("%s: LMB Map notify failure %lu\n", __func__,
-			status & ~EFI_ERROR_MASK);
-		return -1;
-	} else {
-		return 0;
-	}
-}
-
-static void lmb_print_region_flags(enum lmb_flags flags)
-{
-	u64 bitpos;
-	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
-
-	do {
-		bitpos = flags ? fls(flags) - 1 : 0;
-		printf("%s", flag_str[bitpos]);
-		flags &= ~(1ull << bitpos);
-		puts(flags ? ", " : "\n");
-	} while (flags);
-}
-
-static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
-{
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-	unsigned long long base, size, end;
-	enum lmb_flags flags;
-	int i;
-
-	printf(" %s.count = 0x%x\n", name, lmb_rgn_lst->count);
-
-	for (i = 0; i < lmb_rgn_lst->count; i++) {
-		base = rgn[i].base;
-		size = rgn[i].size;
-		end = base + size - 1;
-		flags = rgn[i].flags;
-
-		printf(" %s[%d]\t[0x%llx-0x%llx], 0x%08llx bytes flags: ",
-		       name, i, base, end, size);
-		lmb_print_region_flags(flags);
-	}
-}
-
-void lmb_dump_all_force(void)
-{
-	printf("lmb_dump_all:\n");
-	lmb_dump_region(&lmb.free_mem, "memory");
-	lmb_dump_region(&lmb.used_mem, "reserved");
-}
-
-void lmb_dump_all(void)
-{
-#ifdef DEBUG
-	lmb_dump_all_force();
-#endif
-}
+/*
+ * The following low level LMB functions must not access the global LMB memory
+ * map since they are also used to manage IOVA memory maps in iommu drivers like
+ * apple_dart.
+ */
 
 static long lmb_addrs_overlap(phys_addr_t base1, phys_size_t size1,
 			      phys_addr_t base2, phys_size_t size2)
@@ -204,6 +120,411 @@ static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
+static long lmb_resize_regions(struct alist *lmb_rgn_lst,
+			       unsigned long idx_start,
+			       phys_addr_t base, phys_size_t size)
+{
+	phys_size_t rgnsize;
+	unsigned long rgn_cnt, idx, idx_end;
+	phys_addr_t rgnbase, rgnend;
+	phys_addr_t mergebase, mergeend;
+	struct lmb_region *rgn = lmb_rgn_lst->data;
+
+	rgn_cnt = 0;
+	idx = idx_start;
+	idx_end = idx_start;
+
+	/*
+	 * First thing to do is to identify how many regions
+	 * the requested region overlaps.
+	 * If the flags match, combine all these overlapping
+	 * regions into a single region, and remove the merged
+	 * regions.
+	 */
+	while (idx <= lmb_rgn_lst->count - 1) {
+		rgnbase = rgn[idx].base;
+		rgnsize = rgn[idx].size;
+
+		if (lmb_addrs_overlap(base, size, rgnbase,
+				      rgnsize)) {
+			if (rgn[idx].flags != LMB_NONE)
+				return -1;
+			rgn_cnt++;
+			idx_end = idx;
+		}
+		idx++;
+	}
+
+	/* The merged region's base and size */
+	rgnbase = rgn[idx_start].base;
+	mergebase = min(base, rgnbase);
+	rgnend = rgn[idx_end].base + rgn[idx_end].size;
+	mergeend = max(rgnend, (base + size));
+
+	rgn[idx_start].base = mergebase;
+	rgn[idx_start].size = mergeend - mergebase;
+
+	/* Now remove the merged regions */
+	while (--rgn_cnt)
+		lmb_remove_region(lmb_rgn_lst, idx_start + 1);
+
+	return 0;
+}
+
+/**
+ * lmb_add_region_flags() - Add an lmb region to the given list
+ * @lmb_rgn_lst: LMB list to which region is to be added(free/used)
+ * @base: Start address of the region
+ * @size: Size of the region to be added
+ * @flags: Attributes of the LMB region
+ *
+ * Add a region of memory to the list. If the region does not exist, add
+ * it to the list. Depending on the attributes of the region to be added,
+ * the function might resize an already existing region or coalesce two
+ * adjacent regions.
+ *
+ * Return:
+ * * %0		- Added successfully, or it's already added (only if LMB_NONE)
+ * * %-EEXIST	- The region is already added, and flags != LMB_NONE
+ * * %-1	- Failure
+ */
+static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
+				 phys_size_t size, enum lmb_flags flags)
+{
+	unsigned long coalesced = 0;
+	long ret, i;
+	struct lmb_region *rgn = lmb_rgn_lst->data;
+
+	if (alist_err(lmb_rgn_lst))
+		return -1;
+
+	/* First try and coalesce this LMB with another. */
+	for (i = 0; i < lmb_rgn_lst->count; i++) {
+		phys_addr_t rgnbase = rgn[i].base;
+		phys_size_t rgnsize = rgn[i].size;
+		phys_size_t rgnflags = rgn[i].flags;
+
+		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
+		if (ret > 0) {
+			if (flags != rgnflags)
+				break;
+			rgn[i].base -= size;
+			rgn[i].size += size;
+			coalesced++;
+			break;
+		} else if (ret < 0) {
+			if (flags != rgnflags)
+				break;
+			rgn[i].size += size;
+			coalesced++;
+			break;
+		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			if (flags != LMB_NONE)
+				return -EEXIST;
+
+			ret = lmb_resize_regions(lmb_rgn_lst, i, base, size);
+			if (ret < 0)
+				return -1;
+
+			coalesced++;
+			break;
+		}
+	}
+
+	if (lmb_rgn_lst->count && i < lmb_rgn_lst->count - 1) {
+		rgn = lmb_rgn_lst->data;
+		if (rgn[i].flags == rgn[i + 1].flags) {
+			if (lmb_regions_adjacent(lmb_rgn_lst, i, i + 1)) {
+				lmb_coalesce_regions(lmb_rgn_lst, i, i + 1);
+				coalesced++;
+			} else if (lmb_regions_overlap(lmb_rgn_lst, i, i + 1)) {
+				/* fix overlapping area */
+				lmb_fix_over_lap_regions(lmb_rgn_lst, i, i + 1);
+				coalesced++;
+			}
+		}
+	}
+
+	if (coalesced)
+		return 0;
+
+	if (alist_full(lmb_rgn_lst) &&
+	    !alist_expand_by(lmb_rgn_lst, lmb_rgn_lst->alloc))
+		return -1;
+	rgn = lmb_rgn_lst->data;
+
+	/* Couldn't coalesce the LMB, so add it to the sorted table. */
+	for (i = lmb_rgn_lst->count; i >= 0; i--) {
+		if (i && base < rgn[i - 1].base) {
+			rgn[i] = rgn[i - 1];
+		} else {
+			rgn[i].base = base;
+			rgn[i].size = size;
+			rgn[i].flags = flags;
+			break;
+		}
+	}
+
+	lmb_rgn_lst->count++;
+
+	return 0;
+}
+
+static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
+		      phys_size_t size)
+{
+	struct lmb_region *rgn;
+	phys_addr_t rgnbegin, rgnend;
+	phys_addr_t end = base + size - 1;
+	int i;
+
+	rgnbegin = rgnend = 0; /* supress gcc warnings */
+	rgn = lmb_rgn_lst->data;
+	/* Find the region where (base, size) belongs to */
+	for (i = 0; i < lmb_rgn_lst->count; i++) {
+		rgnbegin = rgn[i].base;
+		rgnend = rgnbegin + rgn[i].size - 1;
+
+		if ((rgnbegin <= base) && (end <= rgnend))
+			break;
+	}
+
+	/* Didn't find the region */
+	if (i == lmb_rgn_lst->count)
+		return -1;
+
+	/* Check to see if we are removing entire region */
+	if ((rgnbegin == base) && (rgnend == end)) {
+		lmb_remove_region(lmb_rgn_lst, i);
+		return 0;
+	}
+
+	/* Check to see if region is matching at the front */
+	if (rgnbegin == base) {
+		rgn[i].base = end + 1;
+		rgn[i].size -= size;
+		return 0;
+	}
+
+	/* Check to see if the region is matching at the end */
+	if (rgnend == end) {
+		rgn[i].size -= size;
+		return 0;
+	}
+
+	/*
+	 * We need to split the entry -  adjust the current one to the
+	 * beginging of the hole and add the region after hole.
+	 */
+	rgn[i].size = base - rgn[i].base;
+	return lmb_add_region_flags(lmb_rgn_lst, end + 1, rgnend - end,
+				    rgn[i].flags);
+}
+
+static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
+				phys_size_t size)
+{
+	unsigned long i;
+	struct lmb_region *rgn = lmb_rgn_lst->data;
+
+	for (i = 0; i < lmb_rgn_lst->count; i++) {
+		phys_addr_t rgnbase = rgn[i].base;
+		phys_size_t rgnsize = rgn[i].size;
+		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize))
+			break;
+	}
+
+	return (i < lmb_rgn_lst->count) ? i : -1;
+}
+
+static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
+{
+	return addr & ~(size - 1);
+}
+
+/*
+ * IOVA LMB memory maps using lmb pointers instead of the global LMB memory map.
+ */
+
+int io_lmb_setup(struct lmb *io_lmb)
+{
+	int ret;
+
+	ret = alist_init(&io_lmb->free_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB free IOVA\n");
+		return -ENOMEM;
+	}
+
+	ret = alist_init(&io_lmb->used_mem, sizeof(struct lmb_region),
+			 (uint)LMB_ALIST_INITIAL_SIZE);
+	if (!ret) {
+		log_debug("Unable to initialise the list for LMB used IOVA\n");
+		return -ENOMEM;
+	}
+
+	io_lmb->test = false;
+
+	return 0;
+}
+
+void io_lmb_teardown(struct lmb *io_lmb)
+{
+	alist_uninit(&io_lmb->free_mem);
+	alist_uninit(&io_lmb->used_mem);
+}
+
+long io_lmb_add(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
+{
+	return lmb_add_region_flags(&io_lmb->free_mem, base, size, LMB_NONE);
+}
+
+/* derived and simplified from _lmb_alloc_base() */
+phys_addr_t io_lmb_alloc(struct lmb *io_lmb, phys_size_t size, ulong align)
+{
+	long i, rgn;
+	phys_addr_t base = 0;
+	phys_addr_t res_base;
+	struct lmb_region *lmb_used = io_lmb->used_mem.data;
+	struct lmb_region *lmb_memory = io_lmb->free_mem.data;
+
+	for (i = io_lmb->free_mem.count - 1; i >= 0; i--) {
+		phys_addr_t lmbbase = lmb_memory[i].base;
+		phys_size_t lmbsize = lmb_memory[i].size;
+
+		if (lmbsize < size)
+			continue;
+		base = lmb_align_down(lmbbase + lmbsize - size, align);
+
+		while (base && lmbbase <= base) {
+			rgn = lmb_overlaps_region(&io_lmb->used_mem, base, size);
+			if (rgn < 0) {
+				/* This area isn't reserved, take it */
+				if (lmb_add_region_flags(&io_lmb->used_mem, base,
+							 size, LMB_NONE) < 0)
+					return 0;
+
+				return base;
+			}
+
+			res_base = lmb_used[rgn].base;
+			if (res_base < size)
+				break;
+			base = lmb_align_down(res_base - size, align);
+		}
+	}
+	return 0;
+}
+
+long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
+{
+	return _lmb_free(&io_lmb->used_mem, base, size);
+}
+
+/*
+ * Low level LMB functions are used to manage IOVA memory maps for the Apple
+ * dart iommu. They must not access the global LMB memory map.
+ * So keep the global LMB variable declaration unreachable from them.
+ */
+
+static struct lmb lmb;
+
+static bool lmb_should_notify(enum lmb_flags flags)
+{
+	return !lmb.test && !(flags & LMB_NONOTIFY) &&
+		CONFIG_IS_ENABLED(EFI_LOADER);
+}
+
+static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
+				 enum lmb_flags flags)
+{
+	u64 efi_addr;
+	u64 pages;
+	efi_status_t status;
+
+	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE && op != MAP_OP_ADD) {
+		log_err("Invalid map update op received (%d)\n", op);
+		return -1;
+	}
+
+	if (!lmb_should_notify(flags))
+		return 0;
+
+	efi_addr = (uintptr_t)map_sysmem(addr, 0);
+	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
+	efi_addr &= ~EFI_PAGE_MASK;
+
+	status = efi_add_memory_map_pg(efi_addr, pages,
+				       op == MAP_OP_RESERVE ?
+				       EFI_BOOT_SERVICES_DATA :
+				       EFI_CONVENTIONAL_MEMORY,
+				       false);
+	if (status != EFI_SUCCESS) {
+		log_err("%s: LMB Map notify failure %lu\n", __func__,
+			status & ~EFI_ERROR_MASK);
+		return -1;
+	}
+	unmap_sysmem((void *)(uintptr_t)efi_addr);
+
+	return 0;
+}
+
+static void lmb_print_region_flags(enum lmb_flags flags)
+{
+	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
+	unsigned int pflags = flags &
+			      (LMB_NOMAP | LMB_NOOVERWRITE | LMB_NONOTIFY);
+
+	if (flags != pflags) {
+		printf("invalid %#x\n", flags);
+		return;
+	}
+
+	do {
+		int bitpos = pflags ? fls(pflags) - 1 : 0;
+
+		printf("%s", flag_str[bitpos]);
+		pflags &= ~(1u << bitpos);
+		puts(pflags ? ", " : "\n");
+	} while (pflags);
+}
+
+static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
+{
+	struct lmb_region *rgn = lmb_rgn_lst->data;
+	unsigned long long base, size, end;
+	enum lmb_flags flags;
+	int i;
+
+	printf(" %s.count = %#x\n", name, lmb_rgn_lst->count);
+
+	for (i = 0; i < lmb_rgn_lst->count; i++) {
+		base = rgn[i].base;
+		size = rgn[i].size;
+		end = base + size - 1;
+		flags = rgn[i].flags;
+
+		printf(" %s[%d]\t[%#llx-%#llx], %#llx bytes, flags: ",
+		       name, i, base, end, size);
+		lmb_print_region_flags(flags);
+	}
+}
+
+void lmb_dump_all_force(void)
+{
+	printf("lmb_dump_all:\n");
+	lmb_dump_region(&lmb.free_mem, "memory");
+	lmb_dump_region(&lmb.used_mem, "reserved");
+}
+
+void lmb_dump_all(void)
+{
+#ifdef DEBUG
+	lmb_dump_all_force();
+#endif
+}
+
 static void lmb_reserve_uboot_region(void)
 {
 	int bank;
@@ -219,8 +540,6 @@ static void lmb_reserve_uboot_region(void)
 	 */
 	debug("## Current stack ends at 0x%08lx ", (ulong)rsv_start);
 
-	/* adjust sp by 16K to be safe */
-	rsv_start -= SZ_16K;
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (!gd->bd->bi_dram[bank].size ||
 		    rsv_start < gd->bd->bi_dram[bank].start)
@@ -287,6 +606,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 void lmb_add_memory(void)
 {
 	int i;
+	phys_addr_t bank_end;
 	phys_size_t size;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
@@ -300,6 +620,8 @@ void lmb_add_memory(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size = bd->bi_dram[i].size;
+		bank_end = bd->bi_dram[i].start + size;
+
 		if (size) {
 			lmb_add(bd->bi_dram[i].start, size);
 
@@ -311,167 +633,11 @@ void lmb_add_memory(void)
 			if (bd->bi_dram[i].start >= ram_top)
 				lmb_reserve_flags(bd->bi_dram[i].start, size,
 						  LMB_NOOVERWRITE);
+			else if (bank_end > ram_top)
+				lmb_reserve_flags(ram_top, bank_end - ram_top,
+						  LMB_NOOVERWRITE);
 		}
 	}
-}
-
-static long lmb_resize_regions(struct alist *lmb_rgn_lst,
-			       unsigned long idx_start,
-			       phys_addr_t base, phys_size_t size)
-{
-	phys_size_t rgnsize;
-	unsigned long rgn_cnt, idx, idx_end;
-	phys_addr_t rgnbase, rgnend;
-	phys_addr_t mergebase, mergeend;
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-
-	rgn_cnt = 0;
-	idx = idx_start;
-	idx_end = idx_start;
-
-	/*
-	 * First thing to do is to identify how many regions
-	 * the requested region overlaps.
-	 * If the flags match, combine all these overlapping
-	 * regions into a single region, and remove the merged
-	 * regions.
-	 */
-	while (idx <= lmb_rgn_lst->count - 1) {
-		rgnbase = rgn[idx].base;
-		rgnsize = rgn[idx].size;
-
-		if (lmb_addrs_overlap(base, size, rgnbase,
-				      rgnsize)) {
-			if (rgn[idx].flags != LMB_NONE)
-				return -1;
-			rgn_cnt++;
-			idx_end = idx;
-		}
-		idx++;
-	}
-
-	/* The merged region's base and size */
-	rgnbase = rgn[idx_start].base;
-	mergebase = min(base, rgnbase);
-	rgnend = rgn[idx_end].base + rgn[idx_end].size;
-	mergeend = max(rgnend, (base + size));
-
-	rgn[idx_start].base = mergebase;
-	rgn[idx_start].size = mergeend - mergebase;
-
-	/* Now remove the merged regions */
-	while (--rgn_cnt)
-		lmb_remove_region(lmb_rgn_lst, idx_start + 1);
-
-	return 0;
-}
-
-/**
- * lmb_add_region_flags() - Add an lmb region to the given list
- * @lmb_rgn_lst: LMB list to which region is to be added(free/used)
- * @base: Start address of the region
- * @size: Size of the region to be added
- * @flags: Attributes of the LMB region
- *
- * Add a region of memory to the list. If the region does not exist, add
- * it to the list. Depending on the attributes of the region to be added,
- * the function might resize an already existing region or coalesce two
- * adjacent regions.
- *
- *
- * Returns: 0 if the region addition successful, -1 on failure
- */
-static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
-				 phys_size_t size, enum lmb_flags flags)
-{
-	unsigned long coalesced = 0;
-	long ret, i;
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-
-	if (alist_err(lmb_rgn_lst))
-		return -1;
-
-	/* First try and coalesce this LMB with another. */
-	for (i = 0; i < lmb_rgn_lst->count; i++) {
-		phys_addr_t rgnbase = rgn[i].base;
-		phys_size_t rgnsize = rgn[i].size;
-		phys_size_t rgnflags = rgn[i].flags;
-		phys_addr_t end = base + size - 1;
-		phys_addr_t rgnend = rgnbase + rgnsize - 1;
-		if (rgnbase <= base && end <= rgnend) {
-			if (flags == rgnflags)
-				/* Already have this region, so we're done */
-				return 0;
-			else
-				return -1; /* regions with new flags */
-		}
-
-		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
-		if (ret > 0) {
-			if (flags != rgnflags)
-				break;
-			rgn[i].base -= size;
-			rgn[i].size += size;
-			coalesced++;
-			break;
-		} else if (ret < 0) {
-			if (flags != rgnflags)
-				break;
-			rgn[i].size += size;
-			coalesced++;
-			break;
-		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
-			if (flags == LMB_NONE) {
-				ret = lmb_resize_regions(lmb_rgn_lst, i, base,
-							 size);
-				if (ret < 0)
-					return -1;
-
-				coalesced++;
-				break;
-			} else {
-				return -1;
-			}
-		}
-	}
-
-	if (lmb_rgn_lst->count && i < lmb_rgn_lst->count - 1) {
-		rgn = lmb_rgn_lst->data;
-		if (rgn[i].flags == rgn[i + 1].flags) {
-			if (lmb_regions_adjacent(lmb_rgn_lst, i, i + 1)) {
-				lmb_coalesce_regions(lmb_rgn_lst, i, i + 1);
-				coalesced++;
-			} else if (lmb_regions_overlap(lmb_rgn_lst, i, i + 1)) {
-				/* fix overlapping area */
-				lmb_fix_over_lap_regions(lmb_rgn_lst, i, i + 1);
-				coalesced++;
-			}
-		}
-	}
-
-	if (coalesced)
-		return coalesced;
-
-	if (alist_full(lmb_rgn_lst) &&
-	    !alist_expand_by(lmb_rgn_lst, lmb_rgn_lst->alloc))
-		return -1;
-	rgn = lmb_rgn_lst->data;
-
-	/* Couldn't coalesce the LMB, so add it to the sorted table. */
-	for (i = lmb_rgn_lst->count; i >= 0; i--) {
-		if (i && base < rgn[i - 1].base) {
-			rgn[i] = rgn[i - 1];
-		} else {
-			rgn[i].base = base;
-			rgn[i].size = size;
-			rgn[i].flags = flags;
-			break;
-		}
-	}
-
-	lmb_rgn_lst->count++;
-
-	return 0;
 }
 
 static long lmb_add_region(struct alist *lmb_rgn_lst, phys_addr_t base,
@@ -490,61 +656,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	if (ret)
 		return ret;
 
-	if (lmb_should_notify(LMB_NONE))
-		return lmb_map_update_notify(base, size, MAP_OP_ADD);
-
-	return 0;
-}
-
-static long _lmb_free(phys_addr_t base, phys_size_t size)
-{
-	struct lmb_region *rgn;
-	struct alist *lmb_rgn_lst = &lmb.used_mem;
-	phys_addr_t rgnbegin, rgnend;
-	phys_addr_t end = base + size - 1;
-	int i;
-
-	rgnbegin = rgnend = 0; /* supress gcc warnings */
-	rgn = lmb_rgn_lst->data;
-	/* Find the region where (base, size) belongs to */
-	for (i = 0; i < lmb_rgn_lst->count; i++) {
-		rgnbegin = rgn[i].base;
-		rgnend = rgnbegin + rgn[i].size - 1;
-
-		if ((rgnbegin <= base) && (end <= rgnend))
-			break;
-	}
-
-	/* Didn't find the region */
-	if (i == lmb_rgn_lst->count)
-		return -1;
-
-	/* Check to see if we are removing entire region */
-	if ((rgnbegin == base) && (rgnend == end)) {
-		lmb_remove_region(lmb_rgn_lst, i);
-		return 0;
-	}
-
-	/* Check to see if region is matching at the front */
-	if (rgnbegin == base) {
-		rgn[i].base = end + 1;
-		rgn[i].size -= size;
-		return 0;
-	}
-
-	/* Check to see if the region is matching at the end */
-	if (rgnend == end) {
-		rgn[i].size -= size;
-		return 0;
-	}
-
-	/*
-	 * We need to split the entry -  adjust the current one to the
-	 * beginging of the hole and add the region after hole.
-	 */
-	rgn[i].size = base - rgn[i].base;
-	return lmb_add_region_flags(lmb_rgn_lst, end + 1, rgnend - end,
-				    rgn[i].flags);
+	return lmb_map_update_notify(base, size, MAP_OP_ADD, LMB_NONE);
 }
 
 /**
@@ -555,21 +667,18 @@ static long _lmb_free(phys_addr_t base, phys_size_t size)
  *
  * Free up a region of memory.
  *
- * Return: 0 if successful, -1 on failure
+ * Return: 0 if successful, negative error code on failure
  */
 long lmb_free_flags(phys_addr_t base, phys_size_t size,
 		    uint flags)
 {
 	long ret;
 
-	ret = _lmb_free(base, size);
+	ret = _lmb_free(&lmb.used_mem, base, size);
 	if (ret < 0)
 		return ret;
 
-	if (lmb_should_notify(flags))
-		return lmb_map_update_notify(base, size, MAP_OP_FREE);
-
-	return ret;
+	return lmb_map_update_notify(base, size, MAP_OP_FREE, flags);
 }
 
 long lmb_free(phys_addr_t base, phys_size_t size)
@@ -583,13 +692,10 @@ long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
 
 	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
-	if (ret < 0)
-		return -1;
+	if (ret)
+		return ret;
 
-	if (lmb_should_notify(flags))
-		return lmb_map_update_notify(base, size, MAP_OP_RESERVE);
-
-	return ret;
+	return lmb_map_update_notify(base, size, MAP_OP_RESERVE, flags);
 }
 
 long lmb_reserve(phys_addr_t base, phys_size_t size)
@@ -597,31 +703,9 @@ long lmb_reserve(phys_addr_t base, phys_size_t size)
 	return lmb_reserve_flags(base, size, LMB_NONE);
 }
 
-static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
-				phys_size_t size)
-{
-	unsigned long i;
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-
-	for (i = 0; i < lmb_rgn_lst->count; i++) {
-		phys_addr_t rgnbase = rgn[i].base;
-		phys_size_t rgnsize = rgn[i].size;
-		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize))
-			break;
-	}
-
-	return (i < lmb_rgn_lst->count) ? i : -1;
-}
-
-static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
-{
-	return addr & ~(size - 1);
-}
-
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 				    phys_addr_t max_addr, enum lmb_flags flags)
 {
-	u8 op;
 	int ret;
 	long i, rgn;
 	phys_addr_t base = 0;
@@ -651,16 +735,14 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 			if (rgn < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region_flags(&lmb.used_mem, base,
-							 size, flags) < 0)
+							 size, flags))
 					return 0;
 
-				if (lmb_should_notify(flags)) {
-					op = MAP_OP_RESERVE;
-					ret = lmb_map_update_notify(base, size,
-								    op);
-					if (ret)
-						return ret;
-				}
+				ret = lmb_map_update_notify(base, size,
+							    MAP_OP_RESERVE,
+							    flags);
+				if (ret)
+					return ret;
 
 				return base;
 			}
@@ -677,23 +759,6 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 {
 	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE);
-}
-
-/**
- * lmb_alloc_flags() - Allocate memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter.
- *
- * Return: base address on success, 0 on error
- */
-phys_addr_t lmb_alloc_flags(phys_size_t size, ulong align, uint flags)
-{
-	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE,
-			       flags);
 }
 
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
@@ -753,7 +818,7 @@ static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				      lmb_memory[rgn].size,
 				      base + size - 1, 1)) {
 			/* ok, reserve the memory */
-			if (lmb_reserve_flags(base, size, flags) >= 0)
+			if (!lmb_reserve_flags(base, size, flags))
 				return base;
 		}
 	}
@@ -887,12 +952,12 @@ int lmb_init(void)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(UNIT_TEST)
 struct lmb *lmb_get(void)
 {
 	return &lmb;
 }
 
+#if CONFIG_IS_ENABLED(UNIT_TEST)
 int lmb_push(struct lmb *store)
 {
 	int ret;

@@ -53,6 +53,7 @@ void dram_bank_mmu_setup(int bank)
 	struct bd_info *bd = gd->bd;
 	int	i;
 	phys_addr_t start;
+	phys_addr_t addr;
 	phys_size_t size;
 	bool use_lmb = false;
 	enum dcache_option option;
@@ -77,8 +78,12 @@ void dram_bank_mmu_setup(int bank)
 	for (i = start >> MMU_SECTION_SHIFT;
 	     i < (start >> MMU_SECTION_SHIFT) + (size >> MMU_SECTION_SHIFT);
 	     i++) {
+		addr = i << MMU_SECTION_SHIFT;
 		option = DCACHE_DEFAULT_OPTION;
-		if (use_lmb && lmb_is_reserved_flags(i << MMU_SECTION_SHIFT, LMB_NOMAP))
+		if (use_lmb &&
+		    (lmb_is_reserved_flags(i << MMU_SECTION_SHIFT, LMB_NOMAP) ||
+		    addr >= gd->ram_top)
+		   )
 			option = 0; /* INVALID ENTRY in TLB */
 		set_section_dcache(i, option);
 	}
@@ -143,6 +148,11 @@ void enable_caches(void)
 {
 	/* I-cache is already enabled in start.S: icache_enable() not needed */
 
+	/* keep D-cache configuration done before relocation, wait arch_early_init_r*/
+}
+
+int arch_early_init_r(void)
+{
 	/* deactivate the data cache, early enabled in arch_cpu_init() */
 	dcache_disable();
 	/*
@@ -150,6 +160,8 @@ void enable_caches(void)
 	 * warning: the TLB location udpated in board_f.c::reserve_mmu
 	 */
 	dcache_enable();
+
+	return 0;
 }
 
 static void setup_boot_mode(void)

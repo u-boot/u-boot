@@ -125,6 +125,22 @@ config OF_UPSTREAM_VENDOR
 	help
 	  Select the vendor to build all devicetree files for.
 
+config OF_UPSTREAM_INCLUDE_LOCAL_FALLBACK_DTBOS
+	bool "Build local DTBOs as fallback for DTBOs missing upstream"
+	default n
+	depends on OF_UPSTREAM
+	help
+	  Enable building DTBOs from arch/$(ARCH)/dts as a fallback for
+	  DTBOs which are not part of Linux kernel upstream yet. This is
+	  a stopgap measure to expedite OF_UPSTREAM switch for platforms
+	  which already have main DT in Linux kernel upstream, but still
+	  have leftover DTBOs in U-Boot tree.
+
+	  Do not use this option, upstream your DTs and DTBOs instead.
+	  If the upstreaming is in progress, use with utmost caution.
+
+	  If unsure, say N.
+
 choice
 	prompt "Provider of DTB for DT control"
 	depends on OF_CONTROL
@@ -226,11 +242,11 @@ config OF_LIST
 
 config OF_OVERLAY_LIST
 	string "List of device tree overlays to include for DT control"
-	depends on SPL_LOAD_FIT_APPLY_OVERLAY
 	help
 	  This option specifies a list of device tree overlays to use for DT
 	  control. This option can then be used by a FIT generator to include
-	  the overlays in the FIT image.
+	  the overlays in the FIT image or by binman when assembling an image
+	  that uses overlays during DT fixup.
 
 choice
 	prompt "OF LIST compression"

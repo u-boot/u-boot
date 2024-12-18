@@ -92,6 +92,9 @@
 &sdhci1 {
 	status = "okay";
 	non-removable;
+	no-sd;
+	no-sdio;
+	cap-mmc-hw-reset;
 	bus-width = <4>;
 	max-frequency = <12000000>;
 

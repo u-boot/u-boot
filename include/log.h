@@ -106,6 +106,8 @@ enum log_category_t {
 	LOGC_EXPO,
 	/** @LOGC_CONSOLE: Related to the console and stdio */
 	LOGC_CONSOLE,
+	/** @LOGC_TEST: Related to testing */
+	LOGC_TEST,
 	/** @LOGC_COUNT: Number of log categories */
 	LOGC_COUNT,
 	/** @LOGC_END: Sentinel value for lists of log categories */

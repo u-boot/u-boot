@@ -49,8 +49,10 @@ int dram_init(void)
 	gd->ram_size = get_ram_size((long *)CFG_SYS_SDRAM_BASE,
 				    CFG_MAX_RAM_BANK_SIZE);
 #if defined(CONFIG_TI_AEMIF)
-	if (!(board_is_k2g_ice() || board_is_k2g_i1()))
+	if (!(board_is_k2g_ice() || board_is_k2g_i1())) {
+		aemif_configs->base = (void *)KS2_AEMIF_CNTRL_BASE;
 		aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
+	}
 #endif
 
 	if (!(board_is_k2g_ice() || board_is_k2g_i1())) {

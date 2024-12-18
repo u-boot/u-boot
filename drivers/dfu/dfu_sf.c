@@ -123,6 +123,7 @@ static struct spi_flash *parse_dev(char *devstr)
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	char *s, *endp;
 	struct spi_flash *dev;
+	bool use_dt = true;
 
 	s = strsep(&devstr, ":");
 	if (!s || !*s || (bus = simple_strtoul(s, &endp, 0), *endp)) {
@@ -143,6 +144,8 @@ static struct spi_flash *parse_dev(char *devstr)
 			printf("Invalid SPI speed %s\n", s);
 			return NULL;
 		}
+		if (IS_ENABLED(CONFIG_DM_SPI_FLASH))
+			use_dt = false;
 	}
 
 	s = strsep(&devstr, ":");
@@ -152,9 +155,20 @@ static struct spi_flash *parse_dev(char *devstr)
 			printf("Invalid SPI mode %s\n", s);
 			return NULL;
 		}
+		if (IS_ENABLED(CONFIG_DM_SPI_FLASH))
+			use_dt = false;
 	}
 
-	dev = spi_flash_probe(bus, cs, speed, mode);
+	if (IS_ENABLED(CONFIG_DM_SPI_FLASH) && use_dt) {
+		struct udevice *new;
+
+		if (!spi_flash_probe_bus_cs(bus, cs, &new))
+			dev = dev_get_uclass_priv(new);
+		else
+			dev = NULL;
+	} else {
+		dev = spi_flash_probe(bus, cs, speed, mode);
+	}
 	if (!dev) {
 		printf("Failed to create SPI flash at %u:%u:%u:%u\n",
 		       bus, cs, speed, mode);

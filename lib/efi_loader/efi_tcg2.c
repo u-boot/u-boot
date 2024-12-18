@@ -607,12 +607,9 @@ efi_tcg2_hash_log_extend_event(struct efi_tcg2_protocol *this, u64 flags,
 	 * Format"
 	 */
 	if (flags & PE_COFF_IMAGE) {
-		IMAGE_NT_HEADERS32 *nt;
-
 		ret = efi_check_pe((void *)(uintptr_t)data_to_hash,
-				   data_to_hash_len, (void **)&nt);
+				   data_to_hash_len, NULL);
 		if (ret != EFI_SUCCESS) {
-			log_err("Not a valid PE-COFF file\n");
 			ret = EFI_UNSUPPORTED;
 			goto out;
 		}
@@ -789,7 +786,7 @@ static const struct efi_tcg2_protocol efi_tcg2_protocol = {
 /**
  * tcg2_uninit - remove the final event table and free efi memory on failures
  */
-void tcg2_uninit(void)
+static void tcg2_uninit(void)
 {
 	efi_status_t ret;
 

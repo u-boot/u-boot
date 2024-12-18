@@ -71,7 +71,7 @@ static int tftp_write(void *handle, struct pbuf *p)
 	struct tftp_ctx *ctx = handle;
 	struct pbuf *q;
 
-	for (q = p; q != NULL; q = q->next) {
+	for (q = p; q; q = q->next) {
 		memcpy((void *)ctx->daddr, q->payload, q->len);
 		ctx->daddr += q->len;
 		ctx->size += q->len;
@@ -130,7 +130,7 @@ static int tftp_loop(struct udevice *udev, ulong addr, char *fname,
 
 	printf("Using %s device\n", udev->name);
 	printf("TFTP from server %s; our IP address is %s\n",
-		 ip4addr_ntoa(&srvip), env_get("ipaddr"));
+	       ip4addr_ntoa(&srvip), env_get("ipaddr"));
 	printf("Filename '%s'.\n", fname);
 	printf("Load address: 0x%lx\n", ctx.daddr);
 	printf("Loading: ");
@@ -187,7 +187,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	char *server_port = NULL;
 	char *end;
 	ip_addr_t srvip;
-	uint16_t port = TFTP_PORT;
+	u16 port = TFTP_PORT;
 	ulong laddr;
 	ulong addr;
 	int i;
@@ -228,7 +228,7 @@ int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (arg) {
 		/* Parse [ip:[port:]]fname */
 		i = 0;
-		while ((*(words + i) = strsep(&arg,":")))
+		while ((*(words + i) = strsep(&arg, ":")))
 			i++;
 
 		switch (i) {

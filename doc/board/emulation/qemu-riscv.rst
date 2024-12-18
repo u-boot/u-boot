@@ -171,3 +171,8 @@ The following settings provide a debug UART for the virt machine::
     CONFIG_DEBUG_UART_NS16550=y
     CONFIG_DEBUG_UART_BASE=0x10000000
     CONFIG_DEBUG_UART_CLOCK=3686400
+
+To provide a debug UART in main U-Boot the SBI DBCN extension can be used
+instead::
+
+    CONFIG_DEBUG_SBI_CONSOLE=y

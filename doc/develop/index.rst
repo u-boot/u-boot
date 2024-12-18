@@ -13,6 +13,7 @@ General
    codingstyle
    designprinciples
    docstyle
+   kconfig
    memory
    patman
    process
@@ -83,6 +84,7 @@ Testing
    py_testing
    tests_writing
    tests_sandbox
+   binman_tests
 
 Refactoring
 -----------

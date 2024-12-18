@@ -21,7 +21,7 @@ struct param {
 static int do_test(struct unit_test_state *uts,
 		   const char *suffix, int d, int s, int count)
 {
-	const long addr = 0x1000;
+	const long addr = CONFIG_SYS_LOAD_ADDR + 0x1000;
 	u8 shadow[BUF_SIZE];
 	u8 *buf;
 	int i, w, bytes;

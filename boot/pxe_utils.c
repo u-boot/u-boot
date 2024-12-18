@@ -1474,7 +1474,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	 * Create a menu and add items for all the labels.
 	 */
 	m = menu_create(cfg->title, DIV_ROUND_UP(cfg->timeout, 10),
-			cfg->prompt, NULL, label_print, NULL, NULL);
+			cfg->prompt, NULL, label_print, NULL, NULL, NULL);
 	if (!m)
 		return NULL;
 

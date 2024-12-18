@@ -60,7 +60,6 @@
 			clock-names = "uartclk", "apb_pclk";
 			clocks = <&clk1>, <&clk1>;
 			clock = <1000000>;
-			current-speed = <115200>;
 			skip-init;
 		};
 	};

@@ -78,6 +78,11 @@ ulong hextoul(const char *cp, char **endp)
 	return simple_strtoul(cp, endp, 16);
 }
 
+unsigned long long hextoull(const char *cp, char **endp)
+{
+	return simple_strtoull(cp, endp, 16);
+}
+
 ulong dectoul(const char *cp, char **endp)
 {
 	return simple_strtoul(cp, endp, 10);

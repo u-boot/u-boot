@@ -8,4 +8,7 @@
 
 void cpu_sandbox_set_current(const char *name);
 
+/* show the mapping of sandbox addresses to pointers */
+void sandbox_map_list(void);
+
 #endif /* __SANDBOX_CPU_H */

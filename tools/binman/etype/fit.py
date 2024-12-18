@@ -9,6 +9,7 @@ import glob
 import os
 
 import libfdt
+import os
 
 from binman.entry import Entry, EntryArg
 from binman.etype.section import Entry_section
@@ -100,6 +101,14 @@ class Entry_fit(Entry_section):
 
             In this case the input directories are ignored and all devicetree
             files must be in that directory.
+
+        fit,sign
+            Enable signing FIT images via mkimage as described in
+            verified-boot.rst. If the property is found, the private keys path
+            is detected among binman include directories and passed to mkimage
+            via  -k flag. All the keys required for signing FIT must be
+            available at time of signing and must be located in single include
+            directory.
 
     Substitutions
     ~~~~~~~~~~~~~
@@ -426,6 +435,7 @@ class Entry_fit(Entry_section):
             self._remove_props = props.split()
         self.mkimage = None
         self.fdtgrep = None
+        self._fit_sign = None
 
     def ReadNode(self):
         super().ReadNode()
@@ -508,6 +518,45 @@ class Entry_fit(Entry_section):
         # are removed from self._entries later.
         self._priv_entries = dict(self._entries)
 
+    def _get_priv_keys_dir(self, data):
+        """Detect private keys path among binman include directories
+
+        Args:
+            data: FIT image in binary format
+
+        Returns:
+            str: Single path containing all private keys found or None
+
+        Raises:
+            ValueError: Filename 'rsa2048.key' not found in input path
+            ValueError: Multiple key paths found
+        """
+        def _find_keys_dir(node):
+            for subnode in node.subnodes:
+                if subnode.name.startswith('signature'):
+                    if subnode.props.get('key-name-hint') is None:
+                        continue
+                    hint = subnode.props['key-name-hint'].value
+                    name = tools.get_input_filename(f"{hint}.key")
+                    path = os.path.dirname(name)
+                    if path not in paths:
+                        paths.append(path)
+                else:
+                    _find_keys_dir(subnode)
+            return None
+
+        fdt = Fdt.FromData(data)
+        fdt.Scan()
+
+        paths = []
+
+        _find_keys_dir(fdt.GetRoot())
+
+        if len(paths) > 1:
+            self.Raise("multiple key paths found (%s)" % ",".join(paths))
+
+        return paths[0] if len(paths) else None
+
     def BuildSectionData(self, required):
         """Build FIT entry contents
 
@@ -538,6 +587,8 @@ class Entry_fit(Entry_section):
         align = self._fit_props.get('fit,align')
         if align is not None:
             args.update({'align': fdt_util.fdt32_to_cpu(align.value)})
+        if self._fit_props.get('fit,sign') is not None:
+            args.update({'priv_keys_dir': self._get_priv_keys_dir(data)})
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is None:
             if not self.GetAllowMissing():
@@ -637,8 +688,8 @@ class Entry_fit(Entry_section):
             """
             val = fdt_util.GetStringList(node, 'fit,firmware')
             if val is None:
-                return None, self._loadables
-            valid_entries = list(self._loadables)
+                return None, loadables
+            valid_entries = list(loadables)
             for name, entry in self.GetEntries().items():
                 missing = []
                 entry.CheckMissing(missing)
@@ -653,7 +704,7 @@ class Entry_fit(Entry_section):
                         firmware = name
                     elif name not in result:
                         result.append(name)
-            for name in self._loadables:
+            for name in loadables:
                 if name != firmware and name not in result:
                     result.append(name)
             return firmware, result

@@ -41,6 +41,11 @@ void alist_uninit(struct alist *lst)
 	memset(lst, '\0', sizeof(struct alist));
 }
 
+void alist_empty(struct alist *lst)
+{
+	lst->count = 0;
+}
+
 /**
  * alist_expand_to() - Expand a list to the given size
  *
@@ -104,6 +109,42 @@ const void *alist_get_ptr(const struct alist *lst, uint index)
 		return NULL;
 
 	return lst->data + index * lst->obj_size;
+}
+
+int alist_calc_index(const struct alist *lst, const void *ptr)
+{
+	uint index;
+
+	if (!lst->count || ptr < lst->data)
+		return -1;
+
+	index = (ptr - lst->data) / lst->obj_size;
+
+	return index;
+}
+
+void alist_update_end(struct alist *lst, const void *ptr)
+{
+	int index;
+
+	index = alist_calc_index(lst, ptr);
+	lst->count = index == -1 ? 0 : index;
+}
+
+bool alist_chk_ptr(const struct alist *lst, const void *ptr)
+{
+	int index = alist_calc_index(lst, ptr);
+
+	return index >= 0 && index < lst->count;
+}
+
+const void *alist_next_ptrd(const struct alist *lst, const void *ptr)
+{
+	int index = alist_calc_index(lst, ptr);
+
+	assert(index != -1);
+
+	return alist_get_ptr(lst, index + 1);
 }
 
 void *alist_ensure_ptr(struct alist *lst, uint index)

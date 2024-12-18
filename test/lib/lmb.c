@@ -473,7 +473,7 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 
 	/* allocate overlapping region should return the coalesced count */
 	ret = lmb_reserve(0x40011000, 0x10000);
-	ut_asserteq(ret, 1);
+	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x11000,
 		   0, 0, 0, 0);
 	/* allocate 3nd region */
@@ -527,6 +527,26 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	ut_assertok(setup_lmb_test(uts, &store, &mem_lst, &used_lst));
 
 	ret = lmb_add(ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	/* Try to allocate a page twice */
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x2000, LMB_NONE);
+	ut_asserteq(b, alloc_addr_a);
+	ret = lmb_free(alloc_addr_a, 0x2000);
+	ut_asserteq(ret, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, alloc_addr_a);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(b, 0);
+	b = lmb_alloc_addr_flags(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	ret = lmb_free(alloc_addr_a, 0x1000);
 	ut_asserteq(ret, 0);
 
 	/*  reserve 3 blocks */
@@ -734,7 +754,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* reserve again, same flag */
 	ret = lmb_reserve_flags(0x40010000, 0x10000, LMB_NOMAP);
-	ut_asserteq(ret, 0);
+	ut_asserteq(ret, -EEXIST);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x10000,
 		   0, 0, 0, 0);
 
@@ -748,13 +768,13 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* merge after */
 	ret = lmb_reserve_flags(0x40020000, 0x10000, LMB_NOMAP);
-	ut_asserteq(ret, 1);
+	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x20000,
 		   0, 0, 0, 0);
 
 	/* merge before */
 	ret = lmb_reserve_flags(0x40000000, 0x10000, LMB_NOMAP);
-	ut_asserteq(ret, 1);
+	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40000000, 0x30000,
 		   0, 0, 0, 0);
 
@@ -770,7 +790,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* test that old API use LMB_NONE */
 	ret = lmb_reserve(0x40040000, 0x10000);
-	ut_asserteq(ret, 1);
+	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, 0x40000000, 0x30000,
 		   0x40030000, 0x20000, 0, 0);
 
@@ -789,7 +809,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* merge with 2 adjacent regions */
 	ret = lmb_reserve_flags(0x40060000, 0x10000, LMB_NOMAP);
-	ut_asserteq(ret, 2);
+	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 3, 0x40000000, 0x30000,
 		   0x40030000, 0x20000, 0x40050000, 0x30000);
 

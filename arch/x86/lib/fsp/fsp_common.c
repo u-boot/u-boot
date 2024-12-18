@@ -26,12 +26,6 @@ int checkcpu(void)
 	return 0;
 }
 
-int print_cpuinfo(void)
-{
-	post_code(POST_CPU_INFO);
-	return default_print_cpuinfo();
-}
-
 int fsp_init_phase_pci(void)
 {
 	u32 status;

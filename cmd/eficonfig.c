@@ -443,7 +443,7 @@ efi_status_t eficonfig_process_common(struct efimenu *efi_menu,
 		efi_menu->menu_desc = menu_desc;
 
 	menu = menu_create(NULL, 0, 1, display_statusline, item_data_print,
-			   item_choice, efi_menu);
+			   item_choice, NULL, efi_menu);
 	if (!menu)
 		return EFI_INVALID_PARAMETER;
 
@@ -963,7 +963,7 @@ static efi_status_t eficonfig_boot_add_enter_description(void *data)
 	return handle_user_input(bo->description, EFICONFIG_DESCRIPTION_MAX, 22,
 				 "\n  ** Edit Description **\n"
 				 "\n"
-				 "  enter description: ");
+				 "  Enter description: ");
 }
 
 /**

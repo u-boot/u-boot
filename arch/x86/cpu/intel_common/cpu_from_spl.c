@@ -24,7 +24,9 @@ int arch_cpu_init(void)
 	int ret;
 
 #if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_USE_HOB)
-	gd->arch.hob_list = handoff_get();
+	struct spl_handoff *ho = gd->spl_handoff;
+
+	gd->arch.hob_list = ho->arch.hob_list;
 #endif
 	ret = x86_cpu_reinit_f();
 

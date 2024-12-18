@@ -50,7 +50,7 @@ static int do_upl_write(struct cmd_tbl *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	struct upl s_upl, *upl = &s_upl;
-	struct unit_test_state uts;
+	struct unit_test_state uts = { 0 };
 	struct abuf buf;
 	oftree tree;
 	ulong addr;
@@ -72,7 +72,7 @@ static int do_upl_write(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 	addr = map_to_sysmem(abuf_data(&buf));
-	printf("UPL handoff written to %lx size %lx\n", addr, abuf_size(&buf));
+	printf("UPL handoff written to %lx size %zx\n", addr, abuf_size(&buf));
 	if (env_set_hex("upladdr", addr) ||
 	    env_set_hex("uplsize", abuf_size(&buf))) {
 		printf("Cannot set env var\n");

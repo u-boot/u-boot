@@ -289,7 +289,7 @@ static void *get_config_table(const efi_guid_t *guid)
  * @len:	length of buffer
  * Return:	checksum
  */
-u8 checksum(void *buf, int len)
+static u8 checksum(void *buf, int len)
 {
 	u8 ret = 0;
 
@@ -304,7 +304,7 @@ u8 checksum(void *buf, int len)
  *
  * Return:	status code
  */
-efi_status_t do_check(void)
+static efi_status_t do_check(void)
 {
 	struct smbios3_entry *smbios3_anchor;
 	void *table, *table_end;
@@ -401,7 +401,7 @@ efi_status_t do_check(void)
  * @buf:	buffer to write
  * @size:	size of the buffer
  */
-efi_status_t save_file(u16 *filename, void *buf, efi_uintn_t size)
+static efi_status_t save_file(u16 *filename, void *buf, efi_uintn_t size)
 {
 	efi_uintn_t ret;
 	struct efi_simple_file_system_protocol *file_system;

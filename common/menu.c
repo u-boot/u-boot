@@ -43,6 +43,7 @@ struct menu {
 	void (*display_statusline)(struct menu *);
 	void (*item_data_print)(void *);
 	char *(*item_choice)(void *);
+	bool (*need_reprint)(void *);
 	void *item_choice_data;
 	struct list_head items;
 	int item_cnt;
@@ -117,6 +118,11 @@ static inline void *menu_item_destroy(struct menu *m,
  */
 static inline void menu_display(struct menu *m)
 {
+	if (m->need_reprint) {
+		if (!m->need_reprint(m->item_choice_data))
+			return;
+	}
+
 	if (m->title) {
 		puts(m->title);
 		putc('\n');
@@ -362,6 +368,9 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data)
  * item. Returns a key string corresponding to the chosen item or NULL if
  * no item has been selected.
  *
+ * need_reprint - If not NULL, will be called before printing the menu.
+ * Returning FALSE means the menu does not need reprint.
+ *
  * item_choice_data - Will be passed as the argument to the item_choice function
  *
  * Returns a pointer to the menu if successful, or NULL if there is
@@ -371,6 +380,7 @@ struct menu *menu_create(char *title, int timeout, int prompt,
 				void (*display_statusline)(struct menu *),
 				void (*item_data_print)(void *),
 				char *(*item_choice)(void *),
+				bool (*need_reprint)(void *),
 				void *item_choice_data)
 {
 	struct menu *m;
@@ -386,6 +396,7 @@ struct menu *menu_create(char *title, int timeout, int prompt,
 	m->display_statusline = display_statusline;
 	m->item_data_print = item_data_print;
 	m->item_choice = item_choice;
+	m->need_reprint = need_reprint;
 	m->item_choice_data = item_choice_data;
 	m->item_cnt = 0;
 
@@ -525,14 +536,15 @@ enum bootmenu_key bootmenu_loop(struct bootmenu_data *menu,
 				struct cli_ch_state *cch)
 {
 	enum bootmenu_key key;
-	int c;
+	int c, errchar = 0;
 
 	c = cli_ch_process(cch, 0);
 	if (!c) {
 		while (!c && !tstc()) {
 			schedule();
 			mdelay(10);
-			c = cli_ch_process(cch, -ETIMEDOUT);
+			c = cli_ch_process(cch, errchar);
+			errchar = -ETIMEDOUT;
 		}
 		if (!c) {
 			c = getchar();

@@ -393,7 +393,11 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	printf("Partition: %d\n", bflow->part);
 	printf("Subdir:    %s\n", bflow->subdir ? bflow->subdir : "(none)");
 	printf("Filename:  %s\n", bflow->fname);
-	printf("Buffer:    %lx\n", (ulong)map_to_sysmem(bflow->buf));
+	printf("Buffer:    ");
+	if (bflow->buf)
+		printf("%lx\n", (ulong)map_to_sysmem(bflow->buf));
+	else
+		printf("(not loaded)\n");
 	printf("Size:      %x (%d bytes)\n", bflow->size, bflow->size);
 	printf("OS:        %s\n", bflow->os_name ? bflow->os_name : "(none)");
 	printf("Cmdline:   ");
@@ -403,7 +407,8 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		puts("(none)");
 	putc('\n');
 	if (bflow->x86_setup)
-		printf("X86 setup: %p\n", bflow->x86_setup);
+		printf("X86 setup: %lx\n",
+		       (ulong)map_to_sysmem(bflow->x86_setup));
 	printf("Logo:      %s\n", bflow->logo ?
 	       simple_xtoa((ulong)map_to_sysmem(bflow->logo)) : "(none)");
 	if (bflow->logo) {

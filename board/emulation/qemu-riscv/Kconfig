@@ -58,6 +58,8 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply E1000
 	imply PCI
 	imply NVME_PCI
+	imply VIDEO
+	imply VIDEO_SIMPLE
 	imply PCIE_ECAM_GENERIC
 	imply DM_RNG
 	imply DM_RTC

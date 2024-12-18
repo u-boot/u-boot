@@ -75,6 +75,9 @@ fit-dtb.blob*
 /keep-syms-lto.*
 /*imx8mimage*
 /*imx8mcst*
+/drivers/video/u_boot_logo.S
+/test/overlay/test-fdt-overlay.dtbo.S
+/test/overlay/test-fdt-overlay-stacked.dtbo.S
 
 #
 # Generated include files
@@ -83,6 +86,8 @@ fit-dtb.blob*
 /include/config.h
 /include/config/
 /include/generated/
+/include/bmp_logo.h
+/include/bmp_logo_data.h
 
 # stgit generated dirs
 patches-*

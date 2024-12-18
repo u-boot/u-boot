@@ -14,6 +14,7 @@
 #include <asm/gpio.h>
 #include <dm/device_compat.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <linux/delay.h>
 
 enum mcp230xx_type {
 	UNKNOWN = 0,

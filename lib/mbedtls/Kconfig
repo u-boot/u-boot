@@ -430,4 +430,16 @@ endif # SPL
 
 endif # MBEDTLS_LIB_X509
 
+config MBEDTLS_LIB_TLS
+	bool "MbedTLS TLS library"
+	depends on RSA_PUBLIC_KEY_PARSER_MBEDTLS
+	depends on X509_CERTIFICATE_PARSER_MBEDTLS
+	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	depends on ASN1_DECODER_MBEDTLS
+	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
+	depends on MBEDTLS_LIB_CRYPTO
+	help
+	  Enable MbedTLS TLS library. Required for HTTPs support
+	  in wget
+
 endif # MBEDTLS_LIB

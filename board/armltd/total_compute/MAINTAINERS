@@ -1,5 +1,5 @@
 TOTAL_COMPUTE BOARD
-M:	Usama Arif <usama.arif@arm.com>
+M:	Ben Horgan <ben.horgan@arm.com>
 S:	Maintained
 F:	board/armltd/total_compute/
 F:	include/configs/total_compute.h

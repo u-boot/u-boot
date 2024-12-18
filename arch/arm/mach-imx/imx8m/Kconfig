@@ -228,6 +228,13 @@ config TARGET_IMX8MP_EVK
 	select SPL_CRYPTO if SPL
 	imply OF_UPSTREAM
 
+config TARGET_IMX8MP_NAVQP
+	bool "Emcraft Systems i.MX8M Plus NavQ+ board"
+	select IMX8MP
+	select IMX8M_LPDDR4
+	select SUPPORT_SPL
+	imply OF_UPSTREAM
+
 config TARGET_IMX8MP_VENICE
 	bool "Support Gateworks Venice iMX8M Plus module"
 	select IMX8MP
@@ -358,6 +365,7 @@ source "board/compulab/imx8mm-cl-iot-gate/Kconfig"
 source "board/data_modul/imx8mm_edm_sbc/Kconfig"
 source "board/data_modul/imx8mp_edm_sbc/Kconfig"
 source "board/dhelectronics/dh_imx8mp/Kconfig"
+source "board/emcraft/imx8mp_navqp/Kconfig"
 source "board/engicam/imx8mm/Kconfig"
 source "board/engicam/imx8mp/Kconfig"
 source "board/freescale/imx8mq_evk/Kconfig"
