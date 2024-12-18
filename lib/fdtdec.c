@@ -1669,15 +1669,10 @@ int fdtdec_setup(void)
 	int ret = -ENOENT;
 
 	/*
-	 * If allowing a bloblist, check that first. There was discussion about
-	 * adding an OF_BLOBLIST Kconfig, but this was rejected.
-	 *
-	 * The necessary test is whether the previous phase passed a bloblist,
-	 * not whether this phase creates one.
+	 * Only scan for a bloblist and then if that bloblist contains a device
+	 * tree if we have been configured to expect one.
 	 */
-	if (CONFIG_IS_ENABLED(BLOBLIST) &&
-	    (xpl_prev_phase() != PHASE_TPL ||
-	     !IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
+	if (CONFIG_IS_ENABLED(BLOBLIST_PRIOR_STAGE)) {
 		ret = bloblist_maybe_init();
 		if (!ret) {
 			gd->fdt_blob = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
