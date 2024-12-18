@@ -19,18 +19,17 @@
 #define LMB_ALIST_INITIAL_SIZE	4
 
 /**
- * enum lmb_flags - Definition of memory region attributes
- * @LMB_NONE: No special request
- * @LMB_NOMAP: Don't add to MMU configuration
- * @LMB_NOOVERWRITE: The memory region cannot be overwritten/re-reserved
- * @LMB_NONOTIFY: Do not notify other modules of changes to this memory region
+ * DOC: Memory region attribute flags.
+ *
+ * %LMB_NONE: No special request
+ * %LMB_NOMAP: Don't add to MMU configuration
+ * %LMB_NOOVERWRITE: The memory region cannot be overwritten/re-reserved
+ * %LMB_NONOTIFY: Do not notify other modules of changes to this memory region
  */
-enum lmb_flags {
-	LMB_NONE		= 0,
-	LMB_NOMAP		= BIT(1),
-	LMB_NOOVERWRITE		= BIT(2),
-	LMB_NONOTIFY		= BIT(3),
-};
+#define LMB_NONE 0
+#define LMB_NOMAP BIT(0)
+#define LMB_NOOVERWRITE BIT(1)
+#define LMB_NONOTIFY BIT(2)
 
 /**
  * struct lmb_region - Description of one region
@@ -41,7 +40,7 @@ enum lmb_flags {
 struct lmb_region {
 	phys_addr_t base;
 	phys_size_t size;
-	enum lmb_flags flags;
+	u32 flags;
 };
 
 /**
@@ -101,7 +100,7 @@ long lmb_reserve(phys_addr_t base, phys_size_t size);
  * * %-1	- Failure
  */
 long lmb_reserve_flags(phys_addr_t base, phys_size_t size,
-		       enum lmb_flags flags);
+		       u32 flags);
 
 phys_addr_t lmb_alloc(phys_size_t size, ulong align);
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);

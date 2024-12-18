@@ -188,7 +188,7 @@ static long lmb_resize_regions(struct alist *lmb_rgn_lst,
  * * %-1	- Failure
  */
 static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
-				 phys_size_t size, enum lmb_flags flags)
+				 phys_size_t size, u32 flags)
 {
 	unsigned long coalesced = 0;
 	long ret, i;
@@ -201,7 +201,7 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		phys_addr_t rgnbase = rgn[i].base;
 		phys_size_t rgnsize = rgn[i].size;
-		enum lmb_flags rgnflags = rgn[i].flags;
+		u32 rgnflags = rgn[i].flags;
 
 		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
 		if (ret > 0) {
@@ -430,14 +430,14 @@ long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
 
 static struct lmb lmb;
 
-static bool lmb_should_notify(enum lmb_flags flags)
+static bool lmb_should_notify(u32 flags)
 {
 	return !lmb.test && !(flags & LMB_NONOTIFY) &&
 		CONFIG_IS_ENABLED(EFI_LOADER);
 }
 
 static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
-				 enum lmb_flags flags)
+				 u32 flags)
 {
 	u64 efi_addr;
 	u64 pages;
@@ -470,7 +470,7 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 	return 0;
 }
 
-static void lmb_print_region_flags(enum lmb_flags flags)
+static void lmb_print_region_flags(u32 flags)
 {
 	const char * const flag_str[] = { "none", "no-map", "no-overwrite",
 					  "no-notify" };
@@ -495,7 +495,7 @@ static void lmb_dump_region(struct alist *lmb_rgn_lst, char *name)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
 	unsigned long long base, size, end;
-	enum lmb_flags flags;
+	u32 flags;
 	int i;
 
 	printf(" %s.count = %#x\n", name, lmb_rgn_lst->count);
@@ -669,7 +669,7 @@ long lmb_free(phys_addr_t base, phys_size_t size)
 	return lmb_free_flags(base, size, LMB_NONE);
 }
 
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size, enum lmb_flags flags)
+long lmb_reserve_flags(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
@@ -687,7 +687,7 @@ long lmb_reserve(phys_addr_t base, phys_size_t size)
 }
 
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
-				   phys_addr_t max_addr, enum lmb_flags flags)
+				   phys_addr_t max_addr, u32 flags)
 {
 	int ret;
 	long i, rgn;
@@ -774,7 +774,7 @@ phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 }
 
 static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
-				   enum lmb_flags flags)
+				   u32 flags)
 {
 	long rgn;
 	struct lmb_region *lmb_memory = lmb.free_mem.data;
