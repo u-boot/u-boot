@@ -748,7 +748,7 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
 	return alloc;
 }
 
-static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long rgn;
 	struct lmb_region *lmb_memory = lmb.available_mem.data;
@@ -770,11 +770,6 @@ static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags
 	}
 
 	return 0;
-}
-
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, uint flags)
-{
-	return _lmb_alloc_addr(base, size, flags);
 }
 
 /* Return number of bytes from a given address that are free */

@@ -125,7 +125,7 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
  *
  * Return: Base address on success, 0 on error.
  */
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, uint flags);
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
 
 /**
  * lmb_is_reserved_flags() - Test if address is in reserved region with flag
