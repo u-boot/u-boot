@@ -1331,6 +1331,8 @@ static int udma_get_mmrs(struct udevice *dev)
 			continue;
 		if (i == MMR_RCHANRT && ud->rchan_cnt == 0)
 			continue;
+		if (i == MMR_RFLOW && ud->match_data->type == DMA_TYPE_BCDMA)
+			continue;
 
 		ud->mmrs[i] = dev_read_addr_name_ptr(dev, mmr_names[i]);
 		if (!ud->mmrs[i])
