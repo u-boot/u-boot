@@ -65,7 +65,7 @@ static int setup_lmb_test(struct unit_test_state *uts, struct lmb *store,
 
 	ut_assertok(lmb_push(store));
 	lmb = lmb_get();
-	*mem_lstp = &lmb->free_mem;
+	*mem_lstp = &lmb->available_mem;
 	*used_lstp = &lmb->used_mem;
 
 	return 0;
