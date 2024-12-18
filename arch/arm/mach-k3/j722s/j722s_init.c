@@ -219,6 +219,8 @@ static u32 __get_primary_bootmedia(u32 devstat)
 		fallthrough;
 	case BOOT_DEVICE_XSPI:
 		fallthrough;
+	case BOOT_DEVICE_FAST_XSPI:
+		fallthrough;
 	case BOOT_DEVICE_SPI:
 		return BOOT_DEVICE_SPI;
 
