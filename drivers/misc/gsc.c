@@ -330,6 +330,9 @@ static int gsc_hwmon(struct udevice *dev)
 
 			printf("%-8s: %d.%03dV\n", label, val / 1000, val % 1000);
 			break;
+		case 4: /* revolutions per minute */
+			printf("%-8s: %drpm\n", label, val * 30);
+			break;
 		}
 	}
 
