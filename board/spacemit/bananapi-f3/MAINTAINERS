@@ -1,0 +1,6 @@
+BananaPi F3
+M:	Huan Zhou <pericycle.cc@@gmail.com>
+S:	Maintained
+F:	board/spacemit/bananapi-f3/
+F:	configs/bananapi-f3_defconfig
+F:	doc/board/spacemit/bananapi-f3.rst
