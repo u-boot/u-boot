@@ -408,7 +408,7 @@ static int k3_sec_proxy_remove(struct udevice *dev)
 	return 0;
 }
 
-static const u32 am6x_valid_threads[] = { 0, 1, 4, 5, 6, 7, 8, 9, 11, 12, 13, 20, 21, 22, 23 };
+static const u32 am6x_valid_threads[] = { 0, 1, 4, 5, 6, 7, 8, 9, 11, 12, 13, 20, 21, 22, 23, 28, 29 };
 
 static const struct k3_sec_proxy_desc am654_desc = {
 	.thread_count = 90,
