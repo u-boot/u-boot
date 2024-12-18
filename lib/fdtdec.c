@@ -1677,7 +1677,7 @@ int fdtdec_setup(void)
 	 */
 	if (CONFIG_IS_ENABLED(BLOBLIST) &&
 	    (xpl_prev_phase() != PHASE_TPL ||
-	     !IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
+	     IS_ENABLED(CONFIG_TPL_BLOBLIST))) {
 		ret = bloblist_maybe_init();
 		if (!ret) {
 			gd->fdt_blob = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
@@ -1706,11 +1706,17 @@ int fdtdec_setup(void)
 
 	/* Allow the board to override the fdt address. */
 	if (IS_ENABLED(CONFIG_OF_BOARD)) {
-		gd->fdt_blob = board_fdt_blob_setup(&ret);
-		if (!ret)
+		void *blob;
+
+		blob = (void *)gd->fdt_blob;
+		ret = board_fdt_blob_setup(&blob);
+		if (ret) {
+			if (ret != -EEXIST)
+				return ret;
+		} else {
 			gd->fdt_src = FDTSRC_BOARD;
-		else if (ret != -EEXIST)
-			return ret;
+			gd->fdt_blob = blob;
+		}
 	}
 
 	/* Allow the early environment to override the fdt address */

@@ -691,11 +691,12 @@ int dram_init_banksize(void)
 
 extern long fw_dtb_pointer;
 
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
 	/* Return DTB pointer passed by m1n1 */
-	*err = 0;
-	return (void *)fw_dtb_pointer;
+	*fdtp = (void *)fw_dtb_pointer;
+
+	return 0;
 }
 
 void build_mem_map(void)
