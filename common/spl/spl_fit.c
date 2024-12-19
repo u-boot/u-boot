@@ -190,7 +190,7 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
 /**
  * load_simple_fit(): load the image described in a certain FIT node
  * @info:	points to information about the device to load data from
- * @sector:	the start sector of the FIT image on the device
+ * @fit_offset:	the offset of the FIT image on the device
  * @ctx:	points to the FIT context structure
  * @node:	offset of the DT node describing the image to load (relative
  *		to @fit)
@@ -243,11 +243,14 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 	if (!fit_image_get_data_position(fit, node, &offset)) {
 		external_data = true;
 	} else if (!fit_image_get_data_offset(fit, node, &offset)) {
+		log_debug("read offset %x = offset from fit %lx\n",
+			  offset, (ulong)offset + ctx->ext_data_offset);
 		offset += ctx->ext_data_offset;
 		external_data = true;
 	}
 
 	if (external_data) {
+		ulong read_offset;
 		void *src_ptr;
 
 		/* External data */
@@ -270,6 +273,10 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 
 		overhead = get_aligned_image_overhead(info, offset);
 		size = get_aligned_image_size(info, length, offset);
+		read_offset = fit_offset + get_aligned_image_offset(info,
+							    offset);
+		log_debug("reading from offset %x / %lx size %lx to %p: ",
+			  offset, read_offset, size, src_ptr);
 
 		if (info->read(info,
 			       fit_offset +
@@ -336,6 +343,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		else
 			image_info->entry_point = FDT_ERROR;
 	}
+	log_debug("- done loading\n");
 
 	upl_add_image(fit, node, load_addr, length);
 
