@@ -598,7 +598,7 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 /**
  * lmb_add_memory() - Add memory range for LMB allocations
  *
- * Add the entire available memory range to the pool of memory that
+ * Add memory till ram_top to the LMB memory map so that it
  * can be used by the LMB module for allocations.
  *
  * Return: None
@@ -606,8 +606,9 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 void lmb_add_memory(void)
 {
 	int i;
-	phys_addr_t bank_end;
 	phys_size_t size;
+	phys_addr_t bank_end;
+	phys_addr_t bank_start;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
 
@@ -619,23 +620,17 @@ void lmb_add_memory(void)
 		ram_top = 0x100000000ULL;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		bank_start = bd->bi_dram[i].start;
 		size = bd->bi_dram[i].size;
-		bank_end = bd->bi_dram[i].start + size;
+		bank_end = bank_start + size - 1;
 
-		if (size) {
-			lmb_add(bd->bi_dram[i].start, size);
-
-			/*
-			 * Reserve memory above ram_top as
-			 * no-overwrite so that it cannot be
-			 * allocated
-			 */
-			if (bd->bi_dram[i].start >= ram_top)
-				lmb_reserve_flags(bd->bi_dram[i].start, size,
-						  LMB_NOOVERWRITE);
-			else if (bank_end > ram_top)
-				lmb_reserve_flags(ram_top, bank_end - ram_top,
-						  LMB_NOOVERWRITE);
+		if (size && bank_start < ram_top) {
+			if (bank_end <= ram_top) {
+				lmb_add(bank_start, size);
+			} else {
+				size -= bank_end - ram_top + 1;
+				lmb_add(bank_start, size);
+			}
 		}
 	}
 }
