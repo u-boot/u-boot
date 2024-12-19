@@ -4233,56 +4233,69 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(SCP_DATA, data[:len(SCP_DATA)])
 
     def CheckFitFdt(self, dts='170_fit_fdt.dts', use_fdt_list=True,
-                    default_dt=None):
+                    default_dt=None, use_seq_num=True):
         """Check an image with an FIT with multiple FDT images"""
-        def _CheckFdt(seq, expected_data):
+        def _CheckFdt(val, expected_data):
             """Check the FDT nodes
 
             Args:
-                seq: Sequence number to check (0 or 1)
+                val: Sequence number to check (0 or 1) or fdt name
                 expected_data: Expected contents of 'data' property
             """
-            name = 'fdt-%d' % seq
+            name = 'fdt-%s' % val
             fnode = dtb.GetNode('/images/%s' % name)
             self.assertIsNotNone(fnode)
             self.assertEqual({'description','type', 'compression', 'data'},
                              set(fnode.props.keys()))
             self.assertEqual(expected_data, fnode.props['data'].bytes)
-            self.assertEqual('fdt-test-fdt%d.dtb' % seq,
-                             fnode.props['description'].value)
+            description = (
+                'fdt-test-fdt%s.dtb' % val if len(val) == 1 else
+                'fdt-%s.dtb' % val
+            )
+            self.assertEqual(description, fnode.props['description'].value)
             self.assertEqual(fnode.subnodes[0].name, 'hash')
 
-        def _CheckConfig(seq, expected_data):
+        def _CheckConfig(val, expected_data):
             """Check the configuration nodes
 
             Args:
-                seq: Sequence number to check (0 or 1)
+                val: Sequence number to check (0 or 1) or fdt name
                 expected_data: Expected contents of 'data' property
             """
             cnode = dtb.GetNode('/configurations')
             self.assertIn('default', cnode.props)
-            self.assertEqual('config-2', cnode.props['default'].value)
+            default = (
+                'config-2' if len(val) == 1 else
+                'config-test-fdt2'
+            )
+            self.assertEqual(default, cnode.props['default'].value)
 
-            name = 'config-%d' % seq
+            name = 'config-%s' % val
             fnode = dtb.GetNode('/configurations/%s' % name)
             self.assertIsNotNone(fnode)
             self.assertEqual({'description','firmware', 'loadables', 'fdt'},
                              set(fnode.props.keys()))
-            self.assertEqual('conf-test-fdt%d.dtb' % seq,
-                             fnode.props['description'].value)
-            self.assertEqual('fdt-%d' % seq, fnode.props['fdt'].value)
+            description = (
+                'conf-test-fdt%s.dtb' % val if len(val) == 1 else
+                'conf-%s.dtb' % val
+            )
+            self.assertEqual(description, fnode.props['description'].value)
+            self.assertEqual('fdt-%s' % val, fnode.props['fdt'].value)
 
         entry_args = {
             'default-dt': 'test-fdt2',
         }
+        extra_indirs = None
         if use_fdt_list:
             entry_args['of-list'] = 'test-fdt1 test-fdt2'
         if default_dt:
             entry_args['default-dt'] = default_dt
+        if use_fdt_list:
+            extra_indirs = [os.path.join(self._indir, TEST_FDT_SUBDIR)]
         data = self._DoReadFileDtb(
             dts,
             entry_args=entry_args,
-            extra_indirs=[os.path.join(self._indir, TEST_FDT_SUBDIR)])[0]
+            extra_indirs=extra_indirs)[0]
         self.assertEqual(U_BOOT_NODTB_DATA, data[-len(U_BOOT_NODTB_DATA):])
         fit_data = data[len(U_BOOT_DATA):-len(U_BOOT_NODTB_DATA)]
 
@@ -4291,13 +4304,22 @@ class TestFunctional(unittest.TestCase):
         fnode = dtb.GetNode('/images/kernel')
         self.assertIn('data', fnode.props)
 
-        # Check all the properties in fdt-1 and fdt-2
-        _CheckFdt(1, TEST_FDT1_DATA)
-        _CheckFdt(2, TEST_FDT2_DATA)
+        if use_seq_num == True:
+            # Check all the properties in fdt-1 and fdt-2
+            _CheckFdt('1', TEST_FDT1_DATA)
+            _CheckFdt('2', TEST_FDT2_DATA)
 
-        # Check configurations
-        _CheckConfig(1, TEST_FDT1_DATA)
-        _CheckConfig(2, TEST_FDT2_DATA)
+            # Check configurations
+            _CheckConfig('1', TEST_FDT1_DATA)
+            _CheckConfig('2', TEST_FDT2_DATA)
+        else:
+            # Check all the properties in fdt-1 and fdt-2
+            _CheckFdt('test-fdt1', TEST_FDT1_DATA)
+            _CheckFdt('test-fdt2', TEST_FDT2_DATA)
+
+            # Check configurations
+            _CheckConfig('test-fdt1', TEST_FDT1_DATA)
+            _CheckConfig('test-fdt2', TEST_FDT2_DATA)
 
     def testFitFdt(self):
         """Test an image with an FIT with multiple FDT images"""
@@ -7899,6 +7921,55 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
             entry_args=entry_args,
             extra_indirs=[test_subdir])[0]
 
+
+    def testSimpleFitEncryptedData(self):
+        """Test an image with a FIT containing data to be encrypted"""
+        data = tools.read_file(self.TestFile("aes256.bin"))
+        self._MakeInputFile("keys/aes256.bin", data)
+
+        keys_subdir = os.path.join(self._indir, "keys")
+        data = self._DoReadFileDtb(
+            '343_fit_encrypt_data.dts',
+            extra_indirs=[keys_subdir])[0]
+
+        fit = fdt.Fdt.FromData(data)
+        fit.Scan()
+
+        # Extract the encrypted data and the Initialization Vector from the FIT
+        node = fit.GetNode('/images/u-boot')
+        subnode = fit.GetNode('/images/u-boot/cipher')
+        data_size_unciphered = int.from_bytes(fit.GetProps(node)['data-size-unciphered'].bytes,
+                                              byteorder='big')
+        self.assertEqual(data_size_unciphered, len(U_BOOT_NODTB_DATA))
+
+        # Retrieve the key name from the FIT removing any null byte
+        key_name = fit.GetProps(subnode)['key-name-hint'].bytes.replace(b'\x00', b'')
+        with open(self.TestFile(key_name.decode('ascii') + '.bin'), 'rb') as file:
+            key = file.read()
+        iv = fit.GetProps(subnode)['iv'].bytes.hex()
+        enc_data = fit.GetProps(node)['data'].bytes
+        outdir = tools.get_output_dir()
+        enc_data_file = os.path.join(outdir, 'encrypted_data.bin')
+        tools.write_file(enc_data_file, enc_data)
+        data_file = os.path.join(outdir, 'data.bin')
+
+        # Decrypt the encrypted data from the FIT and compare the data
+        tools.run('openssl', 'enc', '-aes-256-cbc', '-nosalt', '-d', '-in',
+                  enc_data_file, '-out', data_file, '-K', key.hex(), '-iv', iv)
+        with open(data_file, 'r') as file:
+            dec_data = file.read()
+        self.assertEqual(U_BOOT_NODTB_DATA, dec_data.encode('ascii'))
+
+    def testSimpleFitEncryptedDataMissingKey(self):
+        """Test an image with a FIT containing data to be encrypted but with a missing key"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('344_fit_encrypt_data_no_key.dts')
+
+        self.assertIn("Filename 'aes256.bin' not found in input path", str(e.exception))
+
+    def testFitFdtName(self):
+        """Test an image with an FIT with multiple FDT images using NAME"""
+        self.CheckFitFdt('345_fit_fdt_name.dts', use_seq_num=False)
 
 if __name__ == "__main__":
     unittest.main()
