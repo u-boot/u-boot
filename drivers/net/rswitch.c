@@ -417,7 +417,6 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	struct rswitch_port_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
 	int val;
-	int reg;
 
 	/* Change to disable mode */
 	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
@@ -426,9 +425,9 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
 
 	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
+	clrsetbits_le32(etha->addr + MPIC,
+			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
+			MPIC_MDC_CLK_SET);
 
 	/* Set Station Management Mode : Clause 45 */
 	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
@@ -449,7 +448,6 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 {
 	struct rswitch_port_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
-	int reg;
 
 	/* Change to disable mode */
 	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
@@ -458,9 +456,9 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
 
 	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
+	clrsetbits_le32(etha->addr + MPIC,
+			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
+			MPIC_MDC_CLK_SET);
 
 	/* Set Station Management Mode : Clause 45 */
 	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
