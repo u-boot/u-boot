@@ -264,39 +264,3 @@ void sha256_finish(sha256_context * ctx, uint8_t digest[32])
 	PUT_UINT32_BE(ctx->state[6], digest, 24);
 	PUT_UINT32_BE(ctx->state[7], digest, 28);
 }
-
-/*
- * Output = SHA-256( input buffer ). Trigger the watchdog every 'chunk_sz'
- * bytes of input processed.
- */
-void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
-		unsigned char *output, unsigned int chunk_sz)
-{
-	sha256_context ctx;
-#if !defined(USE_HOSTCC) && \
-    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
-	const unsigned char *end;
-	unsigned char *curr;
-	int chunk;
-#endif
-
-	sha256_starts(&ctx);
-
-#if !defined(USE_HOSTCC) && \
-    (defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG))
-	curr = (unsigned char *)input;
-	end = input + ilen;
-	while (curr < end) {
-		chunk = end - curr;
-		if (chunk > chunk_sz)
-			chunk = chunk_sz;
-		sha256_update(&ctx, curr, chunk);
-		curr += chunk;
-		schedule();
-	}
-#else
-	sha256_update(&ctx, input, ilen);
-#endif
-
-	sha256_finish(&ctx, output);
-}

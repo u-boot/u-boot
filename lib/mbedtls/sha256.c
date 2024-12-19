@@ -33,30 +33,3 @@ void sha256_finish(sha256_context *ctx, uint8_t digest[SHA256_SUM_LEN])
 	mbedtls_sha256_finish(ctx, digest);
 	mbedtls_sha256_free(ctx);
 }
-
-void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
-		    unsigned char *output, unsigned int chunk_sz)
-{
-	sha256_context ctx;
-
-	sha256_starts(&ctx);
-
-	if (IS_ENABLED(CONFIG_HW_WATCHDOG) || IS_ENABLED(CONFIG_WATCHDOG)) {
-		const unsigned char *curr = input;
-		const unsigned char *end = input + ilen;
-		int chunk;
-
-		while (curr < end) {
-			chunk = end - curr;
-			if (chunk > chunk_sz)
-				chunk = chunk_sz;
-			sha256_update(&ctx, curr, chunk);
-			curr += chunk;
-			schedule();
-		}
-	} else {
-		sha256_update(&ctx, input, ilen);
-	}
-
-	sha256_finish(&ctx, output);
-}
