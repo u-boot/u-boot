@@ -862,7 +862,7 @@ int spl_load_fit_image(struct spl_image_info *spl_image,
 {
 	struct bootm_headers images;
 	const char *fit_uname_config = NULL;
-	uintptr_t fdt_hack;
+	ulong fdt_hack;
 	const char *uname;
 	ulong fw_data = 0, dt_data = 0, img_data = 0;
 	ulong fw_len = 0, dt_len = 0, img_len = 0;
