@@ -1172,6 +1172,18 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
 				const void **data, size_t *size);
 
 /**
+ * fit_image_get_phase() - Get the phase from a FIT image
+ *
+ * @fit: FIT to read from
+ * @offset: offset node to read
+ * @phasep: Returns phase, if any
+ * Return: 0 if read OK and *phasep is value, -ENOENT if there was no phase
+ * property in the node, other -ve value on other error
+ */
+int fit_image_get_phase(const void *fit, int offset,
+			enum image_phase_t *phasep);
+
+/**
  * fit_get_data_node() - Get verified image data for an image
  * @fit: Pointer to the FIT format image header
  * @image_uname: The name of the image node
