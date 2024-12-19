@@ -6,3 +6,6 @@
 *.ttf binary
 *.gz binary
 *.png binary
+pmufw.bin binary
+pmu_obj.bin binary
+bl31.bin binary
