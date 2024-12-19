@@ -237,6 +237,14 @@ config VPL_TEXT_BASE
 	help
 	  The address in memory that VPL will be running from.
 
+config VPL_MAX_SIZE
+	hex "Maximum size (in bytes) for the VPL stage"
+	default 0x2e000 if ROCKCHIP_RK3399
+	default 0x0
+	help
+	  The maximum size (in bytes) of the TPL stage. This size is determined
+	  by the amount of internal SRAM memory.
+
 config VPL_BINMAN_SYMBOLS
 	bool "Declare binman symbols in VPL"
 	depends on VPL_FRAMEWORK && BINMAN
