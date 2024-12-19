@@ -845,11 +845,50 @@ static void add_u_boot_and_runtime(void)
 			      EFI_RUNTIME_SERVICES_CODE, false);
 }
 
+static void efi_add_high_memory(void)
+{
+	uint i;
+	u64 ram_start, ram_end, pages;
+	u64 ram_top = gd->ram_top & ~EFI_PAGE_MASK;
+
+	/*
+	 * ram_top is just outside mapped memory. So use an offset of one for
+	 * mapping the sandbox address.
+	 */
+	ram_top = (uintptr_t)map_sysmem(ram_top - 1, 0) + 1;
+
+	/* Fix for 32bit targets with ram_top at 4G */
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
+
+	/* Add memory above ram_top to the memory map */
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
+		ram_end = ram_start + gd->bd->bi_dram[i].size;
+
+		ram_end &= ~EFI_PAGE_MASK;
+		ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+
+		if (ram_start >= ram_top) {
+			pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+			efi_add_memory_map_pg(ram_start, pages,
+					      EFI_BOOT_SERVICES_DATA, false);
+		} else if (ram_end > ram_top) {
+			pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
+			efi_add_memory_map_pg(ram_top, pages,
+					      EFI_BOOT_SERVICES_DATA, false);
+		}
+	}
+
+}
+
 int efi_memory_init(void)
 {
 	efi_add_known_memory();
 
 	add_u_boot_and_runtime();
+
+	efi_add_high_memory();
 
 #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 	/* Request a 32bit 64MB bounce buffer region */
