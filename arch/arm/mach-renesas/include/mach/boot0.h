@@ -28,19 +28,19 @@ _start:
 	/* r1=0xe6170800 */
 	.inst	0xe3a004e6	/* mov     r0,     #0xe6000000 */
 	.inst	0xe3801817	/* orr     r1, r0, #0x170000 */
-	.inst	0xe3811b02	/* orr     r1, r1, #0x800 */
+	.inst	0xe3814b02	/* orr     r4, r1, #0x800 */
 
 	/* r0=0xe6280000 */
 	.inst	0xe380070a	/* orr     r0, r0, #0x280000 */
 
 	/* APMU_RVBARPLC0 = (address of 'b reset' below) | CA_CORE0_VLD_RVBARP */
-	.inst	0xe28f3068	/* add     r3, pc, #0x68 */
+	.inst	0xe28f3088	/* add     r3, pc, #0x88 */
 	.inst	0xe3833001	/* orr     r3, r3, #1 */
-	.inst	0xe5813038	/* str     r3, [r1, #56]   @ 0x38 */
+	.inst	0xe5843038	/* str     r3, [r4, #56]   @ 0x38 */
 
 	/* APMU_RVBARPHC0 = 0 */
-	.inst	0xe3a03000	/* mov     r3, #0 */
-	.inst	0xe581303c	/* str     r3, [r1, #60]   @ 0x3c */
+	.inst	0xe3a05000	/* mov     r5, #0 */
+	.inst	0xe584503c	/* str     r5, [r4, #60]   @ 0x3c */
 
 	/* PRR & 0xff00 ?= 0x5c00, test if this is V4H or V4M */
 	.inst	0xe3a024ff	/* mov     r2, #0xff000000 */
@@ -67,13 +67,21 @@ _start:
 	/* } */
 	/* APMU_PWRCTRLC0 = CA_CORE0_WUP_REQ */
 	.inst	0xe3a03001	/* mov     r3, #1 */
-	.inst	0xe5813000	/* str     r3, [r1] */
-	/* Endless loop */
+	.inst	0xe5843000	/* str     r3, [r4] */
+	/* Test for APMU_CRBARP valid BAR flags and jump to CR entry point */
+	.inst	0xe3814c03	/* orr     r4, r1, #768    @ 0x300 */
+	.inst	0xe584503c	/* str     r5, [r4, #60]   @ 0x3c */
+	.inst	0xe594203c	/* ldr     r2, [r4, #60]   @ 0x3c */
+	.inst	0xe20230ff	/* and     r3, r2, #255    @ 0xff */
+	.inst	0xe3530011	/* cmp     r3, #17 */
+	.inst	0x1afffffb	/* bne     78 <reset-0x28> */
+	.inst	0xe1a02922	/* lsr     r2, r2, #18 */
+	.inst	0xe1a02902	/* lsl     r2, r2, #18 */
+	.inst	0xe1a0f002	/* mov     pc, r2 */
+	.inst	0xeafffffe	/* b       94 <reset-0xc> */
 	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
-	.inst	0xeafffffd	/* b       70 <reset-0x10> */
 	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
-	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
-	/* Offset 0x80 */
+	/* Offset 0xa0 */
 #endif
 	b	reset
 #endif

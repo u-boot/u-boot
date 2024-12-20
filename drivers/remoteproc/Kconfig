@@ -22,6 +22,14 @@ config K3_SYSTEM_CONTROLLER
 	help
 	  Say 'y' here to add support for TI' K3 System Controller.
 
+config REMOTEPROC_RENESAS_APMU
+	bool "Support for Renesas R-Car Gen4 APMU start of CR52 processor"
+	select REMOTEPROC
+	depends on ARCH_RENESAS && RCAR_GEN4 && DM && OF_CONTROL
+	help
+	  Say 'y' here to add support for Renesas R-Car Gen4 Cortex-A52
+	  processor via the remoteproc framework.
+
 config REMOTEPROC_SANDBOX
 	bool "Support for Test processor for Sandbox"
 	select REMOTEPROC
