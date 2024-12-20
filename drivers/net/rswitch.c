@@ -365,6 +365,9 @@ static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
 	if (devad == 0xffffffff)
 		return 0;
 
+	/* Set Station Management Mode : Clause 45 */
+	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
+
 	/* Clear completion flags */
 	writel(MMIS1_CLEAR_FLAGS, etha->addr + MMIS1);
 
@@ -429,9 +432,6 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
 			MPIC_MDC_CLK_SET);
 
-	/* Set Station Management Mode : Clause 45 */
-	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
-
 	/* Access PHY register */
 	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
 
@@ -459,9 +459,6 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	clrsetbits_le32(etha->addr + MPIC,
 			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
 			MPIC_MDC_CLK_SET);
-
-	/* Set Station Management Mode : Clause 45 */
-	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
 
 	/* Access PHY register */
 	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
