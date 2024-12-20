@@ -273,7 +273,9 @@ int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return acpi_add_fadt(ctx, fadt);
 }
 
+#ifndef CONFIG_QFW_ACPI
 ACPI_WRITER(5fadt, "FADT", acpi_write_fadt, 0);
+#endif
 
 int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 {
@@ -308,7 +310,9 @@ int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	return 0;
 }
 
+#ifndef CONFIG_QFW_ACPI
 ACPI_WRITER(5madt, "MADT", acpi_write_madt, 0);
+#endif
 
 void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
 		      int port_type, int port_subtype,
