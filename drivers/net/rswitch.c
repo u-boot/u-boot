@@ -469,6 +469,8 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
 		val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+		val = rswitch_mii_access_c45(etha, true, phyad, 1, regad, 0);
 	else
 		val = rswitch_mii_access_c22(etha, true, phyad, regad, 0);
 
@@ -500,6 +502,8 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	/* Access PHY register */
 	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
 		rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+		rswitch_mii_access_c45(etha, false, phyad, 1, regad, data);
 	else
 		rswitch_mii_access_c22(etha, false, phyad, regad, data);
 
