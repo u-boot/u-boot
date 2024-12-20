@@ -884,6 +884,18 @@ const char *tpm2_algorithm_name(enum tpm2_algorithms algo)
 	return "";
 }
 
+bool tpm2_algorithm_supported(enum tpm2_algorithms algo)
+{
+	size_t i;
+
+	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
+		if (hash_algo_list[i].hash_alg == algo)
+			return hash_algo_list[i].supported;
+	}
+
+	return false;
+}
+
 u16 tpm2_algorithm_to_len(enum tpm2_algorithms algo)
 {
 	size_t i;
@@ -908,7 +920,7 @@ bool tpm2_check_active_banks(struct udevice *dev)
 
 	for (i = 0; i < pcrs.count; i++) {
 		if (tpm2_is_active_bank(&pcrs.selection[i]) &&
-		    !tpm2_algorithm_to_len(pcrs.selection[i].hash))
+		    !tpm2_algorithm_supported(pcrs.selection[i].hash))
 			return false;
 	}
 
