@@ -268,6 +268,7 @@ struct digest_info {
 	u16 hash_alg;
 	u32 hash_mask;
 	u16 hash_len;
+	bool supported;
 };
 
 /* Algorithm Registry */
@@ -278,38 +279,50 @@ struct digest_info {
 #define TCG2_BOOT_HASH_ALG_SM3_256 0x00000010
 
 static const struct digest_info hash_algo_list[] = {
-#if IS_ENABLED(CONFIG_SHA1)
 	{
 		"sha1",
 		TPM2_ALG_SHA1,
 		TCG2_BOOT_HASH_ALG_SHA1,
 		TPM2_SHA1_DIGEST_SIZE,
-	},
+#if IS_ENABLED(CONFIG_SHA1)
+		true,
+#else
+		false,
 #endif
-#if IS_ENABLED(CONFIG_SHA256)
+	},
 	{
 		"sha256",
 		TPM2_ALG_SHA256,
 		TCG2_BOOT_HASH_ALG_SHA256,
 		TPM2_SHA256_DIGEST_SIZE,
-	},
+#if IS_ENABLED(CONFIG_SHA256)
+		true,
+#else
+		false,
 #endif
-#if IS_ENABLED(CONFIG_SHA384)
+	},
 	{
 		"sha384",
 		TPM2_ALG_SHA384,
 		TCG2_BOOT_HASH_ALG_SHA384,
 		TPM2_SHA384_DIGEST_SIZE,
-	},
+#if IS_ENABLED(CONFIG_SHA384)
+		true,
+#else
+		false,
 #endif
-#if IS_ENABLED(CONFIG_SHA512)
+	},
 	{
 		"sha512",
 		TPM2_ALG_SHA512,
 		TCG2_BOOT_HASH_ALG_SHA512,
 		TPM2_SHA512_DIGEST_SIZE,
-	},
+#if IS_ENABLED(CONFIG_SHA512)
+		true,
+#else
+		false,
 #endif
+	},
 };
 
 /* NV index attributes */
@@ -703,6 +716,14 @@ enum tpm2_algorithms tpm2_name_to_algorithm(const char *name);
  * Return: algorithm name string or ""
  */
 const char *tpm2_algorithm_name(enum tpm2_algorithms);
+
+/**
+ * tpm2_algorithm_supported() -  Check if the algorithm supported by U-Boot
+ *
+ * @algorithm_id: algorithm defined in enum tpm2_algorithms
+ * Return: true if supported, otherwise false
+ */
+bool tpm2_algorithm_supported(enum tpm2_algorithms algo);
 
 /**
  * tpm2_algorithm_to_len() - Return an algorithm length for supported algorithm id
