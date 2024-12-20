@@ -121,8 +121,8 @@ static long region_overlap_check(struct mem_region *mem_rgn, phys_addr_t base,
 	return (i < mem_rgn->count) ? i : -1;
 }
 
-static int find_ram_top(struct mem_region *free_mem,
-			struct mem_region *reserved_mem, phys_size_t size)
+static phys_addr_t find_ram_top(struct mem_region *free_mem,
+				struct mem_region *reserved_mem, phys_size_t size)
 {
 	long i, rgn;
 	phys_addr_t base = 0;
