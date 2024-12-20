@@ -165,6 +165,13 @@
 };
 
 &soc {
+	apmu@e6170000 {	/* Remoteproc */
+		compatible = "renesas,r8a779g0-cr52";
+		reg = <0 0xe6170000 0 0x80000>;
+		power-domains = <&sysc R8A779G0_PD_ALWAYS_ON>;
+		status = "okay";
+	};
+
 	ram@e6780000 {	/* DBSC5 */
 		compatible = "renesas,r8a779g0-dbsc";
 		reg = <0 0xe6780000 0 0x80000>;
