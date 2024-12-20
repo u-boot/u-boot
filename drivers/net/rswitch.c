@@ -355,15 +355,49 @@ static int rswitch_gwca_change_mode(struct rswitch_port_priv *priv,
 	return ret;
 }
 
+static int rswitch_mii_access_c22(struct rswitch_etha *etha, bool read,
+				  int phyad, int regad, int data)
+{
+	const u32 pop = read ? MDIO_READ_C22 : MDIO_WRITE_C22;
+	u32 val, pval;
+	int ret;
+
+	/* Clear Station Management Mode : Clause 22 */
+	clrbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
+
+	/* Clear completion flags */
+	writel(MMIS1_CLEAR_FLAGS, etha->addr + MMIS1);
+
+	/* Submit C22 access to PHY */
+	val = MPSM_PSME | (pop << 13) | (regad << 8) | (phyad << 3);
+	if (!read)
+		val |= data << 16;
+	writel(val, etha->addr + MPSM);
+
+	ret = readl_poll_sleep_timeout(etha->addr + MPSM, pval,
+				       !(pval & MPSM_PSME),
+				       RSWITCH_SLEEP_US,
+				       RSWITCH_TIMEOUT_US);
+	if (ret)
+		return ret;
+
+	if (!read)
+		return 0;
+
+	/* Read data */
+	ret = (readl(etha->addr + MPSM) & MPSM_PRD_MASK) >> 16;
+
+	/* Clear read completion flag */
+	setbits_le32(etha->addr + MMIS1, MMIS1_PRACS);
+
+	return ret;
+}
+
 static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
 				  int phyad, int devad, int regad, int data)
 {
 	u32 pval, val;
 	int ret;
-
-	/* No match device */
-	if (devad == 0xffffffff)
-		return 0;
 
 	/* Set Station Management Mode : Clause 45 */
 	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
@@ -433,7 +467,10 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 			MPIC_MDC_CLK_SET);
 
 	/* Access PHY register */
-	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
+		val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	else
+		val = rswitch_mii_access_c22(etha, true, phyad, regad, 0);
 
 	/* Disable Station Management Clock */
 	clrbits_le32(etha->addr + MPIC, MPIC_PSMCS_MASK);
@@ -461,7 +498,10 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 			MPIC_MDC_CLK_SET);
 
 	/* Access PHY register */
-	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
+		rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	else
+		rswitch_mii_access_c22(etha, false, phyad, regad, data);
 
 	/* Disable Station Management Clock */
 	clrbits_le32(etha->addr + MPIC, MPIC_PSMCS_MASK);
