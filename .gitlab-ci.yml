@@ -3,6 +3,7 @@
 variables:
   DEFAULT_ALL_TAG: "all"
   DEFAULT_ARM64_TAG: "arm64"
+  DEFAULT_FAST_ARM64_TAG: "fast arm64"
   DEFAULT_AMD64_TAG: "amd64"
   DEFAULT_FAST_AMD64_TAG: "fast amd64"
   MIRROR_DOCKER: docker.io
@@ -113,7 +114,7 @@ build all platforms in a single job:
   dependencies: []
   parallel:
     matrix:
-      - HOST: "arm64"
+      - HOST: "fast arm64"
       - HOST: "fast amd64"
   tags:
     - ${HOST}
