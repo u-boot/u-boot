@@ -1,18 +1,25 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 variables:
-  DEFAULT_TAG: ""
+  DEFAULT_ALL_TAG: "all"
+  DEFAULT_ARM64_TAG: "arm64"
+  DEFAULT_AMD64_TAG: "amd64"
+  DEFAULT_FAST_AMD64_TAG: "fast amd64"
   MIRROR_DOCKER: docker.io
   SJG_LAB: ""
   PLATFORM: linux/amd64,linux/arm64
 
 default:
   tags:
-    - ${DEFAULT_TAG}
+    - ${DEFAULT_ALL_TAG}
+
+workflow:
+  rules:
+    - when: always
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20240808-03Dec2024
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20240911.1-08Dec2024
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -102,54 +109,22 @@ stages:
       junit: results.xml
     expire_in: 1 week
 
-.world_build:
+build all platforms in a single job:
   stage: world build
+  dependencies: []
   rules:
     - when: always
-
-build all 32bit ARM platforms:
-  extends: .world_build
+  parallel:
+    matrix:
+      - HOST: "arm64"
+      - HOST: "fast amd64"
+  tags:
+    - ${HOST}
   script:
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
       pip install -r tools/buildman/requirements.txt;
-      ./tools/buildman/buildman -o /tmp -PEWM arm -x aarch64 || ret=$?;
-      if [[ $ret -ne 0 ]]; then
-        ./tools/buildman/buildman -o /tmp -seP;
-        exit $ret;
-      fi;
-
-build all 64bit ARM platforms:
-  extends: .world_build
-  script:
-    - virtualenv -p /usr/bin/python3 /tmp/venv
-    - . /tmp/venv/bin/activate
-    - ret=0;
-      git config --global --add safe.directory "${CI_PROJECT_DIR}";
-      pip install -r tools/buildman/requirements.txt;
-      ./tools/buildman/buildman -o /tmp -PEWM aarch64 || ret=$?;
-      if [[ $ret -ne 0 ]]; then
-        ./tools/buildman/buildman -o /tmp -seP;
-        exit $ret;
-      fi;
-
-build all PowerPC platforms:
-  extends: .world_build
-  script:
-    - ret=0;
-      git config --global --add safe.directory "${CI_PROJECT_DIR}";
-      ./tools/buildman/buildman -o /tmp -P -E -W powerpc || ret=$?;
-      if [[ $ret -ne 0 ]]; then
-        ./tools/buildman/buildman -o /tmp -seP;
-        exit $ret;
-      fi;
-
-build all other platforms:
-  extends: .world_build
-  script:
-    - ret=0;
-      git config --global --add safe.directory "${CI_PROJECT_DIR}";
-      ./tools/buildman/buildman -o /tmp -PEWM -x arm,powerpc || ret=$?;
+      ./tools/buildman/buildman -o /tmp -PEWM -x xtensa || ret=$?;
       if [[ $ret -ne 0 ]]; then
         ./tools/buildman/buildman -o /tmp -seP;
         exit $ret;
@@ -198,6 +173,8 @@ Build tools-only and envtools:
 
 Run binman, buildman, dtoc, Kconfig and patman testsuites:
   extends: .testsuites
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   script:
     - git config --global user.name "GitLab CI Runner";
       git config --global user.email trini@konsulko.com;
@@ -257,22 +234,30 @@ Check packing of Python tools:
 
 # Test sandbox with test.py
 sandbox test.py:
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox"
     OVERRIDE: "-O clang-17"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 test.py:
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox64"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 with clang test.py:
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox64"
     OVERRIDE: "-O clang-17"
@@ -327,6 +312,8 @@ evb-ast2600 test.py:
   <<: *buildman_and_testpy_dfn
 
 sandbox_flattree test.py:
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   variables:
     TEST_PY_BD: "sandbox_flattree"
   <<: *buildman_and_testpy_dfn
@@ -451,6 +438,8 @@ qemu-xtensa-dc233c test.py:
   variables:
     TEST_PY_BD: "qemu-xtensa-dc233c"
     TEST_PY_TEST_SPEC: "not sleep and not efi"
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   <<: *buildman_and_testpy_dfn
 
 r2dplus_i82557c test.py:
@@ -514,6 +503,8 @@ xtfpga test.py:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
+  tags:
+    - ${DEFAULT_AMD64_TAG}
   <<: *buildman_and_testpy_dfn
 
 coreboot test.py:
@@ -531,6 +522,7 @@ coreboot test.py:
     - if: $SJG_LAB != "1"
       when: manual
       allow_failure: true
+  dependencies: []
   tags: [ 'lab' ]
   script:
     - if [[ -z "${SJG_LAB}" ]]; then
