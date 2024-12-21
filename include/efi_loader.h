@@ -638,7 +638,7 @@ efi_status_t efi_gop_register(void);
 int efi_net_register(void *ctx, struct event *event);
 /* Called to unregister an EFI network device */
 int efi_net_unregister(void *ctx, struct event *event);
-/* Called to initialized registered network devices */
+/* Called to initialized registered EFI network devices */
 efi_status_t efi_net_init(void);
 efi_status_t efi_net_do_start(void);
 /* Called by efi_net_register to make the ip4 config2 protocol available */

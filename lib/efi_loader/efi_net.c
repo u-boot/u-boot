@@ -1122,7 +1122,7 @@ efi_status_t efi_net_do_start()
 	int i, r;
 
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i]) {
+		if (net_objs[i] && net_objs[i]->dev) {
 			r = efi_netobj_start(net_objs[i]);
 			if (r)
 				return EFI_DEVICE_ERROR;
@@ -1147,19 +1147,10 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	size_t *receive_lengths;
 	int i, j;
 
-	if (!netobj || efi_netobj_is_active(netobj))
+	if (!netobj || !netobj->net || efi_netobj_is_active(netobj))
 		return 0;
 
 	dev = netobj->dev;
-	if (!dev) {
-		/* No network device active, don't expose any */
-		return 0;
-	}
-
-	if (!netobj->net)
-		netobj->net = calloc(1, sizeof(*netobj->net));
-	if (!netobj->net)
-		goto out_of_resources;
 
 	if (!netobj->net_mode)
 		netobj->net_mode = calloc(1, sizeof(*netobj->net_mode));
@@ -1204,7 +1195,7 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 
 	/* Fill in object data */
 	r = efi_add_protocol(netobj->handle, &efi_net_guid,
-			     netobj->net);
+			netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 
@@ -1252,12 +1243,16 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	netobj->pxe.set_packets = efi_pxe_base_code_set_packets;
 	netobj->pxe.mode = &netobj->pxe_mode;
 
+	ret = EFI_CALL(efi_connect_controller(net_objs[i]->handle, NULL, NULL, 0));
+	if (ret != EFI_SUCCESS)
+		return -1;
+
 	/*
 	 * Scan dhcp entries for one corresponding
 	 * to this udevice, from newest to oldest
 	 */
 	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
-	for (j = 0; dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
+	for (j = 0; dev && dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
 	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
 		if (dev == dhcp_cache[i].dev) {
 			netobj->pxe_mode.dhcp_ack = *dhcp_cache[i].dhcp_ack;
@@ -1309,7 +1304,6 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 #endif
-	printf("efi_net init device number %d\n", netobj->efi_seq_num);
 	return 0;
 failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
@@ -1324,8 +1318,10 @@ out_of_resources:
  *
  * Return:	status code
  */
-efi_status_t efi_net_init() {
+efi_status_t efi_net_init()
+{
 	int i, r;
+	efi_status_t ret;
 
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
 		if (net_objs[i]) {
@@ -1433,7 +1429,8 @@ int efi_net_register(void *ctx, struct event *event)
 	struct udevice *dev;
 	enum uclass_id id;
 	struct efi_net_obj *netobj;
-	int i;
+	efi_status_t ret;
+	int i, r;
 
 	dev = event->data.dm.dev;
 	if (!dev) {
@@ -1456,6 +1453,14 @@ int efi_net_register(void *ctx, struct event *event)
 
 	if (!netobj)
 		return -1;
+
+	if (efi_obj_list_initialized == EFI_SUCCESS) {
+		if (!efi_netobj_is_active(netobj)) {
+			r = efi_netobj_init(netobj);
+			if (r)
+				return -1;
+		}
+	}
 
 	return 0;
 }
@@ -1500,6 +1505,10 @@ int efi_net_unregister(void *ctx, struct event *event)
 		return 0;
 
 	if (efi_netobj_is_active(netobj)) {
+		ret = EFI_CALL(efi_disconnect_controller(netobj->handle, NULL, NULL));
+		if (ret != EFI_SUCCESS)
+			return -1;
+
 		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
 		if (ret != EFI_SUCCESS)
 			return -1;

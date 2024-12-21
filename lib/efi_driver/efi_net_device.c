@@ -24,11 +24,9 @@ static efi_status_t efi_net_bind_drv(
 			struct efi_driver_binding_extended_protocol *this,
 			efi_handle_t handle, void *interface)
 {
-
 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, interface);
 
-
-	return EFI_UNSUPPORTED;
+	return EFI_SUCCESS;
 }
 
 /**
