@@ -1339,6 +1339,87 @@ efi_status_t efi_net_init() {
 }
 
 /**
+ * efi_netobj_alloc() - allocate an efi_net_obj from either a simple
+ *			network protocol interface or a net udevice
+ *
+ * @handle:	EFI handle
+ * @net:	pointer to simple network protocol
+ * @dev:	pointer to net udevice
+ * Return:	pointer to EFI net object, NULL on error
+ */
+struct efi_net_obj *efi_netobj_alloc(efi_handle_t handle,
+					struct efi_simple_network *net,
+					struct udevice *dev)
+{
+	int i, seq_num;
+	struct efi_net_obj *netobj;
+
+	// Find a slot for this efi_net_obj
+	seq_num = -1;
+	// Try to recycle
+	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+		if (net_objs[i] && !net_objs[i]->net && !net_objs[i]->dev && !net_objs[i]->handle) {
+			seq_num = i;
+			break;
+		}
+	}
+	if (seq_num < 0) {
+		for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+			if (!net_objs[i]) {
+				seq_num = i;
+				break;
+			}
+		}
+	}
+	if (seq_num < 0)
+		return NULL;
+
+	if (!net_objs[seq_num]) {
+		netobj = calloc(1, sizeof(*netobj));
+		net_objs[seq_num] = netobj;
+	} else {
+		netobj = net_objs[seq_num];
+	}
+	if (!netobj)
+		return NULL;
+
+	if (netobj->net) {
+		if (netobj->net->mode)
+			free(netobj->net->mode);
+		free(netobj->net);
+	}
+
+	if (handle)
+		netobj->handle = handle;
+	else {
+		netobj->handle = calloc(1, sizeof(*netobj->handle));
+		if (!netobj->handle) {
+			free(netobj);
+			return NULL;
+		}
+	}
+
+	if (net) {
+		netobj->net = net;
+		netobj->net_mode = net->mode;
+	} else {
+		netobj->net = calloc(1, sizeof(*netobj->net));
+		if (!netobj->net) {
+			free(netobj->handle);
+			free(netobj);
+			return NULL;
+		}
+	}
+
+	netobj->dev = dev;
+	netobj->efi_seq_num = seq_num;
+
+	printf("efi_net: allocated EFI net device %d\n", netobj->efi_seq_num);
+
+	return netobj;
+}
+
+/**
  * efi_net_register() - register a net device
  *
  * This function is called when the device is probed
@@ -1350,7 +1431,6 @@ efi_status_t efi_net_init() {
 int efi_net_register(void *ctx, struct event *event)
 {
 	struct udevice *dev;
-	int seq_num;
 	enum uclass_id id;
 	struct efi_net_obj *netobj;
 	int i;
@@ -1372,48 +1452,12 @@ int efi_net_register(void *ctx, struct event *event)
 		}
 	}
 
-	// Find a slot for this efi_net_obj
-	seq_num = -1;
-	// Try to recycle
-	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && !net_objs[i]->dev) {
-			seq_num = i;
-			break;
-		}
-	}
-	if (seq_num < 0) {
-		for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-			if (!net_objs[i]) {
-				seq_num = i;
-				break;
-			}
-		}
-	}
-	if (seq_num < 0)
+	netobj = efi_netobj_alloc(NULL, NULL, dev);
+
+	if (!netobj)
 		return -1;
 
-	if (!net_objs[seq_num]) {
-		netobj = calloc(1, sizeof(*netobj));
-		net_objs[seq_num] = netobj;
-	} else {
-		netobj = net_objs[seq_num];
-	}
-	if (!netobj)
-		goto out_of_resources;
-
-	netobj->handle = calloc(1, sizeof(*netobj->handle));
-	if (!netobj->handle) {
-		free(netobj);
-		goto out_of_resources;
-	}
-
-	netobj->dev = dev;
-	netobj->efi_seq_num = seq_num;
-	printf("efi_net registered device number %d\n", netobj->efi_seq_num);
 	return 0;
-out_of_resources:
-	printf("ERROR: Out of memory\n");
-	return -1;
 }
 
 /**
