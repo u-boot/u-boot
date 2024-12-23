@@ -427,10 +427,6 @@ config EFI_TCG2_PROTOCOL
 	bool "EFI_TCG2_PROTOCOL support"
 	default y
 	depends on TPM_V2
-	select SHA1
-	select SHA256
-	select SHA384
-	select SHA512
 	select HASH
 	select SMBIOS_PARSER
 	help
