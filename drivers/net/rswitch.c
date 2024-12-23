@@ -1113,6 +1113,9 @@ static int rswitch_bind(struct udevice *parent)
 		return -ENOENT;
 
 	ofnode_for_each_subnode(node, ports_np) {
+		if (!ofnode_is_enabled(node))
+			continue;
+
 		ret = device_bind_with_driver_data(parent, drv,
 						   ofnode_get_name(node),
 						   (ulong)priv, node, &dev);
