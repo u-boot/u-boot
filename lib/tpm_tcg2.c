@@ -36,16 +36,17 @@ int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank
 		return ret;
 
 	for (i = 0; i < pcrs.count; i++) {
-		u32 hash_mask = tcg2_algorithm_to_mask(pcrs.selection[i].hash);
+		struct tpms_pcr_selection *sel = &pcrs.selection[i];
+		u32 hash_mask = tcg2_algorithm_to_mask(sel->hash);
 
-		if (hash_mask) {
+		if (tpm2_algorithm_supported(sel->hash))
 			*supported_bank |= hash_mask;
-			if (tpm2_is_active_bank(&pcrs.selection[i]))
-				*active_bank |= hash_mask;
-		} else {
-			printf("%s: unknown algorithm %x\n", __func__,
-			       pcrs.selection[i].hash);
-		}
+		else
+			log_warning("%s: unknown algorithm %x\n", __func__,
+				    sel->hash);
+
+		if (tpm2_is_active_bank(sel))
+			*active_bank |= hash_mask;
 	}
 
 	*bank_num = pcrs.count;
