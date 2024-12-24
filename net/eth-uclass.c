@@ -12,10 +12,12 @@
 #include <dm.h>
 #include <env.h>
 #include <log.h>
+#include <malloc.h>
 #include <net.h>
 #include <nvmem.h>
 #include <asm/global_data.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/uclass-internal.h>
 #include <net/pcap.h>
 #include "eth_internal.h"
@@ -526,6 +528,36 @@ int eth_initialize(void)
 	}
 
 	return num_devices;
+}
+
+int eth_create_device(struct udevice *parent, const char *drv_name,
+		      const char *name, struct udevice **devp)
+{
+	char temp[40], *str;
+	int devnum;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_ETH, &uc);
+	if (ret)
+		return -1;
+
+	devnum = uclass_find_next_free_seq(uc);
+	if (devnum < 0)
+		return -1;
+
+	snprintf(temp, sizeof(temp), "%s_eth%d", name, devnum);
+	temp[sizeof(temp) - 1] = '\0';
+	str = strdup(temp);
+
+	ret = device_bind_driver(parent, drv_name, str, devp);
+	if (ret) {
+		free(str);
+		return ret;
+	}
+	device_set_name_alloced(*devp);
+
+	return 0;
 }
 
 static int eth_post_bind(struct udevice *dev)

@@ -203,6 +203,8 @@ int eth_receive(void *packet, int length); /* Receive a packet*/
 extern void (*push_packet)(void *packet, int length);
 #endif
 int eth_rx(void);			/* Check for received packets */
+int eth_create_device(struct udevice *parent, const char *drv_name,
+		      const char *name, struct udevice **devp);
 
 /**
  * reset_phy() - Reset the Ethernet PHY
