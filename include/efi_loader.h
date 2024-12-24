@@ -634,6 +634,18 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 			       const char *pdevname);
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
+
+/**
+ * struct efi_netdev_plat - attributes of a network device
+ *
+ * @handle:	handle of the controller on which this driver is installed
+ * @snp:		simple network protocol proxied by this driver
+ */
+struct efi_netdev_plat {
+	efi_handle_t handle;
+	struct efi_simple_network *snp;
+	void *buffer;
+};
 /* Called to register an EFI network device */
 int efi_net_register(void *ctx, struct event *event);
 /* Called to unregister an EFI network device */
@@ -647,6 +659,7 @@ efi_status_t efi_ipconfig_register(const efi_handle_t handle,
 /* Called by efi_net_register to make the http protocol available */
 efi_status_t efi_http_register(const efi_handle_t handle,
 			       struct efi_service_binding_protocol *http_service_binding);
+
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
 efi_status_t efi_initrd_register(void);
