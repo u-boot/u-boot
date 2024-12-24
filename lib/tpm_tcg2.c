@@ -20,19 +20,16 @@
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
 
-int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks)
+int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
+		      u32 *bank_num)
 {
-	u8 response[(sizeof(struct tpms_capability_data) -
-		offsetof(struct tpms_capability_data, data))];
 	struct tpml_pcr_selection pcrs;
 	size_t i;
 	u32 ret;
 
-	*supported_pcr = 0;
-	*active_pcr = 0;
-	*pcr_banks = 0;
-	memset(response, 0, sizeof(response));
+	*supported_bank = 0;
+	*active_bank = 0;
+	*bank_num = 0;
 
 	ret = tpm2_get_pcr_info(dev, &pcrs);
 	if (ret)
@@ -42,16 +39,16 @@ int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 		u32 hash_mask = tcg2_algorithm_to_mask(pcrs.selection[i].hash);
 
 		if (hash_mask) {
-			*supported_pcr |= hash_mask;
+			*supported_bank |= hash_mask;
 			if (tpm2_is_active_bank(&pcrs.selection[i]))
-				*active_pcr |= hash_mask;
+				*active_bank |= hash_mask;
 		} else {
 			printf("%s: unknown algorithm %x\n", __func__,
 			       pcrs.selection[i].hash);
 		}
 	}
 
-	*pcr_banks = pcrs.count;
+	*bank_num = pcrs.count;
 
 	return 0;
 }
