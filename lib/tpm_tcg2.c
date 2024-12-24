@@ -43,7 +43,7 @@ int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
 
 		if (hash_mask) {
 			*supported_pcr |= hash_mask;
-			if (tpm2_is_active_pcr(&pcrs.selection[i]))
+			if (tpm2_is_active_bank(&pcrs.selection[i]))
 				*active_pcr |= hash_mask;
 		} else {
 			printf("%s: unknown algorithm %x\n", __func__,

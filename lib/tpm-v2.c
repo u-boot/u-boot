@@ -847,7 +847,7 @@ u32 tpm2_enable_nvcommits(struct udevice *dev, uint vendor_cmd,
 	return 0;
 }
 
-bool tpm2_is_active_pcr(struct tpms_pcr_selection *selection)
+bool tpm2_is_active_bank(struct tpms_pcr_selection *selection)
 {
 	int i;
 
@@ -907,7 +907,7 @@ bool tpm2_allow_extend(struct udevice *dev)
 		return false;
 
 	for (i = 0; i < pcrs.count; i++) {
-		if (tpm2_is_active_pcr(&pcrs.selection[i]) &&
+		if (tpm2_is_active_bank(&pcrs.selection[i]) &&
 		    !tpm2_algorithm_to_len(pcrs.selection[i].hash))
 			return false;
 	}
