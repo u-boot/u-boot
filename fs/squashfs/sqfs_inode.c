@@ -19,7 +19,9 @@
 
 int sqfs_inode_size(struct squashfs_base_inode *inode, u32 blk_size)
 {
-	switch (get_unaligned_le16(&inode->inode_type)) {
+	u16 inode_type = get_unaligned_le16(&inode->inode_type);
+
+	switch (inode_type) {
 	case SQFS_DIR_TYPE:
 		return sizeof(struct squashfs_dir_inode);
 
@@ -87,7 +89,7 @@ int sqfs_inode_size(struct squashfs_base_inode *inode, u32 blk_size)
 		    get_unaligned_le32(&symlink->symlink_size), &size))
 			return -EINVAL;
 
-		return size;
+		return (inode_type == SQFS_SYMLINK_TYPE) ? size : size + sizeof(u32);
 	}
 
 	case SQFS_BLKDEV_TYPE:
