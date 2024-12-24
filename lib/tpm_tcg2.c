@@ -359,7 +359,6 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	u16 len;
 	int rc;
 	u32 i;
-	u16 j;
 
 	if (elog->log_size <= offsetof(struct tcg_pcr_event, event))
 		return 0;
@@ -398,19 +397,18 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	if (evsz != calc_size)
 		return 0;
 
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
-
+	/*
+	 * Go through the algorithms the EventLog contains.  If the EventLog
+	 * algorithms don't match the active TPM ones exit and report the
+	 * erroneous banks.
+	 * We've already checked that U-Boot supports all the enabled TPM
+	 * algorithms, so just check the EvenLog against the TPM active ones.
+	 */
 	digest_list.count = 0;
 	log_active = 0;
-
 	for (i = 0; i < count; ++i) {
 		algo = get_unaligned_le16(&event->digest_sizes[i].algorithm_id);
 		mask = tcg2_algorithm_to_mask(algo);
-
-		if (!(active & mask))
-			return 0;
 
 		switch (algo) {
 		case TPM2_ALG_SHA1:
@@ -418,20 +416,32 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 		case TPM2_ALG_SHA384:
 		case TPM2_ALG_SHA512:
 			len = get_unaligned_le16(&event->digest_sizes[i].digest_size);
-			if (tpm2_algorithm_to_len(algo) != len)
-				return 0;
+			if (tpm2_algorithm_to_len(algo) != len) {
+				log_err("EventLog invalid algorithm length\n");
+				return -1;
+			}
 			digest_list.digests[digest_list.count++].hash_alg = algo;
 			break;
 		default:
-			return 0;
+			/*
+			 * We can ignore this if the TPM PCRs is not extended
+			 * by the previous bootloader. But for now just exit
+			 */
+			log_err("EventLog has unsupported algorithm 0x%x\n",
+				algo);
+			return -1;
 		}
-
 		log_active |= mask;
 	}
 
-	/* Ensure the previous firmware extended all the PCRs. */
-	if (log_active != active)
-		return 0;
+	rc = tcg2_get_active_pcr_banks(dev, &active);
+	if (rc)
+		return rc;
+	/* If the EventLog and active algorithms don't match exit */
+	if (log_active != active) {
+		log_err("EventLog doesn't contain all active PCR banks\n");
+		return -1;
+	}
 
 	/* Read PCR0 to check if previous firmware extended the PCRs or not. */
 	rc = tcg2_pcr_read(dev, 0, &digest_list);
@@ -439,17 +449,13 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 		return rc;
 
 	for (i = 0; i < digest_list.count; ++i) {
-		len = tpm2_algorithm_to_len(digest_list.digests[i].hash_alg);
-		for (j = 0; j < len; ++j) {
-			if (digest_list.digests[i].digest.sha512[j])
-				break;
-		}
+		u8 hash_buf[TPM2_SHA512_DIGEST_SIZE] = { 0 };
+		u16 hash_alg = digest_list.digests[i].hash_alg;
 
-		/* PCR is non-zero; it has been extended, so skip extending. */
-		if (j != len) {
+		if (memcmp((u8 *)&digest_list.digests[i].digest, hash_buf,
+			   tpm2_algorithm_to_len(hash_alg)))
 			digest_list.count = 0;
-			break;
-		}
+
 	}
 
 	return tcg2_replay_eventlog(elog, dev, &digest_list,
