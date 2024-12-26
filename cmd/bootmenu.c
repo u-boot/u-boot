@@ -239,7 +239,7 @@ static int prepare_bootmenu_entry(struct bootmenu_data *menu,
 /**
  * prepare_uefi_bootorder_entry() - generate the uefi bootmenu entries
  *
- * This function read the "BootOrder" UEFI variable
+ * This function reads the "BootOrder" UEFI variable
  * and generate the bootmenu entries in the order of "BootOrder".
  *
  * @menu:	pointer to the bootmenu structure
