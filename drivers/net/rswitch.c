@@ -837,6 +837,7 @@ static int rswitch_send(struct udevice *dev, void *packet, int len)
 
 	/* Update TX descriptor */
 	rswitch_flush_dcache((uintptr_t)packet, len);
+	rswitch_invalidate_dcache((uintptr_t)desc, sizeof(*desc));
 	memset(desc, 0x0, sizeof(*desc));
 	desc->die_dt = DT_FSINGLE;
 	desc->info_ds = len;
@@ -1112,6 +1113,9 @@ static int rswitch_bind(struct udevice *parent)
 		return -ENOENT;
 
 	ofnode_for_each_subnode(node, ports_np) {
+		if (!ofnode_is_enabled(node))
+			continue;
+
 		ret = device_bind_with_driver_data(parent, drv,
 						   ofnode_get_name(node),
 						   (ulong)priv, node, &dev);

@@ -377,7 +377,7 @@ The following are a "rule of thumb" as to how the states are used in patchwork
 today. Not all states are used by all custodians.
 
 * New: Patch has been submitted to the list, and none of the maintainers has
-  changed it's state since.
+  changed its state since.
 
 * Under Review: A custodian is reviewing the patch currently.
 

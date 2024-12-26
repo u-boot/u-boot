@@ -362,7 +362,7 @@ phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 	 * space below the 4G address boundary (which is 3GiB big),
 	 * even when the effective available memory is bigger.
 	 */
-	top_addr = clamp_val((u64)PHYS_SDRAM + gd->ram_size, 0, 0xffffffff);
+	top_addr = clamp_val((u64)PHYS_SDRAM + gd->ram_size, 0, SZ_4G);
 
 	/*
 	 * rom_pointer[0] stores the TEE memory start address.

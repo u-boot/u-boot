@@ -183,8 +183,10 @@ static long lmb_resize_regions(struct alist *lmb_rgn_lst,
  * the function might resize an already existing region or coalesce two
  * adjacent regions.
  *
- *
- * Returns: 0 if the region addition successful, -1 on failure
+ * Return:
+ * * %0		- Added successfully, or it's already added (only if LMB_NONE)
+ * * %-EEXIST	- The region is already added, and flags != LMB_NONE
+ * * %-1	- Failure
  */
 static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 				 phys_size_t size, enum lmb_flags flags)
@@ -217,17 +219,15 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 			coalesced++;
 			break;
 		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
-			if (flags == LMB_NONE) {
-				ret = lmb_resize_regions(lmb_rgn_lst, i, base,
-							 size);
-				if (ret < 0)
-					return -1;
+			if (flags != LMB_NONE)
+				return -EEXIST;
 
-				coalesced++;
-				break;
-			} else {
+			ret = lmb_resize_regions(lmb_rgn_lst, i, base, size);
+			if (ret < 0)
 				return -1;
-			}
+
+			coalesced++;
+			break;
 		}
 	}
 
@@ -667,7 +667,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
  *
  * Free up a region of memory.
  *
- * Return: 0 if successful, -1 on failure
+ * Return: 0 if successful, negative error code on failure
  */
 long lmb_free_flags(phys_addr_t base, phys_size_t size,
 		    uint flags)
@@ -818,7 +818,7 @@ static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
 				      lmb_memory[rgn].size,
 				      base + size - 1, 1)) {
 			/* ok, reserve the memory */
-			if (lmb_reserve_flags(base, size, flags) >= 0)
+			if (!lmb_reserve_flags(base, size, flags))
 				return base;
 		}
 	}

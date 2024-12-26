@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Renesas RCar Gen3 CPG MSSR driver
+ * Renesas R-Car Gen3 CPG MSSR driver
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *

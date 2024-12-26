@@ -183,7 +183,12 @@ static int usb_onboard_hub_bind(struct udevice *dev)
 	int ret, off;
 
 	ret = dev_read_phandle_with_args(dev, "peer-hub", NULL, 0, 0, &phandle);
-	if (ret)  {
+	if (ret == -ENOENT) {
+		dev_dbg(dev, "peer-hub property not present\n");
+		return 0;
+	}
+
+	if (ret) {
 		dev_err(dev, "peer-hub not specified\n");
 		return ret;
 	}

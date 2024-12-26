@@ -65,12 +65,14 @@ wdt command flags
 The `wdt start` as well as the `wdt expire` command take a flags argument.
 The supported bitmask is as follows.
 
-| Bit | Description                   |
-| --- | ----------------------------- |
-|   0 | Enable failsafe mode          |
-|   1 | Lock the control register     |
-|   2 | Disable board reset           |
-|   3 | Enable WDT_TIME_OUT# line     |
+===  ==============================
+Bit  Description
+===  ==============================
+  0  Enable failsafe mode
+  1  Lock the control register
+  2  Disable board reset
+  3  Enable WDT_TIME_OUT# line
+===  ==============================
 
 For example, you can use `wdt expire 1` to issue a reset and boot into the
 failsafe bootloader.
