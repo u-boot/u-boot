@@ -39,7 +39,7 @@ static u32 tegra_fuse_readl(unsigned long offset)
 	return readl(NV_PA_FUSE_BASE + offset);
 }
 
-static void tegra_fuse_init(void)
+void tegra_fuse_init(void)
 {
 	u32 reg;
 
@@ -49,8 +49,11 @@ static void tegra_fuse_init(void)
 	 * this bit fuse region will not work.
 	 */
 	reg = readl_relaxed(NV_PA_CLK_RST_BASE + 0x48);
-	reg |= BIT(28);
-	writel(reg, NV_PA_CLK_RST_BASE + 0x48);
+
+	if (reg & BIT(28))
+		return;
+
+	writel(reg | BIT(28), NV_PA_CLK_RST_BASE + 0x48);
 
 	clock_enable(PERIPH_ID_FUSE);
 	udelay(2);
@@ -147,4 +150,58 @@ unsigned long long tegra_chip_uid(void)
 	    | ((unsigned long long)y << 0ull);
 
 	return uid;
+}
+
+static int tegra_is_production_mode_fuse_set(struct fuse_regs *fuse)
+{
+	return readl(&fuse->production_mode);
+}
+
+static int tegra_is_odm_production_mode_fuse_set(struct fuse_regs *fuse)
+{
+	return readl(&fuse->security_mode);
+}
+
+static int tegra_is_failure_analysis_mode(struct fuse_regs *fuse)
+{
+	return readl(&fuse->fa);
+}
+
+static int tegra_is_sbk_zeroes(struct fuse_regs *fuse)
+{
+	int i;
+
+	for (i = 0; i < 4; i++)
+		if (readl(&fuse->sbk[i]))
+			return 0;
+
+	return 1;
+}
+
+static int tegra_is_production_mode(struct fuse_regs *fuse)
+{
+	if (!tegra_get_major_version())
+		return 1;
+
+	return !tegra_is_failure_analysis_mode(fuse) &&
+	       tegra_is_production_mode_fuse_set(fuse);
+}
+
+enum fuse_operating_mode tegra_fuse_get_operation_mode(void)
+{
+	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
+
+	tegra_fuse_init();
+
+	if (tegra_is_production_mode(fuse)) {
+		if (!tegra_is_odm_production_mode_fuse_set(fuse))
+			return MODE_PRODUCTION;
+		else
+			if (tegra_is_sbk_zeroes(fuse))
+				return MODE_ODM_PRODUCTION_OPEN;
+			else
+				return MODE_ODM_PRODUCTION_SECURE;
+	}
+
+	return MODE_UNDEFINED;
 }

@@ -17,7 +17,21 @@ struct fuse_regs {
 	u32 fa;				/* 0x148: FUSE_FA */
 	u32 reserved3[21];		/* 0x14C - 0x19C: */
 	u32 security_mode;		/* 0x1A0: FUSE_SECURITY_MODE */
+	u32 sbk[4];			/* 0x1A4 - 0x1B4 */
 };
+
+/* Defines the supported operating modes */
+enum fuse_operating_mode {
+	MODE_UNDEFINED = 0,
+	MODE_PRODUCTION = 3,
+	MODE_ODM_PRODUCTION_SECURE = 4,
+	MODE_ODM_PRODUCTION_OPEN = 5,
+};
+
+/**
+ * Initializes fuse hardware
+ */
+void tegra_fuse_init(void);
 
 /**
  * Calculate SoC UID
@@ -25,5 +39,12 @@ struct fuse_regs {
  * Return: uid if ok, 0 on error
  */
 unsigned long long tegra_chip_uid(void);
+
+/**
+ * Gives the current operating mode from fuses
+ *
+ * @return current operating mode
+ */
+enum fuse_operating_mode tegra_fuse_get_operation_mode(void);
 
 #endif	/* ifndef _FUSE_H_ */

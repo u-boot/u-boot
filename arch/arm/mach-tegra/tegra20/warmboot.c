@@ -182,83 +182,10 @@ int warmboot_save_sdram_params(void)
 	return 0;
 }
 
-static u32 get_major_version(void)
-{
-	u32 major_id;
-	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
-
-	major_id = (readl(&gp->hidrev) & HIDREV_MAJORPREV_MASK) >>
-			HIDREV_MAJORPREV_SHIFT;
-	return major_id;
-}
-
-static int is_production_mode_fuse_set(struct fuse_regs *fuse)
-{
-	return readl(&fuse->production_mode);
-}
-
-static int is_odm_production_mode_fuse_set(struct fuse_regs *fuse)
-{
-	return readl(&fuse->security_mode);
-}
-
-static int is_failure_analysis_mode(struct fuse_regs *fuse)
-{
-	return readl(&fuse->fa);
-}
-
-static int ap20_is_odm_production_mode(void)
-{
-	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
-
-	if (!is_failure_analysis_mode(fuse) &&
-	    is_odm_production_mode_fuse_set(fuse))
-		return 1;
-	else
-		return 0;
-}
-
-static int ap20_is_production_mode(void)
-{
-	struct fuse_regs *fuse = (struct fuse_regs *)NV_PA_FUSE_BASE;
-
-	if (get_major_version() == 0)
-		return 1;
-
-	if (!is_failure_analysis_mode(fuse) &&
-	    is_production_mode_fuse_set(fuse) &&
-	    !is_odm_production_mode_fuse_set(fuse))
-		return 1;
-	else
-		return 0;
-}
-
-static enum fuse_operating_mode fuse_get_operation_mode(void)
-{
-	u32 chip_id;
-	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
-
-	chip_id = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK) >>
-			HIDREV_CHIPID_SHIFT;
-	if (chip_id == CHIPID_TEGRA20) {
-		if (ap20_is_odm_production_mode()) {
-			printf("!! odm_production_mode is not supported !!\n");
-			return MODE_UNDEFINED;
-		} else
-			if (ap20_is_production_mode())
-				return MODE_PRODUCTION;
-			else
-				return MODE_UNDEFINED;
-	}
-	return MODE_UNDEFINED;
-}
-
 static void determine_crypto_options(int *is_encrypted, int *is_signed,
 				     int *use_zero_key)
 {
-	switch (fuse_get_operation_mode()) {
+	switch (tegra_fuse_get_operation_mode()) {
 	case MODE_PRODUCTION:
 		*is_encrypted = 0;
 		*is_signed = 1;

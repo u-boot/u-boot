@@ -10,12 +10,6 @@
 #define STRAP_OPT_A_RAM_CODE_SHIFT	4
 #define STRAP_OPT_A_RAM_CODE_MASK	(0xf << STRAP_OPT_A_RAM_CODE_SHIFT)
 
-/* Defines the supported operating modes */
-enum fuse_operating_mode {
-	MODE_PRODUCTION = 3,
-	MODE_UNDEFINED,
-};
-
 /* Defines the CMAC-AES-128 hash length in 32 bit words. (128 bits = 4 words) */
 enum {
 	HASH_LENGTH = 4

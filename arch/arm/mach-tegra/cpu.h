@@ -71,6 +71,7 @@ void powerup_cpu(void);
 void reset_A9_cpu(int reset);
 void start_cpu(u32 reset_vector);
 int tegra_get_chip(void);
+u32 tegra_get_major_version(void);
 int tegra_get_sku_info(void);
 int tegra_get_chip_sku(void);
 void adjust_pllp_out_freqs(void);
