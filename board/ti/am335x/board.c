@@ -273,7 +273,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 	if (board_is_evm_sk())
 		return &dpll_ddr3_303MHz[ind];
-	else if (board_is_pb() || board_is_bone_lt() || board_is_icev2())
+	else if (board_is_oresat() || board_is_pb() || board_is_bone_lt() || board_is_icev2())
 		return &dpll_ddr3_400MHz[ind];
 	else if (board_is_evm_15_or_later())
 		return &dpll_ddr3_303MHz[ind];
@@ -304,7 +304,7 @@ const struct dpll_params *get_dpll_mpu_params(void)
 	if (bone_not_connected_to_ac_power())
 		freq = MPUPLL_M_600;
 
-	if (board_is_pb() || board_is_bone_lt())
+	if (board_is_oresat() || board_is_pb() || board_is_bone_lt())
 		freq = MPUPLL_M_1000;
 
 	if (board_is_bbge())
@@ -356,7 +356,7 @@ static void scale_vcores_bone(int freq)
 	 * Override what we have detected since we know if we have
 	 * a Beaglebone Black it supports 1GHz.
 	 */
-	if (board_is_pb() || board_is_bone_lt())
+	if (board_is_oresat() || board_is_pb() || board_is_bone_lt())
 		freq = MPUPLL_M_1000;
 
 	switch (freq) {
@@ -557,7 +557,7 @@ void sdram_init(void)
 	if (board_is_evm_sk())
 		config_ddr(303, &ioregs_evmsk, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-	else if (board_is_pb() || board_is_bone_lt())
+	else if (board_is_oresat() || board_is_pb() || board_is_bone_lt())
 		config_ddr(400, &ioregs_bonelt,
 			   &ddr3_beagleblack_data,
 			   &ddr3_beagleblack_cmd_ctrl_data,
@@ -814,6 +814,52 @@ int board_late_init(void)
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char *name = NULL;
+
+	if (board_is_oresat_c3()) {
+		if (!strncmp(board_ti_get_rev(), "0600", 4)) {
+			name = "OSC30600";
+		}
+
+		if (!strncmp(board_ti_get_rev(), "0601", 4)) {
+			name = "OSC30601";
+		}
+
+		if (!strncmp(board_ti_get_rev(), "TEST", 4)) {
+			name = "OSC3TEST";
+		}
+	}
+
+	if (board_is_oresat_cfc()) {
+		if (!strncmp(board_ti_get_rev(), "0100", 4)) {
+			name = "ODWF0100";
+		}
+	}
+
+	if (board_is_oresat_dxwifi()) {
+		if (!strncmp(board_ti_get_rev(), "0102", 4)) {
+			name = "ODWF0102";
+		}
+
+	if (!strncmp(board_ti_get_rev(), "0103", 4)) {
+			name = "ODWF0103";
+		}
+	}
+
+	if (board_is_oresat_gps()) {
+		if (!strncmp(board_ti_get_rev(), "0100", 4)) {
+			name = "OGPS0100";
+		}
+
+		if (!strncmp(board_ti_get_rev(), "0101", 4)) {
+			name = "OGPS0101";
+		}
+	} 
+
+	if (board_is_oresat_st()) {
+		if (!strncmp(board_ti_get_rev(), "0102", 4)) {
+			name = "OSST0102";
+		}
+	}
 
 	if (board_is_bone_lt()) {
 		/* BeagleBoard.org BeagleBone Black Wireless: */
