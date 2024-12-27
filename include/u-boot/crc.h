@@ -25,6 +25,9 @@
  */
 unsigned int crc8(unsigned int crc_start, const unsigned char *vptr, int len);
 
+void crc8_wd_buf(const unsigned char *input, unsigned int len,
+		 unsigned char output[1], unsigned int chunk_sz);
+
 /* lib/crc16.c - 16 bit CRC with polynomial x^16 + x^15 + x^2 + 1 */
 uint16_t crc16(uint16_t crc, const unsigned char *buffer, size_t len);
 

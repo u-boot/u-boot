@@ -845,6 +845,14 @@ config HASH
 	  and the algorithms it supports are defined in common/hash.c. See
 	  also CMD_HASH for command-line access.
 
+config HASH_CRC8
+	bool "Make crc8 available via the hash API"
+	depends on HASH && CRC8
+	help
+	  Most times, the crc8() function is called directly. To make it also
+	  available via the hash API, e.g. in hash_block(), enable this
+	  option.
+
 config AVB_VERIFY
 	bool "Build Android Verified Boot operations"
 	depends on LIBAVB
