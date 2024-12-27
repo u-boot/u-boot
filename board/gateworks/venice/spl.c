@@ -144,7 +144,7 @@ static int power_init_board(struct udevice *gsc)
 	if ((!strncmp(model, "GW71", 4)) ||
 	    (!strncmp(model, "GW72", 4)) ||
 	    (!strncmp(model, "GW73", 4)) ||
-	    (!strncmp(model, "GW7905", 6))) {
+	    (!strncmp(model, "GW75", 4))) {
 		ret = uclass_get_device_by_seq(UCLASS_I2C, 0, &bus);
 		if (ret) {
 			printf("PMIC    : failed I2C1 probe: %d\n", ret);
