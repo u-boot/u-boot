@@ -6,6 +6,11 @@
  * Copyright (c) 2020 Linaro
  * Copyright (c) 2018 Bootlin
  *
+ * The structures are described in
+ * Trusted Platform Module Library Part 2: Structures
+ * http://tcg.tjn.chef.causewaynow.com/resource/tpm-library-specification/
+ *
+ * C header files are listed in
  * https://trustedcomputinggroup.org/resource/tss-overview-common-structures-specification/
  *
  * Author: Miquel Raynal <miquel.raynal@bootlin.com>
@@ -45,20 +50,43 @@ struct udevice;
 #define TPM2_PT_MAX_COMMAND_SIZE	(u32)(TPM2_PT_FIXED + 30)
 #define TPM2_PT_MAX_RESPONSE_SIZE	(u32)(TPM2_PT_FIXED + 31)
 
-/* TPMS_TAGGED_PROPERTY Structure */
+/**
+ * struct tpms_tagged_property - TPMS_TAGGED_PROPERTY structure
+ *
+ * This structure is returned by TPM2_GetCapability() to report
+ * a u32 property value.
+ *
+ * @property:	property identifier
+ * @value:	value of the property
+ */
 struct tpms_tagged_property {
 	u32 property;
 	u32 value;
 } __packed;
 
-/* TPMS_PCR_SELECTION Structure */
+/**
+ * struct tpms_pcr_selection - TPMS_PCR_SELECTION structure
+ *
+ * This structure allows to specify a hash algorithm and a list of
+ * selected PCRs. A PCR is selected by setting the related bit in
+ * @pcr_select to 1.
+ *
+ * @hash:		hash algorithm associated with the selection
+ * @size_of_select:	size in bytes of the @pcr_select array
+ * @pcr_select:		bit map of selected PCRs
+ */
 struct tpms_pcr_selection {
 	u16 hash;
 	u8 size_of_select;
 	u8 pcr_select[TPM2_PCR_SELECT_MAX];
 } __packed;
 
-/* TPML_PCR_SELECTION Structure */
+/**
+ * struct tpml_pcr_selection - TPML_PCR_SELECTION structure
+ *
+ * @count:	number of selection structures, may be zero
+ * @selection:	list of selections
+ */
 struct tpml_pcr_selection {
 	u32 count;
 	struct tpms_pcr_selection selection[TPM2_NUM_PCR_BANKS];

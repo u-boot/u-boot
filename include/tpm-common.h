@@ -42,12 +42,10 @@ enum tpm_version {
 	TPM_V2,
 };
 
-/*
- *  We deviate from this draft of the specification by increasing the value of
- *  TPM2_NUM_PCR_BANKS from 3 to 16 to ensure compatibility with TPM2
- *  implementations that have enabled a larger than typical number of PCR
- *  banks. This larger value for TPM2_NUM_PCR_BANKS is expected to be included
- *  in a future revision of the specification.
+/**
+ * define TPM2_NUM_PCR_BANKS - number of PCR banks
+ * The value 16 can be found in the current standard
+ * TCG TSS 2.0 Overview and Common Structures Specification 1.0, rev 10
  */
 #define TPM2_NUM_PCR_BANKS 16
 
