@@ -19,12 +19,6 @@
 #include <configs/ti_am335x_common.h>
 #include <linux/sizes.h>
 
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT "oresat> "
-
-#undef CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING "OreSat"
-
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
@@ -124,8 +118,6 @@
 			"setenv fdtfile oresat-c3-0600.dtb; fi; " \
 		"if test $board_name = OSC30601; then " \
 			"setenv fdtfile oresat-c3-0601.dtb; fi; " \
-		"if test $board_name = OSC3TEST; then " \
-			"setenv fdtfile am335x-boneblack.dtb; fi; " \
 		"if test $board_name = OCFC0100; then " \
 			"setenv fdtfile oresat-cfc-0100.dtb; fi; " \
 		"if test $board_name = ODWF0102; then " \

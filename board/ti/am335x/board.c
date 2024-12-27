@@ -823,15 +823,11 @@ int board_late_init(void)
 		if (!strncmp(board_ti_get_rev(), "0601", 4)) {
 			name = "OSC30601";
 		}
-
-		if (!strncmp(board_ti_get_rev(), "TEST", 4)) {
-			name = "OSC3TEST";
-		}
 	}
 
 	if (board_is_oresat_cfc()) {
 		if (!strncmp(board_ti_get_rev(), "0100", 4)) {
-			name = "ODWF0100";
+			name = "OCFC0100";
 		}
 	}
 
@@ -840,7 +836,7 @@ int board_late_init(void)
 			name = "ODWF0102";
 		}
 
-	if (!strncmp(board_ti_get_rev(), "0103", 4)) {
+		if (!strncmp(board_ti_get_rev(), "0103", 4)) {
 			name = "ODWF0103";
 		}
 	}
