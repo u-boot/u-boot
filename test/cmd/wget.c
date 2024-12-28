@@ -107,9 +107,22 @@ static int sb_ack_handler(struct udevice *dev, void *packet,
 	int payload_len = 0;
 	u32 tcp_seq, tcp_ack;
 	int tcp_data_len;
-	const char *payload1 = "HTTP/1.1 200 OK\r\n"
-		"Content-Length: 30\r\n\r\n\r\n"
-		"<html><body>Hi</body></html>\r\n";
+	const char *payload1 =
+		/* response status line */
+		"HTTP/1.1 200 OK\r\n"
+		/* response header fields */
+		"Date: Mon, 23 Dec 2024 05:18:23 GMT\r\n"
+		"Server: Apache/2.4.62 (Debian)\r\n"
+		"Last-Modified: Mon, 23 Dec 2024 05:04:50 GMT\r\n"
+		"ETag: \"1d-629e8efb09e7b\"\r\n"
+		"Accept-Ranges: bytes\r\n"
+		"Content-Length: 29\r\n"
+		"Connection: close\r\n"
+		"Content-Type: text/html\r\n"
+		/* response header fields end marker */
+		"\r\n"
+		/* file data (for HTTP GET requests) */
+		"<html><body>Hi</body></html>\n";
 
 	/* Don't allow the buffer to overrun */
 	if (priv->recv_packets >= PKTBUFSRX)
@@ -136,11 +149,11 @@ static int sb_ack_handler(struct udevice *dev, void *packet,
 
 	if (tcp_seq == 1 && tcp_ack == 1) {
 		if (tcp_data_len == 0) {
-			/* no data, wait for GET request */
+			/* no data, wait for GET/HEAD request */
 			return -1;
 		}
 
-		/* reply to GET request */
+		/* reply to GET/HEAD request */
 		payload_len = strlen(payload1);
 		memcpy(data, payload1, payload_len);
 		tcp_send->tcp_flags = TCP_ACK;
@@ -215,12 +228,12 @@ static int net_test_wget(struct unit_test_state *uts)
 	ut_assertok(run_command("wget ${loadaddr} 1.1.2.2:/index.html", 0));
 	ut_assert_nextline_empty();
 	ut_assert_nextline("Packets received 5, Transfer Successful");
-	ut_assert_nextline("Bytes transferred = 32 (20 hex)");
+	ut_assert_nextline("Bytes transferred = 29 (1d hex)");
 
 	sandbox_eth_set_tx_handler(0, NULL);
 
 	run_command("md5sum ${loadaddr} ${filesize}", 0);
-	ut_assert_nextline("md5 for 00020000 ... 0002001f ==> 234af48e94b0085060249ecb5942ab57");
+	ut_assert_nextline("md5 for 00020000 ... 0002001c ==> 847d5e7320a27462e90bc1ed75eb8cd8");
 	ut_assert_console_end();
 
 	env_set("ethact", prev_ethact);
