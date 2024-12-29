@@ -57,7 +57,12 @@ config DRAM_SUN50I_A133
 	  Select this dram controller driver for some sun50i platforms,
 	  like A133.
 
-if DRAM_SUN50I_H616 || DRAM_SUN50I_A133
+config DRAM_SUN55I_A523
+	bool
+	help
+	  Select this DRAM controller driver for A523/T527 SoCs.
+
+if DRAM_SUN50I_H616 || DRAM_SUN50I_A133 || DRAM_SUN55I_A523
 config DRAM_SUNXI_DX_ODT
 	hex "DRAM DX ODT parameter"
 	help
@@ -170,8 +175,8 @@ config DRAM_SUNXI_TPR13
 
 config DRAM_SUNXI_TPR14
 	hex "DRAM TPR14 parameter"
-	depends on DRAM_SUN50I_A133
-	default 0x0
+	depends on DRAM_SUN50I_A133 || MACH_SUN55I_A523
+	default 0x48484848
 	help
 	  TPR14 value from vendor DRAM settings.
 
@@ -569,7 +574,7 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
-if SUNXI_DRAM_DW || DRAM_SUN50I_H6 || DRAM_SUN50I_H616 || DRAM_SUN50I_A133
+if SUNXI_DRAM_DW || DRAM_SUN50I_H6 || DRAM_SUN50I_H616 || DRAM_SUN50I_A133 || DRAM_SUN55I_A523
 config SUNXI_DRAM_DDR3
 	bool
 
@@ -587,6 +592,7 @@ config SUNXI_DRAM_DDR4
 
 choice
 	prompt "DRAM Type and Timing"
+	default SUNXI_DRAM_A523_LPDDR4 if MACH_SUN55I_A523
 	default SUNXI_DRAM_DDR3_1333 if !MACH_SUN8I_V3S
 	default SUNXI_DRAM_DDR2_V3S if MACH_SUN8I_V3S
 
@@ -670,6 +676,13 @@ config SUNXI_DRAM_DDR2_V3S
 	This option is only for the DDR2 memory chip which is co-packaged in
 	Allwinner V3s SoC.
 
+config SUNXI_DRAM_A523_LPDDR4
+	bool "LPDDR4 DRAM chips on the A523/T527 DRAM controller"
+	select SUNXI_DRAM_LPDDR4
+	depends on DRAM_SUN55I_A523
+	help
+	  This option is the LPDDR4 timing used by the stock boot0 by
+	  Allwinner.
 endchoice
 endif
 
@@ -690,6 +703,7 @@ config DRAM_CLK
 	default 672 if MACH_SUN50I
 	default 744 if MACH_SUN50I_H6
 	default 720 if MACH_SUN50I_H616 || MACH_SUN50I_A133
+	default 1200 if MACH_SUN55I_A523
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
