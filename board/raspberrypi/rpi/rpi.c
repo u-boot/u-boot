@@ -193,6 +193,21 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2712-rpi-5-b.dtb",
 		true,
 	},
+	[0x18] = {
+		"Compute Module 5",
+		DTB_DIR "bcm2712-rpi-cm5-cm5io.dtb",
+		true,
+	},
+	[0x19] = {
+		"500",
+		DTB_DIR "bcm2712-rpi-500.dtb",
+		true,
+	},
+	[0x1A] = {
+		"Compute Module 5 Lite",
+		DTB_DIR "bcm2712-rpi-cm5l-cm5io.dtb",
+		true,
+	},
 };
 
 static const struct rpi_model rpi_models_old_scheme[] = {
