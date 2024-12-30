@@ -6,4 +6,4 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 
-obj-y	:= spider.o ../rcar-common/common.o
+obj-y	:= ../rcar-common/gen4-common.o ../rcar-common/common.o

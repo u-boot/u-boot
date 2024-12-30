@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * board/renesas/whitehawk/whitehawk.c
- *     This file is White Hawk board support.
+ * board/renesas/rcar-common/gen4-common.c
  *
- * Copyright (C) 2021 Renesas Electronics Corp.
+ * Copyright (C) 2021-2024 Renesas Electronics Corp.
  */
 
 #include <asm/arch/renesas.h>
@@ -12,8 +11,12 @@
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/processor.h>
-#include <linux/errno.h>
 #include <asm/system.h>
+#include <linux/errno.h>
+
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_WDTRSTCR	(RST_BASE + 0x10)
+#define RST_RWDT	0xA55A8002
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -59,8 +62,29 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	if (current_el() == 3)
-		init_gic_v3();
+	if (current_el() != 3)
+		return 0;
+	init_gic_v3();
 
+	/* Enable RWDT reset on V3U in EL3 */
+	if (IS_ENABLED(CONFIG_R8A779A0) &&
+	    renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A779A0) {
+		writel(RST_RWDT, RST_WDTRSTCR);
+	}
+
+	return 0;
+}
+
+#define RST_BASE	0xE6160000 /* Domain0 */
+#define RST_SRESCR0	(RST_BASE + 0x18)
+#define RST_SPRES	0x5AA58000
+
+void __weak reset_cpu(void)
+{
+	writel(RST_SPRES, RST_SRESCR0);
+}
+
+int ft_board_setup(void *blob, struct bd_info *bd)
+{
 	return 0;
 }
