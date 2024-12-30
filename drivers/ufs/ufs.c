@@ -19,6 +19,7 @@
 #include <malloc.h>
 #include <hexdump.h>
 #include <scsi.h>
+#include <ufs.h>
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 #include <linux/bitops.h>
