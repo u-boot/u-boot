@@ -57,7 +57,6 @@ static long lmb_regions_overlap(struct alist *lmb_rgn_lst, unsigned long r1,
 				unsigned long r2)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
-
 	phys_addr_t base1 = rgn[r1].base;
 	phys_size_t size1 = rgn[r1].size;
 	phys_addr_t base2 = rgn[r2].base;
@@ -70,11 +69,11 @@ static long lmb_regions_adjacent(struct alist *lmb_rgn_lst, unsigned long r1,
 				 unsigned long r2)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
-
 	phys_addr_t base1 = rgn[r1].base;
 	phys_size_t size1 = rgn[r1].size;
 	phys_addr_t base2 = rgn[r2].base;
 	phys_size_t size2 = rgn[r2].size;
+
 	return lmb_addrs_adjacent(base1, size1, base2, size2);
 }
 
@@ -202,7 +201,7 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		phys_addr_t rgnbase = rgn[i].base;
 		phys_size_t rgnsize = rgn[i].size;
-		phys_size_t rgnflags = rgn[i].flags;
+		enum lmb_flags rgnflags = rgn[i].flags;
 
 		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
 		if (ret > 0) {
@@ -228,6 +227,8 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 
 			coalesced++;
 			break;
+
+			return -1;
 		}
 	}
 
@@ -278,14 +279,17 @@ static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
 	phys_addr_t end = base + size - 1;
 	int i;
 
-	rgnbegin = rgnend = 0; /* supress gcc warnings */
+	/* Suppress GCC warnings */
+	rgnbegin = 0;
+	rgnend = 0;
+
 	rgn = lmb_rgn_lst->data;
 	/* Find the region where (base, size) belongs to */
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		rgnbegin = rgn[i].base;
 		rgnend = rgnbegin + rgn[i].size - 1;
 
-		if ((rgnbegin <= base) && (end <= rgnend))
+		if (rgnbegin <= base && end <= rgnend)
 			break;
 	}
 
@@ -294,7 +298,7 @@ static long _lmb_free(struct alist *lmb_rgn_lst, phys_addr_t base,
 		return -1;
 
 	/* Check to see if we are removing entire region */
-	if ((rgnbegin == base) && (rgnend == end)) {
+	if (rgnbegin == base && rgnend == end) {
 		lmb_remove_region(lmb_rgn_lst, i);
 		return 0;
 	}
@@ -330,6 +334,7 @@ static long lmb_overlaps_region(struct alist *lmb_rgn_lst, phys_addr_t base,
 	for (i = 0; i < lmb_rgn_lst->count; i++) {
 		phys_addr_t rgnbase = rgn[i].base;
 		phys_size_t rgnsize = rgn[i].size;
+
 		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize))
 			break;
 	}
@@ -472,7 +477,8 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 
 static void lmb_print_region_flags(enum lmb_flags flags)
 {
-	const char *flag_str[] = { "none", "no-map", "no-overwrite", "no-notify" };
+	const char * const flag_str[] = { "none", "no-map", "no-overwrite",
+					  "no-notify" };
 	unsigned int pflags = flags &
 			      (LMB_NOMAP | LMB_NOOVERWRITE | LMB_NONOTIFY);
 
@@ -595,14 +601,6 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	}
 }
 
-/**
- * lmb_add_memory() - Add memory range for LMB allocations
- *
- * Add the entire available memory range to the pool of memory that
- * can be used by the LMB module for allocations.
- *
- * Return: None
- */
 void lmb_add_memory(void)
 {
 	int i;
@@ -659,16 +657,6 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	return lmb_map_update_notify(base, size, MAP_OP_ADD, LMB_NONE);
 }
 
-/**
- * lmb_free_flags() - Free up a region of memory
- * @base: Base Address of region to be freed
- * @size: Size of the region to be freed
- * @flags: Memory region attributes
- *
- * Free up a region of memory.
- *
- * Return: 0 if successful, negative error code on failure
- */
 long lmb_free_flags(phys_addr_t base, phys_size_t size,
 		    uint flags)
 {
@@ -704,7 +692,7 @@ long lmb_reserve(phys_addr_t base, phys_size_t size)
 }
 
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
-				    phys_addr_t max_addr, enum lmb_flags flags)
+				   phys_addr_t max_addr, enum lmb_flags flags)
 {
 	int ret;
 	long i, rgn;
@@ -719,16 +707,18 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 
 		if (lmbsize < size)
 			continue;
-		if (max_addr == LMB_ALLOC_ANYWHERE)
+
+		if (max_addr == LMB_ALLOC_ANYWHERE) {
 			base = lmb_align_down(lmbbase + lmbsize - size, align);
-		else if (lmbbase < max_addr) {
+		} else if (lmbbase < max_addr) {
 			base = lmbbase + lmbsize;
 			if (base < lmbbase)
 				base = -1;
 			base = min(base, max_addr);
 			base = lmb_align_down(base - size, align);
-		} else
+		} else {
 			continue;
+		}
 
 		while (base && lmbbase <= base) {
 			rgn = lmb_overlaps_region(&lmb.used_mem, base, size);
@@ -774,19 +764,6 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr)
 	return alloc;
 }
 
-/**
- * lmb_alloc_base_flags() - Allocate specified memory region with specified attributes
- * @size: Size of the region requested
- * @align: Alignment of the memory region requested
- * @max_addr: Maximum address of the requested region
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The max_addr parameter is used to specify the maximum address
- * below which the requested region should be allocated.
- *
- * Return: base address on success, 0 on error
- */
 phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 				 phys_addr_t max_addr, uint flags)
 {
@@ -802,7 +779,7 @@ phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
 }
 
 static phys_addr_t _lmb_alloc_addr(phys_addr_t base, phys_size_t size,
-				    enum lmb_flags flags)
+				   enum lmb_flags flags)
 {
 	long rgn;
 	struct lmb_region *lmb_memory = lmb.free_mem.data;
@@ -835,18 +812,6 @@ phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size)
 	return _lmb_alloc_addr(base, size, LMB_NONE);
 }
 
-/**
- * lmb_alloc_addr_flags() - Allocate specified memory address with specified attributes
- * @base: Base Address requested
- * @size: Size of the region requested
- * @flags: Memory region attributes to be set
- *
- * Allocate a region of memory with the attributes specified through the
- * parameter. The base parameter is used to specify the base address
- * of the requested region.
- *
- * Return: base address on success, 0 on error
- */
 phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
 				 uint flags)
 {
@@ -919,18 +884,6 @@ static int lmb_setup(bool test)
 	return 0;
 }
 
-/**
- * lmb_init() - Initialise the LMB module
- *
- * Initialise the LMB lists needed for keeping the memory map. There
- * are two lists, in form of alloced list data structure. One for the
- * available memory, and one for the used memory. Initialise the two
- * lists as part of board init. Add memory to the available memory
- * list and reserve common areas by adding them to the used memory
- * list.
- *
- * Return: 0 on success, -ve on error
- */
 int lmb_init(void)
 {
 	int ret;
