@@ -1203,12 +1203,12 @@ switch_as:
 	mtctr	r2
 	li	r0,0
 1:
-	dcbz	r0,r3
+	dcbz	0,r3
 #ifdef CONFIG_E6500	/* Lock/unlock L2 cache long with L1 */
-	dcbtls	2, r0, r3
-	dcbtls	0, r0, r3
+	dcbtls	2, 0, r3
+	dcbtls	0, 0, r3
 #else
-	dcbtls	0, r0, r3
+	dcbtls	0, 0, r3
 #endif
 	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
@@ -1514,7 +1514,7 @@ out16:
 /*------------------------------------------------------------------------------- */
 	.globl	out16r
 out16r:
-	sthbrx	r4,r0,r3
+	sthbrx	r4,0,r3
 	sync
 	blr
 
@@ -1534,7 +1534,7 @@ out32:
 /*------------------------------------------------------------------------------- */
 	.globl	out32r
 out32r:
-	stwbrx	r4,r0,r3
+	stwbrx	r4,0,r3
 	sync
 	blr
 
@@ -1553,7 +1553,7 @@ in16:
 /*------------------------------------------------------------------------------- */
 	.globl	in16r
 in16r:
-	lhbrx	r3,r0,r3
+	lhbrx	r3,0,r3
 	blr
 
 /*------------------------------------------------------------------------------- */
@@ -1571,7 +1571,7 @@ in32:
 /*------------------------------------------------------------------------------- */
 	.globl	in32r
 in32r:
-	lwbrx	r3,r0,r3
+	lwbrx	r3,0,r3
 	blr
 #endif  /* !MINIMAL_SPL */
 
@@ -1832,12 +1832,12 @@ unlock_ram_in_cache:
 	andi.	r4,r4,0x1ff
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
-1:	dcbi	r0,r3
+1:	dcbi	0,r3
 #ifdef CONFIG_E6500	/* lock/unlock L2 cache long with L1 */
-	dcblc	2, r0, r3
-	dcblc	0, r0, r3
+	dcblc	2, 0, r3
+	dcblc	0, 0, r3
 #else
-	dcblc	r0,r3
+	dcblc	0,r3
 #endif
 	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
