@@ -59,7 +59,7 @@
 #define RXSQCTRL				0x00B5
 #define CFGRXOVR6				0x00BF
 
-#define is_mphy_tx_attr(attr)			(attr < RX_MODE)
+#define is_mphy_tx_attr(attr)			((attr) < RX_MODE)
 #define RX_MIN_ACTIVATETIME_UNIT_US		100
 #define HIBERN8TIME_UNIT_US			100
 
@@ -77,7 +77,7 @@
 #define CBPRGPLL2				UNIPRO_CB_OFFSET(0x00F8)
 #define CBPRGTUNING				UNIPRO_CB_OFFSET(0x00FB)
 
-#define UNIPRO_CB_OFFSET(x)			(0x8000 | x)
+#define UNIPRO_CB_OFFSET(x)			(0x8000 | (x))
 
 /*
  * PHY Adpater attributes

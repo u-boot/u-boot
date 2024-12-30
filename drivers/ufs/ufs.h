@@ -130,8 +130,8 @@ enum {
 					(sizeof(struct utp_upiu_header)))
 #define RESPONSE_UPIU_SENSE_DATA_LENGTH	18
 #define UPIU_HEADER_DWORD(byte3, byte2, byte1, byte0)\
-			cpu_to_be32((byte3 << 24) | (byte2 << 16) |\
-			 (byte1 << 8) | (byte0))
+			cpu_to_be32(((byte3) << 24) | ((byte2) << 16) |\
+			 ((byte1) << 8) | (byte0))
 /*
  * UFS Protocol Information Unit related definitions
  */
@@ -915,7 +915,7 @@ static inline int ufshcd_ops_get_max_pwr_mode(struct ufs_hba *hba,
 }
 
 static inline int ufshcd_ops_hce_enable_notify(struct ufs_hba *hba,
-						bool status)
+					       bool status)
 {
 	if (hba->ops && hba->ops->hce_enable_notify)
 		return hba->ops->hce_enable_notify(hba, status);

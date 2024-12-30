@@ -314,16 +314,12 @@ static int ufshcd_disable_tx_lcc(struct ufs_hba *hba, bool peer)
 		ufshcd_dme_peer_get(hba, UIC_ARG_MIB(PA_CONNECTEDTXDATALANES),
 				    &tx_lanes);
 	for (i = 0; i < tx_lanes; i++) {
+		unsigned int val = UIC_ARG_MIB_SEL(TX_LCC_ENABLE,
+						   UIC_ARG_MPHY_TX_GEN_SEL_INDEX(i));
 		if (!peer)
-			err = ufshcd_dme_set(hba,
-					     UIC_ARG_MIB_SEL(TX_LCC_ENABLE,
-					     UIC_ARG_MPHY_TX_GEN_SEL_INDEX(i)),
-					     0);
+			err = ufshcd_dme_set(hba, val, 0);
 		else
-			err = ufshcd_dme_peer_set(hba,
-					UIC_ARG_MIB_SEL(TX_LCC_ENABLE,
-					UIC_ARG_MPHY_TX_GEN_SEL_INDEX(i)),
-					0);
+			err = ufshcd_dme_peer_set(hba, val, 0);
 		if (err) {
 			dev_err(hba->dev, "%s: TX LCC Disable failed, peer = %d, lane = %d, err = %d\n",
 				__func__, peer, i, err);
@@ -1962,7 +1958,7 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 
 	ufshcd_ops_init(hba);
 
-	/* Read capabilties registers */
+	/* Read capabilities registers */
 	hba->capabilities = ufshcd_readl(hba, REG_CONTROLLER_CAPABILITIES);
 	if (hba->quirks & UFSHCD_QUIRK_BROKEN_64BIT_ADDRESS)
 		hba->capabilities &= ~MASK_64_ADDRESSING_SUPPORT;
@@ -2001,7 +1997,7 @@ int ufshcd_probe(struct udevice *ufs_dev, struct ufs_hba_ops *hba_ops)
 		      REG_INTERRUPT_STATUS);
 	ufshcd_writel(hba, 0, REG_INTERRUPT_ENABLE);
 
-	mb();
+	mb(); /* flush previous writes */
 
 	/* Reset the attached device */
 	ufshcd_device_reset(hba);
