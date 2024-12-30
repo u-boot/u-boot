@@ -1035,8 +1035,8 @@ static inline void ufshcd_init_query(struct ufs_hba *hba,
 /**
  * ufshcd_query_flag() - API function for sending flag query requests
  */
-int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
-		      enum flag_idn idn, bool *flag_res)
+static int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
+			     enum flag_idn idn, bool *flag_res)
 {
 	struct ufs_query_req *request = NULL;
 	struct ufs_query_res *response = NULL;
@@ -1171,9 +1171,9 @@ out:
 /**
  * ufshcd_query_descriptor_retry - API function for sending descriptor requests
  */
-int ufshcd_query_descriptor_retry(struct ufs_hba *hba, enum query_opcode opcode,
-				  enum desc_idn idn, u8 index, u8 selector,
-				  u8 *desc_buf, int *buf_len)
+static int ufshcd_query_descriptor_retry(struct ufs_hba *hba, enum query_opcode opcode,
+					 enum desc_idn idn, u8 index, u8 selector,
+					 u8 *desc_buf, int *buf_len)
 {
 	int err;
 	int retries;
@@ -1265,8 +1265,8 @@ static void ufshcd_init_desc_sizes(struct ufs_hba *hba)
  * ufshcd_map_desc_id_to_length - map descriptor IDN to its length
  *
  */
-int ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
-				 int *desc_len)
+static int ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
+					int *desc_len)
 {
 	switch (desc_id) {
 	case QUERY_DESC_IDN_DEVICE:
@@ -1303,15 +1303,14 @@ int ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
 	}
 	return 0;
 }
-EXPORT_SYMBOL(ufshcd_map_desc_id_to_length);
 
 /**
  * ufshcd_read_desc_param - read the specified descriptor parameter
  *
  */
-int ufshcd_read_desc_param(struct ufs_hba *hba, enum desc_idn desc_id,
-			   int desc_index, u8 param_offset, u8 *param_read_buf,
-			   u8 param_size)
+static int ufshcd_read_desc_param(struct ufs_hba *hba, enum desc_idn desc_id,
+				  int desc_index, u8 param_offset,
+				  u8 *param_read_buf, u8 param_size)
 {
 	int ret;
 	u8 *desc_buf;
@@ -1570,8 +1569,8 @@ static int ufshcd_read_device_desc(struct ufs_hba *hba, u8 *buf, u32 size)
  * ufshcd_read_string_desc - read string descriptor
  *
  */
-int ufshcd_read_string_desc(struct ufs_hba *hba, int desc_index,
-			    u8 *buf, u32 size, bool ascii)
+static int ufshcd_read_string_desc(struct ufs_hba *hba, int desc_index,
+				   u8 *buf, u32 size, bool ascii)
 {
 	int err = 0;
 
@@ -1882,7 +1881,7 @@ static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
 	hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
 }
 
-int ufs_start(struct ufs_hba *hba)
+static int ufs_start(struct ufs_hba *hba)
 {
 	struct ufs_dev_desc card = {0};
 	int ret;
