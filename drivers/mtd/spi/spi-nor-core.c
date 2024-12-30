@@ -1130,17 +1130,19 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 			goto erase_err;
 		}
 		offset = addr;
-		if (nor->flags & SNOR_F_HAS_PARALLEL)
-			offset /= 2;
+		if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+			if (nor->flags & SNOR_F_HAS_PARALLEL)
+				offset /= 2;
 
-		if (nor->flags & SNOR_F_HAS_STACKED) {
-			if (offset >= (mtd->size / 2))
-				nor->spi->flags |= SPI_XFER_U_PAGE;
-			else
-				nor->spi->flags &= ~SPI_XFER_U_PAGE;
+			if (nor->flags & SNOR_F_HAS_STACKED) {
+				if (offset >= (mtd->size / 2))
+					nor->spi->flags |= SPI_XFER_U_PAGE;
+				else
+					nor->spi->flags &= ~SPI_XFER_U_PAGE;
+			}
 		}
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = write_bar(nor, addr);
+		ret = write_bar(nor, offset);
 		if (ret < 0)
 			goto erase_err;
 #endif
@@ -1152,7 +1154,7 @@ static int spi_nor_erase(struct mtd_info *mtd, struct erase_info *instr)
 		    !(nor->flags & SNOR_F_NO_OP_CHIP_ERASE)) {
 			ret = spi_nor_erase_chip(nor);
 		} else {
-			ret = spi_nor_erase_sector(nor, addr);
+			ret = spi_nor_erase_sector(nor, offset);
 		}
 		if (ret < 0)
 			goto erase_err;
@@ -1576,11 +1578,12 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 			size_t *retlen, u_char *buf)
 {
 	struct spi_nor *nor = mtd_to_spi_nor(mtd);
-	int ret;
 	loff_t offset = from;
-	u32 read_len = 0;
 	u32 rem_bank_len = 0;
+	u32 stack_shift = 0;
+	size_t read_len;
 	u8 bank;
+	int ret;
 	bool is_ofst_odd = false;
 
 	dev_dbg(nor->dev, "from 0x%08x, len %zd\n", (u32)from, len);
@@ -1593,39 +1596,49 @@ static int spi_nor_read(struct mtd_info *mtd, loff_t from, size_t len,
 	}
 
 	while (len) {
-		bank = (u32)from / SZ_16M;
-		if (nor->flags & SNOR_F_HAS_PARALLEL)
-			bank /= 2;
-
-		rem_bank_len = SZ_16M * (bank + 1);
-		if (nor->flags & SNOR_F_HAS_PARALLEL)
-			rem_bank_len *= 2;
-		rem_bank_len -= from;
-
+		read_len = len;
 		offset = from;
 
-		if (nor->flags & SNOR_F_HAS_STACKED) {
-			if (offset >= (mtd->size / 2)) {
-				offset = offset - (mtd->size / 2);
-				nor->spi->flags |= SPI_XFER_U_PAGE;
-			} else {
-				nor->spi->flags &= ~SPI_XFER_U_PAGE;
+		if (CONFIG_IS_ENABLED(SPI_FLASH_BAR)) {
+			bank = (u32)from / SZ_16M;
+			if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+				if (nor->flags & SNOR_F_HAS_PARALLEL)
+					bank /= 2;
+			}
+			rem_bank_len = SZ_16M * (bank + 1);
+			if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+				if (nor->flags & SNOR_F_HAS_PARALLEL)
+					rem_bank_len *= 2;
+			}
+			rem_bank_len -= from;
+		}
+
+		if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+			if (nor->flags & SNOR_F_HAS_STACKED) {
+				stack_shift = 1;
+				if (offset >= (mtd->size / 2)) {
+					offset = offset - (mtd->size / 2);
+					nor->spi->flags |= SPI_XFER_U_PAGE;
+				} else {
+					nor->spi->flags &= ~SPI_XFER_U_PAGE;
+				}
 			}
 		}
 
-		if (nor->flags & SNOR_F_HAS_PARALLEL)
-			offset /= 2;
+		if (CONFIG_IS_ENABLED(SPI_STACKED_PARALLEL)) {
+			if (nor->flags & SNOR_F_HAS_PARALLEL)
+				offset /= 2;
+		}
 
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(nor, offset);
 		if (ret < 0)
 			return log_ret(ret);
-#endif
-
 		if (len < rem_bank_len)
 			read_len = len;
 		else
 			read_len = rem_bank_len;
+#endif
 
 		if (read_len == 0)
 			return -EIO;
