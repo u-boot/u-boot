@@ -480,7 +480,7 @@ static int qcom_power_set(struct power_domain *pwr, bool on)
 	struct msm_clk_data *data = (struct msm_clk_data *)dev_get_driver_data(pwr->dev);
 	void __iomem *base = dev_get_priv(pwr->dev);
 	const struct qcom_power_map *map;
-	u32 value;
+	u32 value, status_reg;
 	int ret;
 
 	if (pwr->id >= data->num_power_domains)
@@ -500,19 +500,36 @@ static int qcom_power_set(struct power_domain *pwr, bool on)
 
 	writel(value, base + map->reg);
 
-	if (on)
-		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
-					 value,
-					 (value & GDSC_POWER_UP_COMPLETE) ||
-					 (value & GDSC_PWR_ON_MASK),
-					 GDSC_STATUS_POLL_TIMEOUT_US);
+	/* depending on the type of gdsc the status register is different */
+	/* and we need to check different status bit */
+	if (map->flags & POLL_CFG_GDSCR) {
+		status_reg = map->reg + CFG_GDSCR_OFFSET;
 
-	else
-		ret = readl_poll_timeout(base + map->reg + CFG_GDSCR_OFFSET,
-					 value,
-					 (value & GDSC_POWER_DOWN_COMPLETE) ||
-					 !(value & GDSC_PWR_ON_MASK),
-					 GDSC_STATUS_POLL_TIMEOUT_US);
+		if (on)
+			ret = readl_poll_timeout(base + status_reg,
+						 value,
+						 (value & GDSC_POWER_UP_COMPLETE),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+		else
+			ret = readl_poll_timeout(base + status_reg,
+						 value,
+						 (value & GDSC_POWER_DOWN_COMPLETE),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+	} else {
+		status_reg = map->reg;
+
+		if (on)
+			ret = readl_poll_timeout(base + status_reg,
+						 value,
+						 (value & GDSC_PWR_ON_MASK),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+
+		else
+			ret = readl_poll_timeout(base + status_reg,
+						 value,
+						 !(value & GDSC_PWR_ON_MASK),
+						 GDSC_STATUS_POLL_TIMEOUT_US);
+	}
 
 	if (ret == -ETIMEDOUT)
 		printf("WARNING: GDSC %lu is stuck during power o%s\n",

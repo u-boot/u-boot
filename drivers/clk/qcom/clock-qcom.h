@@ -66,8 +66,22 @@ struct qcom_reset_map {
 	u8 bit;
 };
 
+enum qcom_gdsc_flags {
+	VOTABLE = BIT(0),
+	CLAMP_IO = BIT(1),
+	HW_CTRL = BIT(2),
+	SW_RESET = BIT(3),
+	AON_RESET = BIT(4),
+	POLL_CFG_GDSCR = BIT(5),
+	ALWAYS_ON = BIT(6),
+	RETAIN_FF_ENABLE = BIT(7),
+	NO_RET_PERIPH = BIT(8),
+	HW_CTRL_TRIGGER = BIT(9),
+};
+
 struct qcom_power_map {
-	unsigned int reg;
+	unsigned int reg; /* GDSCR */
+	unsigned int flags;
 };
 
 struct clk;
