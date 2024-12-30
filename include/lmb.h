@@ -19,18 +19,17 @@
 #define LMB_ALIST_INITIAL_SIZE	4
 
 /**
- * enum lmb_flags - Definition of memory region attributes
- * @LMB_NONE: No special request
- * @LMB_NOMAP: Don't add to MMU configuration
- * @LMB_NOOVERWRITE: The memory region cannot be overwritten/re-reserved
- * @LMB_NONOTIFY: Do not notify other modules of changes to this memory region
+ * DOC: Memory region attribute flags.
+ *
+ * %LMB_NONE: No special request
+ * %LMB_NOMAP: Don't add to MMU configuration
+ * %LMB_NOOVERWRITE: The memory region cannot be overwritten/re-reserved
+ * %LMB_NONOTIFY: Do not notify other modules of changes to this memory region
  */
-enum lmb_flags {
-	LMB_NONE		= 0,
-	LMB_NOMAP		= BIT(1),
-	LMB_NOOVERWRITE		= BIT(2),
-	LMB_NONOTIFY		= BIT(3),
-};
+#define LMB_NONE 0
+#define LMB_NOMAP BIT(0)
+#define LMB_NOOVERWRITE BIT(1)
+#define LMB_NONOTIFY BIT(2)
 
 /**
  * struct lmb_region - Description of one region
@@ -41,17 +40,17 @@ enum lmb_flags {
 struct lmb_region {
 	phys_addr_t base;
 	phys_size_t size;
-	enum lmb_flags flags;
+	u32 flags;
 };
 
 /**
  * struct lmb - The LMB structure
- * @free_mem: List of free memory regions
+ * @available_mem: List of memory available to LMB
  * @used_mem: List of used/reserved memory regions
  * @test: Is structure being used for LMB tests
  */
 struct lmb {
-	struct alist free_mem;
+	struct alist available_mem;
 	struct alist used_mem;
 	bool test;
 };
@@ -81,16 +80,7 @@ void lmb_add_memory(void);
 long lmb_add(phys_addr_t base, phys_size_t size);
 
 /**
- * lmb_reserve() - Reserve a memory region (with no special flags)
- * @base: Base address of the memory region
- * @size: Size of the memory region
- *
- * Return: 0 on success, negative error code on failure.
- */
-long lmb_reserve(phys_addr_t base, phys_size_t size);
-
-/**
- * lmb_reserve_flags() - Reserve one region with a specific flags bitfield
+ * lmb_reserve() - Reserve one region with a specific flags bitfield
  * @base: Base address of the memory region
  * @size: Size of the memory region
  * @flags: Flags for the memory region
@@ -100,16 +90,13 @@ long lmb_reserve(phys_addr_t base, phys_size_t size);
  * * %-EEXIST	- The region is already added, and flags != LMB_NONE
  * * %-1	- Failure
  */
-long lmb_reserve_flags(phys_addr_t base, phys_size_t size,
-		       enum lmb_flags flags);
+long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags);
 
 phys_addr_t lmb_alloc(phys_size_t size, ulong align);
-phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr);
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size);
 phys_size_t lmb_get_free_size(phys_addr_t addr);
 
 /**
- * lmb_alloc_base_flags() - Allocate specified memory region with specified
+ * lmb_alloc_base() - Allocate specified memory region with specified
  *			    attributes
  * @size: Size of the region requested
  * @align: Alignment of the memory region requested
@@ -122,12 +109,12 @@ phys_size_t lmb_get_free_size(phys_addr_t addr);
  *
  * Return: Base address on success, 0 on error.
  */
-phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
-				 phys_addr_t max_addr, uint flags);
+phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
+			   uint flags);
 
 /**
- * lmb_alloc_addr_flags() - Allocate specified memory address with specified
- *			    attributes
+ * lmb_alloc_addr() - Allocate specified memory address with specified attributes
+ *
  * @base: Base Address requested
  * @size: Size of the region requested
  * @flags: Memory region attributes to be set
@@ -138,8 +125,7 @@ phys_addr_t lmb_alloc_base_flags(phys_size_t size, ulong align,
  *
  * Return: Base address on success, 0 on error.
  */
-phys_addr_t lmb_alloc_addr_flags(phys_addr_t base, phys_size_t size,
-				 uint flags);
+phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
 
 /**
  * lmb_is_reserved_flags() - Test if address is in reserved region with flag
@@ -177,7 +163,7 @@ void lmb_pop(struct lmb *store);
 
 static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 {
-	return lmb_alloc_addr(addr, len) == addr ? 0 : -1;
+	return lmb_alloc_addr(addr, len, LMB_NONE) == addr ? 0 : -1;
 }
 
 /**

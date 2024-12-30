@@ -104,7 +104,7 @@ static int lmb_test_dump_region(struct unit_test_state *uts,
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
 	unsigned long long base, size, end;
-	enum lmb_flags flags;
+	u32 flags;
 	int i;
 
 	ut_assert_nextline(" %s.count = %#x", name, lmb_rgn_lst->count);
@@ -131,7 +131,7 @@ static int lmb_test_dump_all(struct unit_test_state *uts)
 	struct lmb *lmb = lmb_get();
 
 	ut_assert_nextline("lmb_dump_all:");
-	ut_assertok(lmb_test_dump_region(uts, &lmb->free_mem, "memory"));
+	ut_assertok(lmb_test_dump_region(uts, &lmb->available_mem, "memory"));
 	ut_assertok(lmb_test_dump_region(uts, &lmb->used_mem, "reserved"));
 
 	return 0;

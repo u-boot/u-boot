@@ -68,11 +68,11 @@ static const struct legacy_img_hdr *image_get_fdt(ulong fdt_addr)
 }
 #endif
 
-static void boot_fdt_reserve_region(u64 addr, u64 size, enum lmb_flags flags)
+static void boot_fdt_reserve_region(u64 addr, u64 size, u32 flags)
 {
 	long ret;
 
-	ret = lmb_reserve_flags(addr, size, flags);
+	ret = lmb_reserve(addr, size, flags);
 	if (!ret) {
 		debug("   reserving fdt memory region: addr=%llx size=%llx flags=%x\n",
 		      (unsigned long long)addr,
@@ -100,7 +100,7 @@ void boot_fdt_add_mem_rsv_regions(void *fdt_blob)
 	int i, total, ret;
 	int nodeoffset, subnode;
 	struct fdt_resource res;
-	enum lmb_flags flags;
+	u32 flags;
 
 	if (fdt_check_header(fdt_blob) != 0)
 		return;
@@ -184,10 +184,11 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 		if (desired_addr == ~0UL) {
 			/* All ones means use fdt in place */
 			of_start = fdt_blob;
-			lmb_reserve(map_to_sysmem(of_start), of_len);
+			lmb_reserve(map_to_sysmem(of_start), of_len, LMB_NONE);
 			disable_relocation = 1;
 		} else if (desired_addr) {
-			addr = lmb_alloc_base(of_len, 0x1000, desired_addr);
+			addr = lmb_alloc_base(of_len, 0x1000, desired_addr,
+					      LMB_NONE);
 			of_start = map_sysmem(addr, of_len);
 			if (of_start == NULL) {
 				puts("Failed using fdt_high value for Device Tree");
@@ -216,7 +217,7 @@ int boot_relocate_fdt(char **of_flat_tree, ulong *of_size)
 			 * for LMB allocation.
 			 */
 			usable = min(start + size, low + mapsize);
-			addr = lmb_alloc_base(of_len, 0x1000, usable);
+			addr = lmb_alloc_base(of_len, 0x1000, usable, LMB_NONE);
 			of_start = map_sysmem(addr, of_len);
 			/* Allocation succeeded, use this block. */
 			if (of_start != NULL)
@@ -675,7 +676,7 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 
 	/* Create a new LMB reservation */
 	if (CONFIG_IS_ENABLED(LMB) && lmb)
-		lmb_reserve(map_to_sysmem(blob), of_size);
+		lmb_reserve(map_to_sysmem(blob), of_size, LMB_NONE);
 
 #if defined(CONFIG_ARCH_KEYSTONE)
 	if (IS_ENABLED(CONFIG_OF_BOARD_SETUP))
