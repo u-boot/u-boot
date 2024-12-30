@@ -187,10 +187,10 @@ static const struct qcom_reset_map sc7280_gcc_resets[] = {
 };
 
 static const struct qcom_power_map sc7280_gdscs[] = {
-	[GCC_UFS_PHY_GDSC] = { 0x77004 },
-	[GCC_USB30_PRIM_GDSC] = { 0xf004 },
-	[GCC_USB30_SEC_GDSC] = { 0x9e004 },
-	[GCC_PCIE_1_GDSC] = { 0x8d004 },
+	[GCC_UFS_PHY_GDSC] = { 0x77004, .flags = VOTABLE },
+	[GCC_USB30_PRIM_GDSC] = { 0xf004, .flags = VOTABLE },
+	[GCC_USB30_SEC_GDSC] = { 0x9e004, .flags = VOTABLE },
+	[GCC_PCIE_1_GDSC] = { 0x8d004, .flags = VOTABLE },
 };
 
 static const phys_addr_t sc7280_rcg_addrs[] = {

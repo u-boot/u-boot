@@ -263,14 +263,14 @@ static const struct qcom_reset_map sm8550_gcc_resets[] = {
 };
 
 static const struct qcom_power_map sm8550_gdscs[] = {
-	[PCIE_0_GDSC] = { 0x6b004 },
-	[PCIE_0_PHY_GDSC] = { 0x6c000 },
-	[PCIE_1_GDSC] = { 0x8d004 },
-	[PCIE_1_PHY_GDSC] = { 0x8e000 },
-	[UFS_PHY_GDSC] = { 0x77004 },
-	[UFS_MEM_PHY_GDSC] = { 0x9e000 },
-	[USB30_PRIM_GDSC] = { 0x39004 },
-	[USB3_PHY_GDSC] = { 0x50018 },
+	[PCIE_0_GDSC] = { 0x6b004, .flags = VOTABLE | POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[PCIE_0_PHY_GDSC] = { 0x6c000, .flags = VOTABLE | POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[PCIE_1_GDSC] = { 0x8d004, .flags = VOTABLE | POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[PCIE_1_PHY_GDSC] = { 0x8e000, .flags = VOTABLE | POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[UFS_PHY_GDSC] = { 0x77004, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[UFS_MEM_PHY_GDSC] = { 0x9e000, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[USB30_PRIM_GDSC] = { 0x39004, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
+	[USB3_PHY_GDSC] = { 0x50018, .flags = POLL_CFG_GDSCR | RETAIN_FF_ENABLE },
 };
 
 static struct msm_clk_data sm8550_gcc_data = {

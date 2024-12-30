@@ -279,13 +279,13 @@ static const struct qcom_reset_map sm8150_gcc_resets[] = {
 };
 
 static const struct qcom_power_map sm8150_gcc_power_domains[] = {
-	[EMAC_GDSC] = { 0x6004 },
-	[PCIE_0_GDSC] = { 0x6b004 },
-	[PCIE_1_GDSC] = { 0x8d004 },
-	[UFS_CARD_GDSC] = { 0x75004 },
-	[UFS_PHY_GDSC] = { 0x77004 },
-	[USB30_PRIM_GDSC] = { 0xf004 },
-	[USB30_SEC_GDSC] = { 0x10004 },
+	[EMAC_GDSC] = { 0x6004, .flags = POLL_CFG_GDSCR },
+	[PCIE_0_GDSC] = { 0x6b004, .flags = POLL_CFG_GDSCR },
+	[PCIE_1_GDSC] = { 0x8d004, .flags = POLL_CFG_GDSCR },
+	[UFS_CARD_GDSC] = { 0x75004, .flags = POLL_CFG_GDSCR },
+	[UFS_PHY_GDSC] = { 0x77004, .flags = POLL_CFG_GDSCR },
+	[USB30_PRIM_GDSC] = { 0xf004, .flags = POLL_CFG_GDSCR },
+	[USB30_SEC_GDSC] = { 0x10004, .flags = POLL_CFG_GDSCR },
 };
 
 static struct msm_clk_data sm8150_clk_data = {

@@ -189,19 +189,19 @@ static const struct qcom_reset_map sdm845_gcc_resets[] = {
 };
 
 static const struct qcom_power_map sdm845_gdscs[] = {
-	[PCIE_0_GDSC] = { 0x6b004 },
-	[PCIE_1_GDSC] = { 0x8d004 },
-	[UFS_CARD_GDSC] = { 0x75004 },
-	[UFS_PHY_GDSC] = { 0x77004 },
-	[USB30_PRIM_GDSC] = { 0xf004 },
-	[USB30_SEC_GDSC] = { 0x10004 },
-	[HLOS1_VOTE_AGGRE_NOC_MMU_AUDIO_TBU_GDSC] = { 0x7d030 },
-	[HLOS1_VOTE_AGGRE_NOC_MMU_PCIE_TBU_GDSC] = { 0x7d03c },
-	[HLOS1_VOTE_AGGRE_NOC_MMU_TBU1_GDSC] = { 0x7d034 },
-	[HLOS1_VOTE_AGGRE_NOC_MMU_TBU2_GDSC] = { 0x7d038 },
-	[HLOS1_VOTE_MMNOC_MMU_TBU_HF0_GDSC] = { 0x7d040 },
-	[HLOS1_VOTE_MMNOC_MMU_TBU_HF1_GDSC] = { 0x7d048 },
-	[HLOS1_VOTE_MMNOC_MMU_TBU_SF_GDSC] = { 0x7d044 },
+	[PCIE_0_GDSC] = { 0x6b004, .flags = POLL_CFG_GDSCR },
+	[PCIE_1_GDSC] = { 0x8d004, .flags = POLL_CFG_GDSCR },
+	[UFS_CARD_GDSC] = { 0x75004, .flags = POLL_CFG_GDSCR },
+	[UFS_PHY_GDSC] = { 0x77004, .flags = POLL_CFG_GDSCR },
+	[USB30_PRIM_GDSC] = { 0xf004, .flags = POLL_CFG_GDSCR },
+	[USB30_SEC_GDSC] = { 0x10004, .flags = POLL_CFG_GDSCR },
+	[HLOS1_VOTE_AGGRE_NOC_MMU_AUDIO_TBU_GDSC] = { 0x7d030, .flags = VOTABLE },
+	[HLOS1_VOTE_AGGRE_NOC_MMU_PCIE_TBU_GDSC] = { 0x7d03c, .flags = VOTABLE },
+	[HLOS1_VOTE_AGGRE_NOC_MMU_TBU1_GDSC] = { 0x7d034, .flags = VOTABLE },
+	[HLOS1_VOTE_AGGRE_NOC_MMU_TBU2_GDSC] = { 0x7d038, .flags = VOTABLE },
+	[HLOS1_VOTE_MMNOC_MMU_TBU_HF0_GDSC] = { 0x7d040, .flags = VOTABLE },
+	[HLOS1_VOTE_MMNOC_MMU_TBU_HF1_GDSC] = { 0x7d048, .flags = VOTABLE },
+	[HLOS1_VOTE_MMNOC_MMU_TBU_SF_GDSC] = { 0x7d044, .flags = VOTABLE },
 };
 
 static const phys_addr_t sdm845_gpll_addrs[] = {
