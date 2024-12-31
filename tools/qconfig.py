@@ -1617,7 +1617,7 @@ def add_commit(configs):
                 '\n   '.join(configs))
     else:
         msg = 'configs: Resync with savedefconfig'
-        msg += '\n\nRsync all defconfig files using moveconfig.py'
+        msg += '\n\nResync all defconfig files using qconfig.py'
     subprocess.call(['git', 'commit', '-s', '-m', msg])
 
 
