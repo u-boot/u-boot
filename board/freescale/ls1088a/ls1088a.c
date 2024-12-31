@@ -690,7 +690,7 @@ int get_serdes_volt(void)
 	dm_i2c_read(dev, PMBUS_CMD_READ_VOUT, (void *)&vcode, 2);
 #endif
 	if (ret) {
-		printf("VID: failed to read the volatge\n");
+		printf("VID: failed to read the voltage\n");
 		return ret;
 	}
 
@@ -716,11 +716,11 @@ int set_serdes_volt(int svdd)
 				   (void *)&buff, 5);
 #endif
 	if (ret) {
-		printf("VID: I2C failed to write to the volatge regulator\n");
+		printf("VID: I2C failed to write to the voltage regulator\n");
 		return -1;
 	}
 
-	/* Wait for the volatge to get to the desired value */
+	/* Wait for the voltage to get to the desired value */
 	do {
 		vdd_last = get_serdes_volt();
 		if (vdd_last < 0) {
@@ -778,7 +778,7 @@ int set_serdes_volt(int svdd)
 		return -1;
 	}
 
-	/* Wait for the volatge to get to the desired value */
+	/* Wait for the voltage to get to the desired value */
 	udelay(10000);
 
 	return 1;
