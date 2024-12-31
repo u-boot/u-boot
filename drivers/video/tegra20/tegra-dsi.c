@@ -650,7 +650,7 @@ static void tegra_dsi_ganged_enable(struct udevice *dev, unsigned int start,
 	writel(DSI_GANGED_MODE_CONTROL_ENABLE, &ganged->ganged_mode_ctrl);
 }
 
-static void tegra_dsi_configure(struct udevice *dev,
+static void tegra_dsi_configure(struct udevice *dev, unsigned int pipe,
 				unsigned long mode_flags)
 {
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
@@ -681,7 +681,7 @@ static void tegra_dsi_configure(struct udevice *dev,
 	value = DSI_CONTROL_CHANNEL(0) |
 		DSI_CONTROL_FORMAT(priv->format) |
 		DSI_CONTROL_LANES(device->lanes - 1) |
-		DSI_CONTROL_SOURCE(0);
+		DSI_CONTROL_SOURCE(pipe);
 	writel(value, &misc->dsi_ctrl);
 
 	writel(priv->video_fifo_depth, &misc->dsi_max_threshold);
@@ -786,7 +786,7 @@ static void tegra_dsi_configure(struct udevice *dev,
 	writel(value, &misc->dsi_sol_delay);
 
 	if (priv->slave) {
-		tegra_dsi_configure(priv->slave, mode_flags);
+		tegra_dsi_configure(priv->slave, pipe, mode_flags);
 		/*
 		 * TODO: Support modes other than symmetrical left-right
 		 * split.
@@ -815,6 +815,7 @@ static void tegra_dsi_enable(struct udevice *dev)
 static int tegra_dsi_encoder_enable(struct udevice *dev)
 {
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct tegra_dc_plat *dc_plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct display_timing *timing = &priv->timing;
 	struct dsi_misc_reg *misc = &priv->dsi->misc;
@@ -880,7 +881,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	tegra_dsi_configure(dev, device->mode_flags);
+	tegra_dsi_configure(dev, dc_plat->pipe, device->mode_flags);
 
 	tegra_dc_enable_controller(dev);
 
