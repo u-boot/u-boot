@@ -93,6 +93,23 @@ static const char *const fdt_src_name[] = {
 	[FDTSRC_BLOBLIST] = "bloblist",
 };
 
+extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
+extern u8 __dtb_dt_spl_begin[];	/* embedded device tree blob for SPL/TPL */
+
+/* Get a pointer to the embedded devicetree, if there is one, else NULL */
+static u8 *dtb_dt_embedded(void)
+{
+	u8 *addr = NULL;
+
+	if (IS_ENABLED(CONFIG_OF_EMBED)) {
+		addr = __dtb_dt_begin;
+
+		if (IS_ENABLED(CONFIG_XPL_BUILD))
+			addr = __dtb_dt_spl_begin;
+	}
+	return addr;
+}
+
 const char *fdtdec_get_srcname(void)
 {
 	return fdt_src_name[gd->fdt_src];
@@ -1664,6 +1681,12 @@ static void setup_multi_dtb_fit(void)
 	}
 }
 
+void fdtdec_setup_embed(void)
+{
+	gd->fdt_blob = dtb_dt_embedded();
+	gd->fdt_src = FDTSRC_EMBED;
+}
+
 int fdtdec_setup(void)
 {
 	int ret = -ENOENT;
@@ -1699,8 +1722,7 @@ int fdtdec_setup(void)
 			gd->fdt_blob = fdt_find_separate();
 			gd->fdt_src = FDTSRC_SEPARATE;
 		} else { /* embed dtb in ELF file for testing / development */
-			gd->fdt_blob = dtb_dt_embedded();
-			gd->fdt_src = FDTSRC_EMBED;
+			fdtdec_setup_embed();
 		}
 	}
 
