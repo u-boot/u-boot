@@ -77,7 +77,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2025.01-rc5 was released on Mon 23 December 2024.
 
-.. * U-Boot v2025.01-rc6 was released on Mon 30 December 2024.
+* U-Boot v2025.01-rc6 was released on Mon 30 December 2024.
 
 Please note that the following dates are planned only and may be deviated from
 as needed.
