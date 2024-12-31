@@ -518,8 +518,9 @@ static void tegra_dsi_pad_calibrate(struct dsi_pad_ctrl_reg *pad)
 	writel(value, TEGRA_VI_BASE + (CSI_CIL_PAD_CONFIG << 2));
 }
 
-static void tegra_dsi_mipi_calibrate(struct tegra_dsi_priv *priv)
+static void tegra_dsi_mipi_calibrate(struct udevice *dev)
 {
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
 	struct dsi_pad_ctrl_reg *pad = &priv->dsi->pad;
 	u32 value;
 	int ret;
@@ -551,12 +552,17 @@ static void tegra_dsi_mipi_calibrate(struct tegra_dsi_priv *priv)
 	ret = misc_write(priv->mipi, 0, NULL, 0);
 	if (ret)
 		log_debug("%s: MIPI calibration failed %d\n", __func__, ret);
+
+	if (priv->slave)
+		tegra_dsi_mipi_calibrate(priv->slave);
 }
 
-static void tegra_dsi_set_timeout(struct dsi_timeout_reg *rtimeout,
+static void tegra_dsi_set_timeout(struct udevice *dev,
 				  unsigned long bclk,
 				  unsigned int vrefresh)
 {
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct dsi_timeout_reg *rtimeout = &priv->dsi->timeout;
 	unsigned int timeout;
 	u32 value;
 
@@ -572,12 +578,17 @@ static void tegra_dsi_set_timeout(struct dsi_timeout_reg *rtimeout,
 
 	value = DSI_TALLY_TA(0) | DSI_TALLY_LRX(0) | DSI_TALLY_HTX(0);
 	writel(value, &rtimeout->dsi_to_tally);
+
+	if (priv->slave)
+		tegra_dsi_set_timeout(priv->slave, bclk, vrefresh);
 }
 
-static void tegra_dsi_set_phy_timing(struct dsi_timing_reg *ptiming,
+static void tegra_dsi_set_phy_timing(struct udevice *dev,
 				     unsigned long period,
 				     const struct mipi_dphy_timing *dphy_timing)
 {
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct dsi_timing_reg *ptiming = &priv->dsi->ptiming;
 	u32 value;
 
 	value = DSI_TIMING_FIELD(dphy_timing->hsexit, period, 1) << 24 |
@@ -601,6 +612,9 @@ static void tegra_dsi_set_phy_timing(struct dsi_timing_reg *ptiming,
 		DSI_TIMING_FIELD(dphy_timing->tasure, period, 1) << 8 |
 		DSI_TIMING_FIELD(dphy_timing->tago, period, 1);
 	writel(value, &ptiming->dsi_bta_timing);
+
+	if (priv->slave)
+		tegra_dsi_set_phy_timing(priv->slave, period, dphy_timing);
 }
 
 static void tegra_dsi_ganged_enable(struct udevice *dev, unsigned int start,
@@ -746,6 +760,7 @@ static void tegra_dsi_configure(struct udevice *dev,
 	}
 
 	if (priv->slave) {
+		tegra_dsi_configure(priv->slave, mode_flags);
 		/*
 		 * TODO: Support modes other than symmetrical left-right
 		 * split.
@@ -754,6 +769,21 @@ static void tegra_dsi_configure(struct udevice *dev,
 		tegra_dsi_ganged_enable(priv->slave, timing->hactive.typ / 2,
 					timing->hactive.typ / 2);
 	}
+}
+
+static void tegra_dsi_enable(struct udevice *dev)
+{
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct dsi_misc_reg *misc = &priv->dsi->misc;
+	u32 value;
+
+	/* enable DSI controller */
+	value = readl(&misc->dsi_pwr_ctrl);
+	value |= DSI_POWER_CONTROL_ENABLE;
+	writel(value, &misc->dsi_pwr_ctrl);
+
+	if (priv->slave)
+		tegra_dsi_enable(priv->slave);
 }
 
 static int tegra_dsi_encoder_enable(struct udevice *dev)
@@ -783,7 +813,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	writel(0, &misc->int_enable);
 
 	if (priv->version)
-		tegra_dsi_mipi_calibrate(priv);
+		tegra_dsi_mipi_calibrate(dev);
 	else
 		tegra_dsi_pad_calibrate(&priv->dsi->pad);
 
@@ -792,7 +822,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	/* compute byte clock */
 	bclk = (timing->pixelclock.typ * mul) / (div * device->lanes);
 
-	tegra_dsi_set_timeout(&priv->dsi->timeout, bclk, 60);
+	tegra_dsi_set_timeout(dev, bclk, 60);
 
 	/*
 	 * Compute bit clock and round up to the next MHz.
@@ -816,8 +846,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	 * The D-PHY timing fields are expressed in byte-clock cycles, so
 	 * multiply the period by 8.
 	 */
-	tegra_dsi_set_phy_timing(&priv->dsi->ptiming,
-				 period * 8, &priv->dphy_timing);
+	tegra_dsi_set_phy_timing(dev, period * 8, &priv->dphy_timing);
 
 	/* Perform panel HW setup */
 	ret = panel_enable_backlight(priv->panel);
@@ -828,13 +857,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 
 	tegra_dc_enable_controller(dev);
 
-	/* enable DSI controller */
-	value = readl(&misc->dsi_pwr_ctrl);
-	value |= DSI_POWER_CONTROL_ENABLE;
-	writel(value, &misc->dsi_pwr_ctrl);
-
-	if (priv->slave)
-		tegra_dsi_encoder_enable(priv->slave);
+	tegra_dsi_enable(dev);
 
 	return 0;
 }
