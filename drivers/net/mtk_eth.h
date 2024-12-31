@@ -23,6 +23,8 @@ enum mkt_eth_capabilities {
 	/* PATH BITS */
 	MTK_ETH_PATH_GMAC1_TRGMII_BIT,
 	MTK_ETH_PATH_GMAC2_SGMII_BIT,
+	MTK_ETH_PATH_MT7622_SGMII_BIT,
+	MTK_ETH_PATH_MT7629_GMAC2_BIT,
 };
 
 #define MTK_TRGMII			BIT(MTK_TRGMII_BIT)
@@ -36,6 +38,8 @@ enum mkt_eth_capabilities {
 #define MTK_ETH_PATH_GMAC1_TRGMII	BIT(MTK_ETH_PATH_GMAC1_TRGMII_BIT)
 
 #define MTK_ETH_PATH_GMAC2_SGMII	BIT(MTK_ETH_PATH_GMAC2_SGMII_BIT)
+#define MTK_ETH_PATH_MT7622_SGMII	BIT(MTK_ETH_PATH_MT7622_SGMII_BIT)
+#define MTK_ETH_PATH_MT7629_GMAC2	BIT(MTK_ETH_PATH_MT7629_GMAC2_BIT)
 
 #define MTK_GMAC1_TRGMII	(MTK_ETH_PATH_GMAC1_TRGMII | MTK_TRGMII)
 
@@ -45,7 +49,11 @@ enum mkt_eth_capabilities {
 
 #define MT7621_CAPS  (MTK_GMAC1_TRGMII | MTK_TRGMII_MT7621_CLK)
 
+#define MT7622_CAPS  (MTK_ETH_PATH_MT7622_SGMII)
+
 #define MT7623_CAPS  (MTK_GMAC1_TRGMII)
+
+#define MT7629_CAPS  (MTK_ETH_PATH_MT7629_GMAC2 | MTK_INFRA)
 
 #define MT7981_CAPS  (MTK_GMAC2_U3_QPHY | MTK_NETSYS_V2)
 
@@ -65,11 +73,11 @@ enum mkt_eth_capabilities {
 
 /* Ethernet subsystem registers */
 
-#define ETHSYS_SYSCFG0_REG		0x14
-#define SYSCFG0_GE_MODE_S(n)		(12 + ((n) * 2))
-#define SYSCFG0_GE_MODE_M		0x3
-#define SYSCFG0_SGMII_SEL_M		(0x3 << 8)
-#define SYSCFG0_SGMII_SEL(gmac)		((!(gmac)) ? BIT(9) : BIT(8))
+#define ETHSYS_SYSCFG1_REG		0x14
+#define SYSCFG1_GE_MODE_S(n)		(12 + ((n) * 2))
+#define SYSCFG1_GE_MODE_M		0x3
+#define SYSCFG1_SGMII_SEL_M		GENMASK(9, 8)
+#define SYSCFG1_SGMII_SEL(gmac)		BIT(9 - (gmac))
 
 #define ETHSYS_CLKCFG0_REG		0x2c
 #define ETHSYS_TRGMII_CLK_SEL362_5	BIT(11)
@@ -84,7 +92,10 @@ enum mkt_eth_capabilities {
 #define QPHY_SEL_MASK			0x3
 #define SGMII_QPHY_SEL			0x2
 
-/* SYSCFG0_GE_MODE: GE Modes */
+#define MT7629_INFRA_MISC2_REG		0x70c
+#define INFRA_MISC2_BONDING_OPTION	GENMASK(15, 0)
+
+/* SYSCFG1_GE_MODE: GE Modes */
 #define GE_MODE_RGMII			0
 #define GE_MODE_MII			1
 #define GE_MODE_MII_PHY			2
@@ -108,7 +119,8 @@ enum mkt_eth_capabilities {
 
 #define SGMSYS_GEN2_SPEED		0x2028
 #define SGMSYS_GEN2_SPEED_V2		0x128
-#define SGMSYS_SPEED_2500		BIT(2)
+#define SGMSYS_SPEED_MASK		GENMASK(3, 2)
+#define SGMSYS_SPEED_2500		1
 
 /* USXGMII subsystem config registers */
 /* Register to control USXGMII XFI PLL digital */
