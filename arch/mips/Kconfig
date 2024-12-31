@@ -211,6 +211,7 @@ config CPU_MIPS64_R1
 	bool "MIPS64 Release 1"
 	depends on SUPPORTS_CPU_MIPS64_R1
 	select 64BIT
+	select SPL_64BIT if SPL
 	help
 	  Choose this option to build a kernel for release 1 through 5 of the
 	  MIPS64 architecture.
@@ -219,6 +220,7 @@ config CPU_MIPS64_R2
 	bool "MIPS64 Release 2"
 	depends on SUPPORTS_CPU_MIPS64_R2
 	select 64BIT
+	select SPL_64BIT if SPL
 	help
 	  Choose this option to build a kernel for release 2 through 5 of the
 	  MIPS64 architecture.
@@ -227,6 +229,7 @@ config CPU_MIPS64_R6
 	bool "MIPS64 Release 6"
 	depends on SUPPORTS_CPU_MIPS64_R6
 	select 64BIT
+	select SPL_64BIT if SPL
 	help
 	  Choose this option to build a kernel for release 6 or later of the
 	  MIPS64 architecture.
@@ -235,6 +238,7 @@ config CPU_MIPS64_OCTEON
 	bool "Marvell Octeon series of CPUs"
 	depends on SUPPORTS_CPU_MIPS64_OCTEON
 	select 64BIT
+	select SPL_64BIT if SPL
 	help
 	 Choose this option for Marvell Octeon CPUs.  These CPUs are between
 	 MIPS64 R5 and R6 with other extensions.
