@@ -82,3 +82,10 @@ M:	Maxim Moskalets <maximmosk4@gmail.com>
 S:	Maintained
 F:	arch/arm/dts/rk3566-rock-3c-u-boot.dtsi
 F:	configs/rock-3c-rk3566_defconfig
+
+RK3568_SIEMENSBOARD
+M:	Long Tian Wang <longtian@outlook.com>
+S:	Maintained
+F:	configs/rk3568_siemensboard_defconfig
+F:	arch/arm/dts/rk3568-siemensboard.dts
+F:	arch/arm/dts/rk3568-siemensboard-u-boot.dtsi
