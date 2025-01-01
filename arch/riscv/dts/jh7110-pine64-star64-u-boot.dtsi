@@ -4,3 +4,4 @@
  */
 
 #include "jh7110-common-u-boot.dtsi"
+#include "starfive-visionfive2-binman.dtsi"
