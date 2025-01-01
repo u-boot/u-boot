@@ -6,6 +6,7 @@
  * Copyright (C) 2021 Renesas Electronics Corporation
  */
 
+#include <asm/armv8/cpu.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -66,12 +67,7 @@ int board_init(void)
 
 void reset_cpu(void)
 {
-	unsigned long midr, cputype;
-
-	asm volatile("mrs %0, midr_el1" : "=r" (midr));
-	cputype = (midr >> 4) & 0xfff;
-
-	if (cputype == 0xd03)
+	if (is_cortex_a53())
 		writel(RST_CA53_CODE, RST_CA53RESCNT);
 	else
 		writel(RST_CA57_CODE, RST_CA57RESCNT);
