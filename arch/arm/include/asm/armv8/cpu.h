@@ -5,7 +5,9 @@
 
 #define MIDR_PARTNUM_CORTEX_A35		0xD04
 #define MIDR_PARTNUM_CORTEX_A53		0xD03
+#define MIDR_PARTNUM_CORTEX_A57		0xD07
 #define MIDR_PARTNUM_CORTEX_A72		0xD08
+#define MIDR_PARTNUM_CORTEX_A76		0xD0B
 #define MIDR_PARTNUM_SHIFT		0x4
 #define MIDR_PARTNUM_MASK		(0xFFF << MIDR_PARTNUM_SHIFT)
 
@@ -29,4 +31,6 @@ static inline unsigned int read_midr(void)
 
 is_cortex_a(35)
 is_cortex_a(53)
+is_cortex_a(57)
 is_cortex_a(72)
+is_cortex_a(76)
