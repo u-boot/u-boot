@@ -3195,7 +3195,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 	efi_status_t ret;
-	void *info;
+	struct efi_loaded_image *info;
 	efi_handle_t parent_image = current_image;
 	efi_status_t exit_status;
 	jmp_buf exit_jmp;
@@ -3213,7 +3213,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		return EFI_EXIT(EFI_SECURITY_VIOLATION);
 
 	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
-					 &info, NULL, NULL,
+					 (void **)&info, NULL, NULL,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
 	if (ret != EFI_SUCCESS)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -3266,7 +3266,8 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	current_image = image_handle;
 	image_obj->header.type = EFI_OBJECT_TYPE_STARTED_IMAGE;
-	EFI_PRINT("Jumping into 0x%p\n", image_obj->entry);
+	EFI_PRINT("Starting image loaded at 0x%p, entry point 0x%p\n",
+		  info->image_base, image_obj->entry);
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*
