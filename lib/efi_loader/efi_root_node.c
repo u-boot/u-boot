@@ -80,6 +80,9 @@ efi_status_t efi_root_node_register(void)
 		 /* HII database protocol */
 		 &efi_guid_hii_database_protocol,
 		 &efi_hii_database,
+		 /* EFI HII Configuration Routing Protocol */
+		 &efi_guid_hii_config_routing_protocol,
+		 &efi_hii_config_routing,
 #endif
 		 NULL);
 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
