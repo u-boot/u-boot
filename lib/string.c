@@ -16,8 +16,8 @@
  */
 
 #include <config.h>
+#include <limits.h>
 #include <malloc.h>
-#include <stdint.h>
 #include <linux/compiler.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
