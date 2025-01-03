@@ -676,6 +676,14 @@ config SUNXI_DRAM_DDR2_V3S
 	This option is only for the DDR2 memory chip which is co-packaged in
 	Allwinner V3s SoC.
 
+config SUNXI_DRAM_A523_DDR3
+	bool "DDR3 DRAM chips on the A523/T527 DRAM controller"
+	select SUNXI_DRAM_DDR3
+	depends on DRAM_SUN55I_A523
+	help
+	  This option is the DDR3 timing used by the stock boot0 by
+	  Allwinner.
+
 config SUNXI_DRAM_A523_LPDDR4
 	bool "LPDDR4 DRAM chips on the A523/T527 DRAM controller"
 	select SUNXI_DRAM_LPDDR4
