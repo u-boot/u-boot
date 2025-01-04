@@ -282,6 +282,26 @@ config TARGET_ROCK_5_ITX_RK3588
 	  Front-panel connectors for audio and case-power, -leds
 	  Powered by either 12V, ATX power-supply or PoE
 
+config TARGET_ROCK_5C_RK3588S
+	bool "Radxa ROCK 5C RK3588S2 board"
+	select BOARD_LATE_INIT
+	help
+	  Radxa ROCK 5C is a Rockchip RK3588S2 based single board computer.
+
+	  Specification:
+
+	  Quad A76 and Quad A55 CPU
+	  6 TOPS NPU
+	  up to 32GB LPDDR4x RAM
+	  eMMC / SPI flash connector
+	  Micro SD Card slot
+	  Gigabit ethernet port (supports PoE with add-on PoE HAT)
+	  WiFi6 / BT5.4
+	  1x USB 3.0 Type-A HOST port
+	  1x USB 3.0 Type-A OTG port
+	  2x USB 2.0 Type-A HOST port
+	  1x USB Type-C 5V power port
+
 config TARGET_SIGE7_RK3588
 	bool "ArmSoM Sige7 RK3588 board"
 	select BOARD_LATE_INIT
@@ -421,6 +441,7 @@ source "board/turing/turing-rk1-rk3588/Kconfig"
 source "board/radxa/rock5a-rk3588s/Kconfig"
 source "board/radxa/rock5b-rk3588/Kconfig"
 source "board/radxa/rock-5-itx-rk3588/Kconfig"
+source "board/radxa/rock-5c-rk3588s/Kconfig"
 source "board/rockchip/evb_rk3588/Kconfig"
 source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"

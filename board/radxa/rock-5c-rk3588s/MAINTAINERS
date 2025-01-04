@@ -1,0 +1,7 @@
+ROCK-5C-RK3588S
+M:	FUKAUMI Naoki <naoki@radxa.com>
+S:	Maintained
+F:	arch/arm/dts/rk3588s-rock-5c-u-boot.dtsi
+F:	board/radxa/rock-5c-rk3588s/
+F:	configs/rock-5c-rk3588s_defconfig
+F:	include/configs/rock-5c-rk3588s.h
