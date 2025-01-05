@@ -79,5 +79,12 @@ back_in_32:
 	.word	0xe590100c	// ldr	r1, [r0, #12]
 	.word	0xee011f10	// mcr	15, 0, r1, cr1, cr0, {0}  ; SCTLR
 	.word	0xf57ff06f	// isb
+#ifdef CONFIG_MACH_SUN55I_A523
+	.word	0xe5901014	// ldr  r1, [r0, #20]
+	.word	0xee041f16	// mcr  15, 0, r1, cr4, cr6, {0}; ICC_PMR
+	.word	0xe5901018	// ldr  r1, [r0, #24]
+	.word	0xee0c1ffc	// mcr  15, 0, r1, cr12, cr12, {7}; ICC_IGRPEN1
+#endif
+
 	.word	0xe12fff1e	// bx	lr		; return to FEL
 ENDPROC(return_to_fel)

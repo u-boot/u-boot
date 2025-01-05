@@ -53,6 +53,16 @@ start32:
 	str	lr, [r0, #12]
 	mrc	p15, 0, lr, cr12, cr0, 0	// VBAR
 	str	lr, [r0, #16]
+//#ifdef CONFIG_MACH_SUN55I_A523
+	mrc	p15, 0, lr, cr12, cr12, 5	// ICC_SRE
+	tst	lr, #1
+	beq	1f
+	mrc	p15, 0, lr, c4, c6, 0		// ICC_PMR
+	str	lr, [r0, #20]
+	mrc	p15, 0, lr, c12, c12, 7		// ICC_IGRPEN1
+	str	lr, [r0, #24]
+1:
+//#endif
 
 	ldr	r1, =CONFIG_SUNXI_RVBAR_ADDRESS
 	ldr	r0, =SUNXI_SRAMC_BASE
