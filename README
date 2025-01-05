@@ -3,6 +3,21 @@
 # (C) Copyright 2000 - 2013
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
+## Add support of RK3568 to standard u-boot repo
+### Major changes:
+- add arch/arm/dts/rk3568-siemensboard-u-boot.dtsi
+- change board/rockchip/evb_rk3568/MAINTAINERS (optional)
+- add configs/rk3568_siemensboard_defconfig
+- dts/upstream/src/arm64/rockchip/rk3568-siemensboard.dts
+----
+This change works for LubanCAT2 version
+
+### Building of u-boot image
+make rk3568_siemensboard_defconfig
+
+Output is u-boot.img in current directory
+
+
 Summary:
 ========
 
