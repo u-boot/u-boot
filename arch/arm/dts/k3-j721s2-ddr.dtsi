@@ -5,6 +5,8 @@
 
 &main_navss {
 	ranges = <0x00 0x00114000 0x00 0x00114000 0x00 0x00000100>, // ctrl_mmr_lpr
+		 <0x00 0x02980000 0x00 0x02980000 0x00 0x00000200>, // ss cfg 0
+		 <0x00 0x029a0000 0x00 0x029a0000 0x00 0x00000200>, // ss cfg 1
 		 <0x00 0x02990000 0x00 0x02990000 0x00 0x00004000>, // ddr0 cfg
 		 <0x00 0x029b0000 0x00 0x029b0000 0x00 0x00004000>, // ddr1 cfg
 		 <0x00 0x30000000 0x00 0x30000000 0x00 0x0c400000>;
@@ -24,8 +26,9 @@
 		memorycontroller0: memorycontroller@2990000 {
 			compatible = "ti,j721s2-ddrss";
 			reg = <0x0 0x02990000 0x0 0x4000>,
-			      <0x0 0x0114000 0x0 0x100>;
-			reg-names = "cfg", "ctrl_mmr_lp4";
+			      <0x0 0x0114000 0x0 0x100>,
+			      <0x0 0x02980000 0x0 0x200>;
+			reg-names = "cfg", "ctrl_mmr_lp4", "ss_cfg";
 			power-domains = <&k3_pds 138 TI_SCI_PD_SHARED>,
 				<&k3_pds 96 TI_SCI_PD_SHARED>;
 			clocks = <&k3_clks 138 0>, <&k3_clks 43 2>;
@@ -2232,8 +2235,9 @@
 		memorycontroller1: memorycontroller@29b0000 {
 			compatible = "ti,j721s2-ddrss";
 			reg = <0x0 0x029b0000 0x0 0x4000>,
-			      <0x0 0x0114000 0x0 0x100>;
-			reg-names = "cfg", "ctrl_mmr_lp4";
+			      <0x0 0x0114000 0x0 0x100>,
+			      <0x0 0x029a0000 0x0 0x200>;
+			reg-names = "cfg", "ctrl_mmr_lp4", "ss_cfg";
 			power-domains = <&k3_pds 139 TI_SCI_PD_SHARED>,
 				<&k3_pds 97 TI_SCI_PD_SHARED>;
 			clocks = <&k3_clks 139 0>, <&k3_clks 43 2>;
