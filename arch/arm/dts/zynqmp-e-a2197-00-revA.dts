@@ -494,6 +494,7 @@
 			/* Use for storing information about SC board */
 			eeprom: eeprom@54 { /* u34 - m24128 16kB */
 				compatible = "st,24c128", "atmel,24c128";
+				label = "eeprom_cc";
 				reg = <0x54>; /* 0x5c too */
 			};
 			si570_ref_clk: clock-generator@5d { /* u32 */
@@ -509,6 +510,7 @@
 			/* and connector J212D */
 			eeprom_ebm: eeprom@52 { /* x-ebm module */
 				compatible = "st,24c128", "atmel,24c128";
+				label = "eeprom_ebm";
 				reg = <0x52>;
 			};
 		};
@@ -520,6 +522,7 @@
 			/* expected eeprom 0x50 FMC cards */
 			eeprom_fmc1: eeprom@50 {
 				compatible = "st,24c128", "atmel,24c128";
+				label = "eeprom_fmc1";
 				reg = <0x50>;
 			};
 		};
@@ -531,6 +534,7 @@
 			/* expected eeprom 0x50 FMC cards */
 			eeprom_fmc2: eeprom@50 {
 				compatible = "st,24c128", "atmel,24c128";
+				label = "eeprom_fmc2";
 				reg = <0x50>;
 			};
 		};
