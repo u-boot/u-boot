@@ -151,7 +151,6 @@ struct k3_ddrss_desc {
 	lpddr4_privatedata pd;
 	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REGIONS];
 	u64 ecc_reserved_space;
-	bool ti_ecc_enabled;
 	u64 ddr_bank_base[CONFIG_NR_DRAM_BANKS];
 	u64 ddr_bank_size[CONFIG_NR_DRAM_BANKS];
 	u64 ddr_ram_size;
@@ -407,8 +406,6 @@ static int k3_ddrss_ofdata_to_priv(struct udevice *dev)
 	ret = dev_read_u32(dev, "ti,ddr-fhs-cnt", &ddrss->ddr_fhs_cnt);
 	if (ret)
 		dev_err(dev, "ddr fhs cnt not populated %d\n", ret);
-
-	ddrss->ti_ecc_enabled = dev_read_bool(dev, "ti,ecc-enable");
 
 	return ret;
 }
@@ -792,7 +789,7 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 	k3_ddrss_ddr_bank_base_size_calc(ddrss);
 
-	if (ddrss->ti_ecc_enabled) {
+	if (IS_ENABLED(CONFIG_K3_INLINE_ECC)) {
 		if (!ddrss->ddrss_ss_cfg) {
 			printf("%s: ss_cfg is required if ecc is enabled but not provided.",
 			       __func__);
