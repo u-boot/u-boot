@@ -24,6 +24,13 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 	u8 opcode, addr_bytes, *rxbuf, dummy_cycles;
 
 	n_rx = op->data.nbytes;
+
+	if (op->addr.dtr && (op->addr.val % 2)) {
+		n_rx += 1;
+		writel(op->addr.val & ~0x1,
+		       priv->regbase + CQSPI_REG_INDIRECTRDSTARTADDR);
+	}
+
 	rxbuf = op->data.buf.in;
 	rx_rem = n_rx % 4;
 	bytes_to_dma = n_rx - rx_rem;
@@ -102,6 +109,11 @@ int cadence_qspi_apb_dma_read(struct cadence_spi_priv *priv,
 
 		data = readl(priv->regbase + CQSPI_REG_CMDREADDATALOWER);
 		memcpy(rxbuf, &data, rx_rem);
+	}
+
+	if (op->addr.dtr && (op->addr.val % 2)) {
+		rxbuf -= bytes_to_dma;
+		memcpy(rxbuf, rxbuf + 1, n_rx - 1);
 	}
 
 	return 0;
