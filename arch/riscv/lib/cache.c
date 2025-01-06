@@ -24,7 +24,7 @@ enum {
 	CBO_INVAL
 } riscv_cbo_ops;
 static int zicbom_block_size;
-
+extern unsigned int riscv_get_cbom_block_size(void);
 static inline void do_cbo_clean(unsigned long base)
 {
 	asm volatile ("add a0, %0, zero\n" CBO_CLEAN(%0) ::
@@ -77,25 +77,6 @@ void cbo_inval(unsigned long start, unsigned long end)
 {
 	if (zicbom_block_size)
 		cbo_op(CBO_INVAL, start, end);
-}
-
-static int riscv_zicbom_init(void)
-{
-	struct udevice *dev;
-
-	if (!CONFIG_IS_ENABLED(RISCV_ISA_ZICBOM) || zicbom_block_size)
-		return 1;
-
-	uclass_first_device(UCLASS_CPU, &dev);
-	if (!dev) {
-		log_debug("Failed to get cpu device!\n");
-		return 0;
-	}
-
-	if (dev_read_u32(dev, "riscv,cbom-block-size", &zicbom_block_size))
-		log_debug("riscv,cbom-block-size DT property not present\n");
-
-	return zicbom_block_size;
 }
 
 void invalidate_icache_all(void)
@@ -166,6 +147,7 @@ __weak int dcache_status(void)
 
 __weak void enable_caches(void)
 {
-	if (!riscv_zicbom_init())
-		log_info("Zicbom not initialized.\n");
+	zicbom_block_size = riscv_get_cbom_block_size();
+	if (!zicbom_block_size)
+		log_debug("Zicbom not initialized.\n");
 }

@@ -595,55 +595,7 @@ static inline bool supports_extension(char ext)
 #if CONFIG_IS_ENABLED(RISCV_MMODE)
 	return csr_read(CSR_MISA) & (1 << (ext - 'a'));
 #elif CONFIG_CPU
-	char sext[2] = {ext};
-	struct udevice *dev;
-	const char *isa;
-	int ret, i;
-
-	uclass_find_first_device(UCLASS_CPU, &dev);
-	if (!dev) {
-		debug("unable to find the RISC-V cpu device\n");
-		return false;
-	}
-
-	ret = dev_read_stringlist_search(dev, "riscv,isa-extensions", sext);
-	if (ret >= 0)
-		return true;
-
-	/*
-	 * Only if the property is not found (ENODATA) is the fallback to
-	 * riscv,isa used, otherwise the extension is not present in this
-	 * CPU.
-	 */
-	if (ret != -ENODATA)
-		return false;
-
-	isa = dev_read_string(dev, "riscv,isa");
-	if (!isa)
-		return false;
-
-	/*
-	 * Skip the first 4 characters (rv32|rv64).
-	 */
-	for (i = 4; i < sizeof(isa); i++) {
-		switch (isa[i]) {
-		case 's':
-		case 'x':
-		case 'z':
-		case '_':
-		case '\0':
-			/*
-			 * Any of these characters mean the single
-			 * letter extensions have all been consumed.
-			 */
-			return false;
-		default:
-			if (isa[i] == ext)
-				return true;
-		}
-	}
-
-	return false;
+	return __riscv_isa_extension_available(ext);
 #else  /* !CONFIG_CPU */
 #warning "There is no way to determine the available extensions in S-mode."
 #warning "Please convert your board to use the RISC-V CPU driver."
@@ -679,7 +631,26 @@ static void dummy_pending_ipi_clear(ulong hart, ulong arg0, ulong arg1)
 
 int riscv_cpu_setup(void)
 {
-	int __maybe_unused ret;
+	int ret = -ENODEV, ext_count, i;
+	const char *isa, **exts;
+	struct udevice *dev;
+
+	uclass_find_first_device(UCLASS_CPU, &dev);
+	if (!dev) {
+		debug("unable to find the RISC-V cpu device\n");
+		return ret;
+	}
+
+	ext_count = dev_read_string_list(dev, "riscv,isa-extensions", &exts);
+	if (ext_count > 0) {
+		for (i = 0; i < ext_count; i++)
+			match_isa_ext(exts[i], exts[i] + strlen(exts[i]));
+	} else {
+		isa = dev_read_string(dev, "riscv,isa");
+		if (!isa)
+			return ret;
+		riscv_parse_isa_string(isa);
+	}
 
 	/* Enable FPU */
 	if (supports_extension('d') || supports_extension('f')) {
