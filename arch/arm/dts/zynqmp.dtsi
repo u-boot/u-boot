@@ -393,8 +393,9 @@
 		};
 	};
 
-	ams {
+	ams: ams {
 		compatible = "iio-hwmon";
+		status = "disabled";
 		io-channels = <&xilinx_ams 0>, <&xilinx_ams 1>, <&xilinx_ams 2>,
 			<&xilinx_ams 3>, <&xilinx_ams 4>, <&xilinx_ams 5>,
 			<&xilinx_ams 6>, <&xilinx_ams 7>, <&xilinx_ams 8>,

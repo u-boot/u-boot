@@ -97,6 +97,10 @@
 	};
 };
 
+&ams {
+	status = "okay";
+};
+
 &modepin_gpio {
 	label = "modepin";
 };
