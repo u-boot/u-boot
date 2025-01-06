@@ -6,6 +6,7 @@
  */
 
 #include <config.h>
+#include <time.h>
 #include <clk.h>
 #include <div64.h>
 #include <dm.h>
@@ -548,14 +549,118 @@ static void k3_ddrss_set_ecc_range_r0(u32 base, u32 start_address, u32 size)
 	writel((start_address + size - 1) >> 16, base + DDRSS_ECC_R0_END_ADDR_REG);
 }
 
-static void k3_ddrss_preload_ecc_mem_region(u32 *addr, u32 size, u32 word)
+#define BIST_MODE_MEM_INIT		4
+#define BIST_MEM_INIT_TIMEOUT		10000 /* 1msec loops per block = 10s */
+static void k3_lpddr4_bist_init_mem_region(struct k3_ddrss_desc *ddrss,
+					   u64 addr, u64 size,
+					   u32 pattern)
 {
-	int i;
+	lpddr4_obj *driverdt = ddrss->driverdt;
+	lpddr4_privatedata *pd = &ddrss->pd;
+	u32 status, offset, regval;
+	bool int_status;
+	int i = 0;
 
+	/* Set BIST_START_ADDR_0 [31:0] */
+	regval = (u32)(addr & TH_FLD_MASK(LPDDR4__BIST_START_ADDRESS_0__FLD));
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_START_ADDRESS_0__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Set BIST_START_ADDR_1 [32 or 34:32] */
+	regval = (u32)(addr >> TH_FLD_WIDTH(LPDDR4__BIST_START_ADDRESS_0__FLD));
+	regval &= TH_FLD_MASK(LPDDR4__BIST_START_ADDRESS_1__FLD);
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_START_ADDRESS_1__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Set ADDR_SPACE = log2(size) */
+	regval = (u32)(ilog2(size) << TH_FLD_SHIFT(LPDDR4__ADDR_SPACE__FLD));
+	TH_OFFSET_FROM_REG(LPDDR4__ADDR_SPACE__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Enable the BIST data check. On 32bit lpddr4 (e.g J7) this shares a
+	 * register with ADDR_SPACE and BIST_GO.
+	 */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_DATA_CHECK__REG, CTL_SHIFT, offset);
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
+	regval |= TH_FLD_MASK(LPDDR4__BIST_DATA_CHECK__FLD);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+	/* Clear the address check bit */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_ADDR_CHECK__REG, CTL_SHIFT, offset);
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
+	regval &= ~TH_FLD_MASK(LPDDR4__BIST_ADDR_CHECK__FLD);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Set BIST_TEST_MODE[2:0] to memory initialize (4) */
+	regval = BIST_MODE_MEM_INIT;
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_TEST_MODE__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Set BIST_DATA_PATTERN[31:0] */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_DATA_PATTERN_0__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, pattern);
+
+	/* Set BIST_DATA_PATTERN[63:32] */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_DATA_PATTERN_1__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, pattern);
+
+	udelay(1000);
+
+	/* Enable the programmed BIST operation - BIST_GO = 1 */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_GO__REG, CTL_SHIFT, offset);
+	driverdt->readreg(pd, LPDDR4_CTL_REGS, offset, &regval);
+	regval |= TH_FLD_MASK(LPDDR4__BIST_GO__FLD);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, regval);
+
+	/* Wait for the BIST_DONE interrupt */
+	while (i < BIST_MEM_INIT_TIMEOUT) {
+		status = driverdt->checkctlinterrupt(pd, LPDDR4_INTR_BIST_DONE,
+						     &int_status);
+		if (!status & int_status) {
+			/* Clear LPDDR4_INTR_BIST_DONE */
+			driverdt->ackctlinterrupt(pd, LPDDR4_INTR_BIST_DONE);
+			break;
+		}
+		udelay(1000);
+		i++;
+	}
+
+	/* Before continuing we have to stop BIST - BIST_GO = 0 */
+	TH_OFFSET_FROM_REG(LPDDR4__BIST_GO__REG, CTL_SHIFT, offset);
+	driverdt->writereg(pd, LPDDR4_CTL_REGS, offset, 0);
+
+	/* Timeout hit while priming the memory. We can't continue,
+	 * since the memory is not fully initialized and we most
+	 * likely get an uncorrectable error exception while booting.
+	 */
+	if (i == BIST_MEM_INIT_TIMEOUT) {
+		printf("ERROR: Timeout while priming the memory.\n");
+		hang();
+	}
+}
+
+static void k3_ddrss_lpddr4_preload_full_mem(struct k3_ddrss_desc *ddrss,
+					     u64 total_size, u32 pattern)
+{
+	u32 done, max_size2;
+
+	/* Get the max size (log2) supported in this config (16/32 lpddr4)
+	 * from the start_addess width - 16bit: 8G, 32bit: 32G
+	 */
+	max_size2 = TH_FLD_WIDTH(LPDDR4__BIST_START_ADDRESS_0__FLD) +
+		    TH_FLD_WIDTH(LPDDR4__BIST_START_ADDRESS_1__FLD) + 1;
+
+	/* ECC is enabled in dt but we can't preload the memory if
+	 * the memory configuration is recognized and supported.
+	 */
+	if (!total_size || total_size > (1ull << max_size2) ||
+	    total_size & (total_size - 1)) {
+		printf("ECC: the memory configuration is not supported\n");
+		hang();
+	}
 	printf("ECC is enabled, priming DDR which will take several seconds.\n");
-
-	for (i = 0; i < (size / 4); i++)
-		addr[i] = word;
+	done = get_timer(0);
+	k3_lpddr4_bist_init_mem_region(ddrss, 0, total_size, pattern);
+	printf("ECC: priming DDR completed in %lu msec\n", get_timer(done));
 }
 
 static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
@@ -583,9 +688,10 @@ static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 	writel(DDRSS_ECC_CTRL_REG_ECC_EN | DDRSS_ECC_CTRL_REG_RMW_EN |
 	       DDRSS_ECC_CTRL_REG_WR_ALLOC, base + DDRSS_ECC_CTRL_REG);
 
-	/* Preload ECC Mem region with 0's */
-	k3_ddrss_preload_ecc_mem_region((u32 *)ecc_region_start, ecc_range,
-					0x00000000);
+	/* Preload the full memory with 0's using the BIST engine of
+	 * the LPDDR4 controller.
+	 */
+	k3_ddrss_lpddr4_preload_full_mem(ddrss, gd->ram_size, 0);
 
 	/* Clear Error Count Register */
 	writel(0x1, base + DDRSS_ECC_1B_ERR_CNT_REG);
