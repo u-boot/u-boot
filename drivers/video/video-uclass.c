@@ -454,6 +454,8 @@ int video_get_ysize(struct udevice *dev)
 int video_set_size(struct udevice *dev, ushort xsize, ushort ysize, ushort rotation)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
+	struct udevice *cons;
+	int ret;
 
 	if (xsize > priv->xsize_max || ysize > priv->ysize_max)
 		return -ENOSPC;
@@ -461,6 +463,13 @@ int video_set_size(struct udevice *dev, ushort xsize, ushort ysize, ushort rotat
 	priv->xsize = xsize;
 	priv->ysize = ysize;
 	priv->rot = rotation / 90;
+
+	/* Resize console as well */
+	if (!device_find_first_child_by_uclass(dev, UCLASS_VIDEO_CONSOLE, &cons)) {
+		ret = vidconsole_resize(cons);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -655,9 +664,8 @@ static int video_post_probe(struct udevice *dev)
 		snprintf(name, sizeof(name), "%s.vidconsole_tt", dev->name);
 		strcpy(drv, "vidconsole_tt");
 	} else {
-		snprintf(name, sizeof(name), "%s.vidconsole%d", dev->name,
-			 priv->rot);
-		snprintf(drv, sizeof(drv), "vidconsole%d", priv->rot);
+		snprintf(name, sizeof(name), "%s.vidconsole", dev->name);
+		strcpy(drv, "vidconsole");
 	}
 
 	str = strdup(name);

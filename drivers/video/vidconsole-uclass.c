@@ -755,7 +755,7 @@ static int vidconsole_post_probe(struct udevice *dev)
 
 UCLASS_DRIVER(vidconsole) = {
 	.id		= UCLASS_VIDEO_CONSOLE,
-	.name		= "vidconsole0",
+	.name		= "vidconsole",
 	.pre_probe	= vidconsole_pre_probe,
 	.post_probe	= vidconsole_post_probe,
 	.per_device_auto	= sizeof(struct vidconsole_priv),
@@ -787,6 +787,15 @@ int vidconsole_clear_and_reset(struct udevice *dev)
 	vidconsole_position_cursor(dev, 0, 0);
 
 	return 0;
+}
+
+int vidconsole_resize(struct udevice *dev)
+{
+	struct vidconsole_ops *ops = vidconsole_get_ops(dev);
+
+	if (!ops->resize)
+		return -ENOSYS;
+	return ops->resize(dev);
 }
 
 void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)

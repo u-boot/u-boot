@@ -110,7 +110,7 @@ static int select_vidconsole(struct unit_test_state *uts, const char *drv_name)
 	ut_assertok(uclass_find_device(UCLASS_VIDEO, 0, &dev));
 	ut_assert(!device_active(dev));
 	plat = dev_get_plat(dev);
-	plat->vidconsole_drv_name = "vidconsole0";
+	plat->vidconsole_drv_name = "vidconsole";
 
 	return 0;
 }
@@ -149,7 +149,7 @@ static int dm_test_video_text(struct unit_test_state *uts)
 #define WHITE		0xffff
 #define SCROLL_LINES	100
 
-	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(select_vidconsole(uts, "vidconsole"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
@@ -185,7 +185,7 @@ static int dm_test_video_text_12x22(struct unit_test_state *uts)
 #define WHITE		0xffff
 #define SCROLL_LINES	100
 
-	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(select_vidconsole(uts, "vidconsole"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "12x22", 0));
@@ -219,7 +219,7 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	struct udevice *dev, *con;
 	const char *test_string = "Well\b\b\b\bxhe is\r \n\ta very \amodest  \bman\n\t\tand Has much to\b\bto be modest about.";
 
-	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(select_vidconsole(uts, "vidconsole"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
@@ -237,7 +237,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 {
 	struct udevice *dev, *con;
 
-	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(select_vidconsole(uts, "vidconsole"));
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
@@ -315,7 +315,7 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 /* Test text output through the console uclass */
 static int dm_test_video_context(struct unit_test_state *uts)
 {
-	ut_assertok(select_vidconsole(uts, "vidconsole0"));
+	ut_assertok(select_vidconsole(uts, "vidconsole"));
 	ut_assertok(check_vidconsole_output(uts, 0, 788, 453));
 
 	return 0;
