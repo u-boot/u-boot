@@ -6,6 +6,7 @@
 
 #include <command.h>
 #include <cpu_func.h>
+#include <dfu.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
