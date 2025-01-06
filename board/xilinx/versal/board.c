@@ -36,8 +36,29 @@ static xilinx_desc versalpl = {
 };
 #endif
 
+static u8 versal_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+
+	reg = readl(&crp_base->boot_mode_usr);
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
+}
+
 static u32 versal_multi_boot(void)
 {
+	u8 bootmode = versal_get_bootmode();
+
+	/* Mostly workaround for QEMU CI pipeline */
+	if (bootmode == JTAG_MODE)
+		return 0;
+
 	return readl(0xF1110004);
 }
 
@@ -118,21 +139,6 @@ unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 		ret = EINVAL;
 	}
 	return ret;
-}
-
-static u8 versal_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-
-	reg = readl(&crp_base->boot_mode_usr);
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
 }
 
 static int boot_targets_setup(void)
