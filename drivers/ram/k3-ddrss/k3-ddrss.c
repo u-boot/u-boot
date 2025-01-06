@@ -147,6 +147,9 @@ struct k3_ddrss_desc {
 	struct k3_ddrss_ecc_region ecc_regions[K3_DDRSS_MAX_ECC_REGIONS];
 	u64 ecc_reserved_space;
 	bool ti_ecc_enabled;
+	u64 ddr_bank_base[CONFIG_NR_DRAM_BANKS];
+	u64 ddr_bank_size[CONFIG_NR_DRAM_BANKS];
+	u64 ddr_ram_size;
 };
 
 struct reginitdata {
@@ -663,11 +666,54 @@ static void k3_ddrss_lpddr4_preload_full_mem(struct k3_ddrss_desc *ddrss,
 	printf("ECC: priming DDR completed in %lu msec\n", get_timer(done));
 }
 
+static void k3_ddrss_ddr_bank_base_size_calc(struct k3_ddrss_desc *ddrss)
+{
+	int bank, na, ns, len, parent;
+	const fdt32_t *ptr, *end;
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		ddrss->ddr_bank_base[bank] = 0;
+		ddrss->ddr_bank_size[bank] = 0;
+	}
+
+	ofnode mem = ofnode_null();
+
+	do {
+		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
+	} while (!ofnode_is_enabled(mem));
+
+	const void *fdt = ofnode_to_fdt(mem);
+	int node = ofnode_to_offset(mem);
+	const char *property = "reg";
+
+	parent = fdt_parent_offset(fdt, node);
+	na = fdt_address_cells(fdt, parent);
+	ns = fdt_size_cells(fdt, parent);
+	ptr = fdt_getprop(fdt, node, property, &len);
+	end = ptr + len / sizeof(*ptr);
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (ptr + na + ns <= end) {
+			if (CONFIG_IS_ENABLED(OF_TRANSLATE))
+				ddrss->ddr_bank_base[bank] = fdt_translate_address(fdt, node, ptr);
+			else
+				ddrss->ddr_bank_base[bank] = fdtdec_get_number(ptr, na);
+
+			ddrss->ddr_bank_size[bank] = fdtdec_get_number(&ptr[na], ns);
+		}
+
+		ptr += na + ns;
+	}
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++)
+		ddrss->ddr_ram_size += ddrss->ddr_bank_size[bank];
+}
+
 static void k3_ddrss_lpddr4_ecc_calc_reserved_mem(struct k3_ddrss_desc *ddrss)
 {
 	fdtdec_setup_mem_size_base_lowest();
 
-	ddrss->ecc_reserved_space = gd->ram_size;
+	ddrss->ecc_reserved_space = ddrss->ddr_ram_size;
 	do_div(ddrss->ecc_reserved_space, 9);
 
 	/* Round to clean number */
@@ -691,7 +737,7 @@ static void k3_ddrss_lpddr4_ecc_init(struct k3_ddrss_desc *ddrss)
 	/* Preload the full memory with 0's using the BIST engine of
 	 * the LPDDR4 controller.
 	 */
-	k3_ddrss_lpddr4_preload_full_mem(ddrss, gd->ram_size, 0);
+	k3_ddrss_lpddr4_preload_full_mem(ddrss, ddrss->ddr_ram_size, 0);
 
 	/* Clear Error Count Register */
 	writel(0x1, base + DDRSS_ECC_1B_ERR_CNT_REG);
@@ -736,6 +782,8 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 	k3_lpddr4_start(ddrss);
 
+	k3_ddrss_ddr_bank_base_size_calc(ddrss);
+
 	if (ddrss->ti_ecc_enabled) {
 		if (!ddrss->ddrss_ss_cfg) {
 			printf("%s: ss_cfg is required if ecc is enabled but not provided.",
@@ -756,30 +804,24 @@ static int k3_ddrss_probe(struct udevice *dev)
 
 int k3_ddrss_ddr_fdt_fixup(struct udevice *dev, void *blob, struct bd_info *bd)
 {
-	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
-	u64 start[CONFIG_NR_DRAM_BANKS];
-	u64 size[CONFIG_NR_DRAM_BANKS];
 	int bank;
+	struct k3_ddrss_desc *ddrss = dev_get_priv(dev);
 
 	if (ddrss->ecc_reserved_space == 0)
 		return 0;
 
 	for (bank = CONFIG_NR_DRAM_BANKS - 1; bank >= 0; bank--) {
-		if (ddrss->ecc_reserved_space > bd->bi_dram[bank].size) {
-			ddrss->ecc_reserved_space -= bd->bi_dram[bank].size;
-			bd->bi_dram[bank].size = 0;
+		if (ddrss->ecc_reserved_space > ddrss->ddr_bank_size[bank]) {
+			ddrss->ecc_reserved_space -= ddrss->ddr_bank_size[bank];
+			ddrss->ddr_bank_size[bank] = 0;
 		} else {
-			bd->bi_dram[bank].size -= ddrss->ecc_reserved_space;
+			ddrss->ddr_bank_size[bank] -= ddrss->ecc_reserved_space;
 			break;
 		}
 	}
 
-	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] =  bd->bi_dram[bank].start;
-		size[bank] = bd->bi_dram[bank].size;
-	}
-
-	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+	return fdt_fixup_memory_banks(blob, ddrss->ddr_bank_base,
+				      ddrss->ddr_bank_size, CONFIG_NR_DRAM_BANKS);
 }
 
 static int k3_ddrss_get_info(struct udevice *dev, struct ram_info *info)
