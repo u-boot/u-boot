@@ -119,7 +119,6 @@ union scratch3_reg {
 int warmboot_save_sdram_params(void);
 
 int warmboot_prepare_code(u32 seg_address, u32 seg_length);
-int sign_data_block(u8 *source, u32 length, u8 *signature);
 void wb_start(void);	/* Start of WB assembly code */
 void wb_end(void);	/* End of WB assembly code */
 
