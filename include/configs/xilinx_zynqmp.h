@@ -179,6 +179,7 @@
 #ifndef CFG_EXTRA_ENV_SETTINGS
 #define CFG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
+	"usb_pgood_delay=1000\0" \
 	BOOTENV
 #endif
 
