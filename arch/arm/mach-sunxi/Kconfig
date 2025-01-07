@@ -277,6 +277,7 @@ config MACH_SUNIV
 	select SUPPORT_SPL
 	select SKIP_LOWLEVEL_INIT_ONLY
 	select SPL_SKIP_LOWLEVEL_INIT_ONLY
+	imply OF_UPSTREAM
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
