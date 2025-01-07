@@ -597,8 +597,9 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 
 void lmb_add_memory(void)
 {
-	int i;
+	int i, ret;
 	phys_addr_t bank_end;
+	phys_addr_t bank_start;
 	phys_size_t size;
 	u64 ram_top = gd->ram_top;
 	struct bd_info *bd = gd->bd;
@@ -611,23 +612,34 @@ void lmb_add_memory(void)
 		ram_top = 0x100000000ULL;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		bank_start = bd->bi_dram[i].start;
 		size = bd->bi_dram[i].size;
-		bank_end = bd->bi_dram[i].start + size;
+		bank_end = bd->bi_dram[i].start + size - 1;
 
-		if (size) {
-			lmb_add(bd->bi_dram[i].start, size);
+		if (!size)
+			continue;
 
-			/*
-			 * Reserve memory above ram_top as
-			 * no-overwrite so that it cannot be
-			 * allocated
-			 */
-			if (bd->bi_dram[i].start >= ram_top)
-				lmb_reserve(bd->bi_dram[i].start, size,
-					    LMB_NOOVERWRITE);
-			else if (bank_end > ram_top)
-				lmb_reserve(ram_top, bank_end - ram_top,
-					    LMB_NOOVERWRITE);
+		if (bank_start >= ram_top) {
+			ret = lmb_map_update_notify(bank_start, size,
+						    MAP_OP_RESERVE, LMB_NONE);
+			if (ret)
+				log_err("Unable to reserve memory range [%#llx-%#llx]\n",
+					(u64)bank_start, (u64)bank_end);
+		} else {
+			if (bank_end > ram_top) {
+				size = bank_end - ram_top + 1;
+				ret = lmb_map_update_notify(ram_top, size,
+							    MAP_OP_RESERVE,
+							    LMB_NONE);
+				if (ret)
+					log_err("Unable to reserve memory range [%#llx-%#llx]\n",
+						ram_top, (u64)bank_end);
+
+				size = bd->bi_dram[i].size;
+				size -= bank_end - ram_top + 1;
+			}
+
+			lmb_add(bank_start, size);
 		}
 	}
 }
