@@ -151,8 +151,8 @@ static int coral_get_str(struct udevice *dev, int id, size_t size, char *val)
 		return -ENOSYS;
 
 	switch (id) {
-	case SYSINFO_ID_SMBIOS_SYSTEM_VERSION:
-	case SYSINFO_ID_SMBIOS_BASEBOARD_VERSION: {
+	case SYSID_SM_SYSTEM_VERSION:
+	case SYSID_SM_BASEBOARD_VERSION: {
 		ret = get_skuconfig(dev);
 
 		if (ret < 0)
@@ -162,7 +162,7 @@ static int coral_get_str(struct udevice *dev, int id, size_t size, char *val)
 		sprintf(val, "rev%d", ret);
 		break;
 	}
-	case SYSINFO_ID_BOARD_MODEL: {
+	case SYSID_BOARD_MODEL: {
 		int mem_config, sku_config;
 		const char *model;
 

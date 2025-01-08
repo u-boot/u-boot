@@ -186,23 +186,22 @@ Setting up
 #. Create ~/.buildman to tell buildman where to find tool chains (see
    buildman_settings_ for details). As an example::
 
-   # Buildman settings file
+      # Buildman settings file
 
-   [toolchain]
-   root: /
-   rest: /toolchains/*
-   eldk: /opt/eldk-4.2
-   arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
-   aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
+      [toolchain]
+      root: /
+      rest: /toolchains/*
+      eldk: /opt/eldk-4.2
+      arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+      aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 
-   [toolchain-prefix]
-   arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
+      [toolchain-prefix]
+      arc = /opt/arc/arc_gnu_2021.03_prebuilt_elf32_le_linux_install/bin/arc-elf32-
 
-   [toolchain-alias]
-   riscv = riscv32
-   sh = sh4
-   x86: i386
-
+      [toolchain-alias]
+      riscv = riscv32
+      sh = sh4
+      x86: i386
 
    This selects the available toolchain paths. Add the base directory for
    each of your toolchains here. Buildman will search inside these directories
@@ -934,6 +933,18 @@ a set of (tag, value) pairs.
     For example powerpc-linux-gcc will be noted as a toolchain for 'powerpc'
     and CROSS_COMPILE will be set to powerpc-linux- when using it.
 
+    The tilde character ``~`` is supported in paths, to represent the home
+    directory.
+
+'[toolchain-prefix]' section
+    This can be used to provide the full toolchain-prefix for one or more
+    architectures. The full CROSS_COMPILE prefix must be provided. These
+    typically have a higher priority than matches in the '[toolchain]', due to
+    this prefix.
+
+    The tilde character ``~`` is supported in paths, to represent the home
+    directory.
+
 '[toolchain-alias]' section
     This converts toolchain architecture names to U-Boot names. For example,
     if an x86 toolchains is called i386-linux-gcc it will not normally be
@@ -1112,6 +1123,30 @@ The -U option uses the u-boot.env files which are produced by a build.
 Internally, buildman writes out an out-env file into the build directory for
 later comparison.
 
+defconfig fragments
+-------------------
+
+Buildman provides some initial support for configuration fragments. It can scan
+these when present in defconfig files and handle the resuiting Kconfig
+correctly. Thus it is possible to build a board which has a ``#include`` in the
+defconfig file.
+
+For now, Buildman simply includes the files to produce a single output file,
+using the C preprocessor. It does not call the ``merge_config.sh`` script. The
+redefined/redundant logic in that script could fairly easily be repeated in
+Buildman, to detect potential problems. For now it is not clear that this is
+useful.
+
+To specify the C preprocessor to use, set the ``CPP`` environment variable. The
+default is ``cpp``.
+
+Note that Buildman does not support adding fragments to existing boards, e.g.
+like::
+
+    make qemu_riscv64_defconfig acpi.config
+
+This is partly because there is no way for Buildman to know which fragments are
+valid on which boards.
 
 Building with clang
 -------------------

@@ -12,7 +12,6 @@
 #include <log.h>
 #include <ns16550.h>
 #include <reset.h>
-#include <serial.h>
 #include <spl.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
@@ -158,7 +157,7 @@ static inline int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 
 #endif /* CONFIG_NS16550_DYNAMIC */
 
-static void ns16550_writeb(struct ns16550 *port, int offset, int value)
+void ns16550_writeb(struct ns16550 *port, int offset, int value)
 {
 	struct ns16550_plat *plat = port->plat;
 	unsigned char *addr;
@@ -193,13 +192,6 @@ static u32 ns16550_getfcr(struct ns16550 *port)
 	return plat->fcr;
 }
 
-/* We can clean these up once everything is moved to driver model */
-#define serial_out(value, addr)	\
-	ns16550_writeb(com_port, \
-		(unsigned char *)addr - (unsigned char *)com_port, value)
-#define serial_in(addr) \
-	ns16550_readb(com_port, \
-		(unsigned char *)addr - (unsigned char *)com_port)
 #else
 static u32 ns16550_getfcr(struct ns16550 *port)
 {
@@ -214,7 +206,7 @@ int ns16550_calc_divisor(struct ns16550 *port, int clock, int baudrate)
 	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
 }
 
-static void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
+void ns16550_setbrg(struct ns16550 *com_port, int baud_divisor)
 {
 	/* to keep serial format, read lcr before writing BKSE */
 	int lcr_val = serial_in(&com_port->lcr) & ~UART_LCR_BKSE;
@@ -380,7 +372,7 @@ DEBUG_UART_FUNCS
 #endif
 
 #if CONFIG_IS_ENABLED(DM_SERIAL)
-static int ns16550_serial_putc(struct udevice *dev, const char ch)
+int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -400,7 +392,7 @@ static int ns16550_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
-static int ns16550_serial_pending(struct udevice *dev, bool input)
+int ns16550_serial_pending(struct udevice *dev, bool input)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -410,7 +402,7 @@ static int ns16550_serial_pending(struct udevice *dev, bool input)
 		return (serial_in(&com_port->lsr) & UART_LSR_THRE) ? 0 : 1;
 }
 
-static int ns16550_serial_getc(struct udevice *dev)
+int ns16550_serial_getc(struct udevice *dev)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 
@@ -420,7 +412,7 @@ static int ns16550_serial_getc(struct udevice *dev)
 	return serial_in(&com_port->rbr);
 }
 
-static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
+int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	struct ns16550_plat *plat = com_port->plat;
@@ -433,7 +425,7 @@ static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-static int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
+int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	int lcr_val = UART_LCR_WLS_8;
@@ -466,8 +458,7 @@ static int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
-static int ns16550_serial_getinfo(struct udevice *dev,
-				  struct serial_device_info *info)
+int ns16550_serial_getinfo(struct udevice *dev, struct serial_device_info *info)
 {
 	struct ns16550 *const com_port = dev_get_priv(dev);
 	struct ns16550_plat *plat = com_port->plat;

@@ -244,6 +244,15 @@ config NET_RANDOM_ETHADDR
 	  generated. It will be saved to the appropriate environment variable,
 	  too.
 
+config WGET
+	bool "Enable wget"
+	select PROT_TCP if NET
+	select PROT_TCP_LWIP if NET_LWIP
+	select PROT_DNS_LWIP if NET_LWIP
+	help
+	  Selecting this will enable wget, an interface to send HTTP requests
+	  via the network stack.
+
 config TFTP_BLOCKSIZE
 	int "TFTP block size"
 	default 1468

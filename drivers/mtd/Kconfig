@@ -202,7 +202,7 @@ config RENESAS_RPC_HF
 
 config HBMC_AM654
 	bool "HyperBus controller driver for AM65x SoC"
-	depends on SYSCON
+	depends on MULTIPLEXER && MUX_MMIO
 	help
 	 This is the driver for HyperBus controller on TI's AM65x and
 	 other SoCs

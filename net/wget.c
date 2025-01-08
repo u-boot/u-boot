@@ -22,46 +22,25 @@ DECLARE_GLOBAL_DATA_PTR;
 /* The default, change with environment variable 'httpdstp' */
 #define SERVER_PORT		80
 
-static const char bootfile1[] = "GET ";
-static const char bootfile3[] = " HTTP/1.0\r\n\r\n";
+#define HASHES_PER_LINE		65
+
+#define HTTP_MAX_HDR_LEN	2048
+
+#define HTTP_STATUS_BAD		0
+#define HTTP_STATUS_OK		200
+
+static const char http_proto[] = "HTTP/1.0";
 static const char http_eom[] = "\r\n\r\n";
-static const char http_ok[] = "200";
+static const char content_len[] = "Content-Length:";
 static const char linefeed[] = "\r\n";
 static struct in_addr web_server_ip;
-static int our_port;
-static int wget_timeout_count;
-
-struct pkt_qd {
-	uchar *pkt;
-	unsigned int tcp_seq_num;
-	unsigned int len;
-};
-
-/*
- * This is a control structure for out of order packets received.
- * The actual packet bufers are in the kernel space, and are
- * expected to be overwritten by the downloaded image.
- */
-#define PKTQ_SZ (PKTBUFSRX / 4)
-static struct pkt_qd pkt_q[PKTQ_SZ];
-static int pkt_q_idx;
-static unsigned int packets;
-
-static unsigned int initial_data_seq_num;
-static unsigned int next_data_seq_num;
-
-static enum  wget_state current_wget_state;
+static unsigned int server_port;
+static unsigned long content_length;
+static u32 http_hdr_size, max_rx_pos;
+static int wget_tsize_num_hash;
 
 static char *image_url;
-static unsigned int wget_timeout = WGET_TIMEOUT;
-
 static enum net_loop_state wget_loop_state;
-
-/* Timeout retry parameters */
-static u8 retry_action;			/* actions for TCP retry */
-static unsigned int retry_tcp_ack_num;	/* TCP retry acknowledge number*/
-static unsigned int retry_tcp_seq_num;	/* TCP retry sequence number */
-static int retry_len;			/* TCP retry length */
 
 /**
  * store_block() - store block in memory
@@ -72,10 +51,9 @@ static int retry_len;			/* TCP retry length */
 static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 {
 	ulong store_addr = image_load_addr + offset;
-	ulong newsize = offset + len;
 	uchar *ptr;
 
-	if (CONFIG_IS_ENABLED(LMB)) {
+	if (CONFIG_IS_ENABLED(LMB) && wget_info->set_bootdev) {
 		if (store_addr < image_load_addr ||
 		    lmb_read_check(store_addr, len)) {
 			printf("\nwget error: ");
@@ -88,330 +66,221 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	memcpy(ptr, src, len);
 	unmap_sysmem(ptr);
 
-	if (net_boot_file_size < (offset + len))
-		net_boot_file_size = newsize;
-
 	return 0;
 }
 
-/**
- * wget_send_stored() - wget response dispatcher
- *
- * WARNING, This, and only this, is the place in wget.c where
- * SEQUENCE NUMBERS are swapped between incoming (RX)
- * and outgoing (TX).
- * Procedure wget_handler() is correct for RX traffic.
- */
-static void wget_send_stored(void)
+static void show_block_marker(u32 packets)
 {
-	u8 action = retry_action;
-	int len = retry_len;
-	unsigned int tcp_ack_num = retry_tcp_seq_num + (len == 0 ? 1 : len);
-	unsigned int tcp_seq_num = retry_tcp_ack_num;
-	unsigned int server_port;
-	uchar *ptr, *offset;
+	int cnt;
 
-	server_port = env_get_ulong("httpdstp", 10, SERVER_PORT) & 0xffff;
+	if (content_length != -1) {
+		if (net_boot_file_size > content_length)
+			content_length = net_boot_file_size;
 
-	switch (current_wget_state) {
-	case WGET_CLOSED:
-		debug_cond(DEBUG_WGET, "wget: send SYN\n");
-		current_wget_state = WGET_CONNECTING;
-		net_send_tcp_packet(0, server_port, our_port, action,
-				    tcp_seq_num, tcp_ack_num);
-		packets = 0;
-		break;
-	case WGET_CONNECTING:
-		pkt_q_idx = 0;
-		net_send_tcp_packet(0, server_port, our_port, action,
-				    tcp_seq_num, tcp_ack_num);
-
-		ptr = net_tx_packet + net_eth_hdr_size() +
-			IP_TCP_HDR_SIZE + TCP_TSOPT_SIZE + 2;
-		offset = ptr;
-
-		memcpy(offset, &bootfile1, strlen(bootfile1));
-		offset += strlen(bootfile1);
-
-		memcpy(offset, image_url, strlen(image_url));
-		offset += strlen(image_url);
-
-		memcpy(offset, &bootfile3, strlen(bootfile3));
-		offset += strlen(bootfile3);
-		net_send_tcp_packet((offset - ptr), server_port, our_port,
-				    TCP_PUSH, tcp_seq_num, tcp_ack_num);
-		current_wget_state = WGET_CONNECTED;
-		break;
-	case WGET_CONNECTED:
-	case WGET_TRANSFERRING:
-	case WGET_TRANSFERRED:
-		net_send_tcp_packet(0, server_port, our_port, action,
-				    tcp_seq_num, tcp_ack_num);
-		break;
-	}
-}
-
-static void wget_send(u8 action, unsigned int tcp_seq_num,
-		      unsigned int tcp_ack_num, int len)
-{
-	retry_action = action;
-	retry_tcp_ack_num = tcp_ack_num;
-	retry_tcp_seq_num = tcp_seq_num;
-	retry_len = len;
-
-	wget_send_stored();
-}
-
-void wget_fail(char *error_message, unsigned int tcp_seq_num,
-	       unsigned int tcp_ack_num, u8 action)
-{
-	printf("wget: Transfer Fail - %s\n", error_message);
-	net_set_timeout_handler(0, NULL);
-	wget_send(action, tcp_seq_num, tcp_ack_num, 0);
-}
-
-/*
- * Interfaces of U-BOOT
- */
-static void wget_timeout_handler(void)
-{
-	if (++wget_timeout_count > WGET_RETRY_COUNT) {
-		puts("\nRetry count exceeded; starting again\n");
-		wget_send(TCP_RST, 0, 0, 0);
-		net_start_again();
-	} else {
-		puts("T ");
-		net_set_timeout_handler(wget_timeout +
-					WGET_TIMEOUT * wget_timeout_count,
-					wget_timeout_handler);
-		wget_send_stored();
-	}
-}
-
-#define PKT_QUEUE_OFFSET 0x20000
-#define PKT_QUEUE_PACKET_SIZE 0x800
-
-static void wget_connected(uchar *pkt, unsigned int tcp_seq_num,
-			   u8 action, unsigned int tcp_ack_num, unsigned int len)
-{
-	uchar *pkt_in_q;
-	char *pos;
-	int hlen, i;
-	uchar *ptr1;
-
-	pkt[len] = '\0';
-	pos = strstr((char *)pkt, http_eom);
-
-	if (!pos) {
-		debug_cond(DEBUG_WGET,
-			   "wget: Connected, data before Header %p\n", pkt);
-		pkt_in_q = (void *)image_load_addr + PKT_QUEUE_OFFSET +
-			(pkt_q_idx * PKT_QUEUE_PACKET_SIZE);
-
-		ptr1 = map_sysmem((ulong)pkt_in_q, len);
-		memcpy(ptr1, pkt, len);
-		unmap_sysmem(ptr1);
-
-		pkt_q[pkt_q_idx].pkt = pkt_in_q;
-		pkt_q[pkt_q_idx].tcp_seq_num = tcp_seq_num;
-		pkt_q[pkt_q_idx].len = len;
-		pkt_q_idx++;
-
-		if (pkt_q_idx >= PKTQ_SZ) {
-			printf("wget: Fatal error, queue overrun!\n");
-			net_set_state(NETLOOP_FAIL);
-
-			return;
+		cnt = net_boot_file_size * 50 / content_length;
+		while (wget_tsize_num_hash < cnt) {
+			putc('#');
+			wget_tsize_num_hash++;
 		}
 	} else {
-		debug_cond(DEBUG_WGET, "wget: Connected HTTP Header %p\n", pkt);
-		/* sizeof(http_eom) - 1 is the string length of (http_eom) */
-		hlen = pos - (char *)pkt + sizeof(http_eom) - 1;
-		pos = strstr((char *)pkt, linefeed);
-		if (pos > 0)
-			i = pos - (char *)pkt;
-		else
-			i = hlen;
-		printf("%.*s", i,  pkt);
-
-		current_wget_state = WGET_TRANSFERRING;
-
-		initial_data_seq_num = tcp_seq_num + hlen;
-		next_data_seq_num    = tcp_seq_num + len;
-
-		if (strstr((char *)pkt, http_ok) == 0) {
-			debug_cond(DEBUG_WGET,
-				   "wget: Connected Bad Xfer\n");
-			wget_loop_state = NETLOOP_FAIL;
-			wget_send(action, tcp_seq_num, tcp_ack_num, len);
-		} else {
-			debug_cond(DEBUG_WGET,
-				   "wget: Connected Pkt %p hlen %x\n",
-				   pkt, hlen);
-
-			net_boot_file_size = 0;
-
-			if (len > hlen) {
-				if (store_block(pkt + hlen, 0, len - hlen) != 0) {
-					wget_loop_state = NETLOOP_FAIL;
-					wget_fail("wget: store error\n", tcp_seq_num, tcp_ack_num, action);
-					net_set_state(NETLOOP_FAIL);
-					return;
-				}
-			}
-
-			for (i = 0; i < pkt_q_idx; i++) {
-				int err;
-
-				ptr1 = map_sysmem((ulong)pkt_q[i].pkt,
-						  pkt_q[i].len);
-				err = store_block(ptr1,
-					  pkt_q[i].tcp_seq_num -
-					  initial_data_seq_num,
-					  pkt_q[i].len);
-				unmap_sysmem(ptr1);
-				debug_cond(DEBUG_WGET,
-					   "wget: Conncted pkt Q %p len %x\n",
-					   pkt_q[i].pkt, pkt_q[i].len);
-				if (err) {
-					wget_loop_state = NETLOOP_FAIL;
-					wget_fail("wget: store error\n", tcp_seq_num, tcp_ack_num, action);
-					net_set_state(NETLOOP_FAIL);
-					return;
-				}
-			}
-		}
+		if ((packets % 10) == 0)
+			putc('#');
+		else if (((packets + 1) % (10 * HASHES_PER_LINE)) == 0)
+			puts("\n");
 	}
-	wget_send(action, tcp_seq_num, tcp_ack_num, len);
 }
 
-/**
- * wget_handler() - TCP handler of wget
- * @pkt: pointer to the application packet
- * @dport: destination TCP port
- * @sip: source IP address
- * @sport: source TCP port
- * @tcp_seq_num: TCP sequential number
- * @tcp_ack_num: TCP acknowledgment number
- * @action: TCP action (SYN, ACK, FIN, etc)
- * @len: packet length
- *
- * In the "application push" invocation, the TCP header with all
- * its information is pointed to by the packet pointer.
- */
-static void wget_handler(uchar *pkt, u16 dport,
-			 struct in_addr sip, u16 sport,
-			 u32 tcp_seq_num, u32 tcp_ack_num,
-			 u8 action, unsigned int len)
+static void tcp_stream_on_closed(struct tcp_stream *tcp)
 {
-	enum tcp_state wget_tcp_state = tcp_get_tcp_state();
+	if (tcp->status != TCP_ERR_OK)
+		wget_loop_state = NETLOOP_FAIL;
 
-	net_set_timeout_handler(wget_timeout, wget_timeout_handler);
-	packets++;
+	net_set_state(wget_loop_state);
+	if (wget_loop_state != NETLOOP_SUCCESS) {
+		net_boot_file_size = 0;
+		if (wget_info->status_code == HTTP_STATUS_OK) {
+			wget_info->status_code = HTTP_STATUS_BAD;
+			wget_info->hdr_cont_len = 0;
+			if (wget_info->headers)
+				wget_info->headers[0] = 0;
+		}
+		printf("\nwget: Transfer Fail, TCP status - %d\n", tcp->status);
+		return;
+	}
 
-	switch (current_wget_state) {
-	case WGET_CLOSED:
-		debug_cond(DEBUG_WGET, "wget: Handler: Error!, State wrong\n");
-		break;
-	case WGET_CONNECTING:
-		debug_cond(DEBUG_WGET,
-			   "wget: Connecting In len=%x, Seq=%u, Ack=%u\n",
-			   len, tcp_seq_num, tcp_ack_num);
-		if (!len) {
-			if (wget_tcp_state == TCP_ESTABLISHED) {
-				debug_cond(DEBUG_WGET,
-					   "wget: Cting, send, len=%x\n", len);
-				wget_send(action, tcp_seq_num, tcp_ack_num,
-					  len);
-			} else {
-				printf("%.*s", len,  pkt);
-				wget_fail("wget: Handler Connected Fail\n",
-					  tcp_seq_num, tcp_ack_num, action);
-			}
-		}
-		break;
-	case WGET_CONNECTED:
-		debug_cond(DEBUG_WGET, "wget: Connected seq=%u, len=%x\n",
-			   tcp_seq_num, len);
-		if (!len) {
-			wget_fail("Image not found, no data returned\n",
-				  tcp_seq_num, tcp_ack_num, action);
-		} else {
-			wget_connected(pkt, tcp_seq_num, action, tcp_ack_num, len);
-		}
-		break;
-	case WGET_TRANSFERRING:
-		debug_cond(DEBUG_WGET,
-			   "wget: Transferring, seq=%x, ack=%x,len=%x\n",
-			   tcp_seq_num, tcp_ack_num, len);
-
-		if (next_data_seq_num != tcp_seq_num) {
-			debug_cond(DEBUG_WGET, "wget: seq=%x packet was lost\n", next_data_seq_num);
-			return;
-		}
-		next_data_seq_num = tcp_seq_num + len;
-
-		if (store_block(pkt, tcp_seq_num - initial_data_seq_num, len) != 0) {
-			wget_fail("wget: store error\n",
-				  tcp_seq_num, tcp_ack_num, action);
-			net_set_state(NETLOOP_FAIL);
-			return;
-		}
-
-		switch (wget_tcp_state) {
-		case TCP_FIN_WAIT_2:
-			wget_send(TCP_ACK, tcp_seq_num, tcp_ack_num, len);
-			fallthrough;
-		case TCP_SYN_SENT:
-		case TCP_SYN_RECEIVED:
-		case TCP_CLOSING:
-		case TCP_FIN_WAIT_1:
-		case TCP_CLOSED:
-			net_set_state(NETLOOP_FAIL);
-			break;
-		case TCP_ESTABLISHED:
-			wget_send(TCP_ACK, tcp_seq_num, tcp_ack_num,
-				  len);
-			wget_loop_state = NETLOOP_SUCCESS;
-			break;
-		case TCP_CLOSE_WAIT:     /* End of transfer */
-			current_wget_state = WGET_TRANSFERRED;
-			wget_send(action | TCP_ACK | TCP_FIN,
-				  tcp_seq_num, tcp_ack_num, len);
-			break;
-		}
-		break;
-	case WGET_TRANSFERRED:
-		printf("Packets received %d, Transfer Successful\n", packets);
-		net_set_state(wget_loop_state);
-		efi_set_bootdev("Net", "", image_url,
+	printf("\nPackets received %d, Transfer Successful\n", tcp->rx_packets);
+	wget_info->file_size = net_boot_file_size;
+	if (wget_info->method == WGET_HTTP_METHOD_GET && wget_info->set_bootdev) {
+		efi_set_bootdev("Http", NULL, image_url,
 				map_sysmem(image_load_addr, 0),
 				net_boot_file_size);
 		env_set_hex("filesize", net_boot_file_size);
-		break;
 	}
 }
 
-#define RANDOM_PORT_START 1024
-#define RANDOM_PORT_RANGE 0x4000
-
-/**
- * random_port() - make port a little random (1024-17407)
- *
- * Return: random port number from 1024 to 17407
- *
- * This keeps the math somewhat trivial to compute, and seems to work with
- * all supported protocols/clients/servers
- */
-static unsigned int random_port(void)
+static void tcp_stream_on_rcv_nxt_update(struct tcp_stream *tcp, u32 rx_bytes)
 {
-	return RANDOM_PORT_START + (get_timer(0) % RANDOM_PORT_RANGE);
+	char	*pos, *tail;
+	uchar	saved, *ptr;
+	int	reply_len;
+
+	if (http_hdr_size) {
+		net_boot_file_size = rx_bytes - http_hdr_size;
+		show_block_marker(tcp->rx_packets);
+		return;
+	}
+
+	ptr = map_sysmem(image_load_addr, rx_bytes + 1);
+
+	saved = ptr[rx_bytes];
+	ptr[rx_bytes] = '\0';
+	pos = strstr((char *)ptr, http_eom);
+	ptr[rx_bytes] = saved;
+
+	if (!pos) {
+		if (rx_bytes < HTTP_MAX_HDR_LEN &&
+		    tcp->state == TCP_ESTABLISHED)
+			goto end;
+
+		printf("ERROR: misssed HTTP header\n");
+		tcp_stream_close(tcp);
+		goto end;
+	}
+
+	http_hdr_size = pos - (char *)ptr + strlen(http_eom);
+	*pos = '\0';
+
+	if (wget_info->headers && http_hdr_size < MAX_HTTP_HEADERS_SIZE)
+		strcpy(wget_info->headers, ptr);
+
+	/* check for HTTP proto */
+	if (strncasecmp((char *)ptr, "HTTP/", 5)) {
+		debug_cond(DEBUG_WGET, "wget: Connected Bad Xfer "
+				       "(no HTTP Status Line found)\n");
+		tcp_stream_close(tcp);
+		goto end;
+	}
+
+	/* get HTTP reply len */
+	pos = strstr((char *)ptr, linefeed);
+	if (pos)
+		reply_len = pos - (char *)ptr;
+	else
+		reply_len = http_hdr_size - strlen(http_eom);
+
+	pos = strchr((char *)ptr, ' ');
+	if (!pos || pos - (char *)ptr > reply_len) {
+		debug_cond(DEBUG_WGET, "wget: Connected Bad Xfer "
+				       "(no HTTP Status Code found)\n");
+		tcp_stream_close(tcp);
+		goto end;
+	}
+
+	wget_info->status_code = (u32)simple_strtoul(pos + 1, &tail, 10);
+	if (tail == pos + 1 || *tail != ' ') {
+		debug_cond(DEBUG_WGET, "wget: Connected Bad Xfer "
+				       "(bad HTTP Status Code)\n");
+		tcp_stream_close(tcp);
+		goto end;
+	}
+
+	debug_cond(DEBUG_WGET,
+		   "wget: HTTP Status Code %d\n", wget_info->status_code);
+
+	if (wget_info->status_code != HTTP_STATUS_OK) {
+		debug_cond(DEBUG_WGET, "wget: Connected Bad Xfer\n");
+		tcp_stream_close(tcp);
+		goto end;
+	}
+
+	debug_cond(DEBUG_WGET, "wget: Connctd pkt %p  hlen %x\n",
+		   ptr, http_hdr_size);
+
+	content_length = -1;
+	pos = strstr((char *)ptr, content_len);
+	if (pos) {
+		pos += strlen(content_len) + 1;
+		while (*pos == ' ')
+			pos++;
+		content_length = simple_strtoul(pos, &tail, 10);
+		if (*tail != '\r' && *tail != '\n' && *tail != '\0')
+			content_length = -1;
+	}
+
+	if (content_length >= 0) {
+		debug_cond(DEBUG_WGET,
+			   "wget: Connected Len %lu\n",
+			   content_length);
+		wget_info->hdr_cont_len = content_length;
+	}
+
+	net_boot_file_size = rx_bytes - http_hdr_size;
+	memmove(ptr, ptr + http_hdr_size, max_rx_pos + 1 - http_hdr_size);
+	wget_loop_state = NETLOOP_SUCCESS;
+
+end:
+	unmap_sysmem(ptr);
+}
+
+static int tcp_stream_rx(struct tcp_stream *tcp, u32 rx_offs, void *buf, int len)
+{
+	if ((max_rx_pos == (u32)(-1)) || (max_rx_pos < rx_offs + len - 1))
+		max_rx_pos = rx_offs + len - 1;
+
+	store_block(buf, rx_offs - http_hdr_size, len);
+
+	return len;
+}
+
+static int tcp_stream_tx(struct tcp_stream *tcp, u32 tx_offs, void *buf, int maxlen)
+{
+	int ret;
+	const char *method;
+
+	if (tx_offs)
+		return 0;
+
+	switch (wget_info->method) {
+	case WGET_HTTP_METHOD_HEAD:
+		method = "HEAD";
+		break;
+	case WGET_HTTP_METHOD_GET:
+	default:
+		method = "GET";
+		break;
+	}
+
+	ret = snprintf(buf, maxlen, "%s %s %s\r\n\r\n",
+		       method, image_url, http_proto);
+
+	return ret;
+}
+
+static int tcp_stream_on_create(struct tcp_stream *tcp)
+{
+	if (tcp->rhost.s_addr != web_server_ip.s_addr ||
+	    tcp->rport != server_port)
+		return 0;
+
+	tcp->max_retry_count = WGET_RETRY_COUNT;
+	tcp->initial_timeout = WGET_TIMEOUT;
+	tcp->on_closed = tcp_stream_on_closed;
+	tcp->on_rcv_nxt_update = tcp_stream_on_rcv_nxt_update;
+	tcp->rx = tcp_stream_rx;
+	tcp->tx = tcp_stream_tx;
+
+	return 1;
 }
 
 #define BLOCKSIZE 512
 
 void wget_start(void)
 {
+	struct tcp_stream *tcp;
+
+	if (!wget_info)
+		wget_info = &default_wget_info;
+
 	image_url = strchr(net_boot_file_name, ':');
 	if (image_url > 0) {
 		web_server_ip = string_to_ip(net_boot_file_name);
@@ -449,14 +318,6 @@ void wget_start(void)
 	debug_cond(DEBUG_WGET,
 		   "\nwget:Load address: 0x%lx\nLoading: *\b", image_load_addr);
 
-	net_set_timeout_handler(wget_timeout, wget_timeout_handler);
-	tcp_set_tcp_handler(wget_handler);
-
-	wget_timeout_count = 0;
-	current_wget_state = WGET_CLOSED;
-
-	our_port = random_port();
-
 	/*
 	 * Zero out server ether to force arp resolution in case
 	 * the server ip for the previous u-boot command, for example dns
@@ -465,11 +326,30 @@ void wget_start(void)
 
 	memset(net_server_ethaddr, 0, 6);
 
-	wget_send(TCP_SYN, 0, 0, 0);
+	max_rx_pos = (u32)(-1);
+	net_boot_file_size = 0;
+	http_hdr_size = 0;
+	wget_tsize_num_hash = 0;
+	wget_loop_state = NETLOOP_FAIL;
+
+	wget_info->status_code = HTTP_STATUS_BAD;
+	wget_info->file_size = 0;
+	wget_info->hdr_cont_len = 0;
+	if (wget_info->headers)
+		wget_info->headers[0] = 0;
+
+	server_port = env_get_ulong("httpdstp", 10, SERVER_PORT) & 0xffff;
+	tcp_stream_set_on_create_handler(tcp_stream_on_create);
+	tcp = tcp_stream_connect(web_server_ip, server_port);
+	if (!tcp) {
+		printf("No free tcp streams\n");
+		net_set_state(NETLOOP_FAIL);
+		return;
+	}
+	tcp_stream_put(tcp);
 }
 
-#if (IS_ENABLED(CONFIG_CMD_DNS))
-int wget_with_dns(ulong dst_addr, char *uri)
+int wget_do_request(ulong dst_addr, char *uri)
 {
 	int ret;
 	char *s, *host_name, *file_name, *str_copy;
@@ -488,24 +368,32 @@ int wget_with_dns(ulong dst_addr, char *uri)
 	s = str_copy + strlen("http://");
 	host_name = strsep(&s, "/");
 	if (!s) {
-		log_err("Error: invalied uri, no file path\n");
 		ret = -EINVAL;
 		goto out;
 	}
 	file_name = s;
 
-	/* TODO: If the given uri has ip address for the http server, skip dns */
-	net_dns_resolve = host_name;
-	net_dns_env_var = "httpserverip";
-	if (net_loop(DNS) < 0) {
-		log_err("Error: dns lookup of %s failed, check setup\n", net_dns_resolve);
+	host_name = strsep(&host_name, ":");
+
+	if (string_to_ip(host_name).s_addr) {
+		s = host_name;
+	} else {
+#if IS_ENABLED(CONFIG_CMD_DNS)
+		net_dns_resolve = host_name;
+		net_dns_env_var = "httpserverip";
+		if (net_loop(DNS) < 0) {
+			ret = -EINVAL;
+			goto out;
+		}
+		s = env_get("httpserverip");
+		if (!s) {
+			ret = -EINVAL;
+			goto out;
+		}
+#else
 		ret = -EINVAL;
 		goto out;
-	}
-	s = env_get("httpserverip");
-	if (!s) {
-		ret = -EINVAL;
-		goto out;
+#endif
 	}
 
 	strlcpy(net_boot_file_name, s, sizeof(net_boot_file_name));
@@ -517,9 +405,8 @@ int wget_with_dns(ulong dst_addr, char *uri)
 out:
 	free(str_copy);
 
-	return ret;
+	return ret < 0 ? ret : 0;
 }
-#endif
 
 /**
  * wget_validate_uri() - validate the uri for wget

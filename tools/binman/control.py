@@ -526,7 +526,7 @@ def _RemoveTemplates(parent):
         if node.name.startswith('template'):
             node.Delete()
 
-def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
+def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded, indir):
     """Prepare the images to be processed and select the device tree
 
     This function:
@@ -543,6 +543,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
         use_expanded: True to use expanded versions of entries, if available.
             So if 'u-boot' is called for, we use 'u-boot-expanded' instead. This
             is needed if update_fdt is True (although tests may disable it)
+        indir: List of directories where input files can be found
 
     Returns:
         OrderedDict of images:
@@ -558,7 +559,9 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt, use_expanded):
     # Get the device tree ready by compiling it and copying the compiled
     # output into a file in our output directly. Then scan it for use
     # in binman.
-    dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
+    if indir is None:
+        indir = []
+    dtb_fname = fdt_util.EnsureCompiled(dtb_fname, indir=indir)
     fname = tools.get_output_filename('u-boot.dtb.out')
     tools.write_file(fname, tools.read_file(dtb_fname))
     dtb = fdt.FdtScan(fname)
@@ -846,7 +849,7 @@ def Binman(args):
             state.SetThreads(args.threads)
 
             images = PrepareImagesAndDtbs(dtb_fname, args.image,
-                                          args.update_fdt, use_expanded)
+                                          args.update_fdt, use_expanded, args.indir)
 
             if args.test_section_timeout:
                 # Set the first image to timeout, used in testThreadTimeout()

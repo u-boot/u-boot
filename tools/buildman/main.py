@@ -25,6 +25,7 @@ from buildman import cmdline
 from buildman import control
 from u_boot_pylib import test_util
 from u_boot_pylib import tools
+from u_boot_pylib import tout
 
 def run_tests(skip_net_tests, debug, verbose, args):
     """Run the buildman tests
@@ -93,8 +94,12 @@ def run_buildman():
 
     # Build selected commits for selected boards
     else:
-        bsettings.setup(args.config_file)
-        ret_code = control.do_buildman(args)
+        try:
+            tout.init(tout.INFO if args.verbose else tout.WARNING)
+            bsettings.setup(args.config_file)
+            ret_code = control.do_buildman(args)
+        finally:
+            tout.uninit()
         return ret_code
 
 

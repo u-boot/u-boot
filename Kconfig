@@ -596,27 +596,6 @@ config SYS_MEM_TOP_HIDE
 	  WARNING: Please make sure that this value is a multiple of the OS
 	  page size.
 
-config SYS_HAS_SRAM
-	bool
-	default y if TARGET_PIC32MZDASK
-	default y if TARGET_DEVKIT8000
-	help
-	  Enable this to allow support for the on board SRAM.
-	  SRAM base address is controlled by CONFIG_SYS_SRAM_BASE.
-	  SRAM size is controlled by CONFIG_SYS_SRAM_SIZE.
-
-config SYS_SRAM_BASE
-	hex
-	default 0x80000000 if TARGET_PIC32MZDASK
-	default 0x40200000 if TARGET_DEVKIT8000
-	default 0x0
-
-config SYS_SRAM_SIZE
-	hex
-	default 0x00080000 if TARGET_PIC32MZDASK
-	default 0x10000 if TARGET_DEVKIT8000
-	default 0x0
-
 config SYS_MONITOR_LEN
 	int "Maximum size in bytes reserved for U-Boot in memory"
 	default 1048576 if X86

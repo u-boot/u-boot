@@ -150,12 +150,12 @@ static void show_psci_version(void)
  * or for supporting quirky devices where it's easier to leave the downstream DT in place
  * to improve ABL compatibility. Otherwise, we use the DT provided by ABL.
  */
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
 	struct fdt_header *fdt;
 	bool internal_valid, external_valid;
+	int ret = 0;
 
-	*err = 0;
 	fdt = (struct fdt_header *)get_prev_bl_fdt_addr();
 	external_valid = fdt && !fdt_check_header(fdt);
 	internal_valid = !fdt_check_header(gd->fdt_blob);
@@ -170,10 +170,11 @@ void *board_fdt_blob_setup(int *err)
 
 	if (internal_valid) {
 		debug("Using built in FDT\n");
+		ret = -EEXIST;
 	} else {
 		debug("Using external FDT\n");
 		/* So we can use it before returning */
-		gd->fdt_blob = fdt;
+		*fdtp = fdt;
 	}
 
 	/*
@@ -182,7 +183,7 @@ void *board_fdt_blob_setup(int *err)
 	 */
 	qcom_parse_memory();
 
-	return (void *)gd->fdt_blob;
+	return ret;
 }
 
 void reset_cpu(void)

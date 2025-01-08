@@ -36,95 +36,94 @@
 #define RSWITCH_MAX_CTAG_PCP	7
 
 /* Registers */
-#define RSWITCH_COMA_OFFSET     0x00009000
-#define RSWITCH_ETHA_OFFSET     0x0000a000      /* with RMAC */
-#define RSWITCH_ETHA_SIZE       0x00002000      /* with RMAC */
+#define RSWITCH_COMA_OFFSET	0x00009000
+#define RSWITCH_ETHA_OFFSET	0x0000a000	/* with RMAC */
+#define RSWITCH_ETHA_SIZE	0x00002000	/* with RMAC */
 #define RSWITCH_GWCA_OFFSET	0x00010000
 #define RSWITCH_GWCA_SIZE	0x00002000
 
-#define FWRO    0
-#define CARO    RSWITCH_COMA_OFFSET
-#define GWRO    0
-#define TARO    0
-#define RMRO    0x1000
+#define FWRO			0
+#define CARO			RSWITCH_COMA_OFFSET
+#define GWRO			0
+#define TARO			0
+#define RMRO			0x1000
 
-enum rswitch_reg {
-	EAMC		= TARO + 0x0000,
-	EAMS		= TARO + 0x0004,
-	EATDQDC		= TARO + 0x0060,
-	EATTFC          = TARO + 0x0138,
-	EATASRIRM	= TARO + 0x03E4,
-
-	GWMC		= GWRO + 0x0000,
-	GWMS		= GWRO + 0x0004,
-	GWMTIRM		= GWRO + 0x0100,
-	GWVCC		= GWRO + 0x0130,
-	GWTTFC		= GWRO + 0x0138,
-	GWDCBAC0	= GWRO + 0x0194,
-	GWDCBAC1	= GWRO + 0x0198,
-	GWTRC		= GWRO + 0x0200,
-	GWARIRM		= GWRO + 0x0380,
-	GWDCC		= GWRO + 0x0400,
-
-	RRC		= CARO + 0x0004,
-	RCEC		= CARO + 0x0008,
-	RCDC		= CARO + 0x000C,
-	CABPIRM		= CARO + 0x0140,
-
-	FWPC0		= FWRO + 0x0100,
-	FWPBFC		= FWRO + 0x4A00,
-	FWPBFCSDC	= FWRO + 0x4A04,
-
-	MPSM		= RMRO + 0x0000,
-	MPIC		= RMRO + 0x0004,
-	MRMAC0		= RMRO + 0x0084,
-	MRMAC1		= RMRO + 0x0088,
-	MRAFC		= RMRO + 0x008C,
-	MRSCE		= RMRO + 0x0090,
-	MRSCP		= RMRO + 0x0094,
-	MLVC		= RMRO + 0x0180,
-	MLBC		= RMRO + 0x0188,
-	MXGMIIC		= RMRO + 0x0190,
-	MPCH		= RMRO + 0x0194,
-	MANM		= RMRO + 0x019C,
-	MMIS0		= RMRO + 0x0210,
-	MMIS1		= RMRO + 0x0220,
-};
+/* List of TSNA registers (ETHA) */
+#define EAMC			(TARO + 0x0000)
+#define EAMS			(TARO + 0x0004)
+#define EATDQDCR		(TARO + 0x0060)
+#define EATTFC			(TARO + 0x0138)
+#define EATASRIRM		(TARO + 0x03e4)
+/* Gateway CPU agent block (GWCA) */
+#define GWMC			(GWRO + 0x0000)
+#define GWMS			(GWRO + 0x0004)
+#define GWMTIRM			(GWRO + 0x0100)
+#define GWVCC			(GWRO + 0x0130)
+#define GWTTFC			(GWRO + 0x0138)
+#define GWDCBAC0		(GWRO + 0x0194)
+#define GWDCBAC1		(GWRO + 0x0198)
+#define GWTRCR			(GWRO + 0x0200)
+#define GWARIRM			(GWRO + 0x0380)
+#define GWDCCR			(GWRO + 0x0400)
+/* List of Common Agent registers (COMA) */
+#define RRC			(CARO + 0x0004)
+#define RCEC			(CARO + 0x0008)
+#define RCDC			(CARO + 0x000c)
+#define CABPIRM			(CARO + 0x0140)
+/* List of MFWD registers */
+#define FWPC			(FWRO + 0x0100)
+#define FWPBFCR			(FWRO + 0x4a00)
+#define FWPBFCSDCR		(FWRO + 0x4a04)
+/* List of RMAC registers (RMAC) */
+#define MPSM			(RMRO + 0x0000)
+#define MPIC			(RMRO + 0x0004)
+#define MRMAC0			(RMRO + 0x0084)
+#define MRMAC1			(RMRO + 0x0088)
+#define MRAFC			(RMRO + 0x008c)
+#define MRSCE			(RMRO + 0x0090)
+#define MRSCP			(RMRO + 0x0094)
+#define MLVC			(RMRO + 0x0180)
+#define MLBC			(RMRO + 0x0188)
+#define MXGMIIC			(RMRO + 0x0190)
+#define MPCH			(RMRO + 0x0194)
+#define MANM			(RMRO + 0x019c)
+#define MMIS0			(RMRO + 0x0210)
+#define MMIS1			(RMRO + 0x0220)
 
 /* COMA */
-#define RRC_RR		BIT(0)
-#define RCEC_RCE	BIT(16)
+#define RRC_RR			BIT(0)
+#define RCEC_RCE		BIT(16)
 
-#define CABPIRM_BPIOG	BIT(0)
-#define CABPIRM_BPR	BIT(1)
+#define CABPIRM_BPIOG		BIT(0)
+#define CABPIRM_BPR		BIT(1)
 
 /* MFWD */
-#define FWPC0(i)	(FWPC0 + (i) * 0x10)
-#define FWPC0_LTHTA     BIT(0)
-#define FWPC0_IP4UE     BIT(3)
-#define FWPC0_IP4TE     BIT(4)
-#define FWPC0_IP4OE     BIT(5)
-#define FWPC0_L2SE      BIT(9)
-#define FWPC0_IP4EA     BIT(10)
-#define FWPC0_IPDSA     BIT(12)
-#define FWPC0_IPHLA     BIT(18)
-#define FWPC0_MACSDA    BIT(20)
-#define FWPC0_MACHLA    BIT(26)
-#define FWPC0_MACHMA    BIT(27)
-#define FWPC0_VLANSA    BIT(28)
+#define FWPC0(i)		(FWPC + (i) * 0x10)
+#define FWPC0_LTHTA		BIT(0)
+#define FWPC0_IP4UE		BIT(3)
+#define FWPC0_IP4TE		BIT(4)
+#define FWPC0_IP4OE		BIT(5)
+#define FWPC0_L2SE		BIT(9)
+#define FWPC0_IP4EA		BIT(10)
+#define FWPC0_IPDSA		BIT(12)
+#define FWPC0_IPHLA		BIT(18)
+#define FWPC0_MACSDA		BIT(20)
+#define FWPC0_MACHLA		BIT(26)
+#define FWPC0_MACHMA		BIT(27)
+#define FWPC0_VLANSA		BIT(28)
 
-#define FWPC0_DEFAULT   (FWPC0_LTHTA | FWPC0_IP4UE | FWPC0_IP4TE | \
-			 FWPC0_IP4OE | FWPC0_L2SE | FWPC0_IP4EA | \
-			 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
-			 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
+#define FWPC0_DEFAULT		(FWPC0_LTHTA | FWPC0_IP4UE | FWPC0_IP4TE | \
+				 FWPC0_IP4OE | FWPC0_L2SE | FWPC0_IP4EA | \
+				 FWPC0_IPDSA | FWPC0_IPHLA | FWPC0_MACSDA | \
+				 FWPC0_MACHLA | FWPC0_MACHMA | FWPC0_VLANSA)
 
-#define FWPBFC(i)	(FWPBFC + (i) * 0x10)
-#define FWPBFCSDC(j, i)	(FWPBFCSDC + (i) * 0x10 + (j) * 0x04)
+#define FWPBFC(i)	(FWPBFCR + (i) * 0x10)
+#define FWPBFCSDC(j, i)	(FWPBFCSDCR + (i) * 0x10 + (j) * 0x04)
 
 /* ETHA */
 #define EATASRIRM_TASRIOG	BIT(0)
 #define EATASRIRM_TASRR		BIT(1)
-#define EATDQDC(q)		(EATDQDC + (q) * 0x04)
+#define EATDQDC(q)		(EATDQDCR + (q) * 0x04)
 #define EATDQDC_DQD		(0xff)
 
 /* RMAC */
@@ -149,8 +148,8 @@ enum rswitch_reg {
 #define MDIO_WRITE_C45		0x01
 #define MDIO_ADDR_C45		0x00
 
-#define MDIO_READ_C22           0x02
-#define MDIO_WRITE_C22          0x01
+#define MDIO_READ_C22		0x02
+#define MDIO_WRITE_C22		0x01
 
 #define MPSM_POP_MASK		(0x03 << 13)
 #define MPSM_PRA_MASK		(0x1f << 8)
@@ -189,8 +188,8 @@ enum rswitch_gwca_mode {
 #define GWARIRM_ARR		BIT(1)
 #define GWVCC_VEM_SC_TAG	(0x3 << 16)
 #define GWDCBAC0_DCBAUP		(0xff)
-#define GWTRC(i)		(GWTRC + (i) * 0x04)
-#define GWDCC(i)		(GWDCC + (i) * 0x04)
+#define GWTRC(i)		(GWTRCR + (i) * 0x04)
+#define GWDCC(i)		(GWDCCR + (i) * 0x04)
 #define	GWDCC_DQT		BIT(11)
 #define GWDCC_BALR		BIT(24)
 
@@ -356,15 +355,52 @@ static int rswitch_gwca_change_mode(struct rswitch_port_priv *priv,
 	return ret;
 }
 
+static int rswitch_mii_access_c22(struct rswitch_etha *etha, bool read,
+				  int phyad, int regad, int data)
+{
+	const u32 pop = read ? MDIO_READ_C22 : MDIO_WRITE_C22;
+	u32 val, pval;
+	int ret;
+
+	/* Clear Station Management Mode : Clause 22 */
+	clrbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
+
+	/* Clear completion flags */
+	writel(MMIS1_CLEAR_FLAGS, etha->addr + MMIS1);
+
+	/* Submit C22 access to PHY */
+	val = MPSM_PSME | (pop << 13) | (regad << 8) | (phyad << 3);
+	if (!read)
+		val |= data << 16;
+	writel(val, etha->addr + MPSM);
+
+	ret = readl_poll_sleep_timeout(etha->addr + MPSM, pval,
+				       !(pval & MPSM_PSME),
+				       RSWITCH_SLEEP_US,
+				       RSWITCH_TIMEOUT_US);
+	if (ret)
+		return ret;
+
+	if (!read)
+		return 0;
+
+	/* Read data */
+	ret = (readl(etha->addr + MPSM) & MPSM_PRD_MASK) >> 16;
+
+	/* Clear read completion flag */
+	setbits_le32(etha->addr + MMIS1, MMIS1_PRACS);
+
+	return ret;
+}
+
 static int rswitch_mii_access_c45(struct rswitch_etha *etha, bool read,
 				  int phyad, int devad, int regad, int data)
 {
 	u32 pval, val;
 	int ret;
 
-	/* No match device */
-	if (devad == 0xffffffff)
-		return 0;
+	/* Set Station Management Mode : Clause 45 */
+	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
 
 	/* Clear completion flags */
 	writel(MMIS1_CLEAR_FLAGS, etha->addr + MMIS1);
@@ -418,7 +454,6 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	struct rswitch_port_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
 	int val;
-	int reg;
 
 	/* Change to disable mode */
 	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
@@ -427,15 +462,17 @@ static int rswitch_mii_read_c45(struct mii_dev *miidev, int phyad, int devad, in
 	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
 
 	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
-
-	/* Set Station Management Mode : Clause 45 */
-	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
+	clrsetbits_le32(etha->addr + MPIC,
+			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
+			MPIC_MDC_CLK_SET);
 
 	/* Access PHY register */
-	val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
+		val = rswitch_mii_access_c45(etha, true, phyad, devad, regad, 0);
+	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+		val = rswitch_mii_access_c45(etha, true, phyad, 1, regad, 0);
+	else
+		val = rswitch_mii_access_c22(etha, true, phyad, regad, 0);
 
 	/* Disable Station Management Clock */
 	clrbits_le32(etha->addr + MPIC, MPIC_PSMCS_MASK);
@@ -450,7 +487,6 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 {
 	struct rswitch_port_priv *priv = miidev->priv;
 	struct rswitch_etha *etha = &priv->etha;
-	int reg;
 
 	/* Change to disable mode */
 	rswitch_etha_change_mode(priv, EAMC_OPC_DISABLE);
@@ -459,15 +495,17 @@ int rswitch_mii_write_c45(struct mii_dev *miidev, int phyad, int devad, int rega
 	rswitch_etha_change_mode(priv, EAMC_OPC_CONFIG);
 
 	/* Enable Station Management clock */
-	reg = readl(etha->addr + MPIC);
-	reg &= ~MPIC_PSMCS_MASK & ~MPIC_PSMHT_MASK;
-	writel(reg | MPIC_MDC_CLK_SET, etha->addr + MPIC);
-
-	/* Set Station Management Mode : Clause 45 */
-	setbits_le32(etha->addr + MPSM, MPSM_MFF_C45);
+	clrsetbits_le32(etha->addr + MPIC,
+			MPIC_PSMCS_MASK | MPIC_PSMHT_MASK,
+			MPIC_MDC_CLK_SET);
 
 	/* Access PHY register */
-	rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	if (devad != MDIO_DEVAD_NONE)	/* Definitelly C45 */
+		rswitch_mii_access_c45(etha, false, phyad, devad, regad, data);
+	else if (etha->phydev->is_c45)	/* C22 access to C45 PHY */
+		rswitch_mii_access_c45(etha, false, phyad, 1, regad, data);
+	else
+		rswitch_mii_access_c22(etha, false, phyad, regad, data);
 
 	/* Disable Station Management Clock */
 	clrbits_le32(etha->addr + MPIC, MPIC_PSMCS_MASK);

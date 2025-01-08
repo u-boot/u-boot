@@ -132,6 +132,20 @@ config SPL_ZYNQMP_RESTORE_JTAG
 	  even if no eFuses were burnt. This option restores the interface if
 	  possible.
 
+config BL31_LOAD_ADDR
+	hex "Load address of BL31 image (mostly TF-A)"
+	default 0xfffea000
+	help
+	  The load address for the BL31 image. This value is used to build the
+	  FIT image header that places BL31 in memory where it will run.
+
+config BL32_LOAD_ADDR
+	hex "Load address of BL32 image (mostly secure OS)"
+	default 0
+	help
+	  The load address for the BL32 image. This value is used to build the
+	  FIT image header that places BL32 in memory where it will run.
+
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 

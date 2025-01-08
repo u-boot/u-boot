@@ -351,6 +351,13 @@ config WDT_SBSA
 	   In the single stage mode, when the timeout is reached, your system
 	   will be reset by WS1. The first signal (WS0) is ignored.
 
+config WDT_SIEMENS_PMIC
+	bool "Enable PMIC Watchdog Timer support for Siemens platforms"
+	depends on ARCH_IMX8 && WDT
+	help
+	  Select this to enable the PMIC watchdog driver controlled via
+	  IMX8 SCU API found on Siemens platforms.
+
 config WDT_SL28CPLD
 	bool "sl28cpld watchdog timer support"
 	depends on WDT && SL28CPLD

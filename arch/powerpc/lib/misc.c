@@ -40,7 +40,7 @@ int arch_misc_init(void)
 
 			printf("WARNING: adjusting available memory from 0x%lx to 0x%llx\n",
 			       size, (unsigned long long)bootm_size);
-			lmb_reserve(base, bootm_size - size);
+			lmb_reserve(base, bootm_size - size, LMB_NONE);
 		}
 
 #ifdef CONFIG_MP

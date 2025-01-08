@@ -216,9 +216,6 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 		req_type = readl(ddrss->ddrss_ctrl_mmr +
 				 CTRLMMR_DDR4_FSP_CLKCHNG_REQ_OFFS + ddrss->instance * 0x10) & 0x03;
 
-		debug("%s: received freq change req: req type = %d, req no. = %d, instance = %d\n",
-		      __func__, req_type, counter, ddrss->instance);
-
 		if (req_type == 1)
 			clk_set_rate(&ddrss->ddr_clk, ddrss->ddr_freq1);
 		else if (req_type == 2)
@@ -244,8 +241,6 @@ static void k3_lpddr4_freq_update(struct k3_ddrss_desc *ddrss)
 static void k3_lpddr4_ack_freq_upd_req(const lpddr4_privatedata *pd)
 {
 	struct k3_ddrss_desc *ddrss = (struct k3_ddrss_desc *)pd->ddr_instance;
-
-	debug("--->>> LPDDR4 Initialization is in progress ... <<<---\n");
 
 	switch (ddrss->dram_class) {
 	case DENALI_CTL_0_DRAM_CLASS_DDR4:

@@ -1456,8 +1456,8 @@ static int write_pages(struct twriter *tw, enum out_format_t out_format,
 				}
 				tw->ptr += tputl(fout, 0);	/* overrun */
 				tw->ptr += tputq(fout, 0);	/* calltime */
-				/* rettime */
-				tw->ptr += tputq(fout, func_duration);
+				/* rettime (nanoseconds) */
+				tw->ptr += tputq(fout, func_duration * 1000);
 			}
 		}
 

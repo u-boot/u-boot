@@ -44,6 +44,7 @@
 		mmc5 = "/mmc5";
 		mmc6 = "/mmc6";
 		mmc7 = "/mmc7";
+		mmc8 = "/mmc8";
 		pci0 = &pci0;
 		pci1 = &pci1;
 		pci2 = &pci2;
@@ -101,11 +102,12 @@
 			bootscr-ram-offset = /bits/ 64 <0x12345678>;
 			bootscr-flash-offset = /bits/ 64 <0>;
 			bootscr-flash-size = /bits/ 64 <0x2000>;
-			boot-led = "sandbox:green";
-			activity-led = "sandbox:red";
+			boot-led = <&sandbox_led_green>;
+			activity-led = <&sandbox_led_red>;
 			testing-bool;
 			testing-int = <123>;
 			testing-str = "testing";
+			testing-phandle = <&phandle_node_1>;
 		};
 	};
 
@@ -296,6 +298,12 @@
 		compatible = "sandbox,dsi-host";
 	};
 
+	phandle_node_1: phandle-node-1 {
+	};
+
+	phandle_node_2: phandle-node-2 {
+	};
+
 	a-test {
 		reg = <0 1>;
 		compatible = "denx,u-boot-fdt-test";
@@ -334,6 +342,7 @@
 		interrupts-extended = <&irq 3 0>;
 		acpi,name = "GHIJ";
 		phandle-value = <&gpio_c 10>, <0xFFFFFFFF 20>, <&gpio_a 30>;
+		phandle-nodes = <&phandle_node_1>, <&phandle_node_2>;
 
 		mux-controls = <&muxcontroller0 0>, <&muxcontroller0 1>,
 			       <&muxcontroller0 2>, <&muxcontroller0 3>,
@@ -980,12 +989,12 @@
 	leds {
 		compatible = "gpio-leds";
 
-		iracibble {
+		sandbox_led_red: iracibble {
 			gpios = <&gpio_a 1 0>;
 			label = "sandbox:red";
 		};
 
-		martinet {
+		sandbox_led_green: martinet {
 			gpios = <&gpio_a 2 0>;
 			label = "sandbox:green";
 		};
@@ -1138,11 +1147,18 @@
 		filename = "mmc6.img";
 	};
 
-	/* This is used for Android tests */
+	/* This is used for Android boot image v4 tests */
 	mmc7 {
 		status = "disabled";
 		compatible = "sandbox,mmc";
 		filename = "mmc7.img";
+	};
+
+	/* This is used for Android boot image v2 tests. */
+	mmc8 {
+		status = "disabled";
+		compatible = "sandbox,mmc";
+		filename = "mmc8.img";
 	};
 
 	pch {

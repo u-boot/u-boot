@@ -243,25 +243,22 @@ static enum pcb_rev_t get_pcb_revision(void)
 
 static void select_dt_from_module_version(void)
 {
-	env_set("soc", "imx8qm");
-	env_set("variant", "-v1.1");
+	if (get_pcb_revision() == PCB_VERSION_1_0)
+		env_set("variant", "");
+	else
+		env_set("variant", "-v1.1");
 
 	switch (tdx_hw_tag.prodid) {
-	/* Select Apalis iMX8QM device trees */
-	case APALIS_IMX8QM_IT:
-	case APALIS_IMX8QM_WIFI_BT_IT:
-	case APALIS_IMX8QM_8GB_WIFI_BT_IT:
-		if (get_pcb_revision() == PCB_VERSION_1_0)
-			env_set("variant", "");
-		break;
 	/* Select Apalis iMX8QP device trees */
 	case APALIS_IMX8QP_WIFI_BT:
 	case APALIS_IMX8QP:
+	case APALIS_IMX8QP_WIFI_BT_1300MHZ:
+	case APALIS_IMX8QP_1300MHZ:
 		env_set("soc", "imx8qp");
 		break;
 	default:
-		printf("Unknown Apalis iMX8 module\n");
-		return;
+		env_set("soc", "imx8qm");
+		break;
 	}
 }
 

@@ -5,13 +5,3 @@
  */
 
 #include "k3-am62-lp-sk-binman.dtsi"
-
-/ {
-	chosen {
-		tick-timer = &main_timer0;
-	};
-};
-
-&main_timer0 {
-	clock-frequency = <25000000>;
-};

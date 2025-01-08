@@ -8,7 +8,7 @@ LDFLAGS_FINAL += --bss-plt
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections \
 -fdata-sections -mcall-linux
 
-PF_CPPFLAGS_POWERPC	:= $(call cc-option,-fno-ira-hoist-pressure,)
+PF_CPPFLAGS_POWERPC	:= $(call cc-option,-fno-ira-hoist-pressure,) $(call cc-option,-Xassembler --fatal-warnings,)
 PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2 -m32 $(PF_CPPFLAGS_POWERPC)
 KBUILD_LDFLAGS  += -m32 -melf32ppclinux
 

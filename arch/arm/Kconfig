@@ -7,6 +7,7 @@ config SYS_ARCH
 config ARM64
 	bool
 	select 64BIT
+	select SPL_64BIT if SPL
 	select PHYS_64BIT
 	select SYS_CACHE_SHIFT_6
 	imply SPL_SEPARATE_BSS
@@ -1177,7 +1178,6 @@ config ARCH_SUNXI
 	select SUNXI_GPIO
 	select SYS_NS16550
 	select SYS_THUMB_BUILD if !ARM64
-	select USB if DISTRO_DEFAULTS
 	select USB_KEYBOARD if DISTRO_DEFAULTS && USB_HOST
 	select USB_STORAGE if DISTRO_DEFAULTS && USB_HOST
 	select SPL_USE_TINY_PRINTF if SPL
@@ -1203,6 +1203,7 @@ config ARCH_SUNXI
 	imply SYSRESET
 	imply SYSRESET_WATCHDOG
 	imply SYSRESET_WATCHDOG_AUTO
+	imply USB
 	imply USB_GADGET
 	imply WDT
 
@@ -1324,6 +1325,7 @@ config ARCH_ZYNQMP_R5
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
 	select ARM64
+	select BINMAN
 	select CLK
 	select DM
 	select DEBUG_UART_BOARD_INIT if SPL && DEBUG_UART

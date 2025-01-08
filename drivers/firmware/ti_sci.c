@@ -3077,6 +3077,7 @@ U_BOOT_DRIVER(ti_sci) = {
 	.of_match = ti_sci_ids,
 	.probe = ti_sci_probe,
 	.priv_auto	= sizeof(struct ti_sci_info),
+	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #if IS_ENABLED(CONFIG_K3_DM_FW)

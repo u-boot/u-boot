@@ -975,6 +975,18 @@ config MEDIATEK_ETH
 	  This Driver support MediaTek Ethernet GMAC
 	  Say Y to enable support for the MediaTek Ethernet GMAC.
 
+if MEDIATEK_ETH
+
+config MTK_ETH_SGMII
+	bool
+	default y if ARCH_MEDIATEK && !TARGET_MT7623
+
+config MTK_ETH_XGMII
+	bool
+	default y if TARGET_MT7987 || TARGET_MT7988
+
+endif # MEDIATEK_ETH
+
 config HIFEMAC_ETH
 	bool "HiSilicon Fast Ethernet Controller"
 	select DM_CLK
@@ -1006,6 +1018,12 @@ config FSL_ENETC
 	help
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.
+
+config MDIO_GPIO_BITBANG
+	bool "GPIO bitbanging MDIO driver"
+	depends on DM_MDIO && DM_GPIO
+	help
+	 Driver for bitbanging MDIO
 
 config MDIO_MUX_I2CREG
 	bool "MDIO MUX accessed as a register over I2C"

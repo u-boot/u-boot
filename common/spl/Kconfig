@@ -751,6 +751,7 @@ config SPL_FS_LOAD_PAYLOAD_NAME
 	depends on SPL_FS_EXT4 || SPL_FS_FAT || SPL_FS_SQUASHFS || SPL_SEMIHOSTING
 	default "tispl.bin" if SYS_K3_SPL_ATF
 	default "u-boot.itb" if SPL_LOAD_FIT
+	default "linux.itb" if SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	default "u-boot.img"
 	help
 	  Filename to read to load U-Boot when reading from filesystem.

@@ -54,15 +54,8 @@ config TARGET_COLIBRI_IMX8X
 	select BOARD_LATE_INIT
 	select IMX8QXP
 
-config TARGET_DENEB
-	bool "Support i.MX8QXP Capricorn Deneb board"
-	select BINMAN
-	select BOARD_LATE_INIT
-	select FACTORYSET
-	select IMX8QXP
-
-config TARGET_GIEDI
-	bool "Support i.MX8QXP Capricorn Giedi board"
+config TARGET_CAPRICORN
+	bool "Support i.MX8QXP Capricorn board"
 	select BINMAN
 	select BOARD_LATE_INIT
 	select FACTORYSET

@@ -568,12 +568,9 @@ static void atmel_nfc_copy_to_sram(struct nand_chip *chip, const u8 *buf,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_hsmc_nand_controller *nc;
-	int ret = -EIO;
 
 	nc = to_hsmc_nand_controller(nand->controller);
-
-	if (ret)
-		memcpy_toio(nc->sram.virt, buf, mtd->writesize);
+	memcpy_toio(nc->sram.virt, buf, mtd->writesize);
 
 	if (oob_required)
 		memcpy_toio(nc->sram.virt + mtd->writesize, chip->oob_poi,
@@ -586,12 +583,9 @@ static void atmel_nfc_copy_from_sram(struct nand_chip *chip, u8 *buf,
 	struct mtd_info *mtd = nand_to_mtd(chip);
 	struct atmel_nand *nand = to_atmel_nand(chip);
 	struct atmel_hsmc_nand_controller *nc;
-	int ret = -EIO;
 
 	nc = to_hsmc_nand_controller(nand->controller);
-
-	if (ret)
-		memcpy_fromio(buf, nc->sram.virt, mtd->writesize);
+	memcpy_fromio(buf, nc->sram.virt, mtd->writesize);
 
 	if (oob_required)
 		memcpy_fromio(chip->oob_poi, nc->sram.virt + mtd->writesize,
@@ -2205,17 +2199,10 @@ static const struct udevice_id atmel_nand_controller_of_ids[] = {
 static int atmel_nand_controller_probe(struct udevice *dev)
 {
 	const struct atmel_nand_controller_caps *caps;
-	struct udevice *pmecc_dev;
 
 	caps = (struct atmel_nand_controller_caps *)dev_get_driver_data(dev);
 	if (!caps) {
 		printf("Could not retrieve NFC caps\n");
-		return -EINVAL;
-	}
-
-	/* Probe pmecc driver */
-	if (uclass_get_device(UCLASS_MTD, 1, &pmecc_dev)) {
-		printf("%s: get device fail\n", __func__);
 		return -EINVAL;
 	}
 

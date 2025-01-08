@@ -21,6 +21,7 @@ obj-$(CONFIG_$(PHASE_)INPUT) += input/
 obj-$(CONFIG_$(PHASE_)LED) += led/
 obj-$(CONFIG_$(PHASE_)MMC) += mmc/
 obj-y += mtd/
+obj-$(CONFIG_MULTIPLEXER) += mux/
 obj-$(CONFIG_$(PHASE_)ETH) += net/
 obj-$(CONFIG_$(PHASE_)PCH) += pch/
 obj-$(CONFIG_$(PHASE_)PCI) += pci/

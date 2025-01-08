@@ -149,11 +149,12 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
-	*err = 0;
 	/* QEMU loads a generated DTB for us at the start of RAM. */
-	return (void *)CFG_SYS_SDRAM_BASE;
+	*fdtp = (void *)CFG_SYS_SDRAM_BASE;
+
+	return 0;
 }
 
 void enable_caches(void)

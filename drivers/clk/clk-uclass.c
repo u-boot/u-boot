@@ -569,8 +569,20 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 		return 0;
 	ops = clk_dev_ops(clk->dev);
 
-	if (!ops->set_rate)
-		return -ENOSYS;
+	/* Try to find parents which can set rate */
+	while (!ops->set_rate) {
+		struct clk *parent;
+
+		if (!(clk->flags & CLK_SET_RATE_PARENT))
+			return -ENOSYS;
+
+		parent = clk_get_parent(clk);
+		if (IS_ERR_OR_NULL(parent) || !clk_valid(parent))
+			return -ENODEV;
+
+		clk = parent;
+		ops = clk_dev_ops(clk->dev);
+	}
 
 	/* get private clock struct used for cache */
 	clk_get_priv(clk, &clkp);

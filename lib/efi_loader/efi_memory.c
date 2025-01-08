@@ -472,7 +472,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = (u64)lmb_alloc_base_flags(len, EFI_PAGE_SIZE,
+		addr = (u64)lmb_alloc_base(len, EFI_PAGE_SIZE,
 						 LMB_ALLOC_ANYWHERE, flags);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
@@ -480,7 +480,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
 		addr = map_to_sysmem((void *)(uintptr_t)*memory);
-		addr = (u64)lmb_alloc_base_flags(len, EFI_PAGE_SIZE, addr,
+		addr = (u64)lmb_alloc_base(len, EFI_PAGE_SIZE, addr,
 						 flags);
 		if (!addr)
 			return EFI_OUT_OF_RESOURCES;
@@ -490,7 +490,7 @@ efi_status_t efi_allocate_pages(enum efi_allocate_type type,
 			return EFI_NOT_FOUND;
 
 		addr = map_to_sysmem((void *)(uintptr_t)*memory);
-		addr = (u64)lmb_alloc_addr_flags(addr, len, flags);
+		addr = (u64)lmb_alloc_addr(addr, len, flags);
 		if (!addr)
 			return EFI_NOT_FOUND;
 		break;

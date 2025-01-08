@@ -196,6 +196,8 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_WGET)
 static int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 {
+	wget_info = &default_wget_info;
+
 	return netboot_common(WGET, cmdtp, argc, argv);
 }
 

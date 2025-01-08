@@ -21,6 +21,7 @@ struct toradex_eth_addr {
 } __attribute__((__packed__));
 
 struct toradex_som {
+	int pid4;
 	const char *name;
 	int is_enabled;
 };
@@ -116,6 +117,11 @@ enum {
 	AQUILA_AM69O_32G_WIFI_BT_IT,
 	VERDIN_IMX95H_16G_WIFI_BT_IT,
 	VERDIN_IMX8MMQ_4G_WIFI_BT_ET, /* 90 */
+	APALIS_IMX8QM_WIFI_BT_IT_1300MHZ,
+	APALIS_IMX8QM_IT_1300MHZ,
+	APALIS_IMX8QP_WIFI_BT_1300MHZ,
+	APALIS_IMX8QP_1300MHZ,
+	APALIS_IMX8QM_8GB_WIFI_BT_IT_1300MHZ, /* 95 */
 };
 
 enum {
@@ -139,6 +145,7 @@ extern u32 tdx_car_serial;
 
 int read_tdx_cfg_block(void);
 int read_tdx_cfg_block_carrier(void);
+int get_toradex_modules_idx(int pid4);
 const char * const get_toradex_carrier_boards(int pid4);
 const char * const get_toradex_display_adapters(int pid4);
 int try_migrate_tdx_cfg_block_carrier(void);

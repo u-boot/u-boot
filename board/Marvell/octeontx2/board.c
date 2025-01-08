@@ -234,7 +234,8 @@ static int do_go_uboot(struct cmd_tbl *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	addr = hextoul(argv[1], NULL);
-	fdt = board_fdt_blob_setup(&err);
+	fdt = (void *)gd->fdt_blob;
+	err = board_fdt_blob_setup(&fdt);
 	entry = (uboot_entry_t)addr;
 	flush_cache((ulong)addr, 1 << 20);	/* 1MiB should be enough */
 	dcache_disable();

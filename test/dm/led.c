@@ -144,7 +144,7 @@ static int dm_test_led_boot(struct unit_test_state *uts)
 {
 	struct udevice *dev
 
-	/* options/u-boot/boot-led is set to "sandbox:green" */
+	/* options/u-boot/boot-led is set to phandle to "sandbox:green" */
 	ut_assertok(led_get_by_label("sandbox:green", &dev));
 	ut_asserteq(LEDST_OFF, led_get_state(dev));
 	ut_assertok(led_boot_on());
@@ -154,14 +154,15 @@ static int dm_test_led_boot(struct unit_test_state *uts)
 
 	return 0;
 }
+DM_TEST(dm_test_led_boot, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test LED boot blink fallback */
 #ifndef CONFIG_LED_BLINK
-static int dm_test_led_boot(struct unit_test_state *uts)
+static int dm_test_led_boot_blink(struct unit_test_state *uts)
 {
 	struct udevice *dev
 
-	/* options/u-boot/boot-led is set to "sandbox:green" */
+	/* options/u-boot/boot-led is set to phandle to "sandbox:green" */
 	ut_assertok(led_get_by_label("sandbox:green", &dev));
 	ut_asserteq(LEDST_OFF, led_get_state(dev));
 	ut_assertok(led_boot_blink());
@@ -171,16 +172,17 @@ static int dm_test_led_boot(struct unit_test_state *uts)
 
 	return 0;
 }
+DM_TEST(dm_test_led_boot_blink, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #endif
 #endif
 
 /* Test LED activity */
 #ifdef CONFIG_LED_ACTIVITY
-static int dm_test_led_boot(struct unit_test_state *uts)
+static int dm_test_led_activity(struct unit_test_state *uts)
 {
 	struct udevice *dev
 
-	/* options/u-boot/activity-led is set to "sandbox:red" */
+	/* options/u-boot/activity-led is set to phandle to "sandbox:red" */
 	ut_assertok(led_get_by_label("sandbox:red", &dev));
 	ut_asserteq(LEDST_OFF, led_get_state(dev));
 	ut_assertok(led_activity_on());
@@ -190,14 +192,15 @@ static int dm_test_led_boot(struct unit_test_state *uts)
 
 	return 0;
 }
+DM_TEST(dm_test_led_activity, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
 /* Test LED activity blink fallback */
 #ifndef CONFIG_LED_BLINK
-static int dm_test_led_boot(struct unit_test_state *uts)
+static int dm_test_led_activityt_blink(struct unit_test_state *uts)
 {
 	struct udevice *dev
 
-	/* options/u-boot/activity-led is set to "sandbox:red" */
+	/* options/u-boot/activity-led is set to phandle to "sandbox:red" */
 	ut_assertok(led_get_by_label("sandbox:red", &dev));
 	ut_asserteq(LEDST_OFF, led_get_state(dev));
 	ut_assertok(led_activity_blink());
@@ -207,5 +210,6 @@ static int dm_test_led_boot(struct unit_test_state *uts)
 
 	return 0;
 }
+DM_TEST(dm_test_led_activityt_blink, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 #endif
 #endif

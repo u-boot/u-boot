@@ -60,6 +60,8 @@ CONFIG_NO_NET=y
 # CONFIG_DM_MAILBOX is not set
 # CONFIG_MMC is not set
 CONFIG_ARM_DCC=y
+# CONFIG_BINMAN_FDT is not set
+CONFIG_BINMAN_DTB="./arch/arm/dts/zynqmp-binman-mini.dtb"
 CONFIG_PANIC_HANG=y
 # CONFIG_GZIP is not set
 # CONFIG_LMB is not set

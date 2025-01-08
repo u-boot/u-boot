@@ -460,8 +460,8 @@ int ndisc_receive(struct ethernet_hdr *et, struct ip6_hdr *ip6, int len)
 			ndisc_extract_enetaddr(ndisc, neigh_eth_addr);
 
 			/* save address for later use */
-			if (!net_nd_packet_mac)
-				net_nd_packet_mac = neigh_eth_addr;
+			if (net_nd_packet_mac)
+				memcpy(net_nd_packet_mac, neigh_eth_addr, 6);
 
 			/* modify header, and transmit it */
 			memcpy(((struct ethernet_hdr *)net_nd_tx_packet)->et_dest,

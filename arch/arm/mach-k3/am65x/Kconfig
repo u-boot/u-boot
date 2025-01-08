@@ -16,6 +16,7 @@ config TARGET_AM654_A53_EVM
 	select BOARD_LATE_INIT
 	select BINMAN
 	imply TI_I2C_BOARD_DETECT
+	select OF_UPSTREAM
 
 config TARGET_AM654_R5_EVM
 	bool "TI K3 based AM654 EVM running on R5"

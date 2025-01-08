@@ -70,97 +70,100 @@ struct toradex_hw tdx_car_hw_tag;
 #define TARGET_IS_ENABLED(x) IS_ENABLED(CONFIG_TARGET_ ## x)
 
 const struct toradex_som toradex_modules[] = {
-	 [0] = { "UNKNOWN MODULE",                       0                                  },
-	 [1] = { "Colibri PXA270 312MHz",                0                                  },
-	 [2] = { "Colibri PXA270 520MHz",                0                                  },
-	 [3] = { "Colibri PXA320 806MHz",                0                                  },
-	 [4] = { "Colibri PXA300 208MHz",                0                                  },
-	 [5] = { "Colibri PXA310 624MHz",                0                                  },
-	 [6] = { "Colibri PXA320IT 806MHz",              0                                  },
-	 [7] = { "Colibri PXA300 208MHz XT",             0                                  },
-	 [8] = { "Colibri PXA270 312MHz",                0                                  },
-	 [9] = { "Colibri PXA270 520MHz",                0                                  },
-	[10] = { "Colibri VF50 128MB",                   TARGET_IS_ENABLED(COLIBRI_VF)      },
-	[11] = { "Colibri VF61 256MB",                   TARGET_IS_ENABLED(COLIBRI_VF)      },
-	[12] = { "Colibri VF61 256MB IT",                TARGET_IS_ENABLED(COLIBRI_VF)      },
-	[13] = { "Colibri VF50 128MB IT",                TARGET_IS_ENABLED(COLIBRI_VF)      },
-	[14] = { "Colibri iMX6S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[15] = { "Colibri iMX6DL 512MB",                 TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[16] = { "Colibri iMX6S 256MB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[17] = { "Colibri iMX6DL 512MB IT",              TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[18] = { "UNKNOWN MODULE",                       0                                  },
-	[19] = { "UNKNOWN MODULE",                       0                                  },
-	[20] = { "Colibri T20 256MB",                    TARGET_IS_ENABLED(COLIBRI_T20)     },
-	[21] = { "Colibri T20 512MB",                    TARGET_IS_ENABLED(COLIBRI_T20)     },
-	[22] = { "Colibri T20 512MB IT",                 TARGET_IS_ENABLED(COLIBRI_T20)     },
-	[23] = { "Colibri T30 1GB",                      TARGET_IS_ENABLED(COLIBRI_T30)     },
-	[24] = { "Colibri T20 256MB IT",                 TARGET_IS_ENABLED(COLIBRI_T20)     },
-	[25] = { "Apalis T30 2GB",                       TARGET_IS_ENABLED(APALIS_T30)      },
-	[26] = { "Apalis T30 1GB",                       TARGET_IS_ENABLED(APALIS_T30)      },
-	[27] = { "Apalis iMX6Q 1GB",                     TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[28] = { "Apalis iMX6Q 2GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[29] = { "Apalis iMX6D 512MB",                   TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[30] = { "Colibri T30 1GB IT",                   TARGET_IS_ENABLED(COLIBRI_T30)     },
-	[31] = { "Apalis T30 1GB IT",                    TARGET_IS_ENABLED(APALIS_T30)      },
-	[32] = { "Colibri iMX7S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
-	[33] = { "Colibri iMX7D 512MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
-	[34] = { "Apalis TK1 2GB",                       TARGET_IS_ENABLED(APALIS_TK1)      },
-	[35] = { "Apalis iMX6D 1GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[36] = { "Colibri iMX6ULL 256MB",                TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
-	[37] = { "Apalis iMX8QM 4GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[38] = { "Colibri iMX8QXP 2GB WB IT",            TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
-	[39] = { "Colibri iMX7D 1GB",                    TARGET_IS_ENABLED(COLIBRI_IMX7)    },
-	[40] = { "Colibri iMX6ULL 512MB WB IT",          TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
-	[41] = { "Colibri iMX7D 512MB EPDC",             TARGET_IS_ENABLED(COLIBRI_IMX7)    },
-	[42] = { "Apalis TK1 4GB",                       TARGET_IS_ENABLED(APALIS_TK1)      },
-	[43] = { "Colibri T20 512MB IT SETEK",           TARGET_IS_ENABLED(COLIBRI_T20)     },
-	[44] = { "Colibri iMX6ULL 512MB IT",             TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
-	[45] = { "Colibri iMX6ULL 512MB WB",             TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
-	[46] = { "Apalis iMX8QXP 2GB WB IT",             0                                  },
-	[47] = { "Apalis iMX8QM 4GB IT",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[48] = { "Apalis iMX8QP 2GB WB",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[49] = { "Apalis iMX8QP 2GB",                    TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[50] = { "Colibri iMX8QXP 2GB IT",               TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
-	[51] = { "Colibri iMX8DX 1GB WB",                TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
-	[52] = { "Colibri iMX8DX 1GB",                   TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
-	[53] = { "Apalis iMX8QXP 2GB ECC IT",            0                                  },
-	[54] = { "Apalis iMX8DXP 1GB",                   TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[55] = { "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[56] = { "Verdin iMX8M Nano Quad 1GB WB",        0                                  },
-	[57] = { "Verdin iMX8M Mini DualLite 1GB",       TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[58] = { "Verdin iMX8M Plus Quad 4GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[59] = { "Verdin iMX8M Mini Quad 2GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[60] = { "Verdin iMX8M Mini DualLite 1GB WB IT", TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[61] = { "Verdin iMX8M Plus Quad 2GB",           TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[62] = { "Colibri iMX6ULL 1GB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
-	[63] = { "Verdin iMX8M Plus Quad 4GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[64] = { "Verdin iMX8M Plus Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[65] = { "Verdin iMX8M Plus QuadLite 1GB IT",    TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[66] = { "Verdin iMX8M Plus Quad 8GB WB",        TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[67] = { "Apalis iMX8QM 8GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
-	[68] = { "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[69] = { "Verdin AM62 Quad 1GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[70] = { "Verdin iMX8M Plus Quad 8GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
-	[71] = { "Verdin AM62 Solo 512MB",               TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[72] = { "Verdin AM62 Solo 512MB WB IT",         TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[73] = { "Verdin AM62 Dual 1GB ET",              TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[74] = { "Verdin AM62 Dual 1GB IT",              TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[75] = { "Verdin AM62 Dual 1GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[76] = { "Verdin AM62 Quad 2GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
-	[77] = { "Colibri iMX6S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[78] = { "Colibri iMX6S 256MB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[79] = { "Colibri iMX6DL 512MB",                 TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[80] = { "Colibri iMX6DL 512MB IT",              TARGET_IS_ENABLED(COLIBRI_IMX6)    },
-	[81] = { "Colibri iMX7D 512MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
-	[82] = { "Apalis iMX6D 512MB",                   TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[83] = { "Apalis iMX6Q 1GB",                     TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[84] = { "Apalis iMX6D 1GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[85] = { "Apalis iMX6Q 2GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
-	[86] = { "Verdin iMX8M Mini DualLite 2GB IT",    TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[87] = { "Verdin iMX8M Mini Quad 2GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
-	[88] = { "Aquila AM69 Octa 32GB WB IT",          TARGET_IS_ENABLED(AQUILA_AM69_A72) },
-	[89] = { "Verdin iMX95 Hexa 16GB WB IT",         TARGET_IS_ENABLED(VERDIN_IMX95)    },
-	[90] = { "Verdin iMX8M Mini Quad 4GB WB ET",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ 0,                                     "UNKNOWN MODULE",                       0                                  },
+	{ COLIBRI_PXA270_V1_312MHZ,              "Colibri PXA270 312MHz",                0                                  },
+	{ COLIBRI_PXA270_V1_520MHZ,              "Colibri PXA270 520MHz",                0                                  },
+	{ COLIBRI_PXA320,                        "Colibri PXA320 806MHz",                0                                  },
+	{ COLIBRI_PXA300,                        "Colibri PXA300 208MHz",                0                                  },
+	{ COLIBRI_PXA310,                        "Colibri PXA310 624MHz",                0                                  },
+	{ COLIBRI_PXA320_IT,                     "Colibri PXA320IT 806MHz",              0                                  },
+	{ COLIBRI_PXA300_XT,                     "Colibri PXA300 208MHz XT",             0                                  },
+	{ COLIBRI_PXA270_312MHZ,                 "Colibri PXA270 312MHz",                0                                  },
+	{ COLIBRI_PXA270_520MHZ,                 "Colibri PXA270 520MHz",                0                                  },
+	{ COLIBRI_VF50,                          "Colibri VF50 128MB",                   TARGET_IS_ENABLED(COLIBRI_VF)      },
+	{ COLIBRI_VF61,                          "Colibri VF61 256MB",                   TARGET_IS_ENABLED(COLIBRI_VF)      },
+	{ COLIBRI_VF61_IT,                       "Colibri VF61 256MB IT",                TARGET_IS_ENABLED(COLIBRI_VF)      },
+	{ COLIBRI_VF50_IT,                       "Colibri VF50 128MB IT",                TARGET_IS_ENABLED(COLIBRI_VF)      },
+	{ COLIBRI_IMX6S,                         "Colibri iMX6S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6DL,                        "Colibri iMX6DL 512MB",                 TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6S_IT,                      "Colibri iMX6S 256MB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6DL_IT,                     "Colibri iMX6DL 512MB IT",              TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_T20_256MB,                     "Colibri T20 256MB",                    TARGET_IS_ENABLED(COLIBRI_T20)     },
+	{ COLIBRI_T20_512MB,                     "Colibri T20 512MB",                    TARGET_IS_ENABLED(COLIBRI_T20)     },
+	{ COLIBRI_T20_512MB_IT,                  "Colibri T20 512MB IT",                 TARGET_IS_ENABLED(COLIBRI_T20)     },
+	{ COLIBRI_T30,                           "Colibri T30 1GB",                      TARGET_IS_ENABLED(COLIBRI_T30)     },
+	{ COLIBRI_T20_256MB_IT,                  "Colibri T20 256MB IT",                 TARGET_IS_ENABLED(COLIBRI_T20)     },
+	{ APALIS_T30_2GB,                        "Apalis T30 2GB",                       TARGET_IS_ENABLED(APALIS_T30)      },
+	{ APALIS_T30_1GB,                        "Apalis T30 1GB",                       TARGET_IS_ENABLED(APALIS_T30)      },
+	{ APALIS_IMX6Q,                          "Apalis iMX6Q 1GB",                     TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ APALIS_IMX6Q_IT,                       "Apalis iMX6Q 2GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ APALIS_IMX6D,                          "Apalis iMX6D 512MB",                   TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ COLIBRI_T30_IT,                        "Colibri T30 1GB IT",                   TARGET_IS_ENABLED(COLIBRI_T30)     },
+	{ APALIS_T30_IT,                         "Apalis T30 1GB IT",                    TARGET_IS_ENABLED(APALIS_T30)      },
+	{ COLIBRI_IMX7S,                         "Colibri iMX7S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	{ COLIBRI_IMX7D,                         "Colibri iMX7D 512MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	{ APALIS_TK1_2GB,                        "Apalis TK1 2GB",                       TARGET_IS_ENABLED(APALIS_TK1)      },
+	{ APALIS_IMX6D_IT,                       "Apalis iMX6D 1GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ COLIBRI_IMX6ULL,                       "Colibri iMX6ULL 256MB",                TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	{ APALIS_IMX8QM_WIFI_BT_IT,              "Apalis iMX8QM 4GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ COLIBRI_IMX8QXP_WIFI_BT_IT,            "Colibri iMX8QXP 2GB WB IT",            TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	{ COLIBRI_IMX7D_EMMC,                    "Colibri iMX7D 1GB",                    TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	{ COLIBRI_IMX6ULL_WIFI_BT_IT,            "Colibri iMX6ULL 512MB WB IT",          TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	{ COLIBRI_IMX7D_EPDC,                    "Colibri iMX7D 512MB EPDC",             TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	{ APALIS_TK1_4GB,                        "Apalis TK1 4GB",                       TARGET_IS_ENABLED(APALIS_TK1)      },
+	{ COLIBRI_T20_512MB_IT_SETEK,            "Colibri T20 512MB IT SETEK",           TARGET_IS_ENABLED(COLIBRI_T20)     },
+	{ COLIBRI_IMX6ULL_IT,                    "Colibri iMX6ULL 512MB IT",             TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	{ COLIBRI_IMX6ULL_WIFI_BT,               "Colibri iMX6ULL 512MB WB",             TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	{ APALIS_IMX8QXP_WIFI_BT_IT,             "Apalis iMX8QXP 2GB WB IT",             0                                  },
+	{ APALIS_IMX8QM_IT,                      "Apalis iMX8QM 4GB IT",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QP_WIFI_BT,                 "Apalis iMX8QP 2GB WB",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QP,                         "Apalis iMX8QP 2GB",                    TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ COLIBRI_IMX8QXP_IT,                    "Colibri iMX8QXP 2GB IT",               TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	{ COLIBRI_IMX8DX_WIFI_BT,                "Colibri iMX8DX 1GB WB",                TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	{ COLIBRI_IMX8DX,                        "Colibri iMX8DX 1GB",                   TARGET_IS_ENABLED(COLIBRI_IMX8X)   },
+	{ APALIS_IMX8QXP,                        "Apalis iMX8QXP 2GB ECC IT",            0                                  },
+	{ APALIS_IMX8DXP,                        "Apalis iMX8DXP 1GB",                   0                                  },
+	{ VERDIN_IMX8MMQ_WIFI_BT_IT,             "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_IMX8MNQ_WIFI_BT,                "Verdin iMX8M Nano Quad 1GB WB",        0                                  },
+	{ VERDIN_IMX8MMDL,                       "Verdin iMX8M Mini DualLite 1GB",       TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_IMX8MPQ_WIFI_BT_IT,             "Verdin iMX8M Plus Quad 4GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ VERDIN_IMX8MMQ_IT,                     "Verdin iMX8M Mini Quad 2GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_IMX8MMDL_WIFI_BT_IT,            "Verdin iMX8M Mini DualLite 1GB WB IT", TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_IMX8MPQ,                        "Verdin iMX8M Plus Quad 2GB",           TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ COLIBRI_IMX6ULL_IT_EMMC,               "Colibri iMX6ULL 1GB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6ULL) },
+	{ VERDIN_IMX8MPQ_IT,                     "Verdin iMX8M Plus Quad 4GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ VERDIN_IMX8MPQ_2GB_WIFI_BT_IT,         "Verdin iMX8M Plus Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ VERDIN_IMX8MPQL_IT,                    "Verdin iMX8M Plus QuadLite 1GB IT",    TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ VERDIN_IMX8MPQ_8GB_WIFI_BT,            "Verdin iMX8M Plus Quad 8GB WB",        TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ APALIS_IMX8QM_8GB_WIFI_BT_IT,          "Apalis iMX8QM 8GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ VERDIN_IMX8MMQ_WIFI_BT_IT_NO_CAN,      "Verdin iMX8M Mini Quad 2GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_AM62Q_WIFI_BT_IT,               "Verdin AM62 Quad 1GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_IMX8MPQ_8GB_WIFI_BT_IT,         "Verdin iMX8M Plus Quad 8GB WB IT",     TARGET_IS_ENABLED(VERDIN_IMX8MP)   },
+	{ VERDIN_AM62S_512MB,                    "Verdin AM62 Solo 512MB",               TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_AM62S_512MB_WIFI_BT_IT,         "Verdin AM62 Solo 512MB WB IT",         TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_AM62D_1G_ET,                    "Verdin AM62 Dual 1GB ET",              TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_AM62D_1G_IT,                    "Verdin AM62 Dual 1GB IT",              TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_AM62D_1G_WIFI_BT_IT,            "Verdin AM62 Dual 1GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ VERDIN_AM62Q_2G_WIFI_BT_IT,            "Verdin AM62 Quad 2GB WB IT",           TARGET_IS_ENABLED(VERDIN_AM62_A53) },
+	{ COLIBRI_IMX6S_NOWINCE,                 "Colibri iMX6S 256MB",                  TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6S_IT_NOWINCE,              "Colibri iMX6S 256MB IT",               TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6DL_NOWINCE,                "Colibri iMX6DL 512MB",                 TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX6DL_IT_NOWINCE,             "Colibri iMX6DL 512MB IT",              TARGET_IS_ENABLED(COLIBRI_IMX6)    },
+	{ COLIBRI_IMX7D_NOWINCE,                 "Colibri iMX7D 512MB",                  TARGET_IS_ENABLED(COLIBRI_IMX7)    },
+	{ APALIS_IMX6D_NOWINCE,                  "Apalis iMX6D 512MB",                   TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ APALIS_IMX6Q_NOWINCE,                  "Apalis iMX6Q 1GB",                     TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ APALIS_IMX6D_IT_NOWINCE,               "Apalis iMX6D 1GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ APALIS_IMX6Q_IT_NOWINCE,               "Apalis iMX6Q 2GB IT",                  TARGET_IS_ENABLED(APALIS_IMX6)     },
+	{ VERDIN_IMX8MMDL_2G_IT,                 "Verdin iMX8M Mini DualLite 2GB IT",    TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ VERDIN_IMX8MMQ_2G_IT_NO_CAN,           "Verdin iMX8M Mini Quad 2GB IT",        TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ AQUILA_AM69O_32G_WIFI_BT_IT,           "Aquila AM69 Octa 32GB WB IT",          TARGET_IS_ENABLED(AQUILA_AM69_A72) },
+	{ VERDIN_IMX95H_16G_WIFI_BT_IT,          "Verdin iMX95 Hexa 16GB WB IT",         TARGET_IS_ENABLED(VERDIN_IMX95)    },
+	{ VERDIN_IMX8MMQ_4G_WIFI_BT_ET,          "Verdin iMX8M Mini Quad 4GB WB ET",     TARGET_IS_ENABLED(VERDIN_IMX8MM)   },
+	{ APALIS_IMX8QM_WIFI_BT_IT_1300MHZ,      "Apalis iMX8QM 4GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QM_IT_1300MHZ,              "Apalis iMX8QM 4GB IT",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QP_WIFI_BT_1300MHZ,         "Apalis iMX8QP 2GB WB",                 TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QP_1300MHZ,                 "Apalis iMX8QP 2GB",                    TARGET_IS_ENABLED(APALIS_IMX8)     },
+	{ APALIS_IMX8QM_8GB_WIFI_BT_IT_1300MHZ,  "Apalis iMX8QM 8GB WB IT",              TARGET_IS_ENABLED(APALIS_IMX8)     },
 };
 
 struct pid4list {
@@ -187,6 +190,20 @@ const u32 toradex_ouis[] = {
 	[0] = 0x00142dUL,
 	[1] = 0x8c06cbUL,
 };
+
+int get_toradex_modules_idx(int pid4)
+{
+	int i, index = 0;
+
+	for (i = 1; i < ARRAY_SIZE(toradex_modules); i++) {
+		if (pid4 == toradex_modules[i].pid4) {
+			index = i;
+			break;
+		}
+	}
+
+	return index;
+}
 
 const char * const get_toradex_carrier_boards(int pid4)
 {
@@ -361,7 +378,7 @@ static int write_tdx_cfg_block_to_eeprom(unsigned char *config_block)
 
 int read_tdx_cfg_block(void)
 {
-	int ret = 0;
+	int idx, ret = 0;
 	u8 *config_block = NULL;
 	struct toradex_tag *tag;
 	size_t size = TDX_CFG_BLOCK_MAX_SIZE;
@@ -430,7 +447,8 @@ int read_tdx_cfg_block(void)
 	}
 
 	/* Cap product id to avoid issues with a yet unknown one */
-	if (tdx_hw_tag.prodid >= ARRAY_SIZE(toradex_modules))
+	idx = get_toradex_modules_idx(tdx_hw_tag.prodid);
+	if (!toradex_modules[idx].pid4)
 		tdx_hw_tag.prodid = 0;
 
 out:
@@ -456,19 +474,21 @@ static int get_cfgblock_interactive(void)
 	int len = 0;
 	int ret = 0;
 	unsigned int prodid;
-	int i;
+	int i, idx;
 
 	printf("Enabled modules:\n");
 	for (i = 0; i < ARRAY_SIZE(toradex_modules); i++) {
 		if (toradex_modules[i].is_enabled)
-			printf(" %04d %s\n", i, toradex_modules[i].name);
+			printf(" %04d %s\n", toradex_modules[i].pid4,
+			       toradex_modules[i].name);
 	}
 
 	sprintf(message, "Enter the module ID: ");
 	len = cli_readline(message);
 
 	prodid = dectoul(console_buffer, NULL);
-	if (prodid >= ARRAY_SIZE(toradex_modules) || !toradex_modules[prodid].is_enabled) {
+	idx = get_toradex_modules_idx(prodid);
+	if (!toradex_modules[idx].pid4 || !toradex_modules[idx].is_enabled) {
 		printf("Parsing module id failed\n");
 		return -1;
 	}

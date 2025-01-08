@@ -221,11 +221,32 @@ static int
 do_callback(const struct env_entry *e, const char *name, const char *value,
 	    enum env_op op, int flags)
 {
+	int ret = 0;
+
 #ifndef CONFIG_XPL_BUILD
-	if (e->callback)
-		return e->callback(name, value, op, flags);
+	static bool in_callback;
+
+	if (!e->callback || in_callback)
+		return 0;
+
+	/*
+	 * In case there are two variables which each implement env callback
+	 * that performs env_set() on the other variable, the callbacks will
+	 * call each other recursively until the stack runs out. Prevent such
+	 * a recursion from happening.
+	 *
+	 * Example which triggers this behavior:
+	 * static int on_foo(...) { env_set("bar", 0); ... }
+	 * static int on_bar(...) { env_set("foo", 0); ... }
+	 * U_BOOT_ENV_CALLBACK(foo, on_foo);
+	 * U_BOOT_ENV_CALLBACK(bar, on_bar);
+	 */
+	in_callback = true;
+	ret = e->callback(name, value, op, flags);
+	in_callback = false;
 #endif
-	return 0;
+
+	return ret;
 }
 
 /*

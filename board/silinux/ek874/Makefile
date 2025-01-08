@@ -9,5 +9,5 @@
 ifdef CONFIG_XPL_BUILD
 obj-y	:= ../../renesas/rcar-common/gen3-spl.o
 else
-obj-y	:= ek874.o ../../renesas/rcar-common/common.o
+obj-y	:= ek874.o ../../renesas/rcar-common/gen3-common.o ../../renesas/rcar-common/common.o
 endif

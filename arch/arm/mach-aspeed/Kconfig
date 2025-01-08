@@ -16,8 +16,8 @@ choice
 
 config ASPEED_AST2500
 	bool "Support Aspeed AST2500 SoC"
-	depends on DM_RESET
 	select CPU_ARM1176
+	select DM_RESET
 	help
 	  The Aspeed AST2500 is a ARM-based SoC with arm1176 CPU.
 	  It is used as Board Management Controller on many server boards,

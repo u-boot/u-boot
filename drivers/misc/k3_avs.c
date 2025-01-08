@@ -121,6 +121,11 @@ static int k3_avs_program_voltage(struct k3_avs_privdata *priv,
 	if (!vd->supply)
 		return -ENODEV;
 
+	if (!volt) {
+		dev_err(priv->dev, "No efuse found for opp_%d\n", opp_id);
+		return -EINVAL;
+	}
+
 	vd->opp = opp_id;
 	vd->flags |= VD_FLAG_INIT_DONE;
 
@@ -189,6 +194,33 @@ static int match_opp(struct vd_data *vd, u32 freq)
 
 	printf("No matching OPP found for freq %d.\n", freq);
 
+	return -EINVAL;
+}
+
+/**
+ * k3_check_opp: Check for presence of opp efuse
+ * @dev: AVS device
+ * @vdd_id: voltage domain ID
+ * @opp_id: opp id to check if voltage is present
+ *
+ * Checks to see if an opp has voltage. k3_avs probe will populate
+ * voltage data if efuse is present. Returns 0 if data is valid.
+ */
+int k3_avs_check_opp(struct udevice *dev, int vdd_id, int opp_id)
+{
+	struct k3_avs_privdata *priv = dev_get_priv(dev);
+	struct vd_data *vd;
+	int volt;
+
+	vd = get_vd(priv, vdd_id);
+	if (!vd)
+		return -EINVAL;
+
+	volt = vd->opps[opp_id].volt;
+	if (volt)
+		return 0;
+
+	printf("No efuse found for opp_%d\n", opp_id);
 	return -EINVAL;
 }
 
@@ -501,6 +533,10 @@ static struct vd_data j721e_vd_data[] = {
 		.dev_id = 202, /* J721E_DEV_A72SS0_CORE0 */
 		.clk_id = 2, /* ARM clock */
 		.opps = {
+			[AM6_OPP_LOW] = {
+				.volt = 0, /* voltage TBD after OPP fuse reading */
+				.freq = 1000000000,
+			},
 			[AM6_OPP_NOM] = {
 				.volt = 880000, /* TBD in DM */
 				.freq = 2000000000,

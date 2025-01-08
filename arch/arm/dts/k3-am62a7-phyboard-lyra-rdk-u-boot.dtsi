@@ -1,0 +1,252 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * phyCORE-AM62Ax dts file for SPLs
+ * Copyright (C) 2024 PHYTEC America LLC
+ * Author: Garrett Giordano <ggiordano@phytec.com>
+ *
+ * Product homepage:
+ * https://www.phytec.com/product/phycore-am62ax
+ */
+
+#include "k3-am62a-phycore-som-binman.dtsi"
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &main_timer0;
+	};
+
+	aliases {
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
+	};
+
+	memory@80000000 {
+		bootph-all;
+	};
+};
+
+&cbass_main {
+	bootph-all;
+};
+
+&cbass_mcu {
+	bootph-all;
+};
+
+&cbass_wakeup {
+	bootph-all;
+};
+
+&chipid {
+	bootph-all;
+};
+
+&cpsw3g {
+	bootph-all;
+	ethernet-ports {
+		bootph-all;
+	};
+};
+
+&cpsw3g_mdio {
+	bootph-all;
+};
+
+&cpsw3g_phy1 {
+	bootph-all;
+};
+
+&cpsw3g_phy3 {
+	bootph-all;
+};
+
+&cpsw_port1 {
+	bootph-all;
+};
+
+&cpsw_port2 {
+	bootph-all;
+};
+
+&dmsc {
+	bootph-all;
+};
+
+&dmss {
+	bootph-all;
+};
+
+&fss {
+	bootph-all;
+};
+
+&k3_pds {
+	bootph-all;
+};
+
+&k3_clks {
+	bootph-all;
+};
+
+&k3_reset {
+	bootph-all;
+};
+
+&main_bcdma {
+	bootph-all;
+	reg = <0x00 0x485c0100 0x00 0x100>,
+	      <0x00 0x4c000000 0x00 0x20000>,
+	      <0x00 0x4a820000 0x00 0x20000>,
+	      <0x00 0x4aa40000 0x00 0x20000>,
+	      <0x00 0x4bc00000 0x00 0x100000>,
+	      <0x00 0x48600000 0x00 0x8000>,
+	      <0x00 0x484a4000 0x00 0x2000>,
+	      <0x00 0x484c2000 0x00 0x2000>;
+	reg-names = "gcfg", "bchanrt", "rchanrt", "tchanrt",
+		    "ringrt", "cfg", "tchan", "rchan";
+};
+
+&main_conf {
+	bootph-all;
+};
+
+&main_gpio0 {
+	bootph-all;
+};
+
+&main_i2c0 {
+	bootph-all;
+};
+
+&main_i2c0_pins_default {
+	bootph-all;
+};
+
+&main_mdio1_pins_default {
+	bootph-all;
+};
+
+&main_mmc0_pins_default {
+	bootph-all;
+};
+
+&main_mmc1_pins_default {
+	bootph-all;
+};
+
+&main_pktdma {
+	bootph-all;
+	reg = <0x00 0x485c0000 0x00 0x100>,
+	      <0x00 0x4a800000 0x00 0x20000>,
+	      <0x00 0x4aa00000 0x00 0x40000>,
+	      <0x00 0x4b800000 0x00 0x400000>,
+	      <0x00 0x485e0000 0x00 0x20000>,
+	      <0x00 0x484a0000 0x00 0x4000>,
+	      <0x00 0x484c0000 0x00 0x2000>,
+	      <0x00 0x48430000 0x00 0x4000>;
+	reg-names = "gcfg", "rchanrt", "tchanrt", "ringrt",
+		    "cfg", "tchan", "rchan", "rflow";
+};
+
+&main_pmx0 {
+	bootph-all;
+};
+
+&main_rgmii1_pins_default {
+	bootph-all;
+};
+
+&main_timer0 {
+	bootph-all;
+};
+
+&main_uart0 {
+	bootph-all;
+};
+
+&main_uart0_pins_default {
+	bootph-all;
+};
+
+&main_uart1 {
+	bootph-all;
+};
+
+&mcu_pmx0 {
+	bootph-all;
+};
+
+&ospi0_pins_default {
+	bootph-all;
+};
+
+&ospi0 {
+	bootph-all;
+	flash@0 {
+		bootph-all;
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "ospi.tiboot3";
+				reg = <0x00000 0x80000>;
+			};
+			partition@80000 {
+				label = "ospi.tispl";
+				reg = <0x080000 0x200000>;
+			};
+			partition@280000 {
+				label = "ospi.u-boot";
+				reg = <0x280000 0x400000>;
+			};
+			partition@680000 {
+				label = "ospi.env";
+				reg = <0x680000 0x40000>;
+			};
+			partition@6c0000 {
+				label = "ospi.env.backup";
+				reg = <0x6c0000 0x40000>;
+			};
+		};
+	};
+};
+
+&phy_gmii_sel {
+	bootph-all;
+};
+
+&sdhci0 {
+	bootph-all;
+};
+
+&sdhci1 {
+	bootph-all;
+};
+
+&secure_proxy_main {
+	bootph-all;
+};
+
+&usbss0 {
+	bootph-all;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-all;
+};
+
+&vcc_3v3_mmc {
+	bootph-all;
+};
+
+&wkup_conf {
+	bootph-all;
+};
+
+&wkup_uart0 {
+	bootph-all;
+};

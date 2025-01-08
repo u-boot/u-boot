@@ -94,3 +94,8 @@ void armv8_setup_psci(void)
 	secure_ram_addr(psci_arch_init)();
 }
 #endif
+
+void allow_unaligned(void)
+{
+	set_sctlr(get_sctlr() & ~CR_A);
+}

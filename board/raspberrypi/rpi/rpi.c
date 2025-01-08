@@ -521,15 +521,14 @@ int board_init(void)
 /*
  * If the firmware passed a device tree use it for U-Boot.
  */
-void *board_fdt_blob_setup(int *err)
+int board_fdt_blob_setup(void **fdtp)
 {
-	*err = 0;
-	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC) {
-		*err = -ENXIO;
-		return NULL;
-	}
+	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
+		return -ENXIO;
 
-	return (void *)fw_dtb_pointer;
+	*fdtp = (void *)fw_dtb_pointer;
+
+	return 0;
 }
 
 int copy_property(void *dst, void *src, char *path, char *property)

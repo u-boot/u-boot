@@ -825,7 +825,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-	uint32_t sctlr;
+	unsigned long sctlr;
 
 	sctlr = get_sctlr();
 

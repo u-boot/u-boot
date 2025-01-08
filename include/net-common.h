@@ -8,6 +8,7 @@
 #include <env.h>
 #include <hexdump.h>
 #include <linux/if_ether.h>
+#include <linux/sizes.h>
 #include <linux/types.h>
 #include <rand.h>
 #include <time.h>
@@ -425,6 +426,16 @@ void string_to_enetaddr(const char *addr, uint8_t *enetaddr);
  */
 struct in_addr string_to_ip(const char *s);
 
+/**
+ * ip_to_string() - Convert an IPv4 address to a string
+ *
+ * Implemented in lib/net_utils.c (built unconditionally)
+ *
+ * @x: Input ip to parse
+ * @s: string containing the parsed ip address
+ */
+void ip_to_string(struct in_addr x, char *s);
+
 /* copy a filename (allow for "..." notation, limit length) */
 void copy_filename(char *dst, const char *src, int size);
 
@@ -490,13 +501,16 @@ int dhcp_run(ulong addr, const char *fname, bool autoload);
 int do_tftpb(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
 
 /**
- * wget_with_dns() - runs dns host IP address resulution before wget
+ * wget_do_request() - sends a wget request
+ *
+ * Sends a wget request, if DNS resolution is enabled it resolves the
+ * given uri.
  *
  * @dst_addr:	destination address to download the file
  * @uri:	uri string of target file of wget
- * Return:	downloaded file size, negative if failed
+ * Return:	zero on success, negative if failed
  */
-int wget_with_dns(ulong dst_addr, char *uri);
+int wget_do_request(ulong dst_addr, char *uri);
 /**
  * wget_validate_uri() - varidate the uri
  *
@@ -505,5 +519,56 @@ int wget_with_dns(ulong dst_addr, char *uri);
  */
 bool wget_validate_uri(char *uri);
 //int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
+
+/**
+ * enum wget_http_method - http method
+ */
+enum wget_http_method {
+	WGET_HTTP_METHOD_GET,
+	WGET_HTTP_METHOD_POST,
+	WGET_HTTP_METHOD_PATCH,
+	WGET_HTTP_METHOD_OPTIONS,
+	WGET_HTTP_METHOD_CONNECT,
+	WGET_HTTP_METHOD_HEAD,
+	WGET_HTTP_METHOD_PUT,
+	WGET_HTTP_METHOD_DELETE,
+	WGET_HTTP_METHOD_TRACE,
+	WGET_HTTP_METHOD_MAX
+};
+
+/**
+ * define MAX_HTTP_HEADERS_SIZE - maximum headers buffer size
+ *
+ * When receiving http headers, wget fills a buffer with up
+ * to MAX_HTTP_HEADERS_SIZE bytes of header information.
+ */
+#define MAX_HTTP_HEADERS_SIZE SZ_64K
+
+/**
+ * struct wget_http_info - wget parameters
+ * @method:		HTTP Method. Filled by client.
+ * @status_code:	HTTP status code. Filled by wget.
+ * @file_size:		download size. Filled by wget.
+ * @buffer_size:	size of client-provided buffer. Filled by client.
+ * @set_bootdev:	set boot device with download. Filled by client.
+ * @check_buffer_size:	check download does not exceed buffer size.
+ *			Filled by client.
+ * @hdr_cont_len:	content length according to headers. Filled by wget
+ * @headers:		buffer for headers. Filled by wget.
+ */
+struct wget_http_info {
+	enum wget_http_method method;
+	u32 status_code;
+	ulong file_size;
+	ulong buffer_size;
+	bool set_bootdev;
+	bool check_buffer_size;
+	u32 hdr_cont_len;
+	char *headers;
+};
+
+extern struct wget_http_info default_wget_info;
+extern struct wget_http_info *wget_info;
+int wget_request(ulong dst_addr, char *uri, struct wget_http_info *info);
 
 #endif /* __NET_COMMON_H__ */

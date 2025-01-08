@@ -385,7 +385,7 @@ static int find_ethernet_phy(void)
 	int phy_addr = -ENOENT;
 
 #ifdef CONFIG_FEC_MXC
-	bus = fec_get_miibus(ENET_BASE_ADDR, -1);
+	bus = fec_get_miibus(NULL, ENET_BASE_ADDR, -1);
 	if (!bus)
 		return -ENOENT;
 

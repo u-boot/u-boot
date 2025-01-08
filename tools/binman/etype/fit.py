@@ -110,6 +110,13 @@ class Entry_fit(Entry_section):
             available at time of signing and must be located in single include
             directory.
 
+        fit,encrypt
+            Enable data encryption in FIT images via mkimage. If the property
+            is found, the keys path is detected among binman include
+            directories and passed to mkimage via  -k flag. All the keys
+            required for encrypting the FIT must be available at the time of
+            encrypting and must be located in a single include directory.
+
     Substitutions
     ~~~~~~~~~~~~~
 
@@ -130,6 +137,9 @@ class Entry_fit(Entry_section):
     DEFAULT-SEQ:
         Sequence number of the default fdt, as provided by the 'default-dt'
         entry argument
+
+    DEFAULT-NAME:
+        Name of the default fdt, as provided by the 'default-dt' entry argument
 
     Available operations
     ~~~~~~~~~~~~~~~~~~~~
@@ -191,6 +201,21 @@ class Entry_fit(Entry_section):
 
     This tells binman to create nodes `config-1` and `config-2`, i.e. a config
     for each of your two files.
+
+    It is also possible to use NAME in the node names so that the FDT files name
+    will be used instead of the sequence number. This can be useful to identify
+    easily at runtime in U-Boot, the config to be used::
+
+        configurations {
+            default = "@config-DEFAULT-NAME";
+            @config-NAME {
+                description = "NAME";
+                firmware = "atf";
+                loadables = "uboot";
+                fdt = "fdt-NAME";
+                fit,compatible;    // optional
+            };
+        };
 
     Note that if no devicetree files are provided (with '-a of-list' as above)
     then no nodes will be generated.
@@ -452,6 +477,8 @@ class Entry_fit(Entry_section):
             self._fdt_dir = fdt_util.GetString(self._node, 'fit,fdt-list-dir')
             if self._fdt_dir:
                 indir = tools.get_input_filename(self._fdt_dir)
+                if indir:
+                    tools.append_input_dirs(indir)
                 fdts = glob.glob('*.dtb', root_dir=indir)
                 self._fdts = [os.path.splitext(f)[0] for f in sorted(fdts)]
             else:
@@ -518,14 +545,14 @@ class Entry_fit(Entry_section):
         # are removed from self._entries later.
         self._priv_entries = dict(self._entries)
 
-    def _get_priv_keys_dir(self, data):
-        """Detect private keys path among binman include directories
+    def _get_keys_dir(self, data):
+        """Detect private and encryption keys path among binman include directories
 
         Args:
             data: FIT image in binary format
 
         Returns:
-            str: Single path containing all private keys found or None
+            str: Single path containing all keys found or None
 
         Raises:
             ValueError: Filename 'rsa2048.key' not found in input path
@@ -533,11 +560,14 @@ class Entry_fit(Entry_section):
         """
         def _find_keys_dir(node):
             for subnode in node.subnodes:
-                if subnode.name.startswith('signature'):
+                if (subnode.name.startswith('signature') or
+                    subnode.name.startswith('cipher')):
                     if subnode.props.get('key-name-hint') is None:
                         continue
                     hint = subnode.props['key-name-hint'].value
-                    name = tools.get_input_filename(f"{hint}.key")
+                    name = tools.get_input_filename(
+                        f"{hint}.key" if subnode.name.startswith('signature')
+                        else f"{hint}.bin")
                     path = os.path.dirname(name)
                     if path not in paths:
                         paths.append(path)
@@ -587,8 +617,9 @@ class Entry_fit(Entry_section):
         align = self._fit_props.get('fit,align')
         if align is not None:
             args.update({'align': fdt_util.fdt32_to_cpu(align.value)})
-        if self._fit_props.get('fit,sign') is not None:
-            args.update({'priv_keys_dir': self._get_priv_keys_dir(data)})
+        if (self._fit_props.get('fit,sign') is not None or
+            self._fit_props.get('fit,encrypt') is not None):
+            args.update({'keys_dir': self._get_keys_dir(data)})
         if self.mkimage.run(reset_timestamp=True, output_fname=output_fname,
                             **args) is None:
             if not self.GetAllowMissing():
@@ -663,6 +694,7 @@ class Entry_fit(Entry_section):
                                 f"not found in fdt list: {', '.join(self._fdts)}")
                     seq = self._fdts.index(default_dt)
                     val = val[1:].replace('DEFAULT-SEQ', str(seq + 1))
+                    val = val.replace('DEFAULT-NAME', self._fit_default_dt)
                     fsw.property_string(pname, val)
                     return
             elif pname.startswith('fit,'):
@@ -729,6 +761,7 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
+                    node_name = node_name.replace('NAME', fdt_fname)
                     if self._fdt_dir:
                         fname = os.path.join(self._fdt_dir, fdt_fname + '.dtb')
                     else:

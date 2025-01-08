@@ -5,8 +5,8 @@
 
 #include <asm/io.h>
 #include <dm.h>
+#include <mux.h>
 #include <regmap.h>
-#include <syscon.h>
 #include <dm/device_compat.h>
 
 #define FSS_SYSC_REG	0x4
@@ -52,9 +52,13 @@ static int am654_hyperbus_calibrate(struct udevice *dev)
 
 static int am654_select_hbmc(struct udevice *dev)
 {
-	struct regmap *regmap = syscon_get_regmap(dev_get_parent(dev));
+	struct mux_control *mux_ctl;
+	int ret;
 
-	return regmap_update_bits(regmap, FSS_SYSC_REG, 0x2, 0x2);
+	ret = mux_get_by_index(dev, 0, &mux_ctl);
+	if (!ret)
+		ret = mux_control_select(mux_ctl, 1);
+	return ret;
 }
 
 static int am654_hbmc_bind(struct udevice *dev)

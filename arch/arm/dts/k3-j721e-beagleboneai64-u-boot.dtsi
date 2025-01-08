@@ -206,10 +206,10 @@
 #ifdef CONFIG_TARGET_J721E_A72_BEAGLEBONEAI64
 
 #define SPL_NODTB "spl/u-boot-spl-nodtb.bin"
-#define SPL_J721E_BBAI64_DTB "spl/dts/k3-j721e-beagleboneai64.dtb"
+#define SPL_J721E_BBAI64_DTB "spl/dts/ti/k3-j721e-beagleboneai64.dtb"
 
 #define UBOOT_NODTB "u-boot-nodtb.bin"
-#define J721E_BBAI64_DTB "arch/arm/dts/k3-j721e-beagleboneai64.dtb"
+#define J721E_BBAI64_DTB "dts/upstream/src/arm64/ti/k3-j721e-beagleboneai64.dtb"
 
 &binman {
 	ti-dm {

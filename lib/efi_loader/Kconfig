@@ -2,7 +2,7 @@ menu "UEFI Support"
 
 config EFI_LOADER
 	bool "Support running UEFI applications"
-	depends on OF_LIBFDT && ( \
+	depends on ( \
 		ARM && (SYS_CPU = arm1136 || \
 			SYS_CPU = arm1176 || \
 			SYS_CPU = armv7   || \
@@ -21,6 +21,7 @@ config EFI_LOADER
 	select EVENT_DYNAMIC
 	select LIB_UUID
 	select LMB
+	select OF_LIBFDT
 	imply PARTITION_UUIDS
 	select REGEX
 	imply FAT
@@ -475,6 +476,23 @@ config EFI_RISCV_BOOT_PROTOCOL
 	  to the next boot stage. It should be enabled as it is meant to
 	  replace the transfer via the device-tree. The latter is not
 	  possible on systems using ACPI.
+
+config EFI_IP4_CONFIG2_PROTOCOL
+	bool "EFI_IP4_CONFIG2_PROTOCOL support"
+	default y if ARCH_QEMU || SANDBOX
+	depends on NET || NET_LWIP
+	help
+	  Provides an implementation of the EFI_IP4_CONFIG2_PROTOCOL, this
+	  protocol can be used to set and get the current ip address and
+	  other network information.
+
+config EFI_HTTP_PROTOCOL
+	bool "EFI_HTTP_PROTOCOL support"
+	default y if ARCH_QEMU || SANDBOX
+	depends on WGET
+	help
+	  Provides an EFI HTTP driver implementing the EFI_HTTP_PROTOCOL. and
+	  EFI_HTTP_SERVICE_BINDING_PROTOCOL.
 
 endmenu
 

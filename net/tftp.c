@@ -478,6 +478,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	case TFTP_ACK:
 #ifdef CONFIG_CMD_TFTPPUT
 		if (tftp_put_active) {
+			timeout_count = 0;
 			if (tftp_put_final_block_sent) {
 				tftp_complete();
 			} else {
@@ -498,6 +499,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 						tftp_state = STATE_DATA;
 						tftp_remote_port = src;
 					}
+					timeout_count = 0;
 					tftp_send(); /* Send next data block */
 				}
 			}
@@ -657,6 +659,7 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 			net_set_state(NETLOOP_FAIL);
 			break;
 		}
+		timeout_count = 0;
 
 		if (len < tftp_block_size) {
 			tftp_send();

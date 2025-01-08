@@ -227,7 +227,8 @@ def test_usb_part(u_boot_console):
 
             lines = output.split('\n')
             part_fat = []
-            part_ext = []
+            part_ext2 = []
+            part_ext4 = []
             for line in lines:
                 obj = re.search(r'(\d)\s+\d+\s+\d+\s+\w+\d+\w+-\d+\s+(\d+\w+)', line)
                 if obj:
@@ -239,15 +240,21 @@ def test_usb_part(u_boot_console):
                         print('Fat detected')
                         part_fat.append(part_id)
                     elif part_type == '83':
-                        print('ext detected')
-                        part_ext.append(part_id)
+                        print('ext(2/4) detected')
+                        output = u_boot_console.run_command(
+                            'fstype usb %d:%d' % i, part_id
+                        )
+                        if 'ext2' in output:
+                            part_ext2.append(part_id)
+                        elif 'ext4' in output:
+                            part_ext4.append(part_id)
                     else:
                         pytest.fail('Unsupported Filesystem on device %d' % i)
-            devices[i]['ext4'] = part_ext
-            devices[i]['ext2'] = part_ext
+            devices[i]['ext4'] = part_ext4
+            devices[i]['ext2'] = part_ext2
             devices[i]['fat'] = part_fat
 
-            if not part_ext and not part_fat:
+            if not part_ext2 and not part_ext4 and not part_fat:
                 pytest.fail('No partition detected on device %d' % i)
 
     return devices, controllers, storage_device
@@ -497,7 +504,7 @@ def test_usb_ext2load(u_boot_console):
             for part in partitions:
                 part_detect = 1
                 file, size, expected_crc32 = \
-                    usb_ext4load_ext4write(u_boot_console, 'ext4', x, part)
+                    usb_ext4load_ext4write(u_boot_console, fs, x, part)
                 addr = u_boot_utils.find_ram_base(u_boot_console)
 
                 offset = random.randrange(128, 1024, 128)
@@ -526,7 +533,7 @@ def test_usb_ls(u_boot_console):
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('usb dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
                 except:
@@ -556,7 +563,7 @@ def test_usb_load(u_boot_console):
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('usb dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
                 except:
@@ -570,7 +577,7 @@ def test_usb_load(u_boot_console):
                     if fs == 'fat':
                         file, size, expected_crc32 = \
                             usb_fatload_fatwrite(u_boot_console, fs, x, part)
-                    elif fs == 'ext4':
+                    elif fs in ['ext4', 'ext2']:
                         file, size, expected_crc32 = \
                             usb_ext4load_ext4write(u_boot_console, fs, x, part)
 
@@ -600,7 +607,7 @@ def test_usb_save(u_boot_console):
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
             u_boot_console.run_command('usb dev %d' % x)
-            for fs in ['fat', 'ext4']:
+            for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
                 except:

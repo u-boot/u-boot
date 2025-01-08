@@ -951,6 +951,26 @@ int sc_timer_set_wdog_window(sc_ipc_t ipc, sc_timer_wdog_time_t window)
 	return ret;
 }
 
+int sc_timer_control_siemens_pmic_wdog(sc_ipc_t ipc, u8 cmd)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	struct sc_rpc_msg_s msg;
+	int size = sizeof(struct sc_rpc_msg_s);
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SVC(&msg) = (u8)SC_RPC_SVC_TIMER;
+	RPC_FUNC(&msg) = (u8)TIMER_FUNC_CTRL_SIEMENS_PMIC_WDOG;
+	RPC_U8(&msg, 0U) = (u8)cmd;
+	RPC_SIZE(&msg) = 2U;
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret)
+		printf("%s: res:%d\n", __func__, RPC_R8(&msg));
+
+	return ret;
+}
+
 int sc_seco_authenticate(sc_ipc_t ipc, sc_seco_auth_cmd_t cmd,
 			 sc_faddr_t addr)
 {

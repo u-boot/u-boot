@@ -38,6 +38,8 @@
 ****************************************************************************/
 
 #include <stdarg.h>
+#include <string.h>
+#include <vsprintf.h>
 #include <linux/ctype.h>
 #include <linux/printk.h>
 #include "x86emu/x86emui.h"

@@ -109,10 +109,6 @@
 	bootph-all;
 };
 
-&ospi0 {
-	status = "disabled";
-};
-
 &ospi1 {
 	status = "disabled";
 };

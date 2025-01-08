@@ -9,6 +9,8 @@
 	aliases {
 		eeprom0 = &eeprom0;
 		eeprom1 = &eeprom1;
+		eeprom0wl = &eeprom0wl;
+		eeprom1wl = &eeprom1wl;
 		mmc0 = &usdhc2;	/* MicroSD */
 		mmc1 = &usdhc3;	/* eMMC */
 		mmc2 = &usdhc1;	/* SDIO */

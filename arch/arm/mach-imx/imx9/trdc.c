@@ -484,7 +484,7 @@ void trdc_init(void)
 	}
 }
 
-#if DEBUG
+#ifdef DEBUG
 int trdc_mbc_control_dump(ulong trdc_reg, u32 mbc_x, u32 glbac_id)
 {
 	struct trdc_mbc *mbc_base = (struct trdc_mbc *)trdc_get_mbc_base(trdc_reg, mbc_x);

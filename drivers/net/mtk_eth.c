@@ -29,8 +29,8 @@
 
 #include "mtk_eth.h"
 
-#define NUM_TX_DESC		24
-#define NUM_RX_DESC		24
+#define NUM_TX_DESC		32
+#define NUM_RX_DESC		32
 #define TX_TOTAL_BUF_SIZE	(NUM_TX_DESC * PKTSIZE_ALIGN)
 #define RX_TOTAL_BUF_SIZE	(NUM_RX_DESC * PKTSIZE_ALIGN)
 #define TOTAL_PKT_BUF_SIZE	(TX_TOTAL_BUF_SIZE + RX_TOTAL_BUF_SIZE)
@@ -835,8 +835,8 @@ static int mt7531_port_sgmii_init(struct mtk_eth_priv *priv,
 	}
 
 	/* Set SGMII GEN2 speed(2.5G) */
-	mt753x_reg_rmw(priv, MT7531_PHYA_CTRL_SIGNAL3(port),
-		       SGMSYS_SPEED_2500, SGMSYS_SPEED_2500);
+	mt753x_reg_rmw(priv, MT7531_PHYA_CTRL_SIGNAL3(port), SGMSYS_SPEED_MASK,
+		       FIELD_PREP(SGMSYS_SPEED_MASK, SGMSYS_SPEED_2500));
 
 	/* Disable SGMII AN */
 	mt753x_reg_rmw(priv, MT7531_PCS_CONTROL_1(port),
@@ -1246,6 +1246,7 @@ static int mtk_phy_start(struct mtk_eth_priv *priv)
 
 	if (!priv->force_mode) {
 		if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+		    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER ||
 		    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
 			mtk_xphy_link_adjust(priv);
 		else
@@ -1281,8 +1282,7 @@ static int mtk_phy_probe(struct udevice *dev)
 static void mtk_sgmii_an_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN1 speed(1G) */
-	clrsetbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
-			SGMSYS_SPEED_2500, 0);
+	clrbits_le32(priv->sgmii_base + priv->soc->ana_rgc3, SGMSYS_SPEED_MASK);
 
 	/* Enable SGMII AN */
 	setbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
@@ -1305,8 +1305,9 @@ static void mtk_sgmii_an_init(struct mtk_eth_priv *priv)
 static void mtk_sgmii_force_init(struct mtk_eth_priv *priv)
 {
 	/* Set SGMII GEN2 speed(2.5G) */
-	setbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
-		     SGMSYS_SPEED_2500);
+	clrsetbits_le32(priv->sgmii_base + priv->soc->ana_rgc3,
+			SGMSYS_SPEED_MASK,
+			FIELD_PREP(SGMSYS_SPEED_MASK, SGMSYS_SPEED_2500));
 
 	/* Disable SGMII AN */
 	clrsetbits_le32(priv->sgmii_base + SGMSYS_PCS_CONTROL_1,
@@ -1425,6 +1426,71 @@ static void mtk_usxgmii_setup_phya_an_10000(struct mtk_eth_priv *priv)
 	udelay(400);
 }
 
+static void mtk_usxgmii_setup_phya_force_10000(struct mtk_eth_priv *priv)
+{
+	regmap_write(priv->usxgmii_regmap, 0x810, 0x000FFE6C);
+	regmap_write(priv->usxgmii_regmap, 0x818, 0x07B1EC7B);
+	regmap_write(priv->usxgmii_regmap, 0x80C, 0xB0000000);
+	ndelay(1020);
+	regmap_write(priv->usxgmii_regmap, 0x80C, 0x90000000);
+	ndelay(1020);
+
+	regmap_write(priv->xfi_pextp_regmap, 0x9024, 0x00C9071C);
+	regmap_write(priv->xfi_pextp_regmap, 0x2020, 0xAA8585AA);
+	regmap_write(priv->xfi_pextp_regmap, 0x2030, 0x0C020707);
+	regmap_write(priv->xfi_pextp_regmap, 0x2034, 0x0E050F0F);
+	regmap_write(priv->xfi_pextp_regmap, 0x2040, 0x00140032);
+	regmap_write(priv->xfi_pextp_regmap, 0x50F0, 0x00C014AA);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E0, 0x3777C12B);
+	regmap_write(priv->xfi_pextp_regmap, 0x506C, 0x005F9CFF);
+	regmap_write(priv->xfi_pextp_regmap, 0x5070, 0x9D9DFAFA);
+	regmap_write(priv->xfi_pextp_regmap, 0x5074, 0x27273F3F);
+	regmap_write(priv->xfi_pextp_regmap, 0x5078, 0xA7883C68);
+	regmap_write(priv->xfi_pextp_regmap, 0x507C, 0x11661166);
+	regmap_write(priv->xfi_pextp_regmap, 0x5080, 0x0E000AAF);
+	regmap_write(priv->xfi_pextp_regmap, 0x5084, 0x08080D0D);
+	regmap_write(priv->xfi_pextp_regmap, 0x5088, 0x02030909);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E4, 0x0C0C0000);
+	regmap_write(priv->xfi_pextp_regmap, 0x50E8, 0x04040000);
+	regmap_write(priv->xfi_pextp_regmap, 0x50EC, 0x0F0F0C06);
+	regmap_write(priv->xfi_pextp_regmap, 0x50A8, 0x506E8C8C);
+	regmap_write(priv->xfi_pextp_regmap, 0x6004, 0x18190000);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F8, 0x01423342);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F4, 0x80201F20);
+	regmap_write(priv->xfi_pextp_regmap, 0x0030, 0x00050C00);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x02002800);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x30B0, 0x00000020);
+	regmap_write(priv->xfi_pextp_regmap, 0x3028, 0x00008A01);
+	regmap_write(priv->xfi_pextp_regmap, 0x302C, 0x0000A884);
+	regmap_write(priv->xfi_pextp_regmap, 0x3024, 0x00083002);
+	regmap_write(priv->xfi_pextp_regmap, 0x3010, 0x00022220);
+	regmap_write(priv->xfi_pextp_regmap, 0x5064, 0x0F020A01);
+	regmap_write(priv->xfi_pextp_regmap, 0x50B4, 0x06100600);
+	regmap_write(priv->xfi_pextp_regmap, 0x3048, 0x47684100);
+	regmap_write(priv->xfi_pextp_regmap, 0x3050, 0x00000000);
+	regmap_write(priv->xfi_pextp_regmap, 0x3054, 0x00000000);
+	regmap_write(priv->xfi_pextp_regmap, 0x306C, 0x00000F00);
+	if (priv->gmac_id == 2)
+		regmap_write(priv->xfi_pextp_regmap, 0xA008, 0x0007B400);
+	regmap_write(priv->xfi_pextp_regmap, 0xA060, 0x00040000);
+	regmap_write(priv->xfi_pextp_regmap, 0x90D0, 0x00000001);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200E800);
+	udelay(150);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200C111);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0200C101);
+	udelay(15);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0202C111);
+	ndelay(1020);
+	regmap_write(priv->xfi_pextp_regmap, 0x0070, 0x0202C101);
+	udelay(100);
+	regmap_write(priv->xfi_pextp_regmap, 0x30B0, 0x00000030);
+	regmap_write(priv->xfi_pextp_regmap, 0x00F4, 0x80201F00);
+	regmap_write(priv->xfi_pextp_regmap, 0x3040, 0x30000000);
+	udelay(400);
+}
+
 static void mtk_usxgmii_an_init(struct mtk_eth_priv *priv)
 {
 	mtk_xfi_pll_enable(priv);
@@ -1432,10 +1498,22 @@ static void mtk_usxgmii_an_init(struct mtk_eth_priv *priv)
 	mtk_usxgmii_setup_phya_an_10000(priv);
 }
 
-static void mtk_mac_init(struct mtk_eth_priv *priv)
+static void mtk_10gbaser_init(struct mtk_eth_priv *priv)
 {
-	int i, ge_mode = 0;
+	mtk_xfi_pll_enable(priv);
+	mtk_usxgmii_reset(priv);
+	mtk_usxgmii_setup_phya_force_10000(priv);
+}
+
+static int mtk_mac_init(struct mtk_eth_priv *priv)
+{
+	int i, sgmii_sel_mask = 0, ge_mode = 0;
 	u32 mcr;
+
+	if (MTK_HAS_CAPS(priv->soc->caps, MTK_ETH_PATH_MT7629_GMAC2)) {
+		mtk_infra_rmw(priv, MT7629_INFRA_MISC2_REG,
+			      INFRA_MISC2_BONDING_OPTION, priv->gmac_id);
+	}
 
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII_RXID:
@@ -1444,18 +1522,28 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 		break;
 	case PHY_INTERFACE_MODE_SGMII:
 	case PHY_INTERFACE_MODE_2500BASEX:
+		if (!IS_ENABLED(CONFIG_MTK_ETH_SGMII)) {
+			printf("Error: SGMII is not supported on this platform\n");
+			return -ENOTSUPP;
+		}
+
 		if (MTK_HAS_CAPS(priv->soc->caps, MTK_GMAC2_U3_QPHY)) {
 			mtk_infra_rmw(priv, USB_PHY_SWITCH_REG, QPHY_SEL_MASK,
 				      SGMII_QPHY_SEL);
 		}
 
-		ge_mode = GE_MODE_RGMII;
-		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG, SYSCFG0_SGMII_SEL_M,
-			       SYSCFG0_SGMII_SEL(priv->gmac_id));
+		if (MTK_HAS_CAPS(priv->soc->caps, MTK_ETH_PATH_MT7622_SGMII))
+			sgmii_sel_mask = SYSCFG1_SGMII_SEL_M;
+
+		mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG, sgmii_sel_mask,
+			       SYSCFG1_SGMII_SEL(priv->gmac_id));
+
 		if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII)
 			mtk_sgmii_an_init(priv);
 		else
 			mtk_sgmii_force_init(priv);
+
+		ge_mode = GE_MODE_RGMII;
 		break;
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_GMII:
@@ -1469,9 +1557,9 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 	}
 
 	/* set the gmac to the right mode */
-	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG,
-		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
-		       ge_mode << SYSCFG0_GE_MODE_S(priv->gmac_id));
+	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG,
+		       SYSCFG1_GE_MODE_M << SYSCFG1_GE_MODE_S(priv->gmac_id),
+		       ge_mode << SYSCFG1_GE_MODE_S(priv->gmac_id));
 
 	if (priv->force_mode) {
 		mcr = (IPG_96BIT_WITH_SHORT_IPG << IPG_CFG_S) |
@@ -1512,26 +1600,37 @@ static void mtk_mac_init(struct mtk_eth_priv *priv)
 			     RX_RST | RXC_DQSISEL);
 		mtk_gmac_rmw(priv, GMAC_TRGMII_RCK_CTRL, RX_RST, 0);
 	}
+
+	return 0;
 }
 
-static void mtk_xmac_init(struct mtk_eth_priv *priv)
+static int mtk_xmac_init(struct mtk_eth_priv *priv)
 {
 	u32 force_link = 0;
+
+	if (!IS_ENABLED(CONFIG_MTK_ETH_XGMII)) {
+		printf("Error: 10Gb interface is not supported on this platform\n");
+		return -ENOTSUPP;
+	}
 
 	switch (priv->phy_interface) {
 	case PHY_INTERFACE_MODE_USXGMII:
 		mtk_usxgmii_an_init(priv);
+		break;
+	case PHY_INTERFACE_MODE_10GBASER:
+		mtk_10gbaser_init(priv);
 		break;
 	default:
 		break;
 	}
 
 	/* Set GMAC to the correct mode */
-	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG0_REG,
-		       SYSCFG0_GE_MODE_M << SYSCFG0_GE_MODE_S(priv->gmac_id),
+	mtk_ethsys_rmw(priv, ETHSYS_SYSCFG1_REG,
+		       SYSCFG1_GE_MODE_M << SYSCFG1_GE_MODE_S(priv->gmac_id),
 		       0);
 
-	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII &&
+	if ((priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+	     priv->phy_interface == PHY_INTERFACE_MODE_10GBASER) &&
 	    priv->gmac_id == 1) {
 		mtk_infra_rmw(priv, TOPMISC_NETSYS_PCS_MUX,
 			      NETSYS_PCS_MUX_MASK, MUX_G2_USXGMII_SEL);
@@ -1546,6 +1645,8 @@ static void mtk_xmac_init(struct mtk_eth_priv *priv)
 
 	/* Force GMAC link down */
 	mtk_gmac_write(priv, GMAC_PORT_MCR(priv->gmac_id), FORCE_MODE);
+
+	return 0;
 }
 
 static void mtk_eth_fifo_init(struct mtk_eth_priv *priv)
@@ -1661,10 +1762,16 @@ static int mtk_eth_start(struct udevice *dev)
 		if (priv->sw == SW_MT7988 && priv->gmac_id == 0) {
 			mtk_gdma_write(priv, priv->gmac_id, GDMA_IG_CTRL_REG,
 				       GDMA_BRIDGE_TO_CPU);
-		}
 
-		mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
-			       GDMA_CPU_BRIDGE_EN);
+			mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
+				       GDMA_CPU_BRIDGE_EN);
+		} else if ((priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+			    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER ||
+			    priv->phy_interface == PHY_INTERFACE_MODE_XGMII) &&
+			   priv->gmac_id != 0) {
+			mtk_gdma_write(priv, priv->gmac_id, GDMA_EG_CTRL_REG,
+				       GDMA_CPU_BRIDGE_EN);
+		}
 	}
 
 	udelay(500);
@@ -1790,6 +1897,9 @@ static int mtk_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	rxd = priv->rx_ring_noc + idx * priv->soc->rxd_size;
 
+	invalidate_dcache_range((ulong)rxd->rxd1,
+				(ulong)rxd->rxd1 + PKTSIZE_ALIGN);
+
 	if (MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V2) ||
 	    MTK_HAS_CAPS(priv->soc->caps, MTK_NETSYS_V3))
 		rxd->rxd2 = PDMA_V2_RXD2_PLEN0_SET(PKTSIZE_ALIGN);
@@ -1833,10 +1943,14 @@ static int mtk_eth_probe(struct udevice *dev)
 
 	/* Set MAC mode */
 	if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+	    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER ||
 	    priv->phy_interface == PHY_INTERFACE_MODE_XGMII)
-		mtk_xmac_init(priv);
+		ret = mtk_xmac_init(priv);
 	else
-		mtk_mac_init(priv);
+		ret = mtk_mac_init(priv);
+
+	if (ret)
+		return ret;
 
 	/* Probe phy if switch is not specified */
 	if (priv->sw == SW_NONE)
@@ -1944,8 +2058,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		}
 	}
 
-	if (priv->phy_interface == PHY_INTERFACE_MODE_SGMII ||
-	    priv->phy_interface == PHY_INTERFACE_MODE_2500BASEX) {
+	if ((priv->phy_interface == PHY_INTERFACE_MODE_SGMII ||
+	     priv->phy_interface == PHY_INTERFACE_MODE_2500BASEX) &&
+	    IS_ENABLED(CONFIG_MTK_ETH_SGMII)) {
 		/* get corresponding sgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,sgmiisys",
 						 NULL, 0, 0, &args);
@@ -1967,7 +2082,9 @@ static int mtk_eth_of_to_plat(struct udevice *dev)
 		/* Upstream linux use mediatek,pnswap instead of pn_swap */
 		priv->pn_swap = ofnode_read_bool(args.node, "pn_swap") ||
 				ofnode_read_bool(args.node, "mediatek,pnswap");
-	} else if (priv->phy_interface == PHY_INTERFACE_MODE_USXGMII) {
+	} else if ((priv->phy_interface == PHY_INTERFACE_MODE_USXGMII ||
+		    priv->phy_interface == PHY_INTERFACE_MODE_10GBASER) &&
+		   IS_ENABLED(CONFIG_MTK_ETH_XGMII)) {
 		/* get corresponding usxgmii phandle */
 		ret = dev_read_phandle_with_args(dev, "mediatek,usxgmiisys",
 						 NULL, 0, 0, &args);
@@ -2096,6 +2213,7 @@ static const struct mtk_soc_data mt7981_data = {
 };
 
 static const struct mtk_soc_data mt7629_data = {
+	.caps = MT7629_CAPS,
 	.ana_rgc3 = 0x128,
 	.gdma_count = 2,
 	.pdma_base = PDMA_V1_BASE,
@@ -2112,6 +2230,7 @@ static const struct mtk_soc_data mt7623_data = {
 };
 
 static const struct mtk_soc_data mt7622_data = {
+	.caps = MT7622_CAPS,
 	.ana_rgc3 = 0x2028,
 	.gdma_count = 2,
 	.pdma_base = PDMA_V1_BASE,

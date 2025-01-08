@@ -9,5 +9,5 @@
 ifdef CONFIG_XPL_BUILD
 obj-y	:= ../rcar-common/gen3-spl.o
 else
-obj-y	:= salvator-x.o ../rcar-common/common.o
+obj-y	:= salvator-x.o ../rcar-common/gen3-common.o ../rcar-common/common.o
 endif

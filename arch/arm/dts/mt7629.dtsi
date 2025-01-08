@@ -314,8 +314,10 @@
 				"sgmii2_cdr_ref", "sgmii2_cdr_fb",
 				"sgmii_ck", "eth2pll";
 		assigned-clocks = <&topckgen CLK_TOP_ETH_SEL>,
-				  <&topckgen CLK_TOP_F10M_REF_SEL>;
+				  <&topckgen CLK_TOP_F10M_REF_SEL>,
+				  <&topckgen CLK_TOP_SGMII_REF_1_SEL>;
 		assigned-clock-parents = <&topckgen CLK_TOP_UNIVPLL1_D2>,
+					 <&topckgen CLK_TOP_SYSPLL4_D16>,
 					 <&topckgen CLK_TOP_SGMIIPLL_D2>;
 		power-domains = <&scpsys MT7629_POWER_DOMAIN_ETHSYS>;
 		resets = <&ethsys ETHSYS_FE_RST>;

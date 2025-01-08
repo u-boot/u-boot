@@ -115,6 +115,9 @@ struct mxc_spi_slave {
 #if defined(MXC_ECSPI)
 	u32		cfg_reg;
 #endif
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk	clk;
+#endif
 	int		gpio;
 	int		ss_pol;
 	unsigned int	max_hz;
@@ -214,7 +217,11 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs)
 #ifdef MXC_ECSPI
 static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs)
 {
+#if CONFIG_IS_ENABLED(CLK)
+	u32 clk_src = clk_get_rate(&mxcs->clk);
+#else
 	u32 clk_src = mxc_get_clock(MXC_CSPI_CLK);
+#endif
 	s32 reg_ctrl, reg_config;
 	u32 ss_pol = 0, sclkpol = 0, sclkpha = 0, sclkctl = 0;
 	u32 pre_div = 0, post_div = 0;
@@ -599,14 +606,13 @@ static int mxc_spi_probe(struct udevice *bus)
 		return -ENODEV;
 
 #if CONFIG_IS_ENABLED(CLK)
-	struct clk clk;
-	ret = clk_get_by_index(bus, 0, &clk);
+	ret = clk_get_by_index(bus, 0, &mxcs->clk);
 	if (ret)
 		return ret;
 
-	clk_enable(&clk);
+	clk_enable(&mxcs->clk);
 
-	mxcs->max_hz = clk_get_rate(&clk);
+	mxcs->max_hz = clk_get_rate(&mxcs->clk);
 #else
 	int node = dev_of_offset(bus);
 	const void *blob = gd->fdt_blob;

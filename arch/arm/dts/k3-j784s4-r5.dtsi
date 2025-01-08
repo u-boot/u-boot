@@ -41,7 +41,10 @@
 };
 
 &mcu_timer0 {
-	status = "okay";
+	/delete-property/ clocks;
+	/delete-property/ clocks-names;
+	/delete-property/ assigned-clocks;
+	/delete-property/ assigned-clock-parents;
 	clock-frequency = <250000000>;
 	bootph-pre-ram;
 };
@@ -104,3 +107,9 @@
 &mcu_udmap {
 	ti,sci = <&dm_tifs>;
 };
+
+&wkup_vtm0 {
+	bootph-pre-ram;
+	vdd-supply-2 = <&tps62873a>;
+};
+

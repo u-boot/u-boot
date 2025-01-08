@@ -4,14 +4,91 @@
  * Author: Wadim Egorov <w.egorov@phytec.de>
  */
 
+#include <efi_loader.h>
 #include <env_internal.h>
 #include <fdt_support.h>
 #include <dm/ofnode.h>
+#include <mtd.h>
 #include <spl.h>
 #include <malloc.h>
 #include <asm/arch/hardware.h>
 
 #include "../am6_som_detection.h"
+
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+struct efi_fw_image fw_images[] = {
+	{
+		.fw_name = PHYCORE_AM6XX_FW_NAME_TIBOOT3,
+		.image_index = 1,
+	},
+	{
+		.fw_name = PHYCORE_AM6XX_FW_NAME_SPL,
+		.image_index = 2,
+	},
+	{
+		.fw_name = PHYCORE_AM6XX_FW_NAME_UBOOT,
+		.image_index = 3,
+	}
+};
+
+struct efi_capsule_update_info update_info = {
+	.dfu_string = NULL,
+	.num_images = ARRAY_SIZE(fw_images),
+	.images = fw_images,
+};
+
+/**
+ * configure_capsule_updates() - Set up the DFU string for capsule updates
+ *
+ * Configures all three bootloader binaries for updates on the current
+ * booted flash device, which may be eMMC, OSPI NOR, or a uSD card. If
+ * booting from USB or Serial, capsule updates will be performed on the
+ * eMMC device.
+ *
+ * Note: Currently, eMMC hardware partitions are not differentiated; Updates
+ * are always applied to the first boot partition.
+ */
+void configure_capsule_updates(void)
+{
+	static char dfu_string[128] = { 0 };
+	const char *dfu_raw = "tiboot3.bin raw 0x0 0x400 mmcpart 1;"
+			      "tispl.bin raw 0x400 0x1000 mmcpart 1;"
+			      "u-boot.img.raw raw 0x1400 0x2000 mmcpart 1";
+	const char *dfu_fat = "tiboot3.bin fat 1 1;"
+			      "tispl.bin fat 1 1;"
+			      "u-boot.img fat 1 1";
+	const char *dfu_spi = "tiboot3.bin part 1;"
+			     "tispl.bin part 2;"
+			     "u-boot.img part 3";
+	u32 boot_device = get_boot_device();
+
+	switch (boot_device) {
+	case BOOT_DEVICE_MMC1:
+		snprintf(dfu_string, 128, "mmc 0=%s", dfu_raw);
+		break;
+	case BOOT_DEVICE_MMC2:
+		snprintf(dfu_string, 128, "mmc 1=%s", dfu_fat);
+		break;
+	case BOOT_DEVICE_SPI:
+		mtd_probe_devices();
+		snprintf(dfu_string, 128, "mtd nor0=%s", dfu_spi);
+		break;
+	default:
+		snprintf(dfu_string, 128, "mmc 0=%s", dfu_raw);
+		break;
+	};
+
+	update_info.dfu_string = dfu_string;
+}
+#endif
+
+#if IS_ENABLED(CONFIG_SET_DFU_ALT_INFO)
+void set_dfu_alt_info(char *interface, char *devstr)
+{
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		env_set("dfu_alt_info", update_info.dfu_string);
+}
+#endif
 
 #if IS_ENABLED(CONFIG_ENV_IS_IN_FAT) || IS_ENABLED(CONFIG_ENV_IS_IN_MMC)
 int mmc_get_env_dev(void)
@@ -93,6 +170,10 @@ int board_late_init(void)
 			}
 		}
 	}
+
+#if IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT)
+	configure_capsule_updates();
+#endif
 
 	return 0;
 }

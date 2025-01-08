@@ -11,6 +11,17 @@ config PINCTRL_PFC
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
 
+config PINCTRL_PFC_FULL
+	bool "Renesas pin control drivers (full size)"
+	depends on PINCTRL_PFC
+	help
+	  By default the pin multiplexing tables used by U-Boot are reduced
+	  to keep the size of the bootloader low. Enable this option to use
+	  full pin multiplexing tables the same way they are included in the
+	  Linux kernel. This includes pin multiplexing options for Audio, CAN,
+	  CANFD, DU, INTC, INTC-EX, MSIOF, PWM, SSI, for which there is no
+	  U-Boot driver.
+
 config PINCTRL_PFC_R8A7790
 	bool "Renesas R-Car Gen2 R8A7790 pin control driver"
 	depends on PINCTRL_PFC

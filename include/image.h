@@ -1172,6 +1172,18 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
 				const void **data, size_t *size);
 
 /**
+ * fit_image_get_phase() - Get the phase from a FIT image
+ *
+ * @fit: FIT to read from
+ * @offset: offset node to read
+ * @phasep: Returns phase, if any
+ * Return: 0 if read OK and *phasep is value, -ENOENT if there was no phase
+ * property in the node, other -ve value on other error
+ */
+int fit_image_get_phase(const void *fit, int offset,
+			enum image_phase_t *phasep);
+
+/**
  * fit_get_data_node() - Get verified image data for an image
  * @fit: Pointer to the FIT format image header
  * @image_uname: The name of the image node
@@ -1399,7 +1411,9 @@ int fit_check_format(const void *fit, ulong size);
  * copied into the configuration node in the FIT image. This is required to
  * match configurations with compressed FDTs.
  *
- * Returns: offset to the configuration to use if one was found, -1 otherwise
+ * Returns: offset to the configuration to use if one was found, -EINVAL if
+ * there a /configurations or /images node is missing, -ENOENT if no match was
+ * found, -ENXIO if the FDT node has no compatible string
  */
 int fit_conf_find_compat(const void *fit, const void *fdt);
 
@@ -1788,6 +1802,21 @@ struct cipher_algo {
 		       const unsigned char *data, int data_len,
 		       unsigned char **cipher, int *cipher_len);
 
+	/**
+	 * add_cipher_data() - Add cipher data to the FIT and device tree
+	 *
+	 * This is used to add the ciphered data to the FIT and other cipher
+	 * related information (key and initialization vector) to a device tree.
+	 *
+	 * @info: Pointer to image cipher information.
+	 * @keydest: Pointer to a device tree where the key and IV can be
+	 *           stored. keydest can be NULL when the key is retrieved at
+	 *           runtime by another mean.
+	 * @fit: Pointer to the FIT image.
+	 * @node_noffset: Offset where the cipher information are stored in the
+	 *                FIT.
+	 * return: 0 on success, a negative error code otherwise.
+	 */
 	int (*add_cipher_data)(struct image_cipher_info *info,
 			       void *keydest, void *fit, int node_noffset);
 
@@ -1800,6 +1829,30 @@ int fit_image_cipher_get_algo(const void *fit, int noffset, char **algo);
 
 struct cipher_algo *image_get_cipher_algo(const char *full_name);
 struct andr_image_data;
+
+/**
+ * android_image_get_bootimg_size() - Extract size of Android boot image
+ *
+ * This is used to extract the size of an Android boot image
+ * from boot image header.
+ *
+ * @hdr: Pointer to boot image header
+ * @boot_img_size: On exit returns the size in bytes of the boot image
+ * Return: true if succeeded, false otherwise
+ */
+bool android_image_get_bootimg_size(const void *hdr, u32 *boot_img_size);
+
+/**
+ * android_image_get_vendor_bootimg_size() - Extract size of Android vendor-boot image
+ *
+ * This is used to extract the size of an Android vendor-boot image
+ * from vendor-boot image header.
+ *
+ * @hdr: Pointer to vendor-boot image header
+ * @vendor_boot_img_size: On exit returns the size in bytes of the vendor-boot image
+ * Return: true if succeeded, false otherwise
+ */
+bool android_image_get_vendor_bootimg_size(const void *hdr, u32 *vendor_boot_img_size);
 
 /**
  * android_image_get_data() - Parse Android boot images

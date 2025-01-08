@@ -20,11 +20,13 @@
 
 #define NUM_OPPS		4
 
+#define AM6_OPP_LOW		0
 #define AM6_OPP_NOM		1
 #define AM6_OPP_OD		2
 #define AM6_OPP_TURBO		3
 
 int k3_avs_set_opp(struct udevice *dev, int vdd_id, int opp_id);
 int k3_avs_notify_freq(int dev_id, int clk_id, u32 freq);
+int k3_avs_check_opp(struct udevice *dev, int vdd_id, int opp_id);
 
 #endif

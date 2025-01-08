@@ -16,11 +16,11 @@
 
 #define LZMA_LEN	(1 << 20)
 
-static void spl_parse_legacy_validate(uintptr_t start, uintptr_t size)
+static void spl_parse_legacy_validate(ulong start, ulong size)
 {
-	uintptr_t spl_start = (uintptr_t)_start;
-	uintptr_t spl_end = (uintptr_t)&_image_binary_end;
-	uintptr_t end = start + size;
+	ulong spl_start = (ulong)_start;
+	ulong spl_end = (ulong)&_image_binary_end;
+	ulong end = start + size;
 
 	if ((start >= spl_start && start < spl_end) ||
 	    (end > spl_start && end <= spl_end) ||

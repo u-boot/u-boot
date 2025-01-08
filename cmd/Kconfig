@@ -176,6 +176,13 @@ config CMD_CPU
 	  internal name) and clock frequency. Other information may be
 	  available depending on the CPU driver.
 
+config CMD_UFETCH
+	bool "U-Boot fetch"
+	depends on BLK
+	help
+	  Fetch utility for U-Boot (akin to neofetch). Prints information
+	  about U-Boot and the board it is running on in a pleasing format.
+
 config CMD_FWU_METADATA
 	bool "fwu metadata read"
 	depends on FWU_MULTI_BANK_UPDATE
@@ -1446,6 +1453,12 @@ config CMD_OPTEE_RPMB
 	  in the Replay Protection Memory Block partition in eMMC by
 	  using Persistent Objects in OPTEE
 
+config CMD_OPTEE
+	bool "Enable OP-TEE commands"
+	depends on OPTEE
+	help
+	 OP-TEE commands support.
+
 config CMD_MTD
 	bool "mtd"
 	depends on MTD
@@ -1489,6 +1502,11 @@ config CMD_NAND_TORTURE
 	bool "nand torture"
 	help
 	  NAND torture support.
+
+config CMD_NAND_WATCH
+	bool "nand watch"
+	help
+	  NAND watch bitflip support.
 
 endif # CMD_NAND
 
@@ -2117,11 +2135,8 @@ config CMD_TFTPBOOT
 
 config CMD_WGET
 	bool "wget"
-	depends on CMD_NET
 	default y if SANDBOX
-	select PROT_TCP if NET
-	select PROT_TCP_LWIP if NET_LWIP
-	select PROT_DNS_LWIP if NET_LWIP
+	select WGET
 	help
 	  wget is a simple command to download kernel, or other files,
 	  from a http server over TCP.

@@ -24,21 +24,21 @@ static int cb_get_str(struct udevice *dev, int id, size_t size, char *val)
 	const char *str = NULL;
 
 	switch (id) {
-	case SYSINFO_ID_BOARD_MODEL:
+	case SYSID_BOARD_MODEL:
 		if (priv->t1)
 			str = smbios_string(priv->system,
 					    priv->t1->product_name);
 		break;
-	case SYSINFO_ID_BOARD_MANUFACTURER:
+	case SYSID_BOARD_MANUFACTURER:
 		if (priv->t1)
 			str = smbios_string(priv->system,
 					    priv->t1->manufacturer);
 		break;
-	case SYSINFO_ID_PRIOR_STAGE_VERSION:
+	case SYSID_PRIOR_STAGE_VERSION:
 		if (priv->t0)
 			str = smbios_string(priv->bios, priv->t0->bios_ver);
 		break;
-	case SYSINFO_ID_PRIOR_STAGE_DATE:
+	case SYSID_PRIOR_STAGE_DATE:
 		if (priv->t0)
 			str = smbios_string(priv->bios,
 					    priv->t0->bios_release_date);
