@@ -297,6 +297,7 @@ config MACH_SUN5I
 	select SUPPORT_SPL
 	imply SPL_SYS_I2C_LEGACY
 	imply SYS_I2C_LEGACY
+	imply OF_UPSTREAM
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"

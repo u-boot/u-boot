@@ -534,28 +534,8 @@ dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-inet-3f.dtb \
 	sun4i-a10-inet-3w.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
-	sun5i-a10s-auxtek-t003.dtb \
-	sun5i-a10s-auxtek-t004.dtb \
-	sun5i-a10s-mk802.dtb \
-	sun5i-a10s-olinuxino-micro.dtb \
-	sun5i-a10s-r7-tv-dongle.dtb \
-	sun5i-a10s-wobo-i5.dtb \
 	sun5i-a13-ampe-a76.dtb \
-	sun5i-a13-difrnce-dit4350.dtb \
-	sun5i-a13-empire-electronix-d709.dtb \
-	sun5i-a13-empire-electronix-m712.dtb \
-	sun5i-a13-hsg-h702.dtb \
-	sun5i-a13-inet-86vs.dtb \
-	sun5i-a13-inet-98v-rev2.dtb \
-	sun5i-a13-licheepi-one.dtb \
-	sun5i-a13-olinuxino.dtb \
-	sun5i-a13-olinuxino-micro.dtb \
-	sun5i-a13-pocketbook-touch-lux-3.dtb \
-	sun5i-a13-q8-tablet.dtb \
-	sun5i-a13-utoo-p66.dtb \
-	sun5i-gr8-chip-pro.dtb \
-	sun5i-gr8-evb.dtb \
-	sun5i-r8-chip.dtb
+	sun5i-a13-inet-86vs.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-app4-evb1.dtb \
 	sun6i-a31-colombus.dtb \
