@@ -450,17 +450,26 @@ static int run_avb_verification(struct bootflow *bflow)
 				 AVB_HASHTREE_ERROR_MODE_RESTART_AND_INVALIDATE,
 				 &out_data);
 
-	if (result != AVB_SLOT_VERIFY_RESULT_OK) {
-		printf("Verification failed, reason: %s\n",
-		       str_avb_slot_error(result));
-		avb_slot_verify_data_free(out_data);
-		return log_msg_ret("avb verify", -EIO);
-	}
-
-	if (unlocked)
-		boot_state = AVB_ORANGE;
-	else
+	if (!unlocked) {
+		/* When device is locked, we only accept AVB_SLOT_VERIFY_RESULT_OK */
+		if (result != AVB_SLOT_VERIFY_RESULT_OK) {
+			printf("Verification failed, reason: %s\n",
+			       str_avb_slot_error(result));
+			avb_slot_verify_data_free(out_data);
+			return log_msg_ret("avb verify", -EIO);
+		}
 		boot_state = AVB_GREEN;
+	} else {
+		/* When device is unlocked, we also accept verification errors */
+		if (result != AVB_SLOT_VERIFY_RESULT_OK &&
+		    result != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION) {
+			printf("Unlocked verification failed, reason: %s\n",
+			       str_avb_slot_error(result));
+			avb_slot_verify_data_free(out_data);
+			return log_msg_ret("avb verify unlocked", -EIO);
+		}
+		boot_state = AVB_ORANGE;
+	}
 
 	extra_args = avb_set_state(avb_ops, boot_state);
 	if (extra_args) {
@@ -470,9 +479,11 @@ static int run_avb_verification(struct bootflow *bflow)
 			goto free_out_data;
 	}
 
-	ret = avb_append_commandline(bflow, out_data->cmdline);
-	if (ret < 0)
-		goto free_out_data;
+	if (result == AVB_SLOT_VERIFY_RESULT_OK) {
+		ret = avb_append_commandline(bflow, out_data->cmdline);
+		if (ret < 0)
+			goto free_out_data;
+	}
 
 	return 0;
 
