@@ -26,6 +26,12 @@
 #define JTAG_DEV_CANFD_SHIFT			15
 #define JTAG_DEV_VIDEO_CODEC_MASK			BIT(14)
 #define JTAG_DEV_VIDEO_CODEC_SHIFT			14
+#define JTAG_DEV_TEMP_MASK			GENMASK(5, 3)
+#define JTAG_DEV_TEMP_SHIFT			3
+
+#define JTAG_DEV_TEMP_AUTOMOTIVE        0x5
+#define JTAG_DEV_TEMP_EXTENDED_VALUE    105
+#define JTAG_DEV_TEMP_AUTOMOTIVE_VALUE  125
 
 #define CTRLMMR_MAIN_DEVSTAT			(WKUP_CTRL_MMR0_BASE + 0x30)
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_MASK	GENMASK(6, 3)
@@ -99,6 +105,17 @@ static inline int k3_has_canfd(void)
 	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
 
 	return (dev_id & JTAG_DEV_CANFD_MASK) >> JTAG_DEV_CANFD_SHIFT;
+}
+
+static inline int k3_get_max_temp(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+	u32 dev_temp = (dev_id & JTAG_DEV_TEMP_MASK) >> JTAG_DEV_TEMP_SHIFT;
+
+	if (dev_temp == JTAG_DEV_TEMP_AUTOMOTIVE)
+		return JTAG_DEV_TEMP_AUTOMOTIVE_VALUE;
+	else
+		return JTAG_DEV_TEMP_EXTENDED_VALUE;
 }
 
 #if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
