@@ -484,21 +484,42 @@ static efi_status_t EFIAPI efi_http_service_binding_destroy_child(
  *
  */
 efi_status_t efi_http_register(const efi_handle_t handle,
-			       struct efi_service_binding_protocol *http_service_binding)
+			       struct efi_service_binding_protocol **http_service_binding)
 {
 	efi_status_t r = EFI_SUCCESS;
 
+	r = efi_allocate_pool(EFI_LOADER_DATA, sizeof(**http_service_binding), (void **)http_service_binding);
+	if (r != EFI_SUCCESS)
+		return r;
 	r = efi_add_protocol(handle, &efi_http_service_binding_guid,
-			     http_service_binding);
+			     *http_service_binding);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 
-	http_service_binding->create_child = efi_http_service_binding_create_child;
-	http_service_binding->destroy_child = efi_http_service_binding_destroy_child;
+	(*http_service_binding)->create_child = efi_http_service_binding_create_child;
+	(*http_service_binding)->destroy_child = efi_http_service_binding_destroy_child;
 
 	return EFI_SUCCESS;
 failure_to_add_protocol:
 	return r;
+}
+
+/**
+ * efi_http_unregister() - unregister the http protocol
+ *
+ */
+efi_status_t efi_http_unregister(const efi_handle_t handle,
+				 struct efi_service_binding_protocol *http_service_binding)
+{
+	efi_status_t r = EFI_SUCCESS;
+
+	r = EFI_CALL(efi_uninstall_protocol(handle, &efi_http_service_binding_guid,
+		     http_service_binding, true));
+	if (r != EFI_SUCCESS)
+		return r;
+	efi_free_pool(http_service_binding);
+
+	return EFI_SUCCESS;
 }
 
 enum efi_http_status_code efi_u32_to_httpstatus(u32 status)

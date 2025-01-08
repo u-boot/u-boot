@@ -17,6 +17,7 @@
 
 #include <efi_loader.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <linux/sizes.h>
 #include <malloc.h>
 #include <vsprintf.h>
@@ -29,6 +30,8 @@
 const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
 static const efi_guid_t efi_pxe_base_code_protocol_guid =
 					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
+static const efi_guid_t efi_ip4_config2_guid = EFI_IP4_CONFIG2_PROTOCOL_GUID;
+static const efi_guid_t efi_http_service_binding_guid = EFI_HTTP_SERVICE_BINDING_PROTOCOL_GUID;
 
 static struct wget_http_info efi_wget_info = {
 	.set_bootdev = false,
@@ -80,10 +83,10 @@ struct efi_net_obj {
 	struct efi_pxe_base_code_protocol pxe;
 	struct efi_pxe_mode pxe_mode;
 #if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
-	struct efi_ip4_config2_protocol ip4_config2;
+	struct efi_ip4_config2_protocol *ip4_config2;
 #endif
 #if IS_ENABLED(CONFIG_EFI_HTTP_PROTOCOL)
-	struct efi_service_binding_protocol http_service_binding;
+	struct efi_service_binding_protocol *http_service_binding;
 #endif
 	void *new_tx_packet;
 	void *transmit_buffer;
@@ -755,6 +758,8 @@ out:
 	return EFI_EXIT(ret);
 }
 
+efi_status_t efi_net_add_pxe(struct efi_net_obj *netobj);
+
 /**
  * efi_net_set_dhcp_ack() - take note of a selected DHCP IP address
  *
@@ -789,9 +794,12 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
 	next_dhcp_entry++;
 	next_dhcp_entry %= MAX_NUM_DHCP_ENTRIES;
 
-	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && net_objs[i]->dev == dev) {
-			net_objs[i]->pxe_mode.dhcp_ack = **dhcp_ack;
+	if (efi_obj_list_initialized == EFI_SUCCESS) {
+		for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
+			if (net_objs[i] && net_objs[i]->dev == dev) {
+				efi_net_add_pxe(net_objs[i]);
+				break;
+			}
 		}
 	}
 }
@@ -1064,6 +1072,52 @@ static struct efi_device_path *efi_netobj_get_dp(struct efi_net_obj *netobj)
 }
 
 /**
+ * efi_net_add_pxe() - install the pxe protocol to a netobj
+ *
+ * @netobj:	pointer to efi_net_obj
+ * Return:	status code
+ */
+efi_status_t efi_net_add_pxe(struct efi_net_obj *netobj)
+{
+	efi_status_t r = EFI_SUCCESS;
+	struct efi_handler *phandler;
+	int i, j;
+
+	r = efi_search_protocol(netobj->handle, &efi_pxe_base_code_protocol_guid, &phandler);
+	if (r == EFI_SUCCESS)
+		return r;
+
+	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
+	for (j = 0; netobj->dev && dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
+	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
+		if (netobj->dev == dhcp_cache[i].dev) {
+			netobj->pxe_mode.dhcp_ack = *dhcp_cache[i].dhcp_ack;
+			r = efi_add_protocol(netobj->handle, &efi_pxe_base_code_protocol_guid,
+			     &netobj->pxe);
+			if (r != EFI_SUCCESS)
+				return r;
+			netobj->pxe.revision = EFI_PXE_BASE_CODE_PROTOCOL_REVISION;
+			netobj->pxe.start = efi_pxe_base_code_start;
+			netobj->pxe.stop = efi_pxe_base_code_stop;
+			netobj->pxe.dhcp = efi_pxe_base_code_dhcp;
+			netobj->pxe.discover = efi_pxe_base_code_discover;
+			netobj->pxe.mtftp = efi_pxe_base_code_mtftp;
+			netobj->pxe.udp_write = efi_pxe_base_code_udp_write;
+			netobj->pxe.udp_read = efi_pxe_base_code_udp_read;
+			netobj->pxe.set_ip_filter = efi_pxe_base_code_set_ip_filter;
+			netobj->pxe.arp = efi_pxe_base_code_arp;
+			netobj->pxe.set_parameters = efi_pxe_base_code_set_parameters;
+			netobj->pxe.set_station_ip = efi_pxe_base_code_set_station_ip;
+			netobj->pxe.set_packets = efi_pxe_base_code_set_packets;
+			netobj->pxe.mode = &netobj->pxe_mode;
+			break;
+		}
+	}
+
+	return r;
+}
+
+/**
  * efi_netobj_start() - start an efi net device
  *
  *
@@ -1074,7 +1128,7 @@ efi_status_t efi_netobj_start(struct efi_net_obj *netobj)
 {
 	efi_status_t r = EFI_SUCCESS;
 	struct efi_device_path *net_dp;
-	int i;
+
 
 	if (!efi_netobj_is_active(netobj))
 		return r;
@@ -1097,15 +1151,8 @@ efi_status_t efi_netobj_start(struct efi_net_obj *netobj)
 	if (r != EFI_SUCCESS)
 		return r;
 set_addr:
-#ifdef CONFIG_EFI_HTTP_PROTOCOL
-	/*
-	 * No harm on doing the following. If the PXE handle is present, the client could
-	 * find it and try to get its IP address from it. In here the PXE handle is present
-	 * but the PXE protocol is not yet implmenented, so we add this in the meantime.
-	 */
 	efi_net_get_addr((struct efi_ipv4_address *)&netobj->pxe_mode.station_ip,
 			 (struct efi_ipv4_address *)&netobj->pxe_mode.subnet_mask, NULL, netobj->dev);
-#endif
 
 	return 0;
 }
@@ -1142,15 +1189,19 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 {
 	efi_status_t r;
 	struct udevice *dev;
+	struct efi_handler *phandler;
 	void *transmit_buffer;
 	uchar **receive_buffer;
 	size_t *receive_lengths;
-	int i, j;
+	int i;
 
-	if (!netobj || !netobj->net || efi_netobj_is_active(netobj))
+	if (!netobj || !netobj->net)
 		return 0;
 
 	dev = netobj->dev;
+
+	if (efi_netobj_is_active(netobj))
+		goto set_timers;
 
 	if (!netobj->net_mode)
 		netobj->net_mode = calloc(1, sizeof(*netobj->net_mode));
@@ -1198,11 +1249,6 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 			netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-
-	r = efi_add_protocol(netobj->handle, &efi_pxe_base_code_protocol_guid,
-			     &netobj->pxe);
-	if (r != EFI_SUCCESS)
-		goto failure_to_add_protocol;
 	netobj->net->revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net->start = efi_net_start;
 	netobj->net->stop = efi_net_stop;
@@ -1228,38 +1274,13 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	netobj->net_mode->max_packet_size = PKTSIZE;
 	netobj->net_mode->if_type = ARP_ETHER;
 
-	netobj->pxe.revision = EFI_PXE_BASE_CODE_PROTOCOL_REVISION;
-	netobj->pxe.start = efi_pxe_base_code_start;
-	netobj->pxe.stop = efi_pxe_base_code_stop;
-	netobj->pxe.dhcp = efi_pxe_base_code_dhcp;
-	netobj->pxe.discover = efi_pxe_base_code_discover;
-	netobj->pxe.mtftp = efi_pxe_base_code_mtftp;
-	netobj->pxe.udp_write = efi_pxe_base_code_udp_write;
-	netobj->pxe.udp_read = efi_pxe_base_code_udp_read;
-	netobj->pxe.set_ip_filter = efi_pxe_base_code_set_ip_filter;
-	netobj->pxe.arp = efi_pxe_base_code_arp;
-	netobj->pxe.set_parameters = efi_pxe_base_code_set_parameters;
-	netobj->pxe.set_station_ip = efi_pxe_base_code_set_station_ip;
-	netobj->pxe.set_packets = efi_pxe_base_code_set_packets;
-	netobj->pxe.mode = &netobj->pxe_mode;
-
-	ret = EFI_CALL(efi_connect_controller(net_objs[i]->handle, NULL, NULL, 0));
-	if (ret != EFI_SUCCESS)
+	efi_net_add_pxe(netobj);
+		
+	r = EFI_CALL(efi_connect_controller(netobj->handle, NULL, NULL, 0));
+	if (r != EFI_SUCCESS)
 		return -1;
 
-	/*
-	 * Scan dhcp entries for one corresponding
-	 * to this udevice, from newest to oldest
-	 */
-	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
-	for (j = 0; dev && dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
-	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
-		if (dev == dhcp_cache[i].dev) {
-			netobj->pxe_mode.dhcp_ack = *dhcp_cache[i].dhcp_ack;
-			break;
-		}
-	}
-
+set_timers:
 	/*
 	 * Create WaitForPacket event.
 	 */
@@ -1294,16 +1315,26 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 	}
 
 #if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
+	netobj->ip4_config2 = NULL;
+	r = efi_search_protocol(netobj->handle, &efi_ip4_config2_guid, &phandler);
+	if (r == EFI_SUCCESS)
+		goto http;
 	r = efi_ipconfig_register(netobj->handle, &netobj->ip4_config2);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 #endif
 
+http:
 #ifdef CONFIG_EFI_HTTP_PROTOCOL
+	netobj->http_service_binding = NULL;
+	r = efi_search_protocol(netobj->handle, &efi_http_service_binding_guid, &phandler);
+	if (r == EFI_SUCCESS)
+		goto out;
 	r = efi_http_register(netobj->handle, &netobj->http_service_binding);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
 #endif
+out:
 	return 0;
 failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
@@ -1321,7 +1352,6 @@ out_of_resources:
 efi_status_t efi_net_init()
 {
 	int i, r;
-	efi_status_t ret;
 
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
 		if (net_objs[i]) {
@@ -1427,9 +1457,12 @@ struct efi_net_obj *efi_netobj_alloc(efi_handle_t handle,
 int efi_net_register(void *ctx, struct event *event)
 {
 	struct udevice *dev;
+	struct driver *drv;
+	struct efi_netdev_plat *plat;
+	efi_handle_t handle;
+	struct efi_simple_network *net;
 	enum uclass_id id;
 	struct efi_net_obj *netobj;
-	efi_status_t ret;
 	int i, r;
 
 	dev = event->data.dm.dev;
@@ -1449,17 +1482,24 @@ int efi_net_register(void *ctx, struct event *event)
 		}
 	}
 
-	netobj = efi_netobj_alloc(NULL, NULL, dev);
+	handle = NULL;
+	net = NULL;
+	drv = lists_driver_lookup_name("efi_netdev");
+	if (drv && dev->driver == drv) {
+		plat = dev_get_plat(dev);
+		handle = plat->handle;
+		net = plat->snp;
+	}
+
+	netobj = efi_netobj_alloc(handle, net, dev);
 
 	if (!netobj)
 		return -1;
 
 	if (efi_obj_list_initialized == EFI_SUCCESS) {
-		if (!efi_netobj_is_active(netobj)) {
-			r = efi_netobj_init(netobj);
-			if (r)
-				return -1;
-		}
+		r = efi_netobj_init(netobj);
+		if (r)
+			return -1;
 	}
 
 	return 0;
@@ -1476,7 +1516,9 @@ int efi_net_register(void *ctx, struct event *event)
 int efi_net_unregister(void *ctx, struct event *event)
 {
 	efi_status_t ret = EFI_SUCCESS;
+	int r;
 	struct udevice *dev;
+	struct driver *drv;
 	enum uclass_id id;
 	struct efi_net_obj *netobj;
 	struct efi_handler *phandler;
@@ -1501,18 +1543,22 @@ int efi_net_unregister(void *ctx, struct event *event)
 		}
 	}
 
-	if (!netobj)
+	if (!netobj || !efi_netobj_is_active(netobj))
 		return 0;
 
-	if (efi_netobj_is_active(netobj)) {
+	drv = lists_driver_lookup_name("efi_netdev");
+	if (!drv) {
+		log_err("Cannot find driver 'efi_netdev'\n");
+		return -1;
+	}
+
+	if (drv != dev->driver) {
 		ret = EFI_CALL(efi_disconnect_controller(netobj->handle, NULL, NULL));
 		if (ret != EFI_SUCCESS)
 			return -1;
-
 		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
 		if (ret != EFI_SUCCESS)
 			return -1;
-
 		ret = EFI_CALL(efi_close_event(netobj->network_timer_event));
 		if (ret != EFI_SUCCESS)
 			return -1;
@@ -1522,21 +1568,42 @@ int efi_net_unregister(void *ctx, struct event *event)
 		if (phandler && phandler->protocol_interface)
 			interface = phandler->protocol_interface;
 
+		if (netobj->handle->dev) {
+			r = efi_unlink_dev(netobj->handle);
+			if (r)
+				return -1;
+		}
+	}
+
+#if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
+	if (netobj->ip4_config2) {
+		r = efi_ipconfig_unregister(netobj->handle, netobj->ip4_config2);
+		if (r != EFI_SUCCESS)
+			return -1;
+		netobj->ip4_config2 = NULL;
+	}
+#endif
+
+#ifdef CONFIG_EFI_HTTP_PROTOCOL
+	if (netobj->http_service_binding) {
+		r = efi_http_unregister(netobj->handle, netobj->http_service_binding);
+		if (r != EFI_SUCCESS)
+			return -1;
+		netobj->http_service_binding = NULL;
+	}
+#endif
+
+	if (drv != dev->driver) {
 		ret = efi_delete_handle(netobj->handle);
 		if (ret != EFI_SUCCESS)
 			return -1;
 
 		efi_free_pool(interface);
+		if (netobj->net)
+			free(netobj->net);
+		if (netobj->net_mode)
+			free(netobj->net_mode);
 	}
-
-	if (netobj->net) {
-		if (netobj->net->mode)
-			free(netobj->net->mode);
-		free(netobj->net);
-	}
-
-	if (netobj->net_mode)
-		free(netobj->net_mode);
 
 	// Mark as free in the list
 	netobj->handle = NULL;
