@@ -531,30 +531,8 @@ dtb-$(CONFIG_STM32H7) += stm32h743i-disco.dtb \
 	stm32h750i-art-pi.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
-	sun4i-a10-a1000.dtb \
-	sun4i-a10-ba10-tvbox.dtb \
-	sun4i-a10-chuwi-v7-cw0825.dtb \
-	sun4i-a10-cubieboard.dtb \
-	sun4i-a10-dserve-dsrv9703c.dtb \
-	sun4i-a10-gemei-g9.dtb \
-	sun4i-a10-hackberry.dtb \
-	sun4i-a10-hyundai-a7hd.dtb \
-	sun4i-a10-inet1.dtb \
 	sun4i-a10-inet-3f.dtb \
-	sun4i-a10-inet-3w.dtb \
-	sun4i-a10-inet97fv2.dtb \
-	sun4i-a10-inet9f-rev03.dtb \
-	sun4i-a10-itead-iteaduino-plus.dtb \
-	sun4i-a10-jesurun-q5.dtb \
-	sun4i-a10-marsboard.dtb \
-	sun4i-a10-mini-xplus.dtb \
-	sun4i-a10-mk802.dtb \
-	sun4i-a10-mk802ii.dtb \
-	sun4i-a10-olinuxino-lime.dtb \
-	sun4i-a10-pcduino.dtb \
-	sun4i-a10-pcduino2.dtb \
-	sun4i-a10-pov-protab2-ips9.dtb \
-	sun4i-a10-topwise-a721.dtb
+	sun4i-a10-inet-3w.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
 	sun5i-a10s-auxtek-t003.dtb \
 	sun5i-a10s-auxtek-t004.dtb \
