@@ -67,11 +67,16 @@ Boot Configuration Files
 ------------------------
 
 The standard format for boot configuration files is that of extlinux.conf, as
-handled by U-Boot's "syslinux" (disk) or "pxe boot" (network). This is roughly
-as specified at `Boot Loader Specification`_:
+handled by U-Boot's "syslinux" (disk) or "pxe boot" (network). This format is
+not formally standardized and documented in a single location. However, other
+implementations do document it and we attempt to be as compatible as possible.
 
+* The UAPI Group Specifications `Boot Loader Specification`_
 
-... with the exceptions that the Boot Loader Specification document:
+* The Syslinux Project documents both `PXELINUX`_ and `SYSLINUX`_ files and is
+  the originator of the format.
+
+That said, we have some differences to these documents, namely:
 
 * Prescribes a separate configuration per boot menu option, whereas U-Boot
   lumps all options into a single extlinux.conf file. Hence, U-Boot searches
@@ -440,7 +445,9 @@ way in future u-boot versions.  In particular the <device type>_boot
 variables (e.g. mmc_boot, usb_boot) are a strictly internal implementation
 detail and must not be used as a public interface.
 
-.. _`Boot Loader Specification`: https://systemd.io/BOOT_LOADER_SPECIFICATION/
+.. _`Boot Loader Specification`: https://uapi-group.org/specifications/specs/boot_loader_specification/
+.. _`PXELINUX`: https://wiki.syslinux.org/wiki/index.php?title=PXELINUX
+.. _`SYSLINUX`: https://wiki.syslinux.org/wiki/index.php?title=SYSLINUX
 
 .. sectionauthor:: (C) Copyright 2014 Red Hat Inc.
 .. sectionauthor:: Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.

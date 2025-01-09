@@ -22,6 +22,9 @@ else
 LOAD_ADDR = 0x80200000
 endif
 endif
+ifeq ($(ARCH),riscv)
+LOAD_ADDR = 0x84000000
+endif
 
 # Resulting ELF and binary exectuables will be named demo and demo.bin
 extra-y = demo
@@ -43,8 +46,8 @@ EXT_COBJ-y += lib/vsprintf.o
 EXT_COBJ-y += lib/charset.o
 EXT_COBJ-$(CONFIG_LIB_UUID) += lib/uuid.o
 EXT_SOBJ-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
-ifeq ($(ARCH),arm)
-EXT_SOBJ-$(CONFIG_USE_ARCH_MEMSET) += arch/arm/lib/memset.o
+ifneq ($(CONFIG_ARM)$(CONFIG_RISCV),)
+EXT_SOBJ-$(CONFIG_USE_ARCH_MEMSET) += arch/$(ARCH)/lib/memset.o
 endif
 
 # Create a list of object files to be compiled

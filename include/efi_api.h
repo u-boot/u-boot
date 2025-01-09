@@ -20,8 +20,10 @@
 #include <charset.h>
 #include <pe.h>
 
-/* UEFI spec version 2.9 */
-#define EFI_SPECIFICATION_VERSION (2 << 16 | 100)
+/**
+ * define EFI_SPECIFICATION_VERSION - UEFI specification version
+ */
+#define EFI_SPECIFICATION_VERSION (2 << 16 | 110)
 
 /* Types and defines for EFI CreateEvent */
 enum efi_timer_delay {
@@ -227,7 +229,7 @@ enum efi_reset_type {
 		 0x71, 0x94, 0x19, 0x9a, 0xd9, 0x2a)
 
 #define EFI_CONFORMANCE_PROFILES_TABLE_GUID \
-	EFI_GUID(0x36122546, 0xf7ef, 0x4c8f, 0xbd, 0x9b, \
+	EFI_GUID(0x36122546, 0xf7e7, 0x4c8f, 0xbd, 0x9b, \
 		 0xeb, 0x85, 0x25, 0xb5, 0x0c, 0x0b)
 
 #define EFI_CONFORMANCE_PROFILES_TABLE_VERSION 1

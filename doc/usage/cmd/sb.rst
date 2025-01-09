@@ -1,10 +1,10 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
 .. index::
-   single: sbi (command)
+   single: sb (command)
 
-sbi command
-===========
+sb command
+==========
 
 Synopsis
 --------

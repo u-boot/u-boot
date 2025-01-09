@@ -1,8 +1,11 @@
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # (C) Copyright 2007 Semihalf
 
 obj-y += api.o api_display.o api_net.o api_storage.o
-obj-$(CONFIG_ARM) += api_platform-arm.o
+
+ifeq (CONFIG_PPC,y)
 obj-$(CONFIG_PPC) += api_platform-powerpc.o
-obj-$(CONFIG_MIPS) += api_platform-mips.o
+else
+obj-y += api_platform.o
+endif

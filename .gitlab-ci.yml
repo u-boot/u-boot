@@ -491,6 +491,7 @@ xilinx_versal_virt test.py:
     TEST_PY_BD: "xilinx_versal_virt"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
+    OVERRIDE: "-a ~CONFIG_USB_DWC3"
   <<: *buildman_and_testpy_dfn
 
 xtfpga test.py:
