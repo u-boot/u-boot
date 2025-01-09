@@ -3,12 +3,9 @@
  * Copyright 2019 NXP
  */
 
-#include <asm/global_data.h>
 #include <asm/io.h>
 #include <env.h>
 #include <init.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int board_mmc_get_env_dev(int devno)
 {
