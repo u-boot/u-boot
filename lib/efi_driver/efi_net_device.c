@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/root.h>
 #include <dm/tag.h>
 #include <dm/uclass-internal.h>
@@ -171,6 +172,49 @@ static efi_status_t efi_net_bind_drv(
 }
 
 /**
+ * efi_net_unbind_drv() - TODO
+ *
+ * @this:	driver binding protocol
+ * @handle:	handle
+ * Return:	status code
+ */
+static efi_status_t efi_net_unbind_drv(
+			struct efi_driver_binding_extended_protocol *this,
+			efi_handle_t handle)
+{
+	EFI_PRINT("%s: handle %p\n", __func__, handle);
+
+	struct driver *drv;
+	struct udevice *dev;
+	int r;
+
+	if (!handle || !handle->dev)
+		return EFI_DEVICE_ERROR;
+
+	drv = lists_driver_lookup_name("efi_netdev");
+	if (!drv) {
+		log_err("Cannot find driver 'efi_netdev'\n");
+		return EFI_DEVICE_ERROR;
+	}
+
+	if (drv == handle->dev->driver) {
+		dev = handle->dev;
+		r = efi_unlink_dev(handle);
+		if (r)
+			return EFI_DEVICE_ERROR;
+		r = device_remove(dev, DM_REMOVE_NORMAL);
+		if (r)
+			return EFI_DEVICE_ERROR;
+		r = device_unbind(dev);
+		if (r)
+			return EFI_DEVICE_ERROR;
+
+	}
+
+	return EFI_SUCCESS;
+}
+
+/**
  * efi_net_init_drv() - initialize network device driver
  *
  * @this:	extended driver binding protocol
@@ -234,6 +278,7 @@ static const struct efi_driver_ops driver_ops = {
 	.protocol	= &efi_net_guid,
 	.init		= efi_net_init_drv,
 	.bind		= efi_net_bind_drv,
+	.unbind		= efi_net_unbind_drv,
 };
 
 /* Identify as EFI driver */
