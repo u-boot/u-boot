@@ -59,7 +59,7 @@ obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
 endif
 obj-$(CONFIG_DM_PMIC_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_POWER_MC34VR500)	+= mc34vr500.o
-ifneq (,$(filter $(SOC), imx8ulp imx9))
+ifneq (,$(filter $(SOC), imx8m imx8ulp imx9))
 obj-y				+= mmc.o
 endif
 
