@@ -3,12 +3,10 @@
  * Copyright 2019 NXP
  */
 
+#include <asm/global_data.h>
+#include <asm/io.h>
 #include <env.h>
 #include <init.h>
-#include <asm/global_data.h>
-#include <miiphy.h>
-#include <netdev.h>
-#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
