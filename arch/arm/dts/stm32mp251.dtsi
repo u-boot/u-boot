@@ -38,7 +38,7 @@
 		ck_flexgen_08: ck-flexgen-08 {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
-			clock-frequency = <100000000>;
+			clock-frequency = <64000000>;
 		};
 
 		ck_flexgen_51: ck-flexgen-51 {
