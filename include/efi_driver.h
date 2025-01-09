@@ -36,6 +36,8 @@ struct efi_driver_binding_extended_protocol {
  *			driver binding protocol.
  * @bind:		Function called by the EFI uclass to attach the
  *			driver to EFI driver to a handle.
+* @unbind:		Function called by the EFI uclass to detach the
+ *			driver to EFI driver to a handle.
  */
 struct efi_driver_ops {
 	const efi_guid_t *protocol;
@@ -43,6 +45,8 @@ struct efi_driver_ops {
 	efi_status_t (*init)(struct efi_driver_binding_extended_protocol *this);
 	efi_status_t (*bind)(struct efi_driver_binding_extended_protocol *this,
 			     efi_handle_t handle, void *interface);
+	efi_status_t (*unbind)(struct efi_driver_binding_extended_protocol *this,
+			       efi_handle_t handle);
 };
 
 #endif /* _EFI_DRIVER_H */

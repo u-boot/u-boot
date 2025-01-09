@@ -247,6 +247,10 @@ static efi_status_t EFIAPI efi_uc_stop(
 	if (ret != EFI_SUCCESS)
 		log_err("Cannot free EFI memory pool\n");
 
+	ret = bp->ops->unbind(bp, controller_handle);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Detach driver from controller */
 	ret = efi_close_protocol(controller_handle, bp->ops->protocol,
 				 this->driver_binding_handle,
