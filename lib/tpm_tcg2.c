@@ -20,38 +20,36 @@
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
 
-int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_pcr, u32 *active_pcr,
-		      u32 *pcr_banks)
+int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
+		      u32 *bank_num)
 {
-	u8 response[(sizeof(struct tpms_capability_data) -
-		offsetof(struct tpms_capability_data, data))];
 	struct tpml_pcr_selection pcrs;
 	size_t i;
 	u32 ret;
 
-	*supported_pcr = 0;
-	*active_pcr = 0;
-	*pcr_banks = 0;
-	memset(response, 0, sizeof(response));
+	*supported_bank = 0;
+	*active_bank = 0;
+	*bank_num = 0;
 
 	ret = tpm2_get_pcr_info(dev, &pcrs);
 	if (ret)
 		return ret;
 
 	for (i = 0; i < pcrs.count; i++) {
-		u32 hash_mask = tcg2_algorithm_to_mask(pcrs.selection[i].hash);
+		struct tpms_pcr_selection *sel = &pcrs.selection[i];
+		u32 hash_mask = tcg2_algorithm_to_mask(sel->hash);
 
-		if (hash_mask) {
-			*supported_pcr |= hash_mask;
-			if (tpm2_is_active_pcr(&pcrs.selection[i]))
-				*active_pcr |= hash_mask;
-		} else {
-			printf("%s: unknown algorithm %x\n", __func__,
-			       pcrs.selection[i].hash);
-		}
+		if (tpm2_algorithm_supported(sel->hash))
+			*supported_bank |= hash_mask;
+		else
+			log_warning("%s: unknown algorithm %x\n", __func__,
+				    sel->hash);
+
+		if (tpm2_is_active_bank(sel))
+			*active_bank |= hash_mask;
 	}
 
-	*pcr_banks = pcrs.count;
+	*bank_num = pcrs.count;
 
 	return 0;
 }
@@ -95,57 +93,64 @@ u32 tcg2_event_get_size(struct tpml_digest_values *digest_list)
 int tcg2_create_digest(struct udevice *dev, const u8 *input, u32 length,
 		       struct tpml_digest_values *digest_list)
 {
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	u8 final[sizeof(union tpmu_ha)];
+#if IS_ENABLED(CONFIG_SHA256)
 	sha256_context ctx_256;
+#endif
+#if IS_ENABLED(CONFIG_SHA512)
 	sha512_context ctx_512;
+#endif
+#if IS_ENABLED(CONFIG_SHA1)
 	sha1_context ctx;
-	u32 active;
+#endif
 	size_t i;
 	u32 len;
-	int rc;
-
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
 
 	digest_list->count = 0;
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
+	for (i = 0; i < priv->active_bank_count; i++) {
 
-		switch (hash_algo_list[i].hash_alg) {
+		switch (priv->active_banks[i]) {
+#if IS_ENABLED(CONFIG_SHA1)
 		case TPM2_ALG_SHA1:
 			sha1_starts(&ctx);
 			sha1_update(&ctx, input, length);
 			sha1_finish(&ctx, final);
 			len = TPM2_SHA1_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA256)
 		case TPM2_ALG_SHA256:
 			sha256_starts(&ctx_256);
 			sha256_update(&ctx_256, input, length);
 			sha256_finish(&ctx_256, final);
 			len = TPM2_SHA256_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA384)
 		case TPM2_ALG_SHA384:
 			sha384_starts(&ctx_512);
 			sha384_update(&ctx_512, input, length);
 			sha384_finish(&ctx_512, final);
 			len = TPM2_SHA384_DIGEST_SIZE;
 			break;
+#endif
+#if IS_ENABLED(CONFIG_SHA512)
 		case TPM2_ALG_SHA512:
 			sha512_starts(&ctx_512);
 			sha512_update(&ctx_512, input, length);
 			sha512_finish(&ctx_512, final);
 			len = TPM2_SHA512_DIGEST_SIZE;
 			break;
+#endif
 		default:
 			printf("%s: unsupported algorithm %x\n", __func__,
-			       hash_algo_list[i].hash_alg);
+			       priv->active_banks[i]);
 			continue;
 		}
 
 		digest_list->digests[digest_list->count].hash_alg =
-			hash_algo_list[i].hash_alg;
+			priv->active_banks[i];
 		memcpy(&digest_list->digests[digest_list->count].digest, final,
 		       len);
 		digest_list->count++;
@@ -216,37 +221,17 @@ static int tcg2_log_append_check(struct tcg2_event_log *elog, u32 pcr_index,
 
 static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 {
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
 	struct tcg_efi_spec_id_event *ev;
 	struct tcg_pcr_event *log;
 	u32 event_size;
 	u32 count = 0;
 	u32 log_size;
-	u32 active;
 	size_t i;
 	u16 len;
-	int rc;
 
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
-
+	count = priv->active_bank_count;
 	event_size = offsetof(struct tcg_efi_spec_id_event, digest_sizes);
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
-
-		switch (hash_algo_list[i].hash_alg) {
-		case TPM2_ALG_SHA1:
-		case TPM2_ALG_SHA256:
-		case TPM2_ALG_SHA384:
-		case TPM2_ALG_SHA512:
-			count++;
-			break;
-		default:
-			continue;
-		}
-	}
-
 	event_size += 1 +
 		(sizeof(struct tcg_efi_spec_id_event_algorithm_size) * count);
 	log_size = offsetof(struct tcg_pcr_event, event) + event_size;
@@ -273,19 +258,11 @@ static int tcg2_log_init(struct udevice *dev, struct tcg2_event_log *elog)
 	ev->uintn_size = sizeof(size_t) / sizeof(u32);
 	put_unaligned_le32(count, &ev->number_of_algorithms);
 
-	count = 0;
-	for (i = 0; i < ARRAY_SIZE(hash_algo_list); ++i) {
-		if (!(active & hash_algo_list[i].hash_mask))
-			continue;
-
-		len = hash_algo_list[i].hash_len;
-		if (!len)
-			continue;
-
-		put_unaligned_le16(hash_algo_list[i].hash_alg,
-				   &ev->digest_sizes[count].algorithm_id);
-		put_unaligned_le16(len, &ev->digest_sizes[count].digest_size);
-		count++;
+	for (i = 0; i < count; ++i) {
+		len = tpm2_algorithm_to_len(priv->active_banks[i]);
+		put_unaligned_le16(priv->active_banks[i],
+				   &ev->digest_sizes[i].algorithm_id);
+		put_unaligned_le16(len, &ev->digest_sizes[i].digest_size);
 	}
 
 	*((u8 *)ev + (event_size - 1)) = 0;
@@ -396,7 +373,6 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	u16 len;
 	int rc;
 	u32 i;
-	u16 j;
 
 	if (elog->log_size <= offsetof(struct tcg_pcr_event, event))
 		return 0;
@@ -435,19 +411,18 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	if (evsz != calc_size)
 		return 0;
 
-	rc = tcg2_get_active_pcr_banks(dev, &active);
-	if (rc)
-		return rc;
-
+	/*
+	 * Go through the algorithms the EventLog contains.  If the EventLog
+	 * algorithms don't match the active TPM ones exit and report the
+	 * erroneous banks.
+	 * We've already checked that U-Boot supports all the enabled TPM
+	 * algorithms, so just check the EvenLog against the TPM active ones.
+	 */
 	digest_list.count = 0;
 	log_active = 0;
-
 	for (i = 0; i < count; ++i) {
 		algo = get_unaligned_le16(&event->digest_sizes[i].algorithm_id);
 		mask = tcg2_algorithm_to_mask(algo);
-
-		if (!(active & mask))
-			return 0;
 
 		switch (algo) {
 		case TPM2_ALG_SHA1:
@@ -455,20 +430,32 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 		case TPM2_ALG_SHA384:
 		case TPM2_ALG_SHA512:
 			len = get_unaligned_le16(&event->digest_sizes[i].digest_size);
-			if (tpm2_algorithm_to_len(algo) != len)
-				return 0;
+			if (tpm2_algorithm_to_len(algo) != len) {
+				log_err("EventLog invalid algorithm length\n");
+				return -1;
+			}
 			digest_list.digests[digest_list.count++].hash_alg = algo;
 			break;
 		default:
-			return 0;
+			/*
+			 * We can ignore this if the TPM PCRs is not extended
+			 * by the previous bootloader. But for now just exit
+			 */
+			log_err("EventLog has unsupported algorithm 0x%x\n",
+				algo);
+			return -1;
 		}
-
 		log_active |= mask;
 	}
 
-	/* Ensure the previous firmware extended all the PCRs. */
-	if (log_active != active)
-		return 0;
+	rc = tcg2_get_active_pcr_banks(dev, &active);
+	if (rc)
+		return rc;
+	/* If the EventLog and active algorithms don't match exit */
+	if (log_active != active) {
+		log_err("EventLog doesn't contain all active PCR banks\n");
+		return -1;
+	}
 
 	/* Read PCR0 to check if previous firmware extended the PCRs or not. */
 	rc = tcg2_pcr_read(dev, 0, &digest_list);
@@ -476,17 +463,13 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 		return rc;
 
 	for (i = 0; i < digest_list.count; ++i) {
-		len = tpm2_algorithm_to_len(digest_list.digests[i].hash_alg);
-		for (j = 0; j < len; ++j) {
-			if (digest_list.digests[i].digest.sha512[j])
-				break;
-		}
+		u8 hash_buf[TPM2_SHA512_DIGEST_SIZE] = { 0 };
+		u16 hash_alg = digest_list.digests[i].hash_alg;
 
-		/* PCR is non-zero; it has been extended, so skip extending. */
-		if (j != len) {
+		if (memcmp((u8 *)&digest_list.digests[i].digest, hash_buf,
+			   tpm2_algorithm_to_len(hash_alg)))
 			digest_list.count = 0;
-			break;
-		}
+
 	}
 
 	return tcg2_replay_eventlog(elog, dev, &digest_list,
@@ -569,10 +552,35 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 			    bool ignore_existing_log)
 {
 	struct tcg2_event_log log;
-	int rc;
+	int rc, i;
 
 	elog->log_position = 0;
 	elog->found = false;
+
+	/*
+	 * Make sure U-Boot is compiled with all the active PCRs
+	 * since we are about to create an EventLog and we won't
+	 * measure anything if the PCR banks don't match
+	 */
+	if (!tpm2_check_active_banks(dev)) {
+		log_err("Cannot create EventLog\n");
+		log_err("Mismatch between U-Boot and TPM hash algos\n");
+		log_info("TPM:\n");
+		tpm2_print_active_banks(dev);
+		log_info("U-Boot:\n");
+		for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
+			const struct digest_info *algo = &hash_algo_list[i];
+			const char *str;
+
+			if (!algo->supported)
+				continue;
+
+			str = tpm2_algorithm_name(algo->hash_alg);
+			if (str)
+				log_info("%s\n", str);
+		}
+		return -EINVAL;
+	}
 
 	rc = tcg2_platform_get_log(dev, (void **)&log.log, &log.log_size);
 	if (!rc) {
