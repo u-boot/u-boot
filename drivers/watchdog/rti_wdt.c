@@ -131,17 +131,18 @@ static int rti_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	u32 timer_margin;
 	int ret;
 
-	if (readl(priv->regs + RTIDWDCTRL) == WDENABLE_KEY)
+	timer_margin = timeout_ms * priv->clk_hz / 1000;
+	timer_margin >>= WDT_PRELOAD_SHIFT;
+	if (timer_margin > WDT_PRELOAD_MAX)
+		timer_margin = WDT_PRELOAD_MAX;
+
+	if (readl(priv->regs + RTIDWDCTRL) == WDENABLE_KEY &&
+	    readl(priv->regs + RTIDWDPRLD) != timer_margin)
 		return -EBUSY;
 
 	ret = rti_wdt_load_fw(dev);
 	if (ret < 0)
 		return ret;
-
-	timer_margin = timeout_ms * priv->clk_hz / 1000;
-	timer_margin >>= WDT_PRELOAD_SHIFT;
-	if (timer_margin > WDT_PRELOAD_MAX)
-		timer_margin = WDT_PRELOAD_MAX;
 
 	writel(timer_margin, priv->regs + RTIDWDPRLD);
 	writel(RTIWWDRX_NMI, priv->regs + RTIWWDRXCTRL);
@@ -185,14 +186,6 @@ static int rti_wdt_probe(struct udevice *dev)
 		return ret;
 
 	priv->clk_hz = clk_get_rate(&clk);
-
-	/*
-	 * If watchdog is running at 32k clock, it is not accurate.
-	 * Adjust frequency down in this case so that it does not expire
-	 * earlier than expected.
-	 */
-	if (priv->clk_hz < 32768)
-		priv->clk_hz = priv->clk_hz * 9 / 10;
 
 	return 0;
 }
