@@ -466,8 +466,8 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
 	unsigned int uTemp;
-	uint32_t dflt_gusbcfg;
-	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
+	u32 dflt_gusbcfg;
+	u32 rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 	u32 max_hw_ep;
 	int pdata_hw_ep;
 
