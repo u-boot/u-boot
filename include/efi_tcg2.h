@@ -28,8 +28,6 @@
 #define EFI_TCG2_MAX_PCR_INDEX 23
 #define EFI_TCG2_FINAL_EVENTS_TABLE_VERSION 1
 
-#define TPM2_EVENT_LOG_SIZE CONFIG_EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
-
 typedef u32 efi_tcg_event_log_bitmap;
 typedef u32 efi_tcg_event_log_format;
 typedef u32 efi_tcg_event_algorithm_bitmap;

@@ -437,15 +437,6 @@ config EFI_TCG2_PROTOCOL
 	  Provide a EFI_TCG2_PROTOCOL implementation using the TPM hardware
 	  of the platform.
 
-config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
-	int "EFI_TCG2_PROTOCOL EventLog size"
-	depends on EFI_TCG2_PROTOCOL
-	default 65536
-	help
-		Define the size of the EventLog for EFI_TCG2_PROTOCOL. Note that
-		this is going to be allocated twice. One for the eventlog it self
-		and one for the configuration table that is required from the spec
-
 config EFI_TCG2_PROTOCOL_MEASURE_DTB
 	bool "Measure DTB with EFI_TCG2_PROTOCOL"
 	depends on EFI_TCG2_PROTOCOL
