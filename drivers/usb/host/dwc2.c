@@ -402,20 +402,22 @@ static void dwc_otg_core_init(struct udevice *dev)
 	 * soft reset so only program the first time. Do a soft reset
 	 * immediately after setting phyif.
 	 */
-	usbcfg &= ~(DWC2_GUSBCFG_ULPI_UTMI_SEL | DWC2_GUSBCFG_PHYIF);
-	usbcfg |= DWC2_PHY_TYPE << DWC2_GUSBCFG_ULPI_UTMI_SEL_OFFSET;
-
-	if (usbcfg & DWC2_GUSBCFG_ULPI_UTMI_SEL) {	/* ULPI interface */
+#if (DWC2_PHY_TYPE == DWC2_PHY_TYPE_ULPI)
+	usbcfg |= DWC2_GUSBCFG_ULPI_UTMI_SEL;
+	usbcfg &= ~DWC2_GUSBCFG_PHYIF;
 #ifdef DWC2_PHY_ULPI_DDR
-		usbcfg |= DWC2_GUSBCFG_DDRSEL;
+	usbcfg |= DWC2_GUSBCFG_DDRSEL;
 #else
-		usbcfg &= ~DWC2_GUSBCFG_DDRSEL;
-#endif
-	} else {	/* UTMI+ interface */
+	usbcfg &= ~DWC2_GUSBCFG_DDRSEL;
+#endif /* DWC2_PHY_ULPI_DDR */
+#elif (DWC2_PHY_TYPE == DWC2_PHY_TYPE_UTMI)
+	usbcfg &= ~DWC2_GUSBCFG_ULPI_UTMI_SEL;
 #if (DWC2_UTMI_WIDTH == 16)
-		usbcfg |= DWC2_GUSBCFG_PHYIF;
-#endif
-	}
+	usbcfg |= DWC2_GUSBCFG_PHYIF;
+#else
+	usbcfg &= ~DWC2_GUSBCFG_PHYIF;
+#endif /* DWC2_UTMI_WIDTH */
+#endif /* DWC2_PHY_TYPE */
 
 	writel(usbcfg, &regs->global_regs.gusbcfg);
 
