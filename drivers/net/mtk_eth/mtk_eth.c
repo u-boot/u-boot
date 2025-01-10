@@ -1477,6 +1477,15 @@ static const struct mtk_soc_data mt7988_data = {
 	.rxd_size = sizeof(struct mtk_rx_dma_v2),
 };
 
+static const struct mtk_soc_data mt7987_data = {
+	.caps = MT7987_CAPS,
+	.ana_rgc3 = 0x128,
+	.gdma_count = 3,
+	.pdma_base = PDMA_V3_BASE,
+	.txd_size = sizeof(struct mtk_tx_dma_v2),
+	.rxd_size = sizeof(struct mtk_rx_dma_v2),
+};
+
 static const struct mtk_soc_data mt7986_data = {
 	.caps = MT7986_CAPS,
 	.ana_rgc3 = 0x128,
@@ -1531,6 +1540,7 @@ static const struct mtk_soc_data mt7621_data = {
 
 static const struct udevice_id mtk_eth_ids[] = {
 	{ .compatible = "mediatek,mt7988-eth", .data = (ulong)&mt7988_data },
+	{ .compatible = "mediatek,mt7987-eth", .data = (ulong)&mt7987_data },
 	{ .compatible = "mediatek,mt7986-eth", .data = (ulong)&mt7986_data },
 	{ .compatible = "mediatek,mt7981-eth", .data = (ulong)&mt7981_data },
 	{ .compatible = "mediatek,mt7629-eth", .data = (ulong)&mt7629_data },

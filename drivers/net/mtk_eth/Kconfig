@@ -16,7 +16,7 @@ config MTK_ETH_SGMII
 
 config MTK_ETH_XGMII
 	bool
-	default y if TARGET_MT7988
+	default y if TARGET_MT7987 || TARGET_MT7988
 
 config MTK_ETH_SWITCH_MT7530
 	bool "Support for MediaTek MT7530 ethernet switch"
@@ -25,7 +25,7 @@ config MTK_ETH_SWITCH_MT7530
 config MTK_ETH_SWITCH_MT7531
 	bool "Support for MediaTek MT7531 ethernet switch"
 	default y if TARGET_MT7622 || TARGET_MT7629 || TARGET_MT7981 || \
-		     TARGET_MT7986
+		     TARGET_MT7986 || TARGET_MT7987
 
 config MTK_ETH_SWITCH_MT7988
 	bool "Support for MediaTek MT7988 built-in ethernet switch"
