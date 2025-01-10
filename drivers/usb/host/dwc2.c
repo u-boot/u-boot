@@ -88,10 +88,10 @@ static void init_fslspclksel(struct dwc2_core_regs *regs)
 	uint32_t phyclk;
 
 #if (DWC2_PHY_TYPE == DWC2_PHY_TYPE_FS)
-	phyclk = DWC2_HCFG_FSLSPCLKSEL_48_MHZ;	/* Full speed PHY */
+	phyclk = HCFG_FSLSPCLKSEL_48_MHZ;	/* Full speed PHY */
 #else
 	/* High speed PHY running at full speed or high speed */
-	phyclk = DWC2_HCFG_FSLSPCLKSEL_30_60_MHZ;
+	phyclk = HCFG_FSLSPCLKSEL_30_60_MHZ;
 #endif
 
 #ifdef DWC2_ULPI_FS_LS
@@ -99,13 +99,13 @@ static void init_fslspclksel(struct dwc2_core_regs *regs)
 	uint32_t hval = FIELD_GET(GHWCFG2_HS_PHY_TYPE_MASK, ghwcfg2);
 	uint32_t fval = FIELD_GET(GHWCFG2_FS_PHY_TYPE_MASK, ghwcfg2);
 
-	if (hval == 2 && fval == 1)
-		phyclk = DWC2_HCFG_FSLSPCLKSEL_48_MHZ;	/* Full speed PHY */
+	if (hval == GHWCFG2_FS_PHY_TYPE_SHARED_UTMI && fval == GHWCFG2_HS_PHY_TYPE_UTMI)
+		phyclk = HCFG_FSLSPCLKSEL_48_MHZ;	/* Full speed PHY */
 #endif
 
 	clrsetbits_le32(&regs->host_regs.hcfg,
-			DWC2_HCFG_FSLSPCLKSEL_MASK,
-			FIELD_PREP(DWC2_HCFG_FSLSPCLKSEL_MASK, phyclk));
+			HCFG_FSLSPCLKSEL_MASK,
+			FIELD_PREP(HCFG_FSLSPCLKSEL_MASK, phyclk));
 }
 
 /*
@@ -119,9 +119,9 @@ static void dwc_otg_flush_tx_fifo(struct udevice *dev,
 {
 	int ret;
 
-	writel(DWC2_GRSTCTL_TXFFLSH | FIELD_PREP(DWC2_GRSTCTL_TXFNUM_MASK, num),
+	writel(GRSTCTL_TXFFLSH | FIELD_PREP(GRSTCTL_TXFNUM_MASK, num),
 	       &regs->global_regs.grstctl);
-	ret = wait_for_bit_le32(&regs->global_regs.grstctl, DWC2_GRSTCTL_TXFFLSH,
+	ret = wait_for_bit_le32(&regs->global_regs.grstctl, GRSTCTL_TXFFLSH,
 				false, 1000, false);
 	if (ret)
 		dev_info(dev, "%s: Timeout!\n", __func__);
@@ -140,8 +140,8 @@ static void dwc_otg_flush_rx_fifo(struct udevice *dev,
 {
 	int ret;
 
-	writel(DWC2_GRSTCTL_RXFFLSH, &regs->global_regs.grstctl);
-	ret = wait_for_bit_le32(&regs->global_regs.grstctl, DWC2_GRSTCTL_RXFFLSH,
+	writel(GRSTCTL_RXFFLSH, &regs->global_regs.grstctl);
+	ret = wait_for_bit_le32(&regs->global_regs.grstctl, GRSTCTL_RXFFLSH,
 				false, 1000, false);
 	if (ret)
 		dev_info(dev, "%s: Timeout!\n", __func__);
@@ -160,14 +160,14 @@ static void dwc_otg_core_reset(struct udevice *dev,
 	int ret;
 
 	/* Wait for AHB master IDLE state. */
-	ret = wait_for_bit_le32(&regs->global_regs.grstctl, DWC2_GRSTCTL_AHBIDLE,
+	ret = wait_for_bit_le32(&regs->global_regs.grstctl, GRSTCTL_AHBIDLE,
 				true, 1000, false);
 	if (ret)
 		dev_info(dev, "%s: Timeout!\n", __func__);
 
 	/* Core Soft Reset */
-	writel(DWC2_GRSTCTL_CSFTRST, &regs->global_regs.grstctl);
-	ret = wait_for_bit_le32(&regs->global_regs.grstctl, DWC2_GRSTCTL_CSFTRST,
+	writel(GRSTCTL_CSFTRST, &regs->global_regs.grstctl);
+	ret = wait_for_bit_le32(&regs->global_regs.grstctl, GRSTCTL_CSFTRST,
 				false, 1000, false);
 	if (ret)
 		dev_info(dev, "%s: Timeout!\n", __func__);
@@ -255,60 +255,58 @@ static void dwc_otg_core_host_init(struct udevice *dev,
 	/* Initialize Host Configuration Register */
 	init_fslspclksel(regs);
 #ifdef DWC2_DFLT_SPEED_FULL
-	setbits_le32(&regs->host_regs.hcfg, DWC2_HCFG_FSLSSUPP);
+	setbits_le32(&regs->host_regs.hcfg, HCFG_FSLSSUPP);
 #endif
 
 	/* Configure data FIFO sizes */
 #ifdef DWC2_ENABLE_DYNAMIC_FIFO
-	if (readl(&regs->global_regs.ghwcfg2) & DWC2_HWCFG2_DYNAMIC_FIFO) {
+	if (readl(&regs->global_regs.ghwcfg2) & GHWCFG2_DYNAMIC_FIFO) {
 		/* Rx FIFO */
 		writel(DWC2_HOST_RX_FIFO_SIZE, &regs->global_regs.grxfsiz);
 
 		/* Non-periodic Tx FIFO */
-		nptxfifosize |= FIELD_PREP(DWC2_FIFOSIZE_DEPTH_MASK, DWC2_HOST_NPERIO_TX_FIFO_SIZE);
-		nptxfifosize |= FIELD_PREP(DWC2_FIFOSIZE_STARTADDR_MASK, DWC2_HOST_RX_FIFO_SIZE);
+		nptxfifosize |= FIELD_PREP(FIFOSIZE_DEPTH_MASK, DWC2_HOST_NPERIO_TX_FIFO_SIZE);
+		nptxfifosize |= FIELD_PREP(FIFOSIZE_STARTADDR_MASK, DWC2_HOST_RX_FIFO_SIZE);
 		writel(nptxfifosize, &regs->global_regs.gnptxfsiz);
 
 		/* Periodic Tx FIFO */
-		ptxfifosize |= FIELD_PREP(DWC2_FIFOSIZE_DEPTH_MASK, DWC2_HOST_PERIO_TX_FIFO_SIZE);
-		ptxfifosize |= FIELD_PREP(DWC2_FIFOSIZE_STARTADDR_MASK, DWC2_HOST_RX_FIFO_SIZE +
+		ptxfifosize |= FIELD_PREP(FIFOSIZE_DEPTH_MASK, DWC2_HOST_PERIO_TX_FIFO_SIZE);
+		ptxfifosize |= FIELD_PREP(FIFOSIZE_STARTADDR_MASK, DWC2_HOST_RX_FIFO_SIZE +
 					  DWC2_HOST_NPERIO_TX_FIFO_SIZE);
 		writel(ptxfifosize, &regs->global_regs.hptxfsiz);
 	}
 #endif
 
 	/* Clear Host Set HNP Enable in the OTG Control Register */
-	clrbits_le32(&regs->global_regs.gotgctl, DWC2_GOTGCTL_HSTSETHNPEN);
+	clrbits_le32(&regs->global_regs.gotgctl, GOTGCTL_HSTSETHNPEN);
 
 	/* Make sure the FIFOs are flushed. */
-	dwc_otg_flush_tx_fifo(dev, regs, 0x10);	/* All Tx FIFOs */
+	dwc_otg_flush_tx_fifo(dev, regs, GRSTCTL_TXFNUM_ALL);	/* All Tx FIFOs */
 	dwc_otg_flush_rx_fifo(dev, regs);
 
 	/* Flush out any leftover queued requests. */
-	num_channels = FIELD_GET(DWC2_HWCFG2_NUM_HOST_CHAN_MASK,
-				 readl(&regs->global_regs.ghwcfg2)) + 1;
+	num_channels = FIELD_GET(GHWCFG2_NUM_HOST_CHAN_MASK, readl(&regs->global_regs.ghwcfg2)) + 1;
 
 	for (i = 0; i < num_channels; i++)
-		clrsetbits_le32(&regs->host_regs.hc[i].hcchar,
-				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_EPDIR,
-				DWC2_HCCHAR_CHDIS);
+		clrsetbits_le32(&regs->host_regs.hc[i].hcchar, HCCHAR_CHENA | HCCHAR_EPDIR,
+				HCCHAR_CHDIS);
 
 	/* Halt all channels to put them into a known state. */
 	for (i = 0; i < num_channels; i++) {
 		clrsetbits_le32(&regs->host_regs.hc[i].hcchar,
-				DWC2_HCCHAR_EPDIR,
-				DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS);
+				HCCHAR_EPDIR,
+				HCCHAR_CHENA | HCCHAR_CHDIS);
 		ret = wait_for_bit_le32(&regs->host_regs.hc[i].hcchar,
-					DWC2_HCCHAR_CHEN, false, 1000, false);
+					HCCHAR_CHENA, false, 1000, false);
 		if (ret)
 			dev_info(dev, "%s: Timeout!\n", __func__);
 	}
 
 	/* Turn on the vbus power. */
-	if (readl(&regs->global_regs.gintsts) & DWC2_GINTSTS_CURMODE_HOST) {
-		hprt0 = readl(&regs->host_regs.hprt0) & ~DWC2_HPRT0_W1C_MASK;
-		if (!(hprt0 & DWC2_HPRT0_PRTPWR)) {
-			hprt0 |= DWC2_HPRT0_PRTPWR;
+	if (readl(&regs->global_regs.gintsts) & GINTSTS_CURMODE_HOST) {
+		hprt0 = readl(&regs->host_regs.hprt0) & ~HPRT0_W1C_MASK;
+		if (!(hprt0 & HPRT0_PWR)) {
+			hprt0 |= HPRT0_PWR;
 			writel(hprt0, &regs->host_regs.hprt0);
 		}
 	}
@@ -336,20 +334,20 @@ static void dwc_otg_core_init(struct udevice *dev)
 
 	/* Program the ULPI External VBUS bit if needed */
 	if (priv->ext_vbus) {
-		usbcfg |= DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+		usbcfg |= GUSBCFG_ULPI_EXT_VBUS_DRV;
 		if (!priv->oc_disable) {
-			usbcfg |= DWC2_GUSBCFG_ULPI_INT_VBUS_INDICATOR |
-				  DWC2_GUSBCFG_INDICATOR_PASSTHROUGH;
+			usbcfg |= GUSBCFG_ULPI_INT_VBUS_IND |
+				  GUSBCFG_INDICATORPASSTHROUGH;
 		}
 	} else {
-		usbcfg &= ~DWC2_GUSBCFG_ULPI_EXT_VBUS_DRV;
+		usbcfg &= ~GUSBCFG_ULPI_EXT_VBUS_DRV;
 	}
 
 	/* Set external TS Dline pulsing */
 #ifdef DWC2_TS_DLINE
-	usbcfg |= DWC2_GUSBCFG_TERM_SEL_DL_PULSE;
+	usbcfg |= GUSBCFG_TERMSELDLPULSE;
 #else
-	usbcfg &= ~DWC2_GUSBCFG_TERM_SEL_DL_PULSE;
+	usbcfg &= ~GUSBCFG_TERMSELDLPULSE;
 #endif
 	writel(usbcfg, &regs->global_regs.gusbcfg);
 
@@ -363,7 +361,7 @@ static void dwc_otg_core_init(struct udevice *dev)
 #if defined(DWC2_DFLT_SPEED_FULL) && \
 	(DWC2_PHY_TYPE == DWC2_PHY_TYPE_FS)
 	/* If FS mode with FS PHY */
-	setbits_le32(&regs->global_regs.gusbcfg, DWC2_GUSBCFG_PHYSEL);
+	setbits_le32(&regs->global_regs.gusbcfg, GUSBCFG_PHYSEL);
 
 	/* Reset after a PHY select */
 	dwc2_core_reset(regs);
@@ -373,18 +371,18 @@ static void dwc_otg_core_init(struct udevice *dev)
 	 * Also do this on HNP Dev/Host mode switches (done in dev_init
 	 * and host_init).
 	 */
-	if (readl(&regs->global_regs.gintsts) & DWC2_GINTSTS_CURMODE_HOST)
+	if (readl(&regs->global_regs.gintsts) & GINTSTS_CURMODE_HOST)
 		init_fslspclksel(regs);
 
 #ifdef DWC2_I2C_ENABLE
 	/* Program GUSBCFG.OtgUtmifsSel to I2C */
-	setbits_le32(&regs->global_regs.gusbcfg, DWC2_GUSBCFG_OTGUTMIFSSEL);
+	setbits_le32(&regs->global_regs.gusbcfg, GUSBCFG_OTG_UTMI_FS_SEL);
 
 	/* Program GI2CCTL.I2CEn */
-	clrsetbits_le32(&regs->global_regs.gi2cctl, DWC2_GI2CCTL_I2CEN |
-			DWC2_GI2CCTL_I2CDEVADDR_MASK,
-			FIELD_PREP(DWC2_GI2CCTL_I2CDEVADDR_MASK, 1));
-	setbits_le32(&regs->global_regs.gi2cctl, DWC2_GI2CCTL_I2CEN);
+	clrsetbits_le32(&regs->global_regs.gi2cctl, GI2CCTL_I2CEN |
+			GI2CCTL_I2CDEVADDR_MASK,
+			FIELD_PREP(GI2CCTL_I2CDEVADDR_MASK, 1));
+	setbits_le32(&regs->global_regs.gi2cctl, GI2CCTL_I2CEN);
 #endif
 
 #else
@@ -396,19 +394,19 @@ static void dwc_otg_core_init(struct udevice *dev)
 	 * immediately after setting phyif.
 	 */
 #if (DWC2_PHY_TYPE == DWC2_PHY_TYPE_ULPI)
-	usbcfg |= DWC2_GUSBCFG_ULPI_UTMI_SEL;
-	usbcfg &= ~DWC2_GUSBCFG_PHYIF;
+	usbcfg |= GUSBCFG_ULPI_UTMI_SEL;
+	usbcfg &= ~GUSBCFG_PHYIF16;
 #ifdef DWC2_PHY_ULPI_DDR
-	usbcfg |= DWC2_GUSBCFG_DDRSEL;
+	usbcfg |= GUSBCFG_DDRSEL;
 #else
-	usbcfg &= ~DWC2_GUSBCFG_DDRSEL;
+	usbcfg &= ~GUSBCFG_DDRSEL;
 #endif /* DWC2_PHY_ULPI_DDR */
 #elif (DWC2_PHY_TYPE == DWC2_PHY_TYPE_UTMI)
-	usbcfg &= ~DWC2_GUSBCFG_ULPI_UTMI_SEL;
+	usbcfg &= ~GUSBCFG_ULPI_UTMI_SEL;
 #if (DWC2_UTMI_WIDTH == 16)
-	usbcfg |= DWC2_GUSBCFG_PHYIF;
+	usbcfg |= GUSBCFG_PHYIF16;
 #else
-	usbcfg &= ~DWC2_GUSBCFG_PHYIF;
+	usbcfg &= ~GUSBCFG_PHYIF16;
 #endif /* DWC2_UTMI_WIDTH */
 #endif /* DWC2_PHY_TYPE */
 
@@ -419,37 +417,36 @@ static void dwc_otg_core_init(struct udevice *dev)
 #endif
 
 	usbcfg = readl(&regs->global_regs.gusbcfg);
-	usbcfg &= ~(DWC2_GUSBCFG_ULPI_FSLS | DWC2_GUSBCFG_ULPI_CLK_SUS_M);
+	usbcfg &= ~(GUSBCFG_ULPI_FS_LS | GUSBCFG_ULPI_CLK_SUSP_M);
 #ifdef DWC2_ULPI_FS_LS
 	uint32_t hwcfg2 = readl(&regs->global_regs.ghwcfg2);
-	uint32_t hval = FIELD_GET(DWC2_HWCFG2_HS_PHY_TYPE_MASK, ghwcfg2);
-	uint32_t fval = FIELD_GET(DWC2_HWCFG2_FS_PHY_TYPE_MASK, ghwcfg2);
-	if (hval == 2 && fval == 1) {
-		usbcfg |= DWC2_GUSBCFG_ULPI_FSLS;
-		usbcfg |= DWC2_GUSBCFG_ULPI_CLK_SUS_M;
+	uint32_t hval = FIELD_GET(GHWCFG2_HS_PHY_TYPE_MASK, ghwcfg2);
+	uint32_t fval = FIELD_GET(GHWCFG2_FS_PHY_TYPE_MASK, ghwcfg2);
+
+	if (hval == GHWCFG2_FS_PHY_TYPE_SHARED_UTMI && fval == GHWCFG2_HS_PHY_TYPE_UTMI) {
+		usbcfg |= GUSBCFG_ULPI_FS_LS;
+		usbcfg |= GUSBCFG_ULPI_CLK_SUSP_M;
 	}
 #endif
 	if (priv->hnp_srp_disable)
-		usbcfg |= DWC2_GUSBCFG_FORCEHOSTMODE;
+		usbcfg |= GUSBCFG_FORCEHOSTMODE;
 
 	writel(usbcfg, &regs->global_regs.gusbcfg);
 
 	/* Program the GAHBCFG Register. */
-	switch (FIELD_GET(DWC2_HWCFG2_ARCHITECTURE_MASK, readl(&regs->global_regs.ghwcfg2))) {
-	case DWC2_HWCFG2_ARCHITECTURE_SLAVE_ONLY:
+	switch (FIELD_GET(GHWCFG2_ARCHITECTURE_MASK, readl(&regs->global_regs.ghwcfg2))) {
+	case GHWCFG2_SLAVE_ONLY_ARCH:
 		break;
-	case DWC2_HWCFG2_ARCHITECTURE_EXT_DMA:
-		ahbcfg |= FIELD_PREP(DWC2_GAHBCFG_HBURSTLEN_MASK, LOG2(brst_sz >> 1));
-
+	case GHWCFG2_EXT_DMA_ARCH:
+		ahbcfg |= FIELD_PREP(GAHBCFG_HBSTLEN_MASK, LOG2(brst_sz >> 1));
 #ifdef DWC2_DMA_ENABLE
-		ahbcfg |= DWC2_GAHBCFG_DMAENABLE;
+		ahbcfg |= GAHBCFG_DMA_EN;
 #endif
 		break;
-
-	case DWC2_HWCFG2_ARCHITECTURE_INT_DMA:
-		ahbcfg |= DWC2_GAHBCFG_HBURSTLEN_INCR4;
+	case GHWCFG2_INT_DMA_ARCH:
+		ahbcfg |= FIELD_PREP(GAHBCFG_HBSTLEN_MASK, GAHBCFG_HBSTLEN_INCR4);
 #ifdef DWC2_DMA_ENABLE
-		ahbcfg |= DWC2_GAHBCFG_DMAENABLE;
+		ahbcfg |= GAHBCFG_DMA_EN;
 #endif
 		break;
 	}
@@ -460,9 +457,9 @@ static void dwc_otg_core_init(struct udevice *dev)
 	usbcfg = 0;
 
 	if (!priv->hnp_srp_disable)
-		usbcfg |= DWC2_GUSBCFG_HNPCAP | DWC2_GUSBCFG_SRPCAP;
+		usbcfg |= GUSBCFG_HNPCAP | GUSBCFG_SRPCAP;
 #ifdef DWC2_IC_USB_CAP
-	usbcfg |= DWC2_GUSBCFG_IC_USB_CAP;
+	usbcfg |= GUSBCFG_ICUSBCAP;
 #endif
 
 	setbits_le32(&regs->global_regs.gusbcfg, usbcfg);
@@ -482,14 +479,14 @@ static void dwc_otg_hc_init(struct dwc2_core_regs *regs, uint8_t hc_num,
 		uint8_t ep_is_in, uint8_t ep_type, uint16_t max_packet)
 {
 	struct dwc2_hc_regs *hc_regs = &regs->host_regs.hc[hc_num];
-	u32 hcchar = FIELD_PREP(DWC2_HCCHAR_DEVADDR_MASK, dev_addr) |
-			  FIELD_PREP(DWC2_HCCHAR_EPNUM_MASK, ep_num) |
-			  FIELD_PREP(DWC2_HCCHAR_EPDIR, ep_is_in) |
-			  FIELD_PREP(DWC2_HCCHAR_EPTYPE_MASK, ep_type) |
-			  FIELD_PREP(DWC2_HCCHAR_MPS_MASK, max_packet);
+	u32 hcchar = FIELD_PREP(HCCHAR_DEVADDR_MASK, dev_addr) |
+			  FIELD_PREP(HCCHAR_EPNUM_MASK, ep_num) |
+			  FIELD_PREP(HCCHAR_EPDIR, ep_is_in) |
+			  FIELD_PREP(HCCHAR_EPTYPE_MASK, ep_type) |
+			  FIELD_PREP(HCCHAR_MPS_MASK, max_packet);
 
 	if (dev->speed == USB_SPEED_LOW)
-		hcchar |= DWC2_HCCHAR_LSPDDEV;
+		hcchar |= HCCHAR_LSPDDEV;
 
 	/*
 	 * Program the HCCHARn register with the endpoint characteristics
@@ -506,9 +503,9 @@ static void dwc_otg_hc_init_split(struct dwc2_hc_regs *hc_regs,
 {
 	uint32_t hcsplt = 0;
 
-	hcsplt = DWC2_HCSPLT_SPLTENA;
-	hcsplt |= FIELD_PREP(DWC2_HCSPLT_HUBADDR_MASK, hub_devnum);
-	hcsplt |= FIELD_PREP(DWC2_HCSPLT_PRTADDR_MASK, hub_port);
+	hcsplt = HCSPLT_SPLTENA;
+	hcsplt |= FIELD_PREP(HCSPLT_HUBADDR_MASK, hub_devnum);
+	hcsplt |= FIELD_PREP(HCSPLT_PRTADDR_MASK, hub_port);
 
 	/* Program the HCSPLIT register for SPLITs */
 	writel(hcsplt, &hc_regs->hcsplt);
@@ -544,33 +541,33 @@ static int dwc_otg_submit_rh_msg_in_status(struct dwc2_core_regs *regs,
 		break;
 	case USB_RECIP_OTHER | USB_TYPE_CLASS:
 		hprt0 = readl(&regs->host_regs.hprt0);
-		if (hprt0 & DWC2_HPRT0_PRTCONNSTS)
+		if (hprt0 & HPRT0_CONNSTS)
 			port_status |= USB_PORT_STAT_CONNECTION;
-		if (hprt0 & DWC2_HPRT0_PRTENA)
+		if (hprt0 & HPRT0_ENA)
 			port_status |= USB_PORT_STAT_ENABLE;
-		if (hprt0 & DWC2_HPRT0_PRTSUSP)
+		if (hprt0 & HPRT0_SUSP)
 			port_status |= USB_PORT_STAT_SUSPEND;
-		if (hprt0 & DWC2_HPRT0_PRTOVRCURRACT)
+		if (hprt0 & HPRT0_OVRCURRACT)
 			port_status |= USB_PORT_STAT_OVERCURRENT;
-		if (hprt0 & DWC2_HPRT0_PRTRST)
+		if (hprt0 & HPRT0_RST)
 			port_status |= USB_PORT_STAT_RESET;
-		if (hprt0 & DWC2_HPRT0_PRTPWR)
+		if (hprt0 & HPRT0_PWR)
 			port_status |= USB_PORT_STAT_POWER;
 
-		switch (FIELD_GET(DWC2_HPRT0_PRTSPD_MASK, hprt0)) {
-		case DWC2_HPRT0_PRTSPD_LOW:
+		switch (FIELD_GET(HPRT0_SPD_MASK, hprt0)) {
+		case HPRT0_SPD_LOW_SPEED:
 			port_status |= USB_PORT_STAT_LOW_SPEED;
 			break;
-		case DWC2_HPRT0_PRTSPD_HIGH:
+		case HPRT0_SPD_HIGH_SPEED:
 			port_status |= USB_PORT_STAT_HIGH_SPEED;
 			break;
 		}
 
-		if (hprt0 & DWC2_HPRT0_PRTENCHNG)
+		if (hprt0 & HPRT0_ENACHG)
 			port_change |= USB_PORT_STAT_C_ENABLE;
-		if (hprt0 & DWC2_HPRT0_PRTCONNDET)
+		if (hprt0 & HPRT0_CONNDET)
 			port_change |= USB_PORT_STAT_C_CONNECTION;
-		if (hprt0 & DWC2_HPRT0_PRTOVRCURRCHNG)
+		if (hprt0 & HPRT0_OVRCURRCHG)
 			port_change |= USB_PORT_STAT_C_OVERCURRENT;
 
 		*(uint32_t *)buffer = cpu_to_le32(port_status |
@@ -736,8 +733,7 @@ static int dwc_otg_submit_rh_msg_out(struct dwc2_priv *priv,
 	case (USB_REQ_CLEAR_FEATURE << 8) | USB_RECIP_OTHER | USB_TYPE_CLASS:
 		switch (wValue) {
 		case USB_PORT_FEAT_C_CONNECTION:
-			clrsetbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK,
-					DWC2_HPRT0_PRTCONNDET);
+			clrsetbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK, HPRT0_CONNDET);
 			break;
 		}
 		break;
@@ -748,16 +744,13 @@ static int dwc_otg_submit_rh_msg_out(struct dwc2_priv *priv,
 			break;
 
 		case USB_PORT_FEAT_RESET:
-			clrsetbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK,
-					DWC2_HPRT0_PRTRST);
+			clrsetbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK, HPRT0_RST);
 			mdelay(50);
-			clrbits_le32(&regs->host_regs.hprt0,
-				     DWC2_HPRT0_W1C_MASK | DWC2_HPRT0_PRTRST);
+			clrbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK | HPRT0_RST);
 			break;
 
 		case USB_PORT_FEAT_POWER:
-			clrsetbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK,
-					DWC2_HPRT0_PRTRST);
+			clrsetbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK, HPRT0_RST);
 			break;
 
 		case USB_PORT_FEAT_ENABLE:
@@ -808,23 +801,23 @@ int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, u8 *toggle)
 	int ret;
 	uint32_t hcint, hctsiz;
 
-	ret = wait_for_bit_le32(&hc_regs->hcint, DWC2_HCINT_CHHLTD, true,
+	ret = wait_for_bit_le32(&hc_regs->hcint, HCINTMSK_CHHLTD, true,
 				2000, false);
 	if (ret)
 		return ret;
 
 	hcint = readl(&hc_regs->hcint);
 	hctsiz = readl(&hc_regs->hctsiz);
-	*sub = FIELD_GET(DWC2_HCTSIZ_XFERSIZE_MASK, hctsiz);
-	*toggle = FIELD_GET(DWC2_HCTSIZ_PID_MASK, hctsiz);
+	*sub = FIELD_GET(TSIZ_XFERSIZE_MASK, hctsiz);
+	*toggle = FIELD_GET(TSIZ_SC_MC_PID_MASK, hctsiz);
 
 	debug("%s: HCINT=%08x sub=%u toggle=%d\n", __func__, hcint, *sub,
 	      *toggle);
 
-	if (hcint & DWC2_HCINT_XFERCOMP)
+	if (hcint & HCINTMSK_XFERCOMPL)
 		return 0;
 
-	if (hcint & (DWC2_HCINT_NAK | DWC2_HCINT_FRMOVRUN))
+	if (hcint & (HCINTMSK_NAK | HCINTMSK_FRMOVRUN))
 		return -EAGAIN;
 
 	debug("%s: Error (HCINT=%08x)\n", __func__, hcint);
@@ -832,10 +825,10 @@ int wait_for_chhltd(struct dwc2_hc_regs *hc_regs, uint32_t *sub, u8 *toggle)
 }
 
 static int dwc2_eptype[] = {
-	DWC2_HCCHAR_EPTYPE_ISOC,
-	DWC2_HCCHAR_EPTYPE_INTR,
-	DWC2_HCCHAR_EPTYPE_CONTROL,
-	DWC2_HCCHAR_EPTYPE_BULK,
+	HCCHAR_EPTYPE_ISOC,
+	HCCHAR_EPTYPE_INTR,
+	HCCHAR_EPTYPE_CONTROL,
+	HCCHAR_EPTYPE_BULK,
 };
 
 static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
@@ -848,9 +841,9 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 	debug("%s: chunk: pid %d xfer_len %u pkts %u\n", __func__,
 	      *pid, xfer_len, num_packets);
 
-	writel(FIELD_PREP(DWC2_HCTSIZ_XFERSIZE_MASK, xfer_len) |
-	       FIELD_PREP(DWC2_HCTSIZ_PKTCNT_MASK, num_packets) |
-	       FIELD_PREP(DWC2_HCTSIZ_PID_MASK, *pid),
+	writel(FIELD_PREP(TSIZ_XFERSIZE_MASK, xfer_len) |
+	       FIELD_PREP(TSIZ_PKTCNT_MASK, num_packets) |
+	       FIELD_PREP(TSIZ_SC_MC_PID_MASK, *pid),
 	       &hc_regs->hctsiz);
 
 	if (xfer_len) {
@@ -874,12 +867,12 @@ static int transfer_chunk(struct dwc2_hc_regs *hc_regs, void *aligned_buffer,
 	writel(0x3fff, &hc_regs->hcint);
 
 	/* Set host channel enable after all other setup is complete. */
-	clrsetbits_le32(&hc_regs->hcchar, DWC2_HCCHAR_MULTICNT_MASK |
-			DWC2_HCCHAR_CHEN | DWC2_HCCHAR_CHDIS |
-			DWC2_HCCHAR_ODDFRM,
-			FIELD_PREP(DWC2_HCCHAR_MULTICNT_MASK, 1) |
-			FIELD_PREP(DWC2_HCCHAR_ODDFRM, odd_frame) |
-			DWC2_HCCHAR_CHEN);
+	clrsetbits_le32(&hc_regs->hcchar, HCCHAR_MULTICNT_MASK |
+			HCCHAR_CHENA | HCCHAR_CHDIS |
+			HCCHAR_ODDFRM,
+			FIELD_PREP(HCCHAR_MULTICNT_MASK, 1) |
+			FIELD_PREP(HCCHAR_ODDFRM, odd_frame) |
+			HCCHAR_CHENA);
 
 	ret = wait_for_chhltd(hc_regs, &sub, pid);
 	if (ret < 0)
@@ -942,7 +935,7 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		uint8_t hub_port;
 		uint32_t hprt0 = readl(&regs->host_regs.hprt0);
 
-		if (FIELD_GET(DWC2_HPRT0_PRTSPD_MASK, hprt0) == DWC2_HPRT0_PRTSPD_HIGH) {
+		if (FIELD_GET(HPRT0_SPD_MASK, hprt0) == HPRT0_SPD_HIGH_SPEED) {
 			usb_find_usb2_hub_address_port(dev, &hub_addr,
 						       &hub_port);
 			dwc_otg_hc_init_split(hc_regs, hub_addr, hub_port);
@@ -967,11 +960,11 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 			num_packets = 1;
 
 		if (complete_split)
-			setbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+			setbits_le32(&hc_regs->hcsplt, HCSPLT_COMPSPLT);
 		else if (do_split)
-			clrbits_le32(&hc_regs->hcsplt, DWC2_HCSPLT_COMPSPLT);
+			clrbits_le32(&hc_regs->hcsplt, HCSPLT_COMPSPLT);
 
-		if (eptype == DWC2_HCCHAR_EPTYPE_INTR) {
+		if (eptype == HCCHAR_EPTYPE_INTR) {
 			int uframe_num = readl(&host_regs->hfnum);
 			if (!(uframe_num & 0x1))
 				odd_frame = 1;
@@ -984,18 +977,18 @@ int chunk_msg(struct dwc2_priv *priv, struct usb_device *dev,
 		hcint = readl(&hc_regs->hcint);
 		if (complete_split) {
 			stop_transfer = 0;
-			if (hcint & DWC2_HCINT_NYET) {
+			if (hcint & HCINTMSK_NYET) {
 				ret = 0;
-				int frame_num = FIELD_GET(DWC2_HFNUM_FRNUM_MASK,
+				int frame_num = FIELD_GET(HFNUM_FRNUM_MASK,
 							  readl(&host_regs->hfnum));
 
-				if (((frame_num - ssplit_frame_num) & DWC2_HFNUM_FRNUM_MASK) > 4)
+				if (((frame_num - ssplit_frame_num) & HFNUM_FRNUM_MASK) > 4)
 					ret = -EAGAIN;
 			} else
 				complete_split = 0;
 		} else if (do_split) {
-			if (hcint & DWC2_HCINT_ACK) {
-				ssplit_frame_num = FIELD_GET(DWC2_HFNUM_FRNUM_MASK,
+			if (hcint & HCINTMSK_ACK) {
+				ssplit_frame_num = FIELD_GET(HFNUM_FRNUM_MASK,
 							     readl(&host_regs->hfnum));
 				ret = 0;
 				complete_split = 1;
@@ -1174,8 +1167,7 @@ static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 	dev_info(dev, "Core Release: %x.%03x\n",
 		 snpsid >> 12 & 0xf, snpsid & 0xfff);
 
-	if (FIELD_GET(DWC2_SNPSID_DEVID_MASK, snpsid) != DWC2_SNPSID_DEVID_VER_2xx &&
-	    FIELD_GET(DWC2_SNPSID_DEVID_MASK, snpsid) != DWC2_SNPSID_DEVID_VER_3xx) {
+	if (FIELD_GET(GSNPSID_ID_MASK, snpsid) != GSNPSID_OTG_ID) {
 		dev_info(dev, "SNPSID invalid (not DWC2 OTG device): %08x\n",
 			 snpsid);
 		return -ENODEV;
@@ -1196,9 +1188,9 @@ static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 		dwc_otg_core_host_init(dev, regs);
 	}
 
-	clrsetbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK, DWC2_HPRT0_PRTRST);
+	clrsetbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK, HPRT0_RST);
 	mdelay(50);
-	clrbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK | DWC2_HPRT0_PRTRST);
+	clrbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK | HPRT0_RST);
 
 	for (i = 0; i < MAX_DEVICE; i++) {
 		for (j = 0; j < MAX_ENDPOINT; j++) {
@@ -1213,7 +1205,7 @@ static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 	 * is started (the bus is scanned) and  fixes the USB detection
 	 * problems with some problematic USB keys.
 	 */
-	if (readl(&regs->global_regs.gintsts) & DWC2_GINTSTS_CURMODE_HOST)
+	if (readl(&regs->global_regs.gintsts) & GINTSTS_CURMODE_HOST)
 		mdelay(1000);
 
 	printf("USB DWC2\n");
@@ -1224,7 +1216,7 @@ static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 static void dwc2_uninit_common(struct dwc2_core_regs *regs)
 {
 	/* Put everything in reset. */
-	clrsetbits_le32(&regs->host_regs.hprt0, DWC2_HPRT0_W1C_MASK, DWC2_HPRT0_PRTRST);
+	clrsetbits_le32(&regs->host_regs.hprt0, HPRT0_W1C_MASK, HPRT0_RST);
 }
 
 #if !CONFIG_IS_ENABLED(DM_USB)
