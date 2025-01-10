@@ -37,6 +37,17 @@ config SYS_HAS_ARMV8_SECURE_BASE
 	  If enabled, please also define the value for ARMV8_SECURE_BASE,
 	  for i.MX8M, it could be some address in OCRAM.
 
+config IMX8M_OPTEE_LOAD_ADDR
+	hex "Load address of OPTEE image"
+	default 0xbe000000 if IMX8MM
+	default 0xbe000000 if IMX8MN
+	default 0x56000000 if IMX8MP
+	default 0xfe000000 if IMX8MQ
+	help
+	  The load and entry address for the OPTEE image. This value defaults to
+	  the one defined in tf-a if not provided in the board defconfig file.
+
+
 choice
 	prompt "NXP i.MX8M board select"
 	optional

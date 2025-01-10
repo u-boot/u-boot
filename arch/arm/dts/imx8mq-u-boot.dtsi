@@ -144,6 +144,21 @@
 					};
 #endif
 
+					tee: tee {
+						description = "OP-TEE";
+						type = "tee";
+						arch = "arm64";
+						compression = "none";
+						os = "tee";
+						load = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+						entry = <CONFIG_IMX8M_OPTEE_LOAD_ADDR>;
+
+						tee-os {
+							filename = "tee.bin";
+							optional;
+						};
+					};
+
 					fdt {
 						compression = "none";
 						description = "NAME";
@@ -164,7 +179,7 @@
 						fdt = "fdt";
 						firmware = "uboot";
 #ifndef CONFIG_ARMV8_PSCI
-						loadables = "atf";
+						loadables = "atf", "tee";
 #endif
 					};
 				};
