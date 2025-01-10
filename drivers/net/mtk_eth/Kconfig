@@ -32,4 +32,8 @@ config MTK_ETH_SWITCH_MT7988
 	depends on TARGET_MT7988
 	default y
 
+config MTK_ETH_SWITCH_AN8855
+	bool "Support for Airoha AN8855 ethernet switch"
+	default y if TARGET_MT7981 || TARGET_MT7987
+
 endif # MEDIATEK_ETH
