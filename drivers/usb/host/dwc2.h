@@ -6,64 +6,6 @@
 #ifndef __DWC2_H__
 #define __DWC2_H__
 
-struct dwc2_hc_regs {
-	u32			hcchar;		/* 0x00 */
-	u32			hcsplt;
-	u32			hcint;
-	u32			hcintmsk;
-	u32			hctsiz;		/* 0x10 */
-	u32			hcdma;
-	u32			reserved;
-	u32			hcdmab;
-};
-
-struct dwc2_host_regs {
-	u32			hcfg;		/* 0x00 */
-	u32			hfir;
-	u32			hfnum;
-	u32			_pad_0x40c;
-	u32			hptxsts;	/* 0x10 */
-	u32			haint;
-	u32			haintmsk;
-	u32			hflbaddr;
-};
-
-struct dwc2_core_regs {
-	u32			gotgctl;	/* 0x000 */
-	u32			gotgint;
-	u32			gahbcfg;
-	u32			gusbcfg;
-	u32			grstctl;	/* 0x010 */
-	u32			gintsts;
-	u32			gintmsk;
-	u32			grxstsr;
-	u32			grxstsp;	/* 0x020 */
-	u32			grxfsiz;
-	u32			gnptxfsiz;
-	u32			gnptxsts;
-	u32			gi2cctl;	/* 0x030 */
-	u32			gpvndctl;
-	u32			ggpio;
-	u32			guid;
-	u32			gsnpsid;	/* 0x040 */
-	u32			ghwcfg1;
-	u32			ghwcfg2;
-	u32			ghwcfg3;
-	u32			ghwcfg4;	/* 0x050 */
-	u32			glpmcfg;
-	u32			_pad_0x58_0x9c[42];
-	u32			hptxfsiz;	/* 0x100 */
-	u32			dptxfsiz_dieptxf[15];
-	u32			_pad_0x140_0x3fc[176];
-	struct dwc2_host_regs	host_regs;	/* 0x400 */
-	u32			_pad_0x420_0x43c[8];
-	u32			hprt0;		/* 0x440 */
-	u32			_pad_0x444_0x4fc[47];
-	struct dwc2_hc_regs	hc_regs[16];	/* 0x500 */
-	u32			_pad_0x700_0xe00[448];
-	u32			pcgcctl;	/* 0xe00 */
-};
-
 #define DWC2_GOTGCTL_SESREQSCS				(1 << 0)
 #define DWC2_GOTGCTL_SESREQSCS_OFFSET			0
 #define DWC2_GOTGCTL_SESREQ				(1 << 1)

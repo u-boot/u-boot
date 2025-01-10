@@ -32,15 +32,16 @@ static inline void dwc2_udc_ep0_zlp(struct dwc2_udc *dev)
 {
 	u32 ep_ctrl;
 
-	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr), &reg->in_endp[EP0_CON].diepdma);
-	writel(DIEPT_SIZ_PKT_CNT(1), &reg->in_endp[EP0_CON].dieptsiz);
+	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr),
+	       &reg->device_regs.in_endp[EP0_CON].diepdma);
+	writel(DIEPT_SIZ_PKT_CNT(1), &reg->device_regs.in_endp[EP0_CON].dieptsiz);
 
-	ep_ctrl = readl(&reg->in_endp[EP0_CON].diepctl);
-	writel(ep_ctrl|DEPCTL_EPENA|DEPCTL_CNAK,
-	       &reg->in_endp[EP0_CON].diepctl);
+	ep_ctrl = readl(&reg->device_regs.in_endp[EP0_CON].diepctl);
+	writel(ep_ctrl | DEPCTL_EPENA | DEPCTL_CNAK,
+	       &reg->device_regs.in_endp[EP0_CON].diepctl);
 
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DIEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->in_endp[EP0_CON].diepctl));
+		__func__, readl(&reg->device_regs.in_endp[EP0_CON].diepctl));
 	dev->ep0state = WAIT_FOR_IN_COMPLETE;
 }
 
@@ -52,16 +53,17 @@ static void dwc2_udc_pre_setup(void)
 		   "%s : Prepare Setup packets.\n", __func__);
 
 	writel(DOEPT_SIZ_PKT_CNT(1) | sizeof(struct usb_ctrlrequest),
-	       &reg->out_endp[EP0_CON].doeptsiz);
-	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr), &reg->out_endp[EP0_CON].doepdma);
+	       &reg->device_regs.out_endp[EP0_CON].doeptsiz);
+	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr),
+	       &reg->device_regs.out_endp[EP0_CON].doepdma);
 
-	ep_ctrl = readl(&reg->out_endp[EP0_CON].doepctl);
-	writel(ep_ctrl|DEPCTL_EPENA, &reg->out_endp[EP0_CON].doepctl);
+	ep_ctrl = readl(&reg->device_regs.out_endp[EP0_CON].doepctl);
+	writel(ep_ctrl | DEPCTL_EPENA, &reg->device_regs.out_endp[EP0_CON].doepctl);
 
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DIEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->in_endp[EP0_CON].diepctl));
+		__func__, readl(&reg->device_regs.in_endp[EP0_CON].diepctl));
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DOEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->out_endp[EP0_CON].doepctl));
+		__func__, readl(&reg->device_regs.out_endp[EP0_CON].doepctl));
 
 }
 
@@ -70,25 +72,26 @@ static inline void dwc2_ep0_complete_out(void)
 	u32 ep_ctrl;
 
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DIEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->in_endp[EP0_CON].diepctl));
+		__func__, readl(&reg->device_regs.in_endp[EP0_CON].diepctl));
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DOEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->out_endp[EP0_CON].doepctl));
+		__func__, readl(&reg->device_regs.out_endp[EP0_CON].doepctl));
 
 	debug_cond(DEBUG_IN_EP,
 		"%s : Prepare Complete Out packet.\n", __func__);
 
 	writel(DOEPT_SIZ_PKT_CNT(1) | sizeof(struct usb_ctrlrequest),
-	       &reg->out_endp[EP0_CON].doeptsiz);
-	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr), &reg->out_endp[EP0_CON].doepdma);
+	       &reg->device_regs.out_endp[EP0_CON].doeptsiz);
+	writel(phys_to_bus((unsigned long)usb_ctrl_dma_addr),
+	       &reg->device_regs.out_endp[EP0_CON].doepdma);
 
-	ep_ctrl = readl(&reg->out_endp[EP0_CON].doepctl);
-	writel(ep_ctrl|DEPCTL_EPENA|DEPCTL_CNAK,
-	       &reg->out_endp[EP0_CON].doepctl);
+	ep_ctrl = readl(&reg->device_regs.out_endp[EP0_CON].doepctl);
+	writel(ep_ctrl | DEPCTL_EPENA | DEPCTL_CNAK,
+	       &reg->device_regs.out_endp[EP0_CON].doepctl);
 
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DIEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->in_endp[EP0_CON].diepctl));
+		__func__, readl(&reg->device_regs.in_endp[EP0_CON].diepctl));
 	debug_cond(DEBUG_EP0 != 0, "%s:EP0 ZLP DOEPCTL0 = 0x%x\n",
-		__func__, readl(&reg->out_endp[EP0_CON].doepctl));
+		__func__, readl(&reg->device_regs.out_endp[EP0_CON].doepctl));
 
 }
 
@@ -110,25 +113,25 @@ static int setdma_rx(struct dwc2_ep *ep, struct dwc2_request *req)
 	else
 		pktcnt = (length - 1)/(ep->ep.maxpacket) + 1;
 
-	ctrl =  readl(&reg->out_endp[ep_num].doepctl);
+	ctrl =  readl(&reg->device_regs.out_endp[ep_num].doepctl);
 
 	invalidate_dcache_range((unsigned long) ep->dma_buf,
 				(unsigned long) ep->dma_buf +
 				ROUND(ep->len, CONFIG_SYS_CACHELINE_SIZE));
 
-	writel(phys_to_bus((unsigned long)ep->dma_buf), &reg->out_endp[ep_num].doepdma);
+	writel(phys_to_bus((unsigned long)ep->dma_buf), &reg->device_regs.out_endp[ep_num].doepdma);
 	writel(DOEPT_SIZ_PKT_CNT(pktcnt) | DOEPT_SIZ_XFER_SIZE(length),
-	       &reg->out_endp[ep_num].doeptsiz);
-	writel(DEPCTL_EPENA|DEPCTL_CNAK|ctrl, &reg->out_endp[ep_num].doepctl);
+	       &reg->device_regs.out_endp[ep_num].doeptsiz);
+	writel(DEPCTL_EPENA | DEPCTL_CNAK | ctrl, &reg->device_regs.out_endp[ep_num].doepctl);
 
 	debug_cond(DEBUG_OUT_EP != 0,
 		   "%s: EP%d RX DMA start : DOEPDMA = 0x%x,"
 		   "DOEPTSIZ = 0x%x, DOEPCTL = 0x%x\n"
 		   "\tbuf = 0x%p, pktcnt = %d, xfersize = %d\n",
 		   __func__, ep_num,
-		   readl(&reg->out_endp[ep_num].doepdma),
-		   readl(&reg->out_endp[ep_num].doeptsiz),
-		   readl(&reg->out_endp[ep_num].doepctl),
+		   readl(&reg->device_regs.out_endp[ep_num].doepdma),
+		   readl(&reg->device_regs.out_endp[ep_num].doeptsiz),
+		   readl(&reg->device_regs.out_endp[ep_num].doepctl),
 		   buf, pktcnt, length);
 	return 0;
 
@@ -159,16 +162,16 @@ static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 		pktcnt = (length - 1)/(ep->ep.maxpacket) + 1;
 
 	/* Flush the endpoint's Tx FIFO */
-	writel(TX_FIFO_NUMBER(ep->fifo_num), &reg->grstctl);
-	writel(TX_FIFO_NUMBER(ep->fifo_num) | TX_FIFO_FLUSH, &reg->grstctl);
-	while (readl(&reg->grstctl) & TX_FIFO_FLUSH)
+	writel(TX_FIFO_NUMBER(ep->fifo_num), &reg->global_regs.grstctl);
+	writel(TX_FIFO_NUMBER(ep->fifo_num) | TX_FIFO_FLUSH, &reg->global_regs.grstctl);
+	while (readl(&reg->global_regs.grstctl) & TX_FIFO_FLUSH)
 		;
 
-	writel(phys_to_bus((unsigned long)ep->dma_buf), &reg->in_endp[ep_num].diepdma);
+	writel(phys_to_bus((unsigned long)ep->dma_buf), &reg->device_regs.in_endp[ep_num].diepdma);
 	writel(DIEPT_SIZ_PKT_CNT(pktcnt) | DIEPT_SIZ_XFER_SIZE(length),
-	       &reg->in_endp[ep_num].dieptsiz);
+	       &reg->device_regs.in_endp[ep_num].dieptsiz);
 
-	ctrl = readl(&reg->in_endp[ep_num].diepctl);
+	ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 
 	/* Write the FIFO number to be used for this endpoint */
 	ctrl &= DIEPCTL_TX_FIFO_NUM_MASK;
@@ -177,16 +180,16 @@ static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 	/* Clear reserved (Next EP) bits */
 	ctrl = (ctrl&~(EP_MASK<<DEPCTL_NEXT_EP_BIT));
 
-	writel(DEPCTL_EPENA|DEPCTL_CNAK|ctrl, &reg->in_endp[ep_num].diepctl);
+	writel(DEPCTL_EPENA | DEPCTL_CNAK | ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 
 	debug_cond(DEBUG_IN_EP,
 		"%s:EP%d TX DMA start : DIEPDMA0 = 0x%x,"
 		"DIEPTSIZ0 = 0x%x, DIEPCTL0 = 0x%x\n"
 		"\tbuf = 0x%p, pktcnt = %d, xfersize = %d\n",
 		__func__, ep_num,
-		readl(&reg->in_endp[ep_num].diepdma),
-		readl(&reg->in_endp[ep_num].dieptsiz),
-		readl(&reg->in_endp[ep_num].diepctl),
+		readl(&reg->device_regs.in_endp[ep_num].diepdma),
+		readl(&reg->device_regs.in_endp[ep_num].dieptsiz),
+		readl(&reg->device_regs.in_endp[ep_num].diepctl),
 		buf, pktcnt, length);
 
 	return length;
@@ -207,7 +210,7 @@ static void complete_rx(struct dwc2_udc *dev, u8 ep_num)
 	}
 
 	req = list_entry(ep->queue.next, struct dwc2_request, queue);
-	ep_tsr = readl(&reg->out_endp[ep_num].doeptsiz);
+	ep_tsr = readl(&reg->device_regs.out_endp[ep_num].doeptsiz);
 
 	if (ep_num == EP0_CON)
 		xfer_size = (ep_tsr & DOEPT_SIZ_XFER_SIZE_MAX_EP0);
@@ -288,7 +291,7 @@ static void complete_tx(struct dwc2_udc *dev, u8 ep_num)
 
 	req = list_entry(ep->queue.next, struct dwc2_request, queue);
 
-	ep_tsr = readl(&reg->in_endp[ep_num].dieptsiz);
+	ep_tsr = readl(&reg->device_regs.in_endp[ep_num].dieptsiz);
 
 	xfer_size = ep->len;
 	is_short = (xfer_size < ep->ep.maxpacket);
@@ -373,7 +376,7 @@ static void process_ep_in_intr(struct dwc2_udc *dev)
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
 
-	ep_intr = readl(&reg->daint);
+	ep_intr = readl(&reg->device_regs.daint);
 	debug_cond(DEBUG_IN_EP,
 		"*** %s: EP In interrupt : DAINT = 0x%x\n", __func__, ep_intr);
 
@@ -381,13 +384,13 @@ static void process_ep_in_intr(struct dwc2_udc *dev)
 
 	while (ep_intr) {
 		if (ep_intr & DAINT_IN_EP_INT(1)) {
-			ep_intr_status = readl(&reg->in_endp[ep_num].diepint);
+			ep_intr_status = readl(&reg->device_regs.in_endp[ep_num].diepint);
 			debug_cond(DEBUG_IN_EP,
 				   "\tEP%d-IN : DIEPINT = 0x%x\n",
 				   ep_num, ep_intr_status);
 
 			/* Interrupt Clear */
-			writel(ep_intr_status, &reg->in_endp[ep_num].diepint);
+			writel(ep_intr_status, &reg->device_regs.in_endp[ep_num].diepint);
 
 			if (ep_intr_status & TRANSFER_DONE) {
 				complete_tx(dev, ep_num);
@@ -420,10 +423,10 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 	u32 ep_intr, ep_intr_status;
 	u8 ep_num = 0;
 	u32 ep_tsr = 0, xfer_size = 0;
-	u32 epsiz_reg = reg->out_endp[ep_num].doeptsiz;
+	u32 epsiz_reg = reg->device_regs.out_endp[ep_num].doeptsiz;
 	u32 req_size = sizeof(struct usb_ctrlrequest);
 
-	ep_intr = readl(&reg->daint);
+	ep_intr = readl(&reg->device_regs.daint);
 	debug_cond(DEBUG_OUT_EP != 0,
 		   "*** %s: EP OUT interrupt : DAINT = 0x%x\n",
 		   __func__, ep_intr);
@@ -432,13 +435,13 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 
 	while (ep_intr) {
 		if (ep_intr & 0x1) {
-			ep_intr_status = readl(&reg->out_endp[ep_num].doepint);
+			ep_intr_status = readl(&reg->device_regs.out_endp[ep_num].doepint);
 			debug_cond(DEBUG_OUT_EP != 0,
 				   "\tEP%d-OUT : DOEPINT = 0x%x\n",
 				   ep_num, ep_intr_status);
 
 			/* Interrupt Clear */
-			writel(ep_intr_status, &reg->out_endp[ep_num].doepint);
+			writel(ep_intr_status, &reg->device_regs.out_endp[ep_num].doepint);
 
 			if (ep_num == 0) {
 				if (ep_intr_status & TRANSFER_DONE) {
@@ -486,14 +489,14 @@ static int dwc2_udc_irq(int irq, void *_dev)
 
 	spin_lock_irqsave(&dev->lock, flags);
 
-	intr_status = readl(&reg->gintsts);
-	gintmsk = readl(&reg->gintmsk);
+	intr_status = readl(&reg->global_regs.gintsts);
+	gintmsk = readl(&reg->global_regs.gintmsk);
 
 	debug_cond(DEBUG_ISR,
 		  "\n*** %s : GINTSTS=0x%x(on state %s), GINTMSK : 0x%x,"
 		  "DAINT : 0x%x, DAINTMSK : 0x%x\n",
 		  __func__, intr_status, state_names[dev->ep0state], gintmsk,
-		  readl(&reg->daint), readl(&reg->daintmsk));
+		  readl(&reg->device_regs.daint), readl(&reg->device_regs.daintmsk));
 
 	if (!intr_status) {
 		spin_unlock_irqrestore(&dev->lock, flags);
@@ -503,8 +506,8 @@ static int dwc2_udc_irq(int irq, void *_dev)
 	if (intr_status & INT_ENUMDONE) {
 		debug_cond(DEBUG_ISR, "\tSpeed Detection interrupt\n");
 
-		writel(INT_ENUMDONE, &reg->gintsts);
-		usb_status = (readl(&reg->dsts) & 0x6);
+		writel(INT_ENUMDONE, &reg->global_regs.gintsts);
+		usb_status = (readl(&reg->device_regs.dsts) & 0x6);
 
 		if (usb_status & (USB_FULL_30_60MHZ | USB_FULL_48MHZ)) {
 			debug_cond(DEBUG_ISR,
@@ -521,14 +524,14 @@ static int dwc2_udc_irq(int irq, void *_dev)
 
 	if (intr_status & INT_EARLY_SUSPEND) {
 		debug_cond(DEBUG_ISR, "\tEarly suspend interrupt\n");
-		writel(INT_EARLY_SUSPEND, &reg->gintsts);
+		writel(INT_EARLY_SUSPEND, &reg->global_regs.gintsts);
 	}
 
 	if (intr_status & INT_SUSPEND) {
-		usb_status = readl(&reg->dsts);
+		usb_status = readl(&reg->device_regs.dsts);
 		debug_cond(DEBUG_ISR,
 			"\tSuspend interrupt :(DSTS):0x%x\n", usb_status);
-		writel(INT_SUSPEND, &reg->gintsts);
+		writel(INT_SUSPEND, &reg->global_regs.gintsts);
 
 		if (dev->gadget.speed != USB_SPEED_UNKNOWN
 		    && dev->driver) {
@@ -538,7 +541,7 @@ static int dwc2_udc_irq(int irq, void *_dev)
 	}
 
 	if (intr_status & INT_OTG) {
-		gotgint = readl(&reg->gotgint);
+		gotgint = readl(&reg->global_regs.gotgint);
 		debug_cond(DEBUG_ISR,
 			   "\tOTG interrupt: (GOTGINT):0x%x\n", gotgint);
 
@@ -551,12 +554,12 @@ static int dwc2_udc_irq(int irq, void *_dev)
 				spin_lock_irqsave(&dev->lock, flags);
 			}
 		}
-		writel(gotgint, &reg->gotgint);
+		writel(gotgint, &reg->global_regs.gotgint);
 	}
 
 	if (intr_status & INT_RESUME) {
 		debug_cond(DEBUG_ISR, "\tResume interrupt\n");
-		writel(INT_RESUME, &reg->gintsts);
+		writel(INT_RESUME, &reg->global_regs.gintsts);
 
 		if (dev->gadget.speed != USB_SPEED_UNKNOWN
 		    && dev->driver
@@ -567,10 +570,10 @@ static int dwc2_udc_irq(int irq, void *_dev)
 	}
 
 	if (intr_status & INT_RESET) {
-		usb_status = readl(&reg->gotgctl);
+		usb_status = readl(&reg->global_regs.gotgctl);
 		debug_cond(DEBUG_ISR,
 			"\tReset interrupt - (GOTGCTL):0x%x\n", usb_status);
-		writel(INT_RESET, &reg->gintsts);
+		writel(INT_RESET, &reg->global_regs.gintsts);
 
 		if ((usb_status & 0xc0000) == (0x3 << 18)) {
 			if (reset_available) {
@@ -676,14 +679,14 @@ static int dwc2_queue(struct usb_ep *_ep, struct usb_request *_req,
 			req = 0;
 
 		} else if (ep_is_in(ep)) {
-			gintsts = readl(&reg->gintsts);
+			gintsts = readl(&reg->global_regs.gintsts);
 			debug_cond(DEBUG_IN_EP,
 				   "%s: ep_is_in, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
 
 			setdma_tx(ep, req);
 		} else {
-			gintsts = readl(&reg->gintsts);
+			gintsts = readl(&reg->global_regs.gintsts);
 			debug_cond(DEBUG_OUT_EP != 0,
 				   "%s:ep_is_out, DWC2_UDC_OTG_GINTSTS=0x%x\n",
 				   __func__, gintsts);
@@ -765,14 +768,14 @@ static int dwc2_fifo_read(struct dwc2_ep *ep, void *cp, int max)
  */
 static void udc_set_address(struct dwc2_udc *dev, unsigned char address)
 {
-	u32 ctrl = readl(&reg->dcfg);
-	writel(DEVICE_ADDRESS(address) | ctrl, &reg->dcfg);
+	u32 ctrl = readl(&reg->device_regs.dcfg);
+	writel(DEVICE_ADDRESS(address) | ctrl, &reg->device_regs.dcfg);
 
 	dwc2_udc_ep0_zlp(dev);
 
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: USB OTG 2.0 Device address=%d, DCFG=0x%x\n",
-		   __func__, address, readl(&reg->dcfg));
+		   __func__, address, readl(&reg->device_regs.dcfg));
 
 	dev->usb_address = address;
 }
@@ -783,7 +786,7 @@ static inline void dwc2_udc_ep0_set_stall(struct dwc2_ep *ep)
 	u32		ep_ctrl = 0;
 
 	dev = ep->dev;
-	ep_ctrl = readl(&reg->in_endp[EP0_CON].diepctl);
+	ep_ctrl = readl(&reg->device_regs.in_endp[EP0_CON].diepctl);
 
 	/* set the disable and stall bits */
 	if (ep_ctrl & DEPCTL_EPENA)
@@ -791,11 +794,11 @@ static inline void dwc2_udc_ep0_set_stall(struct dwc2_ep *ep)
 
 	ep_ctrl |= DEPCTL_STALL;
 
-	writel(ep_ctrl, &reg->in_endp[EP0_CON].diepctl);
+	writel(ep_ctrl, &reg->device_regs.in_endp[EP0_CON].diepctl);
 
 	debug_cond(DEBUG_EP0 != 0,
 		   "%s: set ep%d stall, DIEPCTL0 = 0x%p\n",
-		   __func__, ep_index(ep), &reg->in_endp[EP0_CON].diepctl);
+		   __func__, ep_index(ep), &reg->device_regs.in_endp[EP0_CON].diepctl);
 	/*
 	 * The application can only set this bit, and the core clears it,
 	 * when a SETUP token is received for this endpoint
@@ -934,13 +937,13 @@ static int dwc2_udc_get_status(struct dwc2_udc *dev,
 			   (unsigned long) usb_ctrl +
 			   ROUND(sizeof(g_status), CONFIG_SYS_CACHELINE_SIZE));
 
-	writel(phys_to_bus(usb_ctrl_dma_addr), &reg->in_endp[EP0_CON].diepdma);
+	writel(phys_to_bus(usb_ctrl_dma_addr), &reg->device_regs.in_endp[EP0_CON].diepdma);
 	writel(DIEPT_SIZ_PKT_CNT(1) | DIEPT_SIZ_XFER_SIZE(2),
-	       &reg->in_endp[EP0_CON].dieptsiz);
+	       &reg->device_regs.in_endp[EP0_CON].dieptsiz);
 
-	ep_ctrl = readl(&reg->in_endp[EP0_CON].diepctl);
-	writel(ep_ctrl|DEPCTL_EPENA|DEPCTL_CNAK,
-	       &reg->in_endp[EP0_CON].diepctl);
+	ep_ctrl = readl(&reg->device_regs.in_endp[EP0_CON].diepctl);
+	writel(ep_ctrl | DEPCTL_EPENA | DEPCTL_CNAK,
+	       &reg->device_regs.in_endp[EP0_CON].diepctl);
 	dev->ep0state = WAIT_FOR_NULL_COMPLETE;
 
 	return 0;
@@ -955,17 +958,17 @@ static void dwc2_udc_set_nak(struct dwc2_ep *ep)
 	debug("%s: ep_num = %d, ep_type = %d\n", __func__, ep_num, ep->ep_type);
 
 	if (ep_is_in(ep)) {
-		ep_ctrl = readl(&reg->in_endp[ep_num].diepctl);
+		ep_ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 		ep_ctrl |= DEPCTL_SNAK;
-		writel(ep_ctrl, &reg->in_endp[ep_num].diepctl);
+		writel(ep_ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 		debug("%s: set NAK, DIEPCTL%d = 0x%x\n",
-			__func__, ep_num, readl(&reg->in_endp[ep_num].diepctl));
+			__func__, ep_num, readl(&reg->device_regs.in_endp[ep_num].diepctl));
 	} else {
-		ep_ctrl = readl(&reg->out_endp[ep_num].doepctl);
+		ep_ctrl = readl(&reg->device_regs.out_endp[ep_num].doepctl);
 		ep_ctrl |= DEPCTL_SNAK;
-		writel(ep_ctrl, &reg->out_endp[ep_num].doepctl);
+		writel(ep_ctrl, &reg->device_regs.out_endp[ep_num].doepctl);
 		debug("%s: set NAK, DOEPCTL%d = 0x%x\n",
-		      __func__, ep_num, readl(&reg->out_endp[ep_num].doepctl));
+		      __func__, ep_num, readl(&reg->device_regs.out_endp[ep_num].doepctl));
 	}
 
 	return;
@@ -980,7 +983,7 @@ static void dwc2_udc_ep_set_stall(struct dwc2_ep *ep)
 	debug("%s: ep_num = %d, ep_type = %d\n", __func__, ep_num, ep->ep_type);
 
 	if (ep_is_in(ep)) {
-		ep_ctrl = readl(&reg->in_endp[ep_num].diepctl);
+		ep_ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 
 		/* set the disable and stall bits */
 		if (ep_ctrl & DEPCTL_EPENA)
@@ -988,19 +991,19 @@ static void dwc2_udc_ep_set_stall(struct dwc2_ep *ep)
 
 		ep_ctrl |= DEPCTL_STALL;
 
-		writel(ep_ctrl, &reg->in_endp[ep_num].diepctl);
+		writel(ep_ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 		debug("%s: set stall, DIEPCTL%d = 0x%x\n",
-		      __func__, ep_num, readl(&reg->in_endp[ep_num].diepctl));
+		      __func__, ep_num, readl(&reg->device_regs.in_endp[ep_num].diepctl));
 
 	} else {
-		ep_ctrl = readl(&reg->out_endp[ep_num].doepctl);
+		ep_ctrl = readl(&reg->device_regs.out_endp[ep_num].doepctl);
 
 		/* set the stall bit */
 		ep_ctrl |= DEPCTL_STALL;
 
-		writel(ep_ctrl, &reg->out_endp[ep_num].doepctl);
+		writel(ep_ctrl, &reg->device_regs.out_endp[ep_num].doepctl);
 		debug("%s: set stall, DOEPCTL%d = 0x%x\n",
-		      __func__, ep_num, readl(&reg->out_endp[ep_num].doepctl));
+		      __func__, ep_num, readl(&reg->device_regs.out_endp[ep_num].doepctl));
 	}
 
 	return;
@@ -1015,7 +1018,7 @@ static void dwc2_udc_ep_clear_stall(struct dwc2_ep *ep)
 	debug("%s: ep_num = %d, ep_type = %d\n", __func__, ep_num, ep->ep_type);
 
 	if (ep_is_in(ep)) {
-		ep_ctrl = readl(&reg->in_endp[ep_num].diepctl);
+		ep_ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 
 		/* clear stall bit */
 		ep_ctrl &= ~DEPCTL_STALL;
@@ -1031,12 +1034,12 @@ static void dwc2_udc_ep_clear_stall(struct dwc2_ep *ep)
 			ep_ctrl |= DEPCTL_SETD0PID; /* DATA0 */
 		}
 
-		writel(ep_ctrl, &reg->in_endp[ep_num].diepctl);
+		writel(ep_ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 		debug("%s: cleared stall, DIEPCTL%d = 0x%x\n",
-			__func__, ep_num, readl(&reg->in_endp[ep_num].diepctl));
+			__func__, ep_num, readl(&reg->device_regs.in_endp[ep_num].diepctl));
 
 	} else {
-		ep_ctrl = readl(&reg->out_endp[ep_num].doepctl);
+		ep_ctrl = readl(&reg->device_regs.out_endp[ep_num].doepctl);
 
 		/* clear stall bit */
 		ep_ctrl &= ~DEPCTL_STALL;
@@ -1046,9 +1049,9 @@ static void dwc2_udc_ep_clear_stall(struct dwc2_ep *ep)
 			ep_ctrl |= DEPCTL_SETD0PID; /* DATA0 */
 		}
 
-		writel(ep_ctrl, &reg->out_endp[ep_num].doepctl);
+		writel(ep_ctrl, &reg->device_regs.out_endp[ep_num].doepctl);
 		debug("%s: cleared stall, DOEPCTL%d = 0x%x\n",
-		      __func__, ep_num, readl(&reg->out_endp[ep_num].doepctl));
+		      __func__, ep_num, readl(&reg->device_regs.out_endp[ep_num].doepctl));
 	}
 
 	return;
@@ -1110,10 +1113,10 @@ static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 
 	/* Read DEPCTLn register */
 	if (ep_is_in(ep)) {
-		ep_ctrl = readl(&reg->in_endp[ep_num].diepctl);
+		ep_ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 		daintmsk = 1 << ep_num;
 	} else {
-		ep_ctrl = readl(&reg->out_endp[ep_num].doepctl);
+		ep_ctrl = readl(&reg->device_regs.out_endp[ep_num].doepctl);
 		daintmsk = (1 << ep_num) << DAINT_OUT_BIT;
 	}
 
@@ -1130,21 +1133,21 @@ static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 		ep_ctrl |= (DEPCTL_SETD0PID | DEPCTL_USBACTEP | DEPCTL_SNAK);
 
 		if (ep_is_in(ep)) {
-			writel(ep_ctrl, &reg->in_endp[ep_num].diepctl);
+			writel(ep_ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 			debug("%s: USB Ative EP%d, DIEPCTRL%d = 0x%x\n",
 			      __func__, ep_num, ep_num,
-			      readl(&reg->in_endp[ep_num].diepctl));
+			      readl(&reg->device_regs.in_endp[ep_num].diepctl));
 		} else {
-			writel(ep_ctrl, &reg->out_endp[ep_num].doepctl);
+			writel(ep_ctrl, &reg->device_regs.out_endp[ep_num].doepctl);
 			debug("%s: USB Ative EP%d, DOEPCTRL%d = 0x%x\n",
 			      __func__, ep_num, ep_num,
-			      readl(&reg->out_endp[ep_num].doepctl));
+			      readl(&reg->device_regs.out_endp[ep_num].doepctl));
 		}
 	}
 
 	/* Unmask EP Interrtupt */
-	writel(readl(&reg->daintmsk)|daintmsk, &reg->daintmsk);
-	debug("%s: DAINTMSK = 0x%x\n", __func__, readl(&reg->daintmsk));
+	writel(readl(&reg->device_regs.daintmsk) | daintmsk, &reg->device_regs.daintmsk);
+	debug("%s: DAINTMSK = 0x%x\n", __func__, readl(&reg->device_regs.daintmsk));
 
 }
 
