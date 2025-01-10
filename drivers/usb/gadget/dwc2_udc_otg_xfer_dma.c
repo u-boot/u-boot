@@ -19,6 +19,7 @@
 
 #include <cpu_func.h>
 #include <log.h>
+#include <linux/bitfield.h>
 #include <linux/bug.h>
 
 static u8 clear_feature_num;
@@ -174,11 +175,11 @@ static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 	ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
 
 	/* Write the FIFO number to be used for this endpoint */
-	ctrl &= DIEPCTL_TX_FIFO_NUM_MASK;
-	ctrl |= DIEPCTL_TX_FIFO_NUM(ep->fifo_num);
+	ctrl &= ~DIEPCTL_TX_FIFO_NUM_MASK;
+	ctrl |= FIELD_PREP(DIEPCTL_TX_FIFO_NUM_MASK, ep->fifo_num);
 
 	/* Clear reserved (Next EP) bits */
-	ctrl = (ctrl&~(EP_MASK<<DEPCTL_NEXT_EP_BIT));
+	ctrl &= ~DEPCTL_NEXT_EP_MASK;
 
 	writel(DEPCTL_EPENA | DEPCTL_CNAK | ctrl, &reg->device_regs.in_endp[ep_num].diepctl);
 
@@ -380,7 +381,7 @@ static void process_ep_in_intr(struct dwc2_udc *dev)
 	debug_cond(DEBUG_IN_EP,
 		"*** %s: EP In interrupt : DAINT = 0x%x\n", __func__, ep_intr);
 
-	ep_intr &= DAINT_MASK;
+	ep_intr = FIELD_GET(DAINT_INEP_MASK, ep_intr);
 
 	while (ep_intr) {
 		if (ep_intr & DAINT_IN_EP_INT(1)) {
@@ -431,10 +432,10 @@ static void process_ep_out_intr(struct dwc2_udc *dev)
 		   "*** %s: EP OUT interrupt : DAINT = 0x%x\n",
 		   __func__, ep_intr);
 
-	ep_intr = (ep_intr >> DAINT_OUT_BIT) & DAINT_MASK;
+	ep_intr = FIELD_GET(DAINT_OUTEP_MASK, ep_intr);
 
 	while (ep_intr) {
-		if (ep_intr & 0x1) {
+		if (ep_intr & BIT(EP0_CON)) {
 			ep_intr_status = readl(&reg->device_regs.out_endp[ep_num].doepint);
 			debug_cond(DEBUG_OUT_EP != 0,
 				   "\tEP%d-OUT : DOEPINT = 0x%x\n",
@@ -1114,10 +1115,10 @@ static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 	/* Read DEPCTLn register */
 	if (ep_is_in(ep)) {
 		ep_ctrl = readl(&reg->device_regs.in_endp[ep_num].diepctl);
-		daintmsk = 1 << ep_num;
+		daintmsk = FIELD_PREP(DAINT_INEP_MASK, BIT(ep_num));
 	} else {
 		ep_ctrl = readl(&reg->device_regs.out_endp[ep_num].doepctl);
-		daintmsk = (1 << ep_num) << DAINT_OUT_BIT;
+		daintmsk = FIELD_PREP(DAINT_OUTEP_MASK, BIT(ep_num));
 	}
 
 	debug("%s: EPCTRL%d = 0x%x, ep_is_in = %d\n",
@@ -1127,9 +1128,9 @@ static void dwc2_udc_ep_activate(struct dwc2_ep *ep)
 	 * register. */
 	if (!(ep_ctrl & DEPCTL_USBACTEP)) {
 		ep_ctrl = (ep_ctrl & ~DEPCTL_TYPE_MASK) |
-			(ep->bmAttributes << DEPCTL_TYPE_BIT);
+			FIELD_PREP(DEPCTL_TYPE_MASK, ep->bmAttributes);
 		ep_ctrl = (ep_ctrl & ~DEPCTL_MPS_MASK) |
-			(ep->ep.maxpacket << DEPCTL_MPS_BIT);
+			FIELD_PREP(DEPCTL_MPS_MASK, ep->ep.maxpacket);
 		ep_ctrl |= (DEPCTL_SETD0PID | DEPCTL_USBACTEP | DEPCTL_SNAK);
 
 		if (ep_is_in(ep)) {

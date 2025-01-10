@@ -29,6 +29,7 @@
 #include <linux/delay.h>
 #include <linux/printk.h>
 
+#include <linux/bitfield.h>
 #include <linux/errno.h>
 #include <linux/list.h>
 
@@ -526,8 +527,8 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	}
 
 	/* 8. Unmask EPO interrupts*/
-	writel(((1 << EP0_CON) << DAINT_OUT_BIT)
-	       | (1 << EP0_CON), &reg->device_regs.daintmsk);
+	writel(FIELD_PREP(DAINT_OUTEP_MASK, BIT(EP0_CON)) |
+	       FIELD_PREP(DAINT_INEP_MASK, BIT(EP0_CON)), &reg->device_regs.daintmsk);
 
 	/* 9. Unmask device OUT EP common interrupts*/
 	writel(DOEPMSK_INIT, &reg->device_regs.doepmsk);
