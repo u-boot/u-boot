@@ -24,7 +24,6 @@ Requirements
 
 * A hardware TPM 2.0 supported by an enabled U-Boot driver
 * CONFIG_EFI_TCG2_PROTOCOL=y
-* CONFIG_EFI_TCG2_PROTOCOL_EVENTLOG_SIZE=y
 * optional CONFIG_EFI_TCG2_PROTOCOL_MEASURE_DTB=y will measure the loaded DTB
   in PCR 1
 
