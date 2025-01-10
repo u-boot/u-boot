@@ -10,65 +10,13 @@
 #ifndef __ASM_ARCH_REGS_USB_OTG_HS_H
 #define __ASM_ARCH_REGS_USB_OTG_HS_H
 
-#include <linux/bitops.h>
+#include "../common/dwc2_core.h"
 
 struct dwc2_usbotg_phy {
 	u32 phypwr;
 	u32 phyclk;
 	u32 rstcon;
 };
-
-/*===================================================================== */
-/*definitions related to CSR setting */
-
-/* DWC2_UDC_OTG_GOTGCTL */
-#define GOTGCTL_BSESVLD			BIT(19)
-#define GOTGCTL_ASESVLD			BIT(18)
-#define GOTGCTL_BVALOVAL		BIT(7)
-#define GOTGCTL_BVALOEN			BIT(6)
-#define GOTGCTL_AVALOVAL		BIT(5)
-#define GOTGCTL_AVALOEN			BIT(4)
-#define GOTGCTL_VBVALOVAL		BIT(3)
-#define GOTGCTL_VBVALOEN		BIT(2)
-
-/* DWC2_UDC_OTG_GOTINT */
-#define GOTGINT_SES_END_DET		BIT(2)
-
-/* DWC2_UDC_OTG_GAHBCFG */
-#define GAHBCFG_AHB_SINGLE		BIT(23)
-#define GAHBCFG_NOTI_ALL_DMA_WRIT	BIT(22)
-#define GAHBCFG_REM_MEM_SUPP		BIT(21)
-#define GAHBCFG_P_TXF_EMP_LVL		BIT(8)
-#define GAHBCFG_NP_TXF_EMP_LVL		BIT(7)
-#define GAHBCFG_DMA_EN			BIT(5)
-#define GAHBCFG_HBSTLEN_MASK		GENMASK(4, 1)
-#define GAHBCFG_HBSTLEN_SINGLE		0
-#define GAHBCFG_HBSTLEN_INCR		1
-#define GAHBCFG_HBSTLEN_INCR4		3
-#define GAHBCFG_HBSTLEN_INCR8		5
-#define GAHBCFG_HBSTLEN_INCR16		7
-#define GAHBCFG_GLBL_INTR_EN		BIT(0)
-
-/* DWC2_UDC_OTG_GRSTCTL */
-#define GRSTCTL_AHBIDLE			BIT(31)
-#define GRSTCTL_CSFTRST			BIT(0)
-
-/* DWC2_UDC_OTG_GINTSTS/DWC2_UDC_OTG_GINTMSK core interrupt register */
-#define GINTSTS_WKUPINT			BIT(31)
-#define GINTSTS_DISCONNINT		BIT(29)
-#define GINTSTS_CONIDSTSCHNG		BIT(28)
-#define GINTSTS_OEPINT			BIT(19)
-#define GINTSTS_IEPINT			BIT(18)
-#define GINTSTS_ENUMDONE		BIT(13)
-#define GINTSTS_USBRST			BIT(12)
-#define GINTSTS_USBSUSP			BIT(11)
-#define GINTSTS_ERLYSUSP		BIT(10)
-#define GINTSTS_NPTXFEMP		BIT(5)
-#define GINTSTS_RXFLVL			BIT(4)
-#define GINTSTS_SOF			BIT(3)
-#define GINTSTS_OTGINT			BIT(2)
-#define GINTSTS_MODEMIS			BIT(1)
-#define GINTSTS_CURMODE_HOST		BIT(0)
 
 #define FULL_SPEED_CONTROL_PKT_SIZE	8
 #define FULL_SPEED_BULK_PKT_SIZE	64
@@ -79,69 +27,6 @@ struct dwc2_usbotg_phy {
 #define RX_FIFO_SIZE			1024
 #define NPTX_FIFO_SIZE			1024
 #define PTX_FIFO_SIZE			384
-
-#define FIFOSIZE_DEPTH_MASK		GENMASK(31, 16)
-#define FIFOSIZE_STARTADDR_MASK		GENMASK(15, 0)
-
-/* Enumeration speed */
-#define DSTS_ENUMSPD_MASK		GENMASK(2, 1)
-#define DSTS_ENUMSPD_HS			0
-#define DSTS_ENUMSPD_FS			1
-#define DSTS_ENUMSPD_LS			2
-
-/* DWC2_UDC_OTG_DCTL device control register */
-#define DCTL_SFTDISCON			BIT(1)
-#define DCTL_RMTWKUPSIG			BIT(0)
-
-/* DWC2_UDC_OTG_DAINT device all endpoint interrupt register */
-#define DAINT_OUTEP_MASK		GENMASK(31, 16)
-#define DAINT_INEP_MASK			GENMASK(15, 0)
-
-/* DWC2_UDC_OTG_DIEPCTL0/DOEPCTL0 device
-   control IN/OUT endpoint 0 control register */
-#define DXEPCTL_EPENA			BIT(31)
-#define DXEPCTL_EPDIS			BIT(30)
-#define DXEPCTL_SETD1PID		BIT(29)
-#define DXEPCTL_SETODDFR		BIT(29)
-#define DXEPCTL_SETD0PID		BIT(28)
-#define DXEPCTL_SETEVENFR		BIT(28)
-#define DXEPCTL_SNAK			BIT(27)
-#define DXEPCTL_CNAK			BIT(26)
-#define DXEPCTL_STALL			BIT(21)
-#define DXEPCTL_EPTYPE_MASK		GENMASK(19, 18)
-#define DXEPCTL_EPTYPE_CONTROL		0
-#define DXEPCTL_EPTYPE_ISO		1
-#define DXEPCTL_EPTYPE_BULK		2
-#define DXEPCTL_EPTYPE_INTERRUPT	3
-#define DXEPCTL_EOFRNUM			BIT(16)
-#define DXEPCTL_USBACTEP		BIT(15)
-#define DXEPCTL_NEXTEP_MASK		GENMASK(14, 11)
-#define DXEPCTL_MPS_MASK		GENMASK(10, 0)
-
-
-/* DWC2_UDC_OTG_DIEPMSK/DOEPMSK device IN/OUT endpoint
-   common interrupt mask register */
-/* DWC2_UDC_OTG_DIEPINTn/DOEPINTn device IN/OUT endpoint interrupt register */
-#define DIEPMSK_NAKMSK			BIT(13)
-#define DIEPMSK_BNAININTRMSK		BIT(9)
-#define DIEPMSK_TXFIFOUNDRNMSK		BIT(8)
-#define DIEPMSK_TXFIFOEMPTY		BIT(7)
-#define DIEPMSK_INEPNAKEFFMSK		BIT(6)
-#define DIEPMSK_INTKNEPMISMSK		BIT(5)
-#define DIEPMSK_INTKNTXFEMPMSK		BIT(4)
-#define DIEPMSK_TIMEOUTMSK		BIT(3)
-#define DIEPMSK_AHBERRMSK		BIT(2)
-#define DIEPMSK_EPDISBLDMSK		BIT(1)
-#define DIEPMSK_XFERCOMPLMSK		BIT(0)
-
-#define DOEPMSK_BNAMSK			BIT(9)
-#define DOEPMSK_BACK2BACKSETUP		BIT(6)
-#define DOEPMSK_STSPHSERCVDMSK		BIT(5)
-#define DOEPMSK_OUTTKNEPDISMSK		BIT(4)
-#define DOEPMSK_SETUPMSK		BIT(3)
-#define DOEPMSK_AHBERRMSK		BIT(2)
-#define DOEPMSK_EPDISBLDMSK		BIT(1)
-#define DOEPMSK_XFERCOMPLMSK		BIT(0)
 
 #define USB_PHY_CTRL_EN0                BIT(0)
 
@@ -171,21 +56,6 @@ struct dwc2_usbotg_phy {
 #define EXYNOS4X12_CLK_SEL_12MHZ	(0x02 << 0)
 #define EXYNOS4X12_CLK_SEL_24MHZ	(0x05 << 0)
 
-/* Device Configuration Register DCFG */
-#define DCFG_EPMISCNT_MASK		GENMASK(22, 18)
-#define DCFG_DEVADDR_MASK		GENMASK(10, 4)
-#define DCFG_DEVSPD_MASK		GENMASK(1, 0)
-#define DCFG_DEVSPD_HS			0
-#define DCFG_DEVSPD_FS			1
-#define DCFG_DEVSPD_LS			2
-#define DCFG_DEVSPD_FS48		3
-
-/* Core Reset Register (GRSTCTL) */
-#define GRSTCTL_TXFNUM_MASK		GENMASK(10, 6)
-#define GRSTCTL_TXFFLSH			BIT(5)
-#define GRSTCTL_RXFFLSH			BIT(4)
-#define GRSTCTL_TXFNUM_ALL		0x10
-
 /* Masks definitions */
 #define GINTMSK_INIT	(GINTSTS_WKUPINT | GINTSTS_OEPINT | GINTSTS_IEPINT | GINTSTS_ENUMDONE | \
 			 GINTSTS_USBRST | GINTSTS_USBSUSP | GINTSTS_OTGINT)
@@ -194,27 +64,5 @@ struct dwc2_usbotg_phy {
 #define GAHBCFG_INIT	(GAHBCFG_DMA_EN | \
 			 FIELD_PREP(GAHBCFG_HBSTLEN_MASK, GAHBCFG_HBSTLEN_INCR4) | \
 			 GAHBCFG_GLBL_INTR_EN)
-
-/* Device Endpoint X Transfer Size Register (DIEPTSIZX/DOEPTSIZX) */
-#define DIEPTSIZ0_PKTCNT_MASK		GENMASK(20, 19)
-#define DIEPTSIZ0_XFERSIZE_MASK		GENMASK(6, 0)
-
-#define DOEPTSIZ0_SUPCNT_MASK		GENMASK(30, 29)
-#define DOEPTSIZ0_PKTCNT		BIT(19)
-#define DOEPTSIZ0_XFERSIZE_MASK		GENMASK(6, 0)
-
-#define DXEPTSIZ_MC_MASK		GENMASK(30, 29)
-#define DXEPTSIZ_PKTCNT_MASK		GENMASK(28, 19)
-#define DXEPTSIZ_XFERSIZE_MASK		GENMASK(18, 0)
-
-/* Device Endpoint-N Control Register (DIEPCTLn/DOEPCTLn) */
-#define DXEPCTL_TXFNUM_MASK		GENMASK(25, 22)
-
-/* User HW Config4 */
-#define GHWCFG4_NUM_IN_EPS_MASK		GENMASK(29, 26)
-
-/* OTG general core configuration register (OTG_GCCFG:0x38) for STM32MP1 */
-#define GGPIO_STM32_OTG_GCCFG_VBDEN	BIT(21)
-#define GGPIO_STM32_OTG_GCCFG_IDEN	BIT(22)
 
 #endif
