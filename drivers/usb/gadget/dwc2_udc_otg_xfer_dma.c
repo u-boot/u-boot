@@ -164,11 +164,7 @@ static int setdma_tx(struct dwc2_ep *ep, struct dwc2_request *req)
 		pktcnt = (length - 1)/(ep->ep.maxpacket) + 1;
 
 	/* Flush the endpoint's Tx FIFO */
-	writel(FIELD_PREP(GRSTCTL_TXFNUM_MASK, ep->fifo_num), &reg->global_regs.grstctl);
-	writel(FIELD_PREP(GRSTCTL_TXFNUM_MASK, ep->fifo_num) | GRSTCTL_TXFFLSH,
-	       &reg->global_regs.grstctl);
-	while (readl(&reg->global_regs.grstctl) & GRSTCTL_TXFFLSH)
-		;
+	dwc2_flush_tx_fifo(reg, ep->fifo_num);
 
 	writel(phys_to_bus((unsigned long)ep->dma_buf), &reg->device_regs.in_endp[ep_num].diepdma);
 	writel(FIELD_PREP(DXEPTSIZ_PKTCNT_MASK, pktcnt) |

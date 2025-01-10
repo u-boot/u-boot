@@ -471,7 +471,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	u32 max_hw_ep;
 	int pdata_hw_ep;
 
-	writel(GRSTCTL_CSFTRST, &reg->global_regs.grstctl);
+	dwc2_core_reset(reg);
 
 	debug("Resetting OTG controller\n");
 
@@ -575,16 +575,10 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 		       &reg->global_regs.dptxfsizn[i]);
 	}
 	/* Flush the RX FIFO */
-	writel(GRSTCTL_RXFFLSH, &reg->global_regs.grstctl);
-	while (readl(&reg->global_regs.grstctl) & GRSTCTL_RXFFLSH)
-		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
+	dwc2_flush_rx_fifo(reg);
 
 	/* Flush all the Tx FIFO's */
-	writel(FIELD_PREP(GRSTCTL_TXFNUM_MASK, GRSTCTL_TXFNUM_ALL), &reg->global_regs.grstctl);
-	writel(FIELD_PREP(GRSTCTL_TXFNUM_MASK, GRSTCTL_TXFNUM_ALL) | GRSTCTL_TXFFLSH,
-	       &reg->global_regs.grstctl);
-	while (readl(&reg->global_regs.grstctl) & GRSTCTL_TXFFLSH)
-		debug("%s: waiting for DWC2_UDC_OTG_GRSTCTL\n", __func__);
+	dwc2_flush_tx_fifo(reg, GRSTCTL_TXFNUM_ALL);
 
 	/* 13. Clear NAK bit of EP0, EP1, EP2*/
 	/* For Slave mode*/
