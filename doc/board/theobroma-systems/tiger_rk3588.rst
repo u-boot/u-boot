@@ -47,11 +47,11 @@ Get the TF-A and DDR init (TPL) binaries
    git clone https://github.com/rockchip-linux/rkbin
    cd rkbin
    export RKBIN=$(pwd)
-   export BL31=$RKBIN/bin/rk35/rk3588_bl31_v1.38.elf
-   export ROCKCHIP_TPL=$RKBIN/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.11.bin
+   export BL31=$RKBIN/bin/rk35/rk3588_bl31_v1.47.elf
+   export ROCKCHIP_TPL=$RKBIN/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.18.bin
    sed -i 's/^uart baudrate=.*$/uart baudrate=115200/' tools/ddrbin_param.txt
    sed -i 's/^uart iomux=.*$/uart iomux=2/' tools/ddrbin_param.txt
-   ./tools/ddrbin_tool tools/ddrbin_param.txt "$ROCKCHIP_TPL"
+   ./tools/ddrbin_tool rk3588 tools/ddrbin_param.txt "$ROCKCHIP_TPL"
    ./tools/boot_merger RKBOOT/RK3588MINIALL.ini
    export RKDB=$RKBIN/rk3588_spl_loader_v1.11.112.bin
 

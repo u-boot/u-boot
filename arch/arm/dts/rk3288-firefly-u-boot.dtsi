@@ -6,21 +6,8 @@
 #include "rk3288-u-boot.dtsi"
 
 / {
-	config {
-		bootph-all;
-		u-boot,boot-led = "firefly:green:power";
-	};
-
-	leds {
-		bootph-all;
-
-		work {
-			bootph-all;
-		};
-
-		power {
-			bootph-all;
-		};
+	chosen {
+		stdout-path = "serial2:115200n8";
 	};
 };
 
@@ -36,46 +23,100 @@
 	rockchip,sdram-params = <0x30B25564 0x627 3 666000000 3 9 1>;
 };
 
-&pinctrl {
+&emmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_bus8 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_pwr {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&gmac {
+	snps,reset-delays-us = <0 10000 80000>;
+};
+
+&gpio7 {
+	/delete-property/ bootph-all;
+	bootph-pre-ram;
+};
+
+&pcfg_pull_none {
 	bootph-all;
+};
+
+&pcfg_pull_none_12ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&pcfg_pull_up {
+	bootph-all;
+};
+
+&pcfg_pull_up_drv_12ma {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&power_led {
+	default-state = "on";
+};
+
+&sdmmc {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_bus4 {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&sdmmc_pwr {
+	bootph-pre-ram;
 };
 
 &uart2 {
 	bootph-all;
 };
 
-&sdmmc {
-	bootph-all;
-};
-
-&emmc {
-	bootph-all;
-};
-
-&gpio3 {
-	bootph-all;
-};
-
-&gpio8 {
-	bootph-all;
-};
-
-&pcfg_pull_up_drv_12ma {
+&uart2_xfer {
+	bootph-pre-sram;
 	bootph-pre-ram;
 };
 
-&sdmmc_bus4 {
-	bootph-pre-ram;
-};
-
-&sdmmc_clk {
-	bootph-pre-ram;
-};
-
-&sdmmc_cmd {
-	bootph-pre-ram;
-};
-
-&sdmmc_pwr {
+&vcc_sd {
 	bootph-pre-ram;
 };

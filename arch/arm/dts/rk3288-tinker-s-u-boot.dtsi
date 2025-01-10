@@ -15,20 +15,25 @@
 
 &emmc {
 	bootph-pre-ram;
-};
-
-&emmc_clk {
-	bootph-pre-ram;
-};
-
-&emmc_cmd {
-	bootph-pre-ram;
-};
-
-&emmc_pwr {
-	bootph-pre-ram;
+	bootph-some-ram;
 };
 
 &emmc_bus8 {
 	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_clk {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_cmd {
+	bootph-pre-ram;
+	bootph-some-ram;
+};
+
+&emmc_pwr {
+	bootph-pre-ram;
+	bootph-some-ram;
 };

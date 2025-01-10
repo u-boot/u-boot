@@ -55,27 +55,17 @@ dtb-$(CONFIG_MACH_S700) += \
 dtb-$(CONFIG_ROCKCHIP_RK3036) += \
 	rk3036-sdk.dtb
 
-dtb-$(CONFIG_ROCKCHIP_RK3066) += \
-	rk3066a-mk808.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3128) += \
 	rk3128-evb.dtb
-
-dtb-$(CONFIG_ROCKCHIP_RK3188) += \
-	rk3188-radxarock.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK322X) += \
 	rk3229-evb.dtb
 
 dtb-$(CONFIG_ROCKCHIP_RK3288) += \
 	rk3288-evb.dtb \
-	rk3288-firefly.dtb \
-	rk3288-miqi.dtb \
 	rk3288-popmetal.dtb \
 	rk3288-rock2-square.dtb \
 	rk3288-rock-pi-n8.dtb \
-	rk3288-tinker.dtb \
-	rk3288-tinker-s.dtb \
 	rk3288-veyron-jerry.dtb \
 	rk3288-veyron-mickey.dtb \
 	rk3288-veyron-minnie.dtb \

@@ -52,6 +52,8 @@ void rockchip_capsule_update_board_setup(void)
 
 		fw_images[0].fw_name = u"ROCKPI4C-IDBLOADER";
 		fw_images[1].fw_name = u"ROCKPI4C-UBOOT";
+	} else {
+		update_info.num_images = 0;
 	}
 }
 #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT && CONFIG_EFI_PARTITION */

@@ -1,0 +1,12 @@
+if TARGET_KHADAS_EDGE2_RK3588
+
+config SYS_BOARD
+	default "khadas-edge2-rk3588s"
+
+config SYS_VENDOR
+	default "khadas"
+
+config SYS_CONFIG_NAME
+	default "khadas-edge2-rk3588s"
+
+endif

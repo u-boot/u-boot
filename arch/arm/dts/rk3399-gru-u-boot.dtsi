@@ -11,7 +11,7 @@
 	};
 
 	config {
-		u-boot,spl-payload-offset = <0x40000>;
+		u-boot,spl-payload-offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
 	};
 };
 
@@ -29,9 +29,33 @@
 	rockchip,panel = <&edp_panel>;
 };
 
+&emmc_phy {
+	/delete-property/ bootph-pre-ram;
+};
+
+&gpio0 {
+	bootph-pre-ram;
+};
+
+&pp1500_ap_io {
+	bootph-pre-ram;
+};
+
 &pp1800_audio {
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <1800000>;
+};
+
+&pp1500_en {
+	bootph-pre-ram;
+};
+
+&pp3000 {
+	bootph-pre-ram;
+};
+
+&pp3000_en {
+	bootph-pre-ram;
 };
 
 &ppvar_bigcpu_pwm {
@@ -80,7 +104,8 @@
 
 &spi1 {
 	spi_flash: flash@0 {
-		bootph-all;
+		bootph-pre-ram;
+		bootph-some-ram;
 	};
 };
 
