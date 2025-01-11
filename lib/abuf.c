@@ -119,6 +119,12 @@ void abuf_init_set(struct abuf *abuf, void *data, size_t size)
 	abuf_set(abuf, data, size);
 }
 
+void abuf_init_const(struct abuf *abuf, const void *data, size_t size)
+{
+	/* for now there is no flag indicating that the abuf data is constant */
+	abuf_init_set(abuf, (void *)data, size);
+}
+
 void abuf_init_move(struct abuf *abuf, void *data, size_t size)
 {
 	abuf_init_set(abuf, data, size);

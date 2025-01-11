@@ -158,6 +158,19 @@ void abuf_init_move(struct abuf *abuf, void *data, size_t size);
 void abuf_init_set(struct abuf *abuf, void *data, size_t size);
 
 /**
+ * abuf_init_const() - Set up a new const abuf
+ *
+ * Inits a new abuf and sets up its (unallocated) data. The only current
+ * difference between this and abuf_init_set() is the 'data' parameter is a
+ * const pointer. At some point a flag could be used to indicate const-ness.
+ *
+ * @abuf: abuf to set up
+ * @data: New contents of abuf
+ * @size: New size of abuf
+ */
+void abuf_init_const(struct abuf *abuf, const void *data, size_t size);
+
+/**
  * abuf_uninit() - Free any memory used by an abuf
  *
  * The buffer must be inited before this can be called.
