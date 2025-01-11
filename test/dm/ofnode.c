@@ -1303,6 +1303,25 @@ static int dm_test_ofnode_find_subnode(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_ofnode_find_subnode, UTF_SCAN_FDT);
 
+/* check ofnode_find_subnode() with unit addresses */
+static int dm_test_ofnode_find_subnode_unit(struct unit_test_state *uts)
+{
+	ofnode node, subnode;
+
+	node = ofnode_path("/some-bus");
+	ut_assert(ofnode_valid(node));
+	subnode = ofnode_find_subnode_unit(node, "c-test@5");
+	ut_assert(ofnode_valid(subnode));
+	ut_asserteq_str("c-test@5", ofnode_get_name(subnode));
+
+	subnode = ofnode_find_subnode_unit(node, "c-test");
+	ut_assert(ofnode_valid(subnode));
+	ut_asserteq_str("c-test@5", ofnode_get_name(subnode));
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_find_subnode_unit, UTF_SCAN_FDT);
+
 /* test ofnode_find_subnode() on the 'other' tree */
 static int dm_test_ofnode_find_subnode_ot(struct unit_test_state *uts)
 {

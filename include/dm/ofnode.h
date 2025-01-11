@@ -607,6 +607,18 @@ bool ofnode_read_bool(ofnode node, const char *propname);
  */
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name);
 
+/**
+ * ofnode_find_subnode_unit() - find a named subnode of a parent node
+ *
+ * @node:	valid reference to parent node
+ * @subnode_name: name of subnode to find, including any unit address. If the
+ *	unit address is omitted, any subnode which matches the name (excluding
+ *	any unit address) is returned
+ * Return: reference to subnode (which can be invalid if there is no such
+ * subnode)
+ */
+ofnode ofnode_find_subnode_unit(ofnode node, const char *subnode_name);
+
 #if CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
 #include <asm/global_data.h>
 
