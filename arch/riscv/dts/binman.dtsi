@@ -53,6 +53,19 @@
 					};
 				};
 #endif
+#ifdef CONFIG_OPTEE
+				tee {
+					description = "OP-TEE";
+					type = "tee";
+					arch = "riscv";
+					compression = "none";
+					os = "tee";
+					load = /bits/ 64 <CONFIG_SPL_OPTEE_LOAD_ADDR>;
+					tee_blob: tee-os {
+						filename = "tee.bin";
+					};
+				};
+#endif
 
 				opensbi {
 					description = "OpenSBI fw_dynamic Firmware";
@@ -88,11 +101,20 @@
 #endif
 					description = "NAME";
 					firmware = "opensbi";
-#ifndef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
-					loadables = "uboot";
+#ifdef CONFIG_OPTEE
+#ifdef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
+					loadables = "linux", "tee";
 #else
-					loadables = "linux";
+					loadables = "uboot", "tee";
 #endif
+#else /* !CONFIG_OPTEEE */
+#ifdef CONFIG_SPL_LOAD_FIT_OPENSBI_OS_BOOT
+					loadables = "linux";
+#else
+					loadables = "uboot";
+#endif
+#endif /* CONFIG_OPTEE */
+
 #ifndef CONFIG_OF_BOARD
 					fdt = "fdt-SEQ";
 #endif
