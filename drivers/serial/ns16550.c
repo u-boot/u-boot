@@ -464,7 +464,7 @@ int ns16550_serial_getinfo(struct udevice *dev, struct serial_device_info *info)
 	struct ns16550_plat *plat = com_port->plat;
 
 	/* save code size */
-	if (!not_xpl())
+	if (!not_xpl() && !CONFIG_IS_ENABLED(UPL_OUT))
 		return -ENOSYS;
 
 	info->type = SERIAL_CHIP_16550_COMPATIBLE;
