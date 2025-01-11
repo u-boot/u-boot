@@ -298,6 +298,9 @@ void spl_board_init(void)
 	if (IS_ENABLED(CONFIG_QEMU))
 		qemu_chipset_init();
 
+	if (CONFIG_IS_ENABLED(UPL_OUT))
+		gd->flags |= GD_FLG_UPL;
+
 	if (CONFIG_IS_ENABLED(VIDEO)) {
 		struct udevice *dev;
 		int ret;
