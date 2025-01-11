@@ -43,6 +43,14 @@ static inline size_t abuf_size(const struct abuf *abuf)
 }
 
 /**
+ * abuf_addr() - Get the address of a buffer's data
+ *
+ * @abuf: Buffer to check
+ * Return: address of buffer
+ */
+ulong abuf_addr(const struct abuf *abuf);
+
+/**
  * abuf_set() - set the (unallocated) data in a buffer
  *
  * This simply makes the abuf point to the supplied data, which must be live
