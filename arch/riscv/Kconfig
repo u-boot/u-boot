@@ -588,4 +588,10 @@ config SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
 	  -> linux to u-boot SPL -> OpenSBI -> linux.
 
+config SPL_OPTEE_LOAD_ADDR
+	hex "OP-TEE Trusted OS image load address"
+	depends on OPTEE
+	help
+	  Load address of the OP-TEE binary.
+
 endmenu
