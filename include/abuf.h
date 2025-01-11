@@ -9,7 +9,11 @@
 #ifndef __ABUF_H
 #define __ABUF_H
 
+#ifdef USE_HOSTCC
+#include <sys/types.h>
+#else
 #include <linux/types.h>
+#endif
 
 /**
  * struct abuf - buffer that can be allocated and freed
