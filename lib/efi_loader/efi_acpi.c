@@ -25,6 +25,16 @@ efi_status_t efi_acpi_register(void)
 	ulong addr, start, end;
 	efi_status_t ret;
 
+	/*
+	 * The bloblist is already marked reserved. For now, we don't bother
+	 * marking it with EFI_ACPI_RECLAIM_MEMORY since we would need to cut a
+	 * hole in the EFI_BOOT_SERVICES_CODE region added by
+	 * add_u_boot_and_runtime(). At some point that function could create a
+	 * more detailed map.
+	 */
+	if (IS_ENABLED(CONFIG_BLOBLIST_TABLES))
+		return EFI_SUCCESS;
+
 	/* Mark space used for tables */
 	start = ALIGN_DOWN(gd->arch.table_start, EFI_PAGE_MASK);
 	end = ALIGN(gd->arch.table_end, EFI_PAGE_MASK);
