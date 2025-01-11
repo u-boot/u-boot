@@ -259,3 +259,14 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 
 	return boot_jump_linux(images);
 }
+
+int arch_upl_jump(ulong entry, const struct abuf *buf)
+{
+	typedef EFIAPI void (*h_func)(void *hoff);
+	h_func func;
+
+	func = (h_func)(ulong)entry;
+	func(buf->data);
+
+	return -EFAULT;
+}
