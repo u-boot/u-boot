@@ -892,14 +892,14 @@ config MD5SUM_VERIFY
 
 config CMD_MEMINFO
 	bool "meminfo"
-	default y if SANDBOX
+	default y if SANDBOX || X86
 	help
 	  Display memory information.
 
 config CMD_MEMINFO_MAP
 	bool "- with memory map"
 	depends on CMD_MEMINFO
-	default y if SANDBOX
+	default y if SANDBOX || X86
 	help
 	  Shows a memory map, in addition to just the DRAM size. This allows
 	  seeing where U-Boot's memory area is, at the top of DRAM, as well as
