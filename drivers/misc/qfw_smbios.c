@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY UCLASS_QFW
 
+#include <bloblist.h>
 #include <efi_loader.h>
 #include <errno.h>
 #include <log.h>
@@ -15,6 +16,7 @@
 #include <tables_csum.h>
 #include <linux/sizes.h>
 #include <asm/global_data.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,11 +107,10 @@ out:
 /**
  * qfw_write_smbios_tables() - copy SMBIOS tables from QEMU
  *
- * @addr:	target buffer
- * @size:	size of target buffer
+ * @addr:	address of target buffer
  * Return:	0 for success, -ve on error
  */
-static int qfw_write_smbios_tables(u8 *addr, uint32_t size)
+ulong write_smbios_table(ulong addr)
 {
 	int ret;
 	struct udevice *dev;
@@ -143,16 +144,13 @@ static int qfw_write_smbios_tables(u8 *addr, uint32_t size)
 
 	table = qfw_load_smbios_table(dev, &table_size,
 				      "etc/smbios/smbios-tables");
-	if (table_size + sizeof(struct smbios3_entry) > size) {
-		free(table);
-		return -ENOMEM;
-	}
-	memcpy(addr, table, table_size);
+	memcpy((void *)addr, table, table_size);
 	free(table);
 
-	return 0;
+	return addr + table_size;
 }
 
+#ifndef CONFIG_X86
 /**
  * qfw_evt_write_smbios_tables() - event handler for copying QEMU SMBIOS tables
  *
@@ -160,9 +158,9 @@ static int qfw_write_smbios_tables(u8 *addr, uint32_t size)
  */
 static int qfw_evt_write_smbios_tables(void)
 {
-	phys_addr_t addr;
+	ulong addr, end;
 	void *ptr;
-	int ret;
+
 	/*
 	 * TODO:
 	 * This size is currently hard coded in lib/efi_loader/efi_smbios.c.
@@ -170,22 +168,21 @@ static int qfw_evt_write_smbios_tables(void)
 	 */
 	uint32_t size = SZ_4K;
 
-	/* Reserve 64K for SMBIOS tables, aligned to a 4K boundary */
-	ptr = memalign(SZ_4K, size);
-	if (!ptr) {
-		log_err("Out of memory\n");
-		return -ENOMEM;
-	}
+	log_debug("qfw_evt_write_smbios_tables bloblist\n");
+	/* Reserve 4K for SMBIOS tables, aligned to a 4K boundary */
+	ptr = bloblist_add(BLOBLISTT_SMBIOS_TABLES, size, 12);
+	if (!ptr)
+		return log_msg_ret("bloblist", -ENOBUFS);
+
 	addr = map_to_sysmem(ptr);
 
 	/* Generate SMBIOS tables */
-	ret = qfw_write_smbios_tables(ptr, size);
-	if (ret) {
-		if (CONFIG_IS_ENABLED(GENERATE_SMBIOS_TABLE)) {
-			log_info("Falling back to U-Boot generated SMBIOS tables\n");
-			write_smbios_table(addr);
-		}
+	end = write_smbios_table(addr);
+	if (IS_ERR_VALUE(end)) {
+		log_warning("SMBIOS: Failed to write (err=%dE)\n", (int)end);
 	} else {
+		if (end - addr > size)
+			return -ENOMEM;
 		log_debug("SMBIOS tables copied from QEMU\n");
 	}
 
@@ -193,5 +190,5 @@ static int qfw_evt_write_smbios_tables(void)
 
 	return 0;
 }
-
 EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, qfw_evt_write_smbios_tables);
+#endif /* !X86 */
