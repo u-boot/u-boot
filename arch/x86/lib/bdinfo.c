@@ -5,6 +5,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <cpu.h>
 #include <efi.h>
 #include <init.h>
 #include <asm/cpu.h>
