@@ -395,6 +395,20 @@ void oftree_dispose(oftree tree);
 bool ofnode_name_eq(ofnode node, const char *name);
 
 /**
+ * ofnode_name_eq_unit() - Check a node name ignoring its unit address
+ *
+ * This is separate from ofnode_name_eq() to avoid code-size increase for
+ * boards which don't need this function
+ *
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name to compare with the node name. If this contains a unit
+ *		address, it is matched, otherwise the unit address is ignored
+ *		when searching for matches
+ * Return: true if matches, false if it doesn't match
+ */
+bool ofnode_name_eq_unit(ofnode node, const char *name);
+
+/**
  * ofnode_read_u8() - Read a 8-bit integer from a property
  *
  * @node:	valid node reference to read property from

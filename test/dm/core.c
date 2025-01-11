@@ -192,6 +192,24 @@ static int dm_test_compare_node_name(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_compare_node_name, UTF_SCAN_PDATA);
 
+/* compare node names ignoring the unit address */
+static int dm_test_compare_node_name_unit(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	node = ofnode_path("/mmio-bus@0");
+	ut_assert(ofnode_valid(node));
+	ut_assert(ofnode_name_eq_unit(node, "mmio-bus"));
+
+	ut_assert(ofnode_name_eq_unit(node, "mmio-bus@0"));
+	ut_assert(!ofnode_name_eq_unit(node, "mmio-bus@1"));
+	ut_assert(!ofnode_name_eq_unit(node, "mmio-bu"));
+	ut_assert(!ofnode_name_eq_unit(node, "mmio-buss@0"));
+
+	return 0;
+}
+DM_TEST(dm_test_compare_node_name_unit, UTF_SCAN_PDATA);
+
 /* Test that binding with uclass plat setting occurs correctly */
 static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
 {
