@@ -1809,7 +1809,7 @@ static inline int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
  * of_add_subnode() - add a new subnode to a node
  *
  * @parent:	parent node to add to
- * @name:	name of subnode
+ * @name:	name of subnode (allocated by this function)
  * @nodep:	returns pointer to new subnode (valid if the function returns 0
  *	or -EEXIST)
  * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other
