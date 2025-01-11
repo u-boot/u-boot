@@ -589,6 +589,7 @@ static int video_post_probe(struct udevice *dev)
 		ho->ysize = priv->ysize;
 		ho->line_length = priv->line_length;
 		ho->bpix = priv->bpix;
+		ho->format = priv->format;
 	}
 
 	if (IS_ENABLED(CONFIG_VIDEO_COPY) && plat->copy_base)

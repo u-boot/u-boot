@@ -347,6 +347,7 @@ int vesa_setup_video_priv(struct vesa_mode_info *vesa, u64 fb,
 	case 32:
 	case 24:
 		uc_priv->bpix = VIDEO_BPP32;
+		uc_priv->format = VIDEO_X8B8G8R8;
 		break;
 	case 16:
 		uc_priv->bpix = VIDEO_BPP16;
@@ -392,6 +393,7 @@ int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		uc_priv->ysize = ho->ysize;
 		uc_priv->line_length = ho->line_length;
 		uc_priv->bpix = ho->bpix;
+		uc_priv->format = ho->format;
 	} else {
 		bootstage_start(BOOTSTAGE_ID_ACCUM_LCD, "vesa display");
 		ret = dm_pci_run_vga_bios(dev, int15_handler,
@@ -438,6 +440,7 @@ int vesa_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		ho->ysize = uc_priv->ysize;
 		ho->line_length = uc_priv->line_length;
 		ho->bpix = uc_priv->bpix;
+		ho->format = uc_priv->format;
 	}
 
 	return 0;
