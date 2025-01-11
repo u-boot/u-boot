@@ -186,6 +186,8 @@ static int dm_test_compare_node_name(struct unit_test_state *uts)
 	ut_assert(ofnode_valid(node));
 	ut_assert(ofnode_name_eq(node, "mmio-bus"));
 
+	ut_assert(!ofnode_name_eq(node, "mmio-bus@0"));
+
 	return 0;
 }
 DM_TEST(dm_test_compare_node_name, UTF_SCAN_PDATA);

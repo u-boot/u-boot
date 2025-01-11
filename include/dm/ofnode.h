@@ -386,11 +386,10 @@ static inline oftree oftree_from_np(struct device_node *root)
 void oftree_dispose(oftree tree);
 
 /**
- * ofnode_name_eq() - Check if the node name is equivalent to a given name
- *                    ignoring the unit address
+ * ofnode_name_eq() - Check a node name ignoring its unit address
  *
- * @node:	valid node reference that has to be compared
- * @name:	name that has to be compared with the node name
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name (without unit address) to compare with the node name
  * Return: true if matches, false if it doesn't match
  */
 bool ofnode_name_eq(ofnode node, const char *name);
