@@ -396,7 +396,9 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 
 	/* Extract the splash data from FIT */
 	/* 1. Test if splash is in FIT internal data. */
-	if (!fit_image_get_data(fit_header, node_offset, &internal_splash_data, &internal_splash_size))
+	if (!fit_image_get_emb_data(fit_header, node_offset,
+				    &internal_splash_data,
+				    &internal_splash_size))
 		memmove((void *)(uintptr_t)bmp_load_addr, internal_splash_data, internal_splash_size);
 	/* 2. Test if splash is in FIT external data with fixed position. */
 	else if (!fit_image_get_data_position(fit_header, node_offset, &external_splash_addr))
