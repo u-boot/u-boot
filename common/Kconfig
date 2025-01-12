@@ -1085,6 +1085,14 @@ config BLOBLIST_SIZE
 	  is set up in the first part of U-Boot to run (TPL, SPL or U-Boot
 	  proper), and this sane bloblist is used for subsequent phases.
 
+config BLOBLIST_PRIOR_STAGE
+	bool "Bloblist was created in a stage prior to U-Boot"
+	default y
+	depends on BLOBLIST_FIXED
+	help
+	  Select this if the bloblist at CONFIG_BLOBLIST_ADDR was created
+	  before U-Boot is started.
+
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
 	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
@@ -1125,6 +1133,14 @@ config SPL_BLOBLIST_ALLOC
 
 endchoice
 
+config SPL_BLOBLIST_PRIOR_STAGE
+	bool "Bloblist was created in a stage prior to SPL"
+	default y
+	depends on SPL_BLOBLIST_FIXED
+	help
+	  Select this if the bloblist at CONFIG_BLOBLIST_ADDR was created before
+	  U-Boot SPL is started.
+
 endif # SPL_BLOBLIST
 
 if TPL_BLOBLIST
@@ -1154,6 +1170,14 @@ config TPL_BLOBLIST_ALLOC
 
 endchoice
 
+config TPL_BLOBLIST_PRIOR_STAGE
+	bool "Bloblist was created in a stage prior to TPL"
+	default y
+	depends on TPL_BLOBLIST_FIXED
+	help
+	  Select this if the bloblist at CONFIG_BLOBLIST_ADDR was created before
+	  U-Boot TPL is started.
+
 endif # TPL_BLOBLIST
 
 if VPL_BLOBLIST
@@ -1182,6 +1206,14 @@ config VPL_BLOBLIST_ALLOC
 	  change at runtime.
 
 endchoice
+
+config VPL_BLOBLIST_PRIOR_STAGE
+	bool "Bloblist was created in a stage prior to VPL"
+	default y
+	depends on VPL_BLOBLIST_FIXED
+	help
+	  Select this if the bloblist at CONFIG_BLOBLIST_ADDR was created before
+	  U-Boot VPL is started.
 
 endif # VPL_BLOBLIST
 
