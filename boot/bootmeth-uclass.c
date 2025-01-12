@@ -141,7 +141,7 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 			goto err_order;
 		}
 		memcpy(order, std->bootmeth_order,
-		       count * sizeof(struct bootmeth *));
+		       count * sizeof(struct udevice *));
 
 		if (IS_ENABLED(CONFIG_BOOTMETH_GLOBAL)) {
 			for (i = 0; i < count; i++) {
