@@ -9,4 +9,5 @@ enum {
 	INT_TEST1,
 	INT_TEST2,
 	STR_VACATIONSPOT,
+	DATA_TEST,
 };

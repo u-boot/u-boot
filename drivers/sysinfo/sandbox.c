@@ -13,6 +13,7 @@ struct sysinfo_sandbox_priv {
 	bool called_detect;
 	int test_i1;
 	int test_i2;
+	u32 test_data[2];
 };
 
 char vacation_spots[][64] = {"R'lyeh", "Dreamlands", "Plateau of Leng",
@@ -24,6 +25,8 @@ int sysinfo_sandbox_detect(struct udevice *dev)
 
 	priv->called_detect = true;
 	priv->test_i2 = 100;
+	priv->test_data[0] = 0xabcdabcd;
+	priv->test_data[1] = 0xdeadbeef;
 
 	return 0;
 }
@@ -79,6 +82,21 @@ int sysinfo_sandbox_get_str(struct udevice *dev, int id, size_t size, char *val)
 	return -ENOENT;
 }
 
+int sysinfo_sandbox_get_data(struct udevice *dev, int id, void **buf,
+			     size_t *size)
+{
+	struct sysinfo_sandbox_priv *priv = dev_get_priv(dev);
+
+	switch (id) {
+	case DATA_TEST:
+		*buf = priv->test_data;
+		*size = sizeof(priv->test_data);
+		return 0;
+	}
+
+	return -ENOENT;
+}
+
 static const struct udevice_id sysinfo_sandbox_ids[] = {
 	{ .compatible = "sandbox,sysinfo-sandbox" },
 	{ /* sentinel */ }
@@ -89,6 +107,7 @@ static const struct sysinfo_ops sysinfo_sandbox_ops = {
 	.get_bool = sysinfo_sandbox_get_bool,
 	.get_int = sysinfo_sandbox_get_int,
 	.get_str = sysinfo_sandbox_get_str,
+	.get_data = sysinfo_sandbox_get_data,
 };
 
 int sysinfo_sandbox_probe(struct udevice *dev)
