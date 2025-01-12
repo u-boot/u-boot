@@ -12,6 +12,7 @@
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <env_internal.h>
 #include <fs.h>
 #include <malloc.h>
@@ -147,6 +148,12 @@ int bootmeth_setup_iter_order(struct bootflow_iter *iter, bool include_global)
 				struct udevice *dev = order[i];
 				struct bootmeth_uc_plat *ucp;
 				bool is_global;
+
+				ret = device_probe(dev);
+				if (ret) {
+					ret = log_msg_ret("probe", ret);
+					goto err_order;
+				}
 
 				ucp = dev_get_uclass_plat(dev);
 				is_global = ucp->flags &
