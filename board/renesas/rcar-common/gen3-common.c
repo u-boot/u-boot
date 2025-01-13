@@ -7,6 +7,7 @@
  * Copyright (C) 2015 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  */
 
+#include <asm/armv8/cpu.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <hang.h>
@@ -50,14 +51,9 @@ int fdtdec_board_setup(const void *fdt_blob)
 
 void __weak reset_cpu(void)
 {
-	unsigned long midr, cputype;
-
-	asm volatile("mrs %0, midr_el1" : "=r" (midr));
-	cputype = (midr >> 4) & 0xfff;
-
-	if (cputype == 0xd03)
+	if (is_cortex_a53())
 		writel(RST_CA53_CODE, RST_CA53RESCNT);
-	else if (cputype == 0xd07)
+	else if (is_cortex_a57())
 		writel(RST_CA57_CODE, RST_CA57RESCNT);
 	else
 		hang();
