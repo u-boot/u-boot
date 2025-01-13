@@ -65,6 +65,7 @@ static int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 		      subnode, addr, size);
 		if (addr + size > msmc_size ||
 		    !strncmp(fdt_get_name(blob, subnode, &len), "sysfw", 5) ||
+		    !strncmp(fdt_get_name(blob, subnode, &len), "tifs", 4)  ||
 		    !strncmp(fdt_get_name(blob, subnode, &len), "l3cache", 7)) {
 			fdt_del_node(blob, subnode);
 			debug("%s: deleting subnode %d\n", __func__, subnode);
