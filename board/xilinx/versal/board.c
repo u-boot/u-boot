@@ -6,6 +6,7 @@
 
 #include <command.h>
 #include <cpu_func.h>
+#include <dfu.h>
 #include <env.h>
 #include <fdtdec.h>
 #include <init.h>
@@ -14,6 +15,7 @@
 #include <malloc.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <mtd.h>
 #include <time.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
@@ -35,9 +37,36 @@ static xilinx_desc versalpl = {
 };
 #endif
 
+static u8 versal_get_bootmode(void)
+{
+	u8 bootmode;
+	u32 reg = 0;
+
+	reg = readl(&crp_base->boot_mode_usr);
+
+	if (reg >> BOOT_MODE_ALT_SHIFT)
+		reg >>= BOOT_MODE_ALT_SHIFT;
+
+	bootmode = reg & BOOT_MODES_MASK;
+
+	return bootmode;
+}
+
+static u32 versal_multi_boot(void)
+{
+	u8 bootmode = versal_get_bootmode();
+
+	/* Mostly workaround for QEMU CI pipeline */
+	if (bootmode == JTAG_MODE)
+		return 0;
+
+	return readl(0xF1110004);
+}
+
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+	printf("Multiboot:\t%d\n", versal_multi_boot());
 
 #if defined(CONFIG_FPGA_VERSALPL)
 	fpga_init();
@@ -111,21 +140,6 @@ unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 		ret = EINVAL;
 	}
 	return ret;
-}
-
-static u8 versal_get_bootmode(void)
-{
-	u8 bootmode;
-	u32 reg = 0;
-
-	reg = readl(&crp_base->boot_mode_usr);
-
-	if (reg >> BOOT_MODE_ALT_SHIFT)
-		reg >>= BOOT_MODE_ALT_SHIFT;
-
-	bootmode = reg & BOOT_MODES_MASK;
-
-	return bootmode;
 }
 
 static int boot_targets_setup(void)
@@ -346,9 +360,35 @@ enum env_location env_get_location(enum env_operation op, int prio)
 
 #define DFU_ALT_BUF_LEN		SZ_1K
 
+static void mtd_found_part(u32 *base, u32 *size)
+{
+	struct mtd_info *part, *mtd;
+
+	mtd_probe_devices();
+
+	mtd = get_mtd_device_nm("nor0");
+	if (!IS_ERR_OR_NULL(mtd)) {
+		list_for_each_entry(part, &mtd->partitions, node) {
+			debug("0x%012llx-0x%012llx : \"%s\"\n",
+			      part->offset, part->offset + part->size,
+			      part->name);
+
+			if (*base >= part->offset &&
+			    *base < part->offset + part->size) {
+				debug("Found my partition: %d/%s\n",
+				      part->index, part->name);
+				*base = part->offset;
+				*size = part->size;
+				break;
+			}
+		}
+	}
+}
+
 void set_dfu_alt_info(char *interface, char *devstr)
 {
 	int bootseq = 0, len = 0;
+	u32 multiboot = versal_multi_boot();
 	u32 bootmode = versal_get_bootmode();
 
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
@@ -357,6 +397,8 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		return;
 
 	memset(buf, 0, sizeof(buf));
+
+	multiboot = env_get_hex("multiboot", multiboot);
 
 	switch (bootmode) {
 	case EMMC_MODE:
@@ -368,8 +410,27 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, "mmc %d=boot",
 			       bootseq);
 
+		if (multiboot)
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"%04d", multiboot);
+
 		len += snprintf(buf + len, DFU_ALT_BUF_LEN, ".bin fat %d 1",
 			       bootseq);
+		break;
+	case QSPI_MODE_24BIT:
+	case QSPI_MODE_32BIT:
+	case OSPI_MODE:
+		{
+			u32 base = multiboot * SZ_32K;
+			u32 size = 0x1500000;
+			u32 limit = size;
+
+			mtd_found_part(&base, &limit);
+
+			len += snprintf(buf + len, DFU_ALT_BUF_LEN,
+					"sf 0:0=boot.bin raw 0x%x 0x%x",
+					base, limit);
+		}
 		break;
 	default:
 		return;

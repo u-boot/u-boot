@@ -255,7 +255,7 @@ static u32 zynqmp_qspi_bus_select(struct zynqmp_qspi_priv *priv)
 					 GQSPI_GFIFO_CS_LOWER |
 					 GQSPI_GFIFO_CS_UPPER;
 		else
-			debug("Wrong Bus selection:0x%x\n", priv->bus);
+			log_debug("Wrong Bus selection:0x%x\n", priv->bus);
 	} else {
 		if (priv->u_page)
 			gqspi_fifo_reg = GQSPI_GFIFO_LOW_BUS |
