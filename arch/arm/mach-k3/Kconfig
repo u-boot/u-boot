@@ -156,6 +156,9 @@ config K3_X509_SWRV
 	help
 	  SWRV for X509 certificate used for boot images
 
+config NR_DRAM_BANKS
+	default 2
+
 if CPU_V7R
 source "arch/arm/mach-k3/r5/Kconfig"
 endif
