@@ -72,12 +72,12 @@ static int tps65219_buck_enable(struct udevice *dev, int op, bool *enable)
 
 static int tps65219_buck_volt2val(int uV)
 {
-	if (uV > TPS65219_BUCK_VOLT_MAX)
+	if (uV > TPS65219_BUCK_3V4)
 		return -EINVAL;
-	else if (uV >= 1400000)
-		return (uV - 1400000) / 100000 + 0x20;
-	else if (uV >= 600000)
-		return (uV - 600000) / 25000 + 0x00;
+	else if (uV >= TPS65219_BUCK_1V4)
+		return (uV - TPS65219_BUCK_1V4) / TPS65219_VOLT_STEP_100MV + TPS65219_BUCK_REG_1V4;
+	else if (uV >= TPS65219_BUCK_0V6)
+		return (uV - TPS65219_BUCK_0V6) / TPS65219_VOLT_STEP_25MV + TPS65219_BUCK_REG_0V6;
 	else
 		return -EINVAL;
 }
@@ -86,12 +86,12 @@ static int tps65219_buck_val2volt(int val)
 {
 	if (val > TPS65219_VOLT_MASK)
 		return -EINVAL;
-	else if (val > 0x34)
-		return TPS65219_BUCK_VOLT_MAX;
-	else if (val > 0x20)
-		return 1400000 + (val - 0x20) * 100000;
-	else if (val >= 0)
-		return 600000 + val * 25000;
+	else if (val > TPS65219_BUCK_REG_3V4)
+		return TPS65219_BUCK_3V4;
+	else if (val > TPS65219_BUCK_REG_1V4)
+		return TPS65219_BUCK_1V4 + (val - TPS65219_BUCK_REG_1V4) * TPS65219_VOLT_STEP_100MV;
+	else if (val >= TPS65219_BUCK_REG_0V6)
+		return TPS65219_BUCK_0V6 + val * TPS65219_VOLT_STEP_25MV;
 	else
 		return -EINVAL;
 }
@@ -161,7 +161,7 @@ static int tps65219_ldo_volt2val(int idx, int uV)
 	if (uV > max)
 		return -EINVAL;
 	else if (uV >= base)
-		return (uV - TPS65219_LDO12_VOLT_MIN) / 50000;
+		return (uV - TPS65219_LDO12_VOLT_MIN) / TPS65219_VOLT_STEP_50MV;
 	else
 		return -EINVAL;
 }
@@ -187,7 +187,7 @@ static int tps65219_ldo_val2volt(int idx, int val)
 	else if (val <= reg_base)
 		return base;
 	else if (val >= 0)
-		return TPS65219_LDO12_VOLT_MIN + (50000 * val);
+		return TPS65219_LDO12_VOLT_MIN + (TPS65219_VOLT_STEP_50MV * val);
 	else
 		return -EINVAL;
 }
@@ -250,7 +250,7 @@ static int tps65219_ldo_probe(struct udevice *dev)
 	/* idx must be in 1..TPS65219_LDO_NUM */
 	idx = dev->driver_data;
 	if (idx < 1 || idx > TPS65219_LDO_NUM) {
-		printf("Wrong ID for regulator\n");
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
@@ -271,7 +271,7 @@ static int tps65219_buck_probe(struct udevice *dev)
 	/* idx must be in 1..TPS65219_BUCK_NUM */
 	idx = dev->driver_data;
 	if (idx < 1 || idx > TPS65219_BUCK_NUM) {
-		printf("Wrong ID for regulator\n");
+		pr_err("Wrong ID for regulator\n");
 		return -EINVAL;
 	}
 
