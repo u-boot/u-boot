@@ -11,9 +11,13 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <dm/ofnode.h>
 
 #include "../sysfw-loader.h"
 #include "../common.h"
+
+/* TISCI DEV ID for A53 Clock */
+#define AM62PX_DEV_A53SS0_CORE_0_DEV_ID 135
 
 struct fwl_data cbass_main_fwls[] = {
 	{ "FSS_DAT_REG3", 7, 8 },
@@ -66,6 +70,62 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(PADCFG_MMR0_BASE, 1);
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
 }
+
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+static int get_a53_cpu_clock_index(ofnode node)
+{
+	int count, i;
+	struct ofnode_phandle_args *args;
+	ofnode clknode;
+
+	clknode = ofnode_path("/bus@f0000/system-controller@44043000/clock-controller");
+	if (!ofnode_valid(clknode))
+		return -1;
+
+	count = ofnode_count_phandle_with_args(node,  "assigned-clocks", "#clock-cells", 0);
+
+	for (i  = 0; i < count; i++) {
+		if (!ofnode_parse_phandle_with_args(node, "assigned-clocks",
+						    "#clock-cells", 0, i, args)) {
+			if (ofnode_equal(clknode, args->node) &&
+			    args->args[0] == AM62PX_DEV_A53SS0_CORE_0_DEV_ID)
+				return i;
+		}
+	}
+
+	return -1;
+}
+
+static void fixup_a53_cpu_freq_by_speed_grade(void)
+{
+	int index, size;
+	u32 *rates;
+	ofnode node;
+
+	node =  ofnode_path("/a53@0");
+	if (!ofnode_valid(node))
+		return;
+
+	rates = fdt_getprop_w(ofnode_to_fdt(node), ofnode_to_offset(node),
+			      "assigned-clock-rates", &size);
+
+	index = get_a53_cpu_clock_index(node);
+
+	if (!rates || index < 0 || index >= (size / sizeof(u32))) {
+		printf("Wrong A53 assigned-clocks configuration\n");
+		return;
+	}
+
+	rates[index] = cpu_to_fdt32(k3_get_a53_max_frequency());
+
+	printf("Changed A53 CPU frequency to %dHz (%c grade) in DT\n",
+	       k3_get_a53_max_frequency(), k3_get_speed_grade());
+}
+#else
+static void fixup_a53_cpu_freq_by_speed_grade(void)
+{
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -162,6 +222,8 @@ void board_init_f(ulong dummy)
 
 	setup_qos();
 	debug("am62px_init: %s done\n", __func__);
+
+	fixup_a53_cpu_freq_by_speed_grade();
 }
 
 u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)

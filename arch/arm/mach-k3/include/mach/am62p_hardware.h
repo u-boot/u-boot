@@ -19,6 +19,22 @@
 #define MCU_CTRL_MMR0_BASE			0x04500000
 #define WKUP_CTRL_MMR0_BASE			0x43000000
 
+#define CTRLMMR_WKUP_JTAG_DEVICE_ID		(WKUP_CTRL_MMR0_BASE + 0x18)
+#define JTAG_DEV_CORE_NR_MASK			GENMASK(19, 18)
+#define JTAG_DEV_CORE_NR_SHIFT			18
+#define JTAG_DEV_CANFD_MASK			BIT(15)
+#define JTAG_DEV_CANFD_SHIFT			15
+#define JTAG_DEV_VIDEO_CODEC_MASK			BIT(14)
+#define JTAG_DEV_VIDEO_CODEC_SHIFT			14
+#define JTAG_DEV_SPEED_MASK			GENMASK(10, 6)
+#define JTAG_DEV_SPEED_SHIFT			6
+#define JTAG_DEV_TEMP_MASK			GENMASK(5, 3)
+#define JTAG_DEV_TEMP_SHIFT			3
+
+#define JTAG_DEV_TEMP_AUTOMOTIVE        0x5
+#define JTAG_DEV_TEMP_EXTENDED_VALUE    105
+#define JTAG_DEV_TEMP_AUTOMOTIVE_VALUE  125
+
 #define CTRLMMR_MAIN_DEVSTAT			(WKUP_CTRL_MMR0_BASE + 0x30)
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_MASK	GENMASK(6, 3)
 #define MAIN_DEVSTAT_PRIMARY_BOOTMODE_SHIFT	3
@@ -71,6 +87,55 @@
 #define K3_BOOT_PARAM_TABLE_INDEX_OCRAM         0x7000F290
 
 #define TI_SRAM_SCRATCH_BOARD_EEPROM_START	0x43c30000
+
+static inline int k3_get_core_nr(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+
+	return ((dev_id & JTAG_DEV_CORE_NR_MASK) >> JTAG_DEV_CORE_NR_SHIFT) + 1;
+}
+
+static inline int k3_has_video_codec(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+
+	return !((dev_id & JTAG_DEV_VIDEO_CODEC_MASK) >> JTAG_DEV_VIDEO_CODEC_SHIFT);
+}
+
+static inline int k3_has_canfd(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+
+	return (dev_id & JTAG_DEV_CANFD_MASK) >> JTAG_DEV_CANFD_SHIFT;
+}
+
+static inline int k3_get_max_temp(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+	u32 dev_temp = (dev_id & JTAG_DEV_TEMP_MASK) >> JTAG_DEV_TEMP_SHIFT;
+
+	if (dev_temp == JTAG_DEV_TEMP_AUTOMOTIVE)
+		return JTAG_DEV_TEMP_AUTOMOTIVE_VALUE;
+	else
+		return JTAG_DEV_TEMP_EXTENDED_VALUE;
+}
+
+static inline char k3_get_speed_grade(void)
+{
+	u32 dev_id = readl(CTRLMMR_WKUP_JTAG_DEVICE_ID);
+	u32 speed_grade = (dev_id & JTAG_DEV_SPEED_MASK) >>
+			   JTAG_DEV_SPEED_SHIFT;
+
+	return 'A' - 1 + speed_grade;
+}
+
+static inline int k3_get_a53_max_frequency(void)
+{
+	if (k3_get_speed_grade() == 'O')
+		return 1000000000;
+	else
+		return 1250000000;
+}
 
 #if defined(CONFIG_SYS_K3_SPL_ATF) && !defined(__ASSEMBLY__)
 
