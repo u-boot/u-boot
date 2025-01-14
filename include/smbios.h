@@ -9,6 +9,7 @@
 #define _SMBIOS_H_
 
 #include <linux/types.h>
+#include <smbios_def.h>
 
 /* SMBIOS spec version implemented */
 #define SMBIOS_MAJOR_VER	3
@@ -36,6 +37,11 @@ enum {
 
 #define SMBIOS_INTERMEDIATE_OFFSET	16
 #define SMBIOS_STRUCT_EOS_BYTES		2
+
+struct str_lookup_table {
+	u16 idx;
+	const char *str;
+};
 
 struct __packed smbios_entry {
 	u8 anchor[4];
@@ -80,19 +86,14 @@ struct __packed smbios3_entry {
 	u64 struct_table_address;
 };
 
-/* BIOS characteristics */
-#define BIOS_CHARACTERISTICS_PCI_SUPPORTED	(1 << 7)
-#define BIOS_CHARACTERISTICS_UPGRADEABLE	(1 << 11)
-#define BIOS_CHARACTERISTICS_SELECTABLE_BOOT	(1 << 16)
-
-#define BIOS_CHARACTERISTICS_EXT1_ACPI		(1 << 0)
-#define BIOS_CHARACTERISTICS_EXT2_UEFI		(1 << 3)
-#define BIOS_CHARACTERISTICS_EXT2_TARGET	(1 << 2)
-
-struct __packed smbios_type0 {
+struct __packed smbios_header {
 	u8 type;
 	u8 length;
 	u16 handle;
+};
+
+struct __packed smbios_type0 {
+	struct smbios_header hdr;
 	u8 vendor;
 	u8 bios_ver;
 	u16 bios_start_segment;
@@ -109,37 +110,12 @@ struct __packed smbios_type0 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-/**
- * enum smbios_wakeup_type - wake-up type
- *
- * These constants are used for the Wake-Up Type field in the SMBIOS
- * System Information (Type 1) structure.
- */
-enum smbios_wakeup_type {
-	/** @SMBIOS_WAKEUP_TYPE_RESERVED: Reserved */
-	SMBIOS_WAKEUP_TYPE_RESERVED,
-	/** @SMBIOS_WAKEUP_TYPE_OTHER: Other */
-	SMBIOS_WAKEUP_TYPE_OTHER,
-	/** @SMBIOS_WAKEUP_TYPE_UNKNOWN: Unknown */
-	SMBIOS_WAKEUP_TYPE_UNKNOWN,
-	/** @SMBIOS_WAKEUP_TYPE_APM_TIMER: APM Timer */
-	SMBIOS_WAKEUP_TYPE_APM_TIMER,
-	/** @SMBIOS_WAKEUP_TYPE_MODEM_RING: Modem Ring */
-	SMBIOS_WAKEUP_TYPE_MODEM_RING,
-	/** @SMBIOS_WAKEUP_TYPE_LAN_REMOTE: LAN Remote */
-	SMBIOS_WAKEUP_TYPE_LAN_REMOTE,
-	/** @SMBIOS_WAKEUP_TYPE_POWER_SWITCH: Power Switch */
-	SMBIOS_WAKEUP_TYPE_POWER_SWITCH,
-	/** @SMBIOS_WAKEUP_TYPE_PCI_PME: PCI PME# */
-	SMBIOS_WAKEUP_TYPE_PCI_PME,
-	/** @SMBIOS_WAKEUP_TYPE_AC_POWER_RESTORED: AC Power Restored */
-	SMBIOS_WAKEUP_TYPE_AC_POWER_RESTORED,
-};
+#define SMBIOS_TYPE1_LENGTH_V20		0x08
+#define SMBIOS_TYPE1_LENGTH_V21		0x19
+#define SMBIOS_TYPE1_LENGTH_V24		0x1b
 
 struct __packed smbios_type1 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 product_name;
 	u8 version;
@@ -151,13 +127,10 @@ struct __packed smbios_type1 {
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-#define SMBIOS_BOARD_FEATURE_HOSTING	(1 << 0)
-#define SMBIOS_BOARD_MOTHERBOARD	10
+#define SMBIOS_TYPE2_CON_OBJ_HANDLE_SIZE sizeof(u16)
 
 struct __packed smbios_type2 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 product_name;
 	u8 version;
@@ -168,17 +141,15 @@ struct __packed smbios_type2 {
 	u16 chassis_handle;
 	u8 board_type;
 	u8 number_contained_objects;
+	/*
+	 * Dynamic bytes will be inserted here to store the objects.
+	 * length is equal to 'number_contained_objects'.
+	 */
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-#define SMBIOS_ENCLOSURE_DESKTOP	3
-#define SMBIOS_STATE_SAFE		3
-#define SMBIOS_SECURITY_NONE		3
-
 struct __packed smbios_type3 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header hdr;
 	u8 manufacturer;
 	u8 chassis_type;
 	u8 version;
@@ -193,21 +164,17 @@ struct __packed smbios_type3 {
 	u8 number_of_power_cords;
 	u8 element_count;
 	u8 element_record_length;
+	/*
+	 * Dynamic bytes will be inserted here to store the elements.
+	 * length is equal to 'element_record_length' * 'element_record_length'
+	 */
+	u8 sku_number;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
-#define SMBIOS_PROCESSOR_TYPE_CENTRAL	3
-#define SMBIOS_PROCESSOR_STATUS_ENABLED	1
-#define SMBIOS_PROCESSOR_UPGRADE_NONE	6
-
-#define SMBIOS_PROCESSOR_FAMILY_OTHER	1
-#define SMBIOS_PROCESSOR_FAMILY_UNKNOWN	2
-
 struct __packed smbios_type4 {
-	u8 type;
-	u8 length;
-	u16 handle;
-	u8 socket_designation;
+	struct smbios_header hdr;
+	u8 socket_design;
 	u8 processor_type;
 	u8 processor_family;
 	u8 processor_manufacturer;
@@ -233,6 +200,67 @@ struct __packed smbios_type4 {
 	u16 core_count2;
 	u16 core_enabled2;
 	u16 thread_count2;
+	u16 thread_enabled;
+	char eos[SMBIOS_STRUCT_EOS_BYTES];
+};
+
+union cache_config {
+	struct {
+		u16 level:3;
+		u16 bsocketed:1;
+		u16 rsvd0:1;
+		u16 locate:2;
+		u16 benabled:1;
+		u16 opmode:2;
+		u16 rsvd1:6;
+	} fields;
+	u16 data;
+};
+
+union cache_size_word {
+	struct {
+		u16 size:15;
+		u16 granu:1;
+	} fields;
+	u16 data;
+};
+
+union cache_size_dword {
+	struct {
+		u32 size:31;
+		u32 granu:1;
+	} fields;
+	u32 data;
+};
+
+union cache_sram_type {
+	struct {
+		u16 other:1;
+		u16 unknown:1;
+		u16 nonburst:1;
+		u16 burst:1;
+		u16 plburst:1;
+		u16 sync:1;
+		u16 async:1;
+		u16 rsvd:9;
+	} fields;
+	u16 data;
+};
+
+struct __packed smbios_type7 {
+	struct smbios_header hdr;
+	u8 socket_design;
+	union cache_config config;
+	union cache_size_word max_size;
+	union cache_size_word inst_size;
+	union cache_sram_type supp_sram_type;
+	union cache_sram_type curr_sram_type;
+	u8 speed;
+	u8 err_corr_type;
+	u8 sys_cache_type;
+	u8 associativity;
+	union cache_size_dword max_size2;
+	union cache_size_dword inst_size2;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
 };
 
@@ -250,12 +278,6 @@ struct __packed smbios_type127 {
 	u8 length;
 	u16 handle;
 	char eos[SMBIOS_STRUCT_EOS_BYTES];
-};
-
-struct __packed smbios_header {
-	u8 type;
-	u8 length;
-	u16 handle;
 };
 
 /**

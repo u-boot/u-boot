@@ -32,10 +32,26 @@ def test_cmd_smbios_sandbox(u_boot_console):
     """Run the smbios command on the sandbox"""
     output = u_boot_console.run_command('smbios')
     assert 'DMI type 0,' in output
-    assert 'String 1: U-Boot' in output
+    assert 'Vendor: U-Boot' in output
     assert 'DMI type 1,' in output
     assert 'Manufacturer: sandbox' in output
     assert 'DMI type 2,' in output
     assert 'DMI type 3,' in output
+    assert 'DMI type 4,' in output
+    assert 'DMI type 127,' in output
+
+@pytest.mark.buildconfigspec('cmd_smbios')
+@pytest.mark.buildconfigspec('sysinfo_smbios')
+@pytest.mark.buildconfigspec('generate_smbios_table_verbose')
+def test_cmd_smbios_sysinfo_verbose(u_boot_console):
+    """Run the smbios command"""
+    output = u_boot_console.run_command('smbios')
+    assert 'DMI type 0,' in output
+    assert 'Vendor: U-Boot' in output
+    assert 'DMI type 1,' in output
+    assert 'Manufacturer: linux' in output
+    assert 'DMI type 2,' in output
+    assert 'DMI type 3,' in output
+    assert 'DMI type 7,' in output
     assert 'DMI type 4,' in output
     assert 'DMI type 127,' in output
