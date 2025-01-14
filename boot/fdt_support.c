@@ -321,7 +321,7 @@ int fdt_kaslrseed(void *fdt, bool overwrite)
  * board_fdt_chosen_bootargs - boards may override this function to use
  *                             alternative kernel command line arguments
  */
-__weak char *board_fdt_chosen_bootargs(void)
+__weak const char *board_fdt_chosen_bootargs(const struct fdt_property *fdt_ba)
 {
 	return env_get("bootargs");
 }
@@ -331,7 +331,7 @@ int fdt_chosen(void *fdt)
 	struct abuf buf = {};
 	int   nodeoffset;
 	int   err;
-	char  *str;		/* used to set string properties */
+	const char *str;		/* used to set string properties */
 
 	err = fdt_check_header(fdt);
 	if (err < 0) {
@@ -364,7 +364,8 @@ int fdt_chosen(void *fdt)
 		}
 	}
 
-	str = board_fdt_chosen_bootargs();
+	str = board_fdt_chosen_bootargs(fdt_get_property(fdt, nodeoffset,
+							 "bootargs", NULL));
 
 	if (str) {
 		err = fdt_setprop(fdt, nodeoffset, "bootargs", str,
