@@ -36,7 +36,7 @@ void cyclic_register(struct cyclic_info *cyclic, cyclic_func_t func,
 	cyclic->func = func;
 	cyclic->name = name;
 	cyclic->delay_us = delay_us;
-	cyclic->start_time_us = timer_get_us();
+	cyclic->start_time_us = get_timer_us(0);
 	hlist_add_head(&cyclic->list, cyclic_get_list());
 }
 
@@ -61,13 +61,13 @@ static void cyclic_run(void)
 		 * Check if this cyclic function needs to get called, e.g.
 		 * do not call the cyclic func too often
 		 */
-		now = timer_get_us();
+		now = get_timer_us(0);
 		if (time_after_eq64(now, cyclic->next_call)) {
 			/* Call cyclic function and account it's cpu-time */
 			cyclic->next_call = now + cyclic->delay_us;
 			cyclic->func(cyclic);
 			cyclic->run_cnt++;
-			cpu_time = timer_get_us() - now;
+			cpu_time = get_timer_us(0) - now;
 			cyclic->cpu_time_us += cpu_time;
 
 			/* Check if cpu-time exceeds max allowed time */
