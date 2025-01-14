@@ -14,6 +14,9 @@ config TARGET_ANDES_AE350
 config TARGET_BANANAPI_F3
 	bool "Support BananaPi F3 Board"
 
+config TARGET_K230_CANMV
+	bool "Support K230 CanMV Board"
+
 config TARGET_LICHEERV_NANO
 	bool "Support LicheeRV Nano Board"
 
@@ -91,6 +94,7 @@ config SPL_ZERO_MEM_BEFORE_USE
 # board-specific options below
 source "board/andestech/ae350/Kconfig"
 source "board/aspeed/ibex_ast2700/Kconfig"
+source "board/canaan/k230_canmv/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 source "board/microchip/mpfs_icicle/Kconfig"
 source "board/openpiton/riscv64/Kconfig"
@@ -113,6 +117,7 @@ source "arch/riscv/cpu/ast2700/Kconfig"
 source "arch/riscv/cpu/generic/Kconfig"
 source "arch/riscv/cpu/jh7110/Kconfig"
 source "arch/riscv/cpu/k1/Kconfig"
+source "arch/riscv/cpu/k230/Kconfig"
 
 # architecture-specific options below
 
