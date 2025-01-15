@@ -7,6 +7,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <spl.h>
+#include <asm/arch/k3-ddr.h>
 #include <fdt_support.h>
 
 #include "phycore-ddr-data.h"
@@ -97,6 +98,8 @@ int dram_init_banksize(void)
 {
 	u8 ram_size;
 
+	memset(gd->bd->bi_dram, 0, sizeof(gd->bd->bi_dram[0]) * CONFIG_NR_DRAM_BANKS);
+
 	if (!IS_ENABLED(CONFIG_CPU_V7R))
 		return fdtdec_setup_memory_banksize();
 
@@ -178,17 +181,11 @@ int update_ddrss_timings(void)
 
 int do_board_detect(void)
 {
-	return update_ddrss_timings();
-}
-#endif
-
-#if IS_ENABLED(CONFIG_XPL_BUILD)
-void spl_perform_fixups(struct spl_image_info *spl_image)
-{
+	int ret;
+	void *fdt = (void *)gd->fdt_blob;
+	int bank;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
-	int bank;
-	int ret;
 
 	dram_init();
 	dram_init_banksize();
@@ -198,7 +195,21 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 		size[bank] = gd->bd->bi_dram[bank].size;
 	}
 
-	ret = fdt_fixup_memory_banks(spl_image->fdt_addr, start, size, CONFIG_NR_DRAM_BANKS);
+	ret = fdt_fixup_memory_banks(fdt, start, size, CONFIG_NR_DRAM_BANKS);
+	if (ret)
+		return ret;
+
+	return update_ddrss_timings();
+}
+#endif
+
+#if IS_ENABLED(CONFIG_XPL_BUILD)
+void spl_perform_fixups(struct spl_image_info *spl_image)
+{
+	if (IS_ENABLED(CONFIG_K3_DDRSS) && IS_ENABLED(CONFIG_K3_INLINE_ECC))
+		fixup_ddr_driver_for_ecc(spl_image);
+	else
+		fixup_memory_node(spl_image);
 }
 #endif
 
