@@ -1,8 +1,5 @@
 config BLK
-	bool # "Support block devices"
-	depends on DM
-	def_bool y if MMC || USB || SCSI || NVME || IDE || AHCI || SATA
-	def_bool y if EFI_MEDIA || VIRTIO_BLK || PVBLOCK
+	bool
 	help
 	  Enable support for block devices, such as SCSI, MMC and USB
 	  flash sticks. These provide a block-level interface which permits
@@ -100,6 +97,7 @@ config TPL_BLOCK_CACHE
 config EFI_MEDIA
 	bool "Support EFI media drivers"
 	default y if EFI || SANDBOX
+	select BLK
 	help
 	  Enable this to support media devices on top of UEFI. This enables
 	  just the uclass so you also need a specific driver to make this do
@@ -139,6 +137,7 @@ endif  # EFI_MEDIA
 
 config IDE
 	bool "Support IDE controllers"
+	select BLK
 	help
 	  Enables support for IDE (Integrated Drive Electronics) hard drives.
 	  This allows access to raw blocks and filesystems on an IDE drive

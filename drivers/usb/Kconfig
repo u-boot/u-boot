@@ -1,5 +1,6 @@
 menuconfig USB
 	bool "USB support"
+	select BLK
 	---help---
 	  Universal Serial Bus (USB) is a specification for a serial bus
 	  subsystem which offers higher speeds and more features than the

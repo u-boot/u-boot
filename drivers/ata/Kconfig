@@ -1,6 +1,7 @@
 config AHCI
 	bool "Support SATA controllers with driver model"
 	depends on DM
+	select BLK
 	help
 	  This enables a uclass for disk controllers in U-Boot. Various driver
 	  types can use this, such as AHCI/SATA. It does not provide any standard
@@ -9,6 +10,7 @@ config AHCI
 
 config SATA
 	bool "Support SATA controllers"
+	select BLK
 	help
 	  This enables support for SATA (Serial Advanced Technology
 	  Attachment), a serial bus standard for connecting to hard drives and

@@ -3,6 +3,7 @@ menu "MMC Host controller Support"
 config MMC
 	bool "MMC/SD/SDIO card support"
 	default ARM || PPC || SANDBOX
+	select BLK
 	select DM_MMC
 	help
 	  This selects MultiMediaCard, Secure Digital and Secure
