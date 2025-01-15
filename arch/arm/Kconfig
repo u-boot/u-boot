@@ -1372,7 +1372,6 @@ config ARCH_VEXPRESS64
 	select PL01X_SERIAL
 	select OF_CONTROL
 	select CLK
-	select BLK
 	select MTD_NOR_FLASH if MTD
 	select FLASH_CFI_DRIVER if MTD
 	select ENV_IS_IN_FLASH if MTD
@@ -1982,7 +1981,6 @@ config ARCH_STM32
 
 config ARCH_STI
 	bool "Support STMicroelectronics SoCs"
-	select BLK
 	select CPU_V7A
 	select DM
 	select DM_RESET
@@ -2029,7 +2027,6 @@ config ARCH_STM32MP
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"
-	select BLK
 	select BINMAN if SPL_OPTEE || SPL
 	select DM
 	select DM_GPIO
@@ -2117,7 +2114,6 @@ config TARGET_POMELO
 	select AHCI
 	select SCSI_AHCI
 	select AHCI_PCI
-	select BLK
 	select PCI
 	select DM_PCI
 	select SCSI
