@@ -338,7 +338,7 @@ config MMC_MXC
 
 config MMC_OWL
 	bool "Actions OWL Multimedia Card Interface support"
-	depends on ARCH_OWL && DM_MMC && BLK
+	depends on ARCH_OWL && DM_MMC
 	help
 	  This selects the OWL SD/MMC host controller found on board
 	  based on Actions S700/S900 SoC.
@@ -633,7 +633,7 @@ config MMC_SDHCI_AM654
 	bool "SDHCI Controller on TI's Am654 devices"
 	depends on ARCH_K3
 	depends on MMC_SDHCI
-	depends on DM_MMC && OF_CONTROL && BLK
+	depends on DM_MMC && OF_CONTROL
 	depends on REGMAP
 	select MMC_SDHCI_IO_ACCESSORS
 	help
@@ -716,7 +716,7 @@ config MMC_SDHCI_PIC32
 config MMC_SDHCI_ROCKCHIP
 	bool "Arasan SDHCI controller for Rockchip support"
 	depends on ARCH_ROCKCHIP
-	depends on DM_MMC && BLK
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Rockchip ARM SoCs platform
@@ -764,7 +764,7 @@ config MMC_SDHCI_XENON
 
 config MMC_SDHCI_TANGIER
 	bool "Tangier SDHCI controller support"
-	depends on DM_MMC && BLK
+	depends on DM_MMC
 	depends on MMC_SDHCI
 	help
 	  This selects support for SDHCI controller on Tanginer
@@ -800,7 +800,7 @@ config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
 
 config MMC_SDHCI_ZYNQ
 	bool "Arasan SDHCI controller support"
-	depends on DM_MMC && OF_CONTROL && BLK
+	depends on DM_MMC && OF_CONTROL
 	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
@@ -842,7 +842,7 @@ config MMC_SUNXI_HAS_MODE_SWITCH
 
 config MMC_PITON
 	bool "MMC support for OpenPiton SoC"
-	depends on DM_MMC && BLK
+	depends on DM_MMC
 	help
 	  This selects support for the SD host controller on OpenPiton SoC.
 	  Note that this SD controller directly exposes the contents of the
