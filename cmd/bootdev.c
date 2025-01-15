@@ -81,7 +81,7 @@ static int do_bootdev_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	dev = priv->cur_bootdev;
 
-	/* Count the number of bootflows, including how many are valid*/
+	/* Count the number of bootflows, including how many are valid */
 	num_valid = 0;
 	for (ret = bootdev_first_bootflow(dev, &bflow), i = 0;
 	     !ret;

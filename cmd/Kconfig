@@ -328,6 +328,15 @@ config CMD_BOOTMETH
 
 	  This command is not necessary for bootstd to work.
 
+config CMD_BOOTSTD
+	bool "bootstd"
+	depends on BOOTSTD
+	default y if BOOTSTD_FULL
+	help
+	  Provide general information and control for bootstd.
+
+	  This command is not necessary for bootstd to work.
+
 config BOOTM_EFI
 	bool "Support booting UEFI FIT images"
 	depends on EFI_BINARY_EXEC && CMD_BOOTM && FIT

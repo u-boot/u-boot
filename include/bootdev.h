@@ -109,11 +109,9 @@ struct bootdev_hunter {
  * This is attached to each device in the bootdev uclass and accessible via
  * dev_get_uclass_plat(dev)
  *
- * @bootflows: List of available bootflows for this bootdev
  * @piro: Priority of this bootdev
  */
 struct bootdev_uc_plat {
-	struct list_head bootflow_head;
 	enum bootdev_prio_t prio;
 };
 
@@ -184,31 +182,6 @@ int bootdev_find_in_blk(struct udevice *dev, struct udevice *blk,
  * @probe: true to probe devices, false to leave them as is
  */
 void bootdev_list(bool probe);
-
-/**
- * bootdev_clear_bootflows() - Clear bootflows from a bootdev
- *
- * Each bootdev maintains a list of discovered bootflows. This provides a
- * way to clear it. These bootflows are removed from the global list too.
- *
- * @dev: bootdev device to update
- */
-void bootdev_clear_bootflows(struct udevice *dev);
-
-/**
- * bootdev_add_bootflow() - Add a bootflow to the bootdev's list
- *
- * All fields in @bflow must be set up. Note that @bflow->dev is used to add the
- * bootflow to that device.
- *
- * @dev: Bootdev device to add to
- * @bflow: Bootflow to add. Note that fields within bflow must be allocated
- *	since this function takes over ownership of these. This functions makes
- *	a copy of @bflow itself (without allocating its fields again), so the
- *	caller must dispose of the memory used by the @bflow pointer itself
- * Return: 0 if OK, -ENOMEM if out of memory
- */
-int bootdev_add_bootflow(struct bootflow *bflow);
 
 /**
  * bootdev_first_bootflow() - Get the first bootflow from a bootdev
@@ -427,6 +400,15 @@ static int bootdev_setup_for_sibling_blk(struct udevice *blk,
  *	error
  */
 int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp);
+
+/**
+ * bootdev_get_from_blk() - Get the bootdev given a block device
+ *
+ * @blk: Block device to check
+ * @bootdebp: Returns the bootdev found, if any
+ * Return 0 if OK, -ve on error
+ */
+int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp);
 
 /**
  * bootdev_unbind_dev() - Unbind a bootdev device

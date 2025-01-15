@@ -89,18 +89,17 @@ static void set_efi_bootdev(struct blk_desc *desc, struct bootflow *bflow)
 static int efiload_read_file(struct bootflow *bflow, ulong addr)
 {
 	struct blk_desc *desc = NULL;
-	loff_t bytes_read;
+	ulong size;
 	int ret;
 
 	if (bflow->blk)
 		 desc = dev_get_uclass_plat(bflow->blk);
-	ret = bootmeth_setup_fs(bflow, desc);
-	if (ret)
-		return log_msg_ret("set", ret);
 
-	ret = fs_read(bflow->fname, addr, 0, bflow->size, &bytes_read);
+	size = SZ_1G;
+	ret = bootmeth_common_read_file(bflow->method, bflow, bflow->fname,
+					addr, BFI_EFI, &size);
 	if (ret)
-		return log_msg_ret("read", ret);
+		return log_msg_ret("rdf", ret);
 	bflow->buf = map_sysmem(addr, bflow->size);
 
 	set_efi_bootdev(desc, bflow);
@@ -173,7 +172,8 @@ static int distro_efi_try_bootflow_files(struct udevice *dev,
 			/* Limit FDT files to 4MB */
 			size = SZ_4M;
 			ret = bootmeth_common_read_file(dev, bflow, fname,
-							fdt_addr, &size);
+				fdt_addr, (enum bootflow_img_t)IH_TYPE_FLATDT,
+				&size);
 		}
 	}
 
@@ -252,6 +252,8 @@ static int distro_efi_read_bootflow_net(struct bootflow *bflow)
 	if (!bootfile_name)
 		return log_msg_ret("bootfile_name", ret);
 	bflow->fname = strdup(bootfile_name);
+	if (!bflow->fname)
+		return log_msg_ret("fi0", -ENOMEM);
 
 	/* do the hideous EFI hack */
 	efi_set_bootdev("Net", "", bflow->fname, map_sysmem(addr, 0),

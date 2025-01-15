@@ -33,55 +33,38 @@ enum {
 	BOOT_TARGETS_MAX_LEN	= 100,
 };
 
-int bootdev_add_bootflow(struct bootflow *bflow)
+int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
 {
 	struct bootstd_priv *std;
-	struct bootflow *new;
+	struct bootflow *bflow;
 	int ret;
 
 	ret = bootstd_get_priv(&std);
 	if (ret)
-		return ret;
+		return log_msg_ret("bff", ret);
 
-	new = malloc(sizeof(*bflow));
-	if (!new)
-		return log_msg_ret("bflow", -ENOMEM);
-	memcpy(new, bflow, sizeof(*bflow));
-
-	list_add_tail(&new->glob_node, &std->glob_head);
-	if (bflow->dev) {
-		struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
-
-		list_add_tail(&new->bm_node, &ucp->bootflow_head);
-	}
-
-	return 0;
-}
-
-int bootdev_first_bootflow(struct udevice *dev, struct bootflow **bflowp)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	if (list_empty(&ucp->bootflow_head))
+	bflow = alist_getw(&std->bootflows, 0, struct bootflow);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_first_entry(&ucp->bootflow_head, struct bootflow,
-				   bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
 
 int bootdev_next_bootflow(struct bootflow **bflowp)
 {
-	struct bootflow *bflow = *bflowp;
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(bflow->dev);
+	struct bootstd_priv *std;
+	struct bootflow *bflow;
+	int ret;
 
-	*bflowp = NULL;
+	ret = bootstd_get_priv(&std);
+	if (ret)
+		return log_msg_ret("bff", ret);
 
-	if (list_is_last(&bflow->bm_node, &ucp->bootflow_head))
+	bflow = alist_nextw(&std->bootflows, *bflowp);
+	if (!bflow)
 		return -ENOENT;
-
-	*bflowp = list_entry(bflow->bm_node.next, struct bootflow, bm_node);
+	*bflowp = bflow;
 
 	return 0;
 }
@@ -342,7 +325,7 @@ int bootdev_get_sibling_blk(struct udevice *dev, struct udevice **blkp)
 	return 0;
 }
 
-static int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
+int bootdev_get_from_blk(struct udevice *blk, struct udevice **bootdevp)
 {
 	struct udevice *parent = dev_get_parent(blk);
 	struct udevice *bootdev;
@@ -586,19 +569,6 @@ int bootdev_get_bootflow(struct udevice *dev, struct bootflow_iter *iter,
 		return default_get_bootflow(dev, iter, bflow);
 
 	return ops->get_bootflow(dev, iter, bflow);
-}
-
-void bootdev_clear_bootflows(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	while (!list_empty(&ucp->bootflow_head)) {
-		struct bootflow *bflow;
-
-		bflow = list_first_entry(&ucp->bootflow_head, struct bootflow,
-					 bm_node);
-		bootflow_remove(bflow);
-	}
 }
 
 int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
@@ -955,18 +925,13 @@ void bootdev_list_hunters(struct bootstd_priv *std)
 	printf("(total hunters: %d)\n", n_ent);
 }
 
-static int bootdev_post_bind(struct udevice *dev)
-{
-	struct bootdev_uc_plat *ucp = dev_get_uclass_plat(dev);
-
-	INIT_LIST_HEAD(&ucp->bootflow_head);
-
-	return 0;
-}
-
 static int bootdev_pre_unbind(struct udevice *dev)
 {
-	bootdev_clear_bootflows(dev);
+	int ret;
+
+	ret = bootstd_clear_bootflows_for_bootdev(dev);
+	if (ret)
+		return log_msg_ret("bun", ret);
 
 	return 0;
 }
@@ -976,6 +941,5 @@ UCLASS_DRIVER(bootdev) = {
 	.name		= "bootdev",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_plat_auto	= sizeof(struct bootdev_uc_plat),
-	.post_bind	= bootdev_post_bind,
 	.pre_unbind	= bootdev_pre_unbind,
 };
