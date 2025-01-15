@@ -48,13 +48,13 @@ config TEGRA_COMMON
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
-	select DM_MMC
 	select DM_PWM
 	select DM_RESET
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
 	select MISC
+	select MMC
 	select MTD
 	select OF_CONTROL
 	select SPI
