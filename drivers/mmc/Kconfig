@@ -528,6 +528,7 @@ config SPL_MMC_SDHCI_ADMA
 
 config MMC_SDHCI_ADMA_FORCE_32BIT
 	bool "Force 32 bit mode for ADMA on 64 bit platforms"
+	depends on MMC_SDHCI_ADMA || SPL_MMC_SDHCI_ADMA
 	help
 	  This forces SDHCI ADMA to be built for 32 bit descriptors, even
 	  on a 64 bit platform where they would otherwise be assumed to
@@ -537,6 +538,7 @@ config MMC_SDHCI_ADMA_FORCE_32BIT
 
 config MMC_SDHCI_ADMA_64BIT
 	bool "Use SHDCI ADMA with 64 bit descriptors"
+	depends on MMC_SDHCI_ADMA || SPL_MMC_SDHCI_ADMA
 	depends on !MMC_SDHCI_ADMA_FORCE_32BIT
 	default y if DMA_ADDR_T_64BIT
 	help
