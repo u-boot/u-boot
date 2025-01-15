@@ -5,6 +5,7 @@
 
 #include <dm.h>
 #include <dm/of_access.h>
+#include <malloc.h>
 #include <tpm_api.h>
 #include <tpm-common.h>
 #include <tpm-v2.h>
@@ -19,6 +20,7 @@
 #include <linux/unaligned/generic.h>
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
+#include <bloblist.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
 		      u32 *bank_num)
@@ -615,15 +617,24 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 		elog->found = log.found;
 	}
 
-	/*
-	 * Initialize the log buffer if no log was discovered and the buffer is
-	 * valid. User's can pass in their own buffer as a fallback if no
-	 * memory region is found.
-	 */
-	if (!elog->found && elog->log_size)
-		rc = tcg2_log_init(dev, elog);
+	if (elog->found)
+		return 0;
 
-	return rc;
+	/*
+	 * Initialize the log buffer if no log was discovered.
+	 * User can pass in their own buffer as a fallback if no memory region
+	 * is found, else malloc a buffer if it does not exist.
+	 */
+	if (!elog->log_size) {
+		elog->log = malloc(CONFIG_TPM2_EVENT_LOG_SIZE);
+		if (!elog->log)
+			return -ENOMEM;
+
+		memset(elog->log, 0, CONFIG_TPM2_EVENT_LOG_SIZE);
+		elog->log_size = CONFIG_TPM2_EVENT_LOG_SIZE;
+	}
+
+	return tcg2_log_init(dev, elog);
 }
 
 int tcg2_measurement_init(struct udevice **dev, struct tcg2_event_log *elog,
@@ -676,9 +687,24 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 	const __be32 *size_prop;
 	int asize;
 	int ssize;
+	struct ofnode_phandle_args args;
+	phys_addr_t a;
+	fdt_size_t s;
 
 	*addr = NULL;
 	*size = 0;
+
+	*addr = bloblist_get_blob(BLOBLISTT_TPM_EVLOG, size);
+	if (*addr && *size)
+		return 0;
+	/*
+	 * TODO:
+	 * replace BLOBLIST with a new kconfig for handoff all components
+	 * (fdt, tpm event log, etc...) from previous boot stage via bloblist
+	 * mandatorily following Firmware Handoff spec.
+	 */
+	else if (CONFIG_IS_ENABLED(BLOBLIST))
+		return -ENODEV;
 
 	addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
 	if (!addr_prop)
@@ -694,22 +720,19 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 
 		*addr = map_physmem(a, s, MAP_NOCACHE);
 		*size = (u32)s;
-	} else {
-		struct ofnode_phandle_args args;
-		phys_addr_t a;
-		fdt_size_t s;
 
-		if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0,
-					       0, &args))
-			return -ENODEV;
-
-		a = ofnode_get_addr_size(args.node, "reg", &s);
-		if (a == FDT_ADDR_T_NONE)
-			return -ENOMEM;
-
-		*addr = map_physmem(a, s, MAP_NOCACHE);
-		*size = (u32)s;
+		return 0;
 	}
+
+	if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0, 0, &args))
+		return -ENODEV;
+
+	a = ofnode_get_addr_size(args.node, "reg", &s);
+	if (a == FDT_ADDR_T_NONE)
+		return -ENOMEM;
+
+	*addr = map_physmem(a, s, MAP_NOCACHE);
+	*size = (u32)s;
 
 	return 0;
 }
