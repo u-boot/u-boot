@@ -27,12 +27,17 @@ static int simple_read_version(const struct simple_priv *priv,
 {
 	int start;
 
-	if (priv->version_size > MMC_MAX_BLOCK_LEN)
-		return log_msg_ret("ver", -E2BIG);
+	/* we can use an assert() here since we already read only one block */
+	assert(priv->version_size <= MMC_MAX_BLOCK_LEN);
 
 	start = priv->area_start + priv->version_offset;
-	if (start & (MMC_MAX_BLOCK_LEN - 1))
-		return log_msg_ret("get", -EBADF);
+
+	/*
+	 * we can use an assert() here since reading the wrong block will just
+	 * cause an invalid version-string to be (safely) read
+	 */
+	assert(!(start & (MMC_MAX_BLOCK_LEN - 1)));
+
 	start /= MMC_MAX_BLOCK_LEN;
 
 	if (blk_read(blk, start, 1, buf) != 1)
@@ -51,12 +56,21 @@ static int simple_read_nvdata(const struct simple_priv *priv,
 	const struct vbe_nvdata *nvd;
 	int start;
 
-	if (priv->state_size > MMC_MAX_BLOCK_LEN)
-		return log_msg_ret("state", -E2BIG);
+	/* we can use an assert() here since we already read only one block */
+	assert(priv->state_size <= MMC_MAX_BLOCK_LEN);
 
 	start = priv->area_start + priv->state_offset;
-	if (start & (MMC_MAX_BLOCK_LEN - 1))
-		return log_msg_ret("get", -EBADF);
+
+	/*
+	 * We can use an assert() here since reading the wrong block will just
+	 * cause invalid state to be (safely) read. If the crc passes, then we
+	 * obtain invalid state and it will likely cause booting to fail.
+	 *
+	 * VBE relies on valid values being in U-Boot's devicetree, so this
+	 * should not every be wrong on a production device.
+	 */
+	assert(!(start & (MMC_MAX_BLOCK_LEN - 1)));
+
 	start /= MMC_MAX_BLOCK_LEN;
 
 	if (blk_read(blk, start, 1, buf) != 1)
@@ -67,7 +81,7 @@ static int simple_read_nvdata(const struct simple_priv *priv,
 	if (hdr_ver != NVD_HDR_VER_CUR)
 		return log_msg_ret("hdr", -EPERM);
 	size = 1 << hdr_size;
-	if (size > sizeof(*nvd))
+	if (!size || size > sizeof(*nvd))
 		return log_msg_ret("sz", -ENOEXEC);
 
 	crc = crc8(0, buf + 1, size - 1);
