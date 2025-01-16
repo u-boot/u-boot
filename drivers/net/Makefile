@@ -44,6 +44,7 @@ obj-$(CONFIG_FEC_MXC) += fec_mxc.o
 obj-$(CONFIG_FMAN_ENET) += fm/
 obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 obj-$(CONFIG_FSL_ENETC) += fsl_enetc.o fsl_enetc_mdio.o
+obj-$(CONFIG_FSL_ENETC_NETC_BLK_CTRL) += fsl_enetc_netc_blk_ctrl.o
 obj-$(CONFIG_FSL_LS_MDIO) += fsl_ls_mdio.o
 obj-$(CONFIG_FSL_MC_ENET) += fsl-mc/
 obj-$(CONFIG_FSL_MC_ENET) += ldpaa_eth/
