@@ -224,7 +224,7 @@ static int adp5585_probe(struct udevice *dev)
 }
 
 static const struct udevice_id adp5585_ids[] = {
-	{ .compatible = "adp5585" },
+	{ .compatible = "adi,adp5585" },
 	{ }
 };
 

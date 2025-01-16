@@ -3,14 +3,10 @@
  * Copyright 2019 NXP
  */
 
+#include <asm/arch/sys_proto.h>
+#include <asm/io.h>
 #include <env.h>
 #include <init.h>
-#include <asm/global_data.h>
-#include <miiphy.h>
-#include <netdev.h>
-#include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int board_mmc_get_env_dev(int devno)
 {
@@ -35,6 +31,10 @@ int board_init(void)
 
 int board_late_init(void)
 {
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
+	board_late_mmc_env_init();
+#endif
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "DDR4 EVK");
 	env_set("board_rev", "iMX8MN");

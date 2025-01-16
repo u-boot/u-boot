@@ -3,30 +3,11 @@
  * Copyright 2018 NXP
  */
 
-#include <env.h>
-#include <init.h>
-#include <malloc.h>
-#include <errno.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <miiphy.h>
-#include <netdev.h>
-#include <asm/mach-imx/iomux-v3.h>
-#include <asm-generic/gpio.h>
-#include <fsl_esdhc_imx.h>
-#include <mmc.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/imx8mq_pins.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/gpio.h>
-#include <asm/mach-imx/mxc_i2c.h>
-#include <asm/arch/clock.h>
-#include <spl.h>
-#include <linux/bitops.h>
-#include <power/pmic.h>
-#include <power/pfuze100_pmic.h>
-#include "../common/pfuze.h"
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <asm/mach-imx/iomux-v3.h>
+#include <env.h>
 
 #define UART_PAD_CTRL	(PAD_CTL_DSE6 | PAD_CTL_FSEL1)
 
@@ -69,6 +50,10 @@ int board_mmc_get_env_dev(int devno)
 
 int board_late_init(void)
 {
+#if CONFIG_IS_ENABLED(ENV_IS_IN_MMC)
+	board_late_mmc_env_init();
+#endif
+
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	env_set("board_name", "EVK");
 	env_set("board_rev", "iMX8MQ");
