@@ -1157,7 +1157,8 @@ static int create_gpt_partitions(struct stm32prog_data *data)
 
 			/* partition UUID */
 			uuid_bin = NULL;
-			if (!rootfs_found && !strcmp(part->name, "rootfs")) {
+			if (!rootfs_found && (!strcmp(part->name, "rootfs") ||
+					      !strcmp(part->name, "rootfs-a"))) {
 				mmc_id = part->dev_id;
 				rootfs_found = true;
 				if (mmc_id < ARRAY_SIZE(uuid_mmc))
