@@ -239,7 +239,7 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	if (ret < 0)
 		return log_msg_ret("ld", ret);
 	node = ret;
-	log_debug("loaded to %lx\n", load_addr);
+	log_debug("load %lx size %lx\n", load_addr, len);
 
 	fdt_load_addr = 0;
 	fdt_size = 0;
