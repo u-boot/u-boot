@@ -57,52 +57,62 @@ static void enetc_write(struct enetc_priv *priv, u32 off, u32 val)
 }
 
 /* base port register accessors */
-static void enetc_write_pmr(struct enetc_priv *priv, u32 val)
+static void enetc_write_pmr(struct udevice *dev, u32 val)
 {
-	const u32 off = ENETC_PMR + ENETC_PMR_OFFSET_LS;
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
+	const u32 off = ENETC_PMR + data->reg_offset_pmr;
 
 	enetc_write_reg(priv->port_regs + off, val);
 }
 
-static void enetc_write_psipmar(struct enetc_priv *priv, int n, u32 val)
+static void enetc_write_psipmar(struct udevice *dev, int n, u32 val)
 {
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
 	const u32 off = (n ? ENETC_PSIPMAR1 : ENETC_PSIPMAR0) +
-			ENETC_PSIPMARn_OFFSET_LS;
+			data->reg_offset_psipmar;
 
 	enetc_write_reg(priv->port_regs + off, val);
 }
 
 /* port station register accessors */
-static void enetc_write_psicfgr(struct enetc_priv *priv, int port, u32 val)
+static void enetc_write_psicfgr(struct udevice *dev, int port, u32 val)
 {
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
 	const u32 off = ENETC_PSICFGR(port, ENETC_PSICFGR_SHIFT_LS) +
-			ENETC_PSICFGR_OFFSET_LS;
+			data->reg_offset_psicfgr;
 
 	enetc_write_reg(priv->port_regs + off, val);
 }
 
 /* port register accessors */
-static u32 enetc_read_pcapr_mdio(struct enetc_priv *priv)
+static u32 enetc_read_pcapr_mdio(struct udevice *dev)
 {
-	const u32 off = ENETC_PCAPR0 + ENETC_PCAPR_OFFSET_LS;
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
+	const u32 off = ENETC_PCAPR0 + data->reg_offset_pcapr;
 	u32 reg = enetc_read_reg(priv->port_regs + off);
 
 	return reg & ENETC_PCAPRO_MDIO;
 }
 
 /* MAC port register accessors */
-static u32 enetc_read_mac_port(struct enetc_priv *priv, u32 off)
+static u32 enetc_read_mac_port(struct udevice *dev, u32 off)
 {
-	off += ENETC_PM_OFFSET_LS;
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
 
-	return enetc_read_reg(priv->port_regs + off);
+	return enetc_read_reg(priv->port_regs + data->reg_offset_mac + off);
 }
 
-static void enetc_write_mac_port(struct enetc_priv *priv, u32 off, u32 val)
+static void enetc_write_mac_port(struct udevice *dev, u32 off, u32 val)
 {
-	off += ENETC_PM_OFFSET_LS;
+	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
 
-	enetc_write_reg(priv->port_regs + off, val);
+	enetc_write_reg(priv->port_regs + data->reg_offset_mac + off, val);
 }
 
 /* BDR register accessor, see also ENETC_BDR() */
@@ -269,10 +279,9 @@ static int enetc_init_sgmii(struct udevice *dev)
 /* set up MAC for RGMII */
 static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 {
-	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 old_val, val;
 
-	old_val = val = enetc_read_mac_port(priv, ENETC_PM_IF_MODE);
+	old_val = val = enetc_read_mac_port(dev, ENETC_PM_IF_MODE);
 
 	/* disable unreliable RGMII in-band signaling and force the MAC into
 	 * the speed negotiated by the PHY.
@@ -298,7 +307,7 @@ static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 	if (val == old_val)
 		return;
 
-	enetc_write_mac_port(priv, ENETC_PM_IF_MODE, val);
+	enetc_write_mac_port(dev, ENETC_PM_IF_MODE, val);
 }
 
 /* set up MAC configuration for the given interface type */
@@ -318,9 +327,9 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 	case PHY_INTERFACE_MODE_USXGMII:
 	case PHY_INTERFACE_MODE_10GBASER:
 		/* set ifmode to (US)XGMII */
-		if_mode = enetc_read_mac_port(priv, ENETC_PM_IF_MODE);
+		if_mode = enetc_read_mac_port(dev, ENETC_PM_IF_MODE);
 		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
-		enetc_write_mac_port(priv, ENETC_PM_IF_MODE, if_mode);
+		enetc_write_mac_port(dev, ENETC_PM_IF_MODE, if_mode);
 		break;
 	};
 }
@@ -351,7 +360,7 @@ static void enetc_start_pcs(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* register internal MDIO for debug purposes */
-	if (enetc_read_pcapr_mdio(priv)) {
+	if (enetc_read_pcapr_mdio(dev)) {
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
@@ -501,7 +510,6 @@ static int enetc_ls1028a_write_hwaddr(struct udevice *dev)
 static int enetc_write_hwaddr(struct udevice *dev)
 {
 	struct eth_pdata *plat = dev_get_plat(dev);
-	struct enetc_priv *priv = dev_get_priv(dev);
 	u8 *addr = plat->enetaddr;
 
 	if (enetc_is_ls1028a(dev))
@@ -510,8 +518,8 @@ static int enetc_write_hwaddr(struct udevice *dev)
 	u16 lower = *(const u16 *)(addr + 4);
 	u32 upper = *(const u32 *)addr;
 
-	enetc_write_psipmar(priv, 0, upper);
-	enetc_write_psipmar(priv, 1, lower);
+	enetc_write_psipmar(dev, 0, upper);
+	enetc_write_psipmar(dev, 1, lower);
 
 	return 0;
 }
@@ -522,14 +530,14 @@ static void enetc_enable_si_port(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* set Rx/Tx BDR count */
-	enetc_write_psicfgr(priv, 0, ENETC_PSICFGR_SET_BDR(ENETC_RX_BDR_CNT,
-							   ENETC_TX_BDR_CNT));
+	enetc_write_psicfgr(dev, 0, ENETC_PSICFGR_SET_BDR(ENETC_RX_BDR_CNT,
+							  ENETC_TX_BDR_CNT));
 	/* set Rx max frame size */
-	enetc_write_mac_port(priv, ENETC_PM_MAXFRM, ENETC_RX_MAXFRM_SIZE);
+	enetc_write_mac_port(dev, ENETC_PM_MAXFRM, ENETC_RX_MAXFRM_SIZE);
 	/* enable MAC port */
-	enetc_write_mac_port(priv, ENETC_PM_CC, ENETC_PM_CC_RX_TX_EN);
+	enetc_write_mac_port(dev, ENETC_PM_CC, ENETC_PM_CC_RX_TX_EN);
 	/* enable port */
-	enetc_write_pmr(priv, ENETC_PMR_SI0_EN);
+	enetc_write_pmr(dev, ENETC_PMR_SI0_EN);
 	/* set SI cache policy */
 	enetc_write(priv, ENETC_SICAR0,
 		    ENETC_SICAR_RD_CFG | ENETC_SICAR_WR_CFG);
