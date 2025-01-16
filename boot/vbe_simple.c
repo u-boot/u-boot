@@ -44,7 +44,7 @@ static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
 		return log_msg_ret("get", -EBADF);
 	start /= MMC_MAX_BLOCK_LEN;
 
-	if (blk_dread(desc, start, 1, buf) != 1)
+	if (blk_read(desc->bdev, start, 1, buf) != 1)
 		return log_msg_ret("read", -EIO);
 	strlcpy(state->fw_version, buf, MAX_VERSION_LEN);
 	log_debug("version=%s\n", state->fw_version);
@@ -68,7 +68,7 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 		return log_msg_ret("get", -EBADF);
 	start /= MMC_MAX_BLOCK_LEN;
 
-	if (blk_dread(desc, start, 1, buf) != 1)
+	if (blk_read(desc->bdev, start, 1, buf) != 1)
 		return log_msg_ret("read", -EIO);
 	nvd = (struct simple_nvdata *)buf;
 	hdr_ver = (nvd->hdr & NVD_HDR_VER_MASK) >> NVD_HDR_VER_SHIFT;
