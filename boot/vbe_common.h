@@ -94,4 +94,32 @@ int vbe_read_version(struct udevice *blk, ulong offset, char *version,
  */
 int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf);
 
+/**
+ * vbe_read_fit() - Read an image from a FIT
+ *
+ * This handles most of the VBE logic for reading from a FIT. It reads the FIT
+ * metadata, decides which image to load and loads it to a suitable address,
+ * ready for jumping to the next phase of VBE.
+ *
+ * This supports transition from VPL to SPL as well as SPL to U-Boot proper. For
+ * now, TPL->VPL is not supported.
+ *
+ * Both embedded and external data are supported for the FIT
+ *
+ * @blk: Block device containing FIT
+ * @area_offset: Byte offset of the VBE area in @blk containing the FIT
+ * @area_size: Size of the VBE area
+ * @load_addrp: If non-null, returns the address where the image was loaded
+ * @lenp: If non-null, returns the size of the image loaded, in bytes
+ * @namep: If non-null, returns the name of the FIT-image node that was loaded
+ *	(allocated by this function)
+ * Return: 0 if OK, -EINVAL if the area does not contain an FDT (the underlying
+ * format for FIT), -E2BIG if the FIT extends past @area_size, -ENOMEM if there
+ * was not space to allocate the image-node name, other error if a read error
+ * occurred (see blk_read()), or something went wrong with the actually
+ * FIT-parsing (see fit_image_load()).
+ */
+int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
+		 ulong *load_addrp, ulong *lenp, char **namep);
+
 #endif /* __VBE_ABREC_H */

@@ -38,109 +38,23 @@
  */
 int vbe_simple_read_bootflow_fw(struct udevice *dev, struct bootflow *bflow)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(u8, sbuf, MMC_MAX_BLOCK_LEN);
 	struct udevice *media = dev_get_parent(bflow->dev);
 	struct udevice *meth = bflow->method;
 	struct simple_priv *priv = dev_get_priv(meth);
-	const char *fit_uname, *fit_uname_config;
-	struct bootm_headers images = {};
-	ulong offset, size, blknum, addr, len, load_addr, num_blks;
-	enum image_phase_t phase;
-	struct blk_desc *desc;
+	ulong len, load_addr;
 	struct udevice *blk;
-	int node, ret;
-	void *buf;
+	int ret;
 
 	log_debug("media=%s\n", media->name);
 	ret = blk_get_from_parent(media, &blk);
 	if (ret)
 		return log_msg_ret("med", ret);
 	log_debug("blk=%s\n", blk->name);
-	desc = dev_get_uclass_plat(blk);
 
-	offset = priv->area_start + priv->skip_offset;
-
-	/* read in one block to find the FIT size */
-	blknum =  offset / desc->blksz;
-	log_debug("read at %lx, blknum %lx\n", offset, blknum);
-	ret = blk_read(blk, blknum, 1, sbuf);
-	if (ret < 0)
-		return log_msg_ret("rd", ret);
-
-	ret = fdt_check_header(sbuf);
-	if (ret < 0)
-		return log_msg_ret("fdt", -EINVAL);
-	size = fdt_totalsize(sbuf);
-	if (size > priv->area_size)
-		return log_msg_ret("fdt", -E2BIG);
-	log_debug("FIT size %lx\n", size);
-
-	/*
-	 * Load the FIT into the SPL memory. This is typically a FIT with
-	 * external data, so this is quite small, perhaps a few KB.
-	 */
-	addr = CONFIG_VAL(TEXT_BASE);
-	buf = map_sysmem(addr, size);
-	num_blks = DIV_ROUND_UP(size, desc->blksz);
-	log_debug("read %lx, %lx blocks to %lx / %p\n", size, num_blks, addr,
-		  buf);
-	ret = blk_read(blk, blknum, num_blks, buf);
-	if (ret < 0)
-		return log_msg_ret("rd", ret);
-
-	/* figure out the phase to load */
-	phase = IS_ENABLED(CONFIG_VPL_BUILD) ? IH_PHASE_SPL : IH_PHASE_U_BOOT;
-
-	/*
-	 * Load the image from the FIT. We ignore any load-address information
-	 * so in practice this simply locates the image in the external-data
-	 * region and returns its address and size. Since we only loaded the FIT
-	 * itself, only a part of the image will be present, at best.
-	 */
-	fit_uname = NULL;
-	fit_uname_config = NULL;
-	log_debug("loading FIT\n");
-	ret = fit_image_load(&images, addr, &fit_uname, &fit_uname_config,
-			     IH_ARCH_SANDBOX, image_ph(phase, IH_TYPE_FIRMWARE),
-			     BOOTSTAGE_ID_FIT_SPL_START, FIT_LOAD_IGNORED,
-			     &load_addr, &len);
-	if (ret < 0)
-		return log_msg_ret("ld", ret);
-	node = ret;
-	log_debug("loaded to %lx\n", load_addr);
-
-	/* For FIT external data, read in the external data */
-	if (load_addr + len > addr + size) {
-		ulong base, full_size;
-		void *base_buf;
-
-		/* Find the start address to load from */
-		base = ALIGN_DOWN(load_addr, desc->blksz);
-
-		/*
-		 * Get the total number of bytes to load, taking care of
-		 * block alignment
-		 */
-		full_size = load_addr + len - base;
-
-		/*
-		 * Get the start block number, number of blocks and the address
-		 * to load to, then load the blocks
-		 */
-		blknum = (offset + base - addr) / desc->blksz;
-		num_blks = DIV_ROUND_UP(full_size, desc->blksz);
-		base_buf = map_sysmem(base, full_size);
-		ret = blk_read(blk, blknum, num_blks, base_buf);
-		log_debug("read %lx %lx, %lx blocks to %lx / %p: ret=%d\n",
-			  blknum, full_size, num_blks, base, base_buf, ret);
-		if (ret < 0)
-			return log_msg_ret("rd", ret);
-	}
+	ret = vbe_read_fit(blk, priv->area_start + priv->skip_offset,
+			   priv->area_size, &load_addr, &len, &bflow->name);
 
 	/* set up the bootflow with the info we obtained */
-	bflow->name = strdup(fdt_get_name(buf, node, NULL));
-	if (!bflow->name)
-		return log_msg_ret("name", -ENOMEM);
 	bflow->blk = blk;
 	bflow->buf = map_sysmem(load_addr, len);
 	bflow->size = len;
