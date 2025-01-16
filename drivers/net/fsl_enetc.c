@@ -23,6 +23,15 @@
 
 static int enetc_remove(struct udevice *dev);
 
+static int enetc_is_ls1028a(struct udevice *dev)
+{
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
+
+	/* Test whether this is LS1028A ENETC. This may be optimized out. */
+	return IS_ENABLED(CONFIG_ARCH_LS1028A) &&
+	       pplat->vendor == PCI_VENDOR_ID_FREESCALE;
+}
+
 /*
  * sets the MAC address in IERB registers, this setting is persistent and
  * carried over to Linux.
@@ -416,7 +425,7 @@ static int enetc_write_hwaddr(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u8 *addr = plat->enetaddr;
 
-	if (IS_ENABLED(CONFIG_ARCH_LS1028A))
+	if (enetc_is_ls1028a(dev))
 		return enetc_ls1028a_write_hwaddr(dev);
 
 	u16 lower = *(const u16 *)(addr + 4);
