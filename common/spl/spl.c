@@ -826,6 +826,18 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	}
 
 	spl_board_prepare_for_boot();
+
+	if (CONFIG_IS_ENABLED(RELOC_LOADER)) {
+		int ret;
+
+		ret = spl_reloc_jump(&spl_image, jump_to_image);
+		if (ret) {
+			if (xpl_phase() == PHASE_VPL)
+				printf("jump failed %d\n", ret);
+			hang();
+		}
+	}
+
 	jump_to_image(&spl_image);
 }
 
