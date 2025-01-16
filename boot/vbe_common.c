@@ -126,6 +126,8 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	ret = blk_read(blk, blknum, 1, sbuf);
 	if (ret < 0)
 		return log_msg_ret("rd", ret);
+	else if (ret != 1)
+		return log_msg_ret("rd2", -EIO);
 
 	ret = fdt_check_header(sbuf);
 	if (ret < 0)
@@ -214,6 +216,8 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 			  blknum, full_size, num_blks, base, base_buf, ret);
 		if (ret < 0)
 			return log_msg_ret("rd", ret);
+		if (ret != num_blks)
+			return log_msg_ret("rd", -EIO);
 	}
 	if (load_addrp)
 		*load_addrp = load_addr;
