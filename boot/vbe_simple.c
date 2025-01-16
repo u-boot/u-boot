@@ -21,15 +21,6 @@
 #include <u-boot/crc.h>
 #include "vbe_simple.h"
 
-/** struct simple_nvdata - storage format for non-volatile data */
-struct simple_nvdata {
-	u8 crc8;
-	u8 hdr;
-	u16 spare1;
-	u32 fw_vernum;
-	u8 spare2[0x38];
-};
-
 static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
 			       u8 *buf, struct simple_state *state)
 {
@@ -57,7 +48,7 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 {
 	struct simple_priv *priv = dev_get_priv(dev);
 	uint hdr_ver, hdr_size, size, crc;
-	const struct simple_nvdata *nvd;
+	const struct vbe_nvdata *nvd;
 	int start;
 
 	if (priv->state_size > MMC_MAX_BLOCK_LEN)
@@ -70,7 +61,7 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 
 	if (blk_read(desc->bdev, start, 1, buf) != 1)
 		return log_msg_ret("read", -EIO);
-	nvd = (struct simple_nvdata *)buf;
+	nvd = (struct vbe_nvdata *)buf;
 	hdr_ver = (nvd->hdr & NVD_HDR_VER_MASK) >> NVD_HDR_VER_SHIFT;
 	hdr_size = (nvd->hdr & NVD_HDR_SIZE_MASK) >> NVD_HDR_SIZE_SHIFT;
 	if (hdr_ver != NVD_HDR_VER_CUR)
