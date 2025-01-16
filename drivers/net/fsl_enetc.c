@@ -437,8 +437,9 @@ static int enetc_write_hwaddr(struct udevice *dev)
 }
 
 /* Configure port parameters (# of rings, frame size, enable port) */
-static void enetc_enable_si_port(struct enetc_priv *priv)
+static void enetc_enable_si_port(struct udevice *dev)
 {
+	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 val;
 
 	/* set Rx/Tx BDR count */
@@ -571,7 +572,7 @@ static int enetc_start(struct udevice *dev)
 	dm_pci_clrset_config16(dev, PCI_COMMAND, 0,
 			       PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 
-	enetc_enable_si_port(priv);
+	enetc_enable_si_port(dev);
 
 	/* setup Tx/Rx buffer descriptors */
 	enetc_setup_tx_bdr(dev);
