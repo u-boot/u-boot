@@ -32,6 +32,14 @@ static int enetc_is_ls1028a(struct udevice *dev)
 	       pplat->vendor == PCI_VENDOR_ID_FREESCALE;
 }
 
+static int enetc_dev_id(struct udevice *dev)
+{
+	if (enetc_is_ls1028a(dev))
+		return PCI_FUNC(pci_get_devfn(dev));
+
+	return 0;
+}
+
 /*
  * sets the MAC address in IERB registers, this setting is persistent and
  * carried over to Linux.
@@ -109,7 +117,7 @@ static int enetc_bind(struct udevice *dev)
 	 * PCI function # and enetc#N based on interface count
 	 */
 	if (ofnode_valid(dev_ofnode(dev)))
-		sprintf(name, "enetc-%u", PCI_FUNC(pci_get_devfn(dev)));
+		sprintf(name, "enetc-%u", enetc_dev_id(dev));
 	else
 		sprintf(name, "enetc#%u", eth_num_devices++);
 	device_set_name(dev, name);
