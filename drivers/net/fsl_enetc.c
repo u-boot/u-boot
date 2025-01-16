@@ -40,12 +40,16 @@ static int enetc_is_ls1028a(struct udevice *dev)
 #define IERB_PFMAC(pf, vf, n)	(IERB_BASE + 0x8000 + (pf) * 0x100 + (vf) * 8 \
 				 + (n) * 4)
 
-static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
-				       const u8 *enetaddr)
+static void enetc_set_ierb_primary_mac(struct udevice *dev, void *blob)
 {
-	static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
+	static int ierb_fn_to_pf[] = { 0, 1, 2, -1, -1, -1, 3 };
+	struct pci_child_plat *ppdata = dev_get_parent_plat(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	const u8 *enetaddr = pdata->enetaddr;
 	u16 lower = *(const u16 *)(enetaddr + 4);
 	u32 upper = *(const u32 *)enetaddr;
+	int devfn, offset;
+	char path[256];
 
 	if (enetc_is_ls1028a(dev)) {
 		/*
@@ -53,24 +57,30 @@ static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
 		 * there are plans to change its structure, keep this
 		 * LS1028A specific for now.
 		 */
+		devfn = PCI_FUNC(ppdata->devfn);
+
 		if (ierb_fn_to_pf[devfn] < 0)
 			return;
 
 		out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 0), upper);
 		out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 1), (u32)lower);
+
+		snprintf(path, 256, "/soc/pcie@1f0000000/ethernet@%x,%x",
+			 PCI_DEV(ppdata->devfn), PCI_FUNC(ppdata->devfn));
+	} else {
+		return;
 	}
+
+	offset = fdt_path_offset(blob, path);
+	if (offset >= 0)
+		fdt_setprop(blob, offset, "mac-address", pdata->enetaddr, 6);
 }
 
 /* sets up primary MAC addresses in DT/IERB */
 void fdt_fixup_enetc_mac(void *blob)
 {
-	struct pci_child_plat *ppdata;
-	struct eth_pdata *pdata;
 	struct udevice *dev;
 	struct uclass *uc;
-	char path[256];
-	int offset;
-	int devfn;
 
 	uclass_get(UCLASS_ETH, &uc);
 	uclass_foreach_dev(dev, uc) {
@@ -78,18 +88,7 @@ void fdt_fixup_enetc_mac(void *blob)
 		    strcmp(dev->driver->name, ENETC_DRIVER_NAME))
 			continue;
 
-		pdata = dev_get_plat(dev);
-		ppdata = dev_get_parent_plat(dev);
-		devfn = PCI_FUNC(ppdata->devfn);
-
-		enetc_set_ierb_primary_mac(dev, devfn, pdata->enetaddr);
-
-		snprintf(path, 256, "/soc/pcie@1f0000000/ethernet@%x,%x",
-			 PCI_DEV(ppdata->devfn), PCI_FUNC(ppdata->devfn));
-		offset = fdt_path_offset(blob, path);
-		if (offset < 0)
-			continue;
-		fdt_setprop(blob, offset, "mac-address", pdata->enetaddr, 6);
+		enetc_set_ierb_primary_mac(dev, blob);
 	}
 }
 
