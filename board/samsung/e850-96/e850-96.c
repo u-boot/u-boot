@@ -19,6 +19,11 @@ int dram_init_banksize(void)
 
 int board_init(void)
 {
-	load_ldfw();
+	int err;
+
+	err = load_ldfw();
+	if (err)
+		printf("ERROR: LDFW loading failed (%d)\n", err);
+
 	return 0;
 }
