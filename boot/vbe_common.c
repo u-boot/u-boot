@@ -183,6 +183,13 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 			     IH_ARCH_DEFAULT, image_ph(phase, IH_TYPE_FIRMWARE),
 			     BOOTSTAGE_ID_FIT_SPL_START, FIT_LOAD_IGNORED,
 			     &load_addr, &len);
+	if (ret == -ENOENT) {
+		ret = fit_image_load(&images, addr, &fit_uname,
+				     &fit_uname_config, IH_ARCH_DEFAULT,
+				     image_ph(phase, IH_TYPE_LOADABLE),
+				     BOOTSTAGE_ID_FIT_SPL_START,
+				     FIT_LOAD_IGNORED, &load_addr, &len);
+	}
 	if (ret < 0)
 		return log_msg_ret("ld", ret);
 	node = ret;
