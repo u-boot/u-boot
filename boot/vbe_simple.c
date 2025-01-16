@@ -21,10 +21,10 @@
 #include <u-boot/crc.h>
 #include "vbe_simple.h"
 
-static int simple_read_version(struct udevice *dev, struct udevice *blk,
-			       u8 *buf, struct simple_state *state)
+static int simple_read_version(const struct simple_priv *priv,
+			       struct udevice *blk, u8 *buf,
+			       struct simple_state *state)
 {
-	struct simple_priv *priv = dev_get_priv(dev);
 	int start;
 
 	if (priv->version_size > MMC_MAX_BLOCK_LEN)
@@ -43,10 +43,10 @@ static int simple_read_version(struct udevice *dev, struct udevice *blk,
 	return 0;
 }
 
-static int simple_read_nvdata(struct udevice *dev, struct udevice *blk,
-			      u8 *buf, struct simple_state *state)
+static int simple_read_nvdata(const struct simple_priv *priv,
+			      struct udevice *blk, u8 *buf,
+			      struct simple_state *state)
 {
-	struct simple_priv *priv = dev_get_priv(dev);
 	uint hdr_ver, hdr_size, size, crc;
 	const struct vbe_nvdata *nvd;
 	int start;
@@ -106,11 +106,11 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 		return log_msg_ret("get", -ENXIO);
 
 	blk = desc->bdev;
-	ret = simple_read_version(dev, blk, buf, state);
+	ret = simple_read_version(priv, blk, buf, state);
 	if (ret)
 		return log_msg_ret("ver", ret);
 
-	ret = simple_read_nvdata(dev, blk, buf, state);
+	ret = simple_read_nvdata(priv, blk, buf, state);
 	if (ret)
 		return log_msg_ret("nvd", ret);
 
