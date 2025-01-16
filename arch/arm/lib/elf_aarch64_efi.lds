@@ -32,9 +32,9 @@ SECTIONS
 	.rela.plt : { *(.rela.plt) }
 	.rela.got : { *(.rela.got) }
 	.rela.data : { *(.rela.data) *(.rela.data*) }
+	. = ALIGN(4096);
 	_etext = .;
 	_text_size = . - _text;
-	. = ALIGN(4096);
 	.data : {
 		_data = .;
 		*(.sdata)
