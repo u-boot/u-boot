@@ -114,6 +114,7 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	struct bootm_headers images = {};
 	enum image_phase_t phase;
 	struct blk_desc *desc;
+	ulong aligned_size;
 	int node, ret;
 	void *buf;
 
@@ -133,20 +134,37 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	if (size > area_size)
 		return log_msg_ret("fdt", -E2BIG);
 	log_debug("FIT size %lx\n", size);
+	aligned_size = ALIGN(size, desc->blksz);
 
 	/*
 	 * Load the FIT into the SPL memory. This is typically a FIT with
 	 * external data, so this is quite small, perhaps a few KB.
 	 */
-	addr = CONFIG_VAL(TEXT_BASE);
-	buf = map_sysmem(addr, size);
-	num_blks = DIV_ROUND_UP(size, desc->blksz);
-	log_debug("read %lx, %lx blocks to %lx / %p\n", size, num_blks, addr,
-		  buf);
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		addr = CONFIG_VAL(TEXT_BASE);
+		buf = map_sysmem(addr, size);
+	} else {
+		buf = malloc(aligned_size);
+		if (!buf)
+			return log_msg_ret("fit", -ENOMEM);
+		addr = map_to_sysmem(buf);
+	}
+	num_blks = aligned_size / desc->blksz;
+	log_debug("read %lx, %lx blocks to %lx / %p\n", aligned_size, num_blks,
+		  addr, buf);
 	ret = blk_read(blk, blknum, num_blks, buf);
 	if (ret < 0)
-		return log_msg_ret("rd", ret);
+		return log_msg_ret("rd3", ret);
+	else if (ret != num_blks)
+		return log_msg_ret("rd4", -EIO);
+	log_debug("check total size %x off_dt_strings %x\n", fdt_totalsize(buf),
+		  fdt_off_dt_strings(buf));
 
+#if CONFIG_IS_ENABLED(SYS_MALLOC_F)
+	log_debug("malloc base %lx ptr %x limit %x top %lx\n",
+		  gd->malloc_base, gd->malloc_ptr, gd->malloc_limit,
+		  gd->malloc_base + gd->malloc_limit);
+#endif
 	/* figure out the phase to load */
 	phase = IS_ENABLED(CONFIG_VPL_BUILD) ? IH_PHASE_SPL : IH_PHASE_U_BOOT;
 
@@ -169,7 +187,9 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	log_debug("loaded to %lx\n", load_addr);
 
 	/* For FIT external data, read in the external data */
-	if (load_addr + len > addr + size) {
+	log_debug("load_addr %lx len %lx addr %lx aligned_size %lx\n",
+		  load_addr, len, addr, aligned_size);
+	if (load_addr + len > addr + aligned_size) {
 		ulong base, full_size;
 		void *base_buf;
 
