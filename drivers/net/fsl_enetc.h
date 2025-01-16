@@ -168,6 +168,15 @@ struct enetc_priv {
 	struct phy_device *phy;
 };
 
+struct enetc_data {
+	/* Register layout offsets */
+	u16			reg_offset_pmr;
+	u16			reg_offset_psipmar;
+	u16			reg_offset_pcapr;
+	u16			reg_offset_psicfgr;
+	u16			reg_offset_mac;
+};
+
 /* PCS / internal SoC PHY ID, it defaults to 0 on all interfaces */
 #define ENETC_PCS_PHY_ADDR	0
 

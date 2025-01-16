@@ -786,8 +786,19 @@ U_BOOT_DRIVER(eth_enetc_ls) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 };
 
+static const struct enetc_data enetc_data_ls = {
+	.reg_offset_pmr		= ENETC_PMR_OFFSET_LS,
+	.reg_offset_psipmar	= ENETC_PSIPMARn_OFFSET_LS,
+	.reg_offset_pcapr	= ENETC_PCAPR_OFFSET_LS,
+	.reg_offset_psicfgr	= ENETC_PSICFGR_OFFSET_LS,
+	.reg_offset_mac		= ENETC_PM_OFFSET_LS,
+};
+
 static struct pci_device_id enetc_ids_ls[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_FREESCALE, PCI_DEVICE_ID_ENETC_ETH) },
+	{
+		PCI_DEVICE(PCI_VENDOR_ID_FREESCALE, PCI_DEVICE_ID_ENETC_ETH),
+		.driver_data = (ulong)&enetc_data_ls,
+	},
 	{}
 };
 
