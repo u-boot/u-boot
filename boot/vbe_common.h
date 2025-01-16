@@ -48,4 +48,17 @@ struct vbe_nvdata {
 	u8 spare2[0x34];
 };
 
+/**
+ * vbe_get_blk() - Obtain the block device to use for VBE
+ *
+ * Decodes the string to produce a block device
+ *
+ * @storage: String indicating the device to use, e.g. "mmc1"
+ * @blkp: Returns associated block device, on success
+ * Return 0 if OK, -ENODEV if @storage does not end with a number, -E2BIG if
+ * the device name is more than 15 characters, -ENXIO if the block device could
+ * not be found
+ */
+int vbe_get_blk(const char *storage, struct udevice **blkp);
+
 #endif /* __VBE_ABREC_H */

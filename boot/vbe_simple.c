@@ -98,28 +98,13 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct simple_priv *priv = dev_get_priv(dev);
-	struct blk_desc *desc;
 	struct udevice *blk;
-	char devname[16];
-	const char *end;
-	int devnum;
 	int ret;
 
-	/* First figure out the block device */
-	log_debug("storage=%s\n", priv->storage);
-	devnum = trailing_strtoln_end(priv->storage, NULL, &end);
-	if (devnum == -1)
-		return log_msg_ret("num", -ENODEV);
-	if (end - priv->storage >= sizeof(devname))
-		return log_msg_ret("end", -E2BIG);
-	strlcpy(devname, priv->storage, end - priv->storage + 1);
-	log_debug("dev=%s, %x\n", devname, devnum);
+	ret = vbe_get_blk(priv->storage, &blk);
+	if (ret)
+		return log_msg_ret("blk", ret);
 
-	desc = blk_get_dev(devname, devnum);
-	if (!desc)
-		return log_msg_ret("get", -ENXIO);
-
-	blk = desc->bdev;
 	ret = simple_read_version(priv, blk, buf, state);
 	if (ret)
 		return log_msg_ret("ver", ret);
