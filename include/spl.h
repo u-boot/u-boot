@@ -292,6 +292,9 @@ struct spl_image_info {
 #endif
 };
 
+/* function to jump to an image from SPL */
+typedef void __noreturn (*spl_jump_to_image_t)(struct spl_image_info *);
+
 static inline void *spl_image_fdt_addr(struct spl_image_info *info)
 {
 #if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
