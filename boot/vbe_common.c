@@ -192,32 +192,41 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	log_debug("load_addr %lx len %lx addr %lx aligned_size %lx\n",
 		  load_addr, len, addr, aligned_size);
 	if (load_addr + len > addr + aligned_size) {
-		ulong base, full_size;
+		ulong base, full_size, offset, extra;
 		void *base_buf;
 
 		/* Find the start address to load from */
 		base = ALIGN_DOWN(load_addr, desc->blksz);
 
+		offset = area_offset + load_addr - addr;
+		blknum = offset / desc->blksz;
+		extra = offset % desc->blksz;
+
 		/*
 		 * Get the total number of bytes to load, taking care of
 		 * block alignment
 		 */
-		full_size = load_addr + len - base;
+		full_size = len + extra;
 
 		/*
 		 * Get the start block number, number of blocks and the address
 		 * to load to, then load the blocks
 		 */
-		blknum = (area_offset + base - addr) / desc->blksz;
 		num_blks = DIV_ROUND_UP(full_size, desc->blksz);
 		base_buf = map_sysmem(base, full_size);
 		ret = blk_read(blk, blknum, num_blks, base_buf);
-		log_debug("read %lx %lx, %lx blocks to %lx / %p: ret=%d\n",
-			  blknum, full_size, num_blks, base, base_buf, ret);
+		log_debug("read foffset %lx blknum %lx full_size %lx num_blks %lx to %lx / %p: ret=%d\n",
+			  offset - 0x8000, blknum, full_size, num_blks, base, base_buf,
+			  ret);
 		if (ret < 0)
 			return log_msg_ret("rd", ret);
 		if (ret != num_blks)
 			return log_msg_ret("rd", -EIO);
+		if (extra && !IS_ENABLED(CONFIG_SANDBOX)) {
+			log_debug("move %p %p %lx\n", base_buf,
+				  base_buf + extra, len);
+			memmove(base_buf, base_buf + extra, len);
+		}
 	}
 	if (load_addrp)
 		*load_addrp = load_addr;
