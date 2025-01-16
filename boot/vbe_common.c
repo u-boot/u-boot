@@ -110,11 +110,11 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, sbuf, MMC_MAX_BLOCK_LEN);
 	ulong size, blknum, addr, len, load_addr, num_blks;
+	ulong aligned_size, fdt_load_addr, fdt_size;
 	const char *fit_uname, *fit_uname_config;
 	struct bootm_headers images = {};
 	enum image_phase_t phase;
 	struct blk_desc *desc;
-	ulong aligned_size;
 	int node, ret;
 	void *buf;
 
@@ -195,12 +195,16 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	node = ret;
 	log_debug("loaded to %lx\n", load_addr);
 
+	fdt_load_addr = 0;
+	fdt_size = 0;
+
 	/* For FIT external data, read in the external data */
 	log_debug("load_addr %lx len %lx addr %lx aligned_size %lx\n",
 		  load_addr, len, addr, aligned_size);
 	if (load_addr + len > addr + aligned_size) {
-		ulong base, full_size, offset, extra;
-		void *base_buf;
+		ulong base, full_size, offset, extra, fdt_base, fdt_full_size;
+		ulong fdt_offset;
+		void *base_buf, *fdt_base_buf;
 
 		/* Find the start address to load from */
 		base = ALIGN_DOWN(load_addr, desc->blksz);
@@ -233,6 +237,29 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 			log_debug("move %p %p %lx\n", base_buf,
 				  base_buf + extra, len);
 			memmove(base_buf, base_buf + extra, len);
+		}
+
+		/* now the FDT */
+		if (fdt_size) {
+			fdt_offset = area_offset + fdt_load_addr - addr;
+			blknum = fdt_offset / desc->blksz;
+			extra = fdt_offset % desc->blksz;
+			fdt_full_size = fdt_size + extra;
+			num_blks = DIV_ROUND_UP(fdt_full_size, desc->blksz);
+			fdt_base = ALIGN(base + len, 4);
+			fdt_base_buf = map_sysmem(fdt_base, fdt_size);
+			ret = blk_read(blk, blknum, num_blks, fdt_base_buf);
+			log_debug("fdt read foffset %lx blknum %lx full_size %lx num_blks %lx to %lx / %p: ret=%d\n",
+				  fdt_offset - 0x8000, blknum, fdt_full_size, num_blks,
+				  fdt_base, fdt_base_buf, ret);
+			if (ret != num_blks)
+				return log_msg_ret("rdf", -EIO);
+			if (extra) {
+				log_debug("move %p %p %lx\n", fdt_base_buf,
+					  fdt_base_buf + extra, fdt_size);
+				memmove(fdt_base_buf, fdt_base_buf + extra,
+					fdt_size);
+			}
 		}
 	}
 	if (load_addrp)
