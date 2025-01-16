@@ -148,6 +148,12 @@ int board_late_init(void)
 	case BOOT_DEVICE_ETHERNET:
 		env_set("boot", "net");
 		break;
+	case BOOT_DEVICE_UART:
+		env_set("boot", "uart");
+		break;
+	case BOOT_DEVICE_DFU:
+		env_set("boot", "usbdfu");
+		break;
 	};
 
 	if (IS_ENABLED(CONFIG_PHYTEC_SOM_DETECTION_BLOCKS)) {
