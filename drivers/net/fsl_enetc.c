@@ -689,7 +689,7 @@ static int enetc_recv(struct udevice *dev, int flags, uchar **packetp)
 	return len;
 }
 
-static const struct eth_ops enetc_ops = {
+static const struct eth_ops enetc_ops_ls = {
 	.start	= enetc_start,
 	.send	= enetc_send,
 	.recv	= enetc_recv,
@@ -697,20 +697,20 @@ static const struct eth_ops enetc_ops = {
 	.write_hwaddr = enetc_write_hwaddr,
 };
 
-U_BOOT_DRIVER(eth_enetc) = {
+U_BOOT_DRIVER(eth_enetc_ls) = {
 	.name	= ENETC_DRIVER_NAME,
 	.id	= UCLASS_ETH,
 	.bind	= enetc_bind,
 	.probe	= enetc_probe,
 	.remove = enetc_remove,
-	.ops	= &enetc_ops,
+	.ops	= &enetc_ops_ls,
 	.priv_auto	= sizeof(struct enetc_priv),
 	.plat_auto	= sizeof(struct eth_pdata),
 };
 
-static struct pci_device_id enetc_ids[] = {
+static struct pci_device_id enetc_ids_ls[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_FREESCALE, PCI_DEVICE_ID_ENETC_ETH) },
 	{}
 };
 
-U_BOOT_PCI_DEVICE(eth_enetc, enetc_ids);
+U_BOOT_PCI_DEVICE(eth_enetc_ls, enetc_ids_ls);
