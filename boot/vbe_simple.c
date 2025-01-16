@@ -21,7 +21,7 @@
 #include <u-boot/crc.h>
 #include "vbe_simple.h"
 
-static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
+static int simple_read_version(struct udevice *dev, struct udevice *blk,
 			       u8 *buf, struct simple_state *state)
 {
 	struct simple_priv *priv = dev_get_priv(dev);
@@ -35,7 +35,7 @@ static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
 		return log_msg_ret("get", -EBADF);
 	start /= MMC_MAX_BLOCK_LEN;
 
-	if (blk_read(desc->bdev, start, 1, buf) != 1)
+	if (blk_read(blk, start, 1, buf) != 1)
 		return log_msg_ret("read", -EIO);
 	strlcpy(state->fw_version, buf, MAX_VERSION_LEN);
 	log_debug("version=%s\n", state->fw_version);
@@ -43,7 +43,7 @@ static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
 	return 0;
 }
 
-static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
+static int simple_read_nvdata(struct udevice *dev, struct udevice *blk,
 			      u8 *buf, struct simple_state *state)
 {
 	struct simple_priv *priv = dev_get_priv(dev);
@@ -59,7 +59,7 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 		return log_msg_ret("get", -EBADF);
 	start /= MMC_MAX_BLOCK_LEN;
 
-	if (blk_read(desc->bdev, start, 1, buf) != 1)
+	if (blk_read(blk, start, 1, buf) != 1)
 		return log_msg_ret("read", -EIO);
 	nvd = (struct vbe_nvdata *)buf;
 	hdr_ver = (nvd->hdr & NVD_HDR_VER_MASK) >> NVD_HDR_VER_SHIFT;
@@ -85,6 +85,7 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct simple_priv *priv = dev_get_priv(dev);
 	struct blk_desc *desc;
+	struct udevice *blk;
 	char devname[16];
 	const char *end;
 	int devnum;
@@ -104,11 +105,12 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 	if (!desc)
 		return log_msg_ret("get", -ENXIO);
 
-	ret = simple_read_version(dev, desc, buf, state);
+	blk = desc->bdev;
+	ret = simple_read_version(dev, blk, buf, state);
 	if (ret)
 		return log_msg_ret("ver", ret);
 
-	ret = simple_read_nvdata(dev, desc, buf, state);
+	ret = simple_read_nvdata(dev, blk, buf, state);
 	if (ret)
 		return log_msg_ret("nvd", ret);
 
