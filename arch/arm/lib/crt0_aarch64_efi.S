@@ -41,7 +41,7 @@ optional_header:
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_etext - _start			/* SizeOfCode */
-	.long	0				/* SizeOfInitializedData */
+	.long	_data_size			/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
