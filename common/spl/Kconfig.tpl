@@ -268,6 +268,14 @@ config TPL_RAM_DEVICE
 	  be already in memory when TPL takes over, e.g. loaded by the boot
 	  ROM.
 
+config TPL_RELOC_LOADER
+	bool "Allow relocating the next phase"
+	help
+	  In some cases multiple U-Boot phases need to run in SRAM, typically
+	  at the same address. Enable this to support loading the next phase
+	  to temporary memory, then copying it into place afterwards, then
+	  jumping to it.
+
 config TPL_RTC
 	bool "Support RTC drivers"
 	help

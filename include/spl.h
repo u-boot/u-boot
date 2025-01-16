@@ -270,6 +270,16 @@ enum spl_sandbox_flags {
  * struct spl_image_info - Information about the SPL image being loaded
  *
  * @fdt_size: Size of the FDT for the image (0 if none)
+ * @buf: Buffer where the image should be loaded
+ * @fdt_buf: Buffer where the FDT will be copied by spl_reloc_jump(), only used
+ *	if @fdt_size is non-zero
+ * @fdt_start: Pointer to the FDT to be copied (must be set up before calling
+ *	spl_reloc_jump()
+ * @rcode_buf: Buffer to hold the relocating-jump code
+ * @stack_prot: Pointer to the stack-protection value, used to ensure the stack
+ *	does not overflow
+ * @reloc_offset: offset between the relocating-jump code and its place in the
+ *	currently running image
  */
 struct spl_image_info {
 	const char *name;
@@ -289,6 +299,14 @@ struct spl_image_info {
 	ulong dcrc_data;
 	ulong dcrc_length;
 	ulong dcrc;
+#endif
+#if CONFIG_IS_ENABLED(RELOC_LOADER)
+	void *buf;
+	void *fdt_buf;
+	void *fdt_start;
+	void *rcode_buf;
+	uint *stack_prot;
+	ulong reloc_offset;
 #endif
 };
 
@@ -1154,5 +1172,32 @@ int spl_write_upl_handoff(struct spl_image_info *spl_image);
  * This must be called before upl_add_image(), etc.
  */
 void spl_upl_init(void);
+
+/**
+ * spl_reloc_prepare() - Prepare the relocating loader ready for use
+ *
+ * Sets up the relocating loader ready for use. This must be called before
+ * spl_reloc_jump() can be used.
+ *
+ * The memory layout is figured out, making use of the space between the top of
+ * the current image and the top of memory.
+ *
+ * Once this is done, the relocating-jump code is copied into place at
+ * image->rcode_buf
+ *
+ * @image: SPL image containing information. This is updated with various
+ * necessary values. On entry, the size and fdt_size fields must be valid
+ * @addrp: Returns the address to which the image should be loaded into memory
+ * Return 0 if OK, -ENOSPC if there is not enough memory available
+ */
+int spl_reloc_prepare(struct spl_image_info *image, ulong *addrp);
+
+/**
+ * spl_reloc_jump() - Jump to an image, via a 'relocating-jump' region
+ *
+ * @image: SPL image to jump to
+ * @func: Function to call in the final image
+ */
+int spl_reloc_jump(struct spl_image_info *image, spl_jump_to_image_t func);
 
 #endif
