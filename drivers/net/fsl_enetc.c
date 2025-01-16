@@ -36,29 +36,29 @@ static int enetc_is_ls1028a(struct udevice *dev)
  * sets the MAC address in IERB registers, this setting is persistent and
  * carried over to Linux.
  */
-static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
-				       const u8 *enetaddr)
-{
-#ifdef CONFIG_ARCH_LS1028A
-/*
- * LS1028A is the only part with IERB at this time and there are plans to change
- * its structure, keep this LS1028A specific for now
- */
 #define IERB_BASE		0x1f0800000ULL
 #define IERB_PFMAC(pf, vf, n)	(IERB_BASE + 0x8000 + (pf) * 0x100 + (vf) * 8 \
 				 + (n) * 4)
 
-static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
-
+static void enetc_set_ierb_primary_mac(struct udevice *dev, int devfn,
+				       const u8 *enetaddr)
+{
+	static int ierb_fn_to_pf[] = {0, 1, 2, -1, -1, -1, 3};
 	u16 lower = *(const u16 *)(enetaddr + 4);
 	u32 upper = *(const u32 *)enetaddr;
 
-	if (ierb_fn_to_pf[devfn] < 0)
-		return;
+	if (enetc_is_ls1028a(dev)) {
+		/*
+		 * LS1028A is the only part with IERB at this time and
+		 * there are plans to change its structure, keep this
+		 * LS1028A specific for now.
+		 */
+		if (ierb_fn_to_pf[devfn] < 0)
+			return;
 
-	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 0), upper);
-	out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 1), (u32)lower);
-#endif
+		out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 0), upper);
+		out_le32(IERB_PFMAC(ierb_fn_to_pf[devfn], 0, 1), (u32)lower);
+	}
 }
 
 /* sets up primary MAC addresses in DT/IERB */
