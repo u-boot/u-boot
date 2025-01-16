@@ -56,14 +56,52 @@ static void enetc_write(struct enetc_priv *priv, u32 off, u32 val)
 	enetc_write_reg(priv->regs_base + off, val);
 }
 
-/* port register accessors */
-static u32 enetc_read_port(struct enetc_priv *priv, u32 off)
+/* base port register accessors */
+static void enetc_write_pmr(struct enetc_priv *priv, u32 val)
 {
+	const u32 off = ENETC_PMR + ENETC_PMR_OFFSET_LS;
+
+	enetc_write_reg(priv->port_regs + off, val);
+}
+
+static void enetc_write_psipmar(struct enetc_priv *priv, int n, u32 val)
+{
+	const u32 off = (n ? ENETC_PSIPMAR1 : ENETC_PSIPMAR0) +
+			ENETC_PSIPMARn_OFFSET_LS;
+
+	enetc_write_reg(priv->port_regs + off, val);
+}
+
+/* port station register accessors */
+static void enetc_write_psicfgr(struct enetc_priv *priv, int port, u32 val)
+{
+	const u32 off = ENETC_PSICFGR(port, ENETC_PSICFGR_SHIFT_LS) +
+			ENETC_PSICFGR_OFFSET_LS;
+
+	enetc_write_reg(priv->port_regs + off, val);
+}
+
+/* port register accessors */
+static u32 enetc_read_pcapr_mdio(struct enetc_priv *priv)
+{
+	const u32 off = ENETC_PCAPR0 + ENETC_PCAPR_OFFSET_LS;
+	u32 reg = enetc_read_reg(priv->port_regs + off);
+
+	return reg & ENETC_PCAPRO_MDIO;
+}
+
+/* MAC port register accessors */
+static u32 enetc_read_mac_port(struct enetc_priv *priv, u32 off)
+{
+	off += ENETC_PM_OFFSET_LS;
+
 	return enetc_read_reg(priv->port_regs + off);
 }
 
-static void enetc_write_port(struct enetc_priv *priv, u32 off, u32 val)
+static void enetc_write_mac_port(struct enetc_priv *priv, u32 off, u32 val)
 {
+	off += ENETC_PM_OFFSET_LS;
+
 	enetc_write_reg(priv->port_regs + off, val);
 }
 
@@ -234,7 +272,7 @@ static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 	u32 old_val, val;
 
-	old_val = val = enetc_read_port(priv, ENETC_PM_IF_MODE);
+	old_val = val = enetc_read_mac_port(priv, ENETC_PM_IF_MODE);
 
 	/* disable unreliable RGMII in-band signaling and force the MAC into
 	 * the speed negotiated by the PHY.
@@ -260,7 +298,7 @@ static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 	if (val == old_val)
 		return;
 
-	enetc_write_port(priv, ENETC_PM_IF_MODE, val);
+	enetc_write_mac_port(priv, ENETC_PM_IF_MODE, val);
 }
 
 /* set up MAC configuration for the given interface type */
@@ -280,9 +318,9 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 	case PHY_INTERFACE_MODE_USXGMII:
 	case PHY_INTERFACE_MODE_10GBASER:
 		/* set ifmode to (US)XGMII */
-		if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
+		if_mode = enetc_read_mac_port(priv, ENETC_PM_IF_MODE);
 		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
-		enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+		enetc_write_mac_port(priv, ENETC_PM_IF_MODE, if_mode);
 		break;
 	};
 }
@@ -313,7 +351,7 @@ static void enetc_start_pcs(struct udevice *dev)
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* register internal MDIO for debug purposes */
-	if (enetc_read_port(priv, ENETC_PCAPR0) & ENETC_PCAPRO_MDIO) {
+	if (enetc_read_pcapr_mdio(priv)) {
 		priv->imdio.read = enetc_mdio_read;
 		priv->imdio.write = enetc_mdio_write;
 		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
@@ -472,8 +510,8 @@ static int enetc_write_hwaddr(struct udevice *dev)
 	u16 lower = *(const u16 *)(addr + 4);
 	u32 upper = *(const u32 *)addr;
 
-	enetc_write_port(priv, ENETC_PSIPMAR0, upper);
-	enetc_write_port(priv, ENETC_PSIPMAR1, lower);
+	enetc_write_psipmar(priv, 0, upper);
+	enetc_write_psipmar(priv, 1, lower);
 
 	return 0;
 }
@@ -482,18 +520,16 @@ static int enetc_write_hwaddr(struct udevice *dev)
 static void enetc_enable_si_port(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
-	u32 val;
 
 	/* set Rx/Tx BDR count */
-	val = ENETC_PSICFGR_SET_TXBDR(ENETC_TX_BDR_CNT);
-	val |= ENETC_PSICFGR_SET_RXBDR(ENETC_RX_BDR_CNT);
-	enetc_write_port(priv, ENETC_PSICFGR(0), val);
+	enetc_write_psicfgr(priv, 0, ENETC_PSICFGR_SET_BDR(ENETC_RX_BDR_CNT,
+							   ENETC_TX_BDR_CNT));
 	/* set Rx max frame size */
-	enetc_write_port(priv, ENETC_PM_MAXFRM, ENETC_RX_MAXFRM_SIZE);
+	enetc_write_mac_port(priv, ENETC_PM_MAXFRM, ENETC_RX_MAXFRM_SIZE);
 	/* enable MAC port */
-	enetc_write_port(priv, ENETC_PM_CC, ENETC_PM_CC_RX_TX_EN);
+	enetc_write_mac_port(priv, ENETC_PM_CC, ENETC_PM_CC_RX_TX_EN);
 	/* enable port */
-	enetc_write_port(priv, ENETC_PMR, ENETC_PMR_SI0_EN);
+	enetc_write_pmr(priv, ENETC_PMR_SI0_EN);
 	/* set SI cache policy */
 	enetc_write(priv, ENETC_SICAR0,
 		    ENETC_SICAR_RD_CFG | ENETC_SICAR_WR_CFG);

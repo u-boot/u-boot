@@ -57,24 +57,29 @@ enum enetc_bdr_type {TX, RX};
 #define ENETC_PORT_REGS_OFF		0x10000
 
 /* Port registers */
+#define ENETC_PMR_OFFSET_LS		0x0000
 #define ENETC_PMR			0x0000
 #define  ENETC_PMR_SI0_EN		BIT(16)
 #define ENETC_PSIPMMR			0x0018
-#define ENETC_PSIPMAR0			0x0100
-#define ENETC_PSIPMAR1			0x0104
-#define ENETC_PCAPR0			0x0900
+#define ENETC_PSIPMARn_OFFSET_LS	0x0080
+#define ENETC_PSIPMAR0			0x0080
+#define ENETC_PSIPMAR1			0x0084
+#define ENETC_PCAPR_OFFSET_LS		0x0900
+#define ENETC_PCAPR0			0x0000
 #define  ENETC_PCAPRO_MDIO		BIT(11)
-#define ENETC_PSICFGR(n)		(0x0940 + (n) * 0x10)
-#define  ENETC_PSICFGR_SET_TXBDR(val)	((val) & 0xff)
-#define  ENETC_PSICFGR_SET_RXBDR(val)	(((val) & 0xff) << 16)
+#define ENETC_PSICFGR_OFFSET_LS		0x0940
+#define ENETC_PSICFGR_SHIFT_LS		0x10
+#define ENETC_PSICFGR(n, s)		((n) * (s))
+#define  ENETC_PSICFGR_SET_BDR(rx, tx)	(((rx) << 16) | (tx))
 /* MAC configuration */
-#define ENETC_PM_CC			0x8008
+#define ENETC_PM_OFFSET_LS		0x8000
+#define ENETC_PM_CC			0x0008
 #define  ENETC_PM_CC_DEFAULT		0x0810
 #define  ENETC_PM_CC_RX_TX_EN		0x8813
-#define ENETC_PM_MAXFRM			0x8014
+#define ENETC_PM_MAXFRM			0x0014
 #define  ENETC_RX_MAXFRM_SIZE		PKTSIZE_ALIGN
-#define ENETC_PM_IMDIO_BASE		0x8030
-#define ENETC_PM_IF_MODE		0x8300
+#define ENETC_PM_IMDIO_BASE		0x0030
+#define ENETC_PM_IF_MODE		0x0300
 #define  ENETC_PM_IF_MODE_RG		BIT(2)
 #define  ENETC_PM_IF_MODE_AN_ENA	BIT(15)
 #define  ENETC_PM_IFM_SSP_MASK		GENMASK(14, 13)
