@@ -5,6 +5,8 @@
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <charset.h>
 #include <cp1250.h>
 #include <cp437.h>

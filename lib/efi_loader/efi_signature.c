@@ -4,6 +4,8 @@
  * Copyright (c) 2019 Linaro Limited, Author: AKASHI Takahiro
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <charset.h>
 #include <efi_loader.h>
 #include <efi_variable.h>

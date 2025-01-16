@@ -5,6 +5,8 @@
  * Copyright (c) 2020 Heinrich Schuchardt
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_dt_fixup.h>
 #include <efi_loader.h>
 #include <efi_rng.h>

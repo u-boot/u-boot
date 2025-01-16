@@ -5,6 +5,8 @@
  *  Copyright (C) 2021 Arm Ltd.
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <log.h>
 #include <efi_api.h>
