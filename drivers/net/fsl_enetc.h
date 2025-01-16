@@ -163,26 +163,6 @@ struct enetc_priv {
 	struct phy_device *phy;
 };
 
-/* register accessors */
-#define enetc_read_reg(x)	readl((x))
-#define enetc_write_reg(x, val)	writel((val), (x))
-#define enetc_read(priv, off)	enetc_read_reg((priv)->regs_base + (off))
-#define enetc_write(priv, off, v) \
-			enetc_write_reg((priv)->regs_base + (off), v)
-
-/* port register accessors */
-#define enetc_port_regs(priv, off) ((priv)->port_regs + (off))
-#define enetc_read_port(priv, off) \
-			enetc_read_reg(enetc_port_regs((priv), (off)))
-#define enetc_write_port(priv, off, v) \
-			enetc_write_reg(enetc_port_regs((priv), (off)), v)
-
-/* BDR register accessors, see ENETC_BDR() */
-#define enetc_bdr_read(priv, t, n, off) \
-			enetc_read(priv, ENETC_BDR(t, n, off))
-#define enetc_bdr_write(priv, t, n, off, val) \
-			enetc_write(priv, ENETC_BDR(t, n, off), val)
-
 /* PCS / internal SoC PHY ID, it defaults to 0 on all interfaces */
 #define ENETC_PCS_PHY_ADDR	0
 

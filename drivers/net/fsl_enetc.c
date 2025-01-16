@@ -40,6 +40,40 @@ static int enetc_dev_id(struct udevice *dev)
 	return 0;
 }
 
+/* register accessors */
+static u32 enetc_read_reg(void __iomem *addr)
+{
+	return readl(addr);
+}
+
+static void enetc_write_reg(void __iomem *addr, u32 val)
+{
+	writel(val, addr);
+}
+
+static void enetc_write(struct enetc_priv *priv, u32 off, u32 val)
+{
+	enetc_write_reg(priv->regs_base + off, val);
+}
+
+/* port register accessors */
+static u32 enetc_read_port(struct enetc_priv *priv, u32 off)
+{
+	return enetc_read_reg(priv->port_regs + off);
+}
+
+static void enetc_write_port(struct enetc_priv *priv, u32 off, u32 val)
+{
+	enetc_write_reg(priv->port_regs + off, val);
+}
+
+/* BDR register accessor, see also ENETC_BDR() */
+static void enetc_bdr_write(struct enetc_priv *priv, int type, int n,
+			    u32 off, u32 val)
+{
+	enetc_write(priv, ENETC_BDR(type, n, off), val);
+}
+
 /*
  * sets the MAC address in IERB registers, this setting is persistent and
  * carried over to Linux.

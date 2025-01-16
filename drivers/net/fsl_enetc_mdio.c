@@ -14,6 +14,16 @@
 
 #include "fsl_enetc.h"
 
+static u32 enetc_read(struct enetc_mdio_priv *priv, u32 off)
+{
+	return readl(priv->regs_base + off);
+}
+
+static void enetc_write(struct enetc_mdio_priv *priv, u32 off, u32 val)
+{
+	writel(val, priv->regs_base + off);
+}
+
 static void enetc_mdio_wait_bsy(struct enetc_mdio_priv *priv)
 {
 	int to = 10000;
