@@ -52,7 +52,8 @@ int vbe_simple_read_bootflow_fw(struct udevice *dev, struct bootflow *bflow)
 	log_debug("blk=%s\n", blk->name);
 
 	ret = vbe_read_fit(blk, priv->area_start + priv->skip_offset,
-			   priv->area_size, &load_addr, &len, &bflow->name);
+			   priv->area_size, NULL, &load_addr, &len,
+			   &bflow->name);
 
 	/* set up the bootflow with the info we obtained */
 	bflow->blk = blk;

@@ -16,6 +16,11 @@
 #include <u-boot/crc.h>
 #include "vbe_common.h"
 
+binman_sym_declare(ulong, u_boot_vpl_nodtb, size);
+binman_sym_declare(ulong, u_boot_vpl_bss_pad, size);
+binman_sym_declare(ulong, u_boot_spl_nodtb, size);
+binman_sym_declare(ulong, u_boot_spl_bss_pad, size);
+
 int vbe_get_blk(const char *storage, struct udevice **blkp)
 {
 	struct blk_desc *desc;
@@ -105,17 +110,43 @@ int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf)
 	return 0;
 }
 
+/**
+ * h_vbe_load_read() - Handler for reading an SPL image from a FIT
+ *
+ * See spl_load_reader for the definition
+ */
+ulong h_vbe_load_read(struct spl_load_info *load, ulong off, ulong size,
+		      void *buf)
+{
+	struct blk_desc *desc = load->priv;
+	lbaint_t sector = off >> desc->log2blksz;
+	lbaint_t count = size >> desc->log2blksz;
+	int ret;
+
+	log_debug("vbe read log2blksz %x offset %lx sector %lx count %lx\n",
+		  desc->log2blksz, (ulong)off, (long)sector, (ulong)count);
+
+	ret = blk_dread(desc, sector, count, buf);
+	log_debug("ret=%x\n", ret);
+	if (ret < 0)
+		return ret;
+
+	return ret << desc->log2blksz;
+}
+
 int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
-		 ulong *load_addrp, ulong *lenp, char **namep)
+		 struct spl_image_info *image, ulong *load_addrp, ulong *lenp,
+		 char **namep)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u8, sbuf, MMC_MAX_BLOCK_LEN);
-	ulong size, blknum, addr, len, load_addr, num_blks;
+	ulong size, blknum, addr, len, load_addr, num_blks, spl_load_addr;
 	ulong aligned_size, fdt_load_addr, fdt_size;
 	const char *fit_uname, *fit_uname_config;
 	struct bootm_headers images = {};
 	enum image_phase_t phase;
 	struct blk_desc *desc;
 	int node, ret;
+	bool for_xpl;
 	void *buf;
 
 	desc = dev_get_uclass_plat(blk);
@@ -168,7 +199,8 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 		  gd->malloc_base + gd->malloc_limit);
 #endif
 	/* figure out the phase to load */
-	phase = IS_ENABLED(CONFIG_VPL_BUILD) ? IH_PHASE_SPL : IH_PHASE_U_BOOT;
+	phase = IS_ENABLED(CONFIG_TPL_BUILD) ? IH_PHASE_NONE :
+		IS_ENABLED(CONFIG_VPL_BUILD) ? IH_PHASE_SPL : IH_PHASE_U_BOOT;
 
 	/*
 	 * Load the image from the FIT. We ignore any load-address information
@@ -179,6 +211,20 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 	fit_uname = NULL;
 	fit_uname_config = NULL;
 	log_debug("loading FIT\n");
+
+	if (xpl_phase() == PHASE_SPL && !IS_ENABLED(CONFIG_SANDBOX)) {
+		struct spl_load_info info;
+
+		spl_load_init(&info, h_vbe_load_read, desc, desc->blksz);
+		xpl_set_phase(&info, IH_PHASE_U_BOOT);
+		log_debug("doing SPL from %s blksz %lx log2blksz %x area_offset %lx + fdt_size %lx\n",
+			  blk->name, desc->blksz, desc->log2blksz, area_offset, ALIGN(size, 4));
+		ret = spl_load_simple_fit(image, &info, area_offset, buf);
+		log_debug("spl_load_abrec_fit() ret=%d\n", ret);
+
+		return ret;
+	}
+
 	ret = fit_image_load(&images, addr, &fit_uname, &fit_uname_config,
 			     IH_ARCH_DEFAULT, image_ph(phase, IH_TYPE_FIRMWARE),
 			     BOOTSTAGE_ID_FIT_SPL_START, FIT_LOAD_IGNORED,
@@ -197,6 +243,31 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 
 	fdt_load_addr = 0;
 	fdt_size = 0;
+	if ((xpl_phase() == PHASE_TPL || xpl_phase() == PHASE_VPL) &&
+	    !IS_ENABLED(CONFIG_SANDBOX)) {
+		/* allow use of a different image from the configuration node */
+		fit_uname = NULL;
+		ret = fit_image_load(&images, addr, &fit_uname,
+				     &fit_uname_config, IH_ARCH_DEFAULT,
+				     image_ph(phase, IH_TYPE_FLATDT),
+				     BOOTSTAGE_ID_FIT_SPL_START,
+				     FIT_LOAD_IGNORED, &fdt_load_addr,
+				     &fdt_size);
+		fdt_size = ALIGN(fdt_size, desc->blksz);
+		log_debug("FDT noload to %lx size %lx\n", fdt_load_addr,
+			  fdt_size);
+	}
+
+	for_xpl = !USE_BOOTMETH && CONFIG_IS_ENABLED(RELOC_LOADER);
+	if (for_xpl) {
+		image->size = len;
+		image->fdt_size = fdt_size;
+		ret = spl_reloc_prepare(image, &spl_load_addr);
+		if (ret)
+			return log_msg_ret("spl", ret);
+	}
+	if (!IS_ENABLED(CONFIG_SANDBOX))
+		image->os = IH_OS_U_BOOT;
 
 	/* For FIT external data, read in the external data */
 	log_debug("load_addr %lx len %lx addr %lx aligned_size %lx\n",
@@ -224,6 +295,8 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 		 * to load to, then load the blocks
 		 */
 		num_blks = DIV_ROUND_UP(full_size, desc->blksz);
+		if (for_xpl)
+			base = spl_load_addr;
 		base_buf = map_sysmem(base, full_size);
 		ret = blk_read(blk, blknum, num_blks, base_buf);
 		log_debug("read foffset %lx blknum %lx full_size %lx num_blks %lx to %lx / %p: ret=%d\n",
@@ -237,6 +310,12 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 			log_debug("move %p %p %lx\n", base_buf,
 				  base_buf + extra, len);
 			memmove(base_buf, base_buf + extra, len);
+		}
+
+		if ((xpl_phase() == PHASE_VPL || xpl_phase() == PHASE_TPL) &&
+		    !IS_ENABLED(CONFIG_SANDBOX)) {
+			image->load_addr = spl_get_image_text_base();
+			image->entry_point = image->load_addr;
 		}
 
 		/* now the FDT */

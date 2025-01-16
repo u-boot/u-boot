@@ -11,7 +11,17 @@
 
 #include <linux/types.h>
 
+struct spl_image_info;
 struct udevice;
+
+/*
+ * Controls whether we use a full bootmeth driver with VBE in this phase, or
+ * just access the information directly.
+ *
+ * For now VBE-simple uses the full bootmeth, but VBE-abrec does not, to reduce
+ * code size
+ */
+#define USE_BOOTMETH	CONFIG_IS_ENABLED(BOOTMETH_VBE_SIMPLE)
 
 enum {
 	MAX_VERSION_LEN		= 256,
@@ -109,6 +119,7 @@ int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf);
  * @blk: Block device containing FIT
  * @area_offset: Byte offset of the VBE area in @blk containing the FIT
  * @area_size: Size of the VBE area
+ * @image: SPL image to fill in with details of the loaded image, or NULL
  * @load_addrp: If non-null, returns the address where the image was loaded
  * @lenp: If non-null, returns the size of the image loaded, in bytes
  * @namep: If non-null, returns the name of the FIT-image node that was loaded
@@ -120,6 +131,7 @@ int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf);
  * FIT-parsing (see fit_image_load()).
  */
 int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
-		 ulong *load_addrp, ulong *lenp, char **namep);
+		 struct spl_image_info *image, ulong *load_addrp, ulong *lenp,
+		 char **namep);
 
 #endif /* __VBE_ABREC_H */
