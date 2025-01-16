@@ -21,33 +21,6 @@
 #include <u-boot/crc.h>
 #include "vbe_simple.h"
 
-static int simple_read_version(const struct simple_priv *priv,
-			       struct udevice *blk, u8 *buf,
-			       struct simple_state *state)
-{
-	int start;
-
-	/* we can use an assert() here since we already read only one block */
-	assert(priv->version_size <= MMC_MAX_BLOCK_LEN);
-
-	start = priv->area_start + priv->version_offset;
-
-	/*
-	 * we can use an assert() here since reading the wrong block will just
-	 * cause an invalid version-string to be (safely) read
-	 */
-	assert(!(start & (MMC_MAX_BLOCK_LEN - 1)));
-
-	start /= MMC_MAX_BLOCK_LEN;
-
-	if (blk_read(blk, start, 1, buf) != 1)
-		return log_msg_ret("read", -EIO);
-	strlcpy(state->fw_version, buf, MAX_VERSION_LEN);
-	log_debug("version=%s\n", state->fw_version);
-
-	return 0;
-}
-
 static int simple_read_nvdata(const struct simple_priv *priv,
 			      struct udevice *blk, u8 *buf,
 			      struct simple_state *state)
@@ -105,7 +78,8 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 	if (ret)
 		return log_msg_ret("blk", ret);
 
-	ret = simple_read_version(priv, blk, buf, state);
+	ret = vbe_read_version(blk, priv->area_start + priv->version_offset,
+			       state->fw_version, MAX_VERSION_LEN);
 	if (ret)
 		return log_msg_ret("ver", ret);
 

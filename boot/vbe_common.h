@@ -61,4 +61,21 @@ struct vbe_nvdata {
  */
 int vbe_get_blk(const char *storage, struct udevice **blkp);
 
+/**
+ * vbe_read_version() - Read version-string from a block device
+ *
+ * Reads the VBE version-string from a device. This function reads a single
+ * block from the device, so the string cannot be larger than that. It uses a
+ * temporary buffer for the read, then copies in up to @size bytes
+ *
+ * @blk: Device to read from
+ * @offset: Offset to read, in bytes
+ * @version: Place to put the string
+ * @max_size: Maximum size of @version
+ * Return: 0 if OK, -E2BIG if @max_size > block size, -EBADF if the offset is
+ * not block-aligned, -EIO if an I/O error occurred
+ */
+int vbe_read_version(struct udevice *blk, ulong offset, char *version,
+		     int max_size);
+
 #endif /* __VBE_ABREC_H */

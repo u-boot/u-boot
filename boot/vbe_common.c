@@ -6,8 +6,9 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include <part.h>
-#include <vsprintf.h>
+#include <blk.h>
+#include <memalign.h>
+#include <spl.h>
 #include "vbe_common.h"
 
 int vbe_get_blk(const char *storage, struct udevice **blkp)
@@ -31,6 +32,30 @@ int vbe_get_blk(const char *storage, struct udevice **blkp)
 	if (!desc)
 		return log_msg_ret("get", -ENXIO);
 	*blkp = desc->bdev;
+
+	return 0;
+}
+
+int vbe_read_version(struct udevice *blk, ulong offset, char *version,
+		     int max_size)
+{
+	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
+
+	/* we can use an assert() here since we already read only one block */
+	assert(max_size <= MMC_MAX_BLOCK_LEN);
+
+	/*
+	 * we can use an assert() here since reading the wrong block will just
+	 * cause an invalid version-string to be (safely) read
+	 */
+	assert(!(offset & (MMC_MAX_BLOCK_LEN - 1)));
+
+	offset /= MMC_MAX_BLOCK_LEN;
+
+	if (blk_read(blk, offset, 1, buf) != 1)
+		return log_msg_ret("read", -EIO);
+	strlcpy(version, buf, max_size);
+	log_debug("version=%s\n", version);
 
 	return 0;
 }
