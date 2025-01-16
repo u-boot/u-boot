@@ -13,6 +13,7 @@
 /* PCI function IDs */
 #define PCI_DEVICE_ID_ENETC_ETH		0xE100
 #define PCI_DEVICE_ID_ENETC_MDIO	0xEE01
+#define PCI_DEVICE_ID_ENETC4_EMDIO	0xEE00
 
 /* ENETC Ethernet controller registers */
 /* Station interface register offsets */
