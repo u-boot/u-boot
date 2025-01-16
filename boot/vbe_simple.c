@@ -18,48 +18,21 @@
 #include <vbe.h>
 #include <dm/device-internal.h>
 #include <dm/ofnode.h>
-#include <u-boot/crc.h>
 #include "vbe_simple.h"
 
 static int simple_read_nvdata(const struct simple_priv *priv,
-			      struct udevice *blk, u8 *buf,
-			      struct simple_state *state)
+			      struct udevice *blk, struct simple_state *state)
 {
-	uint hdr_ver, hdr_size, size, crc;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	const struct vbe_nvdata *nvd;
-	int start;
+	int ret;
 
-	/* we can use an assert() here since we already read only one block */
-	assert(priv->state_size <= MMC_MAX_BLOCK_LEN);
+	ret = vbe_read_nvdata(blk, priv->area_start + priv->state_offset,
+			      priv->state_size, buf);
+	if (ret)
+		return log_msg_ret("nv", ret);
 
-	start = priv->area_start + priv->state_offset;
-
-	/*
-	 * We can use an assert() here since reading the wrong block will just
-	 * cause invalid state to be (safely) read. If the crc passes, then we
-	 * obtain invalid state and it will likely cause booting to fail.
-	 *
-	 * VBE relies on valid values being in U-Boot's devicetree, so this
-	 * should not every be wrong on a production device.
-	 */
-	assert(!(start & (MMC_MAX_BLOCK_LEN - 1)));
-
-	start /= MMC_MAX_BLOCK_LEN;
-
-	if (blk_read(blk, start, 1, buf) != 1)
-		return log_msg_ret("read", -EIO);
 	nvd = (struct vbe_nvdata *)buf;
-	hdr_ver = (nvd->hdr & NVD_HDR_VER_MASK) >> NVD_HDR_VER_SHIFT;
-	hdr_size = (nvd->hdr & NVD_HDR_SIZE_MASK) >> NVD_HDR_SIZE_SHIFT;
-	if (hdr_ver != NVD_HDR_VER_CUR)
-		return log_msg_ret("hdr", -EPERM);
-	size = 1 << hdr_size;
-	if (!size || size > sizeof(*nvd))
-		return log_msg_ret("sz", -ENOEXEC);
-
-	crc = crc8(0, buf + 1, size - 1);
-	if (crc != nvd->crc8)
-		return log_msg_ret("crc", -EPERM);
 	state->fw_vernum = nvd->fw_vernum;
 
 	log_debug("version=%s\n", state->fw_version);
@@ -69,7 +42,6 @@ static int simple_read_nvdata(const struct simple_priv *priv,
 
 int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct simple_priv *priv = dev_get_priv(dev);
 	struct udevice *blk;
 	int ret;
@@ -83,7 +55,7 @@ int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 	if (ret)
 		return log_msg_ret("ver", ret);
 
-	ret = simple_read_nvdata(priv, blk, buf, state);
+	ret = simple_read_nvdata(priv, blk, state);
 	if (ret)
 		return log_msg_ret("nvd", ret);
 

@@ -78,4 +78,20 @@ int vbe_get_blk(const char *storage, struct udevice **blkp);
 int vbe_read_version(struct udevice *blk, ulong offset, char *version,
 		     int max_size);
 
+/**
+ * vbe_read_nvdata() - Read non-volatile data from a block device
+ *
+ * Reads the VBE nvdata from a device. This function reads a single block from
+ * the device, so the nvdata cannot be larger than that.
+ *
+ * @blk: Device to read from
+ * @offset: Offset to read, in bytes
+ * @size: Number of bytes to read
+ * @buf: Buffer to hold the data
+ * Return: 0 if OK, -E2BIG if @size > block size, -EBADF if the offset is not
+ * block-aligned, -EIO if an I/O error occurred, -EPERM if the header version is
+ * incorrect, the header size is invalid or the data fails its CRC check
+ */
+int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf);
+
 #endif /* __VBE_ABREC_H */
