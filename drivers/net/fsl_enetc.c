@@ -2,6 +2,7 @@
 /*
  * ENETC ethernet controller driver
  * Copyright 2017-2021 NXP
+ * Copyright 2023-2025 NXP
  */
 
 #include <dm.h>
@@ -16,12 +17,43 @@
 #include <miiphy.h>
 #include <linux/bug.h>
 #include <linux/delay.h>
+#include <linux/build_bug.h>
+
+#ifdef CONFIG_ARCH_IMX9
+#include <asm/mach-imx/sys_proto.h>
+#include <cpu_func.h>
+#endif
 
 #include "fsl_enetc.h"
 
 #define ENETC_DRIVER_NAME	"enetc_eth"
 
+/*
+ * Calculate number of buffer descriptors per cacheline, and compile-time
+ * validate that:
+ * - the RX and TX descriptors are the same size
+ * - the descriptors fit exactly into cachelines without overlap
+ * - all descriptors fit exactly into cachelines
+ */
+#define ENETC_NUM_BD_IN_CL						\
+	((ARCH_DMA_MINALIGN / sizeof(struct enetc_tx_bd)) +		\
+	BUILD_BUG_ON_ZERO(sizeof(struct enetc_tx_bd) !=			\
+			  sizeof(union enetc_rx_bd)) +			\
+	BUILD_BUG_ON_ZERO(ARCH_DMA_MINALIGN % sizeof(struct enetc_tx_bd)) + \
+	BUILD_BUG_ON_ZERO(ARCH_DMA_MINALIGN % sizeof(union enetc_rx_bd)) + \
+	BUILD_BUG_ON_ZERO(ENETC_BD_CNT %				\
+			  (ARCH_DMA_MINALIGN / sizeof(struct enetc_tx_bd))))
+
 static int enetc_remove(struct udevice *dev);
+
+static int enetc_is_imx95(struct udevice *dev)
+{
+	struct pci_child_plat *pplat = dev_get_parent_plat(dev);
+
+	/* Test whether this is i.MX95 ENETCv4. This may be optimized out. */
+	return IS_ENABLED(CONFIG_ARCH_IMX9) &&
+	       pplat->vendor == PCI_VENDOR_ID_PHILIPS;
+}
 
 static int enetc_is_ls1028a(struct udevice *dev)
 {
@@ -34,10 +66,58 @@ static int enetc_is_ls1028a(struct udevice *dev)
 
 static int enetc_dev_id(struct udevice *dev)
 {
+	if (enetc_is_imx95(dev))
+		return PCI_DEV(pci_get_devfn(dev)) >> 3;
 	if (enetc_is_ls1028a(dev))
 		return PCI_FUNC(pci_get_devfn(dev));
 
 	return 0;
+}
+
+static void enetc_inval_rxbd(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	union enetc_rx_bd *desc = &priv->enetc_rxbd[priv->rx_bdr.next_prod_idx];
+	unsigned long start = rounddown((unsigned long)desc, ARCH_DMA_MINALIGN);
+	unsigned long end = roundup((unsigned long)desc + sizeof(*desc),
+				    ARCH_DMA_MINALIGN);
+
+	if (enetc_is_imx95(dev))
+		invalidate_dcache_range(start, end);
+}
+
+static void enetc_flush_bd(struct udevice *dev, int pi, bool tx)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	union enetc_rx_bd *rxdesc = &priv->enetc_rxbd[pi];
+	struct enetc_tx_bd *txdesc = &priv->enetc_txbd[pi];
+	unsigned long desc = tx ? (unsigned long)txdesc : (unsigned long)rxdesc;
+	unsigned long size = tx ? sizeof(*txdesc) : sizeof(*rxdesc);
+	unsigned long start = rounddown(desc, ARCH_DMA_MINALIGN);
+	unsigned long end = roundup(desc + size, ARCH_DMA_MINALIGN);
+
+	if (enetc_is_imx95(dev))
+		flush_dcache_range(start, end);
+}
+
+static void enetc_inval_buffer(struct udevice *dev, void *buf, size_t size)
+{
+	unsigned long start = rounddown((unsigned long)buf, ARCH_DMA_MINALIGN);
+	unsigned long end = roundup((unsigned long)buf + size,
+				    ARCH_DMA_MINALIGN);
+
+	if (enetc_is_imx95(dev))
+		invalidate_dcache_range(start, end);
+}
+
+static void enetc_flush_buffer(struct udevice *dev, void *buf, size_t size)
+{
+	unsigned long start = rounddown((unsigned long)buf, ARCH_DMA_MINALIGN);
+	unsigned long end = roundup((unsigned long)buf + size,
+				    ARCH_DMA_MINALIGN);
+
+	if (enetc_is_imx95(dev))
+		flush_dcache_range(start, end);
 }
 
 /* register accessors */
@@ -93,9 +173,19 @@ static u32 enetc_read_pcapr_mdio(struct udevice *dev)
 	struct enetc_data *data = (struct enetc_data *)dev_get_driver_data(dev);
 	struct enetc_priv *priv = dev_get_priv(dev);
 	const u32 off = ENETC_PCAPR0 + data->reg_offset_pcapr;
-	u32 reg = enetc_read_reg(priv->port_regs + off);
+	const u32 reg = enetc_read_reg(priv->port_regs + off);
 
-	return reg & ENETC_PCAPRO_MDIO;
+	if (enetc_is_imx95(dev))
+		return reg & ENETC_PCS_PROT;
+	else if (enetc_is_ls1028a(dev))
+		return reg & ENETC_PCAPRO_MDIO;
+
+	return 0;
+}
+
+static void enetc_write_port(struct enetc_priv *priv, u32 off, u32 val)
+{
+	enetc_write_reg(priv->port_regs + off, val);
 }
 
 /* MAC port register accessors */
@@ -135,13 +225,30 @@ static void enetc_set_ierb_primary_mac(struct udevice *dev, void *blob)
 	static int ierb_fn_to_pf[] = { 0, 1, 2, -1, -1, -1, 3 };
 	struct pci_child_plat *ppdata = dev_get_parent_plat(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
 	const u8 *enetaddr = pdata->enetaddr;
 	u16 lower = *(const u16 *)(enetaddr + 4);
 	u32 upper = *(const u32 *)enetaddr;
 	int devfn, offset;
 	char path[256];
 
-	if (enetc_is_ls1028a(dev)) {
+	if (enetc_is_imx95(dev)) {
+		/*
+		 * Configure the ENETC primary MAC addresses - Set register
+		 * PMAR0/1 for SI 0 and PSIaPMAR0/1 for SI 1, 2 .. a
+		 * (optionally pre-configured in IERB).
+		 */
+		devfn = enetc_dev_id(dev);
+		if (devfn > 2)
+			return;
+
+		enetc_write(priv, IMX95_ENETC_SIPMAR0, upper);
+		enetc_write(priv, IMX95_ENETC_SIPMAR1, lower);
+
+		snprintf(path, 256, "/soc/pcie@%x/ethernet@%x,%x",
+			 PCI_BUS(dm_pci_get_bdf(dev)), PCI_DEV(ppdata->devfn),
+			 PCI_FUNC(ppdata->devfn));
+	} else if (enetc_is_ls1028a(dev)) {
 		/*
 		 * LS1028A is the only part with IERB at this time and
 		 * there are plans to change its structure, keep this
@@ -279,7 +386,7 @@ static int enetc_init_sgmii(struct udevice *dev)
 /* set up MAC for RGMII */
 static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 {
-	u32 old_val, val;
+	u32 old_val, val, dpx = 0;
 
 	old_val = val = enetc_read_mac_port(dev, ENETC_PM_IF_MODE);
 
@@ -299,10 +406,15 @@ static void enetc_init_rgmii(struct udevice *dev, struct phy_device *phydev)
 		val |= ENETC_PM_IFM_SSP_10;
 	}
 
+	if (enetc_is_imx95(dev))
+		dpx = ENETC_PM_IFM_FULL_DPX_IMX;
+	else if (enetc_is_ls1028a(dev))
+		dpx = ENETC_PM_IFM_FULL_DPX_LS;
+
 	if (phydev->duplex == DUPLEX_FULL)
-		val |= ENETC_PM_IFM_FULL_DPX;
+		val |= dpx;
 	else
-		val &= ~ENETC_PM_IFM_FULL_DPX;
+		val &= ~dpx;
 
 	if (val == old_val)
 		return;
@@ -328,7 +440,10 @@ static void enetc_setup_mac_iface(struct udevice *dev,
 	case PHY_INTERFACE_MODE_10GBASER:
 		/* set ifmode to (US)XGMII */
 		if_mode = enetc_read_mac_port(dev, ENETC_PM_IF_MODE);
-		if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
+		if (enetc_is_imx95(dev))
+			if_mode &= ~ENETC_PM_IF_IFMODE_MASK_IMX;
+		else if (enetc_is_ls1028a(dev))
+			if_mode &= ~ENETC_PM_IF_IFMODE_MASK_LS;
 		enetc_write_mac_port(dev, ENETC_PM_IF_MODE, if_mode);
 		break;
 	};
@@ -472,6 +587,21 @@ static int enetc_remove(struct udevice *dev)
 	return 0;
 }
 
+static int enetc_imx95_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_plat(dev);
+	struct enetc_priv *priv = dev_get_priv(dev);
+	u8 *addr = plat->enetaddr;
+
+	u16 lower = *(const u16 *)(addr + 4);
+	u32 upper = *(const u32 *)addr;
+
+	enetc_write_port(priv, IMX95_ENETC_PMAR0, upper);
+	enetc_write_port(priv, IMX95_ENETC_PMAR1, lower);
+
+	return 0;
+}
+
 /*
  * LS1028A is the only part with IERB at this time and there are plans to
  * change its structure, keep this LS1028A specific for now.
@@ -512,6 +642,8 @@ static int enetc_write_hwaddr(struct udevice *dev)
 	struct eth_pdata *plat = dev_get_plat(dev);
 	u8 *addr = plat->enetaddr;
 
+	if (enetc_is_imx95(dev))
+		return enetc_imx95_write_hwaddr(dev);
 	if (enetc_is_ls1028a(dev))
 		return enetc_ls1028a_write_hwaddr(dev);
 
@@ -528,6 +660,7 @@ static int enetc_write_hwaddr(struct udevice *dev)
 static void enetc_enable_si_port(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
+	u32 val = ENETC_PM_CC_TXP_IMX | ENETC_PM_CC_TX | ENETC_PM_CC_RX;
 
 	/* set Rx/Tx BDR count */
 	enetc_write_psicfgr(dev, 0, ENETC_PSICFGR_SET_BDR(ENETC_RX_BDR_CNT,
@@ -535,12 +668,18 @@ static void enetc_enable_si_port(struct udevice *dev)
 	/* set Rx max frame size */
 	enetc_write_mac_port(dev, ENETC_PM_MAXFRM, ENETC_RX_MAXFRM_SIZE);
 	/* enable MAC port */
-	enetc_write_mac_port(dev, ENETC_PM_CC, ENETC_PM_CC_RX_TX_EN);
+	if (enetc_is_ls1028a(dev))
+		val |= ENETC_PM_CC_TXP_LS | ENETC_PM_CC_PROMIS;
+	enetc_write_mac_port(dev, ENETC_PM_CC, val);
 	/* enable port */
+	if (enetc_is_imx95(dev))
+		enetc_write_port(priv, ENETC_POR, 0x0);
 	enetc_write_pmr(dev, ENETC_PMR_SI0_EN);
 	/* set SI cache policy */
-	enetc_write(priv, ENETC_SICAR0,
-		    ENETC_SICAR_RD_CFG | ENETC_SICAR_WR_CFG);
+	enetc_write(priv, ENETC_SICAR0, ENETC_SICAR_WR_CFG |
+					(enetc_is_imx95(dev) ?
+					 ENETC_SICAR_RD_CFG_IMX :
+					 ENETC_SICAR_RD_CFG_LS));
 	/* enable SI */
 	enetc_write(priv, ENETC_SIMR, ENETC_SIMR_EN);
 }
@@ -631,6 +770,8 @@ static void enetc_setup_rx_bdr(struct udevice *dev)
 		priv->enetc_rxbd[i].w.addr = enetc_rxb_address(dev, i);
 		/* each RX buffer must be aligned to 64B */
 		WARN_ON(priv->enetc_rxbd[i].w.addr & (ARCH_DMA_MINALIGN - 1));
+
+		enetc_flush_bd(dev, i, false);
 	}
 
 	/* reset producer (ENETC owned) and consumer (SW owned) index */
@@ -651,6 +792,7 @@ static void enetc_setup_rx_bdr(struct udevice *dev)
  */
 static int enetc_start(struct udevice *dev)
 {
+	int ret;
 	struct enetc_priv *priv = dev_get_priv(dev);
 
 	/* reset and enable the PCI device */
@@ -664,9 +806,13 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
+	ret = phy_startup(priv->phy);
+	if (ret)
+		return ret;
+
 	enetc_setup_mac_iface(dev, priv->phy);
 
-	return phy_startup(priv->phy);
+	return 0;
 }
 
 /*
@@ -709,6 +855,8 @@ static int enetc_send(struct udevice *dev, void *packet, int length)
 	enetc_dbg(dev, "TxBD[%d]send: pkt_len=%d, buff @0x%x%08x\n", pi, length,
 		  upper_32_bits((u64)nv_packet), lower_32_bits((u64)nv_packet));
 
+	enetc_flush_buffer(dev, packet, length);
+
 	/* prepare Tx BD */
 	memset(&priv->enetc_txbd[pi], 0x0, sizeof(struct enetc_tx_bd));
 	priv->enetc_txbd[pi].addr =
@@ -716,7 +864,10 @@ static int enetc_send(struct udevice *dev, void *packet, int length)
 	priv->enetc_txbd[pi].buf_len = cpu_to_le16(length);
 	priv->enetc_txbd[pi].frm_len = cpu_to_le16(length);
 	priv->enetc_txbd[pi].flags = cpu_to_le16(ENETC_TXBD_FLAGS_F);
+
 	dmb();
+	enetc_flush_bd(dev, pi, true);
+
 	/* send frame: increment producer index */
 	pi = (pi + 1) % txr->bd_count;
 	txr->next_prod_idx = pi;
@@ -738,15 +889,15 @@ static int enetc_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
 	struct bd_ring *rxr = &priv->rx_bdr;
-	int tries = ENETC_POLL_TRIES;
 	int pi = rxr->next_prod_idx;
-	int ci = rxr->next_cons_idx;
+	int tries = ENETC_POLL_TRIES;
 	u32 status;
 	int len;
 	u8 rdy;
 
 	do {
 		dmb();
+		enetc_inval_rxbd(dev);
 		status = le32_to_cpu(priv->enetc_rxbd[pi].r.lstatus);
 		/* check if current BD is ready to be consumed */
 		rdy = ENETC_RXBD_STATUS_R(status);
@@ -758,28 +909,114 @@ static int enetc_recv(struct udevice *dev, int flags, uchar **packetp)
 	dmb();
 	len = le16_to_cpu(priv->enetc_rxbd[pi].r.buf_len);
 	*packetp = (uchar *)enetc_rxb_address(dev, pi);
+	enetc_inval_buffer(dev, *packetp, len);
 	enetc_dbg(dev, "RxBD[%d]: len=%d err=%d pkt=0x%x%08x\n", pi, len,
 		  ENETC_RXBD_STATUS_ERRORS(status),
 		  upper_32_bits((u64)*packetp), lower_32_bits((u64)*packetp));
 
-	/* BD clean up and advance to next in ring */
-	memset(&priv->enetc_rxbd[pi], 0, sizeof(union enetc_rx_bd));
-	priv->enetc_rxbd[pi].w.addr = enetc_rxb_address(dev, pi);
+	return len;
+}
+
+static int enetc_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	const int bd_num_in_cl = enetc_is_imx95(dev) ? ENETC_NUM_BD_IN_CL : 1;
+	struct enetc_priv *priv = dev_get_priv(dev);
+	struct bd_ring *rxr = &priv->rx_bdr;
+	int pi = rxr->next_prod_idx;
+	int ci = rxr->next_cons_idx;
+	uchar *packet_expected;
+	int i;
+
+	packet_expected = (uchar *)enetc_rxb_address(dev, pi);
+	if (packet != packet_expected) {
+		printf("%s: Unexpected packet (expected %p)\n", __func__,
+		       packet_expected);
+		return -EINVAL;
+	}
+
 	rxr->next_prod_idx = (pi + 1) % rxr->bd_count;
 	ci = (ci + 1) % rxr->bd_count;
 	rxr->next_cons_idx = ci;
 	dmb();
-	/* free up the slot in the ring for HW */
-	enetc_write_reg(rxr->cons_idx, ci);
 
-	return len;
+	if ((pi + 1) % bd_num_in_cl == 0) {
+		/* BD clean up and advance to next in ring */
+		for (i = 0; i < bd_num_in_cl; i++) {
+			memset(&priv->enetc_rxbd[pi - i], 0, sizeof(union enetc_rx_bd));
+			priv->enetc_rxbd[pi - i].w.addr = enetc_rxb_address(dev, pi - i);
+		}
+
+		/* Will flush all bds in one cacheline */
+		enetc_flush_bd(dev, pi - bd_num_in_cl + 1, false);
+
+		/* free up the slot in the ring for HW */
+		enetc_write_reg(rxr->cons_idx, ci);
+	}
+
+	return 0;
 }
+
+#if IS_ENABLED(CONFIG_ARCH_IMX9)
+static int enetc_read_rom_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	unsigned int dev_id = enetc_dev_id(dev);
+	unsigned char *mac = pdata->enetaddr;
+
+	if (dev_id > 2)
+		return -EINVAL;
+
+	imx_get_mac_from_fuse(dev_id, mac);
+
+	return !is_valid_ethaddr(mac);
+}
+
+static const struct eth_ops enetc_ops_imx = {
+	.start			= enetc_start,
+	.send			= enetc_send,
+	.recv			= enetc_recv,
+	.stop			= enetc_stop,
+	.free_pkt		= enetc_free_pkt,
+	.write_hwaddr		= enetc_write_hwaddr,
+	.read_rom_hwaddr	= enetc_read_rom_hwaddr,
+};
+
+U_BOOT_DRIVER(eth_enetc_imx) = {
+	.name		= ENETC_DRIVER_NAME,
+	.id		= UCLASS_ETH,
+	.bind		= enetc_bind,
+	.probe		= enetc_probe,
+	.remove		= enetc_remove,
+	.ops		= &enetc_ops_imx,
+	.priv_auto	= sizeof(struct enetc_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
+};
+
+static const struct enetc_data enetc_data_imx = {
+	.reg_offset_pmr		= ENETC_PMR_OFFSET_IMX,
+	.reg_offset_psipmar	= ENETC_PSIPMARn_OFFSET_IMX,
+	.reg_offset_pcapr	= ENETC_PCAPR_OFFSET_IMX,
+	.reg_offset_psicfgr	= ENETC_PSICFGR_OFFSET_IMX,
+	.reg_offset_mac		= ENETC_PM_OFFSET_IMX,
+};
+
+static struct pci_device_id enetc_ids_imx[] = {
+	{
+		PCI_DEVICE(PCI_VENDOR_ID_PHILIPS, PCI_DEVICE_ID_ENETC4_ETH),
+		.driver_data = (ulong)&enetc_data_imx,
+	},
+	{}
+};
+
+U_BOOT_PCI_DEVICE(eth_enetc_imx, enetc_ids_imx);
+#endif
 
 static const struct eth_ops enetc_ops_ls = {
 	.start	= enetc_start,
 	.send	= enetc_send,
 	.recv	= enetc_recv,
 	.stop	= enetc_stop,
+	.free_pkt = enetc_free_pkt,
 	.write_hwaddr = enetc_write_hwaddr,
 };
 
