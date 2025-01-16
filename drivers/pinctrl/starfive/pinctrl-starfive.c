@@ -348,7 +348,7 @@ static const struct dm_gpio_ops starfive_gpio_ops = {
 	.set_value = starfive_gpio_set_value,
 };
 
-static struct driver starfive_gpio_driver = {
+U_BOOT_DRIVER(starfive_gpio) = {
 	.name = "starfive_gpio",
 	.id = UCLASS_GPIO,
 	.probe = starfive_gpio_probe,
@@ -367,7 +367,7 @@ static int starfive_gpiochip_register(struct udevice *parent)
 		return -ENOENT;
 
 	node = dev_ofnode(parent);
-	ret = device_bind_with_driver_data(parent, &starfive_gpio_driver,
+	ret = device_bind_with_driver_data(parent, DM_DRIVER_REF(starfive_gpio),
 					   "starfive_gpio", 0, node, &dev);
 
 	return (ret == 0) ? 0 : ret;
