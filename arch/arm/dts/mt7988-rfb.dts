@@ -63,6 +63,24 @@
 	};
 };
 
+&pcie0 {
+	status = "okay";
+};
+
+&pcie1 {
+	status = "okay";
+};
+
+/* PCIE2 not working in u-boot */
+&pcie2 {
+	status = "disabled";
+};
+
+/* PCIE3 not working in u-boot */
+&pcie3 {
+	status = "disabled";
+};
+
 &pinctrl {
 	i2c1_pins: i2c1-pins {
 		mux {
