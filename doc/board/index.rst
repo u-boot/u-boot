@@ -21,6 +21,7 @@ Board-specific doc
    beagle/index
    broadcom/index
    bsh/index
+   canaan/index
    cloos/index
    congatec/index
    coolpi/index
