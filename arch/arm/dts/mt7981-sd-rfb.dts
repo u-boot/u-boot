@@ -118,7 +118,7 @@
 		};
 		conf-clk {
 			pins = "SPI1_CS";
-			drive-strength = <MTK_DRIVE_6mA>;
+			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
 		};
 		conf-rst {
@@ -140,10 +140,12 @@
 };
 
 &mmc0 {
+	assigned-clock-parents = <&topckgen CLK_TOP_CB_NET2_D4>,
+				 <&topckgen CLK_TOP_CB_NET2_D2>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_default>;
 	bus-width = <4>;
-	max-frequency = <52000000>;
+	max-frequency = <50000000>;
 	cap-sd-highspeed;
 	r_smpl = <0>;
 	vmmc-supply = <&reg_3p3v>;
