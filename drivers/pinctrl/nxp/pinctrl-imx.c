@@ -219,7 +219,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 	if (info->flags & IMX8_USE_SCU)
 		return 0;
 
-	addr = ofnode_get_addr_size_index(dev_ofnode(dev), 0, &size);
+	addr = ofnode_get_addr_size_index(node, 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -228,7 +228,7 @@ int imx_pinctrl_probe(struct udevice *dev,
 		return -ENOMEM;
 	priv->info = info;
 
-	info->mux_mask = ofnode_read_u32(node, "fsl,mux_mask", 0);
+	info->mux_mask = ofnode_read_u32_default(node, "fsl,mux_mask", 0);
 	/*
 	 * Refer to linux documentation for details:
 	 * Documentation/devicetree/bindings/pinctrl/fsl,imx7d-pinctrl.txt
