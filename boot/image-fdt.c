@@ -8,6 +8,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
+#include <blkmap.h>
 #include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
@@ -648,6 +649,14 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 
 	if (!ft_verify_fdt(blob))
 		goto err;
+
+	if (CONFIG_IS_ENABLED(BLKMAP) && CONFIG_IS_ENABLED(EFI_LOADER)) {
+		fdt_ret = fdt_efi_pmem_setup(blob);
+		if (fdt_ret) {
+			log_err("pmem node fixup failed\n");
+			goto err;
+		}
+	}
 
 	/* after here we are using a livetree */
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {
