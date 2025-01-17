@@ -587,11 +587,11 @@
 		#reset-cells = <1>;
 	};
 
-	eth: ethernet@15100000 {
+	eth0: ethernet@15110100 {
 		compatible = "mediatek,mt7988-eth", "syscon";
 		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <0>;
 		mediatek,ethsys = <&ethdma>;
-		mediatek,sgmiisys = <&sgmiisys0>;
 		mediatek,usxgmiisys = <&usxgmiisys0>;
 		mediatek,xfi_pextp = <&xfi_pextp0>;
 		mediatek,xfi_pll = <&xfi_pll>;
@@ -599,6 +599,44 @@
 		mediatek,toprgu = <&watchdog>;
 		resets = <&ethdma ETHDMA_FE_RST>, <&ethwarp ETHWARP_GSW_RST>;
 		reset-names = "fe", "mcm";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		mediatek,mcm;
+		status = "disabled";
+	};
+
+	eth1: ethernet@15110200 {
+		compatible = "mediatek,mt7988-eth", "syscon";
+		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <1>;
+		mediatek,ethsys = <&ethdma>;
+		mediatek,sgmiisys = <&sgmiisys1>;
+		mediatek,usxgmiisys = <&usxgmiisys1>;
+		mediatek,xfi_pextp = <&xfi_pextp1>;
+		mediatek,xfi_pll = <&xfi_pll>;
+		mediatek,infracfg = <&topmisc>;
+		mediatek,toprgu = <&watchdog>;
+		resets = <&ethdma ETHDMA_FE_RST>;
+		reset-names = "fe";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		mediatek,mcm;
+		status = "disabled";
+	};
+
+	eth2: ethernet@15110300 {
+		compatible = "mediatek,mt7988-eth", "syscon";
+		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <2>;
+		mediatek,ethsys = <&ethdma>;
+		mediatek,sgmiisys = <&sgmiisys0>;
+		mediatek,usxgmiisys = <&usxgmiisys0>;
+		mediatek,xfi_pextp = <&xfi_pextp0>;
+		mediatek,xfi_pll = <&xfi_pll>;
+		mediatek,infracfg = <&topmisc>;
+		mediatek,toprgu = <&watchdog>;
+		resets = <&ethdma ETHDMA_FE_RST>;
+		reset-names = "fe";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		mediatek,mcm;
