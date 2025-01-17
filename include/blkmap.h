@@ -9,6 +9,12 @@
 
 #include <dm/lists.h>
 
+/* Type of blkmap device, Linear or Memory */
+enum blkmap_type {
+	BLKMAP_LINEAR = 1,
+	BLKMAP_MEM,
+};
+
 /**
  * struct blkmap - Block map
  *
@@ -16,11 +22,13 @@
  *
  * @label: Human readable name of this blkmap
  * @blk: Underlying block device
+ * @type: Type of blkmap device
  * @slices: List of slices associated with this blkmap
  */
 struct blkmap {
 	char *label;
 	struct udevice *blk;
+	enum blkmap_type type;
 	struct list_head slices;
 };
 
@@ -78,9 +86,11 @@ struct udevice *blkmap_from_label(const char *label);
  *
  * @label: Label of the new blkmap
  * @devp: If not NULL, updated with the address of the resulting device
+ * @type: Type of blkmap device to create
  * Returns: 0 on success, negative error code on failure
  */
-int blkmap_create(const char *label, struct udevice **devp);
+int blkmap_create(const char *label, struct udevice **devp,
+		  enum blkmap_type type);
 
 /**
  * blkmap_destroy() - Destroy blkmap

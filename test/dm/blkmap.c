@@ -56,7 +56,7 @@ static int dm_test_blkmap_read(struct unit_test_state *uts)
 	struct udevice *dev, *blk;
 	const struct mapping *m;
 
-	ut_assertok(blkmap_create("rdtest", &dev));
+	ut_assertok(blkmap_create("rdtest", &dev, BLKMAP_MEM));
 	ut_assertok(blk_get_from_parent(dev, &blk));
 
 	/* Generate an ordered and an unordered pattern in memory */
@@ -85,7 +85,7 @@ static int dm_test_blkmap_write(struct unit_test_state *uts)
 	struct udevice *dev, *blk;
 	const struct mapping *m;
 
-	ut_assertok(blkmap_create("wrtest", &dev));
+	ut_assertok(blkmap_create("wrtest", &dev, BLKMAP_MEM));
 	ut_assertok(blk_get_from_parent(dev, &blk));
 
 	/* Generate an ordered and an unordered pattern in memory */
@@ -114,7 +114,7 @@ static int dm_test_blkmap_slicing(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 
-	ut_assertok(blkmap_create("slicetest", &dev));
+	ut_assertok(blkmap_create("slicetest", &dev, BLKMAP_MEM));
 
 	ut_assertok(blkmap_map_mem(dev, 8, 8, NULL));
 
@@ -140,19 +140,19 @@ static int dm_test_blkmap_creation(struct unit_test_state *uts)
 {
 	struct udevice *first, *second;
 
-	ut_assertok(blkmap_create("first", &first));
+	ut_assertok(blkmap_create("first", &first, BLKMAP_LINEAR));
 
 	/* Can't have two "first"s */
-	ut_asserteq(-EBUSY, blkmap_create("first", &second));
+	ut_asserteq(-EBUSY, blkmap_create("first", &second, BLKMAP_LINEAR));
 
 	/* But "second" should be fine */
-	ut_assertok(blkmap_create("second", &second));
+	ut_assertok(blkmap_create("second", &second, BLKMAP_LINEAR));
 
 	/* Once "first" is destroyed, we should be able to create it
 	 * again
 	 */
 	ut_assertok(blkmap_destroy(first));
-	ut_assertok(blkmap_create("first", &first));
+	ut_assertok(blkmap_create("first", &first, BLKMAP_LINEAR));
 
 	ut_assertok(blkmap_destroy(first));
 	ut_assertok(blkmap_destroy(second));
@@ -168,7 +168,7 @@ static int dm_test_cmd_blkmap(struct unit_test_state *uts)
 	ut_assertok(run_command("blkmap info", 0));
 	ut_assert_console_end();
 
-	ut_assertok(run_command("blkmap create ramdisk", 0));
+	ut_assertok(run_command("blkmap create ramdisk mem", 0));
 	ut_assert_nextline("Created \"ramdisk\"");
 	ut_assert_console_end();
 

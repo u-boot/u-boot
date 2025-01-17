@@ -119,15 +119,23 @@ static int do_blkmap_map(struct cmd_tbl *cmdtp, int flag,
 static int do_blkmap_create(struct cmd_tbl *cmdtp, int flag,
 			    int argc, char *const argv[])
 {
+	enum blkmap_type type;
 	const char *label;
 	int err;
 
-	if (argc != 2)
+	if (argc != 3)
 		return CMD_RET_USAGE;
 
 	label = argv[1];
 
-	err = blkmap_create(label, NULL);
+	if (!strcmp(argv[2], "linear"))
+		type = BLKMAP_LINEAR;
+	else if (!strcmp(argv[2], "mem"))
+		type = BLKMAP_MEM;
+	else
+		return CMD_RET_USAGE;
+
+	err = blkmap_create(label, NULL, type);
 	if (err) {
 		printf("Unable to create \"%s\": %d\n", label, err);
 		return CMD_RET_FAILURE;
@@ -218,7 +226,7 @@ U_BOOT_CMD_WITH_SUBCMDS(
 	"blkmap read <addr> <blk#> <cnt>\n"
 	"blkmap write <addr> <blk#> <cnt>\n"
 	"blkmap get <label> dev [<var>] - store device number in variable\n"
-	"blkmap create <label> - create device\n"
+	"blkmap create <label> <type> - create device(linear/mem)\n"
 	"blkmap destroy <label> - destroy device\n"
 	"blkmap map <label> <blk#> <cnt> linear <interface> <dev> <blk#> - device mapping\n"
 	"blkmap map <label> <blk#> <cnt> mem <addr> - memory mapping\n",
@@ -228,6 +236,6 @@ U_BOOT_CMD_WITH_SUBCMDS(
 	U_BOOT_SUBCMD_MKENT(read, 5, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(write, 5, 1, do_blkmap_common),
 	U_BOOT_SUBCMD_MKENT(get, 5, 1, do_blkmap_get),
-	U_BOOT_SUBCMD_MKENT(create, 2, 1, do_blkmap_create),
+	U_BOOT_SUBCMD_MKENT(create, 3, 1, do_blkmap_create),
 	U_BOOT_SUBCMD_MKENT(destroy, 2, 1, do_blkmap_destroy),
 	U_BOOT_SUBCMD_MKENT(map, 32, 1, do_blkmap_map));
