@@ -648,7 +648,7 @@ static int mtk_spim_probe(struct udevice *dev)
 	struct mtk_spim_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	priv->base = devfdt_get_addr_ptr(dev);
+	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -EINVAL;
 
