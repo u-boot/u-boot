@@ -83,6 +83,28 @@ struct mtk_pcie {
 	struct phy phy;
 };
 
+static pci_dev_t convert_bdf(const struct udevice *controller, pci_dev_t bdf)
+{
+	int bdfs[3];
+
+	bdfs[0] = PCI_BUS(bdf);
+	bdfs[1] = PCI_DEV(bdf);
+	bdfs[2] = PCI_FUNC(bdf);
+
+	/*
+	 * One MediaTek PCIe Gen3 controller has only one port, where PCI bus 0 on
+	 * this port represents the controller itself and bus 1 represents the
+	 * external PCIe device. If multiple PCIe controllers are probed in U-Boot,
+	 * U-Boot will use bus numbers greater than 2 as input parameters. Therefore,
+	 * we should convert the BDF bus number to either 0 or 1 by subtracting the
+	 * offset by controller->seq_
+	 */
+
+	bdfs[0] = bdfs[0] - controller->seq_;
+
+	return PCI_BDF(bdfs[0], bdfs[1], bdfs[2]);
+}
+
 static void mtk_pcie_config_tlp_header(const struct udevice *bus,
 				       pci_dev_t devfn,
 				       int where, int size)
@@ -90,6 +112,8 @@ static void mtk_pcie_config_tlp_header(const struct udevice *bus,
 	struct mtk_pcie *pcie = dev_get_priv(bus);
 	int bytes;
 	u32 val;
+
+	devfn = convert_bdf(bus, devfn);
 
 	size = 1 << size;
 	bytes = (GENMASK(size - 1, 0) & 0xf) << (where & 0x3);
