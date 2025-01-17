@@ -229,7 +229,11 @@ struct dw_eth_dev {
 	u32 max_speed;
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
-
+#if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
+	u32 bb_delay;
+	struct gpio_desc mdc_gpio;
+	struct gpio_desc mdio_gpio;
+#endif
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
 #if CONFIG_IS_ENABLED(DM_GPIO)
