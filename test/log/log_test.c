@@ -320,7 +320,7 @@ int log_test_cat_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", cat_list, LOGL_MAX, NULL);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", cat_list, LOGL_MAX, NULL,
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run_cat(UCLASS_SPI);
@@ -340,7 +340,7 @@ int log_test_file_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", NULL, LOGL_MAX, "file");
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_MAX, "file",
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run_file("file");
@@ -360,7 +360,7 @@ int log_test_level_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", NULL, LOGL_INFO, NULL);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run();
@@ -380,10 +380,10 @@ int log_test_min(struct unit_test_state *uts)
 	int filt1, filt2;
 
 	filt1 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
-				     LOGFF_LEVEL_MIN);
+				     NULL, LOGFF_LEVEL_MIN);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_INFO, NULL,
-				     LOGFF_DENY | LOGFF_LEVEL_MIN);
+				     NULL, LOGFF_DENY | LOGFF_LEVEL_MIN);
 	ut_assert(filt2 >= 0);
 
 	log_run();

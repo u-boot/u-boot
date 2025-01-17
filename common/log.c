@@ -192,6 +192,10 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 		    !log_has_member(filt->file_list, rec->file))
 			continue;
 
+		if (filt->func_list &&
+		    !log_has_member(filt->func_list, rec->func))
+			continue;
+
 		if (filt->flags & LOGFF_DENY)
 			return false;
 		else
@@ -329,7 +333,7 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 
 int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 			 enum log_level_t level, const char *file_list,
-			 int flags)
+			 const char *func_list, int flags)
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
@@ -360,6 +364,13 @@ int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {
+			ret = -ENOMEM;
+			goto err;
+		}
+	}
+	if (func_list) {
+		filt->func_list = strdup(func_list);
+		if (!filt->func_list) {
 			ret = -ENOMEM;
 			goto err;
 		}
