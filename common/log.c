@@ -130,17 +130,25 @@ bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 	return false;
 }
 
-bool log_has_file(const char *file_list, const char *file)
+/**
+ * log_has_member() - check if a string is in a comma separated list
+ *
+ * @list:	Comma separated list of strings
+ * @member:	String to find
+ *
+ * Return: ``true`` if @member is in @list, else ``false``
+ */
+static bool log_has_member(const char *list, const char *member)
 {
-	int file_len = strlen(file);
+	int member_len = strlen(member);
 	const char *s, *p;
 	int substr_len;
 
-	for (s = file_list; *s; s = p + (*p != '\0')) {
+	for (s = list; *s; s = p + (*p != '\0')) {
 		p = strchrnul(s, ',');
 		substr_len = p - s;
-		if (file_len >= substr_len &&
-		    !strncmp(file + file_len - substr_len, s, substr_len))
+		if (member_len >= substr_len &&
+		    !strncmp(member + member_len - substr_len, s, substr_len))
 			return true;
 	}
 
@@ -181,7 +189,7 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 			continue;
 
 		if (filt->file_list &&
-		    !log_has_file(filt->file_list, rec->file))
+		    !log_has_member(filt->file_list, rec->file))
 			continue;
 
 		if (filt->flags & LOGFF_DENY)
