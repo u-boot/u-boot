@@ -152,7 +152,9 @@ static int xgmac_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO not idle at entry: %d\n", ret);
+		pr_err("%s MDIO not idle at entry: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -172,7 +174,9 @@ static int xgmac_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO not idle at entry: %d\n", ret);
+		pr_err("%s MDIO not idle at entry: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -181,7 +185,9 @@ static int xgmac_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO read didn't complete: %d\n", ret);
+		pr_err("%s MDIO read didn't complete: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -206,7 +212,9 @@ static int xgmac_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO not idle at entry: %d\n", ret);
+		pr_err("%s MDIO not idle at entry: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -229,7 +237,9 @@ static int xgmac_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO not idle at entry: %d\n", ret);
+		pr_err("%s MDIO not idle at entry: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -238,7 +248,9 @@ static int xgmac_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
-		pr_err("MDIO write didn't complete: %d\n", ret);
+		pr_err("%s MDIO write didn't complete: %d\n",
+		       xgmac->dev->name, ret);
+
 		return ret;
 	}
 
@@ -323,7 +335,7 @@ static int xgmac_adjust_link(struct udevice *dev)
 	else
 		ret = xgmac_set_half_duplex(dev);
 	if (ret < 0) {
-		pr_err("xgmac_set_*_duplex() failed: %d\n", ret);
+		pr_err("%s xgmac_set_*_duplex() failed: %d\n", dev->name, ret);
 		return ret;
 	}
 
@@ -341,26 +353,28 @@ static int xgmac_adjust_link(struct udevice *dev)
 		ret = xgmac_set_mii_speed_10(dev);
 		break;
 	default:
-		pr_err("invalid speed %d\n", xgmac->phy->speed);
+		pr_err("%s invalid speed %d\n", dev->name, xgmac->phy->speed);
 		return -EINVAL;
 	}
 	if (ret < 0) {
-		pr_err("xgmac_set_*mii_speed*() failed: %d\n", ret);
+		pr_err("%s xgmac_set_*mii_speed*() failed: %d\n", dev->name, ret);
 		return ret;
 	}
 
 	if (en_calibration) {
 		ret = xgmac->config->ops->xgmac_calibrate_pads(dev);
 		if (ret < 0) {
-			pr_err("xgmac_calibrate_pads() failed: %d\n",
-			       ret);
+			pr_err("%s xgmac_calibrate_pads() failed: %d\n",
+			       dev->name, ret);
+
 			return ret;
 		}
 	} else {
 		ret = xgmac->config->ops->xgmac_disable_calibration(dev);
 		if (ret < 0) {
-			pr_err("xgmac_disable_calibration() failed: %d\n",
-			       ret);
+			pr_err("%s xgmac_disable_calibration() failed: %d\n",
+			       dev->name, ret);
+
 			return ret;
 		}
 	}
@@ -456,7 +470,7 @@ static int xgmac_start(struct udevice *dev)
 
 	ret = xgmac->config->ops->xgmac_start_resets(dev);
 	if (ret < 0) {
-		pr_err("xgmac_start_resets() failed: %d\n", ret);
+		pr_err("%s xgmac_start_resets() failed: %d\n", dev->name, ret);
 		goto err;
 	}
 
@@ -466,13 +480,13 @@ static int xgmac_start(struct udevice *dev)
 				XGMAC_DMA_MODE_SWR, false,
 				xgmac->config->swr_wait, false);
 	if (ret) {
-		pr_err("XGMAC_DMA_MODE_SWR stuck: %d\n", ret);
+		pr_err("%s XGMAC_DMA_MODE_SWR stuck: %d\n", dev->name, ret);
 		goto err_stop_resets;
 	}
 
 	ret = xgmac->config->ops->xgmac_calibrate_pads(dev);
 	if (ret < 0) {
-		pr_err("xgmac_calibrate_pads() failed: %d\n", ret);
+		pr_err("%s xgmac_calibrate_pads() failed: %d\n", dev->name, ret);
 		goto err_stop_resets;
 	}
 
@@ -485,14 +499,16 @@ static int xgmac_start(struct udevice *dev)
 		xgmac->phy = phy_connect(xgmac->mii, addr, dev,
 					 xgmac->config->interface(dev));
 		if (!xgmac->phy) {
-			pr_err("phy_connect() failed\n");
+			pr_err("%s phy_connect() failed\n", dev->name);
 			goto err_stop_resets;
 		}
 
 		if (xgmac->max_speed) {
 			ret = phy_set_supported(xgmac->phy, xgmac->max_speed);
 			if (ret) {
-				pr_err("phy_set_supported() failed: %d\n", ret);
+				pr_err("%s phy_set_supported() failed: %d\n",
+				       dev->name, ret);
+
 				goto err_shutdown_phy;
 			}
 		}
@@ -500,25 +516,25 @@ static int xgmac_start(struct udevice *dev)
 		xgmac->phy->node = xgmac->phy_of_node;
 		ret = phy_config(xgmac->phy);
 		if (ret < 0) {
-			pr_err("phy_config() failed: %d\n", ret);
+			pr_err("%s phy_config() failed: %d\n", dev->name, ret);
 			goto err_shutdown_phy;
 		}
 	}
 
 	ret = phy_startup(xgmac->phy);
 	if (ret < 0) {
-		pr_err("phy_startup() failed: %d\n", ret);
+		pr_err("%s phy_startup() failed: %d\n", dev->name, ret);
 		goto err_shutdown_phy;
 	}
 
 	if (!xgmac->phy->link) {
-		pr_err("No link\n");
+		pr_err("%s No link\n", dev->name);
 		goto err_shutdown_phy;
 	}
 
 	ret = xgmac_adjust_link(dev);
 	if (ret < 0) {
-		pr_err("xgmac_adjust_link() failed: %d\n", ret);
+		pr_err("%s xgmac_adjust_link() failed: %d\n", dev->name, ret);
 		goto err_shutdown_phy;
 	}
 
@@ -611,7 +627,7 @@ static int xgmac_start(struct udevice *dev)
 
 	ret = xgmac_write_hwaddr(dev);
 	if (ret < 0) {
-		pr_err("xgmac_write_hwaddr() failed: %d\n", ret);
+		pr_err("%s xgmac_write_hwaddr() failed: %d\n", dev->name, ret);
 		goto err;
 	}
 
@@ -738,7 +754,7 @@ err_shutdown_phy:
 err_stop_resets:
 	xgmac->config->ops->xgmac_stop_resets(dev);
 err:
-	pr_err("FAILED: %d\n", ret);
+	pr_err("%s FAILED: %d\n", dev->name, ret);
 	return ret;
 }
 
@@ -1047,7 +1063,7 @@ static int xgmac_probe(struct udevice *dev)
 
 	xgmac->regs = dev_read_addr(dev);
 	if (xgmac->regs == FDT_ADDR_T_NONE) {
-		pr_err("dev_read_addr() failed\n");
+		pr_err("%s dev_read_addr() failed\n", dev->name);
 		return -ENODEV;
 	}
 	xgmac->mac_regs = (void *)(xgmac->regs + XGMAC_MAC_REGS_BASE);
@@ -1058,19 +1074,23 @@ static int xgmac_probe(struct udevice *dev)
 
 	ret = xgmac_probe_resources_core(dev);
 	if (ret < 0) {
-		pr_err("xgmac_probe_resources_core() failed: %d\n", ret);
+		pr_err("%s xgmac_probe_resources_core() failed: %d\n",
+		       dev->name, ret);
+
 		return ret;
 	}
 
 	ret = xgmac->config->ops->xgmac_probe_resources(dev);
 	if (ret < 0) {
-		pr_err("xgmac_probe_resources() failed: %d\n", ret);
+		pr_err("%s xgmac_probe_resources() failed: %d\n",
+		       dev->name, ret);
+
 		goto err_remove_resources_core;
 	}
 
 	ret = xgmac->config->ops->xgmac_start_clks(dev);
 	if (ret < 0) {
-		pr_err("xgmac_start_clks() failed: %d\n", ret);
+		pr_err("%s xgmac_start_clks() failed: %d\n", dev->name, ret);
 		return ret;
 	}
 
@@ -1080,7 +1100,7 @@ static int xgmac_probe(struct udevice *dev)
 	if (!xgmac->mii) {
 		xgmac->mii = mdio_alloc();
 		if (!xgmac->mii) {
-			pr_err("mdio_alloc() failed\n");
+			pr_err("%s mdio_alloc() failed\n", dev->name);
 			ret = -ENOMEM;
 			goto err_stop_clks;
 		}
@@ -1091,7 +1111,9 @@ static int xgmac_probe(struct udevice *dev)
 
 		ret = mdio_register(xgmac->mii);
 		if (ret < 0) {
-			pr_err("mdio_register() failed: %d\n", ret);
+			pr_err("%s mdio_register() failed: %d\n",
+			       dev->name, ret);
+
 			goto err_free_mdio;
 		}
 	}
