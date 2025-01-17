@@ -19,7 +19,7 @@ int blkmap_create_ramdisk(const char *label, ulong image_addr, ulong image_size,
 	struct blk_desc *desc;
 	struct udevice *bm_dev;
 
-	ret = blkmap_create(label, &bm_dev);
+	ret = blkmap_create(label, &bm_dev, BLKMAP_MEM);
 	if (ret) {
 		log_err("failed to create blkmap\n");
 		return ret;

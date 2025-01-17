@@ -153,6 +153,9 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	struct blk_desc *bd, *lbd;
 	int err;
 
+	if (bm->type != BLKMAP_LINEAR)
+		return log_msg_ret("Invalid blkmap type", -EINVAL);
+
 	bd = dev_get_uclass_plat(bm->blk);
 	lbd = dev_get_uclass_plat(lblk);
 	if (lbd->blksz != bd->blksz) {
@@ -239,6 +242,9 @@ int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blkmap_mem *bmm;
 	int err;
+
+	if (bm->type != BLKMAP_MEM)
+		return log_msg_ret("Invalid blkmap type", -EINVAL);
 
 	bmm = malloc(sizeof(*bmm));
 	if (!bmm)
@@ -435,7 +441,8 @@ struct udevice *blkmap_from_label(const char *label)
 	return NULL;
 }
 
-int blkmap_create(const char *label, struct udevice **devp)
+int blkmap_create(const char *label, struct udevice **devp,
+		  enum blkmap_type type)
 {
 	char *hname, *hlabel;
 	struct udevice *dev;
@@ -472,6 +479,7 @@ int blkmap_create(const char *label, struct udevice **devp)
 	device_set_name_alloced(dev);
 	bm = dev_get_plat(dev);
 	bm->label = hlabel;
+	bm->type = type;
 
 	if (devp)
 		*devp = dev;
