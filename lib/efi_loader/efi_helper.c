@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <blkmap.h>
 #include <bootm.h>
 #include <env.h>
 #include <image.h>
@@ -19,6 +20,8 @@
 #include <efi_loader.h>
 #include <efi_variable.h>
 #include <host_arch.h>
+#include <dm/uclass.h>
+#include <linux/kernel.h>
 #include <linux/libfdt.h>
 #include <linux/list.h>
 
@@ -679,4 +682,53 @@ out:
 	efi_set_watchdog(0);
 
 	return ret;
+}
+
+static int add_blkmap_pmem_nodes(void *fdt, struct blkmap *bm)
+{
+	int ret;
+	u32 size;
+	ulong addr;
+	efi_status_t status;
+	struct blkmap_mem *bmm;
+	struct blkmap_slice *bms;
+	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
+
+	list_for_each_entry(bms, &bm->slices, node) {
+		if (bms->type != BLKMAP_SLICE_MEM)
+			continue;
+
+		bmm = container_of(bms, struct blkmap_mem, slice);
+
+		addr = (ulong)(uintptr_t)bmm->addr;
+		size = (u32)bms->blkcnt << bd->log2blksz;
+
+		ret = fdt_fixup_pmem_region(fdt, addr, size);
+		if (ret)
+			return ret;
+
+		status = efi_remove_memory_map(addr, size,
+					       EFI_CONVENTIONAL_MEMORY);
+		if (status != EFI_SUCCESS)
+			return -1;
+	}
+
+	return 0;
+}
+
+int fdt_efi_pmem_setup(void *fdt)
+{
+	int ret;
+	struct udevice *dev;
+	struct uclass *uc;
+	struct blkmap *bm;
+
+	uclass_id_foreach_dev(UCLASS_BLKMAP, dev, uc) {
+		bm = dev_get_plat(dev);
+		ret = add_blkmap_pmem_nodes(fdt, bm);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
