@@ -7,8 +7,11 @@
 
 #include <blk.h>
 #include <blkmap.h>
+#include <fdt_support.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
+#include <dm/uclass.h>
+#include <linux/kernel.h>
 
 int blkmap_create_ramdisk(const char *label, ulong image_addr, ulong image_size,
 			  struct udevice **devp)
@@ -50,4 +53,46 @@ err:
 	blkmap_destroy(bm_dev);
 
 	return ret;
+}
+
+static int blkmap_add_pmem_node(void *fdt, struct blkmap *bm)
+{
+	int ret;
+	u32 size;
+	ulong addr;
+	struct blkmap_mem *bmm;
+	struct blkmap_slice *bms;
+	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
+
+	list_for_each_entry(bms, &bm->slices, node) {
+		bmm = container_of(bms, struct blkmap_mem, slice);
+
+		addr = (ulong)(uintptr_t)bmm->addr;
+		size = (u32)bms->blkcnt << bd->log2blksz;
+
+		ret = fdt_fixup_pmem_region(fdt, addr, size);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+int blkmap_fdt_pmem_setup(void *fdt)
+{
+	int ret;
+	struct udevice *dev;
+	struct uclass *uc;
+	struct blkmap *bm;
+
+	uclass_id_foreach_dev(UCLASS_BLKMAP, dev, uc) {
+		bm = dev_get_plat(dev);
+		if (bm->type == BLKMAP_MEM) {
+			ret = blkmap_add_pmem_node(fdt, bm);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
 }

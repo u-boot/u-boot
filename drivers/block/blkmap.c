@@ -14,57 +14,6 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 
-struct blkmap;
-
-/**
- * struct blkmap_slice - Region mapped to a blkmap
- *
- * Common data for a region mapped to a blkmap, specialized by each
- * map type.
- *
- * @node: List node used to associate this slice with a blkmap
- * @blknr: Start block number of the mapping
- * @blkcnt: Number of blocks covered by this mapping
- */
-struct blkmap_slice {
-	struct list_head node;
-
-	lbaint_t blknr;
-	lbaint_t blkcnt;
-
-	/**
-	 * @read: - Read from slice
-	 *
-	 * @read.bm: Blkmap to which this slice belongs
-	 * @read.bms: This slice
-	 * @read.blknr: Start block number to read from
-	 * @read.blkcnt: Number of blocks to read
-	 * @read.buffer: Buffer to store read data to
-	 */
-	ulong (*read)(struct blkmap *bm, struct blkmap_slice *bms,
-		      lbaint_t blknr, lbaint_t blkcnt, void *buffer);
-
-	/**
-	 * @write: - Write to slice
-	 *
-	 * @write.bm: Blkmap to which this slice belongs
-	 * @write.bms: This slice
-	 * @write.blknr: Start block number to write to
-	 * @write.blkcnt: Number of blocks to write
-	 * @write.buffer: Data to be written
-	 */
-	ulong (*write)(struct blkmap *bm, struct blkmap_slice *bms,
-		       lbaint_t blknr, lbaint_t blkcnt, const void *buffer);
-
-	/**
-	 * @destroy: - Tear down slice
-	 *
-	 * @read.bm: Blkmap to which this slice belongs
-	 * @read.bms: This slice
-	 */
-	void (*destroy)(struct blkmap *bm, struct blkmap_slice *bms);
-};
-
 static bool blkmap_slice_contains(struct blkmap_slice *bms, lbaint_t blknr)
 {
 	return (blknr >= bms->blknr) && (blknr < (bms->blknr + bms->blkcnt));
@@ -113,20 +62,6 @@ static int blkmap_slice_add(struct blkmap *bm, struct blkmap_slice *new)
 	bd->lba = bms->blknr + bms->blkcnt;
 	return 0;
 }
-
-/**
- * struct blkmap_linear - Linear mapping to other block device
- *
- * @slice: Common map data
- * @blk: Target block device of this mapping
- * @blknr: Start block number of the target device
- */
-struct blkmap_linear {
-	struct blkmap_slice slice;
-
-	struct udevice *blk;
-	lbaint_t blknr;
-};
 
 static ulong blkmap_linear_read(struct blkmap *bm, struct blkmap_slice *bms,
 				lbaint_t blknr, lbaint_t blkcnt, void *buffer)
@@ -187,21 +122,6 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 
 	return err;
 }
-
-/**
- * struct blkmap_mem - Memory mapping
- *
- * @slice: Common map data
- * @addr: Target memory region of this mapping
- * @remapped: True if @addr is backed by a physical to virtual memory
- * mapping that must be torn down at the end of this mapping's
- * lifetime.
- */
-struct blkmap_mem {
-	struct blkmap_slice slice;
-	void *addr;
-	bool remapped;
-};
 
 static ulong blkmap_mem_read(struct blkmap *bm, struct blkmap_slice *bms,
 			     lbaint_t blknr, lbaint_t blkcnt, void *buffer)
