@@ -245,6 +245,18 @@ const char *__efi_nesting_dec(void);
 	_r; \
 })
 
+/**
+ * define EFI_RETURN() - return from EFI_CALL in efi_start_image()
+ *
+ * @ret:	status code
+ */
+#define EFI_RETURN(ret) ({ \
+	typeof(ret) _r = ret; \
+	assert(__efi_entry_check()); \
+	debug("%sEFI: %lu returned by started image", __efi_nesting_dec(), \
+	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK)); \
+})
+
 /*
  * Call void UEFI function from u-boot:
  */
