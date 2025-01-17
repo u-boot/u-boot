@@ -190,6 +190,7 @@
 	snps,mdio-gpio = <&gpio2 28 GPIO_ACTIVE_HIGH>;    /* gpio92 */
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 10000 1000000>;
+	snps,bitbang-delay = <1>;
 	snps,reset-gpio = <&gpio2 29 GPIO_ACTIVE_LOW>;    /* gpio93 */
 	status = "okay";
 };
