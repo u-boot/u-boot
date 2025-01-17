@@ -29,6 +29,25 @@
 
 #define SOCFPGA_XGMAC_SYSCON_ARG_COUNT 2
 
+phy_interface_t dwxgmac_of_get_mac_mode(struct udevice *dev)
+{
+	const char *mac_mode;
+	int i;
+
+	debug("%s(dev=%p):\n", __func__, dev);
+	mac_mode = dev_read_string(dev, "mac-mode");
+	if (!mac_mode)
+		return PHY_INTERFACE_MODE_NA;
+
+	if (mac_mode) {
+		for (i = 0; i < PHY_INTERFACE_MODE_MAX; i++) {
+			if (!strcmp(mac_mode, phy_interface_strings[i]))
+				return i;
+		}
+	}
+	return PHY_INTERFACE_MODE_NA;
+}
+
 static int dwxgmac_socfpga_do_setphy(struct udevice *dev, u32 modereg)
 {
 	struct xgmac_priv *xgmac = dev_get_priv(dev);
@@ -66,12 +85,17 @@ static int xgmac_probe_resources_socfpga(struct udevice *dev)
 	struct ofnode_phandle_args args;
 	void *range;
 	phy_interface_t interface;
+	phy_interface_t mac_mode;
 	int ret;
 	u32 modereg;
 
 	interface = xgmac->config->interface(dev);
+	mac_mode = dwxgmac_of_get_mac_mode(dev);
 
-	switch (interface) {
+	if (mac_mode == PHY_INTERFACE_MODE_NA)
+		mac_mode = interface;
+
+	switch (mac_mode) {
 	case PHY_INTERFACE_MODE_MII:
 	case PHY_INTERFACE_MODE_GMII:
 		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
