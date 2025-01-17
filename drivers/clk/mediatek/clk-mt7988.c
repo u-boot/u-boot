@@ -485,6 +485,7 @@ static const int infra_pcie_gfmux_tl_ck_o_p3_parents[] = {
 		.id = _id, .mux_reg = _reg + 0x8, .mux_set_reg = _reg + 0x0,   \
 		.mux_clr_reg = _reg + 0x4, .mux_shift = _shift,                \
 		.mux_mask = BIT(_width) - 1, .parent = _parents,               \
+		.gate_shift = -1, .upd_shift = -1,			       \
 		.num_parents = ARRAY_SIZE(_parents),                           \
 		.flags = CLK_MUX_SETCLR_UPD | CLK_PARENT_TOPCKGEN,             \
 	}
