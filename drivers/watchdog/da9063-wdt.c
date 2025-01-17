@@ -145,5 +145,4 @@ U_BOOT_DRIVER(da9063_wdt) = {
 	.id = UCLASS_WDT,
 	.of_match = da9063_wdt_ids,
 	.ops = &da9063_wdt_ops,
-	.flags = DM_FLAG_PROBE_AFTER_BIND,
 };
