@@ -95,6 +95,14 @@
 		};
 	};
 
+	/* pin13 as pwm0, pin15 as pwm1, pin7 as pwm2 */
+	three_pwm_pins_1: three-pwm-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0_0", "pwm1_1", "pwm2";
+		};
+	};
+
 	mmc0_pins_default: mmc0default {
 		mux {
 			function = "flash";

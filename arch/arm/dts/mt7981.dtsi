@@ -137,8 +137,14 @@
 			 <&infracfg CLK_INFRA_PWM1_CK>,
 			 <&infracfg CLK_INFRA_PWM2_CK>,
 			 <&infracfg CLK_INFRA_PWM3_CK>;
-		assigned-clocks = <&topckgen CLK_TOP_PWM_SEL>;
-		assigned-clock-parents = <&topckgen CLK_TOP_CB_CKSQ_40M>;
+		assigned-clocks = <&topckgen CLK_TOP_PWM_SEL>,
+				  <&infracfg CLK_INFRA_PWM1_SEL>,
+				  <&infracfg CLK_INFRA_PWM2_SEL>,
+				  <&infracfg CLK_INFRA_PWM3_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_CB_CKSQ_40M>,
+					 <&topckgen CLK_TOP_PWM_SEL>,
+					 <&topckgen CLK_TOP_PWM_SEL>,
+					 <&topckgen CLK_TOP_PWM_SEL>;
 		clock-names = "top", "main", "pwm1", "pwm2", "pwm3";
 		status = "disabled";
 	};
