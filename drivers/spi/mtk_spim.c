@@ -359,6 +359,9 @@ static bool mtk_spim_supports_op(struct spi_slave *slave,
 	struct udevice *bus = dev_get_parent(slave->dev);
 	struct mtk_spim_priv *priv = dev_get_priv(bus);
 
+	if (!spi_mem_default_supports_op(slave, op))
+		return false;
+
 	if (op->cmd.buswidth == 0 || op->cmd.buswidth > 4 ||
 	    op->addr.buswidth > 4 || op->dummy.buswidth > 4 ||
 	    op->data.buswidth > 4)
