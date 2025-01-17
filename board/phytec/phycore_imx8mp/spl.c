@@ -165,6 +165,8 @@ int power_init_board(void)
 
 void spl_board_init(void)
 {
+	arch_misc_init();
+
 	/* Set GIC clock to 500Mhz for OD VDD_SOC. */
 	clock_enable(CCGR_GIC, 0);
 	clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
