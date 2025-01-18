@@ -28,7 +28,7 @@ Get the TF-A and DDR init (TPL) binaries
    cd u-boot
    export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2400MHz_v1.17.bin
    export BL31=../rkbin/bin/rk35/rk3588_bl31_v1.46.elf
-   make coolpi-genbook-cm5-rk3588_defconfig
+   make coolpi-cm5-genbook-rk3588_defconfig
    make CROSS_COMPILE=aarch64-linux-gnu-
 
 This will build ``u-boot-rockchip.bin`` for eMMC and ``u-boot-rockchip-spi.bin`` for SPI Nor.

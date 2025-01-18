@@ -63,8 +63,8 @@ optional_header:
 	.short	PE_MAGIC			/* PE32(+) format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
-	.long	_edata - _start			/* SizeOfCode */
-	.long	0				/* SizeOfInitializedData */
+	.long	_etext - _start			/* SizeOfCode */
+	.long	_data_size			/* SizeOfInitializedData */
 	.long	0				/* SizeOfUninitializedData */
 	.long	_start - ImageBase		/* AddressOfEntryPoint */
 	.long	_start - ImageBase		/* BaseOfCode */
