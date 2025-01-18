@@ -2,10 +2,6 @@
 config BITBANGMII
 	bool "Bit-banged ethernet MII management channel support"
 
-config BITBANGMII_MULTI
-	bool "Enable the multi bus support"
-	depends on BITBANGMII
-
 config MV88E6352_SWITCH
 	bool "Marvell 88E6352 switch support"
 

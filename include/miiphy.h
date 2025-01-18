@@ -72,9 +72,7 @@ struct bb_miiphy_bus {
 	int (*get_mdio)(struct bb_miiphy_bus *bus, int *v);
 	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
 	int (*delay)(struct bb_miiphy_bus *bus);
-#ifdef CONFIG_BITBANGMII_MULTI
 	void *priv;
-#endif
 };
 
 extern struct bb_miiphy_bus bb_miiphy_buses[];

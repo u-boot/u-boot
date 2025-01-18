@@ -17,90 +17,6 @@
 #include <miiphy.h>
 #include <asm/global_data.h>
 
-#ifndef CONFIG_BITBANGMII_MULTI
-
-/*
- * If CONFIG_BITBANGMII_MULTI is not defined we use a
- * compatibility layer with the previous miiphybb implementation
- * based on macros usage.
- *
- */
-static int bb_mii_init_wrap(struct bb_miiphy_bus *bus)
-{
-#ifdef MII_INIT
-	MII_INIT;
-#endif
-	return 0;
-}
-
-static int bb_mdio_active_wrap(struct bb_miiphy_bus *bus)
-{
-#ifdef MDIO_DECLARE
-	MDIO_DECLARE;
-#endif
-	MDIO_ACTIVE;
-	return 0;
-}
-
-static int bb_mdio_tristate_wrap(struct bb_miiphy_bus *bus)
-{
-#ifdef MDIO_DECLARE
-	MDIO_DECLARE;
-#endif
-	MDIO_TRISTATE;
-	return 0;
-}
-
-static int bb_set_mdio_wrap(struct bb_miiphy_bus *bus, int v)
-{
-#ifdef MDIO_DECLARE
-	MDIO_DECLARE;
-#endif
-	MDIO(v);
-	return 0;
-}
-
-static int bb_get_mdio_wrap(struct bb_miiphy_bus *bus, int *v)
-{
-#ifdef MDIO_DECLARE
-	MDIO_DECLARE;
-#endif
-	*v = MDIO_READ;
-	return 0;
-}
-
-static int bb_set_mdc_wrap(struct bb_miiphy_bus *bus, int v)
-{
-#ifdef MDC_DECLARE
-	MDC_DECLARE;
-#endif
-	MDC(v);
-	return 0;
-}
-
-static int bb_delay_wrap(struct bb_miiphy_bus *bus)
-{
-	MIIDELAY;
-	return 0;
-}
-
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.name = BB_MII_DEVNAME,
-		.init = bb_mii_init_wrap,
-		.mdio_active = bb_mdio_active_wrap,
-		.mdio_tristate = bb_mdio_tristate_wrap,
-		.set_mdio = bb_set_mdio_wrap,
-		.get_mdio = bb_get_mdio_wrap,
-		.set_mdc = bb_set_mdc_wrap,
-		.delay = bb_delay_wrap,
-	}
-};
-
-int bb_miiphy_buses_num = sizeof(bb_miiphy_buses) /
-			  sizeof(bb_miiphy_buses[0]);
-#endif
-
 int bb_miiphy_init(void)
 {
 	int i;
@@ -114,7 +30,6 @@ int bb_miiphy_init(void)
 
 static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
 {
-#ifdef CONFIG_BITBANGMII_MULTI
 	int i;
 
 	/* Search the correct bus */
@@ -124,10 +39,6 @@ static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
 		}
 	}
 	return NULL;
-#else
-	/* We have just one bitbanging bus */
-	return &bb_miiphy_buses[0];
-#endif
 }
 
 /*****************************************************************************
