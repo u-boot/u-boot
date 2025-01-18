@@ -5,8 +5,4 @@
  * Copyright (C) 2021 Renesas Electronics Corp.
  */
 
-#include "r8a779x-u-boot.dtsi"
-
-&extalr_clk {
-	bootph-all;
-};
+#include "r8a779x-rcar64-u-boot.dtsi"
