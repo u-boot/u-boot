@@ -3073,8 +3073,10 @@ int mmc_init(struct mmc *mmc)
 
 	if (!err)
 		err = mmc_complete_init(mmc);
-	if (err)
+	if (err) {
 		pr_info("%s: %d, time %lu\n", __func__, err, get_timer(start));
+		return err;
+	}
 
 	if (CONFIG_IS_ENABLED(CYCLIC, (!mmc->cyclic.func), (NULL))) {
 		/* Register cyclic function for card detect polling */
