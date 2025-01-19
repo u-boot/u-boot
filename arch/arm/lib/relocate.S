@@ -83,8 +83,6 @@ relocate_base:
 	add	r1, r3			/* r1 <- Run &__image_copy_start */
 	subs	r4, r0, r1		/* r4 <- Run to copy offset      */
 	beq	relocate_done		/* skip relocation               */
-	ldr	r1, _image_copy_start_ofs
-	add	r1, r3			/* r1 <- Run &__image_copy_start */
 	ldr	r2, _image_copy_end_ofs
 	add	r2, r3			/* r2 <- Run &__image_copy_end   */
 copy_loop:
