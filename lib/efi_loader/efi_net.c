@@ -104,6 +104,7 @@ struct efi_net_obj {
 	*/
 	struct efi_event *network_timer_event;
 	int efi_seq_num;
+	bool snp_owner;
 };
 
 static int curr_efi_net_obj;
@@ -128,14 +129,17 @@ static bool efi_netobj_is_active(struct efi_net_obj *netobj)
  *
  *
  * @snp:	pointer to the simple network protocol
+ * @bool:	snp owner
  * Return:	pointer to efi_net_obj, NULL on error
  */
-static struct efi_net_obj *efi_netobj_from_snp(struct efi_simple_network *snp)
+static struct efi_net_obj *efi_netobj_from_snp(struct efi_simple_network *snp,
+					       bool snp_owner)
 {
 	int i;
 
 	for (i = 0; i < MAX_EFI_NET_OBJS; i++) {
-		if (net_objs[i] && net_objs[i]->net == snp) {
+		if (net_objs[i] && net_objs[i]->net == snp &&
+		    (!snp_owner || net_objs[i]->snp_owner)) {
 			// Do not register duplicate devices
 			return net_objs[i];
 		}
@@ -165,7 +169,7 @@ static efi_status_t EFIAPI efi_net_start(struct efi_simple_network *this)
 		goto out;
 	}
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	if (this->mode->state != EFI_NETWORK_STOPPED) {
 		ret = EFI_ALREADY_STARTED;
@@ -201,7 +205,7 @@ static efi_status_t EFIAPI efi_net_stop(struct efi_simple_network *this)
 		goto out;
 	}
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	if (this->mode->state == EFI_NETWORK_STOPPED) {
 		ret = EFI_NOT_STARTED;
@@ -244,7 +248,7 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
 		r = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	switch (this->mode->state) {
 	case EFI_NETWORK_INITIALIZED:
@@ -341,7 +345,7 @@ static efi_status_t EFIAPI efi_net_shutdown(struct efi_simple_network *this)
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	switch (this->mode->state) {
 	case EFI_NETWORK_INITIALIZED:
@@ -547,7 +551,7 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
 		goto out;
 	}
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	switch (this->mode->state) {
 	case EFI_NETWORK_STOPPED:
@@ -608,7 +612,7 @@ static efi_status_t EFIAPI efi_net_transmit
 		goto out;
 	}
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	/* We do not support jumbo packets */
 	if (buffer_size > PKTSIZE_ALIGN) {
@@ -706,7 +710,7 @@ static efi_status_t EFIAPI efi_net_receive
 		goto out;
 	}
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 
 	switch (this->mode->state) {
 	case EFI_NETWORK_STOPPED:
@@ -864,7 +868,7 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 	if (!this || this->mode->state != EFI_NETWORK_INITIALIZED)
 		goto out;
 
-	nt = efi_netobj_from_snp(this);
+	nt = efi_netobj_from_snp(this, true);
 	curr_efi_net_obj = nt->efi_seq_num;
 
 	// The following only happens if the net obj was removed but the event
@@ -1200,7 +1204,7 @@ static int efi_netobj_init(struct efi_net_obj *netobj)
 
 	dev = netobj->dev;
 
-	if (efi_netobj_is_active(netobj))
+	if (efi_netobj_is_active(netobj) || !netobj->snp_owner)
 		goto set_timers;
 
 	if (!netobj->net_mode)
@@ -1414,6 +1418,7 @@ struct efi_net_obj *efi_netobj_alloc(efi_handle_t handle,
 			free(netobj->net->mode);
 		free(netobj->net);
 	}
+	netobj->net = NULL;
 
 	if (handle)
 		netobj->handle = handle;
@@ -1424,6 +1429,8 @@ struct efi_net_obj *efi_netobj_alloc(efi_handle_t handle,
 			return NULL;
 		}
 	}
+
+	netobj->snp_owner = efi_netobj_from_snp(net, true)? false : true;
 
 	if (net) {
 		netobj->net = net;
@@ -1552,14 +1559,9 @@ int efi_net_unregister(void *ctx, struct event *event)
 		return -1;
 	}
 
+	interface = NULL;
 	if (drv != dev->driver) {
 		ret = EFI_CALL(efi_disconnect_controller(netobj->handle, NULL, NULL));
-		if (ret != EFI_SUCCESS)
-			return -1;
-		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
-		if (ret != EFI_SUCCESS)
-			return -1;
-		ret = EFI_CALL(efi_close_event(netobj->network_timer_event));
 		if (ret != EFI_SUCCESS)
 			return -1;
 
@@ -1573,6 +1575,15 @@ int efi_net_unregister(void *ctx, struct event *event)
 			if (r)
 				return -1;
 		}
+	}
+
+	if (netobj->snp_owner) {
+		ret = EFI_CALL(efi_close_event(netobj->wait_for_packet));
+		if (ret != EFI_SUCCESS)
+			return -1;
+		ret = EFI_CALL(efi_close_event(netobj->network_timer_event));
+		if (ret != EFI_SUCCESS)
+			return -1;
 	}
 
 #if IS_ENABLED(CONFIG_EFI_IP4_CONFIG2_PROTOCOL)
@@ -1597,8 +1608,11 @@ int efi_net_unregister(void *ctx, struct event *event)
 		ret = efi_delete_handle(netobj->handle);
 		if (ret != EFI_SUCCESS)
 			return -1;
+	}
 
-		efi_free_pool(interface);
+	efi_free_pool(interface);
+
+	if (netobj->snp_owner) {
 		if (netobj->net)
 			free(netobj->net);
 		if (netobj->net_mode)
