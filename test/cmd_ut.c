@@ -123,7 +123,7 @@ SUITE_DECL(upl);
 static struct suite suites[] = {
 	SUITE_CMD(info, do_ut_info),
 #ifdef CONFIG_CMD_BDI
-	SUITE_CMD(bdinfo, do_ut_bdinfo),
+	SUITE(bdinfo),
 #endif
 #ifdef CONFIG_UT_BOOTSTD
 	SUITE_CMD(bootstd, do_ut_bootstd),
