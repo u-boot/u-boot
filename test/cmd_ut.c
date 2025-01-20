@@ -161,7 +161,7 @@ static struct suite suites[] = {
         && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
 	SUITE(mbr),
 #endif
-	SUITE_CMD(mem, do_ut_mem),
+	SUITE(mem),
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_SETEXPR)
 	SUITE_CMD(setexpr, do_ut_setexpr),
 #endif
