@@ -93,7 +93,6 @@ int cmd_ut_category(const char *name, const char *prefix,
 	NULL, \
 	}
 
-SUITE_DECL(info);
 SUITE_DECL(bdinfo);
 SUITE_DECL(bootstd);
 SUITE_DECL(cmd);
@@ -121,7 +120,6 @@ SUITE_DECL(seama);
 SUITE_DECL(upl);
 
 static struct suite suites[] = {
-	SUITE_CMD(info, do_ut_info),
 #ifdef CONFIG_CMD_BDI
 	SUITE(bdinfo),
 #endif
@@ -249,7 +247,7 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		puts("\nTests  Suite\n");
 		puts("-----  -----\n");
-		for (i = 1; i < ARRAY_SIZE(suites); i++) {
+		for (i = 0; i < ARRAY_SIZE(suites); i++) {
 			struct suite *ste = &suites[i];
 			long n_ent = ste->end - ste->start;
 

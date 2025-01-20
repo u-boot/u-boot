@@ -8,7 +8,7 @@ import re
 EXPECTED_SUITES = [
     'addrmap', 'bdinfo', 'bloblist', 'bootm', 'bootstd',
     'cmd', 'common', 'dm', 'env', 'exit',
-    'fdt', 'font', 'hush', 'info', 'lib',
+    'fdt', 'font', 'hush', 'lib',
     'loadm', 'log', 'mbr', 'measurement', 'mem',
     'overlay', 'pci_mps', 'setexpr', 'upl',
     ]
@@ -153,9 +153,8 @@ def test_suite(u_boot_console):
     cons.log.info(f'missing {missing}')
     cons.log.info(f'extra {extra}')
 
-    # Make sure we got a test count for each suite (ignore 'info' since it isn't
-    # a real suite
-    assert suites - exp_test_count.keys() == {'info'}
+    # Make sure we got a test count for each suite
+    assert suites - exp_test_count.keys() == set()
 
     # Run 'ut info' and compare with the log results
     with cons.log.section('Check suite test-counts'):
@@ -174,10 +173,8 @@ def test_suite(u_boot_console):
 
         cons.log.info(str(exp_test_count))
         for suite in EXPECTED_SUITES:
-            # 'info' is not really a suite, just a subcommand of 'ut'
-            if suite != 'info':
-                assert test_count[suite] in ['?', str(exp_test_count[suite])],\
-                    f'suite {suite} expected {exp_test_count[suite]}'
+            assert test_count[suite] in ['?', str(exp_test_count[suite])], \
+                f'suite {suite} expected {exp_test_count[suite]}'
 
         assert suite_count == len(EXPECTED_SUITES)
         assert total_test_count == len(all_tests)
