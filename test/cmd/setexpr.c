@@ -479,12 +479,3 @@ static int setexpr_test_fmt(struct unit_test_state *uts)
 }
 SETEXPR_TEST(setexpr_test_fmt, UTF_CONSOLE);
 #endif
-
-int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(setexpr);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(setexpr);
-
-	return cmd_ut_category("setexpr", "setexpr_test_", tests, n_ents,
-			       argc, argv);
-}
