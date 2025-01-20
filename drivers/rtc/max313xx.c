@@ -308,6 +308,11 @@ static int max313xx_set_time(struct udevice *dev, const struct rtc_time *t)
 			return ret;
 
 		break;
+	case ID_MAX31343:
+		/* Time is not updated for 1 second after writing */
+		/* Sleep here so the date command shows the new time */
+		mdelay(1000);
+		break;
 	default:
 		break;
 	}
