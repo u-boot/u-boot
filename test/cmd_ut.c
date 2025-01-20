@@ -153,8 +153,20 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
+	const char *flags;
+
 	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub));
 	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
+
+	flags = cmd_arg1(argc, argv);
+	if (flags && !strcmp("-s", flags)) {
+		int i;
+
+		puts("\nTests  Suite\n");
+		puts("-----  -----\n");
+		for (i = 1; i < ARRAY_SIZE(cmd_ut_sub); i++)
+			printf("%5s  %s\n", "?", cmd_ut_sub[i].name);
+	}
 
 	return 0;
 }
@@ -186,7 +198,7 @@ U_BOOT_LONGHELP(ut,
 	"\n"
 	"\nOptions for <suite>:"
 	"\nall - execute all enabled tests"
-	"\ninfo - show info about tests"
+	"\ninfo [-s] - show info about tests [and suites]"
 #ifdef CONFIG_CMD_ADDRMAP
 	"\naddrmap - very basic test of addrmap command"
 #endif
