@@ -607,4 +607,4 @@ def test_ut(u_boot_console, ut_subtest):
         assert 'Unknown command \'quux\' - try \'help\'' in output
     else:
         output = u_boot_console.run_command('ut ' + ut_subtest)
-    assert output.endswith('Failures: 0')
+    assert output.endswith('failures: 0')

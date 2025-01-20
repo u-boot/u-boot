@@ -35,4 +35,4 @@ def test_upl_handoff(u_boot_console):
 
     # Check the FIT offsets look correct
     output = cons.run_command('ut upl -f upl_test_info_norun')
-    assert 'Failures: 0' in output
+    assert 'failures: 0' in output

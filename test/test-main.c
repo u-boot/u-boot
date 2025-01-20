@@ -673,6 +673,18 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 	return uts->cur.fail_count ? -EBADF : 0;
 }
 
+void ut_report(struct ut_stats *stats, int run_count)
+{
+	if (run_count > 1)
+		printf("Suites run: %d, total tests", run_count);
+	else
+		printf("Tests");
+	printf(" run: %d, ", stats->test_count);
+	if (stats->skip_count)
+		printf("skipped: %d, ", stats->skip_count);
+	printf("failures: %d\n", stats->fail_count);
+}
+
 int ut_run_list(struct unit_test_state *uts, const char *category,
 		const char *prefix, struct unit_test *tests, int count,
 		const char *select_name, int runs_per_test, bool force_run,
@@ -718,13 +730,9 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	if (has_dm_tests)
 		dm_test_restore(uts->of_root);
 
-	printf("Tests run: %d, ", uts->cur.test_count);
-	if (uts->cur.skip_count)
-		printf("Skipped: %d, ", uts->cur.skip_count);
+	ut_report(&uts->cur, 1);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
-	else
-		printf("Failures: %d\n", uts->cur.fail_count);
 
 	return ret;
 }

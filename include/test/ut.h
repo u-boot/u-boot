@@ -530,4 +530,12 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 		const char *select_name, int runs_per_test, bool force_run,
 		const char *test_insert);
 
+/**
+ * ut_report() - Report stats on a test run
+ *
+ * @stats: Stats to show
+ * @run_count: Number of suites that were run
+ */
+void ut_report(struct ut_stats *stats, int run_count);
+
 #endif
