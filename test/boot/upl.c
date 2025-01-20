@@ -426,11 +426,3 @@ static int upl_test_info_norun(struct unit_test_state *uts)
 	return 0;
 }
 UPL_TEST(upl_test_info_norun, UTF_CONSOLE | UTF_MANUAL);
-
-int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(upl);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(upl);
-
-	return cmd_ut_category("upl", "cmd_upl_", tests, n_ents, argc, argv);
-}

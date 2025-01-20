@@ -190,7 +190,7 @@ static struct suite suites[] = {
 	SUITE(seama),
 #endif
 #ifdef CONFIG_CMD_UPL
-	SUITE_CMD(upl, do_ut_upl),
+	SUITE(upl),
 #endif
 };
 
