@@ -138,7 +138,7 @@ static struct suite suites[] = {
 #if defined(CONFIG_UT_ENV)
 	SUITE(env),
 #endif
-	SUITE_CMD(exit, do_ut_exit),
+	SUITE(exit),
 #ifdef CONFIG_CMD_FDT
 	SUITE_CMD(fdt, do_ut_fdt),
 #endif
