@@ -448,7 +448,7 @@ static int test_post_run(struct unit_test_state *uts, struct unit_test *test)
  */
 static int skip_test(struct unit_test_state *uts)
 {
-	uts->skip_count++;
+	uts->cur.skip_count++;
 
 	return -EAGAIN;
 }
@@ -460,7 +460,7 @@ static int skip_test(struct unit_test_state *uts)
  * the name of each test before running it.
  *
  * @uts: Test state to update. The caller should ensure that this is zeroed for
- *	the first call to this function. On exit, @uts->fail_count is
+ *	the first call to this function. On exit, @uts->cur.fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test_name: Test to run
  * @name: Name of test, possibly skipping a prefix that should not be displayed
@@ -510,7 +510,7 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
  * SPL.
  *
  * @uts: Test state to update. The caller should ensure that this is zeroed for
- *	the first call to this function. On exit, @uts->fail_count is
+ *	the first call to this function. On exit, @uts->cur.fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test: Test to run
  * Return: 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
@@ -574,7 +574,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
  * the name of each test before running it.
  *
  * @uts: Test state to update. The caller should ensure that this is zeroed for
- *	the first call to this function. On exit, @uts->fail_count is
+ *	the first call to this function. On exit, @uts->cur.fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @prefix: String prefix for the tests. Any tests that have this prefix will be
  *	printed without the prefix, so that it is easier to see the unique part
@@ -632,7 +632,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			if (len < 6 || strcmp(test_name + len - 6, "_norun")) {
 				printf("Test '%s' is manual so must have a name ending in _norun\n",
 				       test_name);
-				uts->fail_count++;
+				uts->cur.fail_count++;
 				return -EBADF;
 			}
 			if (!uts->force_run) {
@@ -641,23 +641,24 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 				continue;
 			}
 		}
-		old_fail_count = uts->fail_count;
+		old_fail_count = uts->cur.fail_count;
 
 		if (one && upto == pos) {
 			ret = ut_run_test_live_flat(uts, one);
-			if (uts->fail_count != old_fail_count) {
+			if (uts->cur.fail_count != old_fail_count) {
 				printf("Test '%s' failed %d times (position %d)\n",
 				       one->name,
-				       uts->fail_count - old_fail_count, pos);
+				       uts->cur.fail_count - old_fail_count,
+				       pos);
 			}
 			return -EBADF;
 		}
 
 		for (i = 0; i < uts->runs_per_test; i++)
 			ret = ut_run_test_live_flat(uts, test);
-		if (uts->fail_count != old_fail_count) {
+		if (uts->cur.fail_count != old_fail_count) {
 			printf("Test '%s' failed %d times\n", test_name,
-			       uts->fail_count - old_fail_count);
+			       uts->cur.fail_count - old_fail_count);
 		}
 		found++;
 		if (ret == -EAGAIN)
@@ -668,7 +669,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 	if (select_name && !found)
 		return -ENOENT;
 
-	return uts->fail_count ? -EBADF : 0;
+	return uts->cur.fail_count ? -EBADF : 0;
 }
 
 int ut_run_list(struct unit_test_state *uts, const char *category,
@@ -716,12 +717,12 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	if (has_dm_tests)
 		dm_test_restore(uts->of_root);
 
-	if (uts->skip_count)
-		printf("Skipped: %d, ", uts->skip_count);
+	if (uts->cur.skip_count)
+		printf("Skipped: %d, ", uts->cur.skip_count);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
 	else
-		printf("Failures: %d\n", uts->fail_count);
+		printf("Failures: %d\n", uts->cur.fail_count);
 
 	return ret;
 }
