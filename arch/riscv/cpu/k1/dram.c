@@ -4,17 +4,53 @@
  */
 
 #include <asm/global_data.h>
+#include <asm/io.h>
 #include <config.h>
+#include <bitfield.h>
 #include <fdt_support.h>
 #include <linux/sizes.h>
 
+#define DDR_BASE 0xC0000000
 DECLARE_GLOBAL_DATA_PTR;
+
+static phys_size_t ddr_map_size(u32 val)
+{
+	u32 tmp;
+
+	if (!(val & 0x1))
+		return 0;
+
+	tmp = bitfield_extract(val, 16, 5);
+	switch (tmp) {
+	case 0xd:
+		return 512;
+	case 0xe:
+		return 1024;
+	case 0xf:
+		return 2048;
+	case 0x10:
+		return 4096;
+	case 0x11:
+		return 8192;
+	default:
+		pr_info("Invalid DRAM density %x\n", val);
+		return 0;
+	}
+}
+
+phys_size_t ddr_get_density(void)
+{
+	phys_size_t cs0_size = ddr_map_size(readl((void *)DDR_BASE + 0x200));
+	phys_size_t cs1_size = ddr_map_size(readl((void *)DDR_BASE + 0x208));
+	phys_size_t ddr_size = cs0_size + cs1_size;
+
+	return ddr_size;
+}
 
 int dram_init(void)
 {
 	gd->ram_base = CFG_SYS_SDRAM_BASE;
-	/* TODO get ram size from ddr controller */
-	gd->ram_size = SZ_4G;
+	gd->ram_size = ddr_get_density() * SZ_1M;
 	return 0;
 }
 
