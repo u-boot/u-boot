@@ -184,7 +184,7 @@ static struct suite suites[] = {
 	SUITE(loadm),
 #endif
 #ifdef CONFIG_CMD_PCI_MPS
-	SUITE_CMD(pci_mps, do_ut_pci_mps),
+	SUITE(pci_mps),
 #endif
 #ifdef CONFIG_CMD_SEAMA
 	SUITE_CMD(seama, do_ut_seama),
