@@ -178,7 +178,7 @@ static struct suite suites[] = {
 	SUITE(addrmap),
 #endif
 #if CONFIG_IS_ENABLED(HUSH_PARSER)
-	SUITE_CMD(hush, do_ut_hush),
+	SUITE(hush),
 #endif
 #ifdef CONFIG_CMD_LOADM
 	SUITE_CMD(loadm, do_ut_loadm),
