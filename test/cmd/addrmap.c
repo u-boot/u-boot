@@ -24,12 +24,3 @@ static int addrmap_test_basic(struct unit_test_state *uts)
 	return 0;
 }
 ADDRMAP_TEST(addrmap_test_basic, UTF_CONSOLE);
-
-int do_ut_addrmap(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(addrmap);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(addrmap);
-
-	return cmd_ut_category("addrmap", "cmd_addrmap_", tests, n_ents,
-			       argc, argv);
-}
