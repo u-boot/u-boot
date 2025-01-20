@@ -63,12 +63,12 @@ static enum fdtchk_t fdt_action(void)
 /* This is valid when a test is running, NULL otherwise */
 static struct unit_test_state *cur_test_state;
 
-struct unit_test_state *test_get_state(void)
+struct unit_test_state *ut_get_state(void)
 {
 	return cur_test_state;
 }
 
-void test_set_state(struct unit_test_state *uts)
+void ut_set_state(struct unit_test_state *uts)
 {
 	cur_test_state = uts;
 }
@@ -466,7 +466,7 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
 	printf("Test: %s: %s%s\n", test_name, fname, note);
 
 	/* Allow access to test state from drivers */
-	test_set_state(uts);
+	ut_set_state(uts);
 
 	ret = test_pre_run(uts, test);
 	if (ret == -EAGAIN)
@@ -482,7 +482,7 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
 	if (ret)
 		return ret;
 
-	test_set_state( NULL);
+	ut_set_state(NULL);
 
 	return 0;
 }

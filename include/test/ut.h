@@ -466,18 +466,18 @@ void ut_unsilence_console(struct unit_test_state *uts);
 void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
 
 /**
- * test_get_state() - Get the active test state
+ * ut_state_get() - Get the active test state
  *
  * Return: the currently active test state, or NULL if none
  */
-struct unit_test_state *test_get_state(void);
+struct unit_test_state *ut_get_state(void);
 
 /**
- * test_set_state() - Set the active test state
+ * ut_set_state() - Set the active test state
  *
  * @uts: Test state to use as currently active test state, or NULL if none
  */
-void test_set_state(struct unit_test_state *uts);
+void ut_set_state(struct unit_test_state *uts);
 
 /**
  * ut_run_tests() - Run a set of tests
