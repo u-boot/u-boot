@@ -53,13 +53,3 @@ static int measure(struct unit_test_state *uts)
 	return 0;
 }
 MEASUREMENT_TEST(measure, 0);
-
-int do_ut_measurement(struct cmd_tbl *cmdtp, int flag, int argc,
-		      char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(measurement);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(measurement);
-
-	return cmd_ut_category("measurement", "measurement_test_", tests,
-			       n_ents, argc, argv);
-}

@@ -166,7 +166,7 @@ static struct suite suites[] = {
 	SUITE(setexpr),
 #endif
 #ifdef CONFIG_MEASURED_BOOT
-	SUITE_CMD(measurement, do_ut_measurement),
+	SUITE(measurement),
 #endif
 #ifdef CONFIG_SANDBOX
 #if CONFIG_IS_ENABLED(BLOBLIST)
