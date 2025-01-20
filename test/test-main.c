@@ -636,10 +636,8 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 				return -EBADF;
 			}
 			if (!uts->force_run) {
-				if (select_name) {
-					printf("Test '%s' skipped as it is manual (use -f to run it)\n",
-					       test_name);
-				}
+				printf("Test: %s: skipped as it is manual (use -f to run it)\n",
+				       test_name);
 				continue;
 			}
 		}

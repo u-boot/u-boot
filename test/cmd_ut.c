@@ -155,7 +155,7 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	const char *flags;
 
-	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub));
+	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub) - 1);
 	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
 
 	flags = cmd_arg1(argc, argv);
