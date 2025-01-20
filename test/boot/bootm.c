@@ -249,12 +249,3 @@ static int bootm_test_subst_both(struct unit_test_state *uts)
 	return 0;
 }
 BOOTM_TEST(bootm_test_subst_both, 0);
-
-int do_ut_bootm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(bootm);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(bootm);
-
-	return cmd_ut_category("bootm", "bootm_test_", tests, n_ents,
-			       argc, argv);
-}
