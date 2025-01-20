@@ -120,77 +120,54 @@ SUITE_DECL(seama);
 SUITE_DECL(upl);
 
 static struct suite suites[] = {
-#ifdef CONFIG_CMD_BDI
 	SUITE(bdinfo),
-#endif
 #ifdef CONFIG_UT_BOOTSTD
 	SUITE_CMD(bootstd, do_ut_bootstd),
 #endif
-#ifdef CONFIG_CMDLINE
 	SUITE(cmd),
-#endif
 	SUITE(common),
-#if defined(CONFIG_UT_DM)
 	SUITE(dm),
-#endif
-#if defined(CONFIG_UT_ENV)
 	SUITE(env),
-#endif
 	SUITE(exit),
-#ifdef CONFIG_CMD_FDT
 	SUITE(fdt),
-#endif
-#ifdef CONFIG_CONSOLE_TRUETYPE
 	SUITE(font),
-#endif
 #ifdef CONFIG_UT_OPTEE
 	SUITE_CMD(optee, do_ut_optee),
 #endif
 #ifdef CONFIG_UT_OVERLAY
 	SUITE_CMD(overlay, do_ut_overlay),
 #endif
-#ifdef CONFIG_UT_LIB
 	SUITE(lib),
-#endif
-#ifdef CONFIG_UT_LOG
 	SUITE(log),
-#endif
-#if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_MBR) && defined(CONFIG_CMD_MMC) \
-        && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
 	SUITE(mbr),
-#endif
 	SUITE(mem),
-#if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_SETEXPR)
 	SUITE(setexpr),
-#endif
-#ifdef CONFIG_MEASURED_BOOT
 	SUITE(measurement),
-#endif
-#ifdef CONFIG_SANDBOX
-#if CONFIG_IS_ENABLED(BLOBLIST)
 	SUITE(bloblist),
 	SUITE(bootm),
-#endif
-#endif
-#ifdef CONFIG_CMD_ADDRMAP
 	SUITE(addrmap),
-#endif
-#if CONFIG_IS_ENABLED(HUSH_PARSER)
 	SUITE(hush),
-#endif
-#ifdef CONFIG_CMD_LOADM
 	SUITE(loadm),
-#endif
-#ifdef CONFIG_CMD_PCI_MPS
 	SUITE(pci_mps),
-#endif
-#ifdef CONFIG_CMD_SEAMA
 	SUITE(seama),
-#endif
-#ifdef CONFIG_CMD_UPL
 	SUITE(upl),
-#endif
 };
+
+/**
+ * has_tests() - Check if a suite has tests, i.e. is supported in this build
+ *
+ * If the suite is run using a command, we have to assume that tests may be
+ * present, since we have no visibility
+ *
+ * @ste: Suite to check
+ * Return: true if supported, false if not
+ */
+static bool has_tests(struct suite *ste)
+{
+	int n_ents = ste->end - ste->start;
+
+	return n_ents || ste->cmd;
+}
 
 /** run_suite() - Run a suite of tests */
 static int run_suite(struct suite *ste, struct cmd_tbl *cmdtp, int flag,
@@ -224,10 +201,12 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 		struct suite *ste = &suites[i];
 		char *const argv[] = {(char *)ste->name, NULL};
 
-		printf("----Running %s tests----\n", ste->name);
-		retval = run_suite(ste, cmdtp, flag, 1, argv);
-		if (!any_fail)
-			any_fail = retval;
+		if (has_tests(ste)) {
+			printf("----Running %s tests----\n", ste->name);
+			retval = run_suite(ste, cmdtp, flag, 1, argv);
+			if (!any_fail)
+				any_fail = retval;
+		}
 	}
 
 	return any_fail;
@@ -236,9 +215,17 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
+	int suite_count, i;
 	const char *flags;
 
-	printf("Test suites: %d\n", (int)ARRAY_SIZE(suites));
+	for (suite_count = 0, i = 0; i < ARRAY_SIZE(suites); i++) {
+		struct suite *ste = &suites[i];
+
+		if (has_tests(ste))
+			suite_count++;
+	}
+
+	printf("Test suites: %d\n", suite_count);
 	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
 
 	flags = cmd_arg1(argc, argv);
@@ -253,7 +240,7 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 			if (n_ent)
 				printf("%5ld  %s\n", n_ent, ste->name);
-			else
+			else if (ste->cmd)
 				printf("%5s  %s\n", "?", ste->name);
 		}
 	}
@@ -296,6 +283,10 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		ste = find_suite(argv[0]);
 		if (!ste) {
 			printf("Suite '%s' not found\n", argv[0]);
+			return CMD_RET_FAILURE;
+		} else if (!has_tests(ste)) {
+			/* perhaps a Kconfig option needs to be set? */
+			printf("Suite '%s' is not enabled\n", argv[0]);
 			return CMD_RET_FAILURE;
 		}
 
