@@ -181,7 +181,7 @@ static struct suite suites[] = {
 	SUITE(hush),
 #endif
 #ifdef CONFIG_CMD_LOADM
-	SUITE_CMD(loadm, do_ut_loadm),
+	SUITE(loadm),
 #endif
 #ifdef CONFIG_CMD_PCI_MPS
 	SUITE_CMD(pci_mps, do_ut_pci_mps),
