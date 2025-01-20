@@ -29,17 +29,16 @@ struct suite {
 	ut_cmd_func cmd;
 };
 
-static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
-		     char *const argv[]);
+static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		     int flag, int argc, char *const argv[]);
 
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 
-int cmd_ut_category(const char *name, const char *prefix,
-		    struct unit_test *tests, int n_ents,
+int cmd_ut_category(struct unit_test_state *uts, const char *name,
+		    const char *prefix, struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
 {
-	struct unit_test_state uts;
 	const char *test_insert = NULL;
 	int runs_per_text = 1;
 	bool force_run = false;
@@ -63,11 +62,9 @@ int cmd_ut_category(const char *name, const char *prefix,
 		argc--;
 	}
 
-	ut_init_state(&uts);
-	ret = ut_run_list(&uts, name, prefix, tests, n_ents,
+	ret = ut_run_list(uts, name, prefix, tests, n_ents,
 			  cmd_arg1(argc, argv), runs_per_text, force_run,
 			  test_insert);
-	ut_uninit_state(&uts);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
@@ -170,28 +167,29 @@ static bool has_tests(struct suite *ste)
 }
 
 /** run_suite() - Run a suite of tests */
-static int run_suite(struct suite *ste, struct cmd_tbl *cmdtp, int flag,
-		     int argc, char *const argv[])
+static int run_suite(struct unit_test_state *uts, struct suite *ste,
+		     struct cmd_tbl *cmdtp, int flag, int argc,
+		     char *const argv[])
 {
 	int ret;
 
 	if (ste->cmd) {
-		ret = ste->cmd(cmdtp, flag, argc, argv);
+		ret = ste->cmd(uts, cmdtp, flag, argc, argv);
 	} else {
 		int n_ents = ste->end - ste->start;
 		char prefix[30];
 
 		/* use a standard prefix */
 		snprintf(prefix, sizeof(prefix), "%s_test", ste->name);
-		ret = cmd_ut_category(ste->name, prefix, ste->start, n_ents,
-				      argc, argv);
+		ret = cmd_ut_category(uts, ste->name, prefix, ste->start,
+				      n_ents, argc, argv);
 	}
 
 	return ret;
 }
 
-static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
-		     char *const argv[])
+static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		     int flag, int argc, char *const argv[])
 {
 	int i;
 	int retval;
@@ -203,7 +201,7 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		if (has_tests(ste)) {
 			printf("----Running %s tests----\n", ste->name);
-			retval = run_suite(ste, cmdtp, flag, 1, argv);
+			retval = run_suite(uts, ste, cmdtp, flag, 1, argv);
 			if (!any_fail)
 				any_fail = retval;
 		}
@@ -263,6 +261,7 @@ static struct suite *find_suite(const char *name)
 
 static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
+	struct unit_test_state uts;
 	struct suite *ste;
 	const char *name;
 	int ret;
@@ -274,9 +273,10 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	argc--;
 	argv++;
 
+	ut_init_state(&uts);
 	name = argv[0];
 	if (!strcmp(name, "all")) {
-		ret = do_ut_all(cmdtp, flag, argc, argv);
+		ret = do_ut_all(&uts, cmdtp, flag, argc, argv);
 	} else if (!strcmp(name, "info")) {
 		ret = do_ut_info(cmdtp, flag, argc, argv);
 	} else {
@@ -290,10 +290,11 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 			return CMD_RET_FAILURE;
 		}
 
-		ret = run_suite(ste, cmdtp, flag, argc, argv);
+		ret = run_suite(&uts, ste, cmdtp, flag, argc, argv);
 	}
 	if (ret)
 		return ret;
+	ut_uninit_state(&uts);
 
 	return 0;
 }
