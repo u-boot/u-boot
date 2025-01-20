@@ -101,8 +101,8 @@ int checkboard(void)
 }
 
 static struct ti_fdt_map ti_j721s2_evm_fdt_map[] = {
-	{"j721s2", "k3-j721s2-common-proc-board.dtb"},
-	{"am68-sk", "k3-am68-sk-base-board.dtb"},
+	{"j721s2", "ti/k3-j721s2-common-proc-board.dtb"},
+	{"am68-sk", "ti/k3-am68-sk-base-board.dtb"},
 	{ /* Sentinel. */ }
 };
 

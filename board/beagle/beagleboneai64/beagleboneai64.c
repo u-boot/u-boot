@@ -73,8 +73,7 @@ int board_late_init(void)
 {
 	char fdtfile[50];
 
-	snprintf(fdtfile, sizeof(fdtfile), "%s/%s.dtb",
-		 CONFIG_TI_FDT_FOLDER_PATH, CONFIG_DEFAULT_DEVICE_TREE);
+	snprintf(fdtfile, sizeof(fdtfile), "%s.dtb", CONFIG_DEFAULT_DEVICE_TREE);
 
 	env_set("fdtfile", fdtfile);
 

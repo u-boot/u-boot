@@ -158,8 +158,8 @@ int checkboard(void)
 
 #ifdef CONFIG_BOARD_LATE_INIT
 static struct ti_fdt_map ti_am64_evm_fdt_map[] = {
-	{"am64x_gpevm", "k3-am642-evm.dtb"},
-	{"am64x_skevm", "k3-am642-sk.dtb"},
+	{"am64x_gpevm", "ti/k3-am642-evm.dtb"},
+	{"am64x_skevm", "ti/k3-am642-sk.dtb"},
 	{ /* Sentinel. */ }
 };
 

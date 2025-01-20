@@ -368,9 +368,9 @@ static int probe_daughtercards(void)
 
 #ifdef CONFIG_BOARD_LATE_INIT
 static struct ti_fdt_map ti_j721e_evm_fdt_map[] = {
-	{"j721e", "k3-j721e-common-proc-board.dtb"},
-	{"j721e-sk", "k3-j721e-sk.dtb"},
-	{"j7200", "k3-j7200-common-proc-board.dtb"},
+	{"j721e", "ti/k3-j721e-common-proc-board.dtb"},
+	{"j721e-sk", "ti/k3-j721e-sk.dtb"},
+	{"j7200", "ti/k3-j7200-common-proc-board.dtb"},
 	{ /* Sentinel. */ }
 };
 static void setup_board_eeprom_env(void)
