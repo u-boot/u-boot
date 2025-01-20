@@ -694,6 +694,8 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	bool has_dm_tests = false;
 	int ret;
 
+	memset(&uts->cur, '\0', sizeof(struct ut_stats));
+
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
@@ -733,6 +735,11 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	ut_report(&uts->cur, 1);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
+
+	uts->total.skip_count += uts->cur.skip_count;
+	uts->total.fail_count += uts->cur.fail_count;
+	uts->total.test_count += uts->cur.test_count;
+	uts->run_count++;
 
 	return ret;
 }

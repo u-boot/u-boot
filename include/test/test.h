@@ -27,6 +27,8 @@ struct ut_stats {
  * struct unit_test_state - Entire state of test system
  *
  * @cur: Statistics for the current run
+ * @total: Statistics for all test runs
+ * @run_count: Number of times ut_run_list() has been called
  * @start: Store the starting mallinfo when doing leak test
  * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
@@ -48,6 +50,8 @@ struct ut_stats {
  */
 struct unit_test_state {
 	struct ut_stats cur;
+	struct ut_stats total;
+	int run_count;
 	struct mallinfo start;
 	struct device_node *of_root;
 	bool of_live;

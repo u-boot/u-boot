@@ -206,6 +206,7 @@ static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 				any_fail = retval;
 		}
 	}
+	ut_report(&uts->total, uts->run_count);
 
 	return any_fail;
 }
