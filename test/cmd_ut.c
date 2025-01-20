@@ -21,12 +21,14 @@
  * @start: First test in suite
  * @end: End test in suite (points to the first test in the next suite)
  * @cmd: Command to use to run the suite
+ * @help: Help-string to show for this suite
  */
 struct suite {
 	const char *name;
 	struct unit_test *start;
 	struct unit_test *end;
 	ut_cmd_func cmd;
+	const char *help;
 };
 
 static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
@@ -75,19 +77,21 @@ int cmd_ut_category(struct unit_test_state *uts, const char *name,
 	ll_end_decl(suite_end_ ## _name, struct unit_test, ut_ ## _name)
 
 /* declare a test suite which uses a subcommand to run */
-#define SUITE_CMD(_name, _cmd_func) { \
+#define SUITE_CMD(_name, _cmd_func, _help) { \
 	#_name, \
 	suite_start_ ## _name, \
 	suite_end_ ## _name, \
 	_cmd_func, \
+	_help, \
 	}
 
 /* declare a test suite which can be run directly without a subcommand */
-#define SUITE(_name) { \
+#define SUITE(_name, _help) { \
 	#_name, \
 	suite_start_ ## _name, \
 	suite_end_ ## _name, \
 	NULL, \
+	_help, \
 	}
 
 SUITE_DECL(addrmap);
@@ -117,37 +121,37 @@ SUITE_DECL(setexpr);
 SUITE_DECL(upl);
 
 static struct suite suites[] = {
-	SUITE(addrmap),
-	SUITE(bdinfo),
-	SUITE(bloblist),
-	SUITE(bootm),
+	SUITE(addrmap, "very basic test of addrmap command"),
+	SUITE(bdinfo, "bdinfo (board info) command"),
+	SUITE(bloblist, "bloblist implementation"),
+	SUITE(bootm, "bootm command"),
 #ifdef CONFIG_UT_BOOTSTD
-	SUITE_CMD(bootstd, do_ut_bootstd),
+	SUITE_CMD(bootstd, do_ut_bootstd, "standard boot implementation"),
 #endif
-	SUITE(cmd),
-	SUITE(common),
-	SUITE(dm),
-	SUITE(env),
-	SUITE(exit),
-	SUITE(fdt),
-	SUITE(font),
-	SUITE(hush),
-	SUITE(lib),
-	SUITE(loadm),
-	SUITE(log),
-	SUITE(mbr),
-	SUITE(measurement),
-	SUITE(mem),
+	SUITE(cmd, "various commands"),
+	SUITE(common, "tests for common/ directory"),
+	SUITE(dm, "driver model"),
+	SUITE(env, "environment"),
+	SUITE(exit, "shell exit and variables"),
+	SUITE(fdt, "fdt command"),
+	SUITE(font, "font command"),
+	SUITE(hush, "hush behaviour"),
+	SUITE(lib, "library functions"),
+	SUITE(loadm, "loadm command parameters and loading memory blob"),
+	SUITE(log, "logging functions"),
+	SUITE(mbr, "mbr command"),
+	SUITE(measurement, "TPM-based measured boot"),
+	SUITE(mem, "memory-related commands"),
 #ifdef CONFIG_UT_OPTEE
-	SUITE_CMD(optee, do_ut_optee),
+	SUITE_CMD(optee, do_ut_optee, "OP-TEE"),
 #endif
 #ifdef CONFIG_UT_OVERLAY
-	SUITE_CMD(overlay, do_ut_overlay),
+	SUITE_CMD(overlay, do_ut_overlay, "device tree overlays"),
 #endif
-	SUITE(pci_mps),
-	SUITE(seama),
-	SUITE(setexpr),
-	SUITE(upl),
+	SUITE(pci_mps, "PCI Express Maximum Payload Size"),
+	SUITE(seama, "seama command parameters loading and decoding"),
+	SUITE(setexpr, "setexpr command"),
+	SUITE(upl, "Universal payload support"),
 };
 
 /**
@@ -231,16 +235,19 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	if (flags && !strcmp("-s", flags)) {
 		int i;
 
-		puts("\nTests  Suite\n");
-		puts("-----  -----\n");
+		puts("\nTests  Suite         Purpose");
+		puts("\n-----  ------------  -------------------------\n");
 		for (i = 0; i < ARRAY_SIZE(suites); i++) {
 			struct suite *ste = &suites[i];
 			long n_ent = ste->end - ste->start;
 
 			if (n_ent)
-				printf("%5ld  %s\n", n_ent, ste->name);
+				printf("%5ld", n_ent);
 			else if (ste->cmd)
-				printf("%5s  %s\n", "?", ste->name);
+				printf("%5s", "?");
+			else  /* suite is not present */
+				continue;
+			printf("  %-13.13s %s\n", ste->name, ste->help);
 		}
 	}
 
@@ -309,60 +316,6 @@ U_BOOT_LONGHELP(ut,
 	"\nOptions for <suite>:"
 	"\nall - execute all enabled tests"
 	"\ninfo [-s] - show info about tests [and suites]"
-#ifdef CONFIG_CMD_ADDRMAP
-	"\naddrmap - very basic test of addrmap command"
-#endif
-#ifdef CONFIG_CMD_BDI
-	"\nbdinfo - bdinfo command"
-#endif
-#ifdef CONFIG_SANDBOX
-	"\nbloblist - bloblist implementation"
-#endif
-#ifdef CONFIG_BOOTSTD
-	"\nbootstd - standard boot implementation"
-#endif
-#ifdef CONFIG_CMDLINE
-	"\ncmd - test various commands"
-#endif
-	"\ncommon   - tests for common/ directory"
-#ifdef CONFIG_UT_DM
-	"\ndm - driver model"
-#endif
-#ifdef CONFIG_UT_ENV
-	"\nenv - environment"
-#endif
-#ifdef CONFIG_CMD_FDT
-	"\nfdt - fdt command"
-#endif
-#ifdef CONFIG_CONSOLE_TRUETYPE
-	"\nfont - font command"
-#endif
-#if CONFIG_IS_ENABLED(HUSH_PARSER)
-	"\nhush - Test hush behavior"
-#endif
-#ifdef CONFIG_CMD_LOADM
-	"\nloadm - loadm command parameters and loading memory blob"
-#endif
-#ifdef CONFIG_UT_LIB
-	"\nlib - library functions"
-#endif
-#ifdef CONFIG_UT_LOG
-	"\nlog - logging functions"
-#endif
-	"\nmem - memory-related commands"
-#ifdef CONFIG_UT_OPTEE
-	"\noptee - test OP-TEE"
-#endif
-#ifdef CONFIG_UT_OVERLAY
-	"\noverlay - device tree overlays"
-#endif
-#ifdef CONFIG_CMD_PCI_MPS
-	"\npci_mps - PCI Express Maximum Payload Size"
-#endif
-	"\nsetexpr - setexpr command"
-#ifdef CONFIG_CMD_SEAMA
-	"\nseama - seama command parameters loading and decoding"
-#endif
 	);
 
 U_BOOT_CMD(
