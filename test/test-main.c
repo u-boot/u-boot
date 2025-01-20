@@ -673,15 +673,15 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 	return uts->fail_count ? -EBADF : 0;
 }
 
-int ut_run_list(const char *category, const char *prefix,
-		struct unit_test *tests, int count, const char *select_name,
-		int runs_per_test, bool force_run, const char *test_insert)
+int ut_run_list(struct unit_test_state *uts, const char *category,
+		const char *prefix, struct unit_test *tests, int count,
+		const char *select_name, int runs_per_test, bool force_run,
+		const char *test_insert)
 {
-	struct unit_test_state uts;
+	;
 	bool has_dm_tests = false;
 	int ret;
 
-	ut_init_state(&uts);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
@@ -699,32 +699,31 @@ int ut_run_list(const char *category, const char *prefix,
 	if (!select_name)
 		printf("Running %d %s tests\n", count, category);
 
-	uts.of_root = gd_of_root();
-	uts.runs_per_test = runs_per_test;
+	uts->of_root = gd_of_root();
+	uts->runs_per_test = runs_per_test;
 	if (fdt_action() == FDTCHK_COPY && gd->fdt_blob) {
-		uts.fdt_size = fdt_totalsize(gd->fdt_blob);
-		uts.fdt_copy = os_malloc(uts.fdt_size);
-		if (!uts.fdt_copy) {
+		uts->fdt_size = fdt_totalsize(gd->fdt_blob);
+		uts->fdt_copy = os_malloc(uts->fdt_size);
+		if (!uts->fdt_copy) {
 			printf("Out of memory for device tree copy\n");
 			return -ENOMEM;
 		}
-		memcpy(uts.fdt_copy, gd->fdt_blob, uts.fdt_size);
+		memcpy(uts->fdt_copy, gd->fdt_blob, uts->fdt_size);
 	}
-	uts.force_run = force_run;
-	ret = ut_run_tests(&uts, prefix, tests, count, select_name,
+	uts->force_run = force_run;
+	ret = ut_run_tests(uts, prefix, tests, count, select_name,
 			   test_insert);
 
 	/* Best efforts only...ignore errors */
 	if (has_dm_tests)
-		dm_test_restore(uts.of_root);
+		dm_test_restore(uts->of_root);
 
-	if (uts.skip_count)
-		printf("Skipped: %d, ", uts.skip_count);
+	if (uts->skip_count)
+		printf("Skipped: %d, ", uts->skip_count);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
 	else
-		printf("Failures: %d\n", uts.fail_count);
-	ut_uninit_state(&uts);
+		printf("Failures: %d\n", uts->fail_count);
 
 	return ret;
 }

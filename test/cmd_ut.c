@@ -21,6 +21,7 @@ int cmd_ut_category(const char *name, const char *prefix,
 		    struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
 {
+	struct unit_test_state uts;
 	const char *test_insert = NULL;
 	int runs_per_text = 1;
 	bool force_run = false;
@@ -44,9 +45,11 @@ int cmd_ut_category(const char *name, const char *prefix,
 		argc--;
 	}
 
-	ret = ut_run_list(name, prefix, tests, n_ents,
+	ut_init_state(&uts);
+	ret = ut_run_list(&uts, name, prefix, tests, n_ents,
 			  cmd_arg1(argc, argv), runs_per_text, force_run,
 			  test_insert);
+	ut_uninit_state(&uts);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
