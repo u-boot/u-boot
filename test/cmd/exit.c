@@ -116,6 +116,6 @@ int do_ut_exit(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct unit_test *tests = UNIT_TEST_SUITE_START(exit_test);
 	const int n_ents = UNIT_TEST_SUITE_COUNT(exit_test);
 
-	return cmd_ut_category("cmd_exit", "exit_test_", tests, n_ents,
+	return cmd_ut_category("exit", "exit_test_", tests, n_ents,
 			       argc, argv);
 }

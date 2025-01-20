@@ -432,6 +432,5 @@ int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	struct unit_test *tests = UNIT_TEST_SUITE_START(upl_test);
 	const int n_ents = UNIT_TEST_SUITE_COUNT(upl_test);
 
-	return cmd_ut_category("cmd_upl", "cmd_upl_", tests, n_ents, argc,
-			       argv);
+	return cmd_ut_category("upl", "cmd_upl_", tests, n_ents, argc, argv);
 }

@@ -35,6 +35,6 @@ int do_ut_pci_mps(struct cmd_tbl *cmdtp, int flag, int argc,
 	struct unit_test *tests = UNIT_TEST_SUITE_START(pci_mps_test);
 	const int n = UNIT_TEST_SUITE_COUNT(pci_mps_test);
 
-	return cmd_ut_category("cmd_pci_mps", "pci_mps_test_", tests, n,
+	return cmd_ut_category("pci_mps", "pci_mps_test_", tests, n,
 			       argc, argv);
 }
