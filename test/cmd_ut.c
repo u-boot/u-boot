@@ -143,7 +143,7 @@ static struct suite suites[] = {
 	SUITE(fdt),
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE
-	SUITE_CMD(font, do_ut_font),
+	SUITE(font),
 #endif
 #ifdef CONFIG_UT_OPTEE
 	SUITE_CMD(optee, do_ut_optee),
