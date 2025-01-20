@@ -10,6 +10,10 @@
 struct cmd_tbl;
 struct unit_test;
 
+/* 'command' functions normally called do_xxx where xxx is the command name */
+typedef int (*ut_cmd_func)(struct cmd_tbl *cmd, int flags, int argc,
+			   char *const argv[]);
+
 /**
  * cmd_ut_category() - Run a category of unit tests
  *

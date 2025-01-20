@@ -11,6 +11,24 @@
 #include <test/test.h>
 #include <test/ut.h>
 
+/**
+ * struct suite - A set of tests for a certain topic
+ *
+ * All tests end up in a single 'struct unit_test' linker-list array, in order
+ * of the suite they are in
+ *
+ * @name: Name of suite
+ * @start: First test in suite
+ * @end: End test in suite (points to the first test in the next suite)
+ * @cmd: Command to use to run the suite
+ */
+struct suite {
+	const char *name;
+	struct unit_test *start;
+	struct unit_test *end;
+	ut_cmd_func cmd;
+};
+
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[]);
 
@@ -54,84 +72,148 @@ int cmd_ut_category(const char *name, const char *prefix,
 	return ret ? CMD_RET_FAILURE : 0;
 }
 
-static struct cmd_tbl cmd_ut_sub[] = {
-	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
-	U_BOOT_CMD_MKENT(info, 1, 1, do_ut_info, "", ""),
+/* declare linker-list symbols for the start and end of a suite */
+#define SUITE_DECL(_name) \
+	ll_start_decl(suite_start_ ## _name, struct unit_test, ut_ ## _name); \
+	ll_end_decl(suite_end_ ## _name, struct unit_test, ut_ ## _name)
+
+/* declare a test suite which uses a subcommand to run */
+#define SUITE_CMD(_name, _cmd_func) { \
+	#_name, \
+	suite_start_ ## _name, \
+	suite_end_ ## _name, \
+	_cmd_func, \
+	}
+
+/* declare a test suite which can be run directly without a subcommand */
+#define SUITE(_name) { \
+	#_name, \
+	suite_start_ ## _name, \
+	suite_end_ ## _name, \
+	NULL, \
+	}
+
+SUITE_DECL(info);
+SUITE_DECL(bdinfo);
+SUITE_DECL(bootstd);
+SUITE_DECL(cmd);
+SUITE_DECL(common);
+SUITE_DECL(dm);
+SUITE_DECL(env);
+SUITE_DECL(exit);
+SUITE_DECL(fdt);
+SUITE_DECL(font);
+SUITE_DECL(optee);
+SUITE_DECL(overlay);
+SUITE_DECL(lib);
+SUITE_DECL(log);
+SUITE_DECL(mbr);
+SUITE_DECL(mem);
+SUITE_DECL(setexpr);
+SUITE_DECL(measurement);
+SUITE_DECL(bloblist);
+SUITE_DECL(bootm);
+SUITE_DECL(addrmap);
+SUITE_DECL(hush);
+SUITE_DECL(loadm);
+SUITE_DECL(pci_mps);
+SUITE_DECL(seama);
+SUITE_DECL(upl);
+
+static struct suite suites[] = {
+	SUITE_CMD(info, do_ut_info),
 #ifdef CONFIG_CMD_BDI
-	U_BOOT_CMD_MKENT(bdinfo, CONFIG_SYS_MAXARGS, 1, do_ut_bdinfo, "", ""),
+	SUITE_CMD(bdinfo, do_ut_bdinfo),
 #endif
 #ifdef CONFIG_UT_BOOTSTD
-	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
-			 "", ""),
+	SUITE_CMD(bootstd, do_ut_bootstd),
 #endif
 #ifdef CONFIG_CMDLINE
-	U_BOOT_CMD_MKENT(cmd, CONFIG_SYS_MAXARGS, 1, do_ut_cmd, "", ""),
+	SUITE_CMD(cmd, do_ut_cmd),
 #endif
-	U_BOOT_CMD_MKENT(common, CONFIG_SYS_MAXARGS, 1, do_ut_common, "", ""),
+	SUITE_CMD(common, do_ut_common),
 #if defined(CONFIG_UT_DM)
-	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
+	SUITE_CMD(dm, do_ut_dm),
 #endif
 #if defined(CONFIG_UT_ENV)
-	U_BOOT_CMD_MKENT(env, CONFIG_SYS_MAXARGS, 1, do_ut_env, "", ""),
+	SUITE_CMD(env, do_ut_env),
 #endif
-	U_BOOT_CMD_MKENT(exit, CONFIG_SYS_MAXARGS, 1, do_ut_exit, "", ""),
+	SUITE_CMD(exit, do_ut_exit),
 #ifdef CONFIG_CMD_FDT
-	U_BOOT_CMD_MKENT(fdt, CONFIG_SYS_MAXARGS, 1, do_ut_fdt, "", ""),
+	SUITE_CMD(fdt, do_ut_fdt),
 #endif
 #ifdef CONFIG_CONSOLE_TRUETYPE
-	U_BOOT_CMD_MKENT(font, CONFIG_SYS_MAXARGS, 1, do_ut_font, "", ""),
+	SUITE_CMD(font, do_ut_font),
 #endif
 #ifdef CONFIG_UT_OPTEE
-	U_BOOT_CMD_MKENT(optee, CONFIG_SYS_MAXARGS, 1, do_ut_optee, "", ""),
+	SUITE_CMD(optee, do_ut_optee),
 #endif
 #ifdef CONFIG_UT_OVERLAY
-	U_BOOT_CMD_MKENT(overlay, CONFIG_SYS_MAXARGS, 1, do_ut_overlay, "", ""),
+	SUITE_CMD(overlay, do_ut_overlay),
 #endif
 #ifdef CONFIG_UT_LIB
-	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
+	SUITE_CMD(lib, do_ut_lib),
 #endif
 #ifdef CONFIG_UT_LOG
-	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
+	SUITE_CMD(log, do_ut_log),
 #endif
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_MBR) && defined(CONFIG_CMD_MMC) \
         && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
-	U_BOOT_CMD_MKENT(mbr, CONFIG_SYS_MAXARGS, 1, do_ut_mbr, "", ""),
+	SUITE_CMD(mbr, do_ut_mbr),
 #endif
-	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
+	SUITE_CMD(mem, do_ut_mem),
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_SETEXPR)
-	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
-			 ""),
+	SUITE_CMD(setexpr, do_ut_setexpr),
 #endif
 #ifdef CONFIG_MEASURED_BOOT
-	U_BOOT_CMD_MKENT(measurement, CONFIG_SYS_MAXARGS, 1, do_ut_measurement,
-			 "", ""),
+	SUITE_CMD(measurement, do_ut_measurement),
 #endif
 #ifdef CONFIG_SANDBOX
 #if CONFIG_IS_ENABLED(BLOBLIST)
-	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
-			 "", ""),
-	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
+	SUITE_CMD(bloblist, do_ut_bloblist),
+	SUITE_CMD(bootm, do_ut_bootm),
 #endif
 #endif
 #ifdef CONFIG_CMD_ADDRMAP
-	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
+	SUITE_CMD(addrmap, do_ut_addrmap),
 #endif
 #if CONFIG_IS_ENABLED(HUSH_PARSER)
-	U_BOOT_CMD_MKENT(hush, CONFIG_SYS_MAXARGS, 1, do_ut_hush, "", ""),
+	SUITE_CMD(hush, do_ut_hush),
 #endif
 #ifdef CONFIG_CMD_LOADM
-	U_BOOT_CMD_MKENT(loadm, CONFIG_SYS_MAXARGS, 1, do_ut_loadm, "", ""),
+	SUITE_CMD(loadm, do_ut_loadm),
 #endif
 #ifdef CONFIG_CMD_PCI_MPS
-	U_BOOT_CMD_MKENT(pci_mps, CONFIG_SYS_MAXARGS, 1, do_ut_pci_mps, "", ""),
+	SUITE_CMD(pci_mps, do_ut_pci_mps),
 #endif
 #ifdef CONFIG_CMD_SEAMA
-	U_BOOT_CMD_MKENT(seama, CONFIG_SYS_MAXARGS, 1, do_ut_seama, "", ""),
+	SUITE_CMD(seama, do_ut_seama),
 #endif
 #ifdef CONFIG_CMD_UPL
-	U_BOOT_CMD_MKENT(upl, CONFIG_SYS_MAXARGS, 1, do_ut_upl, "", ""),
+	SUITE_CMD(upl, do_ut_upl),
 #endif
 };
+
+/** run_suite() - Run a suite of tests */
+static int run_suite(struct suite *ste, struct cmd_tbl *cmdtp, int flag,
+		     int argc, char *const argv[])
+{
+	int ret;
+
+	if (ste->cmd) {
+		ret = ste->cmd(cmdtp, flag, argc, argv);
+	} else {
+		int n_ents = ste->end - ste->start;
+		char prefix[30];
+
+		/* use a standard prefix */
+		snprintf(prefix, sizeof(prefix), "%s_test", ste->name);
+		ret = cmd_ut_category(ste->name, prefix, ste->start, n_ents,
+				      argc, argv);
+	}
+
+	return ret;
+}
 
 static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
@@ -140,9 +222,12 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 	int retval;
 	int any_fail = 0;
 
-	for (i = 1; i < ARRAY_SIZE(cmd_ut_sub); i++) {
-		printf("----Running %s tests----\n", cmd_ut_sub[i].name);
-		retval = cmd_ut_sub[i].cmd(cmdtp, flag, 1, &cmd_ut_sub[i].name);
+	for (i = 0; i < ARRAY_SIZE(suites); i++) {
+		struct suite *ste = &suites[i];
+		char *const argv[] = {(char *)ste->name, NULL};
+
+		printf("----Running %s tests----\n", ste->name);
+		retval = run_suite(ste, cmdtp, flag, 1, argv);
 		if (!any_fail)
 			any_fail = retval;
 	}
@@ -155,7 +240,7 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	const char *flags;
 
-	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub) - 1);
+	printf("Test suites: %d\n", (int)ARRAY_SIZE(suites));
 	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
 
 	flags = cmd_arg1(argc, argv);
@@ -164,16 +249,38 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		puts("\nTests  Suite\n");
 		puts("-----  -----\n");
-		for (i = 1; i < ARRAY_SIZE(cmd_ut_sub); i++)
-			printf("%5s  %s\n", "?", cmd_ut_sub[i].name);
+		for (i = 1; i < ARRAY_SIZE(suites); i++) {
+			struct suite *ste = &suites[i];
+			long n_ent = ste->end - ste->start;
+
+			if (n_ent)
+				printf("%5ld  %s\n", n_ent, ste->name);
+			else
+				printf("%5s  %s\n", "?", ste->name);
+		}
 	}
 
 	return 0;
 }
 
+static struct suite *find_suite(const char *name)
+{
+	struct suite *ste;
+	int i;
+
+	for (i = 0, ste = suites; i < ARRAY_SIZE(suites); i++, ste++) {
+		if (!strcmp(ste->name, name))
+			return ste;
+	}
+
+	return NULL;
+}
+
 static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct cmd_tbl *cp;
+	struct suite *ste;
+	const char *name;
+	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -182,12 +289,24 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	argc--;
 	argv++;
 
-	cp = find_cmd_tbl(argv[0], cmd_ut_sub, ARRAY_SIZE(cmd_ut_sub));
+	name = argv[0];
+	if (!strcmp(name, "all")) {
+		ret = do_ut_all(cmdtp, flag, argc, argv);
+	} else if (!strcmp(name, "info")) {
+		ret = do_ut_info(cmdtp, flag, argc, argv);
+	} else {
+		ste = find_suite(argv[0]);
+		if (!ste) {
+			printf("Suite '%s' not found\n", argv[0]);
+			return CMD_RET_FAILURE;
+		}
 
-	if (cp)
-		return cp->cmd(cmdtp, flag, argc, argv);
+		ret = run_suite(ste, cmdtp, flag, argc, argv);
+	}
+	if (ret)
+		return ret;
 
-	return CMD_RET_USAGE;
+	return 0;
 }
 
 U_BOOT_LONGHELP(ut,
