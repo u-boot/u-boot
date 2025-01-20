@@ -7,8 +7,6 @@ obj-$(CONFIG_CMD_LOG) += log_filter.o
 
 ifdef CONFIG_UT_LOG
 
-obj-y += log_ut.o
-
 ifdef CONFIG_SANDBOX
 obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
 obj-$(CONFIG_LOG_SYSLOG) += syslog_test_ndebug.o

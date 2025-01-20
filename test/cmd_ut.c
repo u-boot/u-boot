@@ -155,7 +155,7 @@ static struct suite suites[] = {
 	SUITE(lib),
 #endif
 #ifdef CONFIG_UT_LOG
-	SUITE_CMD(log, do_ut_log),
+	SUITE(log),
 #endif
 #if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_MBR) && defined(CONFIG_CMD_MMC) \
         && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
