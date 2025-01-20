@@ -156,6 +156,7 @@ endif # LEGACY_CRYPTO_BASIC
 
 config LEGACY_CRYPTO_CERT
 	bool "legacy certificate libraries"
+	depends on LEGACY_CRYPTO
 	select ASN1_DECODER_LEGACY if ASN1_DECODER
 	select ASYMMETRIC_PUBLIC_KEY_LEGACY if \
 		ASYMMETRIC_PUBLIC_KEY_SUBTYPE
@@ -491,7 +492,7 @@ config MBEDTLS_LIB_TLS
 	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
 	depends on ASN1_DECODER_MBEDTLS
 	depends on ASYMMETRIC_PUBLIC_KEY_MBEDTLS
-	depends on MBEDTLS_LIB_CRYPTO
+	depends on MBEDTLS_LIB
 	help
 	  Enable MbedTLS TLS library. Required for HTTPs support
 	  in wget
