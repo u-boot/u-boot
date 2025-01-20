@@ -43,9 +43,6 @@ config SYS_VENDOR
 config SYS_SOC
 	default "zynq"
 
-config SYS_MALLOC_F_LEN
-	default 0x800
-
 config SYS_MALLOC_LEN
 	default 0x1400000
 

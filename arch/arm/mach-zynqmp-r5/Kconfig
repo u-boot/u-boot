@@ -19,7 +19,4 @@ config CPU_FREQ_HZ
 	help
 	  The value, in Hz, that the CPU clock is running at.
 
-config SYS_MALLOC_F_LEN
-	default 0x600
-
 endif

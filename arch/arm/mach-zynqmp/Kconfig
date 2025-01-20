@@ -93,9 +93,6 @@ config SPL_ZYNQMP_DRAM_BANK2_LEN
 	help
 	  Size in bytes of the DRAM ECC bank2. A null size takes no action.
 
-config SYS_MALLOC_F_LEN
-	default 0x600
-
 config DEFINE_TCM_OCM_MMAP
 	bool "Define TCM and OCM memory in MMU Table"
 	default y if MP
