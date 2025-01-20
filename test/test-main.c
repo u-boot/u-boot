@@ -643,6 +643,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		}
 		old_fail_count = uts->cur.fail_count;
 
+		uts->cur.test_count++;
 		if (one && upto == pos) {
 			ret = ut_run_test_live_flat(uts, one);
 			if (uts->cur.fail_count != old_fail_count) {
@@ -717,6 +718,7 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	if (has_dm_tests)
 		dm_test_restore(uts->of_root);
 
+	printf("Tests run: %d, ", uts->cur.test_count);
 	if (uts->cur.skip_count)
 		printf("Skipped: %d, ", uts->cur.skip_count);
 	if (ret == -ENOENT)

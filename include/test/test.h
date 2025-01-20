@@ -14,10 +14,13 @@
  *
  * @fail_count: Number of tests that failed
  * @skip_count: Number of tests that were skipped
+ * @test_count: Number of tests run. If a test is run muiltiple times, only one
+ *	is counted
  */
 struct ut_stats {
 	int fail_count;
 	int skip_count;
+	int test_count;
 };
 
 /*
