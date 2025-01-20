@@ -170,7 +170,7 @@ static struct suite suites[] = {
 #endif
 #ifdef CONFIG_SANDBOX
 #if CONFIG_IS_ENABLED(BLOBLIST)
-	SUITE_CMD(bloblist, do_ut_bloblist),
+	SUITE(bloblist),
 	SUITE_CMD(bootm, do_ut_bootm),
 #endif
 #endif
