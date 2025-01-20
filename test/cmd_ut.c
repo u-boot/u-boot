@@ -152,7 +152,7 @@ static struct suite suites[] = {
 	SUITE_CMD(overlay, do_ut_overlay),
 #endif
 #ifdef CONFIG_UT_LIB
-	SUITE_CMD(lib, do_ut_lib),
+	SUITE(lib),
 #endif
 #ifdef CONFIG_UT_LOG
 	SUITE_CMD(log, do_ut_log),

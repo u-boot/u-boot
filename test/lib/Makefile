@@ -6,7 +6,6 @@
 obj-$(CONFIG_$(XPL_)UT_COMPRESSION) += compression.o
 
 ifeq ($(CONFIG_XPL_BUILD),)
-obj-y += cmd_ut_lib.o
 obj-y += abuf.o
 obj-y += alist.o
 obj-$(CONFIG_EFI_LOADER) += efi_device_path.o
