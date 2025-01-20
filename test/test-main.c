@@ -73,6 +73,19 @@ void ut_set_state(struct unit_test_state *uts)
 	cur_test_state = uts;
 }
 
+void ut_init_state(struct unit_test_state *uts)
+{
+	memset(uts, '\0', sizeof(*uts));
+}
+
+void ut_uninit_state(struct unit_test_state *uts)
+{
+	if (IS_ENABLED(CONFIG_SANDBOX)) {
+		os_free(uts->fdt_copy);
+		os_free(uts->other_fdt);
+	}
+}
+
 /**
  * dm_test_pre_run() - Get ready to run a driver model test
  *
@@ -664,10 +677,11 @@ int ut_run_list(const char *category, const char *prefix,
 		struct unit_test *tests, int count, const char *select_name,
 		int runs_per_test, bool force_run, const char *test_insert)
 {
-	struct unit_test_state uts = { .fail_count = 0 };
+	struct unit_test_state uts;
 	bool has_dm_tests = false;
 	int ret;
 
+	ut_init_state(&uts);
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
@@ -703,10 +717,6 @@ int ut_run_list(const char *category, const char *prefix,
 	/* Best efforts only...ignore errors */
 	if (has_dm_tests)
 		dm_test_restore(uts.of_root);
-	if (IS_ENABLED(CONFIG_SANDBOX)) {
-		os_free(uts.fdt_copy);
-		os_free(uts.other_fdt);
-	}
 
 	if (uts.skip_count)
 		printf("Skipped: %d, ", uts.skip_count);
@@ -714,6 +724,7 @@ int ut_run_list(const char *category, const char *prefix,
 		printf("Test '%s' not found\n", select_name);
 	else
 		printf("Failures: %d\n", uts.fail_count);
+	ut_uninit_state(&uts);
 
 	return ret;
 }
