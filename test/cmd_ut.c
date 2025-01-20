@@ -129,7 +129,7 @@ static struct suite suites[] = {
 	SUITE_CMD(bootstd, do_ut_bootstd),
 #endif
 #ifdef CONFIG_CMDLINE
-	SUITE_CMD(cmd, do_ut_cmd),
+	SUITE(cmd),
 #endif
 	SUITE_CMD(common, do_ut_common),
 #if defined(CONFIG_UT_DM)
