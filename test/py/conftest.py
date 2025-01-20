@@ -33,6 +33,9 @@ console = None
 
 TEST_PY_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Regex for test-function symbols
+RE_UT_TEST_LIST = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_2_(.*)\s*$')
+
 def mkdir_p(path):
     """Create a directory path.
 
@@ -336,7 +339,7 @@ def pytest_configure(config):
         import u_boot_console_exec_attach
         console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
 
-re_ut_test_list = re.compile(r'[^a-zA-Z0-9_]_u_boot_list_2_ut_(.*)_test_2_(.*)\s*$')
+
 def generate_ut_subtest(metafunc, fixture_name, sym_path):
     """Provide parametrization for a ut_subtest fixture.
 
@@ -363,7 +366,7 @@ def generate_ut_subtest(metafunc, fixture_name, sym_path):
 
     vals = []
     for l in lines:
-        m = re_ut_test_list.search(l)
+        m = RE_UT_TEST_LIST.search(l)
         if not m:
             continue
         suite, name = m.groups()

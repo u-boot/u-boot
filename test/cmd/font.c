@@ -12,7 +12,7 @@
 #include <test/ut.h>
 
 /* Declare a new fdt test */
-#define FONT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, font_test)
+#define FONT_TEST(_name, _flags)	UNIT_TEST(_name, _flags, font)
 
 /* Test 'fdt addr' resizing an fdt */
 static int font_test_base(struct unit_test_state *uts)
@@ -88,8 +88,8 @@ FONT_TEST(font_test_base, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE |
 
 int do_ut_font(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(font_Test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(font_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(font);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(font);
 
 	return cmd_ut_category("font", "font_test_", tests, n_ents, argc, argv);
 }

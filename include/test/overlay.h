@@ -10,6 +10,6 @@
 #include <test/test.h>
 
 /* Declare a new environment test */
-#define OVERLAY_TEST(_name, _flags)	UNIT_TEST(_name, _flags, overlay_test)
+#define OVERLAY_TEST(_name, _flags)	UNIT_TEST(_name, _flags, overlay)
 
 #endif /* __TEST_OVERLAY_H__ */

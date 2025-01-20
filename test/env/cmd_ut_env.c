@@ -77,8 +77,8 @@ ENV_TEST(env_test_env_cmd, UTF_CONSOLE);
 
 int do_ut_env(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(env_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(env_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(env);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(env);
 
 	return cmd_ut_category("env", "env_test_", tests, n_ents, argc, argv);
 }

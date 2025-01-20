@@ -26,7 +26,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Declare a new bdinfo test */
-#define BDINFO_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bdinfo_test)
+#define BDINFO_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bdinfo)
 
 static int test_num_l(struct unit_test_state *uts, const char *name,
 		      ulong value)
@@ -285,8 +285,8 @@ BDINFO_TEST(bdinfo_test_eth, UTF_CONSOLE);
 
 int do_ut_bdinfo(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(bdinfo_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(bdinfo_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(bdinfo);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(bdinfo);
 
 	return cmd_ut_category("bdinfo", "bdinfo_test_", tests, n_ents, argc, argv);
 }

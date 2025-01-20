@@ -96,8 +96,8 @@ void bootstd_reset_usb(void)
 
 int do_ut_bootstd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(bootstd_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(bootstd_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(bootstd);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(bootstd);
 	int ret;
 
 	ret = bootstd_setup_for_tests();
@@ -106,6 +106,6 @@ int do_ut_bootstd(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_FAILURE;
 	}
 
-	return cmd_ut_category("bootstd", "bootstd_test_",
-			       tests, n_ents, argc, argv);
+	return cmd_ut_category("bootstd", "bootstd_", tests, n_ents,
+			       argc, argv);
 }

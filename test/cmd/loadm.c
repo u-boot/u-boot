@@ -19,7 +19,7 @@
 
 #define BUF_SIZE 0x100
 
-#define LOADM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, loadm_test)
+#define LOADM_TEST(_name, _flags)	UNIT_TEST(_name, _flags, loadm)
 
 static int loadm_test_params(struct unit_test_state *uts)
 {
@@ -61,8 +61,8 @@ LOADM_TEST(loadm_test_load, UTF_CONSOLE);
 
 int do_ut_loadm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(loadm_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(loadm_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(loadm);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(loadm);
 
 	return cmd_ut_category("loadm", "loadm_test_", tests, n_ents, argc,
 			       argv);

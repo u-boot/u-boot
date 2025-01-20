@@ -9,6 +9,6 @@
 #include <test/test.h>
 
 /* Declare a new library function test */
-#define LIB_TEST(_name, _flags)	UNIT_TEST(_name, _flags, lib_test)
+#define LIB_TEST(_name, _flags)	UNIT_TEST(_name, _flags, lib)
 
 #endif /* __TEST_LIB_H__ */

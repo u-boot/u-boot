@@ -12,8 +12,7 @@
 #include <version_string.h>
 
 /* Declare a new bootdev test */
-#define BOOTSTD_TEST(_name, _flags) \
-		UNIT_TEST(_name, _flags, bootstd_test)
+#define BOOTSTD_TEST(_name, _flags)	UNIT_TEST(_name, _flags, bootstd)
 
 #define NVDATA_START_BLK	((0x400 + 0x400) / MMC_MAX_BLOCK_LEN)
 #define VERSION_START_BLK	((0x400 + 0x800) / MMC_MAX_BLOCK_LEN)

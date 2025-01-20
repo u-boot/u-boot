@@ -13,8 +13,8 @@
 #define LOGF_TEST (BIT(LOGF_FUNC) | BIT(LOGF_MSG))
 
 /* Declare a new logging test */
-#define LOG_TEST(_name) UNIT_TEST(_name, UTF_CONSOLE, log_test)
+#define LOG_TEST(_name) UNIT_TEST(_name, UTF_CONSOLE, log)
 #define LOG_TEST_FLAGS(_name, _flags) \
-		UNIT_TEST(_name, _flags | UTF_CONSOLE, log_test)
+		UNIT_TEST(_name, _flags | UTF_CONSOLE, log)
 
 #endif /* __TEST_LOG_H__ */

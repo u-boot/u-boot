@@ -11,7 +11,7 @@
 #include <test/suites.h>
 #include <test/ut.h>
 
-#define PCI_MPS_TEST(_name, _flags) UNIT_TEST(_name, _flags, pci_mps_test)
+#define PCI_MPS_TEST(_name, _flags) UNIT_TEST(_name, _flags, pci_mps)
 
 /* Test "pci_mps" command in safe "s" mode */
 static int test_pci_mps_safe(struct unit_test_state *uts)
@@ -32,8 +32,8 @@ PCI_MPS_TEST(test_pci_mps_safe, UTF_CONSOLE);
 int do_ut_pci_mps(struct cmd_tbl *cmdtp, int flag, int argc,
 		  char * const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(pci_mps_test);
-	const int n = UNIT_TEST_SUITE_COUNT(pci_mps_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(pci_mps);
+	const int n = UNIT_TEST_SUITE_COUNT(pci_mps);
 
 	return cmd_ut_category("pci_mps", "pci_mps_test_", tests, n,
 			       argc, argv);

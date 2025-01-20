@@ -15,7 +15,7 @@
 #define BUF_SIZE	0x100
 
 /* Declare a new setexpr test */
-#define SETEXPR_TEST(_name, _flags)	UNIT_TEST(_name, _flags, setexpr_test)
+#define SETEXPR_TEST(_name, _flags)	UNIT_TEST(_name, _flags, setexpr)
 
 /* Test 'setexpr' command with simply setting integers */
 static int setexpr_test_int(struct unit_test_state *uts)
@@ -482,8 +482,8 @@ SETEXPR_TEST(setexpr_test_fmt, UTF_CONSOLE);
 
 int do_ut_setexpr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(setexpr_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(setexpr_test);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(setexpr);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(setexpr);
 
 	return cmd_ut_category("setexpr", "setexpr_test_", tests, n_ents,
 			       argc, argv);
