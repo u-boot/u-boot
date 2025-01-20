@@ -90,7 +90,10 @@ int cmd_ut_category(struct unit_test_state *uts, const char *name,
 	NULL, \
 	}
 
+SUITE_DECL(addrmap);
 SUITE_DECL(bdinfo);
+SUITE_DECL(bloblist);
+SUITE_DECL(bootm);
 SUITE_DECL(bootstd);
 SUITE_DECL(cmd);
 SUITE_DECL(common);
@@ -99,25 +102,25 @@ SUITE_DECL(env);
 SUITE_DECL(exit);
 SUITE_DECL(fdt);
 SUITE_DECL(font);
-SUITE_DECL(optee);
-SUITE_DECL(overlay);
+SUITE_DECL(hush);
 SUITE_DECL(lib);
+SUITE_DECL(loadm);
 SUITE_DECL(log);
 SUITE_DECL(mbr);
-SUITE_DECL(mem);
-SUITE_DECL(setexpr);
 SUITE_DECL(measurement);
-SUITE_DECL(bloblist);
-SUITE_DECL(bootm);
-SUITE_DECL(addrmap);
-SUITE_DECL(hush);
-SUITE_DECL(loadm);
+SUITE_DECL(mem);
+SUITE_DECL(optee);
+SUITE_DECL(overlay);
 SUITE_DECL(pci_mps);
 SUITE_DECL(seama);
+SUITE_DECL(setexpr);
 SUITE_DECL(upl);
 
 static struct suite suites[] = {
+	SUITE(addrmap),
 	SUITE(bdinfo),
+	SUITE(bloblist),
+	SUITE(bootm),
 #ifdef CONFIG_UT_BOOTSTD
 	SUITE_CMD(bootstd, do_ut_bootstd),
 #endif
@@ -128,25 +131,22 @@ static struct suite suites[] = {
 	SUITE(exit),
 	SUITE(fdt),
 	SUITE(font),
+	SUITE(hush),
+	SUITE(lib),
+	SUITE(loadm),
+	SUITE(log),
+	SUITE(mbr),
+	SUITE(measurement),
+	SUITE(mem),
 #ifdef CONFIG_UT_OPTEE
 	SUITE_CMD(optee, do_ut_optee),
 #endif
 #ifdef CONFIG_UT_OVERLAY
 	SUITE_CMD(overlay, do_ut_overlay),
 #endif
-	SUITE(lib),
-	SUITE(log),
-	SUITE(mbr),
-	SUITE(mem),
-	SUITE(setexpr),
-	SUITE(measurement),
-	SUITE(bloblist),
-	SUITE(bootm),
-	SUITE(addrmap),
-	SUITE(hush),
-	SUITE(loadm),
 	SUITE(pci_mps),
 	SUITE(seama),
+	SUITE(setexpr),
 	SUITE(upl),
 };
 
