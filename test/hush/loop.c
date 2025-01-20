@@ -25,7 +25,7 @@ static int hush_test_for(struct unit_test_state *uts)
 		/* Reset local variable. */
 		ut_assertok(run_command("loop_i=", 0));
 	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		puts("Beware: this test set local variable loop_i and it cannot be unset!");
+		puts("Beware: this test set local variable loop_i and it cannot be unset!\n");
 	}
 
 	return 0;
@@ -56,7 +56,7 @@ static int hush_test_while(struct unit_test_state *uts)
 		/* Reset local variable. */
 		ut_assertok(run_command("loop_foo=", 0));
 	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		puts("Beware: this test set local variable loop_foo and it cannot be unset!");
+		puts("Beware: this test set local variable loop_foo and it cannot be unset!\n");
 	}
 
 	return 0;
