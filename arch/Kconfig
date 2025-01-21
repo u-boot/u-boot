@@ -181,13 +181,13 @@ config SANDBOX
 	select DM_GPIO
 	select DM_I2C
 	select DM_KEYBOARD
-	select DM_MMC
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
 	select GZIP_COMPRESSED
 	select IO_TRACE
 	select LZO
+	select MMC
 	select MTD
 	select OF_BOARD_SETUP
 	select PCI_ENDPOINT

@@ -116,7 +116,7 @@ config MTD_UBI_FM_DEBUG
 
 config UBI_BLOCK
 	bool "Enable UBI block device support"
-	depends on BLK
+	select BLK
 	help
 	  Enable UBI block device support using blk_ops abstraction.
 
