@@ -420,11 +420,11 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADBP)
 	 "fpga loadbp <dev> <address> <size> Load device from bitstream buffer\n"
-	 "             with partial bitstream (Xilinx only)\n"
+	 "             with partial bitstream\n"
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADFS)
 	 "fpga loadfs <dev> <address> <size> <blocksize> <interface> [<dev[:part]>] <filename>\n"
-	 "            Load device from filesystem (FAT by default) (Xilinx only)\n"
+	 "            Load device from filesystem (FAT by default)\n"
 #endif
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	 "fpga loadmk <dev> <address>        Load device generated with mkimage\n"
@@ -436,7 +436,7 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
 	 "fpga loads  <dev> <address> <size> <authflag> <encflag> [Userkey address]\n"
 	 "            Load device from memory buffer with secure bistream\n"
-	 "            (authenticated/encrypted/both)(Xilinx only)\n"
+	 "            (authenticated/encrypted/both)\n"
 	 "            -authflag: 0 for OCM, 1 for DDR, 2 for no authentication\n"
 	 "            (specifies where to perform authentication)\n"
 	 "            -encflag: 0 for device key, 1 for user key, 2 for no encryption\n"
