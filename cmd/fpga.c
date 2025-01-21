@@ -434,18 +434,13 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga_wrapper,
 #endif
 #endif
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-	 "fpga loads  <dev> <address> <size> <auth-OCM-0/DDR-1/noauth-2>\n"
-	 "            <enc-devkey(0)/userkey(1)/nenc(2> [Userkey address]\n"
-	 "            Loads the secure bistreams(authenticated/encrypted/both\n"
-	 "            authenticated and encrypted) of [size] from [address]\n"
-	 "            (Xilinx only)\n"
-	 "            -The auth-OCM/DDR flag specifies to perform authentication\n"
-	 "            in OCM or in DDR. 0 for OCM, 1 for DDR, 2 for no authentication\n"
-	 "            -The enc flag specifies which key to be used for decryption\n"
-	 "            0-device key, 1-user key, 2-no encryption.\n"
-	 "            -The optional Userkey address specifies from which address key\n"
-	 "            has to be used for decryption if user key is selected.\n"
-	 "            NOTE: the secure bitstream has to be created using Xilinx\n"
-	 "            bootgen tool only.\n"
+	 "fpga loads  <dev> <address> <size> <authflag> <encflag> [Userkey address]\n"
+	 "            Load device from memory buffer with secure bistream\n"
+	 "            (authenticated/encrypted/both)(Xilinx only)\n"
+	 "            -authflag: 0 for OCM, 1 for DDR, 2 for no authentication\n"
+	 "            (specifies where to perform authentication)\n"
+	 "            -encflag: 0 for device key, 1 for user key, 2 for no encryption\n"
+	 "            -Userkey address: address where user key is stored\n"
+	 "            NOTE: secure bitstream has to be created using Xilinx bootgen tool\n"
 #endif
 );
