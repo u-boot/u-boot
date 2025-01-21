@@ -25,12 +25,14 @@ struct blkmap;
  * @node: List node used to associate this slice with a blkmap
  * @blknr: Start block number of the mapping
  * @blkcnt: Number of blocks covered by this mapping
+ * @type: Type of blkmap slice
  */
 struct blkmap_slice {
 	struct list_head node;
 
 	lbaint_t blknr;
 	lbaint_t blkcnt;
+	enum blkmap_slice_type type;
 
 	/**
 	 * @read: - Read from slice
@@ -169,6 +171,7 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		.slice = {
 			.blknr = blknr,
 			.blkcnt = blkcnt,
+			.type = BLKMAP_SLICE_LINEAR,
 
 			.read = blkmap_linear_read,
 			.write = blkmap_linear_write,
@@ -248,6 +251,7 @@ int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		.slice = {
 			.blknr = blknr,
 			.blkcnt = blkcnt,
+			.type = BLKMAP_SLICE_MEM,
 
 			.read = blkmap_mem_read,
 			.write = blkmap_mem_write,
