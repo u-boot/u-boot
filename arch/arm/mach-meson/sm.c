@@ -78,7 +78,6 @@ ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size)
 
 #define SM_CHIP_ID_LENGTH	119
 #define SM_CHIP_ID_OFFSET	4
-#define SM_CHIP_ID_SIZE		12
 
 int meson_sm_get_serial(void *buffer, size_t size)
 {
