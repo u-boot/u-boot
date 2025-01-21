@@ -137,6 +137,11 @@ M:	Chris Morgan <macromorgan@hotmail.com>
 S:	Maintained
 F:	configs/anbernic_rg35xx_h700_defconfig
 
+AVAOTA A1 BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/avaota-a1_defconfig
+
 BANANAPI M1 PLUS
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -531,6 +536,11 @@ M:	Quentin Schulz <quentin.schulz@free-electrons.com>
 S:	Maintained
 F:	configs/parrot_r16_defconfig
 
+RADXA CUBIE A5E BOARD
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/radxa-cubie-a5e_defconfig
+
 SINLINX SINA31s BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
@@ -590,6 +600,11 @@ X96 MATE TV BOX
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/x96_mate_defconfig
+
+X96Q PRO+ TV BOX
+M:	Andre Przywara <andre.przywara@arm.com>
+S:	Maintained
+F:	configs/x96q_pro_plus_defconfig
 
 YONES TOPTECH BD1078 BOARD
 M:	Paul Kocialkowski <contact@paulk.fr>
