@@ -574,6 +574,18 @@ static const struct mtk_clk_tree mt7629_clk_tree = {
 	.muxes = top_muxes,
 };
 
+static const struct mtk_clk_tree mt7629_peri_clk_tree = {
+	.xtal_rate = 40 * MHZ,
+	.xtal2_rate = 20 * MHZ,
+	.gates_offs = CLK_PERI_PWM1_PD,
+	.fdivs_offs = CLK_TOP_TO_USB3_SYS,
+	.muxes_offs = CLK_TOP_AXI_SEL,
+	.plls = apmixed_plls,
+	.fclks = top_fixed_clks,
+	.fdivs = top_fixed_divs,
+	.muxes = top_muxes,
+};
+
 static int mt7629_mcucfg_probe(struct udevice *dev)
 {
 	void __iomem *base;
@@ -619,7 +631,7 @@ static int mt7629_infracfg_probe(struct udevice *dev)
 
 static int mt7629_pericfg_probe(struct udevice *dev)
 {
-	return mtk_common_clk_gate_init(dev, &mt7629_clk_tree, peri_cgs);
+	return mtk_common_clk_gate_init(dev, &mt7629_peri_clk_tree, peri_cgs);
 }
 
 static int mt7629_ethsys_probe(struct udevice *dev)

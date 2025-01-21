@@ -5,6 +5,59 @@
  * Author: Weijie Gao <weijie.gao@mediatek.com>
  */
 
+#include <dt-bindings/reset/mt7629-reset.h>
+
+/ {
+	dramc: dramc@10203000 {
+		compatible = "mediatek,mt7629-dramc";
+		reg = <0x10203000 0x600>,	/* EMI */
+		      <0x10213000 0x1000>,	/* DDRPHY */
+		      <0x10214000 0xd00>;	/* DRAMC_AO */
+		clocks = <&topckgen CLK_TOP_DDRPHYCFG_SEL>,
+			 <&topckgen CLK_TOP_SYSPLL1_D8>,
+			 <&topckgen CLK_TOP_MEM_SEL>,
+			 <&topckgen CLK_TOP_DMPLL>;
+		clock-names = "phy", "phy_mux", "mem", "mem_mux";
+	};
+
+	mcucfg: syscon@10200000 {
+		compatible = "mediatek,mt7629-mcucfg", "syscon";
+		reg = <0x10200000 0x1000>;
+		#clock-cells = <1>;
+	};
+
+	timer0: timer@10004000 {
+		compatible = "mediatek,timer";
+		reg = <0x10004000 0x80>;
+		interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>;
+		clocks = <&topckgen CLK_TOP_CLKXTAL_D4>,
+			 <&topckgen CLK_TOP_10M_SEL>;
+		clock-names = "mux", "src";
+	};
+
+	snand: snand@1100d000 {
+		compatible = "mediatek,mt7629-snand";
+		reg = <0x1100d000 0x1000>,
+		      <0x1100e000 0x1000>;
+		reg-names = "nfi", "ecc";
+		clocks = <&pericfg CLK_PERI_NFI_PD>,
+			 <&pericfg CLK_PERI_SNFI_PD>,
+			 <&pericfg CLK_PERI_NFIECC_PD>;
+		clock-names = "nfi_clk", "pad_clk", "ecc_clk";
+		assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>,
+				  <&topckgen CLK_TOP_NFI_INFRA_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>,
+					 <&topckgen CLK_TOP_UNIVPLL2_D8>;
+		status = "disabled";
+	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&watchdog>;
+	};
+
+};
+
 &infracfg {
 	bootph-all;
 };
@@ -35,8 +88,72 @@
 
 &uart0 {
 	bootph-all;
+	reg-shift = <2>;
+	assigned-clocks = <&topckgen CLK_TOP_AXI_SEL>;
+	assigned-clock-parents = <&topckgen CLK_TOP_SYSPLL1_D2>;
 };
 
-&snfi {
+&qspi {
 	bootph-all;
+	compatible = "mediatek,mtk-snor";
+	reg = <0x11014000 0x1000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi_pins>;
+	status = "okay";
+
+	/delete-node/ flash@0;
+
+	spi-flash@0{
+		bootph-all;
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <1>;
+	};
+};
+
+&pio {
+	bootph-all;
+	snfi_pins: snfi-pins {
+		mux {
+			bootph-all;
+			function = "flash";
+			groups = "snfi";
+		};
+	};
+	snor_pins: snor-pins {
+		mux {
+			bootph-all;
+			function = "flash";
+			groups = "spi_nor";
+		};
+	};
+};
+
+&snand {
+	pinctrl-names = "default";
+	pinctrl-0 = <&snfi_pins>;
+	status = "okay";
+	quad-spi;
+	bootph-all;
+};
+
+&eth {
+	resets = <&ethsys ETHSYS_FE_RST>;
+	reset-names = "fe";
+	status = "okay";
+	mediatek,gmac-id = <0>;
+	phy-mode = "2500base-x";
+	mediatek,switch = "mt7531";
+	reset-gpios = <&pio 28 GPIO_ACTIVE_HIGH>;
+	assigned-clocks = <&topckgen CLK_TOP_ETH_SEL>,
+			  <&topckgen CLK_TOP_F10M_REF_SEL>,
+			  <&topckgen CLK_TOP_SGMII_REF_1_SEL>;
+	assigned-clock-parents = <&topckgen CLK_TOP_UNIVPLL1_D2>,
+				 <&topckgen CLK_TOP_SYSPLL4_D16>,
+				 <&topckgen CLK_TOP_SGMIIPLL_D2>;
+	fixed-link {
+		speed = <2500>;
+		full-duplex;
+	};
 };
