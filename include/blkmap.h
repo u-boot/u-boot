@@ -9,6 +9,12 @@
 
 #include <dm/lists.h>
 
+/* Type of blkmap slice, Linear or Memory */
+enum blkmap_slice_type {
+	BLKMAP_SLICE_LINEAR = 1,
+	BLKMAP_SLICE_MEM,
+};
+
 /**
  * struct blkmap - Block map
  *
