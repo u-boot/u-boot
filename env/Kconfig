@@ -60,7 +60,7 @@ config ENV_MIN_ENTRIES
 	  to store the environment settings.
 
 config ENV_MAX_ENTRIES
-	int "Maximumm number of entries in the environment hashtable"
+	int "Maximum number of entries in the environment hashtable"
 	default 512
 	help
 	  Maximum number of entries in the hash table that is used internally

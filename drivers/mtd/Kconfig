@@ -216,7 +216,7 @@ config STM32_FLASH
 	 STM32 MCU.
 
 config SYS_MAX_FLASH_SECT
-	int "Maximumm number of sectors on a flash chip"
+	int "Maximum number of sectors on a flash chip"
 	depends on MTD_NOR_FLASH || FLASH_CFI_DRIVER
 	default 512
 

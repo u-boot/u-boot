@@ -147,7 +147,7 @@ config IDE
 if IDE
 
 config SYS_IDE_MAXBUS
-	hex "Maximumm number of IDE buses"
+	hex "Maximum number of IDE buses"
 	default 2
 	help
 	  This is the number of IDE buses provided by the board. Each one
