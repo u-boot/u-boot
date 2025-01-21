@@ -13,6 +13,8 @@
 / {
 	binman: binman {
 		multiple-images;
+
+#ifdef CONFIG_SPL
 		fit-dtb.blob {
 			filename = "fit-dtb.blob";
 			pad-byte = <0>;
@@ -220,6 +222,7 @@
 			fdtmap {
 			};
 		};
+#endif
 #endif
 	};
 };

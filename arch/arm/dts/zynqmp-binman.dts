@@ -14,6 +14,7 @@
 	binman: binman {
 		multiple-images;
 
+#ifdef CONFIG_SPL
 		/* u-boot.itb generation in a static way */
 		itb {
 			filename = "u-boot.itb";
@@ -201,6 +202,7 @@
 			fdtmap {
 			};
 		};
+#endif
 #endif
 	};
 };
