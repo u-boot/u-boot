@@ -195,3 +195,48 @@ def test_efi_selftest_tcg2(u_boot_console):
     if u_boot_console.p.expect(['Summary: 0 failures', 'Press any key']):
         raise Exception('Failures occurred during the EFI selftest')
     u_boot_console.restart_uboot()
+
+@pytest.mark.buildconfigspec('cmd_bootefi_selftest')
+@pytest.mark.buildconfigspec('cmd_dm')
+def test_efi_selftest_count_netdevices(u_boot_console):
+    """Test the EFI net device driver
+
+    u_boot_console -- U-Boot console
+
+    This function counts the number of ETH_UCLASS probed udevices
+    calls the EFI net device selftest to check that the EFI driver
+    sees the same.
+    """
+    u_boot_console.restart_uboot()
+    response = u_boot_console.run_command('dm tree')
+    lines = response.splitlines()[2:]
+    ethernet_count = sum(1 for line in lines if line.strip().startswith('ethernet') and '[ + ]' in line)
+
+    u_boot_console.run_command(cmd='setenv efi_selftest netdevices')
+    u_boot_console.run_command('bootefi selftest', wait_for_prompt=False)
+    if u_boot_console.p.expect([f'Detected {ethernet_count} active EFI net devices']):
+        raise Exception('Failures occurred during the EFI selftest')
+
+@pytest.mark.buildconfigspec('cmd_bootefi_selftest')
+@pytest.mark.buildconfigspec('cmd_dm')
+@pytest.mark.buildconfigspec('cmd_bind')
+def test_efi_selftest_remove_netdevices(u_boot_console):
+    """Test the EFI net device driver
+
+    u_boot_console -- U-Boot console
+
+    This function removes all the ETH_UCLASS udevices and
+    calls the EFI net device selftest to check that the EFI driver
+    sees the same.
+    """
+    u_boot_console.restart_uboot()
+    response = u_boot_console.run_command('dm tree')
+    lines = response.splitlines()[2:]
+    ethernet_count = sum(1 for line in lines if line.strip().startswith('ethernet') and '[ + ]' in line)
+
+    for i in range(ethernet_count):
+        u_boot_console.run_command(f'unbind ethernet {i}')
+    u_boot_console.run_command(cmd='setenv efi_selftest netdevices')
+    u_boot_console.run_command('bootefi selftest', wait_for_prompt=False)
+    if u_boot_console.p.expect(['Detected 0 active EFI net devices']):
+        raise Exception('Failures occurred during the EFI selftest')

@@ -13,6 +13,7 @@
 #include <image.h>
 #include <log.h>
 #include <malloc.h>
+#include <net.h>
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
@@ -95,7 +96,7 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
 
 #if IS_ENABLED(CONFIG_NETDEVICES)
 	if (!strcmp(dev, "Net") || !strcmp(dev, "Http")) {
-		ret = efi_net_set_dp(dev, devnr);
+		ret = efi_net_set_dp(dev, devnr, eth_get_dev());
 		if (ret != EFI_SUCCESS)
 			goto error;
 	}

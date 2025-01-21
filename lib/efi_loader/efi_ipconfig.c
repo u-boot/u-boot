@@ -58,7 +58,7 @@ static efi_status_t EFIAPI efi_ip4_config2_set_data(struct efi_ip4_config2_proto
 			memcpy((void *)&current_http_ip, data,
 			       sizeof(struct efi_ip4_config2_manual_address));
 			efi_net_set_addr(&current_http_ip.address,
-					 &current_http_ip.subnet_mask, NULL);
+					 &current_http_ip.subnet_mask, NULL, NULL);
 			return EFI_EXIT(EFI_SUCCESS);
 		}
 		return EFI_EXIT(EFI_BAD_BUFFER_SIZE);
@@ -131,7 +131,7 @@ static efi_status_t EFIAPI efi_ip4_config2_get_data(struct efi_ip4_config2_proto
 			return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
 		}
 
-		efi_net_get_addr(&current_http_ip.address, &current_http_ip.subnet_mask, NULL);
+		efi_net_get_addr(&current_http_ip.address, &current_http_ip.subnet_mask, NULL, NULL);
 		memcpy(data, (void *)&current_http_ip,
 		       sizeof(struct efi_ip4_config2_manual_address));
 
@@ -192,12 +192,18 @@ static efi_status_t EFIAPI efi_ip4_config2_unregister_notify(struct efi_ip4_conf
  *
  */
 efi_status_t efi_ipconfig_register(const efi_handle_t handle,
-				   struct efi_ip4_config2_protocol *ip4config)
+				   struct efi_ip4_config2_protocol **ip4config)
 {
 	efi_status_t r = EFI_SUCCESS;
 
+	if (!ip4config)
+		return EFI_INVALID_PARAMETER;
+
+	r = efi_allocate_pool(EFI_LOADER_DATA, sizeof(**ip4config), (void **)ip4config);
+	if (r != EFI_SUCCESS)
+		return r;
 	r = efi_add_protocol(handle, &efi_ip4_config2_guid,
-			     ip4config);
+			     *ip4config);
 	if (r != EFI_SUCCESS) {
 		log_err("ERROR: Failure to add protocol\n");
 		return r;
@@ -205,10 +211,28 @@ efi_status_t efi_ipconfig_register(const efi_handle_t handle,
 
 	memcpy(current_mac_addr, eth_get_ethaddr(), 6);
 
-	ip4config->set_data = efi_ip4_config2_set_data;
-	ip4config->get_data = efi_ip4_config2_get_data;
-	ip4config->register_data_notify = efi_ip4_config2_register_notify;
-	ip4config->unregister_data_notify = efi_ip4_config2_unregister_notify;
+	(*ip4config)->set_data = efi_ip4_config2_set_data;
+	(*ip4config)->get_data = efi_ip4_config2_get_data;
+	(*ip4config)->register_data_notify = efi_ip4_config2_register_notify;
+	(*ip4config)->unregister_data_notify = efi_ip4_config2_unregister_notify;
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_ipconfig_unregister() - unregister the ip4_config2 protocol
+ *
+ */
+efi_status_t efi_ipconfig_unregister(const efi_handle_t handle,
+				   struct efi_ip4_config2_protocol *ip4config)
+{
+	efi_status_t r = EFI_SUCCESS;
+
+	r = EFI_CALL(efi_uninstall_protocol(handle, &efi_ip4_config2_guid,
+		     ip4config, true));
+	if (r != EFI_SUCCESS)
+		return r;
+	efi_free_pool(ip4config);
 
 	return EFI_SUCCESS;
 }

@@ -74,7 +74,7 @@ static efi_status_t EFIAPI efi_uc_supported(
 	 * U-Boot internal devices install protocols interfaces without calling
 	 * ConnectController(). Hence we should not bind an extra driver.
 	 */
-	if (controller_handle->dev) {
+	if (controller_handle->dev && bp->ops->protocol != &efi_net_guid) {
 		ret = EFI_UNSUPPORTED;
 		goto out;
 	}
@@ -246,6 +246,10 @@ static efi_status_t EFIAPI efi_uc_stop(
 	ret = efi_free_pool(entry_buffer);
 	if (ret != EFI_SUCCESS)
 		log_err("Cannot free EFI memory pool\n");
+
+	ret = bp->ops->unbind(bp, controller_handle);
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	/* Detach driver from controller */
 	ret = efi_close_protocol(controller_handle, bp->ops->protocol,
