@@ -1178,19 +1178,26 @@ config CMD_FPGA
 	help
 	  FPGA support.
 
+config CMD_FPGA_LOADB
+	bool "fpga loadb - load bitstream file"
+	default y
+	depends on CMD_FPGA && FPGA_XILINX
+	help
+	  Supports loading an FPGA device from a bitstream file (.BIT)
+
 config CMD_FPGA_LOADP
 	bool "fpga loadp - load partial bitstream"
 	depends on CMD_FPGA
 	help
-	  Supports loading an FPGA device from a bitstream buffer containing
-	  a partial bitstream.
+	  Supports loading an FPGA device from a bitstream buffer (.BIN)
+	  containing a partial bitstream.
 
 config CMD_FPGA_LOADBP
-	bool "fpga loadbp - load partial bitstream"
+	bool "fpga loadbp - load partial bitstream file"
 	depends on CMD_FPGA && FPGA_XILINX
 	help
-	  Supports loading an FPGA device from a bitstream buffer containing
-	  a partial bitstream.
+	  Supports loading an FPGA device from a bitstream file (.BIT)
+	  containing a partial bitstream.
 
 config CMD_FPGA_LOADFS
 	bool "fpga loadfs - load bitstream from FAT filesystem"
