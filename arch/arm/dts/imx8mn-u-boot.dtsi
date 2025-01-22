@@ -252,7 +252,6 @@
 
 						tee-os {
 							filename = "tee.bin";
-							optional;
 						};
 					};
 #endif
