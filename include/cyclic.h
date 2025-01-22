@@ -20,7 +20,7 @@
  *
  * @func: Function to call periodically
  * @name: Name of the cyclic function, e.g. shown in the commands
- * @delay_ns: Delay is ns after which this function shall get executed
+ * @delay_us: Delay is us after which this function shall get executed
  * @start_time_us: Start time in us, when this function started its execution
  * @cpu_time_us: Total CPU time of this function
  * @run_cnt: Counter of executions occurances
