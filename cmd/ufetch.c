@@ -89,14 +89,12 @@ enum output_lines {
 static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
-	int num_lines = max(LAST_LINE + 1, ARRAY_SIZE(logo_lines));
+	int num_lines = max((size_t)LAST_LINE + 1, ARRAY_SIZE(logo_lines));
 	const char *model, *compatible;
 	char *ipaddr;
-	int n_cmds, n_cpus = 0, ret, compatlen;
+	int n_cmds, n_cpus = 0, compatlen;
 	size_t size;
 	ofnode np;
-	struct udevice *dev;
-	struct blk_desc *desc;
 	bool skip_ascii = false;
 
 	if (argc > 1 && strcmp(argv[1], "-n") == 0) {
@@ -190,7 +188,7 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 				if (ofnode_name_eq(np, "cpu"))
 					n_cpus++;
 			}
-			printf("CPU:" RESET " %d (1 in use)\n", n_cpus);
+			printf("CPU: " RESET CONFIG_SYS_ARCH " (%d cores, 1 in use)\n", n_cpus);
 			break;
 		case MEMORY:
 			for (int j = 0; j < CONFIG_NR_DRAM_BANKS && gd->bd->bi_dram[j].size; j++)
@@ -199,7 +197,12 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 			print_size(size, "\n");
 			break;
 		case STORAGE:
-		default:
+		default: {
+#ifdef CONFIG_BLK
+			struct udevice *dev;
+			struct blk_desc *desc;
+			int ret;
+
 			ret = uclass_find_device_by_seq(UCLASS_BLK, line - STORAGE, &dev);
 			if (!ret && dev) {
 				desc = dev_get_uclass_plat(dev);
@@ -213,7 +216,9 @@ static int do_ufetch(struct cmd_tbl *cmdtp, int flag, int argc,
 			} else if (ret == -ENODEV && (skip_ascii || line > ARRAY_SIZE(logo_lines))) {
 				break;
 			}
+#endif
 			printf("\n");
+		}
 		}
 	}
 

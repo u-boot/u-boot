@@ -54,6 +54,16 @@ static const struct freq_tbl ftbl_gcc_usb30_prim_master_clk_src[] = {
 	{ }
 };
 
+static const struct freq_tbl ftbl_gcc_pcie_0_aux_clk_src[] = {
+	F(19200000, CFG_CLK_SRC_CXO, 1, 0, 0),
+	{ }
+};
+
+static const struct freq_tbl ftbl_gcc_pcie_0_phy_rchng_clk_src[] = {
+	F(100000000, CFG_CLK_SRC_GPLL0_EVEN, 3, 0, 0),
+	{ }
+};
+
 static ulong sm8650_set_rate(struct clk *clk, ulong rate)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
@@ -81,6 +91,24 @@ static ulong sm8650_set_rate(struct clk *clk, ulong rate)
 	case GCC_USB3_PRIM_PHY_AUX_CLK_SRC:
 		clk_rcg_set_rate(priv->base, 0x39070, 0, 0);
 		return TCXO_DIV2_RATE;
+	case GCC_PCIE_0_AUX_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_aux_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, 0x6b074,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
+	case GCC_PCIE_1_AUX_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_aux_clk_src, rate);
+		clk_rcg_set_rate_mnd(priv->base, 0x8d07c,
+				     freq->pre_div, freq->m, freq->n, freq->src, 16);
+		return freq->freq;
+	case GCC_PCIE_0_PHY_RCHNG_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_phy_rchng_clk_src, rate);
+		clk_rcg_set_rate(priv->base, 0x6b058, freq->pre_div, freq->src);
+		return freq->freq;
+	case GCC_PCIE_1_PHY_RCHNG_CLK:
+		freq = qcom_find_freq(ftbl_gcc_pcie_0_phy_rchng_clk_src, rate);
+		clk_rcg_set_rate(priv->base, 0x8d060, freq->pre_div, freq->src);
+		return freq->freq;
 	default:
 		return 0;
 	}
@@ -178,6 +206,14 @@ static int sm8650_enable(struct clk *clk)
 	case GCC_USB30_PRIM_MASTER_CLK:
 		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_AUX_CLK);
 		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_COM_AUX_CLK);
+		break;
+	case GCC_PCIE_0_PIPE_CLK:
+		// GCC_PCIE_0_PIPE_CLK_SRC
+		clk_phy_mux_enable(priv->base, 0x6b070, true);
+		break;
+	case GCC_PCIE_1_PIPE_CLK:
+		// GCC_PCIE_1_PIPE_CLK_SRC
+		clk_phy_mux_enable(priv->base, 0x8d078, true);
 		break;
 	}
 

@@ -34,6 +34,7 @@
 struct msm_rng_priv {
 	phys_addr_t base;
 	struct clk clk;
+	bool skip_init;
 };
 
 static int msm_rng_read(struct udevice *dev, void *data, size_t len)
@@ -100,9 +101,14 @@ static int msm_rng_probe(struct udevice *dev)
 
 	int ret;
 
+	priv->skip_init = (bool)dev_get_driver_data(dev);
+
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	if (priv->skip_init)
+		return 0;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
@@ -119,6 +125,9 @@ static int msm_rng_remove(struct udevice *dev)
 {
 	struct msm_rng_priv *priv = dev_get_priv(dev);
 
+	if (priv->skip_init)
+		return 0;
+
 	return msm_rng_enable(priv, 0);
 }
 
@@ -127,7 +136,9 @@ static const struct dm_rng_ops msm_rng_ops = {
 };
 
 static const struct udevice_id msm_rng_match[] = {
-	{ .compatible = "qcom,prng", },
+	{ .compatible = "qcom,prng", .data = (ulong)false },
+	{ .compatible = "qcom,prng-ee", .data = (ulong)true },
+	{ .compatible = "qcom,trng", .data = (ulong)true },
 	{},
 };
 

@@ -15,6 +15,7 @@
 #include <power/pmic.h>
 #include <spmi/spmi.h>
 #include <linux/bitops.h>
+#include <time.h>
 
 #define REG_TYPE		0x4
 #define REG_SUBTYPE		0x5
@@ -31,6 +32,7 @@ struct qcom_pmic_btn_priv {
 	u32 status_bit;
 	int code;
 	struct udevice *pmic;
+	ulong last_release_time;
 };
 
 #define PON_INT_RT_STS                        0x10
@@ -42,13 +44,21 @@ struct qcom_pmic_btn_priv {
 static enum button_state_t qcom_pwrkey_get_state(struct udevice *dev)
 {
 	struct qcom_pmic_btn_priv *priv = dev_get_priv(dev);
+	bool pressed;
+	int reg;
 
-	int reg = pmic_reg_read(priv->pmic, priv->base + PON_INT_RT_STS);
+	if (get_timer_us(0) - priv->last_release_time < 25000)
+		return BUTTON_OFF;
 
+	reg = pmic_reg_read(priv->pmic, priv->base + PON_INT_RT_STS);
 	if (reg < 0)
 		return 0;
 
-	return (reg & BIT(priv->status_bit)) != 0;
+	pressed = !!(reg & BIT(priv->status_bit));
+	if (!pressed)
+		priv->last_release_time = get_timer_us(0);
+
+	return pressed;
 }
 
 static int qcom_pwrkey_get_code(struct udevice *dev)
