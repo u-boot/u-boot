@@ -15,6 +15,7 @@ config SYS_CONFIG_NAME
        default "phycore_am62x"
 
 source "board/phytec/common/Kconfig"
+source "board/phytec/common/k3/Kconfig"
 
 endif
 
