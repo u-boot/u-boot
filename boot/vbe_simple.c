@@ -18,70 +18,21 @@
 #include <vbe.h>
 #include <dm/device-internal.h>
 #include <dm/ofnode.h>
-#include <u-boot/crc.h>
 #include "vbe_simple.h"
 
-/** struct simple_nvdata - storage format for non-volatile data */
-struct simple_nvdata {
-	u8 crc8;
-	u8 hdr;
-	u16 spare1;
-	u32 fw_vernum;
-	u8 spare2[0x38];
-};
-
-static int simple_read_version(struct udevice *dev, struct blk_desc *desc,
-			       u8 *buf, struct simple_state *state)
+static int simple_read_nvdata(const struct simple_priv *priv,
+			      struct udevice *blk, struct simple_state *state)
 {
-	struct simple_priv *priv = dev_get_priv(dev);
-	int start;
+	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
+	const struct vbe_nvdata *nvd;
+	int ret;
 
-	if (priv->version_size > MMC_MAX_BLOCK_LEN)
-		return log_msg_ret("ver", -E2BIG);
+	ret = vbe_read_nvdata(blk, priv->area_start + priv->state_offset,
+			      priv->state_size, buf);
+	if (ret)
+		return log_msg_ret("nv", ret);
 
-	start = priv->area_start + priv->version_offset;
-	if (start & (MMC_MAX_BLOCK_LEN - 1))
-		return log_msg_ret("get", -EBADF);
-	start /= MMC_MAX_BLOCK_LEN;
-
-	if (blk_dread(desc, start, 1, buf) != 1)
-		return log_msg_ret("read", -EIO);
-	strlcpy(state->fw_version, buf, MAX_VERSION_LEN);
-	log_debug("version=%s\n", state->fw_version);
-
-	return 0;
-}
-
-static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
-			      u8 *buf, struct simple_state *state)
-{
-	struct simple_priv *priv = dev_get_priv(dev);
-	uint hdr_ver, hdr_size, size, crc;
-	const struct simple_nvdata *nvd;
-	int start;
-
-	if (priv->state_size > MMC_MAX_BLOCK_LEN)
-		return log_msg_ret("state", -E2BIG);
-
-	start = priv->area_start + priv->state_offset;
-	if (start & (MMC_MAX_BLOCK_LEN - 1))
-		return log_msg_ret("get", -EBADF);
-	start /= MMC_MAX_BLOCK_LEN;
-
-	if (blk_dread(desc, start, 1, buf) != 1)
-		return log_msg_ret("read", -EIO);
-	nvd = (struct simple_nvdata *)buf;
-	hdr_ver = (nvd->hdr & NVD_HDR_VER_MASK) >> NVD_HDR_VER_SHIFT;
-	hdr_size = (nvd->hdr & NVD_HDR_SIZE_MASK) >> NVD_HDR_SIZE_SHIFT;
-	if (hdr_ver != NVD_HDR_VER_CUR)
-		return log_msg_ret("hdr", -EPERM);
-	size = 1 << hdr_size;
-	if (size > sizeof(*nvd))
-		return log_msg_ret("sz", -ENOEXEC);
-
-	crc = crc8(0, buf + 1, size - 1);
-	if (crc != nvd->crc8)
-		return log_msg_ret("crc", -EPERM);
+	nvd = (struct vbe_nvdata *)buf;
 	state->fw_vernum = nvd->fw_vernum;
 
 	log_debug("version=%s\n", state->fw_version);
@@ -91,33 +42,20 @@ static int simple_read_nvdata(struct udevice *dev, struct blk_desc *desc,
 
 int vbe_simple_read_state(struct udevice *dev, struct simple_state *state)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(u8, buf, MMC_MAX_BLOCK_LEN);
 	struct simple_priv *priv = dev_get_priv(dev);
-	struct blk_desc *desc;
-	char devname[16];
-	const char *end;
-	int devnum;
+	struct udevice *blk;
 	int ret;
 
-	/* First figure out the block device */
-	log_debug("storage=%s\n", priv->storage);
-	devnum = trailing_strtoln_end(priv->storage, NULL, &end);
-	if (devnum == -1)
-		return log_msg_ret("num", -ENODEV);
-	if (end - priv->storage >= sizeof(devname))
-		return log_msg_ret("end", -E2BIG);
-	strlcpy(devname, priv->storage, end - priv->storage + 1);
-	log_debug("dev=%s, %x\n", devname, devnum);
+	ret = vbe_get_blk(priv->storage, &blk);
+	if (ret)
+		return log_msg_ret("blk", ret);
 
-	desc = blk_get_dev(devname, devnum);
-	if (!desc)
-		return log_msg_ret("get", -ENXIO);
-
-	ret = simple_read_version(dev, desc, buf, state);
+	ret = vbe_read_version(blk, priv->area_start + priv->version_offset,
+			       state->fw_version, MAX_VERSION_LEN);
 	if (ret)
 		return log_msg_ret("ver", ret);
 
-	ret = simple_read_nvdata(dev, desc, buf, state);
+	ret = simple_read_nvdata(priv, blk, state);
 	if (ret)
 		return log_msg_ret("nvd", ret);
 

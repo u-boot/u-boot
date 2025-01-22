@@ -12,6 +12,7 @@ obj-$(CONFIG_$(PHASE_)BOOTROM_SUPPORT) += spl_bootrom.o
 obj-$(CONFIG_$(PHASE_)LOAD_FIT) += spl_fit.o
 obj-$(CONFIG_$(PHASE_)BLK_FS) += spl_blk_fs.o
 obj-$(CONFIG_$(PHASE_)LEGACY_IMAGE_FORMAT) += spl_legacy.o
+obj-$(CONFIG_$(PHASE_)RELOC_LOADER) += spl_reloc.o
 obj-$(CONFIG_$(PHASE_)NOR_SUPPORT) += spl_nor.o
 obj-$(CONFIG_$(PHASE_)XIP_SUPPORT) += spl_xip.o
 obj-$(CONFIG_$(PHASE_)YMODEM_SUPPORT) += spl_ymodem.o
