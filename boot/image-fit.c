@@ -509,7 +509,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	fit_image_get_comp(fit, image_noffset, &comp);
 	printf("%s  Compression:  %s\n", p, genimg_get_comp_name(comp));
 
-	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
+	ret = fit_image_get_data(fit, image_noffset, &data, &size);
 
 	if (!tools_build()) {
 		printf("%s  Data Start:   ", p);
@@ -902,13 +902,13 @@ int fit_image_get_entry(const void *fit, int noffset, ulong *entry)
 }
 
 /**
- * fit_image_get_data - get data property and its size for a given component image node
+ * fit_image_get_emb_data - get data property and its size for a given component image node
  * @fit: pointer to the FIT format image header
  * @noffset: component image node offset
  * @data: double pointer to void, will hold data property's data address
  * @size: pointer to size_t, will hold data property's data size
  *
- * fit_image_get_data() finds data property in a given component image node.
+ * fit_image_get_emb_data() finds data property in a given component image node.
  * If the property is found its data start address and size are returned to
  * the caller.
  *
@@ -916,8 +916,8 @@ int fit_image_get_entry(const void *fit, int noffset, ulong *entry)
  *     0, on success
  *     -1, on failure
  */
-int fit_image_get_data(const void *fit, int noffset,
-		const void **data, size_t *size)
+int fit_image_get_emb_data(const void *fit, int noffset, const void **data,
+			   size_t *size)
 {
 	int len;
 
@@ -1031,14 +1031,14 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
 }
 
 /**
- * fit_image_get_data_and_size - get data and its size including
+ * fit_image_get_data - get data and its size including
  *				 both embedded and external data
  * @fit: pointer to the FIT format image header
  * @noffset: component image node offset
  * @data: double pointer to void, will hold data property's data address
  * @size: pointer to size_t, will hold data property's data size
  *
- * fit_image_get_data_and_size() finds data and its size including
+ * fit_image_get_data() finds data and its size including
  * both embedded and external data. If the property is found
  * its data start address and size are returned to the caller.
  *
@@ -1046,8 +1046,8 @@ int fit_image_get_data_size_unciphered(const void *fit, int noffset,
  *     0, on success
  *     otherwise, on failure
  */
-int fit_image_get_data_and_size(const void *fit, int noffset,
-				const void **data, size_t *size)
+int fit_image_get_data(const void *fit, int noffset, const void **data,
+		       size_t *size)
 {
 	bool external_data = false;
 	int offset;
@@ -1074,7 +1074,7 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
 			*size = len;
 		}
 	} else {
-		ret = fit_image_get_data(fit, noffset, data, size);
+		ret = fit_image_get_emb_data(fit, noffset, data, size);
 	}
 
 	return ret;
@@ -1432,7 +1432,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 		goto err;
 	}
 	/* Get image data and data length */
-	if (fit_image_get_data_and_size(fit, image_noffset, &data, &size)) {
+	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
 		err_msg = "Can't get image data/size";
 		goto err;
 	}
@@ -1781,8 +1781,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 			}
 
 			/* search in this config's kernel FDT */
-			if (fit_image_get_data_and_size(fit, kfdt_noffset,
-							&fdt, &sz)) {
+			if (fit_image_get_data(fit, kfdt_noffset, &fdt, &sz)) {
 				debug("Failed to get fdt \"%s\".\n", kfdt_name);
 				continue;
 			}
@@ -1941,7 +1940,7 @@ static int fit_get_data_tail(const void *fit, int noffset,
 	if (!fit_image_verify(fit, noffset))
 		return -EINVAL;
 
-	if (fit_image_get_data_and_size(fit, noffset, data, size))
+	if (fit_image_get_data(fit, noffset, data, size))
 		return -ENOENT;
 
 	if (!fit_get_desc(fit, noffset, &desc))
@@ -2198,8 +2197,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL_OK);
 
 	/* get image data address and length */
-	if (fit_image_get_data_and_size(fit, noffset,
-					(const void **)&buf, &size)) {
+	if (fit_image_get_data(fit, noffset, (const void **)&buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;

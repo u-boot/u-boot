@@ -5,6 +5,7 @@
  * Copyright 2021 Google LLC
  */
 
+#include <cpu.h>
 #include <efi.h>
 #include <init.h>
 #include <asm/cpu.h>
@@ -31,6 +32,8 @@ void arch_print_bdinfo(void)
 	bdinfo_print_num_l("table end", gd->arch.table_end);
 	bdinfo_print_num_l(" high start", gd->arch.table_start_high);
 	bdinfo_print_num_l(" high end", gd->arch.table_end_high);
+
+	bdinfo_print_num_ll("tsc", rdtsc());
 
 	if (IS_ENABLED(CONFIG_EFI_STUB))
 		efi_show_bdinfo();

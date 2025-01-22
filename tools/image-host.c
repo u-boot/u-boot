@@ -574,7 +574,7 @@ int fit_image_cipher_data(const char *keydir, void *keydest,
 	}
 
 	/* Get image data and data length */
-	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
+	if (fit_image_get_emb_data(fit, image_noffset, &data, &size)) {
 		fprintf(stderr, "Can't get image data/size\n");
 		return -1;
 	}
@@ -654,7 +654,7 @@ int fit_image_add_verification_data(const char *keydir, const char *keyfile,
 	int noffset;
 
 	/* Get image data and data length */
-	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
+	if (fit_image_get_emb_data(fit, image_noffset, &data, &size)) {
 		fprintf(stderr, "Can't get image data/size\n");
 		return -1;
 	}

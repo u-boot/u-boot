@@ -1067,6 +1067,7 @@ menu "System tables"
 config BLOBLIST_TABLES
 	bool "Put tables in a bloblist"
 	depends on BLOBLIST
+	default y if X86
 	default y if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
 	default n
 	help

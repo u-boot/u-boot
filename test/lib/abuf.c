@@ -46,7 +46,29 @@ static int lib_test_abuf_set(struct unit_test_state *uts)
 }
 LIB_TEST(lib_test_abuf_set, 0);
 
-/* Test abuf_map_sysmem() */
+/* Test abuf_init_const() */
+static int lib_test_abuf_init_const(struct unit_test_state *uts)
+{
+	struct abuf buf;
+	ulong start;
+	void *ptr;
+
+	start = ut_check_free();
+
+	ptr = map_sysmem(0x100, 0);
+
+	abuf_init_const(&buf, ptr, 10);
+	ut_asserteq_ptr(ptr, buf.data);
+	ut_asserteq(10, buf.size);
+
+	/* No memory should have been allocated */
+	ut_assertok(ut_check_delta(start));
+
+	return 0;
+}
+LIB_TEST(lib_test_abuf_init_const, 0);
+
+/* Test abuf_map_sysmem() and abuf_addr() */
 static int lib_test_abuf_map_sysmem(struct unit_test_state *uts)
 {
 	struct abuf buf;
@@ -59,6 +81,8 @@ static int lib_test_abuf_map_sysmem(struct unit_test_state *uts)
 	ut_asserteq_ptr(map_sysmem(0x100, 0), buf.data);
 	ut_asserteq(TEST_DATA_LEN, buf.size);
 	ut_asserteq(false, buf.alloced);
+
+	ut_asserteq(addr, abuf_addr(&buf));
 
 	return 0;
 }

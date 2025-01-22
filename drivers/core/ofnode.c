@@ -118,7 +118,7 @@ int oftree_new(oftree *treep)
 			return log_msg_ret("liv", ret);
 		tree = oftree_from_np(root);
 	} else {
-		const int size = 1024;
+		const int size = 4096;
 		void *fdt;
 
 		ret = check_tree_count();
@@ -307,6 +307,29 @@ bool ofnode_name_eq(ofnode node, const char *name)
 	len = strchrnul(node_name, '@') - node_name;
 
 	return (strlen(name) == len) && !strncmp(node_name, name, len);
+}
+
+bool ofnode_name_eq_unit(ofnode node, const char *name)
+{
+	const char *node_name, *p;
+	int len;
+
+	assert(ofnode_valid(node));
+
+	node_name = ofnode_get_name(node);
+
+	/* check the whole name */
+	if (!strcmp(node_name, name))
+		return true;
+
+	/* if @name has no unit address, try the node name without it */
+	len = strlen(name);
+	p = strchr(node_name, '@');
+	if (p && !strchr(name, '@') && len == p - node_name &&
+	    !strncmp(node_name, name, len))
+		return true;
+
+	return false;
 }
 
 int ofnode_read_u8(ofnode node, const char *propname, u8 *outp)
@@ -576,14 +599,9 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 	log_debug("%s: %s: ", __func__, subnode_name);
 
 	if (ofnode_is_np(node)) {
-		struct device_node *np = ofnode_to_np(node);
-
-		for (np = np->child; np; np = np->sibling) {
-			if (!strcmp(subnode_name, np->name))
-				break;
-		}
-		subnode = np_to_ofnode(np);
+		subnode = ofnode_find_subnode_unit(node, subnode_name);
 	} else {
+		/* special case to avoid code-size increase */
 		int ooffset = fdt_subnode_offset(ofnode_to_fdt(node),
 				ofnode_to_offset(node), subnode_name);
 		subnode = noffset_to_ofnode(node, ooffset);
@@ -592,6 +610,26 @@ ofnode ofnode_find_subnode(ofnode node, const char *subnode_name)
 		  ofnode_get_name(subnode) : "<none>");
 
 	return subnode;
+}
+
+ofnode ofnode_find_subnode_unit(ofnode node, const char *subnode_name)
+{
+	ofnode subnode, found = ofnode_null();
+
+	assert(ofnode_valid(node));
+	log_debug("%s: ", subnode_name);
+
+	ofnode_for_each_subnode(subnode, node) {
+		if (ofnode_name_eq_unit(subnode, subnode_name)) {
+			found = subnode;
+			break;
+		}
+	}
+
+	log_debug("%s\n", ofnode_valid(found) ?
+		  ofnode_get_name(found) : "<none>");
+
+	return found;
 }
 
 int ofnode_read_u32_array(ofnode node, const char *propname,
@@ -1710,9 +1748,10 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 		      int len, bool copy)
 {
+	int ret;
+
 	if (of_live_active()) {
 		void *newval;
-		int ret;
 
 		if (copy) {
 			newval = malloc(len);
@@ -1726,8 +1765,12 @@ int ofnode_write_prop(ofnode node, const char *propname, const void *value,
 			free(newval);
 		return ret;
 	} else {
-		return fdt_setprop(ofnode_to_fdt(node), ofnode_to_offset(node),
-				   propname, value, len);
+		ret = fdt_setprop(ofnode_to_fdt(node), ofnode_to_offset(node),
+				  propname, value, len);
+		if (ret)
+			return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EINVAL;
+
+		return 0;
 	}
 }
 
@@ -2015,7 +2058,7 @@ int ofnode_add_subnode(ofnode node, const char *name, ofnode *subnodep)
 			ret = -EEXIST;
 		}
 		if (offset < 0)
-			return -EINVAL;
+			return offset == -FDT_ERR_NOSPACE ? -ENOSPC : -EINVAL;
 		subnode = noffset_to_ofnode(node, offset);
 	}
 

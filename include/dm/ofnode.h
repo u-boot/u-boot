@@ -386,14 +386,27 @@ static inline oftree oftree_from_np(struct device_node *root)
 void oftree_dispose(oftree tree);
 
 /**
- * ofnode_name_eq() - Check if the node name is equivalent to a given name
- *                    ignoring the unit address
+ * ofnode_name_eq() - Check a node name ignoring its unit address
  *
- * @node:	valid node reference that has to be compared
- * @name:	name that has to be compared with the node name
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name (without unit address) to compare with the node name
  * Return: true if matches, false if it doesn't match
  */
 bool ofnode_name_eq(ofnode node, const char *name);
+
+/**
+ * ofnode_name_eq_unit() - Check a node name ignoring its unit address
+ *
+ * This is separate from ofnode_name_eq() to avoid code-size increase for
+ * boards which don't need this function
+ *
+ * @node:	valid node to compared, which may have a unit address
+ * @name:	name to compare with the node name. If this contains a unit
+ *		address, it is matched, otherwise the unit address is ignored
+ *		when searching for matches
+ * Return: true if matches, false if it doesn't match
+ */
+bool ofnode_name_eq_unit(ofnode node, const char *name);
 
 /**
  * ofnode_read_u8() - Read a 8-bit integer from a property
@@ -593,6 +606,18 @@ bool ofnode_read_bool(ofnode node, const char *propname);
  * subnode)
  */
 ofnode ofnode_find_subnode(ofnode node, const char *subnode_name);
+
+/**
+ * ofnode_find_subnode_unit() - find a named subnode of a parent node
+ *
+ * @node:	valid reference to parent node
+ * @subnode_name: name of subnode to find, including any unit address. If the
+ *	unit address is omitted, any subnode which matches the name (excluding
+ *	any unit address) is returned
+ * Return: reference to subnode (which can be invalid if there is no such
+ * subnode)
+ */
+ofnode ofnode_find_subnode_unit(ofnode node, const char *subnode_name);
 
 #if CONFIG_IS_ENABLED(DM_INLINE_OFNODE)
 #include <asm/global_data.h>
@@ -1809,7 +1834,7 @@ static inline int ofnode_read_bootscript_flash(u64 *bootscr_flash_offset,
  * of_add_subnode() - add a new subnode to a node
  *
  * @parent:	parent node to add to
- * @name:	name of subnode
+ * @name:	name of subnode (allocated by this function)
  * @nodep:	returns pointer to new subnode (valid if the function returns 0
  *	or -EEXIST)
  * Returns 0 if OK, -EEXIST if already exists, -ENOMEM if out of memory, other

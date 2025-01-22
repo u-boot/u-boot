@@ -1047,6 +1047,8 @@ if BLOBLIST
 
 choice
 	prompt "Bloblist location"
+	default BLOBLIST_FIXED if SANDBOX
+	default BLOBLIST_ALLOC
 	help
 	  Select the location of the bloblist, via various means.
 

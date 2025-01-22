@@ -179,4 +179,18 @@ struct udevice *cpu_get_current_dev(void);
  * @return 0 if OK, -ve on error
  */
 int cpu_release_core(const struct udevice *dev, phys_addr_t addr);
+
+/**
+ * cpu_phys_address_size() - Get the physical-address size for the CPU
+ *
+ * x86 CPUs have a setting which indicates how many bits of address space are
+ * available on the CPU. This is 32 for older CPUs but newer ones may support 36
+ * or more.
+ *
+ * For non-x86 CPUs the result may simply be 32 for 32-bit CPUS or 64 for 64-bit
+ *
+ * Return: address size (typically 32 or 36)
+ */
+int cpu_phys_address_size(void);
+
 #endif

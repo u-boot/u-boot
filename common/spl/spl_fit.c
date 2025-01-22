@@ -289,7 +289,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		src = src_ptr + overhead;
 	} else {
 		/* Embedded data */
-		if (fit_image_get_data(fit, node, &data, &length)) {
+		if (fit_image_get_emb_data(fit, node, &data, &length)) {
 			puts("Cannot get image data/size\n");
 			return -ENOENT;
 		}

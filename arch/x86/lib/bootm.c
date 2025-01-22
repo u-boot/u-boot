@@ -105,8 +105,8 @@ static int boot_prep_linux(struct bootm_headers *images)
 #if defined(CONFIG_FIT)
 	} else if (images->fit_uname_os && is_zimage) {
 		ret = fit_image_get_data(images->fit_hdr_os,
-				images->fit_noffset_os,
-				(const void **)&data, &len);
+					 images->fit_noffset_os,
+					 (const void **)&data, &len);
 		if (ret) {
 			puts("Can't get image data/size!\n");
 			goto error;
@@ -258,4 +258,15 @@ int do_bootm_linux(int flag, struct bootm_info *bmi)
 		return boot_jump_linux(images);
 
 	return boot_jump_linux(images);
+}
+
+int arch_upl_jump(ulong entry, const struct abuf *buf)
+{
+	typedef EFIAPI void (*h_func)(void *hoff);
+	h_func func;
+
+	func = (h_func)(ulong)entry;
+	func(buf->data);
+
+	return -EFAULT;
 }

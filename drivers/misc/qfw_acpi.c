@@ -7,6 +7,7 @@
 #define LOG_CATEGORY UCLASS_QFW
 
 #include <acpi/acpi_table.h>
+#include <bloblist.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mapmem.h>
@@ -160,6 +161,15 @@ ulong write_acpi_tables(ulong addr)
 	struct bios_linker_entry *entry;
 	uint32_t size;
 	struct udevice *dev;
+	struct acpi_ctx *ctx;
+
+	ctx = malloc(sizeof(*ctx));
+	if (!ctx) {
+		printf("error: out of memory for acpi ctx\n");
+		return addr;
+	}
+
+	acpi_setup_ctx(ctx, addr);
 
 	ret = qfw_get_dev(&dev);
 	if (ret) {
@@ -257,6 +267,29 @@ ulong acpi_get_rsdp_addr(void)
 	return file->addr;
 }
 
+void acpi_write_rsdp(struct acpi_rsdp *rsdp, struct acpi_rsdt *rsdt,
+		     struct acpi_xsdt *xsdt)
+{
+	memset(rsdp, 0, sizeof(struct acpi_rsdp));
+
+	memcpy(rsdp->signature, RSDP_SIG, 8);
+	memcpy(rsdp->oem_id, OEM_ID, 6);
+
+	if (rsdt)
+		rsdp->rsdt_address = nomap_to_sysmem(rsdt);
+
+	if (xsdt)
+		rsdp->xsdt_address = nomap_to_sysmem(xsdt);
+
+	rsdp->length = sizeof(struct acpi_rsdp);
+	rsdp->revision = ACPI_RSDP_REV_ACPI_2_0;
+
+	/* Calculate checksums */
+	rsdp->checksum = table_compute_checksum(rsdp, 20);
+	rsdp->ext_checksum = table_compute_checksum(rsdp,
+						    sizeof(struct acpi_rsdp));
+}
+
 #ifndef CONFIG_X86
 static int evt_write_acpi_tables(void)
 {
@@ -264,9 +297,9 @@ static int evt_write_acpi_tables(void)
 	void *ptr;
 
 	/* Reserve 64K for ACPI tables, aligned to a 4K boundary */
-	ptr = memalign(SZ_4K, SZ_64K);
+	ptr = bloblist_add(BLOBLISTT_ACPI_TABLES, SZ_64K, 12);
 	if (!ptr)
-		return -ENOMEM;
+		return -ENOBUFS;
 	addr = map_to_sysmem(ptr);
 
 	/* Generate ACPI tables */

@@ -1087,8 +1087,8 @@ fallback:
 			}
 
 			/* get script subimage data address and length */
-			if (fit_image_get_data_and_size(fit_hdr, noffset,
-							&fit_data, &fit_len)) {
+			if (fit_image_get_data(fit_hdr, noffset, &fit_data,
+					       &fit_len)) {
 				puts("Could not find script subimage data\n");
 				return 1;
 			}

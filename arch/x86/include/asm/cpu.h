@@ -284,15 +284,6 @@ u32 cpu_get_family_model(void);
  */
 u32 cpu_get_stepping(void);
 
-/**
- * cpu_phys_address_size() - Get the physical address size in bits
- *
- * This is 32 for older CPUs but newer ones may support 36.
- *
- * Return: address size (typically 32 or 36)
- */
-int cpu_phys_address_size(void);
-
 void board_final_init(void);
 void board_final_cleanup(void);
 
