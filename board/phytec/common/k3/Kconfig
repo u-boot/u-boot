@@ -37,3 +37,12 @@ config PHYTEC_K3_DEGENERATE_KEY
 	   copy of the original key.
 	   If PHYTEC_K3_KEY_BLOB_COPY is disabled, provide the path to the
 	   original key.
+
+config PHYTEC_K3_EMBED_RAUC_ENV
+	bool "Embed environment to handle RAUC A/B systems"
+	default n
+	help
+	   Embed RAUC environment variables into u-boot's default environment.
+	   Provides logic to select a boot partition based on environment variables
+	   and switch to the other if the boot fails.
+	   Includes include/env/phytec/rauc.env.
