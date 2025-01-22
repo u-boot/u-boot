@@ -2355,10 +2355,17 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	char *next_config = NULL;
 	ulong load, len;
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	ulong image_start, image_end;
 	ulong ovload, ovlen, ovcopylen;
 	const char *uconfig;
 	const char *uname;
+	/*
+	 * of_flat_tree is storing the void * returned by map_sysmem, then its
+	 * address is passed to boot_relocate_fdt which expects a char ** and it
+	 * is then cast into a ulong. Setting its type to void * would require
+	 * to cast its address to char ** when passing it to boot_relocate_fdt.
+	 * Instead, let's be lazy and use void *.
+	 */
+	char *of_flat_tree;
 	void *base, *ov, *ovcopy = NULL;
 	int i, err, noffset, ov_noffset;
 #endif
@@ -2402,17 +2409,18 @@ int boot_get_fdt_fit(struct bootm_headers *images, ulong addr,
 	/* we need to apply overlays */
 
 #ifdef CONFIG_OF_LIBFDT_OVERLAY
-	image_start = addr;
-	image_end = addr + fit_get_size(fit);
-	/* verify that relocation took place by load address not being in fit */
-	if (load >= image_start && load < image_end) {
-		/* check is simplified; fit load checks for overlaps */
-		printf("Overlayed FDT requires relocation\n");
+	/* Relocate FDT so resizing does not overwrite other data in FIT. */
+	of_flat_tree = map_sysmem(load, len);
+	len = ALIGN(fdt_totalsize(load), SZ_4K);
+	err = boot_relocate_fdt(&of_flat_tree, &len);
+	if (err) {
+		printf("Required FDT relocation for applying DTOs failed: %d\n",
+		       err);
 		fdt_noffset = -EBADF;
 		goto out;
 	}
 
-	base = map_sysmem(load, len);
+	load = (ulong)of_flat_tree;
 
 	/* apply extra configs in FIT first, followed by args */
 	for (i = 1; ; i++) {
