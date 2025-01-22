@@ -88,20 +88,21 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-static void qcom_parse_memory(void)
+static void qcom_parse_memory(const void *fdt)
 {
-	ofnode node;
+	int offset;
 	const fdt64_t *memory;
 	int memsize;
 	phys_addr_t ram_end = 0;
 	int i, j, banks;
 
-	node = ofnode_path("/memory");
-	if (!ofnode_valid(node)) {
+	offset = fdt_path_offset(fdt, "/memory");
+	if (offset < 0) {
 		log_err("No memory node found in device tree!\n");
 		return;
 	}
-	memory = ofnode_read_prop(node, "reg", &memsize);
+
+	memory = fdt_getprop(fdt, offset, "reg", &memsize);
 	if (!memory) {
 		log_err("No memory configuration was provided by the previous bootloader!\n");
 		return;
@@ -158,7 +159,7 @@ int board_fdt_blob_setup(void **fdtp)
 
 	fdt = (struct fdt_header *)get_prev_bl_fdt_addr();
 	external_valid = fdt && !fdt_check_header(fdt);
-	internal_valid = !fdt_check_header(gd->fdt_blob);
+	internal_valid = !fdt_check_header(*fdtp);
 
 	/*
 	 * There is no point returning an error here, U-Boot can't do anything useful in this situation.
@@ -181,7 +182,7 @@ int board_fdt_blob_setup(void **fdtp)
 	 * Parse the /memory node while we're here,
 	 * this makes it easy to do other things early.
 	 */
-	qcom_parse_memory();
+	qcom_parse_memory(*fdtp);
 
 	return ret;
 }
