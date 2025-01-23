@@ -41,14 +41,13 @@
 	status = "okay";
 };
 
-&eth {
+&eth0 {
 	status = "okay";
-	mediatek,gmac-id = <0>;
 	phy-mode = "usxgmii";
 	mediatek,switch = "mt7988";
 
 	fixed-link {
-		speed = <1000>;
+		speed = <10000>;
 		full-duplex;
 		pause;
 	};

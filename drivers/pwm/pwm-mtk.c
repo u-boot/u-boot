@@ -192,7 +192,7 @@ static const struct mtk_pwm_soc mt7629_data = {
 };
 
 static const struct mtk_pwm_soc mt7981_data = {
-	.num_pwms = 2,
+	.num_pwms = 3,
 	.pwm45_fixup = false,
 	.reg_ver = PWM_REG_V2,
 };

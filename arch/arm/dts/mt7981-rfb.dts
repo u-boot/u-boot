@@ -123,6 +123,14 @@
 			groups = "pwm0_1", "pwm1_0", "pwm2";
 		};
 	};
+
+	/* pin13 as pwm0, pin15 as pwm1, pin7 as pwm2 */
+	three_pwm_pins_1: three-pwm-pins {
+		mux {
+			function = "pwm";
+			groups = "pwm0_0", "pwm1_1", "pwm2";
+		};
+	};
 };
 
 &spi0 {
@@ -143,6 +151,8 @@
 		compatible = "spi-nand";
 		reg = <0>;
 		spi-max-frequency = <52000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
 	};
 };
 
@@ -164,6 +174,8 @@
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <52000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
 	};
 };
 
