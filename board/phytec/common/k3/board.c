@@ -258,8 +258,20 @@ fixup_error:
 
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
+	struct phytec_eeprom_data data;
+	int ret;
+
 	fdt_apply_som_overlays(blob);
 	fdt_copy_fixed_partitions(blob);
+
+	ret = phytec_eeprom_data_setup(&data, 0, EEPROM_ADDR);
+	if (ret || !data.valid)
+		return 0;
+
+	ret = phytec_ft_board_fixup(&data, blob);
+	if (ret)
+		pr_err("%s: Failed to add PHYTEC information to fdt.\n",
+		       __func__);
 
 	return 0;
 }
