@@ -479,15 +479,19 @@ static bool atmel_qspi_supports_op(struct spi_slave *slave,
 }
 
 /*
- * If the QSPI controller is set in regular SPI mode, set it in
- * Serial Memory Mode (SMM).
+ * Switch QSPI controller between regular SPI mode or Serial Memory Mode (SMM).
  */
-static int atmel_qspi_set_serial_memory_mode(struct atmel_qspi *aq)
+static int atmel_qspi_set_serial_memory_mode(struct atmel_qspi *aq,
+					     bool enable)
 {
 	int ret = 0;
 
-	if (!(aq->mr & QSPI_MR_SMM)) {
-		aq->mr |= QSPI_MR_SMM;
+	/* only write if designated state differs from current state */
+	if (!!(aq->mr & QSPI_MR_SMM) != enable) {
+		if (enable)
+			aq->mr |= QSPI_MR_SMM;
+		else
+			aq->mr &= ~QSPI_MR_SMM;
 		atmel_qspi_write(aq->mr, aq, QSPI_MR);
 
 		if (aq->caps->has_gclk)
@@ -576,7 +580,7 @@ static int atmel_qspi_set_cfg(struct atmel_qspi *aq,
 			ifr |= QSPI_IFR_TFRTYP_MEM;
 	}
 
-	mode = atmel_qspi_set_serial_memory_mode(aq);
+	mode = atmel_qspi_set_serial_memory_mode(aq, true);
 	if (mode < 0)
 		return mode;
 
@@ -683,7 +687,7 @@ static int atmel_qspi_sama7g5_set_cfg(struct atmel_qspi *aq,
 			ifr |= QSPI_IFR_TFRTYP_MEM;
 	}
 
-	ret = atmel_qspi_set_serial_memory_mode(aq);
+	ret = atmel_qspi_set_serial_memory_mode(aq, true);
 	if (ret < 0)
 		return ret;
 
@@ -910,7 +914,7 @@ static int atmel_qspi_sama7g5_set_speed(struct udevice *bus, uint hz)
 
 	/* Set the QSPI controller by default in Serial Memory Mode */
 	aq->mr |= QSPI_MR_DQSDLYEN;
-	ret = atmel_qspi_set_serial_memory_mode(aq);
+	ret = atmel_qspi_set_serial_memory_mode(aq, true);
 	if (ret < 0)
 		return ret;
 
