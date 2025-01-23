@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include <asm/cache.h>
 #include <asm/global_data.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -125,8 +126,8 @@ void invalidate_l2_cache(void)
 {
 	unsigned int val = 0;
 
-	asm volatile("mcr p15, 1, %0, c15, c11, 0 @ invl l2 cache"
-		: : "r" (val) : "cc");
+	asm_arm_or_thumb2("mcr p15, 1, %0, c15, c11, 0 @ invl l2 cache"
+			  : : "r" (val) : "cc");
 	isb();
 }
 #endif
