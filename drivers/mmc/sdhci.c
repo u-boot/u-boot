@@ -177,8 +177,10 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data)
 	} while (!(stat & SDHCI_INT_DATA_END));
 
 #if (CONFIG_IS_ENABLED(MMC_SDHCI_SDMA) || CONFIG_IS_ENABLED(MMC_SDHCI_ADMA))
-	dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
-			 mmc_get_dma_dir(data));
+	if (host->flags & USE_DMA) {
+		dma_unmap_single(host->start_addr, data->blocks * data->blocksize,
+				 mmc_get_dma_dir(data));
+	}
 #endif
 
 	return 0;
