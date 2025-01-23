@@ -302,6 +302,9 @@ static const char *calc_dev_name(struct bootflow *bflow)
 	media_dev = dev_get_parent(bflow->dev);
 
 	if (!bflow->blk) {
+		if (device_get_uclass_id(media_dev) == UCLASS_ETH)
+			return "Net";
+
 		log_err("Cannot boot EFI app on media '%s'\n",
 			dev_get_uclass_name(media_dev));
 
@@ -342,7 +345,7 @@ efi_status_t efi_bootflow_run(struct bootflow *bflow)
 	ret = calculate_paths(dev_name, devnum_str, bflow->fname, &device,
 			      &image);
 	if (ret)
-		return ret;
+		return EFI_UNSUPPORTED;
 
 	if (bflow->flags & BOOTFLOWF_USE_BUILTIN_FDT) {
 		log_debug("Booting with built-in fdt\n");
