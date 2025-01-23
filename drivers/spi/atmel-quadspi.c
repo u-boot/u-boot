@@ -10,11 +10,13 @@
  */
 
 #include <malloc.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
+#include <log.h>
 #include <dm/device_compat.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
@@ -258,6 +260,7 @@ struct atmel_qspi_caps {
 
 struct atmel_qspi_priv_ops;
 
+#define MAX_CS_COUNT	2
 struct atmel_qspi {
 	void __iomem *regs;
 	void __iomem *mem;
@@ -267,6 +270,7 @@ struct atmel_qspi {
 	struct udevice *dev;
 	ulong bus_clk_rate;
 	u32 mr;
+	struct gpio_desc cs_gpios[MAX_CS_COUNT];
 };
 
 struct atmel_qspi_priv_ops {
@@ -940,6 +944,135 @@ static int atmel_qspi_sama7g5_set_speed(struct udevice *bus, uint hz)
 	return ret;
 }
 
+static int atmel_qspi_claim_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	int ret;
+
+	aq->mr &= ~QSPI_MR_CSMODE_MASK;
+	aq->mr |= QSPI_MR_CSMODE_LASTXFER | QSPI_MR_WDRBT;
+	atmel_qspi_write(aq->mr, aq, QSPI_MR);
+
+	ret = atmel_qspi_set_serial_memory_mode(aq, false);
+	if (ret)
+		return log_ret(ret);
+
+	/* de-assert all chip selects */
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (dm_gpio_is_valid(&aq->cs_gpios[i]))
+				dm_gpio_set_value(&aq->cs_gpios[i], 0);
+		}
+	}
+
+	atmel_qspi_write(QSPI_CR_QSPIEN, aq, QSPI_CR);
+
+	return 0;
+}
+
+static int atmel_qspi_release_bus(struct udevice *dev)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+
+	/* de-assert all chip selects */
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (dm_gpio_is_valid(&aq->cs_gpios[i]))
+				dm_gpio_set_value(&aq->cs_gpios[i], 0);
+		}
+	}
+
+	atmel_qspi_write(QSPI_CR_QSPIDIS, aq, QSPI_CR);
+
+	return 0;
+}
+
+static int atmel_qspi_set_cs(struct udevice *dev, int value)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	int cs = spi_chip_select(dev);
+
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		if (!dm_gpio_is_valid(&aq->cs_gpios[cs]))
+			return log_ret(-ENOENT);
+
+		return dm_gpio_set_value(&aq->cs_gpios[cs], value);
+	} else {
+		return -ENOENT;
+	}
+}
+
+static int atmel_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+			   const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev_get_parent(dev);
+	struct atmel_qspi *aq = dev_get_priv(bus);
+	unsigned int len, len_rx, len_tx;
+	const u8 *txp = dout;
+	u8 *rxp = din;
+	u32 reg;
+	int ret;
+
+	if (bitlen == 0)
+		goto out;
+
+	if (bitlen % 8) {
+		flags |= SPI_XFER_END;
+		goto out;
+	}
+
+	len = bitlen / 8;
+
+	if (flags & SPI_XFER_BEGIN) {
+		ret = atmel_qspi_set_cs(dev, 1);
+		if (ret)
+			return log_ret(ret);
+		reg = atmel_qspi_read(aq, QSPI_RD);
+	}
+
+	for (len_tx = 0, len_rx = 0; len_rx < len; ) {
+		u32 status = atmel_qspi_read(aq, QSPI_SR);
+		u8 value;
+
+		if (status & QSPI_SR_OVRES)
+			return log_ret(-1);
+
+		if (len_tx < len && (status & QSPI_SR_TDRE)) {
+			if (txp)
+				value = *txp++;
+			else
+				value = 0;
+			atmel_qspi_write(value, aq, QSPI_TD);
+			len_tx++;
+		}
+
+		if (status & QSPI_SR_RDRF) {
+			value = atmel_qspi_read(aq, QSPI_RD);
+			if (rxp)
+				*rxp++ = value;
+			len_rx++;
+		}
+	}
+
+out:
+	if (flags & SPI_XFER_END) {
+		readl_poll_timeout(aq->regs + QSPI_SR, reg,
+				   reg & QSPI_SR_TXEMPTY,
+				   ATMEL_QSPI_TIMEOUT);
+
+		atmel_qspi_write(QSPI_CR_LASTXFER, aq, QSPI_CR);
+
+		ret = atmel_qspi_set_cs(dev, 0);
+		if (ret)
+			return log_ret(ret);
+	}
+
+	return 0;
+}
+
 static int atmel_qspi_set_speed(struct udevice *bus, uint hz)
 {
 	struct atmel_qspi *aq = dev_get_priv(bus);
@@ -1089,6 +1222,23 @@ static int atmel_qspi_probe(struct udevice *dev)
 	else
 		aq->ops = &atmel_qspi_priv_ops;
 
+	if (IS_ENABLED(CONFIG_DM_GPIO)) {
+		ret = gpio_request_list_by_name(dev, "cs-gpios", aq->cs_gpios,
+						ARRAY_SIZE(aq->cs_gpios), 0);
+		if (ret < 0) {
+			pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
+			return ret;
+		}
+
+		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
+			if (!dm_gpio_is_valid(&aq->cs_gpios[i]))
+				continue;
+
+			dm_gpio_set_dir_flags(&aq->cs_gpios[i],
+					      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		}
+	}
+
 	/* Map the registers */
 	ret = dev_read_resource_byname(dev, "qspi_base", &res);
 	if (ret) {
@@ -1127,9 +1277,12 @@ static const struct spi_controller_mem_ops atmel_qspi_mem_ops = {
 };
 
 static const struct dm_spi_ops atmel_qspi_ops = {
+	.claim_bus = atmel_qspi_claim_bus,
+	.release_bus = atmel_qspi_release_bus,
+	.xfer = atmel_qspi_xfer,
+	.mem_ops = &atmel_qspi_mem_ops,
 	.set_speed = atmel_qspi_set_speed,
 	.set_mode = atmel_qspi_set_mode,
-	.mem_ops = &atmel_qspi_mem_ops,
 };
 
 static const struct atmel_qspi_caps atmel_sama5d2_qspi_caps = {};
