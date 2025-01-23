@@ -459,6 +459,7 @@ config SPL_XIP
 
 config AVAILABLE_HARTS
 	bool "Send IPI by available harts"
+	depends on !XIP
 	default y
 	help
 	  By default, IPI sending mechanism will depend on available_harts.
