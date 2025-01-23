@@ -1082,6 +1082,7 @@ static int atmel_qspi_set_speed(struct udevice *bus, uint hz)
 		return atmel_qspi_sama7g5_set_speed(bus, hz);
 
 	/* Compute the QSPI baudrate */
+	dev_dbg(bus, "bus_clk_rate: %lu, hz: %u\n", aq->bus_clk_rate, hz);
 	scbr = DIV_ROUND_UP(aq->bus_clk_rate, hz);
 	if (scbr > 0)
 		scbr--;
@@ -1214,7 +1215,7 @@ static int atmel_qspi_probe(struct udevice *dev)
 	aq->caps = (struct atmel_qspi_caps *)dev_get_driver_data(dev);
 	if (!aq->caps) {
 		dev_err(dev, "Could not retrieve QSPI caps\n");
-		return -EINVAL;
+		return log_ret(-EINVAL);
 	};
 
 	if (aq->caps->has_gclk)
@@ -1227,7 +1228,7 @@ static int atmel_qspi_probe(struct udevice *dev)
 						ARRAY_SIZE(aq->cs_gpios), 0);
 		if (ret < 0) {
 			pr_err("Can't get %s gpios! Error: %d", dev->name, ret);
-			return ret;
+			return log_ret(ret);
 		}
 
 		for (int i = 0; i < ARRAY_SIZE(aq->cs_gpios); i++) {
@@ -1243,32 +1244,32 @@ static int atmel_qspi_probe(struct udevice *dev)
 	ret = dev_read_resource_byname(dev, "qspi_base", &res);
 	if (ret) {
 		dev_err(dev, "missing registers\n");
-		return ret;
+		return log_ret(ret);
 	}
 
 	aq->regs = devm_ioremap(dev, res.start, resource_size(&res));
 	if (IS_ERR(aq->regs))
-		return PTR_ERR(aq->regs);
+		return log_ret(PTR_ERR(aq->regs));
 
 	/* Map the AHB memory */
 	ret = dev_read_resource_byname(dev, "qspi_mmap", &res);
 	if (ret) {
 		dev_err(dev, "missing AHB memory\n");
-		return ret;
+		return log_ret(ret);
 	}
 
 	aq->mem = devm_ioremap(dev, res.start, resource_size(&res));
 	if (IS_ERR(aq->mem))
-		return PTR_ERR(aq->mem);
+		return log_ret(PTR_ERR(aq->mem));
 
 	aq->mmap_size = resource_size(&res);
 
 	ret = atmel_qspi_enable_clk(dev);
 	if (ret)
-		return ret;
+		return log_ret(ret);
 
 	aq->dev = dev;
-	return atmel_qspi_init(aq);
+	return log_ret(atmel_qspi_init(aq));
 }
 
 static const struct spi_controller_mem_ops atmel_qspi_mem_ops = {
