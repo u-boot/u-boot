@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) 2025 MediaTek Inc.
+ * Author: Sam.Shih <sam.shih@mediatek.com>
+ */
+
+#include <dt-bindings/clock/mediatek,mt7987-clk.h>
+#include <dt-bindings/reset/mt7988-reset.h>
+
+&netsys {
+	eth0: ethernet@15110100 {
+		compatible = "mediatek,mt7987-eth", "syscon";
+		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <0>;
+		mediatek,ethsys = <&ethsys>;
+		mediatek,sgmiisys = <&sgmiisys0>;
+		mediatek,infracfg = <&topmisc>;
+		resets = <&ethsys ETHDMA_FE_RST>;
+		reset-names = "fe";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	eth1: ethernet@15110200 {
+		compatible = "mediatek,mt7987-eth", "syscon";
+		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <1>;
+		mediatek,ethsys = <&ethsys>;
+		mediatek,infracfg = <&topmisc>;
+		resets = <&ethsys ETHDMA_FE_RST>;
+		reset-names = "fe";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+
+	eth2: ethernet@15110300 {
+		compatible = "mediatek,mt7987-eth", "syscon";
+		reg = <0 0x15100000 0 0x20000>;
+		mediatek,gmac-id = <2>;
+		mediatek,ethsys = <&ethsys>;
+		mediatek,sgmiisys = <&sgmiisys1>;
+		mediatek,infracfg = <&topmisc>;
+		resets = <&ethsys ETHDMA_FE_RST>;
+		reset-names = "fe";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+	};
+};
