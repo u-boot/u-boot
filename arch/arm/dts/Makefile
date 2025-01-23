@@ -530,56 +530,12 @@ dtb-$(CONFIG_STM32H7) += stm32h743i-disco.dtb \
 	stm32h743i-eval.dtb \
 	stm32h750i-art-pi.dtb
 
-dtb-$(CONFIG_MACH_SUNIV) += \
-	suniv-f1c100s-licheepi-nano.dtb
 dtb-$(CONFIG_MACH_SUN4I) += \
-	sun4i-a10-a1000.dtb \
-	sun4i-a10-ba10-tvbox.dtb \
-	sun4i-a10-chuwi-v7-cw0825.dtb \
-	sun4i-a10-cubieboard.dtb \
-	sun4i-a10-dserve-dsrv9703c.dtb \
-	sun4i-a10-gemei-g9.dtb \
-	sun4i-a10-hackberry.dtb \
-	sun4i-a10-hyundai-a7hd.dtb \
-	sun4i-a10-inet1.dtb \
 	sun4i-a10-inet-3f.dtb \
-	sun4i-a10-inet-3w.dtb \
-	sun4i-a10-inet97fv2.dtb \
-	sun4i-a10-inet9f-rev03.dtb \
-	sun4i-a10-itead-iteaduino-plus.dtb \
-	sun4i-a10-jesurun-q5.dtb \
-	sun4i-a10-marsboard.dtb \
-	sun4i-a10-mini-xplus.dtb \
-	sun4i-a10-mk802.dtb \
-	sun4i-a10-mk802ii.dtb \
-	sun4i-a10-olinuxino-lime.dtb \
-	sun4i-a10-pcduino.dtb \
-	sun4i-a10-pcduino2.dtb \
-	sun4i-a10-pov-protab2-ips9.dtb \
-	sun4i-a10-topwise-a721.dtb
+	sun4i-a10-inet-3w.dtb
 dtb-$(CONFIG_MACH_SUN5I) += \
-	sun5i-a10s-auxtek-t003.dtb \
-	sun5i-a10s-auxtek-t004.dtb \
-	sun5i-a10s-mk802.dtb \
-	sun5i-a10s-olinuxino-micro.dtb \
-	sun5i-a10s-r7-tv-dongle.dtb \
-	sun5i-a10s-wobo-i5.dtb \
 	sun5i-a13-ampe-a76.dtb \
-	sun5i-a13-difrnce-dit4350.dtb \
-	sun5i-a13-empire-electronix-d709.dtb \
-	sun5i-a13-empire-electronix-m712.dtb \
-	sun5i-a13-hsg-h702.dtb \
-	sun5i-a13-inet-86vs.dtb \
-	sun5i-a13-inet-98v-rev2.dtb \
-	sun5i-a13-licheepi-one.dtb \
-	sun5i-a13-olinuxino.dtb \
-	sun5i-a13-olinuxino-micro.dtb \
-	sun5i-a13-pocketbook-touch-lux-3.dtb \
-	sun5i-a13-q8-tablet.dtb \
-	sun5i-a13-utoo-p66.dtb \
-	sun5i-gr8-chip-pro.dtb \
-	sun5i-gr8-evb.dtb \
-	sun5i-r8-chip.dtb
+	sun5i-a13-inet-86vs.dtb
 dtb-$(CONFIG_MACH_SUN6I) += \
 	sun6i-a31-app4-evb1.dtb \
 	sun6i-a31-colombus.dtb \
