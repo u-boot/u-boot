@@ -77,12 +77,22 @@
 	"setenv mtdids 'nor0=nor0,nand0=nand.0' && " \
 	"setenv mtdparts 'mtdparts=nor0:66m(u-boot),190m(root); " \
 	"nand.0:2m(nand_uboot),500m(nand_root)' && " \
-	"env select UBI; saveenv && " \
-	"ubi part root && " \
-	"if ubi part root && ubi readvol ${scriptaddr} script; " \
-	"then echo QSPI: Running script from UBIFS; " \
-	"elif sf read ${scriptaddr} ${qspiscriptaddr} ${scriptsize}; " \
-	"then echo QSPI: Running script from JFFS2; fi; " \
+	"env select UBI && " \
+	"if ubi part root && ubi readvol ${scriptaddr} script; then " \
+		"echo QSPI: Running script from UBIFS; " \
+	"elif sf read ${scriptaddr} ${qspiscriptaddr} ${scriptsize}; then " \
+		"echo QSPI: Running script from JFFS2; " \
+		"source ${scriptaddr}; " \
+		"echo QSPI: UBIFS/JFFS2 load failed, trying fallback layout...; " \
+		"setenv mtdids 'nor0=nor0' && " \
+		"setenv mtdparts 'mtdparts=nor0:12m(u-boot),52m(root)' && " \
+		"env select UBI && " \
+		"if ubi part root && ubi readvol ${scriptaddr} script; then " \
+			"echo QSPI: Running script from UBIFS fallback; " \
+		"elif sf read ${scriptaddr} ${qspiscriptaddr} ${scriptsize}; then " \
+			"echo QSPI: Running script from JFFS2 fallback; " \
+		"fi; " \
+	"fi; " \
 	"echo QSPI: Trying to boot script at ${scriptaddr} && " \
 	"source ${scriptaddr}; " \
 	"echo QSPI: SCRIPT FAILED: continuing...; ubi detach;\0"
