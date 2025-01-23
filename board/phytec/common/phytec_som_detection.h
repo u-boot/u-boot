@@ -8,6 +8,7 @@
 #define _PHYTEC_SOM_DETECTION_H
 
 #include "phytec_som_detection_blocks.h"
+#include <fdtdec.h>
 
 #define PHYTEC_MAX_OPTIONS	17
 #define PHYTEC_EEPROM_INVAL	0xff
@@ -16,6 +17,14 @@
 
 #define PHYTEC_GET_OPTION(option) \
 	(((option) > '9') ? (option) - 'A' + 10 : (option) - '0')
+
+#define PHYTEC_PRODUCT_NAME_STD_LEN	7	// PCx-000
+#define PHYTEC_PRODUCT_NAME_KSP_LEN	8	// KSP-0000
+#define PHYTEC_PRODUCT_NAME_MAX_LEN	PHYTEC_PRODUCT_NAME_KSP_LEN
+#define PHYTEC_PART_NUMBER_STD_LEN	11	// PCx-000-\w{1,17}.Ax
+#define PHYTEC_PART_NUMBER_KSP_LEN	11	// KSP-0000.Ax
+#define PHYTEC_PART_NUMBER_STD_KSP_LEN	16	// PCx-000-KSx00.Ax
+#define PHYTEC_PART_NUMBER_MAX_LEN	PHYTEC_PRODUCT_NAME_MAX_LEN + 21
 
 enum {
 	PHYTEC_API_REV0 = 0,
@@ -86,6 +95,9 @@ void __maybe_unused phytec_print_som_info(struct phytec_eeprom_data *data);
 char * __maybe_unused phytec_get_opt(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_rev(struct phytec_eeprom_data *data);
 u8 __maybe_unused phytec_get_som_type(struct phytec_eeprom_data *data);
+#if IS_ENABLED(CONFIG_OF_LIBFDT)
+int phytec_ft_board_fixup(struct phytec_eeprom_data *data, void *blob);
+#endif /* IS_ENABLED(CONFIG_OF_LIBFDT) */
 
 #if IS_ENABLED(CONFIG_CMD_EXTENSION)
 struct extension *phytec_add_extension(const char *name, const char *overlay,
