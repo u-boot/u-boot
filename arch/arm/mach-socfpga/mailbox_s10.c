@@ -88,6 +88,8 @@ static __always_inline int mbox_write_cmd_buffer(u32 *cin, u32 data,
 			MBOX_WRITE_CMD_BUF(data, (*cin)++);
 			*cin %= MBOX_CMD_BUFFER_SIZE;
 			MBOX_WRITEL(*cin, MBOX_CIN);
+			if (is_cmdbuf_overflow)
+				*is_cmdbuf_overflow = 0;
 			break;
 		}
 		timeout--;
@@ -95,10 +97,6 @@ static __always_inline int mbox_write_cmd_buffer(u32 *cin, u32 data,
 
 	if (!timeout)
 		return -ETIMEDOUT;
-
-	/* Wait for the SDM to drain the FIFO command buffer */
-	if (is_cmdbuf_overflow && *is_cmdbuf_overflow)
-		return mbox_wait_for_cmdbuf_empty(*cin);
 
 	return 0;
 }
@@ -125,13 +123,11 @@ static __always_inline int mbox_fill_cmd_circular_buff(u32 header, u32 len,
 			return ret;
 	}
 
-	/* If SDM doorbell is not triggered after the last data is
-	 * written into mailbox FIFO command buffer, trigger the
-	 * SDM doorbell again to ensure SDM able to read the remaining
-	 * data.
+	/*
+	 * Always trigger the SDM doorbell at the end to ensure SDM able to read
+	 * the remaining data.
 	 */
-	if (!is_cmdbuf_overflow)
-		MBOX_WRITEL(1, MBOX_DOORBELL_TO_SDM);
+	MBOX_WRITEL(1, MBOX_DOORBELL_TO_SDM);
 
 	return 0;
 }
