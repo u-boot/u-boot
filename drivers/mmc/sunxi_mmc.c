@@ -478,29 +478,29 @@ struct sunxi_mmc_priv mmc_host[4];
 static int mmc_resource_init(int sdc_no)
 {
 	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	void *ccm = (void *)SUNXI_CCM_BASE;
 
 	debug("init mmc %d resource\n", sdc_no);
 
 	switch (sdc_no) {
 	case 0:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC0_BASE;
-		priv->mclkreg = &ccm->sd0_clk_cfg;
+		priv->mclkreg = ccm + CCU_MMC0_CLK_CFG;
 		break;
 	case 1:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC1_BASE;
-		priv->mclkreg = &ccm->sd1_clk_cfg;
+		priv->mclkreg = ccm + CCU_MMC1_CLK_CFG;
 		break;
 #ifdef SUNXI_MMC2_BASE
 	case 2:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
-		priv->mclkreg = &ccm->sd2_clk_cfg;
+		priv->mclkreg = ccm + CCU_MMC2_CLK_CFG;
 		break;
 #endif
 #ifdef SUNXI_MMC3_BASE
 	case 3:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
-		priv->mclkreg = &ccm->sd3_clk_cfg;
+		priv->mclkreg = ccm + CCU_MMC3_CLK_CFG;
 		break;
 #endif
 	default:
@@ -545,7 +545,7 @@ static const struct mmc_ops sunxi_mmc_ops = {
 
 struct mmc *sunxi_mmc_init(int sdc_no)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	void *ccm = (void *)SUNXI_CCM_BASE;
 	struct sunxi_mmc_priv *priv = &mmc_host[sdc_no];
 	struct mmc_config *cfg = &priv->cfg;
 	int ret;
@@ -574,11 +574,11 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	/* config ahb clock */
 	debug("init mmc %d clock and io\n", sdc_no);
 #if !defined(CONFIG_SUN50I_GEN_H6) && !defined(CONFIG_SUNXI_GEN_NCAT2)
-	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
+	setbits_le32(ccm + CCU_AHB_GATE0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 	/* unassert reset */
-	setbits_le32(&ccm->ahb_reset0_cfg, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
+	setbits_le32(ccm + CCU_AHB_RESET0_CFG, 1 << AHB_RESET_OFFSET_MMC(sdc_no));
 #endif
 #if defined(CONFIG_MACH_SUN9I)
 	/* sun9i has a mmc-common module, also set the gate and reset there */
@@ -586,9 +586,9 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
 #endif
 #else /* CONFIG_SUN50I_GEN_H6 */
-	setbits_le32(&ccm->sd_gate_reset, 1 << sdc_no);
+	setbits_le32(ccm + CCU_H6_MMC_GATE_RESET, 1 << sdc_no);
 	/* unassert reset */
-	setbits_le32(&ccm->sd_gate_reset, 1 << (RESET_SHIFT + sdc_no));
+	setbits_le32(ccm + CCU_H6_MMC_GATE_RESET, 1 << (RESET_SHIFT + sdc_no));
 #endif
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)

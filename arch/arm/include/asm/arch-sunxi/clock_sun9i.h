@@ -12,6 +12,13 @@
 #include <linux/bitops.h>
 #endif
 
+#define CCU_MMC0_CLK_CFG	0x410
+#define CCU_MMC1_CLK_CFG	0x414
+#define CCU_MMC2_CLK_CFG	0x418
+#define CCU_MMC3_CLK_CFG	0x41c
+#define CCU_AHB_GATE0		0x580
+#define CCU_AHB_RESET0_CFG	0x5a0
+
 struct sunxi_ccm_reg {
 	u32 pll1_c0_cfg;	/* 0x00 c0cpu# pll configuration */
 	u32 pll2_c1_cfg;	/* 0x04 c1cpu# pll configuration */

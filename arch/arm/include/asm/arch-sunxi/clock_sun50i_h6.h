@@ -22,6 +22,10 @@
 #define CCU_H6_APB1_CFG			0x520
 #define CCU_H6_APB2_CFG			0x524
 #define CCU_H6_MBUS_CFG			0x540
+#define CCU_MMC0_CLK_CFG		0x830
+#define CCU_MMC1_CLK_CFG		0x834
+#define CCU_MMC2_CLK_CFG		0x838
+#define CCU_H6_MMC_GATE_RESET		0x84c
 #define CCU_H6_UART_GATE_RESET		0x90c
 #define CCU_H6_I2C_GATE_RESET		0x91c
 
