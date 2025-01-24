@@ -194,7 +194,24 @@ int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	return 0;
 }
 
-int imx_pinctrl_probe(struct udevice *dev)
+int imx_pinctrl_probe_common(struct udevice *dev)
+{
+	struct imx_pinctrl_soc_info *info =
+		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
+	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (!info) {
+		dev_err(dev, "wrong pinctrl info\n");
+		return -EINVAL;
+	}
+
+	priv->dev = dev;
+	priv->info = info;
+
+	return 0;
+}
+
+int imx_pinctrl_probe_mmio(struct udevice *dev)
 {
 	struct imx_pinctrl_soc_info *info =
 		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
@@ -205,16 +222,9 @@ int imx_pinctrl_probe(struct udevice *dev)
 	fdt_size_t size;
 	int ret;
 
-	if (!info) {
-		dev_err(dev, "wrong pinctrl info\n");
-		return -EINVAL;
-	}
-
-	priv->dev = dev;
-	priv->info = info;
-
-	if (info->flags & IMX8_USE_SCU)
-		return 0;
+	ret = imx_pinctrl_probe_common(dev);
+	if (ret)
+		return ret;
 
 	addr = ofnode_get_addr_size_index(node, 0, &size);
 	if (addr == FDT_ADDR_T_NONE)
