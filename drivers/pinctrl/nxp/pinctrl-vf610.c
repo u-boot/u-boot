@@ -27,7 +27,7 @@ static const struct udevice_id vf610_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
-static const struct pinctrl_ops imx_pinctrl_ops = {
+static const struct pinctrl_ops vf610_pinctrl_ops = {
 	.set_state = imx_pinctrl_set_state,
 };
 
@@ -38,6 +38,6 @@ U_BOOT_DRIVER(vf610_pinctrl) = {
 	.probe = vf610_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
-	.ops = &imx_pinctrl_ops,
+	.ops = &vf610_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

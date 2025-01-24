@@ -32,7 +32,7 @@ static const struct udevice_id imx7ulp_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
-static const struct pinctrl_ops imx_pinctrl_ops = {
+static const struct pinctrl_ops imx7ulp_pinctrl_ops = {
 	.set_state = imx_pinctrl_set_state,
 };
 
@@ -43,6 +43,6 @@ U_BOOT_DRIVER(imx7ulp_pinctrl) = {
 	.probe = imx7ulp_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
-	.ops = &imx_pinctrl_ops,
+	.ops = &imx7ulp_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
