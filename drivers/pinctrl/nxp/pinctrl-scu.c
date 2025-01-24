@@ -3,6 +3,7 @@
  * Copyright 2018-2019 NXP
  */
 
+#include <dm.h>
 #include <errno.h>
 #include <linux/bitops.h>
 #include <asm/io.h>
@@ -44,12 +45,20 @@ static int imx_pinconf_scu_set(struct imx_pinctrl_soc_info *info, u32 pad,
 	return 0;
 }
 
-int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info, u32 *pin_data,
-			      int npins)
+int imx_pinctrl_set_state_scu(struct udevice *dev, struct udevice *config)
 {
+	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
+	struct imx_pinctrl_soc_info *info = priv->info;
 	int pin_id, mux, config_val;
+	u32 *pin_data;
 	int i, j = 0;
+	int npins;
 	int ret;
+
+	ret = imx_pinctrl_set_state_common(dev, config, SHARE_IMX8_PIN_SIZE,
+					   &pin_data, &npins);
+	if (ret)
+		return ret;
 
 	/*
 	 * Refer to linux documentation for details:

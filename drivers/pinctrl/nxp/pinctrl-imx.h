@@ -56,16 +56,6 @@ int imx_pinctrl_remove_mmio(struct udevice *dev);
 int imx_pinctrl_set_state_common(struct udevice *dev, struct udevice *config,
 				 int pin_size, u32 **pin_data, int *npins);
 int imx_pinctrl_set_state_mmio(struct udevice *dev, struct udevice *config);
-
-#ifdef CONFIG_PINCTRL_IMX_SCU
-int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info,
-			      u32 *pin_data, int npins);
-#else
-static inline int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info,
-					    u32 *pin_data, int npins)
-{
-	return 0;
-}
-#endif
+int imx_pinctrl_set_state_scu(struct udevice *dev, struct udevice *config);
 
 #endif /* __DRIVERS_PINCTRL_IMX_H */

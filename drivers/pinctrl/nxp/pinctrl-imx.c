@@ -65,9 +65,7 @@ int imx_pinctrl_set_state_mmio(struct udevice *dev, struct udevice *config)
 	int i, j = 0, ret;
 	u32 *pin_data;
 
-	if (info->flags & IMX8_USE_SCU)
-		pin_size = SHARE_IMX8_PIN_SIZE;
-	else if (info->flags & SHARE_MUX_CONF_REG)
+	if (info->flags & SHARE_MUX_CONF_REG)
 		pin_size = SHARE_FSL_PIN_SIZE;
 	else
 		pin_size = FSL_PIN_SIZE;
@@ -77,127 +75,121 @@ int imx_pinctrl_set_state_mmio(struct udevice *dev, struct udevice *config)
 	if (ret)
 		return ret;
 
-	if (info->flags & IMX8_USE_SCU) {
-		imx_pinctrl_scu_conf_pins(info, pin_data, npins);
-	} else {
+	/*
+	 * Refer to linux documentation for details:
+	 * Documentation/devicetree/bindings/pinctrl/fsl,imx-pinctrl.txt
+	 */
+	for (i = 0; i < npins; i++) {
+		mux_reg = pin_data[j++];
+
+		if (!(info->flags & ZERO_OFFSET_VALID) && !mux_reg)
+			mux_reg = -1;
+
+		if (info->flags & SHARE_MUX_CONF_REG) {
+			conf_reg = mux_reg;
+		} else {
+			conf_reg = pin_data[j++];
+			if (!(info->flags & ZERO_OFFSET_VALID) &&
+			    !conf_reg)
+				conf_reg = -1;
+		}
+
+		if ((mux_reg == -1) || (conf_reg == -1)) {
+			dev_err(dev, "Error mux_reg or conf_reg\n");
+			devm_kfree(dev, pin_data);
+			return -EINVAL;
+		}
+
+		input_reg = pin_data[j++];
+		mux_mode = pin_data[j++];
+		input_val = pin_data[j++];
+		config_val = pin_data[j++];
+
+		dev_dbg(dev, "mux_reg 0x%x, conf_reg 0x%x, input_reg 0x%x, mux_mode 0x%x, input_val 0x%x, config_val 0x%x\n",
+			mux_reg, conf_reg, input_reg, mux_mode,
+			input_val, config_val);
+
+		if (config_val & IMX_PAD_SION)
+			mux_mode |= IOMUXC_CONFIG_SION;
+
+		config_val &= ~IMX_PAD_SION;
+
+		/* Set Mux */
+		if (info->flags & SHARE_MUX_CONF_REG) {
+			clrsetbits_le32(info->base + mux_reg,
+					info->mux_mask,
+					mux_mode << mux_shift);
+		} else {
+			writel(mux_mode, info->base + mux_reg);
+		}
+
+		dev_dbg(dev, "write mux: offset 0x%x val 0x%x\n",
+			mux_reg, mux_mode);
+
 		/*
-		 * Refer to linux documentation for details:
-		 * Documentation/devicetree/bindings/pinctrl/fsl,imx-pinctrl.txt
+		 * Set select input
+		 *
+		 * If the select input value begins with 0xff,
+		 * it's a quirky select input and the value should
+		 * be interpreted as below.
+		 *     31     23      15      7        0
+		 *     | 0xff | shift | width | select |
+		 * It's used to work around the problem that the
+		 * select input for some pin is not implemented in
+		 * the select input register but in some general
+		 * purpose register. We encode the select input
+		 * value, width and shift of the bit field into
+		 * input_val cell of pin function ID in device tree,
+		 * and then decode them here for setting up the select
+		 * input bits in general purpose register.
 		 */
-		for (i = 0; i < npins; i++) {
-			mux_reg = pin_data[j++];
 
-			if (!(info->flags & ZERO_OFFSET_VALID) && !mux_reg)
-				mux_reg = -1;
-
-			if (info->flags & SHARE_MUX_CONF_REG) {
-				conf_reg = mux_reg;
-			} else {
-				conf_reg = pin_data[j++];
-				if (!(info->flags & ZERO_OFFSET_VALID) &&
-				    !conf_reg)
-					conf_reg = -1;
-			}
-
-			if ((mux_reg == -1) || (conf_reg == -1)) {
-				dev_err(dev, "Error mux_reg or conf_reg\n");
-				devm_kfree(dev, pin_data);
-				return -EINVAL;
-			}
-
-			input_reg = pin_data[j++];
-			mux_mode = pin_data[j++];
-			input_val = pin_data[j++];
-			config_val = pin_data[j++];
-
-			dev_dbg(dev, "mux_reg 0x%x, conf_reg 0x%x, "
-				"input_reg 0x%x, mux_mode 0x%x, "
-				"input_val 0x%x, config_val 0x%x\n",
-				mux_reg, conf_reg, input_reg, mux_mode,
-				input_val, config_val);
-
-			if (config_val & IMX_PAD_SION)
-				mux_mode |= IOMUXC_CONFIG_SION;
-
-			config_val &= ~IMX_PAD_SION;
-
-			/* Set Mux */
-			if (info->flags & SHARE_MUX_CONF_REG) {
-				clrsetbits_le32(info->base + mux_reg,
-						info->mux_mask,
-						mux_mode << mux_shift);
-			} else {
-				writel(mux_mode, info->base + mux_reg);
-			}
-
-			dev_dbg(dev, "write mux: offset 0x%x val 0x%x\n",
-				mux_reg, mux_mode);
-
+		if (input_val >> 24 == 0xff) {
+			u32 val = input_val;
+			u8 select = val & 0xff;
+			u8 width = (val >> 8) & 0xff;
+			u8 shift = (val >> 16) & 0xff;
+			u32 mask = ((1 << width) - 1) << shift;
 			/*
-			 * Set select input
-			 *
-			 * If the select input value begins with 0xff,
-			 * it's a quirky select input and the value should
-			 * be interpreted as below.
-			 *     31     23      15      7        0
-			 *     | 0xff | shift | width | select |
-			 * It's used to work around the problem that the
-			 * select input for some pin is not implemented in
-			 * the select input register but in some general
-			 * purpose register. We encode the select input
-			 * value, width and shift of the bit field into
-			 * input_val cell of pin function ID in device tree,
-			 * and then decode them here for setting up the select
-			 * input bits in general purpose register.
+			 * The input_reg[i] here is actually some
+			 * IOMUXC general purpose register, not
+			 * regular select input register.
 			 */
+			val = readl(info->base + input_reg);
+			val &= ~mask;
+			val |= select << shift;
+			writel(val, info->base + input_reg);
+		} else if (input_reg) {
+			/*
+			 * Regular select input register can never be
+			 * at offset 0, and we only print register
+			 * value for regular case.
+			 */
+			if (info->input_sel_base)
+				writel(input_val,
+				       info->input_sel_base +
+				       input_reg);
+			else
+				writel(input_val,
+				       info->base + input_reg);
 
-			if (input_val >> 24 == 0xff) {
-				u32 val = input_val;
-				u8 select = val & 0xff;
-				u8 width = (val >> 8) & 0xff;
-				u8 shift = (val >> 16) & 0xff;
-				u32 mask = ((1 << width) - 1) << shift;
-				/*
-				 * The input_reg[i] here is actually some
-				 * IOMUXC general purpose register, not
-				 * regular select input register.
-				 */
-				val = readl(info->base + input_reg);
-				val &= ~mask;
-				val |= select << shift;
-				writel(val, info->base + input_reg);
-			} else if (input_reg) {
-				/*
-				 * Regular select input register can never be
-				 * at offset 0, and we only print register
-				 * value for regular case.
-				 */
-				if (info->input_sel_base)
-					writel(input_val,
-					       info->input_sel_base +
-					       input_reg);
-				else
-					writel(input_val,
-					       info->base + input_reg);
+			dev_dbg(dev, "select_input: offset 0x%x val 0x%x\n",
+				input_reg, input_val);
+		}
 
-				dev_dbg(dev, "select_input: offset 0x%x val "
-					"0x%x\n", input_reg, input_val);
+		/* Set config */
+		if (!(config_val & IMX_NO_PAD_CTL)) {
+			if (info->flags & SHARE_MUX_CONF_REG) {
+				clrsetbits_le32(info->base + conf_reg,
+						~info->mux_mask,
+						config_val);
+			} else {
+				writel(config_val,
+				       info->base + conf_reg);
 			}
 
-			/* Set config */
-			if (!(config_val & IMX_NO_PAD_CTL)) {
-				if (info->flags & SHARE_MUX_CONF_REG) {
-					clrsetbits_le32(info->base + conf_reg,
-							~info->mux_mask,
-							config_val);
-				} else {
-					writel(config_val,
-					       info->base + conf_reg);
-				}
-
-				dev_dbg(dev, "write config: offset 0x%x val "
-					"0x%x\n", conf_reg, config_val);
-			}
+			dev_dbg(dev, "write config: offset 0x%x val 0x%x\n",
+				conf_reg, config_val);
 		}
 	}
 
