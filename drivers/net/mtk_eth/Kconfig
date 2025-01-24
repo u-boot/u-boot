@@ -1,0 +1,39 @@
+
+config MEDIATEK_ETH
+	bool "MediaTek Ethernet GMAC Driver"
+	select PHYLIB
+	select DM_GPIO
+	select DM_RESET
+	help
+	  This Driver support MediaTek Ethernet GMAC
+	  Say Y to enable support for the MediaTek Ethernet GMAC.
+
+if MEDIATEK_ETH
+
+config MTK_ETH_SGMII
+	bool
+	default y if ARCH_MEDIATEK && !TARGET_MT7623
+
+config MTK_ETH_XGMII
+	bool
+	default y if TARGET_MT7987 || TARGET_MT7988
+
+config MTK_ETH_SWITCH_MT7530
+	bool "Support for MediaTek MT7530 ethernet switch"
+	default y if TARGET_MT7623 || SOC_MT7621
+
+config MTK_ETH_SWITCH_MT7531
+	bool "Support for MediaTek MT7531 ethernet switch"
+	default y if TARGET_MT7622 || TARGET_MT7629 || TARGET_MT7981 || \
+		     TARGET_MT7986 || TARGET_MT7987
+
+config MTK_ETH_SWITCH_MT7988
+	bool "Support for MediaTek MT7988 built-in ethernet switch"
+	depends on TARGET_MT7988
+	default y
+
+config MTK_ETH_SWITCH_AN8855
+	bool "Support for Airoha AN8855 ethernet switch"
+	default y if TARGET_MT7981 || TARGET_MT7987
+
+endif # MEDIATEK_ETH
