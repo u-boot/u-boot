@@ -312,7 +312,7 @@ static int tdx_cfg_block_mmc_storage(u8 *config_block, int write)
 
 out:
 	/* Switch back to regular eMMC user partition */
-	blk_select_hwpart_devnum(UCLASS_MMC, 0, 0);
+	blk_select_hwpart_devnum(UCLASS_MMC, dev, 0);
 
 	return ret;
 }
