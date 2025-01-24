@@ -10,6 +10,6 @@
 #include <test/test.h>
 
 /* Declare a new environment test */
-#define ENV_TEST(_name, _flags)	UNIT_TEST(_name, _flags, env_test)
+#define ENV_TEST(_name, _flags)	UNIT_TEST(_name, _flags, env)
 
 #endif /* __TEST_ENV_H__ */

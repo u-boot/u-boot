@@ -108,7 +108,7 @@ static int hush_test_simple_dollar(struct unit_test_state *uts)
 		/* Reset local variable. */
 		ut_assertok(run_command("dollar_foo=", 0));
 	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		puts("Beware: this test set local variable dollar_foo and it cannot be unset!");
+		puts("Beware: this test set local variable dollar_foo and it cannot be unset!\n");
 	}
 
 	return 0;
@@ -140,7 +140,7 @@ static int hush_test_env_dollar(struct unit_test_state *uts)
 		/* Reset local variable. */
 		ut_assertok(run_command("env_foo=", 0));
 	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		puts("Beware: this test set local variable env_foo and it cannot be unset!");
+		puts("Beware: this test set local variable env_foo and it cannot be unset!\n");
 	}
 
 	return 0;
@@ -206,7 +206,8 @@ static int hush_test_command_dollar(struct unit_test_state *uts)
 		ut_assertok(run_command("dollar_bar=", 0));
 		ut_assertok(run_command("dollar_quux=", 0));
 	} else if (gd->flags & GD_FLG_HUSH_OLD_PARSER) {
-		puts("Beware: this test sets local variable dollar_bar and dollar_quux and they cannot be unset!");
+		puts("Beware: this test sets local variable dollar_bar and "
+		     "dollar_quux and they cannot be unset!\n");
 	}
 
 	return 0;

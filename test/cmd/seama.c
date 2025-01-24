@@ -11,7 +11,7 @@
 #include <test/test.h>
 #include <test/ut.h>
 
-#define SEAMA_TEST(_name, _flags)	UNIT_TEST(_name, _flags, seama_test)
+#define SEAMA_TEST(_name, _flags)	UNIT_TEST(_name, _flags, seama)
 
 static int seama_test_noargs(struct unit_test_state *uts)
 {
@@ -56,12 +56,3 @@ static int seama_test_index(struct unit_test_state *uts)
 	return 0;
 }
 SEAMA_TEST(seama_test_index, UTF_CONSOLE);
-
-int do_ut_seama(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(seama_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(seama_test);
-
-	return cmd_ut_category("seama", "seama_test_", tests, n_ents, argc,
-			       argv);
-}

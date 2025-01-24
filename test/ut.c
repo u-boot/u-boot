@@ -21,7 +21,7 @@ void ut_fail(struct unit_test_state *uts, const char *fname, int line,
 {
 	gd->flags &= ~(GD_FLG_SILENT | GD_FLG_RECORD);
 	printf("%s:%d, %s(): %s\n", fname, line, func, cond);
-	uts->fail_count++;
+	uts->cur.fail_count++;
 }
 
 void ut_failf(struct unit_test_state *uts, const char *fname, int line,
@@ -35,7 +35,7 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	vprintf(fmt, args);
 	va_end(args);
 	putc('\n');
-	uts->fail_count++;
+	uts->cur.fail_count++;
 }
 
 ulong ut_check_free(void)

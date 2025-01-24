@@ -466,18 +466,37 @@ void ut_unsilence_console(struct unit_test_state *uts);
 void ut_set_skip_delays(struct unit_test_state *uts, bool skip_delays);
 
 /**
- * test_get_state() - Get the active test state
+ * ut_state_get() - Get the active test state
  *
  * Return: the currently active test state, or NULL if none
  */
-struct unit_test_state *test_get_state(void);
+struct unit_test_state *ut_get_state(void);
 
 /**
- * test_set_state() - Set the active test state
+ * ut_set_state() - Set the active test state
  *
  * @uts: Test state to use as currently active test state, or NULL if none
  */
-void test_set_state(struct unit_test_state *uts);
+void ut_set_state(struct unit_test_state *uts);
+
+/**
+ * ut_init_state() - Set up a new test state
+ *
+ * This must be called before using the test state with ut_run_tests()
+ *
+ * @uts: Test state to init
+ */
+void ut_init_state(struct unit_test_state *uts);
+
+/**
+ * ut_uninit_state() - Free memory used by test state
+ *
+ * This must be called before after the test state with ut_run_tests(). To later
+ * reuse the test state to run more tests, call test_state_init() first
+ *
+ * @uts: Test state to uninit
+ */
+void ut_uninit_state(struct unit_test_state *uts);
 
 /**
  * ut_run_tests() - Run a set of tests
@@ -485,6 +504,9 @@ void test_set_state(struct unit_test_state *uts);
  * This runs the test, handling any preparation and clean-up needed. It prints
  * the name of each test before running it.
  *
+ * @uts: Unit-test state, which must be ready for use, i.e. ut_init_state()
+ *	has been called. The caller is responsible for calling
+ *	ut_uninit_state() after this function returns
  * @category: Category of these tests. This is a string printed at the start to
  *	announce the the number of tests
  * @prefix: String prefix for the tests. Any tests that have this prefix will be
@@ -503,8 +525,17 @@ void test_set_state(struct unit_test_state *uts);
  * Pass NULL to disable this
  * Return: 0 if all tests passed, -1 if any failed
  */
-int ut_run_list(const char *name, const char *prefix, struct unit_test *tests,
-		int count, const char *select_name, int runs_per_test,
-		bool force_run, const char *test_insert);
+int ut_run_list(struct unit_test_state *uts, const char *category,
+		const char *prefix, struct unit_test *tests, int count,
+		const char *select_name, int runs_per_test, bool force_run,
+		const char *test_insert);
+
+/**
+ * ut_report() - Report stats on a test run
+ *
+ * @stats: Stats to show
+ * @run_count: Number of suites that were run
+ */
+void ut_report(struct ut_stats *stats, int run_count);
 
 #endif

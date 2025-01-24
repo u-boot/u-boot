@@ -9,6 +9,6 @@
 #include <test/test.h>
 
 /* Declare a new environment test */
-#define OPTEE_TEST(_name, _flags)	UNIT_TEST(_name, _flags, optee_test)
+#define OPTEE_TEST(_name, _flags)	UNIT_TEST(_name, _flags, optee)
 
 #endif /* __TEST_OPTEE_H__ */

@@ -3,7 +3,6 @@
 # (C) Copyright 2021
 # Francis Laniel, Amarula Solutions, francis.laniel@amarulasolutions.com
 
-obj-y += cmd_ut_hush.o
 obj-y += if.o
 ifdef CONFIG_CONSOLE_RECORD
 obj-y += dollar.o

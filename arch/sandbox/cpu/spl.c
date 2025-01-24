@@ -147,10 +147,14 @@ void spl_board_init(void)
 	if (state->run_unittests) {
 		struct unit_test *tests = UNIT_TEST_ALL_START();
 		const int count = UNIT_TEST_ALL_COUNT();
+		struct unit_test_state uts;
 		int ret;
 
-		ret = ut_run_list("spl", NULL, tests, count,
+		ut_init_state(&uts);
+		ret = ut_run_list(&uts, "spl", NULL, tests, count,
 				  state->select_unittests, 1, false, NULL);
+		ut_report(&uts.cur, 1);
+		ut_uninit_state(&uts);
 		/* continue execution into U-Boot */
 	}
 }

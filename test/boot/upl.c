@@ -16,7 +16,7 @@
 #include "bootstd_common.h"
 
 /* Declare a new upl test */
-#define UPL_TEST(_name, _flags)	UNIT_TEST(_name, _flags, upl_test)
+#define UPL_TEST(_name, _flags)	UNIT_TEST(_name, _flags, upl)
 
 static int add_region(struct unit_test_state *uts, struct alist *lst,
 		      ulong base, ulong size)
@@ -426,12 +426,3 @@ static int upl_test_info_norun(struct unit_test_state *uts)
 	return 0;
 }
 UPL_TEST(upl_test_info_norun, UTF_CONSOLE | UTF_MANUAL);
-
-int do_ut_upl(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(upl_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(upl_test);
-
-	return cmd_ut_category("cmd_upl", "cmd_upl_", tests, n_ents, argc,
-			       argv);
-}

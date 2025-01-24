@@ -12,7 +12,7 @@
 #define BUF_SIZE	256
 
 /* Declare a new mem test */
-#define MEM_TEST(_name)	UNIT_TEST(_name, 0, mem_test)
+#define MEM_TEST(_name)	UNIT_TEST(_name, 0, mem)
 
 struct param {
 	int d, s, count;

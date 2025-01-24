@@ -11,14 +11,34 @@
 #include <test/test.h>
 #include <test/ut.h>
 
-static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
-		     char *const argv[]);
+/**
+ * struct suite - A set of tests for a certain topic
+ *
+ * All tests end up in a single 'struct unit_test' linker-list array, in order
+ * of the suite they are in
+ *
+ * @name: Name of suite
+ * @start: First test in suite
+ * @end: End test in suite (points to the first test in the next suite)
+ * @cmd: Command to use to run the suite
+ * @help: Help-string to show for this suite
+ */
+struct suite {
+	const char *name;
+	struct unit_test *start;
+	struct unit_test *end;
+	ut_cmd_func cmd;
+	const char *help;
+};
+
+static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		     int flag, int argc, char *const argv[]);
 
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 
-int cmd_ut_category(const char *name, const char *prefix,
-		    struct unit_test *tests, int n_ents,
+int cmd_ut_category(struct unit_test_state *uts, const char *name,
+		    const char *prefix, struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[])
 {
 	const char *test_insert = NULL;
@@ -44,105 +64,153 @@ int cmd_ut_category(const char *name, const char *prefix,
 		argc--;
 	}
 
-	ret = ut_run_list(name, prefix, tests, n_ents,
+	ret = ut_run_list(uts, name, prefix, tests, n_ents,
 			  cmd_arg1(argc, argv), runs_per_text, force_run,
 			  test_insert);
 
 	return ret ? CMD_RET_FAILURE : 0;
 }
 
-static struct cmd_tbl cmd_ut_sub[] = {
-	U_BOOT_CMD_MKENT(all, CONFIG_SYS_MAXARGS, 1, do_ut_all, "", ""),
-	U_BOOT_CMD_MKENT(info, 1, 1, do_ut_info, "", ""),
-#ifdef CONFIG_CMD_BDI
-	U_BOOT_CMD_MKENT(bdinfo, CONFIG_SYS_MAXARGS, 1, do_ut_bdinfo, "", ""),
-#endif
+/* declare linker-list symbols for the start and end of a suite */
+#define SUITE_DECL(_name) \
+	ll_start_decl(suite_start_ ## _name, struct unit_test, ut_ ## _name); \
+	ll_end_decl(suite_end_ ## _name, struct unit_test, ut_ ## _name)
+
+/* declare a test suite which uses a subcommand to run */
+#define SUITE_CMD(_name, _cmd_func, _help) { \
+	#_name, \
+	suite_start_ ## _name, \
+	suite_end_ ## _name, \
+	_cmd_func, \
+	_help, \
+	}
+
+/* declare a test suite which can be run directly without a subcommand */
+#define SUITE(_name, _help) { \
+	#_name, \
+	suite_start_ ## _name, \
+	suite_end_ ## _name, \
+	NULL, \
+	_help, \
+	}
+
+SUITE_DECL(addrmap);
+SUITE_DECL(bdinfo);
+SUITE_DECL(bloblist);
+SUITE_DECL(bootm);
+SUITE_DECL(bootstd);
+SUITE_DECL(cmd);
+SUITE_DECL(common);
+SUITE_DECL(dm);
+SUITE_DECL(env);
+SUITE_DECL(exit);
+SUITE_DECL(fdt);
+SUITE_DECL(font);
+SUITE_DECL(hush);
+SUITE_DECL(lib);
+SUITE_DECL(loadm);
+SUITE_DECL(log);
+SUITE_DECL(mbr);
+SUITE_DECL(measurement);
+SUITE_DECL(mem);
+SUITE_DECL(optee);
+SUITE_DECL(overlay);
+SUITE_DECL(pci_mps);
+SUITE_DECL(seama);
+SUITE_DECL(setexpr);
+SUITE_DECL(upl);
+
+static struct suite suites[] = {
+	SUITE(addrmap, "very basic test of addrmap command"),
+	SUITE(bdinfo, "bdinfo (board info) command"),
+	SUITE(bloblist, "bloblist implementation"),
+	SUITE(bootm, "bootm command"),
 #ifdef CONFIG_UT_BOOTSTD
-	U_BOOT_CMD_MKENT(bootstd, CONFIG_SYS_MAXARGS, 1, do_ut_bootstd,
-			 "", ""),
+	SUITE_CMD(bootstd, do_ut_bootstd, "standard boot implementation"),
 #endif
-#ifdef CONFIG_CMDLINE
-	U_BOOT_CMD_MKENT(cmd, CONFIG_SYS_MAXARGS, 1, do_ut_cmd, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(common, CONFIG_SYS_MAXARGS, 1, do_ut_common, "", ""),
-#if defined(CONFIG_UT_DM)
-	U_BOOT_CMD_MKENT(dm, CONFIG_SYS_MAXARGS, 1, do_ut_dm, "", ""),
-#endif
-#if defined(CONFIG_UT_ENV)
-	U_BOOT_CMD_MKENT(env, CONFIG_SYS_MAXARGS, 1, do_ut_env, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(exit, CONFIG_SYS_MAXARGS, 1, do_ut_exit, "", ""),
-#ifdef CONFIG_CMD_FDT
-	U_BOOT_CMD_MKENT(fdt, CONFIG_SYS_MAXARGS, 1, do_ut_fdt, "", ""),
-#endif
-#ifdef CONFIG_CONSOLE_TRUETYPE
-	U_BOOT_CMD_MKENT(font, CONFIG_SYS_MAXARGS, 1, do_ut_font, "", ""),
-#endif
+	SUITE(cmd, "various commands"),
+	SUITE(common, "tests for common/ directory"),
+	SUITE(dm, "driver model"),
+	SUITE(env, "environment"),
+	SUITE(exit, "shell exit and variables"),
+	SUITE(fdt, "fdt command"),
+	SUITE(font, "font command"),
+	SUITE(hush, "hush behaviour"),
+	SUITE(lib, "library functions"),
+	SUITE(loadm, "loadm command parameters and loading memory blob"),
+	SUITE(log, "logging functions"),
+	SUITE(mbr, "mbr command"),
+	SUITE(measurement, "TPM-based measured boot"),
+	SUITE(mem, "memory-related commands"),
 #ifdef CONFIG_UT_OPTEE
-	U_BOOT_CMD_MKENT(optee, CONFIG_SYS_MAXARGS, 1, do_ut_optee, "", ""),
+	SUITE_CMD(optee, do_ut_optee, "OP-TEE"),
 #endif
 #ifdef CONFIG_UT_OVERLAY
-	U_BOOT_CMD_MKENT(overlay, CONFIG_SYS_MAXARGS, 1, do_ut_overlay, "", ""),
+	SUITE_CMD(overlay, do_ut_overlay, "device tree overlays"),
 #endif
-#ifdef CONFIG_UT_LIB
-	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
-#endif
-#ifdef CONFIG_UT_LOG
-	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
-#endif
-#if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_MBR) && defined(CONFIG_CMD_MMC) \
-        && defined(CONFIG_MMC_SANDBOX) && defined(CONFIG_MMC_WRITE)
-	U_BOOT_CMD_MKENT(mbr, CONFIG_SYS_MAXARGS, 1, do_ut_mbr, "", ""),
-#endif
-	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
-#if defined(CONFIG_SANDBOX) && defined(CONFIG_CMD_SETEXPR)
-	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
-			 ""),
-#endif
-#ifdef CONFIG_MEASURED_BOOT
-	U_BOOT_CMD_MKENT(measurement, CONFIG_SYS_MAXARGS, 1, do_ut_measurement,
-			 "", ""),
-#endif
-#ifdef CONFIG_SANDBOX
-#if CONFIG_IS_ENABLED(BLOBLIST)
-	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
-			 "", ""),
-	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
-#endif
-#endif
-#ifdef CONFIG_CMD_ADDRMAP
-	U_BOOT_CMD_MKENT(addrmap, CONFIG_SYS_MAXARGS, 1, do_ut_addrmap, "", ""),
-#endif
-#if CONFIG_IS_ENABLED(HUSH_PARSER)
-	U_BOOT_CMD_MKENT(hush, CONFIG_SYS_MAXARGS, 1, do_ut_hush, "", ""),
-#endif
-#ifdef CONFIG_CMD_LOADM
-	U_BOOT_CMD_MKENT(loadm, CONFIG_SYS_MAXARGS, 1, do_ut_loadm, "", ""),
-#endif
-#ifdef CONFIG_CMD_PCI_MPS
-	U_BOOT_CMD_MKENT(pci_mps, CONFIG_SYS_MAXARGS, 1, do_ut_pci_mps, "", ""),
-#endif
-#ifdef CONFIG_CMD_SEAMA
-	U_BOOT_CMD_MKENT(seama, CONFIG_SYS_MAXARGS, 1, do_ut_seama, "", ""),
-#endif
-#ifdef CONFIG_CMD_UPL
-	U_BOOT_CMD_MKENT(upl, CONFIG_SYS_MAXARGS, 1, do_ut_upl, "", ""),
-#endif
+	SUITE(pci_mps, "PCI Express Maximum Payload Size"),
+	SUITE(seama, "seama command parameters loading and decoding"),
+	SUITE(setexpr, "setexpr command"),
+	SUITE(upl, "Universal payload support"),
 };
 
-static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
+/**
+ * has_tests() - Check if a suite has tests, i.e. is supported in this build
+ *
+ * If the suite is run using a command, we have to assume that tests may be
+ * present, since we have no visibility
+ *
+ * @ste: Suite to check
+ * Return: true if supported, false if not
+ */
+static bool has_tests(struct suite *ste)
+{
+	int n_ents = ste->end - ste->start;
+
+	return n_ents || ste->cmd;
+}
+
+/** run_suite() - Run a suite of tests */
+static int run_suite(struct unit_test_state *uts, struct suite *ste,
+		     struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
+{
+	int ret;
+
+	if (ste->cmd) {
+		ret = ste->cmd(uts, cmdtp, flag, argc, argv);
+	} else {
+		int n_ents = ste->end - ste->start;
+		char prefix[30];
+
+		/* use a standard prefix */
+		snprintf(prefix, sizeof(prefix), "%s_test", ste->name);
+		ret = cmd_ut_category(uts, ste->name, prefix, ste->start,
+				      n_ents, argc, argv);
+	}
+
+	return ret;
+}
+
+static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		     int flag, int argc, char *const argv[])
 {
 	int i;
 	int retval;
 	int any_fail = 0;
 
-	for (i = 1; i < ARRAY_SIZE(cmd_ut_sub); i++) {
-		printf("----Running %s tests----\n", cmd_ut_sub[i].name);
-		retval = cmd_ut_sub[i].cmd(cmdtp, flag, 1, &cmd_ut_sub[i].name);
-		if (!any_fail)
-			any_fail = retval;
+	for (i = 0; i < ARRAY_SIZE(suites); i++) {
+		struct suite *ste = &suites[i];
+		char *const argv[] = {(char *)ste->name, NULL};
+
+		if (has_tests(ste)) {
+			printf("----Running %s tests----\n", ste->name);
+			retval = run_suite(uts, ste, cmdtp, flag, 1, argv);
+			if (!any_fail)
+				any_fail = retval;
+		}
 	}
+	ut_report(&uts->total, uts->run_count);
 
 	return any_fail;
 }
@@ -150,15 +218,61 @@ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
-	printf("Test suites: %d\n", (int)ARRAY_SIZE(cmd_ut_sub));
+	int suite_count, i;
+	const char *flags;
+
+	for (suite_count = 0, i = 0; i < ARRAY_SIZE(suites); i++) {
+		struct suite *ste = &suites[i];
+
+		if (has_tests(ste))
+			suite_count++;
+	}
+
+	printf("Test suites: %d\n", suite_count);
 	printf("Total tests: %d\n", (int)UNIT_TEST_ALL_COUNT());
+
+	flags = cmd_arg1(argc, argv);
+	if (flags && !strcmp("-s", flags)) {
+		int i;
+
+		puts("\nTests  Suite         Purpose");
+		puts("\n-----  ------------  -------------------------\n");
+		for (i = 0; i < ARRAY_SIZE(suites); i++) {
+			struct suite *ste = &suites[i];
+			long n_ent = ste->end - ste->start;
+
+			if (n_ent)
+				printf("%5ld", n_ent);
+			else if (ste->cmd)
+				printf("%5s", "?");
+			else  /* suite is not present */
+				continue;
+			printf("  %-13.13s %s\n", ste->name, ste->help);
+		}
+	}
 
 	return 0;
 }
 
+static struct suite *find_suite(const char *name)
+{
+	struct suite *ste;
+	int i;
+
+	for (i = 0, ste = suites; i < ARRAY_SIZE(suites); i++, ste++) {
+		if (!strcmp(ste->name, name))
+			return ste;
+	}
+
+	return NULL;
+}
+
 static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
-	struct cmd_tbl *cp;
+	struct unit_test_state uts;
+	struct suite *ste;
+	const char *name;
+	int ret;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -167,12 +281,30 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	argc--;
 	argv++;
 
-	cp = find_cmd_tbl(argv[0], cmd_ut_sub, ARRAY_SIZE(cmd_ut_sub));
+	ut_init_state(&uts);
+	name = argv[0];
+	if (!strcmp(name, "all")) {
+		ret = do_ut_all(&uts, cmdtp, flag, argc, argv);
+	} else if (!strcmp(name, "info")) {
+		ret = do_ut_info(cmdtp, flag, argc, argv);
+	} else {
+		ste = find_suite(argv[0]);
+		if (!ste) {
+			printf("Suite '%s' not found\n", argv[0]);
+			return CMD_RET_FAILURE;
+		} else if (!has_tests(ste)) {
+			/* perhaps a Kconfig option needs to be set? */
+			printf("Suite '%s' is not enabled\n", argv[0]);
+			return CMD_RET_FAILURE;
+		}
 
-	if (cp)
-		return cp->cmd(cmdtp, flag, argc, argv);
+		ret = run_suite(&uts, ste, cmdtp, flag, argc, argv);
+	}
+	if (ret)
+		return ret;
+	ut_uninit_state(&uts);
 
-	return CMD_RET_USAGE;
+	return 0;
 }
 
 U_BOOT_LONGHELP(ut,
@@ -183,61 +315,7 @@ U_BOOT_LONGHELP(ut,
 	"\n"
 	"\nOptions for <suite>:"
 	"\nall - execute all enabled tests"
-	"\ninfo - show info about tests"
-#ifdef CONFIG_CMD_ADDRMAP
-	"\naddrmap - very basic test of addrmap command"
-#endif
-#ifdef CONFIG_CMD_BDI
-	"\nbdinfo - bdinfo command"
-#endif
-#ifdef CONFIG_SANDBOX
-	"\nbloblist - bloblist implementation"
-#endif
-#ifdef CONFIG_BOOTSTD
-	"\nbootstd - standard boot implementation"
-#endif
-#ifdef CONFIG_CMDLINE
-	"\ncmd - test various commands"
-#endif
-	"\ncommon   - tests for common/ directory"
-#ifdef CONFIG_UT_DM
-	"\ndm - driver model"
-#endif
-#ifdef CONFIG_UT_ENV
-	"\nenv - environment"
-#endif
-#ifdef CONFIG_CMD_FDT
-	"\nfdt - fdt command"
-#endif
-#ifdef CONFIG_CONSOLE_TRUETYPE
-	"\nfont - font command"
-#endif
-#if CONFIG_IS_ENABLED(HUSH_PARSER)
-	"\nhush - Test hush behavior"
-#endif
-#ifdef CONFIG_CMD_LOADM
-	"\nloadm - loadm command parameters and loading memory blob"
-#endif
-#ifdef CONFIG_UT_LIB
-	"\nlib - library functions"
-#endif
-#ifdef CONFIG_UT_LOG
-	"\nlog - logging functions"
-#endif
-	"\nmem - memory-related commands"
-#ifdef CONFIG_UT_OPTEE
-	"\noptee - test OP-TEE"
-#endif
-#ifdef CONFIG_UT_OVERLAY
-	"\noverlay - device tree overlays"
-#endif
-#ifdef CONFIG_CMD_PCI_MPS
-	"\npci_mps - PCI Express Maximum Payload Size"
-#endif
-	"\nsetexpr - setexpr command"
-#ifdef CONFIG_CMD_SEAMA
-	"\nseama - seama command parameters loading and decoding"
-#endif
+	"\ninfo [-s] - show info about tests [and suites]"
 	);
 
 U_BOOT_CMD(

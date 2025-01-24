@@ -11,7 +11,7 @@ Synopsis
 
 ::
 
-    ut [-r<runs>] [-f] [-I<n>:<one_test>] [<suite> [<test>]]
+    ut [-r<runs>] [-fs] [-I<n>:<one_test>] [<suite> [<test>]]
 
        <runs>      Number of times to run each test
        -f          Force 'manual' tests to run as well
@@ -30,7 +30,7 @@ includes a near-complete set of emulators, no code-size limits, many CONFIG
 options enabled and runs easily in CI without needing QEMU. It is also possible
 to run some tests on real boards.
 
-For a list of available test suites, type `ut` by itself.
+For a list of available test suites, type `ut info -s`.
 
 Each test is normally run once, although those marked with `UTF_DM` are
 run with livetree and flattree where possible. To run a test more than once,
@@ -56,36 +56,44 @@ write unit tests.
 Example
 -------
 
+Show information about tests::
+
+    => ut info
+    Test suites: 23
+    Total tests: 833
+
 List available unit-test suites::
 
-    => ut
-    ut - unit tests
+    => ut info -s
+    Test suites: 23
+    Total tests: 833
 
-    Usage:
-    ut [-r] [-f] [<suite>] - run unit tests
-    -r<runs>   Number of times to run each test
-    -f         Force 'manual' tests to run as well
-    <suite>    Test suite to run, or all
+    Tests  Suite         Purpose
+    -----  ------------  -------------------------
+        1  addrmap       very basic test of addrmap command
+        4  bdinfo        bdinfo (board info) command
+       14  bloblist      bloblist implementation
+        7  bootm         bootm command
+       66  bootstd       standard boot implementation
+        2  cmd           various commands
+       14  common        tests for common/ directory
+       502 dm            driver model
+        6  env           environment
+        1  exit          shell exit and variables
+       19  fdt           fdt command
+       10  fdt_overlay   device tree overlays
+        1  font          font command
+       20  hush          hush behaviour
+      115  lib           library functions
+        2  loadm         loadm command parameters and loading memory blob
+       18  log           logging functions
+        1  mbr           mbr command
+        1  measurement   TPM-based measured boot
+       13  mem           memory-related commands
+        1  pci_mps       PCI Express Maximum Payload Size
+       11  setexpr       setexpr command
+        4  upl           Universal payload support
 
-    Suites:
-    all - execute all enabled tests
-    addrmap - very basic test of addrmap command
-    bloblist - bloblist implementation
-    bootstd - standard boot implementation
-    compression - compressors and bootm decompression
-    dm - driver model
-    env - environment
-    fdt - fdt command
-    loadm - loadm command parameters and loading memory blob
-    lib - library functions
-    log - logging functions
-    mem - memory-related commands
-    overlay - device tree overlays
-    print  - printing things to the console
-    setexpr - setexpr command
-    str - basic test of string functions
-    time - very basic test of time functions
-    unicode - Unicode functions
 
 Run one of the suites::
 
@@ -112,9 +120,3 @@ Run just a single test in a suite::
     => ut bloblist bloblist_test_grow
     Test: bloblist_test_grow: bloblist.c
     Failures: 0
-
-Show information about tests::
-
-    => ut info
-    Test suites: 21
-    Total tests: 642

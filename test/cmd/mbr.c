@@ -470,12 +470,4 @@ static int mbr_test_run(struct unit_test_state *uts)
 }
 
 /* Declare mbr test */
-UNIT_TEST(mbr_test_run, UTF_CONSOLE, mbr_test);
-
-int do_ut_mbr(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(mbr_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(mbr_test);
-
-	return cmd_ut_category("mbr", "mbr_test_", tests, n_ents, argc, argv);
-}
+UNIT_TEST(mbr_test_run, UTF_CONSOLE, mbr);

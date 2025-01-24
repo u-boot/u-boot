@@ -187,6 +187,63 @@
 	})
 
 /**
+ * Declares a symbol that points to the start/end of the list.
+ *
+ * @_sym:	Arbitrary name for the symbol (to use later in the file)
+ * @_type:	Data type of the entry
+ * @_list:	Name of the list in which this entry is placed
+ *
+ * The name of the (new) symbol is arbitrary and can be anything that is not
+ * already declared in the file where it appears. It is provided in _sym and
+ * can then be used (later in the same file) within a data structure.
+ * The _type and _list arguments must match those passed to ll_entry_start/end()
+ *
+ * Example:
+ *
+ * Here we want to record the start of each sub-command in a list. We have two
+ * sub-commands, 'bob' and 'mary'.
+ *
+ * In bob.c::
+ *
+ *   ll_entry_declare(struct my_sub_cmd, bob_cmd, cmd_sub) = {...};
+ *
+ * In mary.c::
+ *
+ *   ll_entry_declare(struct my_sub_cmd, mary_cmd, cmd_sub) = {...};
+ *
+ * In a different file where we want a list the start of all sub-commands.
+ * It is not possible to use ll_entry_start() in a data structure, due to its
+ * use of code inside expressions - ({ ... }) - so this fails to compile:
+ *
+ * In sub_cmds.c::
+ *
+ *    struct cmd_sub *my_list[] = {
+ *      ll_entry_start(cmd_sub, bob),
+ *      ll_entry_start(cmd_sub, bob),
+ *    };
+ *
+ * Instead, we can use::
+ *
+ *    ll_start_decl(bob, struct my_sub_cmd, cmd_sub);
+ *    ll_start_decl(mary, struct my_sub_cmd, cmd_sub);
+ *
+ *     struct cmd_sub *my_list[] = {
+ *       bob,
+ *       mary,
+ *     };
+ *
+ * So 'bob' is declared as symbol, a struct my_list * which points to the
+ * start of the bob sub-commands. It is then used in my_list[]
+ */
+#define ll_start_decl(_sym, _type, _list)					\
+	static _type _sym[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
+		__maybe_unused __section("__u_boot_list_2_" #_list "_1")
+
+#define ll_end_decl(_sym, _type, _list)					\
+	static _type _sym[0] __aligned(CONFIG_LINKER_LIST_ALIGN)	\
+		__maybe_unused __section("__u_boot_list_2_" #_list "_3")
+
+/**
  * ll_entry_get() - Retrieve entry from linker-generated array by name
  * @_type:	Data type of the entry
  * @_name:	Name of the entry

@@ -10,7 +10,7 @@
 #include <test/ut.h>
 
 /* Declare a new addrmap test */
-#define ADDRMAP_TEST(_name, _flags)	UNIT_TEST(_name, _flags, addrmap_test)
+#define ADDRMAP_TEST(_name, _flags)	UNIT_TEST(_name, _flags, addrmap)
 
 /* Test 'addrmap' command output */
 static int addrmap_test_basic(struct unit_test_state *uts)
@@ -24,12 +24,3 @@ static int addrmap_test_basic(struct unit_test_state *uts)
 	return 0;
 }
 ADDRMAP_TEST(addrmap_test_basic, UTF_CONSOLE);
-
-int do_ut_addrmap(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(addrmap_test);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(addrmap_test);
-
-	return cmd_ut_category("cmd_addrmap", "cmd_addrmap_", tests, n_ents,
-			       argc, argv);
-}
