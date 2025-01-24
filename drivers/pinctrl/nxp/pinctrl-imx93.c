@@ -12,14 +12,6 @@ static struct imx_pinctrl_soc_info imx93_pinctrl_soc_info __section(".data") = {
 	.flags = ZERO_OFFSET_VALID,
 };
 
-static int imx93_pinctrl_probe(struct udevice *dev)
-{
-	struct imx_pinctrl_soc_info *info =
-		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
-
-	return imx_pinctrl_probe(dev, info);
-}
-
 static const struct udevice_id imx93_pinctrl_match[] = {
 	{ .compatible = "fsl,imx93-iomuxc", .data = (ulong)&imx93_pinctrl_soc_info },
 	{ .compatible = "fsl,imx91-iomuxc", .data = (ulong)&imx93_pinctrl_soc_info },
@@ -34,7 +26,7 @@ U_BOOT_DRIVER(imx93_pinctrl) = {
 	.name = "imx93-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(imx93_pinctrl_match),
-	.probe = imx93_pinctrl_probe,
+	.probe = imx_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx93_pinctrl_ops,

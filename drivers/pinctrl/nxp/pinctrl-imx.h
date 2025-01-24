@@ -48,7 +48,7 @@ struct imx_pinctrl_priv {
 
 #define IOMUXC_CONFIG_SION	(0x1 << 4)
 
-int imx_pinctrl_probe(struct udevice *dev, struct imx_pinctrl_soc_info *info);
+int imx_pinctrl_probe(struct udevice *dev);
 
 int imx_pinctrl_remove(struct udevice *dev);
 

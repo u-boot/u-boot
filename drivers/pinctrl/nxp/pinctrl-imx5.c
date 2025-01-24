@@ -11,14 +11,6 @@
 
 static struct imx_pinctrl_soc_info imx5_pinctrl_soc_info __section(".data");
 
-static int imx5_pinctrl_probe(struct udevice *dev)
-{
-	struct imx_pinctrl_soc_info *info =
-		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
-
-	return imx_pinctrl_probe(dev, info);
-}
-
 static const struct udevice_id imx5_pinctrl_match[] = {
 	{
 		.compatible = "fsl,imx53-iomuxc",
@@ -39,7 +31,7 @@ U_BOOT_DRIVER(imx5_pinctrl) = {
 	.name = "imx5-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(imx5_pinctrl_match),
-	.probe = imx5_pinctrl_probe,
+	.probe = imx_pinctrl_probe,
 	.remove = imx_pinctrl_remove,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx5_pinctrl_ops,

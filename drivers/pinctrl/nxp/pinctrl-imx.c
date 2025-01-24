@@ -194,9 +194,10 @@ int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	return 0;
 }
 
-int imx_pinctrl_probe(struct udevice *dev,
-		      struct imx_pinctrl_soc_info *info)
+int imx_pinctrl_probe(struct udevice *dev)
 {
+	struct imx_pinctrl_soc_info *info =
+		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args arg;
 	ofnode node = dev_ofnode(dev);
