@@ -66,8 +66,8 @@ F:	lib/alist.c
 F:	test/lib/alist.c
 
 ANDROID AB
-M:	Igor Opaniuk <igor.opaniuk@gmail.com>
 M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
+R:	Igor Opaniuk <igor.opaniuk@gmail.com>
 R:	Sam Protsenko <semen.protsenko@linaro.org>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
@@ -77,8 +77,8 @@ F:	include/android_ab.h
 F:	test/py/tests/test_android/test_ab.py
 
 ANDROID AVB
-M:	Igor Opaniuk <igor.opaniuk@gmail.com>
 M:	Mattijs Korpershoek <mkorpershoek@baylibre.com>
+R:	Igor Opaniuk <igor.opaniuk@gmail.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-dfu.git
 F:	cmd/avb.c
