@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
+int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct imx_pinctrl_soc_info *info = priv->info;
@@ -193,10 +193,6 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 
 	return 0;
 }
-
-const struct pinctrl_ops imx_pinctrl_ops  = {
-	.set_state = imx_pinctrl_set_state,
-};
 
 int imx_pinctrl_probe(struct udevice *dev,
 		      struct imx_pinctrl_soc_info *info)

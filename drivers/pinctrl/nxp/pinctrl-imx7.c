@@ -28,6 +28,10 @@ static const struct udevice_id imx7_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
+static const struct pinctrl_ops imx_pinctrl_ops = {
+	.set_state = imx_pinctrl_set_state,
+};
+
 U_BOOT_DRIVER(imx7_pinctrl) = {
 	.name = "imx7-pinctrl",
 	.id = UCLASS_PINCTRL,

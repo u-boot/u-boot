@@ -28,8 +28,6 @@ struct imx_pinctrl_priv {
 	struct imx_pinctrl_soc_info *info;
 };
 
-extern const struct pinctrl_ops imx_pinctrl_ops;
-
 #define IMX_NO_PAD_CTL	0x80000000	/* no pin config need */
 #define IMX_PAD_SION	0x40000000	/* set SION */
 
@@ -53,6 +51,8 @@ extern const struct pinctrl_ops imx_pinctrl_ops;
 int imx_pinctrl_probe(struct udevice *dev, struct imx_pinctrl_soc_info *info);
 
 int imx_pinctrl_remove(struct udevice *dev);
+
+int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config);
 
 #ifdef CONFIG_PINCTRL_IMX_SCU
 int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info,
