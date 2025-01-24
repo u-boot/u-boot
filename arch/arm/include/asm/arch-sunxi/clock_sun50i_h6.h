@@ -13,6 +13,18 @@
 #include <linux/bitops.h>
 #endif
 
+#define CCU_H6_PLL1_CFG			0x000
+#define CCU_H6_PLL5_CFG			0x010
+#define CCU_H6_PLL6_CFG			0x020
+#define CCU_H6_CPU_AXI_CFG		0x500
+#define CCU_H6_PSI_AHB1_AHB2_CFG	0x510
+#define CCU_H6_AHB3_CFG			0x51c
+#define CCU_H6_APB1_CFG			0x520
+#define CCU_H6_APB2_CFG			0x524
+#define CCU_H6_MBUS_CFG			0x540
+#define CCU_H6_UART_GATE_RESET		0x90c
+#define CCU_H6_I2C_GATE_RESET		0x91c
+
 struct sunxi_ccm_reg {
 	u32 pll1_cfg;		/* 0x000 pll1 (cpux) control */
 	u8 reserved_0x004[12];
