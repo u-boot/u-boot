@@ -15,7 +15,6 @@ CONFIG_SYS_LOAD_ADDR=0x30000000
 CONFIG_IDENT_STRING=" for SMDKC100"
 CONFIG_SYS_CLK_FREQ=12000000
 CONFIG_ENV_ADDR=0x40000
-# CONFIG_EFI_LOADER is not set
 CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="root=/dev/mtdblock5 ubi.mtd=4 rootfstype=cramfs console=ttySAC0,115200n8 mem=128M  mtdparts=s3c-onenand:256k(bootloader),128k@0x40000(params),3m@0x60000(kernel),16m@0x360000(test),-(UBI)"
