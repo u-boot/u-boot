@@ -262,7 +262,7 @@ int imx_pinctrl_probe_mmio(struct udevice *dev)
 	return 0;
 }
 
-int imx_pinctrl_remove(struct udevice *dev)
+int imx_pinctrl_remove_mmio(struct udevice *dev)
 {
 	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
 	struct imx_pinctrl_soc_info *info = priv->info;

@@ -51,7 +51,7 @@ struct imx_pinctrl_priv {
 int imx_pinctrl_probe_common(struct udevice *dev);
 int imx_pinctrl_probe_mmio(struct udevice *dev);
 
-int imx_pinctrl_remove(struct udevice *dev);
+int imx_pinctrl_remove_mmio(struct udevice *dev);
 
 int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config);
 
