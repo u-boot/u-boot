@@ -1,0 +1,6 @@
+if ARCH_MMP
+
+config LNX_KRNL_IMG_TEXT_OFFSET_BASE
+	default TEXT_BASE
+
+endif
