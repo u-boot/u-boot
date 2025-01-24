@@ -19,7 +19,7 @@ static const struct udevice_id imx93_pinctrl_match[] = {
 };
 
 static const struct pinctrl_ops imx93_pinctrl_ops = {
-	.set_state = imx_pinctrl_set_state,
+	.set_state = imx_pinctrl_set_state_mmio,
 };
 
 U_BOOT_DRIVER(imx93_pinctrl) = {

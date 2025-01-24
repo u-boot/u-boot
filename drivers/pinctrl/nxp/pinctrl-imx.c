@@ -18,27 +18,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
+int imx_pinctrl_set_state_common(struct udevice *dev, struct udevice *config,
+				 int pin_size, u32 **pin_data, int *npins)
 {
-	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
-	struct imx_pinctrl_soc_info *info = priv->info;
 	ofnode node = dev_ofnode(config);
 	const struct fdt_property *prop;
-	u32 *pin_data;
-	int npins, size, pin_size;
-	int mux_reg, conf_reg, input_reg;
-	u32 input_val, mux_mode, config_val;
-	u32 mux_shift = info->mux_mask ? ffs(info->mux_mask) - 1 : 0;
-	int i, j = 0;
+	int size;
 
 	dev_dbg(dev, "%s: %s\n", __func__, config->name);
-
-	if (info->flags & IMX8_USE_SCU)
-		pin_size = SHARE_IMX8_PIN_SIZE;
-	else if (info->flags & SHARE_MUX_CONF_REG)
-		pin_size = SHARE_FSL_PIN_SIZE;
-	else
-		pin_size = FSL_PIN_SIZE;
 
 	prop = ofnode_get_property(node, "fsl,pins", &size);
 	if (!prop) {
@@ -52,18 +39,43 @@ int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		return -EINVAL;
 	}
 
-	pin_data = devm_kzalloc(dev, size, 0);
-	if (!pin_data)
+	*pin_data = devm_kzalloc(dev, size, 0);
+	if (!*pin_data)
 		return -ENOMEM;
 
-	if (ofnode_read_u32_array(node, "fsl,pins",
-				  pin_data, size >> 2)) {
+	if (ofnode_read_u32_array(node, "fsl,pins", *pin_data, size >> 2)) {
 		dev_err(dev, "Error reading pin data.\n");
-		devm_kfree(dev, pin_data);
+		devm_kfree(dev, *pin_data);
 		return -EINVAL;
 	}
 
-	npins = size / pin_size;
+	*npins = size / pin_size;
+
+	return 0;
+}
+
+int imx_pinctrl_set_state_mmio(struct udevice *dev, struct udevice *config)
+{
+	struct imx_pinctrl_priv *priv = dev_get_priv(dev);
+	struct imx_pinctrl_soc_info *info = priv->info;
+	u32 mux_shift = info->mux_mask ? ffs(info->mux_mask) - 1 : 0;
+	u32 input_val, mux_mode, config_val;
+	int mux_reg, conf_reg, input_reg;
+	int npins, pin_size;
+	int i, j = 0, ret;
+	u32 *pin_data;
+
+	if (info->flags & IMX8_USE_SCU)
+		pin_size = SHARE_IMX8_PIN_SIZE;
+	else if (info->flags & SHARE_MUX_CONF_REG)
+		pin_size = SHARE_FSL_PIN_SIZE;
+	else
+		pin_size = FSL_PIN_SIZE;
+
+	ret = imx_pinctrl_set_state_common(dev, config, pin_size,
+					   &pin_data, &npins);
+	if (ret)
+		return ret;
 
 	if (info->flags & IMX8_USE_SCU) {
 		imx_pinctrl_scu_conf_pins(info, pin_data, npins);

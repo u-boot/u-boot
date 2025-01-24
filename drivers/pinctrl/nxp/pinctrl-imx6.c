@@ -33,7 +33,7 @@ static const struct udevice_id imx6_pinctrl_match[] = {
 };
 
 static const struct pinctrl_ops imx6_pinctrl_ops = {
-	.set_state = imx_pinctrl_set_state,
+	.set_state = imx_pinctrl_set_state_mmio,
 };
 
 U_BOOT_DRIVER(fsl_imx6q_iomuxc) = {
