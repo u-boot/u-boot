@@ -38,7 +38,6 @@ U_BOOT_DRIVER(imx8_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(imx8_pinctrl_match),
 	.probe = imx8_pinctrl_probe,
-	.remove = imx_pinctrl_remove,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
 	.ops = &imx8_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
