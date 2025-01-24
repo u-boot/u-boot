@@ -7,26 +7,25 @@
 void clock_init_safe(void)
 {
 	void *const ccm = (void *)SUNXI_CCM_BASE;
-	struct sunxi_prcm_reg *const prcm =
-		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+	void *const prcm = (void *)SUNXI_PRCM_BASE;
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616)) {
 		/* this seems to enable PLLs on H616 */
-		setbits_le32(&prcm->sys_pwroff_gating, 0x10);
-		setbits_le32(&prcm->res_cal_ctrl, 2);
+		setbits_le32(prcm + CCU_PRCM_SYS_PWROFF_GATING, 0x10);
+		setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 2);
 	}
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
 	    IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
-		clrbits_le32(&prcm->res_cal_ctrl, 1);
-		setbits_le32(&prcm->res_cal_ctrl, 1);
+		clrbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 1);
+		setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, 1);
 	}
 
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6)) {
 		/* set key field for ldo enable */
-		setbits_le32(&prcm->pll_ldo_cfg, 0xA7000000);
+		setbits_le32(prcm + CCU_PRCM_PLL_LDO_CFG, 0xA7000000);
 		/* set PLL VDD LDO output to 1.14 V */
-		setbits_le32(&prcm->pll_ldo_cfg, 0x60000);
+		setbits_le32(prcm + CCU_PRCM_PLL_LDO_CFG, 0x60000);
 	}
 
 	clock_set_pll1(408000000);
@@ -105,8 +104,7 @@ void clock_set_pll1(unsigned int clk)
 int clock_twi_onoff(int port, int state)
 {
 	void *const ccm = (void *)SUNXI_CCM_BASE;
-	struct sunxi_prcm_reg *const prcm =
-		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+	void *const prcm = (void *)SUNXI_PRCM_BASE;
 	u32 value, *ptr;
 	int shift;
 
@@ -114,7 +112,7 @@ int clock_twi_onoff(int port, int state)
 
 	if (port == 5) {
 		shift = 0;
-		ptr = &prcm->twi_gate_reset;
+		ptr = prcm + CCU_PRCM_I2C_GATE_RESET;
 	} else {
 		shift = port;
 		ptr = ccm + CCU_H6_I2C_GATE_RESET;

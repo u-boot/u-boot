@@ -11,6 +11,11 @@
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
 
+#define CCU_PRCM_I2C_GATE_RESET		0x19c
+#define CCU_PRCM_PLL_LDO_CFG		0x244
+#define CCU_PRCM_SYS_PWROFF_GATING	0x250
+#define CCU_PRCM_RES_CAL_CTRL		0x310
+
 struct sunxi_prcm_reg {
 	u32 cpus_cfg;		/* 0x000 */
 	u8 res0[0x8];		/* 0x004 */
