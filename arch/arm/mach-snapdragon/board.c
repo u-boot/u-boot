@@ -255,11 +255,6 @@ int board_fdt_blob_setup(void **fdtp)
 	return ret;
 }
 
-void reset_cpu(void)
-{
-	psci_system_reset();
-}
-
 /*
  * Some Qualcomm boards require GPIO configuration when switching USB modes.
  * Support setting this configuration via pinctrl state.
