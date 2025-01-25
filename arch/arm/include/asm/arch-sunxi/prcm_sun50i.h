@@ -15,6 +15,7 @@
 #define CCU_PRCM_PLL_LDO_CFG		0x244
 #define CCU_PRCM_SYS_PWROFF_GATING	0x250
 #define CCU_PRCM_RES_CAL_CTRL		0x310
+#define CCU_PRCM_OHMS240		0x318
 
 struct sunxi_prcm_reg {
 	u32 cpus_cfg;		/* 0x000 */

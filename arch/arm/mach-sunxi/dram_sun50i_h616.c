@@ -1342,13 +1342,12 @@ static const struct dram_para para = {
 
 unsigned long sunxi_dram_init(void)
 {
-	struct sunxi_prcm_reg *const prcm =
-		(struct sunxi_prcm_reg *)SUNXI_PRCM_BASE;
+	void *const prcm = (void *)SUNXI_PRCM_BASE;
 	struct dram_config config;
 	unsigned long size;
 
-	setbits_le32(&prcm->res_cal_ctrl, BIT(8));
-	clrbits_le32(&prcm->ohms240, 0x3f);
+	setbits_le32(prcm + CCU_PRCM_RES_CAL_CTRL, BIT(8));
+	clrbits_le32(prcm + CCU_PRCM_OHMS240, 0x3f);
 
 	mctl_auto_detect_rank_width(&para, &config);
 	mctl_auto_detect_dram_size(&para, &config);
