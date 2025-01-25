@@ -38,8 +38,8 @@
 #define CCM_PLL_LOCK			BIT(28)
 #define CCM_PLL_OUT_EN			BIT(27)
 #define CCM_PLL1_UPDATE			BIT(26)
-#define CCM_PLL1_CLOCK_TIME_2		(2 << 24)
 #define CCM_PLL1_CTRL_P(p)		((p) << 16)
+#define CCM_PLL1_CTRL_N_MASK		GENMASK(15, 8)
 #define CCM_PLL1_CTRL_N(n)		(((n) - 1) << 8)
 
 /* pll5 bit field */

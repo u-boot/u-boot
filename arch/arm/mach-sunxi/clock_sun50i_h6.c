@@ -4,6 +4,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/prcm.h>
+#include <linux/delay.h>
 
 #ifdef CONFIG_XPL_BUILD
 void clock_init_safe(void)
@@ -72,6 +73,53 @@ void clock_init_uart(void)
 		     1 << (RESET_SHIFT + CONFIG_CONS_INDEX - 1));
 }
 
+static bool has_pll_output_gate(void)
+{
+	return (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2) ||
+		IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
+		IS_ENABLED(CONFIG_MACH_SUN50I_A133));
+}
+
+/* A shared routine to program the CPU PLLs for H6, H616, T113, A523 */
+static void clock_set_pll(u32 *reg, unsigned int n)
+{
+	u32 val = readl(reg);
+
+	/* clear the lock enable bit */
+	val &= ~CCM_PLL_LOCK_EN;
+	writel(val, reg);
+
+	/* gate the output on the newer SoCs */
+	if (has_pll_output_gate()) {
+		val &= ~CCM_PLL_OUT_EN;
+		writel(val, reg);
+	}
+
+	val &= ~(CCM_PLL1_CTRL_N_MASK | GENMASK(3, 0) | GENMASK(21, 16));
+	val |= CCM_PLL1_CTRL_N(n);
+	writel(val, reg);			/* program parameter */
+
+	val |= CCM_PLL_CTRL_EN;
+	if (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2))
+		val |= CCM_PLL_LDO_EN;
+	writel(val, reg);			/* enable PLL */
+
+	val |= CCM_PLL_LOCK_EN;
+	if (IS_ENABLED(CONFIG_MACH_SUN55I_A523))
+		val |= CCM_PLL1_UPDATE;
+	writel(val, reg);			/* start locking process */
+
+	while (!(readl(reg) & CCM_PLL_LOCK)) {	/* wait for lock bit */
+	}
+	udelay(20);				/* wait as per manual */
+
+	/* un-gate the output on the newer SoCs */
+	if (has_pll_output_gate()) {
+		val |= CCM_PLL_OUT_EN;
+		writel(val, reg);
+	}
+}
+
 void clock_set_pll1(unsigned int clk)
 {
 	void *const ccm = (void *)SUNXI_CCM_BASE;
@@ -86,17 +134,7 @@ void clock_set_pll1(unsigned int clk)
 	val |= CCM_CPU_AXI_MUX_OSC24M;
 	writel(val, ccm + CCU_H6_CPU_AXI_CFG);
 
-	/* clk = 24*n/p, p is ignored if clock is >288MHz */
-	val = CCM_PLL_CTRL_EN | CCM_PLL_LOCK_EN | CCM_PLL1_CLOCK_TIME_2;
-	val |= CCM_PLL1_CTRL_N(clk / 24000000);
-	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
-	    IS_ENABLED(CONFIG_MACH_SUN50I_A133))
-		val |= CCM_PLL_OUT_EN;
-	if (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2))
-		val |= CCM_PLL_OUT_EN | CCM_PLL_LDO_EN;
-	writel(val, ccm + CCU_H6_PLL1_CFG);
-	while (!(readl(ccm + CCU_H6_PLL1_CFG) & CCM_PLL_LOCK))
-		;
+	clock_set_pll(ccm + CCU_H6_PLL1_CFG, clk / 24000000);
 
 	/* Switch CPU to PLL1 */
 	val = readl(ccm + CCU_H6_CPU_AXI_CFG);
