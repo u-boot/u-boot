@@ -120,27 +120,35 @@ static void clock_set_pll(u32 *reg, unsigned int n)
 	}
 }
 
-void clock_set_pll1(unsigned int clk)
+static void clock_h6_set_cpu_pll(unsigned int n_factor)
 {
 	void *const ccm = (void *)SUNXI_CCM_BASE;
 	u32 val;
 
-	/* Do not support clocks < 288MHz as they need factor P */
-	if (clk < 288000000) clk = 288000000;
-
-	/* Switch to 24MHz clock while changing PLL1 */
+	/* Switch CPU clock source to 24MHz HOSC while changing the PLL */
 	val = readl(ccm + CCU_H6_CPU_AXI_CFG);
 	val &= ~CCM_CPU_AXI_MUX_MASK;
 	val |= CCM_CPU_AXI_MUX_OSC24M;
 	writel(val, ccm + CCU_H6_CPU_AXI_CFG);
 
-	clock_set_pll(ccm + CCU_H6_PLL1_CFG, clk / 24000000);
+	clock_set_pll(ccm + CCU_H6_PLL1_CFG, n_factor);
 
-	/* Switch CPU to PLL1 */
+	/* Switch CPU clock source to the CPU PLL */
 	val = readl(ccm + CCU_H6_CPU_AXI_CFG);
 	val &= ~CCM_CPU_AXI_MUX_MASK;
 	val |= CCM_CPU_AXI_MUX_PLL_CPUX;
 	writel(val, ccm + CCU_H6_CPU_AXI_CFG);
+}
+
+void clock_set_pll1(unsigned int clk)
+{
+	/* Do not support clocks < 288MHz as they need factor P */
+	if (clk < 288000000)
+		clk = 288000000;
+
+	clk /= 24000000;
+
+	clock_h6_set_cpu_pll(clk);
 }
 
 int clock_twi_onoff(int port, int state)
