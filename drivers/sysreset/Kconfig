@@ -242,7 +242,6 @@ config SYSRESET_RAA215300
 
 config SYSRESET_QCOM_PSHOLD
 	bool "Support sysreset for Qualcomm SoCs via PSHOLD"
-	depends on ARCH_IPQ40XX
 	help
 	  Add support for the system reboot on Qualcomm SoCs via PSHOLD.
 
