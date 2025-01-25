@@ -33,8 +33,6 @@ int miiphy_is_1000base_x(const char *devname, unsigned char addr);
 int miiphy_link(const char *devname, unsigned char addr);
 #endif
 
-void miiphy_init(void);
-
 int miiphy_set_current_dev(const char *devname);
 const char *miiphy_get_current_dev(void);
 struct mii_dev *mdio_get_current_dev(void);
