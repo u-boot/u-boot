@@ -13,6 +13,7 @@
 #include <linux/bitops.h>
 #endif
 
+/* Main CCU register offsets */
 #define CCU_H6_PLL1_CFG			0x000
 #define CCU_H6_PLL5_CFG			0x010
 #define CCU_H6_PLL6_CFG			0x020
@@ -31,6 +32,14 @@
 #define CCU_H6_UART_GATE_RESET		0x90c
 #define CCU_H6_I2C_GATE_RESET		0x91c
 
+/* A523 CPU PLL offsets */
+#define CPC_CPUA_PLL_CTRL		0x04
+#define CPC_DSU_PLL_CTRL		0x08
+#define CPC_CPUB_PLL_CTRL		0x0c
+#define CPC_CPUA_CLK_REG		0x60
+#define CPC_CPUB_CLK_REG		0x64
+#define CPC_DSU_CLK_REG			0x6c
+
 /* PLL bit fields */
 #define CCM_PLL_CTRL_EN			BIT(31)
 #define CCM_PLL_LDO_EN			BIT(30)
@@ -41,6 +50,14 @@
 #define CCM_PLL1_CTRL_P(p)		((p) << 16)
 #define CCM_PLL1_CTRL_N_MASK		GENMASK(15, 8)
 #define CCM_PLL1_CTRL_N(n)		(((n) - 1) << 8)
+
+/* A523 CPU clock fields */
+#define CPU_CLK_SRC_HOSC		(0 << 24)
+#define CPU_CLK_SRC_CPUPLL		(3 << 24)
+#define CPU_CLK_CTRL_P(p)		((p) << 16)
+#define CPU_CLK_APB_DIV(n)		(((n) - 1) << 8)
+#define CPU_CLK_PERI_DIV(m1)		(((m1) - 1) << 2)
+#define CPU_CLK_AXI_DIV(m)		(((m) - 1) << 0)
 
 /* pll5 bit field */
 #define CCM_PLL5_CTRL_N(n)		(((n) - 1) << 8)

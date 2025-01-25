@@ -6,6 +6,10 @@
 #include <asm/arch/prcm.h>
 #include <linux/delay.h>
 
+#ifndef SUNXI_CPU_PLL_CFG_BASE
+#define SUNXI_CPU_PLL_CFG_BASE 0
+#endif
+
 #ifdef CONFIG_XPL_BUILD
 void clock_init_safe(void)
 {
@@ -120,6 +124,37 @@ static void clock_set_pll(u32 *reg, unsigned int n)
 	}
 }
 
+/* Program the PLLs for both clusters plus the DSU. */
+static void clock_a523_set_cpu_plls(unsigned int n_factor)
+{
+	void *const cpc = (void *)SUNXI_CPU_PLL_CFG_BASE;
+	u32 val;
+
+	val = CPU_CLK_SRC_HOSC | CPU_CLK_CTRL_P(0) |
+	       CPU_CLK_APB_DIV(4) | CPU_CLK_PERI_DIV(2) |
+	       CPU_CLK_AXI_DIV(2);
+
+	/* Switch CPU clock source to 24MHz HOSC while changing the PLL */
+	writel(val, cpc + CPC_CPUA_CLK_REG);
+	writel(val, cpc + CPC_CPUB_CLK_REG);
+	udelay(20);
+	writel(CPU_CLK_SRC_HOSC | CPU_CLK_CTRL_P(0),
+	       cpc + CPC_DSU_CLK_REG);
+	udelay(20);
+
+	clock_set_pll(cpc + CPC_CPUA_PLL_CTRL, n_factor);
+	clock_set_pll(cpc + CPC_CPUB_PLL_CTRL, n_factor);
+	clock_set_pll(cpc + CPC_DSU_PLL_CTRL, n_factor);
+
+	/* Switch CPU clock source to the CPU PLL */
+	clrsetbits_le32(cpc + CPC_CPUA_CLK_REG, CPU_CLK_SRC_HOSC,
+			CPU_CLK_SRC_CPUPLL);
+	clrsetbits_le32(cpc + CPC_CPUB_CLK_REG, CPU_CLK_SRC_HOSC,
+			CPU_CLK_SRC_CPUPLL);
+	clrsetbits_le32(cpc + CPC_DSU_CLK_REG, CPU_CLK_SRC_HOSC,
+			CPU_CLK_SRC_CPUPLL);
+}
+
 static void clock_h6_set_cpu_pll(unsigned int n_factor)
 {
 	void *const ccm = (void *)SUNXI_CCM_BASE;
@@ -148,7 +183,10 @@ void clock_set_pll1(unsigned int clk)
 
 	clk /= 24000000;
 
-	clock_h6_set_cpu_pll(clk);
+	if (IS_ENABLED(CONFIG_MACH_SUN55I_A523))
+		clock_a523_set_cpu_plls(clk);
+	else
+		clock_h6_set_cpu_pll(clk);
 }
 
 int clock_twi_onoff(int port, int state)

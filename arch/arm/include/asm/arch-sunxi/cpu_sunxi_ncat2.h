@@ -30,6 +30,8 @@
 
 #define SUNXI_CPUCFG_BASE		0x09010000
 
+#define SUNXI_CPU_PLL_CFG_BASE		0x08817000
+
 #ifndef __ASSEMBLY__
 void sunxi_board_init(void);
 void sunxi_reset(void);
