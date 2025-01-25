@@ -19,6 +19,7 @@ import threading
 from buildman import cfgutil
 from patman import gitutil
 from u_boot_pylib import command
+from u_boot_pylib import tools
 
 RETURN_CODE_RETRY = -1
 BASE_ELF_FILENAMES = ['u-boot', 'spl/u-boot-spl', 'tpl/u-boot-tpl']
@@ -555,10 +556,10 @@ class BuilderThread(threading.Thread):
         if result.return_code < 0:
             return
 
+        done_file = self.builder.get_done_file(result.commit_upto,
+                result.brd.target)
         if result.toolchain:
             # Write the build result and toolchain information.
-            done_file = self.builder.get_done_file(result.commit_upto,
-                    result.brd.target)
             with open(done_file, 'w', encoding='utf-8') as outf:
                 if maybe_aborted:
                     # Special code to indicate we need to retry
@@ -638,6 +639,9 @@ class BuilderThread(threading.Thread):
                                 result.brd.target)
                 with open(sizes, 'w', encoding='utf-8') as outf:
                     print('\n'.join(lines), file=outf)
+        else:
+            # Indicate that the build failure due to lack of toolchain
+            tools.write_file(done_file, '2\n', binary=False)
 
         if not work_in_output:
             # Write out the configuration files, with a special case for SPL

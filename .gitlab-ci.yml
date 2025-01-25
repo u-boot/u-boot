@@ -671,3 +671,9 @@ rpi:
   variables:
     ROLE: rpi
   <<: *lab_dfn
+
+# StarFive VisionFive 2
+vf2:
+  variables:
+    ROLE: vf2
+  <<: *lab_dfn

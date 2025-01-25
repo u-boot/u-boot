@@ -25,7 +25,6 @@ from u_boot_pylib import tools
 from u_boot_pylib import tout
 
 ### constant variables ###
-OUTPUT_FILE = 'boards.cfg'
 CONFIG_DIR = 'configs'
 SLEEP_TIME = 0.03
 COMMENT_BLOCK = f'''#
