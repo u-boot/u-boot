@@ -183,7 +183,7 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 	bus->set_mdc(bus, 1);
 	bus->delay(bus);
 
-	debug("miiphy_read(0x%x) @ 0x%x = 0x%04x\n", reg, addr, rdreg);
+	debug("%s[%s](0x%x) @ 0x%x = 0x%04x\n", __func__, miidev->name, reg, addr, rdreg);
 
 	return rdreg;
 }
