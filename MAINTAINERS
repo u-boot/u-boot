@@ -1806,6 +1806,13 @@ M:	Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
 S:	Maintained
 F:	test/lib/uuid.c
 
+VBE
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	boot/vbe*
+F:	common/spl_reloc.c
+F:	include/vbe.h
+
 VIDEO
 M:	Anatolij Gustschin <agust@denx.de>
 S:	Maintained
