@@ -143,7 +143,8 @@ static int __maybe_unused hash_finish_sha512(struct hash_algo *algo, void *ctx,
 	return 0;
 }
 
-static int hash_init_crc16_ccitt(struct hash_algo *algo, void **ctxp)
+static int __maybe_unused hash_init_crc16_ccitt(struct hash_algo *algo,
+						void **ctxp)
 {
 	uint16_t *ctx = malloc(sizeof(uint16_t));
 	*ctx = 0;
@@ -151,16 +152,18 @@ static int hash_init_crc16_ccitt(struct hash_algo *algo, void **ctxp)
 	return 0;
 }
 
-static int hash_update_crc16_ccitt(struct hash_algo *algo, void *ctx,
-				   const void *buf, unsigned int size,
-				   int is_last)
+static int __maybe_unused hash_update_crc16_ccitt(struct hash_algo *algo,
+						  void *ctx, const void *buf,
+						  unsigned int size,
+						  int is_last)
 {
 	*((uint16_t *)ctx) = crc16_ccitt(*((uint16_t *)ctx), buf, size);
 	return 0;
 }
 
-static int hash_finish_crc16_ccitt(struct hash_algo *algo, void *ctx,
-				   void *dest_buf, int size)
+static int __maybe_unused hash_finish_crc16_ccitt(struct hash_algo *algo,
+						  void *ctx, void *dest_buf,
+						  int size)
 {
 	if (size < algo->digest_size)
 		return -1;
@@ -295,6 +298,7 @@ static struct hash_algo hash_algo[] = {
 #endif
 	},
 #endif
+#if CONFIG_IS_ENABLED(CRC16)
 	{
 		.name		= "crc16-ccitt",
 		.digest_size	= 2,
@@ -304,6 +308,7 @@ static struct hash_algo hash_algo[] = {
 		.hash_update	= hash_update_crc16_ccitt,
 		.hash_finish	= hash_finish_crc16_ccitt,
 	},
+#endif
 #if CONFIG_IS_ENABLED(CRC8) && IS_ENABLED(CONFIG_HASH_CRC8)
 	{
 		.name		= "crc8",

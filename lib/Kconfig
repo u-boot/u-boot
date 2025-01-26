@@ -758,6 +758,16 @@ config VPL_CRC8
 	  checksum with feedback to produce an 8-bit result. The code is small
 	  and it does not require a lookup table (unlike CRC32).
 
+config CRC16
+	bool "Support CRC16"
+	default y
+	help
+	  Enables CRC16 support. This is normally required. Two algorithms are
+	  provided:
+
+	    - CCITT, with a polynomical x^16 + x^12 + x^5 + 1
+	    - standard, with polynomial x^16 + x^15 + x^2 + 1 (0x8005)
+
 config SPL_CRC16
 	bool "Support CRC16 in SPL"
 	depends on SPL
