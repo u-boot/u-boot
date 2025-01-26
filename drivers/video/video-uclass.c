@@ -451,6 +451,38 @@ int video_get_ysize(struct udevice *dev)
 	return priv->ysize;
 }
 
+int video_set_size(struct udevice *dev, ushort xsize, ushort ysize, ushort rotation)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	if (xsize > priv->xsize_max || ysize > priv->ysize_max)
+		return -ENOSPC;
+
+	priv->xsize = xsize;
+	priv->ysize = ysize;
+	priv->rot = rotation / 90;
+
+	return 0;
+}
+
+int video_resize(struct udevice *dev)
+{
+	struct video_ops *ops;
+	int ret;
+
+	if (!dev)
+		return -EINVAL;
+
+	ops = video_get_ops(dev);
+	if (ops && ops->resize) {
+		ret = ops->resize(dev);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_VIDEO_COPY
 int video_sync_copy(struct udevice *dev, void *from, void *to)
 {
@@ -564,12 +596,17 @@ static int video_post_probe(struct udevice *dev)
 	struct udevice *cons;
 	int ret;
 
+	if (!priv->xsize_max)
+		priv->xsize_max = priv->xsize;
+	if (!priv->ysize_max)
+		priv->ysize_max = priv->ysize;
+
 	/* Set up the line and display size */
 	priv->fb = map_sysmem(plat->base, plat->size);
 	if (!priv->line_length)
-		priv->line_length = priv->xsize * VNBYTES(priv->bpix);
+		priv->line_length = priv->xsize_max * VNBYTES(priv->bpix);
 
-	priv->fb_size = priv->line_length * priv->ysize;
+	priv->fb_size = priv->line_length * priv->ysize_max;
 
 	/*
 	 * Set up video handoff fields for passing video blob to next stage
