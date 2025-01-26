@@ -147,7 +147,7 @@ static inline int power_domain_free(struct power_domain *power_domain)
 #endif
 
 /**
- * power_domain_on - Enable power to a power domain.
+ * power_domain_on - Enable power to a power domain (with refcounting)
  *
  * @power_domain:	A power domain struct that was previously successfully
  *		requested by power_domain_get().
@@ -163,7 +163,7 @@ static inline int power_domain_on(struct power_domain *power_domain)
 #endif
 
 /**
- * power_domain_off - Disable power to a power domain.
+ * power_domain_off - Disable power to a power domain (with refcounting)
  *
  * @power_domain:	A power domain struct that was previously successfully
  *		requested by power_domain_get().
