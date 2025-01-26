@@ -208,6 +208,7 @@ int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 		struct spl_load_info info;
 
 		spl_load_init(&info, h_vbe_load_read, desc, desc->blksz);
+		xpl_set_fdt_update(&info, false);
 		xpl_set_phase(&info, IH_PHASE_U_BOOT);
 		log_debug("doing SPL from %s blksz %lx log2blksz %x area_offset %lx + fdt_size %lx\n",
 			  blk->name, desc->blksz, desc->log2blksz, area_offset, ALIGN(size, 4));

@@ -515,9 +515,6 @@ static int spl_fit_record_loadable(const struct spl_fit_info *ctx, int index,
 	const char *name;
 	int node;
 
-	if (CONFIG_IS_ENABLED(FIT_IMAGE_TINY))
-		return 0;
-
 	ret = spl_fit_get_image_name(ctx, "loadables", index, &name);
 	if (ret < 0)
 		return ret;
@@ -863,7 +860,8 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			spl_image->entry_point = image_info.entry_point;
 
 		/* Record our loadables into the FDT */
-		if (spl_image->fdt_addr)
+		if (!CONFIG_IS_ENABLED(FIT_IMAGE_TINY) &&
+		    xpl_get_fdt_update(info) && spl_image->fdt_addr)
 			spl_fit_record_loadable(&ctx, index,
 						spl_image->fdt_addr,
 						&image_info);
