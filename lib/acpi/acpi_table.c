@@ -134,8 +134,8 @@ void acpi_fill_header(struct acpi_table_header *header, char *signature)
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
 	header->oem_revision = OEM_REVISION;
-	memcpy(header->creator_id, ASLC_ID, 4);
-	header->creator_revision = ASL_REVISION;
+	memcpy(header->creator_id, ACPI_CREATOR_ID, 4);
+	header->creator_revision = ACPI_CREATOR_REVISION;
 }
 
 void acpi_align(struct acpi_ctx *ctx)
@@ -248,7 +248,7 @@ int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	header->revision = acpi_get_table_revision(ACPITAB_FADT);
 	memcpy(header->oem_id, OEM_ID, 6);
 	memcpy(header->oem_table_id, OEM_TABLE_ID, 8);
-	memcpy(header->creator_id, ASLC_ID, 4);
+	memcpy(header->creator_id, ACPI_CREATOR_ID, 4);
 	header->creator_revision = 1;
 	fadt->minor_revision = 2;
 

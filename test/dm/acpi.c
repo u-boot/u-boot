@@ -261,8 +261,8 @@ static int dm_test_acpi_fill_header(struct unit_test_state *uts)
 	ut_asserteq_mem(OEM_TABLE_ID, hdr.oem_table_id,
 			sizeof(hdr.oem_table_id));
 	ut_asserteq(OEM_REVISION, hdr.oem_revision);
-	ut_asserteq_mem(ASLC_ID, hdr.creator_id, sizeof(hdr.creator_id));
-	ut_asserteq(ASL_REVISION, hdr.creator_revision);
+	ut_asserteq_mem(ACPI_CREATOR_ID, hdr.creator_id, sizeof(hdr.creator_id));
+	ut_asserteq(ACPI_CREATOR_REVISION, hdr.creator_revision);
 
 	return 0;
 }
