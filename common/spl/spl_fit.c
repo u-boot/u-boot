@@ -199,7 +199,9 @@ static int get_aligned_image_size(struct spl_load_info *info, int data_size,
  *		the image gets loaded to the address pointed to by the
  *		load_addr member in this struct, if load_addr is not 0
  *
- * Return:	0 on success or a negative error number.
+ * Return:	0 on success, -EPERM if this image is not the correct phase
+ * (for CONFIG_BOOTMETH_VBE_SIMPLE_FW), or another negative error number on
+ * other error.
  */
 static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 			   const struct spl_fit_info *ctx, int node,
@@ -217,6 +219,25 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 	const void *data;
 	const void *fit = ctx->fit;
 	bool external_data = false;
+
+	log_debug("starting\n");
+	if (CONFIG_IS_ENABLED(BOOTMETH_VBE) &&
+	    xpl_get_phase(info) != IH_PHASE_NONE) {
+		enum image_phase_t phase;
+		int ret;
+
+		ret = fit_image_get_phase(fit, node, &phase);
+		/* if the image is for any phase, let's use it */
+		if (ret == -ENOENT || phase == xpl_get_phase(info)) {
+			log_debug("found\n");
+		} else if (ret < 0) {
+			log_debug("err=%d\n", ret);
+			return ret;
+		} else {
+			log_debug("- phase mismatch, skipping this image\n");
+			return -EPERM;
+		}
+	}
 
 	if (IS_ENABLED(CONFIG_SPL_FPGA) ||
 	    (IS_ENABLED(CONFIG_SPL_OS_BOOT) && spl_decompression_enabled())) {
@@ -278,10 +299,7 @@ static int load_simple_fit(struct spl_load_info *info, ulong fit_offset,
 		log_debug("reading from offset %x / %lx size %lx to %p: ",
 			  offset, read_offset, size, src_ptr);
 
-		if (info->read(info,
-			       fit_offset +
-			       get_aligned_image_offset(info, offset), size,
-			       src_ptr) < length)
+		if (info->read(info, read_offset, size, src_ptr) < length)
 			return -EIO;
 
 		debug("External data: dst=%p, offset=%x, size=%lx\n",
@@ -456,7 +474,9 @@ static int spl_fit_append_fdt(struct spl_image_info *spl_image,
 			image_info.load_addr = (ulong)tmpbuffer;
 			ret = load_simple_fit(info, offset, ctx, node,
 					      &image_info);
-			if (ret < 0)
+			if (ret == -EPERM)
+				continue;
+			else if (ret < 0)
 				break;
 
 			/* Make room in FDT for changes from the overlay */
@@ -817,7 +837,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		image_info.load_addr = 0;
 		ret = load_simple_fit(info, offset, &ctx, node, &image_info);
-		if (ret < 0) {
+		if (ret < 0 && ret != -EPERM) {
 			printf("%s: can't load image loadables index %d (ret = %d)\n",
 			       __func__, index, ret);
 			return ret;
