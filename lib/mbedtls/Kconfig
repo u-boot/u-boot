@@ -112,6 +112,46 @@ config SPL_MD5_LEGACY
 
 endif # SPL
 
+if VPL
+
+config VPL_SHA1_LEGACY
+	bool "Enable SHA1 support in VPL with legacy crypto library"
+	depends on LEGACY_CRYPTO_BASIC && VPL_SHA1
+	help
+	  This option enables support of hashing using SHA1 algorithm
+	  with legacy crypto library.
+
+config VPL_SHA256_LEGACY
+	bool "Enable SHA256 support in VPL with legacy crypto library"
+	depends on LEGACY_CRYPTO_BASIC && VPL_SHA256
+	help
+	  This option enables support of hashing using SHA256 algorithm
+	  with legacy crypto library.
+
+config VPL_SHA512_LEGACY
+	bool "Enable SHA512 support in VPL with legacy crypto library"
+	depends on LEGACY_CRYPTO_BASIC && VPL_SHA512
+	help
+	  This option enables support of hashing using SHA512 algorithm
+	  with legacy crypto library.
+
+config VPL_SHA384_LEGACY
+	bool "Enable SHA384 support in VPL with legacy crypto library"
+	depends on LEGACY_CRYPTO_BASIC && VPL_SHA384
+	select VPL_SHA512_LEGACY
+	help
+	  This option enables support of hashing using SHA384 algorithm
+	  with legacy crypto library.
+
+config VPL_MD5_LEGACY
+	bool "Enable MD5 support in VPL with legacy crypto library"
+	depends on LEGACY_CRYPTO_BASIC && VPL_MD5
+	help
+	  This option enables support of hashing using MD5 algorithm
+	  with legacy crypto library.
+
+endif # VPL
+
 endif # LEGACY_CRYPTO_BASIC
 
 config LEGACY_CRYPTO_CERT
