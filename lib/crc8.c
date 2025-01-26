@@ -6,11 +6,12 @@
 #ifdef USE_HOSTCC
 #include <arpa/inet.h>
 #endif
+#include <asm/sections.h>
 #include <u-boot/crc.h>
 
 #define POLY	(0x1070U << 3)
 
-static unsigned char _crc8(unsigned short data)
+__rcode static unsigned char _crc8(unsigned short data)
 {
 	int i;
 
@@ -23,7 +24,7 @@ static unsigned char _crc8(unsigned short data)
 	return (unsigned char)(data >> 8);
 }
 
-unsigned int crc8(unsigned int crc, const unsigned char *vptr, int len)
+__rcode unsigned int crc8(unsigned int crc, const unsigned char *vptr, int len)
 {
 	int i;
 
