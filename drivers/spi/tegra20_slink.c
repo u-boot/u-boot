@@ -29,7 +29,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SLINK_CMD_IDLE_SCLK_PULL_LOW	(2 << 24)
 #define SLINK_CMD_IDLE_SCLK_PULL_HIGH	(3 << 24)
 #define SLINK_CMD_IDLE_SCLK_MASK	(3 << 24)
+#define SLINK_CMD_CS_POL3		BIT(23)
+#define SLINK_CMD_CS_POL2		BIT(22)
 #define SLINK_CMD_CK_SDA		BIT(21)
+#define SLINK_CMD_CS_POL1		BIT(20)
 #define SLINK_CMD_CS_POL		BIT(13)
 #define SLINK_CMD_CS_VAL		BIT(12)
 #define SLINK_CMD_CS_SOFT		BIT(11)
@@ -63,6 +66,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SPI_TIMEOUT		1000
 #define TEGRA_SPI_MAX_FREQ	52000000
+
+unsigned int cmd_cs_pol_bit[] = {
+	SLINK_CMD_CS_POL,
+	SLINK_CMD_CS_POL1,
+	SLINK_CMD_CS_POL2,
+	SLINK_CMD_CS_POL3,
+};
 
 struct spi_regs {
 	u32 command;	/* SLINK_COMMAND_0 register  */
@@ -154,6 +164,14 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 		SLINK_STAT_RXF_UNR | SLINK_STAT_TXF_OVF;
 	writel(reg, &regs->status);
 	debug("%s: STATUS = %08x\n", __func__, readl(&regs->status));
+
+	/* Update the polarity bits */
+	if (priv->mode & SPI_CS_HIGH)
+		setbits_le32(&priv->regs->command,
+			     cmd_cs_pol_bit[spi_chip_select(dev)]);
+	else
+		clrbits_le32(&priv->regs->command,
+			     cmd_cs_pol_bit[spi_chip_select(dev)]);
 
 	/* Set master mode and sw controlled CS */
 	reg = readl(&regs->command);
