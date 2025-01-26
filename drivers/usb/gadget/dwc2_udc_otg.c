@@ -465,7 +465,6 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 {
 	/* 2. Soft-reset OTG Core and then unreset again. */
 	int i;
-	unsigned int uTemp;
 	u32 dflt_gusbcfg;
 	u32 rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 	u32 max_hw_ep;
@@ -497,16 +496,12 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	writel(dflt_gusbcfg, &reg->global_regs.gusbcfg);
 
 	/* 3. Put the OTG device core in the disconnected state.*/
-	uTemp = readl(&reg->device_regs.dctl);
-	uTemp |= DCTL_SFTDISCON;
-	writel(uTemp, &reg->device_regs.dctl);
+	setbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON);
 
 	udelay(20);
 
 	/* 4. Make the OTG device core exit from the disconnected state.*/
-	uTemp = readl(&reg->device_regs.dctl);
-	uTemp = uTemp & ~DCTL_SFTDISCON;
-	writel(uTemp, &reg->device_regs.dctl);
+	clrbits_le32(&reg->device_regs.dctl, DCTL_SFTDISCON);
 
 	/* 5. Configure OTG Core to initial settings of device mode.*/
 	/* [][1: full speed(30Mhz) 0:high speed]*/
@@ -592,7 +587,6 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 
 static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 {
-	unsigned int ep_ctrl;
 	int i;
 
 	if (speed == USB_SPEED_HIGH) {
@@ -612,12 +606,10 @@ static void set_max_pktsize(struct dwc2_udc *dev, enum usb_device_speed speed)
 		dev->ep[i].ep.maxpacket = ep_fifo_size;
 
 	/* EP0 - Control IN (64 bytes)*/
-	ep_ctrl = readl(&reg->device_regs.in_endp[EP0_CON].diepctl);
-	writel(ep_ctrl | (0 << 0), &reg->device_regs.in_endp[EP0_CON].diepctl);
+	setbits_le32(&reg->device_regs.in_endp[EP0_CON].diepctl, (0 << 0));
 
 	/* EP0 - Control OUT (64 bytes)*/
-	ep_ctrl = readl(&reg->device_regs.out_endp[EP0_CON].doepctl);
-	writel(ep_ctrl | (0 << 0), &reg->device_regs.out_endp[EP0_CON].doepctl);
+	setbits_le32(&reg->device_regs.out_endp[EP0_CON].doepctl, (0 << 0));
 }
 
 static int dwc2_ep_enable(struct usb_ep *_ep,
