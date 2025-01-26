@@ -50,8 +50,10 @@ u32 *boot_params_ptr = NULL;
 
 #if CONFIG_IS_ENABLED(BINMAN_UBOOT_SYMBOLS)
 /* See spl.h for information about this */
+#if defined(CONFIG_SPL_BUILD)
 binman_sym_declare(ulong, u_boot_any, image_pos);
 binman_sym_declare(ulong, u_boot_any, size);
+#endif
 
 #ifdef CONFIG_TPL
 binman_sym_declare(ulong, u_boot_spl_any, image_pos);
@@ -179,9 +181,15 @@ ulong spl_get_image_pos(void)
 	if (xpl_next_phase() == PHASE_VPL)
 		return binman_sym(ulong, u_boot_vpl_any, image_pos);
 #endif
-	return xpl_next_phase() == PHASE_SPL ?
-		binman_sym(ulong, u_boot_spl_any, image_pos) :
-		binman_sym(ulong, u_boot_any, image_pos);
+#if defined(CONFIG_TPL) && !defined(CONFIG_VPL)
+	if (xpl_next_phase() == PHASE_SPL)
+		return binman_sym(ulong, u_boot_spl_any, image_pos);
+#endif
+#if defined(CONFIG_SPL_BUILD)
+	return binman_sym(ulong, u_boot_any, image_pos);
+#endif
+
+	return BINMAN_SYM_MISSING;
 }
 
 ulong spl_get_image_size(void)
@@ -263,14 +271,20 @@ void spl_set_header_raw_uboot(struct spl_image_info *spl_image)
 	 */
 	if (u_boot_pos && u_boot_pos != BINMAN_SYM_MISSING) {
 		/* Binman does not support separated entry addresses */
-		spl_image->entry_point = u_boot_pos;
-		spl_image->load_addr = u_boot_pos;
+		spl_image->entry_point = spl_get_image_text_base();
+		spl_image->load_addr = spl_get_image_text_base();
+		spl_image->size = spl_get_image_size();
+		log_debug("Next load addr %lx\n", spl_image->load_addr);
 	} else {
 		spl_image->entry_point = CONFIG_SYS_UBOOT_START;
 		spl_image->load_addr = CONFIG_TEXT_BASE;
+		log_debug("Default load addr %x (u_boot_pos=%lx)\n",
+			  CONFIG_TEXT_BASE, u_boot_pos);
 	}
 	spl_image->os = IH_OS_U_BOOT;
-	spl_image->name = "U-Boot";
+	spl_image->name = xpl_name(xpl_next_phase());
+	log_debug("Next phase: %s at %lx size %lx\n", spl_image->name,
+		  spl_image->load_addr, (ulong)spl_image->size);
 }
 
 __weak int spl_parse_board_header(struct spl_image_info *spl_image,
