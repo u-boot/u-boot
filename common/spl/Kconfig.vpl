@@ -9,6 +9,19 @@ config VPL_BANNER_PRINT
 	  info. Disabling this option could be useful to reduce VPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
+config VPL_LDSCRIPT
+	string "Linker script for the VPL stage"
+	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARM64
+	default "arch/\$(ARCH)/cpu/u-boot-spl.lds"
+	help
+	  The TPL stage will usually require a different linker-script
+	  (as it runs from a different memory region) than the regular
+	  U-Boot stage.  Set this to the path of the linker-script to
+	  be used for TPL.
+
+	  May be left empty to trigger the Makefile infrastructure to
+	  fall back to the linker-script used for the SPL stage.
+
 config VPL_BOARD_INIT
 	bool "Call board-specific initialization in VPL"
 	help
