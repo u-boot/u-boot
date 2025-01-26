@@ -39,7 +39,6 @@ static int log_test_filter(struct unit_test_state *uts)
 
 #define create_filter(args, filter_num) do {\
 	ut_assertok(run_command("log filter-add -p " args, 0)); \
-	ut_assert_skipline(); \
 	ut_assertok(strict_strtoul(uts->actual_str, 10, &(filter_num))); \
 	ut_assert_console_end(); \
 } while (0)

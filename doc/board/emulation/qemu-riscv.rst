@@ -42,6 +42,23 @@ use the configurations qemu-riscv32_smode_defconfig and
 qemu-riscv64_smode_defconfig instead. Note that U-Boot running in supervisor
 mode requires a supervisor binary interface (SBI), such as RISC-V OpenSBI.
 
+To create a U-Boot binary that can be utilized with a pflash device in QEMU
+apply these addtional settings to qemu-riscv64_smode_defconfig:
+
+::
+
+    CONFIG_TEXT_BASE=0x20000000
+    CONFIG_XIP=y
+    # CONFIG_AVAILABLE_HARTS is not set
+    CONFIG_SYS_MONITOR_BASE=0x80200000
+
+Truncate the resulting u-boot.bin to 32 MiB. Add the following to your
+qemu-system-riscv64 command:
+
+.. code-block:: bash
+
+    -drive if=pflash,format=raw,unit=0,file=u-boot.bin
+
 Running U-Boot
 --------------
 The minimal QEMU command line to get U-Boot up and running is:

@@ -20,6 +20,7 @@
 #include <linux/oid_registry.h>
 
 struct blk_desc;
+struct bootflow;
 struct jmp_buf_data;
 
 #if CONFIG_IS_ENABLED(EFI_LOADER)
@@ -243,6 +244,18 @@ const char *__efi_nesting_dec(void);
 	debug("%sEFI: %lu returned by %s\n", __efi_nesting_dec(), \
 	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK), #exp); \
 	_r; \
+})
+
+/**
+ * define EFI_RETURN() - return from EFI_CALL in efi_start_image()
+ *
+ * @ret:	status code
+ */
+#define EFI_RETURN(ret) ({ \
+	typeof(ret) _r = ret; \
+	assert(__efi_entry_check()); \
+	debug("%sEFI: %lu returned by started image", __efi_nesting_dec(), \
+	      (unsigned long)((uintptr_t)_r & ~EFI_ERROR_MASK)); \
 })
 
 /*
@@ -578,6 +591,15 @@ efi_status_t efi_install_fdt(void *fdt);
 efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options);
 /* Run loaded UEFI image with given fdt */
 efi_status_t efi_binary_run(void *image, size_t size, void *fdt);
+
+/**
+ * efi_bootflow_run() - Run a bootflow containing an EFI application
+ *
+ * @bootflow: Bootflow to run
+ * Return: Status code, something went wrong
+ */
+efi_status_t efi_bootflow_run(struct bootflow *bootflow);
+
 /* Initialize variable services */
 efi_status_t efi_init_variables(void);
 /* Notify ExitBootServices() is called */

@@ -4,6 +4,7 @@
  */
 
 #define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <efi_load_initrd.h>
 #include <efi_variable.h>

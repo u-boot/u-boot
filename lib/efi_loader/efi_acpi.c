@@ -5,6 +5,8 @@
  *  Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <log.h>
 #include <mapmem.h>

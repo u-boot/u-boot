@@ -15,6 +15,8 @@
  * Reset():	 EfiSimpleNetworkInitialized -> EfiSimpleNetworkInitialized
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <dm.h>
 #include <linux/sizes.h>

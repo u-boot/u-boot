@@ -4,6 +4,8 @@
  *
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <image.h>
 #include <malloc.h>

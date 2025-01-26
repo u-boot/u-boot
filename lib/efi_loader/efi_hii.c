@@ -6,6 +6,8 @@
  *  Copyright (c) 2018 AKASHI Takahiro, Linaro Limited
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 #include <malloc.h>
 #include <asm/unaligned.h>

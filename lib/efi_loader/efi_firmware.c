@@ -6,6 +6,8 @@
  *			Author: AKASHI Takahiro
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <charset.h>
 #include <dfu.h>
 #include <efi_loader.h>

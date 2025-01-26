@@ -500,6 +500,7 @@ enum log_filter_flags {
  * @level: Maximum (or minimum, if %LOGFF_MIN_LEVEL) log level to allow
  * @file_list: List of files to allow, separated by comma. If NULL then all
  *	files are permitted
+ * @func_list: Comma separated list of functions or NULL.
  * @sibling_node: Next filter in the list of filters for this log device
  */
 struct log_filter {
@@ -508,6 +509,7 @@ struct log_filter {
 	enum log_category_t cat_list[LOGF_MAX_CATEGORIES];
 	enum log_level_t level;
 	const char *file_list;
+	const char *func_list;
 	struct list_head sibling_node;
 };
 
@@ -571,18 +573,6 @@ struct log_device *log_device_find_by_name(const char *drv_name);
  */
 bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat);
 
-/**
- * log_has_file() - check if a file is with a list
- *
- * @file_list: List of files to check, separated by comma
- * @file: File to check for. This string is matched against the end of each
- *	file in the list, i.e. ignoring any preceding path. The list is
- *	intended to consist of relative pathnames, e.g. common/main.c,cmd/log.c
- *
- * Return: ``true`` if @file is in @file_list, else ``false``
- */
-bool log_has_file(const char *file_list, const char *file);
-
 /* Log format flags (bit numbers) for gd->log_fmt. See log_fmt_chars */
 enum log_fmt {
 	LOGF_CAT	= 0,
@@ -611,13 +601,14 @@ int do_log_test(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
  * @level: Maximum (or minimum, if %LOGFF_LEVEL_MIN) log level to allow
  * @file_list: List of files to allow, separated by comma. If NULL then all
  *	files are permitted
+ * @func_list: Comma separated list of functions or NULL.
  * Return:
  *   the sequence number of the new filter (>=0) if the filter was added, or a
  *   -ve value on error
  */
 int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 			 enum log_level_t level, const char *file_list,
-			 int flags);
+			 const char *func_list, int flags);
 
 /**
  * log_add_filter() - Add a new filter to a log device
@@ -640,7 +631,7 @@ static inline int log_add_filter(const char *drv_name,
 				 const char *file_list)
 {
 	return log_add_filter_flags(drv_name, cat_list, max_level, file_list,
-				    0);
+				    NULL, 0);
 }
 
 /**

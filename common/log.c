@@ -130,17 +130,25 @@ bool log_has_cat(enum log_category_t cat_list[], enum log_category_t cat)
 	return false;
 }
 
-bool log_has_file(const char *file_list, const char *file)
+/**
+ * log_has_member() - check if a string is in a comma separated list
+ *
+ * @list:	Comma separated list of strings
+ * @member:	String to find
+ *
+ * Return: ``true`` if @member is in @list, else ``false``
+ */
+static bool log_has_member(const char *list, const char *member)
 {
-	int file_len = strlen(file);
+	int member_len = strlen(member);
 	const char *s, *p;
 	int substr_len;
 
-	for (s = file_list; *s; s = p + (*p != '\0')) {
+	for (s = list; *s; s = p + (*p != '\0')) {
 		p = strchrnul(s, ',');
 		substr_len = p - s;
-		if (file_len >= substr_len &&
-		    !strncmp(file + file_len - substr_len, s, substr_len))
+		if (member_len >= substr_len &&
+		    !strncmp(member + member_len - substr_len, s, substr_len))
 			return true;
 	}
 
@@ -181,7 +189,11 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
 			continue;
 
 		if (filt->file_list &&
-		    !log_has_file(filt->file_list, rec->file))
+		    !log_has_member(filt->file_list, rec->file))
+			continue;
+
+		if (filt->func_list &&
+		    !log_has_member(filt->func_list, rec->func))
 			continue;
 
 		if (filt->flags & LOGFF_DENY)
@@ -321,7 +333,7 @@ int _log_buffer(enum log_category_t cat, enum log_level_t level,
 
 int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 			 enum log_level_t level, const char *file_list,
-			 int flags)
+			 const char *func_list, int flags)
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
@@ -352,6 +364,13 @@ int log_add_filter_flags(const char *drv_name, enum log_category_t cat_list[],
 	if (file_list) {
 		filt->file_list = strdup(file_list);
 		if (!filt->file_list) {
+			ret = -ENOMEM;
+			goto err;
+		}
+	}
+	if (func_list) {
+		filt->func_list = strdup(func_list);
+		if (!filt->func_list) {
 			ret = -ENOMEM;
 			goto err;
 		}

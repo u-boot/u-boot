@@ -5,6 +5,8 @@
  *  Copyright (c) 2017 Leif Lindholm
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <efi_loader.h>
 
 const efi_guid_t efi_guid_device_path_utilities_protocol =

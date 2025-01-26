@@ -15,7 +15,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* emit some sample log records in different ways, for testing */
-static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
+static int do_log_run(struct unit_test_state *uts, int cat, const char *file,
+		      const char *func)
 {
 	int i;
 	int ret, expected_ret;
@@ -30,13 +31,13 @@ static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		log(cat, i, "log %d\n", i);
 		ret = _log(log_uc_cat(cat), i, file, 100 + i,
-			   "func", "_log %d\n", i);
+			   func, "_log %d\n", i);
 		ut_asserteq(ret, expected_ret);
 	}
 	/* test with LOGL_COUNT flag */
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		ret = _log(log_uc_cat(cat), i | LOGL_FORCE_DEBUG, file, 100 + i,
-			   "func", "_log force %d\n", i);
+			   func, "_log force %d\n", i);
 		ut_asserteq(ret, expected_ret);
 	}
 
@@ -44,9 +45,10 @@ static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 	return 0;
 }
 
-#define log_run_cat(cat) do_log_run(uts, cat, "file")
-#define log_run_file(file) do_log_run(uts, UCLASS_SPI, file)
-#define log_run() do_log_run(uts, UCLASS_SPI, "file")
+#define log_run_cat(cat) do_log_run(uts, cat, "file", "func")
+#define log_run_file(file) do_log_run(uts, UCLASS_SPI, file, "func")
+#define log_run_func(func) do_log_run(uts, UCLASS_SPI, "file", func)
+#define log_run() do_log_run(uts, UCLASS_SPI, "file", "func")
 
 #define EXPECT_LOG BIT(0)
 #define EXPECT_DIRECT BIT(1)
@@ -55,7 +57,7 @@ static int do_log_run(struct unit_test_state *uts, int cat, const char *file)
 #define EXPECT_DEBUG BIT(4)
 
 static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
-				int max)
+				int max, const char *func)
 {
 	int i;
 
@@ -63,7 +65,8 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 		if (flags & EXPECT_LOG)
 			ut_assert_nextline("          do_log_run() log %d", i);
 		if (flags & EXPECT_DIRECT)
-			ut_assert_nextline("                func() _log %d", i);
+			ut_assert_nextline("                %s() _log %d", func,
+					   i);
 		if (flags & EXPECT_DEBUG) {
 			ut_assert_nextline("log %d", i);
 			ut_assert_nextline("_log %d", i);
@@ -71,12 +74,13 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 	}
 	if (flags & EXPECT_EXTRA)
 		for (; i <= LOGL_MAX ; i++)
-			ut_assert_nextline("                func() _log %d", i);
+			ut_assert_nextline("                %s() _log %d", func,
+					   i);
 
 	for (i = LOGL_FIRST; i < LOGL_COUNT; i++) {
 		if (flags & EXPECT_FORCE)
-			ut_assert_nextline("                func() _log force %d",
-					   i);
+			ut_assert_nextline("                %s() _log force %d",
+					   func, i);
 		if (flags & EXPECT_DEBUG)
 			ut_assert_nextline("_log force %d", i);
 	}
@@ -86,7 +90,7 @@ static int do_check_log_entries(struct unit_test_state *uts, int flags, int min,
 }
 
 #define check_log_entries_flags_levels(flags, min, max) do {\
-	int ret = do_check_log_entries(uts, flags, min, max); \
+	int ret = do_check_log_entries(uts, flags, min, max, "func"); \
 	if (ret) \
 		return ret; \
 } while (0)
@@ -191,6 +195,46 @@ int log_test_file_mid(struct unit_test_state *uts)
 	return 0;
 }
 LOG_TEST_FLAGS(log_test_file_mid, UTF_CONSOLE);
+
+/* Check passing and failing function filters */
+int log_test_func(struct unit_test_state *uts)
+{
+	int filt;
+
+	filt = log_add_filter_flags("console", NULL, LOGL_MAX, "file", "func",
+				    0);
+	ut_assert(filt >= 0);
+
+	log_run_func("func");
+	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
+
+	log_run_func("fnc2");
+	do_check_log_entries(uts, EXPECT_FORCE, LOGL_FIRST, _LOG_MAX_LEVEL,
+			     "fnc2");
+
+	ut_assertok(log_remove_filter("console", filt));
+
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_func, UTF_CONSOLE);
+
+/* Check a passing function filter (middle of list) */
+int log_test_func_mid(struct unit_test_state *uts)
+{
+	int filt;
+
+	filt = log_add_filter_flags("console", NULL, LOGL_MAX, "file",
+				    "bad1,func,bad2", 0);
+	ut_assert(filt >= 0);
+
+	log_run_func("func");
+	check_log_entries_flags(EXPECT_DIRECT | EXPECT_EXTRA | EXPECT_FORCE);
+
+	ut_assertok(log_remove_filter("console", filt));
+
+	return 0;
+}
+LOG_TEST_FLAGS(log_test_func_mid, UTF_CONSOLE);
 
 /* Check a log level filter */
 int log_test_level(struct unit_test_state *uts)
@@ -320,7 +364,7 @@ int log_test_cat_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", cat_list, LOGL_MAX, NULL);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", cat_list, LOGL_MAX, NULL,
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run_cat(UCLASS_SPI);
@@ -340,7 +384,7 @@ int log_test_file_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", NULL, LOGL_MAX, "file");
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_MAX, "file",
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run_file("file");
@@ -360,7 +404,7 @@ int log_test_level_deny(struct unit_test_state *uts)
 	filt1 = log_add_filter("console", NULL, LOGL_INFO, NULL);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
-				     LOGFF_DENY);
+				     NULL, LOGFF_DENY);
 	ut_assert(filt2 >= 0);
 
 	log_run();
@@ -380,10 +424,10 @@ int log_test_min(struct unit_test_state *uts)
 	int filt1, filt2;
 
 	filt1 = log_add_filter_flags("console", NULL, LOGL_WARNING, NULL,
-				     LOGFF_LEVEL_MIN);
+				     NULL, LOGFF_LEVEL_MIN);
 	ut_assert(filt1 >= 0);
 	filt2 = log_add_filter_flags("console", NULL, LOGL_INFO, NULL,
-				     LOGFF_DENY | LOGFF_LEVEL_MIN);
+				     NULL, LOGFF_DENY | LOGFF_LEVEL_MIN);
 	ut_assert(filt2 >= 0);
 
 	log_run();

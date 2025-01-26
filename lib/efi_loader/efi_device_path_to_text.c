@@ -5,6 +5,8 @@
  *  Copyright (c) 2017 Heinrich Schuchardt
  */
 
+#define LOG_CATEGORY LOGC_EFI
+
 #include <blk.h>
 #include <efi_loader.h>
 #include <malloc.h>
