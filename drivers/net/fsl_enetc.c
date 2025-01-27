@@ -5,6 +5,7 @@
  * Copyright 2023-2025 NXP
  */
 
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <fdt_support.h>
@@ -981,11 +982,31 @@ static const struct eth_ops enetc_ops_imx = {
 	.read_rom_hwaddr	= enetc_read_rom_hwaddr,
 };
 
+static int enetc_probe_imx(struct udevice *dev)
+{
+	struct clk *clk;
+	int ret;
+
+	clk = devm_clk_get_optional(dev, "ref");
+	if (IS_ERR(clk))
+		return PTR_ERR(clk);
+
+	ret = clk_enable(clk);
+	if (ret)
+		return ret;
+
+	ret = enetc_probe(dev);
+	if (ret)
+		clk_disable(clk);
+
+	return ret;
+}
+
 U_BOOT_DRIVER(eth_enetc_imx) = {
 	.name		= ENETC_DRIVER_NAME,
 	.id		= UCLASS_ETH,
 	.bind		= enetc_bind,
-	.probe		= enetc_probe,
+	.probe		= enetc_probe_imx,
 	.remove		= enetc_remove,
 	.ops		= &enetc_ops_imx,
 	.priv_auto	= sizeof(struct enetc_priv),
