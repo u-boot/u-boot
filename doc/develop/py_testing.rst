@@ -246,6 +246,39 @@ Command-line options
   sets the directory used to store persistent test data. This is test data that
   may be re-used across test runs, such as file-system images.
 
+--timing
+  shows a histogram of test duration, at the end of the run. The columns are:
+
+  Duration
+      the duration-bucket that this test was in
+
+  Total
+      total time of all tests in this bucket
+
+  Number of tests
+      graph showing the number of tests in this bucket, with the actual number
+      shown at the end
+
+  Example::
+
+    Duration :   Total  | Number of tests
+    ======== : =======  |========================================
+       <20ms :   418ms  |## 23
+       <30ms :    9.1s  |######################################## 347
+       <40ms :   10.0s  |################################# 294
+       <50ms :    3.1s  |####### 69
+       <75ms :    2.6s  |#### 43
+      <100ms :    1.7s  |## 19
+      <200ms :    3.0s  |## 22
+      <300ms :    1.7s  | 7
+      <400ms :   675ms  | 2
+      <500ms :    2.2s  | 5
+      <750ms :    8.3s  |# 13
+       <1.0s :    1.6s  | 2
+       <2.0s :    9.4s  | 7
+       <3.0s :    2.4s  | 1
+       <7.5s :    6.1s  | 1
+
 `pytest` also implements a number of its own command-line options. Commonly used
 options are mentioned below. Please see `pytest` documentation for complete
 details. Execute `py.test --version` for a brief summary. Note that U-Boot's
