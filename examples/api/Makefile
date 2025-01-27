@@ -5,26 +5,9 @@
 # Provide symbol API_BUILD to signal that the API example is being built.
 KBUILD_CPPFLAGS += -DAPI_BUILD
 
-ifeq ($(ARCH),powerpc)
-LOAD_ADDR = 0x40000
-endif
-ifeq ($(ARCH),arm)
-ifdef CONFIG_64BIT
-LOAD_ADDR = 0x40400000
-else
-LOAD_ADDR = 0x1000000
-endif
-endif
-ifeq ($(ARCH),mips)
-ifdef CONFIG_64BIT
-LOAD_ADDR = 0xffffffff80200000
-else
-LOAD_ADDR = 0x80200000
-endif
-endif
-ifeq ($(ARCH),riscv)
-LOAD_ADDR = 0x84000000
-endif
+# Environment variable loadaddr is set from CONFIG_SYS_LOAD_ADDR.
+# Run the examples 4 MiB above this address.
+LOAD_ADDR:=${shell printf 0x%X $$(( $(CONFIG_SYS_LOAD_ADDR) + 0x400000 ))}
 
 # Resulting ELF and binary exectuables will be named demo and demo.bin
 extra-y = demo
