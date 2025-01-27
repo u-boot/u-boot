@@ -162,9 +162,40 @@ static void show_psci_version(void)
 
 	arm_smccc_smc(ARM_PSCI_0_2_FN_PSCI_VERSION, 0, 0, 0, 0, 0, 0, 0, &res);
 
+	/* Some older SoCs like MSM8916 don't always support PSCI */
+	if ((int)res.a0 == PSCI_RET_NOT_SUPPORTED)
+		return;
+
 	debug("PSCI:  v%ld.%ld\n",
 	      PSCI_VERSION_MAJOR(res.a0),
 	      PSCI_VERSION_MINOR(res.a0));
+}
+
+/**
+ * Most MSM8916 devices in the wild shipped without PSCI support, but the
+ * upstream DTs pretend that PSCI exists. If that situation is detected here,
+ * the /psci node is deleted. This is done very early to ensure the PSCI
+ * firmware driver doesn't bind (which then binds a sysreset driver that won't
+ * work).
+ */
+static void qcom_psci_fixup(void *fdt)
+{
+	int offset, ret;
+	struct arm_smccc_res res;
+
+	arm_smccc_smc(ARM_PSCI_0_2_FN_PSCI_VERSION, 0, 0, 0, 0, 0, 0, 0, &res);
+
+	if ((int)res.a0 != PSCI_RET_NOT_SUPPORTED)
+		return;
+
+	offset = fdt_path_offset(fdt, "/psci");
+	if (offset < 0)
+		return;
+
+	debug("Found /psci DT node on device with no PSCI. Deleting.\n");
+	ret = fdt_del_node(fdt, offset);
+	if (ret)
+		log_err("Failed to delete /psci node: %d\n", ret);
 }
 
 /* We support booting U-Boot with an internal DT when running as a first-stage bootloader
@@ -212,12 +243,16 @@ int board_fdt_blob_setup(void **fdtp)
 
 	if (internal_valid) {
 		debug("Using built in FDT\n");
-		return -EEXIST;
+		ret = -EEXIST;
+	} else {
+		debug("Using external FDT\n");
+		*fdtp = external_fdt;
+		ret = 0;
 	}
 
-	debug("Using external FDT\n");
-	*fdtp = external_fdt;
-	return 0;
+	qcom_psci_fixup(*fdtp);
+
+	return ret;
 }
 
 void reset_cpu(void)
