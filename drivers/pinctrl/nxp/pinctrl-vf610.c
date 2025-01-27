@@ -13,27 +13,23 @@ static struct imx_pinctrl_soc_info vf610_pinctrl_soc_info = {
 	.flags = SHARE_MUX_CONF_REG | ZERO_OFFSET_VALID,
 };
 
-static int vf610_pinctrl_probe(struct udevice *dev)
-{
-	struct imx_pinctrl_soc_info *info =
-		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
-
-	return imx_pinctrl_probe(dev, info);
-}
-
 static const struct udevice_id vf610_pinctrl_match[] = {
 	{ .compatible = "fsl,vf610-iomuxc",
 	  .data = (ulong)&vf610_pinctrl_soc_info },
 	{ /* sentinel */ }
 };
 
+static const struct pinctrl_ops vf610_pinctrl_ops = {
+	.set_state = imx_pinctrl_set_state_mmio,
+};
+
 U_BOOT_DRIVER(vf610_pinctrl) = {
 	.name = "vf610-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(vf610_pinctrl_match),
-	.probe = vf610_pinctrl_probe,
-	.remove = imx_pinctrl_remove,
+	.probe = imx_pinctrl_probe_mmio,
+	.remove = imx_pinctrl_remove_mmio,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
-	.ops = &imx_pinctrl_ops,
+	.ops = &vf610_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };

@@ -10,14 +10,6 @@
 
 static struct imx_pinctrl_soc_info imx8mq_pinctrl_soc_info __section(".data");
 
-static int imx8mq_pinctrl_probe(struct udevice *dev)
-{
-	struct imx_pinctrl_soc_info *info =
-		(struct imx_pinctrl_soc_info *)dev_get_driver_data(dev);
-
-	return imx_pinctrl_probe(dev, info);
-}
-
 static const struct udevice_id imx8m_pinctrl_match[] = {
 	{ .compatible = "fsl,imx8mq-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
 	{ .compatible = "fsl,imx8mm-iomuxc", .data = (ulong)&imx8mq_pinctrl_soc_info },
@@ -26,13 +18,17 @@ static const struct udevice_id imx8m_pinctrl_match[] = {
 	{ /* sentinel */ }
 };
 
+static const struct pinctrl_ops imx8m_pinctrl_ops = {
+	.set_state = imx_pinctrl_set_state_mmio,
+};
+
 U_BOOT_DRIVER(imx8mq_pinctrl) = {
 	.name = "imx8mq-pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = of_match_ptr(imx8m_pinctrl_match),
-	.probe = imx8mq_pinctrl_probe,
-	.remove = imx_pinctrl_remove,
+	.probe = imx_pinctrl_probe_mmio,
+	.remove = imx_pinctrl_remove_mmio,
 	.priv_auto	= sizeof(struct imx_pinctrl_priv),
-	.ops = &imx_pinctrl_ops,
+	.ops = &imx8m_pinctrl_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
