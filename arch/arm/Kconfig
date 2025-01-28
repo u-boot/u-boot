@@ -842,6 +842,15 @@ config ARCH_MEDIATEK
 	  Support for the MediaTek SoCs family developed by MediaTek Inc.
 	  Please refer to doc/README.mediatek for more information.
 
+config ARCH_MMP
+	bool "Marvell MMP"
+	select ARM64
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+	select SAVE_PREV_BL_FDT_ADDR
+	select SAVE_PREV_BL_INITRAMFS_START_ADDR
+
 config ARCH_LPC32XX
 	bool "NXP LPC32xx platform"
 	select CPU_ARM926EJS
@@ -2309,6 +2318,8 @@ source "arch/arm/mach-renesas/Kconfig"
 source "arch/arm/mach-meson/Kconfig"
 
 source "arch/arm/mach-mediatek/Kconfig"
+
+source "arch/arm/mach-mmp/Kconfig"
 
 source "arch/arm/mach-qemu/Kconfig"
 

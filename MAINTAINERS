@@ -386,6 +386,14 @@ T:	git https://source.denx.de/u-boot/custodians/u-boot-marvell.git
 F:	drivers/pci/pci-aardvark.c
 F:	drivers/pci/pci_mvebu.c
 
+ARM MARVELL PXA1908
+M:	Duje Mihanović <duje.mihanovic@skole.hr>
+S:	Maintained
+T:	git git://git.dujemihanovic.xyz/u-boot.git
+F:	arch/arm/dts/pxa1908*
+F:	arch/arm/mach-mmp/
+F:	include/configs/pxa1908.h
+
 ARM MARVELL SERIAL DRIVERS
 M:	Pali Rohár <pali@kernel.org>
 M:	Stefan Roese <sr@denx.de>

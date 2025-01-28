@@ -605,6 +605,7 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ingenic,jz4780-uart",	.data = PORT_JZ4780  },
 	{ .compatible = "nvidia,tegra20-uart",	.data = PORT_NS16550 },
 	{ .compatible = "snps,dw-apb-uart",	.data = PORT_NS16550 },
+	{ .compatible = "intel,xscale-uart",	.data = PORT_NS16550 },
 	{}
 };
 #endif /* OF_REAL */
