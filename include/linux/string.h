@@ -72,6 +72,9 @@ extern char * strrchr(const char *,int);
 #ifndef __HAVE_ARCH_STRSTR
 extern char * strstr(const char *,const char *);
 #endif
+#ifndef __HAVE_ARCH_STRNSTR
+extern char *strnstr(const char *, const char *, size_t);
+#endif
 #ifndef __HAVE_ARCH_STRLEN
 extern __kernel_size_t strlen(const char *);
 #endif

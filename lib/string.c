@@ -16,11 +16,12 @@
  */
 
 #include <config.h>
+#include <limits.h>
+#include <malloc.h>
 #include <linux/compiler.h>
+#include <linux/ctype.h>
 #include <linux/types.h>
 #include <linux/string.h>
-#include <linux/ctype.h>
-#include <malloc.h>
 
 /**
  * strncasecmp - Case insensitive, length-limited string comparison
@@ -678,27 +679,45 @@ char *memdup(const void *src, size_t len)
 	return p;
 }
 
+#ifndef __HAVE_ARCH_STRNSTR
+/**
+ * strnstr() - find the first substring occurrence in a NUL terminated string
+ *
+ * @s1:		string to be searched
+ * @s2:		string to search for
+ * @len:	maximum number of characters in s2 to consider
+ *
+ * Return:	pointer to the first occurrence or NULL
+ */
+char *strnstr(const char *s1, const char *s2, size_t len)
+{
+	size_t l1, l2;
+
+	l1 = strnlen(s1, len);
+	l2 = strlen(s2);
+
+	for (; l1 >= l2; --l1, ++s1) {
+		if (!memcmp(s1, s2, l2))
+			return (char *) s1;
+	}
+
+	return NULL;
+}
+#endif
+
 #ifndef __HAVE_ARCH_STRSTR
 /**
- * strstr - Find the first substring in a %NUL terminated string
- * @s1: The string to be searched
- * @s2: The string to search for
+ * strstr() - find the first substring occurrence in a NUL terminated string
+ *
+ * @s1:		string to be searched
+ * @s2:		string to search for
+ * @len:	maximum number of characters in s2 to consider
+ *
+ * Return:	pointer to the first occurrence or NULL
  */
-char * strstr(const char * s1,const char * s2)
+char *strstr(const char *s1, const char *s2)
 {
-	int l1, l2;
-
-	l2 = strlen(s2);
-	if (!l2)
-		return (char *) s1;
-	l1 = strlen(s1);
-	while (l1 >= l2) {
-		l1--;
-		if (!memcmp(s1,s2,l2))
-			return (char *) s1;
-		s1++;
-	}
-	return NULL;
+	return strnstr(s1, s2, SIZE_MAX);
 }
 #endif
 
