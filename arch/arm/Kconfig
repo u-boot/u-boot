@@ -108,6 +108,9 @@ config LNX_KRNL_IMG_TEXT_OFFSET_BASE
 	  The value subtracted from CONFIG_TEXT_BASE to calculate the
 	  TEXT_OFFSET value written to the Linux kernel image header.
 
+config NVIC
+	bool
+
 config GICV2
 	bool
 
@@ -117,6 +120,7 @@ config GICV3
 config DRIVER_GICV2
 	bool "ARM GICV2 driver"
 	select IRQ
+	depends on !NVIC
 	help
 	  ARM GICV2 driver.
 	  Basic support for parsing the GICV2 node and generate ACPI tables.
@@ -124,6 +128,7 @@ config DRIVER_GICV2
 config GIC_V3_ITS
 	bool "ARM GICV3 ITS"
 	select IRQ
+	depends on !NVIC
 	help
 	  ARM GICV3 Interrupt translation service (ITS).
 	  Basic support for programming locality specific peripheral
@@ -134,6 +139,7 @@ config GIC_V3_ITS
 
 config GICV3_SUPPORT_GIC600
 	bool "ARM GICV3 GIC600 SUPPORT"
+	depends on !NVIC
 	help
 	  ARM GIC-600 IP complies with ARM GICv3 architecture, but among others,
 	  implements a power control register in the Redistributor frame.This
@@ -193,6 +199,7 @@ config SPL_SYS_DCACHE_OFF
 
 config SYS_ARM_CACHE_CP15
 	bool "CP15 based cache enabling support"
+	depends on !CPU_V7M
 	help
 	  Select this if your processor suports enabling caches by using
 	  CP15 registers.
@@ -200,6 +207,7 @@ config SYS_ARM_CACHE_CP15
 config SYS_ARM_MMU
 	bool "MMU-based Paged Memory Management Support"
 	select SYS_ARM_CACHE_CP15
+	depends on !CPU_V7M
 	help
 	  Select if you want MMU-based virtualised addressing space
 	  support via paged memory management.
@@ -350,6 +358,7 @@ config CPU_V7M
 	select SYS_CACHE_SHIFT_5
 	select SYS_THUMB_BUILD
 	select THUMB2_KERNEL
+	select NVIC
 
 config CPU_V7R
 	bool
