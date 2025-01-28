@@ -20,7 +20,7 @@ workflow:
 
 # Grab our configured image.  The source for this is found
 # in the u-boot tree at tools/docker/Dockerfile
-image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20240911.1-08Dec2024
+image: ${MIRROR_DOCKER}/trini/u-boot-gitlab-ci-runner:jammy-20240911.1-28Jan2025
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -261,7 +261,7 @@ sandbox with clang test.py:
     - ${HOST}
   variables:
     TEST_PY_BD: "sandbox"
-    OVERRIDE: "-O clang-17"
+    OVERRIDE: "-O clang-18"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 test.py:
@@ -284,7 +284,7 @@ sandbox64 with clang test.py:
     - ${HOST}
   variables:
     TEST_PY_BD: "sandbox64"
-    OVERRIDE: "-O clang-17"
+    OVERRIDE: "-O clang-18"
   <<: *buildman_and_testpy_dfn
 
 sandbox_spl test.py:

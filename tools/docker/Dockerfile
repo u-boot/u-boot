@@ -23,7 +23,7 @@ ENV ARCHS="aarch64 arc i386 m68k mips microblaze nios2 powerpc riscv64 riscv32 s
 ENV MIRROR=https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin
 
 # Toolchain version
-ENV TCVER=13.2.0
+ENV TCVER=14.2.0
 
 RUN echo "Building on $BUILDPLATFORM, for target $TARGETPLATFORM"
 
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y gnupg2 wget xz-utils
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main | tee /etc/apt/sources.list.d/llvm.list
+RUN echo deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main | tee /etc/apt/sources.list.d/llvm.list
 
 # Create a list of URLs to process, then pass them into a 'while read' loop
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then HOSTARCH=x86_64; else HOSTARCH=arm64; fi; ( \
@@ -65,7 +65,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	bison \
 	build-essential \
 	cgpt \
-	clang-17 \
+	clang-18 \
 	coreutils \
 	cpio \
 	curl \
@@ -177,7 +177,7 @@ RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \
 	search search_fs_file search_fs_uuid search_label serial sleep test \
 	true && \
 	make clean && \
-	./configure --target=riscv64 --with-platform=efi \
+	grub_cv_cc_mcmodel=no ./configure --target=riscv64 --with-platform=efi \
 	CC=gcc \
 	TARGET_CC=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-gcc \
 	TARGET_OBJCOPY=/opt/gcc-${TCVER}-nolibc/riscv64-linux/bin/riscv64-linux-objcopy \
