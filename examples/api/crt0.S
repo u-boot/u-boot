@@ -29,15 +29,17 @@ syscall:
 	.text
 	.globl _start
 _start:
-	ldr	ip, =search_hint
-	str	sp, [ip]
+	ldr	r4, =search_hint
+	mov	r5, sp
+	str	r5, [r4]
 	b	main
 
 
 	.globl syscall
 syscall:
-	ldr	ip, =syscall_ptr
-	ldr	pc, [ip]
+	ldr	r4, =syscall_ptr
+	ldr	r4, [r4]
+	bx	r4
 
 #elif defined(CONFIG_ARM64)
 
