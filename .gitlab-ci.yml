@@ -230,31 +230,47 @@ Check packing of Python tools:
 
 # Test sandbox with test.py
 sandbox test.py:
+  parallel:
+    matrix:
+      - HOST: "fast arm64"
+      - HOST: "fast amd64"
   tags:
-    - ${DEFAULT_AMD64_TAG}
+    - ${HOST}
   variables:
     TEST_PY_BD: "sandbox"
     TEST_PY_EXTRA: "--timing"
   <<: *buildman_and_testpy_dfn
 
 sandbox with clang test.py:
+  parallel:
+    matrix:
+      - HOST: "fast arm64"
+      - HOST: "fast amd64"
   tags:
-    - ${DEFAULT_AMD64_TAG}
+    - ${HOST}
   variables:
     TEST_PY_BD: "sandbox"
     OVERRIDE: "-O clang-17"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 test.py:
+  parallel:
+    matrix:
+      - HOST: "fast arm64"
+      - HOST: "fast amd64"
   tags:
-    - ${DEFAULT_AMD64_TAG}
+    - ${HOST}
   variables:
     TEST_PY_BD: "sandbox64"
   <<: *buildman_and_testpy_dfn
 
 sandbox64 with clang test.py:
+  parallel:
+    matrix:
+      - HOST: "fast arm64"
+      - HOST: "fast amd64"
   tags:
-    - ${DEFAULT_AMD64_TAG}
+    - ${HOST}
   variables:
     TEST_PY_BD: "sandbox64"
     OVERRIDE: "-O clang-17"
