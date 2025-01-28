@@ -1599,7 +1599,7 @@ static int dm_test_ofnode_delete(struct unit_test_state *uts)
 	ut_assert(!ofnode_valid(node));
 	ut_assert(!ofnode_valid(ofnode_path("/leds/default_on")));
 
-	ut_asserteq(2, ofnode_get_child_count(ofnode_path("/leds")));
+	ut_asserteq(7, ofnode_get_child_count(ofnode_path("/leds")));
 
 	return 0;
 }

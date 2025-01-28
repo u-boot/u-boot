@@ -20,7 +20,12 @@ static int dm_test_led_base(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_LED, 1, &dev));
 	ut_assertok(uclass_get_device(UCLASS_LED, 2, &dev));
 	ut_assertok(uclass_get_device(UCLASS_LED, 3, &dev));
-	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_LED, 4, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 4, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 5, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 6, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 7, &dev));
+	ut_assertok(uclass_get_device(UCLASS_LED, 8, &dev));
+	ut_asserteq(-ENODEV, uclass_get_device(UCLASS_LED, 9, &dev));
 
 	return 0;
 }
@@ -109,6 +114,21 @@ static int dm_test_led_label(struct unit_test_state *uts)
 	ut_asserteq_ptr(dev, cmp);
 
 	ut_asserteq(-ENODEV, led_get_by_label("sandbox:blue", &dev));
+
+	/* Test if function, color and function-enumerator naming works */
+	ut_assertok(led_get_by_label("red:status-20", &dev));
+
+	/* Test if function, color naming works */
+	ut_assertok(led_get_by_label("green:status", &dev));
+
+	/* Test if function, without color naming works */
+	ut_assertok(led_get_by_label(":status", &dev));
+
+	/* Test if color without function naming works */
+	ut_assertok(led_get_by_label("green:", &dev));
+
+	/* Test if function, color naming is ignored if label is found */
+	ut_assertok(led_get_by_label("sandbox:function", &dev));
 
 	return 0;
 }
