@@ -15,6 +15,9 @@
 #include "../sysfw-loader.h"
 #include "../common.h"
 
+#define CTRLMMR_MCU_RST_CTRL             0x04518170
+#define RST_CTRL_ESM_ERROR_RST_EN_Z_MASK 0xFFFDFFFF
+
 struct fwl_data cbass_main_fwls[] = {
 	{ "FSS_DAT_REG3", 7, 8 },
 };
@@ -65,6 +68,15 @@ static void ctrl_mmr_unlock(void)
 	/* Unlock PADCFG_CTRL_MMR padconf registers */
 	mmr_unlock(PADCFG_MMR0_BASE, 1);
 	mmr_unlock(PADCFG_MMR1_BASE, 1);
+}
+
+static __maybe_unused void enable_mcu_esm_reset(void)
+{
+	/* Set CTRLMMR_MCU_RST_CTRL:MCU_ESM_ERROR_RST_EN_Z  to '0' (low active) */
+	u32 stat = readl(CTRLMMR_MCU_RST_CTRL);
+
+	stat &= RST_CTRL_ESM_ERROR_RST_EN_Z_MASK;
+	writel(stat, CTRLMMR_MCU_RST_CTRL);
 }
 
 void board_init_f(ulong dummy)
@@ -156,6 +168,20 @@ void board_init_f(ulong dummy)
 		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 		if (ret)
 			panic("DRAM init failed: %d\n", ret);
+	}
+
+	if (IS_ENABLED(CONFIG_ESM_K3)) {
+		/* Probe/configure ESM0 */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@420000", &dev);
+		if (ret)
+			printf("esm main init failed: %d\n", ret);
+
+		/* Probe/configure MCUESM */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@4100000", &dev);
+		if (ret)
+			printf("esm mcu init failed: %d\n", ret);
+
+		enable_mcu_esm_reset();
 	}
 
 	spl_enable_cache();
