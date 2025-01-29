@@ -5,6 +5,3 @@
 #
 
 obj-y += tiger_rk3588.o
-ifneq ($(CONFIG_XPL_BUILD),y)
-obj-y	+= ../common/common.o
-endif
