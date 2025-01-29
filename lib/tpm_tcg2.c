@@ -19,6 +19,7 @@
 #include <linux/unaligned/generic.h>
 #include <linux/unaligned/le_byteshift.h>
 #include "tpm-utils.h"
+#include <bloblist.h>
 
 int tcg2_get_pcr_info(struct udevice *dev, u32 *supported_bank, u32 *active_bank,
 		      u32 *bank_num)
@@ -358,12 +359,12 @@ static int tcg2_replay_eventlog(struct tcg2_event_log *elog,
 	return 0;
 }
 
-static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
+static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog,
+			  u32 *log_active)
 {
 	struct tpml_digest_values digest_list;
 	struct tcg_efi_spec_id_event *event;
 	struct tcg_pcr_event *log;
-	u32 log_active;
 	u32 calc_size;
 	u32 active;
 	u32 count;
@@ -373,6 +374,8 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	u16 len;
 	int rc;
 	u32 i;
+
+	*log_active = 0;
 
 	if (elog->log_size <= offsetof(struct tcg_pcr_event, event))
 		return 0;
@@ -419,7 +422,6 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 	 * algorithms, so just check the EvenLog against the TPM active ones.
 	 */
 	digest_list.count = 0;
-	log_active = 0;
 	for (i = 0; i < count; ++i) {
 		algo = get_unaligned_le16(&event->digest_sizes[i].algorithm_id);
 		mask = tcg2_algorithm_to_mask(algo);
@@ -445,17 +447,15 @@ static int tcg2_log_parse(struct udevice *dev, struct tcg2_event_log *elog)
 				algo);
 			return -1;
 		}
-		log_active |= mask;
+		*log_active |= mask;
 	}
 
 	rc = tcg2_get_active_pcr_banks(dev, &active);
 	if (rc)
 		return rc;
 	/* If the EventLog and active algorithms don't match exit */
-	if (log_active != active) {
-		log_err("EventLog doesn't contain all active PCR banks\n");
-		return -1;
-	}
+	if (*log_active != active)
+		return -ERESTARTSYS;
 
 	/* Read PCR0 to check if previous firmware extended the PCRs or not. */
 	rc = tcg2_pcr_read(dev, 0, &digest_list);
@@ -552,35 +552,11 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 			    bool ignore_existing_log)
 {
 	struct tcg2_event_log log;
-	int rc, i;
+	int rc;
+	u32 log_active = 0;
 
 	elog->log_position = 0;
 	elog->found = false;
-
-	/*
-	 * Make sure U-Boot is compiled with all the active PCRs
-	 * since we are about to create an EventLog and we won't
-	 * measure anything if the PCR banks don't match
-	 */
-	if (!tpm2_check_active_banks(dev)) {
-		log_err("Cannot create EventLog\n");
-		log_err("Mismatch between U-Boot and TPM hash algos\n");
-		log_info("TPM:\n");
-		tpm2_print_active_banks(dev);
-		log_info("U-Boot:\n");
-		for (i = 0; i < ARRAY_SIZE(hash_algo_list); i++) {
-			const struct digest_info *algo = &hash_algo_list[i];
-			const char *str;
-
-			if (!algo->supported)
-				continue;
-
-			str = tpm2_algorithm_name(algo->hash_alg);
-			if (str)
-				log_info("%s\n", str);
-		}
-		return -EINVAL;
-	}
 
 	rc = tcg2_platform_get_log(dev, (void **)&log.log, &log.log_size);
 	if (!rc) {
@@ -588,7 +564,9 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 		log.found = false;
 
 		if (!ignore_existing_log) {
-			rc = tcg2_log_parse(dev, &log);
+			rc = tcg2_log_parse(dev, &log, &log_active);
+			if (rc == -ERESTARTSYS && log_active)
+				goto pcr_allocate;
 			if (rc)
 				return rc;
 		}
@@ -614,6 +592,11 @@ int tcg2_log_prepare_buffer(struct udevice *dev, struct tcg2_event_log *elog,
 		elog->log_position = log.log_position;
 		elog->found = log.found;
 	}
+
+pcr_allocate:
+	rc = tpm2_activate_banks(dev, log_active);
+	if (rc)
+		return rc;
 
 	/*
 	 * Initialize the log buffer if no log was discovered and the buffer is
@@ -672,21 +655,42 @@ void tcg2_measurement_term(struct udevice *dev, struct tcg2_event_log *elog,
 
 __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 {
-	const __be32 *addr_prop;
-	const __be32 *size_prop;
+	const __be32 *addr_prop = NULL;
+	const __be32 *size_prop = NULL;
 	int asize;
 	int ssize;
+	struct ofnode_phandle_args args;
+	phys_addr_t a;
+	fdt_size_t s;
 
 	*addr = NULL;
 	*size = 0;
 
-	addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
-	if (!addr_prop)
-		addr_prop = dev_read_prop(dev, "linux,sml-base", &asize);
+	*addr = bloblist_get_blob(BLOBLISTT_TPM_EVLOG, size);
+	if (*addr && *size) {
+		*addr = map_physmem((uintptr_t)(*addr), *size, MAP_NOCACHE);
+		return 0;
+	}
 
-	size_prop = dev_read_prop(dev, "tpm_event_log_size", &ssize);
-	if (!size_prop)
+	/*
+	 * TODO:
+	 * Replace BLOBLIST with a new kconfig for handoff all components
+	 * (fdt, tpm event log, etc...) from previous boot stage via bloblist
+	 * mandatorily following Firmware Handoff spec.
+	 */
+	if (!CONFIG_IS_ENABLED(BLOBLIST)) {
+		addr_prop = dev_read_prop(dev, "tpm_event_log_addr", &asize);
+		size_prop = dev_read_prop(dev, "tpm_event_log_size", &ssize);
+	}
+
+	/*
+	 * If no eventlog was observed, a sml buffer is required for the kernel
+	 * to discover the eventlog.
+	 */
+	if (!addr_prop || !size_prop) {
+		addr_prop = dev_read_prop(dev, "linux,sml-base", &asize);
 		size_prop = dev_read_prop(dev, "linux,sml-size", &ssize);
+	}
 
 	if (addr_prop && size_prop) {
 		u64 a = of_read_number(addr_prop, asize / sizeof(__be32));
@@ -694,22 +698,19 @@ __weak int tcg2_platform_get_log(struct udevice *dev, void **addr, u32 *size)
 
 		*addr = map_physmem(a, s, MAP_NOCACHE);
 		*size = (u32)s;
-	} else {
-		struct ofnode_phandle_args args;
-		phys_addr_t a;
-		fdt_size_t s;
 
-		if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0,
-					       0, &args))
-			return -ENODEV;
-
-		a = ofnode_get_addr_size(args.node, "reg", &s);
-		if (a == FDT_ADDR_T_NONE)
-			return -ENOMEM;
-
-		*addr = map_physmem(a, s, MAP_NOCACHE);
-		*size = (u32)s;
+		return 0;
 	}
+
+	if (dev_read_phandle_with_args(dev, "memory-region", NULL, 0, 0, &args))
+		return -ENODEV;
+
+	a = ofnode_get_addr_size(args.node, "reg", &s);
+	if (a == FDT_ADDR_T_NONE)
+		return -ENOMEM;
+
+	*addr = map_physmem(a, s, MAP_NOCACHE);
+	*size = (u32)s;
 
 	return 0;
 }
