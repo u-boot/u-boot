@@ -280,13 +280,13 @@ config CMD_BOOTM
 	  Boot an application image from the memory.
 
 config CMD_BOOTM_PRE_LOAD
-       bool "enable pre-load on bootm"
-       depends on CMD_BOOTM
-       depends on IMAGE_PRE_LOAD
-       help
-	 Enable support of stage pre-load for the bootm command.
-	 This stage allow to check or modify the image provided
-	 to the bootm command.
+	bool "enable pre-load on bootm"
+	depends on CMD_BOOTM
+	depends on IMAGE_PRE_LOAD
+	help
+	  Enable support of stage pre-load for the bootm command.
+	  This stage allow to check or modify the image provided
+	  to the bootm command.
 
 config CMD_BOOTDEV
 	bool "bootdev"
@@ -1811,7 +1811,7 @@ config CMD_SETEXPR_FMT
 	depends on CMD_SETEXPR
 	help
 	  Evaluate format string expression and store result in an environment
-	    variable.
+	  variable.
 
 config CMD_XXD
 	bool "xxd"
@@ -2154,12 +2154,12 @@ config WGET_HTTPS
 	depends on CMD_WGET
 	depends on PROT_TCP_LWIP
 	depends on MBEDTLS_LIB
-        select SHA256
-        select RSA
-        select ASYMMETRIC_KEY_TYPE
-        select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
-        select X509_CERTIFICATE_PARSER
-        select PKCS7_MESSAGE_PARSER
+	select SHA256
+	select RSA
+	select ASYMMETRIC_KEY_TYPE
+	select ASYMMETRIC_PUBLIC_KEY_SUBTYPE
+	select X509_CERTIFICATE_PARSER
+	select PKCS7_MESSAGE_PARSER
 	select MBEDTLS_LIB_CRYPTO
 	select MBEDTLS_LIB_TLS
 	select RSA_VERIFY_WITH_PKEY
@@ -2238,10 +2238,10 @@ config CMD_BLKMAP
 	depends on BLKMAP
 	default y if BLKMAP
 	help
- 	  Create virtual block devices that are backed by various sources,
- 	  e.g. RAM, or parts of an existing block device. Though much more
- 	  rudimentary, it borrows a lot of ideas from Linux's device mapper
- 	  subsystem.
+	  Create virtual block devices that are backed by various sources,
+	  e.g. RAM, or parts of an existing block device. Though much more
+	  rudimentary, it borrows a lot of ideas from Linux's device mapper
+	  subsystem.
 
 	  Example use-cases:
 	  - Treat a region of RAM as a block device, i.e. a RAM disk. This let's
@@ -3027,10 +3027,10 @@ config CMD_UBI
 	  partition support.
 
 config CMD_UBI_RENAME
-       bool "Enable rename"
-       depends on CMD_UBI
-       help
-	 Enable a "ubi" command to rename ubi volume:
+	bool "Enable rename"
+	depends on CMD_UBI
+	help
+	  Enable a "ubi" command to rename ubi volume:
 	   ubi rename <oldname> <newname>
 
 config CMD_UBIFS
