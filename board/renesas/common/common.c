@@ -18,8 +18,6 @@
 #include <asm/system.h>
 #include <linux/libfdt.h>
 
-#ifdef CONFIG_RCAR_64
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
@@ -67,5 +65,3 @@ int __weak board_init(void)
 {
 	return 0;
 }
-
-#endif

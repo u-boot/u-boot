@@ -18,8 +18,6 @@
 #include <asm/arch/renesas.h>
 #include <linux/libfdt.h>
 
-#ifdef CONFIG_RCAR_64
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /* If the firmware passed a device tree use it for e.g. U-Boot DRAM setup. */
@@ -177,5 +175,4 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
-#endif
 #endif
