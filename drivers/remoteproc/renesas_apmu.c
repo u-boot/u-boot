@@ -68,6 +68,13 @@ static int renesas_apmu_rproc_load(struct udevice *dev, ulong addr, ulong size)
 	flush_dcache_range(trampolineaddr,
 			   trampolineaddr +
 			   sizeof(renesas_apmu_rproc_trampoline));
+	invalidate_dcache_range(trampolineaddr,
+				trampolineaddr +
+				sizeof(renesas_apmu_rproc_trampoline));
+	flush_dcache_range(addr, addr + size);
+	invalidate_dcache_range(addr, addr + size);
+	asm volatile("dsb sy\n");
+	asm volatile("isb sy\n");
 
 	/* CR52 boot address set */
 	writel(trampolineaddr | APMU_CRBARP_CR_VLD_BARP,
