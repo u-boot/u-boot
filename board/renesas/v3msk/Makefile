@@ -8,8 +8,8 @@
 #
 
 ifdef CONFIG_XPL_BUILD
-obj-y	:= ../rcar-common/gen3-spl.o
+obj-y	:= ../common/gen3-spl.o
 else
-obj-y	:= ../rcar-common/v3-common.o ../rcar-common/gen3-common.o ../rcar-common/common.o
+obj-y	:= ../common/v3-common.o ../common/gen3-common.o ../common/common.o
 obj-$(CONFIG_SYSRESET)	+= cpld.o
 endif

@@ -7,7 +7,7 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-obj-y	:= ../rcar-common/gen4-spl.o
+obj-y	:= ../common/gen4-spl.o
 else
-obj-y	:= ../rcar-common/gen4-common.o ../rcar-common/common.o
+obj-y	:= ../common/gen4-common.o ../common/common.o
 endif

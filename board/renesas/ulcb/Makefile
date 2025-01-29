@@ -7,7 +7,7 @@
 #
 
 ifdef CONFIG_XPL_BUILD
-obj-y	:= ../rcar-common/gen3-spl.o
+obj-y	:= ../common/gen3-spl.o
 else
-obj-y	:= ulcb.o cpld.o ../rcar-common/gen3-common.o ../rcar-common/common.o
+obj-y	:= ulcb.o cpld.o ../common/gen3-common.o ../common/common.o
 endif
