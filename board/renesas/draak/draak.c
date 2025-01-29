@@ -10,11 +10,6 @@
 #include <asm/arch/rcar-mstp.h>
 #include <asm/arch/renesas.h>
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
 /* HSUSB block registers */
