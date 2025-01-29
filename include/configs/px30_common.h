@@ -20,6 +20,7 @@
 	"scriptaddr=0x00500000\0" \
 	"pxefile_addr_r=0x00600000\0" \
 	"fdt_addr_r=0x08300000\0" \
+	"fdtoverlay_addr_r=0x08400000\0" \
 	"kernel_addr_r=0x00280000\0" \
 	"ramdisk_addr_r=0x0a200000\0" \
 	"kernel_comp_addr_r=0x03e80000\0" \
