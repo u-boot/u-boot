@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0+
+
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
@@ -31,7 +33,7 @@ void clock_init_safe(void)
 	clock_set_pll1(408000000);
 
 	writel(CCM_PLL6_DEFAULT, ccm + CCU_H6_PLL6_CFG);
-	while (!(readl(ccm + CCU_H6_PLL6_CFG) & CCM_PLL6_LOCK))
+	while (!(readl(ccm + CCU_H6_PLL6_CFG) & CCM_PLL_LOCK))
 		;
 
 	clrsetbits_le32(ccm + CCU_H6_CPU_AXI_CFG,
@@ -85,15 +87,16 @@ void clock_set_pll1(unsigned int clk)
 	writel(val, ccm + CCU_H6_CPU_AXI_CFG);
 
 	/* clk = 24*n/p, p is ignored if clock is >288MHz */
-	val = CCM_PLL1_CTRL_EN | CCM_PLL1_LOCK_EN | CCM_PLL1_CLOCK_TIME_2;
+	val = CCM_PLL_CTRL_EN | CCM_PLL_LOCK_EN | CCM_PLL1_CLOCK_TIME_2;
 	val |= CCM_PLL1_CTRL_N(clk / 24000000);
 	if (IS_ENABLED(CONFIG_MACH_SUN50I_H616) ||
 	    IS_ENABLED(CONFIG_MACH_SUN50I_A133))
-	       val |= CCM_PLL1_OUT_EN;
+		val |= CCM_PLL_OUT_EN;
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2))
-	       val |= CCM_PLL1_OUT_EN | CCM_PLL1_LDO_EN;
+		val |= CCM_PLL_OUT_EN | CCM_PLL_LDO_EN;
 	writel(val, ccm + CCU_H6_PLL1_CFG);
-	while (!(readl(ccm + CCU_H6_PLL1_CFG) & CCM_PLL1_LOCK)) {}
+	while (!(readl(ccm + CCU_H6_PLL1_CFG) & CCM_PLL_LOCK))
+		;
 
 	/* Switch CPU to PLL1 */
 	val = readl(ccm + CCU_H6_CPU_AXI_CFG);
