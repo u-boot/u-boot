@@ -105,6 +105,7 @@ stages:
     paths:
       - "*.html"
       - "*.css"
+      - results.xml
     reports:
       junit: results.xml
     expire_in: 1 week
