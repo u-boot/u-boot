@@ -716,11 +716,20 @@ static int strlist_add(struct strlist *list, const char *str)
 {
 	char *dup;
 
-	dup = strdup(str);
-	list->strings = realloc(list->strings,
-				(list->count + 1) * sizeof(char *));
 	if (!list || !str)
 		return -1;
+
+	dup = strdup(str);
+	if(!dup)
+		return -1;
+
+	list->strings = realloc(list->strings,
+				(list->count + 1) * sizeof(char *));
+	if (!list->strings) {
+		free(dup);
+		return -1;
+	}
+
 	list->strings[list->count++] = dup;
 
 	return 0;
