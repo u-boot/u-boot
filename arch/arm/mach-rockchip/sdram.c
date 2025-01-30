@@ -478,6 +478,7 @@ int dram_init(void)
 		debug("Cannot get DRAM size: %d\n", ret);
 		return ret;
 	}
+	gd->ram_base = ram.base;
 	gd->ram_size = ram.size;
 	debug("SDRAM base=%lx, size=%lx\n",
 	      (unsigned long)ram.base, (unsigned long)ram.size);
