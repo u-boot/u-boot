@@ -487,7 +487,8 @@ int dram_init(void)
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)
 {
-	unsigned long top = CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE;
+	/* Make sure U-Boot only uses the space below the 4G address boundary */
+	u64 top = min_t(u64, CFG_SYS_SDRAM_BASE + SDRAM_MAX_SIZE, SZ_4G);
 
 	return (gd->ram_top > top) ? top : gd->ram_top;
 }
