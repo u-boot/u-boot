@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include "mt7987a-u-boot.dtsi"
+#include "mt7987-netsys-u-boot.dtsi"
+
+/ {
+	model = "mt7987";
+	compatible = "mediatek,mt7987", "mediatek,mt7987-emmc-rfb";
+};
+
+&eth0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdio0_pins>;
+	phy-mode = "2500base-x";
+	mediatek,switch = "auto";
+	reset-gpios = <&pio 42 GPIO_ACTIVE_HIGH>;
+
+	fixed-link {
+		speed = <2500>;
+		full-duplex;
+		pause;
+	};
+};
+
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc_pins_default>;
+	max-frequency = <48000000>;
+	bus-width = <8>;
+	cap-mmc-highspeed;
+	cap-mmc-hw-reset;
+	vmmc-supply = <&reg_3p3v>;
+	vqmmc-supply = <&reg_3p3v>;
+	non-removable;
+	status = "okay";
+};
+
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi2_flash_pins>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+	must_tx;
+	enhance_timing;
+	dma_ext;
+	ipm_design;
+	support_quad;
+	tick_dly = <2>;
+	sample_sel = <0>;
+
+	/delete-node/ spi_nor@0;
+	spi_nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <52000000>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
+	};
+};
