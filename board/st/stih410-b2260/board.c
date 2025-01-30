@@ -9,7 +9,6 @@
 #include <asm/cache.h>
 #include <asm/global_data.h>
 #include <linux/usb/otg.h>
-#include <dwc3-sti-glue.h>
 #include <dwc3-uboot.h>
 #include <usb.h>
 

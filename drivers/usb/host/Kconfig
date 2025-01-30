@@ -110,15 +110,6 @@ config USB_XHCI_RCAR
 	  Choose this option to add support for USB 3.0 driver on Renesas
 	  R-Car Gen3 SoCs.
 
-config USB_XHCI_STI
-	bool "Support for STMicroelectronics STiH407 family on-chip xHCI USB controller"
-	depends on ARCH_STI
-	default y
-	help
-	  Enables support for the on-chip xHCI controller on STMicroelectronics
-	  STiH407 family SoCs. This is a driver for the dwc3 to provide the glue logic
-	  to configure the controller.
-
 config USB_XHCI_DRA7XX_INDEX
 	int "DRA7XX xHCI USB index"
 	range 0 1
