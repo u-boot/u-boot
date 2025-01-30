@@ -1,37 +1,10 @@
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * R-Car Gen3 recovery SPL
- *
- * Copyright (C) 2019 Marek Vasut <marek.vasut@gmail.com>
+ * Copyright (C) 2024 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
 
-#include <cpu_func.h>
 #include <image.h>
-#include <init.h>
-#include <log.h>
-#include <asm/io.h>
 #include <spl.h>
-#include <linux/bitops.h>
-
-#define RCAR_CNTC_BASE	0xE6080000
-#define CNTCR_EN	BIT(0)
-
-void board_init_f(ulong dummy)
-{
-	writel(CNTCR_EN, RCAR_CNTC_BASE);
-	timer_init();
-}
-
-void spl_board_init(void)
-{
-	/* UART clocks enabled and gd valid - init serial console */
-	preloader_console_init();
-}
-
-u32 spl_boot_device(void)
-{
-	return BOOT_DEVICE_UART;
-}
 
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
@@ -48,12 +21,4 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 			(image_entry_noargs_t)spl_image->entry_point;
 		image_entry();
 	}
-}
-
-void s_init(void)
-{
-}
-
-void reset_cpu(void)
-{
 }

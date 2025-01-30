@@ -76,23 +76,6 @@ struct legacy_img_hdr *spl_get_load_buffer(ssize_t offset, size_t size)
 	return map_sysmem(CONFIG_SYS_LOAD_ADDR + offset, 0);
 }
 
-void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
-{
-	debug("image entry point: 0x%lx\n", spl_image->entry_point);
-	if (spl_image->os == IH_OS_ARM_TRUSTED_FIRMWARE) {
-		typedef void (*image_entry_arg_t)(int, int, int, int)
-			__attribute__ ((noreturn));
-		image_entry_arg_t image_entry =
-			(image_entry_arg_t)(uintptr_t) spl_image->entry_point;
-		image_entry(IH_MAGIC, CONFIG_SPL_TEXT_BASE, 0, 0);
-	} else {
-		typedef void __noreturn (*image_entry_noargs_t)(void);
-		image_entry_noargs_t image_entry =
-			(image_entry_noargs_t)spl_image->entry_point;
-		image_entry();
-	}
-}
-
 #define APMU_BASE 0xe6170000U
 #define CL0GRP3_BIT			BIT(3)
 #define CL1GRP3_BIT			BIT(7)

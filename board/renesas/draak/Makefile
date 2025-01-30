@@ -6,8 +6,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
 
-ifdef CONFIG_XPL_BUILD
-obj-y	:= ../rcar-common/gen3-spl.o
-else
-obj-y	:= draak.o ../rcar-common/gen3-common.o ../rcar-common/common.o
+ifndef CONFIG_XPL_BUILD
+obj-y	+= draak.o
 endif

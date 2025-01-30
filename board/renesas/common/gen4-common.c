@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * board/renesas/rcar-common/gen4-common.c
+ * board/renesas/common/gen4-common.c
  *
  * Copyright (C) 2021-2024 Renesas Electronics Corp.
  */

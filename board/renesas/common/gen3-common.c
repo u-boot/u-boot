@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * board/renesas/rcar-common/gen3-common.c
+ * board/renesas/common/gen3-common.c
  *
  * Copyright (C) 2013 Renesas Electronics Corporation
  * Copyright (C) 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
@@ -17,8 +17,6 @@
 #include <dm/uclass-internal.h>
 #include <asm/arch/renesas.h>
 #include <linux/libfdt.h>
-
-#ifdef CONFIG_RCAR_64
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -177,5 +175,4 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
-#endif
 #endif

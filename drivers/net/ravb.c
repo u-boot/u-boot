@@ -560,12 +560,12 @@ static int ravb_remove(struct udevice *dev)
 	return 0;
 }
 
-int ravb_bb_init(struct bb_miiphy_bus *bus)
+static int ravb_bb_init(struct bb_miiphy_bus *bus)
 {
 	return 0;
 }
 
-int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
 {
 	struct ravb_priv *eth = bus->priv;
 
@@ -574,7 +574,7 @@ int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 {
 	struct ravb_priv *eth = bus->priv;
 
@@ -583,7 +583,7 @@ int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 {
 	struct ravb_priv *eth = bus->priv;
 
@@ -595,7 +595,7 @@ int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 {
 	struct ravb_priv *eth = bus->priv;
 
@@ -604,7 +604,7 @@ int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 	return 0;
 }
 
-int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 {
 	struct ravb_priv *eth = bus->priv;
 
@@ -616,7 +616,7 @@ int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-int ravb_bb_delay(struct bb_miiphy_bus *bus)
+static int ravb_bb_delay(struct bb_miiphy_bus *bus)
 {
 	udelay(10);
 

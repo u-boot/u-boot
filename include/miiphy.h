@@ -64,7 +64,7 @@ void mdio_list_devices(void);
 #define BB_MII_DEVNAME	"bb_miiphy"
 
 struct bb_miiphy_bus {
-	char name[16];
+	char name[MDIO_NAME_LEN];
 	int (*init)(struct bb_miiphy_bus *bus);
 	int (*mdio_active)(struct bb_miiphy_bus *bus);
 	int (*mdio_tristate)(struct bb_miiphy_bus *bus);
@@ -72,9 +72,7 @@ struct bb_miiphy_bus {
 	int (*get_mdio)(struct bb_miiphy_bus *bus, int *v);
 	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
 	int (*delay)(struct bb_miiphy_bus *bus);
-#ifdef CONFIG_BITBANGMII_MULTI
 	void *priv;
-#endif
 };
 
 extern struct bb_miiphy_bus bb_miiphy_buses[];

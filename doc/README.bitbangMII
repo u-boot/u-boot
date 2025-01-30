@@ -7,28 +7,11 @@ The driver requires that the following macros should be defined into the board
 configuration file:
 
 CONFIG_BITBANGMII	- Enable the miiphybb driver
-CONFIG_BITBANGMII_MULTI - Enable the multi bus support
 
-If the CONFIG_BITBANGMII_MULTI is not defined, the board's config file needs
-to define at least the following macros:
-
-MII_INIT      - Generic code to enable the MII bus (optional)
-MDIO_DECLARE  - Declaration needed to access to the MDIO pin (optional)
-MDIO_ACTIVE   - Activate the MDIO pin as out pin
-MDIO_TRISTATE - Activate the MDIO pin as input/tristate pin
-MDIO_READ     - Read the MDIO pin
-MDIO(v)       - Write v on the MDIO pin
-MDC_DECLARE   - Declaration needed to access to the MDC pin (optional)
-MDC(v)	      - Write v on the MDC pin
-
-The previous macros make the driver compatible with the previous version
-(that didn't support the multi-bus).
-
-When the CONFIG_BITBANGMII_MULTI is also defined, the board code needs to fill
-the bb_miiphy_buses[] array with a record for each required bus and declare
-the bb_miiphy_buses_num variable with the number of mii buses.
-The record (struct bb_miiphy_bus) has the following fields/callbacks (see
-miiphy.h for details):
+The board code needs to fill the bb_miiphy_buses[] array with a record for
+each required bus and declare the bb_miiphy_buses_num variable with the
+number of mii buses. The record (struct bb_miiphy_bus) has the following
+fields/callbacks (see miiphy.h for details):
 
 char name[]	       - The symbolic name that must be equal to the MII bus
 			 registered name
