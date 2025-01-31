@@ -1131,10 +1131,6 @@ config BLUETOOTH_DT_DEVICE_FIXUP
 	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
 	  flipped elsewise.
 
-source "board/sunxi/Kconfig"
-
-endif
-
 config CHIP_DIP_SCAN
 	bool "Enable DIPs detection for CHIP board"
 	select SUPPORT_EXTENSION_SCAN
@@ -1143,3 +1139,7 @@ config CHIP_DIP_SCAN
 	select W1_EEPROM
 	select W1_EEPROM_DS24XXX
 	select CMD_EXTENSION
+
+source "board/sunxi/Kconfig"
+
+endif
