@@ -381,7 +381,6 @@ static struct rockchip_pin_bank rv1126_pin_banks[] = {
 static const struct rockchip_pin_ctrl rv1126_pin_ctrl = {
 	.pin_banks		= rv1126_pin_banks,
 	.nr_banks		= ARRAY_SIZE(rv1126_pin_banks),
-	.nr_pins		= 130,
 	.grf_mux_offset		= 0x10004, /* mux offset from GPIO0_D0 */
 	.pmu_mux_offset		= 0x0,
 	.iomux_routes		= rv1126_mux_route_data,
