@@ -389,7 +389,7 @@ static int stm32_dsi_set_backlight(struct udevice *dev, int percent)
 	struct stm32_dsi_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret) {
 		dev_err(dev, "panel %s enable backlight error %d\n",
 			priv->panel->name, ret);

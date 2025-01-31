@@ -817,7 +817,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 				 period * 8, &priv->dphy_timing);
 
 	/* Perform panel HW setup */
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret)
 		return ret;
 

@@ -39,13 +39,12 @@ struct panel_ops {
 #define panel_get_ops(dev)	((struct panel_ops *)(dev)->driver->ops)
 
 /**
- * panel_enable_backlight() - Enable/disable the panel backlight
+ * panel_enable() - Enable the panel
  *
- * @dev:	Panel device containing the backlight to enable
- * @enable:	true to enable the backlight, false to dis
+ * @dev:	Panel device to enable
  * Return: 0 if OK, -ve on error
  */
-int panel_enable_backlight(struct udevice *dev);
+int panel_enable(struct udevice *dev);
 
 /**
  * panel_set_backlight - Set brightness for the panel backlight

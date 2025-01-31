@@ -844,7 +844,7 @@ static int tc358768_attach(struct udevice *dev)
 	tc358768_update_bits(dev, TC358768_CONFCTL, BIT(6), BIT(6));
 
 	/* Set up panel configuration */
-	return panel_enable_backlight(priv->panel);
+	return panel_enable(priv->panel);
 }
 
 static int tc358768_set_backlight(struct udevice *dev, int percent)

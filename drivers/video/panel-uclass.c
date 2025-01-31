@@ -9,7 +9,7 @@
 #include <dm.h>
 #include <panel.h>
 
-int panel_enable_backlight(struct udevice *dev)
+int panel_enable(struct udevice *dev)
 {
 	struct panel_ops *ops = panel_get_ops(dev);
 

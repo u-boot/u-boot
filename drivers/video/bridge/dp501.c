@@ -465,7 +465,7 @@ static int dp501_attach(struct udevice *dev)
 		return ret;
 
 	/* Perform panel HW setup */
-	return panel_enable_backlight(priv->panel);
+	return panel_enable(priv->panel);
 }
 
 static int dp501_set_backlight(struct udevice *dev, int percent)

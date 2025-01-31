@@ -384,7 +384,7 @@ static int ssd2825_bridge_enable_panel(struct udevice *dev)
 	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
 
 	/* Perform panel setup */
-	return panel_enable_backlight(priv->panel);
+	return panel_enable(priv->panel);
 }
 
 static int ssd2825_bridge_set_panel(struct udevice *dev, int percent)

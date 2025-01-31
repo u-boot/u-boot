@@ -763,7 +763,7 @@ static int dw_mipi_dsi_rockchip_set_bl(struct udevice *dev, int percent)
 	 * Allow backlight to be optional, since this driver may be
 	 * used to simply detect a panel rather than bring one up.
 	 */
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if ((ret) && (ret != -ENOSYS)) {
 		dev_err(dev, "panel %s enable backlight error %d\n",
 			priv->panel->name, ret);
