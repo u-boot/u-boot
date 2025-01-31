@@ -1020,7 +1020,7 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 }
 
 static const struct panel_ops tegra_dsi_bridge_ops = {
-	.enable_backlight	= tegra_dsi_encoder_enable,
+	.enable	= tegra_dsi_encoder_enable,
 	.set_backlight		= tegra_dsi_bridge_set_panel,
 	.get_display_timing	= tegra_dsi_panel_timings,
 };

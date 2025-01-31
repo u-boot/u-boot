@@ -559,7 +559,7 @@ static int dp501_probe(struct udevice *dev)
 }
 
 struct panel_ops dp501_ops = {
-	.enable_backlight	= dp501_attach,
+	.enable	= dp501_attach,
 	.set_backlight		= dp501_set_backlight,
 	.get_display_timing	= dp501_panel_timings,
 };

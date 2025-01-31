@@ -260,7 +260,7 @@ static int sharp_lq101r1sx01_probe(struct udevice *dev)
 }
 
 static const struct panel_ops sharp_lq101r1sx01_ops = {
-	.enable_backlight	= sharp_lq101r1sx01_enable_backlight,
+	.enable	= sharp_lq101r1sx01_enable_backlight,
 	.set_backlight		= sharp_lq101r1sx01_set_backlight,
 	.get_display_timing	= sharp_lq101r1sx01_timings,
 };

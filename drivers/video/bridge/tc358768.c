@@ -964,7 +964,7 @@ static int tc358768_probe(struct udevice *dev)
 }
 
 struct panel_ops tc358768_ops = {
-	.enable_backlight	= tc358768_attach,
+	.enable	= tc358768_attach,
 	.set_backlight		= tc358768_set_backlight,
 	.get_display_timing	= tc358768_panel_timings,
 };

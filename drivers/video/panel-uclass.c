@@ -13,10 +13,10 @@ int panel_enable(struct udevice *dev)
 {
 	struct panel_ops *ops = panel_get_ops(dev);
 
-	if (!ops->enable_backlight)
+	if (!ops->enable)
 		return -ENOSYS;
 
-	return ops->enable_backlight(dev);
+	return ops->enable(dev);
 }
 
 /**

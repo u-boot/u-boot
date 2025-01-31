@@ -503,7 +503,7 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 }
 
 static const struct panel_ops ssd2825_bridge_ops = {
-	.enable_backlight	= ssd2825_bridge_enable_panel,
+	.enable	= ssd2825_bridge_enable_panel,
 	.set_backlight		= ssd2825_bridge_set_panel,
 	.get_display_timing	= ssd2825_bridge_panel_timings,
 };

@@ -133,7 +133,7 @@ static int tl070wsh30_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops tl070wsh30_panel_ops = {
-	.enable_backlight = tl070wsh30_panel_enable_backlight,
+	.enable = tl070wsh30_panel_enable_backlight,
 	.get_display_timing = tl070wsh30_panel_get_display_timing,
 };
 

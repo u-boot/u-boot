@@ -9,12 +9,12 @@
 
 struct panel_ops {
 	/**
-	 * enable_backlight() - Enable the panel backlight
+	 * enable() - Enable the panel
 	 *
-	 * @dev:	Panel device containing the backlight to enable
+	 * @dev:	Panel device to enable
 	 * @return 0 if OK, -ve on error
 	 */
-	int (*enable_backlight)(struct udevice *dev);
+	int (*enable)(struct udevice *dev);
 
 	/**
 	 * set_backlight - Set panel backlight brightness
