@@ -93,13 +93,6 @@
 	"splashfile=boot/usplash.bmp.gz\0"				\
 	"splashimage=0x88000000\0"					\
 	"splashpos=m,m\0"						\
-	"altbootcmd="							\
-		"if test ${mmcpart} -eq 1 ; then "			\
-			"setenv mmcpart 2 ; "				\
-		"else "							\
-			"setenv mmcpart 1 ; "				\
-		"fi ; "							\
-		"boot\0"						\
 	"stdout=serial,vidconsole\0"					\
 	"stderr=serial,vidconsole\0"					\
 	"addcons="							\

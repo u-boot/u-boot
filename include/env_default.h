@@ -115,6 +115,9 @@ const char default_environment[] = {
 #if defined(CONFIG_BOOTCOUNT_BOOTLIMIT) && (CONFIG_BOOTCOUNT_BOOTLIMIT > 0)
 	"bootlimit="	__stringify(CONFIG_BOOTCOUNT_BOOTLIMIT)"\0"
 #endif
+#ifdef CONFIG_BOOTCOUNT_ALTBOOTCMD
+	"altbootcmd="	CONFIG_BOOTCOUNT_ALTBOOTCMD            "\0"
+#endif
 #ifdef CONFIG_MTDIDS_DEFAULT
 	 "mtdids="	CONFIG_MTDIDS_DEFAULT		"\0"
 #endif

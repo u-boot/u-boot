@@ -47,7 +47,6 @@
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"loadfit=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${fit_image}\0" \
-	"altbootcmd=run recoveryboot\0"\
 	"fitboot=echo Booting FIT image from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \

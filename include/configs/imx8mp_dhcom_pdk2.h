@@ -28,7 +28,6 @@
 #define CFG_SYS_FSL_ESDHC_ADDR	0
 
 #define CFG_EXTRA_ENV_SETTINGS						\
-	"altbootcmd=run bootcmd ; reset\0"				\
 	"bootlimit=3\0"							\
 	"dfu_alt_info="							\
 		/* RAM block at DRAM offset 256..768 MiB */		\

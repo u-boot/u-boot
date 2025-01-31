@@ -183,6 +183,9 @@ config BOOTCOUNT_BOOTLIMIT
 	  counter being cleared.
 	  If set to 0, do not set a boot limit in the environment.
 
+config BOOTCOUNT_ALTBOOTCMD
+	string "Alternative boot command when BOOTLIMIT is reached"
+
 config SYS_BOOTCOUNT_SINGLEWORD
 	bool "Use single word to pack boot count and magic value"
 	depends on BOOTCOUNT_GENERIC

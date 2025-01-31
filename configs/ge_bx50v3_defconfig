@@ -52,6 +52,7 @@ CONFIG_BOUNCE_BUFFER=y
 CONFIG_BOOTCOUNT_LIMIT=y
 CONFIG_DM_BOOTCOUNT=y
 CONFIG_DM_BOOTCOUNT_I2C_EEPROM=y
+CONFIG_BOOTCOUNT_ALTBOOTCMD="run doquiet; setenv partnum 1; run hasfirstboot || setenv partnum 2; run hasfirstboot || setenv partnum 0; if test ${partnum} != 0; then run swappartitions loadimage doboot; fi; run failbootcmd"
 CONFIG_DM_I2C=y
 CONFIG_SYS_I2C_MXC=y
 CONFIG_I2C_MUX=y
