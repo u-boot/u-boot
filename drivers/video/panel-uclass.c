@@ -12,11 +12,43 @@
 int panel_enable(struct udevice *dev)
 {
 	struct panel_ops *ops = panel_get_ops(dev);
+	struct panel_priv *priv = dev_get_uclass_priv(dev);
+	int err;
 
 	if (!ops->enable)
 		return -ENOSYS;
 
-	return ops->enable(dev);
+	if (priv->enabled)
+		return 0;
+
+	err = ops->enable(dev);
+	if (err)
+		return err;
+
+	priv->enabled = true;
+
+	return 0;
+}
+
+int panel_disable(struct udevice *dev)
+{
+	struct panel_ops *ops = panel_get_ops(dev);
+	struct panel_priv *priv = dev_get_uclass_priv(dev);
+	int err;
+
+	if (!ops->disable)
+		return -ENOSYS;
+
+	if (!priv->enabled)
+		return 0;
+
+	err = ops->disable(dev);
+	if (err)
+		return err;
+
+	priv->enabled = false;
+
+	return 0;
 }
 
 /**
@@ -49,6 +81,7 @@ int panel_get_display_timing(struct udevice *dev,
 }
 
 UCLASS_DRIVER(panel) = {
-	.id		= UCLASS_PANEL,
-	.name		= "panel",
+	.id = UCLASS_PANEL,
+	.name = "panel",
+	.per_device_auto = sizeof(struct panel_priv),
 };

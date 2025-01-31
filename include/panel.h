@@ -7,6 +7,10 @@
 #ifndef _PANEL_H
 #define _PANEL_H
 
+struct panel_priv {
+	bool enabled;
+};
+
 struct panel_ops {
 	/**
 	 * enable() - Enable the panel
@@ -15,6 +19,14 @@ struct panel_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*enable)(struct udevice *dev);
+
+	/**
+	 * disable() - Disable the panel
+	 *
+	 * @dev:	Panel device to disable
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*disable)(struct udevice *dev);
 
 	/**
 	 * set_backlight - Set panel backlight brightness
@@ -45,6 +57,14 @@ struct panel_ops {
  * Return: 0 if OK, -ve on error
  */
 int panel_enable(struct udevice *dev);
+
+/**
+ * panel_disable() - Disable the panel
+ *
+ * @dev:	Panel device to enable
+ * Return: 0 if OK, -ve on error
+ */
+int panel_disable(struct udevice *dev);
 
 /**
  * panel_set_backlight - Set brightness for the panel backlight
