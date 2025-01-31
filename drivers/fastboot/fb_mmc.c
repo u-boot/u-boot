@@ -211,8 +211,8 @@ static int fb_mmc_erase_mmc_hwpart(struct blk_desc *dev_desc)
 		return 1;
 	}
 
-	printf("........ erased %lu bytes from mmc hwpart[%u]\n",
-	       dev_desc->lba * dev_desc->blksz, dev_desc->hwpart);
+	printf("........ erased %llu bytes from mmc hwpart[%u]\n",
+	       (u64)(dev_desc->lba * dev_desc->blksz), dev_desc->hwpart);
 
 	return 0;
 }
@@ -257,8 +257,8 @@ static void fb_mmc_boot_ops(struct blk_desc *dev_desc, void *buffer,
 			return;
 		}
 
-		printf("........ wrote %lu bytes to EMMC_BOOT%d\n",
-		       blkcnt * blksz, hwpart);
+		printf("........ wrote %llu bytes to EMMC_BOOT%d\n",
+		       (u64)(blkcnt * blksz), hwpart);
 	} else { /* erase */
 		if (fb_mmc_erase_mmc_hwpart(dev_desc)) {
 			pr_err("Failed to erase EMMC_BOOT%d\n", hwpart);
