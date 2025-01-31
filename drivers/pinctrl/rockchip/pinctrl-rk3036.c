@@ -80,7 +80,7 @@ static struct rockchip_pin_bank rk3036_pin_banks[] = {
 	PIN_BANK(2, 32, "gpio2"),
 };
 
-static struct rockchip_pin_ctrl rk3036_pin_ctrl = {
+static const struct rockchip_pin_ctrl rk3036_pin_ctrl = {
 	.pin_banks		= rk3036_pin_banks,
 	.nr_banks		= ARRAY_SIZE(rk3036_pin_banks),
 	.grf_mux_offset		= 0xa8,
