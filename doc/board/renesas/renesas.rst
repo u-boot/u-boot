@@ -169,6 +169,12 @@ Renesas is a SoC solutions provider for automotive and industrial applications.
      - r8a779f0_spider_defconfig
 
    * -
+     - S4SK
+     - R8A779F4 (S4)
+     - arm64
+     - r8a779f4_s4sk_defconfig
+
+   * -
      - White Hawk
      - R8A779G0 (V4H)
      - arm64
