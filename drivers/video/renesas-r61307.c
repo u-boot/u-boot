@@ -287,7 +287,7 @@ static int renesas_r61307_probe(struct udevice *dev)
 }
 
 static const struct panel_ops renesas_r61307_ops = {
-	.enable_backlight	= renesas_r61307_enable_backlight,
+	.enable	= renesas_r61307_enable_backlight,
 	.set_backlight		= renesas_r61307_set_backlight,
 	.get_display_timing	= renesas_r61307_timings,
 };

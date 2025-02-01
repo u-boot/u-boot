@@ -65,6 +65,7 @@ struct vidconsole_priv {
 	int xsize_frac;
 	int xstart_frac;
 	int last_ch;
+	int rot;
 	/*
 	 * ANSI escape sequences are accumulated character by character,
 	 * starting after the ESC char (0x1b) until the entire sequence
@@ -294,6 +295,16 @@ struct vidconsole_ops {
 	 */
 	int (*set_cursor_visible)(struct udevice *dev, bool visible,
 				  uint x, uint y, uint index);
+
+	/**
+	 * resize() - Resize the console
+	 *
+	 * Re-calculate sizes based on the parent video class
+	 *
+	 * @dev: Console device to use
+	 * Return: 0 if OK, -ve on error
+	 */
+	int (*resize)(struct udevice *dev);
 };
 
 /* Get a pointer to the driver operations for a video console device */
@@ -504,6 +515,16 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col,
  * @dev:	vidconsole device to adjust
  */
 int vidconsole_clear_and_reset(struct udevice *dev);
+
+
+/**
+ * vidconsole_resize() - Resize the console
+ *
+ * Re-calculate sizes based on the parent video class
+ *
+ * @dev:	vidconsole device to adjust
+ */
+int vidconsole_resize(struct udevice *dev);
 
 /**
  * vidconsole_set_cursor_pos() - set cursor position

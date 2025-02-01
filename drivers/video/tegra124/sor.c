@@ -1033,7 +1033,7 @@ static int tegra_sor_set_backlight(struct udevice *dev, int percent)
 	struct tegra_dc_sor_data *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret) {
 		debug("sor: Cannot enable panel backlight\n");
 		return ret;
