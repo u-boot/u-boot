@@ -80,7 +80,7 @@
 	status = "disabled";
 };
 
-&pinctrl {
+&pio {
 	i2c1_pins: i2c1-pins {
 		mux {
 			function = "i2c";

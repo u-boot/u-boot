@@ -39,7 +39,7 @@
 	mediatek,gmac-id = <0>;
 	phy-mode = "2500base-x";
 	mediatek,switch = "mt7531";
-	reset-gpios = <&gpio 39 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
 
 	fixed-link {
 		speed = <2500>;
@@ -47,7 +47,7 @@
 	};
 };
 
-&pinctrl {
+&pio {
 	spi_flash_pins: spi0-pins-func-1 {
 		mux {
 			function = "flash";

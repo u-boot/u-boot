@@ -6,6 +6,7 @@
 
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/phy/phy.h>
 #include <dt-bindings/clock/mt7981-clk.h>
 #include <dt-bindings/reset/mt7629-reset.h>
 #include <dt-bindings/pinctrl/mt65xx.h>
@@ -106,7 +107,7 @@
 		bootph-all;
 	};
 
-	pinctrl: pinctrl@11d00000 {
+	pio: pinctrl@11d00000 {
 		compatible = "mediatek,mt7981-pinctrl";
 		reg = <0x11d00000 0x1000>,
 		      <0x11c00000 0x1000>,
@@ -117,13 +118,11 @@
 		      <0x11f00000 0x1000>,
 		      <0x11f10000 0x1000>,
 		      <0x1000b000 0x1000>;
-		reg-names = "gpio_base", "iocfg_rt_base", "iocfg_rm_base",
-			    "iocfg_rb_base", "iocfg_lb_base", "iocfg_bl_base",
-			    "iocfg_tm_base", "iocfg_tl_base", "eint";
-		gpio: gpio-controller {
-			gpio-controller;
-			#gpio-cells = <2>;
-		};
+		reg-names = "gpio", "iocfg_rt", "iocfg_rm",
+			    "iocfg_rb", "iocfg_lb", "iocfg_bl",
+			    "iocfg_tm", "iocfg_tl", "eint";
+		gpio-controller;
+		#gpio-cells = <2>;
 	};
 
 	pwm: pwm@10048000 {
@@ -317,4 +316,86 @@
 		status = "disabled";
 	};
 
+	xhci: xhci@11200000 {
+		compatible = "mediatek,mt7981-xhci",
+			     "mediatek,mtk-xhci";
+		reg = <0x11200000 0x2e00>,
+		      <0x11203e00 0x0100>;
+		reg-names = "mac", "ippc";
+		interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>;
+		phys = <&u2port0 PHY_TYPE_USB2>,
+		       <&u3port0 PHY_TYPE_USB3>;
+		clocks = <&infracfg CLK_INFRA_IUSB_SYS_CK>,
+			 <&infracfg CLK_INFRA_IUSB_CK>,
+			 <&infracfg CLK_INFRA_IUSB_133_CK>,
+			 <&infracfg CLK_INFRA_IUSB_66M_CK>,
+			 <&topckgen CLK_TOP_U2U3_XHCI_SEL>;
+		clock-names = "sys_ck",
+			      "ref_ck",
+			      "mcu_ck",
+			      "dma_ck",
+			      "xhci_ck";
+		mediatek,u3p-dis-msk = <0x1>;
+		status = "okay";
+	};
+
+	pcie: pcie@11280000 {
+		compatible = "mediatek,mt8192-pcie";
+		device_type = "pci";
+		reg = <0x11280000 0x4000>;
+		reg-names = "pcie-mac";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		interrupts = <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&infracfg CLK_INFRA_IPCIE_CK>,
+				<&infracfg CLK_INFRA_IPCIE_PIPE_CK>,
+				<&infracfg CLK_INFRA_IPCIER_CK>,
+				<&infracfg CLK_INFRA_IPCIEB_CK>;
+		clock-names = "pl_250m", "tl_26m", "peri_26m", "top_133m";
+		phys = <&u3port0 PHY_TYPE_PCIE>;
+		phy-names = "pcie-phy";
+		bus-range = <0x00 0xff>;
+		ranges = <0x82000000 0 0x20000000 0x20000000 0 0x10000000>;
+
+		#interrupt-cells = <1>;
+
+		interrupt-map-mask = <0 0 0 7>;
+		interrupt-map = <0 0 0 1 &pcie_intc 0>,
+			<0 0 0 2 &pcie_intc 1>,
+			<0 0 0 3 &pcie_intc 2>,
+			<0 0 0 4 &pcie_intc 3>;
+
+		status = "disabled";
+
+		pcie_intc: interrupt-controller {
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			#address-cells = <0>;
+		};
+	};
+
+	usbtphy: usb-phy@11e10000 {
+		compatible = "mediatek,mt7981",
+			     "mediatek,generic-tphy-v2";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		status = "okay";
+
+		u2port0: usb-phy@11e10000 {
+			reg = <0x11e10000 0x700>;
+			clocks = <&topckgen CLK_TOP_USB_FRMCNT_SEL>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			status = "okay";
+		};
+
+		u3port0: usb-phy@11e10700 {
+			reg = <0x11e10700 0x900>;
+			clocks = <&topckgen CLK_TOP_USB3_PHY_SEL>;
+			clock-names = "ref";
+			#phy-cells = <1>;
+			mediatek,syscon-type = <&topmisc 0x218 0>;
+			status = "okay";
+		};
+	};
 };
