@@ -21,6 +21,7 @@
 #include <linux/string.h>
 #include <linux/ctype.h>
 #include <malloc.h>
+#include <asm/sections.h>
 
 /**
  * strncasecmp - Case insensitive, length-limited string comparison
@@ -559,7 +560,7 @@ __used void * memset(void * s,int c,size_t count)
  * You should not use this function to access IO space, use memcpy_toio()
  * or memcpy_fromio() instead.
  */
-__used void * memcpy(void *dest, const void *src, size_t count)
+__rcode __used void *memcpy(void *dest, const void *src, size_t count)
 {
 	unsigned long *dl = (unsigned long *)dest, *sl = (unsigned long *)src;
 	char *d8, *s8;
@@ -593,7 +594,7 @@ __used void * memcpy(void *dest, const void *src, size_t count)
  *
  * Unlike memcpy(), memmove() copes with overlapping areas.
  */
-__used void * memmove(void * dest,const void *src,size_t count)
+__rcode __used void *memmove(void *dest, const void *src, size_t count)
 {
 	char *tmp, *s;
 

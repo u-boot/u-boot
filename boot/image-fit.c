@@ -1907,24 +1907,30 @@ int fit_conf_get_prop_node(const void *fit, int noffset, const char *prop_name,
 	count = fit_conf_get_prop_node_count(fit, noffset, prop_name);
 	if (count < 0)
 		return count;
+	log_debug("looking for %s (%s, image-count %d):\n", prop_name,
+		  genimg_get_phase_name(image_ph_phase(sel_phase)), count);
 
 	/* check each image in the list */
 	for (i = 0; i < count; i++) {
-		enum image_phase_t phase;
+		enum image_phase_t phase = IH_PHASE_NONE;
 		int ret, node;
 
 		node = fit_conf_get_prop_node_index(fit, noffset, prop_name, i);
 		ret = fit_image_get_phase(fit, node, &phase);
+		log_debug("- %s (%s): ", fdt_get_name(fit, node, NULL),
+			  genimg_get_phase_name(phase));
 
 		/* if the image is for any phase, let's use it */
-		if (ret == -ENOENT)
+		if (ret == -ENOENT || phase == sel_phase) {
+			log_debug("found\n");
 			return node;
-		else if (ret < 0)
+		} else if (ret < 0) {
+			log_debug("err=%d\n", ret);
 			return ret;
-
-		if (phase == sel_phase)
-			return node;
+		}
+		log_debug("no match\n");
 	}
+	log_debug("- not found\n");
 
 	return -ENOENT;
 }
@@ -2012,13 +2018,15 @@ int fit_get_node_from_config(struct bootm_headers *images,
 }
 
 /**
- * fit_get_image_type_property() - get property name for IH_TYPE_...
+ * fit_get_image_type_property() - get property name for sel_phase
  *
  * Return: the properly name where we expect to find the image in the
  * config node
  */
-static const char *fit_get_image_type_property(int type)
+static const char *fit_get_image_type_property(int ph_type)
 {
+	int type = image_ph_type(ph_type);
+
 	/*
 	 * This is sort-of available in the uimage_type[] table in image.c
 	 * but we don't have access to the short name, and "fdt" is different
@@ -2070,8 +2078,9 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
 	fit_base_uname_config = NULL;
-	prop_name = fit_get_image_type_property(image_type);
-	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
+	prop_name = fit_get_image_type_property(ph_type);
+	printf("## Loading %s (%s) from FIT Image at %08lx ...\n",
+	       prop_name, genimg_get_phase_name(image_ph_phase(ph_type)), addr);
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT);
 	ret = fit_check_format(fit, IMAGE_SIZE_INVAL);

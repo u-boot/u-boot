@@ -345,7 +345,7 @@ typedef ulong (*spl_load_reader)(struct spl_load_info *load, ulong sector,
  * @priv: Private data for the device
  * @bl_len: Block length for reading in bytes
  * @phase: Image phase to load
- * @fit_loaded: true if the FIT has been loaded, except for external data
+ * @no_fdt_update: true to update the FDT with any loadables that are loaded
  */
 struct spl_load_info {
 	spl_load_reader read;
@@ -355,7 +355,7 @@ struct spl_load_info {
 #endif
 #if CONFIG_IS_ENABLED(BOOTMETH_VBE)
 	u8 phase;
-	u8 fit_loaded;
+	u8 fdt_update;
 #endif
 };
 
@@ -395,12 +395,20 @@ static inline enum image_phase_t xpl_get_phase(struct spl_load_info *info)
 #endif
 }
 
-static inline bool xpl_get_fit_loaded(struct spl_load_info *info)
+static inline void xpl_set_fdt_update(struct spl_load_info *info,
+				      bool fdt_update)
 {
 #if CONFIG_IS_ENABLED(BOOTMETH_VBE)
-	return info->fit_loaded;
+	info->fdt_update = fdt_update;
+#endif
+}
+
+static inline enum image_phase_t xpl_get_fdt_update(struct spl_load_info *info)
+{
+#if CONFIG_IS_ENABLED(BOOTMETH_VBE)
+	return info->fdt_update;
 #else
-	return false;
+	return true;
 #endif
 }
 
@@ -415,6 +423,7 @@ static inline void spl_load_init(struct spl_load_info *load,
 	load->priv = priv;
 	spl_set_bl_len(load, bl_len);
 	xpl_set_phase(load, IH_PHASE_NONE);
+	xpl_set_fdt_update(load, true);
 }
 
 /*

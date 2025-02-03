@@ -67,6 +67,9 @@ extern char __text_start[];
 /* This marks the text region which must be relocated */
 extern char __image_copy_start[], __image_copy_end[];
 
+/* This marks the rcode region used for SPL relocation */
+extern char _rcode_start[], _rcode_end[];
+
 extern char __bss_end[];
 extern char __rel_dyn_start[], __rel_dyn_end[];
 extern char _image_binary_end[];
@@ -76,5 +79,18 @@ extern char _image_binary_end[];
  * as __text_start
  */
 extern void _start(void);
+
+#ifndef USE_HOSTCC
+#if CONFIG_IS_ENABLED(RELOC_LOADER)
+#define __rcode __section(".text.rcode")
+#define __rdata __section(".text.rdata")
+#else
+#define __rcode
+#define __rdata
+#endif
+#else
+#define __rcode
+#define __rdata
+#endif
 
 #endif /* _ASM_GENERIC_SECTIONS_H_ */

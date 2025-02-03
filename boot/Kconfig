@@ -711,6 +711,20 @@ config BOOTMETH_VBE_SIMPLE
 	  firmware image in boot media such as MMC. It does not support any sort
 	  of rollback, recovery or A/B boot.
 
+config BOOTMETH_VBE_ABREC
+	bool "Bootdev support for VBE 'a/b/recovery' method"
+	imply SPL_CRC8
+	imply VPL_CRC8
+	help
+	  Enables support for VBE 'abrec' boot. This allows updating one of an
+	  A or B firmware image in boot media such as MMC. The new firmware is
+	  tried and if it boots, it is copied to the other image, so that both
+	  A and B have the same version. If neither firmware image passes the
+	  verification step, a recovery image is booted. This method will
+	  eventually provide rollback protection as well.
+
+if BOOTMETH_VBE_SIMPLE
+
 config BOOTMETH_VBE_SIMPLE_OS
 	bool "Bootdev support for VBE 'simple' method OS phase"
 	default y
@@ -768,6 +782,65 @@ config TPL_BOOTMETH_VBE_SIMPLE_FW
 	  TPL loads a FIT containing the VPL binary and a suitable devicetree.
 
 endif # BOOTMETH_VBE_SIMPLE
+
+if BOOTMETH_VBE_ABREC
+
+config SPL_BOOTMETH_VBE_ABREC
+	bool "Bootdev support for VBE 'abrec' method (SPL)"
+	depends on SPL
+	default y if VPL
+	help
+	  Enables support for VBE 'abrec' boot. The SPL part of this
+	  implementation simply loads U-Boot from the image selected by the
+	  VPL phase.
+
+config TPL_BOOTMETH_VBE_ABREC
+	bool "Bootdev support for VBE 'abrec' method (TPL)"
+	depends on TPL
+	select TPL_FIT
+	default y
+	help
+	  Enables support for VBE 'abrec' boot. The TPL part of this
+	  implementation simply jumps to VPL after device init is completed.
+
+config VPL_BOOTMETH_VBE_ABREC
+	bool "Bootdev support for VBE 'abrec' method (VPL)"
+	depends on VPL
+	default y
+	help
+	  Enables support for VBE 'abrec' boot. The VPL part of this
+	  implementation selects which SPL to use (A, B or recovery) and then
+	  boots into SPL.
+
+config SPL_BOOTMETH_VBE_ABREC_FW
+	bool "Bootdev support for VBE 'abrec' method firmware phase (SPL)"
+	depends on SPL
+	default y if VPL
+	help
+	  Enables support for VBE 'abrec' boot. The SPL part of this
+	  implementation simply loads U-Boot from the image selected by the
+	  VPL phase.
+
+config TPL_BOOTMETH_VBE_ABREC_FW
+	bool "Bootdev support for VBE 'abrec' method firmware phase (TPL)"
+	depends on TPL
+	default y if VPL
+	help
+	  Enables support for VBE 'abrec' boot. The TPL part of this
+	  implementation simply jumps to VPL after device init is completed.
+
+config VPL_BOOTMETH_VBE_ABREC_FW
+	bool "Bootdev support for VBE 'abrec' method firmware phase (VPL)"
+	depends on VPL
+	default y
+	help
+	  Enables support for VBE 'abrec' boot. The VPL part of this
+	  implementation selects which SPL to use (A, B or recovery) and then
+	  boots into SPL.
+
+endif # BOOTMETH_VBE_ABREC
+
+endif # BOOTMETH_VBE
 
 config EXPO
 	bool "Support for expos - groups of scenes displaying a UI"

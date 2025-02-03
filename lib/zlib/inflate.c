@@ -2,10 +2,12 @@
  * Copyright (C) 1995-2005 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
+#include <asm/sections.h>
+
 local void fixedtables OF((struct inflate_state FAR *state));
 local int updatewindow OF((z_streamp strm, unsigned out));
 
-int ZEXPORT inflateReset(z_streamp strm)
+__rcode int ZEXPORT inflateReset(z_streamp strm)
 {
     struct inflate_state FAR *state;
 
@@ -30,8 +32,8 @@ int ZEXPORT inflateReset(z_streamp strm)
     return Z_OK;
 }
 
-int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
-			  int stream_size)
+__rcode int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
+				  int stream_size)
 {
     struct inflate_state FAR *state;
 
@@ -67,12 +69,12 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
     return inflateReset(strm);
 }
 
-int ZEXPORT inflateInit_(z_streamp strm, int stream_size)
+__rcode int ZEXPORT inflateInit_(z_streamp strm, int stream_size)
 {
     return inflateInit2_(strm, DEF_WBITS, stream_size);
 }
 
-local void fixedtables(struct inflate_state FAR *state)
+__rcode local void fixedtables(struct inflate_state FAR *state)
 {
     state->lencode = lenfix;
     state->lenbits = 9;
@@ -94,7 +96,7 @@ local void fixedtables(struct inflate_state FAR *state)
    output will fall in the output data, making match copies simpler and faster.
    The advantage may be dependent on the size of the processor's data caches.
  */
-local int updatewindow(z_streamp strm, unsigned out)
+__rcode local int updatewindow(z_streamp strm, unsigned int out)
 {
     struct inflate_state FAR *state;
     unsigned copy, dist;
@@ -322,7 +324,7 @@ local int updatewindow(z_streamp strm, unsigned out)
    when flush is set to Z_FINISH, inflate() cannot return Z_OK.  Instead it
    will return Z_BUF_ERROR if it has not reached the end of the stream.
  */
-int ZEXPORT inflate(z_streamp strm, int flush)
+__rcode int ZEXPORT inflate(z_streamp strm, int flush)
 {
     struct inflate_state FAR *state;
     unsigned char FAR *next;    /* next input */
@@ -924,7 +926,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
     return ret;
 }
 
-int ZEXPORT inflateEnd(z_streamp strm)
+__rcode int ZEXPORT inflateEnd(z_streamp strm)
 {
     struct inflate_state FAR *state;
     if (strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)

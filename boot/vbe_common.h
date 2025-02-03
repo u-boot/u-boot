@@ -9,6 +9,8 @@
 #ifndef __VBE_COMMON_H
 #define __VBE_COMMON_H
 
+#include <dm/ofnode_decl.h>
+#include <linux/bitops.h>
 #include <linux/types.h>
 
 struct spl_image_info;
@@ -36,6 +38,40 @@ enum {
 	FWVER_FW_MASK		= 0xffff,
 
 	NVD_HDR_VER_CUR		= 1,	/* current version */
+};
+
+/**
+ * enum vbe_try_result - result of trying a firmware pick
+ *
+ * @VBETR_UNKNOWN: Unknown / invalid result
+ * @VBETR_TRYING: Firmware pick is being tried
+ * @VBETR_OK: Firmware pick is OK and can be used from now on
+ * @VBETR_BAD: Firmware pick is bad and should be removed
+ */
+enum vbe_try_result {
+	VBETR_UNKNOWN,
+	VBETR_TRYING,
+	VBETR_OK,
+	VBETR_BAD,
+};
+
+/**
+ * enum vbe_flags - flags controlling operation
+ *
+ * @VBEF_TRY_COUNT_MASK: mask for the 'try count' value
+ * @VBEF_TRY_B: Try the B slot
+ * @VBEF_RECOVERY: Use recovery slot
+ */
+enum vbe_flags {
+	VBEF_TRY_COUNT_MASK	= 0x3,
+	VBEF_TRY_B		= BIT(2),
+	VBEF_RECOVERY		= BIT(3),
+
+	VBEF_RESULT_SHIFT	= 4,
+	VBEF_RESULT_MASK	= 3 << VBEF_RESULT_SHIFT,
+
+	VBEF_PICK_SHIFT		= 6,
+	VBEF_PICK_MASK		= 3 << VBEF_PICK_SHIFT,
 };
 
 /**
@@ -133,5 +169,12 @@ int vbe_read_nvdata(struct udevice *blk, ulong offset, ulong size, u8 *buf);
 int vbe_read_fit(struct udevice *blk, ulong area_offset, ulong area_size,
 		 struct spl_image_info *image, ulong *load_addrp, ulong *lenp,
 		 char **namep);
+
+/**
+ * vbe_get_node() - Get the node containing the VBE settings
+ *
+ * Return: VBE node (typically "/bootstd/firmware0")
+ */
+ofnode vbe_get_node(void);
 
 #endif /* __VBE_ABREC_H */
