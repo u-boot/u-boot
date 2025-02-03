@@ -6,6 +6,13 @@ import os
 
 from u_boot_pylib import cros_subprocess
 
+# This permits interception of RunPipe for test purposes. If it is set to
+# a function, then that function is called with the pipe list being
+# executed. Otherwise, it is assumed to be a CommandResult object, and is
+# returned as the result for every run_pipe() call.
+# When this value is None, commands are executed as normal.
+TEST_RESULT = None
+
 """Shell command ease-ups for Python."""
 
 class CommandResult:
@@ -32,14 +39,6 @@ class CommandResult:
             self.combined = self.combined.decode('utf-8')
         return self
 
-
-# This permits interception of RunPipe for test purposes. If it is set to
-# a function, then that function is called with the pipe list being
-# executed. Otherwise, it is assumed to be a CommandResult object, and is
-# returned as the result for every run_pipe() call.
-# When this value is None, commands are executed as normal.
-test_result = None
-
 def run_pipe(pipe_list, infile=None, outfile=None,
             capture=False, capture_stderr=False, oneline=False,
             raise_on_error=True, cwd=None, binary=False,
@@ -63,14 +62,14 @@ def run_pipe(pipe_list, infile=None, outfile=None,
     Returns:
         CommandResult object
     """
-    if test_result:
-        if hasattr(test_result, '__call__'):
+    if TEST_RESULT:
+        if hasattr(TEST_RESULT, '__call__'):
             # pylint: disable=E1102
-            result = test_result(pipe_list=pipe_list)
+            result = TEST_RESULT(pipe_list=pipe_list)
             if result:
                 return result
         else:
-            return test_result
+            return TEST_RESULT
         # No result: fall through to normal processing
     result = CommandResult(b'', b'', b'')
     last_pipe = None
