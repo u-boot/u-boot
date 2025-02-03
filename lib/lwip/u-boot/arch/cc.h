@@ -34,7 +34,7 @@
 	       x, __LINE__, __FILE__); } while (0)
 
 #define atoi(str) (int)dectoul(str, NULL)
-#define lwip_strnstr(a, b, c)  strstr(a, b)
+#define lwip_strnstr(a, b, c)  strnstr(a, b, c)
 
 #define LWIP_ERR_T int
 #define LWIP_CONST_CAST(target_type, val) ((target_type)((uintptr_t)val))
