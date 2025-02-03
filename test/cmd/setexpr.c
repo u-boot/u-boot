@@ -309,10 +309,10 @@ static int setexpr_test_str(struct unit_test_state *uts)
 	 */
 	ut_assertok(env_set("fred", "x"));
 	start_mem = ut_check_free();
-	strcpy(buf, "hello");
 	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
 	ut_assertok(ut_check_delta(start_mem));
 
+	strcpy(buf, "hello");
 	ut_assertok(env_set("fred", "12345"));
 	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0", 0));
