@@ -67,7 +67,8 @@ static int do_fpga_check_params(long *dev, long *fpga_data, size_t *data_size,
 }
 
 #if defined(CONFIG_CMD_FPGA_LOAD_SECURE)
-int do_fpga_loads(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+static int do_fpga_loads(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
 {
 	size_t data_size = 0;
 	long fpga_data, dev;
