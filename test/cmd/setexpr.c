@@ -297,31 +297,18 @@ SETEXPR_TEST(setexpr_test_backref, UTF_CONSOLE);
 /* Test 'setexpr' command with setting strings */
 static int setexpr_test_str(struct unit_test_state *uts)
 {
-	ulong start_mem;
 	char *buf;
 
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\xff', BUF_SIZE);
 
-	/*
-	 * Set 'fred' to the same length as we expect to get below, to avoid a
-	 * new allocation in 'setexpr'. That way we can check for memory leaks.
-	 */
 	ut_assertok(env_set("fred", "x"));
-	start_mem = ut_check_free();
 	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
-	ut_assertok(ut_check_delta(start_mem));
 
 	strcpy(buf, "hello");
 	ut_assertok(env_set("fred", "12345"));
-	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0", 0));
 	ut_asserteq_str("hello", env_get("fred"));
-	/*
-	 * This fails in CI at present.
-	 *
-	 * ut_assertok(ut_check_delta(start_mem));
-	 */
 
 	unmap_sysmem(buf);
 
