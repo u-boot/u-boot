@@ -18,13 +18,16 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include "kwbimage.h"
-
+#include <sys/types.h>
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 
+#ifndef ushort
+#define ushort unsigned short
+#endif
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || \
     (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
 static void RSA_get0_key(const RSA *r,
