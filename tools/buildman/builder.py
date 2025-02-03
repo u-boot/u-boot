@@ -510,7 +510,7 @@ class Builder:
             stage: Stage that we are at (mrproper, config, oldconfig, build)
             cwd: Directory where make should be run
             args: Arguments to pass to make
-            kwargs: Arguments to pass to command.run_pipe()
+            kwargs: Arguments to pass to command.run_one()
         """
 
         def check_output(stream, data):
@@ -531,11 +531,12 @@ class Builder:
             return False
 
         self._restarting_config = False
-        self._terminated  = False
+        self._terminated = False
         cmd = [self.gnu_make] + list(args)
-        result = command.run_pipe([cmd], capture=True, capture_stderr=True,
-                cwd=cwd, raise_on_error=False, infile='/dev/null',
-                output_func=check_output, **kwargs)
+        result = command.run_one(*cmd, capture=True, capture_stderr=True,
+                                 cwd=cwd, raise_on_error=False,
+                                 infile='/dev/null', output_func=check_output,
+                                 **kwargs)
 
         if self._terminated:
             # Try to be helpful

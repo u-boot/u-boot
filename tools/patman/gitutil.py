@@ -65,9 +65,9 @@ def count_commits_to_branch(branch):
         rev_range = '%s..%s' % (us, branch)
     else:
         rev_range = '@{upstream}..'
-    pipe = [log_cmd(rev_range, oneline=True)]
-    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                              oneline=True, raise_on_error=False)
+    cmd = log_cmd(rev_range, oneline=True)
+    result = command.run_one(*cmd, capture=True, capture_stderr=True,
+                             oneline=True, raise_on_error=False)
     if result.return_code:
         raise ValueError('Failed to determine upstream: %s' %
                          result.stderr.strip())
@@ -84,8 +84,7 @@ def name_revision(commit_hash):
     Return:
         Name of revision, if any, else None
     """
-    pipe = ['git', 'name-rev', commit_hash]
-    stdout = command.run_pipe([pipe], capture=True, oneline=True).stdout
+    stdout = command.output_one_line('git', 'name-rev', commit_hash)
 
     # We expect a commit, a space, then a revision name
     name = stdout.split(' ')[1].strip()
@@ -108,9 +107,9 @@ def guess_upstream(git_dir, branch):
             Name of upstream branch (e.g. 'upstream/master') or None if none
             Warning/error message, or None if none
     """
-    pipe = [log_cmd(branch, git_dir=git_dir, oneline=True, count=100)]
-    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                              raise_on_error=False)
+    cmd = log_cmd(branch, git_dir=git_dir, oneline=True, count=100)
+    result = command.run_one(*cmd, capture=True, capture_stderr=True,
+                             raise_on_error=False)
     if result.return_code:
         return None, "Branch '%s' not found" % branch
     for line in result.stdout.splitlines()[1:]:
@@ -183,9 +182,9 @@ def count_commits_in_range(git_dir, range_expr):
         Number of patches that exist in the supplied range or None if none
         were found
     """
-    pipe = [log_cmd(range_expr, git_dir=git_dir, oneline=True)]
-    result = command.run_pipe(pipe, capture=True, capture_stderr=True,
-                              raise_on_error=False)
+    cmd = log_cmd(range_expr, git_dir=git_dir, oneline=True)
+    result = command.run_one(*cmd, capture=True, capture_stderr=True,
+                             raise_on_error=False)
     if result.return_code:
         return None, "Range '%s' not found or is invalid" % range_expr
     patch_count = len(result.stdout.splitlines())
@@ -250,9 +249,8 @@ def clone(git_dir, output_dir):
     Args:
         commit_hash: Commit hash to check out
     """
-    pipe = ['git', 'clone', git_dir, '.']
-    result = command.run_pipe([pipe], capture=True, cwd=output_dir,
-                              capture_stderr=True)
+    result = command.run_one('git', 'clone', git_dir, '.', capture=True,
+                             cwd=output_dir, capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git clone: %s' % result.stderr)
 
@@ -263,13 +261,13 @@ def fetch(git_dir=None, work_tree=None):
     Args:
         commit_hash: Commit hash to check out
     """
-    pipe = ['git']
+    cmd = ['git']
     if git_dir:
-        pipe.extend(['--git-dir', git_dir])
+        cmd.extend(['--git-dir', git_dir])
     if work_tree:
-        pipe.extend(['--work-tree', work_tree])
-    pipe.append('fetch')
-    result = command.run_pipe([pipe], capture=True, capture_stderr=True)
+        cmd.extend(['--work-tree', work_tree])
+    cmd.append('fetch')
+    result = command.run_one(*cmd, capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git fetch: %s' % result.stderr)
 
@@ -283,9 +281,9 @@ def check_worktree_is_available(git_dir):
     Returns:
         True if git-worktree commands will work, False otherwise.
     """
-    pipe = ['git', '--git-dir', git_dir, 'worktree', 'list']
-    result = command.run_pipe([pipe], capture=True, capture_stderr=True,
-                              raise_on_error=False)
+    result = command.run_one('git', '--git-dir', git_dir, 'worktree', 'list',
+                             capture=True, capture_stderr=True,
+                             raise_on_error=False)
     return result.return_code == 0
 
 
@@ -298,11 +296,11 @@ def add_worktree(git_dir, output_dir, commit_hash=None):
         commit_hash: Commit hash to checkout
     """
     # We need to pass --detach to avoid creating a new branch
-    pipe = ['git', '--git-dir', git_dir, 'worktree', 'add', '.', '--detach']
+    cmd = ['git', '--git-dir', git_dir, 'worktree', 'add', '.', '--detach']
     if commit_hash:
-        pipe.append(commit_hash)
-    result = command.run_pipe([pipe], capture=True, cwd=output_dir,
-                              capture_stderr=True)
+        cmd.append(commit_hash)
+    result = command.run_one(*cmd, capture=True, cwd=output_dir,
+                             capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git worktree add: %s' % result.stderr)
 
@@ -313,8 +311,8 @@ def prune_worktrees(git_dir):
     Args:
         git_dir: The repository whose deleted worktrees should be pruned
     """
-    pipe = ['git', '--git-dir', git_dir, 'worktree', 'prune']
-    result = command.run_pipe([pipe], capture=True, capture_stderr=True)
+    result = command.run_one('git', '--git-dir', git_dir, 'worktree', 'prune',
+                             capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError('git worktree prune: %s' % result.stderr)
 
@@ -687,7 +685,7 @@ def setup():
     if alias_fname:
         settings.ReadGitAliases(alias_fname)
     cmd = log_cmd(None, count=0)
-    use_no_decorate = (command.run_pipe([cmd], raise_on_error=False)
+    use_no_decorate = (command.run_one(*cmd, raise_on_error=False)
                        .return_code == 0)
 
 

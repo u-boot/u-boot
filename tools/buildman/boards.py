@@ -251,9 +251,9 @@ class KconfigScanner:
                 '-undef',
                 '-x', 'assembler-with-cpp',
                 defconfig]
-            result = command.run_pipe([cmd], capture=True, capture_stderr=True)
+            stdout = command.output(*cmd, capture_stderr=True)
             temp = tempfile.NamedTemporaryFile(prefix='buildman-')
-            tools.write_file(temp.name, result.stdout, False)
+            tools.write_file(temp.name, stdout, False)
             fname = temp.name
             tout.info(f'Processing #include to produce {defconfig}')
         else:

@@ -188,6 +188,21 @@ def run(*cmd, **kwargs):
     return run_pipe([cmd], **kwargs).stdout
 
 
+def run_one(*cmd, **kwargs):
+    """Run a single command
+
+    Note that you must add 'capture' to kwargs to obtain non-empty output
+
+    Args:
+        *cmd (list of str): Command to run
+        **kwargs (dict of args): Extra arguments to pass in
+
+    Returns:
+        CommandResult: output of command
+    """
+    return run_pipe([cmd], **kwargs)
+
+
 def run_list(cmd):
     """Run a command and return its output
 
