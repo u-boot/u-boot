@@ -5,6 +5,5 @@
 ifeq ($(CONFIG_XPL_BUILD),y)
 obj-y += spl.o
 else
-obj-y += cpu.o
 obj-y += dram.o
 endif

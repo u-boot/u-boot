@@ -30,6 +30,7 @@ static struct sbi_imp implementations[] = {
 	{ 8, "PolarFire Hart Software Services" },
 	{ 9, "coreboot" },
 	{ 10, "oreboot" },
+	{ 11, "bhyve" },
 };
 
 static struct sbi_ext extensions[] = {

@@ -11,11 +11,13 @@
 #include <event.h>
 #include <hang.h>
 #include <init.h>
+#include <irq_func.h>
 #include <log.h>
 #include <asm/encoding.h>
 #include <asm/system.h>
 #include <asm/hwcap.h>
 #include <asm/cpufeature.h>
+#include <asm/cache.h>
 #include <dm/uclass-internal.h>
 #include <linux/bitops.h>
 #include <linux/log2.h>
@@ -729,3 +731,18 @@ void reset_cpu(void)
 	hang();
 }
 #endif
+
+/*
+ * cleanup_before_linux() is called just before we call linux, which prepares
+ * the processor for linux.
+ * this weak implementation is used by default. we disable interrupts and flush
+ * the cache.
+ */
+__weak int cleanup_before_linux(void)
+{
+	disable_interrupts();
+
+	cache_flush();
+
+	return 0;
+}

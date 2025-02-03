@@ -459,6 +459,7 @@ config SPL_XIP
 
 config AVAILABLE_HARTS
 	bool "Send IPI by available harts"
+	depends on !XIP
 	default y
 	help
 	  By default, IPI sending mechanism will depend on available_harts.
@@ -586,5 +587,11 @@ config SPL_LOAD_FIT_OPENSBI_OS_BOOT
 	  Use fw_dynamic from the FIT image, and u-boot SPL will invoke it directly.
 	  This is a shortcut boot flow, from u-boot SPL -> OpenSBI -> u-boot proper
 	  -> linux to u-boot SPL -> OpenSBI -> linux.
+
+config SPL_OPTEE_LOAD_ADDR
+	hex "OP-TEE Trusted OS image load address"
+	depends on OPTEE
+	help
+	  Load address of the OP-TEE binary.
 
 endmenu
