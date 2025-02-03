@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (c) 2011 The Chromium OS Authors.
-#
+"""
+Shell command ease-ups for Python
 
-import os
+Copyright (c) 2011 The Chromium OS Authors.
+"""
+
+import subprocess
 
 from u_boot_pylib import cros_subprocess
 
@@ -26,16 +29,16 @@ class CommandExc(Exception):
         self.result = result
 
 
-"""Shell command ease-ups for Python."""
-
 class CommandResult:
     """A class which captures the result of executing a command.
 
     Members:
-        stdout: stdout obtained from command, as a string
-        stderr: stderr obtained from command, as a string
-        return_code: Return code from command
-        exception: Exception received, or None if all ok
+        stdout (bytes): stdout obtained from command, as a string
+        stderr (bytes): stderr obtained from command, as a string
+        combined (bytes): stdout and stderr interleaved
+        return_code (int): Return code from command
+        exception (Exception): Exception received, or None if all ok
+        output (str or None): Returns output as a single line if requested
     """
     def __init__(self, stdout='', stderr='', combined='', return_code=0,
                  exception=None):
@@ -44,34 +47,46 @@ class CommandResult:
         self.combined = combined
         self.return_code = return_code
         self.exception = exception
+        self.output = None
 
     def to_output(self, binary):
+        """Converts binary output to its final form
+
+        Args:
+            binary (bool): True to report binary output, False to use strings
+        Returns:
+            self
+        """
         if not binary:
             self.stdout = self.stdout.decode('utf-8')
             self.stderr = self.stderr.decode('utf-8')
             self.combined = self.combined.decode('utf-8')
         return self
 
-def run_pipe(pipe_list, infile=None, outfile=None,
-            capture=False, capture_stderr=False, oneline=False,
-            raise_on_error=True, cwd=None, binary=False,
-            output_func=None, **kwargs):
+
+def run_pipe(pipe_list, infile=None, outfile=None, capture=False,
+             capture_stderr=False, oneline=False, raise_on_error=True, cwd=None,
+             binary=False, output_func=None, **kwargs):
     """
     Perform a command pipeline, with optional input/output filenames.
 
     Args:
-        pipe_list: List of command lines to execute. Each command line is
-            piped into the next, and is itself a list of strings. For
+        pipe_list (list of list): List of command lines to execute. Each command
+            line is piped into the next, and is itself a list of strings. For
             example [ ['ls', '.git'] ['wc'] ] will pipe the output of
             'ls .git' into 'wc'.
-        infile: File to provide stdin to the pipeline
-        outfile: File to store stdout
-        capture: True to capture output
-        capture_stderr: True to capture stderr
-        oneline: True to strip newline chars from output
-        output_func: Output function to call with each output fragment
-            (if it returns True the function terminates)
-        kwargs: Additional keyword arguments to cros_subprocess.Popen()
+        infile (str): File to provide stdin to the pipeline
+        outfile (str): File to store stdout
+        capture (bool): True to capture output
+        capture_stderr (bool): True to capture stderr
+        oneline (bool): True to strip newline chars from output
+        raise_on_error (bool): True to raise on an error, False to return it in
+            the CommandResult
+        cwd (str or None): Directory to run the command in
+        binary (bool): True to report binary output, False to use strings
+        output_func (function): Output function to call with each output
+            fragment (if it returns True the function terminates)
+        **kwargs: Additional keyword arguments to cros_subprocess.Popen()
     Returns:
         CommandResult object
     Raises:
@@ -89,7 +104,7 @@ def run_pipe(pipe_list, infile=None, outfile=None,
     result = CommandResult(b'', b'', b'')
     last_pipe = None
     pipeline = list(pipe_list)
-    user_pipestr =  '|'.join([' '.join(pipe) for pipe in pipe_list])
+    user_pipestr = '|'.join([' '.join(pipe) for pipe in pipe_list])
     kwargs['stdout'] = None
     kwargs['stderr'] = None
     while pipeline:
@@ -125,28 +140,66 @@ def run_pipe(pipe_list, infile=None, outfile=None,
         raise CommandExc(f"Error running '{user_pipestr}'", result)
     return result.to_output(binary)
 
+
 def output(*cmd, **kwargs):
+    """Run a command and return its output
+
+    Args:
+        *cmd (list of str): Command to run
+        **kwargs (dict of args): Extra arguments to pass in
+
+    Returns:
+        str: command output
+    """
     kwargs['raise_on_error'] = kwargs.get('raise_on_error', True)
     return run_pipe([cmd], capture=True, **kwargs).stdout
+
 
 def output_one_line(*cmd, **kwargs):
     """Run a command and output it as a single-line string
 
-    The command us expected to produce a single line of output
+    The command is expected to produce a single line of output
+
+    Args:
+        *cmd (list of str): Command to run
+        **kwargs (dict of args): Extra arguments to pass in
 
     Returns:
-        String containing output of command
+        str: output of command with all newlines removed
     """
     raise_on_error = kwargs.pop('raise_on_error', True)
     result = run_pipe([cmd], capture=True, oneline=True,
-                     raise_on_error=raise_on_error, **kwargs).stdout.strip()
+                      raise_on_error=raise_on_error, **kwargs).stdout.strip()
     return result
 
+
 def run(*cmd, **kwargs):
+    """Run a command
+
+    Note that you must add 'capture' to kwargs to obtain non-empty output
+
+    Args:
+        *cmd (list of str): Command to run
+        **kwargs (dict of args): Extra arguments to pass in
+
+    Returns:
+        str: output of command
+    """
     return run_pipe([cmd], **kwargs).stdout
 
+
 def run_list(cmd):
+    """Run a command and return its output
+
+    Args:
+        cmd (list of str): Command to run
+
+    Returns:
+        str: output of command
+    """
     return run_pipe([cmd], capture=True).stdout
 
+
 def stop_all():
+    """Stop all subprocesses initiated with cros_subprocess"""
     cros_subprocess.stay_alive = False
