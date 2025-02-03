@@ -10,6 +10,7 @@
 #include <crypto/hash_info.h>
 #endif
 #if CONFIG_IS_ENABLED(MBEDTLS_LIB_X509)
+#include "mbedtls_options.h"
 #include <mbedtls/asn1.h>
 #include <mbedtls/oid.h>
 #endif
