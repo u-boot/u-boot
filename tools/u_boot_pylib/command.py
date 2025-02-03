@@ -13,6 +13,19 @@ from u_boot_pylib import cros_subprocess
 # When this value is None, commands are executed as normal.
 TEST_RESULT = None
 
+
+class CommandExc(Exception):
+    """Reports an exception to the caller"""
+    def __init__(self, msg, result):
+        """Set up a new exception object
+
+        Args:
+            result (CommandResult): Execution result so far
+        """
+        super().__init__(msg)
+        self.result = result
+
+
 """Shell command ease-ups for Python."""
 
 class CommandResult:
@@ -61,6 +74,8 @@ def run_pipe(pipe_list, infile=None, outfile=None,
         kwargs: Additional keyword arguments to cros_subprocess.Popen()
     Returns:
         CommandResult object
+    Raises:
+        CommandExc if an exception happens
     """
     if TEST_RESULT:
         if hasattr(TEST_RESULT, '__call__'):
@@ -95,7 +110,8 @@ def run_pipe(pipe_list, infile=None, outfile=None,
         except Exception as err:
             result.exception = err
             if raise_on_error:
-                raise Exception("Error running '%s': %s" % (user_pipestr, str))
+                raise CommandExc(f"Error running '{user_pipestr}': {err}",
+                                 result) from err
             result.return_code = 255
             return result.to_output(binary)
 
@@ -106,7 +122,7 @@ def run_pipe(pipe_list, infile=None, outfile=None,
             result.output = result.stdout.rstrip(b'\r\n')
     result.return_code = last_pipe.wait()
     if raise_on_error and result.return_code:
-        raise Exception("Error running '%s'" % user_pipestr)
+        raise CommandExc(f"Error running '{user_pipestr}'", result)
     return result.to_output(binary)
 
 def output(*cmd, **kwargs):

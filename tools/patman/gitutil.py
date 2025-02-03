@@ -140,7 +140,7 @@ def get_upstream(git_dir, branch):
                                          'branch.%s.remote' % branch)
         merge = command.output_one_line('git', '--git-dir', git_dir, 'config',
                                         'branch.%s.merge' % branch)
-    except Exception:
+    except command.CommandExc:
         upstream, msg = guess_upstream(git_dir, branch)
         return upstream, msg
 
