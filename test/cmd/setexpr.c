@@ -303,7 +303,8 @@ static int setexpr_test_str(struct unit_test_state *uts)
 	memset(buf, '\xff', BUF_SIZE);
 
 	ut_assertok(env_set("fred", "x"));
-	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
+	ut_asserteq(0, run_command("setexpr.s fred 0", 0));
+	ut_asserteq_str("0", env_get("fred"));
 
 	strcpy(buf, "hello");
 	ut_assertok(env_set("fred", "12345"));
@@ -320,6 +321,10 @@ SETEXPR_TEST(setexpr_test_str, UTF_CONSOLE);
 static int setexpr_test_str_oper(struct unit_test_state *uts)
 {
 	char *buf;
+
+	/* Test concatenation of strings */
+	ut_assertok(run_command("setexpr.s fred '1' + '3'", 0));
+	ut_asserteq_str("13", env_get("fred"));
 
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\xff', BUF_SIZE);
