@@ -488,7 +488,7 @@ static int boot_targets_setup(void)
 		if (bootseq >= 0) {
 			bootseq_len = snprintf(NULL, 0, "%i", bootseq);
 			debug("Bootseq len: %x\n", bootseq_len);
-			env_set_hex("bootseq", bootseq);
+			env_set_ulong("bootseq", (unsigned long)bootseq);
 		}
 
 		/*
