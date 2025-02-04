@@ -178,8 +178,13 @@
 					default = "conf-1";
 					conf-1 {
 						description = "Multi DTB with TF-A/TEE";
+#if CONFIG_BL31_LOAD_ADDR
 						firmware = "atf";
 						loadables = "tee", "uboot", "fdt";
+#else
+						firmware = "uboot";
+						loadables = "fdt";
+#endif
 					};
 				};
 			};

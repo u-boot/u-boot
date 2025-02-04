@@ -87,9 +87,15 @@
 					default = "@conf-DEFAULT-SEQ";
 					@conf-SEQ {
 						description = "NAME";
+#if CONFIG_BL31_LOAD_ADDR
 						firmware = "atf";
 						loadables = "tee", "uboot";
 						fdt = "fdt-SEQ";
+#else
+						firmware = "uboot";
+						loadables = "fdt";
+#endif
+
 					};
 				};
 			};
