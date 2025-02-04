@@ -475,6 +475,9 @@ int bloblist_reloc(void *to, uint to_size)
 {
 	struct bloblist_hdr *hdr;
 
+	if (!to_size)
+		return 0;
+
 	if (to_size < gd->bloblist->total_size)
 		return -ENOSPC;
 
@@ -505,13 +508,6 @@ int bloblist_init(void)
 	 * at a fixed address.
 	 */
 	bool from_addr = fixed && !xpl_is_first_phase();
-	/*
-	 * If U-Boot is in the first phase that an arch custom routine should
-	 * install the bloblist passed from previous loader to this fixed
-	 * address.
-	 */
-	bool from_boot_arg = fixed && xpl_is_first_phase();
-
 	if (xpl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
 		from_addr = false;
 	if (fixed)
@@ -519,7 +515,13 @@ int bloblist_init(void)
 				      CONFIG_BLOBLIST_ADDR);
 	size = CONFIG_BLOBLIST_SIZE;
 
-	if (from_boot_arg)
+
+	/*
+	 * If the current boot stage is the first phase of U-Boot, then an
+	 * architecture-specific routine should be used to handle the bloblist
+	 * passed from the previous boot loader
+	 */
+	if (xpl_is_first_phase() && !IS_ENABLED(CONFIG_BLOBLIST_ALLOC))
 		ret = xferlist_from_boot_arg(addr, size);
 	else if (from_addr)
 		ret = bloblist_check(addr, size);

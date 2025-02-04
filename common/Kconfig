@@ -1066,6 +1066,12 @@ config BLOBLIST_ALLOC
 	  specify a fixed address on systems where this is unknown or can
 	  change at runtime.
 
+config BLOBLIST_PASSAGE
+	bool "Use bloblist in-place"
+	help
+	  Use a bloblist in the incoming standard passage. The size is detected
+	  automatically so CONFIG_BLOBLIST_SIZE can be 0.
+
 endchoice
 
 config BLOBLIST_ADDR
@@ -1080,6 +1086,7 @@ config BLOBLIST_ADDR
 
 config BLOBLIST_SIZE
 	hex "Size of bloblist"
+	default 0x0 if BLOBLIST_PASSAGE
 	default 0x400
 	help
 	  Sets the size of the bloblist in bytes. This must include all
@@ -1090,7 +1097,6 @@ config BLOBLIST_SIZE
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
 	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
-	default 0x0 if BLOBLIST_PASSAGE
 	default 0x20000 if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
 	help
 	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
