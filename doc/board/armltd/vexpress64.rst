@@ -43,6 +43,22 @@ Juno is an Arm development board with the following features:
 
 More details can be found in the board documentation [3]_.
 
+Bloblist Support
+----------------
+
+The ``vexpress_fvp_bloblist_defconfig`` configures U-Boot to be compiled for
+Vexpress64 with Bloblist as the primary method for information handoff between
+boot stages. U-Boot offers three methods to set up a bloblist: using a
+predefined bloblist at a specified address, dynamically allocating memory for a
+bloblist, or utilizing a standard passage-provided bloblist with automatic size
+detection.
+
+By default, ``vexpress_fvp_bloblist_defconfig`` uses the standard passage method
+(CONFIG_BLOBLIST_PASSAGE) because TF-A provides a Transfer List in non-secure
+memory that U-Boot can utilise. This Bloblist, which is referred to as a Transfer List in
+TF-A, contains all necessary data for the handoff process, including DT and ACPI
+tables.
+
 References
 ----------
 
