@@ -2161,6 +2161,7 @@ config WGET_HTTPS
 	depends on CMD_WGET
 	depends on PROT_TCP_LWIP
 	depends on MBEDTLS_LIB
+	depends on DM_RNG
 	select SHA256
 	select RSA
 	select ASYMMETRIC_KEY_TYPE

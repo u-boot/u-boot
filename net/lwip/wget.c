@@ -433,10 +433,15 @@ bool wget_validate_uri(char *uri)
 
 	if (!strncmp(uri, "http://", strlen("http://"))) {
 		prefix_len = strlen("http://");
-	} else if (!strncmp(uri, "https://", strlen("https://"))) {
-		prefix_len = strlen("https://");
+	} else if (CONFIG_IS_ENABLED(WGET_HTTPS)) {
+		if (!strncmp(uri, "https://", strlen("https://"))) {
+			prefix_len = strlen("https://");
+		} else {
+			log_err("only http(s):// is supported\n");
+			return false;
+		}
 	} else {
-		log_err("only http(s):// is supported\n");
+		log_err("only http:// is supported\n");
 		return false;
 	}
 
