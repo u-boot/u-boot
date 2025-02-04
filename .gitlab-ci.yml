@@ -58,10 +58,8 @@ stages:
     # Prepare python environment
     - virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
-      pip install -r test/py/requirements.txt;
-      pip install -r tools/binman/requirements.txt;
-      pip install -r tools/buildman/requirements.txt;
-      pip install -r tools/u_boot_pylib/requirements.txt;
+      pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
+        -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
 
   after_script:
     - cp -v /tmp/${TEST_PY_BD}/*.{html,css,xml} .
@@ -127,8 +125,8 @@ build all platforms in a single job:
     # Prepare python environment
     - virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
-      pip install -r tools/binman/requirements.txt;
-      pip install -r tools/buildman/requirements.txt
+      pip install -r tools/binman/requirements.txt
+        -r tools/buildman/requirements.txt
     - ret=0;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
       ./tools/buildman/buildman -o /tmp -PEWM -x xtensa || ret=$?;
@@ -187,11 +185,9 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       export USER=gitlab;
       virtualenv -p /usr/bin/python3 /tmp/venv;
       . /tmp/venv/bin/activate;
-      pip install -r test/py/requirements.txt;
-      pip install -r tools/binman/requirements.txt;
-      pip install -r tools/buildman/requirements.txt;
-      pip install -r tools/patman/requirements.txt;
-      pip install -r tools/u_boot_pylib/requirements.txt;
+      pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
+        -r tools/buildman/requirements.txt -r tools/patman/requirements.txt
+        -r tools/u_boot_pylib/requirements.txt;
       export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only;
       export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
       export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
@@ -212,12 +208,9 @@ Run pylint:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
     - virtualenv -p /usr/bin/python3 /tmp/venv
     - . /tmp/venv/bin/activate
-    - pip install -r test/py/requirements.txt
-    - pip install -r tools/binman/requirements.txt
-    - pip install -r tools/buildman/requirements.txt
-    - pip install -r tools/patman/requirements.txt
-    - pip install -r tools/u_boot_pylib/requirements.txt
-    - pip install asteval pylint==2.12.2 pyopenssl
+    - pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
+        -r tools/buildman/requirements.txt -r tools/patman/requirements.txt
+        -r tools/u_boot_pylib/requirements.txt asteval pylint==2.12.2 pyopenssl
     - export PATH=${PATH}:~/.local/bin
     - echo "[MASTER]" >> .pylintrc
     - echo "load-plugins=pylint.extensions.docparams" >> .pylintrc

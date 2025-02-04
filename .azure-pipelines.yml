@@ -133,11 +133,11 @@ stages:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install -r tools/binman/requirements.txt
-          pip install -r tools/buildman/requirements.txt
-          pip install -r tools/patman/requirements.txt
-          pip install -r tools/u_boot_pylib/requirements.txt
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
@@ -167,12 +167,12 @@ stages:
           export USER=azure
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r test/py/requirements.txt
-          pip install -r tools/binman/requirements.txt
-          pip install -r tools/buildman/requirements.txt
-          pip install -r tools/patman/requirements.txt
-          pip install -r tools/u_boot_pylib/requirements.txt
-          pip install asteval pylint==2.12.2 pyopenssl
+          pip install -r test/py/requirements.txt \
+            -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r tools/patman/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            asteval pylint==2.12.2 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc
@@ -274,11 +274,11 @@ stages:
           fi
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r tools/binman/requirements.txt
-          pip install -r tools/buildman/requirements.txt
-          pip install -r test/py/requirements.txt
-          pip install -r tools/u_boot_pylib/requirements.txt
-          pip install pytest-azurepipelines
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt \
+            -r test/py/requirements.txt \
+            -r tools/u_boot_pylib/requirements.txt \
+            pytest-azurepipelines
           tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
           cp /opt/grub/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
           cp /opt/grub/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
@@ -593,8 +593,8 @@ stages:
           git config --global --add safe.directory ${WORK_DIR}
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
-          pip install -r tools/binman/requirements.txt
-          pip install -r tools/buildman/requirements.txt
+          pip install -r tools/binman/requirements.txt \
+            -r tools/buildman/requirements.txt
           EOF
           cat << "EOF" >> build.sh
           if [[ "${BUILDMAN}" != "" ]]; then
