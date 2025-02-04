@@ -134,7 +134,10 @@ stages:
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
+          pip install -r tools/binman/requirements.txt
           pip install -r tools/buildman/requirements.txt
+          pip install -r tools/patman/requirements.txt
+          pip install -r tools/u_boot_pylib/requirements.txt
           export UBOOT_TRAVIS_BUILD_DIR=/tmp/tools-only
           export PYTHONPATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt
           export PATH=${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}
@@ -165,7 +168,10 @@ stages:
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt
+          pip install -r tools/binman/requirements.txt
           pip install -r tools/buildman/requirements.txt
+          pip install -r tools/patman/requirements.txt
+          pip install -r tools/u_boot_pylib/requirements.txt
           pip install asteval pylint==2.12.2 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
@@ -268,7 +274,11 @@ stages:
           fi
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt
           pip install -r tools/buildman/requirements.txt
+          pip install -r test/py/requirements.txt
+          pip install -r tools/u_boot_pylib/requirements.txt
+          pip install pytest-azurepipelines
           tools/buildman/buildman -o \${UBOOT_TRAVIS_BUILD_DIR} -w -E -W -e --board \${TEST_PY_BD} \${OVERRIDE}
           cp /opt/grub/grub_x86.efi \${UBOOT_TRAVIS_BUILD_DIR}/
           cp /opt/grub/grub_x64.efi \${UBOOT_TRAVIS_BUILD_DIR}/
@@ -292,8 +302,6 @@ stages:
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom remove -n fallback/payload;
               /opt/coreboot/cbfstool \${UBOOT_TRAVIS_BUILD_DIR}/coreboot.rom add-flat-binary -f \${UBOOT_TRAVIS_BUILD_DIR}/u-boot.bin -n fallback/payload -c LZMA -l 0x1110000 -e 0x1110000;
           fi
-          pip install -r test/py/requirements.txt
-          pip install pytest-azurepipelines
           export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:\${PATH}
           export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci
           # "\${var:+"-k \$var"}" expands to "" if \$var is empty, "-k \$var" if not
@@ -585,6 +593,7 @@ stages:
           git config --global --add safe.directory ${WORK_DIR}
           virtualenv -p /usr/bin/python3 /tmp/venv
           . /tmp/venv/bin/activate
+          pip install -r tools/binman/requirements.txt
           pip install -r tools/buildman/requirements.txt
           EOF
           cat << "EOF" >> build.sh
