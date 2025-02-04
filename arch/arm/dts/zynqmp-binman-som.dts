@@ -162,7 +162,9 @@
 						type = "flat_dt";
 						arch = "arm64";
 						compression = "none";
-						load = <0x0 0x100000>;
+#if CONFIG_XILINX_OF_BOARD_DTB_ADDR
+						load = /bits/ 64 <CONFIG_XILINX_OF_BOARD_DTB_ADDR>;
+#endif
 						hash {
 							algo = "md5";
 						};
