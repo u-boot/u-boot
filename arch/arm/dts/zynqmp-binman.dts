@@ -61,8 +61,11 @@
 						arch = "arm64";
 						compression = "none";
 						os = "tee";
-						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
-						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						load = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
 						tee-os {
 							optional;
 						};
@@ -135,8 +138,11 @@
 						arch = "arm64";
 						compression = "none";
 						os = "tee";
-						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
-						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						load = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
 						tee-os {
 							optional;
 						};
