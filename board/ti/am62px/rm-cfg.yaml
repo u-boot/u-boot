@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0+
-# Copyright (C) 2022-2023 Texas Instruments Incorporated - https://www.ti.com/
+# Copyright (C) 2022-2025 Texas Instruments Incorporated - https://www.ti.com/
 #
 # Resource management configuration for AM62P
 #
@@ -244,7 +244,7 @@ rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 984
+            resasg_entries_size: 1048
             reserved: 0
     resasg_entries:
         -
@@ -476,13 +476,13 @@ rm-cfg:
             host_id: 12
             reserved: 0
         -
-            start_resource: 45
+            start_resource: 44
             num_resource: 35
             type: 1802
             host_id: 35
             reserved: 0
         -
-            start_resource: 45
+            start_resource: 44
             num_resource: 35
             type: 1802
             host_id: 36
@@ -494,31 +494,31 @@ rm-cfg:
             host_id: 30
             reserved: 0
         -
-            start_resource: 14
+            start_resource: 13
             num_resource: 512
             type: 1805
             host_id: 12
             reserved: 0
         -
-            start_resource: 526
+            start_resource: 525
             num_resource: 256
             type: 1805
             host_id: 35
             reserved: 0
         -
-            start_resource: 526
+            start_resource: 525
             num_resource: 256
             type: 1805
             host_id: 36
             reserved: 0
         -
-            start_resource: 782
+            start_resource: 781
             num_resource: 128
             type: 1805
             host_id: 30
             reserved: 0
         -
-            start_resource: 910
+            start_resource: 909
             num_resource: 626
             type: 1805
             host_id: 128
@@ -645,15 +645,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 64
+            num_resource: 32
             type: 1937
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 64
+            num_resource: 32
             type: 1937
             host_id: 36
+            reserved: 0
+        -
+            start_resource: 51
+            num_resource: 32
+            type: 1937
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 51
+            num_resource: 32
+            type: 1937
+            host_id: 30
             reserved: 0
         -
             start_resource: 83
@@ -699,15 +711,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 118
-            num_resource: 16
+            num_resource: 6
             type: 1943
             host_id: 12
             reserved: 0
         -
             start_resource: 118
-            num_resource: 16
+            num_resource: 6
             type: 1943
             host_id: 36
+            reserved: 0
+        -
+            start_resource: 124
+            num_resource: 10
+            type: 1943
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 124
+            num_resource: 10
+            type: 1943
+            host_id: 30
             reserved: 0
         -
             start_resource: 134
@@ -765,15 +789,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 8
+            num_resource: 4
             type: 1956
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 8
+            num_resource: 4
             type: 1956
             host_id: 36
+            reserved: 0
+        -
+            start_resource: 23
+            num_resource: 4
+            type: 1956
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 23
+            num_resource: 4
+            type: 1956
+            host_id: 30
             reserved: 0
         -
             start_resource: 27
@@ -861,15 +897,27 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 19
-            num_resource: 16
+            num_resource: 6
             type: 1964
             host_id: 12
             reserved: 0
         -
             start_resource: 19
-            num_resource: 16
+            num_resource: 6
             type: 1964
             host_id: 36
+            reserved: 0
+        -
+            start_resource: 25
+            num_resource: 10
+            type: 1964
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 25
+            num_resource: 10
+            type: 1964
+            host_id: 30
             reserved: 0
         -
             start_resource: 20
