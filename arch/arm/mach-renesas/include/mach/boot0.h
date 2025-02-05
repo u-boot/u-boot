@@ -34,7 +34,7 @@ _start:
 	.inst	0xe380070a	/* orr     r0, r0, #0x280000 */
 
 	/* APMU_RVBARPLC0 = (address of 'b reset' below) | CA_CORE0_VLD_RVBARP */
-	.inst	0xe28f3088	/* add     r3, pc, #0x88 */
+	.inst	0xe28f30a8	/* add     r3, pc, #0xa8 */
 	.inst	0xe3833001	/* orr     r3, r3, #1 */
 	.inst	0xe5843038	/* str     r3, [r4, #56]   @ 0x38 */
 
@@ -75,10 +75,20 @@ _start:
 	.inst	0xe20230ff	/* and     r3, r2, #255    @ 0xff */
 	.inst	0xe3530011	/* cmp     r3, #17 */
 	.inst	0x1afffffb	/* bne     78 <reset-0x28> */
+	/* Invalidate icache before jump to follow up software */
+	.inst	0xe3a00000	/* mov     r0, #0 */
+	.inst	0xee070f15	/* mcr     15, 0, r0, cr7, cr5, {0} */
+	.inst	0xf57ff04f	/* dsb     sy */
+	.inst	0xf57ff06f	/* isb     sy */
+	/* Jump to follow up software */
 	.inst	0xe1a02922	/* lsr     r2, r2, #18 */
 	.inst	0xe1a02902	/* lsl     r2, r2, #18 */
 	.inst	0xe1a0f002	/* mov     pc, r2 */
 	.inst	0xeafffffe	/* b       94 <reset-0xc> */
+	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
+	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
+	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
+	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
 	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
 	.inst	0xe1a00000	/* nop                     @ (mov r0, r0) */
 	/* Offset 0xa0 */

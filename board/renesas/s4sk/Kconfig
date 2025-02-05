@@ -1,0 +1,15 @@
+if TARGET_S4SK
+
+config SYS_SOC
+	default "renesas"
+
+config SYS_BOARD
+	default "s4sk"
+
+config SYS_VENDOR
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	default "s4sk"
+
+endif

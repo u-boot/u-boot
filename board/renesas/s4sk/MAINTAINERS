@@ -1,0 +1,7 @@
+S4SK BOARD
+M:	Marek Vasut <marek.vasut+renesas@mailbox.org>
+S:	Maintained
+F:	arch/arm/dts/r8a779f4*
+F:	board/renesas/s4sk/
+F:	configs/r8a779f4_s4sk_defconfig
+F:	include/configs/s4sk.h
