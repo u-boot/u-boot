@@ -72,6 +72,14 @@
 	bootph-all;
 };
 
+&main_i2c0 {
+	bootph-all;
+};
+
+&main_i2c0_pins_default {
+	bootph-all;
+};
+
 &main_mmc1_pins_default {
 	bootph-all;
 };
