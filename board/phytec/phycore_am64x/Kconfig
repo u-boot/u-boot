@@ -35,3 +35,28 @@ config SYS_CONFIG_NAME
 source "board/phytec/common/Kconfig"
 
 endif
+
+config PHYCORE_AM64X_RAM_SIZE_FIX
+        bool "Set phyCORE-AM64x RAM size fix instead of detecting"
+        default false
+        help
+          RAM size is automatic being detected with the help of
+          the EEPROM introspection data. Set RAM size to a fix value
+          instead.
+
+choice
+        prompt "phyCORE-AM64x RAM size"
+        depends on PHYCORE_AM64X_RAM_SIZE_FIX
+        default PHYCORE_AM64X_RAM_SIZE_2GB
+
+config PHYCORE_AM64X_RAM_SIZE_1GB
+        bool "1GB RAM"
+        help
+          Set RAM size fix to 1GB for phyCORE-AM64x.
+
+config PHYCORE_AM64X_RAM_SIZE_2GB
+        bool "2GB RAM"
+        help
+          Set RAM size fix to 2GB for phyCORE-AM64x.
+
+endchoice
