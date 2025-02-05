@@ -28,7 +28,7 @@
 
 static void usage(const char *exec_name)
 {
-	fprintf(stderr, "%s [-h] [-r] [-b] [-p <byte>] -s <environment partition size> -o <output> <input file>\n"
+	fprintf(stderr, "%s [-h] [-V] [-r] [-b] [-p <byte>] -s <environment partition size> -o <output> <input file>\n"
 	       "\n"
 	       "This tool takes a key=value input file (same as would a `printenv' show) and generates the corresponding environment image, ready to be flashed.\n"
 	       "\n"
