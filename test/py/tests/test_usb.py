@@ -242,7 +242,7 @@ def test_usb_part(u_boot_console):
                     elif part_type == '83':
                         print('ext(2/4) detected')
                         output = u_boot_console.run_command(
-                            'fstype usb %d:%d' % i, part_id
+                            'fstype usb %d:%d' % (i, part_id)
                         )
                         if 'ext2' in output:
                             part_ext2.append(part_id)
