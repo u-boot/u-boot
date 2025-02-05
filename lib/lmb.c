@@ -111,11 +111,9 @@ static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
 	phys_addr_t base2 = rgn[r2].base;
 	phys_size_t size2 = rgn[r2].size;
 
-	if (base1 + size1 > base2 + size2) {
-		printf("This will not be a case any time\n");
-		return;
-	}
-	rgn[r1].size = base2 + size2 - base1;
+	if (base1 + size1 < base2 + size2)
+		rgn[r1].size = base2 + size2 - base1;
+
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
