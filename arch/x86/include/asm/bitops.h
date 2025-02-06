@@ -255,15 +255,20 @@ static __inline__ int variable_test_bit(int nr, volatile void * addr)
  constant_test_bit((nr),(addr)) : \
  variable_test_bit((nr),(addr)))
 
+
+#define find_first_zero_bit(p,sz)	_find_first_zero_bit(p,sz)
+#define find_next_zero_bit(p,sz,off)	_find_next_zero_bit(p,sz,off)
+
 /**
- * find_first_zero_bit - find the first zero bit in a memory region
+ * _find_first_zero_bit - find the first zero bit in a memory region
  * @addr: The address to start the search at
  * @size: The maximum size to search
  *
  * Returns the bit-number of the first zero bit, not the number of the byte
  * containing a bit.
  */
-static __inline__ int find_first_zero_bit(void * addr, unsigned size)
+static __inline__ unsigned long _find_first_zero_bit(const unsigned long *addr,
+						     unsigned long size)
 {
 	int d0, d1, d2;
 	int res;
@@ -288,26 +293,38 @@ static __inline__ int find_first_zero_bit(void * addr, unsigned size)
 }
 
 /**
- * find_next_zero_bit - find the first zero bit in a memory region
+ * _find_next_zero_bit - find the first zero bit in a memory region
  * @addr: The address to base the search on
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+static __inline__ long unsigned int _find_next_zero_bit (const long unsigned int * addr,
+							long unsigned int size,
+							long unsigned offset)
 {
 	unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
 	int set = 0, bit = offset & 31, res;
 
 	if (bit) {
+#ifdef CONFIG_X86_64
 		/*
-		 * Look for zero in first byte
-		 */
-		__asm__("bsfl %1,%0\n\t"
-			"jne 1f\n\t"
-			"movl $32, %0\n"
-			"1:"
-			: "=r" (set)
-			: "r" (~(*p >> bit)));
+		* AMD64 says BSFL won't clobber the dest reg if x==0; Intel64 says the
+		* dest reg is undefined if x==0, but their CPU architect says its
+		* value is written to set it to the same as before, except that the
+		* top 32 bits will be cleared.
+		*
+		* We cannot do this on 32 bits because at the very least some
+		* 486 CPUs did not behave this way.
+		*/
+		asm("bsfl %1,%0"
+		: "=r" (set)
+		: "rm" ((int)~(*p >> bit)), "0" (-1));
+#else
+		asm("bsfl %1,%0\n\t"
+		"jnz 1f\n\t"
+		"movl $-1,%0\n"
+		"1:" : "=r" (set) : "rm" (~(*p >> bit)));
+#endif
 		if (set < (32 - bit))
 			return set + offset;
 		set = 32 - bit;
@@ -333,6 +350,7 @@ static __inline__ unsigned long ffz(unsigned long word)
 		:"r" (~word));
 	return word;
 }
+#define PLATFORM_FFZ
 
 #ifdef __KERNEL__
 

@@ -25,6 +25,7 @@
 #include <linux/err.h>
 #include <linux/types.h>
 #include <linux/string.h>
+#include <linux/bitmap.h>
 
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
@@ -390,6 +391,33 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
 		      flags & ~SPECIAL);
 }
 
+static char *bitmap_list_string(char *buf, char *end, unsigned long *addr,
+				int field_width, int precision, int flags)
+{
+	int nr_bits = max_t(int, field_width, 0);
+	int first = 1;
+	int rbot, rtop;
+
+	for_each_set_bitrange(rbot, rtop, addr, nr_bits) {
+		if (!first) {
+			if (buf < end)
+				*buf = ',';
+			buf++;
+		}
+		first = 0;
+
+		buf = number(buf, end, rbot, 10, 0, -1, 0);
+		if (rtop == rbot + 1)
+			continue;
+
+		if (buf < end)
+			*buf = '-';
+		buf = number(++buf, end, rtop - 1, 10, 0, -1, 0);
+	}
+
+	return buf;
+}
+
 #ifdef CONFIG_LIB_UUID
 /*
  * This works (roughly) the same way as Linux's.
@@ -503,6 +531,20 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 					       precision, flags);
 		flags &= ~SPECIAL;
 		break;
+	case 'b':
+		switch (fmt[1]) {
+		case 'l':
+			/* if the field width is not a multiple of the underlying
+			 * datatype (ulong), we get incorrect results from the bit twiddle
+			 * macros. Thus, round up to a multiple of field width of ulong
+			 */
+			field_width = field_width % BITS_PER_LONG ?
+				ALIGN(field_width, BITS_PER_LONG) : field_width;
+			return bitmap_list_string(buf, end, ptr, field_width,
+							precision, flags);
+		default:
+			return ERR_PTR(-EINVAL);
+		}
 #ifdef CONFIG_LIB_UUID
 	case 'U':
 		return uuid_string(buf, end, ptr, field_width, precision,
