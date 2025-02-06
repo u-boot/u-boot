@@ -135,7 +135,7 @@ static const struct tpm_ops tpm_tis_ops = {
 	.cleanup	= tpm_tis_cleanup,
 };
 
-static const struct tpm_tis_chip_data tpm_tis_std_chip_data = {
+static struct tpm_tis_chip_data tpm_tis_std_chip_data = {
 	.pcr_count = 24,
 	.pcr_select_min = 3,
 };
