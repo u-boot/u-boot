@@ -816,7 +816,11 @@ int mtk_pinctrl_common_probe(struct udevice *dev,
 		nbase_names = 1;
 
 	for (i = 0; i < nbase_names; i++) {
-		addr = devfdt_get_addr_index(dev, i);
+		if (soc->base_names)
+			addr = dev_read_addr_name(dev, soc->base_names[i]);
+		else
+			addr = dev_read_addr_index(dev, i);
+
 		if (addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
 		priv->base[i] = (void __iomem *)addr;
