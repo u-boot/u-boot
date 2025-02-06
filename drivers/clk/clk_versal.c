@@ -679,12 +679,21 @@ static int versal_clk_probe(struct udevice *dev)
 
 	debug("%s\n", __func__);
 
-	ret = versal_clock_get_freq_by_name("pl_alt_ref_clk",
+	ret = versal_clock_get_freq_by_name("pl_alt_ref",
 					    dev, &pl_alt_ref_clk);
+	if (ret == -ENODATA) {
+		/* Fallback to old DT binding clk name "pl_alt_ref_clk"	*/
+		ret = versal_clock_get_freq_by_name("pl_alt_ref_clk",
+						    dev, &pl_alt_ref_clk);
+	}
 	if (ret < 0)
 		return -EINVAL;
 
-	ret = versal_clock_get_freq_by_name("ref_clk", dev, &ref_clk);
+	ret = versal_clock_get_freq_by_name("ref", dev, &ref_clk);
+	if (ret == -ENODATA) {
+		/* Fallback to old DT binding clk name "ref_clk" */
+		ret = versal_clock_get_freq_by_name("ref_clk", dev, &ref_clk);
+	}
 	if (ret < 0)
 		return -EINVAL;
 
