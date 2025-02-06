@@ -363,8 +363,10 @@ int ecdsa_add_verify_data(struct image_sign_info *info, void *fdt)
 	ret = prepare_ctx(&ctx, info);
 	if (ret >= 0) {
 		ret = do_add(&ctx, fdt, fdt_key_name, info);
-		if (ret < 0)
-			ret = ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
+		if (ret < 0) {
+			free_ctx(&ctx);
+			return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
+		}
 	}
 
 	free_ctx(&ctx);
