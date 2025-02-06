@@ -13,6 +13,8 @@
 / {
 	binman: binman {
 		multiple-images;
+
+#ifdef CONFIG_SPL
 		fit-dtb.blob {
 			filename = "fit-dtb.blob";
 			pad-byte = <0>;
@@ -146,8 +148,11 @@
 						arch = "arm64";
 						compression = "none";
 						os = "tee";
-						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
-						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						load = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
 						tee-os {
 							optional;
 						};
@@ -157,7 +162,9 @@
 						type = "flat_dt";
 						arch = "arm64";
 						compression = "none";
-						load = <0x0 0x100000>;
+#if CONFIG_XILINX_OF_BOARD_DTB_ADDR
+						load = /bits/ 64 <CONFIG_XILINX_OF_BOARD_DTB_ADDR>;
+#endif
 						hash {
 							algo = "md5";
 						};
@@ -171,8 +178,13 @@
 					default = "conf-1";
 					conf-1 {
 						description = "Multi DTB with TF-A/TEE";
+#if CONFIG_BL31_LOAD_ADDR
 						firmware = "atf";
 						loadables = "tee", "uboot", "fdt";
+#else
+						firmware = "uboot";
+						loadables = "fdt";
+#endif
 					};
 				};
 			};
@@ -220,6 +232,7 @@
 			fdtmap {
 			};
 		};
+#endif
 #endif
 	};
 };

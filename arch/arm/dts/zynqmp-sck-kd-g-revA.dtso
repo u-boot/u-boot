@@ -22,6 +22,10 @@
 		     "xlnx,zynqmp-sk-kd240", "xlnx,zynqmp";
 	model = "ZynqMP KD240 revA/B/1";
 
+	aliases {
+		ethernet0 = "/axi/ethernet@ff0c0000"; /* &gem1 */
+	};
+
 	ina260-u3 {
 		compatible = "iio-hwmon";
 		io-channels = <&u3 0>, <&u3 1>, <&u3 2>;

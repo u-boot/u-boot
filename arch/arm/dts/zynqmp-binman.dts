@@ -14,6 +14,7 @@
 	binman: binman {
 		multiple-images;
 
+#ifdef CONFIG_SPL
 		/* u-boot.itb generation in a static way */
 		itb {
 			filename = "u-boot.itb";
@@ -60,8 +61,11 @@
 						arch = "arm64";
 						compression = "none";
 						os = "tee";
-						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
-						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						load = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
 						tee-os {
 							optional;
 						};
@@ -71,8 +75,10 @@
 						type = "flat_dt";
 						arch = "arm64";
 						compression = "none";
-						load = <0x0 0x100000>;
-						hash-1 {
+#if CONFIG_XILINX_OF_BOARD_DTB_ADDR
+						load = /bits/ 64 <CONFIG_XILINX_OF_BOARD_DTB_ADDR>;
+#endif
+						hash {
 							algo = "md5";
 						};
 					};
@@ -81,9 +87,15 @@
 					default = "@conf-DEFAULT-SEQ";
 					@conf-SEQ {
 						description = "NAME";
+#if CONFIG_BL31_LOAD_ADDR
 						firmware = "atf";
 						loadables = "tee", "uboot";
 						fdt = "fdt-SEQ";
+#else
+						firmware = "uboot";
+						loadables = "fdt";
+#endif
+
 					};
 				};
 			};
@@ -134,8 +146,11 @@
 						arch = "arm64";
 						compression = "none";
 						os = "tee";
-						load = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
-						entry = /bits/ 64 <CONFIG_BL31_LOAD_ADDR>;
+						load = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						entry = /bits/ 64 <CONFIG_BL32_LOAD_ADDR>;
+						hash {
+							algo = "md5";
+						};
 						tee-os {
 							optional;
 						};
@@ -145,15 +160,16 @@
 						type = "flat_dt";
 						arch = "arm64";
 						compression = "none";
-						load = <0x0 0x100000>;
+#if CONFIG_XILINX_OF_BOARD_DTB_ADDR
+						load = /bits/ 64 <CONFIG_XILINX_OF_BOARD_DTB_ADDR>;
+#endif
+						hash {
+							algo = "md5";
+						};
 						uboot-fdt-blob {
 							filename = "u-boot.dtb";
 							type = "blob-ext";
 						};
-						hash-1 {
-							algo = "md5";
-						};
-
 					};
 				};
 				configurations {
@@ -201,6 +217,7 @@
 			fdtmap {
 			};
 		};
+#endif
 #endif
 	};
 };
