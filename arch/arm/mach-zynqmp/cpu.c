@@ -113,7 +113,7 @@ u64 get_page_table_size(void)
 }
 
 #if defined(CONFIG_DEFINE_TCM_OCM_MMAP)
-void tcm_init(u8 mode)
+void tcm_init(enum tcm_mode mode)
 {
 	int ret;
 

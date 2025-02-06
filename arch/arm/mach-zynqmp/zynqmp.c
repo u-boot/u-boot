@@ -146,7 +146,7 @@ static int do_zynqmp_aes(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_zynqmp_tcm_init(struct cmd_tbl *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
-	u8 mode;
+	enum tcm_mode mode;
 
 	if (argc != cmdtp->maxargs)
 		return CMD_RET_USAGE;
