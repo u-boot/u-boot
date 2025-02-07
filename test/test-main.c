@@ -514,11 +514,12 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
  *	the first call to this function. On exit, @uts->cur.fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test: Test to run
+ * @leaf: Part of the name to show, or NULL to use test->name
  * Return: 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
  *	any failed
  */
 static int ut_run_test_live_flat(struct unit_test_state *uts,
-				 struct unit_test *test)
+				 struct unit_test *test, const char *leaf)
 {
 	int runs, ret;
 
@@ -530,7 +531,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
 		if (!(test->flags & UTF_FLAT_TREE)) {
 			uts->of_live = true;
-			ret = ut_run_test(uts, test, test->name);
+			ret = ut_run_test(uts, test, leaf ?: test->name);
 			if (ret != -EAGAIN) {
 				ut_assertok(ret);
 				runs++;
@@ -558,7 +559,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	    (!runs || ut_test_run_on_flattree(test)) &&
 	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
-		ret = ut_run_test(uts, test, test->name);
+		ret = ut_run_test(uts, test, leaf ?: test->name);
 		if (ret != -EAGAIN) {
 			ut_assertok(ret);
 			runs++;
@@ -594,6 +595,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			struct unit_test *tests, int count,
 			const char *select_name, const char *test_insert)
 {
+	int prefix_len = prefix ? strlen(prefix) : 0;
 	struct unit_test *test, *one;
 	int found = 0;
 	int pos = 0;
@@ -646,7 +648,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 		uts->cur.test_count++;
 		if (one && upto == pos) {
-			ret = ut_run_test_live_flat(uts, one);
+			ret = ut_run_test_live_flat(uts, one, NULL);
 			if (uts->cur.fail_count != old_fail_count) {
 				printf("Test '%s' failed %d times (position %d)\n",
 				       one->name,
@@ -656,8 +658,11 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			return -EBADF;
 		}
 
+		if (prefix_len && !strncmp(test_name, prefix, prefix_len))
+			test_name = test_name + prefix_len;
+
 		for (i = 0; i < uts->runs_per_test; i++)
-			ret = ut_run_test_live_flat(uts, test);
+			ret = ut_run_test_live_flat(uts, test, test_name);
 		if (uts->cur.fail_count != old_fail_count) {
 			printf("Test '%s' failed %d times\n", test_name,
 			       uts->cur.fail_count - old_fail_count);

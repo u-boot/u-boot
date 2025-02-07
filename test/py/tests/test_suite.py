@@ -66,11 +66,12 @@ def collect_info(cons, output):
             msg = m.group(3)
             if DEBUG_ME:
                 cons.log.info(f"test_name {test_name} msg '{msg}'")
-            if msg == ' (flat tree)' and test_name not in tests:
-                tests.add(test_name)
+            full_name = f'{cur_suite}.{test_name}'
+            if msg == ' (flat tree)' and full_name not in tests:
+                tests.add(full_name)
                 test_count += 1
             if not msg or 'skipped as it is manual' in msg:
-                tests.add(test_name)
+                tests.add(full_name)
                 test_count += 1
         if DEBUG_ME:
             cons.log.info(f'test_count {test_count}')

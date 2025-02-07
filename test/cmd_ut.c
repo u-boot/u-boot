@@ -184,7 +184,7 @@ static int run_suite(struct unit_test_state *uts, struct suite *ste,
 		char prefix[30];
 
 		/* use a standard prefix */
-		snprintf(prefix, sizeof(prefix), "%s_test", ste->name);
+		snprintf(prefix, sizeof(prefix), "%s_test_", ste->name);
 		ret = cmd_ut_category(uts, ste->name, prefix, ste->start,
 				      n_ents, argc, argv);
 	}
