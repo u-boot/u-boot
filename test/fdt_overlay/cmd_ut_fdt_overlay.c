@@ -6,6 +6,7 @@
 
 #include <command.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <fdt_support.h>
 #include <image.h>
 #include <log.h>
@@ -81,33 +82,6 @@ static int fdt_overlay_init(struct unit_test_state *uts)
 	return 0;
 }
 
-static int ut_fdt_getprop_u32_by_index(void *fdt, const char *path,
-				    const char *name, int index,
-				    u32 *out)
-{
-	const fdt32_t *val;
-	int node_off;
-	int len;
-
-	node_off = fdt_path_offset(fdt, path);
-	if (node_off < 0)
-		return node_off;
-
-	val = fdt_getprop(fdt, node_off, name, &len);
-	if (!val || (len < (sizeof(uint32_t) * (index + 1))))
-		return -FDT_ERR_NOTFOUND;
-
-	*out = fdt32_to_cpu(*(val + index));
-
-	return 0;
-}
-
-static int ut_fdt_getprop_u32(void *fdt, const char *path, const char *name,
-			   u32 *out)
-{
-	return ut_fdt_getprop_u32_by_index(fdt, path, name, 0, out);
-}
-
 static int fdt_getprop_str(void *fdt, const char *path, const char *name,
 			   const char **out)
 {
@@ -125,11 +99,12 @@ static int fdt_getprop_str(void *fdt, const char *path, const char *name,
 
 static int fdt_overlay_test_change_int_property(struct unit_test_state *uts)
 {
-	u32 val = 0;
+	int off;
 
-	ut_assertok(ut_fdt_getprop_u32(fdt, "/test-node", "test-int-property",
-				    &val));
-	ut_asserteq(43, val);
+	off = fdt_path_offset(fdt, "/test-node");
+	ut_assert(off >= 0);
+
+	ut_asserteq(43, fdtdec_get_uint(fdt, off, "test-int-property", 0));
 
 	return CMD_RET_SUCCESS;
 }
@@ -202,7 +177,7 @@ FDT_OVERLAY_TEST(fdt_overlay_test_add_subnode_property, 0);
 static int fdt_overlay_test_local_phandle(struct unit_test_state *uts)
 {
 	uint32_t local_phandle;
-	u32 val = 0;
+	u32 val[2];
 	int off;
 
 	off = fdt_path_offset(fdt, "/new-local-node");
@@ -211,13 +186,10 @@ static int fdt_overlay_test_local_phandle(struct unit_test_state *uts)
 	local_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(local_phandle);
 
-	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
-					     0, &val));
-	ut_asserteq(local_phandle, val);
-
-	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-several-phandle",
-					     1, &val));
-	ut_asserteq(local_phandle, val);
+	ut_assertok(fdtdec_get_int_array(fdt, 0, "test-several-phandle", val,
+					 ARRAY_SIZE(val)));
+	ut_asserteq(local_phandle, val[0]);
+	ut_asserteq(local_phandle, val[1]);
 
 	return CMD_RET_SUCCESS;
 }
@@ -226,7 +198,7 @@ FDT_OVERLAY_TEST(fdt_overlay_test_local_phandle, 0);
 static int fdt_overlay_test_local_phandles(struct unit_test_state *uts)
 {
 	uint32_t local_phandle, test_phandle;
-	u32 val = 0;
+	u32 val[2];
 	int off;
 
 	off = fdt_path_offset(fdt, "/new-local-node");
@@ -241,13 +213,10 @@ static int fdt_overlay_test_local_phandles(struct unit_test_state *uts)
 	test_phandle = fdt_get_phandle(fdt, off);
 	ut_assert(test_phandle);
 
-	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 0,
-					     &val));
-	ut_asserteq(test_phandle, val);
-
-	ut_assertok(ut_fdt_getprop_u32_by_index(fdt, "/", "test-phandle", 1,
-					     &val));
-	ut_asserteq(local_phandle, val);
+	ut_assertok(fdtdec_get_int_array(fdt, 0, "test-phandle", val,
+					 ARRAY_SIZE(val)));
+	ut_asserteq(test_phandle, val[0]);
+	ut_asserteq(local_phandle, val[1]);
 
 	return CMD_RET_SUCCESS;
 }
@@ -255,11 +224,13 @@ FDT_OVERLAY_TEST(fdt_overlay_test_local_phandles, 0);
 
 static int fdt_overlay_test_stacked(struct unit_test_state *uts)
 {
-	u32 val = 0;
+	int off;
 
-	ut_assertok(ut_fdt_getprop_u32(fdt, "/new-local-node",
-				       "stacked-test-int-property", &val));
-	ut_asserteq(43, val);
+	off = fdt_path_offset(fdt, "/new-local-node");
+	ut_assert(off > 0);
+
+	ut_asserteq(43,
+		    fdtdec_get_uint(fdt, off, "stacked-test-int-property", 0));
 
 	return CMD_RET_SUCCESS;
 }
