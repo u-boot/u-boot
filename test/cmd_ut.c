@@ -35,9 +35,9 @@ static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 
-int cmd_ut_category(struct unit_test_state *uts, const char *name,
-		    const char *prefix, struct unit_test *tests, int n_ents,
-		    int argc, char *const argv[])
+static int cmd_ut_category(struct unit_test_state *uts, const char *name,
+			   const char *prefix, struct unit_test *tests,
+			   int n_ents, int argc, char *const argv[])
 {
 	const char *test_insert = NULL;
 	int runs_per_text = 1;
