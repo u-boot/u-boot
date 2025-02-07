@@ -236,18 +236,3 @@ static int fdt_overlay_test_stacked(struct unit_test_state *uts)
 	return CMD_RET_SUCCESS;
 }
 FDT_OVERLAY_TEST(fdt_overlay_test_stacked, 0);
-
-int do_ut_fdt_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
-		      int flag, int argc, char *const argv[])
-{
-	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_overlay);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(fdt_overlay);
-	int ret = -ENOMEM;
-
-	ret = cmd_ut_category(uts, "fdt_overlay", "fdt_overlay_test_", tests,
-			      n_ents, argc, argv);
-
-	free(fdt);
-
-	return ret;
-}

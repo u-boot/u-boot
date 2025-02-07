@@ -134,9 +134,7 @@ static struct suite suites[] = {
 	SUITE(env, "environment"),
 	SUITE(exit, "shell exit and variables"),
 	SUITE(fdt, "fdt command"),
-#ifdef CONFIG_UT_FDT_OVERLAY
-	SUITE_CMD(fdt_overlay, do_ut_fdt_overlay, "device tree overlays"),
-#endif
+	SUITE(fdt_overlay, "device tree overlays"),
 	SUITE(font, "font command"),
 	SUITE(hush, "hush behaviour"),
 	SUITE(lib, "library functions"),
