@@ -89,6 +89,7 @@ stages:
       options: $(container_option)
     steps:
       - script: |
+          set -e
           virtualenv -p /usr/bin/python3 /tmp/venvhtml
           . /tmp/venvhtml/bin/activate
           pip install -r doc/sphinx/requirements.txt
