@@ -33,9 +33,6 @@ static int vbe_simple_test_base(struct unit_test_state *uts)
 	ofnode node;
 	u32 vernum;
 
-	/* Set up the VBE info */
-	ut_assertok(bootstd_setup_for_tests());
-
 	/* Read the version back */
 	ut_assertok(vbe_find_by_any("firmware0", &dev));
 	ut_assertok(bootmeth_get_state_desc(dev, info, sizeof(info)));
