@@ -135,7 +135,7 @@ def xtest_suite(u_boot_console, u_boot_config):
 
        - The number of suites matches that reported by the 'ut info'
        - Where available, the number of tests is each suite matches that
-         reported by 'ut info -s'
+         reported by 'ut -s info'
        - The total number of tests adds up to the total that are actually run
          with 'ut all'
        - All suites are run with 'ut all'
@@ -167,7 +167,7 @@ def xtest_suite(u_boot_console, u_boot_config):
 
     # Run 'ut info' and compare with the log results
     with cons.log.section('Check suite test-counts'):
-        output = cons.run_command('ut info -s')
+        output = cons.run_command('ut -s info')
 
         suite_count, total_test_count, test_count = process_ut_info(cons,
                                                                     output)
@@ -191,4 +191,18 @@ def xtest_suite(u_boot_console, u_boot_config):
     # Run three suites
     with cons.log.section('Check multiple suites'):
         output = cons.run_command('ut bloblist,setexpr,mem')
-    assert 'Suites run: 3' in output
+        assert 'Suites run: 3' in output
+
+    # Run a particular test
+    with cons.log.section('Check single test'):
+        output = cons.run_command('ut bloblist reloc')
+        assert 'Test: reloc: bloblist.c' in output
+
+    # Run tests multiple times
+    with cons.log.section('Check multiple runs'):
+        output = cons.run_command('ut -r2 bloblist')
+        lines = output.splitlines()
+        run = len([line for line in lines if 'Test:' in line])
+        count = re.search(r'Tests run: (\d*)', lines[-1]).group(1)
+
+        assert run == 2 * int(count)
