@@ -321,14 +321,16 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 }
 
 U_BOOT_LONGHELP(ut,
-	"[-r] [-f] [<suite>] - run unit tests\n"
+	"[-rs] [-f] [-I<n>:<one_test>][<suites>] - run unit tests\n"
 	"   -r<runs>   Number of times to run each test\n"
 	"   -f         Force 'manual' tests to run as well\n"
-	"   <suite>    Test suite to run, or all\n"
+	"   -I         Test to run after <n> other tests have run\n"
+	"   -s         Show all suites with ut info\n"
+	"   <suites>   Comma-separated list of suites to run\n"
 	"\n"
-	"\nOptions for <suite>:"
-	"\nall - execute all enabled tests"
-	"\ninfo [-s] - show info about tests [and suites]"
+	"Options for <suite>:\n"
+	"all       - execute all enabled tests\n"
+	"info      - show info about tests [and suites]"
 	);
 
 U_BOOT_CMD(
