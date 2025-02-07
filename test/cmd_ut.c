@@ -34,40 +34,6 @@ static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[]);
 
-static int cmd_ut_category(struct unit_test_state *uts, const char *name,
-			   const char *prefix, struct unit_test *tests,
-			   int n_ents, int argc, char *const argv[])
-{
-	const char *test_insert = NULL;
-	int runs_per_text = 1;
-	bool force_run = false;
-	int ret;
-
-	while (argc > 1 && *argv[1] == '-') {
-		const char *str = argv[1];
-
-		switch (str[1]) {
-		case 'r':
-			runs_per_text = dectoul(str + 2, NULL);
-			break;
-		case 'f':
-			force_run = true;
-			break;
-		case 'I':
-			test_insert = str + 2;
-			break;
-		}
-		argv++;
-		argc--;
-	}
-
-	ret = ut_run_list(uts, name, prefix, tests, n_ents,
-			  cmd_arg1(argc, argv), runs_per_text, force_run,
-			  test_insert);
-
-	return ret ? CMD_RET_FAILURE : 0;
-}
-
 /* declare linker-list symbols for the start and end of a suite */
 #define SUITE_DECL(_name) \
 	ll_start_decl(suite_start_ ## _name, struct unit_test, ut_ ## _name); \
@@ -157,14 +123,36 @@ static int run_suite(struct unit_test_state *uts, struct suite *ste,
 		     char *const argv[])
 {
 	int n_ents = ste->end - ste->start;
+	const char *test_insert = NULL;
+	int runs_per_text = 1;
+	bool force_run = false;
 	char prefix[30];
 	int ret;
 
-
 	/* use a standard prefix */
 	snprintf(prefix, sizeof(prefix), "%s_test_", ste->name);
-	ret = cmd_ut_category(uts, ste->name, prefix, ste->start, n_ents,
-			      argc, argv);
+
+	while (argc > 1 && *argv[1] == '-') {
+		const char *str = argv[1];
+
+		switch (str[1]) {
+		case 'r':
+			runs_per_text = dectoul(str + 2, NULL);
+			break;
+		case 'f':
+			force_run = true;
+			break;
+		case 'I':
+			test_insert = str + 2;
+			break;
+		}
+		argv++;
+		argc--;
+	}
+
+	ret = ut_run_list(uts, ste->name, prefix, ste->start, n_ents,
+			  cmd_arg1(argc, argv), runs_per_text, force_run,
+			  test_insert);
 
 	return ret;
 }
