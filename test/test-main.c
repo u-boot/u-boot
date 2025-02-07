@@ -14,6 +14,7 @@
 #include <net.h>
 #include <of_live.h>
 #include <os.h>
+#include <spl.h>
 #include <usb.h>
 #include <dm/ofnode.h>
 #include <dm/root.h>
@@ -680,6 +681,8 @@ void ut_report(struct ut_stats *stats, int run_count)
 	else
 		printf("Tests");
 	printf(" run: %d, ", stats->test_count);
+	if (stats)
+		printf("%ld ms, ", stats->duration_ms);
 	if (stats->skip_count)
 		printf("skipped: %d, ", stats->skip_count);
 	printf("failures: %d\n", stats->fail_count);
@@ -692,9 +695,15 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 {
 	;
 	bool has_dm_tests = false;
+	ulong start_offset = 0;
+	ulong test_offset = 0;
 	int ret;
 
 	memset(&uts->cur, '\0', sizeof(struct ut_stats));
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION)) {
+		uts->cur.start = get_timer(0);
+		start_offset = timer_test_get_offset();
+	}
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
@@ -732,13 +741,19 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	if (has_dm_tests)
 		dm_test_restore(uts->of_root);
 
-	ut_report(&uts->cur, 1);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION)) {
+		test_offset = timer_test_get_offset() - start_offset;
+
+		uts->cur.duration_ms = get_timer(uts->cur.start) - test_offset;
+	}
+	ut_report(&uts->cur, 1);
 
 	uts->total.skip_count += uts->cur.skip_count;
 	uts->total.fail_count += uts->cur.fail_count;
 	uts->total.test_count += uts->cur.test_count;
+	uts->total.duration_ms += uts->cur.duration_ms;
 	uts->run_count++;
 
 	return ret;

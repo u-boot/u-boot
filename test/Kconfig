@@ -20,6 +20,15 @@ config SPL_UNIT_TEST
 	  of-platdata and SPL handover. To run these tests with the sandbox_spl
 	  board, use the -u (unit test) option.
 
+config UNIT_TEST_DURATION
+	bool "Report unit-test duration"
+	depends on UNIT_TEST
+	default y
+	help
+	  Enable this short the time taken by each test suite. This is reported
+	  after the suite runs, alongside the pass/fail results. In addition,
+	  an overall total is reported if multiple suites are run.
+
 config UT_LIB
 	bool "Unit tests for library functions"
 	depends on UNIT_TEST

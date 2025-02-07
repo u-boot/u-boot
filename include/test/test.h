@@ -16,11 +16,15 @@
  * @skip_count: Number of tests that were skipped
  * @test_count: Number of tests run. If a test is run muiltiple times, only one
  *	is counted
+ * @start: Timer value when test started
+ * @duration_ms: Suite duration in milliseconds
  */
 struct ut_stats {
 	int fail_count;
 	int skip_count;
 	int test_count;
+	ulong start;
+	ulong duration_ms;
 };
 
 /*
