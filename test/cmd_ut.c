@@ -125,9 +125,7 @@ static struct suite suites[] = {
 	SUITE(bdinfo, "bdinfo (board info) command"),
 	SUITE(bloblist, "bloblist implementation"),
 	SUITE(bootm, "bootm command"),
-#ifdef CONFIG_UT_BOOTSTD
-	SUITE_CMD(bootstd, do_ut_bootstd, "standard boot implementation"),
-#endif
+	SUITE(bootstd, "standard boot implementation"),
 	SUITE(cmd, "various commands"),
 	SUITE(common, "tests for common/ directory"),
 	SUITE(dm, "driver model"),
