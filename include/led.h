@@ -53,6 +53,11 @@
 
 struct udevice;
 
+/*
+ * value imported from linux:include/linux/uapi/linux/uleds.h
+ */
+#define LED_MAX_NAME_SIZE      64
+
 enum led_state_t {
 	LEDST_OFF = 0,
 	LEDST_ON = 1,
@@ -81,11 +86,14 @@ struct led_sw_blink {
  *
  * @label:	LED label
  * @default_state:	LED default state
+ * @name:	LED name, derived from function, color or function-enumerator
+ *		property.
  * @sw_blink:	LED software blink struct
  */
 struct led_uc_plat {
 	const char *label;
 	enum led_state_t default_state;
+	char name[LED_MAX_NAME_SIZE];
 #ifdef CONFIG_LED_SW_BLINK
 	struct led_sw_blink *sw_blink;
 #endif
