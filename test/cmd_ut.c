@@ -141,9 +141,7 @@ static struct suite suites[] = {
 	SUITE(mbr, "mbr command"),
 	SUITE(measurement, "TPM-based measured boot"),
 	SUITE(mem, "memory-related commands"),
-#ifdef CONFIG_UT_OPTEE
-	SUITE_CMD(optee, do_ut_optee, "OP-TEE"),
-#endif
+	SUITE(optee, "OP-TEE"),
 	SUITE(pci_mps, "PCI Express Maximum Payload Size"),
 	SUITE(seama, "seama command parameters loading and decoding"),
 	SUITE(setexpr, "setexpr command"),

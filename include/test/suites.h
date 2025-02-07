@@ -34,6 +34,4 @@ int cmd_ut_category(struct unit_test_state *uts, const char *name,
 		    const char *prefix, struct unit_test *tests, int n_ents,
 		    int argc, char *const argv[]);
 
-int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
-
 #endif /* __TEST_SUITES_H__ */
