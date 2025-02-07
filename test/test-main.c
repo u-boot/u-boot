@@ -677,12 +677,16 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 void ut_report(struct ut_stats *stats, int run_count)
 {
 	if (run_count > 1)
-		printf("Suites run: %d, total tests", run_count);
+		printf("Total tests");
 	else
 		printf("Tests");
 	printf(" run: %d, ", stats->test_count);
-	if (stats)
-		printf("%ld ms, ", stats->duration_ms);
+	if (stats && stats->test_count) {
+		ulong dur = stats->duration_ms;
+
+		printf("%ld ms, average: %ld ms, ", dur,
+		       dur ? dur / stats->test_count : 0);
+	}
 	if (stats->skip_count)
 		printf("skipped: %d, ", stats->skip_count);
 	printf("failures: %d\n", stats->fail_count);

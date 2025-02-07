@@ -33,6 +33,8 @@ struct ut_stats {
  * @cur: Statistics for the current run
  * @total: Statistics for all test runs
  * @run_count: Number of times ut_run_list() has been called
+ * @worst: Sute which had the first per-text run time
+ * @worst_ms: Time taken by that test
  * @start: Store the starting mallinfo when doing leak test
  * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
@@ -56,6 +58,8 @@ struct unit_test_state {
 	struct ut_stats cur;
 	struct ut_stats total;
 	int run_count;
+	const struct suite *worst;
+	int worst_ms;
 	struct mallinfo start;
 	struct device_node *of_root;
 	bool of_live;

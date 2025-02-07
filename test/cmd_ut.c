@@ -192,6 +192,36 @@ static int run_suite(struct unit_test_state *uts, struct suite *ste,
 	return ret;
 }
 
+static void show_stats(struct unit_test_state *uts)
+{
+	if (uts->run_count < 2)
+		return;
+
+	ut_report(&uts->total, uts->run_count);
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION) &&
+	    uts->total.test_count && uts->worst) {
+		ulong avg = uts->total.duration_ms / uts->total.test_count;
+
+		printf("Average test time: %ld ms, worst case '%s' took %d ms\n",
+		       avg, uts->worst->name, uts->worst_ms);
+	}
+}
+
+static void update_stats(struct unit_test_state *uts, const struct suite *ste)
+{
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION) && uts->cur.test_count) {
+		ulong avg;
+
+		avg = uts->cur.duration_ms ?
+			uts->cur.duration_ms /
+			uts->cur.test_count : 0;
+		if (avg > uts->worst_ms) {
+			uts->worst_ms = avg;
+			uts->worst = ste;
+		}
+	}
+}
+
 static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 		     int flag, int argc, char *const argv[])
 {
@@ -208,6 +238,7 @@ static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 			retval = run_suite(uts, ste, cmdtp, flag, 1, argv);
 			if (!any_fail)
 				any_fail = retval;
+			update_stats(uts, ste);
 		}
 	}
 	ut_report(&uts->total, uts->run_count);
@@ -306,6 +337,7 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 
 		ret = run_suite(&uts, ste, cmdtp, flag, argc, argv);
 	}
+	show_stats(&uts);
 	if (ret)
 		return ret;
 	ut_uninit_state(&uts);
