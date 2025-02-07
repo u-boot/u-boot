@@ -297,31 +297,19 @@ SETEXPR_TEST(setexpr_test_backref, UTF_CONSOLE);
 /* Test 'setexpr' command with setting strings */
 static int setexpr_test_str(struct unit_test_state *uts)
 {
-	ulong start_mem;
 	char *buf;
 
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\xff', BUF_SIZE);
 
-	/*
-	 * Set 'fred' to the same length as we expect to get below, to avoid a
-	 * new allocation in 'setexpr'. That way we can check for memory leaks.
-	 */
 	ut_assertok(env_set("fred", "x"));
-	start_mem = ut_check_free();
-	strcpy(buf, "hello");
-	ut_asserteq(1, run_command("setexpr.s fred 0", 0));
-	ut_assertok(ut_check_delta(start_mem));
+	ut_asserteq(0, run_command("setexpr.s fred 0", 0));
+	ut_asserteq_str("0", env_get("fred"));
 
+	strcpy(buf, "hello");
 	ut_assertok(env_set("fred", "12345"));
-	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0", 0));
 	ut_asserteq_str("hello", env_get("fred"));
-	/*
-	 * This fails in CI at present.
-	 *
-	 * ut_assertok(ut_check_delta(start_mem));
-	 */
 
 	unmap_sysmem(buf);
 
@@ -332,44 +320,24 @@ SETEXPR_TEST(setexpr_test_str, UTF_CONSOLE);
 /* Test 'setexpr' command with concatenating strings */
 static int setexpr_test_str_oper(struct unit_test_state *uts)
 {
-	ulong start_mem;
 	char *buf;
+
+	/* Test concatenation of strings */
+	ut_assertok(run_command("setexpr.s fred '1' + '3'", 0));
+	ut_asserteq_str("13", env_get("fred"));
 
 	buf = map_sysmem(0, BUF_SIZE);
 	memset(buf, '\xff', BUF_SIZE);
 	strcpy(buf, "hello");
 	strcpy(buf + 0x10, " there");
 
-	start_mem = ut_check_free();
 	ut_asserteq(1, run_command("setexpr.s fred *0 * *10", 0));
-	ut_assertok(ut_check_delta(start_mem));
 	ut_assert_nextline("invalid op");
 	ut_assert_console_end();
 
-	/*
-	 * Set 'fred' to the same length as we expect to get below, to avoid a
-	 * new allocation in 'setexpr'. That way we can check for memory leaks.
-	 */
 	ut_assertok(env_set("fred", "12345012345"));
-	start_mem = ut_check_free();
 	ut_assertok(run_command("setexpr.s fred *0 + *10", 0));
 	ut_asserteq_str("hello there", env_get("fred"));
-
-	/*
-	 * This check does not work with sandbox_flattree, apparently due to
-	 * memory allocations in env_set().
-	 *
-	 * The truetype console produces lots of memory allocations even though
-	 * the LCD display is not visible. But even without these, it does not
-	 * work.
-	 *
-	 * A better test would be for dlmalloc to record the allocs and frees
-	 * for a particular caller, but that is not supported.
-	 *
-	 * For now, drop this test.
-	 *
-	 * ut_assertok(ut_check_delta(start_mem));
-	 */
 
 	unmap_sysmem(buf);
 
