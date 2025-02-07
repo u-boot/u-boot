@@ -620,7 +620,8 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		const char *test_name = test->name;
 		int ret, i, old_fail_count;
 
-		if (!test_matches(prefix, test_name, select_name))
+		if (!(test->flags & (UTF_INIT | UTF_UNINIT)) &&
+		    !test_matches(prefix, test_name, select_name))
 			continue;
 
 		if (test->flags & UTF_MANUAL) {

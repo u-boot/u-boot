@@ -100,6 +100,8 @@ enum ut_flags {
 	UTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
 	UTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
 	UFT_BLOBLIST	= BIT(11),	/* test changes gd->bloblist */
+	UTF_INIT	= BIT(12),	/* test inits a suite */
+	UTF_UNINIT	= BIT(13),	/* test uninits a suite */
 };
 
 /**
@@ -144,6 +146,24 @@ struct unit_test {
 		.file = __FILE__,					\
 		.name = #_name,						\
 		.flags = _flags,					\
+		.func = _name,						\
+	}
+
+/* init function for unit-test suite (the 'A' makes it first) */
+#define UNIT_TEST_INIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, A ## _name, ut_ ## _suite) = {	\
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_INIT,				\
+		.func = _name,						\
+	}
+
+/* uninit function for unit-test suite (the 'aaa' makes it last) */
+#define UNIT_TEST_UNINIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, zzz ## _name, ut_ ## _suite) = { \
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_UNINIT,				\
 		.func = _name,						\
 	}
 
