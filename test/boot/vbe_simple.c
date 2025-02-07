@@ -11,7 +11,6 @@
 #include <image.h>
 #include <of_live.h>
 #include <vbe.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
 

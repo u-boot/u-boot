@@ -13,7 +13,6 @@
 #include <mmc.h>
 #include <usb.h>
 #include <linux/log2.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include <u-boot/crc.h>
 #include "bootstd_common.h"

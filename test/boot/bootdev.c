@@ -12,7 +12,6 @@
 #include <bootflow.h>
 #include <mapmem.h>
 #include <os.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
 

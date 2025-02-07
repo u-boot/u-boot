@@ -10,7 +10,6 @@
 #include <menu.h>
 #include <video.h>
 #include <linux/input.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
 #include <test/cedit-test.h>

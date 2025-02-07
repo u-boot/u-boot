@@ -7,7 +7,6 @@
 
 #include <command.h>
 #include <dm.h>
-#include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
 

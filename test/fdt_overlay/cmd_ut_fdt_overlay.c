@@ -16,7 +16,6 @@
 
 #include <test/fdt_overlay.h>
 #include <test/ut.h>
-#include <test/suites.h>
 
 /* 4k ought to be enough for anybody */
 #define FDT_COPY_SIZE	(4 * SZ_1K)
