@@ -26,6 +26,61 @@ extern u32 __dtbo_test_fdt_overlay_stacked_begin;
 
 static void *fdt;
 
+static int fdt_overlay_init(struct unit_test_state *uts)
+{
+	void *fdt_base = &__dtb_test_fdt_base_begin;
+	void *fdt_overlay = &__dtbo_test_fdt_overlay_begin;
+	void *fdt_overlay_stacked = &__dtbo_test_fdt_overlay_stacked_begin;
+	void *fdt_overlay_copy, *fdt_overlay_stacked_copy;
+
+	ut_assertok(fdt_check_header(fdt_base));
+	ut_assertok(fdt_check_header(fdt_overlay));
+
+	fdt = malloc(FDT_COPY_SIZE);
+	fdt_overlay_copy = malloc(FDT_COPY_SIZE);
+	fdt_overlay_stacked_copy = malloc(FDT_COPY_SIZE);
+	ut_assertnonnull(fdt);
+	ut_assertnonnull(fdt_overlay_copy);
+	ut_assertnonnull(fdt_overlay_stacked_copy);
+
+	/*
+	 * Resize the FDT to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(fdt_base, fdt, FDT_COPY_SIZE));
+
+	/*
+	 * Resize the overlay to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(fdt_overlay, fdt_overlay_copy,
+				  FDT_COPY_SIZE));
+
+	/*
+	 * Resize the stacked overlay to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(fdt_overlay_stacked, fdt_overlay_stacked_copy,
+				  FDT_COPY_SIZE));
+
+	/* Apply the overlay */
+	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_copy));
+
+	/* Apply the stacked overlay */
+	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_stacked_copy));
+
+	free(fdt_overlay_stacked_copy);
+	free(fdt_overlay_copy);
+
+	return 0;
+}
+
 static int ut_fdt_getprop_u32_by_index(void *fdt, const char *path,
 				    const char *name, int index,
 				    u32 *out)
@@ -215,67 +270,13 @@ int do_ut_fdt_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 {
 	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_overlay);
 	const int n_ents = UNIT_TEST_SUITE_COUNT(fdt_overlay);
-	void *fdt_base = &__dtb_test_fdt_base_begin;
-	void *fdt_overlay = &__dtbo_test_fdt_overlay_begin;
-	void *fdt_overlay_stacked = &__dtbo_test_fdt_overlay_stacked_begin;
-	void *fdt_overlay_copy, *fdt_overlay_stacked_copy;
 	int ret = -ENOMEM;
 
-	ut_assertok(fdt_check_header(fdt_base));
-	ut_assertok(fdt_check_header(fdt_overlay));
-
-	fdt = malloc(FDT_COPY_SIZE);
-	if (!fdt)
-		goto err1;
-
-	fdt_overlay_copy = malloc(FDT_COPY_SIZE);
-	if (!fdt_overlay_copy)
-		goto err2;
-
-	fdt_overlay_stacked_copy = malloc(FDT_COPY_SIZE);
-	if (!fdt_overlay_stacked_copy)
-		goto err3;
-
-	/*
-	 * Resize the FDT to 4k so that we have room to operate on
-	 *
-	 * (and relocate it since the memory might be mapped
-	 * read-only)
-	 */
-	ut_assertok(fdt_open_into(fdt_base, fdt, FDT_COPY_SIZE));
-
-	/*
-	 * Resize the overlay to 4k so that we have room to operate on
-	 *
-	 * (and relocate it since the memory might be mapped
-	 * read-only)
-	 */
-	ut_assertok(fdt_open_into(fdt_overlay, fdt_overlay_copy,
-				  FDT_COPY_SIZE));
-
-	/*
-	 * Resize the stacked overlay to 4k so that we have room to operate on
-	 *
-	 * (and relocate it since the memory might be mapped
-	 * read-only)
-	 */
-	ut_assertok(fdt_open_into(fdt_overlay_stacked, fdt_overlay_stacked_copy,
-				  FDT_COPY_SIZE));
-
-	/* Apply the overlay */
-	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_copy));
-
-	/* Apply the stacked overlay */
-	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_stacked_copy));
-
+	ut_assertok(fdt_overlay_init(uts));
 	ret = cmd_ut_category(uts, "fdt_overlay", "fdt_overlay_test_", tests,
 			      n_ents, argc, argv);
 
-	free(fdt_overlay_stacked_copy);
-err3:
-	free(fdt_overlay_copy);
-err2:
 	free(fdt);
-err1:
+
 	return ret;
 }
