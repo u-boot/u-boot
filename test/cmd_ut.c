@@ -20,14 +20,12 @@
  * @name: Name of suite
  * @start: First test in suite
  * @end: End test in suite (points to the first test in the next suite)
- * @cmd: Command to use to run the suite
  * @help: Help-string to show for this suite
  */
 struct suite {
 	const char *name;
 	struct unit_test *start;
 	struct unit_test *end;
-	ut_cmd_func cmd;
 	const char *help;
 };
 
@@ -76,21 +74,11 @@ int cmd_ut_category(struct unit_test_state *uts, const char *name,
 	ll_start_decl(suite_start_ ## _name, struct unit_test, ut_ ## _name); \
 	ll_end_decl(suite_end_ ## _name, struct unit_test, ut_ ## _name)
 
-/* declare a test suite which uses a subcommand to run */
-#define SUITE_CMD(_name, _cmd_func, _help) { \
-	#_name, \
-	suite_start_ ## _name, \
-	suite_end_ ## _name, \
-	_cmd_func, \
-	_help, \
-	}
-
 /* declare a test suite which can be run directly without a subcommand */
 #define SUITE(_name, _help) { \
 	#_name, \
 	suite_start_ ## _name, \
 	suite_end_ ## _name, \
-	NULL, \
 	_help, \
 	}
 
@@ -161,7 +149,7 @@ static bool has_tests(struct suite *ste)
 {
 	int n_ents = ste->end - ste->start;
 
-	return n_ents || ste->cmd;
+	return n_ents;
 }
 
 /** run_suite() - Run a suite of tests */
@@ -169,19 +157,15 @@ static int run_suite(struct unit_test_state *uts, struct suite *ste,
 		     struct cmd_tbl *cmdtp, int flag, int argc,
 		     char *const argv[])
 {
+	int n_ents = ste->end - ste->start;
+	char prefix[30];
 	int ret;
 
-	if (ste->cmd) {
-		ret = ste->cmd(uts, cmdtp, flag, argc, argv);
-	} else {
-		int n_ents = ste->end - ste->start;
-		char prefix[30];
 
-		/* use a standard prefix */
-		snprintf(prefix, sizeof(prefix), "%s_test_", ste->name);
-		ret = cmd_ut_category(uts, ste->name, prefix, ste->start,
-				      n_ents, argc, argv);
-	}
+	/* use a standard prefix */
+	snprintf(prefix, sizeof(prefix), "%s_test_", ste->name);
+	ret = cmd_ut_category(uts, ste->name, prefix, ste->start, n_ents,
+			      argc, argv);
 
 	return ret;
 }
@@ -266,14 +250,11 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			struct suite *ste = &suites[i];
 			long n_ent = ste->end - ste->start;
 
-			if (n_ent)
-				printf("%5ld", n_ent);
-			else if (ste->cmd)
-				printf("%5s", "?");
-			else  /* suite is not present */
-				continue;
-			printf("  %-13.13s %s\n", ste->name, ste->help);
-			total += n_ent;
+			if (n_ent) {
+				printf("%5ld  %-13.13s %s\n", n_ent, ste->name,
+				       ste->help);
+				total += n_ent;
+			}
 		}
 		puts("-----  ------------  -------------------------\n");
 		printf("%5d  %-13.13s\n", total, "Total");

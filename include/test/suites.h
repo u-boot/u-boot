@@ -7,13 +7,8 @@
 #ifndef __TEST_SUITES_H__
 #define __TEST_SUITES_H__
 
-struct cmd_tbl;
 struct unit_test;
 struct unit_test_state;
-
-/* 'command' functions normally called do_xxx where xxx is the command name */
-typedef int (*ut_cmd_func)(struct unit_test_state *uts, struct cmd_tbl *cmd,
-			   int flags, int argc, char *const argv[]);
 
 /**
  * cmd_ut_category() - Run a category of unit tests
