@@ -218,7 +218,6 @@ static int do_ut_all(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 			update_stats(uts, ste);
 		}
 	}
-	ut_report(&uts->total, uts->run_count);
 
 	return any_fail;
 }
@@ -282,7 +281,7 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 {
 	struct unit_test_state uts;
 	struct suite *ste;
-	const char *name;
+	char *name;
 	int ret;
 
 	if (argc < 2)
@@ -299,17 +298,26 @@ static int do_ut(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	} else if (!strcmp(name, "info")) {
 		ret = do_ut_info(cmdtp, flag, argc, argv);
 	} else {
-		ste = find_suite(argv[0]);
-		if (!ste) {
-			printf("Suite '%s' not found\n", argv[0]);
-			return CMD_RET_FAILURE;
-		} else if (!has_tests(ste)) {
-			/* perhaps a Kconfig option needs to be set? */
-			printf("Suite '%s' is not enabled\n", argv[0]);
-			return CMD_RET_FAILURE;
-		}
+		int any_fail = 0;
+		const char *p;
 
-		ret = run_suite(&uts, ste, cmdtp, flag, argc, argv);
+		for (; p = strsep(&name, ","), p; name = NULL) {
+			ste = find_suite(p);
+			if (!ste) {
+				printf("Suite '%s' not found\n", p);
+				return CMD_RET_FAILURE;
+			} else if (!has_tests(ste)) {
+				/* perhaps a Kconfig option needs to be set? */
+				printf("Suite '%s' is not enabled\n", p);
+				return CMD_RET_FAILURE;
+			}
+
+			ret = run_suite(&uts, ste, cmdtp, flag, argc, argv);
+			if (!any_fail)
+				any_fail = ret;
+			update_stats(&uts, ste);
+		}
+		ret = any_fail;
 	}
 	show_stats(&uts);
 	if (ret)

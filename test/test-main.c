@@ -683,7 +683,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 void ut_report(struct ut_stats *stats, int run_count)
 {
 	if (run_count > 1)
-		printf("Total tests");
+		printf("Suites run: %d, total tests", run_count);
 	else
 		printf("Tests");
 	printf(" run: %d, ", stats->test_count);

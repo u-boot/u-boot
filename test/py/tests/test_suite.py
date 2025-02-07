@@ -187,3 +187,8 @@ def xtest_suite(u_boot_console, u_boot_config):
 
         assert suite_count == len(EXPECTED_SUITES)
         assert total_test_count == len(all_tests)
+
+    # Run three suites
+    with cons.log.section('Check multiple suites'):
+        output = cons.run_command('ut bloblist,setexpr,mem')
+    assert 'Suites run: 3' in output
