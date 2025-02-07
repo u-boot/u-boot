@@ -14,6 +14,7 @@ endif
 ifneq ($(CONFIG_HUSH_PARSER),)
 obj-$(CONFIG_$(XPL_)CMDLINE) += hush/
 endif
+obj-$(CONFIG_UT_OPTEE) += optee/
 obj-y += ut.o
 
 ifeq ($(CONFIG_XPL_BUILD),)
