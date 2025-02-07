@@ -233,11 +233,11 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	flags = cmd_arg1(argc, argv);
 	if (flags && !strcmp("-s", flags)) {
-		int i;
+		int i, total;
 
 		puts("\nTests  Suite         Purpose");
 		puts("\n-----  ------------  -------------------------\n");
-		for (i = 0; i < ARRAY_SIZE(suites); i++) {
+		for (i = 0, total = 0; i < ARRAY_SIZE(suites); i++) {
 			struct suite *ste = &suites[i];
 			long n_ent = ste->end - ste->start;
 
@@ -248,7 +248,13 @@ static int do_ut_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			else  /* suite is not present */
 				continue;
 			printf("  %-13.13s %s\n", ste->name, ste->help);
+			total += n_ent;
 		}
+		puts("-----  ------------  -------------------------\n");
+		printf("%5d  %-13.13s\n", total, "Total");
+
+		if (UNIT_TEST_ALL_COUNT() != total)
+			puts("Error: Suite test-count does not match total\n");
 	}
 
 	return 0;
