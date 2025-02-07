@@ -81,6 +81,7 @@ static int fdt_overlay_init(struct unit_test_state *uts)
 
 	return 0;
 }
+FDT_OVERLAY_TEST_INIT(fdt_overlay_init, 0);
 
 static int fdt_getprop_str(void *fdt, const char *path, const char *name,
 			   const char **out)
@@ -243,7 +244,6 @@ int do_ut_fdt_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
 	const int n_ents = UNIT_TEST_SUITE_COUNT(fdt_overlay);
 	int ret = -ENOMEM;
 
-	ut_assertok(fdt_overlay_init(uts));
 	ret = cmd_ut_category(uts, "fdt_overlay", "fdt_overlay_test_", tests,
 			      n_ents, argc, argv);
 
