@@ -701,7 +701,7 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 		has_dm_tests = true;
 		/*
 		 * If we have no device tree, or it only has a root node, then
-		 * these * tests clearly aren't going to work...
+		 * these tests clearly aren't going to work...
 		 */
 		if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
 			puts("Please run with test device tree:\n"
