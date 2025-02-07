@@ -120,7 +120,7 @@ source "test/env/Kconfig"
 source "test/image/Kconfig"
 source "test/lib/Kconfig"
 source "test/optee/Kconfig"
-source "test/overlay/Kconfig"
+source "test/fdt_overlay/Kconfig"
 
 config POST
 	bool "Power On Self Test support"

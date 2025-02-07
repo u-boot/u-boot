@@ -9,7 +9,7 @@
 
 #include <test/test.h>
 
-/* Declare a new environment test */
-#define OVERLAY_TEST(_name, _flags)	UNIT_TEST(_name, _flags, overlay)
+/* Declare a new FDT-overlay test */
+#define FDT_OVERLAY_TEST(_name, _flags)	UNIT_TEST(_name, _flags, fdt_overlay)
 
 #endif /* __TEST_OVERLAY_H__ */

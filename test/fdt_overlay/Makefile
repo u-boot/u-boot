@@ -4,7 +4,7 @@
 # Copyright (c) 2016 Free Electrons
 
 # Test files
-obj-y += cmd_ut_overlay.o
+obj-y += cmd_ut_fdt_overlay.o
 
 DTC_FLAGS += -@
 

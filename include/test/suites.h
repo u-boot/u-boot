@@ -36,8 +36,8 @@ int cmd_ut_category(struct unit_test_state *uts, const char *name,
 
 int do_ut_bootstd(struct unit_test_state *uts, struct cmd_tbl *cmdtp, int flag,
 		  int argc, char *const argv[]);
+int do_ut_fdt_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		      int flag, int argc, char *const argv[]);
 int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[]);
-int do_ut_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp, int flag,
-		  int argc, char *const argv[]);
 
 #endif /* __TEST_SUITES_H__ */

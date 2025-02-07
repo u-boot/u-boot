@@ -105,6 +105,7 @@ SUITE_DECL(dm);
 SUITE_DECL(env);
 SUITE_DECL(exit);
 SUITE_DECL(fdt);
+SUITE_DECL(fdt_overlay);
 SUITE_DECL(font);
 SUITE_DECL(hush);
 SUITE_DECL(lib);
@@ -114,7 +115,6 @@ SUITE_DECL(mbr);
 SUITE_DECL(measurement);
 SUITE_DECL(mem);
 SUITE_DECL(optee);
-SUITE_DECL(overlay);
 SUITE_DECL(pci_mps);
 SUITE_DECL(seama);
 SUITE_DECL(setexpr);
@@ -134,6 +134,9 @@ static struct suite suites[] = {
 	SUITE(env, "environment"),
 	SUITE(exit, "shell exit and variables"),
 	SUITE(fdt, "fdt command"),
+#ifdef CONFIG_UT_FDT_OVERLAY
+	SUITE_CMD(fdt_overlay, do_ut_fdt_overlay, "device tree overlays"),
+#endif
 	SUITE(font, "font command"),
 	SUITE(hush, "hush behaviour"),
 	SUITE(lib, "library functions"),
@@ -144,9 +147,6 @@ static struct suite suites[] = {
 	SUITE(mem, "memory-related commands"),
 #ifdef CONFIG_UT_OPTEE
 	SUITE_CMD(optee, do_ut_optee, "OP-TEE"),
-#endif
-#ifdef CONFIG_UT_OVERLAY
-	SUITE_CMD(overlay, do_ut_overlay, "device tree overlays"),
 #endif
 	SUITE(pci_mps, "PCI Express Maximum Payload Size"),
 	SUITE(seama, "seama command parameters loading and decoding"),

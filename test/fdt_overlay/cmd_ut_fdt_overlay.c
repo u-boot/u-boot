@@ -13,8 +13,8 @@
 
 #include <linux/sizes.h>
 
+#include <test/fdt_overlay.h>
 #include <test/ut.h>
-#include <test/overlay.h>
 #include <test/suites.h>
 
 /* 4k ought to be enough for anybody */
@@ -68,7 +68,7 @@ static int fdt_getprop_str(void *fdt, const char *path, const char *name,
 	return len < 0 ? len : 0;
 }
 
-static int fdt_overlay_change_int_property(struct unit_test_state *uts)
+static int fdt_overlay_test_change_int_property(struct unit_test_state *uts)
 {
 	u32 val = 0;
 
@@ -78,9 +78,9 @@ static int fdt_overlay_change_int_property(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_change_int_property, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_change_int_property, 0);
 
-static int fdt_overlay_change_str_property(struct unit_test_state *uts)
+static int fdt_overlay_test_change_str_property(struct unit_test_state *uts)
 {
 	const char *val = NULL;
 
@@ -90,9 +90,9 @@ static int fdt_overlay_change_str_property(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_change_str_property, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_change_str_property, 0);
 
-static int fdt_overlay_add_str_property(struct unit_test_state *uts)
+static int fdt_overlay_test_add_str_property(struct unit_test_state *uts)
 {
 	const char *val = NULL;
 
@@ -102,9 +102,9 @@ static int fdt_overlay_add_str_property(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_add_str_property, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_add_str_property, 0);
 
-static int fdt_overlay_add_node_by_phandle(struct unit_test_state *uts)
+static int fdt_overlay_test_add_node_by_phandle(struct unit_test_state *uts)
 {
 	int off;
 
@@ -115,9 +115,9 @@ static int fdt_overlay_add_node_by_phandle(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_add_node_by_phandle, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_add_node_by_phandle, 0);
 
-static int fdt_overlay_add_node_by_path(struct unit_test_state *uts)
+static int fdt_overlay_test_add_node_by_path(struct unit_test_state *uts)
 {
 	int off;
 
@@ -128,9 +128,9 @@ static int fdt_overlay_add_node_by_path(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_add_node_by_path, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_add_node_by_path, 0);
 
-static int fdt_overlay_add_subnode_property(struct unit_test_state *uts)
+static int fdt_overlay_test_add_subnode_property(struct unit_test_state *uts)
 {
 	int off;
 
@@ -142,9 +142,9 @@ static int fdt_overlay_add_subnode_property(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_add_subnode_property, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_add_subnode_property, 0);
 
-static int fdt_overlay_local_phandle(struct unit_test_state *uts)
+static int fdt_overlay_test_local_phandle(struct unit_test_state *uts)
 {
 	uint32_t local_phandle;
 	u32 val = 0;
@@ -166,9 +166,9 @@ static int fdt_overlay_local_phandle(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_local_phandle, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_local_phandle, 0);
 
-static int fdt_overlay_local_phandles(struct unit_test_state *uts)
+static int fdt_overlay_test_local_phandles(struct unit_test_state *uts)
 {
 	uint32_t local_phandle, test_phandle;
 	u32 val = 0;
@@ -196,9 +196,9 @@ static int fdt_overlay_local_phandles(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_local_phandles, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_local_phandles, 0);
 
-static int fdt_overlay_stacked(struct unit_test_state *uts)
+static int fdt_overlay_test_stacked(struct unit_test_state *uts)
 {
 	u32 val = 0;
 
@@ -208,13 +208,13 @@ static int fdt_overlay_stacked(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OVERLAY_TEST(fdt_overlay_stacked, 0);
+FDT_OVERLAY_TEST(fdt_overlay_test_stacked, 0);
 
-int do_ut_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp, int flag,
-		  int argc, char *const argv[])
+int do_ut_fdt_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp,
+		      int flag, int argc, char *const argv[])
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(overlay);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(overlay);
+	struct unit_test *tests = UNIT_TEST_SUITE_START(fdt_overlay);
+	const int n_ents = UNIT_TEST_SUITE_COUNT(fdt_overlay);
 	void *fdt_base = &__dtb_test_fdt_base_begin;
 	void *fdt_overlay = &__dtbo_test_fdt_overlay_begin;
 	void *fdt_overlay_stacked = &__dtbo_test_fdt_overlay_stacked_begin;
@@ -268,7 +268,8 @@ int do_ut_overlay(struct unit_test_state *uts, struct cmd_tbl *cmdtp, int flag,
 	/* Apply the stacked overlay */
 	ut_assertok(fdt_overlay_apply(fdt, fdt_overlay_stacked_copy));
 
-	ret = cmd_ut_category(uts, "overlay", "", tests, n_ents, argc, argv);
+	ret = cmd_ut_category(uts, "fdt_overlay", "fdt_overlay_test_", tests,
+			      n_ents, argc, argv);
 
 	free(fdt_overlay_stacked_copy);
 err3:

@@ -7,10 +7,10 @@ import re
 # List of test suites we expect to find with 'ut info' and 'ut all'
 EXPECTED_SUITES = [
     'addrmap', 'bdinfo', 'bloblist', 'bootm', 'bootstd',
-    'cmd', 'common', 'dm', 'env', 'exit',
+    'cmd', 'common', 'dm', 'env', 'exit', 'fdt_overlay',
     'fdt', 'font', 'hush', 'lib',
     'loadm', 'log', 'mbr', 'measurement', 'mem',
-    'overlay', 'pci_mps', 'setexpr', 'upl',
+    'pci_mps', 'setexpr', 'upl',
     ]
 
 

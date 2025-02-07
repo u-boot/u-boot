@@ -1,4 +1,4 @@
-config UT_OVERLAY
+config UT_FDT_OVERLAY
 	bool "Enable Device Tree Overlays Unit Tests"
 	depends on UNIT_TEST && OF_CONTROL && SANDBOX
 	default y
