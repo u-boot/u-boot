@@ -11,10 +11,10 @@ import tempfile
 import unittest
 
 from patman import checkpatch
-from patman import gitutil
 from patman import patchstream
 from patman import series
 from patman import commit
+from u_boot_pylib import gitutil
 
 
 class Line:

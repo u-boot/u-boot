@@ -17,8 +17,8 @@ import sys
 import threading
 
 from buildman import cfgutil
-from patman import gitutil
 from u_boot_pylib import command
+from u_boot_pylib import gitutil
 from u_boot_pylib import tools
 
 RETURN_CODE_RETRY = -1
