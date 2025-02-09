@@ -9,9 +9,9 @@ import u_boot_utils as util
 @pytest.mark.buildconfigspec('cmd_echo')
 @pytest.mark.buildconfigspec('cmd_source')
 @pytest.mark.buildconfigspec('fit')
-def test_source(u_boot_console):
+def test_source(ubman):
     # Compile our test script image
-    cons = u_boot_console
+    cons = ubman
     mkimage = os.path.join(cons.config.build_dir, 'tools/mkimage')
     its = os.path.join(cons.config.source_dir, 'test/py/tests/source.its')
     fit = os.path.join(cons.config.build_dir, 'source.itb')

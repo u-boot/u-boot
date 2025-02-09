@@ -120,7 +120,7 @@ class SignedFitHelper(object):
 
 @pytest.mark.buildconfigspec('fit_signature')
 @pytest.mark.requiredtool('fdtget')
-def test_fit_auto_signed(u_boot_console):
+def test_fit_auto_signed(ubman):
     """Test that mkimage generates auto-FIT with signatures/hashes as expected.
 
     The mkimage tool can create auto generated (i.e. without an ITS file
@@ -133,7 +133,7 @@ def test_fit_auto_signed(u_boot_console):
 
     The test does not run the sandbox. It only checks the host tool mkimage.
     """
-    cons = u_boot_console
+    cons = ubman
     mkimage = cons.config.build_dir + '/tools/mkimage'
     tempdir = os.path.join(cons.config.result_dir, 'auto_fit')
     os.makedirs(tempdir, exist_ok=True)

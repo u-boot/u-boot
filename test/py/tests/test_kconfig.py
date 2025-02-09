@@ -11,9 +11,9 @@ TMPDIR = '/tmp/test_kconfig'
 
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
-def test_kconfig(u_boot_console):
+def test_kconfig(ubman):
     """Test build failures when IF_ENABLED_INT() option is not enabled"""
-    cons = u_boot_console
+    cons = ubman
 
     # This detects build errors in test/lib/kconfig.c
     out = util.run_and_log(
@@ -24,9 +24,9 @@ def test_kconfig(u_boot_console):
 
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox_spl')
-def test_kconfig_spl(u_boot_console):
+def test_kconfig_spl(ubman):
     """Test build failures when IF_ENABLED_INT() option is not enabled"""
-    cons = u_boot_console
+    cons = ubman
 
     # This detects build errors in test/lib/kconfig_spl.c
     out = util.run_and_log(

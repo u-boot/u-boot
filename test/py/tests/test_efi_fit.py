@@ -123,7 +123,7 @@ FDT_DATA = '''
 @pytest.mark.buildconfigspec('fit')
 @pytest.mark.notbuildconfigspec('generate_acpi_table')
 @pytest.mark.requiredtool('dtc')
-def test_efi_fit_launch(u_boot_console):
+def test_efi_fit_launch(ubman):
     """Test handling of UEFI binaries inside FIT images.
 
     The tests are trying to launch U-Boot's helloworld.efi embedded into
@@ -428,7 +428,7 @@ def test_efi_fit_launch(u_boot_console):
             assert '## Application failed' not in output
             cons.restart_uboot()
 
-    cons = u_boot_console
+    cons = ubman
     # Array slice removes leading/trailing quotes.
     sys_arch = cons.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
     if sys_arch == 'arm':

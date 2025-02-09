@@ -61,9 +61,9 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
 
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
-def test_of_no_migrate(u_boot_console):
+def test_of_no_migrate(ubman):
     """Test sandbox with old boot phase tags like u-boot,dm-pre-proper"""
-    cons = u_boot_console
+    cons = ubman
 
     build_for_migrate(cons, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
                       'sandbox', TMPDIR1)
@@ -80,9 +80,9 @@ def test_of_no_migrate(u_boot_console):
 @pytest.mark.boardspec('sandbox_spl')
 @pytest.mark.boardspec('spl_of_platdata_inst')
 @pytest.mark.boardspec('!sandbox_tpl')
-def test_of_no_migrate_spl(u_boot_console):
+def test_of_no_migrate_spl(ubman):
     """Test sandbox with old boot phase tags like u-boot,dm-spl"""
-    cons = u_boot_console
+    cons = ubman
 
     out = build_for_migrate(cons, ['bootph-pre-ram', 'u-boot,dm-spl'],
                             'sandbox_spl', TMPDIR2)
@@ -94,9 +94,9 @@ def test_of_no_migrate_spl(u_boot_console):
 
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
-def test_of_migrate(u_boot_console):
+def test_of_migrate(ubman):
     """Test sandbox shows a message when tags were migrated"""
-    cons = u_boot_console
+    cons = ubman
 
     build_for_migrate(cons, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
                       'sandbox', TMPDIR3, disable_migrate=False)

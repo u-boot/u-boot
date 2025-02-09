@@ -506,36 +506,36 @@ def setup_cedit_file(cons):
         cons, f'{expo_tool} -e {inhname} -l {infname} -o {outfname}')
 
 @pytest.mark.buildconfigspec('ut_dm')
-def test_ut_dm_init(u_boot_console):
+def test_ut_dm_init(ubman):
     """Initialize data for ut dm tests."""
 
-    fn = u_boot_console.config.source_dir + '/testflash.bin'
+    fn = ubman.config.source_dir + '/testflash.bin'
     if not os.path.exists(fn):
         data = b'this is a test'
         data += b'\x00' * ((4 * 1024 * 1024) - len(data))
         with open(fn, 'wb') as fh:
             fh.write(data)
 
-    fn = u_boot_console.config.source_dir + '/spi.bin'
+    fn = ubman.config.source_dir + '/spi.bin'
     if not os.path.exists(fn):
         data = b'\x00' * (2 * 1024 * 1024)
         with open(fn, 'wb') as fh:
             fh.write(data)
 
     # Create a file with a single partition
-    fn = u_boot_console.config.source_dir + '/scsi.img'
+    fn = ubman.config.source_dir + '/scsi.img'
     if not os.path.exists(fn):
         data = b'\x00' * (2 * 1024 * 1024)
         with open(fn, 'wb') as fh:
             fh.write(data)
         u_boot_utils.run_and_log(
-            u_boot_console, f'sfdisk {fn}', stdin=b'type=83')
+            ubman, f'sfdisk {fn}', stdin=b'type=83')
 
-    fs_helper.mk_fs(u_boot_console.config, 'ext2', 0x200000, '2MB', None)
-    fs_helper.mk_fs(u_boot_console.config, 'fat32', 0x100000, '1MB', None)
+    fs_helper.mk_fs(ubman.config, 'ext2', 0x200000, '2MB', None)
+    fs_helper.mk_fs(ubman.config, 'fat32', 0x100000, '1MB', None)
 
     mmc_dev = 6
-    fn = os.path.join(u_boot_console.config.source_dir, f'mmc{mmc_dev}.img')
+    fn = os.path.join(ubman.config.source_dir, f'mmc{mmc_dev}.img')
     data = b'\x00' * (12 * 1024 * 1024)
     with open(fn, 'wb') as fh:
         fh.write(data)
@@ -568,21 +568,21 @@ def setup_efi_image(cons):
 
 @pytest.mark.buildconfigspec('cmd_bootflow')
 @pytest.mark.buildconfigspec('sandbox')
-def test_ut_dm_init_bootstd(u_boot_console):
+def test_ut_dm_init_bootstd(ubman):
     """Initialise data for bootflow tests"""
 
-    setup_bootflow_image(u_boot_console)
-    setup_bootmenu_image(u_boot_console)
-    setup_cedit_file(u_boot_console)
-    setup_cros_image(u_boot_console)
-    setup_android_image(u_boot_console)
-    setup_efi_image(u_boot_console)
+    setup_bootflow_image(ubman)
+    setup_bootmenu_image(ubman)
+    setup_cedit_file(ubman)
+    setup_cros_image(ubman)
+    setup_android_image(ubman)
+    setup_efi_image(ubman)
 
     # Restart so that the new mmc1.img is picked up
-    u_boot_console.restart_uboot()
+    ubman.restart_uboot()
 
 
-def test_ut(u_boot_console, ut_subtest):
+def test_ut(ubman, ut_subtest):
     """Execute a "ut" subtest.
 
     The subtests are collected in function generate_ut_subtest() from linker
@@ -595,16 +595,16 @@ def test_ut(u_boot_console, ut_subtest):
     implemented in C function foo_test_bar().
 
     Args:
-        u_boot_console (ConsoleBase): U-Boot console
+        ubman (ConsoleBase): U-Boot console
         ut_subtest (str): test to be executed via command ut, e.g 'foo bar' to
             execute command 'ut foo bar'
     """
 
     if ut_subtest == 'hush hush_test_simple_dollar':
         # ut hush hush_test_simple_dollar prints "Unknown command" on purpose.
-        with u_boot_console.disable_check('unknown_command'):
-            output = u_boot_console.run_command('ut ' + ut_subtest)
+        with ubman.disable_check('unknown_command'):
+            output = ubman.run_command('ut ' + ut_subtest)
         assert 'Unknown command \'quux\' - try \'help\'' in output
     else:
-        output = u_boot_console.run_command('ut ' + ut_subtest)
+        output = ubman.run_command('ut ' + ut_subtest)
     assert output.endswith('failures: 0')

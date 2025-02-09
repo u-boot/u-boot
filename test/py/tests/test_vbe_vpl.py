@@ -10,8 +10,8 @@ import u_boot_utils
 
 @pytest.mark.boardspec('sandbox_vpl')
 @pytest.mark.requiredtool('dtc')
-def test_vbe_vpl(u_boot_console):
-    cons = u_boot_console
+def test_vbe_vpl(ubman):
+    cons = ubman
     #cmd = [cons.config.build_dir + fname, '-v']
     ram = os.path.join(cons.config.build_dir, 'ram.bin')
     fdt = os.path.join(cons.config.build_dir, 'arch/sandbox/dts/test.dtb')

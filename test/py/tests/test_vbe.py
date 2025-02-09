@@ -90,8 +90,8 @@ ut bootstd -f vbe_test_fixup_norun
 
 @pytest.mark.boardspec('sandbox_flattree')
 @pytest.mark.requiredtool('dtc')
-def test_vbe(u_boot_console):
-    cons = u_boot_console
+def test_vbe(ubman):
+    cons = ubman
     kernel = fit_util.make_kernel(cons, 'vbe-kernel.bin', 'kernel')
     fdt = fit_util.make_dtb(cons, base_fdt, 'vbe-fdt')
     fdt_out = fit_util.make_fname(cons, 'fdt-out.dtb')

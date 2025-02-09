@@ -486,8 +486,8 @@ def u_boot_config(request):
      return console.config
 
 @pytest.fixture(scope='function')
-def u_boot_console(request):
-    """Generate the value of a test's u_boot_console fixture.
+def ubman(request):
+    """Generate the value of a test's ubman fixture.
 
     Args:
         request: The pytest request.

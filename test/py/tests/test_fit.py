@@ -118,7 +118,7 @@ host save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('fit_signature')
 @pytest.mark.requiredtool('dtc')
-def test_fit(u_boot_console):
+def test_fit(ubman):
     def make_fname(leaf):
         """Make a temporary filename
 
@@ -397,7 +397,7 @@ def test_fit(u_boot_console):
             check_equal(ramdisk + '.gz', ramdisk_out, 'Ramdist not loaded')
 
 
-    cons = u_boot_console
+    cons = ubman
     # We need to use our own device tree file. Remember to restore it
     # afterwards.
     old_dtb = cons.config.dtb

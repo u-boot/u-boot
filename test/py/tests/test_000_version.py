@@ -7,13 +7,13 @@
 # first, simply as a very basic sanity check of the functionality of the U-Boot
 # command prompt.
 
-def test_version(u_boot_console):
+def test_version(ubman):
     """Test that the "version" command prints the U-Boot version."""
 
     # "version" prints the U-Boot sign-on message. This is usually considered
     # an error, so that any unexpected reboot causes an error. Here, this
     # error detection is disabled since the sign-on message is expected.
-    with u_boot_console.disable_check('main_signon'):
-        response = u_boot_console.run_command('version')
+    with ubman.disable_check('main_signon'):
+        response = ubman.run_command('version')
     # Ensure "version" printed what we expected.
-    u_boot_console.validate_version_string_in_text(response)
+    ubman.validate_version_string_in_text(response)

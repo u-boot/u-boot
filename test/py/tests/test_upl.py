@@ -9,7 +9,7 @@ import pytest
 import u_boot_utils
 
 @pytest.mark.boardspec('sandbox_vpl')
-def test_upl_handoff(u_boot_console):
+def test_upl_handoff(ubman):
     """Test of UPL handoff
 
     This works by starting up U-Boot VPL, which gets to SPL and then sets up a
@@ -19,7 +19,7 @@ def test_upl_handoff(u_boot_console):
     The entire FIT is loaded into memory in SPL (in upl_load_from_image()) so
     that it can be inspected in upl_test_info_norun
     """
-    cons = u_boot_console
+    cons = ubman
     ram = os.path.join(cons.config.build_dir, 'ram.bin')
     fdt = os.path.join(cons.config.build_dir, 'u-boot.dtb')
 

@@ -113,7 +113,7 @@ TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
 @pytest.mark.requiredtool('openssl')
 @pytest.mark.parametrize("name,sha_algo,padding,sign_options,required,full_test,algo_arg,global_sign",
                          TESTDATA)
-def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
+def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
                full_test, algo_arg, global_sign):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
@@ -371,7 +371,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Create a new properly signed fit and replace header bytes
         make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
-        bcfg = u_boot_console.config.buildconfig
+        bcfg = ubman.config.buildconfig
         max_size = int(bcfg.get('config_fit_signature_max_size', 0x10000000), 0)
         existing_size = replace_fit_totalsize(max_size + 1)
         run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash',
@@ -508,7 +508,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Check that the boot fails if the global signature is not provided
         run_bootm(sha_algo, 'global image signature', 'signature is mandatory', False)
 
-    cons = u_boot_console
+    cons = ubman
     tmpdir = os.path.join(cons.config.result_dir, name) + '/'
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
@@ -577,7 +577,7 @@ TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
 @pytest.mark.requiredtool('dtc')
 @pytest.mark.requiredtool('openssl')
 @pytest.mark.parametrize("name,sha_algo,padding,sign_options,algo_arg", TESTDATA)
-def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, algo_arg):
+def test_fdt_add_pubkey(ubman, name, sha_algo, padding, sign_options, algo_arg):
     """Test fdt_add_pubkey utility with bunch of different algo options."""
 
     def sign_fit(sha_algo, options):
@@ -625,7 +625,7 @@ def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, a
         # Check with fit_check_sign that FIT is signed with key
         util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
 
-    cons = u_boot_console
+    cons = ubman
     tmpdir = os.path.join(cons.config.result_dir, name) + '/'
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)

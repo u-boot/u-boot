@@ -36,8 +36,8 @@ env__zynq_rsa_readable_file = {
 }
 """
 
-def zynq_secure_pre_commands(u_boot_console):
-    output = u_boot_console.run_command('print modeboot')
+def zynq_secure_pre_commands(ubman):
+    output = ubman.run_command('print modeboot')
     if not 'modeboot=' in output:
         pytest.skip('bootmode cannnot be determined')
     m = re.search('modeboot=(.+?)boot', output)
@@ -48,8 +48,8 @@ def zynq_secure_pre_commands(u_boot_console):
         pytest.skip('skipping due to jtag bootmode')
 
 @pytest.mark.buildconfigspec('cmd_zynq_aes')
-def test_zynq_aes_image(u_boot_console):
-    f = u_boot_console.config.env.get('env__zynq_aes_readable_file', None)
+def test_zynq_aes_image(ubman):
+    f = ubman.config.env.get('env__zynq_aes_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynq secure aes case to read')
 
@@ -61,130 +61,130 @@ def test_zynq_aes_image(u_boot_console):
     if not dstsize:
         pytest.skip('No dstlen specified in env file to read')
 
-    zynq_secure_pre_commands(u_boot_console)
-    test_net.test_net_dhcp(u_boot_console)
+    zynq_secure_pre_commands(ubman)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = u_boot_utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (srcaddr, fn))
     assert expected_tftp in output
 
     expected_op = 'zynq aes [operation type] <srcaddr>'
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         'zynq aes %x $filesize %x %x' % (srcaddr, dstaddr, dstsize)
     )
     assert expected_op not in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_zynq_aes')
-def test_zynq_aes_bitstream(u_boot_console):
-    f = u_boot_console.config.env.get('env__zynq_aes_readable_file', None)
+def test_zynq_aes_bitstream(ubman):
+    f = ubman.config.env.get('env__zynq_aes_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynq secure aes case to read')
 
-    zynq_secure_pre_commands(u_boot_console)
-    test_net.test_net_dhcp(u_boot_console)
+    zynq_secure_pre_commands(ubman)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = u_boot_utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fnbit']
-    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (srcaddr, fn))
     assert expected_tftp in output
 
     expected_op = 'zynq aes [operation type] <srcaddr>'
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         'zynq aes load %x $filesize' % (srcaddr)
     )
     assert expected_op not in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_zynq_aes')
-def test_zynq_aes_partial_bitstream(u_boot_console):
-    f = u_boot_console.config.env.get('env__zynq_aes_readable_file', None)
+def test_zynq_aes_partial_bitstream(ubman):
+    f = ubman.config.env.get('env__zynq_aes_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynq secure aes case to read')
 
-    zynq_secure_pre_commands(u_boot_console)
-    test_net.test_net_dhcp(u_boot_console)
+    zynq_secure_pre_commands(ubman)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = u_boot_utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fnpbit']
-    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (srcaddr, fn))
     assert expected_tftp in output
 
     expected_op = 'zynq aes [operation type] <srcaddr>'
-    output = u_boot_console.run_command('zynq aes loadp %x $filesize' % (srcaddr))
+    output = ubman.run_command('zynq aes loadp %x $filesize' % (srcaddr))
     assert expected_op not in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_zynq_rsa')
-def test_zynq_rsa_image(u_boot_console):
-    f = u_boot_console.config.env.get('env__zynq_rsa_readable_file', None)
+def test_zynq_rsa_image(ubman):
+    f = ubman.config.env.get('env__zynq_rsa_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynq secure rsa case to read')
 
-    zynq_secure_pre_commands(u_boot_console)
-    test_net.test_net_dhcp(u_boot_console)
+    zynq_secure_pre_commands(ubman)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = u_boot_utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
+    output = ubman.run_command('tftpboot %x %s' % (srcaddr, fn))
     assert expected_tftp in output
 
     expected_op = 'zynq rsa <baseaddr>'
-    output = u_boot_console.run_command('zynq rsa %x ' % (srcaddr))
+    output = ubman.run_command('zynq rsa %x ' % (srcaddr))
     assert expected_op not in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_zynq_rsa')
-def test_zynq_rsa_image_invalid(u_boot_console):
-    f = u_boot_console.config.env.get('env__zynq_rsa_readable_file', None)
+def test_zynq_rsa_image_invalid(ubman):
+    f = ubman.config.env.get('env__zynq_rsa_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file for zynq secure rsa case to read')
 
-    zynq_secure_pre_commands(u_boot_console)
-    test_net.test_net_dhcp(u_boot_console)
+    zynq_secure_pre_commands(ubman)
+    test_net.test_net_dhcp(ubman)
     if not test_net.net_set_up:
-        test_net.test_net_setup_static(u_boot_console)
+        test_net.test_net_setup_static(ubman)
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = u_boot_utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fninvalid = f['fninvalid']
-    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fninvalid))
+    output = ubman.run_command('tftpboot %x %s' % (srcaddr, fninvalid))
     assert expected_tftp in output
 
     expected_op = 'zynq rsa <baseaddr>'
-    output = u_boot_console.run_command('zynq rsa %x ' % (srcaddr))
+    output = ubman.run_command('zynq rsa %x ' % (srcaddr))
     assert expected_op in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert not output.endswith('0')

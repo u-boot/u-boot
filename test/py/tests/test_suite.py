@@ -130,7 +130,7 @@ def process_ut_info(cons, output):
 @pytest.mark.notbuildconfigspec('sandbox_spl')
 @pytest.mark.notbuildconfigspec('sandbox64')
 # This test is disabled since it fails; remove the leading 'x' to try it
-def xtest_suite(u_boot_console, u_boot_config):
+def xtest_suite(ubman, u_boot_config):
     """Perform various checks on the unit tests, including:
 
        - The number of suites matches that reported by the 'ut info'
@@ -142,11 +142,11 @@ def xtest_suite(u_boot_console, u_boot_config):
        - The expected set of suites is run (the list is hard-coded in this test)
 
     """
-    cons = u_boot_console
+    cons = ubman
     buildconfig = u_boot_config.buildconfig
     with cons.log.section('Run all unit tests'):
         # ut hush hush_test_simple_dollar prints "Unknown command" on purpose.
-        with u_boot_console.disable_check('unknown_command'):
+        with ubman.disable_check('unknown_command'):
             output = cons.run_command('ut all')
 
     # Process the output from the run

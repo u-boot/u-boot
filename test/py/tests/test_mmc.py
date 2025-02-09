@@ -61,16 +61,16 @@ def setup_mmc_modes(cons):
         # Set mmc mode to default mode (legacy), if it is not defined in env
         mmc_modes = [0]
 
-def setup_mmc(u_boot_console):
-    if u_boot_console.config.env.get('env__mmc_device_test_skip', True):
+def setup_mmc(ubman):
+    if ubman.config.env.get('env__mmc_device_test_skip', True):
         pytest.skip('MMC device test is not enabled')
 
-    setup_mmc_modes(u_boot_console)
+    setup_mmc_modes(ubman)
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_list(u_boot_console):
-    setup_mmc(u_boot_console)
-    output = u_boot_console.run_command('mmc list')
+def test_mmc_list(ubman):
+    setup_mmc(ubman)
+    output = ubman.run_command('mmc list')
     if 'No MMC device available' in output:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -90,7 +90,7 @@ def test_mmc_list(u_boot_console):
     mmc_set_up = True
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_dev(u_boot_console):
+def test_mmc_dev(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -99,7 +99,7 @@ def test_mmc_dev(u_boot_console):
         devices[x]['detected'] = 'yes'
 
         for y in mmc_modes:
-            output = u_boot_console.run_command('mmc dev %d 0 %d' % x, y)
+            output = ubman.run_command('mmc dev %d 0 %d' % x, y)
 
             if 'Card did not respond to voltage select' in output:
                 fail = 1
@@ -115,15 +115,15 @@ def test_mmc_dev(u_boot_console):
             pytest.fail('Card not present')
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmcinfo(u_boot_console):
+def test_mmcinfo(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                u_boot_console.run_command('mmc dev %d 0 %d' % x, y)
-                output = u_boot_console.run_command('mmcinfo')
+                ubman.run_command('mmc dev %d 0 %d' % x, y)
+                output = ubman.run_command('mmcinfo')
                 if 'busy timeout' in output:
                     pytest.skip('No SD/MMC/eMMC device present')
 
@@ -139,16 +139,16 @@ def test_mmcinfo(u_boot_console):
                     pytest.fail('MMC capacity not recognized')
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_info(u_boot_console):
+def test_mmc_info(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                u_boot_console.run_command('mmc dev %d 0 %d' % x, y)
+                ubman.run_command('mmc dev %d 0 %d' % x, y)
 
-                output = u_boot_console.run_command('mmc info')
+                output = ubman.run_command('mmc info')
                 assert mmc_modes_name[mmc_modes.index(y)] in output
 
                 obj = re.search(r'Capacity: (\d+|\d+[\.]?\d)', output)
@@ -162,7 +162,7 @@ def test_mmc_info(u_boot_console):
                     pytest.fail('MMC capacity not recognized')
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_rescan(u_boot_console):
+def test_mmc_rescan(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -172,15 +172,15 @@ def test_mmc_rescan(u_boot_console):
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
             for y in mmc_modes:
-                u_boot_console.run_command('mmc dev %d 0 %d' % x, y)
-                output = u_boot_console.run_command('mmc rescan')
+                ubman.run_command('mmc dev %d 0 %d' % x, y)
+                output = ubman.run_command('mmc rescan')
                 if output:
                     pytest.fail('mmc rescan has something to check')
-                output = u_boot_console.run_command('echo $?')
+                output = ubman.run_command('echo $?')
                 assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_part(u_boot_console):
+def test_mmc_part(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -189,8 +189,8 @@ def test_mmc_part(u_boot_console):
 
     for x in range(0, controllers):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('mmc dev %d' % x)
-            output = u_boot_console.run_command('mmc part')
+            ubman.run_command('mmc dev %d' % x)
+            output = ubman.run_command('mmc part')
 
             lines = output.split('\n')
             part_fat = []
@@ -209,7 +209,7 @@ def test_mmc_part(u_boot_console):
                         part_fat.append(part_id)
                     elif part_type == '83':
                         print('ext(2/4) detected')
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'fstype mmc %d:%d' % x, part_id
                         )
                         if 'ext2' in output:
@@ -227,7 +227,7 @@ def test_mmc_part(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fat')
-def test_mmc_fatls_fatinfo(u_boot_console):
+def test_mmc_fatls_fatinfo(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -246,8 +246,8 @@ def test_mmc_fatls_fatinfo(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
-                    output = u_boot_console.run_command(
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    output = ubman.run_command(
                             'fatls mmc %d:%s' % (x, part))
                     if 'Unrecognized filesystem type' in output:
                         partitions.remove(part)
@@ -255,7 +255,7 @@ def test_mmc_fatls_fatinfo(u_boot_console):
 
                     if not re.search(r'\d file\(s\), \d dir\(s\)', output):
                         pytest.fail('%s read failed on device %d' % (fs.upper, x))
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                             'fatinfo mmc %d:%s' % (x, part))
                     string = 'Filesystem: %s' % fs.upper
                     if re.search(string, output):
@@ -269,7 +269,7 @@ def test_mmc_fatls_fatinfo(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fat')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_mmc_fatload_fatwrite(u_boot_console):
+def test_mmc_fatload_fatwrite(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -288,14 +288,14 @@ def test_mmc_fatload_fatwrite(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(u_boot_console)
+                    addr = u_boot_utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
                     size = random.randint(4, 1 * 1024 * 1024)
                     devices[x]['size_%d' % part] = size
                     # count CRC32
-                    output = u_boot_console.run_command('crc32 %x %x' % (addr, size))
+                    output = ubman.run_command('crc32 %x %x' % (addr, size))
                     m = re.search('==> (.+?)', output)
                     if not m:
                         pytest.fail('CRC32 failed')
@@ -304,7 +304,7 @@ def test_mmc_fatload_fatwrite(u_boot_console):
                     # do write
                     file = '%s_%d' % ('uboot_test', size)
                     devices[x]['file_%d' % part] = file
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%swrite mmc %d:%s %x %s %x' % (fs, x, part, addr, file, size)
                     )
                     assert 'Unable to write' not in output
@@ -314,12 +314,12 @@ def test_mmc_fatload_fatwrite(u_boot_console):
                     assert expected_text in output
 
                     alignment = int(
-                        u_boot_console.config.buildconfig.get(
+                        ubman.config.buildconfig.get(
                             'config_sys_cacheline_size', 128
                         )
                     )
                     offset = random.randrange(alignment, 1024, alignment)
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%sload mmc %d:%s %x %s' % (fs, x, part, addr + offset, file)
                     )
                     assert 'Invalid FAT entry' not in output
@@ -328,7 +328,7 @@ def test_mmc_fatload_fatwrite(u_boot_console):
                     expected_text = '%d bytes read' % size
                     assert expected_text in output
 
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'crc32 %x $filesize' % (addr + offset)
                     )
                     assert expected_crc32 in output
@@ -338,7 +338,7 @@ def test_mmc_fatload_fatwrite(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_ext4')
-def test_mmc_ext4ls(u_boot_console):
+def test_mmc_ext4ls(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -357,8 +357,8 @@ def test_mmc_ext4ls(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
-                    output = u_boot_console.run_command(
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
+                    output = ubman.run_command(
                         '%sls mmc %d:%s' % (fs, x, part)
                     )
                     if 'Unrecognized filesystem type' in output:
@@ -373,7 +373,7 @@ def test_mmc_ext4ls(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_ext4')
 @pytest.mark.buildconfigspec('ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_mmc_ext4load_ext4write(u_boot_console):
+def test_mmc_ext4load_ext4write(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -392,14 +392,14 @@ def test_mmc_ext4load_ext4write(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(u_boot_console)
+                    addr = u_boot_utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
                     size = random.randint(4, 1 * 1024 * 1024)
                     devices[x]['size_%d' % part] = size
                     # count CRC32
-                    output = u_boot_console.run_command('crc32 %x %x' % (addr, size))
+                    output = ubman.run_command('crc32 %x %x' % (addr, size))
                     m = re.search('==> (.+?)', output)
                     if not m:
                         pytest.fail('CRC32 failed')
@@ -409,7 +409,7 @@ def test_mmc_ext4load_ext4write(u_boot_console):
                     # do write
                     file = '%s_%d' % ('uboot_test', size)
                     devices[x]['file_%d' % part] = file
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%swrite mmc %d:%s %x /%s %x' % (fs, x, part, addr, file, size)
                     )
                     assert 'Unable to write' not in output
@@ -419,13 +419,13 @@ def test_mmc_ext4load_ext4write(u_boot_console):
                     assert expected_text in output
 
                     offset = random.randrange(128, 1024, 128)
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%sload mmc %d:%s %x /%s' % (fs, x, part, addr + offset, file)
                     )
                     expected_text = '%d bytes read' % size
                     assert expected_text in output
 
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'crc32 %x $filesize' % (addr + offset)
                     )
                     assert expected_crc32 in output
@@ -435,7 +435,7 @@ def test_mmc_ext4load_ext4write(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_ext2')
-def test_mmc_ext2ls(u_boot_console):
+def test_mmc_ext2ls(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -454,9 +454,9 @@ def test_mmc_ext2ls(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%sls mmc %d:%s' % (fs, x, part)
                     )
                     if 'Unrecognized filesystem type' in output:
@@ -472,7 +472,7 @@ def test_mmc_ext2ls(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_ext4')
 @pytest.mark.buildconfigspec('ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_mmc_ext2load(u_boot_console):
+def test_mmc_ext2load(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -491,7 +491,7 @@ def test_mmc_ext2load(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
                     addr = devices[x]['addr_%d' % part]
                     size = devices[x]['size_%d' % part]
@@ -499,13 +499,13 @@ def test_mmc_ext2load(u_boot_console):
                     file = devices[x]['file_%d' % part]
 
                     offset = random.randrange(128, 1024, 128)
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         '%sload mmc %d:%s %x /%s' % (fs, x, part, addr + offset, file)
                     )
                     expected_text = '%d bytes read' % size
                     assert expected_text in output
 
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'crc32 %x $filesize' % (addr + offset)
                     )
                     assert expected_crc32 in output
@@ -515,7 +515,7 @@ def test_mmc_ext2load(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_mmc_ls(u_boot_console):
+def test_mmc_ls(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -534,9 +534,9 @@ def test_mmc_ls(u_boot_console):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
                         part_detect = 1
-                        output = u_boot_console.run_command('ls mmc %d:%s' % (x, part))
+                        output = ubman.run_command('ls mmc %d:%s' % (x, part))
                         if re.search(r'No \w+ table on this device', output):
                             pytest.fail(
                                 '%s: Partition table not found %d' % (fs.upper(), x)
@@ -547,7 +547,7 @@ def test_mmc_ls(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_mmc_load(u_boot_console):
+def test_mmc_load(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -566,7 +566,7 @@ def test_mmc_load(u_boot_console):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
                         part_detect = 1
                         addr = devices[x]['addr_%d' % part]
                         size = devices[x]['size_%d' % part]
@@ -574,13 +574,13 @@ def test_mmc_load(u_boot_console):
                         file = devices[x]['file_%d' % part]
 
                         offset = random.randrange(128, 1024, 128)
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'load mmc %d:%s %x /%s' % (x, part, addr + offset, file)
                         )
                         expected_text = '%d bytes read' % size
                         assert expected_text in output
 
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'crc32 %x $filesize' % (addr + offset)
                         )
                         assert expected_crc32 in output
@@ -590,7 +590,7 @@ def test_mmc_load(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_mmc_save(u_boot_console):
+def test_mmc_save(ubman):
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -609,14 +609,14 @@ def test_mmc_save(u_boot_console):
 
                 for part in partitions:
                     for y in mmc_modes:
-                        u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                        ubman.run_command('mmc dev %d %d %d' % x, part, y)
                         part_detect = 1
                         addr = devices[x]['addr_%d' % part]
                         size = 0
                         file = devices[x]['file_%d' % part]
 
                         offset = random.randrange(128, 1024, 128)
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'save mmc %d:%s %x /%s %d'
                             % (x, part, addr + offset, file, size)
                         )
@@ -629,11 +629,11 @@ def test_mmc_save(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_mmc')
 @pytest.mark.buildconfigspec('cmd_fat')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_mmc_fat_read_write_files(u_boot_console):
-    test_mmc_list(u_boot_console)
-    test_mmc_dev(u_boot_console)
-    test_mmcinfo(u_boot_console)
-    test_mmc_part(u_boot_console)
+def test_mmc_fat_read_write_files(ubman):
+    test_mmc_list(ubman)
+    test_mmc_dev(ubman)
+    test_mmcinfo(ubman)
+    test_mmc_part(ubman)
     if not mmc_set_up:
         pytest.skip('No SD/MMC/eMMC controller available')
 
@@ -656,9 +656,9 @@ def test_mmc_fat_read_write_files(u_boot_console):
 
             for part in partitions:
                 for y in mmc_modes:
-                    u_boot_console.run_command('mmc dev %d %d %d' % x, part, y)
+                    ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(u_boot_console)
+                    addr = u_boot_utils.find_ram_base(ubman)
                     count_f = 0
                     addr_l = []
                     size_l = []
@@ -671,7 +671,7 @@ def test_mmc_fat_read_write_files(u_boot_console):
                         size_l.append(random.randint(4, 1 * 1024 * 1024))
 
                         # CRC32 count
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'crc32 %x %x' % (addr_l[count_f], size_l[count_f])
                         )
                         m = re.search('==> (.+?)', output)
@@ -683,7 +683,7 @@ def test_mmc_fat_read_write_files(u_boot_console):
                         file_l.append(
                             '%s_%d_%d' % ('uboot_test', count_f, size_l[count_f])
                         )
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             '%swrite mmc %d:%s %x %s %x'
                             % (
                                 fs,
@@ -706,14 +706,14 @@ def test_mmc_fat_read_write_files(u_boot_console):
                     count_f = 0
                     while count_f < num_files:
                         alignment = int(
-                            u_boot_console.config.buildconfig.get(
+                            ubman.config.buildconfig.get(
                                 'config_sys_cacheline_size', 128
                             )
                         )
                         offset_l.append(random.randrange(alignment, 1024, alignment))
 
                         # Read operation
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             '%sload mmc %d:%s %x %s'
                             % (
                                 fs,
@@ -729,7 +729,7 @@ def test_mmc_fat_read_write_files(u_boot_console):
                         expected_text = '%d bytes read' % size_l[count_f]
                         assert expected_text in output
 
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'crc32 %x $filesize' % (addr_l[count_f] + offset_l[count_f])
                         )
                         assert crc32_l[count_f] in output

@@ -11,7 +11,7 @@ and checks that the output is correct.
 import pytest
 
 @pytest.mark.buildconfigspec('cmd_log')
-def test_log_format(u_boot_console):
+def test_log_format(ubman):
     """Test the 'log format' and 'log rec' commands"""
     def run_with_format(fmt, expected_output):
         """Set up the log format and then write a log record
@@ -25,9 +25,9 @@ def test_log_format(u_boot_console):
         output = cons.run_command('log rec arch notice file.c 123 func msg')
         assert output == expected_output
 
-    cons = u_boot_console
+    cons = ubman
     with cons.log.section('format'):
-        pad = int(u_boot_console.config.buildconfig.get('config_logf_func_pad'))
+        pad = int(ubman.config.buildconfig.get('config_logf_func_pad'))
         padding = ' ' * (pad - len('func'))
 
         run_with_format('all', f'NOTICE.arch,file.c:123-{padding}func() msg')
@@ -42,10 +42,10 @@ def test_log_format(u_boot_console):
 
 @pytest.mark.buildconfigspec('debug_uart')
 @pytest.mark.boardspec('sandbox')
-def test_log_dropped(u_boot_console):
+def test_log_dropped(ubman):
     """Test dropped 'log' message when debug_uart is activated"""
 
-    cons = u_boot_console
+    cons = ubman
     cons.restart_uboot()
     output = cons.get_spawn_output().replace('\r', '')
     assert (not 'debug: main' in output)
