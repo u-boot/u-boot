@@ -50,9 +50,9 @@ def force_init(ubman, force=False):
             ubman.run_command('tpm2 clear TPM2_RH_PLATFORM')
         ubman.run_command('echo --- end of init ---')
 
-def is_sandbox(cons):
+def is_sandbox(ubman):
     # Array slice removes leading/trailing quotes.
-    sys_arch = cons.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
+    sys_arch = ubman.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
     return sys_arch == 'sandbox'
 
 @pytest.mark.buildconfigspec('cmd_tpm_v2')

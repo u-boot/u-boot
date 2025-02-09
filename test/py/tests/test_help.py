@@ -16,10 +16,9 @@ def test_help(ubman):
 @pytest.mark.boardspec('sandbox')
 def test_help_no_devicetree(ubman):
     try:
-        cons = ubman
-        cons.restart_uboot_with_flags([], use_dtb=False)
-        cons.run_command('help')
-        output = cons.get_spawn_output().replace('\r', '')
+        ubman.restart_uboot_with_flags([], use_dtb=False)
+        ubman.run_command('help')
+        output = ubman.get_spawn_output().replace('\r', '')
         assert 'print command description/usage' in output
     finally:
         # Restart afterward to get the normal device tree back
@@ -28,10 +27,9 @@ def test_help_no_devicetree(ubman):
 @pytest.mark.boardspec('sandbox_vpl')
 def test_vpl_help(ubman):
     try:
-        cons = ubman
-        cons.restart_uboot()
-        cons.run_command('help')
-        output = cons.get_spawn_output().replace('\r', '')
+        ubman.restart_uboot()
+        ubman.run_command('help')
+        output = ubman.get_spawn_output().replace('\r', '')
         assert 'print command description/usage' in output
     finally:
         # Restart afterward to get the normal device tree back

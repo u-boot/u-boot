@@ -13,11 +13,10 @@ TMPDIR = '/tmp/test_kconfig'
 @pytest.mark.boardspec('sandbox')
 def test_kconfig(ubman):
     """Test build failures when IF_ENABLED_INT() option is not enabled"""
-    cons = ubman
 
     # This detects build errors in test/lib/kconfig.c
     out = utils.run_and_log(
-        cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
+        ubman, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', 'TEST_KCONFIG', '-o', TMPDIR], ignore_errors=True)
     assert 'invalid_use_of_IF_ENABLED_INT' in out
     assert 'invalid_use_of_CONFIG_IF_ENABLED_INT' in out
@@ -26,11 +25,10 @@ def test_kconfig(ubman):
 @pytest.mark.boardspec('sandbox_spl')
 def test_kconfig_spl(ubman):
     """Test build failures when IF_ENABLED_INT() option is not enabled"""
-    cons = ubman
 
     # This detects build errors in test/lib/kconfig_spl.c
     out = utils.run_and_log(
-        cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox_spl',
+        ubman, ['./tools/buildman/buildman', '-m', '--board', 'sandbox_spl',
                '-a', 'TEST_KCONFIG', '-o', TMPDIR], ignore_errors=True)
     assert 'invalid_use_of_IF_ENABLED_INT' in out
 

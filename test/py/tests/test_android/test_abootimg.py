@@ -232,38 +232,37 @@ def test_abootimg(abootimg_disk_image, ubman):
 def test_abootimgv4(abootimgv4_disk_image_vboot, abootimgv4_disk_image_boot, ubman):
     """Test the 'abootimg' command with boot image header v4."""
 
-    cons = ubman
-    cons.log.action('Loading disk image to RAM...')
-    cons.run_command('setenv loadaddr 0x%x' % (loadaddr))
-    cons.run_command('setenv vloadaddr 0x%x' % (vloadaddr))
-    cons.run_command('host load hostfs - 0x%x %s' % (vloadaddr,
+    ubman.log.action('Loading disk image to RAM...')
+    ubman.run_command('setenv loadaddr 0x%x' % (loadaddr))
+    ubman.run_command('setenv vloadaddr 0x%x' % (vloadaddr))
+    ubman.run_command('host load hostfs - 0x%x %s' % (vloadaddr,
 	abootimgv4_disk_image_vboot.path))
-    cons.run_command('host load hostfs - 0x%x %s' % (loadaddr,
+    ubman.run_command('host load hostfs - 0x%x %s' % (loadaddr,
         abootimgv4_disk_image_boot.path))
-    cons.run_command('abootimg addr 0x%x 0x%x' % (loadaddr, vloadaddr))
-    cons.log.action('Testing \'abootimg get ver\'...')
-    response = cons.run_command('abootimg get ver')
+    ubman.run_command('abootimg addr 0x%x 0x%x' % (loadaddr, vloadaddr))
+    ubman.log.action('Testing \'abootimg get ver\'...')
+    response = ubman.run_command('abootimg get ver')
     assert response == "4"
-    cons.run_command('abootimg get ver v')
-    response = cons.run_command('env print v')
+    ubman.run_command('abootimg get ver v')
+    response = ubman.run_command('env print v')
     assert response == 'v=4'
 
-    cons.log.action('Testing \'abootimg get recovery_dtbo\'...')
-    response = cons.run_command('abootimg get recovery_dtbo a')
+    ubman.log.action('Testing \'abootimg get recovery_dtbo\'...')
+    response = ubman.run_command('abootimg get recovery_dtbo a')
     assert response == 'Error: header version must be >= 1 and <= 2 to get dtbo'
 
-    cons.log.action('Testing \'abootimg get dtb_load_addr\'...')
-    cons.run_command('abootimg get dtb_load_addr a')
-    response = cons.run_command('env print a')
+    ubman.log.action('Testing \'abootimg get dtb_load_addr\'...')
+    ubman.run_command('abootimg get dtb_load_addr a')
+    response = ubman.run_command('env print a')
     assert response == 'a=11f00000'
 
-    cons.log.action('Testing \'abootimg get dtb --index\'...')
-    cons.run_command('abootimg get dtb --index=1 dtb2_start')
-    response = cons.run_command('env print dtb2_start')
+    ubman.log.action('Testing \'abootimg get dtb --index\'...')
+    ubman.run_command('abootimg get dtb --index=1 dtb2_start')
+    response = ubman.run_command('env print dtb2_start')
     correct_str = "dtb2_start=%x" % (dtb2_addr)
     assert response == correct_str
 
-    cons.run_command('fdt addr $dtb2_start')
-    cons.run_command('fdt get value v / model')
-    response = cons.run_command('env print v')
+    ubman.run_command('fdt addr $dtb2_start')
+    ubman.run_command('fdt get value v / model')
+    response = ubman.run_command('env print v')
     assert response == 'v=x2'

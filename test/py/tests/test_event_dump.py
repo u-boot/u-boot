@@ -11,9 +11,8 @@ import utils
 @pytest.mark.boardspec('sandbox')
 def test_event_dump(ubman):
     """Test that the "help" command can be executed."""
-    cons = ubman
-    sandbox = cons.config.build_dir + '/u-boot'
-    out = utils.run_and_log(cons, ['scripts/event_dump.py', sandbox])
+    sandbox = ubman.config.build_dir + '/u-boot'
+    out = utils.run_and_log(ubman, ['scripts/event_dump.py', sandbox])
     expect = '''.*Event type            Id                              Source location
 --------------------  ------------------------------  ------------------------------
 EVT_FT_FIXUP          bootmeth_vbe_ft_fixup           .*boot/vbe_request.c:.*

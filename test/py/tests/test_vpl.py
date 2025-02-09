@@ -23,9 +23,8 @@ def test_vpl(ubman, ut_vpl_subtest):
         ut_subtest (str): VPL test to be executed (e.g. 'dm platdata_phandle')
     """
     try:
-        cons = ubman
-        cons.restart_uboot_with_flags(['-u', '-k', ut_vpl_subtest.split()[1]])
-        output = cons.get_spawn_output().replace('\r', '')
+        ubman.restart_uboot_with_flags(['-u', '-k', ut_vpl_subtest.split()[1]])
+        output = ubman.get_spawn_output().replace('\r', '')
         assert 'failures: 0' in output
     finally:
         # Restart afterward in case a non-VPL test is run next. This should not

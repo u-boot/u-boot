@@ -10,6 +10,5 @@ TEST_HANDOFF_MAGIC = 0x14f93c7b
 @pytest.mark.buildconfigspec('spl')
 def test_handoff(ubman):
     """Test that of-platdata can be generated and used in sandbox"""
-    cons = ubman
-    response = cons.run_command('sb handoff')
+    response = ubman.run_command('sb handoff')
     assert ('SPL handoff magic %x' % TEST_HANDOFF_MAGIC) in response

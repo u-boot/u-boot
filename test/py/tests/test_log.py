@@ -20,18 +20,17 @@ def test_log_format(ubman):
             fmt: Format to use for 'log format'
             expected_output: Expected output from the 'log rec' command
         """
-        output = cons.run_command('log format %s' % fmt)
+        output = ubman.run_command('log format %s' % fmt)
         assert output == ''
-        output = cons.run_command('log rec arch notice file.c 123 func msg')
+        output = ubman.run_command('log rec arch notice file.c 123 func msg')
         assert output == expected_output
 
-    cons = ubman
-    with cons.log.section('format'):
+    with ubman.log.section('format'):
         pad = int(ubman.config.buildconfig.get('config_logf_func_pad'))
         padding = ' ' * (pad - len('func'))
 
         run_with_format('all', f'NOTICE.arch,file.c:123-{padding}func() msg')
-        output = cons.run_command('log format')
+        output = ubman.run_command('log format')
         assert output == 'Log format: clFLfm'
 
         run_with_format('fm', f'{padding}func() msg')
@@ -45,7 +44,6 @@ def test_log_format(ubman):
 def test_log_dropped(ubman):
     """Test dropped 'log' message when debug_uart is activated"""
 
-    cons = ubman
-    cons.restart_uboot()
-    output = cons.get_spawn_output().replace('\r', '')
+    ubman.restart_uboot()
+    output = ubman.get_spawn_output().replace('\r', '')
     assert (not 'debug: main' in output)

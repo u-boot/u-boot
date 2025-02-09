@@ -177,9 +177,8 @@ def validate_set(state_test_env, var, value):
 @pytest.mark.boardspec('sandbox')
 def test_env_initial_env_file(ubman):
     """Test that the u-boot-initial-env make target works"""
-    cons = ubman
-    builddir = 'O=' + cons.config.build_dir
-    envfile = cons.config.build_dir + '/u-boot-initial-env'
+    builddir = 'O=' + ubman.config.build_dir
+    envfile = ubman.config.build_dir + '/u-boot-initial-env'
 
     # remove if already exists from an older run
     try:
@@ -187,7 +186,7 @@ def test_env_initial_env_file(ubman):
     except:
         pass
 
-    utils.run_and_log(cons, ['make', builddir, 'u-boot-initial-env'])
+    utils.run_and_log(ubman, ['make', builddir, 'u-boot-initial-env'])
 
     assert os.path.exists(envfile)
 
@@ -560,15 +559,14 @@ def test_env_text(ubman):
             fname = os.path.join(path, 'infile')
             with open(fname, 'w') as inf:
                 print(intext, file=inf)
-            result = utils.run_and_log(cons, ['awk', '-f', script, fname])
+            result = utils.run_and_log(ubman, ['awk', '-f', script, fname])
             if expect_val is not None:
                 expect = '#define CONFIG_EXTRA_ENV_TEXT "%s"\n' % expect_val
                 assert result == expect
             else:
                 assert result == ''
 
-    cons = ubman
-    script = os.path.join(cons.config.source_dir, 'scripts', 'env2string.awk')
+    script = os.path.join(ubman.config.source_dir, 'scripts', 'env2string.awk')
 
     # simple script with a single var
     check_script('fred=123', 'fred=123\\0')

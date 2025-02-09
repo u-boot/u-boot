@@ -14,11 +14,11 @@ TMPDIR1 = '/tmp/test_no_migrate'
 TMPDIR2 = '/tmp/test_no_migrate_spl'
 TMPDIR3 = '/tmp/test_migrate'
 
-def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
+def build_for_migrate(ubman, replace_pair, board, tmpdir, disable_migrate=True):
     """Build an updated U-Boot with a slightly modified device tree
 
     Args:
-        cons (ConsoleBase): U-Boot console
+        ubman (ConsoleBase): U-Boot console
         replace_pair (tuple):
             String to find
             String to replace it with
@@ -26,14 +26,14 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
         tmpdir (str): Temporary directory to use
         disable_migrate (bool): True to disable CONFIG_OF_TAG_MIGRATE in build
     """
-    srcdir = cons.config.source_dir
-    build_dir = cons.config.build_dir
+    srcdir = ubman.config.source_dir
+    build_dir = ubman.config.build_dir
 
     # Get the source for the existing dts
     dt_dir = os.path.join(build_dir, 'arch', 'sandbox', 'dts')
     orig_fname = os.path.join(dt_dir, 'sandbox.dtb')
     out_dts = os.path.join(dt_dir, 'sandbox_out.dts')
-    utils.run_and_log(cons, ['dtc', orig_fname, '-I', 'dtb', '-O', 'dts',
+    utils.run_and_log(ubman, ['dtc', orig_fname, '-I', 'dtb', '-O', 'dts',
                              '-o', out_dts])
 
     # Update it to use an old tag
@@ -45,7 +45,7 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
     with open(dts_fname, 'w') as outf:
         print(data, file=outf)
     dtb_fname = os.path.join(dt_dir, 'sandbox_oldtag.dtb')
-    utils.run_and_log(cons, ['dtc', dts_fname, '-o', dtb_fname])
+    utils.run_and_log(ubman, ['dtc', dts_fname, '-o', dtb_fname])
 
     migrate = ['-a', '~CONFIG_OF_TAG_MIGRATE'] if disable_migrate else []
 
@@ -55,7 +55,7 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
     env['DEVICE_TREE'] = 'sandbox_new'
     env['NO_LTO'] = '1'  # Speed up build
     out = utils.run_and_log(
-        cons, ['./tools/buildman/buildman', '-m', '--board', board,
+        ubman, ['./tools/buildman/buildman', '-m', '--board', board,
                *migrate, '-w', '-o', tmpdir], ignore_errors=True, env=env)
     return out
 
@@ -63,15 +63,14 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
 @pytest.mark.boardspec('sandbox')
 def test_of_no_migrate(ubman):
     """Test sandbox with old boot phase tags like u-boot,dm-pre-proper"""
-    cons = ubman
 
-    build_for_migrate(cons, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
+    build_for_migrate(ubman, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
                       'sandbox', TMPDIR1)
 
     # It should fail to run, since the lcd device will not be bound before
     # relocation. so won't get its frame-buffer memory
     out = utils.run_and_log(
-        cons, [os.path.join(TMPDIR1, 'u-boot'), '-D', '-c', 'help'],
+        ubman, [os.path.join(TMPDIR1, 'u-boot'), '-D', '-c', 'help'],
         ignore_errors=True)
     assert "Video device 'lcd' cannot allocate frame buffer memory" in out
 
@@ -82,9 +81,8 @@ def test_of_no_migrate(ubman):
 @pytest.mark.boardspec('!sandbox_tpl')
 def test_of_no_migrate_spl(ubman):
     """Test sandbox with old boot phase tags like u-boot,dm-spl"""
-    cons = ubman
 
-    out = build_for_migrate(cons, ['bootph-pre-ram', 'u-boot,dm-spl'],
+    out = build_for_migrate(ubman, ['bootph-pre-ram', 'u-boot,dm-spl'],
                             'sandbox_spl', TMPDIR2)
 
     # It should fail to build, since the SPL DT will not include 'spl-test'
@@ -96,13 +94,12 @@ def test_of_no_migrate_spl(ubman):
 @pytest.mark.boardspec('sandbox')
 def test_of_migrate(ubman):
     """Test sandbox shows a message when tags were migrated"""
-    cons = ubman
 
-    build_for_migrate(cons, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
+    build_for_migrate(ubman, ['bootph-some-ram', 'u-boot,dm-pre-proper'],
                       'sandbox', TMPDIR3, disable_migrate=False)
 
     # It should show a migration message
     out = utils.run_and_log(
-        cons, [os.path.join(TMPDIR3, 'u-boot'), '-D', '-c', 'help'],
+        ubman, [os.path.join(TMPDIR3, 'u-boot'), '-D', '-c', 'help'],
         ignore_errors=True)
     assert "Warning: Device tree includes old 'u-boot,dm-' tags" in out

@@ -13,18 +13,16 @@ TMPDIR = '/tmp/test_cmdline'
 @pytest.mark.boardspec('sandbox')
 def test_sandbox_cmdline(ubman):
     """Test building sandbox without CONFIG_CMDLINE"""
-    cons = ubman
 
     utils.run_and_log(
-        cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
+        ubman, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', '~CMDLINE', '-o', TMPDIR])
 
 @pytest.mark.slow
 @pytest.mark.boardspec('sandbox')
 def test_sandbox_lto(ubman):
     """Test building sandbox without CONFIG_LTO"""
-    cons = ubman
 
     utils.run_and_log(
-        cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
+        ubman, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', '~LTO', '-o', TMPDIR])

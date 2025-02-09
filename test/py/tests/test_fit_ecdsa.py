@@ -19,21 +19,21 @@ from Cryptodome.Signature import DSS
 
 class SignableFitImage(object):
     """ Helper to manipulate a FIT image on disk """
-    def __init__(self, cons, file_name):
+    def __init__(self, ubman, file_name):
         self.fit = file_name
-        self.cons = cons
+        self.ubman = ubman
         self.signable_nodes = set()
 
     def __fdt_list(self, path):
-        return utils.run_and_log(self.cons, f'fdtget -l {self.fit} {path}')
+        return utils.run_and_log(self.ubman, f'fdtget -l {self.fit} {path}')
 
     def __fdt_set(self, node, **prop_value):
         for prop, value in prop_value.items():
-            utils.run_and_log(self.cons,
+            utils.run_and_log(self.ubman,
                               f'fdtput -ts {self.fit} {node} {prop} {value}')
 
     def __fdt_get_binary(self, node, prop):
-        numbers = utils.run_and_log(self.cons,
+        numbers = utils.run_and_log(self.ubman,
                                     f'fdtget -tbi {self.fit} {node} {prop}')
 
         bignum = bytearray()
@@ -55,7 +55,7 @@ class SignableFitImage(object):
             self.__fdt_set(f'{image}/signature', algo='sha256,ecdsa256')
 
     def sign(self, mkimage, key_file):
-        utils.run_and_log(self.cons, [mkimage, '-F', self.fit, f'-G{key_file}'])
+        utils.run_and_log(self.ubman, [mkimage, '-F', self.fit, f'-G{key_file}'])
 
     def check_signatures(self, key):
         for image in self.signable_nodes:
@@ -78,16 +78,15 @@ def test_fit_ecdsa(ubman):
 
     def assemble_fit_image(dest_fit, its, destdir):
         dtc_args = f'-I dts -O dtb -i {destdir}'
-        utils.run_and_log(cons, [mkimage, '-D', dtc_args, '-f', its, dest_fit])
+        utils.run_and_log(ubman, [mkimage, '-D', dtc_args, '-f', its, dest_fit])
 
     def dtc(dts):
         dtb = dts.replace('.dts', '.dtb')
-        utils.run_and_log(cons, f'dtc {datadir}/{dts} -O dtb -o {tempdir}/{dtb}')
+        utils.run_and_log(ubman, f'dtc {datadir}/{dts} -O dtb -o {tempdir}/{dtb}')
 
-    cons = ubman
-    mkimage = cons.config.build_dir + '/tools/mkimage'
-    datadir = cons.config.source_dir + '/test/py/tests/vboot/'
-    tempdir = os.path.join(cons.config.result_dir, 'ecdsa')
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    datadir = ubman.config.source_dir + '/test/py/tests/vboot/'
+    tempdir = os.path.join(ubman.config.result_dir, 'ecdsa')
     os.makedirs(tempdir, exist_ok=True)
     key_file = f'{tempdir}/ecdsa-test-key.pem'
     fit_file = f'{tempdir}/test.fit'
@@ -105,7 +104,7 @@ def test_fit_ecdsa(ubman):
 
     assemble_fit_image(fit_file, f'{datadir}/sign-images-sha256.its', tempdir)
 
-    fit = SignableFitImage(cons, fit_file)
+    fit = SignableFitImage(ubman, fit_file)
     nodes = fit.find_signable_image_nodes()
     if len(nodes) == 0:
         raise ValueError('FIT image has no "/image" nodes with "signature"')

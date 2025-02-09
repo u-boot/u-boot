@@ -19,20 +19,19 @@ def test_upl_handoff(ubman):
     The entire FIT is loaded into memory in SPL (in upl_load_from_image()) so
     that it can be inspected in upl_test_info_norun
     """
-    cons = ubman
-    ram = os.path.join(cons.config.build_dir, 'ram.bin')
-    fdt = os.path.join(cons.config.build_dir, 'u-boot.dtb')
+    ram = os.path.join(ubman.config.build_dir, 'ram.bin')
+    fdt = os.path.join(ubman.config.build_dir, 'u-boot.dtb')
 
     # Remove any existing RAM file, so we don't have old data present
     if os.path.exists(ram):
         os.remove(ram)
     flags = ['-m', ram, '-d', fdt, '--upl']
-    cons.restart_uboot_with_flags(flags, use_dtb=False)
+    ubman.restart_uboot_with_flags(flags, use_dtb=False)
 
     # Make sure that Universal Payload is detected in U-Boot proper
-    output = cons.run_command('upl info')
+    output = ubman.run_command('upl info')
     assert 'UPL state: active' == output
 
     # Check the FIT offsets look correct
-    output = cons.run_command('ut upl -f upl_test_info_norun')
+    output = ubman.run_command('ut upl -f upl_test_info_norun')
     assert 'failures: 0' in output

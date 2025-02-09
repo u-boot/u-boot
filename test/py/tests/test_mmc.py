@@ -32,19 +32,19 @@ devices = {}
 mmc_modes_name = []
 mmc_modes = []
 
-def setup_mmc_modes(cons):
+def setup_mmc_modes(ubman):
     global mmc_modes, mmc_modes_name
-    f = cons.config.env.get('env__mmc_device', None)
+    f = ubman.config.env.get('env__mmc_device', None)
     if f:
         mmc_modes_name = f.get('mmc_modes', None)
 
     # Set mmc mode to default mode (legacy), if speed mode config isn't enabled
-    if cons.config.buildconfig.get('config_mmc_speed_mode_set', 'n') != 'y':
+    if ubman.config.buildconfig.get('config_mmc_speed_mode_set', 'n') != 'y':
         mmc_modes = [0]
         return
 
     if mmc_modes_name:
-        mmc_help = cons.run_command('mmc -help')
+        mmc_help = ubman.run_command('mmc -help')
         m = re.search(r"\[MMC_LEGACY(.*\n.+])", mmc_help)
         modes = [
             x.strip()

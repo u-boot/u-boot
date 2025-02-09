@@ -8,10 +8,9 @@ import utils
 @pytest.mark.buildconfigspec('spl_of_platdata')
 def test_spl_devicetree(ubman):
     """Test content of spl device-tree"""
-    cons = ubman
-    dtb = cons.config.build_dir + '/spl/u-boot-spl.dtb'
-    fdtgrep = cons.config.build_dir + '/tools/fdtgrep'
-    output = utils.run_and_log(cons, [fdtgrep, '-l', dtb])
+    dtb = ubman.config.build_dir + '/spl/u-boot-spl.dtb'
+    fdtgrep = ubman.config.build_dir + '/tools/fdtgrep'
+    output = utils.run_and_log(ubman, [fdtgrep, '-l', dtb])
 
     assert "bootph-all" not in output
     assert "bootph-some-ram" not in output

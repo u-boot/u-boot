@@ -26,22 +26,22 @@ from Cryptodome.Signature import pkcs1_15
 
 class SignedFitHelper(object):
     """Helper to manipulate a FIT with signed/hashed images/configs."""
-    def __init__(self, cons, file_name):
+    def __init__(self, ubman, file_name):
         self.fit = file_name
-        self.cons = cons
+        self.ubman = ubman
         self.images_nodes = set()
         self.confgs_nodes = set()
 
     def __fdt_list(self, path):
-        return utils.run_and_log(self.cons,
+        return utils.run_and_log(self.ubman,
             f'fdtget -l {self.fit} {path}')
 
     def __fdt_get_string(self, node, prop):
-        return utils.run_and_log(self.cons,
+        return utils.run_and_log(self.ubman,
             f'fdtget -ts {self.fit} {node} {prop}')
 
     def __fdt_get_binary(self, node, prop):
-        numbers = utils.run_and_log(self.cons,
+        numbers = utils.run_and_log(self.ubman,
             f'fdtget -tbi {self.fit} {node} {prop}')
 
         bignum = bytearray()
@@ -133,9 +133,8 @@ def test_fit_auto_signed(ubman):
 
     The test does not run the sandbox. It only checks the host tool mkimage.
     """
-    cons = ubman
-    mkimage = cons.config.build_dir + '/tools/mkimage'
-    tempdir = os.path.join(cons.config.result_dir, 'auto_fit')
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    tempdir = os.path.join(ubman.config.result_dir, 'auto_fit')
     os.makedirs(tempdir, exist_ok=True)
     kernel_file = f'{tempdir}/vmlinuz'
     dt1_file = f'{tempdir}/dt-1.dtb'
@@ -166,29 +165,29 @@ def test_fit_auto_signed(ubman):
     s_args = " -k" + tempdir + " -g" + key_name + " -o" + sign_algo
 
     # 1 - Create auto FIT with images crc32 checksum, and verify it
-    utils.run_and_log(cons, mkimage + ' -fauto' + b_args + " " + fit_file)
+    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + " " + fit_file)
 
-    fit = SignedFitHelper(cons, fit_file)
+    fit = SignedFitHelper(ubman, fit_file)
     if fit.build_nodes_sets() == 0:
         raise ValueError('FIT-1 has no "/image" nor "/configuration" nodes')
 
     fit.check_fit_crc32_images()
 
     # 2 - Create auto FIT with signed images, and verify it
-    utils.run_and_log(cons, mkimage + ' -fauto' + b_args + s_args + " " +
+    utils.run_and_log(ubman, mkimage + ' -fauto' + b_args + s_args + " " +
                       fit_file)
 
-    fit = SignedFitHelper(cons, fit_file)
+    fit = SignedFitHelper(ubman, fit_file)
     if fit.build_nodes_sets() == 0:
         raise ValueError('FIT-2 has no "/image" nor "/configuration" nodes')
 
     fit.check_fit_signed_images(key_name, sign_algo, verifier)
 
     # 3 - Create auto FIT with signed configs and hashed images, and verify it
-    utils.run_and_log(cons, mkimage + ' -fauto-conf' + b_args + s_args + " " +
+    utils.run_and_log(ubman, mkimage + ' -fauto-conf' + b_args + s_args + " " +
                       fit_file)
 
-    fit = SignedFitHelper(cons, fit_file)
+    fit = SignedFitHelper(ubman, fit_file)
     if fit.build_nodes_sets() == 0:
         raise ValueError('FIT-3 has no "/image" nor "/configuration" nodes')
 
