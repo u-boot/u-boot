@@ -6,7 +6,7 @@ import os
 import pytest
 import re
 
-import utils as util
+import utils
 
 # This is needed for Azure, since the default '..' directory is not writeable
 TMPDIR = '/tmp/test_trace'
@@ -106,12 +106,12 @@ def check_function(cons, fname, proftool, map_fname, trace_dat):
         map_fname (str): Filename of System.map
         trace_dat (str): Filename of output file
     """
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, [proftool, '-t', fname, '-o', trace_dat, '-m', map_fname,
                'dump-ftrace'])
 
     # Check that trace-cmd can read it
-    out = util.run_and_log(cons, ['trace-cmd', 'dump', trace_dat])
+    out = utils.run_and_log(cons, ['trace-cmd', 'dump', trace_dat])
 
     # Tracing meta data in file /tmp/test_trace/trace.dat:
     #    [Initial format]
@@ -140,7 +140,7 @@ def check_function(cons, fname, proftool, map_fname, trace_dat):
 
     # Check that the trace has something useful
     cmd = f"trace-cmd report -l {trace_dat} |grep -E '(initf_|initr_)'"
-    out = util.run_and_log(cons, ['sh', '-c', cmd])
+    out = utils.run_and_log(cons, ['sh', '-c', cmd])
 
     # Format:
     #      u-boot-1     0.....    60.805596: function:             initf_malloc
@@ -182,13 +182,13 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
     """
 
     # Generate the funcgraph format
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, [proftool, '-t', fname, '-o', trace_dat, '-m', map_fname,
                'dump-ftrace', '-f', 'funcgraph'])
 
     # Check that the trace has what we expect
     cmd = f'trace-cmd report -l {trace_dat} |head -n 70'
-    out = util.run_and_log(cons, ['sh', '-c', cmd])
+    out = utils.run_and_log(cons, ['sh', '-c', cmd])
 
     # First look for this:
     #  u-boot-1     0.....   282.101360: funcgraph_entry:        0.004 us   |    initf_malloc();
@@ -230,7 +230,7 @@ def check_funcgraph(cons, fname, proftool, map_fname, trace_dat):
     # Now look for initf_dm() and dm_timer_init() so we can check the bootstage
     # time
     cmd = f"trace-cmd report -l {trace_dat} |grep -E '(initf_dm|dm_timer_init)'"
-    out = util.run_and_log(cons, ['sh', '-c', cmd])
+    out = utils.run_and_log(cons, ['sh', '-c', cmd])
 
     start_timestamp = None
     end_timestamp = None
@@ -267,7 +267,7 @@ def check_flamegraph(cons, fname, proftool, map_fname, trace_fg):
     """
 
     # Generate the flamegraph format
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, [proftool, '-t', fname, '-o', trace_fg, '-m', map_fname,
                'dump-flamegraph'])
 
@@ -284,7 +284,7 @@ def check_flamegraph(cons, fname, proftool, map_fname, trace_fg):
     assert found == 2
 
     # Generate the timing graph
-    out = util.run_and_log(
+    utils.run_and_log(
         cons, [proftool, '-t', fname, '-o', trace_fg, '-m', map_fname,
                'dump-flamegraph', '-f', 'timing'])
 

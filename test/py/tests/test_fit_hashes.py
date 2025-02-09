@@ -12,7 +12,7 @@ This test doesn't run the sandbox. It only checks the host tool 'mkimage'
 
 import os
 import pytest
-import utils as util
+import utils
 
 kernel_hashes = {
     "sha512" : "f18c1486a2c29f56360301576cdfce4dfd8e8e932d0ed8e239a1f314b8ae1d77b2a58cd7fe32e4075e69448e623ce53b0b6aa6ce5626d2c189a5beae29a68d93",
@@ -32,14 +32,15 @@ class ReadonlyFitImage(object):
         self.hashable_nodes = set()
 
     def __fdt_list(self, path):
-        return util.run_and_log(self.cons, f'fdtget -l {self.fit} {path}')
+        return utils.run_and_log(self.cons, f'fdtget -l {self.fit} {path}')
 
     def __fdt_get(self, node, prop):
-        val = util.run_and_log(self.cons, f'fdtget {self.fit} {node} {prop}')
+        val = utils.run_and_log(self.cons, f'fdtget {self.fit} {node} {prop}')
         return val.rstrip('\n')
 
     def __fdt_get_sexadecimal(self, node, prop):
-        numbers = util.run_and_log(self.cons, f'fdtget -tbx {self.fit} {node} {prop}')
+        numbers = utils.run_and_log(self.cons,
+                                    f'fdtget -tbx {self.fit} {node} {prop}')
 
         sexadecimal = ''
         for num in numbers.rstrip('\n').split(' '):
@@ -85,11 +86,12 @@ def test_mkimage_hashes(ubman):
 
     def assemble_fit_image(dest_fit, its, destdir):
         dtc_args = f'-I dts -O dtb -i {destdir}'
-        util.run_and_log(cons, [mkimage, '-D', dtc_args, '-f', its, dest_fit])
+        utils.run_and_log(cons, [mkimage, '-D', dtc_args, '-f', its, dest_fit])
 
     def dtc(dts):
         dtb = dts.replace('.dts', '.dtb')
-        util.run_and_log(cons, f'dtc {datadir}/{dts} -O dtb -o {tempdir}/{dtb}')
+        utils.run_and_log(cons,
+                          f'dtc {datadir}/{dts} -O dtb -o {tempdir}/{dtb}')
 
     cons = ubman
     mkimage = cons.config.build_dir + '/tools/mkimage'

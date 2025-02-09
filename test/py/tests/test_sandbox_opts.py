@@ -4,7 +4,7 @@
 
 import pytest
 
-import utils as util
+import utils
 
 # This is needed for Azure, since the default '..' directory is not writeable
 TMPDIR = '/tmp/test_cmdline'
@@ -15,7 +15,7 @@ def test_sandbox_cmdline(ubman):
     """Test building sandbox without CONFIG_CMDLINE"""
     cons = ubman
 
-    out = util.run_and_log(
+    utils.run_and_log(
         cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', '~CMDLINE', '-o', TMPDIR])
 
@@ -25,6 +25,6 @@ def test_sandbox_lto(ubman):
     """Test building sandbox without CONFIG_LTO"""
     cons = ubman
 
-    out = util.run_and_log(
+    utils.run_and_log(
         cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', '~LTO', '-o', TMPDIR])

@@ -7,7 +7,7 @@
 import os
 import pytest
 
-import utils as util
+import utils
 
 # This is needed for Azure, since the default '..' directory is not writeable
 TMPDIR1 = '/tmp/test_no_migrate'
@@ -33,8 +33,8 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
     dt_dir = os.path.join(build_dir, 'arch', 'sandbox', 'dts')
     orig_fname = os.path.join(dt_dir, 'sandbox.dtb')
     out_dts = os.path.join(dt_dir, 'sandbox_out.dts')
-    util.run_and_log(cons, ['dtc', orig_fname, '-I', 'dtb', '-O', 'dts',
-                            '-o', out_dts])
+    utils.run_and_log(cons, ['dtc', orig_fname, '-I', 'dtb', '-O', 'dts',
+                             '-o', out_dts])
 
     # Update it to use an old tag
     with open(out_dts) as inf:
@@ -45,7 +45,7 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
     with open(dts_fname, 'w') as outf:
         print(data, file=outf)
     dtb_fname = os.path.join(dt_dir, 'sandbox_oldtag.dtb')
-    util.run_and_log(cons, ['dtc', dts_fname, '-o', dtb_fname])
+    utils.run_and_log(cons, ['dtc', dts_fname, '-o', dtb_fname])
 
     migrate = ['-a', '~CONFIG_OF_TAG_MIGRATE'] if disable_migrate else []
 
@@ -54,7 +54,7 @@ def build_for_migrate(cons, replace_pair, board, tmpdir, disable_migrate=True):
     env['EXT_DTB'] = dtb_fname
     env['DEVICE_TREE'] = 'sandbox_new'
     env['NO_LTO'] = '1'  # Speed up build
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, ['./tools/buildman/buildman', '-m', '--board', board,
                *migrate, '-w', '-o', tmpdir], ignore_errors=True, env=env)
     return out
@@ -70,7 +70,7 @@ def test_of_no_migrate(ubman):
 
     # It should fail to run, since the lcd device will not be bound before
     # relocation. so won't get its frame-buffer memory
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, [os.path.join(TMPDIR1, 'u-boot'), '-D', '-c', 'help'],
         ignore_errors=True)
     assert "Video device 'lcd' cannot allocate frame buffer memory" in out
@@ -102,7 +102,7 @@ def test_of_migrate(ubman):
                       'sandbox', TMPDIR3, disable_migrate=False)
 
     # It should show a migration message
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, [os.path.join(TMPDIR3, 'u-boot'), '-D', '-c', 'help'],
         ignore_errors=True)
     assert "Warning: Device tree includes old 'u-boot,dm-' tags" in out

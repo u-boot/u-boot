@@ -55,7 +55,7 @@ env__efi_fit_tftp_file = {
 
 import os.path
 import pytest
-import utils as util
+import utils
 
 # Define the parametrized ITS data to be used for FIT images generation.
 ITS_DATA = '''
@@ -224,11 +224,11 @@ def test_efi_fit_launch(ubman):
         """
 
         bin_path = make_fpath(fname)
-        util.run_and_log(cons,
-                         ['cp', make_fpath('lib/efi_loader/helloworld.efi'),
-                          bin_path])
+        utils.run_and_log(cons,
+                          ['cp', make_fpath('lib/efi_loader/helloworld.efi'),
+                           bin_path])
         if comp:
-            util.run_and_log(cons, ['gzip', '-f', bin_path])
+            utils.run_and_log(cons, ['gzip', '-f', bin_path])
             bin_path += '.gz'
         return bin_path
 
@@ -257,9 +257,10 @@ def test_efi_fit_launch(ubman):
 
         # Build the test FDT.
         dtb = make_fpath('test-efi-fit-%s.dtb' % fdt_type)
-        util.run_and_log(cons, ['dtc', '-I', 'dts', '-O', 'dtb', '-o', dtb, dts])
+        utils.run_and_log(cons,
+                          ['dtc', '-I', 'dts', '-O', 'dtb', '-o', dtb, dts])
         if comp:
-            util.run_and_log(cons, ['gzip', '-f', dtb])
+            utils.run_and_log(cons, ['gzip', '-f', dtb])
             dtb += '.gz'
         return dtb
 
@@ -290,7 +291,7 @@ def test_efi_fit_launch(ubman):
 
         # Build the test ITS.
         fit_path = make_fpath('test-efi-fit-helloworld.fit')
-        util.run_and_log(
+        utils.run_and_log(
             cons, [make_fpath('tools/mkimage'), '-f', its_path, fit_path])
         return fit_path
 
@@ -307,7 +308,7 @@ def test_efi_fit_launch(ubman):
 
         addr = fit.get('addr', None)
         if not addr:
-            addr = util.find_ram_base(cons)
+            addr = utils.find_ram_base(cons)
 
         output = cons.run_command(
             'host load hostfs - %x %s/%s' % (addr, fit['dn'], fit['fn']))
@@ -334,7 +335,7 @@ def test_efi_fit_launch(ubman):
 
         addr = fit.get('addr', None)
         if not addr:
-            addr = util.find_ram_base(cons)
+            addr = utils.find_ram_base(cons)
 
         file_name = fit['fn']
         output = cons.run_command('tftpboot %x %s' % (addr, file_name))
@@ -412,7 +413,8 @@ def test_efi_fit_launch(ubman):
 
                 # Copy image to TFTP root directory.
                 if fit['dn'] != cons.config.build_dir:
-                    util.run_and_log(cons, ['mv', '-f', fit_path, '%s/' % fit['dn']])
+                    utils.run_and_log(cons,
+                                      ['mv', '-f', fit_path, '%s/' % fit['dn']])
 
             # Load FIT image.
             addr = load_fit_from_host(fit) if is_sandbox else load_fit_from_tftp(fit)

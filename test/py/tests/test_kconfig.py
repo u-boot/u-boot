@@ -4,7 +4,7 @@
 
 import pytest
 
-import utils as util
+import utils
 
 # This is needed for Azure, since the default '..' directory is not writeable
 TMPDIR = '/tmp/test_kconfig'
@@ -16,7 +16,7 @@ def test_kconfig(ubman):
     cons = ubman
 
     # This detects build errors in test/lib/kconfig.c
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox',
                '-a', 'TEST_KCONFIG', '-o', TMPDIR], ignore_errors=True)
     assert 'invalid_use_of_IF_ENABLED_INT' in out
@@ -29,7 +29,7 @@ def test_kconfig_spl(ubman):
     cons = ubman
 
     # This detects build errors in test/lib/kconfig_spl.c
-    out = util.run_and_log(
+    out = utils.run_and_log(
         cons, ['./tools/buildman/buildman', '-m', '--board', 'sandbox_spl',
                '-a', 'TEST_KCONFIG', '-o', TMPDIR], ignore_errors=True)
     assert 'invalid_use_of_IF_ENABLED_INT' in out

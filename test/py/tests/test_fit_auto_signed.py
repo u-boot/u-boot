@@ -17,7 +17,7 @@ The test does not run the sandbox. It only checks the host tool mkimage.
 
 import os
 import pytest
-import utils as util
+import utils
 import binascii
 from Cryptodome.Hash import SHA1
 from Cryptodome.Hash import SHA256
@@ -33,15 +33,15 @@ class SignedFitHelper(object):
         self.confgs_nodes = set()
 
     def __fdt_list(self, path):
-        return util.run_and_log(self.cons,
+        return utils.run_and_log(self.cons,
             f'fdtget -l {self.fit} {path}')
 
     def __fdt_get_string(self, node, prop):
-        return util.run_and_log(self.cons,
+        return utils.run_and_log(self.cons,
             f'fdtget -ts {self.fit} {node} {prop}')
 
     def __fdt_get_binary(self, node, prop):
-        numbers = util.run_and_log(self.cons,
+        numbers = utils.run_and_log(self.cons,
             f'fdtget -tbi {self.fit} {node} {prop}')
 
         bignum = bytearray()
@@ -166,7 +166,7 @@ def test_fit_auto_signed(ubman):
     s_args = " -k" + tempdir + " -g" + key_name + " -o" + sign_algo
 
     # 1 - Create auto FIT with images crc32 checksum, and verify it
-    util.run_and_log(cons, mkimage + ' -fauto' + b_args + " " + fit_file)
+    utils.run_and_log(cons, mkimage + ' -fauto' + b_args + " " + fit_file)
 
     fit = SignedFitHelper(cons, fit_file)
     if fit.build_nodes_sets() == 0:
@@ -175,8 +175,8 @@ def test_fit_auto_signed(ubman):
     fit.check_fit_crc32_images()
 
     # 2 - Create auto FIT with signed images, and verify it
-    util.run_and_log(cons, mkimage + ' -fauto' + b_args + s_args + " " +
-        fit_file)
+    utils.run_and_log(cons, mkimage + ' -fauto' + b_args + s_args + " " +
+                      fit_file)
 
     fit = SignedFitHelper(cons, fit_file)
     if fit.build_nodes_sets() == 0:
@@ -185,8 +185,8 @@ def test_fit_auto_signed(ubman):
     fit.check_fit_signed_images(key_name, sign_algo, verifier)
 
     # 3 - Create auto FIT with signed configs and hashed images, and verify it
-    util.run_and_log(cons, mkimage + ' -fauto-conf' + b_args + s_args + " " +
-        fit_file)
+    utils.run_and_log(cons, mkimage + ' -fauto-conf' + b_args + s_args + " " +
+                      fit_file)
 
     fit = SignedFitHelper(cons, fit_file)
     if fit.build_nodes_sets() == 0:

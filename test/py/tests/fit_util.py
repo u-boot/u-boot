@@ -5,7 +5,7 @@
 
 import os
 
-import utils as util
+import utils
 
 def make_fname(ubman, basename):
     """Make a temporary filename
@@ -54,7 +54,7 @@ def make_fit(ubman, mkimage, base_its, params, basename='test.fit', base_fdt=Non
     """
     fit = make_fname(ubman, basename)
     its = make_its(ubman, base_its, params)
-    util.run_and_log(ubman, [mkimage, '-f', its, fit])
+    utils.run_and_log(ubman, [mkimage, '-f', its, fit])
     if base_fdt:
         with open(make_fname(ubman, 'u-boot.dts'), 'w') as fd:
             fd.write(base_fdt)
@@ -89,5 +89,5 @@ def make_dtb(ubman, base_fdt, basename):
     dtb = make_fname(ubman, f'{basename}.dtb')
     with open(src, 'w', encoding='utf-8') as outf:
         outf.write(base_fdt)
-    util.run_and_log(ubman, ['dtc', src, '-O', 'dtb', '-o', dtb])
+    utils.run_and_log(ubman, ['dtc', src, '-O', 'dtb', '-o', dtb])
     return dtb

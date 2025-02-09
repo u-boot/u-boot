@@ -15,7 +15,6 @@ For configuration verification:
 """
 
 import pytest
-import utils as util
 
 # defauld mmc id
 mmc_dev = 1

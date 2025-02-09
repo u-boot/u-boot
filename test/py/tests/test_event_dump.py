@@ -4,7 +4,7 @@
 
 import pytest
 import re
-import utils as util
+import utils
 
 # This is only a partial test - coverting 64-bit sandbox. It does not test
 # big-endian images, nor 32-bit images
@@ -13,7 +13,7 @@ def test_event_dump(ubman):
     """Test that the "help" command can be executed."""
     cons = ubman
     sandbox = cons.config.build_dir + '/u-boot'
-    out = util.run_and_log(cons, ['scripts/event_dump.py', sandbox])
+    out = utils.run_and_log(cons, ['scripts/event_dump.py', sandbox])
     expect = '''.*Event type            Id                              Source location
 --------------------  ------------------------------  ------------------------------
 EVT_FT_FIXUP          bootmeth_vbe_ft_fixup           .*boot/vbe_request.c:.*

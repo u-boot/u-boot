@@ -3,7 +3,7 @@
 
 import os
 import pytest
-import utils as util
+import utils
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_echo')
@@ -15,7 +15,7 @@ def test_source(ubman):
     mkimage = os.path.join(cons.config.build_dir, 'tools/mkimage')
     its = os.path.join(cons.config.source_dir, 'test/py/tests/source.its')
     fit = os.path.join(cons.config.build_dir, 'source.itb')
-    util.run_and_log(cons, (mkimage, '-f', its, fit))
+    utils.run_and_log(cons, (mkimage, '-f', its, fit))
     cons.run_command(f'host load hostfs - $loadaddr {fit}')
 
     assert '2' in cons.run_command('source')

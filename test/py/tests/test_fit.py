@@ -6,7 +6,7 @@
 import os
 import pytest
 import struct
-import utils as util
+import utils
 import fit_util
 
 # Define a base ITS which we can adjust using % and a dictionary
@@ -165,7 +165,7 @@ def test_fit(ubman):
         return fname
 
     def make_compressed(filename):
-        util.run_and_log(cons, ['gzip', '-f', '-k', filename])
+        utils.run_and_log(cons, ['gzip', '-f', '-k', filename])
         return filename + '.gz'
 
     def find_matching(text, match):
