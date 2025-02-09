@@ -289,19 +289,26 @@ def pytest_configure(config):
     ubconfig = ArbitraryAttributeContainer()
     ubconfig.brd = dict()
     ubconfig.env = dict()
+    not_found = []
 
-    modules = [
-        (ubconfig.brd, 'u_boot_board_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
-            board_identity_filename),
-    ]
-    for (dict_to_fill, module_name) in modules:
-        try:
-            module = __import__(module_name)
-        except ImportError:
-            continue
-        dict_to_fill.update(module.__dict__)
+    with log.section('Loading lab modules', 'load_modules'):
+        modules = [
+            (ubconfig.brd, 'u_boot_board_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
+                board_identity_filename),
+        ]
+        for (dict_to_fill, module_name) in modules:
+            try:
+                module = __import__(module_name)
+            except ImportError:
+                not_found.append(module_name)
+                continue
+            dict_to_fill.update(module.__dict__)
+            log.info(f"Loaded {module}")
+
+        if not_found:
+            log.warning(f"Failed to find modules: {' '.join(not_found)}")
 
     ubconfig.buildconfig = dict()
 
