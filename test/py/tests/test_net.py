@@ -91,6 +91,8 @@ env__router_on_net = True
 net_set_up = False
 net6_set_up = False
 
+
+@pytest.mark.buildconfigspec('cmd_net')
 def test_net_pre_commands(ubman):
     """Execute any commands required to enable network hardware.
 
