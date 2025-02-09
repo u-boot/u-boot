@@ -53,7 +53,7 @@ env__efi_helloworld_net_http_test_skip = True
 """
 
 import pytest
-import u_boot_utils
+import utils
 
 PROTO_TFTP, PROTO_HTTP = range(0, 2)
 
@@ -132,7 +132,7 @@ def fetch_file(ubman, env_conf, proto):
 
     addr = f.get('addr', None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     fn = f['fn']
     if proto == PROTO_TFTP:

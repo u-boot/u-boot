@@ -6,7 +6,7 @@ import os
 import pytest
 import re
 
-import u_boot_utils as util
+import utils as util
 
 # This is needed for Azure, since the default '..' directory is not writeable
 TMPDIR = '/tmp/test_trace'

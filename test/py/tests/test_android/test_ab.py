@@ -5,7 +5,7 @@
 
 import os
 import pytest
-import u_boot_utils
+import utils
 
 class ABTestDiskImage(object):
     """Disk Image used by the A/B tests."""
@@ -25,7 +25,7 @@ class ABTestDiskImage(object):
         persistent = ubman.config.persistent_data_dir + '/' + filename
         self.path = ubman.config.result_dir  + '/' + filename
 
-        with u_boot_utils.persistent_file_helper(ubman.log, persistent):
+        with utils.persistent_file_helper(ubman.log, persistent):
             if os.path.exists(persistent):
                 ubman.log.action('Disk image file ' + persistent +
                     ' already exists')
@@ -35,16 +35,16 @@ class ABTestDiskImage(object):
                 os.ftruncate(fd, 524288)
                 os.close(fd)
                 cmd = ('sgdisk', persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
 
                 cmd = ('sgdisk', '--new=1:64:512', '--change-name=1:misc',
                     persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
                 cmd = ('sgdisk', '--load-backup=' + persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
 
         cmd = ('cp', persistent, self.path)
-        u_boot_utils.run_and_log(ubman, cmd)
+        utils.run_and_log(ubman, cmd)
 
 di = None
 @pytest.fixture(scope='function')

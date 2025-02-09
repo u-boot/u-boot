@@ -7,7 +7,7 @@
 
 import pytest
 import time
-import u_boot_utils
+import utils
 
 """
 This test relies on boardenv_* to containing configuration values to define
@@ -241,7 +241,7 @@ def test_mmc_rd(ubman, env__mmc_rd_config):
     bcfg = ubman.config.buildconfig
     has_cmd_memory = bcfg.get('config_cmd_memory', 'n') == 'y'
     has_cmd_crc32 = bcfg.get('config_cmd_crc32', 'n') == 'y'
-    ram_base = u_boot_utils.find_ram_base(ubman)
+    ram_base = utils.find_ram_base(ubman)
     addr = '0x%08x' % ram_base
 
     # Select MMC device

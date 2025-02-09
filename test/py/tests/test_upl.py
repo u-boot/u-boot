@@ -6,7 +6,7 @@
 import os
 
 import pytest
-import u_boot_utils
+import utils
 
 @pytest.mark.boardspec('sandbox_vpl')
 def test_upl_handoff(ubman):

@@ -3,7 +3,7 @@
 # Author: Frédéric Danis <frederic.danis@collabora.com>
 
 import pytest
-import u_boot_utils
+import utils
 import os
 import tempfile
 import shutil

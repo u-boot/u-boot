@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Google, Inc
 
 import pytest
-import u_boot_utils as util
+import utils as util
 
 @pytest.mark.boardspec('sandbox_spl')
 @pytest.mark.buildconfigspec('spl_of_platdata')

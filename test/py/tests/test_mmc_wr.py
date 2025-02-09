@@ -6,7 +6,7 @@
 # to the eMMC or SD card, then reads it back and performs a comparison.
 
 import pytest
-import u_boot_utils
+import utils
 
 """
 This test relies on boardenv_* to containing configuration values to define
@@ -61,7 +61,7 @@ def test_mmc_wr(ubman, env__mmc_wr_config):
 
     count_bytes = count_sectors * 512
     bcfg = ubman.config.buildconfig
-    ram_base = u_boot_utils.find_ram_base(ubman)
+    ram_base = utils.find_ram_base(ubman)
     src_addr = '0x%08x' % ram_base
     dst_addr = '0x%08x' % (ram_base + count_bytes)
 

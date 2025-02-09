@@ -6,7 +6,7 @@
 import os
 
 import pytest
-import u_boot_utils
+import utils
 
 @pytest.mark.boardspec('sandbox_vpl')
 @pytest.mark.requiredtool('dtc')
@@ -19,13 +19,13 @@ def test_vbe_vpl(ubman):
 
     # Enable firmware1 and the mmc that it uses. These are needed for the full
     # VBE flow.
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'fdtput -t s {fdt} /bootstd/firmware0 status disabled')
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'fdtput -t s {fdt} /bootstd/firmware1 status okay')
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'fdtput -t s {fdt} /mmc3 status okay')
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'fdtput -t s {fdt} /mmc3 filename {image_fname}')
 
     # Remove any existing RAM file, so we don't have old data present

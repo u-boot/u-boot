@@ -15,7 +15,7 @@ For configuration verification:
 """
 
 import pytest
-import u_boot_utils as util
+import utils as util
 
 # defauld mmc id
 mmc_dev = 1

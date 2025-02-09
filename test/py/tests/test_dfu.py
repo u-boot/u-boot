@@ -9,7 +9,7 @@
 import os
 import os.path
 import pytest
-import u_boot_utils
+import utils
 
 """
 Note: This test relies on:
@@ -143,9 +143,9 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
             Nothing.
         """
 
-        u_boot_utils.wait_until_file_open_fails(
+        utils.wait_until_file_open_fails(
             env__usb_dev_port['host_usb_dev_node'], True)
-        fh = u_boot_utils.attempt_to_open_file(
+        fh = utils.attempt_to_open_file(
             env__usb_dev_port['host_usb_dev_node'])
         if fh:
             fh.close()
@@ -164,7 +164,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
         cmd = 'dfu 0 ' + env__dfu_config['cmd_params']
         ubman.run_command(cmd, wait_for_prompt=False)
         ubman.log.action('Waiting for DFU USB device to appear')
-        fh = u_boot_utils.wait_until_open_succeeds(
+        fh = utils.wait_until_open_succeeds(
             env__usb_dev_port['host_usb_dev_node'])
         fh.close()
 
@@ -190,7 +190,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
             ubman.ctrlc()
             ubman.log.action(
                 'Waiting for DFU USB device to disappear')
-            u_boot_utils.wait_until_file_open_fails(
+            utils.wait_until_file_open_fails(
                 env__usb_dev_port['host_usb_dev_node'], ignore_errors)
         except:
             if not ignore_errors:
@@ -213,7 +213,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
         cmd = ['dfu-util', '-a', alt_setting, up_dn_load_arg, fn]
         if 'host_usb_port_path' in env__usb_dev_port:
             cmd += ['-p', env__usb_dev_port['host_usb_port_path']]
-        u_boot_utils.run_and_log(ubman, cmd)
+        utils.run_and_log(ubman, cmd)
         ubman.wait_for('Ctrl+C to exit ...')
 
     def dfu_write(alt_setting, fn):
@@ -261,7 +261,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
             Nothing.
         """
 
-        test_f = u_boot_utils.PersistentRandomFile(ubman,
+        test_f = utils.PersistentRandomFile(ubman,
             'dfu_%d.bin' % size, size)
         readback_fn = ubman.config.result_dir + '/dfu_readback.bin'
 
@@ -279,7 +279,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
 
         ubman.log.action('Comparing written and read data')
         written_hash = test_f.content_hash
-        read_back_hash = u_boot_utils.md5sum_file(readback_fn, size)
+        read_back_hash = utils.md5sum_file(readback_fn, size)
         assert(written_hash == read_back_hash)
 
     # This test may be executed against multiple USB ports. The test takes a
@@ -295,7 +295,7 @@ def test_dfu(ubman, env__usb_dev_port, env__dfu_config):
     else:
         sizes = []
 
-    dummy_f = u_boot_utils.PersistentRandomFile(ubman,
+    dummy_f = utils.PersistentRandomFile(ubman,
         'dfu_dummy.bin', 1024)
 
     alt_setting_test_file = env__dfu_config.get('alt_id_test_file', '0')

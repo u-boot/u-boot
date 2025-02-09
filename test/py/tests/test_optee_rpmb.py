@@ -7,7 +7,7 @@ This tests optee_rpmb cmd in U-Boot
 """
 
 import pytest
-import u_boot_utils as util
+import utils as util
 
 @pytest.mark.buildconfigspec('cmd_optee_rpmb')
 def test_optee_rpmb_read_write(ubman):

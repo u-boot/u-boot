@@ -7,8 +7,8 @@ Logic to interact with the sandbox port of U-Boot, running as a sub-process.
 """
 
 import time
-from u_boot_spawn import Spawn
-from u_boot_console_base import ConsoleBase
+from spawn import Spawn
+from console_base import ConsoleBase
 
 class ConsoleSandbox(ConsoleBase):
     """Represents a connection to a sandbox U-Boot console, executed as a sub-
@@ -39,7 +39,7 @@ class ConsoleSandbox(ConsoleBase):
             None.
 
         Returns:
-            A u_boot_spawn.Spawn object that is attached to U-Boot.
+            A spawn.Spawn object that is attached to U-Boot.
         """
 
         bcfg = self.config.buildconfig
@@ -71,7 +71,7 @@ class ConsoleSandbox(ConsoleBase):
             use_dtb: True to use a device tree file, False to run without one
 
         Returns:
-            A u_boot_spawn.Spawn object that is attached to U-Boot.
+            A spawn.Spawn object that is attached to U-Boot.
         """
 
         try:

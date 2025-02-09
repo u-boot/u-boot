@@ -8,7 +8,7 @@
 import pytest
 import re
 import random
-import u_boot_utils
+import utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
@@ -518,7 +518,7 @@ def test_fpga_secure_bit_auth(ubman):
 
     addr = f.get('addr', None)
     if not addr:
-      addr = u_boot_utils.find_ram_base(ubman)
+      addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
@@ -546,7 +546,7 @@ def test_fpga_secure_bit_img_auth_kup(ubman):
 
     keyaddr = f.get('keyaddr', None)
     if not keyaddr:
-      addr = u_boot_utils.find_ram_base(ubman)
+      addr = utils.find_ram_base(ubman)
     expected_tftp = 'Bytes transferred = '
     keyfn = f['keyfn']
     output = ubman.run_command('tftpboot %x %s' % (keyaddr, keyfn))
@@ -554,7 +554,7 @@ def test_fpga_secure_bit_img_auth_kup(ubman):
 
     addr = f.get('addr', None)
     if not addr:
-      addr = u_boot_utils.find_ram_base(ubman)
+      addr = utils.find_ram_base(ubman)
     expected_tftp = 'Bytes transferred = '
     fn = f['enckupfn']
     output = ubman.run_command('tftpboot %x %s' % (addr, fn))

@@ -3,14 +3,14 @@
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
 
 import pytest
-import u_boot_utils
+import utils
 
 @pytest.mark.buildconfigspec('cmd_memory')
 def test_md(ubman):
     """Test that md reads memory as expected, and that memory can be modified
     using the mw command."""
 
-    ram_base = u_boot_utils.find_ram_base(ubman)
+    ram_base = utils.find_ram_base(ubman)
     addr = '%08x' % ram_base
     val = 'a5f09876'
     expected_response = addr + ': ' + val
@@ -26,7 +26,7 @@ def test_md_repeat(ubman):
     """Test command repeat (via executing an empty command) operates correctly
     for "md"; the command must repeat and dump an incrementing address."""
 
-    ram_base = u_boot_utils.find_ram_base(ubman)
+    ram_base = utils.find_ram_base(ubman)
     addr_base = '%08x' % ram_base
     words = 0x10
     addr_repeat = '%08x' % (ram_base + (words * 4))

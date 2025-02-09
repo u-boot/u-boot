@@ -12,7 +12,7 @@ This test doesn't run the sandbox. It only checks the host tool 'mkimage'
 
 import os
 import pytest
-import u_boot_utils as util
+import utils as util
 
 kernel_hashes = {
     "sha512" : "f18c1486a2c29f56360301576cdfce4dfd8e8e932d0ed8e239a1f314b8ae1d77b2a58cd7fe32e4075e69448e623ce53b0b6aa6ce5626d2c189a5beae29a68d93",

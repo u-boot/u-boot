@@ -8,8 +8,8 @@ physical serial port.
 """
 
 import sys
-from u_boot_spawn import Spawn
-from u_boot_console_base import ConsoleBase
+from spawn import Spawn
+from console_base import ConsoleBase
 
 class ConsoleExecAttach(ConsoleBase):
     """Represents a physical connection to a U-Boot console, typically via a
@@ -53,7 +53,7 @@ class ConsoleExecAttach(ConsoleBase):
             None.
 
         Returns:
-            A u_boot_spawn.Spawn object that is attached to U-Boot.
+            A spawn.Spawn object that is attached to U-Boot.
         """
 
         args = [self.config.board_type, self.config.board_identity]

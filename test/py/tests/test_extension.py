@@ -6,7 +6,7 @@
 
 import os
 import pytest
-import u_boot_utils
+import utils
 
 overlay_addr = 0x1000
 

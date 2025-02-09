@@ -3,7 +3,7 @@
 
 import os
 import pytest
-import u_boot_utils as util
+import utils as util
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_echo')

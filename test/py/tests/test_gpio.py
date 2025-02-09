@@ -5,7 +5,7 @@
 
 import pytest
 import time
-import u_boot_utils
+import utils
 
 """
 	test_gpio_input is intended to test the fix 4dbc107f4683.

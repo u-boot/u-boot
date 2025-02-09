@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 
 import pytest
-import u_boot_utils
+import utils
 
 @pytest.mark.buildconfigspec('cmd_pinmux')
 def test_pinmux_usage_1(ubman):

@@ -55,7 +55,7 @@ env__efi_fit_tftp_file = {
 
 import os.path
 import pytest
-import u_boot_utils as util
+import utils as util
 
 # Define the parametrized ITS data to be used for FIT images generation.
 ITS_DATA = '''

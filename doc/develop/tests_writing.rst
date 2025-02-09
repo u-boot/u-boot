@@ -120,7 +120,7 @@ in Python::
        """Test that md reads memory as expected, and that memory can be modified
        using the mw command."""
 
-       ram_base = u_boot_utils.find_ram_base(ubman)
+       ram_base = utils.find_ram_base(ubman)
        addr = '%08x' % ram_base
        val = 'a5f09876'
        expected_response = addr + ': ' + val

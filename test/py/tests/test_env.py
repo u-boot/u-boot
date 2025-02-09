@@ -13,7 +13,7 @@ from subprocess import call, CalledProcessError
 import tempfile
 
 import pytest
-import u_boot_utils
+import utils
 
 # FIXME: This might be useful for other tests;
 # perhaps refactor it into ConsoleBase or some other state object?
@@ -187,7 +187,7 @@ def test_env_initial_env_file(ubman):
     except:
         pass
 
-    u_boot_utils.run_and_log(cons, ['make', builddir, 'u-boot-initial-env'])
+    utils.run_and_log(cons, ['make', builddir, 'u-boot-initial-env'])
 
     assert os.path.exists(envfile)
 
@@ -278,7 +278,7 @@ def test_env_import_checksum_no_size(state_test_env):
        env import function.
     """
     c = state_test_env.ubman
-    ram_base = u_boot_utils.find_ram_base(state_test_env.ubman)
+    ram_base = utils.find_ram_base(state_test_env.ubman)
     addr = '%08x' % ram_base
 
     with c.disable_check('error_notification'):
@@ -291,7 +291,7 @@ def test_env_import_whitelist_checksum_no_size(state_test_env):
        env import function when variables are passed as parameters.
     """
     c = state_test_env.ubman
-    ram_base = u_boot_utils.find_ram_base(state_test_env.ubman)
+    ram_base = utils.find_ram_base(state_test_env.ubman)
     addr = '%08x' % ram_base
 
     with c.disable_check('error_notification'):
@@ -303,7 +303,7 @@ def test_env_import_whitelist_checksum_no_size(state_test_env):
 def test_env_import_whitelist(state_test_env):
     """Test importing only a handful of env variables from an environment."""
     c = state_test_env.ubman
-    ram_base = u_boot_utils.find_ram_base(state_test_env.ubman)
+    ram_base = utils.find_ram_base(state_test_env.ubman)
     addr = '%08x' % ram_base
 
     set_var(state_test_env, 'foo1', 'bar1')
@@ -340,7 +340,7 @@ def test_env_import_whitelist_delete(state_test_env):
        environment to be imported.
     """
     c = state_test_env.ubman
-    ram_base = u_boot_utils.find_ram_base(state_test_env.ubman)
+    ram_base = utils.find_ram_base(state_test_env.ubman)
     addr = '%08x' % ram_base
 
     set_var(state_test_env, 'foo1', 'bar1')
@@ -446,16 +446,16 @@ def mk_env_ext4(state_test_env):
         # Some distributions do not add /sbin to the default PATH, where mkfs.ext4 lives
         os.environ["PATH"] += os.pathsep + '/sbin'
         try:
-            u_boot_utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=16' % persistent)
-            u_boot_utils.run_and_log(c, 'mkfs.ext4 %s' % persistent)
-            sb_content = u_boot_utils.run_and_log(c, 'tune2fs -l %s' % persistent)
+            utils.run_and_log(c, 'dd if=/dev/zero of=%s bs=1M count=16' % persistent)
+            utils.run_and_log(c, 'mkfs.ext4 %s' % persistent)
+            sb_content = utils.run_and_log(c, 'tune2fs -l %s' % persistent)
             if 'metadata_csum' in sb_content:
-                u_boot_utils.run_and_log(c, 'tune2fs -O ^metadata_csum %s' % persistent)
+                utils.run_and_log(c, 'tune2fs -O ^metadata_csum %s' % persistent)
         except CalledProcessError:
             call('rm -f %s' % persistent, shell=True)
             raise
 
-    u_boot_utils.run_and_log(c, ['cp',  '-f', persistent, fs_img])
+    utils.run_and_log(c, ['cp',  '-f', persistent, fs_img])
     return fs_img
 
 @pytest.mark.boardspec('sandbox')
@@ -560,7 +560,7 @@ def test_env_text(ubman):
             fname = os.path.join(path, 'infile')
             with open(fname, 'w') as inf:
                 print(intext, file=inf)
-            result = u_boot_utils.run_and_log(cons, ['awk', '-f', script, fname])
+            result = utils.run_and_log(cons, ['awk', '-f', script, fname])
             if expect_val is not None:
                 expect = '#define CONFIG_EXTRA_ENV_TEXT "%s"\n' % expect_val
                 assert result == expect

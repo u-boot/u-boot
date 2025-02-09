@@ -8,7 +8,7 @@ import pytest
 import re
 from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
-import u_boot_utils as util
+import utils as util
 # pylint: disable=E0611
 from tests import fs_helper
 

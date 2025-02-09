@@ -4,7 +4,7 @@
 import pytest
 import random
 import re
-import u_boot_utils
+import utils
 
 """
 Note: This test doesn't rely on boardenv_* configuration values but it can
@@ -290,7 +290,7 @@ def test_mmc_fatload_fatwrite(ubman):
                 for y in mmc_modes:
                     ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(ubman)
+                    addr = utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
                     size = random.randint(4, 1 * 1024 * 1024)
                     devices[x]['size_%d' % part] = size
@@ -394,7 +394,7 @@ def test_mmc_ext4load_ext4write(ubman):
                 for y in mmc_modes:
                     ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(ubman)
+                    addr = utils.find_ram_base(ubman)
                     devices[x]['addr_%d' % part] = addr
                     size = random.randint(4, 1 * 1024 * 1024)
                     devices[x]['size_%d' % part] = size
@@ -658,7 +658,7 @@ def test_mmc_fat_read_write_files(ubman):
                 for y in mmc_modes:
                     ubman.run_command('mmc dev %d %d %d' % x, part, y)
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(ubman)
+                    addr = utils.find_ram_base(ubman)
                     count_f = 0
                     addr_l = []
                     size_l = []

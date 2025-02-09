@@ -4,7 +4,7 @@
 
 import pytest
 import re
-import u_boot_utils as util
+import utils as util
 
 # This is only a partial test - coverting 64-bit sandbox. It does not test
 # big-endian images, nor 32-bit images

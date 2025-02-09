@@ -125,7 +125,7 @@ browser, but may be read directly as plain text, perhaps with the aid of the
 If sandbox crashes (e.g. with a segfault) you will see message like this::
 
 
-    test/py/u_boot_spawn.py:171: in expect
+    test/py/spawn.py:171: in expect
         c = os.read(self.fd, 1024).decode(errors='replace')
     E   ValueError: U-Boot exited with signal 11 (Signals.SIGSEGV)
 
@@ -515,7 +515,7 @@ U-Boot console, and returns all output from that command. This allows
 validation or interpretation of the command output. This function validates
 that certain strings are not seen on the U-Boot console. These include shell
 error messages and the U-Boot sign-on message (in order to detect unexpected
-board resets). See the source of `u_boot_console_base.py` for a complete list of
+board resets). See the source of `console_base.py` for a complete list of
 "bad" strings. Some test scenarios are expected to trigger these strings. Use
 `ubman.disable_check()` to temporarily disable checking for specific
 strings. See `test_unknown_cmd.py` for an example.

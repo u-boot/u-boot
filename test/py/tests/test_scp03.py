@@ -11,7 +11,7 @@ For additional details check doc/usage/scp03.rst
 """
 
 import pytest
-import u_boot_utils as util
+import utils as util
 
 @pytest.mark.buildconfigspec('cmd_scp03')
 def test_scp03(ubman):

@@ -4,7 +4,7 @@
 import pytest
 import random
 import re
-import u_boot_utils
+import utils
 
 """
 Note: This test doesn't rely on boardenv_* configuration values but it can
@@ -296,7 +296,7 @@ def test_usb_fatls_fatinfo(ubman):
         pytest.skip('No %s partition detected' % fs.upper())
 
 def usb_fatload_fatwrite(ubman, fs, x, part):
-    addr = u_boot_utils.find_ram_base(ubman)
+    addr = utils.find_ram_base(ubman)
     size = random.randint(4, 1 * 1024 * 1024)
     output = ubman.run_command('crc32 %x %x' % (addr, size))
     m = re.search('==> (.+?)', output)
@@ -391,7 +391,7 @@ def test_usb_ext4ls(ubman):
         pytest.skip('No %s partition detected' % fs.upper())
 
 def usb_ext4load_ext4write(ubman, fs, x, part):
-    addr = u_boot_utils.find_ram_base(ubman)
+    addr = utils.find_ram_base(ubman)
     size = random.randint(4, 1 * 1024 * 1024)
     output = ubman.run_command('crc32 %x %x' % (addr, size))
     m = re.search('==> (.+?)', output)
@@ -505,7 +505,7 @@ def test_usb_ext2load(ubman):
                 part_detect = 1
                 file, size, expected_crc32 = \
                     usb_ext4load_ext4write(ubman, fs, x, part)
-                addr = u_boot_utils.find_ram_base(ubman)
+                addr = utils.find_ram_base(ubman)
 
                 offset = random.randrange(128, 1024, 128)
                 output = ubman.run_command(
@@ -572,7 +572,7 @@ def test_usb_load(ubman):
 
                 for part in partitions:
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(ubman)
+                    addr = utils.find_ram_base(ubman)
 
                     if fs == 'fat':
                         file, size, expected_crc32 = \
@@ -618,7 +618,7 @@ def test_usb_save(ubman):
 
                 for part in partitions:
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(ubman)
+                    addr = utils.find_ram_base(ubman)
                     size = random.randint(4, 1 * 1024 * 1024)
                     file = '%s_%d' % ('uboot_test', size)
 

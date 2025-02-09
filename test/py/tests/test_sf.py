@@ -5,7 +5,7 @@
 import re
 import pytest
 import random
-import u_boot_utils
+import utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
@@ -57,7 +57,7 @@ def sf_prepare(ubman, env__sf_config):
     """
 
     sf_params = {}
-    sf_params['ram_base'] = u_boot_utils.find_ram_base(ubman)
+    sf_params['ram_base'] = utils.find_ram_base(ubman)
 
     probe_id = env__sf_config.get('id', 0)
     speed = env__sf_config.get('speed', 0)
@@ -123,14 +123,14 @@ def sf_read(ubman, env__sf_config, sf_params):
 
     cmd = 'mw.b %08x %02x %x' % (addr, pattern, count)
     ubman.run_command(cmd)
-    crc_pattern = u_boot_utils.crc32(ubman, addr, count)
+    crc_pattern = utils.crc32(ubman, addr, count)
     if crc_expected:
         assert crc_pattern != crc_expected
 
     cmd = 'sf read %08x %08x %x' % (addr, offset, count)
     response = ubman.run_command(cmd)
     assert 'Read: OK' in response, 'Read operation failed'
-    crc_readback = u_boot_utils.crc32(ubman, addr, count)
+    crc_readback = utils.crc32(ubman, addr, count)
     assert crc_pattern != crc_readback, 'sf read did not update RAM content.'
     if crc_expected:
         assert crc_readback == crc_expected
@@ -156,7 +156,7 @@ def sf_update(ubman, env__sf_config, sf_params):
 
     cmd = 'mw.b %08x %02x %x' % (addr, pattern, count)
     ubman.run_command(cmd)
-    crc_pattern = u_boot_utils.crc32(ubman, addr, count)
+    crc_pattern = utils.crc32(ubman, addr, count)
 
     cmd = 'sf update %08x %08x %x' % (addr, offset, count)
     ubman.run_command(cmd)
@@ -201,7 +201,7 @@ def test_sf_erase(ubman, env__sf_config):
 
     cmd = 'mw.b %08x ff %x' % (addr, count)
     ubman.run_command(cmd)
-    crc_ffs = u_boot_utils.crc32(ubman, addr, count)
+    crc_ffs = utils.crc32(ubman, addr, count)
 
     crc_read = sf_read(ubman, env__sf_config, sf_params)
     assert crc_ffs == crc_read, 'Unexpected CRC32 after erase operation.'

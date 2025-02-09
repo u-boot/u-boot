@@ -6,7 +6,7 @@
 
 import os
 import pytest
-import u_boot_utils
+import utils
 
 """
 These tests rely on disk image (boot.img), which is automatically created by
@@ -122,7 +122,7 @@ class AbootimgTestDiskImage(object):
         persistent = ubman.config.persistent_data_dir + '/' + filename
         self.path = ubman.config.result_dir  + '/' + filename
         ubman.log.action('persistent is ' + persistent)
-        with u_boot_utils.persistent_file_helper(ubman.log, persistent):
+        with utils.persistent_file_helper(ubman.log, persistent):
             if os.path.exists(persistent):
                 ubman.log.action('Disk image file ' + persistent +
                     ' already exists')
@@ -133,12 +133,12 @@ class AbootimgTestDiskImage(object):
                 f.write(hex_img)
                 f.close()
                 cmd = ('xxd', '-r', '-p', gz_hex, gz)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
                 cmd = ('gunzip', '-9', gz)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
 
         cmd = ('cp', persistent, self.path)
-        u_boot_utils.run_and_log(ubman, cmd)
+        utils.run_and_log(ubman, cmd)
 
 gtdi1 = None
 @pytest.fixture(scope='function')

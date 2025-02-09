@@ -13,8 +13,8 @@ import os
 import pytest
 import re
 import sys
-import u_boot_spawn
-from u_boot_spawn import BootFail, Timeout, Unexpected, handle_exception
+import spawn
+from spawn import BootFail, Timeout, Unexpected, handle_exception
 
 # Regexes for text we expect U-Boot to send to the console.
 pattern_u_boot_spl_signon = re.compile('(U-Boot SPL \\d{4}\\.\\d{2}[^\r\n]*\\))')
@@ -157,9 +157,9 @@ class ConsoleBase(object):
     def get_spawn(self):
         # This is not called, ssubclass must define this.
         # Return a value to avoid:
-        #   u_boot_console_base.py:348:12: E1128: Assigning result of a function
+        #   console_base.py:348:12: E1128: Assigning result of a function
         #   call, where the function returns None (assignment-from-none)
-        return u_boot_spawn.Spawn([])
+        return spawn.Spawn([])
 
 
     def eval_bad_patterns(self):

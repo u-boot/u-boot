@@ -6,7 +6,7 @@
 
 import os
 import pytest
-import u_boot_utils
+import utils
 
 """
 These tests rely on a 4 MB disk image, which is automatically created by
@@ -63,7 +63,7 @@ class GptTestDiskImage(object):
         persistent = ubman.config.persistent_data_dir + '/' + filename
         self.path = ubman.config.result_dir  + '/' + filename
 
-        with u_boot_utils.persistent_file_helper(ubman.log, persistent):
+        with utils.persistent_file_helper(ubman.log, persistent):
             if os.path.exists(persistent):
                 ubman.log.action('Disk image file ' + persistent +
                     ' already exists')
@@ -75,23 +75,23 @@ class GptTestDiskImage(object):
                 cmd = ('sgdisk',
                     '--disk-guid=375a56f7-d6c9-4e81-b5f0-09d41ca89efe',
                     persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
                 # part1 offset 1MB size 1MB
                 cmd = ('sgdisk', '--new=1:2048:4095', '--change-name=1:part1',
                     '--partition-guid=1:33194895-67f6-4561-8457-6fdeed4f50a3',
                     '-A 1:set:2',
                     persistent)
                 # part2 offset 2MB size 1.5MB
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
                 cmd = ('sgdisk', '--new=2:4096:7167', '--change-name=2:part2',
                     '--partition-guid=2:cc9c6e4a-6551-4cb5-87be-3210f96c86fb',
                     persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
                 cmd = ('sgdisk', '--load-backup=' + persistent)
-                u_boot_utils.run_and_log(ubman, cmd)
+                utils.run_and_log(ubman, cmd)
 
         cmd = ('cp', persistent, self.path)
-        u_boot_utils.run_and_log(ubman, cmd)
+        utils.run_and_log(ubman, cmd)
 
 @pytest.fixture(scope='function')
 def state_disk_image(ubman):

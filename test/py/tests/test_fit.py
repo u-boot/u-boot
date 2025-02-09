@@ -6,7 +6,7 @@
 import os
 import pytest
 import struct
-import u_boot_utils as util
+import utils as util
 import fit_util
 
 # Define a base ITS which we can adjust using % and a dictionary

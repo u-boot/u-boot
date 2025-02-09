@@ -3,7 +3,7 @@
 
 import pytest
 import re
-import u_boot_utils
+import utils
 import test_net
 
 """
@@ -68,7 +68,7 @@ def test_zynq_aes_image(ubman):
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
@@ -96,7 +96,7 @@ def test_zynq_aes_bitstream(ubman):
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fnbit']
@@ -124,7 +124,7 @@ def test_zynq_aes_partial_bitstream(ubman):
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fnpbit']
@@ -150,7 +150,7 @@ def test_zynq_rsa_image(ubman):
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fn = f['fn']
@@ -176,7 +176,7 @@ def test_zynq_rsa_image_invalid(ubman):
 
     srcaddr = f.get('srcaddr', None)
     if not srcaddr:
-        addr = u_boot_utils.find_ram_base(ubman)
+        addr = utils.find_ram_base(ubman)
 
     expected_tftp = 'Bytes transferred = '
     fninvalid = f['fninvalid']

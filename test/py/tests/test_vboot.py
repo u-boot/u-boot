@@ -42,7 +42,7 @@ import os
 import shutil
 import struct
 import pytest
-import u_boot_utils as util
+import utils as util
 import vboot_forge
 import vboot_evil
 

@@ -13,7 +13,7 @@ import os
 import os.path
 import pytest
 
-import u_boot_utils
+import utils
 # pylint: disable=E0611
 from tests import fs_helper
 from test_android import test_abootimg
@@ -52,8 +52,8 @@ def setup_image(cons, devnum, part_type, img_size=20, second_part=False,
     if second_part:
         spec += '\ntype=c'
 
-    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} 20M')
-    u_boot_utils.run_and_log(cons, f'sfdisk {fname}',
+    utils.run_and_log(cons, f'qemu-img create {fname} 20M')
+    utils.run_and_log(cons, f'sfdisk {fname}',
                              stdin=spec.encode('utf-8'))
     return fname, mnt
 
@@ -149,12 +149,12 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
     infname = os.path.join(cons.config.source_dir,
                             'test/py/tests/bootstd/armbian.bmp.xz')
     bmp_file = os.path.join(bootdir, 'boot.bmp')
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons,
         ['sh', '-c', f'xz -dc {infname} >{bmp_file}'])
 
     mkimage = cons.config.build_dir + '/tools/mkimage'
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'{mkimage} -C none -A arm -T script -d {cmd_fname} {scr_fname}')
 
     kernel = 'vmlinuz-5.15.63-rockchip64'
@@ -165,16 +165,16 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
     symlink = os.path.join(bootdir, 'Image')
     if os.path.exists(symlink):
         os.remove(symlink)
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'echo here {kernel} {symlink}')
     os.symlink(kernel, symlink)
 
     fsfile = 'ext18M.img'
-    u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
-    u_boot_utils.run_and_log(cons, f'mkfs.ext4 {fsfile} -d {mnt}')
-    u_boot_utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
-    u_boot_utils.run_and_log(cons, f'rm -rf {mnt}')
-    u_boot_utils.run_and_log(cons, f'rm -f {fsfile}')
+    utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
+    utils.run_and_log(cons, f'mkfs.ext4 {fsfile} -d {mnt}')
+    utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    utils.run_and_log(cons, f'rm -rf {mnt}')
+    utils.run_and_log(cons, f'rm -f {fsfile}')
 
 def setup_bootflow_image(cons):
     """Create a 20MB disk image with a single FAT partition"""
@@ -208,7 +208,7 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
     with open(inf, 'wb') as fd:
         fd.write(gzip.compress(b'vmlinux'))
     mkimage = cons.config.build_dir + '/tools/mkimage'
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'{mkimage} -f auto -d {inf} {os.path.join(mnt, vmlinux)}')
 
     with open(os.path.join(mnt, initrd), 'w', encoding='ascii') as fd:
@@ -217,16 +217,16 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
     mkdir_cond(os.path.join(mnt, dtbdir))
 
     dtb_file = os.path.join(mnt, f'{dtbdir}/sandbox.dtb')
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'dtc -o {dtb_file}', stdin=b'/dts-v1/; / {};')
 
     fsfile = 'vfat18M.img'
-    u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
-    u_boot_utils.run_and_log(cons, f'mkfs.vfat {fsfile}')
-    u_boot_utils.run_and_log(cons, ['sh', '-c', f'mcopy -i {fsfile} {mnt}/* ::/'])
-    u_boot_utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
-    u_boot_utils.run_and_log(cons, f'rm -rf {mnt}')
-    u_boot_utils.run_and_log(cons, f'rm -f {fsfile}')
+    utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
+    utils.run_and_log(cons, f'mkfs.vfat {fsfile}')
+    utils.run_and_log(cons, ['sh', '-c', f'mcopy -i {fsfile} {mnt}/* ::/'])
+    utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    utils.run_and_log(cons, f'rm -rf {mnt}')
+    utils.run_and_log(cons, f'rm -f {fsfile}')
 
 def setup_cros_image(cons):
     """Create a 20MB disk image with ChromiumOS partitions"""
@@ -248,7 +248,7 @@ def setup_cros_image(cons):
         """
         kern_part = os.path.join(cons.config.result_dir,
                                  f'kern-part-{arch}.bin')
-        u_boot_utils.run_and_log(
+        utils.run_and_log(
             cons,
             f'futility vbutil_kernel --pack {kern_part} '
             '--keyblock doc/chromium/files/devkeys/kernel.keyblock '
@@ -276,8 +276,8 @@ def setup_cros_image(cons):
 
     mmc_dev = 5
     fname = os.path.join(cons.config.source_dir, f'mmc{mmc_dev}.img')
-    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} 20M')
-    u_boot_utils.run_and_log(cons, f'cgpt create {fname}')
+    utils.run_and_log(cons, f'qemu-img create {fname} 20M')
+    utils.run_and_log(cons, f'cgpt create {fname}')
 
     uuid_state = 'ebd0a0a2-b9e5-4433-87c0-68b6b72699c7'
     uuid_kern = 'fe3a2a5d-4f32-41a7-b725-accc3285a309'
@@ -316,13 +316,13 @@ def setup_cros_image(cons):
             size = int(size_str[:-1]) * sect_1mb
         else:
             size = int(size_str)
-        u_boot_utils.run_and_log(
+        utils.run_and_log(
             cons,
             f"cgpt add -i {part['num']} -b {ptr} -s {size} -t {part['type']} {fname}")
         ptr += size
 
-    u_boot_utils.run_and_log(cons, f'cgpt boot -p {fname}')
-    out = u_boot_utils.run_and_log(cons, f'cgpt show -q {fname}')
+    utils.run_and_log(cons, f'cgpt boot -p {fname}')
+    out = utils.run_and_log(cons, f'cgpt show -q {fname}')
 
     # We expect something like this:
     #   8239        2048       1  Basic data
@@ -389,8 +389,8 @@ def setup_android_image(cons):
 
     mmc_dev = 7
     fname = os.path.join(cons.config.source_dir, f'mmc{mmc_dev}.img')
-    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} 20M')
-    u_boot_utils.run_and_log(cons, f'cgpt create {fname}')
+    utils.run_and_log(cons, f'qemu-img create {fname} 20M')
+    utils.run_and_log(cons, f'cgpt create {fname}')
 
     ptr = 40
 
@@ -412,13 +412,13 @@ def setup_android_image(cons):
             size = int(size_str[:-1]) * sect_1mb
         else:
             size = int(size_str)
-        u_boot_utils.run_and_log(
+        utils.run_and_log(
             cons,
             f"cgpt add -i {part['num']} -b {ptr} -s {size} -l {part['label']} -t basicdata {fname}")
         ptr += size
 
-    u_boot_utils.run_and_log(cons, f'cgpt boot -p {fname}')
-    out = u_boot_utils.run_and_log(cons, f'cgpt show -q {fname}')
+    utils.run_and_log(cons, f'cgpt boot -p {fname}')
+    out = utils.run_and_log(cons, f'cgpt show -q {fname}')
 
     # Create a dict (indexed by partition number) containing the above info
     for line in out.splitlines():
@@ -445,8 +445,8 @@ def setup_android_image(cons):
 
     mmc_dev = 8
     fname = os.path.join(cons.config.source_dir, f'mmc{mmc_dev}.img')
-    u_boot_utils.run_and_log(cons, f'qemu-img create {fname} 20M')
-    u_boot_utils.run_and_log(cons, f'cgpt create {fname}')
+    utils.run_and_log(cons, f'qemu-img create {fname} 20M')
+    utils.run_and_log(cons, f'cgpt create {fname}')
 
     ptr = 40
 
@@ -466,13 +466,13 @@ def setup_android_image(cons):
             size = int(size_str[:-1]) * sect_1mb
         else:
             size = int(size_str)
-        u_boot_utils.run_and_log(
+        utils.run_and_log(
             cons,
             f"cgpt add -i {part['num']} -b {ptr} -s {size} -l {part['label']} -t basicdata {fname}")
         ptr += size
 
-    u_boot_utils.run_and_log(cons, f'cgpt boot -p {fname}')
-    out = u_boot_utils.run_and_log(cons, f'cgpt show -q {fname}')
+    utils.run_and_log(cons, f'cgpt boot -p {fname}')
+    out = utils.run_and_log(cons, f'cgpt show -q {fname}')
 
     # Create a dict (indexed by partition number) containing the above info
     for line in out.splitlines():
@@ -502,7 +502,7 @@ def setup_cedit_file(cons):
                            'test/boot/files/expo_ids.h')
     expo_tool = os.path.join(cons.config.source_dir, 'tools/expo.py')
     outfname = 'cedit.dtb'
-    u_boot_utils.run_and_log(
+    utils.run_and_log(
         cons, f'{expo_tool} -e {inhname} -l {infname} -o {outfname}')
 
 @pytest.mark.buildconfigspec('ut_dm')
@@ -528,7 +528,7 @@ def test_ut_dm_init(ubman):
         data = b'\x00' * (2 * 1024 * 1024)
         with open(fn, 'wb') as fh:
             fh.write(data)
-        u_boot_utils.run_and_log(
+        utils.run_and_log(
             ubman, f'sfdisk {fn}', stdin=b'type=83')
 
     fs_helper.mk_fs(ubman.config, 'ext2', 0x200000, '2MB', None)
@@ -559,12 +559,12 @@ def setup_efi_image(cons):
         with open(efi_dst, 'wb') as outf:
             outf.write(inf.read())
     fsfile = 'vfat18M.img'
-    u_boot_utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
-    u_boot_utils.run_and_log(cons, f'mkfs.vfat {fsfile}')
-    u_boot_utils.run_and_log(cons, ['sh', '-c', f'mcopy -vs -i {fsfile} {mnt}/* ::/'])
-    u_boot_utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
-    u_boot_utils.run_and_log(cons, f'rm -rf {mnt}')
-    u_boot_utils.run_and_log(cons, f'rm -f {fsfile}')
+    utils.run_and_log(cons, f'fallocate -l 18M {fsfile}')
+    utils.run_and_log(cons, f'mkfs.vfat {fsfile}')
+    utils.run_and_log(cons, ['sh', '-c', f'mcopy -vs -i {fsfile} {mnt}/* ::/'])
+    utils.run_and_log(cons, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    utils.run_and_log(cons, f'rm -rf {mnt}')
+    utils.run_and_log(cons, f'rm -f {fsfile}')
 
 @pytest.mark.buildconfigspec('cmd_bootflow')
 @pytest.mark.buildconfigspec('sandbox')

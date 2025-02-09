@@ -17,7 +17,7 @@ The test does not run the sandbox. It only checks the host tool mkimage.
 
 import os
 import pytest
-import u_boot_utils as util
+import utils as util
 import binascii
 from Cryptodome.Hash import SHA1
 from Cryptodome.Hash import SHA256
