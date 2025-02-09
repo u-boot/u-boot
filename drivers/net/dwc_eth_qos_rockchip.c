@@ -134,6 +134,10 @@ static int rk3568_set_gmac_speed(struct udevice *dev)
 	return 0;
 }
 
+#define RK3588_DELAY_ENABLE(id, tx, rx) \
+	(((tx) ? RK3588_GMAC_TXCLK_DLY_ENABLE(id) : RK3588_GMAC_TXCLK_DLY_DISABLE(id)) | \
+	 ((rx) ? RK3588_GMAC_RXCLK_DLY_ENABLE(id) : RK3588_GMAC_RXCLK_DLY_DISABLE(id)))
+
 /* sys_grf */
 #define RK3588_GRF_GMAC_CON7			0x031c
 #define RK3588_GRF_GMAC_CON8			0x0320
@@ -192,8 +196,7 @@ static int rk3588_set_to_rgmii(struct udevice *dev,
 		     RK3588_GMAC_CLK_RGMII_MODE(id));
 
 	regmap_write(data->grf, RK3588_GRF_GMAC_CON7,
-		     RK3588_GMAC_RXCLK_DLY_ENABLE(id) |
-		     RK3588_GMAC_TXCLK_DLY_ENABLE(id));
+		     RK3588_DELAY_ENABLE(id, tx_delay, rx_delay));
 
 	regmap_write(data->grf, offset_con,
 		     RK3588_GMAC_CLK_RX_DL_CFG(rx_delay) |
