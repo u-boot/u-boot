@@ -35,6 +35,7 @@ struct fel_stash {
 	uint32_t cpsr;
 	uint32_t sctlr;
 	uint32_t vbar;
+	uint32_t sp_irq;
 	uint32_t icc_pmr;
 	uint32_t icc_igrpen1;
 };

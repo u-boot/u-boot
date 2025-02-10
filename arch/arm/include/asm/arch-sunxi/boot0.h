@@ -26,6 +26,8 @@
 	.word	0xe580e004	// str     lr, [r0, #4]
 	.word	0xe10fe000	// mrs     lr, CPSR
 	.word	0xe580e008	// str     lr, [r0, #8]
+	.word	0xe101e300	// mrs     lr, SP_irq
+	.word	0xe580e014	// str     lr, [r0, #20]
 	.word	0xee11ef10	// mrc     15, 0, lr, cr1, cr0, {0}
 	.word	0xe580e00c	// str     lr, [r0, #12]
 	.word	0xee1cef10	// mrc     15, 0, lr, cr12, cr0, {0}
@@ -35,9 +37,9 @@
 	.word	0xe31e0001	// tst     lr, #1
 	.word	0x0a000003	// beq     cc <start32+0x48>
 	.word	0xee14ef16	// mrc     15, 0, lr, cr4, cr6, {0}
-	.word	0xe580e014	// str     lr, [r0, #20]
-	.word	0xee1ceffc	// mrc     15, 0, lr, cr12, cr12, {7}
 	.word	0xe580e018	// str     lr, [r0, #24]
+	.word	0xee1ceffc	// mrc     15, 0, lr, cr12, cr12, {7}
+	.word	0xe580e01c	// str     lr, [r0, #28]
 #endif
 	.word	0xe59f1034	// ldr     r1, [pc, #52] ; RVBAR_ADDRESS
 	.word	0xe59f0034	// ldr     r0, [pc, #52] ; SUNXI_SRAMC_BASE

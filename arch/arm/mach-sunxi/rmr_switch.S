@@ -49,6 +49,8 @@ start32:
 	str	lr, [r0, #4]
 	mrs	lr, CPSR
 	str	lr, [r0, #8]
+	mrs	lr, SP_irq
+	str	lr, [r0, #20]
 	mrc	p15, 0, lr, cr1, cr0, 0		// SCTLR
 	str	lr, [r0, #12]
 	mrc	p15, 0, lr, cr12, cr0, 0	// VBAR
@@ -58,9 +60,9 @@ start32:
 	tst	lr, #1
 	beq	1f
 	mrc	p15, 0, lr, c4, c6, 0		// ICC_PMR
-	str	lr, [r0, #20]
-	mrc	p15, 0, lr, c12, c12, 7		// ICC_IGRPEN1
 	str	lr, [r0, #24]
+	mrc	p15, 0, lr, c12, c12, 7		// ICC_IGRPEN1
+	str	lr, [r0, #28]
 1:
 //#endif
 
