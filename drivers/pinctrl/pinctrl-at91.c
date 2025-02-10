@@ -522,17 +522,30 @@ static int at91_pinctrl_probe(struct udevice *dev)
 {
 	struct at91_pinctrl_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr_base;
+	struct udevice *gpio_node;
 	int index;
 
-	for (index = 0; index < MAX_GPIO_BANKS; index++) {
-		addr_base = devfdt_get_addr_index(dev, index);
-		if (addr_base == FDT_ADDR_T_NONE)
-			break;
+	if (list_empty(&dev->child_head)) {
+		for (index = 0; index < MAX_GPIO_BANKS; index++) {
+			addr_base = devfdt_get_addr_index(dev, index);
+			if (addr_base == FDT_ADDR_T_NONE)
+				break;
 
-		priv->reg_base[index] = (struct at91_port *)addr_base;
+			priv->reg_base[index] = (struct at91_port *)addr_base;
+		}
+	} else {
+		index = 0;
+		list_for_each_entry(gpio_node, &dev->child_head, sibling_node) {
+			addr_base = dev_read_addr(gpio_node);
+			if (addr_base == FDT_ADDR_T_NONE)
+				break;
+
+			priv->reg_base[index] = (struct at91_port *)addr_base;
+			index++;
+		}
 	}
 
-	priv->nbanks = index;
+	priv->nbanks = index < MAX_GPIO_BANKS ? index : MAX_GPIO_BANKS;
 
 	return 0;
 }
