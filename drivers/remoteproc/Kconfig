@@ -55,6 +55,7 @@ config REMOTEPROC_TI_K3_ARM64
 	depends on DM
 	depends on ARCH_K3
 	depends on OF_CONTROL
+	default y if SYS_K3_SPL_ATF
 	help
 	  Say y here to support TI's ARM64 processor subsystems
 	  on various TI K3 family of SoCs through the remote processor
