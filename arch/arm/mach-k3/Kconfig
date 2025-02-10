@@ -156,6 +156,30 @@ config K3_X509_SWRV
 	help
 	  SWRV for X509 certificate used for boot images
 
+config K3_REMOTEPROC_R5F
+	bool "Enable K3 Remoteproc driver for R5F"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_R5F
+	default y if (SOC_K3_AM62A7 || SOC_K3_AM654 || SOC_K3_J721E || SOC_K3_J784S4 || SOC_K3_J721S2 || SOC_K3_J722S || SOC_K3_AM62P5 || SOC_K3_AM642)
+
+config K3_REMOTEPROC_DSP
+	bool "Enable K3 Remoteproc driver for DSP"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_DSP
+	default y if (SOC_K3_AM62A7 || SOC_K3_J721E || SOC_K3_J784S4 || SOC_K3_J721S2 || SOC_K3_J722S)
+
+config K3_REMOTEPROC_M4F
+	bool "Enable K3 Remoteproc driver for M4F"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_M4F
+	default y if (SOC_K3_AM625 || SOC_K3_AM642)
+
+config K3_REMOTEPROC_PRU
+	bool "Enable K3 Remoteproc driver for PRU"
+	depends on ARM64
+	imply REMOTEPROC_TI_PRU
+	default y if (SOC_K3_AM642 || SOC_K3_AM654)
+
 if CPU_V7R
 source "arch/arm/mach-k3/r5/Kconfig"
 endif
