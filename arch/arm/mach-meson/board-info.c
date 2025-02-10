@@ -126,7 +126,7 @@ static const char *socinfo_to_soc_id(u32 socinfo)
 	return "Unknown";
 }
 
-static u32 get_socinfo(void)
+u32 meson_get_socinfo(void)
 {
 	struct regmap *regmap;
 	int nodeoffset, ret;
@@ -165,7 +165,7 @@ int checkboard(void)
 {
 	u32 socinfo;
 
-	socinfo = get_socinfo();
+	socinfo = meson_get_socinfo();
 	if (!socinfo)
 		return 0;
 
@@ -184,7 +184,7 @@ int meson_get_soc_rev(char *buff, size_t buff_len)
 {
 	u32 socinfo;
 
-	socinfo = get_socinfo();
+	socinfo = meson_get_socinfo();
 	if (!socinfo)
 		return -1;
 
