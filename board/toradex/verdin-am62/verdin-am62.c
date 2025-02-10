@@ -35,6 +35,17 @@ int dram_init(void)
 	return 0;
 }
 
+int dram_init_banksize(void)
+{
+	s32 ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		printf("Error setting up memory banksize. %d\n", ret);
+
+	return ret;
+}
+
 /*
  * Avoid relocated U-Boot clash with Linux reserved-memory on 512 MB SoM
  */
