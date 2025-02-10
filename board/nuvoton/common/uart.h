@@ -6,6 +6,6 @@
 #ifndef _NUVOTON_UART_H
 #define _NUVOTON_UART_H
 
-void board_set_console(void);
+int board_set_console(void);
 
 #endif /* _NUVOTON_COMMON_H */
