@@ -123,8 +123,6 @@
 			assigned-clock-rates = <100000000>;
 			assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* ID_PLL_A_DIV */
 			bus-width = <4>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdhci0>;
 		};
 
 		sdhci1: sdhci-host@90000000 {
@@ -136,8 +134,6 @@
 			assigned-clock-rates = <100000000>;
 			assigned-clock-parents = <&pmc PMC_TYPE_CORE 10>; /* ID_PLL_A_DIV */
 			bus-width = <4>;
-			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_sdhci1>;
 		};
 
 		apb {
@@ -177,8 +173,6 @@
 			macb0: ethernet@f802c000 {
 				compatible = "cdns,sam9x60-macb", "cdns,macb";
 				reg = <0xf802c000 0x100>;
-				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_macb0_rmii>;
 				clock-names = "hclk", "pclk";
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 24>, <&pmc PMC_TYPE_PERIPHERAL 24>;
 				status = "disabled";
@@ -211,8 +205,6 @@
 			dbgu: serial@fffff200 {
 				compatible = "atmel,at91sam9260-dbgu", "atmel,at91sam9260-usart";
 				reg = <0xfffff200 0x200>;
-				pinctrl-names = "default";
-				pinctrl-0 = <&pinctrl_dbgu>;
 				clocks = <&pmc PMC_TYPE_PERIPHERAL 47>;
 				clock-names = "usart";
 			};
@@ -226,61 +218,6 @@
 				       0xfffff600 0x200		/* pioB */
 				       0xfffff800 0x200		/* pioC */
 				       0xfffffa00 0x200>;	/* pioD */
-
-				/* shared pinctrl settings */
-				dbgu {
-					pinctrl_dbgu: dbgu-0 {
-						atmel,pins =
-							<AT91_PIOA 9 AT91_PERIPH_A AT91_PINCTRL_PULL_UP
-							 AT91_PIOA 10 AT91_PERIPH_A AT91_PINCTRL_NONE>;
-					};
-				};
-
-				macb0 {
-					pinctrl_macb0_rmii: macb0_rmii-0 {
-						atmel,pins =
-							<AT91_PIOB 0 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB0 periph A */
-							 AT91_PIOB 1 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB1 periph A */
-							 AT91_PIOB 2 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB2 periph A */
-							 AT91_PIOB 3 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB3 periph A */
-							 AT91_PIOB 4 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB4 periph A */
-							 AT91_PIOB 5 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB5 periph A */
-							 AT91_PIOB 6 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB6 periph A */
-							 AT91_PIOB 7 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB7 periph A */
-							 AT91_PIOB 9 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PB9 periph A */
-							 AT91_PIOB 10 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PB10 periph A */
-					};
-				};
-
-				sdhci0 {
-					pinctrl_sdhci0: sdhci0 {
-						atmel,pins =
-							<AT91_PIOA 17 AT91_PERIPH_A
-							 (AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)	/* PA17 CK  periph A with pullup */
-							 AT91_PIOA 16 AT91_PERIPH_A
-							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)	/* PA16 CMD periph A with pullup */
-							 AT91_PIOA 15 AT91_PERIPH_A
-							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)	/* PA15 DAT0 periph A */
-							 AT91_PIOA 18 AT91_PERIPH_A
-							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)	/* PA18 DAT1 periph A with pullup */
-							 AT91_PIOA 19 AT91_PERIPH_A
-							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)	/* PA19 DAT2 periph A with pullup */
-							 AT91_PIOA 20 AT91_PERIPH_A
-							 (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI | AT91_PINCTRL_SLEWRATE_ENA)>;	/* PA20 DAT3 periph A with pullup */
-					};
-				};
-
-				sdhci1 {
-					pinctrl_sdhci1: sdhci1 {
-						atmel,pins =
-							<AT91_PIOA 13 AT91_PERIPH_B (AT91_PINCTRL_DRIVE_STRENGTH_HI)				/* PA13 CK periph B */
-							 AT91_PIOA 12 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA12 CMD periph B with pullup */
-							 AT91_PIOA 11 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA11 DAT0 periph B with pullup */
-							 AT91_PIOA  2 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA2 DAT1 periph B with pullup */
-							 AT91_PIOA  3 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA3 DAT2 periph B with pullup */
-							 AT91_PIOA  4 AT91_PERIPH_B (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)>;	/* PA4 DAT3 periph B with pullup */
-					};
-				};
 			};
 
 			pioA: gpio@fffff400 {
