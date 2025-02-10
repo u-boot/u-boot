@@ -7,6 +7,7 @@
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <asm/types.h>
 #include <dm.h>
 #include <linux/bitfield.h>
 #include <regmap.h>
@@ -125,12 +126,12 @@ static const char *socinfo_to_soc_id(u32 socinfo)
 	return "Unknown";
 }
 
-static unsigned int get_socinfo(void)
+static u32 get_socinfo(void)
 {
 	struct regmap *regmap;
 	int nodeoffset, ret;
 	ofnode node;
-	unsigned int socinfo;
+	u32 socinfo;
 
 	/* find the offset of compatible node */
 	nodeoffset = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
@@ -162,7 +163,7 @@ static unsigned int get_socinfo(void)
 
 int checkboard(void)
 {
-	unsigned int socinfo;
+	u32 socinfo;
 
 	socinfo = get_socinfo();
 	if (!socinfo)
@@ -181,7 +182,7 @@ int checkboard(void)
 
 int meson_get_soc_rev(char *buff, size_t buff_len)
 {
-	unsigned int socinfo;
+	u32 socinfo;
 
 	socinfo = get_socinfo();
 	if (!socinfo)
