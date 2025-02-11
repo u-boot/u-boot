@@ -33,6 +33,9 @@
 #include <linux/printk.h>
 #include <power/regulator.h>
 #include "designware.h"
+#if IS_ENABLED(CONFIG_ARCH_NPCM8XX)
+#include <asm/arch/gmac.h>
+#endif
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
@@ -352,10 +355,35 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 
 #ifdef CONFIG_ARCH_NPCM8XX
+	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
+		unsigned int start;
+
+		/* Indirect access to VR_MII_MMD registers */
+		writew((VR_MII_MMD >> 9), PCS_BA + PCS_IND_AC);
+		/* Set PCS_Mode to SGMII */
+		clrsetbits_le16(PCS_BA + VR_MII_MMD_AN_CTRL, BIT(1), BIT(2));
+		/* Set Auto Speed Mode Change */
+		setbits_le16(PCS_BA + VR_MII_MMD_CTRL1, BIT(9));
+		/* Indirect access to SR_MII_MMD registers */
+		writew((SR_MII_MMD >> 9), PCS_BA + PCS_IND_AC);
+		/* Restart Auto-Negotiation */
+		setbits_le16(PCS_BA + SR_MII_MMD_CTRL, BIT(9) | BIT(12));
+
+		printf("SGMII PHY Wait for link up \n");
+		/* SGMII PHY Wait for link up */
+		start = get_timer(0);
+		while (!(readw(PCS_BA + SR_MII_MMD_STS) & BIT(2))) {
+			if (get_timer(start) >= LINK_UP_TIMEOUT) {
+				printf("PHY link up timeout\n");
+				return -ETIMEDOUT;
+			}
+			mdelay(1);
+		};
+	}
 	/* Pass all Multicast Frames */
 	setbits_le32(&mac_p->framefilt, BIT(4));
-
 #endif
+
 	return 0;
 }
 
