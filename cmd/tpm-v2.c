@@ -304,6 +304,9 @@ static int do_tpm2_pcrallocate(struct cmd_tbl *cmdtp, int flag, int argc,
 		if (ret)
 			return ret;
 
+		if (pcr.count > TPM2_NUM_PCR_BANKS)
+			return -EINVAL;
+
 		for (i = 0; i < pcr.count; i++) {
 			struct tpms_pcr_selection *sel = &pcr.selection[i];
 			const char *name;

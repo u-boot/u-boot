@@ -74,6 +74,9 @@ int tpm2_scan_masks(struct udevice *dev, u32 log_active, u32 *mask)
 	if (rc)
 		return rc;
 
+	if (pcrs.count > TPM2_NUM_PCR_BANKS)
+		return TPM_LIB_ERROR;
+
 	for (i = 0; i < pcrs.count; i++) {
 		struct tpms_pcr_selection *sel = &pcrs.selection[i];
 		size_t j;
