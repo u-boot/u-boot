@@ -239,6 +239,16 @@
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0"
 
+#define GET_OVERLAY_MMC_TI_ARGS \
+	"get_overlay_mmc=" \
+		"fdt address ${fdtaddr};" \
+		"fdt resize 0x100000;" \
+		"for overlay in $name_overlays;" \
+		"do;" \
+			"load mmc ${bootpart} ${dtboaddr} ${bootdir}/dtb/${overlay} &&" \
+			"fdt apply ${dtboaddr};" \
+		"done;\0" \
+
 #define BOOT_TARGET_DEVICES(func) \
 	func(TI_MMC, ti_mmc, na) \
 	func(MMC, mmc, 0) \
@@ -269,6 +279,7 @@
 	"get_fit_config=setenv name_fit_config ${fdtfile}\0" \
 	DEFAULT_COMMON_BOOT_TI_ARGS \
 	DEFAULT_FDT_TI_ARGS \
+	GET_OVERLAY_MMC_TI_ARGS \
 	DFUARGS \
 	NETARGS \
 	NANDARGS \
