@@ -251,6 +251,7 @@
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
 	DEFAULT_FIT_TI_ARGS \
+	"get_fit_config=setenv name_fit_config ${fdtfile}\0" \
 	DEFAULT_COMMON_BOOT_TI_ARGS \
 	DEFAULT_FDT_TI_ARGS \
 	DFUARGS \
