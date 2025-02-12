@@ -119,6 +119,7 @@ class Entry_ti_board_config(Entry_section):
             array of bytes representing value
         """
         size = 0
+        br = bytearray()
         if (data_type == '#/definitions/u8'):
             size = 1
         elif (data_type == '#/definitions/u16'):
