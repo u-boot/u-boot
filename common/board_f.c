@@ -624,11 +624,14 @@ static int reserve_stacks(void)
 static int reserve_bloblist(void)
 {
 #ifdef CONFIG_BLOBLIST
+	ulong size = bloblist_get_total_size();
+
+	if (size < CONFIG_BLOBLIST_SIZE_RELOC)
+		size = CONFIG_BLOBLIST_SIZE_RELOC;
+
 	/* Align to a 4KB boundary for easier reading of addresses */
-	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp -
-				       CONFIG_BLOBLIST_SIZE_RELOC, 0x1000);
-	gd->boardf->new_bloblist = map_sysmem(gd->start_addr_sp,
-					      CONFIG_BLOBLIST_SIZE_RELOC);
+	gd->start_addr_sp = ALIGN_DOWN(gd->start_addr_sp - size, 0x1000);
+	gd->boardf->new_bloblist = map_sysmem(gd->start_addr_sp, size);
 #endif
 
 	return 0;
@@ -698,11 +701,14 @@ static int reloc_bloblist(void)
 		return 0;
 	}
 	if (gd->boardf->new_bloblist) {
-		debug("Copying bloblist from %p to %p, size %x\n",
-		      gd->bloblist, gd->boardf->new_bloblist,
-	gd->bloblist->total_size);
-		return bloblist_reloc(gd->boardf->new_bloblist,
-				      CONFIG_BLOBLIST_SIZE_RELOC);
+		ulong size = bloblist_get_total_size();
+
+		if (size < CONFIG_BLOBLIST_SIZE_RELOC)
+			size = CONFIG_BLOBLIST_SIZE_RELOC;
+
+		debug("Copying bloblist from %p to %p, size %lx\n",
+		      gd->bloblist, gd->boardf->new_bloblist, size);
+		return bloblist_reloc(gd->boardf->new_bloblist, size);
 	}
 #endif
 
