@@ -594,6 +594,9 @@ void  update_fdt_from_fw(void *fdt, void *fw_fdt)
 	/* kernel address randomisation seed as provided by the firmware */
 	copy_property(fdt, fw_fdt, "/chosen", "kaslr-seed");
 
+	/* warnings from the firmware (if any) */
+	copy_property(fdt, fw_fdt, "/chosen", "user-warnings");
+
 	/* address of the PHY device as provided by the firmware  */
 	copy_property(fdt, fw_fdt, "ethernet0/mdio@e14/ethernet-phy@1", "reg");
 }
