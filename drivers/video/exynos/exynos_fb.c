@@ -657,7 +657,7 @@ static int exynos_fb_probe(struct udevice *dev)
 	}
 
 	/* backlight / pwm */
-	ret = panel_enable_backlight(panel);
+	ret = panel_enable(panel);
 	if (ret) {
 		debug("%s: backlight error: %d\n", __func__, ret);
 		return ret;

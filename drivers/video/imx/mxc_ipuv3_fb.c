@@ -618,7 +618,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 
 		ret = uclass_get_device(UCLASS_PANEL, 0, &panel_dev);
 		if (panel_dev)
-			panel_enable_backlight(panel_dev);
+			panel_enable(panel_dev);
 	}
 
 	uc_priv->xsize = gmode->xres;

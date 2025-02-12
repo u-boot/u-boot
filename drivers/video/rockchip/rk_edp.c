@@ -974,7 +974,7 @@ static int rk_edp_enable(struct udevice *dev, int panel_bpp,
 		printf("config video failed\n");
 		return ret;
 	}
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret) {
 		debug("%s: backlight error: %d\n", __func__, ret);
 		return ret;

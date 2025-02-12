@@ -237,7 +237,7 @@ static int endeavoru_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops endeavoru_panel_ops = {
-	.enable_backlight	= endeavoru_panel_enable_backlight,
+	.enable	= endeavoru_panel_enable_backlight,
 	.set_backlight		= endeavoru_panel_set_backlight,
 	.get_display_timing	= endeavoru_panel_timings,
 };
