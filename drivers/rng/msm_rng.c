@@ -44,6 +44,11 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 	u32 *retdata = data;
 	size_t maxsize;
 	u32 val;
+	int ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret < 0)
+		return ret;
 
 	/* calculate max size bytes to transfer back to caller */
 	maxsize = min_t(size_t, MAX_HW_FIFO_SIZE, len);
@@ -65,6 +70,8 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 		if ((maxsize - currsize) < WORD_SZ)
 			break;
 	} while (currsize < maxsize);
+
+	clk_disable(&priv->clk);
 
 	return 0;
 }
@@ -118,7 +125,9 @@ static int msm_rng_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	return msm_rng_enable(priv, 1);
+	ret = msm_rng_enable(priv, 1);
+	clk_disable(&priv->clk);
+	return ret;
 }
 
 static int msm_rng_remove(struct udevice *dev)
