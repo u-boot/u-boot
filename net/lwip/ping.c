@@ -168,7 +168,7 @@ int do_ping(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	if (!ipaddr_aton(argv[1], &addr))
 		return CMD_RET_USAGE;
 
-	eth_set_current();
+	net_lwip_set_current();
 
 	if (ping_loop(eth_get_dev(), &addr) < 0)
 		return CMD_RET_FAILURE;

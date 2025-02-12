@@ -354,7 +354,7 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 
 int wget_do_request(ulong dst_addr, char *uri)
 {
-	eth_set_current();
+	net_lwip_set_current();
 
 	if (!wget_info)
 		wget_info = &default_wget_info;

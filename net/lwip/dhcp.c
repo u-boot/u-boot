@@ -115,7 +115,7 @@ int do_dhcp(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 	int ret;
 	struct udevice *dev;
 
-	eth_set_current();
+	net_lwip_set_current();
 
 	dev = eth_get_dev();
 	if (!dev) {
