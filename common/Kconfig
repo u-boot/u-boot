@@ -1066,11 +1066,15 @@ config BLOBLIST_ALLOC
 	  specify a fixed address on systems where this is unknown or can
 	  change at runtime.
 
-config BLOBLIST_PASSAGE
-	bool "Use bloblist in-place"
+config BLOBLIST_PASSAGE_MANDATORY
+	bool "Use bloblist in-place mandatorily"
 	help
-	  Use a bloblist in the incoming standard passage. The size is detected
-	  automatically so CONFIG_BLOBLIST_SIZE can be 0.
+	  By default U-Boot will use a bloblist in the incoming standard passage.
+	  This option controls whether U-Boot tries to load a static bloblist or
+	  allocate one if a valid incoming bloblist does not exist.
+	  Select this option to mark incoming standard passage as mandatory and
+	  U-Boot will report an error when a valid incoming bloblist does not
+	  exist.
 
 endchoice
 
@@ -1086,7 +1090,7 @@ config BLOBLIST_ADDR
 
 config BLOBLIST_SIZE
 	hex "Size of bloblist"
-	default 0x0 if BLOBLIST_PASSAGE
+	default 0x0 if BLOBLIST_PASSAGE_MANDATORY
 	default 0x400
 	help
 	  Sets the size of the bloblist in bytes. This must include all

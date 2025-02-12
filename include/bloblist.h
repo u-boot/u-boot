@@ -467,9 +467,8 @@ int bloblist_reloc(void *to, uint to_size);
  * If CONFIG_BLOBLIST_ALLOC is selected, it allocates memory for a bloblist of
  * size CONFIG_BLOBLIST_SIZE.
  *
- * If CONFIG_BLOBLIST_PASSAGE is selected, it uses the bloblist in the incoming
- * standard passage. The size is detected automatically so CONFIG_BLOBLIST_SIZE
- * can be 0.
+ * If CONFIG_BLOBLIST_PASSAGE_MANDATORY is selected, bloblist in the incoming
+ * standard passage is mandatorily required.
  *
  * Sets GD_FLG_BLOBLIST_READY in global_data flags on success
  *
