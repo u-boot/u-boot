@@ -1055,8 +1055,8 @@ choice
 config BLOBLIST_FIXED
 	bool "Place bloblist at a fixed address in memory"
 	help
-	  Select this to used a fixed memory address for the bloblist. If the
-	  bloblist exists at this address from a previous phase, it used as is.
+	  Select this to use a fixed memory address for the bloblist. If the
+	  bloblist exists at this address from a previous phase, it is used as is.
 	  If not it is created at this address in U-Boot.
 
 config BLOBLIST_ALLOC
@@ -1065,6 +1065,12 @@ config BLOBLIST_ALLOC
 	  Allocate the bloblist using malloc(). This avoids the need to
 	  specify a fixed address on systems where this is unknown or can
 	  change at runtime.
+
+config BLOBLIST_PASSAGE
+	bool "Use bloblist in-place"
+	help
+	  Use a bloblist in the incoming standard passage. The size is detected
+	  automatically so CONFIG_BLOBLIST_SIZE can be 0.
 
 endchoice
 
@@ -1080,17 +1086,17 @@ config BLOBLIST_ADDR
 
 config BLOBLIST_SIZE
 	hex "Size of bloblist"
+	default 0x0 if BLOBLIST_PASSAGE
 	default 0x400
 	help
 	  Sets the size of the bloblist in bytes. This must include all
 	  overhead (alignment, bloblist header, record header). The bloblist
 	  is set up in the first part of U-Boot to run (TPL, SPL or U-Boot
-	  proper), and this sane bloblist is used for subsequent phases.
+	  proper), and this same bloblist is used for subsequent phases.
 
 config BLOBLIST_SIZE_RELOC
 	hex "Size of bloblist after relocation"
 	default BLOBLIST_SIZE if BLOBLIST_FIXED || BLOBLIST_ALLOC
-	default 0x0 if BLOBLIST_PASSAGE
 	default 0x20000 if (ARM && EFI_LOADER && GENERATE_ACPI_TABLE)
 	help
 	  Sets the size of the bloblist in bytes after relocation. Since U-Boot
