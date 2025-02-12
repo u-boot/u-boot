@@ -530,4 +530,3 @@ index 0000000..2234c87
 
 if __name__ == "__main__":
     unittest.main()
-    gitutil.RunTests()
