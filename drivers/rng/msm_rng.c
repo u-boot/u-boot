@@ -76,7 +76,7 @@ static int msm_rng_enable(struct msm_rng_priv *priv, int enable)
 	if (enable) {
 		/* Enable PRNG only if it is not already enabled */
 		val = readl_relaxed(priv->base + PRNG_CONFIG);
-		if (val & PRNG_CONFIG_HW_ENABLE) {
+		if (!(val & PRNG_CONFIG_HW_ENABLE)) {
 			val = readl_relaxed(priv->base + PRNG_LFSR_CFG);
 			val &= ~PRNG_LFSR_CFG_MASK;
 			val |= PRNG_LFSR_CFG_CLOCKS;
