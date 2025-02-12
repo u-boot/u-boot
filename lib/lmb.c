@@ -111,11 +111,9 @@ static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
 	phys_addr_t base2 = rgn[r2].base;
 	phys_size_t size2 = rgn[r2].size;
 
-	if (base1 + size1 > base2 + size2) {
-		printf("This will not be a case any time\n");
-		return;
-	}
-	rgn[r1].size = base2 + size2 - base1;
+	if (base1 + size1 < base2 + size2)
+		rgn[r1].size = base2 + size2 - base1;
+
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
@@ -206,14 +204,14 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 		ret = lmb_addrs_adjacent(base, size, rgnbase, rgnsize);
 		if (ret > 0) {
 			if (flags != rgnflags)
-				break;
+				continue;
 			rgn[i].base -= size;
 			rgn[i].size += size;
 			coalesced++;
 			break;
 		} else if (ret < 0) {
 			if (flags != rgnflags)
-				break;
+				continue;
 			rgn[i].size += size;
 			coalesced++;
 			break;
@@ -595,6 +593,26 @@ static __maybe_unused void lmb_reserve_common_spl(void)
 	}
 }
 
+static bool lmb_can_reserve_region(phys_addr_t base, phys_size_t size,
+				   u32 flags)
+{
+	uint i;
+	struct lmb_region *lmb_reserved = lmb.used_mem.data;
+
+	for (i = 0; i < lmb.used_mem.count; i++) {
+		u32 rgnflags = lmb_reserved[i].flags;
+		phys_addr_t rgnbase = lmb_reserved[i].base;
+		phys_size_t rgnsize = lmb_reserved[i].size;
+
+		if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			if (flags != LMB_NONE || flags != rgnflags)
+				return false;
+		}
+	}
+
+	return true;
+}
+
 void lmb_add_memory(void)
 {
 	int i;
@@ -666,6 +684,9 @@ long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags)
 {
 	long ret = 0;
 	struct alist *lmb_rgn_lst = &lmb.used_mem;
+
+	if (!lmb_can_reserve_region(base, size, flags))
+		return -EEXIST;
 
 	ret = lmb_add_region_flags(lmb_rgn_lst, base, size, flags);
 	if (ret)
