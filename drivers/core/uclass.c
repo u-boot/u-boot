@@ -582,6 +582,68 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
 	ret = uclass_find_device_by_phandle(id, parent, name, &dev);
 	return uclass_get_device_tail(dev, ret, devp);
 }
+
+int uclass_get_device_by_endpoint(enum uclass_id class_id, struct udevice *dev,
+				  u32 ep_idx, struct udevice **devp)
+{
+	ofnode port = ofnode_null(), ep, remote_ep;
+	struct udevice *target = NULL;
+	u32 remote_phandle;
+	int ret;
+
+	if (!ep_idx)
+		port = dev_read_subnode(dev, "port");
+
+	if (!ofnode_valid(port)) {
+		char port_name[32];
+
+		port = dev_read_subnode(dev, "ports");
+		if (!ofnode_valid(port)) {
+			debug("%s: no 'port'/'ports' subnode\n",
+			      dev_read_name(dev));
+			return -EINVAL;
+		}
+
+		snprintf(port_name, sizeof(port_name), "port@%x", ep_idx);
+		port = ofnode_find_subnode(port, port_name);
+		if (!ofnode_valid(port)) {
+			debug("%s: no 'port@%x' subnode\n",
+			      dev_read_name(dev), ep_idx);
+			return -EINVAL;
+		}
+	}
+
+	ep = ofnode_find_subnode(port, "endpoint");
+	if (!ofnode_valid(ep)) {
+		debug("%s: no 'endpoint' in %s subnode\n",
+		      ofnode_get_name(port), dev_read_name(dev));
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u32(ep, "remote-endpoint", &remote_phandle);
+	if (ret)
+		return ret;
+
+	remote_ep = ofnode_get_by_phandle(remote_phandle);
+	if (!ofnode_valid(remote_ep))
+		return -EINVAL;
+
+	while (ofnode_valid(remote_ep)) {
+		remote_ep = ofnode_get_parent(remote_ep);
+		debug("trying subnode: %s\n", ofnode_get_name(remote_ep));
+		if (!ofnode_valid(remote_ep)) {
+			debug("%s: no more remote devices\n",
+			      ofnode_get_name(remote_ep));
+			return -ENODEV;
+		}
+
+		ret = uclass_find_device_by_ofnode(class_id, remote_ep, &target);
+		if (!ret)
+			break;
+	};
+
+	return uclass_get_device_tail(target, ret, devp);
+}
 #endif
 
 /*
