@@ -127,6 +127,20 @@ static int get_udev_ipv4_info(struct udevice *dev, ip4_addr_t *ip,
 	return 0;
 }
 
+/* Initialize the lwIP stack and the ethernet devices and set current device  */
+void net_lwip_set_current(void)
+{
+	static bool init_done;
+
+	if (!init_done) {
+		eth_init_rings();
+		eth_init();
+		lwip_init();
+		init_done = true;
+	}
+	eth_set_current();
+}
+
 static struct netif *new_netif(struct udevice *udev, bool with_ip)
 {
 	unsigned char enetaddr[ARP_HLEN];
@@ -134,18 +148,9 @@ static struct netif *new_netif(struct udevice *udev, bool with_ip)
 	ip4_addr_t ip, mask, gw;
 	struct netif *netif;
 	int ret = 0;
-	static bool first_call = true;
 
 	if (!udev)
 		return NULL;
-
-	if (first_call) {
-		eth_init_rings();
-		/* Pick a valid active device, if any */
-		eth_init();
-		lwip_init();
-		first_call = false;
-	}
 
 	if (eth_start_udev(udev) < 0) {
 		log_err("Could not start %s\n", udev->name);
