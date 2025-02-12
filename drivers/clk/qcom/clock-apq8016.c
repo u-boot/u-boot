@@ -140,12 +140,12 @@ static int apq8016_clk_enable(struct clk *clk)
 {
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 
-	if (priv->data->num_clks < clk->id) {
+	if (priv->data->num_clks < clk->id || !apq8016_clks[clk->id].reg) {
 		log_warning("%s: unknown clk id %lu\n", __func__, clk->id);
 		return 0;
 	}
 
-	debug("%s: clk %s\n", __func__, apq8016_clks[clk->id].name);
+	debug("%s: enabling clock %s\n", __func__, apq8016_clks[clk->id].name);
 	qcom_gate_clk_en(priv, clk->id);
 
 	return 0;
