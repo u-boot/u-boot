@@ -1016,7 +1016,9 @@ INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Generate this input file for binman
 ifeq ($(CONFIG_SPL),)
+ifneq ($(patsubst "%",%,$(CONFIG_MTK_BROM_HEADER_INFO)),)
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
+endif
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
