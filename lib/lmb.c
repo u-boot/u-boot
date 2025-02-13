@@ -428,7 +428,7 @@ long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
 
 static struct lmb lmb;
 
-static bool lmb_should_notify(u32 flags)
+static bool __maybe_unused lmb_should_notify(u32 flags)
 {
 	return !lmb.test && !(flags & LMB_NONOTIFY) &&
 		CONFIG_IS_ENABLED(EFI_LOADER);
@@ -437,6 +437,7 @@ static bool lmb_should_notify(u32 flags)
 static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 				 u32 flags)
 {
+#if CONFIG_IS_ENABLED(EFI_LOADER)
 	u64 efi_addr;
 	u64 pages;
 	efi_status_t status;
@@ -464,7 +465,7 @@ static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
 		return -1;
 	}
 	unmap_sysmem((void *)(uintptr_t)efi_addr);
-
+#endif
 	return 0;
 }
 
