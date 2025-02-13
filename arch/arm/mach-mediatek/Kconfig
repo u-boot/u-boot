@@ -6,9 +6,6 @@ config SYS_SOC
 config SYS_VENDOR
 	default "mediatek"
 
-config MT8512
-	bool "MediaTek MT8512 SoC"
-
 choice
 	prompt "MediaTek board select"
 
@@ -96,9 +93,8 @@ config TARGET_MT8365
 	  I2C, I2S, S/PDIF, and several LPDDR3 and LPDDR4 options.
 
 config TARGET_MT8512
-        bool "MediaTek MT8512 M1 Board"
+        bool "MediaTek MT8512 SoC"
         select ARM64
-	select MT8512
         help
           The MediaTek MT8512 is a ARM64-based SoC with a dual-core Cortex-A53.
           including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
