@@ -25,7 +25,7 @@ defconfig. Valid fragments are ``tf101.config``, ``tf101g.config`` and
 
 .. code-block:: bash
 
-    $ export CROSS_COMPILE=arm-linux-gnueabi-
+    $ export CROSS_COMPILE=arm-none-eabi-
     $ make transformer_t20_defconfig tf101.config # For TF101
     $ make
 
@@ -84,8 +84,8 @@ encrypted state in form, which can just be written RAW at the start of eMMC.
 
 .. code-block:: bash
 
-    $ wheelie --blob blob.bin
-    $ nvflash --resume --rawdevicewrite 0 1024 repart-block.bin
+    $ wheelie -1 --bl bootloader.bin --bct tf101.bct --odm 0x300d8011 || break
+    $ nvflash --resume --rawdevicewrite 0 2048 repart-block.bin
 
 When flashing is done, reboot the device.
 

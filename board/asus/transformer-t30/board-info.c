@@ -11,14 +11,14 @@
 #include <asm/arch/pinmux.h>
 
 /*
- *	PCB_ID[1] is kb_row5_pr5
  *	PCB_ID[3] is kb_col7_pq7
  *	PCB_ID[4] is kb_row2_pr2
  *	PCB_ID[5] is kb_col5_pq5
+ *	PCB_ID[7] is gmi_cs1_n_pj2
  *
  *			  Project ID
  *	=====================================================
- *	PCB_ID[1] PCB_ID[5] PCB_ID[4] PCB_ID[3]	Project
+ *	PCB_ID[7] PCB_ID[5] PCB_ID[4] PCB_ID[3]	Project
  *	0	  0	    0	      0		TF201
  *	0	  0	    0	      1		P1801
  *	0	  0	    1	      0		TF300T
@@ -45,10 +45,10 @@ static const char * const project_id_to_fdt[] = {
 	[TF600T] = "tegra30-asus-tf600t",
 };
 
-static int id_gpio_get_value(u32 pingrp, u32 pin)
+static int id_gpio_get_value(u32 pingrp, u32 func, u32 pin)
 {
 	/* Configure pinmux */
-	pinmux_set_func(pingrp, PMUX_FUNC_KBC);
+	pinmux_set_func(pingrp, func);
 	pinmux_set_pullupdown(pingrp, PMUX_PULL_DOWN);
 	pinmux_tristate_enable(pingrp);
 	pinmux_set_io(pingrp, PMUX_PIN_INPUT);
@@ -65,19 +65,19 @@ static int id_gpio_get_value(u32 pingrp, u32 pin)
 
 static int get_project_id(void)
 {
-	u32 pcb_id1, pcb_id3, pcb_id4, pcb_id5;
+	u32 pcb_id3, pcb_id4, pcb_id5, pcb_id7;
 
-	pcb_id1 = id_gpio_get_value(PMUX_PINGRP_KB_ROW5_PR5,
-				    TEGRA_GPIO(R, 5));
 	pcb_id3 = id_gpio_get_value(PMUX_PINGRP_KB_COL7_PQ7,
-				    TEGRA_GPIO(Q, 7));
+				    PMUX_FUNC_KBC, TEGRA_GPIO(Q, 7));
 	pcb_id4 = id_gpio_get_value(PMUX_PINGRP_KB_ROW2_PR2,
-				    TEGRA_GPIO(R, 2));
+				    PMUX_FUNC_KBC, TEGRA_GPIO(R, 2));
 	pcb_id5 = id_gpio_get_value(PMUX_PINGRP_KB_COL5_PQ5,
-				    TEGRA_GPIO(Q, 5));
+				    PMUX_FUNC_KBC, TEGRA_GPIO(Q, 5));
+	pcb_id7 = id_gpio_get_value(PMUX_PINGRP_GMI_CS1_N_PJ2,
+				    PMUX_FUNC_RSVD1, TEGRA_GPIO(J, 2));
 
 	/* Construct board ID */
-	int proj_id = pcb_id1 << 3 | pcb_id5 << 2 |
+	int proj_id = pcb_id7 << 3 | pcb_id5 << 2 |
 		      pcb_id4 << 1 | pcb_id3;
 
 	log_debug("[TRANSFORMER]: project id %d (%s)\n", proj_id,

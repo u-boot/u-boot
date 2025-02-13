@@ -4,16 +4,9 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#include "tegra-u-boot.dtsi"
+#include "tegra124-u-boot.dtsi"
 
 / {
-	host1x@50000000 {
-		bootph-all;
-		dc@54200000 {
-			bootph-all;
-		};
-	};
-
 	spi@7000d400 {
 		spi-deactivate-delay = <500>;
 		spi-max-frequency = <3000000>;
