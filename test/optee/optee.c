@@ -14,7 +14,6 @@
 
 #include <test/ut.h>
 #include <test/optee.h>
-#include <test/suites.h>
 
 /* 4k ought to be enough for anybody */
 #define FDT_COPY_SIZE	(4 * SZ_1K)
@@ -25,6 +24,41 @@ extern u32 __dtb_test_optee_no_optee_begin;
 
 static void *fdt;
 static bool expect_success;
+
+static int optee_test_init(struct unit_test_state *uts)
+{
+	void *fdt_optee = &__dtb_test_optee_optee_begin;
+	void *fdt_no_optee = &__dtb_test_optee_no_optee_begin;
+	void *fdt_base = &__dtb_test_optee_base_begin;
+	int ret = -ENOMEM;
+
+	ut_assertok(fdt_check_header(fdt_base));
+	ut_assertok(fdt_check_header(fdt_optee));
+	ut_assertok(fdt_check_header(fdt_no_optee));
+
+	fdt = malloc(FDT_COPY_SIZE);
+	if (!fdt)
+		return ret;
+
+	/*
+	 * Resize the FDT to 4k so that we have room to operate on
+	 *
+	 * (and relocate it since the memory might be mapped
+	 * read-only)
+	 */
+	ut_assertok(fdt_open_into(fdt_base, fdt, FDT_COPY_SIZE));
+
+	return 0;
+}
+OPTEE_TEST_INIT(optee_test_init, 0);
+
+static int optee_test_uninit(struct unit_test_state *uts)
+{
+	free(fdt);
+
+	return 0;
+}
+OPTEE_TEST_UNINIT(optee_test_uninit, 0);
 
 static int optee_fdt_firmware(struct unit_test_state *uts)
 {
@@ -46,7 +80,6 @@ static int optee_fdt_firmware(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OPTEE_TEST(optee_fdt_firmware, 0);
 
 static int optee_fdt_protected_memory(struct unit_test_state *uts)
 {
@@ -89,60 +122,50 @@ static int optee_fdt_protected_memory(struct unit_test_state *uts)
 
 	return CMD_RET_SUCCESS;
 }
-OPTEE_TEST(optee_fdt_protected_memory, 0);
 
-int do_ut_optee(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+/* (1) Try to copy optee nodes from empty dt */
+static int optee_fdt_copy_empty(struct unit_test_state *uts)
 {
-	struct unit_test *tests = UNIT_TEST_SUITE_START(optee);
-	const int n_ents = UNIT_TEST_SUITE_COUNT(optee);
-	struct unit_test_state *uts;
-	void *fdt_optee = &__dtb_test_optee_optee_begin;
 	void *fdt_no_optee = &__dtb_test_optee_no_optee_begin;
-	void *fdt_base = &__dtb_test_optee_base_begin;
-	int ret = -ENOMEM;
 
-	uts = calloc(1, sizeof(*uts));
-	if (!uts)
-		return -ENOMEM;
-
-	ut_assertok(fdt_check_header(fdt_base));
-	ut_assertok(fdt_check_header(fdt_optee));
-	ut_assertok(fdt_check_header(fdt_no_optee));
-
-	fdt = malloc(FDT_COPY_SIZE);
-	if (!fdt)
-		return ret;
-
-	/*
-	 * Resize the FDT to 4k so that we have room to operate on
-	 *
-	 * (and relocate it since the memory might be mapped
-	 * read-only)
-	 */
-	ut_assertok(fdt_open_into(fdt_base, fdt, FDT_COPY_SIZE));
-
-	/*
-	 * (1) Try to copy optee nodes from empty dt.
-	 * This should still run successfully.
-	 */
+	/* This should still run successfully */
 	ut_assertok(optee_copy_fdt_nodes(fdt_no_optee, fdt));
 
 	expect_success = false;
-	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
+	ut_assertok(optee_fdt_firmware(uts));
+	ut_assertok(optee_fdt_protected_memory(uts));
 
-	/* (2) Try to copy optee nodes from prefilled dt */
+	return 0;
+}
+OPTEE_TEST(optee_fdt_copy_empty, 0);
+
+/* (2) Try to copy optee nodes from prefilled dt */
+static int optee_fdt_copy_prefilled(struct unit_test_state *uts)
+{
+	void *fdt_optee = &__dtb_test_optee_optee_begin;
+
 	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
 
 	expect_success = true;
-	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
+	ut_assertok(optee_fdt_firmware(uts));
+	ut_assertok(optee_fdt_protected_memory(uts));
 
-	/* (3) Try to copy OP-TEE nodes into a already filled DT */
+	return 0;
+}
+OPTEE_TEST(optee_fdt_copy_prefilled, 0);
+
+/* (3) Try to copy OP-TEE nodes into a already filled DT */
+static int optee_fdt_copy_already_filled(struct unit_test_state *uts)
+{
+	void *fdt_optee = &__dtb_test_optee_optee_begin;
+
 	ut_assertok(fdt_open_into(fdt_optee, fdt, FDT_COPY_SIZE));
 	ut_assertok(optee_copy_fdt_nodes(fdt_optee, fdt));
 
 	expect_success = true;
-	ret = cmd_ut_category("optee", "", tests, n_ents, argc, argv);
+	ut_assertok(optee_fdt_firmware(uts));
+	ut_assertok(optee_fdt_protected_memory(uts));
 
-	free(fdt);
-	return ret;
+	return 0;
 }
+OPTEE_TEST(optee_fdt_copy_already_filled, 0);

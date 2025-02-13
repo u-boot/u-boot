@@ -5,7 +5,6 @@
  */
 
 #include <test/env.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 static int env_test_env_cmd(struct unit_test_state *uts)

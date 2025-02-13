@@ -15,7 +15,6 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <linux/sizes.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -7,10 +7,10 @@ import re
 # List of test suites we expect to find with 'ut info' and 'ut all'
 EXPECTED_SUITES = [
     'addrmap', 'bdinfo', 'bloblist', 'bootm', 'bootstd',
-    'cmd', 'common', 'dm', 'env', 'exit',
+    'cmd', 'common', 'dm', 'env', 'exit', 'fdt_overlay',
     'fdt', 'font', 'hush', 'lib',
     'loadm', 'log', 'mbr', 'measurement', 'mem',
-    'overlay', 'pci_mps', 'setexpr', 'upl',
+    'pci_mps', 'setexpr', 'upl',
     ]
 
 
@@ -66,11 +66,12 @@ def collect_info(cons, output):
             msg = m.group(3)
             if DEBUG_ME:
                 cons.log.info(f"test_name {test_name} msg '{msg}'")
-            if msg == ' (flat tree)' and test_name not in tests:
-                tests.add(test_name)
+            full_name = f'{cur_suite}.{test_name}'
+            if msg == ' (flat tree)' and full_name not in tests:
+                tests.add(full_name)
                 test_count += 1
             if not msg or 'skipped as it is manual' in msg:
-                tests.add(test_name)
+                tests.add(full_name)
                 test_count += 1
         if DEBUG_ME:
             cons.log.info(f'test_count {test_count}')
@@ -134,7 +135,7 @@ def xtest_suite(u_boot_console, u_boot_config):
 
        - The number of suites matches that reported by the 'ut info'
        - Where available, the number of tests is each suite matches that
-         reported by 'ut info -s'
+         reported by 'ut -s info'
        - The total number of tests adds up to the total that are actually run
          with 'ut all'
        - All suites are run with 'ut all'
@@ -166,7 +167,7 @@ def xtest_suite(u_boot_console, u_boot_config):
 
     # Run 'ut info' and compare with the log results
     with cons.log.section('Check suite test-counts'):
-        output = cons.run_command('ut info -s')
+        output = cons.run_command('ut -s info')
 
         suite_count, total_test_count, test_count = process_ut_info(cons,
                                                                     output)
@@ -186,3 +187,22 @@ def xtest_suite(u_boot_console, u_boot_config):
 
         assert suite_count == len(EXPECTED_SUITES)
         assert total_test_count == len(all_tests)
+
+    # Run three suites
+    with cons.log.section('Check multiple suites'):
+        output = cons.run_command('ut bloblist,setexpr,mem')
+        assert 'Suites run: 3' in output
+
+    # Run a particular test
+    with cons.log.section('Check single test'):
+        output = cons.run_command('ut bloblist reloc')
+        assert 'Test: reloc: bloblist.c' in output
+
+    # Run tests multiple times
+    with cons.log.section('Check multiple runs'):
+        output = cons.run_command('ut -r2 bloblist')
+        lines = output.splitlines()
+        run = len([line for line in lines if 'Test:' in line])
+        count = re.search(r'Tests run: (\d*)', lines[-1]).group(1)
+
+        assert run == 2 * int(count)
