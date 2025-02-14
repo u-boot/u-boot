@@ -9,7 +9,7 @@ config VIDEO_BRIDGE
 
 config VIDEO_BRIDGE_PARADE_DP501
 	bool "Support Parade DP501 DP & DVI/HDMI dual mode transmitter"
-	depends on PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
 	select DM_I2C
 	help
 	  The Parade DP501 is a DP & DVI/HDMI dual-mode transmitter. It
