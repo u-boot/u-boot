@@ -11,6 +11,7 @@
 #include <mipi_display.h>
 #include <mipi_dsi.h>
 #include <backlight.h>
+#include <video_bridge.h>
 #include <panel.h>
 #include <reset.h>
 #include <linux/delay.h>
@@ -991,7 +992,7 @@ static int tegra_dsi_ganged_probe(struct udevice *dev)
 	struct tegra_dsi_priv *mpriv = dev_get_priv(dev);
 	struct udevice *gangster;
 
-	uclass_get_device_by_phandle(UCLASS_PANEL, dev,
+	uclass_get_device_by_phandle(UCLASS_VIDEO_BRIDGE, dev,
 				     "nvidia,ganged-mode", &gangster);
 	if (gangster) {
 		/* Ganged mode is set */
@@ -1118,8 +1119,8 @@ static int tegra_dsi_bridge_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct panel_ops tegra_dsi_bridge_ops = {
-	.enable_backlight	= tegra_dsi_encoder_enable,
+static const struct video_bridge_ops tegra_dsi_bridge_ops = {
+	.attach			= tegra_dsi_encoder_enable,
 	.set_backlight		= tegra_dsi_bridge_set_panel,
 	.get_display_timing	= tegra_dsi_panel_timings,
 };
@@ -1133,7 +1134,7 @@ static const struct udevice_id tegra_dsi_bridge_ids[] = {
 
 U_BOOT_DRIVER(tegra_dsi) = {
 	.name		= "tegra_dsi",
-	.id		= UCLASS_PANEL,
+	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= tegra_dsi_bridge_ids,
 	.ops		= &tegra_dsi_bridge_ops,
 	.bind		= dm_scan_fdt_dev,

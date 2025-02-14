@@ -14,7 +14,7 @@ config VIDEO_TEGRA20
 
 config VIDEO_DSI_TEGRA30
 	bool "Enable Tegra 30 DSI support"
-	depends on PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
 	select VIDEO_TEGRA20
 	select VIDEO_MIPI_DSI
 	help
