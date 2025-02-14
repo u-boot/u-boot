@@ -1287,6 +1287,7 @@ config SPL_RAM_DEVICE
 
 config SPL_REMOTEPROC
 	bool "Support REMOTEPROCS"
+	default y if (CPU_V7R && ARCH_K3)
 	help
 	  Enable support for REMOTEPROCs in SPL. This permits to load
 	  a remote processor firmware in SPL.

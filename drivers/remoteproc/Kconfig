@@ -55,6 +55,7 @@ config REMOTEPROC_TI_K3_ARM64
 	depends on DM
 	depends on ARCH_K3
 	depends on OF_CONTROL
+	default y if SYS_K3_SPL_ATF
 	help
 	  Say y here to support TI's ARM64 processor subsystems
 	  on various TI K3 family of SoCs through the remote processor
@@ -67,6 +68,16 @@ config REMOTEPROC_TI_K3_DSP
 	depends on TI_SCI_PROTOCOL
 	help
 	  Say y here to support TI's C66/C71 remote processor subsystems
+	  on various TI K3 family of SoCs through the remote processor
+	  framework.
+
+config REMOTEPROC_TI_K3_M4F
+	bool "TI K3 M4F remoteproc support"
+	select REMOTEPROC
+	depends on ARCH_K3
+	depends on TI_SCI_PROTOCOL
+	help
+	  Say y here to support TI's M4F remote processor subsystems
 	  on various TI K3 family of SoCs through the remote processor
 	  framework.
 
