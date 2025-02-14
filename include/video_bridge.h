@@ -54,6 +54,19 @@ struct video_bridge_ops {
 	int (*set_backlight)(struct udevice *dev, int percent);
 
 	/**
+	 * get_display_timing() - Get display timings from bridge.
+	 *
+	 * @dev:	Bridge device containing the linked display timings
+	 * @tim:	Place to put timings
+	 * @return 0 if OK, -ve on error
+	 *
+	 * This call it totally optional and useful mainly for integrated
+	 * bridges with fixed output device.
+	 */
+	int (*get_display_timing)(struct udevice *dev,
+				  struct display_timing *timing);
+
+	/**
 	 * read_edid() - Read information from EDID
 	 *
 	 * @dev:	Device to read from
@@ -98,6 +111,14 @@ int video_bridge_set_active(struct udevice *dev, bool active);
  */
 int video_bridge_check_attached(struct udevice *dev);
 
+/**
+ * video_bridge_get_display_timing() - Get display timings from bridge.
+ *
+ * @dev:	Bridge device containing the linked display timings
+ * Return: 0 if OK, -ve on error
+ */
+int video_bridge_get_display_timing(struct udevice *dev,
+				    struct display_timing *timing);
 /**
  * video_bridge_read_edid() - Read information from EDID
  *
