@@ -12,6 +12,7 @@
 #include <mipi_dsi.h>
 #include <backlight.h>
 #include <panel.h>
+#include <video_bridge.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -265,8 +266,10 @@ static void tc358768_sw_reset(struct udevice *dev)
 	tc358768_write(dev, TC358768_SYSCTL, 0);
 }
 
-static void tc358768_hw_enable(struct tc358768_priv *priv)
+static void tc358768_hw_enable(struct udevice *dev)
 {
+	struct tc358768_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
 	ret = clk_prepare_enable(priv->refclk);
@@ -293,7 +296,7 @@ static void tc358768_hw_enable(struct tc358768_priv *priv)
 	 * The RESX is active low (GPIO_ACTIVE_LOW).
 	 * DEASSERT (value = 0) the reset_gpio to enable the chip
 	 */
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&uc_priv->reset, 0);
 	if (ret)
 		log_debug("%s: error changing reset-gpio (%d)\n", __func__, ret);
 
@@ -477,7 +480,7 @@ static int tc358768_attach(struct udevice *dev)
 		device->mode_flags &= ~MIPI_DSI_CLOCK_NON_CONTINUOUS;
 	}
 
-	tc358768_hw_enable(priv);
+	tc358768_hw_enable(dev);
 	tc358768_sw_reset(dev);
 
 	tc358768_setup_pll(dev);
@@ -877,6 +880,7 @@ static int tc358768_panel_timings(struct udevice *dev,
 static int tc358768_setup(struct udevice *dev)
 {
 	struct tc358768_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mipi_plat;
 	int ret;
@@ -942,15 +946,7 @@ static int tc358768_setup(struct udevice *dev)
 		return PTR_ERR(priv->refclk);
 	}
 
-	/* get gpios */
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
-				   &priv->reset_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		log_debug("%s: Could not decode reset-gpios (%d)\n", __func__, ret);
-		return ret;
-	}
-
-	dm_gpio_set_value(&priv->reset_gpio, 1);
+	dm_gpio_set_value(&uc_priv->reset, 1);
 
 	return 0;
 }
@@ -963,8 +959,8 @@ static int tc358768_probe(struct udevice *dev)
 	return tc358768_setup(dev);
 }
 
-struct panel_ops tc358768_ops = {
-	.enable_backlight	= tc358768_attach,
+static const struct video_bridge_ops tc358768_ops = {
+	.attach			= tc358768_attach,
 	.set_backlight		= tc358768_set_backlight,
 	.get_display_timing	= tc358768_panel_timings,
 };
@@ -977,7 +973,7 @@ static const struct udevice_id tc358768_ids[] = {
 
 U_BOOT_DRIVER(tc358768) = {
 	.name		= "tc358768",
-	.id		= UCLASS_PANEL,
+	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= tc358768_ids,
 	.ops		= &tc358768_ops,
 	.probe		= tc358768_probe,

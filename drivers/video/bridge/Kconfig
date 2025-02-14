@@ -53,7 +53,7 @@ config VIDEO_BRIDGE_SOLOMON_SSD2825
 
 config VIDEO_BRIDGE_TOSHIBA_TC358768
 	bool "Support Toshiba TC358768 MIPI DSI bridge"
-	depends on PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
 	select VIDEO_MIPI_DSI
 	select DM_I2C
 	help
