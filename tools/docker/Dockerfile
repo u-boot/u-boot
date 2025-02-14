@@ -122,7 +122,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python3 \
 	python3-dev \
 	python3-pip \
-	python3-pyelftools \
 	python3-sphinx \
 	python3-virtualenv \
 	rpm2cpio \
@@ -308,12 +307,18 @@ USER uboot:uboot
 # COPY / ADD directives don't work as we need them to.
 RUN wget -O /tmp/pytest-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/test/py/requirements.txt
 RUN wget -O /tmp/sphinx-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/doc/sphinx/requirements.txt
+RUN wget -O /tmp/binman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/binman/requirements.txt
 RUN wget -O /tmp/buildman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/buildman/requirements.txt
+RUN wget -O /tmp/patman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/patman/requirements.txt
+RUN wget -O /tmp/u_boot_pylib-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/u_boot_pylib/requirements.txt
 RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
 	. /tmp/venv/bin/activate && \
 	pip install -r /tmp/pytest-requirements.txt \
 		-r /tmp/sphinx-requirements.txt \
-		-r /tmp/buildman-requirements.txt && \
+		-r /tmp/binman-requirements.txt \
+		-r /tmp/buildman-requirements.txt \
+		-r /tmp/patman-requirements.txt \
+		-r /tmp/u_boot_pylib-requirements.txt && \
 	deactivate && \
 	rm -rf /tmp/venv /tmp/*-requirements.txt
 
