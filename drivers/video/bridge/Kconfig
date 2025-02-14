@@ -46,10 +46,10 @@ config VIDEO_BRIDGE_ANALOGIX_ANX6345
 
 config VIDEO_BRIDGE_SOLOMON_SSD2825
 	bool "Solomon SSD2825 bridge driver"
-	depends on PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
 	select VIDEO_MIPI_DSI
 	help
-	  Solomon SSD2824 SPI RGB-DSI bridge driver wrapped into panel uClass.
+	  Solomon SSD2824 SPI RGB-DSI bridge driver.
 
 config VIDEO_BRIDGE_TOSHIBA_TC358768
 	bool "Support Toshiba TC358768 MIPI DSI bridge"

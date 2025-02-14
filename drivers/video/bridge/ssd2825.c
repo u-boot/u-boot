@@ -10,6 +10,7 @@
 #include <mipi_display.h>
 #include <mipi_dsi.h>
 #include <backlight.h>
+#include <video_bridge.h>
 #include <panel.h>
 #include <spi.h>
 #include <linux/delay.h>
@@ -114,7 +115,6 @@ struct ssd2825_bridge_priv {
 	struct display_timing timing;
 
 	struct gpio_desc power_gpio;
-	struct gpio_desc reset_gpio;
 
 	struct clk *tx_clk;
 
@@ -343,7 +343,7 @@ static void ssd2825_setup_pll(struct udevice *dev)
 	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
 }
 
-static int ssd2825_bridge_enable_panel(struct udevice *dev)
+static int ssd2825_bridge_attach(struct udevice *dev)
 {
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
@@ -407,6 +407,7 @@ static int ssd2825_bridge_panel_timings(struct udevice *dev,
 static int ssd2825_bridge_hw_init(struct udevice *dev)
 {
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
 	ret = clk_prepare_enable(priv->tx_clk);
@@ -424,7 +425,7 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 	}
 	mdelay(10);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&uc_priv->reset, 0);
 	if (ret) {
 		log_debug("%s: error changing reset-gpios (%d)\n",
 			  __func__, ret);
@@ -432,7 +433,7 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 	}
 	mdelay(10);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	ret = dm_gpio_set_value(&uc_priv->reset, 1);
 	if (ret) {
 		log_debug("%s: error changing reset-gpios (%d)\n",
 			  __func__, ret);
@@ -485,13 +486,6 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
-				   &priv->reset_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		log_err("could not decode reset-gpios (%d)\n", ret);
-		return ret;
-	}
-
 	/* get clk */
 	priv->tx_clk = devm_clk_get(dev, "tx_clk");
 	if (IS_ERR(priv->tx_clk)) {
@@ -502,8 +496,8 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 	return ssd2825_bridge_hw_init(dev);
 }
 
-static const struct panel_ops ssd2825_bridge_ops = {
-	.enable_backlight	= ssd2825_bridge_enable_panel,
+static const struct video_bridge_ops ssd2825_bridge_ops = {
+	.attach			= ssd2825_bridge_attach,
 	.set_backlight		= ssd2825_bridge_set_panel,
 	.get_display_timing	= ssd2825_bridge_panel_timings,
 };
@@ -515,7 +509,7 @@ static const struct udevice_id ssd2825_bridge_ids[] = {
 
 U_BOOT_DRIVER(ssd2825) = {
 	.name		= "ssd2825",
-	.id		= UCLASS_PANEL,
+	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= ssd2825_bridge_ids,
 	.ops		= &ssd2825_bridge_ops,
 	.probe		= ssd2825_bridge_probe,
