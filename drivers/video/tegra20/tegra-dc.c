@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
+ * Copyright (c) 2024 Svyatoslav Ryhel <clamor95@gmail.com>
  */
 
 #include <backlight.h>
@@ -11,6 +12,7 @@
 #include <log.h>
 #include <panel.h>
 #include <video.h>
+#include <video_bridge.h>
 #include <asm/system.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -31,7 +33,8 @@ struct tegra_lcd_priv {
 	int height;			/* height in pixels */
 	enum video_log2_bpp log2_bpp;	/* colour depth */
 	struct display_timing timing;
-	struct udevice *panel;
+	struct udevice *panel;		/* Panels attached to RGB */
+	struct udevice *bridge;		/* Bridge linked with DC */
 	struct dc_ctlr *dc;		/* Display controller regmap */
 	const struct tegra_dc_soc_info *soc;
 	fdt_addr_t frame_buffer;	/* Address of frame buffer */
@@ -373,11 +376,12 @@ static int tegra_lcd_probe(struct udevice *dev)
 	}
 
 	/* Get shift clock divider from Tegra DSI if used */
-	if (!strcmp(priv->panel->name, TEGRA_DSI_A) ||
-	    !strcmp(priv->panel->name, TEGRA_DSI_B)) {
-		struct tegra_dc_plat *dc_plat = dev_get_plat(priv->panel);
+	if (priv->bridge) {
+		if (!strcmp(priv->bridge->driver->name, "tegra_dsi")) {
+			struct tegra_dc_plat *dc_plat = dev_get_plat(priv->bridge);
 
-		priv->scdiv = dc_plat->scdiv;
+			priv->scdiv = dc_plat->scdiv;
+		}
 	}
 
 	/* Clean the framebuffer area */
@@ -390,10 +394,20 @@ static int tegra_lcd_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = panel_enable_backlight(priv->panel);
-	if (ret) {
-		log_debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
-		return ret;
+	if (priv->panel) {
+		ret = panel_enable_backlight(priv->panel);
+		if (ret) {
+			log_debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
+			return ret;
+		}
+	}
+
+	if (priv->bridge) {
+		ret = video_bridge_attach(priv->bridge);
+		if (ret) {
+			log_debug("%s: Cannot attach bridge, ret=%d\n", __func__, ret);
+			return ret;
+		}
 	}
 
 	mmu_set_region_dcache_behaviour(priv->frame_buffer, plat->size,
@@ -408,17 +422,110 @@ static int tegra_lcd_probe(struct udevice *dev)
 	log_debug("LCD frame buffer at %08x, size %x\n", priv->frame_buffer,
 		  plat->size);
 
-	return panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
+	if (priv->panel) {
+		ret = panel_set_backlight(priv->panel, BACKLIGHT_DEFAULT);
+		if (ret)
+			return ret;
+	}
+
+	if (priv->bridge) {
+		ret = video_bridge_set_backlight(priv->bridge, BACKLIGHT_DEFAULT);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int tegra_lcd_configure_rgb(struct udevice *dev, ofnode rgb)
+{
+	struct tegra_lcd_priv *priv = dev_get_priv(dev);
+	ofnode remote;
+	int ret;
+
+	remote = ofnode_parse_phandle(rgb, "nvidia,panel", 0);
+	if (!ofnode_valid(remote))
+		return -EINVAL;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_PANEL, remote, &priv->panel);
+	if (ret) {
+		log_debug("%s: Cannot find panel for '%s' (ret=%d)\n",
+			  __func__, dev->name, ret);
+
+		ret = uclass_get_device_by_ofnode(UCLASS_VIDEO_BRIDGE, remote,
+						  &priv->bridge);
+		if (ret) {
+			log_err("%s: Cannot find panel or bridge for '%s' (ret=%d)\n",
+				__func__, dev->name, ret);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int tegra_lcd_configure_internal(struct udevice *dev)
+{
+	struct tegra_lcd_priv *priv = dev_get_priv(dev);
+	struct tegra_dc_plat *dc_plat;
+	ofnode host1x = ofnode_get_parent(dev_ofnode(dev));
+	ofnode node;
+	int ret;
+
+	switch (priv->pipe) {
+	case 0: /* DC0 is usually used for DSI */
+		/* Check for ganged DSI configuration */
+		ofnode_for_each_subnode(node, host1x)
+			if (ofnode_name_eq(node, "dsi") && ofnode_is_enabled(node) &&
+			    ofnode_read_bool(node, "nvidia,ganged-mode"))
+				goto exit;
+
+		/* If no master DSI found loop for any active DSI */
+		ofnode_for_each_subnode(node, host1x)
+			if (ofnode_name_eq(node, "dsi") && ofnode_is_enabled(node))
+				goto exit;
+
+		log_err("%s: failed to find DSI device for '%s'\n",
+			__func__, dev->name);
+
+		return -ENODEV;
+	case 1: /* DC1 is usually used for HDMI */
+		ofnode_for_each_subnode(node, host1x)
+			if (ofnode_name_eq(node, "hdmi"))
+				goto exit;
+
+		log_err("%s: failed to find HDMI device for '%s'\n",
+			__func__, dev->name);
+
+		return -ENODEV;
+	default:
+		log_debug("Unsupported DC selection\n");
+		return -EINVAL;
+	}
+
+exit:
+	ret = uclass_get_device_by_ofnode(UCLASS_VIDEO_BRIDGE, node, &priv->bridge);
+	if (ret) {
+		log_err("%s: failed to get DSI/HDMI device for '%s' (ret %d)\n",
+			__func__, dev->name, ret);
+		return ret;
+	}
+
+	dc_plat = dev_get_plat(priv->bridge);
+
+	/* Fill the platform data for internal devices */
+	dc_plat->dev = dev;
+	dc_plat->dc = priv->dc;
+	dc_plat->pipe = priv->pipe;
+
+	return 0;
 }
 
 static int tegra_lcd_of_to_plat(struct udevice *dev)
 {
 	struct tegra_lcd_priv *priv = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
 	struct display_timing *timing;
-	int node = dev_of_offset(dev);
-	int panel_node;
-	int rgb;
+	ofnode rgb;
 	int ret;
 
 	priv->dc = (struct dc_ctlr *)dev_read_addr_ptr(dev);
@@ -446,44 +553,42 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 	priv->rotation = dev_read_bool(dev, "nvidia,180-rotation");
 	priv->pipe = dev_read_u32_default(dev, "nvidia,head", 0);
 
-	rgb = fdt_subnode_offset(blob, node, "rgb");
-	if (rgb < 0) {
-		log_debug("%s: Cannot find rgb subnode for '%s' (ret=%d)\n",
-			  __func__, dev->name, rgb);
-		return -EINVAL;
-	}
-
 	/*
-	 * Sadly the panel phandle is in an rgb subnode so we cannot use
-	 * uclass_get_device_by_phandle().
+	 * Usual logic of Tegra video routing should be next:
+	 * 1. Check rgb subnode for RGB/LVDS panels or bridges
+	 * 2. If none found, then iterate through bridges bound,
+	 *    looking for DSIA or DSIB for DC0 and HDMI for DC1.
+	 * If none of above is valid, then configuration is not
+	 * valid.
 	 */
-	panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
-	if (panel_node < 0) {
-		log_debug("%s: Cannot find panel information\n", __func__);
-		return -EINVAL;
+
+	rgb = dev_read_subnode(dev, "rgb");
+	if (ofnode_valid(rgb) && ofnode_is_enabled(rgb)) {
+		/* RGB is available, use it */
+		ret = tegra_lcd_configure_rgb(dev, rgb);
+		if (ret)
+			return ret;
+	} else {
+		/* RGB is not available, check for internal devices */
+		ret = tegra_lcd_configure_internal(dev);
+		if (ret)
+			return ret;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_PANEL, panel_node,
-					     &priv->panel);
-	if (ret) {
-		log_debug("%s: Cannot find panel for '%s' (ret=%d)\n", __func__,
-			  dev->name, ret);
-		return ret;
+	if (priv->panel) {
+		ret = panel_get_display_timing(priv->panel, &priv->timing);
+		if (ret) {
+			ret = ofnode_decode_display_timing(rgb, 0, &priv->timing);
+			if (ret) {
+				log_debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
+					  __func__, dev->name, ret);
+				return -EINVAL;
+			}
+		}
 	}
 
-	/* Fill the platform data for internal devices */
-	if (!strcmp(priv->panel->name, TEGRA_DSI_A) ||
-	    !strcmp(priv->panel->name, TEGRA_DSI_B)) {
-		struct tegra_dc_plat *dc_plat = dev_get_plat(priv->panel);
-
-		dc_plat->dev = dev;
-		dc_plat->dc = priv->dc;
-		dc_plat->pipe = priv->pipe;
-	}
-
-	ret = panel_get_display_timing(priv->panel, &priv->timing);
-	if (ret) {
-		ret = fdtdec_decode_display_timing(blob, rgb, 0, &priv->timing);
+	if (priv->bridge) {
+		ret = video_bridge_get_display_timing(priv->bridge, &priv->timing);
 		if (ret) {
 			log_debug("%s: Cannot read display timing for '%s' (ret=%d)\n",
 				  __func__, dev->name, ret);
@@ -503,13 +608,6 @@ static int tegra_lcd_of_to_plat(struct udevice *dev)
 static int tegra_lcd_bind(struct udevice *dev)
 {
 	struct video_uc_plat *plat = dev_get_uclass_plat(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
-	int rgb;
-
-	rgb = fdt_subnode_offset(blob, node, "rgb");
-	if ((rgb < 0) || !fdtdec_get_is_enabled(blob, rgb))
-		return -ENODEV;
 
 	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 		(1 << LCD_MAX_LOG2_BPP) / 8;
