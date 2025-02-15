@@ -9,8 +9,16 @@
 #include <linux/linkage.h>
 #include <asm/macro.h>
 
+.pushsection .text.armv8_switch_to_el2_prep, "ax"
+WEAK(armv8_switch_to_el2_prep)
+	ret
+ENDPROC(armv8_switch_to_el2_prep)
+.popsection
+
 .pushsection .text.armv8_switch_to_el2, "ax"
 ENTRY(armv8_switch_to_el2)
+	bl	armv8_switch_to_el2_prep
+	nop
 	switch_el x6, 1f, 0f, 0f
 0:
 	cmp x5, #ES_TO_AARCH64
