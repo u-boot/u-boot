@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <clk.h>
 #include <dm.h>
+#include <dm/ofnode_graph.h>
 #include <fdtdec.h>
 #include <log.h>
 #include <panel.h>
@@ -443,6 +444,18 @@ static int tegra_lcd_configure_rgb(struct udevice *dev, ofnode rgb)
 	ofnode remote;
 	int ret;
 
+	/* DC can have only 1 port */
+	remote = ofnode_graph_get_remote_node(rgb, -1, -1);
+
+	ret = uclass_get_device_by_ofnode(UCLASS_PANEL, remote, &priv->panel);
+	if (!ret)
+		return 0;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_VIDEO_BRIDGE, remote, &priv->bridge);
+	if (!ret)
+		return 0;
+
+	/* Try legacy method if graph did not work */
 	remote = ofnode_parse_phandle(rgb, "nvidia,panel", 0);
 	if (!ofnode_valid(remote))
 		return -EINVAL;
