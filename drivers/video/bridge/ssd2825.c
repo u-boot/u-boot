@@ -5,6 +5,7 @@
 
 #include <clk.h>
 #include <dm.h>
+#include <dm/ofnode_graph.h>
 #include <log.h>
 #include <misc.h>
 #include <mipi_display.h>
@@ -444,6 +445,26 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 	return 0;
 }
 
+static int ssd2825_bridge_get_panel(struct udevice *dev)
+{
+	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
+	int i, ret;
+
+	u32 num = ofnode_graph_get_port_count(dev_ofnode(dev));
+
+	for (i = 0; i < num; i++) {
+		ofnode remote = ofnode_graph_get_remote_node(dev_ofnode(dev), i, -1);
+
+		ret = uclass_get_device_by_ofnode(UCLASS_PANEL, remote,
+						  &priv->panel);
+		if (!ret)
+			return 0;
+	}
+
+	/* If this point is reached, no panels were found */
+	return -ENODEV;
+}
+
 static int ssd2825_bridge_probe(struct udevice *dev)
 {
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
@@ -458,10 +479,9 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev,
-					   "panel", &priv->panel);
+	ret = ssd2825_bridge_get_panel(dev);
 	if (ret) {
-		log_err("cannot get panel: ret=%d\n", ret);
+		log_debug("%s: panel not found, ret %d\n", __func__, ret);
 		return ret;
 	}
 
@@ -512,6 +532,7 @@ U_BOOT_DRIVER(ssd2825) = {
 	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= ssd2825_bridge_ids,
 	.ops		= &ssd2825_bridge_ops,
+	.bind		= dm_scan_fdt_dev,
 	.probe		= ssd2825_bridge_probe,
 	.priv_auto	= sizeof(struct ssd2825_bridge_priv),
 };
