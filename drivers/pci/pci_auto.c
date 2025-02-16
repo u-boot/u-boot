@@ -107,7 +107,8 @@ static void dm_pciauto_setup_device(struct udevice *dev,
 			}
 
 			if (prefetch &&
-			    (bar_response & PCI_BASE_ADDRESS_MEM_PREFETCH))
+			    (bar_response & PCI_BASE_ADDRESS_MEM_PREFETCH) &&
+			    (found_mem64 || prefetch->bus_lower < 0x100000000ULL))
 				bar_res = prefetch;
 			else
 				bar_res = mem;
