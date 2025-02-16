@@ -314,6 +314,9 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 			ret = length - 4;
 		} else {
 			printf("Got error %x\n", (status & RXBD_STATS));
+
+			/* Rearm the packet buffer */
+			tsec_free_pkt(dev, NULL, 0);
 		}
 	}
 
