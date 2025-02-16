@@ -1264,6 +1264,21 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
 void efi_add_known_memory(void);
 
 /**
+ * efi_map_update_notify() - notify EFI of memory map changes
+ *
+ * @addr:	start of memory area
+ * @size:	size of memory area
+ * @op:		type of change
+ * Return:	0 if change could be processed
+ */
+#ifdef CONFIG_EFI_LOADER
+int efi_map_update_notify(phys_addr_t addr, phys_size_t size,
+			  enum lmb_map_op op);
+#else
+#define efi_map_update_notify(addr, size, op) (0)
+#endif
+
+/**
  * efi_load_option_dp_join() - join device-paths for load option
  *
  * @dp:		in: binary device-path, out: joined device-path
