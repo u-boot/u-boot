@@ -417,10 +417,9 @@ void board_init_f(ulong dummy)
 
 	get_clocks();
 
-#if defined(CONFIG_DEEP_SLEEP)
-	if (is_warm_boot())
-		fsl_dp_disable_console();
-#endif
+	if (CONFIG_IS_ENABLED(DEEP_SLEEP))
+		if (is_warm_boot())
+			fsl_dp_disable_console();
 
 	preloader_console_init();
 
@@ -438,9 +437,11 @@ void board_init_f(ulong dummy)
 	 * it from SD since it has already been reserved in memeory
 	 * in last boot.
 	 */
-	if (is_warm_boot()) {
-		second_uboot = (void (*)(void))CONFIG_TEXT_BASE;
-		second_uboot();
+	if (CONFIG_IS_ENABLED(DEEP_SLEEP)) {
+		if (is_warm_boot()) {
+			second_uboot = (void (*)(void))CONFIG_TEXT_BASE;
+			second_uboot();
+		}
 	}
 
 	board_init_r(NULL, 0);
