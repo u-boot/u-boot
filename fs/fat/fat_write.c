@@ -1216,6 +1216,43 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 }
 
 /**
+ * create_link() - inserts a directory entry for a file or directory
+ *
+ * @itr:	directory iterator
+ * @basename:	file name
+ * @clust:	cluster number the new directory entry should point to. Use 0
+ * if no cluster is assigned yet
+ * @size:	file size
+ * @attr:	file attributes
+ * Return:	0 for success
+ */
+static int create_link(fat_itr *itr, char *basename, __u32 clust, __u32 size,
+		       __u8 attr)
+{
+	char shortname[SHORT_NAME_SIZE];
+	int ndent;
+	int ret;
+
+	/* Check if long name is needed */
+	ndent = set_name(itr, basename, shortname);
+	if (ndent < 0)
+		return ndent;
+	ret = fat_find_empty_dentries(itr, ndent);
+	if (ret)
+		return ret;
+	if (ndent > 1) {
+		/* Set long name entries */
+		ret = fill_dir_slot(itr, basename, shortname);
+		if (ret)
+			return ret;
+	}
+
+	fill_dentry(itr->fsdata, itr->dent, shortname, clust, size, attr);
+
+	return 0;
+}
+
+/**
  * find_directory_entry() - find a directory entry by filename
  *
  * @itr:	directory iterator
@@ -1420,35 +1457,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		/* Update change date */
 		dentry_set_time(retdent);
 	} else {
-		/* Create a new file */
-		char shortname[SHORT_NAME_SIZE];
-		int ndent;
-
 		if (pos) {
 			/* No hole allowed */
 			ret = -EINVAL;
 			goto exit;
 		}
 
-		/* Check if long name is needed */
-		ndent = set_name(itr, basename, shortname);
-		if (ndent < 0) {
-			ret = ndent;
-			goto exit;
-		}
-		ret = fat_find_empty_dentries(itr, ndent);
+		ret = create_link(itr, basename, 0, size, ATTR_ARCH);
 		if (ret)
 			goto exit;
-		if (ndent > 1) {
-			/* Set long name entries */
-			ret = fill_dir_slot(itr, basename, shortname);
-			if (ret)
-				goto exit;
-		}
-
-		/* Set short name entry */
-		fill_dentry(itr->fsdata, itr->dent, shortname, 0, size,
-			    ATTR_ARCH);
 
 		retdent = itr->dent;
 	}
@@ -1565,6 +1582,31 @@ static int delete_long_name(fat_itr *itr)
 }
 
 /**
+ * delete_dentry_link() - deletes a directory entry, but not the cluster chain
+ * it points to
+ *
+ * @itr:	the first directory entry (if a longname) to remove
+ * Return:	0 for success
+ */
+static int delete_dentry_link(fat_itr *itr)
+{
+	itr->dent = itr->dent_start;
+	itr->remaining = itr->dent_rem;
+	/* Delete long name */
+	if ((itr->dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+	    (itr->dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
+		int ret;
+
+		ret = delete_long_name(itr);
+		if (ret)
+			return ret;
+	}
+	/* Delete short name */
+	delete_single_dentry(itr);
+	return flush_dir(itr);
+}
+
+/**
  * delete_dentry_long() - remove directory entry
  *
  * @itr:	directory iterator
@@ -1589,21 +1631,7 @@ static int delete_dentry_long(fat_itr *itr)
 		if (ret)
 			return ret;
 	}
-	itr->dent = itr->dent_start;
-	itr->remaining = itr->dent_rem;
-	dent = itr->dent_start;
-	/* Delete long name */
-	if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
-	    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
-		int ret;
-
-		ret = delete_long_name(itr);
-		if (ret)
-			return ret;
-	}
-	/* Delete short name */
-	delete_single_dentry(itr);
-	return flush_dir(itr);
+	return delete_dentry_link(itr);
 }
 
 int fat_unlink(const char *filename)
@@ -1725,9 +1753,6 @@ int fat_mkdir(const char *dirname)
 		ret = -EEXIST;
 		goto exit;
 	} else {
-		char shortname[SHORT_NAME_SIZE];
-		int ndent;
-
 		if (itr->is_root) {
 			/* root dir cannot have "." or ".." */
 			if (!strcmp(l_dirname, ".") ||
@@ -1737,25 +1762,9 @@ int fat_mkdir(const char *dirname)
 			}
 		}
 
-		/* Check if long name is needed */
-		ndent = set_name(itr, basename, shortname);
-		if (ndent < 0) {
-			ret = ndent;
-			goto exit;
-		}
-		ret = fat_find_empty_dentries(itr, ndent);
+		ret = create_link(itr, basename, 0, 0, ATTR_DIR | ATTR_ARCH);
 		if (ret)
 			goto exit;
-		if (ndent > 1) {
-			/* Set long name entries */
-			ret = fill_dir_slot(itr, basename, shortname);
-			if (ret)
-				goto exit;
-		}
-
-		/* Set attribute as archive for regular file */
-		fill_dentry(itr->fsdata, itr->dent, shortname, 0, 0,
-			    ATTR_DIR | ATTR_ARCH);
 
 		retdent = itr->dent;
 	}
