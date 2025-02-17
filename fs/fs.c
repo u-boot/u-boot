@@ -213,12 +213,16 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 #endif
-		.rename = fs_rename_unsupported,
 		.uuid = fat_uuid,
 		.opendir = fat_opendir,
 		.readdir = fat_readdir,
 		.closedir = fat_closedir,
 		.ln = fs_ln_unsupported,
+#if CONFIG_IS_ENABLED(FAT_RENAME) && !IS_ENABLED(CONFIG_XPL_BUILD)
+		.rename = fat_rename,
+#else
+		.rename = fs_rename_unsupported,
+#endif
 	},
 #endif
 
@@ -1005,6 +1009,65 @@ int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 		return 1;
 
 	return 0;
+}
+
+int do_mv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	  int fstype)
+{
+	struct fs_dir_stream *dirs;
+	char *src = argv[3];
+	char *dst = argv[4];
+	char *new_dst = NULL;
+	int ret = 1;
+
+	if (argc != 5) {
+		ret = CMD_RET_USAGE;
+		goto exit;
+	}
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		goto exit;
+
+	dirs = fs_opendir(dst);
+	/* dirs being valid means dst points to an existing directory.
+	 * mv should copy the file/dir (keeping the same name) into the
+	 * directory
+	 */
+	if (dirs) {
+		char *src_name = strrchr(src, '/');
+		int dst_len;
+
+		if (src_name)
+			src_name += 1;
+		else
+			src_name = src;
+
+		dst_len = strlen(dst);
+		new_dst = calloc(1, dst_len + strlen(src_name) + 2);
+		strcpy(new_dst, dst);
+
+		/* If there is already a trailing slash, don't add another */
+		if (new_dst[dst_len - 1] != '/') {
+			new_dst[dst_len] = '/';
+			dst_len += 1;
+		}
+
+		strcpy(new_dst + dst_len, src_name);
+		dst = new_dst;
+	}
+	fs_closedir(dirs);
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		goto exit;
+
+	if (fs_rename(src, dst))
+		goto exit;
+
+	ret = 0;
+
+exit:
+	free(new_dst);
+	return ret;
 }
 
 int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
