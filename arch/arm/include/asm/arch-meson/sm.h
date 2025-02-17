@@ -6,6 +6,8 @@
 #ifndef __MESON_SM_H__
 #define __MESON_SM_H__
 
+#include <asm/types.h>
+
 /**
  * meson_sm_read_efuse - read efuse memory into buffer
  *
@@ -27,15 +29,59 @@ ssize_t meson_sm_read_efuse(uintptr_t offset, void *buffer, size_t size);
 ssize_t meson_sm_write_efuse(uintptr_t offset, void *buffer, size_t size);
 
 #define SM_SERIAL_SIZE	12
+#define MESON_CPU_ID_SZ	4
+#define MESON_CHIP_ID_SZ 16
 
 /**
- * meson_sm_get_serial - read chip unique id into buffer
+ * union meson_cpu_id - Amlogic cpu_id.
+ * @raw: buffer to hold the cpu_id value as sequential bytes.
+ * @val: cpu_id represented as 32 bit value.
+ */
+union meson_cpu_id {
+	u8 raw[MESON_CPU_ID_SZ];
+	u32 val;
+};
+
+/**
+ * struct meson_sm_chip_id - Amlogic chip_id.
+ * @cpu_id: cpu_id value, which is distinct from socinfo in that the order of
+ *          PACK & MINOR bytes are swapped according to Amlogic chip_id format.
+ * @serial: 12 byte unique SoC number, identifying particular die, read
+ *          usually from efuse OTP storage. Serial comes in little-endian
+ *          order.
+ */
+struct meson_sm_chip_id {
+	union meson_cpu_id cpu_id;
+	u8 serial[SM_SERIAL_SIZE];
+};
+
+/**
+ * meson_sm_get_serial - read chip unique serial (OTP data) into buffer
  *
  * @buffer: pointer to buffer
  * @size: buffer size.
+ *
+ * Serial is returned in big-endian order.
+ *
  * @return: zero on success or -errno on failure
  */
 int meson_sm_get_serial(void *buffer, size_t size);
+
+/**
+ * meson_sm_get_chip_id - read Amlogic chip_id
+ *
+ * @chip_id: pointer to buffer capable to hold the struct meson_sm_chip_id
+ *
+ * Amlogic SoCs support 2 versions of chip_id. Function requests the newest
+ * one (v2), but if chip_id v2 is not supported, then secure monitor returns
+ * v1. All differences between v1 and v2 versions are handled by this function
+ * and chip_id is returned in unified format.
+ *
+ * chip_id contains serial, which is returned here in little-endian order.
+ *
+ * @return: 0 on success or -errno on failure
+ */
+int meson_sm_get_chip_id(struct meson_sm_chip_id *chip_id);
 
 enum {
 	REBOOT_REASON_COLD = 0,
