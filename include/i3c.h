@@ -28,6 +28,10 @@ struct dm_i3c_ops {
 	int (*i3c_xfers)(struct i3c_dev_desc *dev,
 			 struct i3c_priv_xfer *i3c_xfers,
 			 int i3c_nxfers);
+	int (*read)(struct udevice *dev, u8 dev_number,
+		    u8 *buf, int num_bytes);
+	int (*write)(struct udevice *dev, u8 dev_number,
+		     u8 *buf, int num_bytes);
 };
 
 #define i3c_get_ops(dev)	((struct dm_i3c_ops *)(dev)->driver->ops)
