@@ -40,7 +40,7 @@ struct file_handle {
 	struct fs_dir_stream *dirs;
 	struct fs_dirent *dent;
 
-	char path[0];
+	char *path;
 };
 #define to_fh(x) container_of(x, struct file_handle, base)
 
@@ -178,6 +178,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		u64 attributes)
 {
 	struct file_handle *fh;
+	char *path;
 	char f0[MAX_UTF8_PER_UTF16] = {0};
 	int plen = 0;
 	int flen = 0;
@@ -194,11 +195,13 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		plen = strlen(parent->path) + 1;
 	}
 
+	fh = calloc(1, sizeof(*fh));
 	/* +2 is for null and '/' */
-	fh = calloc(1, sizeof(*fh) + plen + (flen * MAX_UTF8_PER_UTF16) + 2);
-	if (!fh)
-		return NULL;
+	path = calloc(1, plen + (flen * MAX_UTF8_PER_UTF16) + 2);
+	if (!fh || !path)
+		goto error;
 
+	fh->path = path;
 	fh->open_mode = open_mode;
 	fh->base = efi_file_handle_protocol;
 	fh->fs = fs;
@@ -245,6 +248,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	return &fh->base;
 
 error:
+	free(fh->path);
 	free(fh);
 	return NULL;
 }
@@ -368,6 +372,7 @@ out:
 static efi_status_t file_close(struct file_handle *fh)
 {
 	fs_closedir(fh->dirs);
+	free(fh->path);
 	free(fh);
 	return EFI_SUCCESS;
 }
