@@ -1238,6 +1238,64 @@ static int fat_itr_parent(fat_itr *itr)
 }
 
 /**
+ * update_parent_dir_props - updates the modified time for the parent directory
+ *
+ * @dir_itr:	iterator positioned anywhere in a directory whose parent
+ * should be updated
+ * @Return:	0 for success, -errno otherwise
+ */
+static int update_parent_dir_props(fat_itr *dir_itr)
+{
+	int ret = 0;
+
+	fat_itr itr;
+	fsdata fsdata = { .fatbuf = NULL, }, *mydata = &fsdata;
+	__u32 target_clust = dir_itr->start_clust;
+
+	/* Short circuit if no RTC because it only updates timestamps */
+	if (!CONFIG_IS_ENABLED(DM_RTC))
+		return ret;
+
+	/* duplicate fsdata */
+	itr = *dir_itr;
+	fsdata = *itr.fsdata;
+
+	/* allocate local fat buffer */
+	fsdata.fatbuf = malloc_cache_aligned(FATBUFSIZE);
+	if (!fsdata.fatbuf) {
+		log_debug("Error: allocating memory\n");
+		ret = -ENOMEM;
+		return ret;
+	}
+
+	fsdata.fatbufnum = -1;
+	itr.fsdata = &fsdata;
+
+	if (!itr.is_root) {
+		ret = fat_itr_parent(&itr);
+		if (ret)
+			goto exit;
+
+		while (fat_itr_next(&itr)) {
+			if (START(itr.dent) == target_clust)
+				goto update;
+		}
+
+		/* dent not found */
+		ret = -EIO;
+		goto exit;
+update:
+		dentry_set_time(itr.dent);
+		ret = flush_dir(&itr);
+	}
+
+exit:
+	free(fsdata.fatbuf);
+
+	return ret;
+}
+
+/**
  * create_link() - inserts a directory entry for a file or directory
  *
  * @itr:	directory iterator
@@ -1270,8 +1328,9 @@ static int create_link(fat_itr *itr, char *basename, __u32 clust, __u32 size,
 	}
 
 	fill_dentry(itr->fsdata, itr->dent, shortname, clust, size, attr);
+	ret = update_parent_dir_props(itr);
 
-	return 0;
+	return ret;
 }
 
 /**
@@ -1612,20 +1671,25 @@ static int delete_long_name(fat_itr *itr)
  */
 static int delete_dentry_link(fat_itr *itr)
 {
+	int ret;
+
 	itr->dent = itr->dent_start;
 	itr->remaining = itr->dent_rem;
 	/* Delete long name */
 	if ((itr->dent->attr & ATTR_VFAT) == ATTR_VFAT &&
 	    (itr->dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
-		int ret;
-
 		ret = delete_long_name(itr);
 		if (ret)
 			return ret;
 	}
 	/* Delete short name */
 	delete_single_dentry(itr);
-	return flush_dir(itr);
+
+	ret = flush_dir(itr);
+	if (ret)
+		return ret;
+
+	return update_parent_dir_props(itr);
 }
 
 /**
@@ -2047,6 +2111,10 @@ int fat_rename(const char *old_path, const char *new_path)
 		*new_itr->dent = *old_itr->dent;
 		new_itr->dent->nameext = new_name;
 		new_itr->dent->lcase = lcase;
+
+		ret = update_parent_dir_props(new_itr);
+		if (ret)
+			goto exit;
 	} else {
 		/* reset iterator to the start of the directory */
 		ret = fat_move_to_cluster(new_itr, new_itr->start_clust);
@@ -2089,6 +2157,8 @@ int fat_rename(const char *old_path, const char *new_path)
 		ret = flush_dir(new_itr);
 		if (ret)
 			goto exit;
+		/* restore directory location to update parent props below */
+		fat_itr_child(new_itr, new_itr);
 	}
 
 	/* refresh old in case write happened to the same block. */
