@@ -57,6 +57,7 @@ enum sysinfo_id {
 	SYSID_SM_SYSTEM_WAKEUP,
 	SYSID_SM_SYSTEM_SKU,
 	SYSID_SM_SYSTEM_FAMILY,
+	SYSID_SM_SYSTEM_UUID,
 
 	/* Baseboard (or Module) Information (Type 2) */
 	SYSID_SM_BASEBOARD_MANUFACTURER,
