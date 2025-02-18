@@ -152,6 +152,7 @@ enum sysinfo_id {
 	/* For show_board_info() */
 	SYSID_BOARD_MODEL,
 	SYSID_BOARD_MANUFACTURER,
+	SYSID_BOARD_MAC_ADDR,
 	SYSID_PRIOR_STAGE_VERSION,
 	SYSID_PRIOR_STAGE_DATE,
 
@@ -220,6 +221,30 @@ struct sysinfo_ops {
 	 * Return: 0 if OK, -ve on error.
 	 */
 	int (*get_data)(struct udevice *dev, int id, void **data, size_t *size);
+
+	/**
+	 * get_item_count() - Get the item count of the specific data area that
+	 *		describes the hardware setup.
+	 * @dev:	The sysinfo instance to gather the data.
+	 * @id:		A unique identifier for the data area to be get.
+	 *
+	 * Return: non-negative item count if OK, -ve on error.
+	 */
+	int (*get_item_count)(struct udevice *dev, int id);
+
+	/**
+	 * get_data_by_index() - Get a data value by index from the platform.
+	 *
+	 * @dev:	The sysinfo instance to gather the data.
+	 * @id:		A unique identifier for the data area to be get.
+	 * @index:	The item index, starting from 0.
+	 * @data:	Pointer to the address of the data area.
+	 * @size:	Pointer to the size of the data area.
+	 *
+	 * Return: 0 if OK, -ve on error.
+	 */
+	int (*get_data_by_index)(struct udevice *dev, int id, int index,
+				 void **data, size_t *size);
 
 	/**
 	 * get_fit_loadable - Get the name of an image to load from FIT
@@ -305,6 +330,32 @@ int sysinfo_get_str(struct udevice *dev, int id, size_t size, char *val);
 int sysinfo_get_data(struct udevice *dev, int id, void **data, size_t *size);
 
 /**
+ * sysinfo_get_item_count() - Get the item count of the specific data area that
+ *			    describes the hardware setup.
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the data area to be get.
+ *
+ * Return: non-negative item count if OK, -EPERM if called before
+ * sysinfo_detect(), else -ve on error.
+ */
+int sysinfo_get_item_count(struct udevice *dev, int id);
+
+/**
+ * sysinfo_get_data_by_index() - Get a data value by index from the platform.
+ *
+ * @dev:	The sysinfo instance to gather the data.
+ * @id:		A unique identifier for the data area to be get.
+ * @index:	The item index, starting from 0.
+ * @data:	Pointer to the address of the data area.
+ * @size:	Pointer to the size of the data area.
+ *
+ * Return: 0 if OK, -EPERM if called before sysinfo_detect(), else -ve on
+ * error.
+ */
+int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
+			      void **data, size_t *size);
+
+/**
  * sysinfo_get() - Return the sysinfo device for the sysinfo in question.
  * @devp: Pointer to structure to receive the sysinfo device.
  *
@@ -361,6 +412,18 @@ static inline int sysinfo_get_str(struct udevice *dev, int id, size_t size,
 
 static inline int sysinfo_get_data(struct udevice *dev, int id, void **data,
 				   size_t *size)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_item_count(struct udevice *dev, int id)
+{
+	return -ENOSYS;
+}
+
+static inline int sysinfo_get_data_by_index(struct udevice *dev, int id,
+					    int index, void **data,
+					    size_t *size)
 {
 	return -ENOSYS;
 }
