@@ -3,6 +3,7 @@
  * U-Boot additions
  *
  * Copyright (C) 2024 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #include "socfpga_soc64_fit-u-boot.dtsi"
@@ -12,6 +13,215 @@
 		#address-cells = <2>;
 		#size-cells = <2>;
 		bootph-all;
+	};
+
+	soc {
+		bootph-all;
+
+		socfpga_ccu_config: socfpga-ccu-config {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* DSU */
+			i_ccu_caiu0@1c000000 {
+				reg = <0x1c000000 0x00001000>;
+				intel,offset-settings =
+					/* CAIUMIFSR */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DII1_MPFEREGS */
+					<0x00000414 0x00018000 0xffffffff>,
+					<0x00000418 0x00000000 0x000000ff>,
+					<0x00000410 0xc0e00200 0xc1f03e1f>,
+					/* DII2_GICREGS */
+					<0x00000424 0x0001d000 0xffffffff>,
+					<0x00000428 0x00000000 0x000000ff>,
+					<0x00000420 0xc0800400 0xc1f03e1f>,
+					/* NCAIU0_LWSOC2FPGA */
+					<0x00000444 0x00020000 0xffffffff>,
+					<0x00000448 0x00000000 0x000000ff>,
+					<0x00000440 0xc1100006 0xc1f03e1f>,
+					/* NCAIU0_SOC2FPGA_1G */
+					<0x00000454 0x00040000 0xffffffff>,
+					<0x00000458 0x00000000 0x000000ff>,
+					<0x00000450 0xc1200006 0xc1f03e1f>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* NCAIU0_SOC2FPGA_16G */
+					<0x00000474 0x00400000 0xffffffff>,
+					<0x00000478 0x00000000 0x000000ff>,
+					<0x00000470 0xc1600006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* NCAIU0_SOC2FPGA_256G */
+					<0x00000494 0x04000000 0xffffffff>,
+					<0x00000498 0x00000000 0x000000ff>,
+					<0x00000490 0xc1a00006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* FPGA2SOC */
+			i_ccu_ncaiu0@1c001000 {
+				reg = <0x1c001000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU0MIFSR */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* PSS */
+					<0x00000404 0x00010000 0xffffffff>,
+					<0x00000408 0x00000000 0x000000ff>,
+					<0x00000400 0xC0F00000 0xc1f03e1f>,
+					/* DII1_MPFEREGS */
+					<0x00000414 0x00018000 0xffffffff>,
+					<0x00000418 0x00000000 0x000000ff>,
+					<0x00000410 0xc0e00200 0xc1f03e1f>,
+					/* NCAIU0_LWSOC2FPGA */
+					<0x00000444 0x00020000 0xffffffff>,
+					<0x00000448 0x00000000 0x000000ff>,
+					<0x00000440 0xc1100006 0xc1f03e1f>,
+					/* NCAIU0_SOC2FPGA_1G */
+					<0x00000454 0x00040000 0xffffffff>,
+					<0x00000458 0x00000000 0x000000ff>,
+					<0x00000450 0xc1200006 0xc1f03e1f>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* NCAIU0_SOC2FPGA_16G */
+					<0x00000474 0x00400000 0xffffffff>,
+					<0x00000478 0x00000000 0x000000ff>,
+					<0x00000470 0xc1600006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* NCAIU0_SOC2FPGA_256G */
+					<0x00000494 0x04000000 0xffffffff>,
+					<0x00000498 0x00000000 0x000000ff>,
+					<0x00000490 0xc1a00006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* GIC_M */
+			i_ccu_ncaiu1@1c002000 {
+				reg = <0x1c002000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU1MIFSR */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* SMMU */
+			i_ccu_ncaiu2@1c003000 {
+				reg = <0x1c003000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU2MIFSR */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* PSS NOC */
+			i_ccu_ncaiu3@1c004000 {
+				reg = <0x1c004000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU3MIFSR */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DII1_MPFEREGS */
+					<0x00000414 0x00018000 0xffffffff>,
+					<0x00000418 0x00000000 0x000000ff>,
+					<0x00000410 0xc0e00200 0xc1f03e1f>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* DCE0 */
+			i_ccu_dce0@1c005000 {
+				reg = <0x1c005000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUMIFSR0 */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* DCE1 */
+			i_ccu_dce1@1c006000 {
+				reg = <0x1c006000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUMIFSR1 */
+					<0x000003c4 0x00000000 0x07070777>,
+					/* DMI_SDRAM_2G */
+					<0x00000464 0x00080000 0xffffffff>,
+					<0x00000468 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_30G */
+					<0x00000484 0x00800000 0xffffffff>,
+					<0x00000488 0x00000000 0x000000ff>,
+					/* DMI_SDRAM_480G */
+					<0x000004a4 0x08000000 0xffffffff>,
+					<0x000004a8 0x00000000 0x000000ff>;
+				bootph-all;
+			};
+
+			/* DMI0 */
+			i_ccu_dmi0@1c007000 {
+				reg = <0x1c007000 0x00001000>;
+				intel,offset-settings =
+					/* DMIUSMCTCR */
+					<0x00000300 0x00000001 0x00000003>,
+					<0x00000300 0x00000003 0x00000003>;
+				bootph-all;
+			};
+
+			/* DMI1 */
+			i_ccu_dmi0@1c008000 {
+				reg = <0x1c008000 0x00001000>;
+				intel,offset-settings =
+					/* DMIUSMCTCR */
+					<0x00000300 0x00000001 0x00000003>,
+					<0x00000300 0x00000003 0x00000003>;
+				bootph-all;
+			};
+		};
 	};
 };
 
