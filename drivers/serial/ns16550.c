@@ -112,9 +112,9 @@ static void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				out_be32(addr, value);
+				out_be32((u32 *)addr, value);
 			else
-				out_le32(addr, value);
+				out_le32((u32 *)addr, value);
 		} else {
 			writel(value, addr);
 		}
@@ -132,9 +132,9 @@ static int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				return in_be32(addr);
+				return in_be32((u32 *)addr);
 			else
-				return in_le32(addr);
+				return in_le32((u32 *)addr);
 		} else {
 			return readl(addr);
 		}
