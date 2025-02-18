@@ -73,15 +73,6 @@ static const struct {
 	u32 mask;
 } membus_pll[] = {
 	{
-		MEMBUS_CLKSLICE_REG,
-		/*
-		 * BIT[7:7]
-		 * Enable source synchronous mode
-		 */
-		BIT(7),
-		BIT(7)
-	},
-	{
 		MEMBUS_SYNTHCALFOSC_INIT_CENTERFREQ_REG,
 		/*
 		 * BIT[0:0]
