@@ -232,7 +232,6 @@ static ssize_t ssd2825_bridge_transfer(struct mipi_dsi_host *host,
 				       const struct mipi_dsi_msg *msg)
 {
 	struct udevice *dev = (struct udevice *)host->dev;
-	u8 buf = *(u8 *)msg->tx_buf;
 	u16 config;
 	int ret;
 
@@ -260,15 +259,6 @@ static ssize_t ssd2825_bridge_transfer(struct mipi_dsi_host *host,
 	ssd2825_write_register(dev, SSD2825_CONFIGURATION_REG, config);
 	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
 	ssd2825_write_dsi(dev, msg->tx_buf, msg->tx_len);
-
-	if (buf == MIPI_DCS_SET_DISPLAY_ON) {
-		ssd2825_write_register(dev, SSD2825_CONFIGURATION_REG,
-				SSD2825_CONF_REG_HS | SSD2825_CONF_REG_VEN |
-				SSD2825_CONF_REG_DCS | SSD2825_CONF_REG_ECD |
-				SSD2825_CONF_REG_EOT);
-		ssd2825_write_register(dev, SSD2825_PLL_CTRL_REG, 0x0001);
-		ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
-	}
 
 	return 0;
 }
@@ -349,6 +339,7 @@ static int ssd2825_bridge_attach(struct udevice *dev)
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct display_timing *dt = &priv->timing;
+	int ret;
 
 	/* Perform SW reset */
 	ssd2825_write_register(dev, SSD2825_OPERATION_CTRL_REG, 0x0100);
@@ -385,7 +376,18 @@ static int ssd2825_bridge_attach(struct udevice *dev)
 	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
 
 	/* Perform panel setup */
-	return panel_enable_backlight(priv->panel);
+	ret = panel_enable_backlight(priv->panel);
+	if (ret)
+		return ret;
+
+	ssd2825_write_register(dev, SSD2825_CONFIGURATION_REG,
+			       SSD2825_CONF_REG_HS | SSD2825_CONF_REG_VEN |
+			       SSD2825_CONF_REG_DCS | SSD2825_CONF_REG_ECD |
+			       SSD2825_CONF_REG_EOT);
+	ssd2825_write_register(dev, SSD2825_PLL_CTRL_REG, 0x0001);
+	ssd2825_write_register(dev, SSD2825_VC_CTRL_REG, 0x0000);
+
+	return 0;
 }
 
 static int ssd2825_bridge_set_panel(struct udevice *dev, int percent)
