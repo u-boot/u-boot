@@ -41,21 +41,30 @@ struct socfpga_clk_plat {
  */
 static void clk_write_bypass_mainpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_MAINPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 static void clk_write_bypass_perpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_PERPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 /* function to write the ctrl register which requires a poll of the busy bit */
 static void clk_write_ctrl(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_CTRL);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 static const struct {
@@ -243,6 +252,7 @@ static void clk_basic_init(struct udevice *dev,
 {
 	struct socfpga_clk_plat *plat = dev_get_plat(dev);
 	u32 vcocalib;
+	uintptr_t base_addr = (uintptr_t)plat->regs;
 
 	if (!cfg)
 		return;
@@ -254,7 +264,8 @@ static void clk_basic_init(struct udevice *dev,
 		CM_REG_SETBITS(plat, CLKMGR_PERPLL_PLLGLOB,
 			       CLKMGR_PLLGLOB_PD_MASK | CLKMGR_PLLGLOB_RST_MASK);
 
-		cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
+		wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT),
+				  CLKMGR_STAT_ALLPLL_LOCKED_MASK, true, 20000, false);
 
 		/* Put both PLLs in bypass */
 		clk_write_bypass_mainpll(plat, CLKMGR_BYPASS_MAINPLL_ALL);
@@ -375,7 +386,8 @@ static void clk_basic_init(struct udevice *dev,
 				CLKMGR_PLLCX_EN_SET_MSK,
 				CLKMGR_PERPLL_PLLC3);
 
-		cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
+		wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT),
+				  CLKMGR_STAT_ALLPLL_LOCKED_MASK, true, 20000, false);
 
 		CM_REG_WRITEL(plat, CLKMGR_LOSTLOCK_SET_MASK, CLKMGR_MAINPLL_LOSTLOCK);
 		CM_REG_WRITEL(plat, CLKMGR_LOSTLOCK_SET_MASK, CLKMGR_PERPLL_LOSTLOCK);
