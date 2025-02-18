@@ -388,6 +388,40 @@
 				bootph-all;
 			};
 		};
+
+		socfpga_smmu_secure_config: socfpga-smmu-secure-config {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* System manager */
+			i_sys_mgt_sysmgr_csr@10d12000 {
+				reg = <0x10d12000 0x00000500>;
+				intel,offset-settings =
+					/* dma_tbu_stream_ctrl_reg_0_dma0 */
+					<0x0000017c 0x00000000 0x0000003f>,
+					/* dma_tbu_stream_ctrl_reg_0_dma1 */
+					<0x00000180 0x00000000 0x0000003f>,
+					/* sdm_tbu_stream_ctrl_reg_1_sdm */
+					<0x00000184 0x00000000 0x0000003f>,
+					/* io_tbu_stream_ctrl_reg_2_usb2 */
+					<0x00000188 0x00000000 0x0000003f>,
+					/* io_tbu_stream_ctrl_reg_2_sdmmc */
+					<0x00000190 0x00000000 0x0000003f>,
+					/* io_tbu_stream_ctrl_reg_2_nand */
+					<0x00000194 0x00000000 0x0000003f>,
+					/* io_tbu_stream_ctrl_reg_2_etr */
+					<0x00000198 0x00000000 0x0000003f>,
+					/* tsn_tbu_stream_ctrl_reg_3_tsn0 */
+					<0x0000019c 0x00000000 0x0000003f>,
+					/* tsn_tbu_stream_ctrl_reg_3_tsn1 */
+					<0x000001a0 0x00000000 0x0000003f>,
+					/* tsn_tbu_stream_ctrl_reg_3_tsn2 */
+					<0x000001a4 0x00000000 0x0000003f>;
+				bootph-all;
+			};
+		};
 	};
 };
 
