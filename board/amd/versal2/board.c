@@ -149,7 +149,7 @@ int board_early_init_r(void)
 	return 0;
 }
 
-static u8 versal_net_get_bootmode(void)
+static u8 versal2_get_bootmode(void)
 {
 	u8 bootmode;
 	u32 reg = 0;
@@ -175,7 +175,7 @@ static int boot_targets_setup(void)
 	char *new_targets;
 	char *env_targets;
 
-	bootmode = versal_net_get_bootmode();
+	bootmode = versal2_get_bootmode();
 
 	puts("Bootmode: ");
 	switch (bootmode) {
