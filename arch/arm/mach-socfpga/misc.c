@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
+ *  Copyright (C) 2012-2025 Altera Corporation <www.altera.com>
  */
 
 #include <config.h>
@@ -248,15 +248,16 @@ void socfpga_get_managers_addr(void)
 	if (ret)
 		hang();
 
-#ifdef CONFIG_TARGET_SOCFPGA_AGILEX
-	ret = socfpga_get_base_addr("intel,agilex-clkmgr",
-				    &socfpga_clkmgr_base);
-#elif IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X)
-	ret = socfpga_get_base_addr("intel,n5x-clkmgr",
-				    &socfpga_clkmgr_base);
-#else
-	ret = socfpga_get_base_addr("altr,clk-mgr", &socfpga_clkmgr_base);
-#endif
+	if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX))
+		ret = socfpga_get_base_addr("intel,agilex-clkmgr",
+					    &socfpga_clkmgr_base);
+	else if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_N5X))
+		ret = socfpga_get_base_addr("intel,n5x-clkmgr",
+					    &socfpga_clkmgr_base);
+	else if (!IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5))
+		ret = socfpga_get_base_addr("altr,clk-mgr",
+					    &socfpga_clkmgr_base);
+
 	if (ret)
 		hang();
 }
