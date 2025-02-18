@@ -6,6 +6,7 @@
  */
 
 #include <altera.h>
+#include <asm/arch/board.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
@@ -57,9 +58,14 @@ int print_cpuinfo(void)
 int arch_misc_init(void)
 {
 	char qspi_string[13];
+	unsigned long id;
 
 	sprintf(qspi_string, "<0x%08x>", cm_get_qspi_controller_clk_hz());
 	env_set("qspi_clock", qspi_string);
+
+	/* Export board_id as environment variable */
+	id = socfpga_get_board_id();
+	env_set_ulong("board_id", id);
 
 	return 0;
 }
