@@ -1095,14 +1095,13 @@ class Builder:
                 diff = result[name]
                 if name.startswith('_'):
                     continue
-                if diff != 0:
-                    color = self.col.RED if diff > 0 else self.col.GREEN
+                colour = self.col.RED if diff > 0 else self.col.GREEN
                 msg = ' %s %+d' % (name, diff)
                 if not printed_target:
                     tprint('%10s  %-15s:' % ('', result['_target']),
                           newline=False)
                     printed_target = True
-                tprint(msg, colour=color, newline=False)
+                tprint(msg, colour=colour, newline=False)
             if printed_target:
                 tprint()
                 if show_bloat:
@@ -1353,6 +1352,7 @@ class Builder:
             for line in lines:
                 if not line:
                     continue
+                col = None
                 if line[0] == '+':
                     col = self.col.GREEN
                 elif line[0] == '-':

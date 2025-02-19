@@ -126,6 +126,7 @@ class Entry_ti_board_config(Entry_section):
             size = 2
         else:
             size = 4
+        br = None
         if type(val) == int:
             br = val.to_bytes(size, byteorder='little')
         return br
