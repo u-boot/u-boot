@@ -21,6 +21,7 @@
 #include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <zynqmp_firmware.h>
 #include "../common/board.h"
 
 #include <linux/bitfield.h>
@@ -184,7 +185,11 @@ static u8 versal_net_get_bootmode(void)
 	u8 bootmode;
 	u32 reg = 0;
 
-	reg = readl(&crp_base->boot_mode_usr);
+	if (IS_ENABLED(CONFIG_ZYNQMP_FIRMWARE) && current_el() != 3) {
+		reg = zynqmp_pm_get_bootmode_reg();
+	} else {
+		reg = readl(&crp_base->boot_mode_usr);
+	}
 
 	if (reg >> BOOT_MODE_ALT_SHIFT)
 		reg >>= BOOT_MODE_ALT_SHIFT;
