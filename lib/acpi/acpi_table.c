@@ -646,6 +646,8 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 
 	node->type = ACPI_IORT_NODE_PCI_ROOT_COMPLEX;
 	node->revision = 2;
+	node->mapping_count = num_mappings;
+	node->mapping_offset = sizeof(struct acpi_iort_node) + sizeof(struct acpi_iort_rc);
 
 	node->length = sizeof(struct acpi_iort_node);
 	node->length += sizeof(struct acpi_iort_rc);
