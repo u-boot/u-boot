@@ -635,6 +635,7 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 		     const struct acpi_iort_id_mapping *map)
 {
 	struct acpi_iort_id_mapping *mapping;
+	struct acpi_iort_node *output_node;
 	struct acpi_iort_node *node;
 	struct acpi_iort_rc *rc;
 	int offset;
@@ -661,6 +662,13 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 
 	mapping = (struct acpi_iort_id_mapping *)(rc + 1);
 	for (int i = 0; i < num_mappings; i++) {
+		/* Validate input */
+		output_node = (struct acpi_iort_node *)ctx->tab_start + map[i].output_reference;
+		/* ID mappings can use SMMUs or ITS groups as output references */
+		assert(output_node && ((output_node->type == ACPI_IORT_NODE_ITS_GROUP) ||
+				       (output_node->type == ACPI_IORT_NODE_SMMU) ||
+				       (output_node->type == ACPI_IORT_NODE_SMMU_V3)));
+
 		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
 		mapping++;
 	}
@@ -685,6 +693,7 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 			  const struct acpi_iort_id_mapping *map)
 {
 	struct acpi_iort_node *node;
+	struct acpi_iort_node *output_node;
 	struct acpi_iort_smmu_v3 *smmu;
 	struct acpi_iort_id_mapping *mapping;
 	int offset;
@@ -718,6 +727,14 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 
 	mapping = (struct acpi_iort_id_mapping *)(smmu + 1);
 	for (int i = 0; i < num_mappings; i++) {
+		/* Validate input */
+		output_node = (struct acpi_iort_node *)ctx->tab_start + map[i].output_reference;
+		/*
+		 * ID mappings of an SMMUv3 node can only have ITS group nodes
+		 * as output references.
+		 */
+		assert(output_node && output_node->type == ACPI_IORT_NODE_ITS_GROUP);
+
 		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
 		mapping++;
 	}
