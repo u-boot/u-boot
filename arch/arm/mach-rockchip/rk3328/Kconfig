@@ -21,9 +21,6 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3328"
 
-config ROCKCHIP_COMMON_STACK_ADDR
-	default y
-
 config TPL_LDSCRIPT
 	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
 

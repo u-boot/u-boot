@@ -17,9 +17,6 @@ config ROCKCHIP_STIMER_BASE
 config SYS_SOC
 	default "rk3308"
 
-config ROCKCHIP_COMMON_STACK_ADDR
-	default y
-
 config TEXT_BASE
 	default 0x00600000
 
