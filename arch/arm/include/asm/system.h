@@ -303,7 +303,25 @@ void flush_l3_cache(void);
  * @emerg: Also map the region in the emergency table
  */
 void mmu_map_region(phys_addr_t start, u64 size, bool emerg);
+
+/**
+ * mmu_change_region_attr() - change a mapped region attributes
+ *
+ * @start: Start address of the region
+ * @size:  Size of the region
+ * @aatrs: New attributes
+ */
 void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
+
+/**
+ * mmu_change_region_attr_nobreak() - change a mapped region attributes without doing
+ *                                    break-before-make
+ *
+ * @start: Start address of the region
+ * @size:  Size of the region
+ * @aatrs: New attributes
+ */
+void mmu_change_region_attr_nobreak(phys_addr_t addr, size_t size, u64 attrs);
 
 /*
  * smc_call() - issue a secure monitor call
