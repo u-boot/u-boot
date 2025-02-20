@@ -513,6 +513,13 @@ int bloblist_init(void)
 		 */
 		bool from_addr = fixed && !xpl_is_first_phase();
 
+		/*
+		 * If Firmware Handoff is mandatory but no transfer list is
+		 * observed, report it as an error.
+		 */
+		if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
+			return -ENOENT;
+
 		ret = -ENOENT;
 
 		if (xpl_prev_phase() == PHASE_TPL &&
