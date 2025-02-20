@@ -531,7 +531,8 @@ static efi_status_t efi_disk_add_dev(
 
 	/* Store first EFI system partition */
 	if (part && efi_system_partition.uclass_id == UCLASS_INVALID) {
-		if (part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
+		if (part_info &&
+		    part_info->bootable & PART_EFI_SYSTEM_PARTITION) {
 			efi_system_partition.uclass_id = desc->uclass_id;
 			efi_system_partition.devnum = desc->devnum;
 			efi_system_partition.part = part;

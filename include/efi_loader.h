@@ -852,21 +852,6 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 /* Adds a range into the EFI memory map */
 efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type);
 
-/**
- * efi_add_memory_map_pg() - add pages to the memory map
- *
- * @start:			start address, must be a multiple of
- *				EFI_PAGE_SIZE
- * @pages:			number of pages to add
- * @memory_type:		type of memory added
- * @overlap_conventional:	region may only overlap free(conventional)
- *				memory
- * Return:			status code
- */
-efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
-				   int memory_type,
-				   bool overlap_conventional);
-
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
 /* Called when a block device is added */
@@ -1262,6 +1247,21 @@ efi_status_t efi_disk_get_device_name(const efi_handle_t handle, char *buf, int 
  * This function may be overridden for architectures specific purposes.
  */
 void efi_add_known_memory(void);
+
+/**
+ * efi_map_update_notify() - notify EFI of memory map changes
+ *
+ * @addr:	start of memory area
+ * @size:	size of memory area
+ * @op:		type of change
+ * Return:	0 if change could be processed
+ */
+#ifdef CONFIG_EFI_LOADER
+int efi_map_update_notify(phys_addr_t addr, phys_size_t size,
+			  enum lmb_map_op op);
+#else
+#define efi_map_update_notify(addr, size, op) (0)
+#endif
 
 /**
  * efi_load_option_dp_join() - join device-paths for load option

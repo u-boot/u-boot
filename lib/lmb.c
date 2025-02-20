@@ -23,10 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MAP_OP_RESERVE		(u8)0x1
-#define MAP_OP_FREE		(u8)0x2
-#define MAP_OP_ADD		(u8)0x3
-
 /*
  * The following low level LMB functions must not access the global LMB memory
  * map since they are also used to manage IOVA memory maps in iommu drivers like
@@ -430,42 +426,12 @@ long io_lmb_free(struct lmb *io_lmb, phys_addr_t base, phys_size_t size)
 
 static struct lmb lmb;
 
-static bool lmb_should_notify(u32 flags)
+static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size,
+				 enum lmb_map_op op, u32 flags)
 {
-	return !lmb.test && !(flags & LMB_NONOTIFY) &&
-		CONFIG_IS_ENABLED(EFI_LOADER);
-}
-
-static int lmb_map_update_notify(phys_addr_t addr, phys_size_t size, u8 op,
-				 u32 flags)
-{
-	u64 efi_addr;
-	u64 pages;
-	efi_status_t status;
-
-	if (op != MAP_OP_RESERVE && op != MAP_OP_FREE && op != MAP_OP_ADD) {
-		log_err("Invalid map update op received (%d)\n", op);
-		return -1;
-	}
-
-	if (!lmb_should_notify(flags))
-		return 0;
-
-	efi_addr = (uintptr_t)map_sysmem(addr, 0);
-	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
-	efi_addr &= ~EFI_PAGE_MASK;
-
-	status = efi_add_memory_map_pg(efi_addr, pages,
-				       op == MAP_OP_RESERVE ?
-				       EFI_BOOT_SERVICES_DATA :
-				       EFI_CONVENTIONAL_MEMORY,
-				       false);
-	if (status != EFI_SUCCESS) {
-		log_err("%s: LMB Map notify failure %lu\n", __func__,
-			status & ~EFI_ERROR_MASK);
-		return -1;
-	}
-	unmap_sysmem((void *)(uintptr_t)efi_addr);
+	if (CONFIG_IS_ENABLED(EFI_LOADER) &&
+	    !lmb.test && !(flags & LMB_NONOTIFY))
+		return efi_map_update_notify(addr, size, op);
 
 	return 0;
 }
@@ -642,7 +608,7 @@ long lmb_add(phys_addr_t base, phys_size_t size)
 	if (ret)
 		return ret;
 
-	return lmb_map_update_notify(base, size, MAP_OP_ADD, LMB_NONE);
+	return lmb_map_update_notify(base, size, LMB_MAP_OP_ADD, LMB_NONE);
 }
 
 long lmb_free_flags(phys_addr_t base, phys_size_t size,
@@ -654,7 +620,7 @@ long lmb_free_flags(phys_addr_t base, phys_size_t size,
 	if (ret < 0)
 		return ret;
 
-	return lmb_map_update_notify(base, size, MAP_OP_FREE, flags);
+	return lmb_map_update_notify(base, size, LMB_MAP_OP_FREE, flags);
 }
 
 long lmb_free(phys_addr_t base, phys_size_t size)
@@ -671,7 +637,7 @@ long lmb_reserve(phys_addr_t base, phys_size_t size, u32 flags)
 	if (ret)
 		return ret;
 
-	return lmb_map_update_notify(base, size, MAP_OP_RESERVE, flags);
+	return lmb_map_update_notify(base, size, LMB_MAP_OP_RESERVE, flags);
 }
 
 static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
@@ -712,7 +678,7 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 					return 0;
 
 				ret = lmb_map_update_notify(base, size,
-							    MAP_OP_RESERVE,
+							    LMB_MAP_OP_RESERVE,
 							    flags);
 				if (ret)
 					return ret;
