@@ -649,7 +649,9 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 	node->type = ACPI_IORT_NODE_PCI_ROOT_COMPLEX;
 	node->revision = 2;
 	node->mapping_count = num_mappings;
-	node->mapping_offset = sizeof(struct acpi_iort_node) + sizeof(struct acpi_iort_rc);
+	if (num_mappings)
+		node->mapping_offset = sizeof(struct acpi_iort_node) +
+				       sizeof(struct acpi_iort_rc);
 
 	node->length = sizeof(struct acpi_iort_node);
 	node->length += sizeof(struct acpi_iort_rc);
@@ -709,7 +711,9 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 	node->type = ACPI_IORT_NODE_SMMU_V3;
 	node->revision = 5;
 	node->mapping_count = num_mappings;
-	node->mapping_offset = sizeof(struct acpi_iort_node) + sizeof(struct acpi_iort_smmu_v3);
+	if (num_mappings)
+		node->mapping_offset = sizeof(struct acpi_iort_node) +
+				       sizeof(struct acpi_iort_smmu_v3);
 
 	node->length = sizeof(struct acpi_iort_node);
 	node->length += sizeof(struct acpi_iort_smmu_v3);
