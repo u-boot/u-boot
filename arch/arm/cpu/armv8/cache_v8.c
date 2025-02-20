@@ -14,6 +14,7 @@
 #include <asm/global_data.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
+#include <linux/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -1030,6 +1031,30 @@ void mmu_change_region_attr(phys_addr_t addr, size_t siz, u64 attrs)
 	__asm_invalidate_tlb_all();
 
 	mmu_change_region_attr_nobreak(addr, siz, attrs);
+}
+
+int pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	u64 attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_INNER_SHARE | PTE_TYPE_VALID;
+
+	switch (perm) {
+	case MMU_ATTR_RO:
+		attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN | PTE_BLOCK_RO;
+		break;
+	case MMU_ATTR_RX:
+		attrs |= PTE_BLOCK_RO;
+		break;
+	case MMU_ATTR_RW:
+		attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+		break;
+	default:
+		log_err("Unknown attribute %d\n", perm);
+		return -EINVAL;
+	}
+
+	mmu_change_region_attr_nobreak(addr, size, attrs);
+
+	return 0;
 }
 
 #else	/* !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) */

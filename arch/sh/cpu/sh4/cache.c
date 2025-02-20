@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/system.h>
+#include <linux/errno.h>
 
 #define CACHE_VALID       1
 #define CACHE_UPDATED     2
@@ -125,4 +126,9 @@ void dcache_disable(void)
 int dcache_status(void)
 {
 	return 0;
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }
