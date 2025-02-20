@@ -52,9 +52,6 @@ dtb-$(CONFIG_MACH_S900) += \
 dtb-$(CONFIG_MACH_S700) += \
 	s700-cubieboard7.dtb
 
-dtb-$(CONFIG_ROCKCHIP_RK3036) += \
-	rk3036-sdk.dtb
-
 dtb-$(CONFIG_ROCKCHIP_RK3128) += \
 	rk3128-evb.dtb
 
