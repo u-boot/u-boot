@@ -205,7 +205,7 @@ static inline s64 mmc_offset(struct mmc *mmc, int copy)
 }
 #endif
 
-static bool __maybe_unused mmc_env_is_redundant_in_both_boot_hwparts(struct mmc *mmc)
+static bool mmc_env_is_redundant_in_both_boot_hwparts(struct mmc *mmc)
 {
 	/*
 	 * In case the environment is redundant, stored in eMMC hardware boot
@@ -448,13 +448,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-#if defined(ENV_IS_EMBEDDED)
-static int env_mmc_load(void)
-{
-	return 0;
-}
-#elif defined(CONFIG_SYS_REDUNDAND_ENVIRONMENT)
-static int env_mmc_load(void)
+static int env_mmc_load_redundant(void)
 {
 	struct mmc *mmc;
 	u32 offset1, offset2;
@@ -510,8 +504,8 @@ err:
 
 	return ret;
 }
-#else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-static int env_mmc_load(void)
+
+static int env_mmc_load_singular(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 	struct mmc *mmc;
@@ -556,7 +550,16 @@ err:
 
 	return ret;
 }
-#endif /* CONFIG_SYS_REDUNDAND_ENVIRONMENT */
+
+static int env_mmc_load(void)
+{
+	if (IS_ENABLED(CONFIG_ENV_IS_EMBEDDED))
+		return 0;
+	else if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
+		return env_mmc_load_redundant();
+	else
+		return env_mmc_load_singular();
+}
 
 U_BOOT_ENV_LOCATION(mmc) = {
 	.location	= ENVL_MMC,
