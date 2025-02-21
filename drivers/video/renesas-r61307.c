@@ -281,7 +281,8 @@ static int renesas_r61307_probe(struct udevice *dev)
 	/* fill characteristics of DSI data link */
 	plat->lanes = 4;
 	plat->format = MIPI_DSI_FMT_RGB888;
-	plat->mode_flags = MIPI_DSI_MODE_VIDEO;
+	plat->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+			   MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
 	return renesas_r61307_hw_init(dev);
 }
