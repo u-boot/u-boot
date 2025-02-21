@@ -251,6 +251,9 @@ static ssize_t tegra_dsi_host_transfer(struct mipi_dsi_host *host,
 	value = DSI_HOST_CONTROL_CRC_RESET | DSI_HOST_CONTROL_TX_TRIG_HOST |
 		DSI_HOST_CONTROL_CS | DSI_HOST_CONTROL_ECC;
 
+	if ((msg->flags & MIPI_DSI_MSG_USE_LPM) == 0)
+		value |= DSI_HOST_CONTROL_HS;
+
 	/*
 	 * The host FIFO has a maximum of 64 words, so larger transmissions
 	 * need to use the video FIFO.
