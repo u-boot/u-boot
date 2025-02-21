@@ -23,6 +23,10 @@
 #define LM3533_CONTROL_BANK_A_FULLSCALE_CURRENT		0x1F
 #define LM3533_CONTROL_BANK_ENABLE			0x27
 #define LM3533_OVP_FREQUENCY_PWM_POLARITY		0x2C
+#define   BOOST_OVP_MASK				GENMASK(2, 1)
+#define   BOOST_OVP_SHIFT				1
+#define   BOOST_FREQ_MASK				BIT(0)
+#define   BOOST_FREQ_SHIFT				0
 #define LM3533_BRIGHTNESS_REGISTER_A			0x40
 
 #define LM3533_BOOST_OVP_16V				16000000UL
@@ -49,9 +53,6 @@ static int lm3533_backlight_enable(struct udevice *dev)
 	struct lm3533_backlight_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	dm_gpio_set_value(&priv->enable_gpio, 1);
-	mdelay(5);
-
 	/* HVLED 1 & 2 are controlled by Bank A */
 	ret = dm_i2c_reg_write(dev, LM3533_SINK_OUTPUT_CONFIG_1, 0x00);
 	if (ret)
@@ -74,10 +75,6 @@ static int lm3533_backlight_enable(struct udevice *dev)
 
 	/* Control Bank A is enable */
 	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_BANK_ENABLE, 0x01);
-	if (ret)
-		return ret;
-
-	ret = dm_i2c_reg_write(dev, LM3533_OVP_FREQUENCY_PWM_POLARITY, 0x0A);
 	if (ret)
 		return ret;
 
@@ -159,8 +156,28 @@ static int lm3533_backlight_of_to_plat(struct udevice *dev)
 
 static int lm3533_backlight_probe(struct udevice *dev)
 {
+	struct lm3533_backlight_priv *priv = dev_get_priv(dev);
+	int ret;
+
 	if (device_get_uclass_id(dev->parent) != UCLASS_I2C)
 		return -EPROTONOSUPPORT;
+
+	dm_gpio_set_value(&priv->enable_gpio, 1);
+	mdelay(5);
+
+	ret = dm_i2c_reg_clrset(dev, LM3533_OVP_FREQUENCY_PWM_POLARITY,
+				BOOST_FREQ_MASK, priv->boost_freq << BOOST_FREQ_SHIFT);
+	if (ret) {
+		log_debug("%s: freq config failed %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = dm_i2c_reg_clrset(dev, LM3533_OVP_FREQUENCY_PWM_POLARITY,
+				BOOST_OVP_MASK, priv->boost_ovp << BOOST_OVP_SHIFT);
+	if (ret) {
+		log_debug("%s: ovp config failed %d\n", __func__, ret);
+		return ret;
+	}
 
 	return 0;
 }
