@@ -351,7 +351,25 @@ static int ssd2825_bridge_attach(struct udevice *dev)
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct display_timing *dt = &priv->timing;
+	u8 pixel_format;
 	int ret;
+
+	/* Set pixel format */
+	switch (device->format) {
+	case MIPI_DSI_FMT_RGB565:
+		pixel_format = 0x00;
+		break;
+	case MIPI_DSI_FMT_RGB666_PACKED:
+		pixel_format = 0x01;
+		break;
+	case MIPI_DSI_FMT_RGB666:
+		pixel_format = 0x02;
+		break;
+	case MIPI_DSI_FMT_RGB888:
+	default:
+		pixel_format = 0x03;
+		break;
+	}
 
 	/* Perform SW reset */
 	ssd2825_write_register(dev, SSD2825_OPERATION_CTRL_REG, 0x0100);
@@ -371,7 +389,7 @@ static int ssd2825_bridge_attach(struct udevice *dev)
 	ssd2825_write_register(dev, SSD2825_RGB_INTERFACE_CTRL_REG_6,
 			       SSD2825_HSYNC_HIGH | SSD2825_VSYNC_HIGH |
 			       SSD2825_PCKL_HIGH | SSD2825_NON_BURST |
-			       (3 - device->format));
+			       pixel_format);
 	ssd2825_write_register(dev, SSD2825_LANE_CONFIGURATION_REG,
 			       device->lanes - 1);
 	ssd2825_write_register(dev, SSD2825_TEST_REG, 0x0004);
