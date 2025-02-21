@@ -120,6 +120,9 @@ struct ssd2825_bridge_priv {
 	struct clk *tx_clk;
 
 	u32 pll_freq_kbps;	/* PLL in kbps */
+
+	u32 hzd;		/* HS Zero Delay in ns */
+	u32 hpd;		/* HS Prepare Delay is ns */
 };
 
 static int ssd2825_spi_write(struct udevice *dev, int reg,
@@ -303,7 +306,9 @@ static void ssd2825_setup_pll(struct udevice *dev)
 	struct mipi_dsi_device *device = &priv->device;
 	struct display_timing *dt = &priv->timing;
 	u16 pll_config, lp_div;
+	u32 nibble_delay, nibble_freq_khz;
 	u32 pclk_mult, tx_freq_khz, pd_lines;
+	u8 hzd, hpd;
 
 	tx_freq_khz = clk_get_rate(priv->tx_clk) / 1000;
 	pd_lines = mipi_dsi_pixel_format_to_bpp(device->format);
@@ -315,12 +320,19 @@ static void ssd2825_setup_pll(struct udevice *dev)
 
 	lp_div = priv->pll_freq_kbps / (SSD2825_LP_MIN_CLK * 8);
 
+	/* nibble_delay in nanoseconds */
+	nibble_freq_khz = priv->pll_freq_kbps / 4;
+	nibble_delay = 1000 * 1000 / nibble_freq_khz;
+
+	hzd = priv->hzd / nibble_delay;
+	hpd = (priv->hpd - 4 * nibble_delay) / nibble_delay;
+
 	/* Disable PLL */
 	ssd2825_write_register(dev, SSD2825_PLL_CTRL_REG, 0x0000);
 	ssd2825_write_register(dev, SSD2825_LINE_CTRL_REG, 0x0001);
 
 	/* Set delays */
-	ssd2825_write_register(dev, SSD2825_DELAY_ADJ_REG_1, 0x2103);
+	ssd2825_write_register(dev, SSD2825_DELAY_ADJ_REG_1, (hzd << 8) | hpd);
 
 	/* Set PLL coeficients */
 	ssd2825_write_register(dev, SSD2825_PLL_CONFIGURATION_REG, pll_config);
@@ -514,6 +526,9 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 		log_err("cannot get tx_clk: %ld\n", PTR_ERR(priv->tx_clk));
 		return PTR_ERR(priv->tx_clk);
 	}
+
+	priv->hzd = dev_read_u32_default(dev, "solomon,hs-zero-delay-ns", 133);
+	priv->hpd = dev_read_u32_default(dev, "solomon,hs-prep-delay-ns", 40);
 
 	return ssd2825_bridge_hw_init(dev);
 }
