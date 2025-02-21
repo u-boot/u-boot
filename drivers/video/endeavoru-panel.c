@@ -236,7 +236,7 @@ static int endeavoru_panel_probe(struct udevice *dev)
 	/* fill characteristics of DSI data link */
 	plat->lanes = 2;
 	plat->format = MIPI_DSI_FMT_RGB888;
-	plat->mode_flags = MIPI_DSI_MODE_VIDEO;
+	plat->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_LPM;
 
 	return endeavoru_panel_hw_init(dev);
 }
