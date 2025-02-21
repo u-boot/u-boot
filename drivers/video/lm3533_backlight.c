@@ -18,9 +18,13 @@
 #define LM3533_BL_MAX_BRIGHTNESS			0xFF
 
 #define LM3533_SINK_OUTPUT_CONFIG_1			0x10
-#define LM3533_CONTROL_BANK_A_PWM			0x14
+#define LM3533_CONTROL_PWM_BASE				0x14
+#define   PWM_MAX					GENMASK(5, 0)
 #define LM3533_CONTROL_BANK_AB_BRIGHTNESS		0x1A
-#define LM3533_CONTROL_BANK_A_FULLSCALE_CURRENT		0x1F
+#define LM3533_CONTROL_FULLSCALE_CURRENT_BASE		0x1F
+#define   MAX_CURRENT_MIN				5000
+#define   MAX_CURRENT_MAX				29800
+#define   MAX_CURRENT_STEP				800
 #define LM3533_CONTROL_BANK_ENABLE			0x27
 #define LM3533_OVP_FREQUENCY_PWM_POLARITY		0x2C
 #define   BOOST_OVP_MASK				GENMASK(2, 1)
@@ -51,34 +55,42 @@ struct lm3533_backlight_priv {
 static int lm3533_backlight_enable(struct udevice *dev)
 {
 	struct lm3533_backlight_priv *priv = dev_get_priv(dev);
+	u8 val, id = priv->reg;
 	int ret;
 
-	/* HVLED 1 & 2 are controlled by Bank A */
-	ret = dm_i2c_reg_write(dev, LM3533_SINK_OUTPUT_CONFIG_1, 0x00);
+	if (priv->linear) {
+		ret = dm_i2c_reg_clrset(dev, LM3533_CONTROL_BANK_AB_BRIGHTNESS,
+					BIT(2 * id + 1), BIT(2 * id + 1));
+		if (ret)
+			return ret;
+	}
+
+	if (priv->hvled) {
+		ret = dm_i2c_reg_clrset(dev, LM3533_SINK_OUTPUT_CONFIG_1,
+					BIT(0) | BIT(1), id | id << 1);
+		if (ret)
+			return ret;
+	}
+
+	/* Set current */
+	if (priv->max_current < MAX_CURRENT_MIN || priv->max_current > MAX_CURRENT_MAX)
+		return -EINVAL;
+
+	val = (priv->max_current - MAX_CURRENT_MIN) / MAX_CURRENT_STEP;
+	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_FULLSCALE_CURRENT_BASE + id, val);
 	if (ret)
 		return ret;
 
-	/* PWM input is disabled for CABC */
-	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_BANK_A_PWM, 0x00);
+	/* Set PWM mask */
+	if (priv->pwm > PWM_MAX)
+		return -EINVAL;
+
+	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_PWM_BASE + id, priv->pwm);
 	if (ret)
 		return ret;
 
-	/* Linear & Control Bank A is configured for register Current control */
-	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_BANK_AB_BRIGHTNESS, 0x02);
-	if (ret)
-		return ret;
-
-	/* Full-Scale Current (20.2mA) */
-	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_BANK_A_FULLSCALE_CURRENT, 0x13);
-	if (ret)
-		return ret;
-
-	/* Control Bank A is enable */
-	ret = dm_i2c_reg_write(dev, LM3533_CONTROL_BANK_ENABLE, 0x01);
-	if (ret)
-		return ret;
-
-	return 0;
+	/* Enable Control Bank */
+	return dm_i2c_reg_clrset(dev, LM3533_CONTROL_BANK_ENABLE, BIT(id), BIT(id));
 }
 
 static int lm3533_backlight_set_brightness(struct udevice *dev, int percent)
