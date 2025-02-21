@@ -93,7 +93,10 @@
 			};
 
 			configurations {
+
+#ifndef CONFIG_MULTI_DTB_FIT
 				default = "conf-1";
+#endif
 
 #if !defined(CONFIG_OF_BOARD) || defined(CONFIG_MULTI_DTB_FIT)
 				@conf-SEQ {
