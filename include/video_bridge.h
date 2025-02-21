@@ -80,6 +80,7 @@ struct video_bridge_ops {
 #define video_bridge_get_ops(dev) \
 		((struct video_bridge_ops *)(dev)->driver->ops)
 
+#if CONFIG_IS_ENABLED(VIDEO_BRIDGE)
 /**
  * video_bridge_attach() - attach a video bridge
  *
@@ -128,5 +129,37 @@ int video_bridge_get_display_timing(struct udevice *dev,
  * Return: number of bytes read, <=0 for error
  */
 int video_bridge_read_edid(struct udevice *dev, u8 *buf, int buf_size);
+#else
+static inline int video_bridge_attach(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int video_bridge_set_backlight(struct udevice *dev, int percent)
+{
+	return -ENOSYS;
+}
+
+static inline int video_bridge_set_active(struct udevice *dev, bool active)
+{
+	return -ENOSYS;
+}
+
+static inline int video_bridge_check_attached(struct udevice *dev)
+{
+	return -ENOSYS;
+}
+
+static inline int video_bridge_get_display_timing(struct udevice *dev,
+						  struct display_timing *timing)
+{
+	return -ENOSYS;
+}
+
+static inline int video_bridge_read_edid(struct udevice *dev, u8 *buf, int buf_size)
+{
+	return -ENOSYS;
+}
+#endif /* CONFIG_VIDEO_BRIDGE */
 
 #endif
