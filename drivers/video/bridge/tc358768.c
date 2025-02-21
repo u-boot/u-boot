@@ -6,6 +6,7 @@
 
 #include <clk.h>
 #include <dm.h>
+#include <dm/ofnode_graph.h>
 #include <i2c.h>
 #include <log.h>
 #include <mipi_display.h>
@@ -877,6 +878,26 @@ static int tc358768_panel_timings(struct udevice *dev,
 	return 0;
 }
 
+static int tc358768_get_panel(struct udevice *dev)
+{
+	struct tc358768_priv *priv = dev_get_priv(dev);
+	int i, ret;
+
+	u32 num = ofnode_graph_get_port_count(dev_ofnode(dev));
+
+	for (i = 0; i < num; i++) {
+		ofnode remote = ofnode_graph_get_remote_node(dev_ofnode(dev), i, -1);
+
+		ret = uclass_get_device_by_ofnode(UCLASS_PANEL, remote,
+						  &priv->panel);
+		if (!ret)
+			return 0;
+	}
+
+	/* If this point is reached, no panels were found */
+	return -ENODEV;
+}
+
 static int tc358768_setup(struct udevice *dev)
 {
 	struct tc358768_priv *priv = dev_get_priv(dev);
@@ -893,11 +914,10 @@ static int tc358768_setup(struct udevice *dev)
 		return ret;
 	}
 
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev,
-					   "panel", &priv->panel);
+	ret = tc358768_get_panel(dev);
 	if (ret) {
-		log_debug("%s: Cannot get panel: ret=%d\n", __func__, ret);
-		return log_ret(ret);
+		log_debug("%s: panel not found, ret %d\n", __func__, ret);
+		return ret;
 	}
 
 	panel_get_display_timing(priv->panel, &priv->timing);
@@ -976,6 +996,7 @@ U_BOOT_DRIVER(tc358768) = {
 	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= tc358768_ids,
 	.ops		= &tc358768_ops,
+	.bind		= dm_scan_fdt_dev,
 	.probe		= tc358768_probe,
 	.priv_auto	= sizeof(struct tc358768_priv),
 };
