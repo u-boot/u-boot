@@ -6,17 +6,18 @@
  */
 
 #include <altera.h>
+#include <env.h>
+#include <errno.h>
+#include <init.h>
+#include <log.h>
 #include <asm/arch/board.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <asm/global_data.h>
-#include <env.h>
-#include <errno.h>
-#include <init.h>
-#include <log.h>
 #include <mach/clock_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -40,6 +41,19 @@ static Altera_desc altera_fpga[] = {
 		0
 	},
 };
+
+/*
+ * The Agilex5 platform has enabled the bloblist feature, and the bloblist
+ * address and size are initialized based on the defconfig settings.
+ * During the SPL phase, this function is used to prevent the bloblist
+ * from initializing its address and size with the saved boot parameters,
+ * which may have been incorrectly set.
+ */
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
+{
+	save_boot_params_ret();
+}
 
 /*
  * Print CPU information

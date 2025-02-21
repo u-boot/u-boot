@@ -6,23 +6,24 @@
  */
 
 #include <config.h>
-#include <asm/arch/board.h>
+#include <errno.h>
+#include <fdtdec.h>
+#include <log.h>
+#include <init.h>
+#include <hang.h>
+#include <handoff.h>
+#include <image.h>
+#include <usb.h>
+#include <usb/dwc2_udc.h>
+#include <asm/global_data.h>
+#include <asm/io.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/misc.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/secure_vab.h>
 #include <asm/arch/smc_api.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
-#include <errno.h>
-#include <fdtdec.h>
-#include <hang.h>
-#include <image.h>
-#include <init.h>
-#include <log.h>
-#include <usb.h>
-#include <usb/dwc2_udc.h>
+#include <bloblist.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,7 +59,18 @@ int board_init(void)
 
 int dram_init_banksize(void)
 {
+#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#ifndef CONFIG_SPL_BUILD
+	struct spl_handoff *ho;
+
+	ho = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF, sizeof(*ho));
+	if (!ho)
+		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
+	handoff_load_dram_banks(ho);
+#endif
+#else
 	fdtdec_setup_memory_banksize();
+#endif /* HANDOFF && CONFIG_TARGET_SOCFPGA_AGILEX5 */
 
 	return 0;
 }

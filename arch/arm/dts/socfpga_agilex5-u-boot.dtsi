@@ -389,6 +389,230 @@
 			};
 		};
 
+		socfpga_ccu_ddr_interleaving_off: socfpga-ccu-ddr-interleaving-off {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* DSU */
+			i_ccu_caiu0@1c000000 {
+				reg = <0x1c000000 0x00001000>;
+				intel,offset-settings =
+					/* CAIUAMIGR */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* FPGA2SOC */
+			i_ccu_ncaiu0@1c001000 {
+				reg = <0x1c001000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU0AMIGR */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* GIC_M */
+			i_ccu_ncaiu1@1c002000 {
+				reg = <0x1c002000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU1AMIGR */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* SMMU */
+			i_ccu_ncaiu2@1c003000 {
+				reg = <0x1c003000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU2AMIGR */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* PSS NOC */
+			i_ccu_ncaiu3@1c004000 {
+				reg = <0x1c004000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU3AMIGR */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* DCE0 */
+			i_ccu_dce0@1c005000 {
+				reg = <0x1c005000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUAMIGR0 */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* DCE1 */
+			i_ccu_dce1@1c006000 {
+				reg = <0x1c006000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUAMIGR1 */
+					<0x000003c0 0x00000003 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81300006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81700006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81b00006 0xc1f03e1f>;
+				bootph-all;
+			};
+		};
+
+		socfpga_ccu_ddr_interleaving_on: socfpga-ccu-ddr-interleaving-on {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* DSU */
+			i_ccu_caiu0@1c000000 {
+				reg = <0x1c000000 0x00001000>;
+				intel,offset-settings =
+					/* CAIUAMIGR */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* FPGA2SOC */
+			i_ccu_ncaiu0@1c001000 {
+				reg = <0x1c001000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU0AMIGR */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* GIC_M */
+			i_ccu_ncaiu1@1c002000 {
+				reg = <0x1c002000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU1AMIGR */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* SMMU */
+			i_ccu_ncaiu2@1c003000 {
+				reg = <0x1c003000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU2AMIGR */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* PSS NOC */
+			i_ccu_ncaiu3@1c004000 {
+				reg = <0x1c004000 0x00001000>;
+				intel,offset-settings =
+					/* NCAIU3AMIGR */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* DCE0 */
+			i_ccu_dce0@1c005000 {
+				reg = <0x1c005000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUAMIGR0 */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+
+			/* DCE1 */
+			i_ccu_dce1@1c006000 {
+				reg = <0x1c006000 0x00001000>;
+				intel,offset-settings =
+					/* DCEUAMIGR1 */
+					<0x000003c0 0x00000001 0x0000001f>,
+					/* DMI_SDRAM_2G */
+					<0x00000460 0x81200006 0xc1f03e1f>,
+					/* DMI_SDRAM_30G */
+					<0x00000480 0x81600006 0xc1f03e1f>,
+					/* DMI_SDRAM_480G */
+					<0x000004a0 0x81a00006 0xc1f03e1f>;
+				bootph-all;
+			};
+		};
+
 		socfpga_smmu_secure_config: socfpga-smmu-secure-config {
 			compatible = "intel,socfpga-dtreg";
 			#address-cells = <1>;
@@ -419,6 +643,26 @@
 					<0x000001a0 0x00000000 0x0000003f>,
 					/* tsn_tbu_stream_ctrl_reg_3_tsn2 */
 					<0x000001a4 0x00000000 0x0000003f>;
+				bootph-all;
+			};
+		};
+
+		socfpga_noc_fw_mpfe_csr: socfpga-noc-fw-mpfe-csr {
+			compatible = "intel,socfpga-dtreg";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			bootph-all;
+
+			/* noc fw mpfe csr */
+			i_noc_fw_mpfe_csr@18000d00 {
+				reg = <0x18000d00 0x00000100>;
+				intel,offset-settings =
+					/* mpfe scr io96b0 reg*/
+					<0x00000000 0x00000001 0x00010101>,
+					/* mpfe scr io96b1 reg*/
+					<0x00000004 0x00000001 0x00010101>,
+					/* mpfe scr noc csr*/
+					<0x00000008 0x00000001 0x00010101>;
 				bootph-all;
 			};
 		};
@@ -464,6 +708,13 @@
 &rst {
 	compatible = "altr,rst-mgr";
 	altr,modrst-offset = <0x24>;
+	bootph-all;
+};
+
+&sdr {
+	compatible = "intel,sdr-ctl-agilex5";
+	reg = <0x18000000 0x400000>;
+	resets = <&rst DDRSCH_RESET>;
 	bootph-all;
 };
 

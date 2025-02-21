@@ -5,27 +5,29 @@
 
 #include <config.h>
 #include <command.h>
-#include <cpu_func.h>
-#include <hang.h>
-#include <asm/cache.h>
-#include <init.h>
-#include <asm/global_data.h>
-#include <asm/io.h>
 #include <errno.h>
+#include <init.h>
+#include <handoff.h>
+#include <hang.h>
+#include <watchdog.h>
 #include <fdtdec.h>
 #include <linux/libfdt.h>
-#include <altera.h>
+#include <linux/printk.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <watchdog.h>
+#include <asm/global_data.h>
+#include <asm/io.h>
+#include <asm/cache.h>
+#include <asm/pl310.h>
 #include <asm/arch/misc.h>
+#include <asm/arch/nic301.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/scan_manager.h>
-#include <asm/arch/system_manager.h>
-#include <asm/arch/nic301.h>
 #include <asm/arch/scu.h>
-#include <asm/pl310.h>
-#include <linux/printk.h>
+#include <asm/arch/system_manager.h>
+#include <altera.h>
+#include <bloblist.h>
+#include <cpu_func.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,8 +53,18 @@ struct bsel bsel_str[] = {
 
 int dram_init(void)
 {
+#if CONFIG_IS_ENABLED(HANDOFF) && IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+	struct spl_handoff *ho;
+
+	ho = bloblist_find(BLOBLISTT_U_BOOT_SPL_HANDOFF, sizeof(*ho));
+	if (!ho)
+		return log_msg_ret("Missing SPL hand-off info", -ENOENT);
+	gd->ram_size = ho->ram_bank[0].size;
+	gd->ram_base = ho->ram_bank[0].start;
+#else
 	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
+#endif /* HANDOFF && CONFIG_TARGET_SOCFPGA_AGILEX5 */
 
 	return 0;
 }

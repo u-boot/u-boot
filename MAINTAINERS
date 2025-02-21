@@ -151,9 +151,11 @@ F:	cmd/arm/
 ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
 M:	Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
-M:	Tien Fong Chee <tien.fong.chee@intel.com>
+M:	Tien Fong Chee <tien.fong.chee@altera.com>
+M:	Tingting Meng <tingting.meng@altera.com>
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-socfpga.git
+F:	drivers/ddr/altera/
 F:	arch/arm/mach-socfpga/
 F:	drivers/sysreset/sysreset_socfpga*
 
