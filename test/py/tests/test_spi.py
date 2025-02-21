@@ -119,37 +119,35 @@ def spi_pre_commands(u_boot_console, freq):
         pytest.fail('Not recognized the SPI flash part name')
 
     m = re.search('page size (.+?) Bytes', output)
-    if m:
-        try:
-            page_size = int(m.group(1))
-        except ValueError:
-            pytest.fail('Not recognized the SPI page size')
+    assert m
+    try:
+        page_size = int(m.group(1))
+    except ValueError:
+        pytest.fail('Not recognized the SPI page size')
 
     m = re.search('erase size (.+?) KiB', output)
-    if m:
-        try:
-            erase_size = int(m.group(1))
-        except ValueError:
-            pytest.fail('Not recognized the SPI erase size')
-
+    assert m
+    try:
+        erase_size = int(m.group(1))
         erase_size *= 1024
+    except ValueError:
+        pytest.fail('Not recognized the SPI erase size')
 
     m = re.search('total (.+?) MiB', output)
-    if m:
-        try:
-            total_size = int(m.group(1))
-        except ValueError:
-            pytest.fail('Not recognized the SPI total size')
-
+    assert m
+    try:
+        total_size = int(m.group(1))
         total_size *= 1024 * 1024
+    except ValueError:
+        pytest.fail('Not recognized the SPI total size')
 
     m = re.search('Detected (.+?) with', output)
-    if m:
-        try:
-            flash_part = m.group(1)
-            assert flash_part == part_name
-        except ValueError:
-            pytest.fail('Not recognized the SPI flash part')
+    assert m
+    try:
+        flash_part = m.group(1)
+        assert flash_part == part_name
+    except ValueError:
+        pytest.fail('Not recognized the SPI flash part')
 
     global SPI_DATA
     SPI_DATA = {

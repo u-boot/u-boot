@@ -279,6 +279,9 @@ def MicrocodeTool():
 
     if (not not options.mcfile) != (not not options.mcfile):
         parser.error("You must specify either header files or a microcode file, not both")
+    date = None
+    microcodes = None
+    license_text = None
     if options.headerfile:
         date, license_text, microcodes = ParseHeaderFiles(options.headerfile)
     elif options.mcfile:

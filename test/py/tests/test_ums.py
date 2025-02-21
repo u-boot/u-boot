@@ -113,13 +113,11 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
         mount_subdir = env__block_devs[0]['writable_fs_subdir']
         part_num = env__block_devs[0]['writable_fs_partition']
         host_ums_part_node = '%s-part%d' % (host_ums_dev_node, part_num)
+        test_f = u_boot_utils.PersistentRandomFile(u_boot_console, 'ums.bin',
+            1024 * 1024);
+        mounted_test_fn = mount_point + '/' + mount_subdir + test_f.fn
     else:
         host_ums_part_node = host_ums_dev_node
-
-    test_f = u_boot_utils.PersistentRandomFile(u_boot_console, 'ums.bin',
-        1024 * 1024);
-    if have_writable_fs_partition:
-        mounted_test_fn = mount_point + '/' + mount_subdir + test_f.fn
 
     def start_ums():
         """Start U-Boot's ums shell command.
@@ -197,25 +195,23 @@ def test_ums(u_boot_console, env__usb_dev_port, env__block_devs):
             ignore_errors)
 
     ignore_cleanup_errors = True
-    try:
-        start_ums()
-        if not have_writable_fs_partition:
-            # Skip filesystem-based testing if not configured
-            return
+    if have_writable_fs_partition:
         try:
-            mount()
-            u_boot_console.log.action('Writing test file via UMS')
-            cmd = ('rm', '-f', mounted_test_fn)
-            u_boot_utils.run_and_log(u_boot_console, cmd)
-            if os.path.exists(mounted_test_fn):
-                raise Exception('Could not rm target UMS test file')
-            cmd = ('cp', test_f.abs_fn, mounted_test_fn)
-            u_boot_utils.run_and_log(u_boot_console, cmd)
-            ignore_cleanup_errors = False
+            start_ums()
+            try:
+                mount()
+                u_boot_console.log.action('Writing test file via UMS')
+                cmd = ('rm', '-f', mounted_test_fn)
+                u_boot_utils.run_and_log(u_boot_console, cmd)
+                if os.path.exists(mounted_test_fn):
+                    raise Exception('Could not rm target UMS test file')
+                cmd = ('cp', test_f.abs_fn, mounted_test_fn)
+                u_boot_utils.run_and_log(u_boot_console, cmd)
+                ignore_cleanup_errors = False
+            finally:
+                umount(ignore_errors=ignore_cleanup_errors)
         finally:
-            umount(ignore_errors=ignore_cleanup_errors)
-    finally:
-        stop_ums(ignore_errors=ignore_cleanup_errors)
+            stop_ums(ignore_errors=ignore_cleanup_errors)
 
     ignore_cleanup_errors = True
     try:

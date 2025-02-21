@@ -580,6 +580,8 @@ def test_usb_load(u_boot_console):
                     elif fs in ['ext4', 'ext2']:
                         file, size, expected_crc32 = \
                             usb_ext4load_ext4write(u_boot_console, fs, x, part)
+                    else:
+                        raise Exception('Unsupported filesystem type %s' % fs)
 
                     offset = random.randrange(128, 1024, 128)
                     output = u_boot_console.run_command(

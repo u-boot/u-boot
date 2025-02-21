@@ -406,10 +406,13 @@ def CheckSetHashValue(node, get_data_func):
     hash_node = node.FindNode('hash')
     if hash_node:
         algo = hash_node.props.get('algo').value
+        data = None
         if algo == 'sha256':
             m = hashlib.sha256()
             m.update(get_data_func())
             data = m.digest()
+        if data is None:
+            raise ValueError(f"Node '{node.path}': Unknown hash algorithm '{algo}'")
         for n in GetUpdateNodes(hash_node):
             n.SetData('value', data)
 

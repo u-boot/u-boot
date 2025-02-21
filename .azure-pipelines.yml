@@ -173,7 +173,7 @@ stages:
             -r tools/buildman/requirements.txt \
             -r tools/patman/requirements.txt \
             -r tools/u_boot_pylib/requirements.txt \
-            asteval pylint==2.12.2 pyopenssl
+            asteval pylint==3.3.4 pyopenssl
           export PATH=${PATH}:~/.local/bin
           echo "[MASTER]" >> .pylintrc
           echo "load-plugins=pylint.extensions.docparams" >> .pylintrc

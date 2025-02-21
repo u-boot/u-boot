@@ -119,12 +119,14 @@ class Entry_ti_board_config(Entry_section):
             array of bytes representing value
         """
         size = 0
+        br = bytearray()
         if (data_type == '#/definitions/u8'):
             size = 1
         elif (data_type == '#/definitions/u16'):
             size = 2
         else:
             size = 4
+        br = None
         if type(val) == int:
             br = val.to_bytes(size, byteorder='little')
         return br
