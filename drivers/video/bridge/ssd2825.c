@@ -13,6 +13,7 @@
 #include <backlight.h>
 #include <video_bridge.h>
 #include <panel.h>
+#include <power/regulator.h>
 #include <spi.h>
 #include <linux/delay.h>
 #include <linux/err.h>
@@ -108,12 +109,18 @@
 #define SSD2825_LP_MIN_CLK		5000 /* KHz */
 #define SSD2825_REF_MIN_CLK		2000 /* KHz */
 
+static const char * const ssd2825_supplies[] = {
+	"dvdd-supply", "avdd-supply", "vddio-supply"
+};
+
 struct ssd2825_bridge_priv {
 	struct mipi_dsi_host host;
 	struct mipi_dsi_device device;
 
 	struct udevice *panel;
 	struct display_timing timing;
+
+	struct udevice *supplies[ARRAY_SIZE(ssd2825_supplies)];
 
 	struct gpio_desc power_gpio;
 
@@ -444,7 +451,7 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 {
 	struct ssd2825_bridge_priv *priv = dev_get_priv(dev);
 	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
-	int ret;
+	int i, ret;
 
 	ret = clk_prepare_enable(priv->tx_clk);
 	if (ret) {
@@ -453,11 +460,14 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dm_gpio_set_value(&priv->power_gpio, 1);
-	if (ret) {
-		log_debug("%s: error changing power-gpios (%d)\n",
-			  __func__, ret);
-		return ret;
+	/* enable supplies */
+	for (i = 0; i < ARRAY_SIZE(ssd2825_supplies); i++) {
+		ret = regulator_set_enable_if_allowed(priv->supplies[i], 1);
+		if (ret) {
+			log_debug("%s: cannot enable %s %d\n", __func__,
+				  ssd2825_supplies[i], ret);
+			return ret;
+		}
 	}
 	mdelay(10);
 
@@ -506,7 +516,7 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 	struct spi_slave *slave = dev_get_parent_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mipi_plat;
-	int ret;
+	int i, ret;
 
 	ret = spi_claim_bus(slave);
 	if (ret) {
@@ -533,12 +543,16 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 	device->format = mipi_plat->format;
 	device->mode_flags = mipi_plat->mode_flags;
 
-	/* get panel gpios */
-	ret = gpio_request_by_name(dev, "power-gpios", 0,
-				   &priv->power_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		log_err("could not decode power-gpios (%d)\n", ret);
-		return ret;
+	/* get supplies */
+	for (i = 0; i < ARRAY_SIZE(ssd2825_supplies); i++) {
+		ret = device_get_supply_regulator(dev, ssd2825_supplies[i],
+						  &priv->supplies[i]);
+		if (ret) {
+			log_debug("%s: cannot get %s %d\n", __func__,
+				  ssd2825_supplies[i], ret);
+			if (ret != -ENOENT)
+				return log_ret(ret);
+		}
 	}
 
 	/* get clk */
