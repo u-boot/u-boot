@@ -311,6 +311,9 @@ static void ssd2825_setup_pll(struct udevice *dev)
 	u8 hzd, hpd;
 
 	tx_freq_khz = clk_get_rate(priv->tx_clk) / 1000;
+	if (!tx_freq_khz || tx_freq_khz < 0)
+		tx_freq_khz = SSD2825_REF_MIN_CLK;
+
 	pd_lines = mipi_dsi_pixel_format_to_bpp(device->format);
 	pclk_mult = pd_lines / device->lanes + 1;
 
@@ -539,7 +542,7 @@ static int ssd2825_bridge_probe(struct udevice *dev)
 	}
 
 	/* get clk */
-	priv->tx_clk = devm_clk_get(dev, "tx_clk");
+	priv->tx_clk = devm_clk_get_optional(dev, NULL);
 	if (IS_ERR(priv->tx_clk)) {
 		log_err("cannot get tx_clk: %ld\n", PTR_ERR(priv->tx_clk));
 		return PTR_ERR(priv->tx_clk);
