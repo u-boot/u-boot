@@ -591,7 +591,7 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_register;
 
-	eth->bus = miiphy_get_dev_by_name(dev->name);
+	eth->bus = &bb_miiphy->mii;
 
 	/* Bring up PHY */
 	ret = clk_enable_bulk(&eth->clks);
