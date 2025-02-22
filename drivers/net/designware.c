@@ -303,6 +303,50 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 };
 
 int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+
+static int dw_bb_mdio_init(const char *name, struct udevice *dev)
+{
+	struct dw_eth_dev *dwpriv = dev_get_priv(dev);
+	struct mii_dev *bus = mdio_alloc();
+	int ret;
+
+	if (!bus) {
+		printf("Failed to allocate MDIO bus\n");
+		return -ENOMEM;
+	}
+
+	debug("\n%s: use bitbang mii..\n", dev->name);
+	ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
+				   &dwpriv->mdc_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret) {
+		debug("no mdc-gpio\n");
+		return ret;
+	}
+	ret = gpio_request_by_name(dev, "snps,mdio-gpio", 0,
+				   &dwpriv->mdio_gpio,
+				   GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+	if (ret) {
+		debug("no mdio-gpio\n");
+		return ret;
+	}
+	dwpriv->bb_delay = dev_read_u32_default(dev, "snps,bitbang-delay", 1);
+
+	dwpriv->bus = bus;
+	dwpriv->dev = dev;
+
+	bb_miiphy_buses[0].priv = dwpriv;
+	snprintf(bus->name, sizeof(bus->name), "%s", name);
+	strlcpy(bb_miiphy_buses[0].name, bus->name, MDIO_NAME_LEN);
+	bus->read = bb_miiphy_read;
+	bus->write = bb_miiphy_write;
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	bus->reset = dw_mdio_reset;
+#endif
+	bus->priv = dwpriv;
+
+	return mdio_register(bus);
+}
 #endif
 
 static void tx_descs_init(struct dw_eth_dev *priv)
@@ -801,6 +845,7 @@ int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
+	bool __maybe_unused bbmiiphy = false;
 	phys_addr_t iobase = pdata->iobase;
 	void *ioaddr;
 	int ret, err;
@@ -891,44 +936,30 @@ int designware_eth_probe(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 
-#if IS_ENABLED(CONFIG_DM_MDIO)
-	ret = dw_dm_mdio_init(dev->name, dev);
-#else
-	ret = dw_mdio_init(dev->name, dev);
-#endif
-	if (ret) {
-		err = ret;
-		goto mdio_err;
-	}
-	priv->bus = miiphy_get_dev_by_name(dev->name);
-	priv->dev = dev;
-
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
-	if (dev_read_bool(dev, "snps,bitbang-mii")) {
-		debug("\n%s: use bitbang mii..\n", dev->name);
-		ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
-					   &priv->mdc_gpio, GPIOD_IS_OUT
-					   | GPIOD_IS_OUT_ACTIVE);
+	bbmiiphy = dev_read_bool(dev, "snps,bitbang-mii");
+	if (bbmiiphy) {
+		ret = dw_bb_mdio_init(dev->name, dev);
 		if (ret) {
-			debug("no mdc-gpio\n");
-			return ret;
+			err = ret;
+			goto mdio_err;
 		}
-		ret = gpio_request_by_name(dev, "snps,mdio-gpio", 0,
-					   &priv->mdio_gpio, GPIOD_IS_OUT
-					   | GPIOD_IS_OUT_ACTIVE);
-		if (ret) {
-			debug("no mdio-gpio\n");
-			return ret;
-		}
-		priv->bb_delay = dev_read_u32_default(dev, "snps,bitbang-delay", 1);
-
-		bb_miiphy_buses[0].priv = priv;
-		strlcpy(bb_miiphy_buses[0].name, priv->bus->name,
-			MDIO_NAME_LEN);
-		priv->bus->read = bb_miiphy_read;
-		priv->bus->write = bb_miiphy_write;
-	}
+	} else
 #endif
+	{
+#if IS_ENABLED(CONFIG_DM_MDIO)
+		ret = dw_dm_mdio_init(dev->name, dev);
+#else
+		ret = dw_mdio_init(dev->name, dev);
+#endif
+		if (ret) {
+			err = ret;
+			goto mdio_err;
+		}
+		priv->bus = miiphy_get_dev_by_name(dev->name);
+		priv->dev = dev;
+	}
+
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
 	if (!ret)
