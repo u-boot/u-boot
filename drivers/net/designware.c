@@ -905,8 +905,6 @@ int designware_eth_probe(struct udevice *dev)
 
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
 	if (dev_read_bool(dev, "snps,bitbang-mii")) {
-		int bus_idx;
-
 		debug("\n%s: use bitbang mii..\n", dev->name);
 		ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
 					   &priv->mdc_gpio, GPIOD_IS_OUT
@@ -924,16 +922,11 @@ int designware_eth_probe(struct udevice *dev)
 		}
 		priv->bb_delay = dev_read_u32_default(dev, "snps,bitbang-delay", 1);
 
-		for (bus_idx = 0; bus_idx < bb_miiphy_buses_num; bus_idx++) {
-			if (!bb_miiphy_buses[bus_idx].priv) {
-				bb_miiphy_buses[bus_idx].priv = priv;
-				strlcpy(bb_miiphy_buses[bus_idx].name, priv->bus->name,
-					MDIO_NAME_LEN);
-				priv->bus->read = bb_miiphy_read;
-				priv->bus->write = bb_miiphy_write;
-				break;
-			}
-		}
+		bb_miiphy_buses[0].priv = priv;
+		strlcpy(bb_miiphy_buses[0].name, priv->bus->name,
+			MDIO_NAME_LEN);
+		priv->bus->read = bb_miiphy_read;
+		priv->bus->write = bb_miiphy_write;
 	}
 #endif
 	ret = dw_phy_init(priv, dev);
