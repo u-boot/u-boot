@@ -245,7 +245,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 	retval = mdio_register(mdiodev);
 	if (retval < 0)
 		return retval;
-	*bus = miiphy_get_dev_by_name(mdiodev->name);
+	*bus = &bb_miiphy->mii;
 
 	return mii_mdio_init(bb_miiphy);
 }
