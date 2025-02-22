@@ -44,6 +44,7 @@ struct phy_device *mdio_phydev_for_ethname(const char *devname);
 
 void miiphy_listdev(void);
 
+void mdio_init(struct mii_dev *bus);
 struct mii_dev *mdio_alloc(void);
 void mdio_free(struct mii_dev *bus);
 int mdio_register(struct mii_dev *bus);
