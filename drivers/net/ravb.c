@@ -490,6 +490,65 @@ static void ravb_stop(struct udevice *dev)
 	ravb_reset(dev);
 }
 
+/* Bitbang MDIO access */
+static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
+{
+	struct ravb_priv *eth = bus->priv;
+
+	setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
+
+	return 0;
+}
+
+static int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+{
+	struct ravb_priv *eth = bus->priv;
+
+	clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
+
+	return 0;
+}
+
+static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+{
+	struct ravb_priv *eth = bus->priv;
+
+	if (v)
+		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
+	else
+		clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
+
+	return 0;
+}
+
+static int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+{
+	struct ravb_priv *eth = bus->priv;
+
+	*v = (readl(eth->iobase + RAVB_REG_PIR) & PIR_MDI) >> 3;
+
+	return 0;
+}
+
+static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+{
+	struct ravb_priv *eth = bus->priv;
+
+	if (v)
+		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
+	else
+		clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
+
+	return 0;
+}
+
+static int ravb_bb_delay(struct bb_miiphy_bus *bus)
+{
+	udelay(10);
+
+	return 0;
+}
+
 static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -556,64 +615,6 @@ static int ravb_remove(struct udevice *dev)
 	mdio_unregister(eth->bus);
 	mdio_free(eth->bus);
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
-
-	return 0;
-}
-
-static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
-{
-	struct ravb_priv *eth = bus->priv;
-
-	setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
-
-	return 0;
-}
-
-static int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
-{
-	struct ravb_priv *eth = bus->priv;
-
-	clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
-
-	return 0;
-}
-
-static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
-{
-	struct ravb_priv *eth = bus->priv;
-
-	if (v)
-		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
-	else
-		clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
-
-	return 0;
-}
-
-static int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
-{
-	struct ravb_priv *eth = bus->priv;
-
-	*v = (readl(eth->iobase + RAVB_REG_PIR) & PIR_MDI) >> 3;
-
-	return 0;
-}
-
-static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
-{
-	struct ravb_priv *eth = bus->priv;
-
-	if (v)
-		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
-	else
-		clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
-
-	return 0;
-}
-
-static int ravb_bb_delay(struct bb_miiphy_bus *bus)
-{
-	udelay(10);
 
 	return 0;
 }
