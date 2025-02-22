@@ -73,10 +73,14 @@ struct bb_miiphy_bus {
 	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
 	int (*delay)(struct bb_miiphy_bus *bus);
 	void *priv;
+	struct mii_dev mii;
 };
 
 extern struct bb_miiphy_bus bb_miiphy_buses[];
 extern int bb_miiphy_buses_num;
+
+struct bb_miiphy_bus *bb_miiphy_alloc(void);
+void bb_miiphy_free(struct bb_miiphy_bus *bus);
 
 int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
 int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
