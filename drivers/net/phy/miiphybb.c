@@ -17,17 +17,6 @@
 #include <miiphy.h>
 #include <asm/global_data.h>
 
-int bb_miiphy_init(void)
-{
-	int i;
-
-	for (i = 0; i < bb_miiphy_buses_num; i++)
-		if (bb_miiphy_buses[i].init != NULL)
-			bb_miiphy_buses[i].init(&bb_miiphy_buses[i]);
-
-	return 0;
-}
-
 static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
 {
 	int i;

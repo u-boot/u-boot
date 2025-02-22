@@ -749,9 +749,6 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_BOARD_LATE_INIT
 	board_late_init,
 #endif
-#ifdef CONFIG_BITBANGMII
-	bb_miiphy_init,
-#endif
 #ifdef CONFIG_PCI_ENDPOINT
 	pci_ep_init,
 #endif
