@@ -223,31 +223,29 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 {
 	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
 	struct mii_dev *mdiodev;
-	char *name = bb_miiphy_buses[k].name;
 	int retval;
 
 	if (!bb_miiphy)
 		return -ENOMEM;
 
 	mdiodev = &bb_miiphy->mii;
-	strlcpy(mdiodev->name, name, MDIO_NAME_LEN);
+	snprintf(mdiodev->name, MDIO_NAME_LEN, "ihs%d", k);
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
 
-	/* Copy the bus accessors, name and private data */
+	/* Copy the bus accessors and private data */
 	bb_miiphy->mdio_active = mii_mdio_active;
 	bb_miiphy->mdio_tristate = mii_mdio_tristate;
 	bb_miiphy->set_mdio = mii_set_mdio;
 	bb_miiphy->get_mdio = mii_get_mdio;
 	bb_miiphy->set_mdc = mii_set_mdc;
 	bb_miiphy->delay = mii_delay;
-	strlcpy(bb_miiphy->name, name, MDIO_NAME_LEN);
 	bb_miiphy->priv = &gpio_mii_set[k];
 
 	retval = mdio_register(mdiodev);
 	if (retval < 0)
 		return retval;
-	*bus = miiphy_get_dev_by_name(name);
+	*bus = miiphy_get_dev_by_name(mdiodev->name);
 
 	return mii_mdio_init(bb_miiphy);
 }
@@ -330,7 +328,6 @@ int init_octo_phys(uint octo_phy_mask)
 
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
-		.name = "ihs0",
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,
@@ -340,7 +337,6 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.priv = &gpio_mii_set[0],
 	},
 	{
-		.name = "ihs1",
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,
@@ -350,7 +346,6 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.priv = &gpio_mii_set[1],
 	},
 	{
-		.name = "ihs2",
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,

@@ -578,14 +578,13 @@ static int ravb_probe(struct udevice *dev)
 	bb_miiphy_buses[0].priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
-	/* Copy the bus accessors, name and private data */
+	/* Copy the bus accessors and private data */
 	bb_miiphy->mdio_active = ravb_bb_mdio_active;
 	bb_miiphy->mdio_tristate = ravb_bb_mdio_tristate;
 	bb_miiphy->set_mdio = ravb_bb_set_mdio;
 	bb_miiphy->get_mdio = ravb_bb_get_mdio;
 	bb_miiphy->set_mdc = ravb_bb_set_mdc;
 	bb_miiphy->delay = ravb_bb_delay;
-	strlcpy(bb_miiphy->name, "ravb", MDIO_NAME_LEN);
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
@@ -634,7 +633,6 @@ static int ravb_remove(struct udevice *dev)
 
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
-		.name		= "ravb",
 		.mdio_active	= ravb_bb_mdio_active,
 		.mdio_tristate	= ravb_bb_mdio_tristate,
 		.set_mdio	= ravb_bb_set_mdio,
@@ -665,8 +663,6 @@ int ravb_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 1000);
-
-	sprintf(bb_miiphy_buses[0].name, dev->name);
 
 	return 0;
 }

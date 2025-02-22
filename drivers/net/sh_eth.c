@@ -740,14 +740,13 @@ static int sh_ether_probe(struct udevice *udev)
 	bb_miiphy_buses[0].priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
 
-	/* Copy the bus accessors, name and private data */
+	/* Copy the bus accessors and private data */
 	bb_miiphy->mdio_active = sh_eth_bb_mdio_active;
 	bb_miiphy->mdio_tristate = sh_eth_bb_mdio_tristate;
 	bb_miiphy->set_mdio = sh_eth_bb_set_mdio;
 	bb_miiphy->get_mdio = sh_eth_bb_get_mdio;
 	bb_miiphy->set_mdc = sh_eth_bb_set_mdc;
 	bb_miiphy->delay = sh_eth_bb_delay;
-	strlcpy(bb_miiphy->name, "sh_eth", MDIO_NAME_LEN);
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
@@ -829,8 +828,6 @@ int sh_ether_of_to_plat(struct udevice *dev)
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
 
-	sprintf(bb_miiphy_buses[0].name, dev->name);
-
 	return 0;
 }
 
@@ -859,7 +856,6 @@ U_BOOT_DRIVER(eth_sh_ether) = {
 
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
-		.name		= "sh_eth",
 		.mdio_active	= sh_eth_bb_mdio_active,
 		.mdio_tristate	= sh_eth_bb_mdio_tristate,
 		.set_mdio	= sh_eth_bb_set_mdio,

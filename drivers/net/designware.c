@@ -292,7 +292,6 @@ static int dw_eth_bb_delay(struct bb_miiphy_bus *bus)
 
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
-		.name		= BB_MII_DEVNAME,
 		.mdio_active	= dw_eth_bb_mdio_active,
 		.mdio_tristate	= dw_eth_bb_mdio_tristate,
 		.set_mdio	= dw_eth_bb_set_mdio,
@@ -340,7 +339,6 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 
 	bb_miiphy_buses[0].priv = dwpriv;
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
-	strlcpy(bb_miiphy_buses[0].name, bus->name, MDIO_NAME_LEN);
 	bus->read = bb_miiphy_read;
 	bus->write = bb_miiphy_write;
 #if CONFIG_IS_ENABLED(DM_GPIO)
@@ -348,14 +346,13 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 #endif
 	bus->priv = dwpriv;
 
-	/* Copy the bus accessors, name and private data */
+	/* Copy the bus accessors and private data */
 	bb_miiphy->mdio_active = dw_eth_bb_mdio_active;
 	bb_miiphy->mdio_tristate = dw_eth_bb_mdio_tristate;
 	bb_miiphy->set_mdio = dw_eth_bb_set_mdio;
 	bb_miiphy->get_mdio = dw_eth_bb_get_mdio;
 	bb_miiphy->set_mdc = dw_eth_bb_set_mdc;
 	bb_miiphy->delay = dw_eth_bb_delay;
-	strlcpy(bb_miiphy->name, bus->name, MDIO_NAME_LEN);
 
 	return mdio_register(bus);
 }
