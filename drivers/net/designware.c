@@ -1041,7 +1041,6 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.get_mdio	= dw_eth_bb_get_mdio,
 		.set_mdc	= dw_eth_bb_set_mdc,
 		.delay		= dw_eth_bb_delay,
-		.priv		= NULL,
 	}
 };
 
