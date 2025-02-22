@@ -1,4 +1,4 @@
 #include <configs/stm32mp15_dhcom_basic.config>
 
 CONFIG_DEFAULT_DEVICE_TREE="st/stm32mp157c-dhcom-pdk2"
-CONFIG_OF_LIST="st/stm32mp157c-dhcom-pdk2 st/stm32mp153c-dhcom-drc02 st/stm32mp157c-dhcom-picoitx"
+CONFIG_OF_LIST="st/stm32mp157c-dhcom-pdk2"
