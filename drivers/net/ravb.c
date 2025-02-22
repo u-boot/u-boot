@@ -553,6 +553,7 @@ static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
+	struct bb_miiphy_bus *bb_miiphy;
 	struct mii_dev *mdiodev;
 	void __iomem *iobase;
 	int ret;
@@ -564,16 +565,28 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_alloc;
 
-	mdiodev = mdio_alloc();
-	if (!mdiodev) {
+	bb_miiphy = bb_miiphy_alloc();
+	if (!bb_miiphy) {
 		ret = -ENOMEM;
 		goto err_mdio_alloc;
 	}
+
+	mdiodev = &bb_miiphy->mii;
 
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
 	bb_miiphy_buses[0].priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
+
+	/* Copy the bus accessors, name and private data */
+	bb_miiphy->mdio_active = ravb_bb_mdio_active;
+	bb_miiphy->mdio_tristate = ravb_bb_mdio_tristate;
+	bb_miiphy->set_mdio = ravb_bb_set_mdio;
+	bb_miiphy->get_mdio = ravb_bb_get_mdio;
+	bb_miiphy->set_mdc = ravb_bb_set_mdc;
+	bb_miiphy->delay = ravb_bb_delay;
+	strlcpy(bb_miiphy->name, "ravb", MDIO_NAME_LEN);
+	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0)
@@ -599,7 +612,7 @@ static int ravb_probe(struct udevice *dev)
 err_mdio_reset:
 	clk_release_bulk(&eth->clks);
 err_mdio_register:
-	mdio_free(mdiodev);
+	bb_miiphy_free(bb_miiphy);
 err_mdio_alloc:
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 	return ret;
