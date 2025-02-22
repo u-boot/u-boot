@@ -753,7 +753,7 @@ static int sh_ether_probe(struct udevice *udev)
 	if (ret < 0)
 		goto err_mdio_register;
 
-	priv->bus = miiphy_get_dev_by_name(udev->name);
+	priv->bus = &bb_miiphy->mii;
 
 	eth->port = CFG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
