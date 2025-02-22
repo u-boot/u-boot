@@ -236,7 +236,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 		return retval;
 	*bus = miiphy_get_dev_by_name(name);
 
-	return 0;
+	return mii_mdio_init(&bb_miiphy_buses[k]);
 }
 
 struct porttype *get_porttype(uint octo_phy_mask, uint k)
@@ -318,7 +318,6 @@ int init_octo_phys(uint octo_phy_mask)
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
 		.name = "ihs0",
-		.init = mii_mdio_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,
@@ -329,7 +328,6 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 	},
 	{
 		.name = "ihs1",
-		.init = mii_mdio_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,
@@ -340,7 +338,6 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 	},
 	{
 		.name = "ihs2",
-		.init = mii_mdio_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
 		.set_mdio = mii_set_mdio,
