@@ -307,13 +307,16 @@ int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
 static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 {
 	struct dw_eth_dev *dwpriv = dev_get_priv(dev);
-	struct mii_dev *bus = mdio_alloc();
+	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
+	struct mii_dev *bus;
 	int ret;
 
-	if (!bus) {
+	if (!bb_miiphy) {
 		printf("Failed to allocate MDIO bus\n");
 		return -ENOMEM;
 	}
+
+	bus = &bb_miiphy->mii;
 
 	debug("\n%s: use bitbang mii..\n", dev->name);
 	ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
@@ -344,6 +347,15 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 	bus->reset = dw_mdio_reset;
 #endif
 	bus->priv = dwpriv;
+
+	/* Copy the bus accessors, name and private data */
+	bb_miiphy->mdio_active = dw_eth_bb_mdio_active;
+	bb_miiphy->mdio_tristate = dw_eth_bb_mdio_tristate;
+	bb_miiphy->set_mdio = dw_eth_bb_set_mdio;
+	bb_miiphy->get_mdio = dw_eth_bb_get_mdio;
+	bb_miiphy->set_mdc = dw_eth_bb_set_mdc;
+	bb_miiphy->delay = dw_eth_bb_delay;
+	strlcpy(bb_miiphy->name, bus->name, MDIO_NAME_LEN);
 
 	return mdio_register(bus);
 }
@@ -968,7 +980,12 @@ int designware_eth_probe(struct udevice *dev)
 	/* continue here for cleanup if no PHY found */
 	err = ret;
 	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
+#if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
+	if (bbmiiphy)
+		bb_miiphy_free(container_of(priv->bus, struct bb_miiphy_bus, mii));
+	else
+#endif
+		mdio_free(priv->bus);
 mdio_err:
 
 #ifdef CONFIG_CLK
