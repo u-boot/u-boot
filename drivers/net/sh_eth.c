@@ -716,6 +716,7 @@ static int sh_ether_probe(struct udevice *udev)
 	struct eth_pdata *pdata = dev_get_plat(udev);
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
+	struct bb_miiphy_bus *bb_miiphy;
 	struct mii_dev *mdiodev;
 	int ret;
 
@@ -726,16 +727,28 @@ static int sh_ether_probe(struct udevice *udev)
 	if (ret < 0)
 		return ret;
 #endif
-	mdiodev = mdio_alloc();
-	if (!mdiodev) {
+	bb_miiphy = bb_miiphy_alloc();
+	if (!bb_miiphy) {
 		ret = -ENOMEM;
 		return ret;
 	}
+
+	mdiodev = &bb_miiphy->mii;
 
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
 	bb_miiphy_buses[0].priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
+
+	/* Copy the bus accessors, name and private data */
+	bb_miiphy->mdio_active = sh_eth_bb_mdio_active;
+	bb_miiphy->mdio_tristate = sh_eth_bb_mdio_tristate;
+	bb_miiphy->set_mdio = sh_eth_bb_set_mdio;
+	bb_miiphy->get_mdio = sh_eth_bb_get_mdio;
+	bb_miiphy->set_mdc = sh_eth_bb_set_mdc;
+	bb_miiphy->delay = sh_eth_bb_delay;
+	strlcpy(bb_miiphy->name, "sh_eth", MDIO_NAME_LEN);
+	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0)
@@ -771,7 +784,7 @@ err_phy_config:
 	clk_disable(&priv->clk);
 #endif
 err_mdio_register:
-	mdio_free(mdiodev);
+	bb_miiphy_free(bb_miiphy);
 	return ret;
 }
 
