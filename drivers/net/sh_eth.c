@@ -777,11 +777,6 @@ U_BOOT_DRIVER(eth_sh_ether) = {
 };
 
 /******* for bb_miiphy *******/
-static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
-{
-	return 0;
-}
-
 static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 {
 	struct sh_eth_dev *eth = bus->priv;
@@ -852,7 +847,6 @@ static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
 		.name		= "sh_eth",
-		.init		= sh_eth_bb_init,
 		.mdio_active	= sh_eth_bb_mdio_active,
 		.mdio_tristate	= sh_eth_bb_mdio_tristate,
 		.set_mdio	= sh_eth_bb_set_mdio,
