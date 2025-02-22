@@ -1742,3 +1742,118 @@ static int dm_test_acpi_write_tsd_package(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_acpi_write_tsd_package, 0);
+
+static int dm_test_acpi_iort_smmu_v3(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	int smmu_offset;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ctx->tab_start = ctx->current;
+	acpi_inc(ctx, sizeof(struct acpi_table_iort));
+
+	ptr = acpigen_get_current(ctx);
+
+	smmu_offset = acpi_iort_add_smmu_v3(ctx,
+					    0xaabbccddeeffULL, // Base address
+					    1, // Flags
+					    0xffeeddccaabbULL,  // VATOS address
+					    0,  // SMMUv3 Model
+					    3, // Event
+					    4, // Pri
+					    5, // Gerror
+					    6, // Sync
+					    7,  // Proximity domain
+					    8,  // DevIDMappingIndex
+					    0,
+					    NULL);
+	ut_assert(smmu_offset);
+
+	ut_asserteq(ACPI_IORT_NODE_SMMU_V3, ptr[0]);
+	ut_asserteq(68, get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 4)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 8)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 12)));
+
+	ut_asserteq_64(0xaabbccddeeffULL, get_unaligned((u64 *)(ptr + 16)));
+	ut_asserteq(1, get_unaligned((u32 *)(ptr + 24)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 28)));
+	ut_asserteq_64(0xffeeddccaabbULL, get_unaligned((u64 *)(ptr + 32)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 40)));
+	ut_asserteq(3, get_unaligned((u32 *)(ptr + 44)));
+	ut_asserteq(4, get_unaligned((u32 *)(ptr + 48)));
+	ut_asserteq(5, get_unaligned((u32 *)(ptr + 52)));
+	ut_asserteq(6, get_unaligned((u32 *)(ptr + 56)));
+	ut_asserteq(7, get_unaligned((u32 *)(ptr + 60)));
+	ut_asserteq(8, get_unaligned((u32 *)(ptr + 64)));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_iort_smmu_v3, 0);
+
+static int dm_test_acpi_iort_rc(struct unit_test_state *uts)
+{
+	struct acpi_ctx *ctx;
+	int its_group_offset, offset;
+	u8 *ptr;
+
+	ut_assertok(alloc_context(&ctx));
+	ctx->tab_start = ctx->current;
+	acpi_inc(ctx, sizeof(struct acpi_table_iort));
+
+	u32 identifiers[] = { 0 };
+
+	its_group_offset = acpi_iort_add_its_group(ctx, ARRAY_SIZE(identifiers),
+						   identifiers);
+
+	ptr = acpigen_get_current(ctx);
+
+	struct acpi_iort_id_mapping map_rc[] = {
+		{0, 0xfff, 0, its_group_offset, 0},
+		{0x1000, 0xffff, 0x1000, its_group_offset, 0}
+	};
+
+	offset = acpi_iort_add_rc(ctx,
+				  0xaabbccddeeffULL, // Mem Access Properties
+				  2, // ATS attributes
+				  3, // PCI segment
+				  4, // Memory address size limit
+				  ARRAY_SIZE(map_rc),
+				  map_rc);
+
+	ut_assert(offset);
+	ut_asserteq(ACPI_IORT_NODE_PCI_ROOT_COMPLEX, ptr[0]);
+	ut_asserteq(36 + ARRAY_SIZE(map_rc) * sizeof(struct acpi_iort_id_mapping),
+		    get_unaligned((u16 *)(ptr + 1)));
+	ut_asserteq(0, get_unaligned((u16 *)(ptr + 4)));
+	ut_asserteq(2, get_unaligned((u32 *)(ptr + 8)));
+	ut_asserteq(36, get_unaligned((u32 *)(ptr + 12)));
+
+	ut_asserteq_64(0xaabbccddeeffULL, get_unaligned((u64 *)(ptr + 16)));
+	ut_asserteq(2, get_unaligned((u32 *)(ptr + 24)));
+	ut_asserteq(3, get_unaligned((u32 *)(ptr + 28)));
+	ut_asserteq(4, ptr[32]);
+	ut_asserteq(0, ptr[33]);
+	ut_asserteq(0, ptr[34]);
+	ut_asserteq(0, ptr[35]);
+
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 36)));
+	ut_asserteq(0xfff, get_unaligned((u32 *)(ptr + 40)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 44)));
+	ut_asserteq(its_group_offset, get_unaligned((u32 *)(ptr + 48)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 52)));
+
+	ut_asserteq(0x1000, get_unaligned((u32 *)(ptr + 56)));
+	ut_asserteq(0xffff, get_unaligned((u32 *)(ptr + 60)));
+	ut_asserteq(0x1000, get_unaligned((u32 *)(ptr + 64)));
+	ut_asserteq(its_group_offset, get_unaligned((u32 *)(ptr + 68)));
+	ut_asserteq(0, get_unaligned((u32 *)(ptr + 72)));
+
+	free_context(&ctx);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_iort_rc, 0);
