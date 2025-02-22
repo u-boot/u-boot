@@ -18,17 +18,9 @@
 #include <miiphy.h>
 #include <asm/global_data.h>
 
-static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
+static inline struct bb_miiphy_bus *bb_miiphy_getbus(struct mii_dev *miidev)
 {
-	int i;
-
-	/* Search the correct bus */
-	for (i = 0; i < bb_miiphy_buses_num; i++) {
-		if (!strcmp(bb_miiphy_buses[i].name, devname)) {
-			return &bb_miiphy_buses[i];
-		}
-	}
-	return NULL;
+	return container_of(miidev, struct bb_miiphy_bus, mii);
 }
 
 struct bb_miiphy_bus *bb_miiphy_alloc(void)
@@ -141,7 +133,7 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 	int j; /* counter */
 	struct bb_miiphy_bus *bus;
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev);
 	if (bus == NULL) {
 		return -1;
 	}
@@ -209,7 +201,7 @@ int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 	struct bb_miiphy_bus *bus;
 	int j;			/* counter */
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev);
 	if (bus == NULL) {
 		/* Bus not found! */
 		return -1;
