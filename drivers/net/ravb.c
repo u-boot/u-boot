@@ -575,7 +575,6 @@ static int ravb_probe(struct udevice *dev)
 
 	mdiodev->read = bb_miiphy_read;
 	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	/* Copy the bus accessors and private data */
@@ -630,18 +629,6 @@ static int ravb_remove(struct udevice *dev)
 
 	return 0;
 }
-
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.mdio_active	= ravb_bb_mdio_active,
-		.mdio_tristate	= ravb_bb_mdio_tristate,
-		.set_mdio	= ravb_bb_set_mdio,
-		.get_mdio	= ravb_bb_get_mdio,
-		.set_mdc	= ravb_bb_set_mdc,
-		.delay		= ravb_bb_delay,
-	},
-};
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
 
 static const struct eth_ops ravb_ops = {
 	.start			= ravb_start,

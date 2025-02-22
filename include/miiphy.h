@@ -75,9 +75,6 @@ struct bb_miiphy_bus {
 	struct mii_dev mii;
 };
 
-extern struct bb_miiphy_bus bb_miiphy_buses[];
-extern int bb_miiphy_buses_num;
-
 struct bb_miiphy_bus *bb_miiphy_alloc(void);
 void bb_miiphy_free(struct bb_miiphy_bus *bus);
 

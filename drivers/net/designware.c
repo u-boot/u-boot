@@ -290,19 +290,6 @@ static int dw_eth_bb_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.mdio_active	= dw_eth_bb_mdio_active,
-		.mdio_tristate	= dw_eth_bb_mdio_tristate,
-		.set_mdio	= dw_eth_bb_set_mdio,
-		.get_mdio	= dw_eth_bb_get_mdio,
-		.set_mdc	= dw_eth_bb_set_mdc,
-		.delay		= dw_eth_bb_delay,
-	}
-};
-
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
-
 static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 {
 	struct dw_eth_dev *dwpriv = dev_get_priv(dev);
@@ -337,7 +324,6 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 	dwpriv->bus = bus;
 	dwpriv->dev = dev;
 
-	bb_miiphy_buses[0].priv = dwpriv;
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
 	bus->read = bb_miiphy_read;
 	bus->write = bb_miiphy_write;
