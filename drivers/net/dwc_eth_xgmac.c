@@ -45,6 +45,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/delay.h>
+#include <linux/kernel.h>
 #include "dwc_eth_xgmac.h"
 
 static void *xgmac_alloc_descs(struct xgmac_priv *xgmac, unsigned int num)
@@ -457,7 +458,7 @@ static int xgmac_start(struct udevice *dev)
 	int ret, i;
 	u32 val, tx_fifo_sz, rx_fifo_sz, tqs, rqs, pbl;
 	ulong last_rx_desc;
-	ulong desc_pad;
+	ulong desc_pad, address;
 
 	struct xgmac_desc *tx_desc = NULL;
 	struct xgmac_desc *rx_desc = NULL;
@@ -702,8 +703,11 @@ static int xgmac_start(struct udevice *dev)
 	for (i = 0; i < XGMAC_DESCRIPTORS_RX; i++) {
 		rx_desc = (struct xgmac_desc *)xgmac_get_desc(xgmac, i, true);
 
-		rx_desc->des0 = (uintptr_t)(xgmac->rx_dma_buf +
-					    (i * XGMAC_MAX_PACKET_SIZE));
+		address = (uintptr_t)(xgmac->rx_dma_buf +
+					(i * XGMAC_MAX_PACKET_SIZE));
+
+		rx_desc->des0 = lower_32_bits(address);
+		rx_desc->des1 = upper_32_bits(address);
 		rx_desc->des3 = XGMAC_DESC3_OWN;
 		/* Flush the cache to the memory */
 		mb();
@@ -713,13 +717,17 @@ static int xgmac_start(struct udevice *dev)
 						       XGMAC_MAX_PACKET_SIZE);
 	}
 
-	writel(0, &xgmac->dma_regs->ch0_txdesc_list_haddress);
-	writel((ulong)xgmac_get_desc(xgmac, 0, false),
+	address = (ulong)xgmac_get_desc(xgmac, 0, false);
+	writel(upper_32_bits(address),
+	       &xgmac->dma_regs->ch0_txdesc_list_haddress);
+	writel(lower_32_bits(address),
 	       &xgmac->dma_regs->ch0_txdesc_list_address);
 	writel(XGMAC_DESCRIPTORS_TX - 1,
 	       &xgmac->dma_regs->ch0_txdesc_ring_length);
-	writel(0, &xgmac->dma_regs->ch0_rxdesc_list_haddress);
-	writel((ulong)xgmac_get_desc(xgmac, 0, true),
+	address = (ulong)xgmac_get_desc(xgmac, 0, true);
+	writel(upper_32_bits(address),
+	       &xgmac->dma_regs->ch0_rxdesc_list_haddress);
+	writel(lower_32_bits(address),
 	       &xgmac->dma_regs->ch0_rxdesc_list_address);
 	writel(XGMAC_DESCRIPTORS_RX - 1,
 	       &xgmac->dma_regs->ch0_rxdesc_ring_length);
@@ -844,8 +852,8 @@ static int xgmac_send(struct udevice *dev, void *packet, int length)
 	xgmac->tx_desc_idx++;
 	xgmac->tx_desc_idx %= XGMAC_DESCRIPTORS_TX;
 
-	tx_desc->des0 = (ulong)xgmac->tx_dma_buf;
-	tx_desc->des1 = 0;
+	tx_desc->des0 = lower_32_bits((ulong)xgmac->tx_dma_buf);
+	tx_desc->des1 = upper_32_bits((ulong)xgmac->tx_dma_buf);
 	tx_desc->des2 = length;
 	/*
 	 * Make sure that if HW sees the _OWN write below, it will see all the
@@ -901,6 +909,7 @@ static int xgmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 	u32 idx, idx_mask = xgmac->desc_per_cacheline - 1;
 	uchar *packet_expected;
 	struct xgmac_desc *rx_desc;
+	ulong address;
 
 	debug("%s(packet=%p, length=%d)\n", __func__, packet, length);
 
@@ -920,13 +929,15 @@ static int xgmac_free_pkt(struct udevice *dev, uchar *packet, int length)
 		     idx++) {
 			rx_desc = xgmac_get_desc(xgmac, idx, true);
 			rx_desc->des0 = 0;
+			rx_desc->des1 = 0;
 			/* Flush the cache to the memory */
 			mb();
 			xgmac->config->ops->xgmac_flush_desc(rx_desc);
 			xgmac->config->ops->xgmac_inval_buffer(packet, length);
-			rx_desc->des0 = (u32)(ulong)(xgmac->rx_dma_buf +
-					     (idx * XGMAC_MAX_PACKET_SIZE));
-			rx_desc->des1 = 0;
+			address = (ulong)(xgmac->rx_dma_buf +
+					(idx * XGMAC_MAX_PACKET_SIZE));
+			rx_desc->des0 = lower_32_bits(address);
+			rx_desc->des1 = upper_32_bits(address);
 			rx_desc->des2 = 0;
 			/*
 			 * Make sure that if HW sees the _OWN write below,
