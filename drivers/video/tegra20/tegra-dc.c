@@ -524,6 +524,13 @@ exit:
 		return ret;
 	}
 
+	priv->clk_parent = devm_clk_get(priv->bridge, "parent");
+	if (IS_ERR(priv->clk_parent)) {
+		log_debug("%s: Could not get DC clock parent from DSI/HDMI: %ld\n",
+			  __func__, PTR_ERR(priv->clk_parent));
+		return PTR_ERR(priv->clk_parent);
+	}
+
 	dc_plat = dev_get_plat(priv->bridge);
 
 	/* Fill the platform data for internal devices */
