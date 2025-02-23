@@ -327,7 +327,7 @@
 		ranges;
 
 		uart0: serial@d4017000 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017000 0x0 0x100>;
 			interrupts = <42>;
 			clock-frequency = <14857000>;
@@ -337,7 +337,7 @@
 		};
 
 		uart2: serial@d4017100 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017100 0x0 0x100>;
 			interrupts = <44>;
 			clock-frequency = <14857000>;
@@ -347,7 +347,7 @@
 		};
 
 		uart3: serial@d4017200 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017200 0x0 0x100>;
 			interrupts = <45>;
 			clock-frequency = <14857000>;
@@ -357,7 +357,7 @@
 		};
 
 		uart4: serial@d4017300 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017300 0x0 0x100>;
 			interrupts = <46>;
 			clock-frequency = <14857000>;
@@ -367,7 +367,7 @@
 		};
 
 		uart5: serial@d4017400 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017400 0x0 0x100>;
 			interrupts = <47>;
 			clock-frequency = <14857000>;
@@ -377,7 +377,7 @@
 		};
 
 		uart6: serial@d4017500 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017500 0x0 0x100>;
 			interrupts = <48>;
 			clock-frequency = <14857000>;
@@ -387,7 +387,7 @@
 		};
 
 		uart7: serial@d4017600 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017600 0x0 0x100>;
 			interrupts = <49>;
 			clock-frequency = <14857000>;
@@ -397,7 +397,7 @@
 		};
 
 		uart8: serial@d4017700 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017700 0x0 0x100>;
 			interrupts = <50>;
 			clock-frequency = <14857000>;
@@ -407,7 +407,7 @@
 		};
 
 		uart9: serial@d4017800 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xd4017800 0x0 0x100>;
 			interrupts = <51>;
 			clock-frequency = <14857000>;
@@ -447,7 +447,7 @@
 		};
 
 		sec_uart1: serial@f0612000 {
-			compatible = "spacemit,k1-uart", "snps,dw-apb-uart";
+			compatible = "spacemit,k1-uart", "intel,xscale-uart";
 			reg = <0x0 0xf0612000 0x0 0x100>;
 			interrupts = <43>;
 			clock-frequency = <14857000>;
