@@ -951,7 +951,7 @@ static int tc358768_setup(struct udevice *dev)
 	}
 
 	/* get clk */
-	priv->refclk = devm_clk_get(dev, "refclk");
+	priv->refclk = devm_clk_get(dev, NULL);
 	if (IS_ERR(priv->refclk)) {
 		log_debug("%s: Could not get refclk: %ld\n",
 			  __func__, PTR_ERR(priv->refclk));
