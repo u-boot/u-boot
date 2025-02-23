@@ -124,6 +124,10 @@
 #define NANO	1000000000UL
 #define PICO	1000000000000ULL
 
+static const char * const tc358768_supplies[] = {
+	"vddc-supply", "vddmipi-supply", "vddio-supply"
+};
+
 struct tc358768_priv {
 	struct mipi_dsi_host host;
 	struct mipi_dsi_device device;
@@ -131,9 +135,7 @@ struct tc358768_priv {
 	struct udevice *panel;
 	struct display_timing timing;
 
-	struct udevice *vddc;
-	struct udevice *vddmipi;
-	struct udevice *vddio;
+	struct udevice *supplies[ARRAY_SIZE(tc358768_supplies)];
 
 	struct clk *refclk;
 
@@ -277,17 +279,17 @@ static void tc358768_hw_enable(struct udevice *dev)
 	if (ret)
 		log_debug("%s: error enabling refclk (%d)\n", __func__, ret);
 
-	ret = regulator_set_enable_if_allowed(priv->vddc, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[0], true);
 	if (ret)
 		log_debug("%s: error enabling vddc (%d)\n", __func__, ret);
 
-	ret = regulator_set_enable_if_allowed(priv->vddmipi, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[1], true);
 	if (ret)
 		log_debug("%s: error enabling vddmipi (%d)\n", __func__, ret);
 
 	mdelay(10);
 
-	ret = regulator_set_enable_if_allowed(priv->vddio, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[2], true);
 	if (ret)
 		log_debug("%s: error enabling vddio (%d)\n", __func__, ret);
 
@@ -904,7 +906,7 @@ static int tc358768_setup(struct udevice *dev)
 	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mipi_plat;
-	int ret;
+	int i, ret;
 
 	/* The bridge uses 16 bit registers */
 	ret = i2c_set_chip_offset_len(dev, 2);
@@ -937,25 +939,15 @@ static int tc358768_setup(struct udevice *dev)
 	priv->dsi_lanes = device->lanes;
 
 	/* get regulators */
-	ret = device_get_supply_regulator(dev, "vddc-supply", &priv->vddc);
-	if (ret) {
-		log_debug("%s: vddc regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
-	}
-
-	ret = device_get_supply_regulator(dev, "vddmipi-supply", &priv->vddmipi);
-	if (ret) {
-		log_debug("%s: vddmipi regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
-	}
-
-	ret = device_get_supply_regulator(dev, "vddio-supply", &priv->vddio);
-	if (ret) {
-		log_debug("%s: vddio regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
+	for (i = 0; i < ARRAY_SIZE(tc358768_supplies); i++) {
+		ret = device_get_supply_regulator(dev, tc358768_supplies[i],
+						  &priv->supplies[i]);
+		if (ret) {
+			log_debug("%s: cannot get %s %d\n", __func__,
+				  tc358768_supplies[i], ret);
+			if (ret != -ENOENT)
+				return log_ret(ret);
+		}
 	}
 
 	/* get clk */
