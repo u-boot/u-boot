@@ -76,11 +76,6 @@ u32 spl_boot_device(void)
 }
 #endif
 
-int board_late_init(void)
-{
-	return 0;
-}
-
 int board_init(void)
 {
 #ifdef CONFIG_ETH_DESIGNWARE
