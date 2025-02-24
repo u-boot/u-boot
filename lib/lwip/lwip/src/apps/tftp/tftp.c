@@ -264,19 +264,55 @@ static u16_t payload_size(void)
   return TFTP_DEFAULT_BLOCK_SIZE;
 }
 
+/**
+ * find_option() - check if OACK message contains option
+ *
+ * @p:		message buffer
+ * @option:	option key
+ * Return:	option value
+ */
 static const char *
 find_option(struct pbuf *p, const char *option)
 {
-  int i;
-  u16_t optlen = strlen(option);
-  const char *b = p->payload;
+	const char *pos = p->payload;
+	int rem = p->len;
 
-  for (i = 0; i + optlen + 1 < p->len; i++) {
-    if (lwip_strnstr(b + i, option, optlen))
-      return b + i + optlen + 2;
-  }
+	/*
+	 * According to RFC 2347 the OACK packet has the following format:
+	 *
+	 * +-------+---~~---+---+---~~---+---+---~~---+---+---~~---+---+
+	 * |  opc  |  opt1  | 0 | value1 | 0 |  optN  | 0 | valueN | 0 |
+	 * +-------+---~~---+---+---~~---+---+---~~---+---+---~~---+---+
+	 */
 
-  return NULL;
+	/* Skip opc */
+	pos += 2;
+	rem -= 2;
+	if (rem <= 0)
+		return NULL;
+
+	for (;;) {
+		int len;
+		int diff;
+
+		len = strnlen(pos, rem) + 1;
+		if (rem < len)
+			break;
+		diff = strcmp(pos, option);
+		/* Skip option */
+		pos += len;
+		rem -= len;
+		len = strnlen(pos, rem) + 1;
+		if (rem < len)
+			break;
+		if (!diff)
+			return pos;
+		/* Skip value */
+		pos += len;
+		rem -= len;
+	}
+
+	return NULL;
 }
 
 static void

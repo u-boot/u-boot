@@ -7,6 +7,7 @@
 #include <init.h>
 #include <log.h>
 #include <spl.h>
+#include <spl_gpio.h>
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
 #include <asm/arch-rockchip/bootrom.h>
@@ -15,7 +16,6 @@
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
-#include <asm/gpio.h>
 #include <linux/bitops.h>
 #include <linux/printk.h>
 #include <power/regulator.h>
@@ -133,10 +133,31 @@ void board_debug_uart_init(void)
 		     GRF_GPIO3B7_SEL_MASK,
 		     GRF_UART3_SOUT << GRF_GPIO3B7_SEL_SHIFT);
 #else
+	struct rk3399_pmugrf_regs * const pmugrf = (void *)PMUGRF_BASE;
+	struct rockchip_gpio_regs * const gpio = (void *)GPIO0_BASE;
+
+	if (IS_ENABLED(CONFIG_XPL_BUILD) &&
+	    (IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_BOB) ||
+	     IS_ENABLED(CONFIG_TARGET_CHROMEBOOK_KEVIN))) {
+		rk_setreg(&grf->io_vsel, 1 << 0);
+
+		/*
+		 * Let's enable these power rails here, we are already running
+		 * the SPI-Flash-based code.
+		 */
+		spl_gpio_output(gpio, GPIO(BANK_B, 2), 1);  /* PP1500_EN */
+		spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 2),
+				  GPIO_PULL_NORMAL);
+
+		spl_gpio_output(gpio, GPIO(BANK_B, 4), 1);  /* PP3000_EN */
+		spl_gpio_set_pull(&pmugrf->gpio0_p, GPIO(BANK_B, 4),
+				  GPIO_PULL_NORMAL);
+	}
+
 	/* Enable early UART2 channel C on the RK3399 */
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C3_SEL_MASK,
-		     GRF_UART2DGBC_SIN << GRF_GPIO4C3_SEL_SHIFT);
+		     GRF_UART2DBGC_SIN << GRF_GPIO4C3_SEL_SHIFT);
 	rk_clrsetreg(&grf->gpio4c_iomux,
 		     GRF_GPIO4C4_SEL_MASK,
 		     GRF_UART2DBGC_SOUT << GRF_GPIO4C4_SEL_SHIFT);

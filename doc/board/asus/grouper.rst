@@ -25,7 +25,7 @@ along with cellular one.
 
 .. code-block:: bash
 
-    $ export CROSS_COMPILE=arm-linux-gnueabi-
+    $ export CROSS_COMPILE=arm-none-eabi-
     $ make grouper_defconfig # For all grouper versions and tilapia
     $ make
 
@@ -79,18 +79,18 @@ Flashing with the NV3P protocol
 *******************************
 
 Nv3p is a custom Nvidia protocol used to recover bricked devices. Devices can
-enter it either by using ``wheelie`` with the correct ``blob.bin`` file or by
-pre-loading vendor bootloader with the Fusée Gelée.
+enter it by pre-loading vendor bootloader with the Fusée Gelée.
 
 With nv3p, ``repart-block.bin`` is used. It contains BCT and a bootloader in
 encrypted state in form, which can just be written RAW at the start of eMMC.
 
 .. code-block:: bash
 
-    $ wheelie --blob blob.bin
-    $ nvflash --resume --rawdevicewrite 0 1024 repart-block.bin
+    $ ./run_bootloader.sh -s T30 -t ./bct/grouper.bct -b android_bootloader.bin
+    $ ./utiils/nvflash_v1.13.87205 --resume --rawdevicewrite 0 1024 repart-block.bin
 
-When flashing is done, reboot the device.
+When flashing is done, reboot the device. Note that if you have cellular version,
+use ``tilapia.bct``.
 
 Flashing with a pre-loaded U-Boot
 *********************************

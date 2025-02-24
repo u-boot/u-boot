@@ -2175,6 +2175,7 @@ int fit_image_load(struct bootm_headers *images, ulong addr,
 	type_ok = fit_image_check_type(fit, noffset, image_type) ||
 		  fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE) ||
 		  fit_image_check_type(fit, noffset, IH_TYPE_TEE) ||
+		  fit_image_check_type(fit, noffset, IH_TYPE_TFA_BL31) ||
 		  (image_type == IH_TYPE_KERNEL &&
 		   fit_image_check_type(fit, noffset, IH_TYPE_KERNEL_NOLOAD));
 

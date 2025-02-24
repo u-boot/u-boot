@@ -19,6 +19,7 @@
  */
 static struct efi_var_file __efi_runtime_data *efi_var_buf;
 static struct efi_var_entry __efi_runtime_data *efi_current_var;
+static const u16 __efi_runtime_rodata vtf[] = u"VarToFile";
 
 /**
  * efi_var_mem_compare() - compare GUID and name with a variable
@@ -331,7 +332,7 @@ efi_get_variable_mem(const u16 *variable_name, const efi_guid_t *vendor,
 	if (timep)
 		*timep = var->time;
 
-	if (!u16_strcmp(variable_name, u"VarToFile"))
+	if (!u16_strcmp(variable_name, vtf))
 		return efi_var_collect_mem(data, data_size, EFI_VARIABLE_NON_VOLATILE);
 
 	old_size = *data_size;

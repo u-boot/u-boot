@@ -1,0 +1,12 @@
+if TARGET_PICASSO
+
+config SYS_BOARD
+	default "picasso"
+
+config SYS_VENDOR
+	default "acer"
+
+config SYS_CONFIG_NAME
+	default "picasso"
+
+endif

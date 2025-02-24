@@ -59,16 +59,19 @@ struct erofs_dir_stream {
 
 static int erofs_readlink(struct erofs_inode *vi)
 {
-	size_t len = vi->i_size;
+	size_t alloc_size;
 	char *target;
 	int err;
 
-	target = malloc(len + 1);
+	if (__builtin_add_overflow(vi->i_size, 1, &alloc_size))
+		return -EFSCORRUPTED;
+
+	target = malloc(alloc_size);
 	if (!target)
 		return -ENOMEM;
-	target[len] = '\0';
+	target[vi->i_size] = '\0';
 
-	err = erofs_pread(vi, target, len, 0);
+	err = erofs_pread(vi, target, vi->i_size, 0);
 	if (err)
 		goto err_out;
 

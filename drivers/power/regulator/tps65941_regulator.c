@@ -388,6 +388,14 @@ static int tps65941_ldo_enable(struct udevice *dev, int op, bool *enable)
 	return 0;
 }
 
+static int tps65941_ldo_volt2val(__maybe_unused int idx, int uV)
+{
+	if (uV > TPS65941_LDO_VOLT_MAX || uV < TPS65941_LDO_VOLT_MIN)
+		return -EINVAL;
+
+	return ((uV - 600000) / 50000 + 0x4) << TPS65941_LDO_MODE_MASK;
+}
+
 static int tps65941_ldo_val2volt(__maybe_unused int idx, int val)
 {
 	if (val > TPS65941_LDO_VOLT_MAX_HEX || val < TPS65941_LDO_VOLT_MIN_HEX)
@@ -459,7 +467,7 @@ static int tps65224_ldo_val2volt(int idx, int val)
 static const struct tps65941_reg_conv_ops ldo_conv_ops[] = {
 	[TPS65941_LDO_CONV_OPS_IDX] = {
 		.volt_mask = TPS65941_LDO_VOLT_MASK,
-		.volt2val = tps65941_buck_volt2val,
+		.volt2val = tps65941_ldo_volt2val,
 		.val2volt = tps65941_ldo_val2volt,
 	},
 	[TPS65224_LDO_CONV_OPS_IDX] = {
@@ -472,7 +480,7 @@ static const struct tps65941_reg_conv_ops ldo_conv_ops[] = {
 static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 {
 	unsigned int hex, adr;
-	int ret, ret_volt, idx;
+	int ret, ret_volt, idx, ldo_bypass;
 	struct dm_regulator_uclass_plat *uc_pdata;
 	const struct tps65941_reg_conv_ops *conv_ops;
 	ulong chip_id;
@@ -502,7 +510,9 @@ static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 	if (ret < 0)
 		return ret;
 
+	ldo_bypass = ret & TPS65941_LDO_BYPASS_EN;
 	ret &= conv_ops->volt_mask;
+	ret = ret >> TPS65941_LDO_MODE_MASK;
 	ret_volt = conv_ops->val2volt(idx, ret);
 	if (ret_volt < 0)
 		return ret_volt;
@@ -531,7 +541,7 @@ static int tps65941_ldo_val(struct udevice *dev, int op, int *uV)
 		ret &= ~TPS65224_LDO_VOLT_MASK;
 		ret |= hex;
 	} else {
-		ret = hex;
+		ret = hex | ldo_bypass;
 	}
 
 	ret = pmic_reg_write(dev->parent, adr, ret);

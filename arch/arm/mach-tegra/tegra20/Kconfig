@@ -33,6 +33,10 @@ config TARGET_PAZ00
 	bool "Paz00 board"
 	select BOARD_LATE_INIT
 
+config TARGET_PICASSO
+	bool "Acer Tegra20 Picasso board"
+	select BOARD_LATE_INIT
+
 config TARGET_PLUTUX
 	bool "Avionic Design Plutux board"
 	select BOARD_LATE_INIT
@@ -73,6 +77,7 @@ config SYS_SOC
 source "board/nvidia/harmony/Kconfig"
 source "board/avionic-design/medcom-wide/Kconfig"
 source "board/compal/paz00/Kconfig"
+source "board/acer/picasso/Kconfig"
 source "board/avionic-design/plutux/Kconfig"
 source "board/nvidia/seaboard/Kconfig"
 source "board/avionic-design/tec/Kconfig"

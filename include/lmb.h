@@ -32,6 +32,18 @@
 #define LMB_NONOTIFY BIT(2)
 
 /**
+ * enum lmb_map_op - memory map operation
+ */
+enum lmb_map_op {
+	/** @LMB_MAP_OP_RESERVE:	reserve memory */
+	LMB_MAP_OP_RESERVE = 1,
+	/** @LMB_MAP_OP_FREE:		free memory */
+	LMB_MAP_OP_FREE,
+	/** @LMB_MAP_OP_ADD:		add memory */
+	LMB_MAP_OP_ADD,
+};
+
+/**
  * struct lmb_region - Description of one region
  * @base: Base address of the region
  * @size: Size of the region

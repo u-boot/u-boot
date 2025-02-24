@@ -6,6 +6,7 @@ Board-specific doc
 .. toctree::
    :maxdepth: 2
 
+   acer/index
    actions/index
    advantech/index
    andestech/index

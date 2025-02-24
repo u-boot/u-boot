@@ -72,7 +72,7 @@ For the next scheduled release, release candidates were made on::
 
 * U-Boot v2025.04-rc2 was released on Mon 10 February 2025.
 
-.. * U-Boot v2025.04-rc3 was released on Mon 24 February 2025.
+* U-Boot v2025.04-rc3 was released on Mon 24 February 2025.
 
 .. * U-Boot v2025.04-rc4 was released on Mon 10 March 2025.
 

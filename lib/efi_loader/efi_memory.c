@@ -268,6 +268,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
  *				memory
  * Return:			status code
  */
+static
 efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
 				   int memory_type,
 				   bool overlap_conventional)
@@ -865,3 +866,30 @@ int efi_memory_init(void)
 
 	return 0;
 }
+
+int efi_map_update_notify(phys_addr_t addr, phys_size_t size,
+			  enum lmb_map_op op)
+{
+	u64 efi_addr;
+	u64 pages;
+	efi_status_t status;
+
+	efi_addr = (uintptr_t)map_sysmem(addr, 0);
+	pages = efi_size_in_pages(size + (efi_addr & EFI_PAGE_MASK));
+	efi_addr &= ~EFI_PAGE_MASK;
+
+	status = efi_add_memory_map_pg(efi_addr, pages,
+				       op == LMB_MAP_OP_RESERVE ?
+				       EFI_BOOT_SERVICES_DATA :
+				       EFI_CONVENTIONAL_MEMORY,
+				       false);
+	if (status != EFI_SUCCESS) {
+		log_err("LMB Map notify failure %lu\n",
+			status & ~EFI_ERROR_MASK);
+		return -1;
+	}
+	unmap_sysmem((void *)(uintptr_t)efi_addr);
+
+	return 0;
+}
+
