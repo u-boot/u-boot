@@ -29,7 +29,6 @@
 /mxsboot
 /ncb
 /prelink-riscv
-/preload_check_sign
 /printinitialenv
 /proftool
 /relocate-rela
