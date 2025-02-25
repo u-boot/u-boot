@@ -33,6 +33,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select OF_SEPARATE
 	select PCI
 	select PCIE_ECAM_GENERIC
+	select SYS_PCI_64BIT
 	select USB
 	select GIC_V3
 	select GIC_V3_ITS
@@ -48,6 +49,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CFI_FLASH
 	imply SYS_MTDPARTS_RUNTIME
 	imply SET_DFU_ALT_INFO
+	imply PCI_INIT_R
 
 if DEBUG_UART
 
