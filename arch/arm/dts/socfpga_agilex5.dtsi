@@ -1,6 +1,7 @@
 // SPDX-License-Identifier:     GPL-2.0
 /*
  * Copyright (C) 2024 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 /dts-v1/;
@@ -542,6 +543,13 @@
 			resets = <&rst WATCHDOG4_RESET>;
 			clocks = <&clkmgr AGILEX5_L4_SYS_FREE_CLK>;
 			status = "disabled";
+		};
+
+		sdr: sdr@18000000 {
+			compatible = "intel,sdr-ctl-agilex5";
+			reg = <0x18000000 0x400000>;
+			resets = <&rst DDRSCH_RESET>;
+			bootph-all;
 		};
 
 		/* QSPI address not available yet */

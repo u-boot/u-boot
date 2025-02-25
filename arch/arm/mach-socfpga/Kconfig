@@ -55,6 +55,7 @@ config TARGET_SOCFPGA_AGILEX
 	select BINMAN if SPL_ATF
 	select CLK
 	select FPGA_INTEL_SDM_MAILBOX
+	select GICV2
 	select NCORE_CACHE
 	select SPL_CLK if SPL
 	select TARGET_SOCFPGA_SOC64
@@ -64,7 +65,6 @@ config TARGET_SOCFPGA_AGILEX5
 	select BINMAN if SPL_ATF
 	select CLK
 	select FPGA_INTEL_SDM_MAILBOX
-	select GICV3
 	select SPL_CLK if SPL
 	select TARGET_SOCFPGA_SOC64
 
@@ -74,6 +74,7 @@ config TARGET_SOCFPGA_ARRIA5
 
 config TARGET_SOCFPGA_ARRIA10
 	bool
+	select GICV2
 	select SPL_ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
 	select SPL_CACHE if SPL
@@ -118,6 +119,7 @@ config TARGET_SOCFPGA_N5X
 	select ARMV8_SET_SMPEN
 	select BINMAN if SPL_ATF
 	select CLK
+	select GICV2
 	select FPGA_INTEL_SDM_MAILBOX
 	select NCORE_CACHE
 	select SPL_ALTERA_SDRAM
@@ -137,6 +139,7 @@ config TARGET_SOCFPGA_STRATIX10
 	select ARMV8_SET_SMPEN
 	select BINMAN if SPL_ATF
 	select FPGA_INTEL_SDM_MAILBOX
+	select GICV2
 	select TARGET_SOCFPGA_SOC64
 
 choice

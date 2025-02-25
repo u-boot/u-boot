@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2024 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
-#include <clk-uclass.h>
 #include <config.h>
-#include <errno.h>
-#include <dm.h>
 #include <log.h>
+#include <dm.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
@@ -23,8 +23,13 @@
 #include <linux/types.h>
 #include <asm/arch/clock_manager.h>
 #include <dt-bindings/clock/agilex5-clock.h>
+#include <wait_bit.h>
+#include <clk-uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define CLKMGR_CTRL_SWCTRLBTCLKEN_MASK		BIT(8)
+#define CLKMGR_CTRL_SWCTRLBTCLKSEL_MASK		BIT(9)
 
 struct socfpga_clk_plat {
 	void __iomem *regs;
@@ -36,21 +41,30 @@ struct socfpga_clk_plat {
  */
 static void clk_write_bypass_mainpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_MAINPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 static void clk_write_bypass_perpll(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_PERPLL_BYPASS);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 /* function to write the ctrl register which requires a poll of the busy bit */
 static void clk_write_ctrl(struct socfpga_clk_plat *plat, u32 val)
 {
+	uintptr_t base_addr = (uintptr_t)plat->regs;
+
 	CM_REG_WRITEL(plat, val, CLKMGR_CTRL);
-	cm_wait_for_fsm();
+	wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT), CLKMGR_STAT_BUSY,
+			  false, 20000, false);
 }
 
 static const struct {
@@ -58,15 +72,6 @@ static const struct {
 	u32 val;
 	u32 mask;
 } membus_pll[] = {
-	{
-		MEMBUS_CLKSLICE_REG,
-		/*
-		 * BIT[7:7]
-		 * Enable source synchronous mode
-		 */
-		BIT(7),
-		BIT(7)
-	},
 	{
 		MEMBUS_SYNTHCALFOSC_INIT_CENTERFREQ_REG,
 		/*
@@ -238,6 +243,7 @@ static void clk_basic_init(struct udevice *dev,
 {
 	struct socfpga_clk_plat *plat = dev_get_plat(dev);
 	u32 vcocalib;
+	uintptr_t base_addr = (uintptr_t)plat->regs;
 
 	if (!cfg)
 		return;
@@ -249,7 +255,8 @@ static void clk_basic_init(struct udevice *dev,
 		CM_REG_SETBITS(plat, CLKMGR_PERPLL_PLLGLOB,
 			       CLKMGR_PLLGLOB_PD_MASK | CLKMGR_PLLGLOB_RST_MASK);
 
-		cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
+		wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT),
+				  CLKMGR_STAT_ALLPLL_LOCKED_MASK, true, 20000, false);
 
 		/* Put both PLLs in bypass */
 		clk_write_bypass_mainpll(plat, CLKMGR_BYPASS_MAINPLL_ALL);
@@ -264,9 +271,14 @@ static void clk_basic_init(struct udevice *dev,
 			       CM_REG_READL(plat, CLKMGR_CTRL) & ~CLKMGR_CTRL_BOOTMODE);
 	} else {
 #ifdef CONFIG_XPL_BUILD
-		/* Always force clock manager into boot mode before any configuration */
-		clk_write_ctrl(plat,
-			       CM_REG_READL(plat, CLKMGR_CTRL) | CLKMGR_CTRL_BOOTMODE);
+		/*
+		 * Configure HPS Internal Oscillator as default boot_clk source,
+		 * always force clock manager into boot mode before any configuration
+		 */
+		clk_write_ctrl(plat, CM_REG_READL(plat, CLKMGR_CTRL) |
+			       CLKMGR_CTRL_BOOTMODE |
+			       CLKMGR_CTRL_SWCTRLBTCLKEN_MASK |
+			       CLKMGR_CTRL_SWCTRLBTCLKSEL_MASK);
 #else
 		/* Skip clock configuration in SSBL if it's not in boot mode */
 		if (!(CM_REG_READL(plat, CLKMGR_CTRL) & CLKMGR_CTRL_BOOTMODE))
@@ -365,7 +377,8 @@ static void clk_basic_init(struct udevice *dev,
 				CLKMGR_PLLCX_EN_SET_MSK,
 				CLKMGR_PERPLL_PLLC3);
 
-		cm_wait_for_lock(CLKMGR_STAT_ALLPLL_LOCKED_MASK);
+		wait_for_bit_le32((const void *)(base_addr + CLKMGR_STAT),
+				  CLKMGR_STAT_ALLPLL_LOCKED_MASK, true, 20000, false);
 
 		CM_REG_WRITEL(plat, CLKMGR_LOSTLOCK_SET_MASK, CLKMGR_MAINPLL_LOSTLOCK);
 		CM_REG_WRITEL(plat, CLKMGR_LOSTLOCK_SET_MASK, CLKMGR_PERPLL_LOSTLOCK);

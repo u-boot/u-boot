@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2016-2021 Intel Corporation
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  */
 
 #ifndef _SOCFPGA_MISC_H_
@@ -51,6 +52,7 @@ bool is_periph_program_force(void);
 void set_regular_boot(unsigned int status);
 void socfpga_pl310_clear(void);
 void socfpga_get_managers_addr(void);
+void socfpga_get_sys_mgr_addr(const char *compat);
 int qspi_flash_software_reset(void);
 
 #endif /* _SOCFPGA_MISC_H_ */

@@ -62,6 +62,10 @@
 	status = "okay";
 };
 
+&i2c3 {
+	status = "okay";
+};
+
 &i3c0 {
 	status = "okay";
 };
