@@ -252,6 +252,16 @@ static int boot_targets_setup(void)
 		mode = "mmc";
 		bootseq = dev_seq(dev);
 		break;
+	case UFS_MODE:
+		puts("UFS_MODE\n");
+		if (uclass_get_device(UCLASS_UFS, 0, &dev)) {
+			debug("UFS driver for UFS device is not present\n");
+			break;
+		}
+		debug("ufs device found at %p\n", dev);
+
+		mode = "ufs";
+		break;
 	default:
 		printf("Invalid Boot Mode:0x%x\n", bootmode);
 		break;
