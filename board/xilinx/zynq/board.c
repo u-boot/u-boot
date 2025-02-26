@@ -7,6 +7,7 @@
 #include <config.h>
 #include <debug_uart.h>
 #include <dfu.h>
+#include <efi_loader.h>
 #include <init.h>
 #include <log.h>
 #include <dm/uclass.h>
@@ -201,5 +202,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 
 	env_set("dfu_alt_info", buf);
 	puts("DFU alt info setting: done\n");
+	update_info.dfu_string = strdup(buf);
+	debug("Capsule DFU: %s\n", update_info.dfu_string);
 }
 #endif
