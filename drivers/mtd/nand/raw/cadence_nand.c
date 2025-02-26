@@ -1994,6 +1994,22 @@ static int cadence_nand_param(struct mtd_info *mtd, u8 offset_in_page, unsigned 
 	return 0;
 }
 
+static int cadence_nand_reset(struct mtd_info *mtd, unsigned int command)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	int ret = 0;
+
+	ret = cadence_nand_cmd_opcode(chip, command);
+	if (ret)
+		return ret;
+
+	ret = cadence_nand_waitfunc(mtd, chip);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static void cadence_nand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 				 int offset_in_page, int page)
 {
@@ -2014,11 +2030,21 @@ static void cadence_nand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	case NAND_CMD_PARAM:
 		ret = cadence_nand_param(mtd, offset_in_page, command);
 		break;
+
+	case NAND_CMD_RESET:
+		ret = cadence_nand_reset(mtd, command);
+		break;
 	/*
 	 * ecc will override other command for read, write and erase
 	 */
 	default:
 		break;
+	}
+
+	if (cadence->cmd == NAND_CMD_RESET) {
+		ret = cadence_nand_select_target(chip);
+		if (ret)
+			dev_err(cadence->dev, "Chip select failure after reset\n");
 	}
 
 	if (ret != 0)
