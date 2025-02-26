@@ -981,6 +981,7 @@ struct nand_chip {
 	struct nand_bbt_descr *bbt_md;
 
 	struct nand_bbt_descr *badblock_pattern;
+	int cur_cs;
 
 	void *priv;
 
