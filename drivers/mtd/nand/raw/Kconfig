@@ -194,6 +194,12 @@ config NAND_CADENCE
 	bool "Support Cadence NAND controller as a DT device"
 	depends on OF_CONTROL && DM_MTD
 	select SYS_NAND_SELF_INIT
+	select SPL_SYS_NAND_SELF_INIT
+	select SPL_NAND_BASE
+	select SPL_NAND_DRIVERS
+	select SPL_NAND_IDENT
+	select SPL_NAND_INIT
+	select SPL_NAND_ECC
 	imply CMD_NAND
 	help
 	  Enable the driver for NAND flash on platforms using a Cadence NAND
@@ -783,6 +789,13 @@ config SPL_NAND_AM33XX_BCH
 	  Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
 	  so those platforms should use CONFIG_SPL_NAND_SIMPLE for enabling
 	  SPL-NAND driver with software ECC correction support.
+
+config SPL_NAND_CADENCE
+	bool "Support Cadence NAND controller for SPL"
+	depends on SPL_NAND_SUPPORT
+	help
+	  This is a small implementation of the Cadence NAND controller
+	  for use on SPL.
 
 config SPL_NAND_DENALI
 	bool "Support Denali NAND controller for SPL"
