@@ -167,7 +167,7 @@ static const char *sm6115_get_pin_name(struct udevice *dev, unsigned int selecto
 	return pin_name;
 }
 
-static unsigned int sm6115_get_function_mux(__maybe_unused unsigned int pin, unsigned int selector)
+static int sm6115_get_function_mux(__maybe_unused unsigned int pin, unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }
