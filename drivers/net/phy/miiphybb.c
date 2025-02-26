@@ -14,31 +14,31 @@
 
 #include <ioports.h>
 #include <ppc_asm.tmpl>
+#include <malloc.h>
 #include <miiphy.h>
 #include <asm/global_data.h>
 
-int bb_miiphy_init(void)
+static inline struct bb_miiphy_bus *bb_miiphy_getbus(struct mii_dev *miidev)
 {
-	int i;
-
-	for (i = 0; i < bb_miiphy_buses_num; i++)
-		if (bb_miiphy_buses[i].init != NULL)
-			bb_miiphy_buses[i].init(&bb_miiphy_buses[i]);
-
-	return 0;
+	return container_of(miidev, struct bb_miiphy_bus, mii);
 }
 
-static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
+struct bb_miiphy_bus *bb_miiphy_alloc(void)
 {
-	int i;
+	struct bb_miiphy_bus *bus;
 
-	/* Search the correct bus */
-	for (i = 0; i < bb_miiphy_buses_num; i++) {
-		if (!strcmp(bb_miiphy_buses[i].name, devname)) {
-			return &bb_miiphy_buses[i];
-		}
-	}
-	return NULL;
+	bus = malloc(sizeof(*bus));
+	if (!bus)
+		return bus;
+
+	mdio_init(&bus->mii);
+
+	return bus;
+}
+
+void bb_miiphy_free(struct bb_miiphy_bus *bus)
+{
+	free(bus);
 }
 
 /*****************************************************************************
@@ -133,7 +133,7 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 	int j; /* counter */
 	struct bb_miiphy_bus *bus;
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev);
 	if (bus == NULL) {
 		return -1;
 	}
@@ -201,7 +201,7 @@ int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 	struct bb_miiphy_bus *bus;
 	int j;			/* counter */
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev);
 	if (bus == NULL) {
 		/* Bus not found! */
 		return -1;

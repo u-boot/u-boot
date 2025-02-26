@@ -102,102 +102,6 @@ uint calculate_octo_phy_mask(void)
 	return octo_phy_mask;
 }
 
-int register_miiphy_bus(uint k, struct mii_dev **bus)
-{
-	int retval;
-	struct mii_dev *mdiodev = mdio_alloc();
-	char *name = bb_miiphy_buses[k].name;
-
-	if (!mdiodev)
-		return -ENOMEM;
-	strlcpy(mdiodev->name, name, MDIO_NAME_LEN);
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-
-	retval = mdio_register(mdiodev);
-	if (retval < 0)
-		return retval;
-	*bus = miiphy_get_dev_by_name(name);
-
-	return 0;
-}
-
-struct porttype *get_porttype(uint octo_phy_mask, uint k)
-{
-	uint octo_index = k * 4;
-
-	if (!k) {
-		if (octo_phy_mask & 0x01)
-			return &porttypes[PORTTYPE_MAIN_CAT];
-		else if (!(octo_phy_mask & 0x03))
-			return &porttypes[PORTTYPE_16C_16F];
-	} else {
-		if (octo_phy_mask & (1 << octo_index))
-			return &porttypes[PORTTYPE_TOP_CAT];
-	}
-
-	return NULL;
-}
-
-int init_single_phy(struct porttype *porttype, struct mii_dev *bus,
-		    uint bus_idx, uint m, uint phy_idx)
-{
-	struct phy_device *phydev;
-
-	phydev = phy_find_by_mask(bus, BIT(m * 8 + phy_idx));
-	printf(" %u", bus_idx * 32 + m * 8 + phy_idx);
-
-	if (!phydev)
-		puts("!");
-	else
-		ihs_phy_config(phydev, porttype->phy_invert_in_pol,
-			       porttype->phy_invert_out_pol);
-
-	return 0;
-}
-
-int init_octo_phys(uint octo_phy_mask)
-{
-	uint bus_idx;
-
-	/* there are up to four octo-phys on each mdio bus */
-	for (bus_idx = 0; bus_idx < bb_miiphy_buses_num; ++bus_idx) {
-		uint m;
-		uint octo_index = bus_idx * 4;
-		struct mii_dev *bus = NULL;
-		struct porttype *porttype = NULL;
-		int ret;
-
-		porttype = get_porttype(octo_phy_mask, bus_idx);
-
-		if (!porttype)
-			continue;
-
-		for (m = 0; m < 4; ++m) {
-			uint phy_idx;
-
-			/**
-			 * Register a bus device if there is at least one phy
-			 * on the current bus
-			 */
-			if (!m && octo_phy_mask & (0xf << octo_index)) {
-				ret = register_miiphy_bus(bus_idx, &bus);
-				if (ret)
-					return ret;
-			}
-
-			if (!(octo_phy_mask & BIT(octo_index + m)))
-				continue;
-
-			for (phy_idx = 0; phy_idx < 8; ++phy_idx)
-				init_single_phy(porttype, bus, bus_idx, m,
-						phy_idx);
-		}
-	}
-
-	return 0;
-}
-
 /*
  * MII GPIO bitbang implementation
  * MDC MDIO bus
@@ -315,40 +219,109 @@ static int mii_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.name = "ihs0",
-		.init = mii_mdio_init,
-		.mdio_active = mii_mdio_active,
-		.mdio_tristate = mii_mdio_tristate,
-		.set_mdio = mii_set_mdio,
-		.get_mdio = mii_get_mdio,
-		.set_mdc = mii_set_mdc,
-		.delay = mii_delay,
-		.priv = &gpio_mii_set[0],
-	},
-	{
-		.name = "ihs1",
-		.init = mii_mdio_init,
-		.mdio_active = mii_mdio_active,
-		.mdio_tristate = mii_mdio_tristate,
-		.set_mdio = mii_set_mdio,
-		.get_mdio = mii_get_mdio,
-		.set_mdc = mii_set_mdc,
-		.delay = mii_delay,
-		.priv = &gpio_mii_set[1],
-	},
-	{
-		.name = "ihs2",
-		.init = mii_mdio_init,
-		.mdio_active = mii_mdio_active,
-		.mdio_tristate = mii_mdio_tristate,
-		.set_mdio = mii_set_mdio,
-		.get_mdio = mii_get_mdio,
-		.set_mdc = mii_set_mdc,
-		.delay = mii_delay,
-		.priv = &gpio_mii_set[2],
-	},
-};
+int register_miiphy_bus(uint k, struct mii_dev **bus)
+{
+	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
+	struct mii_dev *mdiodev;
+	int retval;
 
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+	if (!bb_miiphy)
+		return -ENOMEM;
+
+	mdiodev = &bb_miiphy->mii;
+	snprintf(mdiodev->name, MDIO_NAME_LEN, "ihs%d", k);
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+
+	/* Copy the bus accessors and private data */
+	bb_miiphy->mdio_active = mii_mdio_active;
+	bb_miiphy->mdio_tristate = mii_mdio_tristate;
+	bb_miiphy->set_mdio = mii_set_mdio;
+	bb_miiphy->get_mdio = mii_get_mdio;
+	bb_miiphy->set_mdc = mii_set_mdc;
+	bb_miiphy->delay = mii_delay;
+	bb_miiphy->priv = &gpio_mii_set[k];
+
+	retval = mdio_register(mdiodev);
+	if (retval < 0)
+		return retval;
+	*bus = &bb_miiphy->mii;
+
+	return mii_mdio_init(bb_miiphy);
+}
+
+struct porttype *get_porttype(uint octo_phy_mask, uint k)
+{
+	uint octo_index = k * 4;
+
+	if (!k) {
+		if (octo_phy_mask & 0x01)
+			return &porttypes[PORTTYPE_MAIN_CAT];
+		else if (!(octo_phy_mask & 0x03))
+			return &porttypes[PORTTYPE_16C_16F];
+	} else {
+		if (octo_phy_mask & (1 << octo_index))
+			return &porttypes[PORTTYPE_TOP_CAT];
+	}
+
+	return NULL;
+}
+
+int init_single_phy(struct porttype *porttype, struct mii_dev *bus,
+		    uint bus_idx, uint m, uint phy_idx)
+{
+	struct phy_device *phydev;
+
+	phydev = phy_find_by_mask(bus, BIT(m * 8 + phy_idx));
+	printf(" %u", bus_idx * 32 + m * 8 + phy_idx);
+
+	if (!phydev)
+		puts("!");
+	else
+		ihs_phy_config(phydev, porttype->phy_invert_in_pol,
+			       porttype->phy_invert_out_pol);
+
+	return 0;
+}
+
+int init_octo_phys(uint octo_phy_mask)
+{
+	uint bus_idx;
+
+	/* there are up to four octo-phys on each mdio bus */
+	for (bus_idx = 0; bus_idx < ARRAY_SIZE(gpio_mii_set); ++bus_idx) {
+		uint m;
+		uint octo_index = bus_idx * 4;
+		struct mii_dev *bus = NULL;
+		struct porttype *porttype = NULL;
+		int ret;
+
+		porttype = get_porttype(octo_phy_mask, bus_idx);
+
+		if (!porttype)
+			continue;
+
+		for (m = 0; m < 4; ++m) {
+			uint phy_idx;
+
+			/**
+			 * Register a bus device if there is at least one phy
+			 * on the current bus
+			 */
+			if (!m && octo_phy_mask & (0xf << octo_index)) {
+				ret = register_miiphy_bus(bus_idx, &bus);
+				if (ret)
+					return ret;
+			}
+
+			if (!(octo_phy_mask & BIT(octo_index + m)))
+				continue;
+
+			for (phy_idx = 0; phy_idx < 8; ++phy_idx)
+				init_single_phy(porttype, bus, bus_idx, m,
+						phy_idx);
+		}
+	}
+
+	return 0;
+}

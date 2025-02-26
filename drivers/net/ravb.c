@@ -490,81 +490,7 @@ static void ravb_stop(struct udevice *dev)
 	ravb_reset(dev);
 }
 
-static int ravb_probe(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_plat(dev);
-	struct ravb_priv *eth = dev_get_priv(dev);
-	struct mii_dev *mdiodev;
-	void __iomem *iobase;
-	int ret;
-
-	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
-	eth->iobase = iobase;
-
-	ret = clk_get_bulk(dev, &eth->clks);
-	if (ret < 0)
-		goto err_mdio_alloc;
-
-	mdiodev = mdio_alloc();
-	if (!mdiodev) {
-		ret = -ENOMEM;
-		goto err_mdio_alloc;
-	}
-
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = eth;
-	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
-
-	ret = mdio_register(mdiodev);
-	if (ret < 0)
-		goto err_mdio_register;
-
-	eth->bus = miiphy_get_dev_by_name(dev->name);
-
-	/* Bring up PHY */
-	ret = clk_enable_bulk(&eth->clks);
-	if (ret)
-		goto err_mdio_register;
-
-	ret = ravb_reset(dev);
-	if (ret)
-		goto err_mdio_reset;
-
-	ret = ravb_phy_config(dev);
-	if (ret)
-		goto err_mdio_reset;
-
-	return 0;
-
-err_mdio_reset:
-	clk_release_bulk(&eth->clks);
-err_mdio_register:
-	mdio_free(mdiodev);
-err_mdio_alloc:
-	unmap_physmem(eth->iobase, MAP_NOCACHE);
-	return ret;
-}
-
-static int ravb_remove(struct udevice *dev)
-{
-	struct ravb_priv *eth = dev_get_priv(dev);
-
-	clk_release_bulk(&eth->clks);
-
-	free(eth->phydev);
-	mdio_unregister(eth->bus);
-	mdio_free(eth->bus);
-	unmap_physmem(eth->iobase, MAP_NOCACHE);
-
-	return 0;
-}
-
-static int ravb_bb_init(struct bb_miiphy_bus *bus)
-{
-	return 0;
-}
-
+/* Bitbang MDIO access */
 static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
 {
 	struct ravb_priv *eth = bus->priv;
@@ -623,19 +549,86 @@ static int ravb_bb_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.name		= "ravb",
-		.init		= ravb_bb_init,
-		.mdio_active	= ravb_bb_mdio_active,
-		.mdio_tristate	= ravb_bb_mdio_tristate,
-		.set_mdio	= ravb_bb_set_mdio,
-		.get_mdio	= ravb_bb_get_mdio,
-		.set_mdc	= ravb_bb_set_mdc,
-		.delay		= ravb_bb_delay,
-	},
-};
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+static int ravb_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	struct ravb_priv *eth = dev_get_priv(dev);
+	struct bb_miiphy_bus *bb_miiphy;
+	struct mii_dev *mdiodev;
+	void __iomem *iobase;
+	int ret;
+
+	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
+	eth->iobase = iobase;
+
+	ret = clk_get_bulk(dev, &eth->clks);
+	if (ret < 0)
+		goto err_mdio_alloc;
+
+	bb_miiphy = bb_miiphy_alloc();
+	if (!bb_miiphy) {
+		ret = -ENOMEM;
+		goto err_mdio_alloc;
+	}
+
+	mdiodev = &bb_miiphy->mii;
+
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
+
+	/* Copy the bus accessors and private data */
+	bb_miiphy->mdio_active = ravb_bb_mdio_active;
+	bb_miiphy->mdio_tristate = ravb_bb_mdio_tristate;
+	bb_miiphy->set_mdio = ravb_bb_set_mdio;
+	bb_miiphy->get_mdio = ravb_bb_get_mdio;
+	bb_miiphy->set_mdc = ravb_bb_set_mdc;
+	bb_miiphy->delay = ravb_bb_delay;
+	bb_miiphy->priv = eth;
+
+	ret = mdio_register(mdiodev);
+	if (ret < 0)
+		goto err_mdio_register;
+
+	eth->bus = &bb_miiphy->mii;
+
+	/* Bring up PHY */
+	ret = clk_enable_bulk(&eth->clks);
+	if (ret)
+		goto err_mdio_register;
+
+	ret = ravb_reset(dev);
+	if (ret)
+		goto err_mdio_reset;
+
+	ret = ravb_phy_config(dev);
+	if (ret)
+		goto err_mdio_reset;
+
+	return 0;
+
+err_mdio_reset:
+	clk_release_bulk(&eth->clks);
+err_mdio_register:
+	bb_miiphy_free(bb_miiphy);
+err_mdio_alloc:
+	unmap_physmem(eth->iobase, MAP_NOCACHE);
+	return ret;
+}
+
+static int ravb_remove(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+
+	clk_release_bulk(&eth->clks);
+
+	free(eth->phydev);
+	mdio_unregister(eth->bus);
+	mdio_free(eth->bus);
+	unmap_physmem(eth->iobase, MAP_NOCACHE);
+
+	return 0;
+}
 
 static const struct eth_ops ravb_ops = {
 	.start			= ravb_start,
@@ -657,8 +650,6 @@ int ravb_of_to_plat(struct udevice *dev)
 		return -EINVAL;
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 1000);
-
-	sprintf(bb_miiphy_buses[0].name, dev->name);
 
 	return 0;
 }

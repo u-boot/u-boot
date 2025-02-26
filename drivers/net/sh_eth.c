@@ -643,145 +643,7 @@ static void sh_ether_stop(struct udevice *dev)
 	sh_eth_stop(&priv->shdev);
 }
 
-static int sh_ether_probe(struct udevice *udev)
-{
-	struct eth_pdata *pdata = dev_get_plat(udev);
-	struct sh_ether_priv *priv = dev_get_priv(udev);
-	struct sh_eth_dev *eth = &priv->shdev;
-	struct mii_dev *mdiodev;
-	int ret;
-
-	priv->iobase = pdata->iobase;
-
-#if CONFIG_IS_ENABLED(CLK)
-	ret = clk_get_by_index(udev, 0, &priv->clk);
-	if (ret < 0)
-		return ret;
-#endif
-	mdiodev = mdio_alloc();
-	if (!mdiodev) {
-		ret = -ENOMEM;
-		return ret;
-	}
-
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = eth;
-	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
-
-	ret = mdio_register(mdiodev);
-	if (ret < 0)
-		goto err_mdio_register;
-
-	priv->bus = miiphy_get_dev_by_name(udev->name);
-
-	eth->port = CFG_SH_ETHER_USE_PORT;
-	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
-	eth->port_info[eth->port].iobase =
-		(void __iomem *)(uintptr_t)(BASE_IO_ADDR + 0x800 * eth->port);
-
-#if CONFIG_IS_ENABLED(CLK)
-	ret = clk_enable(&priv->clk);
-	if (ret)
-		goto err_mdio_register;
-#endif
-
-	ret = sh_eth_init_common(eth, pdata->enetaddr);
-	if (ret)
-		goto err_phy_config;
-
-	ret = sh_eth_phy_config(udev);
-	if (ret) {
-		printf(SHETHER_NAME ": phy config timeout\n");
-		goto err_phy_config;
-	}
-
-	return 0;
-
-err_phy_config:
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&priv->clk);
-#endif
-err_mdio_register:
-	mdio_free(mdiodev);
-	return ret;
-}
-
-static int sh_ether_remove(struct udevice *udev)
-{
-	struct sh_ether_priv *priv = dev_get_priv(udev);
-	struct sh_eth_dev *eth = &priv->shdev;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-#if CONFIG_IS_ENABLED(CLK)
-	clk_disable(&priv->clk);
-#endif
-	free(port_info->phydev);
-	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
-
-	return 0;
-}
-
-static const struct eth_ops sh_ether_ops = {
-	.start			= sh_ether_start,
-	.send			= sh_ether_send,
-	.recv			= sh_ether_recv,
-	.free_pkt		= sh_ether_free_pkt,
-	.stop			= sh_ether_stop,
-	.write_hwaddr		= sh_ether_write_hwaddr,
-};
-
-int sh_ether_of_to_plat(struct udevice *dev)
-{
-	struct eth_pdata *pdata = dev_get_plat(dev);
-	const fdt32_t *cell;
-
-	pdata->iobase = dev_read_addr(dev);
-
-	pdata->phy_interface = dev_read_phy_mode(dev);
-	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
-		return -EINVAL;
-
-	pdata->max_speed = 1000;
-	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
-	if (cell)
-		pdata->max_speed = fdt32_to_cpu(*cell);
-
-	sprintf(bb_miiphy_buses[0].name, dev->name);
-
-	return 0;
-}
-
-static const struct udevice_id sh_ether_ids[] = {
-	{ .compatible = "renesas,ether-r7s72100" },
-	{ .compatible = "renesas,ether-r8a7790" },
-	{ .compatible = "renesas,ether-r8a7791" },
-	{ .compatible = "renesas,ether-r8a7793" },
-	{ .compatible = "renesas,ether-r8a7794" },
-	{ .compatible = "renesas,gether-r8a77980" },
-	{ }
-};
-
-U_BOOT_DRIVER(eth_sh_ether) = {
-	.name		= "sh_ether",
-	.id		= UCLASS_ETH,
-	.of_match	= sh_ether_ids,
-	.of_to_plat = sh_ether_of_to_plat,
-	.probe		= sh_ether_probe,
-	.remove		= sh_ether_remove,
-	.ops		= &sh_ether_ops,
-	.priv_auto	= sizeof(struct sh_ether_priv),
-	.plat_auto	= sizeof(struct eth_pdata),
-	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
-};
-
 /******* for bb_miiphy *******/
-static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
-{
-	return 0;
-}
-
 static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 {
 	struct sh_eth_dev *eth = bus->priv;
@@ -849,17 +711,144 @@ static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.name		= "sh_eth",
-		.init		= sh_eth_bb_init,
-		.mdio_active	= sh_eth_bb_mdio_active,
-		.mdio_tristate	= sh_eth_bb_mdio_tristate,
-		.set_mdio	= sh_eth_bb_set_mdio,
-		.get_mdio	= sh_eth_bb_get_mdio,
-		.set_mdc	= sh_eth_bb_set_mdc,
-		.delay		= sh_eth_bb_delay,
+static int sh_ether_probe(struct udevice *udev)
+{
+	struct eth_pdata *pdata = dev_get_plat(udev);
+	struct sh_ether_priv *priv = dev_get_priv(udev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct bb_miiphy_bus *bb_miiphy;
+	struct mii_dev *mdiodev;
+	int ret;
+
+	priv->iobase = pdata->iobase;
+
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_get_by_index(udev, 0, &priv->clk);
+	if (ret < 0)
+		return ret;
+#endif
+	bb_miiphy = bb_miiphy_alloc();
+	if (!bb_miiphy) {
+		ret = -ENOMEM;
+		return ret;
 	}
+
+	mdiodev = &bb_miiphy->mii;
+
+	mdiodev->read = bb_miiphy_read;
+	mdiodev->write = bb_miiphy_write;
+	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
+
+	/* Copy the bus accessors and private data */
+	bb_miiphy->mdio_active = sh_eth_bb_mdio_active;
+	bb_miiphy->mdio_tristate = sh_eth_bb_mdio_tristate;
+	bb_miiphy->set_mdio = sh_eth_bb_set_mdio;
+	bb_miiphy->get_mdio = sh_eth_bb_get_mdio;
+	bb_miiphy->set_mdc = sh_eth_bb_set_mdc;
+	bb_miiphy->delay = sh_eth_bb_delay;
+	bb_miiphy->priv = eth;
+
+	ret = mdio_register(mdiodev);
+	if (ret < 0)
+		goto err_mdio_register;
+
+	priv->bus = &bb_miiphy->mii;
+
+	eth->port = CFG_SH_ETHER_USE_PORT;
+	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
+	eth->port_info[eth->port].iobase =
+		(void __iomem *)(uintptr_t)(BASE_IO_ADDR + 0x800 * eth->port);
+
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_enable(&priv->clk);
+	if (ret)
+		goto err_mdio_register;
+#endif
+
+	ret = sh_eth_init_common(eth, pdata->enetaddr);
+	if (ret)
+		goto err_phy_config;
+
+	ret = sh_eth_phy_config(udev);
+	if (ret) {
+		printf(SHETHER_NAME ": phy config timeout\n");
+		goto err_phy_config;
+	}
+
+	return 0;
+
+err_phy_config:
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
+#endif
+err_mdio_register:
+	bb_miiphy_free(bb_miiphy);
+	return ret;
+}
+
+static int sh_ether_remove(struct udevice *udev)
+{
+	struct sh_ether_priv *priv = dev_get_priv(udev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
+#endif
+	free(port_info->phydev);
+	mdio_unregister(priv->bus);
+	mdio_free(priv->bus);
+
+	return 0;
+}
+
+static const struct eth_ops sh_ether_ops = {
+	.start			= sh_ether_start,
+	.send			= sh_ether_send,
+	.recv			= sh_ether_recv,
+	.free_pkt		= sh_ether_free_pkt,
+	.stop			= sh_ether_stop,
+	.write_hwaddr		= sh_ether_write_hwaddr,
 };
 
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+int sh_ether_of_to_plat(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	const fdt32_t *cell;
+
+	pdata->iobase = dev_read_addr(dev);
+
+	pdata->phy_interface = dev_read_phy_mode(dev);
+	if (pdata->phy_interface == PHY_INTERFACE_MODE_NA)
+		return -EINVAL;
+
+	pdata->max_speed = 1000;
+	cell = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "max-speed", NULL);
+	if (cell)
+		pdata->max_speed = fdt32_to_cpu(*cell);
+
+	return 0;
+}
+
+static const struct udevice_id sh_ether_ids[] = {
+	{ .compatible = "renesas,ether-r7s72100" },
+	{ .compatible = "renesas,ether-r8a7790" },
+	{ .compatible = "renesas,ether-r8a7791" },
+	{ .compatible = "renesas,ether-r8a7793" },
+	{ .compatible = "renesas,ether-r8a7794" },
+	{ .compatible = "renesas,gether-r8a77980" },
+	{ }
+};
+
+U_BOOT_DRIVER(eth_sh_ether) = {
+	.name		= "sh_ether",
+	.id		= UCLASS_ETH,
+	.of_match	= sh_ether_ids,
+	.of_to_plat = sh_ether_of_to_plat,
+	.probe		= sh_ether_probe,
+	.remove		= sh_ether_remove,
+	.ops		= &sh_ether_ops,
+	.priv_auto	= sizeof(struct sh_ether_priv),
+	.plat_auto	= sizeof(struct eth_pdata),
+	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
+};

@@ -44,6 +44,7 @@ struct phy_device *mdio_phydev_for_ethname(const char *devname);
 
 void miiphy_listdev(void);
 
+void mdio_init(struct mii_dev *bus);
 struct mii_dev *mdio_alloc(void);
 void mdio_free(struct mii_dev *bus);
 int mdio_register(struct mii_dev *bus);
@@ -64,8 +65,6 @@ void mdio_list_devices(void);
 #define BB_MII_DEVNAME	"bb_miiphy"
 
 struct bb_miiphy_bus {
-	char name[MDIO_NAME_LEN];
-	int (*init)(struct bb_miiphy_bus *bus);
 	int (*mdio_active)(struct bb_miiphy_bus *bus);
 	int (*mdio_tristate)(struct bb_miiphy_bus *bus);
 	int (*set_mdio)(struct bb_miiphy_bus *bus, int v);
@@ -73,19 +72,11 @@ struct bb_miiphy_bus {
 	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
 	int (*delay)(struct bb_miiphy_bus *bus);
 	void *priv;
+	struct mii_dev mii;
 };
 
-extern struct bb_miiphy_bus bb_miiphy_buses[];
-extern int bb_miiphy_buses_num;
-
-/**
- * bb_miiphy_init() - Initialize bit-banged MII bus driver
- *
- * It is called during the generic post-relocation init sequence.
- *
- * Return: 0 if OK
- */
-int bb_miiphy_init(void);
+struct bb_miiphy_bus *bb_miiphy_alloc(void);
+void bb_miiphy_free(struct bb_miiphy_bus *bus);
 
 int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
 int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
