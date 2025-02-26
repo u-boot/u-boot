@@ -1970,6 +1970,30 @@ static int cadence_nand_readid(struct mtd_info *mtd, int offset_in_page, unsigne
 	return 0;
 }
 
+static int cadence_nand_param(struct mtd_info *mtd, u8 offset_in_page, unsigned int command)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	int ret = 0;
+
+	ret = cadence_nand_cmd_opcode(chip, command);
+	if (ret)
+		return ret;
+
+	ret = cadence_nand_cmd_address(chip, ONE_CYCLE, &offset_in_page);
+	if (ret)
+		return ret;
+
+	ret = cadence_nand_waitfunc(mtd, chip);
+	if (ret)
+		return ret;
+
+	ret = cadence_nand_cmd_data(chip, sizeof(struct nand_jedec_params), GCMD_DIR_READ);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static void cadence_nand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 				 int offset_in_page, int page)
 {
@@ -1987,6 +2011,9 @@ static void cadence_nand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		ret = cadence_nand_readid(mtd, offset_in_page, command);
 		break;
 
+	case NAND_CMD_PARAM:
+		ret = cadence_nand_param(mtd, offset_in_page, command);
+		break;
 	/*
 	 * ecc will override other command for read, write and erase
 	 */
@@ -2021,6 +2048,8 @@ static u8 cadence_nand_read_byte(struct mtd_info *mtd)
 	if (cadence->buf_index == 0) {
 		if (cadence->cmd == NAND_CMD_READID)
 			size = 8;
+		else if (cadence->cmd == NAND_CMD_PARAM)
+			size = sizeof(struct nand_jedec_params);
 
 		cadence_nand_read_buf(mtd, &cadence->buf[0], size);
 	}
