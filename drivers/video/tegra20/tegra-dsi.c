@@ -617,6 +617,28 @@ static void tegra_dsi_set_phy_timing(struct udevice *dev,
 		tegra_dsi_set_phy_timing(priv->slave, period, dphy_timing);
 }
 
+static u32 tegra_dsi_get_lanes(struct udevice *dev)
+{
+	struct tegra_dsi_priv *priv = dev_get_priv(dev);
+	struct mipi_dsi_device *device = &priv->device;
+
+	if (priv->master) {
+		struct tegra_dsi_priv *mpriv = dev_get_priv(priv->master);
+		struct mipi_dsi_device *mdevice = &mpriv->device;
+
+		return mdevice->lanes + device->lanes;
+	}
+
+	if (priv->slave) {
+		struct tegra_dsi_priv *spriv = dev_get_priv(priv->slave);
+		struct mipi_dsi_device *sdevice = &spriv->device;
+
+		return device->lanes + sdevice->lanes;
+	}
+
+	return device->lanes;
+}
+
 static void tegra_dsi_ganged_enable(struct udevice *dev, unsigned int start,
 				    unsigned int size)
 {
@@ -743,7 +765,7 @@ static void tegra_dsi_configure(struct udevice *dev,
 	/* set SOL delay */
 	if (priv->master || priv->slave) {
 		unsigned long delay, bclk, bclk_ganged;
-		unsigned int lanes = device->lanes;
+		unsigned int lanes = tegra_dsi_get_lanes(dev);
 		unsigned long htotal = timing->hactive.typ + timing->hfront_porch.typ +
 				       timing->hback_porch.typ + timing->hsync_len.typ;
 
@@ -798,7 +820,7 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	struct dsi_misc_reg *misc = &priv->dsi->misc;
 	unsigned int mul, div;
 	unsigned long bclk, plld, period;
-	u32 value;
+	u32 value, lanes;
 	int ret;
 
 	/* If for some reasone DSI is enabled then it needs to
@@ -824,7 +846,8 @@ static int tegra_dsi_encoder_enable(struct udevice *dev)
 	tegra_dsi_get_muldiv(device->format, &mul, &div);
 
 	/* compute byte clock */
-	bclk = (timing->pixelclock.typ * mul) / (div * device->lanes);
+	lanes = tegra_dsi_get_lanes(dev);
+	bclk = (timing->pixelclock.typ * mul) / (div * lanes);
 
 	tegra_dsi_set_timeout(dev, bclk, 60);
 
@@ -889,7 +912,7 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 	struct tegra_dsi_priv *priv = dev_get_priv(dev);
 	struct tegra_dc_plat *dc_plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = &priv->device;
-	unsigned int mul, div;
+	unsigned int mul, div, lanes;
 	unsigned long bclk, plld;
 
 	/* Switch parents of DSI clocks in case of not standard parent */
@@ -916,8 +939,8 @@ static void tegra_dsi_init_clocks(struct udevice *dev)
 
 	tegra_dsi_get_muldiv(device->format, &mul, &div);
 
-	bclk = (priv->timing.pixelclock.typ * mul) /
-					(div * device->lanes);
+	lanes = tegra_dsi_get_lanes(dev);
+	bclk = (priv->timing.pixelclock.typ * mul) / (div * lanes);
 
 	plld = DIV_ROUND_UP(bclk * 8, USEC_PER_SEC);
 
