@@ -273,8 +273,12 @@ static const char *led_get_function_name(struct udevice *dev)
 	/* Now try to detect function label name */
 	func = dev_read_string(dev, "function");
 	cp = dev_read_u32(dev, "color", &color);
-	// prevent coverity scan error CID 541279: (TAINTED_SCALAR)
-	if (color < LED_COLOR_ID_WHITE || color >= LED_COLOR_ID_MAX)
+	/*
+	 *  prevent coverity scan error CID 541279: (TAINTED_SCALAR)
+	 *  only check the upper bound. No need to check the lower bound
+	 *  as color is from type u32 and never can be lower than 0.
+	 */
+	if (color >= LED_COLOR_ID_MAX)
 		cp = -EINVAL;
 
 	if (cp == 0 || func) {
