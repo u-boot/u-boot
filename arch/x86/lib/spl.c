@@ -82,7 +82,7 @@ static int x86_spl_init(void)
 	int ret;
 
 	log_debug("x86 spl starting\n");
-	if (IS_ENABLED(TPL))
+	if (IS_ENABLED(CONFIG_TPL))
 		ret = x86_cpu_reinit_f();
 	ret = spl_init();
 	if (ret) {
