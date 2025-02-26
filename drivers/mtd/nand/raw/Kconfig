@@ -190,6 +190,15 @@ config SPL_NAND_LOAD
 	def_bool y
 	depends on NAND_DAVINCI && ARCH_DAVINCI && SPL_NAND_SUPPORT
 
+config NAND_CADENCE
+	bool "Support Cadence NAND controller as a DT device"
+	depends on OF_CONTROL && DM_MTD
+	select SYS_NAND_SELF_INIT
+	imply CMD_NAND
+	help
+	  Enable the driver for NAND flash on platforms using a Cadence NAND
+	  controller as a DT device.
+
 config NAND_DENALI
 	bool
 	select SYS_NAND_SELF_INIT
