@@ -7,17 +7,7 @@
 #include <linux/types.h>
 
 #if CONFIG_IS_ENABLED(MBEDTLS_LIB_CRYPTO)
-/*
- * FIXME:
- * MbedTLS define the members of "mbedtls_sha256_context" as private,
- * but "state" needs to be access by arch/arm/cpu/armv8/sha256_ce_glue.
- * MBEDTLS_ALLOW_PRIVATE_ACCESS needs to be enabled to allow the external
- * access.
- * Directly including <external/mbedtls/library/common.h> is not allowed,
- * since this will include <malloc.h> and break the sandbox test.
- */
-#define MBEDTLS_ALLOW_PRIVATE_ACCESS
-
+#include "mbedtls_options.h"
 #include <mbedtls/sha256.h>
 #endif
 
