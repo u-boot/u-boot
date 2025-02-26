@@ -10,6 +10,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <malloc.h>
+#include <reset.h>
 #include <sdhci.h>
 #include <wait_bit.h>
 #include <asm/global_data.h>
@@ -153,8 +154,17 @@ static int msm_sdc_probe(struct udevice *dev)
 	const struct msm_sdhc_variant_info *var_info;
 	struct sdhci_host *host = &prv->host;
 	u32 core_version, core_minor, core_major;
+	struct reset_ctl bcr_rst;
 	u32 caps;
 	int ret;
+
+	ret = reset_get_by_index(dev, 0, &bcr_rst);
+	if (!ret) {
+		reset_assert(&bcr_rst);
+		udelay(200);
+		reset_deassert(&bcr_rst);
+		udelay(200);
+	}
 
 	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_BROKEN_R1B;
 
