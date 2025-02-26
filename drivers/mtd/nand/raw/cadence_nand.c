@@ -430,6 +430,10 @@ cadence_nand_cdma_desc_prepare(struct cadence_nand_info *cadence,
 
 	cdma_desc->command_type = ctype;
 	cdma_desc->ctrl_data_ptr = ctrl_data_ptr;
+
+	flush_cache((dma_addr_t)cadence->cdma_desc,
+		    ROUND(sizeof(struct cadence_nand_cdma_desc),
+			  ARCH_DMA_MINALIGN));
 }
 
 static u8 cadence_nand_check_desc_error(struct cadence_nand_info *cadence,
@@ -456,6 +460,11 @@ static int cadence_nand_cdma_finish(struct cadence_nand_info *cadence)
 {
 	struct cadence_nand_cdma_desc *desc_ptr = cadence->cdma_desc;
 	u8 status = STAT_BUSY;
+
+	invalidate_dcache_range((dma_addr_t)cadence->cdma_desc,
+				(dma_addr_t)cadence->cdma_desc +
+				ROUND(sizeof(struct cadence_nand_cdma_desc),
+				      ARCH_DMA_MINALIGN));
 
 	if (desc_ptr->status & CDMA_CS_FAIL) {
 		status = cadence_nand_check_desc_error(cadence,
