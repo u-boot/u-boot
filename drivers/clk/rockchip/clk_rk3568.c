@@ -2680,7 +2680,7 @@ static ulong rk3568_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 };
 
-#if (IS_ENABLED(OF_CONTROL)) || (!IS_ENABLED(OF_PLATDATA))
+#if (CONFIG_IS_ENABLED(OF_CONTROL)) || (!CONFIG_IS_ENABLED(OF_PLATDATA))
 static int rk3568_gmac0_src_set_parent(struct clk *clk, struct clk *parent)
 {
 	struct rk3568_clk_priv *priv = dev_get_priv(clk->dev);
@@ -2859,7 +2859,7 @@ static int rk3568_clk_set_parent(struct clk *clk, struct clk *parent)
 static struct clk_ops rk3568_clk_ops = {
 	.get_rate = rk3568_clk_get_rate,
 	.set_rate = rk3568_clk_set_rate,
-#if (IS_ENABLED(OF_CONTROL)) || (!IS_ENABLED(OF_PLATDATA))
+#if (CONFIG_IS_ENABLED(OF_CONTROL)) || (!CONFIG_IS_ENABLED(OF_PLATDATA))
 	.set_parent = rk3568_clk_set_parent,
 #endif
 };

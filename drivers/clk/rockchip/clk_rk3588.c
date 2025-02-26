@@ -1822,7 +1822,7 @@ static ulong rk3588_clk_set_rate(struct clk *clk, ulong rate)
  */
 #define ROCKCHIP_MMC_DELAY_ELEMENT_PSEC 60
 
-#if (IS_ENABLED(OF_CONTROL)) || (!IS_ENABLED(OF_PLATDATA))
+#if (CONFIG_IS_ENABLED(OF_CONTROL)) || (!CONFIG_IS_ENABLED(OF_PLATDATA))
 static int __maybe_unused rk3588_dclk_vop_set_parent(struct clk *clk,
 						     struct clk *parent)
 {
@@ -1915,7 +1915,7 @@ static int rk3588_clk_set_parent(struct clk *clk, struct clk *parent)
 static struct clk_ops rk3588_clk_ops = {
 	.get_rate = rk3588_clk_get_rate,
 	.set_rate = rk3588_clk_set_rate,
-#if (IS_ENABLED(OF_CONTROL)) || (!IS_ENABLED(OF_PLATDATA))
+#if (CONFIG_IS_ENABLED(OF_CONTROL)) || (!CONFIG_IS_ENABLED(OF_PLATDATA))
 	.set_parent = rk3588_clk_set_parent,
 #endif
 };
