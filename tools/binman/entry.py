@@ -722,7 +722,7 @@ class Entry(object):
             is_elf = self.GetDefaultFilename() == self.elf_fname
 
             symbols_base = self.symbols_base
-            if symbols_base is None and self.GetImage()._end_4gb:
+            if symbols_base is None and self.GetImage()._end_at_4gb:
                 symbols_base = 0
 
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),

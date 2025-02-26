@@ -165,7 +165,7 @@ class Entry_section(Entry):
         self._pad_byte = 0
         self._sort = False
         self._skip_at_start = None
-        self._end_4gb = False
+        self._end_at_4gb = False
         self._ignore_missing = False
         self._filename = None
         self.align_default = 0
@@ -187,9 +187,9 @@ class Entry_section(Entry):
         super().ReadNode()
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
-        self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
+        self._end_at_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
         self._skip_at_start = fdt_util.GetInt(self._node, 'skip-at-start')
-        if self._end_4gb:
+        if self._end_at_4gb:
             if not self.size:
                 self.Raise("Section size must be provided when using end-at-4gb")
             if self._skip_at_start is not None:
