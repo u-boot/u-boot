@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0+ OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/adi,adsp-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Pinctrl Driver for Analog Devices SC5xx Processors
+
+maintainers:
+  - Vasileios Bimpikas <vasileios.bimpikas@analog.com>
+  - Utsav Agarwal <utsav.agarwal@analog.com>
+  - Arturs Artamonovs <arturs.artamonovs@analog.com>
+
+description: |
+  This driver provides an interface for performing pin configuration
+  Analog Devices SoCs using the ADSP PORT hardware for pin
+  configuration according to the HRM. Currently this is only the
+  SC5xx series.
+
+properties:
+  compatible:
+    const: adi,adsp-pinctrl
+
+  reg:
+    maxItems: 1
+
+  adi,npins:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description:
+      Total number of pins available to this SoC's pin controller,
+      found in the HRM.
+
+patternProperties:
+  '_pins$':
+    type: object
+
+    properties:
+      adi,pins:
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+        description:
+          For n pins, 2n values must be provided as a sequence of pin
+          name as identified with the ADI_ADSP_PIN() macro and a pin
+          function constant, both defined in
+          include/dt-bindings/pinctrl/adi-adsp.h.
+
+    required:
+     - adi,pins
+
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - adi,npins
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/pinctrl/adi-adsp.h>
+
+    soc {
+      pinctrl0: pinctrl@0x31004000 {
+        compatible = "adi,adsp-pinctrl";
+        reg = <0x31004000 0x500>;
+        adi,npins = <135>;
+        uart0_default: uart0_pins {
+          adi,pins = <ADI_ADSP_PIN('A', 6) ADI_ADSP_PINFUNC_ALT1>,
+                     <ADI_ADSP_PIN('A', 7) ADI_ADSP_PINFUNC_ALT1>;
+        };
+      };
+
+    };
