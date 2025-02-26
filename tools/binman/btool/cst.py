@@ -12,6 +12,14 @@ class Bintoolcst(bintool.Bintool):
 
     This bintool supports running `cst` with some basic parameters as
     needed by binman.
+
+    cst (imx code signing tool) is used for sigining bootloader binaries for
+    various i.MX SoCs.
+
+    See `Code Signing Tool Users Guide`_ for more information.
+
+    .. _`Code Signing Tool Users Guide`:
+        https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/202591/1/CST_UG.pdf
     """
     def __init__(self, name):
         super().__init__(name, 'Sign NXP i.MX image')
@@ -29,20 +37,17 @@ class Bintoolcst(bintool.Bintool):
         return self.run_cmd(*args)
 
     def fetch(self, method):
-        """Fetch handler for cst
-
-        This installs cst using the apt utility.
-
-        Args:
-            method (FETCH_...): Method to use
-
-        Returns:
-            True if the file was fetched and now installed, None if a method
-            other than FETCH_BIN was requested
-
-        Raises:
-            Valuerror: Fetching could not be completed
-        """
-        if method != bintool.FETCH_BIN:
+        """Build cst from git"""
+        if method != bintool.FETCH_BUILD:
             return None
-        return self.apt_install('imx-code-signing-tool')
+
+        from platform import architecture
+        arch = 'linux64' if architecture()[0] == '64bit' else 'linux32'
+        result = self.build_from_git(
+            'https://gitlab.apertis.org/pkg/imx-code-signing-tool',
+            ['all'],
+            f'code/obj.{arch}/cst',
+            flags=[f'OSTYPE={arch}', 'ENCRYPTION=yes'],
+            git_branch='debian/unstable',
+            make_path=f'code/obj.{arch}/')
+        return result
