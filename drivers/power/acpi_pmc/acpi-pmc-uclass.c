@@ -141,7 +141,7 @@ int pmc_prev_sleep_state(struct udevice *dev)
 	if (upriv->pm1_sts & WAK_STS) {
 		switch (acpi_sleep_from_pm1(upriv->pm1_cnt)) {
 		case ACPI_S3:
-			if (IS_ENABLED(HAVE_ACPI_RESUME))
+			if (IS_ENABLED(CONFIG_HAVE_ACPI_RESUME))
 				prev_sleep_state = ACPI_S3;
 			break;
 		case ACPI_S5:
