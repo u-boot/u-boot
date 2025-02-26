@@ -147,15 +147,20 @@ unsigned int clock_get_pll6(void)
 	if (IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2)) {
 		div1 = ((rval & CCM_PLL6_CTRL_P0_MASK) >>
 			CCM_PLL6_CTRL_P0_SHIFT) + 1;
-		m = 1;
 	} else {
 		div1 = ((rval & CCM_PLL6_CTRL_DIV1_MASK) >>
 			CCM_PLL6_CTRL_DIV1_SHIFT) + 1;
-		if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
-			m = 4;
-		else
-			m = 2;
 	}
+
+	/*
+	 * The factors encoded in the register describe the doubled clock
+	 * frequency, expect for the H6, where it's the quadrupled frequency.
+	 * Compensate for that here.
+	 */
+	if (IS_ENABLED(CONFIG_MACH_SUN50I_H6))
+		m = 4;
+	else
+		m = 2;
 
 	return 24000000U * n / m / div1 / div2;
 }
