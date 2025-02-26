@@ -56,11 +56,6 @@ struct fmp_state {
 	u32 last_attempt_status; /* not used */
 };
 
-__weak void set_dfu_alt_info(char *interface, char *devstr)
-{
-	env_set("dfu_alt_info", update_info.dfu_string);
-}
-
 /**
  * efi_firmware_get_image_type_id - get image_type_id
  * @image_index:	image index

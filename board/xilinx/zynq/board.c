@@ -53,6 +53,9 @@ int board_late_init(void)
 	char *new_targets;
 	char *env_targets;
 
+	if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
+		configure_capsule_updates();
+
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
 		return 0;
@@ -166,16 +169,11 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	}
 }
 
-#if defined(CONFIG_SET_DFU_ALT_INFO)
-
 #define DFU_ALT_BUF_LEN                SZ_1K
 
-void set_dfu_alt_info(char *interface, char *devstr)
+void configure_capsule_updates(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, DFU_ALT_BUF_LEN);
-
-	if (env_get("dfu_alt_info"))
-		return;
 
 	memset(buf, 0, sizeof(buf));
 
@@ -200,9 +198,6 @@ void set_dfu_alt_info(char *interface, char *devstr)
 		return;
 	}
 
-	env_set("dfu_alt_info", buf);
-	puts("DFU alt info setting: done\n");
 	update_info.dfu_string = strdup(buf);
 	debug("Capsule DFU: %s\n", update_info.dfu_string);
 }
-#endif

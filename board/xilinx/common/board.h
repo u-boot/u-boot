@@ -18,4 +18,7 @@ bool board_detection(void);
 char *soc_name_decode(void);
 
 bool soc_detection(void);
+
+void configure_capsule_updates(void);
+
 #endif /* BOARD_XILINX_COMMON_BOARD_H */
