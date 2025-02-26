@@ -344,6 +344,7 @@ static int cadence_nand_generic_cmd_send(struct cadence_nand_info *cadence,
 
 	/* Issue command. */
 	writel_relaxed(reg, cadence->reg + CMD_REG0);
+	cadence->buf_index = 0;
 
 	return 0;
 }
@@ -1932,9 +1933,43 @@ static void cadence_nand_select_chip(struct mtd_info *mtd, int chipnr)
 	}
 }
 
+static int cadence_nand_status(struct mtd_info *mtd, unsigned int command)
+{
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	int ret = 0;
+
+	ret = cadence_nand_cmd_opcode(chip, command);
+	if (ret)
+		return ret;
+
+	ret = cadence_nand_cmd_data(chip, 1, GCMD_DIR_READ);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static void cadence_nand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 				 int offset_in_page, int page)
 {
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct cadence_nand_info *cadence = to_cadence_nand_info(chip->controller);
+	int ret = 0;
+
+	cadence->cmd = command;
+	switch (command) {
+	case NAND_CMD_STATUS:
+		ret = cadence_nand_status(mtd, command);
+		break;
+	/*
+	 * ecc will override other command for read, write and erase
+	 */
+	default:
+		break;
+	}
+
+	if (ret != 0)
+		printf("ERROR:%s:command:0x%x\n", __func__, cadence->cmd);
 }
 
 static int cadence_nand_dev_ready(struct mtd_info *mtd)
@@ -1952,7 +1987,18 @@ static int cadence_nand_dev_ready(struct mtd_info *mtd)
 
 static u8 cadence_nand_read_byte(struct mtd_info *mtd)
 {
-	return 0;
+	struct nand_chip *chip = mtd_to_nand(mtd);
+	struct cadence_nand_info *cadence = to_cadence_nand_info(chip->controller);
+	u32 size = 1;
+	u8 val;
+
+	if (cadence->buf_index == 0)
+		cadence_nand_read_buf(mtd, &cadence->buf[0], size);
+
+	val = *(&cadence->buf[0] + cadence->buf_index);
+	cadence->buf_index++;
+
+	return val;
 }
 
 static void cadence_nand_write_byte(struct mtd_info *mtd, u8 byte)

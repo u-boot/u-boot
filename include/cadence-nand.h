@@ -454,6 +454,8 @@ struct cadence_nand_info {
 	u8 *buf;
 	u32 buf_size;
 	u8 *stat;
+	u8 cmd;
+	u32 buf_index;
 
 	u8 curr_corr_str_idx;
 
