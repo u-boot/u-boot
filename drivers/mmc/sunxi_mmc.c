@@ -92,6 +92,13 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 		pll = CCM_MMC_CTRL_PLL6;
 		pll_hz = clock_get_pll6();
 #endif
+		/*
+		 * On the D1/R528/T113 mux source 1 refers to PLL_PERIPH0(1x),
+		 * like for the older SoCs. However we still have the hidden
+		 * divider of 2x, so compensate for that here.
+		 */
+		if (IS_ENABLED(CONFIG_MACH_SUN8I_R528))
+			pll_hz /= 2;
 	}
 
 	div = pll_hz / hz;
