@@ -133,7 +133,7 @@
 #define PAD_CFG2_DEBOUNCE_MASK		0x1f
 
 /* voltage tolerance  0=3.3V default 1=1.8V tolerant */
-#if IS_ENABLED(INTEL_PINCTRL_IOSTANDBY)
+#if IS_ENABLED(CONFIG_INTEL_PINCTRL_IOSTANDBY)
 #define PAD_CFG1_TOL_MASK		(0x1 << 25)
 #define  PAD_CFG1_TOL_1V8		(0x1 << 25)
 #endif
@@ -150,7 +150,7 @@
 				PAD_CFG0_TRIG_##trig | \
 				PAD_CFG0_RX_POL_##inv)
 
-#if IS_ENABLED(INTEL_PINCTRL_DUAL_ROUTE_SUPPORT)
+#if IS_ENABLED(CONFIG_INTEL_PINCTRL_DUAL_ROUTE_SUPPORT)
 #define PAD_IRQ_CFG_DUAL_ROUTE(route1, route2, trig, inv)  \
 				(PAD_CFG0_ROUTE_##route1 | \
 				PAD_CFG0_ROUTE_##route2 | \
@@ -354,7 +354,7 @@
 		PAD_IRQ_CFG(NMI, trig, inv), PAD_PULL(pull) | \
 		PAD_IOSSTATE(TXD_RXE))
 
-#if IS_ENABLED(INTEL_PINCTRL_DUAL_ROUTE_SUPPORT)
+#if IS_ENABLED(CONFIG_INTEL_PINCTRL_DUAL_ROUTE_SUPPORT)
 /* GPI, GPIO Driver, SCI interrupt */
 #define PAD_CFG_GPI_GPIO_DRIVER_SCI(pad, pull, rst, trig, inv)	\
 	_PAD_CFG_STRUCT(pad,		\
