@@ -554,6 +554,14 @@ config DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
+config ADP5588_GPIO
+	bool "ADP5588 GPIO expander driver"
+	depends on DM_GPIO && DM_I2C
+	help
+	  Say yes here to support GPIO functionality of ADI ADP5588 chips.
+
+	  The ADP5588 is an 18-port I2C GPIO expander and keypad controller.
+
 config SPL_DM_PCA953X
 	bool "PCA95[357]x, PCA9698, TCA64xx, and MAX7310 I/O ports in SPL"
 	depends on SPL_DM_GPIO
