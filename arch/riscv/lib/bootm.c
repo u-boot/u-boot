@@ -46,10 +46,6 @@ static void announce_and_cleanup(int fake)
 	bootstage_report();
 #endif
 
-#ifdef CONFIG_USB_DEVICE
-	udc_disconnect();
-#endif
-
 	board_quiesce_devices();
 
 	/*
