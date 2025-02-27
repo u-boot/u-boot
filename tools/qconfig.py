@@ -1453,7 +1453,7 @@ def do_scan_source(path, do_update):
     print('\nCONFIG options used as Proper in Makefiles but without a non-xPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
-    proper_not_found |= {not_found.keys()}
+    proper_not_found |= not_found.keys()
 
     # Scan the source code
     all_uses, _ = scan_src_files(src_list)
@@ -1471,7 +1471,7 @@ def do_scan_source(path, do_update):
     print('\nCONFIG options used as Proper in source but without a non-xPL_ variant:')
     not_found = check_not_found(all_uses, MODE_PROPER)
     show_uses(not_found)
-    proper_not_found |= {not_found.keys()}
+    proper_not_found |= not_found.keys()
 
     print('\nCONFIG options used as SPL but without an xPL_ variant:')
     for item in sorted(spl_not_found):
