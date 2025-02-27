@@ -216,6 +216,8 @@ class TestFunctional(unittest.TestCase):
 
         text = self._get_text('test01.txt')
         series = patchstream.get_metadata_for_test(text)
+        series.base_commit = Commit('1a44532')
+        series.branch = 'mybranch'
         cover_fname, args = self._create_patches_for_test(series)
         get_maintainer_script = str(pathlib.Path(__file__).parent.parent.parent
                                     / 'get_maintainer.pl') + ' --norolestats'
@@ -308,6 +310,8 @@ Simon Glass (2):
 --\x20
 2.7.4
 
+base-commit: 1a44532
+branch: mybranch
 '''
         lines = open(cover_fname, encoding='utf-8').read().splitlines()
         self.assertEqual(
@@ -511,11 +515,17 @@ complicated as possible''')
             # Check that it can detect a different branch
             self.assertEqual(3, gitutil.count_commits_to_branch('second'))
             with capture_sys_output() as _:
-                _, cover_fname, patch_files = control.prepare_patches(
+                series, cover_fname, patch_files = control.prepare_patches(
                     col, branch='second', count=-1, start=0, end=0,
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(3, len(patch_files))
+
+            cover = tools.read_file(cover_fname, binary=False)
+            lines = cover.splitlines()[-2:]
+            base = repo.lookup_reference('refs/heads/base').target
+            self.assertEqual(f'base-commit: {base}', lines[0])
+            self.assertEqual('branch: second', lines[1])
 
             # Check that it can skip patches at the end
             with capture_sys_output() as _:
@@ -524,6 +534,13 @@ complicated as possible''')
                     ignore_binary=False, signoff=True)
             self.assertIsNotNone(cover_fname)
             self.assertEqual(2, len(patch_files))
+
+            cover = tools.read_file(cover_fname, binary=False)
+            lines = cover.splitlines()[-2:]
+            base2 = repo.lookup_reference('refs/heads/second')
+            ref = base2.peel(pygit2.GIT_OBJ_COMMIT).parents[0].parents[0].id
+            self.assertEqual(f'base-commit: {ref}', lines[0])
+            self.assertEqual('branch: second', lines[1])
         finally:
             os.chdir(orig_dir)
 

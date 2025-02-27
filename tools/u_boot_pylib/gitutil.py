@@ -701,13 +701,38 @@ def setup():
                        .return_code == 0)
 
 
+def get_hash(spec):
+    """Get the hash of a commit
+
+    Args:
+        spec (str): Git commit to show, e.g. 'my-branch~12'
+
+    Returns:
+        str: Hash of commit
+    """
+    return command.output_one_line('git', 'show', '-s', '--pretty=format:%H',
+                                   spec)
+
+
 def get_head():
     """Get the hash of the current HEAD
 
     Returns:
         Hash of HEAD
     """
-    return command.output_one_line('git', 'show', '-s', '--pretty=format:%H')
+    return get_hash('HEAD')
+
+
+def get_branch():
+    """Get the branch we are currently on
+
+    Return:
+        str: branch name, or None if none
+    """
+    out = command.output_one_line('git', 'rev-parse', '--abbrev-ref', 'HEAD')
+    if out == 'HEAD':
+        return None
+    return out
 
 
 if __name__ == "__main__":

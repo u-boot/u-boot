@@ -755,8 +755,12 @@ def get_metadata(branch, start, count):
     Returns:
         Series: Object containing information about the commits.
     """
-    return get_metadata_for_list(
-        '%s~%d' % (branch if branch else 'HEAD', start), None, count)
+    top = f"{branch if branch else 'HEAD'}~{start}"
+    series = get_metadata_for_list(top, None, count)
+    series.base_commit = commit.Commit(gitutil.get_hash(f'{top}~{count}'))
+    series.branch = branch or gitutil.get_branch()
+    series.top = top
+    return series
 
 def get_metadata_for_test(text):
     """Process metadata from a file containing a git log. Used for tests
@@ -868,4 +872,11 @@ def insert_cover_letter(fname, series, count):
             out = series.MakeChangeLog(None)
             line += '\n' + '\n'.join(out)
         fil.write(line)
+
+    # Insert the base commit and branch
+    if series.base_commit:
+        print(f'base-commit: {series.base_commit.hash}', file=fil)
+    if series.branch:
+        print(f'branch: {series.branch}', file=fil)
+
     fil.close()

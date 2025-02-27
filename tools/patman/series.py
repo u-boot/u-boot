@@ -42,6 +42,8 @@ class Series(dict):
         self.notes = []
         self.changes = {}
         self.allow_overwrite = False
+        self.base_commit = None
+        self.branch = None
 
         # Written in MakeCcFile()
         #  key: name of patch file
