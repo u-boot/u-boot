@@ -639,7 +639,7 @@ F:	include/env/adi/
 ARM SNAPDRAGON
 M:	Caleb Connolly <caleb.connolly@linaro.org>
 M:	Neil Armstrong <neil.armstrong@linaro.org>
-R:	Sumit Garg <sumit.garg@linaro.org>
+R:	Sumit Garg <sumit.garg@kernel.org>
 L:	u-boot-qcom@groups.io
 S:	Maintained
 T:	git https://source.denx.de/u-boot/custodians/u-boot-snapdragon.git
@@ -1043,9 +1043,10 @@ F:	common/cyclic.c
 F:	include/cyclic.h
 
 DEVICETREE REBASING SUBTREE
-M:	Sumit Garg <sumit.garg@linaro.org>
+M:	Sumit Garg <sumit.garg@kernel.org>
 S:	Maintained
 F:	dts/upstream/
+N:	OF_UPSTREAM
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>
@@ -1451,7 +1452,7 @@ S:	Maintained
 F:	tools/patman/
 
 PCIe DWC IMX
-M:	Sumit Garg <sumit.garg@linaro.org>
+M:	Sumit Garg <sumit.garg@kernel.org>
 S:	Maintained
 F:	drivers/pci/pcie_dw_imx.c
 F:	drivers/phy/phy-imx8m-pcie.c
