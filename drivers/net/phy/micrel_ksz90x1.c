@@ -508,8 +508,7 @@ static int ksz9131_of_load_all_skew_values(struct phy_device *phydev)
 
 static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
 {
-	struct phy_driver *drv = phydev->drv;
-	u16 rxcdll_val, txcdll_val, val;
+	u16 rxcdll_val, txcdll_val;
 	int ret;
 
 	switch (phydev->interface) {
@@ -533,24 +532,15 @@ static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
 		return 0;
 	}
 
-	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
-			   KSZ9131RN_RXC_DLL_CTRL);
-	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
-	val |= rxcdll_val;
-	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
-			    KSZ9131RN_RXC_DLL_CTRL, val);
-	if (ret)
+	ret = phy_modify_mmd(phydev, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			     KSZ9131RN_RXC_DLL_CTRL, KSZ9131RN_DLL_CTRL_BYPASS,
+			     rxcdll_val);
+	if (ret < 0)
 		return ret;
 
-	val = drv->readext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
-			   KSZ9131RN_TXC_DLL_CTRL);
-
-	val &= ~KSZ9131RN_DLL_CTRL_BYPASS;
-	val |= txcdll_val;
-	ret = drv->writeext(phydev, 0, KSZ9131RN_MMD_COMMON_CTRL_REG,
-			    KSZ9131RN_TXC_DLL_CTRL, val);
-
-	return ret;
+	return phy_modify_mmd(phydev, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			      KSZ9131RN_TXC_DLL_CTRL, KSZ9131RN_DLL_CTRL_BYPASS,
+			      txcdll_val);
 }
 
 /* Silicon Errata DS80000693B
