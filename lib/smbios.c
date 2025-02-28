@@ -429,6 +429,8 @@ static int smbios_write_type1(ulong *current, int handle,
 	struct smbios_type1 *t;
 	int len = sizeof(*t);
 	char *serial_str = env_get("serial#");
+	size_t uuid_len;
+	void *uuid;
 
 	t = map_sysmem(*current, len);
 	memset(t, 0, len);
@@ -450,6 +452,10 @@ static int smbios_write_type1(ulong *current, int handle,
 						      SYSID_SM_SYSTEM_SERIAL,
 						      NULL);
 	}
+	if (!sysinfo_get_data(ctx->dev, SYSID_SM_SYSTEM_UUID, &uuid,
+			      &uuid_len) &&
+	    uuid_len == sizeof(t->uuid))
+		memcpy(t->uuid, uuid, sizeof(t->uuid));
 	t->wakeup_type = smbios_get_val_si(ctx, "wakeup-type",
 					   SYSID_SM_SYSTEM_WAKEUP,
 					   SMBIOS_WAKEUP_TYPE_UNKNOWN);
