@@ -389,6 +389,12 @@ U_BOOT_PHY_DRIVER(ksz9031) = {
 #define KSZ9131RN_DLL_ENABLE_DELAY	0
 #define KSZ9131RN_DLL_DISABLE_DELAY	BIT(12)
 
+#define KSZ9131RN_COMMON_CTRL				0
+#define KSZ9131RN_COMMON_CTRL_INDIVIDUAL_LED_MODE	BIT(4)
+
+#define KSZ9131RN_LED_ERRATA_REG	0x1e
+#define KSZ9131RN_LED_ERRATA_BIT	BIT(9)
+
 static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
 {
 	struct phy_driver *drv = phydev->drv;
@@ -436,6 +442,28 @@ static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
 	return ret;
 }
 
+/* Silicon Errata DS80000693B
+ *
+ * When LEDs are configured in Individual Mode, LED1 is ON in a no-link
+ * condition. Workaround is to set register 0x1e, bit 9, this way LED1 behaves
+ * according to the datasheet (off if there is no link).
+ */
+static int ksz9131_led_errata(struct phy_device *phydev)
+{
+	int reg;
+
+	reg = phy_read_mmd(phydev, KSZ9131RN_MMD_COMMON_CTRL_REG,
+			   KSZ9131RN_COMMON_CTRL);
+	if (reg < 0)
+		return reg;
+
+	if (!(reg & KSZ9131RN_COMMON_CTRL_INDIVIDUAL_LED_MODE))
+		return 0;
+
+	return phy_set_bits(phydev, MDIO_DEVAD_NONE, KSZ9131RN_LED_ERRATA_REG,
+			    KSZ9131RN_LED_ERRATA_BIT);
+}
+
 static int ksz9131_config(struct phy_device *phydev)
 {
 	int ret;
@@ -445,6 +473,10 @@ static int ksz9131_config(struct phy_device *phydev)
 		if (ret)
 			return ret;
 	}
+
+	ret = ksz9131_led_errata(phydev);
+	if (ret < 0)
+		return ret;
 
 	/* add an option to disable the gigabit feature of this PHY */
 	if (env_get("disable_giga")) {
