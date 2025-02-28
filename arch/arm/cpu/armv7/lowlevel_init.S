@@ -26,7 +26,7 @@ WEAK(lowlevel_init)
 	/*
 	 * Setup a temporary stack. Global data is not available yet.
 	 */
-#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_STACK)
+#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_HAVE_INIT_STACK)
 	ldr	sp, =CONFIG_SPL_STACK
 #else
 	ldr	sp, =SYS_INIT_SP_ADDR

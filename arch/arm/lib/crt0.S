@@ -102,7 +102,7 @@ ENTRY(_main)
 
 #if defined(CONFIG_TPL_BUILD) && defined(CONFIG_TPL_HAVE_INIT_STACK)
 	ldr	r0, =(CONFIG_TPL_STACK)
-#elif defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_STACK)
+#elif defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_HAVE_INIT_STACK)
 	ldr	r0, =(CONFIG_SPL_STACK)
 #else
 	ldr	r0, =(SYS_INIT_SP_ADDR)
