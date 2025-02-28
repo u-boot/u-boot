@@ -319,11 +319,6 @@ static int tegra_display_probe(struct tegra_lcd_priv *priv,
 						/ priv->pixel_clock) - 2;
 	log_debug("Display clock %lu, divider %lu\n", rate, priv->scdiv);
 
-	/*
-	 * HOST1X is init by default at 150MHz with PLLC as parent
-	 */
-	clock_start_periph_pll(PERIPH_ID_HOST1X, CLOCK_ID_CGENERAL,
-			       150 * 1000000);
 	clock_start_periph_pll(priv->clk->id, priv->clk_parent->id,
 			       rate);
 
