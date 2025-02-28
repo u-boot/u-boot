@@ -615,7 +615,7 @@ F:	arch/arm/dts/am335x-sancloud*
 
 ARM SC5XX
 M:	Nathan Barrett-Morrison <nathan.morrison@timesys.com>
-M:	Greg Malysa <greg.malysa@timesys.com>
+M:	Greg Malysa <malysagreg@gmail.com>
 M:	Ian Roberts <ian.roberts@timesys.com>
 M:	Vasileios Bimpikas <vasileios.bimpikas@analog.com>
 M:	Utsav Agarwal <utsav.agarwal@analog.com>
