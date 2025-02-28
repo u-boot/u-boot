@@ -90,8 +90,8 @@ _start:
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
 call_board_init_f:
-#if defined(CONFIG_XPL_BUILD) && defined(CONFIG_SPL_HAVE_INIT_STACK)
-	li	t0, CONFIG_SPL_STACK
+#if CONFIG_IS_ENABLED(HAVE_INIT_STACK)
+	li	t0, CONFIG_VAL(STACK)
 #else
 	li	t0, SYS_INIT_SP_ADDR
 #endif

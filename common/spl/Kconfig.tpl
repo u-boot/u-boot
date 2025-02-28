@@ -138,8 +138,8 @@ config TPL_HAVE_INIT_STACK
 	bool "TPL requires a initial, fixed, stack-pointer location"
 	help
 	  Enable if the TPL phase should not inherit its initial
-	  stack-pointer from the settings for U-Boot proper (or SPL if
-	  SPL_STACK is defined), but should set its own value.
+	  stack-pointer from the settings for U-Boot proper, but should set its
+	  own value.
 
 config TPL_STACK
 	hex "Address of the initial stack-pointer for the TPL phase"
