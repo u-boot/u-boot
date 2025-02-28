@@ -395,6 +395,117 @@ U_BOOT_PHY_DRIVER(ksz9031) = {
 #define KSZ9131RN_LED_ERRATA_REG	0x1e
 #define KSZ9131RN_LED_ERRATA_BIT	BIT(9)
 
+#define KSZ9131RN_CONTROL_PAD_SKEW	4
+#define KSZ9131RN_RX_DATA_PAD_SKEW	5
+#define KSZ9131RN_TX_DATA_PAD_SKEW	6
+#define KSZ9131RN_CLK_PAD_SKEW		8
+
+#define KSZ9131RN_SKEW_5BIT_MAX		2400
+#define KSZ9131RN_SKEW_4BIT_MAX		800
+#define KSZ9131RN_OFFSET		700
+#define KSZ9131RN_STEP			100
+
+static int ksz9131_of_load_skew_values(struct phy_device *phydev,
+				       ofnode of_node,
+				       u16 reg, size_t field_sz,
+				       const char *field[], u8 numfields)
+{
+	int val[4] = {-(1 + KSZ9131RN_OFFSET), -(2 + KSZ9131RN_OFFSET),
+		      -(3 + KSZ9131RN_OFFSET), -(4 + KSZ9131RN_OFFSET)};
+	int skewval, skewmax = 0;
+	int matches = 0;
+	u16 maxval;
+	u16 newval;
+	u16 mask;
+	int i;
+
+	/* psec properties in dts should mean x pico seconds */
+	if (field_sz == 5)
+		skewmax = KSZ9131RN_SKEW_5BIT_MAX;
+	else
+		skewmax = KSZ9131RN_SKEW_4BIT_MAX;
+
+	for (i = 0; i < numfields; i++)
+		if (!ofnode_read_s32(of_node, field[i], &skewval)) {
+			if (skewval < -KSZ9131RN_OFFSET)
+				skewval = -KSZ9131RN_OFFSET;
+			else if (skewval > skewmax)
+				skewval = skewmax;
+
+			val[i] = skewval + KSZ9131RN_OFFSET;
+			matches++;
+		}
+
+	if (!matches)
+		return 0;
+
+	if (matches < numfields)
+		newval = phy_read_mmd(phydev, KSZ9131RN_MMD_COMMON_CTRL_REG, reg);
+	else
+		newval = 0;
+
+	maxval = (field_sz == 4) ? 0xf : 0x1f;
+	for (i = 0; i < numfields; i++)
+		if (val[i] != -(i + 1 + KSZ9131RN_OFFSET)) {
+			mask = 0xffff;
+			mask ^= maxval << (field_sz * i);
+			newval = (newval & mask) |
+				(((val[i] / KSZ9131RN_STEP) & maxval)
+					<< (field_sz * i));
+		}
+
+	return phy_write_mmd(phydev, KSZ9131RN_MMD_COMMON_CTRL_REG, reg, newval);
+}
+
+static int ksz9131_of_load_all_skew_values(struct phy_device *phydev)
+{
+	const char *control_skews[2] = { "txen-skew-psec", "rxdv-skew-psec" };
+	const char *clk_skews[2] = { "rxc-skew-psec", "txc-skew-psec" };
+	const char *rx_data_skews[4] = {
+		"rxd0-skew-psec", "rxd1-skew-psec",
+		"rxd2-skew-psec", "rxd3-skew-psec"
+	};
+	const char *tx_data_skews[4] = {
+		"txd0-skew-psec", "txd1-skew-psec",
+		"txd2-skew-psec", "txd3-skew-psec"
+	};
+	struct ofnode_phandle_args phandle_args;
+	int ret;
+
+	/*
+	 * Silently ignore failure here as the device tree is not required to
+	 * contain a phy node.
+	 */
+	if (dev_read_phandle_with_args(phydev->dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args))
+		return 0;
+
+	if (!ofnode_valid(phandle_args.node))
+		return 0;
+
+	ret = ksz9131_of_load_skew_values(phydev, phandle_args.node,
+					  KSZ9131RN_CLK_PAD_SKEW, 5,
+					  clk_skews, 2);
+	if (ret < 0)
+		return ret;
+
+	ret = ksz9131_of_load_skew_values(phydev, phandle_args.node,
+					  KSZ9131RN_CONTROL_PAD_SKEW, 4,
+					  control_skews, 2);
+	if (ret < 0)
+		return ret;
+
+	ret = ksz9131_of_load_skew_values(phydev, phandle_args.node,
+					  KSZ9131RN_RX_DATA_PAD_SKEW, 4,
+					  rx_data_skews, 4);
+	if (ret < 0)
+		return ret;
+
+	return ksz9131_of_load_skew_values(phydev, phandle_args.node,
+					   KSZ9131RN_TX_DATA_PAD_SKEW, 4,
+					   tx_data_skews, 4);
+}
+
 static int ksz9131_config_rgmii_delay(struct phy_device *phydev)
 {
 	struct phy_driver *drv = phydev->drv;
@@ -473,6 +584,10 @@ static int ksz9131_config(struct phy_device *phydev)
 		if (ret)
 			return ret;
 	}
+
+	ret = ksz9131_of_load_all_skew_values(phydev);
+	if (ret < 0)
+		return ret;
 
 	ret = ksz9131_led_errata(phydev);
 	if (ret < 0)
