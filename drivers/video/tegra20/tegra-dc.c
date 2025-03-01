@@ -635,9 +635,6 @@ static int tegra_lcd_bind(struct udevice *dev)
 	return 0;
 }
 
-static const struct video_ops tegra_lcd_ops = {
-};
-
 static const struct tegra_dc_soc_info tegra20_dc_soc_info = {
 	.has_timer = true,
 	.has_rgb = true,
@@ -678,7 +675,6 @@ U_BOOT_DRIVER(tegra_lcd) = {
 	.name		= "tegra_lcd",
 	.id		= UCLASS_VIDEO,
 	.of_match	= tegra_lcd_ids,
-	.ops		= &tegra_lcd_ops,
 	.bind		= tegra_lcd_bind,
 	.probe		= tegra_lcd_probe,
 	.of_to_plat	= tegra_lcd_of_to_plat,
