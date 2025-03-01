@@ -17,9 +17,6 @@
 
 #include "tegra-dc.h"
 
-#define TEGRA_DISPLAY_A_BASE		0x54200000
-#define TEGRA_DISPLAY_B_BASE		0x54240000
-
 #define TEGRA_PWM_BL_MIN_BRIGHTNESS	0x10
 #define TEGRA_PWM_BL_MAX_BRIGHTNESS	0xFF
 
@@ -106,14 +103,11 @@ static int tegra_pwm_backlight_enable(struct udevice *dev)
 static int tegra_pwm_backlight_probe(struct udevice *dev)
 {
 	struct tegra_pwm_backlight_priv *priv = dev_get_priv(dev);
+	ofnode dc = ofnode_get_parent(dev_ofnode(dev));
 
-	if (dev_read_bool(dev, "nvidia,display-b-base"))
-		priv->dc = (struct dc_ctlr *)TEGRA_DISPLAY_B_BASE;
-	else
-		priv->dc = (struct dc_ctlr *)TEGRA_DISPLAY_A_BASE;
-
+	priv->dc = (struct dc_ctlr *)ofnode_get_addr(dc);
 	if (!priv->dc) {
-		log_err("no display controller address\n");
+		log_err("%s: failed to get DC controller\n", __func__);
 		return -EINVAL;
 	}
 
