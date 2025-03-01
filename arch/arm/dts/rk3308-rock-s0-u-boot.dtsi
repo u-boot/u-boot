@@ -7,6 +7,14 @@
 	bootph-some-ram;
 };
 
+&gpio4 {
+	bootph-pre-ram;
+};
+
+&sdmmc_2030 {
+	bootph-pre-ram;
+};
+
 &uart0 {
 	bootph-all;
 	clock-frequency = <24000000>;
@@ -14,6 +22,10 @@
 
 &uart0_xfer {
 	bootph-all;
+};
+
+&vcc_sd {
+	bootph-pre-ram;
 };
 
 &vdd_core {
