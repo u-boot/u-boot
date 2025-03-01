@@ -632,7 +632,7 @@ static int tegra_lcd_bind(struct udevice *dev)
 	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
 		(1 << LCD_MAX_LOG2_BPP) / 8;
 
-	return 0;
+	return dm_scan_fdt_dev(dev);
 }
 
 static const struct tegra_dc_soc_info tegra20_dc_soc_info = {
