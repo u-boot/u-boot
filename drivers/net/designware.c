@@ -316,16 +316,13 @@ static int dw_bb_miiphy_write(struct mii_dev *miidev, int addr,
 static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 {
 	struct dw_eth_dev *dwpriv = dev_get_priv(dev);
-	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
-	struct mii_dev *bus;
+	struct mii_dev *bus = mdio_alloc();
 	int ret;
 
-	if (!bb_miiphy) {
+	if (!bus) {
 		printf("Failed to allocate MDIO bus\n");
 		return -ENOMEM;
 	}
-
-	bus = &bb_miiphy->mii;
 
 	debug("\n%s: use bitbang mii..\n", dev->name);
 	ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
@@ -855,7 +852,6 @@ int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct dw_eth_dev *priv = dev_get_priv(dev);
-	bool __maybe_unused bbmiiphy = false;
 	phys_addr_t iobase = pdata->iobase;
 	void *ioaddr;
 	int ret, err;
@@ -947,8 +943,7 @@ int designware_eth_probe(struct udevice *dev)
 	priv->max_speed = pdata->max_speed;
 
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
-	bbmiiphy = dev_read_bool(dev, "snps,bitbang-mii");
-	if (bbmiiphy) {
+	if (dev_read_bool(dev, "snps,bitbang-mii")) {
 		ret = dw_bb_mdio_init(dev->name, dev);
 		if (ret) {
 			err = ret;
@@ -978,12 +973,7 @@ int designware_eth_probe(struct udevice *dev)
 	/* continue here for cleanup if no PHY found */
 	err = ret;
 	mdio_unregister(priv->bus);
-#if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
-	if (bbmiiphy)
-		bb_miiphy_free(container_of(priv->bus, struct bb_miiphy_bus, mii));
-	else
-#endif
-		mdio_free(priv->bus);
+	mdio_free(priv->bus);
 mdio_err:
 
 #ifdef CONFIG_CLK
