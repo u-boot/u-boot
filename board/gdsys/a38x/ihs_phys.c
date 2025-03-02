@@ -228,6 +228,18 @@ static const struct bb_miiphy_bus_ops mii_bb_miiphy_bus_ops = {
 	.delay		= mii_delay,
 };
 
+static int mii_bb_miiphy_read(struct mii_dev *miidev, int addr,
+			      int devad, int reg)
+{
+	return bb_miiphy_read(miidev, addr, devad, reg);
+}
+
+static int mii_bb_miiphy_write(struct mii_dev *miidev, int addr,
+			       int devad, int reg, u16 value)
+{
+	return bb_miiphy_write(miidev, addr, devad, reg, value);
+}
+
 int register_miiphy_bus(uint k, struct mii_dev **bus)
 {
 	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
@@ -239,8 +251,8 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 
 	mdiodev = &bb_miiphy->mii;
 	snprintf(mdiodev->name, MDIO_NAME_LEN, "ihs%d", k);
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
+	mdiodev->read = mii_bb_miiphy_read;
+	mdiodev->write = mii_bb_miiphy_write;
 
 	/* Copy the bus accessors and private data */
 	bb_miiphy->ops = &mii_bb_miiphy_bus_ops;

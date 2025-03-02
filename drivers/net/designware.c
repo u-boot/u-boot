@@ -299,6 +299,18 @@ static const struct bb_miiphy_bus_ops dw_eth_bb_miiphy_bus_ops = {
 	.delay		= dw_eth_bb_delay,
 };
 
+static int dw_bb_miiphy_read(struct mii_dev *miidev, int addr,
+			     int devad, int reg)
+{
+	return bb_miiphy_read(miidev, addr, devad, reg);
+}
+
+static int dw_bb_miiphy_write(struct mii_dev *miidev, int addr,
+			      int devad, int reg, u16 value)
+{
+	return bb_miiphy_write(miidev, addr, devad, reg, value);
+}
+
 static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 {
 	struct dw_eth_dev *dwpriv = dev_get_priv(dev);
@@ -334,8 +346,8 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 	dwpriv->dev = dev;
 
 	snprintf(bus->name, sizeof(bus->name), "%s", name);
-	bus->read = bb_miiphy_read;
-	bus->write = bb_miiphy_write;
+	bus->read = dw_bb_miiphy_read;
+	bus->write = dw_bb_miiphy_write;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	bus->reset = dw_mdio_reset;
 #endif
