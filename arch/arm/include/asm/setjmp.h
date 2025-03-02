@@ -7,6 +7,8 @@
 #ifndef _SETJMP_H_
 #define _SETJMP_H_	1
 
+#include <asm-generic/int-ll64.h>
+
 /*
  * This really should be opaque, but the EFI implementation wrongly
  * assumes that a 'struct jmp_buf_data' is defined.
