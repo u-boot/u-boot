@@ -74,7 +74,6 @@ struct bb_miiphy_bus_ops {
 };
 
 struct bb_miiphy_bus {
-	void *priv;
 	struct mii_dev mii;
 };
 
