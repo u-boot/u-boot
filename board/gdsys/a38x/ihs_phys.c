@@ -219,6 +219,15 @@ static int mii_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
+static const struct bb_miiphy_bus_ops mii_bb_miiphy_bus_ops = {
+	.mdio_active	= mii_mdio_active,
+	.mdio_tristate	= mii_mdio_tristate,
+	.set_mdio	= mii_set_mdio,
+	.get_mdio	= mii_get_mdio,
+	.set_mdc	= mii_set_mdc,
+	.delay		= mii_delay,
+};
+
 int register_miiphy_bus(uint k, struct mii_dev **bus)
 {
 	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
@@ -234,12 +243,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 	mdiodev->write = bb_miiphy_write;
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->mdio_active = mii_mdio_active;
-	bb_miiphy->mdio_tristate = mii_mdio_tristate;
-	bb_miiphy->set_mdio = mii_set_mdio;
-	bb_miiphy->get_mdio = mii_get_mdio;
-	bb_miiphy->set_mdc = mii_set_mdc;
-	bb_miiphy->delay = mii_delay;
+	bb_miiphy->ops = &mii_bb_miiphy_bus_ops;
 	bb_miiphy->priv = &gpio_mii_set[k];
 
 	retval = mdio_register(mdiodev);

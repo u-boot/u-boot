@@ -711,6 +711,15 @@ static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
+static const struct bb_miiphy_bus_ops sh_ether_bb_miiphy_bus_ops = {
+	.mdio_active	= sh_eth_bb_mdio_active,
+	.mdio_tristate	= sh_eth_bb_mdio_tristate,
+	.set_mdio	= sh_eth_bb_set_mdio,
+	.get_mdio	= sh_eth_bb_get_mdio,
+	.set_mdc	= sh_eth_bb_set_mdc,
+	.delay		= sh_eth_bb_delay,
+};
+
 static int sh_ether_probe(struct udevice *udev)
 {
 	struct eth_pdata *pdata = dev_get_plat(udev);
@@ -740,12 +749,7 @@ static int sh_ether_probe(struct udevice *udev)
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->mdio_active = sh_eth_bb_mdio_active;
-	bb_miiphy->mdio_tristate = sh_eth_bb_mdio_tristate;
-	bb_miiphy->set_mdio = sh_eth_bb_set_mdio;
-	bb_miiphy->get_mdio = sh_eth_bb_get_mdio;
-	bb_miiphy->set_mdc = sh_eth_bb_set_mdc;
-	bb_miiphy->delay = sh_eth_bb_delay;
+	bb_miiphy->ops = &sh_ether_bb_miiphy_bus_ops;
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);

@@ -549,6 +549,15 @@ static int ravb_bb_delay(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
+static const struct bb_miiphy_bus_ops ravb_bb_miiphy_bus_ops = {
+	.mdio_active	= ravb_bb_mdio_active,
+	.mdio_tristate	= ravb_bb_mdio_tristate,
+	.set_mdio	= ravb_bb_set_mdio,
+	.get_mdio	= ravb_bb_get_mdio,
+	.set_mdc	= ravb_bb_set_mdc,
+	.delay		= ravb_bb_delay,
+};
+
 static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -578,12 +587,7 @@ static int ravb_probe(struct udevice *dev)
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->mdio_active = ravb_bb_mdio_active;
-	bb_miiphy->mdio_tristate = ravb_bb_mdio_tristate;
-	bb_miiphy->set_mdio = ravb_bb_set_mdio;
-	bb_miiphy->get_mdio = ravb_bb_get_mdio;
-	bb_miiphy->set_mdc = ravb_bb_set_mdc;
-	bb_miiphy->delay = ravb_bb_delay;
+	bb_miiphy->ops = &ravb_bb_miiphy_bus_ops;
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
