@@ -293,27 +293,6 @@ config PANEL_HX8238D
 
 source "drivers/video/fonts/Kconfig"
 
-config VIDCONSOLE_AS_LCD
-	bool "Use 'vidconsole' when CONFIG_VIDCONSOLE_AS_NAME string is seen in stdout"
-	help
-	  This is a work-around for boards which have 'lcd' or 'vga' in their
-	  stdout environment variable, but have moved to use driver model for
-	  video. In this case the console will no-longer work. While it is
-	  possible to update the environment, the breakage may be confusing for
-	  users. This option will be removed around the end of 2020.
-
-config VIDCONSOLE_AS_NAME
-	string "Use 'vidconsole' when string defined here is seen in stdout"
-	depends on VIDCONSOLE_AS_LCD
-	default "lcd" if LCD || TEGRA_COMMON
-	default "vga" if !LCD
-	help
-	  This is a work-around for boards which have 'lcd' or 'vga' in their
-	  stdout environment variable, but have moved to use driver model for
-	  video. In this case the console will no-longer work. While it is
-	  possible to update the environment, the breakage may be confusing for
-	  users. This option will be removed around the end of 2020.
-
 config VIDEO_BOCHS
 	bool "Enable Bochs video emulation for QEMU"
 	help
