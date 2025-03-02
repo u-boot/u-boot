@@ -15,13 +15,13 @@
 #include <efi_api.h>
 #include <image.h>
 #include <pe.h>
+#include <setjmp.h>
 #include <linux/list.h>
 #include <linux/sizes.h>
 #include <linux/oid_registry.h>
 
 struct blk_desc;
 struct bootflow;
-struct jmp_buf_data;
 
 #if CONFIG_IS_ENABLED(EFI_LOADER)
 
@@ -495,7 +495,7 @@ struct efi_loaded_image_obj {
 	efi_status_t *exit_status;
 	efi_uintn_t *exit_data_size;
 	u16 **exit_data;
-	struct jmp_buf_data *exit_jmp;
+	jmp_buf *exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
 	u16 image_type;

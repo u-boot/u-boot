@@ -21,7 +21,6 @@
 #include <usb.h>
 #include <watchdog.h>
 #include <asm/global_data.h>
-#include <setjmp.h>
 #include <linux/libfdt_env.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -3198,7 +3197,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	void *info;
 	efi_handle_t parent_image = current_image;
 	efi_status_t exit_status;
-	struct jmp_buf_data exit_jmp;
+	jmp_buf exit_jmp;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 
@@ -3237,7 +3236,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	}
 
 	/* call the image! */
-	if (setjmp(&exit_jmp)) {
+	if (setjmp(exit_jmp)) {
 		/*
 		 * We called the entry point of the child image with EFI_CALL
 		 * in the lines below. The child image called the Exit() boot
@@ -3443,7 +3442,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	struct efi_loaded_image *loaded_image_protocol;
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
-	struct jmp_buf_data *exit_jmp;
+	jmp_buf *exit_jmp;
 
 	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
@@ -3510,7 +3509,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 */
 	efi_restore_gd();
 
-	longjmp(exit_jmp, 1);
+	longjmp(*exit_jmp, 1);
 
 	panic("EFI application exited");
 out:
