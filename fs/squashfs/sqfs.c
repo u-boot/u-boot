@@ -1712,7 +1712,8 @@ static int sqfs_size_nest(const char *filename, loff_t *size)
 	case SQFS_LSYMLINK_TYPE:
 		if (++symlinknest == MAX_SYMLINK_NEST) {
 			*size = 0;
-			return -ELOOP;
+			ret = -ELOOP;
+			break;
 		}
 
 		symlink = (struct squashfs_symlink_inode *)ipos;
