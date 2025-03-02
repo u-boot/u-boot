@@ -576,7 +576,6 @@ static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct bb_miiphy_bus *bb_miiphy;
 	struct mii_dev *mdiodev;
 	void __iomem *iobase;
 	int ret;
@@ -588,13 +587,11 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_alloc;
 
-	bb_miiphy = bb_miiphy_alloc();
-	if (!bb_miiphy) {
+	mdiodev = mdio_alloc();
+	if (!mdiodev) {
 		ret = -ENOMEM;
 		goto err_mdio_alloc;
 	}
-
-	mdiodev = &bb_miiphy->mii;
 
 	mdiodev->read = ravb_bb_miiphy_read;
 	mdiodev->write = ravb_bb_miiphy_write;
@@ -605,7 +602,7 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_register;
 
-	eth->bus = &bb_miiphy->mii;
+	eth->bus = mdiodev;
 
 	/* Bring up PHY */
 	ret = clk_enable_bulk(&eth->clks);
@@ -625,7 +622,7 @@ static int ravb_probe(struct udevice *dev)
 err_mdio_reset:
 	clk_release_bulk(&eth->clks);
 err_mdio_register:
-	bb_miiphy_free(bb_miiphy);
+	mdio_free(mdiodev);
 err_mdio_alloc:
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 	return ret;
