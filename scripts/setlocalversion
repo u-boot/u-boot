@@ -48,6 +48,10 @@ scm_version()
 	done
 
 	cd "$srctree"
+	if test -e .scmversion; then
+		cat .scmversion
+		return
+	fi
 
 	if test -n "$(git rev-parse --show-cdup 2>/dev/null)"; then
 		return
