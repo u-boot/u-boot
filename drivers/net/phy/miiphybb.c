@@ -14,27 +14,8 @@
 
 #include <ioports.h>
 #include <ppc_asm.tmpl>
-#include <malloc.h>
 #include <miiphy.h>
 #include <asm/global_data.h>
-
-struct bb_miiphy_bus *bb_miiphy_alloc(void)
-{
-	struct bb_miiphy_bus *bus;
-
-	bus = malloc(sizeof(*bus));
-	if (!bus)
-		return bus;
-
-	mdio_init(&bus->mii);
-
-	return bus;
-}
-
-void bb_miiphy_free(struct bb_miiphy_bus *bus)
-{
-	free(bus);
-}
 
 /*****************************************************************************
  *
