@@ -723,13 +723,15 @@ static const struct bb_miiphy_bus_ops sh_ether_bb_miiphy_bus_ops = {
 static int sh_eth_bb_miiphy_read(struct mii_dev *miidev, int addr,
 				 int devad, int reg)
 {
-	return bb_miiphy_read(miidev, addr, devad, reg);
+	return bb_miiphy_read(miidev, &sh_ether_bb_miiphy_bus_ops,
+			      addr, devad, reg);
 }
 
 static int sh_eth_bb_miiphy_write(struct mii_dev *miidev, int addr,
 				  int devad, int reg, u16 value)
 {
-	return bb_miiphy_write(miidev, addr, devad, reg, value);
+	return bb_miiphy_write(miidev, &sh_ether_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
 }
 
 static int sh_ether_probe(struct udevice *udev)
@@ -761,7 +763,6 @@ static int sh_ether_probe(struct udevice *udev)
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->ops = &sh_ether_bb_miiphy_bus_ops;
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);

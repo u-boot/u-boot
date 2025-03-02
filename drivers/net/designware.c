@@ -302,13 +302,15 @@ static const struct bb_miiphy_bus_ops dw_eth_bb_miiphy_bus_ops = {
 static int dw_bb_miiphy_read(struct mii_dev *miidev, int addr,
 			     int devad, int reg)
 {
-	return bb_miiphy_read(miidev, addr, devad, reg);
+	return bb_miiphy_read(miidev, &dw_eth_bb_miiphy_bus_ops,
+			      addr, devad, reg);
 }
 
 static int dw_bb_miiphy_write(struct mii_dev *miidev, int addr,
 			      int devad, int reg, u16 value)
 {
-	return bb_miiphy_write(miidev, addr, devad, reg, value);
+	return bb_miiphy_write(miidev, &dw_eth_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
 }
 
 static int dw_bb_mdio_init(const char *name, struct udevice *dev)
@@ -351,7 +353,6 @@ static int dw_bb_mdio_init(const char *name, struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	bus->reset = dw_mdio_reset;
 #endif
-	bus->ops = &dw_eth_bb_miiphy_bus_ops;
 	bus->priv = dwpriv;
 
 	return mdio_register(bus);

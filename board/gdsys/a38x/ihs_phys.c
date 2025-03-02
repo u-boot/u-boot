@@ -231,13 +231,15 @@ static const struct bb_miiphy_bus_ops mii_bb_miiphy_bus_ops = {
 static int mii_bb_miiphy_read(struct mii_dev *miidev, int addr,
 			      int devad, int reg)
 {
-	return bb_miiphy_read(miidev, addr, devad, reg);
+	return bb_miiphy_read(miidev, &mii_bb_miiphy_bus_ops,
+			      addr, devad, reg);
 }
 
 static int mii_bb_miiphy_write(struct mii_dev *miidev, int addr,
 			       int devad, int reg, u16 value)
 {
-	return bb_miiphy_write(miidev, addr, devad, reg, value);
+	return bb_miiphy_write(miidev, &mii_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
 }
 
 int register_miiphy_bus(uint k, struct mii_dev **bus)
@@ -255,7 +257,6 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 	mdiodev->write = mii_bb_miiphy_write;
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->ops = &mii_bb_miiphy_bus_ops;
 	bb_miiphy->priv = &gpio_mii_set[k];
 
 	retval = mdio_register(mdiodev);

@@ -561,13 +561,15 @@ static const struct bb_miiphy_bus_ops ravb_bb_miiphy_bus_ops = {
 static int ravb_bb_miiphy_read(struct mii_dev *miidev, int addr,
 			       int devad, int reg)
 {
-	return bb_miiphy_read(miidev, addr, devad, reg);
+	return bb_miiphy_read(miidev, &ravb_bb_miiphy_bus_ops,
+			      addr, devad, reg);
 }
 
 static int ravb_bb_miiphy_write(struct mii_dev *miidev, int addr,
 				int devad, int reg, u16 value)
 {
-	return bb_miiphy_write(miidev, addr, devad, reg, value);
+	return bb_miiphy_write(miidev, &ravb_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
 }
 
 static int ravb_probe(struct udevice *dev)
@@ -599,7 +601,6 @@ static int ravb_probe(struct udevice *dev)
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	/* Copy the bus accessors and private data */
-	bb_miiphy->ops = &ravb_bb_miiphy_bus_ops;
 	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);

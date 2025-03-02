@@ -75,16 +75,16 @@ struct bb_miiphy_bus_ops {
 
 struct bb_miiphy_bus {
 	void *priv;
-	const struct bb_miiphy_bus_ops *ops;
 	struct mii_dev mii;
 };
 
 struct bb_miiphy_bus *bb_miiphy_alloc(void);
 void bb_miiphy_free(struct bb_miiphy_bus *bus);
 
-int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg);
-int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
-		    u16 value);
+int bb_miiphy_read(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		   int addr, int devad, int reg);
+int bb_miiphy_write(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		    int addr, int devad, int reg, u16 value);
 #endif
 
 /* phy seed setup */

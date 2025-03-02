@@ -126,20 +126,18 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, const struct bb_miiphy_bus_ops
  * Returns:
  *   0 on success
  */
-int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
+int bb_miiphy_read(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		   int addr, int devad, int reg)
 {
 	unsigned short rdreg; /* register working value */
 	int v;
 	int j; /* counter */
 	struct bb_miiphy_bus *bus;
-	const struct bb_miiphy_bus_ops *ops;
 
 	bus = bb_miiphy_getbus(miidev);
 	if (bus == NULL) {
 		return -1;
 	}
-
-	ops = bus->ops;
 
 	miiphy_pre(bus, ops, 1, addr, reg);
 
@@ -198,11 +196,10 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
  * Returns:
  *   0 on success
  */
-int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
-		    u16 value)
+int bb_miiphy_write(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		    int addr, int devad, int reg, u16 value)
 {
 	struct bb_miiphy_bus *bus;
-	const struct bb_miiphy_bus_ops *ops;
 	int j;			/* counter */
 
 	bus = bb_miiphy_getbus(miidev);
@@ -210,8 +207,6 @@ int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 		/* Bus not found! */
 		return -1;
 	}
-
-	ops = bus->ops;
 
 	miiphy_pre(bus, ops, 0, addr, reg);
 
