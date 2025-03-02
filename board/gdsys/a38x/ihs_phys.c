@@ -244,14 +244,9 @@ static int mii_bb_miiphy_write(struct mii_dev *miidev, int addr,
 
 int register_miiphy_bus(uint k, struct mii_dev **bus)
 {
-	struct bb_miiphy_bus *bb_miiphy = bb_miiphy_alloc();
-	struct mii_dev *mdiodev;
+	struct mii_dev *mdiodev = mdio_alloc();
 	int retval;
 
-	if (!bb_miiphy)
-		return -ENOMEM;
-
-	mdiodev = &bb_miiphy->mii;
 	snprintf(mdiodev->name, MDIO_NAME_LEN, "ihs%d", k);
 	mdiodev->read = mii_bb_miiphy_read;
 	mdiodev->write = mii_bb_miiphy_write;
@@ -260,7 +255,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 	retval = mdio_register(mdiodev);
 	if (retval < 0)
 		return retval;
-	*bus = &bb_miiphy->mii;
+	*bus = mdiodev;
 
 	return mii_mdio_init(k);
 }
