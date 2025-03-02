@@ -4,8 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
-#ifndef _SETJMP_H_
-#define _SETJMP_H_
+#ifndef _ASM_SETJMP_H_
+#define _ASM_SETJMP_H_
 
 struct jmp_buf_data {
 	/*
@@ -22,14 +22,4 @@ struct jmp_buf_data {
 	unsigned long data[128];
 };
 
-typedef struct jmp_buf_data jmp_buf[1];
-
-/*
- * We have to directly link with the system versions of
- * setjmp/longjmp, because setjmp must not return as otherwise
- * the stack may become invalid.
- */
-int setjmp(jmp_buf jmp);
-__noreturn void longjmp(jmp_buf jmp, int ret);
-
-#endif /* _SETJMP_H_ */
+#endif /* _ASM_SETJMP_H_ */
