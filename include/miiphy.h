@@ -65,12 +65,12 @@ void mdio_list_devices(void);
 struct bb_miiphy_bus;
 
 struct bb_miiphy_bus_ops {
-	int (*mdio_active)(struct bb_miiphy_bus *bus);
-	int (*mdio_tristate)(struct bb_miiphy_bus *bus);
-	int (*set_mdio)(struct bb_miiphy_bus *bus, int v);
-	int (*get_mdio)(struct bb_miiphy_bus *bus, int *v);
-	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
-	int (*delay)(struct bb_miiphy_bus *bus);
+	int (*mdio_active)(struct mii_dev *miidev);
+	int (*mdio_tristate)(struct mii_dev *miidev);
+	int (*set_mdio)(struct mii_dev *miidev, int v);
+	int (*get_mdio)(struct mii_dev *miidev, int *v);
+	int (*set_mdc)(struct mii_dev *miidev, int v);
+	int (*delay)(struct mii_dev *miidev);
 };
 
 struct bb_miiphy_bus {

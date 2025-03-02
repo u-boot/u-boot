@@ -644,9 +644,9 @@ static void sh_ether_stop(struct udevice *dev)
 }
 
 /******* for bb_miiphy *******/
-static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_mdio_active(struct mii_dev *miidev)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	sh_eth_write(port_info, sh_eth_read(port_info, PIR) | PIR_MMD, PIR);
@@ -654,9 +654,9 @@ static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_mdio_tristate(struct mii_dev *miidev)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	sh_eth_write(port_info, sh_eth_read(port_info, PIR) & ~PIR_MMD, PIR);
@@ -664,9 +664,9 @@ static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int sh_eth_bb_set_mdio(struct mii_dev *miidev, int v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (v)
@@ -679,9 +679,9 @@ static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int sh_eth_bb_get_mdio(struct mii_dev *miidev, int *v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	*v = (sh_eth_read(port_info, PIR) & PIR_MDI) >> 3;
@@ -689,9 +689,9 @@ static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 	return 0;
 }
 
-static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int sh_eth_bb_set_mdc(struct mii_dev *miidev, int v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (v)
@@ -704,7 +704,7 @@ static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_delay(struct mii_dev *miidev)
 {
 	udelay(10);
 
@@ -760,6 +760,7 @@ static int sh_ether_probe(struct udevice *udev)
 
 	mdiodev->read = sh_eth_bb_miiphy_read;
 	mdiodev->write = sh_eth_bb_miiphy_write;
+	mdiodev->priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
 
 	/* Copy the bus accessors and private data */

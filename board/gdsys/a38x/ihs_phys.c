@@ -123,9 +123,9 @@ struct gpio_mii {
 	{ 2, {}, {}, 46, 24, 1 },
 };
 
-static int mii_mdio_init(struct bb_miiphy_bus *bus)
+static int mii_mdio_init(const int k)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = &gpio_mii_set[k];
 	char name[32] = {};
 	struct udevice *gpio_dev1 = NULL;
 	struct udevice *gpio_dev2 = NULL;
@@ -164,27 +164,27 @@ static int mii_mdio_init(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-static int mii_mdio_active(struct bb_miiphy_bus *bus)
+static int mii_mdio_active(struct mii_dev *miidev)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = miidev->priv;
 
 	dm_gpio_set_value(&gpio_mii->mdc_gpio, gpio_mii->mdio_value);
 
 	return 0;
 }
 
-static int mii_mdio_tristate(struct bb_miiphy_bus *bus)
+static int mii_mdio_tristate(struct mii_dev *miidev)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = miidev->priv;
 
 	dm_gpio_set_dir_flags(&gpio_mii->mdio_gpio, GPIOD_IS_IN);
 
 	return 0;
 }
 
-static int mii_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int mii_set_mdio(struct mii_dev *miidev, int v)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = miidev->priv;
 
 	dm_gpio_set_dir_flags(&gpio_mii->mdio_gpio, GPIOD_IS_OUT);
 	dm_gpio_set_value(&gpio_mii->mdio_gpio, v);
@@ -193,9 +193,9 @@ static int mii_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int mii_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int mii_get_mdio(struct mii_dev *miidev, int *v)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = miidev->priv;
 
 	dm_gpio_set_dir_flags(&gpio_mii->mdio_gpio, GPIOD_IS_IN);
 	*v = (dm_gpio_get_value(&gpio_mii->mdio_gpio));
@@ -203,16 +203,16 @@ static int mii_get_mdio(struct bb_miiphy_bus *bus, int *v)
 	return 0;
 }
 
-static int mii_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int mii_set_mdc(struct mii_dev *miidev, int v)
 {
-	struct gpio_mii *gpio_mii = bus->priv;
+	struct gpio_mii *gpio_mii = miidev->priv;
 
 	dm_gpio_set_value(&gpio_mii->mdc_gpio, v);
 
 	return 0;
 }
 
-static int mii_delay(struct bb_miiphy_bus *bus)
+static int mii_delay(struct mii_dev *miidev)
 {
 	udelay(1);
 
@@ -255,6 +255,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 	snprintf(mdiodev->name, MDIO_NAME_LEN, "ihs%d", k);
 	mdiodev->read = mii_bb_miiphy_read;
 	mdiodev->write = mii_bb_miiphy_write;
+	mdiodev->priv = &gpio_mii_set[k];
 
 	/* Copy the bus accessors and private data */
 	bb_miiphy->priv = &gpio_mii_set[k];
@@ -264,7 +265,7 @@ int register_miiphy_bus(uint k, struct mii_dev **bus)
 		return retval;
 	*bus = &bb_miiphy->mii;
 
-	return mii_mdio_init(bb_miiphy);
+	return mii_mdio_init(k);
 }
 
 struct porttype *get_porttype(uint octo_phy_mask, uint k)

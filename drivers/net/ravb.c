@@ -491,27 +491,27 @@ static void ravb_stop(struct udevice *dev)
 }
 
 /* Bitbang MDIO access */
-static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_active(struct mii_dev *miidev)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
 
 	return 0;
 }
 
-static int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_tristate(struct mii_dev *miidev)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
 
 	return 0;
 }
 
-static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdio(struct mii_dev *miidev, int v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	if (v)
 		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
@@ -521,18 +521,18 @@ static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int ravb_bb_get_mdio(struct mii_dev *miidev, int *v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	*v = (readl(eth->iobase + RAVB_REG_PIR) & PIR_MDI) >> 3;
 
 	return 0;
 }
 
-static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdc(struct mii_dev *miidev, int v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	if (v)
 		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
@@ -542,7 +542,7 @@ static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int ravb_bb_delay(struct bb_miiphy_bus *bus)
+static int ravb_bb_delay(struct mii_dev *miidev)
 {
 	udelay(10);
 
@@ -598,6 +598,7 @@ static int ravb_probe(struct udevice *dev)
 
 	mdiodev->read = ravb_bb_miiphy_read;
 	mdiodev->write = ravb_bb_miiphy_write;
+	mdiodev->priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
 
 	/* Copy the bus accessors and private data */
