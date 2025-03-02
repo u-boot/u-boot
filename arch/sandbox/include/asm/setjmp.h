@@ -19,7 +19,7 @@ struct jmp_buf_data {
 	 * We don't need to worry about 16-byte alignment, since this does not
 	 * run on Windows.
 	 */
-	ulong data[128];
+	unsigned long data[128];
 };
 
 typedef struct jmp_buf_data jmp_buf[1];
