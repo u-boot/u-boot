@@ -278,6 +278,24 @@ static int tsec_send(struct udevice *dev, void *packet, int length)
 	return result;
 }
 
+static int tsec_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev_get_priv(dev);
+	u16 status;
+
+	out_be16(&priv->rxbd[priv->rx_idx].length, 0);
+
+	status = RXBD_EMPTY;
+	/* Set the wrap bit if this is the last element in the list */
+	if ((priv->rx_idx + 1) == PKTBUFSRX)
+		status |= RXBD_WRAP;
+	out_be16(&priv->rxbd[priv->rx_idx].status, status);
+
+	priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
+
+	return 0;
+}
+
 static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev_get_priv(dev);
@@ -296,6 +314,9 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 			ret = length - 4;
 		} else {
 			printf("Got error %x\n", (status & RXBD_STATS));
+
+			/* Rearm the packet buffer */
+			tsec_free_pkt(dev, NULL, 0);
 		}
 	}
 
@@ -305,24 +326,6 @@ static int tsec_recv(struct udevice *dev, int flags, uchar **packetp)
 	}
 
 	return ret;
-}
-
-static int tsec_free_pkt(struct udevice *dev, uchar *packet, int length)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev_get_priv(dev);
-	u16 status;
-
-	out_be16(&priv->rxbd[priv->rx_idx].length, 0);
-
-	status = RXBD_EMPTY;
-	/* Set the wrap bit if this is the last element in the list */
-	if ((priv->rx_idx + 1) == PKTBUFSRX)
-		status |= RXBD_WRAP;
-	out_be16(&priv->rxbd[priv->rx_idx].status, status);
-
-	priv->rx_idx = (priv->rx_idx + 1) % PKTBUFSRX;
-
-	return 0;
 }
 
 static void tsec_halt(struct udevice *dev)
