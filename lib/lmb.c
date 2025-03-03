@@ -724,26 +724,22 @@ static phys_addr_t _lmb_alloc_base(phys_size_t size, ulong align,
 			base = ALIGN_DOWN(res_base - size, align);
 		}
 	}
+
+	log_debug("%s: Failed to allocate 0x%lx bytes below 0x%lx\n",
+		  __func__, (ulong)size, (ulong)max_addr);
+
 	return 0;
 }
 
 phys_addr_t lmb_alloc(phys_size_t size, ulong align)
 {
-	return lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE, LMB_NONE);
+	return _lmb_alloc_base(size, align, LMB_ALLOC_ANYWHERE, LMB_NONE);
 }
 
 phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
 			   uint flags)
 {
-	phys_addr_t alloc;
-
-	alloc = _lmb_alloc_base(size, align, max_addr, flags);
-
-	if (alloc == 0)
-		printf("ERROR: Failed to allocate 0x%lx bytes below 0x%lx.\n",
-		       (ulong)size, (ulong)max_addr);
-
-	return alloc;
+	return _lmb_alloc_base(size, align, max_addr, flags);
 }
 
 phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags)
