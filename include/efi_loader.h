@@ -140,8 +140,11 @@ void efi_net_set_addr(struct efi_ipv4_address *ip,
 		      struct efi_ipv4_address *mask,
 		      struct efi_ipv4_address *gw,
 			  struct udevice *dev);
+#if IS_ENABLED(CONFIG_EFI_HTTP_PROTOCOL)
 efi_status_t efi_net_do_request(u8 *url, enum efi_http_method method, void **buffer,
-				u32 *status_code, ulong *file_size, char *headers_buffer);
+				u32 *status_code, ulong *file_size, char *headers_buffer,
+				struct efi_service_binding_protocol *parent);
+#endif
 #define MAX_HTTP_HEADERS_SIZE SZ_64K
 #define MAX_HTTP_HEADERS 100
 #define MAX_HTTP_HEADER_NAME 128
