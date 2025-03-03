@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2025 Texas Instruments Incorporated - https://www.ti.com/
+#
+
+if TARGET_J722S_R5_BEAGLEY_AI || TARGET_J722S_A53_BEAGLEY_AI
+
+config SYS_BOARD
+       default "beagley-ai"
+
+config SYS_VENDOR
+       default "beagle"
+
+config SYS_CONFIG_NAME
+       default "beagley_ai"
+
+source "board/ti/common/Kconfig"
+
+endif
+
+if TARGET_J722S_R5_BEAGLEY_AI
+
+config SPL_LDSCRIPT
+	default "arch/arm/mach-omap2/u-boot-spl.lds"
+
+endif
