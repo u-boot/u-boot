@@ -129,15 +129,17 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 
 #if CONFIG_IS_ENABLED(NETDEVICES) && CONFIG_IS_ENABLED(EFI_LOADER)
 /* Call this to update the current device path of the efi net device */
-efi_status_t efi_net_set_dp(const char *dev, const char *server);
+efi_status_t efi_net_new_dp(const char *dev, const char *server, struct udevice *udev);
 /* Call this to get the current device path of the efi net device */
-void efi_net_get_dp(struct efi_device_path **dp);
+void efi_net_dp_from_dev(struct efi_device_path **dp, struct udevice *udev, bool cache_only);
 void efi_net_get_addr(struct efi_ipv4_address *ip,
 		      struct efi_ipv4_address *mask,
-		      struct efi_ipv4_address *gw);
+		      struct efi_ipv4_address *gw,
+			  struct udevice *dev);
 void efi_net_set_addr(struct efi_ipv4_address *ip,
 		      struct efi_ipv4_address *mask,
-		      struct efi_ipv4_address *gw);
+		      struct efi_ipv4_address *gw,
+			  struct udevice *dev);
 efi_status_t efi_net_do_request(u8 *url, enum efi_http_method method, void **buffer,
 				u32 *status_code, ulong *file_size, char *headers_buffer);
 #define MAX_HTTP_HEADERS_SIZE SZ_64K
@@ -151,13 +153,16 @@ struct http_header {
 
 void efi_net_parse_headers(ulong *num_headers, struct http_header *headers);
 #else
-static inline void efi_net_get_dp(struct efi_device_path **dp) { }
+static inline void efi_net_dp_from_dev(struct efi_device_path **dp,
+				  struct udevice *udev, bool cache_only) { }
 static inline void efi_net_get_addr(struct efi_ipv4_address *ip,
 				     struct efi_ipv4_address *mask,
-				     struct efi_ipv4_address *gw) { }
+				     struct efi_ipv4_address *gw,
+					 struct udevice *dev) { }
 static inline void efi_net_set_addr(struct efi_ipv4_address *ip,
 				     struct efi_ipv4_address *mask,
-				     struct efi_ipv4_address *gw) { }
+				     struct efi_ipv4_address *gw,
+					 struct udevice *dev) { }
 #endif
 
 /* Maximum number of configuration tables */
@@ -649,8 +654,8 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
 /* Called by bootefi to make GOP (graphical) interface available */
 efi_status_t efi_gop_register(void);
 /* Called by bootefi to make the network interface available */
-efi_status_t efi_net_register(void);
-efi_status_t efi_net_do_start(void);
+efi_status_t efi_net_register(struct udevice *dev);
+efi_status_t efi_net_do_start(struct udevice *dev);
 /* Called by efi_net_register to make the ip4 config2 protocol available */
 efi_status_t efi_ipconfig_register(const efi_handle_t handle,
 				   struct efi_ip4_config2_protocol *ip4config);

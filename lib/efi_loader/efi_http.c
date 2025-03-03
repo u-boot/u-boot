@@ -188,7 +188,7 @@ static efi_status_t EFIAPI efi_http_configure(struct efi_http_protocol *this,
 
 	if (!ipv4_node->use_default_address) {
 		efi_net_set_addr((struct efi_ipv4_address *)&ipv4_node->local_address,
-				 (struct efi_ipv4_address *)&ipv4_node->local_subnet, NULL);
+				 (struct efi_ipv4_address *)&ipv4_node->local_subnet, NULL, NULL);
 	}
 
 	http_instance->current_offset = 0;
