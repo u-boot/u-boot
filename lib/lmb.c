@@ -96,25 +96,6 @@ static void lmb_coalesce_regions(struct alist *lmb_rgn_lst, unsigned long r1,
 	lmb_remove_region(lmb_rgn_lst, r2);
 }
 
-/*Assumption : base addr of region 1 < base addr of region 2*/
-static void lmb_fix_over_lap_regions(struct alist *lmb_rgn_lst,
-				     unsigned long r1, unsigned long r2)
-{
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-
-	phys_addr_t base1 = rgn[r1].base;
-	phys_size_t size1 = rgn[r1].size;
-	phys_addr_t base2 = rgn[r2].base;
-	phys_size_t size2 = rgn[r2].size;
-
-	if (base1 + size1 > base2 + size2) {
-		printf("This will not be a case any time\n");
-		return;
-	}
-	rgn[r1].size = base2 + size2 - base1;
-	lmb_remove_region(lmb_rgn_lst, r2);
-}
-
 static long lmb_resize_regions(struct alist *lmb_rgn_lst,
 			       unsigned long idx_start,
 			       phys_addr_t base, phys_size_t size)
@@ -235,8 +216,15 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 				lmb_coalesce_regions(lmb_rgn_lst, i, i + 1);
 				coalesced++;
 			} else if (lmb_regions_overlap(lmb_rgn_lst, i, i + 1)) {
-				/* fix overlapping area */
-				lmb_fix_over_lap_regions(lmb_rgn_lst, i, i + 1);
+				/* fix overlapping areas */
+				phys_addr_t rgnbase = rgn[i].base;
+				phys_size_t rgnsize = rgn[i].size;
+
+				ret = lmb_resize_regions(lmb_rgn_lst, i,
+							 rgnbase, rgnsize);
+				if (ret < 0)
+					return -1;
+
 				coalesced++;
 			}
 		}
