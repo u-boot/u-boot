@@ -927,12 +927,15 @@ efi_status_t efi_net_register(void)
 			     &netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-	if (!net_dp)
-		efi_net_set_dp("Net", NULL);
-	r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
-			     net_dp);
+
+	if (net_dp)
+		r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
+			       net_dp);
+	else
+		r = efi_net_set_dp("Net", NULL);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
+
 	r = efi_add_protocol(&netobj->header, &efi_pxe_base_code_protocol_guid,
 			     &netobj->pxe);
 	if (r != EFI_SUCCESS)
@@ -1057,18 +1060,58 @@ out_of_resources:
  */
 efi_status_t efi_net_set_dp(const char *dev, const char *server)
 {
-	efi_free_pool(net_dp);
+	efi_status_t ret = EFI_SUCCESS;
+	struct efi_handler *phandler;
+	struct efi_device_path *old_net_dp, *new_net_dp;
 
-	net_dp = NULL;
+	old_net_dp = net_dp;
+	new_net_dp = NULL;
 	if (!strcmp(dev, "Net"))
-		net_dp = efi_dp_from_eth();
+		new_net_dp = efi_dp_from_eth();
 	else if (!strcmp(dev, "Http"))
-		net_dp = efi_dp_from_http(server);
+		new_net_dp = efi_dp_from_http(server);
 
-	if (!net_dp)
+	if (!new_net_dp) {
 		return EFI_OUT_OF_RESOURCES;
+	}
+
+	// If netobj is not started yet, end here.
+	if (!netobj) {
+		goto exit;
+	}
+
+	phandler = NULL;
+	efi_search_protocol(&netobj->header, &efi_guid_device_path, &phandler);
+
+	// If the device path protocol is not yet installed, install it
+	if (!phandler)
+		goto add;
+
+	// If it is already installed, try to update it
+	ret = efi_reinstall_protocol_interface(&netobj->header, &efi_guid_device_path,
+					       old_net_dp, new_net_dp);
+	if (ret != EFI_SUCCESS)
+		goto error;
+
+	net_dp = new_net_dp;
+	efi_free_pool(old_net_dp);
 
 	return EFI_SUCCESS;
+add:
+	ret = efi_add_protocol(&netobj->header, &efi_guid_device_path,
+			       new_net_dp);
+	if (ret != EFI_SUCCESS)
+		goto error;
+exit:
+	net_dp = new_net_dp;
+	efi_free_pool(old_net_dp);
+
+	return ret;
+error:
+	// Failed, restore
+	efi_free_pool(new_net_dp);
+
+	return ret;
 }
 
 /**
