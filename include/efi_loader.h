@@ -321,6 +321,8 @@ extern const efi_guid_t efi_guid_host_dev;
 #endif
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
+/* GUID of the EFI_SIMPLE_NETWORK_PROTOCOL */
+extern const efi_guid_t efi_net_guid;
 extern const efi_guid_t efi_global_variable_guid;
 extern const efi_guid_t efi_guid_console_control;
 extern const efi_guid_t efi_guid_device_path;
@@ -733,6 +735,10 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
 efi_status_t efi_add_protocol(const efi_handle_t handle,
 			      const efi_guid_t *protocol,
 			      void *protocol_interface);
+/* Uninstall new protocol on a handle */
+efi_status_t efi_uninstall_protocol
+		(efi_handle_t handle, const efi_guid_t *protocol,
+		 void *protocol_interface, bool preserve);
 /* Reinstall a protocol on a handle */
 efi_status_t EFIAPI efi_reinstall_protocol_interface(
 			efi_handle_t handle,
@@ -748,6 +754,15 @@ efi_status_t EFIAPI
 efi_install_multiple_protocol_interfaces(efi_handle_t *handle, ...);
 efi_status_t EFIAPI
 efi_uninstall_multiple_protocol_interfaces(efi_handle_t handle, ...);
+/* Connect and disconnect controller */
+efi_status_t EFIAPI efi_connect_controller(efi_handle_t controller_handle,
+					   efi_handle_t *driver_image_handle,
+					   struct efi_device_path *remain_device_path,
+					   bool recursive);
+efi_status_t EFIAPI efi_disconnect_controller(
+					efi_handle_t controller_handle,
+					efi_handle_t driver_image_handle,
+					efi_handle_t child_handle);
 /* Get handles that support a given protocol */
 efi_status_t EFIAPI efi_locate_handle_buffer(
 			enum efi_locate_search_type search_type,
@@ -768,6 +783,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 					void *context),
 			      void *notify_context, const efi_guid_t *group,
 			      struct efi_event **event);
+/* Call this to close an event */
+efi_status_t EFIAPI efi_close_event(struct efi_event *event);
 /* Call this to set a timer */
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);

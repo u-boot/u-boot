@@ -60,9 +60,9 @@ static efi_handle_t current_image;
 static volatile gd_t *efi_gd, *app_gd;
 #endif
 
-static efi_status_t efi_uninstall_protocol
-			(efi_handle_t handle, const efi_guid_t *protocol,
-			 void *protocol_interface, bool preserve);
+efi_status_t efi_uninstall_protocol
+		(efi_handle_t handle, const efi_guid_t *protocol,
+		 void *protocol_interface, bool preserve);
 
 /* 1 if inside U-Boot code, 0 if inside EFI payload code */
 static int entry_count = 1;
@@ -100,12 +100,11 @@ const efi_guid_t efi_guid_load_file2_protocol = EFI_LOAD_FILE2_PROTOCOL_GUID;
 /* GUID of the SMBIOS table */
 const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
 
-static efi_status_t EFIAPI efi_disconnect_controller(
+efi_status_t EFIAPI efi_disconnect_controller(
 					efi_handle_t controller_handle,
 					efi_handle_t driver_image_handle,
 					efi_handle_t child_handle);
 
-static
 efi_status_t EFIAPI efi_connect_controller(efi_handle_t controller_handle,
 					   efi_handle_t *driver_image_handle,
 					   struct efi_device_path *remain_device_path,
@@ -1039,7 +1038,7 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
+efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 {
 	struct efi_register_notify_event *item, *next;
 
@@ -1380,9 +1379,9 @@ static efi_status_t efi_disconnect_all_drivers
  *
  * Return: status code
  */
-static efi_status_t efi_uninstall_protocol
-			(efi_handle_t handle, const efi_guid_t *protocol,
-			 void *protocol_interface, bool preserve)
+efi_status_t efi_uninstall_protocol
+		(efi_handle_t handle, const efi_guid_t *protocol,
+			void *protocol_interface, bool preserve)
 {
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
@@ -3665,7 +3664,7 @@ static efi_status_t efi_connect_single_controller(
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_connect_controller(
+efi_status_t EFIAPI efi_connect_controller(
 			efi_handle_t controller_handle,
 			efi_handle_t *driver_image_handle,
 			struct efi_device_path *remain_device_path,
@@ -3844,7 +3843,7 @@ static efi_status_t efi_get_child_controllers(
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_disconnect_controller(
+efi_status_t EFIAPI efi_disconnect_controller(
 				efi_handle_t controller_handle,
 				efi_handle_t driver_image_handle,
 				efi_handle_t child_handle)
