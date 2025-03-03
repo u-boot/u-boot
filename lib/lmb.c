@@ -23,6 +23,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define LMB_RGN_OVERLAP		1
+#define LMB_RGN_ADJACENT	2
+
 /*
  * The following low level LMB functions must not access the global LMB memory
  * map since they are also used to manage IOVA memory maps in iommu drivers like
@@ -49,8 +52,22 @@ static long lmb_addrs_adjacent(phys_addr_t base1, phys_size_t size1,
 	return 0;
 }
 
-static long lmb_regions_overlap(struct alist *lmb_rgn_lst, unsigned long r1,
-				unsigned long r2)
+/**
+ * lmb_regions_check() - Check if the regions overlap, or are adjacent
+ * @lmb_rgn_lst: List of LMB regions
+ * @r1: First region to check
+ * @r2: Second region to check
+ *
+ * Check if the two regions with matching flags, r1 and r2 are
+ * adjacent to each other, or if they overlap.
+ *
+ * Return:
+ * * %LMB_RGN_OVERLAP	- Regions overlap
+ * * %LMB_RGN_ADJACENT	- Regions adjacent to each other
+ * * 0			- Neither of the above, or flags mismatch
+ */
+static long lmb_regions_check(struct alist *lmb_rgn_lst, unsigned long r1,
+			      unsigned long r2)
 {
 	struct lmb_region *rgn = lmb_rgn_lst->data;
 	phys_addr_t base1 = rgn[r1].base;
@@ -58,19 +75,15 @@ static long lmb_regions_overlap(struct alist *lmb_rgn_lst, unsigned long r1,
 	phys_addr_t base2 = rgn[r2].base;
 	phys_size_t size2 = rgn[r2].size;
 
-	return lmb_addrs_overlap(base1, size1, base2, size2);
-}
+	if (rgn[r1].flags != rgn[r2].flags)
+		return 0;
 
-static long lmb_regions_adjacent(struct alist *lmb_rgn_lst, unsigned long r1,
-				 unsigned long r2)
-{
-	struct lmb_region *rgn = lmb_rgn_lst->data;
-	phys_addr_t base1 = rgn[r1].base;
-	phys_size_t size1 = rgn[r1].size;
-	phys_addr_t base2 = rgn[r2].base;
-	phys_size_t size2 = rgn[r2].size;
+	if (lmb_addrs_overlap(base1, size1, base2, size2))
+		return LMB_RGN_OVERLAP;
+	else if (lmb_addrs_adjacent(base1, size1, base2, size2))
+		return LMB_RGN_ADJACENT;
 
-	return lmb_addrs_adjacent(base1, size1, base2, size2);
+	return 0;
 }
 
 static void lmb_remove_region(struct alist *lmb_rgn_lst, unsigned long r)
@@ -207,23 +220,21 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 	}
 
 	if (lmb_rgn_lst->count && i < lmb_rgn_lst->count - 1) {
-		rgn = lmb_rgn_lst->data;
-		if (rgn[i].flags == rgn[i + 1].flags) {
-			if (lmb_regions_adjacent(lmb_rgn_lst, i, i + 1)) {
-				lmb_coalesce_regions(lmb_rgn_lst, i, i + 1);
-				coalesced++;
-			} else if (lmb_regions_overlap(lmb_rgn_lst, i, i + 1)) {
-				/* fix overlapping areas */
-				phys_addr_t rgnbase = rgn[i].base;
-				phys_size_t rgnsize = rgn[i].size;
+		ret = lmb_regions_check(lmb_rgn_lst, i, i + 1);
+		if (ret == LMB_RGN_ADJACENT) {
+			lmb_coalesce_regions(lmb_rgn_lst, i, i + 1);
+			coalesced++;
+		} else if (ret == LMB_RGN_OVERLAP) {
+			/* fix overlapping areas */
+			phys_addr_t rgnbase = rgn[i].base;
+			phys_size_t rgnsize = rgn[i].size;
 
-				ret = lmb_resize_regions(lmb_rgn_lst, i,
-							 rgnbase, rgnsize);
-				if (ret < 0)
-					return -1;
+			ret = lmb_resize_regions(lmb_rgn_lst, i,
+						 rgnbase, rgnsize);
+			if (ret < 0)
+				return -1;
 
-				coalesced++;
-			}
+			coalesced++;
 		}
 	}
 
