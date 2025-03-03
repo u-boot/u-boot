@@ -954,20 +954,20 @@ struct efi_device_path *efi_dp_from_uart(void)
 	return buf;
 }
 
-struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
+struct efi_device_path __maybe_unused *efi_dp_from_eth(struct udevice *dev)
 {
 	void *buf, *start;
 	unsigned dpsize = 0;
 
-	assert(eth_get_dev());
+	assert(dev);
 
-	dpsize += dp_size(eth_get_dev());
+	dpsize += dp_size(dev);
 
 	start = buf = efi_alloc(dpsize + sizeof(END));
 	if (!buf)
 		return NULL;
 
-	buf = dp_fill(buf, eth_get_dev());
+	buf = dp_fill(buf, dev);
 
 	*((struct efi_device_path *)buf) = END;
 
@@ -984,11 +984,13 @@ struct efi_device_path __maybe_unused *efi_dp_from_eth(void)
  * @ip:		IPv4 local address
  * @mask:	network mask
  * @srv:	IPv4 remote/server address
+ * @dev:	net udevice
  * Return:	pointer to device path, NULL on error
  */
 static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
 					 struct efi_ipv4_address *mask,
-					 struct efi_ipv4_address *srv)
+					 struct efi_ipv4_address *srv,
+					 struct udevice *dev)
 {
 	struct efi_device_path *dp1, *dp2, *pos;
 	struct {
@@ -1010,7 +1012,7 @@ static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
 	pos = &dp.end;
 	memcpy(pos, &END, sizeof(END));
 
-	dp1 = efi_dp_from_eth();
+	dp1 = efi_dp_from_eth(dev);
 	if (!dp1)
 		return NULL;
 
@@ -1029,9 +1031,10 @@ static struct efi_device_path *efi_dp_from_ipv4(struct efi_ipv4_address *ip,
  * and an END node.
  *
  * @server:	URI of remote server
+ * @dev:	net udevice
  * Return:	pointer to HTTP device path, NULL on error
  */
-struct efi_device_path *efi_dp_from_http(const char *server)
+struct efi_device_path *efi_dp_from_http(const char *server, struct udevice *dev)
 {
 	struct efi_device_path *dp1, *dp2;
 	struct efi_device_path_uri *uridp;
@@ -1047,9 +1050,10 @@ struct efi_device_path *efi_dp_from_http(const char *server)
 
 	efi_net_get_addr(&ip, &mask, NULL);
 
-	dp1 = efi_dp_from_ipv4(&ip, &mask, NULL);
+	dp1 = efi_dp_from_ipv4(&ip, &mask, NULL, dev);
 	if (!dp1)
 		return NULL;
+
 
 	strcpy(tmp, "http://");
 
