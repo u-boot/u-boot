@@ -468,8 +468,8 @@ static int do_i2c_md(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	uint	chip;
 	uint	addr, length;
-	int alen;
-	int j;
+	uint alen;
+	uint j;
 	uint nbytes, linebytes;
 	int ret;
 #if CONFIG_IS_ENABLED(DM_I2C)
