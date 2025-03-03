@@ -195,9 +195,6 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 			coalesced++;
 			break;
 		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
-			if (flags != LMB_NONE)
-				return -EEXIST;
-
 			ret = lmb_resize_regions(lmb_rgn_lst, i, base, size);
 			if (ret < 0)
 				return -1;
