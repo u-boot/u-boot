@@ -53,6 +53,9 @@ static inline int store_block(uchar *src, unsigned int offset, unsigned int len)
 	ulong store_addr = image_load_addr + offset;
 	uchar *ptr;
 
+	// Avoid overflow
+	if (wget_info->buffer_size && wget_info->buffer_size < offset + len)
+		return -1;
 	if (CONFIG_IS_ENABLED(LMB) && wget_info->set_bootdev) {
 		if (store_addr < image_load_addr ||
 		    lmb_read_check(store_addr, len)) {
@@ -98,12 +101,6 @@ static void tcp_stream_on_closed(struct tcp_stream *tcp)
 	net_set_state(wget_loop_state);
 	if (wget_loop_state != NETLOOP_SUCCESS) {
 		net_boot_file_size = 0;
-		if (wget_info->status_code == HTTP_STATUS_OK) {
-			wget_info->status_code = HTTP_STATUS_BAD;
-			wget_info->hdr_cont_len = 0;
-			if (wget_info->headers)
-				wget_info->headers[0] = 0;
-		}
 		printf("\nwget: Transfer Fail, TCP status - %d\n", tcp->status);
 		return;
 	}
@@ -212,6 +209,11 @@ static void tcp_stream_on_rcv_nxt_update(struct tcp_stream *tcp, u32 rx_bytes)
 			   "wget: Connected Len %lu\n",
 			   content_length);
 		wget_info->hdr_cont_len = content_length;
+		if (wget_info->buffer_size && wget_info->buffer_size < wget_info->hdr_cont_len){
+			tcp_stream_reset(tcp);
+			goto end;
+		}
+
 	}
 
 	net_boot_file_size = rx_bytes - http_hdr_size;
@@ -227,7 +229,9 @@ static int tcp_stream_rx(struct tcp_stream *tcp, u32 rx_offs, void *buf, int len
 	if ((max_rx_pos == (u32)(-1)) || (max_rx_pos < rx_offs + len - 1))
 		max_rx_pos = rx_offs + len - 1;
 
-	store_block(buf, rx_offs - http_hdr_size, len);
+	// Avoid overflow
+	if (store_block(buf, rx_offs - http_hdr_size, len) < 0)
+		return -1;
 
 	return len;
 }
