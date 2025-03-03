@@ -190,7 +190,7 @@ static long lmb_add_region_flags(struct alist *lmb_rgn_lst, phys_addr_t base,
 			break;
 		} else if (ret < 0) {
 			if (flags != rgnflags)
-				break;
+				continue;
 			rgn[i].size += size;
 			coalesced++;
 			break;
