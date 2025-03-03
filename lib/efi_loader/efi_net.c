@@ -24,12 +24,12 @@
 #include <vsprintf.h>
 #include <net.h>
 
+#define MAX_NUM_DHCP_ENTRIES 10
 #define MAX_NUM_DP_ENTRIES 10
 
 const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
 static const efi_guid_t efi_pxe_base_code_protocol_guid =
 					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
-static struct efi_pxe_packet *dhcp_ack;
 static void *new_tx_packet;
 static void *transmit_buffer;
 static uchar **receive_buffer;
@@ -60,6 +60,15 @@ static struct wget_http_info efi_wget_info = {
 
 };
 #endif
+
+struct dhcp_entry {
+	struct efi_pxe_packet *dhcp_ack;
+	struct udevice *dev;
+	bool is_valid;
+};
+
+static struct dhcp_entry dhcp_cache[MAX_NUM_DHCP_ENTRIES];
+static int next_dhcp_entry;
 
 /*
  * The notification function of this event is called in every timer cycle
@@ -317,6 +326,7 @@ static efi_status_t EFIAPI efi_net_shutdown(struct efi_simple_network *this)
 	eth_set_dev(netobj->dev);
 	env_set("ethact", eth_get_name());
 	eth_halt();
+
 	this->int_status = 0;
 	wait_for_packet->is_signaled = false;
 	this->mode->state = EFI_NETWORK_STARTED;
@@ -718,18 +728,28 @@ out:
  */
 void efi_net_set_dhcp_ack(void *pkt, int len)
 {
-	int maxsize = sizeof(*dhcp_ack);
+	struct efi_pxe_packet **dhcp_ack;
+	struct udevice *dev;
 
-	if (!dhcp_ack) {
-		dhcp_ack = malloc(maxsize);
-		if (!dhcp_ack)
+	dhcp_ack = &dhcp_cache[next_dhcp_entry].dhcp_ack;
+
+	/* For now this function gets called only by the current device */
+	dev = eth_get_dev();
+
+	int maxsize = sizeof(**dhcp_ack);
+
+	if (!*dhcp_ack) {
+		*dhcp_ack = malloc(maxsize);
+		if (!*dhcp_ack)
 			return;
 	}
-	memset(dhcp_ack, 0, maxsize);
-	memcpy(dhcp_ack, pkt, min(len, maxsize));
+	memset(*dhcp_ack, 0, maxsize);
+	memcpy(*dhcp_ack, pkt, min(len, maxsize));
 
-	if (netobj)
-		netobj->pxe_mode.dhcp_ack = *dhcp_ack;
+	dhcp_cache[next_dhcp_entry].is_valid = true;
+	dhcp_cache[next_dhcp_entry].dev = dev;
+	next_dhcp_entry++;
+	next_dhcp_entry %= MAX_NUM_DHCP_ENTRIES;
 }
 
 /**
@@ -1036,7 +1056,7 @@ set_addr:
 efi_status_t efi_net_register(struct udevice *dev)
 {
 	efi_status_t r;
-	int i;
+	int i, j;
 
 	if (!dev) {
 		/* No network device active, don't expose any */
@@ -1123,8 +1143,19 @@ efi_status_t efi_net_register(struct udevice *dev)
 	netobj->pxe.set_station_ip = efi_pxe_base_code_set_station_ip;
 	netobj->pxe.set_packets = efi_pxe_base_code_set_packets;
 	netobj->pxe.mode = &netobj->pxe_mode;
-	if (dhcp_ack)
-		netobj->pxe_mode.dhcp_ack = *dhcp_ack;
+
+	/*
+	 * Scan dhcp entries for one corresponding
+	 * to this udevice, from newest to oldest
+	 */
+	i = (next_dhcp_entry + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES;
+	for (j = 0; dhcp_cache[i].is_valid && j < MAX_NUM_DHCP_ENTRIES;
+	     i = (i + MAX_NUM_DHCP_ENTRIES - 1) % MAX_NUM_DHCP_ENTRIES, j++) {
+		if (dev == dhcp_cache[i].dev) {
+			netobj->pxe_mode.dhcp_ack = *dhcp_cache[i].dhcp_ack;
+			break;
+		}
+	}
 
 	/*
 	 * Create WaitForPacket event.
