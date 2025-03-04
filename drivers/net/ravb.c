@@ -354,8 +354,15 @@ static int ravb_mac_init(struct ravb_priv *eth)
 	/* Disable MAC Interrupt */
 	writel(0, eth->iobase + RAVB_REG_ECSIPR);
 
-	/* Recv frame limit set register */
-	writel(RFLR_RFL_MIN, eth->iobase + RAVB_REG_RFLR);
+	/*
+	 * Set receive frame length
+	 *
+	 * The length set here describes the frame from the destination address
+	 * up to and including the CRC data. However only the frame data,
+	 * excluding the CRC, are transferred to memory. To allow for the
+	 * largest frames add the CRC length to the maximum Rx descriptor size.
+	 */
+	writel(RFLR_RFL_MIN + ETH_FCS_LEN, eth->iobase + RAVB_REG_RFLR);
 
 	return 0;
 }
