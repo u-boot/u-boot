@@ -34,20 +34,10 @@
 
 	host1x@50000000 {
 		dc@54200000 {
-			clocks = <&tegra_car TEGRA30_CLK_DISP1>,
-				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
-
-			rgb {
-				status = "okay";
-
-				nvidia,panel = <&hdmi>;
-			};
+			status = "disabled";
 		};
 
 		hdmi: hdmi@54280000 {
-			clocks = <&tegra_car TEGRA30_CLK_HDMI>,
-				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
-
 			status = "okay";
 
 			hdmi-supply = <&hdmi_5v0_sys>;
