@@ -852,6 +852,7 @@ config RENESAS_ETHER_SWITCH
 config RENESAS_RAVB
 	bool "Renesas Ethernet AVB MAC"
 	depends on RCAR_64
+	select BITBANGMII
 	select PHYLIB
 	select PHY_ETHERNET_ID
 	help
