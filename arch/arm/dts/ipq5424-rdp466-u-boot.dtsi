@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * IPQ5424 RDP466 board device tree source
+ *
+ * Copyright (c) 2025 The Linux Foundation. All rights reserved.
+ */
+
+/ {
+	/* Will be removed when SMEM parsing is updated */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x20000000>;
+	};
+
+};
+
+	&sdhc {
+		sdhci-caps-mask = <0x0 0x04000000>;
+		sdhci-caps = <0x0 0x04000000>;	/* SDHCI_CAN_VDD_180 */
+		mmc-ddr-1_8v;
+		mmc-hs200-1_8v;
+		max-frequency = <192000000>;
+		bus-width = <4>;
+		pinctrl-0 = <&sdc_default_state>;
+		pinctrl-names = "default";
+		non-removable;
+
+		/*
+		 * This reset is needed to clear out the settings done by
+		 * previous boot loader. Without this the SDHCI_RESET_ALL
+		 * reset done sdhci_init() times out.
+		 */
+		resets = <&gcc GCC_SDCC_BCR>;
+
+		status = "okay";
+	};
+
