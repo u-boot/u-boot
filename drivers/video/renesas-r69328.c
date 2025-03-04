@@ -189,17 +189,17 @@ static int renesas_r69328_hw_init(struct udevice *dev)
 	}
 	mdelay(5);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
 	if (ret) {
-		log_debug("%s: error changing reset-gpios (%d)\n",
+		log_debug("%s: error entering reset (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
 	mdelay(5);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
 	if (ret) {
-		log_debug("%s: error changing reset-gpios (%d)\n",
+		log_debug("%s: error exiting reset (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
