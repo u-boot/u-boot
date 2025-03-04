@@ -295,7 +295,7 @@ static const struct panel_ops renesas_r61307_ops = {
 
 static const struct udevice_id renesas_r61307_ids[] = {
 	{ .compatible = "koe,tx13d100vm0eaa" },
-	{ .compatible = "hitachi,tx13d100vm0eaa" },
+	{ .compatible = "hit,tx13d100vm0eaa" },
 	{ }
 };
 
