@@ -106,8 +106,13 @@
 					arch = "arm64";
 					os = "linux";
 					compression = "none";
+				#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+					load = <0x86000000>;
+					entry = <0x86000000>;
+				#else
 					load = <0x6000000>;
 					entry = <0x6000000>;
+				#endif
 					kernel_blob: blob-ext {
 						filename = "Image";
 					};
