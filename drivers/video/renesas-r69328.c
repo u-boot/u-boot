@@ -32,9 +32,11 @@
 #define R69328_POWER_SET	0xD1
 
 struct renesas_r69328_priv {
+	struct udevice *vdd;
+	struct udevice *vddio;
+
 	struct udevice *backlight;
 
-	struct gpio_desc enable_gpio;
 	struct gpio_desc reset_gpio;
 };
 
@@ -159,10 +161,15 @@ static int renesas_r69328_of_to_plat(struct udevice *dev)
 		return ret;
 	}
 
-	ret = gpio_request_by_name(dev, "enable-gpios", 0,
-				   &priv->enable_gpio, GPIOD_IS_OUT);
+	ret = device_get_supply_regulator(dev, "vdd-supply", &priv->vdd);
 	if (ret) {
-		log_err("could not decode enable-gpios (%d)\n", ret);
+		log_err("Cannot get vdd-supply: ret = %d\n", ret);
+		return ret;
+	}
+
+	ret = device_get_supply_regulator(dev, "vddio-supply", &priv->vddio);
+	if (ret) {
+		log_err("Cannot get vddio-supply: ret = %d\n", ret);
 		return ret;
 	}
 
@@ -181,13 +188,20 @@ static int renesas_r69328_hw_init(struct udevice *dev)
 	struct renesas_r69328_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = dm_gpio_set_value(&priv->enable_gpio, 1);
+	ret = regulator_set_enable_if_allowed(priv->vddio, 1);
 	if (ret) {
-		log_debug("%s: error changing enable-gpios (%d)\n",
+		log_debug("%s: enabling vddio-supply failed (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
 	mdelay(5);
+
+	ret = regulator_set_enable_if_allowed(priv->vdd, 1);
+	if (ret) {
+		log_debug("%s: enabling vdd-supply failed (%d)\n",
+			  __func__, ret);
+		return ret;
+	}
 
 	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
 	if (ret) {
