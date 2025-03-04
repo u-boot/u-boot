@@ -68,6 +68,8 @@ obj-y	+= altera-sysmgr.o
 obj-y	+= ccu_ncore3.o
 obj-y	+= system_manager_soc64.o
 obj-y	+= timer_s10.o
+obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= secure_vab.o
+obj-$(CONFIG_SOCFPGA_SECURE_VAB_AUTH)	+= vab.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_N5X
