@@ -254,17 +254,17 @@ static int renesas_r61307_hw_init(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
 	if (ret) {
-		log_debug("%s: changing reset-gpio failed (%d)\n",
+		log_debug("%s: entering reset failed (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
 	mdelay(5);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
 	if (ret) {
-		log_debug("%s: changing reset-gpio failed (%d)\n",
+		log_debug("%s: exiting reset failed (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
