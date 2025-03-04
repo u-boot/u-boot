@@ -21,13 +21,16 @@ First, setup ``CROSS_COMPILE`` for aarch64. Then, build U-Boot for ``IPQ9574``::
 
 This will build ``u-boot.elf`` in the configured output directory.
 
-Although the RDPs do not have secure boot set up by default, the firmware still
-expects firmware ELF images to be "signed". The signature does not provide any
-security in this case, but it provides the firmware with some required metadata.
+The firmware expects the ELF images to be in MBN format. The `elftombn.py` tool
+can be used to convert the ELF images to MBN format.
 
-To "sign" ``u-boot.elf`` you can use e.g. `qtestsign`_::
+	IPQ9574: (MBN version 6)
 
-  $ qtestsign -v6 aboot -o u-boot.mbn u-boot.elf
+		$ python elftombn.py -f u-boot.elf -o u-boot.mbn -v6
+
+	IPQ5424: (MBN version 7)
+
+		$ python elftombn.py -f u-boot.elf -o u-boot.mbn -v7
 
 Then install the resulting ``u-boot.mbn`` to the ``0:APPSBL`` partition
 on your device with::
@@ -51,5 +54,5 @@ U-Boot should be running after a reboot (``reset``).
 	Note that the support added is very basic. Restoring the original U-Boot
 	on boards with older version of the software requires a debugger.
 
-.. _qtestsign: https://github.com/msm8916-mainline/qtestsign
+.. _elftombn.py: https://git.codelinaro.org/clo/qsdk/oss/system/tools/meta/-/tree/NHSS.QSDK.13.0.5.r2/scripts?ref_type=heads
 .. _edl: https://github.com/bkerler/edl
