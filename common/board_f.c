@@ -822,13 +822,13 @@ static int initf_dm(void)
 
 	bootstage_start(BOOTSTAGE_ID_ACCUM_DM_F, "dm_f");
 	ret = dm_init_and_scan(true);
-	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_F);
 	if (ret)
 		return ret;
 
 	ret = dm_autoprobe();
 	if (ret)
 		return ret;
+	bootstage_accum(BOOTSTAGE_ID_ACCUM_DM_F);
 
 	if (IS_ENABLED(CONFIG_TIMER_EARLY)) {
 		ret = dm_timer_init();

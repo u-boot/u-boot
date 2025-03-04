@@ -823,24 +823,6 @@ multiple-images:
             };
         };
 
-end-at-4gb:
-    For x86 machines the ROM offsets start just before 4GB and extend
-    up so that the image finished at the 4GB boundary. This boolean
-    option can be enabled to support this. The image size must be
-    provided so that binman knows when the image should start. For an
-    8MB ROM, the offset of the first entry would be 0xfff80000 with
-    this option, instead of 0 without this option.
-
-skip-at-start:
-    This property specifies the entry offset of the first entry.
-
-    For PowerPC mpc85xx based CPU, CONFIG_TEXT_BASE is the entry
-    offset of the first entry. It can be 0xeff40000 or 0xfff40000 for
-    nor flash boot, 0x201000 for sd boot etc.
-
-    'end-at-4gb' property is not applicable where CONFIG_TEXT_BASE +
-    Image size != 4gb.
-
 align-default:
     Specifies the default alignment for entries in this section if they do
     not specify an alignment. Note that this only applies to top-level entries
@@ -956,6 +938,35 @@ filename:
     output directory. This can sometimes be useful to use the data in one
     section in different image, since there is currently no way to share data
     between images other than through files.
+
+end-at-4gb:
+    For x86 machines the ROM offsets start just before 4GB and extend
+    up so that the image finished at the 4GB boundary. This boolean
+    option can be enabled to support this. The image size must be
+    provided so that binman knows when the image should start. For an
+    8MB ROM, the offset of the first entry would be 0xfff80000 with
+    this option, instead of 0 without this option.
+
+skip-at-start:
+    This property specifies the entry offset of the first entry in the section.
+    It is useful when the Binman image is written to a particular offset in the
+    media. It allows the offset of the first entry to be the media offset, even
+    though it is at the start of the image. It effectively creates a hole at the
+    start of the image, an implied, empty area.
+
+    For example, if the image is written to offset 4K on the media, set
+    skip-at-start to 0x1000. At runtime, the Binman image will assume that it
+    has be written at offset 4K and all symbols and offsets will take account of
+    that. The image-pos values will also be adjusted. The effect is similar to
+    adding an empty 4K region at the start, except that Binman does not actually
+    output it.
+
+    For PowerPC mpc85xx based CPU, CONFIG_TEXT_BASE is the entry
+    offset of the first entry. It can be 0xeff40000 or 0xfff40000 for
+    nor flash boot, 0x201000 for sd boot etc.
+
+    'end-at-4gb' property is not applicable where CONFIG_TEXT_BASE +
+    Image size != 4gb.
 
 Image Properties
 ----------------
