@@ -187,7 +187,7 @@ class TestFunctional(unittest.TestCase):
         self._git_dir = os.path.join(self._base_dir, 'src')
         self._buildman_pathname = sys.argv[0]
         self._buildman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-        command.test_result = self._HandleCommand
+        command.TEST_RESULT = self._HandleCommand
         bsettings.setup(None)
         bsettings.add_file(settings_data)
         self.setupToolchains()
@@ -232,8 +232,8 @@ class TestFunctional(unittest.TestCase):
         self._toolchains.Add('gcc', test=False)
 
     def _RunBuildman(self, *args):
-        return command.run_pipe([[self._buildman_pathname] + list(args)],
-                capture=True, capture_stderr=True)
+        all_args = [self._buildman_pathname] + list(args)
+        return command.run_one(*all_args, capture=True, capture_stderr=True)
 
     def _RunControl(self, *args, brds=False, clean_dir=False,
                     test_thread_exceptions=False, get_builder=True):
@@ -266,7 +266,7 @@ class TestFunctional(unittest.TestCase):
         return result
 
     def testFullHelp(self):
-        command.test_result = None
+        command.TEST_RESULT = None
         result = self._RunBuildman('-H')
         help_file = os.path.join(self._buildman_dir, 'README.rst')
         # Remove possible extraneous strings
@@ -277,7 +277,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, result.return_code)
 
     def testHelp(self):
-        command.test_result = None
+        command.TEST_RESULT = None
         result = self._RunBuildman('-h')
         help_file = os.path.join(self._buildman_dir, 'README.rst')
         self.assertTrue(len(result.stdout) > 1000)
@@ -286,11 +286,11 @@ class TestFunctional(unittest.TestCase):
 
     def testGitSetup(self):
         """Test gitutils.Setup(), from outside the module itself"""
-        command.test_result = command.CommandResult(return_code=1)
+        command.TEST_RESULT = command.CommandResult(return_code=1)
         gitutil.setup()
         self.assertEqual(gitutil.use_no_decorate, False)
 
-        command.test_result = command.CommandResult(return_code=0)
+        command.TEST_RESULT = command.CommandResult(return_code=0)
         gitutil.setup()
         self.assertEqual(gitutil.use_no_decorate, True)
 
@@ -445,7 +445,7 @@ class TestFunctional(unittest.TestCase):
             stage: Stage that we are at (mrproper, config, build)
             cwd: Directory where make should be run
             args: Arguments to pass to make
-            kwargs: Arguments to pass to command.run_pipe()
+            kwargs: Arguments to pass to command.run_one()
         """
         self._make_calls += 1
         out_dir = ''

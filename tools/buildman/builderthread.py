@@ -179,13 +179,12 @@ class BuilderThread(threading.Thread):
             cwd (str): Working directory to set, or None to leave it alone
             *args (list of str): Arguments to pass to 'make'
             **kwargs (dict): A list of keyword arguments to pass to
-                command.run_pipe()
+                command.run_one()
 
         Returns:
             CommandResult object
         """
-        return self.builder.do_make(commit, brd, stage, cwd, *args,
-                **kwargs)
+        return self.builder.do_make(commit, brd, stage, cwd, *args, **kwargs)
 
     def _build_args(self, brd, out_dir, out_rel_dir, work_dir, commit_upto):
         """Set up arguments to the args list based on the settings
@@ -588,9 +587,10 @@ class BuilderThread(threading.Thread):
             lines = []
             for fname in BASE_ELF_FILENAMES:
                 cmd = [f'{self.toolchain.cross}nm', '--size-sort', fname]
-                nm_result = command.run_pipe([cmd], capture=True,
-                        capture_stderr=True, cwd=result.out_dir,
-                        raise_on_error=False, env=env)
+                nm_result = command.run_one(*cmd, capture=True,
+                                            capture_stderr=True,
+                                            cwd=result.out_dir,
+                                            raise_on_error=False, env=env)
                 if nm_result.stdout:
                     nm_fname = self.builder.get_func_sizes_file(
                         result.commit_upto, result.brd.target, fname)
@@ -598,9 +598,10 @@ class BuilderThread(threading.Thread):
                         print(nm_result.stdout, end=' ', file=outf)
 
                 cmd = [f'{self.toolchain.cross}objdump', '-h', fname]
-                dump_result = command.run_pipe([cmd], capture=True,
-                        capture_stderr=True, cwd=result.out_dir,
-                        raise_on_error=False, env=env)
+                dump_result = command.run_one(*cmd, capture=True,
+                                              capture_stderr=True,
+                                              cwd=result.out_dir,
+                                              raise_on_error=False, env=env)
                 rodata_size = ''
                 if dump_result.stdout:
                     objdump = self.builder.get_objdump_file(result.commit_upto,
@@ -613,9 +614,10 @@ class BuilderThread(threading.Thread):
                             rodata_size = fields[2]
 
                 cmd = [f'{self.toolchain.cross}size', fname]
-                size_result = command.run_pipe([cmd], capture=True,
-                        capture_stderr=True, cwd=result.out_dir,
-                        raise_on_error=False, env=env)
+                size_result = command.run_one(*cmd, capture=True,
+                                              capture_stderr=True,
+                                              cwd=result.out_dir,
+                                              raise_on_error=False, env=env)
                 if size_result.stdout:
                     lines.append(size_result.stdout.splitlines()[1] + ' ' +
                                  rodata_size)
@@ -624,9 +626,8 @@ class BuilderThread(threading.Thread):
             cmd = [f'{self.toolchain.cross}objcopy', '-O', 'binary',
                    '-j', '.rodata.default_environment',
                    'env/built-in.o', 'uboot.env']
-            command.run_pipe([cmd], capture=True,
-                            capture_stderr=True, cwd=result.out_dir,
-                            raise_on_error=False, env=env)
+            command.run_one(*cmd, capture=True, capture_stderr=True,
+                            cwd=result.out_dir, raise_on_error=False, env=env)
             if not work_in_output:
                 copy_files(result.out_dir, build_dir, '', ['uboot.env'])
 

@@ -711,7 +711,7 @@ def get_list(commit_range, git_dir=None, count=None):
     """
     params = gitutil.log_cmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
-    return command.run_pipe([params], capture=True).stdout
+    return command.run_one(*params, capture=True).stdout
 
 def get_metadata_for_list(commit_range, git_dir=None, count=None,
                           series=None, allow_overwrite=False):
