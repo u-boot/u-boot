@@ -471,17 +471,17 @@ static int ssd2825_bridge_hw_init(struct udevice *dev)
 	}
 	mdelay(10);
 
-	ret = dm_gpio_set_value(&uc_priv->reset, 0);
+	ret = dm_gpio_set_value(&uc_priv->reset, 1);
 	if (ret) {
-		log_debug("%s: error changing reset-gpios (%d)\n",
+		log_debug("%s: error entering reset (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
 	mdelay(10);
 
-	ret = dm_gpio_set_value(&uc_priv->reset, 1);
+	ret = dm_gpio_set_value(&uc_priv->reset, 0);
 	if (ret) {
-		log_debug("%s: error changing reset-gpios (%d)\n",
+		log_debug("%s: error exiting reset (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
