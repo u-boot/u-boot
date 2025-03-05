@@ -12,4 +12,5 @@ F:	configs/phycore_am62x_r5_defconfig
 F:	configs/phycore_am62x_r5_usbdfu_defconfig
 F:	include/configs/phycore_am62x.h
 F:	doc/board/phytec/phycore-am62x.rst
+F:	doc/board/phytec/k3-common.rst
 F:	board/phytec/common/k3
