@@ -304,18 +304,23 @@ static int set_auth(enum auth_mode auth)
 
 	return CMD_RET_SUCCESS;
 }
+#endif
 
-static int set_cacert(char * const saddr, char * const ssz)
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+extern const char builtin_cacert[];
+extern const size_t builtin_cacert_size;
+static bool cacert_initialized;
+#endif
+
+#if CONFIG_IS_ENABLED(WGET_CACERT) || CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+static int _set_cacert(const void *addr, size_t sz)
 {
 	mbedtls_x509_crt crt;
-	ulong addr, sz;
+	void *p;
 	int ret;
 
 	if (cacert)
 		free(cacert);
-
-	addr = hextoul(saddr, NULL);
-	sz = hextoul(ssz, NULL);
 
 	if (!addr) {
 		cacert = NULL;
@@ -323,9 +328,10 @@ static int set_cacert(char * const saddr, char * const ssz)
 		return CMD_RET_SUCCESS;
 	}
 
-	cacert = malloc(sz);
-	if (!cacert)
+	p = malloc(sz);
+	if (!p)
 		return CMD_RET_FAILURE;
+	cacert = p;
 	cacert_size = sz;
 
 	memcpy(cacert, (void *)addr, sz);
@@ -340,9 +346,31 @@ static int set_cacert(char * const saddr, char * const ssz)
 		return CMD_RET_FAILURE;
 	}
 
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+	cacert_initialized = true;
+#endif
 	return CMD_RET_SUCCESS;
 }
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+static int set_cacert_builtin(void)
+{
+	return _set_cacert(builtin_cacert, builtin_cacert_size);
+}
 #endif
+
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+static int set_cacert(char * const saddr, char * const ssz)
+{
+	ulong addr, sz;
+
+	addr = hextoul(saddr, NULL);
+	sz = hextoul(ssz, NULL);
+
+	return _set_cacert((void *)addr, sz);
+}
+#endif
+#endif  /* CONFIG_WGET_CACERT || CONFIG_WGET_BUILTIN_CACERT */
 
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
@@ -373,8 +401,15 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 	memset(&conn, 0, sizeof(conn));
 #if CONFIG_IS_ENABLED(WGET_HTTPS)
 	if (is_https) {
-		char *ca = cacert;
-		size_t ca_sz = cacert_size;
+		char *ca;
+		size_t ca_sz;
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+		if (!cacert_initialized)
+			set_cacert_builtin();
+#endif
+		ca = cacert;
+		ca_sz = cacert_size;
 
 		if (cacert_auth_mode == AUTH_REQUIRED) {
 			if (!ca || !ca_sz) {
@@ -455,6 +490,10 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 	if (argc == 4 && !strncmp(argv[1], "cacert", strlen("cacert")))
 		return set_cacert(argv[2], argv[3]);
 	if (argc == 3 && !strncmp(argv[1], "cacert", strlen("cacert"))) {
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+		if (!strncmp(argv[2], "builtin", strlen("builtin")))
+			return set_cacert_builtin();
+#endif
 		if (!strncmp(argv[2], "none", strlen("none")))
 			return set_auth(AUTH_NONE);
 		if (!strncmp(argv[2], "optional", strlen("optional")))
