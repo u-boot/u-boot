@@ -43,6 +43,7 @@ Board-specific doc
    microsoft/index
    nxp/index
    openpiton/index
+   ouya/index
    phytec/index
    purism/index
    qualcomm/index
