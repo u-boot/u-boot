@@ -368,13 +368,13 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 		}
 		break;
 
-#ifdef CONFIG_CMD_TFTPPUT
 	case 4:
-		if (parse_addr_size(argv, addrp, sizep))
-			return 1;
-		*fnamep = argv[3];
-		break;
-#endif
+		if (IS_ENABLED(CONFIG_CMD_TFTPPUT)) {
+			if (parse_addr_size(argv, addrp, sizep))
+				return 1;
+			*fnamep = argv[3];
+			break;
+		}
 	default:
 		return 1;
 	}
