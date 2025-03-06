@@ -54,7 +54,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
 
     try:
         check_call(f'rm -f {fs_img}', shell=True)
-        check_call(f'dd if=/dev/zero of={fs_img} bs={size_gran} count={count}',
+        check_call(f'truncate -s $(( {size_gran} * {count} )) {fs_img}',
                    shell=True)
         check_call(f'mkfs.{fs_lnxtype} {mkfs_opt} {fs_img}', shell=True)
         if fs_type == 'ext4':
