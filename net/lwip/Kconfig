@@ -10,6 +10,12 @@ config LWIP_DEBUG
 	  Prints messages to the console regarding network packets that go in
           and out of the lwIP library.
 
+config LWIP_DEBUG_RXTX
+	bool "Dump packets sent and received by lwIP"
+	help
+	  Performs an hexadecimal & ASCII dump of the data received and sent by
+	  the lwIP network stack.
+
 config LWIP_ASSERT
 	bool "Enable assertions in the lwIP library"
 	help
