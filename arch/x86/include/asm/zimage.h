@@ -72,14 +72,6 @@ struct zboot_state {
 extern struct zboot_state state;
 
 /**
- * zimage_dump() - Dump information about a zimage
- *
- * @base_ptr: Pointer to the boot parameters
- * @show_cmdline: true to show the kernel command line
- */
-void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
-
-/**
  * zboot_load() - Load a zimage
  *
  * Load the zimage into the correct place
