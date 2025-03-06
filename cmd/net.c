@@ -382,44 +382,6 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 	return 0;
 }
 
-static int netboot_run_(enum proto_t proto, ulong addr, const char *fname,
-			ulong size, bool fname_explicit, bool ipv6)
-{
-	int ret;
-
-	bootstage_mark(BOOTSTAGE_ID_NET_START);
-
-	/*
-	 * For now we use the global variables as that is the only way to
-	 * control the network stack. At some point, perhaps, the state could be
-	 * in a struct
-	 */
-	if (IS_ENABLED(CONFIG_CMD_TFTPPUT) && proto == TFTPPUT)
-		image_save_addr = addr;
-	else
-		image_load_addr = addr;
-
-	net_boot_file_name_explicit = fname_explicit;
-	copy_filename(net_boot_file_name, fname, sizeof(net_boot_file_name));
-	if (IS_ENABLED(CONFIG_IPV6))
-		use_ip6 = ipv6;
-	if (IS_ENABLED(CONFIG_CMD_TFTPPUT) && proto == TFTPPUT) {
-		image_save_addr = addr;
-		image_save_size = size;
-	} else {
-		image_load_addr = addr;
-	}
-
-	ret = net_loop(proto);
-	if (ret < 0) {
-		bootstage_error(BOOTSTAGE_ID_NET_NETLOOP_OK);
-		return ret;
-	}
-	bootstage_mark(BOOTSTAGE_ID_NET_NETLOOP_OK);
-
-	return 0;
-}
-
 static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 			  char *const argv[])
 {
@@ -475,7 +437,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 	}
 
 	size = netboot_run_(proto, addr, fname, save_size, fname_explicit,
-			    use_ip6);
+			    IS_ENABLED(CONFIG_IPV6) && use_ip6);
 	if (size < 0)
 		return CMD_RET_FAILURE;
 
