@@ -234,21 +234,7 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 					  &fit_uname_kernel);
 }
 
-/**
- * genimg_get_format - get image format type
- * @img_addr: image start address
- *
- * genimg_get_format() checks whether provided address points to a valid
- * legacy or FIT image.
- *
- * New uImage format and FDT blob are based on a libfdt. FDT blob
- * may be passed directly or embedded in a FIT image. In both situations
- * genimg_get_format() must be able to dectect libfdt header.
- *
- * returns:
- *     image format type or IMAGE_FORMAT_INVALID if no image is present
- */
-int genimg_get_format(const void *img_addr)
+enum image_fmt_t genimg_get_format(const void *img_addr)
 {
 	if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
 		const struct legacy_img_hdr *hdr;
@@ -433,6 +419,8 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 				return ret;
 			done = true;
 		}
+		break;
+	case IMAGE_FORMAT_INVALID:
 		break;
 	}
 

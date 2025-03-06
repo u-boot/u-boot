@@ -598,10 +598,12 @@ int boot_get_setup(struct bootm_headers *images, uint8_t arch, ulong *setup_star
 		   ulong *setup_len);
 
 /* Image format types, returned by _get_format() routine */
-#define IMAGE_FORMAT_INVALID	0x00
-#define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
-#define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
-#define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
+enum image_fmt_t {
+	IMAGE_FORMAT_INVALID,
+	IMAGE_FORMAT_LEGACY,		/* legacy image_header based format */
+	IMAGE_FORMAT_FIT,		/* new, libfdt based format */
+	IMAGE_FORMAT_ANDROID,		/* Android boot image */
+};
 
 /**
  * genimg_get_kernel_addr_fit() - Parse FIT specifier
@@ -630,7 +632,21 @@ ulong genimg_get_kernel_addr_fit(const char *const img_addr,
 				 const char **fit_uname_kernel);
 
 ulong genimg_get_kernel_addr(char * const img_addr);
-int genimg_get_format(const void *img_addr);
+
+/**
+ * genimg_get_format - get image format type
+ * @img_addr: image start address
+ * Return: image format type or IMAGE_FORMAT_INVALID if no image is present
+ *
+ * genimg_get_format() checks whether provided address points to a valid
+ * legacy or FIT image.
+ *
+ * New uImage format and FDT blob are based on a libfdt. FDT blob
+ * may be passed directly or embedded in a FIT image. In both situations
+ * genimg_get_format() must be able to dectect libfdt header.
+ */
+enum image_fmt_t genimg_get_format(const void *img_addr);
+
 int genimg_has_config(struct bootm_headers *images);
 
 /**
