@@ -7,6 +7,7 @@
 #define LOG_CATEGORY	LOGC_BOOT
 
 #include <bootflow.h>
+#include <bootm.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -461,7 +462,7 @@ skip_overlay:
  * Scenario 4: fdt blob is not available.
  */
 static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
-			     char *kernel_addr, char **fdt_argp)
+			     char *kernel_addr, const char **fdt_argp)
 {
 	/* For FIT, the label can be identical to kernel one */
 	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
@@ -584,72 +585,66 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 			  char *kernel_addr, char *initrd_addr_str,
 			  char *initrd_filesize, char *initrd_str)
 {
-	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
+	struct bootm_info bmi;
 	ulong kernel_addr_r;
-	int bootm_argc = 2;
 	int zboot_argc = 3;
 	void *buf;
 	int ret;
 
-	bootm_argv[3] = env_get("fdt_addr_r");
+	bootm_init(&bmi);
 
-	ret = label_process_fdt(ctx, label, kernel_addr, &bootm_argv[3]);
+	bmi.conf_fdt = env_get("fdt_addr_r");
+
+	ret = label_process_fdt(ctx, label, kernel_addr, &bmi.conf_fdt);
 	if (ret)
 		return ret;
 
-	bootm_argv[1] = kernel_addr;
+	bmi.addr_img = kernel_addr;
 	zboot_argv[1] = kernel_addr;
 
 	if (initrd_addr_str) {
-		bootm_argv[2] = initrd_str;
-		bootm_argc = 3;
+		bmi.conf_ramdisk = initrd_str;
 
 		zboot_argv[3] = initrd_addr_str;
 		zboot_argv[4] = initrd_filesize;
 		zboot_argc = 5;
 	}
 
-	if (!bootm_argv[3]) {
+	if (!bmi.conf_fdt) {
 		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
 			if (strcmp("-", label->fdt))
-				bootm_argv[3] = env_get("fdt_addr");
+				bmi.conf_fdt = env_get("fdt_addr");
 		} else {
-			bootm_argv[3] = env_get("fdt_addr");
+			bmi.conf_fdt = env_get("fdt_addr");
 		}
 	}
 
 	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
 	buf = map_sysmem(kernel_addr_r, 0);
 
-	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT) {
+	if (!bmi.conf_fdt && genimg_get_format(buf) != IMAGE_FORMAT_FIT) {
 		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
 			if (strcmp("-", label->fdt))
-				bootm_argv[3] = env_get("fdtcontroladdr");
+				bmi.conf_fdt = env_get("fdtcontroladdr");
 		} else {
-			bootm_argv[3] = env_get("fdtcontroladdr");
+			bmi.conf_fdt = env_get("fdtcontroladdr");
 		}
-	}
-
-	if (bootm_argv[3]) {
-		if (!bootm_argv[2])
-			bootm_argv[2] = "-";
-		bootm_argc = 4;
 	}
 
 	/* Try bootm for legacy and FIT format image */
 	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
 	    IS_ENABLED(CONFIG_CMD_BOOTM)) {
 		log_debug("using bootm\n");
-		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+		ret = bootm_run(&bmi);
 	/* Try booting an AArch64 Linux kernel image */
 	} else if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
 		log_debug("using booti\n");
-		do_booti(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+		ret = booti_run(&bmi);
 	/* Try booting a Image */
 	} else if (IS_ENABLED(CONFIG_CMD_BOOTZ)) {
 		log_debug("using bootz\n");
-		do_bootz(ctx->cmdtp, 0, bootm_argc, bootm_argv);
+		ret = bootz_run(&bmi);
 	/* Try booting an x86_64 Linux kernel image */
 	} else if (IS_ENABLED(CONFIG_CMD_ZBOOT)) {
 		log_debug("using zboot\n");
@@ -657,6 +652,8 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 	}
 
 	unmap_sysmem(buf);
+	if (ret)
+		return ret;
 
 	return 0;
 }
