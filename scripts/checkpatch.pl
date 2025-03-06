@@ -2692,6 +2692,12 @@ sub u_boot_line {
 		ERROR("PRE_SCHEMA",
 		      "Driver model schema uses 'bootph-...' tags now\n" . $herecurr);
 	}
+
+	# Do not allow CONFIG_xPL_BUILD in device trees
+	if ($realfile =~ /\.dtsi?$/ && $line =~ /^\+.*CONFIG_(X|S|T|V)PL_BUILD.*/) {
+		ERROR("CONFIG_xPL_BUILD",
+		      "Do not use CONFIG_xPL_BUILD in device trees\n" . $herecurr);
+	}
 }
 
 sub exclude_global_initialisers {
