@@ -313,9 +313,18 @@ static int parse_addr_size(char * const argv[])
 /**
  * parse_args() - parse command line arguments
  *
+ * Sets:
+ *
+ * - net_boot_file_name_explicit to true if a filename was specified
+ * - net_boot_file_name to that filename, if specified, else the value of the
+ *	'bootfile' environment variable
+ * - image_load_addr if a load address was provided
+ * - image_save_addr and image_save_size, if proto == TFTPPUT
+ *
  * @proto:	command prototype
- * @argc:	number of arguments
- * @argv:	command line arguments
+ * @argc:	number of arguments, include the command, which has already been
+ *		parsed
+ * @argv:	command line arguments, with argv[0] being the command
  * Return:	0 on success
  */
 static int parse_args(enum proto_t proto, int argc, char *const argv[])
