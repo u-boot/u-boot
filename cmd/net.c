@@ -314,10 +314,6 @@ static int parse_addr_size(char * const argv[])
  * parse_args() - parse command line arguments
  *
  * Sets:
- *
- * - net_boot_file_name_explicit to true if a filename was specified
- * - net_boot_file_name to that filename, if specified, else the value of the
- *	'bootfile' environment variable
  * - image_load_addr if a load address was provided
  * - image_save_addr and image_save_size, if proto == TFTPPUT
  *
@@ -325,21 +321,20 @@ static int parse_addr_size(char * const argv[])
  * @argc:	number of arguments, include the command, which has already been
  *		parsed
  * @argv:	command line arguments, with argv[0] being the command
+ * @fnamep:	set to the filename, if provided, else NULL
  * Return:	0 on success
  */
-static int parse_args(enum proto_t proto, int argc, char *const argv[])
+static int parse_args(enum proto_t proto, int argc, char *const argv[],
+		      const char **fnamep)
 {
 	ulong addr;
 	char *end;
 
+	*fnamep = NULL;
 	switch (argc) {
 	case 1:
 		if (IS_ENABLED(CONFIG_CMD_TFTPPUT) && proto == TFTPPUT)
 			return 1;
-
-		/* refresh bootfile name from env */
-		copy_filename(net_boot_file_name, env_get("bootfile"),
-			      sizeof(net_boot_file_name));
 		break;
 
 	case 2:
@@ -352,16 +347,10 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[])
 		 * mis-interpreted as a valid number.
 		 */
 		addr = hextoul(argv[1], &end);
-		if (end == (argv[1] + strlen(argv[1]))) {
+		if (end == (argv[1] + strlen(argv[1])))
 			image_load_addr = addr;
-			/* refresh bootfile name from env */
-			copy_filename(net_boot_file_name, env_get("bootfile"),
-				      sizeof(net_boot_file_name));
-		} else {
-			net_boot_file_name_explicit = true;
-			copy_filename(net_boot_file_name, argv[1],
-				      sizeof(net_boot_file_name));
-		}
+		else
+			*fnamep = argv[1];
 		break;
 
 	case 3:
@@ -370,9 +359,7 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[])
 				return 1;
 		} else {
 			image_load_addr = hextoul(argv[1], NULL);
-			net_boot_file_name_explicit = true;
-			copy_filename(net_boot_file_name, argv[2],
-				      sizeof(net_boot_file_name));
+			*fnamep = argv[2];
 		}
 		break;
 
@@ -380,20 +367,20 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[])
 	case 4:
 		if (parse_addr_size(argv))
 			return 1;
-		net_boot_file_name_explicit = true;
-		copy_filename(net_boot_file_name, argv[3],
-			      sizeof(net_boot_file_name));
+		*fnamep = argv[3];
 		break;
 #endif
 	default:
 		return 1;
 	}
+
 	return 0;
 }
 
 static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 			  char *const argv[])
 {
+	const char *fname;
 	char *s;
 	int   rcode = 0;
 	int   size;
@@ -417,10 +404,18 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		}
 	}
 
-	if (parse_args(proto, argc, argv)) {
+	if (parse_args(proto, argc, argv, &fname)) {
 		bootstage_error(BOOTSTAGE_ID_NET_START);
 		return CMD_RET_USAGE;
 	}
+
+	if (fname) {
+		net_boot_file_name_explicit = true;
+	} else {
+		net_boot_file_name_explicit = false;
+		fname = env_get("bootfile");
+	}
+	copy_filename(net_boot_file_name, fname, sizeof(net_boot_file_name));
 
 	if (IS_ENABLED(CONFIG_IPV6) && !use_ip6) {
 		char *s, *e;
