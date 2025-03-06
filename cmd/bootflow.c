@@ -380,7 +380,10 @@ static int do_bootflow_info(struct cmd_tbl *cmdtp, int flag, int argc,
 	bflow = std->cur_bootflow;
 
 	if (IS_ENABLED(CONFIG_X86) && x86_setup) {
-		zimage_dump(bflow->x86_setup, false);
+		struct bootm_info bmi;
+
+		bootm_init(&bmi);
+		zimage_dump(&bmi, bflow->x86_setup, false);
 
 		return 0;
 	}

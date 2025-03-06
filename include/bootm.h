@@ -92,6 +92,8 @@ struct bootm_info {
 /**
  * bootm_init() - Set up a bootm_info struct with useful defaults
  *
+ * @bmi: Bootm information
+ *
  * Set up the struct with default values for all members:
  * @boot_progress is set to true and @images is set to the global images
  * variable. Everything else is set to NULL except @argc which is 0
@@ -107,7 +109,7 @@ void bootm_init(struct bootm_info *bmi);
  *  - disabled interrupts.
  *
  * @flag: Flags indicating what to do (BOOTM_STATE_...)
- * bmi: Bootm information
+ * @bmi: Bootm information
  * Return: 1 on error. On success the OS boots so this function does
  * not return.
  */
@@ -340,11 +342,13 @@ const char *zimage_get_kernel_version(struct boot_params *params,
  *
  * This shows all available information in a zimage that has been loaded.
  *
+ * @bmi: Bootm information
  * @base_ptr: Pointer to the boot parameters, typically at address
  *	DEFAULT_SETUP_BASE
  * @show_cmdline: true to show the full command line
  */
-void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
+void zimage_dump(struct bootm_info *bmi, struct boot_params *base_ptr,
+		 bool show_cmdline);
 
 /*
  * bootm_boot_start() - Boot an image at the given address
