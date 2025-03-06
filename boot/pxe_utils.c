@@ -438,7 +438,7 @@ skip_overlay:
  * @ctx: PXE context
  * @label: Label to process
  * @kernel_addr: String containing kernel address
- * @bootm_argv: bootm arguments to fill in (this only adjusts @bootm_argv[3])
+ * @fdt_argp: bootm argument to fill in, for FDT
  * Return: 0 if OK, -ENOMEM if out of memory, -ENOENT if FDT file could not be
  *	loaded
  *
@@ -461,13 +461,13 @@ skip_overlay:
  * Scenario 4: fdt blob is not available.
  */
 static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
-			     char *kernel_addr, char *bootm_argv[])
+			     char *kernel_addr, char **fdt_argp)
 {
 	/* For FIT, the label can be identical to kernel one */
 	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
-		bootm_argv[3] = kernel_addr;
+		*fdt_argp = kernel_addr;
 	/* if fdt label is defined then get fdt from server */
-	} else if (bootm_argv[3]) {
+	} else if (*fdt_argp) {
 		char *fdtfile = NULL;
 		char *fdtfilefree = NULL;
 
@@ -538,7 +538,7 @@ static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
 
 			free(fdtfilefree);
 			if (err < 0) {
-				bootm_argv[3] = NULL;
+				*fdt_argp = NULL;
 
 				if (label->fdt) {
 					printf("Skipping %s for failure retrieving FDT\n",
@@ -560,7 +560,7 @@ static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
 				label_boot_fdtoverlay(ctx, label);
 #endif
 		} else {
-			bootm_argv[3] = NULL;
+			*fdt_argp = NULL;
 		}
 	}
 
@@ -594,7 +594,7 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 
 	bootm_argv[3] = env_get("fdt_addr_r");
 
-	ret = label_process_fdt(ctx, label, kernel_addr, bootm_argv);
+	ret = label_process_fdt(ctx, label, kernel_addr, &bootm_argv[3]);
 	if (ret)
 		return ret;
 
