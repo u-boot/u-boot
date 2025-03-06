@@ -316,6 +316,15 @@ int bootm_process_cmdline(char *buf, int maxlen, int flags);
 int bootm_process_cmdline_env(int flags);
 
 /**
+ * zboot_run() - Run through the various steps to boot a zimage
+ *
+ * @bmi: Bootm information, with bzimage_size, initrd_addr, initrd_size and
+ * cmdline set up. If base_ptr is 0, then bzimage_addr must be set to the start
+ * of the bzImage. Otherwise base_ptr and load_address must be provided.
+ */
+int zboot_run(struct bootm_info *bmi);
+
+/**
  * zboot_run_args() - Run through the various steps to boot a zimage
  *
  * Boot a zimage, given the component parts

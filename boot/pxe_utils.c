@@ -585,10 +585,8 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 			  char *kernel_addr, char *initrd_addr_str,
 			  char *initrd_filesize, char *initrd_str)
 {
-	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
 	struct bootm_info bmi;
 	ulong kernel_addr_r;
-	int zboot_argc = 3;
 	void *buf;
 	int ret;
 
@@ -601,14 +599,14 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 		return ret;
 
 	bmi.addr_img = kernel_addr;
-	zboot_argv[1] = kernel_addr;
+	bootm_x86_set(&bmi, bzimage_addr, hextoul(kernel_addr, NULL));
 
 	if (initrd_addr_str) {
 		bmi.conf_ramdisk = initrd_str;
-
-		zboot_argv[3] = initrd_addr_str;
-		zboot_argv[4] = initrd_filesize;
-		zboot_argc = 5;
+		bootm_x86_set(&bmi, initrd_addr,
+			      hextoul(initrd_addr_str, NULL));
+		bootm_x86_set(&bmi, initrd_size,
+			      hextoul(initrd_filesize, NULL));
 	}
 
 	if (!bmi.conf_fdt) {
@@ -642,7 +640,7 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 	/* Try booting an x86_64 Linux kernel image */
 	} else if (IS_ENABLED(CONFIG_CMD_ZBOOT)) {
 		log_debug("using zboot\n");
-		do_zboot_parent(ctx->cmdtp, 0, zboot_argc, zboot_argv, NULL);
+		ret = zboot_run(&bmi);
 	}
 
 	unmap_sysmem(buf);

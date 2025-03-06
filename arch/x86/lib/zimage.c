@@ -432,6 +432,23 @@ int zboot_go(struct bootm_info *bmi)
 	return ret;
 }
 
+int zboot_run(struct bootm_info *bmi)
+{
+	int ret;
+
+	ret = zboot_load(bmi);
+	if (ret)
+		return log_msg_ret("ld", ret);
+	ret = zboot_setup(bmi);
+	if (ret)
+		return log_msg_ret("set", ret);
+	ret = zboot_go(bmi);
+	if (ret)
+		return log_msg_ret("go", ret);
+
+	return -EFAULT;
+}
+
 int zboot_run_args(ulong addr, ulong size, ulong initrd, ulong initrd_size,
 		   ulong base, char *cmdline)
 {
@@ -440,17 +457,11 @@ int zboot_run_args(ulong addr, ulong size, ulong initrd, ulong initrd_size,
 
 	bootm_init(&bmi);
 	zboot_start(&bmi, addr, size, initrd, initrd_size, base, cmdline);
-	ret = zboot_load(&bmi);
+	ret = zboot_run(&bmi);
 	if (ret)
-		return log_msg_ret("ld", ret);
-	ret = zboot_setup(&bmi);
-	if (ret)
-		return log_msg_ret("set", ret);
-	ret = zboot_go(&bmi);
-	if (ret)
-		return log_msg_ret("go", ret);
+		return log_msg_ret("zra", ret);
 
-	return -EFAULT;
+	return 0;
 }
 
 static void print_num(const char *name, ulong value)
