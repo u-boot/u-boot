@@ -170,7 +170,7 @@ static int starfive_pcie_phy_get_syscon(struct udevice *dev)
 	int ret;
 
 	/* get corresponding syscon phandle */
-	ret = dev_read_phandle_with_args(dev, "starfive,sys-syscon", NULL, 0, 0,
+	ret = dev_read_phandle_with_args(dev, "starfive,sys-syscon", NULL, 1, 0,
 					 &sys_phandle);
 
 	if (ret < 0) {
