@@ -314,7 +314,6 @@ static int parse_addr_size(char * const argv[])
  * parse_args() - parse command line arguments
  *
  * Sets:
- * - image_load_addr if a load address was provided
  * - image_save_addr and image_save_size, if proto == TFTPPUT
  *
  * @proto:	command prototype
@@ -322,10 +321,12 @@ static int parse_addr_size(char * const argv[])
  *		parsed
  * @argv:	command line arguments, with argv[0] being the command
  * @fnamep:	set to the filename, if provided, else NULL
+ * @addrp:	returns the load address, if any is provided, else it is left
+ *		unchanged
  * Return:	0 on success
  */
 static int parse_args(enum proto_t proto, int argc, char *const argv[],
-		      const char **fnamep)
+		      const char **fnamep, ulong *addrp)
 {
 	ulong addr;
 	char *end;
@@ -348,7 +349,7 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 		 */
 		addr = hextoul(argv[1], &end);
 		if (end == (argv[1] + strlen(argv[1])))
-			image_load_addr = addr;
+			*addrp = addr;
 		else
 			*fnamep = argv[1];
 		break;
@@ -358,7 +359,7 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 			if (parse_addr_size(argv))
 				return 1;
 		} else {
-			image_load_addr = hextoul(argv[1], NULL);
+			*addrp = hextoul(argv[1], NULL);
 			*fnamep = argv[2];
 		}
 		break;
@@ -404,7 +405,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		}
 	}
 
-	if (parse_args(proto, argc, argv, &fname)) {
+	if (parse_args(proto, argc, argv, &fname, &image_load_addr)) {
 		bootstage_error(BOOTSTAGE_ID_NET_START);
 		return CMD_RET_USAGE;
 	}
