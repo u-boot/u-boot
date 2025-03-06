@@ -89,6 +89,14 @@ struct bootm_info {
 #define bootm_x86_set(_bmi, _field, _val)
 #endif
 
+static inline ulong bootm_len(void)
+{
+#ifdef CONFIG_SYS_BOOTM_LEN
+	return CONFIG_SYS_BOOTM_LEN;
+#endif
+	return 0;
+}
+
 /**
  * bootm_init() - Set up a bootm_info struct with useful defaults
  *
