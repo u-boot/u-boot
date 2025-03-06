@@ -323,12 +323,14 @@ static int parse_addr_size(char * const argv[], ulong *addrp, ulong *sizep)
  *		parsed
  * @argv:	command line arguments, with argv[0] being the command
  * @fnamep:	set to the filename, if provided, else NULL
- * @addrp:	returns the load address, if any is provided, else it is left
+ * @addrp:	returns the load/save address, if any is provided, else it is
+ *		left unchanged
+ * @sizep:	returns the save size, if any is provided, else it is left
  *		unchanged
  * Return:	0 on success
  */
 static int parse_args(enum proto_t proto, int argc, char *const argv[],
-		      const char **fnamep, ulong *addrp)
+		      const char **fnamep, ulong *addrp, ulong *sizep)
 {
 	ulong addr;
 	char *end;
@@ -358,8 +360,7 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 
 	case 3:
 		if (IS_ENABLED(CONFIG_CMD_TFTPPUT) && proto == TFTPPUT) {
-			if (parse_addr_size(argv, &image_save_addr,
-					    &image_save_size))
+			if (parse_addr_size(argv, addrp, sizep))
 				return 1;
 		} else {
 			*addrp = hextoul(argv[1], NULL);
@@ -369,7 +370,7 @@ static int parse_args(enum proto_t proto, int argc, char *const argv[],
 
 #ifdef CONFIG_CMD_TFTPPUT
 	case 4:
-		if (parse_addr_size(argv, &image_save_addr, &image_save_size))
+		if (parse_addr_size(argv, addrp, sizep))
 			return 1;
 		*fnamep = argv[3];
 		break;
@@ -385,6 +386,7 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 			  char *const argv[])
 {
 	const char *fname;
+	ulong addr;
 	char *s;
 	int   rcode = 0;
 	int   size;
@@ -392,10 +394,10 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 	net_boot_file_name_explicit = false;
 	*net_boot_file_name = '\0';
 
-	/* pre-set image_load_addr */
+	/* pre-set addr */
 	s = env_get("loadaddr");
 	if (s != NULL)
-		image_load_addr = hextoul(s, NULL);
+		addr = hextoul(s, NULL);
 
 	if (IS_ENABLED(CONFIG_IPV6)) {
 		use_ip6 = false;
@@ -408,10 +410,14 @@ static int netboot_common(enum proto_t proto, struct cmd_tbl *cmdtp, int argc,
 		}
 	}
 
-	if (parse_args(proto, argc, argv, &fname, &image_load_addr)) {
+	if (parse_args(proto, argc, argv, &fname, &addr, &image_save_size)) {
 		bootstage_error(BOOTSTAGE_ID_NET_START);
 		return CMD_RET_USAGE;
 	}
+	if (IS_ENABLED(CONFIG_CMD_TFTPPUT) && proto == TFTPPUT)
+		image_save_addr = addr;
+	else
+		image_load_addr = addr;
 
 	if (fname) {
 		net_boot_file_name_explicit = true;
