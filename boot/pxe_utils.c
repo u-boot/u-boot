@@ -432,51 +432,37 @@ skip_overlay:
 }
 #endif
 
-/**
- * label_run_boot() - Set up the FDT and call the appropriate bootm/z/i command
+/*
+ * label_process_fdt() - Process FDT for the label
  *
  * @ctx: PXE context
  * @label: Label to process
- * @kernel_addr: String containing kernel address (cannot be NULL)
- * @initrd_addr_str: String containing initrd address (NULL if none)
- * @initrd_filesize: String containing initrd size (only used if
- *	@initrd_addr_str)
- * @initrd_str: initrd string to process (only used if @initrd_addr_str)
- * Return: does not return on success, or returns 0 if the boot command
- * returned, or -ve error value on error
+ * @kernel_addr: String containing kernel address
+ * @bootm_argv: bootm arguments to fill in (this only adjusts @bootm_argv[3])
+ * Return: 0 if OK, -ENOMEM if out of memory, -ENOENT if FDT file could not be
+ *	loaded
+ *
+ * fdt usage is optional:
+ * It handles the following scenarios.
+ *
+ * Scenario 1: If fdt_addr_r specified and "fdt" or "fdtdir" label is
+ * defined in pxe file, retrieve fdt blob from server. Pass fdt_addr_r to
+ * bootm, and adjust argc appropriately.
+ *
+ * If retrieve fails and no exact fdt blob is specified in pxe file with
+ * "fdt" label, try Scenario 2.
+ *
+ * Scenario 2: If there is an fdt_addr specified, pass it along to
+ * bootm, and adjust argc appropriately.
+ *
+ * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
+ * bootm, and adjust argc appropriately, unless the image type is fitImage.
+ *
+ * Scenario 4: fdt blob is not available.
  */
-static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
-			  char *kernel_addr, char *initrd_addr_str,
-			  char *initrd_filesize, char *initrd_str)
+static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
+			     char *kernel_addr, char *bootm_argv[])
 {
-	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
-	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
-	ulong kernel_addr_r;
-	int bootm_argc = 2;
-	int zboot_argc = 3;
-	void *buf;
-
-	/*
-	 * fdt usage is optional:
-	 * It handles the following scenarios.
-	 *
-	 * Scenario 1: If fdt_addr_r specified and "fdt" or "fdtdir" label is
-	 * defined in pxe file, retrieve fdt blob from server. Pass fdt_addr_r to
-	 * bootm, and adjust argc appropriately.
-	 *
-	 * If retrieve fails and no exact fdt blob is specified in pxe file with
-	 * "fdt" label, try Scenario 2.
-	 *
-	 * Scenario 2: If there is an fdt_addr specified, pass it along to
-	 * bootm, and adjust argc appropriately.
-	 *
-	 * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
-	 * bootm, and adjust argc appropriately, unless the image type is fitImage.
-	 *
-	 * Scenario 4: fdt blob is not available.
-	 */
-	bootm_argv[3] = env_get("fdt_addr_r");
-
 	/* For FIT, the label can be identical to kernel one */
 	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
 		bootm_argv[3] = kernel_addr;
@@ -577,6 +563,40 @@ static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
 			bootm_argv[3] = NULL;
 		}
 	}
+
+	return 0;
+}
+
+/**
+ * label_run_boot() - Set up the FDT and call the appropriate bootm/z/i command
+ *
+ * @ctx: PXE context
+ * @label: Label to process
+ * @kernel_addr: String containing kernel address (cannot be NULL)
+ * @initrd_addr_str: String containing initrd address (NULL if none)
+ * @initrd_filesize: String containing initrd size (only used if
+ *	@initrd_addr_str)
+ * @initrd_str: initrd string to process (only used if @initrd_addr_str)
+ * Return: does not return on success, or returns 0 if the boot command
+ * returned, or -ve error value on error
+ */
+static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
+			  char *kernel_addr, char *initrd_addr_str,
+			  char *initrd_filesize, char *initrd_str)
+{
+	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
+	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
+	ulong kernel_addr_r;
+	int bootm_argc = 2;
+	int zboot_argc = 3;
+	void *buf;
+	int ret;
+
+	bootm_argv[3] = env_get("fdt_addr_r");
+
+	ret = label_process_fdt(ctx, label, kernel_addr, bootm_argv);
+	if (ret)
+		return ret;
 
 	bootm_argv[1] = kernel_addr;
 	zboot_argv[1] = kernel_addr;
