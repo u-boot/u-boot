@@ -257,6 +257,17 @@ enum image_fmt_t genimg_get_format(const void *img_addr)
 	return IMAGE_FORMAT_INVALID;
 }
 
+enum image_fmt_t genimg_get_format_comp(const void *img_addr)
+{
+	enum image_fmt_t fmt = genimg_get_format(img_addr);
+
+	if (IS_ENABLED(CONFIG_CMD_BOOTI) && fmt == IMAGE_FORMAT_INVALID &&
+	    image_decomp_type(img_addr, 2) != IH_COMP_NONE)
+		fmt = IMAGE_FORMAT_BOOTI;
+
+	return fmt;
+}
+
 /**
  * fit_has_config - check if there is a valid FIT configuration
  * @images: pointer to the bootm command headers structure
@@ -353,7 +364,7 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 	 * check image type, for FIT images get FIT node.
 	 */
 	buf = map_sysmem(rd_addr, 0);
-	switch (genimg_get_format(buf)) {
+	switch (genimg_get_format_comp(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
 			const struct legacy_img_hdr *rd_hdr;

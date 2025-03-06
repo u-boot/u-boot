@@ -648,6 +648,17 @@ ulong genimg_get_kernel_addr(char * const img_addr);
  */
 enum image_fmt_t genimg_get_format(const void *img_addr);
 
+/**
+ * genimg_get_format_comp() - Like genimg_get_format() but adds compressed booti
+ *
+ * If a compressed file is detected (with image_decomp_type()) and
+ * CONFIG_CMD_BOOTI is enabled, then this returns IMAGE_FORMAT_BOOTI
+ *
+ * @img_addr: image start address
+ * Return: image format type or IMAGE_FORMAT_INVALID if no image is present
+ */
+enum image_fmt_t genimg_get_format_comp(const void *img_addr);
+
 int genimg_has_config(struct bootm_headers *images);
 
 /**

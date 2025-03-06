@@ -146,7 +146,7 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
 	buf = map_sysmem(img_addr, 0);
-	switch (genimg_get_format(buf)) {
+	switch (genimg_get_format_comp(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		printf("## Booting kernel from Legacy Image at %08lx ...\n",
@@ -228,11 +228,8 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	}
 #endif
 	case IMAGE_FORMAT_BOOTI:
-		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
-			*os_data = img_addr;
-			break;
-		}
-		fallthrough;
+		*os_data = img_addr;
+		break;
 	default:
 		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 		return -EPROTOTYPE;
@@ -306,6 +303,17 @@ static int found_booti_os(enum image_comp_t comp)
 	log_debug("load %lx start %lx len %lx ep %lx os %x comp %x\n",
 		  images.os.load, images.os.image_start, images.os.image_len,
 		  images.ep, images.os.os, images.os.comp);
+	if (comp != IH_COMP_NONE) {
+		images.os.load = env_get_hex("kernel_comp_addr_r", 0);
+		images.os.image_len = env_get_ulong("kernel_comp_size", 16, 0);
+		if (!images.os.load || !images.os.image_len) {
+			puts("kernel_comp_addr_r or kernel_comp_size is not provided!\n");
+			return -ENOTSUPP;
+		}
+		if (lmb_reserve(images.os.load, images.os.image_len, LMB_NONE)
+		    < 0)
+			return -EXDEV;
+	}
 
 	return 0;
 }
@@ -423,6 +431,19 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		}
 		fallthrough;
 	default:
+		/* any compressed image is probably a booti image */
+		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+			int comp;
+
+			comp = image_decomp_type(os_hdr, 2);
+			if (comp != IH_COMP_NONE) {
+				if (found_booti_os(comp))
+					return 1;
+				ep_found = true;
+			}
+			break;
+		}
+
 		puts("ERROR: unknown image format type!\n");
 		return 1;
 	}
@@ -1166,7 +1187,9 @@ int bootz_run(struct bootm_info *bmi)
 
 int booti_run(struct bootm_info *bmi)
 {
-	return boot_run(bmi, "booti", 0);
+	return boot_run(bmi, "booti", BOOTM_STATE_START | BOOTM_STATE_FINDOS |
+			BOOTM_STATE_PRE_LOAD | BOOTM_STATE_FINDOTHER |
+			BOOTM_STATE_LOADOS);
 }
 
 int bootm_boot_start(ulong addr, const char *cmdline)
