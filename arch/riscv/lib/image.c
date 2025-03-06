@@ -32,6 +32,13 @@ struct linux_image_h {
 	uint32_t	res4;		/* reserved */
 };
 
+bool booti_is_valid(const void *img)
+{
+	const struct linux_image_h *lhdr = img;
+
+	return lhdr->magic == LINUX_RISCV_IMAGE_MAGIC;
+}
+
 int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 		bool force_reloc)
 {
@@ -39,7 +46,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 	lhdr = (struct linux_image_h *)map_sysmem(image, 0);
 
-	if (lhdr->magic != LINUX_RISCV_IMAGE_MAGIC) {
+	if (!booti_is_valid(lhdr)) {
 		puts("Bad Linux RISCV Image magic!\n");
 		return -EINVAL;
 	}

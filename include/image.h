@@ -603,6 +603,7 @@ enum image_fmt_t {
 	IMAGE_FORMAT_LEGACY,		/* legacy image_header based format */
 	IMAGE_FORMAT_FIT,		/* new, libfdt based format */
 	IMAGE_FORMAT_ANDROID,		/* Android boot image */
+	IMAGE_FORMAT_BOOTI,		/* Arm64/RISC-V boot image */
 };
 
 /**
@@ -648,6 +649,14 @@ ulong genimg_get_kernel_addr(char * const img_addr);
 enum image_fmt_t genimg_get_format(const void *img_addr);
 
 int genimg_has_config(struct bootm_headers *images);
+
+/**
+ * booti_is_valid() - Check if an image appears to be an Arm64 image
+ *
+ * @img: Pointer to image
+ * Return: true if the image has the Arm64 magic
+ */
+bool booti_is_valid(const void *img);
 
 /**
  * boot_get_fpga() - Locate the FPGA image

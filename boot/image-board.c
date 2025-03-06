@@ -250,6 +250,9 @@ enum image_fmt_t genimg_get_format(const void *img_addr)
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE) &&
 	    is_android_boot_image_header(img_addr))
 		return IMAGE_FORMAT_ANDROID;
+	if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
+	    booti_is_valid(img_addr))
+		return IMAGE_FORMAT_BOOTI;
 
 	return IMAGE_FORMAT_INVALID;
 }
@@ -419,6 +422,8 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 				return ret;
 			done = true;
 		}
+		break;
+	case IMAGE_FORMAT_BOOTI:
 		break;
 	case IMAGE_FORMAT_INVALID:
 		break;
