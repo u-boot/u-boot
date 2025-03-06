@@ -30,7 +30,7 @@ char *pxelinux_configfile;
 struct in_addr	net_ip;
 char net_boot_file_name[1024];
 
-static err_t linkoutput(struct netif *netif, struct pbuf *p)
+static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 {
 	struct udevice *udev = netif->state;
 	void *pp = NULL;
@@ -60,7 +60,7 @@ static err_t linkoutput(struct netif *netif, struct pbuf *p)
 static err_t net_lwip_if_init(struct netif *netif)
 {
 	netif->output = etharp_output;
-	netif->linkoutput = linkoutput;
+	netif->linkoutput = net_lwip_tx;
 	netif->mtu = 1500;
 	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
 
