@@ -227,6 +227,12 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 		break;
 	}
 #endif
+	case IMAGE_FORMAT_BOOTI:
+		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+			*os_data = img_addr;
+			break;
+		}
+		fallthrough;
 	default:
 		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 		return -EPROTOTYPE;
@@ -284,6 +290,24 @@ static int bootm_pre_load(const char *addr_str)
 		ret = CMD_RET_FAILURE;
 
 	return ret;
+}
+
+static int found_booti_os(enum image_comp_t comp)
+{
+	images.os.load = images.os.image_start;
+	images.os.type = IH_TYPE_KERNEL;
+	images.os.os = IH_OS_LINUX;
+	images.os.comp = comp;
+	if (IS_ENABLED(CONFIG_RISCV_SMODE))
+		images.os.arch = IH_ARCH_RISCV;
+	else if (IS_ENABLED(CONFIG_ARM64))
+		images.os.arch = IH_ARCH_ARM64;
+
+	log_debug("load %lx start %lx len %lx ep %lx os %x comp %x\n",
+		  images.os.load, images.os.image_start, images.os.image_len,
+		  images.ep, images.os.os, images.os.comp);
+
+	return 0;
 }
 
 /**
@@ -390,6 +414,14 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		}
 		break;
 #endif
+	case IMAGE_FORMAT_BOOTI:
+		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+			if (found_booti_os(IH_COMP_NONE))
+				return 1;
+			ep_found = true;
+			break;
+		}
+		fallthrough;
 	default:
 		puts("ERROR: unknown image format type!\n");
 		return 1;
@@ -541,6 +573,7 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 static int bootm_find_other(ulong img_addr, const char *conf_ramdisk,
 			    const char *conf_fdt)
 {
+	log_debug("find_other type %x os %x\n", images.os.type, images.os.os);
 	if ((images.os.type == IH_TYPE_KERNEL ||
 	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
 	     images.os.type == IH_TYPE_MULTI) &&
@@ -629,6 +662,8 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
 		      req_size, load, image_len);
 	}
+	log_debug("load_os load %lx image_start %lx image_len %lx\n", load,
+		  image_start, image_len);
 
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
@@ -1110,6 +1145,10 @@ int boot_run(struct bootm_info *bmi, const char *cmd, int extra_states)
 		states |= BOOTM_STATE_RAMDISK;
 	states |= extra_states;
 
+	log_debug("cmd '%s' states %x addr_img '%s' conf_ramdisk '%s' conf_fdt '%s' images %p\n",
+		  cmd, states, bmi->addr_img, bmi->conf_ramdisk, bmi->conf_fdt,
+		  bmi->images);
+
 	return bootm_run_states(bmi, states);
 }
 
@@ -1166,7 +1205,8 @@ void bootm_init(struct bootm_info *bmi)
 {
 	memset(bmi, '\0', sizeof(struct bootm_info));
 	bmi->boot_progress = true;
-	if (IS_ENABLED(CONFIG_CMD_BOOTM))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM) || IS_ENABLED(CONFIG_CMD_BOOTZ) ||
+	    IS_ENABLED(CONFIG_CMD_BOOTI) || IS_ENABLED(CONFIG_PXE_UTILS))
 		bmi->images = &images;
 }
 

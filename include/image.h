@@ -244,7 +244,7 @@ enum image_type_t {
  * New IDs *MUST* be appended at the end of the list and *NEVER*
  * inserted for backward compatibility.
  */
-enum {
+enum image_comp_t {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
 	IH_COMP_GZIP,			/* gzip	 Compression Used	*/
 	IH_COMP_BZIP2,			/* bzip2 Compression Used	*/
