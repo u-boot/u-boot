@@ -76,6 +76,9 @@ FIT_OBJS-y := fit_common.o fit_image.o image-host.o generated/boot/image-fit.o
 FIT_SIG_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := image-sig-host.o generated/boot/image-fit-sig.o
 FIT_CIPHER_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := generated/boot/image-cipher.o
 
+HOSTCFLAGS_image-host.o += \
+	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
+
 # The following files are synced with upstream DTC.
 # Use synced versions from scripts/dtc/libfdt/.
 LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
@@ -84,8 +87,12 @@ LIBFDT_OBJS := $(addprefix libfdt/, fdt.o fdt_ro.o fdt_wip.o fdt_sw.o fdt_rw.o \
 RSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/rsa/, \
 					rsa-sign.o rsa-verify.o \
 					rsa-mod-exp.o)
+HOSTCFLAGS_rsa-sign.o += \
+	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 
 ECDSA_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/ecdsa/, ecdsa-libcrypto.o)
+HOSTCFLAGS_ecdsa-libcrypto.o += \
+	$(shell pkg-config --cflags libssl libcrypto 2> /dev/null || echo "")
 
 AES_OBJS-$(CONFIG_TOOLS_LIBCRYPTO) := $(addprefix generated/lib/aes/, \
 					aes-encrypt.o aes-decrypt.o)
