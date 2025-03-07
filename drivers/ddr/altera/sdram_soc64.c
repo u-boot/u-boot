@@ -249,7 +249,7 @@ phys_size_t sdram_calculate_size(struct altera_sdram_plat *plat)
 			 DRAMADDRW_CFG_ROW_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_COL_ADDR_WIDTH(dramaddrw));
 
-	size *= (2 << (hmc_ecc_readl(plat, DDRIOCTRL) &
+	size *= ((phys_size_t)2 << (hmc_ecc_readl(plat, DDRIOCTRL) &
 			DDR_HMC_DDRIOCTRL_IOSIZE_MSK));
 
 	return size;
