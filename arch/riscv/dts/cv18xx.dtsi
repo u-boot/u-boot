@@ -46,20 +46,6 @@
 		#clock-cells = <0>;
 	};
 
-	eth_csrclk: eth-csrclk {
-		compatible = "fixed-clock";
-		clock-frequency = <250000000>;
-		clock-output-names = "eth_csrclk";
-		#clock-cells = <0x0>;
-	};
-
-	eth_ptpclk: eth-ptpclk {
-		compatible = "fixed-clock";
-		clock-frequency = <50000000>;
-		clock-output-names = "eth_ptpclk";
-		#clock-cells = <0x0>;
-	};
-
 	soc {
 		compatible = "simple-bus";
 		interrupt-parent = <&plic>;
