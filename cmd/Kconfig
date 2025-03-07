@@ -1833,11 +1833,9 @@ menuconfig CMD_NET
 	bool "Network commands"
 	default y
 
-endif
+if CMD_NET
 
 if NET
-
-if CMD_NET
 
 config CMD_BOOTP
 	bool "bootp"
@@ -2079,7 +2077,6 @@ config IPV6_ROUTER_DISCOVERY
 	help
 	  Will automatically perform router solicitation on first IPv6
 	  network operation
-endif  # if CMD_NET
 
 config CMD_ETHSW
 	bool "ethsw"
@@ -2095,10 +2092,6 @@ config CMD_WOL
 	  Wait for wake-on-lan Magic Packet
 
 endif  # if NET
-
-if NET || NET_LWIP
-
-if CMD_NET
 
 config CMD_DHCP
 	bool "dhcp"
@@ -2175,8 +2168,6 @@ config WGET_HTTPS
 	help
 	  Enable TLS over http for wget.
 
-endif  # if CMD_NET
-
 config CMD_PXE
 	bool "pxe"
 	select PXE_UTILS
@@ -2184,7 +2175,9 @@ config CMD_PXE
 	help
 	  Boot image via network using PXE protocol
 
-endif  # if NET || NET_LWIP
+endif  # if CMD_NET
+
+endif # NET || NET_LWIP
 
 menu "Misc commands"
 
