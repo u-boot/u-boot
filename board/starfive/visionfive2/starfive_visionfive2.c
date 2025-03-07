@@ -106,16 +106,6 @@ int board_late_init(void)
 	return 0;
 }
 
-int board_fdt_blob_setup(void **fdtp)
-{
-	if (gd->arch.firmware_fdt_addr) {
-		*fdtp = (ulong *)(uintptr_t)gd->arch.firmware_fdt_addr;
-		return 0;
-	}
-
-	return -EEXIST;
-}
-
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	return fdt_fixup_memory(blob, 0x40000000, gd->ram_size);
