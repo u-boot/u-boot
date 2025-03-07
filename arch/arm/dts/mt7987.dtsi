@@ -389,21 +389,15 @@
 		};
 
 		pwm: pwm@10048000 {
-			compatible = "mediatek,mt7988-pwm";
+			compatible = "mediatek,mt7987-pwm";
 			reg = <0 0x10048000 0 0x1000>;
 			#pwm-cells = <2>;
 			clocks = <&infracfg CLK_INFRA_66M_PWM_BCK>,
 				 <&infracfg CLK_INFRA_66M_PWM_HCK>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>,
-				 <&clkxtal>;
-			clock-names = "top", "main", "pwm1", "pwm2", "pwm3",
-				      "pwm4","pwm5","pwm6","pwm7","pwm8";
+				 <&infracfg CLK_INFRA_66M_PWM_HCK>,
+				 <&infracfg CLK_INFRA_66M_PWM_HCK>,
+				 <&infracfg CLK_INFRA_66M_PWM_HCK>;
+			clock-names = "top", "main", "pwm1", "pwm2", "pwm3";
 			status = "disabled";
 		};
 

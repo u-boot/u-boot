@@ -30,6 +30,7 @@
 enum mtk_pwm_reg_ver {
 	PWM_REG_V1,
 	PWM_REG_V2,
+	PWM_REG_V3,
 };
 
 static const unsigned int mtk_pwm_reg_offset_v1[] = {
@@ -38,6 +39,10 @@ static const unsigned int mtk_pwm_reg_offset_v1[] = {
 
 static const unsigned int mtk_pwm_reg_offset_v2[] = {
 	0x0080, 0x00c0, 0x0100, 0x0140, 0x0180, 0x01c0, 0x0200, 0x0240
+};
+
+static const unsigned int mtk_pwm_reg_offset_v3[] = {
+	0x0100, 0x0200, 0x0300, 0x0400, 0x0500, 0x600, 0x700, 0x0800
 };
 
 struct mtk_pwm_soc {
@@ -60,6 +65,10 @@ static void mtk_pwm_w32(struct udevice *dev, uint channel, uint reg, uint val)
 	u32 offset;
 
 	switch (priv->soc->reg_ver) {
+	case PWM_REG_V3:
+		offset = mtk_pwm_reg_offset_v3[channel];
+		break;
+
 	case PWM_REG_V2:
 		offset = mtk_pwm_reg_offset_v2[channel];
 		break;
@@ -203,6 +212,12 @@ static const struct mtk_pwm_soc mt7986_data = {
 	.reg_ver = PWM_REG_V1,
 };
 
+static const struct mtk_pwm_soc mt7987_data = {
+	.num_pwms = 3,
+	.pwm45_fixup = false,
+	.reg_ver = PWM_REG_V3,
+};
+
 static const struct mtk_pwm_soc mt7988_data = {
 	.num_pwms = 8,
 	.pwm45_fixup = false,
@@ -215,6 +230,7 @@ static const struct udevice_id mtk_pwm_ids[] = {
 	{ .compatible = "mediatek,mt7629-pwm", .data = (ulong)&mt7629_data },
 	{ .compatible = "mediatek,mt7981-pwm", .data = (ulong)&mt7981_data },
 	{ .compatible = "mediatek,mt7986-pwm", .data = (ulong)&mt7986_data },
+	{ .compatible = "mediatek,mt7987-pwm", .data = (ulong)&mt7987_data },
 	{ .compatible = "mediatek,mt7988-pwm", .data = (ulong)&mt7988_data },
 	{ }
 };

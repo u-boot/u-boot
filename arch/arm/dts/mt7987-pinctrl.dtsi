@@ -191,6 +191,20 @@
 		};
 	};
 
+	pwm_pins: pwm-pins {
+		mux {
+			/*
+			 * - pwm0   : PWM0@PIN13
+			 * - pwm1_0 : PWM1@PIN7  (share with JTAG)
+			 *   pwm1_1 : PWM1@PIN43 (share with i2c0)
+			 * - pwm2_0 : PWM2@PIN12 (share with PCM)
+			 *   pwm2_1 : PWM2@PIN44 (share with i2c0)
+			 */
+			function = "pwm";
+			groups = "pwm0";
+		};
+	};
+
 	uart1_pins: uart1-pins {
 		mux {
 			function = "uart";
