@@ -29,7 +29,7 @@
 
 &fan {
 	pwms = <&pwm 0 50000 0>;
-	status = "okay";
+	status = "disabled";
 };
 
 &i2c0 {
