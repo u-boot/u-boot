@@ -110,3 +110,17 @@ U_BOOT_CMD(
 	fstypes, 1, 1, do_fstypes_wrapper,
 	"List supported filesystem types", ""
 );
+
+static int do_mv_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
+			 char *const argv[])
+{
+	return do_mv(cmdtp, flag, argc, argv, FS_TYPE_ANY);
+}
+
+U_BOOT_CMD(
+	mv,	5,	1,	do_mv_wrapper,
+	"rename/move a file/directory",
+	"<interface> [<dev[:part]>] <old_path> <new_path>\n"
+	"    - renames/moves a file/directory in 'dev' on 'interface' from\n"
+	"      'old_path' to 'new_path'"
+);
