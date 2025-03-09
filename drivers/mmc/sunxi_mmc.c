@@ -449,6 +449,26 @@ out:
 	return error;
 }
 
+static void sunxi_mmc_reset(void *regs)
+{
+	/* Reset controller */
+	writel(SUNXI_MMC_GCTRL_RESET, regs + SUNXI_MMC_GCTRL);
+	udelay(1000);
+
+	if (IS_ENABLED(CONFIG_SUN50I_GEN_H6) || IS_ENABLED(CONFIG_SUNXI_GEN_NCAT2)) {
+		/* Reset card */
+		writel(SUNXI_MMC_HWRST_ASSERT, regs + SUNXI_MMC_HWRST);
+		udelay(10);
+		writel(SUNXI_MMC_HWRST_DEASSERT, regs + SUNXI_MMC_HWRST);
+		udelay(300);
+
+		/* Setup FIFO R/W threshold. Needed on H616. */
+		writel(SUNXI_MMC_THLDC_READ_THLD(512) |
+		       SUNXI_MMC_THLDC_WRITE_EN |
+		       SUNXI_MMC_THLDC_READ_EN, regs + SUNXI_MMC_THLDC);
+	}
+}
+
 /* non-DM code here is used by the (ARM) SPL only */
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -496,9 +516,7 @@ static int sunxi_mmc_core_init(struct mmc *mmc)
 {
 	struct sunxi_mmc_priv *priv = mmc->priv;
 
-	/* Reset controller */
-	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
-	udelay(1000);
+	sunxi_mmc_reset(priv->reg);
 
 	return 0;
 }
@@ -691,9 +709,7 @@ static int sunxi_mmc_probe(struct udevice *dev)
 
 	upriv->mmc = &plat->mmc;
 
-	/* Reset controller */
-	writel(SUNXI_MMC_GCTRL_RESET, &priv->reg->gctrl);
-	udelay(1000);
+	sunxi_mmc_reset(priv->reg);
 
 	return 0;
 }
