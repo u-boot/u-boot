@@ -1360,37 +1360,91 @@ static void mctl_auto_detect_rank_width(const struct dram_para *para,
 	panic("This DRAM setup is currently not supported.\n");
 }
 
+static void mctl_write_pattern(void)
+{
+	unsigned int i;
+	u32 *ptr, val;
+
+	ptr = (u32 *)CFG_SYS_SDRAM_BASE;
+	for (i = 0; i < 16; ptr++, i++) {
+		if (i & 1)
+			val = ~(ulong)ptr;
+		else
+			val = (ulong)ptr;
+		writel(val, ptr);
+	}
+}
+
+static bool mctl_check_pattern(ulong offset)
+{
+	unsigned int i;
+	u32 *ptr, val;
+
+	ptr = (u32 *)CFG_SYS_SDRAM_BASE;
+	for (i = 0; i < 16; ptr++, i++) {
+		if (i & 1)
+			val = ~(ulong)ptr;
+		else
+			val = (ulong)ptr;
+		if (val != *(ptr + offset / 4))
+			return false;
+	}
+
+	return true;
+}
+
 static void mctl_auto_detect_dram_size(const struct dram_para *para,
 				       struct dram_config *config)
 {
 	unsigned int shift, cols, rows;
+	u32 buffer[16];
 
 	/* max. config for columns, but not rows */
 	config->cols = 11;
 	config->rows = 13;
 	mctl_core_init(para, config);
 
+	/*
+	 * Store content so it can be restored later. This is important
+	 * if controller was already initialized and holds any data
+	 * which is important for restoring system.
+	 */
+	memcpy(buffer, (u32 *)CFG_SYS_SDRAM_BASE, sizeof(buffer));
+
+	mctl_write_pattern();
+
 	shift = config->bus_full_width + 1;
 
 	/* detect column address bits */
 	for (cols = 8; cols < 11; cols++) {
-		if (mctl_mem_matches(1ULL << (cols + shift)))
+		if (mctl_check_pattern(1ULL << (cols + shift)))
 			break;
 	}
 	debug("detected %u columns\n", cols);
+
+	/* restore data */
+	memcpy((u32 *)CFG_SYS_SDRAM_BASE, buffer, sizeof(buffer));
 
 	/* reconfigure to make sure that all active rows are accessible */
 	config->cols = 8;
 	config->rows = 17;
 	mctl_core_init(para, config);
 
+	/* store data again as it might be moved */
+	memcpy(buffer, (u32 *)CFG_SYS_SDRAM_BASE, sizeof(buffer));
+
+	mctl_write_pattern();
+
 	/* detect row address bits */
 	shift = config->bus_full_width + 4 + config->cols;
 	for (rows = 13; rows < 17; rows++) {
-		if (mctl_mem_matches(1ULL << (rows + shift)))
+		if (mctl_check_pattern(1ULL << (rows + shift)))
 			break;
 	}
 	debug("detected %u rows\n", rows);
+
+	/* restore data again */
+	memcpy((u32 *)CFG_SYS_SDRAM_BASE, buffer, sizeof(buffer));
 
 	config->cols = cols;
 	config->rows = rows;
