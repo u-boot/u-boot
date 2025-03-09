@@ -1363,7 +1363,7 @@ static void mctl_auto_detect_rank_width(const struct dram_para *para,
 static void mctl_auto_detect_dram_size(const struct dram_para *para,
 				       struct dram_config *config)
 {
-	unsigned int shift;
+	unsigned int shift, cols, rows;
 
 	/* max. config for columns, but not rows */
 	config->cols = 11;
@@ -1373,23 +1373,27 @@ static void mctl_auto_detect_dram_size(const struct dram_para *para,
 	shift = config->bus_full_width + 1;
 
 	/* detect column address bits */
-	for (config->cols = 8; config->cols < 11; config->cols++) {
-		if (mctl_mem_matches(1ULL << (config->cols + shift)))
+	for (cols = 8; cols < 11; cols++) {
+		if (mctl_mem_matches(1ULL << (cols + shift)))
 			break;
 	}
-	debug("detected %u columns\n", config->cols);
+	debug("detected %u columns\n", cols);
 
 	/* reconfigure to make sure that all active rows are accessible */
-	config->rows = 18;
+	config->cols = 8;
+	config->rows = 17;
 	mctl_core_init(para, config);
 
 	/* detect row address bits */
 	shift = config->bus_full_width + 4 + config->cols;
-	for (config->rows = 13; config->rows < 18; config->rows++) {
-		if (mctl_mem_matches(1ULL << (config->rows + shift)))
+	for (rows = 13; rows < 17; rows++) {
+		if (mctl_mem_matches(1ULL << (rows + shift)))
 			break;
 	}
-	debug("detected %u rows\n", config->rows);
+	debug("detected %u rows\n", rows);
+
+	config->cols = cols;
+	config->rows = rows;
 }
 
 static unsigned long mctl_calc_size(const struct dram_config *config)
