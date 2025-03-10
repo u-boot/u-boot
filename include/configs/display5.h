@@ -29,11 +29,6 @@
  * 0x1F00000 - 0x2000000 : SPI.factory  (1MiB)
  */
 
-/* Below values are "dummy" - only to avoid build break */
-#define CFG_SYS_SPI_KERNEL_OFFS      0x150000
-#define CFG_SYS_SPI_ARGS_OFFS        0x140000
-#define CFG_SYS_SPI_ARGS_SIZE        0x10000
-
 #define CFG_MXC_UART_BASE		UART5_BASE
 
 /* MMC Configs */
