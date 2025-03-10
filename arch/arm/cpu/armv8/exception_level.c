@@ -11,8 +11,8 @@
 #include <bootm.h>
 #include <cpu_func.h>
 #include <log.h>
+#include <setjmp.h>
 #include <asm/cache.h>
-#include <asm/setjmp.h>
 
 /**
  * entry_non_secure() - entry point when switching to non-secure mode
@@ -23,7 +23,7 @@
  *
  * @non_secure_jmp:	jump buffer for restoring stack and registers
  */
-static void entry_non_secure(struct jmp_buf_data *non_secure_jmp)
+static void entry_non_secure(jmp_buf non_secure_jmp)
 {
 	dcache_enable();
 	debug("Reached non-secure mode\n");
@@ -42,11 +42,11 @@ static void entry_non_secure(struct jmp_buf_data *non_secure_jmp)
  */
 void switch_to_non_secure_mode(void)
 {
-	struct jmp_buf_data non_secure_jmp;
+	jmp_buf non_secure_jmp;
 
 	/* On AArch64 we need to make sure we call our payload in < EL3 */
 	if (current_el() == 3) {
-		if (setjmp(&non_secure_jmp))
+		if (setjmp(non_secure_jmp))
 			return;
 		dcache_disable();	/* flush cache before switch to EL2 */
 
