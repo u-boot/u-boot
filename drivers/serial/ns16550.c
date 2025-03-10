@@ -294,13 +294,9 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 #if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 char ns16550_getc(struct ns16550 *com_port)
 {
-	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
-#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_TTY)
-		extern void usbtty_poll(void);
-		usbtty_poll();
-#endif
+	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0)
 		schedule();
-	}
+
 	return serial_in(&com_port->rbr);
 }
 
