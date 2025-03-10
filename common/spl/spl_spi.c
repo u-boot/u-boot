@@ -82,13 +82,14 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 #if CONFIG_IS_ENABLED(OS_BOOT)
 	if (spl_start_uboot()) {
 		int err = spl_load(spl_image, bootdev, &load, 0,
-				   CFG_SYS_SPI_KERNEL_OFFS);
+				   CONFIG_SYS_SPI_KERNEL_OFFS);
 
 		if (!err)
 			/* Read device tree. */
-			return spi_flash_read(flash, CFG_SYS_SPI_ARGS_OFFS,
-					      CFG_SYS_SPI_ARGS_SIZE,
-					      (void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR);
+			return spi_flash_read(
+				flash, CONFIG_SYS_SPI_ARGS_OFFS,
+				CONFIG_SYS_SPI_ARGS_SIZE,
+				(void *)CONFIG_SPL_PAYLOAD_ARGS_ADDR);
 	}
 #endif
 
