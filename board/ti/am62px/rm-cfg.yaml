@@ -244,7 +244,7 @@ rm-cfg:
             subhdr:
                 magic: 0x7B25
                 size: 8
-            resasg_entries_size: 1048
+            resasg_entries_size: 1112
             reserved: 0
     resasg_entries:
         -
@@ -303,31 +303,55 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 0
+            num_resource: 2
+            type: 1676
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 2
+            num_resource: 1
+            type: 1676
+            host_id: 35
+            reserved: 0
+        -
+            start_resource: 2
+            num_resource: 1
+            type: 1676
+            host_id: 36
+            reserved: 0
+        -
+            start_resource: 3
+            num_resource: 1
+            type: 1676
+            host_id: 30
+            reserved: 0
+        -
+            start_resource: 4
             num_resource: 18
             type: 1677
             host_id: 12
             reserved: 0
         -
-            start_resource: 18
+            start_resource: 22
             num_resource: 6
             type: 1677
             host_id: 35
             reserved: 0
         -
-            start_resource: 18
+            start_resource: 22
             num_resource: 6
             type: 1677
             host_id: 36
             reserved: 0
         -
-            start_resource: 24
+            start_resource: 28
             num_resource: 2
             type: 1677
             host_id: 30
             reserved: 0
         -
-            start_resource: 26
-            num_resource: 6
+            start_resource: 30
+            num_resource: 2
             type: 1677
             host_id: 128
             reserved: 0
@@ -387,31 +411,55 @@ rm-cfg:
             reserved: 0
         -
             start_resource: 0
+            num_resource: 2
+            type: 1695
+            host_id: 12
+            reserved: 0
+        -
+            start_resource: 2
+            num_resource: 1
+            type: 1695
+            host_id: 35
+            reserved: 0
+        -
+            start_resource: 2
+            num_resource: 1
+            type: 1695
+            host_id: 36
+            reserved: 0
+        -
+            start_resource: 3
+            num_resource: 1
+            type: 1695
+            host_id: 30
+            reserved: 0
+        -
+            start_resource: 4
             num_resource: 18
             type: 1696
             host_id: 12
             reserved: 0
         -
-            start_resource: 18
+            start_resource: 22
             num_resource: 6
             type: 1696
             host_id: 35
             reserved: 0
         -
-            start_resource: 18
+            start_resource: 22
             num_resource: 6
             type: 1696
             host_id: 36
             reserved: 0
         -
-            start_resource: 24
+            start_resource: 28
             num_resource: 2
             type: 1696
             host_id: 30
             reserved: 0
         -
-            start_resource: 26
-            num_resource: 6
+            start_resource: 30
+            num_resource: 2
             type: 1696
             host_id: 128
             reserved: 0
