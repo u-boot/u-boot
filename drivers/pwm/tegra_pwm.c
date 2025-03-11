@@ -13,7 +13,20 @@
 
 struct tegra_pwm_priv {
 	struct pwm_ctlr *regs;
+	u8 polarity;
 };
+
+static int tegra_pwm_set_invert(struct udevice *dev, uint channel, bool polarity)
+{
+	struct tegra_pwm_priv *priv = dev_get_priv(dev);
+
+	if (channel >= 4)
+		return -EINVAL;
+
+	clrsetbits_8(&priv->polarity, BIT(channel), (polarity << channel));
+
+	return 0;
+}
 
 static int tegra_pwm_set_config(struct udevice *dev, uint channel,
 				uint period_ns, uint duty_ns)
@@ -28,6 +41,9 @@ static int tegra_pwm_set_config(struct udevice *dev, uint channel,
 	debug("%s: Configure '%s' channel %u\n", __func__, dev->name, channel);
 
 	pulse_width = duty_ns * 255 / period_ns;
+
+	if (priv->polarity & BIT(channel))
+		pulse_width = 256 - pulse_width;
 
 	reg = pulse_width << PWM_WIDTH_SHIFT;
 	reg |= 1 << PWM_DIVIDER_SHIFT;
@@ -80,6 +96,7 @@ static int tegra_pwm_probe(struct udevice *dev)
 static const struct pwm_ops tegra_pwm_ops = {
 	.set_config	= tegra_pwm_set_config,
 	.set_enable	= tegra_pwm_set_enable,
+	.set_invert	= tegra_pwm_set_invert,
 };
 
 static const struct udevice_id tegra_pwm_ids[] = {
