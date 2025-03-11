@@ -2176,6 +2176,28 @@ config WGET_HTTPS
 	help
 	  Enable TLS over http for wget.
 
+config WGET_CACERT
+	bool "wget cacert"
+	depends on CMD_WGET
+	depends on WGET_HTTPS
+	help
+	  Adds the "cacert" sub-command to wget to provide root certificates
+	  to the HTTPS engine. Must be in DER format.
+
+config WGET_BUILTIN_CACERT
+	bool "Built-in CA certificates"
+	depends on WGET_HTTPS
+	select BUILD_BIN2C
+
+config WGET_BUILTIN_CACERT_PATH
+	string "Path to root certificates"
+	depends on WGET_BUILTIN_CACERT
+	default "cacert.crt"
+	help
+	  Set this to the path to a DER-encoded X509 file containing
+	  Certification Authority certificates, a.k.a. root certificates, for
+	  the purpose of authenticating HTTPS connections.
+
 endif  # if CMD_NET
 
 config CMD_PXE
