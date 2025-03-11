@@ -40,7 +40,7 @@ static int tegra_pwm_set_config(struct udevice *dev, uint channel,
 		return -EINVAL;
 	debug("%s: Configure '%s' channel %u\n", __func__, dev->name, channel);
 
-	pulse_width = duty_ns * 255 / period_ns;
+	pulse_width = duty_ns * 256 / period_ns;
 
 	if (priv->polarity & BIT(channel))
 		pulse_width = 256 - pulse_width;
