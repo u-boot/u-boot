@@ -239,6 +239,7 @@ config RESET_AT91
 config RESET_RZG2L_USBPHY_CTRL
 	bool "Enable support for Renesas RZ/G2L USB 2.0 PHY control"
 	depends on DM_RESET
+	select REGULATOR_RZG2L_USBPHY
 	help
 	  Enable support for controlling USB 2.0 PHY resets on the Renesas
 	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this

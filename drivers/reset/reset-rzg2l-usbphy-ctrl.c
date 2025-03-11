@@ -5,6 +5,7 @@
 
 #include <asm/io.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <dm/device_compat.h>
 #include <dm/lists.h>
 #include <renesas/rzg2l-usbphy.h>
@@ -103,10 +104,38 @@ static const struct udevice_id rzg2l_usbphy_ctrl_ids[] = {
 	{ /* sentinel */ }
 };
 
+static int rzg2l_usbphy_ctrl_bind(struct udevice *dev)
+{
+	struct driver *drv;
+	ofnode node;
+	int ret;
+
+	node = ofnode_find_subnode(dev_ofnode(dev), "regulator-vbus");
+	if (!ofnode_valid(node)) {
+		dev_err(dev, "Failed to find vbus regulator devicetree node\n");
+		return -ENOENT;
+	}
+
+	drv = lists_driver_lookup_name("rzg2l_usbphy_regulator");
+	if (!drv) {
+		dev_err(dev, "Failed to find vbus regulator driver\n");
+		return -ENOENT;
+	}
+
+	ret = device_bind(dev, drv, dev->name, NULL, node, NULL);
+	if (ret) {
+		dev_err(dev, "Failed to bind vbus regulator: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 U_BOOT_DRIVER(rzg2l_usbphy_ctrl) = {
 	.name           = "rzg2l_usbphy_ctrl",
 	.id             = UCLASS_RESET,
 	.of_match       = rzg2l_usbphy_ctrl_ids,
+	.bind           = rzg2l_usbphy_ctrl_bind,
 	.probe          = rzg2l_usbphy_ctrl_probe,
 	.ops            = &rzg2l_usbphy_ctrl_ops,
 	.priv_auto      = sizeof(struct rzg2l_usbphy_ctrl_priv),
