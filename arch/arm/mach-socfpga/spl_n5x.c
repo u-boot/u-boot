@@ -49,6 +49,10 @@ void board_init_f(ulong dummy)
 
 	timer_init();
 
+	mbox_init();
+
+	mbox_hps_stage_notify(HPS_EXECUTION_STATE_FSBL);
+
 	sysmgr_pinmux_init();
 
 	preloader_console_init();
@@ -83,8 +87,6 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 #endif
-
-	mbox_init();
 
 #ifdef CONFIG_CADENCE_QSPI
 	mbox_qspi_open();
