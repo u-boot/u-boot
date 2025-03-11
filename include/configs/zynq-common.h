@@ -191,14 +191,6 @@
 
 /* Not using MMC raw mode - just for compilation purpose */
 
-/* qspi mode is working fine */
-#ifdef CONFIG_ZYNQ_QSPI
-#define CFG_SYS_SPI_ARGS_OFFS	0x200000
-#define CFG_SYS_SPI_ARGS_SIZE	0x80000
-#define CFG_SYS_SPI_KERNEL_OFFS	(CFG_SYS_SPI_ARGS_OFFS + \
-					CFG_SYS_SPI_ARGS_SIZE)
-#endif
-
 /* SP location before relocation, must use scratch RAM */
 
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */

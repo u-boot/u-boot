@@ -12,14 +12,6 @@
 #ifndef __CONFIGS_XEA_H__
 #define __CONFIGS_XEA_H__
 
-#include <linux/sizes.h>
-
-/* SPL */
-
-#define CFG_SYS_SPI_KERNEL_OFFS	SZ_1M
-#define CFG_SYS_SPI_ARGS_OFFS	SZ_512K
-#define CFG_SYS_SPI_ARGS_SIZE	SZ_32K
-
 /* Memory configuration */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x10000000	/* Max 256 MB RAM */

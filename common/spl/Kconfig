@@ -1449,6 +1449,24 @@ config SYS_SPI_U_BOOT_OFFS
 	 Address within SPI-Flash from where the u-boot payload is fetched
 	 from.
 
+config SYS_SPI_KERNEL_OFFS
+	hex "Falcon mode: address of kernel payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	help
+	 Address within SPI-Flash from where the kernel payload is fetched
+	 in falcon boot.
+
+config SYS_SPI_ARGS_OFFS
+	hex "Falcon mode: address of args payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	help
+	 Address within SPI-Flash from where the args payload (usually the
+	 dtb) is fetched in falcon boot.
+
+config SYS_SPI_ARGS_SIZE
+	hex "Falcon mode: size of args payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+
 config SPL_THERMAL
 	bool "Driver support for thermal devices"
 	help
