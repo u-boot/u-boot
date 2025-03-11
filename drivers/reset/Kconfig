@@ -245,4 +245,10 @@ config RESET_RZG2L_USBPHY_CTRL
 	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this
 	  SoC.
 
+config RESET_SPACEMIT_K1
+	bool "Support for SPACEMIT's K1 Reset driver"
+	depends on DM_RESET
+	help
+	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
+	  is supported.
 endmenu
