@@ -204,3 +204,22 @@ void cadence_qspi_apb_enable_linear_mode(bool enable)
 			       ~VERSAL_OSPI_LINEAR_MODE, VERSAL_AXI_MUX_SEL);
 	}
 }
+
+int cadence_device_reset(struct udevice *bus)
+{
+	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	u32 reg;
+
+	reg = readl(priv->regbase + CQSPI_REG_CONFIG);
+	reg |= CQSPI_REG_CONFIG_RESET_CFG_FLD_MASK;
+	writel(reg, priv->regbase + CQSPI_REG_CONFIG);
+
+	writel(reg & ~CQSPI_REG_CONFIG_RESET_PIN_FLD_MASK, priv->regbase + CQSPI_REG_CONFIG);
+	udelay(5);
+	writel(reg | CQSPI_REG_CONFIG_RESET_PIN_FLD_MASK, priv->regbase + CQSPI_REG_CONFIG);
+	udelay(150);
+	writel(reg & ~CQSPI_REG_CONFIG_RESET_PIN_FLD_MASK, priv->regbase + CQSPI_REG_CONFIG);
+	udelay(1200);
+
+	return 0;
+}
