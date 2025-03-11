@@ -55,6 +55,7 @@
 
 /* VBCTRL */
 #define USB2_VBCTRL_DRVVBUSSEL		BIT(8)
+#define USB2_VBCTRL_VBOUT		BIT(0)
 
 /* LINECTRL1 */
 #define USB2_LINECTRL1_DPRPD_EN		BIT(19)
@@ -67,6 +68,13 @@
 #define USB2_ADPCTRL_IDDIG		BIT(19)
 #define USB2_ADPCTRL_IDPULLUP		BIT(5)	/* 1 = ID sampling is enabled */
 #define USB2_ADPCTRL_DRVVBUS		BIT(4)
+
+/*  RZ/G2L specific */
+#define USB2_OBINT_IDCHG_EN		BIT(0)
+#define USB2_LINECTRL1_USB2_IDMON	BIT(0)
+
+/* Device flags */
+#define RCAR_GEN3_PHY_NO_ADPCTRL	BIT(0)
 
 struct rcar_gen3_phy {
 	fdt_addr_t	regs;
@@ -122,15 +130,50 @@ static int rcar_gen3_phy_phy_power_off(struct phy *phy)
 	return regulator_set_enable(priv->vbus_supply, false);
 }
 
-static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
-				      int submode)
+static bool rcar_gen3_phy_check_id(struct phy *phy)
 {
 	const u32 adpdevmask = USB2_ADPCTRL_IDDIG | USB2_ADPCTRL_OTGSESSVLD;
 	struct rcar_gen3_phy *priv = dev_get_priv(phy->dev);
-	u32 adpctrl;
+	ulong flags = dev_get_driver_data(phy->dev);
+	u32 val;
+
+	if (flags & RCAR_GEN3_PHY_NO_ADPCTRL) {
+		val = readl(priv->regs + USB2_LINECTRL1);
+		return !!(val & USB2_LINECTRL1_USB2_IDMON);
+	}
+
+	val = readl(priv->regs + USB2_ADPCTRL);
+	return (val & adpdevmask) == adpdevmask;
+}
+
+static void rcar_gen3_phy_set_vbus(struct phy *phy, bool enable)
+{
+	struct rcar_gen3_phy *priv = dev_get_priv(phy->dev);
+	ulong flags = dev_get_driver_data(phy->dev);
+	u32 bits = USB2_ADPCTRL_DRVVBUS;
+	u64 reg = USB2_ADPCTRL;
+
+	if (flags & RCAR_GEN3_PHY_NO_ADPCTRL) {
+		bits = USB2_VBCTRL_VBOUT;
+		reg = USB2_VBCTRL;
+	}
+
+	if (enable)
+		setbits_le32(priv->regs + reg, bits);
+	else
+		clrbits_le32(priv->regs + reg, bits);
+}
+
+static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
+				      int submode)
+{
+	struct rcar_gen3_phy *priv = dev_get_priv(phy->dev);
+	ulong flags = dev_get_driver_data(phy->dev);
 
 	if (mode == PHY_MODE_USB_OTG) {
 		if (submode) {
+			u32 obint_enable_bits;
+
 			/* OTG submode is used as initialization indicator */
 			writel(USB2_INT_ENABLE_UCOM_INTEN |
 			       USB2_INT_ENABLE_USBH_INTB_EN |
@@ -138,13 +181,16 @@ static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
 			       priv->regs + USB2_INT_ENABLE);
 			setbits_le32(priv->regs + USB2_VBCTRL,
 				     USB2_VBCTRL_DRVVBUSSEL);
-			writel(USB2_OBINT_SESSVLDCHG | USB2_OBINT_IDDIGCHG,
-			       priv->regs + USB2_OBINTSTA);
-			setbits_le32(priv->regs + USB2_OBINTEN,
-				     USB2_OBINT_SESSVLDCHG |
-				     USB2_OBINT_IDDIGCHG);
-			setbits_le32(priv->regs + USB2_ADPCTRL,
-				     USB2_ADPCTRL_IDPULLUP);
+			if (flags & RCAR_GEN3_PHY_NO_ADPCTRL) {
+				obint_enable_bits = USB2_OBINT_IDCHG_EN;
+			} else {
+				obint_enable_bits = USB2_OBINT_SESSVLDCHG |
+						    USB2_OBINT_IDDIGCHG;
+				setbits_le32(priv->regs + USB2_ADPCTRL,
+					     USB2_ADPCTRL_IDPULLUP);
+			}
+			writel(obint_enable_bits, priv->regs + USB2_OBINTSTA);
+			setbits_le32(priv->regs + USB2_OBINTEN, obint_enable_bits);
 			clrsetbits_le32(priv->regs + USB2_LINECTRL1,
 					USB2_LINECTRL1_DP_RPD |
 					USB2_LINECTRL1_DM_RPD |
@@ -154,8 +200,7 @@ static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
 					USB2_LINECTRL1_DMRPD_EN);
 		}
 
-		adpctrl = readl(priv->regs + USB2_ADPCTRL);
-		if ((adpctrl & adpdevmask) == adpdevmask)
+		if (rcar_gen3_phy_check_id(phy))
 			mode = PHY_MODE_USB_DEVICE;
 		else
 			mode = PHY_MODE_USB_HOST;
@@ -165,13 +210,13 @@ static int rcar_gen3_phy_phy_set_mode(struct phy *phy, enum phy_mode mode,
 		clrbits_le32(priv->regs + USB2_COMMCTRL, USB2_COMMCTRL_OTG_PERI);
 		setbits_le32(priv->regs + USB2_LINECTRL1,
 			     USB2_LINECTRL1_DP_RPD | USB2_LINECTRL1_DM_RPD);
-		setbits_le32(priv->regs + USB2_ADPCTRL, USB2_ADPCTRL_DRVVBUS);
+		rcar_gen3_phy_set_vbus(phy, true);
 	} else if (mode == PHY_MODE_USB_DEVICE) {
 		setbits_le32(priv->regs + USB2_COMMCTRL, USB2_COMMCTRL_OTG_PERI);
 		clrsetbits_le32(priv->regs + USB2_LINECTRL1,
 				USB2_LINECTRL1_DP_RPD | USB2_LINECTRL1_DM_RPD,
 				USB2_LINECTRL1_DM_RPD);
-		clrbits_le32(priv->regs + USB2_ADPCTRL, USB2_ADPCTRL_DRVVBUS);
+		rcar_gen3_phy_set_vbus(phy, false);
 	} else {
 		dev_err(phy->dev, "Unknown mode %d\n", mode);
 		return -EINVAL;
@@ -226,7 +271,13 @@ static int rcar_gen3_phy_remove(struct udevice *dev)
 }
 
 static const struct udevice_id rcar_gen3_phy_of_match[] = {
-	{ .compatible = "renesas,rcar-gen3-usb2-phy", },
+	{
+		.compatible = "renesas,rcar-gen3-usb2-phy",
+	},
+	{
+		.compatible = "renesas,rzg2l-usb2-phy",
+		.data = RCAR_GEN3_PHY_NO_ADPCTRL,
+	},
 	{ },
 };
 
