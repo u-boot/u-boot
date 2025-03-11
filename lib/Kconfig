@@ -1202,6 +1202,12 @@ config TEST_FDTDEC
 	bool "enable fdtdec test"
 	depends on OF_LIBFDT
 
+config LIB_BOOTI
+	bool
+
+config LIB_BOOTZ
+	bool
+
 config LIB_DATE
 	bool
 
