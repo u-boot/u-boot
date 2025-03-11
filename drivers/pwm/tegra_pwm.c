@@ -4,6 +4,7 @@
  */
 
 #include <dm.h>
+#include <clk.h>
 #include <log.h>
 #include <pwm.h>
 #include <asm/io.h>
@@ -19,15 +20,12 @@ static int tegra_pwm_set_config(struct udevice *dev, uint channel,
 {
 	struct tegra_pwm_priv *priv = dev_get_priv(dev);
 	struct pwm_ctlr *regs = priv->regs;
-	const u32 pwm_max_freq = dev_get_driver_data(dev);
 	uint pulse_width;
 	u32 reg;
 
 	if (channel >= 4)
 		return -EINVAL;
 	debug("%s: Configure '%s' channel %u\n", __func__, dev->name, channel);
-
-	clock_start_periph_pll(PERIPH_ID_PWM, CLOCK_ID_PERIPH, pwm_max_freq);
 
 	pulse_width = duty_ns * 255 / period_ns;
 
@@ -63,6 +61,22 @@ static int tegra_pwm_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static int tegra_pwm_probe(struct udevice *dev)
+{
+	const u32 pwm_max_freq = dev_get_driver_data(dev);
+	struct clk *clk;
+
+	clk = devm_clk_get(dev, NULL);
+	if (IS_ERR(clk)) {
+		debug("%s: Could not get PWM clock: %ld\n", __func__, PTR_ERR(clk));
+		return PTR_ERR(clk);
+	}
+
+	clock_start_periph_pll(clk->id, CLOCK_ID_PERIPH, pwm_max_freq);
+
+	return 0;
+}
+
 static const struct pwm_ops tegra_pwm_ops = {
 	.set_config	= tegra_pwm_set_config,
 	.set_enable	= tegra_pwm_set_enable,
@@ -80,5 +94,6 @@ U_BOOT_DRIVER(tegra_pwm) = {
 	.of_match = tegra_pwm_ids,
 	.ops	= &tegra_pwm_ops,
 	.of_to_plat	= tegra_pwm_of_to_plat,
+	.probe		= tegra_pwm_probe,
 	.priv_auto	= sizeof(struct tegra_pwm_priv),
 };
