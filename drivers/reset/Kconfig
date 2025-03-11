@@ -235,4 +235,13 @@ config RESET_AT91
 	  This enables the Reset Controller driver support for Microchip/Atmel
 	  SoCs. Mainly used to expose assert/deassert methods to other drivers
 	  that require it.
+
+config RESET_RZG2L_USBPHY_CTRL
+	bool "Enable support for Renesas RZ/G2L USB 2.0 PHY control"
+	depends on DM_RESET
+	help
+	  Enable support for controlling USB 2.0 PHY resets on the Renesas
+	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this
+	  SoC.
+
 endmenu
