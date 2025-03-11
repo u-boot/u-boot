@@ -392,9 +392,8 @@ class Entry(object):
         """Set the value of device-tree properties calculated by binman"""
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
-        base = self.section.GetRootSkipAtStart() if self.section else 0
         if self.image_pos is not None:
-            state.SetInt(self._node, 'image-pos', self.image_pos - base)
+            state.SetInt(self._node, 'image-pos', self.image_pos)
         if self.GetImage().allow_repack:
             if self.orig_offset is not None:
                 state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
@@ -722,7 +721,7 @@ class Entry(object):
             is_elf = self.GetDefaultFilename() == self.elf_fname
 
             symbols_base = self.symbols_base
-            if symbols_base is None and self.GetImage()._end_4gb:
+            if symbols_base is None and self.GetImage()._end_at_4gb:
                 symbols_base = 0
 
             elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage(),

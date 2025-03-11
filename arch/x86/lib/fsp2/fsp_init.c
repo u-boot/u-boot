@@ -107,7 +107,6 @@ int fsp_locate_fsp(enum fsp_type_t type, struct binman_entry *entry,
 		   bool use_spi_flash, struct udevice **devp,
 		   struct fsp_header **hdrp, ulong *rom_offsetp)
 {
-	ulong mask = CONFIG_ROM_SIZE - 1;
 	struct udevice *dev;
 	ulong rom_offset = 0;
 	uint map_size;
@@ -141,7 +140,7 @@ int fsp_locate_fsp(enum fsp_type_t type, struct binman_entry *entry,
 		if (ret)
 			return log_msg_ret("binman entry", ret);
 		if (!use_spi_flash)
-			rom_offset = (map_base & mask) - CONFIG_ROM_SIZE;
+			rom_offset = map_base + CONFIG_ROM_SIZE;
 	} else {
 		ret = -ENOENT;
 		if (false)

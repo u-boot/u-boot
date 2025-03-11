@@ -107,7 +107,7 @@ static unsigned int sm8250_get_function_mux(__maybe_unused unsigned int pin, uns
 static struct msm_pinctrl_data sm8250_data = {
 	.pin_data = {
 		.pin_offsets = sm8250_pin_offsets,
-		.pin_count = ARRAY_SIZE(sm8250_pin_offsets),
+		.pin_count = 184,
 		.special_pins_start = 180,
 		.special_pins_data = sm8250_special_pins_data,
 	},

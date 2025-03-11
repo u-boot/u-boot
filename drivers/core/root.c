@@ -295,22 +295,29 @@ void *dm_priv_to_rw(void *priv)
  * all its children recursively to do the same.
  *
  * @dev: Device to (maybe) probe
+ * @pre_reloc_only: Probe only devices marked with the DM_FLAG_PRE_RELOC flag
  * Return 0 if OK, -ve on error
  */
-static int dm_probe_devices(struct udevice *dev)
+static int dm_probe_devices(struct udevice *dev, bool pre_reloc_only)
 {
+	ofnode node = dev_ofnode(dev);
 	struct udevice *child;
+	int ret;
+
+	if (pre_reloc_only &&
+	    (!ofnode_valid(node) || !ofnode_pre_reloc(node)) &&
+	    !(dev->driver->flags & DM_FLAG_PRE_RELOC))
+		goto probe_children;
 
 	if (dev_get_flags(dev) & DM_FLAG_PROBE_AFTER_BIND) {
-		int ret;
-
 		ret = device_probe(dev);
 		if (ret)
 			return ret;
 	}
 
+probe_children:
 	list_for_each_entry(child, &dev->child_head, sibling_node)
-		dm_probe_devices(child);
+		dm_probe_devices(child, pre_reloc_only);
 
 	return 0;
 }
@@ -319,7 +326,7 @@ int dm_autoprobe(void)
 {
 	int ret;
 
-	ret = dm_probe_devices(gd->dm_root);
+	ret = dm_probe_devices(gd->dm_root, !(gd->flags & GD_FLG_RELOC));
 	if (ret)
 		return log_msg_ret("pro", ret);
 
