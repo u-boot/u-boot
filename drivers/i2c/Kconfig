@@ -154,6 +154,13 @@ config SPL_DM_I2C_GPIO
 	  bindings are supported.
 	  Binding info: doc/device-tree-bindings/i2c/i2c-gpio.txt
 
+config SYS_I2C_ADI
+	bool "ADI I2C driver"
+	depends on DM_I2C && ARCH_SC5XX
+	help
+	  Add support for the ADI (Analog Devices) I2C driver as used
+	  in SC57X, SC58X, SC59X, SC59X_64.
+
 config SYS_I2C_AT91
 	bool "Atmel I2C driver"
 	depends on DM_I2C && ARCH_AT91

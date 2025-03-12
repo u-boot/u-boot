@@ -13,6 +13,7 @@ config REMOTEPROC
 	depends on DM
 
 # Please keep the configuration alphabetically sorted.
+
 config K3_SYSTEM_CONTROLLER
 	bool "Support for TI' K3 System Controller"
 	select REMOTEPROC
@@ -21,6 +22,16 @@ config K3_SYSTEM_CONTROLLER
 	depends on OF_CONTROL
 	help
 	  Say 'y' here to add support for TI' K3 System Controller.
+
+config REMOTEPROC_ADI_SC5XX
+	bool "Support for ADI SC5xx SHARC cores"
+	select REMOTEPROC
+	depends on DM
+	depends on ARCH_SC5XX
+	depends on SYSCON
+	help
+	  Say 'y' here to add support for loading code onto SHARC cores in
+	  an ADSP-SC5xx SoC from Analog Devices
 
 config REMOTEPROC_RENESAS_APMU
 	bool "Support for Renesas R-Car Gen4 APMU start of CR52 processor"

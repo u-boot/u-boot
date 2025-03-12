@@ -52,6 +52,13 @@ config SPI_DIRMAP
 
 if DM_SPI
 
+config ADI_SPI3
+	bool "Enable ADI SPI Driver"
+	depends on ARCH_SC5XX
+	help
+	  Enable the ADI (Analog Devices) SPI controller driver. This
+	  driver enables the support for SC5XX spi controller.
+
 config ALTERA_SPI
 	bool "Altera SPI driver"
 	help
