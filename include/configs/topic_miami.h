@@ -9,75 +9,67 @@
 #ifndef __CONFIG_TOPIC_MIAMI_H
 #define __CONFIG_TOPIC_MIAMI_H
 
-/* Speed up boot time by ignoring the environment which we never used */
+#ifndef CONFIG_XPL_BUILD
+
+#ifdef CONFIG_CMD_MMC
+#define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)
+#else
+#define BOOT_TARGET_DEVICES_MMC(func)
+#endif
+
+#ifdef CONFIG_CMD_USB
+#define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
+#if defined(CONFIG_ZYNQ_QSPI)
+# define BOOT_TARGET_DEVICES_QSPI(func)	func(QSPI, qspi, na)
+#else
+# define BOOT_TARGET_DEVICES_QSPI(func)
+#endif
+
+#ifdef CONFIG_CMD_UBIFS
+# define BOOT_TARGET_DEVICES_UBIFS(func) func(UBIFS, ubifs, 0, qspi-rootfs, qspi-rootfs)
+#else
+# define BOOT_TARGET_DEVICES_UBIFS(func)
+#endif
+
+#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
+	"bootcmd_qspi=sf probe && " \
+		      "sf read ${scriptaddr} ${script_offset_f} ${script_size_f} && " \
+		      "echo QSPI: Trying to boot script at ${scriptaddr} && " \
+		      "source ${scriptaddr}; echo QSPI: SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
+	"qspi "
+
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_UBIFS(func) \
+	BOOT_TARGET_DEVICES_QSPI(func)
+
+#include <config_distro_bootcmd.h>
+
+#endif /* CONFIG_XPL_BUILD */
+
+/* Default environment */
+#ifndef CFG_EXTRA_ENV_SETTINGS
+#define CFG_EXTRA_ENV_SETTINGS	\
+	"scriptaddr=0x3000000\0"	\
+	"script_offset_f=0xf0000\0"	\
+	"script_size_f=0x10000\0"	\
+	"fdt_addr_r=0x1f00000\0"	\
+	"pxefile_addr_r=0x2000000\0"	\
+	"kernel_addr_r=0x2000000\0"	\
+	"ramdisk_addr_r=0x3100000\0"	\
+	BOOTENV
+#endif
 
 #include "zynq-common.h"
 
-/* Fixup settings */
-
-/* Setup proper boot sequences for Miami boards */
-
-#if defined(CONFIG_USB_HOST)
-# define EXTRA_ENV_USB \
-	"usbreset=i2c dev 1 && i2c mw 41 1 ff && i2c mw 41 3 fe && "\
-		"i2c mw 41 1 fe && i2c mw 41 1 ff\0" \
-	"usbboot=run usbreset && if usb start; then " \
-		"echo Booting from USB... && " \
-		"if load usb 0 0x1900000 ${bootscript}; then "\
-		"source 0x1900000; fi; " \
-		"load usb 0 ${kernel_addr} ${kernel_image} && " \
-		"load usb 0 ${devicetree_addr} ${devicetree_image} && " \
-		"load usb 0 ${ramdisk_load_address} ${ramdisk_image} && " \
-		"bootm ${kernel_addr} ${ramdisk_load_address} "\
-			"${devicetree_addr}; " \
-	"fi\0"
-  /* Note that addresses here should match the addresses in the env */
-# define DFU_ALT_INFO \
-	"dfu_alt_info=" \
-	"uImage ram 0x2080000 0x500000;" \
-	"devicetree.dtb ram 0x2000000 0x20000;" \
-	"uramdisk.image.gz ram 0x4000000 0x10000000\0" \
-	"dfu_ram=run usbreset && dfu 0 ram 0\0" \
-	"thor_ram=run usbreset && thordown 0 ram 0\0"
-#else
-# define EXTRA_ENV_USB
-#endif
-
-#undef CFG_EXTRA_ENV_SETTINGS
-#define CFG_EXTRA_ENV_SETTINGS	\
-	"kernel_image=uImage\0"	\
-	"kernel_addr=0x2080000\0" \
-	"ramdisk_image=uramdisk.image.gz\0"	\
-	"ramdisk_load_address=0x4000000\0"	\
-	"devicetree_image=devicetree.dtb\0"	\
-	"devicetree_addr=0x2000000\0"	\
-	"bitstream_image=fpga.bin\0"	\
-	"bootscript=autorun.scr\0" \
-	"loadbit_addr=0x100000\0"	\
-	"loadbootenv_addr=0x2000000\0" \
-	"kernel_size=0x440000\0"	\
-	"devicetree_size=0x10000\0"	\
-	"boot_size=0xF00000\0"	\
-	"fdt_high=0x20000000\0"	\
-	"initrd_high=0x20000000\0"	\
-	"mmc_loadbit=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
-		"mmcinfo && " \
-		"load mmc 0 ${loadbit_addr} ${bitstream_image} && " \
-		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
-	"qspiboot=echo Booting from QSPI flash... && " \
-		"sf probe && " \
-		"sf read ${devicetree_addr} 0xA0000 ${devicetree_size} && " \
-		"sf read ${kernel_addr} 0xC0000 ${kernel_size} && " \
-		"bootm ${kernel_addr} - ${devicetree_addr}\0" \
-	"sdboot=if mmcinfo; then " \
-			"setenv bootargs console=ttyPS0,115200 " \
-				"root=/dev/mmcblk0p2 rw rootfstype=ext4 " \
-				"rootwait quiet ; " \
-			"load mmc 0 ${kernel_addr} ${kernel_image}&& " \
-			"load mmc 0 ${devicetree_addr} ${devicetree_image}&& " \
-			"bootm ${kernel_addr} - ${devicetree_addr}; " \
-		"fi\0" \
-	EXTRA_ENV_USB \
-	DFU_ALT_INFO
+/* Detect RAM size */
+#define CFG_SYS_SDRAM_BASE 0
+#define CFG_SYS_SDRAM_SIZE 0x40000000
 
 #endif /* __CONFIG_TOPIC_MIAMI_H */

@@ -11,6 +11,10 @@
 	model = "Topic Miami Zynq Board";
 	compatible = "topic,miami", "xlnx,zynq-7000";
 
+	config {
+		u-boot,spl-payload-offset = <0x20000>;
+	};
+
 	aliases {
 		serial0 = &uart0;
 		spi0 = &qspi;
@@ -35,6 +39,7 @@
 	status = "okay";
 	num-cs = <1>;
 	flash@0 {
+		bootph-all;
 		compatible = "st,m25p80", "n25q256a", "jedec,spi-nor";
 		m25p,fast-read;
 		reg = <0x0>;
@@ -44,24 +49,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		partition@0 {
-			label = "qspi-u-boot-spl";
-			reg = <0x00000 0x10000>;
+			label = "qspi-boot-bin";
+			reg = <0x00000 0x100000>;
 		};
-		partition@10000 {
-			label = "qspi-u-boot-img";
-			reg = <0x10000 0x60000>;
-		};
-		partition@70000 {
-			label = "qspi-device-tree";
-			reg = <0x70000 0x10000>;
-		};
-		partition@80000 {
-			label = "qspi-linux";
-			reg = <0x80000 0x400000>;
-		};
-		partition@480000 {
+		partition@100000 {
 			label = "qspi-rootfs";
-			reg = <0x480000 0x1b80000>;
+			reg = <0x100000 0>;
 		};
 	};
 };
@@ -74,6 +67,14 @@
 &i2c1 {
 	status = "okay";
 	clock-frequency = <400000>;
+	/* GPIO expander */
+	gpioex: gpio@41 {
+		compatible = "nxp,pca9536";
+		reg = <0x41>;
+		gpio-line-names = "USB_RESET", "VTT_SHDWN_N", "V_PRESENT", "DEBUG_PRESENT";
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
 };
 
 &clkc {
