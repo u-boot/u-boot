@@ -32,6 +32,7 @@ enum clock_id {
 
 	CLOCK_ID_COUNT,	/* number of clocks */
 	CLOCK_ID_NONE = -1,
+	CLOCK_ID_DISPLAY2 = CLOCK_ID_NONE, /* for compatibility */
 };
 
 /* The clocks supported by the hardware */
@@ -159,6 +160,7 @@ enum periph_id {
 
 	PERIPH_ID_COUNT,
 	PERIPH_ID_NONE = -1,
+	PERIPH_ID_DSIB = CLOCK_ID_NONE, /* for compatibility */
 };
 
 enum pll_out_id {

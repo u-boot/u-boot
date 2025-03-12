@@ -67,6 +67,58 @@ exit:
 	kfree(drive_group);
 }
 
+#ifdef TEGRA_PMX_SOC_HAS_MIPI_PAD_CTRL_GRPS
+static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt)
+{
+	struct pmux_mipipadctrlgrp_config *mipipad_group;
+	int i, ret, pad_id;
+	const char *function;
+	const char **pads;
+
+	mipipad_group = kmalloc_array(padcnt, sizeof(*mipipad_group), GFP_KERNEL);
+	if (!mipipad_group) {
+		log_debug("%s: cannot allocate mipi pad group array\n", __func__);
+		return;
+	}
+
+	/* decode function id and fill the first copy of pmux_mipipadctrlgrp_config */
+	function = dev_read_string(config, "nvidia,function");
+	if (function)
+		for (i = 0; i < PMUX_FUNC_COUNT; i++)
+			if (tegra_pinctrl_to_func[i])
+				if (!strcmp(function, tegra_pinctrl_to_func[i]))
+					break;
+
+	mipipad_group[0].func = i;
+
+	for (i = 1; i < padcnt; i++)
+		memcpy(&mipipad_group[i], &mipipad_group[0], sizeof(mipipad_group[0]));
+
+	ret = dev_read_string_list(config, "nvidia,pins", &pads);
+	if (ret < 0) {
+		log_debug("%s: could not parse property nvidia,pins\n", __func__);
+		goto exit;
+	}
+
+	for (i = 0; i < padcnt; i++) {
+		for (pad_id = 0; pad_id < PMUX_MIPIPADCTRLGRP_COUNT; pad_id++)
+			if (tegra_pinctrl_to_mipipadgrp[pad_id])
+				if (!strcmp(pads[i], tegra_pinctrl_to_mipipadgrp[pad_id])) {
+					mipipad_group[i].grp = pad_id;
+					break;
+				}
+	}
+
+	pinmux_config_mipipadctrlgrp_table(mipipad_group, padcnt);
+
+	free(pads);
+exit:
+	kfree(mipipad_group);
+}
+#else
+static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt) { }
+#endif
+
 static void tegra_pinctrl_set_pin(struct udevice *config, int pincnt)
 {
 	struct pmux_pingrp_config *pinmux_group;
@@ -170,6 +222,9 @@ static int tegra_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 		if (!strncmp(name, "drive_", 6))
 			/* Drive node is detected */
 			tegra_pinctrl_set_drive(child, ret);
+		else if (!strncmp(name, "mipi_pad_ctrl_", 14))
+			/* Handle T124 specific pinconfig */
+			tegra_pinctrl_set_mipipad(child, ret);
 		else
 			/* Pin node is detected */
 			tegra_pinctrl_set_pin(child, ret);
@@ -236,6 +291,7 @@ static int tegra_pinctrl_bind(struct udevice *dev)
 static const struct udevice_id tegra_pinctrl_ids[] = {
 	{ .compatible = "nvidia,tegra30-pinmux" },
 	{ .compatible = "nvidia,tegra114-pinmux" },
+	{ .compatible = "nvidia,tegra124-pinmux" },
 	{ },
 };
 

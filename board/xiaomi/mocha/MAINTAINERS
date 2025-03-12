@@ -1,0 +1,8 @@
+MOCHA BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra124-xiaomi-mocha.dts
+F:	board/xiaomi/mocha/
+F:	configs/mocha_defconfig
+F:	doc/board/xiaomi/mocha.rst
+F:	include/configs/mocha.h
