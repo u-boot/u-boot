@@ -14,40 +14,16 @@
 
 #include <ioports.h>
 #include <ppc_asm.tmpl>
-#include <malloc.h>
 #include <miiphy.h>
 #include <asm/global_data.h>
-
-static inline struct bb_miiphy_bus *bb_miiphy_getbus(struct mii_dev *miidev)
-{
-	return container_of(miidev, struct bb_miiphy_bus, mii);
-}
-
-struct bb_miiphy_bus *bb_miiphy_alloc(void)
-{
-	struct bb_miiphy_bus *bus;
-
-	bus = malloc(sizeof(*bus));
-	if (!bus)
-		return bus;
-
-	mdio_init(&bus->mii);
-
-	return bus;
-}
-
-void bb_miiphy_free(struct bb_miiphy_bus *bus)
-{
-	free(bus);
-}
 
 /*****************************************************************************
  *
  * Utility to send the preamble, address, and register (common to read
  * and write).
  */
-static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
-		       unsigned char addr, unsigned char reg)
+static void miiphy_pre(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		       char read, unsigned char addr, unsigned char reg)
 {
 	int j;
 
@@ -59,62 +35,62 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
 	 * but it is safer and will be much more robust.
 	 */
 
-	bus->mdio_active(bus);
-	bus->set_mdio(bus, 1);
+	ops->mdio_active(miidev);
+	ops->set_mdio(miidev, 1);
 	for (j = 0; j < 32; j++) {
-		bus->set_mdc(bus, 0);
-		bus->delay(bus);
-		bus->set_mdc(bus, 1);
-		bus->delay(bus);
+		ops->set_mdc(miidev, 0);
+		ops->delay(miidev);
+		ops->set_mdc(miidev, 1);
+		ops->delay(miidev);
 	}
 
 	/* send the start bit (01) and the read opcode (10) or write (10) */
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, 0);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, read);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, !read);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, 0);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, read);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, !read);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
 
 	/* send the PHY address */
 	for (j = 0; j < 5; j++) {
-		bus->set_mdc(bus, 0);
+		ops->set_mdc(miidev, 0);
 		if ((addr & 0x10) == 0) {
-			bus->set_mdio(bus, 0);
+			ops->set_mdio(miidev, 0);
 		} else {
-			bus->set_mdio(bus, 1);
+			ops->set_mdio(miidev, 1);
 		}
-		bus->delay(bus);
-		bus->set_mdc(bus, 1);
-		bus->delay(bus);
+		ops->delay(miidev);
+		ops->set_mdc(miidev, 1);
+		ops->delay(miidev);
 		addr <<= 1;
 	}
 
 	/* send the register address */
 	for (j = 0; j < 5; j++) {
-		bus->set_mdc(bus, 0);
+		ops->set_mdc(miidev, 0);
 		if ((reg & 0x10) == 0) {
-			bus->set_mdio(bus, 0);
+			ops->set_mdio(miidev, 0);
 		} else {
-			bus->set_mdio(bus, 1);
+			ops->set_mdio(miidev, 1);
 		}
-		bus->delay(bus);
-		bus->set_mdc(bus, 1);
-		bus->delay(bus);
+		ops->delay(miidev);
+		ops->set_mdc(miidev, 1);
+		ops->delay(miidev);
 		reg <<= 1;
 	}
 }
@@ -126,62 +102,57 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
  * Returns:
  *   0 on success
  */
-int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
+int bb_miiphy_read(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		   int addr, int devad, int reg)
 {
 	unsigned short rdreg; /* register working value */
 	int v;
 	int j; /* counter */
-	struct bb_miiphy_bus *bus;
 
-	bus = bb_miiphy_getbus(miidev);
-	if (bus == NULL) {
-		return -1;
-	}
-
-	miiphy_pre (bus, 1, addr, reg);
+	miiphy_pre(miidev, ops, 1, addr, reg);
 
 	/* tri-state our MDIO I/O pin so we can read */
-	bus->set_mdc(bus, 0);
-	bus->mdio_tristate(bus);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
+	ops->set_mdc(miidev, 0);
+	ops->mdio_tristate(miidev);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
 
 	/* check the turnaround bit: the PHY should be driving it to zero */
-	bus->get_mdio(bus, &v);
+	ops->get_mdio(miidev, &v);
 	if (v != 0) {
 		/* puts ("PHY didn't drive TA low\n"); */
 		for (j = 0; j < 32; j++) {
-			bus->set_mdc(bus, 0);
-			bus->delay(bus);
-			bus->set_mdc(bus, 1);
-			bus->delay(bus);
+			ops->set_mdc(miidev, 0);
+			ops->delay(miidev);
+			ops->set_mdc(miidev, 1);
+			ops->delay(miidev);
 		}
 		/* There is no PHY, return */
 		return -1;
 	}
 
-	bus->set_mdc(bus, 0);
-	bus->delay(bus);
+	ops->set_mdc(miidev, 0);
+	ops->delay(miidev);
 
 	/* read 16 bits of register data, MSB first */
 	rdreg = 0;
 	for (j = 0; j < 16; j++) {
-		bus->set_mdc(bus, 1);
-		bus->delay(bus);
+		ops->set_mdc(miidev, 1);
+		ops->delay(miidev);
 		rdreg <<= 1;
-		bus->get_mdio(bus, &v);
+		ops->get_mdio(miidev, &v);
 		rdreg |= (v & 0x1);
-		bus->set_mdc(bus, 0);
-		bus->delay(bus);
+		ops->set_mdc(miidev, 0);
+		ops->delay(miidev);
 	}
 
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 0);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
 
 	debug("%s[%s](0x%x) @ 0x%x = 0x%04x\n", __func__, miidev->name, reg, addr, rdreg);
 
@@ -195,54 +166,47 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
  * Returns:
  *   0 on success
  */
-int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
-		    u16 value)
+int bb_miiphy_write(struct mii_dev *miidev, const struct bb_miiphy_bus_ops *ops,
+		    int addr, int devad, int reg, u16 value)
 {
-	struct bb_miiphy_bus *bus;
 	int j;			/* counter */
 
-	bus = bb_miiphy_getbus(miidev);
-	if (bus == NULL) {
-		/* Bus not found! */
-		return -1;
-	}
-
-	miiphy_pre (bus, 0, addr, reg);
+	miiphy_pre(miidev, ops, 0, addr, reg);
 
 	/* send the turnaround (10) */
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
-	bus->set_mdc(bus, 0);
-	bus->set_mdio(bus, 0);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->set_mdio(miidev, 0);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
 
 	/* write 16 bits of register data, MSB first */
 	for (j = 0; j < 16; j++) {
-		bus->set_mdc(bus, 0);
+		ops->set_mdc(miidev, 0);
 		if ((value & 0x00008000) == 0) {
-			bus->set_mdio(bus, 0);
+			ops->set_mdio(miidev, 0);
 		} else {
-			bus->set_mdio(bus, 1);
+			ops->set_mdio(miidev, 1);
 		}
-		bus->delay(bus);
-		bus->set_mdc(bus, 1);
-		bus->delay(bus);
+		ops->delay(miidev);
+		ops->set_mdc(miidev, 1);
+		ops->delay(miidev);
 		value <<= 1;
 	}
 
 	/*
 	 * Tri-state the MDIO line.
 	 */
-	bus->mdio_tristate(bus);
-	bus->set_mdc(bus, 0);
-	bus->delay(bus);
-	bus->set_mdc(bus, 1);
-	bus->delay(bus);
+	ops->mdio_tristate(miidev);
+	ops->set_mdc(miidev, 0);
+	ops->delay(miidev);
+	ops->set_mdc(miidev, 1);
+	ops->delay(miidev);
 
 	return 0;
 }

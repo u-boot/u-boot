@@ -354,8 +354,15 @@ static int ravb_mac_init(struct ravb_priv *eth)
 	/* Disable MAC Interrupt */
 	writel(0, eth->iobase + RAVB_REG_ECSIPR);
 
-	/* Recv frame limit set register */
-	writel(RFLR_RFL_MIN, eth->iobase + RAVB_REG_RFLR);
+	/*
+	 * Set receive frame length
+	 *
+	 * The length set here describes the frame from the destination address
+	 * up to and including the CRC data. However only the frame data,
+	 * excluding the CRC, are transferred to memory. To allow for the
+	 * largest frames add the CRC length to the maximum Rx descriptor size.
+	 */
+	writel(RFLR_RFL_MIN + ETH_FCS_LEN, eth->iobase + RAVB_REG_RFLR);
 
 	return 0;
 }
@@ -491,27 +498,27 @@ static void ravb_stop(struct udevice *dev)
 }
 
 /* Bitbang MDIO access */
-static int ravb_bb_mdio_active(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_active(struct mii_dev *miidev)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
 
 	return 0;
 }
 
-static int ravb_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+static int ravb_bb_mdio_tristate(struct mii_dev *miidev)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	clrbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MMD);
 
 	return 0;
 }
 
-static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdio(struct mii_dev *miidev, int v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	if (v)
 		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDO);
@@ -521,18 +528,18 @@ static int ravb_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int ravb_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int ravb_bb_get_mdio(struct mii_dev *miidev, int *v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	*v = (readl(eth->iobase + RAVB_REG_PIR) & PIR_MDI) >> 3;
 
 	return 0;
 }
 
-static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int ravb_bb_set_mdc(struct mii_dev *miidev, int v)
 {
-	struct ravb_priv *eth = bus->priv;
+	struct ravb_priv *eth = miidev->priv;
 
 	if (v)
 		setbits_le32(eth->iobase + RAVB_REG_PIR, PIR_MDC);
@@ -542,18 +549,40 @@ static int ravb_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int ravb_bb_delay(struct bb_miiphy_bus *bus)
+static int ravb_bb_delay(struct mii_dev *miidev)
 {
 	udelay(10);
 
 	return 0;
 }
 
+static const struct bb_miiphy_bus_ops ravb_bb_miiphy_bus_ops = {
+	.mdio_active	= ravb_bb_mdio_active,
+	.mdio_tristate	= ravb_bb_mdio_tristate,
+	.set_mdio	= ravb_bb_set_mdio,
+	.get_mdio	= ravb_bb_get_mdio,
+	.set_mdc	= ravb_bb_set_mdc,
+	.delay		= ravb_bb_delay,
+};
+
+static int ravb_bb_miiphy_read(struct mii_dev *miidev, int addr,
+			       int devad, int reg)
+{
+	return bb_miiphy_read(miidev, &ravb_bb_miiphy_bus_ops,
+			      addr, devad, reg);
+}
+
+static int ravb_bb_miiphy_write(struct mii_dev *miidev, int addr,
+				int devad, int reg, u16 value)
+{
+	return bb_miiphy_write(miidev, &ravb_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
+}
+
 static int ravb_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct bb_miiphy_bus *bb_miiphy;
 	struct mii_dev *mdiodev;
 	void __iomem *iobase;
 	int ret;
@@ -565,32 +594,22 @@ static int ravb_probe(struct udevice *dev)
 	if (ret < 0)
 		goto err_mdio_alloc;
 
-	bb_miiphy = bb_miiphy_alloc();
-	if (!bb_miiphy) {
+	mdiodev = mdio_alloc();
+	if (!mdiodev) {
 		ret = -ENOMEM;
 		goto err_mdio_alloc;
 	}
 
-	mdiodev = &bb_miiphy->mii;
-
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
+	mdiodev->read = ravb_bb_miiphy_read;
+	mdiodev->write = ravb_bb_miiphy_write;
+	mdiodev->priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
-
-	/* Copy the bus accessors and private data */
-	bb_miiphy->mdio_active = ravb_bb_mdio_active;
-	bb_miiphy->mdio_tristate = ravb_bb_mdio_tristate;
-	bb_miiphy->set_mdio = ravb_bb_set_mdio;
-	bb_miiphy->get_mdio = ravb_bb_get_mdio;
-	bb_miiphy->set_mdc = ravb_bb_set_mdc;
-	bb_miiphy->delay = ravb_bb_delay;
-	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0)
 		goto err_mdio_register;
 
-	eth->bus = &bb_miiphy->mii;
+	eth->bus = mdiodev;
 
 	/* Bring up PHY */
 	ret = clk_enable_bulk(&eth->clks);
@@ -610,7 +629,7 @@ static int ravb_probe(struct udevice *dev)
 err_mdio_reset:
 	clk_release_bulk(&eth->clks);
 err_mdio_register:
-	bb_miiphy_free(bb_miiphy);
+	mdio_free(mdiodev);
 err_mdio_alloc:
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 	return ret;

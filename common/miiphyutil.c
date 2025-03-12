@@ -55,14 +55,6 @@ struct mii_dev *miiphy_get_dev_by_name(const char *devname)
 	return NULL;
 }
 
-void mdio_init(struct mii_dev *bus)
-{
-	memset(bus, 0, sizeof(*bus));
-
-	/* initialize mii_dev struct fields */
-	INIT_LIST_HEAD(&bus->link);
-}
-
 struct mii_dev *mdio_alloc(void)
 {
 	struct mii_dev *bus;
@@ -71,7 +63,10 @@ struct mii_dev *mdio_alloc(void)
 	if (!bus)
 		return bus;
 
-	mdio_init(bus);
+	memset(bus, 0, sizeof(*bus));
+
+	/* initialize mii_dev struct fields */
+	INIT_LIST_HEAD(&bus->link);
 
 	return bus;
 }

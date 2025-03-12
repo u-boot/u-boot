@@ -644,9 +644,9 @@ static void sh_ether_stop(struct udevice *dev)
 }
 
 /******* for bb_miiphy *******/
-static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_mdio_active(struct mii_dev *miidev)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	sh_eth_write(port_info, sh_eth_read(port_info, PIR) | PIR_MMD, PIR);
@@ -654,9 +654,9 @@ static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_mdio_tristate(struct mii_dev *miidev)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	sh_eth_write(port_info, sh_eth_read(port_info, PIR) & ~PIR_MMD, PIR);
@@ -664,9 +664,9 @@ static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
 	return 0;
 }
 
-static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+static int sh_eth_bb_set_mdio(struct mii_dev *miidev, int v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (v)
@@ -679,9 +679,9 @@ static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+static int sh_eth_bb_get_mdio(struct mii_dev *miidev, int *v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	*v = (sh_eth_read(port_info, PIR) & PIR_MDI) >> 3;
@@ -689,9 +689,9 @@ static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
 	return 0;
 }
 
-static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+static int sh_eth_bb_set_mdc(struct mii_dev *miidev, int v)
 {
-	struct sh_eth_dev *eth = bus->priv;
+	struct sh_eth_dev *eth = miidev->priv;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
 	if (v)
@@ -704,11 +704,34 @@ static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
 	return 0;
 }
 
-static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
+static int sh_eth_bb_delay(struct mii_dev *miidev)
 {
 	udelay(10);
 
 	return 0;
+}
+
+static const struct bb_miiphy_bus_ops sh_ether_bb_miiphy_bus_ops = {
+	.mdio_active	= sh_eth_bb_mdio_active,
+	.mdio_tristate	= sh_eth_bb_mdio_tristate,
+	.set_mdio	= sh_eth_bb_set_mdio,
+	.get_mdio	= sh_eth_bb_get_mdio,
+	.set_mdc	= sh_eth_bb_set_mdc,
+	.delay		= sh_eth_bb_delay,
+};
+
+static int sh_eth_bb_miiphy_read(struct mii_dev *miidev, int addr,
+				 int devad, int reg)
+{
+	return bb_miiphy_read(miidev, &sh_ether_bb_miiphy_bus_ops,
+			      addr, devad, reg);
+}
+
+static int sh_eth_bb_miiphy_write(struct mii_dev *miidev, int addr,
+				  int devad, int reg, u16 value)
+{
+	return bb_miiphy_write(miidev, &sh_ether_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
 }
 
 static int sh_ether_probe(struct udevice *udev)
@@ -716,7 +739,6 @@ static int sh_ether_probe(struct udevice *udev)
 	struct eth_pdata *pdata = dev_get_plat(udev);
 	struct sh_ether_priv *priv = dev_get_priv(udev);
 	struct sh_eth_dev *eth = &priv->shdev;
-	struct bb_miiphy_bus *bb_miiphy;
 	struct mii_dev *mdiodev;
 	int ret;
 
@@ -727,32 +749,22 @@ static int sh_ether_probe(struct udevice *udev)
 	if (ret < 0)
 		return ret;
 #endif
-	bb_miiphy = bb_miiphy_alloc();
-	if (!bb_miiphy) {
+	mdiodev = mdio_alloc();
+	if (!mdiodev) {
 		ret = -ENOMEM;
 		return ret;
 	}
 
-	mdiodev = &bb_miiphy->mii;
-
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
+	mdiodev->read = sh_eth_bb_miiphy_read;
+	mdiodev->write = sh_eth_bb_miiphy_write;
+	mdiodev->priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
-
-	/* Copy the bus accessors and private data */
-	bb_miiphy->mdio_active = sh_eth_bb_mdio_active;
-	bb_miiphy->mdio_tristate = sh_eth_bb_mdio_tristate;
-	bb_miiphy->set_mdio = sh_eth_bb_set_mdio;
-	bb_miiphy->get_mdio = sh_eth_bb_get_mdio;
-	bb_miiphy->set_mdc = sh_eth_bb_set_mdc;
-	bb_miiphy->delay = sh_eth_bb_delay;
-	bb_miiphy->priv = eth;
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0)
 		goto err_mdio_register;
 
-	priv->bus = &bb_miiphy->mii;
+	priv->bus = mdiodev;
 
 	eth->port = CFG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
@@ -782,7 +794,7 @@ err_phy_config:
 	clk_disable(&priv->clk);
 #endif
 err_mdio_register:
-	bb_miiphy_free(bb_miiphy);
+	mdio_free(mdiodev);
 	return ret;
 }
 
