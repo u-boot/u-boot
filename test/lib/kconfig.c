@@ -22,10 +22,10 @@ static int lib_test_is_enabled(struct unit_test_state *uts)
 	ut_asserteq(0, CONFIG_IS_ENABLED(_UNDEFINED));
 
 	if (IS_ENABLED(CONFIG_BLOBLIST)) {
-		ut_asserteq(0xb000, IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
-						   CONFIG_BLOBLIST_ADDR));
-		ut_asserteq(0xb000, CONFIG_IF_ENABLED_INT(BLOBLIST_FIXED,
-							  BLOBLIST_ADDR));
+		ut_asserteq(0x100, IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
+						  CONFIG_BLOBLIST_ADDR));
+		ut_asserteq(0x100, CONFIG_IF_ENABLED_INT(BLOBLIST_FIXED,
+							 BLOBLIST_ADDR));
 	}
 
 	/*

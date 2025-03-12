@@ -59,3 +59,10 @@ config VIDEO_BRIDGE_TOSHIBA_TC358768
 	help
 	  Toshiba TC358768AXBG/TC358778XBG DSI bridge chip driver.
 	  Found in Asus Transformer Infinity TF700T.
+
+config VIDEO_BRIDGE_LVDS_CODEC
+	bool "Transparent LVDS encoders and decoders support"
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
+	help
+	  Support for transparent LVDS encoders and decoders that don't
+	  require any configuration.
