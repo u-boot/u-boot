@@ -11,6 +11,7 @@ enum {
 	BOOT_DEVICE_SPI_MMAP	= 10,
 	BOOT_DEVICE_FAST_SPI,
 	BOOT_DEVICE_CROS_VBOOT,
+	BOOT_DEVICE_NVME,
 };
 
 void jump_to_spl(ulong entry);
