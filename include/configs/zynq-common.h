@@ -46,7 +46,10 @@
 
 #ifdef CONFIG_XPL_BUILD
 #define BOOTENV
-#else
+#endif
+
+/* Only use this section if no BOOTENV has been configured yet */
+#ifndef BOOTENV
 
 #ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0) func(MMC, mmc, 1)
@@ -167,7 +170,8 @@
 	BOOT_TARGET_DEVICES_DHCP(func)
 
 #include <config_distro_bootcmd.h>
-#endif /* CONFIG_XPL_BUILD */
+
+#endif /* BOOTENV */
 
 /* Default environment */
 #ifndef CFG_EXTRA_ENV_SETTINGS
