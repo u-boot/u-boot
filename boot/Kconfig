@@ -1436,14 +1436,6 @@ config NAND_BOOT
 	  booted via NAND flash. This is not a must, some SoCs need this,
 	  some not.
 
-config ONENAND_BOOT
-	bool "Support for booting from ONENAND"
-	imply MTD_RAW_NAND
-	help
-	  Enabling this will make a U-Boot binary that is capable of being
-	  booted via ONENAND. This is not a must, some SoCs need this,
-	  some not.
-
 config QSPI_BOOT
 	bool "Support for booting from QSPI flash"
 	help
