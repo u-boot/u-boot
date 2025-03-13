@@ -266,6 +266,20 @@ config VPL_MAX_SIZE
 	  The maximum size (in bytes) of the TPL stage. This size is determined
 	  by the amount of internal SRAM memory.
 
+config VPL_HAVE_INIT_STACK
+	bool "VPL requires a initial, fixed, stack-pointer location"
+	help
+	  Enable if the VPL phase should not use inherit its initial
+	  stack-pointer from the settings for U-Boot proper, but should set
+	  its own value.
+
+config VPL_STACK
+	hex "Address of the initial stack-pointer for the VPL phase"
+	depends on VPL_HAVE_INIT_STACK
+	help
+	  The address of the initial stack-pointer for the VPL phase
+	  Usually this will be the (aligned) top-of-stack.
+
 config VPL_BINMAN_SYMBOLS
 	bool "Declare binman symbols in VPL"
 	depends on VPL_FRAMEWORK && BINMAN
