@@ -928,6 +928,12 @@ config ESDHC_DETECT_QUIRK
 	bool "QIXIS-based eSDHC quirk detection"
 	depends on FSL_ESDHC && FSL_QIXIS
 
+config ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
+	bool
+	depends on FSL_ESDHC || FSL_ESDHC_IMX
+	def_bool y if ARCH_T1024 || ARCH_T1040 || ARCH_T1042 || ARCH_T2080 \
+		|| FSL_ESDHC_IMX
+
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
 	help
