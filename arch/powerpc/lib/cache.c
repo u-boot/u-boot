@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <asm/cache.h>
 #include <watchdog.h>
+#include <linux/errno.h>
 
 static ulong maybe_watchdog_reset(ulong flushed)
 {
@@ -57,4 +58,9 @@ void flush_dcache_all(void)
 void invalidate_icache_all(void)
 {
 	puts("No arch specific invalidate_icache_all available!\n");
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

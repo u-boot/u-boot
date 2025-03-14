@@ -170,7 +170,27 @@ static int initr_reloc_global_data(void)
 	efi_save_gd();
 
 	efi_runtime_relocate(gd->relocaddr, NULL);
+
 #endif
+	/*
+	 * We are done with all relocations change the permissions of the binary
+	 * NOTE: __start_rodata etc are defined in arm64 linker scripts and
+	 * sections.h. If you want to add support for your platform you need to
+	 * add the symbols on your linker script, otherwise they will point to
+	 * random addresses.
+	 *
+	 */
+	if (IS_ENABLED(CONFIG_MMU_PGPROT)) {
+		pgprot_set_attrs((phys_addr_t)(uintptr_t)(__start_rodata),
+				 (size_t)(uintptr_t)(__end_rodata - __start_rodata),
+				 MMU_ATTR_RO);
+		pgprot_set_attrs((phys_addr_t)(uintptr_t)(__start_data),
+				 (size_t)(uintptr_t)(__end_data - __start_data),
+				 MMU_ATTR_RW);
+		pgprot_set_attrs((phys_addr_t)(uintptr_t)(__text_start),
+				 (size_t)(uintptr_t)(__text_end - __text_start),
+				 MMU_ATTR_RX);
+	}
 
 	return 0;
 }
