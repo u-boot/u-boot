@@ -23,6 +23,7 @@
 #include <linux/bitops.h>
 #include <linux/io.h>
 #include <linux/sizes.h>
+#include <linux/kconfig.h>
 
 #define BANK_INCREMENT		4
 #define NR_BANKS		8
@@ -114,6 +115,8 @@ static int socfpga_reset_remove(struct udevice *dev)
 	if (socfpga_reset_keep_enabled()) {
 		puts("Deasserting all peripheral resets\n");
 		writel(0, data->modrst_base + 4);
+		if (IS_ENABLED(CONFIG_TARGET_SOCFPGA_ARRIA10))
+			writel(0, data->modrst_base + 8);
 	}
 
 	return 0;
