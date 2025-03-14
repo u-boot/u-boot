@@ -416,6 +416,21 @@ static int airoha_clk_probe(struct udevice *dev)
 	return 0;
 }
 
+static int airoha_clk_bind(struct udevice *dev)
+{
+	struct udevice *rst_dev;
+	int ret = 0;
+
+	if (CONFIG_IS_ENABLED(RESET_AIROHA)) {
+		ret = device_bind_driver_to_node(dev, "airoha-reset", "reset",
+						 dev_ofnode(dev), &rst_dev);
+		if (ret)
+			debug("Warning: failed to bind reset controller\n");
+	}
+
+	return ret;
+}
+
 static const struct airoha_clk_soc_data en7581_data = {
 	.num_clocks = ARRAY_SIZE(en7581_base_clks),
 	.descs = en7581_base_clks,
@@ -433,6 +448,7 @@ U_BOOT_DRIVER(airoha_clk) = {
 	.id = UCLASS_CLK,
 	.of_match = airoha_clk_ids,
 	.probe = airoha_clk_probe,
+	.bind = airoha_clk_bind,
 	.priv_auto = sizeof(struct airoha_clk_priv),
 	.ops = &airoha_clk_ops,
 };
