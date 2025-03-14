@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	/* When running as a first-stage bootloader this isn't filled in automatically */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x20000000>;
+	};
+};
+
+#include "an7581-u-boot.dtsi"

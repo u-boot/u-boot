@@ -600,6 +600,13 @@ choice
 	prompt "Target select"
 	default TARGET_HIKEY
 
+config ARCH_AIROHA
+	bool "Airoha SoCs"
+	select DM
+	select OF_CONTROL
+	help
+	  Support for the Airoha soc.
+
 config ARCH_AT91
 	bool "Atmel AT91"
 	select GPIO_EXTRA_HEADER
@@ -2250,6 +2257,8 @@ config SYS_KWD_CONFIG
 	help
 	  Path within the source directory to the kwbimage.cfg file to use
 	  when packaging the U-Boot image for use.
+
+source "arch/arm/mach-airoha/Kconfig"
 
 source "arch/arm/mach-apple/Kconfig"
 
