@@ -85,6 +85,8 @@ long get_ram_size(long *base, long maxsize)
 			addr  = base + cnt;
 			sync();
 			*addr = save[--i];
+			if (dcache_en)
+				dcache_flush_invalidate(addr);
 		}
 		return (0);
 	}
@@ -93,6 +95,8 @@ long get_ram_size(long *base, long maxsize)
 		addr = base + cnt;	/* pointer arith! */
 		val = *addr;
 		*addr = save[--i];
+		if (dcache_en)
+			dcache_flush_invalidate(addr);
 		if (val != ~cnt) {
 			size = cnt * sizeof(long);
 			/*
@@ -104,6 +108,8 @@ long get_ram_size(long *base, long maxsize)
 			     cnt <<= 1) {
 				addr  = base + cnt;
 				*addr = save[--i];
+				if (dcache_en)
+					dcache_flush_invalidate(addr);
 			}
 			/* warning: don't restore save_base in this case,
 			 * it is already done in the loop because
@@ -115,6 +121,8 @@ long get_ram_size(long *base, long maxsize)
 		}
 	}
 	*base = save_base;
+	if (dcache_en)
+		dcache_flush_invalidate(base);
 
 	return (maxsize);
 }
