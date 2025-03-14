@@ -74,7 +74,7 @@ alias samsung        uboot, prom
 alias snapdragon     uboot, mateusz
 alias socfpga        uboot, marex, dinh, simongoldschmidt, tienfong
 alias sunxi          uboot, jagan, apritzel
-alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
+alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, trini
 alias uniphier       uboot, masahiro
