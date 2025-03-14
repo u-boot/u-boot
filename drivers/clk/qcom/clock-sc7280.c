@@ -100,6 +100,18 @@ static const struct qcom_power_map sc7280_gdscs[] = {
 	[GCC_USB30_PRIM_GDSC] = { 0xf004 },
 };
 
+static const phys_addr_t sc7280_rcg_addrs[] = {
+	0x10f020, // USB30_PRIM_MASTER_CLK_CMD_RCGR
+	0x10f038, // USB30_PRIM_MOCK_UTMI_CLK_CMD_RCGR
+	0x18d058, // PCIE_1_AUX_CLK_CMD_RCGR
+};
+
+static const char *const sc7280_rcg_names[] = {
+	"USB30_PRIM_MASTER_CLK_SRC",
+	"USB30_PRIM_MOCK_UTMI_CLK_SRC",
+	"GCC_PCIE_1_AUX_CLK_SRC",
+};
+
 static struct msm_clk_data qcs404_gcc_data = {
 	.resets = sc7280_gcc_resets,
 	.num_resets = ARRAY_SIZE(sc7280_gcc_resets),
@@ -111,6 +123,10 @@ static struct msm_clk_data qcs404_gcc_data = {
 
 	.enable = sc7280_enable,
 	.set_rate = sc7280_set_rate,
+
+	.dbg_rcg_addrs = sc7280_rcg_addrs,
+	.num_rcgs = ARRAY_SIZE(sc7280_rcg_addrs),
+	.dbg_rcg_names = sc7280_rcg_names,
 };
 
 static const struct udevice_id gcc_sc7280_of_match[] = {
