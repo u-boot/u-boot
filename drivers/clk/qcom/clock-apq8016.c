@@ -146,9 +146,8 @@ static int apq8016_clk_enable(struct clk *clk)
 	}
 
 	debug("%s: enabling clock %s\n", __func__, apq8016_clks[clk->id].name);
-	qcom_gate_clk_en(priv, clk->id);
 
-	return 0;
+	return qcom_gate_clk_en(priv, clk->id);
 }
 
 static struct msm_clk_data apq8016_clk_data = {
