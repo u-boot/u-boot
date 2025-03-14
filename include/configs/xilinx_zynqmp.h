@@ -194,12 +194,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-#if defined(CONFIG_SPL_SPI_FLASH_SUPPORT)
-# define CFG_SYS_SPI_KERNEL_OFFS	0x80000
-# define CFG_SYS_SPI_ARGS_OFFS	0xa0000
-# define CFG_SYS_SPI_ARGS_SIZE	0xa0000
-#endif
-
 #ifdef CONFIG_SPL_SYS_MALLOC_SIMPLE
 # error "Disable CONFIG_SPL_SYS_MALLOC_SIMPLE. Full malloc needs to be used"
 #endif
