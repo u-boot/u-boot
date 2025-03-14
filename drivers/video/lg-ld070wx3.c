@@ -164,7 +164,7 @@ static int lg_ld070wx3_probe(struct udevice *dev)
 }
 
 static const struct panel_ops lg_ld070wx3_ops = {
-	.enable_backlight	= lg_ld070wx3_enable_backlight,
+	.enable	= lg_ld070wx3_enable_backlight,
 	.set_backlight		= lg_ld070wx3_set_backlight,
 	.get_display_timing	= lg_ld070wx3_timings,
 };

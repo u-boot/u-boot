@@ -222,7 +222,7 @@ static int renesas_r69328_probe(struct udevice *dev)
 }
 
 static const struct panel_ops renesas_r69328_ops = {
-	.enable_backlight	= renesas_r69328_enable_backlight,
+	.enable	= renesas_r69328_enable_backlight,
 	.set_backlight		= renesas_r69328_set_backlight,
 	.get_display_timing	= renesas_r69328_timings,
 };
