@@ -21,4 +21,18 @@ int meson_get_boot_device(void);
 
 int meson_get_soc_rev(char *buff, size_t buff_len);
 
+/**
+ * meson_get_socinfo - retrieve cpu_id of the Amlogic SoC
+ *
+ * The value in the following format is read from register:
+ *   +-----------+------------+------------+------------+
+ *   | family_id | package_id |  chip_rev  | layout_rev |
+ *   +-----------+------------+------------+------------+
+ *   | 31     24 | 23      16 | 15       8 | 7        0 |
+ *   +-----------+------------+------------+------------+
+ *
+ * Return: 4 bytes value of cpu_id on success or 0 on failure.
+ */
+u32 meson_get_socinfo(void);
+
 #endif /* __MESON_BOOT_H__ */
