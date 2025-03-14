@@ -121,7 +121,7 @@ static int ping_loop(struct udevice *udev, const ip_addr_t *addr)
 
 	netif = net_lwip_new_netif(udev);
 	if (!netif)
-		return CMD_RET_FAILURE;
+		return -ENODEV;
 
 	printf("Using %s device\n", udev->name);
 
