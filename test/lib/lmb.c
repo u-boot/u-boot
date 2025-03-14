@@ -531,21 +531,21 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 
 	/* Try to allocate a page twice */
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
-	ut_asserteq(b, alloc_addr_a);
-	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
 	ut_asserteq(b, 0);
+	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, -1);
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
-	ut_asserteq(b, alloc_addr_a);
+	ut_asserteq(b, 0);
 	b = lmb_alloc_addr(alloc_addr_a, 0x2000, LMB_NONE);
-	ut_asserteq(b, alloc_addr_a);
+	ut_asserteq(b, 0);
 	ret = lmb_free(alloc_addr_a, 0x2000);
 	ut_asserteq(ret, 0);
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
-	ut_asserteq(b, alloc_addr_a);
+	ut_asserteq(b, 0);
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
-	ut_asserteq(b, 0);
+	ut_asserteq(b, -1);
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
-	ut_asserteq(b, 0);
+	ut_asserteq(b, -1);
 	ret = lmb_free(alloc_addr_a, 0x1000);
 	ut_asserteq(ret, 0);
 
@@ -561,22 +561,22 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 
 	/* allocate blocks */
 	a = lmb_alloc_addr(ram, alloc_addr_a - ram, LMB_NONE);
-	ut_asserteq(a, ram);
+	ut_asserteq(a, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 3, ram, 0x8010000,
 		   alloc_addr_b, 0x10000, alloc_addr_c, 0x10000);
 	b = lmb_alloc_addr(alloc_addr_a + 0x10000,
 			   alloc_addr_b - alloc_addr_a - 0x10000, LMB_NONE);
-	ut_asserteq(b, alloc_addr_a + 0x10000);
+	ut_asserteq(b, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, ram, 0x10010000,
 		   alloc_addr_c, 0x10000, 0, 0);
 	c = lmb_alloc_addr(alloc_addr_b + 0x10000,
 			   alloc_addr_c - alloc_addr_b - 0x10000, LMB_NONE);
-	ut_asserteq(c, alloc_addr_b + 0x10000);
+	ut_asserteq(c, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, 0x18010000,
 		   0, 0, 0, 0);
 	d = lmb_alloc_addr(alloc_addr_c + 0x10000,
 			   ram_end - alloc_addr_c - 0x10000, LMB_NONE);
-	ut_asserteq(d, alloc_addr_c + 0x10000);
+	ut_asserteq(d, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, ram_size,
 		   0, 0, 0, 0);
 
@@ -586,57 +586,58 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, ram_size,
 		   0, 0, 0, 0);
 
-	ret = lmb_free(d, ram_end - alloc_addr_c - 0x10000);
+	/* free thge allocation from d */
+	ret = lmb_free(alloc_addr_c + 0x10000, ram_end - alloc_addr_c - 0x10000);
 	ut_asserteq(ret, 0);
 
 	/* allocate at 3 points in free range */
 
 	d = lmb_alloc_addr(ram_end - 4, 4, LMB_NONE);
-	ut_asserteq(d, ram_end - 4);
+	ut_asserteq(d, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, ram, 0x18010000,
-		   d, 4, 0, 0);
-	ret = lmb_free(d, 4);
+		   ram_end - 4, 4, 0, 0);
+	ret = lmb_free(ram_end - 4, 4);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, 0x18010000,
 		   0, 0, 0, 0);
 
 	d = lmb_alloc_addr(ram_end - 128, 4, LMB_NONE);
-	ut_asserteq(d, ram_end - 128);
+	ut_asserteq(d, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, ram, 0x18010000,
-		   d, 4, 0, 0);
-	ret = lmb_free(d, 4);
+		   ram_end - 128, 4, 0, 0);
+	ret = lmb_free(ram_end - 128, 4);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, 0x18010000,
 		   0, 0, 0, 0);
 
 	d = lmb_alloc_addr(alloc_addr_c + 0x10000, 4, LMB_NONE);
-	ut_asserteq(d, alloc_addr_c + 0x10000);
+	ut_asserteq(d, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, 0x18010004,
 		   0, 0, 0, 0);
-	ret = lmb_free(d, 4);
+	ret = lmb_free(alloc_addr_c + 0x10000, 4);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram, 0x18010000,
 		   0, 0, 0, 0);
 
-	/* allocate at the bottom */
-	ret = lmb_free(a, alloc_addr_a - ram);
+	/* allocate at the bottom a was assigned to ram at the top */
+	ret = lmb_free(ram, alloc_addr_a - ram);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, ram + 0x8000000,
 		   0x10010000, 0, 0, 0, 0);
 
 	d = lmb_alloc_addr(ram, 4, LMB_NONE);
-	ut_asserteq(d, ram);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, d, 4,
+	ut_asserteq(d, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, ram, 4,
 		   ram + 0x8000000, 0x10010000, 0, 0);
 
 	/* check that allocating outside memory fails */
 	if (ram_end != 0) {
 		ret = lmb_alloc_addr(ram_end, 1, LMB_NONE);
-		ut_asserteq(ret, 0);
+		ut_asserteq(ret, -1);
 	}
 	if (ram != 0) {
 		ret = lmb_alloc_addr(ram - 1, 1, LMB_NONE);
-		ut_asserteq(ret, 0);
+		ut_asserteq(ret, -1);
 	}
 
 	lmb_pop(&store);

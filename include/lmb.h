@@ -135,9 +135,9 @@ phys_addr_t lmb_alloc_base(phys_size_t size, ulong align, phys_addr_t max_addr,
  * parameter. The base parameter is used to specify the base address
  * of the requested region.
  *
- * Return: Base address on success, 0 on error.
+ * Return: 0 on success -1 on error
  */
-phys_addr_t lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
+int lmb_alloc_addr(phys_addr_t base, phys_size_t size, u32 flags);
 
 /**
  * lmb_is_reserved_flags() - Test if address is in reserved region with flag
@@ -175,7 +175,7 @@ void lmb_pop(struct lmb *store);
 
 static inline int lmb_read_check(phys_addr_t addr, phys_size_t len)
 {
-	return lmb_alloc_addr(addr, len, LMB_NONE) == addr ? 0 : -1;
+	return lmb_alloc_addr(addr, len, LMB_NONE);
 }
 
 /**
