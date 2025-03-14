@@ -120,3 +120,10 @@
 	vdd-supply-2 = <&buckb1>;
 	bootph-pre-ram;
 };
+
+&tps659414 {
+	esm: esm {
+		compatible = "ti,tps659413-esm";
+		bootph-pre-ram;
+	};
+};
