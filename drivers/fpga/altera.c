@@ -70,8 +70,9 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 		       bitstream_type bstype)
 {
 	int ret_val;
+	int flags = 0;
 
-	ret_val = fpga_load(devnum, (void *)fpgadata, size, bstype);
+	ret_val = fpga_load(devnum, (void *)fpgadata, size, bstype, flags);
 
 	/*
 	 * Enable the HPS to FPGA bridges when FPGA load is completed
