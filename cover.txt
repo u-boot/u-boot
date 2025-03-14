@@ -1,0 +1,90 @@
+Subject: [PATCH v5 0/2] Static initcalls
+
+This series replaces the dynamic initcalls (with function pointers) with
+static calls, and gets rid of initcall_run_list(), init_sequence_f,
+init_sequence_f_r and init_sequence_r. This makes the code simpler and the
+binary slighlty smaller: -2281 bytes/-0.21 % with LTO enabled and -510
+bytes/-0.05 % with LTO disabled (xilinx_zynqmp_kria_defconfig).
+
+Execution time doesn't seem to change noticeably. There is no impact on
+the SPL.
+
+The inline assembly fixes, although they look unrelated, are triggered
+on some platforms with LTO enabled. For example: kirkwood_defconfig.
+
+Azure CI passed [1] except:
+- World build, imx8ulp_evk (and other imx*): "bl31.bin: Can't open: No
+such file or directory"
+- World build, xilinx_zynqmp_kria: "file not found: pmu_obj.bin"
+
+[1] https://dev.azure.com/u-boot/u-boot/_build/results?buildId=10405
+
+Changes in v5:
+- Fix mistake in initcall_run_r(): CONFIG_IS_ENABLED(SYS_EARLY_PCI_INIT)
+should have been !CONFIG_IS_ENABLED(...). As a result, several CI tests
+were failing. (Tom R.)
+- Restore fixes in test/py/tests/test_trace.py and arch/sh/lib/board.c
+which had unexpectedly disappeared from v4 and caused CI errors.
+- Fix CI error caused by wrong conditionals on the fix_fdt() call:
+  tools/buildman/buildman -o /tmp -seP powerpc
+  [...]
+  common/board_f.c:752:12: error: 'fix_fdt' defined but not used [-Werror=unused-function]
+- Add "arm: asm/system.h: mrc and mcr need .arm if __thumb2__ is not set"
+to fix a build error with LTO detecting mcr/mrc instructions emitted in
+Thumb mode on a CPU that doesn't support it:
+  make sheevaplug_defconfig
+  make -j$(nproc) CROSS_COMPILE="ccache arm-linux-gnueabi-"
+  [...]
+    LTO     u-boot
+  {standard input}: Assembler messages:
+  {standard input}:9241: Error: selected processor does not support `mcr p15,1,r0,c15,c11,0' in Thumb mode
+  {standard input}:19196: Error: selected processor does not support `mrc p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19223: Error: selected processor does not support `mcr p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19241: Error: selected processor does not support `mrc p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19268: Error: selected processor does not support `mcr p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19286: Error: selected processor does not support `mrc p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19321: Error: selected processor does not support `mcr p15,1,r3,c15,c1,0' in Thumb mode
+  {standard input}:19341: Error: selected processor does not support `mrc p15,0,r3,c1,c0,0' in Thumb mode
+  {standard input}:19372: Error: selected processor does not support `mcr p15,0,r3,c1,c0,0' in Thumb mode
+  make[1]: *** [/tmp/ccu1wZWX.mk:11: /tmp/ccIab81n.ltrans3.ltrans.o] Error 1
+
+Changes in v4:
+- Fold all changes to board_init_*() into a single patch
+- Use '#if CONFIG_IS_ENABLED(FOO) INITCALL(init_foo) #endif' instead of
+'CONFIG_IS_ENABLED(FOO, (INITCALL(init_foo);));' (Caleb C., Simon G.).
+As a consequence, drop Michal's patch ("common: board: Simplify array
+with function pointers with CONFIG_IS_ENABLED").
+- Rebase on next
+
+Changes in v3:
+- Use printf() rather than debug() to report initcall failures
+(Quentin S.)
+- initcall_run_f(): replace one erroneous call to WATCHDOG_INIT() with
+WATCHDOG_RESET() (Ilias A.)
+- Fix relocate_code() in arch/sh/lib/board.c to address CI failures with
+r2dplus (https://lists.denx.de/pipermail/u-boot/2025-January/576213.html)
+(Tom R.)
+- Add comments to initcall_run_f() and initcall_run_r() (Simon G.)
+
+Changes in v2:
+- INTICALL() and INITCALL_EVT() now call hang() immediately on error
+- Fixed typo: s/intcall_run_f_r/initcall_run_f_r/
+
+
+*** BLURB HERE ***
+
+Jerome Forissier (2):
+  common: board: make static calls
+  initcall: remove initcall_run_list()
+
+ common/board_f.c   | 218 ++++++++++++++++++++-------------------
+ common/board_r.c   | 251 +++++++++++++++++++++++----------------------
+ include/initcall.h |  45 ++++----
+ lib/Makefile       |   1 -
+ lib/initcall.c     | 102 ------------------
+ 5 files changed, 263 insertions(+), 354 deletions(-)
+ delete mode 100644 lib/initcall.c
+
+-- 
+2.43.0
+
