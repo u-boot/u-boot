@@ -143,6 +143,7 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	stmfd		sp!, {r0-r2, lr}
 
