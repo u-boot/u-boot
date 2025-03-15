@@ -173,7 +173,7 @@ static int do_bootflow_scan(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	std->cur_bootflow = NULL;
 
-	flags = 0;
+	flags = BOOTFLOWIF_ONLY_BOOTABLE;
 	if (list)
 		flags |= BOOTFLOWIF_SHOW;
 	if (all)

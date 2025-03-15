@@ -160,6 +160,7 @@ struct bootflow_img {
  * before using it
  * @BOOTFLOWIF_ALL: Return bootflows with errors as well
  * @BOOTFLOWIF_HUNT: Hunt for new bootdevs using the bootdrv hunters
+ * @BOOTFLOWIF_ONLY_BOOTABLE: Only consider partitions marked 'bootable'
  *
  * Internal flags:
  * @BOOTFLOWIF_SINGLE_DEV: (internal) Just scan one bootdev
@@ -176,6 +177,7 @@ enum bootflow_iter_flags_t {
 	BOOTFLOWIF_SHOW			= 1 << 1,
 	BOOTFLOWIF_ALL			= 1 << 2,
 	BOOTFLOWIF_HUNT			= 1 << 3,
+	BOOTFLOWIF_ONLY_BOOTABLE	= BIT(4),
 
 	/*
 	 * flags used internally by standard boot - do not set these when
