@@ -37,3 +37,8 @@ void __aeabi_memset(void *dest, size_t n, int c)
 {
 	(void) memset(dest, c, n);
 }
+
+void __aeabi_memclr(void *dest, size_t n)
+{
+	(void) memset(dest, 0, n);
+}
