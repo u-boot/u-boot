@@ -474,14 +474,6 @@ static void print_num64(const char *name, u64 value)
 	printf("%-20s: %llx\n", name, value);
 }
 
-static const char *const e820_type_name[E820_COUNT] = {
-	[E820_RAM] = "RAM",
-	[E820_RESERVED] = "Reserved",
-	[E820_ACPI] = "ACPI",
-	[E820_NVS] = "ACPI NVS",
-	[E820_UNUSABLE] = "Unusable",
-};
-
 static const char *const bootloader_id[] = {
 	"LILO",
 	"Loadlin",
@@ -569,24 +561,14 @@ void zimage_dump(struct bootm_info *bmi, bool show_cmdline)
 {
 	struct boot_params *base_ptr;
 	struct setup_header *hdr;
-	int i;
 
 	base_ptr = bmi->base_ptr;
 	printf("Setup located at %p:\n\n", base_ptr);
 	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
 
 	printf("E820: %d entries\n", base_ptr->e820_entries);
-	if (base_ptr->e820_entries) {
-		printf("%12s  %10s  %s\n", "Addr", "Size", "Type");
-		for (i = 0; i < base_ptr->e820_entries; i++) {
-			struct e820_entry *entry = &base_ptr->e820_map[i];
-
-			printf("%12llx  %10llx  %s\n", entry->addr, entry->size,
-			       entry->type < E820_COUNT ?
-			       e820_type_name[entry->type] :
-			       simple_itoa(entry->type));
-		}
-	}
+	if (base_ptr->e820_entries)
+		e820_dump(base_ptr->e820_map, base_ptr->e820_entries);
 
 	hdr = &base_ptr->hdr;
 	print_num("Setup sectors", hdr->setup_sects);

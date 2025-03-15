@@ -10,6 +10,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static const char *const e820_type_name[E820_COUNT] = {
+	[E820_RAM] = "RAM",
+	[E820_RESERVED] = "Reserved",
+	[E820_ACPI] = "ACPI",
+	[E820_NVS] = "ACPI NVS",
+	[E820_UNUSABLE] = "Unusable",
+};
+
+void e820_dump(struct e820_entry *entries, uint count)
+{
+	int i;
+
+	printf("%12s  %10s  %s\n", "Addr", "Size", "Type");
+	for (i = 0; i < count; i++) {
+		struct e820_entry *entry = &entries[i];
+
+		printf("%12llx  %10llx  %s\n", entry->addr, entry->size,
+		       entry->type < E820_COUNT ?
+		       e820_type_name[entry->type] :
+		       simple_itoa(entry->type));
+	}
+}
+
 /*
  * Install a default e820 table with 4 entries as follows:
  *

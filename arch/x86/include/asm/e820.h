@@ -39,6 +39,14 @@ unsigned int install_e820_map(unsigned int max_entries,
 unsigned int cb_install_e820_map(unsigned int max_entries,
 				 struct e820_entry *entries);
 
+/**
+ * e820_dump() - Dump an e820 table
+ *
+ * @entries: Pointer to first entry
+ * @count: Number of entries in the table
+ */
+void e820_dump(struct e820_entry *entries, uint count);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_E820_H */
