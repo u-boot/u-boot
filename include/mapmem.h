@@ -33,7 +33,7 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
  * nomap_sysmem() - pass through an address unchanged
  *
  * This is used to indicate an address which should NOT be mapped, e.g. in
- * SMBIOS tables. Using this function instead of a case shows that the sandbox
+ * SMBIOS tables. Using this function instead of a cast shows that the sandbox
  * conversion has been done
  */
 static inline void *nomap_sysmem(phys_addr_t paddr, unsigned long len)
