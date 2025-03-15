@@ -1,0 +1,13 @@
+if TARGET_CHAGALL
+
+config SYS_BOARD
+	default "chagall"
+
+config SYS_VENDOR
+	default "pegatron"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Pegatron Chagall"
+
+endif

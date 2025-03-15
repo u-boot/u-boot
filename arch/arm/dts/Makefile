@@ -117,6 +117,7 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra30-lg-p895.dtb \
 	tegra30-microsoft-surface-rt.dtb \
 	tegra30-ouya.dtb \
+	tegra30-pegatron-chagall.dtb \
 	tegra30-tec-ng.dtb \
 	tegra30-wexler-qc750.dtb \
 	tegra114-asus-tf701t.dtb \
