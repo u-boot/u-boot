@@ -179,6 +179,7 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	addi		sp, sp, -(SIZE_LONG * 3)
 	SAVE_LONG(a0, 0)
