@@ -4,15 +4,15 @@
 import pytest
 
 @pytest.mark.buildconfigspec('cmd_dm')
-def test_dm_compat(u_boot_console):
+def test_dm_compat(ubman):
     """Test that each driver in `dm tree` is also listed in `dm compat`."""
-    response = u_boot_console.run_command('dm tree')
+    response = ubman.run_command('dm tree')
     driver_index = response.find('Driver')
     assert driver_index != -1
     drivers = (line[driver_index:].split()[0]
                for line in response[:-1].split('\n')[2:])
 
-    response = u_boot_console.run_command('dm compat')
+    response = ubman.run_command('dm compat')
     bad_drivers = set()
     for driver in drivers:
         if not driver in response:
@@ -29,7 +29,7 @@ def test_dm_compat(u_boot_console):
     # checking sorting only after UCLASS_AXI_EMUL after which the names should
     # be sorted.
 
-    response = u_boot_console.run_command('dm tree -s')
+    response = ubman.run_command('dm tree -s')
     lines = response.split('\n')[2:]
     stack = []   # holds where we were up to at the previous indent level
     prev = ''    # uclass name of previous line
@@ -58,27 +58,27 @@ def test_dm_compat(u_boot_console):
 
 
 @pytest.mark.buildconfigspec('cmd_dm')
-def test_dm_drivers(u_boot_console):
+def test_dm_drivers(ubman):
     """Test that each driver in `dm compat` is also listed in `dm drivers`."""
-    response = u_boot_console.run_command('dm compat')
+    response = ubman.run_command('dm compat')
     drivers = (line[:20].rstrip() for line in response[:-1].split('\n')[2:])
-    response = u_boot_console.run_command('dm drivers')
+    response = ubman.run_command('dm drivers')
     for driver in drivers:
         assert driver in response
 
 @pytest.mark.buildconfigspec('cmd_dm')
-def test_dm_static(u_boot_console):
+def test_dm_static(ubman):
     """Test that each driver in `dm static` is also listed in `dm drivers`."""
-    response = u_boot_console.run_command('dm static')
+    response = ubman.run_command('dm static')
     drivers = (line[:25].rstrip() for line in response[:-1].split('\n')[2:])
-    response = u_boot_console.run_command('dm drivers')
+    response = ubman.run_command('dm drivers')
     for driver in drivers:
         assert driver in response
 
 @pytest.mark.buildconfigspec("cmd_dm")
-def test_dm_uclass(u_boot_console):
-    response = u_boot_console.run_command("dm uclass")
+def test_dm_uclass(ubman):
+    response = ubman.run_command("dm uclass")
 
 @pytest.mark.buildconfigspec("cmd_dm")
-def test_dm_devres(u_boot_console):
-    response = u_boot_console.run_command("dm devres")
+def test_dm_devres(ubman):
+    response = ubman.run_command("dm devres")

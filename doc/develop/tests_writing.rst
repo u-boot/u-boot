@@ -116,19 +116,19 @@ below are approximate, as measured on an AMD 2950X system. Here is is the test
 in Python::
 
    @pytest.mark.buildconfigspec('cmd_memory')
-   def test_md(u_boot_console):
+   def test_md(ubman):
        """Test that md reads memory as expected, and that memory can be modified
        using the mw command."""
 
-       ram_base = u_boot_utils.find_ram_base(u_boot_console)
+       ram_base = utils.find_ram_base(ubman)
        addr = '%08x' % ram_base
        val = 'a5f09876'
        expected_response = addr + ': ' + val
-       u_boot_console.run_command('mw ' + addr + ' 0 10')
-       response = u_boot_console.run_command('md ' + addr + ' 10')
+       ubman.run_command('mw ' + addr + ' 0 10')
+       response = ubman.run_command('md ' + addr + ' 10')
        assert(not (expected_response in response))
-       u_boot_console.run_command('mw ' + addr + ' ' + val)
-       response = u_boot_console.run_command('md ' + addr + ' 10')
+       ubman.run_command('mw ' + addr + ' ' + val)
+       response = ubman.run_command('md ' + addr + ' 10')
        assert(expected_response in response)
 
 This runs a few commands and checks the output. Note that it runs a command,

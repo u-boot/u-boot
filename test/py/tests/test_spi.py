@@ -51,7 +51,7 @@ env__spi_lock_unlock = {
 import random
 import re
 import pytest
-import u_boot_utils
+import utils
 
 SPI_DATA = {}
 EXPECTED_ERASE = 'Erased: OK'
@@ -71,9 +71,9 @@ EXPECTED_WRITE_ERRORS = [
     'Written: ERROR',
 ]
 
-def get_params_spi(u_boot_console):
+def get_params_spi(ubman):
     ''' Get SPI device test parameters from boardenv file '''
-    f = u_boot_console.config.env.get('env__spi_device_test', None)
+    f = ubman.config.env.get('env__spi_device_test', None)
     if not f:
         pytest.skip('No SPI test device configured')
 
@@ -88,9 +88,9 @@ def get_params_spi(u_boot_console):
 
     return bus, cs, mode, part_name, timeout
 
-def spi_find_freq_range(u_boot_console):
+def spi_find_freq_range(ubman):
     '''Find out minimum and maximum frequnecies that SPI device can operate'''
-    f = u_boot_console.config.env.get('env__spi_device_test', None)
+    f = ubman.config.env.get('env__spi_device_test', None)
     if not f:
         pytest.skip('No SPI test device configured')
 
@@ -107,11 +107,11 @@ def spi_find_freq_range(u_boot_console):
 
     return min_f, max_f, iterations
 
-def spi_pre_commands(u_boot_console, freq):
+def spi_pre_commands(ubman, freq):
     ''' Find out SPI family flash memory parameters '''
-    bus, cs, mode, part_name, timeout = get_params_spi(u_boot_console)
+    bus, cs, mode, part_name, timeout = get_params_spi(ubman)
 
-    output = u_boot_console.run_command(f'sf probe {bus}:{cs} {freq} {mode}')
+    output = ubman.run_command(f'sf probe {bus}:{cs} {freq} {mode}')
     if not 'SF: Detected' in output:
         pytest.fail('No SPI device available')
 
@@ -178,27 +178,27 @@ def get_timeout():
     ''' Get the SPI timeout from spi data '''
     return SPI_DATA['timeout']
 
-def spi_erase_block(u_boot_console, erase_size, total_size):
+def spi_erase_block(ubman, erase_size, total_size):
     ''' Erase SPI flash memory block wise '''
     for start in range(0, total_size, erase_size):
-        output = u_boot_console.run_command(f'sf erase {hex(start)} {hex(erase_size)}')
+        output = ubman.run_command(f'sf erase {hex(start)} {hex(erase_size)}')
         assert EXPECTED_ERASE in output
 
 @pytest.mark.buildconfigspec('cmd_sf')
-def test_spi_erase_block(u_boot_console):
+def test_spi_erase_block(ubman):
     ''' Test case to check SPI erase functionality by erasing memory regions
     block-wise '''
 
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
-        spi_erase_block(u_boot_console, get_erase_size(), get_total_size())
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
+        spi_erase_block(ubman, get_erase_size(), get_total_size())
         i = i + 1
 
-def spi_write_twice(u_boot_console, page_size, erase_size, total_size, timeout):
+def spi_write_twice(ubman, page_size, erase_size, total_size, timeout):
     ''' Random write till page size, random till size and full size '''
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+    addr = utils.find_ram_base(ubman)
 
     old_size = 0
     for size in (
@@ -210,7 +210,7 @@ def spi_write_twice(u_boot_console, page_size, erase_size, total_size, timeout):
         offset = offset & ~3
         size = size & ~3
         size = size - old_size
-        output = u_boot_console.run_command(f'crc32 {hex(addr + total_size)} {hex(size)}')
+        output = ubman.run_command(f'crc32 {hex(addr + total_size)} {hex(size)}')
         m = re.search('==> (.+?)$', output)
         if not m:
             pytest.fail('CRC32 failed')
@@ -228,23 +228,23 @@ def spi_write_twice(u_boot_console, page_size, erase_size, total_size, timeout):
         eraseoffset *= erase_size
 
         timeout = 100000000
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf erase {hex(eraseoffset)} {hex(erasesize)}'
             )
             assert EXPECTED_ERASE in output
 
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf write {hex(addr + total_size)} {hex(old_size)} {hex(size)}'
             )
             assert EXPECTED_WRITE in output
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf read {hex(addr + total_size + offset)} {hex(old_size)} {hex(size)}'
             )
             assert EXPECTED_READ in output
-        output = u_boot_console.run_command(
+        output = ubman.run_command(
             f'crc32 {hex(addr + total_size + offset)} {hex(size)}'
         )
         assert expected_crc32 in output
@@ -253,14 +253,14 @@ def spi_write_twice(u_boot_console, page_size, erase_size, total_size, timeout):
 @pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_spi_write_twice(u_boot_console):
+def test_spi_write_twice(ubman):
     ''' Test to write data with random size twice for SPI '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
         spi_write_twice(
-            u_boot_console,
+            ubman,
             get_page_size(),
             get_erase_size(),
             get_total_size(),
@@ -268,12 +268,12 @@ def test_spi_write_twice(u_boot_console):
         )
         i = i + 1
 
-def spi_write_continues(u_boot_console, page_size, erase_size, total_size, timeout):
+def spi_write_continues(ubman, page_size, erase_size, total_size, timeout):
     ''' Write with random size of data to continue SPI write case '''
-    spi_erase_block(u_boot_console, erase_size, total_size)
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+    spi_erase_block(ubman, erase_size, total_size)
+    addr = utils.find_ram_base(ubman)
 
-    output = u_boot_console.run_command(f'crc32 {hex(addr + 0x10000)} {hex(total_size)}')
+    output = ubman.run_command(f'crc32 {hex(addr + 0x10000)} {hex(total_size)}')
     m = re.search('==> (.+?)$', output)
     if not m:
         pytest.fail('CRC32 failed')
@@ -287,20 +287,20 @@ def spi_write_continues(u_boot_console, page_size, erase_size, total_size, timeo
     ):
         size = size & ~3
         size = size - old_size
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf write {hex(addr + 0x10000 + old_size)} {hex(old_size)} {hex(size)}'
             )
             assert EXPECTED_WRITE in output
         old_size += size
 
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command(
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command(
             f'sf read {hex(addr + 0x10000 + total_size)} 0 {hex(total_size)}'
         )
         assert EXPECTED_READ in output
 
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         f'crc32 {hex(addr + 0x10000 + total_size)} {hex(total_size)}'
     )
     assert expected_crc32 in output
@@ -308,14 +308,14 @@ def spi_write_continues(u_boot_console, page_size, erase_size, total_size, timeo
 @pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_spi_write_continues(u_boot_console):
+def test_spi_write_continues(ubman):
     ''' Test to write more random size data for SPI '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
         spi_write_twice(
-            u_boot_console,
+            ubman,
             get_page_size(),
             get_erase_size(),
             get_total_size(),
@@ -323,28 +323,28 @@ def test_spi_write_continues(u_boot_console):
         )
         i = i + 1
 
-def spi_read_twice(u_boot_console, page_size, total_size, timeout):
+def spi_read_twice(ubman, page_size, total_size, timeout):
     ''' Read the whole SPI flash twice, random_size till full flash size,
     random till page size '''
     for size in random.randint(4, page_size), random.randint(4, total_size), total_size:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
         size = size & ~3
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf read {hex(addr + total_size)} 0 {hex(size)}'
             )
             assert EXPECTED_READ in output
-        output = u_boot_console.run_command(f'crc32 {hex(addr + total_size)} {hex(size)}')
+        output = ubman.run_command(f'crc32 {hex(addr + total_size)} {hex(size)}')
         m = re.search('==> (.+?)$', output)
         if not m:
             pytest.fail('CRC32 failed')
         expected_crc32 = m.group(1)
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf read {hex(addr + total_size + 10)} 0 {hex(size)}'
             )
             assert EXPECTED_READ in output
-        output = u_boot_console.run_command(
+        output = ubman.run_command(
             f'crc32 {hex(addr + total_size + 10)} {hex(size)}'
         )
         assert expected_crc32 in output
@@ -352,49 +352,49 @@ def spi_read_twice(u_boot_console, page_size, total_size, timeout):
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_spi_read_twice(u_boot_console):
+def test_spi_read_twice(ubman):
     ''' Test to read random data twice from SPI '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
-        spi_read_twice(u_boot_console, get_page_size(), get_total_size(), get_timeout())
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
+        spi_read_twice(ubman, get_page_size(), get_total_size(), get_timeout())
         i = i + 1
 
-def spi_erase_all(u_boot_console, total_size, timeout):
+def spi_erase_all(ubman, total_size, timeout):
     ''' Erase the full chip SPI '''
     start = 0
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command(f'sf erase {start} {hex(total_size)}')
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command(f'sf erase {start} {hex(total_size)}')
         assert EXPECTED_ERASE in output
 
 @pytest.mark.buildconfigspec('cmd_sf')
-def test_spi_erase_all(u_boot_console):
+def test_spi_erase_all(ubman):
     ''' Test to check full chip erase for SPI '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
-        spi_erase_all(u_boot_console, get_total_size(), get_timeout())
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
+        spi_erase_all(ubman, get_total_size(), get_timeout())
         i = i + 1
 
 def flash_ops(
-    u_boot_console, ops, start, size, offset=0, exp_ret=0, exp_str='', not_exp_str=''
+    ubman, ops, start, size, offset=0, exp_ret=0, exp_str='', not_exp_str=''
 ):
     ''' Flash operations: erase, write and read '''
 
-    f = u_boot_console.config.env.get('env__spi_device_test', None)
+    f = ubman.config.env.get('env__spi_device_test', None)
     if not f:
         timeout = 1000000
 
     timeout = f.get('timeout', 1000000)
 
     if ops == 'erase':
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(f'sf erase {hex(start)} {hex(size)}')
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(f'sf erase {hex(start)} {hex(size)}')
     else:
-        with u_boot_console.temporary_timeout(timeout):
-            output = u_boot_console.run_command(
+        with ubman.temporary_timeout(timeout):
+            output = ubman.run_command(
                 f'sf {ops} {hex(offset)} {hex(start)} {hex(size)}'
             )
 
@@ -403,15 +403,15 @@ def flash_ops(
     if not_exp_str:
         assert not_exp_str not in output
 
-    ret_code = u_boot_console.run_command('echo $?')
+    ret_code = ubman.run_command('echo $?')
     if exp_ret >= 0:
         assert ret_code.endswith(str(exp_ret))
 
     return output, ret_code
 
-def spi_unlock_exit(u_boot_console, addr, size):
+def spi_unlock_exit(ubman, addr, size):
     ''' Unlock the flash before making it fail '''
-    u_boot_console.run_command(f'sf protect unlock {hex(addr)} {hex(size)}')
+    ubman.run_command(f'sf protect unlock {hex(addr)} {hex(size)}')
     assert False, 'FAIL: Flash lock is unable to protect the data!'
 
 def find_prot_region(lock_addr, lock_size):
@@ -440,49 +440,49 @@ def find_prot_region(lock_addr, lock_size):
 
     return prot_start, prot_size, unprot_start, unprot_size
 
-def protect_ops(u_boot_console, lock_addr, lock_size, ops="unlock"):
+def protect_ops(ubman, lock_addr, lock_size, ops="unlock"):
     ''' Run the command to lock or Unlock the flash '''
-    u_boot_console.run_command(f'sf protect {ops} {hex(lock_addr)} {hex(lock_size)}')
-    output = u_boot_console.run_command('echo $?')
+    ubman.run_command(f'sf protect {ops} {hex(lock_addr)} {hex(lock_size)}')
+    output = ubman.run_command('echo $?')
     if ops == "lock" and not output.endswith('0'):
-        u_boot_console.run_command(f'sf protect unlock {hex(lock_addr)} {hex(lock_size)}')
+        ubman.run_command(f'sf protect unlock {hex(lock_addr)} {hex(lock_size)}')
         assert False, "sf protect lock command exits with non-zero return code"
     assert output.endswith('0')
 
-def erase_write_ops(u_boot_console, start, size):
+def erase_write_ops(ubman, start, size):
     ''' Basic erase and write operation for flash '''
-    addr = u_boot_utils.find_ram_base(u_boot_console)
-    flash_ops(u_boot_console, 'erase', start, size, 0, 0, EXPECTED_ERASE)
-    flash_ops(u_boot_console, 'write', start, size, addr, 0, EXPECTED_WRITE)
+    addr = utils.find_ram_base(ubman)
+    flash_ops(ubman, 'erase', start, size, 0, 0, EXPECTED_ERASE)
+    flash_ops(ubman, 'write', start, size, addr, 0, EXPECTED_WRITE)
 
-def spi_lock_unlock(u_boot_console, lock_addr, lock_size):
+def spi_lock_unlock(ubman, lock_addr, lock_size):
     ''' Lock unlock operations for SPI family flash '''
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+    addr = utils.find_ram_base(ubman)
     erase_size = get_erase_size()
 
     # Find the protected/un-protected region
     prot_start, prot_size, unprot_start, unprot_size = find_prot_region(lock_addr, lock_size)
 
     # Check erase/write operation before locking
-    erase_write_ops(u_boot_console, prot_start, prot_size)
+    erase_write_ops(ubman, prot_start, prot_size)
 
     # Locking the flash
-    protect_ops(u_boot_console, lock_addr, lock_size, 'lock')
+    protect_ops(ubman, lock_addr, lock_size, 'lock')
 
     # Check erase/write operation after locking
-    output, ret_code = flash_ops(u_boot_console, 'erase', prot_start, prot_size, 0, -1)
+    output, ret_code = flash_ops(ubman, 'erase', prot_start, prot_size, 0, -1)
     if not any(error in output for error in EXPECTED_ERASE_ERRORS) or ret_code.endswith(
         '0'
     ):
-        spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+        spi_unlock_exit(ubman, lock_addr, lock_size)
 
     output, ret_code = flash_ops(
-        u_boot_console, 'write', prot_start, prot_size, addr, -1
+        ubman, 'write', prot_start, prot_size, addr, -1
     )
     if not any(error in output for error in EXPECTED_WRITE_ERRORS) or ret_code.endswith(
         '0'
     ):
-        spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+        spi_unlock_exit(ubman, lock_addr, lock_size)
 
     # Check locked sectors
     sect_lock_start = random.randrange(prot_start, (prot_start + prot_size), erase_size)
@@ -495,20 +495,20 @@ def spi_lock_unlock(u_boot_console, lock_addr, lock_size):
     sect_write_size = random.randint(1, sect_lock_size)
 
     output, ret_code = flash_ops(
-        u_boot_console, 'erase', sect_lock_start, sect_lock_size, 0, -1
+        ubman, 'erase', sect_lock_start, sect_lock_size, 0, -1
     )
     if not any(error in output for error in EXPECTED_ERASE_ERRORS) or ret_code.endswith(
         '0'
     ):
-        spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+        spi_unlock_exit(ubman, lock_addr, lock_size)
 
     output, ret_code = flash_ops(
-        u_boot_console, 'write', sect_lock_start, sect_write_size, addr, -1
+        ubman, 'write', sect_lock_start, sect_write_size, addr, -1
     )
     if not any(error in output for error in EXPECTED_WRITE_ERRORS) or ret_code.endswith(
         '0'
     ):
-        spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+        spi_unlock_exit(ubman, lock_addr, lock_size)
 
     # Check unlocked sectors
     if unprot_size != 0:
@@ -524,22 +524,22 @@ def spi_lock_unlock(u_boot_console, lock_addr, lock_size):
         sect_write_size = random.randint(1, sect_unlock_size)
 
         output, ret_code = flash_ops(
-            u_boot_console, 'erase', sect_unlock_start, sect_unlock_size, 0, -1
+            ubman, 'erase', sect_unlock_start, sect_unlock_size, 0, -1
         )
         if EXPECTED_ERASE not in output or ret_code.endswith('1'):
-            spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+            spi_unlock_exit(ubman, lock_addr, lock_size)
 
         output, ret_code = flash_ops(
-            u_boot_console, 'write', sect_unlock_start, sect_write_size, addr, -1
+            ubman, 'write', sect_unlock_start, sect_write_size, addr, -1
         )
         if EXPECTED_WRITE not in output or ret_code.endswith('1'):
-            spi_unlock_exit(u_boot_console, lock_addr, lock_size)
+            spi_unlock_exit(ubman, lock_addr, lock_size)
 
     # Unlocking the flash
-    protect_ops(u_boot_console, lock_addr, lock_size, 'unlock')
+    protect_ops(ubman, lock_addr, lock_size, 'unlock')
 
     # Check erase/write operation after un-locking
-    erase_write_ops(u_boot_console, prot_start, prot_size)
+    erase_write_ops(ubman, prot_start, prot_size)
 
     # Check previous locked sectors
     sect_lock_start = random.randrange(prot_start, (prot_start + prot_size), erase_size)
@@ -552,10 +552,10 @@ def spi_lock_unlock(u_boot_console, lock_addr, lock_size):
     sect_write_size = random.randint(1, sect_lock_size)
 
     flash_ops(
-        u_boot_console, 'erase', sect_lock_start, sect_lock_size, 0, 0, EXPECTED_ERASE
+        ubman, 'erase', sect_lock_start, sect_lock_size, 0, 0, EXPECTED_ERASE
     )
     flash_ops(
-        u_boot_console,
+        ubman,
         'write',
         sect_lock_start,
         sect_write_size,
@@ -567,16 +567,16 @@ def spi_lock_unlock(u_boot_console, lock_addr, lock_size):
 @pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_spi_lock_unlock(u_boot_console):
+def test_spi_lock_unlock(ubman):
     ''' Test to check the lock-unlock functionality for SPI family flash '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
-    flashes = u_boot_console.config.env.get('env__spi_lock_unlock', False)
+    min_f, max_f, loop = spi_find_freq_range(ubman)
+    flashes = ubman.config.env.get('env__spi_lock_unlock', False)
     if not flashes:
         pytest.skip('No SPI test device configured for lock/unlock')
 
     i = 0
     while i < loop:
-        spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+        spi_pre_commands(ubman, random.randint(min_f, max_f))
         total_size = get_total_size()
         flash_part = get_flash_part()
 
@@ -588,31 +588,31 @@ def test_spi_lock_unlock(u_boot_console):
         # For lower half of memory
         lock_addr = random.randint(0, (total_size // 2) - 1)
         lock_size = random.randint(1, ((total_size // 2) - lock_addr))
-        spi_lock_unlock(u_boot_console, lock_addr, lock_size)
+        spi_lock_unlock(ubman, lock_addr, lock_size)
 
         # For upper half of memory
         lock_addr = random.randint((total_size // 2), total_size - 1)
         lock_size = random.randint(1, (total_size - lock_addr))
-        spi_lock_unlock(u_boot_console, lock_addr, lock_size)
+        spi_lock_unlock(ubman, lock_addr, lock_size)
 
         # For entire flash
         lock_addr = random.randint(0, total_size - 1)
         lock_size = random.randint(1, (total_size - lock_addr))
-        spi_lock_unlock(u_boot_console, lock_addr, lock_size)
+        spi_lock_unlock(ubman, lock_addr, lock_size)
 
         i = i + 1
 
 @pytest.mark.buildconfigspec('cmd_bdi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_spi_negative(u_boot_console):
+def test_spi_negative(ubman):
     ''' Negative tests for SPI '''
-    min_f, max_f, loop = spi_find_freq_range(u_boot_console)
-    spi_pre_commands(u_boot_console, random.randint(min_f, max_f))
+    min_f, max_f, loop = spi_find_freq_range(ubman)
+    spi_pre_commands(ubman, random.randint(min_f, max_f))
     total_size = get_total_size()
     erase_size = get_erase_size()
     page_size = get_page_size()
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+    addr = utils.find_ram_base(ubman)
     i = 0
     while i < loop:
         # Erase negative test
@@ -625,28 +625,28 @@ def test_spi_negative(u_boot_console):
 
         error_msg = 'Erased: ERROR'
         flash_ops(
-            u_boot_console, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
+            ubman, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
 
         # If eraseoffset exceeds beyond flash size
         eoffset = random.randint(total_size, (total_size + int(0x1000000)))
         error_msg = 'Offset exceeds device limit'
         flash_ops(
-            u_boot_console, 'erase', eoffset, esize, 0, 1, error_msg, EXPECTED_ERASE
+            ubman, 'erase', eoffset, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
 
         # If erasesize exceeds beyond flash size
         esize = random.randint((total_size - start), (total_size + int(0x1000000)))
         error_msg = 'ERROR: attempting erase past flash size'
         flash_ops(
-            u_boot_console, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
+            ubman, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
 
         # If erase size is 0
         esize = 0
         error_msg = None
         flash_ops(
-            u_boot_console, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
+            ubman, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
 
         # If erasesize is less than flash's page size
@@ -654,7 +654,7 @@ def test_spi_negative(u_boot_console):
         start = random.randint(0, (total_size - page_size))
         error_msg = 'Erased: ERROR'
         flash_ops(
-            u_boot_console, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
+            ubman, 'erase', start, esize, 0, 1, error_msg, EXPECTED_ERASE
         )
 
         # Write/Read negative test
@@ -663,10 +663,10 @@ def test_spi_negative(u_boot_console):
         size = random.randint((total_size - offset), (total_size + int(0x1000000)))
         error_msg = 'Size exceeds partition or device limit'
         flash_ops(
-            u_boot_console, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
+            ubman, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
         )
         flash_ops(
-            u_boot_console, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
+            ubman, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
         )
 
         # if Write/Read offset exceeds beyond flash size
@@ -674,10 +674,10 @@ def test_spi_negative(u_boot_console):
         size = random.randint(0, total_size)
         error_msg = 'Offset exceeds device limit'
         flash_ops(
-            u_boot_console, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
+            ubman, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
         )
         flash_ops(
-            u_boot_console, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
+            ubman, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
         )
 
         # if Write/Read size is 0
@@ -685,14 +685,14 @@ def test_spi_negative(u_boot_console):
         size = 0
         error_msg = None
         flash_ops(
-            u_boot_console, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
+            ubman, 'write', offset, size, addr, 1, error_msg, EXPECTED_WRITE
         )
         flash_ops(
-            u_boot_console, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
+            ubman, 'read', offset, size, addr, 1, error_msg, EXPECTED_READ
         )
 
         # Read to relocation address
-        output = u_boot_console.run_command('bdinfo')
+        output = ubman.run_command('bdinfo')
         m = re.search(r'relocaddr\s*= (.+)', output)
         res_area = int(m.group(1), 16)
 
@@ -700,7 +700,7 @@ def test_spi_negative(u_boot_console):
         size = 0x2000
         error_msg = 'ERROR: trying to overwrite reserved memory'
         flash_ops(
-            u_boot_console, 'read', start, size, res_area, 1, error_msg, EXPECTED_READ
+            ubman, 'read', start, size, res_area, 1, error_msg, EXPECTED_READ
         )
 
         i = i + 1

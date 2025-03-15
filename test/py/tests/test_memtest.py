@@ -24,8 +24,8 @@ env__memtest = {
 }
 """
 
-def get_memtest_env(u_boot_console):
-    f = u_boot_console.config.env.get("env__memtest", None)
+def get_memtest_env(ubman):
+    f = ubman.config.env.get("env__memtest", None)
     if not f:
         pytest.skip("memtest is not enabled!")
     else:
@@ -38,31 +38,31 @@ def get_memtest_env(u_boot_console):
         return start, end, pattern, iteration, timeout
 
 @pytest.mark.buildconfigspec("cmd_memtest")
-def test_memtest_negative(u_boot_console):
+def test_memtest_negative(ubman):
     """Negative testcase where end address is smaller than starting address and
     pattern is invalid."""
-    start, end, pattern, iteration, timeout = get_memtest_env(u_boot_console)
+    start, end, pattern, iteration, timeout = get_memtest_env(ubman)
     expected_response = "Refusing to do empty test"
-    response = u_boot_console.run_command(
+    response = ubman.run_command(
         f"mtest 2000 1000 {pattern} {hex(iteration)}"
     )
     assert expected_response in response
-    output = u_boot_console.run_command("echo $?")
+    output = ubman.run_command("echo $?")
     assert not output.endswith("0")
-    u_boot_console.run_command(f"mtest {start} {end} 'xyz' {hex(iteration)}")
-    output = u_boot_console.run_command("echo $?")
+    ubman.run_command(f"mtest {start} {end} 'xyz' {hex(iteration)}")
+    output = ubman.run_command("echo $?")
     assert not output.endswith("0")
 
 @pytest.mark.buildconfigspec("cmd_memtest")
-def test_memtest_ddr(u_boot_console):
+def test_memtest_ddr(ubman):
     """Test that md reads memory as expected, and that memory can be modified
     using the mw command."""
-    start, end, pattern, iteration, timeout = get_memtest_env(u_boot_console)
+    start, end, pattern, iteration, timeout = get_memtest_env(ubman)
     expected_response = f"Tested {str(iteration)} iteration(s) with 0 errors."
-    with u_boot_console.temporary_timeout(timeout):
-        response = u_boot_console.run_command(
+    with ubman.temporary_timeout(timeout):
+        response = ubman.run_command(
             f"mtest {start} {end} {pattern} {hex(iteration)}"
         )
         assert expected_response in response
-    output = u_boot_console.run_command("echo $?")
+    output = ubman.run_command("echo $?")
     assert output.endswith("0")

@@ -55,7 +55,7 @@ class PersistentRandomFile:
     """Generate and store information about a persistent file containing
     random data."""
 
-    def __init__(self, u_boot_console, fn, size):
+    def __init__(self, ubman, fn, size):
         """Create or process the persistent file.
 
         If the file does not exist, it is generated.
@@ -66,7 +66,7 @@ class PersistentRandomFile:
         the current test run.
 
         Args:
-            u_boot_console: A console connection to U-Boot.
+            ubman: A console connection to U-Boot.
             fn: The filename (without path) to create.
             size: The desired size of the file in bytes.
 
@@ -76,14 +76,14 @@ class PersistentRandomFile:
 
         self.fn = fn
 
-        self.abs_fn = u_boot_console.config.persistent_data_dir + '/' + fn
+        self.abs_fn = ubman.config.persistent_data_dir + '/' + fn
 
         if os.path.exists(self.abs_fn):
-            u_boot_console.log.action('Persistent data file ' + self.abs_fn +
+            ubman.log.action('Persistent data file ' + self.abs_fn +
                 ' already exists')
             self.content_hash = md5sum_file(self.abs_fn)
         else:
-            u_boot_console.log.action('Generating ' + self.abs_fn +
+            ubman.log.action('Generating ' + self.abs_fn +
                 ' (random, persistent, %d bytes)' % size)
             data = os.urandom(size)
             with open(self.abs_fn, 'wb') as fh:
@@ -157,11 +157,11 @@ def wait_until_file_open_fails(fn, ignore_errors):
         return
     raise Exception('File can still be opened')
 
-def run_and_log(u_boot_console, cmd, ignore_errors=False, stdin=None, env=None):
+def run_and_log(ubman, cmd, ignore_errors=False, stdin=None, env=None):
     """Run a command and log its output.
 
     Args:
-        u_boot_console: A console connection to U-Boot.
+        ubman: A console connection to U-Boot.
         cmd: The command to run, as an array of argv[], or a string.
             If a string, note that it is split up so that quoted spaces
             will not be preserved. E.g. "fred and" becomes ['"fred', 'and"']
@@ -177,25 +177,25 @@ def run_and_log(u_boot_console, cmd, ignore_errors=False, stdin=None, env=None):
     """
     if isinstance(cmd, str):
         cmd = cmd.split()
-    runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
+    runner = ubman.log.get_runner(cmd[0], sys.stdout)
     output = runner.run(cmd, ignore_errors=ignore_errors, stdin=stdin, env=env)
     runner.close()
     return output
 
-def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
+def run_and_log_expect_exception(ubman, cmd, retcode, msg):
     """Run a command that is expected to fail.
 
     This runs a command and checks that it fails with the expected return code
     and exception method. If not, an exception is raised.
 
     Args:
-        u_boot_console: A console connection to U-Boot.
+        ubman: A console connection to U-Boot.
         cmd: The command to run, as an array of argv[].
         retcode: Expected non-zero return code from the command.
         msg: String that should be contained within the command's output.
     """
     try:
-        runner = u_boot_console.log.get_runner(cmd[0], sys.stdout)
+        runner = ubman.log.get_runner(cmd[0], sys.stdout)
         runner.run(cmd)
     except Exception:
         assert retcode == runner.exit_status
@@ -207,7 +207,7 @@ def run_and_log_expect_exception(u_boot_console, cmd, retcode, msg):
         runner.close()
 
 ram_base = None
-def find_ram_base(u_boot_console):
+def find_ram_base(ubman):
     """Find the running U-Boot's RAM location.
 
     Probe the running U-Boot to determine the address of the first bank
@@ -218,22 +218,22 @@ def find_ram_base(u_boot_console):
     actively read once.
 
     Args:
-        u_boot_console: A console connection to U-Boot.
+        ubman: A console connection to U-Boot.
 
     Returns:
         The address of U-Boot's first RAM bank, as an integer.
     """
 
     global ram_base
-    if u_boot_console.config.buildconfig.get('config_cmd_bdi', 'n') != 'y':
+    if ubman.config.buildconfig.get('config_cmd_bdi', 'n') != 'y':
         pytest.skip('bdinfo command not supported')
     if ram_base == -1:
         pytest.skip('Previously failed to find RAM bank start')
     if ram_base is not None:
         return ram_base
 
-    with u_boot_console.log.section('find_ram_base'):
-        response = u_boot_console.run_command('bdinfo')
+    with ubman.log.section('find_ram_base'):
+        response = ubman.run_command('bdinfo')
         for l in response.split('\n'):
             if '-> start' in l or 'memstart    =' in l:
                 ram_base = int(l.split('=')[1].strip(), 16)
@@ -311,11 +311,11 @@ def persistent_file_helper(u_boot_log, filename):
     statement
 
     Usage:
-        with persistent_file_helper(u_boot_console.log, filename):
+        with persistent_file_helper(ubman.log, filename):
             code to generate the file, if it's missing.
 
     Args:
-        u_boot_log: u_boot_console.log.
+        u_boot_log: ubman.log.
         filename: The filename of the generated file.
 
     Returns:
@@ -324,11 +324,11 @@ def persistent_file_helper(u_boot_log, filename):
 
     return PersistentFileHelperCtxMgr(u_boot_log, filename)
 
-def crc32(u_boot_console, address, count):
+def crc32(ubman, address, count):
     """Helper function used to compute the CRC32 value of a section of RAM.
 
     Args:
-        u_boot_console: A U-Boot console connection.
+        ubman: A U-Boot console connection.
         address: Address where data starts.
         count: Amount of data to use for calculation.
 
@@ -336,10 +336,10 @@ def crc32(u_boot_console, address, count):
         CRC32 value
     """
 
-    bcfg = u_boot_console.config.buildconfig
+    bcfg = ubman.config.buildconfig
     has_cmd_crc32 = bcfg.get('config_cmd_crc32', 'n') == 'y'
     assert has_cmd_crc32, 'Cannot compute crc32 without CONFIG_CMD_CRC32.'
-    output = u_boot_console.run_command('crc32 %08x %x' % (address, count))
+    output = ubman.run_command('crc32 %08x %x' % (address, count))
 
     m = re.search('==> ([0-9a-fA-F]{8})$', output)
     assert m, 'CRC32 operation failed.'

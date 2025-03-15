@@ -22,8 +22,8 @@ env__mdio_util_test = {
 }
 """
 
-def get_mdio_test_env(u_boot_console):
-    f = u_boot_console.config.env.get("env__mdio_util_test", None)
+def get_mdio_test_env(ubman):
+    f = ubman.config.env.get("env__mdio_util_test", None)
     if not f or len(f) == 0:
         pytest.skip("No PHY device to test!")
     else:
@@ -31,9 +31,9 @@ def get_mdio_test_env(u_boot_console):
 
 @pytest.mark.buildconfigspec("cmd_mii")
 @pytest.mark.buildconfigspec("phylib")
-def test_mdio_list(u_boot_console):
-    f = get_mdio_test_env(u_boot_console)
-    output = u_boot_console.run_command("mdio list")
+def test_mdio_list(ubman):
+    f = get_mdio_test_env(ubman)
+    output = ubman.run_command("mdio list")
     for dev, val in f.items():
         phy_addr = val.get("phy_addr")
         dev_name = val.get("device_name")
@@ -43,24 +43,24 @@ def test_mdio_list(u_boot_console):
 
 @pytest.mark.buildconfigspec("cmd_mii")
 @pytest.mark.buildconfigspec("phylib")
-def test_mdio_read(u_boot_console):
-    f = get_mdio_test_env(u_boot_console)
-    output = u_boot_console.run_command("mdio list")
+def test_mdio_read(ubman):
+    f = get_mdio_test_env(ubman)
+    output = ubman.run_command("mdio list")
     for dev, val in f.items():
         phy_addr = hex(val.get("phy_addr"))
         dev_name = val.get("device_name")
         reg = hex(val.get("reg"))
         reg_val = hex(val.get("reg_val"))
 
-        output = u_boot_console.run_command(f"mdio read {phy_addr} {reg}")
+        output = ubman.run_command(f"mdio read {phy_addr} {reg}")
         assert f"PHY at address {int(phy_addr, 16):x}:" in output
         assert f"{int(reg, 16):x} - {reg_val}" in output
 
 @pytest.mark.buildconfigspec("cmd_mii")
 @pytest.mark.buildconfigspec("phylib")
-def test_mdio_write(u_boot_console):
-    f = get_mdio_test_env(u_boot_console)
-    output = u_boot_console.run_command("mdio list")
+def test_mdio_write(ubman):
+    f = get_mdio_test_env(ubman)
+    output = ubman.run_command("mdio list")
     for dev, val in f.items():
         phy_addr = hex(val.get("phy_addr"))
         dev_name = val.get("device_name")
@@ -68,12 +68,12 @@ def test_mdio_write(u_boot_console):
         reg_val = hex(val.get("reg_val"))
         wr_val = hex(val.get("write_val"))
 
-        u_boot_console.run_command(f"mdio write {phy_addr} {reg} {wr_val}")
-        output = u_boot_console.run_command(f"mdio read {phy_addr} {reg}")
+        ubman.run_command(f"mdio write {phy_addr} {reg} {wr_val}")
+        output = ubman.run_command(f"mdio read {phy_addr} {reg}")
         assert f"PHY at address {int(phy_addr, 16):x}:" in output
         assert f"{int(reg, 16):x} - {wr_val}" in output
 
-        u_boot_console.run_command(f"mdio write {phy_addr} {reg} {reg_val}")
-        output = u_boot_console.run_command(f"mdio read {phy_addr} {reg}")
+        ubman.run_command(f"mdio write {phy_addr} {reg} {reg_val}")
+        output = ubman.run_command(f"mdio read {phy_addr} {reg}")
         assert f"PHY at address {int(phy_addr, 16):x}:" in output
         assert f"{int(reg, 16):x} - {reg_val}" in output

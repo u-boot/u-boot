@@ -5,7 +5,7 @@
 # tftpboot commands.
 
 import pytest
-import u_boot_utils
+import utils
 import uuid
 import datetime
 import re
@@ -91,37 +91,39 @@ env__router_on_net = True
 net_set_up = False
 net6_set_up = False
 
-def test_net_pre_commands(u_boot_console):
+
+@pytest.mark.buildconfigspec('cmd_net')
+def test_net_pre_commands(ubman):
     """Execute any commands required to enable network hardware.
 
     These commands are provided by the boardenv_* file; see the comment at the
     beginning of this file.
     """
 
-    init_usb = u_boot_console.config.env.get('env__net_uses_usb', False)
+    init_usb = ubman.config.env.get('env__net_uses_usb', False)
     if init_usb:
-        u_boot_console.run_command('usb start')
+        ubman.run_command('usb start')
 
-    init_pci = u_boot_console.config.env.get('env__net_uses_pci', False)
+    init_pci = ubman.config.env.get('env__net_uses_pci', False)
     if init_pci:
-        u_boot_console.run_command('pci enum')
+        ubman.run_command('pci enum')
 
-    u_boot_console.run_command('net list')
+    ubman.run_command('net list')
 
 @pytest.mark.buildconfigspec('cmd_dhcp')
-def test_net_dhcp(u_boot_console):
+def test_net_dhcp(ubman):
     """Test the dhcp command.
 
     The boardenv_* file may be used to enable/disable this test; see the
     comment at the beginning of this file.
     """
 
-    test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
+    test_dhcp = ubman.config.env.get('env__net_dhcp_server', False)
     if not test_dhcp:
         pytest.skip('No DHCP server available')
 
-    u_boot_console.run_command('setenv autoload no')
-    output = u_boot_console.run_command('dhcp')
+    ubman.run_command('setenv autoload no')
+    output = ubman.run_command('dhcp')
     assert 'DHCP client bound to address ' in output
 
     global net_set_up
@@ -129,43 +131,43 @@ def test_net_dhcp(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_dhcp')
 @pytest.mark.buildconfigspec('cmd_mii')
-def test_net_dhcp_abort(u_boot_console):
+def test_net_dhcp_abort(ubman):
     """Test the dhcp command by pressing ctrl+c in the middle of dhcp request
 
     The boardenv_* file may be used to enable/disable this test; see the
     comment at the beginning of this file.
     """
 
-    test_dhcp = u_boot_console.config.env.get('env__net_dhcp_server', False)
+    test_dhcp = ubman.config.env.get('env__net_dhcp_server', False)
     if not test_dhcp:
         pytest.skip('No DHCP server available')
 
-    if u_boot_console.config.env.get('env__dhcp_abort_test_skip', True):
+    if ubman.config.env.get('env__dhcp_abort_test_skip', True):
         pytest.skip('DHCP abort test is not enabled!')
 
-    u_boot_console.run_command('setenv autoload no')
+    ubman.run_command('setenv autoload no')
 
     # Phy reset before running dhcp command
-    output = u_boot_console.run_command('mii device')
+    output = ubman.run_command('mii device')
     if not re.search(r"Current device: '(.+?)'", output):
         pytest.skip('PHY device does not exist!')
     eth_num = re.search(r"Current device: '(.+?)'", output).groups()[0]
-    u_boot_console.run_command(f'mii device {eth_num}')
-    output = u_boot_console.run_command('mii info')
+    ubman.run_command(f'mii device {eth_num}')
+    output = ubman.run_command('mii info')
     eth_addr = hex(int(re.search(r'PHY (.+?):', output).groups()[0], 16))
-    u_boot_console.run_command(f'mii modify {eth_addr} 0 0x8000 0x8000')
+    ubman.run_command(f'mii modify {eth_addr} 0 0x8000 0x8000')
 
-    u_boot_console.run_command('dhcp', wait_for_prompt=False)
+    ubman.run_command('dhcp', wait_for_prompt=False)
     try:
-        u_boot_console.wait_for('Waiting for PHY auto negotiation to complete')
+        ubman.wait_for('Waiting for PHY auto negotiation to complete')
     except:
         pytest.skip('Timeout waiting for PHY auto negotiation to complete')
 
-    u_boot_console.wait_for('done')
+    ubman.wait_for('done')
 
     try:
         # Sending Ctrl-C
-        output = u_boot_console.run_command(
+        output = ubman.run_command(
             chr(3), wait_for_echo=False, send_nl=False
         )
         assert 'TIMEOUT' not in output
@@ -174,49 +176,49 @@ def test_net_dhcp_abort(u_boot_console):
     finally:
         # Provide a time to recover from Abort - if it is not performed
         # There is message like: ethernet@ff0e0000: No link.
-        u_boot_console.run_command('sleep 1')
+        ubman.run_command('sleep 1')
         # Run the dhcp test to setup the network configuration
-        test_net_dhcp(u_boot_console)
+        test_net_dhcp(ubman)
 
 @pytest.mark.buildconfigspec('cmd_dhcp6')
-def test_net_dhcp6(u_boot_console):
+def test_net_dhcp6(ubman):
     """Test the dhcp6 command.
 
     The boardenv_* file may be used to enable/disable this test; see the
     comment at the beginning of this file.
     """
 
-    test_dhcp6 = u_boot_console.config.env.get('env__net_dhcp6_server', False)
+    test_dhcp6 = ubman.config.env.get('env__net_dhcp6_server', False)
     if not test_dhcp6:
         pytest.skip('No DHCP6 server available')
 
-    u_boot_console.run_command('setenv autoload no')
-    output = u_boot_console.run_command('dhcp6')
+    ubman.run_command('setenv autoload no')
+    output = ubman.run_command('dhcp6')
     assert 'DHCP6 client bound to ' in output
 
     global net6_set_up
     net6_set_up = True
 
 @pytest.mark.buildconfigspec('net')
-def test_net_setup_static(u_boot_console):
+def test_net_setup_static(ubman):
     """Set up a static IP configuration.
 
     The configuration is provided by the boardenv_* file; see the comment at
     the beginning of this file.
     """
 
-    env_vars = u_boot_console.config.env.get('env__net_static_env_vars', None)
+    env_vars = ubman.config.env.get('env__net_static_env_vars', None)
     if not env_vars:
         pytest.skip('No static network configuration is defined')
 
     for (var, val) in env_vars:
-        u_boot_console.run_command('setenv %s %s' % (var, val))
+        ubman.run_command('setenv %s %s' % (var, val))
 
     global net_set_up
     net_set_up = True
 
 @pytest.mark.buildconfigspec('cmd_ping')
-def test_net_ping(u_boot_console):
+def test_net_ping(ubman):
     """Test the ping command.
 
     The $serverip (as set up by either test_net_dhcp or test_net_setup_static)
@@ -227,11 +229,11 @@ def test_net_ping(u_boot_console):
     if not net_set_up:
         pytest.skip('Network not initialized')
 
-    output = u_boot_console.run_command('ping $serverip')
+    output = ubman.run_command('ping $serverip')
     assert 'is alive' in output
 
 @pytest.mark.buildconfigspec('IPV6_ROUTER_DISCOVERY')
-def test_net_network_discovery(u_boot_console):
+def test_net_network_discovery(ubman):
     """Test the network discovery feature of IPv6.
 
     An IPv6 network command (ping6 in this case) is run to make U-Boot send a
@@ -244,18 +246,18 @@ def test_net_network_discovery(u_boot_console):
     the beginning of this file.
     """
 
-    router_on_net = u_boot_console.config.env.get('env__router_on_net', False)
+    router_on_net = ubman.config.env.get('env__router_on_net', False)
     if not router_on_net:
         pytest.skip('No router on network')
 
     fake_host_ip = 'fe80::215:5dff:fef6:2ec6'
-    output = u_boot_console.run_command('ping6 ' + fake_host_ip)
+    output = ubman.run_command('ping6 ' + fake_host_ip)
     assert 'ROUTER SOLICITATION 1' in output
     assert 'Set gatewayip6:' in output
     assert '0000:0000:0000:0000:0000:0000:0000:0000' not in output
 
 @pytest.mark.buildconfigspec('cmd_tftpboot')
-def test_net_tftpboot(u_boot_console):
+def test_net_tftpboot(ubman):
     """Test the tftpboot command.
 
     A file is downloaded from the TFTP server, its size and optionally its
@@ -268,7 +270,7 @@ def test_net_tftpboot(u_boot_console):
     if not net_set_up:
         pytest.skip('Network not initialized')
 
-    f = u_boot_console.config.env.get('env__net_tftp_readable_file', None)
+    f = ubman.config.env.get('env__net_tftp_readable_file', None)
     if not f:
         pytest.skip('No TFTP readable file to read')
 
@@ -276,9 +278,9 @@ def test_net_tftpboot(u_boot_console):
 
     fn = f['fn']
     if not addr:
-        output = u_boot_console.run_command('tftpboot %s' % (fn))
+        output = ubman.run_command('tftpboot %s' % (fn))
     else:
-        output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+        output = ubman.run_command('tftpboot %x %s' % (addr, fn))
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
     if sz:
@@ -289,14 +291,14 @@ def test_net_tftpboot(u_boot_console):
     if not expected_crc:
         return
 
-    if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
+    if ubman.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
         return
 
-    output = u_boot_console.run_command('crc32 $fileaddr $filesize')
+    output = ubman.run_command('crc32 $fileaddr $filesize')
     assert expected_crc in output
 
 @pytest.mark.buildconfigspec('cmd_nfs')
-def test_net_nfs(u_boot_console):
+def test_net_nfs(ubman):
     """Test the nfs command.
 
     A file is downloaded from the NFS server, its size and optionally its
@@ -309,16 +311,16 @@ def test_net_nfs(u_boot_console):
     if not net_set_up:
         pytest.skip('Network not initialized')
 
-    f = u_boot_console.config.env.get('env__net_nfs_readable_file', None)
+    f = ubman.config.env.get('env__net_nfs_readable_file', None)
     if not f:
         pytest.skip('No NFS readable file to read')
 
     addr = f.get('addr', None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
 
     fn = f['fn']
-    output = u_boot_console.run_command('nfs %x %s' % (addr, fn))
+    output = ubman.run_command('nfs %x %s' % (addr, fn))
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
     if sz:
@@ -329,14 +331,14 @@ def test_net_nfs(u_boot_console):
     if not expected_crc:
         return
 
-    if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
+    if ubman.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
         return
 
-    output = u_boot_console.run_command('crc32 %x $filesize' % addr)
+    output = ubman.run_command('crc32 %x $filesize' % addr)
     assert expected_crc in output
 
 @pytest.mark.buildconfigspec("cmd_pxe")
-def test_net_pxe_get(u_boot_console):
+def test_net_pxe_get(ubman):
     """Test the pxe get command.
 
     A pxe configuration file is downloaded from the TFTP server and interpreted
@@ -349,31 +351,31 @@ def test_net_pxe_get(u_boot_console):
     if not net_set_up:
         pytest.skip("Network not initialized")
 
-    test_net_setup_static(u_boot_console)
+    test_net_setup_static(ubman)
 
-    f = u_boot_console.config.env.get("env__net_pxe_readable_file", None)
+    f = ubman.config.env.get("env__net_pxe_readable_file", None)
     if not f:
         pytest.skip("No PXE readable file to read")
 
     addr = f.get("addr", None)
-    timeout = f.get("timeout", u_boot_console.p.timeout)
+    timeout = f.get("timeout", ubman.p.timeout)
 
     pxeuuid = uuid.uuid1()
-    u_boot_console.run_command(f"setenv pxeuuid {pxeuuid}")
+    ubman.run_command(f"setenv pxeuuid {pxeuuid}")
     expected_text_uuid = f"Retrieving file: pxelinux.cfg/{pxeuuid}"
 
-    ethaddr = u_boot_console.run_command("echo $ethaddr")
+    ethaddr = ubman.run_command("echo $ethaddr")
     ethaddr = ethaddr.replace(':', '-')
     expected_text_ethaddr = f"Retrieving file: pxelinux.cfg/01-{ethaddr}"
 
-    ip = u_boot_console.run_command("echo $ipaddr")
+    ip = ubman.run_command("echo $ipaddr")
     ip = ip.split('.')
     ipaddr_file = "".join(['%02x' % int(x) for x in ip]).upper()
     expected_text_ipaddr = f"Retrieving file: pxelinux.cfg/{ipaddr_file}"
     expected_text_default = f"Retrieving file: pxelinux.cfg/default"
 
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command("pxe get")
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command("pxe get")
 
     assert "TIMEOUT" not in output
     assert expected_text_uuid in output
@@ -392,7 +394,7 @@ def test_net_pxe_get(u_boot_console):
 @pytest.mark.buildconfigspec("cmd_crc32")
 @pytest.mark.buildconfigspec("cmd_tftpboot")
 @pytest.mark.buildconfigspec("cmd_tftpput")
-def test_net_tftpput(u_boot_console):
+def test_net_tftpput(ubman):
     """Test the tftpput command.
 
     A file is downloaded from the TFTP server and then uploaded to the TFTP
@@ -405,35 +407,35 @@ def test_net_tftpput(u_boot_console):
     if not net_set_up:
         pytest.skip("Network not initialized")
 
-    f = u_boot_console.config.env.get("env__net_tftp_readable_file", None)
+    f = ubman.config.env.get("env__net_tftp_readable_file", None)
     if not f:
         pytest.skip("No TFTP readable file to read")
 
     addr = f.get("addr", None)
     if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
+        addr = utils.find_ram_base(ubman)
 
     sz = f.get("size", None)
-    timeout = f.get("timeout", u_boot_console.p.timeout)
+    timeout = f.get("timeout", ubman.p.timeout)
     fn = f["fn"]
     fnu = f.get("fnu", "_".join([datetime.datetime.now().strftime("%y%m%d%H%M%S"), fn]))
     expected_text = "Bytes transferred = "
     if sz:
         expected_text += "%d" % sz
 
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command("tftpboot %x %s" % (addr, fn))
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command("tftpboot %x %s" % (addr, fn))
 
     assert "TIMEOUT" not in output
     assert expected_text in output
 
     expected_tftpb_crc = f.get("crc32", None)
 
-    output = u_boot_console.run_command("crc32 $fileaddr $filesize")
+    output = ubman.run_command("crc32 $fileaddr $filesize")
     assert expected_tftpb_crc in output
 
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command(
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command(
             "tftpput $fileaddr $filesize $serverip:%s" % (fnu)
         )
 
@@ -445,8 +447,8 @@ def test_net_tftpput(u_boot_console):
     assert "Access violation" not in output
     assert expected_text in output
 
-    with u_boot_console.temporary_timeout(timeout):
-        output = u_boot_console.run_command("tftpboot %x %s" % (addr, fnu))
+    with ubman.temporary_timeout(timeout):
+        output = ubman.run_command("tftpboot %x %s" % (addr, fnu))
 
     expected_text = "Bytes transferred = "
     if sz:
@@ -454,5 +456,5 @@ def test_net_tftpput(u_boot_console):
     assert "TIMEOUT" not in output
     assert expected_text in output
 
-    output = u_boot_console.run_command("crc32 $fileaddr $filesize")
+    output = ubman.run_command("crc32 $fileaddr $filesize")
     assert expected_tftpb_crc in output
