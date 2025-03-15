@@ -58,7 +58,7 @@ static void list_fadt(struct acpi_fadt *fadt)
 		dump_hdr(nomap_sysmem(fadt->x_dsdt, 0));
 	else if (fadt->dsdt)
 		dump_hdr(nomap_sysmem(fadt->dsdt, 0));
-	if (!IS_ENABLED(CONFIG_X86) &&
+	if (!IS_ENABLED(CONFIG_X86) && !IS_ENABLED(CONFIG_SANDBOX) &&
 	    !(fadt->flags & ACPI_FADT_HW_REDUCED_ACPI))
 		log_err("FADT not ACPI-hardware-reduced-compliant\n");
 	if (fadt->header.revision >= 3 && fadt->x_firmware_ctrl)
