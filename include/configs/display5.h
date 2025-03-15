@@ -170,7 +170,6 @@
 	"display=tianma-tm070-800x480\0" \
 	"board=display5\0" \
 	"mmcdev=0\0" \
-	"altbootcmd=run recovery\0" \
 	"bootdelay=1\0" \
 	"baudrate=115200\0" \
 	"ethact=FEC\0" \

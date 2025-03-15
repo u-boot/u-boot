@@ -3,7 +3,7 @@
 # Copyright (C) 2019, Theobroma Systems Design und Consulting GmbH
 
 # Test files
-obj-y += cmd_ut_optee.o
+obj-y += optee.o
 
 DTC_FLAGS += -@
 

@@ -8,7 +8,6 @@
 
 #include <bootm.h>
 #include <malloc.h>
-#include <test/suites.h>
 #include <test/test.h>
 #include <test/ut.h>
 #include <asm/io.h>

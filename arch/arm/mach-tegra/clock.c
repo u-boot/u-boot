@@ -358,6 +358,13 @@ unsigned long clock_get_periph_rate(enum periph_id periph_id,
 		break;
 	}
 
+	/*
+	 * PLLD/PLLD2 raw clock rate is never used, instead plld_out0 is used
+	 * that is PLLD/PLLD2 halved.
+	 */
+	if (parent == CLOCK_ID_DISPLAY || parent == CLOCK_ID_DISPLAY2)
+		parent_rate /= 2;
+
 	return get_rate_from_divider(parent_rate, div);
 }
 
@@ -449,6 +456,7 @@ unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
 		enum clock_id parent, unsigned rate, int *extra_div)
 {
 	unsigned effective_rate;
+	unsigned int parent_rate;
 	int mux_bits, divider_bits, source;
 	int divider;
 	int xdiv = 0;
@@ -457,7 +465,17 @@ unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
 	source = get_periph_clock_source(periph_id, parent, &mux_bits,
 					 &divider_bits);
 
-	divider = find_best_divider(divider_bits, pll_rate[parent],
+	/*
+	 * Clocks derived from PLLD/D2 are actually sourced from its halved
+	 * output, plld_out0/plld2_out0. No peripheral clocks use the raw
+	 * PLLD/D2 frequency. This halving must be accounted for in derived
+	 * clock calculations.
+	 */
+	parent_rate = pll_rate[parent];
+	if (parent == CLOCK_ID_DISPLAY || parent == CLOCK_ID_DISPLAY2)
+		parent_rate /= 2;
+
+	divider = find_best_divider(divider_bits, parent_rate,
 				    rate, &xdiv);
 	if (extra_div)
 		*extra_div = xdiv;
@@ -684,6 +702,16 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 		writel(base_reg, &pll->pll_base);
 	else
 		writel(base_reg, &simple_pll->pll_base);
+
+	/*
+	 * Changing clocks was never intended in the U-Boot for Tegra.
+	 * If a clock is changed after clock_init() the parent rate is wrong.
+	 * Usually there is no reason to change peripheral clocks, but Display
+	 * PLLs which needs to generate a precise pixelclock might be adjusted.
+	 * Especially in the case of HDMI display with changing and prior
+	 * unknown resolution.
+	 */
+	pll_rate[clkid] = clock_get_rate(clkid);
 
 	return 0;
 }

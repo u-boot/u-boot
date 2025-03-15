@@ -12,8 +12,8 @@ import sys
 import time
 
 from patman import get_maintainer
-from patman import gitutil
 from patman import settings
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
 

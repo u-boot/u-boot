@@ -106,12 +106,6 @@ config TPL_LDSCRIPT
 	  May be left empty to trigger the Makefile infrastructure to
 	  fall back to the linker-script used for the SPL stage.
 
-config TPL_NEEDS_SEPARATE_STACK
-	bool "TPL needs a separate initial stack-pointer"
-	help
-	  Enable, if the TPL stage should not inherit its initial
-	  stack-pointer from the settings for the SPL stage.
-
 config TPL_POWER
 	bool "Support power drivers"
 	help
@@ -140,11 +134,18 @@ config TPL_MAX_SIZE
 	help
 	  The maximum size (in bytes) of the TPL stage.
 
-config TPL_STACK
-	hex "Address of the initial stack-pointer for the TPL stage"
-	depends on TPL_NEEDS_SEPARATE_STACK
+config TPL_HAVE_INIT_STACK
+	bool "TPL requires a initial, fixed, stack-pointer location"
 	help
-	  The address of the initial stack-pointer for the TPL stage.
+	  Enable if the TPL phase should not inherit its initial
+	  stack-pointer from the settings for U-Boot proper, but should set its
+	  own value.
+
+config TPL_STACK
+	hex "Address of the initial stack-pointer for the TPL phase"
+	depends on TPL_HAVE_INIT_STACK
+	help
+	  The address of the initial stack-pointer for the TPL phase
 	  Usually this will be the (aligned) top-of-stack.
 
 config TPL_READ_ONLY

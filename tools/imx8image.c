@@ -290,6 +290,7 @@ static uint32_t parse_cfg_file(image_t *param_stack, char *name)
 		}
 	}
 
+	free(line);
 	fclose(fd);
 	return 0;
 }

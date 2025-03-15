@@ -178,6 +178,7 @@ static uint32_t parse_cfg_file(struct ubl_header *ublhdr, char *name)
 					lineno, fld, &dcd_len);
 		}
 	}
+	free(line);
 	fclose(fd);
 
 	return dcd_len;

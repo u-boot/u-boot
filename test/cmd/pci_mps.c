@@ -8,7 +8,6 @@
  */
 
 #include <console.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 #define PCI_MPS_TEST(_name, _flags) UNIT_TEST(_name, _flags, pci_mps)

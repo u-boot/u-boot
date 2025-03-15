@@ -40,7 +40,7 @@ struct file_handle {
 	struct fs_dir_stream *dirs;
 	struct fs_dirent *dent;
 
-	char path[0];
+	char *path;
 };
 #define to_fh(x) container_of(x, struct file_handle, base)
 
@@ -178,6 +178,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		u64 attributes)
 {
 	struct file_handle *fh;
+	char *path;
 	char f0[MAX_UTF8_PER_UTF16] = {0};
 	int plen = 0;
 	int flen = 0;
@@ -194,11 +195,13 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		plen = strlen(parent->path) + 1;
 	}
 
+	fh = calloc(1, sizeof(*fh));
 	/* +2 is for null and '/' */
-	fh = calloc(1, sizeof(*fh) + plen + (flen * MAX_UTF8_PER_UTF16) + 2);
-	if (!fh)
-		return NULL;
+	path = calloc(1, plen + (flen * MAX_UTF8_PER_UTF16) + 2);
+	if (!fh || !path)
+		goto error;
 
+	fh->path = path;
 	fh->open_mode = open_mode;
 	fh->base = efi_file_handle_protocol;
 	fh->fs = fs;
@@ -245,6 +248,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 	return &fh->base;
 
 error:
+	free(fh->path);
 	free(fh);
 	return NULL;
 }
@@ -368,6 +372,7 @@ out:
 static efi_status_t file_close(struct file_handle *fh)
 {
 	fs_closedir(fh->dirs);
+	free(fh->path);
 	free(fh);
 	return EFI_SUCCESS;
 }
@@ -949,6 +954,7 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_UNSUPPORTED;
+	char *new_file_name = NULL, *new_path = NULL;
 
 	EFI_ENTRY("%p, %pUs, %zu, %p", file, info_type, buffer_size, buffer);
 
@@ -978,13 +984,43 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		pos = new_file_name;
 		utf16_utf8_strcpy(&pos, info->file_name);
 		if (strcmp(new_file_name, filename)) {
-			/* TODO: we do not support renaming */
-			EFI_PRINT("Renaming not supported\n");
-			free(new_file_name);
-			ret = EFI_ACCESS_DENIED;
-			goto out;
+			int dlen;
+			int rv;
+
+			if (set_blk_dev(fh)) {
+				ret = EFI_DEVICE_ERROR;
+				goto out;
+			}
+			dlen = filename - fh->path;
+			new_path = calloc(1, dlen + strlen(new_file_name) + 1);
+			if (!new_path) {
+				ret = EFI_OUT_OF_RESOURCES;
+				goto out;
+			}
+			memcpy(new_path, fh->path, dlen);
+			strcpy(new_path + dlen, new_file_name);
+			sanitize_path(new_path);
+			rv = fs_exists(new_path);
+			if (rv) {
+				ret = EFI_ACCESS_DENIED;
+				goto out;
+			}
+			/* fs_exists() calls fs_close(), so open file system again */
+			if (set_blk_dev(fh)) {
+				ret = EFI_DEVICE_ERROR;
+				goto out;
+			}
+			rv = fs_rename(fh->path, new_path);
+			if (rv) {
+				ret = EFI_ACCESS_DENIED;
+				goto out;
+			}
+			free(fh->path);
+			fh->path = new_path;
+			/* Prevent new_path from being freed on out */
+			new_path = NULL;
+			ret = EFI_SUCCESS;
 		}
-		free(new_file_name);
 		/* Check for truncation */
 		if (!fh->isdir) {
 			ret = efi_get_file_size(fh, &file_size);
@@ -1007,6 +1043,8 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		ret = EFI_UNSUPPORTED;
 	}
 out:
+	free(new_path);
+	free(new_file_name);
 	return EFI_EXIT(ret);
 }
 

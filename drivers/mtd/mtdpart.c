@@ -208,7 +208,7 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 {
 	struct mtd_partition partition = {}, *parts;
 	const char *mtdparts = *_mtdparts;
-	uint64_t cur_off = 0, cur_sz = 0;
+	uint64_t cur_off = 0;
 	int nparts = 0;
 	int ret, idx;
 	u64 sz;
@@ -237,8 +237,7 @@ int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
 			return ret;
 
 		if (parts[idx].size == MTD_SIZE_REMAINING)
-			parts[idx].size = parent->size - cur_sz;
-		cur_sz += parts[idx].size;
+			parts[idx].size = parent->size - parts[idx].offset;
 
 		sz = parts[idx].size;
 		if (sz < parent->writesize || do_div(sz, parent->writesize)) {

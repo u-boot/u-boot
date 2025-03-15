@@ -1,6 +1,6 @@
 config UT_OPTEE
 	bool "Enable OP-TEE Unit Tests"
-	depends on UNIT_TEST && OF_CONTROL && OPTEE
+	depends on OF_CONTROL && OPTEE
 	default y
 	help
 	  This enables the 'ut optee' command which runs a series of unit

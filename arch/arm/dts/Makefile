@@ -121,6 +121,7 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra124-nyan-big.dtb \
 	tegra124-cei-tk1-som.dtb \
 	tegra124-venice2.dtb \
+	tegra124-xiaomi-mocha.dtb \
 	tegra186-p2771-0000-000.dtb \
 	tegra186-p2771-0000-500.dtb \
 	tegra210-p2371-0000.dtb \
@@ -795,7 +796,6 @@ dtb-y += \
 	imx6q-icore-rqs.dtb \
 	imx6q-kp.dtb \
 	imx6q-logicpd.dtb \
-	imx6q-lxr.dtb \
 	imx6q-marsboard.dtb \
 	imx6q-mccmon6.dtb\
 	imx6q-nitrogen6x.dtb \
@@ -918,8 +918,7 @@ dtb-$(CONFIG_ARCH_IMX9) += \
 	imx93-var-som-symphony.dtb \
 	imx93-phyboard-segin.dtb
 
-dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
-	imxrt1020-evk.dtb \
+dtb-$(CONFIG_ARCH_IMXRT) += imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
 
 dtb-$(CONFIG_RZA1) += \

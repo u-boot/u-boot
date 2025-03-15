@@ -376,7 +376,7 @@ def run_result(name, *args, **kwargs):
             args = tuple(extra_args) + args
         name = os.path.expanduser(name)  # Expand paths containing ~
         all_args = (name,) + args
-        result = command.run_pipe([all_args], capture=True, capture_stderr=True,
+        result = command.run_one(*all_args, capture=True, capture_stderr=True,
                                  env=env, raise_on_error=False, binary=binary)
         if result.return_code:
             if raise_on_error:

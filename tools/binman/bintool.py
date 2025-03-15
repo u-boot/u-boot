@@ -328,7 +328,8 @@ class Bintool:
             return result.stdout
 
     @classmethod
-    def build_from_git(cls, git_repo, make_targets, bintool_path, flags=None):
+    def build_from_git(cls, git_repo, make_targets, bintool_path,
+            flags=None, git_branch=None, make_path=None):
         """Build a bintool from a git repo
 
         This clones the repo in a temporary directory, builds it with 'make',
@@ -341,6 +342,9 @@ class Bintool:
             bintool_path (str): Relative path of the tool in the repo, after
                 build is complete
             flags (list of str): Flags or variables to pass to make, or None
+            git_branch (str): Branch of git repo, or None to use the default
+            make_path (str): Relative path inside git repo containing the
+                Makefile, or None
 
         Returns:
             tuple:
@@ -350,10 +354,17 @@ class Bintool:
         """
         tmpdir = tempfile.mkdtemp(prefix='binmanf.')
         print(f"- clone git repo '{git_repo}' to '{tmpdir}'")
-        tools.run('git', 'clone', '--depth', '1', git_repo, tmpdir)
+        if git_branch:
+            tools.run('git', 'clone', '--depth', '1', '--branch', git_branch,
+                      git_repo, tmpdir)
+        else:
+            tools.run('git', 'clone', '--depth', '1', git_repo, tmpdir)
         for target in make_targets:
             print(f"- build target '{target}'")
-            cmd = ['make', '-C', tmpdir, '-j', f'{multiprocessing.cpu_count()}',
+            makedir = tmpdir
+            if make_path:
+                makedir = os.path.join(tmpdir, make_path)
+            cmd = ['make', '-C', makedir, '-j', f'{multiprocessing.cpu_count()}',
                    target]
             if flags:
                 cmd += flags

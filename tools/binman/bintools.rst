@@ -52,6 +52,14 @@ Bintool: cst: Image generation for U-Boot
 This bintool supports running `cst` with some basic parameters as
 needed by binman.
 
+cst (imx code signing tool) is used for sigining bootloader binaries for
+various i.MX SoCs.
+
+See `Code Signing Tool Users Guide`_ for more information.
+
+.. _`Code Signing Tool Users Guide`:
+    https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/imx-processors/202591/1/CST_UG.pdf
+
 
 
 Bintool: fdt_add_pubkey: Add public key to control dtb (spl or u-boot proper)
