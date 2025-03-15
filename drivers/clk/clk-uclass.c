@@ -572,6 +572,9 @@ static void clk_clean_rate_cache(struct clk *clk)
 	clk->rate = 0;
 
 	list_for_each_entry(child_dev, &clk->dev->child_head, sibling_node) {
+		if (device_get_uclass_id(child_dev) != UCLASS_CLK)
+			continue;
+
 		clkp = dev_get_clk_ptr(child_dev);
 		clk_clean_rate_cache(clkp);
 	}
