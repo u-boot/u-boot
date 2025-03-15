@@ -2062,7 +2062,7 @@ config CMD_SNTP
 
 config CMD_LINK_LOCAL
 	bool "linklocal"
-	select LIB_RAND
+	depends on (LIB_RAND || LIB_HW_RAND)
 	help
 	  Acquire a network IP address using the link-local protocol
 
