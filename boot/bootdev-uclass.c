@@ -579,6 +579,9 @@ int bootdev_next_label(struct bootflow_iter *iter, struct udevice **devp,
 	struct udevice *dev;
 
 	log_debug("next\n");
+	if (iter->cur_label >= 0 && !iter->labels[iter->cur_label])
+		return log_msg_ret("fil", -ENODEV);
+
 	for (dev = NULL; !dev && iter->labels[++iter->cur_label];) {
 		const char *label = iter->labels[iter->cur_label];
 		int ret;
