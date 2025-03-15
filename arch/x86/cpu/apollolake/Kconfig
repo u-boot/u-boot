@@ -5,7 +5,6 @@
 
 config INTEL_APOLLOLAKE
 	bool
-	select FSP_VERSION2
 	select HAVE_FSP
 	select ARCH_MISC_INIT
 	select USE_CAR

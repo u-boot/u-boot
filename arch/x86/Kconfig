@@ -390,6 +390,7 @@ config USE_CAR
 choice
 	prompt "FSP version"
 	depends on HAVE_FSP
+	default FSP_VERSION2 if INTEL_APOLLOLAKE
 	default FSP_VERSION1
 	help
 	  Selects the FSP version to use. Intel has published several versions
