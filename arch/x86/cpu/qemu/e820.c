@@ -6,6 +6,7 @@
  * (C) Copyright 2019 Bin Meng <bmeng.cn@gmail.com>
  */
 
+#include <bloblist.h>
 #include <env_internal.h>
 #include <malloc.h>
 #include <asm/e820.h>
@@ -27,12 +28,19 @@ unsigned int install_e820_map(unsigned int max_entries,
 	e820_next(&ctx, E820_RESERVED, ISA_END_ADDRESS);
 
 	/*
-	 * since we use memalign(malloc) to allocate high memory for
-	 * storing ACPI tables, we need to reserve them in e820 tables,
-	 * otherwise kernel will reclaim them and data will be corrupted
+	 * if we use bloblist to allocate high memory for storing ACPI tables,
+	 * we need to reserve that region in e820 tables, otherwise the kernel
+	 * will reclaim them and data will be corrupted. The ACPI tables may not
+	 * have been written yet, so use the whole bloblist size
 	 */
-	e820_to_addr(&ctx, E820_RAM, gd->relocaddr - TOTAL_MALLOC_LEN);
-	e820_next(&ctx, E820_RESERVED, TOTAL_MALLOC_LEN);
+	if (IS_ENABLED(CONFIG_BLOBLIST_TABLES)) {
+		e820_to_addr(&ctx, E820_RAM, (ulong)gd->bloblist);
+		e820_next(&ctx, E820_ACPI, bloblist_get_total_size());
+	} else {
+		/* If using memalign() reserve that whole region instead */
+		e820_to_addr(&ctx, E820_RAM, gd->relocaddr - TOTAL_MALLOC_LEN);
+		e820_next(&ctx, E820_ACPI, TOTAL_MALLOC_LEN);
+	}
 	e820_to_addr(&ctx, E820_RAM, qemu_get_low_memory_size());
 	e820_add(&ctx, E820_RESERVED, CONFIG_PCIE_ECAM_BASE,
 		 CONFIG_PCIE_ECAM_SIZE);
