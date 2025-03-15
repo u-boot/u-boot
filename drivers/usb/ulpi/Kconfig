@@ -14,11 +14,6 @@ config USB_ULPI_VIEWPORT
 	  Support generic ULPI Viewport implementation that is used on
 	  some Tegra and Snapdragon devices.
 
-config USB_ULPI_VIEWPORT_OMAP
-	bool "OMAP ULPI Viewport"
-	help
-	  Support ULPI Viewport implementation that is used on OMAP devices.
-
 endchoice
 
 config USB_ULPI
