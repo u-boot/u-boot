@@ -149,7 +149,8 @@ _start:
 	adr		r1, .L_DYNAMIC
 	ldr		r0, [r1]
 	add		r1, r0, r1
-	adrl		r0, image_base
+	sub		r0, pc, #((.+8-image_base) & 0xff)
+	sub		r0, r0, #((.+4-image_base) & 0xff00)
 	bl		_relocate
 	teq		r0, #0
 	bne		0f
