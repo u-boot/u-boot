@@ -91,6 +91,22 @@ struct mtrr_info {
 };
 
 /**
+ * mtrr_to_size() - Convert a mask to a size value
+ *
+ * @mask: Value of the mask register
+ * Return: associated size
+ */
+u64 mtrr_to_size(u64 mask);
+
+/**
+ * mtrr_to_mask() - Convert a size to a mask value
+ *
+ * @size: Value of the size register
+ * Return: associated mask, without MTRR_PHYS_MASK_VALID
+ */
+u64 mtrr_to_mask(u64 size);
+
+/**
  * mtrr_open() - Prepare to adjust MTRRs
  *
  * Use mtrr_open() passing in a structure - this function will init it. Then

@@ -14,7 +14,7 @@ static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 {
 	const char *typename = argv[0];
 	uint32_t start, size;
-	uint64_t base, mask;
+	u64 base, mask;
 	int type = -1;
 	bool valid;
 	int ret;
@@ -31,8 +31,7 @@ static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 
 	base = start | type;
 	valid = native_read_msr(MTRR_PHYS_MASK_MSR(reg)) & MTRR_PHYS_MASK_VALID;
-	mask = ~((uint64_t)size - 1);
-	mask &= (1ULL << CONFIG_CPU_ADDR_BITS) - 1;
+	mask = mtrr_to_mask(size);
 	if (valid)
 		mask |= MTRR_PHYS_MASK_VALID;
 
