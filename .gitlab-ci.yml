@@ -565,7 +565,7 @@ coreboot test.py:
     - export USE_LABGRID_SJG=1
     # export verbose="-v"
     - ${SRC}/test/py/test.py --role ${ROLE} --build-dir "${OUT}"
-        --capture=tee-sys -k "not bootstd" || ret=$?
+        --capture=tee-sys -k "not bootstd ${TEST_PY_TEST_SPEC}" || ret=$?
     - U_BOOT_BOARD_IDENTITY="${ROLE}" u-boot-test-release || true
     - if [[ $ret -ne 0 ]]; then
         exit $ret;
@@ -701,4 +701,10 @@ rpi:
 vf2:
   variables:
     ROLE: vf2
+  <<: *lab_dfn
+
+qemu-x86_64:
+  variables:
+    ROLE: qemu-x86_64
+    TEST_PY_TEST_SPEC: "and not sleep"
   <<: *lab_dfn
