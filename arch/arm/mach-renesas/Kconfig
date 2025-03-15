@@ -74,7 +74,6 @@ config RZG2L
 	select RCAR_64
 	imply CLK_RZG2L
 	imply MULTI_DTB_FIT
-	imply MULTI_DTB_FIT_USER_DEFINED_AREA
 	imply PINCTRL_RZG2L
 	imply RENESAS_RAVB
 	imply RENESAS_SDHI
