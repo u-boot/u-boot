@@ -13,7 +13,7 @@
 static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 {
 	const char *typename = argv[0];
-	uint32_t start, size;
+	u64 start, size;
 	u64 base, mask;
 	int type = -1;
 	bool valid;
@@ -26,8 +26,8 @@ static int do_mtrr_set(int cpu_select, uint reg, int argc, char *const argv[])
 		printf("Invalid type name %s\n", typename);
 		return CMD_RET_USAGE;
 	}
-	start = hextoul(argv[1], NULL);
-	size = hextoul(argv[2], NULL);
+	start = hextoull(argv[1], NULL);
+	size = hextoull(argv[2], NULL);
 
 	base = start | type;
 	valid = native_read_msr(MTRR_PHYS_MASK_MSR(reg)) & MTRR_PHYS_MASK_VALID;
