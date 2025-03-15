@@ -748,7 +748,7 @@ source "dts/Kconfig"
 
 source "env/Kconfig"
 
-menu Networking
+menu "Networking"
 
 choice
 	prompt "Networking stack"
