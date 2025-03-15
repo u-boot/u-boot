@@ -453,7 +453,6 @@ config NAND_SANDBOX
 	select SYS_NAND_SELF_INIT
 	select SPL_SYS_NAND_SELF_INIT
 	select SPL_NAND_INIT
-	select SYS_NAND_SOFT_ECC
 	select BCH
 	select NAND_ECC_BCH
 	imply CMD_NAND
