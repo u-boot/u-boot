@@ -169,15 +169,6 @@ SECTIONS
 	_end = .;
 	_image_binary_end = .;
 
-	/*
-	 * Deprecated: this MMU section is used by pxa at present but
-	 * should not be used by new boards/CPUs.
-	 */
-	. = ALIGN(4096);
-	.mmutable : {
-		*(.mmutable)
-	}
-
 /*
  * These sections occupy the same memory, but their lifetimes do
  * not overlap: U-Boot initializes .bss only after applying dynamic
