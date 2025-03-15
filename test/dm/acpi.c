@@ -309,6 +309,8 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	}
 	ut_asserteq(0, ctx.rsdt->entry[3]);
 	ut_asserteq(0, ctx.xsdt->entry[3]);
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -386,6 +388,8 @@ static int dm_test_acpi_ctx_and_base_tables(struct unit_test_state *uts)
 
 	ut_asserteq(nomap_to_sysmem(rsdt), rsdp->rsdt_address);
 	ut_asserteq(nomap_to_sysmem(xsdt), rsdp->xsdt_address);
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -428,6 +432,8 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -458,6 +464,8 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 	ut_assert_nextline("DMAR @ %16lx", addr);
 	ut_assert_nextlines_are_dump(0x30);
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -642,6 +650,8 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	ut_assert_nextlines_are_dump(2);
 	ut_assert_nextline("%s", "");
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -679,6 +689,8 @@ static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
 	ut_asserteq(addr, gd_acpi_start());
 
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -774,6 +786,7 @@ static int dm_test_acpi_find_table(struct unit_test_state *uts)
 
 	/* Restore previous ACPI tables */
 	gd_set_acpi_start(acpi_start);
+	unmap_sysmem(buf);
 	free(buf);
 
 	return 0;
