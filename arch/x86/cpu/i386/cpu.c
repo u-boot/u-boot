@@ -596,7 +596,7 @@ int cpu_has_64bit(void)
 #define _RW   BIT(1)	/* write allowed */
 #define _US   BIT(2)	/* user-access allowed */
 #define _A    BIT(5)	/* has been accessed */
-#define _D    BIT(6)	/* has been written to */
+#define _DT   BIT(6)	/* has been written to */
 #define _PS   BIT(7)	/* indicates 2MB page size here */
 
 /**
@@ -620,7 +620,7 @@ static void build_pagetable(uint32_t *pgtable)
 
 	/* Level 2 has 2048 64-bit entries, each repesenting 2MiB */
 	for (i = 0; i < 2048; i++)
-		pgtable[2048 + i * 2] = _PRES + _RW + _US + _PS + _A +  _D +
+		pgtable[2048 + i * 2] = _PRES + _RW + _US + _PS + _A +  _DT +
 					 (i << 21UL);
 }
 
