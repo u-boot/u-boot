@@ -482,18 +482,6 @@ The following options need to be configured:
 			for your device
 			- CONFIG_USBD_PRODUCTID 0xFFFF
 
-- ULPI Layer Support:
-		The ULPI (UTMI Low Pin (count) Interface) PHYs are supported via
-		the generic ULPI layer. The generic layer accesses the ULPI PHY
-		via the platform viewport, so you need both the genric layer and
-		the viewport enabled. Currently only Chipidea/ARC based
-		viewport is supported.
-		To enable the ULPI layer support, define CONFIG_USB_ULPI and
-		CONFIG_USB_ULPI_VIEWPORT in your board configuration file.
-		If your ULPI phy needs a different reference clock than the
-		standard 24 MHz then you have to define CFG_ULPI_REF_CLK to
-		the appropriate value in Hz.
-
 - MMC Support:
 		CONFIG_SH_MMCIF
 		Support for Renesas on-chip MMCIF controller
