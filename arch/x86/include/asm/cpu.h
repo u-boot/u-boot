@@ -58,6 +58,10 @@ enum {
 	X86_SYSCON_PUNIT,	/* Power unit */
 };
 
+#define CPUID_FEATURE_PAE	BIT(6)
+#define CPUID_FEATURE_PSE36	BIT(17)
+#define CPUID_FEAURE_HTT	BIT(28)
+
 struct cpuid_result {
 	uint32_t eax;
 	uint32_t ebx;
@@ -161,12 +165,16 @@ static inline unsigned int cpuid_edx(unsigned int op)
 	return edx;
 }
 
-#if !CONFIG_IS_ENABLED(X86_64)
-
-/* Standard macro to see if a specific flag is changeable */
-static inline int flag_is_changeable_p(uint32_t flag)
+#if CONFIG_IS_ENABLED(X86_64)
+static inline int flag_is_changeable_p(u32 flag)
 {
-	uint32_t f1, f2;
+	return 1;
+}
+#else
+/* Standard macro to see if a specific flag is changeable */
+static inline int flag_is_changeable_p(u32 flag)
+{
+	u32 f1, f2;
 
 	asm(
 		"pushfl\n\t"
@@ -181,9 +189,9 @@ static inline int flag_is_changeable_p(uint32_t flag)
 		"popfl\n\t"
 		: "=&r" (f1), "=&r" (f2)
 		: "ir" (flag));
-	return ((f1^f2) & flag) != 0;
+	return ((f1 ^ f2) & flag) != 0;
 }
-#endif
+#endif /* X86_64 */
 
 /**
  * cpu_enable_paging_pae() - Enable PAE-paging
