@@ -222,7 +222,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	else
 		*load_addressp = ZIMAGE_LOAD_ADDR;
 
-	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
+	printf("Building boot_params at %lx\n", (ulong)setup_base);
 	memset(setup_base, 0, sizeof(*setup_base));
 	setup_base->hdr = params->hdr;
 
@@ -298,10 +298,13 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		hdr->type_of_loader = 0x80;	/* U-Boot version 0 */
 		if (initrd_addr) {
 			printf("Initial RAM disk at linear address "
-			       "0x%08lx, size %ld bytes\n",
-			       initrd_addr, initrd_size);
+			       "%lx, size %lx (%ld bytes)\n",
+			       initrd_addr, initrd_size, initrd_size);
 
 			hdr->ramdisk_image = initrd_addr;
+			setup_base->ext_ramdisk_image = 0;
+			setup_base->ext_ramdisk_size = 0;
+			setup_base->ext_cmd_line_ptr = 0;
 			hdr->ramdisk_size = initrd_size;
 		}
 	}
@@ -372,8 +375,7 @@ int zboot_load(struct bootm_info *bmi)
 		struct boot_params *from = (struct boot_params *)bmi->base_ptr;
 
 		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
-		log_debug("Building boot_params at 0x%8.8lx\n",
-			  (ulong)base_ptr);
+		log_debug("Building boot_params at %lx\n", (ulong)base_ptr);
 		memset(base_ptr, '\0', sizeof(*base_ptr));
 		base_ptr->hdr = from->hdr;
 	} else {
