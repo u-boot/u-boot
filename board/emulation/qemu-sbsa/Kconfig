@@ -30,7 +30,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	select HAS_ROM
 	select MTD
 	select OF_LIBFDT_OVERLAY
-	select OF_SEPARATE
 	select PCI
 	select PCIE_ECAM_GENERIC
 	select SYS_PCI_64BIT
