@@ -2635,7 +2635,7 @@ static void dbsc5_dbsc_regset(struct udevice *dev)
 	 */
 	dbsc5_reg_write(regs_dbsc_d + DBSC_DBTR(11),
 			priv->RL + 4 + priv->js2[JS2_tWCK2DQO_HF] -
-			js1[priv->js1_ind].ODTLon - priv->js2[JS2_tODTon_min]);
+			js1[priv->js1_ind].ODTLon - priv->js2[JS2_tODTon_min] + 2);
 
 	/* DBTR12.TWRRD_S : WL + BL/2 + tWTR_S, TWRRD_L : WL + BL + tWTR_L */
 	dbsc5_reg_write(regs_dbsc_d + DBSC_DBTR(12),
