@@ -59,7 +59,8 @@ int renesas_dbsc5_bind(struct udevice *dev)
 
 struct renesas_dbsc5_data r8a779g0_dbsc5_data = {
 	.clock_node = "renesas,r8a779g0-cpg-mssr",
-	.reset_node = "renesas,r8a779g0-rst"
+	.reset_node = "renesas,r8a779g0-rst",
+	.otp_node = "renesas,r8a779g0-otp",
 };
 
 static const struct udevice_id renesas_dbsc5_ids[] = {

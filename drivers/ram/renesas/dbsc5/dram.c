@@ -4364,16 +4364,20 @@ static int renesas_dbsc5_dram_probe(struct udevice *dev)
 {
 #define RST_MODEMR0			0x0
 #define RST_MODEMR1			0x4
+#define OTP_MONITOR17			0x1144
 	struct renesas_dbsc5_data *data = (struct renesas_dbsc5_data *)dev_get_driver_data(dev);
 	ofnode cnode = ofnode_by_compatible(ofnode_null(), data->clock_node);
 	ofnode rnode = ofnode_by_compatible(ofnode_null(), data->reset_node);
+	ofnode onode = ofnode_by_compatible(ofnode_null(), data->otp_node);
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	void __iomem *regs_dbsc_a = priv->regs + DBSC5_DBSC_A_OFFSET;
 	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
 	phys_addr_t rregs = ofnode_get_addr(rnode);
 	const u32 modemr0 = readl(rregs + RST_MODEMR0);
 	const u32 modemr1 = readl(rregs + RST_MODEMR1);
-	u32 breg, reg, md, sscg;
+	phys_addr_t oregs = ofnode_get_addr(onode);
+	const u32 otpmon17 = readl(oregs + OTP_MONITOR17);
+	u32 breg, reg, md, sscg, product;
 	u32 ch, cs;
 
 	/* Get board data */
@@ -4428,29 +4432,41 @@ static int renesas_dbsc5_dram_probe(struct udevice *dev)
 
 	/* Decode DDR operating frequency from MD[37:36,19,17] pins */
 	md = ((modemr0 & BIT(19)) >> 18) | ((modemr0 & BIT(17)) >> 17);
+	product = otpmon17 & 0xff;
 	sscg = (modemr1 >> 4) & 0x03;
 	if (sscg == 2) {
 		printf("MD[37:36] setting 0x%x not supported!", sscg);
 		hang();
 	}
 
-	if (md == 0) {
-		if (sscg == 0) {
-			priv->ddr_mbps = 6400;
-			priv->ddr_mbpsdiv = 1;
-		} else {
-			priv->ddr_mbps = 19000;
-			priv->ddr_mbpsdiv = 3;
-		}
-	} else if (md == 1) {
-		priv->ddr_mbps = 6000;
-		priv->ddr_mbpsdiv = 1;
-	} else if (md == 2) {
-		priv->ddr_mbps = 5500;
-		priv->ddr_mbpsdiv = 1;
-	} else if (md == 3) {
+	if (product == 0x2) {			/* V4H-3 */
 		priv->ddr_mbps = 4800;
 		priv->ddr_mbpsdiv = 1;
+	} else if (product == 0x1) {		/* V4H-5 */
+		if (md == 3)
+			priv->ddr_mbps = 4800;
+		else
+			priv->ddr_mbps = 5000;
+		priv->ddr_mbpsdiv = 1;
+	} else {				/* V4H-7 */
+		if (md == 0) {
+			if (sscg == 0) {
+				priv->ddr_mbps = 6400;
+				priv->ddr_mbpsdiv = 1;
+			} else {
+				priv->ddr_mbps = 19000;
+				priv->ddr_mbpsdiv = 3;
+			}
+		} else if (md == 1) {
+			priv->ddr_mbps = 6000;
+			priv->ddr_mbpsdiv = 1;
+		} else if (md == 2) {
+			priv->ddr_mbps = 5500;
+			priv->ddr_mbpsdiv = 1;
+		} else if (md == 3) {
+			priv->ddr_mbps = 4800;
+			priv->ddr_mbpsdiv = 1;
+		}
 	}
 
 	priv->ddr_mul = CLK_DIV(priv->ddr_mbps, priv->ddr_mbpsdiv * 2,
