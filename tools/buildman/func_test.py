@@ -288,11 +288,11 @@ class TestFunctional(unittest.TestCase):
         """Test gitutils.Setup(), from outside the module itself"""
         command.TEST_RESULT = command.CommandResult(return_code=1)
         gitutil.setup()
-        self.assertEqual(gitutil.use_no_decorate, False)
+        self.assertEqual(gitutil.USE_NO_DECORATE, False)
 
         command.TEST_RESULT = command.CommandResult(return_code=0)
         gitutil.setup()
-        self.assertEqual(gitutil.use_no_decorate, True)
+        self.assertEqual(gitutil.USE_NO_DECORATE, True)
 
     def _HandleCommandGitLog(self, args):
         if args[-1] == '--':
