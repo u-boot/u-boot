@@ -2192,7 +2192,7 @@ static void dbsc5_ddrtbl_calc(struct renesas_dbsc5_dram_priv *priv)
 		if (js1[i].fx3 * 2 * priv->ddr_mbpsdiv >= priv->ddr_mbps * 3)
 			break;
 
-	priv->js1_ind = max(i, JS1_USABLEC_SPEC_HI);
+	priv->js1_ind = clamp(i, 0, JS1_USABLEC_SPEC_HI);
 
 	priv->RL = js1[priv->js1_ind].RLset1;
 	priv->WL = js1[priv->js1_ind].WLsetA;
