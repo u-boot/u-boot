@@ -21,6 +21,10 @@ void write_to_env_var(char *varname, u8 *result, ulong len)
 	int i;
 
 	str_output = malloc(len * 2 + 1);
+	if (str_output == NULL){
+		printf("BINOP: could not allocate memory for binop\n");
+		return -ENOMEM;
+	}
 	str_ptr = str_output;
 
 	for (i = 0; i < len; i++) {
@@ -92,7 +96,15 @@ static int do_binop(struct cmd_tbl *cmdtp, int flag, int argc,
 	len = dectoul(lenarg, NULL);
 
 	src1 = malloc(len);
+	if (src1 == NULL){
+		printf("BINOP: could not allocate memory for binop\n");
+		return -ENOMEM;
+	}
 	src2 = malloc(len);
+	if (src2 == NULL){
+		printf("BINOP: could not allocate memory for binop\n");
+		return -ENOMEM;
+	}
 
 	if (*src1arg == '*')
 		read_from_mem(hextoul(src1arg + 1, NULL), src1, len);
