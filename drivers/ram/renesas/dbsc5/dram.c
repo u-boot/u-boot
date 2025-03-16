@@ -220,6 +220,7 @@ static const u16 jedec_spec2_tRFC_ab[] = {
 #define PHY_RDLVL_RDDQS_DQ_TE_DLY_OBS		DDR_REGDEF(0x00, 0x09, 0x103F)
 #define PHY_WDQLVL_STATUS_OBS			DDR_REGDEF(0x00, 0x20, 0x1043)
 #define PHY_DATA_DC_CAL_START			DDR_REGDEF(0x18, 0x01, 0x104D)
+#define PHY_SLV_DLY_CTRL_GATE_DISABLE		DDR_REGDEF(0x10, 0x01, 0x104E)
 #define PHY_REGULATOR_EN_CNT			DDR_REGDEF(0x18, 0x06, 0x1050)
 #define PHY_VREF_INITIAL_START_POINT		DDR_REGDEF(0x00, 0x09, 0x1055)
 #define PHY_VREF_INITIAL_STOP_POINT		DDR_REGDEF(0x10, 0x09, 0x1055)
@@ -469,7 +470,7 @@ static const u32 DDR_PHY_SLICE_REGSET_V4H[DDR_PHY_SLICE_REGSET_NUM_V4H] = {
 	0x00000000, 0x00500050, 0x00500050, 0x00500050,
 	0x00500050, 0x0D000050, 0x10100004, 0x06102010,
 	0x61619041, 0x07097000, 0x00644180, 0x00803280,
-	0x00808001, 0x13010100, 0x02000016, 0x10001003,
+	0x00808001, 0x13010101, 0x02000016, 0x10001003,
 	0x06093E42, 0x0F063D01, 0x011700C8, 0x04100140,
 	0x00000100, 0x000001D1, 0x05000068, 0x00030402,
 	0x01400000, 0x80800300, 0x00160010, 0x76543210,
@@ -512,8 +513,8 @@ static const u32 DDR_PHY_ADR_G_REGSET_V4H[DDR_PHY_ADR_G_REGSET_NUM_V4H] = {
 	0x00040101, 0x00000000, 0x00000000, 0x00000064,
 	0x00000000, 0x00000000, 0x39421B42, 0x00010124,
 	0x00520052, 0x00000052, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x07030102,
+	0x00010001, 0x00000000, 0x00000000, 0x00010001,
+	0x00000000, 0x00000000, 0x00010001, 0x07030102,
 	0x01030307, 0x00000054, 0x00004096, 0x08200820,
 	0x08200820, 0x08200820, 0x08200820, 0x00000820,
 	0x004103B8, 0x0000003F, 0x000C0006, 0x00000000,
@@ -1294,7 +1295,7 @@ static const struct dbsc5_table_patch dbsc5_table_patch_slice_mbpsdiv_572 = {
 };
 
 static const struct dbsc5_table_patch dbsc5_table_patch_adr_g_mbpsdiv_572 = {
-	PHY_PAD_ACS_RX_PCLK_CLK_SEL, 0x03
+	PHY_PAD_ACS_RX_PCLK_CLK_SEL, 0x02
 };
 
 static const struct dbsc5_table_patch dbsc5_table_patch_adr_g_mbpsdiv_400[] = {
@@ -1713,14 +1714,17 @@ static void dbsc5_clk_wait_dbpdstat1(struct udevice *dev, u32 status)
 {
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
-	u32 i, ch, reg;
+	u32 i, ch, chk, reg;
 
 	for (i = 0; i < 2; i++) {
 		do {
 			reg = status;
-			r_foreach_vch(dev, ch)
+			chk = 0;
+			r_foreach_vch(dev, ch) {
 				reg &= readl(regs_dbsc_d + DBSC_DBPDSTAT1(ch));
-		} while (reg != status);
+				chk |= readl(regs_dbsc_d + DBSC_DBPDSTAT0(ch));
+			}
+		} while (reg != status && !(chk & BIT(0)));
 	}
 }
 
@@ -3491,13 +3495,10 @@ static void dbsc5_manual_write_dca(struct udevice *dev)
 {
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	const u32 rank = priv->ch_have_this_cs[1] ? 0x2 : 0x1;
-	u32 slv_dly_center[DRAM_CH_CNT][CS_CNT][SLICE_CNT];
-	u32 slv_dly_center_cyc;
-	u32 slv_dly_center_dly;
+	u32 phy_slv_dly[DRAM_CH_CNT][CS_CNT][SLICE_CNT];
+	u32 phy_slv_dly_avg[DRAM_CH_CNT][SLICE_CNT];
 	u32 slv_dly_min[DRAM_CH_CNT][SLICE_CNT];
 	u32 slv_dly_max[DRAM_CH_CNT][SLICE_CNT];
-	u32 slv_dly_min_tmp[DRAM_CH_CNT][CS_CNT][SLICE_CNT];
-	u32 slv_dly_max_tmp[DRAM_CH_CNT][CS_CNT][SLICE_CNT];
 	u32 phy_dcc_code_min[DRAM_CH_CNT][SLICE_CNT];
 	u32 phy_dcc_code_max[DRAM_CH_CNT][SLICE_CNT];
 	u32 phy_dcc_code_mid;
@@ -3521,18 +3522,9 @@ static void dbsc5_manual_write_dca(struct udevice *dev)
 		dbsc5_ddr_setval_all_ch_all_slice(dev, PHY_PER_CS_TRAINING_INDEX, cs);
 		r_foreach_vch(dev, ch) {
 			for (slice = 0; slice < SLICE_CNT; slice++) {
-				slv_dly_center[ch][cs][slice] =
-					dbsc5_ddr_getval_slice(dev, ch, slice, PHY_CLK_WRDQS_SLAVE_DELAY);
-				slv_dly_center_cyc = slv_dly_center[ch][cs][slice] & 0x180;
-				slv_dly_center_dly = slv_dly_center[ch][cs][slice] & 0x7F;
-				slv_dly_min_tmp[ch][cs][slice] =
-					slv_dly_center_cyc |
-					(slv_dly_center_dly * ratio_min / ratio_min_div);
-				slv_dly_max_tmp[ch][cs][slice] = slv_dly_center_cyc;
-				if ((slv_dly_center_dly * ratio_max) > (0x7F * ratio_max_div))
-					slv_dly_max_tmp[ch][cs][slice] |= 0x7F;
-				else
-					slv_dly_max_tmp[ch][cs][slice] |= slv_dly_center_dly * ratio_max / ratio_max_div;
+				phy_slv_dly[ch][cs][slice] =
+					dbsc5_ddr_getval_slice(dev, ch, slice,
+							       PHY_CLK_WRDQS_SLAVE_DELAY);
 			}
 		}
 	}
@@ -3540,21 +3532,21 @@ static void dbsc5_manual_write_dca(struct udevice *dev)
 	r_foreach_vch(dev, ch) {
 		for (slice = 0; slice < SLICE_CNT; slice++) {
 			if (rank == 0x2) {
-				if (slv_dly_max_tmp[ch][0][slice] < slv_dly_max_tmp[ch][1][slice])
-					slv_dly_max[ch][slice] = slv_dly_max_tmp[ch][1][slice];
-				else
-					slv_dly_max[ch][slice] = slv_dly_max_tmp[ch][0][slice];
-
-				if (slv_dly_min_tmp[ch][0][slice] < slv_dly_min_tmp[ch][1][slice])
-					slv_dly_min[ch][slice] = slv_dly_min_tmp[ch][0][slice];
-				else
-					slv_dly_min[ch][slice] = slv_dly_min_tmp[ch][1][slice];
+				/* Calculate average between ranks */
+				phy_slv_dly_avg[ch][slice] = (phy_slv_dly[ch][0][slice] +
+							      phy_slv_dly[ch][1][slice]) / 2;
 			} else {
-				slv_dly_max[ch][slice] = slv_dly_max_tmp[ch][0][slice];
-				slv_dly_min[ch][slice] = slv_dly_min_tmp[ch][0][slice];
+				phy_slv_dly_avg[ch][slice] = phy_slv_dly[ch][0][slice];
 			}
+			/* Determine the search range */
+			slv_dly_min[ch][slice] = (phy_slv_dly_avg[ch][slice] & 0x07F) * ratio_min / ratio_min_div;
+			slv_dly_max[ch][slice] = (phy_slv_dly_avg[ch][slice] & 0x07F) * ratio_max / ratio_max_div;
+			if (slv_dly_max[ch][slice] > 0x7F)
+				slv_dly_max[ch][slice] = 0x7F;
 		}
 	}
+
+	dbsc5_ddr_setval_all_ch_all_slice(dev, PHY_SLV_DLY_CTRL_GATE_DISABLE, 0x1);
 
 	for (i = 0; i <= 0x7F; i++) {
 		r_foreach_vch(dev, ch) {
@@ -3621,13 +3613,16 @@ static void dbsc5_manual_write_dca(struct udevice *dev)
 			for (slice = 0; slice < SLICE_CNT; slice++) {
 				dbsc5_ddr_setval_slice(dev, ch, slice,
 						       PHY_CLK_WRDQS_SLAVE_DELAY,
-						       slv_dly_center[ch][cs][slice]);
+						       phy_slv_dly[ch][cs][slice]);
 				dbsc5_ddr_setval_slice(dev, ch, slice,
 						       SC_PHY_WCK_CALC, 0x1);
 				dbsc5_ddr_setval(dev, ch, SC_PHY_MANUAL_UPDATE, 0x1);
 			}
 		}
 	}
+
+	dbsc5_ddr_setval_all_ch_all_slice(dev, PHY_SLV_DLY_CTRL_GATE_DISABLE, 0x0);
+
 	dbsc5_ddr_setval_all_ch_all_slice(dev, PHY_PER_CS_TRAINING_MULTICAST_EN, 0x1);
 
 	r_foreach_vch(dev, ch) {
