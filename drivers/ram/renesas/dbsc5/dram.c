@@ -4450,10 +4450,10 @@ static int renesas_dbsc5_dram_probe(struct udevice *dev)
 	} else if (md == 1) {
 		priv->ddr_mbps = 6000;
 		priv->ddr_mbpsdiv = 1;
-	} else if (md == 1) {
+	} else if (md == 2) {
 		priv->ddr_mbps = 5500;
 		priv->ddr_mbpsdiv = 1;
-	} else if (md == 1) {
+	} else if (md == 3) {
 		priv->ddr_mbps = 4800;
 		priv->ddr_mbpsdiv = 1;
 	}
