@@ -4447,7 +4447,7 @@ EXPORT_SYMBOL(nand_detect);
 static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode node)
 {
 	int ret, ecc_mode = -1, ecc_strength, ecc_step;
-	int ecc_algo = NAND_ECC_UNKNOWN;
+	int ecc_algo = NAND_ECC_ALGO_UNKNOWN;
 	const char *str;
 
 	ret = ofnode_read_s32_default(node, "nand-bus-width", -1);
@@ -4487,9 +4487,9 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 				ecc_mode = NAND_ECC_SOFT_BCH;
 		} else {
 			if (!strcmp(str, "bch")) {
-				ecc_algo = NAND_ECC_BCH;
+				ecc_algo = NAND_ECC_ALGO_BCH;
 			} else if (!strcmp(str, "hamming")) {
-				ecc_algo = NAND_ECC_HAMMING;
+				ecc_algo = NAND_ECC_ALGO_HAMMING;
 			}
 		}
 	}
@@ -4510,7 +4510,7 @@ static int nand_dt_init(struct mtd_info *mtd, struct nand_chip *chip, ofnode nod
 	 * onlt override it if we have found something explicitly
 	 * specified in the device tree.
 	 */
-	if (ecc_algo != NAND_ECC_UNKNOWN)
+	if (ecc_algo != NAND_ECC_ALGO_UNKNOWN)
 		chip->ecc.algo = ecc_algo;
 
 	if (ecc_mode >= 0)
