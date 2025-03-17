@@ -454,11 +454,30 @@ efi_status_t efi_env_set_load_options(efi_handle_t handle,
  */
 static efi_status_t copy_fdt(void **fdtp)
 {
-	unsigned long fdt_pages;
 	efi_status_t ret = 0;
 	void *fdt, *new_fdt;
-	u64 new_fdt_addr;
-	uint fdt_size;
+	static u64 new_fdt_addr;
+	static efi_uintn_t fdt_pages;
+	ulong fdt_size;
+
+	/*
+	 * Remove the configuration table that might already be
+	 * installed, ignoring EFI_NOT_FOUND if no device-tree
+	 * is installed
+	 */
+	efi_install_configuration_table(&efi_guid_fdt, NULL);
+
+	if (new_fdt_addr) {
+		log_debug("%s: Found allocated memory at %#llx, with %#zx pages\n",
+			  __func__, new_fdt_addr, fdt_pages);
+
+		ret = efi_free_pages(new_fdt_addr, fdt_pages);
+		if (ret != EFI_SUCCESS)
+			log_err("Unable to free up existing FDT memory region\n");
+
+		new_fdt_addr = 0;
+		fdt_pages = 0;
+	}
 
 	/*
 	 * Give us at least 12 KiB of breathing room in case the device tree
@@ -473,15 +492,18 @@ static efi_status_t copy_fdt(void **fdtp)
 				 &new_fdt_addr);
 	if (ret != EFI_SUCCESS) {
 		log_err("Failed to reserve space for FDT\n");
-		goto done;
+		return ret;
 	}
+	log_debug("%s: Allocated memory at %#llx, with %#zx pages\n",
+		  __func__, new_fdt_addr, fdt_pages);
+
 	new_fdt = (void *)(uintptr_t)new_fdt_addr;
 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
 	fdt_set_totalsize(new_fdt, fdt_size);
 
-	*fdtp = (void *)(uintptr_t)new_fdt_addr;
-done:
-	return ret;
+	*fdtp = new_fdt;
+
+	return EFI_SUCCESS;
 }
 
 /**
@@ -534,9 +556,6 @@ efi_status_t efi_install_fdt(void *fdt)
 		const char *fdt_opt;
 		uintptr_t fdt_addr;
 
-		/* Look for device tree that is already installed */
-		if (efi_get_configuration_table(&efi_guid_fdt))
-			return EFI_SUCCESS;
 		/* Check if there is a hardware device tree */
 		fdt_opt = env_get("fdt_addr");
 		/* Use our own device tree as fallback */
