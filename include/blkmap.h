@@ -7,6 +7,7 @@
 #ifndef _BLKMAP_H
 #define _BLKMAP_H
 
+#include <blk.h>
 #include <dm/lists.h>
 
 /**
@@ -103,5 +104,33 @@ int blkmap_destroy(struct udevice *dev);
  */
 int blkmap_create_ramdisk(const char *label, ulong image_addr, ulong image_size,
 			  struct udevice **devp);
+
+/**
+ * blkmap_get_preserved_pmem_slices() - Look for memory mapped preserved slices
+ * @cb: Callback function to call for the blkmap slice
+ * @ctx: Argument to be passed to the callback function
+ *
+ * The function is used to iterate through all the blkmap slices, looking
+ * specifically for memory mapped blkmap mapping which has been
+ * created with the preserve attribute. The function looks for such slices
+ * with the relevant attributes and then calls the callback function which
+ * then does additional configuration as needed. The callback function is
+ * invoked for all the discovered slices, unless there is an error returned
+ * by the callback, in which case the function returns that error.
+ *
+ * The callback function has the following arguments
+ * @ctx:	Argument to be passed to the callback function
+ * @addr:	Start address of the memory mapped slice
+ * @size:	Size of the memory mapped slice
+ *
+ * Typically, the callback will perform some configuration needed for the
+ * information passed on to it. An example of this would be setting up the
+ * pmem node in a device-tree(passed through the ctx argument) with the
+ * parameters passed on to the callback.
+ *
+ * Return: 0 on success, negative error on failure
+ */
+int blkmap_get_preserved_pmem_slices(int (*cb)(void *ctx, u64 addr,
+					       u64 size), void *ctx);
 
 #endif	/* _BLKMAP_H */

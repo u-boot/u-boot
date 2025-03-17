@@ -517,6 +517,49 @@ err:
 	return err;
 }
 
+static bool blkmap_mem_preserve_slice(struct blkmap_slice *bms)
+{
+	return (bms->attr & (BLKMAP_SLICE_MEM | BLKMAP_SLICE_PRESERVE)) ==
+		(BLKMAP_SLICE_MEM | BLKMAP_SLICE_PRESERVE);
+}
+
+int blkmap_get_preserved_pmem_slices(int (*cb)(void *ctx, u64 addr,
+					       u64 size), void *ctx)
+{
+	int ret;
+	u64 addr, size;
+	struct udevice *dev;
+	struct uclass *uc;
+	struct blkmap *bm;
+	struct blkmap_mem *bmm;
+	struct blkmap_slice *bms;
+	struct blk_desc *bd;
+
+	if (!cb) {
+		log_debug("%s: No callback passed to the function\n", __func__);
+		return 0;
+	}
+
+	uclass_id_foreach_dev(UCLASS_BLKMAP, dev, uc) {
+		bm = dev_get_plat(dev);
+		bd = dev_get_uclass_plat(bm->blk);
+
+		list_for_each_entry(bms, &bm->slices, node) {
+			if (!blkmap_mem_preserve_slice(bms))
+				continue;
+
+			bmm = container_of(bms, struct blkmap_mem, slice);
+			addr = (u64)(uintptr_t)bmm->addr;
+			size = (u64)bms->blkcnt << bd->log2blksz;
+			ret = cb(ctx, addr, size);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
 int blkmap_destroy(struct udevice *dev)
 {
 	int err;

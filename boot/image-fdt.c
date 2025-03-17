@@ -11,6 +11,7 @@
 #include <command.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
+#include <efi.h>
 #include <env.h>
 #include <errno.h>
 #include <image.h>
@@ -648,6 +649,12 @@ int image_setup_libfdt(struct bootm_headers *images, void *blob, bool lmb)
 
 	if (!ft_verify_fdt(blob))
 		goto err;
+
+	if (CONFIG_IS_ENABLED(BLKMAP) && CONFIG_IS_ENABLED(EFI_LOADER)) {
+		fdt_ret = fdt_efi_pmem_setup(blob);
+		if (fdt_ret)
+			goto err;
+	}
 
 	/* after here we are using a livetree */
 	if (!of_live_active() && CONFIG_IS_ENABLED(EVENT)) {

@@ -5,6 +5,7 @@
 
 #define LOG_CATEGORY LOGC_EFI
 
+#include <blkmap.h>
 #include <bootm.h>
 #include <env.h>
 #include <image.h>
@@ -686,4 +687,45 @@ out:
 	efi_set_watchdog(0);
 
 	return ret;
+}
+
+/**
+ * pmem_node_efi_memmap_setup() - Add pmem node and tweak EFI memmap
+ * @fdt: The devicetree to which pmem node is added
+ * @addr: start address of the pmem node
+ * @size: size of the memory of the pmem node
+ *
+ * The function adds the pmem node to the device-tree along with removing
+ * the corresponding region from the EFI memory map. Used primarily to
+ * pass the information of a RAM based ISO image to the OS.
+ *
+ * Return: 0 on success, -ve value on error
+ */
+static int pmem_node_efi_memmap_setup(void *fdt, u64 addr, u64 size)
+{
+	int ret;
+	u64 pages;
+	efi_status_t status;
+
+	ret = fdt_fixup_pmem_region(fdt, addr, size);
+	if (ret) {
+		log_err("Failed to setup pmem node for addr %#llx, size %#llx, err %d\n",
+			addr, size, ret);
+		return ret;
+	}
+
+	/* Remove the pmem region from the EFI memory map */
+	pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+	status = efi_update_memory_map(addr, pages, EFI_CONVENTIONAL_MEMORY,
+				       false, true);
+	if (status != EFI_SUCCESS)
+		return -1;
+
+	return 0;
+}
+
+int fdt_efi_pmem_setup(void *fdt)
+{
+	return blkmap_get_preserved_pmem_slices(pmem_node_efi_memmap_setup,
+						fdt);
 }
