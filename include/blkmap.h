@@ -60,10 +60,12 @@ int blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
  * @blknr: Start block number of the mapping
  * @blkcnt: Number of blocks to map
  * @paddr: The target physical memory address of the mapping
+ * @preserve: Mapping intended to be preserved for subsequent stages,
+ *		like the OS (e.g. ISO installer)
  * Returns: 0 on success, negative error code on failure
  */
 int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		    phys_addr_t paddr);
+		    phys_addr_t paddr, bool preserve);
 
 /**
  * blkmap_from_label() - Find blkmap from label
