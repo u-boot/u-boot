@@ -35,7 +35,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
     else:
         mkfs_opt = ''
 
-    if re.match('fat', fs_type):
+    if re.match('fat', fs_type) or fs_type == 'fs_generic':
         fs_lnxtype = 'vfat'
     else:
         fs_lnxtype = fs_type
