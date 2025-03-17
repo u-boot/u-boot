@@ -9,6 +9,7 @@ General
 .. toctree::
    :maxdepth: 1
 
+   bitbangmii
    board_best_practices
    codingstyle
    designprinciples

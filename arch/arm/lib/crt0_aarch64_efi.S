@@ -144,6 +144,7 @@ section_table:
 		 IMAGE_SCN_CNT_INITIALIZED_DATA)
 
 	.align		12
+	.globl		_start
 _start:
 	stp		x29, x30, [sp, #-32]!
 	mov		x29, sp
