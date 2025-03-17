@@ -85,6 +85,20 @@ U_BOOT_CMD(
 	"      device type 'interface' instance 'dev'."
 );
 
+static int do_mkdir_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
+			    char *const argv[])
+{
+	return do_mkdir(cmdtp, flag, argc, argv, FS_TYPE_ANY);
+}
+
+U_BOOT_CMD(
+	mkdir,	4,	1,	do_mkdir_wrapper,
+	"create a directory",
+	"<interface> [<dev[:part]>] <directory>\n"
+	"    - Create a directory 'directory' of partition 'part' on\n"
+	"      device type 'interface' instance 'dev'."
+);
+
 static int do_fstype_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
 			     char *const argv[])
 {
