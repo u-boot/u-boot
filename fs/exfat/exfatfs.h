@@ -23,6 +23,25 @@
 #ifndef EXFATFS_H_INCLUDED
 #define EXFATFS_H_INCLUDED
 
+#ifdef __UBOOT__
+#include <linux/stat.h>
+#include <linux/types.h>
+#include <log.h>
+#include <stdint.h>
+#include <vsprintf.h>
+
+struct timespec {
+	time_t	tv_sec;		/* seconds */
+	long	tv_nsec;	/* nanoseconds */
+};
+
+#define time(t)		1741234567	/* Thu Mar  6 05:16:07 CET 2025 */
+#define geteuid(n)	1000
+#define getegid(n)	1000
+#define strtol(n, e, b)	simple_strtol(n, e, b)
+#define off_t		unsigned long long
+#endif
+
 #include "byteorder.h"
 #include "compiler.h"
 

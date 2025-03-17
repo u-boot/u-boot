@@ -21,15 +21,19 @@
 */
 
 #include "exfat.h"
+#ifndef __UBOOT__
 #include <strings.h>
+#endif
 
 int exfat_errors_fixed;
 
 bool exfat_ask_to_fix(const struct exfat* ef)
 {
 	const char* question = "Fix (Y/N)?";
+#ifndef __UBOOT__
 	char answer[8];
 	bool yeah, nope;
+#endif
 
 	switch (ef->repair)
 	{
@@ -39,6 +43,7 @@ bool exfat_ask_to_fix(const struct exfat* ef)
 		printf("%s %s", question, "Y\n");
 		return true;
 	case EXFAT_REPAIR_ASK:
+#ifndef __UBOOT__
 		do
 		{
 			printf("%s ", question);
@@ -56,8 +61,16 @@ bool exfat_ask_to_fix(const struct exfat* ef)
 		}
 		while (!yeah && !nope);
 		return yeah;
+#else
+	default:
+		/* Do not attempt to repair FS in U-Boot. */
+		return false;
+#endif
 	}
 	exfat_bug("invalid repair option value: %d", ef->repair);
+#ifdef __UBOOT__
+	return false;
+#endif
 }
 
 bool exfat_fix_invalid_vbr_checksum(const struct exfat* ef, void* sector,

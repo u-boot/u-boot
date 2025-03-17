@@ -34,8 +34,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#ifndef __UBOOT__
 #include <sys/stat.h>
 #include <sys/types.h>
+#endif
 
 #define EXFAT_NAME_MAX 255
 /* UTF-16 encodes code points up to U+FFFF as single 16-bit code units.
@@ -51,7 +53,9 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#ifndef __UBOOT__
 #define DIV_ROUND_UP(x, d) (((x) + (d) - 1) / (d))
+#endif
 #define ROUND_UP(x, d) (DIV_ROUND_UP(x, d) * (d))
 
 #define BMAP_SIZE(count) (ROUND_UP(count, sizeof(bitmap_t) * 8) / 8)
@@ -145,10 +149,17 @@ struct exfat_human_bytes
 extern int exfat_errors;
 extern int exfat_errors_fixed;
 
+#ifdef __UBOOT__
+#define exfat_bug(fmt, args...)		log_crit(fmt, ##args)
+#define exfat_error(fmt, args...)	log_err(fmt, ##args)
+#define exfat_warn(fmt, args...)	log_warning(fmt, ##args)
+#define exfat_debug(fmt, args...)	log_debug(fmt, ##args)
+#else
 void exfat_bug(const char* format, ...) PRINTF NORETURN;
 void exfat_error(const char* format, ...) PRINTF;
 void exfat_warn(const char* format, ...) PRINTF;
 void exfat_debug(const char* format, ...) PRINTF;
+#endif
 
 struct exfat_dev* exfat_open(const char* spec, enum exfat_mode mode);
 int exfat_close(struct exfat_dev* dev);

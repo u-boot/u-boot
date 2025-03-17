@@ -159,6 +159,7 @@ void exfat_unix2exfat(time_t unix_time, le16_t* date, le16_t* time,
 
 void exfat_tzset(void)
 {
+#ifndef __UBOOT__
 	time_t now;
 	struct tm* utc;
 
@@ -170,4 +171,5 @@ void exfat_tzset(void)
 	   summer time is in effect. */
 	utc->tm_isdst = -1;
 	exfat_timezone = mktime(utc) - now;
+#endif
 }

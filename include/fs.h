@@ -18,6 +18,7 @@ struct cmd_tbl;
 #define FS_TYPE_SQUASHFS 6
 #define FS_TYPE_EROFS   7
 #define FS_TYPE_SEMIHOSTING 8
+#define FS_TYPE_EXFAT   9
 
 struct blk_desc;
 
@@ -173,7 +174,7 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
 #define FS_DT_REG  8         /* regular file */
 #define FS_DT_LNK  10        /* symbolic link */
 
-#define FS_DIRENT_NAME_LEN 256
+#define FS_DIRENT_NAME_LEN	CONFIG_IS_ENABLED(FS_EXFAT, (1024), (256))
 
 /**
  * struct fs_dirent - directory entry

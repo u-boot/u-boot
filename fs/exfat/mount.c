@@ -25,8 +25,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <inttypes.h>
+#ifndef __UBOOT__
 #include <unistd.h>
 #include <sys/types.h>
+#endif
 
 static uint64_t rootdir_size(const struct exfat* ef)
 {

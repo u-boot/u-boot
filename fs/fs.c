@@ -32,6 +32,7 @@
 #include <efi_loader.h>
 #include <squashfs.h>
 #include <erofs.h>
+#include <exfat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -379,6 +380,27 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.rename = fs_rename_unsupported,
+	},
+#endif
+#if IS_ENABLED(CONFIG_FS_EXFAT)
+	{
+		.fstype = FS_TYPE_EXFAT,
+		.name = "exfat",
+		.null_dev_desc_ok = false,
+		.probe = exfat_fs_probe,
+		.opendir = exfat_fs_opendir,
+		.readdir = exfat_fs_readdir,
+		.ls = exfat_fs_ls,
+		.read = exfat_fs_read,
+		.size = exfat_fs_size,
+		.close = exfat_fs_close,
+		.closedir = exfat_fs_closedir,
+		.exists = exfat_fs_exists,
+		.uuid = fs_uuid_unsupported,
+		.write = exfat_fs_write,
+		.ln = fs_ln_unsupported,
+		.unlink = exfat_fs_unlink,
+		.mkdir = exfat_fs_mkdir,
 	},
 #endif
 	{

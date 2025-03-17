@@ -26,8 +26,10 @@
 
 #if defined(__linux__) || defined(__GLIBC__) || defined(__GNU__)
 
+#ifndef __UBOOT__
 #include <endian.h>
 #include <byteswap.h>
+#endif
 #define exfat_bswap16(x) bswap_16(x)
 #define exfat_bswap32(x) bswap_32(x)
 #define exfat_bswap64(x) bswap_64(x)

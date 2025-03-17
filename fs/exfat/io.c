@@ -22,6 +22,7 @@
 
 #include "exfat.h"
 #include <inttypes.h>
+#ifndef __UBOOT__
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -44,6 +45,16 @@
 #include <sys/uio.h>
 #include <ublio.h>
 #endif
+#else
+#include <fs.h>
+#include <fs_internal.h>
+
+static struct exfat_ctxt {
+	struct disk_partition	cur_part_info;
+	struct blk_desc		*cur_dev;
+	struct exfat		ef;
+} ctxt;
+#endif
 
 struct exfat_dev
 {
@@ -54,8 +65,12 @@ struct exfat_dev
 	off_t pos;
 	ublio_filehandle_t ufh;
 #endif
+#ifdef __UBOOT__
+	struct exfat_ctxt *ctxt;
+#endif
 };
 
+#ifndef __UBOOT__
 static bool is_open(int fd)
 {
 	return fcntl(fd, F_GETFD) != -1;
@@ -386,6 +401,74 @@ ssize_t exfat_pwrite(struct exfat_dev* dev, const void* buffer, size_t size,
 	return pwrite(dev->fd, buffer, size, offset);
 #endif
 }
+#else	/* U-Boot */
+struct exfat_dev* exfat_open(const char* spec, enum exfat_mode mode)
+{
+	struct exfat_dev* dev;
+
+	dev = malloc(sizeof(struct exfat_dev));
+	if (!dev) {
+		exfat_error("failed to allocate memory for device structure");
+		return NULL;
+	}
+	dev->mode = EXFAT_MODE_RW;
+	dev->size = ctxt.cur_part_info.size * ctxt.cur_part_info.blksz;
+	dev->ctxt = &ctxt;
+
+	return dev;
+}
+
+int exfat_close(struct exfat_dev* dev)
+{
+	free(dev);
+	return 0;
+}
+
+int exfat_fsync(struct exfat_dev* dev)
+{
+	return 0;
+}
+
+enum exfat_mode exfat_get_mode(const struct exfat_dev* dev)
+{
+	return dev->mode;
+}
+
+off_t exfat_get_size(const struct exfat_dev* dev)
+{
+	return dev->size;
+}
+
+ssize_t exfat_pread(struct exfat_dev* dev, void* buffer, size_t size,
+		off_t offset)
+{
+	lbaint_t sect = offset >> ctxt.cur_dev->log2blksz;
+	int off = offset & (ctxt.cur_dev->blksz - 1);
+
+	if (!ctxt.cur_dev)
+		return -EIO;
+
+	if (fs_devread(ctxt.cur_dev, &ctxt.cur_part_info, sect,
+		       off, size, buffer))
+		return 0;
+	return -EIO;
+}
+
+ssize_t exfat_pwrite(struct exfat_dev* dev, const void* buffer, size_t size,
+		off_t offset)
+{
+	lbaint_t sect = offset >> ctxt.cur_dev->log2blksz;
+	int off = offset & (ctxt.cur_dev->blksz - 1);
+
+	if (!ctxt.cur_dev)
+		return -EIO;
+
+	if (fs_devwrite(ctxt.cur_dev, &ctxt.cur_part_info, sect,
+		       off, size, buffer))
+		return 0;
+	return -EIO;
+}
+#endif
 
 ssize_t exfat_generic_pread(const struct exfat* ef, struct exfat_node* node,
 		void* buffer, size_t size, off_t offset)
@@ -512,3 +595,406 @@ ssize_t exfat_generic_pwrite(struct exfat* ef, struct exfat_node* node,
 		exfat_update_mtime(node);
 	return size - remainder;
 }
+
+#ifdef __UBOOT__
+struct exfat_dir_stream {
+	struct fs_dir_stream fs_dirs;
+	struct fs_dirent dirent;
+
+	struct exfat_node* node;
+	struct exfat_iterator it;
+	/* State tracker flags for emulated . and .. dirents */
+	bool dot;
+	bool dotdot;
+};
+
+int exfat_fs_probe(struct blk_desc *fs_dev_desc,
+		struct disk_partition *fs_partition)
+{
+	int ret;
+
+	ctxt.cur_dev = fs_dev_desc;
+	ctxt.cur_part_info = *fs_partition;
+
+	ret = exfat_mount(&ctxt.ef, NULL, "");
+	if (ret)
+		goto error;
+
+	return 0;
+error:
+	ctxt.cur_dev = NULL;
+	return ret;
+}
+
+#define PATH_MAX FS_DIRENT_NAME_LEN
+
+/* Adapted from uclibc 1.0.35 */
+static char *exfat_realpath(const char *path, char got_path[])
+{
+	char copy_path[PATH_MAX];
+	char *max_path, *new_path;
+	size_t path_len;
+
+	if (path == NULL)
+		return NULL;
+
+	if (*path == '\0')
+		return NULL;
+
+	/* Make a copy of the source path since we may need to modify it. */
+	path_len = strlen(path);
+	if (path_len >= PATH_MAX - 2)
+		return NULL;
+
+	/* Copy so that path is at the end of copy_path[] */
+	strcpy(copy_path + (PATH_MAX-1) - path_len, path);
+	path = copy_path + (PATH_MAX-1) - path_len;
+	max_path = got_path + PATH_MAX - 2; /* points to last non-NUL char */
+	new_path = got_path;
+	*new_path++ = '/';
+	path++;
+
+	/* Expand each slash-separated pathname component. */
+	while (*path != '\0') {
+		/* Ignore stray "/". */
+		if (*path == '/') {
+			path++;
+			continue;
+		}
+
+		if (*path == '.') {
+			/* Ignore ".". */
+			if (path[1] == '\0' || path[1] == '/') {
+				path++;
+				continue;
+			}
+
+			if (path[1] == '.') {
+				if (path[2] == '\0' || path[2] == '/') {
+					path += 2;
+					/* Ignore ".." at root. */
+					if (new_path == got_path + 1)
+						continue;
+					/* Handle ".." by backing up. */
+					while ((--new_path)[-1] != '/')
+						;
+					continue;
+				}
+			}
+		}
+
+		/* Safely copy the next pathname component. */
+		while (*path != '\0' && *path != '/') {
+			if (new_path > max_path)
+				return NULL;
+			*new_path++ = *path++;
+		}
+
+		*new_path++ = '/';
+	}
+
+	/* Delete trailing slash but don't whomp a lone slash. */
+	if (new_path != got_path + 1 && new_path[-1] == '/')
+		new_path--;
+
+	/* Make sure it's null terminated. */
+	*new_path = '\0';
+	return got_path;
+}
+
+int exfat_lookup_realpath(struct exfat* ef, struct exfat_node** node,
+			  const char* path)
+{
+	char input_path[FS_DIRENT_NAME_LEN];
+	char real_path[FS_DIRENT_NAME_LEN];
+	char *name;
+
+	/* Input is always absolute path */
+	snprintf(input_path, FS_DIRENT_NAME_LEN, "/%s", path);
+	name = exfat_realpath(input_path, real_path);
+	if (!name)
+		return -EINVAL;
+
+	return exfat_lookup(ef, node, real_path);
+}
+
+int exfat_fs_opendir(const char *filename, struct fs_dir_stream **dirsp)
+{
+	struct exfat_dir_stream *dirs;
+	int err;
+
+	dirs = calloc(1, sizeof(*dirs));
+	if (!dirs)
+		return -ENOMEM;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &dirs->node, filename);
+	if (err)
+		goto err_out;
+
+	if (!(dirs->node->attrib & EXFAT_ATTRIB_DIR)) {
+		err = -ENOTDIR;
+		goto err_out;
+	}
+
+	err = exfat_opendir(&ctxt.ef, dirs->node, &dirs->it);
+	if (err)
+		goto err_out;
+
+	*dirsp = &dirs->fs_dirs;
+
+	return 0;
+err_out:
+	free(dirs);
+	return err;
+}
+
+int exfat_fs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
+{
+	struct exfat_dir_stream *dirs =
+		container_of(fs_dirs, struct exfat_dir_stream, fs_dirs);
+	struct fs_dirent *dent = &dirs->dirent;
+	struct exfat_node* node;
+
+	/* Emulate current directory ./ */
+	if (!dirs->dot) {
+		dirs->dot = true;
+		snprintf(dent->name, FS_DIRENT_NAME_LEN, ".");
+		dent->type = FS_DT_DIR;
+		*dentp = dent;
+		return 0;
+	}
+
+	/* Emulate parent directory ../ */
+	if (!dirs->dotdot) {
+		dirs->dotdot = true;
+		snprintf(dent->name, FS_DIRENT_NAME_LEN, "..");
+		dent->type = FS_DT_DIR;
+		*dentp = dent;
+		return 0;
+	}
+
+	/* Read actual directory content */
+	node = exfat_readdir(&dirs->it);
+	if (!node) {	/* No more content, reset . and .. emulation */
+		dirs->dot = false;
+		dirs->dotdot = false;
+		return 1;
+	}
+
+	exfat_get_name(node, dent->name);
+	if (node->attrib & EXFAT_ATTRIB_DIR) {
+		dent->type = FS_DT_DIR;
+	} else {
+		dent->type = FS_DT_REG;
+		dent->size = node->size;
+	}
+
+	*dentp = dent;
+
+	return 0;
+}
+
+void exfat_fs_closedir(struct fs_dir_stream *fs_dirs)
+{
+	free(fs_dirs);
+}
+
+int exfat_fs_ls(const char *dirname)
+{
+	struct exfat_node *dnode, *node;
+	char name[FS_DIRENT_NAME_LEN];
+	int nfiles = 0, ndirs = 2;
+	struct exfat_iterator it;
+	int err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &dnode, dirname);
+	if (err)
+		return err;
+
+	if (!(dnode->attrib & EXFAT_ATTRIB_DIR)) {
+		err = -ENOTDIR;
+		goto err_out;
+	}
+
+	err = exfat_opendir(&ctxt.ef, dnode, &it);
+	if (err)
+		goto err_out;
+
+	printf("            ./\n");
+	printf("            ../\n");
+
+	/* Read actual directory content */
+	while ((node = exfat_readdir(&it))) {
+		exfat_get_name(node, name);
+		if (node->attrib & EXFAT_ATTRIB_DIR) {
+			printf("            %s/\n", name);
+			ndirs++;
+		} else {
+			printf(" %8lld   %s\n", node->size, name);
+			nfiles++;
+		}
+		exfat_put_node(&ctxt.ef, node);
+	}
+
+	printf("\n%d file(s), %d dir(s)\n\n", nfiles, ndirs);
+
+	exfat_closedir(&ctxt.ef, &it);
+
+err_out:
+	exfat_put_node(&ctxt.ef, dnode);
+	return err;
+}
+
+int exfat_fs_exists(const char *filename)
+{
+	struct exfat_node* node;
+	int err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
+	if (err)
+		return err;
+
+	exfat_put_node(&ctxt.ef, node);
+
+	return 0;
+}
+
+int exfat_fs_size(const char *filename, loff_t *size)
+{
+	struct exfat_node* node;
+	int err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
+	if (err)
+		return err;
+
+	*size = node->size;
+
+	exfat_put_node(&ctxt.ef, node);
+
+	return 0;
+}
+
+int exfat_fs_read(const char *filename, void *buf, loff_t offset, loff_t len,
+	       loff_t *actread)
+{
+	struct exfat_node* node;
+	ssize_t sz;
+	int err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
+	if (err)
+		return err;
+
+	if (!len)
+		len = node->size;
+
+	sz = exfat_generic_pread(&ctxt.ef, node, buf, len, offset);
+	if (sz < 0) {
+		*actread = 0;
+		err = -EINVAL;
+		goto exit;
+	}
+
+	*actread = sz;
+
+	exfat_put_node(&ctxt.ef, node);
+
+	return exfat_flush_node(&ctxt.ef, node);
+exit:
+	exfat_put_node(&ctxt.ef, node);
+	return err;
+}
+
+int exfat_fs_unlink(const char *filename)
+{
+	struct exfat_node* node;
+	int err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
+	if (err) {
+		printf("%s: doesn't exist (%d)\n", filename, err);
+		return err;
+	}
+
+	if (node->attrib & EXFAT_ATTRIB_DIR) {
+		err = exfat_rmdir(&ctxt.ef, node);
+		if (err == -ENOTEMPTY)
+			printf("Error: directory is not empty: %d\n", err);
+	} else {
+		err = exfat_unlink(&ctxt.ef, node);
+	}
+
+	if (err)
+		goto exit;
+
+	exfat_put_node(&ctxt.ef, node);
+
+	return exfat_cleanup_node(&ctxt.ef, node);
+exit:
+	exfat_put_node(&ctxt.ef, node);
+	return err;
+}
+
+int exfat_fs_mkdir(const char *dirname)
+{
+	if (!strcmp(dirname, ".") || !strcmp(dirname, ".."))
+		return -EINVAL;
+
+	return exfat_mkdir(&ctxt.ef, dirname);
+}
+
+int exfat_fs_write(const char *filename, void *buf, loff_t offset,
+		   loff_t len, loff_t *actwrite)
+{
+	struct exfat_node* node;
+	ssize_t sz;
+	int err;
+
+	/*
+	 * Ignore -EEXIST error here, if the file exists,
+	 * this write should act as an append to offset.
+	 */
+	err = exfat_mknod(&ctxt.ef, filename);
+	if (err && err != -EEXIST)
+		return err;
+
+	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
+	if (err)
+		return err;
+
+	/* Write into directories is not allowed. */
+	if (node->attrib & EXFAT_ATTRIB_DIR)
+		return -EISDIR;
+
+	/* Write past end of file is not allowed. */
+	if (offset > node->size) {
+		err = -EINVAL;
+		goto exit;
+	}
+
+	sz = exfat_generic_pwrite(&ctxt.ef, node, buf, len, offset);
+	if (sz < 0) {
+		*actwrite = 0;
+		err = -EINVAL;
+		goto exit;
+	}
+
+	err = exfat_truncate(&ctxt.ef, node, offset + sz, false);
+	if (err)
+		goto exit;
+
+	*actwrite = sz;
+
+	err = exfat_flush_node(&ctxt.ef, node);
+exit:
+	exfat_put_node(&ctxt.ef, node);
+	return err;
+}
+
+void exfat_fs_close(void)
+{
+	exfat_unmount(&ctxt.ef);
+	ctxt.cur_dev = NULL;
+}
+#endif	/* __U_BOOT__ */
