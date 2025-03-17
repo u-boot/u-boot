@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * R-Car Gen4 Cortex-R52 SPL
+ * R-Car Gen4 SPL
  *
  * Copyright (C) 2024 Marek Vasut <marek.vasut+renesas@mailbox.org>
  */
