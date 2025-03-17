@@ -7,21 +7,21 @@ config PINCTRL_QCOM
 menu "Qualcomm pinctrl drivers"
 
 config PINCTRL_QCOM_APQ8016
-	bool "Qualcomm APQ8016 GCC"
+	bool "Qualcomm APQ8016 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the MSM8916 / APQ8016
 	  Snapdragon 410 SoC, as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_APQ8096
-	bool "Qualcomm APQ8096 GCC"
+	bool "Qualcomm APQ8096 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the MSM8996 / APQ8096
 	  Snapdragon 820 SoC, as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_IPQ4019
-	bool "Qualcomm IPQ4019 GCC"
+	bool "Qualcomm IPQ4019 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the IPQ4019 SoC,
@@ -35,14 +35,14 @@ config PINCTRL_QCOM_IPQ9574
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_QCM2290
-	bool "Qualcomm QCM2290 GCC"
+	bool "Qualcomm QCM2290 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon QCM2290 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_QCS404
-	bool "Qualcomm QCS404 GCC"
+	bool "Qualcomm QCS404 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon QCS404 SoC,
@@ -56,49 +56,49 @@ config PINCTRL_QCOM_SC7280
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SDM845
-	bool "Qualcomm SDM845 GCC"
+	bool "Qualcomm SDM845 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon 845 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SM6115
-	bool "Qualcomm SM6115 GCC"
+	bool "Qualcomm SM6115 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SM6115 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SM8150
-	bool "Qualcomm SM8150 GCC"
+	bool "Qualcomm SM8150 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SM8150 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SM8250
-	bool "Qualcomm SM8250 GCC"
+	bool "Qualcomm SM8250 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SM8250 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SM8550
-	bool "Qualcomm SM8550 GCC"
+	bool "Qualcomm SM8550 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SM8550 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_SM8650
-	bool "Qualcomm SM8650 GCC"
+	bool "Qualcomm SM8650 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SM8650 SoC,
 	  as well as the associated GPIO driver.
 
 config PINCTRL_QCOM_X1E80100
-	bool "Qualcomm X1E80100 GCC"
+	bool "Qualcomm X1E80100 Pinctrl"
 	select PINCTRL_QCOM
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon X1E80100 SoC,
