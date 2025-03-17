@@ -12,6 +12,12 @@
 #include <linux/delay.h>
 #include <linux/err.h>
 
+static const struct pmic_child_info pmic_children_info[] = {
+	{ .prefix = "sw", .driver = CPCAP_SW_DRIVER },
+	{ .prefix = "v", .driver = CPCAP_LDO_DRIVER },
+	{ },
+};
+
 static int cpcap_write(struct udevice *dev, uint reg, const uint8_t *buff, int len)
 {
 	u8 buf[4];
@@ -45,6 +51,34 @@ static int cpcap_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 	log_debug("%s: reg 0x%x, data 0x%04x, ret %d\n", __func__, reg, *buff, ret);
 	return ret;
+}
+
+static int cpcap_bind(struct udevice *dev)
+{
+	ofnode regulators_node;
+	int children;
+
+	/* Regulator device node of PMIC */
+	regulators_node = dev_read_subnode(dev, "regulator");
+	if (!ofnode_valid(regulators_node)) {
+		log_err("%s regulator subnode not found!\n", dev->name);
+		return -ENXIO;
+	}
+
+	/* Actual regulators container */
+	regulators_node = ofnode_find_subnode(regulators_node, "regulators");
+	if (!ofnode_valid(regulators_node)) {
+		log_err("%s regulators subnode not found!\n", dev->name);
+		return -ENXIO;
+	}
+
+	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
+
+	children = pmic_bind_children(dev, regulators_node, pmic_children_info);
+	if (!children)
+		log_err("%s - no child found\n", dev->name);
+
+	return dm_scan_fdt_dev(dev);
 }
 
 static int cpcap_probe(struct udevice *dev)
@@ -85,6 +119,7 @@ U_BOOT_DRIVER(pmic_cpcap) = {
 	.name = "cpcap_pmic",
 	.id = UCLASS_PMIC,
 	.of_match = cpcap_ids,
+	.bind = cpcap_bind,
 	.probe = cpcap_probe,
 	.ops = &cpcap_ops,
 };

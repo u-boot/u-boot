@@ -235,4 +235,139 @@
 
 #define CPCAP_REG_ST_TEST2	0x7d18	/* ST Test2 */
 
+/* Drivers name */
+#define CPCAP_LDO_DRIVER	"cpcap_ldo"
+#define CPCAP_SW_DRIVER		"cpcap_sw"
+
+enum cpcap_regulator_id {
+	CPCAP_SW1,
+	CPCAP_SW2,
+	CPCAP_SW3,
+	CPCAP_SW4,
+	CPCAP_SW5,
+	CPCAP_SW6,
+	CPCAP_VCAM,
+	CPCAP_VCSI,
+	CPCAP_VDAC,
+	CPCAP_VDIG,
+	CPCAP_VFUSE,
+	CPCAP_VHVIO,
+	CPCAP_VSDIO,
+	CPCAP_VPLL,
+	CPCAP_VRF1,
+	CPCAP_VRF2,
+	CPCAP_VRFREF,
+	CPCAP_VWLAN1,
+	CPCAP_VWLAN2,
+	CPCAP_VSIM,
+	CPCAP_VSIMCARD,
+	CPCAP_VVIB,
+	CPCAP_VUSB,
+	CPCAP_VAUDIO,
+	CPCAP_REGULATORS_COUNT,
+};
+
+static const char * const cpcap_regulator_to_name[] = {
+	/* BUCK */
+	[CPCAP_SW1] = "sw1",
+	[CPCAP_SW2] = "sw2",
+	[CPCAP_SW3] = "sw3",
+	[CPCAP_SW4] = "sw4",
+	[CPCAP_SW5] = "sw5",
+	[CPCAP_SW6] = "sw6",
+	/* LDO */
+	[CPCAP_VCAM] = "vcam",
+	[CPCAP_VCSI] = "vcsi",
+	[CPCAP_VDAC] = "vdac",
+	[CPCAP_VDIG] = "vdig",
+	[CPCAP_VFUSE] = "vfuse",
+	[CPCAP_VHVIO] = "vhvio",
+	[CPCAP_VSDIO] = "vsdio",
+	[CPCAP_VPLL] = "vpll",
+	[CPCAP_VRF1] = "vrf1",
+	[CPCAP_VRF2] = "vrf2",
+	[CPCAP_VRFREF] = "vrfref",
+	[CPCAP_VWLAN1] = "vwlan1",
+	[CPCAP_VWLAN2] = "vwlan2",
+	[CPCAP_VSIM] = "vsim",
+	[CPCAP_VSIMCARD] = "vsimcard",
+	[CPCAP_VVIB] = "vvib",
+	[CPCAP_VUSB] = "vusb",
+	[CPCAP_VAUDIO] = "vaudio",
+};
+
+static const u32 unknown_val_tbl[] = { 0, };
+static const u32 sw1_val_tbl[] = { 750000, 762500, 775000, 787500, 800000,
+				   812500, 825000, 837500, 850000, 862500,
+				   875000, 887500, 900000, 912500, 925000,
+				   937500, 950000, 962500, 975000, 987500,
+				   1000000, 1012500, 1025000, 1037500,
+				   1050000, 1062500, 1075000, 1087500,
+				   1100000, 1112500, 1125000, 1137500,
+				   1150000, 1162500, 1175000, 1187500,
+				   1200000, 1212500, 1225000, 1237500,
+				   1250000, 1262500, 1275000, 1287500,
+				   1300000, 1312500, 1325000, 1337500,
+				   1350000, 1362500, 1375000, 1387500,
+				   1400000, 1412500, 1425000, 1437500,
+				   1450000, 1462500, 1475000 };
+static const u32 sw2_sw4_val_tbl[] = { 900000, 912500, 925000, 937500, 950000,
+				       962500, 975000, 987500, 1000000, 1012500,
+				       1025000, 1037500, 1050000, 1062500,
+				       1075000, 1087500, 1100000, 1112500,
+				       1125000, 1137500, 1150000, 1162500,
+				       1175000, 1187500, 1200000, 1212500,
+				       1225000, 1237500, 1250000, 1262500,
+				       1275000, 1287500, 1300000, 1312500,
+				       1325000, 1337500, 1350000, 1362500,
+				       1375000, 1387500, 1400000, 1412500,
+				       1425000, 1437500, 1450000, 1462500,
+				       1475000 };
+static const u32 sw3_val_tbl[] = { 1350000, 1800000, 1850000, 1875000 };
+static const u32 sw5_val_tbl[] = { 0, 5050000 };
+static const u32 vcam_val_tbl[] = { 2600000, 2700000, 2800000, 2900000 };
+static const u32 vcsi_val_tbl[] = { 1200000, 1800000 };
+static const u32 vdac_val_tbl[] = { 1200000, 1500000, 1800000, 2500000 };
+static const u32 vdig_val_tbl[] = { 1200000, 1350000, 1500000, 1875000 };
+static const u32 vfuse_val_tbl[] = { 1500000, 1600000, 1700000, 1800000, 1900000,
+				     2000000, 2100000, 2200000, 2300000, 2400000,
+				     2500000, 2600000, 2700000, 3150000 };
+static const u32 vhvio_val_tbl[] = { 2775000 };
+static const u32 vsdio_val_tbl[] = { 1500000, 1600000, 1800000, 2600000,
+				     2700000, 2800000, 2900000, 3000000 };
+static const u32 vpll_val_tbl[] = { 1200000, 1300000, 1400000, 1800000 };
+static const u32 vrf1_val_tbl[] = { 2775000, 2500000 }; /* Yes, this is correct */
+static const u32 vrf2_val_tbl[] = { 0, 2775000 };
+static const u32 vrfref_val_tbl[] = { 2500000, 2775000 };
+static const u32 vwlan1_val_tbl[] = { 1800000, 1900000 };
+static const u32 vwlan2_val_tbl[] = { 2775000, 3000000, 3300000, 3300000 };
+static const u32 vsim_val_tbl[] = { 1800000, 2900000 };
+static const u32 vsimcard_val_tbl[] = { 1800000, 2900000 };
+static const u32 vvib_val_tbl[] = { 1300000, 1800000, 2000000, 3000000 };
+static const u32 vusb_val_tbl[] = { 0, 3300000 };
+static const u32 vaudio_val_tbl[] = { 0, 2775000 };
+
+struct cpcap_regulator_data {
+	u16 reg;
+	u16 assignment_reg;
+	u16 assignment_mask;
+	u16 mode_mask;
+	u16 volt_mask;
+	u8 volt_shft;
+	u16 mode_val;
+	u16 off_mode_val;
+	u32 val_tbl_sz;
+	const u32 *val_tbl;
+	u32 mode_cntr;
+	u32 volt_trans_time; /* in micro seconds */
+	u32 turn_on_time; /* in micro seconds */
+
+	/*
+	 * Bit difference between lowest value in val_tbl and start of voltage
+	 * table setting in cpcap. Use this for switchers that have many too
+	 * many voltages to list in val_tbl.
+	 */
+	u32 bit_offset_from_cpcap_lowest_voltage;
+};
+
 #endif /* _CPCAP_H_ */
