@@ -35,7 +35,9 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
     else:
         mkfs_opt = ''
 
-    if re.match('fat', fs_type) or fs_type == 'fs_generic':
+    if fs_type == 'exfat':
+        fs_lnxtype = 'exfat'
+    elif re.match('fat', fs_type) or fs_type == 'fs_generic':
         fs_lnxtype = 'vfat'
     else:
         fs_lnxtype = fs_type
@@ -43,7 +45,7 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
     if src_dir:
         if fs_lnxtype == 'ext4':
             mkfs_opt = mkfs_opt + ' -d ' + src_dir
-        elif fs_lnxtype != 'vfat':
+        elif fs_lnxtype != 'vfat' and fs_lnxtype != 'exfat':
             raise ValueError(f'src_dir not implemented for fs {fs_lnxtype}')
 
     count = (size + size_gran - 1) // size_gran
@@ -64,6 +66,8 @@ def mk_fs(config, fs_type, size, prefix, src_dir=None, size_gran = 0x100000):
                 check_call(f'tune2fs -O ^metadata_csum {fs_img}', shell=True)
         elif fs_lnxtype == 'vfat' and src_dir:
             check_call(f'mcopy -i {fs_img} -vsmpQ {src_dir}/* ::/', shell=True)
+        elif fs_lnxtype == 'exfat' and src_dir:
+            check_call(f'fattools cp {src_dir}/* {fs_img}', shell=True)
         return fs_img
     except CalledProcessError:
         call(f'rm -f {fs_img}', shell=True)

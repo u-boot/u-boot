@@ -74,6 +74,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	e2fsprogs \
 	efitools \
 	erofs-utils \
+	exfatprogs \
 	expect \
 	fakeroot \
 	flex \

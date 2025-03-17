@@ -345,11 +345,19 @@ class TestFsExt(object):
                 '%s%s host 0:0 %x /%s 0'
                     % (fs_cmd_prefix, fs_cmd_write, ADDR, MANGLE_FILE)])
             assert('0 bytes written' in ''.join(output))
-            # Test Case 12b - Read file system content
-            output = check_output('mdir -i %s' % fs_img, shell=True).decode()
-            # Test Case 12c - Check if short filename is not mangled
-            assert(str2fat(PLAIN_FILE) in ''.join(output))
-            # Test Case 12d - Check if long filename is mangled
-            assert(str2fat(MANGLE_FILE) in ''.join(output))
+            if fs_type == 'exfat':
+                # Test Case 12b - Read file system content
+                output = check_output('fattools ls %s' % fs_img, shell=True).decode()
+                # Test Case 12c - Check if short filename is not mangled
+                assert(PLAIN_FILE in ''.join(output))
+                # Test Case 12d - Check if long filename is mangled
+                assert(MANGLE_FILE in ''.join(output))
+            else:
+                # Test Case 12b - Read file system content
+                output = check_output('mdir -i %s' % fs_img, shell=True).decode()
+                # Test Case 12c - Check if short filename is not mangled
+                assert(str2fat(PLAIN_FILE) in ''.join(output))
+                # Test Case 12d - Check if long filename is mangled
+                assert(str2fat(MANGLE_FILE) in ''.join(output))
 
             assert_fs_integrity(fs_type, fs_img)
