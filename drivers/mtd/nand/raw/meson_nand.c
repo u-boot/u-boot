@@ -618,9 +618,7 @@ static int meson_nfc_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *ch
 		memcpy(meson_chip->data_buf, buf, mtd->writesize);
 
 	memset(meson_chip->info_buf, 0, chip->ecc.steps * PER_INFO_BYTE);
-
-	if (oob_required)
-		meson_nfc_set_user_byte(chip, chip->oob_poi);
+	meson_nfc_set_user_byte(chip, chip->oob_poi);
 
 	return meson_nfc_write_page_sub(chip, page, false);
 }

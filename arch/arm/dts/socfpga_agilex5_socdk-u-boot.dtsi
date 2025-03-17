@@ -69,6 +69,10 @@
 	/delete-property/ cdns,read-delay;
 };
 
+&flash1 {
+	bootph-all;
+};
+
 &i3c0 {
 	bootph-all;
 };
@@ -128,6 +132,10 @@
 
 &qspi {
 	status = "okay";
+};
+
+&nand {
+	bootph-all;
 };
 
 &timer0 {
