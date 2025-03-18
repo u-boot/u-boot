@@ -23,7 +23,7 @@
 #include <board_f.h>
 #include <event_internal.h>
 #include <fdtdec.h>
-#include <membuff.h>
+#include <membuf.h>
 #include <linux/list.h>
 #include <linux/build_bug.h>
 #include <asm-offsets.h>

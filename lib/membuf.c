@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <log.h>
 #include <malloc.h>
-#include "membuff.h"
+#include "membuf.h"
 
 void membuf_purge(struct membuff *mb)
 {
