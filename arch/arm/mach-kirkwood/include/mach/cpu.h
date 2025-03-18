@@ -85,8 +85,9 @@ struct mbus_win {
 static inline unsigned int readfr_extra_feature_reg(void)
 {
 	unsigned int val;
-	asm volatile ("mrc p15, 1, %0, c15, c1, 0 @ readfr exfr":"=r"
-			(val)::"cc");
+
+	asm_arm_or_thumb2("mrc p15, 1, %0, c15, c1, 0 @ readfr exfr":"=r"
+			  (val)::"cc");
 	return val;
 }
 
@@ -96,8 +97,8 @@ static inline unsigned int readfr_extra_feature_reg(void)
  */
 static inline void writefr_extra_feature_reg(unsigned int val)
 {
-	asm volatile ("mcr p15, 1, %0, c15, c1, 0 @ writefr exfr"::"r"
-			(val):"cc");
+	asm_arm_or_thumb2("mcr p15, 1, %0, c15, c1, 0 @ writefr exfr"::"r"
+			  (val):"cc");
 	isb();
 }
 
