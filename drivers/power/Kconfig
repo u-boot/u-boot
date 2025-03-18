@@ -148,6 +148,16 @@ config SY8106A_POWER
 
 endchoice
 
+config AXP_I2C_ADDRESS
+	hex "AXP PMIC I2C address"
+	depends on ARCH_SUNXI && !SUNXI_NO_PMIC
+	default 0x36 if AXP305_POWER
+	default 0x36 if AXP313_POWER
+	default 0x30 if AXP152_POWER
+	default 0x34
+	---help---
+	I2C address of the AXP PMIC, used for the SPL only.
+
 config AXP_DCDC1_VOLT
 	int "axp pmic dcdc1 voltage"
 	depends on AXP221_POWER || AXP809_POWER || AXP818_POWER || AXP803_POWER
