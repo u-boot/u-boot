@@ -11,14 +11,14 @@
 #include <malloc.h>
 #include "membuf.h"
 
-void membuf_purge(struct membuff *mb)
+void membuf_purge(struct membuf *mb)
 {
 	/* set mb->head and mb->tail so the buffers look empty */
 	mb->head = mb->start;
 	mb->tail = mb->start;
 }
 
-static int membuf_putrawflex(struct membuff *mb, int maxlen, bool update,
+static int membuf_putrawflex(struct membuf *mb, int maxlen, bool update,
 			     char ***data, int *offsetp)
 {
 	int len;
@@ -72,7 +72,7 @@ static int membuf_putrawflex(struct membuff *mb, int maxlen, bool update,
 	return len;
 }
 
-int membuf_putraw(struct membuff *mb, int maxlen, bool update, char **data)
+int membuf_putraw(struct membuf *mb, int maxlen, bool update, char **data)
 {
 	char **datap;
 	int offset;
@@ -84,7 +84,7 @@ int membuf_putraw(struct membuff *mb, int maxlen, bool update, char **data)
 	return size;
 }
 
-bool membuf_putbyte(struct membuff *mb, int ch)
+bool membuf_putbyte(struct membuf *mb, int ch)
 {
 	char *data;
 
@@ -95,7 +95,7 @@ bool membuf_putbyte(struct membuff *mb, int ch)
 	return true;
 }
 
-int membuf_getraw(struct membuff *mb, int maxlen, bool update, char **data)
+int membuf_getraw(struct membuf *mb, int maxlen, bool update, char **data)
 {
 	int len;
 
@@ -146,21 +146,21 @@ int membuf_getraw(struct membuff *mb, int maxlen, bool update, char **data)
 	return len;
 }
 
-int membuf_getbyte(struct membuff *mb)
+int membuf_getbyte(struct membuf *mb)
 {
 	char *data = 0;
 
 	return membuf_getraw(mb, 1, true, &data) != 1 ? -1 : *(uint8_t *)data;
 }
 
-int membuf_peekbyte(struct membuff *mb)
+int membuf_peekbyte(struct membuf *mb)
 {
 	char *data = 0;
 
 	return membuf_getraw(mb, 1, false, &data) != 1 ? -1 : *(uint8_t *)data;
 }
 
-int membuf_get(struct membuff *mb, char *buff, int maxlen)
+int membuf_get(struct membuf *mb, char *buff, int maxlen)
 {
 	char *data = 0, *buffptr = buff;
 	int len = 1, i;
@@ -183,7 +183,7 @@ int membuf_get(struct membuff *mb, char *buff, int maxlen)
 	return buffptr - buff;
 }
 
-int membuf_put(struct membuff *mb, const char *buff, int length)
+int membuf_put(struct membuf *mb, const char *buff, int length)
 {
 	char *data;
 	int towrite, i, written;
@@ -203,14 +203,14 @@ int membuf_put(struct membuff *mb, const char *buff, int length)
 	return written;
 }
 
-bool membuf_isempty(struct membuff *mb)
+bool membuf_isempty(struct membuf *mb)
 {
 	return mb->head == mb->tail;
 }
 
-int membuf_avail(struct membuff *mb)
+int membuf_avail(struct membuf *mb)
 {
-	struct membuff copy;
+	struct membuf copy;
 	int i, avail;
 	char *data = 0;
 
@@ -225,12 +225,12 @@ int membuf_avail(struct membuff *mb)
 	return avail;
 }
 
-int membuf_size(struct membuff *mb)
+int membuf_size(struct membuf *mb)
 {
 	return mb->end - mb->start;
 }
 
-bool membuf_makecontig(struct membuff *mb)
+bool membuf_makecontig(struct membuf *mb)
 {
 	int topsize, botsize;
 
@@ -281,13 +281,13 @@ bool membuf_makecontig(struct membuff *mb)
 	return true;
 }
 
-int membuf_free(struct membuff *mb)
+int membuf_free(struct membuf *mb)
 {
 	return mb->end == mb->start ? 0 :
 			(mb->end - mb->start) - 1 - membuf_avail(mb);
 }
 
-int membuf_readline(struct membuff *mb, char *str, int maxlen, int minch, bool must_fit)
+int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch, bool must_fit)
 {
 	int len;  /* number of bytes read (!= string length) */
 	char *s, *end;
@@ -322,7 +322,7 @@ int membuf_readline(struct membuff *mb, char *str, int maxlen, int minch, bool m
 	return len;
 }
 
-int membuf_extend_by(struct membuff *mb, int by, int max)
+int membuf_extend_by(struct membuf *mb, int by, int max)
 {
 	int oldhead, oldtail;
 	int size, orig;
@@ -358,14 +358,14 @@ int membuf_extend_by(struct membuff *mb, int by, int max)
 	return 0;
 }
 
-void membuf_init(struct membuff *mb, char *buff, int size)
+void membuf_init(struct membuf *mb, char *buff, int size)
 {
 	mb->start = buff;
 	mb->end = mb->start + size;
 	membuf_purge(mb);
 }
 
-int membuf_new(struct membuff *mb, int size)
+int membuf_new(struct membuf *mb, int size)
 {
 	mb->start = malloc(size);
 	if (!mb->start)
@@ -375,14 +375,14 @@ int membuf_new(struct membuff *mb, int size)
 	return 0;
 }
 
-void membuf_uninit(struct membuff *mb)
+void membuf_uninit(struct membuf *mb)
 {
 	mb->end = NULL;
 	mb->start = NULL;
 	membuf_purge(mb);
 }
 
-void membuf_dispose(struct membuff *mb)
+void membuf_dispose(struct membuf *mb)
 {
 	free(&mb->start);
 	membuf_uninit(mb);

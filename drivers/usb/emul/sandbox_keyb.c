@@ -38,7 +38,7 @@ enum {
  *
  */
 struct sandbox_keyb_priv {
-	struct membuff in;
+	struct membuf in;
 };
 
 struct sandbox_keyb_plat {

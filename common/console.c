@@ -101,7 +101,7 @@ static void console_record_putc(const char c)
 	if (!(gd->flags & GD_FLG_RECORD))
 		return;
 	if  (gd->console_out.start &&
-	     !membuf_putbyte((struct membuff *)&gd->console_out, c))
+	     !membuf_putbyte((struct membuf *)&gd->console_out, c))
 		gd->flags |= GD_FLG_RECORD_OVF;
 }
 
@@ -112,7 +112,7 @@ static void console_record_puts(const char *s)
 	if  (gd->console_out.start) {
 		int len = strlen(s);
 
-		if (membuf_put((struct membuff *)&gd->console_out, s, len) !=
+		if (membuf_put((struct membuf *)&gd->console_out, s, len) !=
 		    len)
 			gd->flags |= GD_FLG_RECORD_OVF;
 	}
@@ -125,7 +125,7 @@ static int console_record_getc(void)
 	if (!gd->console_in.start)
 		return -1;
 
-	return membuf_getbyte((struct membuff *)&gd->console_in);
+	return membuf_getbyte((struct membuf *)&gd->console_in);
 }
 
 static int console_record_tstc(void)
@@ -133,7 +133,7 @@ static int console_record_tstc(void)
 	if (!(gd->flags & GD_FLG_RECORD))
 		return 0;
 	if (gd->console_in.start) {
-		if (membuf_peekbyte((struct membuff *)&gd->console_in) != -1)
+		if (membuf_peekbyte((struct membuf *)&gd->console_in) != -1)
 			return 1;
 	}
 	return 0;
@@ -810,13 +810,13 @@ int console_record_init(void)
 {
 	int ret;
 
-	ret = membuf_new((struct membuff *)&gd->console_out,
+	ret = membuf_new((struct membuf *)&gd->console_out,
 			 gd->flags & GD_FLG_RELOC ?
 				CONFIG_CONSOLE_RECORD_OUT_SIZE :
 				CONFIG_CONSOLE_RECORD_OUT_SIZE_F);
 	if (ret)
 		return ret;
-	ret = membuf_new((struct membuff *)&gd->console_in,
+	ret = membuf_new((struct membuf *)&gd->console_in,
 			 CONFIG_CONSOLE_RECORD_IN_SIZE);
 
 	/* Start recording from the beginning */
@@ -827,8 +827,8 @@ int console_record_init(void)
 
 void console_record_reset(void)
 {
-	membuf_purge((struct membuff *)&gd->console_out);
-	membuf_purge((struct membuff *)&gd->console_in);
+	membuf_purge((struct membuf *)&gd->console_out);
+	membuf_purge((struct membuf *)&gd->console_in);
 	gd->flags &= ~GD_FLG_RECORD_OVF;
 }
 
@@ -847,23 +847,23 @@ int console_record_readline(char *str, int maxlen)
 	if (console_record_isempty())
 		return -ENOENT;
 
-	return membuf_readline((struct membuff *)&gd->console_out, str,
+	return membuf_readline((struct membuf *)&gd->console_out, str,
 				maxlen, '\0', false);
 }
 
 int console_record_avail(void)
 {
-	return membuf_avail((struct membuff *)&gd->console_out);
+	return membuf_avail((struct membuf *)&gd->console_out);
 }
 
 bool console_record_isempty(void)
 {
-	return membuf_isempty((struct membuff *)&gd->console_out);
+	return membuf_isempty((struct membuf *)&gd->console_out);
 }
 
 int console_in_puts(const char *str)
 {
-	return membuf_put((struct membuff *)&gd->console_in, str, strlen(str));
+	return membuf_put((struct membuf *)&gd->console_in, str, strlen(str));
 }
 
 #endif

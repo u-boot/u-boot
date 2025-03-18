@@ -10,7 +10,7 @@
 #define _membuf_H
 
 /**
- * @struct membuff: holds the state of a membuff - it is used for input and
+ * @struct membuf: holds the state of a membuff - it is used for input and
  * output buffers. The buffer extends from @start to (@start + @size - 1).
  * Data in the buffer extends from @tail to @head: it is written in at
  * @head and read out from @tail. The membuff is empty when @head == @tail
@@ -29,7 +29,7 @@
  *		^		^
  *		head		tail
  */
-struct membuff {
+struct membuf {
 	char *start;		/** the start of the buffer */
 	char *end;		/** the end of the buffer (start + length) */
 	char *head;		/** current buffer head */
@@ -43,7 +43,7 @@ struct membuff {
  *
  * @mb: membuff to purge
  */
-void membuf_purge(struct membuff *mb);
+void membuf_purge(struct membuf *mb);
 
 /**
  * membuf_putraw() - find out where bytes can be written
@@ -64,7 +64,7 @@ void membuf_purge(struct membuff *mb);
  * @data: the address data can be written to
  * Return: number of bytes which can be written
  */
-int membuf_putraw(struct membuff *mb, int maxlen, bool update, char **data);
+int membuf_putraw(struct membuf *mb, int maxlen, bool update, char **data);
 
 /**
  * membuf_getraw() - find and return a pointer to available bytes
@@ -82,7 +82,7 @@ int membuf_putraw(struct membuff *mb, int maxlen, bool update, char **data);
  * @data: returns address of data in input membuff
  * Return: the number of bytes available at *@data
  */
-int membuf_getraw(struct membuff *mb, int maxlen, bool update, char **data);
+int membuf_getraw(struct membuf *mb, int maxlen, bool update, char **data);
 
 /**
  * membuf_putbyte() - Writes a byte to a membuff
@@ -91,14 +91,14 @@ int membuf_getraw(struct membuff *mb, int maxlen, bool update, char **data);
  * @ch: byte to write
  * Return: true on success, false if membuff is full
  */
-bool membuf_putbyte(struct membuff *mb, int ch);
+bool membuf_putbyte(struct membuf *mb, int ch);
 
 /**
  * @mb: membuff to adjust
  * membuf_getbyte() - Read a byte from the membuff
  * Return: the byte read, or -1 if the membuff is empty
  */
-int membuf_getbyte(struct membuff *mb);
+int membuf_getbyte(struct membuf *mb);
 
 /**
  * membuf_peekbyte() - check the next available byte
@@ -109,7 +109,7 @@ int membuf_getbyte(struct membuff *mb);
  * @mb: membuff to adjust
  * Return: the byte peeked, or -1 if the membuff is empty
  */
-int membuf_peekbyte(struct membuff *mb);
+int membuf_peekbyte(struct membuf *mb);
 
 /**
  * membuf_get() - get data from a membuff
@@ -122,7 +122,7 @@ int membuf_peekbyte(struct membuff *mb);
  * @maxlen: maximum number of bytes to read
  * Return: the number of bytes read
  */
-int membuf_get(struct membuff *mb, char *buff, int maxlen);
+int membuf_get(struct membuf *mb, char *buff, int maxlen);
 
 /**
  * membuf_put() - write data to a membuff
@@ -135,7 +135,7 @@ int membuf_get(struct membuff *mb, char *buff, int maxlen);
  * @length: number of bytes to write from 'data'
  * Return: the number of bytes added
  */
-int membuf_put(struct membuff *mb, const char *buff, int length);
+int membuf_put(struct membuf *mb, const char *buff, int length);
 
 /**
  * membuf_isempty() - check if a membuff is empty
@@ -143,7 +143,7 @@ int membuf_put(struct membuff *mb, const char *buff, int length);
  * @mb: membuff to check
  * Return: true if empty, else false
  */
-bool membuf_isempty(struct membuff *mb);
+bool membuf_isempty(struct membuf *mb);
 
 /**
  * membuf_avail() - check available data in a membuff
@@ -151,7 +151,7 @@ bool membuf_isempty(struct membuff *mb);
  * @mb: membuff to check
  * Return: number of bytes of data available
  */
-int membuf_avail(struct membuff *mb);
+int membuf_avail(struct membuf *mb);
 
 /**
  * membuf_size() - get the size of a membuff
@@ -161,7 +161,7 @@ int membuf_avail(struct membuff *mb);
  * @mb: membuff to check
  * Return: total size
  */
-int membuf_size(struct membuff *mb);
+int membuf_size(struct membuf *mb);
 
 /**
  * membuf_makecontig() - adjust all membuff data to be contiguous
@@ -172,7 +172,7 @@ int membuf_size(struct membuff *mb);
  * @mb: membuff to adjust
  * Return: true on success
  */
-bool membuf_makecontig(struct membuff *mb);
+bool membuf_makecontig(struct membuf *mb);
 
 /**
  * membuf_free() - find the number of bytes that can be written to a membuff
@@ -180,7 +180,7 @@ bool membuf_makecontig(struct membuff *mb);
  * @mb: membuff to check
  * Return: returns the number of bytes free in a membuff
  */
-int membuf_free(struct membuff *mb);
+int membuf_free(struct membuf *mb);
 
 /**
  * membuf_readline() - read a line of text from a membuff
@@ -196,7 +196,7 @@ int membuf_free(struct membuff *mb);
  * Return: number of bytes read (including terminator) if a line has been
  *	   read, 0 if nothing was there or line didn't fit when must_fit is set
  */
-int membuf_readline(struct membuff *mb, char *str, int maxlen, int minch, bool must_fit);
+int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch, bool must_fit);
 
 /**
  * membuf_extend_by() - expand a membuff
@@ -209,7 +209,7 @@ int membuf_readline(struct membuff *mb, char *str, int maxlen, int minch, bool m
  * Return: 0 if the expand succeeded, -ENOMEM if not enough memory, -E2BIG
  * if the the size would exceed @max
  */
-int membuf_extend_by(struct membuff *mb, int by, int max);
+int membuf_extend_by(struct membuf *mb, int by, int max);
 
 /**
  * membuf_init() - set up a new membuff using an existing membuff
@@ -218,14 +218,14 @@ int membuf_extend_by(struct membuff *mb, int by, int max);
  * @buff: Address of buffer
  * @size: Size of buffer
  */
-void membuf_init(struct membuff *mb, char *buff, int size);
+void membuf_init(struct membuf *mb, char *buff, int size);
 
 /**
  * membuf_uninit() - clear a membuff so it can no longer be used
  *
  * @mb: membuff to uninit
  */
-void membuf_uninit(struct membuff *mb);
+void membuf_uninit(struct membuf *mb);
 
 /**
  * membuf_new() - create a new membuff
@@ -234,13 +234,13 @@ void membuf_uninit(struct membuff *mb);
  * @size: size of membuff to create
  * Return: 0 if OK, -ENOMEM if out of memory
  */
-int membuf_new(struct membuff *mb, int size);
+int membuf_new(struct membuf *mb, int size);
 
 /**
  * membuf_dispose() - free memory allocated to a membuff and uninit it
  *
  * @mb: membuff to dispose
  */
-void membuf_dispose(struct membuff *mb);
+void membuf_dispose(struct membuf *mb);
 
 #endif

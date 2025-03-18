@@ -108,7 +108,7 @@ static int extlinux_check(struct udevice *dev, struct bootflow_iter *iter)
  */
 static int extlinux_fill_info(struct bootflow *bflow)
 {
-	struct membuff mb;
+	struct membuf mb;
 	char line[200];
 	char *data;
 	int len;
