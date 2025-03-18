@@ -412,7 +412,7 @@ static int tegra_lcd_probe(struct udevice *dev)
 	pinmux_tristate_disable(PMUX_PINGRP_GPU);
 #endif
 
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret) {
 		debug("%s: Cannot enable backlight, ret=%d\n", __func__, ret);
 		return ret;

@@ -130,6 +130,12 @@ int console_probe(struct udevice *dev);
 
 /**
  * Internal function to be used in as ops.
+ * See details in video_console.h resize function
+ */
+int console_simple_resize(struct udevice *dev);
+
+/**
+ * Internal function to be used in as ops.
  * See details in video_console.h get_font_size function
  **/
 const char *console_simple_get_font_size(struct udevice *dev, uint *sizep);
