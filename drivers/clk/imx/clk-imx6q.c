@@ -35,6 +35,7 @@ static const char *const usdhc_sels[] = { "pll2_pfd2_396m", "pll2_pfd0_352m", };
 static const char *const periph_sels[]	= { "periph_pre", "periph_clk2", };
 static const char *const periph_pre_sels[] = { "pll2_bus", "pll2_pfd2_396m",
 					       "pll2_pfd0_352m", "pll2_198m", };
+static const char *const ecspi_sels[] = { "pll3_60m", "osc", };
 
 static int imx6q_clk_probe(struct udevice *dev)
 {
@@ -78,6 +79,11 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_mux("usdhc4_sel", base + 0x1c, 19, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 
+	if (of_machine_is_compatible("fsl,imx6qp"))
+		clk_dm(IMX6QDL_CLK_ECSPI_SEL,
+		       imx_clk_mux("ecspi_sel",	base + 0x38, 18, 1, ecspi_sels,
+				   ARRAY_SIZE(ecspi_sels)));
+
 	clk_dm(IMX6QDL_CLK_USDHC1_PODF,
 	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
@@ -91,8 +97,12 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_divider("usdhc4_podf", "usdhc4_sel",
 			       base + 0x24, 22, 3));
 
-	clk_dm(IMX6QDL_CLK_ECSPI_ROOT,
-	       imx_clk_divider("ecspi_root", "pll3_60m", base + 0x38, 19, 6));
+	if (of_machine_is_compatible("fsl,imx6qp"))
+		clk_dm(IMX6QDL_CLK_ECSPI_ROOT,
+		       imx_clk_divider("ecspi_root", "ecspi_sel", base + 0x38, 19, 6));
+	else
+		clk_dm(IMX6QDL_CLK_ECSPI_ROOT,
+		       imx_clk_divider("ecspi_root", "pll3_60m", base + 0x38, 19, 6));
 
 	clk_dm(IMX6QDL_CLK_ECSPI1,
 	       imx_clk_gate2("ecspi1", "ecspi_root", base + 0x6c, 0));
