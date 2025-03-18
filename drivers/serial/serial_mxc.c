@@ -3,6 +3,7 @@
  * (c) 2007 Sascha Hauer <s.hauer@pengutronix.de>
  */
 
+#include <clk.h>
 #include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
@@ -312,7 +313,17 @@ int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 static int mxc_serial_probe(struct udevice *dev)
 {
 	struct mxc_serial_plat *plat = dev_get_plat(dev);
+#if CONFIG_IS_ENABLED(CLK_CCF)
+	int ret;
 
+	ret = clk_get_bulk(dev, &plat->clks);
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(&plat->clks);
+	if (ret)
+		return ret;
+#endif
 	_mxc_serial_init(plat->reg, plat->use_dte);
 
 	return 0;
