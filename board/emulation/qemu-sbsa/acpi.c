@@ -10,9 +10,9 @@
 #include <asm/acpi_table.h>
 #include <asm/armv8/sec_firmware.h>
 #include <configs/qemu-sbsa.h>
-#include <dm/uclass.h>
 #include <dm/device.h>
-#include "qemu-sbsa.h"
+#include <dm/read.h>
+#include <dm/uclass.h>
 
 #define SBSAQEMU_MADT_GIC_VBASE          0x2c020000
 #define SBSAQEMU_MADT_GIC_HBASE          0x2c010000
@@ -45,13 +45,18 @@
 int acpi_fill_iort(struct acpi_ctx *ctx)
 {
 	u32 its_offset, smmu_offset;
-	u64 gic_its_base = 0;
+	struct udevice *dev;
+	int ret;
 
-	smc_get_gic_its_base(&gic_its_base);
-	if (gic_its_base == 0)
-		return 0;
+	ret = uclass_get_device_by_driver(UCLASS_IRQ,
+					  DM_DRIVER_GET(arm_gic_v3_its), &dev);
+	if (ret) {
+		pr_err("%s: failed to get %s irq device\n", __func__,
+		       DM_DRIVER_GET(arm_gic_v3_its)->name);
+		return ret;
+	}
 
-	u32 identifiers[] = { 0 };
+	u32 identifiers[] = { dev_seq(dev) };
 
 	its_offset = acpi_iort_add_its_group(ctx, ARRAY_SIZE(identifiers),
 					     identifiers);
