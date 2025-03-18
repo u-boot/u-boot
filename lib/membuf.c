@@ -384,6 +384,6 @@ void membuf_uninit(struct membuf *mb)
 
 void membuf_dispose(struct membuf *mb)
 {
-	free(&mb->start);
+	free(mb->start);
 	membuf_uninit(mb);
 }
