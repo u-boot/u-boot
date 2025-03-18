@@ -287,7 +287,8 @@ int membuf_free(struct membuf *mb)
 			(mb->end - mb->start) - 1 - membuf_avail(mb);
 }
 
-int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch, bool must_fit)
+int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch,
+		    bool must_fit)
 {
 	int len;  /* number of bytes read (!= string length) */
 	char *s, *end;

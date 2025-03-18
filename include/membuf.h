@@ -25,7 +25,7 @@
  *
  * .............xxxxxxxxxxxxxxxx.........................
  *		^		^
- *		tail		head
+ * ^start	tail		head                     ^end
  *
  * xxxxxxxxxxxxx................xxxxxxxxxxxxxxxxxxxxxxxxx
  *		^		^
@@ -194,11 +194,13 @@ int membuf_free(struct membuf *mb);
  * @mb: membuff to adjust
  * @str: Place to put the line
  * @maxlen: Maximum line length (excluding terminator)
+ * @minch: Minimum ASCII character to permit as part of the line (e.g. ' ')
  * @must_fit: If true then str is empty if line doesn't fit
  * Return: number of bytes read (including terminator) if a line has been
  *	   read, 0 if nothing was there or line didn't fit when must_fit is set
  */
-int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch, bool must_fit);
+int membuf_readline(struct membuf *mb, char *str, int maxlen, int minch,
+		    bool must_fit);
 
 /**
  * membuf_extend_by() - expand a membuff
