@@ -10,6 +10,8 @@
 #include <asm/bootparam.h>
 #include <asm/e820.h>
 
+struct bootm_info;
+
 /* linux i386 zImage/bzImage header. Offsets relative to
  * the start of the image */
 
@@ -43,64 +45,27 @@ enum {
 };
 
 /**
- * struct zboot_state - Current state of the boot
- *
- * @bzimage_addr: Address of the bzImage to boot, or 0 if the image has already
- *	been loaded and does not exist (as a cohesive whole) in memory
- * @bzimage_size: Size of the bzImage, or 0 to detect this
- * @initrd_addr: Address of the initial ramdisk, or 0 if none
- * @initrd_size: Size of the initial ramdisk, or 0 if none
- * @load_address: Address where the bzImage is moved before booting, either
- *	BZIMAGE_LOAD_ADDR or ZIMAGE_LOAD_ADDR
- *	This is set up when loading the zimage
- * @base_ptr: Pointer to the boot parameters, typically at address
- *	DEFAULT_SETUP_BASE
- *	This is set up when loading the zimage
- * @cmdline: Environment variable containing the 'override' command line, or
- *	NULL to use the one in the setup block
- */
-struct zboot_state {
-	ulong bzimage_addr;
-	ulong bzimage_size;
-	ulong initrd_addr;
-	ulong initrd_size;
-	ulong load_address;
-	struct boot_params *base_ptr;
-	const char *cmdline;
-};
-
-extern struct zboot_state state;
-
-/**
- * zimage_dump() - Dump information about a zimage
- *
- * @base_ptr: Pointer to the boot parameters
- * @show_cmdline: true to show the kernel command line
- */
-void zimage_dump(struct boot_params *base_ptr, bool show_cmdline);
-
-/**
  * zboot_load() - Load a zimage
  *
  * Load the zimage into the correct place
  *
  * Return: 0 if OK, -ve on error
  */
-int zboot_load(void);
+int zboot_load(struct bootm_info *bmi);
 
 /**
  * zboot_setup() - Set up the zboot image reeady for booting
  *
  * Return: 0 if OK, -ve on error
  */
-int zboot_setup(void);
+int zboot_setup(struct bootm_info *bmi);
 
 /**
  * zboot_go() - Start the image
  *
  * Return: 0 if OK, -ve on error
  */
-int zboot_go(void);
+int zboot_go(struct bootm_info *bmi);
 
 /**
  * load_zimage() - Load a zImage or bzImage
@@ -139,6 +104,7 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
  *
  * Record information about a zimage so it can be booted
  *
+ * @bmi: Bootm information
  * @bzimage_addr: Address of the bzImage to boot
  * @bzimage_size: Size of the bzImage, or 0 to detect this
  * @initrd_addr: Address of the initial ramdisk, or 0 if none
@@ -149,14 +115,17 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
  * @cmdline: Environment variable containing the 'override' command line, or
  *	NULL to use the one in the setup block
  */
-void zboot_start(ulong bzimage_addr, ulong bzimage_size, ulong initrd_addr,
-		 ulong initrd_size, ulong base_addr, const char *cmdline);
+void zboot_start(struct bootm_info *bmi, ulong bzimage_addr, ulong bzimage_size,
+		 ulong initrd_addr, ulong initrd_size, ulong base_addr,
+		 const char *cmdline);
 
 /**
  * zboot_info() - Show simple info about a zimage
  *
- * Shows wherer the kernel was loaded and also the setup base
+ * Shows where the kernel was loaded and also the setup base
+ *
+ * @bmi: Bootm information
  */
-void zboot_info(void);
+void zboot_info(struct bootm_info *bmi);
 
 #endif

@@ -475,6 +475,36 @@ int net_init(void);
 enum proto_t;
 int net_loop(enum proto_t protocol);
 
+/* internal function: do not use! */
+int netboot_run_(enum proto_t proto, ulong addr, const char *fname, ulong size,
+		 bool fname_explicit, bool ipv6);
+
+/**
+ * netboot_run() - Run a network operation
+ *
+ * The following proto values are NOT supported:
+ *	PING, since net_ping_ip cannot be set
+ *	NETCONS, since its parameters cannot bet set
+ *	RS, since first_call cannot be set, along with perhaps other things
+ *	UDP, since udp_ops cannot be set
+ *	DNS, since net_dns_resolve and net_dns_env_var cannot be set
+ *	WGET, since DNS must be done first and that is not supported
+ *	DHCP6, since the required parameters cannot be passed in
+ *
+ * To support one of these, either add the required arguments or perhaps a
+ * separate function and a struct to hold the information.
+ *
+ * @proto: Operation to run: TFTPGET, FASTBOOT_UDP, FASTBOOT_TCP, BOOTP,
+ *	TFTPPUT, RARP, NFS, DHCP
+ * @addr: Load/save address
+ * @fname: Filename
+ * @size: Save size (not used for TFTPGET)
+ * @ipv6: true to use IPv6, false to use IPv4
+ * Return 0 on success, else -ve error code
+ */
+int netboot_run(enum proto_t proto, ulong addr, const char *fname, ulong size,
+		bool ipv6);
+
 /**
  * dhcp_run() - Run DHCP on the current ethernet device
  *

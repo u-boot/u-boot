@@ -244,7 +244,7 @@ enum image_type_t {
  * New IDs *MUST* be appended at the end of the list and *NEVER*
  * inserted for backward compatibility.
  */
-enum {
+enum image_comp_t {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
 	IH_COMP_GZIP,			/* gzip	 Compression Used	*/
 	IH_COMP_BZIP2,			/* bzip2 Compression Used	*/
@@ -598,10 +598,13 @@ int boot_get_setup(struct bootm_headers *images, uint8_t arch, ulong *setup_star
 		   ulong *setup_len);
 
 /* Image format types, returned by _get_format() routine */
-#define IMAGE_FORMAT_INVALID	0x00
-#define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
-#define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
-#define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
+enum image_fmt_t {
+	IMAGE_FORMAT_INVALID,
+	IMAGE_FORMAT_LEGACY,		/* legacy image_header based format */
+	IMAGE_FORMAT_FIT,		/* new, libfdt based format */
+	IMAGE_FORMAT_ANDROID,		/* Android boot image */
+	IMAGE_FORMAT_BOOTI,		/* Arm64/RISC-V boot image */
+};
 
 /**
  * genimg_get_kernel_addr_fit() - Parse FIT specifier
@@ -630,8 +633,41 @@ ulong genimg_get_kernel_addr_fit(const char *const img_addr,
 				 const char **fit_uname_kernel);
 
 ulong genimg_get_kernel_addr(char * const img_addr);
-int genimg_get_format(const void *img_addr);
+
+/**
+ * genimg_get_format - get image format type
+ * @img_addr: image start address
+ * Return: image format type or IMAGE_FORMAT_INVALID if no image is present
+ *
+ * genimg_get_format() checks whether provided address points to a valid
+ * legacy or FIT image.
+ *
+ * New uImage format and FDT blob are based on a libfdt. FDT blob
+ * may be passed directly or embedded in a FIT image. In both situations
+ * genimg_get_format() must be able to dectect libfdt header.
+ */
+enum image_fmt_t genimg_get_format(const void *img_addr);
+
+/**
+ * genimg_get_format_comp() - Like genimg_get_format() but adds compressed booti
+ *
+ * If a compressed file is detected (with image_decomp_type()) and
+ * CONFIG_CMD_BOOTI is enabled, then this returns IMAGE_FORMAT_BOOTI
+ *
+ * @img_addr: image start address
+ * Return: image format type or IMAGE_FORMAT_INVALID if no image is present
+ */
+enum image_fmt_t genimg_get_format_comp(const void *img_addr);
+
 int genimg_has_config(struct bootm_headers *images);
+
+/**
+ * booti_is_valid() - Check if an image appears to be an Arm64 image
+ *
+ * @img: Pointer to image
+ * Return: true if the image has the Arm64 magic
+ */
+bool booti_is_valid(const void *img);
 
 /**
  * boot_get_fpga() - Locate the FPGA image

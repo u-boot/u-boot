@@ -7,6 +7,7 @@
 #define LOG_CATEGORY	LOGC_BOOT
 
 #include <bootflow.h>
+#include <bootm.h>
 #include <command.h>
 #include <dm.h>
 #include <env.h>
@@ -432,6 +433,223 @@ skip_overlay:
 }
 #endif
 
+/*
+ * label_process_fdt() - Process FDT for the label
+ *
+ * @ctx: PXE context
+ * @label: Label to process
+ * @kernel_addr: String containing kernel address
+ * @fdt_argp: bootm argument to fill in, for FDT
+ * Return: 0 if OK, -ENOMEM if out of memory, -ENOENT if FDT file could not be
+ *	loaded
+ *
+ * fdt usage is optional:
+ * It handles the following scenarios.
+ *
+ * Scenario 1: If fdt_addr_r specified and "fdt" or "fdtdir" label is
+ * defined in pxe file, retrieve fdt blob from server. Pass fdt_addr_r to
+ * bootm, and adjust argc appropriately.
+ *
+ * If retrieve fails and no exact fdt blob is specified in pxe file with
+ * "fdt" label, try Scenario 2.
+ *
+ * Scenario 2: If there is an fdt_addr specified, pass it along to
+ * bootm, and adjust argc appropriately.
+ *
+ * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
+ * bootm, and adjust argc appropriately, unless the image type is fitImage.
+ *
+ * Scenario 4: fdt blob is not available.
+ */
+static int label_process_fdt(struct pxe_context *ctx, struct pxe_label *label,
+			     char *kernel_addr, const char **fdt_argp)
+{
+	/* For FIT, the label can be identical to kernel one */
+	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
+		*fdt_argp = kernel_addr;
+	/* if fdt label is defined then get fdt from server */
+	} else if (*fdt_argp) {
+		char *fdtfile = NULL;
+		char *fdtfilefree = NULL;
+
+		if (label->fdt) {
+			if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
+				if (strcmp("-", label->fdt))
+					fdtfile = label->fdt;
+			} else {
+				fdtfile = label->fdt;
+			}
+		} else if (label->fdtdir) {
+			char *f1, *f2, *f3, *f4, *slash;
+			int len;
+
+			f1 = env_get("fdtfile");
+			if (f1) {
+				f2 = "";
+				f3 = "";
+				f4 = "";
+			} else {
+				/*
+				 * For complex cases where this code doesn't
+				 * generate the correct filename, the board
+				 * code should set $fdtfile during early boot,
+				 * or the boot scripts should set $fdtfile
+				 * before invoking "pxe" or "sysboot".
+				 */
+				f1 = env_get("soc");
+				f2 = "-";
+				f3 = env_get("board");
+				f4 = ".dtb";
+				if (!f1) {
+					f1 = "";
+					f2 = "";
+				}
+				if (!f3) {
+					f2 = "";
+					f3 = "";
+				}
+			}
+
+			len = strlen(label->fdtdir);
+			if (!len)
+				slash = "./";
+			else if (label->fdtdir[len - 1] != '/')
+				slash = "/";
+			else
+				slash = "";
+
+			len = strlen(label->fdtdir) + strlen(slash) +
+				strlen(f1) + strlen(f2) + strlen(f3) +
+				strlen(f4) + 1;
+			fdtfilefree = malloc(len);
+			if (!fdtfilefree) {
+				printf("malloc fail (FDT filename)\n");
+				return -ENOMEM;
+			}
+
+			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
+				 label->fdtdir, slash, f1, f2, f3, f4);
+			fdtfile = fdtfilefree;
+		}
+
+		if (fdtfile) {
+			int err = get_relfile_envaddr(ctx, fdtfile,
+				"fdt_addr_r",
+				 (enum bootflow_img_t)IH_TYPE_FLATDT, NULL);
+
+			free(fdtfilefree);
+			if (err < 0) {
+				*fdt_argp = NULL;
+
+				if (label->fdt) {
+					printf("Skipping %s for failure retrieving FDT\n",
+					       label->name);
+					return -ENOENT;
+				}
+
+				if (label->fdtdir) {
+					printf("Skipping fdtdir %s for failure retrieving dts\n",
+						label->fdtdir);
+				}
+			}
+
+			if (label->kaslrseed)
+				label_boot_kaslrseed();
+
+#ifdef CONFIG_OF_LIBFDT_OVERLAY
+			if (label->fdtoverlays)
+				label_boot_fdtoverlay(ctx, label);
+#endif
+		} else {
+			*fdt_argp = NULL;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * label_run_boot() - Set up the FDT and call the appropriate bootm/z/i command
+ *
+ * @ctx: PXE context
+ * @label: Label to process
+ * @kernel_addr: String containing kernel address (cannot be NULL)
+ * @initrd_addr_str: String containing initrd address (NULL if none)
+ * @initrd_filesize: String containing initrd size (only used if
+ *	@initrd_addr_str)
+ * @initrd_str: initrd string to process (only used if @initrd_addr_str)
+ * Return: does not return on success, or returns 0 if the boot command
+ * returned, or -ve error value on error
+ */
+static int label_run_boot(struct pxe_context *ctx, struct pxe_label *label,
+			  char *kernel_addr, char *initrd_addr_str,
+			  char *initrd_filesize, char *initrd_str)
+{
+	struct bootm_info bmi;
+	ulong kernel_addr_r;
+	void *buf;
+	int ret;
+
+	bootm_init(&bmi);
+
+	bmi.conf_fdt = env_get("fdt_addr_r");
+
+	ret = label_process_fdt(ctx, label, kernel_addr, &bmi.conf_fdt);
+	if (ret)
+		return ret;
+
+	bmi.addr_img = kernel_addr;
+	bootm_x86_set(&bmi, bzimage_addr, hextoul(kernel_addr, NULL));
+
+	if (initrd_addr_str) {
+		bmi.conf_ramdisk = initrd_str;
+		bootm_x86_set(&bmi, initrd_addr,
+			      hextoul(initrd_addr_str, NULL));
+		bootm_x86_set(&bmi, initrd_size,
+			      hextoul(initrd_filesize, NULL));
+	}
+
+	if (!bmi.conf_fdt) {
+		if (!IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS) ||
+		    strcmp("-", label->fdt))
+			bmi.conf_fdt = env_get("fdt_addr");
+	}
+
+	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
+	buf = map_sysmem(kernel_addr_r, 0);
+
+	if (!bmi.conf_fdt && genimg_get_format(buf) != IMAGE_FORMAT_FIT) {
+		if (!IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS) ||
+		    strcmp("-", label->fdt))
+			bmi.conf_fdt = env_get("fdtcontroladdr");
+	}
+
+	/* Try bootm for legacy and FIT format image */
+	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
+	    IS_ENABLED(CONFIG_CMD_BOOTM)) {
+		log_debug("using bootm\n");
+		ret = bootm_run(&bmi);
+	/* Try booting an AArch64 Linux kernel image */
+	} else if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+		log_debug("using booti\n");
+		ret = booti_run(&bmi);
+	/* Try booting a Image */
+	} else if (IS_ENABLED(CONFIG_CMD_BOOTZ)) {
+		log_debug("using bootz\n");
+		ret = bootz_run(&bmi);
+	/* Try booting an x86_64 Linux kernel image */
+	} else if (IS_ENABLED(CONFIG_CMD_ZBOOT)) {
+		log_debug("using zboot\n");
+		ret = zboot_run(&bmi);
+	}
+
+	unmap_sysmem(buf);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 /**
  * label_boot() - Boot according to the contents of a pxe_label
  *
@@ -454,8 +672,6 @@ skip_overlay:
  */
 static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 {
-	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
-	char *zboot_argv[] = { "zboot", NULL, "0", NULL, NULL };
 	char *kernel_addr = NULL;
 	char *initrd_addr_str = NULL;
 	char initrd_filesize[10];
@@ -463,11 +679,6 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 	char mac_str[29] = "";
 	char ip_str[68] = "";
 	char *fit_addr = NULL;
-	int bootm_argc = 2;
-	int zboot_argc = 3;
-	int len = 0;
-	ulong kernel_addr_r;
-	void *buf;
 
 	label_print(label);
 
@@ -512,9 +723,12 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		initrd_addr_str =  kernel_addr;
 	} else if (label->initrd) {
 		ulong size;
-		if (get_relfile_envaddr(ctx, label->initrd, "ramdisk_addr_r",
-					(enum bootflow_img_t)IH_TYPE_RAMDISK,
-					&size) < 0) {
+		int ret;
+
+		ret = get_relfile_envaddr(ctx, label->initrd, "ramdisk_addr_r",
+					  (enum bootflow_img_t)IH_TYPE_RAMDISK,
+					  &size);
+		if (ret < 0) {
 			printf("Skipping %s for failure retrieving initrd\n",
 			       label->name);
 			goto cleanup;
@@ -558,7 +772,7 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		}
 
 		if (label->append)
-			strncpy(bootargs, label->append, sizeof(bootargs));
+			strlcpy(bootargs, label->append, sizeof(bootargs));
 
 		strcat(bootargs, ip_str);
 		strcat(bootargs, mac_str);
@@ -569,191 +783,14 @@ static int label_boot(struct pxe_context *ctx, struct pxe_label *label)
 		printf("append: %s\n", finalbootargs);
 	}
 
-	/*
-	 * fdt usage is optional:
-	 * It handles the following scenarios.
-	 *
-	 * Scenario 1: If fdt_addr_r specified and "fdt" or "fdtdir" label is
-	 * defined in pxe file, retrieve fdt blob from server. Pass fdt_addr_r to
-	 * bootm, and adjust argc appropriately.
-	 *
-	 * If retrieve fails and no exact fdt blob is specified in pxe file with
-	 * "fdt" label, try Scenario 2.
-	 *
-	 * Scenario 2: If there is an fdt_addr specified, pass it along to
-	 * bootm, and adjust argc appropriately.
-	 *
-	 * Scenario 3: If there is an fdtcontroladdr specified, pass it along to
-	 * bootm, and adjust argc appropriately, unless the image type is fitImage.
-	 *
-	 * Scenario 4: fdt blob is not available.
-	 */
-	bootm_argv[3] = env_get("fdt_addr_r");
-
-	/* For FIT, the label can be identical to kernel one */
-	if (label->fdt && !strcmp(label->kernel_label, label->fdt)) {
-		bootm_argv[3] = kernel_addr;
-	/* if fdt label is defined then get fdt from server */
-	} else if (bootm_argv[3]) {
-		char *fdtfile = NULL;
-		char *fdtfilefree = NULL;
-
-		if (label->fdt) {
-			if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
-				if (strcmp("-", label->fdt))
-					fdtfile = label->fdt;
-			} else {
-				fdtfile = label->fdt;
-			}
-		} else if (label->fdtdir) {
-			char *f1, *f2, *f3, *f4, *slash;
-
-			f1 = env_get("fdtfile");
-			if (f1) {
-				f2 = "";
-				f3 = "";
-				f4 = "";
-			} else {
-				/*
-				 * For complex cases where this code doesn't
-				 * generate the correct filename, the board
-				 * code should set $fdtfile during early boot,
-				 * or the boot scripts should set $fdtfile
-				 * before invoking "pxe" or "sysboot".
-				 */
-				f1 = env_get("soc");
-				f2 = "-";
-				f3 = env_get("board");
-				f4 = ".dtb";
-				if (!f1) {
-					f1 = "";
-					f2 = "";
-				}
-				if (!f3) {
-					f2 = "";
-					f3 = "";
-				}
-			}
-
-			len = strlen(label->fdtdir);
-			if (!len)
-				slash = "./";
-			else if (label->fdtdir[len - 1] != '/')
-				slash = "/";
-			else
-				slash = "";
-
-			len = strlen(label->fdtdir) + strlen(slash) +
-				strlen(f1) + strlen(f2) + strlen(f3) +
-				strlen(f4) + 1;
-			fdtfilefree = malloc(len);
-			if (!fdtfilefree) {
-				printf("malloc fail (FDT filename)\n");
-				goto cleanup;
-			}
-
-			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
-				 label->fdtdir, slash, f1, f2, f3, f4);
-			fdtfile = fdtfilefree;
-		}
-
-		if (fdtfile) {
-			int err = get_relfile_envaddr(ctx, fdtfile,
-				"fdt_addr_r",
-				 (enum bootflow_img_t)IH_TYPE_FLATDT, NULL);
-
-			free(fdtfilefree);
-			if (err < 0) {
-				bootm_argv[3] = NULL;
-
-				if (label->fdt) {
-					printf("Skipping %s for failure retrieving FDT\n",
-					       label->name);
-					goto cleanup;
-				}
-
-				if (label->fdtdir) {
-					printf("Skipping fdtdir %s for failure retrieving dts\n",
-						label->fdtdir);
-				}
-			}
-
-			if (label->kaslrseed)
-				label_boot_kaslrseed();
-
-#ifdef CONFIG_OF_LIBFDT_OVERLAY
-			if (label->fdtoverlays)
-				label_boot_fdtoverlay(ctx, label);
-#endif
-		} else {
-			bootm_argv[3] = NULL;
-		}
-	}
-
-	bootm_argv[1] = kernel_addr;
-	zboot_argv[1] = kernel_addr;
-
-	if (initrd_addr_str) {
-		bootm_argv[2] = initrd_str;
-		bootm_argc = 3;
-
-		zboot_argv[3] = initrd_addr_str;
-		zboot_argv[4] = initrd_filesize;
-		zboot_argc = 5;
-	}
-
-	if (!bootm_argv[3]) {
-		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
-			if (strcmp("-", label->fdt))
-				bootm_argv[3] = env_get("fdt_addr");
-		} else {
-			bootm_argv[3] = env_get("fdt_addr");
-		}
-	}
-
-	kernel_addr_r = genimg_get_kernel_addr(kernel_addr);
-	buf = map_sysmem(kernel_addr_r, 0);
-
-	if (!bootm_argv[3] && genimg_get_format(buf) != IMAGE_FORMAT_FIT) {
-		if (IS_ENABLED(CONFIG_SUPPORT_PASSING_ATAGS)) {
-			if (strcmp("-", label->fdt))
-				bootm_argv[3] = env_get("fdtcontroladdr");
-		} else {
-			bootm_argv[3] = env_get("fdtcontroladdr");
-		}
-	}
-
-	if (bootm_argv[3]) {
-		if (!bootm_argv[2])
-			bootm_argv[2] = "-";
-		bootm_argc = 4;
-	}
-
-	/* Try bootm for legacy and FIT format image */
-	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID &&
-	    IS_ENABLED(CONFIG_CMD_BOOTM)) {
-		log_debug("using bootm\n");
-		do_bootm(ctx->cmdtp, 0, bootm_argc, bootm_argv);
-	/* Try booting an AArch64 Linux kernel image */
-	} else if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
-		log_debug("using booti\n");
-		do_booti(ctx->cmdtp, 0, bootm_argc, bootm_argv);
-	/* Try booting a Image */
-	} else if (IS_ENABLED(CONFIG_CMD_BOOTZ)) {
-		log_debug("using bootz\n");
-		do_bootz(ctx->cmdtp, 0, bootm_argc, bootm_argv);
-	/* Try booting an x86_64 Linux kernel image */
-	} else if (IS_ENABLED(CONFIG_CMD_ZBOOT)) {
-		log_debug("using zboot\n");
-		do_zboot_parent(ctx->cmdtp, 0, zboot_argc, zboot_argv, NULL);
-	}
-
-	unmap_sysmem(buf);
+	label_run_boot(ctx, label, kernel_addr, initrd_addr_str,
+		       initrd_filesize, initrd_str);
+	/* ignore the error value since we are going to fail anyway */
 
 cleanup:
 	free(fit_addr);
 
-	return 1;
+	return 1;	/* returning is always failure */
 }
 
 /** enum token_type - Tokens for the pxe file parser */
