@@ -3,10 +3,10 @@
 # Copyright (C) 2018-2019 Texas Instruments Incorporated - https://www.ti.com/
 #	Lokesh Vutla <lokeshvutla@ti.com>
 
-if TARGET_J721E_A72_EVM
+if TARGET_J7200_A72_EVM
 
 config SYS_BOARD
-       default "j721e"
+       default "j7200"
 
 config SYS_VENDOR
        default "ti"
@@ -15,16 +15,16 @@ config SYS_CONFIG_NAME
        default "j721e_evm"
 
 config ENV_SOURCE_FILE
-       default "j721e"
+       default "j7200"
 
 source "board/ti/common/Kconfig"
 
 endif
 
-if TARGET_J721E_R5_EVM
+if TARGET_J7200_R5_EVM
 
 config SYS_BOARD
-       default "j721e"
+       default "j7200"
 
 config SYS_VENDOR
        default "ti"
@@ -33,7 +33,7 @@ config SYS_CONFIG_NAME
        default "j721e_evm"
 
 config ENV_SOURCE_FILE
-       default "j721e"
+       default "j7200"
 
 source "board/ti/common/Kconfig"
 

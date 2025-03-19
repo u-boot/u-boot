@@ -16,7 +16,7 @@ struct ti_sci_resource_static_data {
 
 #if IS_ENABLED(CONFIG_K3_DM_FW)
 
-#if IS_ENABLED(CONFIG_SOC_K3_J721E)
+#if IS_ENABLED(CONFIG_SOC_K3_J721E) || IS_ENABLED(CONFIG_SOC_K3_J7200)
 static struct ti_sci_resource_static_data rm_static_data[] = {
 	/* Free rings */
 	{
