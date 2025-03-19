@@ -1236,6 +1236,14 @@ config CMD_FUSE
 	  which control the behaviour of the device. The command uses the
 	  fuse_...() API.
 
+config CMD_FUSE_WRITEBUFF
+	bool "Support for the fuse writebuff"
+	depends on CMD_FUSE
+	help
+	  This allows programming fuses, which control the behaviour of
+	  the device, using a structured buffer in memory. The command
+	  uses the fuse_writebuff() API.
+
 config CMD_GPIO
 	bool "gpio"
 	help
