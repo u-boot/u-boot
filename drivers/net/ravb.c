@@ -31,6 +31,7 @@
 #define RAVB_REG_CSR		0x00C
 #define RAVB_REG_APSR		0x08C
 #define RAVB_REG_RCR		0x090
+#define RAVB_REG_RTC		0x0B4
 #define RAVB_REG_TGC		0x300
 #define RAVB_REG_TCCR		0x304
 #define RAVB_REG_RIC0		0x360
@@ -44,6 +45,7 @@
 #define RAVB_REG_GECMR		0x5b0
 #define RAVB_REG_MAHR		0x5c0
 #define RAVB_REG_MALR		0x5c8
+#define RAVB_REG_CSR0		0x800
 
 #define CCC_OPC_CONFIG		BIT(0)
 #define CCC_OPC_OPERATION	BIT(1)
@@ -65,13 +67,23 @@
 #define PIR_MDC			BIT(0)
 
 #define ECMR_TRCCM		BIT(26)
+#define ECMR_RCPT		BIT(25)
 #define ECMR_RZPF		BIT(20)
 #define ECMR_PFR		BIT(18)
 #define ECMR_RXF		BIT(17)
+#define ECMR_TXF		BIT(16)
 #define ECMR_RE			BIT(6)
 #define ECMR_TE			BIT(5)
 #define ECMR_DM			BIT(1)
+#define ECMR_PRM		BIT(0)
 #define ECMR_CHG_DM		(ECMR_TRCCM | ECMR_RZPF | ECMR_PFR | ECMR_RXF)
+
+#define CSR0_RPE		BIT(5)
+#define CSR0_TPE		BIT(4)
+
+#define GECMR_SPEED_10M		(0 << 4)
+#define GECMR_SPEED_100M	(1 << 4)
+#define GECMR_SPEED_1G		(2 << 4)
 
 /* DMA Descriptors */
 #define RAVB_NUM_BASE_DESC		16
@@ -384,6 +396,16 @@ static void ravb_mac_init_rcar(struct udevice *dev)
 	writel(0, eth->iobase + RAVB_REG_ECSIPR);
 }
 
+static void ravb_mac_init_rzg2l(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+
+	setbits_32(eth->iobase + RAVB_REG_ECMR,
+		   ECMR_PRM | ECMR_RXF | ECMR_TXF | ECMR_RCPT |
+		   ECMR_TE | ECMR_RE | ECMR_RZPF |
+		   (eth->phydev->duplex ? ECMR_DM : 0));
+}
+
 /* AVB-DMAC init function */
 static int ravb_dmac_init(struct udevice *dev)
 {
@@ -458,6 +480,14 @@ static void ravb_dmac_init_rcar(struct udevice *dev)
 	writel(mode, eth->iobase + RAVB_REG_APSR);
 }
 
+static void ravb_dmac_init_rzg2l(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+
+	/* Set Max Frame Length (RTC) */
+	writel(0x7ffc0000 | RFLR_RFL_MIN, eth->iobase + RAVB_REG_RTC);
+}
+
 static int ravb_config(struct udevice *dev)
 {
 	struct ravb_device_ops *device_ops =
@@ -498,6 +528,22 @@ static void ravb_config_rcar(struct udevice *dev)
 		mask |= ECMR_DM;
 
 	writel(mask, eth->iobase + RAVB_REG_ECMR);
+}
+
+static void ravb_config_rzg2l(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+	struct phy_device *phy = eth->phydev;
+
+	writel(CSR0_TPE | CSR0_RPE, eth->iobase + RAVB_REG_CSR0);
+
+	/* Set the transfer speed */
+	if (phy->speed == 10)
+		writel(GECMR_SPEED_10M, eth->iobase + RAVB_REG_GECMR);
+	else if (phy->speed == 100)
+		writel(GECMR_SPEED_100M, eth->iobase + RAVB_REG_GECMR);
+	else if (phy->speed == 1000)
+		writel(GECMR_SPEED_1G, eth->iobase + RAVB_REG_GECMR);
 }
 
 static int ravb_start(struct udevice *dev)
@@ -739,6 +785,13 @@ static const struct ravb_device_ops ravb_device_ops_rcar = {
 	.config = ravb_config_rcar,
 };
 
+static const struct ravb_device_ops ravb_device_ops_rzg2l = {
+	.mac_init = ravb_mac_init_rzg2l,
+	.dmac_init = ravb_dmac_init_rzg2l,
+	.config = ravb_config_rzg2l,
+	.has_reset = true,
+};
+
 static const struct udevice_id ravb_ids[] = {
 	{
 		.compatible = "renesas,etheravb-rcar-gen3",
@@ -747,6 +800,10 @@ static const struct udevice_id ravb_ids[] = {
 	{
 		.compatible = "renesas,etheravb-rcar-gen4",
 		.data = (ulong)&ravb_device_ops_rcar,
+	},
+	{
+		.compatible = "renesas,rzg2l-gbeth",
+		.data = (ulong)&ravb_device_ops_rzg2l,
 	},
 	{ }
 };
