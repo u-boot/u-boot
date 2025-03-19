@@ -23,6 +23,7 @@
 #include <asm/io.h>
 #include <asm/global_data.h>
 #include <asm/gpio.h>
+#include <reset.h>
 
 /* Registers */
 #define RAVB_REG_CCC		0x000
@@ -111,6 +112,7 @@ struct ravb_device_ops {
 	void (*mac_init)(struct udevice *dev);
 	void (*dmac_init)(struct udevice *dev);
 	void (*config)(struct udevice *dev);
+	bool has_reset;
 };
 
 struct ravb_desc {
@@ -136,6 +138,7 @@ struct ravb_priv {
 	struct mii_dev		*bus;
 	void __iomem		*iobase;
 	struct clk_bulk		clks;
+	struct reset_ctl	rst;
 };
 
 static inline void ravb_flush_dcache(u32 addr, u32 len)
@@ -612,6 +615,8 @@ static int ravb_bb_miiphy_write(struct mii_dev *miidev, int addr,
 
 static int ravb_probe(struct udevice *dev)
 {
+	struct ravb_device_ops *device_ops =
+		(struct ravb_device_ops *)dev_get_driver_data(dev);
 	struct eth_pdata *pdata = dev_get_plat(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct mii_dev *mdiodev;
@@ -647,16 +652,32 @@ static int ravb_probe(struct udevice *dev)
 	if (ret)
 		goto err_clk_enable;
 
+	if (device_ops->has_reset) {
+		ret = reset_get_by_index(dev, 0, &eth->rst);
+		if (ret < 0)
+			goto err_clk_enable;
+
+		ret = reset_deassert(&eth->rst);
+		if (ret < 0)
+			goto err_reset_deassert;
+	}
+
 	ret = ravb_reset(dev);
 	if (ret)
-		goto err_clk_enable;
+		goto err_ravb_reset;
 
 	ret = ravb_phy_config(dev);
 	if (ret)
-		goto err_clk_enable;
+		goto err_ravb_reset;
 
 	return 0;
 
+err_ravb_reset:
+	if (device_ops->has_reset)
+		reset_assert(&eth->rst);
+err_reset_deassert:
+	if (device_ops->has_reset)
+		reset_free(&eth->rst);
 err_clk_enable:
 	mdio_unregister(mdiodev);
 err_mdio_register:
@@ -670,8 +691,14 @@ err_clk_get:
 
 static int ravb_remove(struct udevice *dev)
 {
+	struct ravb_device_ops *device_ops =
+		(struct ravb_device_ops *)dev_get_driver_data(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
 
+	if (device_ops->has_reset) {
+		reset_assert(&eth->rst);
+		reset_free(&eth->rst);
+	}
 	clk_release_bulk(&eth->clks);
 
 	free(eth->phydev);
