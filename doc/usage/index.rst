@@ -72,6 +72,7 @@ Shell commands
    cmd/fdt
    cmd/font
    cmd/for
+   cmd/fuse
    cmd/fwu_mdata
    cmd/gpio
    cmd/gpt
