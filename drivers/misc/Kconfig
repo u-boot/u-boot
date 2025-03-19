@@ -468,6 +468,13 @@ config STM32MP_FUSE
 	  for STM32MP architecture.
 	  This API is needed for CMD_FUSE.
 
+config K3_FUSE
+	bool "Enable TI K3 fuse wrapper providing the fuse API"
+	depends on MISC && CMD_FUSE && CMD_FUSE_WRITEBUFF
+	help
+	  If you say Y here, you will get support for the fuse API (OTP)
+	  for TI K3 architecture.
+
 config STM32_RCC
 	bool "Enable RCC driver for the STM32 SoC's family"
 	depends on (ARCH_STM32 || ARCH_STM32MP) && MISC
