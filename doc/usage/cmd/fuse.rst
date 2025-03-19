@@ -17,6 +17,7 @@ Synopsis
     fuse sense <bank> <word> [<cnt>]
     fuse prog [-y] <bank> <word> <hexval> [<hexval>...]
     fuse override <bank> <word> <hexval> [<hexval>...]
+    fuse writebuff [-y] <addr>
 
 Description
 -----------
@@ -78,6 +79,16 @@ Commands
   either because this is needed only temporarily, or because some of the
   fuses have already been programmed or are locked (if the SoC allows to
   override a locked fuse).
+
+- **fuse writebuff [-y] <addr>**
+  Programs fuse data using a structured buffer in memory starting at 'addr'.
+  This operation directly affects the fusebox and is irreversible.
+
+  The structure of the buffer should contain all necessary details for
+  programming fuses, such as the values to be written to the fuse, optional
+  metadata for validation or programming constraints and any configuration
+  data required for the operation. Define CONFIG_CMD_FUSE_WRITEBUFF to
+  enable the fuse writebuff command.
 
 Examples
 --------
@@ -144,10 +155,19 @@ fuse override
     u-boot=> fuse override 0 1 0x00000003
       Overriding bank 0 word 0x00000001 with 0x00000003...
 
+fuse writebuff
+~~~~~~~~~~~~~~
+
+::
+
+    u-boot=> fuse writebuff -y 0x84000000
+      Programming fuses with buffer at addr 0x84000000
+
 Configuration
 -------------
 
 The fuse commands are available if CONFIG_CMD_FUSE=y.
+The fuse writebuff command is available if CONFIG_CMD_FUSE_WRITEBUFF=y.
 
 Return code
 -----------
