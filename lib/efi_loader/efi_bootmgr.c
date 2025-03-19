@@ -685,7 +685,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 
 	/* try to register load file2 for initrd's */
 	if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
-		ret = efi_initrd_register();
+		ret = efi_initrd_register(NULL);
 		if (ret != EFI_SUCCESS)
 			goto error;
 	}

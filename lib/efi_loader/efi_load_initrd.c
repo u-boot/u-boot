@@ -42,6 +42,7 @@ static const struct efi_lo_dp_prefix dp_lf2_handle = {
 };
 
 static efi_handle_t efi_initrd_handle;
+static struct efi_device_path *efi_initrd_dp;
 
 /**
  * get_initrd_fp() - Get initrd device path from a FilePathList device path
@@ -70,6 +71,41 @@ static efi_status_t get_initrd_fp(struct efi_device_path **initrd_fp)
 
 	*initrd_fp = dp;
 	return EFI_SUCCESS;
+}
+
+/**
+ * efi_initrd_from_mem() - load initial RAM disk from memory
+ *
+ * This function copies the initrd from the memory mapped device
+ * path pointed to by efi_initrd_dp
+ *
+ * @buffer_size:		size of allocated buffer
+ * @buffer:			buffer to load the file
+ *
+ * Return:			status code
+ */
+static efi_status_t efi_initrd_from_mem(efi_uintn_t *buffer_size, void *buffer)
+{
+	efi_status_t ret = EFI_NOT_FOUND;
+	efi_uintn_t bs;
+	struct efi_device_path_memory *mdp;
+
+	mdp = (struct efi_device_path_memory *)efi_initrd_dp;
+	if (!mdp)
+		return ret;
+
+	bs = mdp->end_address - mdp->start_address;
+
+	if (!buffer || *buffer_size < bs) {
+		ret = EFI_BUFFER_TOO_SMALL;
+		*buffer_size = bs;
+	} else {
+		memcpy(buffer, (void *)(uintptr_t)mdp->start_address, bs);
+		*buffer_size = bs;
+		ret = EFI_SUCCESS;
+	}
+
+	return ret;
 }
 
 /**
@@ -117,6 +153,9 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
 		ret = EFI_UNSUPPORTED;
 		goto out;
 	}
+
+	if (efi_initrd_dp)
+		return EFI_EXIT(efi_initrd_from_mem(buffer_size, buffer));
 
 	ret = get_initrd_fp(&initrd_fp);
 	if (ret != EFI_SUCCESS)
@@ -209,6 +248,9 @@ efi_status_t efi_initrd_deregister(void)
 							 NULL);
 	efi_initrd_handle = NULL;
 
+	efi_free_pool(efi_initrd_dp);
+	efi_initrd_dp = NULL;
+
 	return ret;
 }
 
@@ -234,24 +276,31 @@ static void EFIAPI efi_initrd_return_notify(struct efi_event *event,
  * This function creates a new handle and installs a Linux specific vendor
  * device path and an EFI_LOAD_FILE2_PROTOCOL. Linux uses the device path
  * to identify the handle and then calls the LoadFile service of the
- * EFI_LOAD_FILE2_PROTOCOL to read the initial RAM disk.
+ * EFI_LOAD_FILE2_PROTOCOL to read the initial RAM disk. If dp_initrd is
+ * not provided, the initrd will be taken from the BootCurrent variable
+ *
+ * @dp_initrd:	optional device path containing an initrd
  *
  * Return:	status code
  */
-efi_status_t efi_initrd_register(void)
+efi_status_t efi_initrd_register(struct efi_device_path *dp_initrd)
 {
 	efi_status_t ret;
 	struct efi_event *event;
 
-	/*
-	 * Allow the user to continue if Boot#### file path is not set for
-	 * an initrd
-	 */
-	ret = check_initrd();
-	if (ret == EFI_INVALID_PARAMETER)
-		return EFI_SUCCESS;
-	if (ret != EFI_SUCCESS)
-		return ret;
+	if (dp_initrd) {
+		efi_initrd_dp = dp_initrd;
+	} else {
+		/*
+		* Allow the user to continue if Boot#### file path is not set for
+		* an initrd
+		*/
+		ret = check_initrd();
+		if (ret == EFI_INVALID_PARAMETER)
+			return EFI_SUCCESS;
+		if (ret != EFI_SUCCESS)
+			return ret;
+	}
 
 	ret = efi_install_multiple_protocol_interfaces(&efi_initrd_handle,
 						       /* initramfs */
