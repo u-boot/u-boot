@@ -508,7 +508,8 @@ static int do_bootm_efi(int flag, struct bootm_info *bmi)
 	ret = efi_binary_run(image_buf, images->os.image_len,
 			     images->ft_len
 			     ? images->ft_addr : EFI_FDT_USE_INTERNAL,
-				 NULL, 0);
+				 (void *)images->initrd_start,
+				 (size_t)(images->initrd_end - images->initrd_start));
 
 	return ret;
 }
