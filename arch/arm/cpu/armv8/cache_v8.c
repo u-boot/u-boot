@@ -575,8 +575,12 @@ static void pretty_print_block_attrs(u64 pte)
 
 	if (perm_attrs & PTE_BLOCK_PXN)
 		cnt += snprintf(mem_attrs + cnt, sizeof(mem_attrs) - cnt, "PXN ");
-	if (perm_attrs & PTE_BLOCK_UXN)
-		cnt += snprintf(mem_attrs + cnt, sizeof(mem_attrs) - cnt, "UXN ");
+	if (perm_attrs & PTE_BLOCK_UXN) {
+		if (get_effective_el() == 1)
+			cnt += snprintf(mem_attrs + cnt, sizeof(mem_attrs) - cnt, "UXN ");
+		else
+			cnt += snprintf(mem_attrs + cnt, sizeof(mem_attrs) - cnt, "XN ");
+	}
 	if (perm_attrs & PTE_BLOCK_RO)
 		cnt += snprintf(mem_attrs + cnt, sizeof(mem_attrs) - cnt, "RO");
 	if (!mem_attrs[0])
@@ -1039,13 +1043,29 @@ int pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
 
 	switch (perm) {
 	case MMU_ATTR_RO:
-		attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN | PTE_BLOCK_RO;
+		/*
+		 * get_effective_el() will return 1 if
+		 * - Running in EL1 so we assume an EL1 translation regime
+		 *   with HCR_EL2.{NV, NV1} != {1,1}
+		 * - Running in EL2 with HCR_EL2.E2H = 1 so we assume an
+		 *   EL2&0 translation regime. Since we don't have accesses
+		 *   from EL0 we don't have to check HCR_EL2.TGE
+		 *
+		 * Both of these requires PXN to be set
+		 */
+		if (get_effective_el() == 1)
+			attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN | PTE_BLOCK_RO;
+		else
+			attrs |= PTE_BLOCK_UXN | PTE_BLOCK_RO;
 		break;
 	case MMU_ATTR_RX:
 		attrs |= PTE_BLOCK_RO;
 		break;
 	case MMU_ATTR_RW:
-		attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+		if (get_effective_el() == 1)
+			attrs |= PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+		else
+			attrs |= PTE_BLOCK_UXN;
 		break;
 	default:
 		log_err("Unknown attribute %d\n", perm);
