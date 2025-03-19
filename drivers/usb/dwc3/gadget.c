@@ -1631,8 +1631,25 @@ usb_ep *dwc3_gadget_match_ep(struct usb_gadget *gadget,
 		return dwc3_find_ep(gadget, "ep1in");
 	if (usb_endpoint_is_bulk_out(desc))
 		return dwc3_find_ep(gadget, "ep2out");
-	if (usb_endpoint_is_int_in(desc))
+	if (usb_endpoint_is_int_in(desc)) {
+		/*
+		 * Special workaround for NXP UUU tool in SPL.
+		 *
+		 * The tool excepts the interrupt-in endpoint to be ep1in,
+		 * otherwise it crashes. This is a result of the previous
+		 * hard-coded EP setup in drivers/usb/gadget/epautoconf.c
+		 * which did special-case EP allocation for SPL builds,
+		 * and which was since converted to this callback, but
+		 * without the special-case EP allocation in SPL part.
+		 *
+		 * This reinstates the SPL part in an isolated manner,
+		 * only for NXP iMX SoCs, only for SPL builds, and only
+		 * for the ep1in interrupt-in endpoint.
+		 */
+		if (IS_ENABLED(CONFIG_MACH_IMX) && IS_ENABLED(CONFIG_XPL_BUILD))
+			return dwc3_find_ep(gadget, "ep1in");
 		return dwc3_find_ep(gadget, "ep3in");
+	}
 
 	return NULL;
 }
