@@ -254,7 +254,7 @@ static int show_dram_config(void)
 
 	print_size(gd->ram_size, "");
 	if (!sizes_near(gd->ram_size, size)) {
-		printf(" (effective ");
+		printf(" (total ");
 		print_size(size, ")");
 	}
 	board_add_ram_info(0);
