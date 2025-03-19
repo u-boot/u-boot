@@ -107,6 +107,12 @@
 
 #define RAVB_TX_TIMEOUT_MS		1000
 
+struct ravb_device_ops {
+	void (*mac_init)(struct udevice *dev);
+	void (*dmac_init)(struct udevice *dev);
+	void (*config)(struct udevice *dev);
+};
+
 struct ravb_desc {
 	u32	ctrl;
 	u32	dptr;
@@ -348,10 +354,13 @@ static int ravb_write_hwaddr(struct udevice *dev)
 }
 
 /* E-MAC init function */
-static int ravb_mac_init(struct ravb_priv *eth)
+static void ravb_mac_init(struct udevice *dev)
 {
-	/* Disable MAC Interrupt */
-	writel(0, eth->iobase + RAVB_REG_ECSIPR);
+	struct ravb_device_ops *device_ops =
+		(struct ravb_device_ops *)dev_get_driver_data(dev);
+	struct ravb_priv *eth = dev_get_priv(dev);
+
+	device_ops->mac_init(dev);
 
 	/*
 	 * Set receive frame length
@@ -362,19 +371,23 @@ static int ravb_mac_init(struct ravb_priv *eth)
 	 * largest frames add the CRC length to the maximum Rx descriptor size.
 	 */
 	writel(RFLR_RFL_MIN + ETH_FCS_LEN, eth->iobase + RAVB_REG_RFLR);
+}
 
-	return 0;
+static void ravb_mac_init_rcar(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+
+	/* Disable MAC Interrupt */
+	writel(0, eth->iobase + RAVB_REG_ECSIPR);
 }
 
 /* AVB-DMAC init function */
 static int ravb_dmac_init(struct udevice *dev)
 {
+	struct ravb_device_ops *device_ops =
+		(struct ravb_device_ops *)dev_get_driver_data(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
-	struct eth_pdata *pdata = dev_get_plat(dev);
-	int ret = 0;
-	int mode = 0;
-	unsigned int delay;
-	bool explicit_delay = false;
+	int ret;
 
 	/* Set CONFIG mode */
 	ret = ravb_reset(dev);
@@ -390,6 +403,18 @@ static int ravb_dmac_init(struct udevice *dev)
 	/* Set little endian */
 	clrbits_le32(eth->iobase + RAVB_REG_CCC, CCC_BOC);
 
+	device_ops->dmac_init(dev);
+	return 0;
+}
+
+static void ravb_dmac_init_rcar(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_plat(dev);
+	int mode = 0;
+	unsigned int delay;
+	bool explicit_delay = false;
+
 	/* AVB rx set */
 	writel(0x18000001, eth->iobase + RAVB_REG_RCR);
 
@@ -399,7 +424,7 @@ static int ravb_dmac_init(struct udevice *dev)
 	/* Delay CLK: 2ns (not applicable on R-Car E3/D3) */
 	if ((renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77990) ||
 	    (renesas_get_cpu_type() == RENESAS_CPU_TYPE_R8A77995))
-		return 0;
+		return;
 
 	if (!dev_read_u32(dev, "rx-internal-delay-ps", &delay)) {
 		/* Valid values are 0 and 1800, according to DT bindings */
@@ -428,27 +453,36 @@ static int ravb_dmac_init(struct udevice *dev)
 	}
 
 	writel(mode, eth->iobase + RAVB_REG_APSR);
-
-	return 0;
 }
 
 static int ravb_config(struct udevice *dev)
 {
+	struct ravb_device_ops *device_ops =
+		(struct ravb_device_ops *)dev_get_driver_data(dev);
 	struct ravb_priv *eth = dev_get_priv(dev);
 	struct phy_device *phy = eth->phydev;
-	u32 mask = ECMR_CHG_DM | ECMR_RE | ECMR_TE;
 	int ret;
 
 	/* Configure AVB-DMAC register */
 	ravb_dmac_init(dev);
 
 	/* Configure E-MAC registers */
-	ravb_mac_init(eth);
+	ravb_mac_init(dev);
 	ravb_write_hwaddr(dev);
 
 	ret = phy_startup(phy);
 	if (ret)
 		return ret;
+
+	device_ops->config(dev);
+	return 0;
+}
+
+static void ravb_config_rcar(struct udevice *dev)
+{
+	struct ravb_priv *eth = dev_get_priv(dev);
+	struct phy_device *phy = eth->phydev;
+	u32 mask = ECMR_CHG_DM | ECMR_RE | ECMR_TE;
 
 	/* Set the transfer speed */
 	if (phy->speed == 100)
@@ -461,8 +495,6 @@ static int ravb_config(struct udevice *dev)
 		mask |= ECMR_DM;
 
 	writel(mask, eth->iobase + RAVB_REG_ECMR);
-
-	return 0;
 }
 
 static int ravb_start(struct udevice *dev)
@@ -674,9 +706,21 @@ int ravb_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
+static const struct ravb_device_ops ravb_device_ops_rcar = {
+	.mac_init = ravb_mac_init_rcar,
+	.dmac_init = ravb_dmac_init_rcar,
+	.config = ravb_config_rcar,
+};
+
 static const struct udevice_id ravb_ids[] = {
-	{ .compatible = "renesas,etheravb-rcar-gen3" },
-	{ .compatible = "renesas,etheravb-rcar-gen4" },
+	{
+		.compatible = "renesas,etheravb-rcar-gen3",
+		.data = (ulong)&ravb_device_ops_rcar,
+	},
+	{
+		.compatible = "renesas,etheravb-rcar-gen4",
+		.data = (ulong)&ravb_device_ops_rcar,
+	},
 	{ }
 };
 
