@@ -18,4 +18,4 @@ static int do_video_clear(struct cmd_tbl *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(cls,	1, 1, do_video_clear, "clear screen", "");
+U_BOOT_CMD(cls,	1, 0, do_video_clear, "clear screen", "");
