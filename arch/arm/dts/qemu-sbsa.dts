@@ -97,11 +97,13 @@
 		      /bits/ 64 <0 0>,
 		      /bits/ 64 <SBSA_GIC_HBASE_ADDR SBSA_GIC_HBASE_LENGTH>,
 		      /bits/ 64 <SBSA_GIC_VBASE_ADDR SBSA_GIC_VBASE_LENGTH>;
-	};
 
-	its {
-		compatible = "arm,gic-v3-its";
-		status = "disabled";
+		its: msi-controller {
+			compatible = "arm,gic-v3-its";
+			msi-controller;
+			#msi-cells = <1>;
+			status = "disabled";
+		};
 	};
 };
 
