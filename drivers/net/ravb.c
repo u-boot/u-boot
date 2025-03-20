@@ -592,7 +592,7 @@ static int ravb_probe(struct udevice *dev)
 
 	ret = clk_get_bulk(dev, &eth->clks);
 	if (ret < 0)
-		goto err_mdio_alloc;
+		goto err_clk_get;
 
 	mdiodev = mdio_alloc();
 	if (!mdiodev) {
@@ -614,23 +614,25 @@ static int ravb_probe(struct udevice *dev)
 	/* Bring up PHY */
 	ret = clk_enable_bulk(&eth->clks);
 	if (ret)
-		goto err_mdio_register;
+		goto err_clk_enable;
 
 	ret = ravb_reset(dev);
 	if (ret)
-		goto err_mdio_reset;
+		goto err_clk_enable;
 
 	ret = ravb_phy_config(dev);
 	if (ret)
-		goto err_mdio_reset;
+		goto err_clk_enable;
 
 	return 0;
 
-err_mdio_reset:
-	clk_release_bulk(&eth->clks);
+err_clk_enable:
+	mdio_unregister(mdiodev);
 err_mdio_register:
 	mdio_free(mdiodev);
 err_mdio_alloc:
+	clk_release_bulk(&eth->clks);
+err_clk_get:
 	unmap_physmem(eth->iobase, MAP_NOCACHE);
 	return ret;
 }

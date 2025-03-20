@@ -163,8 +163,8 @@ config PHY_RCAR_GEN2
 
 config PHY_RCAR_GEN3
 	tristate "Renesas R-Car Gen3 USB PHY"
-	depends on PHY && RCAR_GEN3 && CLK && DM_REGULATOR
-	default y if RCAR_GEN3
+	depends on PHY && CLK && DM_REGULATOR && (RCAR_GEN3 || RZG2L)
+	default y if (RCAR_GEN3 || RZG2L)
 	help
 	  Support for the Renesas R-Car Gen3 USB PHY. This driver operates the
 	  PHY connected to EHCI USB module and controls USB OTG operation.
