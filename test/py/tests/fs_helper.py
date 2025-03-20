@@ -95,7 +95,7 @@ def setup_image(ubman, devnum, part_type, img_size=20, second_part=False,
 
     try:
         check_call(f'mkdir -p {mnt}', shell=True)
-        check_call(f'qemu-img create {fname} 20M', shell=True)
+        check_call(f'qemu-img create {fname} {img_size}M', shell=True)
         check_call(f'printf "{spec}" | sfdisk {fname}', shell=True)
     except CalledProcessError:
         call(f'rm -f {fname}', shell=True)
