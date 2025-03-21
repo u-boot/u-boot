@@ -133,7 +133,7 @@ static int sbsa_write_gtdt(struct acpi_ctx *ctx, const struct acpi_writer *entry
 	gtdt->cnt_read_base = 0xffffffffffffffff;
 
 	// FIXME: VirtualPL2Timer
-	header->checksum = table_compute_checksum(header, header->length);
+	acpi_update_checksum(header);
 
 	acpi_add_table(ctx, gtdt);
 
@@ -181,7 +181,7 @@ static int acpi_write_pptt(struct acpi_ctx *ctx, const struct acpi_writer *entry
 	}
 
 	header->length = ctx->current - ctx->tab_start;
-	header->checksum = table_compute_checksum(header, header->length);
+	acpi_update_checksum(header);
 
 	acpi_inc(ctx, header->length);
 	acpi_add_table(ctx, header);
