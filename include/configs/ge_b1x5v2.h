@@ -82,14 +82,6 @@
 	"doboot=" \
 		"echo Booting from mmc:${mmcdev}:${mmcpart} ...; " \
 		"run helix;\0" \
-	"altbootcmd=" \
-		"setenv mmcpart 1; run hasfirstboot || setenv mmcpart 2; " \
-		"run hasfirstboot || setenv mmcpart 0; " \
-		"if test ${mmcpart} != 0; then " \
-			"setenv bootcause REVERT; " \
-			"run swappartitions loadimage doboot; " \
-		"fi; " \
-		"run failbootcmd\0" \
 	"tryboot=" \
 		"setenv mmcpart 1; run hasfirstboot || setenv mmcpart 2; " \
 		"run loadimage || run swappartitions && run loadimage || " \

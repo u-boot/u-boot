@@ -183,7 +183,6 @@
 	"rootfs_name=/dev/mmcblk0\0" \
 	"upgrade_available=0\0" \
 	"bootlimit=3\0" \
-	"altbootcmd=run bootcmd\0" \
 	"optargs=\0" \
 
 /**********************************************************************/

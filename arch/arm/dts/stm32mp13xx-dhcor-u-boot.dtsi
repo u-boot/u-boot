@@ -13,6 +13,8 @@
 	config {
 		dh,ddr3-coding-gpios = <&gpiod 5 0>, <&gpiod 9 0>;
 		dh,som-coding-gpios = <&gpioa 13 0>, <&gpioi 1 0>;
+		u-boot,mmc-env-offset = <0x3fc000>;
+		u-boot,mmc-env-offset-redundant = <0x3fc000>;
 	};
 };
 

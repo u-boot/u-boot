@@ -31,6 +31,13 @@ config SYSINFO_RCAR3
 	help
 	  Support querying SoC version information for Renesas R-Car Gen3.
 
+config SYSINFO_IOT2050
+	bool "Enable sysinfo driver for the Siemens IOT2050"
+	depends on TARGET_IOT2050_A53
+	default y if TARGET_IOT2050_A53
+	help
+	  Support querying device information for Siemens IOT2050.
+
 config SYSINFO_SANDBOX
 	bool "Enable sysinfo driver for the Sandbox board"
 	help

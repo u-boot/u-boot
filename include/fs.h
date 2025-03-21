@@ -86,7 +86,7 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
  *
  * Many file functions implicitly call fs_close(), e.g. fs_closedir(),
  * fs_exist(), fs_ln(), fs_ls(), fs_mkdir(), fs_read(), fs_size(), fs_write(),
- * fs_unlink().
+ * fs_unlink(), fs_rename().
  */
 void fs_close(void);
 
@@ -270,6 +270,18 @@ int fs_unlink(const char *filename);
  */
 int fs_mkdir(const char *filename);
 
+/**
+ * fs_rename - rename/move a file or directory
+ *
+ * @old_path: existing path of the file/directory to rename
+ * @new_path: new path of the file/directory. If this points to an existing
+ * file or empty directory, the existing file/directory will be unlinked.
+ * If this points to a non-empty directory, the rename will fail.
+ *
+ * Return: 0 on success, -1 on error conditions
+ */
+int fs_rename(const char *old_path, const char *new_path);
+
 /*
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
@@ -289,6 +301,8 @@ int do_rm(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 int do_mkdir(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	     int fstype);
 int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	  int fstype);
+int do_mv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	  int fstype);
 
 /*

@@ -6,7 +6,6 @@
  */
 
 #include <console.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 /* Declare a new addrmap test */

@@ -291,6 +291,7 @@ struct eth_ops {
 #define eth_get_ops(dev) ((struct eth_ops *)(dev)->driver->ops)
 
 struct udevice *eth_get_dev(void); /* get the current device */
+void eth_set_dev(struct udevice *dev); /* set a device */
 unsigned char *eth_get_ethaddr(void); /* get the current device MAC */
 int eth_rx(void);                      /* Check for received packets */
 void eth_halt(void);			/* stop SCC */

@@ -9,7 +9,6 @@
 #include <bootmeth.h>
 #include <bootstd.h>
 #include <dm.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
 

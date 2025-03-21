@@ -211,6 +211,7 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 			bool lz = false;
 			int width = 0;
 			bool islong = false;
+			bool force_char = false;
 
 			ch = *(fmt++);
 			if (ch == '-')
@@ -300,6 +301,8 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 				break;
 			case 'c':
 				out(info, (char)(va_arg(va, int)));
+				/* For the case when it's \0 char */
+				force_char = true;
 				break;
 			case 's':
 				p = va_arg(va, char*);
@@ -317,8 +320,10 @@ static int _vprintf(struct printf_info *info, const char *fmt, va_list va)
 			while (width-- > 0)
 				info->putc(info, lz ? '0' : ' ');
 			if (p) {
-				while ((ch = *p++))
+				while ((ch = *p++) || force_char) {
 					info->putc(info, ch);
+					force_char = false;
+				}
 			}
 		}
 	}

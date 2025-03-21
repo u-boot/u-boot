@@ -6,3 +6,9 @@ obj-$(CONFIG_CMD_DNS) += dns.o
 obj-$(CONFIG_CMD_PING) += ping.o
 obj-$(CONFIG_CMD_TFTPBOOT) += tftp.o
 obj-$(CONFIG_WGET) += wget.o
+
+ifeq (y,$(CONFIG_WGET_BUILTIN_CACERT))
+$(obj)/builtin_cacert.c: $(CONFIG_WGET_BUILTIN_CACERT_PATH:"%"=%) FORCE
+	$(call if_changed,bin2c,builtin_cacert)
+obj-y += builtin_cacert.o
+endif

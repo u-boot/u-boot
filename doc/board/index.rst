@@ -69,4 +69,5 @@ Board-specific doc
    variscite/index
    wexler/index
    xen/index
+   xiaomi/index
    xilinx/index

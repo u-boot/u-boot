@@ -27,6 +27,17 @@ config DEPRECATED
 	  code that relies on deprecated features that will be removed and
 	  the conversion deadline has passed.
 
+config WERROR
+	bool "Compile U-Boot with warnings as errors"
+	help
+	  A U-Boot build should not cause any compiler warnings, and this
+	  enables the '-Werror' flag to enforce that rule.
+
+	  However, if you have a new (or very old) compiler or linker with odd
+	  and unusual warnings, or you have some architecture with problems,
+	  you may need to disable this config option in order to
+	  successfully build U-Boot.
+
 config LOCALVERSION
 	string "Local version - append to U-Boot release"
 	help

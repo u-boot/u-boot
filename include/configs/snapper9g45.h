@@ -58,8 +58,7 @@
 	"boot_tftp=setenv bootargs $bootargs_def ip=any nfsroot=$nfsroot; setenv autoload y && bootp && bootm\0" \
 	"boot_usb=setenv bootargs $bootargs_def; usb start && usb storage && fatload usb 0:1 $loadaddr dds-xm200.bin && bootm\0" \
 	"boot_mmc=setenv bootargs $bootargs_def; mmc rescan && fatload mmc 0:1 $loadaddr dds-xm200.bin && bootm\0" \
-	"bootcmd=run boot_mmc ; run boot_usb ; run boot_working ; run boot_safe\0" \
-	"altbootcmd=run boot_mmc ; run boot_usb ; run boot_safe ; run boot_working\0"
+	"bootcmd=run boot_mmc ; run boot_usb ; run boot_working ; run boot_safe\0"
 
 /* Console settings */
 

@@ -26,8 +26,6 @@ static int dm_test_cmd_mux_list(struct unit_test_state *uts)
 	int i;
 	unsigned long val;
 
-	sandbox_set_enable_memio(true);
-
 	ut_assertok(uclass_get_device_by_name(UCLASS_MUX, "a-mux-controller",
 					      &dev));
 	chip = dev_get_uclass_priv(dev);
@@ -119,8 +117,6 @@ static int dm_test_cmd_mux_select(struct unit_test_state *uts)
 	char cmd[BUF_SIZE];
 	unsigned int i, state;
 
-	sandbox_set_enable_memio(true);
-
 	ut_assertok(uclass_get_device_by_name(UCLASS_MUX, "a-mux-controller",
 					      &dev));
 	chip = dev_get_uclass_priv(dev);
@@ -152,8 +148,6 @@ static int dm_test_cmd_mux_deselect(struct unit_test_state *uts)
 	struct mux_control *mux;
 	char cmd[BUF_SIZE];
 	unsigned int i, state;
-
-	sandbox_set_enable_memio(true);
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_MUX, "a-mux-controller",
 					      &dev));

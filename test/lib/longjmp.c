@@ -5,10 +5,10 @@
  * Copyright (c) 2021, Heinrich Schuchardt <xypron.glpk@gmx.de>
  */
 
+#include <setjmp.h>
 #include <test/lib.h>
 #include <test/test.h>
 #include <test/ut.h>
-#include <asm/setjmp.h>
 
 struct test_jmp_buf {
 	jmp_buf env;

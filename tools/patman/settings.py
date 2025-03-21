@@ -12,7 +12,7 @@ import argparse
 import os
 import re
 
-from patman import gitutil
+from u_boot_pylib import gitutil
 
 """Default settings per-project.
 

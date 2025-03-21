@@ -28,7 +28,7 @@ choice
 config TARGET_VEXPRESS64_BASE_FVP
 	bool "Support Versatile Express ARMv8a FVP BASE model"
 	select VEXPRESS64_BASE_MODEL
-	imply OF_HAS_PRIOR_STAGE
+	imply OF_HAS_PRIOR_STAGE if !BLOBLIST
 
 config TARGET_VEXPRESS64_BASER_FVP
 	bool "Support Versatile Express ARMv8r64 FVP BASE model"
