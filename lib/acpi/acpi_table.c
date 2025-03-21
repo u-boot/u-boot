@@ -195,9 +195,7 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 					(sizeof(u32) * (i + 1));
 
 		/* Re-calculate checksum */
-		rsdt->header.checksum = 0;
-		rsdt->header.checksum = table_compute_checksum((u8 *)rsdt,
-							       rsdt->header.length);
+		acpi_update_checksum(&rsdt->header);
 	}
 
 	if (ctx->xsdt) {
@@ -228,9 +226,7 @@ int acpi_add_table(struct acpi_ctx *ctx, void *table)
 					(sizeof(u64) * (i + 1));
 
 		/* Re-calculate checksum */
-		xsdt->header.checksum = 0;
-		xsdt->header.checksum = table_compute_checksum((u8 *)xsdt,
-							       xsdt->header.length);
+		acpi_update_checksum(&xsdt->header);
 	}
 
 	return 0;
@@ -268,7 +264,7 @@ int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 
 	acpi_fill_fadt(fadt);
 
-	header->checksum = table_compute_checksum(fadt, header->length);
+	acpi_update_checksum(header);
 
 	return acpi_add_fadt(ctx, fadt);
 }
@@ -303,7 +299,7 @@ int acpi_write_madt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	if (IS_ENABLED(CONFIG_ACPI_PARKING_PROTOCOL))
 		acpi_write_park(madt);
 
-	header->checksum = table_compute_checksum((void *)madt, header->length);
+	acpi_update_checksum(header);
 	acpi_add_table(ctx, madt);
 	ctx->current = (void *)madt + madt->header.length;
 
@@ -374,7 +370,7 @@ void acpi_create_dbg2(struct acpi_dbg2_header *dbg2,
 	/* Update structure lengths and checksum */
 	device->length = current - (uintptr_t)device;
 	header->length = current - (uintptr_t)dbg2;
-	header->checksum = table_compute_checksum(dbg2, header->length);
+	acpi_update_checksum(header);
 }
 
 int acpi_write_dbg2_pci_uart(struct acpi_ctx *ctx, struct udevice *dev,
@@ -549,7 +545,7 @@ static int acpi_write_spcr(struct acpi_ctx *ctx, const struct acpi_writer *entry
 		spcr->baud_rate = 0;
 
 	/* Fix checksum */
-	header->checksum = table_compute_checksum((void *)spcr, header->length);
+	acpi_update_checksum(header);
 
 	acpi_add_table(ctx, spcr);
 	acpi_inc(ctx, spcr->header.length);
@@ -759,7 +755,7 @@ static int acpi_write_iort(struct acpi_ctx *ctx, const struct acpi_writer *entry
 
 	/* (Re)calculate length and checksum */
 	iort->header.length = ctx->current - (void *)iort;
-	iort->header.checksum = table_compute_checksum((void *)iort, iort->header.length);
+	acpi_update_checksum(&iort->header);
 	log_debug("IORT at %p, length %x\n", iort, iort->header.length);
 
 	/* Drop the table if it is empty */
