@@ -1274,6 +1274,13 @@ ulong write_acpi_tables(ulong start);
  */
 struct acpi_table_header *acpi_find_table(const char *sig);
 
+/**
+ * acpi_update_checksum() - update ACPI table checksum
+ *
+ * @header - header of an ACPI table
+ */
+void acpi_update_checksum(struct acpi_table_header *header);
+
 #endif /* !__ACPI__*/
 
 #include <asm/acpi_table.h>
