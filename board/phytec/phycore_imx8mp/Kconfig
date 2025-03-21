@@ -45,7 +45,6 @@ config PHYCORE_IMX8MP_RAM_SIZE_4GB
 
 config PHYCORE_IMX8MP_RAM_SIZE_8GB
 	bool "8GB RAM"
-	select PHYCORE_IMX8MP_USE_2GHZ_RAM_TIMINGS
 	help
 	  Set RAM size fix to 8GB for phyCORE-i.MX8MP.
 	  Only 2GHz RAMs are supported.
@@ -54,7 +53,6 @@ endchoice
 
 config PHYCORE_IMX8MP_RAM_FREQ_FIX
 	bool "Set phyCORE-i.MX8MP RAM frequency fix instead of detecting"
-	default false
 	help
 	  RAM frequency is automatic being detected with the help of
 	  the EEPROM introspection data. Set RAM frequency to a fix value
