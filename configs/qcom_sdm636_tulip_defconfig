@@ -1,0 +1,31 @@
+# Configuration for building U-Boot as 2nd stage
+# bootloader to be flashed as part of boot.img to
+# boot partition on Xiaomi Redmi Note 6 Pro phones.
+
+#include "qcom_sdm660_defconfig"
+
+# clover device tree is not upstream
+CONFIG_OF_UPSTREAM=n
+CONFIG_DEFAULT_DEVICE_TREE="qcom/sdm636-xiaomi-tulip"
+
+# xiaomi-tulip is built with no real serial debug uart available,
+# it is using ramoops logging instead
+# and with pre_console_buffer
+
+# CONFIG_REQUIRE_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_PRESENT is not set
+# ^^ reason to disable both debug-uart and bluetooth-uart nodes in dts
+
+CONFIG_DEBUG_UART_RAMOOPS=y
+# Values from xiaomi-clover downstream TWRP recovery device tree
+CONFIG_DEBUG_UART_RAMOOPS_BASE=0xa0000000
+CONFIG_DEBUG_UART_RAMOOPS_SIZE=0x400000
+CONFIG_DEBUG_UART_RAMOOPS_CONSOLE_SIZE=0x20000
+CONFIG_DEBUG_UART_RAMOOPS_FTRACE_SIZE=0x0
+CONFIG_DEBUG_UART_RAMOOPS_RECORD_SIZE=0x20000
+CONFIG_DEBUG_UART_RAMOOPS_PMSG_SIZE=0x20000
+CONFIG_DEBUG_UART_SKIP_INIT=n
+
+CONFIG_PRE_CONSOLE_BUFFER=y
+CONFIG_PRE_CON_BUF_ADDR=0x95100000
+CONFIG_PRE_CON_BUF_SZ=16384
