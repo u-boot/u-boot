@@ -1,0 +1,9 @@
+# Configuration for building U-Boot as 2nd stage
+# bootloader to be flashed as part of boot.img to
+# boot partition on Xiaomi Redmi Note 7 phones.
+
+#include "qcom_sdm660_defconfig"
+
+# lavender is a bit special, it's device tree is upstream
+CONFIG_OF_UPSTREAM=y
+CONFIG_DEFAULT_DEVICE_TREE="qcom/sdm660-xiaomi-lavender"
