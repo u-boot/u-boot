@@ -46,12 +46,12 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 
 	/* PLL bypass out */
 	clk_dm(IMXRT1020_CLK_PLL2_BYPASS,
-	       imx_clk_mux_flags("pll2_bypass", base + 0x30, 16, 1,
+	       imx_clk_mux_flags(dev, "pll2_bypass", base + 0x30, 16, 1,
 				 pll2_bypass_sels,
 				 ARRAY_SIZE(pll2_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMXRT1020_CLK_PLL3_BYPASS,
-	       imx_clk_mux_flags("pll3_bypass", base + 0x10, 16, 1,
+	       imx_clk_mux_flags(dev, "pll3_bypass", base + 0x10, 16, 1,
 				 pll3_bypass_sels,
 				 ARRAY_SIZE(pll3_bypass_sels),
 				 CLK_SET_RATE_PARENT));
@@ -78,25 +78,25 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMXRT1020_CLK_PRE_PERIPH_SEL,
-	       imx_clk_mux("pre_periph_sel", base + 0x18, 18, 2,
+	       imx_clk_mux(dev, "pre_periph_sel", base + 0x18, 18, 2,
 			   pre_periph_sels, ARRAY_SIZE(pre_periph_sels)));
 	clk_dm(IMXRT1020_CLK_PERIPH_SEL,
-	       imx_clk_mux("periph_sel", base + 0x14, 25, 1,
+	       imx_clk_mux(dev, "periph_sel", base + 0x14, 25, 1,
 			   periph_sels, ARRAY_SIZE(periph_sels)));
 	clk_dm(IMXRT1020_CLK_USDHC1_SEL,
-	       imx_clk_mux("usdhc1_sel", base + 0x1c, 16, 1,
+	       imx_clk_mux(dev, "usdhc1_sel", base + 0x1c, 16, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1020_CLK_USDHC2_SEL,
-	       imx_clk_mux("usdhc2_sel", base + 0x1c, 17, 1,
+	       imx_clk_mux(dev, "usdhc2_sel", base + 0x1c, 17, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1020_CLK_LPUART_SEL,
-	       imx_clk_mux("lpuart_sel", base + 0x24, 6, 1,
+	       imx_clk_mux(dev, "lpuart_sel", base + 0x24, 6, 1,
 			   lpuart_sels, ARRAY_SIZE(lpuart_sels)));
 	clk_dm(IMXRT1020_CLK_SEMC_ALT_SEL,
-	       imx_clk_mux("semc_alt_sel", base + 0x14, 7, 1,
+	       imx_clk_mux(dev, "semc_alt_sel", base + 0x14, 7, 1,
 			   semc_alt_sels, ARRAY_SIZE(semc_alt_sels)));
 	clk_dm(IMXRT1020_CLK_SEMC_SEL,
-	       imx_clk_mux("semc_sel", base + 0x14, 6, 1,
+	       imx_clk_mux(dev, "semc_sel", base + 0x14, 6, 1,
 			   semc_sels, ARRAY_SIZE(semc_sels)));
 
 	clk_dm(IMXRT1020_CLK_AHB_PODF,

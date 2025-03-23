@@ -36,16 +36,16 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
 	clk_dm(IMXRT1050_CLK_PLL1_REF_SEL,
-	       imx_clk_mux("pll1_arm_ref_sel", base + 0x0, 14, 2,
+	       imx_clk_mux(dev, "pll1_arm_ref_sel", base + 0x0, 14, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMXRT1050_CLK_PLL2_REF_SEL,
-	       imx_clk_mux("pll2_sys_ref_sel", base + 0x30, 14, 2,
+	       imx_clk_mux(dev, "pll2_sys_ref_sel", base + 0x30, 14, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMXRT1050_CLK_PLL3_REF_SEL,
-	       imx_clk_mux("pll3_usb_otg_ref_sel", base + 0x10, 14, 2,
+	       imx_clk_mux(dev, "pll3_usb_otg_ref_sel", base + 0x10, 14, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMXRT1050_CLK_PLL5_REF_SEL,
-	       imx_clk_mux("pll5_video_ref_sel", base + 0xa0, 14, 2,
+	       imx_clk_mux(dev, "pll5_video_ref_sel", base + 0xa0, 14, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 
 	clk_dm(IMXRT1050_CLK_PLL1_ARM,
@@ -64,22 +64,22 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 
 	/* PLL bypass out */
 	clk_dm(IMXRT1050_CLK_PLL1_BYPASS,
-	       imx_clk_mux_flags("pll1_bypass", base + 0x0, 16, 1,
+	       imx_clk_mux_flags(dev, "pll1_bypass", base + 0x0, 16, 1,
 				 pll1_bypass_sels,
 				 ARRAY_SIZE(pll1_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMXRT1050_CLK_PLL2_BYPASS,
-	       imx_clk_mux_flags("pll2_bypass", base + 0x30, 16, 1,
+	       imx_clk_mux_flags(dev, "pll2_bypass", base + 0x30, 16, 1,
 				 pll2_bypass_sels,
 				 ARRAY_SIZE(pll2_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMXRT1050_CLK_PLL3_BYPASS,
-	       imx_clk_mux_flags("pll3_bypass", base + 0x10, 16, 1,
+	       imx_clk_mux_flags(dev, "pll3_bypass", base + 0x10, 16, 1,
 				 pll3_bypass_sels,
 				 ARRAY_SIZE(pll3_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMXRT1050_CLK_PLL5_BYPASS,
-	       imx_clk_mux_flags("pll5_bypass", base + 0xa0, 16, 1,
+	       imx_clk_mux_flags(dev, "pll5_bypass", base + 0xa0, 16, 1,
 				 pll5_bypass_sels,
 				 ARRAY_SIZE(pll5_bypass_sels),
 				 CLK_SET_RATE_PARENT));
@@ -117,28 +117,28 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 			       base + 0x10, 0, 3));
 
 	clk_dm(IMXRT1050_CLK_PRE_PERIPH_SEL,
-	       imx_clk_mux("pre_periph_sel", base + 0x18, 18, 2,
+	       imx_clk_mux(dev, "pre_periph_sel", base + 0x18, 18, 2,
 			   pre_periph_sels, ARRAY_SIZE(pre_periph_sels)));
 	clk_dm(IMXRT1050_CLK_PERIPH_SEL,
-	       imx_clk_mux("periph_sel", base + 0x14, 25, 1,
+	       imx_clk_mux(dev, "periph_sel", base + 0x14, 25, 1,
 			   periph_sels, ARRAY_SIZE(periph_sels)));
 	clk_dm(IMXRT1050_CLK_USDHC1_SEL,
-	       imx_clk_mux("usdhc1_sel", base + 0x1c, 16, 1,
+	       imx_clk_mux(dev, "usdhc1_sel", base + 0x1c, 16, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1050_CLK_USDHC2_SEL,
-	       imx_clk_mux("usdhc2_sel", base + 0x1c, 17, 1,
+	       imx_clk_mux(dev, "usdhc2_sel", base + 0x1c, 17, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1050_CLK_LPUART_SEL,
-	       imx_clk_mux("lpuart_sel", base + 0x24, 6, 1,
+	       imx_clk_mux(dev, "lpuart_sel", base + 0x24, 6, 1,
 			   lpuart_sels, ARRAY_SIZE(lpuart_sels)));
 	clk_dm(IMXRT1050_CLK_SEMC_ALT_SEL,
-	       imx_clk_mux("semc_alt_sel", base + 0x14, 7, 1,
+	       imx_clk_mux(dev, "semc_alt_sel", base + 0x14, 7, 1,
 			   semc_alt_sels, ARRAY_SIZE(semc_alt_sels)));
 	clk_dm(IMXRT1050_CLK_SEMC_SEL,
-	       imx_clk_mux("semc_sel", base + 0x14, 6, 1,
+	       imx_clk_mux(dev, "semc_sel", base + 0x14, 6, 1,
 			   semc_sels, ARRAY_SIZE(semc_sels)));
 	clk_dm(IMXRT1050_CLK_LCDIF_SEL,
-	       imx_clk_mux("lcdif_sel", base + 0x38, 15, 3,
+	       imx_clk_mux(dev, "lcdif_sel", base + 0x38, 15, 3,
 			   lcdif_sels, ARRAY_SIZE(lcdif_sels)));
 
 	clk_dm(IMXRT1050_CLK_AHB_PODF,

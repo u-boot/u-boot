@@ -152,31 +152,31 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MQ_CLK_27M, clk_register_fixed_rate(NULL, "clock-osc-27m", 27000000));
 
 	clk_dm(IMX8MQ_DRAM_PLL1_REF_SEL,
-	       imx_clk_mux("dram_pll_ref_sel", base + 0x60, 0, 2,
+	       imx_clk_mux(dev, "dram_pll_ref_sel", base + 0x60, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_ARM_PLL_REF_SEL,
-	       imx_clk_mux("arm_pll_ref_sel", base + 0x28, 0, 2,
+	       imx_clk_mux(dev, "arm_pll_ref_sel", base + 0x28, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_GPU_PLL_REF_SEL,
-	       imx_clk_mux("gpu_pll_ref_sel", base + 0x18, 0, 2,
+	       imx_clk_mux(dev, "gpu_pll_ref_sel", base + 0x18, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VPU_PLL_REF_SEL,
-	       imx_clk_mux("vpu_pll_ref_sel", base + 0x20, 0, 2,
+	       imx_clk_mux(dev, "vpu_pll_ref_sel", base + 0x20, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_SYS3_PLL1_REF_SEL,
-	       imx_clk_mux("sys3_pll_ref_sel", base + 0x48, 0, 2,
+	       imx_clk_mux(dev, "sys3_pll_ref_sel", base + 0x48, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_AUDIO_PLL1_REF_SEL,
-	       imx_clk_mux("audio_pll1_ref_sel", base + 0x0, 0, 2,
+	       imx_clk_mux(dev, "audio_pll1_ref_sel", base + 0x0, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_AUDIO_PLL2_REF_SEL,
-	       imx_clk_mux("audio_pll2_ref_sel", base + 0x8, 0, 2,
+	       imx_clk_mux(dev, "audio_pll2_ref_sel", base + 0x8, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VIDEO_PLL1_REF_SEL,
-	       imx_clk_mux("video_pll1_ref_sel", base + 0x10, 0, 2,
+	       imx_clk_mux(dev, "video_pll1_ref_sel", base + 0x10, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MQ_VIDEO2_PLL1_REF_SEL,
-	       imx_clk_mux("video_pll2_ref_sel", base + 0x54, 0, 2,
+	       imx_clk_mux(dev, "video_pll2_ref_sel", base + 0x54, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 
 	clk_dm(IMX8MQ_ARM_PLL,
@@ -207,32 +207,32 @@ static int imx8mq_clk_probe(struct udevice *dev)
 
 	/* PLL bypass out */
 	clk_dm(IMX8MQ_ARM_PLL_BYPASS,
-	       imx_clk_mux_flags("arm_pll_bypass", base + 0x28, 4, 1,
+	       imx_clk_mux_flags(dev, "arm_pll_bypass", base + 0x28, 4, 1,
 				 arm_pll_bypass_sels,
 				 ARRAY_SIZE(arm_pll_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_GPU_PLL_BYPASS,
-	       imx_clk_mux_flags("gpu_pll_bypass", base + 0x18, 4, 1,
+	       imx_clk_mux_flags(dev, "gpu_pll_bypass", base + 0x18, 4, 1,
 				 gpu_pll_bypass_sels,
 				 ARRAY_SIZE(gpu_pll_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_VPU_PLL_BYPASS,
-	       imx_clk_mux_flags("vpu_pll_bypass", base + 0x20, 4, 1,
+	       imx_clk_mux_flags(dev, "vpu_pll_bypass", base + 0x20, 4, 1,
 				 vpu_pll_bypass_sels,
 				 ARRAY_SIZE(vpu_pll_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_AUDIO_PLL1_BYPASS,
-	       imx_clk_mux_flags("audio_pll1_bypass", base + 0x0, 4, 1,
+	       imx_clk_mux_flags(dev, "audio_pll1_bypass", base + 0x0, 4, 1,
 				 audio_pll1_bypass_sels,
 				 ARRAY_SIZE(audio_pll1_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_AUDIO_PLL2_BYPASS,
-	       imx_clk_mux_flags("audio_pll2_bypass", base + 0x8, 4, 1,
+	       imx_clk_mux_flags(dev, "audio_pll2_bypass", base + 0x8, 4, 1,
 				 audio_pll2_bypass_sels,
 				 ARRAY_SIZE(audio_pll2_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_VIDEO_PLL1_BYPASS,
-	       imx_clk_mux_flags("video_pll1_bypass", base + 0x10, 4, 1,
+	       imx_clk_mux_flags(dev, "video_pll1_bypass", base + 0x10, 4, 1,
 				 video_pll1_bypass_sels,
 				 ARRAY_SIZE(video_pll1_bypass_sels),
 				 CLK_SET_RATE_PARENT));
@@ -335,7 +335,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MQ_CLK_MON_VIDEO_PLL2_DIV,
 	       imx_clk_divider("video_pll2_out_monitor", "video_pll2_out", base + 0x7c, 16, 3));
 	clk_dm(IMX8MQ_CLK_MON_SEL,
-	       imx_clk_mux_flags("pllout_monitor_sel", base + 0x74, 0, 4,
+	       imx_clk_mux_flags(dev, "pllout_monitor_sel", base + 0x74, 0, 4,
 				 pllout_monitor_sels,
 				 ARRAY_SIZE(pllout_monitor_sels),
 				 CLK_SET_RATE_PARENT));
@@ -349,7 +349,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	}
 
 	clk_dm(IMX8MQ_CLK_A53_SRC,
-	       imx_clk_mux2("arm_a53_src", base + 0x8000, 24, 3,
+	       imx_clk_mux2(dev, "arm_a53_src", base + 0x8000, 24, 3,
 			    imx8mq_a53_sels, ARRAY_SIZE(imx8mq_a53_sels)));
 	clk_dm(IMX8MQ_CLK_A53_CG,
 	       imx_clk_gate3("arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
@@ -357,7 +357,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx_clk_divider2("arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
 	clk_dm(IMX8MQ_CLK_A53_CORE,
-	       imx_clk_mux2("arm_a53_src", base + 0x9880, 24, 1,
+	       imx_clk_mux2(dev, "arm_a53_src", base + 0x9880, 24, 1,
 			    imx8mq_a53_core_sels, ARRAY_SIZE(imx8mq_a53_core_sels)));
 
 	clk_dm(IMX8MQ_CLK_AHB,
@@ -378,7 +378,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 
 	/* DRAM */
 	clk_dm(IMX8MQ_CLK_DRAM_CORE,
-	       imx_clk_mux2("dram_core_clk", base + 0x9800, 24, 1,
+	       imx_clk_mux2(dev, "dram_core_clk", base + 0x9800, 24, 1,
 			    imx8mq_dram_core_sels, ARRAY_SIZE(imx8mq_dram_core_sels)));
 	clk_dm(IMX8MQ_CLK_DRAM_ALT,
 	       imx8m_clk_composite("dram_alt", imx8mq_dram_alt_sels, base + 0xa000));

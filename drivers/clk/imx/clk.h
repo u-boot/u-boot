@@ -167,7 +167,7 @@ struct clk *imx_clk_fixup_mux(const char *name, void __iomem *reg,
 			      u8 shift, u8 width, const char * const *parents,
 			      int num_parents, void (*fixup)(u32 *val));
 
-static inline struct clk *imx_clk_mux_flags(const char *name,
+static inline struct clk *imx_clk_mux_flags(struct udevice *dev, const char *name,
 			void __iomem *reg, u8 shift, u8 width,
 			const char * const *parents, int num_parents,
 			unsigned long flags)
@@ -177,7 +177,7 @@ static inline struct clk *imx_clk_mux_flags(const char *name,
 				width, 0);
 }
 
-static inline struct clk *imx_clk_mux2_flags(const char *name,
+static inline struct clk *imx_clk_mux2_flags(struct udevice *dev, const char *name,
 		void __iomem *reg, u8 shift, u8 width,
 		const char * const *parents,
 		int num_parents, unsigned long flags)
@@ -187,8 +187,8 @@ static inline struct clk *imx_clk_mux2_flags(const char *name,
 			reg, shift, width, 0);
 }
 
-static inline struct clk *imx_clk_mux(const char *name, void __iomem *reg,
-			u8 shift, u8 width, const char * const *parents,
+static inline struct clk *imx_clk_mux(struct udevice *dev, const char *name,
+			void __iomem *reg, u8 shift, u8 width, const char * const *parents,
 			int num_parents)
 {
 	return clk_register_mux(NULL, name, parents, num_parents,
@@ -197,7 +197,7 @@ static inline struct clk *imx_clk_mux(const char *name, void __iomem *reg,
 }
 
 static inline struct clk *
-imx_clk_busy_mux(const char *name, void __iomem *reg, u8 shift, u8 width,
+imx_clk_busy_mux(struct udevice *dev, const char *name, void __iomem *reg, u8 shift, u8 width,
 		 void __iomem *busy_reg, u8 busy_shift,
 		 const char * const *parents, int num_parents)
 {
@@ -206,7 +206,7 @@ imx_clk_busy_mux(const char *name, void __iomem *reg, u8 shift, u8 width,
 			width, 0);
 }
 
-static inline struct clk *imx_clk_mux2(const char *name, void __iomem *reg,
+static inline struct clk *imx_clk_mux2(struct udevice *dev, const char *name, void __iomem *reg,
 			u8 shift, u8 width, const char * const *parents,
 			int num_parents)
 {

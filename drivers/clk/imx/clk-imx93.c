@@ -338,7 +338,7 @@ static int imx93_clk_probe(struct udevice *dev)
 	}
 
 	clk_dm(IMX93_CLK_A55_SEL,
-	       imx_clk_mux2("a55_sel", base + 0x4820, 0, 1,
+	       imx_clk_mux2(dev, "a55_sel", base + 0x4820, 0, 1,
 			    a55_core_sels, ARRAY_SIZE(a55_core_sels)));
 
 	return 0;

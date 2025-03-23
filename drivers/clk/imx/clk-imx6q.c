@@ -68,24 +68,24 @@ static int imx6q_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMX6QDL_CLK_USDHC1_SEL,
-	       imx_clk_mux("usdhc1_sel", base + 0x1c, 16, 1,
+	       imx_clk_mux(dev, "usdhc1_sel", base + 0x1c, 16, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMX6QDL_CLK_USDHC2_SEL,
-	       imx_clk_mux("usdhc2_sel", base + 0x1c, 17, 1,
+	       imx_clk_mux(dev, "usdhc2_sel", base + 0x1c, 17, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMX6QDL_CLK_USDHC3_SEL,
-	       imx_clk_mux("usdhc3_sel", base + 0x1c, 18, 1,
+	       imx_clk_mux(dev, "usdhc3_sel", base + 0x1c, 18, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMX6QDL_CLK_USDHC4_SEL,
-	       imx_clk_mux("usdhc4_sel", base + 0x1c, 19, 1,
+	       imx_clk_mux(dev, "usdhc4_sel", base + 0x1c, 19, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 
 	if (of_machine_is_compatible("fsl,imx6qp")) {
 		clk_dm(IMX6QDL_CLK_UART_SEL,
-		       imx_clk_mux("uart_sel", base + 0x24, 6, 1, uart_sels,
+		       imx_clk_mux(dev, "uart_sel", base + 0x24, 6, 1, uart_sels,
 				   ARRAY_SIZE(uart_sels)));
 		clk_dm(IMX6QDL_CLK_ECSPI_SEL,
-		       imx_clk_mux("ecspi_sel",	base + 0x38, 18, 1, ecspi_sels,
+		       imx_clk_mux(dev, "ecspi_sel", base + 0x38, 18, 1, ecspi_sels,
 				   ARRAY_SIZE(ecspi_sels)));
 	}
 
@@ -136,10 +136,10 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_gate2("usdhc4", "usdhc4_podf", base + 0x80, 8));
 
 	clk_dm(IMX6QDL_CLK_PERIPH_PRE,
-	       imx_clk_mux("periph_pre", base + 0x18, 18, 2, periph_pre_sels,
+	       imx_clk_mux(dev, "periph_pre", base + 0x18, 18, 2, periph_pre_sels,
 			   ARRAY_SIZE(periph_pre_sels)));
 	clk_dm(IMX6QDL_CLK_PERIPH,
-	       imx_clk_busy_mux("periph",  base + 0x14, 25, 1, base + 0x48,
+	       imx_clk_busy_mux(dev, "periph",  base + 0x14, 25, 1, base + 0x48,
 				5, periph_sels,  ARRAY_SIZE(periph_sels)));
 	clk_dm(IMX6QDL_CLK_AHB,
 	       imx_clk_busy_divider("ahb", "periph", base + 0x14, 10, 3,

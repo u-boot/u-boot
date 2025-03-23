@@ -164,19 +164,19 @@ static int imx8mn_clk_probe(struct udevice *dev)
 	base = (void *)ANATOP_BASE_ADDR;
 
 	clk_dm(IMX8MN_DRAM_PLL_REF_SEL,
-	       imx_clk_mux("dram_pll_ref_sel", base + 0x50, 0, 2,
+	       imx_clk_mux(dev, "dram_pll_ref_sel", base + 0x50, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MN_ARM_PLL_REF_SEL,
-	       imx_clk_mux("arm_pll_ref_sel", base + 0x84, 0, 2,
+	       imx_clk_mux(dev, "arm_pll_ref_sel", base + 0x84, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MN_SYS_PLL1_REF_SEL,
-	       imx_clk_mux("sys_pll1_ref_sel", base + 0x94, 0, 2,
+	       imx_clk_mux(dev, "sys_pll1_ref_sel", base + 0x94, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MN_SYS_PLL2_REF_SEL,
-	       imx_clk_mux("sys_pll2_ref_sel", base + 0x104, 0, 2,
+	       imx_clk_mux(dev, "sys_pll2_ref_sel", base + 0x104, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 	clk_dm(IMX8MN_SYS_PLL3_REF_SEL,
-	       imx_clk_mux("sys_pll3_ref_sel", base + 0x114, 0, 2,
+	       imx_clk_mux(dev, "sys_pll3_ref_sel", base + 0x114, 0, 2,
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 
 	clk_dm(IMX8MN_DRAM_PLL,
@@ -197,27 +197,27 @@ static int imx8mn_clk_probe(struct udevice *dev)
 
 	/* PLL bypass out */
 	clk_dm(IMX8MN_DRAM_PLL_BYPASS,
-	       imx_clk_mux_flags("dram_pll_bypass", base + 0x50, 4, 1,
+	       imx_clk_mux_flags(dev, "dram_pll_bypass", base + 0x50, 4, 1,
 				 dram_pll_bypass_sels,
 				 ARRAY_SIZE(dram_pll_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MN_ARM_PLL_BYPASS,
-	       imx_clk_mux_flags("arm_pll_bypass", base + 0x84, 4, 1,
+	       imx_clk_mux_flags(dev, "arm_pll_bypass", base + 0x84, 4, 1,
 				 arm_pll_bypass_sels,
 				 ARRAY_SIZE(arm_pll_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MN_SYS_PLL1_BYPASS,
-	       imx_clk_mux_flags("sys_pll1_bypass", base + 0x94, 4, 1,
+	       imx_clk_mux_flags(dev, "sys_pll1_bypass", base + 0x94, 4, 1,
 				 sys_pll1_bypass_sels,
 				 ARRAY_SIZE(sys_pll1_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MN_SYS_PLL2_BYPASS,
-	       imx_clk_mux_flags("sys_pll2_bypass", base + 0x104, 4, 1,
+	       imx_clk_mux_flags(dev, "sys_pll2_bypass", base + 0x104, 4, 1,
 				 sys_pll2_bypass_sels,
 				 ARRAY_SIZE(sys_pll2_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MN_SYS_PLL3_BYPASS,
-	       imx_clk_mux_flags("sys_pll3_bypass", base + 0x114, 4, 1,
+	       imx_clk_mux_flags(dev, "sys_pll3_bypass", base + 0x114, 4, 1,
 				 sys_pll3_bypass_sels,
 				 ARRAY_SIZE(sys_pll3_bypass_sels),
 				 CLK_SET_RATE_PARENT));
@@ -288,7 +288,7 @@ static int imx8mn_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMX8MN_CLK_A53_SRC,
-	       imx_clk_mux2("arm_a53_src", base + 0x8000, 24, 3,
+	       imx_clk_mux2(dev, "arm_a53_src", base + 0x8000, 24, 3,
 			    imx8mn_a53_sels, ARRAY_SIZE(imx8mn_a53_sels)));
 	clk_dm(IMX8MN_CLK_A53_CG,
 	       imx_clk_gate3("arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
@@ -438,7 +438,7 @@ static int imx8mn_clk_probe(struct udevice *dev)
 #endif
 
 	clk_dm(IMX8MN_CLK_ARM,
-	       imx_clk_mux2_flags("arm_core", base + 0x9880, 24, 1,
+	       imx_clk_mux2_flags(dev, "arm_core", base + 0x9880, 24, 1,
 				  imx8mn_arm_core_sels,
 				  ARRAY_SIZE(imx8mn_arm_core_sels),
 				  CLK_IS_CRITICAL));

@@ -157,28 +157,28 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMXRT1170_CLK_LPUART1_SEL,
-	       imx_clk_mux("lpuart1_sel", base + (25 * 0x80), 8, 3,
+	       imx_clk_mux(dev, "lpuart1_sel", base + (25 * 0x80), 8, 3,
 			   lpuart1_sels, ARRAY_SIZE(lpuart1_sels)));
 	clk_dm(IMXRT1170_CLK_LPUART1,
 	       imx_clk_divider("lpuart1", "lpuart1_sel",
 			       base + (25 * 0x80), 0, 8));
 
 	clk_dm(IMXRT1170_CLK_USDHC1_SEL,
-	       imx_clk_mux("usdhc1_sel", base + (58 * 0x80), 8, 3,
+	       imx_clk_mux(dev, "usdhc1_sel", base + (58 * 0x80), 8, 3,
 			   usdhc1_sels, ARRAY_SIZE(usdhc1_sels)));
 	clk_dm(IMXRT1170_CLK_USDHC1,
 	       imx_clk_divider("usdhc1", "usdhc1_sel",
 			       base + (58 * 0x80), 0, 8));
 
 	clk_dm(IMXRT1170_CLK_GPT1_SEL,
-	       imx_clk_mux("gpt1_sel", base + (14 * 0x80), 8, 3,
+	       imx_clk_mux(dev, "gpt1_sel", base + (14 * 0x80), 8, 3,
 			   gpt1_sels, ARRAY_SIZE(gpt1_sels)));
 	clk_dm(IMXRT1170_CLK_GPT1,
 	       imx_clk_divider("gpt1", "gpt1_sel",
 			       base + (14 * 0x80), 0, 8));
 
 	clk_dm(IMXRT1170_CLK_SEMC_SEL,
-	       imx_clk_mux("semc_sel", base + (4 * 0x80), 8, 3,
+	       imx_clk_mux(dev, "semc_sel", base + (4 * 0x80), 8, 3,
 			   semc_sels, ARRAY_SIZE(semc_sels)));
 	clk_dm(IMXRT1170_CLK_SEMC,
 	       imx_clk_divider("semc", "semc_sel",
