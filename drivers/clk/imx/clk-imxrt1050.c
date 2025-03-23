@@ -49,17 +49,17 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 			   pll_ref_sels, ARRAY_SIZE(pll_ref_sels)));
 
 	clk_dm(IMXRT1050_CLK_PLL1_ARM,
-	       imx_clk_pllv3(IMX_PLLV3_SYS, "pll1_arm", "pll1_arm_ref_sel",
+	       imx_clk_pllv3(dev, IMX_PLLV3_SYS, "pll1_arm", "pll1_arm_ref_sel",
 			     base + 0x0, 0x7f));
 	clk_dm(IMXRT1050_CLK_PLL2_SYS,
-	       imx_clk_pllv3(IMX_PLLV3_GENERIC, "pll2_sys", "pll2_sys_ref_sel",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_sys", "pll2_sys_ref_sel",
 			     base + 0x30, 0x1));
 	clk_dm(IMXRT1050_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(IMX_PLLV3_USB, "pll3_usb_otg",
+	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg",
 			     "pll3_usb_otg_ref_sel",
 			     base + 0x10, 0x1));
 	clk_dm(IMXRT1050_CLK_PLL5_VIDEO,
-	       imx_clk_pllv3(IMX_PLLV3_AV, "pll5_video", "pll5_video_ref_sel",
+	       imx_clk_pllv3(dev, IMX_PLLV3_AV, "pll5_video", "pll5_video_ref_sel",
 			     base + 0xa0, 0x7f));
 
 	/* PLL bypass out */

@@ -38,10 +38,10 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
 	clk_dm(IMXRT1020_CLK_PLL2_SYS,
-	       imx_clk_pllv3(IMX_PLLV3_GENERIC, "pll2_sys", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_sys", "osc",
 			     base + 0x30, 0x1));
 	clk_dm(IMXRT1020_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(IMX_PLLV3_USB, "pll3_usb_otg", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg", "osc",
 			     base + 0x10, 0x1));
 
 	/* PLL bypass out */

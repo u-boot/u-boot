@@ -83,9 +83,9 @@ struct clk *clk_register_gate2(struct udevice *dev, const char *name,
 		void __iomem *reg, u8 bit_idx, u8 cgr_val,
 		u8 clk_gate_flags, unsigned int *share_count);
 
-struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
-			  const char *parent_name, void __iomem *base,
-			  u32 div_mask);
+struct clk *imx_clk_pllv3(struct udevice *dev, enum imx_pllv3_type type,
+			  const char *name, const char *parent_name,
+			  void __iomem *base, u32 div_mask);
 
 static inline struct clk *imx_clk_gate2(struct udevice *dev, const char *name,
 					const char *parent, void __iomem *reg,

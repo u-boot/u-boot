@@ -281,9 +281,9 @@ static const struct clk_ops clk_pllv3_enet_ops = {
 	.get_rate	= clk_pllv3_enet_get_rate,
 };
 
-struct clk *imx_clk_pllv3(enum imx_pllv3_type type, const char *name,
-			  const char *parent_name, void __iomem *base,
-			  u32 div_mask)
+struct clk *imx_clk_pllv3(struct udevice *dev, enum imx_pllv3_type type,
+			  const char *name, const char *parent_name,
+			  void __iomem *base, u32 div_mask)
 {
 	struct clk_pllv3 *pll;
 	struct clk *clk;

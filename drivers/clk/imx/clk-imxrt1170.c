@@ -121,13 +121,13 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 	       imx_clk_fixed_factor("rcosc48M_div2",  "rcosc48M", 1, 2));
 
 	clk_dm(IMXRT1170_CLK_PLL_ARM,
-	       imx_clk_pllv3(IMX_PLLV3_SYS, "pll_arm", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_SYS, "pll_arm", "osc",
 			     base + 0x200, 0xff));
 	clk_dm(IMXRT1170_CLK_PLL3,
-	       imx_clk_pllv3(IMX_PLLV3_GENERICV2, "pll3_sys", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERICV2, "pll3_sys", "osc",
 			     base + 0x210, 1));
 	clk_dm(IMXRT1170_CLK_PLL2,
-	       imx_clk_pllv3(IMX_PLLV3_GENERICV2, "pll2_sys", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERICV2, "pll2_sys", "osc",
 			     base + 0x240, 1));
 
 	clk_dm(IMXRT1170_CLK_PLL3_PFD0,

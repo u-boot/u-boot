@@ -46,10 +46,10 @@ static int imx6q_clk_probe(struct udevice *dev)
 	base = (void *)ANATOP_BASE_ADDR;
 
 	clk_dm(IMX6QDL_CLK_PLL2,
-	       imx_clk_pllv3(IMX_PLLV3_GENERIC, "pll2_bus", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_bus", "osc",
 			     base + 0x30, 0x1));
 	clk_dm(IMX6QDL_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(IMX_PLLV3_USB, "pll3_usb_otg", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg", "osc",
 			     base + 0x10, 0x3));
 	clk_dm(IMX6QDL_CLK_PLL3_60M,
 	       imx_clk_fixed_factor("pll3_60m",  "pll3_usb_otg",   1, 8));
@@ -58,7 +58,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_PLL2_PFD2_396M,
 	       imx_clk_pfd("pll2_pfd2_396m", "pll2_bus", base + 0x100, 2));
 	clk_dm(IMX6QDL_CLK_PLL6,
-	       imx_clk_pllv3(IMX_PLLV3_ENET, "pll6", "osc", base + 0xe0, 0x3));
+	       imx_clk_pllv3(dev, IMX_PLLV3_ENET, "pll6", "osc", base + 0xe0, 0x3));
 	clk_dm(IMX6QDL_CLK_PLL6_ENET,
 	       imx_clk_gate(dev, "pll6_enet", "pll6", base + 0xe0, 13));
 
