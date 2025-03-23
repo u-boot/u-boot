@@ -149,7 +149,7 @@ struct clk *clk_register_composite(struct udevice *dev, const char *name,
 	clk = &composite->clk;
 	clk->flags = flags;
 	ret = clk_register(clk, UBOOT_DM_CLK_COMPOSITE, name,
-			   parent_names[clk_composite_get_parent(clk)]);
+		clk_resolve_parent_clk(dev, parent_names[clk_composite_get_parent(clk)]));
 	if (ret) {
 		clk = ERR_PTR(ret);
 		goto err;
