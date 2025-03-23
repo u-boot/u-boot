@@ -268,6 +268,9 @@ efi_status_t efi_binary_run(void *image, size_t size, void *fdt)
 							       file_path, NULL);
 		if (ret != EFI_SUCCESS)
 			goto out;
+
+		bootefi_device_path = file_path;
+		bootefi_image_path = NULL;
 	} else {
 		log_debug("Loaded from disk\n");
 	}
