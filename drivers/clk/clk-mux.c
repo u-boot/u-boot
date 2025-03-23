@@ -159,15 +159,15 @@ const struct clk_ops clk_mux_ops = {
 	.set_parent = clk_mux_set_parent,
 };
 
-struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
+struct clk *clk_register_mux(struct device *dev, const char *name,
 		const char * const *parent_names, u8 num_parents,
 		unsigned long flags,
-		void __iomem *reg, u8 shift, u32 mask,
-		u8 clk_mux_flags, u32 *table)
+		void __iomem *reg, u8 shift, u8 width,
+		u8 clk_mux_flags)
 {
+	u32 mask = BIT(width) - 1;
 	struct clk_mux *mux;
 	struct clk *clk;
-	u8 width = 0;
 	int ret;
 
 	if (clk_mux_flags & CLK_MUX_HIWORD_MASK) {
@@ -192,7 +192,7 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 	mux->shift = shift;
 	mux->mask = mask;
 	mux->flags = clk_mux_flags;
-	mux->table = table;
+	mux->table = NULL;
 #if IS_ENABLED(CONFIG_SANDBOX_CLK_CCF)
 	mux->io_mux_val = *(u32 *)reg;
 #endif
@@ -214,35 +214,6 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 	}
 
 	return clk;
-}
-
-struct clk *clk_register_mux_table(struct device *dev, const char *name,
-		const char * const *parent_names, u8 num_parents,
-		unsigned long flags,
-		void __iomem *reg, u8 shift, u32 mask,
-		u8 clk_mux_flags, u32 *table)
-{
-	struct clk *clk;
-
-	clk = clk_hw_register_mux_table(dev, name, parent_names, num_parents,
-				       flags, reg, shift, mask, clk_mux_flags,
-				       table);
-	if (IS_ERR(clk))
-		return ERR_CAST(clk);
-	return clk;
-}
-
-struct clk *clk_register_mux(struct device *dev, const char *name,
-		const char * const *parent_names, u8 num_parents,
-		unsigned long flags,
-		void __iomem *reg, u8 shift, u8 width,
-		u8 clk_mux_flags)
-{
-	u32 mask = BIT(width) - 1;
-
-	return clk_register_mux_table(dev, name, parent_names, num_parents,
-				      flags, reg, shift, mask, clk_mux_flags,
-				      NULL);
 }
 
 U_BOOT_DRIVER(ccf_clk_mux) = {
