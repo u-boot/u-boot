@@ -56,7 +56,7 @@ struct clk *clk_hw_register_fixed_factor(struct udevice *dev,
 	clk->flags = flags;
 
 	ret = clk_register(clk, UBOOT_DM_CLK_IMX_FIXED_FACTOR, name,
-			   parent_name);
+			   clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(fix);
 		return ERR_PTR(ret);
