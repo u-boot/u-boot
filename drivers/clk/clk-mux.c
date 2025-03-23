@@ -113,6 +113,11 @@ int clk_mux_fetch_parent_index(struct clk *clk, struct clk *parent)
 	for (i = 0; i < mux->num_parents; i++) {
 		if (!strcmp(parent->dev->name, mux->parent_names[i]))
 			return i;
+		if (!strcmp(parent->dev->name,
+			    clk_resolve_parent_clk(clk->dev,
+						   mux->parent_names[i])))
+			return i;
+
 	}
 
 	return -EINVAL;
@@ -207,7 +212,8 @@ struct clk *clk_register_mux(struct udevice *dev, const char *name,
 	 * for the corresponding clock (to do that define .set_parent() method).
 	 */
 	ret = clk_register(clk, UBOOT_DM_CLK_CCF_MUX, name,
-			   parent_names[clk_mux_get_parent(clk)]);
+			   clk_resolve_parent_clk(dev,
+				parent_names[clk_mux_get_parent(clk)]));
 	if (ret) {
 		kfree(mux);
 		return ERR_PTR(ret);
