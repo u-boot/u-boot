@@ -149,7 +149,8 @@ struct clk *clk_register_gate(struct udevice *dev, const char *name,
 	clk = &gate->clk;
 	clk->flags = flags;
 
-	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name, parent_name);
+	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name,
+		clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(gate);
 		return ERR_PTR(ret);
