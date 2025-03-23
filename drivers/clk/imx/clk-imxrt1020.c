@@ -116,13 +116,13 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 			       base + 0x14, 16, 3));
 
 	clk_dm(IMXRT1020_CLK_USDHC1,
-	       imx_clk_gate2("usdhc1", "usdhc1_podf", base + 0x80, 2));
+	       imx_clk_gate2(dev, "usdhc1", "usdhc1_podf", base + 0x80, 2));
 	clk_dm(IMXRT1020_CLK_USDHC2,
-	       imx_clk_gate2("usdhc2", "usdhc2_podf", base + 0x80, 4));
+	       imx_clk_gate2(dev, "usdhc2", "usdhc2_podf", base + 0x80, 4));
 	clk_dm(IMXRT1020_CLK_LPUART1,
-	       imx_clk_gate2("lpuart1", "lpuart_podf", base + 0x7c, 24));
+	       imx_clk_gate2(dev, "lpuart1", "lpuart_podf", base + 0x7c, 24));
 	clk_dm(IMXRT1020_CLK_SEMC,
-	       imx_clk_gate2("semc", "semc_podf", base + 0x74, 4));
+	       imx_clk_gate2(dev, "semc", "semc_podf", base + 0x74, 4));
 
 #ifdef CONFIG_XPL_BUILD
 	struct clk *clk, *clk1;

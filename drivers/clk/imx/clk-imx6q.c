@@ -60,7 +60,7 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_PLL6,
 	       imx_clk_pllv3(IMX_PLLV3_ENET, "pll6", "osc", base + 0xe0, 0x3));
 	clk_dm(IMX6QDL_CLK_PLL6_ENET,
-	       imx_clk_gate("pll6_enet", "pll6", base + 0xe0, 13));
+	       imx_clk_gate(dev, "pll6_enet", "pll6", base + 0xe0, 13));
 
 	/* CCM clocks */
 	base = dev_read_addr_ptr(dev);
@@ -115,25 +115,25 @@ static int imx6q_clk_probe(struct udevice *dev)
 	}
 
 	clk_dm(IMX6QDL_CLK_ECSPI1,
-	       imx_clk_gate2("ecspi1", "ecspi_root", base + 0x6c, 0));
+	       imx_clk_gate2(dev, "ecspi1", "ecspi_root", base + 0x6c, 0));
 	clk_dm(IMX6QDL_CLK_ECSPI2,
-	       imx_clk_gate2("ecspi2", "ecspi_root", base + 0x6c, 2));
+	       imx_clk_gate2(dev, "ecspi2", "ecspi_root", base + 0x6c, 2));
 	clk_dm(IMX6QDL_CLK_ECSPI3,
-	       imx_clk_gate2("ecspi3", "ecspi_root", base + 0x6c, 4));
+	       imx_clk_gate2(dev, "ecspi3", "ecspi_root", base + 0x6c, 4));
 	clk_dm(IMX6QDL_CLK_ECSPI4,
-	       imx_clk_gate2("ecspi4", "ecspi_root", base + 0x6c, 6));
+	       imx_clk_gate2(dev, "ecspi4", "ecspi_root", base + 0x6c, 6));
 	clk_dm(IMX6QDL_CLK_UART_IPG,
-	       imx_clk_gate2("uart_ipg", "ipg", base + 0x7c, 24));
+	       imx_clk_gate2(dev, "uart_ipg", "ipg", base + 0x7c, 24));
 	clk_dm(IMX6QDL_CLK_UART_SERIAL,
-	       imx_clk_gate2("uart_serial", "uart_serial_podf",  base + 0x7c, 26));
+	       imx_clk_gate2(dev, "uart_serial", "uart_serial_podf",  base + 0x7c, 26));
 	clk_dm(IMX6QDL_CLK_USDHC1,
-	       imx_clk_gate2("usdhc1", "usdhc1_podf", base + 0x80, 2));
+	       imx_clk_gate2(dev, "usdhc1", "usdhc1_podf", base + 0x80, 2));
 	clk_dm(IMX6QDL_CLK_USDHC2,
-	       imx_clk_gate2("usdhc2", "usdhc2_podf", base + 0x80, 4));
+	       imx_clk_gate2(dev, "usdhc2", "usdhc2_podf", base + 0x80, 4));
 	clk_dm(IMX6QDL_CLK_USDHC3,
-	       imx_clk_gate2("usdhc3", "usdhc3_podf", base + 0x80, 6));
+	       imx_clk_gate2(dev, "usdhc3", "usdhc3_podf", base + 0x80, 6));
 	clk_dm(IMX6QDL_CLK_USDHC4,
-	       imx_clk_gate2("usdhc4", "usdhc4_podf", base + 0x80, 8));
+	       imx_clk_gate2(dev, "usdhc4", "usdhc4_podf", base + 0x80, 8));
 
 	clk_dm(IMX6QDL_CLK_PERIPH_PRE,
 	       imx_clk_mux(dev, "periph_pre", base + 0x18, 18, 2, periph_pre_sels,
@@ -149,15 +149,15 @@ static int imx6q_clk_probe(struct udevice *dev)
 	clk_dm(IMX6QDL_CLK_IPG_PER,
 	       imx_clk_divider("ipg_per", "ipg", base + 0x1c, 0, 6));
 	clk_dm(IMX6QDL_CLK_I2C1,
-	       imx_clk_gate2("i2c1", "ipg_per", base + 0x70, 6));
+	       imx_clk_gate2(dev, "i2c1", "ipg_per", base + 0x70, 6));
 	clk_dm(IMX6QDL_CLK_I2C2,
-	       imx_clk_gate2("i2c2", "ipg_per", base + 0x70, 8));
+	       imx_clk_gate2(dev, "i2c2", "ipg_per", base + 0x70, 8));
 	clk_dm(IMX6QDL_CLK_I2C3,
-	       imx_clk_gate2("i2c3", "ipg_per", base + 0x70, 10));
+	       imx_clk_gate2(dev, "i2c3", "ipg_per", base + 0x70, 10));
 	clk_dm(IMX6QDL_CLK_PWM1,
-	       imx_clk_gate2("pwm1", "ipg_per", base + 0x78, 16));
+	       imx_clk_gate2(dev, "pwm1", "ipg_per", base + 0x78, 16));
 
-	clk_dm(IMX6QDL_CLK_ENET, imx_clk_gate2("enet", "ipg", base + 0x6c, 10));
+	clk_dm(IMX6QDL_CLK_ENET, imx_clk_gate2(dev, "enet", "ipg", base + 0x6c, 10));
 	clk_dm(IMX6QDL_CLK_ENET_REF,
 	       imx_clk_fixed_factor("enet_ref", "pll6_enet", 1, 1));
 

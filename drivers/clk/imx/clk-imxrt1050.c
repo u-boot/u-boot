@@ -167,19 +167,19 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 			       base + 0x18, 23, 3));
 
 	clk_dm(IMXRT1050_CLK_USDHC1,
-	       imx_clk_gate2("usdhc1", "usdhc1_podf", base + 0x80, 2));
+	       imx_clk_gate2(dev, "usdhc1", "usdhc1_podf", base + 0x80, 2));
 	clk_dm(IMXRT1050_CLK_USDHC2,
-	       imx_clk_gate2("usdhc2", "usdhc2_podf", base + 0x80, 4));
+	       imx_clk_gate2(dev, "usdhc2", "usdhc2_podf", base + 0x80, 4));
 	clk_dm(IMXRT1050_CLK_LPUART1,
-	       imx_clk_gate2("lpuart1", "lpuart_podf", base + 0x7c, 24));
+	       imx_clk_gate2(dev, "lpuart1", "lpuart_podf", base + 0x7c, 24));
 	clk_dm(IMXRT1050_CLK_SEMC,
-	       imx_clk_gate2("semc", "semc_podf", base + 0x74, 4));
+	       imx_clk_gate2(dev, "semc", "semc_podf", base + 0x74, 4));
 	clk_dm(IMXRT1050_CLK_LCDIF_APB,
-	       imx_clk_gate2("lcdif", "lcdif_podf", base + 0x70, 28));
+	       imx_clk_gate2(dev, "lcdif", "lcdif_podf", base + 0x70, 28));
 	clk_dm(IMXRT1050_CLK_LCDIF_PIX,
-	       imx_clk_gate2("lcdif_pix", "lcdif", base + 0x74, 10));
+	       imx_clk_gate2(dev, "lcdif_pix", "lcdif", base + 0x74, 10));
 	clk_dm(IMXRT1050_CLK_USBOH3,
-	       imx_clk_gate2("usboh3", "pll3_usb_otg", base + 0x80, 0));
+	       imx_clk_gate2(dev, "usboh3", "pll3_usb_otg", base + 0x80, 0));
 
 	struct clk *clk, *clk1;
 

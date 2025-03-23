@@ -232,19 +232,19 @@ static int imx8mm_clk_probe(struct udevice *dev)
 
 	/* PLL out gate */
 	clk_dm(IMX8MM_DRAM_PLL_OUT,
-	       imx_clk_gate("dram_pll_out", "dram_pll_bypass",
+	       imx_clk_gate(dev, "dram_pll_out", "dram_pll_bypass",
 			    base + 0x50, 13));
 	clk_dm(IMX8MM_ARM_PLL_OUT,
-	       imx_clk_gate("arm_pll_out", "arm_pll_bypass",
+	       imx_clk_gate(dev, "arm_pll_out", "arm_pll_bypass",
 			    base + 0x84, 11));
 	clk_dm(IMX8MM_SYS_PLL1_OUT,
-	       imx_clk_gate("sys_pll1_out", "sys_pll1_bypass",
+	       imx_clk_gate(dev, "sys_pll1_out", "sys_pll1_bypass",
 			    base + 0x94, 11));
 	clk_dm(IMX8MM_SYS_PLL2_OUT,
-	       imx_clk_gate("sys_pll2_out", "sys_pll2_bypass",
+	       imx_clk_gate(dev, "sys_pll2_out", "sys_pll2_bypass",
 			    base + 0x104, 11));
 	clk_dm(IMX8MM_SYS_PLL3_OUT,
-	       imx_clk_gate("sys_pll3_out", "sys_pll3_bypass",
+	       imx_clk_gate(dev, "sys_pll3_out", "sys_pll3_bypass",
 			    base + 0x114, 11));
 
 	/* SYS PLL fixed output */
@@ -294,7 +294,7 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx_clk_mux2(dev, "arm_a53_src", base + 0x8000, 24, 3,
 			    imx8mm_a53_sels, ARRAY_SIZE(imx8mm_a53_sels)));
 	clk_dm(IMX8MM_CLK_A53_CG,
-	       imx_clk_gate3("arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
+	       imx_clk_gate3(dev, "arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
 	clk_dm(IMX8MM_CLK_A53_DIV,
 	       imx_clk_divider2("arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
@@ -366,29 +366,29 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_USB_PHY_REF,
 		imx8m_clk_composite("usb_phy_ref", imx8mm_usb_phy_sels, base + 0xb180));
 	clk_dm(IMX8MM_CLK_I2C1_ROOT,
-	       imx_clk_gate4("i2c1_root_clk", "i2c1", base + 0x4170, 0));
+	       imx_clk_gate4(dev, "i2c1_root_clk", "i2c1", base + 0x4170, 0));
 	clk_dm(IMX8MM_CLK_I2C2_ROOT,
-	       imx_clk_gate4("i2c2_root_clk", "i2c2", base + 0x4180, 0));
+	       imx_clk_gate4(dev, "i2c2_root_clk", "i2c2", base + 0x4180, 0));
 	clk_dm(IMX8MM_CLK_I2C3_ROOT,
-	       imx_clk_gate4("i2c3_root_clk", "i2c3", base + 0x4190, 0));
+	       imx_clk_gate4(dev, "i2c3_root_clk", "i2c3", base + 0x4190, 0));
 	clk_dm(IMX8MM_CLK_I2C4_ROOT,
-	       imx_clk_gate4("i2c4_root_clk", "i2c4", base + 0x41a0, 0));
+	       imx_clk_gate4(dev, "i2c4_root_clk", "i2c4", base + 0x41a0, 0));
 	clk_dm(IMX8MM_CLK_OCOTP_ROOT,
-	       imx_clk_gate4("ocotp_root_clk", "ipg_root", base + 0x4220, 0));
+	       imx_clk_gate4(dev, "ocotp_root_clk", "ipg_root", base + 0x4220, 0));
 	clk_dm(IMX8MM_CLK_USDHC1_ROOT,
-	       imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
+	       imx_clk_gate4(dev, "usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
 	clk_dm(IMX8MM_CLK_USDHC2_ROOT,
-	       imx_clk_gate4("usdhc2_root_clk", "usdhc2", base + 0x4520, 0));
+	       imx_clk_gate4(dev, "usdhc2_root_clk", "usdhc2", base + 0x4520, 0));
 	clk_dm(IMX8MM_CLK_WDOG1_ROOT,
-	       imx_clk_gate4("wdog1_root_clk", "wdog", base + 0x4530, 0));
+	       imx_clk_gate4(dev, "wdog1_root_clk", "wdog", base + 0x4530, 0));
 	clk_dm(IMX8MM_CLK_WDOG2_ROOT,
-	       imx_clk_gate4("wdog2_root_clk", "wdog", base + 0x4540, 0));
+	       imx_clk_gate4(dev, "wdog2_root_clk", "wdog", base + 0x4540, 0));
 	clk_dm(IMX8MM_CLK_WDOG3_ROOT,
-	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
+	       imx_clk_gate4(dev, "wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MM_CLK_USDHC3_ROOT,
-	       imx_clk_gate4("usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
+	       imx_clk_gate4(dev, "usdhc3_root_clk", "usdhc3", base + 0x45e0, 0));
 	clk_dm(IMX8MM_CLK_USB1_CTRL_ROOT,
-		imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
+		imx_clk_gate4(dev, "usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 
 	/* clks not needed in SPL stage */
 #ifndef CONFIG_XPL_BUILD
@@ -405,7 +405,7 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("enet_phy", imx8mm_enet_phy_sels,
 	       base + 0xaa80));
 	clk_dm(IMX8MM_CLK_ENET1_ROOT,
-	       imx_clk_gate4("enet1_root_clk", "enet_axi",
+	       imx_clk_gate4(dev, "enet1_root_clk", "enet_axi",
 	       base + 0x40a0, 0));
 	clk_dm(IMX8MM_CLK_PWM1,
 	       imx8m_clk_composite("pwm1", imx8mm_pwm1_sels, base + 0xb380));
@@ -416,18 +416,18 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_PWM4,
 	       imx8m_clk_composite("pwm4", imx8mm_pwm4_sels, base + 0xb500));
 	clk_dm(IMX8MM_CLK_PWM1_ROOT,
-	       imx_clk_gate4("pwm1_root_clk", "pwm1", base + 0x4280, 0));
+	       imx_clk_gate4(dev, "pwm1_root_clk", "pwm1", base + 0x4280, 0));
 	clk_dm(IMX8MM_CLK_PWM2_ROOT,
-	       imx_clk_gate4("pwm2_root_clk", "pwm2", base + 0x4290, 0));
+	       imx_clk_gate4(dev, "pwm2_root_clk", "pwm2", base + 0x4290, 0));
 	clk_dm(IMX8MM_CLK_PWM3_ROOT,
-	       imx_clk_gate4("pwm3_root_clk", "pwm3", base + 0x42a0, 0));
+	       imx_clk_gate4(dev, "pwm3_root_clk", "pwm3", base + 0x42a0, 0));
 	clk_dm(IMX8MM_CLK_PWM4_ROOT,
-	       imx_clk_gate4("pwm4_root_clk", "pwm4", base + 0x42b0, 0));
+	       imx_clk_gate4(dev, "pwm4_root_clk", "pwm4", base + 0x42b0, 0));
 #endif
 
 #if CONFIG_IS_ENABLED(PCIE_DW_IMX)
 	clk_dm(IMX8MM_CLK_PCIE1_ROOT,
-	       imx_clk_gate4("pcie1_root_clk", "pcie1_ctrl", base + 0x4250, 0));
+	       imx_clk_gate4(dev, "pcie1_root_clk", "pcie1_ctrl", base + 0x4250, 0));
 #endif
 
 #if CONFIG_IS_ENABLED(DM_SPI)
@@ -439,18 +439,18 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("ecspi3", imx8mm_ecspi3_sels, base + 0xc180));
 
 	clk_dm(IMX8MM_CLK_ECSPI1_ROOT,
-	       imx_clk_gate4("ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
+	       imx_clk_gate4(dev, "ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
 	clk_dm(IMX8MM_CLK_ECSPI2_ROOT,
-	       imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
+	       imx_clk_gate4(dev, "ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
 	clk_dm(IMX8MM_CLK_ECSPI3_ROOT,
-	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
+	       imx_clk_gate4(dev, "ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
 #endif
 
 #if CONFIG_IS_ENABLED(NXP_FSPI)
 	clk_dm(IMX8MM_CLK_QSPI,
 	       imx8m_clk_composite("qspi", imx8mm_qspi_sels, base + 0xab80));
 	clk_dm(IMX8MM_CLK_QSPI_ROOT,
-	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
+	       imx_clk_gate4(dev, "qspi_root_clk", "qspi", base + 0x42f0, 0));
 #endif
 
 	clk_dm(IMX8MM_CLK_ARM,

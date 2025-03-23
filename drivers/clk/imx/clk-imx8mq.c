@@ -239,38 +239,38 @@ static int imx8mq_clk_probe(struct udevice *dev)
 
 	/* PLL out gate */
 	clk_dm(IMX8MQ_DRAM_PLL_OUT,
-	       imx_clk_gate("dram_pll_out", "dram_pll_ref_sel",
+	       imx_clk_gate(dev, "dram_pll_out", "dram_pll_ref_sel",
 			    base + 0x60, 13));
 	clk_dm(IMX8MQ_ARM_PLL_OUT,
-	       imx_clk_gate("arm_pll_out", "arm_pll_bypass",
+	       imx_clk_gate(dev, "arm_pll_out", "arm_pll_bypass",
 			    base + 0x28, 11));
 	clk_dm(IMX8MQ_GPU_PLL_OUT,
-	       imx_clk_gate("gpu_pll_out", "gpu_pll_bypass",
+	       imx_clk_gate(dev, "gpu_pll_out", "gpu_pll_bypass",
 			    base + 0x18, 11));
 	clk_dm(IMX8MQ_VPU_PLL_OUT,
-	       imx_clk_gate("vpu_pll_out", "vpu_pll_bypass",
+	       imx_clk_gate(dev, "vpu_pll_out", "vpu_pll_bypass",
 			    base + 0x20, 11));
 	clk_dm(IMX8MQ_AUDIO_PLL1_OUT,
-	       imx_clk_gate("audio_pll1_out", "audio_pll1_bypass",
+	       imx_clk_gate(dev, "audio_pll1_out", "audio_pll1_bypass",
 			    base + 0x0, 11));
 	clk_dm(IMX8MQ_AUDIO_PLL2_OUT,
-	       imx_clk_gate("audio_pll2_out", "audio_pll2_bypass",
+	       imx_clk_gate(dev, "audio_pll2_out", "audio_pll2_bypass",
 			    base + 0x8, 11));
 	clk_dm(IMX8MQ_VIDEO_PLL1_OUT,
-	       imx_clk_gate("video_pll1_out", "video_pll1_bypass",
+	       imx_clk_gate(dev, "video_pll1_out", "video_pll1_bypass",
 			    base + 0x10, 11));
 
 	clk_dm(IMX8MQ_SYS1_PLL_OUT,
-	       imx_clk_gate("sys_pll1_out", "sys1_pll",
+	       imx_clk_gate(dev, "sys_pll1_out", "sys1_pll",
 			    base + 0x30, 11));
 	clk_dm(IMX8MQ_SYS2_PLL_OUT,
-	       imx_clk_gate("sys_pll2_out", "sys2_pll",
+	       imx_clk_gate(dev, "sys_pll2_out", "sys2_pll",
 			    base + 0x3c, 11));
 	clk_dm(IMX8MQ_SYS3_PLL_OUT,
-	       imx_clk_gate("sys_pll3_out", "sys3_pll",
+	       imx_clk_gate(dev, "sys_pll3_out", "sys3_pll",
 			    base + 0x48, 11));
 	clk_dm(IMX8MQ_VIDEO2_PLL_OUT,
-	       imx_clk_gate("video_pll2_out", "video_pll2_ref_sel",
+	       imx_clk_gate(dev, "video_pll2_out", "video_pll2_ref_sel",
 			    base + 0x54, 11));
 
 	/* SYS PLL fixed output */
@@ -340,7 +340,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 				 ARRAY_SIZE(pllout_monitor_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMX8MQ_CLK_MON_CLK2_OUT,
-	       imx_clk_gate4("pllout_monitor_clk2", "pllout_monitor_sel", base + 0x74, 4));
+	       imx_clk_gate4(dev, "pllout_monitor_clk2", "pllout_monitor_sel", base + 0x74, 4));
 
 	base = dev_read_addr_ptr(dev);
 	if (!base) {
@@ -352,7 +352,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx_clk_mux2(dev, "arm_a53_src", base + 0x8000, 24, 3,
 			    imx8mq_a53_sels, ARRAY_SIZE(imx8mq_a53_sels)));
 	clk_dm(IMX8MQ_CLK_A53_CG,
-	       imx_clk_gate3("arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
+	       imx_clk_gate3(dev, "arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
 	clk_dm(IMX8MQ_CLK_A53_DIV,
 	       imx_clk_divider2("arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
@@ -424,49 +424,49 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("ecspi3", imx8mq_ecspi3_sels, base + 0xc180));
 
 	clk_dm(IMX8MQ_CLK_ECSPI1_ROOT,
-	       imx_clk_gate4("ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
+	       imx_clk_gate4(dev, "ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
 	clk_dm(IMX8MQ_CLK_ECSPI2_ROOT,
-	       imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
+	       imx_clk_gate4(dev, "ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
 	clk_dm(IMX8MQ_CLK_ECSPI3_ROOT,
-	       imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
+	       imx_clk_gate4(dev, "ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
 	clk_dm(IMX8MQ_CLK_I2C1_ROOT,
-	       imx_clk_gate4("i2c1_root_clk", "i2c1", base + 0x4170, 0));
+	       imx_clk_gate4(dev, "i2c1_root_clk", "i2c1", base + 0x4170, 0));
 	clk_dm(IMX8MQ_CLK_I2C2_ROOT,
-	       imx_clk_gate4("i2c2_root_clk", "i2c2", base + 0x4180, 0));
+	       imx_clk_gate4(dev, "i2c2_root_clk", "i2c2", base + 0x4180, 0));
 	clk_dm(IMX8MQ_CLK_I2C3_ROOT,
-	       imx_clk_gate4("i2c3_root_clk", "i2c3", base + 0x4190, 0));
+	       imx_clk_gate4(dev, "i2c3_root_clk", "i2c3", base + 0x4190, 0));
 	clk_dm(IMX8MQ_CLK_I2C4_ROOT,
-	       imx_clk_gate4("i2c4_root_clk", "i2c4", base + 0x41a0, 0));
+	       imx_clk_gate4(dev, "i2c4_root_clk", "i2c4", base + 0x41a0, 0));
 	clk_dm(IMX8MQ_CLK_UART1_ROOT,
-	       imx_clk_gate4("uart1_root_clk", "uart1", base + 0x4490, 0));
+	       imx_clk_gate4(dev, "uart1_root_clk", "uart1", base + 0x4490, 0));
 	clk_dm(IMX8MQ_CLK_UART2_ROOT,
-	       imx_clk_gate4("uart2_root_clk", "uart2", base + 0x44a0, 0));
+	       imx_clk_gate4(dev, "uart2_root_clk", "uart2", base + 0x44a0, 0));
 	clk_dm(IMX8MQ_CLK_UART3_ROOT,
-	       imx_clk_gate4("uart3_root_clk", "uart3", base + 0x44b0, 0));
+	       imx_clk_gate4(dev, "uart3_root_clk", "uart3", base + 0x44b0, 0));
 	clk_dm(IMX8MQ_CLK_UART4_ROOT,
-	       imx_clk_gate4("uart4_root_clk", "uart4", base + 0x44c0, 0));
+	       imx_clk_gate4(dev, "uart4_root_clk", "uart4", base + 0x44c0, 0));
 	clk_dm(IMX8MQ_CLK_OCOTP_ROOT,
-	       imx_clk_gate4("ocotp_root_clk", "ipg_root", base + 0x4220, 0));
+	       imx_clk_gate4(dev, "ocotp_root_clk", "ipg_root", base + 0x4220, 0));
 	clk_dm(IMX8MQ_CLK_USDHC1_ROOT,
-	       imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
+	       imx_clk_gate4(dev, "usdhc1_root_clk", "usdhc1", base + 0x4510, 0));
 	clk_dm(IMX8MQ_CLK_USDHC2_ROOT,
-	       imx_clk_gate4("usdhc2_root_clk", "usdhc2", base + 0x4520, 0));
+	       imx_clk_gate4(dev, "usdhc2_root_clk", "usdhc2", base + 0x4520, 0));
 	clk_dm(IMX8MQ_CLK_WDOG1_ROOT,
-	       imx_clk_gate4("wdog1_root_clk", "wdog", base + 0x4530, 0));
+	       imx_clk_gate4(dev, "wdog1_root_clk", "wdog", base + 0x4530, 0));
 	clk_dm(IMX8MQ_CLK_WDOG2_ROOT,
-	       imx_clk_gate4("wdog2_root_clk", "wdog", base + 0x4540, 0));
+	       imx_clk_gate4(dev, "wdog2_root_clk", "wdog", base + 0x4540, 0));
 	clk_dm(IMX8MQ_CLK_WDOG3_ROOT,
-	       imx_clk_gate4("wdog3_root_clk", "wdog", base + 0x4550, 0));
+	       imx_clk_gate4(dev, "wdog3_root_clk", "wdog", base + 0x4550, 0));
 	clk_dm(IMX8MQ_CLK_QSPI_ROOT,
-	       imx_clk_gate4("qspi_root_clk", "qspi", base + 0x42f0, 0));
+	       imx_clk_gate4(dev, "qspi_root_clk", "qspi", base + 0x42f0, 0));
 	clk_dm(IMX8MQ_CLK_USB1_CTRL_ROOT,
-	       imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
+	       imx_clk_gate4(dev, "usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0));
 	clk_dm(IMX8MQ_CLK_USB2_CTRL_ROOT,
-	       imx_clk_gate4("usb2_ctrl_root_clk", "usb_bus", base + 0x44e0, 0));
+	       imx_clk_gate4(dev, "usb2_ctrl_root_clk", "usb_bus", base + 0x44e0, 0));
 	clk_dm(IMX8MQ_CLK_USB1_PHY_ROOT,
-	       imx_clk_gate4("usb1_phy_root_clk", "usb_phy_ref", base + 0x44f0, 0));
+	       imx_clk_gate4(dev, "usb1_phy_root_clk", "usb_phy_ref", base + 0x44f0, 0));
 	clk_dm(IMX8MQ_CLK_USB2_PHY_ROOT,
-	       imx_clk_gate4("usb2_phy_root_clk", "usb_phy_ref", base + 0x4500, 0));
+	       imx_clk_gate4(dev, "usb2_phy_root_clk", "usb_phy_ref", base + 0x4500, 0));
 
 	clk_dm(IMX8MQ_CLK_ENET_REF,
 	       imx8m_clk_composite("enet_ref", imx8mq_enet_ref_sels,
@@ -478,7 +478,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite("enet_phy", imx8mq_enet_phy_sels,
 				   base + 0xaa80));
 	clk_dm(IMX8MQ_CLK_ENET1_ROOT,
-	       imx_clk_gate4("enet1_root_clk", "enet_axi",
+	       imx_clk_gate4(dev, "enet1_root_clk", "enet_axi",
 			     base + 0x40a0, 0));
 
 	clk_dm(IMX8MQ_CLK_DRAM_ALT_ROOT,
