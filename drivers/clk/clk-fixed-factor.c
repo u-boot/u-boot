@@ -37,7 +37,7 @@ const struct clk_ops ccf_clk_fixed_factor_ops = {
 	.get_rate = clk_factor_recalc_rate,
 };
 
-struct clk *clk_hw_register_fixed_factor(struct device *dev,
+struct clk *clk_hw_register_fixed_factor(struct udevice *dev,
 		const char *name, const char *parent_name, unsigned long flags,
 		unsigned int mult, unsigned int div)
 {
@@ -65,7 +65,7 @@ struct clk *clk_hw_register_fixed_factor(struct device *dev,
 	return clk;
 }
 
-struct clk *clk_register_fixed_factor(struct device *dev, const char *name,
+struct clk *clk_register_fixed_factor(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		unsigned int mult, unsigned int div)
 {

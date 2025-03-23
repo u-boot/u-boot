@@ -233,7 +233,7 @@ struct clk *clk_register_composite(struct udevice *dev, const char *name,
 int clk_register(struct clk *clk, const char *drv_name, const char *name,
 		 const char *parent_name);
 
-struct clk *clk_register_fixed_factor(struct device *dev, const char *name,
+struct clk *clk_register_fixed_factor(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		unsigned int mult, unsigned int div);
 
