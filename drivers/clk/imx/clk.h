@@ -91,7 +91,7 @@ static inline struct clk *imx_clk_gate2(struct udevice *dev, const char *name,
 					const char *parent, void __iomem *reg,
 					u8 shift)
 {
-	return clk_register_gate2(NULL, name, parent, CLK_SET_RATE_PARENT, reg,
+	return clk_register_gate2(dev, name, parent, CLK_SET_RATE_PARENT, reg,
 			shift, 0x3, 0, NULL);
 }
 
@@ -100,7 +100,7 @@ static inline struct clk *imx_clk_gate2_shared(struct udevice *dev, const char *
 					       void __iomem *reg, u8 shift,
 					       unsigned int *share_count)
 {
-	return clk_register_gate2(NULL, name, parent, CLK_SET_RATE_PARENT, reg,
+	return clk_register_gate2(dev, name, parent, CLK_SET_RATE_PARENT, reg,
 				  shift, 0x3, 0, share_count);
 }
 
@@ -109,7 +109,7 @@ static inline struct clk *imx_clk_gate2_shared2(struct udevice *dev, const char 
 						void __iomem *reg, u8 shift,
 						unsigned int *share_count)
 {
-	return clk_register_gate2(NULL, name, parent, CLK_SET_RATE_PARENT |
+	return clk_register_gate2(dev, name, parent, CLK_SET_RATE_PARENT |
 				  CLK_OPS_PARENT_ENABLE, reg, shift, 0x3, 0,
 				  share_count);
 }
@@ -117,7 +117,7 @@ static inline struct clk *imx_clk_gate2_shared2(struct udevice *dev, const char 
 static inline struct clk *imx_clk_gate4(struct udevice *dev, const char *name, const char *parent,
 		void __iomem *reg, u8 shift)
 {
-	return clk_register_gate2(NULL, name, parent,
+	return clk_register_gate2(dev, name, parent,
 			CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, 0x3, 0, NULL);
 }
@@ -126,7 +126,7 @@ static inline struct clk *imx_clk_gate4_flags(struct udevice *dev, const char *n
 		const char *parent, void __iomem *reg, u8 shift,
 		unsigned long flags)
 {
-	return clk_register_gate2(NULL, name, parent,
+	return clk_register_gate2(dev, name, parent,
 			flags | CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, 0x3, 0, NULL);
 }
@@ -220,7 +220,7 @@ static inline struct clk *imx_clk_gate(struct udevice *dev, const char *name,
 				       const char *parent, void __iomem *reg,
 				       u8 shift)
 {
-	return clk_register_gate(NULL, name, parent, CLK_SET_RATE_PARENT, reg,
+	return clk_register_gate(dev, name, parent, CLK_SET_RATE_PARENT, reg,
 			shift, 0, NULL);
 }
 
@@ -228,7 +228,7 @@ static inline struct clk *imx_clk_gate_flags(struct udevice *dev, const char *na
 					     const char *parent, void __iomem *reg,
 					     u8 shift, unsigned long flags)
 {
-	return clk_register_gate(NULL, name, parent, flags | CLK_SET_RATE_PARENT, reg,
+	return clk_register_gate(dev, name, parent, flags | CLK_SET_RATE_PARENT, reg,
 			shift, 0, NULL);
 }
 
@@ -236,7 +236,7 @@ static inline struct clk *imx_clk_gate3(struct udevice *dev, const char *name,
 					const char *parent, void __iomem *reg,
 					u8 shift)
 {
-	return clk_register_gate(NULL, name, parent,
+	return clk_register_gate(dev, name, parent,
 			CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, 0, NULL);
 }
