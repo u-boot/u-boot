@@ -351,6 +351,15 @@ static inline int clk_get_by_name_nodev_optional(ofnode node, const char *name,
 }
 
 /**
+ * clk_resolve_parent_clk - Determine name of clock udevice based on clock-names
+ * @dev:	The client udevice.
+ * @name:	The name of the clock to look up.
+ *
+ * Return name of the clock udevice which represents clock with clock-names name.
+ */
+const char *clk_resolve_parent_clk(struct udevice *dev, const char *name);
+
+/**
  * enum clk_defaults_stage - What stage clk_set_defaults() is called at
  * @CLK_DEFAULTS_PRE: Called before probe. Setting of defaults for clocks owned
  *                    by this clock driver will be defered until after probing.
