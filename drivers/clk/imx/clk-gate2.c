@@ -111,7 +111,8 @@ struct clk *clk_register_gate2(struct udevice *dev, const char *name,
 
 	clk = &gate->clk;
 
-	ret = clk_register(clk, UBOOT_DM_CLK_IMX_GATE2, name, parent_name);
+	ret = clk_register(clk, UBOOT_DM_CLK_IMX_GATE2, name,
+		clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(gate);
 		return ERR_PTR(ret);
