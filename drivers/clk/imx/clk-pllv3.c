@@ -339,7 +339,8 @@ struct clk *imx_clk_pllv3(struct udevice *dev, enum imx_pllv3_type type,
 	pll->div_mask = div_mask;
 	clk = &pll->clk;
 
-	ret = clk_register(clk, drv_name, name, parent_name);
+	ret = clk_register(clk, drv_name, name,
+			   clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(pll);
 		return ERR_PTR(ret);
