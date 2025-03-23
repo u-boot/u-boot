@@ -218,7 +218,8 @@ static struct clk *_register_divider(struct udevice *dev, const char *name,
 	clk = &div->clk;
 	clk->flags = flags;
 
-	ret = clk_register(clk, UBOOT_DM_CLK_CCF_DIVIDER, name, parent_name);
+	ret = clk_register(clk, UBOOT_DM_CLK_CCF_DIVIDER, name,
+			   clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(div);
 		return ERR_PTR(ret);
