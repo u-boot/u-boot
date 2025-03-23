@@ -241,42 +241,42 @@ static int imx8mn_clk_probe(struct udevice *dev)
 
 	/* SYS PLL fixed output */
 	clk_dm(IMX8MN_SYS_PLL1_40M,
-	       imx_clk_fixed_factor("sys_pll1_40m", "sys_pll1_out", 1, 20));
+	       imx_clk_fixed_factor(dev, "sys_pll1_40m", "sys_pll1_out", 1, 20));
 	clk_dm(IMX8MN_SYS_PLL1_80M,
-	       imx_clk_fixed_factor("sys_pll1_80m", "sys_pll1_out", 1, 10));
+	       imx_clk_fixed_factor(dev, "sys_pll1_80m", "sys_pll1_out", 1, 10));
 	clk_dm(IMX8MN_SYS_PLL1_100M,
-	       imx_clk_fixed_factor("sys_pll1_100m", "sys_pll1_out", 1, 8));
+	       imx_clk_fixed_factor(dev, "sys_pll1_100m", "sys_pll1_out", 1, 8));
 	clk_dm(IMX8MN_SYS_PLL1_133M,
-	       imx_clk_fixed_factor("sys_pll1_133m", "sys_pll1_out", 1, 6));
+	       imx_clk_fixed_factor(dev, "sys_pll1_133m", "sys_pll1_out", 1, 6));
 	clk_dm(IMX8MN_SYS_PLL1_160M,
-	       imx_clk_fixed_factor("sys_pll1_160m", "sys_pll1_out", 1, 5));
+	       imx_clk_fixed_factor(dev, "sys_pll1_160m", "sys_pll1_out", 1, 5));
 	clk_dm(IMX8MN_SYS_PLL1_200M,
-	       imx_clk_fixed_factor("sys_pll1_200m", "sys_pll1_out", 1, 4));
+	       imx_clk_fixed_factor(dev, "sys_pll1_200m", "sys_pll1_out", 1, 4));
 	clk_dm(IMX8MN_SYS_PLL1_266M,
-	       imx_clk_fixed_factor("sys_pll1_266m", "sys_pll1_out", 1, 3));
+	       imx_clk_fixed_factor(dev, "sys_pll1_266m", "sys_pll1_out", 1, 3));
 	clk_dm(IMX8MN_SYS_PLL1_400M,
-	       imx_clk_fixed_factor("sys_pll1_400m", "sys_pll1_out", 1, 2));
+	       imx_clk_fixed_factor(dev, "sys_pll1_400m", "sys_pll1_out", 1, 2));
 	clk_dm(IMX8MN_SYS_PLL1_800M,
-	       imx_clk_fixed_factor("sys_pll1_800m", "sys_pll1_out", 1, 1));
+	       imx_clk_fixed_factor(dev, "sys_pll1_800m", "sys_pll1_out", 1, 1));
 
 	clk_dm(IMX8MN_SYS_PLL2_50M,
-	       imx_clk_fixed_factor("sys_pll2_50m", "sys_pll2_out", 1, 20));
+	       imx_clk_fixed_factor(dev, "sys_pll2_50m", "sys_pll2_out", 1, 20));
 	clk_dm(IMX8MN_SYS_PLL2_100M,
-	       imx_clk_fixed_factor("sys_pll2_100m", "sys_pll2_out", 1, 10));
+	       imx_clk_fixed_factor(dev, "sys_pll2_100m", "sys_pll2_out", 1, 10));
 	clk_dm(IMX8MN_SYS_PLL2_125M,
-	       imx_clk_fixed_factor("sys_pll2_125m", "sys_pll2_out", 1, 8));
+	       imx_clk_fixed_factor(dev, "sys_pll2_125m", "sys_pll2_out", 1, 8));
 	clk_dm(IMX8MN_SYS_PLL2_166M,
-	       imx_clk_fixed_factor("sys_pll2_166m", "sys_pll2_out", 1, 6));
+	       imx_clk_fixed_factor(dev, "sys_pll2_166m", "sys_pll2_out", 1, 6));
 	clk_dm(IMX8MN_SYS_PLL2_200M,
-	       imx_clk_fixed_factor("sys_pll2_200m", "sys_pll2_out", 1, 5));
+	       imx_clk_fixed_factor(dev, "sys_pll2_200m", "sys_pll2_out", 1, 5));
 	clk_dm(IMX8MN_SYS_PLL2_250M,
-	       imx_clk_fixed_factor("sys_pll2_250m", "sys_pll2_out", 1, 4));
+	       imx_clk_fixed_factor(dev, "sys_pll2_250m", "sys_pll2_out", 1, 4));
 	clk_dm(IMX8MN_SYS_PLL2_333M,
-	       imx_clk_fixed_factor("sys_pll2_333m", "sys_pll2_out", 1, 3));
+	       imx_clk_fixed_factor(dev, "sys_pll2_333m", "sys_pll2_out", 1, 3));
 	clk_dm(IMX8MN_SYS_PLL2_500M,
-	       imx_clk_fixed_factor("sys_pll2_500m", "sys_pll2_out", 1, 2));
+	       imx_clk_fixed_factor(dev, "sys_pll2_500m", "sys_pll2_out", 1, 2));
 	clk_dm(IMX8MN_SYS_PLL2_1000M,
-	       imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
+	       imx_clk_fixed_factor(dev, "sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
 	ret = clk_get_by_name(dev, "osc_24m", &osc_24m_clk);
 	if (ret)

@@ -131,10 +131,11 @@ static inline struct clk *imx_clk_gate4_flags(struct udevice *dev, const char *n
 			reg, shift, 0x3, 0, NULL);
 }
 
-static inline struct clk *imx_clk_fixed_factor(const char *name,
-		const char *parent, unsigned int mult, unsigned int div)
+static inline struct clk *
+imx_clk_fixed_factor(struct udevice *dev, const char *name, const char *parent,
+		     unsigned int mult, unsigned int div)
 {
-	return clk_register_fixed_factor(NULL, name, parent,
+	return clk_register_fixed_factor(dev, name, parent,
 			CLK_SET_RATE_PARENT, mult, div);
 }
 

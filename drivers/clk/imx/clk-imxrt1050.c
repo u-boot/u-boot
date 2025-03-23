@@ -92,7 +92,7 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 			       base + 0x170, 30, 2));
 
 	clk_dm(IMXRT1050_CLK_PLL3_80M,
-	       imx_clk_fixed_factor("pll3_80m",  "pll3_usb_otg",   1, 6));
+	       imx_clk_fixed_factor(dev, "pll3_80m",  "pll3_usb_otg",   1, 6));
 
 	clk_dm(IMXRT1050_CLK_PLL2_PFD0_352M,
 	       imx_clk_pfd("pll2_pfd0_352m", "pll2_sys", base + 0x100, 0));

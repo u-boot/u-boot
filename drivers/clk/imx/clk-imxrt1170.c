@@ -114,11 +114,11 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
 	clk_dm(IMXRT1170_CLK_RCOSC_48M,
-	       imx_clk_fixed_factor("rcosc48M", "rcosc16M", 3, 1));
+	       imx_clk_fixed_factor(dev, "rcosc48M", "rcosc16M", 3, 1));
 	clk_dm(IMXRT1170_CLK_RCOSC_400M,
-	       imx_clk_fixed_factor("rcosc400M",  "rcosc16M", 25, 1));
+	       imx_clk_fixed_factor(dev, "rcosc400M",  "rcosc16M", 25, 1));
 	clk_dm(IMXRT1170_CLK_RCOSC_48M_DIV2,
-	       imx_clk_fixed_factor("rcosc48M_div2",  "rcosc48M", 1, 2));
+	       imx_clk_fixed_factor(dev, "rcosc48M_div2",  "rcosc48M", 1, 2));
 
 	clk_dm(IMXRT1170_CLK_PLL_ARM,
 	       imx_clk_pllv3(dev, IMX_PLLV3_SYS, "pll_arm", "osc",
@@ -149,7 +149,7 @@ static int imxrt1170_clk_probe(struct udevice *dev)
 	       imx_clk_pfd("pll2_pfd3", "pll2_sys", base + 0x270, 3));
 
 	clk_dm(IMXRT1170_CLK_PLL3_DIV2,
-	       imx_clk_fixed_factor("pll3_div2", "pll3_sys", 1, 2));
+	       imx_clk_fixed_factor(dev, "pll3_div2", "pll3_sys", 1, 2));
 
 	/* CCM clocks */
 	base = dev_read_addr_ptr(dev);

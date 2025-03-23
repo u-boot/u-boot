@@ -228,25 +228,25 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_SYS_PLL2_OUT, imx_clk_gate(dev, "sys_pll2_out", "sys_pll2_bypass", base + 0x104, 11));
 	clk_dm(IMX8MP_SYS_PLL3_OUT, imx_clk_gate(dev, "sys_pll3_out", "sys_pll3_bypass", base + 0x114, 11));
 
-	clk_dm(IMX8MP_SYS_PLL1_40M, imx_clk_fixed_factor("sys_pll1_40m", "sys_pll1_out", 1, 20));
-	clk_dm(IMX8MP_SYS_PLL1_80M, imx_clk_fixed_factor("sys_pll1_80m", "sys_pll1_out", 1, 10));
-	clk_dm(IMX8MP_SYS_PLL1_100M, imx_clk_fixed_factor("sys_pll1_100m", "sys_pll1_out", 1, 8));
-	clk_dm(IMX8MP_SYS_PLL1_133M, imx_clk_fixed_factor("sys_pll1_133m", "sys_pll1_out", 1, 6));
-	clk_dm(IMX8MP_SYS_PLL1_160M, imx_clk_fixed_factor("sys_pll1_160m", "sys_pll1_out", 1, 5));
-	clk_dm(IMX8MP_SYS_PLL1_200M, imx_clk_fixed_factor("sys_pll1_200m", "sys_pll1_out", 1, 4));
-	clk_dm(IMX8MP_SYS_PLL1_266M, imx_clk_fixed_factor("sys_pll1_266m", "sys_pll1_out", 1, 3));
-	clk_dm(IMX8MP_SYS_PLL1_400M, imx_clk_fixed_factor("sys_pll1_400m", "sys_pll1_out", 1, 2));
-	clk_dm(IMX8MP_SYS_PLL1_800M, imx_clk_fixed_factor("sys_pll1_800m", "sys_pll1_out", 1, 1));
+	clk_dm(IMX8MP_SYS_PLL1_40M, imx_clk_fixed_factor(dev, "sys_pll1_40m", "sys_pll1_out", 1, 20));
+	clk_dm(IMX8MP_SYS_PLL1_80M, imx_clk_fixed_factor(dev, "sys_pll1_80m", "sys_pll1_out", 1, 10));
+	clk_dm(IMX8MP_SYS_PLL1_100M, imx_clk_fixed_factor(dev, "sys_pll1_100m", "sys_pll1_out", 1, 8));
+	clk_dm(IMX8MP_SYS_PLL1_133M, imx_clk_fixed_factor(dev, "sys_pll1_133m", "sys_pll1_out", 1, 6));
+	clk_dm(IMX8MP_SYS_PLL1_160M, imx_clk_fixed_factor(dev, "sys_pll1_160m", "sys_pll1_out", 1, 5));
+	clk_dm(IMX8MP_SYS_PLL1_200M, imx_clk_fixed_factor(dev, "sys_pll1_200m", "sys_pll1_out", 1, 4));
+	clk_dm(IMX8MP_SYS_PLL1_266M, imx_clk_fixed_factor(dev, "sys_pll1_266m", "sys_pll1_out", 1, 3));
+	clk_dm(IMX8MP_SYS_PLL1_400M, imx_clk_fixed_factor(dev, "sys_pll1_400m", "sys_pll1_out", 1, 2));
+	clk_dm(IMX8MP_SYS_PLL1_800M, imx_clk_fixed_factor(dev, "sys_pll1_800m", "sys_pll1_out", 1, 1));
 
-	clk_dm(IMX8MP_SYS_PLL2_50M, imx_clk_fixed_factor("sys_pll2_50m", "sys_pll2_out", 1, 20));
-	clk_dm(IMX8MP_SYS_PLL2_100M, imx_clk_fixed_factor("sys_pll2_100m", "sys_pll2_out", 1, 10));
-	clk_dm(IMX8MP_SYS_PLL2_125M, imx_clk_fixed_factor("sys_pll2_125m", "sys_pll2_out", 1, 8));
-	clk_dm(IMX8MP_SYS_PLL2_166M, imx_clk_fixed_factor("sys_pll2_166m", "sys_pll2_out", 1, 6));
-	clk_dm(IMX8MP_SYS_PLL2_200M, imx_clk_fixed_factor("sys_pll2_200m", "sys_pll2_out", 1, 5));
-	clk_dm(IMX8MP_SYS_PLL2_250M, imx_clk_fixed_factor("sys_pll2_250m", "sys_pll2_out", 1, 4));
-	clk_dm(IMX8MP_SYS_PLL2_333M, imx_clk_fixed_factor("sys_pll2_333m", "sys_pll2_out", 1, 3));
-	clk_dm(IMX8MP_SYS_PLL2_500M, imx_clk_fixed_factor("sys_pll2_500m", "sys_pll2_out", 1, 2));
-	clk_dm(IMX8MP_SYS_PLL2_1000M, imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
+	clk_dm(IMX8MP_SYS_PLL2_50M, imx_clk_fixed_factor(dev, "sys_pll2_50m", "sys_pll2_out", 1, 20));
+	clk_dm(IMX8MP_SYS_PLL2_100M, imx_clk_fixed_factor(dev, "sys_pll2_100m", "sys_pll2_out", 1, 10));
+	clk_dm(IMX8MP_SYS_PLL2_125M, imx_clk_fixed_factor(dev, "sys_pll2_125m", "sys_pll2_out", 1, 8));
+	clk_dm(IMX8MP_SYS_PLL2_166M, imx_clk_fixed_factor(dev, "sys_pll2_166m", "sys_pll2_out", 1, 6));
+	clk_dm(IMX8MP_SYS_PLL2_200M, imx_clk_fixed_factor(dev, "sys_pll2_200m", "sys_pll2_out", 1, 5));
+	clk_dm(IMX8MP_SYS_PLL2_250M, imx_clk_fixed_factor(dev, "sys_pll2_250m", "sys_pll2_out", 1, 4));
+	clk_dm(IMX8MP_SYS_PLL2_333M, imx_clk_fixed_factor(dev, "sys_pll2_333m", "sys_pll2_out", 1, 3));
+	clk_dm(IMX8MP_SYS_PLL2_500M, imx_clk_fixed_factor(dev, "sys_pll2_500m", "sys_pll2_out", 1, 2));
+	clk_dm(IMX8MP_SYS_PLL2_1000M, imx_clk_fixed_factor(dev, "sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
 	ret = clk_get_by_name(dev, "osc_24m", &osc_24m_clk);
 	if (ret)
@@ -313,7 +313,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_WDOG, imx8m_clk_composite(dev, "wdog", imx8mp_wdog_sels, base + 0xb900));
 	clk_dm(IMX8MP_CLK_USDHC3, imx8m_clk_composite(dev, "usdhc3", imx8mp_usdhc3_sels, base + 0xbc80));
 
-	clk_dm(IMX8MP_CLK_DRAM_ALT_ROOT, imx_clk_fixed_factor("dram_alt_root", "dram_alt", 1, 4));
+	clk_dm(IMX8MP_CLK_DRAM_ALT_ROOT, imx_clk_fixed_factor(dev, "dram_alt_root", "dram_alt", 1, 4));
 	clk_dm(IMX8MP_CLK_DRAM_CORE, imx_clk_mux2_flags(dev, "dram_core_clk", base + 0x9800, 24, 1, imx8mp_dram_core_sels, ARRAY_SIZE(imx8mp_dram_core_sels), CLK_IS_CRITICAL));
 
 	clk_dm(IMX8MP_CLK_DRAM1_ROOT, imx_clk_gate4_flags(dev, "dram1_root_clk", "dram_core_clk", base + 0x4050, 0, CLK_IS_CRITICAL));
