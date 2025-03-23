@@ -138,25 +138,28 @@ static inline struct clk *imx_clk_fixed_factor(const char *name,
 			CLK_SET_RATE_PARENT, mult, div);
 }
 
-static inline struct clk *imx_clk_divider(const char *name, const char *parent,
-		void __iomem *reg, u8 shift, u8 width)
+static inline struct clk *imx_clk_divider(struct udevice *dev, const char *name,
+					  const char *parent, void __iomem *reg,
+					  u8 shift, u8 width)
 {
-	return clk_register_divider(NULL, name, parent, CLK_SET_RATE_PARENT,
+	return clk_register_divider(dev, name, parent, CLK_SET_RATE_PARENT,
 			reg, shift, width, 0);
 }
 
 static inline struct clk *
-imx_clk_busy_divider(const char *name, const char *parent, void __iomem *reg,
-		     u8 shift, u8 width, void __iomem *busy_reg, u8 busy_shift)
+imx_clk_busy_divider(struct udevice *dev, const char *name,
+		     const char *parent, void __iomem *reg, u8 shift, u8 width,
+		     void __iomem *busy_reg, u8 busy_shift)
 {
-	return clk_register_divider(NULL, name, parent, CLK_SET_RATE_PARENT,
+	return clk_register_divider(dev, name, parent, CLK_SET_RATE_PARENT,
 			reg, shift, width, 0);
 }
 
-static inline struct clk *imx_clk_divider2(const char *name, const char *parent,
-		void __iomem *reg, u8 shift, u8 width)
+static inline struct clk *imx_clk_divider2(struct udevice *dev, const char *name,
+					   const char *parent, void __iomem *reg,
+					   u8 shift, u8 width)
 {
-	return clk_register_divider(NULL, name, parent,
+	return clk_register_divider(dev, name, parent,
 			CLK_SET_RATE_PARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, width, 0);
 }

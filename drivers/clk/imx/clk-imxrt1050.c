@@ -85,10 +85,10 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 				 CLK_SET_RATE_PARENT));
 
 	clk_dm(IMXRT1050_CLK_VIDEO_POST_DIV_SEL,
-	       imx_clk_divider("video_post_div_sel", "pll5_video",
+	       imx_clk_divider(dev, "video_post_div_sel", "pll5_video",
 			       base + 0xa0, 19, 2));
 	clk_dm(IMXRT1050_CLK_VIDEO_DIV,
-	       imx_clk_divider("video_div", "video_post_div_sel",
+	       imx_clk_divider(dev, "video_div", "video_post_div_sel",
 			       base + 0x170, 30, 2));
 
 	clk_dm(IMXRT1050_CLK_PLL3_80M,
@@ -113,7 +113,7 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMXRT1050_CLK_ARM_PODF,
-	       imx_clk_divider("arm_podf", "pll1_arm",
+	       imx_clk_divider(dev, "arm_podf", "pll1_arm",
 			       base + 0x10, 0, 3));
 
 	clk_dm(IMXRT1050_CLK_PRE_PERIPH_SEL,
@@ -142,28 +142,28 @@ static int imxrt1050_clk_probe(struct udevice *dev)
 			   lcdif_sels, ARRAY_SIZE(lcdif_sels)));
 
 	clk_dm(IMXRT1050_CLK_AHB_PODF,
-	       imx_clk_divider("ahb_podf", "periph_sel",
+	       imx_clk_divider(dev, "ahb_podf", "periph_sel",
 			       base + 0x14, 10, 3));
 	clk_dm(IMXRT1050_CLK_IPG_PDOF,
-	       imx_clk_divider("ipg_podf", "ahb_podf",
+	       imx_clk_divider(dev, "ipg_podf", "ahb_podf",
 			       base + 0x14, 8, 2));
 	clk_dm(IMXRT1050_CLK_USDHC1_PODF,
-	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
+	       imx_clk_divider(dev, "usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
 	clk_dm(IMXRT1050_CLK_USDHC2_PODF,
-	       imx_clk_divider("usdhc2_podf", "usdhc2_sel",
+	       imx_clk_divider(dev, "usdhc2_podf", "usdhc2_sel",
 			       base + 0x24, 16, 3));
 	clk_dm(IMXRT1050_CLK_LPUART_PODF,
-	       imx_clk_divider("lpuart_podf", "lpuart_sel",
+	       imx_clk_divider(dev, "lpuart_podf", "lpuart_sel",
 			       base + 0x24, 0, 6));
 	clk_dm(IMXRT1050_CLK_SEMC_PODF,
-	       imx_clk_divider("semc_podf", "semc_sel",
+	       imx_clk_divider(dev, "semc_podf", "semc_sel",
 			       base + 0x14, 16, 3));
 	clk_dm(IMXRT1050_CLK_LCDIF_PRED,
-	       imx_clk_divider("lcdif_pred", "lcdif_sel",
+	       imx_clk_divider(dev, "lcdif_pred", "lcdif_sel",
 			       base + 0x38, 12, 3));
 	clk_dm(IMXRT1050_CLK_LCDIF_PODF,
-	       imx_clk_divider("lcdif_podf", "lcdif_pred",
+	       imx_clk_divider(dev, "lcdif_podf", "lcdif_pred",
 			       base + 0x18, 23, 3));
 
 	clk_dm(IMXRT1050_CLK_USDHC1,

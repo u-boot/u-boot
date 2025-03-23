@@ -100,19 +100,19 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 			   semc_sels, ARRAY_SIZE(semc_sels)));
 
 	clk_dm(IMXRT1020_CLK_AHB_PODF,
-	       imx_clk_divider("ahb_podf", "periph_sel",
+	       imx_clk_divider(dev, "ahb_podf", "periph_sel",
 			       base + 0x14, 10, 3));
 	clk_dm(IMXRT1020_CLK_USDHC1_PODF,
-	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
+	       imx_clk_divider(dev, "usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
 	clk_dm(IMXRT1020_CLK_USDHC2_PODF,
-	       imx_clk_divider("usdhc2_podf", "usdhc2_sel",
+	       imx_clk_divider(dev, "usdhc2_podf", "usdhc2_sel",
 			       base + 0x24, 16, 3));
 	clk_dm(IMXRT1020_CLK_LPUART_PODF,
-	       imx_clk_divider("lpuart_podf", "lpuart_sel",
+	       imx_clk_divider(dev, "lpuart_podf", "lpuart_sel",
 			       base + 0x24, 0, 6));
 	clk_dm(IMXRT1020_CLK_SEMC_PODF,
-	       imx_clk_divider("semc_podf", "semc_sel",
+	       imx_clk_divider(dev, "semc_podf", "semc_sel",
 			       base + 0x14, 16, 3));
 
 	clk_dm(IMXRT1020_CLK_USDHC1,

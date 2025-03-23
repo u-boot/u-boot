@@ -313,27 +313,27 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx_clk_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1));
 
 	clk_dm(IMX8MQ_CLK_MON_AUDIO_PLL1_DIV,
-	       imx_clk_divider("audio_pll1_out_monitor", "audio_pll1_bypass", base + 0x78, 0, 3));
+	       imx_clk_divider(dev, "audio_pll1_out_monitor", "audio_pll1_bypass", base + 0x78, 0, 3));
 	clk_dm(IMX8MQ_CLK_MON_AUDIO_PLL2_DIV,
-	       imx_clk_divider("audio_pll2_out_monitor", "audio_pll2_bypass", base + 0x78, 4, 3));
+	       imx_clk_divider(dev, "audio_pll2_out_monitor", "audio_pll2_bypass", base + 0x78, 4, 3));
 	clk_dm(IMX8MQ_CLK_MON_VIDEO_PLL1_DIV,
-	       imx_clk_divider("video_pll1_out_monitor", "video_pll1_bypass", base + 0x78, 8, 3));
+	       imx_clk_divider(dev, "video_pll1_out_monitor", "video_pll1_bypass", base + 0x78, 8, 3));
 	clk_dm(IMX8MQ_CLK_MON_GPU_PLL_DIV,
-	       imx_clk_divider("gpu_pll_out_monitor", "gpu_pll_bypass", base + 0x78, 12, 3));
+	       imx_clk_divider(dev, "gpu_pll_out_monitor", "gpu_pll_bypass", base + 0x78, 12, 3));
 	clk_dm(IMX8MQ_CLK_MON_VPU_PLL_DIV,
-	       imx_clk_divider("vpu_pll_out_monitor", "vpu_pll_bypass", base + 0x78, 16, 3));
+	       imx_clk_divider(dev, "vpu_pll_out_monitor", "vpu_pll_bypass", base + 0x78, 16, 3));
 	clk_dm(IMX8MQ_CLK_MON_ARM_PLL_DIV,
-	       imx_clk_divider("arm_pll_out_monitor", "arm_pll_bypass", base + 0x78, 20, 3));
+	       imx_clk_divider(dev, "arm_pll_out_monitor", "arm_pll_bypass", base + 0x78, 20, 3));
 	clk_dm(IMX8MQ_CLK_MON_SYS_PLL1_DIV,
-	       imx_clk_divider("sys_pll1_out_monitor", "sys_pll1_out", base + 0x7c, 0, 3));
+	       imx_clk_divider(dev, "sys_pll1_out_monitor", "sys_pll1_out", base + 0x7c, 0, 3));
 	clk_dm(IMX8MQ_CLK_MON_SYS_PLL2_DIV,
-	       imx_clk_divider("sys_pll2_out_monitor", "sys_pll2_out", base + 0x7c, 4, 3));
+	       imx_clk_divider(dev, "sys_pll2_out_monitor", "sys_pll2_out", base + 0x7c, 4, 3));
 	clk_dm(IMX8MQ_CLK_MON_SYS_PLL3_DIV,
-	       imx_clk_divider("sys_pll3_out_monitor", "sys_pll3_out", base + 0x7c, 8, 3));
+	       imx_clk_divider(dev, "sys_pll3_out_monitor", "sys_pll3_out", base + 0x7c, 8, 3));
 	clk_dm(IMX8MQ_CLK_MON_DRAM_PLL_DIV,
-	       imx_clk_divider("dram_pll_out_monitor", "dram_pll_out", base + 0x7c, 12, 3));
+	       imx_clk_divider(dev, "dram_pll_out_monitor", "dram_pll_out", base + 0x7c, 12, 3));
 	clk_dm(IMX8MQ_CLK_MON_VIDEO_PLL2_DIV,
-	       imx_clk_divider("video_pll2_out_monitor", "video_pll2_out", base + 0x7c, 16, 3));
+	       imx_clk_divider(dev, "video_pll2_out_monitor", "video_pll2_out", base + 0x7c, 16, 3));
 	clk_dm(IMX8MQ_CLK_MON_SEL,
 	       imx_clk_mux_flags(dev, "pllout_monitor_sel", base + 0x74, 0, 4,
 				 pllout_monitor_sels,
@@ -354,7 +354,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MQ_CLK_A53_CG,
 	       imx_clk_gate3(dev, "arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
 	clk_dm(IMX8MQ_CLK_A53_DIV,
-	       imx_clk_divider2("arm_a53_div", "arm_a53_cg",
+	       imx_clk_divider2(dev, "arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
 	clk_dm(IMX8MQ_CLK_A53_CORE,
 	       imx_clk_mux2(dev, "arm_a53_src", base + 0x9880, 24, 1,
@@ -364,7 +364,7 @@ static int imx8mq_clk_probe(struct udevice *dev)
 	       imx8m_clk_composite_critical(dev, "ahb", imx8mq_ahb_sels,
 					    base + 0x9000));
 	clk_dm(IMX8MQ_CLK_IPG_ROOT,
-	       imx_clk_divider2("ipg_root", "ahb", base + 0x9080, 0, 1));
+	       imx_clk_divider2(dev, "ipg_root", "ahb", base + 0x9080, 0, 1));
 
 	clk_dm(IMX8MQ_CLK_ENET_AXI,
 	       imx8m_clk_composite(dev, "enet_axi", imx8mq_enet_axi_sels,

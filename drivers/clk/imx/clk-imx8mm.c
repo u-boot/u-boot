@@ -296,14 +296,14 @@ static int imx8mm_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MM_CLK_A53_CG,
 	       imx_clk_gate3(dev, "arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
 	clk_dm(IMX8MM_CLK_A53_DIV,
-	       imx_clk_divider2("arm_a53_div", "arm_a53_cg",
+	       imx_clk_divider2(dev, "arm_a53_div", "arm_a53_cg",
 				base + 0x8000, 0, 3));
 
 	clk_dm(IMX8MM_CLK_AHB,
 	       imx8m_clk_composite_critical(dev, "ahb", imx8mm_ahb_sels,
 					    base + 0x9000));
 	clk_dm(IMX8MM_CLK_IPG_ROOT,
-	       imx_clk_divider2("ipg_root", "ahb", base + 0x9080, 0, 1));
+	       imx_clk_divider2(dev, "ipg_root", "ahb", base + 0x9080, 0, 1));
 
 	clk_dm(IMX8MM_CLK_NAND_USDHC_BUS,
 	       imx8m_clk_composite_critical(dev, "nand_usdhc_bus",

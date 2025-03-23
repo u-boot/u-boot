@@ -90,28 +90,28 @@ static int imx6q_clk_probe(struct udevice *dev)
 	}
 
 	clk_dm(IMX6QDL_CLK_USDHC1_PODF,
-	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
+	       imx_clk_divider(dev, "usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
 	clk_dm(IMX6QDL_CLK_USDHC2_PODF,
-	       imx_clk_divider("usdhc2_podf", "usdhc2_sel",
+	       imx_clk_divider(dev, "usdhc2_podf", "usdhc2_sel",
 			       base + 0x24, 16, 3));
 	clk_dm(IMX6QDL_CLK_USDHC3_PODF,
-	       imx_clk_divider("usdhc3_podf", "usdhc3_sel",
+	       imx_clk_divider(dev, "usdhc3_podf", "usdhc3_sel",
 			       base + 0x24, 19, 3));
 	clk_dm(IMX6QDL_CLK_USDHC4_PODF,
-	       imx_clk_divider("usdhc4_podf", "usdhc4_sel",
+	       imx_clk_divider(dev, "usdhc4_podf", "usdhc4_sel",
 			       base + 0x24, 22, 3));
 
 	if (of_machine_is_compatible("fsl,imx6qp")) {
 		clk_dm(IMX6QDL_CLK_UART_SERIAL_PODF,
-		       imx_clk_divider("uart_serial_podf", "uart_sel", base + 0x24, 0, 6));
+		       imx_clk_divider(dev, "uart_serial_podf", "uart_sel", base + 0x24, 0, 6));
 		clk_dm(IMX6QDL_CLK_ECSPI_ROOT,
-		       imx_clk_divider("ecspi_root", "ecspi_sel", base + 0x38, 19, 6));
+		       imx_clk_divider(dev, "ecspi_root", "ecspi_sel", base + 0x38, 19, 6));
 	} else {
 		clk_dm(IMX6QDL_CLK_UART_SERIAL_PODF,
-		       imx_clk_divider("uart_serial_podf", "pll3_80m", base + 0x24, 0, 6));
+		       imx_clk_divider(dev, "uart_serial_podf", "pll3_80m", base + 0x24, 0, 6));
 		clk_dm(IMX6QDL_CLK_ECSPI_ROOT,
-		       imx_clk_divider("ecspi_root", "pll3_60m", base + 0x38, 19, 6));
+		       imx_clk_divider(dev, "ecspi_root", "pll3_60m", base + 0x38, 19, 6));
 	}
 
 	clk_dm(IMX6QDL_CLK_ECSPI1,
@@ -142,12 +142,12 @@ static int imx6q_clk_probe(struct udevice *dev)
 	       imx_clk_busy_mux(dev, "periph",  base + 0x14, 25, 1, base + 0x48,
 				5, periph_sels,  ARRAY_SIZE(periph_sels)));
 	clk_dm(IMX6QDL_CLK_AHB,
-	       imx_clk_busy_divider("ahb", "periph", base + 0x14, 10, 3,
+	       imx_clk_busy_divider(dev, "ahb", "periph", base + 0x14, 10, 3,
 				    base + 0x48, 1));
 	clk_dm(IMX6QDL_CLK_IPG,
-	       imx_clk_divider("ipg", "ahb", base + 0x14, 8, 2));
+	       imx_clk_divider(dev, "ipg", "ahb", base + 0x14, 8, 2));
 	clk_dm(IMX6QDL_CLK_IPG_PER,
-	       imx_clk_divider("ipg_per", "ipg", base + 0x1c, 0, 6));
+	       imx_clk_divider(dev, "ipg_per", "ipg", base + 0x1c, 0, 6));
 	clk_dm(IMX6QDL_CLK_I2C1,
 	       imx_clk_gate2(dev, "i2c1", "ipg_per", base + 0x70, 6));
 	clk_dm(IMX6QDL_CLK_I2C2,

@@ -264,7 +264,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MP_CLK_A53_SRC, imx_clk_mux2(dev, "arm_a53_src", base + 0x8000, 24, 3, imx8mp_a53_sels, ARRAY_SIZE(imx8mp_a53_sels)));
 	clk_dm(IMX8MP_CLK_A53_CG, imx_clk_gate3(dev, "arm_a53_cg", "arm_a53_src", base + 0x8000, 28));
-	clk_dm(IMX8MP_CLK_A53_DIV, imx_clk_divider2("arm_a53_div", "arm_a53_cg", base + 0x8000, 0, 3));
+	clk_dm(IMX8MP_CLK_A53_DIV, imx_clk_divider2(dev, "arm_a53_div", "arm_a53_cg", base + 0x8000, 0, 3));
 
 	clk_dm(IMX8MP_CLK_HSIO_AXI, imx8m_clk_composite(dev, "hsio_axi", imx8mp_hsio_axi_sels, base + 0x8380));
 	clk_dm(IMX8MP_CLK_MAIN_AXI, imx8m_clk_composite_critical(dev, "main_axi", imx8mp_main_axi_sels, base + 0x8800));
@@ -275,7 +275,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MP_CLK_AHB, imx8m_clk_composite_critical(dev, "ahb_root", imx8mp_ahb_sels, base + 0x9000));
 
-	clk_dm(IMX8MP_CLK_IPG_ROOT, imx_clk_divider2("ipg_root", "ahb_root", base + 0x9080, 0, 1));
+	clk_dm(IMX8MP_CLK_IPG_ROOT, imx_clk_divider2(dev, "ipg_root", "ahb_root", base + 0x9080, 0, 1));
 
 	clk_dm(IMX8MP_CLK_DRAM_ALT, imx8m_clk_composite(dev, "dram_alt", imx8mp_dram_alt_sels, base + 0xa000));
 	clk_dm(IMX8MP_CLK_DRAM_APB, imx8m_clk_composite_critical(dev, "dram_apb", imx8mp_dram_apb_sels, base + 0xa080));
