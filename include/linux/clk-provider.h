@@ -223,7 +223,7 @@ struct clk_composite {
 
 #define to_clk_composite(_clk) container_of(_clk, struct clk_composite, clk)
 
-struct clk *clk_register_composite(struct device *dev, const char *name,
+struct clk *clk_register_composite(struct udevice *dev, const char *name,
 		const char * const *parent_names, int num_parents,
 		struct clk *mux_clk, const struct clk_ops *mux_ops,
 		struct clk *rate_clk, const struct clk_ops *rate_ops,

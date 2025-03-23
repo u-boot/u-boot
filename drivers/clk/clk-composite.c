@@ -97,7 +97,7 @@ static int clk_composite_disable(struct clk *clk)
 		return 0;
 }
 
-struct clk *clk_register_composite(struct device *dev, const char *name,
+struct clk *clk_register_composite(struct udevice *dev, const char *name,
 				   const char * const *parent_names,
 				   int num_parents, struct clk *mux,
 				   const struct clk_ops *mux_ops,
