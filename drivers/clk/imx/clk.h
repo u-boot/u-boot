@@ -172,7 +172,7 @@ static inline struct clk *imx_clk_mux_flags(struct udevice *dev, const char *nam
 			const char * const *parents, int num_parents,
 			unsigned long flags)
 {
-	return clk_register_mux(NULL, name, parents, num_parents,
+	return clk_register_mux(dev, name, parents, num_parents,
 				flags | CLK_SET_RATE_NO_REPARENT, reg, shift,
 				width, 0);
 }
@@ -182,7 +182,7 @@ static inline struct clk *imx_clk_mux2_flags(struct udevice *dev, const char *na
 		const char * const *parents,
 		int num_parents, unsigned long flags)
 {
-	return clk_register_mux(NULL, name, parents, num_parents,
+	return clk_register_mux(dev, name, parents, num_parents,
 			flags | CLK_SET_RATE_NO_REPARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, width, 0);
 }
@@ -191,7 +191,7 @@ static inline struct clk *imx_clk_mux(struct udevice *dev, const char *name,
 			void __iomem *reg, u8 shift, u8 width, const char * const *parents,
 			int num_parents)
 {
-	return clk_register_mux(NULL, name, parents, num_parents,
+	return clk_register_mux(dev, name, parents, num_parents,
 			CLK_SET_RATE_NO_REPARENT, reg, shift,
 			width, 0);
 }
@@ -201,7 +201,7 @@ imx_clk_busy_mux(struct udevice *dev, const char *name, void __iomem *reg, u8 sh
 		 void __iomem *busy_reg, u8 busy_shift,
 		 const char * const *parents, int num_parents)
 {
-	return clk_register_mux(NULL, name, parents, num_parents,
+	return clk_register_mux(dev, name, parents, num_parents,
 			CLK_SET_RATE_NO_REPARENT, reg, shift,
 			width, 0);
 }
@@ -210,7 +210,7 @@ static inline struct clk *imx_clk_mux2(struct udevice *dev, const char *name, vo
 			u8 shift, u8 width, const char * const *parents,
 			int num_parents)
 {
-	return clk_register_mux(NULL, name, parents, num_parents,
+	return clk_register_mux(dev, name, parents, num_parents,
 			CLK_SET_RATE_NO_REPARENT | CLK_OPS_PARENT_ENABLE,
 			reg, shift, width, 0);
 }
