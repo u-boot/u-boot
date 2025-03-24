@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 
 /* Register offset for each gpio */
 #define REG_OFFSET(x)          ((x) * 0x100)
@@ -56,7 +57,8 @@
 #define REG_DIG_VIN_VIN0       0
 
 #define REG_DIG_PULL_CTL       0x42
-#define REG_DIG_PULL_NO_PU     0x5
+#define REG_DIG_PULL_DOWN      0x4    /* Linux's PMIC_GPIO_PULL_DOWN */
+#define REG_DIG_PULL_NO_PU     0x5    /* Linux's PMIC_GPIO_PULL_DISABLE */
 
 #define REG_LV_MV_OUTPUT_CTL	0x44
 #define REG_LV_MV_OUTPUT_CTL_MASK	0x80
@@ -142,12 +144,6 @@ static int qcom_gpio_set_direction(struct udevice *dev, unsigned int offset,
 		return ret;
 
 	_qcom_gpio_set_direction(dev, offset, input, value);
-
-	/* Set the right pull (no pull) */
-	ret = pmic_reg_write(plat->pmic, gpio_base + REG_DIG_PULL_CTL,
-			     REG_DIG_PULL_NO_PU);
-	if (ret < 0)
-		return ret;
 
 	/* Configure output pin drivers if needed */
 	if (!input) {
@@ -385,6 +381,10 @@ U_BOOT_DRIVER(qcom_pmic_gpio) = {
 static const struct pinconf_param qcom_pmic_pinctrl_conf_params[] = {
 	{ "output-high", PIN_CONFIG_OUTPUT_ENABLE, 1 },
 	{ "output-low", PIN_CONFIG_OUTPUT, 0 },
+	{ "input-enable", PIN_CONFIG_INPUT_ENABLE, 0 },
+	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, REG_DIG_PULL_NO_PU },
+	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, PMIC_GPIO_PULL_UP_30 },
+	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, REG_DIG_PULL_DOWN },
 };
 
 static int qcom_pmic_pinctrl_get_pins_count(struct udevice *dev)
@@ -404,12 +404,59 @@ static const char *qcom_pmic_pinctrl_get_pin_name(struct udevice *dev, unsigned 
 	return name;
 }
 
+static int qcom_pmic_gpio_set_bias(struct udevice *dev, unsigned int selector,
+				   unsigned int param, unsigned int arg)
+{
+	struct qcom_pmic_gpio_data *plat = dev_get_plat(dev);
+	uint32_t gpio_base = plat->pid + REG_OFFSET(selector);
+	ulong quirks = dev_get_driver_data(dev);
+	unsigned int pullup;
+
+	/* Some PMICs don't like their GPIOs being configured */
+	if (quirks & QCOM_PMIC_QUIRK_READONLY)
+		return 0;
+
+	switch (param) {
+	case PIN_CONFIG_BIAS_PULL_UP:
+		/*
+		 * Valid values here are from 0 to 3, from PMIC_GPIO_PULL_UP_30
+		 * to PMIC_GPIO_PULL_UP_1P5_30. For default bias-pull-up Linux
+		 * driver uses PMIC_GPIO_PULL_UP_30 (0).
+		 */
+		pullup = PMIC_GPIO_PULL_UP_30;
+		break;
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		pullup = REG_DIG_PULL_DOWN; /* 4 */
+		break;
+	case PIN_CONFIG_BIAS_DISABLE:
+		pullup = REG_DIG_PULL_NO_PU; /* 5 */
+		break;
+	default:
+		return 0;
+	}
+
+	return pmic_reg_write(plat->pmic, gpio_base + REG_DIG_PULL_CTL,
+		pullup);
+}
+
 static int qcom_pmic_pinctrl_pinconf_set(struct udevice *dev, unsigned int selector,
 					 unsigned int param, unsigned int arg)
 {
-	/* We only support configuring the pin as an output, either low or high */
-	return _qcom_gpio_set_direction(dev, selector, false,
-					param == PIN_CONFIG_OUTPUT_ENABLE);
+	/* We support configuring the pin as an in/out, either low or high, and bias */
+	switch (param) {
+	case PIN_CONFIG_OUTPUT:
+	case PIN_CONFIG_OUTPUT_ENABLE:
+		return _qcom_gpio_set_direction(dev, selector, false,
+			param == PIN_CONFIG_OUTPUT_ENABLE);
+	case PIN_CONFIG_INPUT_ENABLE:
+		return _qcom_gpio_set_direction(dev, selector, true, arg);
+	case PIN_CONFIG_BIAS_DISABLE:
+	case PIN_CONFIG_BIAS_PULL_UP:
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		return qcom_pmic_gpio_set_bias(dev, selector, param, arg);
+	default:
+		return 0;
+	}
 }
 
 static const char *qcom_pmic_pinctrl_get_function_name(struct udevice *dev, unsigned int selector)
