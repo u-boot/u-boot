@@ -217,9 +217,7 @@ static int sm8650_enable(struct clk *clk)
 		break;
 	}
 
-	qcom_gate_clk_en(priv, clk->id);
-
-	return 0;
+	return qcom_gate_clk_en(priv, clk->id);
 }
 
 static const struct qcom_reset_map sm8650_gcc_resets[] = {

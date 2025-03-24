@@ -44,6 +44,11 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 	u32 *retdata = data;
 	size_t maxsize;
 	u32 val;
+	int ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret < 0)
+		return ret;
 
 	/* calculate max size bytes to transfer back to caller */
 	maxsize = min_t(size_t, MAX_HW_FIFO_SIZE, len);
@@ -66,6 +71,8 @@ static int msm_rng_read(struct udevice *dev, void *data, size_t len)
 			break;
 	} while (currsize < maxsize);
 
+	clk_disable(&priv->clk);
+
 	return 0;
 }
 
@@ -76,7 +83,7 @@ static int msm_rng_enable(struct msm_rng_priv *priv, int enable)
 	if (enable) {
 		/* Enable PRNG only if it is not already enabled */
 		val = readl_relaxed(priv->base + PRNG_CONFIG);
-		if (val & PRNG_CONFIG_HW_ENABLE) {
+		if (!(val & PRNG_CONFIG_HW_ENABLE)) {
 			val = readl_relaxed(priv->base + PRNG_LFSR_CFG);
 			val &= ~PRNG_LFSR_CFG_MASK;
 			val |= PRNG_LFSR_CFG_CLOCKS;
@@ -118,7 +125,9 @@ static int msm_rng_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	return msm_rng_enable(priv, 1);
+	ret = msm_rng_enable(priv, 1);
+	clk_disable(&priv->clk);
+	return ret;
 }
 
 static int msm_rng_remove(struct udevice *dev)
