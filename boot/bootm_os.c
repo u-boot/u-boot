@@ -402,7 +402,7 @@ static int do_bootm_elf(int flag, struct bootm_info *bmi)
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
-	bootelf(bmi->images->ep, flags, 0, NULL);
+	bootelf(bmi->images->ep, flags, bmi->argc, bmi->argv);
 
 	return 1;
 }
