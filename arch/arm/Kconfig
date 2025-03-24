@@ -1126,6 +1126,7 @@ config ARCH_SNAPDRAGON
 	select SYSRESET_PSCI
 	imply OF_UPSTREAM
 	imply CMD_DM
+	imply DM_USB_GADGET
 
 config ARCH_SOCFPGA
 	bool "Altera SOCFPGA family"
