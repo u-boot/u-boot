@@ -50,7 +50,7 @@ void spl_board_init(void)
 	 * setting done. Default is 400Mhz (system_pll1_800m with div = 2)
 	 * set by ROM for ND VDD_SOC
 	 */
-	if (IS_ENABLED(CONFIG_IMX8M_VDD_SOC_850MV)) {
+	if (!IS_ENABLED(CONFIG_IMX8M_VDD_SOC_850MV)) {
 		clock_enable(CCGR_GIC, 0);
 		clock_set_target_val(GIC_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(5));
 		clock_enable(CCGR_GIC, 1);
