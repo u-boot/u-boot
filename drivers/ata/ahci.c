@@ -463,7 +463,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 
 	mem = memalign(2048, AHCI_PORT_PRIV_DMA_SZ);
 	if (!mem) {
-		free(pp);
 		printf("%s: No mem for table!\n", __func__);
 		return -ENOMEM;
 	}
