@@ -29,6 +29,10 @@
 int updated_sol_max_rt_ms = SOL_MAX_RT_MS;
 /* state machine parameters/variables */
 struct dhcp6_sm_params sm_params;
+/* DHCPv6 all server IP6 address */
+const struct in6_addr dhcp_mcast_ip6 = DHCP6_MULTICAST_ADDR;
+/* IPv6 multicast ethernet address */
+const u8 net_dhcp6_mcast_ethaddr[6] = IPV6_ALL_NODE_ETH_ADDR(dhcp_mcast_ip6);
 
 static void dhcp6_state_machine(bool timeout, uchar *rx_pkt, unsigned int len);
 
@@ -171,7 +175,6 @@ static int dhcp6_add_option(int option_id, uchar *pkt)
  */
 static void dhcp6_send_solicit_packet(void)
 {
-	struct in6_addr dhcp_bcast_ip6;
 	int len = 0;
 	uchar *pkt;
 	uchar *dhcp_pkt_start_ptr;
@@ -200,9 +203,8 @@ static void dhcp6_send_solicit_packet(void)
 	len = pkt - dhcp_pkt_start_ptr;
 
 	/* send UDP packet to DHCP6 multicast address */
-	string_to_ip6(DHCP6_MULTICAST_ADDR, sizeof(DHCP6_MULTICAST_ADDR), &dhcp_bcast_ip6);
 	net_set_udp_handler(dhcp6_handler);
-	net_send_udp_packet6((uchar *)net_bcast_ethaddr, &dhcp_bcast_ip6,
+	net_send_udp_packet6((uchar *)net_dhcp6_mcast_ethaddr, (struct in6_addr *)&dhcp_mcast_ip6,
 			     PORT_DHCP6_S, PORT_DHCP6_C, len);
 }
 
@@ -218,7 +220,6 @@ static void dhcp6_send_solicit_packet(void)
  */
 static void dhcp6_send_request_packet(void)
 {
-	struct in6_addr dhcp_bcast_ip6;
 	int len = 0;
 	uchar *pkt;
 	uchar *dhcp_pkt_start_ptr;
@@ -252,9 +253,8 @@ static void dhcp6_send_request_packet(void)
 	len = pkt - dhcp_pkt_start_ptr;
 
 	/* send UDP packet to DHCP6 multicast address */
-	string_to_ip6(DHCP6_MULTICAST_ADDR, strlen(DHCP6_MULTICAST_ADDR), &dhcp_bcast_ip6);
 	net_set_udp_handler(dhcp6_handler);
-	net_send_udp_packet6((uchar *)net_bcast_ethaddr, &dhcp_bcast_ip6,
+	net_send_udp_packet6((uchar *)net_dhcp6_mcast_ethaddr, (struct in6_addr *)&dhcp_mcast_ip6,
 			     PORT_DHCP6_S, PORT_DHCP6_C, len);
 }
 

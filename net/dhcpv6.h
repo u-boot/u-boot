@@ -40,7 +40,13 @@
 /* vendor-class-data to send in vendor clas option */
 #define DHCP6_VCI_STRING	"U-Boot"
 
-#define DHCP6_MULTICAST_ADDR	"ff02::1:2"	/* DHCP multicast address */
+/*
+ * All-DHCPv6 server multicast address
+ */
+#define DHCP6_MULTICAST_ADDR { { { 0xFF, 0x02, 0x00, 0x00, \
+								   0x00, 0x00, 0x00, 0x00, \
+								   0x00, 0x00, 0x00, 0x00, \
+								   0x00, 0x01, 0x00, 0x02 } } }
 
 /* DHCP6 States supported */
 enum dhcp6_state {
