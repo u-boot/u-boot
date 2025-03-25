@@ -1,6 +1,4 @@
 #
-# board/renesas/whitehawk/Makefile
-#
 # Copyright (C) 2024 Marek Vasut <marek.vasut+renesas@mailbox.org>
 #
 # SPDX-License-Identifier: GPL-2.0+

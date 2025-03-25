@@ -70,11 +70,14 @@ static int sfspl_verify_header(unsigned char *buf, int size,
 		printf("Truncated file\n");
 		return EXIT_FAILURE;
 	}
+	if ((size_t)size > hdr_size + file_size)
+		printf("File too long, expected %u bytes\n",
+		       hdr_size + file_size);
 	if (hdr->version != DEFAULT_VERSION) {
 		printf("Unknown file format version\n");
 		return EXIT_FAILURE;
 	}
-	crc_check = crc32(0, &buf[hdr_size], size - hdr_size);
+	crc_check = crc32(0, &buf[hdr_size], file_size);
 	if (crc_check != crc) {
 		printf("Incorrect CRC32\n");
 		return EXIT_FAILURE;

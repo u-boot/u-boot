@@ -112,13 +112,6 @@ int board_late_init(void)
 #define CORE_VOLTAGE			0x80000000
 #define MCU_CTRL_LFXOSC_32K_BYPASS_VAL	BIT(4)
 
-#if IS_ENABLED(CONFIG_XPL_BUILD)
-void spl_perform_fixups(struct spl_image_info *spl_image)
-{
-	fixup_memory_node(spl_image);
-}
-#endif
-
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void)
 {

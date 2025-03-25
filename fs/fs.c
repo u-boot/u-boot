@@ -574,7 +574,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 
 	lmb_dump_all();
 
-	if (lmb_alloc_addr(addr, read_len, LMB_NONE) == addr)
+	if (!lmb_alloc_addr(addr, read_len, LMB_NONE))
 		return 0;
 
 	log_err("** Reading file would overwrite reserved memory **\n");

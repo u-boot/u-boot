@@ -107,7 +107,7 @@ def main(argv):
     Args:
         argv (list of str): List of program arguments, excluding arvg[0]
     """
-    epilog = 'Show a list of even spies in a U-Boot EFL file'
+    epilog = 'Show a list of event spies in a U-Boot ELF file'
     parser = ArgumentParser(epilog=epilog)
     parser.add_argument('elf', type=str, help='ELF file to decode')
     parser.add_argument('-e', '--endian', type=str, default='auto',

@@ -23,6 +23,7 @@
 struct renesas_dbsc5_data {
 	const char		*clock_node;
 	const char		*reset_node;
+	const char		*otp_node;
 };
 
 #endif /* __DRIVERS_RAM_RENESAS_DBSC5_DBSC5_H__ */
