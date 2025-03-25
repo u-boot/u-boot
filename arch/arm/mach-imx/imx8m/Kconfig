@@ -8,6 +8,7 @@ config IMX8M
 	select LTO
 	select ROM_UNIFIED_SECTIONS
 	select ARMV8_CRYPTO
+	imply IMX_TMU
 
 config IMX8MQ
 	bool
