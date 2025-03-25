@@ -215,19 +215,19 @@ static int cpu_imx_get_desc(const struct udevice *dev, char *buf, int size)
 	ret = snprintf(buf, size, "NXP i.MX%s Rev%s %s at %u MHz",
 		       plat->type, plat->rev, plat->name, plat->freq_mhz);
 
-	if (IS_ENABLED(CONFIG_IMX9)) {
+	if (IS_ENABLED(CONFIG_IMX_TMU)) {
 		switch (get_cpu_temp_grade(&minc, &maxc)) {
 		case TEMP_AUTOMOTIVE:
-			grade = "Automotive temperature grade ";
+			grade = "Automotive temperature grade";
 			break;
 		case TEMP_INDUSTRIAL:
-			grade = "Industrial temperature grade ";
+			grade = "Industrial temperature grade";
 			break;
 		case TEMP_EXTCOMMERCIAL:
-			grade = "Extended Consumer temperature grade ";
+			grade = "Extended Consumer temperature grade";
 			break;
 		default:
-			grade = "Consumer temperature grade ";
+			grade = "Consumer temperature grade";
 			break;
 		}
 
