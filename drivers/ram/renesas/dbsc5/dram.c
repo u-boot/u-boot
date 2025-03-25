@@ -1325,6 +1325,11 @@ static const u32 PI_DARRAY3_1_CSx_Fx[CS_CNT][3] = {
 #define DBSC_DBACEN			0x200
 #define DBSC_DBRFEN			0x204
 #define DBSC_DBCMD			0x208
+#define DBSC_DBCMD_CMD_OPCODE_PD	0x8
+#define DBSC_DBCMD_CMD_OPCODE_MRW	0xe
+#define DBSC_DBCMD_CMD_OPCODE_MRR	0xf
+#define DBSC_DBCMD_CMD_CHANNEL_ALL	0x8
+#define DBSC_DBCMD_CMD_RANK_ALL		0x4
 #define DBSC_DBWAIT			0x210
 #define DBSC_DBBL			0x400
 #define DBSC_DBBLA			0x400
@@ -1736,16 +1741,22 @@ static void dbsc5_reg_write(void __iomem *addr, u32 data)
 }
 
 /**
- * dbsc5_reg_write() - DRAM Command Write Access
+ * dbsc5_send_dbcmd2() - DRAM Command Write Access
  * @dev: DBSC5 device
- * @cmd DRAM command.
+ * @opcode DRAM controller opcode
+ * @channel DRAM controller channel (0..3)
+ * @rank DRAM controller rank (0..1)
+ * @arg Command and argument bits (command specific encoding)
  *
  * First, execute the dummy read to DBSC_DBCMD.
  * Confirm that no DBSC command operation is in progress 0.
  * Write the contents of the command to be sent to DRAM.
  */
-static void dbsc5_send_dbcmd2(struct udevice *dev, u32 cmd)
+static void dbsc5_send_dbcmd2(struct udevice *dev, const u8 opcode,
+			      const u8 channel, const u8 rank,
+			      const u16 arg)
 {
+	const u32 cmd = (opcode << 24) | (channel << 20) | (rank << 16) | arg;
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
 	u32 val;
@@ -2950,10 +2961,14 @@ static u32 dbsc5_pi_training(struct udevice *dev)
 		writel(0x21, regs_dbsc_d + DBSC_DBDFICNT(ch));
 
 	/* Dummy PDE */
-	dbsc5_send_dbcmd2(dev, 0x8840000);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_PD,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, 0);
 
 	/* PDX */
-	dbsc5_send_dbcmd2(dev, 0x8840001);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_PD,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, 1);
 
 	/* Wait init_complete */
 	for (retry = 0; retry < retry_max; retry++) {
@@ -4094,7 +4109,9 @@ static u32 dbsc5_read_training(struct udevice *dev)
  */
 static void dbsc5_ddr_register_mr28_set(struct udevice *dev)
 {
-	dbsc5_send_dbcmd2(dev, 0xE841C24);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRW,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, (28 << 8) | 0x24);
 }
 
 /**
@@ -4111,17 +4128,21 @@ static void dbsc5_ddr_register_mr27_mr57_read(struct udevice *dev)
 		return;
 
 	/* MR27 rank0 */
-	dbsc5_send_dbcmd2(dev, 0xF801B00);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 0, 27 << 8);
 	/* MR57 rank0 */
-	dbsc5_send_dbcmd2(dev, 0xF803900);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 0, 57 << 8);
 
 	if (!priv->ch_have_this_cs[1])
 		return;
 
 	/* MR27 rank1 */
-	dbsc5_send_dbcmd2(dev, 0xF811B00);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 1, 27 << 8);
 	/* MR57 rank1 */
-	dbsc5_send_dbcmd2(dev, 0xF813900);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 1, 57 << 8);
 }
 
 /**
