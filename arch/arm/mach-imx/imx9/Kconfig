@@ -8,6 +8,8 @@ config AHAB_BOOT
 config IMX9
 	bool
 	select BINMAN
+	select CPU
+	select CPU_IMX
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	imply IMX_TMU
