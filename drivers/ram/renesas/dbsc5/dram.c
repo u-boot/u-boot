@@ -4200,8 +4200,8 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 	dbsc5_dbsc_regset(dev);
 
 	/* Frequency selection change (F1->F2) */
-	 dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_INDEX, 0x1);
-	 dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_MULTICAST_EN, 0x0);
+	dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_INDEX, 0x1);
+	dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_MULTICAST_EN, 0x0);
 
 	/* dfi_init_start (start ddrphy) & execute pi_training */
 	phytrainingok = dbsc5_pi_training(dev);
