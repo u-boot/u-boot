@@ -208,8 +208,8 @@ static int console_setfile(int file, struct stdio_dev * dev)
 			gd->jt->printf = printf;
 			break;
 		}
-		break;
 #endif
+		break;
 	default:		/* Invalid file ID */
 		error = -1;
 	}
