@@ -4085,25 +4085,25 @@ static u32 dbsc5_read_training(struct udevice *dev)
 }
 
 /**
- * dbsc5_ddr_register_set() - DDR mode register setting
+ * dbsc5_ddr_register_mr28_set() - DDR mode register MR28 set
  * @dev: DBSC5 device
  *
  * Set the mode register 28 of the SDRAM.
  * ZQ Mode: Command-Based ZQ Calibration
  * ZQ interval: Background Cal Interval < 64ms
  */
-static void dbsc5_ddr_register_set(struct udevice *dev)
+static void dbsc5_ddr_register_mr28_set(struct udevice *dev)
 {
 	dbsc5_send_dbcmd2(dev, 0xE841C24);
 }
 
 /**
- * dbsc5_ddr_register_read() - DDR mode register read
+ * dbsc5_ddr_register_mr27_mr57_read() - DDR mode register MR27/MR57 read
  * @dev: DBSC5 device
  *
  * Set the mode register 27 and 57 of the SDRAM.
  */
-static void dbsc5_ddr_register_read(struct udevice *dev)
+static void dbsc5_ddr_register_mr27_mr57_read(struct udevice *dev)
 {
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 
@@ -4278,10 +4278,10 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 
 	/* setup DDR mode registers */
 	/* MRS */
-	dbsc5_ddr_register_set(dev);
+	dbsc5_ddr_register_mr28_set(dev);
 
 	/* MRR */
-	dbsc5_ddr_register_read(dev);
+	dbsc5_ddr_register_mr27_mr57_read(dev);
 
 	/* training complete, setup DBSC */
 	dbsc5_dbsc_regset_post(dev);
