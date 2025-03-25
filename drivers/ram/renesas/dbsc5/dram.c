@@ -1741,6 +1741,34 @@ static void dbsc5_reg_write(void __iomem *addr, u32 data)
 }
 
 /**
+ * dbsc5_wait_dbwait() - DRAM Command Wait Access Completion
+ * @dev: DBSC5 device
+ *
+ * Wait for DRAM access completion. This is used before sending a command
+ * to the DRAM to assure no other command is in flight already, or while
+ * waiting for MRR command to complete.
+ */
+static void dbsc5_wait_dbwait(struct udevice *dev)
+{
+	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
+	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
+	u32 val;
+	int ret;
+
+	ret = readl_poll_timeout(regs_dbsc_d + DBSC_DBWAIT, val, ((val & BIT(0)) == 0), 1000000);
+	if (ret < 0) {
+		printf("%s DBWAIT bit 0 timeout\n", __func__);
+		hang();
+	}
+
+	ret = readl_poll_timeout(regs_dbsc_d + DBSC_DBWAIT + 0x4000, val, ((val & BIT(0)) == 0), 1000000);
+	if (ret < 0) {
+		printf("%s DBWAIT + 0x4000 bit 0 timeout\n", __func__);
+		hang();
+	}
+}
+
+/**
  * dbsc5_send_dbcmd2() - DRAM Command Write Access
  * @dev: DBSC5 device
  * @opcode DRAM controller opcode
@@ -1759,23 +1787,11 @@ static void dbsc5_send_dbcmd2(struct udevice *dev, const u8 opcode,
 	const u32 cmd = (opcode << 24) | (channel << 20) | (rank << 16) | arg;
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
-	u32 val;
-	int ret;
 
 	/* dummy read */
 	readl(regs_dbsc_d + DBSC_DBCMD);
 
-	ret = readl_poll_timeout(regs_dbsc_d + DBSC_DBWAIT, val, ((val & BIT(0)) == 0), 1000000);
-	if (ret < 0) {
-		printf("%s DBWAIT bit 0 timeout\n", __func__);
-		hang();
-	}
-
-	ret = readl_poll_timeout(regs_dbsc_d + DBSC_DBWAIT + 0x4000, val, ((val & BIT(0)) == 0), 1000000);
-	if (ret < 0) {
-		printf("%s DBWAIT + 0x4000 bit 0 timeout\n", __func__);
-		hang();
-	}
+	dbsc5_wait_dbwait(dev);
 
 	dbsc5_reg_write(regs_dbsc_d + DBSC_DBCMD, cmd);
 }
