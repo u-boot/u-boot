@@ -4333,10 +4333,13 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 
 /**
  * dbsc5_get_board_data() - Obtain board specific DRAM configuration
+ * @dev: DBSC5 device
+ * @modemr0: MODEMR0 register content
  *
  * Return board specific DRAM configuration structure pointer.
  */
-__weak const struct renesas_dbsc5_board_config *dbsc5_get_board_data(void)
+__weak const struct renesas_dbsc5_board_config *
+dbsc5_get_board_data(struct udevice *dev, const u32 modemr0)
 {
 	return &renesas_v4h_dbsc5_board_config;
 }
@@ -4372,7 +4375,7 @@ static int renesas_dbsc5_dram_probe(struct udevice *dev)
 	u32 ch, cs;
 
 	/* Get board data */
-	priv->dbsc5_board_config = dbsc5_get_board_data();
+	priv->dbsc5_board_config = dbsc5_get_board_data(dev, modemr0);
 	priv->ddr_phyvalid = (u32)(priv->dbsc5_board_config->bdcfg_phyvalid);
 	priv->max_density = 0;
 	priv->cpg_regs = (void __iomem *)ofnode_get_addr(cnode);
