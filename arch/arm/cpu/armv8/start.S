@@ -334,6 +334,9 @@ WEAK(lowlevel_init)
 	/*
 	 * All slaves will enter EL2 and optionally EL1.
 	 */
+#if defined(CONFIG_ARMV8_PSCI) && !defined(CONFIG_XPL_BUILD)
+        bl      psci_setup_vectors
+#endif
 	adr	x4, lowlevel_in_el2
 	ldr	x5, =ES_TO_AARCH64
 	bl	armv8_switch_to_el2
