@@ -410,11 +410,21 @@ void switch_to_hypervisor_ret(void);
 #define wfi()
 #endif
 
+#if !defined(__thumb2__)
+/*
+ * We will need to switch to ARM mode (.arm) for some instructions such as
+ * mrc p15 etc.
+ */
+#define asm_arm_or_thumb2(insn) asm volatile(".arm\n\t" insn)
+#else
+#define asm_arm_or_thumb2(insn) asm volatile(insn)
+#endif
+
 static inline unsigned long read_mpidr(void)
 {
 	unsigned long val;
 
-	asm volatile("mrc p15, 0, %0, c0, c0, 5" : "=r" (val));
+	asm_arm_or_thumb2("mrc p15, 0, %0, c0, c0, 5" : "=r" (val));
 
 	return val;
 }
@@ -443,11 +453,13 @@ static inline unsigned int get_cr(void)
 	unsigned int val;
 
 	if (is_hyp())
-		asm volatile("mrc p15, 4, %0, c1, c0, 0	@ get CR" : "=r" (val)
+		asm_arm_or_thumb2("mrc p15, 4, %0, c1, c0, 0	@ get CR"
+								  : "=r" (val)
 								  :
 								  : "cc");
 	else
-		asm volatile("mrc p15, 0, %0, c1, c0, 0	@ get CR" : "=r" (val)
+		asm_arm_or_thumb2("mrc p15, 0, %0, c1, c0, 0	@ get CR"
+								  : "=r" (val)
 								  :
 								  : "cc");
 	return val;
@@ -456,11 +468,11 @@ static inline unsigned int get_cr(void)
 static inline void set_cr(unsigned int val)
 {
 	if (is_hyp())
-		asm volatile("mcr p15, 4, %0, c1, c0, 0	@ set CR" :
+		asm_arm_or_thumb2("mcr p15, 4, %0, c1, c0, 0	@ set CR" :
 								  : "r" (val)
 								  : "cc");
 	else
-		asm volatile("mcr p15, 0, %0, c1, c0, 0	@ set CR" :
+		asm_arm_or_thumb2("mcr p15, 0, %0, c1, c0, 0	@ set CR" :
 								  : "r" (val)
 								  : "cc");
 	isb();
