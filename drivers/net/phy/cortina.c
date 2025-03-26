@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Cortina CS4315/CS4340 10G PHY drivers
+ * Cortina CS4223 40G PHY driver
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
- * Copyright 2018, 2020 NXP
+ * Copyright 2018-2022 NXP
  *
  */
 
@@ -16,16 +17,22 @@
 #include <linux/err.h>
 #include <phy.h>
 #include <cortina.h>
+#include <cortina_api.h>
 #include <nand.h>
 #include <spi_flash.h>
 #include <mmc.h>
 #ifdef CONFIG_ARM64
 #include <asm/arch/cpu.h>
 #endif
+#include <env.h>
 
 #ifndef CONFIG_PHYLIB_10G
 #error The Cortina PHY needs 10G support
 #endif
+
+/* Cortina CS4223 EQ & driver traceloss defaults */
+#define CS4223_LINE_DEFAULT_TRACELOSS CS_HSIO_TRACE_LOSS_4dB
+#define CS4223_HOST_DEFAULT_TRACELOSS CS_HSIO_TRACE_LOSS_4dB
 
 #ifndef CONFIG_SYS_CORTINA_NO_FW_UPLOAD
 struct cortina_reg_config cortina_reg_cfg[] = {
@@ -349,14 +356,185 @@ int cs4340_startup(struct phy_device *phydev)
 	return 0;
 }
 
+int cs4223_phy_setup(struct phy_device *phydev)
+{
+	int status = CS_OK;
+	struct cs4224_rules_t rules;
+	unsigned int slice = 0;
+	char *env_host_driver_ptr = env_get("cs4223_host_gain");
+	char *env_host_eq_ptr     = env_get("cs4223_host_eq");
+	char *env_host_edc_ptr    = env_get("cs4223_host_edc");
+	char *env_line_driver_ptr = env_get("cs4223_line_gain");
+	char *env_line_eq_ptr     = env_get("cs4223_line_eq");
+	char *env_line_edc_ptr    = env_get("cs4223_line_edc");
+
+	char *env_autoconfig_ptr  = env_get("cs4223_autoconfig");
+	int autoconfig_success = 0;
+	int mseq_dyn_reconfig = CS_FALSE;
+
+	int host_driver_settings = CS4223_HOST_DEFAULT_TRACELOSS;
+	int host_eq_settings     = CS4223_HOST_DEFAULT_TRACELOSS;
+	int host_edc_mode        = CS_HSIO_EDC_MODE_CX1;
+
+	int line_driver_settings = CS4223_LINE_DEFAULT_TRACELOSS;
+	int line_eq_settings     = CS4223_LINE_DEFAULT_TRACELOSS;
+	int line_edc_mode        = CS_HSIO_EDC_MODE_SR;
+
+	cs4223_glue_phydev_set(phydev);
+
+	status |= cs4224_hard_reset(slice);
+	if (status != CS_OK) {
+		printf("error trying to reset the device\n");
+		return status;
+	}
+
+	if (env_autoconfig_ptr) {
+		if (!strncmp(env_autoconfig_ptr, "copper", 6)) {
+			line_edc_mode = CS_HSIO_EDC_MODE_CX1;
+			host_edc_mode = CS_HSIO_EDC_MODE_CX1;
+			host_driver_settings = CS_HSIO_TRACE_LOSS_4dB;
+			host_eq_settings = CS_HSIO_TRACE_LOSS_4dB;
+			line_driver_settings = CS_HSIO_TRACE_LOSS_6dB;
+			line_eq_settings = CS_HSIO_TRACE_LOSS_6dB;
+			mseq_dyn_reconfig = CS_TRUE;
+			autoconfig_success = 1;
+		}
+
+		if (!strncmp(env_autoconfig_ptr, "optical", 7)) {
+			line_edc_mode = CS_HSIO_EDC_MODE_SR;
+			host_edc_mode = CS_HSIO_EDC_MODE_CX1;
+			host_driver_settings = CS_HSIO_TRACE_LOSS_4dB;
+			host_eq_settings = CS_HSIO_TRACE_LOSS_4dB;
+			line_driver_settings = CS_HSIO_TRACE_LOSS_4dB;
+			line_eq_settings = CS_HSIO_TRACE_LOSS_4dB;
+			mseq_dyn_reconfig = CS_FALSE;
+			autoconfig_success = 1;
+		}
+	}
+
+	if (autoconfig_success) {
+		printf("CS4223: setting defaults for %s medium type...\n",
+		       env_autoconfig_ptr);
+		goto skip_config;
+	}
+
+	if (env_host_driver_ptr) {
+		host_driver_settings =
+			simple_strtoul(env_host_driver_ptr, NULL, 10);
+
+		if ((host_driver_settings < CS_HSIO_TRACE_LOSS_0dB) ||
+		    (host_driver_settings > CS_HSIO_TRACE_LOSS_6dB)) {
+			printf("CS4223: host driver settings (%ddB) not ",
+			       host_driver_settings);
+			printf("supported. Using defaults.\n");
+			host_driver_settings = CS4223_HOST_DEFAULT_TRACELOSS;
+		} else {
+			host_eq_settings = host_driver_settings;
+		}
+	}
+
+	if (env_line_driver_ptr) {
+		line_driver_settings =
+			simple_strtoul(env_line_driver_ptr, NULL, 10);
+
+		if ((line_driver_settings < CS_HSIO_TRACE_LOSS_0dB) ||
+		    (line_driver_settings > CS_HSIO_TRACE_LOSS_6dB)) {
+			printf("CS4223: line driver settings (%ddB) not ",
+			       line_driver_settings);
+			printf("supported. Using defaults.\n");
+			line_driver_settings = CS4223_LINE_DEFAULT_TRACELOSS;
+		} else {
+			line_eq_settings = line_driver_settings;
+		}
+	}
+
+	if (env_host_eq_ptr) {
+		host_eq_settings = simple_strtoul(env_host_eq_ptr, NULL, 10);
+		if ((host_eq_settings < CS_HSIO_TRACE_LOSS_0dB) ||
+		    (host_eq_settings > CS_HSIO_TRACE_LOSS_6dB)) {
+			printf("CS4223: host EQ traceloss (%ddB) not supported",
+			       host_eq_settings);
+			printf(". Matching driver settings or defaults.\n");
+			host_eq_settings = host_driver_settings;
+		}
+	}
+
+	if (env_line_eq_ptr) {
+		line_eq_settings = simple_strtoul(env_line_eq_ptr, NULL, 10);
+		if ((line_eq_settings < CS_HSIO_TRACE_LOSS_0dB) ||
+		    (line_eq_settings > CS_HSIO_TRACE_LOSS_6dB)) {
+			printf("CS4223: line EQ traceloss (%ddB) not supported",
+			       line_eq_settings);
+			printf(". Matching driver settings or defaults.\n");
+			line_eq_settings = line_driver_settings;
+		}
+	}
+
+	if (env_line_edc_ptr) {
+		if (!strncmp(env_line_edc_ptr, "cx", 2))
+			line_edc_mode = CS_HSIO_EDC_MODE_CX1;
+
+		if (!strncmp(env_line_edc_ptr, "sr", 2))
+			line_edc_mode = CS_HSIO_EDC_MODE_SR;
+	}
+
+	if (env_host_edc_ptr) {
+		if (!strncmp(env_host_edc_ptr, "cx", 2))
+			host_edc_mode = CS_HSIO_EDC_MODE_CX1;
+
+		if (!strncmp(env_host_edc_ptr, "sr", 2))
+			host_edc_mode = CS_HSIO_EDC_MODE_SR;
+	}
+
+skip_config:
+	printf("CS4223: edc/gain/equalization settings: ");
+	printf("host: %s/%ddB/%ddB, line: %s/%ddB/%ddB\n",
+	       host_edc_mode == CS_HSIO_EDC_MODE_CX1 ? "CX" : "SR",
+	       host_driver_settings,
+	       host_eq_settings,
+	       line_edc_mode == CS_HSIO_EDC_MODE_CX1 ? "CX" : "SR",
+	       line_driver_settings,
+	       line_eq_settings);
+
+	memset(&rules, 0, sizeof(struct cs4224_rules_t));
+	status |= cs4224_rules_set_default(CS4224_TARGET_APPLICATION_10G,
+					   &rules);
+
+	if (host_edc_mode == CS_HSIO_EDC_MODE_CX1 &&
+	    line_edc_mode == CS_HSIO_EDC_MODE_CX1)
+		mseq_dyn_reconfig = CS_TRUE;
+	else
+		mseq_dyn_reconfig = CS_FALSE;
+
+	rules.mseq_dyn_reconfig                = mseq_dyn_reconfig;
+	rules.rx_if.dplx_line_edc_mode         = line_edc_mode;
+	rules.rx_if.dplx_line_eq.traceloss     = line_eq_settings;
+	rules.tx_if.dplx_line_driver.traceloss = line_driver_settings;
+	rules.rx_if.dplx_host_edc_mode         = host_edc_mode;
+	rules.rx_if.dplx_host_eq.traceloss     = host_eq_settings;
+	rules.tx_if.dplx_host_driver.traceloss = host_driver_settings;
+
+	for (slice = 0; slice < CS4224_MAX_NUM_SLICES(0); slice++)
+		status |= cs4224_slice_enter_operational_state(slice, &rules);
+
+	return status;
+}
+
 int cs4223_phy_init(struct phy_device *phydev)
 {
 	int reg_value;
+	int status;
 
 	reg_value = phy_read(phydev, 0x00, CS4223_EEPROM_STATUS);
 	if (!(reg_value & CS4223_EEPROM_FIRMWARE_LOADDONE)) {
-		printf("%s CS4223 Firmware not present in EERPOM\n", __func__);
-		return -ENOSYS;
+		printf("\nCS4223: Using software initialization...\n");
+		status = cs4223_phy_setup(phydev);
+		if (status != CS_OK)
+			printf("CS4223: Software initialization had issues!\n");
+
+	} else {
+		printf("\nCS4223: WARNING: Using EEPROM configuration...\n");
+		printf("CS4223: WARNING: Change SW2[2] for software config\n");
 	}
 
 	return 0;
