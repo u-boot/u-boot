@@ -98,7 +98,7 @@ ofnode ofnode_graph_get_port_by_id(ofnode parent, u32 id)
  * @id: id for the endpoint
  *
  * Return: ofnode in given endpoint or ofnode_null() if not found.
- * reg and port_reg are ignored when they are -1.
+ * reg_id and id are ignored when they are -1.
  */
 ofnode ofnode_graph_get_endpoint_by_regs(ofnode parent, int reg_id, int id)
 {
