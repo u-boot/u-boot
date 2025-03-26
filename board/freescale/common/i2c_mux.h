@@ -10,6 +10,7 @@
 
 #ifdef CONFIG_FSL_USE_PCA9547_MUX
 int select_i2c_ch_pca9547(u8 ch, int bus);
+int select_i2c_ch_pca9547_sec(u8 ch, int bus);
 #endif
 
 #endif
