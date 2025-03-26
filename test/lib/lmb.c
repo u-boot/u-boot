@@ -591,21 +591,21 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	 * region 2. Should fail.
 	 */
 	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
-	ut_asserteq(a, alloc_addr_a);
+	ut_asserteq(a, 0);
 
 	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NOOVERWRITE);
-	ut_asserteq(b, alloc_addr_a + 0x4000);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, a, 0x1000,
-		   b, 0x1000, 0, 0);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
 
 	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NONE);
-	ut_asserteq(c, 0);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, a, 0x1000,
-		   b, 0x1000, 0, 0);
+	ut_asserteq(c, -1);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
 
-	ret = lmb_free(a, 0x1000);
+	ret = lmb_free(alloc_addr_a, 0x1000);
 	ut_asserteq(ret, 0);
-	ret = lmb_free(b, 0x1000);
+	ret = lmb_free(alloc_addr_a + 0x4000, 0x1000);
 	ut_asserteq(ret, 0);
 
 	/*
@@ -616,19 +616,19 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	 * single region.
 	 */
 	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
-	ut_asserteq(a, alloc_addr_a);
+	ut_asserteq(a, 0);
 
 	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NONE);
-	ut_asserteq(b, alloc_addr_a + 0x4000);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, a, 0x1000,
-		   b, 0x1000, 0, 0);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
 
 	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NONE);
-	ut_asserteq(c, alloc_addr_a + 0x1000);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, a, 0x6000,
+	ut_asserteq(c, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, alloc_addr_a, 0x6000,
 		   0, 0, 0, 0);
 
-	ret = lmb_free(a, 0x6000);
+	ret = lmb_free(alloc_addr_a, 0x6000);
 	ut_asserteq(ret, 0);
 
 	/*
@@ -638,21 +638,21 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	 * region 2. Should fail.
 	 */
 	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
-	ut_asserteq(a, alloc_addr_a);
+	ut_asserteq(a, 0);
 
 	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NOOVERWRITE);
-	ut_asserteq(b, alloc_addr_a + 0x4000);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, a, 0x1000,
-		   b, 0x1000, 0, 0);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
 
 	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NOOVERWRITE);
-	ut_asserteq(c, 0);
-	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, a, 0x1000,
-		   b, 0x1000, 0, 0);
+	ut_asserteq(c, -1);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
 
-	ret = lmb_free(a, 0x1000);
+	ret = lmb_free(alloc_addr_a, 0x1000);
 	ut_asserteq(ret, 0);
-	ret = lmb_free(b, 0x1000);
+	ret = lmb_free(alloc_addr_a + 0x4000, 0x1000);
 	ut_asserteq(ret, 0);
 
 	/*  reserve 3 blocks */
