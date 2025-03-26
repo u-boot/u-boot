@@ -33,13 +33,11 @@
 
 	host1x@50000000 {
 		dc@54200000 {
-			clocks = <&tegra_car TEGRA30_CLK_DISP1>,
-				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
+			backlight: backlight {
+				compatible = "nvidia,tegra-pwm-backlight";
 
-			rgb {
-				status = "okay";
-
-				nvidia,panel = <&dsia>;
+				nvidia,pwm-source = <1>;
+				nvidia,default-brightness = <0x8E>;
 			};
 		};
 
@@ -1263,13 +1261,6 @@
 		nvidia,hssync-start-delay = <0>;
 		nvidia,xcvr-lsfslew = <2>;
 		nvidia,xcvr-lsrslew = <2>;
-	};
-
-	backlight: backlight {
-		compatible = "nvidia,tegra-pwm-backlight";
-
-		nvidia,pwm-source = <1>;
-		nvidia,default-brightness = <0x8E>;
 	};
 
 	/* PMIC has a built-in 32KHz oscillator which is used by PMC */

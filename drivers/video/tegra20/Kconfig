@@ -1,6 +1,11 @@
+config HOST1X_TEGRA
+	bool "NVIDIA Tegra host1x BUS support"
+	depends on SIMPLE_BUS
+
 config VIDEO_TEGRA20
 	bool "Enable Display Controller support on Tegra20 and Tegra 30"
 	depends on OF_CONTROL
+	select HOST1X_TEGRA
 	help
 	   T20/T30 support video output to an attached LCD panel as well as
 	   other options such as HDMI. Only the LCD is supported in U-Boot.
@@ -9,12 +14,21 @@ config VIDEO_TEGRA20
 
 config VIDEO_DSI_TEGRA30
 	bool "Enable Tegra 30 DSI support"
-	depends on PANEL && DM_GPIO
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
 	select VIDEO_TEGRA20
 	select VIDEO_MIPI_DSI
 	help
 	   T30 has native support for DSI panels. This option enables support
 	   for such panels which can be used on endeavoru and tf600t.
+
+config VIDEO_HDMI_TEGRA
+	bool "Enable Tegra HDMI support"
+	depends on VIDEO_BRIDGE && DM_I2C
+	select I2C_EDID
+	select VIDEO_TEGRA20
+	help
+	   Tegra has native support for HDMI. This option enables support
+	   for such connection and can be used for any supported device.
 
 config TEGRA_BACKLIGHT_PWM
 	bool "Enable Tegra DC PWM backlight support"

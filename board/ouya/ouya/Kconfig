@@ -1,0 +1,12 @@
+if TARGET_OUYA
+
+config SYS_BOARD
+	default "ouya"
+
+config SYS_VENDOR
+	default "ouya"
+
+config SYS_CONFIG_NAME
+	default "ouya"
+
+endif

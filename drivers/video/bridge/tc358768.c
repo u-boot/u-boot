@@ -6,12 +6,14 @@
 
 #include <clk.h>
 #include <dm.h>
+#include <dm/ofnode_graph.h>
 #include <i2c.h>
 #include <log.h>
 #include <mipi_display.h>
 #include <mipi_dsi.h>
 #include <backlight.h>
 #include <panel.h>
+#include <video_bridge.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <linux/kernel.h>
@@ -122,6 +124,10 @@
 #define NANO	1000000000UL
 #define PICO	1000000000000ULL
 
+static const char * const tc358768_supplies[] = {
+	"vddc-supply", "vddmipi-supply", "vddio-supply"
+};
+
 struct tc358768_priv {
 	struct mipi_dsi_host host;
 	struct mipi_dsi_device device;
@@ -129,9 +135,7 @@ struct tc358768_priv {
 	struct udevice *panel;
 	struct display_timing timing;
 
-	struct udevice *vddc;
-	struct udevice *vddmipi;
-	struct udevice *vddio;
+	struct udevice *supplies[ARRAY_SIZE(tc358768_supplies)];
 
 	struct clk *refclk;
 
@@ -265,25 +269,27 @@ static void tc358768_sw_reset(struct udevice *dev)
 	tc358768_write(dev, TC358768_SYSCTL, 0);
 }
 
-static void tc358768_hw_enable(struct tc358768_priv *priv)
+static void tc358768_hw_enable(struct udevice *dev)
 {
+	struct tc358768_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
 	ret = clk_prepare_enable(priv->refclk);
 	if (ret)
 		log_debug("%s: error enabling refclk (%d)\n", __func__, ret);
 
-	ret = regulator_set_enable_if_allowed(priv->vddc, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[0], true);
 	if (ret)
 		log_debug("%s: error enabling vddc (%d)\n", __func__, ret);
 
-	ret = regulator_set_enable_if_allowed(priv->vddmipi, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[1], true);
 	if (ret)
 		log_debug("%s: error enabling vddmipi (%d)\n", __func__, ret);
 
 	mdelay(10);
 
-	ret = regulator_set_enable_if_allowed(priv->vddio, true);
+	ret = regulator_set_enable_if_allowed(priv->supplies[2], true);
 	if (ret)
 		log_debug("%s: error enabling vddio (%d)\n", __func__, ret);
 
@@ -293,7 +299,7 @@ static void tc358768_hw_enable(struct tc358768_priv *priv)
 	 * The RESX is active low (GPIO_ACTIVE_LOW).
 	 * DEASSERT (value = 0) the reset_gpio to enable the chip
 	 */
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&uc_priv->reset, 0);
 	if (ret)
 		log_debug("%s: error changing reset-gpio (%d)\n", __func__, ret);
 
@@ -477,7 +483,7 @@ static int tc358768_attach(struct udevice *dev)
 		device->mode_flags &= ~MIPI_DSI_CLOCK_NON_CONTINUOUS;
 	}
 
-	tc358768_hw_enable(priv);
+	tc358768_hw_enable(dev);
 	tc358768_sw_reset(dev);
 
 	tc358768_setup_pll(dev);
@@ -874,12 +880,33 @@ static int tc358768_panel_timings(struct udevice *dev,
 	return 0;
 }
 
+static int tc358768_get_panel(struct udevice *dev)
+{
+	struct tc358768_priv *priv = dev_get_priv(dev);
+	int i, ret;
+
+	u32 num = ofnode_graph_get_port_count(dev_ofnode(dev));
+
+	for (i = 0; i < num; i++) {
+		ofnode remote = ofnode_graph_get_remote_node(dev_ofnode(dev), i, -1);
+
+		ret = uclass_get_device_by_ofnode(UCLASS_PANEL, remote,
+						  &priv->panel);
+		if (!ret)
+			return 0;
+	}
+
+	/* If this point is reached, no panels were found */
+	return -ENODEV;
+}
+
 static int tc358768_setup(struct udevice *dev)
 {
 	struct tc358768_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mipi_plat;
-	int ret;
+	int i, ret;
 
 	/* The bridge uses 16 bit registers */
 	ret = i2c_set_chip_offset_len(dev, 2);
@@ -889,11 +916,10 @@ static int tc358768_setup(struct udevice *dev)
 		return ret;
 	}
 
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL, dev,
-					   "panel", &priv->panel);
+	ret = tc358768_get_panel(dev);
 	if (ret) {
-		log_debug("%s: Cannot get panel: ret=%d\n", __func__, ret);
-		return log_ret(ret);
+		log_debug("%s: panel not found, ret %d\n", __func__, ret);
+		return ret;
 	}
 
 	panel_get_display_timing(priv->panel, &priv->timing);
@@ -913,44 +939,26 @@ static int tc358768_setup(struct udevice *dev)
 	priv->dsi_lanes = device->lanes;
 
 	/* get regulators */
-	ret = device_get_supply_regulator(dev, "vddc-supply", &priv->vddc);
-	if (ret) {
-		log_debug("%s: vddc regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
-	}
-
-	ret = device_get_supply_regulator(dev, "vddmipi-supply", &priv->vddmipi);
-	if (ret) {
-		log_debug("%s: vddmipi regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
-	}
-
-	ret = device_get_supply_regulator(dev, "vddio-supply", &priv->vddio);
-	if (ret) {
-		log_debug("%s: vddio regulator error: %d\n", __func__, ret);
-		if (ret != -ENOENT)
-			return log_ret(ret);
+	for (i = 0; i < ARRAY_SIZE(tc358768_supplies); i++) {
+		ret = device_get_supply_regulator(dev, tc358768_supplies[i],
+						  &priv->supplies[i]);
+		if (ret) {
+			log_debug("%s: cannot get %s %d\n", __func__,
+				  tc358768_supplies[i], ret);
+			if (ret != -ENOENT)
+				return log_ret(ret);
+		}
 	}
 
 	/* get clk */
-	priv->refclk = devm_clk_get(dev, "refclk");
+	priv->refclk = devm_clk_get(dev, NULL);
 	if (IS_ERR(priv->refclk)) {
 		log_debug("%s: Could not get refclk: %ld\n",
 			  __func__, PTR_ERR(priv->refclk));
 		return PTR_ERR(priv->refclk);
 	}
 
-	/* get gpios */
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
-				   &priv->reset_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		log_debug("%s: Could not decode reset-gpios (%d)\n", __func__, ret);
-		return ret;
-	}
-
-	dm_gpio_set_value(&priv->reset_gpio, 1);
+	dm_gpio_set_value(&uc_priv->reset, 1);
 
 	return 0;
 }
@@ -963,8 +971,8 @@ static int tc358768_probe(struct udevice *dev)
 	return tc358768_setup(dev);
 }
 
-struct panel_ops tc358768_ops = {
-	.enable_backlight	= tc358768_attach,
+static const struct video_bridge_ops tc358768_ops = {
+	.attach			= tc358768_attach,
 	.set_backlight		= tc358768_set_backlight,
 	.get_display_timing	= tc358768_panel_timings,
 };
@@ -977,9 +985,10 @@ static const struct udevice_id tc358768_ids[] = {
 
 U_BOOT_DRIVER(tc358768) = {
 	.name		= "tc358768",
-	.id		= UCLASS_PANEL,
+	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= tc358768_ids,
 	.ops		= &tc358768_ops,
+	.bind		= dm_scan_fdt_dev,
 	.probe		= tc358768_probe,
 	.priv_auto	= sizeof(struct tc358768_priv),
 };

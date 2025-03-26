@@ -32,7 +32,12 @@
 			rgb {
 				status = "okay";
 
-				nvidia,panel = <&bridge>;
+				port {
+					dpi_output: endpoint {
+						remote-endpoint = <&bridge_input>;
+						bus-width = <24>;
+					};
+				};
 			};
 		};
 	};
@@ -890,12 +895,22 @@
 		status = "okay";
 		clock-frequency = <400000>;
 
-		backlight: lm3533@36 {
+		backlight: led-controller@36 {
 			compatible = "ti,lm3533";
 			reg = <0x36>;
 
 			enable-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_HIGH>;
-			default-brightness-level = <128>;
+
+			ti,boost-ovp-microvolt = <24000000>;
+			ti,boost-freq-hz = <500000>;
+
+			backlight-0 {
+				compatible = "ti,lm3533-backlight";
+
+				ti,max-current-microamp = <23400>;
+				ti,linear-mapping-mode;
+				ti,hardware-controlled;
+			};
 		};
 
 		muic@44 {
@@ -969,18 +984,46 @@
 			compatible = "solomon,ssd2825";
 			reg = <2>;
 
+			#address-cells = <1>;
+			#size-cells = <0>;
+
 			spi-cpol;
 			spi-cpha;
 
 			spi-max-frequency = <1000000>;
 
-			power-gpios = <&gpio TEGRA_GPIO(B, 1) GPIO_ACTIVE_HIGH>;
-			reset-gpios = <&gpio TEGRA_GPIO(O, 2) GPIO_ACTIVE_HIGH>;
+			reset-gpios = <&gpio TEGRA_GPIO(O, 2) GPIO_ACTIVE_LOW>;
+
+			dvdd-supply = <&vdd_1v2_rgb>;
+			avdd-supply = <&vdd_1v2_rgb>;
+			vddio-supply = <&vdd_1v8_vio>;
+
+			solomon,hs-zero-delay-ns = <300>;
+			solomon,hs-prep-delay-ns = <65>;
 
 			clocks = <&ssd2825_refclk>;
-			clock-names = "tx_clk";
 
-			panel = <&panel>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					bridge_input: endpoint {
+						remote-endpoint = <&dpi_output>;
+						bus-width = <24>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					bridge_output: endpoint {
+						remote-endpoint = <&panel_input>;
+					};
+				};
+			};
 		};
 	};
 
@@ -1035,5 +1078,30 @@
 			gpios = <&gpio TEGRA_GPIO(O, 4) GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_DOWN>;
 		};
+	};
+
+	vdd_1v2_rgb: regulator-rgb1v2 {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_1v2_rgb";
+		regulator-min-microvolt = <1200000>;
+		regulator-max-microvolt = <1200000>;
+		gpio = <&gpio TEGRA_GPIO(B, 1) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+
+	vcc_3v0_lcd: regulator-lcd3v {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_3v0_lcd";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+	};
+
+	iovcc_1v8_lcd: regulator-lcd1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "iovcc_1v8_lcd";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		gpio = <&gpio TEGRA_GPIO(Y, 0) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 };

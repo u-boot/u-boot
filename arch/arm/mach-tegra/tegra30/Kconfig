@@ -32,6 +32,10 @@ config TARGET_IDEAPAD_YOGA_11
 	bool "Lenovo Ideapad Yoga 11 board"
 	select BOARD_LATE_INIT
 
+config TARGET_OUYA
+	bool "Ouya Game Console board"
+	select BOARD_LATE_INIT
+
 config TARGET_QC750
 	bool "Wexler QC750 board"
 	select BOARD_LATE_INIT
@@ -64,6 +68,7 @@ source "board/toradex/colibri_t30/Kconfig"
 source "board/htc/endeavoru/Kconfig"
 source "board/asus/grouper/Kconfig"
 source "board/lenovo/ideapad-yoga-11/Kconfig"
+source "board/ouya/ouya/Kconfig"
 source "board/wexler/qc750/Kconfig"
 source "board/microsoft/surface-rt/Kconfig"
 source "board/avionic-design/tec-ng/Kconfig"

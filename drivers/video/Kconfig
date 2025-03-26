@@ -700,6 +700,12 @@ config I2C_EDID
 	help
 	   This enables library for accessing EDID data from an LCD panel.
 
+config I2C_EDID_STANDARD
+	bool "Enable standard timings EDID library expansion"
+	depends on I2C_EDID
+	help
+	   This enables standard timings expansion for EDID data from an LCD panel.
+
 config DISPLAY
 	bool "Enable Display support"
 	depends on DM
