@@ -10,3 +10,4 @@ F:	configs/qemu-riscv32_spl_defconfig
 F:	configs/qemu-riscv64_defconfig
 F:	configs/qemu-riscv64_smode_defconfig
 F:	configs/qemu-riscv64_spl_defconfig
+F:      configs/qemu-riscv64_acpi_defconfig
