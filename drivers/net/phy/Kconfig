@@ -170,6 +170,69 @@ config PHY_DAVICOM
 config PHY_ET1011C
 	bool "LSI TruePHY ET1011C support"
 
+config PHY_INPHI
+	bool "Inphi IN112525 gen1/gen2 retimers support"
+	help
+		This enables the IN112525 Retimer support
+		Supported speeds:
+			gen1(S03): 10G/25G
+			gen2(S05): 10G/25G & 40G/50G/100G using multiple chips
+		Phy initialization sequence differs depending on target
+		configurations: 10G or 25G. Higher speeds refer to use-cases
+		where multiple retimers are used on multiple data-paths and
+		speed adds up (e.g. 100G = 4x25G lanes -> 2 retimers).
+		The driver also uses a microcode firmware in the form of
+		address-data tuples for phy initialization
+choice
+	prompt "Speed selection for INPHI in112525 s03 retimer"
+	default IN112525_S03_25G
+	help
+		Configure the speed settings for the Inphi S03 retimer
+		Default speed is 25G, but 10G speed can be set using
+		a half-rate configuration
+
+config IN112525_S03_10G
+	bool "10G"
+	help
+		10G settings (half-rate) for Inphi in112525 gen1 retimer
+config IN112525_S03_25G
+	bool "25G"
+	help
+		25G settings for Inphi in112525 gen1 retimer
+endchoice
+
+choice
+	prompt "Speed selection for INPHI in112525 s05 retimer"
+	default IN112525_S05_100G
+	help
+		This configures the IN112525_S05 driver for different speeds.
+		For 40G and 100G speeds two Inphi retimers must be used. Each
+		chip has two data paths and each path can support 10G or 25G.
+
+config IN112525_S05_10G
+	bool "10G"
+	help
+		10G settings for Inphi in112525 gen2 retimer
+config IN112525_S05_25G
+	bool "25G"
+	help
+		25G settings for Inphi in112525 gen2 retimer
+		Two lanes are shutdown for individual port operation
+config IN112525_S05_40G
+	bool "40G"
+	help
+		40G settings for Inphi in112525 gen2 retimer
+config IN112525_S05_50G
+	bool "50G"
+	help
+		50G settings for Inphi in112525 gen2 retimer
+
+config IN112525_S05_100G
+	bool "100G"
+	help
+		100G best settings for Inphi in112525 gen2 retimer
+endchoice
+
 config PHY_LXT
 	bool "LXT971 Ethernet PHY support"
 
