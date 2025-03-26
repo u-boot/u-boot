@@ -90,7 +90,7 @@ static void scsi_setup_read_ext(struct scsi_cmd *pccb, lbaint_t start,
 	pccb->cmd[6] = 0;
 	pccb->cmd[7] = (unsigned char)(blocks >> 8) & 0xff;
 	pccb->cmd[8] = (unsigned char)blocks & 0xff;
-	pccb->cmd[6] = 0;
+	pccb->cmd[9] = 0;
 	pccb->cmdlen = 10;
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 	debug("scsi_setup_read_ext: cmd: %02X %02X startblk %02X%02X%02X%02X blccnt %02X%02X\n",
