@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018-2021 NXP
+ * Copyright 2018-2022 NXP
  */
 
 #ifndef __LX2_COMMON_H
@@ -37,6 +37,7 @@
  * will be udpated later when get_bus_freq(0) is available.
  */
 
+
 /* Serial Port */
 #define CFG_PL011_CLOCK		(get_bus_freq(0) / 4)
 #define CFG_SYS_SERIAL0		0x21c0000
@@ -68,10 +69,21 @@
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* Primary Mux*/
+#define I2C_MUX_PCA_ADDR_SEC		0x75 /* Secondary Mux*/
 #define I2C_MUX_CH_DEFAULT		0x8
+#define I2C_MUX_CH_SEC			0xF
+
+/* QSFP+/SFP+ I2C MUX related */
+#define I2C_MUX_CH_QSFP			0x8
+#define I2C_MUX_CH_SFP1			0xC
+#define I2C_MUX_CH_SFP2			0xD
 
 /* RTC */
 #define CFG_SYS_I2C_RTC_ADDR		0x51  /* Channel 3*/
+
+/* QSFP/SFP module EEPROMs */
+#define I2C_SFP_EEPROM_ADDR	0x50
+#define I2C_SFP_EEPROM_ADDR_LEN	1
 
 /* Qixis */
 #define CFG_SYS_I2C_FPGA_ADDR		0x66
@@ -131,6 +143,7 @@
 	"kernel_addr_r=0x81000000\0"		\
 	"kernelheader_size=0x40000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
+	"fdt_addr=0x90000000\0"                 \
 	"load_addr=0xa0000000\0"		\
 	"kernel_size=0x2800000\0"		\
 	"kernel_addr_sd=0x8000\0"		\
