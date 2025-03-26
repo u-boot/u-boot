@@ -138,7 +138,7 @@ static void b1x5v2_backlight_enable(int percent)
 	}
 
 	panel_set_backlight(panel, percent);
-	panel_enable_backlight(panel);
+	panel_enable(panel);
 
 }
 

@@ -109,9 +109,9 @@ static int rk_display_enable(struct udevice *dev, int panel_bpp,
 	}
 
 	/* Enable backlight */
-	ret = panel_enable_backlight(priv->panel);
+	ret = panel_enable(priv->panel);
 	if (ret) {
-		debug("%s: panel_enable_backlight() failed (err=%d)\n",
+		debug("%s: panel_enable() failed (err=%d)\n",
 		      __func__, ret);
 		return ret;
 	}
