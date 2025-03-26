@@ -50,7 +50,7 @@ static err_t linkoutput(struct netif *netif, struct pbuf *p)
 	err = eth_get_ops(udev)->send(udev, pp ? pp : p->payload, p->len);
 	free(pp);
 	if (err) {
-		log_err("send error %d\n", err);
+		debug("send error %d\n", err);
 		return ERR_ABRT;
 	}
 
