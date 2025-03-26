@@ -736,17 +736,6 @@ static int ata_scsiop_read_write(struct ahci_uc_priv *uc_priv,
 			      is_write ? "WRITE" : "READ");
 			return -EIO;
 		}
-
-		/* If this transaction is a write, do a following flush.
-		 * Writes in u-boot are so rare, and the logic to know when is
-		 * the last write and do a flush only there is sufficiently
-		 * difficult. Just do a flush after every write. This incurs,
-		 * usually, one extra flush when the rare writes do happen.
-		 */
-		if (is_write) {
-			if (-EIO == ata_io_flush(uc_priv, pccb->target))
-				return -EIO;
-		}
 		user_buffer += transfer_size;
 		user_buffer_size -= transfer_size;
 		blocks -= now_blocks;
@@ -845,6 +834,9 @@ static int ahci_scsi_exec(struct udevice *dev, struct scsi_cmd *pccb)
 		break;
 	case SCSI_INQUIRY:
 		ret = ata_scsiop_inquiry(uc_priv, pccb);
+		break;
+	case SCSI_SYNC_CACHE:
+		ret = ata_io_flush(uc_priv, pccb->target);
 		break;
 	default:
 		printf("Unsupport SCSI command 0x%02x\n", pccb->cmd[0]);
