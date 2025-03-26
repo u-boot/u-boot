@@ -111,6 +111,8 @@ Where config is one of::
 
 This selects the DTB to use when booting.
 
+.. _fit_configuration_using_overlays:
+
 Configuration using overlays
 ----------------------------
 
