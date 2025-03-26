@@ -181,10 +181,13 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
 		switch (idp->protocol) {
 		case IPPROTO_TCP:
 			s += sprintf(s, "TCP,");
+			break;
 		case IPPROTO_UDP:
 			s += sprintf(s, "UDP,");
+			break;
 		default:
 			s += sprintf(s, "0x%x,", idp->protocol);
+			break;
 		}
 		s += sprintf(s, idp->static_ip_address ? "Static" : "DHCP");
 		s += sprintf(s, ",%pI4", &idp->local_ip_address);
