@@ -34,6 +34,7 @@ typedef enum {			/* typedef xilinx_family */
 	xilinx_zynq,		/* Zynq Family */
 	xilinx_zynqmp,		/* ZynqMP Family */
 	xilinx_versal,		/* Versal Family */
+	xilinx_versal_net,	/* Versal NET Family */
 	max_xilinx_type		/* insert all new types before this */
 } xilinx_family;		/* end, typedef xilinx_family */
 

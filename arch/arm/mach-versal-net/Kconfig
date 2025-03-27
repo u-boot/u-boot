@@ -45,6 +45,5 @@ config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
 source "board/xilinx/Kconfig"
-source "board/xilinx/versal-net/Kconfig"
 
 endif
