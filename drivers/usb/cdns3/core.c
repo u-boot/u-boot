@@ -410,6 +410,9 @@ int cdns3_bind(struct udevice *parent)
 	name = ofnode_get_name(node);
 	dr_mode = usb_get_dr_mode(node);
 
+	if (dr_mode == USB_DR_MODE_UNKNOWN)
+		dr_mode = usb_get_dr_mode(dev_ofnode(parent));
+
 	switch (dr_mode) {
 #if defined(CONFIG_SPL_USB_HOST) || \
 	(!defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_HOST))

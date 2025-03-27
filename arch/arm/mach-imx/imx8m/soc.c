@@ -1270,8 +1270,9 @@ static int ft_add_optee_node(void *fdt, struct bd_info *bd)
 		}
 	}
 
+	/* Locate the optee node if it exists or create it. */
 	subpath = "optee";
-	offs = fdt_add_subnode(fdt, offs, subpath);
+	offs = fdt_find_or_add_subnode(fdt, offs, subpath);
 	if (offs < 0) {
 		printf("Could not create %s node.\n", subpath);
 		return offs;

@@ -11,10 +11,10 @@ import tempfile
 import unittest
 
 from patman import checkpatch
-from patman import gitutil
 from patman import patchstream
 from patman import series
 from patman import commit
+from u_boot_pylib import gitutil
 
 
 class Line:
@@ -530,4 +530,3 @@ index 0000000..2234c87
 
 if __name__ == "__main__":
     unittest.main()
-    gitutil.RunTests()

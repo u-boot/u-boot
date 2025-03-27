@@ -134,9 +134,7 @@ static int qcm2290_enable(struct clk *clk)
 		break;
 	}
 
-	qcom_gate_clk_en(priv, clk->id);
-
-	return 0;
+	return qcom_gate_clk_en(priv, clk->id);
 }
 
 static const struct qcom_reset_map qcm2290_gcc_resets[] = {

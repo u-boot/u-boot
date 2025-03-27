@@ -5,42 +5,42 @@
 import pytest
 
 @pytest.mark.buildconfigspec('cmd_bootmenu')
-def test_bootmenu(u_boot_console):
+def test_bootmenu(ubman):
     """Test bootmenu
 
-    u_boot_console -- U-Boot console
+    ubman -- U-Boot console
     """
 
-    with u_boot_console.temporary_timeout(500):
-        u_boot_console.run_command('setenv bootmenu_default 1')
-        u_boot_console.run_command('setenv bootmenu_0 test 1=echo ok 1')
-        u_boot_console.run_command('setenv bootmenu_1 test 2=echo ok 2')
-        u_boot_console.run_command('setenv bootmenu_2 test 3=echo ok 3')
-        u_boot_console.run_command('bootmenu 2', wait_for_prompt=False)
+    with ubman.temporary_timeout(500):
+        ubman.run_command('setenv bootmenu_default 1')
+        ubman.run_command('setenv bootmenu_0 test 1=echo ok 1')
+        ubman.run_command('setenv bootmenu_1 test 2=echo ok 2')
+        ubman.run_command('setenv bootmenu_2 test 3=echo ok 3')
+        ubman.run_command('bootmenu 2', wait_for_prompt=False)
         for i in ('U-Boot Boot Menu', 'test 1', 'test 2', 'test 3', 'autoboot'):
-            u_boot_console.p.expect([i])
+            ubman.p.expect([i])
         # Press enter key to execute default entry
-        response = u_boot_console.run_command(cmd='\x0d', wait_for_echo=False, send_nl=False)
+        response = ubman.run_command(cmd='\x0d', wait_for_echo=False, send_nl=False)
         assert 'ok 2' in response
-        u_boot_console.run_command('bootmenu 2', wait_for_prompt=False)
-        u_boot_console.p.expect(['autoboot'])
+        ubman.run_command('bootmenu 2', wait_for_prompt=False)
+        ubman.p.expect(['autoboot'])
         # Press up key to select prior entry followed by the enter key
-        response = u_boot_console.run_command(cmd='\x1b\x5b\x41\x0d', wait_for_echo=False,
+        response = ubman.run_command(cmd='\x1b\x5b\x41\x0d', wait_for_echo=False,
                                               send_nl=False)
         assert 'ok 1' in response
-        u_boot_console.run_command('bootmenu 2', wait_for_prompt=False)
-        u_boot_console.p.expect(['autoboot'])
+        ubman.run_command('bootmenu 2', wait_for_prompt=False)
+        ubman.p.expect(['autoboot'])
         # Press down key to select next entry followed by the enter key
-        response = u_boot_console.run_command(cmd='\x1b\x5b\x42\x0d', wait_for_echo=False,
+        response = ubman.run_command(cmd='\x1b\x5b\x42\x0d', wait_for_echo=False,
                                               send_nl=False)
         assert 'ok 3' in response
-        u_boot_console.run_command('bootmenu 2; echo rc:$?', wait_for_prompt=False)
-        u_boot_console.p.expect(['autoboot'])
+        ubman.run_command('bootmenu 2; echo rc:$?', wait_for_prompt=False)
+        ubman.p.expect(['autoboot'])
         # Press the escape key
-        response = u_boot_console.run_command(cmd='\x1b', wait_for_echo=False, send_nl=False)
+        response = ubman.run_command(cmd='\x1b', wait_for_echo=False, send_nl=False)
         assert 'ok' not in response
         assert 'rc:0' in response
-        u_boot_console.run_command('setenv bootmenu_default')
-        u_boot_console.run_command('setenv bootmenu_0')
-        u_boot_console.run_command('setenv bootmenu_1')
-        u_boot_console.run_command('setenv bootmenu_2')
+        ubman.run_command('setenv bootmenu_default')
+        ubman.run_command('setenv bootmenu_0')
+        ubman.run_command('setenv bootmenu_1')
+        ubman.run_command('setenv bootmenu_2')

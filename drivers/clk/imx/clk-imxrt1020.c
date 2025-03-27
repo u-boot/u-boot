@@ -38,26 +38,26 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 	base = (void *)ofnode_get_addr(ofnode_by_compatible(ofnode_null(), "fsl,imxrt-anatop"));
 
 	clk_dm(IMXRT1020_CLK_PLL2_SYS,
-	       imx_clk_pllv3(IMX_PLLV3_GENERIC, "pll2_sys", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_GENERIC, "pll2_sys", "osc",
 			     base + 0x30, 0x1));
 	clk_dm(IMXRT1020_CLK_PLL3_USB_OTG,
-	       imx_clk_pllv3(IMX_PLLV3_USB, "pll3_usb_otg", "osc",
+	       imx_clk_pllv3(dev, IMX_PLLV3_USB, "pll3_usb_otg", "osc",
 			     base + 0x10, 0x1));
 
 	/* PLL bypass out */
 	clk_dm(IMXRT1020_CLK_PLL2_BYPASS,
-	       imx_clk_mux_flags("pll2_bypass", base + 0x30, 16, 1,
+	       imx_clk_mux_flags(dev, "pll2_bypass", base + 0x30, 16, 1,
 				 pll2_bypass_sels,
 				 ARRAY_SIZE(pll2_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 	clk_dm(IMXRT1020_CLK_PLL3_BYPASS,
-	       imx_clk_mux_flags("pll3_bypass", base + 0x10, 16, 1,
+	       imx_clk_mux_flags(dev, "pll3_bypass", base + 0x10, 16, 1,
 				 pll3_bypass_sels,
 				 ARRAY_SIZE(pll3_bypass_sels),
 				 CLK_SET_RATE_PARENT));
 
 	clk_dm(IMXRT1020_CLK_PLL3_80M,
-	       imx_clk_fixed_factor("pll3_80m",  "pll3_usb_otg",   1, 6));
+	       imx_clk_fixed_factor(dev, "pll3_80m",  "pll3_usb_otg",   1, 6));
 
 	clk_dm(IMXRT1020_CLK_PLL2_PFD0_352M,
 	       imx_clk_pfd("pll2_pfd0_352m", "pll2_sys", base + 0x100, 0));
@@ -78,51 +78,51 @@ static int imxrt1020_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	clk_dm(IMXRT1020_CLK_PRE_PERIPH_SEL,
-	       imx_clk_mux("pre_periph_sel", base + 0x18, 18, 2,
+	       imx_clk_mux(dev, "pre_periph_sel", base + 0x18, 18, 2,
 			   pre_periph_sels, ARRAY_SIZE(pre_periph_sels)));
 	clk_dm(IMXRT1020_CLK_PERIPH_SEL,
-	       imx_clk_mux("periph_sel", base + 0x14, 25, 1,
+	       imx_clk_mux(dev, "periph_sel", base + 0x14, 25, 1,
 			   periph_sels, ARRAY_SIZE(periph_sels)));
 	clk_dm(IMXRT1020_CLK_USDHC1_SEL,
-	       imx_clk_mux("usdhc1_sel", base + 0x1c, 16, 1,
+	       imx_clk_mux(dev, "usdhc1_sel", base + 0x1c, 16, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1020_CLK_USDHC2_SEL,
-	       imx_clk_mux("usdhc2_sel", base + 0x1c, 17, 1,
+	       imx_clk_mux(dev, "usdhc2_sel", base + 0x1c, 17, 1,
 			   usdhc_sels, ARRAY_SIZE(usdhc_sels)));
 	clk_dm(IMXRT1020_CLK_LPUART_SEL,
-	       imx_clk_mux("lpuart_sel", base + 0x24, 6, 1,
+	       imx_clk_mux(dev, "lpuart_sel", base + 0x24, 6, 1,
 			   lpuart_sels, ARRAY_SIZE(lpuart_sels)));
 	clk_dm(IMXRT1020_CLK_SEMC_ALT_SEL,
-	       imx_clk_mux("semc_alt_sel", base + 0x14, 7, 1,
+	       imx_clk_mux(dev, "semc_alt_sel", base + 0x14, 7, 1,
 			   semc_alt_sels, ARRAY_SIZE(semc_alt_sels)));
 	clk_dm(IMXRT1020_CLK_SEMC_SEL,
-	       imx_clk_mux("semc_sel", base + 0x14, 6, 1,
+	       imx_clk_mux(dev, "semc_sel", base + 0x14, 6, 1,
 			   semc_sels, ARRAY_SIZE(semc_sels)));
 
 	clk_dm(IMXRT1020_CLK_AHB_PODF,
-	       imx_clk_divider("ahb_podf", "periph_sel",
+	       imx_clk_divider(dev, "ahb_podf", "periph_sel",
 			       base + 0x14, 10, 3));
 	clk_dm(IMXRT1020_CLK_USDHC1_PODF,
-	       imx_clk_divider("usdhc1_podf", "usdhc1_sel",
+	       imx_clk_divider(dev, "usdhc1_podf", "usdhc1_sel",
 			       base + 0x24, 11, 3));
 	clk_dm(IMXRT1020_CLK_USDHC2_PODF,
-	       imx_clk_divider("usdhc2_podf", "usdhc2_sel",
+	       imx_clk_divider(dev, "usdhc2_podf", "usdhc2_sel",
 			       base + 0x24, 16, 3));
 	clk_dm(IMXRT1020_CLK_LPUART_PODF,
-	       imx_clk_divider("lpuart_podf", "lpuart_sel",
+	       imx_clk_divider(dev, "lpuart_podf", "lpuart_sel",
 			       base + 0x24, 0, 6));
 	clk_dm(IMXRT1020_CLK_SEMC_PODF,
-	       imx_clk_divider("semc_podf", "semc_sel",
+	       imx_clk_divider(dev, "semc_podf", "semc_sel",
 			       base + 0x14, 16, 3));
 
 	clk_dm(IMXRT1020_CLK_USDHC1,
-	       imx_clk_gate2("usdhc1", "usdhc1_podf", base + 0x80, 2));
+	       imx_clk_gate2(dev, "usdhc1", "usdhc1_podf", base + 0x80, 2));
 	clk_dm(IMXRT1020_CLK_USDHC2,
-	       imx_clk_gate2("usdhc2", "usdhc2_podf", base + 0x80, 4));
+	       imx_clk_gate2(dev, "usdhc2", "usdhc2_podf", base + 0x80, 4));
 	clk_dm(IMXRT1020_CLK_LPUART1,
-	       imx_clk_gate2("lpuart1", "lpuart_podf", base + 0x7c, 24));
+	       imx_clk_gate2(dev, "lpuart1", "lpuart_podf", base + 0x7c, 24));
 	clk_dm(IMXRT1020_CLK_SEMC,
-	       imx_clk_gate2("semc", "semc_podf", base + 0x74, 4));
+	       imx_clk_gate2(dev, "semc", "semc_podf", base + 0x74, 4));
 
 #ifdef CONFIG_XPL_BUILD
 	struct clk *clk, *clk1;

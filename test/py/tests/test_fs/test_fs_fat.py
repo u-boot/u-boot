@@ -14,12 +14,12 @@ import re
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.slow
 class TestFsFat(object):
-    def test_fs_fat1(self, u_boot_console, fs_obj_fat):
+    def test_fs_fat1(self, ubman, fs_obj_fat):
         """Test that `fstypes` prints a result which includes `sandbox`."""
         fs_type,fs_img = fs_obj_fat
-        with u_boot_console.log.section('Test Case 1 - fatinfo'):
+        with ubman.log.section('Test Case 1 - fatinfo'):
             # Test Case 1 - ls
-            output = u_boot_console.run_command_list([
+            output = ubman.run_command_list([
                 'host bind 0 %s' % fs_img,
                 'fatinfo host 0:0'])
             assert(re.search('Filesystem: %s' % fs_type.upper(), ''.join(output)))

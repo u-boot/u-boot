@@ -11,6 +11,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <linux/bitops.h>
+#include <linux/errno.h>
 
 /* Cache maintenance operation registers */
 
@@ -369,4 +370,9 @@ void enable_caches(void)
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	dcache_enable();
 #endif
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

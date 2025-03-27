@@ -105,6 +105,14 @@ config PWM_TEGRA
 	  32KHz clock is supported by the driver but the duty cycle is
 	  configurable.
 
+config PWM_STM32
+	bool "Enable support for STM32 PWM"
+	depends on DM_PWM && MFD_STM32_TIMERS
+	help
+	  This enables PWM driver for STMicroelectronics STM32 pulse width
+	  modulation. It uses STM32 timer devices that can have up to 4 output
+	  channels, with complementary outputs and configurable polarity.
+
 config PWM_SUNXI
 	bool "Enable support for the Allwinner Sunxi PWM"
 	depends on DM_PWM

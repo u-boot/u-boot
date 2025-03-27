@@ -117,7 +117,7 @@ const struct clk_ops clk_gate_ops = {
 	.get_rate = clk_generic_get_rate,
 };
 
-struct clk *clk_register_gate(struct device *dev, const char *name,
+struct clk *clk_register_gate(struct udevice *dev, const char *name,
 			      const char *parent_name, unsigned long flags,
 			      void __iomem *reg, u8 bit_idx,
 			      u8 clk_gate_flags, spinlock_t *lock)
@@ -149,7 +149,8 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 	clk = &gate->clk;
 	clk->flags = flags;
 
-	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name, parent_name);
+	ret = clk_register(clk, UBOOT_DM_CLK_GATE, name,
+		clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(gate);
 		return ERR_PTR(ret);

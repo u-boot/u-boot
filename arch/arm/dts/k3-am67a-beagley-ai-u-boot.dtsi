@@ -1,0 +1,270 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Common AM67A BeagleY-AI dts file for SPLs
+ *
+ * Copyright (C) 2024 Texas Instruments Incorporated - https://www.ti.com/
+ * Copyright (C) 2024 Robert Nelson, BeagleBoard.org Foundation
+ */
+
+#include "k3-binman.dtsi"
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &main_timer0;
+	};
+};
+
+&main_pktdma {
+	reg = <0x00 0x485c0000 0x00 0x100>,
+	      <0x00 0x4a800000 0x00 0x20000>,
+	      <0x00 0x4aa00000 0x00 0x40000>,
+	      <0x00 0x4b800000 0x00 0x400000>,
+	      <0x00 0x485e0000 0x00 0x20000>,
+	      <0x00 0x484a0000 0x00 0x4000>,
+	      <0x00 0x484c0000 0x00 0x2000>,
+	      <0x00 0x48430000 0x00 0x4000>;
+	reg-names = "gcfg", "rchanrt", "tchanrt", "ringrt",
+		    "cfg", "tchan", "rchan", "rflow";
+};
+
+&dmsc {
+	bootph-pre-ram;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		bootph-pre-ram;
+	};
+};
+
+&usbss0 {
+	bootph-pre-ram;
+};
+
+&usb0 {
+	dr_mode = "peripheral";
+	bootph-pre-ram;
+};
+
+&usbss1 {
+	status = "disabled";
+};
+
+&usb1 {
+	status = "disabled";
+};
+
+#if IS_ENABLED(CONFIG_TARGET_J722S_R5_BEAGLEY_AI)
+
+&binman {
+	tiboot3-j722s-hs-evm.bin {
+		filename = "tiboot3-j722s-hs-evm.bin";
+		ti-secure-rom {
+			content = <&u_boot_spl>, <&ti_fs_enc>, <&combined_tifs_cfg>,
+				  <&combined_dm_cfg>, <&sysfw_inner_cert>;
+			combined;
+			dm-data;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl>;
+			content-sysfw = <&ti_fs_enc>;
+			content-sysfw-data = <&combined_tifs_cfg>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert>;
+			content-dm-data = <&combined_dm_cfg>;
+			load = <0x43c00000>;
+			load-sysfw = <0x40000>;
+			load-sysfw-data = <0x67000>;
+			load-dm-data = <0x43c7a800>;
+		};
+
+		u_boot_spl: u-boot-spl {
+			no-expanded;
+		};
+
+		ti_fs_enc: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_tifs_cfg: combined-tifs-cfg.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+
+		sysfw_inner_cert: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_dm_cfg: combined-dm-cfg.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+
+&binman {
+	tiboot3-j722s-hs-fs-evm.bin {
+		filename = "tiboot3-j722s-hs-fs-evm.bin";
+		symlink = "tiboot3.bin";
+
+		ti-secure-rom {
+			content = <&u_boot_spl_fs>, <&ti_fs_enc_fs>, <&combined_tifs_cfg_fs>,
+				  <&combined_dm_cfg_fs>, <&sysfw_inner_cert_fs>;
+			combined;
+			dm-data;
+			sysfw-inner-cert;
+			keyfile = "custMpk.pem";
+			sw-rev = <1>;
+			content-sbl = <&u_boot_spl_fs>;
+			content-sysfw = <&ti_fs_enc_fs>;
+			content-sysfw-data = <&combined_tifs_cfg_fs>;
+			content-sysfw-inner-cert = <&sysfw_inner_cert_fs>;
+			content-dm-data = <&combined_dm_cfg_fs>;
+			load = <0x43c00000>;
+			load-sysfw = <0x40000>;
+			load-sysfw-data = <0x67000>;
+			load-dm-data = <0x43c7a800>;
+		};
+
+		u_boot_spl_fs: u-boot-spl {
+			no-expanded;
+		};
+
+		ti_fs_enc_fs: ti-fs-enc.bin {
+			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-fs-enc.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_tifs_cfg_fs: combined-tifs-cfg.bin {
+			filename = "combined-tifs-cfg.bin";
+			type = "blob-ext";
+		};
+
+		sysfw_inner_cert_fs: sysfw-inner-cert {
+			filename = "ti-sysfw/ti-fs-firmware-j722s-hs-fs-cert.bin";
+			type = "blob-ext";
+			optional;
+		};
+
+		combined_dm_cfg_fs: combined-dm-cfg.bin {
+			filename = "combined-dm-cfg.bin";
+			type = "blob-ext";
+		};
+	};
+};
+#endif /* CONFIG_TARGET_J722S_R5_BEAGLEY_AI */
+
+#if IS_ENABLED(CONFIG_TARGET_J722S_A53_BEAGLEY_AI)
+
+#define SPL_BEAGLEY_AI_DTB "spl/dts/ti/k3-am67a-beagley-ai.dtb"
+#define BEAGLEY_AI_DTB "u-boot.dtb"
+
+&binman {
+	ti-dm {
+		filename = "ti-dm.bin";
+
+		blob-ext {
+			filename = "ti-dm/j722s/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
+		};
+	};
+
+	ti-spl {
+		insert-template = <&ti_spl_template>;
+
+		fit {
+			images {
+				dm {
+					ti-secure {
+						content = <&dm>;
+						keyfile = "custMpk.pem";
+					};
+
+					dm: ti-dm {
+						filename = "ti-dm.bin";
+					};
+				};
+
+				fdt-0 {
+					description = "k3-am67a-beagley-ai";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					ti-secure {
+						content = <&spl_beagley_ai_dtb>;
+						keyfile = "custMpk.pem";
+					};
+
+					spl_beagley_ai_dtb: blob-ext {
+						filename = "spl/dts/ti/k3-am67a-beagley-ai.dtb";
+					};
+
+				};
+
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-am67a-beagley-ai";
+					firmware = "atf";
+					loadables = "tee", "dm", "spl";
+					fdt = "fdt-0";
+				};
+			};
+		};
+	};
+};
+
+&binman {
+	u-boot {
+		insert-template = <&u_boot_template>;
+
+		fit {
+			images {
+				uboot {
+					description = "U-Boot for BeagleY-AI";
+				};
+
+				fdt-0 {
+					description = "k3-am67a-beagley-ai";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+
+					ti-secure {
+						content = <&beagley_ai_dtb>;
+						keyfile = "custMpk.pem";
+					};
+
+					beagley_ai_dtb: blob-ext {
+						filename = "u-boot.dtb";
+					};
+
+					hash {
+						algo = "crc32";
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "k3-k3-am67a-beagley-ai";
+					firmware = "uboot";
+					loadables = "uboot";
+					fdt = "fdt-0";
+				};
+
+			};
+		};
+	};
+};
+#endif /* CONFIG_TARGET_J722S_A53_BEAGLEY_AI */

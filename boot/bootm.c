@@ -146,7 +146,7 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
 	buf = map_sysmem(img_addr, 0);
-	switch (genimg_get_format(buf)) {
+	switch (genimg_get_format_comp(buf)) {
 #if CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		printf("## Booting kernel from Legacy Image at %08lx ...\n",
@@ -227,6 +227,9 @@ static int boot_get_kernel(const char *addr_fit, struct bootm_headers *images,
 		break;
 	}
 #endif
+	case IMAGE_FORMAT_BOOTI:
+		*os_data = img_addr;
+		break;
 	default:
 		bootstage_error(BOOTSTAGE_ID_CHECK_IMAGETYPE);
 		return -EPROTOTYPE;
@@ -284,6 +287,35 @@ static int bootm_pre_load(const char *addr_str)
 		ret = CMD_RET_FAILURE;
 
 	return ret;
+}
+
+static int found_booti_os(enum image_comp_t comp)
+{
+	images.os.load = images.os.image_start;
+	images.os.type = IH_TYPE_KERNEL;
+	images.os.os = IH_OS_LINUX;
+	images.os.comp = comp;
+	if (IS_ENABLED(CONFIG_RISCV_SMODE))
+		images.os.arch = IH_ARCH_RISCV;
+	else if (IS_ENABLED(CONFIG_ARM64))
+		images.os.arch = IH_ARCH_ARM64;
+
+	log_debug("load %lx start %lx len %lx ep %lx os %x comp %x\n",
+		  images.os.load, images.os.image_start, images.os.image_len,
+		  images.ep, images.os.os, images.os.comp);
+	if (comp != IH_COMP_NONE) {
+		images.os.load = env_get_hex("kernel_comp_addr_r", 0);
+		images.os.image_len = env_get_ulong("kernel_comp_size", 16, 0);
+		if (!images.os.load || !images.os.image_len) {
+			puts("kernel_comp_addr_r or kernel_comp_size is not provided!\n");
+			return -ENOTSUPP;
+		}
+		if (lmb_reserve(images.os.load, images.os.image_len, LMB_NONE)
+		    < 0)
+			return -EXDEV;
+	}
+
+	return 0;
 }
 
 /**
@@ -390,7 +422,28 @@ static int bootm_find_os(const char *cmd_name, const char *addr_fit)
 		}
 		break;
 #endif
+	case IMAGE_FORMAT_BOOTI:
+		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+			if (found_booti_os(IH_COMP_NONE))
+				return 1;
+			ep_found = true;
+			break;
+		}
+		fallthrough;
 	default:
+		/* any compressed image is probably a booti image */
+		if (IS_ENABLED(CONFIG_CMD_BOOTI)) {
+			int comp;
+
+			comp = image_decomp_type(os_hdr, 2);
+			if (comp != IH_COMP_NONE) {
+				if (found_booti_os(comp))
+					return 1;
+				ep_found = true;
+			}
+			break;
+		}
+
 		puts("ERROR: unknown image format type!\n");
 		return 1;
 	}
@@ -541,6 +594,7 @@ int bootm_find_images(ulong img_addr, const char *conf_ramdisk,
 static int bootm_find_other(ulong img_addr, const char *conf_ramdisk,
 			    const char *conf_fdt)
 {
+	log_debug("find_other type %x os %x\n", images.os.type, images.os.os);
 	if ((images.os.type == IH_TYPE_KERNEL ||
 	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
 	     images.os.type == IH_TYPE_MULTI) &&
@@ -629,15 +683,17 @@ static int bootm_load_os(struct bootm_headers *images, int boot_progress)
 		debug("Allocated %lx bytes at %lx for kernel (size %lx) decompression\n",
 		      req_size, load, image_len);
 	}
+	log_debug("load_os load %lx image_start %lx image_len %lx\n", load,
+		  image_start, image_len);
 
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
 	err = image_decomp(os.comp, load, os.image_start, os.type,
-			   load_buf, image_buf, image_len,
-			   CONFIG_SYS_BOOTM_LEN, &load_end);
+			   load_buf, image_buf, image_len, bootm_len(),
+			   &load_end);
 	if (err) {
-		err = handle_decomp_error(os.comp, load_end - load,
-					  CONFIG_SYS_BOOTM_LEN, err);
+		err = handle_decomp_error(os.comp, load_end - load, bootm_len(),
+					  err);
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
@@ -1110,6 +1166,10 @@ int boot_run(struct bootm_info *bmi, const char *cmd, int extra_states)
 		states |= BOOTM_STATE_RAMDISK;
 	states |= extra_states;
 
+	log_debug("cmd '%s' states %x addr_img '%s' conf_ramdisk '%s' conf_fdt '%s' images %p\n",
+		  cmd, states, bmi->addr_img, bmi->conf_ramdisk, bmi->conf_fdt,
+		  bmi->images);
+
 	return bootm_run_states(bmi, states);
 }
 
@@ -1127,7 +1187,9 @@ int bootz_run(struct bootm_info *bmi)
 
 int booti_run(struct bootm_info *bmi)
 {
-	return boot_run(bmi, "booti", 0);
+	return boot_run(bmi, "booti", BOOTM_STATE_START | BOOTM_STATE_FINDOS |
+			BOOTM_STATE_PRE_LOAD | BOOTM_STATE_FINDOTHER |
+			BOOTM_STATE_LOADOS);
 }
 
 int bootm_boot_start(ulong addr, const char *cmdline)
@@ -1166,7 +1228,8 @@ void bootm_init(struct bootm_info *bmi)
 {
 	memset(bmi, '\0', sizeof(struct bootm_info));
 	bmi->boot_progress = true;
-	if (IS_ENABLED(CONFIG_CMD_BOOTM))
+	if (IS_ENABLED(CONFIG_CMD_BOOTM) || IS_ENABLED(CONFIG_CMD_BOOTZ) ||
+	    IS_ENABLED(CONFIG_CMD_BOOTI) || IS_ENABLED(CONFIG_PXE_UTILS))
 		bmi->images = &images;
 }
 

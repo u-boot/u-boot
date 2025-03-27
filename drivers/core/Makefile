@@ -16,6 +16,6 @@ ifndef CONFIG_DM_DEV_READ_INLINE
 obj-$(CONFIG_OF_CONTROL) += read.o
 endif
 obj-$(CONFIG_$(XPL_)OF_PLATDATA) += read.o
-obj-$(CONFIG_OF_CONTROL) += of_extra.o ofnode.o read_extra.o
+obj-$(CONFIG_OF_CONTROL) += of_extra.o ofnode.o read_extra.o ofnode_graph.o
 
 ccflags-$(CONFIG_DM_DEBUG) += -DDEBUG

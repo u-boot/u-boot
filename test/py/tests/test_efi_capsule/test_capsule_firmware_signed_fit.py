@@ -36,7 +36,7 @@ class TestEfiCapsuleFirmwareSignedFit():
     """
 
     def test_efi_capsule_auth1(
-            self, u_boot_config, u_boot_console, efi_capsule_data):
+            self, u_boot_config, ubman, efi_capsule_data):
         """Test Case 1
         Update U-Boot on SPI Flash, FIT image format
         x150000: U-Boot binary (but dummy)
@@ -46,25 +46,25 @@ class TestEfiCapsuleFirmwareSignedFit():
         """
         disk_img = efi_capsule_data
         capsule_files = ['Test13']
-        with u_boot_console.log.section('Test Case 1-a, before reboot'):
-            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
-            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
-            place_capsule_file(u_boot_console, capsule_files)
+        with ubman.log.section('Test Case 1-a, before reboot'):
+            capsule_setup(ubman, disk_img, '0x0000000000000004')
+            init_content(ubman, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(ubman, capsule_files)
 
-        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
+        do_reboot_dtb_specified(u_boot_config, ubman, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
-        with u_boot_console.log.section('Test Case 1-b, after reboot'):
+        with ubman.log.section('Test Case 1-b, after reboot'):
             if not capsule_early:
-                exec_manual_update(u_boot_console, disk_img, capsule_files)
+                exec_manual_update(ubman, disk_img, capsule_files)
 
-            check_file_removed(u_boot_console, disk_img, capsule_files)
+            check_file_removed(ubman, disk_img, capsule_files)
 
-            verify_content(u_boot_console, '100000', 'u-boot:New')
+            verify_content(ubman, '100000', 'u-boot:New')
 
     def test_efi_capsule_auth2(
-            self, u_boot_config, u_boot_console, efi_capsule_data):
+            self, u_boot_config, ubman, efi_capsule_data):
         """Test Case 2
         Update U-Boot on SPI Flash, FIT image format
         0x100000-0x150000: U-Boot binary (but dummy)
@@ -75,28 +75,28 @@ class TestEfiCapsuleFirmwareSignedFit():
         """
         disk_img = efi_capsule_data
         capsule_files = ['Test14']
-        with u_boot_console.log.section('Test Case 2-a, before reboot'):
-            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
-            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
-            place_capsule_file(u_boot_console, capsule_files)
+        with ubman.log.section('Test Case 2-a, before reboot'):
+            capsule_setup(ubman, disk_img, '0x0000000000000004')
+            init_content(ubman, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(ubman, capsule_files)
 
-        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
+        do_reboot_dtb_specified(u_boot_config, ubman, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
-        with u_boot_console.log.section('Test Case 2-b, after reboot'):
+        with ubman.log.section('Test Case 2-b, after reboot'):
             if not capsule_early:
-                exec_manual_update(u_boot_console, disk_img, capsule_files)
+                exec_manual_update(ubman, disk_img, capsule_files)
 
             # deleted any way
-            check_file_removed(u_boot_console, disk_img, capsule_files)
+            check_file_removed(ubman, disk_img, capsule_files)
 
             # TODO: check CapsuleStatus in CapsuleXXXX
 
-            verify_content(u_boot_console, '100000', 'u-boot:Old')
+            verify_content(ubman, '100000', 'u-boot:Old')
 
     def test_efi_capsule_auth3(
-            self, u_boot_config, u_boot_console, efi_capsule_data):
+            self, u_boot_config, ubman, efi_capsule_data):
         """Test Case 3
         Update U-Boot on SPI Flash, FIT image format
         0x100000-0x150000: U-Boot binary (but dummy)
@@ -106,28 +106,28 @@ class TestEfiCapsuleFirmwareSignedFit():
         """
         disk_img = efi_capsule_data
         capsule_files = ['Test02']
-        with u_boot_console.log.section('Test Case 3-a, before reboot'):
-            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
-            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
-            place_capsule_file(u_boot_console, capsule_files)
+        with ubman.log.section('Test Case 3-a, before reboot'):
+            capsule_setup(ubman, disk_img, '0x0000000000000004')
+            init_content(ubman, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(ubman, capsule_files)
 
-        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_sig.dtb')
+        do_reboot_dtb_specified(u_boot_config, ubman, 'test_sig.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
-        with u_boot_console.log.section('Test Case 3-b, after reboot'):
+        with ubman.log.section('Test Case 3-b, after reboot'):
             if not capsule_early:
-                exec_manual_update(u_boot_console, disk_img, capsule_files)
+                exec_manual_update(ubman, disk_img, capsule_files)
 
             # deleted any way
-            check_file_removed(u_boot_console, disk_img, capsule_files)
+            check_file_removed(ubman, disk_img, capsule_files)
 
             # TODO: check CapsuleStatus in CapsuleXXXX
 
-            verify_content(u_boot_console, '100000', 'u-boot:Old')
+            verify_content(ubman, '100000', 'u-boot:Old')
 
     def test_efi_capsule_auth4(
-            self, u_boot_config, u_boot_console, efi_capsule_data):
+            self, u_boot_config, ubman, efi_capsule_data):
         """Test Case 4 - Update U-Boot on SPI Flash, raw image format with version information
         0x100000-0x150000: U-Boot binary (but dummy)
 
@@ -136,22 +136,22 @@ class TestEfiCapsuleFirmwareSignedFit():
         """
         disk_img = efi_capsule_data
         capsule_files = ['Test114']
-        with u_boot_console.log.section('Test Case 4-a, before reboot'):
-            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
-            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
-            place_capsule_file(u_boot_console, capsule_files)
+        with ubman.log.section('Test Case 4-a, before reboot'):
+            capsule_setup(ubman, disk_img, '0x0000000000000004')
+            init_content(ubman, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(ubman, capsule_files)
 
-        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_ver.dtb')
+        do_reboot_dtb_specified(u_boot_config, ubman, 'test_ver.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
-        with u_boot_console.log.section('Test Case 4-b, after reboot'):
+        with ubman.log.section('Test Case 4-b, after reboot'):
             if not capsule_early:
-                exec_manual_update(u_boot_console, disk_img, capsule_files)
+                exec_manual_update(ubman, disk_img, capsule_files)
 
-            check_file_removed(u_boot_console, disk_img, capsule_files)
+            check_file_removed(ubman, disk_img, capsule_files)
 
-            output = u_boot_console.run_command_list([
+            output = ubman.run_command_list([
                 'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;'
                 'u-boot-env raw 0x150000 0x200000"',
                 'efidebug capsule esrt'])
@@ -161,11 +161,11 @@ class TestEfiCapsuleFirmwareSignedFit():
             assert 'ESRT: fw_version=5' in ''.join(output)
             assert 'ESRT: lowest_supported_fw_version=3' in ''.join(output)
 
-            verify_content(u_boot_console, '100000', 'u-boot:New')
-            verify_content(u_boot_console, '150000', 'u-boot-env:New')
+            verify_content(ubman, '100000', 'u-boot:New')
+            verify_content(ubman, '150000', 'u-boot-env:New')
 
     def test_efi_capsule_auth5(
-            self, u_boot_config, u_boot_console, efi_capsule_data):
+            self, u_boot_config, ubman, efi_capsule_data):
         """Test Case 5 - Update U-Boot on SPI Flash, raw image format with version information
         0x100000-0x150000: U-Boot binary (but dummy)
 
@@ -175,19 +175,19 @@ class TestEfiCapsuleFirmwareSignedFit():
         """
         disk_img = efi_capsule_data
         capsule_files = ['Test115']
-        with u_boot_console.log.section('Test Case 5-a, before reboot'):
-            capsule_setup(u_boot_console, disk_img, '0x0000000000000004')
-            init_content(u_boot_console, '100000', 'u-boot.bin.old', 'Old')
-            place_capsule_file(u_boot_console, capsule_files)
+        with ubman.log.section('Test Case 5-a, before reboot'):
+            capsule_setup(ubman, disk_img, '0x0000000000000004')
+            init_content(ubman, '100000', 'u-boot.bin.old', 'Old')
+            place_capsule_file(ubman, capsule_files)
 
-        do_reboot_dtb_specified(u_boot_config, u_boot_console, 'test_ver.dtb')
+        do_reboot_dtb_specified(u_boot_config, ubman, 'test_ver.dtb')
 
         capsule_early = u_boot_config.buildconfig.get(
             'config_efi_capsule_on_disk_early')
-        with u_boot_console.log.section('Test Case 5-b, after reboot'):
+        with ubman.log.section('Test Case 5-b, after reboot'):
             if not capsule_early:
-                exec_manual_update(u_boot_console, disk_img, capsule_files)
+                exec_manual_update(ubman, disk_img, capsule_files)
 
-            check_file_removed(u_boot_console, disk_img, capsule_files)
+            check_file_removed(ubman, disk_img, capsule_files)
 
-            verify_content(u_boot_console, '100000', 'u-boot:Old')
+            verify_content(ubman, '100000', 'u-boot:Old')

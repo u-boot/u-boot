@@ -42,12 +42,12 @@ import os
 import shutil
 import struct
 import pytest
-import u_boot_utils as util
+import utils
 import vboot_forge
 import vboot_evil
 
 # Common helper functions
-def dtc(dts, cons, dtc_args, datadir, tmpdir, dtb):
+def dtc(dts, ubman, dtc_args, datadir, tmpdir, dtb):
     """Run the device tree compiler to compile a .dts file
 
     The output file will be the same as the input file but with a .dtb
@@ -55,31 +55,31 @@ def dtc(dts, cons, dtc_args, datadir, tmpdir, dtb):
 
     Args:
         dts: Device tree file to compile.
-        cons: U-Boot console.
+        ubman: U-Boot console.
         dtc_args: DTC arguments.
         datadir: Path to data directory.
         tmpdir: Path to temp directory.
         dtb: Resulting DTB file.
     """
     dtb = dts.replace('.dts', '.dtb')
-    util.run_and_log(cons, 'dtc %s %s%s -O dtb '
-                     '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
+    utils.run_and_log(ubman, 'dtc %s %s%s -O dtb '
+                      '-o %s%s' % (dtc_args, datadir, dts, tmpdir, dtb))
 
-def make_fit(its, cons, mkimage, dtc_args, datadir, fit):
+def make_fit(its, ubman, mkimage, dtc_args, datadir, fit):
     """Make a new FIT from the .its source file.
 
     This runs 'mkimage -f' to create a new FIT.
 
     Args:
         its: Filename containing .its source.
-        cons: U-Boot console.
+        ubman: U-Boot console.
         mkimage: Path to mkimage utility.
         dtc_args: DTC arguments.
         datadir: Path to data directory.
         fit: Resulting FIT file.
     """
-    util.run_and_log(cons, [mkimage, '-D', dtc_args, '-f',
-                            '%s%s' % (datadir, its), fit])
+    utils.run_and_log(ubman, [mkimage, '-D', dtc_args, '-f',
+                             '%s%s' % (datadir, its), fit])
 
 # Only run the full suite on a few combinations, since it doesn't add any more
 # test coverage.
@@ -113,7 +113,7 @@ TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
 @pytest.mark.requiredtool('openssl')
 @pytest.mark.parametrize("name,sha_algo,padding,sign_options,required,full_test,algo_arg,global_sign",
                          TESTDATA)
-def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
+def test_vboot(ubman, name, sha_algo, padding, sign_options, required,
                full_test, algo_arg, global_sign):
     """Test verified boot signing with mkimage and verification with 'bootm'.
 
@@ -134,8 +134,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             options: Options provided to the compiler.
         """
         dtb = dts.replace('.dts', '.dtb')
-        util.run_and_log(cons, 'dtc %s %s%s -O dtb '
-                         '-o %s%s %s' % (dtc_args, datadir, dts, tmpdir, dtb, options))
+        utils.run_and_log(ubman, 'dtc %s %s%s -O dtb -o %s%s %s' %
+                          (dtc_args, datadir, dts, tmpdir, dtb, options))
 
     def run_binman(dtb):
         """Run binman to build an image
@@ -145,9 +145,9 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         """
         pythonpath = os.environ.get('PYTHONPATH', '')
         os.environ['PYTHONPATH'] = pythonpath + ':' + '%s/../scripts/dtc/pylibfdt' % tmpdir
-        util.run_and_log(cons, [binman, 'build', '-d', "%s/%s" % (tmpdir,dtb),
-                                '-a', "pre-load-key-path=%s" % tmpdir, '-O',
-                                tmpdir, '-I', tmpdir])
+        utils.run_and_log(ubman, [binman, 'build', '-d', "%s/%s" % (tmpdir,dtb),
+                                 '-a', "pre-load-key-path=%s" % tmpdir, '-O',
+                                 tmpdir, '-I', tmpdir])
         os.environ['PYTHONPATH'] = pythonpath
 
     def run_bootm(sha_algo, test_type, expect_string, boots, fit=None):
@@ -167,9 +167,9 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         """
         if not fit:
             fit = '%stest.fit' % tmpdir
-        cons.restart_uboot()
-        with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
-            output = cons.run_command_list(
+        ubman.restart_uboot()
+        with ubman.log.section('Verified boot %s %s' % (sha_algo, test_type)):
+            output = ubman.run_command_list(
                 ['host load hostfs - 100 %s' % fit,
                  'fdt addr 100',
                  'bootm 100'])
@@ -194,8 +194,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         args = [mkimage, '-F', '-k', tmpdir, '-K', dtb, '-r', fit]
         if options:
             args += options.split(' ')
-        cons.log.action('%s: Sign images' % sha_algo)
-        util.run_and_log(cons, args)
+        ubman.log.action('%s: Sign images' % sha_algo)
+        utils.run_and_log(ubman, args)
 
     def sign_fit_dtb(sha_algo, options, dtb):
         """Sign the FIT
@@ -211,8 +211,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         args = [mkimage, '-F', '-k', tmpdir, '-K', dtb, '-r', fit]
         if options:
             args += options.split(' ')
-        cons.log.action('%s: Sign images' % sha_algo)
-        util.run_and_log(cons, args)
+        ubman.log.action('%s: Sign images' % sha_algo)
+        utils.run_and_log(ubman, args)
 
     def sign_fit_norequire(sha_algo, options):
         """Sign the FIT
@@ -228,8 +228,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         args = [mkimage, '-F', '-k', tmpdir, '-K', dtb, fit]
         if options:
             args += options.split(' ')
-        cons.log.action('%s: Sign images' % sha_algo)
-        util.run_and_log(cons, args)
+        ubman.log.action('%s: Sign images' % sha_algo)
+        utils.run_and_log(ubman, args)
 
     def replace_fit_totalsize(size):
         """Replace FIT header's totalsize with something greater.
@@ -278,14 +278,14 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         else:
             rsa_keygen_bits = 2048
 
-        util.run_and_log(cons, 'openssl genpkey -algorithm RSA -out %s%s.key '
+        utils.run_and_log(ubman, 'openssl genpkey -algorithm RSA -out %s%s.key '
                      '-pkeyopt rsa_keygen_bits:%d '
                      '-pkeyopt rsa_keygen_pubexp:%d' %
                      (tmpdir, name, rsa_keygen_bits, public_exponent))
 
         # Create a certificate containing the public key
-        util.run_and_log(cons, 'openssl req -batch -new -x509 -key %s%s.key '
-                         '-out %s%s.crt' % (tmpdir, name, tmpdir, name))
+        utils.run_and_log(ubman, 'openssl req -batch -new -x509 -key %s%s.key '
+                          '-out %s%s.crt' % (tmpdir, name, tmpdir, name))
 
     def test_with_algo(sha_algo, padding, sign_options):
         """Test verified boot with the given hash algorithm.
@@ -303,12 +303,12 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
-        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-kernel.dts', ubman, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', ubman, dtc_args, datadir, tmpdir, dtb)
 
         # Build the FIT, but don't sign anything yet
-        cons.log.action('%s: Test FIT with signed images' % sha_algo)
-        make_fit('sign-images-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        ubman.log.action('%s: Test FIT with signed images' % sha_algo)
+        make_fit('sign-images-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         run_bootm(sha_algo, 'unsigned images', ' - OK' if algo_arg else 'dev-', True)
 
         # Sign images with our dev keys
@@ -316,19 +316,19 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         run_bootm(sha_algo, 'signed images', 'dev+', True)
 
         # Create a fresh .dtb without the public keys
-        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', ubman, dtc_args, datadir, tmpdir, dtb)
 
-        cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        ubman.log.action('%s: Test FIT with signed configuration' % sha_algo)
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         run_bootm(sha_algo, 'unsigned config', '%s+ OK' % ('sha256' if algo_arg else sha_algo), True)
 
         # Sign images with our dev keys
         sign_fit(sha_algo, sign_options)
         run_bootm(sha_algo, 'signed config', 'dev+', True)
 
-        cons.log.action('%s: Check signed config on the host' % sha_algo)
+        ubman.log.action('%s: Check signed config on the host' % sha_algo)
 
-        util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
+        utils.run_and_log(ubman, [fit_check_sign, '-f', fit, '-k', dtb])
 
         if full_test:
             # Make sure that U-Boot checks that the config is in the list of
@@ -340,8 +340,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             root, strblock = vboot_forge.manipulate(root, strblock)
             with open(ffit, 'w+b') as fd:
                 vboot_forge.write_fdt(root, strblock, fd)
-            util.run_and_log_expect_exception(
-                cons, [fit_check_sign, '-f', ffit, '-k', dtb],
+            utils.run_and_log_expect_exception(
+                ubman, [fit_check_sign, '-f', ffit, '-k', dtb],
                 1, 'Failed to verify required signature')
 
             run_bootm(sha_algo, 'forged config', 'Bad Data Hash', False, ffit)
@@ -351,8 +351,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             shutil.copyfile(fit, efit)
             vboot_evil.add_evil_node(fit, efit, evil_kernel, 'fakeroot')
 
-            util.run_and_log_expect_exception(
-                cons, [fit_check_sign, '-f', efit, '-k', dtb],
+            utils.run_and_log_expect_exception(
+                ubman, [fit_check_sign, '-f', efit, '-k', dtb],
                 1, 'Failed to verify required signature')
             run_bootm(sha_algo, 'evil fakeroot', 'Bad FIT kernel image format',
                       False, efit)
@@ -363,42 +363,42 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             vboot_evil.add_evil_node(fit, efit, evil_kernel, 'kernel@')
 
             msg = 'Signature checking prevents use of unit addresses (@) in nodes'
-            util.run_and_log_expect_exception(
-                cons, [fit_check_sign, '-f', efit, '-k', dtb],
+            utils.run_and_log_expect_exception(
+                ubman, [fit_check_sign, '-f', efit, '-k', dtb],
                 1, msg)
             run_bootm(sha_algo, 'evil kernel@', msg, False, efit)
 
         # Create a new properly signed fit and replace header bytes
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
-        bcfg = u_boot_console.config.buildconfig
+        bcfg = ubman.config.buildconfig
         max_size = int(bcfg.get('config_fit_signature_max_size', 0x10000000), 0)
         existing_size = replace_fit_totalsize(max_size + 1)
         run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash',
                   False)
-        cons.log.action('%s: Check overflowed FIT header totalsize' % sha_algo)
+        ubman.log.action('%s: Check overflowed FIT header totalsize' % sha_algo)
 
         # Replace with existing header bytes
         replace_fit_totalsize(existing_size)
         run_bootm(sha_algo, 'signed config', 'dev+', True)
-        cons.log.action('%s: Check default FIT header totalsize' % sha_algo)
+        ubman.log.action('%s: Check default FIT header totalsize' % sha_algo)
 
         # Increment the first byte of the signature, which should cause failure
-        sig = util.run_and_log(cons, 'fdtget -t bx %s %s value' %
-                               (fit, sig_node))
+        sig = utils.run_and_log(ubman, 'fdtget -t bx %s %s value' %
+                                (fit, sig_node))
         byte_list = sig.split()
         byte = int(byte_list[0], 16)
         byte_list[0] = '%x' % (byte + 1)
         sig = ' '.join(byte_list)
-        util.run_and_log(cons, 'fdtput -t bx %s %s value %s' %
-                         (fit, sig_node, sig))
+        utils.run_and_log(ubman, 'fdtput -t bx %s %s value %s' %
+                          (fit, sig_node, sig))
 
         run_bootm(sha_algo, 'Signed config with bad hash', 'Bad Data Hash',
                   False)
 
-        cons.log.action('%s: Check bad config on the host' % sha_algo)
-        util.run_and_log_expect_exception(
-            cons, [fit_check_sign, '-f', fit, '-k', dtb],
+        ubman.log.action('%s: Check bad config on the host' % sha_algo)
+        utils.run_and_log_expect_exception(
+            ubman, [fit_check_sign, '-f', fit, '-k', dtb],
             1, 'Failed to verify required signature')
 
     def test_required_key(sha_algo, padding, sign_options):
@@ -416,19 +416,19 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
-        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-kernel.dts', ubman, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', ubman, dtc_args, datadir, tmpdir, dtb)
 
-        cons.log.action('%s: Test FIT with configs images' % sha_algo)
+        ubman.log.action('%s: Test FIT with configs images' % sha_algo)
 
         # Build the FIT with prod key (keys required) and sign it. This puts the
         # signature into sandbox-u-boot.dtb, marked 'required'
-        make_fit('sign-configs-%s%s-prod.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        make_fit('sign-configs-%s%s-prod.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
 
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         sign_fit_norequire(sha_algo, sign_options)
 
         # So now sandbox-u-boot.dtb two signatures, for the prod and dev keys.
@@ -440,7 +440,7 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
 
         # Build the FIT with dev key (keys required) and sign it. This puts the
         # signature into sandbox-u-boot.dtb, marked 'required'.
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
         sign_fit(sha_algo, sign_options)
 
         # Set the required-mode policy to "any".
@@ -449,8 +449,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # a dev signature only (sign_fit() overwrites the FIT).
         # Try to boot the FIT with dev key. This FIT should be accepted by
         # U-Boot because the dev key is required and policy is "any" required key.
-        util.run_and_log(cons, 'fdtput -t s %s /signature required-mode any' %
-                         (dtb))
+        utils.run_and_log(ubman, 'fdtput -t s %s /signature required-mode any' %
+                          dtb)
         run_bootm(sha_algo, 'multi required key', 'dev+', True)
 
         # Set the required-mode policy to "all".
@@ -459,8 +459,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # a dev signature only (sign_fit() overwrites the FIT).
         # Try to boot the FIT with dev key. This FIT should not be accepted by
         # U-Boot because the prod key is required and policy is "all" required key
-        util.run_and_log(cons, 'fdtput -t s %s /signature required-mode all' %
-                         (dtb))
+        utils.run_and_log(ubman, 'fdtput -t s %s /signature required-mode all' %
+                          dtb)
         run_bootm(sha_algo, 'multi required key', '', False)
 
     def test_global_sign(sha_algo, padding, sign_options):
@@ -473,22 +473,22 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         """
 
         dtb = '%ssandbox-u-boot-global%s.dtb' % (tmpdir, padding)
-        cons.config.dtb = dtb
+        ubman.config.dtb = dtb
 
         # Compile our device tree files for kernel and U-Boot. These are
         # regenerated here since mkimage will modify them (by adding a
         # public key) below.
-        dtc('sandbox-kernel.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-kernel.dts', ubman, dtc_args, datadir, tmpdir, dtb)
         dtc_options('sandbox-u-boot-global%s.dts' % padding, '-p 1024')
 
         # Build the FIT with dev key (keys NOT required). This adds the
         # signature into sandbox-u-boot.dtb, NOT marked 'required'.
-        make_fit('simple-images.its', cons, mkimage, dtc_args, datadir, fit)
+        make_fit('simple-images.its', ubman, mkimage, dtc_args, datadir, fit)
         sign_fit_dtb(sha_algo, '', dtb)
 
         # Build the dtb for binman that define the pre-load header
         # with the global sigature.
-        dtc('sandbox-binman%s.dts' % padding, cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-binman%s.dts' % padding, ubman, dtc_args, datadir, tmpdir, dtb)
 
         # Run binman to create the final image with the not signed fit
         # and the pre-load header that contains the global signature.
@@ -508,15 +508,14 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
         # Check that the boot fails if the global signature is not provided
         run_bootm(sha_algo, 'global image signature', 'signature is mandatory', False)
 
-    cons = u_boot_console
-    tmpdir = os.path.join(cons.config.result_dir, name) + '/'
+    tmpdir = os.path.join(ubman.config.result_dir, name) + '/'
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
-    datadir = cons.config.source_dir + '/test/py/tests/vboot/'
+    datadir = ubman.config.source_dir + '/test/py/tests/vboot/'
     fit = '%stest.fit' % tmpdir
-    mkimage = cons.config.build_dir + '/tools/mkimage'
-    binman = cons.config.source_dir + '/tools/binman/binman'
-    fit_check_sign = cons.config.build_dir + '/tools/fit_check_sign'
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    binman = ubman.config.source_dir + '/tools/binman/binman'
+    fit_check_sign = ubman.config.build_dir + '/tools/fit_check_sign'
     dtc_args = '-I dts -O dtb -i %s' % tmpdir
     dtb = '%ssandbox-u-boot.dtb' % tmpdir
     sig_node = '/configurations/conf-1/signature'
@@ -535,9 +534,9 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
 
     # We need to use our own device tree file. Remember to restore it
     # afterwards.
-    old_dtb = cons.config.dtb
+    old_dtb = ubman.config.dtb
     try:
-        cons.config.dtb = dtb
+        ubman.config.dtb = dtb
         if global_sign:
             test_global_sign(sha_algo, padding, sign_options)
         elif required:
@@ -546,8 +545,8 @@ def test_vboot(u_boot_console, name, sha_algo, padding, sign_options, required,
             test_with_algo(sha_algo, padding, sign_options)
     finally:
         # Go back to the original U-Boot with the correct dtb.
-        cons.config.dtb = old_dtb
-        cons.restart_uboot()
+        ubman.config.dtb = old_dtb
+        ubman.restart_uboot()
 
 
 TESTDATA_IN = [
@@ -577,7 +576,7 @@ TESTDATA += [pytest.param(*v, marks=pytest.mark.slow) for v in TESTDATA_IN[1:]]
 @pytest.mark.requiredtool('dtc')
 @pytest.mark.requiredtool('openssl')
 @pytest.mark.parametrize("name,sha_algo,padding,sign_options,algo_arg", TESTDATA)
-def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, algo_arg):
+def test_fdt_add_pubkey(ubman, name, sha_algo, padding, sign_options, algo_arg):
     """Test fdt_add_pubkey utility with bunch of different algo options."""
 
     def sign_fit(sha_algo, options):
@@ -593,8 +592,8 @@ def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, a
         args = [mkimage, '-F', '-k', tmpdir, fit]
         if options:
             args += options.split(' ')
-        cons.log.action('%s: Sign images' % sha_algo)
-        util.run_and_log(cons, args)
+        ubman.log.action('%s: Sign images' % sha_algo)
+        utils.run_and_log(ubman, args)
 
     def test_add_pubkey(sha_algo, padding, sign_options):
         """Test fdt_add_pubkey utility with given hash algorithm and padding.
@@ -609,32 +608,33 @@ def test_fdt_add_pubkey(u_boot_console, name, sha_algo, padding, sign_options, a
         """
 
         # Create a fresh .dtb without the public keys
-        dtc('sandbox-u-boot.dts', cons, dtc_args, datadir, tmpdir, dtb)
+        dtc('sandbox-u-boot.dts', ubman, dtc_args, datadir, tmpdir, dtb)
 
-        cons.log.action('%s: Test fdt_add_pubkey with signed configuration' % sha_algo)
+        ubman.log.action('%s: Test fdt_add_pubkey with signed configuration' % sha_algo)
         # Then add the dev key via the fdt_add_pubkey tool
-        util.run_and_log(cons, [fdt_add_pubkey, '-a', '%s,%s' % ('sha256' if algo_arg else sha_algo, \
-                                'rsa3072' if sha_algo == 'sha384' else 'rsa2048'),
-                                '-k', tmpdir, '-n', 'dev', '-r', 'conf', dtb])
+        utils.run_and_log(ubman,
+                          [fdt_add_pubkey, '-a', '%s,%s' %
+                           ('sha256' if algo_arg else sha_algo,
+                            'rsa3072' if sha_algo == 'sha384' else 'rsa2048'),
+                           '-k', tmpdir, '-n', 'dev', '-r', 'conf', dtb])
 
-        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), cons, mkimage, dtc_args, datadir, fit)
+        make_fit('sign-configs-%s%s.its' % (sha_algo, padding), ubman, mkimage, dtc_args, datadir, fit)
 
         # Sign images with our dev keys
         sign_fit(sha_algo, sign_options)
 
         # Check with fit_check_sign that FIT is signed with key
-        util.run_and_log(cons, [fit_check_sign, '-f', fit, '-k', dtb])
+        utils.run_and_log(ubman, [fit_check_sign, '-f', fit, '-k', dtb])
 
-    cons = u_boot_console
-    tmpdir = os.path.join(cons.config.result_dir, name) + '/'
+    tmpdir = os.path.join(ubman.config.result_dir, name) + '/'
     if not os.path.exists(tmpdir):
         os.mkdir(tmpdir)
-    datadir = cons.config.source_dir + '/test/py/tests/vboot/'
+    datadir = ubman.config.source_dir + '/test/py/tests/vboot/'
     fit = '%stest.fit' % tmpdir
-    mkimage = cons.config.build_dir + '/tools/mkimage'
-    binman = cons.config.source_dir + '/tools/binman/binman'
-    fit_check_sign = cons.config.build_dir + '/tools/fit_check_sign'
-    fdt_add_pubkey = cons.config.build_dir + '/tools/fdt_add_pubkey'
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    binman = ubman.config.source_dir + '/tools/binman/binman'
+    fit_check_sign = ubman.config.build_dir + '/tools/fit_check_sign'
+    fdt_add_pubkey = ubman.config.build_dir + '/tools/fdt_add_pubkey'
     dtc_args = '-I dts -O dtb -i %s' % tmpdir
     dtb = '%ssandbox-u-boot.dtb' % tmpdir
 

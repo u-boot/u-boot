@@ -9,8 +9,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
-
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(32 * 1024 * 1024)
 

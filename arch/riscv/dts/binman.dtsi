@@ -82,8 +82,9 @@
 					};
 				};
 
-#ifndef CONFIG_OF_BOARD
+#if !defined(CONFIG_OF_BOARD) || defined(CONFIG_MULTI_DTB_FIT)
 				@fdt-SEQ {
+					fit,operation = "gen-fdt-nodes";
 					description = "NAME";
 					type = "flat_dt";
 					compression = "none";
@@ -92,9 +93,12 @@
 			};
 
 			configurations {
-				default = "conf-1";
 
-#ifndef CONFIG_OF_BOARD
+#ifndef CONFIG_MULTI_DTB_FIT
+				default = "conf-1";
+#endif
+
+#if !defined(CONFIG_OF_BOARD) || defined(CONFIG_MULTI_DTB_FIT)
 				@conf-SEQ {
 #else
 				conf-1 {
@@ -115,7 +119,7 @@
 #endif
 #endif /* CONFIG_OPTEE */
 
-#ifndef CONFIG_OF_BOARD
+#if !defined(CONFIG_OF_BOARD) || defined(CONFIG_MULTI_DTB_FIT)
 					fdt = "fdt-SEQ";
 #endif
 				};

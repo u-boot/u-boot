@@ -14,7 +14,7 @@
 #define UART_LCR	0xc
 #define LCR_DLAB	BIT(7)
 
-void board_set_console(void)
+int board_set_console(void)
 {
 	const unsigned long baudrate_table[] = CFG_SYS_BAUDRATE_TABLE;
 	struct udevice *dev = gd->cur_serial_dev;
@@ -28,12 +28,12 @@ void board_set_console(void)
 	int ret, i;
 
 	if (!dev)
-		return;
+		return -ENODEV;
 
 	uart_reg = dev_read_addr_ptr(dev);
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
-		return;
+		return ret;
 
 	uart_clk = clk_get_rate(&clk);
 	setbits_8(uart_reg + UART_LCR, LCR_DLAB);
@@ -67,4 +67,5 @@ void board_set_console(void)
 	snprintf(string, sizeof(string), "ttyS0,%un8", gd->baudrate);
 	env_set("console", string);
 
+	return 0;
 }

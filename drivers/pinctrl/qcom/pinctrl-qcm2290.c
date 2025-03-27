@@ -38,7 +38,7 @@ static const char *qcm2290_get_pin_name(struct udevice *dev, unsigned int select
 	return pin_name;
 }
 
-static unsigned int qcm2290_get_function_mux(__maybe_unused unsigned int pin, unsigned int selector)
+static int qcm2290_get_function_mux(__maybe_unused unsigned int pin, unsigned int selector)
 {
 	return msm_pinctrl_functions[selector].val;
 }

@@ -578,6 +578,10 @@ static const char * const tegra_pinctrl_to_drvgrp[] = {
 	[PMUX_DRVGRP_AO4] = "ao4",
 };
 
+static const char * const tegra_pinctrl_to_mipipadgrp[] = {
+	[PMUX_MIPIPADCTRLGRP_DSI_B] = "mipi_pad_ctrl_dsi_b",
+};
+
 static const char * const tegra_pinctrl_to_func[] = {
 	[PMUX_FUNC_DEFAULT] = "default",
 	[PMUX_FUNC_BLINK] = "blink",

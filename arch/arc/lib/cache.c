@@ -8,6 +8,7 @@
 #include <asm/global_data.h>
 #include <linux/bitops.h>
 #include <linux/compiler.h>
+#include <linux/errno.h>
 #include <linux/kernel.h>
 #include <linux/log2.h>
 #include <asm/arcregs.h>
@@ -818,4 +819,9 @@ void sync_n_cleanup_cache_all(void)
 	}
 
 	__ic_entire_invalidate();
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

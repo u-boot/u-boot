@@ -27,11 +27,11 @@ def original_md5sum(path):
 
     return checksum
 
-def uboot_md5sum(u_boot_console, address, count):
+def uboot_md5sum(ubman, address, count):
     """ Runs U-Boot's md5sum command.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
         address: address where the file was loaded (e.g.: $kernel_addr_r).
         count: file's size. It was named 'count' to match md5sum's respective
         argument name.
@@ -39,89 +39,89 @@ def uboot_md5sum(u_boot_console, address, count):
         The checksum of the file loaded with sqfsload as a string.
     """
 
-    out = u_boot_console.run_command('md5sum {} {}'.format(address, count))
+    out = ubman.run_command('md5sum {} {}'.format(address, count))
     checksum = out.split()[-1]
 
     return checksum
 
-def sqfs_load_files(u_boot_console, files, sizes, address):
+def sqfs_load_files(ubman, files, sizes, address):
     """ Loads files and asserts their checksums.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
         files: list of files to be loaded.
         sizes: the sizes of each file.
         address: the address where the files should be loaded.
     """
-    build_dir = u_boot_console.config.build_dir
+    build_dir = ubman.config.build_dir
     for (file, size) in zip(files, sizes):
-        out = u_boot_console.run_command('sqfsload host 0 {} {}'.format(address, file))
+        out = ubman.run_command('sqfsload host 0 {} {}'.format(address, file))
 
         # check if the right amount of bytes was read
         assert size in out
 
         # compare original file's checksum against u-boot's
-        u_boot_checksum = uboot_md5sum(u_boot_console, address, hex(int(size)))
+        u_boot_checksum = uboot_md5sum(ubman, address, hex(int(size)))
         original_file_path = os.path.join(build_dir, SQFS_SRC_DIR + '/' + file)
         original_checksum = original_md5sum(original_file_path)
         assert u_boot_checksum == original_checksum
 
-def sqfs_load_files_at_root(u_boot_console):
+def sqfs_load_files_at_root(ubman):
     """ Calls sqfs_load_files passing the files at the SquashFS image's root.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
 
     files = ['f4096', 'f5096', 'f1000']
     sizes = ['4096', '5096', '1000']
     address = '$kernel_addr_r'
-    sqfs_load_files(u_boot_console, files, sizes, address)
+    sqfs_load_files(ubman, files, sizes, address)
 
-def sqfs_load_files_at_subdir(u_boot_console):
+def sqfs_load_files_at_subdir(ubman):
     """ Calls sqfs_load_files passing the files at the SquashFS image's subdir.
 
     This test checks if the path resolution works, since the file is not at the
     root directory.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
     files = ['subdir/subdir-file']
     sizes = ['100']
     address = '$kernel_addr_r'
-    sqfs_load_files(u_boot_console, files, sizes, address)
+    sqfs_load_files(ubman, files, sizes, address)
 
-def sqfs_load_non_existent_file(u_boot_console):
+def sqfs_load_non_existent_file(ubman):
     """ Calls sqfs_load_files passing an non-existent file to raise an error.
 
     This test checks if the SquashFS support won't crash if it doesn't find the
     specified file.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
     address = '$kernel_addr_r'
     file = 'non-existent'
-    out = u_boot_console.run_command('sqfsload host 0 {} {}'.format(address, file))
+    out = ubman.run_command('sqfsload host 0 {} {}'.format(address, file))
     assert 'Failed to load' in out
 
-def sqfs_run_all_load_tests(u_boot_console):
+def sqfs_run_all_load_tests(ubman):
     """ Runs all the previously defined test cases.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    sqfs_load_files_at_root(u_boot_console)
-    sqfs_load_files_at_subdir(u_boot_console)
-    sqfs_load_non_existent_file(u_boot_console)
+    sqfs_load_files_at_root(ubman)
+    sqfs_load_files_at_subdir(ubman)
+    sqfs_load_non_existent_file(ubman)
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
 @pytest.mark.buildconfigspec('cmd_squashfs')
 @pytest.mark.buildconfigspec('fs_squashfs')
 @pytest.mark.requiredtool('mksquashfs')
-def test_sqfs_load(u_boot_console):
+def test_sqfs_load(ubman):
     """ Executes the sqfsload test suite.
 
     First, it generates the SquashFS images, then it runs the test cases and
@@ -129,9 +129,9 @@ def test_sqfs_load(u_boot_console):
     cleaned before exiting.
 
     Args:
-        u_boot_console: provides the means to interact with U-Boot's console.
+        ubman: provides the means to interact with U-Boot's console.
     """
-    build_dir = u_boot_console.config.build_dir
+    build_dir = ubman.config.build_dir
 
     # setup test environment
     check_mksquashfs_version()
@@ -142,8 +142,8 @@ def test_sqfs_load(u_boot_console):
     for image in STANDARD_TABLE:
         try:
             image_path = os.path.join(build_dir, image)
-            u_boot_console.run_command('host bind 0 {}'.format(image_path))
-            sqfs_run_all_load_tests(u_boot_console)
+            ubman.run_command('host bind 0 {}'.format(image_path))
+            sqfs_run_all_load_tests(ubman)
         except:
             clean_all_images(build_dir)
             clean_sqfs_src_dir(build_dir)

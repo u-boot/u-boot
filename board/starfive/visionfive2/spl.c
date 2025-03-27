@@ -103,6 +103,9 @@ void board_init_f(ulong dummy)
 			JH7110_CLK_CPU_ROOT_MASK,
 			BIT(JH7110_CLK_CPU_ROOT_SHIFT));
 
+	/* Set USB overcurrent overflow pin disable */
+	SYS_IOMUX_DIN_DISABLED(2);
+
 	ret = spl_board_init_f();
 	if (ret) {
 		debug("spl_board_init_f init failed: %d\n", ret);
@@ -118,6 +121,10 @@ int board_fit_config_name_match(const char *name)
 
 	product_id = get_product_id_from_eeprom();
 
+	/* Strip off prefix */
+	if (strncmp(name, "starfive/", 9))
+		return -EINVAL;
+	name += 9;
 	if (!strncmp(product_id, "VF7110", 6)) {
 		version = get_pcb_revision_from_eeprom();
 		if ((version == 'b' || version == 'B') &&

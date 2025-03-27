@@ -73,9 +73,7 @@ static int sa8775p_enable(struct clk *clk)
 		break;
 	}
 
-	qcom_gate_clk_en(priv, clk->id);
-
-	return 0;
+	return qcom_gate_clk_en(priv, clk->id);
 }
 
 static const struct qcom_reset_map sa8775p_gcc_resets[] = {

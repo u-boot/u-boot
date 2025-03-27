@@ -77,7 +77,7 @@ config SANDBOX_BITS_PER_LONG
 
 config SYS_FDT_LOAD_ADDR
 	hex "Address at which to load devicetree"
-	default 0x100
+	default 0x1000
 	help
 	  With sandbox the devicetree is loaded into the emulated RAM. This sets
 	  the address that is used. There must be enough space at this address

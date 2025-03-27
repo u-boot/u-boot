@@ -19,8 +19,8 @@ env__scsi_device_test = {
 }
 """
 
-def scsi_setup(u_boot_console):
-    f = u_boot_console.config.env.get('env__scsi_device_test', None)
+def scsi_setup(ubman):
+    f = ubman.config.env.get('env__scsi_device_test', None)
     if not f:
         pytest.skip('No SCSI device to test')
 
@@ -39,54 +39,54 @@ def scsi_setup(u_boot_console):
     return dev_num, dev_type, dev_size
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_reset(u_boot_console):
-    dev_num, dev_type, dev_size = scsi_setup(u_boot_console)
-    output = u_boot_console.run_command('scsi reset')
+def test_scsi_reset(ubman):
+    dev_num, dev_type, dev_size = scsi_setup(ubman)
+    output = ubman.run_command('scsi reset')
     assert f'Device {dev_num}:' in output
     assert f'Type: {dev_type}' in output
     assert f'Capacity: {dev_size}' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_info(u_boot_console):
-    dev_num, dev_type, dev_size = scsi_setup(u_boot_console)
-    output = u_boot_console.run_command('scsi info')
+def test_scsi_info(ubman):
+    dev_num, dev_type, dev_size = scsi_setup(ubman)
+    output = ubman.run_command('scsi info')
     assert f'Device {dev_num}:' in output
     assert f'Type: {dev_type}' in output
     assert f'Capacity: {dev_size}' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_scan(u_boot_console):
-    dev_num, dev_type, dev_size = scsi_setup(u_boot_console)
-    output = u_boot_console.run_command('scsi scan')
+def test_scsi_scan(ubman):
+    dev_num, dev_type, dev_size = scsi_setup(ubman)
+    output = ubman.run_command('scsi scan')
     assert f'Device {dev_num}:' in output
     assert f'Type: {dev_type}' in output
     assert f'Capacity: {dev_size}' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_dev(u_boot_console):
-    dev_num, dev_type, dev_size = scsi_setup(u_boot_console)
-    output = u_boot_console.run_command('scsi device')
+def test_scsi_dev(ubman):
+    dev_num, dev_type, dev_size = scsi_setup(ubman)
+    output = ubman.run_command('scsi device')
     assert 'no scsi devices available' not in output
     assert f'device {dev_num}:' in output
     assert f'Type: {dev_type}' in output
     assert f'Capacity: {dev_size}' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
-    output = u_boot_console.run_command('scsi device %d' % dev_num)
+    output = ubman.run_command('scsi device %d' % dev_num)
     assert 'is now current device' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_scsi')
-def test_scsi_part(u_boot_console):
-    test_scsi_dev(u_boot_console)
-    output = u_boot_console.run_command('scsi part')
+def test_scsi_part(ubman):
+    test_scsi_dev(ubman)
+    output = ubman.run_command('scsi part')
     assert 'Partition Map for scsi device' in output
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')

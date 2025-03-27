@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-from distutils.core import setup
+from setuptools import setup
 setup(name='dtoc',
       version='1.0',
       license='GPL-2.0+',

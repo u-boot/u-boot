@@ -36,6 +36,7 @@
 #include <dwc_ahsata.h>
 #include <env.h>
 #include <fsl_esdhc_imx.h>
+#include <i2c.h>
 #include <imx_thermal.h>
 #include <micrel.h>
 #include <miiphy.h>
@@ -76,6 +77,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OUTPUT_RGB (PAD_CTL_SPEED_MED|PAD_CTL_DSE_60ohm|PAD_CTL_SRE_FAST)
 
 #define APALIS_IMX6_SATA_INIT_RETRIES	10
+
+#define I2C_PWR	1
 
 int dram_init(void)
 {
@@ -689,12 +692,40 @@ int board_init(void)
 	return 0;
 }
 
+static bool is_som_variant_1_2(void)
+{
+	struct udevice *bus;
+	struct udevice *i2c_dev;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, I2C_PWR, &bus);
+	if (ret) {
+		printf("Failed to get I2C_PWR\n");
+		return false;
+	}
+
+	/* V1.2 uses the TLA2024 at 0x49 instead of the STMPE811 at 0x41 */
+	ret = dm_i2c_probe(bus, 0x49, 0, &i2c_dev);
+
+	return (bool)!ret;
+}
+
+static void select_dt_from_module_version(void)
+{
+	if (is_som_variant_1_2())
+		env_set("variant", "-v1.2");
+	else
+		env_set("variant", "");
+}
+
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 #if defined(CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG)
 	char env_str[256];
 	u32 rev;
+
+	select_dt_from_module_version();
 
 	rev = get_board_revision();
 	snprintf(env_str, ARRAY_SIZE(env_str), "%.4x", rev);

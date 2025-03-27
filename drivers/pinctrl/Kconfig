@@ -178,6 +178,14 @@ config PINCTRL_APPLE
 	  both the GPIO definitions and pin control functions for each
 	  available multiplex function.
 
+config PINCTRL_ADI
+	bool "ADI pinctrl driver"
+	depends on DM && ARCH_SC5XX
+	help
+	  This driver enables pinctrl support on SC5xx processors. This
+	  driver covers only the pin configuration functionality, and
+	  GPIO functionality is contained in the separate GPIO driver.
+
 config PINCTRL_AR933X
 	bool "QCA/Athores ar933x pin control driver"
 	depends on DM && SOC_AR933X

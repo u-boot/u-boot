@@ -90,11 +90,10 @@ ut bootstd -f vbe_test_fixup_norun
 
 @pytest.mark.boardspec('sandbox_flattree')
 @pytest.mark.requiredtool('dtc')
-def test_vbe(u_boot_console):
-    cons = u_boot_console
-    kernel = fit_util.make_kernel(cons, 'vbe-kernel.bin', 'kernel')
-    fdt = fit_util.make_dtb(cons, base_fdt, 'vbe-fdt')
-    fdt_out = fit_util.make_fname(cons, 'fdt-out.dtb')
+def test_vbe(ubman):
+    kernel = fit_util.make_kernel(ubman, 'vbe-kernel.bin', 'kernel')
+    fdt = fit_util.make_dtb(ubman, base_fdt, 'vbe-fdt')
+    fdt_out = fit_util.make_fname(ubman, 'fdt-out.dtb')
 
     params = {
         'fit_addr' : 0x1000,
@@ -108,13 +107,13 @@ def test_vbe(u_boot_console):
 
         'compression' : 'none',
     }
-    mkimage = cons.config.build_dir + '/tools/mkimage'
-    fit = fit_util.make_fit(cons, mkimage, base_its, params, 'test-vbe.fit',
+    mkimage = ubman.config.build_dir + '/tools/mkimage'
+    fit = fit_util.make_fit(ubman, mkimage, base_its, params, 'test-vbe.fit',
                             base_fdt)
     params['fit'] = fit
     cmd = base_script % params
 
-    with cons.log.section('Kernel load'):
-        output = cons.run_command_list(cmd.splitlines())
+    with ubman.log.section('Kernel load'):
+        output = ubman.run_command_list(cmd.splitlines())
 
     assert 'failures: 0' in output[-1]

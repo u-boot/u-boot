@@ -63,6 +63,11 @@ enum gpio_state {
 			GPIO_DIN_MASK << GPIO_SHIFT(gpi), \
 			((gpio + 2) & GPIO_DIN_MASK) << GPIO_SHIFT(gpi))
 
+#define SYS_IOMUX_DIN_DISABLED(gpi)\
+	clrsetbits_le32(JH7110_SYS_IOMUX + GPIO_DIN + GPIO_OFFSET(gpi), \
+			GPIO_DIN_MASK << GPIO_SHIFT(gpi), \
+			((0x1) & GPIO_DIN_MASK) << GPIO_SHIFT(gpi))
+
 #define SYS_IOMUX_SET_DS(gpio, ds) \
 	clrsetbits_le32(JH7110_SYS_IOMUX + GPIO_CONFIG + gpio * 4, \
 			GPIO_DS_MASK, (ds) << GPIO_DS_SHIFT)

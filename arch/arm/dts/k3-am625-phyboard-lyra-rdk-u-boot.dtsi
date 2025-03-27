@@ -177,6 +177,10 @@
 	bootph-all;
 };
 
+&usb0_phy_ctrl {
+	bootph-all;
+};
+
 &vcc_3v3_mmc {
 	bootph-all;
 };

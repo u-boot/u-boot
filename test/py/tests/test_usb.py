@@ -4,7 +4,7 @@
 import pytest
 import random
 import re
-import u_boot_utils
+import utils
 
 """
 Note: This test doesn't rely on boardenv_* configuration values but it can
@@ -20,20 +20,20 @@ For example:
 env__usb_device_test_skip = False
 """
 
-def setup_usb(u_boot_console):
-    if u_boot_console.config.env.get('env__usb_device_test_skip', True):
+def setup_usb(ubman):
+    if ubman.config.env.get('env__usb_device_test_skip', True):
         pytest.skip('USB device test is not enabled')
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_start(u_boot_console):
-    setup_usb(u_boot_console)
-    output = u_boot_console.run_command('usb start')
+def test_usb_start(ubman):
+    setup_usb(ubman)
+    output = ubman.run_command('usb start')
 
     # if output is empty, usb start may already run as part of preboot command
     # re-start the usb, in that case
     if not output:
-        u_boot_console.run_command('usb stop')
-        output = u_boot_console.run_command('usb start')
+        ubman.run_command('usb stop')
+        output = ubman.run_command('usb start')
 
     if 'No USB device found' in output:
         pytest.skip('No USB controller available')
@@ -61,26 +61,26 @@ def test_usb_start(u_boot_console):
     if 'Starting the controller' in output:
         assert 'USB XHCI' in output
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
     return controllers, storage_device
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_stop(u_boot_console):
-    setup_usb(u_boot_console)
-    output = u_boot_console.run_command('usb stop')
+def test_usb_stop(ubman):
+    setup_usb(ubman)
+    output = ubman.run_command('usb stop')
     assert 'stopping USB..' in output
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
-    output = u_boot_console.run_command('usb dev')
+    output = ubman.run_command('usb dev')
     assert "USB is stopped. Please issue 'usb start' first." in output
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_reset(u_boot_console):
-    setup_usb(u_boot_console)
-    output = u_boot_console.run_command('usb reset')
+def test_usb_reset(ubman):
+    setup_usb(ubman)
+    output = ubman.run_command('usb reset')
 
     if 'No USB device found' in output:
         pytest.skip('No USB controller available')
@@ -107,13 +107,13 @@ def test_usb_reset(u_boot_console):
     if 'Starting the controller' in output:
         assert 'USB XHCI' in output
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_info(u_boot_console):
-    controllers, storage_device = test_usb_start(u_boot_console)
-    output = u_boot_console.run_command('usb info')
+def test_usb_info(ubman):
+    controllers, storage_device = test_usb_start(ubman)
+    output = ubman.run_command('usb info')
 
     num_controller = len(re.findall(': Hub,', output))
     num_mass_storage = len(re.findall(': Mass Storage,', output))
@@ -121,22 +121,22 @@ def test_usb_info(u_boot_console):
     assert num_controller == controllers - 1
     assert num_mass_storage == storage_device
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
     for i in range(0, storage_device + controllers - 1):
-        output = u_boot_console.run_command('usb info %d' % i)
+        output = ubman.run_command('usb info %d' % i)
         num_controller = len(re.findall(': Hub,', output))
         num_mass_storage = len(re.findall(': Mass Storage,', output))
         assert num_controller + num_mass_storage == 1
         assert 'No device available' not in output
-        output = u_boot_console.run_command('echo $?')
+        output = ubman.run_command('echo $?')
         assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_tree(u_boot_console):
-    controllers, storage_device = test_usb_start(u_boot_console)
-    output = u_boot_console.run_command('usb tree')
+def test_usb_tree(ubman):
+    controllers, storage_device = test_usb_start(ubman)
+    output = ubman.run_command('usb tree')
 
     num_controller = len(re.findall('Hub', output))
     num_mass_storage = len(re.findall('Mass Storage', output))
@@ -144,14 +144,14 @@ def test_usb_tree(u_boot_console):
     assert num_controller == controllers - 1
     assert num_mass_storage == storage_device
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('usb_storage')
-def test_usb_storage(u_boot_console):
-    controllers, storage_device = test_usb_start(u_boot_console)
-    output = u_boot_console.run_command('usb storage')
+def test_usb_storage(ubman):
+    controllers, storage_device = test_usb_start(ubman)
+    output = ubman.run_command('usb storage')
 
     obj = re.findall(r'Capacity: (\d+|\d+[\.]?\d)', output)
     devices = {}
@@ -167,17 +167,17 @@ def test_usb_storage(u_boot_console):
         except ValueError:
             pytest.fail('USB storage device capacity not recognized')
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_dev(u_boot_console):
-    controllers, storage_device = test_usb_start(u_boot_console)
-    output = u_boot_console.run_command('usb dev')
+def test_usb_dev(ubman):
+    controllers, storage_device = test_usb_start(ubman)
+    output = ubman.run_command('usb dev')
 
     assert 'no usb devices available' not in output
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
     devices = {}
@@ -188,7 +188,7 @@ def test_usb_dev(u_boot_console):
     fail = 0
     for x in range(0, storage_device):
         devices[x]['detected'] = 'yes'
-        output = u_boot_console.run_command('usb dev %d' % x)
+        output = ubman.run_command('usb dev %d' % x)
 
         if 'Card did not respond to voltage select' in output:
             fail = 1
@@ -201,7 +201,7 @@ def test_usb_dev(u_boot_console):
             devices[x]['detected'] = 'no'
 
         assert 'is now current device' in output
-        output = u_boot_console.run_command('echo $?')
+        output = ubman.run_command('echo $?')
         assert output.endswith('0')
 
     if fail:
@@ -210,20 +210,20 @@ def test_usb_dev(u_boot_console):
     return devices, controllers, storage_device
 
 @pytest.mark.buildconfigspec('cmd_usb')
-def test_usb_part(u_boot_console):
-    devices, controllers, storage_device = test_usb_dev(u_boot_console)
+def test_usb_part(ubman):
+    devices, controllers, storage_device = test_usb_dev(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
-    u_boot_console.run_command('usb part')
+    ubman.run_command('usb part')
 
-    output = u_boot_console.run_command('echo $?')
+    output = ubman.run_command('echo $?')
     assert output.endswith('0')
 
     for i in range(0, storage_device):
         if devices[i]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % i)
-            output = u_boot_console.run_command('usb part')
+            ubman.run_command('usb dev %d' % i)
+            output = ubman.run_command('usb part')
 
             lines = output.split('\n')
             part_fat = []
@@ -241,7 +241,7 @@ def test_usb_part(u_boot_console):
                         part_fat.append(part_id)
                     elif part_type == '83':
                         print('ext(2/4) detected')
-                        output = u_boot_console.run_command(
+                        output = ubman.run_command(
                             'fstype usb %d:%d' % (i, part_id)
                         )
                         if 'ext2' in output:
@@ -261,8 +261,8 @@ def test_usb_part(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_fat')
-def test_usb_fatls_fatinfo(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_fatls_fatinfo(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
@@ -270,7 +270,7 @@ def test_usb_fatls_fatinfo(u_boot_console):
     fs = 'fat'
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             try:
                 partitions = devices[x][fs]
             except:
@@ -278,7 +278,7 @@ def test_usb_fatls_fatinfo(u_boot_console):
                 continue
 
             for part in partitions:
-                output = u_boot_console.run_command('fatls usb %d:%s' % (x, part))
+                output = ubman.run_command('fatls usb %d:%s' % (x, part))
                 if 'Unrecognized filesystem type' in output:
                     partitions.remove(part)
                     pytest.fail('Unrecognized filesystem')
@@ -286,7 +286,7 @@ def test_usb_fatls_fatinfo(u_boot_console):
                 if not re.search(r'\d file\(s\), \d dir\(s\)', output):
                     pytest.fail('%s read failed on device %d' % (fs.upper, x))
 
-                output = u_boot_console.run_command('fatinfo usb %d:%s' % (x, part))
+                output = ubman.run_command('fatinfo usb %d:%s' % (x, part))
                 string = 'Filesystem: %s' % fs.upper
                 if re.search(string, output):
                     pytest.fail('%s FS failed on device %d' % (fs.upper(), x))
@@ -295,17 +295,17 @@ def test_usb_fatls_fatinfo(u_boot_console):
     if not part_detect:
         pytest.skip('No %s partition detected' % fs.upper())
 
-def usb_fatload_fatwrite(u_boot_console, fs, x, part):
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+def usb_fatload_fatwrite(ubman, fs, x, part):
+    addr = utils.find_ram_base(ubman)
     size = random.randint(4, 1 * 1024 * 1024)
-    output = u_boot_console.run_command('crc32 %x %x' % (addr, size))
+    output = ubman.run_command('crc32 %x %x' % (addr, size))
     m = re.search('==> (.+?)', output)
     if not m:
         pytest.fail('CRC32 failed')
     expected_crc32 = m.group(1)
 
     file = '%s_%d' % ('uboot_test', size)
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         '%swrite usb %d:%s %x %s %x' % (fs, x, part, addr, file, size)
     )
     assert 'Unable to write' not in output
@@ -315,12 +315,12 @@ def usb_fatload_fatwrite(u_boot_console, fs, x, part):
     assert expected_text in output
 
     alignment = int(
-        u_boot_console.config.buildconfig.get(
+        ubman.config.buildconfig.get(
             'config_sys_cacheline_size', 128
         )
     )
     offset = random.randrange(alignment, 1024, alignment)
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         '%sload usb %d:%s %x %s' % (fs, x, part, addr + offset, file)
     )
     assert 'Invalid FAT entry' not in output
@@ -329,7 +329,7 @@ def usb_fatload_fatwrite(u_boot_console, fs, x, part):
     expected_text = '%d bytes read' % size
     assert expected_text in output
 
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         'crc32 %x $filesize' % (addr + offset)
     )
     assert expected_crc32 in output
@@ -339,8 +339,8 @@ def usb_fatload_fatwrite(u_boot_console, fs, x, part):
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_fat')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_usb_fatload_fatwrite(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_fatload_fatwrite(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
@@ -348,7 +348,7 @@ def test_usb_fatload_fatwrite(u_boot_console):
     fs = 'fat'
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             try:
                 partitions = devices[x][fs]
             except:
@@ -357,15 +357,15 @@ def test_usb_fatload_fatwrite(u_boot_console):
 
             for part in partitions:
                 part_detect = 1
-                usb_fatload_fatwrite(u_boot_console, fs, x, part)
+                usb_fatload_fatwrite(ubman, fs, x, part)
 
     if not part_detect:
         pytest.skip('No %s partition detected' % fs.upper())
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_ext4')
-def test_usb_ext4ls(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_ext4ls(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
@@ -379,9 +379,9 @@ def test_usb_ext4ls(u_boot_console):
                 print('No %s table on this device' % fs.upper())
                 continue
 
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             for part in partitions:
-                output = u_boot_console.run_command('%sls usb %d:%s' % (fs, x, part))
+                output = ubman.run_command('%sls usb %d:%s' % (fs, x, part))
                 if 'Unrecognized filesystem type' in output:
                     partitions.remove(part)
                     pytest.fail('Unrecognized filesystem')
@@ -390,17 +390,17 @@ def test_usb_ext4ls(u_boot_console):
     if not part_detect:
         pytest.skip('No %s partition detected' % fs.upper())
 
-def usb_ext4load_ext4write(u_boot_console, fs, x, part):
-    addr = u_boot_utils.find_ram_base(u_boot_console)
+def usb_ext4load_ext4write(ubman, fs, x, part):
+    addr = utils.find_ram_base(ubman)
     size = random.randint(4, 1 * 1024 * 1024)
-    output = u_boot_console.run_command('crc32 %x %x' % (addr, size))
+    output = ubman.run_command('crc32 %x %x' % (addr, size))
     m = re.search('==> (.+?)', output)
     if not m:
         pytest.fail('CRC32 failed')
     expected_crc32 = m.group(1)
     file = '%s_%d' % ('uboot_test', size)
 
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         '%swrite usb %d:%s %x /%s %x' % (fs, x, part, addr, file, size)
     )
     assert 'Unable to write' not in output
@@ -410,13 +410,13 @@ def usb_ext4load_ext4write(u_boot_console, fs, x, part):
     assert expected_text in output
 
     offset = random.randrange(128, 1024, 128)
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         '%sload usb %d:%s %x /%s' % (fs, x, part, addr + offset, file)
     )
     expected_text = '%d bytes read' % size
     assert expected_text in output
 
-    output = u_boot_console.run_command(
+    output = ubman.run_command(
         'crc32 %x $filesize' % (addr + offset)
     )
     assert expected_crc32 in output
@@ -427,8 +427,8 @@ def usb_ext4load_ext4write(u_boot_console, fs, x, part):
 @pytest.mark.buildconfigspec('cmd_ext4')
 @pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_usb_ext4load_ext4write(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_ext4load_ext4write(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
@@ -436,7 +436,7 @@ def test_usb_ext4load_ext4write(u_boot_console):
     fs = 'ext4'
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             try:
                 partitions = devices[x][fs]
             except:
@@ -445,15 +445,15 @@ def test_usb_ext4load_ext4write(u_boot_console):
 
             for part in partitions:
                 part_detect = 1
-                usb_ext4load_ext4write(u_boot_console, fs, x, part)
+                usb_ext4load_ext4write(ubman, fs, x, part)
 
     if not part_detect:
         pytest.skip('No %s partition detected' % fs.upper())
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_ext2')
-def test_usb_ext2ls(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_ext2ls(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
@@ -461,7 +461,7 @@ def test_usb_ext2ls(u_boot_console):
     fs = 'ext2'
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             try:
                 partitions = devices[x][fs]
             except:
@@ -470,7 +470,7 @@ def test_usb_ext2ls(u_boot_console):
 
             for part in partitions:
                 part_detect = 1
-                output = u_boot_console.run_command('%sls usb %d:%s' % (fs, x, part))
+                output = ubman.run_command('%sls usb %d:%s' % (fs, x, part))
                 if 'Unrecognized filesystem type' in output:
                     partitions.remove(part)
                     pytest.fail('Unrecognized filesystem')
@@ -484,8 +484,8 @@ def test_usb_ext2ls(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_ext4')
 @pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_usb_ext2load(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_ext2load(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
 
     if not devices:
         pytest.skip('No devices detected')
@@ -494,7 +494,7 @@ def test_usb_ext2load(u_boot_console):
     fs = 'ext2'
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             try:
                 partitions = devices[x][fs]
             except:
@@ -504,17 +504,17 @@ def test_usb_ext2load(u_boot_console):
             for part in partitions:
                 part_detect = 1
                 file, size, expected_crc32 = \
-                    usb_ext4load_ext4write(u_boot_console, fs, x, part)
-                addr = u_boot_utils.find_ram_base(u_boot_console)
+                    usb_ext4load_ext4write(ubman, fs, x, part)
+                addr = utils.find_ram_base(ubman)
 
                 offset = random.randrange(128, 1024, 128)
-                output = u_boot_console.run_command(
+                output = ubman.run_command(
                     '%sload usb %d:%s %x /%s' % (fs, x, part, addr + offset, file)
                 )
                 expected_text = '%d bytes read' % size
                 assert expected_text in output
 
-                output = u_boot_console.run_command(
+                output = ubman.run_command(
                     'crc32 %x $filesize' % (addr + offset)
                 )
                 assert expected_crc32 in output
@@ -524,15 +524,15 @@ def test_usb_ext2load(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_usb_ls(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_ls(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
     part_detect = 0
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
@@ -542,7 +542,7 @@ def test_usb_ls(u_boot_console):
 
                 for part in partitions:
                     part_detect = 1
-                    output = u_boot_console.run_command('ls usb %d:%s' % (x, part))
+                    output = ubman.run_command('ls usb %d:%s' % (x, part))
                     if re.search(r'No \w+ table on this device', output):
                         pytest.fail(
                             '%s: Partition table not found %d' % (fs.upper(), x)
@@ -554,15 +554,15 @@ def test_usb_ls(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_ext4_write')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_usb_load(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_load(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
     part_detect = 0
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
@@ -572,23 +572,25 @@ def test_usb_load(u_boot_console):
 
                 for part in partitions:
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(u_boot_console)
+                    addr = utils.find_ram_base(ubman)
 
                     if fs == 'fat':
                         file, size, expected_crc32 = \
-                            usb_fatload_fatwrite(u_boot_console, fs, x, part)
+                            usb_fatload_fatwrite(ubman, fs, x, part)
                     elif fs in ['ext4', 'ext2']:
                         file, size, expected_crc32 = \
-                            usb_ext4load_ext4write(u_boot_console, fs, x, part)
+                            usb_ext4load_ext4write(ubman, fs, x, part)
+                    else:
+                        raise Exception('Unsupported filesystem type %s' % fs)
 
                     offset = random.randrange(128, 1024, 128)
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'load usb %d:%s %x /%s' % (x, part, addr + offset, file)
                     )
                     expected_text = '%d bytes read' % size
                     assert expected_text in output
 
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'crc32 %x $filesize' % (addr + offset)
                     )
                     assert expected_crc32 in output
@@ -598,15 +600,15 @@ def test_usb_load(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_usb')
 @pytest.mark.buildconfigspec('cmd_fs_generic')
-def test_usb_save(u_boot_console):
-    devices, controllers, storage_device = test_usb_part(u_boot_console)
+def test_usb_save(ubman):
+    devices, controllers, storage_device = test_usb_part(ubman)
     if not devices:
         pytest.skip('No devices detected')
 
     part_detect = 0
     for x in range(0, int(storage_device)):
         if devices[x]['detected'] == 'yes':
-            u_boot_console.run_command('usb dev %d' % x)
+            ubman.run_command('usb dev %d' % x)
             for fs in ['fat', 'ext2', 'ext4']:
                 try:
                     partitions = devices[x][fs]
@@ -616,12 +618,12 @@ def test_usb_save(u_boot_console):
 
                 for part in partitions:
                     part_detect = 1
-                    addr = u_boot_utils.find_ram_base(u_boot_console)
+                    addr = utils.find_ram_base(ubman)
                     size = random.randint(4, 1 * 1024 * 1024)
                     file = '%s_%d' % ('uboot_test', size)
 
                     offset = random.randrange(128, 1024, 128)
-                    output = u_boot_console.run_command(
+                    output = ubman.run_command(
                         'save usb %d:%s %x /%s %x'
                         % (x, part, addr + offset, file, size)
                     )

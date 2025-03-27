@@ -92,7 +92,10 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 			  unsigned int func_selector)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
-	u32 func = priv->data->get_function_mux(pin_selector, func_selector);
+	int func = priv->data->get_function_mux(pin_selector, func_selector);
+
+	if (func < 0)
+		return func;
 
 	/* Always NOP for special pins, assume they're in the correct state */
 	if (qcom_is_special_pin(&priv->data->pin_data, pin_selector))

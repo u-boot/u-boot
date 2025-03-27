@@ -100,12 +100,6 @@
 #define ALTCP_MBEDTLS_SESSION_TICKET_TIMEOUT_SECONDS  (60 * 60 * 24)
 #endif
 
-/** Certificate verification mode: MBEDTLS_SSL_VERIFY_NONE, MBEDTLS_SSL_VERIFY_OPTIONAL (default),
- * MBEDTLS_SSL_VERIFY_REQUIRED (recommended)*/
-#ifndef ALTCP_MBEDTLS_AUTHMODE
-#define ALTCP_MBEDTLS_AUTHMODE                        MBEDTLS_SSL_VERIFY_OPTIONAL
-#endif
-
 #endif /* LWIP_ALTCP */
 
 #endif /* LWIP_HDR_ALTCP_TLS_OPTS_H */

@@ -89,3 +89,8 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 	return 1;
 }
+
+bool booti_is_valid(const void *img)
+{
+	return false;
+}

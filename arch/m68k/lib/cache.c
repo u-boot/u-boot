@@ -8,6 +8,7 @@
 #include <cpu_func.h>
 #include <asm/immap.h>
 #include <asm/cache.h>
+#include <linux/errno.h>
 
 volatile int *cf_icache_status = (int *)ICACHE_STATUS;
 volatile int *cf_dcache_status = (int *)DCACHE_STATUS;
@@ -150,4 +151,9 @@ __weak void invalidate_dcache_range(unsigned long start, unsigned long stop)
 __weak void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 	/* An empty stub, real implementation should be in platform code */
+}
+
+int __weak pgprot_set_attrs(phys_addr_t addr, size_t size, enum pgprot_attrs perm)
+{
+	return -ENOSYS;
 }

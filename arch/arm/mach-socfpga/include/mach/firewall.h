@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
  * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
  *
  */
 
@@ -126,11 +127,27 @@ struct socfpga_firwall_l4_sys {
 #define FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMITEXT	0x9c
 #define FW_MPU_DDR_SCR_NONMPUREGION0ADDR_LIMITEXT_FIELD	0xff
 
+/* Firewall F2SDRAM DDR SCR registers */
+#define FW_F2SDRAM_DDR_SCR_EN				0x00
+#define FW_F2SDRAM_DDR_SCR_EN_SET			0x04
+#define FW_F2SDRAM_DDR_SCR_REGION0ADDR_BASE		0x10
+#define FW_F2SDRAM_DDR_SCR_REGION0ADDR_BASEEXT		0x14
+#define FW_F2SDRAM_DDR_SCR_REGION0ADDR_LIMIT		0x18
+#define FW_F2SDRAM_DDR_SCR_REGION0ADDR_LIMITEXT		0x1c
+
 #define MPUREGION0_ENABLE				BIT(0)
 #define NONMPUREGION0_ENABLE				BIT(8)
 
+#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+#define FW_MPU_DDR_SCR_WRITEL(data, reg)		\
+	writel(data, SOCFPGA_FW_DDR_CCU_DMI0_ADDRESS + (reg)); \
+	writel(data, SOCFPGA_FW_DDR_CCU_DMI1_ADDRESS + (reg))
+#define FW_F2SDRAM_DDR_SCR_WRITEL(data, reg)		\
+	writel(data, SOCFPGA_FW_TBU2NOC_ADDRESS + (reg))
+#else
 #define FW_MPU_DDR_SCR_WRITEL(data, reg)		\
 	writel(data, SOCFPGA_FW_MPU_DDR_SCR_ADDRESS + (reg))
+#endif
 
 void firewall_setup(void);
 

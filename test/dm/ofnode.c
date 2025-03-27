@@ -23,6 +23,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/of_extra.h>
+#include <dm/ofnode_graph.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
@@ -1651,3 +1652,56 @@ static int dm_test_bool(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_bool, UTF_SCAN_FDT);
+
+/* test all helpers found in drivers/core/ofnode_graph.c */
+static int dm_test_ofnode_graph(struct unit_test_state *uts)
+{
+	/* 3 ports with 5 endpoints (2-1-2) */
+	ofnode graph1 = ofnode_path("/graph1");
+	/* 1 port with 1 endpoint */
+	ofnode graph2 = ofnode_path("/graph2");
+	ofnode node;
+	u32 id;
+
+	ut_asserteq(ofnode_graph_get_endpoint_count(graph1), 5);
+	ut_asserteq(ofnode_graph_get_endpoint_count(graph2), 1);
+
+	ut_asserteq(ofnode_graph_get_port_count(graph1), 3);
+	ut_asserteq(ofnode_graph_get_port_count(graph2), 1);
+
+	/* Request port with reg 2 */
+	node = ofnode_graph_get_port_by_id(graph1, 2);
+	ofnode_read_u32(node, "reg", &id);
+	ut_asserteq(id, 2);
+
+	/* Reqest parent from prev requested endpoint */
+	node = ofnode_graph_get_port_parent(node);
+	ut_asserteq_str(ofnode_get_name(node), "graph1");
+
+	/* Request endpoint under port 1 */
+	node = ofnode_graph_get_endpoint_by_regs(graph1, 1, -1);
+	ut_assert(ofnode_has_property(node, "test-property-0"));
+
+	/* Reqest remote endpoint from graph2 in graph1 */
+	node = ofnode_graph_get_endpoint_by_regs(graph2, -1, -1);
+	node = ofnode_graph_get_remote_endpoint(node);
+	ut_assert(ofnode_has_property(node, "test-property-1"));
+
+	/* Reqest remote parent from graph2 linked endpoint */
+	node = ofnode_graph_get_endpoint_by_regs(graph2, -1, -1);
+	node = ofnode_graph_get_remote_port_parent(node);
+	ut_asserteq_str(ofnode_get_name(node), "graph1");
+
+	/* Reqest remote port from graph2 linked endpoint */
+	node = ofnode_graph_get_endpoint_by_regs(graph2, -1, -1);
+	node = ofnode_graph_get_remote_port(node);
+	ofnode_read_u32(node, "reg", &id);
+	ut_asserteq(id, 2);
+
+	/* Reqest remote parent from graph2 linked endpoint */
+	node = ofnode_graph_get_remote_node(graph2, -1, -1);
+	ut_asserteq_str(ofnode_get_name(node), "graph1");
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_graph, UTF_SCAN_FDT);

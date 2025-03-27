@@ -55,7 +55,7 @@ env__efi_fit_tftp_file = {
 
 import os.path
 import pytest
-import u_boot_utils as util
+import utils
 
 # Define the parametrized ITS data to be used for FIT images generation.
 ITS_DATA = '''
@@ -123,7 +123,7 @@ FDT_DATA = '''
 @pytest.mark.buildconfigspec('fit')
 @pytest.mark.notbuildconfigspec('generate_acpi_table')
 @pytest.mark.requiredtool('dtc')
-def test_efi_fit_launch(u_boot_console):
+def test_efi_fit_launch(ubman):
     """Test handling of UEFI binaries inside FIT images.
 
     The tests are trying to launch U-Boot's helloworld.efi embedded into
@@ -148,13 +148,13 @@ def test_efi_fit_launch(u_boot_console):
         at the beginning of this file.
         """
 
-        init_usb = cons.config.env.get('env__net_uses_usb', False)
+        init_usb = ubman.config.env.get('env__net_uses_usb', False)
         if init_usb:
-            cons.run_command('usb start')
+            ubman.run_command('usb start')
 
-        init_pci = cons.config.env.get('env__net_uses_pci', False)
+        init_pci = ubman.config.env.get('env__net_uses_pci', False)
         if init_pci:
-            cons.run_command('pci enum')
+            ubman.run_command('pci enum')
 
     def net_dhcp():
         """Execute the dhcp command.
@@ -163,18 +163,18 @@ def test_efi_fit_launch(u_boot_console):
         comment at the beginning of this file.
         """
 
-        has_dhcp = cons.config.buildconfig.get('config_cmd_dhcp', 'n') == 'y'
+        has_dhcp = ubman.config.buildconfig.get('config_cmd_dhcp', 'n') == 'y'
         if not has_dhcp:
-            cons.log.warning('CONFIG_CMD_DHCP != y: Skipping DHCP network setup')
+            ubman.log.warning('CONFIG_CMD_DHCP != y: Skipping DHCP network setup')
             return False
 
-        test_dhcp = cons.config.env.get('env__net_dhcp_server', False)
+        test_dhcp = ubman.config.env.get('env__net_dhcp_server', False)
         if not test_dhcp:
-            cons.log.info('No DHCP server available')
+            ubman.log.info('No DHCP server available')
             return False
 
-        cons.run_command('setenv autoload no')
-        output = cons.run_command('dhcp')
+        ubman.run_command('setenv autoload no')
+        output = ubman.run_command('dhcp')
         assert 'DHCP client bound to address ' in output
         return True
 
@@ -185,18 +185,18 @@ def test_efi_fit_launch(u_boot_console):
         the beginning of this file.
         """
 
-        has_dhcp = cons.config.buildconfig.get('config_cmd_dhcp', 'n') == 'y'
+        has_dhcp = ubman.config.buildconfig.get('config_cmd_dhcp', 'n') == 'y'
         if not has_dhcp:
-            cons.log.warning('CONFIG_NET != y: Skipping static network setup')
+            ubman.log.warning('CONFIG_NET != y: Skipping static network setup')
             return False
 
-        env_vars = cons.config.env.get('env__net_static_env_vars', None)
+        env_vars = ubman.config.env.get('env__net_static_env_vars', None)
         if not env_vars:
-            cons.log.info('No static network configuration is defined')
+            ubman.log.info('No static network configuration is defined')
             return False
 
         for (var, val) in env_vars:
-            cons.run_command('setenv %s %s' % (var, val))
+            ubman.run_command('setenv %s %s' % (var, val))
         return True
 
     def make_fpath(file_name):
@@ -208,7 +208,7 @@ def test_efi_fit_launch(u_boot_console):
             The computed file path.
         """
 
-        return os.path.join(cons.config.build_dir, file_name)
+        return os.path.join(ubman.config.build_dir, file_name)
 
     def make_efi(fname, comp):
         """Create an UEFI binary.
@@ -224,11 +224,11 @@ def test_efi_fit_launch(u_boot_console):
         """
 
         bin_path = make_fpath(fname)
-        util.run_and_log(cons,
-                         ['cp', make_fpath('lib/efi_loader/helloworld.efi'),
-                          bin_path])
+        utils.run_and_log(ubman,
+                          ['cp', make_fpath('lib/efi_loader/helloworld.efi'),
+                           bin_path])
         if comp:
-            util.run_and_log(cons, ['gzip', '-f', bin_path])
+            utils.run_and_log(ubman, ['gzip', '-f', bin_path])
             bin_path += '.gz'
         return bin_path
 
@@ -257,9 +257,10 @@ def test_efi_fit_launch(u_boot_console):
 
         # Build the test FDT.
         dtb = make_fpath('test-efi-fit-%s.dtb' % fdt_type)
-        util.run_and_log(cons, ['dtc', '-I', 'dts', '-O', 'dtb', '-o', dtb, dts])
+        utils.run_and_log(ubman,
+                          ['dtc', '-I', 'dts', '-O', 'dtb', '-o', dtb, dts])
         if comp:
-            util.run_and_log(cons, ['gzip', '-f', dtb])
+            utils.run_and_log(ubman, ['gzip', '-f', dtb])
             dtb += '.gz'
         return dtb
 
@@ -290,8 +291,8 @@ def test_efi_fit_launch(u_boot_console):
 
         # Build the test ITS.
         fit_path = make_fpath('test-efi-fit-helloworld.fit')
-        util.run_and_log(
-            cons, [make_fpath('tools/mkimage'), '-f', its_path, fit_path])
+        utils.run_and_log(
+            ubman, [make_fpath('tools/mkimage'), '-f', its_path, fit_path])
         return fit_path
 
     def load_fit_from_host(fit):
@@ -307,9 +308,9 @@ def test_efi_fit_launch(u_boot_console):
 
         addr = fit.get('addr', None)
         if not addr:
-            addr = util.find_ram_base(cons)
+            addr = utils.find_ram_base(ubman)
 
-        output = cons.run_command(
+        output = ubman.run_command(
             'host load hostfs - %x %s/%s' % (addr, fit['dn'], fit['fn']))
         expected_text = ' bytes read'
         size = fit.get('size', None)
@@ -334,10 +335,10 @@ def test_efi_fit_launch(u_boot_console):
 
         addr = fit.get('addr', None)
         if not addr:
-            addr = util.find_ram_base(cons)
+            addr = utils.find_ram_base(ubman)
 
         file_name = fit['fn']
-        output = cons.run_command('tftpboot %x %s' % (addr, file_name))
+        output = ubman.run_command('tftpboot %x %s' % (addr, file_name))
         expected_text = 'Bytes transferred = '
         size = fit.get('size', None)
         if size:
@@ -348,10 +349,10 @@ def test_efi_fit_launch(u_boot_console):
         if not expected_crc:
             return addr
 
-        if cons.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
+        if ubman.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
             return addr
 
-        output = cons.run_command('crc32 $fileaddr $filesize')
+        output = ubman.run_command('crc32 $fileaddr $filesize')
         assert expected_crc in output
 
         return addr
@@ -383,10 +384,10 @@ def test_efi_fit_launch(u_boot_console):
                            generated content.
         """
 
-        with cons.log.section('FDT=%s;COMP=%s' % (enable_fdt, enable_comp)):
+        with ubman.log.section('FDT=%s;COMP=%s' % (enable_fdt, enable_comp)):
             if is_sandbox:
                 fit = {
-                    'dn': cons.config.build_dir,
+                    'dn': ubman.config.build_dir,
                 }
             else:
                 # Init networking.
@@ -396,7 +397,7 @@ def test_efi_fit_launch(u_boot_console):
                 if not net_set_up:
                     pytest.skip('Network not initialized')
 
-                fit = cons.config.env.get('env__efi_fit_tftp_file', None)
+                fit = ubman.config.env.get('env__efi_fit_tftp_file', None)
                 if not fit:
                     pytest.skip('No env__efi_fit_tftp_file binary specified in environment')
 
@@ -411,8 +412,9 @@ def test_efi_fit_launch(u_boot_console):
                 fit['size'] = os.path.getsize(fit_path)
 
                 # Copy image to TFTP root directory.
-                if fit['dn'] != cons.config.build_dir:
-                    util.run_and_log(cons, ['mv', '-f', fit_path, '%s/' % fit['dn']])
+                if fit['dn'] != ubman.config.build_dir:
+                    utils.run_and_log(ubman,
+                                      ['mv', '-f', fit_path, '%s/' % fit['dn']])
 
             # Load FIT image.
             addr = load_fit_from_host(fit) if is_sandbox else load_fit_from_tftp(fit)
@@ -421,31 +423,30 @@ def test_efi_fit_launch(u_boot_console):
             fit_config = 'config-efi-fdt' if enable_fdt else 'config-efi-nofdt'
 
             # Try booting.
-            output = cons.run_command('bootm %x#%s' % (addr, fit_config))
+            output = ubman.run_command('bootm %x#%s' % (addr, fit_config))
             if enable_fdt:
                 assert 'Booting using the fdt blob' in output
             assert 'Hello, world' in output
             assert '## Application failed' not in output
-            cons.restart_uboot()
+            ubman.restart_uboot()
 
-    cons = u_boot_console
     # Array slice removes leading/trailing quotes.
-    sys_arch = cons.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
+    sys_arch = ubman.config.buildconfig.get('config_sys_arch', '"sandbox"')[1:-1]
     if sys_arch == 'arm':
-        arm64 = cons.config.buildconfig.get('config_arm64')
+        arm64 = ubman.config.buildconfig.get('config_arm64')
         if arm64:
             sys_arch = 'arm64'
 
     is_sandbox = sys_arch == 'sandbox'
 
     if is_sandbox:
-        old_dtb = cons.config.dtb
+        old_dtb = ubman.config.dtb
 
     try:
         if is_sandbox:
             # Use our own device tree file, will be restored afterwards.
             control_dtb = make_dtb('internal', False)
-            cons.config.dtb = control_dtb
+            ubman.config.dtb = control_dtb
 
         # Run tests
         # - fdt OFF, gzip OFF
@@ -462,5 +463,5 @@ def test_efi_fit_launch(u_boot_console):
     finally:
         if is_sandbox:
             # Go back to the original U-Boot with the correct dtb.
-            cons.config.dtb = old_dtb
-            cons.restart_uboot()
+            ubman.config.dtb = old_dtb
+            ubman.restart_uboot()

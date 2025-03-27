@@ -40,12 +40,6 @@
 #include <linux/iopoll.h>
 #include <linux/dma-mapping.h>
 
-#ifndef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
-#ifdef CONFIG_FSL_USDHC
-#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
-#endif
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SDHCI_IRQ_EN_BITS		(IRQSTATEN_CC | IRQSTATEN_TC | \
@@ -376,7 +370,7 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	    (timeout == 4 || timeout == 8 || timeout == 12))
 		timeout++;
 
-	if (IS_ENABLED(ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE))
+	if (IS_ENABLED(CONFIG_ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE))
 		timeout = 0xE;
 
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);

@@ -7,10 +7,14 @@
 
 #define LOG_CATEGORY	LOGC_BOOT
 
+#include <bootm.h>
 #include <command.h>
 #include <mapmem.h>
 #include <vsprintf.h>
 #include <asm/zimage.h>
+
+/* Current state of the boot */
+static struct bootm_info bmi;
 
 static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
@@ -19,6 +23,8 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	const char *s, *cmdline;
 	ulong base_addr;
 	int i;
+
+	bootm_init(&bmi);
 
 	log_debug("argc %d:", argc);
 	for (i = 0; i < argc; i++)
@@ -35,7 +41,7 @@ static int do_zboot_start(struct cmd_tbl *cmdtp, int flag, int argc,
 	base_addr = argc > 5 ? hextoul(argv[5], NULL) : 0;
 	cmdline = argc > 6 ? env_get(argv[6]) : NULL;
 
-	zboot_start(bzimage_addr, bzimage_size, initrd_addr, initrd_size,
+	zboot_start(&bmi, bzimage_addr, bzimage_size, initrd_addr, initrd_size,
 		    base_addr, cmdline);
 
 	return 0;
@@ -46,7 +52,7 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int ret;
 
-	ret = zboot_load();
+	ret = zboot_load(&bmi);
 	if (ret)
 		return ret;
 
@@ -56,16 +62,17 @@ static int do_zboot_load(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
 			  char *const argv[])
 {
-	if (!state.base_ptr) {
+	if (!bmi.base_ptr) {
 		printf("base is not set: use 'zboot load' first\n");
 		return CMD_RET_FAILURE;
 	}
-	if (zboot_setup()) {
+
+	if (zboot_setup(&bmi)) {
 		puts("Setting up boot parameters failed ...\n");
 		return CMD_RET_FAILURE;
 	}
 
-	if (zboot_setup())
+	if (zboot_setup(&bmi))
 		return CMD_RET_FAILURE;
 
 	return 0;
@@ -74,7 +81,7 @@ static int do_zboot_setup(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_zboot_info(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
-	zboot_info();
+	zboot_info(&bmi);
 
 	return 0;
 }
@@ -84,7 +91,7 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int ret;
 
-	ret = zboot_go();
+	ret = zboot_go(&bmi);
 	if (ret) {
 		printf("Kernel returned! (err=%d)\n", ret);
 		return CMD_RET_FAILURE;
@@ -96,15 +103,13 @@ static int do_zboot_go(struct cmd_tbl *cmdtp, int flag, int argc,
 static int do_zboot_dump(struct cmd_tbl *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
-	struct boot_params *base_ptr = state.base_ptr;
-
 	if (argc > 1)
-		base_ptr = (void *)hextoul(argv[1], NULL);
-	if (!base_ptr) {
+		bmi.base_ptr = (void *)hextoul(argv[1], NULL);
+	if (!bmi.base_ptr) {
 		printf("No zboot setup_base\n");
 		return CMD_RET_FAILURE;
 	}
-	zimage_dump(base_ptr, true);
+	zimage_dump(&bmi, true);
 
 	return 0;
 }
@@ -119,8 +124,8 @@ U_BOOT_SUBCMDS(zboot,
 	U_BOOT_CMD_MKENT(dump, 2, 1, do_zboot_dump, "", ""),
 )
 
-int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
-		    char *const argv[], int state_mask)
+static int do_zboot_states(struct cmd_tbl *cmdtp, int flag, int argc,
+			   char *const argv[], int state_mask)
 {
 	int ret = 0;
 

@@ -878,7 +878,6 @@ libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/common/
 libs-y += drivers/usb/emul/
 libs-y += drivers/usb/eth/
-libs-$(CONFIG_USB_DEVICE) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/udc/
 libs-y += drivers/usb/host/
@@ -893,9 +892,6 @@ ifdef CONFIG_POST
 libs-y += post/
 endif
 libs-$(CONFIG_$(PHASE_)UNIT_TEST) += test/
-libs-$(CONFIG_UT_ENV) += test/env/
-libs-$(CONFIG_UT_OPTEE) += test/optee/
-libs-$(CONFIG_UT_OVERLAY) += test/overlay/
 
 libs-y += $(if $(wildcard $(srctree)/board/$(BOARDDIR)/Makefile),board/$(BOARDDIR)/)
 
@@ -1019,7 +1015,9 @@ INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Generate this input file for binman
 ifeq ($(CONFIG_SPL),)
+ifneq ($(patsubst "%",%,$(CONFIG_MTK_BROM_HEADER_INFO)),)
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
+endif
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1865,6 +1863,7 @@ quiet_cmd_gen_envp = ENVP    $@
 		$(CPP) -P $(cpp_flags) -x assembler-with-cpp -undef \
 			-D__ASSEMBLY__ \
 			-D__UBOOT_CONFIG__ \
+			-DDEFAULT_DEVICE_TREE=$(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE)) \
 			-I . -I include -I $(srctree)/include \
 			-include linux/kconfig.h -include include/config.h \
 			-I$(srctree)/arch/$(ARCH)/include \
@@ -2515,7 +2514,7 @@ cmd_genenv = \
 	sed -e '/^\s*$$/d' | \
 	sort -t '=' -k 1,1 -s -o $@
 
-u-boot-initial-env: scripts_basic $(env_h) FORCE
+u-boot-initial-env: scripts_basic $(version_h) $(env_h) include/config.h FORCE
 	$(Q)$(MAKE) $(build)=tools $(objtree)/tools/printinitialenv
 	$(call if_changed,genenv)
 

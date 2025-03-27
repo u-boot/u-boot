@@ -9,6 +9,8 @@ config AHAB_BOOT
 config IMX8
 	bool
 	select HAS_CAAM
+	imply CPU
+	imply CPU_IMX
 
 config MU_BASE_SPL
 	hex "MU base address used in SPL"

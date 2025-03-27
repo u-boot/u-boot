@@ -2,7 +2,9 @@ SOCFPGA BOARD
 M:	Tien Fong Chee <tien.fong.chee@intel.com>
 M:	Teik Heng Chong <teik.heng.chong@intel.com>
 M:	Jit Loon Lim <jit.loon.lim@intel.com>
+M:	Dinesh Maniyam <dinesh.maniyam@intel.com>
 S:	Maintained
 F:	board/intel/agilex5-socdk/
 F:	include/configs/socfpga_agilex5_socdk.h
 F:	configs/socfpga_agilex5_defconfig
+F:	configs/socfpga_agilex5_nand2_defconfig

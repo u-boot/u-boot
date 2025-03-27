@@ -122,10 +122,8 @@ int fdt_fixup_reserved(void *blob, const char *name,
 
 	/* Find reserved-memory */
 	nodeoffset = fdt_subnode_offset(blob, 0, "reserved-memory");
-	if (nodeoffset < 0) {
-		debug("Could not find reserved-memory node\n");
-		return 0;
-	}
+	if (nodeoffset < 0)
+		goto add_carveout;
 
 	/* Find existing matching subnode and remove it */
 	fdt_for_each_subnode(subnode, blob, nodeoffset) {
@@ -154,6 +152,7 @@ int fdt_fixup_reserved(void *blob, const char *name,
 		}
 	}
 
+add_carveout:
 	struct fdt_memory carveout = {
 		.start = new_address,
 		.end = new_address + new_size - 1,

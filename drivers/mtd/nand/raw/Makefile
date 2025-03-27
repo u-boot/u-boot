@@ -10,6 +10,7 @@ NORMAL_DRIVERS=y
 endif
 
 obj-$(CONFIG_SPL_NAND_AM33XX_BCH) += am335x_spl_bch.o
+obj-$(CONFIG_SPL_NAND_CADENCE) += cadence_spl.o
 obj-$(CONFIG_SPL_NAND_DENALI) += denali_spl.o
 obj-$(CONFIG_SPL_NAND_SIMPLE) += nand_spl_simple.o
 obj-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
@@ -51,6 +52,7 @@ obj-$(CONFIG_NAND_ATMEL) += atmel_nand.o
 obj-$(CONFIG_DM_NAND_ATMEL) += atmel/
 obj-$(CONFIG_NAND_ARASAN) += arasan_nfc.o
 obj-$(CONFIG_NAND_BRCMNAND) += brcmnand/
+obj-$(CONFIG_NAND_CADENCE) += cadence_nand.o
 obj-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
 obj-$(CONFIG_NAND_DENALI) += denali.o
 obj-$(CONFIG_NAND_DENALI_DT) += denali_dt.o

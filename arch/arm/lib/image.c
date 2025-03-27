@@ -28,6 +28,13 @@ struct Image_header {
 	uint32_t	res5;
 };
 
+bool booti_is_valid(const void *img)
+{
+	const struct Image_header *ih = img;
+
+	return ih->magic == le32_to_cpu(LINUX_ARM64_IMAGE_MAGIC);
+}
+
 int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 		bool force_reloc)
 {
@@ -39,7 +46,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 
 	ih = (struct Image_header *)map_sysmem(image, 0);
 
-	if (ih->magic != le32_to_cpu(LINUX_ARM64_IMAGE_MAGIC)) {
+	if (!booti_is_valid(ih)) {
 		puts("Bad Linux ARM64 Image magic!\n");
 		return 1;
 	}

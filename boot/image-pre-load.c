@@ -3,12 +3,23 @@
  * Copyright (C) 2021 Philippe Reynes <philippe.reynes@softathome.com>
  */
 
+#ifdef USE_HOSTCC
+#include "mkimage.h"
+#else
 #include <asm/global_data.h>
-DECLARE_GLOBAL_DATA_PTR;
-#include <image.h>
 #include <mapmem.h>
+DECLARE_GLOBAL_DATA_PTR;
+#endif /* !USE_HOSTCC*/
 
+#include <image.h>
 #include <u-boot/sha256.h>
+
+#ifdef USE_HOSTCC
+/* Define compat stuff for use in tools. */
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+#endif
 
 /*
  * Offset of the image
@@ -17,6 +28,47 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 ulong image_load_offset;
 
+#ifdef USE_HOSTCC
+/* Host tools use these implementations to setup information related to the
+ * pre-load signatures
+ */
+static struct image_sig_info *host_info;
+
+#define log_info(fmt, args...)	printf(fmt, ##args)
+#define log_err(fmt, args...)	printf(fmt, ##args)
+
+void image_pre_load_sig_set_info(struct image_sig_info *info)
+{
+	host_info = info;
+}
+
+/*
+ * This function sets a pointer to information for the signature check.
+ * It expects that host_info has been initially provision by the host
+ * application.
+ *
+ * return:
+ * < 0 => an error has occurred
+ *   0 => OK
+ */
+static int image_pre_load_sig_setup(struct image_sig_info *info)
+{
+	if (!info) {
+		log_err("ERROR: info is NULL\n");
+		return -EINVAL;
+	}
+
+	if (!host_info) {
+		log_err("ERROR: host_info is NULL\n");
+		log_err("ERROR: Set it with image_pre_load_sig_set_info()\n");
+		return -EINVAL;
+	}
+
+	memcpy(info, host_info, sizeof(struct image_sig_info));
+
+	return 0;
+}
+#else
 /*
  * This function gathers information about the signature check
  * that could be done before launching the image.
@@ -106,6 +158,7 @@ static int image_pre_load_sig_setup(struct image_sig_info *info)
  out:
 	return ret;
 }
+#endif /* !USE_HOSTCC */
 
 static int image_pre_load_sig_get_magic(ulong addr, u32 *magic)
 {

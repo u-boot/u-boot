@@ -63,11 +63,6 @@
 		  "fi; " \
 		  "setenv extrabootargs $extrabootargs \"swi_attached\"; " \
 		"fi;" \
-		"run bootcmd_ubifs0;\0" \
-	"altbootcmd=" \
-		"setenv boot_syslinux_conf \"extlinux/extlinux-rollback.conf\"; " \
-		"run distro_bootcmd; " \
-		"setenv boot_syslinux_conf \"extlinux/extlinux.conf\"; " \
 		"run bootcmd_ubifs0;\0"
 
 #endif /* ! CONFIG_XPL_BUILD */

@@ -10,8 +10,6 @@
 
 #include <asm/arch/imx-regs.h>
 
-#define ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE	1
-
 /*
  * Configuration of the external SDRAM memory
  */

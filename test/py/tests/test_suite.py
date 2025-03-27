@@ -7,10 +7,10 @@ import re
 # List of test suites we expect to find with 'ut info' and 'ut all'
 EXPECTED_SUITES = [
     'addrmap', 'bdinfo', 'bloblist', 'bootm', 'bootstd',
-    'cmd', 'common', 'dm', 'env', 'exit',
+    'cmd', 'common', 'dm', 'env', 'exit', 'fdt_overlay',
     'fdt', 'font', 'hush', 'lib',
     'loadm', 'log', 'mbr', 'measurement', 'mem',
-    'overlay', 'pci_mps', 'setexpr', 'upl',
+    'pci_mps', 'setexpr', 'upl',
     ]
 
 
@@ -18,11 +18,11 @@ EXPECTED_SUITES = [
 DEBUG_ME = False
 
 
-def collect_info(cons, output):
+def collect_info(ubman, output):
     """Process the output from 'ut all'
 
     Args:
-        cons: U-Boot console object
+        ubman: U-Boot console object
         output: Output from running 'ut all'
 
     Returns:
@@ -45,15 +45,15 @@ def collect_info(cons, output):
     for line in output.splitlines():
         line = line.rstrip()
         if DEBUG_ME:
-            cons.log.info(f'line: {line}')
+            ubman.log.info(f'line: {line}')
         m = re.search('----Running ([^ ]*) tests----', line)
         if m:
             if DEBUG_ME and cur_suite and cur_suite != 'info':
-                cons.log.info(f'suite: {cur_suite} expected {exp_test_count[cur_suite]} found {test_count}')
+                ubman.log.info(f'suite: {cur_suite} expected {exp_test_count[cur_suite]} found {test_count}')
 
             cur_suite = m.group(1)
             if DEBUG_ME:
-                cons.log.info(f'cur_suite: {cur_suite}')
+                ubman.log.info(f'cur_suite: {cur_suite}')
             suites.add(cur_suite)
 
             test_count = 0
@@ -65,18 +65,19 @@ def collect_info(cons, output):
             test_name = m.group(1)
             msg = m.group(3)
             if DEBUG_ME:
-                cons.log.info(f"test_name {test_name} msg '{msg}'")
-            if msg == ' (flat tree)' and test_name not in tests:
-                tests.add(test_name)
+                ubman.log.info(f"test_name {test_name} msg '{msg}'")
+            full_name = f'{cur_suite}.{test_name}'
+            if msg == ' (flat tree)' and full_name not in tests:
+                tests.add(full_name)
                 test_count += 1
             if not msg or 'skipped as it is manual' in msg:
-                tests.add(test_name)
+                tests.add(full_name)
                 test_count += 1
         if DEBUG_ME:
-            cons.log.info(f'test_count {test_count}')
+            ubman.log.info(f'test_count {test_count}')
     if DEBUG_ME:
-        cons.log.info(f'suite: {cur_suite} expected {exp_test_count[cur_suite]} found {test_count}')
-        cons.log.info(f"Tests: {' '.join(sorted(list(tests)))}")
+        ubman.log.info(f'suite: {cur_suite} expected {exp_test_count[cur_suite]} found {test_count}')
+        ubman.log.info(f"Tests: {' '.join(sorted(list(tests)))}")
 
     # Figure out what is missing, or extra
     missing = set()
@@ -90,11 +91,11 @@ def collect_info(cons, output):
     return suites, tests, exp_test_count, missing, extra
 
 
-def process_ut_info(cons, output):
+def process_ut_info(ubman, output):
     """Process the output of the 'ut info' command
 
     Args:
-        cons: U-Boot console object
+        ubman: U-Boot console object
         output: Output from running 'ut all'
 
     Returns:
@@ -112,7 +113,7 @@ def process_ut_info(cons, output):
     for line in output.splitlines():
         line = line.rstrip()
         if DEBUG_ME:
-            cons.log.info(f'line: {line}')
+            ubman.log.info(f'line: {line}')
         m = re.match(r'Test suites: (.*)', line)
         if m:
             suite_count = int(m.group(1))
@@ -129,60 +130,78 @@ def process_ut_info(cons, output):
 @pytest.mark.notbuildconfigspec('sandbox_spl')
 @pytest.mark.notbuildconfigspec('sandbox64')
 # This test is disabled since it fails; remove the leading 'x' to try it
-def xtest_suite(u_boot_console, u_boot_config):
+def xtest_suite(ubman, u_boot_config):
     """Perform various checks on the unit tests, including:
 
        - The number of suites matches that reported by the 'ut info'
        - Where available, the number of tests is each suite matches that
-         reported by 'ut info -s'
+         reported by 'ut -s info'
        - The total number of tests adds up to the total that are actually run
          with 'ut all'
        - All suites are run with 'ut all'
        - The expected set of suites is run (the list is hard-coded in this test)
 
     """
-    cons = u_boot_console
     buildconfig = u_boot_config.buildconfig
-    with cons.log.section('Run all unit tests'):
+    with ubman.log.section('Run all unit tests'):
         # ut hush hush_test_simple_dollar prints "Unknown command" on purpose.
-        with u_boot_console.disable_check('unknown_command'):
-            output = cons.run_command('ut all')
+        with ubman.disable_check('unknown_command'):
+            output = ubman.run_command('ut all')
 
     # Process the output from the run
-    with cons.log.section('Check output'):
-        suites, all_tests, exp_test_count, missing, extra = collect_info(cons,
+    with ubman.log.section('Check output'):
+        suites, all_tests, exp_test_count, missing, extra = collect_info(ubman,
                                                                          output)
-    cons.log.info(f'missing {missing}')
-    cons.log.info(f'extra {extra}')
+    ubman.log.info(f'missing {missing}')
+    ubman.log.info(f'extra {extra}')
 
     # Make sure we got a test count for each suite
     assert not (suites - exp_test_count.keys())
 
     # Deal with missing suites
-    with cons.log.section('Check missing suites'):
+    with ubman.log.section('Check missing suites'):
         if 'config_cmd_seama' not in buildconfig:
-            cons.log.info("CMD_SEAMA not enabled: Ignoring suite 'seama'")
+            ubman.log.info("CMD_SEAMA not enabled: Ignoring suite 'seama'")
             missing.discard('seama')
 
     # Run 'ut info' and compare with the log results
-    with cons.log.section('Check suite test-counts'):
-        output = cons.run_command('ut info -s')
+    with ubman.log.section('Check suite test-counts'):
+        output = ubman.run_command('ut -s info')
 
-        suite_count, total_test_count, test_count = process_ut_info(cons,
+        suite_count, total_test_count, test_count = process_ut_info(ubman,
                                                                     output)
 
         if missing or extra:
-            cons.log.info(f"suites: {' '.join(sorted(list(suites)))}")
-            cons.log.error(f'missing: {sorted(list(missing))}')
-            cons.log.error(f'extra: {sorted(list(extra))}')
+            ubman.log.info(f"suites: {' '.join(sorted(list(suites)))}")
+            ubman.log.error(f'missing: {sorted(list(missing))}')
+            ubman.log.error(f'extra: {sorted(list(extra))}')
 
         assert not missing, f'Missing suites {missing}'
         assert not extra, f'Extra suites {extra}'
 
-        cons.log.info(str(exp_test_count))
+        ubman.log.info(str(exp_test_count))
         for suite in EXPECTED_SUITES:
             assert test_count[suite] in ['?', str(exp_test_count[suite])], \
                 f'suite {suite} expected {exp_test_count[suite]}'
 
         assert suite_count == len(EXPECTED_SUITES)
         assert total_test_count == len(all_tests)
+
+    # Run three suites
+    with ubman.log.section('Check multiple suites'):
+        output = ubman.run_command('ut bloblist,setexpr,mem')
+        assert 'Suites run: 3' in output
+
+    # Run a particular test
+    with ubman.log.section('Check single test'):
+        output = ubman.run_command('ut bloblist reloc')
+        assert 'Test: reloc: bloblist.c' in output
+
+    # Run tests multiple times
+    with ubman.log.section('Check multiple runs'):
+        output = ubman.run_command('ut -r2 bloblist')
+        lines = output.splitlines()
+        run = len([line for line in lines if 'Test:' in line])
+        count = re.search(r'Tests run: (\d*)', lines[-1]).group(1)
+
+        assert run == 2 * int(count)

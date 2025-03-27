@@ -90,7 +90,7 @@ static const struct clk_ops clk_gate2_ops = {
 	.get_rate = clk_generic_get_rate,
 };
 
-struct clk *clk_register_gate2(struct device *dev, const char *name,
+struct clk *clk_register_gate2(struct udevice *dev, const char *name,
 		const char *parent_name, unsigned long flags,
 		void __iomem *reg, u8 bit_idx, u8 cgr_val,
 		u8 clk_gate2_flags, unsigned int *share_count)
@@ -111,7 +111,8 @@ struct clk *clk_register_gate2(struct device *dev, const char *name,
 
 	clk = &gate->clk;
 
-	ret = clk_register(clk, UBOOT_DM_CLK_IMX_GATE2, name, parent_name);
+	ret = clk_register(clk, UBOOT_DM_CLK_IMX_GATE2, name,
+		clk_resolve_parent_clk(dev, parent_name));
 	if (ret) {
 		kfree(gate);
 		return ERR_PTR(ret);

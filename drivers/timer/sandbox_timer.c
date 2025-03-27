@@ -18,6 +18,11 @@ void timer_test_add_offset(unsigned long offset)
 	sandbox_timer_offset += offset;
 }
 
+ulong timer_test_get_offset(void)
+{
+	return sandbox_timer_offset;
+};
+
 u64 notrace timer_early_get_count(void)
 {
 	return os_get_nsec() / 1000 + sandbox_timer_offset * 1000;

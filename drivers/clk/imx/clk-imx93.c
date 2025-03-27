@@ -291,15 +291,15 @@ static int imx93_clk_probe(struct udevice *dev)
 	clk_dm(IMX93_CLK_SYS_PLL_PFD0,
 	       clk_register_fixed_rate(NULL, "sys_pll_pfd0", 1000000000));
 	clk_dm(IMX93_CLK_SYS_PLL_PFD0_DIV2,
-	       imx_clk_fixed_factor("sys_pll_pfd0_div2", "sys_pll_pfd0", 1, 2));
+	       imx_clk_fixed_factor(dev, "sys_pll_pfd0_div2", "sys_pll_pfd0", 1, 2));
 	clk_dm(IMX93_CLK_SYS_PLL_PFD1,
 	       clk_register_fixed_rate(NULL, "sys_pll_pfd1", 800000000));
 	clk_dm(IMX93_CLK_SYS_PLL_PFD1_DIV2,
-	       imx_clk_fixed_factor("sys_pll_pfd1_div2", "sys_pll_pfd1", 1, 2));
+	       imx_clk_fixed_factor(dev, "sys_pll_pfd1_div2", "sys_pll_pfd1", 1, 2));
 	clk_dm(IMX93_CLK_SYS_PLL_PFD2,
 	       clk_register_fixed_rate(NULL, "sys_pll_pfd2", 625000000));
 	clk_dm(IMX93_CLK_SYS_PLL_PFD2_DIV2,
-	       imx_clk_fixed_factor("sys_pll_pfd2_div2", "sys_pll_pfd2", 1, 2));
+	       imx_clk_fixed_factor(dev, "sys_pll_pfd2_div2", "sys_pll_pfd2", 1, 2));
 
 	anatop_base = (void *)ANATOP_BASE_ADDR;
 
@@ -338,7 +338,7 @@ static int imx93_clk_probe(struct udevice *dev)
 	}
 
 	clk_dm(IMX93_CLK_A55_SEL,
-	       imx_clk_mux2("a55_sel", base + 0x4820, 0, 1,
+	       imx_clk_mux2(dev, "a55_sel", base + 0x4820, 0, 1,
 			    a55_core_sels, ARRAY_SIZE(a55_core_sels)));
 
 	return 0;

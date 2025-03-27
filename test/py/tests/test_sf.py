@@ -5,7 +5,7 @@
 import re
 import pytest
 import random
-import u_boot_utils
+import utils
 
 """
 Note: This test relies on boardenv_* containing configuration values to define
@@ -44,11 +44,11 @@ env__sf_configs = (
 )
 """
 
-def sf_prepare(u_boot_console, env__sf_config):
+def sf_prepare(ubman, env__sf_config):
     """Check global state of the SPI Flash before running any test.
 
    Args:
-        u_boot_console: A U-Boot console connection.
+        ubman: A U-Boot console connection.
         env__sf_config: The single SPI Flash device configuration on which to
             run the tests.
 
@@ -57,7 +57,7 @@ def sf_prepare(u_boot_console, env__sf_config):
     """
 
     sf_params = {}
-    sf_params['ram_base'] = u_boot_utils.find_ram_base(u_boot_console)
+    sf_params['ram_base'] = utils.find_ram_base(ubman)
 
     probe_id = env__sf_config.get('id', 0)
     speed = env__sf_config.get('speed', 0)
@@ -69,7 +69,7 @@ def sf_prepare(u_boot_console, env__sf_config):
 
     cmd = 'sf probe %d %d' % (probe_id, sf_params['speed'])
 
-    output = u_boot_console.run_command(cmd)
+    output = ubman.run_command(cmd)
     assert 'SF: Detected' in output, 'No Flash device available'
 
     m = re.search('page size (.+?) Bytes', output)
@@ -101,12 +101,12 @@ def sf_prepare(u_boot_console, env__sf_config):
 
     return sf_params
 
-def sf_read(u_boot_console, env__sf_config, sf_params):
+def sf_read(ubman, env__sf_config, sf_params):
     """Helper function used to read and compute the CRC32 value of a section of
     SPI Flash memory.
 
     Args:
-        u_boot_console: A U-Boot console connection.
+        ubman: A U-Boot console connection.
         env__sf_config: The single SPI Flash device configuration on which to
             run the tests.
         sf_params: SPI Flash parameters.
@@ -122,26 +122,26 @@ def sf_read(u_boot_console, env__sf_config, sf_params):
     crc_expected = env__sf_config.get('crc32', None)
 
     cmd = 'mw.b %08x %02x %x' % (addr, pattern, count)
-    u_boot_console.run_command(cmd)
-    crc_pattern = u_boot_utils.crc32(u_boot_console, addr, count)
+    ubman.run_command(cmd)
+    crc_pattern = utils.crc32(ubman, addr, count)
     if crc_expected:
         assert crc_pattern != crc_expected
 
     cmd = 'sf read %08x %08x %x' % (addr, offset, count)
-    response = u_boot_console.run_command(cmd)
+    response = ubman.run_command(cmd)
     assert 'Read: OK' in response, 'Read operation failed'
-    crc_readback = u_boot_utils.crc32(u_boot_console, addr, count)
+    crc_readback = utils.crc32(ubman, addr, count)
     assert crc_pattern != crc_readback, 'sf read did not update RAM content.'
     if crc_expected:
         assert crc_readback == crc_expected
 
     return crc_readback
 
-def sf_update(u_boot_console, env__sf_config, sf_params):
+def sf_update(ubman, env__sf_config, sf_params):
     """Helper function used to update a section of SPI Flash memory.
 
    Args:
-        u_boot_console: A U-Boot console connection.
+        ubman: A U-Boot console connection.
         env__sf_config: The single SPI Flash device configuration on which to
            run the tests.
 
@@ -155,63 +155,63 @@ def sf_update(u_boot_console, env__sf_config, sf_params):
     pattern = int(random.random() * 0xFF)
 
     cmd = 'mw.b %08x %02x %x' % (addr, pattern, count)
-    u_boot_console.run_command(cmd)
-    crc_pattern = u_boot_utils.crc32(u_boot_console, addr, count)
+    ubman.run_command(cmd)
+    crc_pattern = utils.crc32(ubman, addr, count)
 
     cmd = 'sf update %08x %08x %x' % (addr, offset, count)
-    u_boot_console.run_command(cmd)
-    crc_readback = sf_read(u_boot_console, env__sf_config, sf_params)
+    ubman.run_command(cmd)
+    crc_readback = sf_read(ubman, env__sf_config, sf_params)
 
     assert crc_readback == crc_pattern
 
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_crc32')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_sf_read(u_boot_console, env__sf_config):
-    sf_params = sf_prepare(u_boot_console, env__sf_config)
-    sf_read(u_boot_console, env__sf_config, sf_params)
+def test_sf_read(ubman, env__sf_config):
+    sf_params = sf_prepare(ubman, env__sf_config)
+    sf_read(ubman, env__sf_config, sf_params)
 
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_crc32')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_sf_read_twice(u_boot_console, env__sf_config):
-    sf_params = sf_prepare(u_boot_console, env__sf_config)
+def test_sf_read_twice(ubman, env__sf_config):
+    sf_params = sf_prepare(ubman, env__sf_config)
 
-    crc1 = sf_read(u_boot_console, env__sf_config, sf_params)
+    crc1 = sf_read(ubman, env__sf_config, sf_params)
     sf_params['ram_base'] += 0x100
-    crc2 = sf_read(u_boot_console, env__sf_config, sf_params)
+    crc2 = sf_read(ubman, env__sf_config, sf_params)
 
     assert crc1 == crc2, 'CRC32 of two successive read operation do not match'
 
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_crc32')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_sf_erase(u_boot_console, env__sf_config):
+def test_sf_erase(ubman, env__sf_config):
     if not env__sf_config.get('writeable', False):
         pytest.skip('Flash config is tagged as not writeable')
 
-    sf_params = sf_prepare(u_boot_console, env__sf_config)
+    sf_params = sf_prepare(ubman, env__sf_config)
     addr = sf_params['ram_base']
     offset = env__sf_config['offset']
     count = sf_params['len']
 
     cmd = 'sf erase %08x %x' % (offset, count)
-    output = u_boot_console.run_command(cmd)
+    output = ubman.run_command(cmd)
     assert 'Erased: OK' in output, 'Erase operation failed'
 
     cmd = 'mw.b %08x ff %x' % (addr, count)
-    u_boot_console.run_command(cmd)
-    crc_ffs = u_boot_utils.crc32(u_boot_console, addr, count)
+    ubman.run_command(cmd)
+    crc_ffs = utils.crc32(ubman, addr, count)
 
-    crc_read = sf_read(u_boot_console, env__sf_config, sf_params)
+    crc_read = sf_read(ubman, env__sf_config, sf_params)
     assert crc_ffs == crc_read, 'Unexpected CRC32 after erase operation.'
 
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.buildconfigspec('cmd_crc32')
 @pytest.mark.buildconfigspec('cmd_memory')
-def test_sf_update(u_boot_console, env__sf_config):
+def test_sf_update(ubman, env__sf_config):
     if not env__sf_config.get('writeable', False):
         pytest.skip('Flash config is tagged as not writeable')
 
-    sf_params = sf_prepare(u_boot_console, env__sf_config)
-    sf_update(u_boot_console, env__sf_config, sf_params)
+    sf_params = sf_prepare(ubman, env__sf_config)
+    sf_update(ubman, env__sf_config, sf_params)

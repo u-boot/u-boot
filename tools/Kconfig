@@ -9,6 +9,11 @@ config MKIMAGE_DTC_PATH
 	  some cases the system dtc may not support all required features
 	  and the path to a different version should be given here.
 
+config TOOLS_IMAGE_PRE_LOAD
+	def_bool y
+	help
+	  Enable pre-load signature support in the tools builds.
+
 config TOOLS_CRC16
 	def_bool y
 	help

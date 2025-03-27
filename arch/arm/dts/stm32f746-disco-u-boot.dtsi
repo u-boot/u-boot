@@ -22,16 +22,6 @@
 		mmc0 = &sdio1;
 		spi0 = &qspi;
 	};
-
-	button1 {
-		compatible = "st,button1";
-		button-gpio = <&gpioi 11 0>;
-	};
-
-	led1 {
-		compatible = "st,led1";
-		led-gpio = <&gpioi 1 0>;
-	};
 };
 
 &ltdc {
