@@ -573,9 +573,6 @@ u32 get_mmc_size_from_eeprom(void)
 {
 	u32 size;
 
-	if (IS_ENABLED(CONFIG_STARFIVE_NO_EMMC))
-		return 0;
-
 	if (read_eeprom())
 		return 0;
 
