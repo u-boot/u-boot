@@ -13,6 +13,13 @@ config FAT_WRITE
 	  This provides support for creating and writing new files to an
 	  existing FAT filesystem partition.
 
+config FAT_RENAME
+	bool "Enable filesystem rename support"
+	depends on FAT_WRITE
+	help
+	  This provides support for renaming and moving files within a
+	  FAT filesystem partition.
+
 config FS_FAT_MAX_CLUSTSIZE
 	int "Set maximum possible clustersize"
 	default 65536

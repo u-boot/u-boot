@@ -93,6 +93,7 @@ Shell commands
    cmd/msr
    cmd/mtest
    cmd/mtrr
+   cmd/mv
    cmd/optee
    cmd/panic
    cmd/part

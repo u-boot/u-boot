@@ -153,6 +153,12 @@ config CMD_STM32KEY
 		This command is used to evaluate the secure boot on stm32mp SOC,
 		it is deactivated by default in real products.
 
+config MFD_STM32_TIMERS
+	bool "STM32 multifonction timer support"
+	help
+	  Select this to enable support for the multifunction timer found on
+	  STM32 devices.
+
 source "arch/arm/mach-stm32mp/Kconfig.13x"
 source "arch/arm/mach-stm32mp/Kconfig.15x"
 source "arch/arm/mach-stm32mp/Kconfig.25x"

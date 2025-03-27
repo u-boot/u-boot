@@ -285,9 +285,96 @@ static err_t httpc_headers_done_cb(httpc_state_t *connection, void *arg, struct 
 	return ERR_OK;
 }
 
+#if CONFIG_IS_ENABLED(WGET_HTTPS)
+enum auth_mode {
+	AUTH_NONE,
+	AUTH_OPTIONAL,
+	AUTH_REQUIRED,
+};
+
+static char *cacert;
+static size_t cacert_size;
+static enum auth_mode cacert_auth_mode = AUTH_OPTIONAL;
+#endif
+
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+static int set_auth(enum auth_mode auth)
+{
+	cacert_auth_mode = auth;
+
+	return CMD_RET_SUCCESS;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+extern const char builtin_cacert[];
+extern const size_t builtin_cacert_size;
+static bool cacert_initialized;
+#endif
+
+#if CONFIG_IS_ENABLED(WGET_CACERT) || CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+static int _set_cacert(const void *addr, size_t sz)
+{
+	mbedtls_x509_crt crt;
+	void *p;
+	int ret;
+
+	if (cacert)
+		free(cacert);
+
+	if (!addr) {
+		cacert = NULL;
+		cacert_size = 0;
+		return CMD_RET_SUCCESS;
+	}
+
+	p = malloc(sz);
+	if (!p)
+		return CMD_RET_FAILURE;
+	cacert = p;
+	cacert_size = sz;
+
+	memcpy(cacert, (void *)addr, sz);
+
+	mbedtls_x509_crt_init(&crt);
+	ret = mbedtls_x509_crt_parse(&crt, cacert, cacert_size);
+	if (ret) {
+		printf("Could not parse certificates (%d)\n", ret);
+		free(cacert);
+		cacert = NULL;
+		cacert_size = 0;
+		return CMD_RET_FAILURE;
+	}
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+	cacert_initialized = true;
+#endif
+	return CMD_RET_SUCCESS;
+}
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+static int set_cacert_builtin(void)
+{
+	return _set_cacert(builtin_cacert, builtin_cacert_size);
+}
+#endif
+
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+static int set_cacert(char * const saddr, char * const ssz)
+{
+	ulong addr, sz;
+
+	addr = hextoul(saddr, NULL);
+	sz = hextoul(ssz, NULL);
+
+	return _set_cacert((void *)addr, sz);
+}
+#endif
+#endif  /* CONFIG_WGET_CACERT || CONFIG_WGET_BUILTIN_CACERT */
+
 static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 {
-#if defined CONFIG_WGET_HTTPS
+#if CONFIG_IS_ENABLED(WGET_HTTPS)
 	altcp_allocator_t tls_allocator;
 #endif
 	httpc_connection_t conn;
@@ -312,11 +399,41 @@ static int wget_loop(struct udevice *udev, ulong dst_addr, char *uri)
 		return -1;
 
 	memset(&conn, 0, sizeof(conn));
-#if defined CONFIG_WGET_HTTPS
+#if CONFIG_IS_ENABLED(WGET_HTTPS)
 	if (is_https) {
+		char *ca;
+		size_t ca_sz;
+
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+		if (!cacert_initialized)
+			set_cacert_builtin();
+#endif
+		ca = cacert;
+		ca_sz = cacert_size;
+
+		if (cacert_auth_mode == AUTH_REQUIRED) {
+			if (!ca || !ca_sz) {
+				printf("Error: cacert authentication mode is "
+				       "'required' but no CA certificates "
+				       "given\n");
+				return CMD_RET_FAILURE;
+		       }
+		} else if (cacert_auth_mode == AUTH_NONE) {
+			ca = NULL;
+			ca_sz = 0;
+		} else if (cacert_auth_mode == AUTH_OPTIONAL) {
+			/*
+			 * Nothing to do, this is the default behavior of
+			 * altcp_tls to check server certificates against CA
+			 * certificates when the latter are provided and proceed
+			 * with no verification if not.
+			 */
+		}
+
 		tls_allocator.alloc = &altcp_tls_alloc;
 		tls_allocator.arg =
-			altcp_tls_create_config_client(NULL, 0, ctx.server_name);
+			altcp_tls_create_config_client(ca, ca_sz,
+						       ctx.server_name);
 
 		if (!tls_allocator.arg) {
 			log_err("error: Cannot create a TLS connection\n");
@@ -368,6 +485,24 @@ int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
 	char *url;
 	ulong dst_addr;
 	char nurl[1024];
+
+#if CONFIG_IS_ENABLED(WGET_CACERT)
+	if (argc == 4 && !strncmp(argv[1], "cacert", strlen("cacert")))
+		return set_cacert(argv[2], argv[3]);
+	if (argc == 3 && !strncmp(argv[1], "cacert", strlen("cacert"))) {
+#if CONFIG_IS_ENABLED(WGET_BUILTIN_CACERT)
+		if (!strncmp(argv[2], "builtin", strlen("builtin")))
+			return set_cacert_builtin();
+#endif
+		if (!strncmp(argv[2], "none", strlen("none")))
+			return set_auth(AUTH_NONE);
+		if (!strncmp(argv[2], "optional", strlen("optional")))
+			return set_auth(AUTH_OPTIONAL);
+		if (!strncmp(argv[2], "required", strlen("required")))
+			return set_auth(AUTH_REQUIRED);
+		return CMD_RET_USAGE;
+	}
+#endif
 
 	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;

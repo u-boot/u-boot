@@ -550,6 +550,7 @@ config TARGET_LXR2
 	select DM_THERMAL
 	select SUPPORT_SPL
 	imply CMD_DM
+	imply OF_UPSTREAM
 
 config TARGET_PCM058
 	bool "Phytec PCM058 i.MX6 Quad"

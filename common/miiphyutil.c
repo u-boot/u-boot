@@ -65,7 +65,7 @@ struct mii_dev *mdio_alloc(void)
 
 	memset(bus, 0, sizeof(*bus));
 
-	/* initalize mii_dev struct fields */
+	/* initialize mii_dev struct fields */
 	INIT_LIST_HEAD(&bus->link);
 
 	return bus;

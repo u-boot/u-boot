@@ -100,7 +100,9 @@ int dram_init_banksize(void)
  * Push the variable into the .data section so that it
  * does not get cleared later.
  */
+#ifdef CONFIG_OF_HAS_PRIOR_STAGE
 unsigned long __section(".data") prior_stage_fdt_address[2];
+#endif
 
 #ifdef CONFIG_OF_BOARD
 
@@ -151,6 +153,7 @@ static phys_addr_t find_dtb_in_nor_flash(const char *partname)
 }
 #endif
 
+#ifdef CONFIG_OF_HAS_PRIOR_STAGE
 /*
  * Filter for a valid DTB, as TF-A happens to provide a pointer to some
  * data structure using the DTB format, which we cannot use.
@@ -200,6 +203,7 @@ int board_fdt_blob_setup(void **fdtp)
 
 	return -ENXIO;
 }
+#endif
 #endif
 
 /* Actual reset is done via PSCI. */

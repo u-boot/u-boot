@@ -13,8 +13,8 @@ import os
 import pathlib
 import sys
 
-from patman import gitutil
 from patman import project
+from u_boot_pylib import gitutil
 from patman import settings
 
 PATMAN_DIR = pathlib.Path(__file__).parent

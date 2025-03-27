@@ -3626,7 +3626,13 @@ static char *make_string(char **inp, int *nonnull)
 		noeval = 1;
 	for (n = 0; inp[n]; n++) {
 		p = insert_var_value_sub(inp[n], noeval);
-		str = xrealloc(str, (len + strlen(p) + (2 * nonnull[n])));
+		char *new_str = xrealloc(str, (len + strlen(p) + (2 * nonnull[n])));
+		if (!new_str) {
+			free(str);
+			if (p != inp[n]) free(p);
+			return NULL;
+		}
+		str = new_str;
 		if (n) {
 			strcat(str, " ");
 		} else {

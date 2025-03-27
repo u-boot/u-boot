@@ -5,6 +5,7 @@
 #include <command.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <hexdump.h>
 #include <lwip/ip4_addr.h>
 #include <lwip/err.h>
 #include <lwip/netif.h>
@@ -30,11 +31,17 @@ char *pxelinux_configfile;
 struct in_addr	net_ip;
 char net_boot_file_name[1024];
 
-static err_t linkoutput(struct netif *netif, struct pbuf *p)
+static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 {
 	struct udevice *udev = netif->state;
 	void *pp = NULL;
 	int err;
+
+	if (CONFIG_IS_ENABLED(LWIP_DEBUG_RXTX)) {
+		printf("net_lwip_tx: %u bytes, udev %s\n", p->len, udev->name);
+		print_hex_dump("net_lwip_tx: ", 0, 16, 1, p->payload, p->len,
+			       true);
+	}
 
 	if ((unsigned long)p->payload % PKTALIGN) {
 		/*
@@ -60,7 +67,7 @@ static err_t linkoutput(struct netif *netif, struct pbuf *p)
 static err_t net_lwip_if_init(struct netif *netif)
 {
 	netif->output = etharp_output;
-	netif->linkoutput = linkoutput;
+	netif->linkoutput = net_lwip_tx;
 	netif->mtu = 1500;
 	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
 
@@ -265,6 +272,13 @@ int net_lwip_rx(struct udevice *udev, struct netif *netif)
 		flags = 0;
 
 		if (len > 0) {
+			if (CONFIG_IS_ENABLED(LWIP_DEBUG_RXTX)) {
+				printf("net_lwip_tx: %u bytes, udev %s \n", len,
+				       udev->name);
+				print_hex_dump("net_lwip_rx: ", 0, 16, 1,
+					       packet, len, true);
+			}
+
 			pbuf = alloc_pbuf_and_copy(packet, len);
 			if (pbuf)
 				netif->input(pbuf, netif);

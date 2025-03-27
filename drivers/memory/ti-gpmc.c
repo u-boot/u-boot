@@ -1242,4 +1242,5 @@ U_BOOT_DRIVER(ti_gpmc) = {
 	.of_match = gpmc_dt_ids,
 	.probe  = gpmc_probe,
 	.flags  = DM_FLAG_ALLOC_PRIV_DMA,
+	.priv_auto = sizeof(struct ti_gpmc),
 };

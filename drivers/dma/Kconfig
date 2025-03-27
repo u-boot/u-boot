@@ -76,6 +76,13 @@ config XILINX_DPDMA
 	  this file is used as placeholder for driver. The main reason is
 	  to record compatible string and calling power domain driver.
 
+config ADI_DMA
+	bool "ADI DMA driver"
+	depends on DMA && DMA_CHANNELS
+	help
+	  Enable DMA support for Analog Devices SOCs, such as the SC5xx.
+	  Currently this is a minimalistic driver tested against OSPI use only.
+
 if APBH_DMA
 config APBH_DMA_BURST
 	bool "Enable DMA BURST"

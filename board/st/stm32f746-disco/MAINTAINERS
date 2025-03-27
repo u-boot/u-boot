@@ -1,5 +1,5 @@
 STM32F746 DISCOVERY BOARD
-M:	Vikas Manocha <vikas.manocha@st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 S:	Maintained
 F:	doc/board/st/
 F:	board/st/stm32f746-disco

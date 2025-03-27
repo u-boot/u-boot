@@ -14,6 +14,7 @@
 #include <net.h>
 #include <of_live.h>
 #include <os.h>
+#include <spl.h>
 #include <usb.h>
 #include <dm/ofnode.h>
 #include <dm/root.h>
@@ -513,11 +514,12 @@ static int ut_run_test(struct unit_test_state *uts, struct unit_test *test,
  *	the first call to this function. On exit, @uts->cur.fail_count is
  *	incremented by the number of failures (0, one hopes)
  * @test: Test to run
+ * @leaf: Part of the name to show, or NULL to use test->name
  * Return: 0 if all tests passed, -EAGAIN if the test should be skipped, -1 if
  *	any failed
  */
 static int ut_run_test_live_flat(struct unit_test_state *uts,
-				 struct unit_test *test)
+				 struct unit_test *test, const char *leaf)
 {
 	int runs, ret;
 
@@ -529,7 +531,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	if (CONFIG_IS_ENABLED(OF_LIVE)) {
 		if (!(test->flags & UTF_FLAT_TREE)) {
 			uts->of_live = true;
-			ret = ut_run_test(uts, test, test->name);
+			ret = ut_run_test(uts, test, leaf ?: test->name);
 			if (ret != -EAGAIN) {
 				ut_assertok(ret);
 				runs++;
@@ -557,7 +559,7 @@ static int ut_run_test_live_flat(struct unit_test_state *uts,
 	    (!runs || ut_test_run_on_flattree(test)) &&
 	    !(gd->flags & GD_FLG_FDT_CHANGED)) {
 		uts->of_live = false;
-		ret = ut_run_test(uts, test, test->name);
+		ret = ut_run_test(uts, test, leaf ?: test->name);
 		if (ret != -EAGAIN) {
 			ut_assertok(ret);
 			runs++;
@@ -593,6 +595,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			struct unit_test *tests, int count,
 			const char *select_name, const char *test_insert)
 {
+	int prefix_len = prefix ? strlen(prefix) : 0;
 	struct unit_test *test, *one;
 	int found = 0;
 	int pos = 0;
@@ -617,7 +620,8 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 		const char *test_name = test->name;
 		int ret, i, old_fail_count;
 
-		if (!test_matches(prefix, test_name, select_name))
+		if (!(test->flags & (UTF_INIT | UTF_UNINIT)) &&
+		    !test_matches(prefix, test_name, select_name))
 			continue;
 
 		if (test->flags & UTF_MANUAL) {
@@ -645,7 +649,7 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 
 		uts->cur.test_count++;
 		if (one && upto == pos) {
-			ret = ut_run_test_live_flat(uts, one);
+			ret = ut_run_test_live_flat(uts, one, NULL);
 			if (uts->cur.fail_count != old_fail_count) {
 				printf("Test '%s' failed %d times (position %d)\n",
 				       one->name,
@@ -655,8 +659,11 @@ static int ut_run_tests(struct unit_test_state *uts, const char *prefix,
 			return -EBADF;
 		}
 
+		if (prefix_len && !strncmp(test_name, prefix, prefix_len))
+			test_name = test_name + prefix_len;
+
 		for (i = 0; i < uts->runs_per_test; i++)
-			ret = ut_run_test_live_flat(uts, test);
+			ret = ut_run_test_live_flat(uts, test, test_name);
 		if (uts->cur.fail_count != old_fail_count) {
 			printf("Test '%s' failed %d times\n", test_name,
 			       uts->cur.fail_count - old_fail_count);
@@ -680,6 +687,12 @@ void ut_report(struct ut_stats *stats, int run_count)
 	else
 		printf("Tests");
 	printf(" run: %d, ", stats->test_count);
+	if (stats && stats->test_count) {
+		ulong dur = stats->duration_ms;
+
+		printf("%ld ms, average: %ld ms, ", dur,
+		       dur ? dur / stats->test_count : 0);
+	}
 	if (stats->skip_count)
 		printf("skipped: %d, ", stats->skip_count);
 	printf("failures: %d\n", stats->fail_count);
@@ -692,16 +705,22 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 {
 	;
 	bool has_dm_tests = false;
+	ulong start_offset = 0;
+	ulong test_offset = 0;
 	int ret;
 
 	memset(&uts->cur, '\0', sizeof(struct ut_stats));
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION)) {
+		uts->cur.start = get_timer(0);
+		start_offset = timer_test_get_offset();
+	}
 
 	if (!CONFIG_IS_ENABLED(OF_PLATDATA) &&
 	    ut_list_has_dm_tests(tests, count, prefix, select_name)) {
 		has_dm_tests = true;
 		/*
 		 * If we have no device tree, or it only has a root node, then
-		 * these * tests clearly aren't going to work...
+		 * these tests clearly aren't going to work...
 		 */
 		if (!gd->fdt_blob || fdt_next_node(gd->fdt_blob, 0, NULL) < 0) {
 			puts("Please run with test device tree:\n"
@@ -732,13 +751,19 @@ int ut_run_list(struct unit_test_state *uts, const char *category,
 	if (has_dm_tests)
 		dm_test_restore(uts->of_root);
 
-	ut_report(&uts->cur, 1);
 	if (ret == -ENOENT)
 		printf("Test '%s' not found\n", select_name);
+	if (CONFIG_IS_ENABLED(UNIT_TEST_DURATION)) {
+		test_offset = timer_test_get_offset() - start_offset;
+
+		uts->cur.duration_ms = get_timer(uts->cur.start) - test_offset;
+	}
+	ut_report(&uts->cur, 1);
 
 	uts->total.skip_count += uts->cur.skip_count;
 	uts->total.fail_count += uts->cur.fail_count;
 	uts->total.test_count += uts->cur.test_count;
+	uts->total.duration_ms += uts->cur.duration_ms;
 	uts->run_count++;
 
 	return ret;

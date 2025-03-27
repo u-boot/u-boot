@@ -119,6 +119,35 @@ int sysinfo_get_data(struct udevice *dev, int id, void **data, size_t *size)
 	return ops->get_data(dev, id, data, size);
 }
 
+int sysinfo_get_item_count(struct udevice *dev, int id)
+{
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
+	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
+
+	if (!ops->get_item_count)
+		return -ENOSYS;
+
+	return ops->get_item_count(dev, id);
+}
+
+int sysinfo_get_data_by_index(struct udevice *dev, int id, int index,
+			      void **data, size_t *size)
+{
+	struct sysinfo_priv *priv = dev_get_uclass_priv(dev);
+	struct sysinfo_ops *ops = sysinfo_get_ops(dev);
+
+	if (!priv->detected)
+		return -EPERM;
+
+	if (!ops->get_data_by_index)
+		return -ENOSYS;
+
+	return ops->get_data_by_index(dev, id, index, data, size);
+}
+
 UCLASS_DRIVER(sysinfo) = {
 	.id		= UCLASS_SYSINFO,
 	.name		= "sysinfo",

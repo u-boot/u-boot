@@ -8,7 +8,6 @@
 #include <console.h>
 #include <dm.h>
 #include <video_console.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 /* Declare a new fdt test */
