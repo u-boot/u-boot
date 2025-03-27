@@ -17,7 +17,40 @@
 			" 0x800000\0"
 #endif
 
+/* Add the search for AB partitons */
+#define SCAN_DEV_FOR_BOOT_PARTS						\
+	"run dh_check_if_ab; "						\
+	"if test -z \"${devplist}\"; "					\
+		"then "							\
+		"part list ${devtype} ${devnum} -bootable devplist; "	\
+	"fi; "
+
 #define STM32MP_BOARD_EXTRA_ENV						\
+	"altbootcmd= "							\
+	"setenv dh_ab_get_partnames "					\
+		"'setenv dh_ab_partnames ${dh_ab_partname_secondary} "	\
+			"${dh_ab_partname_primary}' && "		\
+		"run bootcmd\0"						\
+	"dh_check_if_ab= " /* Sets devplist if AB partitions*/		\
+		"echo test for AB on ${devtype} ${devnum} && "		\
+		"run dh_ab_get_partnames && "				\
+		"setenv devplist && "					\
+		"for partname in ${dh_ab_partnames}; do "		\
+			"setenv partnum && "				\
+			"if part number ${devtype} ${devnum} ${partname} partnum; "\
+				"then "					\
+				"setenv devplist \"${devplist} ${partnum}\" && "\
+				"setenv bootretry 60 ;"			\
+			"fi; "						\
+		"done ; "						\
+		"if test -n \"${devplist}\"; "				\
+			"then echo AB partitions found! ; "		\
+		"fi\0"							\
+	"dh_ab_get_partnames= " /* Sets dh_ab_partnames */		\
+		"setenv dh_ab_partnames ${dh_ab_partname_primary} "	\
+			"${dh_ab_partname_secondary}\0"			\
+	"dh_ab_partname_primary=rootfs-a\0" /* Names of AB partitions */\
+	"dh_ab_partname_secondary=rootfs-b\0"				\
 	"dh_preboot="							\
 		"run dh_testbench_backward_compat\0"			\
 	"dh_update_sd_to_emmc=" /* Install U-Boot from SD to eMMC */	\
