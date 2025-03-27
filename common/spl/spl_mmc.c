@@ -411,6 +411,7 @@ int spl_mmc_load(struct spl_image_info *spl_image,
 			return 0;
 #endif
 		/* If RAW mode fails, try FS mode. */
+		fallthrough;
 #ifdef CONFIG_SYS_MMCSD_FS_BOOT
 	case MMCSD_MODE_FS:
 		debug("spl: mmc boot mode: fs\n");
