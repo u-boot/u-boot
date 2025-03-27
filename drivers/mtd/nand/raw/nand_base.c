@@ -774,6 +774,7 @@ static void nand_command_lp(struct mtd_info *mtd, unsigned int command,
 			       NAND_NCE | NAND_CTRL_CHANGE);
 
 		/* This applies to read commands */
+		fallthrough;
 	default:
 		/*
 		 * If we don't have access to the busy pin, we apply the given
@@ -4974,6 +4975,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 		if (!ecc->read_page)
 			ecc->read_page = nand_read_page_hwecc_oob_first;
 
+		fallthrough;
 	case NAND_ECC_HW:
 		/* Use standard hwecc read page function? */
 		if (!ecc->read_page)
@@ -4993,6 +4995,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 		if (!ecc->write_subpage && ecc->hwctl && ecc->calculate)
 			ecc->write_subpage = nand_write_subpage_hwecc;
 
+		fallthrough;
 	case NAND_ECC_HW_SYNDROME:
 		if ((!ecc->calculate || !ecc->correct || !ecc->hwctl) &&
 		    (!ecc->read_page ||
@@ -5027,6 +5030,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 			ecc->size, mtd->writesize);
 		ecc->mode = NAND_ECC_SOFT;
 
+		fallthrough;
 	case NAND_ECC_SOFT:
 		ecc->calculate = nand_calculate_ecc;
 		ecc->correct = nand_correct_data;
