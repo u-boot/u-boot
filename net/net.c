@@ -1559,7 +1559,7 @@ common:
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;
 		}
-		/* Fall through */
+		fallthrough;
 
 #ifdef CONFIG_CMD_RARP
 	case RARP:

@@ -484,7 +484,7 @@ int cmd_get_data_size(const char *arg, int default_size)
 		case 'q':
 			if (MEM_SUPPORT_64BIT_DATA)
 				return 8;
-			/* no break */
+			fallthrough;
 		default:
 			return CMD_DATA_SIZE_ERR;
 		}
