@@ -457,6 +457,9 @@ config MACH_SUN50I_H616
 	select SUN50I_GEN_H6
 	imply OF_UPSTREAM
 
+config MACH_SUN50I_A133
+	bool "sun50i (Allwinner A133)"
+
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
@@ -713,16 +716,10 @@ endif
 
 config SYS_CLK_FREQ
 	default 408000000 if MACH_SUNIV
-	default 1008000000 if MACH_SUN4I
-	default 1008000000 if MACH_SUN5I
-	default 1008000000 if MACH_SUN6I
-	default 912000000 if MACH_SUN7I
 	default 816000000 if MACH_SUN50I || MACH_SUN50I_H5
-	default 1008000000 if MACH_SUN8I
-	default 1008000000 if MACH_SUN9I
 	default 888000000 if MACH_SUN50I_H6
-	default 1008000000 if MACH_SUN50I_H616
-	default 1008000000 if MACH_SUN8I_R528
+	default 912000000 if MACH_SUN7I
+	default 1008000000
 
 config SYS_CONFIG_NAME
 	default "suniv" if MACH_SUNIV
@@ -1131,10 +1128,6 @@ config BLUETOOTH_DT_DEVICE_FIXUP
 	  The used address is "bdaddr" if set, and "ethaddr" with the LSB
 	  flipped elsewise.
 
-source "board/sunxi/Kconfig"
-
-endif
-
 config CHIP_DIP_SCAN
 	bool "Enable DIPs detection for CHIP board"
 	select SUPPORT_EXTENSION_SCAN
@@ -1143,3 +1136,7 @@ config CHIP_DIP_SCAN
 	select W1_EEPROM
 	select W1_EEPROM_DS24XXX
 	select CMD_EXTENSION
+
+source "board/sunxi/Kconfig"
+
+endif
