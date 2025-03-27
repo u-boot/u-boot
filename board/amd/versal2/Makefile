@@ -8,4 +8,3 @@
 
 obj-y	:= board.o
 
-obj-$(CONFIG_CMD_VERSAL2)   += cmds.o
