@@ -583,12 +583,39 @@ struct node *get_node_by_phandle(struct node *tree, cell_t phandle)
 
 struct node *get_node_by_ref(struct node *tree, const char *ref)
 {
+	struct node *target = tree;
+	const char *label = NULL, *path = NULL;
+
 	if (streq(ref, "/"))
 		return tree;
-	else if (ref[0] == '/')
-		return get_node_by_path(tree, ref);
+
+	if (ref[0] == '/')
+		path = ref;
 	else
-		return get_node_by_label(tree, ref);
+		label = ref;
+
+	if (label) {
+		const char *slash = strchr(label, '/');
+		char *buf = NULL;
+
+		if (slash) {
+			buf = xstrndup(label, slash - label);
+			label = buf;
+			path = slash + 1;
+		}
+
+		target = get_node_by_label(tree, label);
+
+		free(buf);
+
+		if (!target)
+			return NULL;
+	}
+
+	if (path)
+		target = get_node_by_path(target, path);
+
+	return target;
 }
 
 cell_t get_node_phandle(struct node *root, struct node *node)
