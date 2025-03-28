@@ -29,12 +29,12 @@ def get_memtest_env(ubman):
     if not f:
         pytest.skip("memtest is not enabled!")
     else:
-        start = f.get("start_addr", 0x0)
-        size = f.get("size", 0x1000)
-        pattern = f.get("pattern", 0x0)
+        start = hex(f.get("start_addr", 0x0))
+        size = hex(f.get("size", 0x1000))
+        pattern = hex(f.get("pattern", 0x0))
         iteration = f.get("iteration", 2)
         timeout = f.get("timeout", 50000)
-        end = hex(int(start) + int(size))
+        end = hex(int(start, 16) + int(size, 16))
         return start, end, pattern, iteration, timeout
 
 @pytest.mark.buildconfigspec("cmd_memtest")
