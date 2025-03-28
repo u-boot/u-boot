@@ -690,7 +690,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
 			goto error;
 	}
 
-	log_info("Booting: %ls\n", lo.label);
+	log_info("Booting: Label: %ls Device path: %pD\n", lo.label, lo.file_path);
 
 	/* Ignore the optional data in auto-generated boot options */
 	if (size >= sizeof(efi_guid_t) &&
