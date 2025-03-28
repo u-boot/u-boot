@@ -63,6 +63,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SPMI_MAX_PERIPH 256
 
 #define SPMI_CHANNEL_READ_ONLY	BIT(31)
+#define SPMI_CHANNEL_VALID	BIT(30)
 #define SPMI_CHANNEL_MASK	0xffff
 
 enum arb_ver {
@@ -117,6 +118,8 @@ static int msm_spmi_write(struct udevice *dev, int usid, int pid, int off,
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
+	if (!(priv->channel_map[usid][pid] & SPMI_CHANNEL_VALID))
+		return -EINVAL;
 	if (priv->channel_map[usid][pid] & SPMI_CHANNEL_READ_ONLY)
 		return -EPERM;
 
@@ -186,6 +189,8 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
+	if (!(priv->channel_map[usid][pid] & SPMI_CHANNEL_VALID))
+		return -EINVAL;
 
 	channel = priv->channel_map[usid][pid] & SPMI_CHANNEL_MASK;
 
@@ -256,7 +261,7 @@ static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
 	uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
 	uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
 
-	priv->channel_map[slave_id][pid] = i;
+	priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
 	if (owner != priv->owner)
 		priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
 }
@@ -319,7 +324,7 @@ static int msm_spmi_probe(struct udevice *dev)
 		switch (priv->arb_ver) {
 		case V2:
 		case V3:
-			priv->channel_map[slave_id][pid] = i;
+			priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
 			break;
 
 		case V5:
