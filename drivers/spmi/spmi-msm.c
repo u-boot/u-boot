@@ -254,16 +254,30 @@ static struct dm_spmi_ops msm_spmi_ops = {
 	.write = msm_spmi_write,
 };
 
+/*
+ * In order to allow multiple EEs to write to a single PPID in arbiter
+ * version 5 and 7, there is more than one APID mapped to each PPID.
+ * The owner field for each of these mappings specifies the EE which is
+ * allowed to write to the APID.
+ */
 static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
 				    uint8_t slave_id, uint8_t pid)
 {
 	/* Mark channels read-only when from different owner */
 	uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
 	uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
+	bool prev_valid = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_VALID;
+	uint32_t prev_read_only = priv->channel_map[slave_id][pid] & SPMI_CHANNEL_READ_ONLY;
 
-	priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
-	if (owner != priv->owner)
-		priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+	if (!prev_valid) {
+		/* First PPID mapping */
+		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+		if (owner != priv->owner)
+			priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+	} else if ((owner == priv->owner) && prev_read_only) {
+		/* Read only and we found one we own, switch */
+		priv->channel_map[slave_id][pid] = i | SPMI_CHANNEL_VALID;
+	}
 }
 
 static int msm_spmi_probe(struct udevice *dev)
