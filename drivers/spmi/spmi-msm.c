@@ -24,6 +24,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PMIC_ARB_VERSION_V5_MIN 0x50000000
 #define PMIC_ARB_VERSION_V7_MIN	0x70000000
 
+#define PMIC_ARB_FEATURES		0x0004
+#define PMIC_ARB_FEATURES_PERIPH_MASK	GENMASK(10, 0)
+
 #define APID_MAP_OFFSET_V1_V2_V3 (0x800)
 #define APID_MAP_OFFSET_V5 (0x900)
 #define APID_MAP_OFFSET_V7 (0x2000)
@@ -271,13 +274,17 @@ static int msm_spmi_probe(struct udevice *dev)
 	} else if (hw_ver < PMIC_ARB_VERSION_V7_MIN) {
 		priv->arb_ver = V5;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V5;
-		priv->max_channels = SPMI_MAX_CHANNELS_V5;
+		priv->max_channels = min_t(u32, readl(core_addr + PMIC_ARB_FEATURES) &
+						PMIC_ARB_FEATURES_PERIPH_MASK,
+					   SPMI_MAX_CHANNELS_V5);
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	} else {
 		/* TOFIX: handle second bus */
 		priv->arb_ver = V7;
 		priv->arb_chnl = core_addr + APID_MAP_OFFSET_V7;
-		priv->max_channels = SPMI_MAX_CHANNELS_V7;
+		priv->max_channels = min_t(u32, readl(core_addr + PMIC_ARB_FEATURES) &
+						PMIC_ARB_FEATURES_PERIPH_MASK,
+					   SPMI_MAX_CHANNELS_V7);
 		priv->spmi_cnfg = dev_read_addr_name(dev, "cnfg");
 	}
 
