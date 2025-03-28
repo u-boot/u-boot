@@ -28,7 +28,7 @@ except:  # pragma: no cover
 # BSYM in little endian, keep in sync with include/binman_sym.h
 BINMAN_SYM_MAGIC_VALUE = 0x4d595342
 
-# Information about an EFL symbol:
+# Information about an ELF symbol:
 # section (str): Name of the section containing this symbol
 # address (int): Address of the symbol (its value)
 # size (int): Size of the symbol in bytes
