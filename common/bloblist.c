@@ -505,7 +505,8 @@ int bloblist_reloc(void *to, uint to_size)
 /*
  * Weak default function for getting bloblist from boot args.
  */
-int __weak xferlist_from_boot_arg(ulong __always_unused *addr)
+int __weak xferlist_from_boot_arg(ulong __always_unused *addrp,
+				  ulong __always_unused *fdtp)
 {
 	return -ENOENT;
 }
@@ -536,7 +537,7 @@ int bloblist_init(void)
 	size = CONFIG_BLOBLIST_SIZE;
 
 	if (from_boot_arg) {
-		ret = xferlist_from_boot_arg(&addr);
+		ret = xferlist_from_boot_arg(&addr, NULL);
 		/*
 		 * If Firmware Handoff is mandatory but no transfer list is
 		 * observed, report it as an error.
