@@ -596,11 +596,17 @@ int bloblist_maybe_init(void)
 	return 0;
 }
 
-int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
+/**
+ * has_signature() - Check if the bloblist signature is in the registers
+ *
+ * @rzero: Register which should be zero
+ * @rsig: Register which should have the bloblist signature
+ * Return: true if signature found, false if not
+ */
+static bool has_signature(ulong rzero, ulong rsig)
 {
 	u64 version = BLOBLIST_REGCONV_VER;
 	ulong sigval;
-	int ret;
 
 	if ((IS_ENABLED(CONFIG_64BIT) && !IS_ENABLED(CONFIG_SPL_BUILD)) ||
 			(IS_ENABLED(CONFIG_SPL_64BIT) && IS_ENABLED(CONFIG_SPL_BUILD))) {
@@ -612,7 +618,17 @@ int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
 	}
 
 	if (rzero || rsig != sigval)
-		return -EIO;
+		return false;
+
+	return true;
+}
+
+int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
+{
+	int ret;
+
+	if (!has_signature(rzero, rsig))
+		return -ENOENT;
 
 	ret = bloblist_check(xlist, 0);
 	if (ret)
@@ -622,4 +638,14 @@ int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
 		return -EIO;
 
 	return 0;
+}
+
+void *bloblist_early_get_fdt(void)
+{
+	ulong addr, fdt;
+
+	if (xferlist_from_boot_arg(&addr, &fdt))
+		return NULL;
+
+	return map_sysmem(fdt, 0);
 }

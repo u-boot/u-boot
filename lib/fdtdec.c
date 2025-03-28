@@ -1692,17 +1692,14 @@ int fdtdec_setup(void)
 	int ret;
 
 	if (CONFIG_IS_ENABLED(OF_BLOBLIST)) {
-		ret = bloblist_maybe_init();
-		if (ret)
-			return ret;
-		gd->fdt_blob = bloblist_find(BLOBLISTT_CONTROL_FDT, 0);
-		if (!gd->fdt_blob) {
+		const void *blob;
+
+		blob = bloblist_early_get_fdt();
+		if (!blob) {
 			printf("Not FDT found in bloblist\n");
-			bloblist_show_list();
 			return -ENOENT;
 		}
 		gd->fdt_src = FDTSRC_BLOBLIST;
-		bloblist_show_list();
 		log_debug("Devicetree is in bloblist at %p\n", gd->fdt_blob);
 	} else {
 		if (IS_ENABLED(CONFIG_OF_SEPARATE)) {
