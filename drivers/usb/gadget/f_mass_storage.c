@@ -2639,6 +2639,7 @@ static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
 		raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
 	}
 
+	fsg_common_release(fsg->common);
 	free(fsg->function.descriptors);
 	free(fsg->function.hs_descriptors);
 	kfree(fsg);
