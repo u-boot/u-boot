@@ -249,6 +249,18 @@ static struct dm_spmi_ops msm_spmi_ops = {
 	.write = msm_spmi_write,
 };
 
+static void msm_spmi_channel_map_v5(struct msm_spmi_priv *priv, unsigned int i,
+				    uint8_t slave_id, uint8_t pid)
+{
+	/* Mark channels read-only when from different owner */
+	uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
+	uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
+
+	priv->channel_map[slave_id][pid] = i;
+	if (owner != priv->owner)
+		priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+}
+
 static int msm_spmi_probe(struct udevice *dev)
 {
 	struct msm_spmi_priv *priv = dev_get_priv(dev);
@@ -304,15 +316,16 @@ static int msm_spmi_probe(struct udevice *dev)
 		uint8_t slave_id = (periph & 0xf0000) >> 16;
 		uint8_t pid = (periph & 0xff00) >> 8;
 
-		priv->channel_map[slave_id][pid] = i;
+		switch (priv->arb_ver) {
+		case V2:
+		case V3:
+			priv->channel_map[slave_id][pid] = i;
+			break;
 
-		/* Mark channels read-only when from different owner */
-		if (priv->arb_ver == V5 || priv->arb_ver == V7) {
-			uint32_t cnfg = readl(priv->spmi_cnfg + ARB_CHANNEL_OFFSET(i));
-			uint8_t owner = SPMI_OWNERSHIP_PERIPH2OWNER(cnfg);
-
-			if (owner != priv->owner)
-				priv->channel_map[slave_id][pid] |= SPMI_CHANNEL_READ_ONLY;
+		case V5:
+		case V7:
+			msm_spmi_channel_map_v5(priv, i, slave_id, pid);
+			break;
 		}
 	}
 	return 0;
