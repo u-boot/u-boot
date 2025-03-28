@@ -2742,6 +2742,8 @@ int fsg_add(struct usb_configuration *c)
 	struct fsg_common *fsg_common;
 
 	fsg_common = fsg_common_init(NULL, c->cdev);
+	if (IS_ERR(fsg_common))
+		return PTR_ERR(fsg_common);
 
 	fsg_common->vendor_name = 0;
 	fsg_common->product_name = 0;
