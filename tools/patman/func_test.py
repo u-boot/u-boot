@@ -357,6 +357,31 @@ Changes in v2:
                 expected = expected.splitlines()
                 self.assertEqual(expected, lines[start:(start+len(expected))])
 
+    def test_base_commit(self):
+        """Test adding a base commit with no cover letter"""
+        orig_text = self._get_text('test01.txt')
+        pos = orig_text.index('commit 5ab48490f03051875ab13d288a4bf32b507d76fd')
+        text = orig_text[:pos]
+        series = patchstream.get_metadata_for_test(text)
+        series.base_commit = Commit('1a44532')
+        series.branch = 'mybranch'
+        cover_fname, args = self._create_patches_for_test(series)
+        self.assertFalse(cover_fname)
+        with capture_sys_output() as out:
+            patchstream.fix_patches(series, args, insert_base_commit=True)
+        self.assertEqual('Cleaned 1 patch\n', out[0].getvalue())
+        lines = tools.read_file(args[0], binary=False).splitlines()
+        pos = lines.index('-- ')
+
+        # We expect these lines at the end:
+        # -- (with trailing space)
+        # 2.7.4
+        # (empty)
+        # base-commit: xxx
+        # branch: xxx
+        self.assertEqual('base-commit: 1a44532', lines[pos + 3])
+        self.assertEqual('branch: mybranch', lines[pos + 4])
+
     def make_commit_with_file(self, subject, body, fname, text):
         """Create a file and add it to the git repo with a new commit
 
@@ -526,6 +551,11 @@ complicated as possible''')
             base = repo.lookup_reference('refs/heads/base').target
             self.assertEqual(f'base-commit: {base}', lines[0])
             self.assertEqual('branch: second', lines[1])
+
+            # Make sure that the base-commit is not present when it is in the
+            # cover letter
+            for fname in patch_files:
+                self.assertNotIn(b'base-commit:', tools.read_file(fname))
 
             # Check that it can skip patches at the end
             with capture_sys_output() as _:

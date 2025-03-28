@@ -76,8 +76,13 @@ class PatchStream:
     are interested in. We can also process a patch file in order to remove
     unwanted tags or inject additional ones. These correspond to the two
     phases of processing.
+
+    Args:
+        keep_change_id (bool): Keep the Change-Id tag
+        insert_base_commit (bool): True to add the base commit to the end
     """
-    def __init__(self, series, is_log=False, keep_change_id=False):
+    def __init__(self, series, is_log=False, keep_change_id=False,
+                 insert_base_commit=False):
         self.skip_blank = False          # True to skip a single blank line
         self.found_test = False          # Found a TEST= line
         self.lines_after_test = 0        # Number of lines found after TEST=
@@ -103,6 +108,7 @@ class PatchStream:
         self.recent_quoted = collections.deque([], 5)
         self.recent_unquoted = queue.Queue()
         self.was_quoted = None
+        self.insert_base_commit = insert_base_commit
 
     @staticmethod
     def process_text(text, is_comment=False):
@@ -658,6 +664,13 @@ class PatchStream:
                     outfd.write(line + '\n')
                     self.blank_count = 0
         self.finalise()
+        if self.insert_base_commit:
+            if self.series.base_commit:
+                print(f'base-commit: {self.series.base_commit.hash}',
+                      file=outfd)
+            if self.series.branch:
+                print(f'branch: {self.series.branch}', file=outfd)
+
 
 def insert_tags(msg, tags_to_emit):
     """Add extra tags to a commit message
@@ -778,7 +791,8 @@ def get_metadata_for_test(text):
     pst.finalise()
     return series
 
-def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False):
+def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False,
+              insert_base_commit=False):
     """Fix up a patch file, by adding/removing as required.
 
     We remove our tags from the patch file, insert changes lists, etc.
@@ -792,6 +806,7 @@ def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False):
         series (Series): Series information about this patch set
         cmt (Commit): Commit object for this patch file
         keep_change_id (bool): Keep the Change-Id tag.
+        insert_base_commit (bool): True to add the base commit to the end
 
     Return:
         list: A list of errors, each str, or [] if all ok.
@@ -799,7 +814,8 @@ def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False):
     handle, tmpname = tempfile.mkstemp()
     outfd = os.fdopen(handle, 'w', encoding='utf-8')
     infd = open(fname, 'r', encoding='utf-8')
-    pst = PatchStream(series, keep_change_id=keep_change_id)
+    pst = PatchStream(series, keep_change_id=keep_change_id,
+                      insert_base_commit=insert_base_commit)
     pst.commit = cmt
     pst.process_stream(infd, outfd)
     infd.close()
@@ -811,7 +827,7 @@ def fix_patch(backup_dir, fname, series, cmt, keep_change_id=False):
     shutil.move(tmpname, fname)
     return cmt.warn
 
-def fix_patches(series, fnames, keep_change_id=False):
+def fix_patches(series, fnames, keep_change_id=False, insert_base_commit=False):
     """Fix up a list of patches identified by filenames
 
     The patch files are processed in place, and overwritten.
@@ -820,6 +836,7 @@ def fix_patches(series, fnames, keep_change_id=False):
         series (Series): The Series object
         fnames (:type: list of str): List of patch files to process
         keep_change_id (bool): Keep the Change-Id tag.
+        insert_base_commit (bool): True to add the base commit to the end
     """
     # Current workflow creates patches, so we shouldn't need a backup
     backup_dir = None  #tempfile.mkdtemp('clean-patch')
@@ -829,7 +846,8 @@ def fix_patches(series, fnames, keep_change_id=False):
         cmt.patch = fname
         cmt.count = count
         result = fix_patch(backup_dir, fname, series, cmt,
-                           keep_change_id=keep_change_id)
+                           keep_change_id=keep_change_id,
+                           insert_base_commit=insert_base_commit)
         if result:
             print('%d warning%s for %s:' %
                   (len(result), 's' if len(result) > 1 else '', fname))
