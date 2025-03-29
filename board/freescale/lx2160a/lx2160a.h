@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2022 NXP
  */
 
 #ifndef __LX2160_H
@@ -57,6 +57,19 @@
 #define SGMII_CARD_PORT4_PHY_ADDR	0x1F
 #endif
 #endif
+
+#if defined(CONFIG_QSFP_EEPROM) && defined(CONFIG_PHY_CORTINA)
+#define CS4223_CONFIG_ENV	"cs4223_autoconfig"
+#define CS4223_CONFIG_CR4	"copper"
+#define CS4223_CONFIG_SR4	"optical"
+
+enum qsfp_compat_codes {
+	QSFP_COMPAT_XLPPI = 0x01,
+	QSFP_COMPAT_LR4	= 0x02,
+	QSFP_COMPAT_SR4	= 0x04,
+	QSFP_COMPAT_CR4	= 0x08,
+};
+#endif /* CONFIG_QSFP_EEPROM && CONFIG_PHY_CORTINA */
 
 #if IS_ENABLED(CONFIG_TARGET_LX2160ARDB)
 u8 get_board_rev(void);
