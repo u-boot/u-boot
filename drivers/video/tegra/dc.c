@@ -19,7 +19,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/powergate.h>
 
-#include "tegra-dc.h"
+#include "dc.h"
 
 /* Holder of Tegra per-SOC DC differences */
 struct tegra_dc_soc_info {

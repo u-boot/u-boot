@@ -22,8 +22,8 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 
-#include "tegra-dc.h"
-#include "tegra-hdmi.h"
+#include "dc.h"
+#include "hdmi.h"
 
 #define DDCCI_ENTRY_ADDR	0x37
 #define DDCCI_SOURSE_ADDR	0x51

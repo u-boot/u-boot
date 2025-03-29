@@ -15,7 +15,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
-#include "tegra-dc.h"
+#include "dc.h"
 
 #define TEGRA_PWM_BL_MIN_BRIGHTNESS	0x10
 #define TEGRA_PWM_BL_MAX_BRIGHTNESS	0xFF

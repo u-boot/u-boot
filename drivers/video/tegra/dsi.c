@@ -24,8 +24,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
 
-#include "tegra-dc.h"
-#include "tegra-dsi.h"
+#include "dc.h"
+#include "dsi.h"
 #include "mipi-phy.h"
 
 /* List of supported DSI bridges */
