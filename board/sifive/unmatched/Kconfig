@@ -48,6 +48,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply PHY_MSCC
 	imply SYSRESET
 	imply SYSRESET_GPIO
+	imply SPL_SYSRESET_GPIO if SPL
 	imply CMD_I2C
 
 endif
