@@ -1325,6 +1325,11 @@ static const u32 PI_DARRAY3_1_CSx_Fx[CS_CNT][3] = {
 #define DBSC_DBACEN			0x200
 #define DBSC_DBRFEN			0x204
 #define DBSC_DBCMD			0x208
+#define DBSC_DBCMD_CMD_OPCODE_PD	0x8
+#define DBSC_DBCMD_CMD_OPCODE_MRW	0xe
+#define DBSC_DBCMD_CMD_OPCODE_MRR	0xf
+#define DBSC_DBCMD_CMD_CHANNEL_ALL	0x8
+#define DBSC_DBCMD_CMD_RANK_ALL		0x4
 #define DBSC_DBWAIT			0x210
 #define DBSC_DBBL			0x400
 #define DBSC_DBBLA			0x400
@@ -1736,23 +1741,19 @@ static void dbsc5_reg_write(void __iomem *addr, u32 data)
 }
 
 /**
- * dbsc5_reg_write() - DRAM Command Write Access
+ * dbsc5_wait_dbwait() - DRAM Command Wait Access Completion
  * @dev: DBSC5 device
- * @cmd DRAM command.
  *
- * First, execute the dummy read to DBSC_DBCMD.
- * Confirm that no DBSC command operation is in progress 0.
- * Write the contents of the command to be sent to DRAM.
+ * Wait for DRAM access completion. This is used before sending a command
+ * to the DRAM to assure no other command is in flight already, or while
+ * waiting for MRR command to complete.
  */
-static void dbsc5_send_dbcmd2(struct udevice *dev, u32 cmd)
+static void dbsc5_wait_dbwait(struct udevice *dev)
 {
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
 	u32 val;
 	int ret;
-
-	/* dummy read */
-	readl(regs_dbsc_d + DBSC_DBCMD);
 
 	ret = readl_poll_timeout(regs_dbsc_d + DBSC_DBWAIT, val, ((val & BIT(0)) == 0), 1000000);
 	if (ret < 0) {
@@ -1765,6 +1766,32 @@ static void dbsc5_send_dbcmd2(struct udevice *dev, u32 cmd)
 		printf("%s DBWAIT + 0x4000 bit 0 timeout\n", __func__);
 		hang();
 	}
+}
+
+/**
+ * dbsc5_send_dbcmd2() - DRAM Command Write Access
+ * @dev: DBSC5 device
+ * @opcode DRAM controller opcode
+ * @channel DRAM controller channel (0..3)
+ * @rank DRAM controller rank (0..1)
+ * @arg Command and argument bits (command specific encoding)
+ *
+ * First, execute the dummy read to DBSC_DBCMD.
+ * Confirm that no DBSC command operation is in progress 0.
+ * Write the contents of the command to be sent to DRAM.
+ */
+static void dbsc5_send_dbcmd2(struct udevice *dev, const u8 opcode,
+			      const u8 channel, const u8 rank,
+			      const u16 arg)
+{
+	const u32 cmd = (opcode << 24) | (channel << 20) | (rank << 16) | arg;
+	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
+	void __iomem *regs_dbsc_d = priv->regs + DBSC5_DBSC_D_OFFSET;
+
+	/* dummy read */
+	readl(regs_dbsc_d + DBSC_DBCMD);
+
+	dbsc5_wait_dbwait(dev);
 
 	dbsc5_reg_write(regs_dbsc_d + DBSC_DBCMD, cmd);
 }
@@ -2950,10 +2977,14 @@ static u32 dbsc5_pi_training(struct udevice *dev)
 		writel(0x21, regs_dbsc_d + DBSC_DBDFICNT(ch));
 
 	/* Dummy PDE */
-	dbsc5_send_dbcmd2(dev, 0x8840000);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_PD,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, 0);
 
 	/* PDX */
-	dbsc5_send_dbcmd2(dev, 0x8840001);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_PD,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, 1);
 
 	/* Wait init_complete */
 	for (retry = 0; retry < retry_max; retry++) {
@@ -4085,25 +4116,27 @@ static u32 dbsc5_read_training(struct udevice *dev)
 }
 
 /**
- * dbsc5_ddr_register_set() - DDR mode register setting
+ * dbsc5_ddr_register_mr28_set() - DDR mode register MR28 set
  * @dev: DBSC5 device
  *
  * Set the mode register 28 of the SDRAM.
  * ZQ Mode: Command-Based ZQ Calibration
  * ZQ interval: Background Cal Interval < 64ms
  */
-static void dbsc5_ddr_register_set(struct udevice *dev)
+static void dbsc5_ddr_register_mr28_set(struct udevice *dev)
 {
-	dbsc5_send_dbcmd2(dev, 0xE841C24);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRW,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL,
+			  DBSC_DBCMD_CMD_RANK_ALL, (28 << 8) | 0x24);
 }
 
 /**
- * dbsc5_ddr_register_read() - DDR mode register read
+ * dbsc5_ddr_register_mr27_mr57_read() - DDR mode register MR27/MR57 read
  * @dev: DBSC5 device
  *
  * Set the mode register 27 and 57 of the SDRAM.
  */
-static void dbsc5_ddr_register_read(struct udevice *dev)
+static void dbsc5_ddr_register_mr27_mr57_read(struct udevice *dev)
 {
 	struct renesas_dbsc5_dram_priv *priv = dev_get_priv(dev);
 
@@ -4111,17 +4144,21 @@ static void dbsc5_ddr_register_read(struct udevice *dev)
 		return;
 
 	/* MR27 rank0 */
-	dbsc5_send_dbcmd2(dev, 0xF801B00);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 0, 27 << 8);
 	/* MR57 rank0 */
-	dbsc5_send_dbcmd2(dev, 0xF803900);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 0, 57 << 8);
 
 	if (!priv->ch_have_this_cs[1])
 		return;
 
 	/* MR27 rank1 */
-	dbsc5_send_dbcmd2(dev, 0xF811B00);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 1, 27 << 8);
 	/* MR57 rank1 */
-	dbsc5_send_dbcmd2(dev, 0xF813900);
+	dbsc5_send_dbcmd2(dev, DBSC_DBCMD_CMD_OPCODE_MRR,
+			  DBSC_DBCMD_CMD_CHANNEL_ALL, 1, 57 << 8);
 }
 
 /**
@@ -4200,8 +4237,8 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 	dbsc5_dbsc_regset(dev);
 
 	/* Frequency selection change (F1->F2) */
-	 dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_INDEX, 0x1);
-	 dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_MULTICAST_EN, 0x0);
+	dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_INDEX, 0x1);
+	dbsc5_ddr_setval_all_ch(dev, PHY_FREQ_SEL_MULTICAST_EN, 0x0);
 
 	/* dfi_init_start (start ddrphy) & execute pi_training */
 	phytrainingok = dbsc5_pi_training(dev);
@@ -4278,10 +4315,10 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 
 	/* setup DDR mode registers */
 	/* MRS */
-	dbsc5_ddr_register_set(dev);
+	dbsc5_ddr_register_mr28_set(dev);
 
 	/* MRR */
-	dbsc5_ddr_register_read(dev);
+	dbsc5_ddr_register_mr27_mr57_read(dev);
 
 	/* training complete, setup DBSC */
 	dbsc5_dbsc_regset_post(dev);
@@ -4296,10 +4333,13 @@ static u32 dbsc5_init_ddr(struct udevice *dev)
 
 /**
  * dbsc5_get_board_data() - Obtain board specific DRAM configuration
+ * @dev: DBSC5 device
+ * @modemr0: MODEMR0 register content
  *
  * Return board specific DRAM configuration structure pointer.
  */
-__weak const struct renesas_dbsc5_board_config *dbsc5_get_board_data(void)
+__weak const struct renesas_dbsc5_board_config *
+dbsc5_get_board_data(struct udevice *dev, const u32 modemr0)
 {
 	return &renesas_v4h_dbsc5_board_config;
 }
@@ -4335,7 +4375,7 @@ static int renesas_dbsc5_dram_probe(struct udevice *dev)
 	u32 ch, cs;
 
 	/* Get board data */
-	priv->dbsc5_board_config = dbsc5_get_board_data();
+	priv->dbsc5_board_config = dbsc5_get_board_data(dev, modemr0);
 	priv->ddr_phyvalid = (u32)(priv->dbsc5_board_config->bdcfg_phyvalid);
 	priv->max_density = 0;
 	priv->cpg_regs = (void __iomem *)ofnode_get_addr(cnode);
