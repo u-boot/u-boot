@@ -809,14 +809,6 @@ source "drivers/video/stm32/Kconfig"
 
 source "drivers/video/tidss/Kconfig"
 
-config VIDEO_TEGRA124
-	bool "Enable video support on Tegra124"
-	help
-	   Tegra124 supports many video output options including eDP and
-	   HDMI. At present only eDP is supported by U-Boot. This option
-	   enables this support which can be used on devices which
-	   have an eDP display connected.
-
 source "drivers/video/bridge/Kconfig"
 
 source "drivers/video/tegra/Kconfig"
