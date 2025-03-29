@@ -819,7 +819,7 @@ config VIDEO_TEGRA124
 
 source "drivers/video/bridge/Kconfig"
 
-source "drivers/video/tegra20/Kconfig"
+source "drivers/video/tegra/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 
