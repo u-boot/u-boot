@@ -191,6 +191,11 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 	int noffset;
 	int key_node;
 
+#ifdef USE_HOSTCC
+	if (!key_blob)
+		return 0;
+#endif
+
 	/* Work out what we need to verify */
 	*no_sigsp = 1;
 	key_node = fdt_subnode_offset(key_blob, 0, FIT_SIG_NODENAME);
@@ -476,6 +481,11 @@ static int fit_config_verify_required_keys(const void *fit, int conf_noffset,
 	int reqd_sigs = 0;
 	bool reqd_policy_all = true;
 	const char *reqd_mode;
+
+#ifdef USE_HOSTCC
+	if (!key_blob)
+		return 0;
+#endif
 
 	/*
 	 * We don't support this since libfdt considers names with the
