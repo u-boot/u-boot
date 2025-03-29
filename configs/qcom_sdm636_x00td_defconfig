@@ -1,0 +1,27 @@
+# Configuration for building U-Boot as 2nd stage
+# bootloader to be flashed as part of boot.img to
+# boot partition on Asus Zenfone Max Pro M1 phones.
+
+#include "qcom_sdm660_defconfig"
+
+# x00td device tree is not upstream
+CONFIG_OF_UPSTREAM=n
+CONFIG_DEFAULT_DEVICE_TREE="qcom/sdm636-asus-x00td"
+
+# asus-x00td is built with no real serial debug uart available,
+# it is using ramoops logging instead
+
+# CONFIG_REQUIRE_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_PRESENT is not set
+# ^^ reason to disable both debug-uart and bluetooth-uart nodes in dts
+
+CONFIG_DEBUG_UART_RAMOOPS=y
+# Values from asus-x00td downstream TWRP recovery device tree
+#     /sys/module/ramoops/parameters/ *
+CONFIG_DEBUG_UART_RAMOOPS_BASE=0xa0000000
+CONFIG_DEBUG_UART_RAMOOPS_SIZE=0x400000
+CONFIG_DEBUG_UART_RAMOOPS_CONSOLE_SIZE=0x20000
+CONFIG_DEBUG_UART_RAMOOPS_FTRACE_SIZE=0x0
+CONFIG_DEBUG_UART_RAMOOPS_RECORD_SIZE=0x20000
+CONFIG_DEBUG_UART_RAMOOPS_PMSG_SIZE=0x20000
+CONFIG_DEBUG_UART_SKIP_INIT=n
