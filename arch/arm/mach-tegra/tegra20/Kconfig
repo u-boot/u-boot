@@ -17,6 +17,9 @@ config TEGRA_UARTA_GPU
 config TEGRA_UARTA_SDIO1
 	bool
 
+config TEGRA_UARTA_SDB_SDD
+	bool
+
 choice
 	prompt "Tegra20 board select"
 	optional
