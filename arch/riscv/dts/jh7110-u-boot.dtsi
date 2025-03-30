@@ -102,6 +102,10 @@
 	bootph-pre-ram;
 };
 
+&pllclk {
+	bootph-pre-ram;
+};
+
 &syscrg {
 	bootph-pre-ram;
 };
