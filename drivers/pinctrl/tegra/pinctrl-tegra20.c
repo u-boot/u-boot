@@ -37,6 +37,11 @@ static void tegra_pinctrl_set_pin(struct udevice *config)
 				if (!strcmp(pins[i], tegra_pinctrl_to_pingrp[pin_id]))
 					break;
 
+		if (pin_id == PMUX_PINGRP_COUNT) {
+			log_debug("%s: %s(%d) is not valid\n", __func__, pins[i], pin_id);
+			continue;
+		}
+
 		if (pull >= 0)
 			pinmux_set_pullupdown(pin_id, pull);
 
@@ -58,13 +63,16 @@ static void tegra_pinctrl_set_func(struct udevice *config)
 	const char **pins;
 
 	function = dev_read_string(config, "nvidia,function");
-	if (function)
+	if (function) {
 		for (i = 0; i < PMUX_FUNC_COUNT; i++)
 			if (tegra_pinctrl_to_func[i])
 				if (!strcmp(function, tegra_pinctrl_to_func[i]))
 					break;
 
-	func_id = i;
+		func_id = i;
+	} else {
+		func_id = PMUX_FUNC_COUNT;
+	}
 
 	count = dev_read_string_list(config, "nvidia,pins", &pins);
 	if (count < 0) {
@@ -77,6 +85,12 @@ static void tegra_pinctrl_set_func(struct udevice *config)
 			if (tegra_pinctrl_to_pingrp[pin_id])
 				if (!strcmp(pins[i], tegra_pinctrl_to_pingrp[pin_id]))
 					break;
+
+		if (func_id == PMUX_FUNC_COUNT || pin_id == PMUX_PINGRP_COUNT) {
+			log_debug("%s: pin %s(%d) or function %s(%d) is not valid\n",
+				  __func__, pins[i], pin_id, function, func_id);
+			continue;
+		}
 
 		debug("%s(%d) muxed to %s(%d)\n", pins[i], pin_id, function, func_id);
 
