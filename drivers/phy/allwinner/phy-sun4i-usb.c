@@ -85,23 +85,6 @@ struct sun4i_usb_phy_cfg {
 	int missing_phys;
 };
 
-struct sun4i_usb_phy_info {
-	const char *gpio_id_det;
-} phy_info[] = {
-	{
-		.gpio_id_det = CONFIG_USB0_ID_DET,
-	},
-	{
-		.gpio_id_det = NULL,
-	},
-	{
-		.gpio_id_det = NULL,
-	},
-	{
-		.gpio_id_det = NULL,
-	},
-};
-
 struct sun4i_usb_phy_plat {
 	void __iomem *pmu;
 	struct gpio_desc gpio_vbus_det;
@@ -475,7 +458,6 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 	data->usb_phy = plat;
 	for (i = 0; i < data->cfg->num_phys; i++) {
 		struct sun4i_usb_phy_plat *phy = &plat[i];
-		struct sun4i_usb_phy_info *info = &phy_info[i];
 		char name[32];
 
 		if (data->cfg->missing_phys & BIT(i))
@@ -499,17 +481,16 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 					ret);
 				return ret;
 			}
-		}
 
-		ret = dm_gpio_lookup_name(info->gpio_id_det, &phy->gpio_id_det);
-		if (ret == 0) {
-			ret = dm_gpio_request(&phy->gpio_id_det, "usb_id_det");
-			if (ret)
+			ret = gpio_request_by_name(dev, "usb0_id_det-gpios", 0,
+						   &phy->gpio_id_det,
+						   GPIOD_IS_IN | GPIOD_PULL_UP);
+			if (ret && ret != -ENOENT) {
+				dev_err(dev,
+					"failed to get ID detect GPIO: %d\n",
+					ret);
 				return ret;
-			ret = dm_gpio_set_dir_flags(&phy->gpio_id_det,
-						GPIOD_IS_IN | GPIOD_PULL_UP);
-			if (ret)
-				return ret;
+			}
 		}
 
 		if (data->cfg->dedicated_clocks)
