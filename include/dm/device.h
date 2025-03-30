@@ -81,7 +81,10 @@ struct driver_info;
  */
 #define DM_FLAG_VITAL			(1 << 14)
 
-/* Device must be probed after it was bound */
+/* Device must be probed after it was bound. This flag is per-device and does
+ * nothing if set on a U_BOOT_DRIVER() definition. Apply it with
+ * dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND) in the devices bind function.
+ */
 #define DM_FLAG_PROBE_AFTER_BIND	(1 << 15)
 
 /*
