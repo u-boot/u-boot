@@ -86,23 +86,18 @@ struct sun4i_usb_phy_cfg {
 };
 
 struct sun4i_usb_phy_info {
-	const char *gpio_vbus_det;
 	const char *gpio_id_det;
 } phy_info[] = {
 	{
-		.gpio_vbus_det = CONFIG_USB0_VBUS_DET,
 		.gpio_id_det = CONFIG_USB0_ID_DET,
 	},
 	{
-		.gpio_vbus_det = NULL,
 		.gpio_id_det = NULL,
 	},
 	{
-		.gpio_vbus_det = NULL,
 		.gpio_id_det = NULL,
 	},
 	{
-		.gpio_vbus_det = NULL,
 		.gpio_id_det = NULL,
 	},
 };
@@ -494,17 +489,16 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 				return ret;
 		}
 
-		ret = dm_gpio_lookup_name(info->gpio_vbus_det,
-					  &phy->gpio_vbus_det);
-		if (ret == 0) {
-			ret = dm_gpio_request(&phy->gpio_vbus_det,
-					      "usb_vbus_det");
-			if (ret)
+		if (i == 0) {
+			ret = gpio_request_by_name(dev, "usb0_vbus_det-gpios",
+						   0, &phy->gpio_vbus_det,
+						   GPIOD_IS_IN);
+			if (ret && ret != -ENOENT) {
+				dev_err(dev,
+					"failed to get VBUS detect GPIO: %d\n",
+					ret);
 				return ret;
-			ret = dm_gpio_set_dir_flags(&phy->gpio_vbus_det,
-						    GPIOD_IS_IN);
-			if (ret)
-				return ret;
+			}
 		}
 
 		ret = dm_gpio_lookup_name(info->gpio_id_det, &phy->gpio_id_det);
