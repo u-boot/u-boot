@@ -161,14 +161,14 @@ int ft_board_setup(void *blob, struct bd_info __maybe_unused *bd)
 	struct fdt_header *fdt = blob;
 	int node;
 
-	/* We only want to do this fix-up for the RB1 board, quick return for all others */
-	if (!fdt_node_check_compatible(fdt, 0, "qcom,qrb4210-rb2"))
-		return 0;
-
-	fdt_for_each_node_by_compatible(node, blob, 0, "snps,dwc3") {
-		log_debug("%s: Setting 'dr_mode' to OTG\n", fdt_get_name(blob, node, NULL));
-		fdt_setprop_string(fdt, node, "dr_mode", "otg");
-		break;
+	/* On RB1/2 we need to fix-up the dr_mode */
+	if (!fdt_node_check_compatible(fdt, 0, "qcom,qrb4210-rb2") ||
+	    !fdt_node_check_compatible(fdt, 0, "qcom,qrb2210-rb1")) {
+		fdt_for_each_node_by_compatible(node, blob, 0, "snps,dwc3") {
+			log_debug("%s: Setting 'dr_mode' to OTG\n", fdt_get_name(blob, node, NULL));
+			fdt_setprop_string(fdt, node, "dr_mode", "otg");
+			break;
+		}
 	}
 
 	return 0;
