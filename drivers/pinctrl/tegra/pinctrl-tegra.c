@@ -14,7 +14,7 @@
 static void tegra_pinctrl_set_drive(struct udevice *config, int drvcnt)
 {
 	struct pmux_drvgrp_config *drive_group;
-	int i, ret, pad_id;
+	int i, ret, pad_id, count = 0;
 	const char **pads;
 
 	drive_group = kmalloc_array(drvcnt, sizeof(*drive_group), GFP_KERNEL);
@@ -46,21 +46,32 @@ static void tegra_pinctrl_set_drive(struct udevice *config, int drvcnt)
 		goto exit;
 	}
 
+	/*
+	 * i goes through all drive instances defined, while
+	 * count is increased only if a valid configuration is found
+	 */
 	for (i = 0; i < drvcnt; i++) {
 		for (pad_id = 0; pad_id < PMUX_DRVGRP_COUNT; pad_id++)
 			if (tegra_pinctrl_to_drvgrp[pad_id])
 				if (!strcmp(pads[i], tegra_pinctrl_to_drvgrp[pad_id])) {
-					drive_group[i].drvgrp = pad_id;
+					drive_group[count].drvgrp = pad_id;
 					break;
 				}
 
-		debug("%s drvmap: %d, %d, %d, %d, %d\n", pads[i],
-		      drive_group[i].drvgrp, drive_group[i].slwf,
-		      drive_group[i].slwr, drive_group[i].drvup,
-		      drive_group[i].drvdn);
+		if (pad_id == PMUX_DRVGRP_COUNT) {
+			log_debug("%s: drive %s is not valid\n", __func__, pads[i]);
+			continue;
+		}
+
+		log_debug("%s(%d) drvmap: %d, %d, %d, %d, %d\n", pads[count], count,
+			  drive_group[count].drvgrp, drive_group[count].slwf,
+			  drive_group[count].slwr, drive_group[count].drvup,
+			  drive_group[count].drvdn);
+
+		count++;
 	}
 
-	pinmux_config_drvgrp_table(drive_group, drvcnt);
+	pinmux_config_drvgrp_table(drive_group, count);
 
 	free(pads);
 exit:
@@ -71,7 +82,7 @@ exit:
 static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt)
 {
 	struct pmux_mipipadctrlgrp_config *mipipad_group;
-	int i, ret, pad_id;
+	int i, ret, pad_id, count = 0;
 	const char *function;
 	const char **pads;
 
@@ -89,6 +100,11 @@ static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt)
 				if (!strcmp(function, tegra_pinctrl_to_func[i]))
 					break;
 
+	if (!function || i == PMUX_FUNC_COUNT) {
+		log_debug("%s: pin function is not defined or is not valid\n", __func__);
+		goto exit;
+	}
+
 	mipipad_group[0].func = i;
 
 	for (i = 1; i < padcnt; i++)
@@ -100,16 +116,27 @@ static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt)
 		goto exit;
 	}
 
+	/*
+	 * i goes through all pin instances defined, while
+	 * count is increased only if a valid configuration is found
+	 */
 	for (i = 0; i < padcnt; i++) {
 		for (pad_id = 0; pad_id < PMUX_MIPIPADCTRLGRP_COUNT; pad_id++)
 			if (tegra_pinctrl_to_mipipadgrp[pad_id])
 				if (!strcmp(pads[i], tegra_pinctrl_to_mipipadgrp[pad_id])) {
-					mipipad_group[i].grp = pad_id;
+					mipipad_group[count].grp = pad_id;
 					break;
 				}
+
+		if (pad_id == PMUX_MIPIPADCTRLGRP_COUNT) {
+			log_debug("%s: drive %s is not valid\n", __func__, pads[i]);
+			continue;
+		}
+
+		count++;
 	}
 
-	pinmux_config_mipipadctrlgrp_table(mipipad_group, padcnt);
+	pinmux_config_mipipadctrlgrp_table(mipipad_group, count);
 
 	free(pads);
 exit:
@@ -122,7 +149,7 @@ static void tegra_pinctrl_set_mipipad(struct udevice *config, int padcnt) { }
 static void tegra_pinctrl_set_pin(struct udevice *config, int pincnt)
 {
 	struct pmux_pingrp_config *pinmux_group;
-	int i, ret, pin_id;
+	int i, ret, pin_id, count = 0;
 	const char *function;
 	const char **pins;
 
@@ -139,6 +166,11 @@ static void tegra_pinctrl_set_pin(struct udevice *config, int pincnt)
 			if (tegra_pinctrl_to_func[i])
 				if (!strcmp(function, tegra_pinctrl_to_func[i]))
 					break;
+
+	if (!function || i == PMUX_FUNC_COUNT) {
+		log_debug("%s: pin function is not defined or is not valid\n", __func__);
+		goto exit;
+	}
 
 	pinmux_group[0].func = i;
 
@@ -178,20 +210,31 @@ static void tegra_pinctrl_set_pin(struct udevice *config, int pincnt)
 		goto exit;
 	}
 
+	/*
+	 * i goes through all pin instances defined, while
+	 * count is increased only if a valid configuration is found
+	 */
 	for (i = 0; i < pincnt; i++) {
 		for (pin_id = 0; pin_id < PMUX_PINGRP_COUNT; pin_id++)
 			if (tegra_pinctrl_to_pingrp[pin_id])
 				if (!strcmp(pins[i], tegra_pinctrl_to_pingrp[pin_id])) {
-					pinmux_group[i].pingrp = pin_id;
+					pinmux_group[count].pingrp = pin_id;
 					break;
 				}
 
-		debug("%s pinmap: %d, %d, %d, %d\n", pins[i],
-		      pinmux_group[i].pingrp, pinmux_group[i].func,
-		      pinmux_group[i].pull, pinmux_group[i].tristate);
+		if (pin_id == PMUX_PINGRP_COUNT) {
+			log_debug("%s: pin %s is not valid\n", __func__, pins[i]);
+			continue;
+		}
+
+		log_debug("%s(%d) pinmap: %d, %d, %d, %d\n", pins[count], count,
+			  pinmux_group[count].pingrp, pinmux_group[count].func,
+			  pinmux_group[count].pull, pinmux_group[count].tristate);
+
+		count++;
 	}
 
-	pinmux_config_pingrp_table(pinmux_group, pincnt);
+	pinmux_config_pingrp_table(pinmux_group, count);
 
 	free(pins);
 exit:
