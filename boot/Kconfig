@@ -1704,6 +1704,13 @@ config RESET_TO_RETRY
 	  After the countdown timed out, the board will be reset to restart
 	  again.
 
+config RETRY_BOOTCMD
+	bool "Run bootcmd on retry"
+	depends on BOOT_RETRY && HUSH_PARSER && !RESET_TO_RETRY
+	help
+	  If this option is enabled, the "bootcmd" will be run after the
+	  countdown times out.
+
 endmenu
 
 menu "Image support"
