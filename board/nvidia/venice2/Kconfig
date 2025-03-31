@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "venice2"
 
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "NVIDIA Venice2"
+
 endif

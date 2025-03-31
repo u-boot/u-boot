@@ -11,10 +11,6 @@
 #define __CONFIG_H
 
 #include "tegra30-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING		"Wexler QC750"
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

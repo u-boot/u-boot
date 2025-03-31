@@ -11,12 +11,6 @@
 
 #include <linux/sizes.h>
 #include "tegra20-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"Compal Paz00"
-
-/* Environment in eMMC, at the end of 2nd "boot sector" */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

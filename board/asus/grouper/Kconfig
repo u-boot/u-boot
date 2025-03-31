@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "grouper"
 
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "ASUS Google Nexus 7 (2012)"
+
 endif

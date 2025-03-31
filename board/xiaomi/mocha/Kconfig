@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "mocha"
 
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Xiaomi Mocha"
+
 endif

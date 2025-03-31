@@ -11,10 +11,6 @@
 #define __CONFIG_H
 
 #include "tegra20-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING		"Acer Iconia Tab A500"
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

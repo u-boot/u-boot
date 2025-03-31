@@ -9,15 +9,6 @@
 
 #include <linux/sizes.h>
 #include "tegra20-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"Compulab Trimslice"
-
-/* SPI */
-
-/* Environment in SPI */
-/* 1MiB flash, environment located as high as possible */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

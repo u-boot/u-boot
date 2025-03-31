@@ -10,10 +10,6 @@
 #include <linux/sizes.h>
 
 #include "tegra124-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"Google/NVIDIA Nyan-big"
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

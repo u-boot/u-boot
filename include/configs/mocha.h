@@ -10,9 +10,6 @@
 
 #include "tegra124-common.h"
 
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING		"Xiaomi Mocha"
-
 #ifdef CONFIG_TEGRA_SUPPORT_NON_SECURE
   #define CFG_PRAM                     0x38400 /* 225 MB */
 #endif

@@ -9,12 +9,6 @@
 #include <linux/sizes.h>
 
 #include "tegra186-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"NVIDIA P2771-0000"
-
-/* Environment in eMMC, at the end of 2nd "boot sector" */
-
 #include "tegra-common-post.h"
 
 #endif

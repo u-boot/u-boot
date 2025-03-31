@@ -9,14 +9,6 @@
 
 #include <linux/sizes.h>
 #include "tegra20-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"NVIDIA Harmony"
-
-/* NAND support */
-
-/* Environment in NAND (which is 512M), aligned to start of last sector */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

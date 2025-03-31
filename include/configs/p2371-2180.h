@@ -10,14 +10,6 @@
 #include <linux/sizes.h>
 
 #include "tegra210-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING	"NVIDIA P2371-2180"
-
-/* Board-specific serial config */
-
-/* Environment in eMMC, at the end of 2nd "boot sector" */
-
 #include "tegra-common-post.h"
 
 #endif /* _P2371_2180_H */

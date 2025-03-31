@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "ideapad-yoga-11"
 
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Lenovo Ideapad Yoga 11"
+
 endif

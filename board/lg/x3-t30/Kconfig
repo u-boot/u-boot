@@ -9,4 +9,8 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "x3-t30"
 
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "LG X3 Board"
+
 endif

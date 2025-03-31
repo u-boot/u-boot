@@ -10,9 +10,6 @@
 #include <linux/sizes.h>
 #include "tegra20-common.h"
 
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING		"Motorola Mot"
-
 /* Tegra common post configuration overwrites text env in the board */
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"stdin=serial,tegra-kbc,button-kbd,cpcap-pwrbutton\0"

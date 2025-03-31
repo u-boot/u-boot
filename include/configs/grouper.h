@@ -7,10 +7,6 @@
 #define __CONFIG_H
 
 #include "tegra30-common.h"
-
-/* High-level configuration options */
-#define CFG_TEGRA_BOARD_STRING		"ASUS Google Nexus 7 (2012)"
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */
