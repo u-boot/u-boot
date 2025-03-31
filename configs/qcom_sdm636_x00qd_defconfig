@@ -1,0 +1,30 @@
+# Configuration for building U-Boot as 2nd stage
+# bootloader to be flashed as part of boot.img to
+# boot partition on Asus Zenfone 5 phones.
+
+#include "qcom_sdm660_defconfig"
+
+# x00qd device tree is not upstream yet
+CONFIG_OF_UPSTREAM=n
+CONFIG_DEFAULT_DEVICE_TREE="qcom/sdm636-asus-x00qd"
+
+# asus-x00qd is built with no real serial debug uart available,
+# (or it has not been found yet)
+# it is using ramoops logging instead
+
+# CONFIG_REQUIRE_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_PRESENT is not set
+# ^^ reason to disable because both debug-uart and bluetooth-uart nodes in dts
+
+CONFIG_DEBUG_UART_RAMOOPS=y
+# Values from asus-x00qd downstream 4.19 kernel device tree
+CONFIG_DEBUG_UART_RAMOOPS_BASE=0x94b00000
+CONFIG_DEBUG_UART_RAMOOPS_SIZE=0x400000
+CONFIG_DEBUG_UART_RAMOOPS_CONSOLE_SIZE=0x200000
+CONFIG_DEBUG_UART_RAMOOPS_FTRACE_SIZE=0x0
+CONFIG_DEBUG_UART_RAMOOPS_RECORD_SIZE=0x0
+CONFIG_DEBUG_UART_RAMOOPS_PMSG_SIZE=0x200000
+CONFIG_DEBUG_UART_SKIP_INIT=n
+
+CONFIG_USB_GADGET_VENDOR_NUM=0x0b05
+CONFIG_USB_GADGET_PRODUCT_NUM=0x4daf
