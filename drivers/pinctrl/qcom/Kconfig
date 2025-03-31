@@ -61,6 +61,13 @@ config PINCTRL_QCOM_SC7280
 	help
 	  Say Y here to enable support for pinctrl on the Snapdragon SC7280 SoC,
 
+config PINCTRL_QCOM_SDM660
+	bool "Qualcomm SDM630/660 Pinctrl"
+	select PINCTRL_QCOM
+	help
+	  Say Y here to enable support for pinctrl on the Snapdragon 630/636/660
+	  SoCs, as well as the associated GPIO driver.
+
 config PINCTRL_QCOM_SDM845
 	bool "Qualcomm SDM845 Pinctrl"
 	select PINCTRL_QCOM
