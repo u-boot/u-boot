@@ -72,7 +72,7 @@ int misc_init_r(void)
 	int ret;
 	enum button_state_t state;
 
-	ret = button_get_by_label("vol_down", &btn);
+	ret = button_get_by_label("Volume Down", &btn);
 	if (ret < 0) {
 		printf("Couldn't find power button!\n");
 		return ret;
