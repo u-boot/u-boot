@@ -14,9 +14,6 @@
 /* High-level configuration options */
 #define CFG_TEGRA_BOARD_STRING	"Google/NVIDIA Nyan-big"
 
-/* Board-specific serial config */
-#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

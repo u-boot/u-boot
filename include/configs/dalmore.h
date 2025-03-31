@@ -13,9 +13,6 @@
 /* High-level configuration options */
 #define CFG_TEGRA_BOARD_STRING	"NVIDIA Dalmore"
 
-/* Board-specific serial config */
-#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 
 #include "tegra-common-post.h"

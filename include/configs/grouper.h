@@ -11,9 +11,6 @@
 /* High-level configuration options */
 #define CFG_TEGRA_BOARD_STRING		"ASUS Google Nexus 7 (2012)"
 
-/* Board-specific serial config */
-#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

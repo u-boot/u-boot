@@ -20,7 +20,6 @@
  * Apalis UART3: NVIDIA UARTB
  * Apalis UART4: NVIDIA UARTC
  */
-#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
 #include "tegra-common-post.h"
 

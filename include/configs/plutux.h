@@ -14,9 +14,6 @@
 /* High-level configuration options */
 #define CFG_TEGRA_BOARD_STRING	"Avionic Design Plutux"
 
-/* Board-specific serial config */
-#define CFG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
-
 /* NAND support */
 
 /* Environment in NAND, aligned to start of last sector */
