@@ -17,7 +17,7 @@ U_BOOT_CMD(ping, 2, 1, do_ping, "send ICMP ECHO_REQUEST to network host",
 
 #if defined(CONFIG_CMD_TFTPBOOT)
 U_BOOT_CMD(tftpboot, 3, 0, do_tftpb,
-	   "boot image via network using TFTP protocol\n",
+	   "boot image via network using TFTP protocol",
 	   "[loadAddress] [[hostIPaddr:]bootfilename]");
 #endif
 

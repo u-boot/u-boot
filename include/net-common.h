@@ -518,7 +518,6 @@ int wget_do_request(ulong dst_addr, char *uri);
  * Return:	true if uri is valid, false if uri is invalid
  */
 bool wget_validate_uri(char *uri);
-//int do_wget(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[]);
 
 /**
  * enum wget_http_method - http method
