@@ -21,7 +21,7 @@ int button_get_by_label(const char *label, struct udevice **devp)
 		struct button_uc_plat *uc_plat = dev_get_uclass_plat(dev);
 
 		/* Ignore the top-level button node */
-		if (uc_plat->label && !strcmp(label, uc_plat->label))
+		if (uc_plat->label && !strcasecmp(label, uc_plat->label))
 			return uclass_get_device_tail(dev, 0, devp);
 	}
 
