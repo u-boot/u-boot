@@ -90,6 +90,11 @@ Or for db410c (and other boards not supported by the generic target)::
 	make CROSS_COMPILE=aarch64-linux-gnu- O=.output dragonboard410c_defconfig
 	make O=.output -j$(nproc)
 
+Or for smartphones::
+
+	make CROSS_COMPILE=aarch64-linux-gnu- O=.output qcom_defconfig qcom-phone.config
+	make O=.output -j$(nproc)
+
 - gzip u-boot::
 
 	gzip u-boot-nodtb.bin
