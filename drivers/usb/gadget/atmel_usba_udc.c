@@ -1443,6 +1443,7 @@ static const struct udevice_id usba_udc_ids[] = {
 	{ .compatible = "atmel,at91sam9rl-udc" },
 	{ .compatible = "atmel,at91sam9g45-udc" },
 	{ .compatible = "atmel,sama5d3-udc" },
+	{ .compatible = "microchip,sam9x60-udc" },
 	{}
 };
 
