@@ -192,6 +192,25 @@ inside the block, and check it for correctness (syntax, types, symbol
 references, etc).  Thus, you still have to use an #ifdef if the code inside the
 block references symbols that will not exist if the condition is not met.
 
+When working with xPL (see :doc:`spl` for more information) we need to take
+further care to use the right macro. In the case where a symbol may be
+referenced with an xPL-specific Kconfig symbol, use the CONFIG_IS_ENABLED macro
+instead, in a similar manner:
+
+.. code-block:: c
+
+	if (CONIG_IS_ENABLED(SOMETHING)) {
+		...
+	}
+
+When dealing with a Kconfig symbol that has both a normal name and one or more
+xPL-prefixed names, the Makefile needs special consideration as well. The
+PHASE\_ macro helps us in this situation thusly:
+
+.. code-block:: make
+
+        obj-$(CONFIG_$(PHASE_)SOMETHING) += something.o
+
 At the end of any non-trivial #if or #ifdef block (more than a few lines),
 place a comment after the #endif on the same line, noting the conditional
 expression used.  For instance:
