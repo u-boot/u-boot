@@ -192,13 +192,41 @@ static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 	return !!(readl(priv->base + GPIO_IN_OUT_REG(dev, gpio)) >> GPIO_IN);
 }
 
+static int msm_gpio_get_function_special(struct msm_gpio_bank *priv,
+					 unsigned int gpio)
+{
+	unsigned int offset = gpio - priv->pin_data->special_pins_start;
+	const struct msm_special_pin_data *data;
+
+	if (!priv->pin_data->special_pins_data)
+		return GPIOF_UNKNOWN;
+
+	data = &priv->pin_data->special_pins_data[offset];
+
+	/* No I/O fields, cannot control/read the I/O value */
+	if (!data->io_reg || (data->out_bit >= 31 && data->in_bit >= 31))
+		return GPIOF_FUNC;
+
+	/* No Output-Enable register, cannot control I/O direction */
+	if (!data->ctl_reg || data->oe_bit >= 31) {
+		if (data->out_bit >= 31)
+			return GPIOF_INPUT;
+		else
+			return GPIOF_OUTPUT;
+	}
+
+	if (readl(priv->base + data->ctl_reg) & BIT(data->oe_bit))
+		return GPIOF_OUTPUT;
+
+	return GPIOF_INPUT;
+}
+
 static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
-	/* Always NOP for special pins, assume they're in the correct state */
 	if (qcom_is_special_pin(priv->pin_data, gpio))
-		return 0;
+		return msm_gpio_get_function_special(priv, gpio);
 
 	if (readl(priv->base + GPIO_CONFIG_REG(dev, gpio)) & GPIO_OE_ENABLE)
 		return GPIOF_OUTPUT;
