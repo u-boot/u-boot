@@ -28,7 +28,7 @@ fast amd64 (i.e. 64-bit x86) and arm64 machines is::
 And this will result in a builder named multiarch-multinode that will build
 each platform natively on each node.
 
-To build the image yourself::
+To build the image yourself:
 
 .. code-block:: bash
 
