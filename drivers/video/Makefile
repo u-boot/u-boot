@@ -35,7 +35,7 @@ obj-${CONFIG_EXYNOS_FB} += exynos/
 obj-${CONFIG_VIDEO_ROCKCHIP} += rockchip/
 obj-${CONFIG_VIDEO_STM32} += stm32/
 obj-${CONFIG_VIDEO_TEGRA124} += tegra124/
-obj-${CONFIG_$(XPL_)VIDEO_TIDSS} += tidss/
+obj-${CONFIG_$(PHASE_)VIDEO_TIDSS} += tidss/
 obj-y += ti/
 
 obj-$(CONFIG_ATMEL_HLCD) += atmel_hlcdfb.o

@@ -17,7 +17,7 @@ obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 
 # some files can only build in ARM or THUMB2, not THUMB1
 
-ifdef CONFIG_$(XPL_)SYS_THUMB_BUILD
+ifdef CONFIG_$(PHASE_)SYS_THUMB_BUILD
 ifndef CONFIG_HAS_THUMB2
 
 CFLAGS_cpu.o := -marm

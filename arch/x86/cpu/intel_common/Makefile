@@ -26,10 +26,10 @@ obj-y += cpu.o
 obj-y += fast_spi.o
 obj-y += lpc.o
 obj-y += lpss.o
-obj-$(CONFIG_$(XPL_)INTEL_GENERIC_WIFI) += generic_wifi.o
+obj-$(CONFIG_$(PHASE_)INTEL_GENERIC_WIFI) += generic_wifi.o
 ifndef CONFIG_EFI_APP
 obj-$(CONFIG_$(PHASE_)X86_32BIT_INIT) += microcode.o
-ifndef CONFIG_$(XPL_)X86_64
+ifndef CONFIG_$(PHASE_)X86_64
 obj-y += microcode.o
 endif
 endif

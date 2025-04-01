@@ -32,7 +32,7 @@ obj-y	+= lowlevel_init.o
 endif
 endif
 
-ifdef CONFIG_$(XPL_)SYS_THUMB_BUILD
+ifdef CONFIG_$(PHASE_)SYS_THUMB_BUILD
 ifndef CONFIG_HAS_THUMB2
 
 CFLAGS_cache.o := -marm

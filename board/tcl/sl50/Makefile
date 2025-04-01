@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2015 Toby Churchill Ltd - http://www.toby-churchill.com/
 
-ifeq ($(CONFIG_$(XPL_)SKIP_LOWLEVEL_INIT),)
+ifeq ($(CONFIG_$(PHASE_)SKIP_LOWLEVEL_INIT),)
 obj-y	:= mux.o
 endif
 

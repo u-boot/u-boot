@@ -14,7 +14,7 @@ obj-$(CONFIG_CMD_DNS)  += dns.o
 obj-$(CONFIG_DM_DSA)   += dsa-uclass.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += link_local.o
 obj-$(CONFIG_IPV6)     += ndisc.o
-obj-$(CONFIG_$(XPL_)DM_ETH) += net.o
+obj-$(CONFIG_$(PHASE_)DM_ETH) += net.o
 obj-$(CONFIG_IPV6)     += net6.o
 obj-$(CONFIG_CMD_NFS)  += nfs.o
 obj-$(CONFIG_CMD_PING) += ping.o
@@ -39,11 +39,11 @@ CFLAGS_eth_common.o += -Wno-format-extra-args
 endif
 
 ifeq ($(filter y,$(CONFIG_NET) $(CONFIG_NET_LWIP)),y)
-obj-$(CONFIG_$(XPL_)DM_ETH) += eth-uclass.o
+obj-$(CONFIG_$(PHASE_)DM_ETH) += eth-uclass.o
 obj-$(CONFIG_$(PHASE_)BOOTDEV_ETH) += eth_bootdev.o
 obj-$(CONFIG_DM_MDIO)  += mdio-uclass.o
 obj-$(CONFIG_DM_MDIO_MUX) += mdio-mux-uclass.o
-obj-$(CONFIG_$(XPL_)DM_ETH) += eth_common.o
+obj-$(CONFIG_$(PHASE_)DM_ETH) += eth_common.o
 obj-y += net-common.o
 endif
 

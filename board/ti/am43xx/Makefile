@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2013 Texas Instruments Incorporated - https://www.ti.com/
 
-ifeq ($(CONFIG_$(XPL_)SKIP_LOWLEVEL_INIT),)
+ifeq ($(CONFIG_$(PHASE_)SKIP_LOWLEVEL_INIT),)
 obj-y	:= mux.o
 endif
 

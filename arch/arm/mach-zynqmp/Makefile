@@ -7,7 +7,7 @@ obj-y	+= aes.o clk.o cpu.o
 obj-$(CONFIG_MP)	+= mp.o
 obj-$(CONFIG_XPL_BUILD) += spl.o handoff.o psu_spl_init.o
 obj-$(CONFIG_SPL_ZYNQMP_DRAM_ECC_INIT) += ecc_spl_init.o
-obj-$(CONFIG_$(XPL_)ZYNQMP_PSU_INIT_ENABLED)	+= psu_spl_init.o
+obj-$(CONFIG_$(PHASE_)ZYNQMP_PSU_INIT_ENABLED)	+= psu_spl_init.o
 
 ifndef CONFIG_XPL_BUILD
 obj-$(CONFIG_CMD_ZYNQMP) += zynqmp.o

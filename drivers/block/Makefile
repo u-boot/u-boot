@@ -5,7 +5,7 @@
 
 obj-$(CONFIG_$(PHASE_)BLK) += blk-uclass.o
 
-ifndef CONFIG_$(XPL_)BLK
+ifndef CONFIG_$(PHASE_)BLK
 obj-$(CONFIG_SPL_LEGACY_BLOCK) += blk_legacy.o
 endif
 
