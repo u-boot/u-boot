@@ -106,6 +106,10 @@
 	operating-points-v2 = <&cpu0_opp_table>;
 };
 
+&etzpc {
+	bootph-all;
+};
+
 &gpioa {
 	bootph-all;
 };
