@@ -545,7 +545,8 @@ static int bootm_find_other(ulong img_addr, const char *conf_ramdisk,
 	     images.os.type == IH_TYPE_KERNEL_NOLOAD ||
 	     images.os.type == IH_TYPE_MULTI) &&
 	    (images.os.os == IH_OS_LINUX || images.os.os == IH_OS_VXWORKS ||
-	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE)) {
+	     images.os.os == IH_OS_EFI || images.os.os == IH_OS_TEE ||
+	     images.os.os == IH_OS_ELF)) {
 		return bootm_find_images(img_addr, conf_ramdisk, conf_fdt, 0,
 					 0);
 	}
