@@ -250,6 +250,7 @@ struct vidconsole_ops {
 	 * @name:	Font name to use (NULL to use default)
 	 * @size:	Font size to use (0 to use default)
 	 * @text:	Text to measure
+	 * @limit:	Width limit for each line, or -1 if none
 	 * @bbox:	Returns bounding box of text, assuming it is positioned
 	 *		at 0,0
 	 * @lines:	If non-NULL, this must be an alist of
@@ -259,8 +260,8 @@ struct vidconsole_ops {
 	 * Returns: 0 on success, -ENOENT if no such font
 	 */
 	int (*measure)(struct udevice *dev, const char *name, uint size,
-		       const char *text, struct vidconsole_bbox *bbox,
-		       struct alist *lines);
+		       const char *text, int limit,
+		       struct vidconsole_bbox *bbox, struct alist *lines);
 
 	/**
 	 * nominal() - Measure the expected width of a line of text
@@ -350,6 +351,7 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
  * @name:	Font name to use (NULL to use default)
  * @size:	Font size to use (0 to use default)
  * @text:	Text to measure
+ * @limit:	Width limit for each line, or -1 if none
  * @bbox:	Returns bounding box of text, assuming it is positioned
  *		at 0,0
  * @lines:	If non-NULL, this must be an alist of
@@ -359,8 +361,8 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
  * Returns: 0 on success, -ENOENT if no such font
  */
 int vidconsole_measure(struct udevice *dev, const char *name, uint size,
-		       const char *text, struct vidconsole_bbox *bbox,
-		       struct alist *lines);
+		       const char *text, int limit,
+		       struct vidconsole_bbox *bbox, struct alist *lines);
 /**
  * vidconsole_nominal() - Measure the expected width of a line of text
  *

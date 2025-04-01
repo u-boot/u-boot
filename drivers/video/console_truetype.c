@@ -3,6 +3,8 @@
  * Copyright (c) 2016 Google, Inc
  */
 
+#define LOG_CATEGORY	UCLASS_VIDEO
+
 #include <abuf.h>
 #include <dm.h>
 #include <log.h>
@@ -733,16 +735,17 @@ static int truetype_select_font(struct udevice *dev, const char *name,
 }
 
 static int truetype_measure(struct udevice *dev, const char *name, uint size,
-			    const char *text, struct vidconsole_bbox *bbox,
-			    struct alist *lines)
+			    const char *text, int pixel_limit,
+			    struct vidconsole_bbox *bbox, struct alist *lines)
 {
 	struct console_tt_metrics *met;
 	struct vidconsole_mline mline;
-	const char *s;
+	const char *s, *last_space;
+	int width, last_width;
 	stbtt_fontinfo *font;
 	int lsb, advance;
-	int width;
 	int start;
+	int limit;
 	int lastch;
 	int ret;
 
@@ -754,13 +757,29 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 	if (!*text)
 		return 0;
 
+	limit = -1;
+	if (pixel_limit != -1)
+		limit = tt_ceil((double)pixel_limit / met->scale);
+
 	font = &met->font;
 	width = 0;
 	bbox->y1 = 0;
+	bbox->x1 = 0;
 	start = 0;
+	last_space = NULL;
+	last_width = 0;
 	for (lastch = 0, s = text; *s; s++) {
 		int neww;
 		int ch = *s;
+
+		if (ch == ' ') {
+			/*
+			 * store the position and width so we can use it again
+			 * if we need to word-wrap
+			 */
+			last_space = s;
+			last_width = width;
+		}
 
 		/* First get some basic metrics about this character */
 		stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
@@ -772,10 +791,16 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 		lastch = ch;
 
 		/* see if we need to start a new line */
-		if (ch == '\n') {
+		if (ch == '\n' || (limit != -1 && neww >= limit)) {
+			if (ch != '\n' && last_space) {
+				s = last_space;
+				width = last_width;
+			}
+			last_space = NULL;
 			mline.bbox.x0 = 0;
 			mline.bbox.y0 = bbox->y1;
 			mline.bbox.x1 = tt_ceil((double)width * met->scale);
+			bbox->x1 = max(bbox->x1, mline.bbox.x1);
 			bbox->y1 += met->font_size;
 			mline.bbox.y1 = bbox->y1;
 			mline.bbox.valid = true;
@@ -788,8 +813,7 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 				  mline.start, mline.len, mline.len, text + mline.start);
 
 			start = s - text;
-			if (ch == '\n')
-				start++;
+			start++;
 			lastch = 0;
 			neww = 0;
 		}
@@ -811,7 +835,7 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 	bbox->valid = true;
 	bbox->x0 = 0;
 	bbox->y0 = 0;
-	bbox->x1 = tt_ceil((double)width * met->scale);
+	bbox->x1 = max(bbox->x1, mline.bbox.x1);
 
 	return 0;
 }

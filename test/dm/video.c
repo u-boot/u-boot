@@ -789,6 +789,7 @@ static int dm_test_font_measure(struct unit_test_state *uts)
 	struct vidconsole_bbox bbox;
 	struct video_priv *priv;
 	struct udevice *dev, *con;
+	const int limit = 0x320;
 	struct alist lines;
 	int nl;
 
@@ -801,7 +802,7 @@ static int dm_test_font_measure(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_position_cursor(con, 0, 0);
 	alist_init_struct(&lines, struct vidconsole_mline);
-	ut_assertok(vidconsole_measure(con, NULL, 0, test_string, &bbox,
+	ut_assertok(vidconsole_measure(con, NULL, 0, test_string, -1, &bbox,
 				       &lines));
 	ut_asserteq(0, bbox.x0);
 	ut_asserteq(0, bbox.y0);
@@ -830,6 +831,62 @@ static int dm_test_font_measure(struct unit_test_state *uts)
 	ut_asserteq(nl + 1, line->start);
 	ut_asserteq(163, line->len);
 	ut_asserteq(strlen(test_string + nl + 1), line->len);
+
+	/* now use a limit on the width */
+	ut_assertok(vidconsole_measure(con, NULL, 0, test_string, limit, &bbox,
+				       &lines));
+	ut_asserteq(0, bbox.x0);
+	ut_asserteq(0, bbox.y0);
+	ut_asserteq(0x31e, bbox.x1);
+	ut_asserteq(0x36, bbox.y1);
+	ut_asserteq(3, lines.count);
+
+	nl = strchr(test_string, '\n') - test_string;
+
+	line = alist_get(&lines, 0, struct vidconsole_mline);
+	ut_assertnonnull(line);
+	ut_asserteq(0, line->bbox.x0);
+	ut_asserteq(0, line->bbox.y0);
+	ut_asserteq(0x8c, line->bbox.x1);
+	ut_asserteq(0x12, line->bbox.y1);
+	ut_asserteq(0, line->start);
+	ut_asserteq(20, line->len);
+	ut_asserteq(nl, line->len);
+	printf("line0 '%.*s'\n", line->len, test_string + line->start);
+	ut_asserteq_strn("There is always much",
+			 test_string + line->start);
+
+	line++;
+	ut_asserteq(0x0, line->bbox.x0);
+	ut_asserteq(0x12, line->bbox.y0);
+	ut_asserteq(0x31e, line->bbox.x1);
+	ut_asserteq(0x24, line->bbox.y1);
+	ut_asserteq(21, line->start);
+	ut_asserteq(nl + 1, line->start);
+	ut_asserteq(129, line->len);
+	printf("line1 '%.*s'\n", line->len, test_string + line->start);
+	ut_asserteq_strn("to be said for not attempting more than you can do "
+			 "and for making a certainty of what you try. But this "
+			 "principle, like others in",
+			 test_string + line->start);
+
+	line++;
+	ut_asserteq(0x0, line->bbox.x0);
+	ut_asserteq(0x24, line->bbox.y0);
+	ut_asserteq(0xc8, line->bbox.x1);
+	ut_asserteq(0x36, line->bbox.y1);
+	ut_asserteq(21 + 130, line->start);
+	ut_asserteq(33, line->len);
+	printf("line2 '%.*s'\n", line->len, test_string + line->start);
+	ut_asserteq_strn("life and war, has its exceptions.",
+			 test_string + line->start);
+
+	/*
+	 * all characters should be accounted for, except the newline and the
+	 * space which is consumed in the wordwrap
+	 */
+	ut_asserteq(strlen(test_string) - 2,
+		    line[-2].len + line[-1].len + line->len);
 
 	return 0;
 }
