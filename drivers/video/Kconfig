@@ -559,6 +559,13 @@ config VIDEO_LCD_MOT
 	  unknown. The panel has a 540x960 resolution and uses 24 bit RGB per
 	  pixel.
 
+config VIDEO_LCD_NOVATEK_NT35510
+	bool "Novatek NT35510 DSI LCD panel support"
+	select VIDEO_MIPI_DSI
+	help
+	Say Y here if you want to enable support for Novatek nt35510
+	dsi panel.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	select VIDEO_MIPI_DSI
