@@ -249,7 +249,7 @@ int video_fill(struct udevice *dev, u32 colour);
 /**
  * video_fill_part() - Erase a region
  *
- * Erase a rectangle of the display within the given bounds.
+ * Erase a rectangle on the display within the given bounds
  *
  * @dev:	Device to update
  * @xstart:	X start position in pixels from the left
@@ -261,6 +261,23 @@ int video_fill(struct udevice *dev, u32 colour);
  */
 int video_fill_part(struct udevice *dev, int xstart, int ystart, int xend,
 		    int yend, u32 colour);
+
+/**
+ * video_draw_box() - Draw a box
+ *
+ * Draw a rectangle on the display within the given bounds
+ *
+ * @dev:	Device to update
+ * @x0:		X start position in pixels from the left
+ * @y0:		Y start position in pixels from the top
+ * @x1:		X end position in pixels from the left
+ * @y1:		Y end position in pixels from the top
+ * @width:	width in pixels
+ * @colour:	Value to write
+ * Return: 0 if OK, -ENOSYS if the display depth is not supported
+ */
+int video_draw_box(struct udevice *dev, int x0, int y0, int x1, int y1,
+		   int width, u32 colour);
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
