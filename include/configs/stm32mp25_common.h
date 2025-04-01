@@ -25,6 +25,12 @@
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
+#ifdef CONFIG_NET
+#define BOOT_TARGET_PXE(func)	func(PXE, pxe, na)
+#else
+#define BOOT_TARGET_PXE(func)
+#endif
+
 #ifdef CONFIG_CMD_MMC
 #define BOOT_TARGET_MMC0(func)	func(MMC, mmc, 0)
 #define BOOT_TARGET_MMC1(func)	func(MMC, mmc, 1)
@@ -52,7 +58,8 @@
 	BOOT_TARGET_UBIFS(func)		\
 	BOOT_TARGET_MMC0(func)		\
 	BOOT_TARGET_MMC2(func)		\
-	BOOT_TARGET_USB(func)
+	BOOT_TARGET_USB(func)		\
+	BOOT_TARGET_PXE(func)
 
 /*
  * default bootcmd for stm32mp25:
