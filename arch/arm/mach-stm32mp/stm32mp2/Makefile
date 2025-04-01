@@ -5,5 +5,6 @@
 
 obj-y += cpu.o
 obj-y += arm64-mmu.o
+obj-y += rifsc.o
 obj-$(CONFIG_OF_SYSTEM_SETUP) += fdt.o
 obj-$(CONFIG_STM32MP25X) += stm32mp25x.o
