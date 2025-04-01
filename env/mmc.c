@@ -553,7 +553,7 @@ err:
 
 static int env_mmc_load(void)
 {
-	if (IS_ENABLED(CONFIG_ENV_IS_EMBEDDED))
+	if (IS_ENABLED(ENV_IS_EMBEDDED))
 		return 0;
 	else if (IS_ENABLED(CONFIG_SYS_REDUNDAND_ENVIRONMENT))
 		return env_mmc_load_redundant();
