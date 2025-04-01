@@ -771,10 +771,33 @@ static int truetype_measure(struct udevice *dev, const char *name, uint size,
 			neww += stbtt_GetCodepointKernAdvance(font, lastch, ch);
 		lastch = ch;
 
+		/* see if we need to start a new line */
+		if (ch == '\n') {
+			mline.bbox.x0 = 0;
+			mline.bbox.y0 = bbox->y1;
+			mline.bbox.x1 = tt_ceil((double)width * met->scale);
+			bbox->y1 += met->font_size;
+			mline.bbox.y1 = bbox->y1;
+			mline.bbox.valid = true;
+			mline.start = start;
+			mline.len = (s - text) - start;
+			if (lines && !alist_add(lines, mline))
+				return log_msg_ret("ttm", -ENOMEM);
+			log_debug("line x1 %d y0 %d y1 %d start %d len %d text '%.*s'\n",
+				  mline.bbox.x1, mline.bbox.y0, mline.bbox.y1,
+				  mline.start, mline.len, mline.len, text + mline.start);
+
+			start = s - text;
+			if (ch == '\n')
+				start++;
+			lastch = 0;
+			neww = 0;
+		}
+
 		width = neww;
 	}
 
-	/* add the line */
+	/* add the final line */
 	mline.bbox.x0 = 0;
 	mline.bbox.y0 = bbox->y1;
 	mline.bbox.x1 = tt_ceil((double)width * met->scale);

@@ -244,6 +244,8 @@ struct vidconsole_ops {
 	/**
 	 * measure() - Measure the bounding box of some text
 	 *
+	 * The text can include newlines
+	 *
 	 * @dev:	Console device to use
 	 * @name:	Font name to use (NULL to use default)
 	 * @size:	Font size to use (0 to use default)
@@ -341,6 +343,8 @@ int vidconsole_select_font(struct udevice *dev, const char *name, uint size);
 
 /**
  * vidconsole_measure() - Measure the bounding box of some text
+ *
+ * The text can include newlines
  *
  * @dev:	Device to adjust
  * @name:	Font name to use (NULL to use default)

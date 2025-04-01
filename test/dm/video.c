@@ -781,7 +781,7 @@ DM_TEST(dm_test_video_damage, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 /* Test font measurement */
 static int dm_test_font_measure(struct unit_test_state *uts)
 {
-	const char *test_string = "There is always much to be said for not "
+	const char *test_string = "There is always much\nto be said for not "
 		"attempting more than you can do and for making a certainty of "
 		"what you try. But this principle, like others in life and "
 		"war, has its exceptions.";
@@ -790,6 +790,7 @@ static int dm_test_font_measure(struct unit_test_state *uts)
 	struct video_priv *priv;
 	struct udevice *dev, *con;
 	struct alist lines;
+	int nl;
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
 	priv = dev_get_uclass_priv(dev);
@@ -804,18 +805,31 @@ static int dm_test_font_measure(struct unit_test_state *uts)
 				       &lines));
 	ut_asserteq(0, bbox.x0);
 	ut_asserteq(0, bbox.y0);
-	ut_asserteq(0x47a, bbox.x1);
-	ut_asserteq(0x12, bbox.y1);
-	ut_asserteq(1, lines.count);
+	ut_asserteq(0x3ea, bbox.x1);
+	ut_asserteq(0x24, bbox.y1);
+	ut_asserteq(2, lines.count);
+
+	nl = strchr(test_string, '\n') - test_string;
 
 	line = alist_get(&lines, 0, struct vidconsole_mline);
 	ut_assertnonnull(line);
 	ut_asserteq(0, line->bbox.x0);
 	ut_asserteq(0, line->bbox.y0);
-	ut_asserteq(0x47a, line->bbox.x1);
+	ut_asserteq(0x8c, line->bbox.x1);
 	ut_asserteq(0x12, line->bbox.y1);
 	ut_asserteq(0, line->start);
-	ut_asserteq(strlen(test_string), line->len);
+	ut_asserteq(20, line->len);
+	ut_asserteq(nl, line->len);
+
+	line++;
+	ut_asserteq(0x0, line->bbox.x0);
+	ut_asserteq(0x12, line->bbox.y0);
+	ut_asserteq(0x3ea, line->bbox.x1);
+	ut_asserteq(0x24, line->bbox.y1);
+	ut_asserteq(21, line->start);
+	ut_asserteq(nl + 1, line->start);
+	ut_asserteq(163, line->len);
+	ut_asserteq(strlen(test_string + nl + 1), line->len);
 
 	return 0;
 }
