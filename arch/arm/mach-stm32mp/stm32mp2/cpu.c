@@ -24,7 +24,7 @@
  * early TLB into the .data section so that it not get cleared
  * with 16kB alignment
  */
-#define EARLY_TLB_SIZE 0xA000
+#define EARLY_TLB_SIZE 0x10000
 u8 early_tlb[EARLY_TLB_SIZE] __section(".data") __aligned(0x4000);
 
 /*
