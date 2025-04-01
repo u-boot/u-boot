@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2022 NXP
  *
  */
 
@@ -59,6 +59,8 @@ static struct serdes_configuration {
 	/* Serdes block #1 */
 	{1, 3, true},
 	{1, 7, true},
+	{1, 13, true},
+	{1, 14, true},
 	{1, 19, true},
 	{1, 20, true},
 

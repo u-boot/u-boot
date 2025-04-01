@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * NXP LX2160AQDS device tree source for the SERDES block #1 - protocol 13
+ *
+ * Some assumptions are made:
+ *    * mezzanine card M8 (100G) #1 is connected to IO SLOT 1 - DPMAC 1
+ *    * mezzanine card M8 (100G) #2 is connected to IO SLOT 2 - DPMAC 2
+ *
+ * Copyright 2021-2022 NXP
+ *
+ */
+
+#include "fsl-lx2160a-qds.dtsi"
+
+&dpmac1 {
+	status = "okay";
+	phy-handle = <&inphi1_phy0 &inphi1_phy1>;
+	phy-connection-type = "caui4";
+};
+
+&dpmac2 {
+	status = "okay";
+	phy-handle = <&inphi2_phy0 &inphi2_phy1>;
+	phy-connection-type = "caui4";
+};
+
+&emdio1_slot1 {
+	inphi1_phy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-id0210.7440";
+		reg = <0x0>;
+	};
+
+	inphi1_phy1: ethernet-phy@1 {
+		compatible = "ethernet-phy-id0210.7440";
+		reg = <0x1>;
+	};
+};
+
+&emdio1_slot2 {
+	inphi2_phy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-id0210.7440";
+		reg = <0x0>;
+	};
+
+	inphi2_phy1: ethernet-phy@1 {
+		compatible = "ethernet-phy-id0210.7440";
+		reg = <0x1>;
+	};
+};
