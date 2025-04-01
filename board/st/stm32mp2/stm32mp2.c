@@ -6,7 +6,7 @@
 #define LOG_CATEGORY LOGC_BOARD
 
 #include <config.h>
-#include <env.h>
+#include <env_internal.h>
 #include <fdt_support.h>
 #include <log.h>
 #include <misc.h>
@@ -57,6 +57,25 @@ int checkboard(void)
 int board_init(void)
 {
 	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		if (CONFIG_IS_ENABLED(ENV_IS_IN_MMC))
+			return ENVL_MMC;
+		else
+			return ENVL_NOWHERE;
+	default:
+		return ENVL_NOWHERE;
+	}
 }
 
 int board_late_init(void)
