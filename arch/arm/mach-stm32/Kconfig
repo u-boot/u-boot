@@ -15,6 +15,7 @@ config STM32F4
 	select STM32_SERIAL
 	select STM32_TIMER
 	select TIMER
+	imply OF_UPSTREAM
 
 config STM32F7
 	bool "stm32f7 family"
