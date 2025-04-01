@@ -100,6 +100,7 @@ enum video_format {
  * @fg_col_idx:	Foreground color code (bit 3 = bold, bit 0-2 = color)
  * @bg_col_idx:	Background color code (bit 3 = bold, bit 0-2 = color)
  * @last_sync:	Monotonic time of last video sync
+ * @white_on_black: Use a black background
  */
 struct video_priv {
 	/* Things set up by the driver: */
@@ -131,6 +132,7 @@ struct video_priv {
 	u8 fg_col_idx;
 	u8 bg_col_idx;
 	ulong last_sync;
+	bool white_on_black;
 };
 
 /**
@@ -345,6 +347,16 @@ void video_set_flush_dcache(struct udevice *dev, bool flush);
  * @invert	true to invert colours
  */
 void video_set_default_colors(struct udevice *dev, bool invert);
+
+/**
+ * video_set_white_on_black() - Change the setting for white-on-black
+ *
+ * This does nothing if the setting is already the same.
+ *
+ * @dev: video device
+ * @white_on_black: true to use white-on-black, false for black-on-white
+ */
+void video_set_white_on_black(struct udevice *dev, bool white_on_black);
 
 /**
  * video_default_font_height() - Get the default font height
