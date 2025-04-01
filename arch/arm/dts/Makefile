@@ -534,10 +534,6 @@ dtb-$(CONFIG_STM32F4) += stm32f429-disco.dtb \
 	stm32429i-eval.dtb \
 	stm32f469-disco.dtb
 
-dtb-$(CONFIG_STM32F7) += stm32f746-disco.dtb \
-	stm32f769-disco.dtb \
-	stm32746g-eval.dtb
-
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-inet-3f.dtb \
 	sun4i-a10-inet-3w.dtb

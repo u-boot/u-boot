@@ -32,6 +32,7 @@ config STM32F7
 	select STM32_TIMER
 	select SUPPORT_SPL
 	select TIMER
+	imply OF_UPSTREAM
 	imply SPL_OS_BOOT
 
 config STM32H7

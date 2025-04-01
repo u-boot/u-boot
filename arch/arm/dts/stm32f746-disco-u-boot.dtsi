@@ -24,11 +24,6 @@
 	};
 };
 
-&ltdc {
-	clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
-	bootph-all;
-};
-
 &fmc {
 	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
 	bank1: bank@0 {
@@ -53,8 +48,14 @@
 	};
 };
 
+&ltdc {
+	bootph-all;
+
+	clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
+};
+
 &panel_rgb {
-	compatible = "simple-panel";
+	compatible = "rocktech,rk043fn48h", "simple-panel";
 
 	display-timings {
 		timing@0 {
