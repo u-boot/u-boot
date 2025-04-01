@@ -52,6 +52,7 @@ config STM32MP13X
 	select STM32_SERIAL
 	select SYS_ARCH_TIMER
 	imply CMD_NVEDIT_INFO
+	imply OF_UPSTREAM
 	help
 		support of STMicroelectronics SOC STM32MP13x family
 		STMicroelectronics MPU with core ARMv7

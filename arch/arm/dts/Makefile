@@ -1076,9 +1076,6 @@ dtb-$(CONFIG_ASPEED_AST2600) += \
 	ast2600-sbp1.dtb \
 	ast2600-x4tf.dtb
 
-dtb-$(CONFIG_STM32MP13X) += \
-	stm32mp135f-dk.dtb
-
 dtb-$(CONFIG_STM32MP15X) += \
 	stm32mp157a-dk1.dtb \
 	stm32mp157a-dk1-scmi.dtb \
