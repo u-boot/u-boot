@@ -49,6 +49,13 @@ config TEGRA186_RESET
 	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config RESET_AIROHA
+	bool "Reset controller driver for Airoha SoCs"
+	depends on DM_RESET && ARCH_AIROHA
+	default y
+	help
+	  Support for reset controller on Airoha SoCs.
+
 config RESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) reset driver"
 	depends on DM_RESET && TI_SCI_PROTOCOL

@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		atf-reserved-memory@80000000 {
+			no-map;
+			reg = <0x0 0x80000000 0x0 0x40000>;
+		};
+	};
+};
+
+&uart1 {
+	bootph-all;
+};
