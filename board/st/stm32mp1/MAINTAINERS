@@ -1,5 +1,6 @@
 STM32MP1 BOARD
 M:	Patrick Delaunay <patrick.delaunay@foss.st.com>
+M:	Patrice Chotard <patrice.chotard@foss.st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 T:	git https://source.denx.de/u-boot/custodians/u-boot-stm.git
 S:	Maintained
@@ -10,6 +11,7 @@ F:	configs/stm32mp13_defconfig
 F:	configs/stm32mp15_defconfig
 F:	configs/stm32mp15_basic_defconfig
 F:	configs/stm32mp15_trusted_defconfig
+F:	configs/stm32mp15-odyssey_defconfig
 F:	include/configs/stm32mp13_common.h
 F:	include/configs/stm32mp13_st_common.h
 F:	include/configs/stm32mp15_common.h
