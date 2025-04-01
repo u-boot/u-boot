@@ -1087,8 +1087,6 @@ dtb-$(CONFIG_ASPEED_AST2600) += \
 	ast2600-sbp1.dtb \
 	ast2600-x4tf.dtb
 
-dtb-$(CONFIG_ARCH_STI) += stih410-b2260.dtb
-
 dtb-$(CONFIG_STM32MP13X) += \
 	stm32mp135f-dk.dtb
 
