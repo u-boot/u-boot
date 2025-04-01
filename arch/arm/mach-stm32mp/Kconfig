@@ -96,6 +96,7 @@ config STM32MP25X
 	imply CMD_NVEDIT_INFO
 	imply DM_REGULATOR
 	imply DM_REGULATOR_SCMI
+	imply OF_UPSTREAM
 	imply OPTEE
 	imply RESET_SCMI
 	imply SYSRESET_PSCI
