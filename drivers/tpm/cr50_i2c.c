@@ -737,8 +737,12 @@ static int cr50_i2c_report_state(struct udevice *dev, char *str, int str_max)
 
 static int cr50_i2c_open(struct udevice *dev)
 {
+	struct cr50_priv *priv = dev_get_priv(dev);
 	char buf[80];
 	int ret;
+
+	if (priv->locality != -1)
+		return -EBUSY;
 
 	ret = process_reset(dev);
 	if (ret)
