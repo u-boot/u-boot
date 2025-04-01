@@ -64,6 +64,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	binutils-dev \
 	bison \
 	build-essential \
+	byacc \
 	cgpt \
 	clang-18 \
 	coreutils \
