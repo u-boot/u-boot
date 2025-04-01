@@ -172,12 +172,19 @@ static int msm_gpio_get_value_special(struct msm_gpio_bank *priv, unsigned int g
 	const struct msm_special_pin_data *data;
 
 	if (!priv->pin_data->special_pins_data)
-		return 0;
+		return -EINVAL;
 
 	data = &priv->pin_data->special_pins_data[offset];
 
-	if (!data->io_reg || data->in_bit >= 31)
-		return 0;
+	if (!data->io_reg)
+		return -EINVAL;
+
+	if (data->in_bit >= 31) {
+		if (data->out_bit >= 31)
+			return -EINVAL;
+
+		return !!(readl(priv->base + data->io_reg) >> data->out_bit);
+	}
 
 	return !!(readl(priv->base + data->io_reg) >> data->in_bit);
 }
