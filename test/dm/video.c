@@ -19,6 +19,7 @@
 #include <dm/uclass-internal.h>
 #include <test/test.h>
 #include <test/ut.h>
+#include <test/video.h>
 
 /*
  * These tests use the standard sandbox frame buffer, the resolution of which
@@ -44,24 +45,8 @@ static int dm_test_video_base(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_video_base, UTF_SCAN_PDATA | UTF_SCAN_FDT);
 
-/**
- * compress_frame_buffer() - Compress the frame buffer and return its size
- *
- * We want to write tests which perform operations on the video console and
- * check that the frame buffer ends up with the correct contents. But it is
- * painful to store 'known good' images for comparison with the frame
- * buffer. As an alternative, we can compress the frame buffer and check the
- * size of the compressed data. This provides a pretty good level of
- * certainty and the resulting tests need only check a single value.
- *
- * @uts:	Test state
- * @dev:	Video device
- * @use_copy:	Use copy frame buffer if available
- * Return: compressed size of the frame buffer, or -ve on error
- */
-static int compress_frame_buffer(struct unit_test_state *uts,
-				 struct udevice *dev,
-				 bool use_copy)
+int video_compress_fb(struct unit_test_state *uts, struct udevice *dev,
+		      bool use_copy)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 	uint destlen;
@@ -86,19 +71,7 @@ static int compress_frame_buffer(struct unit_test_state *uts,
 	return destlen;
 }
 
-/**
- * check_copy_frame_buffer() - Compare main frame buffer to copy
- *
- * If the copy frame buffer is enabled, this compares it to the main
- * frame buffer. Normally they should have the same contents after a
- * sync.
- *
- * @uts:	Test state
- * @dev:	Video device
- * Return: 0, or -ve on error
- */
-static int check_copy_frame_buffer(struct unit_test_state *uts,
-				   struct udevice *dev)
+int video_check_copy_fb(struct unit_test_state *uts, struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
@@ -174,31 +147,31 @@ static int dm_test_video_text(struct unit_test_state *uts)
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_putc_xy(con, 0, 0, 'a');
-	ut_asserteq(79, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(79, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	vidconsole_putc_xy(con, 0, 0, ' ');
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(273, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(273, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	vidconsole_set_row(con, 0, WHITE);
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(273, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(273, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -216,31 +189,31 @@ static int dm_test_video_text_12x22(struct unit_test_state *uts)
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "12x22", 0));
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_putc_xy(con, 0, 0, 'a');
-	ut_asserteq(89, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(89, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	vidconsole_putc_xy(con, 0, 0, ' ');
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(363, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(363, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	vidconsole_set_row(con, 0, WHITE);
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	for (i = 0; i < 20; i++)
 		vidconsole_putc_xy(con, VID_TO_POS(i * 8), 0, ' ' + i);
-	ut_asserteq(363, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(363, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -257,8 +230,8 @@ static int dm_test_video_chars(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(466, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(466, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -279,24 +252,24 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 	/* reference clear: */
 	video_clear(con->parent);
 	video_sync(con->parent, false);
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* test clear escape sequence: [2J */
 	vidconsole_put_string(con, "A\tB\tC"ANSI_ESC"[2J");
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* test set-cursor: [%d;%df */
 	vidconsole_put_string(con, "abc"ANSI_ESC"[2;2fab"ANSI_ESC"[4;4fcd");
-	ut_asserteq(143, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(143, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* test colors (30-37 fg color, 40-47 bg color) */
 	vidconsole_put_string(con, ANSI_ESC"[30;41mfoo"); /* black on red */
 	vidconsole_put_string(con, ANSI_ESC"[33;44mbar"); /* yellow on blue */
-	ut_asserteq(272, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(272, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -328,28 +301,28 @@ static int check_vidconsole_output(struct unit_test_state *uts, int rot,
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	ut_assertok(vidconsole_select_font(con, "8x16", 0));
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* Check display wrap */
 	for (i = 0; i < 120; i++)
 		vidconsole_put_char(con, 'A' + i % 50);
-	ut_asserteq(wrap_size, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(wrap_size, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* Check display scrolling */
 	for (i = 0; i < SCROLL_LINES; i++) {
 		vidconsole_put_char(con, 'A' + i % 50);
 		vidconsole_put_char(con, '\n');
 	}
-	ut_asserteq(scroll_size, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(scroll_size, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/* If we scroll enough, the screen becomes blank again */
 	for (i = 0; i < SCROLL_LINES; i++)
 		vidconsole_put_char(con, '\n');
-	ut_asserteq(46, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(46, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -423,8 +396,8 @@ static int dm_test_video_bmp(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1368, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(1368, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -443,8 +416,8 @@ static int dm_test_video_bmp8(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1247, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(1247, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -467,8 +440,8 @@ static int dm_test_video_bmp16(struct unit_test_state *uts)
 			   &src_len));
 
 	ut_assertok(video_bmp_display(dev, dst, 0, 0, false));
-	ut_asserteq(3700, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(3700, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -491,8 +464,8 @@ static int dm_test_video_bmp24(struct unit_test_state *uts)
 			   &src_len));
 
 	ut_assertok(video_bmp_display(dev, dst, 0, 0, false));
-	ut_asserteq(3656, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(3656, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -515,8 +488,8 @@ static int dm_test_video_bmp24_32(struct unit_test_state *uts)
 			   &src_len));
 
 	ut_assertok(video_bmp_display(dev, dst, 0, 0, false));
-	ut_asserteq(6827, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(6827, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -534,8 +507,8 @@ static int dm_test_video_bmp32(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(2024, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(2024, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -551,8 +524,8 @@ static int dm_test_video_bmp_comp(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx-comp.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1368, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(1368, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -571,8 +544,8 @@ static int dm_test_video_comp_bmp32(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(2024, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(2024, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -591,8 +564,8 @@ static int dm_test_video_comp_bmp8(struct unit_test_state *uts)
 	ut_assertok(read_file(uts, "tools/logos/denx.bmp", &addr));
 
 	ut_assertok(video_bmp_display(dev, addr, 0, 0, false));
-	ut_asserteq(1247, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(1247, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -608,8 +581,8 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
 	vidconsole_put_stringn(con, test_string, 30);
-	ut_asserteq(13184, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(13184, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -630,8 +603,8 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(34287, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(34287, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -652,8 +625,8 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
 	ut_assertok(video_get_nologo(uts, &dev));
 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
 	vidconsole_put_string(con, test_string);
-	ut_asserteq(29471, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(29471, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
@@ -691,8 +664,8 @@ static int dm_test_video_copy(struct unit_test_state *uts)
 	vidconsole_put_string(con, test_string);
 	vidconsole_put_string(con, test_string);
 
-	ut_asserteq(6678, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(6678, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	/*
 	 * Secretly clear the hardware frame buffer, but in a different
@@ -716,8 +689,8 @@ static int dm_test_video_copy(struct unit_test_state *uts)
 	vidconsole_put_string(con, test_string);
 	vidconsole_put_string(con, test_string);
 	video_sync(dev, true);
-	ut_asserteq(7589, compress_frame_buffer(uts, dev, false));
-	ut_asserteq(7704, compress_frame_buffer(uts, dev, true));
+	ut_asserteq(7589, video_compress_fb(uts, dev, false));
+	ut_asserteq(7704, video_compress_fb(uts, dev, true));
 
 	return 0;
 }
@@ -772,8 +745,8 @@ static int dm_test_video_damage(struct unit_test_state *uts)
 	ut_asserteq(0, priv->damage.xend);
 	ut_asserteq(0, priv->damage.yend);
 
-	ut_asserteq(7339, compress_frame_buffer(uts, dev, false));
-	ut_assertok(check_copy_frame_buffer(uts, dev));
+	ut_asserteq(7339, video_compress_fb(uts, dev, false));
+	ut_assertok(video_check_copy_fb(uts, dev));
 
 	return 0;
 }
