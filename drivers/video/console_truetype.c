@@ -490,10 +490,12 @@ static int console_truetype_backspace(struct udevice *dev)
 
 static int console_truetype_entry_start(struct udevice *dev)
 {
+	struct vidconsole_priv *vc_priv = dev_get_uclass_priv(dev);
 	struct console_tt_priv *priv = dev_get_priv(dev);
 
 	/* A new input line has start, so clear our history */
 	priv->pos_ptr = 0;
+	vc_priv->last_ch = 0;
 
 	return 0;
 }
