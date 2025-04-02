@@ -92,6 +92,7 @@ obj-$(CONFIG_GENERATE_ACPI_TABLE) += acpi_table.o
 # For EABI conformant tool chains, provide eabi_compat()
 ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 extra-y	+= eabi_compat.o
+CFLAGS_REMOVE_eabi_compat.o := $(LTO_CFLAGS)
 endif
 
 # some files can only build in ARM or THUMB2, not THUMB1

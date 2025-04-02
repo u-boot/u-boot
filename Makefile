@@ -406,6 +406,7 @@ LDR		= $(CROSS_COMPILE)ldr
 STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
+READELF		= $(CROSS_COMPILE)readelf
 LEX		= flex
 YACC		= bison
 AWK		= awk
@@ -820,6 +821,7 @@ KBUILD_AFLAGS += $(KAFLAGS)
 KBUILD_CFLAGS += $(KCFLAGS)
 
 KBUILD_LDFLAGS  += -z noexecstack
+KBUILD_LDFLAGS  += -z norelro
 KBUILD_LDFLAGS  += $(call ld-option,--no-warn-rwx-segments)
 
 KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
@@ -1065,7 +1067,7 @@ quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) --gap-fill=0xff $(OBJCOPYFLAGS) \
 	$(OBJCOPYFLAGS_$(@F)) $< $@
 
-# Provide a version which does not do this, for use by EFI
+# Provide a version which does not do this, for use by EFI and hex/srec
 quiet_cmd_zobjcopy = OBJCOPY $@
 cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
@@ -1280,7 +1282,7 @@ OBJCOPYFLAGS_u-boot.hex := -O ihex
 OBJCOPYFLAGS_u-boot.srec := -O srec
 
 u-boot.hex u-boot.srec: u-boot FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-elf.srec := $(OBJCOPYFLAGS_u-boot.srec)
 
@@ -1294,12 +1296,12 @@ OBJCOPYFLAGS_u-boot-elf.srec += --change-addresses=0x50000000
 endif
 
 u-boot-elf.srec: u-boot.elf FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-spl.srec = $(OBJCOPYFLAGS_u-boot.srec)
 
 spl/u-boot-spl.srec: spl/u-boot-spl FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 %.scif: %.srec
 	$(Q)$(MAKE) $(build)=arch/arm/mach-renesas $@
@@ -1434,7 +1436,7 @@ OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
 
 u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
@@ -2175,7 +2177,7 @@ System.map:	u-boot
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
 # R_AARCH64_RELATIVE (64-bit).
 checkarmreloc: u-boot
-	@RELOC="`$(CROSS_COMPILE)readelf -r -W $< | cut -d ' ' -f 4 | \
+	@RELOC="`$(READELF) -r -W $< | cut -d ' ' -f 4 | \
 		grep R_A | sort -u`"; \
 	if test "$$RELOC" != "R_ARM_RELATIVE" -a \
 		 "$$RELOC" != "R_AARCH64_RELATIVE"; then \
