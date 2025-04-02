@@ -73,6 +73,10 @@ static int extlinux_pxe_read_bootflow(struct udevice *dev,
 		return log_msg_ret("pxeb", -EPERM);
 	addr = simple_strtoul(addr_str, NULL, 16);
 
+	ret = dhcp_run(addr, NULL, false);
+	if (ret)
+		return log_msg_ret("dhc", ret);
+
 	log_debug("calling pxe_get()\n");
 	ret = pxe_get(addr, &bootdir, &size, false);
 	log_debug("pxe_get() returned %d\n", ret);
