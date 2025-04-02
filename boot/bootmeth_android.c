@@ -455,7 +455,8 @@ static int run_avb_verification(struct bootflow *bflow)
 		if (result != AVB_SLOT_VERIFY_RESULT_OK) {
 			printf("Verification failed, reason: %s\n",
 			       str_avb_slot_error(result));
-			avb_slot_verify_data_free(out_data);
+			if (out_data)
+				avb_slot_verify_data_free(out_data);
 			return log_msg_ret("avb verify", -EIO);
 		}
 		boot_state = AVB_GREEN;
@@ -465,7 +466,8 @@ static int run_avb_verification(struct bootflow *bflow)
 		    result != AVB_SLOT_VERIFY_RESULT_ERROR_VERIFICATION) {
 			printf("Unlocked verification failed, reason: %s\n",
 			       str_avb_slot_error(result));
-			avb_slot_verify_data_free(out_data);
+			if (out_data)
+				avb_slot_verify_data_free(out_data);
 			return log_msg_ret("avb verify unlocked", -EIO);
 		}
 		boot_state = AVB_ORANGE;
