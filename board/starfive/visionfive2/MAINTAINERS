@@ -2,6 +2,6 @@ STARFIVE JH7110 VISIONFIVE2 BOARD
 M:	Minda Chen <minda.chen@starfivetech.com>
 M:	Hal Feng <hal.feng@starfivetech.com>
 S:	Maintained
-F:	drivers/ram/starfive/
+N:	starfive
 N:	jh7110
 N:	visionfive2
