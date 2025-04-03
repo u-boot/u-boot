@@ -57,6 +57,17 @@ def setup_image(ubman, devnum, part_type, img_size=20, second_part=False,
                              stdin=spec.encode('utf-8'))
     return fname, mnt
 
+def copy_partition(ubman, fsfile, outname):
+    """Copy a partition into a disk iamge
+
+    Args:
+        ubman (ConsoleBase): U-Boot fixture
+        fsfile (str): Name of partition file
+        outname (str): Name of full-disk file to update
+    """
+    utils.run_and_log(ubman,
+                      f'dd if={fsfile} of={outname} bs=1M seek=1 conv=notrunc')
+
 def setup_bootmenu_image(ubman):
     """Create a 20MB disk image with a single ext4 partition
 
@@ -172,7 +183,7 @@ booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
     fsfile = 'ext18M.img'
     utils.run_and_log(ubman, f'fallocate -l 18M {fsfile}')
     utils.run_and_log(ubman, f'mkfs.ext4 {fsfile} -d {mnt}')
-    utils.run_and_log(ubman, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    copy_partition(ubman, fsfile, fname)
     utils.run_and_log(ubman, f'rm -rf {mnt}')
     utils.run_and_log(ubman, f'rm -f {fsfile}')
 
@@ -224,7 +235,7 @@ label Fedora-Workstation-armhfp-31-1.9 (5.3.7-301.fc31.armv7hl)
     utils.run_and_log(ubman, f'fallocate -l 18M {fsfile}')
     utils.run_and_log(ubman, f'mkfs.vfat {fsfile}')
     utils.run_and_log(ubman, ['sh', '-c', f'mcopy -i {fsfile} {mnt}/* ::/'])
-    utils.run_and_log(ubman, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    copy_partition(ubman, fsfile, fname)
     utils.run_and_log(ubman, f'rm -rf {mnt}')
     utils.run_and_log(ubman, f'rm -f {fsfile}')
 
@@ -562,7 +573,7 @@ def setup_efi_image(ubman):
     utils.run_and_log(ubman, f'fallocate -l 18M {fsfile}')
     utils.run_and_log(ubman, f'mkfs.vfat {fsfile}')
     utils.run_and_log(ubman, ['sh', '-c', f'mcopy -vs -i {fsfile} {mnt}/* ::/'])
-    utils.run_and_log(ubman, f'dd if={fsfile} of={fname} bs=1M seek=1')
+    copy_partition(ubman, fsfile, fname)
     utils.run_and_log(ubman, f'rm -rf {mnt}')
     utils.run_and_log(ubman, f'rm -f {fsfile}')
 

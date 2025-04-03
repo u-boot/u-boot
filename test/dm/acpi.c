@@ -309,6 +309,8 @@ static int dm_test_acpi_write_tables(struct unit_test_state *uts)
 	}
 	ut_asserteq(0, ctx.rsdt->entry[3]);
 	ut_asserteq(0, ctx.xsdt->entry[3]);
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -386,6 +388,8 @@ static int dm_test_acpi_ctx_and_base_tables(struct unit_test_state *uts)
 
 	ut_asserteq(nomap_to_sysmem(rsdt), rsdp->rsdt_address);
 	ut_asserteq(nomap_to_sysmem(xsdt), rsdp->xsdt_address);
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -428,10 +432,58 @@ static int dm_test_acpi_cmd_list(struct unit_test_state *uts)
 	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0",
 			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
 DM_TEST(dm_test_acpi_cmd_list, UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
+
+/* Test 'acpi list -c' command */
+static int dm_test_acpi_cmd_list_chksum(struct unit_test_state *uts)
+{
+	struct acpi_ctx ctx;
+	ulong addr;
+	void *buf;
+
+	buf = memalign(16, BUF_SIZE);
+	ut_assertnonnull(buf);
+	addr = map_to_sysmem(buf);
+	ut_assertok(setup_ctx_and_base_tables(uts, &ctx, addr));
+
+	ut_assertok(acpi_write_dev_tables(&ctx));
+
+	run_command("acpi list -c", 0);
+	ut_assert_nextline("Name              Base   Size  Detail");
+	ut_assert_nextline("----  ----------------  -----  ----------------------------");
+	ut_assert_nextline("RSDP  %16lx  %5zx  v02 U-BOOT  OK  OK", addr,
+			   sizeof(struct acpi_rsdp));
+	addr = ALIGN(addr + sizeof(struct acpi_rsdp), 16);
+	ut_assert_nextline("RSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+			   addr, sizeof(struct acpi_table_header) +
+			   3 * sizeof(u32), OEM_REVISION);
+	addr = ALIGN(addr + sizeof(struct acpi_rsdt), 16);
+	ut_assert_nextline("XSDT  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+			   addr, sizeof(struct acpi_table_header) +
+			   3 * sizeof(u64), OEM_REVISION);
+	addr = ALIGN(addr + sizeof(struct acpi_xsdt), 64);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	addr = ALIGN(addr + sizeof(struct acpi_dmar), 16);
+	ut_assert_nextline("DMAR  %16lx  %5zx  v01 U-BOOT U-BOOTBL %x INTL 0  OK",
+			   addr, sizeof(struct acpi_dmar), OEM_REVISION);
+	ut_assert_console_end();
+	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
+
+	return 0;
+}
+DM_TEST(dm_test_acpi_cmd_list_chksum,
+	UTF_SCAN_PDATA | UTF_SCAN_FDT | UTF_CONSOLE);
 
 /* Test 'acpi dump' command */
 static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
@@ -458,6 +510,8 @@ static int dm_test_acpi_cmd_dump(struct unit_test_state *uts)
 	ut_assert_nextline("DMAR @ %16lx", addr);
 	ut_assert_nextlines_are_dump(0x30);
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -642,6 +696,8 @@ static int dm_test_acpi_cmd_items(struct unit_test_state *uts)
 	ut_assert_nextlines_are_dump(2);
 	ut_assert_nextline("%s", "");
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -679,6 +735,8 @@ static int dm_test_acpi_cmd_set(struct unit_test_state *uts)
 	ut_asserteq(addr, gd_acpi_start());
 
 	ut_assert_console_end();
+	unmap_sysmem(buf);
+	free(buf);
 
 	return 0;
 }
@@ -774,6 +832,7 @@ static int dm_test_acpi_find_table(struct unit_test_state *uts)
 
 	/* Restore previous ACPI tables */
 	gd_set_acpi_start(acpi_start);
+	unmap_sysmem(buf);
 	free(buf);
 
 	return 0;

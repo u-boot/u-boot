@@ -11,7 +11,7 @@ Synopsis
 
 ::
 
-    acpi list
+    acpi list [-c]
     acpi items [-d]
     acpi dump <name>
     acpi set <address>
@@ -37,6 +37,9 @@ acpi list
 List the ACPI tables that have been generated. Each table has a 4-character
 table name (e.g. SSDT, FACS) and has a format defined by the
 `ACPI specification`_.
+
+The `-c` flag tells U-Boot to verify the checksums and print 'OK' or 'BAD' next
+to each table.
 
 U-Boot does not currently support decoding the tables. Unlike devicetree, ACPI
 tables have no regular schema and also some include bytecode, so decoding the
@@ -258,6 +261,21 @@ pointer::
     HPET  bff76a03     38  v01 BOCHS  BXPC     1 BXPC 1
     WAET  bff76a3b     28  v01 BOCHS  BXPC     1 BXPC 1
     SSDT  bff95040     c5  v02 COREv4 COREBOOT 2a CORE 20221020
+
+This shows checking that the checksums are correct for each table::
+
+    => acpi list -c
+    Name              Base   Size  Detail
+    ----  ----------------  -----  ----------------------------
+    RSDP          bec9a000     24  v00 BOCHS   OK OK
+    RSDT          bec9bd4a     38  v01 BOCHS  BXPC     1 BXPC 1  OK
+    FACP          bec9bb46     74  v01 BOCHS  BXPC     1 BXPC 1  OK
+    DSDT          bec9a080   1ac6  v01 BOCHS  BXPC     1 BXPC 1  OK
+    FACS          bec9a040     40
+    APIC          bec9bbba     78  v03 BOCHS  BXPC     1 BXPC 1  OK
+    HPET          bec9bc32     38  v01 BOCHS  BXPC     1 BXPC 1  OK
+    SRAT          bec9bc6a     b8  v01 BOCHS  BXPC     1 BXPC 1  OK
+    WAET          bec9bd22     28  v01 BOCHS  BXPC     1 BXPC 1  OK
 
 
 .. _`ACPI specification`: https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf

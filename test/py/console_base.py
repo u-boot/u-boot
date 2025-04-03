@@ -370,21 +370,30 @@ class ConsoleBase(object):
             output.append(self.run_command(cmd))
         return output
 
-    def ctrlc(self):
-        """Send a CTRL-C character to U-Boot.
+    def send(self, msg):
+        """Send characters without waiting for echo, etc."""
+        self.run_command(msg, wait_for_prompt=False, wait_for_echo=False,
+                         send_nl=False)
+
+    def ctrl(self, char):
+        """Send a CTRL- character to U-Boot.
 
         This is useful in order to stop execution of long-running synchronous
         commands such as "ums".
 
         Args:
-            None.
-
-        Returns:
-            Nothing.
+            char (str): Character to send, e.g. 'C' to send Ctrl-C
         """
+        self.log.action(f'Sending Ctrl-{char}')
+        self.send(chr(ord(char) - ord('@')))
 
-        self.log.action('Sending Ctrl-C')
-        self.run_command(chr(3), wait_for_echo=False, send_nl=False)
+    def ctrlc(self):
+        """Send a CTRL-C character to U-Boot.
+
+        This is useful in order to stop execution of long-running synchronous
+        commands such as "ums".
+        """
+        self.ctrl('C')
 
     def wait_for(self, text):
         """Wait for a pattern to be emitted by U-Boot.

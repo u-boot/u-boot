@@ -235,8 +235,9 @@ means that `default_get_bootflow()` is used. This simply obtains the
 block device and calls a bootdev helper function to do the rest. The
 implementation of `bootdev_find_in_blk()` checks the partition table, and
 attempts to read a file from a filesystem on the partition number given by the
-`@iter->part` parameter. If there are any bootable partitions in the table,
-then only bootable partitions are considered.
+`@iter->part` parameter. If there are any bootable partitions in the table and
+the BOOTFLOWIF_ONLY_BOOTABLE flag is set in `@iter->flags`, then only bootable
+partitions are considered.
 
 Each bootdev has a priority, which indicates the order in which it is used,
 if `boot_targets` is not used. Faster bootdevs are used first, since they are

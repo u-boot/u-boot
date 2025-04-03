@@ -222,7 +222,7 @@ struct boot_params *load_zimage(char *image, unsigned long kernel_size,
 	else
 		*load_addressp = ZIMAGE_LOAD_ADDR;
 
-	printf("Building boot_params at 0x%8.8lx\n", (ulong)setup_base);
+	printf("Building boot_params at %lx\n", (ulong)setup_base);
 	memset(setup_base, 0, sizeof(*setup_base));
 	setup_base->hdr = params->hdr;
 
@@ -298,10 +298,13 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		hdr->type_of_loader = 0x80;	/* U-Boot version 0 */
 		if (initrd_addr) {
 			printf("Initial RAM disk at linear address "
-			       "0x%08lx, size %ld bytes\n",
-			       initrd_addr, initrd_size);
+			       "%lx, size %lx (%ld bytes)\n",
+			       initrd_addr, initrd_size, initrd_size);
 
 			hdr->ramdisk_image = initrd_addr;
+			setup_base->ext_ramdisk_image = 0;
+			setup_base->ext_ramdisk_size = 0;
+			setup_base->ext_cmd_line_ptr = 0;
 			hdr->ramdisk_size = initrd_size;
 		}
 	}
@@ -372,8 +375,7 @@ int zboot_load(struct bootm_info *bmi)
 		struct boot_params *from = (struct boot_params *)bmi->base_ptr;
 
 		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
-		log_debug("Building boot_params at 0x%8.8lx\n",
-			  (ulong)base_ptr);
+		log_debug("Building boot_params at %lx\n", (ulong)base_ptr);
 		memset(base_ptr, '\0', sizeof(*base_ptr));
 		base_ptr->hdr = from->hdr;
 	} else {
@@ -474,14 +476,6 @@ static void print_num64(const char *name, u64 value)
 	printf("%-20s: %llx\n", name, value);
 }
 
-static const char *const e820_type_name[E820_COUNT] = {
-	[E820_RAM] = "RAM",
-	[E820_RESERVED] = "Reserved",
-	[E820_ACPI] = "ACPI",
-	[E820_NVS] = "ACPI NVS",
-	[E820_UNUSABLE] = "Unusable",
-};
-
 static const char *const bootloader_id[] = {
 	"LILO",
 	"Loadlin",
@@ -569,24 +563,14 @@ void zimage_dump(struct bootm_info *bmi, bool show_cmdline)
 {
 	struct boot_params *base_ptr;
 	struct setup_header *hdr;
-	int i;
 
 	base_ptr = bmi->base_ptr;
 	printf("Setup located at %p:\n\n", base_ptr);
 	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
 
 	printf("E820: %d entries\n", base_ptr->e820_entries);
-	if (base_ptr->e820_entries) {
-		printf("%12s  %10s  %s\n", "Addr", "Size", "Type");
-		for (i = 0; i < base_ptr->e820_entries; i++) {
-			struct e820_entry *entry = &base_ptr->e820_map[i];
-
-			printf("%12llx  %10llx  %s\n", entry->addr, entry->size,
-			       entry->type < E820_COUNT ?
-			       e820_type_name[entry->type] :
-			       simple_itoa(entry->type));
-		}
-	}
+	if (base_ptr->e820_entries)
+		e820_dump(base_ptr->e820_map, base_ptr->e820_entries);
 
 	hdr = &base_ptr->hdr;
 	print_num("Setup sectors", hdr->setup_sects);
