@@ -47,6 +47,13 @@ config IMX8MP_HSIOMIX_BLKCTRL
 	help
 	  Enable support for manipulating NXP i.MX8MP on-SoC HSIOMIX block controller.
 
+config IMX8MP_MEDIAMIX_BLKCTRL
+	bool "Enable i.MX8MP MEDIAMIX domain driver"
+	depends on POWER_DOMAIN && IMX8MP
+	select CLK
+	help
+	  Enable support for manipulating NXP i.MX8MP on-SoC MEDIAMIX block controller.
+
 config MTK_POWER_DOMAIN
 	bool "Enable the MediaTek power domain driver"
 	depends on POWER_DOMAIN && ARCH_MEDIATEK
