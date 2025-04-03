@@ -778,6 +778,7 @@
 				compatible = "atmel,at91sam9260-pit";
 				reg = <0xf8048030 0x10>;
 				clocks = <&h32ck>;
+				bootph-all;
 			};
 
 			watchdog: watchdog@f8048040 {
