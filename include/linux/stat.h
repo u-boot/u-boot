@@ -65,9 +65,7 @@ struct stat {
 	unsigned long	__unused5;
 };
 
-#endif	/* __PPC__ */
-
-#if defined (__ARM__) || defined (__I386__) || defined (__M68K__) || defined (__bfin__) ||\
+#elif defined (__ARM__) || defined (__I386__) || defined (__M68K__) || defined (__bfin__) ||\
 	defined (__microblaze__) || defined (__nios2__)
 
 struct stat {
@@ -93,9 +91,7 @@ struct stat {
 	unsigned long  __unused5;
 };
 
-#endif	/* __ARM__ */
-
-#if defined (__MIPS__)
+#elif defined (__MIPS__)
 
 struct stat {
 	dev_t		st_dev;
@@ -124,9 +120,7 @@ struct stat {
 	long		st_pad4[14];
 };
 
-#endif	/* __MIPS__ */
-
-#if defined(__SH__) || defined(__XTENSA__)
+#elif defined(__SH__) || defined(__XTENSA__)
 
 struct stat {
 	unsigned long st_dev;
@@ -149,7 +143,38 @@ struct stat {
 	unsigned long  __unused5;
 };
 
-#endif /* __SH__  || __XTENSA__ */
+#else
+
+/*
+ * Everybody gets this wrong and has to stick with it for all
+ * eternity. Hopefully, this version gets used by new architectures
+ * so they don't fall into the same traps.
+ *
+ */
+struct stat {
+	unsigned long	st_dev;		/* Device.  */
+	unsigned long	st_ino;		/* File serial number.  */
+	unsigned int	st_mode;	/* File mode.  */
+	unsigned int	st_nlink;	/* Link count.  */
+	unsigned int	st_uid;		/* User ID of the file's owner.  */
+	unsigned int	st_gid;		/* Group ID of the file's group. */
+	unsigned long	st_rdev;	/* Device number, if device.  */
+	unsigned long	__pad1;
+	long		st_size;	/* Size of file, in bytes.  */
+	int		st_blksize;	/* Optimal block size for I/O.  */
+	int		__pad2;
+	long		st_blocks;	/* Number 512-byte blocks allocated. */
+	long		st_atime;	/* Time of last access.  */
+	unsigned long	st_atime_nsec;
+	long		st_mtime;	/* Time of last modification.  */
+	unsigned long	st_mtime_nsec;
+	long		st_ctime;	/* Time of last status change.  */
+	unsigned long	st_ctime_nsec;
+	unsigned int	__unused4;
+	unsigned int	__unused5;
+};
+
+#endif
 
 #ifdef __cplusplus
 }
