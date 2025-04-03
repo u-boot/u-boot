@@ -18,7 +18,7 @@ Synopsis
     bootflow read
     bootflow boot
     bootflow cmdline [set|get|clear|delete|auto] <param> [<value>]
-    bootfloe menu [-t]
+    bootflow menu [-t]
 
 Description
 -----------
