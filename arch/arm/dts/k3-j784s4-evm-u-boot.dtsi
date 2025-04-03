@@ -3,7 +3,82 @@
  * Copyright (C) 2023 Texas Instruments Incorporated - https://www.ti.com/
  */
 
+#define SPL_BOARD_DTB "spl/dts/ti/k3-j784s4-evm.dtb"
+#define BOARD_DESCRIPTION "k3-j784s4-evm"
+#define UBOOT_BOARD_DESCRIPTION "U-Boot for J784S4 board"
+
 #include "k3-j784s4-binman.dtsi"
+
+#if defined(CONFIG_CPU_V7R)
+
+&binman {
+	tiboot3-j784s4-hs {
+		insert-template = <&tiboot3_j784s4_hs>;
+		filename = "tiboot3-j784s4-hs-evm.bin";
+	};
+
+	tiboot3-j784s4-hs-fs {
+		insert-template = <&tiboot3_j784s4_hs_fs>;
+		filename = "tiboot3-j784s4-hs-fs-evm.bin";
+	};
+
+	tiboot3-j784s4-gp {
+		insert-template = <&tiboot3_j784s4_gp>;
+		filename = "tiboot3-j784s4-gp-evm.bin";
+		symlink = "tiboot3.bin";
+	};
+};
+
+&ti_fs_gp {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-gp.bin";
+};
+
+&ti_fs_enc {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-enc.bin";
+};
+
+&sysfw_inner_cert {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-cert.bin";
+};
+
+&ti_fs_enc_fs {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-enc.bin";
+};
+
+&sysfw_inner_cert_fs {
+	filename = "ti-sysfw/ti-fs-firmware-j784s4-hs-fs-cert.bin";
+};
+
+#else // CONFIG_ARM64
+
+&binman {
+	ti-dm {
+		filename = "ti-dm.bin";
+
+		blob-ext {
+			filename = "ti-dm/j784s4/ipc_echo_testb_mcu1_0_release_strip.xer5f";
+			optional;
+		};
+	};
+
+	tispl {
+		insert-template = <&ti_spl>;
+	};
+
+	u-boot {
+		insert-template = <&u_boot>;
+	};
+
+	tispl-unsigned {
+		insert-template = <&ti_spl_unsigned>;
+	};
+
+	u-boot-unsigned {
+		insert-template = <&u_boot_unsigned>;
+	};
+};
+
+#endif
 
 / {
 	memory@80000000 {
