@@ -19,3 +19,6 @@ config IMX_LDB
 	depends on VIDEO_BRIDGE
 	help
 	  Support for i.MX8MP DPI-to-LVDS on-SoC encoder.
+
+config IMX_LCDIF
+	bool "i.MX LCDIFv3 LCD controller"
