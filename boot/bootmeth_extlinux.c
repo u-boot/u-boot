@@ -108,15 +108,15 @@ static int extlinux_check(struct udevice *dev, struct bootflow_iter *iter)
  */
 static int extlinux_fill_info(struct bootflow *bflow)
 {
-	struct membuff mb;
+	struct membuf mb;
 	char line[200];
 	char *data;
 	int len;
 
 	log_debug("parsing bflow file size %x\n", bflow->size);
-	membuff_init(&mb, bflow->buf, bflow->size);
-	membuff_putraw(&mb, bflow->size, true, &data);
-	while (len = membuff_readline(&mb, line, sizeof(line) - 1, ' ', true), len) {
+	membuf_init(&mb, bflow->buf, bflow->size);
+	membuf_putraw(&mb, bflow->size, true, &data);
+	while (len = membuf_readline(&mb, line, sizeof(line) - 1, ' ', true), len) {
 		char *tok, *p = line;
 
 		tok = strsep(&p, " ");

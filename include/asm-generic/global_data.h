@@ -23,7 +23,7 @@
 #include <board_f.h>
 #include <event_internal.h>
 #include <fdtdec.h>
-#include <membuff.h>
+#include <membuf.h>
 #include <linux/list.h>
 #include <linux/build_bug.h>
 #include <asm-offsets.h>
@@ -316,14 +316,14 @@ struct global_data {
 	 *
 	 * This buffer is used to collect output during console recording.
 	 */
-	struct membuff console_out;
+	struct membuf console_out;
 	/**
 	 * @console_in: input buffer for console recording
 	 *
 	 * If console recording is activated, this buffer can be used to
 	 * emulate input.
 	 */
-	struct membuff console_in;
+	struct membuf console_in;
 #endif
 #if CONFIG_IS_ENABLED(VIDEO)
 	/**
