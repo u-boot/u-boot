@@ -55,6 +55,19 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+int mach_cpu_init(void)
+{
+	u32 boot_mode;
+
+	boot_mode = get_bootmode();
+
+	if (IS_ENABLED(CONFIG_CMD_STM32PROG_SERIAL) &&
+	    (boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
+		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
+
+	return 0;
+}
+
 void enable_caches(void)
 {
 	/* deactivate the data cache, early enabled in arch_cpu_init() */
