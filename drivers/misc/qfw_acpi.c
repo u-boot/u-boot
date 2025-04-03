@@ -305,7 +305,7 @@ static int evt_write_acpi_tables(void)
 	/* Generate ACPI tables */
 	end = write_acpi_tables(addr);
 	gd->arch.table_start = addr;
-	gd->arch.table_end = addr;
+	gd->arch.table_end = end;
 
 	return 0;
 }
