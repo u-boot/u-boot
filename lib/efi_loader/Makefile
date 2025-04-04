@@ -29,6 +29,7 @@ obj-y += efi_boottime.o
 obj-y += efi_helper.o
 obj-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += efi_capsule.o
 obj-$(CONFIG_EFI_CAPSULE_FIRMWARE) += efi_firmware.o
+obj-$(CONFIG_EFI_CAPSULE_AUTHENTICATE) += efi_capsule_key.o
 obj-y += efi_console.o
 obj-y += efi_device_path.o
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
@@ -72,6 +73,23 @@ obj-$(CONFIG_EFI_ECPT) += efi_conformance.o
 
 EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
 $(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)
+
+ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
+capsule_crt_path=($(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE)))
+capsule_crt_full=$(srctree)/$(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE))
+quiet_cmd_capsule_esl_gen = CAPSULE_ESL_GEN $@
+cmd_capsule_esl_gen = cert-to-efi-sig-list $(capsule_crt_full) $@
+$(srctree)/capsule_esl_file: FORCE
+	@if [ ! -e "$(capsule_crt_full)" ]; then \
+		echo "ERROR: path $(capsule_crt_full) is invalid." >&2; \
+		echo "EFI CONFIG_EFI_CAPSULE_CRT_FILE must be specified when CONFIG_EFI_CAPSULE_AUTHENTICATE is enabled." >&2; \
+		exit 1; \
+	fi
+	$(call cmd,capsule_esl_gen)
+
+$(obj)/efi_capsule.o: $(srctree)/capsule_esl_file FORCE
+asflags-y += -DCAPSULE_ESL_PATH=\"$(srctree)/capsule_esl_file\"
+endif
 
 # Set the C flags to add and remove for each app
 $(foreach f,$(apps-y),\

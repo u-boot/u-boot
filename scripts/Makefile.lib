@@ -377,34 +377,7 @@ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
 		; \
 	sed "s:$(pre-tmp):$(<):" $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
 
-capsule_esl_input_file=$(srctree)/lib/efi_loader/capsule_esl.dtsi.in
-capsule_crt_file=$(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE))
-capsule_esl_dtsi=.capsule_esl.dtsi
-
-quiet_cmd_capsule_esl_gen = CAPSULE_ESL_GEN $@
-cmd_capsule_esl_gen = cert-to-efi-sig-list $< $@
-
-$(obj)/capsule_esl_file: $(capsule_crt_file) FORCE
-ifeq ($(CONFIG_EFI_CAPSULE_CRT_FILE),"")
-	$(error "CONFIG_EFI_CAPSULE_CRT_FILE is empty, EFI capsule authentication \
-	public key must be specified when CONFIG_EFI_CAPSULE_AUTHENTICATE is enabled")
-else
-	$(call cmd,capsule_esl_gen)
-endif
-
-quiet_cmd_capsule_dtsi_gen = CAPSULE_DTSI_GEN $@
-cmd_capsule_dtsi_gen = \
-	$(shell sed "s:ESL_BIN_FILE:$(abspath $<):" $(capsule_esl_input_file) > $@)
-
-$(obj)/$(capsule_esl_dtsi): $(obj)/capsule_esl_file FORCE
-	$(call cmd,capsule_dtsi_gen)
-
 dtsi_include_list_deps := $(addprefix $(u_boot_dtsi_loc),$(subst $(quote),,$(dtsi_include_list)))
-
-ifdef CONFIG_EFI_CAPSULE_AUTHENTICATE
-dtsi_include_list += $(capsule_esl_dtsi)
-dtsi_include_list_deps += $(obj)/$(capsule_esl_dtsi)
-endif
 
 ifneq ($(CHECK_DTBS),)
 DT_CHECKER ?= dt-validate
