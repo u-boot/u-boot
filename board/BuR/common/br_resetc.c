@@ -52,10 +52,16 @@ static int resetc_init(void)
 {
 	struct udevice *i2cbus;
 	int rc;
+#if !defined(BR_RESETC_I2CBUS)
+	int busno = 0;
+#else
+	int busno = CONFIG_BR_RESETC_I2CBUS;
+#endif
 
-	rc = uclass_get_device_by_seq(UCLASS_I2C, 0, &i2cbus);
+	rc = uclass_get_device_by_seq(UCLASS_I2C, busno, &i2cbus);
+
 	if (rc) {
-		printf("Cannot find I2C bus #0!\n");
+		printf("Cannot find I2C bus #%d!\n", busno);
 		return -1;
 	}
 
