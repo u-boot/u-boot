@@ -11,6 +11,7 @@
 int br_resetc_regget(u8 reg, u8 *dst);
 int br_resetc_regset(u8 reg, u8 val);
 int br_resetc_bmode(void);
+int br_resetc_bmode_get(unsigned int *bmode);
 
 /* reset controller register defines */
 #define RSTCTRL_CTRLREG		0x01
