@@ -18,6 +18,12 @@
 			clock-frequency = <64000000>;
 		};
 
+		ck_flexgen_51: ck-flexgen-51 {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <200000000>;
+		};
+
 		ck_icn_ls_mcu: ck-icn-ls-mcu {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -72,6 +78,11 @@
 
 &gpioz {
 	clocks = <&ck_icn_ls_mcu>;
+};
+
+&sdmmc1 {
+	clocks = <&ck_flexgen_51>;
+	/delete-property/resets;
 };
 
 &usart2 {
