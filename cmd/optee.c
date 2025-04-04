@@ -53,7 +53,7 @@ static int do_optee_hello_world_ta(struct cmd_tbl *cmdtp, int flag, int argc,
 {
 	int ret, value = 0;
 
-	if (strcmp(argv[1], NULL))
+	if (argc > 1)
 		value = hextoul(argv[1], NULL);
 
 	ret = hello_world_ta(value);
