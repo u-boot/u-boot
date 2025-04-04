@@ -138,7 +138,8 @@ enum {
 	IH_ARCH_ARC,			/* Synopsys DesignWare ARC */
 	IH_ARCH_X86_64,			/* AMD x86_64, Intel and Via */
 	IH_ARCH_XTENSA,			/* Xtensa	*/
-	IH_ARCH_RISCV,			/* RISC-V */
+	IH_ARCH_RISCV,			/* RISC-V 32 bit*/
+	IH_ARCH_RISCV64,		/* RISC-V 64 bit*/
 
 	IH_ARCH_COUNT,
 };
