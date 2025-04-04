@@ -30,7 +30,7 @@ config X86_RUN_32BIT
 	  arch_phys_memset() can be used for basic access to other memory.
 
 config X86_RUN_64BIT
-	bool "64-bit"
+	bool "32-bit SPL followed by 64-bit U-Boot"
 	select X86_64
 	select SPL if !EFI_APP
 	select SPL_SEPARATE_BSS if !EFI_APP
@@ -39,6 +39,14 @@ config X86_RUN_64BIT
 	  experimental and many features are missing. U-Boot SPL starts up,
 	  runs through the 16-bit and 32-bit init, then switches to 64-bit
 	  mode and jumps to U-Boot proper.
+
+config X86_RUN_64BIT_NO_SPL
+	bool "64-bit"
+	select X86_64
+	help
+          Build U-Boot as a 64-bit binary without SPL. As U-Boot enters
+          in 64-bit mode, the assumption is that the silicon is fully
+          initialized (MP, page tables, etc.).
 
 endchoice
 

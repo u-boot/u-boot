@@ -22,7 +22,7 @@ int arch_cpu_init(void)
 {
 	int ret;
 
-	ret = IS_ENABLED(CONFIG_X86_RUN_64BIT) ? x86_cpu_reinit_f() :
+	ret = IS_ENABLED(CONFIG_X86_64) ? x86_cpu_reinit_f() :
 		x86_cpu_init_f();
 	if (ret)
 		return ret;
