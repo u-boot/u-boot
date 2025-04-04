@@ -569,7 +569,7 @@ struct spi_nor {
 	u8			rdsr_dummy;
 	u8			rdsr_addr_nbytes;
 	u8			addr_mode_nbytes;
-#ifdef CONFIG_SPI_FLASH_BAR
+#if CONFIG_IS_ENABLED(SPI_FLASH_BAR)
 	u8			bank_read_cmd;
 	u8			bank_write_cmd;
 	u8			bank_curr;
