@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024 B&R Industrial Automation GmbH
+ */
+
+/dts-v1/;
+#include "zynq-brcp1.dtsi"
+
+/ {
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x8000000>;
+	};
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "gmii";
+
+	fixed-link {
+		speed = <100>;
+		full-duplex;
+	};
+};
+
+/* Since the gem0 clock is configured EMIO this dummy entry is needed */
+&clkc {
+	clocks = <&clkc 16>;
+	clock-names = "gem0_emio_clk";
+};

@@ -1,0 +1,157 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024 B&R Industrial Automation GmbH
+ */
+
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "BRSMARC2 CPU";
+	compatible = "br,smarc2",
+		     "xlnx,zynq-7000";
+
+	aliases {
+		i2c0 = &i2c0;
+		serial0 = &uart0;
+		spi0 = &qspi;
+		mmc0 = &sdhci0;
+		can0 = &can0;
+		can1 = &can1;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x10000000>;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	usb_phy0: phy0 {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
+
+	brd_rst: board_reset {
+		compatible = "br,board-reset";
+		pin = <&gpio0 9 GPIO_ACTIVE_HIGH>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		plk_se_green {
+			label = "PLK_S_E_GREEN";
+			gpios = <&ledgpio 0 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		plk_se_red {
+			label = "PLK_S_E_RED";
+			gpios = <&ledgpio 1 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		rdy_f_yellow {
+			label = "RDY_F_YELLOW";
+			gpios = <&ledgpio 2 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		re_green {
+			label = "R_E_GREEN";
+			gpios = <&ledgpio 3 GPIO_ACTIVE_LOW>;
+			default-state = "off";
+		};
+		re_red {
+			label = "R_E_RED";
+			gpios = <&ledgpio 4 GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+	};
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy0>;
+
+	ethernet_phy0: ethernet-phy@1 {
+		ti,ledcr = <0x0480>;
+		ti,rgmii-rxclk-shift;
+		reg = <1>;
+	};
+};
+
+&gem1 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy1>;
+	mac-address = [ 00 00 00 00 00 00 ];
+
+	ethernet_phy1: ethernet-phy@3{
+		ti,ledcr = <0x0480>;
+		reg = <3>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+
+	resetc: rststm@60 {	/* reset controller */
+		compatible = "bur,rststm";
+		reg = <0x60>;
+		hit-gpios = <&gpio0 84 GPIO_ACTIVE_HIGH>;
+		cooling-min-state = <0>;
+		cooling-max-state = <1>;	/* reset gets fired */
+		#cooling-cells = <2>;		/* min followed by max */
+	};
+
+	ledgpio: max7320@5d {	/* board LED */
+		status = "okay";
+		compatible = "maxim,max7320";
+		reg = <0x5d>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		ngpios = <8>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
+
+&sdhci0 {
+	status = "okay";
+	max-frequency = <25000000>;
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&qspi {
+	status = "okay";
+	spi-max-frequency = <100000000>;
+
+	spi_flash: spiflash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor", "spi-flash", "s25fl256s1";
+		spi-max-frequency = <100000000>;
+		spi-cpol;
+		spi-cpha;
+		reg = <0>;
+	};
+};
+
+&gpio0 {
+	status = "okay";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
+};

@@ -1,0 +1,102 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2025 B&R Industrial Automation GmbH
+ */
+
+ #include <config.h>
+
+/ {
+	binman {
+		bootph-all;
+		filename = "flash.bin";
+		pad-byte = <0xff>;
+		align-size = <16>;
+		align = <16>;
+
+		blob@0 {
+			filename = "spl/boot.bin";
+			offset = <0x0>;
+		};
+
+		fit {
+			description = "U-Boot BR Zynq boards";
+			offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
+
+			images {
+				uboot {
+					description = "U-Boot BR Zynq";
+					type = "firmware";
+					os = "u-boot";
+					arch = "arm";
+					compression = "none";
+					load = <CONFIG_TEXT_BASE>;
+					u-boot-nodtb {
+					};
+				};
+
+				fdt-0 {
+					description = "DTB BR Zynq";
+					type = "flat_dt";
+					arch = "arm";
+					compression = "none";
+					u-boot-dtb {
+					};
+				};
+			};
+
+			configurations {
+				default = "conf-0";
+
+				conf-0 {
+					description = "BR Zynq";
+					firmware = "uboot";
+					fdt = "fdt-0";
+				};
+			};
+		};
+
+		blob-ext@0 {
+			filename = "blobs/cfg.img";
+			offset = <0xC0000>;
+			size = <0x10000>;
+			optional;
+		};
+
+		blob-ext@5 {
+			filename = "blobs/cfg_opt.img";
+			offset = <0xD0000>;
+			size = <0x10000>;
+			optional;
+		};
+
+		blob-ext@1 {
+			bootph-all;
+			filename = "blobs/bitstream.bit";
+			offset = <0x100000>;
+			size = <0x200000>;
+			optional;
+		};
+
+		blob-ext@4 {
+			bootph-all;
+			filename = "blobs/bitstream_update.bit";
+			offset = <0x400000>;
+			size = <0x200000>;
+			optional;
+		};
+
+		blob-ext@2 {
+			filename = "blobs/bootar.itb";
+			offset = <0x900000>;
+			size = <0x600000>;
+			optional;
+		};
+
+		blob-ext@3 {
+			filename = "blobs/dtb.bin";
+			offset = <0xF00000>;
+			size = <0x100000>;
+			optional;
+		};
+	};
+};

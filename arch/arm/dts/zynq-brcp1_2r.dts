@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024 B&R Industrial Automation GmbH
+ */
+
+/dts-v1/;
+#include "zynq-brcp1.dtsi"
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+
+	ethernet_phy: ethernet-phy@0 {
+		reg = <0>;
+		ti,rx-internal-delay = <7>;
+		ti,tx-internal-delay = <7>;
+		ti,fifo-depth = <0>;
+		max-speed = <1000>;
+	};
+};

@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright 2024 B&R Industrial Automation GmbH
+ */
+
+#include "zynq-binman-brcp1.dtsi"
+
+&i2c0 {
+	bootph-all;
+};
+
+&uart0 {
+	bootph-all;
+};
+
+&qspi {
+	bootph-all;
+};
+
+&spi_flash {
+	bootph-all;
+};
+
+&gpio0 {
+	bootph-all;
+};
