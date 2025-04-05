@@ -352,6 +352,7 @@ config BOOTM_ELF
 
 config CMD_BOOTZ
 	bool "bootz"
+	select LIB_BOOTZ
 	help
 	  Boot the Linux zImage
 
@@ -359,6 +360,7 @@ config CMD_BOOTI
 	bool "booti"
 	depends on ARM64 || RISCV || SANDBOX
 	default y
+	select LIB_BOOTI
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
 
