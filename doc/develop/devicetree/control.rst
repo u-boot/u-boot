@@ -137,6 +137,9 @@ If `OF_BOARD` is selected by Kconfig, a board-specific routine will provide the
 devicetree at runtime, for example if an earlier bootloader stage creates
 it and passes it to U-Boot.
 
+If `OF_BLOBLIST` is defined, the devicetree comes from a bloblist passed
+from a previous stage.
+
 If `BLOBLIST` is selected by Kconfig, the devicetree may come from a bloblist
 passed from a previous stage, if present.
 

@@ -509,9 +509,21 @@ int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist);
 /**
  * xferlist_from_boot_arg() - Get bloblist from the boot args.
  *
- * @addr: Address of the bloblist
+ * @addrp: Returns address of the bloblist
+ * @fdtp: If non-NULL, returns address of the FDT
  * Return: 0 if OK, else on error
  */
-int xferlist_from_boot_arg(ulong *addr);
+int xferlist_from_boot_arg(ulong *addrp, ulong *fdtp);
+
+/**
+ * bloblist_early_get_fdt() - Get the FDT from a bloblist before it is set up
+ *
+ * The transfer list calling convention specifies that the FDT can be obtained
+ * without parsing the bloblist. Check for the presence of a bloblist and return
+ * the FDT indicated
+ *
+ * Return: Pointer to FDT or NULL if no bloblist is present
+ */
+void *bloblist_early_get_fdt(void);
 
 #endif /* __BLOBLIST_H */

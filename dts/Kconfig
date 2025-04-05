@@ -167,6 +167,14 @@ config OF_INITIAL_DTB_READONLY
 	  If initial DTB for DT control is read-only (e.g. points to
 	  memory-mapped flash memory), then set this option.
 
+config OF_BLOBLIST
+	bool "DTB is provided by a bloblist"
+	help
+	  Select this to read the devicetree from the bloblist. This allows
+	  using a bloblist to transfer the devicetree between U-Boot phases.
+	  The devicetree is stored in the bloblist by an earlier phase so that
+	  U-Boot can read it.
+
 config OF_BOARD
 	bool "Provided by the board (e.g a previous loader) at runtime"
 	default y if SANDBOX || OF_HAS_PRIOR_STAGE

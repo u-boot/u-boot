@@ -8,7 +8,7 @@
 #include <bloblist.h>
 #include "xferlist.h"
 
-int xferlist_from_boot_arg(ulong *addr)
+int xferlist_from_boot_arg(ulong *addrp, ulong *fdtp)
 {
 	int ret;
 
@@ -17,7 +17,9 @@ int xferlist_from_boot_arg(ulong *addr)
 	if (ret)
 		return ret;
 
-	*addr = bloblist_get_base();
+	*addrp = saved_args[3];
+	if (fdtp)
+		*fdtp = saved_args[0];
 
 	return 0;
 }
