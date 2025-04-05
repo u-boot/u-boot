@@ -10,6 +10,16 @@ config MULTIPLEXER
 
 if MULTIPLEXER
 
+config SPL_MUX_MMIO
+	bool "MMIO register bitfield-controlled Multiplexer"
+        depends on MULTIPLEXER && SYSCON
+        help
+          MMIO register bitfield-controlled Multiplexer controller.
+
+          The driver builds multiplexer controllers for bitfields in a syscon
+          register. For N bit wide bitfields, there will be 2^N possible
+          multiplexer states.
+
 config MUX_MMIO
 	bool "MMIO register bitfield-controlled Multiplexer"
 	depends on MULTIPLEXER && SYSCON
