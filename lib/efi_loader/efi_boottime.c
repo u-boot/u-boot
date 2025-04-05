@@ -15,6 +15,7 @@
 #include <irq_func.h>
 #include <log.h>
 #include <malloc.h>
+#include <net-common.h>
 #include <pe.h>
 #include <time.h>
 #include <u-boot/crc.h>
@@ -2235,6 +2236,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 		bootm_disable_interrupts();
 		if (IS_ENABLED(CONFIG_USB_DEVICE))
 			udc_disconnect();
+		if (IS_ENABLED(CONFIG_DM_ETH))
+			eth_halt();
 		board_quiesce_devices();
 		dm_remove_devices_active();
 	}
