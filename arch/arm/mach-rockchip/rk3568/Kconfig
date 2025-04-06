@@ -5,7 +5,6 @@ choice
 
 config TARGET_EVB_RK3568
 	bool "RK3568 evaluation board"
-	select BOARD_LATE_INIT
 	help
 	  RK3568 EVB is a evaluation board for Rockchp RK3568.
 
