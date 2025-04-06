@@ -116,18 +116,25 @@ void board_debug_uart_init(void)
 }
 
 #ifdef CONFIG_XPL_BUILD
+
+#define HP_TIMER_BASE			CONFIG_ROCKCHIP_STIMER_BASE
+#define HP_CTRL_REG			0x04
+#define TIMER_EN			BIT(0)
+#define HP_LOAD_COUNT0_REG		0x14
+#define HP_LOAD_COUNT1_REG		0x18
+
 void rockchip_stimer_init(void)
 {
 	/* If Timer already enabled, don't re-init it */
-	u32 reg = readl(CONFIG_ROCKCHIP_STIMER_BASE + 0x4);
+	u32 reg = readl(HP_TIMER_BASE + HP_CTRL_REG);
 
-	if (reg & 0x1)
+	if (reg & TIMER_EN)
 		return;
 
-	asm volatile("msr CNTFRQ_EL0, %0" : : "r" (CONFIG_COUNTER_FREQUENCY));
-	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 0x14);
-	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 0x18);
-	writel(0x1, CONFIG_ROCKCHIP_STIMER_BASE + 0x4);
+	asm volatile("msr cntfrq_el0, %0" : : "r" (CONFIG_COUNTER_FREQUENCY));
+	writel(0xffffffff, HP_TIMER_BASE + HP_LOAD_COUNT0_REG);
+	writel(0xffffffff, HP_TIMER_BASE + HP_LOAD_COUNT1_REG);
+	writel(TIMER_EN, HP_TIMER_BASE + HP_CTRL_REG);
 }
 #endif
 
