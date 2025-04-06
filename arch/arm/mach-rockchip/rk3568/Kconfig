@@ -84,4 +84,7 @@ source "board/qnap/ts433/Kconfig"
 source "board/radxa/zero3-rk3566/Kconfig"
 source "board/xunlong/orangepi-3b-rk3566/Kconfig"
 
+config SYS_CONFIG_NAME
+	default "rk3568_common"
+
 endif
