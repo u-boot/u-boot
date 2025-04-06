@@ -444,4 +444,7 @@ source "board/rockchip/toybrick_rk3588/Kconfig"
 source "board/theobroma-systems/jaguar_rk3588/Kconfig"
 source "board/theobroma-systems/tiger_rk3588/Kconfig"
 
+config SYS_CONFIG_NAME
+	default "rk3588_common"
+
 endif
