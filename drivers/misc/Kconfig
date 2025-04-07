@@ -576,6 +576,7 @@ config QFW_SMBIOS
 	bool
 	default y
 	depends on QFW && SMBIOS && !SANDBOX && !SYSINFO_SMBIOS
+	select BLOBLIST
 	help
 	  Hidden option to read SMBIOS tables from QEMU.
 
