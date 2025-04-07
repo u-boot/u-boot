@@ -98,6 +98,7 @@
 
 /* offset info of ECC_ERR_STATUS */
 #define ECC_ERR_COUNTER_MASK		GENMASK(15, 0)
+#define ECC_ERR_OVERFLOW_MASK		GENMASK(31, 16)
 
 /* offset info of ECC_ERR_DATA */
 #define ECC_ERR_IP_TYPE_MASK		GENMASK(24, 22)
@@ -106,6 +107,8 @@
 #define ECC_ERR_TYPE_MASK		GENMASK(9, 6)
 #define ECC_ERR_ADDR_UPPER_MASK		GENMASK(5, 0)
 #define ECC_ERR_ADDR_LOWER_MASK		GENMASK(31, 0)
+#define ECC_FULL_ADDR_UPPER_MASK	GENMASK(63, 32)
+#define ECC_FULL_ADDR_LOWER_MASK	GENMASK(31, 0)
 
 #define MAX_ECC_ERR_INFO_COUNT 16
 
@@ -165,6 +168,24 @@ struct ecc_err_info {
 	enum ecc_error_type err_type;
 	u32 addr_upper;
 	u32 addr_lower;
+};
+
+struct ecc_overflow_error_desc {
+	int bit;
+	const char *msg;
+};
+
+static const struct ecc_overflow_error_desc ecc_overflow_errors[] = {
+	{ 0,  " - Single-bit error\n" },
+	{ 1,  " - Multiple single-bit errors\n" },
+	{ 2,  " - Double-bit error\n" },
+	{ 3,  " - Multiple double-bit errors\n" },
+	{ 8,  " - Single-bit error during ECC scrubbing\n" },
+	{ 9,  " - Write link ECC single-bit error (LPDDR5 only)\n" },
+	{ 10, " - Write link ECC double-bit error (LPDDR5 only)\n" },
+	{ 11, " - Read link ECC single-bit error (LPDDR5 only)\n" },
+	{ 12, " - Read link ECC double-bit error (LPDDR5 only)\n" },
+	{ 13, " - RMW read link ECC double-bit error (LPDDR5 only)\n" },
 };
 
 static int is_ddr_csr_clkgen_locked(u8 io96b_pll)
@@ -628,16 +649,28 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 {
 	int i, j;
 	u32 ecc_err_status;
-	u16 ecc_err_counter;
+	u16 ecc_err_counter, ecc_overflow_status;
 	bool ecc_error_flag = false;
 
 	/* Get ECC double-bit error status */
 	for (i = 0; i < io96b_ctrl->num_instance; i++) {
 		ecc_err_status = readl(io96b_ctrl->io96b[i].io96b_csr_addr +
 					IOSSM_ECC_ERR_STATUS_OFFSET);
+
 		ecc_err_counter = FIELD_GET(ECC_ERR_COUNTER_MASK, ecc_err_status);
-		debug("%s: ECC error number detected on IO96B_%d: %d\n",
-		      __func__, i, ecc_err_counter);
+		log_err("%s: ECC error number detected on IO96B_%d: %d\n",
+			__func__, i, ecc_err_counter);
+
+		ecc_overflow_status = FIELD_GET(ECC_ERR_OVERFLOW_MASK, ecc_err_status);
+		if (ecc_overflow_status != 0) {
+			log_err("ECC Error Overflow Flags:\n");
+
+			for (int i = 0; i < ARRAY_SIZE(ecc_overflow_errors); i++) {
+				if (ecc_overflow_status & BIT(ecc_overflow_errors[i].bit)) {
+					log_err("%s", ecc_overflow_errors[i].msg);
+				}
+			}
+		}
 
 		if (ecc_err_counter != 0) {
 			phys_addr_t address;
@@ -661,15 +694,20 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 								ecc_err_data);
 				err_info.addr_lower = readl(address + sizeof(u32));
 
-				debug("%s: ECC double-bit error detected on IO96B_%d:\n",
-				      __func__, i);
-				debug("- error info address :0x%llx\n", address);
-				debug("- error ip type: %d\n", err_info.ip_type);
-				debug("- error instance id: %d\n", err_info.instance_id);
-				debug("- error source id: %d\n", err_info.source_id);
-				debug("- error type: %d\n", err_info.err_type);
-				debug("- error address upper: 0x%x\n", err_info.addr_upper);
-				debug("- error address lower: 0x%x\n", err_info.addr_lower);
+				log_err(" %s: DDR ECC Error Detected on IO96B_%d number:%d\n",
+					__func__, i, j);
+				log_err(" - error info address :0x%llx\n", address);
+				log_err(" - error ip type: %d\n", err_info.ip_type);
+				log_err(" - error instance id: %d\n", err_info.instance_id);
+				log_err(" - error source id: %d\n", err_info.source_id);
+				log_err(" - error type: %s\n",
+					is_double_bit_error(err_info.err_type) ?
+					"Double-bit error" : "Single-bit error");
+				log_err(" - error address: 0x%016llx\n",
+					(u64)FIELD_PREP(ECC_FULL_ADDR_UPPER_MASK,
+							err_info.addr_upper) |
+					FIELD_PREP(ECC_FULL_ADDR_LOWER_MASK,
+						   err_info.addr_lower));
 
 				if (is_double_bit_error(err_info.err_type)) {
 					if (!ecc_error_flag)
@@ -682,7 +720,7 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 	}
 
 	if (ecc_error_flag)
-		printf("\n%s: ECC double-bit error detected!\n", __func__);
+		log_err("\n%s: ECC double-bit error detected!\n", __func__);
 
 	return ecc_error_flag;
 }
