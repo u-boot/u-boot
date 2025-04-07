@@ -25,6 +25,9 @@ struct msm_ehci_priv {
 	struct ehci_ctrl ctrl; /* Needed by EHCI */
 	struct usb_ehci *ehci; /* Start of IP core*/
 	struct phy phy;
+};
+
+struct qcom_ci_hdrc_priv {
 	struct clk_bulk clks;
 };
 
@@ -54,34 +57,20 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hcor *hcor;
 	int ret;
 
-	ret = clk_get_bulk(dev, &p->clks);
-	if (ret && (ret != -ENOSYS && ret != -ENOENT)) {
-		dev_err(dev, "Failed to get clocks: %d\n", ret);
-		return ret;
-	}
-
-	ret = clk_enable_bulk(&p->clks);
-	if (ret)
-		goto cleanup_clocks;
-
 	hccr = (struct ehci_hccr *)((phys_addr_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((phys_addr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
 	ret = generic_setup_phy(dev, &p->phy, 0, PHY_MODE_USB_HOST, 0);
 	if (ret)
-		goto cleanup_clocks;
+		return ret;
 
 	ret = board_usb_init(0, plat->init_type);
 	if (ret < 0)
-		goto cleanup_clocks;
+		return ret;
 
 	return ehci_register(dev, hccr, hcor, &msm_ehci_ops, 0,
 			     plat->init_type);
-
-cleanup_clocks:
-	clk_release_bulk(&p->clks);
-	return ret;
 }
 
 static int ehci_usb_remove(struct udevice *dev)
@@ -101,7 +90,6 @@ static int ehci_usb_remove(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-	clk_release_bulk(&p->clks);
 	return 0;
 }
 
@@ -117,10 +105,61 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 	return 0;
 }
 
-static int ehci_usb_of_bind(struct udevice *dev)
+#if defined(CONFIG_CI_UDC)
+/* Little quirk that MSM needs with Chipidea controller
+ * Must reinit phy after reset
+ */
+void ci_init_after_reset(struct ehci_ctrl *ctrl)
+{
+	struct msm_ehci_priv *p = ctrl->priv;
+
+	generic_phy_reset(&p->phy);
+}
+#endif
+
+U_BOOT_DRIVER(usb_ehci) = {
+	.name	= "ehci_msm",
+	.id	= UCLASS_USB,
+	.of_to_plat = ehci_usb_of_to_plat,
+	.probe = ehci_usb_probe,
+	.remove = ehci_usb_remove,
+	.ops	= &ehci_usb_ops,
+	.priv_auto	= sizeof(struct msm_ehci_priv),
+	.plat_auto	= sizeof(struct usb_plat),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
+
+static int qcom_ci_hdrc_probe(struct udevice *dev)
+{
+	struct qcom_ci_hdrc_priv *p = dev_get_priv(dev);
+	int ret;
+
+	ret = clk_get_bulk(dev, &p->clks);
+	if (ret && (ret != -ENOSYS && ret != -ENOENT)) {
+		dev_err(dev, "Failed to get clocks: %d\n", ret);
+		return ret;
+	}
+
+	return clk_enable_bulk(&p->clks);
+}
+
+static int qcom_ci_hdrc_remove(struct udevice *dev)
+{
+	struct qcom_ci_hdrc_priv *p = dev_get_priv(dev);
+
+	return clk_release_bulk(&p->clks);
+}
+
+static int qcom_ci_hdrc_bind(struct udevice *dev)
 {
 	ofnode ulpi_node = ofnode_first_subnode(dev_ofnode(dev));
 	ofnode phy_node;
+	int ret;
+
+	ret = device_bind_driver_to_node(dev, "ehci_msm", "ehci_msm",
+					 dev_ofnode(dev), NULL);
+	if (ret)
+		return ret;
 
 	if (!ofnode_valid(ulpi_node))
 		return 0;
@@ -135,33 +174,17 @@ static int ehci_usb_of_bind(struct udevice *dev)
 					  phy_node, NULL);
 }
 
-#if defined(CONFIG_CI_UDC)
-/* Little quirk that MSM needs with Chipidea controller
- * Must reinit phy after reset
- */
-void ci_init_after_reset(struct ehci_ctrl *ctrl)
-{
-	struct msm_ehci_priv *p = ctrl->priv;
-
-	generic_phy_reset(&p->phy);
-}
-#endif
-
-static const struct udevice_id ehci_usb_ids[] = {
+static const struct udevice_id qcom_ci_hdrc_ids[] = {
 	{ .compatible = "qcom,ci-hdrc", },
 	{ }
 };
 
-U_BOOT_DRIVER(usb_ehci) = {
-	.name	= "ehci_msm",
-	.id	= UCLASS_USB,
-	.of_match = ehci_usb_ids,
-	.of_to_plat = ehci_usb_of_to_plat,
-	.bind = ehci_usb_of_bind,
-	.probe = ehci_usb_probe,
-	.remove = ehci_usb_remove,
-	.ops	= &ehci_usb_ops,
-	.priv_auto	= sizeof(struct msm_ehci_priv),
-	.plat_auto	= sizeof(struct usb_plat),
-	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+U_BOOT_DRIVER(qcom_ci_hdrc) = {
+	.name		= "qcom_ci_hdrc",
+	.id		= UCLASS_NOP,
+	.of_match	= qcom_ci_hdrc_ids,
+	.bind		= qcom_ci_hdrc_bind,
+	.probe		= qcom_ci_hdrc_probe,
+	.remove		= qcom_ci_hdrc_remove,
+	.priv_auto	= sizeof(struct qcom_ci_hdrc_priv),
 };
