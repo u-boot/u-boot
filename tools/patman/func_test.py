@@ -237,7 +237,6 @@ class TestFunctional(unittest.TestCase):
             'fred': [self.fred],
             'joe': [self.joe],
         }
-        settings.alias = alias
 
         text = self._get_text('test01.txt')
         series = patchstream.get_metadata_for_test(text)
@@ -257,7 +256,7 @@ class TestFunctional(unittest.TestCase):
             cmd = gitutil.email_patches(
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, alias, in_reply_to=in_reply_to, thread=None)
-            series.ShowActions(args, cmd, process_tags)
+            series.ShowActions(args, cmd, process_tags, alias)
         cc_lines = open(cc_file, encoding='utf-8').read().splitlines()
         os.remove(cc_file)
 

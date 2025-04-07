@@ -102,7 +102,7 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
 
     # For a dry run, just show our actions as a sanity check
     if dry_run:
-        series.ShowActions(patch_files, cmd, process_tags)
+        series.ShowActions(patch_files, cmd, process_tags, settings.alias)
         if not its_a_go:
             print(col.build(col.RED, "Email would not be sent"))
 
