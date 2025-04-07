@@ -99,6 +99,7 @@ List of mainline supported Rockchip boards:
 
 * rk3528
      - Generic RK3528 (generic-rk3528)
+     - Radxa E20C (radxa-e20c-rk3528)
 
 * rk3566
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
