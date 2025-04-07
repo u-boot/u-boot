@@ -242,7 +242,7 @@ class Series(dict):
 
     def GetCcForCommit(self, commit, process_tags, warn_on_error,
                        add_maintainers, limit, get_maintainer_script,
-                       all_skips):
+                       all_skips, alias):
         """Get the email CCs to use with a particular commit
 
         Uses subject tags and get_maintainers.pl script to find people to cc
@@ -262,6 +262,9 @@ class Series(dict):
             all_skips (set of str): Updated to include the set of bouncing email
                 addresses that were dropped from the output. This is essentially
                 a return value from this function.
+            alias (dict): Alias dictionary
+                key: alias
+                value: list of aliases or email addresses
 
         Returns:
             list of str: List of email addresses to cc
@@ -284,7 +287,7 @@ class Series(dict):
         return cc
 
     def MakeCcFile(self, process_tags, cover_fname, warn_on_error,
-                   add_maintainers, limit, get_maintainer_script):
+                   add_maintainers, limit, get_maintainer_script, alias):
         """Make a cc file for us to use for per-commit Cc automation
 
         Also stores in self._generated_cc to make ShowActions() faster.
@@ -300,6 +303,9 @@ class Series(dict):
             limit (int): Limit the length of the Cc list (None if no limit)
             get_maintainer_script (str): The file name of the get_maintainer.pl
                 script (or compatible).
+            alias (dict): Alias dictionary
+                key: alias
+                value: list of aliases or email addresses
         Return:
             Filename of temp file created
         """
@@ -314,7 +320,8 @@ class Series(dict):
                 commit.seq = i
                 commit.future = executor.submit(
                     self.GetCcForCommit, commit, process_tags, warn_on_error,
-                    add_maintainers, limit, get_maintainer_script, all_skips)
+                    add_maintainers, limit, get_maintainer_script, all_skips,
+                    alias)
 
             # Show progress any commits that are taking forever
             lastlen = 0

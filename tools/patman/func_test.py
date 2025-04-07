@@ -253,7 +253,7 @@ class TestFunctional(unittest.TestCase):
             series.DoChecks()
             cc_file = series.MakeCcFile(process_tags, cover_fname,
                                         not ignore_bad_tags, add_maintainers,
-                                        None, get_maintainer_script)
+                                        None, get_maintainer_script, alias)
             cmd = gitutil.email_patches(
                 series, cover_fname, args, dry_run, not ignore_bad_tags,
                 cc_file, alias, in_reply_to=in_reply_to, thread=None)

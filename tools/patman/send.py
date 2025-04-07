@@ -87,7 +87,8 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
         smtp_server (str): SMTP server to use to send patches (None for default)
     """
     cc_file = series.MakeCcFile(process_tags, cover_fname, not ignore_bad_tags,
-                                add_maintainers, limit, get_maintainer_script)
+                                add_maintainers, limit, get_maintainer_script,
+                                settings.alias)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
