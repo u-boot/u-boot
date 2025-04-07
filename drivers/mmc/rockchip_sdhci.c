@@ -156,6 +156,9 @@ struct sdhci_data {
 	u32 flags;
 	u8 hs200_txclk_tapnum;
 	u8 hs400_txclk_tapnum;
+	u8 hs400_cmdout_tapnum;
+	u8 hs400_strbin_tapnum;
+	u8 ddr50_strbin_delay_num;
 };
 
 static void rk3399_emmc_phy_power_on(struct rockchip_emmc_phy *phy, u32 clock)
@@ -348,7 +351,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 			extra = DLL_CMDOUT_SRC_CLK_NEG |
 				DLL_CMDOUT_BOTH_CLK_EDGE |
 				DWCMSHC_EMMC_DLL_DLYENA |
-				DLL_CMDOUT_TAPNUM_90_DEGREES |
+				data->hs400_cmdout_tapnum |
 				DLL_CMDOUT_TAPNUM_FROM_SW;
 			sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_CMDOUT);
 		}
@@ -360,7 +363,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_TXCLK);
 
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
-			DLL_STRBIN_TAPNUM_DEFAULT |
+			data->hs400_strbin_tapnum |
 			DLL_STRBIN_TAPNUM_FROM_SW;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
 	} else {
@@ -380,7 +383,7 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		 */
 		extra = DWCMSHC_EMMC_DLL_DLYENA |
 			DLL_STRBIN_DELAY_NUM_SEL |
-			DLL_STRBIN_DELAY_NUM_DEFAULT << DLL_STRBIN_DELAY_NUM_OFFSET;
+			data->ddr50_strbin_delay_num << DLL_STRBIN_DELAY_NUM_OFFSET;
 		sdhci_writel(host, extra, DWCMSHC_EMMC_DLL_STRBIN);
 	}
 
@@ -654,6 +657,9 @@ static const struct sdhci_data rk3568_data = {
 	.flags = FLAG_INVERTER_FLAG_IN_RXCLK,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
 	.hs400_txclk_tapnum = 0x8,
+	.hs400_cmdout_tapnum = DLL_CMDOUT_TAPNUM_90_DEGREES,
+	.hs400_strbin_tapnum = DLL_STRBIN_TAPNUM_DEFAULT,
+	.ddr50_strbin_delay_num = DLL_STRBIN_DELAY_NUM_DEFAULT,
 };
 
 static const struct sdhci_data rk3588_data = {
@@ -662,6 +668,9 @@ static const struct sdhci_data rk3588_data = {
 	.config_dll = rk3568_sdhci_config_dll,
 	.hs200_txclk_tapnum = DLL_TXCLK_TAPNUM_DEFAULT,
 	.hs400_txclk_tapnum = 0x9,
+	.hs400_cmdout_tapnum = DLL_CMDOUT_TAPNUM_90_DEGREES,
+	.hs400_strbin_tapnum = DLL_STRBIN_TAPNUM_DEFAULT,
+	.ddr50_strbin_delay_num = DLL_STRBIN_DELAY_NUM_DEFAULT,
 };
 
 static const struct udevice_id sdhci_ids[] = {
