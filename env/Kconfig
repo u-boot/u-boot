@@ -74,7 +74,7 @@ config ENV_IS_DEFAULT
 		     !ENV_IS_IN_MMC && !ENV_IS_IN_NAND && \
 		     !ENV_IS_IN_NVRAM && !ENV_IS_IN_ONENAND && \
 		     !ENV_IS_IN_REMOTE && !ENV_IS_IN_SPI_FLASH && \
-		     !ENV_IS_IN_UBI
+		     !ENV_IS_IN_UBI && !ENV_IS_IN_MTD
 	select ENV_IS_NOWHERE
 
 config ENV_IS_NOWHERE
@@ -387,6 +387,25 @@ config ENV_IS_IN_SPI_FLASH
 	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
+config ENV_IS_IN_MTD
+	bool "Environment is in MTD flash"
+	depends on !CHAIN_OF_TRUST && (SPI_FLASH || DM_SPI_FLASH)
+	default y if ARCH_AIROHA
+	help
+	  Define this if you have a MTD Flash memory device which you
+	  want to use for the environment.
+
+	  - CONFIG_ENV_MTD_DEV:
+
+	  Specifies which SPI NAND device the environment is stored in.
+
+	  - CONFIG_ENV_OFFSET:
+	  - CONFIG_ENV_SIZE:
+
+	  These two #defines specify the offset and size of the
+	  environment area within the MTD Flash.
+	  CONFIG_ENV_OFFSET must be aligned to an erase sector boundary.
+
 config ENV_SECT_SIZE_AUTO
 	bool "Use automatically detected sector size"
 	depends on ENV_IS_IN_SPI_FLASH
@@ -562,8 +581,8 @@ config ENV_EXT4_FILE
 config ENV_ADDR
 	hex "Environment address"
 	depends on ENV_IS_IN_FLASH || ENV_IS_IN_NVRAM || ENV_IS_IN_ONENAND || \
-		     ENV_IS_IN_REMOTE || ENV_IS_IN_SPI_FLASH
-	default 0x0 if ENV_IS_IN_SPI_FLASH
+		     ENV_IS_IN_REMOTE || ENV_IS_IN_SPI_FLASH || ENV_IS_IN_MTD
+	default 0x0 if ENV_IS_IN_SPI_FLASH || ENV_IS_IN_MTD
 	help
 	  Offset from the start of the device (or partition)
 
@@ -577,7 +596,7 @@ config ENV_ADDR_REDUND
 config ENV_OFFSET
 	hex "Environment offset"
 	depends on ENV_IS_IN_EEPROM || ENV_IS_IN_MMC || ENV_IS_IN_NAND || \
-		    ENV_IS_IN_SPI_FLASH
+		    ENV_IS_IN_SPI_FLASH || ENV_IS_IN_MTD
 	default 0x3f8000 if ARCH_ROCKCHIP && ENV_IS_IN_MMC
 	default 0x140000 if ARCH_ROCKCHIP && ENV_IS_IN_SPI_FLASH
 	default 0xF0000 if ARCH_SUNXI
@@ -665,6 +684,12 @@ config SYS_RELOC_GD_ENV_ADDR
 	help
 	  Relocate the early env_addr pointer so we know it is not inside
 	  the binary. Some systems need this and for the rest, it doesn't hurt.
+
+config ENV_MTD_DEV
+	string "mtd device name"
+	depends on ENV_IS_IN_MTD
+	help
+	  MTD device name on the platform where the environment is stored.
 
 config SYS_MMC_ENV_DEV
 	int "mmc device number"
