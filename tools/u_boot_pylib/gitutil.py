@@ -693,9 +693,6 @@ def setup():
     # Check for a git alias file also
     global USE_NO_DECORATE
 
-    alias_fname = get_alias_file()
-    if alias_fname:
-        settings.ReadGitAliases(alias_fname)
     cmd = log_cmd(None, count=0)
     USE_NO_DECORATE = (command.run_one(*cmd, raise_on_error=False)
                        .return_code == 0)

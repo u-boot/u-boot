@@ -26,11 +26,15 @@ from patman import checkpatch
 from patman import patchstream
 from patman import patchwork
 from patman import send
+from patman import settings
 
 
 def setup():
     """Do required setup before doing anything"""
     gitutil.setup()
+    alias_fname = gitutil.get_alias_file()
+    if alias_fname:
+        settings.ReadGitAliases(alias_fname)
 
 
 def do_send(args):
