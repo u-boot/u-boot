@@ -843,8 +843,10 @@ steps (see device_probe()):
       activated and 'known' by the uclass.
 
 For some platforms, certain devices must be probed to get the platform into
-a working state. To help with this, drivers marked with DM_FLAG_PROBE_AFTER_BIND
-will be probed immediately after all devices are bound. For now, this happens in
+a working state. To help with this, devices marked with DM_FLAG_PROBE_AFTER_BIND
+will be probed immediately after all devices are bound. This flag must be set
+on the device in its ``bind()`` function with
+``dev_or_flags(dev, DM_FLAG_PROBE_AFTER_BIND)``. For now, this happens in
 SPL, before relocation and after relocation. See the call to ``dm_autoprobe()``
 for where this is done.
 

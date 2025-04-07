@@ -181,12 +181,14 @@
 		"  if load hostfs - ${kernel_addr_r} ${kernel_name}; then"	\
 		"    setenv fdt_high 0xffffffffffffffff;"		\
 		"    setenv initrd_high 0xffffffffffffffff;"		\
-		"    load hostfs - ${fdt_addr_r} ${fdtfile};"			\
+		"    if test -n load hostfs - ${fdt_addr_r} ${fdtfile}; then"			\
+		"        fdt move $fdtcontroladdr $fdt_addr_r;"			\
+		"    fi;"			\
 		"    load hostfs - ${ramdisk_addr_r} ${ramdisk_name};" \
 		"    fdt addr ${fdt_addr_r};"				\
 		"    fdt resize;"					\
 		"    fdt chosen ${ramdisk_addr_r} ${filesize};"	\
-		"    booti $kernel_addr_r - $fdt_addr_r;"		\
+		"    booti $kernel_addr_r - ${fdt_addr_r};"		\
 		"  fi;"							\
 		"fi\0"
 #define BOOTENV_DEV_NAME_SMH(devtypeu, devtypel, instance) "smh "

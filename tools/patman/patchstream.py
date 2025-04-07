@@ -15,9 +15,9 @@ import shutil
 import tempfile
 
 from patman import commit
-from patman import gitutil
 from patman.series import Series
 from u_boot_pylib import command
+from u_boot_pylib import gitutil
 
 # Tags that we detect and remove
 RE_REMOVE = re.compile(r'^BUG=|^TEST=|^BRANCH=|^Review URL:'
@@ -711,7 +711,7 @@ def get_list(commit_range, git_dir=None, count=None):
     """
     params = gitutil.log_cmd(commit_range, reverse=True, count=count,
                             git_dir=git_dir)
-    return command.run_pipe([params], capture=True).stdout
+    return command.run_one(*params, capture=True).stdout
 
 def get_metadata_for_list(commit_range, git_dir=None, count=None,
                           series=None, allow_overwrite=False):

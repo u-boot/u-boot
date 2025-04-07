@@ -101,7 +101,6 @@ struct stdio_dev *stdio_clone(struct stdio_dev *dev);
 int drv_lcd_init(void);
 int drv_video_init(void);
 int drv_keyboard_init(void);
-int drv_usbtty_init(void);
 int drv_usbacm_init(void);
 int drv_nc_init(void);
 int drv_jtag_console_init(void);

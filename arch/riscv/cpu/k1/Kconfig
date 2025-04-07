@@ -13,6 +13,7 @@ config SPACEMIT_K1
 	imply RISCV_ACLINT if RISCV_MMODE
 	imply SPL_RISCV_ACLINT if SPL_RISCV_MMODE
 	imply CMD_CPU
+	imply DM_RESET
 	imply SPL_CPU
 	imply SPL_OPENSBI
 	imply SPL_LOAD_FIT

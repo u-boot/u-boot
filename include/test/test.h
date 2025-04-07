@@ -16,11 +16,15 @@
  * @skip_count: Number of tests that were skipped
  * @test_count: Number of tests run. If a test is run muiltiple times, only one
  *	is counted
+ * @start: Timer value when test started
+ * @duration_ms: Suite duration in milliseconds
  */
 struct ut_stats {
 	int fail_count;
 	int skip_count;
 	int test_count;
+	ulong start;
+	ulong duration_ms;
 };
 
 /*
@@ -29,6 +33,8 @@ struct ut_stats {
  * @cur: Statistics for the current run
  * @total: Statistics for all test runs
  * @run_count: Number of times ut_run_list() has been called
+ * @worst: Sute which had the first per-text run time
+ * @worst_ms: Time taken by that test
  * @start: Store the starting mallinfo when doing leak test
  * @of_live: true to use livetree if available, false to use flattree
  * @of_root: Record of the livetree root node (used for setting up tests)
@@ -52,6 +58,8 @@ struct unit_test_state {
 	struct ut_stats cur;
 	struct ut_stats total;
 	int run_count;
+	const struct suite *worst;
+	int worst_ms;
 	struct mallinfo start;
 	struct device_node *of_root;
 	bool of_live;
@@ -92,6 +100,8 @@ enum ut_flags {
 	UTF_ETH_BOOTDEV	= BIT(9),	/* enable Ethernet bootdevs */
 	UTF_SF_BOOTDEV	= BIT(10),	/* enable SPI flash bootdevs */
 	UFT_BLOBLIST	= BIT(11),	/* test changes gd->bloblist */
+	UTF_INIT	= BIT(12),	/* test inits a suite */
+	UTF_UNINIT	= BIT(13),	/* test uninits a suite */
 };
 
 /**
@@ -136,6 +146,24 @@ struct unit_test {
 		.file = __FILE__,					\
 		.name = #_name,						\
 		.flags = _flags,					\
+		.func = _name,						\
+	}
+
+/* init function for unit-test suite (the 'A' makes it first) */
+#define UNIT_TEST_INIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, A ## _name, ut_ ## _suite) = {	\
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_INIT,				\
+		.func = _name,						\
+	}
+
+/* uninit function for unit-test suite (the 'aaa' makes it last) */
+#define UNIT_TEST_UNINIT(_name, _flags, _suite)				\
+	ll_entry_declare(struct unit_test, zzz ## _name, ut_ ## _suite) = { \
+		.file = __FILE__,					\
+		.name = #_name,						\
+		.flags = (_flags) | UTF_UNINIT,				\
 		.func = _name,						\
 	}
 

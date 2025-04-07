@@ -1236,6 +1236,14 @@ config CMD_FUSE
 	  which control the behaviour of the device. The command uses the
 	  fuse_...() API.
 
+config CMD_FUSE_WRITEBUFF
+	bool "Support for the fuse writebuff"
+	depends on CMD_FUSE
+	help
+	  This allows programming fuses, which control the behaviour of
+	  the device, using a structured buffer in memory. The command
+	  uses the fuse_writebuff() API.
+
 config CMD_GPIO
 	bool "gpio"
 	help
@@ -1602,6 +1610,7 @@ config CMD_READ
 config CMD_REMOTEPROC
 	bool "remoteproc"
 	depends on REMOTEPROC
+	default y if ARCH_K3
 	help
 	  Support for Remote Processor control
 
@@ -2059,7 +2068,7 @@ config CMD_SNTP
 
 config CMD_LINK_LOCAL
 	bool "linklocal"
-	select LIB_RAND
+	depends on (LIB_RAND || LIB_HW_RAND)
 	help
 	  Acquire a network IP address using the link-local protocol
 
@@ -2167,6 +2176,28 @@ config WGET_HTTPS
 	select PKCS7_MESSAGE_PARSER
 	help
 	  Enable TLS over http for wget.
+
+config WGET_CACERT
+	bool "wget cacert"
+	depends on CMD_WGET
+	depends on WGET_HTTPS
+	help
+	  Adds the "cacert" sub-command to wget to provide root certificates
+	  to the HTTPS engine. Must be in DER format.
+
+config WGET_BUILTIN_CACERT
+	bool "Built-in CA certificates"
+	depends on WGET_HTTPS
+	select BUILD_BIN2C
+
+config WGET_BUILTIN_CACERT_PATH
+	string "Path to root certificates"
+	depends on WGET_BUILTIN_CACERT
+	default "cacert.crt"
+	help
+	  Set this to the path to a DER-encoded X509 file containing
+	  Certification Authority certificates, a.k.a. root certificates, for
+	  the purpose of authenticating HTTPS connections.
 
 config CMD_PXE
 	bool "pxe"

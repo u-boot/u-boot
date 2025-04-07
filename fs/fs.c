@@ -32,6 +32,7 @@
 #include <efi_loader.h>
 #include <squashfs.h>
 #include <erofs.h>
+#include <exfat.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -143,6 +144,12 @@ static inline int fs_mkdir_unsupported(const char *dirname)
 	return -1;
 }
 
+static inline int fs_rename_unsupported(const char *old_path,
+					const char *new_path)
+{
+	return -1;
+}
+
 struct fstype_info {
 	int fstype;
 	char *name;
@@ -183,6 +190,7 @@ struct fstype_info {
 	int (*unlink)(const char *filename);
 	int (*mkdir)(const char *dirname);
 	int (*ln)(const char *filename, const char *target);
+	int (*rename)(const char *old_path, const char *new_path);
 };
 
 static struct fstype_info fstypes[] = {
@@ -211,6 +219,11 @@ static struct fstype_info fstypes[] = {
 		.readdir = fat_readdir,
 		.closedir = fat_closedir,
 		.ln = fs_ln_unsupported,
+#if CONFIG_IS_ENABLED(FAT_RENAME) && !IS_ENABLED(CONFIG_XPL_BUILD)
+		.rename = fat_rename,
+#else
+		.rename = fs_rename_unsupported,
+#endif
 	},
 #endif
 
@@ -238,6 +251,7 @@ static struct fstype_info fstypes[] = {
 		.closedir = ext4fs_closedir,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #if IS_ENABLED(CONFIG_SANDBOX) && !IS_ENABLED(CONFIG_XPL_BUILD)
@@ -257,6 +271,7 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #if CONFIG_IS_ENABLED(SEMIHOSTING)
@@ -276,6 +291,7 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #ifndef CONFIG_XPL_BUILD
@@ -296,6 +312,7 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #endif
@@ -317,6 +334,7 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #endif
@@ -339,6 +357,7 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 #endif
 #if IS_ENABLED(CONFIG_FS_EROFS)
@@ -360,6 +379,28 @@ static struct fstype_info fstypes[] = {
 		.ln = fs_ln_unsupported,
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
+		.rename = fs_rename_unsupported,
+	},
+#endif
+#if IS_ENABLED(CONFIG_FS_EXFAT)
+	{
+		.fstype = FS_TYPE_EXFAT,
+		.name = "exfat",
+		.null_dev_desc_ok = false,
+		.probe = exfat_fs_probe,
+		.opendir = exfat_fs_opendir,
+		.readdir = exfat_fs_readdir,
+		.ls = exfat_fs_ls,
+		.read = exfat_fs_read,
+		.size = exfat_fs_size,
+		.close = exfat_fs_close,
+		.closedir = exfat_fs_closedir,
+		.exists = exfat_fs_exists,
+		.uuid = fs_uuid_unsupported,
+		.write = exfat_fs_write,
+		.ln = fs_ln_unsupported,
+		.unlink = exfat_fs_unlink,
+		.mkdir = exfat_fs_mkdir,
 	},
 #endif
 	{
@@ -378,6 +419,7 @@ static struct fstype_info fstypes[] = {
 		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 		.ln = fs_ln_unsupported,
+		.rename = fs_rename_unsupported,
 	},
 };
 
@@ -713,6 +755,22 @@ int fs_ln(const char *fname, const char *target)
 	return ret;
 }
 
+int fs_rename(const char *old_path, const char *new_path)
+{
+	struct fstype_info *info = fs_get_info(fs_type);
+	int ret;
+
+	ret = info->rename(old_path, new_path);
+
+	if (ret < 0) {
+		log_debug("Unable to rename %s -> %s\n", old_path, new_path);
+		ret = -1;
+	}
+	fs_close();
+
+	return ret;
+}
+
 int do_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 	    int fstype)
 {
@@ -973,6 +1031,65 @@ int do_ln(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 		return 1;
 
 	return 0;
+}
+
+int do_mv(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+	  int fstype)
+{
+	struct fs_dir_stream *dirs;
+	char *src = argv[3];
+	char *dst = argv[4];
+	char *new_dst = NULL;
+	int ret = 1;
+
+	if (argc != 5) {
+		ret = CMD_RET_USAGE;
+		goto exit;
+	}
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		goto exit;
+
+	dirs = fs_opendir(dst);
+	/* dirs being valid means dst points to an existing directory.
+	 * mv should copy the file/dir (keeping the same name) into the
+	 * directory
+	 */
+	if (dirs) {
+		char *src_name = strrchr(src, '/');
+		int dst_len;
+
+		if (src_name)
+			src_name += 1;
+		else
+			src_name = src;
+
+		dst_len = strlen(dst);
+		new_dst = calloc(1, dst_len + strlen(src_name) + 2);
+		strcpy(new_dst, dst);
+
+		/* If there is already a trailing slash, don't add another */
+		if (new_dst[dst_len - 1] != '/') {
+			new_dst[dst_len] = '/';
+			dst_len += 1;
+		}
+
+		strcpy(new_dst + dst_len, src_name);
+		dst = new_dst;
+	}
+	fs_closedir(dirs);
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		goto exit;
+
+	if (fs_rename(src, dst))
+		goto exit;
+
+	ret = 0;
+
+exit:
+	free(new_dst);
+	return ret;
 }
 
 int do_fs_types(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])

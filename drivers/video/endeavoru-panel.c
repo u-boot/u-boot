@@ -117,6 +117,18 @@ static int endeavoru_panel_set_backlight(struct udevice *dev, int percent)
 	struct endeavoru_panel_priv *priv = dev_get_priv(dev);
 	int ret;
 
+	/*
+	 * Due to the use of the Tegra DC backlight feature, backlight
+	 * requests MUST NOT be made during probe or earlier. This is
+	 * because it creates a loop, as the backlight is a DC child.
+	 */
+	ret = uclass_get_device_by_phandle(UCLASS_PANEL_BACKLIGHT, dev,
+					   "backlight", &priv->backlight);
+	if (ret) {
+		log_err("cannot get backlight: ret = %d\n", ret);
+		return ret;
+	}
+
 	ret = backlight_enable(priv->backlight);
 	if (ret)
 		return ret;
@@ -135,13 +147,6 @@ static int endeavoru_panel_of_to_plat(struct udevice *dev)
 {
 	struct endeavoru_panel_priv *priv = dev_get_priv(dev);
 	int ret;
-
-	ret = uclass_get_device_by_phandle(UCLASS_PANEL_BACKLIGHT, dev,
-					   "backlight", &priv->backlight);
-	if (ret) {
-		log_err("cannot get backlight: ret = %d\n", ret);
-		return ret;
-	}
 
 	ret = uclass_get_device_by_phandle(UCLASS_REGULATOR, dev,
 					   "vdd-supply", &priv->vdd);
@@ -231,7 +236,7 @@ static int endeavoru_panel_probe(struct udevice *dev)
 	/* fill characteristics of DSI data link */
 	plat->lanes = 2;
 	plat->format = MIPI_DSI_FMT_RGB888;
-	plat->mode_flags = MIPI_DSI_MODE_VIDEO;
+	plat->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_LPM;
 
 	return endeavoru_panel_hw_init(dev);
 }

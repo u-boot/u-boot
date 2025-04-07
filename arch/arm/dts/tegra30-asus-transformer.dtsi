@@ -99,8 +99,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
-				nvidia,io-reset = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
+				nvidia,io-reset = <TEGRA_PIN_DISABLE>;
 			};
 
 			/* SDMMC3 pinmux */
@@ -189,7 +189,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
 			};
 
 			gen2_i2c {
@@ -200,7 +200,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
 			};
 
 			cam_i2c {
@@ -211,7 +211,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
 			};
 
 			ddc_i2c {
@@ -221,7 +221,7 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
 			};
 
 			pwr_i2c {
@@ -232,7 +232,7 @@
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
 				nvidia,open-drain = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
 			};
 
 			hotplug_i2c {
@@ -647,8 +647,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
-				nvidia,io-reset = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
+				nvidia,io-reset = <TEGRA_PIN_DISABLE>;
 			};
 
 			/* GPIO keys pinmux */
@@ -741,8 +741,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_ENABLE>;
-				nvidia,lock = <1>;
-				nvidia,io-reset = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
+				nvidia,io-reset = <TEGRA_PIN_DISABLE>;
 			};
 
 			vi_d10_pt2 {
@@ -879,8 +879,8 @@
 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
 				nvidia,enable-input = <TEGRA_PIN_DISABLE>;
-				nvidia,lock = <1>;
-				nvidia,io-reset = <1>;
+				nvidia,lock = <TEGRA_PIN_DISABLE>;
+				nvidia,io-reset = <TEGRA_PIN_DISABLE>;
 			};
 
 			vi_mclk_pt1 {

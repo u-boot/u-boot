@@ -54,10 +54,9 @@ image so it is necessary to obtain binaries from sources published by the board 
     $ tar xvfJ gcc-linaro-arm-none-eabi-4.8-2013.11_linux.tar.xz
     $ export PATH=$PWD/gcc-linaro-aarch64-none-elf-4.8-2013.11_linux/bin:$PWD/gcc-linaro-arm-none-eabi-4.8-2013.11_linux/bin:$PATH
 
-    $ DIR=odroid-n2
-    $ git clone --depth 1 https://github.com/hardkernel/u-boot.git -b odroidn2-v2015.01 $DIR
+    $ git clone --depth 1 https://github.com/hardkernel/u-boot.git -b odroidg12-v2015.01 odroidg12
 
-    $ cd odroid-n2
+    $ cd odroidg12
     $ make odroidn2_defconfig
     $ make
     $ export UBOOTDIR=$PWD
@@ -74,12 +73,8 @@ Go back to the mainline U-Boot source tree then:
     $ cp $UBOOTDIR/fip/g12b/bl2.bin fip/
     $ cp $UBOOTDIR/fip/g12b/bl30.bin fip/
     $ cp $UBOOTDIR/fip/g12b/bl31.img fip/
-    $ cp $UBOOTDIR/fip/g12b/ddr3_1d.fw fip/
     $ cp $UBOOTDIR/fip/g12b/ddr4_1d.fw fip/
     $ cp $UBOOTDIR/fip/g12b/ddr4_2d.fw fip/
-    $ cp $UBOOTDIR/fip/g12b/diag_lpddr4.fw fip/
-    $ cp $UBOOTDIR/fip/g12b/lpddr4_1d.fw fip/
-    $ cp $UBOOTDIR/fip/g12b/lpddr4_2d.fw fip/
     $ cp $UBOOTDIR/fip/g12b/piei.fw fip/
     $ cp $UBOOTDIR/fip/g12b/aml_ddr.fw fip/
     $ cp u-boot.bin fip/bl33.bin
@@ -113,7 +108,7 @@ Go back to the mainline U-Boot source tree then:
                                           --level v3 --type bl31
     $ $UBOOTDIR/fip/g12b/aml_encrypt_g12b --bl3sig --input fip/bl33.bin --compress lz4 \
                                           --output fip/bl33.bin.enc \
-                                          --level v3 --type bl33 --compress lz4
+                                          --level v3 --type bl33
     $ $UBOOTDIR/fip/g12b/aml_encrypt_g12b --bl2sig --input fip/bl2_new.bin \
                                           --output fip/bl2.n.bin.sig
     $ $UBOOTDIR/fip/g12b/aml_encrypt_g12b --bootmk \
@@ -124,11 +119,7 @@ Go back to the mainline U-Boot source tree then:
                                           --bl33 fip/bl33.bin.enc \
                                           --ddrfw1 fip/ddr4_1d.fw \
                                           --ddrfw2 fip/ddr4_2d.fw \
-                                          --ddrfw3 fip/ddr3_1d.fw \
                                           --ddrfw4 fip/piei.fw \
-                                          --ddrfw5 fip/lpddr4_1d.fw \
-                                          --ddrfw6 fip/lpddr4_2d.fw \
-                                          --ddrfw7 fip/diag_lpddr4.fw \
                                           --ddrfw8 fip/aml_ddr.fw \
                                           --level v3
 

@@ -1,0 +1,7 @@
+J7200 BOARD
+M:	Tom Rini <trini@konsulko.com>
+S:	Maintained
+F:	board/ti/j7200
+F:	include/configs/j7200_evm.h
+F:	configs/j7200_evm_r5_defconfig
+F:	configs/j7200_evm_a72_defconfig

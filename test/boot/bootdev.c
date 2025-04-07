@@ -12,7 +12,6 @@
 #include <bootflow.h>
 #include <mapmem.h>
 #include <os.h>
-#include <test/suites.h>
 #include <test/ut.h>
 #include "bootstd_common.h"
 
@@ -510,6 +509,7 @@ static int bootdev_test_bootable(struct unit_test_state *uts)
 	iter.part = 0;
 	ut_assertok(uclass_get_device_by_name(UCLASS_BLK, "mmc1.blk", &blk));
 	iter.dev = blk;
+	iter.flags = BOOTFLOWIF_ONLY_BOOTABLE;
 	ut_assertok(device_find_next_child(&iter.dev));
 	uclass_first_device(UCLASS_BOOTMETH, &bflow.method);
 

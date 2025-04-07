@@ -37,6 +37,7 @@ SECTIONS
 
 	.data : {
 		. = ALIGN(8);
+		*(.__data_start)
 		*(.data*)
 	} >.sram
 

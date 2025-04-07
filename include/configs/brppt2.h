@@ -64,7 +64,6 @@ BUR_COMMON_ENV \
 " do echo \"### booting ${target} ###\"; run b_${target};" \
 " if test ${b_break} = 1; then; exit; fi; done\0" \
 "loaddev=mmc 0\0" \
-"altbootcmd=setenv b_mode 0; run b_default;\0" \
 "bootlimit=1\0" \
 "net2nor=sf probe && dhcp &&" \
 " tftp ${loadaddr} SPL && sf erase 0 +${filesize} &&" \

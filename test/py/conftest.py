@@ -7,7 +7,7 @@
 # test, at shutdown etc. These hooks perform functions such as:
 # - Parsing custom command-line options.
 # - Pullilng in user-specified board configuration.
-# - Creating the U-Boot console test fixture.
+# - Creating the ubman test fixture.
 # - Creating the HTML log file.
 # - Monitoring each test's results.
 # - Implementing custom pytest markers.
@@ -25,12 +25,12 @@ import re
 from _pytest.runner import runtestprotocol
 import subprocess
 import sys
+from spawn import BootFail, Timeout, Unexpected, handle_exception
 import time
-from u_boot_spawn import BootFail, Timeout, Unexpected, handle_exception
 
-# Globals: The HTML log file, and the connection to the U-Boot console.
+# Globals: The HTML log file, and the top-level fixture
 log = None
-console = None
+ubman_fix = None
 
 TEST_PY_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -247,7 +247,7 @@ def pytest_configure(config):
             ubconfig.buildconfig.update(parser.items('root'))
 
     global log
-    global console
+    global ubman_fix
     global ubconfig
 
     (board_type, board_type_extra, board_identity, build_dir, build_dir_extra,
@@ -289,19 +289,26 @@ def pytest_configure(config):
     ubconfig = ArbitraryAttributeContainer()
     ubconfig.brd = dict()
     ubconfig.env = dict()
+    not_found = []
 
-    modules = [
-        (ubconfig.brd, 'u_boot_board_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
-        (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
-            board_identity_filename),
-    ]
-    for (dict_to_fill, module_name) in modules:
-        try:
-            module = __import__(module_name)
-        except ImportError:
-            continue
-        dict_to_fill.update(module.__dict__)
+    with log.section('Loading lab modules', 'load_modules'):
+        modules = [
+            (ubconfig.brd, 'u_boot_board_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename),
+            (ubconfig.env, 'u_boot_boardenv_' + board_type_filename + '_' +
+                board_identity_filename),
+        ]
+        for (dict_to_fill, module_name) in modules:
+            try:
+                module = __import__(module_name)
+            except ImportError:
+                not_found.append(module_name)
+                continue
+            dict_to_fill.update(module.__dict__)
+            log.info(f"Loaded {module}")
+
+        if not_found:
+            log.warning(f"Failed to find modules: {' '.join(not_found)}")
 
     ubconfig.buildconfig = dict()
 
@@ -327,6 +334,7 @@ def pytest_configure(config):
     ubconfig.dtb = build_dir + '/arch/sandbox/dts/test.dtb'
     ubconfig.connection_ok = True
     ubconfig.timing = config.getoption('timing')
+    ubconfig.role = config.getoption('role')
 
     env_vars = (
         'board_type',
@@ -343,11 +351,11 @@ def pytest_configure(config):
         os.environ['U_BOOT_' + v.upper()] = getattr(ubconfig, v)
 
     if board_type.startswith('sandbox'):
-        import u_boot_console_sandbox
-        console = u_boot_console_sandbox.ConsoleSandbox(log, ubconfig)
+        import console_sandbox
+        ubman_fix = console_sandbox.ConsoleSandbox(log, ubconfig)
     else:
-        import u_boot_console_exec_attach
-        console = u_boot_console_exec_attach.ConsoleExecAttach(log, ubconfig)
+        import console_board
+        ubman_fix = console_board.ConsoleExecAttach(log, ubconfig)
 
 
 def generate_ut_subtest(metafunc, fixture_name, sym_path):
@@ -366,7 +374,7 @@ def generate_ut_subtest(metafunc, fixture_name, sym_path):
     Returns:
         Nothing.
     """
-    fn = console.config.build_dir + sym_path
+    fn = ubman_fix.config.build_dir + sym_path
     try:
         with open(fn, 'rt') as f:
             lines = f.readlines()
@@ -407,8 +415,8 @@ def generate_config(metafunc, fixture_name):
     """
 
     subconfigs = {
-        'brd': console.config.brd,
-        'env': console.config.env,
+        'brd': ubman_fix.config.brd,
+        'env': ubman_fix.config.env,
     }
     parts = fixture_name.split('__')
     if len(parts) < 2:
@@ -470,7 +478,7 @@ def u_boot_log(request):
          The fixture value.
      """
 
-     return console.log
+     return ubman_fix.log
 
 @pytest.fixture(scope='session')
 def u_boot_config(request):
@@ -483,11 +491,11 @@ def u_boot_config(request):
          The fixture value.
      """
 
-     return console.config
+     return ubman_fix.config
 
 @pytest.fixture(scope='function')
-def u_boot_console(request):
-    """Generate the value of a test's u_boot_console fixture.
+def ubman(request):
+    """Generate the value of a test's ubman fixture.
 
     Args:
         request: The pytest request.
@@ -499,18 +507,18 @@ def u_boot_console(request):
         pytest.skip('Cannot get target connection')
         return None
     try:
-        console.ensure_spawned()
+        ubman_fix.ensure_spawned()
     except OSError as err:
-        handle_exception(ubconfig, console, log, err, 'Lab failure', True)
+        handle_exception(ubconfig, ubman_fix, log, err, 'Lab failure', True)
     except Timeout as err:
-        handle_exception(ubconfig, console, log, err, 'Lab timeout', True)
+        handle_exception(ubconfig, ubman_fix, log, err, 'Lab timeout', True)
     except BootFail as err:
-        handle_exception(ubconfig, console, log, err, 'Boot fail', True,
-                         console.get_spawn_output())
+        handle_exception(ubconfig, ubman_fix, log, err, 'Boot fail', True,
+                         ubman.get_spawn_output())
     except Unexpected:
-        handle_exception(ubconfig, console, log, err, 'Unexpected test output',
+        handle_exception(ubconfig, ubman_fix, log, err, 'Unexpected test output',
                          False)
-    return console
+    return ubman_fix
 
 anchors = {}
 tests_not_run = []
@@ -623,8 +631,8 @@ def cleanup():
         Nothing.
     """
 
-    if console:
-        console.close()
+    if ubman_fix:
+        ubman_fix.close()
     if log:
         with log.section('Status Report', 'status_report'):
             log.status_pass('%d passed' % len(tests_passed))
@@ -753,6 +761,26 @@ def setup_singlethread(item):
         if worker_id and worker_id != 'master':
             pytest.skip('must run single-threaded')
 
+def setup_role(item):
+    """Process any 'role' marker for a test.
+
+    Skip this test if the role does not match.
+
+    Args:
+        item (pytest.Item): The pytest test item
+    """
+    required_roles = []
+    for roles in item.iter_markers('role'):
+        role = roles.args[0]
+        if role.startswith('!'):
+            if ubconfig.role == role[1:]:
+                pytest.skip(f'role "{ubconfig.role}" not supported')
+                return
+        else:
+            required_roles.append(role)
+    if required_roles and ubconfig.role not in required_roles:
+        pytest.skip(f'board "{ubconfig.role}" not supported')
+
 def start_test_section(item):
     anchors[item.name] = log.start_section(item.name)
 
@@ -774,6 +802,7 @@ def pytest_runtest_setup(item):
     setup_buildconfigspec(item)
     setup_requiredtool(item)
     setup_singlethread(item)
+    setup_role(item)
 
 def pytest_runtest_protocol(item, nextitem):
     """pytest hook: Called to execute a test.
@@ -845,7 +874,7 @@ def pytest_runtest_protocol(item, nextitem):
         test_durations[item.name] = duration
 
     if failure_cleanup:
-        console.drain_console()
+        ubman_fix.drain_console()
 
     test_list.append(item.name)
     tests_not_run.remove(item.name)
@@ -855,7 +884,7 @@ def pytest_runtest_protocol(item, nextitem):
     except:
         # If something went wrong with logging, it's better to let the test
         # process continue, which may report other exceptions that triggered
-        # the logging issue (e.g. console.log wasn't created). Hence, just
+        # the logging issue (e.g. ubman_fix.log wasn't created). Hence, just
         # squash the exception. If the test setup failed due to e.g. syntax
         # error somewhere else, this won't be seen. However, once that issue
         # is fixed, if this exception still exists, it will then be logged as
@@ -868,6 +897,6 @@ def pytest_runtest_protocol(item, nextitem):
     log.end_section(item.name)
 
     if failure_cleanup:
-        console.cleanup_spawn()
+        ubman_fix.cleanup_spawn()
 
     return True

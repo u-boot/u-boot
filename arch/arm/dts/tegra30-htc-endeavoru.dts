@@ -33,13 +33,11 @@
 
 	host1x@50000000 {
 		dc@54200000 {
-			clocks = <&tegra_car TEGRA30_CLK_DISP1>,
-				 <&tegra_car TEGRA30_CLK_PLL_D_OUT0>;
+			backlight: backlight {
+				compatible = "nvidia,tegra-pwm-backlight";
 
-			rgb {
-				status = "okay";
-
-				nvidia,panel = <&dsia>;
+				nvidia,pwm-source = <1>;
+				nvidia,default-brightness = <0x8E>;
 			};
 		};
 
@@ -48,7 +46,17 @@
 
 			avdd-dsi-csi-supply = <&avdd_dsi_csi>;
 
-			panel = <&panel>;
+			panel@0 {
+				compatible = "htc,edge-panel";
+				reg = <0>;
+
+				reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
+
+				vdd-supply = <&vdd_3v3_panel>;
+				vddio-supply = <&vdd_1v8_panel>;
+
+				backlight = <&backlight>;
+			};
 		};
 	};
 
@@ -1255,13 +1263,6 @@
 		nvidia,xcvr-lsrslew = <2>;
 	};
 
-	backlight: backlight {
-		compatible = "nvidia,tegra-pwm-backlight";
-
-		nvidia,pwm-source = <1>;
-		nvidia,default-brightness = <0x8E>;
-	};
-
 	/* PMIC has a built-in 32KHz oscillator which is used by PMC */
 	clk32k_in: clock-32k {
 		compatible = "fixed-clock";
@@ -1290,17 +1291,6 @@
 			gpios = <&gpio TEGRA_GPIO(W, 3) GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_DOWN>;
 		};
-	};
-
-	panel: panel {
-		compatible = "htc,edge-panel";
-
-		reset-gpios = <&gpio TEGRA_GPIO(N, 6) GPIO_ACTIVE_LOW>;
-
-		vdd-supply = <&vdd_3v3_panel>;
-		vddio-supply = <&vdd_1v8_panel>;
-
-		backlight = <&backlight>;
 	};
 
 	vcore_emmc: regulator-emmc {

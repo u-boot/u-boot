@@ -10,3 +10,4 @@ Qualcomm
    rb3gen2
    board
    debugging
+   rdp

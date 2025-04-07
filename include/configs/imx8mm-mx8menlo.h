@@ -18,14 +18,6 @@
 	"devtype=mmc\0"							\
 	"devnum=1\0"							\
 	"distro_bootpart=1\0"						\
-	"altbootcmd="							\
-		"mmc partconf 0 mmcpart ; "				\
-		"if test ${mmcpart} -eq 1 ; then "			\
-			"mmc partconf 0 1 2 0 ; "			\
-		"else "							\
-			"mmc partconf 0 1 1 0 ; "			\
-		"fi ; "							\
-		"boot\0"						\
 	"boot_file=fitImage\0"						\
 	"console=ttymxc0\0"						\
 	"fdt_addr=0x43000000\0"						\

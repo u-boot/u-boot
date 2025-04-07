@@ -12,7 +12,9 @@ Synopsis
 ::
 
     wget [address] [host:]path
-    wget [address] url          # lwIP only
+    wget [address] url                  # lwIP only
+    wget cacert none|optional|required  # lwIP only
+    wget cacert <address> <size>        # lwIP only
 
 
 Description
@@ -53,6 +55,32 @@ address
 
 url
     HTTP or HTTPS URL, that is: http[s]://<host>[:<port>]/<path>.
+
+The cacert (stands for 'Certification Authority certificates') subcommand is
+used to provide root certificates for the purpose of HTTPS authentication. It
+also allows to enable or disable authentication.
+
+wget cacert <address> <size>
+
+address
+    memory address of the root certificates in X509 DER format
+
+size
+    the size of the root certificates
+
+wget cacert none|optional|required
+
+none
+    certificate verification is disabled. HTTPS is used without any server
+    authentication (unsafe)
+optional
+    certificate verification is enabled provided root certificates have been
+    provided via wget cacert <addr> <size> or wget cacert builtin. Otherwise
+    HTTPS is used without any server authentication (unsafe).
+required
+    certificate verification is mandatory. If no root certificates have been
+    configured, HTTPS transfers will fail.
+
 
 Examples
 --------
@@ -97,11 +125,61 @@ In the example the following steps are executed:
    1694892032 bytes transferred in 492181 ms (3.3 MiB/s)
    Bytes transferred = 1694892032 (65060000 hex)
 
+Here is an example showing how to configure built-in root certificates as
+well as providing some at run time. In this example it is assumed that
+CONFIG_WGET_BUILTIN_CACERT_PATH=DigiCertTLSRSA4096RootG5.crt downloaded from
+https://cacerts.digicert.com/DigiCertTLSRSA4096RootG5.crt.
+
+::
+
+   # Make sure IP is configured
+   => dhcp
+   # When built-in certificates are configured, authentication is mandatory
+   # (i.e., "wget cacert required"). Use a test server...
+   => wget https://digicert-tls-rsa4096-root-g5.chain-demos.digicert.com/
+   1864 bytes transferred in 1 ms (1.8 MiB/s)
+   Bytes transferred = 1864 (748 hex)
+   # Another server not signed against Digicert will fail
+   => wget https://www.google.com/
+   Certificate verification failed
+
+   HTTP client error 4
+   # Disable authentication to allow the command to proceed anyways
+   => wget cacert none
+   => wget https://www.google.com/
+   WARNING: no CA certificates, HTTPS connections not authenticated
+   16683 bytes transferred in 15 ms (1.1 MiB/s)
+   Bytes transferred = 16683 (412b hex)
+   # Force verification but unregister the CA certificates
+   => wget cacert required
+   => wget cacert 0 0
+   # Unsurprisingly, download fails
+   => wget https://digicert-tls-rsa4096-root-g5.chain-demos.digicert.com/
+   Error: cacert authentication mode is 'required' but no CA certificates given
+   # Get the same certificates as above from the network
+   => wget cacert none
+   => wget https://cacerts.digicert.com/DigiCertTLSRSA4096RootG5.crt
+   WARNING: no CA certificates, HTTPS connections not authenticated
+   1386 bytes transferred in 1 ms (1.3 MiB/s)
+   Bytes transferred = 1386 (56a hex)
+   # Register them and force authentication
+   => wget cacert $fileaddr $filesize
+   => wget cacert required
+   # Authentication is operational again
+   => wget https://digicert-tls-rsa4096-root-g5.chain-demos.digicert.com/
+   1864 bytes transferred in 1 ms (1.8 MiB/s)
+   Bytes transferred = 1864 (748 hex)
+   # The builtin certificates can be restored at any time
+   => wget cacert builtin
+
 Configuration
 -------------
 
 The command is only available if CONFIG_CMD_WGET=y.
-To enable lwIP support set CONFIG_NET_LWIP=y.
+To enable lwIP support set CONFIG_NET_LWIP=y. In this case, root certificates
+support can be enabled via CONFIG_WGET_BUILTIN_CACERT=y
+CONFIG_WGET_BUILTIN_CACERT_PATH=<some path> (for built-in certificates) and/or
+CONFIG_WGET_CACERT=y (for the wget cacert command).
 
 TCP Selective Acknowledgments in the legacy network stack can be enabled via
 CONFIG_PROT_TCP_SACK=y. This will improve the download speed. Selective

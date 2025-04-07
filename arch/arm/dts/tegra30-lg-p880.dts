@@ -101,6 +101,31 @@
 		};
 	};
 
+	spi@7000dc00 {
+		bridge-spi@2 {
+			/*
+			 * JDI 4.57" 720x1280 DX12D100VM0EAA MIPI DSI panel
+			 */
+			panel@0 {
+				compatible = "jdi,dx12d100vm0eaa";
+				reg = <0>;
+
+				reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_LOW>;
+
+				vdd-supply = <&vcc_3v0_lcd>;
+				vddio-supply = <&iovcc_1v8_lcd>;
+
+				backlight = <&backlight>;
+
+				port {
+					panel_input: endpoint {
+						remote-endpoint = <&bridge_output>;
+					};
+				};
+			};
+		};
+	};
+
 	sdmmc3: sdhci@78000400  {
 		status = "okay";
 		bus-width = <4>;
@@ -117,14 +142,5 @@
 			gpios = <&gpio TEGRA_GPIO(O, 7) GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_UP>;
 		};
-	};
-
-	panel: panel {
-		compatible = "jdi,dx12d100vm0eaa";
-
-		enable-gpios = <&gpio TEGRA_GPIO(Y, 0) GPIO_ACTIVE_HIGH>;
-		reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
-
-		backlight = <&backlight>;
 	};
 };

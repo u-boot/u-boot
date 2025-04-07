@@ -26,8 +26,26 @@ config TARGET_J722S_R5_EVM
 	select BINMAN
 	imply SYS_K3_SPL_ATF
 
+config TARGET_J722S_A53_BEAGLEY_AI
+	bool "BeagleBoard.org BeagleY-AI running on A53"
+	select ARM64
+	select BINMAN
+	select OF_SYSTEM_SETUP
+
+config TARGET_J722S_R5_BEAGLEY_AI
+	bool "BeagleBoard.org BeagleY-AI running on R5"
+	select CPU_V7R
+	select SYS_THUMB_BUILD
+	select K3_LOAD_SYSFW
+	select RAM
+	select SPL_RAM
+	select K3_DDRSS
+	select BINMAN
+	imply SYS_K3_SPL_ATF
+
 endchoice
 
 source "board/ti/j722s/Kconfig"
+source "board/beagle/beagley-ai/Kconfig"
 
 endif

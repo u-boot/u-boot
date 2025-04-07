@@ -303,7 +303,7 @@ class TestFunctional(unittest.TestCase):
     def setUp(self):
         # Enable this to turn on debugging output
         # tout.init(tout.DEBUG)
-        command.test_result = None
+        command.TEST_RESULT = None
 
     def tearDown(self):
         """Remove the temporary output directory"""
@@ -345,8 +345,9 @@ class TestFunctional(unittest.TestCase):
             Arguments to pass, as a list of strings
             kwargs: Arguments to pass to Command.RunPipe()
         """
-        result = command.run_pipe([[self._binman_pathname] + list(args)],
-                capture=True, capture_stderr=True, raise_on_error=False)
+        all_args = [self._binman_pathname] + list(args)
+        result = command.run_one(*all_args, capture=True, capture_stderr=True,
+                                 raise_on_error=False)
         if result.return_code and kwargs.get('raise_on_error', True):
             raise Exception("Error running '%s': %s" % (' '.join(args),
                             result.stdout + result.stderr))
@@ -762,6 +763,16 @@ class TestFunctional(unittest.TestCase):
             return False
         return True
 
+    def _CheckPreload(self, image, key, algo="sha256,rsa2048",
+                      padding="pkcs-1.5"):
+        try:
+            tools.run('preload_check_sign', '-k', key, '-a', algo, '-p',
+                      padding, '-f', image)
+        except:
+            self.fail('Expected image signed with a pre-load')
+            return False
+        return True
+
     def testRun(self):
         """Test a basic run with valid args"""
         result = self._RunBinman('-h')
@@ -780,11 +791,11 @@ class TestFunctional(unittest.TestCase):
     def testFullHelpInternal(self):
         """Test that the full help is displayed with -H"""
         try:
-            command.test_result = command.CommandResult()
+            command.TEST_RESULT = command.CommandResult()
             result = self._DoBinman('-H')
             help_file = os.path.join(self._binman_dir, 'README.rst')
         finally:
-            command.test_result = None
+            command.TEST_RESULT = None
 
     def testHelp(self):
         """Test that the basic help is displayed with -h"""
@@ -1872,7 +1883,7 @@ class TestFunctional(unittest.TestCase):
 
     def testGbb(self):
         """Test for the Chromium OS Google Binary Block"""
-        command.test_result = self._HandleGbbCommand
+        command.TEST_RESULT = self._HandleGbbCommand
         entry_args = {
             'keydir': 'devkeys',
             'bmpblk': 'bmpblk.bin',
@@ -1941,7 +1952,7 @@ class TestFunctional(unittest.TestCase):
     def testVblock(self):
         """Test for the Chromium OS Verified Boot Block"""
         self._hash_data = False
-        command.test_result = self._HandleVblockCommand
+        command.TEST_RESULT = self._HandleVblockCommand
         entry_args = {
             'keydir': 'devkeys',
         }
@@ -1974,7 +1985,7 @@ class TestFunctional(unittest.TestCase):
     def testVblockContent(self):
         """Test that the vblock signs the right data"""
         self._hash_data = True
-        command.test_result = self._HandleVblockCommand
+        command.TEST_RESULT = self._HandleVblockCommand
         entry_args = {
             'keydir': 'devkeys',
         }
@@ -5498,7 +5509,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
 
     def testFitSubentryUsesBintool(self):
         """Test that binman FIT subentries can use bintools"""
-        command.test_result = self._HandleGbbCommand
+        command.TEST_RESULT = self._HandleGbbCommand
         entry_args = {
             'keydir': 'devkeys',
             'bmpblk': 'bmpblk.bin',
@@ -5783,9 +5794,14 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
         data = self._DoReadFileDtb(
             '230_pre_load.dts', entry_args=entry_args,
             extra_indirs=[os.path.join(self._binman_dir, 'test')])[0]
+
+        image_fname = tools.get_output_filename('image.bin')
+        is_signed = self._CheckPreload(image_fname, self.TestFile("dev.key"))
+
         self.assertEqual(PRE_LOAD_MAGIC, data[:len(PRE_LOAD_MAGIC)])
         self.assertEqual(PRE_LOAD_VERSION, data[4:4 + len(PRE_LOAD_VERSION)])
         self.assertEqual(PRE_LOAD_HDR_SIZE, data[8:8 + len(PRE_LOAD_HDR_SIZE)])
+        self.assertEqual(is_signed, True)
 
     def testPreLoadNoKey(self):
         """Test an image with a pre-load heade0r with missing key"""
@@ -6383,6 +6399,7 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
                     ename, prop = entry_m.group(1), entry_m.group(3)
                 entry, entry_name, prop_name = image.LookupEntry(entries,
                                                                  name, msg)
+                expect_val = None
                 if prop_name == 'offset':
                     expect_val = entry.offset
                 elif prop_name == 'image_pos':
@@ -7972,6 +7989,13 @@ fdt         fdtmap                Extract the devicetree blob from the fdtmap
     def testFitFdtName(self):
         """Test an image with an FIT with multiple FDT images using NAME"""
         self.CheckFitFdt('345_fit_fdt_name.dts', use_seq_num=False)
+
+    def testRemoveTemplate(self):
+        """Test whether template is removed"""
+        TestFunctional._MakeInputFile('my-blob.bin', b'blob')
+        TestFunctional._MakeInputFile('my-blob2.bin', b'other')
+        self._DoTestFile('346_remove_template.dts',
+                         force_missing_bintools='openssl',)
 
 if __name__ == "__main__":
     unittest.main()

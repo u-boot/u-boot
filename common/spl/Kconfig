@@ -80,11 +80,10 @@ config SPL_MAX_SIZE
 	default 0x1b000 if AM33XX && !TI_SECURE_DEVICE
 	default 0xec00 if OMAP34XX
 	default 0x10000 if ARCH_MX6 && !MX6_OCRAM_256KB
-	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x10000
-	default 0x7fa0 if SUNXI_SRAM_ADDRESS = 0x20000 && !MACH_SUN50I_H616
 	default 0xbfa0 if MACH_SUN50I_H616
 	default 0x7000 if RCAR_GEN3
 	default 0x5fa0 if SUNXI_SRAM_ADDRESS = 0x0
+	default 0x7fa0 if ARCH_SUNXI
 	default 0x10000 if ASPEED_AST2600
 	default 0x27000 if IMX8MM && SPL_TEXT_BASE = 0x7E1000
 	default 0x30000 if ARCH_SC5XX && (SC59X_64 || SC59X)
@@ -387,11 +386,29 @@ config SPL_SHARES_INIT_SP_ADDR
 	  both SPL and U-Boot itself.  If you need to specify a different address
 	  however, say N here and then set a different value in CONFIG_SPL_STACK.
 
-config SPL_STACK
-	hex "Initial stack pointer location"
+config SPL_HAVE_INIT_STACK
+	bool "SPL requires a initial, fixed, stack-pointer location"
 	depends on (ARM || ARCH_JZ47XX || MICROBLAZE || RISCV) && \
 		SPL_FRAMEWORK || ROCKCHIP_RK3036
 	depends on !SPL_SHARES_INIT_SP_ADDR
+	default y if ARCH_MX7
+	default y if ARCH_MX6 && MX6_OCRAM_256KB
+	default y if ARCH_MX6 && !MX6_OCRAM_256KB
+	default y if MACH_SUN50I_H6 || MACH_SUN50I_H616 || MACH_SUN8I_R528
+	default y if MACH_SUN50I || MACH_SUN50I_H5
+	default y if MACH_SUN9I
+	default y if ARCH_SUNXI
+	default y if ARCH_SC5XX && (SC59X_64 || SC59X)
+	default y if ARCH_SC5XX && SC58X
+	default y if ARCH_SC5XX && SC57X
+	help
+	  Enable if the SPL phase should not use inherit its initial
+	  stack-pointer from the settings for U-Boot proper, but should set
+	  its own value.
+
+config SPL_STACK
+	hex "Address of the initial stack-pointer for the SPL phase"
+	depends on SPL_HAVE_INIT_STACK
 	default 0x946bb8 if ARCH_MX7
 	default 0x93ffb8 if ARCH_MX6 && MX6_OCRAM_256KB
 	default 0x91ffb8 if ARCH_MX6 && !MX6_OCRAM_256KB
@@ -401,9 +418,9 @@ config SPL_STACK
 	default 0x54000 if MACH_SUN50I || MACH_SUN50I_H5
 	default 0x18000 if MACH_SUN9I
 	default 0x8000 if ARCH_SUNXI
-	default 0x200E4000 if ARCH_SC5XX && (SC59X_64 || SC59X)
-	default 0x200B0000 if ARCH_SC5XX && SC58X
-	default 0x200D0000 if ARCH_SC5XX && SC57X
+	default 0x200e4000 if ARCH_SC5XX && (SC59X_64 || SC59X)
+	default 0x200b0000 if ARCH_SC5XX && SC58X
+	default 0x200d0000 if ARCH_SC5XX && SC57X
 	help
 	  Address of the start of the stack SPL will use before SDRAM is
 	  initialized.
@@ -1287,6 +1304,7 @@ config SPL_RAM_DEVICE
 
 config SPL_REMOTEPROC
 	bool "Support REMOTEPROCS"
+	default y if (CPU_V7R && ARCH_K3)
 	help
 	  Enable support for REMOTEPROCs in SPL. This permits to load
 	  a remote processor firmware in SPL.
@@ -1430,6 +1448,24 @@ config SYS_SPI_U_BOOT_OFFS
 	help
 	 Address within SPI-Flash from where the u-boot payload is fetched
 	 from.
+
+config SYS_SPI_KERNEL_OFFS
+	hex "Falcon mode: address of kernel payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	help
+	 Address within SPI-Flash from where the kernel payload is fetched
+	 in falcon boot.
+
+config SYS_SPI_ARGS_OFFS
+	hex "Falcon mode: address of args payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
+	help
+	 Address within SPI-Flash from where the args payload (usually the
+	 dtb) is fetched in falcon boot.
+
+config SYS_SPI_ARGS_SIZE
+	hex "Falcon mode: size of args payload in SPI flash"
+	depends on SPL_SPI_FLASH_SUPPORT && SPL_OS_BOOT
 
 config SPL_THERMAL
 	bool "Driver support for thermal devices"

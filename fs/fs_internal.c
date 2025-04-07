@@ -92,3 +92,105 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
 	}
 	return 1;
 }
+
+int fs_devwrite(struct blk_desc *blk, struct disk_partition *partition,
+	        lbaint_t sector, int byte_offset, int byte_len, const char *buf)
+{
+	unsigned block_len;
+	int log2blksz;
+	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (blk ? blk->blksz : 0));
+	if (blk == NULL) {
+		log_err("** Invalid Block Device Descriptor (NULL)\n");
+		return 0;
+	}
+	log2blksz = blk->log2blksz;
+
+	/* Check partition boundaries */
+	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
+	    >= partition->size) {
+		log_debug("read outside partition " LBAFU "\n", sector);
+		return 0;
+	}
+
+	/* Get the read to the beginning of a partition */
+	sector += byte_offset >> log2blksz;
+	byte_offset &= blk->blksz - 1;
+
+	log_debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
+
+	if (byte_offset != 0) {
+		int readlen;
+		/* read first part which isn't aligned with start of sector */
+		if (blk_dread(blk, partition->start + sector, 1,
+			      (void *)sec_buf) != 1) {
+			log_err(" ** %s read error **\n", __func__);
+			return 0;
+		}
+
+		readlen = min((int)blk->blksz - byte_offset,
+			      byte_len);
+		memcpy(sec_buf + byte_offset, buf, readlen);
+
+		if (blk_dwrite(blk, partition->start + sector, 1,
+			      (void *)sec_buf) != 1) {
+			log_err(" ** %s write error **\n", __func__);
+			return 0;
+		}
+		buf += readlen;
+		byte_len -= readlen;
+		sector++;
+	}
+
+	if (byte_len == 0)
+		return 1;
+
+	/* write sector aligned part */
+	block_len = byte_len & ~(blk->blksz - 1);
+
+	if (block_len == 0) {
+		if (blk_dread(blk, partition->start + sector, 1,
+			  (void *)sec_buf) != 1) {
+			log_err(" ** %s read error **\n", __func__);
+			return 0;
+		}
+
+		memcpy(sec_buf, buf, byte_len);
+
+		if (blk_dwrite(blk, partition->start + sector, 1,
+			      (void *)sec_buf) != 1) {
+			log_err(" ** %s write error **\n", __func__);
+			return 0;
+		}
+
+		return 1;
+	}
+
+	if (blk_dwrite(blk, partition->start + sector,
+		       block_len >> log2blksz, (void *)buf) !=
+			block_len >> log2blksz) {
+		log_err(" ** %s write error - block\n", __func__);
+		return 0;
+	}
+	block_len = byte_len & ~(blk->blksz - 1);
+	buf += block_len;
+	byte_len -= block_len;
+	sector += block_len / blk->blksz;
+
+	if (byte_len != 0) {
+		/* read rest of data which are not in whole sector */
+		if (blk_dread(blk, partition->start + sector, 1,
+			      (void *)sec_buf) != 1) {
+			log_err("* %s read error - last part **\n", __func__);
+			return 0;
+		}
+
+		memcpy(sec_buf, buf, byte_len);
+
+		if (blk_dwrite(blk, partition->start + sector, 1,
+			      (void *)sec_buf) != 1) {
+			log_err(" ** %s write error - last part **\n", __func__);
+			return 0;
+		}
+	}
+	return 1;
+}

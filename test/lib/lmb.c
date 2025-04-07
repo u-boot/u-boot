@@ -471,17 +471,17 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x10000,
 		   0, 0, 0, 0);
 
-	/* allocate overlapping region should return the coalesced count */
+	/* allocate overlapping region */
 	ret = lmb_reserve(0x40011000, 0x10000, LMB_NONE);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x11000,
 		   0, 0, 0, 0);
-	/* allocate 3nd region */
+	/* allocate 2nd region */
 	ret = lmb_reserve(0x40030000, 0x10000, LMB_NONE);
 	ut_asserteq(ret, 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, 0x40010000, 0x11000,
 		   0x40030000, 0x10000, 0, 0);
-	/* allocate 2nd region , This should coalesced all region into one */
+	/* allocate 3rd region , This should coalesce all regions into one */
 	ret = lmb_reserve(0x40020000, 0x10000, LMB_NONE);
 	ut_assert(ret >= 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x30000,
@@ -498,6 +498,41 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 	ut_assert(ret >= 0);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40000000, 0x40000,
 		   0, 0, 0, 0);
+
+	/* try to allocate overlapping region with a different flag, should fail */
+	ret = lmb_reserve(0x40008000, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(ret, -EEXIST);
+
+	/* allocate another region at 0x40050000 with a different flag */
+	ret = lmb_reserve(0x40050000, 0x10000, LMB_NOOVERWRITE);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, 0x40000000, 0x40000,
+		   0x40050000, 0x10000, 0, 0);
+
+	/*
+	 * try to reserve a region adjacent to region 1 overlapping the 2nd region,
+	 * should fail
+	 */
+	ret = lmb_reserve(0x40040000, 0x20000, LMB_NONE);
+	ut_asserteq(ret, -EEXIST);
+
+	/*
+	 * try to reserve a region between the two regions, but without an overlap,
+	 * should succeed. this added region coalesces with the region 1
+	 */
+	ret = lmb_reserve(0x40040000, 0x10000, LMB_NONE);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, 0x40000000, 0x50000,
+		   0x40050000, 0x10000, 0, 0);
+
+	/*
+	 * try to reserve a region which overlaps with both the regions,
+	 * should fail as the flags do not match
+	 */
+	ret = lmb_reserve(0x40020000, 0x80000, LMB_NONE);
+	ut_asserteq(ret, -EEXIST);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, 0x40000000, 0x50000,
+		   0x40050000, 0x10000, 0, 0);
 
 	lmb_pop(&store);
 
@@ -547,6 +582,77 @@ static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
 	b = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
 	ut_asserteq(b, -1);
 	ret = lmb_free(alloc_addr_a, 0x1000);
+	ut_asserteq(ret, 0);
+
+	/*
+	 * Add two regions with different flags, region1 and region2 with
+	 * a gap between them.
+	 * Try adding another region, adjacent to region 1 and overlapping
+	 * region 2. Should fail.
+	 */
+	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(a, 0);
+
+	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
+
+	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NONE);
+	ut_asserteq(c, -1);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
+
+	ret = lmb_free(alloc_addr_a, 0x1000);
+	ut_asserteq(ret, 0);
+	ret = lmb_free(alloc_addr_a + 0x4000, 0x1000);
+	ut_asserteq(ret, 0);
+
+	/*
+	 * Add two regions with same flags(LMB_NONE), region1 and region2
+	 * with a gap between them.
+	 * Try adding another region, adjacent to region 1 and overlapping
+	 * region 2. Should succeed. All regions should coalesce into a
+	 * single region.
+	 */
+	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NONE);
+	ut_asserteq(a, 0);
+
+	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NONE);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
+
+	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NONE);
+	ut_asserteq(c, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, alloc_addr_a, 0x6000,
+		   0, 0, 0, 0);
+
+	ret = lmb_free(alloc_addr_a, 0x6000);
+	ut_asserteq(ret, 0);
+
+	/*
+	 * Add two regions with same flags(LMB_NOOVERWRITE), region1 and
+	 * region2 with a gap between them.
+	 * Try adding another region, adjacent to region 1 and overlapping
+	 * region 2. Should fail.
+	 */
+	a = lmb_alloc_addr(alloc_addr_a, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(a, 0);
+
+	b = lmb_alloc_addr(alloc_addr_a + 0x4000, 0x1000, LMB_NOOVERWRITE);
+	ut_asserteq(b, 0);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
+
+	c = lmb_alloc_addr(alloc_addr_a + 0x1000, 0x5000, LMB_NOOVERWRITE);
+	ut_asserteq(c, -1);
+	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 2, alloc_addr_a, 0x1000,
+		   alloc_addr_a + 0x4000, 0x1000, 0, 0);
+
+	ret = lmb_free(alloc_addr_a, 0x1000);
+	ut_asserteq(ret, 0);
+	ret = lmb_free(alloc_addr_a + 0x4000, 0x1000);
 	ut_asserteq(ret, 0);
 
 	/*  reserve 3 blocks */
@@ -761,7 +867,7 @@ static int lib_test_lmb_flags(struct unit_test_state *uts)
 
 	/* reserve again, new flag */
 	ret = lmb_reserve(0x40010000, 0x10000, LMB_NONE);
-	ut_asserteq(ret, -1);
+	ut_asserteq(ret, -EEXIST);
 	ASSERT_LMB(mem_lst, used_lst, ram, ram_size, 1, 0x40010000, 0x10000,
 		   0, 0, 0, 0);
 

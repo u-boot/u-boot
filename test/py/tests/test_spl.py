@@ -6,16 +6,16 @@ import os.path
 import pytest
 
 @pytest.mark.buildconfigspec('spl_unit_test')
-def test_ut_spl_init(u_boot_console):
+def test_ut_spl_init(ubman):
     """Initialize data for ut spl tests."""
 
-    fn = u_boot_console.config.source_dir + '/spi.bin'
+    fn = ubman.config.source_dir + '/spi.bin'
     if not os.path.exists(fn):
         data = b'\x00' * (2 * 1024 * 1024)
         with open(fn, 'wb') as fh:
             fh.write(data)
 
-def test_spl(u_boot_console, ut_spl_subtest):
+def test_spl(ubman, ut_spl_subtest):
     """Execute a "ut" subtest.
 
     The subtests are collected in function generate_ut_subtest() from linker
@@ -29,16 +29,15 @@ def test_spl(u_boot_console, ut_spl_subtest):
     implemented in C function foo_test_bar().
 
     Args:
-        u_boot_console (ConsoleBase): U-Boot console
+        ubman (ConsoleBase): U-Boot console
         ut_subtest (str): SPL test to be executed (e.g. 'dm platdata_phandle')
     """
     try:
-        cons = u_boot_console
-        cons.restart_uboot_with_flags(['-u', '-k', ut_spl_subtest.split()[1]])
-        output = cons.get_spawn_output().replace('\r', '')
+        ubman.restart_uboot_with_flags(['-u', '-k', ut_spl_subtest.split()[1]])
+        output = ubman.get_spawn_output().replace('\r', '')
         assert 'failures: 0' in output
     finally:
         # Restart afterward in case a non-SPL test is run next. This should not
         # happen since SPL tests are run in their own invocation of test.py, but
         # the cost of doing this is not too great at present.
-        u_boot_console.restart_uboot()
+        ubman.restart_uboot()

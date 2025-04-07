@@ -6,6 +6,8 @@
 #ifndef _K3_DDR_H_
 #define _K3_DDR_H_
 
+#include <spl.h>
+
 int dram_init(void);
 int dram_init_banksize(void);
 

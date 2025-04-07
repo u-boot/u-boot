@@ -600,6 +600,13 @@ choice
 	prompt "Target select"
 	default TARGET_HIKEY
 
+config ARCH_AIROHA
+	bool "Airoha SoCs"
+	select DM
+	select OF_CONTROL
+	help
+	  Support for the Airoha soc.
+
 config ARCH_AT91
 	bool "Atmel AT91"
 	select GPIO_EXTRA_HEADER
@@ -648,7 +655,6 @@ config ARCH_MVEBU
 	select SPL_TIMER if SPL
 	select TIMER if !ARM64
 	select OF_CONTROL
-	select OF_SEPARATE
 	select SPI
 	imply CMD_DM
 
@@ -1110,13 +1116,14 @@ config ARCH_SNAPDRAGON
 	select GPIO_EXTRA_HEADER
 	select MSM_SMEM
 	select OF_CONTROL
-	select OF_SEPARATE
 	select SMEM
 	select SPMI
 	select BOARD_LATE_INIT
 	select OF_BOARD
 	select SAVE_PREV_BL_FDT_ADDR
 	select LINUX_KERNEL_IMAGE_HEADER if !ENABLE_ARM_SOC_BOOT0_HOOK
+	select SYSRESET
+	select SYSRESET_PSCI
 	imply OF_UPSTREAM
 	imply CMD_DM
 
@@ -1128,7 +1135,6 @@ config ARCH_SOCFPGA
 	select CPU_V7A if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select DM
 	select DM_SERIAL
-	select GICV2
 	select GPIO_EXTRA_HEADER
 	select ENABLE_ARM_SOC_BOOT0_HOOK if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select OF_CONTROL
@@ -1150,6 +1156,7 @@ config ARCH_SOCFPGA
 	select SYSRESET_SOCFPGA if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select SYSRESET_SOCFPGA_SOC64 if !TARGET_SOCFPGA_AGILEX5 && \
 	  TARGET_SOCFPGA_SOC64
+	select SYSRESET_PSCI if TARGET_SOCFPGA_AGILEX5
 	imply CMD_DM
 	imply CMD_MTDPARTS
 	imply CRC32_VERIFY
@@ -1185,7 +1192,6 @@ config ARCH_SUNXI
 	select DM_SERIAL
 	select OF_BOARD_SETUP
 	select OF_CONTROL
-	select OF_SEPARATE
 	select PINCTRL
 	select SPECIFY_CONSOLE_INDEX
 	select SPL_SEPARATE_BSS if SPL
@@ -2250,6 +2256,8 @@ config SYS_KWD_CONFIG
 	help
 	  Path within the source directory to the kwbimage.cfg file to use
 	  when packaging the U-Boot image for use.
+
+source "arch/arm/mach-airoha/Kconfig"
 
 source "arch/arm/mach-apple/Kconfig"
 

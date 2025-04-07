@@ -95,6 +95,11 @@
 			compatible = "nuvoton,npcm750-rst", "syscon", "simple-mfd";
 			reg = <0x801000 0x6C>;
 		};
+
+		timer0: timer@f0801068 {
+			compatible = "nuvoton,npcm750-timer";
+			reg = <0x801068 0x8>;
+		};
 	};
 
 	ahb {
@@ -243,13 +248,6 @@
 				clock-names = "clk_apb5";
 				resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_PSPI2>;
 				status = "disabled";
-			};
-
-			timer0: timer@8000 {
-				compatible = "nuvoton,npcm750-timer";
-				interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-				reg = <0x8000 0x1C>;
-				clocks = <&clk NPCM7XX_CLK_TIMER>;
 			};
 
 			watchdog0: watchdog@801C {

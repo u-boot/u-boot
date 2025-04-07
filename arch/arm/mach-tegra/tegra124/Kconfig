@@ -30,6 +30,10 @@ config TARGET_CEI_TK1_SOM
 	  the SoC are assigned to which functions, and the PCIEe
 	  configuration.
 
+config TARGET_MOCHA
+	bool "Xiaomi Tegra124 Mi Pad board"
+	select BOARD_LATE_INIT
+
 config TARGET_NYAN_BIG
 	bool "Google/NVIDIA Nyan-big Chromebook"
 	select BOARD_LATE_INIT
@@ -54,5 +58,6 @@ source "board/nvidia/jetson-tk1/Kconfig"
 source "board/nvidia/nyan-big/Kconfig"
 source "board/nvidia/venice2/Kconfig"
 source "board/toradex/apalis-tk1/Kconfig"
+source "board/xiaomi/mocha/Kconfig"
 
 endif

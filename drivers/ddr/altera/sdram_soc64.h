@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2017-2019 Intel Corporation <www.intel.com>
+ * Copyright (C) 2025 Altera Corporation <www.altera.com>
+ *
  */
 
 #ifndef	_SDRAM_SOC64_H_
@@ -13,11 +15,19 @@ struct altera_sdram_priv {
 	struct reset_ctl_bulk resets;
 };
 
+#if IS_ENABLED(CONFIG_TARGET_SOCFPGA_AGILEX5)
+struct altera_sdram_plat {
+	fdt_addr_t mpfe_base_addr;
+	bool dualport;
+	bool dualemif;
+};
+#else
 struct altera_sdram_plat {
 	void __iomem *hmc;
 	void __iomem *ddr_sch;
 	void __iomem *iomhc;
 };
+#endif
 
 /* ECC HMC registers */
 #define DDRIOCTRL			0x8

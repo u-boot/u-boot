@@ -176,6 +176,8 @@ Boot switches should be changed with power off.
      - 11011100
      - 00000000
 
+.. include:: k3-common.rst
+
 Further Information
 -------------------
 

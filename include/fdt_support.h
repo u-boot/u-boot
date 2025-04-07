@@ -471,6 +471,20 @@ int fdt_valid(struct fdt_header **blobp);
  */
 int fdt_get_cells_len(const void *blob, char *nr_cells_name);
 
+/**
+ * fdt_fixup_pmem_region() - add a pmem node on the device tree
+ *
+ * This functions adds/updates a pmem node to the device tree.
+ * Usually used with EFI installers to preserve installer
+ * images
+ *
+ * @fdt:	device tree provided by caller
+ * @addr:	start address of the pmem node
+ * @size:	size of the memory of the pmem node
+ * Return:	0 on success or < 0 on failure
+ */
+int fdt_fixup_pmem_region(void *fdt, u64 pmem_start, u64 pmem_size);
+
 #endif /* !USE_HOSTCC */
 
 #ifdef USE_HOSTCC

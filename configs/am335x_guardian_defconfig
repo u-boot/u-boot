@@ -77,6 +77,7 @@ CONFIG_SPL_DM=y
 CONFIG_REGMAP=y
 CONFIG_BOOTCOUNT_LIMIT=y
 CONFIG_BOOTCOUNT_AM33XX_NVMEM=y
+CONFIG_BOOTCOUNT_ALTBOOTCMD="setenv boot_syslinux_conf \"extlinux/extlinux-rollback.conf\"; run distro_bootcmd; setenv boot_syslinux_conf \"extlinux/extlinux.conf\"; run bootcmd_ubifs0;"
 CONFIG_CLK=y
 CONFIG_CLK_CCF=y
 CONFIG_CLK_TI_AM3_DPLL=y

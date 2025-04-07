@@ -100,7 +100,7 @@ class Toolchain:
         else:
             self.priority = priority
         if test:
-            result = command.run_pipe([cmd], capture=True, env=env,
+            result = command.run_one(*cmd, capture=True, env=env,
                                      raise_on_error=False)
             self.ok = result.return_code == 0
             if verbose:

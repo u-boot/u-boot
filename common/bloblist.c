@@ -488,6 +488,9 @@ int bloblist_reloc(void *to, uint to_size)
 {
 	struct bloblist_hdr *hdr;
 
+	if (!to_size)
+		return 0;
+
 	if (to_size < gd->bloblist->total_size)
 		return -ENOSPC;
 
@@ -502,8 +505,7 @@ int bloblist_reloc(void *to, uint to_size)
 /*
  * Weak default function for getting bloblist from boot args.
  */
-int __weak xferlist_from_boot_arg(ulong __always_unused addr,
-				  ulong __always_unused size)
+int __weak xferlist_from_boot_arg(ulong __always_unused *addr)
 {
 	return -ENOENT;
 }
@@ -511,38 +513,46 @@ int __weak xferlist_from_boot_arg(ulong __always_unused addr,
 int bloblist_init(void)
 {
 	bool fixed = IS_ENABLED(CONFIG_BLOBLIST_FIXED);
-	int ret = -ENOENT;
+	int ret = 0;
 	ulong addr = 0, size;
-	/*
-	 * If U-Boot is not in the first phase, an existing bloblist must be
-	 * at a fixed address.
-	 */
-	bool from_addr = fixed && !xpl_is_first_phase();
-	/*
-	 * If U-Boot is in the first phase that an arch custom routine should
-	 * install the bloblist passed from previous loader to this fixed
-	 * address.
-	 */
-	bool from_boot_arg = fixed && xpl_is_first_phase();
 
-	if (xpl_prev_phase() == PHASE_TPL && !IS_ENABLED(CONFIG_TPL_BLOBLIST))
-		from_addr = false;
-	if (fixed)
-		addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
-				      CONFIG_BLOBLIST_ADDR);
-	size = CONFIG_BLOBLIST_SIZE;
+	/* Check if a valid transfer list passed in */
+	if (!xferlist_from_boot_arg(&addr)) {
+		size = bloblist_get_total_size();
+	} else {
+		/*
+		 * If U-Boot is not in the first phase, an existing bloblist must
+		 * be at a fixed address.
+		 */
+		bool from_addr = fixed && !xpl_is_first_phase();
 
-	if (from_boot_arg)
-		ret = xferlist_from_boot_arg(addr, size);
-	else if (from_addr)
-		ret = bloblist_check(addr, size);
+		/*
+		 * If Firmware Handoff is mandatory but no transfer list is
+		 * observed, report it as an error.
+		 */
+		if (IS_ENABLED(CONFIG_BLOBLIST_PASSAGE_MANDATORY))
+			return -ENOENT;
 
-	if (ret)
-		log_warning("Bloblist at %lx not found (err=%d)\n",
-			    addr, ret);
-	else
-		/* Get the real size */
-		size = gd->bloblist->total_size;
+		ret = -ENOENT;
+
+		if (xpl_prev_phase() == PHASE_TPL &&
+		    !IS_ENABLED(CONFIG_TPL_BLOBLIST))
+			from_addr = false;
+		if (fixed)
+			addr = IF_ENABLED_INT(CONFIG_BLOBLIST_FIXED,
+					      CONFIG_BLOBLIST_ADDR);
+		size = CONFIG_BLOBLIST_SIZE;
+
+		if (from_addr)
+			ret = bloblist_check(addr, size);
+
+		if (ret)
+			log_warning("Bloblist at %lx not found (err=%d)\n",
+				    addr, ret);
+		else
+			/* Get the real size */
+			size = gd->bloblist->total_size;
+	}
 
 	if (ret) {
 		/*
@@ -567,6 +577,7 @@ int bloblist_init(void)
 		log_debug("Found existing bloblist size %lx at %lx\n", size,
 			  addr);
 	}
+
 	if (ret)
 		return log_msg_ret("ini", ret);
 	gd->flags |= GD_FLG_BLOBLIST_READY;
@@ -587,10 +598,11 @@ int bloblist_maybe_init(void)
 	return 0;
 }
 
-int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig)
+int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig, ulong xlist)
 {
 	u64 version = BLOBLIST_REGCONV_VER;
 	ulong sigval;
+	int ret;
 
 	if ((IS_ENABLED(CONFIG_64BIT) && !IS_ENABLED(CONFIG_SPL_BUILD)) ||
 			(IS_ENABLED(CONFIG_SPL_64BIT) && IS_ENABLED(CONFIG_SPL_BUILD))) {
@@ -601,8 +613,14 @@ int bloblist_check_reg_conv(ulong rfdt, ulong rzero, ulong rsig)
 			 ((version  & BLOBLIST_REGCONV_MASK) << BLOBLIST_REGCONV_SHIFT_32));
 	}
 
-	if (rzero || rsig != sigval ||
-	    rfdt != (ulong)bloblist_find(BLOBLISTT_CONTROL_FDT, 0)) {
+	if (rzero || rsig != sigval)
+		return -EIO;
+
+	ret = bloblist_check(xlist, 0);
+	if (ret)
+		return ret;
+
+	if (rfdt != (ulong)bloblist_find(BLOBLISTT_CONTROL_FDT, 0)) {
 		gd->bloblist = NULL;  /* Reset the gd bloblist pointer */
 		return -EIO;
 	}

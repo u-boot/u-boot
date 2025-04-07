@@ -255,6 +255,7 @@ static int sharp_lq101r1sx01_probe(struct udevice *dev)
 	/* fill characteristics of DSI data link */
 	plat->lanes = 4;
 	plat->format = MIPI_DSI_FMT_RGB888;
+	plat->mode_flags = MIPI_DSI_MODE_LPM;
 
 	return sharp_lq101r1sx01_hw_init(dev);
 }

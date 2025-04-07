@@ -108,36 +108,37 @@
 		};
 	};
 
-	panel: panel {
-		compatible = "hitachi,tx13d100vm0eaa";
+	spi@7000dc00 {
+		bridge-spi@2 {
+			/*
+			 * HITACHI/KOE 5" 768x1024 TX13D100VM0EAA MIPI DSI panel
+			 */
+			panel@0 {
+				compatible = "koe,tx13d100vm0eaa";
+				reg = <0>;
 
-		reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_HIGH>;
+				reset-gpios = <&gpio TEGRA_GPIO(W, 0) GPIO_ACTIVE_LOW>;
 
-		renesas,gamma = <3>;
-		renesas,inversion;
-		renesas,contrast;
+				renesas,gamma = <3>;
+				renesas,inversion;
+				renesas,contrast;
 
-		vcc-supply = <&vcc_3v0_lcd>;
-		iovcc-supply = <&iovcc_1v8_lcd>;
+				vcc-supply = <&vcc_3v0_lcd>;
+				iovcc-supply = <&iovcc_1v8_lcd>;
 
-		backlight = <&backlight>;
+				backlight = <&backlight>;
+
+				port {
+					panel_input: endpoint {
+						remote-endpoint = <&bridge_output>;
+					};
+				};
+			};
+		};
 	};
 
-	vcc_3v0_lcd: regulator-lcd {
-		compatible = "regulator-fixed";
-		regulator-name = "vcc_3v0_lcd";
-		regulator-min-microvolt = <3000000>;
-		regulator-max-microvolt = <3000000>;
+	regulator-lcd3v {
 		gpio = <&gpio TEGRA_GPIO(BB, 0) GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-	};
-
-	iovcc_1v8_lcd: regulator-lcdvio {
-		compatible = "regulator-fixed";
-		regulator-name = "iovcc_1v8_lcd";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		gpio = <&gpio TEGRA_GPIO(Y, 0) GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 };

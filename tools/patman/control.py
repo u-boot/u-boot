@@ -12,8 +12,8 @@ import os
 import sys
 
 from patman import checkpatch
-from patman import gitutil
 from patman import patchstream
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 
 

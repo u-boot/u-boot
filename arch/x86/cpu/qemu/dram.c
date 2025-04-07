@@ -4,7 +4,9 @@
  */
 
 #include <init.h>
+#include <spl.h>
 #include <asm/global_data.h>
+#include <asm/mtrr.h>
 #include <asm/post.h>
 #include <asm/arch/qemu.h>
 #include <linux/sizes.h>
@@ -43,6 +45,22 @@ int dram_init(void)
 	gd->ram_size = qemu_get_low_memory_size();
 	gd->ram_size += qemu_get_high_memory_size();
 	post_code(POST_DRAM);
+
+	if (xpl_phase() == PHASE_BOARD_F) {
+		u64 total = gd->ram_size;
+		int ret;
+
+		if (total > SZ_2G + SZ_1G)
+			total += SZ_1G;
+		ret = mtrr_add_request(MTRR_TYPE_WRBACK, 0, total);
+		if (ret != -ENOSYS) {
+			if (ret)
+				return log_msg_ret("mta", ret);
+			ret = mtrr_commit(false);
+			if (ret)
+				return log_msg_ret("mtc", ret);
+		}
+	}
 
 	return 0;
 }

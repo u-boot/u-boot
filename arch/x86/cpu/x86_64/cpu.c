@@ -59,11 +59,6 @@ int x86_cpu_reinit_f(void)
 	return 0;
 }
 
-int cpu_phys_address_size(void)
-{
-	return CONFIG_CPU_ADDR_BITS;
-}
-
 int x86_cpu_init_f(void)
 {
 	return 0;

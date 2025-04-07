@@ -9,6 +9,7 @@
 #include <log.h>
 #include <backlight.h>
 #include <panel.h>
+#include <video_bridge.h>
 #include <linux/delay.h>
 #include <linux/err.h>
 #include <power/regulator.h>
@@ -206,7 +207,6 @@ struct dp501_priv {
 	struct udevice *chip2;
 
 	struct udevice *vdd;
-	struct gpio_desc reset_gpio;
 	struct gpio_desc enable_gpio;
 };
 
@@ -484,16 +484,19 @@ static int dp501_panel_timings(struct udevice *dev,
 	return 0;
 }
 
-static void dp501_hw_init(struct dp501_priv *priv)
+static void dp501_hw_init(struct udevice *dev)
 {
-	dm_gpio_set_value(&priv->reset_gpio, 1);
+	struct dp501_priv *priv = dev_get_priv(dev);
+	struct video_bridge_priv *uc_priv = dev_get_uclass_priv(dev);
+
+	dm_gpio_set_value(&uc_priv->reset, 1);
 
 	regulator_set_enable_if_allowed(priv->vdd, 1);
 	dm_gpio_set_value(&priv->enable_gpio, 1);
 
 	udelay(100);
 
-	dm_gpio_set_value(&priv->reset_gpio, 0);
+	dm_gpio_set_value(&uc_priv->reset, 0);
 	mdelay(80);
 }
 
@@ -521,14 +524,6 @@ static int dp501_setup(struct udevice *dev)
 	}
 
 	/* get gpios */
-	ret = gpio_request_by_name(dev, "reset-gpios", 0,
-				   &priv->reset_gpio, GPIOD_IS_OUT);
-	if (ret) {
-		log_debug("%s: Could not decode reset-gpios (%d)\n",
-			  __func__, ret);
-		return ret;
-	}
-
 	ret = gpio_request_by_name(dev, "enable-gpios", 0,
 				   &priv->enable_gpio, GPIOD_IS_OUT);
 	if (ret) {
@@ -544,7 +539,7 @@ static int dp501_setup(struct udevice *dev)
 		return ret;
 	}
 
-	dp501_hw_init(priv);
+	dp501_hw_init(dev);
 
 	/* get EDID */
 	return panel_get_display_timing(priv->panel, &priv->timing);
@@ -558,8 +553,8 @@ static int dp501_probe(struct udevice *dev)
 	return dp501_setup(dev);
 }
 
-struct panel_ops dp501_ops = {
-	.enable_backlight	= dp501_attach,
+static const struct video_bridge_ops dp501_ops = {
+	.attach			= dp501_attach,
 	.set_backlight		= dp501_set_backlight,
 	.get_display_timing	= dp501_panel_timings,
 };
@@ -571,7 +566,7 @@ static const struct udevice_id dp501_ids[] = {
 
 U_BOOT_DRIVER(dp501) = {
 	.name		= "dp501",
-	.id		= UCLASS_PANEL,
+	.id		= UCLASS_VIDEO_BRIDGE,
 	.of_match	= dp501_ids,
 	.ops		= &dp501_ops,
 	.probe		= dp501_probe,

@@ -247,7 +247,7 @@ config CMD_ENTERRCM
 
 config CMD_EBTUPDATE
 	bool "Enable 'ebtupdate' command"
-	depends on TEGRA20 || TEGRA30
+	depends on TEGRA20 || TEGRA30 || TEGRA124
 	select TEGRA_CRYPTO
 	help
 	  Updating u-boot from within u-boot in rather complex or even

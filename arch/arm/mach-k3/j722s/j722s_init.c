@@ -27,6 +27,9 @@ struct fwl_data cbass_main_fwls[] = {
 u32 bootindex __section(".data");
 static struct rom_extended_boot_data bootdata __section(".data");
 
+#define CTRLMMR_MCU_RST_CTRL	(MCU_CTRL_MMR0_BASE + 0x18170)
+#define RST_CTRL_ESM_ERROR_RST_EN_Z_MASK  (~BIT(17))
+
 static void store_boot_info_from_rom(void)
 {
 	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
@@ -161,11 +164,40 @@ static void k3_mem_init(void)
 	}
 }
 
+static __maybe_unused void enable_mcu_esm_reset(void)
+{
+	/* Set CTRLMMR_MCU_RST_CTRL:MCU_ESM_ERROR_RST_EN_Z  to '0' (low active) */
+	u32 stat = readl(CTRLMMR_MCU_RST_CTRL);
+
+	stat &= RST_CTRL_ESM_ERROR_RST_EN_Z_MASK;
+	writel(stat, CTRLMMR_MCU_RST_CTRL);
+}
+
 void board_init_f(ulong dummy)
 {
+	int ret;
+	struct udevice *dev;
+
 	k3_spl_init();
 	k3_mem_init();
 	setup_qos();
+
+	if (IS_ENABLED(CONFIG_ESM_K3)) {
+		/* Probe/configure ESM0 */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@420000", &dev);
+		if (ret) {
+			printf("esm main init failed: %d\n", ret);
+			return;
+		}
+
+		/* Probe/configure MCUESM */
+		ret = uclass_get_device_by_name(UCLASS_MISC, "esm@4100000", &dev);
+		if (ret) {
+			printf("esm mcu init failed: %d\n", ret);
+			return;
+		}
+		enable_mcu_esm_reset();
+	}
 }
 
 static u32 __get_backup_bootmedia(u32 devstat)

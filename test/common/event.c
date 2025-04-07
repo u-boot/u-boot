@@ -91,7 +91,7 @@ static int test_event_probe(struct unit_test_state *uts)
 	struct test_state state;
 	struct udevice *dev;
 
-	if (!IS_ENABLED(SANDBOX))
+	if (!IS_ENABLED(CONFIG_SANDBOX))
 		return -EAGAIN;
 
 	state.val = 0;

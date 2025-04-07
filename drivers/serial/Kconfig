@@ -789,6 +789,12 @@ config SPL_SYS_NS16550_SERIAL
 	default y if SYS_NS16550_SERIAL || ARCH_SUNXI || ARCH_OMAP2PLUS
 	select SYS_NS16550
 
+config TPL_SYS_NS16550_SERIAL
+	bool "NS16550 UART or compatible legacy driver in TPL"
+	depends on TPL && !TPL_DM_SERIAL
+	default y if SPL_SYS_NS16550_SERIAL
+	select SYS_NS16550
+
 config SYS_NS16550
 	bool "NS16550 UART or compatible"
 	help

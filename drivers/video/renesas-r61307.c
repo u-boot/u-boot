@@ -254,17 +254,17 @@ static int renesas_r61307_hw_init(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
 	if (ret) {
-		log_debug("%s: changing reset-gpio failed (%d)\n",
+		log_debug("%s: entering reset failed (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
 	mdelay(5);
 
-	ret = dm_gpio_set_value(&priv->reset_gpio, 1);
+	ret = dm_gpio_set_value(&priv->reset_gpio, 0);
 	if (ret) {
-		log_debug("%s: changing reset-gpio failed (%d)\n",
+		log_debug("%s: exiting reset failed (%d)\n",
 			  __func__, ret);
 		return ret;
 	}
@@ -281,7 +281,8 @@ static int renesas_r61307_probe(struct udevice *dev)
 	/* fill characteristics of DSI data link */
 	plat->lanes = 4;
 	plat->format = MIPI_DSI_FMT_RGB888;
-	plat->mode_flags = MIPI_DSI_MODE_VIDEO;
+	plat->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+			   MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
 
 	return renesas_r61307_hw_init(dev);
 }
@@ -294,7 +295,7 @@ static const struct panel_ops renesas_r61307_ops = {
 
 static const struct udevice_id renesas_r61307_ids[] = {
 	{ .compatible = "koe,tx13d100vm0eaa" },
-	{ .compatible = "hitachi,tx13d100vm0eaa" },
+	{ .compatible = "hit,tx13d100vm0eaa" },
 	{ }
 };
 

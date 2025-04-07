@@ -66,6 +66,7 @@ int acpi_create_dmar(struct acpi_dmar *dmar, enum dmar_flags flags)
 
 	dmar->host_address_width = info.address_width - 1;
 	dmar->flags = flags;
+	header->checksum = table_compute_checksum(dmar, header->length);
 
 	return 0;
 }
@@ -255,8 +256,8 @@ int acpi_write_fadt(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	header->creator_revision = 1;
 	fadt->minor_revision = 2;
 
-	fadt->x_firmware_ctrl = map_to_sysmem(ctx->facs);
-	fadt->x_dsdt = map_to_sysmem(ctx->dsdt);
+	fadt->x_firmware_ctrl = nomap_to_sysmem(ctx->facs);
+	fadt->x_dsdt = nomap_to_sysmem(ctx->dsdt);
 
 	if (fadt->x_firmware_ctrl < 0x100000000ULL)
 		fadt->firmware_ctrl = fadt->x_firmware_ctrl;
@@ -615,6 +616,7 @@ int acpi_iort_add_named_component(struct acpi_ctx *ctx,
 	node->length += strlen(device_name) + 1;
 
 	comp = (struct acpi_iort_named_component *)node->node_data;
+	memset(comp, '\0', sizeof(struct acpi_iort_named_component));
 
 	comp->node_flags = node_flags;
 	comp->memory_properties = memory_properties;
@@ -635,6 +637,7 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 		     const struct acpi_iort_id_mapping *map)
 {
 	struct acpi_iort_id_mapping *mapping;
+	struct acpi_iort_node *output_node;
 	struct acpi_iort_node *node;
 	struct acpi_iort_rc *rc;
 	int offset;
@@ -646,12 +649,18 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 
 	node->type = ACPI_IORT_NODE_PCI_ROOT_COMPLEX;
 	node->revision = 2;
+	node->mapping_count = num_mappings;
+	if (num_mappings)
+		node->mapping_offset = sizeof(struct acpi_iort_node) +
+				       sizeof(struct acpi_iort_rc);
 
 	node->length = sizeof(struct acpi_iort_node);
 	node->length += sizeof(struct acpi_iort_rc);
 	node->length += sizeof(struct acpi_iort_id_mapping) * num_mappings;
 
 	rc = (struct acpi_iort_rc *)node->node_data;
+	memset(rc, '\0', sizeof(struct acpi_iort_rc));
+
 	rc->mem_access_properties = mem_access_properties;
 	rc->ats_attributes = ats_attributes;
 	rc->pci_segment_number = pci_segment_number;
@@ -659,6 +668,13 @@ int acpi_iort_add_rc(struct acpi_ctx *ctx,
 
 	mapping = (struct acpi_iort_id_mapping *)(rc + 1);
 	for (int i = 0; i < num_mappings; i++) {
+		/* Validate input */
+		output_node = (struct acpi_iort_node *)ctx->tab_start + map[i].output_reference;
+		/* ID mappings can use SMMUs or ITS groups as output references */
+		assert(output_node && ((output_node->type == ACPI_IORT_NODE_ITS_GROUP) ||
+				       (output_node->type == ACPI_IORT_NODE_SMMU) ||
+				       (output_node->type == ACPI_IORT_NODE_SMMU_V3)));
+
 		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
 		mapping++;
 	}
@@ -683,6 +699,7 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 			  const struct acpi_iort_id_mapping *map)
 {
 	struct acpi_iort_node *node;
+	struct acpi_iort_node *output_node;
 	struct acpi_iort_smmu_v3 *smmu;
 	struct acpi_iort_id_mapping *mapping;
 	int offset;
@@ -695,13 +712,16 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 	node->type = ACPI_IORT_NODE_SMMU_V3;
 	node->revision = 5;
 	node->mapping_count = num_mappings;
-	node->mapping_offset = sizeof(struct acpi_iort_node) + sizeof(struct acpi_iort_smmu_v3);
+	if (num_mappings)
+		node->mapping_offset = sizeof(struct acpi_iort_node) +
+				       sizeof(struct acpi_iort_smmu_v3);
 
 	node->length = sizeof(struct acpi_iort_node);
 	node->length += sizeof(struct acpi_iort_smmu_v3);
 	node->length += sizeof(struct acpi_iort_id_mapping) * num_mappings;
 
 	smmu = (struct acpi_iort_smmu_v3 *)node->node_data;
+	memset(smmu, '\0', sizeof(struct acpi_iort_smmu_v3));
 
 	smmu->base_address = base_address;
 	smmu->flags = flags;
@@ -716,6 +736,14 @@ int acpi_iort_add_smmu_v3(struct acpi_ctx *ctx,
 
 	mapping = (struct acpi_iort_id_mapping *)(smmu + 1);
 	for (int i = 0; i < num_mappings; i++) {
+		/* Validate input */
+		output_node = (struct acpi_iort_node *)ctx->tab_start + map[i].output_reference;
+		/*
+		 * ID mappings of an SMMUv3 node can only have ITS group nodes
+		 * as output references.
+		 */
+		assert(output_node && output_node->type == ACPI_IORT_NODE_ITS_GROUP);
+
 		memcpy(mapping, &map[i], sizeof(struct acpi_iort_id_mapping));
 		mapping++;
 	}

@@ -9,6 +9,8 @@
 #include <dm.h>
 #include <log.h>
 #include <asm/global_data.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <asm/hardware.h>
 #include <linux/bitops.h>
@@ -492,21 +494,58 @@ const struct pinctrl_ops at91_pinctrl_ops  = {
 	.set_state = at91_pinctrl_set_state,
 };
 
+/**
+ * at91_pinctrl_bind() - Iterates through all subnodes of the pinctrl device
+ * in the DT and binds them to U-Boot's device model. Each subnode
+ * typically represents a GPIO controller or pin configuration data.
+ *
+ * @dev: Pointer to the pinctrl device
+ *
+ * Returns 0 on success or negative error on failure
+ */
+static int at91_pinctrl_bind(struct udevice *dev)
+{
+	ofnode gpio_node;
+	struct udevice *gpio;
+	int ret;
+
+	ofnode_for_each_subnode(gpio_node, dev_ofnode(dev)) {
+		ret = lists_bind_fdt(dev, gpio_node, &gpio, NULL, false);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static int at91_pinctrl_probe(struct udevice *dev)
 {
 	struct at91_pinctrl_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr_base;
+	struct udevice *gpio_node;
 	int index;
 
-	for (index = 0; index < MAX_GPIO_BANKS; index++) {
-		addr_base = devfdt_get_addr_index(dev, index);
-		if (addr_base == FDT_ADDR_T_NONE)
-			break;
+	if (list_empty(&dev->child_head)) {
+		for (index = 0; index < MAX_GPIO_BANKS; index++) {
+			addr_base = devfdt_get_addr_index(dev, index);
+			if (addr_base == FDT_ADDR_T_NONE)
+				break;
 
-		priv->reg_base[index] = (struct at91_port *)addr_base;
+			priv->reg_base[index] = (struct at91_port *)addr_base;
+		}
+	} else {
+		index = 0;
+		list_for_each_entry(gpio_node, &dev->child_head, sibling_node) {
+			addr_base = dev_read_addr(gpio_node);
+			if (addr_base == FDT_ADDR_T_NONE)
+				break;
+
+			priv->reg_base[index] = (struct at91_port *)addr_base;
+			index++;
+		}
 	}
 
-	priv->nbanks = index;
+	priv->nbanks = index < MAX_GPIO_BANKS ? index : MAX_GPIO_BANKS;
 
 	return 0;
 }
@@ -524,6 +563,7 @@ U_BOOT_DRIVER(atmel_sama5d3_pinctrl) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = at91_pinctrl_match,
 	.probe = at91_pinctrl_probe,
+	.bind = at91_pinctrl_bind,
 	.priv_auto	= sizeof(struct at91_pinctrl_priv),
 	.ops = &at91_pinctrl_ops,
 };

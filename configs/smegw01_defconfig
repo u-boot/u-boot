@@ -60,6 +60,7 @@ CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_BOUNCE_BUFFER=y
 CONFIG_BOOTCOUNT_LIMIT=y
 CONFIG_BOOTCOUNT_ENV=y
+CONFIG_BOOTCOUNT_ALTBOOTCMD="echo Performing rollback...; if test \"${mmcpart_committed}\" = 1; then setenv mmcpart 2; setenv mmcpart_committed 2; else setenv mmcpart 1; setenv mmcpart_committed 1; fi; setenv bootcount 0; setenv upgrade_available; setenv ustate 3; saveenv; run bootcmd;"
 CONFIG_DFU_MMC=y
 CONFIG_DM_I2C=y
 CONFIG_SUPPORT_EMMC_BOOT=y

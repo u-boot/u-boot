@@ -303,6 +303,7 @@ class TestBintool(unittest.TestCase):
                 # See Bintool.build_from_git()
                 tmpdir = cmd[2]
                 self.fname = os.path.join(tmpdir, 'pathname')
+                os.makedirs(os.path.dirname(tmpdir), exist_ok=True)
                 tools.write_file(self.fname, b'hello')
 
         expected = b'this is a test'

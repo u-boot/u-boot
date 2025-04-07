@@ -7,8 +7,8 @@ import os
 import shlex
 import shutil
 
-from patman import gitutil
 from u_boot_pylib import command
+from u_boot_pylib import gitutil
 
 
 def find_get_maintainer(script_file_name):

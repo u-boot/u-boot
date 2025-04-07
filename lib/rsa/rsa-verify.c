@@ -449,6 +449,11 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	}
 
 	algo = fdt_getprop(blob, node, "algo", NULL);
+	if (!algo) {
+		debug("%s: Missing 'algo' property\n", __func__);
+		return -EFAULT;
+	}
+
 	if (strcmp(info->name, algo)) {
 		debug("%s: Wrong algo: have %s, expected %s\n", __func__,
 		      info->name, algo);
@@ -564,6 +569,11 @@ int rsa_verify(struct image_sign_info *info,
 	/* Reserve memory for maximum checksum-length */
 	uint8_t hash[info->crypto->key_len];
 	int ret;
+
+#ifdef USE_HOSTCC
+	if (!info->fdt_blob)
+		return rsa_verify_openssl(info, region, region_count, sig, sig_len);
+#endif
 
 	/*
 	 * Verify that the checksum-length does not exceed the

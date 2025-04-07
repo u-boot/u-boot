@@ -293,27 +293,6 @@ config PANEL_HX8238D
 
 source "drivers/video/fonts/Kconfig"
 
-config VIDCONSOLE_AS_LCD
-	bool "Use 'vidconsole' when CONFIG_VIDCONSOLE_AS_NAME string is seen in stdout"
-	help
-	  This is a work-around for boards which have 'lcd' or 'vga' in their
-	  stdout environment variable, but have moved to use driver model for
-	  video. In this case the console will no-longer work. While it is
-	  possible to update the environment, the breakage may be confusing for
-	  users. This option will be removed around the end of 2020.
-
-config VIDCONSOLE_AS_NAME
-	string "Use 'vidconsole' when string defined here is seen in stdout"
-	depends on VIDCONSOLE_AS_LCD
-	default "lcd" if LCD || TEGRA_COMMON
-	default "vga" if !LCD
-	help
-	  This is a work-around for boards which have 'lcd' or 'vga' in their
-	  stdout environment variable, but have moved to use driver model for
-	  video. In this case the console will no-longer work. While it is
-	  possible to update the environment, the breakage may be confusing for
-	  users. This option will be removed around the end of 2020.
-
 config VIDEO_BOCHS
 	bool "Enable Bochs video emulation for QEMU"
 	help
@@ -599,6 +578,15 @@ config VIDEO_LCD_SAMSUNG_LTL106HL02
 	  LCD module found in Microsoft Surface 2. The panel has a FullHD
 	  resolution (1920x1080).
 
+config VIDEO_LCD_SHARP_LQ079L1SX01
+	tristate "Sharp LQ079L1SX01 1536x2048 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for Sharp LQ079L1SX01
+	  LCD module found in Xiaomi Mi Pad tablet. The panel has a QXGA
+	  resolution (1536x2048).
+
 config VIDEO_LCD_SHARP_LQ101R1SX01
 	tristate "Sharp LQ101R1SX01 2560x1600 DSI video mode panel"
 	depends on PANEL && BACKLIGHT
@@ -712,6 +700,12 @@ config I2C_EDID
 	help
 	   This enables library for accessing EDID data from an LCD panel.
 
+config I2C_EDID_STANDARD
+	bool "Enable standard timings EDID library expansion"
+	depends on I2C_EDID
+	help
+	   This enables standard timings expansion for EDID data from an LCD panel.
+
 config DISPLAY
 	bool "Enable Display support"
 	depends on DM
@@ -742,6 +736,16 @@ config BACKLIGHT_LM3533
 	  Say Y to enable the backlight driver for National Semiconductor / TI
 	  LM3533 Lighting Power chip. Only Bank A is supported as for now.
 	  Supported backlight level range is from 2 to 255 with step of 1.
+
+config BACKLIGHT_LP855x
+	bool "Backlight Driver for LP855x"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for National Semiconductor / TI
+	  LP8550/1/2/3/5/6/7 LED Backlight Driver. Only register driven mode is
+	  supported for now, PWM mode can be added if there will be any need in
+	  it. Supported backlight level range is from 0 to 255 with step of 1.
 
 source "drivers/video/ti/Kconfig"
 

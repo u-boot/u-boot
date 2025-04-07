@@ -311,8 +311,7 @@ static const char *ipq4019_get_pin_name(struct udevice *dev,
 	return pin_name;
 }
 
-static unsigned int ipq4019_get_function_mux(unsigned int pin,
-					     unsigned int selector)
+static int ipq4019_get_function_mux(unsigned int pin, unsigned int selector)
 {
 	unsigned int i;
 	const msm_pin_function *func = ipq4019_pin_functions + pin;

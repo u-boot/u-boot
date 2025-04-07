@@ -27,6 +27,7 @@ config EFI_LOADER
 	select REGEX
 	imply FAT
 	imply FAT_WRITE
+	imply FAT_RENAME
 	imply USB_KEYBOARD_FN_KEYS
 	imply VIDEO_ANSI
 	help

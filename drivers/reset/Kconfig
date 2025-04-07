@@ -49,6 +49,13 @@ config TEGRA186_RESET
 	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config RESET_AIROHA
+	bool "Reset controller driver for Airoha SoCs"
+	depends on DM_RESET && ARCH_AIROHA
+	default y
+	help
+	  Support for reset controller on Airoha SoCs.
+
 config RESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) reset driver"
 	depends on DM_RESET && TI_SCI_PROTOCOL
@@ -235,4 +242,20 @@ config RESET_AT91
 	  This enables the Reset Controller driver support for Microchip/Atmel
 	  SoCs. Mainly used to expose assert/deassert methods to other drivers
 	  that require it.
+
+config RESET_RZG2L_USBPHY_CTRL
+	bool "Enable support for Renesas RZ/G2L USB 2.0 PHY control"
+	depends on DM_RESET
+	select REGULATOR_RZG2L_USBPHY
+	help
+	  Enable support for controlling USB 2.0 PHY resets on the Renesas
+	  RZ/G2L SoC. This is required for USB 2.0 functionality to work on this
+	  SoC.
+
+config RESET_SPACEMIT_K1
+	bool "Support for SPACEMIT's K1 Reset driver"
+	depends on DM_RESET
+	help
+	  Support for SPACEMIT's K1 Reset system. Basic Assert/Deassert
+	  is supported.
 endmenu

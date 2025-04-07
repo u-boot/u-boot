@@ -124,7 +124,18 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u8		*rxd = din;
 	int		cpha = !!(priv->mode & SPI_CPHA);
 	int		cidle = !!(priv->mode & SPI_CPOL);
+	int		txrx = plat->flags;
 	unsigned int	j;
+
+	if (priv->mode & SPI_3WIRE) {
+		if (txd && rxd)
+			return -EINVAL;
+
+		txrx = txd ? SPI_MASTER_NO_RX : SPI_MASTER_NO_TX;
+		dm_gpio_set_dir_flags(&plat->mosi,
+				      txd ? GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE :
+					    GPIOD_IS_IN | GPIOD_PULL_UP);
+	}
 
 	debug("spi_xfer: slave %s:%s dout %08X din %08X bitlen %u\n",
 	      dev->parent->name, dev->name, *(uint *)txd, *(uint *)rxd,
@@ -160,7 +171,7 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		 */
 		if (cpha)
 			soft_spi_scl(dev, !cidle);
-		if ((plat->flags & SPI_MASTER_NO_TX) == 0)
+		if ((txrx & SPI_MASTER_NO_TX) == 0)
 			soft_spi_sda(dev, !!(tmpdout & 0x80));
 		udelay(plat->spi_delay_us);
 
@@ -174,8 +185,10 @@ static int soft_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		else
 			soft_spi_scl(dev, cidle);
 		tmpdin	<<= 1;
-		if ((plat->flags & SPI_MASTER_NO_RX) == 0)
-			tmpdin	|= dm_gpio_get_value(&plat->miso);
+		if ((txrx & SPI_MASTER_NO_RX) == 0)
+			tmpdin |= dm_gpio_get_value((priv->mode & SPI_3WIRE) ?
+							    &plat->mosi :
+							    &plat->miso);
 		tmpdout	<<= 1;
 		udelay(plat->spi_delay_us);
 

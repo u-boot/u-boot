@@ -445,7 +445,9 @@ config CIRCBUF
 source "lib/dhry/Kconfig"
 
 menu "Alternative crypto libraries"
-source lib/mbedtls/Kconfig
+
+source "lib/mbedtls/Kconfig"
+
 endmenu
 
 menu "Security support"
@@ -1008,14 +1010,14 @@ config OF_LIBFDT_OVERLAY
 	  This enables the FDT library (libfdt) overlay support.
 
 config SYS_FDT_PAD
-	hex "Maximum size of the FDT memory area passeed to the OS"
+	hex "Free space added to device-tree before booting"
 	depends on OF_LIBFDT
 	default 0x13000 if FMAN_ENET || QE || U_QE
 	default 0x3000
 	help
-	  During OS boot, we allocate a region of memory within the bootmap
-	  for the FDT. This is the size that we will expand the FDT that we
-	  are using will be extended to be, in bytes.
+	  The operating system may need a free area at the end of the device-
+	  tree for fix-ups. This setting defines by how many bytes U-Boot
+	  extends the device-tree before booting.
 
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"

@@ -676,6 +676,7 @@ static int read_trace_config(FILE *fin)
 		if (!tok) {
 			error("Invalid trace config data on line %d\n",
 			      linenum);
+			free(line);
 			return -1;
 		}
 		if (0 == strcmp(tok, "include-func")) {
@@ -685,6 +686,7 @@ static int read_trace_config(FILE *fin)
 		} else {
 			error("Unknown command in trace config data line %d\n",
 			      linenum);
+			free(line);
 			return -1;
 		}
 
@@ -692,6 +694,7 @@ static int read_trace_config(FILE *fin)
 		if (!tok) {
 			error("Missing pattern in trace config data line %d\n",
 			      linenum);
+			free(line);
 			return -1;
 		}
 

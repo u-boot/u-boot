@@ -24,6 +24,10 @@
 			mediatek,hwver = <&hwver>;
 		};
 	};
+
+	reserved-memory {
+		/delete-node/ wmcpu-reserved@50000000;
+	};
 };
 
 &i2c0 {

@@ -35,7 +35,3 @@ endif
 endif
 
 obj-$(CONFIG_CI_UDC) += ci_udc.o
-
-# Devices not related to the new gadget layer depend on CONFIG_USB_DEVICE
-# This is really only N900 and USBTTY now.
-obj-$(CONFIG_USB_DEVICE) += core.o ep0.o

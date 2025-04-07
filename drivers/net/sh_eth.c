@@ -643,6 +643,97 @@ static void sh_ether_stop(struct udevice *dev)
 	sh_eth_stop(&priv->shdev);
 }
 
+/******* for bb_miiphy *******/
+static int sh_eth_bb_mdio_active(struct mii_dev *miidev)
+{
+	struct sh_eth_dev *eth = miidev->priv;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	sh_eth_write(port_info, sh_eth_read(port_info, PIR) | PIR_MMD, PIR);
+
+	return 0;
+}
+
+static int sh_eth_bb_mdio_tristate(struct mii_dev *miidev)
+{
+	struct sh_eth_dev *eth = miidev->priv;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	sh_eth_write(port_info, sh_eth_read(port_info, PIR) & ~PIR_MMD, PIR);
+
+	return 0;
+}
+
+static int sh_eth_bb_set_mdio(struct mii_dev *miidev, int v)
+{
+	struct sh_eth_dev *eth = miidev->priv;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	if (v)
+		sh_eth_write(port_info,
+			     sh_eth_read(port_info, PIR) | PIR_MDO, PIR);
+	else
+		sh_eth_write(port_info,
+			     sh_eth_read(port_info, PIR) & ~PIR_MDO, PIR);
+
+	return 0;
+}
+
+static int sh_eth_bb_get_mdio(struct mii_dev *miidev, int *v)
+{
+	struct sh_eth_dev *eth = miidev->priv;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	*v = (sh_eth_read(port_info, PIR) & PIR_MDI) >> 3;
+
+	return 0;
+}
+
+static int sh_eth_bb_set_mdc(struct mii_dev *miidev, int v)
+{
+	struct sh_eth_dev *eth = miidev->priv;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+
+	if (v)
+		sh_eth_write(port_info,
+			     sh_eth_read(port_info, PIR) | PIR_MDC, PIR);
+	else
+		sh_eth_write(port_info,
+			     sh_eth_read(port_info, PIR) & ~PIR_MDC, PIR);
+
+	return 0;
+}
+
+static int sh_eth_bb_delay(struct mii_dev *miidev)
+{
+	udelay(10);
+
+	return 0;
+}
+
+static const struct bb_miiphy_bus_ops sh_ether_bb_miiphy_bus_ops = {
+	.mdio_active	= sh_eth_bb_mdio_active,
+	.mdio_tristate	= sh_eth_bb_mdio_tristate,
+	.set_mdio	= sh_eth_bb_set_mdio,
+	.get_mdio	= sh_eth_bb_get_mdio,
+	.set_mdc	= sh_eth_bb_set_mdc,
+	.delay		= sh_eth_bb_delay,
+};
+
+static int sh_eth_bb_miiphy_read(struct mii_dev *miidev, int addr,
+				 int devad, int reg)
+{
+	return bb_miiphy_read(miidev, &sh_ether_bb_miiphy_bus_ops,
+			      addr, devad, reg);
+}
+
+static int sh_eth_bb_miiphy_write(struct mii_dev *miidev, int addr,
+				  int devad, int reg, u16 value)
+{
+	return bb_miiphy_write(miidev, &sh_ether_bb_miiphy_bus_ops,
+			       addr, devad, reg, value);
+}
+
 static int sh_ether_probe(struct udevice *udev)
 {
 	struct eth_pdata *pdata = dev_get_plat(udev);
@@ -664,16 +755,16 @@ static int sh_ether_probe(struct udevice *udev)
 		return ret;
 	}
 
-	mdiodev->read = bb_miiphy_read;
-	mdiodev->write = bb_miiphy_write;
-	bb_miiphy_buses[0].priv = eth;
+	mdiodev->read = sh_eth_bb_miiphy_read;
+	mdiodev->write = sh_eth_bb_miiphy_write;
+	mdiodev->priv = eth;
 	snprintf(mdiodev->name, sizeof(mdiodev->name), udev->name);
 
 	ret = mdio_register(mdiodev);
 	if (ret < 0)
 		goto err_mdio_register;
 
-	priv->bus = miiphy_get_dev_by_name(udev->name);
+	priv->bus = mdiodev;
 
 	eth->port = CFG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CFG_SH_ETHER_PHY_ADDR;
@@ -748,8 +839,6 @@ int sh_ether_of_to_plat(struct udevice *dev)
 	if (cell)
 		pdata->max_speed = fdt32_to_cpu(*cell);
 
-	sprintf(bb_miiphy_buses[0].name, dev->name);
-
 	return 0;
 }
 
@@ -775,91 +864,3 @@ U_BOOT_DRIVER(eth_sh_ether) = {
 	.plat_auto	= sizeof(struct eth_pdata),
 	.flags		= DM_FLAG_ALLOC_PRIV_DMA,
 };
-
-/******* for bb_miiphy *******/
-static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
-{
-	return 0;
-}
-
-static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
-{
-	struct sh_eth_dev *eth = bus->priv;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-	sh_eth_write(port_info, sh_eth_read(port_info, PIR) | PIR_MMD, PIR);
-
-	return 0;
-}
-
-static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
-{
-	struct sh_eth_dev *eth = bus->priv;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-	sh_eth_write(port_info, sh_eth_read(port_info, PIR) & ~PIR_MMD, PIR);
-
-	return 0;
-}
-
-static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
-{
-	struct sh_eth_dev *eth = bus->priv;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-	if (v)
-		sh_eth_write(port_info,
-			     sh_eth_read(port_info, PIR) | PIR_MDO, PIR);
-	else
-		sh_eth_write(port_info,
-			     sh_eth_read(port_info, PIR) & ~PIR_MDO, PIR);
-
-	return 0;
-}
-
-static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
-{
-	struct sh_eth_dev *eth = bus->priv;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-	*v = (sh_eth_read(port_info, PIR) & PIR_MDI) >> 3;
-
-	return 0;
-}
-
-static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
-{
-	struct sh_eth_dev *eth = bus->priv;
-	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-
-	if (v)
-		sh_eth_write(port_info,
-			     sh_eth_read(port_info, PIR) | PIR_MDC, PIR);
-	else
-		sh_eth_write(port_info,
-			     sh_eth_read(port_info, PIR) & ~PIR_MDC, PIR);
-
-	return 0;
-}
-
-static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
-{
-	udelay(10);
-
-	return 0;
-}
-
-struct bb_miiphy_bus bb_miiphy_buses[] = {
-	{
-		.name		= "sh_eth",
-		.init		= sh_eth_bb_init,
-		.mdio_active	= sh_eth_bb_mdio_active,
-		.mdio_tristate	= sh_eth_bb_mdio_tristate,
-		.set_mdio	= sh_eth_bb_set_mdio,
-		.get_mdio	= sh_eth_bb_get_mdio,
-		.set_mdc	= sh_eth_bb_set_mdc,
-		.delay		= sh_eth_bb_delay,
-	}
-};
-
-int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);

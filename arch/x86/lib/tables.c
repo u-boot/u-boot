@@ -45,6 +45,13 @@ struct table_info {
 	int align;
 };
 
+/* QEMU's tables include quite a bit of empty space */
+#ifdef CONFIG_QEMU
+#define ACPI_SIZE	(192 << 10)
+#else
+#define ACPI_SIZE	SZ_64K
+#endif
+
 static struct table_info table_list[] = {
 #ifdef CONFIG_GENERATE_PIRQ_TABLE
 	{ "pirq", write_pirq_routing_table },
@@ -60,7 +67,7 @@ static struct table_info table_list[] = {
 	 * that the calculation of gd->table_end works properly
 	 */
 #ifdef CONFIG_GENERATE_ACPI_TABLE
-	{ "acpi", write_acpi_tables, BLOBLISTT_ACPI_TABLES, SZ_64K, SZ_4K},
+	{ "acpi", write_acpi_tables, BLOBLISTT_ACPI_TABLES, ACPI_SIZE, SZ_4K},
 #endif
 #ifdef CONFIG_GENERATE_SMBIOS_TABLE
 	/*

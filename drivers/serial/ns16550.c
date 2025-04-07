@@ -112,9 +112,9 @@ static void serial_out_dynamic(struct ns16550_plat *plat, u8 *addr,
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				out_be32(addr, value);
+				out_be32((u32 *)addr, value);
 			else
-				out_le32(addr, value);
+				out_le32((u32 *)addr, value);
 		} else {
 			writel(value, addr);
 		}
@@ -132,9 +132,9 @@ static int serial_in_dynamic(struct ns16550_plat *plat, u8 *addr)
 	} else if (plat->reg_width == 4) {
 		if (plat->flags & NS16550_FLAG_ENDIAN) {
 			if (plat->flags & NS16550_FLAG_BE)
-				return in_be32(addr);
+				return in_be32((u32 *)addr);
 			else
-				return in_le32(addr);
+				return in_le32((u32 *)addr);
 		} else {
 			return readl(addr);
 		}
@@ -294,13 +294,9 @@ void ns16550_putc(struct ns16550 *com_port, char c)
 #if !CONFIG_IS_ENABLED(NS16550_MIN_FUNCTIONS)
 char ns16550_getc(struct ns16550 *com_port)
 {
-	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0) {
-#if !defined(CONFIG_XPL_BUILD) && defined(CONFIG_USB_TTY)
-		extern void usbtty_poll(void);
-		usbtty_poll();
-#endif
+	while ((serial_in(&com_port->lsr) & UART_LSR_DR) == 0)
 		schedule();
-	}
+
 	return serial_in(&com_port->rbr);
 }
 

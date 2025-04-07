@@ -17,6 +17,30 @@
 struct blkmap;
 
 /**
+ * define BLKMAP_SLICE_LINEAR - Linear mapping to another block device
+ *
+ * This blkmap slice type is used for mapping to other existing block
+ * devices.
+ */
+#define BLKMAP_SLICE_LINEAR	BIT(0)
+
+/**
+ * define BLKMAP_SLICE_MEM - Linear mapping to memory based block device
+ *
+ * This blkmap slice type is used for mapping to memory based block
+ * devices, like ramdisks.
+ */
+#define BLKMAP_SLICE_MEM	BIT(1)
+
+/**
+ * define BLKMAP_SLICE_PRESERVE - Preserved blkmap slice
+ *
+ * This blkmap slice is intended to be preserved, and it's
+ * information passed on to a later stage, like OS.
+ */
+#define BLKMAP_SLICE_PRESERVE	BIT(2)
+
+/**
  * struct blkmap_slice - Region mapped to a blkmap
  *
  * Common data for a region mapped to a blkmap, specialized by each
@@ -25,12 +49,14 @@ struct blkmap;
  * @node: List node used to associate this slice with a blkmap
  * @blknr: Start block number of the mapping
  * @blkcnt: Number of blocks covered by this mapping
+ * @attr: Attributes of blkmap slice
  */
 struct blkmap_slice {
 	struct list_head node;
 
 	lbaint_t blknr;
 	lbaint_t blkcnt;
+	uint     attr;
 
 	/**
 	 * @read: - Read from slice
@@ -169,6 +195,7 @@ int blkmap_map_linear(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		.slice = {
 			.blknr = blknr,
 			.blkcnt = blkcnt,
+			.attr = BLKMAP_SLICE_LINEAR,
 
 			.read = blkmap_linear_read,
 			.write = blkmap_linear_write,
@@ -234,7 +261,7 @@ static void blkmap_mem_destroy(struct blkmap *bm, struct blkmap_slice *bms)
 }
 
 int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		     void *addr, bool remapped)
+		     void *addr, bool remapped, bool preserve)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blkmap_mem *bmm;
@@ -248,6 +275,7 @@ int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		.slice = {
 			.blknr = blknr,
 			.blkcnt = blkcnt,
+			.attr = BLKMAP_SLICE_MEM,
 
 			.read = blkmap_mem_read,
 			.write = blkmap_mem_write,
@@ -257,6 +285,9 @@ int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		.addr = addr,
 		.remapped = remapped,
 	};
+
+	if (preserve)
+		bmm->slice.attr |= BLKMAP_SLICE_PRESERVE;
 
 	err = blkmap_slice_add(bm, &bmm->slice);
 	if (err)
@@ -268,11 +299,11 @@ int __blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 int blkmap_map_mem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 		   void *addr)
 {
-	return __blkmap_map_mem(dev, blknr, blkcnt, addr, false);
+	return __blkmap_map_mem(dev, blknr, blkcnt, addr, false, false);
 }
 
 int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
-		    phys_addr_t paddr)
+		    phys_addr_t paddr, bool preserve)
 {
 	struct blkmap *bm = dev_get_plat(dev);
 	struct blk_desc *bd = dev_get_uclass_plat(bm->blk);
@@ -283,7 +314,7 @@ int blkmap_map_pmem(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	if (!addr)
 		return -ENOMEM;
 
-	err = __blkmap_map_mem(dev, blknr, blkcnt, addr, true);
+	err = __blkmap_map_mem(dev, blknr, blkcnt, addr, true, preserve);
 	if (err)
 		unmap_sysmem(addr);
 
@@ -484,6 +515,49 @@ err_free_hlabel:
 	free(hlabel);
 err:
 	return err;
+}
+
+static bool blkmap_mem_preserve_slice(struct blkmap_slice *bms)
+{
+	return (bms->attr & (BLKMAP_SLICE_MEM | BLKMAP_SLICE_PRESERVE)) ==
+		(BLKMAP_SLICE_MEM | BLKMAP_SLICE_PRESERVE);
+}
+
+int blkmap_get_preserved_pmem_slices(int (*cb)(void *ctx, u64 addr,
+					       u64 size), void *ctx)
+{
+	int ret;
+	u64 addr, size;
+	struct udevice *dev;
+	struct uclass *uc;
+	struct blkmap *bm;
+	struct blkmap_mem *bmm;
+	struct blkmap_slice *bms;
+	struct blk_desc *bd;
+
+	if (!cb) {
+		log_debug("%s: No callback passed to the function\n", __func__);
+		return 0;
+	}
+
+	uclass_id_foreach_dev(UCLASS_BLKMAP, dev, uc) {
+		bm = dev_get_plat(dev);
+		bd = dev_get_uclass_plat(bm->blk);
+
+		list_for_each_entry(bms, &bm->slices, node) {
+			if (!blkmap_mem_preserve_slice(bms))
+				continue;
+
+			bmm = container_of(bms, struct blkmap_mem, slice);
+			addr = (u64)(uintptr_t)bmm->addr;
+			size = (u64)bms->blkcnt << bd->log2blksz;
+			ret = cb(ctx, addr, size);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
 }
 
 int blkmap_destroy(struct udevice *dev)

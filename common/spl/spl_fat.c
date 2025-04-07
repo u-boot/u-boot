@@ -47,6 +47,7 @@ static int spl_register_fat_device(struct blk_desc *block_dev, int partition)
 static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
 			  ulong size, void *buf)
 {
+	struct legacy_img_hdr *header;
 	loff_t actread;
 	int ret;
 	char *filename = load->priv;
@@ -54,6 +55,12 @@ static ulong spl_fit_read(struct spl_load_info *load, ulong file_offset,
 	ret = fat_read_file(filename, buf, file_offset, size, &actread);
 	if (ret)
 		return ret;
+
+	if (CONFIG_IS_ENABLED(OS_BOOT)) {
+		header = (struct legacy_img_hdr *)buf;
+		if (image_get_magic(header) != FDT_MAGIC)
+			return size;
+	}
 
 	return actread;
 }

@@ -478,3 +478,11 @@ config DM_REGULATOR_TPS65219
 	features for REGULATOR TPS65219 and the family of TPS65219 PMICs.
 	TPS65219 series of PMICs have 3 single phase BUCKs & 4 LDOs.
 	The driver implements get/set api for value and enable.
+
+config REGULATOR_RZG2L_USBPHY
+	bool "Enable driver for RZ/G2L USB PHY VBUS supply"
+	depends on DM_REGULATOR
+	help
+	  Enable this option to support controlling the VBUS supply in
+	  the USB PHY peripheral of the Renesas RZ/G2L SoC. This option
+	  is required in order to use the USB OTG port.

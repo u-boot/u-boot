@@ -8,7 +8,6 @@
 #include <console.h>
 #include <mapmem.h>
 #include <asm/global_data.h>
-#include <test/suites.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;

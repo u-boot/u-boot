@@ -942,8 +942,9 @@ int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg)
 	*buf = '\0';
 	if (!strcmp("earlycon", arg) && info.type == SERIAL_CHIP_16550_COMPATIBLE) {
 		snprintf(buf, sizeof(buf),
-			 "uart8250,mmio32,%#lx,%dn8", info.addr,
-			 info.baudrate);
+			 "uart8250,%s,%#lx,%dn8",
+			 info.addr_space == SERIAL_ADDRESS_SPACE_IO ? "io" :
+			 "mmio", info.addr, info.baudrate);
 	} else if (!strcmp("earlycon", arg) && info.type == SERIAL_CHIP_PL01X) {
 		snprintf(buf, sizeof(buf),
 			 "pl011,mmio32,%#lx,%dn8", info.addr,
@@ -954,7 +955,7 @@ int bootflow_cmdline_auto(struct bootflow *bflow, const char *arg)
 	}
 
 	if (!*buf) {
-		printf("Unknown param '%s\n", arg);
+		printf("Unknown param '%s'\n", arg);
 		return -ENOENT;
 	}
 

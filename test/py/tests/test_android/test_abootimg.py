@@ -6,7 +6,7 @@
 
 import os
 import pytest
-import u_boot_utils
+import utils
 
 """
 These tests rely on disk image (boot.img), which is automatically created by
@@ -105,78 +105,78 @@ dtb2_addr = vloadaddr + dtb2_offset
 class AbootimgTestDiskImage(object):
     """Disk image used by abootimg tests."""
 
-    def __init__(self, u_boot_console, image_name, hex_img):
+    def __init__(self, ubman, image_name, hex_img):
         """Initialize a new AbootimgDiskImage object.
 
         Args:
-            u_boot_console: A U-Boot console.
+            ubman: A U-Boot console.
 
         Returns:
             Nothing.
         """
 
-        gz_hex = u_boot_console.config.persistent_data_dir + '/' + image_name  + '.gz.hex'
-        gz = u_boot_console.config.persistent_data_dir + '/' + image_name + '.gz'
+        gz_hex = ubman.config.persistent_data_dir + '/' + image_name  + '.gz.hex'
+        gz = ubman.config.persistent_data_dir + '/' + image_name + '.gz'
 
         filename = image_name
-        persistent = u_boot_console.config.persistent_data_dir + '/' + filename
-        self.path = u_boot_console.config.result_dir  + '/' + filename
-        u_boot_console.log.action('persistent is ' + persistent)
-        with u_boot_utils.persistent_file_helper(u_boot_console.log, persistent):
+        persistent = ubman.config.persistent_data_dir + '/' + filename
+        self.path = ubman.config.result_dir  + '/' + filename
+        ubman.log.action('persistent is ' + persistent)
+        with utils.persistent_file_helper(ubman.log, persistent):
             if os.path.exists(persistent):
-                u_boot_console.log.action('Disk image file ' + persistent +
+                ubman.log.action('Disk image file ' + persistent +
                     ' already exists')
             else:
-                u_boot_console.log.action('Generating ' + persistent)
+                ubman.log.action('Generating ' + persistent)
 
                 f = open(gz_hex, "w")
                 f.write(hex_img)
                 f.close()
                 cmd = ('xxd', '-r', '-p', gz_hex, gz)
-                u_boot_utils.run_and_log(u_boot_console, cmd)
+                utils.run_and_log(ubman, cmd)
                 cmd = ('gunzip', '-9', gz)
-                u_boot_utils.run_and_log(u_boot_console, cmd)
+                utils.run_and_log(ubman, cmd)
 
         cmd = ('cp', persistent, self.path)
-        u_boot_utils.run_and_log(u_boot_console, cmd)
+        utils.run_and_log(ubman, cmd)
 
 gtdi1 = None
 @pytest.fixture(scope='function')
-def abootimg_disk_image(u_boot_console):
+def abootimg_disk_image(ubman):
     """pytest fixture to provide a AbootimgTestDiskImage object to tests.
-    This is function-scoped because it uses u_boot_console, which is also
+    This is function-scoped because it uses ubman, which is also
     function-scoped. However, we don't need to actually do any function-scope
     work, so this simply returns the same object over and over each time."""
 
     global gtdi1
     if not gtdi1:
-        gtdi1 = AbootimgTestDiskImage(u_boot_console, 'boot.img', img_hex)
+        gtdi1 = AbootimgTestDiskImage(ubman, 'boot.img', img_hex)
     return gtdi1
 
 gtdi2 = None
 @pytest.fixture(scope='function')
-def abootimgv4_disk_image_vboot(u_boot_console):
+def abootimgv4_disk_image_vboot(ubman):
     """pytest fixture to provide a AbootimgTestDiskImage object to tests.
-    This is function-scoped because it uses u_boot_console, which is also
+    This is function-scoped because it uses ubman, which is also
     function-scoped. However, we don't need to actually do any function-scope
     work, so this simply returns the same object over and over each time."""
 
     global gtdi2
     if not gtdi2:
-        gtdi2 = AbootimgTestDiskImage(u_boot_console, 'vendor_boot.img', vboot_img_hex)
+        gtdi2 = AbootimgTestDiskImage(ubman, 'vendor_boot.img', vboot_img_hex)
     return gtdi2
 
 gtdi3 = None
 @pytest.fixture(scope='function')
-def abootimgv4_disk_image_boot(u_boot_console):
+def abootimgv4_disk_image_boot(ubman):
     """pytest fixture to provide a AbootimgTestDiskImage object to tests.
-    This is function-scoped because it uses u_boot_console, which is also
+    This is function-scoped because it uses ubman, which is also
     function-scoped. However, we don't need to actually do any function-scope
     work, so this simply returns the same object over and over each time."""
 
     global gtdi3
     if not gtdi3:
-        gtdi3 = AbootimgTestDiskImage(u_boot_console, 'bootv4.img', boot_img_hex)
+        gtdi3 = AbootimgTestDiskImage(ubman, 'bootv4.img', boot_img_hex)
     return gtdi3
 
 @pytest.mark.boardspec('sandbox')
@@ -185,42 +185,42 @@ def abootimgv4_disk_image_boot(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fdt')
 @pytest.mark.requiredtool('xxd')
 @pytest.mark.requiredtool('gunzip')
-def test_abootimg(abootimg_disk_image, u_boot_console):
+def test_abootimg(abootimg_disk_image, ubman):
     """Test the 'abootimg' command."""
 
-    u_boot_console.log.action('Loading disk image to RAM...')
-    u_boot_console.run_command('setenv loadaddr 0x%x' % (loadaddr))
-    u_boot_console.run_command('host load hostfs - 0x%x %s' % (loadaddr,
+    ubman.log.action('Loading disk image to RAM...')
+    ubman.run_command('setenv loadaddr 0x%x' % (loadaddr))
+    ubman.run_command('host load hostfs - 0x%x %s' % (loadaddr,
         abootimg_disk_image.path))
 
-    u_boot_console.log.action('Testing \'abootimg get ver\'...')
-    response = u_boot_console.run_command('abootimg get ver')
+    ubman.log.action('Testing \'abootimg get ver\'...')
+    response = ubman.run_command('abootimg get ver')
     assert response == "2"
-    u_boot_console.run_command('abootimg get ver v')
-    response = u_boot_console.run_command('env print v')
+    ubman.run_command('abootimg get ver v')
+    response = ubman.run_command('env print v')
     assert response == 'v=2'
 
-    u_boot_console.log.action('Testing \'abootimg get recovery_dtbo\'...')
-    response = u_boot_console.run_command('abootimg get recovery_dtbo a')
+    ubman.log.action('Testing \'abootimg get recovery_dtbo\'...')
+    response = ubman.run_command('abootimg get recovery_dtbo a')
     assert response == 'Error: recovery_dtbo_size is 0'
 
-    u_boot_console.log.action('Testing \'abootimg dump dtb\'...')
-    response = u_boot_console.run_command('abootimg dump dtb').replace('\r', '')
+    ubman.log.action('Testing \'abootimg dump dtb\'...')
+    response = ubman.run_command('abootimg dump dtb').replace('\r', '')
     assert response == dtb_dump_resp
 
-    u_boot_console.log.action('Testing \'abootimg get dtb_load_addr\'...')
-    u_boot_console.run_command('abootimg get dtb_load_addr a')
-    response = u_boot_console.run_command('env print a')
+    ubman.log.action('Testing \'abootimg get dtb_load_addr\'...')
+    ubman.run_command('abootimg get dtb_load_addr a')
+    response = ubman.run_command('env print a')
     assert response == 'a=11f00000'
 
-    u_boot_console.log.action('Testing \'abootimg get dtb --index\'...')
-    u_boot_console.run_command('abootimg get dtb --index=1 dtb1_start')
-    response = u_boot_console.run_command('env print dtb1_start')
+    ubman.log.action('Testing \'abootimg get dtb --index\'...')
+    ubman.run_command('abootimg get dtb --index=1 dtb1_start')
+    response = ubman.run_command('env print dtb1_start')
     correct_str = "dtb1_start=%x" % (dtb1_addr)
     assert response == correct_str
-    u_boot_console.run_command('fdt addr $dtb1_start')
-    u_boot_console.run_command('fdt get value v / model')
-    response = u_boot_console.run_command('env print v')
+    ubman.run_command('fdt addr $dtb1_start')
+    ubman.run_command('fdt get value v / model')
+    response = ubman.run_command('env print v')
     assert response == 'v=x2'
 
 @pytest.mark.boardspec('sandbox')
@@ -229,41 +229,40 @@ def test_abootimg(abootimg_disk_image, u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fdt')
 @pytest.mark.requiredtool('xxd')
 @pytest.mark.requiredtool('gunzip')
-def test_abootimgv4(abootimgv4_disk_image_vboot, abootimgv4_disk_image_boot, u_boot_console):
+def test_abootimgv4(abootimgv4_disk_image_vboot, abootimgv4_disk_image_boot, ubman):
     """Test the 'abootimg' command with boot image header v4."""
 
-    cons = u_boot_console
-    cons.log.action('Loading disk image to RAM...')
-    cons.run_command('setenv loadaddr 0x%x' % (loadaddr))
-    cons.run_command('setenv vloadaddr 0x%x' % (vloadaddr))
-    cons.run_command('host load hostfs - 0x%x %s' % (vloadaddr,
+    ubman.log.action('Loading disk image to RAM...')
+    ubman.run_command('setenv loadaddr 0x%x' % (loadaddr))
+    ubman.run_command('setenv vloadaddr 0x%x' % (vloadaddr))
+    ubman.run_command('host load hostfs - 0x%x %s' % (vloadaddr,
 	abootimgv4_disk_image_vboot.path))
-    cons.run_command('host load hostfs - 0x%x %s' % (loadaddr,
+    ubman.run_command('host load hostfs - 0x%x %s' % (loadaddr,
         abootimgv4_disk_image_boot.path))
-    cons.run_command('abootimg addr 0x%x 0x%x' % (loadaddr, vloadaddr))
-    cons.log.action('Testing \'abootimg get ver\'...')
-    response = cons.run_command('abootimg get ver')
+    ubman.run_command('abootimg addr 0x%x 0x%x' % (loadaddr, vloadaddr))
+    ubman.log.action('Testing \'abootimg get ver\'...')
+    response = ubman.run_command('abootimg get ver')
     assert response == "4"
-    cons.run_command('abootimg get ver v')
-    response = cons.run_command('env print v')
+    ubman.run_command('abootimg get ver v')
+    response = ubman.run_command('env print v')
     assert response == 'v=4'
 
-    cons.log.action('Testing \'abootimg get recovery_dtbo\'...')
-    response = cons.run_command('abootimg get recovery_dtbo a')
+    ubman.log.action('Testing \'abootimg get recovery_dtbo\'...')
+    response = ubman.run_command('abootimg get recovery_dtbo a')
     assert response == 'Error: header version must be >= 1 and <= 2 to get dtbo'
 
-    cons.log.action('Testing \'abootimg get dtb_load_addr\'...')
-    cons.run_command('abootimg get dtb_load_addr a')
-    response = cons.run_command('env print a')
+    ubman.log.action('Testing \'abootimg get dtb_load_addr\'...')
+    ubman.run_command('abootimg get dtb_load_addr a')
+    response = ubman.run_command('env print a')
     assert response == 'a=11f00000'
 
-    cons.log.action('Testing \'abootimg get dtb --index\'...')
-    cons.run_command('abootimg get dtb --index=1 dtb2_start')
-    response = cons.run_command('env print dtb2_start')
+    ubman.log.action('Testing \'abootimg get dtb --index\'...')
+    ubman.run_command('abootimg get dtb --index=1 dtb2_start')
+    response = ubman.run_command('env print dtb2_start')
     correct_str = "dtb2_start=%x" % (dtb2_addr)
     assert response == correct_str
 
-    cons.run_command('fdt addr $dtb2_start')
-    cons.run_command('fdt get value v / model')
-    response = cons.run_command('env print v')
+    ubman.run_command('fdt addr $dtb2_start')
+    ubman.run_command('fdt get value v / model')
+    response = ubman.run_command('env print v')
     assert response == 'v=x2'

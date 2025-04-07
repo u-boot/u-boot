@@ -15,6 +15,7 @@
 #include <clk.h>
 #include <reset.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <power-domain.h>
 #include <dm/device_compat.h>
 #include <linux/err.h>
@@ -56,7 +57,9 @@ struct k3_dsp_boot_data {
  * @data:		Pointer to DSP specific boot data structure
  * @mem:		Array of available memories
  * @num_mem:		Number of available memories
- * @in_use: flag to tell if the core is already in use.
+ * @cached_addr:	Cached memory address
+ * @cached_size:	Cached memory size
+ * @in_use:		flag to tell if the core is already in use.
  */
 struct k3_dsp_privdata {
 	struct reset_ctl dsp_rst;
@@ -64,6 +67,8 @@ struct k3_dsp_privdata {
 	struct k3_dsp_boot_data *data;
 	struct k3_dsp_mem *mem;
 	int num_mems;
+	void __iomem *cached_addr;
+	size_t cached_size;
 	bool in_use;
 };
 
@@ -156,6 +161,13 @@ static int k3_dsp_load(struct udevice *dev, ulong addr, ulong size)
 	if (ret < 0) {
 		dev_err(dev, "Loading elf failed %d\n", ret);
 		goto unprepare;
+	}
+
+	if (dsp->cached_addr && IS_ENABLED(CONFIG_SYS_DISABLE_DCACHE_OPS)) {
+		dev_dbg(dev, "final flush 0x%lx to 0x%lx\n",
+			(ulong)dsp->cached_addr, dsp->cached_size);
+		__asm_invalidate_dcache_range((u64)dsp->cached_addr,
+					      (u64)dsp->cached_addr + (u64)dsp->cached_size);
 	}
 
 	boot_vector = rproc_elf_get_boot_addr(dev, addr);
@@ -253,7 +265,6 @@ static void *k3_dsp_da_to_va(struct udevice *dev, ulong da, ulong len)
 {
 	struct k3_dsp_privdata *dsp = dev_get_priv(dev);
 	phys_addr_t bus_addr, dev_addr;
-	void __iomem *va = NULL;
 	size_t size;
 	u32 offset;
 	int i;
@@ -263,6 +274,16 @@ static void *k3_dsp_da_to_va(struct udevice *dev, ulong da, ulong len)
 	if (len <= 0)
 		return NULL;
 
+	if (dsp->cached_addr && IS_ENABLED(CONFIG_SYS_DISABLE_DCACHE_OPS)) {
+		dev_dbg(dev, "flush 0x%lx to 0x%lx\n", (ulong)dsp->cached_addr,
+			dsp->cached_size);
+		__asm_invalidate_dcache_range((u64)dsp->cached_addr,
+					      (u64)dsp->cached_addr + (u64)dsp->cached_size);
+	}
+
+	dsp->cached_size = len;
+	dsp->cached_addr = NULL;
+
 	for (i = 0; i < dsp->num_mems; i++) {
 		bus_addr = dsp->mem[i].bus_addr;
 		dev_addr = dsp->mem[i].dev_addr;
@@ -270,19 +291,20 @@ static void *k3_dsp_da_to_va(struct udevice *dev, ulong da, ulong len)
 
 		if (da >= dev_addr && ((da + len) <= (dev_addr + size))) {
 			offset = da - dev_addr;
-			va = dsp->mem[i].cpu_addr + offset;
-			return (__force void *)va;
+			dsp->cached_addr = dsp->mem[i].cpu_addr + offset;
 		}
 
 		if (da >= bus_addr && (da + len) <= (bus_addr + size)) {
 			offset = da - bus_addr;
-			va = dsp->mem[i].cpu_addr + offset;
-			return (__force void *)va;
+			dsp->cached_addr = dsp->mem[i].cpu_addr + offset;
 		}
 	}
 
 	/* Assume it is DDR region and return da */
-	return map_physmem(da, len, MAP_NOCACHE);
+	if (!dsp->cached_addr)
+		dsp->cached_addr = map_physmem(da, len, MAP_NOCACHE);
+
+	return dsp->cached_addr;
 }
 
 static const struct dm_rproc_ops k3_dsp_ops = {

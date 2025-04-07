@@ -239,20 +239,47 @@
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0"
 
+#define GET_OVERLAY_MMC_TI_ARGS \
+	"get_overlay_mmc=" \
+		"fdt address ${fdtaddr};" \
+		"fdt resize 0x100000;" \
+		"for overlay in $name_overlays;" \
+		"do;" \
+			"load mmc ${bootpart} ${dtboaddr} ${bootdir}/dtb/${overlay} &&" \
+			"fdt apply ${dtboaddr};" \
+		"done;\0" \
+
 #define BOOT_TARGET_DEVICES(func) \
+	func(TI_MMC, ti_mmc, na) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
+
+#define BOOTENV_DEV_TI_MMC(devtypeu, devtypel, instance)	\
+	"bootcmd_ti_mmc= run get_name_kern; run mmcboot\0"
+
+#define BOOTENV_DEV_NAME_TI_MMC(devtyeu, devtypel, instance)            \
+	"ti_mmc "
 
 #include <config_distro_bootcmd.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	DEFAULT_MMC_TI_ARGS \
+	"bootpart=0:2\0" \
+	"bootdir=/boot\0" \
+	"get_name_kern=" \
+	"if test $boot_fit -eq 1; then " \
+		"setenv bootfile fitImage; " \
+	"else " \
+		"setenv bootfile zImage; " \
+	"fi\0" \
 	DEFAULT_FIT_TI_ARGS \
+	"get_fit_config=setenv name_fit_config ${fdtfile}\0" \
 	DEFAULT_COMMON_BOOT_TI_ARGS \
 	DEFAULT_FDT_TI_ARGS \
+	GET_OVERLAY_MMC_TI_ARGS \
 	DFUARGS \
 	NETARGS \
 	NANDARGS \

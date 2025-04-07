@@ -116,19 +116,19 @@ below are approximate, as measured on an AMD 2950X system. Here is is the test
 in Python::
 
    @pytest.mark.buildconfigspec('cmd_memory')
-   def test_md(u_boot_console):
+   def test_md(ubman):
        """Test that md reads memory as expected, and that memory can be modified
        using the mw command."""
 
-       ram_base = u_boot_utils.find_ram_base(u_boot_console)
+       ram_base = utils.find_ram_base(ubman)
        addr = '%08x' % ram_base
        val = 'a5f09876'
        expected_response = addr + ': ' + val
-       u_boot_console.run_command('mw ' + addr + ' 0 10')
-       response = u_boot_console.run_command('md ' + addr + ' 10')
+       ubman.run_command('mw ' + addr + ' 0 10')
+       response = ubman.run_command('md ' + addr + ' 10')
        assert(not (expected_response in response))
-       u_boot_console.run_command('mw ' + addr + ' ' + val)
-       response = u_boot_console.run_command('md ' + addr + ' 10')
+       ubman.run_command('mw ' + addr + ' ' + val)
+       response = ubman.run_command('md ' + addr + ' 10')
        assert(expected_response in response)
 
 This runs a few commands and checks the output. Note that it runs a command,
@@ -261,7 +261,7 @@ with the suite. For example, to add a new mem_search test::
    /* Test 'ms' command with 32-bit values */
    static int mem_test_ms_new_thing(struct unit_test_state *uts)
    {
-         /* test code here*/
+         /* test code here */
 
          return 0;
    }
@@ -291,32 +291,20 @@ suite. For example::
    /* Declare a new wibble test */
    #define WIBBLE_TEST(_name, _flags)   UNIT_TEST(_name, _flags, wibble_test)
 
-   /* Tetss go here */
-
-   /* At the bottom of the file: */
-
-   int do_ut_wibble(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
-   {
-     struct unit_test *tests = UNIT_TEST_SUITE_START(wibble_test);
-     const int n_ents = UNIT_TEST_SUITE_COUNT(wibble_test);
-
-     return cmd_ut_category("cmd_wibble", "wibble_test_", tests, n_ents, argc, argv);
-   }
+   /* Tests go here */
 
 Then add new tests to it as above.
 
 Register this new suite in test/cmd_ut.c by adding to cmd_ut_sub[]::
 
-  /* Within cmd_ut_sub[]... */
+  /* with the other SUITE_DECL() declarations */
+  SUITE_DECL(wibble);
 
-  U_BOOT_CMD_MKENT(wibble, CONFIG_SYS_MAXARGS, 1, do_ut_wibble, "", ""),
+  /* Within suites[]... */
+  SUITE(wibble, "my test of wibbles");
 
-and adding new help to ut_help_text[]::
-
-  "ut wibble - Test the wibble feature\n"
-
-If your feature is conditional on a particular Kconfig, then you can use #ifdef
-to control that.
+If your feature is conditional on a particular Kconfig, you do not need to add
+an #ifdef since the suite will automatically be compiled out in that case.
 
 Finally, add the test to the build by adding to the Makefile in the same
 directory::
@@ -326,17 +314,35 @@ directory::
 Note that CMDLINE is never enabled in SPL, so this test will only be present in
 U-Boot proper. See below for how to do SPL tests.
 
-As before, you can add an extra Kconfig check if needed::
+You can add an extra Kconfig check if needed::
 
   ifneq ($(CONFIG_$(XPL_)WIBBLE),)
   obj-$(CONFIG_$(XPL_)CMDLINE) += wibble.o
   endif
 
+Each suite can have an optional init and uninit function. These are run before
+and after any suite tests, respectively::
 
-Example commit: 919e7a8fb64 ("test: Add a simple test for bloblist") [1]
+   #define WIBBLE_TEST_INIT(_name, _flags)  UNIT_TEST_INIT(_name, _flags, wibble_test)
+   #define WIBBLE_TEST_UNINIT(_name, _flags)  UNIT_TEST_UNINIT(_name, _flags, wibble_test)
 
-[1] https://gitlab.denx.de/u-boot/u-boot/-/commit/919e7a8fb64
+   static int wibble_test_init(struct unit_test_state *uts)
+   {
+         /* init code here */
 
+         return 0;
+   }
+   WIBBLE_TEST_INIT(wibble_test_init, 0);
+
+   static int wibble_test_uninit(struct unit_test_state *uts)
+   {
+         /* uninit code here */
+
+         return 0;
+   }
+   WIBBLE_TEST_INIT(wibble_test_uninit, 0);
+
+Both functions are included in the totals for each suite.
 
 Making the test run from pytest
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

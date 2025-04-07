@@ -101,7 +101,7 @@ static void console_record_putc(const char c)
 	if (!(gd->flags & GD_FLG_RECORD))
 		return;
 	if  (gd->console_out.start &&
-	     !membuff_putbyte((struct membuff *)&gd->console_out, c))
+	     !membuf_putbyte((struct membuf *)&gd->console_out, c))
 		gd->flags |= GD_FLG_RECORD_OVF;
 }
 
@@ -112,7 +112,7 @@ static void console_record_puts(const char *s)
 	if  (gd->console_out.start) {
 		int len = strlen(s);
 
-		if (membuff_put((struct membuff *)&gd->console_out, s, len) !=
+		if (membuf_put((struct membuf *)&gd->console_out, s, len) !=
 		    len)
 			gd->flags |= GD_FLG_RECORD_OVF;
 	}
@@ -125,7 +125,7 @@ static int console_record_getc(void)
 	if (!gd->console_in.start)
 		return -1;
 
-	return membuff_getbyte((struct membuff *)&gd->console_in);
+	return membuf_getbyte((struct membuf *)&gd->console_in);
 }
 
 static int console_record_tstc(void)
@@ -133,7 +133,7 @@ static int console_record_tstc(void)
 	if (!(gd->flags & GD_FLG_RECORD))
 		return 0;
 	if (gd->console_in.start) {
-		if (membuff_peekbyte((struct membuff *)&gd->console_in) != -1)
+		if (membuf_peekbyte((struct membuf *)&gd->console_in) != -1)
 			return 1;
 	}
 	return 0;
@@ -810,14 +810,14 @@ int console_record_init(void)
 {
 	int ret;
 
-	ret = membuff_new((struct membuff *)&gd->console_out,
-			  gd->flags & GD_FLG_RELOC ?
-				  CONFIG_CONSOLE_RECORD_OUT_SIZE :
-				  CONFIG_CONSOLE_RECORD_OUT_SIZE_F);
+	ret = membuf_new((struct membuf *)&gd->console_out,
+			 gd->flags & GD_FLG_RELOC ?
+				CONFIG_CONSOLE_RECORD_OUT_SIZE :
+				CONFIG_CONSOLE_RECORD_OUT_SIZE_F);
 	if (ret)
 		return ret;
-	ret = membuff_new((struct membuff *)&gd->console_in,
-			  CONFIG_CONSOLE_RECORD_IN_SIZE);
+	ret = membuf_new((struct membuf *)&gd->console_in,
+			 CONFIG_CONSOLE_RECORD_IN_SIZE);
 
 	/* Start recording from the beginning */
 	gd->flags |= GD_FLG_RECORD;
@@ -827,8 +827,8 @@ int console_record_init(void)
 
 void console_record_reset(void)
 {
-	membuff_purge((struct membuff *)&gd->console_out);
-	membuff_purge((struct membuff *)&gd->console_in);
+	membuf_purge((struct membuf *)&gd->console_out);
+	membuf_purge((struct membuf *)&gd->console_in);
 	gd->flags &= ~GD_FLG_RECORD_OVF;
 }
 
@@ -847,23 +847,23 @@ int console_record_readline(char *str, int maxlen)
 	if (console_record_isempty())
 		return -ENOENT;
 
-	return membuff_readline((struct membuff *)&gd->console_out, str,
+	return membuf_readline((struct membuf *)&gd->console_out, str,
 				maxlen, '\0', false);
 }
 
 int console_record_avail(void)
 {
-	return membuff_avail((struct membuff *)&gd->console_out);
+	return membuf_avail((struct membuf *)&gd->console_out);
 }
 
 bool console_record_isempty(void)
 {
-	return membuff_isempty((struct membuff *)&gd->console_out);
+	return membuf_isempty((struct membuf *)&gd->console_out);
 }
 
 int console_in_puts(const char *str)
 {
-	return membuff_put((struct membuff *)&gd->console_in, str, strlen(str));
+	return membuf_put((struct membuf *)&gd->console_in, str, strlen(str));
 }
 
 #endif
@@ -942,11 +942,6 @@ struct stdio_dev *console_search_dev(int flags, const char *name)
 	struct stdio_dev *dev;
 
 	dev = stdio_get_by_name(name);
-#ifdef CONFIG_VIDCONSOLE_AS_LCD
-	if (!dev && !strcmp(name, CONFIG_VIDCONSOLE_AS_NAME))
-		dev = stdio_get_by_name("vidconsole");
-#endif
-
 	if (dev && (dev->flags & flags))
 		return dev;
 
@@ -1153,12 +1148,6 @@ done:
 
 	if (!IS_ENABLED(CONFIG_SYS_CONSOLE_INFO_QUIET))
 		stdio_print_current_devices();
-
-#ifdef CONFIG_VIDCONSOLE_AS_LCD
-	if (strstr(stdoutname, CONFIG_VIDCONSOLE_AS_NAME))
-		printf("Warning: Please change '%s' to 'vidconsole' in stdout/stderr environment vars\n",
-		       CONFIG_VIDCONSOLE_AS_NAME);
-#endif
 
 	if (IS_ENABLED(CONFIG_SYS_CONSOLE_ENV_OVERWRITE)) {
 		/* set the environment variables (will overwrite previous env settings) */

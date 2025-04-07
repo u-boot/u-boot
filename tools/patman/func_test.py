@@ -18,11 +18,11 @@ import unittest
 
 from patman.commit import Commit
 from patman import control
-from patman import gitutil
 from patman import patchstream
 from patman.patchstream import PatchStream
 from patman.series import Series
 from patman import settings
+from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 from u_boot_pylib import tools
 from u_boot_pylib.test_util import capture_sys_output

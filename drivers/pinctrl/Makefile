@@ -3,6 +3,7 @@
 obj-y					+= pinctrl-uclass.o
 obj-$(CONFIG_$(XPL_)PINCTRL_GENERIC)	+= pinctrl-generic.o
 
+obj-$(CONFIG_PINCTRL_ADI)		+= pinctrl-adi-adsp.o
 obj-$(CONFIG_PINCTRL_APPLE)		+= pinctrl-apple.o
 obj-$(CONFIG_PINCTRL_AT91)		+= pinctrl-at91.o
 obj-$(CONFIG_PINCTRL_AT91PIO4)		+= pinctrl-at91-pio4.o
@@ -15,7 +16,6 @@ obj-$(CONFIG_ARCH_MTMIPS) += mtmips/
 obj-$(CONFIG_ARCH_NPCM)         += nuvoton/
 obj-$(CONFIG_PINCTRL_QCOM) += qcom/
 obj-$(CONFIG_ARCH_RENESAS) += renesas/
-obj-$(CONFIG_ARCH_RZN1) += renesas/
 obj-$(CONFIG_PINCTRL_SANDBOX)	+= pinctrl-sandbox.o
 obj-$(CONFIG_PINCTRL_SUNXI)	+= sunxi/
 obj-$(CONFIG_$(XPL_)PINCTRL_TEGRA)	+= tegra/

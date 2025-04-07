@@ -6,6 +6,7 @@
 
 #include <dm.h>
 #include <env.h>
+#include <event.h>
 #include <asm/io.h>
 #include <asm/arch/gcr.h>
 #include <asm/mach-types.h>
@@ -48,7 +49,7 @@ int dram_init(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int last_stage_init(void)
 {
 
 	char value[32];
@@ -68,8 +69,10 @@ int last_stage_init(void)
 		}
 		sprintf(value, "ttyS%d,115200n8", dev->seq_);
 		env_set("console", value);
-		board_set_console();
+		return board_set_console();
 	}
 
 	return 0;
 }
+EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
+

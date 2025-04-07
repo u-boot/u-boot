@@ -48,7 +48,7 @@
 
 #ifdef CONFIG_K3_LOAD_SYSFW
 struct fwl_data cbass_hc_cfg0_fwls[] = {
-#if defined(CONFIG_TARGET_J721E_R5_EVM)
+#if defined(CONFIG_SOC_K3_J721E)
 	{ "PCIE0_CFG", 2560, 8 },
 	{ "PCIE1_CFG", 2561, 8 },
 	{ "USB3SS0_CORE", 2568, 4 },
@@ -57,11 +57,11 @@ struct fwl_data cbass_hc_cfg0_fwls[] = {
 	{ "UFS_HCI0_CFG", 2580, 4 },
 	{ "SERDES0", 2584, 1 },
 	{ "SERDES1", 2585, 1 },
-#elif defined(CONFIG_TARGET_J7200_R5_EVM)
+#elif defined(CONFIG_SOC_K3_J7200)
 	{ "PCIE1_CFG", 2561, 7 },
 #endif
 }, cbass_hc0_fwls[] = {
-#if defined(CONFIG_TARGET_J721E_R5_EVM)
+#if defined(CONFIG_SOC_K3_J721E)
 	{ "PCIE0_HP", 2528, 24 },
 	{ "PCIE0_LP", 2529, 24 },
 	{ "PCIE1_HP", 2530, 24 },

@@ -22,6 +22,9 @@ config SOC_K3_AM654
 config SOC_K3_J721E
 	bool "TI's K3 based J721E SoC Family Support"
 
+config SOC_K3_J7200
+	bool "TI's K3 based J7200 SoC Family Support"
+
 config SOC_K3_J721S2
 	bool "TI's K3 based J721S2 SoC Family Support"
 
@@ -33,18 +36,13 @@ config SOC_K3_J784S4
 
 endchoice
 
-if SOC_K3_J721E
-config SOC_K3_J721E_J7200
-	bool "TI's K3 based J7200 SoC variant Family Support"
-endif
-
 config SYS_SOC
 	default "k3"
 
 config SYS_K3_NON_SECURE_MSRAM_SIZE
 	hex
 	default 0x80000 if SOC_K3_AM654
-	default 0x100000 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
+	default 0x100000 if SOC_K3_J721E || SOC_K3_J7200 || SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x1c0000 if SOC_K3_AM642
 	default 0x3c000 if SOC_K3_AM625 || SOC_K3_AM62A7
 	help
@@ -56,7 +54,7 @@ config SYS_K3_NON_SECURE_MSRAM_SIZE
 config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 	hex
 	default 0x58000 if SOC_K3_AM654
-	default 0xc0000 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
+	default 0xc0000 if SOC_K3_J721E || SOC_K3_J7200 || SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x180000 if SOC_K3_AM642
 	default 0x38000 if SOC_K3_AM625 || SOC_K3_AM62A7
 	help
@@ -66,21 +64,21 @@ config SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
 config SYS_K3_MCU_SCRATCHPAD_BASE
 	hex
 	default 0x40280000 if SOC_K3_AM654
-	default 0x41cff9fc if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
+	default 0x41cff9fc if SOC_K3_J721E || SOC_K3_J7200 || SOC_K3_J721S2 || SOC_K3_J784S4
 	help
 	  Describes the base address of MCU Scratchpad RAM.
 
 config SYS_K3_MCU_SCRATCHPAD_SIZE
 	hex
 	default 0x200 if SOC_K3_AM654
-	default 0x200 if SOC_K3_J721E || SOC_K3_J721S2 || SOC_K3_J784S4
+	default 0x200 if SOC_K3_J721E || SOC_K3_J7200 || SOC_K3_J721S2 || SOC_K3_J784S4
 	help
 	  Describes the size of MCU Scratchpad RAM.
 
 config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
 	default 0x41c7fbfc if SOC_K3_AM654
-	default 0x41cffbfc if SOC_K3_J721E
+	default 0x41cffbfc if SOC_K3_J721E || SOC_K3_J7200
 	default 0x41cfdbfc if SOC_K3_J721S2 || SOC_K3_J784S4
 	default 0x701bebfc if SOC_K3_AM642
 	default 0x43c3f290 if SOC_K3_AM625
@@ -159,6 +157,30 @@ config K3_X509_SWRV
 config NR_DRAM_BANKS
 	default 2
 
+config K3_REMOTEPROC_R5F
+	bool "Enable K3 Remoteproc driver for R5F"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_R5F
+	default y if (SOC_K3_AM62A7 || SOC_K3_AM654 || SOC_K3_J721E || SOC_K3_J784S4 || SOC_K3_J721S2 || SOC_K3_J722S || SOC_K3_AM62P5 || SOC_K3_AM642)
+
+config K3_REMOTEPROC_DSP
+	bool "Enable K3 Remoteproc driver for DSP"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_DSP
+	default y if (SOC_K3_AM62A7 || SOC_K3_J721E || SOC_K3_J784S4 || SOC_K3_J721S2 || SOC_K3_J722S)
+
+config K3_REMOTEPROC_M4F
+	bool "Enable K3 Remoteproc driver for M4F"
+	depends on ARM64
+	imply REMOTEPROC_TI_K3_M4F
+	default y if (SOC_K3_AM625 || SOC_K3_AM642)
+
+config K3_REMOTEPROC_PRU
+	bool "Enable K3 Remoteproc driver for PRU"
+	depends on ARM64
+	imply REMOTEPROC_TI_PRU
+	default y if (SOC_K3_AM642 || SOC_K3_AM654)
+
 if CPU_V7R
 source "arch/arm/mach-k3/r5/Kconfig"
 endif
@@ -169,6 +191,7 @@ source "arch/arm/mach-k3/am62x/Kconfig"
 source "arch/arm/mach-k3/am62ax/Kconfig"
 source "arch/arm/mach-k3/am62px/Kconfig"
 source "arch/arm/mach-k3/j721e/Kconfig"
+source "arch/arm/mach-k3/j7200/Kconfig"
 source "arch/arm/mach-k3/j721s2/Kconfig"
 source "arch/arm/mach-k3/j722s/Kconfig"
 source "arch/arm/mach-k3/j784s4/Kconfig"

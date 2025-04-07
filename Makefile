@@ -406,6 +406,7 @@ LDR		= $(CROSS_COMPILE)ldr
 STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
+READELF		= $(CROSS_COMPILE)readelf
 LEX		= flex
 YACC		= bison
 AWK		= awk
@@ -820,6 +821,7 @@ KBUILD_AFLAGS += $(KAFLAGS)
 KBUILD_CFLAGS += $(KCFLAGS)
 
 KBUILD_LDFLAGS  += -z noexecstack
+KBUILD_LDFLAGS  += -z norelro
 KBUILD_LDFLAGS  += $(call ld-option,--no-warn-rwx-segments)
 
 KBUILD_HOSTCFLAGS += $(if $(CONFIG_TOOLS_DEBUG),-g)
@@ -878,7 +880,6 @@ libs-y += drivers/usb/dwc3/
 libs-y += drivers/usb/common/
 libs-y += drivers/usb/emul/
 libs-y += drivers/usb/eth/
-libs-$(CONFIG_USB_DEVICE) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/
 libs-$(CONFIG_USB_GADGET) += drivers/usb/gadget/udc/
 libs-y += drivers/usb/host/
@@ -893,9 +894,6 @@ ifdef CONFIG_POST
 libs-y += post/
 endif
 libs-$(CONFIG_$(PHASE_)UNIT_TEST) += test/
-libs-$(CONFIG_UT_ENV) += test/env/
-libs-$(CONFIG_UT_OPTEE) += test/optee/
-libs-$(CONFIG_UT_OVERLAY) += test/overlay/
 
 libs-y += $(if $(wildcard $(srctree)/board/$(BOARDDIR)/Makefile),board/$(BOARDDIR)/)
 
@@ -1019,7 +1017,9 @@ INPUTS-$(CONFIG_EFI_STUB) += u-boot-payload.efi
 
 # Generate this input file for binman
 ifeq ($(CONFIG_SPL),)
+ifneq ($(patsubst "%",%,$(CONFIG_MTK_BROM_HEADER_INFO)),)
 INPUTS-$(CONFIG_ARCH_MEDIATEK) += u-boot-mtk.bin
+endif
 endif
 
 # Add optional build target if defined in board/cpu/soc headers
@@ -1067,7 +1067,7 @@ quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) --gap-fill=0xff $(OBJCOPYFLAGS) \
 	$(OBJCOPYFLAGS_$(@F)) $< $@
 
-# Provide a version which does not do this, for use by EFI
+# Provide a version which does not do this, for use by EFI and hex/srec
 quiet_cmd_zobjcopy = OBJCOPY $@
 cmd_zobjcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
@@ -1282,7 +1282,7 @@ OBJCOPYFLAGS_u-boot.hex := -O ihex
 OBJCOPYFLAGS_u-boot.srec := -O srec
 
 u-boot.hex u-boot.srec: u-boot FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-elf.srec := $(OBJCOPYFLAGS_u-boot.srec)
 
@@ -1296,12 +1296,12 @@ OBJCOPYFLAGS_u-boot-elf.srec += --change-addresses=0x50000000
 endif
 
 u-boot-elf.srec: u-boot.elf FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 OBJCOPYFLAGS_u-boot-spl.srec = $(OBJCOPYFLAGS_u-boot.srec)
 
 spl/u-boot-spl.srec: spl/u-boot-spl FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 %.scif: %.srec
 	$(Q)$(MAKE) $(build)=arch/arm/mach-renesas $@
@@ -1436,7 +1436,7 @@ OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
 
 u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
-	$(call if_changed,objcopy)
+	$(call if_changed,zobjcopy)
 
 ifdef CONFIG_SPL_LOAD_FIT
 MKIMAGEFLAGS_u-boot.img = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
@@ -1865,6 +1865,7 @@ quiet_cmd_gen_envp = ENVP    $@
 		$(CPP) -P $(cpp_flags) -x assembler-with-cpp -undef \
 			-D__ASSEMBLY__ \
 			-D__UBOOT_CONFIG__ \
+			-DDEFAULT_DEVICE_TREE=$(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE)) \
 			-I . -I include -I $(srctree)/include \
 			-include linux/kconfig.h -include include/config.h \
 			-I$(srctree)/arch/$(ARCH)/include \
@@ -2176,7 +2177,7 @@ System.map:	u-boot
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
 # R_AARCH64_RELATIVE (64-bit).
 checkarmreloc: u-boot
-	@RELOC="`$(CROSS_COMPILE)readelf -r -W $< | cut -d ' ' -f 4 | \
+	@RELOC="`$(READELF) -r -W $< | cut -d ' ' -f 4 | \
 		grep R_A | sort -u`"; \
 	if test "$$RELOC" != "R_ARM_RELATIVE" -a \
 		 "$$RELOC" != "R_AARCH64_RELATIVE"; then \
@@ -2515,7 +2516,7 @@ cmd_genenv = \
 	sed -e '/^\s*$$/d' | \
 	sort -t '=' -k 1,1 -s -o $@
 
-u-boot-initial-env: scripts_basic $(env_h) FORCE
+u-boot-initial-env: scripts_basic $(version_h) $(env_h) include/config.h FORCE
 	$(Q)$(MAKE) $(build)=tools $(objtree)/tools/printinitialenv
 	$(call if_changed,genenv)
 

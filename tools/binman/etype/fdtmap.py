@@ -106,6 +106,9 @@ class Entry_fdtmap(Entry):
         Returns:
             FDT map binary data
         """
+        fsw = libfdt.FdtSw()
+        fsw.finish_reservemap()
+
         def _AddNode(node):
             """Add a node to the FDT map"""
             for pname, prop in node.props.items():
@@ -134,8 +137,6 @@ class Entry_fdtmap(Entry):
 
             # Build a new tree with all nodes and properties starting from that
             # node
-            fsw = libfdt.FdtSw()
-            fsw.finish_reservemap()
             with fsw.add_node(''):
                 fsw.property_string('image-node', node.name)
                 _AddNode(node)

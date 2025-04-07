@@ -8,16 +8,16 @@ import pytest
 import re
 from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
-import u_boot_utils as util
 # pylint: disable=E0611
 from tests import fs_helper
 
-supported_fs_basic = ['fat16', 'fat32', 'ext4']
-supported_fs_ext = ['fat12', 'fat16', 'fat32']
+supported_fs_basic = ['fat16', 'fat32', 'exfat', 'ext4', 'fs_generic']
+supported_fs_ext = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
 supported_fs_fat = ['fat12', 'fat16']
-supported_fs_mkdir = ['fat12', 'fat16', 'fat32']
-supported_fs_unlink = ['fat12', 'fat16', 'fat32']
+supported_fs_mkdir = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
+supported_fs_unlink = ['fat12', 'fat16', 'fat32', 'exfat', 'fs_generic']
 supported_fs_symlink = ['ext4']
+supported_fs_rename = ['fat12', 'fat16', 'fat32']
 
 #
 # Filesystem test specific setup
@@ -55,6 +55,7 @@ def pytest_configure(config):
     global supported_fs_mkdir
     global supported_fs_unlink
     global supported_fs_symlink
+    global supported_fs_rename
 
     def intersect(listA, listB):
         return  [x for x in listA if x in listB]
@@ -68,6 +69,7 @@ def pytest_configure(config):
         supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
         supported_fs_unlink =  intersect(supported_fs, supported_fs_unlink)
         supported_fs_symlink =  intersect(supported_fs, supported_fs_symlink)
+        supported_fs_rename =  intersect(supported_fs, supported_fs_rename)
 
 def pytest_generate_tests(metafunc):
     """Parametrize fixtures, fs_obj_xxx
@@ -99,10 +101,29 @@ def pytest_generate_tests(metafunc):
     if 'fs_obj_symlink' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_symlink', supported_fs_symlink,
             indirect=True, scope='module')
+    if 'fs_obj_rename' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_rename', supported_fs_rename,
+            indirect=True, scope='module')
 
 #
 # Helper functions
 #
+def fstype_to_prefix(fs_type):
+    """Convert a file system type to an U-Boot command prefix
+
+    Args:
+        fs_type: File system type.
+
+    Return:
+        A corresponding command prefix for file system type.
+    """
+    if fs_type == 'fs_generic' or fs_type == 'exfat':
+        return ''
+    elif re.match('fat', fs_type):
+        return 'fat'
+    else:
+        return fs_type
+
 def fstype_to_ubname(fs_type):
     """Convert a file system type to an U-Boot specific string
 
@@ -134,8 +155,12 @@ def check_ubconfig(config, fs_type):
     Return:
         Nothing.
     """
-    if not config.buildconfig.get('config_cmd_%s' % fs_type, None):
+    if fs_type == 'exfat' and not config.buildconfig.get('config_fs_%s' % fs_type, None):
+        pytest.skip('.config feature "FS_%s" not enabled' % fs_type.upper())
+    if fs_type != 'exfat' and not config.buildconfig.get('config_cmd_%s' % fs_type, None):
         pytest.skip('.config feature "CMD_%s" not enabled' % fs_type.upper())
+    if fs_type == 'fs_generic' or fs_type == 'exfat':
+        return
     if not config.buildconfig.get('config_%s_write' % fs_type, None):
         pytest.skip('.config feature "%s_WRITE" not enabled'
         % fs_type.upper())
@@ -173,6 +198,8 @@ def fs_obj_basic(request, u_boot_config):
         volume file name and  a list of MD5 hashes.
     """
     fs_type = request.param
+    fs_cmd_prefix = fstype_to_prefix(fs_type)
+    fs_cmd_write = 'save' if fs_type == 'fs_generic' or fs_type == 'exfat' else 'write'
     fs_img = ''
 
     fs_ubtype = fstype_to_ubname(fs_type)
@@ -262,7 +289,7 @@ def fs_obj_basic(request, u_boot_config):
         pytest.skip('Setup failed for filesystem: ' + fs_type + '. {}'.format(err))
         return
     else:
-        yield [fs_ubtype, fs_img, md5val]
+        yield [fs_ubtype, fs_cmd_prefix, fs_cmd_write, fs_img, md5val]
     finally:
         call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
@@ -283,6 +310,8 @@ def fs_obj_ext(request, u_boot_config):
         volume file name and  a list of MD5 hashes.
     """
     fs_type = request.param
+    fs_cmd_prefix = fstype_to_prefix(fs_type)
+    fs_cmd_write = 'save' if fs_type == 'fs_generic' or fs_type == 'exfat' else 'write'
     fs_img = ''
 
     fs_ubtype = fstype_to_ubname(fs_type)
@@ -352,7 +381,7 @@ def fs_obj_ext(request, u_boot_config):
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
-        yield [fs_ubtype, fs_img, md5val]
+        yield [fs_ubtype, fs_cmd_prefix, fs_cmd_write, fs_img, md5val]
     finally:
         call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
@@ -373,6 +402,7 @@ def fs_obj_mkdir(request, u_boot_config):
         volume file name.
     """
     fs_type = request.param
+    fs_cmd_prefix = fstype_to_prefix(fs_type)
     fs_img = ''
 
     fs_ubtype = fstype_to_ubname(fs_type)
@@ -385,7 +415,7 @@ def fs_obj_mkdir(request, u_boot_config):
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
-        yield [fs_ubtype, fs_img]
+        yield [fs_ubtype, fs_cmd_prefix, fs_img]
     call('rm -f %s' % fs_img, shell=True)
 
 #
@@ -404,6 +434,7 @@ def fs_obj_unlink(request, u_boot_config):
         volume file name.
     """
     fs_type = request.param
+    fs_cmd_prefix = fstype_to_prefix(fs_type)
     fs_img = ''
 
     fs_ubtype = fstype_to_ubname(fs_type)
@@ -451,7 +482,7 @@ def fs_obj_unlink(request, u_boot_config):
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
-        yield [fs_ubtype, fs_img]
+        yield [fs_ubtype, fs_cmd_prefix, fs_img]
     finally:
         call('rm -rf %s' % scratch_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
@@ -525,6 +556,121 @@ def fs_obj_symlink(request, u_boot_config):
         yield [fs_ubtype, fs_img, md5val]
     finally:
         call('rm -rf %s' % scratch_dir, shell=True)
+        call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for rename test
+#
+@pytest.fixture()
+def fs_obj_rename(request, u_boot_config):
+    """Set up a file system to be used in rename tests.
+
+    Args:
+        request: Pytest request object.
+        u_boot_config: U-Boot configuration.
+
+    Return:
+        A fixture for rename tests, i.e. a triplet of file system type,
+        volume file name, and dictionary of test identifier and md5val.
+    """
+    def new_rand_file(path):
+        check_call('dd if=/dev/urandom of=%s bs=1K count=1' % path, shell=True)
+
+    def file_hash(path):
+        out = check_output(
+            'dd if=%s bs=1K skip=0 count=1 2> /dev/null | md5sum' % path,
+            shell=True
+        )
+        return out.decode().split()[0]
+
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    mount_dir = u_boot_config.persistent_data_dir + '/scratch'
+
+    try:
+        check_call('mkdir -p %s' % mount_dir, shell=True)
+    except CalledProcessError as err:
+        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+        call('rm -f %s' % fs_img, shell=True)
+        return
+
+    try:
+        md5val = {}
+        # Test Case 1
+        check_call('mkdir %s/test1' % mount_dir, shell=True)
+        new_rand_file('%s/test1/file1' % mount_dir)
+        md5val['test1'] = file_hash('%s/test1/file1' % mount_dir)
+
+        # Test Case 2
+        check_call('mkdir %s/test2' % mount_dir, shell=True)
+        new_rand_file('%s/test2/file1' % mount_dir)
+        new_rand_file('%s/test2/file_exist' % mount_dir)
+        md5val['test2'] = file_hash('%s/test2/file1' % mount_dir)
+
+        # Test Case 3
+        check_call('mkdir -p %s/test3/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test3/dir1/file1' % mount_dir)
+        md5val['test3'] = file_hash('%s/test3/dir1/file1' % mount_dir)
+
+        # Test Case 4
+        check_call('mkdir -p %s/test4/dir1' % mount_dir, shell=True)
+        check_call('mkdir -p %s/test4/dir2/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test4/dir1/file1' % mount_dir)
+        md5val['test4'] = file_hash('%s/test4/dir1/file1' % mount_dir)
+
+        # Test Case 5
+        check_call('mkdir -p %s/test5/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test5/file2' % mount_dir)
+        md5val['test5'] = file_hash('%s/test5/file2' % mount_dir)
+
+        # Test Case 6
+        check_call('mkdir -p %s/test6/dir2/existing' % mount_dir, shell=True)
+        new_rand_file('%s/test6/existing' % mount_dir)
+        md5val['test6'] = file_hash('%s/test6/existing' % mount_dir)
+
+        # Test Case 7
+        check_call('mkdir -p %s/test7/dir1' % mount_dir, shell=True)
+        check_call('mkdir -p %s/test7/dir2/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test7/dir2/dir1/file1' % mount_dir)
+        md5val['test7'] = file_hash('%s/test7/dir2/dir1/file1' % mount_dir)
+
+        # Test Case 8
+        check_call('mkdir -p %s/test8/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test8/dir1/file1' % mount_dir)
+        md5val['test8'] = file_hash('%s/test8/dir1/file1' % mount_dir)
+
+        # Test Case 9
+        check_call('mkdir -p %s/test9/dir1/nested/inner' % mount_dir, shell=True)
+        new_rand_file('%s/test9/dir1/nested/inner/file1' % mount_dir)
+
+        # Test Case 10
+        check_call('mkdir -p %s/test10' % mount_dir, shell=True)
+        new_rand_file('%s/test10/file1' % mount_dir)
+        md5val['test10'] = file_hash('%s/test10/file1' % mount_dir)
+
+        # Test Case 11
+        check_call('mkdir -p %s/test11/dir1' % mount_dir, shell=True)
+        new_rand_file('%s/test11/dir1/file1' % mount_dir)
+        md5val['test11'] = file_hash('%s/test11/dir1/file1' % mount_dir)
+
+        try:
+            # 128MiB volume
+            fs_img = fs_helper.mk_fs(u_boot_config, fs_type, 0x8000000, '128MB', mount_dir)
+        except CalledProcessError as err:
+            pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+            return
+
+    except CalledProcessError:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
+    else:
+        yield [fs_ubtype, fs_img, md5val]
+    finally:
+        call('rm -rf %s' % mount_dir, shell=True)
         call('rm -f %s' % fs_img, shell=True)
 
 #

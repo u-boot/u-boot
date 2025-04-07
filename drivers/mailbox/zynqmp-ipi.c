@@ -270,5 +270,4 @@ U_BOOT_DRIVER(zynqmp_ipi) = {
 	.id = UCLASS_NOP,
 	.of_match = zynqmp_ipi_ids,
 	.probe = zynqmp_ipi_probe,
-	.flags = DM_FLAG_PROBE_AFTER_BIND,
 };

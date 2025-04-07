@@ -28,11 +28,7 @@ obj-y += charset.o
 endif
 endif
 
-ifdef CONFIG_USB_TTY
-obj-y += circbuf.o
-else
 obj-$(CONFIG_CIRCBUF) += circbuf.o
-endif
 
 obj-y += crc8.o
 obj-$(CONFIG_ERRNO_STR) += errno_str.o
@@ -129,7 +125,7 @@ obj-y += hang.o
 obj-y += linux_compat.o
 obj-y += linux_string.o
 obj-$(CONFIG_$(PHASE_)LMB) += lmb.o
-obj-y += membuff.o
+obj-y += membuf.o
 obj-$(CONFIG_REGEX) += slre.o
 obj-y += string.o
 obj-y += tables_csum.o
