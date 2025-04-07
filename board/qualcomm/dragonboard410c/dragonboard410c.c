@@ -66,7 +66,7 @@ int misc_init_r(void)
 
 	state = button_get_state(btn);
 	if (state == BUTTON_ON) {
-		env_set("preboot", "setenv preboot; fastboot 0");
+		env_set("preboot", "setenv preboot; run fastboot");
 		printf("vol_down pressed - Starting fastboot.\n");
 	}
 
