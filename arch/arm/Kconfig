@@ -1190,6 +1190,7 @@ config ARCH_SUNXI
 	select DM_SPI_FLASH if SPI && MTD
 	select DM_KEYBOARD
 	select DM_SERIAL
+	select MMU_PGPROT if ARM64
 	select OF_BOARD_SETUP
 	select OF_CONTROL
 	select PINCTRL
