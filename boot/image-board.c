@@ -234,7 +234,21 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 					  &fit_uname_kernel);
 }
 
-enum image_fmt_t genimg_get_format(const void *img_addr)
+/**
+ * genimg_get_format - get image format type
+ * @img_addr: image start address
+ *
+ * genimg_get_format() checks whether provided address points to a valid
+ * legacy or FIT image.
+ *
+ * New uImage format and FDT blob are based on a libfdt. FDT blob
+ * may be passed directly or embedded in a FIT image. In both situations
+ * genimg_get_format() must be able to dectect libfdt header.
+ *
+ * returns:
+ *     image format type or IMAGE_FORMAT_INVALID if no image is present
+ */
+int genimg_get_format(const void *img_addr)
 {
 	if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
 		const struct legacy_img_hdr *hdr;
@@ -250,22 +264,8 @@ enum image_fmt_t genimg_get_format(const void *img_addr)
 	if (IS_ENABLED(CONFIG_ANDROID_BOOT_IMAGE) &&
 	    is_android_boot_image_header(img_addr))
 		return IMAGE_FORMAT_ANDROID;
-	if (IS_ENABLED(CONFIG_CMD_BOOTI) &&
-	    booti_is_valid(img_addr))
-		return IMAGE_FORMAT_BOOTI;
 
 	return IMAGE_FORMAT_INVALID;
-}
-
-enum image_fmt_t genimg_get_format_comp(const void *img_addr)
-{
-	enum image_fmt_t fmt = genimg_get_format(img_addr);
-
-	if (IS_ENABLED(CONFIG_CMD_BOOTI) && fmt == IMAGE_FORMAT_INVALID &&
-	    image_decomp_type(img_addr, 2) != IH_COMP_NONE)
-		fmt = IMAGE_FORMAT_BOOTI;
-
-	return fmt;
 }
 
 /**
@@ -364,7 +364,7 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 	 * check image type, for FIT images get FIT node.
 	 */
 	buf = map_sysmem(rd_addr, 0);
-	switch (genimg_get_format_comp(buf)) {
+	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		if (CONFIG_IS_ENABLED(LEGACY_IMAGE_FORMAT)) {
 			const struct legacy_img_hdr *rd_hdr;
@@ -433,10 +433,6 @@ static int select_ramdisk(struct bootm_headers *images, const char *select, u8 a
 				return ret;
 			done = true;
 		}
-		break;
-	case IMAGE_FORMAT_BOOTI:
-		break;
-	case IMAGE_FORMAT_INVALID:
 		break;
 	}
 

@@ -55,6 +55,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define COMMAND_LINE_SIZE	2048
 
+/* Current state of the boot */
+struct zboot_state state;
+
 static void build_command_line(char *command_line, int auto_boot)
 {
 	char *env_command_line;
@@ -366,54 +369,54 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	return 0;
 }
 
-int zboot_load(struct bootm_info *bmi)
+int zboot_load(void)
 {
 	struct boot_params *base_ptr;
 	int ret;
 
-	if (bmi->base_ptr) {
-		struct boot_params *from = (struct boot_params *)bmi->base_ptr;
+	if (state.base_ptr) {
+		struct boot_params *from = (struct boot_params *)state.base_ptr;
 
 		base_ptr = (struct boot_params *)DEFAULT_SETUP_BASE;
 		log_debug("Building boot_params at %lx\n", (ulong)base_ptr);
 		memset(base_ptr, '\0', sizeof(*base_ptr));
 		base_ptr->hdr = from->hdr;
 	} else {
-		base_ptr = load_zimage((void *)bmi->bzimage_addr,
-				       bmi->bzimage_size, &bmi->load_address);
+		base_ptr = load_zimage((void *)state.bzimage_addr, state.bzimage_size,
+				       &state.load_address);
 		if (!base_ptr) {
 			puts("## Kernel loading failed ...\n");
 			return -EINVAL;
 		}
 	}
-	bmi->base_ptr = base_ptr;
+	state.base_ptr = base_ptr;
 
-	ret = env_set_hex("zbootbase", map_to_sysmem(bmi->base_ptr));
+	ret = env_set_hex("zbootbase", map_to_sysmem(state.base_ptr));
 	if (!ret)
-		ret = env_set_hex("zbootaddr", bmi->load_address);
+		ret = env_set_hex("zbootaddr", state.load_address);
 	if (ret)
 		return ret;
 
 	return 0;
 }
 
-int zboot_setup(struct bootm_info *bmi)
+int zboot_setup(void)
 {
-	struct boot_params *base_ptr = bmi->base_ptr;
+	struct boot_params *base_ptr = state.base_ptr;
 	int ret;
 
 	ret = setup_zimage(base_ptr, (char *)base_ptr + COMMAND_LINE_OFFSET,
-			   0, bmi->initrd_addr, bmi->initrd_size,
-			   (ulong)bmi->cmdline);
+			   0, state.initrd_addr, state.initrd_size,
+			   (ulong)state.cmdline);
 	if (ret)
 		return -EINVAL;
 
 	return 0;
 }
 
-int zboot_go(struct bootm_info *bmi)
+int zboot_go(void)
 {
-	struct boot_params *params = bmi->base_ptr;
+	struct boot_params *params = state.base_ptr;
 	struct setup_header *hdr = &params->hdr;
 	bool image_64bit;
 	ulong entry;
@@ -421,7 +424,7 @@ int zboot_go(struct bootm_info *bmi)
 
 	disable_interrupts();
 
-	entry = bmi->load_address;
+	entry = state.load_address;
 	image_64bit = false;
 	if (IS_ENABLED(CONFIG_X86_64) &&
 	    (hdr->xloadflags & XLF_KERNEL_64)) {
@@ -429,41 +432,28 @@ int zboot_go(struct bootm_info *bmi)
 	}
 
 	/* we assume that the kernel is in place */
-	ret = boot_linux_kernel((ulong)bmi->base_ptr, entry, image_64bit);
+	ret = boot_linux_kernel((ulong)state.base_ptr, entry, image_64bit);
 
 	return ret;
 }
 
-int zboot_run(struct bootm_info *bmi)
+int zboot_run(ulong addr, ulong size, ulong initrd, ulong initrd_size,
+	      ulong base, char *cmdline)
 {
 	int ret;
 
-	ret = zboot_load(bmi);
+	zboot_start(addr, size, initrd, initrd_size, base, cmdline);
+	ret = zboot_load();
 	if (ret)
 		return log_msg_ret("ld", ret);
-	ret = zboot_setup(bmi);
+	ret = zboot_setup();
 	if (ret)
 		return log_msg_ret("set", ret);
-	ret = zboot_go(bmi);
+	ret = zboot_go();
 	if (ret)
 		return log_msg_ret("go", ret);
 
 	return -EFAULT;
-}
-
-int zboot_run_args(ulong addr, ulong size, ulong initrd, ulong initrd_size,
-		   ulong base, char *cmdline)
-{
-	struct bootm_info bmi;
-	int ret;
-
-	bootm_init(&bmi);
-	zboot_start(&bmi, addr, size, initrd, initrd_size, base, cmdline);
-	ret = zboot_run(&bmi);
-	if (ret)
-		return log_msg_ret("zra", ret);
-
-	return 0;
 }
 
 static void print_num(const char *name, ulong value)
@@ -559,12 +549,11 @@ static void show_loader(struct setup_header *hdr)
 	printf("\n");
 }
 
-void zimage_dump(struct bootm_info *bmi, bool show_cmdline)
+void zimage_dump(struct boot_params *base_ptr, bool show_cmdline)
 {
-	struct boot_params *base_ptr;
 	struct setup_header *hdr;
+	const char *version;
 
-	base_ptr = bmi->base_ptr;
 	printf("Setup located at %p:\n\n", base_ptr);
 	print_num64("ACPI RSDP addr", base_ptr->acpi_rsdp_addr);
 
@@ -590,14 +579,10 @@ void zimage_dump(struct bootm_info *bmi, bool show_cmdline)
 	print_num("Real mode switch", hdr->realmode_swtch);
 	print_num("Start sys seg", hdr->start_sys_seg);
 	print_num("Kernel version", hdr->kernel_version);
-	if (bmi->bzimage_addr) {
-		const char *version;
-
-		version = zimage_get_kernel_version(base_ptr,
-						    (void *)bmi->bzimage_addr);
-		if (version)
-			printf("   @%p: %s\n", version, version);
-	}
+	version = zimage_get_kernel_version(base_ptr,
+					    (void *)state.bzimage_addr);
+	if (version)
+		printf("   @%p: %s\n", version, version);
 	print_num("Type of loader", hdr->type_of_loader);
 	show_loader(hdr);
 	print_num("Load flags", hdr->loadflags);
@@ -638,24 +623,25 @@ void zimage_dump(struct bootm_info *bmi, bool show_cmdline)
 		print_num("Kernel info offset", hdr->kernel_info_offset);
 }
 
-void zboot_start(struct bootm_info *bmi, ulong bzimage_addr, ulong bzimage_size,
-		 ulong initrd_addr, ulong initrd_size, ulong base_addr,
-		 const char *cmdline)
+void zboot_start(ulong bzimage_addr, ulong bzimage_size, ulong initrd_addr,
+		 ulong initrd_size, ulong base_addr, const char *cmdline)
 {
-	bmi->bzimage_size = bzimage_size;
-	bmi->initrd_addr = initrd_addr;
-	bmi->initrd_size = initrd_size;
+	memset(&state, '\0', sizeof(state));
+
+	state.bzimage_size = bzimage_size;
+	state.initrd_addr = initrd_addr;
+	state.initrd_size = initrd_size;
 	if (base_addr) {
-		bmi->base_ptr = map_sysmem(base_addr, 0);
-		bmi->load_address = bzimage_addr;
+		state.base_ptr = map_sysmem(base_addr, 0);
+		state.load_address = bzimage_addr;
 	} else {
-		bmi->bzimage_addr = bzimage_addr;
+		state.bzimage_addr = bzimage_addr;
 	}
-	bmi->cmdline = cmdline;
+	state.cmdline = cmdline;
 }
 
-void zboot_info(struct bootm_info *bmi)
+void zboot_info(void)
 {
 	printf("Kernel loaded at %08lx, setup_base=%p\n",
-	       bmi->load_address, bmi->base_ptr);
+	       state.load_address, state.base_ptr);
 }
