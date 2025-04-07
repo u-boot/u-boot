@@ -24,7 +24,6 @@
 struct msm_ehci_priv {
 	struct ehci_ctrl ctrl; /* Needed by EHCI */
 	struct usb_ehci *ehci; /* Start of IP core*/
-	struct ulpi_viewport ulpi_vp; /* ULPI Viewport */
 	struct phy phy;
 	struct clk iface_clk;
 	struct clk core_clk;
@@ -138,16 +137,10 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 {
 	struct msm_ehci_priv *priv = dev_get_priv(dev);
 
-	priv->ulpi_vp.port_num = 0;
 	priv->ehci = dev_read_addr_ptr(dev);
 
 	if (!priv->ehci)
 		return -EINVAL;
-
-	/* Warning: this will not work if viewport address is > 64 bit due to
-	 * ULPI design.
-	 */
-	priv->ulpi_vp.viewport_addr = (phys_addr_t)&priv->ehci->ulpi_viewpoint;
 
 	return 0;
 }
