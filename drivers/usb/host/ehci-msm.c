@@ -25,8 +25,7 @@ struct msm_ehci_priv {
 	struct ehci_ctrl ctrl; /* Needed by EHCI */
 	struct usb_ehci *ehci; /* Start of IP core*/
 	struct phy phy;
-	struct clk iface_clk;
-	struct clk core_clk;
+	struct clk_bulk clks;
 };
 
 static int msm_init_after_reset(struct ehci_ctrl *dev)
@@ -55,25 +54,15 @@ static int ehci_usb_probe(struct udevice *dev)
 	struct ehci_hcor *hcor;
 	int ret;
 
-	ret = clk_get_by_name(dev, "core", &p->core_clk);
-	if (ret) {
-		dev_err(dev, "Failed to get core clock: %d\n", ret);
+	ret = clk_get_bulk(dev, &p->clks);
+	if (ret && (ret != -ENOSYS && ret != -ENOENT)) {
+		dev_err(dev, "Failed to get clocks: %d\n", ret);
 		return ret;
 	}
 
-	ret = clk_get_by_name(dev, "iface", &p->iface_clk);
-	if (ret) {
-		dev_err(dev, "Failed to get iface clock: %d\n", ret);
-		return ret;
-	}
-
-	ret = clk_prepare_enable(&p->core_clk);
+	ret = clk_enable_bulk(&p->clks);
 	if (ret)
-		return ret;
-
-	ret = clk_prepare_enable(&p->iface_clk);
-	if (ret)
-		goto cleanup_core;
+		goto cleanup_clocks;
 
 	hccr = (struct ehci_hccr *)((phys_addr_t)&ehci->caplength);
 	hcor = (struct ehci_hcor *)((phys_addr_t)hccr +
@@ -81,19 +70,17 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	ret = generic_setup_phy(dev, &p->phy, 0, PHY_MODE_USB_HOST, 0);
 	if (ret)
-		goto cleanup_iface;
+		goto cleanup_clocks;
 
 	ret = board_usb_init(0, plat->init_type);
 	if (ret < 0)
-		goto cleanup_iface;
+		goto cleanup_clocks;
 
 	return ehci_register(dev, hccr, hcor, &msm_ehci_ops, 0,
 			     plat->init_type);
 
-cleanup_iface:
-	clk_disable_unprepare(&p->iface_clk);
-cleanup_core:
-	clk_disable_unprepare(&p->core_clk);
+cleanup_clocks:
+	clk_release_bulk(&p->clks);
 	return ret;
 }
 
@@ -127,8 +114,7 @@ static int ehci_usb_remove(struct udevice *dev)
 		return -ETIMEDOUT;
 	}
 
-	clk_disable_unprepare(&p->iface_clk);
-	clk_disable_unprepare(&p->core_clk);
+	clk_release_bulk(&p->clks);
 	return 0;
 }
 
