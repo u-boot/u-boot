@@ -238,18 +238,21 @@ static int acm_bind(struct usb_configuration *c, struct usb_function *f)
 		return -ENODEV;
 
 	f_acm->ep_in = ep;
+	ep->driver_data = c->cdev; /* claim */
 
 	ep = usb_ep_autoconfig(gadget, &acm_fs_out_desc);
 	if (!ep)
 		return -ENODEV;
 
 	f_acm->ep_out = ep;
+	ep->driver_data = c->cdev; /* claim */
 
 	ep = usb_ep_autoconfig(gadget, &acm_fs_notify_desc);
 	if (!ep)
 		return -ENODEV;
 
 	f_acm->ep_notify = ep;
+	ep->driver_data = c->cdev; /* claim */
 
 	if (gadget_is_dualspeed(gadget)) {
 		/* Assume endpoint addresses are the same for both speeds */
