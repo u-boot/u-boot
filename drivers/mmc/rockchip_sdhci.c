@@ -50,6 +50,10 @@
 #define DWCMSHC_EMMC_EMMC_CTRL		0x52c
 #define DWCMSHC_CARD_IS_EMMC		BIT(0)
 #define DWCMSHC_ENHANCED_STROBE		BIT(8)
+#define DWCMSHC_EMMC_AT_CTRL		0x540
+#define EMMC_AT_CTRL_TUNE_CLK_STOP_EN	BIT(16)
+#define EMMC_AT_CTRL_PRE_CHANGE_DLY	17
+#define EMMC_AT_CTRL_POST_CHANGE_DLY	19
 #define DWCMSHC_EMMC_DLL_CTRL		0x800
 #define DWCMSHC_EMMC_DLL_CTRL_RESET	BIT(1)
 #define DWCMSHC_EMMC_DLL_RXCLK		0x804
@@ -325,6 +329,11 @@ static int rk3568_sdhci_config_dll(struct sdhci_host *host, u32 clock, bool enab
 		sdhci_writel(host, DWCMSHC_EMMC_DLL_CTRL_RESET, DWCMSHC_EMMC_DLL_CTRL);
 		udelay(1);
 		sdhci_writel(host, 0, DWCMSHC_EMMC_DLL_CTRL);
+
+		extra = 0x3 << EMMC_AT_CTRL_POST_CHANGE_DLY |
+			0x3 << EMMC_AT_CTRL_PRE_CHANGE_DLY |
+			EMMC_AT_CTRL_TUNE_CLK_STOP_EN;
+		sdhci_writel(host, extra, DWCMSHC_EMMC_AT_CTRL);
 
 		/* Init DLL settings */
 		extra = DWCMSHC_EMMC_DLL_START_DEFAULT << DWCMSHC_EMMC_DLL_START_POINT |
