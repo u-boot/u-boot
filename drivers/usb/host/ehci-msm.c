@@ -87,15 +87,11 @@ cleanup_clocks:
 static int ehci_usb_remove(struct udevice *dev)
 {
 	struct msm_ehci_priv *p = dev_get_priv(dev);
-	struct usb_ehci *ehci = p->ehci;
 	int ret;
 
 	ret = ehci_deregister(dev);
 	if (ret)
 		return ret;
-
-	/* Stop controller. */
-	clrbits_le32(&ehci->usbcmd, CMD_RUN);
 
 	ret = generic_shutdown_phy(&p->phy);
 	if (ret)
@@ -104,15 +100,6 @@ static int ehci_usb_remove(struct udevice *dev)
 	ret = board_usb_init(0, USB_INIT_DEVICE); /* Board specific hook */
 	if (ret < 0)
 		return ret;
-
-	/* Reset controller */
-	setbits_le32(&ehci->usbcmd, CMD_RESET);
-
-	/* Wait for reset */
-	if (wait_for_bit_le32(&ehci->usbcmd, CMD_RESET, false, 30, false)) {
-		printf("Stuck on USB reset.\n");
-		return -ETIMEDOUT;
-	}
 
 	clk_release_bulk(&p->clks);
 	return 0;
