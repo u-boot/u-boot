@@ -141,7 +141,7 @@ static int ehci_usb_of_to_plat(struct udevice *dev)
 	priv->ulpi_vp.port_num = 0;
 	priv->ehci = dev_read_addr_ptr(dev);
 
-	if (priv->ehci == (void *)FDT_ADDR_T_NONE)
+	if (!priv->ehci)
 		return -EINVAL;
 
 	/* Warning: this will not work if viewport address is > 64 bit due to
