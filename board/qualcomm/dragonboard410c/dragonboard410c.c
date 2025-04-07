@@ -97,9 +97,9 @@ int qcom_late_init(void)
 	return 0;
 }
 
-/* Fixup of DTB for Linux Kernel
- * 1. Fixup installed DRAM.
- * 2. Fixup WLAN/BT Mac address:
+/*
+ * Fixup of DTB for Linux Kernel
+ * 1. Fixup WLAN/BT Mac address:
  *	First, check if MAC addresses for WLAN/BT exists as environemnt
  *	variables wlanaddr,btaddr. if not, generate a unique address.
  */
@@ -107,6 +107,7 @@ int qcom_late_init(void)
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	u8 mac[ARP_HLEN];
+	int i;
 
 	if (!eth_env_get_enetaddr("wlanaddr", mac)) {
 		msm_generate_mac_addr(mac);
@@ -118,11 +119,23 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	if (!eth_env_get_enetaddr("btaddr", mac)) {
 		msm_generate_mac_addr(mac);
 
-/* The BD address is same as WLAN MAC address but with
- * least significant bit flipped.
- */
-		mac[0] ^= 0x01;
+		/*
+		 * The BD address is same as WLAN MAC address but with
+		 * least significant bit flipped.
+		 */
+		mac[ARP_HLEN - 1] ^= 0x01;
 	};
+
+	/*
+	 * Reverse array since local-bd-address is formatted with least
+	 * significant byte first (little endian).
+	 */
+	for (i = 0; i < ARP_HLEN / 2; ++i) {
+		u8 tmp = mac[i];
+
+		mac[i] = mac[ARP_HLEN - 1 - i];
+		mac[ARP_HLEN - 1 - i] = tmp;
+	}
 
 	do_fixup_by_compat(blob, "qcom,wcnss-bt",
 			   "local-bd-address", mac, ARP_HLEN, 1);
