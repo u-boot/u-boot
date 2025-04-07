@@ -143,7 +143,7 @@ struct ti_sci_dev_ops {
 				 u32 reset_state);
 	int (*get_device_resets)(const struct ti_sci_handle *handle, u32 id,
 				 u32 *reset_state);
-	int (*release_exclusive_devices)(const struct ti_sci_handle *handle);
+	int (*release_exclusive_devices)(void);
 };
 
 /**
