@@ -10,6 +10,7 @@ import sys
 
 from patman import checkpatch
 from patman import patchstream
+from patman import settings
 from u_boot_pylib import gitutil
 from u_boot_pylib import terminal
 
@@ -93,7 +94,7 @@ def email_patches(col, series, cover_fname, patch_files, process_tags, its_a_go,
     if its_a_go:
         cmd = gitutil.email_patches(
             series, cover_fname, patch_files, dry_run, not ignore_bad_tags,
-            cc_file, in_reply_to=in_reply_to, thread=thread,
+            cc_file, settings.alias, in_reply_to=in_reply_to, thread=thread,
             smtp_server=smtp_server)
     else:
         print(col.build(col.RED, "Not sending emails due to errors/warnings"))

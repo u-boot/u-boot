@@ -5,7 +5,6 @@
 import os
 import sys
 
-from patman import settings
 from u_boot_pylib import command
 from u_boot_pylib import terminal
 
@@ -437,7 +436,7 @@ def check_suppress_cc_config():
 
 
 def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
-                  self_only=False, alias=None, in_reply_to=None, thread=False,
+                  alias, self_only=False, in_reply_to=None, thread=False,
                   smtp_server=None):
     """Email a patch series.
 
@@ -449,10 +448,10 @@ def email_patches(series, cover_fname, args, dry_run, warn_on_error, cc_fname,
         warn_on_error (bool): True to print a warning when an alias fails to
             match, False to ignore it.
         cc_fname (str): Filename of Cc file for per-commit Cc
-        self_only (bool): True to just email to yourself as a test
-        alias (dict or None): Alias dictionary: (None to use settings default)
+        alias (dict): Alias dictionary:
             key: alias
             value: list of aliases or email addresses
+        self_only (bool): True to just email to yourself as a test
         in_reply_to (str or None): If set we'll pass this to git as
             --in-reply-to - should be a message ID that this is in reply to.
         thread (bool): True to add --thread to git send-email (make
@@ -498,7 +497,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     # Restore argv[0] since we clobbered it.
     >>> sys.argv[0] = _old_argv0
     """
-    to = build_email_list(series.get('to'), settings.alias, '--to', warn_on_error)
+    to = build_email_list(series.get('to'), alias, '--to', warn_on_error)
     if not to:
         git_config_to = command.output('git', 'config', 'sendemail.to',
                                        raise_on_error=False)
@@ -510,9 +509,9 @@ send --cc-cmd cc-fname" cover p1 p2'
                   "git config sendemail.to u-boot@lists.denx.de")
             return None
     cc = build_email_list(list(set(series.get('cc')) - set(series.get('to'))),
-                          settings.alias, '--cc', warn_on_error)
+                          alias, '--cc', warn_on_error)
     if self_only:
-        to = build_email_list([os.getenv('USER')], '--to', settings.alias,
+        to = build_email_list([os.getenv('USER')], '--to', alias,
                               warn_on_error)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
@@ -535,14 +534,14 @@ send --cc-cmd cc-fname" cover p1 p2'
     return cmdstr
 
 
-def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
+def lookup_email(lookup_name, alias, warn_on_error=True, level=0):
     """If an email address is an alias, look it up and return the full name
 
     TODO: Why not just use git's own alias feature?
 
     Args:
         lookup_name (str): Alias or email address to look up
-        alias (dict or None): Alias dictionary: (None to use settings default)
+        alias (dict): Alias dictionary
             key: alias
             value: list of aliases or email addresses
         warn_on_error (bool): True to print a warning when an alias fails to
@@ -589,8 +588,6 @@ def lookup_email(lookup_name, alias=None, warn_on_error=True, level=0):
     Recursive email alias at 'mary'
     ['j.bloggs@napier.co.nz', 'm.poppins@cloud.net']
     """
-    if not alias:
-        alias = settings.alias
     lookup_name = lookup_name.strip()
     if '@' in lookup_name:      # Perhaps a real email address
         return [lookup_name]
