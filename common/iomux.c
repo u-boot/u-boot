@@ -131,7 +131,7 @@ int iomux_doenv(const int console, const char *arg)
 	/* Stop dropped consoles */
 	for (i = 0; i < repeat; i++) {
 		j = iomux_match_device(cons_set, cs_idx, old_set[i]);
-		if (j == cs_idx)
+		if (j == -ENOENT)
 			console_stop(console, old_set[i]);
 	}
 
