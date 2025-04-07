@@ -59,6 +59,15 @@ config ADI_SPI3
 	  Enable the ADI (Analog Devices) SPI controller driver. This
 	  driver enables the support for SC5XX spi controller.
 
+config AIROHA_SNFI_SPI
+	bool "Airoha SPI memory controller driver"
+	depends on SPI_MEM
+	help
+	  Enable the Airoha SPI memory controller driver. This driver is
+	  originally based on the Airoha SNFI IP core. It can only be
+	  used to access SPI memory devices like SPI-NOR or SPI-NAND on
+	  platforms embedding this IP core, like AN7581.
+
 config ALTERA_SPI
 	bool "Altera SPI driver"
 	help

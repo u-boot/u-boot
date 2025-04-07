@@ -20,6 +20,7 @@ obj-$(CONFIG_SPI_MEM) += spi-mem-nodm.o
 endif
 
 obj-$(CONFIG_ADI_SPI3) += adi_spi3.o
+obj-$(CONFIG_AIROHA_SNFI_SPI) += airoha_snfi_spi.o
 obj-$(CONFIG_ALTERA_SPI) += altera_spi.o
 obj-$(CONFIG_APPLE_SPI) += apple_spi.o
 obj-$(CONFIG_ATH79_SPI) += ath79_spi.o
