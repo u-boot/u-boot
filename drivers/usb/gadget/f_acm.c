@@ -663,6 +663,7 @@ static int acm_stdio_stop(struct stdio_dev *dev)
 {
 	g_dnl_unregister();
 	g_dnl_clear_detach();
+	dev->priv = NULL;
 
 	return 0;
 }
