@@ -291,6 +291,12 @@ config TARGET_KONTRON_PITX_IMX8M
 	select IMX8MQ
 	select IMX8M_LPDDR4
 
+config TARGET_TORADEX_SMARC_IMX8MP
+	bool "Support Toradex SMARC iMX8M Plus module"
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 config TARGET_VERDIN_IMX8MM
 	bool "Support Toradex Verdin iMX8M Mini module"
 	select IMX8MM
@@ -410,6 +416,7 @@ source "board/purism/librem5/Kconfig"
 source "board/ronetix/imx8mq-cm/Kconfig"
 source "board/technexion/pico-imx8mq/Kconfig"
 source "board/variscite/imx8mn_var_som/Kconfig"
+source "board/toradex/smarc-imx8mp/Kconfig"
 source "board/toradex/verdin-imx8mm/Kconfig"
 source "board/toradex/verdin-imx8mp/Kconfig"
 

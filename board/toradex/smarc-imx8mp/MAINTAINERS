@@ -1,0 +1,10 @@
+Toradex Smarc iMX8M Plus
+F:	arch/arm/dts/imx8mp-toradex-smarc-dev-u-boot.dtsi
+F:	board/toradex/smarc-imx8mp/
+F:	board/toradex/common/
+F:	configs/toradex-smarc-imx8mp_defconfig
+F:	doc/board/toradex/toradex-smarc-imx8mp.rst
+F:	include/configs/toradex-smarc-imx8mp.h
+M:	Francesco Dolcini <francesco.dolcini@toradex.com>
+S:	Maintained
+W:	https://www.toradex.com/computer-on-modules/smarc-arm-family/nxp-imx-8m-plus
