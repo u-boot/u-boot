@@ -110,9 +110,6 @@ static int ehci_usb_remove(struct udevice *dev)
 	/* Stop controller. */
 	clrbits_le32(&ehci->usbcmd, CMD_RUN);
 
-	clk_disable_unprepare(&p->iface_clk);
-	clk_disable_unprepare(&p->core_clk);
-
 	ret = generic_shutdown_phy(&p->phy);
 	if (ret)
 		return ret;
@@ -130,6 +127,8 @@ static int ehci_usb_remove(struct udevice *dev)
 		return -ETIMEDOUT;
 	}
 
+	clk_disable_unprepare(&p->iface_clk);
+	clk_disable_unprepare(&p->core_clk);
 	return 0;
 }
 
