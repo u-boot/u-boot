@@ -361,7 +361,7 @@ def create_patches(branch, start, count, ignore_binary, series, signoff=True):
     return None, files
 
 
-def build_email_list(in_list, tag=None, alias=None, warn_on_error=True):
+def build_email_list(in_list, alias, tag=None, warn_on_error=True):
     """Build a list of email addresses based on an input list.
 
     Takes a list of email addresses and aliases, and turns this into a list
@@ -373,10 +373,10 @@ def build_email_list(in_list, tag=None, alias=None, warn_on_error=True):
 
     Args:
         in_list (list of str): List of aliases/email addresses
-        tag (str): Text to put before each address
         alias (dict): Alias dictionary:
             key: alias
             value: list of aliases or email addresses
+        tag (str): Text to put before each address
         warn_on_error (bool): True to raise an error when an alias fails to
             match, False to just print a message.
 
@@ -389,12 +389,12 @@ def build_email_list(in_list, tag=None, alias=None, warn_on_error=True):
     >>> alias['mary'] = ['Mary Poppins <m.poppins@cloud.net>']
     >>> alias['boys'] = ['fred', ' john']
     >>> alias['all'] = ['fred ', 'john', '   mary   ']
-    >>> build_email_list(['john', 'mary'], None, alias)
+    >>> build_email_list(['john', 'mary'], alias, None)
     ['j.bloggs@napier.co.nz', 'Mary Poppins <m.poppins@cloud.net>']
-    >>> build_email_list(['john', 'mary'], '--to', alias)
+    >>> build_email_list(['john', 'mary'], alias, '--to')
     ['--to "j.bloggs@napier.co.nz"', \
 '--to "Mary Poppins <m.poppins@cloud.net>"']
-    >>> build_email_list(['john', 'mary'], 'Cc', alias)
+    >>> build_email_list(['john', 'mary'], alias, 'Cc')
     ['Cc j.bloggs@napier.co.nz', 'Cc Mary Poppins <m.poppins@cloud.net>']
     """
     quote = '"' if tag and tag[0] == '-' else ''
@@ -498,7 +498,7 @@ send --cc-cmd cc-fname" cover p1 p2'
     # Restore argv[0] since we clobbered it.
     >>> sys.argv[0] = _old_argv0
     """
-    to = build_email_list(series.get('to'), '--to', alias, warn_on_error)
+    to = build_email_list(series.get('to'), settings.alias, '--to', warn_on_error)
     if not to:
         git_config_to = command.output('git', 'config', 'sendemail.to',
                                        raise_on_error=False)
@@ -510,10 +510,10 @@ send --cc-cmd cc-fname" cover p1 p2'
                   "git config sendemail.to u-boot@lists.denx.de")
             return None
     cc = build_email_list(list(set(series.get('cc')) - set(series.get('to'))),
-                          '--cc', alias, warn_on_error)
+                          settings.alias, '--cc', warn_on_error)
     if self_only:
-        to = build_email_list([os.getenv('USER')], '--to',
-                              alias, warn_on_error)
+        to = build_email_list([os.getenv('USER')], '--to', settings.alias,
+                              warn_on_error)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
     if smtp_server:

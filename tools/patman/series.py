@@ -110,8 +110,8 @@ class Series(dict):
             cmd: The git command we would have run
             process_tags: Process tags as if they were aliases
         """
-        to_set = set(gitutil.build_email_list(self.to));
-        cc_set = set(gitutil.build_email_list(self.cc));
+        to_set = set(gitutil.build_email_list(self.to, settings.alias));
+        cc_set = set(gitutil.build_email_list(self.cc, settings.alias));
 
         col = terminal.Color()
         print('Dry run, so not doing much. But I would do this:')
@@ -140,7 +140,8 @@ class Series(dict):
         print('Postfix:\t ', self.get('postfix'))
         if self.cover:
             print('Cover: %d lines' % len(self.cover))
-            cover_cc = gitutil.build_email_list(self.get('cover_cc', ''))
+            cover_cc = gitutil.build_email_list(self.get('cover_cc', ''),
+                                                settings.alias)
             all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
             for email in sorted(set(all_ccs) - to_set - cc_set):
                     print('      Cc: ', email)
@@ -267,9 +268,9 @@ class Series(dict):
         """
         cc = []
         if process_tags:
-            cc += gitutil.build_email_list(commit.tags,
+            cc += gitutil.build_email_list(commit.tags, settings.alias,
                                            warn_on_error=warn_on_error)
-        cc += gitutil.build_email_list(commit.cc_list,
+        cc += gitutil.build_email_list(commit.cc_list, settings.alias,
                                        warn_on_error=warn_on_error)
         if type(add_maintainers) == type(cc):
             cc += add_maintainers
@@ -344,7 +345,8 @@ class Series(dict):
             print(col.build(col.YELLOW, f'Skipping "{x}"'))
 
         if cover_fname:
-            cover_cc = gitutil.build_email_list(self.get('cover_cc', ''))
+            cover_cc = gitutil.build_email_list(
+                self.get('cover_cc', ''), settings.alias)
             cover_cc = list(set(cover_cc + all_ccs))
             if limit is not None:
                 cover_cc = cover_cc[:limit]
