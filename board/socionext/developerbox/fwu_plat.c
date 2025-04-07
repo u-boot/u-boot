@@ -18,7 +18,7 @@ void set_dfu_alt_info(char *interface, char *devstr)
 	struct mtd_info *mtd;
 	int ret;
 
-	memset(buf, 0, sizeof(buf));
+	memset(buf, 0, DFU_ALT_BUF_LEN);
 
 	mtd_probe_devices();
 
