@@ -871,7 +871,7 @@ config FTSDC010_SDIO
 
 config MMC_MTK
 	bool "MediaTek SD/MMC Card Interface support"
-	depends on ARCH_MEDIATEK || ARCH_MTMIPS
+	depends on ARCH_MEDIATEK || ARCH_MTMIPS || ARCH_AIROHA
 	depends on OF_CONTROL
 	help
 	  This selects the MediaTek(R) Secure digital and Multimedia card Interface.
