@@ -51,28 +51,6 @@ static void msm_generate_mac_addr(u8 *mac)
 	put_unaligned_be32(msm_board_serial(), &mac[2]);
 }
 
-/* Check for vol- button - if pressed - stop autoboot */
-int misc_init_r(void)
-{
-	struct udevice *btn;
-	int ret;
-	enum button_state_t state;
-
-	ret = button_get_by_label("Volume Down", &btn);
-	if (ret < 0) {
-		printf("Couldn't find power button!\n");
-		return ret;
-	}
-
-	state = button_get_state(btn);
-	if (state == BUTTON_ON) {
-		env_set("preboot", "setenv preboot; run fastboot");
-		printf("vol_down pressed - Starting fastboot.\n");
-	}
-
-	return 0;
-}
-
 int qcom_late_init(void)
 {
 	char serial[16];
