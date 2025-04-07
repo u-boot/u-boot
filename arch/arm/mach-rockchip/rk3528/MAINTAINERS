@@ -1,0 +1,5 @@
+GENERIC-RK3528
+M:	Jonas Karlman <jonas@kwiboo.se>
+S:	Maintained
+F:	arch/arm/dts/rk3528-generic*
+F:	configs/generic-rk3528_defconfig

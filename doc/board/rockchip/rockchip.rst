@@ -97,6 +97,9 @@ List of mainline supported Rockchip boards:
      - Rockchip Evb-RK3399 (evb_rk3399)
      - Theobroma Systems RK3399-Q7 SoM - Puma (puma_rk3399)
 
+* rk3528
+     - Generic RK3528 (generic-rk3528)
+
 * rk3566
      - Anbernic RGxx3 (anbernic-rgxx3-rk3566)
      - FriendlyElec NanoPi R3S (nanopi-r3s-rk3566)
@@ -256,6 +259,15 @@ To build rk3399 boards:
 
         export BL31=../trusted-firmware-a/build/rk3399/release/bl31/bl31.elf
         make evb-rk3399_defconfig
+        make CROSS_COMPILE=aarch64-linux-gnu-
+
+To build rk3528 boards:
+
+.. code-block:: bash
+
+        export BL31=../rkbin/bin/rk35/rk3528_bl31_v1.18.elf
+        export ROCKCHIP_TPL=../rkbin/bin/rk35/rk3528_ddr_1056MHz_v1.10.bin
+        make generic-rk3528_defconfig
         make CROSS_COMPILE=aarch64-linux-gnu-
 
 To build rk3568 boards:
