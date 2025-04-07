@@ -120,6 +120,8 @@ struct video_priv {
 	u8 fg_col_idx;
 	u8 bg_col_idx;
 	ulong last_sync;
+	ushort xsize_max;
+	ushort ysize_max;
 };
 
 /**
@@ -132,6 +134,7 @@ struct video_priv {
  */
 struct video_ops {
 	int (*video_sync)(struct udevice *vid);
+	int (*resize)(struct udevice *vid);
 };
 
 #define video_get_ops(dev)        ((struct video_ops *)(dev)->driver->ops)
@@ -317,6 +320,27 @@ int video_get_xsize(struct udevice *dev);
  * Return: device frame buffer height in pixels
  */
 int video_get_ysize(struct udevice *dev);
+
+/**
+ * video_set_size() - Set the virtual size and rotation of the display
+ *
+ * The size of underlying frame buffer is not changed.
+ *
+ * @dev:	Device to request
+ * @xsize:	Virtual X size of the display in pixels
+ * @ysize:	Virtual Y size of the display in pixels
+ * @rotation:	Virtual rotation of the display in degrees
+ * Return: 0 if OK, -ENOSPC if the size is not supported
+ */
+int video_set_size(struct udevice *dev, ushort xsize, ushort ysize, ushort rotation);
+
+/**
+ * video_resize() - Resize request to the video driver
+ *
+ * @dev:	Device to request
+ * Return: 0 if OK, -ve on error
+ */
+int video_resize(struct udevice *dev);
 
 /**
  * Set whether we need to flush the dcache when changing the image. This

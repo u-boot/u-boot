@@ -135,7 +135,7 @@ static int samsung_ltl106hl02_probe(struct udevice *dev)
 }
 
 static const struct panel_ops samsung_ltl106hl02_ops = {
-	.enable_backlight	= samsung_ltl106hl02_enable_backlight,
+	.enable	= samsung_ltl106hl02_enable_backlight,
 	.set_backlight		= samsung_ltl106hl02_set_backlight,
 	.get_display_timing	= samsung_ltl106hl02_timings,
 };

@@ -62,7 +62,7 @@ static void do_enable_backlight(struct display_info_t const *dev)
 	}
 
 	panel_set_backlight(panel, 100);
-	panel_enable_backlight(panel);
+	panel_enable(panel);
 }
 
 struct display_info_t const displays[] = {

@@ -652,7 +652,7 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	uc_priv->bpix = priv->l2bpp;
 
 	if (!bridge) {
-		ret = panel_enable_backlight(panel);
+		ret = panel_enable(panel);
 		if (ret) {
 			dev_err(dev, "panel %s enable backlight error %d\n",
 				panel->name, ret);

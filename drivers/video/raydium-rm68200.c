@@ -321,7 +321,7 @@ static int rm68200_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops rm68200_panel_ops = {
-	.enable_backlight = rm68200_panel_enable_backlight,
+	.enable = rm68200_panel_enable_backlight,
 	.get_display_timing = rm68200_panel_get_display_timing,
 };
 

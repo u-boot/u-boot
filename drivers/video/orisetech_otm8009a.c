@@ -349,7 +349,7 @@ static int otm8009a_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops otm8009a_panel_ops = {
-	.enable_backlight = otm8009a_panel_enable_backlight,
+	.enable = otm8009a_panel_enable_backlight,
 	.get_display_timing = otm8009a_panel_get_display_timing,
 };
 

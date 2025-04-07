@@ -215,7 +215,7 @@ static int hx8394_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops hx8394_panel_ops = {
-	.enable_backlight = hx8394_panel_enable_backlight,
+	.enable = hx8394_panel_enable_backlight,
 	.get_display_timing = hx8394_panel_get_display_timing,
 };
 

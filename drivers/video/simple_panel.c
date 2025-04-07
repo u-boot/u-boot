@@ -177,7 +177,7 @@ static int simple_panel_probe(struct udevice *dev)
 }
 
 static const struct panel_ops simple_panel_ops = {
-	.enable_backlight	= simple_panel_enable_backlight,
+	.enable	= simple_panel_enable_backlight,
 	.set_backlight		= simple_panel_set_backlight,
 	.get_display_timing	= simple_panel_get_display_timing,
 };

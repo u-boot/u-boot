@@ -373,7 +373,7 @@ static int tilcdc_probe(struct udevice *dev)
 	uc_priv->ysize = timing.vactive.typ;
 	uc_priv->bpix = log_2_n_round_up(info.bpp);
 
-	err = panel_enable_backlight(panel);
+	err = panel_enable(panel);
 	if (err) {
 		dev_err(dev, "failed to enable panel backlight\n");
 		return err;
