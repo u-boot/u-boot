@@ -321,7 +321,7 @@ static const struct udevice_id rockchip_rng_match[] = {
 		.data = (ulong)&rk_cryptov2_soc_data,
 	},
 	{
-		.compatible = "rockchip,trngv1",
+		.compatible = "rockchip,rk3588-rng",
 		.data = (ulong)&rk_trngv1_soc_data,
 	},
 	{},
