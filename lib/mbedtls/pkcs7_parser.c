@@ -189,10 +189,6 @@ static int authattrs_parse(struct pkcs7_message *msg, void *aa, size_t aa_len,
 						len)) {
 			if (__test_and_set_bit(sinfo_has_smime_caps, &sinfo->aa_set))
 				return -EINVAL;
-
-			if (msg->data_type != OID_msIndirectData &&
-			    msg->data_type != OID_data)
-				return -EINVAL;
 		} else if (!MBEDTLS_OID_CMP_RAW(MBEDTLS_OID_MICROSOFT_SPOPUSINFO, inner_p,
 						len)) {
 			if (__test_and_set_bit(sinfo_has_ms_opus_info, &sinfo->aa_set))
