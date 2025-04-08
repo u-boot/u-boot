@@ -16,6 +16,7 @@
 #include <asm/global_data.h>
 #include <linux/printk.h>
 #include <linux/stddef.h>
+#include <mapmem.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>
@@ -368,6 +369,18 @@ int env_get_default_into(const char *name, char *buf, unsigned int len)
 	return env_get_from_linear(default_environment, name, buf, len);
 }
 
+static int env_update_fdt_addr_from_bloblist(void)
+{
+	/*
+	 * fdt_addr is by default used by booti, bootm and bootefi,
+	 * thus set it to point to the fdt embedded in a bloblist if it exists.
+	 */
+	if (!CONFIG_IS_ENABLED(BLOBLIST) || gd->fdt_src != FDTSRC_BLOBLIST)
+		return 0;
+
+	return env_set_hex("fdt_addr", (uintptr_t)map_to_sysmem(gd->fdt_blob));
+}
+
 void env_set_default(const char *s, int flags)
 {
 	if (s) {
@@ -392,6 +405,10 @@ void env_set_default(const char *s, int flags)
 
 	gd->flags |= GD_FLG_ENV_READY;
 	gd->flags |= GD_FLG_ENV_DEFAULT;
+
+	/* This has to be done after GD_FLG_ENV_READY is set */
+	if (env_update_fdt_addr_from_bloblist())
+		pr_err("Failed to set fdt_addr to point at DTB\n");
 }
 
 /* [re]set individual variables to their value in the default environment */
@@ -437,7 +454,9 @@ int env_import(const char *buf, int check, int flags)
 	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', flags, 0,
 			0, NULL)) {
 		gd->flags |= GD_FLG_ENV_READY;
-		return 0;
+
+		/* This has to be done after GD_FLG_ENV_READY is set */
+		return env_update_fdt_addr_from_bloblist();
 	}
 
 	pr_err("Cannot import environment: errno = %d\n", errno);
