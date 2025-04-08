@@ -92,7 +92,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libconfuse-dev \
 	libgit2-dev \
 	libjson-glib-dev \
-	libguestfs-tools \
 	libgnutls28-dev \
 	libgnutls30 \
 	liblz4-tool \
@@ -106,7 +105,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	libtool \
 	libudev-dev \
 	libusb-1.0-0-dev \
-	linux-image-generic \
 	lzma-alone \
 	lzop \
 	mount \
@@ -142,9 +140,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	xilinx-bootgen \
 	xxd \
 	zip
-
-# Make kernels readable for libguestfs tools to work correctly
-RUN chmod +r /boot/vmlinu*
 
 # Build GRUB UEFI targets for ARM & RISC-V, 32-bit and 64-bit
 RUN git clone git://git.savannah.gnu.org/grub.git /tmp/grub && \

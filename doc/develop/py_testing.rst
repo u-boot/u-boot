@@ -41,13 +41,11 @@ will be required. The following is an incomplete list:
 * dfu-util
 * dtc
 * openssl
-* sudo OR guestmount
 * e2fsprogs
 * util-linux
 * coreutils
 * dosfstools
 * efitools
-* guestfs-tools
 * mount
 * mtools
 * sbsigntool
@@ -64,23 +62,12 @@ The test script supports either:
   physical board, attach to the board's console stream, and reset the board.
   Further details are described later.
 
-The usage of command 'sudo' should be avoided in tests. To create disk images
-use command virt-make-fs which is provided by package guestfs-tools. This
-command creates a virtual machine with QEMU in which the disk image is
-generated.
-
-Command virt-make-fs needs read access to the current kernel. On Ubuntu only
-root has this privilege. You can add a script /etc/initramfs-tools/hooks/vmlinuz
-with the following content to overcome the problem:
-
-.. code-block:: bash
-
-    #!/bin/sh
-    echo "chmod a+r vmlinuz-*"
-    chmod a+r /boot/vmlinuz-*
-
-The script should be chmod 755. It will be invoked whenever the initial RAM file
-system is updated.
+The usage of the command 'sudo' is not allowed in tests. Using elevated
+priviledges can lead to security concerns. Furthermore not all users may have
+administrator rights. Therefore the command 'sudo' must not be used in tests.
+To create disk images we have helper functions located in
+`test/py/tests/fs_helper.py` which shall be used in any tests that require
+creating disk images.
 
 Using `virtualenv` to provide requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

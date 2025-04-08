@@ -3,12 +3,56 @@
 """
 
 import pytest
+import shutil
+import pytest
 import time
+from subprocess import call, check_call, CalledProcessError
+from tests import fs_helper
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.buildconfigspec('cmd_eficonfig')
 @pytest.mark.buildconfigspec('cmd_bootefi_bootmgr')
-def test_efi_eficonfig(ubman, efi_eficonfig_data):
+def test_efi_eficonfig(ubman):
+
+    def prepare_image(u_boot_config):
+        """Set up a file system to be used in UEFI "eficonfig" command
+           tests. This creates a disk image with the following files:
+                 initrd-1.img
+                 initrd-2.img
+                 initrddump.efi
+
+        Args:
+            u_boot_config -- U-Boot configuration.
+
+        Return:
+            A path to disk image to be used for testing
+
+        """
+        try:
+            image_path, mnt_point = fs_helper.setup_image(u_boot_config, 0,
+                                                          0xc,
+                                                          basename='test_eficonfig')
+
+            with open(mnt_point + '/initrd-1.img', 'w', encoding = 'ascii') as file:
+                file.write("initrd 1")
+
+            with open(mnt_point + '/initrd-2.img', 'w', encoding = 'ascii') as file:
+                file.write("initrd 2")
+
+            shutil.copyfile(u_boot_config.build_dir + '/lib/efi_loader/initrddump.efi',
+                            mnt_point + '/initrddump.efi')
+
+            fsfile = fs_helper.mk_fs(ubman.config, 'vfat', 0x100000,
+                                     'test_eficonfig', mnt_point)
+            check_call(f'dd if={fsfile} of={image_path} bs=1M seek=1', shell=True)
+
+            yield image_path
+        except CalledProcessError as err:
+            pytest.skip('Preparing test_eficonfig image failed')
+            call('rm -f %s' % image_path, shell=True)
+        finally:
+            call('rm -rf %s' % mnt_point, shell=True)
+            call('rm -f %s' % image_path, shell=True)
 
     def send_user_input_and_wait(user_str, expect_str):
         time.sleep(0.1) # TODO: does not work correctly without sleep
@@ -57,12 +101,6 @@ def test_efi_eficonfig(ubman, efi_eficonfig_data):
 
     Args:
         ubman -- U-Boot console
-        efi__data -- Path to the disk image used for testing.
-                     Test disk image has following files.
-                         initrd-1.img
-                         initrd-2.img
-                         initrddump.efi
-
     """
     # This test passes for unknown reasons in the bowels of U-Boot. It needs to
     # be replaced with a unit test.
@@ -71,6 +109,7 @@ def test_efi_eficonfig(ubman, efi_eficonfig_data):
     # Restart the system to clean the previous state
     ubman.restart_uboot()
 
+    efi_eficonfig_data = prepare_image(ubman.config)
     with ubman.temporary_timeout(500):
         #
         # Test Case 1: Check the menu is displayed

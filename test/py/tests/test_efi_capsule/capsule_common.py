@@ -136,7 +136,7 @@ def do_reboot_dtb_specified(u_boot_config, ubman, dtb_filename):
         ubman -- A console connection to U-Boot.
         dtb_filename -- DTB file name.
     """
-    mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
+    mnt_point = u_boot_config.persistent_data_dir + '/scratch'
     ubman.config.dtb = mnt_point + CAPSULE_DATA_DIR \
                                 + f'/{dtb_filename}'
     ubman.restart_uboot()
