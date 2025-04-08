@@ -238,6 +238,9 @@ RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/t
 	cp fiptool /usr/local/bin && \
 	rm -rf /tmp/tf-a
 
+# Download the Arm Architecture FVP platform. This file is double compressed.
+RUN wget -O - https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Architecture/FM-11.28/FVP_Base_RevC-2xAEMvA_11.28_23_Linux64.tgz | gunzip -dc | tar -C /opt -x
+
 # Build genimage (required by some targets to generate disk images)
 RUN wget -O - https://github.com/pengutronix/genimage/releases/download/v14/genimage-14.tar.xz | tar -C /tmp -xJ && \
 	cd /tmp/genimage-14 && \
