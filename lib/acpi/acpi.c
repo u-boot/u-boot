@@ -6,10 +6,17 @@
  */
 
 #include <mapmem.h>
+#include <tables_csum.h>
 #include <acpi/acpi_table.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+void acpi_update_checksum(struct acpi_table_header *header)
+{
+	header->checksum = 0;
+	header->checksum = table_compute_checksum(header, header->length);
+}
 
 struct acpi_table_header *acpi_find_table(const char *sig)
 {

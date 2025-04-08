@@ -791,7 +791,7 @@ static int rpi_acpi_write_ssdt(struct acpi_ctx *ctx, const struct acpi_writer *e
 
 	/* (Re)calculate length and checksum */
 	ssdt->length = ctx->current - (void *)ssdt;
-	ssdt->checksum = table_compute_checksum((void *)ssdt, ssdt->length);
+	acpi_update_checksum(ssdt);
 	log_debug("SSDT at %p, length %x\n", ssdt, ssdt->length);
 
 	/* Drop the table if it is empty */

@@ -173,7 +173,7 @@ int acpi_write_tcpa(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 	/* (Re)calculate length and checksum */
 	current = (u32)tcpa + sizeof(struct acpi_tcpa);
 	header->length = current - (u32)tcpa;
-	header->checksum = table_compute_checksum(tcpa, header->length);
+	acpi_update_checksum(header);
 
 	acpi_inc(ctx, tcpa->header.length);
 	acpi_add_table(ctx, tcpa);
@@ -242,7 +242,7 @@ static int acpi_write_tpm2(struct acpi_ctx *ctx,
 	tpm2->lasa = nomap_to_sysmem(lasa);
 
 	/* Calculate checksum. */
-	header->checksum = table_compute_checksum(tpm2, header->length);
+	acpi_update_checksum(header);
 
 	acpi_inc(ctx, tpm2->header.length);
 	acpi_add_table(ctx, tpm2);
@@ -279,9 +279,7 @@ int acpi_write_gnvs(struct acpi_ctx *ctx, const struct acpi_writer *entry)
 		 * patched the GNVS address. Set the checksum to zero since it
 		 * is part of the region being checksummed.
 		 */
-		ctx->dsdt->checksum = 0;
-		ctx->dsdt->checksum = table_compute_checksum((void *)ctx->dsdt,
-							     ctx->dsdt->length);
+		acpi_update_checksum(ctx->dsdt);
 	}
 
 	/* Fill in platform-specific global NVS variables */
@@ -330,8 +328,7 @@ static int acpi_create_hpet(struct acpi_hpet *hpet)
 	hpet->number = 0;
 	hpet->min_tick = 0; /* HPET_MIN_TICKS */
 
-	header->checksum = table_compute_checksum(hpet,
-						  sizeof(struct acpi_hpet));
+	acpi_update_checksum(header);
 
 	return 0;
 }
