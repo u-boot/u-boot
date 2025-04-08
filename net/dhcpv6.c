@@ -473,8 +473,7 @@ static int dhcp6_check_advertise_packet(uchar *rx_pkt, unsigned int len)
 		 * server UID, save the new server UID and preference
 		 */
 		if (!sm_params.server_uid.uid_ptr ||
-		    (sm_params.server_uid.uid_ptr &&
-		    sm_params.server_uid.preference < sm_params.rx_status.preference)) {
+		    sm_params.server_uid.preference < sm_params.rx_status.preference) {
 			rx_uid_size = sm_params.rx_status.server_uid_size;
 			if (sm_params.server_uid.uid_ptr)
 				free(sm_params.server_uid.uid_ptr);
