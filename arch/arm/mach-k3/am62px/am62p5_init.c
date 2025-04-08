@@ -266,6 +266,7 @@ u32 spl_mmc_boot_mode(struct mmc *mmc, const u32 boot_device)
 	case BOOT_DEVICE_MMC:
 		if (bootmode_cfg & MAIN_DEVSTAT_PRIMARY_MMC_FS_RAW_MASK)
 			return MMCSD_MODE_RAW;
+		fallthrough;
 	default:
 		return MMCSD_MODE_FS;
 	}

@@ -352,7 +352,7 @@ static unsigned int xhci_get_endpoint_interval(struct usb_device *udev,
 		 * since it uses the same rules as low speed interrupt
 		 * endpoints.
 		 */
-
+		fallthrough;
 	case USB_SPEED_LOW:
 		if (usb_endpoint_xfer_int(endpt_desc) ||
 		    usb_endpoint_xfer_isoc(endpt_desc)) {

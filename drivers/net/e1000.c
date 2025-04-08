@@ -4830,6 +4830,7 @@ static int e1000_set_phy_type (struct e1000_hw *hw)
 			hw->phy_type = e1000_phy_igp;
 			break;
 		}
+		fallthrough;
 	case IGP03E1000_E_PHY_ID:
 		hw->phy_type = e1000_phy_igp_3;
 		break;
@@ -4843,6 +4844,7 @@ static int e1000_set_phy_type (struct e1000_hw *hw)
 			hw->phy_type = e1000_phy_gg82563;
 			break;
 		}
+		fallthrough;
 	case BME1000_E_PHY_ID:
 		hw->phy_type = e1000_phy_bm;
 		break;
