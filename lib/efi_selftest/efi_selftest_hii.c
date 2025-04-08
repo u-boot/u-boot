@@ -609,14 +609,12 @@ static int test_hii_database_get_package_list_handle(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
@@ -711,14 +709,12 @@ static int test_hii_string_new_string(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
@@ -792,14 +788,12 @@ static int test_hii_string_get_string(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
@@ -851,14 +845,12 @@ static int test_hii_string_set_string(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
@@ -918,14 +910,12 @@ static int test_hii_string_get_languages(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
@@ -991,14 +981,12 @@ static int test_hii_string_get_secondary_languages(void)
 	result = EFI_ST_SUCCESS;
 
 out:
-	if (handle) {
-		ret = hii_database_protocol->remove_package_list(
-				hii_database_protocol, handle);
-		if (ret != EFI_SUCCESS) {
-			efi_st_error("remove_package_list returned %u\n",
-				     (unsigned int)ret);
-			return EFI_ST_FAILURE;
-		}
+	ret = hii_database_protocol->remove_package_list(
+			hii_database_protocol, handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("remove_package_list returned %u\n",
+			     (unsigned int)ret);
+		return EFI_ST_FAILURE;
 	}
 
 	return result;
