@@ -231,7 +231,7 @@ RUN git clone https://gitlab.com/qemu-project/qemu.git /tmp/qemu && \
 # Build fiptool
 RUN git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git /tmp/tf-a && \
 	cd /tmp/tf-a/ && \
-	git checkout v2.10.0 && \
+	git checkout v2.12.0 && \
 	cd tools/fiptool && \
 	make -j$(nproc) && \
 	mkdir -p /usr/local/bin && \
