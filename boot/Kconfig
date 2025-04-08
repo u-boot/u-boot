@@ -33,6 +33,24 @@ config TIMESTAMP
 	  loaded that does not, the message 'Wrong FIT format: no timestamp'
 	  is shown.
 
+config LIB_BOOTI
+	bool
+
+config LIB_BOOTM
+	bool
+
+config LIB_BOOTZ
+	bool
+
+config SPL_LIB_BOOTI
+	bool
+
+config SPL_LIB_BOOTM
+	bool
+
+config SPL_LIB_BOOTZ
+	bool
+
 config BUTTON_CMD
 	bool "Support for running a command if a button is held during boot"
 	depends on CMDLINE
