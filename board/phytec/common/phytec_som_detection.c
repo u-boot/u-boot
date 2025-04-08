@@ -295,17 +295,16 @@ static int phytec_get_product_name(struct phytec_eeprom_data *data,
 
 	switch (api2->som_type) {
 	case 0:
+	case 1:
+	case 2:
+	case 3:
 		som_type = api2->som_type;
 		break;
 	case 4:
-		som_type = 0;
-		break;
 	case 5:
 		som_type = 0;
 		break;
 	case 6:
-		som_type = 1;
-		break;
 	case 7:
 		som_type = 1;
 		break;
