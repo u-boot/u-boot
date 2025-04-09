@@ -454,6 +454,12 @@ config TOOLS_DEBUG
 	  it is possible to set breakpoints on particular lines, single-step
 	  debug through the source code, etc.
 
+config SKIP_RELOCATE
+	bool "Skips relocation of U-Boot to end of RAM"
+	help
+	  Skips relocation of U-Boot allowing for systems that have extremely
+	  limited RAM to run U-Boot.
+
 endif # EXPERT
 
 config PHYS_64BIT

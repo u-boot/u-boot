@@ -477,6 +477,13 @@ static int reserve_trace(void)
 
 static int reserve_uboot(void)
 {
+	/*
+	 * This should be the first place GD_FLG_SKIP_RELOC is read from.
+	 * Set GD_FLG_SKIP_RELOC flag if CONFIG_SKIP_RELOCATE is enabled.
+	 */
+	if (CONFIG_IS_ENABLED(SKIP_RELOCATE))
+		gd->flags |= GD_FLG_SKIP_RELOC;
+
 	if (!(gd->flags & GD_FLG_SKIP_RELOC)) {
 		/*
 		 * reserve memory for U-Boot code, data & bss
