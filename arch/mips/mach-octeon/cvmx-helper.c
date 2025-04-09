@@ -1729,7 +1729,7 @@ cvmx_helper_link_info_t cvmx_helper_link_get(int xipd_port)
 		sfp_info = cvmx_helper_cfg_get_sfp_info(xiface, index);
 
 		while (sfp_info) {
-			if ((!result.s.link_up || (result.s.link_up && sfp_info->last_mod_abs)))
+			if (!result.s.link_up || sfp_info->last_mod_abs)
 				cvmx_sfp_check_mod_abs(sfp_info, sfp_info->mod_abs_data);
 			sfp_info = sfp_info->next_iface_sfp;
 		}

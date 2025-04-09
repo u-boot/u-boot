@@ -386,8 +386,7 @@ cvmx_helper_link_info_t __cvmx_helper_board_link_get_from_dt(int ipd_port)
 		/* If the link is down or the link is up but we still register
 		 * the module as being absent, re-check mod_abs.
 		 */
-		if (!result.s.link_up ||
-		    (result.s.link_up && sfp_info->last_mod_abs))
+		if (!result.s.link_up || sfp_info->last_mod_abs)
 			__cvmx_helper_update_sfp(ipd_port, sfp_info, result);
 		sfp_info = sfp_info->next_iface_sfp;
 	}
