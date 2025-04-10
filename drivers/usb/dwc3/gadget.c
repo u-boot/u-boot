@@ -1635,7 +1635,7 @@ usb_ep *dwc3_gadget_match_ep(struct usb_gadget *gadget,
 		/*
 		 * Special workaround for NXP UUU tool in SPL.
 		 *
-		 * The tool excepts the interrupt-in endpoint to be ep1in,
+		 * The tool expects the interrupt-in endpoint to be ep1in,
 		 * otherwise it crashes. This is a result of the previous
 		 * hard-coded EP setup in drivers/usb/gadget/epautoconf.c
 		 * which did special-case EP allocation for SPL builds,
