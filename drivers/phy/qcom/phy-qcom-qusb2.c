@@ -230,6 +230,7 @@ static const struct qusb2_phy_cfg sm6115_phy_cfg = {
 	.regs = sm6115_regs_layout,
 
 	.has_pll_test = true,
+	.se_clk_scheme_default = true,
 	.disable_ctrl = (CLAMP_N_EN | FREEZIO_N | POWER_DOWN),
 	.mask_core_ready = PLL_LOCKED,
 	.autoresume_en = BIT(3),
@@ -256,6 +257,7 @@ static const struct qusb2_phy_cfg qusb2_v2_phy_cfg = {
 			 POWER_DOWN),
 	.mask_core_ready = CORE_READY_STATUS,
 	.has_pll_override = true,
+	.se_clk_scheme_default = true,
 	.autoresume_en = BIT(0),
 	.update_tune1_with_efuse = true,
 };
