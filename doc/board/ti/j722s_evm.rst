@@ -74,7 +74,6 @@ Set the variables corresponding to this platform:
  $ export UBOOT_CFG_CORTEXA=j722s_evm_a53_defconfig
  $ export TFA_BOARD=lite
  $ export OPTEE_PLATFORM=k3-am62x
- $ export OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 
 .. j722s_evm_rst_include_start_build_steps
 
