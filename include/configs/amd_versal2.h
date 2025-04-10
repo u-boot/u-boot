@@ -105,6 +105,14 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
+#define BOOT_TARGET_DEVICES_UFS(func)	func(UFS, ufs, 0)
+
+#define BOOTENV_DEV_UFS(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel "=" #devtypel " init " #instance "; scsi scan;\0"
+
+#define BOOTENV_DEV_NAME_UFS(devtypeu, devtypel, instance) \
+	"ufs "
+
 #define BOOT_TARGET_DEVICES_DFU_USB(func)  func(DFU_USB, dfu_usb, 0)
 
 #define BOOTENV_DEV_DFU_USB(devtypeu, devtypel, instance) \
@@ -120,6 +128,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_UFS(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
 	BOOT_TARGET_DEVICES_DFU_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
