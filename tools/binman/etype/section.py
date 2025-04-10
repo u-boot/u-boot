@@ -662,23 +662,6 @@ class Entry_section(Entry):
         else:
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 
-    def GetRootSkipAtStart(self):
-        """Get the skip-at-start value for the top-level section
-
-        This is used to find out the starting offset for root section that
-        contains this section. If this is a top-level section then it returns
-        the skip-at-start offset for this section.
-
-        This is used to get the absolute position of section within the image.
-
-        Returns:
-            Integer skip-at-start value for the root section containing this
-                section
-        """
-        if self.section:
-            return self.section.GetRootSkipAtStart()
-        return self._skip_at_start
-
     def GetStartOffset(self):
         """Get the start offset for this section
 
