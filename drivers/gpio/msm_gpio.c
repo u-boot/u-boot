@@ -151,6 +151,9 @@ static int msm_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 
 static int msm_gpio_set_flags(struct udevice *dev, unsigned int gpio, ulong flags)
 {
+	if (msm_pinctrl_is_reserved(dev_get_parent(dev), gpio))
+		return -EPERM;
+
 	if (flags & GPIOD_IS_OUT_ACTIVE) {
 		return msm_gpio_direction_output(dev, gpio, 1);
 	} else if (flags & GPIOD_IS_OUT) {
@@ -193,6 +196,9 @@ static int msm_gpio_get_value(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	if (msm_pinctrl_is_reserved(dev_get_parent(dev), gpio))
+		return -EPERM;
+
 	if (qcom_is_special_pin(priv->pin_data, gpio))
 		return msm_gpio_get_value_special(priv, gpio);
 
@@ -232,6 +238,10 @@ static int msm_gpio_get_function(struct udevice *dev, unsigned int gpio)
 {
 	struct msm_gpio_bank *priv = dev_get_priv(dev);
 
+	if (msm_pinctrl_is_reserved(dev_get_parent(dev), gpio))
+		return GPIOF_UNKNOWN;
+
+	/* Always NOP for special pins, assume they're in the correct state */
 	if (qcom_is_special_pin(priv->pin_data, gpio))
 		return msm_gpio_get_function_special(priv, gpio);
 

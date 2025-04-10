@@ -15,14 +15,18 @@
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
+#include <linux/bitmap.h>
 #include <linux/bug.h>
 #include <mach/gpio.h>
 
 #include "pinctrl-qcom.h"
 
+#define MSM_PINCTRL_MAX_PINS 256
+
 struct msm_pinctrl_priv {
 	phys_addr_t base;
 	struct msm_pinctrl_data *data;
+	DECLARE_BITMAP(reserved_map, MSM_PINCTRL_MAX_PINS);
 };
 
 #define GPIO_CONFIG_REG(priv, x) \
@@ -71,12 +75,59 @@ static const char *msm_get_function_name(struct udevice *dev,
 	return priv->data->get_function_name(dev, selector);
 }
 
+static int msm_pinctrl_parse_ranges(struct udevice *dev)
+{
+	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+	ofnode node = dev_ofnode(dev);
+	int ret, count, i;
+	u32 *ranges;
+
+	if (ofnode_read_prop(node, "gpio-reserved-ranges", &count)) {
+		if (count % 2 == 1) {
+			dev_err(dev, "gpio-reserved-ranges must be a multiple of 2\n");
+			return -EINVAL;
+		}
+
+		ranges = malloc(count);
+		if (!ranges)
+			return -ENOMEM;
+
+		ret = ofnode_read_u32_array(node, "gpio-reserved-ranges", ranges, count / 4);
+		if (ret) {
+			dev_err(dev, "failed to read gpio-reserved-ranges array (%d)\n", ret);
+			return ret;
+		}
+
+		for (i = 0; i < count / 4; i += 2) {
+			if (ranges[i] >= MSM_PINCTRL_MAX_PINS ||
+			    (ranges[i] + ranges[i + 1]) >= MSM_PINCTRL_MAX_PINS) {
+				dev_err(dev, "invalid reserved-range (%d;%d)\n",
+					ranges[i], ranges[i + 1]);
+				return -EINVAL;
+			}
+
+			bitmap_set(priv->reserved_map, ranges[i], ranges[i + 1]);
+		}
+
+		free(ranges);
+	}
+
+	return 0;
+}
+
 static int msm_pinctrl_probe(struct udevice *dev)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->base = dev_read_addr(dev);
 	priv->data = (struct msm_pinctrl_data *)dev_get_driver_data(dev);
+
+	ret = msm_pinctrl_parse_ranges(dev);
+	if (ret) {
+		printf("Couldn't parse reserved GPIO ranges!\n");
+		return ret;
+	}
 
 	return priv->base == FDT_ADDR_T_NONE ? -EINVAL : 0;
 }
@@ -96,6 +147,9 @@ static int msm_pinmux_set(struct udevice *dev, unsigned int pin_selector,
 
 	if (func < 0)
 		return func;
+
+	if (msm_pinctrl_is_reserved(dev, pin_selector))
+		return -EPERM;
 
 	/* Always NOP for special pins, assume they're in the correct state */
 	if (qcom_is_special_pin(&priv->data->pin_data, pin_selector))
@@ -144,6 +198,9 @@ static int msm_pinconf_set(struct udevice *dev, unsigned int pin_selector,
 			   unsigned int param, unsigned int argument)
 {
 	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (msm_pinctrl_is_reserved(dev, pin_selector))
+		return -EPERM;
 
 	if (qcom_is_special_pin(&priv->data->pin_data, pin_selector))
 		return msm_pinconf_set_special(priv, pin_selector, param, argument);
@@ -241,3 +298,13 @@ U_BOOT_DRIVER(pinctrl_qcom) = {
 	.ops		= &msm_pinctrl_ops,
 	.probe		= msm_pinctrl_probe,
 };
+
+bool msm_pinctrl_is_reserved(struct udevice *dev, unsigned int pin)
+{
+	struct msm_pinctrl_priv *priv = dev_get_priv(dev);
+
+	if (pin >= MSM_PINCTRL_MAX_PINS)
+		return false;
+
+	return test_bit(pin, priv->reserved_map);
+}
