@@ -1663,6 +1663,10 @@ static int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 }
 #endif
 
+static void mmc_send_init_stream(struct mmc *mmc)
+{
+}
+
 static int mmc_set_ios(struct mmc *mmc)
 {
 	int ret = 0;
@@ -2928,6 +2932,8 @@ int mmc_get_op_cond(struct mmc *mmc, bool quiet)
 
 retry:
 	mmc_set_initial_state(mmc);
+
+	mmc_send_init_stream(mmc);
 
 	/* Reset the Card */
 	err = mmc_go_idle(mmc);
