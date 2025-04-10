@@ -283,6 +283,7 @@ static int boot_targets_setup(void)
 				env_targets ? env_targets : "");
 
 		env_set("boot_targets", new_targets);
+		free(new_targets);
 	}
 
 	return 0;
