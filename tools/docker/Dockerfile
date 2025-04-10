@@ -78,6 +78,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	exfatprogs \
 	expect \
 	fakeroot \
+	fdisk \
 	flex \
 	gawk \
 	gdisk \
