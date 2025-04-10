@@ -713,7 +713,7 @@ rm-cfg:
             start_resource: 19
             num_resource: 64
             type: 1937
-            host_id: 30
+            host_id: 36
             reserved: 0
         -
             start_resource: 83
@@ -767,7 +767,7 @@ rm-cfg:
             start_resource: 118
             num_resource: 16
             type: 1943
-            host_id: 30
+            host_id: 36
             reserved: 0
         -
             start_resource: 134
@@ -833,7 +833,7 @@ rm-cfg:
             start_resource: 19
             num_resource: 8
             type: 1956
-            host_id: 30
+            host_id: 36
             reserved: 0
         -
             start_resource: 27
@@ -917,7 +917,7 @@ rm-cfg:
             start_resource: 19
             num_resource: 1
             type: 1963
-            host_id: 30
+            host_id: 36
             reserved: 0
         -
             start_resource: 19
@@ -929,7 +929,7 @@ rm-cfg:
             start_resource: 19
             num_resource: 16
             type: 1964
-            host_id: 30
+            host_id: 36
             reserved: 0
         -
             start_resource: 20

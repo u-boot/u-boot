@@ -66,7 +66,7 @@
 };
 
 &cpsw_port2 {
-	bootph-all;
+	status = "disabled";
 };
 
 &dmsc {
