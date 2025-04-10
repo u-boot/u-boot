@@ -125,12 +125,19 @@
 #define BOOTENV_DEV_NAME_DFU_USB(devtypeu, devtypel, instance) \
 	""
 
+#if defined(CONFIG_USB_STORAGE)
+#define BOOT_TARGET_DEVICES_USB(func)  func(USB, usb, 0) func(USB, usb, 1)
+#else
+#define BOOT_TARGET_DEVICES_USB(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_UFS(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
 	BOOT_TARGET_DEVICES_DFU_USB(func) \
+	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func)
 
