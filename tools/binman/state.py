@@ -411,8 +411,7 @@ def CheckSetHashValue(node, get_data_func):
             m = hashlib.sha256()
             m.update(get_data_func())
             data = m.digest()
-        if data is None:
-            raise ValueError(f"Node '{node.path}': Unknown hash algorithm '{algo}'")
+        assert data
         for n in GetUpdateNodes(hash_node):
             n.SetData('value', data)
 
