@@ -531,7 +531,7 @@ class Toolchains:
         if arch == 'aarch64':
             arch = 'arm64'
         base = 'https://www.kernel.org/pub/tools/crosstool/files/bin'
-        versions = ['13.2.0', '12.2.0']
+        versions = ['14.2.0', '13.2.0']
         links = []
         for version in versions:
             url = '%s/%s/%s/' % (base, arch, version)
