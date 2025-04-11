@@ -22,6 +22,7 @@
 #include <dt-bindings/input/linux-event-codes.h>
 #include <dm/of_access.h>
 #include <dm/of.h>
+#include <event.h>
 #include <fdt_support.h>
 #include <linux/errno.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@
  * DT here. This improves compatibility with upstream DT and simplifies the
  * porting process for new devices.
  */
-static int fixup_qcom_dwc3(struct device_node *glue_np)
+static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np)
 {
 	struct device_node *dwc3;
 	int ret, len, hsphy_idx = 1;
@@ -101,9 +102,9 @@ static int fixup_qcom_dwc3(struct device_node *glue_np)
 	return 0;
 }
 
-static void fixup_usb_nodes(void)
+static void fixup_usb_nodes(struct device_node *root)
 {
-	struct device_node *glue_np = NULL;
+	struct device_node *glue_np = root;
 	int ret;
 
 	while ((glue_np = of_find_compatible_node(glue_np, NULL, "qcom,dwc3"))) {
@@ -114,14 +115,14 @@ static void fixup_usb_nodes(void)
 }
 
 /* Remove all references to the rpmhpd device */
-static void fixup_power_domains(void)
+static void fixup_power_domains(struct device_node *root)
 {
 	struct device_node *pd = NULL, *np = NULL;
 	struct property *prop;
 	const __be32 *val;
 
 	/* All Qualcomm platforms name the rpm(h)pd "power-controller" */
-	for_each_of_allnodes(pd) {
+	for_each_of_allnodes_from(root, pd) {
 		if (pd->name && !strcmp("power-controller", pd->name))
 			break;
 	}
@@ -133,7 +134,7 @@ static void fixup_power_domains(void)
 	}
 
 	/* Remove all references to the power domain controller */
-	for_each_of_allnodes(np) {
+	for_each_of_allnodes_from(root, np) {
 		if (!(prop = of_find_property(np, "power-domains", NULL)))
 			continue;
 
@@ -150,11 +151,17 @@ static void fixup_power_domains(void)
 		debug(#func " took %lluus\n", timer_get_us() - start); \
 	} while (0)
 
-void qcom_of_fixup_nodes(void)
+static int qcom_of_fixup_nodes(void * __maybe_unused ctx, struct event *event)
 {
-	time_call(fixup_usb_nodes);
-	time_call(fixup_power_domains);
+	struct device_node *root = event->data.of_live_built.root;
+
+	time_call(fixup_usb_nodes, root);
+	time_call(fixup_power_domains, root);
+
+	return 0;
 }
+
+EVENT_SPY_FULL(EVT_OF_LIVE_BUILT, qcom_of_fixup_nodes);
 
 int ft_board_setup(void *blob, struct bd_info __maybe_unused *bd)
 {
