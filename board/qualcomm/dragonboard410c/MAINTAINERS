@@ -1,5 +1,6 @@
 DRAGONBOARD410C BOARD
-M:	Ramon Fried <rfried.dev@gmail.com>
+M:	Stephan Gerhold <stephan@gerhold.net>
+R:	Sam Day <me@samcday.com>
 S:	Maintained
 F:	board/qualcomm/dragonboard410c/
 F:	include/configs/dragonboard410c.h

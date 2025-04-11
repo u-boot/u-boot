@@ -106,7 +106,7 @@ int misc_init_r(void)
 	int ret;
 	enum button_state_t state;
 
-	ret = button_get_by_label("pwrkey", &btn);
+	ret = button_get_by_label("Power Button", &btn);
 	if (ret < 0) {
 		printf("Couldn't find power button!\n");
 		return ret;

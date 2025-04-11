@@ -224,6 +224,13 @@ config DM_REGULATOR_QCOM_RPMH
 	  implements get/set api for a limited set of regulators used
 	  by u-boot.
 
+config DM_REGULATOR_QCOM_USB_VBUS
+	bool "Enable driver model for Qualcomm USB vbus regulator"
+	depends on DM_REGULATOR
+	---help---
+	  Enable support for the Qualcomm USB Vbus regulator. The driver
+	  implements get/set api for the regulator to be used by u-boot.
+
 config SPL_DM_REGULATOR_GPIO
 	bool "Enable Driver Model for GPIO REGULATOR in SPL"
 	depends on DM_REGULATOR_GPIO && SPL_GPIO

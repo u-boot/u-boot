@@ -73,25 +73,25 @@ static const struct qcom_pmic_btn_data qcom_pmic_btn_data_table[] = {
 		.compatible = "qcom,pm8941-pwrkey",
 		.status_bit = PON_KPDPWR_N_SET,
 		.code = KEY_ENTER,
-		.label = "pwrkey",
+		.label = "Power Button",
 	},
 	{
 		.compatible = "qcom,pm8941-resin",
 		.status_bit = PON_RESIN_N_SET,
 		.code = KEY_DOWN,
-		.label = "vol_down",
+		.label = "Volume Down",
 	},
 	{
 		.compatible = "qcom,pmk8350-pwrkey",
 		.status_bit = PON_GEN3_KPDPWR_N_SET,
 		.code = KEY_ENTER,
-		.label = "pwrkey",
+		.label = "Power Button",
 	},
 	{
 		.compatible = "qcom,pmk8350-resin",
 		.status_bit = PON_GEN3_RESIN_N_SET,
 		.code = KEY_DOWN,
-		.label = "vol_down",
+		.label = "Volume Down",
 	},
 };
 

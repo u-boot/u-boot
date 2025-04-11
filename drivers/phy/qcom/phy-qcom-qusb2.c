@@ -122,6 +122,9 @@ struct qusb2_phy_cfg {
 
 	/* true if PHY has PLL_CORE_INPUT_OVERRIDE register to reset PLL */
 	bool has_pll_override;
+
+	/* true if PHY default clk scheme is single-ended */
+	bool se_clk_scheme_default;
 };
 
 /* set of registers with offsets different per-PHY */
@@ -173,6 +176,19 @@ static const unsigned int sm6115_regs_layout[] = {
 	[QUSB2PHY_PORT_POWERDOWN] = 0xb4, [QUSB2PHY_INTR_CTRL] = 0xbc,
 };
 
+static const struct qusb2_phy_init_tbl msm8996_init_tbl[] = {
+	QUSB2_PHY_INIT_CFG_L(QUSB2PHY_PORT_TUNE1, 0xf8),
+	QUSB2_PHY_INIT_CFG_L(QUSB2PHY_PORT_TUNE2, 0xb3),
+	QUSB2_PHY_INIT_CFG_L(QUSB2PHY_PORT_TUNE3, 0x83),
+	QUSB2_PHY_INIT_CFG_L(QUSB2PHY_PORT_TUNE4, 0xc0),
+	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_TUNE, 0x30),
+	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_USER_CTL1, 0x79),
+	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_USER_CTL2, 0x21),
+	QUSB2_PHY_INIT_CFG_L(QUSB2PHY_PORT_TEST2, 0x14),
+	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_AUTOPGM_CTL1, 0x9f),
+	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_PWR_CTRL, 0x00),
+};
+
 static const struct qusb2_phy_init_tbl qusb2_v2_init_tbl[] = {
 	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_ANALOG_CONTROLS_TWO, 0x03),
 	QUSB2_PHY_INIT_CFG(QUSB2PHY_PLL_CLOCK_INVERTERS, 0x7c),
@@ -214,6 +230,19 @@ static const struct qusb2_phy_cfg sm6115_phy_cfg = {
 	.regs = sm6115_regs_layout,
 
 	.has_pll_test = true,
+	.se_clk_scheme_default = true,
+	.disable_ctrl = (CLAMP_N_EN | FREEZIO_N | POWER_DOWN),
+	.mask_core_ready = PLL_LOCKED,
+	.autoresume_en = BIT(3),
+};
+
+static const struct qusb2_phy_cfg sdm660_phy_cfg = {
+	.tbl = msm8996_init_tbl,
+	.tbl_num = ARRAY_SIZE(msm8996_init_tbl),
+	.regs = sm6115_regs_layout,
+
+	.has_pll_test = true,
+	.se_clk_scheme_default = false,
 	.disable_ctrl = (CLAMP_N_EN | FREEZIO_N | POWER_DOWN),
 	.mask_core_ready = PLL_LOCKED,
 	.autoresume_en = BIT(3),
@@ -228,6 +257,7 @@ static const struct qusb2_phy_cfg qusb2_v2_phy_cfg = {
 			 POWER_DOWN),
 	.mask_core_ready = CORE_READY_STATUS,
 	.has_pll_override = true,
+	.se_clk_scheme_default = true,
 	.autoresume_en = BIT(0),
 	.update_tune1_with_efuse = true,
 };
@@ -316,8 +346,18 @@ static int qusb2phy_power_on(struct phy *phy)
 	/* Required to get phy pll lock successfully */
 	udelay(150);
 
+	/*
+	 * Not all the SoCs have got a readable TCSR_PHY_CLK_SCHEME
+	 * register in the TCSR so, if there's none, use the default
+	 * value hardcoded in the configuration.
+	 */
+	qphy->has_se_clk_scheme = cfg->se_clk_scheme_default;
+
 	if (cfg->has_pll_test) {
-		val |= CLK_REF_SEL;
+		if (!qphy->has_se_clk_scheme)
+			val &= ~CLK_REF_SEL;
+		else
+			val |= CLK_REF_SEL;
 
 		writel(val, qphy->base + QUSB2PHY_PLL_TEST);
 
@@ -413,6 +453,8 @@ static const struct udevice_id qusb2phy_ids[] = {
 	{ .compatible = "qcom,qusb2-phy" },
 	{ .compatible = "qcom,qcm2290-qusb2-phy",
 	  .data = (ulong)&sm6115_phy_cfg },
+	{ .compatible = "qcom,sdm660-qusb2-phy",
+	  .data = (ulong)&sdm660_phy_cfg },
 	{ .compatible = "qcom,sm6115-qusb2-phy",
 	  .data = (ulong)&sm6115_phy_cfg },
 	{ .compatible = "qcom,qusb2-v2-phy", .data = (ulong)&qusb2_v2_phy_cfg },

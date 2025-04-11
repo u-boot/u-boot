@@ -1028,8 +1028,10 @@ static void get_user_input(struct in_str *i)
 	  puts("\nTimeout waiting for command\n");
 #  ifdef CONFIG_RESET_TO_RETRY
 	  do_reset(NULL, 0, 0, NULL);
-#  else
-#	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
+#  elif IS_ENABLED(CONFIG_RETRY_BOOTCMD)
+	strcpy(console_buffer, "run bootcmd\n");
+# else
+#	error "This only works with CONFIG_RESET_TO_RETRY or CONFIG_BOOT_RETRY_COMMAND enabled"
 #  endif
 	}
 #endif
