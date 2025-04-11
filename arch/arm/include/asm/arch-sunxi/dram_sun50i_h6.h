@@ -315,12 +315,15 @@ check_member(sunxi_mctl_phy_reg, dx[3].reserved_0xf0, 0xaf0);
 struct dram_para {
 	u32 clk;
 	enum sunxi_dram_type type;
+	const u8 dx_read_delays[NR_OF_BYTE_LANES][RD_LINES_PER_BYTE_LANE];
+	const u8 dx_write_delays[NR_OF_BYTE_LANES][WR_LINES_PER_BYTE_LANE];
+};
+
+struct dram_config {
 	u8 cols;
 	u8 rows;
 	u8 ranks;
 	u8 bus_full_width;
-	const u8 dx_read_delays[NR_OF_BYTE_LANES][RD_LINES_PER_BYTE_LANE];
-	const u8 dx_write_delays[NR_OF_BYTE_LANES][WR_LINES_PER_BYTE_LANE];
 };
 
 static inline int ns_to_t(int nanoseconds)
