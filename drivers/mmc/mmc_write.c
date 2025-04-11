@@ -80,6 +80,8 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 	struct mmc *mmc = find_mmc_device(dev_num);
 	lbaint_t blk = 0, blk_r = 0;
 	int timeout_ms = 1000;
+	u32 grpcnt;
+
 
 	if (!mmc)
 		return -1;
@@ -123,6 +125,15 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 		} else {
 			blk_r = ((blkcnt - blk) > mmc->erase_grp_size) ?
 				mmc->erase_grp_size : (blkcnt - blk);
+
+			grpcnt = (blkcnt - blk) / mmc->erase_grp_size;
+			/* Max 2GB per spec */
+			if ((blkcnt - blk) > 0x400000)
+				blk_r = 0x400000;
+			else if (grpcnt)
+				blk_r = grpcnt * mmc->erase_grp_size;
+			else
+				blk_r = blkcnt - blk;
 		}
 		err = mmc_erase_t(mmc, start + blk, blk_r, erase_args);
 		if (err)

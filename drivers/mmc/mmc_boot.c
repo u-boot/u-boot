@@ -8,20 +8,107 @@
 #include <mmc.h>
 #include "mmc_private.h"
 
-/*
- * This function changes the size of boot partition and the size of rpmb
- * partition present on EMMC devices.
- *
- * Input Parameters:
- * struct *mmc: pointer for the mmc device strcuture
- * bootsize: size of boot partition
- * rpmbsize: size of rpmb partition
- *
- * Returns 0 on success.
- */
+static int mmc_resize_boot_micron(struct mmc *mmc, unsigned long bootsize,
+				  unsigned long rpmbsize)
+{
+	int err;
 
-int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
-				unsigned long rpmbsize)
+	/* Micron eMMC doesn't support resizing RPMB partition */
+	(void)rpmbsize;
+
+	/* BOOT partition size is multiple of 128KB */
+	bootsize = (bootsize * 1024) / 128;
+
+	if (bootsize > 0xff)
+		bootsize = 0xff;
+
+	/* Set EXT_CSD[175] ERASE_GROUP_DEF to 0x01 */
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			 EXT_CSD_ERASE_GROUP_DEF, 0x01);
+	if (err)
+		goto error;
+
+	/* Set EXT_CSD[127:125] for BOOT partition size, [125] is low byte */
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			 EXT_CSD_BOOT_SIZE_MULT_MICRON, bootsize);
+	if (err)
+		goto error;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			 EXT_CSD_BOOT_SIZE_MULT_MICRON + 1, 0x00);
+	if (err)
+		goto error;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			 EXT_CSD_BOOT_SIZE_MULT_MICRON + 2, 0x00);
+	if (err)
+		goto error;
+
+	/* Set EXT_CSD[155] PARTITION_SETTING_COMPLETE to 0x01 */
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+			 EXT_CSD_PARTITION_SETTING, 0x01);
+	if (err)
+		goto error;
+
+	return 0;
+
+error:
+	debug("%s: Error = %d\n", __func__, err);
+	return err;
+}
+
+static int mmc_resize_boot_sandisk(struct mmc *mmc, unsigned long bootsize,
+				   unsigned long rpmbsize)
+{
+	int err;
+	struct mmc_cmd cmd;
+
+	/* BOOT/RPMB partition size is multiple of 128KB */
+	bootsize = (bootsize * 1024) / 128;
+	rpmbsize = (rpmbsize * 1024) / 128;
+
+	if (bootsize > 0xff)
+		bootsize = 0xff;
+
+	if (rpmbsize > 0xff)
+		rpmbsize = 0xff;
+
+	/* Send BOOT/RPMB resize op code */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = MMC_CMD62_ARG_SANDISK;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto error;
+
+	/* Arg: BOOT partition size */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = bootsize;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto error;
+
+	/* Arg: RPMB partition size */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = rpmbsize;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto error;
+
+	return 0;
+
+error:
+	debug("%s: Error = %d\n", __func__, err);
+	return err;
+}
+
+static int mmc_resize_boot_samsung(struct mmc *mmc, unsigned long bootsize,
+				   unsigned long rpmbsize)
 {
 	int err;
 	struct mmc_cmd cmd;
@@ -32,10 +119,8 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 	cmd.cmdarg = MMC_CMD62_ARG1;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err) {
-		debug("mmc_boot_partition_size_change: Error1 = %d\n", err);
-		return err;
-	}
+	if (err)
+		goto error;
 
 	/* Boot partition changing mode */
 	cmd.cmdidx = MMC_CMD_RES_MAN;
@@ -43,10 +128,9 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 	cmd.cmdarg = MMC_CMD62_ARG2;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err) {
-		debug("mmc_boot_partition_size_change: Error2 = %d\n", err);
-		return err;
-	}
+	if (err)
+		goto error;
+
 	/* boot partition size is multiple of 128KB */
 	bootsize = (bootsize * 1024) / 128;
 
@@ -56,10 +140,9 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 	cmd.cmdarg = bootsize;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err) {
-		debug("mmc_boot_partition_size_change: Error3 = %d\n", err);
-		return err;
-	}
+	if (err)
+		goto error;
+
 	/* RPMB partition size is multiple of 128KB */
 	rpmbsize = (rpmbsize * 1024) / 128;
 	/* Arg: RPMB partition size */
@@ -68,11 +151,43 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 	cmd.cmdarg = rpmbsize;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err) {
-		debug("mmc_boot_partition_size_change: Error4 = %d\n", err);
-		return err;
-	}
+	if (err)
+		goto error;
+
 	return 0;
+
+error:
+	debug("%s: Error = %d\n", __func__, err);
+	return err;
+}
+
+/*
+ * This function changes the size of BOOT partition and the size of RPMB
+ * partition present on eMMC devices.
+ *
+ * Input Parameters:
+ * struct *mmc: pointer for the mmc device strcuture
+ * bootsize: size of BOOT partition
+ * rpmbsize: size of RPMB partition
+ *
+ * Returns 0 on success.
+ */
+
+int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
+				   unsigned long rpmbsize)
+{
+	switch (mmc->cid[0] >> 24) {
+	case CID_MANFID_MICRON:
+		return mmc_resize_boot_micron(mmc, bootsize, rpmbsize);
+	case CID_MANFID_SAMSUNG:
+		return mmc_resize_boot_samsung(mmc, bootsize, rpmbsize);
+	case CID_MANFID_SANDISK:
+		return mmc_resize_boot_sandisk(mmc, bootsize, rpmbsize);
+	default:
+		printf("Unsupported manufacturer id 0x%02x\n",
+		       mmc->cid[0] >> 24);
+		return -EPERM;
+	}
 }
 
 /*

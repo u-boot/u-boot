@@ -79,6 +79,10 @@ struct bd_info;
 #define IS_SD(x)	((x)->version & SD_VERSION_SD)
 #define IS_MMC(x)	((x)->version & MMC_VERSION_MMC)
 
+#define CID_MANFID_MICRON       0x13
+#define CID_MANFID_SAMSUNG      0x15
+#define CID_MANFID_SANDISK      0x45
+
 #define MMC_DATA_READ		1
 #define MMC_DATA_WRITE		2
 
@@ -112,6 +116,7 @@ struct bd_info;
 
 #define MMC_CMD62_ARG1			0xefac62ec
 #define MMC_CMD62_ARG2			0xcbaea7
+#define MMC_CMD62_ARG_SANDISK		0x254ddec4
 
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
@@ -205,6 +210,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_BOOT_SIZE_MULT_MICRON	125	/* R/W, vendor specific field */
 #define EXT_CSD_ENH_START_ADDR		136	/* R/W */
 #define EXT_CSD_ENH_SIZE_MULT		140	/* R/W */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
@@ -759,7 +765,11 @@ struct mmc {
 
 	enum bus_mode user_speed_mode; /* input speed mode from user */
 
-	CONFIG_IS_ENABLED(CYCLIC, (struct cyclic_info cyclic));
+	/*
+	 * If CONFIG_CYCLIC is not set, struct cyclic_info is
+	 * zero-size structure and does not add any space here.
+	 */
+	struct cyclic_info cyclic;
 };
 
 #if CONFIG_IS_ENABLED(DM_MMC)

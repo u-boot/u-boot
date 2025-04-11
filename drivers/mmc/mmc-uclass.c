@@ -498,22 +498,12 @@ static int mmc_blk_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = device_probe(dev);
-	if (ret) {
-		debug("Probing %s failed (err=%d)\n", dev->name, ret);
-
-		mmc_deinit(mmc);
-
-		return ret;
-	}
-
 	return 0;
 }
 
-static int mmc_blk_remove(struct udevice *dev)
+static int mmc_remove(struct udevice *dev)
 {
-	struct udevice *mmc_dev = dev_get_parent(dev);
-	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = upriv->mmc;
 
 	return mmc_deinit(mmc);
@@ -533,7 +523,6 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
 	.probe		= mmc_blk_probe,
-	.remove		= mmc_blk_remove,
 	.flags		= DM_FLAG_OS_PREPARE,
 };
 #endif /* CONFIG_BLK */
@@ -543,4 +532,5 @@ UCLASS_DRIVER(mmc) = {
 	.name		= "mmc",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_auto	= sizeof(struct mmc_uclass_priv),
+	.pre_remove	= mmc_remove,
 };
