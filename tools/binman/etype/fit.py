@@ -562,8 +562,6 @@ class Entry_fit(Entry_section):
             for subnode in node.subnodes:
                 if (subnode.name.startswith('signature') or
                     subnode.name.startswith('cipher')):
-                    if subnode.props.get('key-name-hint') is None:
-                        continue
                     hint = subnode.props['key-name-hint'].value
                     name = tools.get_input_filename(
                         f"{hint}.key" if subnode.name.startswith('signature')
