@@ -466,10 +466,12 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_EIM_D31__IPU1_DISP1_DATA20 | MUX_PAD_CTRL(OUTPUT_RGB),
 };
 
+#ifdef CONFIG_IMX_HDMI
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
 	imx_enable_hdmi_phy();
 }
+#endif
 
 static void enable_lvds(struct display_info_t const *dev)
 {
@@ -499,7 +501,9 @@ static int detect_default(struct display_info_t const *dev)
 	return 1;
 }
 
-struct display_info_t const displays[] = {{
+struct display_info_t const displays[] = {
+#ifdef CONFIG_IMX_HDMI
+{
 	.bus	= -1,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
@@ -519,7 +523,9 @@ struct display_info_t const displays[] = {{
 		.vsync_len      = 10,
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
-} }, {
+} },
+#endif
+{
 	.bus	= -1,
 	.addr	= 0,
 	.di	= 1,
@@ -589,7 +595,11 @@ static void setup_display(void)
 	int reg;
 
 	enable_ipu_clock();
+
+#ifdef CONFIG_IMX_HDMI
 	imx_setup_hdmi();
+#endif
+
 	/* Turn on LDB0,IPU,IPU DI0 clocks */
 	reg = __raw_readl(&mxc_ccm->CCGR3);
 	reg |= MXC_CCM_CCGR3_LDB_DI0_MASK;

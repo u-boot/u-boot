@@ -16,6 +16,7 @@
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
+#include <dm/ofnode_graph.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
@@ -581,6 +582,24 @@ int uclass_get_device_by_phandle(enum uclass_id id, struct udevice *parent,
 	*devp = NULL;
 	ret = uclass_find_device_by_phandle(id, parent, name, &dev);
 	return uclass_get_device_tail(dev, ret, devp);
+}
+
+int uclass_get_device_by_endpoint(enum uclass_id class_id, struct udevice *dev,
+				  int port_idx, int ep_idx, struct udevice **devp)
+{
+	ofnode node_source = dev_ofnode(dev);
+	ofnode node_dest = ofnode_graph_get_remote_node(node_source, port_idx, ep_idx);
+	struct udevice *target = NULL;
+	int ret;
+
+	if (!ofnode_valid(node_dest))
+		return -EINVAL;
+
+	ret = uclass_find_device_by_ofnode(class_id, node_dest, &target);
+	if (ret)
+		return -ENODEV;
+
+	return uclass_get_device_tail(target, 0, devp);
 }
 #endif
 
