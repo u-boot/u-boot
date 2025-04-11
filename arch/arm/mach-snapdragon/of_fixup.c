@@ -99,6 +99,19 @@ static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np
 		return ret;
 	}
 
+	/*
+	 * The RB1/2 boards only have a single USB controller and it's muxed between the type-C port
+	 * and a USB hub. Since we can't do OTG in U-Boot properly we prefer to put it into host mode.
+	 */
+	if (of_device_is_compatible(root, "qcom,qrb4210-rb2", NULL, NULL) ||
+	    of_device_is_compatible(root, "qcom,qrb2210-rb1", NULL, NULL)) {
+		ret = of_write_prop(dwc3, "dr_mode", sizeof("host"), "host");
+		if (ret) {
+			log_err("Failed to set 'dr_mode' property: %d\n", ret);
+			return ret;
+		}
+	}
+
 	return 0;
 }
 
@@ -165,20 +178,7 @@ static int qcom_of_fixup_nodes(void * __maybe_unused ctx, struct event *event)
 
 EVENT_SPY_FULL(EVT_OF_LIVE_BUILT, qcom_of_fixup_nodes);
 
-int ft_board_setup(void *blob, struct bd_info __maybe_unused *bd)
+int ft_board_setup(void __maybe_unused *blob, struct bd_info __maybe_unused *bd)
 {
-	struct fdt_header *fdt = blob;
-	int node;
-
-	/* On RB1/2 we need to fix-up the dr_mode */
-	if (!fdt_node_check_compatible(fdt, 0, "qcom,qrb4210-rb2") ||
-	    !fdt_node_check_compatible(fdt, 0, "qcom,qrb2210-rb1")) {
-		fdt_for_each_node_by_compatible(node, blob, 0, "snps,dwc3") {
-			log_debug("%s: Setting 'dr_mode' to OTG\n", fdt_get_name(blob, node, NULL));
-			fdt_setprop_string(fdt, node, "dr_mode", "otg");
-			break;
-		}
-	}
-
 	return 0;
 }

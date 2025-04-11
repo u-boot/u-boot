@@ -1,6 +1,0 @@
-// SPDX-License-Identifier: GPL-2.0
-
-/* This is usually OTG but U-Boot doesn't support that properly */
-&usb_dwc3 {
-	dr_mode = "host";
-};
