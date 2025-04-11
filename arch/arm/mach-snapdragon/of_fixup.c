@@ -4,8 +4,7 @@
  *
  * This file implements runtime fixups for Qualcomm DT to improve
  * compatibility with U-Boot. This includes adjusting the USB nodes
- * to only use USB high-speed, as well as remapping volume buttons
- * to behave as up/down for navigating U-Boot.
+ * to only use USB high-speed.
  *
  * We use OF_LIVE for this rather than early FDT fixup for a couple
  * of reasons: it has a much nicer API, is most likely more efficient,
