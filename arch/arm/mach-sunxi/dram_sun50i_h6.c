@@ -34,13 +34,13 @@
  * similar PHY is ZynqMP.
  */
 
-static void mctl_sys_init(struct dram_para *para);
-static void mctl_com_init(struct dram_para *para);
-static bool mctl_channel_init(struct dram_para *para);
+static void mctl_sys_init(u32 clk_rate);
+static void mctl_com_init(const struct dram_para *para);
+static bool mctl_channel_init(const struct dram_para *para);
 
 static bool mctl_core_init(struct dram_para *para)
 {
-	mctl_sys_init(para);
+	mctl_sys_init(para->clk);
 	mctl_com_init(para);
 	switch (para->type) {
 	case SUNXI_DRAM_TYPE_LPDDR3:
@@ -150,7 +150,7 @@ static void mctl_set_master_priority(void)
 	MBUS_CONF(HDCP2,  true,    HIGH, 2,  100,   64,   32);
 }
 
-static void mctl_sys_init(struct dram_para *para)
+static void mctl_sys_init(u32 clk_rate)
 {
 	struct sunxi_ccm_reg * const ccm =
 			(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
@@ -171,7 +171,7 @@ static void mctl_sys_init(struct dram_para *para)
 
 	/* Set PLL5 rate to doubled DRAM clock rate */
 	writel(CCM_PLL5_CTRL_EN | CCM_PLL5_LOCK_EN |
-	       CCM_PLL5_CTRL_N(para->clk * 2 / 24), &ccm->pll5_cfg);
+	       CCM_PLL5_CTRL_N(clk_rate * 2 / 24), &ccm->pll5_cfg);
 	mctl_await_completion(&ccm->pll5_cfg, CCM_PLL5_LOCK, CCM_PLL5_LOCK);
 
 	/* Configure DRAM mod clock */
@@ -196,7 +196,7 @@ static void mctl_sys_init(struct dram_para *para)
 	writel(0x8000, &mctl_ctl->unk_0x00c);
 }
 
-static void mctl_set_addrmap(struct dram_para *para)
+static void mctl_set_addrmap(const struct dram_para *para)
 {
 	struct sunxi_mctl_ctl_reg * const mctl_ctl =
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
@@ -282,7 +282,7 @@ static void mctl_set_addrmap(struct dram_para *para)
 	mctl_ctl->addrmap[8] = 0x3F3F;
 }
 
-static void mctl_com_init(struct dram_para *para)
+static void mctl_com_init(const struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
@@ -352,7 +352,7 @@ static void mctl_com_init(struct dram_para *para)
 	}
 }
 
-static void mctl_bit_delay_set(struct dram_para *para)
+static void mctl_bit_delay_set(const struct dram_para *para)
 {
 	struct sunxi_mctl_phy_reg * const mctl_phy =
 			(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
@@ -411,7 +411,7 @@ static void mctl_bit_delay_set(struct dram_para *para)
 	}
 }
 
-static bool mctl_channel_init(struct dram_para *para)
+static bool mctl_channel_init(const struct dram_para *para)
 {
 	struct sunxi_mctl_com_reg * const mctl_com =
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
