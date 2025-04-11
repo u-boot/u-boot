@@ -108,7 +108,9 @@ static void fixup_usb_nodes(struct device_node *root)
 	int ret;
 
 	while ((glue_np = of_find_compatible_node(glue_np, NULL, "qcom,dwc3"))) {
-		ret = fixup_qcom_dwc3(glue_np);
+		if (!of_device_is_available(glue_np))
+			continue;
+		ret = fixup_qcom_dwc3(root, glue_np);
 		if (ret)
 			log_warning("Failed to fixup node %s: %d\n", glue_np->name, ret);
 	}
