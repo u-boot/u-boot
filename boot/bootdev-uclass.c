@@ -27,7 +27,7 @@ enum {
 	 * have. Note that for disks this limits the partitions numbers that
 	 * are scanned to 1..MAX_BOOTFLOWS_PER_BOOTDEV
 	 */
-	MAX_PART_PER_BOOTDEV	= 30,
+	MAX_PART_PER_BOOTDEV	= 128,
 
 	/* Maximum supported length of the "boot_targets" env string */
 	BOOT_TARGETS_MAX_LEN	= 100,

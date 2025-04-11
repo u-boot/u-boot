@@ -311,6 +311,7 @@ int bootmeth_try_file(struct bootflow *bflow, struct blk_desc *desc,
 	if (IS_ENABLED(CONFIG_BOOTSTD_FULL) && bflow->fs_type)
 		fs_set_type(bflow->fs_type);
 
+	bootmeth_setup_fs(bflow, desc);
 	ret = fs_size(path, &size);
 	log_debug("   %s - err=%d\n", path, ret);
 
