@@ -247,7 +247,7 @@ Setting up
    section is ignored. If more than one line is provided, only the last one
    is taken.
 
-#. Make sure you have the require Python pre-requisites
+#. Make sure you have the required Python pre-requisites
 
    Buildman uses multiprocessing, Queue, shutil, StringIO, ConfigParser and
    urllib2. These should normally be available, but if you get an error like

@@ -31,8 +31,6 @@ void set_dfu_alt_info(char *interface, char *devstr)
 {
 	if (interface && strcmp(interface, "ram") == 0)
 		env_set("dfu_alt_info", "fitimage ram 0x08080000 0x4000000");
-	else if (IS_ENABLED(CONFIG_EFI_HAVE_CAPSULE_SUPPORT))
-		env_set("dfu_alt_info", update_info.dfu_string);
 }
 #endif
 

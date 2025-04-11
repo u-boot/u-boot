@@ -185,6 +185,7 @@ config CMD_UFETCH
 config CMD_FWU_METADATA
 	bool "fwu metadata read"
 	depends on FWU_MULTI_BANK_UPDATE
+	imply HEXDUMP if FWU_MDATA_V2
 	help
 	  Command to read the metadata and dump it's contents
 

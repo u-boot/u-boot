@@ -600,7 +600,7 @@ efi_status_t efi_install_fdt(void *fdt);
 /* Execute loaded UEFI image */
 efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options);
 /* Run loaded UEFI image with given fdt */
-efi_status_t efi_binary_run(void *image, size_t size, void *fdt);
+efi_status_t efi_binary_run(void *image, size_t size, void *fdt, void *initrd, size_t initrd_sz);
 
 /**
  * efi_bootflow_run() - Run a bootflow containing an EFI application
@@ -667,7 +667,7 @@ efi_status_t efi_http_register(const efi_handle_t handle,
 			       struct efi_service_binding_protocol *http_service_binding);
 /* Called by bootefi to make the watchdog available */
 efi_status_t efi_watchdog_register(void);
-efi_status_t efi_initrd_register(void);
+efi_status_t efi_initrd_register(struct efi_device_path *dp_initrd);
 efi_status_t efi_initrd_deregister(void);
 /* Called by bootefi to make SMBIOS tables available */
 /**

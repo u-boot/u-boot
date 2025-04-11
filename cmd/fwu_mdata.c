@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <fwu.h>
 #include <fwu_mdata.h>
+#include <hexdump.h>
 #include <log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,30 @@ static void print_mdata(struct fwu_data *data)
 			printf("Image Guid:  %pUL\n", &img_info->image_guid);
 			printf("Image Acceptance: %s\n",
 			       img_info->accepted == 0x1 ? "yes" : "no");
+		}
+	}
+
+	if (data->version == 2) {
+		struct fwu_mdata *mdata = data->fwu_mdata;
+		struct fwu_fw_store_desc *desc;
+		void *end;
+		u32 diff;
+
+		/*
+		 * fwu_mdata defines only header that's why taking it as array
+		 * which exactly point to image description location
+		 */
+		desc = (struct fwu_fw_store_desc *)&mdata[1];
+
+		/* Number of entries is taken from for loop - variable i */
+		end = &desc->img_entry[i];
+		debug("mdata %p, desc %p, end %p\n", mdata, desc, end);
+
+		diff = data->metadata_size - ((void *)end - (void *)mdata);
+		if (diff) {
+			printf("Custom fields covered by CRC len: 0x%x\n", diff);
+			print_hex_dump_bytes("CUSTOM ", DUMP_PREFIX_OFFSET,
+					     end, diff);
 		}
 	}
 }
