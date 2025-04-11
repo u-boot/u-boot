@@ -45,7 +45,7 @@ static bool mctl_core_init(struct dram_para *para)
 	switch (para->type) {
 	case SUNXI_DRAM_TYPE_LPDDR3:
 	case SUNXI_DRAM_TYPE_DDR3:
-		mctl_set_timing_params(para);
+		mctl_set_timing_params();
 		break;
 	default:
 		panic("Unsupported DRAM type!");
