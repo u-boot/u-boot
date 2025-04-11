@@ -342,11 +342,6 @@ int dfu_fill_entity_scsi(struct dfu_entity *dfu, char *devstr, char **argv, int 
 			return -EINVAL;
 	}
 
-	if (scsi_scan(false)) {
-		pr_err("Couldn't init scsi device.\n");
-		return -ENODEV;
-	}
-
 	ret = find_scsi_device(dfu->data.scsi.lun, &scsi);
 	if (ret < 0) {
 		pr_err("Couldn't find scsi device no. %d.\n", dfu->data.scsi.lun);
