@@ -13,7 +13,6 @@
 
 #include "pxe_utils.h"
 
-#ifdef CONFIG_CMD_NET
 const char *pxe_default_paths[] = {
 #ifdef CONFIG_SYS_SOC
 #ifdef CONFIG_SYS_BOARD
@@ -331,5 +330,3 @@ U_BOOT_CMD(pxe, 4, 1, do_pxe,
 	   "get [" USE_IP6_CMD_PARAM "] - try to retrieve a pxe file using tftp\n"
 	   "pxe boot [pxefile_addr_r] [-ipv6] - boot from the pxe file at pxefile_addr_r\n"
 );
-
-#endif /* CONFIG_CMD_NET */
