@@ -88,7 +88,7 @@ static ulong qcm2290_set_rate(struct clk *clk, ulong rate)
 	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
 	const struct freq_tbl *freq;
 
-	debug("%s: clk %s rate %lu\n", __func__, clk->dev->name, rate);
+	debug("%s: clk %s rate %lu\n", __func__, qcm2290_clks[clk->id].name, rate);
 
 	switch (clk->id) {
 	case GCC_QUPV3_WRAP0_S4_CLK: /*UART2*/
