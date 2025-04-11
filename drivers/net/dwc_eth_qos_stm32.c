@@ -350,3 +350,14 @@ struct eqos_config __maybe_unused eqos_stm32mp15_config = {
 	.interface = dev_read_phy_mode,
 	.ops = &eqos_stm32_ops
 };
+
+struct eqos_config __maybe_unused eqos_stm32mp25_config = {
+	.reg_access_always_ok = false,
+	.mdio_wait = 10000,
+	.swr_wait = 50,
+	.config_mac = EQOS_MAC_RXQ_CTRL0_RXQ0EN_ENABLED_DCB,
+	.config_mac_mdio = EQOS_MAC_MDIO_ADDRESS_CR_250_300,
+	.axi_bus_width = EQOS_AXI_WIDTH_64,
+	.interface = dev_read_phy_mode,
+	.ops = &eqos_stm32_ops
+};
