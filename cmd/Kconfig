@@ -276,6 +276,7 @@ config CMD_BOOTD
 config CMD_BOOTM
 	bool "bootm"
 	default y
+	select BOOTM
 	help
 	  Boot an application image from the memory.
 
@@ -352,6 +353,7 @@ config BOOTM_ELF
 
 config CMD_BOOTZ
 	bool "bootz"
+	select BOOTZ
 	help
 	  Boot the Linux zImage
 
@@ -359,6 +361,7 @@ config CMD_BOOTI
 	bool "booti"
 	depends on ARM64 || RISCV || SANDBOX
 	default y
+	select BOOTI
 	help
 	  Boot an AArch64 Linux Kernel image from memory.
 
