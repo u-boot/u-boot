@@ -5,7 +5,7 @@
 
 obj-$(CONFIG_DWC_AHCI) += dwc_ahci.o
 obj-$(CONFIG_AHCI) += ahci-uclass.o
-obj-$(CONFIG_$(XPL_)AHCI_PCI) += ahci-pci.o
+obj-$(CONFIG_$(PHASE_)AHCI_PCI) += ahci-pci.o
 obj-$(CONFIG_SCSI_AHCI) += ahci.o
 obj-$(CONFIG_DWC_AHSATA) += dwc_ahsata.o
 obj-$(CONFIG_FSL_SATA) += fsl_sata.o

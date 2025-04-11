@@ -4,15 +4,15 @@
 
 obj-y += test-main.o
 
-obj-$(CONFIG_$(XPL_)CMDLINE) += cmd/
-obj-$(CONFIG_$(XPL_)CMDLINE) += cmd_ut.o
+obj-$(CONFIG_$(PHASE_)CMDLINE) += cmd/
+obj-$(CONFIG_$(PHASE_)CMDLINE) += cmd_ut.o
 obj-y += dm/
 obj-$(CONFIG_FUZZ) += fuzz/
 ifndef CONFIG_SANDBOX_VPL
 obj-$(CONFIG_UNIT_TEST) += lib/
 endif
 ifneq ($(CONFIG_HUSH_PARSER),)
-obj-$(CONFIG_$(XPL_)CMDLINE) += hush/
+obj-$(CONFIG_$(PHASE_)CMDLINE) += hush/
 endif
 obj-$(CONFIG_UT_OPTEE) += optee/
 obj-y += ut.o

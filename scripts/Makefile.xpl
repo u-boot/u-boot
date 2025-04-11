@@ -58,20 +58,18 @@ endif
 
 export SPL_NAME
 
-ifdef CONFIG_XPL_BUILD
-XPL_ := SPL_
+ifeq ($(CONFIG_SPL_BUILD),y)
+PHASE_ := SPL_
+else
 ifeq ($(CONFIG_VPL_BUILD),y)
 PHASE_ := VPL_
 else
 ifeq ($(CONFIG_TPL_BUILD),y)
 PHASE_ := TPL_
 else
-PHASE_ := SPL_
-endif
-endif
-else
-XPL_ :=
 PHASE_ :=
+endif
+endif
 endif
 
 ifeq ($(obj)$(CONFIG_SUPPORT_SPL),spl)

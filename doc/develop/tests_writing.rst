@@ -309,15 +309,15 @@ an #ifdef since the suite will automatically be compiled out in that case.
 Finally, add the test to the build by adding to the Makefile in the same
 directory::
 
-  obj-$(CONFIG_$(XPL_)CMDLINE) += wibble.o
+  obj-$(CONFIG_$(PHASE_)CMDLINE) += wibble.o
 
 Note that CMDLINE is never enabled in SPL, so this test will only be present in
 U-Boot proper. See below for how to do SPL tests.
 
 You can add an extra Kconfig check if needed::
 
-  ifneq ($(CONFIG_$(XPL_)WIBBLE),)
-  obj-$(CONFIG_$(XPL_)CMDLINE) += wibble.o
+  ifneq ($(CONFIG_$(PHASE_)WIBBLE),)
+  obj-$(CONFIG_$(PHASE_)CMDLINE) += wibble.o
   endif
 
 Each suite can have an optional init and uninit function. These are run before

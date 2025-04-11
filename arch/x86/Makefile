@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 ifeq ($(CONFIG_EFI_APP),)
-ifdef CONFIG_$(XPL_)X86_64
+ifdef CONFIG_$(PHASE_)X86_64
 head-y := arch/x86/cpu/start64.o
 else
 ifeq ($(CONFIG_$(PHASE_)X86_16BIT_INIT),y)

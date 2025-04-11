@@ -48,7 +48,7 @@ endif
 ARCH_FLAGS = -march=$(RISCV_MARCH) -mabi=$(ABI) \
 	     -mcmodel=$(CMODEL)
 
-ifeq ($(CONFIG_$(XPL_)FRAMEPOINTER),y)
+ifeq ($(CONFIG_$(PHASE_)FRAMEPOINTER),y)
 	ARCH_FLAGS += -fno-omit-frame-pointer
 endif
 
