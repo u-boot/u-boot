@@ -73,11 +73,12 @@ static int fixup_qcom_dwc3(struct device_node *root, struct device_node *glue_np
 		return ret;
 	}
 
-	if (!strncmp("usb3-phy", second_phy_name, strlen("usb3-phy"))) {
-		log_debug("Second phy isn't superspeed (is '%s') assuming first phy is SS\n",
-			  second_phy_name);
+	/*
+	 * Determine which phy is the superspeed phy by checking the name of the second phy
+	 * since it is typically the superspeed one.
+	 */
+	if (!strncmp("usb3-phy", second_phy_name, strlen("usb3-phy")))
 		hsphy_idx = 0;
-	}
 
 	/* Overwrite the "phys" property to only contain the high-speed phy */
 	ret = of_write_prop(dwc3, "phys", sizeof(*phandles), phandles + hsphy_idx);
