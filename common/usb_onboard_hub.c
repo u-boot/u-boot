@@ -146,7 +146,7 @@ static int usb_onboard_hub_probe(struct udevice *dev)
 	int ret;
 
 	ret = device_get_supply_regulator(dev, "vdd-supply", &hub->vdd);
-	if (ret && ret != -ENOENT) {
+	if (ret && ret != -ENOENT && ret != -ENOSYS) {
 		dev_err(dev, "can't get vdd-supply: %d\n", ret);
 		return ret;
 	}
@@ -204,14 +204,16 @@ static int usb_onboard_hub_bind(struct udevice *dev)
 static int usb_onboard_hub_remove(struct udevice *dev)
 {
 	struct onboard_hub *hub = dev_get_priv(dev);
-	int ret;
+	int ret = 0;
 
 	if (hub->reset_gpio)
 		dm_gpio_free(hub->reset_gpio->dev, hub->reset_gpio);
 
-	ret = regulator_set_enable_if_allowed(hub->vdd, false);
-	if (ret)
-		dev_err(dev, "can't disable vdd-supply: %d\n", ret);
+	if (hub->vdd) {
+		ret = regulator_set_enable_if_allowed(hub->vdd, false);
+		if (ret)
+			dev_err(dev, "can't disable vdd-supply: %d\n", ret);
+	}
 
 	return ret;
 }
