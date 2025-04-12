@@ -7,6 +7,10 @@ config SYS_VENDOR
 	default "acer"
 
 config SYS_CONFIG_NAME
-	default "picasso"
+	default "tegra"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Acer Iconia Tab A500"
 
 endif

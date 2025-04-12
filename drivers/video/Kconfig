@@ -529,6 +529,16 @@ config VIDEO_LCD_HIMAX_HX8394
 	Say Y here if you want to enable support for Himax HX8394
 	dsi 4dl panel.
 
+config VIDEO_LCD_MOT
+	tristate "Atrix 4G and Droid X2 540x960 DSI video mode panel"
+	depends on PANEL && BACKLIGHT
+	select VIDEO_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the LCD panel module for
+	  Motorola Atrix 4G or Droid X2. Exact panel vendor and model are
+	  unknown. The panel has a 540x960 resolution and uses 24 bit RGB per
+	  pixel.
+
 config VIDEO_LCD_ORISETECH_OTM8009A
 	bool "OTM8009A DSI LCD panel support"
 	select VIDEO_MIPI_DSI
@@ -728,6 +738,15 @@ config ATMEL_HLCD
 	help
 	   HLCDC supports video output to an attached LCD panel.
 
+config BACKLIGHT_LM3532
+	bool "Backlight Driver for LM3532"
+	depends on BACKLIGHT
+	select DM_I2C
+	help
+	  Say Y to enable the backlight driver for National Semiconductor / TI
+	  LM3532 Lighting Power chip. Only backlight functions is supported as
+	  for now. Supported backlight level range is from 1 to 255.
+
 config BACKLIGHT_LM3533
 	bool "Backlight Driver for LM3533"
 	depends on BACKLIGHT
@@ -809,17 +828,9 @@ source "drivers/video/stm32/Kconfig"
 
 source "drivers/video/tidss/Kconfig"
 
-config VIDEO_TEGRA124
-	bool "Enable video support on Tegra124"
-	help
-	   Tegra124 supports many video output options including eDP and
-	   HDMI. At present only eDP is supported by U-Boot. This option
-	   enables this support which can be used on devices which
-	   have an eDP display connected.
-
 source "drivers/video/bridge/Kconfig"
 
-source "drivers/video/tegra20/Kconfig"
+source "drivers/video/tegra/Kconfig"
 
 source "drivers/video/imx/Kconfig"
 

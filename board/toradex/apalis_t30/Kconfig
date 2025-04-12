@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "toradex"
 
 config SYS_CONFIG_NAME
-	default "apalis_t30"
+	default "tegra"
 
 config TDX_CFG_BLOCK
 	default y

@@ -1,0 +1,8 @@
+TRANSFORMER T114 BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	arch/arm/dts/tegra114-asus-tf701t.dts
+F:	board/asus/transformer-t114/
+F:	configs/tf701t_defconfig
+F:	doc/board/asus/transformer_t114.rst
+F:	include/configs/transformer-t114.h

@@ -703,6 +703,12 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon)
 	else
 		writel(base_reg, &simple_pll->pll_base);
 
+	/* PLLD and PLLD2 are only clocks which have ENABLE bit */
+	if (clkid == CLOCK_ID_DISPLAY)
+		setbits_le32(&pll->pll_misc, BIT(PLLD_CLKENABLE));
+	if (clkid == CLOCK_ID_DISPLAY2)
+		setbits_le32(&simple_pll->pll_misc, BIT(PLLD_CLKENABLE));
+
 	/*
 	 * Changing clocks was never intended in the U-Boot for Tegra.
 	 * If a clock is changed after clock_init() the parent rate is wrong.

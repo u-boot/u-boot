@@ -87,6 +87,8 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra20-asus-tf101g.dtb \
 	tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
+	tegra20-motorola-daytona.dtb \
+	tegra20-motorola-olympus.dtb \
 	tegra20-paz00.dtb \
 	tegra20-plutux.dtb \
 	tegra20-seaboard.dtb \
@@ -116,7 +118,9 @@ dtb-$(CONFIG_ARCH_TEGRA) += \
 	tegra30-ouya.dtb \
 	tegra30-tec-ng.dtb \
 	tegra30-wexler-qc750.dtb \
+	tegra114-asus-tf701t.dtb \
 	tegra114-dalmore.dtb \
+	tegra114-nvidia-tegratab.dtb \
 	tegra124-apalis.dtb \
 	tegra124-jetson-tk1.dtb \
 	tegra124-nyan-big.dtb \

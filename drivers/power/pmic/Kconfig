@@ -295,6 +295,16 @@ config DM_PMIC_SANDBOX
 
 	Driver binding info: doc/device-tree-bindings/pmic/sandbox.txt
 
+config DM_PMIC_CPCAP
+	bool "Enable Driver Model for Motorola CPCAP"
+	help
+	The CPCAP is a Motorola/ST-Ericsson creation, a multifunctional IC
+	whose main purpose is power control. It was used in a wide variety of
+	Motorola products, both Tegra and OMAP based. The most notable devices
+	using this PMIC are the Motorola Droid 4, Atrix 4G, and Droid X2.
+	Unlike most PMICs, this one is not I2C based; it uses the SPI bus. The
+	core driver provides both read and write access to the device registers.
+
 config PMIC_S5M8767
 	bool "Enable Driver Model for the Samsung S5M8767 PMIC"
 	---help---

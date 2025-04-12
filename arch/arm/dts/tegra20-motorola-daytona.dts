@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "tegra20-motorola-mot.dtsi"
+
+/ {
+	model = "Motorola Droid X2 (MB870)";
+	compatible = "motorola,daytona", "nvidia,tegra20";
+};

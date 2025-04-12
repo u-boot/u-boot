@@ -9,3 +9,4 @@ ASUS
    grouper
    transformer_t20
    transformer_t30
+   transformer_t114

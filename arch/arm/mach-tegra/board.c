@@ -169,6 +169,8 @@ static int uart_configs[] = {
 	FUNCMUX_UART1_GPU,
  #elif defined(CONFIG_TEGRA_UARTA_SDIO1)
 	FUNCMUX_UART1_SDIO1,
+ #elif defined(CONFIG_TEGRA_UARTA_SDB_SDD)
+	FUNCMUX_UART1_SDB_SDD,
  #else
 	FUNCMUX_UART1_IRRX_IRTX,
 #endif
@@ -236,18 +238,23 @@ void board_init_uart_f(void)
 	int uart_ids = 0;	/* bit mask of which UART ids to enable */
 
 #ifdef CONFIG_TEGRA_ENABLE_UARTA
+#define CFG_SYS_NS16550_COM1	NV_PA_APB_UARTA_BASE
 	uart_ids |= UARTA;
 #endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTB
+#define CFG_SYS_NS16550_COM1	NV_PA_APB_UARTB_BASE
 	uart_ids |= UARTB;
 #endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTC
+#define CFG_SYS_NS16550_COM1	NV_PA_APB_UARTC_BASE
 	uart_ids |= UARTC;
 #endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTD
+#define CFG_SYS_NS16550_COM1	NV_PA_APB_UARTD_BASE
 	uart_ids |= UARTD;
 #endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTE
+#define CFG_SYS_NS16550_COM1	NV_PA_APB_UARTE_BASE
 	uart_ids |= UARTE;
 #endif
 	setup_uarts(uart_ids);

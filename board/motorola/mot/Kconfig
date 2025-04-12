@@ -1,0 +1,16 @@
+if TARGET_MOT
+
+config SYS_BOARD
+	default "mot"
+
+config SYS_VENDOR
+	default "motorola"
+
+config SYS_CONFIG_NAME
+	default "mot"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Motorola Mot"
+
+endif

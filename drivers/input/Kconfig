@@ -55,6 +55,12 @@ config BUTTON_KEYBOARD
 	  dt node to define button-event mapping.
 	  For example, an arrows and enter may be implemented to navigate boot menu.
 
+config CPCAP_POWER_BUTTON
+	bool "Enable power button of CPCAP PMIC support"
+	depends on DM_KEYBOARD && DM_PMIC_CPCAP
+	help
+	  Enable support for a dedicated power button of the CPCAP PMIC.
+
 config CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support"
 	depends on INPUT

@@ -1,0 +1,5 @@
+Existence of separate Tegra124 video implementations is not an ideal solution
+since generic video setup for Tegra already has Tegra124 support of some degree.
+It is not possible at the time of this note is written to integrate T124 SOR
+and DP without possible regressions. Tegra124 setup for SOR and DP should be
+incorporated into existing setup once such opportunity occurs.

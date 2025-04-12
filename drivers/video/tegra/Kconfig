@@ -1,0 +1,51 @@
+config HOST1X_TEGRA
+	bool "NVIDIA Tegra host1x BUS support"
+	depends on SIMPLE_BUS
+
+config VIDEO_TEGRA
+	bool "Enable Display Controller support on Tegra devices"
+	depends on OF_CONTROL
+	select HOST1X_TEGRA
+	help
+	   Enable support for Display Controller found in Tegra SoC. The
+	   Display Controller Complex integrates two independent display
+	   controllers. Each display controller is capable of interfacing
+	   to an external display device, which can be a parallel interface
+	   or SPI LCD, DVI, an HDMI HDTV, RGB monitor or a MIPI DSI LCD.
+	   Direct interface is supported directly to most LCD displays with
+	   TFT or TFT-like interface.
+
+config VIDEO_DSI_TEGRA
+	bool "Enable DSI controller support on Tegra devices"
+	depends on VIDEO_BRIDGE && PANEL && DM_GPIO
+	select VIDEO_TEGRA
+	select VIDEO_MIPI_DSI
+	help
+	   Enable support for the Display Serial Interface (DSI) found in
+	   Tegra SoC. It is a MIPI standard serial bitstream, intended to
+	   provide a low pin count interface to a display panel.
+
+config VIDEO_HDMI_TEGRA
+	bool "Enable HDMI support on Tegra devices"
+	depends on VIDEO_BRIDGE && DM_I2C
+	select I2C_EDID
+	select VIDEO_TEGRA
+	help
+	   Enable support for the High-Definition Multimedia Interface (HDMI)
+	   found in Tegra SoC.
+
+config TEGRA_BACKLIGHT_PWM
+	bool "Enable Tegra DC PWM backlight support"
+	depends on BACKLIGHT
+	select VIDEO_TEGRA
+	help
+	   Enable support for the Display Controller dependent PWM backlight
+	   found in the Tegra SoC and usually used with DSI panels.
+
+config VIDEO_TEGRA124
+	bool "Enable video support on Tegra124"
+	help
+	   Tegra124 supports many video output options including eDP and
+	   HDMI. At present only eDP is supported by U-Boot. This option
+	   enables this support which can be used on devices which
+	   have an eDP display connected.

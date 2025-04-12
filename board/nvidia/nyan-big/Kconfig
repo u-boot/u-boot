@@ -7,6 +7,10 @@ config SYS_VENDOR
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	default "nyan-big"
+	default "tegra"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Google/NVIDIA Nyan-big"
 
 endif

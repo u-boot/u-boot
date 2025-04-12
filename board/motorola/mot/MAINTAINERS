@@ -1,0 +1,7 @@
+MOT BOARD
+M:	Svyatoslav Ryhel <clamor95@gmail.com>
+S:	Maintained
+F:	board/motorola/mot/
+F:	configs/mot_defconfig
+F:	doc/board/motorola/mot.rst
+F:	include/configs/mot.h

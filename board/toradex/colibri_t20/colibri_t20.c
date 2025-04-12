@@ -147,7 +147,7 @@ void pin_mux_usb(void)
 }
 #endif
 
-#ifdef CONFIG_VIDEO_TEGRA20
+#ifdef CONFIG_VIDEO_TEGRA
 /*
  * Routine: pin_mux_display
  * Description: setup the pin muxes/tristate values for the LCD interface)

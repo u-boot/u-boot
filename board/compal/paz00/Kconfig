@@ -7,6 +7,10 @@ config SYS_VENDOR
 	default "compal"
 
 config SYS_CONFIG_NAME
-	default "paz00"
+	default "tegra"
+
+config TEGRA_BOARD_STRING
+	string "Default Tegra board name"
+	default "Compal Paz00"
 
 endif
