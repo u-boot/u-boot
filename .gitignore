@@ -78,6 +78,7 @@ fit-dtb.blob*
 /drivers/video/u_boot_logo.S
 /test/overlay/test-fdt-overlay.dtbo.S
 /test/overlay/test-fdt-overlay-stacked.dtbo.S
+capsule_esl_file
 
 #
 # Generated include files

@@ -79,7 +79,7 @@ capsule_crt_path=($(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE)))
 capsule_crt_full=$(srctree)/$(subst $(quote),,$(CONFIG_EFI_CAPSULE_CRT_FILE))
 quiet_cmd_capsule_esl_gen = CAPSULE_ESL_GEN $@
 cmd_capsule_esl_gen = cert-to-efi-sig-list $(capsule_crt_full) $@
-$(srctree)/capsule_esl_file: FORCE
+$(objtree)/capsule_esl_file: FORCE
 	@if [ ! -e "$(capsule_crt_full)" ]; then \
 		echo "ERROR: path $(capsule_crt_full) is invalid." >&2; \
 		echo "EFI CONFIG_EFI_CAPSULE_CRT_FILE must be specified when CONFIG_EFI_CAPSULE_AUTHENTICATE is enabled." >&2; \
@@ -87,8 +87,8 @@ $(srctree)/capsule_esl_file: FORCE
 	fi
 	$(call cmd,capsule_esl_gen)
 
-$(obj)/efi_capsule.o: $(srctree)/capsule_esl_file FORCE
-asflags-y += -DCAPSULE_ESL_PATH=\"$(srctree)/capsule_esl_file\"
+$(obj)/efi_capsule.o: $(objtree)/capsule_esl_file FORCE
+asflags-y += -DCAPSULE_ESL_PATH=\"$(objtree)/capsule_esl_file\"
 endif
 
 # Set the C flags to add and remove for each app
