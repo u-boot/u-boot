@@ -875,11 +875,11 @@ int exfat_fs_exists(const char *filename)
 
 	err = exfat_lookup_realpath(&ctxt.ef, &node, filename);
 	if (err)
-		return err;
+		return 0;
 
 	exfat_put_node(&ctxt.ef, node);
 
-	return 0;
+	return 1;
 }
 
 int exfat_fs_size(const char *filename, loff_t *size)
