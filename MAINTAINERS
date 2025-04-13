@@ -297,7 +297,7 @@ F:	test/cmd/armffa.c
 F:	test/dm/ffa.c
 
 ARM FREESCALE IMX
-M:	Stefano Babic <sbabic@denx.de>
+M:	Stefano Babic <sbabic@nabladev.com>
 M:	Fabio Estevam <festevam@gmail.com>
 R:	NXP i.MX U-Boot Team <uboot-imx@nxp.com>
 S:	Maintained
