@@ -218,8 +218,9 @@ int exfat_split(struct exfat* ef, struct exfat_node** parent,
 		exfat_put_node(ef, *parent);
 		*parent = *node;
 	}
+#ifndef __UBOOT__
 	exfat_bug("impossible");
-#ifdef __UBOOT__
+#else
 	return 0;
 #endif
 }
