@@ -19,6 +19,18 @@
 #define FIT_UBOOT_COMP		"none"
 #endif
 
+/*
+ * SHA256 should be enabled in SPL when signature validation is involved,
+ * CRC32 should only be used for basic checksum validation of FIT images.
+ */
+#if defined(CONFIG_SPL_FIT_SIGNATURE)
+#if defined(CONFIG_SPL_SHA256)
+#define FIT_HASH_ALGO		"sha256"
+#elif defined(CONFIG_SPL_CRC32)
+#define FIT_HASH_ALGO		"crc32"
+#endif
+#endif
+
 #if defined(CONFIG_SPL_FIT) && (defined(CONFIG_ARM64) || defined(CONFIG_SPL_OPTEE_IMAGE))
 #define HAS_FIT
 #endif
@@ -55,9 +67,9 @@
 				u-boot-nodtb {
 					compress = FIT_UBOOT_COMP;
 				};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+#ifdef FIT_HASH_ALGO
 				hash {
-					algo = "sha256";
+					algo = FIT_HASH_ALGO;
 				};
 #endif
 			};
@@ -76,9 +88,9 @@
 
 				atf-bl31 {
 				};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+#ifdef FIT_HASH_ALGO
 				hash {
-					algo = "sha256";
+					algo = FIT_HASH_ALGO;
 				};
 #endif
 			};
@@ -96,9 +108,9 @@
 				tee-os {
 					optional;
 				};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+#ifdef FIT_HASH_ALGO
 				hash {
-					algo = "sha256";
+					algo = FIT_HASH_ALGO;
 				};
 #endif
 			};
@@ -114,9 +126,9 @@
 
 				tee-os {
 				};
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+#ifdef FIT_HASH_ALGO
 				hash {
-					algo = "sha256";
+					algo = FIT_HASH_ALGO;
 				};
 #endif
 			};
@@ -126,9 +138,9 @@
 				description = "fdt-NAME";
 				compression = "none";
 				type = "flat_dt";
-#ifdef CONFIG_SPL_FIT_SIGNATURE
+#ifdef FIT_HASH_ALGO
 				hash {
-					algo = "sha256";
+					algo = FIT_HASH_ALGO;
 				};
 #endif
 			};
