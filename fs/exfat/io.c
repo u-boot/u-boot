@@ -898,9 +898,7 @@ int exfat_fs_read(const char *filename, void *buf, loff_t offset, loff_t len,
 
 	*actread = sz;
 
-	exfat_put_node(&ctxt.ef, node);
-
-	return exfat_flush_node(&ctxt.ef, node);
+	err = exfat_flush_node(&ctxt.ef, node);
 exit:
 	exfat_put_node(&ctxt.ef, node);
 	return err;
