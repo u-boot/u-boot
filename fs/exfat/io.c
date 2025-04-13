@@ -1013,6 +1013,11 @@ exit:
 	return err;
 }
 
+int exfat_fs_rename(const char *old_path, const char *new_path)
+{
+	return exfat_rename(&ctxt.ef, old_path, new_path);
+}
+
 void exfat_fs_close(void)
 {
 	exfat_unmount(&ctxt.ef);

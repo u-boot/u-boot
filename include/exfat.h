@@ -20,5 +20,6 @@ int exfat_fs_unlink(const char *filename);
 int exfat_fs_mkdir(const char *dirname);
 int exfat_fs_write(const char *filename, void *buf, loff_t offset,
 		   loff_t len, loff_t *actwrite);
+int exfat_fs_rename(const char *old_path, const char *new_path);
 
 #endif /* _EXFAT_H */
