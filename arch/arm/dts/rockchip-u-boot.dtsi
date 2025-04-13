@@ -50,7 +50,7 @@
 				u-boot {
 					description = "U-Boot";
 					type = "standalone";
-					os = "U-Boot";
+					os = "u-boot";
 #ifdef CONFIG_ARM64
 					arch = "arm64";
 #else
