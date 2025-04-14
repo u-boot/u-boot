@@ -1173,7 +1173,7 @@ static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 
 	eqos->config->ops->eqos_inval_buffer(packet, length);
 
-	if ((eqos->rx_desc_idx & idx_mask) == idx_mask) {
+	if (eqos->started && (eqos->rx_desc_idx & idx_mask) == idx_mask) {
 		for (idx = eqos->rx_desc_idx - idx_mask;
 		     idx <= eqos->rx_desc_idx;
 		     idx++) {
