@@ -7,10 +7,14 @@ config SYS_VENDOR
 	default "xiaomi"
 
 config SYS_CONFIG_NAME
-	default "mocha"
+	default "tegra"
 
 config TEGRA_BOARD_STRING
 	string "Default Tegra board name"
 	default "Xiaomi Mocha"
+
+config TEGRA_PRAM_SIZE
+	depends on TEGRA_PRAM
+	default 0x38400
 
 endif

@@ -36,7 +36,7 @@ To build U-Boot without SPL adjust tf701t_defconfig:
   CONFIG_TEXT_BASE=0x80A00000
   CONFIG_SKIP_LOWLEVEL_INIT=y
   # CONFIG_OF_BOARD_SETUP is not set
-  CONFIG_TEGRA_SUPPORT_NON_SECURE=y
+  CONFIG_TEGRA_PRAM=y
 
 After the build succeeds, you will obtain the final ``u-boot-dtb.bin`` file,
 ready for booting with fastboot boot or which can be further processed into
