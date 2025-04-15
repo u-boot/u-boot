@@ -62,6 +62,16 @@ static const char * const wkup_i2c0_mcupll_bypass_clksel_out0_parents[] = {
 	"gluelogic_hfosc0_clkout",
 };
 
+static const char * const wkupusart_clk_sel_out0_parents[] = {
+	"hsdiv4_16fft_mcu_1_hsdivout3_clk",
+	"postdiv2_16fft_main_1_hsdivout5_clk",
+};
+
+static const char * const wkup_usart_mcupll_bypass_clksel_out0_parents[] = {
+	"wkupusart_clk_sel_out0",
+	"gluelogic_hfosc0_clkout",
+};
+
 static const char * const main_pll_hfosc_sel_out0_parents[] = {
 	"gluelogic_hfosc0_clkout",
 	"board_0_hfosc1_clk_out",
@@ -345,6 +355,8 @@ static const struct clk_data clk_list[] = {
 	CLK_MUX("mcuusart_clk_sel_out0", mcuusart_clk_sel_out0_parents, 2, 0x40f081c0, 0, 1, 0),
 	CLK_MUX("wkup_gpio0_clksel_out0", wkup_gpio0_clksel_out0_parents, 4, 0x43008070, 0, 2, 0),
 	CLK_MUX("wkup_i2c0_mcupll_bypass_clksel_out0", wkup_i2c0_mcupll_bypass_clksel_out0_parents, 2, 0x43008060, 0, 1, 0),
+	CLK_MUX("wkupusart_clk_sel_out0", wkupusart_clk_sel_out0_parents, 2, 0x43008064, 0, 1, 0),
+	CLK_MUX("wkup_usart_mcupll_bypass_clksel_out0", wkup_usart_mcupll_bypass_clksel_out0_parents, 2, 0x43008060, 0, 1, 0),
 	CLK_MUX("main_pll_hfosc_sel_out0", main_pll_hfosc_sel_out0_parents, 2, 0x43008080, 0, 1, 0),
 	CLK_MUX("main_pll_hfosc_sel_out12", main_pll_hfosc_sel_out12_parents, 2, 0x430080b0, 0, 1, 0),
 	CLK_MUX("main_pll_hfosc_sel_out14", main_pll_hfosc_sel_out14_parents, 2, 0x430080b8, 0, 1, 0),
@@ -543,6 +555,10 @@ static const struct dev_clk soc_dev_clk_data[] = {
 	DEV_CLK(203, 0, "hsdiv0_16fft_main_8_hsdivout0_clk"),
 	DEV_CLK(278, 2, "usart_programmable_clock_divider_out1"),
 	DEV_CLK(278, 3, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
+	DEV_CLK(287, 2, "wkup_usart_mcupll_bypass_clksel_out0"),
+	DEV_CLK(287, 3, "wkupusart_clk_sel_out0"),
+	DEV_CLK(287, 4, "gluelogic_hfosc0_clkout"),
+	DEV_CLK(287, 5, "k3_pll_ctrl_wrap_wkup_0_chip_div1_clk_clk"),
 	DEV_CLK(288, 3, "postdiv2_16fft_main_1_hsdivout7_clk"),
 	DEV_CLK(288, 4, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),
 	DEV_CLK(288, 6, "k3_pll_ctrl_wrap_main_0_chip_div1_clk_clk"),

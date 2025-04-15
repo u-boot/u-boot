@@ -66,6 +66,7 @@ static struct ti_dev soc_dev_list[] = {
 	PSC_DEV(149, &soc_lpsc_list[12]),
 	PSC_DEV(113, &soc_lpsc_list[13]),
 	PSC_DEV(197, &soc_lpsc_list[13]),
+	PSC_DEV(287, &soc_lpsc_list[13]),
 	PSC_DEV(103, &soc_lpsc_list[14]),
 	PSC_DEV(104, &soc_lpsc_list[15]),
 	PSC_DEV(102, &soc_lpsc_list[16]),
