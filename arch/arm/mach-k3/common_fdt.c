@@ -119,6 +119,9 @@ int fdt_fixup_reserved(void *blob, const char *name,
 {
 	int nodeoffset, subnode;
 	int ret;
+	struct fdt_memory carveout = {
+		.start = new_address,
+	};
 
 	/* Find reserved-memory */
 	nodeoffset = fdt_subnode_offset(blob, 0, "reserved-memory");
@@ -153,10 +156,7 @@ int fdt_fixup_reserved(void *blob, const char *name,
 	}
 
 add_carveout:
-	struct fdt_memory carveout = {
-		.start = new_address,
-		.end = new_address + new_size - 1,
-	};
+	carveout.end = new_address + new_size - 1;
 	ret = fdtdec_add_reserved_memory(blob, name, &carveout, NULL, 0, NULL,
 					 FDTDEC_RESERVED_MEMORY_NO_MAP);
 	if (ret < 0)
