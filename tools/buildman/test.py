@@ -987,7 +987,7 @@ class TestBuild(unittest.TestCase):
         diff = self.call_make_environment(tchn, full_path=True)[0]
         self.assertEqual({b'LC_ALL': b'C'}, diff)
 
-        # Test that virtualenv is handled correctly
+        # Test that Python sandbox is handled correctly
         tchn.override_toolchain = False
         sys.prefix = '/some/venv'
         env = dict(os.environb)

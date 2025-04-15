@@ -217,7 +217,7 @@ class Toolchain:
         elif self.cross:
             env[b'CROSS_COMPILE'] = tools.to_bytes(wrapper + self.cross)
 
-            # Detect a Python virtualenv and avoid defeating it
+            # Detect a Python sandbox and avoid defeating it
             if sys.prefix != sys.base_prefix:
                 paths = env[b'PATH'].split(b':')
                 new_paths = []

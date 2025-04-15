@@ -90,7 +90,7 @@ stages:
     steps:
       - script: |
           set -e
-          virtualenv -p /usr/bin/python3 /tmp/venvhtml
+          python3 -m venv /tmp/venvhtml
           . /tmp/venvhtml/bin/activate
           pip install -r doc/sphinx/requirements.txt
           make htmldocs KDOC_WERROR=1
@@ -132,7 +132,7 @@ stages:
           git config --global user.email bmeng.cn@gmail.com
           git config --global --add safe.directory $(work_dir)
           export USER=azure
-          virtualenv -p /usr/bin/python3 /tmp/venv
+          python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt \
             -r tools/binman/requirements.txt \
@@ -170,7 +170,7 @@ stages:
       - script: |
           git config --global --add safe.directory $(work_dir)
           export USER=azure
-          virtualenv -p /usr/bin/python3 /tmp/venv
+          python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r test/py/requirements.txt \
             -r tools/binman/requirements.txt \
@@ -277,7 +277,7 @@ stages:
           if [ -n "\${BUILD_ENV}" ]; then
               export \${BUILD_ENV};
           fi
-          virtualenv -p /usr/bin/python3 /tmp/venv
+          python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
             -r tools/buildman/requirements.txt \
@@ -594,7 +594,7 @@ stages:
           # make environment variables available as tests are running inside a container
           export BUILDMAN="${BUILDMAN}"
           git config --global --add safe.directory ${WORK_DIR}
-          virtualenv -p /usr/bin/python3 /tmp/venv
+          python3 -m venv /tmp/venv
           . /tmp/venv/bin/activate
           pip install -r tools/binman/requirements.txt \
             -r tools/buildman/requirements.txt

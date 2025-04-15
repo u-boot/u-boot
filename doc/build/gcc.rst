@@ -31,7 +31,7 @@ Depending on the build targets further packages maybe needed
       python3-pkg-resources python3-pycryptodome python3-pyelftools \
       python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
       python3-sphinx-rtd-theme python3-subunit python3-testtools \
-      python3-virtualenv swig uuid-dev
+      python3-venv swig uuid-dev
 
 SUSE based
 ~~~~~~~~~~

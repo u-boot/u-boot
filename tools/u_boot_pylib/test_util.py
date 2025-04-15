@@ -64,7 +64,7 @@ def run_test_coverage(prog, filter_fname, exclude_list, build_dir,
     if build_dir:
         prefix = 'PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools ' % build_dir
 
-    # Detect a Python virtualenv and use 'coverage' instead
+    # Detect a Python sandbox and use 'coverage' instead
     covtool = ('python3-coverage' if sys.prefix == sys.base_prefix else
                'coverage')
 

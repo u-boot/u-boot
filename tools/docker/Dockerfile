@@ -124,7 +124,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	python3-dev \
 	python3-pip \
 	python3-sphinx \
-	python3-virtualenv \
+	python3-venv \
 	rpm2cpio \
 	sbsigntool \
 	socat \
@@ -136,7 +136,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	texinfo \
 	util-linux \
 	uuid-dev \
-	virtualenv \
 	vboot-kernel-utils \
 	vboot-utils \
 	xilinx-bootgen \
@@ -313,7 +312,7 @@ RUN wget -O /tmp/binman-requirements.txt https://source.denx.de/u-boot/u-boot/-/
 RUN wget -O /tmp/buildman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/buildman/requirements.txt
 RUN wget -O /tmp/patman-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/patman/requirements.txt
 RUN wget -O /tmp/u_boot_pylib-requirements.txt https://source.denx.de/u-boot/u-boot/-/raw/master/tools/u_boot_pylib/requirements.txt
-RUN virtualenv -p /usr/bin/python3 /tmp/venv && \
+RUN python3 -m venv /tmp/venv && \
 	. /tmp/venv/bin/activate && \
 	pip install -r /tmp/pytest-requirements.txt \
 		-r /tmp/sphinx-requirements.txt \

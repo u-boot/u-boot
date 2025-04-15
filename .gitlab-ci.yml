@@ -57,7 +57,7 @@ stages:
         export BINMAN_INDIRS=/tmp;
       fi
     # Prepare python environment
-    - virtualenv -p /usr/bin/python3 /tmp/venv;
+    - python3 -m venv /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/u_boot_pylib/requirements.txt
@@ -124,7 +124,7 @@ build all platforms in a single job:
     - ${HOST}
   script:
     # Prepare python environment
-    - virtualenv -p /usr/bin/python3 /tmp/venv;
+    - python3 -m venv /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt
@@ -155,7 +155,7 @@ check for new CONFIG symbols outside Kconfig:
 docs:
   extends: .testsuites
   script:
-    - virtualenv -p /usr/bin/python3 /tmp/venvhtml
+    - python3 -m venv /tmp/venvhtml
     - . /tmp/venvhtml/bin/activate
     - pip install -r doc/sphinx/requirements.txt
     - make htmldocs KDOC_WERROR=1
@@ -184,7 +184,7 @@ Run binman, buildman, dtoc, Kconfig and patman testsuites:
       git config --global user.email trini@konsulko.com;
       git config --global --add safe.directory "${CI_PROJECT_DIR}";
       export USER=gitlab;
-      virtualenv -p /usr/bin/python3 /tmp/venv;
+      python3 -m venv /tmp/venv;
       . /tmp/venv/bin/activate;
       pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/patman/requirements.txt
@@ -210,7 +210,7 @@ Run pylint:
   extends: .testsuites
   script:
     - git config --global --add safe.directory "${CI_PROJECT_DIR}"
-    - virtualenv -p /usr/bin/python3 /tmp/venv
+    - python3 -m venv /tmp/venv
     - . /tmp/venv/bin/activate
     - pip install -r test/py/requirements.txt -r tools/binman/requirements.txt
         -r tools/buildman/requirements.txt -r tools/patman/requirements.txt
