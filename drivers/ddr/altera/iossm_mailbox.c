@@ -10,6 +10,7 @@
 #include <asm/arch/base_addr_soc64.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <linux/sizes.h>
 #include "iossm_mailbox.h"
 
 #define TIMEOUT_120000MS			120000
@@ -87,6 +88,7 @@
 
 /* offset info of ECC_ENABLE_INTF */
 #define INTF_ECC_ENABLE_TYPE_MASK	GENMASK(1, 0)
+#define INTF_ECC_TYPE_MASK	BIT(8)
 
 /* cmd opcode BIST_MEM_INIT_START, BIST performed on full memory address range */
 #define BIST_FULL_MEM			BIT(6)
@@ -106,6 +108,10 @@
 #define ECC_ERR_ADDR_LOWER_MASK		GENMASK(31, 0)
 
 #define MAX_ECC_ERR_INFO_COUNT 16
+
+#define BIST_START_ADDR_SPACE_MASK GENMASK(5, 0)
+#define BIST_START_ADDR_LOW_MASK   GENMASK(31, 0)
+#define BIST_START_ADDR_HIGH_MASK  GENMASK(37, 32)
 
 #define IO96B_MB_REQ_SETUP(v, w, x, y, z) \
 	usr_req.ip_type = v; \
@@ -512,7 +518,7 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 {
 	int i, j, ret = 0;
 	u32 mem_width_info;
-	u16 memory_size, total_memory_size = 0;
+	phys_size_t memory_size, total_memory_size = 0;
 
 	u32 mem_total_capacity_intf_offset[MAX_MEM_INTERFACE_SUPPORTED] = {
 		IOSSM_MEM_TOTAL_CAPACITY_INTF0_OFFSET,
@@ -526,8 +532,11 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 			mem_width_info = readl(io96b_ctrl->io96b[i].io96b_csr_addr +
 					       mem_total_capacity_intf_offset[j]);
 
-			memory_size = memory_size +
-					FIELD_GET(INTF_CAPACITY_GBITS_MASK, mem_width_info);
+			io96b_ctrl->io96b[i].mb_ctrl.memory_size[j] =
+				FIELD_GET(INTF_CAPACITY_GBITS_MASK, mem_width_info) * SZ_1G / SZ_8;
+
+			if (io96b_ctrl->io96b[i].mb_ctrl.memory_size[j] != 0)
+				memory_size += io96b_ctrl->io96b[i].mb_ctrl.memory_size[j];
 		}
 
 		if (!memory_size) {
@@ -535,8 +544,6 @@ int get_mem_width_info(struct io96b_info *io96b_ctrl)
 			ret = -EINVAL;
 			goto err;
 		}
-
-		io96b_ctrl->io96b[i].size = memory_size;
 
 		total_memory_size = total_memory_size + memory_size;
 	}
@@ -556,7 +563,7 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 {
 	int i, j, ret = 0;
 	u32 ecc_enable_intf;
-	bool ecc_stat, ecc_stat_set = false;
+	bool ecc_status, ecc_status_set = false, inline_ecc = false;
 
 	u32 ecc_enable_intf_offset[MAX_MEM_INTERFACE_SUPPORTED] = {
 		IOSSM_ECC_ENABLE_INTF0_OFFSET,
@@ -565,6 +572,7 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 
 	/* Initialize ECC status */
 	io96b_ctrl->ecc_status = false;
+	io96b_ctrl->inline_ecc = false;
 
 	/* Get and ensure all memory interface(s) same ECC status */
 	for (i = 0; i < io96b_ctrl->num_instance; i++) {
@@ -572,15 +580,21 @@ int ecc_enable_status(struct io96b_info *io96b_ctrl)
 			ecc_enable_intf = readl(io96b_ctrl->io96b[i].io96b_csr_addr +
 						ecc_enable_intf_offset[j]);
 
-			ecc_stat = (FIELD_GET(INTF_ECC_ENABLE_TYPE_MASK, ecc_enable_intf)
+			ecc_status = (FIELD_GET(INTF_ECC_ENABLE_TYPE_MASK, ecc_enable_intf)
 				    == 0) ? false : true;
+			inline_ecc = FIELD_GET(INTF_ECC_TYPE_MASK, ecc_enable_intf);
 
-			if (!ecc_stat_set) {
-				io96b_ctrl->ecc_status = ecc_stat;
-				ecc_stat_set = true;
+			if (!ecc_status_set) {
+				io96b_ctrl->ecc_status = ecc_status;
+
+				if (io96b_ctrl->ecc_status)
+					io96b_ctrl->inline_ecc = inline_ecc;
+
+				ecc_status_set = true;
 			}
 
-			if (ecc_stat != io96b_ctrl->ecc_status) {
+			if (ecc_status != io96b_ctrl->ecc_status ||
+			    (io96b_ctrl->ecc_status && inline_ecc != io96b_ctrl->inline_ecc)) {
 				printf("%s: Mismatch DDR ECC status on IO96B_%d\n", __func__, i);
 
 				ret = -EINVAL;
@@ -673,7 +687,7 @@ bool ecc_interrupt_status(struct io96b_info *io96b_ctrl)
 	return ecc_error_flag;
 }
 
-int bist_mem_init_start(struct io96b_info *io96b_ctrl)
+int out_of_band_bist_mem_init_start(struct io96b_info *io96b_ctrl)
 {
 	struct io96b_mb_req usr_req;
 	struct io96b_mb_resp usr_resp;
@@ -745,4 +759,127 @@ int bist_mem_init_start(struct io96b_info *io96b_ctrl)
 
 err:
 	return ret;
+}
+
+int bist_mem_init_by_addr(struct io96b_info *io96b_ctrl, int inst_id, int intf_id,
+			  phys_addr_t base_addr, phys_size_t size)
+{
+	struct io96b_mb_req usr_req;
+	struct io96b_mb_resp usr_resp;
+	int n, ret = 0;
+	bool bist_start, bist_success;
+	u32 mem_exp, mem_init_status_intf, start;
+	phys_size_t chunk_size;
+
+	u32 mem_init_status_offset[MAX_MEM_INTERFACE_SUPPORTED] = {
+		IOSSM_MEM_INIT_STATUS_INTF0_OFFSET,
+		IOSSM_MEM_INIT_STATUS_INTF1_OFFSET
+	};
+
+	/* Check if size is a power of 2 */
+	if (size == 0 || (size & (size - 1)) != 0) {
+		ret = -EINVAL;
+		goto err;
+	}
+
+	mem_exp = 0;
+	chunk_size = size;
+
+	while (chunk_size >>= 1)
+		mem_exp++;
+
+	/* Start memory initialization BIST on the specified address range */
+	IO96B_MB_REQ_SETUP(io96b_ctrl->io96b[inst_id].mb_ctrl.ip_type[intf_id],
+			   io96b_ctrl->io96b[inst_id].mb_ctrl.ip_id[intf_id],
+			   CMD_TRIG_CONTROLLER_OP, BIST_MEM_INIT_START, 0);
+
+	/* CMD_PARAM_0 bit[5:0] = mem_exp */
+	/* CMD_PARAM_0 bit[6]: 0 - on the specified address range */
+	usr_req.cmd_param[0] = FIELD_PREP(BIST_START_ADDR_SPACE_MASK, mem_exp);
+	/* Extract address fields START_ADDR[31:0] */
+	usr_req.cmd_param[1] = FIELD_GET(BIST_START_ADDR_LOW_MASK, base_addr);
+	/* Extract address fields START_ADDR[37:32] */
+	usr_req.cmd_param[2] = FIELD_GET(BIST_START_ADDR_HIGH_MASK, base_addr);
+	/* Initialize memory to all zeros */
+	usr_req.cmd_param[3] = 0;
+
+	bist_start = false;
+	bist_success = false;
+
+	/* Send request to DDR controller */
+	debug("%s:Initializing memory: Addr=0x%llx, Size=2^%u\n", __func__,
+	      base_addr, mem_exp);
+	ret = io96b_mb_req(io96b_ctrl->io96b[inst_id].io96b_csr_addr,
+			   usr_req, 0, &usr_resp);
+	if (ret)
+		goto err;
+
+	bist_start = IOSSM_CMD_RESPONSE_DATA_SHORT(usr_resp.cmd_resp_status)
+		& BIT(0);
+
+	if (!bist_start) {
+		printf("%s: Failed to initialize memory on IO96B_%d\n", __func__,
+		       inst_id);
+		printf("%s: BIST_MEM_INIT_START Error code 0x%lx\n", __func__,
+		       IOSSM_STATUS_CMD_RESPONSE_ERROR(usr_resp.cmd_resp_status));
+
+		ret = -EINVAL;
+		goto err;
+	}
+
+	/* Polling for the initiated memory initialization BIST status */
+	start = get_timer(0);
+	while (!bist_success) {
+		udelay(1);
+
+		mem_init_status_intf = readl(io96b_ctrl->io96b[inst_id].io96b_csr_addr +
+					     mem_init_status_offset[intf_id]);
+
+		bist_success = FIELD_GET(INTF_BIST_STATUS_MASK, mem_init_status_intf);
+
+		if (!bist_success && (get_timer(start) > TIMEOUT)) {
+			printf("%s: Timeout initialize memory on IO96B_%d\n",
+			       __func__, inst_id);
+			printf("%s: BIST_MEM_INIT_STATUS Error code 0x%lx\n",
+			       __func__,
+			IOSSM_STATUS_CMD_RESPONSE_ERROR(usr_resp.cmd_resp_status));
+
+			ret = -ETIMEDOUT;
+			goto err;
+		}
+	}
+
+	debug("%s:DDR memory initializationat 0x%llx completed.\n", __func__, base_addr);
+
+err:
+	return ret;
+}
+
+int inline_ecc_bist_mem_init(struct io96b_info *io96b_ctrl)
+{
+	int i, j, ret = 0;
+
+	/* Memory initialization BIST performed on all memory interfaces */
+	for (i = 0; i < io96b_ctrl->num_instance; i++) {
+		for (j = 0; j < io96b_ctrl->io96b[i].mb_ctrl.num_mem_interface; j++) {
+			ret = bist_mem_init_by_addr(io96b_ctrl, i, j, 0,
+						    io96b_ctrl->io96b[i].mb_ctrl.memory_size[j]);
+			if (ret) {
+				printf("Error: Memory init failed at Instance %d, Interface %d\n",
+				       i, j);
+				goto err;
+			}
+		}
+	}
+
+err:
+	return ret;
+}
+
+int bist_mem_init_start(struct io96b_info *io96b_ctrl)
+{
+	if (io96b_ctrl->inline_ecc)
+		return inline_ecc_bist_mem_init(io96b_ctrl);
+	else
+		return out_of_band_bist_mem_init_start(io96b_ctrl);
 }
